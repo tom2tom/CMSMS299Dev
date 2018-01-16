@@ -1,6 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004 by Ted Kulp (wishy@users.sf.net)
+#CMS Made Simple methods
+#(c)2004-2011 by Ted Kulp <wishy@users.sf.net>
+#(c)2011-2018 The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,7 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #$Id$
 
@@ -39,10 +41,10 @@
  */
 function get_userid(bool $redirect = true)
 {
-    $login_ops = \CMSMS\LoginOperations::get_instance();
+    $login_ops = CMSMS\internal\LoginOperations::get_instance();
     $uid = $login_ops->get_effective_uid();
     if( !$uid && $redirect ) {
-        $config = \cms_config::get_instance();
+        $config = cms_config::get_instance();
         redirect($config['admin_url']."/login.php");
     }
     return $uid;
@@ -61,10 +63,10 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $check = true)
 {
-    $login_ops = \CMSMS\LoginOperations::get_instance();
+    $login_ops = CMSMS\internal\LoginOperations::get_instance();
     $uname = $login_ops->get_effective_username();
     if( !$uname && $check ) {
-        $config = \cms_config::get_instance();
+        $config = cms_config::get_instance();
         redirect($config['admin_url']."/login.php");
     }
     return $uname;
@@ -89,7 +91,7 @@ function check_login(bool $no_redirect = false)
     $res = false;
     if( $uid > 0 ) {
         $res = true;
-        $login_ops = \CMSMS\LoginOperations::get_instance();
+        $login_ops = CMSMS\internal\LoginOperations::get_instance();
         $res = $login_ops->validate_requestkey();
     }
     if( !$res ) {
@@ -97,12 +99,12 @@ function check_login(bool $no_redirect = false)
         if( $do_redirect ) {
             // redirect to the admin login.php
             // use SCRIPT_FILENAME and make sure it validates with the root_path
-            $config = \cms_config::get_instance();
+            $config = cms_config::get_instance();
             if( startswith($_SERVER['SCRIPT_FILENAME'],$config['root_path']) ) {
                 $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
             }
             $login_ops->deauthenticate();
-            $config = \cms_config::get_instance();
+            $config = cms_config::get_instance(); //differs now ?
             redirect($config['admin_url']."/login.php");
         }
     }
@@ -305,10 +307,10 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
  */
 function get_pageid_or_alias_from_url()
 {
-    $gCms = \CmsApp::get_instance();
-    $config = \cms_config::get_instance();
+    $gCms = CmsApp::get_instance();
+    $config = cms_config::get_instance();
     $contentops = ContentOperations::get_instance();
-    $smarty = \Smarty_CMS::get_instance();
+    $smarty = CMSMS\internal\Smarty::get_instance();
 
     $page = '';
     $query_var = $config['query_var'];
