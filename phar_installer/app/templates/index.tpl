@@ -8,7 +8,7 @@
         <meta name='MobileOptimized' content='320' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <meta http-equiv='cleartype' content='on' />
-        <script src="app/assets/vendor/jquery-1.11.2.min.js"></script>
+        <script src="app/assets/vendor/jquery-1.12.4.min.js"></script>
         <script src="app/assets/vendor/jquery-ui/jquery-ui.min.js"></script>
         <link rel="stylesheet" type="text/css" href="app/assets/vendor/jquery-ui/jquery-ui.min.css"/>
         <title>
