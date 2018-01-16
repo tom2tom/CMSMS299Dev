@@ -1,31 +1,43 @@
 <?php
-// 1. Convert UDT's to be simple_plugins
+// 1. Convert UDT's to simple_plugins, widen users-table columns
 $app = \__appbase\get_app();
 $destdir = $app->get_destdir();
+$config = $app->get_config();
+$assetsdir = ( !empty( $config['assets_path'] ) ) ? $config['assets_path'] : $destdir . DIRECTORY_SEPARATOR . 'assets';
 
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
-if( count($udt_list) ) {
+if( $udt_list ) {
     if( !$destdir || !is_dir($destdir) ) {
         throw new \LogicException('Destination directory does not exist');
     }
-    $destdir .= '/assets/simple_plugins';
-    if( !is_dir($destdir) ) @mkdir( $destdir, 0777, true );
-    if( !is_dir($destdir) ) throw new \LogicException("Could not create $destdir directory");
+    $to = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
+    if( !is_dir( $to ) ) @mkdir( $to, 0777, true );
+    if( !is_dir( $to ) ) throw new \LogicException("Could not create $to directory");
 
-    $create_simple_plugin = function( array $row, $destdir ) {
-        $fn = $destdir.'/'.$row['userplugin_name'];
+    $create_simple_plugin = function( array $row, string $destdir ) {
+        $fn = $destdir . DIRECTORY_SEPARATOR . $row['userplugin_name'];
         if( is_file($fn) ) {
             verbose_msg('simple plugin with name '.$row['userplugin_name'].' already exists');
             return;
         }
 
-        $code = $row['code'];
-        if( !startswith( $code, '<?php') ) $code = "<?php\n".$code;
-        file_put_contents($fn,$code);
+		$code = preg_replace(
+				['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/'],
+				['', ''], $row['code']);
+		if ( !$code ) {
+            verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
+			return;
+		}
+
+		$out = "<?php\n";
+        if( $row['description'] ) $out .= "/*\n" . trim($row['description']) . "\n*/\n";
+		$out .= $code . "\n";
+
+        file_put_contents($fn, $out);
         verbose_msg('Converted UDT '.$row['userplugin_name'].' to a simple plugin');
     };
     foreach( $udt_list as $udt ) {
-        $create_simple_plugin( $udt, $destdir );
+        $create_simple_plugin( $udt, $to );
     }
 
     $dict = NewDataDictionary($db);
@@ -33,7 +45,7 @@ if( count($udt_list) ) {
     $dict->ExecuteSQLArray($sqlarr);
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
-    status_msg('Converted User Defined Tags to simple_plugin structure');
+    status_msg('Converted User Defined Tags to simple_plugin files');
 
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)' );
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)' );
@@ -41,18 +53,22 @@ if( count($udt_list) ) {
     verbose_msg(ilang('upgrading_schema',202));
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 202';
     $db->Execute($query);
-
-
 }
 
-// 2. Move MenuManager, which is no longer a distributed module,  to /Assets/Plugins
-$fr = "$destdir/modules/MenuManager";
-$to = "$destdir/assets/modules/MenuManager";
-if( is_dir( $fr ) && !is_dir( $to ) ) {
-   rename( $fr, $to );
+// 2. Move ex-core modules to /assets/modules
+foreach( ['MenuManager', 'CMSMailer'] as $modname ) {
+    $fr = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
+    if( is_dir( $fr ) ) {
+        $to = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
+        if( !is_dir( $to ) ) {
+            rename( $fr, $to );
+        } else {
+            unlink( $fr );
+        }
+    }
 }
 
-// tweak callbacks for page and generic layout templatet types.
+// 3. Tweak callbacks for page and generic layout template types
 $page_type = \CMSLayoutTemplateType::load('__CORE__::page');
 $page_type_type->set_lang_callback('\\CMSMS\internal\\std_layout_template_callbacks::page_type_lang_callback');
 $page_type_type->set_content_callback('\\CMSMS\internal\\std_layout_template_callbacks::reset_page_type_defaults');
