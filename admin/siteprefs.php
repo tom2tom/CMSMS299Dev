@@ -193,17 +193,13 @@ if( isset($_POST['active_tab']) ) $tab = trim(cleanValue($_POST['active_tab']));
 if( isset($_POST['testmail']) ) {
     if( !$mail_is_set ) {
         $error .= '<li>'.lang('error_mailnotset_notest').'</li>';
-    }
-    else if( $_POST['mailtest_testaddress'] == '' ) {
+    } elseif( $_POST['mailtest_testaddress'] == '' ) {
         $error .= '<li>'.lang('error_mailtest_noaddress').'</li>';
-    }
-    else {
-        $addr = cleanValue($_POST['mailtest_testaddress']);
-        $addr = cms_html_entity_decode($addr);
+    } else {
+        $addr = filter_var($_POST['mailtest_testaddress'],FILTER_SANITIZE_EMAIL);
         if( !is_email($addr) ) {
             $error .= '<li>'.lang('error_mailtest_notemail').'</li>';
-        }
-        else {
+        } else {
             // we got an email, and we have settings.
             try {
                 $mailer = new cms_mailer();

@@ -92,8 +92,7 @@ if (isset($_POST['submit_account']) && check_permission($userid,'Manage My Accou
 
   $email = '';
   if (isset($_POST["email"])) {
-      $email = trim(cleanValue($_POST["email"]));
-      $email = cms_html_entity_decode($email);
+      $email = filter_var($_POST["email"],FILTER_SANITIZE_EMAIL);
   }
 
   // Do validations
