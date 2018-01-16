@@ -1,12 +1,12 @@
 <?php
 #BEGIN_LICENSE
 #-------------------------------------------------------------------------
-# Module: cms_tree (c) 2010 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
+# Module: cms_tree (c) 2010-2018 Robert Campbell
+#         <calguy1000@cmsmadesimple.org>
 #  A simple php tree class.
 #
 #-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# CMS Made Simple (c) 2004-2018 Ted Kulp <wishy@cmsmadesimple.org>
 # Visit our homepage at: http://www.cmsmadesimple.org
 #
 #-------------------------------------------------------------------------
@@ -15,12 +15,6 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-#
-# However, as a special exception to the GPL, this software is distributed
-# as an addon module to CMS Made Simple.  You may not use this software
-# in any Non GPL version of CMS Made simple, or in any version of CMS
-# Made simple that does not indicate clearly and obviously in its admin
-# section that the site was built with CMS Made simple.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -70,7 +64,7 @@ final class cms_admin_utils
 		$theme = cms_utils::get_theme_object();
 		if( !is_object($theme) ) return;
 
-		$smarty = \Smarty_CMS::get_instance();
+		$smarty = \CMSMS\internal\Smarty::get_instance();
 		$module = $smarty->get_template_vars('actionmodule');
 
 		$dirs = array();
@@ -152,7 +146,7 @@ final class cms_admin_utils
 		}
 
 		if( !$key1 ) {
-			$smarty = \Smarty_CMS::get_instance();
+			$smarty = \CMSMS\internal\Smarty::get_instance();
 			$module = $smarty->get_template_vars('actionmodule');
 			if( $module ) {
 				$key1 = $module;

@@ -1,12 +1,12 @@
 <?php
 #BEGIN_LICENSE
 #-------------------------------------------------------------------------
-# Module: cms_tree (c) 2010 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A simple php tree class.
+# Module: cms_utils (c) 2010-2018 by Robert Campbell
+#         <calguy1000@cmsmadesimple.org>
+#  A utilities class for CMS Made Simple.
 #
 #-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# CMS Made Simple (c) 2004-2018 Ted Kulp <wishy@cmsmadesimple.org>
 # Visit our homepage at: http://www.cmsmadesimple.org
 #
 #-------------------------------------------------------------------------
@@ -16,20 +16,14 @@
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# However, as a special exception to the GPL, this software is distributed
-# as an addon module to CMS Made Simple.  You may not use this software
-# in any Non GPL version of CMS Made simple, or in any version of CMS
-# Made simple that does not indicate clearly and obviously in its admin
-# section that the site was built with CMS Made simple.
-#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #-------------------------------------------------------------------------
 #END_LICENSE
@@ -165,11 +159,11 @@ final class cms_utils
 	 * @see CmsApp::GetSmarty()
 	 * @since 1.9
 	 * @final
-	 * @return Smarty_CMS Handle to the Smarty object
+	 * @return CMSMS\internal\Smarty handle to the Smarty object
 	 */
 	final public static function & get_smarty()
 	{
-		return \Smarty_CMS::get_instance();
+		return \CMSMS\internal\Smarty::get_instance();
 	}
 
 
