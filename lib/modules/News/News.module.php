@@ -17,7 +17,6 @@
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 #$Id: News.module.php 2114 2005-11-04 21:51:13Z wishy $
-if( !isset($gCms) ) exit;
 
 class News extends CMSModule
 {
@@ -148,7 +147,6 @@ class News extends CMSModule
 
     function SearchResultWithParams($returnid, $articleid, $attr = '', $params = '')
     {
-        $gCms = CmsApp::get_instance();
         $result = array();
 
         if ($attr == 'article') {
@@ -157,6 +155,7 @@ class News extends CMSModule
             $row = $db->GetRow( $q, array( $articleid ) );
 
             if ($row) {
+                $gCms = CmsApp::get_instance();
                 //0 position is the prefix displayed in the list results.
                 $result[0] = $this->GetFriendlyName();
 
