@@ -26,7 +26,7 @@ check_login();
 $realm = 'admin';
 $key = 'help';
 $out = 'NO HELP KEY SPECIFIED';
-if( isset($_GET['key']) ) $key = cms_htmlentities(trim($_GET['key']));
+if( isset($_GET['key']) ) $key = filter_var(trim($_GET['key']),FILTER_SANITIZE_STRING);
 if( strstr($key,'__') !== FALSE ) {
   list($realm,$key) = explode('__',$key,2);
 }
