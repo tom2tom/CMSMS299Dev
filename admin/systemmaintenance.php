@@ -56,8 +56,8 @@ $smarty->assign('theme', $themeObject);
  */
 
 
-$query = "SHOW TABLES LIKE ?";
-$tablestmp = $db->GetArray($query,array(cms_db_prefix().'%'));
+$query = 'SHOW TABLES LIKE '.cms_db_prefix().'%';
+$tablestmp = $db->GetArray($query);
 $tables = array();
 $nonseqtables = array();
 foreach ($tablestmp as $table) {
