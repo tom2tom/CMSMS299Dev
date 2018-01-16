@@ -1,6 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004-2013 by Ted Kulp (ted@cmsmadesimple.org)
+#CMS Made Simple class
+#(c)2004-2013 Ted Kulp <ted@cmsmadesimple.org>
+#(c)2014-2018 The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,7 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 
 /**
  * This file contains the class that manages the CMSMS config.php file
@@ -27,7 +29,7 @@
 /**
  * A singleton class for interacting with the CMSMS config.php file.
  *
- * This class usses the ArrayAccess interface to behave like a PHP array.
+ * This class uses the ArrayAccess interface to behave like a PHP array.
  *
  * @since 1.9
  * @package CMS
@@ -151,6 +153,7 @@ final class cms_config implements ArrayAccess
         $this->_types['assets_path'] = self::TYPE_STRING;
         $this->_types['permissive_smarty'] = self::TYPE_BOOL;
         $this->_types['content_processing_mode'] = self::TYPE_INT;
+        $this->_types['content_language'] = self::TYPE_STRING;
 
         $config = array();
         if (defined('CONFIG_FILE_LOCATION') && is_file(CONFIG_FILE_LOCATION)) {
@@ -483,6 +486,9 @@ final class cms_config implements ArrayAccess
         case 'default_encoding':
         case 'admin_encoding':
             return 'utf-8';
+
+		case 'content_language':
+            return 'xhtml';
 
         case 'admin_path':
             $this->_cache[$key] = cms_join_path($this->offsetGet('root_path'),$this->offsetGet('admin_dir'));
