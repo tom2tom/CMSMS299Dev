@@ -18,7 +18,6 @@
 # Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
 #
 #-------------------------------------------------------------------------
-if( !isset($gCms) ) exit;
 
 final class AdminSearch extends CMSModule
 {
