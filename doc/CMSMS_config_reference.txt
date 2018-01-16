@@ -1,0 +1,1 @@
+Refer to https://docs.cmsmadesimple.org/configuration/config-file/config-reference
