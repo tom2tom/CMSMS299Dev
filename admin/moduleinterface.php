@@ -1,6 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004 by Ted Kulp (wishy@users.sf.net)
+#CMS Made Simple
+#(c)2004-2016 Ted Kulp <wishy@users.sf.net>
+#(c)2017-2018 The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -9,7 +10,7 @@
 #(at your option) any later version.
 #
 #This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANthe TY; without even the implied warranty of
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
@@ -21,41 +22,41 @@
 $CMS_ADMIN_PAGE=1;
 $CMS_MODULE_PAGE=1;
 
-$orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
+$orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
-require_once("../lib/include.php");
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 $userid = get_userid();
 
-$smarty = \Smarty_CMS::get_instance();
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 $id = 'm1_';
 $module = '';
 $action = 'defaultadmin';
-$suppressOutput = false;
+//UNUSED $suppressOutput = false;
 if (isset($_REQUEST['mact'])) {
-    $ary = explode(',', cms_htmlentities($_REQUEST['mact']), 4);
-    $module = (isset($ary[0])?$ary[0]:'');
-    $id = (isset($ary[1])?$ary[1]:'m1_');
-    $action = (isset($ary[2])?$ary[2]:'');
+	$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+    $ary = explode(',', $mact, 4);
+    $module = $ary[0] ?? '';
+    $id = $ary[1] ?? 'm1_';
+    $action = $ary[2] ?? '';
 }
 
 $modinst = ModuleOperations::get_instance()->get_module_instance($module);
 if( !$modinst ) {
     trigger_error('Module '.$module.' not found in memory. This could indicate that the module is in need of upgrade or that there are other problems');
-    redirect('index.php'.$urlext);
+    redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
 }
 
-$USE_THEME = true;
 if( isset($_REQUEST['showtemplate']) && ($_REQUEST['showtemplate'] == 'false')) {
     // for simplicity and compatibility with the frontend.
     $USE_THEME = false;
-}
-if( $USE_THEME && $modinst->SuppressAdminOutput($_REQUEST) != false || isset($_REQUEST['suppressoutput']) ) {
+} elseif( $modinst->SuppressAdminOutput($_REQUEST) != false || isset($_REQUEST['suppressoutput']) ) {
     $USE_THEME = false;
+} else {
+    $USE_THEME = true;
 }
 
 // module output
@@ -77,15 +78,15 @@ if( $USE_THEME ) {
 
     // call admin_add_headtext to get any admin data to add to the <head>
     $out = \CMSMS\HookManager::do_hook_accumulate('admin_add_headtext');
-    if( $out && count($out) ) {
+    if( $out ) {
         foreach( $out as $one ) {
             $one = trim($one);
             if( $one ) $themeObject->add_headtext($one);
         }
     }
 
-    if (FALSE == empty($params['module_message'])) echo $themeObject->ShowMessage($params['module_message']);
-    if (FALSE == empty($params['module_error'])) echo $themeObject->ShowErrors($params['module_error']);
+    if ( !empty($params['module_message']) ) echo $themeObject->ShowMessage($params['module_message']);
+    if ( !empty($params['module_error']) ) echo $themeObject->ShowErrors($params['module_error']);
     include_once("header.php");
 
     // this is hackish
@@ -104,3 +105,6 @@ if( $USE_THEME ) {
     // no theme output.
     echo $modinst->DoActionBase($action, $id, $params, '', $smarty);
 }
+
+//FUTURE USE \CMSMS\HookManager::do_hook('PostRequest');
+
