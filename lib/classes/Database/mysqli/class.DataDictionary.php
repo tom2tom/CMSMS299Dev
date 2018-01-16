@@ -1,4 +1,36 @@
 <?php
+/*
+-------------------------------------------------------------------------
+Module: \CMSMS\Database\mysqli\DataDictionary (C) 2017 Robert Campbell
+         <calguy1000@cmsmadesimple.org>
+A class to represent a data dictionary
+-------------------------------------------------------------------------
+CMS Made Simple (C) 2004-2017 Ted Kulp <wishy@cmsmadesimple.org>
+Visit our homepage at: http:www.cmsmadesimple.org
+-------------------------------------------------------------------------
+BEGIN_LICENSE
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+However, as a special exception to the GPL, this software is distributed
+as an addon module to CMS Made Simple.  You may not use this software
+in any Non GPL version of CMS Made simple, or in any version of CMS
+Made simple that does not indicate clearly and obviously in its admin
+section that the site was built with CMS Made simple.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+Or read it online: http:www.gnu.org/licenses/licenses.html#GPL
+END_LICENSE
+-------------------------------------------------------------------------
+*/
 
 namespace CMSMS\Database\mysqli;
 
@@ -7,47 +39,52 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
     public function __construct(Connection $conn)
     {
         parent::__construct($conn);
+        $this->addCol = ' ADD COLUMN';
         $this->alterCol = ' MODIFY COLUMN';
         $this->alterTableAddIndex = true;
         $this->dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
         $this->dropIndex = 'DROP INDEX %s ON %s';
-        $this->renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';	// needs column-definition!
+        $this->renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';    // needs column-definition!
+
+        $this->sysTimeStamp = 'TIMESTAMP';
+        $this->sysDate = 'DATE';
+
+        $this->nameQuote = '`';
     }
 
     protected function ActualType($meta)
     {
-        switch( $meta ) {
-		case 'C': return 'VARCHAR';
-		case 'XL':return 'LONGTEXT';
-		case 'X': return 'TEXT';
+        switch ($meta) {
+        case 'C':
+        case 'C2': return 'VARCHAR';
 
-		case 'C2': return 'VARCHAR';
-		case 'X2': return 'LONGTEXT';
+        case 'D': return 'DATE';
+        case 'DT': return 'DATETIME';
+        case 'T': return 'TIME';
+        case 'TS': return 'TIMESTAMP';
+        case 'L': return 'TINYINT';
 
-		case 'B': return 'LONGBLOB';
+        case 'R':
+        case 'I4':
+        case 'I': return 'INTEGER';
+        case 'I1': return 'TINYINT';
+        case 'I2': return 'SMALLINT';
+        case 'I8': return 'BIGINT';
 
-		case 'D': return 'DATE';
-		case 'DT': return 'DATETIME';
-		case 'T': return 'TIME';
-		case 'TS': return 'TIMESTAMP';
-		case 'L': return 'TINYINT';
+        case 'F': return 'DOUBLE';
+        case 'N': return 'NUMERIC';
 
-		case 'R':
-		case 'I4':
-		case 'I': return 'INTEGER';
-		case 'I1': return 'TINYINT';
-		case 'I2': return 'SMALLINT';
-		case 'I8': return 'BIGINT';
+        case 'X':
+        case 'X2': return 'TEXT';
+        case 'XL': return 'LONGTEXT';
 
-		case 'F': return 'DOUBLE';
-		case 'N': return 'NUMERIC';
-		default:
-			return $meta;
-		}
+        case 'B': return 'BLOB';
+        default: return $meta;
+        }
     }
 
-    protected function MetaType($t,$len=-1,$fieldobj=false)
+    protected function MetaType($t, $len = -1, $fieldobj = false)
     {
         // $t can be mixed...
         if (is_object($t)) {
@@ -65,7 +102,9 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
         case 'TINYTEXT':
         case 'ENUM':
         case 'SET':
-            if ($len <= $this->blobSize) return 'C';
+            if ($len <= $this->blobSize) {
+                return 'C';
+            }
 
         case 'TEXT':
         case 'LONGTEXT':
@@ -93,7 +132,10 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
         case 'TINYINT':
         case 'MEDIUMINT':
         case 'SMALLINT':
-            if (!empty($fieldobj->primary_key)) return 'R';
+            if (!empty($fieldobj->primary_key)) {
+                return 'R';
+            }
+
             return 'I';
 
         default:
@@ -108,7 +150,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
                 'VARYING' => 'C',
                 'BPCHAR' => 'C',
                 'CHARACTER' => 'C',
-                ##
+
                 'LONGCHAR' => 'X',
                 'TEXT' => 'X',
                 'NTEXT' => 'X',
@@ -117,34 +159,34 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
                 'CLOB' => 'X',
                 'NCLOB' => 'X',
                 'LVARCHAR' => 'X',
-                ##
+
                 'BLOB' => 'B',
                 'IMAGE' => 'B',
                 'BINARY' => 'B',
                 'VARBINARY' => 'B',
                 'LONGBINARY' => 'B',
                 'B' => 'B',
-                ##
-                'YEAR' => 'D', // mysql
+
+                'YEAR' => 'D',
                 'DATE' => 'D',
                 'D' => 'D',
-                ##
+
                 'TIME' => 'T',
                 'TIMESTAMP' => 'T',
                 'DATETIME' => 'T',
                 'TIMESTAMPTZ' => 'T',
                 'T' => 'T',
-                ##
+
                 'BOOL' => 'L',
                 'BOOLEAN' => 'L',
                 'BIT' => 'L',
                 'L' => 'L',
-                ##
+
                 'COUNTER' => 'R',
                 'R' => 'R',
                 'SERIAL' => 'R', // ifx
                 'INT IDENTITY' => 'R',
-                ##
+
                 'INT' => 'I',
                 'INT2' => 'I',
                 'INT4' => 'I',
@@ -155,7 +197,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
                 'TINYINT' => 'I',
                 'SMALLINT' => 'I',
                 'I' => 'I',
-                ##
+
                 'LONG' => 'N', // interbase is numeric, oci8 is blob
                 'BIGINT' => 'N', // this is bigger than PHP 32-bit integers
                 'DECIMAL' => 'N',
@@ -169,34 +211,11 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
                 'NUM' => 'N',
                 'NUMERIC' => 'N',
                 'MONEY' => 'N',
-
-                ## informix 9.2
-                'SQLINT' => 'I',
-                'SQLSERIAL' => 'I',
-                'SQLSMINT' => 'I',
-                'SQLSMFLOAT' => 'N',
-                'SQLFLOAT' => 'N',
-                'SQLMONEY' => 'N',
-                'SQLDECIMAL' => 'N',
-                'SQLDATE' => 'D',
-                'SQLVCHAR' => 'C',
-                'SQLCHAR' => 'C',
-                'SQLDTIME' => 'T',
-                'SQLINTERVAL' => 'N',
-                'SQLBYTES' => 'B',
-                'SQLTEXT' => 'X',
-                ## informix 10
-                "SQLINT8" => 'I8',
-                "SQLSERIAL8" => 'I8',
-                "SQLNCHAR" => 'C',
-                "SQLNVCHAR" => 'C',
-                "SQLLVARCHAR" => 'X',
-                "SQLBOOL" => 'L'
                 );
 
-            $tmap = false;
             $t = strtoupper($t);
             $tmap = (isset($typeMap[$t])) ? $typeMap[$t] : 'N';
+
             return $tmap;
         }
     }
@@ -204,114 +223,142 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
     public function MetaTables()
     {
         $sql = 'SHOW TABLES';
-        $list = $this->connection->GetCol($sql);
-        if( count($list) ) return $list;
+        $list = $this->connection->getCol($sql);
+        if ($list) {
+            return $list;
+        }
     }
 
     public function MetaColumns($table)
     {
         $table = trim($table);
-        if( !$table ) throw new \LogicException('empty table name specified for '.__METHOD__);
+        if ($table) {
+            $sql = 'SHOW COLUMNS FROM '.$this->NameQuote($table);
+            $list = $this->connection->getArray($sql);
+            if ($list) {
+                $out = [];
+                foreach ($list as &$row) {
+                    $out[] = $row['Field'];
+                }
+                unset($row);
 
-        $sql = 'SHOW COLUMNS FROM ?';
-        $rs = $this->connection->GetArray($sql,$table);
-        if( is_array($rs) && count($rs) ) {
-            $out = array();
-            foreach( $rs as $row ) {
-                $out[] = $row['Field'];
+                return $out;
             }
-            return $out;
         }
     }
 
-    protected function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
-	{
-		$suffix = '';
-		if ($funsigned) $suffix .= ' UNSIGNED';
-		if ($fnotnull) $suffix .= ' NOT NULL';
-		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fautoinc) $suffix .= ' AUTO_INCREMENT';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
-		return $suffix;
-	}
+    protected function _CreateSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned)
+    {
+        $suffix = '';
+        if ($funsigned) {
+            $suffix .= ' UNSIGNED';
+        }
+        if ($fnotnull) {
+            $suffix .= ' NOT NULL';
+        }
+        if (strlen($fdefault)) {
+            $suffix .= " DEFAULT $fdefault";
+        }
+        if ($fautoinc) {
+            $suffix .= ' AUTO_INCREMENT';
+        }
+        if ($fconstraint) {
+            $suffix .= ' '.$fconstraint;
+        }
 
-    function _ProcessOptions($opts)
+        return $suffix;
+    }
+
+    public function _ProcessOptions($opts)
     {
         // fixes for old TYPE= stuff in tabopts.
-        if( is_array($opts) && count($opts) ) {
-            foreach( $opts as $key => &$val ) {
-                if( startswith(strtolower($key),'mysql') ) {
-                    $val = preg_replace('/TYPE\s?=/i','ENGINE=',$val);
+        if (is_array($opts) && count($opts)) {
+            foreach ($opts as $key => &$val) {
+                if (startswith(strtolower($key), 'mysql')) {
+                    $val = preg_replace('/TYPE\s?=/i', 'ENGINE=', $val);
                 }
             }
         }
+
         return $opts;
     }
 
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
-	{
-		$sql = array();
+    public function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+    {
+        $sql = [];
 
-		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
-			if ($this->alterTableAddIndex) $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
-			else $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+        if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
+            if ($this->alterTableAddIndex) {
+                $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
+            } else {
+                $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+            }
 
-			if ( isset($idxoptions['DROP']) ) return $sql;
-		}
+            if (isset($idxoptions['DROP'])) {
+                return $sql;
+            }
+        }
 
-		if ( empty ($flds) ) return $sql;
+        if (empty($flds)) {
+            return $sql;
+        }
 
-		if (isset($idxoptions['FULLTEXT'])) {
-			$unique = ' FULLTEXT';
-		} elseif (isset($idxoptions['UNIQUE'])) {
-			$unique = ' UNIQUE';
-		} else {
-			$unique = '';
-		}
+        if (isset($idxoptions['FULLTEXT'])) {
+            $unique = ' FULLTEXT';
+        } elseif (isset($idxoptions['UNIQUE'])) {
+            $unique = ' UNIQUE';
+        } else {
+            $unique = '';
+        }
 
-		if ( is_array($flds) ) $flds = implode(', ',$flds);
+        if (is_array($flds)) {
+            $flds = implode(', ', $flds);
+        }
 
-		if ($this->alterTableAddIndex) $s = "ALTER TABLE $tabname ADD $unique INDEX $idxname ";
-		else $s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname;
+        if ($this->alterTableAddIndex) {
+            $s = "ALTER TABLE $tabname ADD{$unique} INDEX $idxname";
+        } else {
+            $s = "CREATE{$unique} INDEX $idxname ON $tabname";
+        }
 
-		$s .= ' (' . $flds . ')';
+        $s .= ' ('.$flds.')';
 
-        if( ($opts = $this->get_dbtype_options($idxoptions)) ) $s .= $opts;
+        if (($opts = $this->get_dbtype_options($idxoptions))) {
+            $s .= $opts;
+        }
 
-		$sql[] = $s;
+        $sql[] = $s;
 
-		return $sql;
-	}
+        return $sql;
+    }
 
-	function CreateTableSQL($tabname, $flds, $tableoptions=false)
-	{
+    public function CreateTableSQL($tabname, $flds, $tableoptions = false)
+    {
         $str = 'ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci';
-        $dbtype = $this->_DBType();
+        $dbtype = $this->_dbType();
 
         // clean up input tableoptions
-        if( !$tableoptions ) {
-            $tableoptions = [ $dbtype => $str ];
-        }
-        else if( is_string($tableoptions) ) {
-            $tableoptions = [ $dbtype => $tableoptions ];
-        }
-        else if( is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql']) ) {
+        if (!$tableoptions) {
+            $tableoptions = [$dbtype => $str];
+        } elseif (is_string($tableoptions)) {
+            $tableoptions = [$dbtype => $tableoptions];
+        } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['mysql'])) {
             $tableoptions[$dbtype] = $tableoptions['mysql'];
-        }
-        else if( is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['MYSQL']) ) {
+        } elseif (is_array($tableoptions) && !isset($tableoptions[$dbtype]) && isset($tableoptions['MYSQL'])) {
             $tableoptions[$dbtype] = $tableoptions['MYSQL'];
         }
 
-        foreach( $tableoptions as $key => &$val ) {
-            if( strpos($val,'TYPE=') !== FALSE ) $val = str_replace('TYPE=','ENGINE=',$val);
+        foreach ($tableoptions as $key => &$val) {
+            if (strpos($val, 'TYPE=') !== false) {
+                $val = str_replace('TYPE=', 'ENGINE=', $val);
+            }
         }
-        if( isset($tableoptions[$dbtype]) && strpos($tableoptions[$dbtype],'CHARACTER') === FALSE &&
-            strpos($tableoptions[$dbtype],'COLLATE') === FALSE ) {
+        if (isset($tableoptions[$dbtype]) && strpos($tableoptions[$dbtype], 'CHARACTER') === false &&
+            strpos($tableoptions[$dbtype], 'COLLATE') === false) {
             // if no character set and collate options specified, force UTF8
-            $tableoptions[$dbtype] .= " CHARACTER SET utf8 COLLATE utf8_general_ci";
+            $tableoptions[$dbtype] .= ' CHARACTER SET utf8 COLLATE utf8_general_ci';
         }
 
         return parent::CreateTableSQL($tabname, $flds, $tableoptions);
-	}
-
-} // end of class
+    }
+}
