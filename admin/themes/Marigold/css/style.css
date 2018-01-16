@@ -1367,7 +1367,7 @@ nav ul#oe_pagemenu li span.open-nav {
     position: absolute;
     right: 5px;
     top: 0;
-    //	text-indent: -9999em
+/*    text-indent: -9999em */
 }
 
 nav ul#oe_pagemenu li span.open-nav.open-sub,
@@ -3096,7 +3096,7 @@ padding: 4px 0
 /* hide some table columns  for small devices designs_c */
 #template_area .pagetable,
 #stylesheet_area .pagetable,
-#designs_c .pagetable,  
+#designs_c .pagetable,
 #types_c .pagetable {
 display: table;
 }
@@ -3109,7 +3109,7 @@ display: table;
 #contenttable tr th:nth-child(13), #contenttable tr td:nth-child(13),
 #template_area .pagetable tr th, #template_area .pagetable tr td,
 #stylesheet_area .pagetable tr th, #stylesheet_area .pagetable tr td,
-#designs_c .pagetable tr th, #designs_c .pagetable tr td,  
+#designs_c .pagetable tr th, #designs_c .pagetable tr td,
 #types_c .pagetable tr th, #types_c .pagetable tr td  {
 display:none;
 }
