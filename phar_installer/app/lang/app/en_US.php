@@ -201,7 +201,6 @@ $lang['install_initsiteusers'] = 'Create initial user account';
 $lang['install_initsiteusertags'] = 'Initial user defined tags';
 $lang['install_module'] = 'Install module %s';
 $lang['install_modules'] = 'Install available modules';
-$lang['install_passwordsalt'] = 'Set password salt';
 $lang['install_requireddata'] = 'Set initial required data';
 $lang['install_schema'] = 'Create database schema';
 $lang['install_setschemaver'] = 'Set schema version';
@@ -290,7 +289,6 @@ $lang['retry'] = 'Retry';
 
 # S
 $lang['safe_mode'] = 'Testing to ensure &quot;safe mode&quot; is disabled';
-$lang['saltpasswords'] = 'Salt Passwords';
 $lang['select_language'] = 'The first thing we will ask you to do is to select your preferred language from the list below. This will be used to enhance your experience during this installation sequence, but will not affect your CMSMS installation.';
 $lang['send_admin_email'] = 'Send Admin login credentials email';
 $lang['session_capabilities'] = 'Testing for proper session capabilities (sessions are using cookies and session save path is writeable, etc)';
