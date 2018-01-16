@@ -1,7 +1,7 @@
 <?php
 #-------------------------------------------------------------------------
 # Module: DesignManager - A CMSMS addon module to provide template management.
-# (c) 2012 by Robert Campbell <calguy1000@cmsmadesimple.org>
+# (c) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,35 +18,33 @@
 # Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
 #
 #-------------------------------------------------------------------------
-if( !isset($gCms) ) exit;
 
 final class DesignManager extends CMSModule
 {
-    function GetFriendlyName()  { return $this->Lang('friendlyname');  }
-    function GetVersion()  { return '1.1.6'; }
-    function MinimumCMSVersion()  { return '2.1'; }
-    function LazyLoadAdmin() { return TRUE; }
-    function LazyLoadFrontend() { return TRUE; }
-    function IsPluginModule() { return FALSE; }
-    function GetAuthor() { return 'Calguy1000'; }
-    function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    function HasAdmin() { return true; }
-    function GetAdminSection() { return 'layout'; }
-    function AllowAutoInstall() { return TRUE; }
-    function GetHelp() { return CmsLangOperations::lang_from_realm('help','help_designmanager_help'); }
-    function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
-    function GetAdminDescription() { return $this->Lang('moddescription'); }
-    function InstallPostMessage() { return $this->Lang('postinstall'); }
-    function UninstallPostMessage() { return $this->Lang('postuninstall'); }
+    public function GetFriendlyName()  { return $this->Lang('friendlyname'); }
+    public function GetVersion()  { return '1.1.6'; }
+    public function MinimumCMSVersion()  { return '2.1'; }
+    public function LazyLoadAdmin() { return TRUE; }
+    public function LazyLoadFrontend() { return TRUE; }
+    public function IsPluginModule() { return FALSE; }
+    public function GetAuthor() { return 'Calguy1000'; }
+    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function HasAdmin() { return true; }
+    public function GetAdminSection() { return 'layout'; }
+    public function AllowAutoInstall() { return TRUE; }
+    public function GetHelp() { return CmsLangOperations::lang_from_realm('help','help_designmanager_help'); }
+    public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
+    public function GetAdminDescription() { return $this->Lang('moddescription'); }
+    public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 
-    function VisibleToAdminUser()
+    public function VisibleToAdminUser()
     {
-        if( $this->CheckPermission('Add Templates') ||
+        return $this->CheckPermission('Add Templates') ||
             $this->CheckPermission('Modify Templates') ||
             $this->CheckPermission('Manage Stylesheets') ||
             $this->CheckPermission('Manage Designs') ||
-            count(CmsLayoutTemplate::get_editable_templates(get_userid())) ) return TRUE;
-        return FALSE;
+            count(CmsLayoutTemplate::get_editable_templates(get_userid()));
     }
 
     public function DoAction($name,$id,$params,$returnid='')
@@ -58,7 +56,7 @@ final class DesignManager extends CMSModule
 
     public function GetAdminMenuItems()
     {
-        $out = array();
+        $out = [];
         if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
 
         if( $this->CheckPermission('Modify Site Preferences') ) {
@@ -107,7 +105,7 @@ final class DesignManager extends CMSModule
 			}
 
 			echo $json;
-			exit();
+			exit;
 		}
 
 		return false;
@@ -117,4 +115,3 @@ final class DesignManager extends CMSModule
 #
 # EOF
 #
-?>
