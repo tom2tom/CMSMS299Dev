@@ -1,6 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004-2010 by Ted Kulp (ted@cmsmadesimple.org)
+#CMS Made Simple class
+#(c)2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#(c)2010-2018 The CMSMS Dev Team
 #Visit our homepage at: http://cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,9 +15,10 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
-#$Id: class.global.inc.php 6939 2011-03-06 00:12:54Z calguy1000 $
+#$Id$
 
 /**
  * Global class for easy access to all important variables.
@@ -89,7 +91,7 @@ final class CmsApp {
 	private static $_statelist = array(self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE);
 
 	/**
-	 * Database object - adodb reference to the current database
+	 * Database object - handle/connection to the current database
 	 * @ignore
 	 */
 	private $db;
@@ -323,7 +325,7 @@ final class CmsApp {
 	 * @final
 	 * @internal
 	 * @ignore
-	 * @param ADOConnection $connection
+	 * @param \CMSMS\Database\Connection $connection
 	 */
 	final public function _setDb(\CMSMS\Database\Connection $conn)
 	{
@@ -331,12 +333,11 @@ final class CmsApp {
 	}
 
 	/**
-	* Get a handle to the ADODB database object. You can then use this
+	* Get a handle to the database. You can then use it
 	* to perform all kinds of database operations.
 	*
-	* @link http://phplens.com/lens/adodb/docs-adodb.htm
 	* @final
-	* @return ADOConnection a handle to the ADODB database object
+	* @return mixed \CMSMS\Database\Connection object or NULL
 	*/
 	final public function &GetDb()
 	{
@@ -347,11 +348,11 @@ final class CmsApp {
 		global $DONT_LOAD_DB;
 
 		if( !isset($DONT_LOAD_DB) ) {
-            $config = \cms_config::get_instance();
-            $this->db = \CMSMS\Database\compatibility::init($config);
+			$this->db = new \CMSMS\Database\mysqli\Connection();
+			//deprecated: make old stuff available
+			require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
+			return $this->db;
 		}
-
-		return $this->db;
 	}
 
 	/**
@@ -479,9 +480,9 @@ final class CmsApp {
 	* If it does not yet exist, this method will instantiate it.
 	*
 	* @final
-	* @see Smarty_CMS
+	* @see CMSMS\internal\Smarty
 	* @link http://www.smarty.net/manual/en/
-	* @return Smarty_CMS handle to the Smarty object
+	* @return CMSMS\internal\Smarty handle to the Smarty object
 	*/
 	public function & GetSmarty()
 	{
