@@ -462,7 +462,12 @@ $smarty->assign('urltext', $this->Lang('url'));
 $smarty->assign('news_url', $news_url);
 $smarty->assign('title', $title);
 $smarty->assign('inputcontent', $this->CreateTextArea(true, $id, $content, 'content'));
-$smarty->assign('inputsummary', $this->CreateTextArea($this->GetPreference('allow_summary_wysiwyg', 1), $id, $summary, 'summary', '', '', '', '', '80', '3'));
+if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
+    $tmp = $this->CreateTextArea(true, $id, $summary, 'summary', '', '', '', '', '80', '1', '', '', 'style="height:5em;"');
+} else {
+    $tmp = $this->CreateTextArea(false, $id, $summary, 'summary', '', '', '', '', '80', '3');
+}
+$smarty->assign('inputsummary', $tmp);
 $smarty->assign('useexp', $useexp);
 $smarty->assign('actionid', $id);
 $smarty->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'));

@@ -407,13 +407,18 @@ $parms = array(
 );
 $smarty->assign('inputcontent', CmsFormUtils::create_textarea($parms));
 
-$parms = array(
-    'enablewysiwyg' => $this->GetPreference('allow_summary_wysiwyg', 1),
+$parms = [
+    'enablewysiwyg' => 0,
     'name' => $id . 'summary',
     'text' => $summary,
     'rows' => 3,
     'cols' => 80
-);
+];
+if ($this->GetPreference('allow_summary_wysiwyg',1)) {
+	$parms['enablewysiwyg'] = 1;
+	$parms['rows'] = 1;
+	$parms['addtext'] = 'style="height:5em;"';
+}
 $smarty->assign('inputsummary', CmsFormutils::create_textarea($parms));
 
 if (count($custom_flds) > 0)
