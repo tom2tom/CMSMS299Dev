@@ -19,10 +19,10 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-include_once(dirname(__FILE__)."/fileinfo.php");
+include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'fileinfo.php';
 
-final class FileManager extends CMSModule {
-
+final class FileManager extends CMSModule
+{
     public function GetName() { return 'FileManager'; }
     public function LazyLoadFrontend() { return TRUE; }
     public function GetChangeLog() { return $this->ProcessTemplate('changelog.tpl'); }
@@ -171,14 +171,12 @@ final class FileManager extends CMSModule {
     }
 
     public function GetThumbnailLink($file,$path) {
-        $gCms = cmsms();
-
-        $config = $gCms->GetConfig();
+        $config = cmsms()->GetConfig();
         $advancedmode = filemanager_utils::check_advanced_mode();
         $basedir = $config['root_path'];
         $baseurl = $config['root_url'];
 
-        $filepath=$basedir.'/'.$path;
+        $filepath=$basedir.DIRECTORY_SEPARATOR.$path;
         $url=$baseurl.'/'.$path;
         $image="";
         $imagepath=$this->Slashes($filepath."/thumb_".$file["name"]);
@@ -208,7 +206,7 @@ final class FileManager extends CMSModule {
     protected function _output_header_javascript()
     {
         $out = '';
-        $urlpath = $this->GetModuleURLPath()."/js";
+        $urlpath = $this->GetModuleURLPath().DIRECTORY_SEPARATOR."js";
         $jsfiles = array('jquery-file-upload/jquery.iframe-transport.js');
         $jsfiles[] = 'jquery-file-upload/jquery.fileupload.js';
         $jsfiles[] = 'jqueryrotate/jQueryRotate-2.2.min.js';
