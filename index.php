@@ -1,7 +1,7 @@
 <?php
 #CMS - CMS Made Simple
 #(c)2004-2011 by Ted Kulp (wishy@users.sf.net)
-#(c)2011-2017 by The CMSMS Dev Team
+#(c)2011-2018 by The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,8 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-#$Id$
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -31,15 +29,16 @@ $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 clearstatcache();
 
 if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
-require_once(__DIR__.'/lib/include.php');
+require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) {
-    echo '<html><title>Error</title></head><body>';
-    echo '<p>The following directories must be writable by the web server:<br />';
-    echo 'tmp/cache<br />';
-    echo 'tmp/templates_c<br /></p>';
-    echo '<p>Please correct by executing:<br /><em>chmod 777 tmp/cache<br />chmod 777 tmp/templates_c</em><br />or the equivalent for your platform before continuing.</p>';
-    echo '</body></html>';
+    echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>Error</title></head><body>
+<p>The following directories must be writable by the web server:<br />
+tmp/cache<br />
+tmp/templates_c<br /></p>
+<p>Please correct by executing:<br /><em>chmod 777 tmp/cache<br />chmod 777 tmp/templates_c</em><br />or the equivalent for your platform before continuing.</p>
+</body></html>';
     exit;
 }
 
@@ -47,7 +46,7 @@ if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) 
 
 // initial setup
 $_app = CmsApp::get_instance(); // internal use only, subject to change.
-$config = \cms_config::get_instance();
+$config = cms_config::get_instance();
 $params = array_merge($_GET, $_POST);
 $smarty = $_app->GetSmarty();
 $page = get_pageid_or_alias_from_url();
@@ -56,13 +55,13 @@ $contentobj = null;
 $trycount = 0;
 $showtemplate = true;
 
-\CMSMS\internal\content_cache::get_instance();
-$_tpl_cache = new \CMSMS\internal\TemplateCache();
+CMSMS\internal\content_cache::get_instance();
+$_tpl_cache = new CMSMS\internal\TemplateCache();
 
 while( $trycount < 2 ) {
     $trycount++;
     try {
-        if( $trycount < 2 && is_file(TMP_CACHE_LOCATION.'/SITEDOWN') ) throw new \CmsError503Exception('Site down for maintenance');
+        if( $trycount < 2 && is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN') ) throw new \CmsError503Exception('Site down for maintenance');
         if( $trycount < 2 && is_sitedown() ) throw new \CmsError503Exception('Site down for maintenance');
 
         // preview
@@ -113,17 +112,17 @@ while( $trycount < 2 ) {
             $_app->disable_template_processing();
         }
 
-        \CMSMS\HookManager::do_hook('Core::ContentPreRender', [ 'content' => &$contentobj ] );
+        CMSMS\HookManager::do_hook('Core::ContentPreRender', [ 'content' => &$contentobj ] );
 
         if( $config['content_processing_mode'] == 2 ) {
             debug_buffer('preprocess module action');
-            \CMSMS\internal\content_plugins::get_default_content_block_content( $contentobj->Id(), $smarty );
+            CMSMS\internal\content_plugins::get_default_content_block_content( $contentobj->Id(), $smarty );
         }
 
         $html = null;
         $showtemplate = $_app->template_processing_allowed();
         if( !$showtemplate ) {
-            $html = \CMSMS\internal\content_plugins::get_default_content_block_content( $contentobj->Id(), $smarty );
+            $html = CMSMS\internal\content_plugins::get_default_content_block_content( $contentobj->Id(), $smarty );
             $trycount = 99;
         }
         else {
@@ -131,31 +130,31 @@ while( $trycount < 2 ) {
             $top = $body = $head = null;
 
             debug_buffer('process template top');
-            \CMSMS\HookManager::do_hook('Core::PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+            CMSMS\HookManager::do_hook('Core::PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
             $tpl = $smarty->createTemplate('tpl_top:'.$tpl_id);
             $top .= $tpl->fetch();
             unset($tpl);
-            \CMSMS\HookManager::do_hook('Core::PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+            CMSMS\HookManager::do_hook('Core::PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
 
             if( $config['content_processing_mode'] == 1 ) {
                 debug_buffer('preprocess module action');
-                \CMSMS\internal\content_plugins::get_default_content_block_content( $contentobj->Id() );
+                CMSMS\internal\content_plugins::get_default_content_block_content( $contentobj->Id() );
             }
 
             // if the request has a mact in it, process and cache the output.
             debug_buffer('process template body');
-            \CMSMS\HookManager::do_hook('Core::PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+            CMSMS\HookManager::do_hook('Core::PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
             $tpl = $smarty->createTemplate('tpl_body:'.$tpl_id);
             $body .= $tpl->fetch();
             unset($tpl);
-            \CMSMS\HookManager::do_hook('Core::PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+            CMSMS\HookManager::do_hook('Core::PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
 
             debug_buffer('process template head');
-            \CMSMS\HookManager::do_hook('Core::PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+            CMSMS\HookManager::do_hook('Core::PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
             $tpl = $smarty->createTemplate('tpl_head:'.$tpl_id);
             $head .= $tpl->fetch();
             unset($tpl);
-            \CMSMS\HookManager::do_hook('Core::PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+            CMSMS\HookManager::do_hook('Core::PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
 
             $html = $top.$head.$body;
             $trycount = 99; // no more iterations
@@ -184,13 +183,11 @@ while( $trycount < 2 ) {
             header("HTTP/1.0 404 Not Found");
             header("Status: 404 Not Found");
             echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-	    <html><head>
-	    <title>404 Not Found</title>
-	    </head><body>
-	    <h1>Not Found</h1>
-	    <p>The requested URL was not found on this server.</p>
-	    </body></html>';
-            exit();
+<html><head><title>404 Not Found</title></head><body>
+<h1>Not Found</h1>
+<p>The requested URL was not found on this server.</p>
+</body></html>';
+            exit;
         }
     }
 
@@ -217,12 +214,10 @@ while( $trycount < 2 ) {
         else {
             if( !$msg ) $msg = '<p>We are sorry, but you do not have the appropriate permission to view this item.</p>';
             echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>403 Forbidden</title>
-</head><body>
+<html><head><title>403 Forbidden</title></head><body>
 <h1>Forbidden</h1>'.$msg.'
 </body></html>';
-            exit();
+            exit;
         }
     }
 
@@ -249,12 +244,10 @@ while( $trycount < 2 ) {
         else {
             @ob_end_clean();
             echo '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>503 Site down for maintenance./title>
-</head><body>
+<html><head><title>503 Site down for maintenance</title></head><body>
 <h1>Sorry, down for maintenance.  Check back shortly.</h1>'.$msg.'
 </body></html>';
-            exit();
+            exit;
         }
     }
 
@@ -275,7 +268,7 @@ while( $trycount < 2 ) {
     }
 } // end while trycount
 
-\CMSMS\HookManager::do_hook( 'Core::ContentPostRender', [ 'content' => &$html ] );
+CMSMS\HookManager::do_hook( 'Core::ContentPostRender', [ 'content' => &$html ] );
 if( !headers_sent() ) {
     $ct = $_app->get_content_type();
     header("Content-Type: $ct; charset=" . CmsNlsOperations::get_encoding());
@@ -286,7 +279,7 @@ echo $html;
 
 if( $page == __CMS_PREVIEW_PAGE__ && isset($_SESSION['__cms_preview__']) ) unset($_SESSION['__cms_preview__']);
 
-$debug = (defined('CMS_DEBUG') && CMS_DEBUG)?TRUE:FALSE;
+$debug = (defined('CMS_DEBUG') && CMS_DEBUG);
 if( $debug || isset($config['log_performance_info']) || (isset($config['show_performance_info']) && ($showtemplate == true)) ) {
     $endtime = microtime();
     $memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -299,7 +292,7 @@ if( $debug || isset($config['log_performance_info']) || (isset($config['show_per
 
     if( isset($config['log_performance_info']) ) {
         $out = [ time(), $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $time, $sql_time, $queries, $memory, $memory_peak ];
-        $filename = TMP_CACHE_LOCATION.'/performance.log';
+        $filename = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'performance.log';
         error_log(implode('|',$out)."\n", 3, $filename);
     } else {
         $txt = "Time: $time / SQL: {$sql_time}s for $sql_queries queries / Net Memory: {$memory} / Peak: {$memory_peak}";
@@ -315,4 +308,6 @@ if ( $debug && !is_sitedown() ) {
     }
 }
 
-exit();
+//FUTURE USE: CMSMS\HookManager::do_hook('PostRequest');
+
+exit;
