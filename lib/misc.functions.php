@@ -1,6 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004-2012 by Ted Kulp (wishy@users.sf.net)
+#CMS Made Simple methods
+#(c)2004-2012 Ted Kulp <wishy@users.sf.net>
+#(c)2013-2018 The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,7 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #$Id$
 
@@ -24,8 +26,6 @@
  * @package CMS
  * @license GPL
  */
-
-
 
 /**
  * Redirects to relative URL on the current site.
@@ -49,7 +49,7 @@ function redirect(string $to)
     $components = parse_url($to);
     if(count($components) > 0) {
         $to =  (isset($components['scheme']) && startswith($components['scheme'], 'http') ? $components['scheme'] : $schema) . '://';
-        $to .= isset($components['host']) ? $components['host'] : $host;
+        $to .= $components['host'] ?? $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
         if(isset($components['path'])) {
             if(in_array(substr($components['path'],0,1),array('\\','/'))) {
@@ -91,32 +91,30 @@ function redirect(string $to)
     if (headers_sent() && !$debug) {
         // use javascript instead
         echo '<script type="text/javascript">
-          <!--location.replace("'.$to.'"); // -->
-          </script>
-          <noscript>
-          <meta http-equiv="Refresh" content="0;URL='.$to.'">
-          </noscript>';
+<!-- location.replace("'.$to.'"); // -->
+</script>
+<noscript>
+<meta http-equiv="Refresh" content="0;URL='.$to.'">
+</noscript>';
         exit;
     }
     else {
         if ( $debug ) {
-            echo "Debug is on.  Redirecting disabled...  Please click this link to continue.<br />";
-            echo "<a accesskey=\"r\" href=\"".$to."\">".$to."</a><br />";
-            echo '<div id="DebugFooter">';
+            echo 'Debug is on. Redirection is disabled... Please click this link to continue.<br />
+<a accesskey="r" href="'.$to.'">'.$to.'</a><br />
+<div id="DebugFooter">';
             foreach (CmsApp::get_instance()->get_errors() as $error) {
                 echo $error;
             }
             echo '</div> <!-- end DebugFooter -->';
-            exit();
+            exit;
         }
         else {
             header("Location: $to");
-            exit();
+            exit;
         }
     }
 }
-
-
 
 /**
  * Given a page ID or an alias, redirect to it.
@@ -141,8 +139,6 @@ function redirect_to_alias(string $alias)
   if ($content->GetURL() != '') redirect($content->GetURL());
 }
 
-
-
 /**
  * Calculate the difference in seconds between two microtime() values.
  *
@@ -151,32 +147,30 @@ function redirect_to_alias(string $alias)
  * @param string $b Later microtime value
  * @return int The difference.
  */
-function microtime_diff(string $a, string $b)
+function microtime_diff(string $a, string $b) : int
 {
     list($a_dec, $a_sec) = explode(' ', $a);
     list($b_dec, $b_sec) = explode(' ', $b);
     return $b_sec - $a_sec + $b_dec - $a_dec;
 }
 
-
-
 /**
- * Joins a path together using platform specific directory separators.
- * Taken from: http://www.php.net/manual/en/ref.dir.php
+ * Joins path-segments together using the platform-specific directory separator.
  *
  * This method should NOT be used for building URLS.
  *
- * This method accepts a variable number of string arguments.
- * i.e: $out = cms_join_path($dir1,$dir2,$dir3,$filename);
- * or $out = cms_join_path($dir1,$dir2,$filename);
+ * This method accepts a variable number of string arguments
+ * e.g. $out = cms_join_path($dir1,$dir2,$dir3,$filename)
+ * or $out = cms_join_path($dir1,$dir2,$filename)
  *
  * @since 0.14
  * @return string
  */
-function cms_join_path()
+function cms_join_path(...$args) : string
 {
-    $args = func_get_args();
-    return implode(DIRECTORY_SEPARATOR,$args);
+	$path = implode(DIRECTORY_SEPARATOR, $args);
+	return str_replace(['\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR],
+		[DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
 }
 
 /**
@@ -188,69 +182,129 @@ function cms_join_path()
  * @param string $relative_to The optional path to compute relative to.  If not supplied the cmsms root path will be used.
  * @return string The relative portion of the input string.
  */
-function cms_relative_path(string $in,string $relative_to = null)
+function cms_relative_path(string $in,string $relative_to = null) : string
 {
     $in = realpath(trim($in));
     if( !$relative_to ) $relative_to = CMS_ROOT_PATH;
     $to = realpath(trim($relative_to));
 
-    if( !$in ) return;
-    if( !$to ) return;
-    if( !startswith($in,$to) ) return;
-
-    return substr($in,strlen($to));
+	if ($in && $to && startswith($in, $to)) {
+		return substr($in, strlen($to));
+	}
+	return '';
 }
+
+/**
+ * Get PHP flag corresponding to the configured 'content_language' i.e. the
+ * preferred language/syntax for page-content
+ *
+ * @return PHP flag
+ */
+function cms_preferred_lang() : int
+{
+    $config = CmsApp::get_instance()->GetConfig();
+	$val = str_toupper($config['content_language']);
+	switch ($val) {
+		case 'HTML5';
+			return ENT_HTML5;
+		case 'HTML':
+			return ENT_HTML401; //a.k.a. 0
+		case 'NONE':
+			return 0;
+		default:
+			return ENT_XHTML;
+	}
+}
+
+static $deflang = 0;
+static $defenc = '';
 
 /**
  * Perform HTML entity conversion on a string.
  *
  * @see htmlentities
- * @param string $val The input string
- * @param string $param A flag indicating how quotes should be handled (see htmlentities) (ignored)
- * @param string $charset $val The input character set (ignored)
- * @param bool $convert_single_quotes A flag indicating wether single quotes should be converted to entities.
- * @return string the converted string.
+ *
+ * @param string $val     The input string
+ * @param int    $param   Optional flag(s) indicating how htmlentities() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
+ * @param string $charset Optional character set of $val. Default 'UTF-8'. If empty the system setting will be used.
+ * @param bool   $convert_single_quotes Optional flag indicating whether single quotes should be converted to entities. Default false.
+ *
+ * @return string the converted string
  */
-function cms_htmlentities(string $val, string $param=ENT_QUOTES, string $charset="UTF-8", bool $convert_single_quotes = false)
+function cms_htmlentities(string $val, int $param = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-  if ($val == "") return "";
+	if ($val === '') {
+		return '';
+	}
 
-  $val = str_replace( "&#032;", " ", $val );
-  $val = str_replace( "&"            , "&amp;"         , $val );
-  $val = str_replace( "<!--"         , "&#60;&#33;--"  , $val );
-  $val = str_replace( "-->"          , "--&#62;"       , $val );
-  $val = str_ireplace( "<script"     , "&#60;script"   , $val );
-  $val = str_replace( ">"            , "&gt;"          , $val );
-  $val = str_replace( "<"            , "&lt;"          , $val );
-  $val = str_replace( "\""           , "&quot;"        , $val );
-  $val = preg_replace( "/\\$/"      , "&#036;"        , $val );
-  $val = str_replace( "!"            , "&#33;"         , $val );
-  $val = str_replace( "'"            , "&#39;"         , $val );
+	if ($param === 0) {
+		if ($deflang === 0) {
+			$deflang = cms_preferred_lang();
+		}
+		$param = (($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT) | $deflang;
+	}
 
-  if ($convert_single_quotes) {
-    $val = str_replace("\\'", "&apos;", $val);
-    $val = str_replace("'", "&apos;", $val);
-  }
+	if ($convert_single_quotes) {
+		$param &= ~(ENT_COMPAT | ENT_NOQUOTES);
+	}
 
-  return $val;
+	if (!$charset) {
+		if ($defenc === '') {
+			$defenc = CmsNlsOperations::get_encoding();
+		}
+		$charset = $defenc;
+	}
+	return htmlentities($val, $param, $charset, false);
 }
 
+/**
+ * Perform HTML entity conversion on a string.
+ *
+ * @see html_entity_decode
+ *
+ * @param string $val     The input string
+ * @param int    $param   Optional flag(s) indicating how html_entity_decode() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
+ * @param string $charset Optional character set of $val. Default 'UTF-8'. If empty the system setting will be used.
+ *
+ * @return string the converted string
+ */
+function cms_html_entity_decode(string $val, int $param = 0, string $charset = 'UTF-8') : string
+{
+	if ($val === '') {
+		return '';
+	}
+
+	if ($param === 0) {
+		if ($deflang === 0) {
+			$deflang = cms_preferred_lang();
+		}
+		$param = ENT_QUOTES | $deflang;
+	}
+
+	if (!$charset) {
+		if ($defenc === '') {
+			$defenc = CmsNlsOperations::get_encoding();
+		}
+		$charset = $defenc;
+	}
+
+	return html_entity_decode($val, $param, $charset);
+}
 
 /**
- * A function to output a backtrace into the generated log file.
+ * Output a backtrace into the generated log file.
  *
  * @see debug_to_log, debug_bt
  * Rolf: Looks like not used
  */
 function debug_bt_to_log()
 {
-    if( CmsApp::get_instance()->config['debug_to_log'] || (function_exists('get_userid') && get_userid(FALSE)) ) {
+    if( CmsApp::get_instance()->config['debug_to_log'] || (function_exists('get_userid') && get_userid(false)) ) {
         $bt=debug_backtrace();
         $file = $bt[0]['file'];
         $line = $bt[0]['line'];
 
-        $out = array();
-        $out[] = "Backtrace in $file on line $line";
+        $out = ["Backtrace in $file on line $line"];
 
         $bt = array_reverse($bt);
         foreach($bt as $trace) {
@@ -303,8 +357,6 @@ function debug_bt()
     echo "</dl></pre>\n";
 }
 
-
-
 /**
 * Debug function to display $var nicely in html.
 *
@@ -315,7 +367,7 @@ function debug_bt()
 * @param bool $showtitle (optional) flag indicating wether the title field should be displayed in the output.
 * @return string
 */
-function debug_display($var, string $title="", bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = TRUE)
+function debug_display($var, string $title='', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
 {
     global $starttime, $orig_memory;
     if( !$starttime ) $starttime = microtime();
@@ -342,7 +394,7 @@ function debug_display($var, string $title="", bool $echo_to_screen = true, bool
         }
     }
 
-    if(FALSE == empty($var)) {
+    if(!empty($var)) {
         if ($use_html) echo '<pre>';
         if(is_array($var)) {
             echo "Number of elements: " . count($var) . "\n";
@@ -376,8 +428,6 @@ function debug_display($var, string $title="", bool $echo_to_screen = true, bool
     return $output;
 }
 
-
-
 /**
  * Display $var nicely only if $config["debug"] is set.
  *
@@ -387,10 +437,8 @@ function debug_display($var, string $title="", bool $echo_to_screen = true, bool
 function debug_output($var, string $title="")
 {
     $config = \cms_config::get_instance();
-    if( $config["debug"] == true) debug_display($var, $title, true);
+    if( $config['debug'] ) debug_display($var, $title, true);
 }
-
-
 
 /**
  * Debug function to output debug information about a variable in a formatted matter
@@ -403,11 +451,11 @@ function debug_output($var, string $title="")
 function debug_to_log($var, string $title='',string $filename = '')
 {
     $config = \cms_config::get_instance();
-    if( $config['debug_to_log'] || (function_exists('get_userid') && get_userid(FALSE)) ) {
+    if( $config['debug_to_log'] || (function_exists('get_userid') && get_userid(false)) ) {
         if( $filename == '' ) {
             $filename = TMP_CACHE_LOCATION . '/debug.log';
             $x = (is_file($filename)) ? @filemtime($filename) : time();
-            if( $x !== FALSE && $x < (time() - 24 * 3600) ) unlink($filename);
+            if( $x !== false && $x < (time() - 24 * 3600) ) unlink($filename);
         }
         $errlines = explode("\n",debug_display($var, $title, false, false, true));
         foreach ($errlines as $txt) {
@@ -415,8 +463,6 @@ function debug_to_log($var, string $title='',string $filename = '')
         }
     }
 }
-
-
 
 /**
  * Display $var nicely to the CmsApp::get_instance()->errors array if $config['debug'] is set.
@@ -429,7 +475,6 @@ function debug_buffer($var, string $title="")
     if( !defined('CMS_DEBUG') || CMS_DEBUG == 0 ) return;
     CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
 }
-
 
 /**
 * Return $value if it's set and same basic type as $default_value,
@@ -454,7 +499,7 @@ function _get_value_with_default($value, $default_value = '', $session_key = '')
     if(isset($value)) {
         if(is_array($value)) {
             // $value is an array - validate each element.
-            $return_value = array();
+            $return_value = [];
             foreach($value as $element) {
                 $return_value[] = _get_value_with_default($element, $default_value);
             }
@@ -474,8 +519,6 @@ function _get_value_with_default($value, $default_value = '', $session_key = '')
     if($session_key != '') $_SESSION['default_values'][$session_key] = $return_value;
     return $return_value;
 }
-
-
 
 /**
  * Retrieve the $value from the $parameters array checking for $parameters[$value] and
@@ -509,7 +552,7 @@ function get_parameter_value(array $parameters, string $value, $default_value = 
 
             if(is_array($parameters[$value])) {
                 // $parameters[$value] is an array - validate each element.
-                $return_value = array();
+                $return_value = [];
                 foreach($parameters[$value] as $element) {
                     $return_value[] = _get_value_with_default($element, $default_value);
                 }
@@ -544,26 +587,25 @@ function is_directory_writable( string $path )
 {
     if ( substr ( $path , strlen ( $path ) - 1 ) != '/' ) $path .= '/' ;
 
-    if( !is_dir($path) ) return FALSE;
-    $result = TRUE;
+    if( !is_dir($path) ) return false;
+    $result = true;
     if( $handle = opendir( $path ) ) {
         while( false !== ( $file = readdir( $handle ) ) ) {
             if( $file == '.' || $file == '..' ) continue;
 
             $p = $path.$file;
-            if( !@is_writable( $p ) ) return FALSE;
+            if( !@is_writable( $p ) ) return false;
 
             if( @is_dir( $p ) ) {
                 $result = is_directory_writable( $p );
-                if( !$result ) return FALSE;
+                if( !$result ) return false;
             }
         }
         closedir( $handle );
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
-
 
 /**
  * Return an array containing a list of files in a directory
@@ -571,7 +613,12 @@ function is_directory_writable( string $path )
  *
  * @internal
  * @param string $dir path to search
- * @param string 4extension include only files matching these extensions. case insensitive, comma delimited
+ * @param string $extensions include only files matching these extensions. case insensitive, comma delimited
+ * @param bool   $excludedot
+ * @param bool   $excludedir
+ * @param string $fileprefix
+ * @param bool   $excludefiles
+ * @return mixed bool or array
  * Rolf: only used in this file
  */
 function get_matching_files(string $dir,string $extensions = '',bool $excludedot = true,bool $excludedir = true, string $fileprefix='',bool $excludefiles = true)
@@ -581,7 +628,7 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
     if( !$dh ) return false;
 
     if( !empty($extensions) ) $extensions = explode(',',strtolower($extensions));
-    $results = array();
+    $results = [];
     while( false !== ($file = readdir($dh)) ) {
         if( $file == '.' || $file == '..' ) continue;
         if( startswith($file,'.') && $excludedot ) continue;
@@ -601,7 +648,6 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
     return $results;
 }
 
-
 /**
  * Return an array containing a list of files in a directory performs a recursive search.
  *
@@ -609,8 +655,8 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
  * @param  array   $excludes Array of regular expressions indicating files to exclude.
  * @param  int     $maxdepth How deep to browse (-1=unlimited)
  * @param  string  $mode     "FULL"|"DIRS"|"FILES"
- * @param  d       $d        for internal use only
- * @return string[]
+ * @param  int     $d        for internal use only
+ * @return mixed bool or array
 **/
 function get_recursive_file_list ( string $path ,array $excludes, int $maxdepth = -1, string $mode = "FULL" , int $d = 0 )
 {
@@ -644,37 +690,36 @@ function get_recursive_file_list ( string $path ,array $excludes, int $maxdepth 
     return ( $dirlist ) ;
 }
 
-
 /**
  * A function to recursively delete all files and folders in a directory; synonymous with rm -r.
  *
- * @param string $dirname The directory name
+ * @param string $path The directory filepath
  * @return bool
  */
-function recursive_delete( string $dirname )
+function recursive_delete( string $path ) : bool
 {
-    // all subdirectories and contents:
-    if( !is_dir($dirname) ) return true;
-    $dir_handle=opendir($dirname);
-    while($file=readdir($dir_handle)) {
-        if($file!="." && $file!="..") {
-            if(!is_dir($dirname."/".$file)) {
-                if( !@unlink ($dirname."/".$file) ) {
-                    closedir( $dir_handle );
+    // all subdirectories and contents
+    if( !is_dir($path) ) return true;
+    $dh = opendir($path);
+    if( !$dh ) return false;
+
+    while( $file = readdir($dh) ) {
+        if( $file!='.' && $file!='..' ) {
+			$p = $path.DIRECTORY_SEPARATOR.$file;
+            if( !is_dir($p) ) {
+                if( !@unlink( $p ) ) {
+                    closedir( $dh );
                     return false;
                 }
             }
             else {
-                recursive_delete($dirname."/".$file);
+                recursive_delete( $p );
             }
         }
     }
-    closedir($dir_handle);
-    if( ! @rmdir($dirname) ) return false;
-    return true;
+    closedir( $dh );
+    return @rmdir($path);
 }
-
-
 
 /**
  * A function to recursively chmod all files and folders in a directory.
@@ -682,14 +727,15 @@ function recursive_delete( string $dirname )
  * @see chmod
  * @param string $path The start location
  * @param int $mode The octal mode
+ * @return bool
  * Rolf: only used in admin/listmodules.php
  */
-function chmod_r( string $path, int $mode )
+function chmod_r( string $path, int $mode ) : bool
 {
     if( !is_dir( $path ) ) return chmod( $path, $mode );
 
     $dh = @opendir( $path );
-    if( !$dh ) return FALSE;
+    if( !$dh ) return false;
 
     while( $file = readdir( $dh ) ) {
         if( $file == '.' || $file == '..' ) continue;
@@ -712,39 +758,37 @@ function chmod_r( string $path, int $mode )
     return @chmod( $path, $mode );
 }
 
-
-
 /**
- * A convenience function to test wether one string starts with another.
+ * A convenience function to test whether one string starts with another.
  *
- * i.e:  startswith('The Quick Brown Fox','The');
+ * e.g.  startswith('The Quick Brown Fox','The');
  *
  * @param string $str The string to test against
  * @param string $sub The search string
  * @return bool
  */
-function startswith( string $str, string $sub )
+function startswith( string $str, string $sub ) : bool
 {
-    return ( substr( $str, 0, strlen( $sub ) ) == $sub );
+	return strncmp( $str, $sub, strlen($sub) ) === 0;
 }
 
-
-
 /**
- * Similar to the startswith method, this function tests with string A ends with string B.
+ * Similar to the startswith method, this function tests whether string A ends with string B.
  *
- * i.e: endswith('The Quick Brown Fox','Fox');
+ * e.g. endswith('The Quick Brown Fox','Fox');
  *
  * @param string $str The string to test against
  * @param string $sub The search string
  * @return bool
  */
-function endswith( string $str, string $sub )
+function endswith( string $str, string $sub ) : bool
 {
-  return ( substr( $str, strlen( $str ) - strlen( $sub ) ) == $sub );
+	$o = strlen( $sub );
+	if( $o >= 0 ) {
+		return strpos($str, $sub, -$o) !== false;
+	}
+	return false;
 }
-
-
 
 /**
  * Convert a human readable string into something that is suitable for use in URLS.
@@ -754,9 +798,9 @@ function endswith( string $str, string $sub )
  * @param bool $withslash Indicates wether slashes should be allowed in the input.
  * @return string
  */
-function munge_string_to_url(string $alias, bool $tolower = false, bool $withslash = false)
+function munge_string_to_url(string $alias, bool $tolower = false, bool $withslash = false) : string
 {
-  if ($tolower == true) $alias = mb_strtolower($alias);
+  if ($tolower) $alias = mb_strtolower($alias); //TODO if mb_string N/A?
 
   // remove invalid chars
   $expr = '/[^\p{L}_\-\.\ \d]/u';
@@ -771,17 +815,29 @@ function munge_string_to_url(string $alias, bool $tolower = false, bool $withsla
   return trim($tmp);
 }
 
+/**
+ * Get $str scrubbed of any (or most?) non-alphanumeric chars CHECKME allow "_-." etc ?
+ * @param string $str String to clean
+ * @return string
+ */
+function sanitize(string $str) : string
+{
+    return preg_replace('/[^[:alnum:]_\-\.]/u', '', $str);
+}
 
 /**
  * Sanitize input to prevent against XSS and other nasty stuff.
- * Taken from cakephp (http://cakephp.org)
- * Licensed under the MIT License
+ * Used (almost entirely) on member(s) of $_POST[] or $_GET[]
  *
  * @internal
- * @param string $val input value
+ * @param mixed $val input value
  * @return string
  */
-function cleanValue(string $val) {
+function cleanValue($val) : string
+{
+/*
+// Taken from cakephp (http://cakephp.org)
+// Licensed under the MIT License
   if ($val == "") return $val;
   //Replace odd spaces with safe ones
   $val = str_replace(" ", " ", $val);
@@ -810,26 +866,41 @@ function cleanValue(string $val) {
   //$val = $this->sql($val);
   //Swap user-inputted backslashes (?)
   $val = preg_replace("/\\\(?!&amp;#|\?#)/", "\\", $val);
-  return $val;
+*/
+	if (!is_string($val) || $val === '') {
+		return $val;
+	}
+	return filter_var($val, FILTER_SANITIZE_SPECIAL_CHARS, 0);
 }
 
+/**
+ * Sanitize input to prevent against XSS and other nasty stuff.
+ * Used (almost entirely) on $_SERVER[] and/or $_GET[]
+ *
+ * @internal
+ * @param array $array reference to array of input values
+ */
+function cleanArray(array &$array)
+{
+	foreach ($array as &$val) {
+		if (is_string($val) && $val !== '') {
+			$val = filter_var($val, FILTER_SANITIZE_STRING,
+					FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+		}
+	}
+	unset($val);
+}
 
 /**
  * A convenience function to return a bool variable given a php ini key that represents a bool.
  *
  * @param string $str The php ini key
- * @return int
+ * @return bool
  */
-function ini_get_boolean(string $str)
+function ini_get_boolean(string $str) : bool
 {
-  $val1 = ini_get($str);
-  $val2 = strtolower($val1);
-
-  $ret = 0;
-  if( $val2 == 1 || $val2 == '1' || $val2 == 'yes' || $val2 == 'true' || $val2 == 'on' ) $ret = 1;
-  return $ret;
+	return cms_to_bool(ini_get($str));
 }
-
 
 /**
  * Another convenience function to output a human readable function stack trace.
@@ -850,7 +921,6 @@ function stack_trace()
   }
 }
 
-
 /**
  * A wrapper around move_uploaded_file that attempts to ensure permissions on uploaded
  * files are set correctly.
@@ -859,7 +929,7 @@ function stack_trace()
  * @param string $destination The destination file specification
  * @return bool.
  */
-function cms_move_uploaded_file( string $tmpfile, string $destination )
+function cms_move_uploaded_file( string $tmpfile, string $destination ) : bool
 {
    $config = CmsApp::get_instance()->GetConfig();
 
@@ -868,39 +938,29 @@ function cms_move_uploaded_file( string $tmpfile, string $destination )
    return true;
 }
 
-
 /**
  * A function to test wether an IP address matches a list of expressions.
  * Credits to J.Adams <jna@retins.net>
  *
- * Expressions can be of the form
- *   xxx.xxx.xxx.xxx        (exact)
- *   xxx.xxx.xxx.[yyy-zzz]  (range)
- *   xxx.xxx.xxx.xxx/nn    (nn = # bits, cisco style -- i.e. /24 = class C)
+ * Matches:
+ * xxx.xxx.xxx.xxx        (exact)
+ * xxx.xxx.xxx.[yyy-zzz]  (range)
+ * xxx.xxx.xxx.xxx/nn    (nn = # bits, cisco style -- i.e. /24 = class C)
+ *
+ * Does not match:
+ * xxx.xxx.xxx.xx[yyy-zzz]  (range, partial octets nnnnnot supported)
  *
  * @param string $ip IP address to test
  * @param array  $checklist Array of match expressions
  * @return bool
  * Rolf: only used in lib/content.functions.php
  */
-function cms_ipmatches(string $ip,array $checklist)
+function cms_ipmatches(string $ip,array $checklist) : bool
 {
     $_testip = function($range,$ip) {
     $result = 1;
 
-    // IP Pattern Matcher
-    // J.Adams <jna@retina.net>
-    //
-    // Matches:
-    //
-    // xxx.xxx.xxx.xxx        (exact)
-    // xxx.xxx.xxx.[yyy-zzz]  (range)
-    // xxx.xxx.xxx.xxx/nn    (nn = # bits, cisco style -- i.e. /24 = class C)
-    //
-    // Does not match:
-    // xxx.xxx.xxx.xx[yyy-zzz]  (range, partial octets nnnnnot supported)
-
-    $regs = array();
+    $regs = [];
     if (preg_match("/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\/([0-9]+)/",$range,$regs)) {
       // perform a mask match
       $ipl = ip2long($ip);
@@ -909,14 +969,10 @@ function cms_ipmatches(string $ip,array $checklist)
       $maskl = 0;
 
       for ($i = 0; $i< 31; $i++) {
-	if ($i < $regs[5]-1) $maskl = $maskl + pow(2,(30-$i));
+         if ($i < $regs[5]-1) $maskl = $maskl + pow(2,(30-$i));
       }
 
-      if (($maskl & $rangel) == ($maskl & $ipl)) {
-	return 1;
-      } else {
-	return 0;
-      }
+      return ($maskl & $rangel) == ($maskl & $ipl);
     } else {
       // range based
       $maskocts = explode('.',$range);
@@ -939,32 +995,29 @@ function cms_ipmatches(string $ip,array $checklist)
 
   if( !is_array($checklist) ) $checklist = explode(',',$checklist);
   foreach( $checklist as $one ) {
-    if( $_testip(trim($one),$ip) ) return TRUE;
+    if( $_testip(trim($one),$ip) ) return true;
   }
-  return FALSE;
+  return false;
 }
-
 
 /**
  * Test if the string provided is a valid email address.
  *
- * @return bool
  * @param string  $email
  * @param bool $checkDNS
+ * @return bool
 */
 function is_email( string $email, bool $checkDNS=false )
 {
-   if( !filter_var($email,FILTER_VALIDATE_EMAIL) ) return FALSE;
+   if( !filter_var($email,FILTER_VALIDATE_EMAIL) ) return false;
    if ($checkDNS && function_exists('checkdnsrr')) {
        list($user,$domain) = explode('@',$email,2);
-       if( !$domain ) return FALSE;
-       if ( !(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return FALSE;	// Domain doesn't actually exist
+       if( !$domain ) return false;
+       if ( !(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return false;	// Domain doesn't actually exist
    }
 
-   return TRUE;
+   return true;
 }
-
-
 
 /**
  * A convenience method to output the secure param tag that is used on all admin links.
@@ -974,7 +1027,7 @@ function is_email( string $email, bool $checkDNS=false )
  * @return string
  * Rolf: only used in admin/imagefiles.php
  */
-function get_secure_param()
+function get_secure_param() : string
 {
     $urlext = '?';
     $str = strtolower(ini_get('session.use_cookies'));
@@ -983,25 +1036,27 @@ function get_secure_param()
     return $urlext;
 }
 
-
-
 /**
  * A simple function to convert a string to a bool.
- * accepts, 'y','yes','true',1 as TRUE (case insensitive) all other values represent FALSE.
+ * Accepts number != 0, 'y','yes','true','on' as true (case insensitive) all other values represent false.
  *
- * @param string $str Input string to test.
+ * @param string $str Input to test.
  * Rolf: only used in lib/classes/contenttypes/Content.inc.php
  */
-function cms_to_bool(string $str)
+function cms_to_bool(string $str) : bool
 {
-  if( is_numeric($str) ) return ((int)$str != 0)?TRUE:FALSE;
+  if( is_numeric($str) ) return (int)$str !== 0;
 
-  $str = strtolower($str);
-  if( $str == '1' || $str == 'y' || $str == 'yes' || $str == 'true' || $str === 'on' ) return TRUE;
-  return FALSE;
+	switch (strtolower($str)) {
+		case 'y':
+		case 'yes':
+		case 'true':
+		case 'on':
+			return true;
+		default:
+			return false;
+	}
 }
-
-
 
 /**
  * A function to return the appropriate HTML tags to include the CMSMS included jquery in a web page.
@@ -1028,25 +1083,25 @@ function cms_to_bool(string $str)
  * @param string  $custom_root A custom root URL for all scripts (when using local mode).  If this is spefied the $ssl param will be ignored.
  * @param bool $include_css Optionally output stylesheet tags for the included javascript libraries.
  */
-function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = TRUE)
+function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
   $config = cms_config::get_instance();
-  $scripts = array();
+  $scripts = [];
   $base_url = CMS_ROOT_URL;
-  if( $ssl === true || $ssl === TRUE ) $base_url = $config['ssl_url'];
+  if( $ssl === true || $ssl === true ) $base_url = $config['ssl_url'];
   $basePath=$custom_root!=''?trim($custom_root,'/'):$base_url;
 
   // Scripts to include
-  $scripts['jquery'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js',
-			     'local'=>$basePath.'/lib/jquery/js/jquery-1.11.1.min.js',
+  $scripts['jquery'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
+			     'local'=>$basePath.'/lib/jquery/js/jquery-1.12.4.min.js',
 			     'aliases'=>array('jquery.min.js','jquery',));
-  $scripts['jquery-ui'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js',
-				'local'=>$basePath.'/lib/jquery/js/jquery-ui-1.10.4.custom.min.js',
+  $scripts['jquery-ui'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
+				'local'=>$basePath.'/lib/jquery/js/jquery-ui-1.11.4.custom.min.js',
 				'aliases'=>array('jquery-ui.min.js','ui'),
-				'css'=>$basePath.'/lib/jquery/css/smoothness/jquery-ui-1.10.4.custom.min.css');
-  $scripts['nestedSortable'] = array('local'=>$basePath.'/lib/jquery/js/jquery.mjs.nestedSortable.js');
-  $scripts['json'] = array('local'=>$basePath.'/lib/jquery/js/jquery.json-2.4.min.js');
-  $scripts['migrate'] = array('local'=>$basePath.'/lib/jquery/js/jquery-migrate-1.2.1.min.js');
+				'css'=>$basePath.'/lib/jquery/css/smoothness/jquery-ui-1.11.4.custom.min.css');
+  $scripts['nestedSortable'] = array('local'=>$basePath.'/lib/jquery/js/jquery.mjs.nestedSortable.min.js');
+//  $scripts['json'] = array('local'=>$basePath.'/lib/jquery/js/jquery.json-2.4.min.js');
+  $scripts['migrate'] = array('local'=>$basePath.'/lib/jquery/js/jquery-migrate-1.3.0.min.js');
 
   if( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
       global $CMS_LOGIN_PAGE;
@@ -1054,7 +1109,7 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
           $url = $config['admin_url'];
           $scripts['cms_js_setup'] = array('local'=>$url.'/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
       }
-      $scripts['cms_admin'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.js');
+      $scripts['cms_admin'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.min.js');
       $scripts['cms_dirtyform'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_dirtyform.js');
       $scripts['cms_lock'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_lock.js');
       $scripts['cms_hiersel'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_hierselector.js');
@@ -1120,7 +1175,7 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
  * @ignore
  * @since 2.0.2
  */
-function setup_session(bool $cachable = FALSE)
+function setup_session(bool $cachable = false)
 {
     global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE;
     static $_setup_already = false;
@@ -1130,7 +1185,7 @@ function setup_session(bool $cachable = FALSE)
     if( headers_sent( $_f, $_l) ) throw new \LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
 
     if( $cachable ) {
-        if( $_SERVER['REQUEST_METHOD'] != 'GET' || isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE) ) $cachable = FALSE;
+        if( $_SERVER['REQUEST_METHOD'] != 'GET' || isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE) ) $cachable = false;
     }
     if( $cachable ) $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
     if( !$cachable ) {
@@ -1172,11 +1227,10 @@ function setup_session(bool $cachable = FALSE)
  * @param string $s The input string
  * @return bool
  */
-function is_base64(string $s)
+function is_base64(string $s) : bool
 {
     return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s);
 }
-
 
 /**
  * Create a unique GUID.
@@ -1184,7 +1238,7 @@ function is_base64(string $s)
  * @since 2.3
  * @return string
  */
-function cms_create_guid()
+function cms_create_guid() : string
 {
     if (function_exists('com_create_guid') === true) return trim(com_create_guid(), '{}');
     return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
