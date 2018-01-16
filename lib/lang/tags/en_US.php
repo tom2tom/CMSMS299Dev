@@ -366,7 +366,7 @@ $lang['help_function_page_attr'] = <<<EOT
       <li>extra2 - (string) The value of the extra2 attribute.</li>
       <li>extra3 - (string) The value of the extra3 attribute.</li>
     </ul>
-    <p><strong>Note:</strong> The list above is not inclusive.  You can also retrieve the unparsed contents of additional content blocks or properties added by third party 
+    <p><strong>Note:</strong> The list above is not inclusive.  You can also retrieve the unparsed contents of additional content blocks or properties added by third party
   </li>
   <li><em>(optional)</em> inactive (boolean) - Allows reading page attributes from inactive pages.</li>
   <li><em>(optional)</em> assign (string) - Assign the results to a smarty variable with that name.</li>
@@ -1051,9 +1051,8 @@ $lang['help_function_cms_jquery'] = <<<EOT
 <h3>Sample</h3>
 <pre><code>{cms_jquery cdn='true' exclude='jquery-ui' append='uploads/NCleanBlue/js/ie6fix.js' include_css=0}</code></pre>
 <h4><em>Outputs</em></h4>
-<pre><code>&lt;script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://localhost/1.10.x/lib/jquery/js/jquery.json-2.3.js"&gt;&lt;/script&gt;
+<pre><code>&lt;script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="uploads/NCleanBlue/js/ie6fix.js"&gt;&lt;/script&gt;
 </code></pre>
 
@@ -1069,7 +1068,7 @@ $lang['help_function_cms_jquery'] = <<<EOT
 <h3>What parameters does it take?</h3>
 <ul>
 	<li><em>(optional) </em><tt>exclude</tt> - use comma seperated value(CSV) list of scripts you would like to exclude. <code>'jquery-ui,migrate'</code></li>
-	<li><em>(optional) </em><tt>append</tt> - use comma seperated value(CSV) list of script paths you would like to append. <code>'/uploads/jquery.ui.nestedSortable.js,http://code.jquery.com/jquery-1.7.1.min.js'</code></li>
+	<li><em>(optional) </em><tt>append</tt> - use comma seperated value(CSV) list of script paths you would like to append. <code>'/uploads/jquery.ui.nestedSortable.min.js,http://code.jquery.com/jquery-1.12.4.min.js'</code></li>
 	<li><em>(optional) </em><tt>cdn</tt> - cdn='true' will insert jQuery and jQueryUI Frameworks using Google's Content Delivery Netwok. Default is false.</li>
 	<li><em>(optional) </em><tt>ssl</tt> - use to use the ssl_url as the base path.</li>
 	<li><em>(optional) </em><tt>custom_root</tt> - use to set any base path wished.<code>custom_root='http://test.domain.com/'</code> <br/>NOTE: overwrites ssl option and works with the cdn option</li>
