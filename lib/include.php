@@ -1,7 +1,7 @@
 <?php
 #CMS - CMS Made Simple
-#(c)2004-2013 by Ted Kulp (wishy@users.sf.net)
-#(c)2011-2016 by The CMSMS Dev Team
+#(c)2004-2013 Ted Kulp <wishy@users.sf.net>
+#(c)2011-2018 The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -15,22 +15,23 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #$Id$
 
-/**
+/*
  * This file is included in every page.  It does all setup functions including
  * importing additional functions/classes, setting up sessions and nls, and
  * construction of various important variables like $gCms.
  *
- * This function cannot be included by third party applications to create access to CMSMS API's.  It is intended for
- * and supported for use in CMSMS applications only.
+ * This file cannot be included by third party applications to create access to CMSMS API's.
+ * It is intended for and supported for use in CMSMS applications only.
  *
  * @package CMS
  */
 
-/**
+/*
  * Special variables that may be set before this file is included which will influence its behavior.
  *
  * DONT_LOAD_DB = Indicates that the database should not be initialized and any database related functions should not be called
@@ -50,7 +51,7 @@ define('CONFIG_FILE_LOCATION',dirname(__DIR__).'/config.php');
 global $CMS_INSTALL_PAGE,$CMS_ADMIN_PAGE,$CMS_LOGIN_PAGE,$DONT_LOAD_DB,$DONT_LOAD_SMARTY;
 
 if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
-	$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
+    $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
 }
 
 if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
@@ -58,8 +59,8 @@ if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize
 }
 
 // sanitize $_SERVER and $_GET
-$_SERVER = filter_var_array($_SERVER, FILTER_SANITIZE_STRING);
-$_GET = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+cleanArray($_SERVER);
+cleanArray($_GET);
 
 // include some stuff
 require_once($dirname.DIRECTORY_SEPARATOR.'compat.functions.php');
@@ -73,7 +74,6 @@ require_once($dirname.DIRECTORY_SEPARATOR.'autoloader.php');
 require_once($dirname.DIRECTORY_SEPARATOR.'module.functions.php');
 require_once($dirname.DIRECTORY_SEPARATOR.'page.functions.php');
 require_once($dirname.DIRECTORY_SEPARATOR.'translation.functions.php');
-require_once($dirname.DIRECTORY_SEPARATOR.'html_entity_decode_php4.php');
 
 debug_buffer('done loading basic files');
 
@@ -114,7 +114,7 @@ $obj = new \CMSMS\internal\global_cachable('schema_version',
                                                $db = \CmsApp::get_instance()->GetDb();
                                                $query = 'SELECT version FROM '.CmsApp::get_instance()->GetDbPrefix().'version';
                                                return $db->GetOne($query);
-                                  });
+                                           });
 \CMSMS\internal\global_cache::add_cachable($obj);
 $obj = new \CMSMS\internal\global_cachable('latest_content_modification',
                                            function(){
