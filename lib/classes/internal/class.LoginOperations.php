@@ -16,10 +16,9 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#
-#$Id: class.user.inc.php 2961 2006-06-25 04:49:31Z wishy $
+#$Id:$
 
-namespace CMSMS;
+namespace CMSMS\internal;
 
 final class LoginOperations
 {
