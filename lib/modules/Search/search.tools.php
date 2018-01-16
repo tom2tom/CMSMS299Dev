@@ -88,13 +88,13 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
 
     if ($content != "") {
         //Clean up the content
-	$content = html_entity_decode($content);
+        $content = html_entity_decode($content);
         $stemmed_words = $obj->StemPhrase($content);
         $tmp = array_count_values($stemmed_words);
-	if( !is_array($tmp) || !count($tmp) ) return;
-        $words = array();
+        if( !is_array($tmp) || !count($tmp) ) return;
+        $words = [];
         foreach( $tmp as $key => $val ) {
-            $words[] = array('word'=>$key,'count'=>$val);
+            $words[] = [$key, $val];
         }
 
         $q = "SELECT id FROM ".CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
@@ -120,10 +120,8 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
         }
 
         $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_search_index (item_id, word, count) VALUES ($itemid,?,?)");
-        $stmt->Bind($words);
-        while( !$stmt->EOF() ) {
-            $stmt->Execute();
-            $stmt->MoveNext();
+        foreach ($words as $row) {
+            $stmt->Execute($row);
         }
         $db->CommitTrans();
     }
