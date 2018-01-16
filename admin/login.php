@@ -26,7 +26,7 @@ $CMS_LOGIN_PAGE=1;
 require_once("../lib/include.php");
 $gCms = \CmsApp::get_instance();
 $db = $gCms->GetDb();
-$login_ops = \CMSMS\LoginOperations::get_instance();
+$login_ops = \CMSMS\internal\LoginOperations::get_instance();
 
 $error = "";
 $forgotmessage = "";
@@ -48,11 +48,11 @@ function send_recovery_email(\User $user)
 
     $obj = new \cms_mailer;
     $obj->IsHTML(TRUE);
-    $obj->AddAddress($user->email, html_entity_decode($user->firstname . ' ' . $user->lastname));
+    $obj->AddAddress($user->email,cms_html_entity_decode($user->firstname.' '.$user->lastname));
     $obj->SetSubject(lang('lostpwemailsubject',html_entity_decode(get_site_preference('sitename','CMSMS Site'))));
 
     $url = $config['admin_url'] . '/login.php?recoverme=' . md5(md5($config['root_path'] . '--' . $user->username . md5($user->password)));
-    $body = lang('lostpwemail',html_entity_decode(get_site_preference('sitename','CMSMS Site')), $user->username, $url, $url);
+    $body = lang('lostpwemail',cms_html_entity_decode(get_site_preference('sitename','CMSMS Site')), $user->username, $url, $url);
 
     $obj->SetBody($body);
 
@@ -90,7 +90,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
 }
 else if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     $userops = $gCms->GetUserOperations();
-    $forgot_username = cms_html_entity_decode($_REQUEST['forgottenusername']);
+    $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_SRING);
     unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
     \CMSMS\HookManager::do_hook('Core::LostPassword', [ 'username'=>$forgot_username] );
     $oneuser = $userops->LoadUserByUsername($forgot_username);
@@ -224,7 +224,7 @@ else if( isset($_POST['loginsubmit']) ) {
             $homepage = $tmp[0].'?'.implode('&amp;',$tmp3);
 
             // and redirect.
-            $homepage = html_entity_decode($homepage);
+            $homepage = cms_html_entity_decode($homepage);
             if( !startswith($homepage,'http') && !startswith($homepage,'//') && startswith($homepage,'/') ) $homepage = CMS_ROOT_URL.$homepage;
             redirect($homepage);
         }
