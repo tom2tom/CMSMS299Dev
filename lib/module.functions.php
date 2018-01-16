@@ -1,6 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004-2010 by Ted Kulp (wishy@users.sf.net)
+#CMS Made Simple methods
+#(c)2004-2010 Ted Kulp <wishy@users.sf.net>
+#(c)2010-2018 The CMSMS Dev Team
 #Visit our homepage at: http://www.cmsmadesimple.org
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,7 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #$Id$
 
@@ -35,7 +37,7 @@
  * @param object The smarty template object
  * @return string The module output
  */
-function cms_module_plugin($params,&$smarty)
+function cms_module_plugin(array $params, &$smarty) : string
 {
     //if( get_class($smarty) == 'Smarty_Parser' ) return; // if we are in the parser, we don't process module calls.
     $modulename = '';
@@ -77,15 +79,16 @@ function cms_module_plugin($params,&$smarty)
 
     if (isset($_REQUEST['mact'])) {
         // we're handling an action.  check if it is for this call.
-        // we may be calling module plugins multiple times in the template,  but a POST or GET mact
-        // canx only be for one of them.
+        // we may be calling module plugins multiple times in the template,
+		// but a POST or GET mact can only be for one of them.
         $checkid = null;
-        $ary = explode(',', cms_htmlentities($_REQUEST['mact']), 4);
-        $mactmodulename = (isset($ary[0])?$ary[0]:'');
-        if( 0 == strcasecmp($mactmodulename,$modulename) ) {
-            $checkid = (isset($ary[1])?$ary[1]:'');
-            $mactaction = (isset($ary[2])?$ary[2]:'');
-            $inline = (isset($ary[3]) && $ary[3] == 1?true:false);
+        $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+        $ary = explode(',', $mact, 4);
+        $mactmodulename = $ary[0] ?? '';
+        if( 0 == strcasecmp($mactmodulename, $modulename) ) {
+            $checkid = $ary[1] ?? '';
+            $mactaction = $ary[2] ?? '';
+            $inline = isset($ary[3]) && $ary[3] === 1;
 
             if ($checkid == $id && $inline == true ) {
                 // the action is for this instance of the module and we're inline (the results are supposed to replace
