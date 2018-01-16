@@ -34,7 +34,6 @@
 #
 #-------------------------------------------------------------------------
 #END_LICENSE
-if (!isset($gCms)) exit;
 
 define('MINIMUM_REPOSITORY_VERSION','1.5');
 
@@ -95,7 +94,7 @@ class ModuleManager extends CMSModule
     {
         @set_time_limit(9999);
         /*
-          $smarty = \Smarty_CMS::get_instance();
+          $smarty = \CMSMS\internal\Smarty::get_instance();
           $smarty->assign($this->GetName(), $this);
           $smarty->assign('mod', $this);
         */
