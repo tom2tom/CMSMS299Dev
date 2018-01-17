@@ -1,4 +1,9 @@
 <?php
+# uninstallation-process  for CmsJobManager, a core module for CMS Made Simple
+# to manage asynchronous jobs and cron jobs.
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# See license details at the top of file CmsJobManager.module.php
+
 if( !isset($gCms) ) exit;
 
 $dict = NewDataDictionary( $db );
