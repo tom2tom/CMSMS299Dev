@@ -106,6 +106,7 @@ $lang['friendlyname'] = 'Content Manager';
 
 #G
 $lang['go'] = 'Go';
+$lang['group_desc'] = 'Members of this group can manage content';
 
 #H
 $lang['help_content_type'] = 'The content type controls the overall function of an item.  Some content types are used for building HTML pages, while others are for building links or other navigation functions.';
@@ -169,6 +170,11 @@ $lang['opt_designpage'] = 'All page templates associated with the design';
 #P
 $lang['page'] = 'Page';
 $lang['pages'] = 'Pages';
+$lang['perm_add'] = 'Add Pages';
+$lang['perm_manage'] = 'Manage All Content';
+$lang['perm_modify'] = 'Modify Any Page';
+$lang['perm_remove'] = 'Remove Pages';
+$lang['perm_reorder'] = 'Reorder Content';
 $lang['postinstall'] = 'Content module installed';
 $lang['postuninstall'] = 'The content module has been uninstalled. Note: no content has been removed from CMSMS.  You are free to reinstall this module or install an alternate content management module';
 $lang['preuninstall'] = 'Are you sure you want to uninstall this module?\nAlthough uninstalling this module will not destroy any content, it may prevent you from being able to manage the pages of your website.';
