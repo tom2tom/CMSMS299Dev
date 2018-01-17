@@ -1,8 +1,7 @@
 <?php
-#CMS Made Simple
-#(c)2004-2016 Ted Kulp <wishy@users.sf.net>
-#(c)2017-2018 The CMSMS Dev Team
-#Visit our homepage at: http://www.cmsmadesimple.org
+#admin-request-start processing for CMS Made Simple <http://www.cmsmadesimple.org>
+#Copyright (C) 2004-2016 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2017-2018 The CMSMS Dev Team <@cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -15,7 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #$Id$
 
@@ -68,7 +68,7 @@ if( $USE_THEME ) {
 
     // get module output
     @ob_start();
-    echo  $modinst->DoActionBase($action, $id, $params, null, $smarty);
+    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
     $content = @ob_get_contents();
     @ob_end_clean();
 
@@ -87,7 +87,7 @@ if( $USE_THEME ) {
 
     if ( !empty($params['module_message']) ) echo $themeObject->ShowMessage($params['module_message']);
     if ( !empty($params['module_error']) ) echo $themeObject->ShowErrors($params['module_error']);
-    include_once("header.php");
+    include_once 'header.php';
 
     // this is hackish
     echo '<div class="pagecontainer">';
@@ -100,7 +100,7 @@ if( $USE_THEME ) {
     echo $themeObject->ShowHeader($title,[],'',$module_help_type).'</div>';
     echo $content;
     echo '</div>';
-    include_once("footer.php");
+    include_once 'footer.php';
 } else {
     // no theme output.
     echo $modinst->DoActionBase($action, $id, $params, '', $smarty);
