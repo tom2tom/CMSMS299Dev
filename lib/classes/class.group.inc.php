@@ -1,7 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004-2010 by Ted Kulp (ted@cmsmadesimple.org)
-#Visit our homepage at: http://cmsmadesimple.org
+#admin-group class for CMS Made Simple <http://www.cmsmadesimple.org>
+#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2011-2018 The CMSMS Dev Team <@cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -14,7 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
-#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #
 #$Id$
 
@@ -40,7 +41,7 @@ class Group
     /**
      * @ignore
      */
-    private $_data = array('id'=>-1,'name'=>null,'description'=>null,'active'=>false);
+    private $_data = ['id'=>-1,'name'=>null,'description'=>null,'active'=>false];
 
     /**
      * @ignore
@@ -84,10 +85,10 @@ class Group
     public function validate()
     {
         if( !$this->name ) throw new \LogicException('No name specified for this group');
-		$db = CmsApp::get_instance()->GetDb();
+        $db = CmsApp::get_instance()->GetDb();
         $sql = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ? AND group_id != ?';
-        $tmp = $db->GetOne($sql,array($this->name,$this->id));
-        if( $tmp ) throw new \CmsInvalidDataException(lang('errorgroupexists'));
+        $dbresult = $db->GetOne($sql,[$this->name,$this->id]);
+        if( $dbresult ) throw new \CmsInvalidDataException(lang('errorgroupexists'));
     }
 
     /**
@@ -95,11 +96,12 @@ class Group
      */
     protected function update()
     {
-		$db = CmsApp::get_instance()->GetDb();
+        $db = CmsApp::get_instance()->GetDb();
         $sql = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
-        $dbr = $db->Execute($sql,array($this->name,$this->description,$this->active,$this->id));
-        if( $dbresult !== false ) return TRUE;
-        return FALSE;
+//        $dbresult = 
+        $db->Execute($sql, [$this->name,$this->description,$this->active,$this->id]);
+//        return $dbresult != FALSE; useless - post-update result on MySQL is always unreliable
+        return TRUE;
     }
 
     /**
@@ -108,56 +110,63 @@ class Group
     protected function insert()
     {
         $db = CmsApp::get_instance()->GetDb();
-		$this->_data['id'] = $db->GenID(CMS_DB_PREFIX."groups_seq");
-		$time = $db->DBTimeStamp(time());
-		$query = "INSERT INTO ".CMS_DB_PREFIX."groups (group_id, group_name, group_desc, active, create_date, modified_date)
-                  VALUES (?,?,?,?,".$time.", ".$time.")";
-		$dbresult = $db->Execute($query, array($this->id, $this->name, $this->description, $this->active));
-		return $dbresult;
+        $this->_data['id'] = $db->GenID(CMS_DB_PREFIX."groups_seq");
+        $time = $db->DBTimeStamp(time());
+        $query = 'INSERT INTO '.CMS_DB_PREFIX.'groups (group_id, group_name, group_desc, active, create_date, modified_date)
+VALUES (?,?,?,?,'.$time.', '.$time.')';
+        $dbresult = $db->Execute($query, [$this->id, $this->name, $this->description, $this->active]);
+        return $dbresult != FALSE;
     }
 
-	/**
-	 * Persists the group to the database.
-	 *
-	 * @return bool true if the save was successful, false if not.
-	 */
-	function Save()
-	{
+    /**
+     * Persists the group to the database.
+     *
+     * @return bool true if the save was successful, false if not.
+     */
+    public function Save()
+    {
         $this->validate();
         if( $this->id > 0 ) {
             return $this->update();
-        }
-        else {
+        } else {
             return $this->insert();
         }
-	}
-
-	/**
-	 * Deletes the group from the database
-	 *
-     * @throws LogicException
-	 * @return bool True if the delete was successful, false if not.
-	 */
-	function Delete()
-	{
-        if( $this->id < 1 ) return FALSE;
-        if( $this->id == 1 ) throw new \LogicException(lang('error_deletespecialgroup'));
-        $db = CmsApp::get_instance()->GetDb();
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where group_id = ?';
-		$dbresult = $db->Execute($query, array($this->id));
-		$query = "DELETE FROM ".CMS_DB_PREFIX."group_perms where group_id = ?";
-		$dbresult = $db->Execute($query, array($this->id));
-		$query = "DELETE FROM ".CMS_DB_PREFIX."groups where group_id = ?";
-		$dbresult = $db->Execute($query, array($this->id));
-        $this->_data['id'] = -1;
-		return TRUE;
-	}
+    }
 
     /**
-     * Load a Group given it's id.
+     * Deletes the group from the database
+     *
+     * @throws LogicException
+     * @return bool whether the delete was successful.
+     */
+    public function Delete()
+    {
+        $db = CmsApp::get_instance()->GetDb();
+        if( $this->$_data['id'] < 1 ) {
+            if( $this->$_data['name'] ) {
+                $query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups where group_name = ?';
+                $this->id = (int) $db->GetOne($query, [$this->name]);
+                if( $this->id <= 0 ) return FALSE;
+            } else {
+                return FALSE;
+            }
+        }
+        if( $this->id == 1 ) throw new \LogicException(lang('error_deletespecialgroup'));
+        $query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where group_id = ?';
+        $db->Execute($query, [$this->id]);
+        $query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms where group_id = ?';
+        $db->Execute($query, [$this->id]);
+        $query = 'DELETE FROM '.CMS_DB_PREFIX.'groups where group_id = ?';
+        $db->Execute($query, [$this->id]);
+        $this->_data['id'] = -1;
+        return TRUE;
+    }
+
+    /**
+     * Get a populated Group-object representing the group with the specified id.
      *
      * @param int $id
-     * @return Group
+     * @return Group-object
      * @throws CmsInvalidDataException
      */
     public static function &load($id)
@@ -165,9 +174,9 @@ class Group
         $id = (int) $id;
         if( $id < 1 ) throw new \CmsInvalidDataException(lang('missingparams'));
 
-		$db = CmsApp::get_instance()->GetDb();
-		$query = "SELECT group_id, group_name, group_desc, active FROM ".CMS_DB_PREFIX."groups WHERE group_id = ? ORDER BY group_id";
-		$row = $db->GetRow($query, array($id));
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT group_id, group_name, group_desc, active FROM '.CMS_DB_PREFIX.'groups WHERE group_id = ? ORDER BY group_id';
+        $row = $db->GetRow($query, [$id]);
 
         $obj = new self();
         $obj->_data['id'] = $row['group_id'];
@@ -180,81 +189,78 @@ class Group
     /**
      * Load all groups
      *
-     * @return array Array of group records.
+     * @return mixed Array of populated Group-objects or null.
      */
     public static function load_all()
     {
-		$db = CmsApp::get_instance()->GetDb();
-		$result = array();
-		$query = "SELECT group_id, group_name, group_desc, active FROM ".CMS_DB_PREFIX."groups ORDER BY group_id";
-		$list = $db->GetArray($query);
-        $out = array();
-        for( $i = 0, $n = count($list); $i < $n; $i++ ) {
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT group_id, group_name, group_desc, active FROM '.CMS_DB_PREFIX.'groups ORDER BY group_id';
+        $list = $db->GetArray($query);
+        $out = [];
+        for( $i = 0, $n = count($list); $i < $n; ++$i ) {
             $row = $list[$i];
             $obj = new self();
             $obj->_data['id'] = (int) $row['group_id'];
             $obj->name = $row['group_name'];
             $obj->description = $row['group_desc'];
-            $obj->active = $row['active'];
+            $obj->active = (int) $row['active'];
             $out[] = $obj;
         }
-        if( count($out) ) return $out;
+        if( $n ) return $out;
     }
 
-	/**
-	 * Check if the group has the specified permission.
-	 *
-	 * @since 1.11
-	 * @author Robert Campbell
-	 * @internal
-	 * @access private
-	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name to test.
-	 * @return bool True if the group has the specified permission, false otherwise.
-	 */
-	public function HasPermission($perm)
-	{
-		if( $this->id <= 0 ) return FALSE;
-		$groupops = GroupOperations::get_instance();
-		return $groupops->CheckPermission($this->id,$perm);
-	}
+    /**
+     * Check if the group has the specified permission.
+     *
+     * @since 1.11
+     * @author Robert Campbell
+     * @internal
+     * @access private
+     * @ignore
+     * @param mixed $perm Either the permission id, or permission name to test.
+     * @return bool whether the group has the specified permission.
+     */
+    public function HasPermission($perm)
+    {
+        if( $this->id <= 0 ) return FALSE;
+        $groupops = GroupOperations::get_instance();
+        return $groupops->CheckPermission($this->id,$perm);
+    }
 
-	/**
-	 * Ensure this group has the specified permission.
-	 *
-	 * @since 1.11
-	 * @author Robert Campbell
-	 * @internal
-	 * @access private
-	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name to test.
-	 */
-	public function GrantPermission($perm)
-	{
-		if( $this->id < 1 ) return;
-		if( $this->HasPermission($perm) ) return;
-		$groupops = GroupOperations::get_instance();
-		return $groupops->GrantPermission($this->id,$perm);
-	}
+    /**
+     * Ensure this group has the specified permission.
+     *
+     * @since 1.11
+     * @author Robert Campbell
+     * @internal
+     * @access private
+     * @ignore
+     * @param mixed $perm Either the permission id, or permission name to test.
+     */
+    public function GrantPermission($perm)
+    {
+        if( $this->id < 1 ) return;
+        if( $this->HasPermission($perm) ) return;
+        $groupops = GroupOperations::get_instance();
+        return $groupops->GrantPermission($this->id,$perm);
+    }
 
-	/**
-	 * Ensure this group does not have the specified permission.
-	 *
-	 * @since 1.11
-	 * @author Robert Campbell
-	 * @internal
-	 * @access private
-	 * @ignore
-	 * @param mixed $perm Either the permission id, or permission name to test.
-	 */
-	public function RemovePermission($perm)
-	{
-		if( $this->id <= 0 ) return;
-		if( !$this->HasPermission($perm) ) return;
-		$groupops = GroupOperations::get_instance();
-		return $groupops->RemovPermission($this->id,$perm);
-	}
-
+    /**
+     * Ensure this group does not have the specified permission.
+     *
+     * @since 1.11
+     * @author Robert Campbell
+     * @internal
+     * @access private
+     * @ignore
+     * @param mixed $perm Either the permission id, or permission name to test.
+     */
+    public function RemovePermission($perm)
+    {
+        if( $this->id <= 0 ) return;
+        if( !$this->HasPermission($perm) ) return;
+        $groupops = GroupOperations::get_instance();
+        return $groupops->RemovPermission($this->id,$perm);
+    }
 }
 
-?>
