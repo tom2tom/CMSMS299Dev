@@ -27,9 +27,9 @@ $gCms = CmsApp::get_instance();
 $db = $gCms->GetDb();
 $login_ops = CMSMS\internal\LoginOperations::get_instance();
 
-$error = "";
-$forgotmessage = "";
-$changepwhash = "";
+$error = '';
+$forgotmessage = ''; //needed ?
+$changepwhash = '';
 
 /**
  * A function to send lost password recovery email to a specified admin user (by name)
@@ -248,7 +248,7 @@ cms_admin_sendheaders();
 header("Content-Language: " . CmsNlsOperations::get_current_language());
 
 $themeObject = cms_utils::get_theme_object();
-$vars = array('error'=>$error);
+$vars = ['error'=>$error];
 if( isset($warningLogin) ) $vars['warningLogin'] = $warningLogin;
 if( isset($acceptLogin) ) $vars['acceptLogin'] = $acceptLogin;
 if( isset($changepwhash) ) $vars['changepwhash'] = $changepwhash;
