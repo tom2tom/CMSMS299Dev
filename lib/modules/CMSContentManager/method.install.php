@@ -1,26 +1,12 @@
 <?php
-#BEGIN_LICENSE
 #-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell 
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-# 
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# CMSContentManager - A CMSMS module to provide page-content management.
+# Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-#
-# However, as a special exception to the GPL, this software is distributed
-# as an addon module to CMS Made Simple.  You may not use this software
-# in any Non GPL version of CMS Made simple, or in any version of CMS
-# Made simple that does not indicate clearly and obviously in its admin 
-# section that the site was built with CMS Made simple.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,17 +14,33 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
-#
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
 #-------------------------------------------------------------------------
-#END_LICENSE
-if( !isset($gCms) ) exit;
+if (!isset($gCms)) {
+    exit;
+}
 
-$this->SetPreference('locktimeout',60);
-$this->SetPreference('lockrefresh',120);
+$this->SetPreference('locktimeout', 60);
+$this->SetPreference('lockrefresh', 120);
 
-#
-# EOF
-#
-?>
+$this->CreatePermission('Add Pages', $this->Lang('perm_add'));
+$this->CreatePermission('Manage All Content', $this->Lang('perm_manage'));
+$this->CreatePermission('Modify Any Page', $this->Lang('perm_modify'));
+$this->CreatePermission('Remove Pages', $this->Lang('perm_remove'));
+$this->CreatePermission('Reorder Content', $this->Lang('perm_reorder'));
+
+$editor_group = new Group();
+$editor_group->name = 'Editor';
+$editor_group->description = $this->Lang('group_desc');
+$editor_group->active = 1;
+CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$editor_group]);
+$editor_group->Save();
+CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$editor_group]);
+
+$editor_group->GrantPermission('Manage All Content');
+$editor_group->GrantPermission('Manage My Account');
+$editor_group->GrantPermission('Manage My Bookmarks');
+$editor_group->GrantPermission('Manage My Settings');
+$editor_group->GrantPermission('View Tag Help'); //CHECKME DesignManager race when 1st installing?
+
