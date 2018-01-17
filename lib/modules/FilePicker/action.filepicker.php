@@ -67,7 +67,7 @@ try {
     if( isset($_SESSION[$sesskey]) ) $cwd = trim($_SESSION[$sesskey]);
     if( !$cwd && $profile->top ) $cwd = $assistant->to_relative($profile->top);
     if( !$nosub && isset($_GET['subdir']) ) {
-        $cwd .= '/' . cms_html_entity_decode(trim(cleanValue($_GET['subdir'])));
+        $cwd .= DIRECTORY_SEPARATOR . filter_var($_GET['subdir'], FILTER_SANITIZE_STRING);
         $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
     }
 // failsave, if we don't have a valid working directory, set it to the $topdir;
