@@ -48,12 +48,14 @@ SEDARG3B="1,6s~$SHORTPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team 
 #echo -e "sed patterns =\n$SEDARG3A\n$SEDARG3B\n"
 
 PATTERN5="^#\s*Visit our homepage at: http:\/\/www.cmsmadesimple.org"
-#REPL5="#"
 SEDARG5="1,10{/$PATTERN5/d;}"
 
-PATTERN8="^\\(\s*#\?\s*\\)Foundation,\s\+Inc.,\s\+59\s\+Temple\s\+Place,\s\+Suite 330,\s\+Boston,\s\+MA\s\+02111-1307\s\+USA"
-REPL8="\1Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.\n\1Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html"
-SEDARG8="1,100s~$PATTERN8~$REPL8~"
+PATTERN8="^\\(\s*#\?\s*\\)along with this program[;.] [iI]f not.*$"
+REPL8="\1along with this program. If not, see <https://www.gnu.org/licenses/>."
+SEDARG8="1,40s~$PATTERN8~$REPL8~"
+
+PATTERN9="^.*Foundation.*Inc.*Boston.*$"
+SEDARG9="1,40{/$PATTERN9/d;}"
 
 cd $SHAREDROOT
 SHAREDROOT=$(pwd)
@@ -77,7 +79,7 @@ for dir in $TWIGS; do
     if [ "$MODYEAR" -ge "$THISYEAR" ]; then
 #      echo "$LEAF needs to be checked"
       rm -f  $LEAF-newyear >/dev/null
-      sed -e "$SEDARG1" -e "$SEDARG2A" -e "$SEDARG2B" -e "$SEDARG3A" -e "$SEDARG3B" -e "$KILLARG" -e "$SEDARG5" -e "$SEDARG8" $LEAF > $LEAF-newyear
+      sed -e "$SEDARG1" -e "$SEDARG2A" -e "$SEDARG2B" -e "$SEDARG3A" -e "$SEDARG3B" -e "$KILLARG" -e "$SEDARG5" -e "$SEDARG8" -e "$SEDARG9" $LEAF > $LEAF-newyear
       OLDCS=$(md5sum $LEAF | gawk '{ print $1 }')
       NEWCS=$(md5sum $LEAF-newyear | gawk '{ print $1 }')
       if [ "$OLDCS" = "$NEWCS" ] ; then
