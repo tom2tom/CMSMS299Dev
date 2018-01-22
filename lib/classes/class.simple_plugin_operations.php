@@ -1,4 +1,20 @@
 <?php
+#This file is part of CMS Made Simple <http://cmsmadesimple.org>
+#(c)2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#
+#This file is free software. You can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 2 of the License, or
+#(at your option) any later version.
+#
+#This file is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY, without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this file. If not, write to the Free Software
+#Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 namespace CMSMS;
 
 final class simple_plugin_operations
@@ -9,20 +25,16 @@ final class simple_plugin_operations
     private static $_instance;
     private $_loaded = [];
 
-    /**
-     * @ignore
-     */
-    protected function __construct() {}
+//  protected function __construct() {} we're final
 
-    public static function get_instance()
+    public static function get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
     }
 
     /**
-     * List all known simple plugins.
-     * Reads from the assets/simple_plugins directory.
+     * List all simple plugins in the assets/simple_plugins directory.
      *
      * @since 2.3
      * @return string[]|null
@@ -30,53 +42,74 @@ final class simple_plugin_operations
     public function get_list()
     {
         $config = \cms_config::get_instance();
-        $dir = $config['assets_path'].'/simple_plugins';
-        $files = glob($dir.'/*.php');
-        if( !count($files) ) return null;
+        $patn = $config['assets_path'].DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR.'*.php';
+        $files = glob($patn);
 
         $out = null;
-        foreach( $files as $file ) {
-            $name = substr(basename($file),0,-4);
-            if( !$this->is_valid_plugin_name( $name ) ) continue;
-            $out[] = $name;
+        if( $files ) {
+            foreach( $files as $file ) {
+                $name = substr(basename($file),0,-4);
+                if( $this->is_valid_plugin_name( $name ) ) $out[] = $name;
+            }
         }
         return $out;
     }
 
-    protected function get_plugin_filename( $name )
+    /**
+     * @ignore
+     */
+    protected function get_plugin_filename(string $name) : string
     {
         $config = \cms_config::get_instance();
-        $name = $config['assets_path'].'/simple_plugins/'.$name.'.php';
-        return $name;
+        $fn = $config['assets_path'].DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR.$name.'.php';
+        return $fn;
     }
 
-    public function plugin_exists( $name )
+    /**
+     * Check whether $name is acceptable for a simple plugin, and if so,
+     * whether the corresponding file exists.
+     *
+     * @since 2.3
+     * @return bool, or may throw InvalidArgumentException
+    */
+    public function plugin_exists(string $name) : bool
     {
-        if( !$this->is_valid_plugin_name( $name ) ) throw new \LogicException("Invalid name passed to ".__METHOD__);
-        $filename = $this->get_plugin_filename( $name );
-        if( is_file($name) ) return TRUE;
+        if( !$this->is_valid_plugin_name( $name ) ) throw new \InvalidArgumentException("Invalid name passed to ".__METHOD__);
+        $fn = $this->get_plugin_filename( $name );
+        return is_file($fn);
     }
 
-    public function is_valid_plugin_name($name)
+    /**
+     * Check whether $name is acceptable for a simple plugin.
+     *
+     * @since 2.3
+     * @return bool
+     */
+    public function is_valid_plugin_name(string $name) : bool
     {
         $name = trim($name);
-        if( !$name ) return FALSE;
-        if( preg_match('<^[ a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$>',$name) == 0 ) return FALSE;
-        return TRUE;
+        if( $name ) {
+            return preg_match('<^[ a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$>',$name) != 0;
+        }
+        return false;
     }
 
-    public function load_plugin($name)
+    /**
+     * Check and log whether a simple plugin corresponding to $name exists.
+     *
+     * @since 2.3
+     * @return string like: \CMSMS\simple_plugin_operations::the_name or
+     * may throw InvalidArgumentException
+     */
+    public function load_plugin(string $name) : string
     {
-        // test if the simple plugin exists
-        // output is a string like: '\\CMSMS\\simple_plugin::the_name';
-        // uses callstatic to  invoke,  which finds the file and includes it.
         $name = trim($name);
-        if( !$this->is_valid_plugin_name( $name ) ) throw new \LogicException("Invalid name passed to ".__METHOD__);
+        if( !$this->is_valid_plugin_name( $name ) ) throw new \InvalidArgumentException("Invalid name passed to ".__METHOD__);
         if( !isset($this->_loaded[$name]) ) {
-            $file_name = $this->get_plugin_filename( $name );
-            if( !is_file($file_name) ) throw new \RuntimeException('Could not find simple plugin named '.$name);
+            $fn = $this->get_plugin_filename( $name );
+            if( !is_file($fn) ) throw new \RuntimeException('Could not find simple plugin named '.$name);
 
-            $code = trim(file_get_contents($file_name));
+            $code = trim(file_get_contents($fn));
             if( !startswith( $code, '<?php' ) ) throw new \RuntimeException('Invalid format for simple plugin '.$name);
 
             $this->_loaded[$name] = "\\CMSMS\\simple_plugin_operations::$name";
@@ -84,17 +117,21 @@ final class simple_plugin_operations
         return $this->_loaded[$name];
     }
 
-    public static function __callStatic($name,$args)
+    /**
+     * Get the appropriate simple plugin file for $name, and include it.
+     * May throw RuntimeException.
+     *
+     * @since 2.3
+     */
+    public static function __callStatic(string $name, array $args)
     {
-        // invoking simple_plugin_operations::call_abcdefg
-        // get the appropriate filename
-        // include it.
         $fn = self::get_instance()->get_plugin_filename( $name );
         if( !is_file($fn) ) throw new \RuntimeException('Could not find simple plugin named '.$name);
 
-        // these variables are created for plugins to use in scope.
+        // variables for plugins to use in scope.
         $params = $args[0];
-        $smarty = $args[1];
-        include( $fn );
+        $smarty = $args[1]; //CHECKME is Smarty_Internal_Template-object or derivative?
+
+        include_once $fn;
     }
-} // end of filex
+} // end of file
