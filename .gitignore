@@ -1,8 +1,10 @@
 *~
 *.bak
 \#*\#
-config.php
-modules/
-uploads/
+lib/assets/modules/
 tmp/
 .htaccess
+config.php
+index.html
+*OLD
+UNUSED*
