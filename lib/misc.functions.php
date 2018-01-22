@@ -1,8 +1,7 @@
 <?php
-#CMS Made Simple methods
-#(c)2004-2012 Ted Kulp <wishy@users.sf.net>
-#(c)2013-2018 The CMSMS Dev Team
-#Visit our homepage at: http://www.cmsmadesimple.org
+#utility-methods for CMS Made Simple <http://www.cmsmadesimple.org>
+#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2012-2018 The CMSMS Dev Team <?@cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -127,7 +126,7 @@ function redirect_to_alias(string $alias)
   $manager = CmsApp::get_instance()->GetHierarchyManager();
   $node = $manager->sureGetNodeByAlias($alias);
   if( !$node ) {
-	// put mention into the admin log
+    // put mention into the admin log
     cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
     return;
   }
@@ -168,9 +167,9 @@ function microtime_diff(string $a, string $b) : int
  */
 function cms_join_path(...$args) : string
 {
-	$path = implode(DIRECTORY_SEPARATOR, $args);
-	return str_replace(['\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR],
-		[DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
+    $path = implode(DIRECTORY_SEPARATOR, $args);
+    return str_replace(['\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR],
+        [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
 }
 
 /**
@@ -188,10 +187,10 @@ function cms_relative_path(string $in,string $relative_to = null) : string
     if( !$relative_to ) $relative_to = CMS_ROOT_PATH;
     $to = realpath(trim($relative_to));
 
-	if ($in && $to && startswith($in, $to)) {
-		return substr($in, strlen($to));
-	}
-	return '';
+    if ($in && $to && startswith($in, $to)) {
+        return substr($in, strlen($to));
+    }
+    return '';
 }
 
 /**
@@ -203,17 +202,17 @@ function cms_relative_path(string $in,string $relative_to = null) : string
 function cms_preferred_lang() : int
 {
     $config = CmsApp::get_instance()->GetConfig();
-	$val = str_toupper($config['content_language']);
-	switch ($val) {
-		case 'HTML5';
-			return ENT_HTML5;
-		case 'HTML':
-			return ENT_HTML401; //a.k.a. 0
-		case 'NONE':
-			return 0;
-		default:
-			return ENT_XHTML;
-	}
+    $val = str_toupper($config['content_language']);
+    switch ($val) {
+        case 'HTML5';
+            return ENT_HTML5;
+        case 'HTML':
+            return ENT_HTML401; //a.k.a. 0
+        case 'NONE':
+            return 0;
+        default:
+            return ENT_XHTML;
+    }
 }
 
 static $deflang = 0;
@@ -233,28 +232,28 @@ static $defenc = '';
  */
 function cms_htmlentities(string $val, int $param = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-	if ($val === '') {
-		return '';
-	}
+    if ($val === '') {
+        return '';
+    }
 
-	if ($param === 0) {
-		if ($deflang === 0) {
-			$deflang = cms_preferred_lang();
-		}
-		$param = (($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT) | $deflang;
-	}
+    if ($param === 0) {
+        if ($deflang === 0) {
+            $deflang = cms_preferred_lang();
+        }
+        $param = (($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT) | $deflang;
+    }
 
-	if ($convert_single_quotes) {
-		$param &= ~(ENT_COMPAT | ENT_NOQUOTES);
-	}
+    if ($convert_single_quotes) {
+        $param &= ~(ENT_COMPAT | ENT_NOQUOTES);
+    }
 
-	if (!$charset) {
-		if ($defenc === '') {
-			$defenc = CmsNlsOperations::get_encoding();
-		}
-		$charset = $defenc;
-	}
-	return htmlentities($val, $param, $charset, false);
+    if (!$charset) {
+        if ($defenc === '') {
+            $defenc = CmsNlsOperations::get_encoding();
+        }
+        $charset = $defenc;
+    }
+    return htmlentities($val, $param, $charset, false);
 }
 
 /**
@@ -270,25 +269,25 @@ function cms_htmlentities(string $val, int $param = 0, string $charset = 'UTF-8'
  */
 function cms_html_entity_decode(string $val, int $param = 0, string $charset = 'UTF-8') : string
 {
-	if ($val === '') {
-		return '';
-	}
+    if ($val === '') {
+        return '';
+    }
 
-	if ($param === 0) {
-		if ($deflang === 0) {
-			$deflang = cms_preferred_lang();
-		}
-		$param = ENT_QUOTES | $deflang;
-	}
+    if ($param === 0) {
+        if ($deflang === 0) {
+            $deflang = cms_preferred_lang();
+        }
+        $param = ENT_QUOTES | $deflang;
+    }
 
-	if (!$charset) {
-		if ($defenc === '') {
-			$defenc = CmsNlsOperations::get_encoding();
-		}
-		$charset = $defenc;
-	}
+    if (!$charset) {
+        if ($defenc === '') {
+            $defenc = CmsNlsOperations::get_encoding();
+        }
+        $charset = $defenc;
+    }
 
-	return html_entity_decode($val, $param, $charset);
+    return html_entity_decode($val, $param, $charset);
 }
 
 /**
@@ -352,7 +351,7 @@ function debug_bt()
         echo "
         <dt><b>$function</b>($args) </dt>
         <dd>$file on line $line</dd>
-		";
+        ";
     }
     echo "</dl></pre>\n";
 }
@@ -478,7 +477,7 @@ function debug_buffer($var, string $title="")
 
 /**
 * Return $value if it's set and same basic type as $default_value,
-* Otherwise return $default_value. Note. Also will trim($value)	if $value is not numeric.
+* Otherwise return $default_value. Note. Also will trim($value) if $value is not numeric.
 *
 * @ignore
 * @param mixed $value
@@ -691,77 +690,73 @@ function get_recursive_file_list ( string $path ,array $excludes, int $maxdepth 
 }
 
 /**
- * A function to recursively delete all files and folders in a directory; synonymous with rm -r.
+ * Delete directory $path, and all files and folders in it; synonymous with rm -r.
  *
  * @param string $path The directory filepath
- * @return bool
+ * @return bool indicating complete success
  */
-function recursive_delete( string $path ) : bool
+function recursive_delete($path)
 {
-    // all subdirectories and contents
-    if( !is_dir($path) ) return true;
-    $dh = opendir($path);
-    if( !$dh ) return false;
-
-    while( $file = readdir($dh) ) {
-        if( $file!='.' && $file!='..' ) {
-			$p = $path.DIRECTORY_SEPARATOR.$file;
-            if( !is_dir($p) ) {
-                if( !@unlink( $p ) ) {
-                    closedir( $dh );
-                    return false;
+    if (is_dir($path)) {
+        $res = true;
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($path,
+		        FilesystemIterator::CURRENT_AS_PATHNAME |
+		        FilesystemIterator::SKIP_DOTS
+			), RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($iter as $p) {
+            if (is_dir($p)) {
+                if (!@rmdir($p)) {
+                    $res = false;
                 }
-            }
-            else {
-                recursive_delete( $p );
+            } elseif (!@unlink($p)) {
+                $res = false;
             }
         }
+        if ($res) {
+            $res = @rmdir($path);
+        }
+        return $res;
     }
-    closedir( $dh );
-    return @rmdir($path);
+    return false;
 }
 
 /**
- * A function to recursively chmod all files and folders in a directory.
+ * Recursively chmod $path, and if it's a directory, all files and folders in it.
+ * Links are not changed.
+ *  Rolf: only used in admin/listmodules.php
  *
  * @see chmod
+ *
  * @param string $path The start location
- * @param int $mode The octal mode
- * @return bool
- * Rolf: only used in admin/listmodules.php
+ * @param int   $mode The octal mode
+ * @return bool indicating complete success
  */
-function chmod_r( string $path, int $mode ) : bool
+function chmod_r($path, $mode)
 {
-    if( !is_dir( $path ) ) return chmod( $path, $mode );
-
-    $dh = @opendir( $path );
-    if( !$dh ) return false;
-
-    while( $file = readdir( $dh ) ) {
-        if( $file == '.' || $file == '..' ) continue;
-
-        $p = $path.DIRECTORY_SEPARATOR.$file;
-        if( is_dir( $p ) ) {
-            if( !@chmod_r( $p, $mode ) ) {
-                closedir( $dh );
-                return false;
-            }
-        }
-        else if( !is_link( $p ) ) {
-            if( !@chmod( $p, $mode ) ) {
-                closedir( $dh );
-                return false;
+    $res = true;
+    if (is_dir($path)) {
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($path,
+		        FilesystemIterator::CURRENT_AS_PATHNAME |
+		        FilesystemIterator::SKIP_DOTS
+			), RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($iter as $p) {
+            if (!(is_link($p) || @chmod($p, $mode))) {
+                $res = false;
             }
         }
     }
-    @closedir( $dh );
-    return @chmod( $path, $mode );
+    if (!is_link($path)) {
+        return @chmod($path, $mode) && $res;
+    }
+    return $res;
 }
 
 /**
  * A convenience function to test whether one string starts with another.
  *
- * e.g.  startswith('The Quick Brown Fox','The');
+ * e.g. startswith('The Quick Brown Fox','The');
  *
  * @param string $str The string to test against
  * @param string $sub The search string
@@ -769,7 +764,7 @@ function chmod_r( string $path, int $mode ) : bool
  */
 function startswith( string $str, string $sub ) : bool
 {
-	return strncmp( $str, $sub, strlen($sub) ) === 0;
+    return strncmp( $str, $sub, strlen($sub) ) === 0;
 }
 
 /**
@@ -783,11 +778,11 @@ function startswith( string $str, string $sub ) : bool
  */
 function endswith( string $str, string $sub ) : bool
 {
-	$o = strlen( $sub );
-	if( $o >= 0 ) {
-		return strpos($str, $sub, -$o) !== false;
-	}
-	return false;
+    $o = strlen( $sub );
+    if( $o > 0 ) {
+        return strpos($str, $sub, -$o) !== false;
+    }
+    return false;
 }
 
 /**
@@ -800,19 +795,19 @@ function endswith( string $str, string $sub ) : bool
  */
 function munge_string_to_url(string $alias, bool $tolower = false, bool $withslash = false) : string
 {
-  if ($tolower) $alias = mb_strtolower($alias); //TODO if mb_string N/A?
+    if ($tolower) $alias = mb_strtolower($alias); //TODO if mb_string N/A?
 
-  // remove invalid chars
-  $expr = '/[^\p{L}_\-\.\ \d]/u';
-  if( $withslash ) $expr = '/[^\p{L}_\.\-\ \d\/]/u';
-  $tmp = trim( preg_replace($expr,'',$alias) );
+    // remove invalid chars
+    $expr = '/[^\p{L}_\-\.\ \d]/u';
+    if( $withslash ) $expr = '/[^\p{L}_\.\-\ \d\/]/u';
+    $tmp = trim( preg_replace($expr,'',$alias) );
 
-  // remove extra dashes and spaces.
-  $tmp = str_replace(' ','-',$tmp);
-  $tmp = str_replace('---','-',$tmp);
-  $tmp = str_replace('--','-',$tmp);
+    // remove extra dashes and spaces.
+    $tmp = str_replace(' ','-',$tmp);
+    $tmp = str_replace('---','-',$tmp);
+    $tmp = str_replace('--','-',$tmp);
 
-  return trim($tmp);
+    return trim($tmp);
 }
 
 /**
@@ -867,10 +862,10 @@ function cleanValue($val) : string
   //Swap user-inputted backslashes (?)
   $val = preg_replace("/\\\(?!&amp;#|\?#)/", "\\", $val);
 */
-	if (!is_string($val) || $val === '') {
-		return $val;
-	}
-	return filter_var($val, FILTER_SANITIZE_SPECIAL_CHARS, 0);
+    if (!is_string($val) || $val === '') {
+        return $val;
+    }
+    return filter_var($val, FILTER_SANITIZE_SPECIAL_CHARS, 0);
 }
 
 /**
@@ -882,13 +877,13 @@ function cleanValue($val) : string
  */
 function cleanArray(array &$array)
 {
-	foreach ($array as &$val) {
-		if (is_string($val) && $val !== '') {
-			$val = filter_var($val, FILTER_SANITIZE_STRING,
-					FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
-		}
-	}
-	unset($val);
+    foreach ($array as &$val) {
+        if (is_string($val) && $val !== '') {
+            $val = filter_var($val, FILTER_SANITIZE_STRING,
+                    FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+        }
+    }
+    unset($val);
 }
 
 /**
@@ -899,7 +894,7 @@ function cleanArray(array &$array)
  */
 function ini_get_boolean(string $str) : bool
 {
-	return cms_to_bool(ini_get($str));
+    return cms_to_bool(ini_get($str));
 }
 
 /**
@@ -909,16 +904,16 @@ function ini_get_boolean(string $str) : bool
  */
 function stack_trace()
 {
-  $stack = debug_backtrace();
-  foreach( $stack as $elem ) {
-    if( $elem['function'] == 'stack_trace' ) continue;
-    if( isset($elem['file'])  ) {
-      echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br/>';
+    $stack = debug_backtrace();
+    foreach( $stack as $elem ) {
+        if( $elem['function'] == 'stack_trace' ) continue;
+        if( isset($elem['file'])  ) {
+            echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br/>';
+        }
+        else {
+            echo ' - '.$elem['function'].'<br/>';
+        }
     }
-    else {
-      echo ' - '.$elem['function'].'<br/>';
-    }
-  }
 }
 
 /**
@@ -931,11 +926,11 @@ function stack_trace()
  */
 function cms_move_uploaded_file( string $tmpfile, string $destination ) : bool
 {
-   $config = CmsApp::get_instance()->GetConfig();
+    $config = CmsApp::get_instance()->GetConfig();
 
-   if( !@move_uploaded_file( $tmpfile, $destination ) ) return false;
-   @chmod($destination,octdec($config['default_upload_permission']));
-   return true;
+    if( !@move_uploaded_file( $tmpfile, $destination ) ) return false;
+    @chmod($destination,octdec($config['default_upload_permission']));
+    return true;
 }
 
 /**
@@ -982,12 +977,12 @@ function cms_ipmatches(string $ip,array $checklist) : bool
 
       // perform a range match
       for ($i=0; $i<4; $i++) {
-	if (preg_match("/\[([0-9]+)\-([0-9]+)\]/",$maskocts[$i],$regs)) {
-	  if ( ($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) $result = 0;
-	}
-	else {
-	  if ($maskocts[$i] <> $ipocts[$i]) $result = 0;
-	}
+    if (preg_match("/\[([0-9]+)\-([0-9]+)\]/",$maskocts[$i],$regs)) {
+      if ( ($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) $result = 0;
+    }
+    else {
+      if ($maskocts[$i] <> $ipocts[$i]) $result = 0;
+    }
       }
     }
     return $result;
@@ -1009,12 +1004,12 @@ function cms_ipmatches(string $ip,array $checklist) : bool
 */
 function is_email( string $email, bool $checkDNS=false )
 {
-   if( !filter_var($email,FILTER_VALIDATE_EMAIL) ) return false;
-   if ($checkDNS && function_exists('checkdnsrr')) {
-       list($user,$domain) = explode('@',$email,2);
-       if( !$domain ) return false;
-       if ( !(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return false;	// Domain doesn't actually exist
-   }
+    if( !filter_var($email,FILTER_VALIDATE_EMAIL) ) return false;
+    if ($checkDNS && function_exists('checkdnsrr')) {
+        list($user,$domain) = explode('@',$email,2);
+        if( !$domain ) return false;
+        if ( !(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return false; // Domain doesn't actually exist
+    }
 
    return true;
 }
@@ -1045,17 +1040,17 @@ function get_secure_param() : string
  */
 function cms_to_bool(string $str) : bool
 {
-  if( is_numeric($str) ) return (int)$str !== 0;
+    if( is_numeric($str) ) return (int)$str !== 0;
 
-	switch (strtolower($str)) {
-		case 'y':
-		case 'yes':
-		case 'true':
-		case 'on':
-			return true;
-		default:
-			return false;
-	}
+    switch (strtolower($str)) {
+        case 'y':
+        case 'yes':
+        case 'true':
+        case 'on':
+            return true;
+        default:
+            return false;
+    }
 }
 
 /**
@@ -1085,23 +1080,23 @@ function cms_to_bool(string $str) : bool
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
-  $config = cms_config::get_instance();
-  $scripts = [];
-  $base_url = CMS_ROOT_URL;
-  if( $ssl === true || $ssl === true ) $base_url = $config['ssl_url'];
-  $basePath=$custom_root!=''?trim($custom_root,'/'):$base_url;
+    $config = cms_config::get_instance();
+    $scripts = [];
+    $base_url = CMS_ROOT_URL;
+    if( $ssl === true || $ssl === true ) $base_url = $config['ssl_url'];
+    $basePath=$custom_root!=''?trim($custom_root,'/'):$base_url;
 
-  // Scripts to include
-  $scripts['jquery'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
-			     'local'=>$basePath.'/lib/jquery/js/jquery-1.12.4.min.js',
-			     'aliases'=>array('jquery.min.js','jquery',));
-  $scripts['jquery-ui'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
-				'local'=>$basePath.'/lib/jquery/js/jquery-ui-1.11.4.custom.min.js',
-				'aliases'=>array('jquery-ui.min.js','ui'),
-				'css'=>$basePath.'/lib/jquery/css/smoothness/jquery-ui-1.11.4.custom.min.css');
-  $scripts['nestedSortable'] = array('local'=>$basePath.'/lib/jquery/js/jquery.mjs.nestedSortable.min.js');
+    // Scripts to include
+    $scripts['jquery'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
+                 'local'=>$basePath.'/lib/jquery/js/jquery-1.12.4.min.js',
+                 'aliases'=>array('jquery.min.js','jquery',));
+    $scripts['jquery-ui'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
+                'local'=>$basePath.'/lib/jquery/js/jquery-ui-1.11.4.custom.min.js',
+                'aliases'=>array('jquery-ui.min.js','ui'),
+                'css'=>$basePath.'/lib/jquery/css/smoothness/jquery-ui-1.11.4.custom.min.css');
+    $scripts['nestedSortable'] = array('local'=>$basePath.'/lib/jquery/js/jquery.mjs.nestedSortable.min.js');
 //  $scripts['json'] = array('local'=>$basePath.'/lib/jquery/js/jquery.json-2.4.min.js');
-  $scripts['migrate'] = array('local'=>$basePath.'/lib/jquery/js/jquery-migrate-1.3.0.min.js');
+    $scripts['migrate'] = array('local'=>$basePath.'/lib/jquery/js/jquery-migrate-1.3.0.min.js');
 
   if( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
       global $CMS_LOGIN_PAGE;
