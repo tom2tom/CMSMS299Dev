@@ -16,8 +16,7 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#
-#$Id: class.user.inc.php 2961 2006-06-25 04:49:31Z wishy $
+#$Id:$
 
 /**
  * User related functions.
@@ -26,17 +25,18 @@
  * @license GPL
  */
 
-/**
- * Include user class definition
+/*
+ * Include user class definition.
  */
-require_once(__DIR__ . DIRECTORY_SEPARATOR . 'class.user.inc.php');
+require_once __DIR__.DIRECTORY_SEPARATOR.'class.user.inc.php';
 
 /**
- * Class for doing user related functions.  Maybe of the User object functions
+ * Class for doing user related functions. Maybe of the User object functions
  * are just wrappers around these.
  *
  * @package CMS
  * @license GPL
+ *
  * @since 0.6.1
  */
 class UserOperations
@@ -44,7 +44,7 @@ class UserOperations
 	/**
 	 * @ignore
 	 */
-	protected function __construct() {}
+//	protected function __construct() {}
 
 	/**
 	 * @ignore
@@ -64,40 +64,42 @@ class UserOperations
 	/**
 	 * @ignore
 	 */
-	private $_saved_users = array();
+	private $_saved_users = [];
 
 	/**
-	 * Get the reference to the only instance of this object
+	 * Get the reference to the only instance of this object.
 	 *
 	 * @return UserOperations
 	 */
 	public static function &get_instance()
 	{
-		if( !is_object(self::$_instance) ) self::$_instance = new UserOperations();
+		if (!is_object(self::$_instance)) {
+			self::$_instance = new self();
+		}
 		return self::$_instance;
 	}
 
-
 	/**
-	 * Gets a list of all users
+	 * Gets a list of all users.
 	 *
-	 * @param int $limit The maximum number of users to return
+	 * @param int $limit  The maximum number of users to return
 	 * @param int $offset The offset
 	 * @returns array An array of User objects
+	 *
 	 * @since 0.6.1
 	 */
-	function LoadUsers($limit = 10000,$offset = 0)
+	public function LoadUsers($limit = 10000, $offset = 0)
 	{
-		if( !is_array($this->_users) ) {
+		if (!is_array($this->_users)) {
 			$gCms = CmsApp::get_instance();
 			$db = $gCms->GetDb();
-			$result = array();
+			$result = [];
 
-			$query = "SELECT user_id, username, password, first_name, last_name, email, active, admin_access
-                      FROM ".CMS_DB_PREFIX."users ORDER BY username";
-			$dbresult = $db->SelectLimit($query,$limit,$offset);
+			$query = 'SELECT user_id, username, password, first_name, last_name, email, active, admin_access
+					  FROM '.CMS_DB_PREFIX.'users ORDER BY username';
+			$dbresult = $db->SelectLimit($query, $limit, $offset);
 
-			while( $dbresult && !$dbresult->EOF ) {
+			while ($dbresult && !$dbresult->EOF) {
 				$row = $dbresult->fields;
 				$oneuser = new User();
 				$oneuser->id = $row['user_id'];
@@ -118,21 +120,21 @@ class UserOperations
 		return $this->_users;
 	}
 
-
 	/**
-	 * Gets a list of all users in a given group
+	 * Gets a list of all users in a given group.
 	 *
 	 * @param mixed $groupid Group for the loaded users
+	 *
 	 * @return array An array of User objects
 	 */
-	function LoadUsersInGroup($groupid)
+	public function LoadUsersInGroup($groupid)
 	{
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
-		$result = array();
+		$result = [];
 
-		$query = "SELECT u.user_id, u.username, u.password, u.first_name, u.last_name, u.email, u.active, u.admin_access FROM ".CMS_DB_PREFIX."users u, ".CMS_DB_PREFIX."groups g, ".CMS_DB_PREFIX."user_groups cg where cg.user_id = u.user_id and cg.group_id = g.group_id and g.group_id =? ORDER BY username";
-		$dbresult = $db->Execute($query, array($groupid));
+		$query = 'SELECT u.user_id, u.username, u.password, u.first_name, u.last_name, u.email, u.active, u.admin_access FROM '.CMS_DB_PREFIX.'users u, '.CMS_DB_PREFIX.'groups g, '.CMS_DB_PREFIX.'user_groups cg WHERE cg.user_id = u.user_id AND cg.group_id = g.group_id AND g.group_id = ? ORDER BY username';
+		$dbresult = $db->Execute($query, [$groupid]);
 
 		while ($dbresult && $row = $dbresult->FetchRow()) {
 			$oneuser = new User();
@@ -154,43 +156,79 @@ class UserOperations
 	 * Loads a user by username.
 	 * Does not use a cache, so use sparingly.
 	 *
-	 * @param mixed $username Username to load
-	 * @param mixed $password Password to check against (ignored)
-	 * @param mixed $activeonly Only load the user if they are active
+	 * @param mixed $username		 Username to load
+	 * @param mixed $password		 Password to check against (ignored)
+	 * @param mixed $activeonly		 Only load the user if they are active
 	 * @param mixed $adminaccessonly Only load the user if they have admin access
-	 * @return mixed If successful, the filled User object.  If it fails, it returns false.
+	 *
+	 * @return mixed If successful, the filled User object.	 If it fails, it returns false
+	 *
 	 * @since 0.6.1
 	 */
-	function LoadUserByUsername($username, $password = '', $activeonly = true, $adminaccessonly = false)
+	public function LoadUserByUsername($username, $password = '', $activeonly = true, $adminaccessonly = false)
 	{
 		// note: does not use cache
 		$result = null;
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
-		$params = array();
-		$where = array();
-		$joins = array();
+		$params = [];
+		$where = [];
+		$joins = [];
 
-		$query = "SELECT u.user_id FROM ".CMS_DB_PREFIX."users u";
+		$query = 'SELECT u.user_id,u.password FROM '.CMS_DB_PREFIX.'users u';
 		$where[] = 'username = ?';
 		$params[] = $username;
 
-		if ($activeonly == true) {
-			$joins[] = CMS_DB_PREFIX."user_groups ug ON u.user_id = ug.user_id";
-			$where[] = "u.active = 1";
+		if ($activeonly) {
+			$joins[] = CMS_DB_PREFIX.'user_groups ug ON u.user_id = ug.user_id';
+			$where[] = 'u.active = 1';
 		}
 
-		if ($adminaccessonly == true) {
-			$where[] = "admin_access = 1";
+		if ($adminaccessonly) {
+			$where[] = 'admin_access = 1';
 		}
 
-		if( !empty($joins) ) $query .= ' LEFT JOIN '.implode(' LEFT JOIN ',$joins);
-		if( !empty($where) ) $query .= ' WHERE '.implode(' AND ',$where);
+		if (!empty($joins)) {
+			$query .= ' LEFT JOIN '.implode(' LEFT JOIN ', $joins);
+		}
+		if (!empty($where)) {
+			$query .= ' WHERE '.implode(' AND ', $where);
+		}
 
-		$id = $db->GetOne($query,$params);
-		if( $id ) $result = self::LoadUserByID($id);
-
+		$row = $db->GetRow($query,$params);
+		if ($row) {
+			$hash = $row['password'];
+			$len = strlen(bin2hex($hash))/2; //ignore mb_ override
+			if ($len > 32) { //bcrypt or argon2
+				if (!password_verify($password, $hash)) {
+					sleep(1);
+					return $result;
+				}
+				if ((defined('PASSWORD_ARGON2I') && strncmp($hash, '$2y$', 4) == 0) //still uses bcrypt
+					 || password_needs_rehash($hash, PASSWORD_DEFAULT)) {
+					$oneuser = new User();
+					$oneuser->SetPassword($password);
+					$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
+					$db->Execute($query, [$oneuser->password, $row['user_id']]);
+				}
+			} else {
+				$tmp = md5(get_site_preference('sitemask', '').$password);
+				$check = 0;
+				for ($i = 0; $i < $len; ++$i) {
+					$check |= (ord($hash[$i]) ^ ord($tmp[$i]));
+				}
+				if ($check !== 0) {
+					sleep(1);
+					return $result;
+				}
+				$oneuser = new User();
+				$oneuser->SetPassword($password);
+				$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
+				$db->Execute($query, [$oneuser->password, $row['user_id']]);
+			}
+			return self::LoadUserByID($row['user_id']);
+		}
 		return $result;
 	}
 
@@ -198,21 +236,27 @@ class UserOperations
 	 * Loads a user by user id.
 	 *
 	 * @param mixed $id User id to load
-	 * @return mixed If successful, the filled User object.  If it fails, it returns false.
+	 *
+	 * @return mixed If successful, the filled User object.	 If it fails, it returns false
+	 *
 	 * @since 0.6.1
 	 */
-	function LoadUserByID($id)
+	public function LoadUserByID($id)
 	{
-		$id = (int)$id;
-		if( $id < 1 ) return false;
-		if( isset($this->_saved_users[$id]) ) return $this->_saved_users[$id];
+		$id = (int) $id;
+		if ($id < 1) {
+			return false;
+		}
+		if (isset($this->_saved_users[$id])) {
+			return $this->_saved_users[$id];
+		}
 
 		$result = false;
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
-		$query = "SELECT username, password, active, first_name, last_name, admin_access, email FROM ".CMS_DB_PREFIX."users WHERE user_id = ?";
-		$dbresult = $db->Execute($query, array($id));
+		$query = 'SELECT username, password, active, first_name, last_name, admin_access, email FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
+		$dbresult = $db->Execute($query, [$id]);
 
 		while ($dbresult && $row = $dbresult->FetchRow()) {
 			$oneuser = new User();
@@ -235,10 +279,12 @@ class UserOperations
 	 * Saves a new user to the database.
 	 *
 	 * @param mixed $user User object to save
-	 * @return mixed The new user id.  If it fails, it returns -1.
+	 *
+	 * @return mixed The new user id.  If it fails, it returns -1
+	 *
 	 * @since 0.6.1
 	 */
-	function InsertUser($user)
+	public function InsertUser($user)
 	{
 		$result = -1;
 
@@ -247,14 +293,18 @@ class UserOperations
 
 		// check for conflict in username
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ?';
-		$tmp = $db->GetOne($query,array($user->username));
-		if( $tmp ) return $result;
+		$tmp = $db->GetOne($query, [$user->username]);
+		if ($tmp) {
+			return $result;
+		}
 
 		$time = $db->DBTimeStamp(time());
-		$new_user_id = $db->GenID(CMS_DB_PREFIX."users_seq");
-		$query = "INSERT INTO ".CMS_DB_PREFIX."users (user_id, username, password, active, first_name, last_name, email, admin_access, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,".$time.",".$time.")";
-		$dbresult = $db->Execute($query, array($new_user_id, $user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1)); //Force admin access on
-		if ($dbresult !== false) $result = $new_user_id;
+		$new_user_id = $db->GenID(CMS_DB_PREFIX.'users_seq');
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'users (user_id, username, password, active, first_name, last_name, email, admin_access, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,'.$time.','.$time.')';
+		$dbresult = $db->Execute($query, [$new_user_id, $user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1]); //Force admin access on
+		if ($dbresult !== false) {
+			$result = $new_user_id;
+		}
 
 		return $result;
 	}
@@ -263,10 +313,12 @@ class UserOperations
 	 * Updates an existing user in the database.
 	 *
 	 * @since 0.6.1
+	 *
 	 * @param mixed $user User object to save
-	 * @return mixed If successful, true.  If it fails, false.
+	 *
+	 * @return mixed If successful, true.  If it fails, false
 	 */
-	function UpdateUser($user)
+	public function UpdateUser($user)
 	{
 		$result = false;
 		$gCms = CmsApp::get_instance();
@@ -274,14 +326,18 @@ class UserOperations
 
 		// check for username conflict
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ? and user_id != ?';
-		$tmp = $db->GetOne($query,array($user->username,$user->id));
-		if( $tmp ) return $result;
+		$tmp = $db->GetOne($query, [$user->username, $user->id]);
+		if ($tmp) {
+			return $result;
+		}
 
 		$time = $db->DBTimeStamp(time());
-		$query = "UPDATE ".CMS_DB_PREFIX."users SET username = ?, password = ?, active = ?, modified_date = ".$time.", first_name = ?, last_name = ?, email = ?, admin_access = ? WHERE user_id = ?";
-		#$dbresult = $db->Execute($query, array($user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, $user->adminaccess, $user->id));
-		$dbresult = $db->Execute($query, array($user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1, $user->id));
-		if ($dbresult !== false) $result = true;
+		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, password = ?, active = ?, modified_date = '.$time.', first_name = ?, last_name = ?, email = ?, admin_access = ? WHERE user_id = ?';
+		//$dbresult = $db->Execute($query, array($user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, $user->adminaccess, $user->id));
+		$dbresult = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1, $user->id]);
+		if ($dbresult !== false) {
+			$result = true;
+		}
 
 		return $result;
 	}
@@ -290,31 +346,38 @@ class UserOperations
 	 * Deletes an existing user from the database.
 	 *
 	 * @since 0.6.1
+	 *
 	 * @param mixed $id Id of the user to delete
-	 * @returns mixed If successful, true.  If it fails, false.
+	 * @returns mixed If successful, true.	If it fails, false.
 	 */
-	function DeleteUserByID($id)
+	public function DeleteUserByID($id)
 	{
- 		if( $id <= 1 ) return false;
- 		if( !check_permission(get_userid(),'Manage Users') ) return false;
+		if ($id <= 1) {
+			return false;
+		}
+		if (!check_permission(get_userid(), 'Manage Users')) {
+			return false;
+		}
 
 		$result = false;
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
-		$query = "DELETE FROM ".CMS_DB_PREFIX."user_groups where user_id = ?";
-		$db->Execute($query, array($id));
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where user_id = ?';
+		$db->Execute($query, [$id]);
 
-		$query = "DELETE FROM ".CMS_DB_PREFIX."additional_users where user_id = ?";
-		$db->Execute($query, array($id));
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users where user_id = ?';
+		$db->Execute($query, [$id]);
 
-		$query = "DELETE FROM ".CMS_DB_PREFIX."users where user_id = ?";
-		$dbresult = $db->Execute($query, array($id));
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'users where user_id = ?';
+		$dbresult = $db->Execute($query, [$id]);
 
-		$query = "DELETE FROM ".CMS_DB_PREFIX."userprefs where user_id = ?";
-		$dbresult = $db->Execute($query, array($id));
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs where user_id = ?';
+		$dbresult = $db->Execute($query, [$id]);
 
-		if ($dbresult !== false) $result = true;
+		if ($dbresult !== false) {
+			$result = true;
+		}
 		return $result;
 	}
 
@@ -322,162 +385,189 @@ class UserOperations
 	 * Show the number of pages the given user's id owns.
 	 *
 	 * @since 0.6.1
+	 *
 	 * @param mixed $id Id of the user to count
-	 * @return mixed Number of pages they own.  0 if any problems.
+	 *
+	 * @return mixed Number of pages they own.	0 if any problems
 	 */
-	function CountPageOwnershipByID($id)
+	public function CountPageOwnershipByID($id)
 	{
 		$result = 0;
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
-		$query = "SELECT count(*) AS count FROM ".CMS_DB_PREFIX."content WHERE owner_id = ?";
-		$dbresult = $db->Execute($query, array($id));
+		$query = 'SELECT count(*) AS count FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ?';
+		$dbresult = $db->Execute($query, [$id]);
 
 		if ($dbresult && $dbresult->RecordCount() > 0) {
 			$row = $dbresult->FetchRow();
-			if (isset($row["count"])) $result = $row["count"];
+			if (isset($row['count'])) {
+				$result = $row['count'];
+			}
 		}
 
 		return $result;
 	}
 
-    /**
-     * Generate an array of admin userids to usernames, suitable for use in a dropdown.
-     *
-     * @return array
-     * @since 2.2
-     */
-    public function GetList()
-    {
-        $allusers = $this->LoadUsers();
-        if( !count($allusers) ) return;
-
-        foreach( $allusers as $oneuser ) {
-            $out[$oneuser->id] = $oneuser->username;
-        }
-        return $out;
-    }
-
 	/**
-	 * Generate an HTML select element containing a user list
+	 * Generate an array of admin userids to usernames, suitable for use in a dropdown.
 	 *
-	 * @deprecated
-	 * @param int $currentuserid
-	 * @param string $name The HTML element name.
+	 * @return array
+	 *
+	 * @since 2.2
 	 */
-	function GenerateDropdown($currentuserid=null, $name='ownerid')
+	public function GetList()
 	{
-        $result = null;
-        $list = $this->GetList();
-        if( count($list) ) {
-			$result .= '<select name="'.$name.'">';
-            foreach( $list as $uid => $username ) {
-                $result .= '<option value="'.$uid.'"';
-                if( $uid == $currentuserid ) $result .= ' selected="selected"';
-				$result .= '>'.$username.'</option>';
-            }
-			$result .= '</select>';
-        }
-        return $result;
+		$allusers = $this->LoadUsers();
+		if (!count($allusers)) {
+			return;
+		}
+
+		foreach ($allusers as $oneuser) {
+			$out[$oneuser->id] = $oneuser->username;
+		}
+		return $out;
 	}
 
+	/**
+	 * Generate an HTML select element containing a user list.
+	 *
+	 * @deprecated
+	 *
+	 * @param int	 $currentuserid
+	 * @param string $name			The HTML element name
+	 */
+	public function GenerateDropdown($currentuserid = null, $name = 'ownerid')
+	{
+		$result = null;
+		$list = $this->GetList();
+		if (count($list)) {
+			$result .= '<select name="'.$name.'">';
+			foreach ($list as $uid => $username) {
+				$result .= '<option value="'.$uid.'"';
+				if ($uid == $currentuserid) {
+					$result .= ' selected="selected"';
+				}
+				$result .= '>'.$username.'</option>';
+			}
+			$result .= '</select>';
+		}
+		return $result;
+	}
 
 	/**
-	 * Tests $uid is a member of the group identified by $gid
+	 * Tests $uid is a member of the group identified by $gid.
 	 *
 	 * @param int $uid User ID to test
 	 * @param int $gid Group ID to test
+	 *
 	 * @return true if test passes, false otherwise
 	 */
-	function UserInGroup($uid,$gid)
+	public function UserInGroup($uid, $gid)
 	{
 		$groups = $this->GetMemberGroups($uid);
-		if( in_array($gid,$groups) ) return TRUE;
-		return FALSE;
+		return in_array($gid, $groups);
 	}
 
 	/**
-	 * Test if the specified user is a member of the admin group, or is the first user account
+	 * Test if the specified user is a member of the admin group, or is the first user account.
 	 *
 	 * @param int $uid
+	 *
 	 * @return bool
 	 */
 	public function IsSuperuser($uid)
 	{
-		if( $uid == 1 ) return TRUE;
-		$groups = $this->GetMemberGroups();
-		if( is_array($groups) && count($groups) ) {
-			if( in_array($uid,$groups) ) return TRUE;
+		if ($uid == 1) {
+			return true;
 		}
-		return FALSE;
+		$groups = $this->GetMemberGroups();
+		if (is_array($groups) && count($groups)) {
+			if (in_array($uid, $groups)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
 	 * Get the ids of all groups to which the user belongs.
 	 *
 	 * @param int $uid
+	 *
 	 * @return array
 	 */
-	function GetMemberGroups($uid)
+	public function GetMemberGroups($uid)
 	{
-		if( !is_array(self::$_user_groups) || !isset(self::$_user_groups[$uid]) ) {
+		if (!is_array(self::$_user_groups) || !isset(self::$_user_groups[$uid])) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
-			$col = $db->GetCol($query,array((int)$uid));
-			if( !is_array(self::$_user_groups) ) self::$_user_groups = array();
+			$col = $db->GetCol($query, [(int) $uid]);
+			if (!is_array(self::$_user_groups)) {
+				self::$_user_groups = [];
+			}
 			self::$_user_groups[$uid] = $col;
 		}
 		return self::$_user_groups[$uid];
 	}
 
 	/**
-	 * Add the user to the specified group
+	 * Add the user to the specified group.
 	 *
 	 * @param int $uid
 	 * @param int $gid
 	 */
-	function AddMemberGroup($uid,$gid)
+	public function AddMemberGroup($uid, $gid)
 	{
-		$uid = (int)$uid;
-		$gid = (int)$gid;
-		if( $uid < 1 || $gid < 1 ) return;
+		$uid = (int) $uid;
+		$gid = (int) $gid;
+		if ($uid < 1 || $gid < 1) {
+			return;
+		}
 
 		$db = CmsApp::get_instance()->GetDb();
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."user_groups
-                  (group_id,user_id,create_date,modified_date)
-                  VALUES (?,?,$now,$now)";
-		$dbr = $db->Execute($query,array($gid,$uid));
-		if( isset(self::$_user_groups[$uid]) ) unset(self::$_user_groups[$uid]);
+				  (group_id,user_id,create_date,modified_date)
+				  VALUES (?,?,$now,$now)";
+		$dbr = $db->Execute($query, [$gid, $uid]);
+		if (isset(self::$_user_groups[$uid])) {
+			unset(self::$_user_groups[$uid]);
+		}
 	}
 
 	/**
-	 * Test if the user has the specified permission
+	 * Test if the user has the specified permission.
 	 *
 	 * Given the users member groups, test if any of those groups have the specified permission.
 	 *
-	 * @param int $userid
+	 * @param int	 $userid
 	 * @param string $permname
+	 *
 	 * @return bool
 	 */
-	public function CheckPermission($userid,$permname)
+	public function CheckPermission($userid, $permname)
 	{
-		if( $userid <= 0 ) return FALSE;
+		if ($userid <= 0) {
+			return false;
+		}
 		$groups = $this->GetMemberGroups($userid);
-		if( !is_array($groups) ) return FALSE;
-		if( in_array(1,$groups) ) return TRUE; // member of admin group
+		if (!is_array($groups)) {
+			return false;
+		}
+		if (in_array(1, $groups)) {
+			return true;
+		} // member of admin group
 
 		try {
-			foreach( $groups as $gid ) {
-				if( GroupOperations::get_instance()->CheckPermission($gid,$permname) ) return TRUE;
+			foreach ($groups as $gid) {
+				if (GroupOperations::get_instance()->CheckPermission($gid, $permname)) {
+					return true;
+				}
 			}
-		}
-		catch( CmsException $e ) {
+		} catch (CmsException $e) {
 			// nothing here.
 		}
-		return FALSE;
+		return false;
 	}
 }
-
-?>
