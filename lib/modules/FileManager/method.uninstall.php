@@ -1,7 +1,7 @@
 <?php
 
 if (!function_exists("cmsms")) exit;
-//$db = &$this->GetDb();
+//global $db = $this->GetDb();
 
 // remove the database table
 /*$dict = NewDataDictionary( $db );
