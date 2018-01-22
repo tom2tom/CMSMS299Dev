@@ -1,5 +1,23 @@
 <?php
-
+#-------------------------------------------------------------------------
+# Module: DesignManager - A CMSMS addon module to provide template management.
+# (c) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+# Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
+#
+#-------------------------------------------------------------------------
 #A
 $lang['additional_editors'] = 'Additional Editors';
 $lang['apply'] = 'Apply';
@@ -104,10 +122,11 @@ $lang['friendlyname'] = 'Design Manager';
 
 #G
 $lang['go'] = 'Go';
+$lang['group_desc'] = 'Members of this group can manage stylesheets, templates, and content';
 
 #H
 /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-$lang['help'] = <<<EOT
+$lang['help'] = <<<'EOT'
 <h3>What does this do?</h3>
   <p>The &quot;DesignManager&quot; module is a mechanism to comprehensively manage the various templates, stylesheets, and &quot;designs&quot; used in your website.  It provides convenient sorting, filtering, and organization mechanisms for these various primary elements.</p>
 
@@ -217,7 +236,7 @@ $lang['help_create_template'] = 'This function allows creating a new template of
 $lang['help_css_bulk'] = 'This option allows performing actions on multiple stylesheets at one time.';
 $lang['help_css_description'] = 'You may (optionally) include a description for this stylesheet.  This may be useful to describe the items that are in the stylesheet and aide in organization';
 $lang['help_css_designs'] = 'You may associate one or more designs with a stylesheet.  Stylesheets associated with a design are automatically output by the {cms_stylesheet} tag, and when exporting a design for sharing';
-$lang['help_css_mediaquery'] = <<<EOT
+$lang['help_css_mediaquery'] = <<<'EOT'
 <p>A media query consists of a media type and at least one expression that limits the style sheets' scope by using media features, such as width, height, and color. Added in CSS3, media queries let the presentation of content be tailored to a specific range of output devices without having to change the content itself. For a simple reference see this page on the <a href="https://developer.mozilla.org/en/docs/CSS/Media_queries">Mozilla developer network</a></p><br/>
 <p>CMSMS Allows associating a media query with a stylesheet.  When <code>{cms_stylesheet}</code> renders its output the media query will be automatically placed in the stylesheet tag.</p>
 EOT;
@@ -358,6 +377,11 @@ $lang['no'] = 'No';
 
 
 #P
+$lang['perm_add'] = 'Add Templates';
+$lang['perm_designs'] = 'Manage Designs'; 
+$lang['perm_styles'] = 'Manage Stylesheets';
+$lang['perm_modify'] = 'Modify Templates';
+$lang['perm_viewhelp'] = 'View Tag Help';
 $lang['postinstall'] = 'Design Manager Module Installed';
 $lang['postuninstall'] = 'Design Manager Module Uninstalled';
 $lang['prompt_add'] = 'Add';
