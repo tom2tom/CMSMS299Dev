@@ -10,13 +10,13 @@
 #
 # This program is distributed in the hope that it will be useful,
 # BUT withOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA	02111-1307	USA
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#$Id: class.module.inc.php 7061 2011-05-28 18:48:04Z calguy1000 $
+#$Id$
 
 /**
  * This file contains the base module class for all CMSMS modules.
@@ -32,19 +32,15 @@ use \CMSMS\internal\bulkcontentoperations;
  *
  * All modules should inherit and extend this class with their functionality.
  *
- * @since		0.9
- * @version     2.0
- * @package		CMS
- * @property    CmsApp $cms A reference to the application object (deprecated)
- * @property    Smarty_CMS $smarty A reference to the global smarty object (deprecated)
- * @property    cms_config $config A reference to the global app configuration object (deprecated)
- * @property    ADOConnection $db  A reference to the global database configuration object (deprecated)
+ * @since       0.9
+ * @version     2.3
+ * @package     CMS
  */
 abstract class CMSModule
 {
     /**
      * ------------------------------------------------------------------
-     * Initialization Functions and parameters
+     * Initialization functions and parameters
      * ------------------------------------------------------------------
      */
 
@@ -55,7 +51,6 @@ abstract class CMSModule
      * @ignore
      */
     private $params = [];
-
 
     /**
      * @access private
@@ -69,11 +64,11 @@ abstract class CMSModule
      */
     private $modtemplates = false;
 
-    /**
+    /* *
      * @access private
      * @ignore
      */
-    private $modform = false;
+//REDUNDANT    private $modform = false;
 
     /**
      * @access private
@@ -85,13 +80,19 @@ abstract class CMSModule
      * @access private
      * @ignore
      */
+    private $modurl = false;
+
+    /**
+     * @access private
+     * @ignore
+     */
     private $modmisc = false;
 
     /**
      * @access private
      * @ignore
      */
-    private $param_map = array();
+    private $param_map = [];
 
     /**
      * @access private
@@ -113,7 +114,6 @@ abstract class CMSModule
     {
         global $CMS_STYLESHEET;
         global $CMS_ADMIN_PAGE;
-        global $CMS_MODULE_PAGE;
         global $CMS_INSTALL_PAGE;
 
         if( CmsApp::get_instance()->is_frontend_request() ) {
@@ -142,7 +142,7 @@ abstract class CMSModule
             return CmsApp::get_instance();
 
         case 'config':
-            return \cms_config::get_instance();
+            return cms_config::get_instance();
 
         case 'db':
             return CmsApp::get_instance()->GetDb();
@@ -158,7 +158,7 @@ abstract class CMSModule
      */
     public function __call($name, $args)
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -175,24 +175,24 @@ abstract class CMSModule
     private function _loadTemplateMethods()
     {
         if (!$this->modtemplates) {
-            require_once(cms_join_path(__DIR__,'internal','module_support','modtemplates.inc.php'));
+            require_once cms_join_path(__DIR__, 'internal', 'module_support', 'modtemplates.inc.php');
             $this->modtemplates = true;
         }
     }
 
-    /**
+    /* *
      * Private
      *
      * @ignore
      */
-    private function _loadFormMethods()
+/*REDUNDANT    private function _loadFormMethods()
     {
         if (!$this->modform) {
-            require_once(cms_join_path(__DIR__, 'internal', 'module_support', 'modform.inc.php'));
+            require_once cms_join_path(__DIR__, 'internal', 'module_support', 'modform.inc.php');
             $this->modform = true;
         }
     }
-
+*/
     /**
      * Private
      *
@@ -201,8 +201,21 @@ abstract class CMSModule
     private function _loadRedirectMethods()
     {
         if (!$this->modredirect) {
-            require_once(cms_join_path(__DIR__,'internal', 'module_support', 'modredirect.inc.php'));
+            require_once cms_join_path(__DIR__, 'internal', 'module_support', 'modredirect.inc.php');
             $this->modredirect = true;
+        }
+    }
+
+    /**
+     * Private
+     *
+     * @ignore
+     */
+    private function _loadUrlMethods()
+    {
+        if (!$this->modurl) {
+            require_once cms_join_path(__DIR__, 'internal', 'module_support', 'modurl.inc.php');
+            $this->modurl = true;
         }
     }
 
@@ -214,7 +227,7 @@ abstract class CMSModule
     private function _loadMiscMethods()
     {
         if (!$this->modmisc) {
-            require_once(cms_join_path(__DIR__,'internal', 'module_support', 'modmisc.inc.php'));
+            require_once cms_join_path(__DIR__, 'internal', 'module_support', 'modmisc.inc.php');
             $this->modmisc = true;
         }
     }
@@ -236,13 +249,12 @@ abstract class CMSModule
      * @internal
      * @return mixed module call output.
      */
-    final static public function function_plugin($params,&$template)
+    final public static function function_plugin(array $params,&$template)
     {
         $class = get_called_class();
         if( $class != 'CMSModule' && !isset($params['module']) ) $params['module'] = $class;
         return cms_module_plugin($params,$template);
     }
-
 
     /**
      * Register a smarty plugin and attach it to this module.
@@ -254,11 +266,11 @@ abstract class CMSModule
      * @since 1.11
      * @param string  $name The plugin name
      * @param string  $type The plugin type (function,compiler,block, etc)
-     * @param callback $callback The function callback (must be a static function)
-     * @param bool $cachable Wether this function is cachable.
-     * @param int $usage Indicates frontend (0), or frontend and backend (1) availability.
+     * @param callable $callback The function callback (must be a static function)
+     * @param bool    $cachable Whether this function is cachable.
+     * @param int     $usage Indicates frontend (0), or frontend and backend (1) availability.
      */
-    public function RegisterSmartyPlugin($name,$type,$callback,$cachable = TRUE,$usage = 0)
+    public function RegisterSmartyPlugin($name,$type,$callback,$cachable = true,$usage = 0)
     {
         if( !$name || !$type || !$callback ) throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
 
@@ -294,10 +306,11 @@ abstract class CMSModule
      * @final
      * @see CMSModule::SetParameters
      * @see can_cache_output
-     * @param bool $forcedb Indicate wether this registration should be forced to be entered in the database. Default value is false (for compatibility)
-     * @param bool|null $cachable Indicate wether this plugins output should be cachable.  If null, use the site preferences, and the can_cache_output method.  Otherwise a bool is expected.
+     * @param bool $forcedb Whether this registration should be forced to be entered in the database. Default value is false (for compatibility)
+     * @param mixed bool|null $cachable Whether this plugin's output should be cachable.  If null, use the site preferences, and the can_cache_output method.  Otherwise a bool is expected.
+     * @return bool
      */
-    final public function RegisterModulePlugin($forcedb = FALSE,$cachable = false)
+    final public function RegisterModulePlugin(bool $forcedb = false, $cachable = false) : bool
     {
         global $CMS_ADMIN_PAGE;
         global $CMS_INSTALL_PAGE;
@@ -306,23 +319,21 @@ abstract class CMSModule
         $admin_req = (isset($CMS_ADMIN_PAGE) && !$this->LazyLoadAdmin())?1:0;
         $fe_req = (!isset($CMS_ADMIN_PAGE) && !$this->LazyLoadFrontend())?1:0;
         if( ($fe_req || $admin_req) && !$forcedb ) {
-            if( isset($CMS_INSTALL_PAGE) ) return TRUE;
+            if( isset($CMS_INSTALL_PAGE) ) return true;
 
             // no lazy loading.
-            $gCms = CmsApp::get_instance();
-            $smarty = $gCms->GetSmarty();
+            $smarty = CmsApp::get_instance()->GetSmarty();
             $smarty->register_function($this->GetName(), array($this->GetName(),'function_plugin'), $cachable );
-            return TRUE;
+            return true;
         }
         else {
             return cms_module_smarty_plugin_manager::addStatic($this->GetName(),$this->GetName(), 'function', 'function_plugin',$cachable);
-            return TRUE;
         }
     }
 
     /**
      * ------------------------------------------------------------------
-     * Basic Functions.	 Name and Version MUST be overridden.
+     * Basic Functions.  Name and Version MUST be overridden.
      * ------------------------------------------------------------------
      */
 
@@ -340,12 +351,11 @@ abstract class CMSModule
 
     /**
      * Returns a sufficient help page for a module
-     * this function should not be overridden
      *
-     * @return string The help page HTML text.
      * @final
+     * @return string The help page HTML text.
      */
-    final public function GetHelpPage()
+    final public function GetHelpPage() : string
     {
         $this->_loadMiscMethods();
         return cms_module_GetHelpPage($this);
@@ -369,7 +379,7 @@ abstract class CMSModule
      * @final
      * @return string The full path to the module directory.
      */
-    final public function GetModulePath()
+    final public function GetModulePath() : string
     {
         $modops = \ModuleOperations::get_instance();
         return $modops->get_module_path( $this->GetName() );
@@ -382,7 +392,7 @@ abstract class CMSModule
      * @param bool $use_ssl Optional generate an URL using HTTPS path
      * @return string The full path to the module directory.
      */
-    final public function GetModuleURLPath($use_ssl=false)
+    final public function GetModuleURLPath(bool $use_ssl=false) : string
     {
         $modops = \ModuleOperations::get_instance();
         if( $modops->IsSystemModule( $this->GetName() ) ) {
@@ -393,7 +403,7 @@ abstract class CMSModule
     }
 
     /**
-     * Returns a translatable name of the module.  For modulues who's names can
+     * Returns a translatable name of the module.  For modules whose name can
      * probably be translated into another language (like News)
      *
      * @abstract
@@ -466,10 +476,10 @@ abstract class CMSModule
      * theme, etc, so your module can output files directly to the administrator.
      * Do this by returning true.
      *
-     * @param  array $request The input request.  This can be used to test conditions wether or not admin output should be suppressed.
+     * @param  array $request The input request.  This can be used to test conditions whether or not admin output should be suppressed.
      * @return bool
      */
-    public function SuppressAdminOutput(array $request)
+    public function SuppressAdminOutput($request)
     {
         return false;
     }
@@ -484,7 +494,7 @@ abstract class CMSModule
      * @param string $routeregex Regular Expression Route to register
      * @param array $defaults Associative array containing defaults for parameters that might not be included in the url
      */
-    final public function RegisterRoute($routeregex, $defaults = array())
+    final public function RegisterRoute(string $routeregex,array $defaults = [])
     {
         $route = new CmsRoute($routeregex,$this->GetName(),$defaults);
         cms_route_manager::register($route);
@@ -505,10 +515,9 @@ abstract class CMSModule
      *
      * @final
      * @internal
-     * @access private
      * @return array
      */
-    final public function GetParameters()
+    final public function GetParameters() : array
     {
         if( count($this->params) == 0 ) $this->InitializeAdmin(); // quick hack to load parameters if they are not already loaded.
         return $this->params;
@@ -520,16 +529,18 @@ abstract class CMSModule
      * It uses the map created with the SetParameterType() method in the module api.
      *
      * @internal
+     * @access private
      * @param string Module Name
      * @param array  Hash data
      * @param array  A map of param names and type information
-     * @param bool A flag indicating wether unknown keys in the input data should be allowed.
-     * @param bool A flag indicating wether keys should be treated as strings and cleaned.
+     * @param bool A flag indicating whether unknown keys in the input data should be allowed.
+     * @param bool A flag indicating whether keys should be treated as strings and cleaned.
+     * @return array
      */
-    private function _cleanParamHash($modulename,$data,$map = false, $allow_unknown = false,$clean_keys = true)
+    private function _cleanParamHash(string $modulename,array $data,bool $map = false,bool $allow_unknown = false,bool $clean_keys = true) : array
     {
         $mappedcount = 0;
-        $result = array();
+        $result = [];
         foreach( $data as $key => $value ) {
             $mapped = false;
             $paramtype = '';
@@ -541,11 +552,11 @@ abstract class CMSModule
                     // Key not found in the map
                     // see if one matches via regular expressions
                     foreach( $map as $mk => $mv ) {
-                        if(strstr($mk,CLEAN_REGEXP) === FALSE) continue;
+                        if(strstr($mk,CLEAN_REGEXP) === false) continue;
 
                         // mk is a regular expression
                         $ss = substr($mk,strlen(CLEAN_REGEXP));
-                        if( $ss !== FALSE ) {
+                        if( $ss !== false ) {
                             if( preg_match($ss, $key) ) {
                                 // it matches, we now know what type to use
                                 $paramtype = $mv;
@@ -556,56 +567,53 @@ abstract class CMSModule
                 } // else
 
                 if( $paramtype != '' ) {
+                    ++$mappedcount;
+                    $mapped = true;
                     switch( $paramtype ) {
                     case 'CLEAN_INT':
-                        $mappedcount++;
-                        $mapped = true;
-                        $value = (int) $value;
+                        $value = filter_var($value, FILTER_SANITIZE_NUMBER_INT);
                         break;
                     case 'CLEAN_FLOAT':
-                        $mappedcount++;
-                        $mapped = true;
-                        $value = (float) $value;
+                        $value = filter_var($value, FILTER_SANITIZE_NUMBER_FLOAT);
                         break;
                     case 'CLEAN_NONE':
                         // pass through without cleaning.
-                        $mappedcount++;
-                        $mapped = true;
                         break;
                     case 'CLEAN_STRING':
-                        $value = cms_htmlentities($value);
-                        $mappedcount++;
-                        $mapped = true;
+                        $value = filter_var($value, FILTER_SANITIZE_STRING);
                         break;
                     case 'CLEAN_FILE':
                         $value = realpath($value);
-                        if( $realpath === FALSE ) {
+                        if ($value === false
+                         || strpos($value, CMS_ROOT_PATH) !== 0) {
                             $value = CLEANED_FILENAME;
                         }
-                        else {
-                            if( strpos($realpath, CMS_ROOT_PATH) !== 0 ) $value = CLEANED_FILENAME;
-                        }
-                        $mappedcount++;
-                        $mapped = true;
                         break;
                     default:
-                        $mappedcount++;
-                        $mapped = true;
-                        $value = cms_htmlentities($value);
+                        if (is_string($value) && $value !== '') {
+                            $value = filter_var($value, FILTER_SANITIZE_STRING,
+                                    FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+                        }
                         break;
                     } // switch
                 } // if $paramtype
             }
 
-            // we didn't clean this yet
             if( $allow_unknown && !$mapped ) {
+                // we didn't clean this yet
                 // but we're allowing unknown stuff so we'll just clean it.
-                $value = cms_htmlentities($value);
                 $mappedcount++;
                 $mapped = true;
+                if (is_string($value) && $value !== '') {
+                    $value = filter_var($val, FILTER_SANITIZE_STRING,
+                            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+                }
             }
 
-            if( $clean_keys ) $key = cms_htmlentities($key);
+            if ($clean_keys) {
+                $key = filter_var($key, FILTER_SANITIZE_STRING,
+                        FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+            }
 
             if( !$mapped && !$allow_unknown ) {
                 trigger_error('Parameter '.$key.' is not known by module '.$modulename.' dropped',E_USER_WARNING);
@@ -616,7 +624,7 @@ abstract class CMSModule
         return $result;
     }
 
-    /**
+    /*
      * Called from within the constructor,  This method should be overridden to call the CreaeteParameter
      * method for each parameter that the module understands.
      *
@@ -625,13 +633,12 @@ abstract class CMSModule
      * this method is deprecated, and the appropriate functions are InitializeFrontend() and InitializeAdmin()
      * This method is scheduled for removal in version 1.11
      *
-     * @abstract
      * @see CreateParameter
      * @see InitializeFrontend()
      * @see InitializeAdmin()
      * @deprecated
      */
-    function SetParameters() {}
+// removed per deprectation notice above    public function SetParameters() {}
 
     /**
      * Called from within the constructor, ONLY for frontend module
@@ -663,24 +670,24 @@ abstract class CMSModule
         $this->SetParameters(); // for backwards compatibility purposes. may be removed.
     }
 
-    /**
+    /*
      * A method to indicate that the system should drop and optionally
      * generate an error about unknown parameters on frontend actions.
      *
-     * This functionality was removed in 2.4
+     * This functionality was removed in 2.2.4 ?
      *
      * @see SetParameterType
      * @see CreateParameter
      * @final
-     * @param bool $flag Indicaties wether unknown params should be restricted.
+     * @param bool $flag Indicating whether unknown params should be restricted.
      */
-    final public function RestrictUnknownParams($flag = true)
+    final public function RestrictUnknownParams(bool $flag = true)
     {
         // empty stub.
     }
 
     /**
-     * Indicate the name of, and type of a parameter that is
+     * Indicate the name and type of a parameter that is
      * acceptable for frontend actions.
      *
      * possible values for type are:
@@ -712,8 +719,7 @@ abstract class CMSModule
     }
 
     /**
-     * Create a parameter and it's documentation for display in the
-     * module help.
+     * Create a parameter and its documentation for display in the module help.
      *
      * i.e:
      * $this->CreateParameter('numarticles',100000,$this->Lang('help_numarticles'),true);
@@ -724,12 +730,12 @@ abstract class CMSModule
      * @param string $param Parameter name;
      * @param string $defaultval Default parameter value
      * @param string $helpstring Help String
-     * @param bool $optional Flag indicating wether this parameter is optional or required.
+     * @param bool   $optional Flag indicating whether this parameter is optional or required.
      */
     final public function CreateParameter(string $param, string $defaultval='', string $helpstring='', bool $optional=true)
     {
-        array_push($this->params, array('name' => $param,'default' => $defaultval,'help' => $helpstring,
-                                        'optional' => $optional ));
+        array_push($this->params, ['name' => $param,'default' => $defaultval,'help' => $helpstring,
+                                        'optional' => $optional]);
     }
 
     /**
@@ -807,20 +813,20 @@ abstract class CMSModule
      * Returns the cms->config object as a reference
      *
      * @final
-     * @deprecated
      * @return array The config hash.
+     * @deprecated Use CmsApp::get_instance()->GetConfig()
      */
     final public function GetConfig()
     {
-        return \cms_config::get_instance();
+        return cms_config::get_instance();
     }
 
     /**
      * Returns the cms->db object as a reference
      *
      * @final
-     * @deprecated
-     * @return ADOConnection Adodb Database object.
+     * @return Database object
+     * @deprecated Use CmsApp::get_instance()->GetDb()
      */
     final public function &GetDb()
     {
@@ -846,13 +852,13 @@ abstract class CMSModule
      * @param string $blockName Content block name
      * @param mixed  $value     Content block value
      * @param array  $params    Associative array containing content block parameters
-     * @param bool   $adding   A flag indicating wether the content editor is in create mode (adding) vs. edit mod.
+     * @param bool   $adding    Flag indicating whether the content editor is in create mode (adding) vs. edit mod.
      * @param ContentBase $content_obj The content object being edited.
      * @return mixed Either an array with two elements (prompt, and xhtml element) or a string containing only the xhtml input element.
      */
-    function GetContentBlockFieldInput($blockName,$value,$params,$adding,ContentBase $content_obj)
+    public function GetContentBlockFieldInput($blockName,$value,$params,$adding,ContentBase $content_obj)
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -874,9 +880,9 @@ abstract class CMSModule
      * @param ContentBase $content_obj The content object being edited.
      * @return mixed|false The content block value if possible.
      */
-    function GetContentBlockFieldValue($blockName,$blockParams,$inputParams,ContentBase $content_obj)
+    public function GetContentBlockFieldValue($blockName,$blockParams,$inputParams,ContentBase $content_obj)
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -895,7 +901,7 @@ abstract class CMSModule
      * @param contentBase $content_obj The content object that is currently being edited.
      * @return string An error message if the value is invalid, empty otherwise.
      */
-    function ValidateContentBlockFieldValue($blockName,$value,$blockparams,ContentBase $content_obj)
+    public function ValidateContentBlockFieldValue($blockName,$value,$blockparams,ContentBase $content_obj)
     {
         return '';
     }
@@ -912,7 +918,7 @@ abstract class CMSModule
      * @param ContentBase $content_obj The content object that is currently being displayed
      * @return string
      */
-    function RenderContentBlockField($blockName,$value,$blockparams,ContentBase $content_obj)
+    public function RenderContentBlockField($blockName,$value,$blockparams,ContentBase $content_obj)
     {
         return $value;
     }
@@ -927,7 +933,7 @@ abstract class CMSModule
      * @param string $label A label for the action
      * @param string $action A module action name.
      */
-    final public function RegisterBulkContentFunction($label,$action)
+    final public function RegisterBulkContentFunction(string $label,string $action)
     {
         bulkcontentoperations::register_function($label,$action,$this->GetName());
     }
@@ -941,7 +947,7 @@ abstract class CMSModule
     /**
      * Function that will get called as module is installed. This function should
      * do any initialization functions including creating database tables. It
-     * should return a string message if there is a failure. Returning nothing (FALSE)
+     * should return a string message if there is a failure. Returning nothing (false)
      * will allow the install procedure to proceed.
      *
      * The default behavior of this method is to include a file named method.install.php
@@ -949,7 +955,7 @@ abstract class CMSModule
      * secondary functions into other files.
      *
      * @abstract
-     * @return string|false A value of FALSE indicates no error.  Any other value will be used as an error message.
+     * @return string|false A value of false indicates no error.  Any other value will be used as an error message.
      */
     public function Install()
     {
@@ -961,11 +967,11 @@ abstract class CMSModule
             global $CMS_INSTALL_PAGE;
             if( !isset($CMS_INSTALL_PAGE) ) $smarty = $gCms->GetSmarty();
 
-            $res = include($filename);
-            if( $res == 1 || $res == '' ) return FALSE;
+            $res = include $filename;
+            if( $res == 1 || $res == '' ) return false;
             return $res;
         }
-        return FALSE;
+        return false;
     }
 
 
@@ -977,20 +983,20 @@ abstract class CMSModule
      */
     public function InstallPostMessage()
     {
-        return FALSE;
+        return false;
     }
 
     /**
      * Function that will get called as module is uninstalled. This function should
      * remove any database tables that it uses and perform any other cleanup duties.
      * It should return a string message if there is a failure. Returning nothing
-     * (FALSE) will allow the uninstall procedure to proceed.
+     * (false) will allow the uninstall procedure to proceed.
      *
      * The default behaviour of this function is to include a file called method.uninstall.php
      * in your module directory to do uninstall operations.
      *
      * @abstract
-     * @return string|false A result of FALSE indicates that the module uninstalled correctly, any other value indicates an error message.
+     * @return string|false A result of false indicates that the module uninstalled correctly, any other value indicates an error message.
      */
     public function Uninstall()
     {
@@ -1001,8 +1007,8 @@ abstract class CMSModule
             $config = $gCms->GetConfig();
             $smarty = $gCms->GetSmarty();
 
-            $res = include($filename);
-            if( $res == 1 || $res == '') return FALSE;
+            $res = include $filename;
+            if( $res == 1 || $res == '') return false;
             if( is_string($res)) {
                 $modops = $gCms->GetModuleOperations();
                 $modops->SetError($res);
@@ -1010,7 +1016,7 @@ abstract class CMSModule
             return $res;
         }
         else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -1027,44 +1033,44 @@ abstract class CMSModule
     }
 
     /**
-     * Display a message and a Yes/No dialog before doing an uninstall.	 Returning noting
-     * (FALSE) will go right to the uninstall.
+     * Display a message and a Yes/No dialog before doing an uninstall.  Returning noting
+     * (false) will go right to the uninstall.
      *
      * @abstract
-     * @return XHTML Text, or FALSE.
+     * @return XHTML Text, or false.
      */
     public function UninstallPreMessage()
     {
-        return FALSE;
+        return false;
     }
 
     /**
      * Display a message after a successful uninstall of the module.
      *
      * @abstract
-     * @return XHTML Text, or FALSE
+     * @return XHTML Text, or false
      */
     public function UninstallPostMessage()
     {
-        return FALSE;
+        return false;
     }
 
     /**
      * Function to perform any upgrade procedures. This is mostly used to for
      * updating databsae tables, but can do other duties as well. It should
-     * return a string message if there is a failure. Returning nothing (FALSE)
+     * return a string message if there is a failure. Returning nothing (false)
      * will allow the upgrade procedure to proceed. Upgrades should have a path
      * so that they can be upgraded from more than one version back.  While not
      * a requirement, it makes life easy for your users.
      *
-     * The default behavior of this method is to call a function called method.upgrade.php
-     * in your module directory, if it exists.
+     * The default behaviour of this method is to include the file named method.upgrade.php
+     * in the module's base directory, if such file exists.
      *
      * @param string $oldversion The version we are upgrading from
      * @param string $newversion The version we are upgrading to
-     * @return bool
+     * @return mixed value (other than 1 or '') returned by the included code (e.g. error-message string), or false
      */
-    public function Upgrade($oldversion, $newversion)
+    public function Upgrade($oldversion,$newversion)
     {
         $filename = $this->GetModulePath().'/method.upgrade.php';
         if (@is_file($filename)) {
@@ -1073,11 +1079,10 @@ abstract class CMSModule
             $config = $gCms->GetConfig();
             $smarty = $gCms->GetSmarty();
 
-            $res = include($filename);
-            if( $res == 1 || $res == '' ) return FALSE;
-            return $res;
+            $res = include $filename;
+            if( $res && $res !== 1 ) return $res;
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1090,29 +1095,25 @@ abstract class CMSModule
      */
     public function GetDependencies()
     {
-        return array();
+        return [];
     }
 
     /**
-     * Checks to see if currently installed modules depend on this module.	This is
+     * Checks to see if currently installed modules depend on this module.  This is
      * used by the plugins.php page to make sure that a module can't be uninstalled
      * before any modules depending on it are uninstalled first.
      *
      * @internal
-     * @access private
      * @final
      * @return bool
      */
-    final public function CheckForDependents()
+    final public function CheckForDependents() : bool
     {
-        $gCms = CmsApp::get_instance();
-        $db = $gCms->GetDb();
-        $result = false;
+        $db = CmsApp::get_instance()->GetDb();
 
-        $query = "SELECT child_module FROM ".CMS_DB_PREFIX."module_deps WHERE parent_module = ? LIMIT 1";
-        $tmp = $db->GetOne($query,array($this->GetName()));
-        if( $tmp ) $result = true;
-        return $result;
+        $query = 'SELECT child_module FROM '.CMS_DB_PREFIX.'module_deps WHERE parent_module = ? LIMIT 1';
+        $tmp = $db->GetOne($query,[$this->GetName()]);
+        return $tmp != false;
     }
 
     /**
@@ -1123,14 +1124,14 @@ abstract class CMSModule
      * @param string $message reference to returned message.
      * @param int $filecount reference to returned file count.
      */
-    final public function CreateXMLPackage( &$message, &$filecount )
+    final public function CreateXMLPackage(&$message, &$filecount)
     {
         $modops = ModuleOperations::get_instance();
         return $modops->CreateXmlPackage($this, $message, $filecount);
     }
 
     /**
-     * Return true if there is an admin for the module.	 Returns false by
+     * Return true if there is an admin for the module.  Returns false by
      * default.
      *
      * @abstract
@@ -1163,16 +1164,13 @@ abstract class CMSModule
      *
      * @since 2.0
      * @abstract
-     * @return array of CmsAdminMenuItem objects
+     * @return mixed array of CmsAdminMenuItem objects, or NULL
      */
     public function GetAdminMenuItems()
     {
-        if( !$this->VisibleToAdminUser() ) return;
-
-        $out = array();
-        $out[] = CmsAdminMenuItem::from_module($this);
-
-        return $out;
+        if ($this->VisibleToAdminUser()) {
+            return [CmsAdminMenuItem::from_module($this)];
+        }
     }
 
     /**
@@ -1194,7 +1192,7 @@ abstract class CMSModule
 
     /**
      * Returns true if the module should be treated as a plugin module (like
-     * {cms_module module='name'}.	Returns false by default.
+     * {cms_module module='name'}.  Returns false by default.
      *
      * @abstract
      * @return bool
@@ -1219,7 +1217,7 @@ abstract class CMSModule
      */
     public function LazyLoadFrontend()
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1237,7 +1235,7 @@ abstract class CMSModule
      */
     public function LazyLoadAdmin()
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1247,14 +1245,14 @@ abstract class CMSModule
      */
 
     /**
-     * Returns true if the modules thinks it has the capability specified
+     * Returns true if the module thinks it has the capability specified
      *
      * @abstract
      * @param string $capability an id specifying which capability to check for, could be "wysiwyg" etc.
      * @param array  $params An associative array further params to get more detailed info about the capabilities. Should be syncronized with other modules of same type
      * @return bool
      */
-    public function HasCapability($capability, $params = array())
+    public function HasCapability($capability, $params = [])
     {
         return false;
     }
@@ -1264,11 +1262,11 @@ abstract class CMSModule
      *
      * @since 1.8
      * @abstract
-     * @return array of CmsRegularTask objects, or one object.  NULL if not handled.
+     * @return mixed array of CmsRegularTask objects, or one such object, or NULL if not handled.
      */
     public function get_tasks()
     {
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1321,7 +1319,7 @@ abstract class CMSModule
      * ------------------------------------------------------------------
      */
 
-    protected function get_controller( $action_name, $actionid, array $params, $returnid )
+    protected function get_controller($action_name, $actionid, $params, $returnid)
     {
         $ctrl = null;
         if( isset( $params['controller']) ) {
@@ -1339,7 +1337,7 @@ abstract class CMSModule
     }
 
     /**
-     * Used for navigation between "pages" of a module.	 Forms and links should
+     * Used for navigation between "pages" of a module.  Forms and links should
      * pass an action with them so that the module will know what to do next.
      * By default, DoAction will be passed 'default' and 'defaultadmin',
      * depending on where the module was called from.  If being used as a module
@@ -1350,16 +1348,15 @@ abstract class CMSModule
      * behaviour of this method is to look for a file named action.<action name>.php
      * in the modules directory, and if it exists include it.
      *
-     * @abstract
      * @param string $name The Name of the action to perform
      * @param string $id The ID of the module
      * @param array  $params The parameters targeted for this module
-     * @param int    $returnid The current page id that is being displayed.
+     * @param mixed int|'' $returnid The current page id that is being displayed.
      * @return string output XHTML.
      */
-    public function DoAction($name, $id, $params, $returnid = null)
+    public function DoAction($name, $id, $params, $returnid = '')
     {
-        if( $returnid == '' ) {
+        if( $returnid === '' ) {
             $key = $this->GetName().'::activetab';
             if( isset($_SESSION[$key]) ) {
                 $this->SetCurrentTab($_SESSION[$key]);
@@ -1373,7 +1370,7 @@ abstract class CMSModule
             }
         }
 
-        if ($name != '') {
+        if ($name !== '') {
             //Just in case DoAction is called directly and it's not overridden.
             //See: http://0x6a616d6573.blogspot.com/2010/02/cms-made-simple-166-file-inclusion.html
             $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
@@ -1389,13 +1386,12 @@ abstract class CMSModule
                     $db = $gCms->GetDb();
                     $config = $gCms->GetConfig();
                     $smarty = $this->_action_tpl; // smarty in scope.
-                    include($filename);
+                    include $filename;
                     return;
                 }
             }
         }
 
-        die("not found ".$this->GetName().' action = '.$name);
         @trigger_error("$name is an unknown acton of module ".$this->GetName());
         throw new \CmsError404Exception("Module action not found");
     }
@@ -1407,18 +1403,17 @@ abstract class CMSModule
      * @internal
      * @ignore
      * @final
-     * @access private
      * @param string $name The action name
      * @param string $id The action identifier
      * @param array  $params The action params
-     * @param int $returnid The current page id.  Empty for admin requests.
+     * @param mixed  $returnid The current page id. int or ''for admin requests.
      * @param Smarty_Internal_Template &$parent The currrent smarty template object.
      * @return string The action output.
      */
-    final public function DoActionBase(string $name, string $id, array $params, int $returnid = null, &$parent )
+    final public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$parent ) : string
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
-        if( $returnid != '' ) {
+        if( $returnid !== '' ) {
 
             // merge in params from module hints.
             $hints = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
@@ -1444,15 +1439,17 @@ abstract class CMSModule
             }
         }
 
-        $returnid = (int) $returnid;
-        $id = cms_htmlentities($id);
-        $name = cms_htmlentities($name);
+        $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
+        $name = filter_var($name, FILTER_SANITIZE_STRING); //alphanum + '_' ?
 
-        if( $returnid != 0 ) {
+        if ($returnid !== '') {
+            $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
             $tmp['action'] = $name;
             \CMSMS\HookManager::do_hook('module_action', $tmp);
+        } else {
+            $returnid = 0;
         }
 
         $gCms = CmsApp::get_instance(); // in scope for compatibility reasons.
@@ -1480,6 +1477,32 @@ abstract class CMSModule
         return $output;
     }
 
+    /**
+     * Looks for a file named action.<action name>.php in the module's directory,
+     * and if it exists, includes it. No security checks here (typically the action
+     * itself should perform a context-specific check). No time-wasting. No smarty.
+     *
+     * @since 2.3
+     * @param string $name   The Name of the action to perform
+     * @param string $id     The ID of the module
+     * @param array  $params The parameters targeted for this module
+     *
+     * @return nothing
+     */
+    public function DoActionJob($name, $id, $params)
+    {
+        $filename = $this->GetModulePath().DIRECTORY_SEPARATOR.'action.'.$name.'.php';
+        if (!is_file($filename)) {
+            @trigger_error("$name is an unknown acton of module ".$this->GetName());
+            throw new \CmsError404Exception('Module action not found');
+        }
+
+        // variables included in scope for convenience
+        $gCms = CmsApp::get_instance();
+        $db = $gCms->GetDb();
+        $config = $gCms->GetConfig();
+        include $filename;
+    }
 
     /**
      * ------------------------------------------------------------------
@@ -1487,25 +1510,58 @@ abstract class CMSModule
      * ------------------------------------------------------------------
      */
 
+    /*
+     * Migrate all $addtext substrings like name="value" to $converted['name'] = 'value'
+     * and any leftover to a non-named "value". $addtext is emptied.
+     * @internal
+     * @ignore
+     */
+    protected function splitaddtext(string &$addtext, array &$converted)
+    {
+        if ($addtext) {
+            if (preg_match_all('/(([[:alnum:]]*?)\s*=\s*(["\'])([[:alnum:][:blank:]]*?)\3)/u',
+                    $addtext, $matches)) {
+                foreach ($matches[2] as $key => $i) {
+                    $converted[$key] = $matches[4][$i];
+                    $addtext = str_replace($matches[1][$i], '', $addtext);
+                }
+            }
+            $addtext = trim($addtext);
+            if ($addtext) {
+                $converted[] = $addtext;
+                $addtext = '';
+            }
+        }
+    }
 
     /**
      * Returns the start of a module form, optimized for frontend use
      *
      * @param string $id The id given to the module on execution
-     * @param string $returnid The page id to eventually return to when the module is finished it's task
+     * @param mixed $returnid The page id to eventually return to when the module is finished its task
+     * Optional parameters:
      * @param string $action The name of the action that this form should do when the form is submitted
      * @param string $method Method to use for the form tag.  Defaults to 'post'
-     * @param string $enctype Optional enctype to use, Good for situations where files are being uploaded
+     * @param string $enctype Enctype to use, Good for situations where files are being uploaded
      * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      * @param string $idsuffix Text to append to the end of the id and name of the form
      * @param array $params Extra parameters to pass along when the form is submitted
-     * @deprecated
+     * @param string $addtext since 2.3 Text to append to the <form>-statement, for instance for javascript-validation code
+     * @param array $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Instead use CmsFormUtils::create_form_start() with $inline = true
      */
-    function CreateFrontendFormStart($id,$returnid,$action='default',$method='post',
-                                     $enctype='',$inline=true,$idsuffix='',$params=array())
+    public function CreateFrontendFormStart($id, $returnid, $action='default', $method='post',
+                                     $enctype='', $inline=true, $idsuffix='', $params=[], $addtext='', $attrs=[])
     {
-        return $this->CreateFormStart($id,$action,$returnid,$method,$enctype,$inline,$idsuffix,$params);
+        $inline = true; //force this
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_form_start($this, $parms);
     }
 
     /**
@@ -1513,19 +1569,28 @@ abstract class CMSModule
      *
      * @param string $id The id given to the module on execution
      * @param string $action The action that this form should do when the form is submitted
-     * @param string $returnid The page id to eventually return to when the module is finished it's task
+     * Optional parameters:
+     * @param mixed $returnid The page id to eventually return to when the module is finished its task
      * @param string $method Method to use for the form tag.  Defaults to 'post'
-     * @param string $enctype Optional enctype to use, Good for situations where files are being uploaded
+     * @param string $enctype Enctype to use, Good for situations where files are being uploaded
      * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      * @param string $idsuffix Text to append to the end of the id and name of the form
      * @param array $params Extra parameters to pass along when the form is submitted
-     * @param string $extra Text to append to the <form>-statement, for instanse for javascript-validation code
+     * @param string $addtext Text to append to the <form>-statement, for instance for javascript-validation code
+     * @param array $attrs since 2.3 Optional array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_form_start() instead
      */
-    function CreateFormStart($id, $action='default', $returnid='', $method='post', $enctype='', $inline=false, $idsuffix='', $params = array(), $extra='')
+    public function CreateFormStart($id, $action='default', $returnid='', $method='post',
+                             $enctype='', $inline=false, $idsuffix='', $params=[], $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateFormStart($this, $id, $action, $returnid, $method, $enctype, $inline, $idsuffix, $params, $extra);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_form_start($this, $parms);
     }
 
     /**
@@ -1533,406 +1598,557 @@ abstract class CMSModule
      * could be extended later on down the road.  It's here mainly for consistency.
      *
      * @return string
+     * @deprecated Use CmsFormUtils::create_form_end() instead
      */
-    function CreateFormEnd()
+    public function CreateFormEnd()
     {
-        return '</form>'."\n";
+        return CmsFormUtils::create_form_end();
     }
 
     /**
-     * Returns the xhtml equivalent of an input textbox.  This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining an input textbox.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the textbox
+     * Optional parameters:
      * @param string $value The predefined value of the textbox, if any
      * @param string $size The number of columns wide the textbox should be displayed
      * @param string $maxlength The maximum number of characters that should be allowed to be entered
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use instead CmsFormUtils::create_input()
      */
-    function CreateInputText($id, $name, $value='', $size='10', $maxlength='255', $addttext='')
+    public function CreateInputText($id, $name, $value='', $size='10', $maxlength='255', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputText($this, $id, $name, $value, $size, $maxlength, $addttext);
-    }
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'text'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
+   }
 
     /**
-     * Returns the xhtml equivalent of an label for input field.  This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining a label for an input field. This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the input field this label is associated to
-     * @param string $labeltext The text in the label
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * Optional parameters:
+     * @param string $labeltext The text in the label (non much help if empty)
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_label() instead
      */
-    function CreateLabelForInput($id, $name, $labeltext='', $addttext='')
+    public function CreateLabelForInput($id, $name, $labeltext='', $addtext='',$attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateLabelForInput($this, $id, $name, $labeltext, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_label($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a file-selector field.  This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining a file-selector field.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the textbox
+     * Optional parameters:
      * @param string $accept The MIME-type to be accepted, default is all
      * @param string $size The number of columns wide the textbox should be displayed
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    function CreateInputFile($id, $name, $accept='', $size='10',$addttext='')
+    public function CreateInputFile($id, $name, $accept='', $size='10', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputFile($this, $id, $name, $accept, $size, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'file'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of an input password-box.  This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining an input password-box.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the textbox
+     * Optional parameters:
      * @param string $value The predefined value of the textbox, if any
      * @param string $size The number of columns wide the textbox should be displayed
      * @param string $maxlength The maximum number of characters that should be allowed to be entered
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    function CreateInputPassword($id, $name, $value='', $size='10', $maxlength='255', $addttext='')
+    public function CreateInputPassword($id, $name, $value='', $size='10', $maxlength='255', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputPassword($this, $id, $name, $value, $size, $maxlength, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'password'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a hidden field.	This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining a hidden field.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the hidden field
+     * Optional parameters:
      * @param string $value The predefined value of the field, if any
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    function CreateInputHidden($id, $name, $value='', $addttext='')
+    public function CreateInputHidden($id, $name, $value='', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputHidden($this, $id, $name, $value, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'hidden'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a checkbox.	This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns the xhtml for a checkbox.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the checkbox
+     * Optional parameters:
      * @param string $value The value returned from the input if selected
-     * @param string $selectedvalue The current value. If equal to $value the checkbox is selected
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * @param string $selectedvalue The initial value. If equal to $value the checkbox is selected
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    function CreateInputCheckbox($id, $name, $value='', $selectedvalue='', $addttext='')
+    public function CreateInputCheckbox($id, $name, $value='', $selectedvalue='', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputCheckbox($this, $id, $name, $value, $selectedvalue, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'check'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_select($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a submit button.	 This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining a submit button.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the button
-     * @param string $value The predefined value of the button, if any
-     * @param string $addttext Any additional text that should be added into the tag when rendered
+     * Optional parameters:
+     * @param string $value The value/label of the button. Defaults to ''
+     * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param string $image Use an image instead of a regular button
-     * @param string $confirmtext Optional text to display in a confirmation message.
-     * @deprecated
+     * @param string $confirmtext Text to display in a confirmation message.
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    function CreateInputSubmit($id, $name, $value='', $addttext='', $image='', $confirmtext='')
+    public function CreateInputSubmit($id, $name, $value='', $addtext='', $image='', $confirmtext='', $atrrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputSubmit($this, $id, $name, $value, $addttext, $image, $confirmtext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'submit'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a reset button.	This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining a reset button.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the button
-     * @param string $value The predefined value of the button, if any
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * Optional parameters:
+     * @param string $value The value/label of the button, defaults to 'Reset' (untranslated)
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    function CreateInputReset($id, $name, $value='Reset', $addttext='')
+    public function CreateInputReset($id, $name, $value='Reset', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputReset($this, $id, $name, $value, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'reset'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a dropdown list.	 This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it is xhtml compliant.
+     * Returns xhtml defining a dropdown list.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it is syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the dropdown list
      * @param string $items An array of items to put into the dropdown list... they should be $key=>$value pairs
-     * @param string $selectedindex The default selected index of the dropdown list.  Setting to -1 will result in the first choice being selected
+     * Optional parameters:
+     * @param int    $selectedindex The default selected index of the dropdown list.  Setting to -1 will result in the first choice being selected
      * @param string $selectedvalue The default selected value of the dropdown list.  Setting to '' will result in the first choice being selected
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @deprecated
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    function CreateInputDropdown($id, $name, $items, $selectedindex=-1, $selectedvalue='', $addttext='')
+    public function CreateInputDropdown($id, $name, $items, $selectedindex=-1, $selectedvalue='', $addtext='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputDropdown($this, $id, $name, $items, $selectedindex, $selectedvalue, $addttext);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'dropdown'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_select($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a multi-select list.	 This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it is xhtml compliant.
+     * Returns xhtml defining a multi-select list.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it is syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the select list
-     * @param string $items An array of items to put into the list... they should be $key=>$value pairs
-     * @param string $selecteditems An array of items in the list that should default to selected.
+     * @param array  $items Items to put into the list... they should be $key=>$value pairs
+     * Optional parameters:
+     * @param array  $selecteditems Items in the list that should be initially selected.
      * @param string $size The number of rows to be visible in the list (before scrolling).
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @param bool $multiple indicates wether multiple selections are allowed (defaults to true)
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param bool   $multiple Whether multiple selections are allowed (defaults to true)
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
-     * @deprecated
+     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    function CreateInputSelectList($id, $name, $items, $selecteditems=array(), $size=3, $addttext='', $multiple = true)
+    public function CreateInputSelectList($id, $name, $items, $selecteditems=[],
+                        $size=3, $addtext='', $multiple=true, $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputSelectList($this, $id, $name, $items, $selecteditems, $size, $addttext, $multiple);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'list'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_select($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a set of radio buttons.	This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it is xhtml compliant.
+     * Returns xhtml defining a set of radio buttons.  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it is syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the radio group
      * @param string $items An array of items to create as radio buttons... they should be $key=>$value pairs
-     * @param string $selectedvalue The default selected index of the radio group.	 Setting to -1 will result in the first choice being selected
-     * @param string $addttext Any additional text that should be added into the tag when rendered
+     * Optional parameters:
+     * @param string $selectedvalue The default selected index of the radio group.   Setting to -1 will result in the first choice being selected
+     * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param string $delimiter A delimiter to throw between each radio button, e.g., a <br /> tag or something for formatting
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    function CreateInputRadioGroup($id, $name, $items, $selectedvalue='', $addttext='', $delimiter='')
+    public function CreateInputRadioGroup($id, $name, $items, $selectedvalue='',
+                        $addtext='', $delimiter='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateInputRadioGroup($this, $id, $name, $items, $selectedvalue, $addttext, $delimiter);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'radio'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_select($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of a textarea.	Also takes WYSIWYG preference into consideration if it's called from the admin side.
+     * Returns xhtml defining a textarea.  Also takes WYSIWYG preference into consideration if it's called from the admin side.
      *
      * @param bool   $enablewysiwyg Should we try to create a WYSIWYG for this textarea?
      * @param string $id The id given to the module on execution
-     * @param string $text The text to display in the textarea's content
+     * @param string $text The text to display in the textarea
      * @param string $name The html name of the textarea
-     * @param string $classname The CSS class to associate this textarea to
+     * Optional parameters:
+     * @param string $classname The html class(es) to add to this textarea
      * @param string $htmlid The html id to give to this textarea
-     * @param string $encoding The encoding to use for the content
-     * @param string $stylesheet The text of the stylesheet associated to this content.	 Only used for certain WYSIWYGs
-     * @param string $cols The number of characters wide (columns) the resulting textarea should be
-     * @param string $rows The number of characters high (rows) the resulting textarea should be
-     * @param string $forcewysiwyg The wysiwyg-system to be forced even if the user has chosen another one
-     * @param string $wantedsyntax The language the content should be syntaxhightlighted as
-     * @param string $addtext Any additional text to include with the textarea field.
+     * @param string $encoding The encoding to use for the text
+     * @param string $stylesheet The text of the stylesheet associated to this text.  Only used for certain WYSIWYGs
+     * @param string $cols The number of characters (columns) wide the resulting textarea should be
+     * @param string $rows The number of characters (rows) high the resulting textarea should be
+     * @param string $forcewysiwyg The wysiwyg-system to be used, even if the user has chosen another one
+     * @param string $wantedsyntax The language the text should be syntaxhightlighted as
+     * @param string $addtext Any additional definition(s) to include in the textarea tag
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
-     * @deprecated
-     * @see CmsFormUtils::create_textarea
+     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    function CreateTextArea($enablewysiwyg, $id, $text, $name, $classname='', $htmlid='', $encoding='', $stylesheet='', $cols='', $rows='',$forcewysiwyg='',$wantedsyntax='',$addtext='')
+    public function CreateTextArea($enablewysiwyg, $id, $text, $name, $classname='',
+                        $htmlid='', $encoding='', $stylesheet='', $cols='', $rows='',
+                        $forcewysiwyg='', $wantedsyntax='', $addtext='', $attrs=[])
     {
-        $parms = array();
-        $parms['enablewysiwyg'] = $enablewysiwyg;
-        $parms['name'] = $id.$name;
-        if( $classname ) $parms['class'] = $classname;
-        if( $htmlid ) $parms['id'] = $htmlid;
-        if( $encoding ) $parms['encoding'] = $encoding;
-        if( $stylesheet ) $parms['stylesheet'] = $stylesheet;
-        if( $cols ) $parms['cols'] = $cols;
-        if( $rows ) $parms['rows'] = $rows;
-        if( $text ) $parms['text'] = $text;
-        if( $forcewysiwyg ) $parms['forcemodule'] = $forcewysiwyg;
-        if( $wantedsyntax ) $parms['wantedsyntax'] = $wantedsyntax;
-        if( $addtext ) $parms['addtext'] = $addtext;
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
 
-        try {
-            return CmsFormUtils::create_textarea($parms);
-        }
-        catch( CmsException $e ) {
-            return '';
-        }
-    }
+        $parms = ['type' => 'textarea'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
 
-
-    /**
-     * Returns the xhtml equivalent of a textarea.	Also takes Syntax hilighter preference
-     * into consideration if it's called from the admin side.
-     *
-     * @deprecated
-     * @param string $id The id given to the module on execution
-     * @param string $text The text to display in the textarea's content
-     * @param string $name The html name of the textarea
-     * @param string $classname The CSS class to associate this textarea to
-     * @param string $htmlid The html id to give to this textarea
-     * @param string $encoding The encoding to use for the content
-     * @param string $stylesheet The text of the stylesheet associated to this content.	 Only used for certain WYSIWYGs
-     * @param string $cols The number of characters wide (columns) the resulting textarea should be
-     * @param string $rows The number of characters high (rows) the resulting textarea should be
-     * @param string $addtext Additional text for the text area tag.
-     * @return string
-     */
-    function CreateSyntaxArea($id,$text,$name,$classname='',$htmlid='',$encoding='',
-                              $stylesheet='',$cols='80',$rows='15',$addtext='')
-    {
-        return create_textarea(false,$text,$id.$name,$classname,$htmlid, $encoding, $stylesheet,
-                               $cols,$rows,'','html',$addtext);
+        return CmsFormUtils::create_input($parms);
     }
 
     /**
-     * Returns the xhtml equivalent of an href link	 This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining a textarea, with syntax hilighting applied.
+     * Takes the user's hilighter-preference into consideration, if called from the
+     * admin side.
      *
      * @param string $id The id given to the module on execution
-     * @param string $returnid The id to eventually return to when the module is finished it's task
+     * @param string $text The text to display in the textarea
+     * @param string $name The html name of the textarea
+     * Optional parameters:
+     * @param string $classname The html class(es) to add to this textarea
+     * @param string $htmlid The html id to give to this textarea
+     * @param string $encoding The encoding to use for the content
+     * @param string $stylesheet The text of the stylesheet associated to this content.  Only used for certain WYSIWYGs
+     * @param string $cols The number of characters wide (columns) the resulting textarea should be
+     * @param string $rows The number of characters high (rows) the resulting textarea should be
+     * @param string $addtext Additional definition(s) to go into the textarea tag.
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     * @return string
+     * @deprecated Use CmsFormUtils::create_input() instead
+     */
+    public function CreateSyntaxArea($id,$text,$name,$classname='',$htmlid='',$encoding='',
+                              $stylesheet='',$cols='80',$rows='15',$addtext='',$attrs=[])
+    {
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = ['type' => 'syntaxarea'];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_input($parms);
+    }
+
+    /**
+     * Returns xhtml defining an href link  This is basically a nice little wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
+     *
+     * @param string $id The id given to the module on execution
+     * @param mixed  $returnid The id to eventually return to when the module is finished its task
      * @param string $action The action that this form should do when the link is clicked
+     * Optional parameters:
      * @param string $contents The text that will have to be clicked to follow the link
-     * @param string $params An array of params that should be inlucded in the URL of the link.	 These should be in a $key=>$value format.
+     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
      * @param string $warn_message Text to display in a javascript warning box.  If they click no, the link is not followed by the browser.
-     * @param bool $onlyhref A flag to determine if only the href section should be returned
-     * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
+     * @param bool   $onlyhref A flag to determine if only the href section should be returned
+     * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param bool $targetcontentonly A flag indicating that the output of this link should target the content area of the destination page.
-     * @param string $prettyurl An optional pretty url segment (relative to the root of the site) to use when generating the link.
+     * @param bool   $targetcontentonly A flag indicating that the output of this link should target the content area of the destination page.
+     * @param string $prettyurl A pretty url segment (relative to the root of the site) to use when generating the link.
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_action_link() with adjusted params, instead
      */
-    function CreateFrontendLink( $id, $returnid, $action, $contents='', $params=array(),
+    public function CreateFrontendLink( $id, $returnid, $action, $contents='', $params=[],
                                  $warn_message='', $onlyhref=false, $inline=true, $addtext='',
-                                 $targetcontentonly=false, $prettyurl='' )
+                                 $targetcontentonly=false, $prettyurl='', $attrs=[] )
     {
-        return $this->CreateLink( $id, $action, $returnid, $contents, $params, $warn_message, $onlyhref,
-                                  $inline, $addtext, $targetcontentonly, $prettyurl );
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_action_link($this, $parms);
     }
 
     /**
-     * Returns the xhtml equivalent of an href link	 This is basically a nice little wrapper
-     * to make sure that id's are placed in names and also that it's xhtml compliant.
+     * Returns xhtml defining an href link to a module action.  This is
+     * basically a wrapper to make sure that id's are placed in names
+     * and also that it's syntax-compliant.
      *
      * @param string $id The id given to the module on execution
      * @param string $action The action that this form should do when the link is clicked
-     * @param string $returnid The id to eventually return to when the module is finished it's task
+     * Optional parameters:
+     * @param mixed  $returnid The id to eventually return to when the module is finished its task
      * @param string $contents The text that will have to be clicked to follow the link
-     * @param string $params An array of params that should be inlucded in the URL of the link.	 These should be in a $key=>$value format.
-     * @param string $warn_message Text to display in a javascript warning box.  If they click no, the link is not followed by the browser.
-     * @param bool $onlyhref A flag to determine if only the href section should be returned
-     * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
-     * @param string $addttext Any additional text that should be added into the tag when rendered
-     * @param bool $targetcontentonly A flag to determine if the link should target the default content are of the destination page.
+     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
+     * @param string $warn_message Text to display in a javascript warning box.  If the user clicks no, the link is not followed by the browser.
+     * @param bool   $onlyhref A flag to determine if only the href section should be returned
+     * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param bool   $targetcontentonly A flag to determine if the link should target the default content are of the destination page.
      * @param string $prettyurl An optional pretty url segment (related to the root of the website) for a pretty url.
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
      * @return string
+     * @deprecated Use CmsFormUtils::create_action_link() instead
      */
-    function CreateLink($id, $action, $returnid='', $contents='', $params=array(),
-                        $warn_message='', $onlyhref=false, $inline=false, $addttext='',
-                        $targetcontentonly=false, $prettyurl='')
+    public function CreateLink($id, $action, $returnid='', $contents='', $params=[],
+                        $warn_message='', $onlyhref=false, $inline=false, $addtext='',
+                        $targetcontentonly=false, $prettyurl='', $attrs=[])
     {
-        $this->_loadFormMethods();
-        return cms_module_CreateLink($this, $id, $action, $returnid, $contents, $params, $warn_message, $onlyhref, $inline, $addttext, $targetcontentonly, $prettyurl);
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_action_link($this, $parms);
     }
 
+    /**
+     * Returns xhtml defining an href link for a site page.
+     * This is basically a wrapper to make sure that the link gets to
+     * where intended and it's syntax-compliant
+     *
+     * @param int $pageid the page id of the page we want to direct to
+     * Optional parameters:
+     * @param string $contents The optional text or markup content of the generated link
+     * @param array $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     * @return string
+     * @deprecated use CmsFormUtils::create_content_link() instead
+     */
+    public function CreateContentLink($pageid, $contents='', $attrs=[])
+    {
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_content_link($parms);
+    }
 
     /**
-     * Returns a URL to a module action
+     * Returns xhtml defining an href link for Content links. This is basically a nice little wrapper
+     * to make sure that we go back to where we want to and that it's syntax-compliant.
+     *
+     * @param string $id The id given to the module on execution
+     * @param mixed  $returnid The id to eventually return to when the module is finished its task
+     * Optional parameters:
+     * @param string $contents The text that will have to be clicked to follow the link
+     * @param array  $params Parameters to be included in the URL of the link.  These should be in a $key=>$value format.
+     * @param bool   $onlyhref A flag to determine if only the href section should be returned
+     * @param array  $attrs since 2.3 Array of parameters, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     * @return string
+     * @deprecated Use CmsFormUtils::create_return_link() instead
+     */
+    public function CreateReturnLink($id, $returnid, $contents='', $params=[],
+                        $onlyhref=false, $attrs=[])
+    {
+        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
+
+        $parms = [];
+        $this->splitaddtext($addtext, $parms);
+        $parms = array_merge(collapse($locals), $parms, $attrs);
+
+        return CmsFormUtils::create_return_link($parms);
+    }
+
+    /*
+     * ------------------------------------------------------------------
+     * URL Methods
+     * ------------------------------------------------------------------
+     */
+
+    /**
+     * Return the URL for an action of this module
      * This method is called by the CreateLink methods when creating a link to a module action.
      *
      * @since 1.10
-     * @param string  $id The module action id (cntnt01 indicates that the defaul content block of the destination page should be used).
-     * @param string  $action The module action name
-     * @param int $returnid The destination page.
-     * @param hash    $params Areay of parameters for the URL.  These will be ignored if the prettyurl argument is specified.
-     * @param bool $inline Wether the target of the output link is the same tag on the same page.
-     * @param bool $targetcontentonly Wether the target of the output link targets the content area of the destination page.
-     * @param string  $prettyurl An optional url segment related to the root of the page for pretty url purposes.
-     * @return string.
+     * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
+     * @param string $action The module action name
+     * @param mixed  $returnid The id to eventually return to
+     * @param hash   $params Array of parameters for the URL.  These will be ignored if the prettyurl argument is specified.
+     * @param bool   $inline Whether the target of the output link is the same tag on the same page.
+     * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
+     * @param string $prettyurl An optional url segment related to the root of the page for pretty url purposes.
+     * @param bool since 2.3 $for_display Whether to format the url for display on a page. Default true (for compatibilty) means not usable as an actual url.
+     * @return string
      */
-    public function create_url($id,$action,$returnid='',$params=array(),
-                               $inline=false,$targetcontentonly=false,$prettyurl='')
+    public function create_url($id,$action,$returnid='',$params=[],
+                               $inline=false,$targetcontentonly=false,$prettyurl='',$for_display=true)
     {
-        $this->_loadFormMethods();
-        return cms_module_create_url($this,$id,$action,$returnid,$params,$inline,$targetcontentonly,$prettyurl);
+        $this->_loadUrlMethods();
+        return cms_module_create_actionurl($this, $id, $action, $returnid,
+            $params, $inline, $targetcontentonly, $prettyurl, $for_display);
     }
 
     /**
-     * Return a pretty url string for a module action
-     * This method is called by the create_url and the CreateLink methods if the pretty url argument is not specified in order
-     * to attempt automating a pretty url for an action.
+     * Return the URL for a job-action of this module
      *
-     * @since 1.10
-     * @abstract
-     * @param string $id The module action id (cntnt01 indicates that the defaul content block of the destination page should be used).
+     * @since 2.3
+     *
      * @param string $action The module action name
-     * @param int $returnid The destination page.
-     * @param array   $params Areay of parameters for the URL.  These will be ignored if the prettyurl argument is specified.
-     * @param bool $inline Wether the target of the output link is the same tag on the same page.
+     * @param array  $params Optional array of parameters for the action
+     * @param bool   $secure Optional flag, whether to include security-check-parameters in the created URL. Default true
+     *
      * @return string
      */
-    public function get_pretty_url($id,$action,$returnid='',$params=array(),$inline=false)
+    public function create_joburl($action, $params=[], $secure=true)
+    {
+        $this->_loadUrlMethods();
+        return cms_module_create_joburl($this, $action, $params, $secure);
+    }
+
+    /**
+     * Return the URL to open a website page
+     * Effectively replaces calling one of the CreateLink methods, with $onlyhref=true.
+     *
+     * @since 2.3
+     *
+     * @param int  $returnid    The page-identifier
+     * @param bool $for_display Whether to format the url for display on a page. Default false
+     *
+     * @return string
+     */
+    public function create_pageurl($id, $returnid, $params=[], $for_display=false)
+    {
+        $this->_loadUrlMethods();
+        return cms_module_create_pageurl($id, $returnid, $params, $for_display);
+    }
+
+    /**
+     * Return a pretty url string for an action of the module
+     * This method is called by the create_url and the CreateLink methods if the pretty url
+     * argument is not specified in order to attempt automating a pretty url for an action.
+     *
+     * @abstract
+     * @since 1.10
+     * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
+     * @param string $action The module action name
+     * @param mixed  $returnid The id to eventually return to
+     * @param array  $params Parameters for the URL.  These will be ignored if the prettyurl argument is specified.
+     * @param bool   $inline Whether the target of the output link is the same tag on the same page.
+     * @return string
+     */
+    public function get_pretty_url($id,$action,$returnid='',$params=[],$inline=false)
     {
         return '';
     }
-
-    /**
-     * Returns the xhtml equivalent of an href link for content links.	This is basically a nice
-     * little wrapper to make sure that we go back to where we want and that it's xhtml complient
-     *
-     * @param int $pageid the page id of the page we want to direct to
-     * @param string $contents The optional text or XHTML contents of the generated link
-     * @return string
-     * @deprecated
-     */
-    public function CreateContentLink($pageid, $contents='')
-    {
-        $this->_loadFormMethods();
-        return cms_module_CreateContentLink($this, $pageid, $contents);
-    }
-
-
-    /**
-     * Returns the xhtml equivalent of an href link for Content links.	This is basically a nice little wrapper
-     * to make sure that we go back to where we want to and that it's xhtml compliant.
-     *
-     * @param string $id The id given to the module on execution
-     * @param string $returnid The id to return to when the module is finished it's task
-     * @param string $contents The text that will have to be clicked to follow the link
-     * @param string $params An array of params that should be inlucded in the URL of the link.	 These should be in a $key=>$value format.
-     * @param bool $onlyhref A flag to determine if only the href section should be returned
-     * @return string
-     */
-    public function CreateReturnLink($id, $returnid, $contents='', $params=array(), $onlyhref=false)
-    {
-        $this->_loadFormMethods();
-        return cms_module_CreateReturnLink($this, $id, $returnid, $contents, $params, $onlyhref);
-    }
-
 
     /**
      * ------------------------------------------------------------------
@@ -1953,10 +2169,10 @@ abstract class CMSModule
      */
     public function RedirectToAdminTab($tab = '',$params = '',$action = '')
     {
-        if( $params == '' ) $params = array();
+        if( $params === '' ) $params = [];
         if( $tab != '' ) $this->SetCurrentTab($tab);
         if( empty($action) ) $action = 'defaultadmin';
-        $this->Redirect('m1_',$action,'',$params,FALSE);
+        $this->Redirect('m1_',$action,'',$params,false);
     }
 
     /**
@@ -1964,12 +2180,12 @@ abstract class CMSModule
      * This function is optimized for frontend use.
      *
      * @param string $id The id given to the module on execution
-     * @param string $returnid The action that this form should do when the form is submitted
-     * @param string $action The id to eventually return to when the module is finished it's task
-     * @param string $params An array of params that should be inlucded in the URL of the link.	 These should be in a $key=>$value format.
+     * @param mixed  $returnid The id to eventually return to when the module is finished its task
+     * @param string $action The action that this form should do when the form is submitted
+     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
      * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      */
-    public function RedirectForFrontEnd($id, $returnid, $action, $params = array(), $inline = true )
+    public function RedirectForFrontEnd($id, $returnid, $action, $params = [], $inline = true )
     {
         return $this->Redirect($id, $action, $returnid, $params, $inline );
     }
@@ -1979,11 +2195,11 @@ abstract class CMSModule
      *
      * @param string $id The id given to the module on execution
      * @param string $action The action that this form should do when the form is submitted
-     * @param string $returnid The id to eventually return to when the module is finished it's task
-     * @param string $params An array of params that should be inlucded in the URL of the link.	 These should be in a $key=>$value format.
+     * @param mixed  $returnid The id to eventually return to when the module is finished its task
+     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
      * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      */
-    public function Redirect($id, $action, $returnid='', $params=array(), $inline=false)
+    public function Redirect($id, $action, $returnid='', $params=[], $inline=false)
     {
         $this->_loadRedirectMethods();
         return cms_module_Redirect($this, $id, $action, $returnid, $params, $inline);
@@ -1993,22 +2209,22 @@ abstract class CMSModule
      * Redirects to an admin page
      * @param string $page php script to redirect to
      * @param array  $params optional array of url parameters
-     * @deprecated
+     * @deprecated TODO explain, suggest replacement
      */
-    public function RedirectToAdmin($page,$params = array())
+    public function RedirectToAdmin($page,$params = [])
     {
         $this->_loadRedirectMethods();
         return cms_module_RedirectToAdmin($this,$page,$params);
     }
 
     /**
-     * Redirects the user to a content page outside of the module.	The passed around returnid is
+     * Redirects the user to a content page outside of the module.  The passed around returnid is
      * frequently used for this so that the user will return back to the page from which they first
      * entered the module.
      *
      * @param int $id Content id to redirect to.
      */
-    public function RedirectContent(int $id)
+    public function RedirectContent($id)
     {
         redirect_to_alias($id);
     }
@@ -2024,9 +2240,9 @@ abstract class CMSModule
      *
      * @final
      * @param string $module The required module name.
-     * @return CMSModule The module object, or FALSE
+     * @return CMSModule-derivative The module object, or false
      */
-    static public function &GetModuleInstance(string $module)
+    final public static function &GetModuleInstance($module)
     {
         return cms_utils::get_module($module);
     }
@@ -2040,12 +2256,12 @@ abstract class CMSModule
      * @param array  $params further params to get more detailed info about the capabilities. Should be syncronized with other modules of same type
      * @return array
      */
-    final public function GetModulesWithCapability(string $capability, array $params = [])
+    final public function GetModulesWithCapability(string $capability, array $params = []) : array
     {
-        $result=array();
+        $result=[];
         $tmp = ModuleOperations::get_modules_with_capability($capability,$params);
-        if( is_array($tmp) && count($tmp) ) {
-            for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
+        if( is_array($tmp) && ($n = count($tmp)) ) {
+            for( $i = 0; $i < $n; $i++ ) {
                 if( is_object($tmp[$i]) ) {
                     $result[] = get_class($tmp[$i]);
                 }
@@ -2070,12 +2286,10 @@ abstract class CMSModule
      *
      * @return string
      */
-    public function Lang()
+    public function Lang(...$args)
     {
         //Push module name onto front of array
-        $args = func_get_args();
-        array_unshift($args,'');
-        $args[0] = $this->GetName();
+        array_unshift($args,$this->GetName());
 
         return CmsLangOperations::lang_from_realm($args);
     }
@@ -2095,7 +2309,7 @@ abstract class CMSModule
      * @author calguy1000
      * @return Smarty_Internal_Template
      */
-    final public function GetActionTemplateObject()
+    final public function GetActionTemplateObject() : Smarty_Internal_Template
     {
         if( $this->_action_tpl ) return $this->_action_tpl;
     }
@@ -2109,9 +2323,9 @@ abstract class CMSModule
      * @author calguy1000
      * @param string $template The template name.
      * @return string
-     * @deprecated
+     * @deprecated TODO suggest replacement
      */
-    final public function GetDatabaseResource($template)
+    final public function GetDatabaseResource(string $template) : string
     {
         if( endswith($template,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$template;
         return 'module_db_tpl:'.$this->GetName().';'.$template;
@@ -2128,9 +2342,9 @@ abstract class CMSModule
      * @param string $template The template name.
      * @return string
      */
-    final public function GetTemplateResource(string $template)
+    final public function GetTemplateResource(string $template) : string
     {
-        if( strpos($template,':') !== FALSE ) {
+        if( strpos($template,':') !== false ) {
             if( startswith($template,'string:') || startswith($template,'eval:') || startswith($template,'extends:') ) {
                 throw new \LogicException('Invalid smarty resource specified for a module template.');
             }
@@ -2144,13 +2358,14 @@ abstract class CMSModule
     /**
      * A function to return a resource identifier to a module specific file template
      *
+     * @final
      * @since 1.11
      * @author calguy1000
      * @param string $template The template name.
      * @return string
-     * @deprecated
+     * @deprecated TODO suggest replacement
      */
-    final public function GetFileResource(string $template)
+    final public function GetFileResource(string $template) : string
     {
         return 'module_file_tpl:'.$this->GetName().';'.$template;
     }
@@ -2159,11 +2374,11 @@ abstract class CMSModule
      * List Templates associated with a module
      *
      * @final
-     * @deprecated
      * @param string $modulename If empty the current module name is used.
      * @return array
+     * @deprecated TODO suggest replacement
      */
-    final public function ListTemplates(string $modulename = null)
+    final public function ListTemplates(string $modulename = null) : array
     {
         $this->_loadTemplateMethods();
         return cms_module_ListTemplates($this, $modulename);
@@ -2174,12 +2389,12 @@ abstract class CMSModule
      * follow any smarty caching rules.
      *
      * @final
-     * @deprecated
      * @param string $tpl_name the template name.
      * @param string $modulename  If empty the current module name is used.
      * @return string
+     * @deprecated TODO suggest replacement
      */
-    final public function GetTemplate(string $tpl_name, string $modulename = null)
+    final public function GetTemplate(string $tpl_name, string $modulename = null) : string
     {
         $this->_loadTemplateMethods();
         return cms_module_GetTemplate($this, $tpl_name, $modulename);
@@ -2193,7 +2408,7 @@ abstract class CMSModule
      * @param string $template_name
      * @return string
      */
-    final public function GetTemplateFromFile(string $template_name)
+    final public function GetTemplateFromFile(string $template_name) : string
     {
         $this->_loadTemplateMethods();
         return cms_module_GetTemplateFromFile($this, $template_name);
@@ -2204,13 +2419,13 @@ abstract class CMSModule
      * Sets a smarty template into the database and associates it with a module.
      *
      * @final
-     * @deprecated
      * @param string $tpl_name The template name
      * @param string $content The template content
      * @param string $modulename The module name, if empty the current module name is used.
      * @return bool
+     * @deprecated TODO suggest replacement
      */
-    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')
+    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '') : bool
     {
         $this->_loadTemplateMethods();
         return cms_module_SetTemplate($this, $tpl_name, $content, $modulename);
@@ -2220,12 +2435,12 @@ abstract class CMSModule
      * Delete a module template from the database
      *
      * @final
-     * @deprecated
      * @param string $tpl_name The Template name, if empty all templates associated with the module are deleted.
      * @param string $modulename The module name, if empty the current module name is used.
      * @return bool
+     * @deprecated TODO suggest replacement
      */
-    final public function DeleteTemplate(string $tpl_name = null, $modulename = null)
+    final public function DeleteTemplate(string $tpl_name = null, $modulename = null) : bool
     {
         $this->_loadTemplateMethods();
         return cms_module_DeleteTemplate($this, $tpl_name, $modulename);
@@ -2242,9 +2457,9 @@ abstract class CMSModule
      * @param string  $designation Cache Designation (ignored)
      * @param bool    $cache       Cache flag  (ignored)
      * @param string  $cacheid     Unique cache flag (ignored)
-     * @return string
+     * @return mixed  string or null
      */
-    final public function ProcessTemplate(string $tpl_name, string $designation = null, $cache = false, $cacheid = '')
+    final public function ProcessTemplate(string $tpl_name, string $designation = null, bool $cache = false, string $cacheid = '') : string
     {
         if( strpos($tpl_name, '..') !== false ) return;
         $template = $this->_action_tpl;
@@ -2261,9 +2476,9 @@ abstract class CMSModule
      * @final
      * @param data $data Input template
      * @return string
-     * @deprecated
+     * @deprecated TODO suggest replacement
      */
-    final public function ProcessTemplateFromData( string $data )
+    final public function ProcessTemplateFromData(string $data) : string
     {
         return $this->_action_tpl->fetch('string:'.$data);
     }
@@ -2278,7 +2493,7 @@ abstract class CMSModule
      * @param string $modulename (ignored)
      * @return string
      */
-    final public function ProcessTemplateFromDatabase(string $tpl_name, $designation = '', $cache = false, $modulename = '')
+    final public function ProcessTemplateFromDatabase(string $tpl_name, string $designation = '', bool $cache = false, string $modulename = '') : string
     {
         return $this->_action_tpl->fetch('module_db_tpl:'.$this->GetName().';'.$tpl_name );
     }
@@ -2301,7 +2516,7 @@ abstract class CMSModule
      * @param string $tab The tab name
      * @see CMSModule::RedirectToAdminTab();)
      */
-    public function SetCurrentTab(string $tab)
+    final public function SetCurrentTab(string $tab)
     {
         $_SESSION[$this->GetName().'::activetab'] = $tab;
         cms_admin_tabs::set_current_tab($tab);
@@ -2316,7 +2531,7 @@ abstract class CMSModule
      * @final
      * @return string
      */
-    public function StartTabHeaders()
+    final public function StartTabHeaders()
     {
         return cms_admin_tabs::start_tab_headers();
     }
@@ -2329,11 +2544,10 @@ abstract class CMSModule
      * @final
      * @param string $tabid The tab id
      * @param string $title The tab title
-     * @param bool $active wether the tab is active or not.
-     * @param booleban A flag indicating wether this tab is active.
+     * @param bool $active Flag indicating whether this tab is active.
      * @return string
      */
-    public function SetTabHeader($tabid,$title,$active=false)
+    final public function SetTabHeader(string $tabid,string $title,bool $active=false)
     {
         return cms_admin_tabs::set_tab_header($tabid,$title,$active);
     }
@@ -2344,7 +2558,7 @@ abstract class CMSModule
      * @final
      * @return string
      */
-    public function EndTabHeaders()
+    final public function EndTabHeaders()
     {
         return cms_admin_tabs::end_tab_headers();
     }
@@ -2355,7 +2569,7 @@ abstract class CMSModule
      * @final
      * @return string
      */
-    public function StartTabContent()
+    final public function StartTabContent()
     {
         return cms_admin_tabs::start_tab_content();
     }
@@ -2366,7 +2580,7 @@ abstract class CMSModule
      * @final
      * @return string
      */
-    public function EndTabContent()
+    final public function EndTabContent()
     {
         return cms_admin_tabs::end_tab_content();
     }
@@ -2380,7 +2594,7 @@ abstract class CMSModule
      * @see CMSModule::SetTabHeaders()
      * @return string
      */
-    public function StartTab(string $tabid, array $params = [])
+    final public function StartTab(string $tabid, array $params = [])
     {
         return cms_admin_tabs::start_tab($tabid,$params);
     }
@@ -2391,7 +2605,7 @@ abstract class CMSModule
      * @final
      * @return string
      */
-    public function EndTab()
+    final public function EndTab()
     {
         return cms_admin_tabs::end_tab();
     }
@@ -2427,7 +2641,7 @@ abstract class CMSModule
     }
 
     /**
-     * Put an event into the audit (admin) log.	 This should be
+     * Put an event into the audit (admin) log.  This should be
      * done on most admin events for consistency.
      *
      * @final
@@ -2474,10 +2688,10 @@ abstract class CMSModule
      * Returns a formatted page status message
      *
      * @final
-     * @param string|string[] $message Message to be shown
+     * @param string $message Message to be shown
      * @return string
      */
-    public function ShowMessage($message)
+    final public function ShowMessage(string $message)
     {
         $theme = cms_utils::get_theme_object();
         if( is_object($theme) ) return $theme->ShowMessage($message);
@@ -2502,10 +2716,10 @@ abstract class CMSModule
      * Outputs errors in a nice error box with a troubleshooting link to the wiki
      *
      * @final
-     * @param string|string[] $errors array or string of errors to be shown
+     * @param mixed string|string[] $errors array or string of errors to be shown
      * @return string
      */
-    public function ShowErrors($errors)
+    final public function ShowErrors($errors)
     {
         $theme = cms_utils::get_theme_object();
         if( is_object($theme) ) return $theme->ShowErrors($errors);
@@ -2551,7 +2765,7 @@ abstract class CMSModule
             $perm->save();
         }
         catch( Exception $e ) {
-			// ignored.
+            // ignored.
         }
     }
 
@@ -2562,7 +2776,7 @@ abstract class CMSModule
      * @param string $permission_name The name of the permission to check against the current user
      * @return bool
      */
-    final public function CheckPermission(string $permission_name)
+    final public function CheckPermission(string $permission_name) : bool
     {
         $userid = get_userid(false);
         return check_permission($userid, $permission_name);
@@ -2600,7 +2814,7 @@ abstract class CMSModule
      * @param string $defaultvalue    The default value, just in case it doesn't exist
      * @return string
      */
-    final public function GetPreference($preference_name, $defaultvalue='')
+    final public function GetPreference(string $preference_name, string $defaultvalue='') : string
     {
         return cms_siteprefs::get($this->GetName().'_mapi_pref_'.$preference_name, $defaultvalue);
     }
@@ -2636,7 +2850,7 @@ abstract class CMSModule
      *
      * @final
      * @param string $prefix
-     * @return string[]|null An array of preference names, or null.
+     * @return mixed An array of preference names, or null.
      * @since 2.0
      */
     final public function ListPreferencesByPrefix(string $prefix)
@@ -2644,8 +2858,8 @@ abstract class CMSModule
         if( !$prefix ) return;
         $prefix = $this->GetName().'_mapi_pref_'.$prefix;
         $tmp = cms_siteprefs::list_by_prefix($prefix);
-        if( is_array($tmp) && count($tmp) ) {
-            for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
+        if( is_array($tmp) && ($n = count($tmp)) ) {
+            for($i = 0; $i < $n; $i++) {
                 if( !startswith($tmp[$i],$prefix) ) {
                     throw new CmsInvalidDataException(__CLASS__.'::'.__METHOD__.' invalid prefix for preference');
                 }
@@ -2670,10 +2884,10 @@ abstract class CMSModule
      * @param string $modulename       The name of the module sending the event, or 'Core'
      * @param string $eventname       The name of the event
      * @param bool $removable      Can this event be removed from the list?
-     * @deprecated
      * @returns bool
+     * @deprecated TODO explain
      */
-    final public function AddEventHandler( string $modulename, string $eventname, bool $removable = true )
+    final public function AddEventHandler( string $modulename, string $eventname, bool $removable = true ) : bool
     {
         Events::AddEventHandler( $modulename, $eventname, false, $this->GetName(), $removable );
     }
@@ -2684,8 +2898,8 @@ abstract class CMSModule
      *
      * @final
      * @param string $eventname The name of the event
-     * @deprecated
      * @returns nothing
+     * @deprecated TODO explain
      */
     final public function CreateEvent( string $eventname )
     {
@@ -2705,8 +2919,8 @@ abstract class CMSModule
      * @param string $originator The name of the originating module
      * @param string $eventname The name of the event
      * @param array  $params Array of parameters provided with the event.
-     * @deprecated
      * @return bool
+     * @deprecated TODO explain
      */
     public function DoEvent( $originator, $eventname, &$params )
     {
@@ -2718,7 +2932,7 @@ abstract class CMSModule
                 $db = $gCms->GetDb();
                 $config = $gCms->GetConfig();
                 $smarty = $gCms->GetSmarty();
-                include($filename);
+                include $filename;
             }
         }
     }
@@ -2731,27 +2945,27 @@ abstract class CMSModule
      * @abstract
      * @param string $eventname The name of the event
      * @return string
-     * @deprecated
+     * @deprecated TODO explain
      */
     public function GetEventDescription( $eventname )
     {
-        return "";
+        return '';
     }
 
 
     /**
-     * Get a (langified) descriptionof the details about when an event is
-     * created, and the parameters that are attached with it.
+     * Get a (langified) description of the details about when an event is
+     * created, and the parameters that are delivered with it.
      * This method must be over-ridden if this module created any events.
      *
      * @abstract
      * @param string $eventname The name of the event
      * @return string
-     * @deprecated
+     * @deprecated TODO explain
      */
     public function GetEventHelp( $eventname )
     {
-        return "";
+        return '';
     }
 
 
@@ -2761,7 +2975,7 @@ abstract class CMSModule
      *
      * @abstract
      * @return bool
-     * @deprecated
+     * @deprecated TODO explain
      */
     public function HandlesEvents()
     {
@@ -2777,7 +2991,7 @@ abstract class CMSModule
      *
      * @final
      * @param string $eventname The name of the event
-     * @deprecated
+     * @deprecated TODO explain hooklists, suggest replacement
      */
     final public function RemoveEvent( string $eventname )
     {
