@@ -204,7 +204,7 @@ class Smarty extends smarty_base_template
                 if( !function_exists($func) ) continue;
 
                 $callback = $func;
-                $cachable = FALSE;
+//TODO CHECKME                $cachable = FALSE;
                 return TRUE;
             }
         }
@@ -224,7 +224,7 @@ class Smarty extends smarty_base_template
             $plugin = \CMSMS\simple_plugin_operations::get_instance()->load_plugin( $name );
             if( $plugin ) {
                 $callback = $plugin;
-                $cachable = FALSE;
+//TODO CHECKME                $cachable = FALSE;
                 return TRUE;
             }
         }
