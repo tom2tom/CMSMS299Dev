@@ -1831,7 +1831,7 @@ abstract class CMSModule
     {
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
 
-        $parms = ['type' => 'dropdown'];
+        $parms = ['type' => 'drop'];
         $this->splitaddtext($addtext, $parms);
         $parms = array_merge(collapse($locals), $parms, $attrs);
 
@@ -1984,7 +1984,7 @@ abstract class CMSModule
                                  $targetcontentonly = false, $prettyurl = '', $attrs = [])
     {
         if (!$contents) {
-            $contents = 'Click here'; //TODO from lang
+            $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
         }
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
 
@@ -2021,7 +2021,7 @@ abstract class CMSModule
                         $targetcontentonly=false, $prettyurl='', $attrs=[])
     {
         if (!$contents) {
-            $contents = 'Click here'; //TODO from lang
+            $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
         }
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
 
@@ -2047,12 +2047,11 @@ abstract class CMSModule
     public function CreateContentLink($pageid, $contents = '', $attrs = [])
     {
         if (!$contents) {
-            $contents = 'Click here'; //TODO from lang
+            $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
         }
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
 
         $parms = [];
-        $this->splitaddtext($addtext, $parms);
         $parms = array_merge(collapse($locals), $parms, $attrs);
 
         return CmsFormUtils::create_content_link($parms);
@@ -2081,10 +2080,9 @@ abstract class CMSModule
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
 
         $parms = [];
-        $this->splitaddtext($addtext, $parms);
         $parms = array_merge(collapse($locals), $parms, $attrs);
 
-        return CmsFormUtils::create_return_link($parms);
+        return CmsFormUtils::create_return_link($this, $parms);
     }
 
     /*
