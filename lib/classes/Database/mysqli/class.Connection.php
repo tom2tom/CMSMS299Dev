@@ -1,35 +1,21 @@
 <?php
 /*
--------------------------------------------------------------------------
-Module: \CMSMS\Database\mysqli\Connection (C) 2017 Robert Campbell
-         <calguy1000@cmsmadesimple.org>
-A class to represent a MySQL database connection
--------------------------------------------------------------------------
-CMS Made Simple (C) 2004-2017 Ted Kulp <wishy@cmsmadesimple.org>
-Visit our homepage at: http:www.cmsmadesimple.org
--------------------------------------------------------------------------
-BEGIN_LICENSE
+Class Connection: represents a MySQL database connection
+Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+For CMS Made Simple <http:www.cmsmadesimple.org>
+Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
-
-However, as a special exception to the GPL, this software is distributed
-as an addon module to CMS Made Simple.  You may not use this software
-in any Non GPL version of CMS Made simple, or in any version of CMS
-Made simple that does not indicate clearly and obviously in its admin
-section that the site was built with CMS Made simple.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-Or read it online: http:www.gnu.org/licenses/licenses.html#GPL
-END_LICENSE
--------------------------------------------------------------------------
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS\Database\mysqli;
@@ -40,6 +26,8 @@ class Connection extends \CMSMS\Database\Connection
     protected $_in_transaction = 0;
     protected $_in_smart_transaction = 0;
     protected $_transaction_status = true;
+    protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
+	private $_asyncQ = []; // queue of cached results from prior pretend-async commands, pending pretend-reaps
 
     public function __construct()
     {
@@ -84,6 +72,15 @@ class Connection extends \CMSMS\Database\Connection
             $this->on_error(parent::ERROR_CONNECT, 98,
                 'Configuration error: mysqli class is not available');
         }
+    }
+
+    public function isNative()
+    {
+        if ($this->_native === '') {
+            $this->_native = function_exists('mysqli_fetch_all');
+        }
+
+        return $this->_native;
     }
 
     public function close()
@@ -240,6 +237,41 @@ class Connection extends \CMSMS\Database\Connection
 
         return $this->do_sql($sql);
     }
+
+    public function async_execute($sql, $valsarr = null)
+    {
+        if ($this->isNative()) {
+//TODO
+		} else {
+			$rs = $this->execute($sql, $valsarr);
+			if ($rs) {
+				$this->_asyncQ[] = $rs;
+			} else {
+//TODO arrange to handle error when 'reaped'
+			}
+		}
+    }
+
+    public function reap()
+	{
+        if ($this->isNative()) {
+            $rs = $this->_mysql->reap_async_query();
+		} else {
+			$rs = array_shift($this->_asyncQ);
+		}
+		if ($rs) { // && $rs is not some error-data
+			$this->_conn->errno = 0;
+			$this->_conn->error = '';
+
+			return new ResultSet($rs);
+		} else {
+			$errno = 98;
+			$error = 'No async result available';
+			$this->processerror(parent::ERROR_EXECUTE, $errno, $error);
+
+			return null;
+		}
+	}
 
     public function beginTrans()
     {

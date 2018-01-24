@@ -1,35 +1,21 @@
 <?php
 /*
--------------------------------------------------------------------------
-Module: CMSMS\Database\compatibility (C) 2017 Robert Campbell
-        <calguy1000@cmsmadesimple.org>
 A collection of compatibility tools for the database connectivity layer.
--------------------------------------------------------------------------
-CMS Made Simple (C) 2004-2017 Ted Kulp <wishy@cmsmadesimple.org>
-Visit our homepage at: http://www.cmsmadesimple.org
--------------------------------------------------------------------------
-BEGIN_LICENSE
+Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+For CMS Made Simple <http:www.cmsmadesimple.org>
+Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
-
-However, as a special exception to the GPL, this software is distributed
-as an addon module to CMS Made Simple.  You may not use this software
-in any Non GPL version of CMS Made simple, or in any version of CMS
-Made simple that does not indicate clearly and obviously in its admin
-section that the site was built with CMS Made simple.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
-END_LICENSE
--------------------------------------------------------------------------
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS\Database {
@@ -59,11 +45,65 @@ namespace CMSMS\Database {
         }
 
         /**
-         * A static no-op function  that allows the autoloader to load this file.
+         * No-op function that allows the autoloader to load this file.
          */
         public static function noop()
         {
             // do nothing
+        }
+
+        /**
+         * For parameterized SQL commands which cannot be natively prepared.
+         * Interpret '?'-parameterized $sql and corresponding $valsarr
+         * into a non-parameterized command, i.e. emulate parameterization.
+		 *
+         * @param object $conn the database-connection object
+         * @param string $sql the command
+         * @param mixed  $valsarr array of command-parameter value[s], or a single scalar value
+         * @return mixed replacment command or null
+         *
+		 * @since 2.3
+         */
+        public static function interpret(Connection &$conn, $sql, $valsarr)
+        {
+            if ($valsarr) {
+                if (!is_array($valsarr)) {
+                    $valsarr = [$valsarr];
+                }
+
+                $sqlarr = explode('?', $sql);
+                $i = 0;
+                $sql = '';
+                foreach ($valsarr as $v) {
+                    $sql .= $sqlarr[$i];
+                    switch (gettype($v)) {
+                        case 'string':
+                            $sql .= $conn->qstr($v); //or after FILTER_SANITIZE_* filtering ?
+                            break;
+                        case 'boolean':
+                            $sql .= $v ? '1' : '0';
+                            break;
+                        case 'integer':
+                            $sql .= $v;
+                            break;
+                        case 'double': //a.k.a. float
+                            $sql .= strtr($v, ',', '.');
+                            break;
+                        default:
+                            if ($v === null) {
+                                $sql .= 'NULL';
+                            } else {
+                                return null;
+                            }
+                    }
+                    ++$i;
+                }
+                if (sizeof($sqlarr) != $i+1) {
+                    return null;
+                }
+                $sql .= $sqlarr[$i];
+            }
+            return $sql;
         }
     }
 } // end of namespace

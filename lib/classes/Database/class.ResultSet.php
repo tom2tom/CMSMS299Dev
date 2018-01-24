@@ -1,35 +1,21 @@
 <?php
 /*
--------------------------------------------------------------------------
-Module: \CMSMS\Database\ConnectionSpec (C) 2017 Robert Campbell
-        <calguy1000@cmsmadesimple.org>
-A class to define how to connect to a database.
--------------------------------------------------------------------------
-CMS Made Simple (C) 2004-2017 Ted Kulp <wishy@cmsmadesimple.org>
-Visit our homepage at: http://www.cmsmadesimple.org
--------------------------------------------------------------------------
-BEGIN_LICENSE
+Class ResultSet: represents a SQL-command result
+Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+For CMS Made Simple <http:www.cmsmadesimple.org>
+Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
-
-However, as a special exception to the GPL, this software is distributed
-as an addon module to CMS Made Simple.  You may not use this software
-in any Non GPL version of CMS Made simple, or in any version of CMS
-Made simple that does not indicate clearly and obviously in its admin
-section that the site was built with CMS Made simple.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
-END_LICENSE
--------------------------------------------------------------------------
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS\Database;
@@ -38,12 +24,9 @@ namespace CMSMS\Database;
  * A class defining a ResultSet and how to interact with results from a database query.
  *
  * @author Robert Campbell
- * @copyright Copyright (C) 2017, Robert Campbell <calguy1000@cmsmadesimple.org>
+ * @copyright Copyright (C) 2017-2018, Robert Campbell <calguy1000@cmsmadesimple.org>
  *
  * @since 2.2
- *
- * @property-read bool $EOF Test if we are at the end of the current ResultSet
- * @property-read array $fields Return the current row of the ResultSet
  */
 abstract class ResultSet
 {
@@ -52,11 +35,6 @@ abstract class ResultSet
      */
     protected $_errno = 0;
     protected $_error = '';
-
-    /**
-     * @ignore
-     */
-    protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
 
     /**
      * @ignore
@@ -238,16 +216,4 @@ abstract class ResultSet
      * @internal
      */
     abstract protected function fetch_row();
-
-    /**
-     * @internal
-     */
-    protected function isNative()
-    {
-        if ($this->_native === '') {
-            $this->_native = function_exists('mysqli_fetch_all');
-        }
-
-        return $this->_native;
-    }
 }
