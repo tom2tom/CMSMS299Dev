@@ -1,44 +1,27 @@
 <?php
 /*
--------------------------------------------------------------------------
-Module: \CMSMS\Database\mysqli\Statement (C) 2017 Robert Campbell
-         <calguy1000@cmsmadesimple.org>
-A class to represent a prepared SQL statement
--------------------------------------------------------------------------
-CMS Made Simple (C) 2004-2017 Ted Kulp <wishy@cmsmadesimple.org>
-Visit our homepage at: http:www.cmsmadesimple.org
--------------------------------------------------------------------------
-BEGIN_LICENSE
+Class Statement: represents a prepared SQL statement
+Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+For CMS Made Simple <http:www.cmsmadesimple.org>
+Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
-
-However, as a special exception to the GPL, this software is distributed
-as an addon module to CMS Made Simple.  You may not use this software
-in any Non GPL version of CMS Made simple, or in any version of CMS
-Made simple that does not indicate clearly and obviously in its admin
-section that the site was built with CMS Made simple.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-Or read it online: http:www.gnu.org/licenses/licenses.html#GPL
-END_LICENSE
--------------------------------------------------------------------------
+along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 namespace CMSMS\Database\mysqli;
 
 /**
  * A class defining a prepared database statement.
- *
- * @author Robert Campbell
- * @copyright Copyright (C) 2017, Robert Campbell <calguy1000@cmsmadesimple.org>
  *
  * @since 2.2
  *
@@ -47,6 +30,7 @@ namespace CMSMS\Database\mysqli;
  */
 class Statement
 {
+    const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
     /**
      * @ignore
      */
@@ -64,10 +48,6 @@ class Statement
      */
     protected $_prep = false; // whether prepare() succeeded
     protected $_bound = false; // whether bind() succeeded
-    /**
-     * @ignore
-     */
-    protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
 
     /**
      * Constructor.
@@ -81,7 +61,7 @@ class Statement
         $this->_sql = $sql;
     }
 
-/* BAD !!
+/* BAD !! TODO check proper cleanup happens anyway, upon destruction
     public function __destruct()
     {
         if ($this->_stmt) {
@@ -108,27 +88,17 @@ class Statement
         }
     }
 
-    /**
-     * @internal
-     */
-    protected function isNative()
-    {
-        if ($this->_native === '') {
-            $this->_native = function_exists('mysqli_fetch_all');
-        }
-
-        return $this->_native;
-    }
-
     protected function processerror ($type, $errno, $error)
     {
         $this->_conn->OnError($type, $errno, $error);
     }
 
     /**
-     * Prepare the query.
+     * Prepare a command.
      *
      * @param optional string $sql parameterized SQL command default null
+     * If $sql is not provided here, $this->_sql must have previously been
+     * populated with the relevant command.
      *
      * @return bool indicating success
      */
@@ -166,11 +136,52 @@ class Statement
         }
 
         $errno = $this->_stmt->errno;
+        if ($errno == self::NOPARMCMD) {
+            //the SQL cannot be parameterized
+            debug_to_log('SQL: '.$sql);
+            debug_bt_to_log();
+            //deprecated - setup to try to emulate the command, later
+            //$this->_stmt persists (non-null)
+            $this->_prep = true;
+            $this->_conn->errno = $errno;
+            $this->_conn->error = '';
+
+            return true;
+        }
         $error = $this->_stmt->error;
         $this->processerror (\CMSMS\Database\Connection::ERROR_PREPARE, $errno, $error);
         $this->_stmt = null;
 
         return false;
+    }
+
+    /*
+     * @deprecated support for binding multiple sets of command-parameters
+     *   in a single 2-D array, to be processed with ->next() until ->EOF()
+     */
+    private $all_tobind = [];
+    private $now_bind = false;
+    /**
+     * @deprecated
+     *
+     * Go to the next member of an array of query-parameters that are
+     *  being successively executed, and run the query
+     */
+    public function movenext()
+    {
+        $this->now_bind = next($this->all_bound);
+        $this->bind($this->now_bind);
+    }
+
+    /**
+     * @deprecated
+     *
+     * @return bool indicating we're now at the end of an array of
+     * parameters that are being successively executed
+     */
+    public function EOF()
+    {
+        return !$this->now_bind;
     }
 
     /**
@@ -200,7 +211,27 @@ class Statement
 
         if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
             $valsarr = $valsarr[0];
+        } elseif (is_array($valsarr[0])) {
+            //deprecated stuff
+            $this->all_bound = $valsarr;
+            $valsarr = $this->now_bind = reset($this->all_bound);
         }
+
+        //deprecated - attempt emulation
+        if ($this->_conn->errno == self::NOPARMCMD) {
+            $sql = \CMSMS\Database\compatibility::interpret($this->_conn, $this->sql, $valsarr);
+            if ($sql) {
+                $this->_sql = $sql;
+                $this->_bound = false;
+
+                return true;
+            } else {
+                $this->_bound = false;
+
+                return false;
+            }
+        }
+
         $types = '';
         $bound = [''];
         foreach ($valsarr as $k => &$val) {
@@ -259,9 +290,11 @@ class Statement
     /**
      * Execute the query, using supplied $valsarr (if any) as bound values.
      *
-     * @return object: ResultSet or EmptyResultSet or PrepResultSet
+     * @param array $valsarr parameters to bind, or not set if running a
+     *   deprecated multi-bind command
+     * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) or null
      */
-    public function execute($valsarr)
+    public function execute($valsarr = null)
     {
         if (!$this->_stmt) {
             if ($this->_sql) {
@@ -281,6 +314,11 @@ class Statement
         }
 
         $pc = $this->_stmt->param_count;
+        //check for deprecated multi-bind process
+        if ($valsarr === null) {
+            $valsarr = $this->now_bind;
+        }
+
         if ($valsarr) {
             if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
                 $valsarr = $valsarr[0];
@@ -291,6 +329,30 @@ class Statement
                     return null;
                 }
             } else {
+                //TODO this is in wrong spot : maybe not yet bound
+                //check for deprecated emulation of non-parameterizable command
+                if ($this->_conn->errno == self::NOPARMCMD) {
+                    $sql = \CMSMS\Database\compatibility::interpret($this->_conn, $this->sql, $valsarr);
+                    if ($sql) {
+                        $this->_sql = $sql;
+                    }
+
+                    $this->_stmt = null;
+                    $rs = $this->_conn->execute($this->_sql); //mysqli_result or false
+                    if ($rs) {
+                        $this->_conn->errno = 0;
+                        $this->_conn->error = '';
+
+                        return new ResultSet($rs);
+                    } else {
+                        $errno = 6;
+                        $error = 'Unbindable SQL - '.$this->_sql;
+                        $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+
+                        return null;
+                    }
+                }
+
                 $errno = 2;
                 $error = 'Incorrect number of bound parameters - should be '.$pc;
                 $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
@@ -314,7 +376,7 @@ class Statement
         }
 
         if ($this->_stmt->field_count > 0) {
-            if ($this->isNative()) {
+            if ($this->_conn->isNative()) {
                 $rs = $this->_stmt->get_result(); //mysqli_result or false
                 if ($rs) {
                     $this->_conn->errno = 0;
