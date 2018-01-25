@@ -32,6 +32,16 @@ final class CmsFormUtils
     const ERRTPL = 'parameter "%s" is required for %s';
     const ERRTPL2 = 'a valid "%s" parameter is required for %s';
 
+    /**
+     * @ignore
+     */
+    private static $_activated_wysiwyg = [];
+
+    /**
+     * @ignore
+     */
+    private static $_activated_syntax = [];
+
     /* *
      * @ignore
      */
@@ -49,7 +59,7 @@ final class CmsFormUtils
     {
         foreach ($must as $key=>$val) {
             if (!isset($parms[$key])) {
-                return sprintf(self::ERRTPL, $key);
+                return sprintf(self::ERRTPL, $key, '%s');
             }
             $tmp = $parms[$key];
             switch ($val) {
@@ -64,12 +74,12 @@ final class CmsFormUtils
                         }
                     }
                     if ($val == 'c') {
-                        return sprintf(self::ERRTPL2, $key);
+                        return sprintf(self::ERRTPL2, $key, '%s');
                     }
                     break;
                 case 's': //any non-empty string
                     if (is_string($tmp) && $tmp !== '') {
-                        return sprintf(self::ERRTPL2, $key);
+                        return sprintf(self::ERRTPL2, $key, '%s');
                     }
                     break;
                 case 'i': //int or string equivalent
@@ -78,7 +88,7 @@ final class CmsFormUtils
                         $parms[$key] = (int)$tmp;
                         break;
                     } else {
-                        return sprintf(self::ERRTPL2, $key);
+                        return sprintf(self::ERRTPL2, $key, '%s');
                     }
                     // no break
                 case 'n': //any number or string equivalent
@@ -87,14 +97,14 @@ final class CmsFormUtils
                         $parms[$key] = $tmp + 0;
                         break;
                     } else {
-                        return sprintf(self::ERRTPL2, $key);
+                        return sprintf(self::ERRTPL2, $key, '%s');
                     }
                     // no break
                 case 'a': //any non-empty array
                     if (is_array($tmp) && $tmp) {
                         break;
                     } else {
-                        return sprintf(self::ERRTPL2, $key);
+                        return sprintf(self::ERRTPL2, $key, '%s');
                     }
             }
         }
@@ -120,7 +130,7 @@ final class CmsFormUtils
             }
         }
 
-        expand($parms, EXTR_SKIP);
+        extract($parms, EXTR_SKIP);
 
         //identifiers
         if (!empty($htmlid)) {
@@ -129,7 +139,7 @@ final class CmsFormUtils
                 if (!empty($id)) {
                     $modid = $id;
                 } else {
-                    return sprintf(self::ERRTPL, 'id');
+                    return sprintf(self::ERRTPL, 'id', '%s');
                 }
             }
         } elseif (!empty($modid)) {
@@ -138,7 +148,7 @@ final class CmsFormUtils
             $tmp = $id.$name;
             $modid = $id;
         } else {
-            return sprintf(self::ERRTPL, 'id');
+            return sprintf(self::ERRTPL, 'id', '%s');
         }
         unset($parms['htmlid']);
 
@@ -164,7 +174,7 @@ final class CmsFormUtils
                 if ($tmp || $tmp === 0) {
                     $parms[$key] = $tmp;
                 } else {
-                    return sprintf(self::ERRTPL2, $key);
+                    return sprintf(self::ERRTPL2, $key, '%s');
                 }
             }
         }
@@ -175,7 +185,7 @@ final class CmsFormUtils
                 if ($tmp || (int)$tmp === 0) {
                     $parms[$key] = $tmp;
                 } else {
-                    return sprintf(self::ERRTPL2, $key);
+                    return sprintf(self::ERRTPL2, $key, '%s');
                 }
             }
         }
@@ -341,7 +351,7 @@ final class CmsFormUtils
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
-        expand($parms);
+        extract($parms);
         //custom checks & setup
         switch ($type) {
             case 'check':
@@ -447,7 +457,7 @@ final class CmsFormUtils
                 $out .= '>'.$contents.'</select>'."\n";
                 break;
             default:
-                $err = sprintf(self::ERRTPL2, 'type');
+                $err = sprintf(self::ERRTPL2, 'type', '%s');
                 break;
         }
         if (!$err) {
@@ -481,16 +491,17 @@ final class CmsFormUtils
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
-        //common checks
-        $err = self::clean_attrs($parms, ['text'=>'value', 'contents'=>'value']);
-        if ($err) {
-            $tmp = sprintf($err, __METHOD__);
-            assert(!$err, $tmp);
-            return '<!-- ERROR: '.$tmp.' -->';
-        }
 
         if ($parms['type'] != 'textarea') {
-            expand($parms);
+            //common checks
+            $err = self::clean_attrs($parms, ['text'=>'value', 'contents'=>'value']);
+            if ($err) {
+                $tmp = sprintf($err, __METHOD__);
+                assert(!$err, $tmp);
+                return '<!-- ERROR: '.$tmp.' -->';
+            }
+
+            extract($parms);
             //custom checks
             if (empty($class)) {
                 $parms['class'] = 'cms_'.$type;
@@ -506,6 +517,56 @@ final class CmsFormUtils
         }
         unset($parms['type']); //don't confuse with 'wantedsyntax'
         return self::create_textarea($parms);
+    }
+
+    /**
+     * Record a syntax module
+     * @internal
+     * @ignore
+     */
+    private static function add_syntax($module_name)
+    {
+        if ($module_name) {
+            if (!in_array($module_name, self::$_activated_syntax)) {
+                self::$_activated_syntax[] = $module_name;
+            }
+        }
+    }
+
+    /**
+     * Used externally
+     */
+    public static function get_requested_syntax_modules()
+    {
+        return self::$_activated_syntax;
+    }
+
+    /**
+     * Record a wysiwyg module (which will ensure that the headers and initialization is done, later.
+     * In the frontend the {cms_init_editor} plugin must be included in the head part of the page template.
+     *
+     * @internal
+     * @ignore
+     * @param string module_name (required)
+     * @param string id (optional) the id of the textarea element)
+     * @param string stylesheet_name (optional) the name of a stylesheet to include with this area (some WYSIWYG editors may not support this)
+     */
+    private static function add_wysiwyg($module_name, $id = self::NONE, $stylesheet_name = self::NONE)
+    {
+        if ($module_name) {
+            if (!isset(self::$_activated_wysiwyg[$module_name])) {
+                self::$_activated_wysiwyg[$module_name] = [];
+            }
+            self::$_activated_wysiwyg[$module_name][] = ['id' => $id, 'stylesheet' => $stylesheet_name];
+        }
+    }
+
+    /**
+     * Used externally
+     */
+    public static function get_requested_wysiwyg_modules()
+    {
+        return self::$_activated_wysiwyg;
     }
 
     /**
@@ -539,20 +600,17 @@ final class CmsFormUtils
     public static function create_textarea($parms) : string
     {
         $err = self::must_attrs($parms, ['name'=>'c']);
-        if ($err) {
-            $tmp = sprintf($err, __METHOD__);
-            assert(!$err, $tmp);
-            return '<!-- ERROR: '.$tmp.' -->';
+        if (!$err) {
+            //common checks
+            $err = self::clean_attrs($parms, [
+             'height'=>'rows',
+             'width'=>'cols',
+             'text'=>'value',
+             'type'=>'wantedsyntax',
+             'forcewysiwyg'=>'forcemodule',
+             'stylesheet'=>'cssname',
+            ]);
         }
-        //common checks
-        $err = self::clean_attrs($parms, [
-         'height'=>'rows',
-         'width'=>'cols',
-         'text'=>'value',
-         'type'=>'wantedsyntax',
-         'forcewysiwyg'=>'forcemodule',
-         'stylesheet'=>'cssname',
-        ]);
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
@@ -580,25 +638,30 @@ final class CmsFormUtils
 
         $module = null;
         // do we want a wysiwyg area ?
-        $enablewysiwyg = \cms_to_bool($enablewysiwyg);
+        $enablewysiwyg = !empty($enablewysiwyg) && \cms_to_bool($enablewysiwyg);
         if ($enablewysiwyg) {
             // we want a wysiwyg
             $parms['class'] .= ' cmsms_wysiwyg';
             $module = \ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
             if ($module && $module->HasCapability(\CmsCoreCapabilities::WYSIWYG_MODULE)) {
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable TODO config['?']
-                $parms['class'] .= ' '.$module->GetName();
+                $module_name = $module->GetName();
+                $parms['class'] .= ' '.$module_name;
                 if (empty($cssname)) {
                     $cssname = self::NONE;
                 }
+                self::add_wysiwyg($module_name, $id, $cssname);
             }
         }
 
+        $wantedsyntax = $wantedsyntax ?? '';
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
             $module = \ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
             if ($module && $module->HasCapability(\CmsCoreCapabilities::SYNTAX_MODULE)) {
-                $parms['class'] .= ' '.$module->GetName();
+                $module_name = $module->GetName();
+                $parms['class'] .= ' '.$module_name;
+                self::add_syntax($module_name);
             }
         }
 
@@ -613,11 +676,13 @@ final class CmsFormUtils
         $out = '<textarea';
         $out .= self::join_attrs($parms, [
          'type',
+         'modid',
          'value',
          'enablewysiwyg',
          'forcemodule',
          'wantedsyntax',
          'encoding',
+         'cssname',
         ]);
         $out .= '>'.$value.'</textarea>'."\n";
         return $out;
@@ -639,20 +704,23 @@ final class CmsFormUtils
     {
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['name'=>'c', 'labeltext'=>'c']);
+        if (!$err) {
+            $err = self::clean_attrs($parms);
+        }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
 
-        $parms['type'] = 'label'; //set default class to 'cms_label'
-        $err = self::clean_attrs($parms);
-        if ($err) {
-            //TODO handle error
+        if (empty($parms['class'])) {
+            $parms['class'] = 'cms_label';
+        } else {
+            $parms['class'] .= ' cms_label';
         }
 
         $out = '<label for="'.$parms['name'].'"';
-        $out .= self::join_attrs($parms, ['type', 'name', 'labeltext']);
+        $out .= self::join_attrs($parms, ['name', 'labeltext']);
         $contents = \cms_htmlentities($parms['labeltext']);
         $out .= '>'.$content.'</label>'."\n";
         return $out;
@@ -675,19 +743,15 @@ final class CmsFormUtils
         static $_formcount = 1;
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action'=>'c']);
+        if (!$err) {
+            $err = self::clean_attrs($parms);
+        }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
-
-        $err = self::clean_attrs($parms);
-        if ($err) {
-            $tmp = sprintf($err, __METHOD__);
-            assert(!$err, $tmp);
-            return '<!-- ERROR: '.$tmp.' -->';
-        }
-        expand($parms);
+        extract($parms);
 
         $idsuffix = (!empty($idsuffix)) ? \sanitize($idsuffix) : '';
         if ($idsuffix === '') {
@@ -763,7 +827,7 @@ final class CmsFormUtils
      *
      * @since 2.3
      *
-	 * @param object $modinstance
+     * @param object $modinstance
      * @param array  $parms   Attribute(s)/definition(s) to be
      *  included in the element, each member like name=>value. Any
      *  name may be numeric, in which case only the value is used.
@@ -774,17 +838,17 @@ final class CmsFormUtils
     public static function create_action_link(&$modinstance, array $parms) : string
     {
         $err = self::clean_attrs($parms);
-		if (!$err) {
-	        //must have these $parms, each with a usable value
-		    $err = self::must_attrs($parms, ['action'=>'c', 'modid'=>'c']);
-		}
+        if (!$err) {
+            //must have these $parms, each with a usable value
+            $err = self::must_attrs($parms, ['action'=>'c', 'modid'=>'c']);
+        }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
 
-        expand($parms);
+        extract($parms);
 
         //optional
         if (!empty($returnid) || $returnid === 0) {
@@ -806,7 +870,7 @@ final class CmsFormUtils
             $out = '<a href="' . $out . '"';
             $out .= self::join_attrs($parms, [
             'modid', 'action', 'returnid', 'params', 'inline', 'targetcontentonly', 'prettyurl',
-			'warn_message', 'contents', 'onlyhref']);
+            'warn_message', 'contents', 'onlyhref']);
             if ($warn_message) {
                 $out .= ' onclick="return confirm(\''.$warn_message.'\');"';
             }
@@ -842,7 +906,7 @@ final class CmsFormUtils
             return '<!-- ERROR: '.$tmp.' -->';
         }
 
-        expand($parms);
+        extract($parms);
 
         if (!empty($returnid) || $returnid === 0) {
             $returnid = (int)$returnid; //'' or int > 0
@@ -887,17 +951,17 @@ final class CmsFormUtils
     public static function create_content_link(array $parms) : string
     {
         //must have these $parms, each with a usable value
-	    $err = self::must_attrs($parms, ['pageid'=>'i']);
-		if (!$err) {
-	        $err = self::clean_attrs($parms);
-		}
+        $err = self::must_attrs($parms, ['pageid'=>'i']);
+        if (!$err) {
+            $err = self::clean_attrs($parms);
+        }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
 
-        expand($parms);
+        extract($parms);
 
         $out = '<a href="';
         $config = \cms_config::get_instance();
@@ -908,9 +972,9 @@ final class CmsFormUtils
             if ($alias) {
                 $out .= CMS_ROOT_URL.'/'.$alias.(isset($config['page_extension']) ? $config['page_extension'] : '.shtml');
             } else {
-				$tmp = 'no alias for page with id='.$pageid;
-	            assert(!$alias, $tmp);
-	            return '<!-- ERROR: '.$tmp.' -->';
+                $tmp = 'no alias for page with id='.$pageid;
+                assert(!$alias, $tmp);
+                return '<!-- ERROR: '.$tmp.' -->';
             }
         } else {
             // not mod rewrite
