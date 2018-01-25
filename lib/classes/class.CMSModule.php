@@ -1520,11 +1520,15 @@ abstract class CMSModule
     protected function splitaddtext(string &$addtext, array &$converted)
     {
         if ($addtext) {
-            if (preg_match_all('/(([[:alnum:]]*?)\s*=\s*(["\'])([[:alnum:][:blank:]]*?)\3)/u',
-                    $addtext, $matches)) {
-                foreach ($matches[2] as $key => $i) {
-                    $converted[$key] = $matches[4][$i];
-                    $addtext = str_replace($matches[1][$i], '', $addtext);
+			$patn = '~([[:alnum:]]*?)\s*=\s*(["\'])([[:alnum:][:punct:] \\/]*?)\2~u';
+            if (preg_match_all($patn, $addtext, $matches)) {
+                foreach ($matches[1] as $i => $key) {
+					if (isset($converted[$key])) {
+	                    $converted[$key] .= ' '.$matches[3][$i];
+					} else {
+	                    $converted[$key] = $matches[3][$i];
+					}
+                    $addtext = str_replace($matches[0][$i], '', $addtext);
                 }
             }
             $addtext = trim($addtext);
@@ -1560,7 +1564,7 @@ abstract class CMSModule
 
         $parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_form_start($this, $parms);
     }
@@ -1589,7 +1593,7 @@ abstract class CMSModule
 
         $parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_form_start($this, $parms);
     }
@@ -1627,7 +1631,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'text'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_input($parms);
     }
@@ -1651,7 +1655,7 @@ abstract class CMSModule
 
         $parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_label($parms);
     }
@@ -1676,7 +1680,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'file'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_input($parms);
     }
@@ -1702,7 +1706,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'password'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_input($parms);
     }
@@ -1726,7 +1730,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'hidden'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_input($parms);
     }
@@ -1751,7 +1755,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'check'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_select($parms);
     }
@@ -1780,7 +1784,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'submit'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_input($parms);
     }
@@ -1807,7 +1811,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'reset'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_input($parms);
     }
@@ -1833,7 +1837,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'drop'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_select($parms);
     }
@@ -1861,7 +1865,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'list'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_select($parms);
     }
@@ -1888,7 +1892,7 @@ abstract class CMSModule
 
         $parms = ['type' => 'radio'];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_select($parms);
     }
@@ -1920,11 +1924,11 @@ abstract class CMSModule
     {
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
 
-        $parms = ['type' => 'textarea'];
+		$parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
-        return CmsFormUtils::create_input($parms);
+        return CmsFormUtils::create_textarea($parms);
     }
 
     /**
@@ -1950,13 +1954,14 @@ abstract class CMSModule
     public function CreateSyntaxArea($id, $text, $name, $classname = '', $htmlid = '', $encoding = '',
                               $stylesheet='',$cols='80',$rows='15',$addtext='',$attrs=[])
     {
+        $enablewysiwyg = false; //force this
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
 
-        $parms = ['type' => 'syntaxarea'];
+		$parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
-        return CmsFormUtils::create_input($parms);
+        return CmsFormUtils::create_textarea($parms);
     }
 
     /**
@@ -1990,7 +1995,7 @@ abstract class CMSModule
 
         $parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_action_link($this, $parms);
     }
@@ -2027,7 +2032,7 @@ abstract class CMSModule
 
         $parms = [];
         $this->splitaddtext($addtext, $parms);
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $parms, $attrs);
 
         return CmsFormUtils::create_action_link($this, $parms);
     }
@@ -2050,9 +2055,7 @@ abstract class CMSModule
             $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
         }
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
-
-        $parms = [];
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $attrs);
 
         return CmsFormUtils::create_content_link($parms);
     }
@@ -2075,12 +2078,10 @@ abstract class CMSModule
                         $onlyhref = false, $attrs = [])
     {
         if (!$contents) {
-            $contens = 'Click here'; //TODO from lang
+            $contents = 'Click here'; //TODO from lang
         }
         $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
-
-        $parms = [];
-        $parms = array_merge(collapse($locals), $parms, $attrs);
+        $parms = array_merge($locals, $attrs);
 
         return CmsFormUtils::create_return_link($this, $parms);
     }
