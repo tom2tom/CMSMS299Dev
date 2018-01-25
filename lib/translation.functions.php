@@ -41,12 +41,11 @@
  *
  * @since 1.8
  * @param string $realm The realm
- * @param string $key   The lang key and any vspring arguments.
+ * @param string $key   The lang key and any related sprintf arguments.
  * @return string
  */
-function lang_by_realm($realm,$key)
+function lang_by_realm(...$args) : string
 {
-  $args = func_get_args();
   return CmsLangOperations::lang_from_realm($args);
 }
 
@@ -56,8 +55,9 @@ function lang_by_realm($realm,$key)
  *
  * @internal
  * @ignore
+ * @return bool
  */
-function allow_admin_lang($flag = TRUE)
+function allow_admin_lang(bool $flag = true) : bool
 {
   return CmsLangOperations::allow_nonadmin_lang($flag);
 }
@@ -76,9 +76,8 @@ function allow_admin_lang($flag = TRUE)
  * @see lang_by_realm
  * @return string
  */
-function lang($key)
+function lang(...$args) : string
 {
-  $args = func_get_args();
   return CmsLangOperations::lang($args);
 }
 
@@ -88,21 +87,21 @@ function lang($key)
  * @param boolean $allow_none Optionally adds 'none' (translated to current language) to the top of the list.
  * @return associative array of lang keys and display strings.
  * @internal
- * @deeprecated
+ * @deprecated
  */
-function get_language_list($allow_none = true)
+function get_language_list(bool $allow_none = true) : array
 {
-  $tmp = array();
-  if( $allow_none ) $tmp = array(''=>lang('nodefault'));
-
+  $tmp = [];
   $langs = CmsNlsOperations::get_installed_languages();
-  asort($langs);
-  foreach( $langs as $key  ) {
-    $obj = CmsNlsOperations::get_language_info($key);
-    $value = $obj->display();
-    if( $obj->fullname() ) $value .= ' ('.$obj->fullname().')';
-    $tmp[$key] = $value;
+  if( $langs ) {
+    if( $allow_none ) $tmp[''] = lang('nodefault');
+    asort($langs);
+    foreach( $langs as $key ) {
+	  $obj = CmsNlsOperations::get_language_info($key);
+	  $value = $obj->display();
+	  if( $obj->fullname() ) $value .= ' ('.$obj->fullname().')';
+	  $tmp[$key] = $value;
+    }
   }
-
   return $tmp;
 }

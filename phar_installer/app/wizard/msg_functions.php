@@ -1,8 +1,7 @@
 <?php
 
-function ilang()
+function ilang(...$args)
 {
-  $args = func_get_args();
   return \__appbase\langtools::get_instance()->translate($args);
 }
 
@@ -20,6 +19,5 @@ function error_msg($str) {
   $obj = \__appbase\wizard::get_instance()->get_step();
   if( method_exists($obj,'error') ) return $obj->error($str);
 }
-
 
 ?>
