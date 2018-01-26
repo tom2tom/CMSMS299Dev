@@ -64,12 +64,6 @@ abstract class CMSModule
      */
     private $modtemplates = false;
 
-    /* *
-     * @access private
-     * @ignore
-     */
-//REDUNDANT    private $modform = false;
-
     /**
      * @access private
      * @ignore
@@ -158,6 +152,26 @@ abstract class CMSModule
      */
     public function __call($name, $args)
     {
+        if (strncmp($name, 'Create', 6) == 0) {
+			//maybe it's a now-removed form-element call
+			static $flect = null;
+
+			if ($flect === null) {
+				$flect = new ReflectionClass('CMSMS\\internal\\CmsFormTags');
+			}
+			try {
+				$md = $flect->getMethod($name);
+			} catch (ReflectionException $e) {
+				return false;
+			}
+
+			$parms = [];
+			foreach ($md->getParameters() as $i => $one) {
+				$val = (array_key_exists($i, $args)) ? $args[$i] : (($one->isOptional()) ? $one->getDefaultValue() : '!oOpS!');
+				$parms[$one->getName()] = $val;
+			}
+	        return CmsFormUtils::create($this, $name, $parms);
+        }
         return false;
     }
 
@@ -1506,41 +1520,14 @@ abstract class CMSModule
 
     /**
      * ------------------------------------------------------------------
-     * Form and XHTML Related Methods
+	 * Form and XHTML Related Methods - relegated to __call()
      * ------------------------------------------------------------------
      */
 
-    /*
-     * Migrate all $addtext substrings like name="value" to $converted['name'] = 'value'
-     * and any leftover to a non-named "value". $addtext is emptied.
-     * @internal
-     * @ignore
-     * @deprecated - needed only for FormUtils interactions
-     */
-    protected function splitaddtext(string &$addtext, array &$converted)
-    {
-        if ($addtext) {
-			$patn = '~([[:alnum:]]*?)\s*=\s*(["\'])([[:alnum:][:punct:] \\/]*?)\2~u';
-            if (preg_match_all($patn, $addtext, $matches)) {
-                foreach ($matches[1] as $i => $key) {
-					if (isset($converted[$key])) {
-	                    $converted[$key] .= ' '.$matches[3][$i];
-					} else {
-	                    $converted[$key] = $matches[3][$i];
-					}
-                    $addtext = str_replace($matches[0][$i], '', $addtext);
-                }
-            }
-            $addtext = trim($addtext);
-            if ($addtext) {
-                $converted[] = $addtext;
-                $addtext = '';
-            }
-        }
-    }
-
     /**
-     * Returns the start of a module form, optimized for frontend use
+     * function CreateFrontendFormStart
+     * Returns xhtml representing the start of a module form, optimized for frontend use
+     * @deprecated Instead use CmsFormUtils::create_form_start() with $inline = true
      *
      * @param string $id The id given to the module on execution
      * @param mixed  $returnid The page id to eventually return to when the module is finished its task
@@ -1552,25 +1539,14 @@ abstract class CMSModule
      * @param string $idsuffix Text to append to the end of the id and name of the form
      * @param array  $params Extra parameters to pass along when the form is submitted
      * @param string $addtext since 2.3 Text to append to the <form>-statement, for instance for javascript-validation code
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Instead use CmsFormUtils::create_form_start() with $inline = true
      */
-    public function CreateFrontendFormStart($id, $returnid, $action = 'default', $method = 'post',
-                                     $enctype = '', $inline = true, $idsuffix = '', $params = [], $addtext = '', $attrs = [])
-    {
-        $inline = true; //force this
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_form_start($this, $parms);
-    }
 
     /**
-     * Returns the start of a module form
+     * function CreateFormStart
+     * Returns xhtml representing the start of a module form
+     * @deprecated Use CmsFormUtils::create_form_start() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $action The action that this form should do when the form is submitted
@@ -1582,37 +1558,24 @@ abstract class CMSModule
      * @param string $idsuffix Text to append to the end of the id and name of the form
      * @param array  $params Extra parameters to pass along when the form is submitted
      * @param string $addtext Text to append to the <form>-statement, for instance for javascript-validation code
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
-     * @return string
-     * @deprecated Use CmsFormUtils::create_form_start() instead
-     */
-    public function CreateFormStart($id, $action = 'default', $returnid = '', $method = 'post',
-                             $enctype='', $inline=false, $idsuffix='', $params=[], $addtext='', $attrs=[])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_form_start($this, $parms);
-    }
-
-    /**
-     * Returns the end of the a module form.  This is basically just a wrapper around </form>, but
-     * could be extended later on down the road.  It's here mainly for consistency.
      *
      * @return string
-     * @deprecated Use CmsFormUtils::create_form_end() instead
      */
-    public function CreateFormEnd()
-    {
-        return CmsFormUtils::create_form_end();
-    }
 
     /**
-     * Returns xhtml defining an input textbox.  This is basically a nice little wrapper
+     * function CreateFormEnd
+     * Returns xhtml representing the end of a module form.  This is basically just a wrapper around </form>, but
+     * could be extended later on down the road.  It's here mainly for consistency.
+     * @deprecated Use CmsFormUtils::create_form_end() instead
+     *
+     * @return string
+     */
+
+    /**
+     * function CreateInputText
+     * Returns xhtml representing an input textbox.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the textbox
@@ -1621,48 +1584,30 @@ abstract class CMSModule
      * @param string $size The number of columns wide the textbox should be displayed
      * @param string $maxlength The maximum number of characters that should be allowed to be entered
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use instead CmsFormUtils::create_input()
      */
-    public function CreateInputText($id, $name, $value = '', $size = '10', $maxlength = '255', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'text'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_input($parms);
-    }
 
     /**
-     * Returns xhtml defining a label for an input field. This is basically a nice little wrapper
+     * function CreateLabelForInput
+     * Returns xhtml representing a label for an input field. This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_label() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the input field this label is associated to
      * Optional parameters:
      * @param string $labeltext The text in the label (non much help if empty)
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_label() instead
      */
-    public function CreateLabelForInput($id, $name, $labeltext = '', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_label($parms);
-    }
 
     /**
-     * Returns xhtml defining a file-selector field.  This is basically a nice little wrapper
+     * function CreateInputFile
+     * Returns xhtml representing a file-selector field.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the textbox
@@ -1670,24 +1615,15 @@ abstract class CMSModule
      * @param string $accept The MIME-type to be accepted, default is all
      * @param string $size The number of columns wide the textbox should be displayed
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateInputFile($id, $name, $accept = '', $size = '10', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'file'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_input($parms);
-    }
 
     /**
-     * Returns xhtml defining an input password-box.  This is basically a nice little wrapper
+     * function CreateInputPassword
+     * Returns xhtml representing an input password-box.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the textbox
@@ -1696,48 +1632,30 @@ abstract class CMSModule
      * @param string $size The number of columns wide the textbox should be displayed
      * @param string $maxlength The maximum number of characters that should be allowed to be entered
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateInputPassword($id, $name, $value = '', $size = '10', $maxlength = '255', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'password'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_input($parms);
-    }
 
     /**
-     * Returns xhtml defining a hidden field.  This is basically a nice little wrapper
+     * function CreateInputHidden
+     * Returns xhtml representing a hidden field.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the hidden field
      * Optional parameters:
      * @param string $value The predefined value of the field, if any
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateInputHidden($id, $name, $value = '', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'hidden'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_input($parms);
-    }
 
     /**
-     * Returns the xhtml for a checkbox.  This is basically a nice little wrapper
+     * function CreateInputCheckbox
+     * Returns xhtml representing a checkbox.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_select() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the checkbox
@@ -1745,24 +1663,15 @@ abstract class CMSModule
      * @param string $value The value returned from the input if selected
      * @param string $selectedvalue The initial value. If equal to $value the checkbox is selected
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    public function CreateInputCheckbox($id, $name, $value = '', $selectedvalue = '', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'check'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_select($parms);
-    }
 
     /**
-     * Returns xhtml defining a submit button.  This is basically a nice little wrapper
+     * function CreateInputSubmit
+     * Returns xhtml representing a submit button.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the button
@@ -1771,54 +1680,30 @@ abstract class CMSModule
      * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param string $image Use an image instead of a regular button
      * @param string $confirmtext Text to display in a confirmation message.
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateInputSubmit($id, $name, $value = '', $addtext = '', $image = '', $confirmtext = '', $attrs = [])
-    {
-        if (!$value) {
-            $value = CmsLangOperations::lang_from_realm('admin', 'submit');
-        }
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'submit'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_input($parms);
-    }
 
     /**
-     * Returns xhtml defining a reset button.  This is basically a nice little wrapper
+     * function CreateInputReset
+     * Returns xhtml representing a reset button.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the button
      * Optional parameters:
      * @param string $value The label of the button. Defaults to 'Reset'
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateInputReset($id, $name, $value = '', $addtext = '', $attrs = [])
-    {
-        if (!$value) {
-            $value = CmsLangOperations::lang_from_realm('admin', 'reset');
-        }
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'reset'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_input($parms);
-    }
 
     /**
-     * Returns xhtml defining a dropdown list.  This is basically a nice little wrapper
+     * function CreateInputDropdown
+     * Returns xhtml representing a dropdown list.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_select() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the dropdown list
@@ -1827,24 +1712,15 @@ abstract class CMSModule
      * @param int    $selectedindex The default selected index of the dropdown list.  Setting to -1 will result in the first choice being selected
      * @param string $selectedvalue The default selected value of the dropdown list.  Setting to '' will result in the first choice being selected
      * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    public function CreateInputDropdown($id, $name, $items, $selectedindex = -1, $selectedvalue = '', $addtext = '', $attrs = [])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'drop'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_select($parms);
-    }
 
     /**
-     * Returns xhtml defining a multi-select list.  This is basically a nice little wrapper
+     * function CreateInputSelectList
+     * Returns xhtml representing a multi-select list.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_select() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the select list
@@ -1854,25 +1730,15 @@ abstract class CMSModule
      * @param string $size The number of rows to be visible in the list (before scrolling).
      * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param bool   $multiple Whether multiple selections are allowed (defaults to true)
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    public function CreateInputSelectList($id, $name, $items, $selecteditems = [],
-                        $size=3, $addtext='', $multiple=true, $attrs=[])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'list'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_select($parms);
-    }
 
     /**
-     * Returns xhtml defining a set of radio buttons.  This is basically a nice little wrapper
+     * function CreateInputRadioGroup
+     * Returns xhtml representing a set of radio buttons.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_select() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $name The html name of the radio group
@@ -1881,24 +1747,14 @@ abstract class CMSModule
      * @param string $selectedvalue The default selected index of the radio group.   Setting to -1 will result in the first choice being selected
      * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param string $delimiter A delimiter to throw between each radio button, e.g., a <br /> tag or something for formatting
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_select() instead
      */
-    public function CreateInputRadioGroup($id, $name, $items, $selectedvalue = '',
-                        $addtext='', $delimiter='', $attrs=[])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = ['type' => 'radio'];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_select($parms);
-    }
 
     /**
-     * Returns xhtml defining a textarea.  Also takes WYSIWYG preference into consideration if it's called from the admin side.
+     * function CreateTextArea
+     * Returns xhtml representing a textarea.  Also takes WYSIWYG preference into consideration if it's called from the admin side.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param bool   $enablewysiwyg Should we try to create a WYSIWYG for this textarea?
      * @param string $id The id given to the module on execution
@@ -1914,27 +1770,16 @@ abstract class CMSModule
      * @param string $forcewysiwyg The wysiwyg-system to be used, even if the user has chosen another one
      * @param string $wantedsyntax The language the text should be syntaxhightlighted as
      * @param string $addtext Any additional definition(s) to include in the textarea tag
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateTextArea($enablewysiwyg, $id, $text, $name, $classname = '',
-                        $htmlid='', $encoding='', $stylesheet='', $cols='', $rows='',
-                        $forcewysiwyg='', $wantedsyntax='', $addtext='', $attrs=[])
-    {
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-		$parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_textarea($parms);
-    }
 
     /**
-     * Returns xhtml defining a textarea, with syntax hilighting applied.
+     * function CreateSyntaxArea
+     * Returns xhtml representing a textarea with syntax hilighting applied.
      * Takes the user's hilighter-preference into consideration, if called from the
      * admin side.
+     * @deprecated Use CmsFormUtils::create_input() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $text The text to display in the textarea
@@ -1947,26 +1792,15 @@ abstract class CMSModule
      * @param string $cols The number of characters wide (columns) the resulting textarea should be
      * @param string $rows The number of characters high (rows) the resulting textarea should be
      * @param string $addtext Additional definition(s) to go into the textarea tag.
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_input() instead
      */
-    public function CreateSyntaxArea($id, $text, $name, $classname = '', $htmlid = '', $encoding = '',
-                              $stylesheet='',$cols='80',$rows='15',$addtext='',$attrs=[])
-    {
-        $enablewysiwyg = false; //force this
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-		$parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_textarea($parms);
-    }
 
     /**
-     * Returns xhtml defining an href link  This is basically a nice little wrapper
+     * function CreateFrontendLink
+     * Returns xhtml representing an href link  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_action_link() with adjusted params, instead
      *
      * @param string $id The id given to the module on execution
      * @param mixed  $returnid The id to eventually return to when the module is finished its task
@@ -1980,30 +1814,16 @@ abstract class CMSModule
      * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param bool   $targetcontentonly A flag indicating that the output of this link should target the content area of the destination page.
      * @param string $prettyurl A pretty url segment (relative to the root of the site) to use when generating the link.
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_action_link() with adjusted params, instead
      */
-    public function CreateFrontendLink($id, $returnid, $action, $contents = '', $params = [],
-                                 $warn_message = '', $onlyhref = false, $inline = true, $addtext = '',
-                                 $targetcontentonly = false, $prettyurl = '', $attrs = [])
-    {
-        if (!$contents) {
-            $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
-        }
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_action_link($this, $parms);
-    }
 
     /**
-     * Returns xhtml defining an href link to a module action.  This is
+     * function CreateLink
+     * Returns xhtml representing an href link to a module action.  This is
      * basically a wrapper to make sure that id's are placed in names
      * and also that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_action_link() instead
      *
      * @param string $id The id given to the module on execution
      * @param string $action The action that this form should do when the link is clicked
@@ -2017,52 +1837,30 @@ abstract class CMSModule
      * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param bool   $targetcontentonly A flag to determine if the link should target the default content are of the destination page.
      * @param string $prettyurl A pretty url segment (related to the root of the website) for a pretty url.
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_action_link() instead
      */
-    public function CreateLink($id, $action, $returnid = '', $contents = '', $params = [],
-                        $warn_message='', $onlyhref=false, $inline=false, $addtext='',
-                        $targetcontentonly=false, $prettyurl='', $attrs=[])
-    {
-        if (!$contents) {
-            $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
-        }
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['addtext'=>'', 'attrs' => '']);
-
-        $parms = [];
-        $this->splitaddtext($addtext, $parms);
-        $parms = array_merge($locals, $parms, $attrs);
-
-        return CmsFormUtils::create_action_link($this, $parms);
-    }
 
     /**
-     * Returns xhtml defining an href link for a site page.
+     * function CreateContentLink
+     * Returns xhtml representing a link to a site page having the specified id.
      * This is basically a wrapper to make sure that the link gets to
      * where intended and it's syntax-compliant
+     * @deprecated use CmsFormUtils::create_content_link() instead
      *
      * @param int $pageid the page id of the page we want to direct to
      * Optional parameters:
      * @param string $contents The displayed clickable text or markup. Defaults to 'Click here'
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated use CmsFormUtils::create_content_link() instead
      */
-    public function CreateContentLink($pageid, $contents = '', $attrs = [])
-    {
-        if (!$contents) {
-            $contents = 'Click here'; //TODO CmsLangOperations::lang_from_realm('admin', 'X');
-        }
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
-        $parms = array_merge($locals, $attrs);
-
-        return CmsFormUtils::create_content_link($parms);
-    }
 
     /**
-     * Returns xhtml defining an href link for Content links. This is basically a nice little wrapper
-     * to make sure that we go back to where we want to and that it's syntax-compliant.
+     * function CreateReturnLink
+     * Returns xhtml representing a link to a site page having the specified returnid.
+     * This is basically a wrapper to make sure that we go back
+     * to where we want to and that it's syntax-compliant.
+     * @deprecated Use CmsFormUtils::create_return_link() instead
      *
      * @param string $id The id given to the module on execution
      * @param mixed  $returnid The id to eventually return to when the module is finished its task
@@ -2070,21 +1868,9 @@ abstract class CMSModule
      * @param string $contents The text that will have to be clicked to follow the link
      * @param array  $params Parameters to be included in the URL of the link.  These should be in a $key=>$value format.
      * @param bool   $onlyhref A flag to determine if only the href section should be returned
-     * @param array  $attrs since 2.3 Tag attributes, each member like 'name'=>'value'. May include (and if so, will supersede) any of the aforementioned paramters, and/or anything else relevant to the created tag.
+     *
      * @return string
-     * @deprecated Use CmsFormUtils::create_return_link() instead
      */
-    public function CreateReturnLink($id, $returnid, $contents = '', $params = [],
-                        $onlyhref = false, $attrs = [])
-    {
-        if (!$contents) {
-            $contents = 'Click here'; //TODO from lang
-        }
-        $locals = array_diff_key(get_defined_vars(), $GLOBALS, ['attrs' => '']);
-        $parms = array_merge($locals, $attrs);
-
-        return CmsFormUtils::create_return_link($this, $parms);
-    }
 
     /*
      * ------------------------------------------------------------------
@@ -2094,17 +1880,18 @@ abstract class CMSModule
 
     /**
      * Return the URL for an action of this module
-     * This method is called by the CreateLink methods when creating a link to a module action.
      *
      * @since 1.10
+     *
      * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
-     * @param mixed  $returnid The id to eventually return to
+     * Optional parameters:
+     * @param mixed  $returnid The id to eventually return to. Default '' (i.e. admin)
      * @param array  $params Parameters for the URL.  These will be ignored if the prettyurl argument is specified.
      * @param bool   $inline Whether the target of the output link is the same tag on the same page.
      * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
-     * @param string $prettyurl An optional url segment related to the root of the page for pretty url purposes.
-     * @param bool since 2.3 $for_display Whether to format the url for display on a page. Default true (for compatibilty) means not usable as an actual url.
+     * @param string $prettyurl An url segment related to the root of the page, for pretty url creation.
+     * @param bool   $for_display since 2.3 Whether to format the url for display on a page. Default true (for compatibilty) means not usable as an actual url.
      * @return string
      */
     public function create_url($id, $action, $returnid = '', $params = [],
@@ -2121,7 +1908,7 @@ abstract class CMSModule
      * @since 2.3
      *
      * @param string $action The module action name
-     * @param array  $params Optional array of parameters for the action
+     * @param array  $params Optional array of parameters for the action. Default []
      * @param bool   $secure Optional flag, whether to include security-check-parameters in the created URL. Default true
      *
      * @return string
@@ -2138,12 +1925,14 @@ abstract class CMSModule
      *
      * @since 2.3
      *
-     * @param int  $returnid    The page-identifier
-     * @param bool $for_display Whether to format the url for display on a page. Default false
+     * @param string $id The module action id.
+     * @param int    $returnid Optional return-page identifier. Default '' (i.e. admin)
+     * @param array  $params Optional array of parameters for the action. Default []
+     * @param bool   $for_display Whether to format the url for display on a page. Default false
      *
      * @return string
      */
-    public function create_pageurl($id, $returnid, $params = [], $for_display = false)
+    public function create_pageurl($id, $returnid = '', $params = [], $for_display = false)
     {
         $this->_loadUrlMethods();
         return cms_module_create_pageurl($id, $returnid, $params, $for_display);
@@ -2158,9 +1947,9 @@ abstract class CMSModule
      * @since 1.10
      * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
-     * @param mixed  $returnid The id to eventually return to
-     * @param array  $params Parameters for the URL.  These will be ignored if the prettyurl argument is specified.
-     * @param bool   $inline Whether the target of the output link is the same tag on the same page.
+     * @param mixed  $returnid The id to eventually return to. Default ''
+     * @param array  $params Parameters for the URL. These will be ignored if $prettyurl is provided. Default []
+     * @param bool   $inline Whether the target of the output link is the same tag on the same page. Default false
      * @return string
      */
     public function get_pretty_url($id, $action, $returnid = '', $params = [], $inline = false)
