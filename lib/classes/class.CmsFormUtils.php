@@ -1,18 +1,21 @@
 <?php
-# A class for CMS Made Simple, to generate form tags.
+# A class providing functionality for building forms.
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #
-# This program is free software; you can redistribute it and/or modify
+# This file is part of CMS Made Simple ('the program') <http://www.cmsmadesimple.org>
+# Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#
+# The program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# The program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/licenses.html>.
+# along with the program. If not, see <https://www.gnu.org/licenses/licenses.html>.
 
 /**
  * A static class providing functionality for building forms.
@@ -22,7 +25,7 @@
  * @author  Robert Campbell
  * @since   2.0
  */
-final class CmsFormUtils
+class CmsFormUtils
 {
     /**
      * @ignore
@@ -35,17 +38,187 @@ final class CmsFormUtils
     /**
      * @ignore
      */
-    private static $_activated_wysiwyg = [];
+    protected static $_activated_wysiwyg = [];
 
     /**
      * @ignore
      */
-    private static $_activated_syntax = [];
+    protected static $_activated_syntax = [];
 
     /* *
      * @ignore
      */
-//    private function __construct() {}
+//    protected function __construct() {}
+
+    /**
+     * Migrate $addtext to members of $converted
+     * @ignore
+     * @since 2.3
+     * @param string $addtext tag attributes, may be empty
+     * @param array  $converted where results are stored
+     */
+    protected static function splitaddtext(&$addtext, &$converted)
+    {
+        if ($addtext) {
+            $patn = '~([[:alnum:]]*?)\s*=\s*(["\'])([[:alnum:][:punct:] \\/]*?)\2~u';
+            if (preg_match_all($patn, $addtext, $matches)) {
+                foreach ($matches[1] as $i => $key) {
+                    if (isset($converted[$key])) {
+                        $converted[$key] .= ' '.$matches[3][$i];
+                    } else {
+                        $converted[$key] = $matches[3][$i];
+                    }
+                    $addtext = str_replace($matches[0][$i], '', $addtext);
+                }
+            }
+            $addtext = trim($addtext);
+            if ($addtext) {
+                $converted[] = $addtext;
+                $addtext = '';
+            }
+        }
+    }
+
+    /**
+     * Get xhtml for a form tag.
+     * This is an interface between the deprecated CMSModule methods for form
+     * element creation, and their replacements in this class.
+     *
+     * @since 2.3
+     * @deprecated since 2.3 needed only while the CMSModule methods are supported
+     *
+     * @param object $mod    The initiator module, a CMSModule derivative
+     * @param string $method Name of deprecated-method that was called in $mod. Like 'Create*'
+     * @param array  $parms  Parameters supplied to the called method
+     *
+     * @return string
+     */
+    public static function create(&$mod, string $method, array $parms) : string
+    {
+        //interpret & translate $method
+        if (strncasecmp($method, 'create', 6) == 0) {
+            $myfunc = '';
+            $withmod = false;
+            if (stripos($method, 'input', 6) == 6) {
+                $detail = strtolower(substr($method, 11));
+                switch ($detail) {
+                    case 'checkbox':
+                        $detail = 'check';
+                        $myfunc = 'create_select';
+                        break;
+                    case 'dropdown':
+                        $detail = 'drop';
+                        $myfunc = 'create_select';
+                        break;
+                    case 'radiogroup':
+                        $detail = 'radio';
+                        $myfunc = 'create_select';
+                        break;
+                    case 'selectlist':
+                        $detail = 'list';
+                        $myfunc = 'create_select';
+                    case 'datalist':
+                    //TODO
+                    $X = $CRASH;
+                        break;
+                    case 'textwithlabel':
+                    //TODO
+                    $X = $CRASH;
+                        break;
+                    case 'datetimelocal':
+                        $detail = 'datetime-local';
+                        $myfunc = 'create_input';
+                        break;
+                    default:
+                        $myfunc = 'create_input';
+                        break;
+                }
+                $parms = ['type' => $detail] + $parms;
+            } elseif (stripos($method, 'form', 6) == 6) {
+                $detail = strtolower(substr($method, 10));
+                switch ($detail) {
+                    case 'start':
+                        $withmod = true;
+                        //no braek here
+                    case 'end':
+                        $myfunc = 'create_form_'.$detail;
+                }
+            } elseif (stripos($method, 'fieldset', 6) == 6) {
+                $detail = strtolower(substr($method, 14));
+                switch ($detail) {
+                    case 'start':
+                    case 'end':
+                        $myfunc = 'create_fieldset_'.$detail;
+                }
+            } else {
+                switch (strtolower(substr($method, 6))) {
+                    case 'syntaxarea':
+                        if (empty($parms['cols'])) {
+                            $parms['cols'] = '80';
+                        }
+                        if (empty($parms['rows'])) {
+                            $parms['rows'] = '15';
+                        }
+                        $parms['enablewysiwyg'] = false;
+                        $parms['wantedsyntax'] = 'html'; //TODO per config
+                        //no break here
+                    case 'textarea':
+                        $myfunc = 'create_textarea';
+                        break;
+                    case 'fileuploadinput':
+                        $myfunc = 'create_input';
+                        $parms = ['type' => 'file'] + $parms;
+                        break;
+                    case 'frontendformstart':
+                        if (empty($parms['action'])) {
+                            $parms['action'] = 'default';
+                        }
+                        $parms['inline'] = true;
+                        $myfunc = 'create_form_start';
+                        break;
+                    case 'labelforinput':
+                        $myfunc = 'create_label';
+                        break;
+                    case 'frontendlink':
+                        $parms['inline'] = true;
+                        $parms['targetcontentonly'] = false;
+                        $myfunc = 'create_action_link';
+                        break;
+                    case 'link':
+                        $withmod = true;
+                        $myfunc = 'create_action_link';
+                        break;
+                    case 'contentlink':
+                        $myfunc = 'create_content_link';
+                        break;
+                    case 'returnlink':
+                        $withmod = true;
+                        $myfunc = 'create_return_link';
+                        break;
+                    case 'tooltiplink':
+                        extract($parms);
+                        $parms['href'] = $mod->create_url($id, $action, ($returnid ?? ''), ($params ?? []), !empty($inline), !empty($targetcontentonly), ($prettyurl ?? ''));
+                        //no break here
+                    case 'tooltip':
+                        $myfunc = 'create_tooltip';
+                        break;
+                }
+            }
+
+            if ($myfunc) {
+                if (array_key_exists('addtext', $parms)) {
+                    $tmp = $parms['addtext'];
+                    unset($parms['addtext']);
+                    self::splitaddtext($tmp, $parms);
+                }
+                if ($withmod) {
+                    return self::$myfunc($mod, $parms);
+                }
+                return self::$myfunc($parms);
+            }
+        }
+        return '';
+    }
 
     /**
      * Check existence of compulsory members of $parms, and they each have an acceptable value
@@ -112,11 +285,12 @@ final class CmsFormUtils
     }
 
     /**
-     * Check and update tag-properties
+     * Check and update tag-properties.
      * @ignore
      * @since 2.3
-     * @param array $parms tag parameters/attributes
-     * @param array $alts optional extra renames for keys in #parms, each member like 'oldname'=>'newname'
+     * @param array  $parms tag parameters/attributes. Must include 'name'
+     * @param array  $alts optional extra renames for keys in #parms, each member like 'oldname'=>'newname'
+     *
      * @return mixed Error-message string, or false if no error
      */
     protected static function clean_attrs(array &$parms, array $alts = [])
@@ -171,7 +345,7 @@ final class CmsFormUtils
         foreach (['maxlength', 'size', 'step', 'cols', 'rows', 'width', 'height'] as $key) {
             if (isset($$key)) {
                 $tmp = filter_var($$key, FILTER_SANITIZE_NUMBER_INT);
-                if ($tmp || $tmp === 0) {
+                if ($tmp || (int)$$key === 0) {
                     $parms[$key] = $tmp;
                 } else {
                     return sprintf(self::ERRTPL2, $key, '%s');
@@ -182,7 +356,7 @@ final class CmsFormUtils
         foreach (['min', 'max'] as $key) {
             if (isset($$key)) {
                 $tmp = filter_var($$key, FILTER_SANITIZE_NUMBER_FLOAT);
-                if ($tmp || (int)$tmp === 0) {
+                if ($tmp || (int)$$key === 0) {
                     $parms[$key] = $tmp;
                 } else {
                     return sprintf(self::ERRTPL2, $key, '%s');
@@ -311,7 +485,7 @@ final class CmsFormUtils
      * @param array  $list_options  Options as per the CmsFormUtils::create_options method
      * @param mixed string|string[] $selected Selected value as per the CmsFormUtils::create_option method
      * @param array  $params Array of additional options including: multiple,class,title,id,size
-     * @deprecated use create_select() instead
+     * @deprecated Use create_select() with appropriate parameters instead
      * @return string The HTML content for the <select> element.
      */
     public static function create_dropdown(string $name, array $list_options, $selected, array $params = []) : string
@@ -325,13 +499,12 @@ final class CmsFormUtils
      *
      * @since 2.3
      *
-     * @param array  $parms   Attribute(s)/definition(s) to be
-     *  included in the element, each member like name=>value. The
-     *  name may be numeric, in which case only the value is used.
-     *  Must include at least 'type' and 'name' and at least 2 of
-     *  'htmlid', 'modid', 'id', the latter being an alias for either
-     *  'htmlid' or 'modid'. Recognized types are 'check','radio','list',
-     *  'drop'
+     * @param array  $parms   Attribute(s)/definition(s) to be included in
+     *  the element, each member like name=>value. Any name may be numeric,
+     *  in which case only the value is used. Must include at least 'type' and
+     * 'name' and at least 2 of 'htmlid', 'modid', 'id', the latter being an
+     *  alias for either 'htmlid' or 'modid'.
+    *   Recognized types are 'check','radio','list', 'drop'
      *
      * @return string
      */
@@ -339,13 +512,10 @@ final class CmsFormUtils
     {
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
-        if ($err) {
-            $tmp = sprintf($err, __METHOD__);
-            assert(!$err, $tmp);
-            return '<!-- ERROR: '.$tmp.' -->';
+        if (!$err) {
+            //common checks
+            $err = self::clean_attrs($parms, ['items'=>'options']);
         }
-        //common checks
-        $err = self::clean_attrs($parms, ['items'=>'options']);
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
@@ -358,12 +528,6 @@ final class CmsFormUtils
                 $err = self::must_attrs($parms, ['value'=>'s']);
                 if ($err) {
                     break;
-                }
-
-                if (empty($class)) {
-                    $parms['class'] = 'cms_checkbox';
-                } else {
-                    $parms['class'] .= ' cms_checkbox';
                 }
 
                 if (isset($selectedvalue) && $selectedvalue == $value) {
@@ -380,12 +544,6 @@ final class CmsFormUtils
                     break;
                 }
 
-                if (empty($class)) {
-                    $parms['class'] = 'cms_radio';
-                } else {
-                    $parms['class'] .= ' cms_radio';
-                }
-
                 $each = '<input' . self::join_attrs($parms, [
                  'id',
                  'options',
@@ -400,7 +558,7 @@ final class CmsFormUtils
                     if ($val == $selectedvalue) {
                         $out .= ' checked="checked"';
                     }
-                    $out .= ' /><label class="cms_label" for="'.$modid.$name.$i.'">'.$key .'</label>';
+                    $out .= ' /><label for="'.$modid.$name.$i.'">'.$key .'</label>';
                     if ($i < $count && $delimiter) {
                         $out .= $delimiter;
                     }
@@ -410,7 +568,6 @@ final class CmsFormUtils
                 break;
             case 'drop':
                 unset($parms['multiple']);
-                $tmp = 'cms_dropdown';
                 //no break here
             case 'list':
                 $err = self::must_attrs($parms, ['items'=>'a']);
@@ -419,7 +576,6 @@ final class CmsFormUtils
                 }
 
                 if ($type == 'list') {
-                    $tmp = 'cms_select';
                     if ($multiple) {
                         $parms['multiple'] = 'multiple';
                         // adjust name if element allows multiple-selection
@@ -429,12 +585,6 @@ final class CmsFormUtils
                     } else {
                         unset($parms['multiple']);
                     }
-                }
-
-                if (empty($class)) {
-                    $parms['class'] = $tmp;
-                } else {
-                    $parms['class'] .= ' '.$tmp;
                 }
 
                 $selected = '';
@@ -473,28 +623,23 @@ final class CmsFormUtils
      *
      * @since 2.3
      *
-     * @param array  $parms   Attribute(s)/definition(s) to be
-     *  included in the element, each member like name=>value. Any
-     *  name may be numeric, in which case only the value is used.
-     *  Must include at least 'type' and 'name' and at least 2 of
-     *  'htmlid', 'modid', 'id', the latter being an alias for either
-     *  'htmlid' or 'modid'
+     * @param array  $parms   Attribute(s)/definition(s) to be included in
+     *  the element, each member like name=>value. Any name may be numeric,
+     *  in which case only the value is used. Must include at least 'type' and
+     *  'name' and at least 2 of 'htmlid', 'modid', 'id', the latter being an
+     *  alias for either 'htmlid' or 'modid'
      *
      * @return string
      */
     public static function create_input(array $parms) : string
     {
-        //must have these $parms, each with a usable value
-        $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
-        if ($err) {
-            $tmp = sprintf($err, __METHOD__);
-            assert(!$err, $tmp);
-            return '<!-- ERROR: '.$tmp.' -->';
-        }
-
         if ($parms['type'] != 'textarea') {
-            //common checks
-            $err = self::clean_attrs($parms, ['text'=>'value', 'contents'=>'value']);
+            //must have these $parms, each with a usable value
+            $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
+            if (!$err) {
+                //common checks
+                $err = self::clean_attrs($parms, ['text'=>'value', 'contents'=>'value']);
+            }
             if ($err) {
                 $tmp = sprintf($err, __METHOD__);
                 assert(!$err, $tmp);
@@ -503,16 +648,12 @@ final class CmsFormUtils
 
             extract($parms);
             //custom checks
-            if (empty($class)) {
-                $parms['class'] = 'cms_'.$type;
-            } else {
-                $parms['class'] .= ' cms_'.$type;
-            }
             $value = $parms['value'] ?? '';
-            $parms['value'] = ($value && $type != 'password') ? \entitize($value) : $value;
+            //TODO tailoring for lots of html5 types
+            $parms['value'] = ($value && $type == 'text') ? \entitize($value) : $value;
 
             $out = '<input';
-            $out .= self::join_attrs($parms, ['TODO']);
+            $out .= self::join_attrs($parms, ['modid']);
             return $out.' />'."\n";
         }
         unset($parms['type']); //don't confuse with 'wantedsyntax'
@@ -524,7 +665,7 @@ final class CmsFormUtils
      * @internal
      * @ignore
      */
-    private static function add_syntax($module_name)
+    protected static function add_syntax(string $module_name)
     {
         if ($module_name) {
             if (!in_array($module_name, self::$_activated_syntax)) {
@@ -551,7 +692,7 @@ final class CmsFormUtils
      * @param string id (optional) the id of the textarea element)
      * @param string stylesheet_name (optional) the name of a stylesheet to include with this area (some WYSIWYG editors may not support this)
      */
-    private static function add_wysiwyg($module_name, $id = self::NONE, $stylesheet_name = self::NONE)
+    protected static function add_wysiwyg(string $module_name, string $id = self::NONE, string $stylesheet_name = self::NONE)
     {
         if ($module_name) {
             if (!isset(self::$_activated_wysiwyg[$module_name])) {
@@ -570,8 +711,12 @@ final class CmsFormUtils
     }
 
     /**
-     * Get xhtml for a text area input
-     * parameters:
+     * Get xhtml for a text area input. Also used for a syntaxarea.
+     *
+     * @param array $parms   Attribute(s)/property(ies) to be included in the
+     *  element, each member like name=>value. Any name may be numeric, in which
+     *  case only the value is used.
+     * Recognized:
      *   name          = (required string) name attribute for the text area element.
      *   modid         = (optional string) id given to the module on execution.  If not specified, '' will be used.
      *   id/htmlid     = (optional string) id attribute for the text area element.  If not specified, name is used.
@@ -594,10 +739,9 @@ final class CmsFormUtils
      *
      * note: if wantedsyntax is empty, AND enablewysiwyg is false, then just a plain text area is created.
      *
-     * @param array $parms An associative array with parameters.
      * @return string
      */
-    public static function create_textarea($parms) : string
+    public static function create_textarea(array $parms) : string
     {
         $err = self::must_attrs($parms, ['name'=>'c']);
         if (!$err) {
@@ -619,11 +763,6 @@ final class CmsFormUtils
 
         extract($parms);
 
-        if (empty($class)) {
-            $parms['class'] = 'cms_textarea';
-        } else {
-            $parms['class'] .= ' cms_textarea';
-        }
         if (empty($cols) || $cols <= 0) {
             $parms['cols'] = 20;
         }
@@ -641,12 +780,16 @@ final class CmsFormUtils
         $enablewysiwyg = !empty($enablewysiwyg) && \cms_to_bool($enablewysiwyg);
         if ($enablewysiwyg) {
             // we want a wysiwyg
-            $parms['class'] .= ' cmsms_wysiwyg';
+            if (empty($parms['class'])) {
+                $parms['class'] = 'cmsms_wysiwyg'; //not for CSS ?!
+            } else {
+                $parms['class'] .= ' cmsms_wysiwyg';
+            }
             $module = \ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
             if ($module && $module->HasCapability(\CmsCoreCapabilities::WYSIWYG_MODULE)) {
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable TODO config['?']
                 $module_name = $module->GetName();
-                $parms['class'] .= ' '.$module_name;
+                $parms['class'] .= ' '.$module_name;  //not for CSS ?!
                 if (empty($cssname)) {
                     $cssname = self::NONE;
                 }
@@ -660,7 +803,11 @@ final class CmsFormUtils
             $module = \ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
             if ($module && $module->HasCapability(\CmsCoreCapabilities::SYNTAX_MODULE)) {
                 $module_name = $module->GetName();
-                $parms['class'] .= ' '.$module_name;
+                if (empty($parms['class'])) {
+                    $parms['class'] = $module_name; //not for CSS ?!
+                } else {
+                    $parms['class'] .= ' '.$module_name;
+                }
                 self::add_syntax($module_name);
             }
         }
@@ -693,10 +840,9 @@ final class CmsFormUtils
      *
      * @since 2.3
      *
-     * @param array  $parms   Attribute(s)/definition(s) to be
-     *  included in the element, each member like name=>value. Any
-     *  name may be numeric, in which case only the value is used.
-     *  Must include at least 'name' and 'labeltext'
+     * @param array  $parms   Attribute(s)/property(ies) to be included in the
+     *  element, each member like name=>value. Any name may be numeric, in which
+     *  case only the value is used. Must include at least 'name' and 'labeltext'
      *
      * @return string
      */
@@ -713,16 +859,10 @@ final class CmsFormUtils
             return '<!-- ERROR: '.$tmp.' -->';
         }
 
-        if (empty($parms['class'])) {
-            $parms['class'] = 'cms_label';
-        } else {
-            $parms['class'] .= ' cms_label';
-        }
-
         $out = '<label for="'.$parms['name'].'"';
         $out .= self::join_attrs($parms, ['name', 'labeltext']);
         $contents = \cms_htmlentities($parms['labeltext']);
-        $out .= '>'.$content.'</label>'."\n";
+        $out .= '>'.$contents.'</label>'."\n";
         return $out;
     }
 
@@ -731,31 +871,57 @@ final class CmsFormUtils
      *
      * @since 2.3
      *
-     * @param array  $parms   Attribute(s)/definition(s) to be
-     *  included in the element, each member like name=>value. Any
-     *  name may be numeric, in which case only the value is used.
-     *  Must include at least 'action'
+     * @param object $mod    The initiator module, a CMSModule derivative
+     * @param array  $parms  Attribute(s)/property(ies) to be included in
+     *  the element, each member like name=>value. Any name may be numeric,
+     *  in which case only the value is used. Must include at least 'action'
      *
      * @return string
      */
-    public static function create_form_start(&$modinstance, array $parms) : string
+    public static function create_form_start(&$mod, array $parms) : string
     {
         static $_formcount = 1;
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action'=>'c']);
-        if (!$err) {
-            $err = self::clean_attrs($parms);
-        }
+        //no clean_attrs(), cuz no 'name' parm
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
+
         extract($parms);
+
+        if (!empty($htmlid)) {
+//            $tmp = $htmlid;
+            if (empty($modid)) {
+                if (!empty($id)) {
+                    $modid = $id;
+                } else {
+                    $tmp = sprintf(self::ERRTPL, 'id', __METHOD__);
+                    assert(!$id, $tmp);
+                    return '<!-- ERROR: '.$tmp.' -->';
+                }
+            }
+        } elseif (!empty($modid)) {
+//            $tmp = $modid.$TODO;
+        } elseif (!empty($id)) {
+            $modid = $id;
+//            $tmp = $id.$TODO;
+        } else {
+            $tmp = sprintf(self::ERRTPL, 'id', __METHOD__);
+            assert(!$id, $tmp);
+            return '<!-- ERROR: '.$tmp.' -->';
+        }
 
         $idsuffix = (!empty($idsuffix)) ? \sanitize($idsuffix) : '';
         if ($idsuffix === '') {
             $idsuffix = $_formcount++;
+        }
+
+        if (isset($parms['classname'])) {
+            $parms['class'] = $parms['classname'];
+            unset($parms['classname']);
         }
 
         $method = (!empty($method)) ? \sanitize($method) : 'POST';
@@ -785,7 +951,7 @@ final class CmsFormUtils
         ]);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
-        '<input type="hidden" name="mact" value="'.$modinstance->GetName().','.$modid.','.$action.','.($inline?1:0).'" />'."\n";
+        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$modid.','.$action.','.($inline?1:0).'" />'."\n";
         if ($returnid !== '') {
             $out .= '<input type="hidden" name="'.$modid.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
@@ -822,20 +988,64 @@ final class CmsFormUtils
     }
 
     /**
+     * Get xhtml for the start of a fieldset, with optional legend
+     *
+     * @since 2.3
+     *
+     * @return string
+     */
+    public function create_fieldset_start(array $parms) : string
+    {
+        // no 'name', no compulsory
+        extract($parms);
+//<fieldset  +cms_fieldset $attrs > \n
+        if (isset($classname)) {
+            $parms['class'] = $parms['classname'];
+            unset($parms['classname']);
+        }
+
+        $out = '<fieldset';
+        $out .= self::join_attrs($parms, ['modid',]);
+        $out .= '>'."\n";
+        if (!empty($legend) || (isset($legend) && is_numeric($legend))) {
+            $out .= '<legend';
+//<legend  +cms_legend $other-attrs> text </legend> \n
+            $out .= '>'.\entitize($legend);
+            $out .= '</legend>'."\n";
+        }
+        return $out;
+    }
+
+    /**
+     * Get xhtml for the end of a fieldset
+     *
+     * @since 2.3
+     *
+     * This is basically just a wrapper around </fieldset>, but might be
+     * extended in the future. It's here mainly for consistency.
+     *
+     * @return string
+     */
+    public static function create_fieldset_end() : string
+    {
+        return '</fieldset>'."\n";
+    }
+
+    /**
      * Get xhtml for a link to run a module action, or just the URL for that
      * action
      *
      * @since 2.3
      *
-     * @param object $modinstance
-     * @param array  $parms   Attribute(s)/definition(s) to be
-     *  included in the element, each member like name=>value. Any
-     *  name may be numeric, in which case only the value is used.
+     * @param object $mod    The initiator module, a CMSModule derivative
+     * @param array  $parms  Attribute(s)/property(ies) to be included in
+     *  the element, each member like name=>value. Any name may be numeric,
+     *  in which case only the value is used.
      *  Must include at least 'action'
      *
      * @return string
      */
-    public static function create_action_link(&$modinstance, array $parms) : string
+    public static function create_action_link(&$mod, array $parms) : string
     {
         $err = self::clean_attrs($parms);
         if (!$err) {
@@ -864,7 +1074,7 @@ final class CmsFormUtils
         $prettyurl = (!$empty($prettyurl)) ? filter_var($prettyurl, FILTER_SANITIZE_URL) : '';
 
         // create the url
-        $out = $modinstance->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
+        $out = $mod->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
 
         if (!$onlyhref) {
             $out = '<a href="' . $out . '"';
@@ -883,8 +1093,9 @@ final class CmsFormUtils
     /**
      * Get xhtml for a link to a site page, essentially a go-back facilitator. Or only the url
      *
-     * @param object $modinstance
-     * @param array  $parms each member like 'name'=>'value', may include:
+     * @param object $mod    The initiator module, a CMSModule derivative
+     * @param array  $parms  Attribute(s)/property(ies) to be included in
+     *  the element, each member like 'name'=>'value', may include:
      *  string $htmlid The id-attribute to be applied to the created tag
      *  string $modid The id given to the module on execution
      *  string $id An alternate for either of the above id's
@@ -897,7 +1108,7 @@ final class CmsFormUtils
      *
      * @return string
      */
-    public static function create_return_link(&$modinstance, array $parms) : string
+    public static function create_return_link(&$mod, array $parms) : string
     {
         $err = self::clean_attrs($parms);
         if ($err) {
@@ -918,7 +1129,7 @@ final class CmsFormUtils
             $params = [];
         }
         // create the url
-        $out = $modinstance->create_pageurl($modid, $returnid, $params, false); //i.e. not $for_display
+        $out = $mod->create_pageurl($modid, $returnid, $params, false); //i.e. not $for_display
 
         if ($out) {
             if (!$onlyhref) {
@@ -940,11 +1151,12 @@ final class CmsFormUtils
     /**
      * Get xhtml for a link to show a site page
      *
-     * @param array  $parms each member like 'name'=>'value', may include:
+     * @param array  $parms Attribute(s)/property(ies) to be included in
+     *  the element, each member like 'name'=>'value', may include:
      *  int $pageid the page id of the page we want to direct to
      *  string $contents The activatable text for the displayed link
      *  string TODO support activatable image too
-     *  array $attrs extra tag content, each member like $key=>$value
+     *  others deemed relevant and provided by the caller
      *
      * @return string
      */
@@ -988,6 +1200,69 @@ final class CmsFormUtils
         ]);
         $contents = \cms_htmlentities($contents);
         $out .= '>'.$contents.'</a>';
+        return $out;
+    }
+
+    /**
+     * Get xhtml for a tooltip, which may be specified to be a span or a link
+     *
+     * @param array  $parms Attribute(s)/property(ies) to be included in
+     *  the element, each member like 'name'=>'value'. Must include
+     *  string 'contents' The text displayed in a span or link. Alias 'linktext'
+     *  string 'helptext' The tip text displayed on pointer-device-hover. Alias 'tooltiptext'
+     *  May include:
+     *  string 'href'     An URL to go to when the link is clicked
+     *  int    'forcewidth' Pixel-width of the displayed $contents
+     *  others deemed relevant and provided by the caller
+     *
+     * @return string
+     */
+    public static function create_tooltip(array $parms) : string
+    {
+        //aliases
+        foreach ([
+         'linktext' => 'contents',
+         'classname' => 'class',
+         'tooltiptext' => 'helptext',
+        ] as $key => $val) {
+            if (isset($parms[$key])) {
+                $parms[$val] = $parms[$key];
+                unset($parms[$key]);
+            }
+        }
+        //must have these $parms, each with a usable value
+        $err = self::must_attrs($parms, ['contents'=>'s', 'helptext'=>'s']);
+        if ($err) {
+            $tmp = sprintf($err, __METHOD__);
+            assert(!$err, $tmp);
+            return '<!-- ERROR: '.$tmp.' -->';
+        }
+
+        extract($parms);
+
+        if (!empty($href)) {
+            $out = '<a href="'.$href.'"';
+        } else {
+            $out = '<span';
+        }
+
+        $out .= self::join_attrs($parms, ['href', 'forcewidth', 'contents', 'helptext',]);
+
+        $helptext = \cms_htmlentities($helptext);
+        $out .= ' title="'.$helptext.'"';
+
+        if (!empty($forcewidth) && is_numeric($forcewidth)) {
+            $out .= ' style="width:'.$forcewidth.'px";'; //TODO merge with other style $parms
+        }
+
+        $contents = \cms_htmlentities($contents);
+        $out .= '>'.$contents;
+
+        if (!empty($href)) {
+            $out .= '</a>'."\n";
+        } else {
+            $out .= '</span>';
+        }
         return $out;
     }
 } // end of class
