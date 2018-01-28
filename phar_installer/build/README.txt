@@ -2,10 +2,9 @@
 Creating a CMSMS Release
 ------------------------
 
-
 Creating a CMSMS release involves these steps:
   a: Do all of the required changes to the CMSMS branch in question (change the version.php, update the changelog, make sure those files are committed)
-  b: Create the <installer root>/app/upgrade/<version> directory and it's appropriate files
+  b: Create the <installer root>/app/upgrade/<version> directory and its appropriate files
      MANIFEST.DAT -- this file is created with the 'create_manifest.php' script (see below)
      (a MANIFEST.DAT.GZ file is acceptable too)
      upgrade.php  -- (optional) the script to do any changes to the database or settings
