@@ -237,12 +237,14 @@ function cms_htmlentities(string $val, int $param = 0, string $charset = 'UTF-8'
     }
 
     if ($param === 0) {
+        $param = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
+    }
+    if ($param & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
         if ($deflang === 0) {
             $deflang = cms_preferred_lang();
         }
-        $param = (($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT) | $deflang;
+        $param |= $deflang;
     }
-
     if ($convert_single_quotes) {
         $param &= ~(ENT_COMPAT | ENT_NOQUOTES);
     }
@@ -274,10 +276,13 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
     }
 
     if ($param === 0) {
+        $param = ENT_QUOTES;
+    }
+    if ($param & (ENT_HTML5 | ENT_XHTML | ENT_HTML401) == 0) {
         if ($deflang === 0) {
             $deflang = cms_preferred_lang();
         }
-        $param = ENT_QUOTES | $deflang;
+        $param |= $deflang;
     }
 
     if (!$charset) {
