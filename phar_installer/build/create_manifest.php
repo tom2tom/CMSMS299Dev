@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
-
+// wants to use pcntl_signal() in the pcntl extension
+// wants to use readline() in the (GNU) readline extension
 //
 // some debian based distros don't have gzopen (crappy)
 //
@@ -28,8 +29,10 @@ $_interactive = TRUE;
 $_outfile = STDOUT;
 $_notdeleted = null;
 
-@pcntl_signal(SIGTERM,'sighandler');
-@pcntl_signal(SIGINT,'sighandler');
+if (function_exists('pcntl_signal')) { 
+  @pcntl_signal(SIGTERM,'sighandler');
+  @pcntl_signal(SIGINT,'sighandler');
+}
 
 $opts = getopt('mdc:r:f:t:o:h',array('md5','debug','config:','root:','from:','to:','nowrite','quick','mode','outfile','nocompress','dnd:'));
 // parse arguments for config file.
@@ -404,6 +407,7 @@ EOT;
     if( $_exitcode != 0 ) fatal($res);
   }
 
+  //TODO don't assume GNU Readline extension is available
   function ask_string($prompt,$dflt = null,$allow_empty = FALSE)
   {
     while( 1 ) {
