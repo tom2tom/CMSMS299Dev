@@ -784,7 +784,7 @@ function startswith( string $str, string $sub ) : bool
 function endswith( string $str, string $sub ) : bool
 {
     $o = strlen( $sub );
-    if( $o > 0 ) {
+	if( $o > 0 && $o <= strlen($str) ) {
         return strpos($str, $sub, -$o) !== false;
     }
     return false;
@@ -794,8 +794,8 @@ function endswith( string $str, string $sub ) : bool
  * Convert a human readable string into something that is suitable for use in URLS.
  *
  * @param string $alias String to convert
- * @param bool $tolower Indicates whether output string should be converted to lower case
- * @param bool $withslash Indicates wether slashes should be allowed in the input.
+ * @param bool   $tolower Indicates whether output string should be converted to lower case
+ * @param bool   $withslash Indicates wether slashes should be allowed in the input.
  * @return string
  */
 function munge_string_to_url(string $alias, bool $tolower = false, bool $withslash = false) : string
