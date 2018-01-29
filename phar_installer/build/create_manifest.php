@@ -1,17 +1,22 @@
 #!/usr/bin/php
 <?php
-// wants to use pcntl_signal() in the pcntl extension
-// wants to use readline() in the (GNU) readline extension
+
+if (!function_exists('readline')) {
+    die('Abort '.basename(__FILE__).' : Missing readline extension');
+}
 //
 // some debian based distros don't have gzopen (crappy)
 //
 if (!extension_loaded('zlib')) {
-    die('Abort '.basename(__FILE__).' : Missing zlib extensions');
+    die('Abort '.basename(__FILE__).' : Missing zlib extension');
 }
 if (!function_exists('gzopen') && function_exists('gzopen64')) {
     function gzopen($filename , $mode, $use_include_path = 0) {
         return gzopen64($filename, $mode, $use_include_path);
     }
+}
+if (!extension_loaded('pcntl')) {
+    echo(basename(__FILE__).' works better with the pcntl extension'."\n");
 }
 
 //
@@ -29,7 +34,7 @@ $_interactive = TRUE;
 $_outfile = STDOUT;
 $_notdeleted = null;
 
-if (function_exists('pcntl_signal')) { 
+if (function_exists('pcntl_signal')) {
   @pcntl_signal(SIGTERM,'sighandler');
   @pcntl_signal(SIGINT,'sighandler');
 }
@@ -407,7 +412,6 @@ EOT;
     if( $_exitcode != 0 ) fatal($res);
   }
 
-  //TODO don't assume GNU Readline extension is available
   function ask_string($prompt,$dflt = null,$allow_empty = FALSE)
   {
     while( 1 ) {
