@@ -3,7 +3,7 @@ if (!isset($gCms)) exit;
 
 $db = $this->GetDb();
 $dict = NewDataDictionary($db);
-$taboptarray = array('mysql' => 'ENGINE MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci', 'mysqli' => 'ENGINE MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 
 $flds = "timestamp I NOTNULL,
          severity  I NOTNULL DEFAULT 0,

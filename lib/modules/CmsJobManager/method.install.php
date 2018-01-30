@@ -10,7 +10,7 @@ $this->CreatePermission(\CmsJobManager::MANAGE_JOBS,\CmsJobManager::MANAGE_JOBS)
 $this->CreateEvent(\CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleUninstalled',FALSE);
 
-$taboptarray = array('mysql' => 'TYPE=MyISAM'); //TODO InnoDB relevant?
+$taboptarray = array('mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci'); //TODO InnoDB relevant?
 $dict = NewDataDictionary($db);
 
 $flds = "
