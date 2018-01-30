@@ -37,21 +37,21 @@
  */
 class Link extends ContentBase
 {
-    public function IsCopyable() { return TRUE; }
-    public function IsViewable() { return FALSE; }
+	public function IsCopyable() { return TRUE; }
+	public function IsViewable() { return FALSE; }
 	public function HasSearchableContent() { return FALSE; }
-    public function FriendlyName() { return lang('contenttype_redirlink'); }
+	public function FriendlyName() { return lang('contenttype_redirlink'); }
 
-    function SetProperties()
-    {
+	function SetProperties()
+	{
 		parent::SetProperties();
 		$this->RemoveProperty('secure',0);
 		$this->RemoveProperty('cachable',true);
 		$this->AddProperty('url',3,self::TAB_MAIN,TRUE,TRUE);
-    }
+	}
 
-    function FillParams(array $params, bool $editing = false)
-    {
+	function FillParams(array $params, bool $editing = false)
+	{
 		parent::FillParams($params,$editing);
 
 		if (isset($params)) {
@@ -62,10 +62,10 @@ class Link extends ContentBase
 
 			if (isset($params['file_url'])) $this->SetPropertyValue('url', $params['file_url']);
 		}
-    }
+	}
 
-    function ValidateData()
-    {
+	function ValidateData()
+	{
 		$errors = parent::ValidateData();
 		if( $errors === FALSE )	$errors = array();
 
@@ -75,19 +75,19 @@ class Link extends ContentBase
 		}
 
 		return (count($errors) > 0?$errors:FALSE);
-    }
+	}
 
-    function TabNames()
-    {
+	function TabNames()
+	{
 		$res = array(lang('main'));
 		if( check_permission(get_userid(),'Manage All Content') ) {
 			$res[] = lang('options');
 		}
 		return $res;
-    }
+	}
 
-    function display_single_element($one,$adding)
-    {
+	function display_single_element(string $one,bool $adding)
+	{
 		switch($one) {
 		case 'url':
 			return array(lang('url').':','<input type="text" name="url" size="80" value="'.cms_htmlentities($this->GetPropertyValue('url')).'" />');
@@ -96,10 +96,10 @@ class Link extends ContentBase
 		default:
 			return parent::display_single_element($one,$adding);
 		}
-    }
+	}
 
-    function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-    {
+	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	{
 		switch($tab) {
 		case '0':
 			return $this->display_attributes($adding);
@@ -108,13 +108,13 @@ class Link extends ContentBase
 			return $this->display_attributes($adding,1);
 			break;
 		}
-    }
+	}
 
-    function GetURL($rewrite = true)
-    {
+	function GetURL($rewrite = true)
+	{
 		return $this->GetPropertyValue('url');
 		//return cms_htmlentities($this->GetPropertyValue('url'));
-    }
+	}
 }
 
 ?>
