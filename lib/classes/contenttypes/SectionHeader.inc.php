@@ -37,10 +37,10 @@
  */
 class SectionHeader extends ContentBase
 {
-    function FriendlyName() { return lang('contenttype_sectionheader'); }
+	function FriendlyName() { return lang('contenttype_sectionheader'); }
 
-    function SetProperties()
-    {
+	function SetProperties()
+	{
 		parent::SetProperties();
 		$this->RemoveProperty('secure',0);
 		$this->RemoveProperty('accesskey','');
@@ -49,27 +49,27 @@ class SectionHeader extends ContentBase
 		$this->RemoveProperty('page_url','');
 		$this->SetURL(''); // url will be lost when going back to a content page.
 
-        // Turn off caching
+		// Turn off caching
 		$this->mCachable = false;
-    }
+	}
 
-    public function HasUsableLink() { return false; }
+	public function HasUsableLink() { return false; }
 	public function RequiresAlias() { return TRUE; }
 	public function HasSearchableContent() { return FALSE; }
-    public function GetURL($rewrite = true) { return '#'; }
-    public function IsViewable() { return FALSE; }
+	public function GetURL($rewrite = true) { return '#'; }
+	public function IsViewable() { return FALSE; }
 
-    function TabNames()
-    {
+	function TabNames()
+	{
 		$res = array(lang('main'));
 		if( check_permission(get_userid(),'Manage All Content') ) {
 			$res[] = lang('options');
 		}
 		return $res;
-    }
+	}
 
-    function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-    {
+	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	{
 		switch($tab) {
 		case '0':
 			return $this->display_attributes($adding);
@@ -78,10 +78,10 @@ class SectionHeader extends ContentBase
 			return $this->display_attributes($adding,1);
 			break;
 		}
-    }
+	}
 
-    function ValidateData()
-    {
+	function ValidateData()
+	{
 		$res = parent::ValidateData();
 		if( is_array($res) && $this->mId < 1 ) {
 			// some error occurred..
@@ -92,7 +92,7 @@ class SectionHeader extends ContentBase
 		}
 		$this->mTemplateId = -1;
 		return $res;
-    }
+	}
 
 }
 
