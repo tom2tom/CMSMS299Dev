@@ -234,8 +234,8 @@ class Connection extends \CMSMS\Database\Connection
     {
         $out = array();
         $startID = (int) $startID;
-        $out[] = sprintf('CREATE TABLE %s (id int not null) ENGINE=MyISAM',$seqname);
-        $out[] = sprintf('INSERT INTO %s (id) values (%s)',$seqname,$startID);
+        $out[] = sprintf('CREATE TABLE %s (id INT NOT NULL) ENGINE=MyISAM COLLATE ascii_general_ci',$seqname);
+        $out[] = sprintf('INSERT INTO %s (id) VALUES (%s)',$seqname,$startID);
         $dict = $this->NewDataDictionary();
         $dict->ExecuteSQLArray($out);
         return TRUE;
