@@ -146,7 +146,7 @@ class Content extends ContentBase
      * @param array $params Hash of parameters to load into content attributes
      * @param bool  $editing Whether we in an add or edit operation.
      */
-    public function FillParams($params,$editing = false)
+    public function FillParams(array $params, bool $editing = false)
     {
         if (isset($params)) {
             $parameters = array('pagedata','searchable','disable_wysiwyg','design_id','wantschildren');

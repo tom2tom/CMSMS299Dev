@@ -50,7 +50,7 @@ class Link extends ContentBase
 		$this->AddProperty('url',3,self::TAB_MAIN,TRUE,TRUE);
     }
 
-    function FillParams($params,$editing = false)
+    function FillParams(array $params, bool $editing = false)
     {
 		parent::FillParams($params,$editing);
 

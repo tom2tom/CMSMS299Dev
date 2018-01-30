@@ -64,7 +64,7 @@ class PageLink extends ContentBase
 		$this->mCachable = false;
     }
 
-    function FillParams($params,$editing = false)
+    function FillParams(array $params, bool $editing = false)
     {
 		parent::FillParams($params,$editing);
 
