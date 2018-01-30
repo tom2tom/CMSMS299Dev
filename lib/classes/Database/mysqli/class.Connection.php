@@ -405,7 +405,7 @@ class Connection extends \CMSMS\Database\Connection
 
     public function createSequence($seqname, $startID = 0)
     {
-        $rs = $this->do_sql("CREATE TABLE $seqname (id INT NOT NULL) ENGINE InnoDB");
+        $rs = $this->do_sql("CREATE TABLE $seqname (id INT NOT NULL) ENGINE=MyISAM COLLATE ascii_general_ci");
         if ($rs) {
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
