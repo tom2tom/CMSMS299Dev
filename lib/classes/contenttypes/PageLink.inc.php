@@ -39,20 +39,20 @@
 class PageLink extends ContentBase
 {
 
-    public function IsCopyable() { return TRUE; }
-    public function IsViewable() { return FALSE; }
+	public function IsCopyable() { return TRUE; }
+	public function IsViewable() { return FALSE; }
 	public function HasSearchableContent() { return FALSE; }
-    public function FriendlyName() { return lang('contenttype_pagelink'); }
+	public function FriendlyName() { return lang('contenttype_pagelink'); }
 
-	// calguy1000: commented this out so that this page can be seen in cms_selflink
-	// but not sure what it's gonna mess up.
-	//     function HasUsableLink()
-	//     {
-	//       return false;
-	//     }
+// calguy1000: commented this out so that this page can be seen in cms_selflink
+// but not sure what it's gonna mess up.
+//	function HasUsableLink()
+//	{
+//		return false;
+//	}
 
-    function SetProperties()
-    {
+	function SetProperties()
+	{
 		parent::SetProperties();
 		$this->RemoveProperty('cachable',1);
 		//$this->RemoveProperty('showinmenu',1);
@@ -62,10 +62,10 @@ class PageLink extends ContentBase
 
 		//Turn off caching
 		$this->mCachable = false;
-    }
+	}
 
-    function FillParams(array $params, bool $editing = false)
-    {
+	function FillParams(array $params, bool $editing = false)
+	{
 		parent::FillParams($params,$editing);
 
 		if (isset($params)) {
@@ -74,10 +74,10 @@ class PageLink extends ContentBase
 				if (isset($params[$oneparam])) $this->SetPropertyValue($oneparam, $params[$oneparam]);
 			}
 		}
-    }
+	}
 
-    function ValidateData()
-    {
+	function ValidateData()
+	{
 		$errors = parent::ValidateData();
 		if( $errors === FALSE ) $errors = array();
 
@@ -89,7 +89,7 @@ class PageLink extends ContentBase
 
 		// get the content type of page.
 		else {
-            $contentops = ContentOperations::get_instance();
+			$contentops = ContentOperations::get_instance();
 			$destobj = $contentops->LoadContentFromID($page);
 			if( !is_object($destobj) ) {
 				$errors[] = lang('destinationnotfound');
@@ -105,17 +105,17 @@ class PageLink extends ContentBase
 			}
 		}
 		return (count($errors) > 0?$errors:FALSE);
-    }
+	}
 
-    function TabNames()
-    {
+	function TabNames()
+	{
 		$res = array(lang('main'));
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
 		return $res;
-    }
+	}
 
-    function display_single_element($one,$adding)
-    {
+	function display_single_element(string $one,bool $adding)
+	{
 		switch($one) {
 		case 'page':
 			$contentops = ContentOperations::get_instance();
@@ -131,10 +131,10 @@ class PageLink extends ContentBase
 		default:
 			return parent::display_single_element($one,$adding);
 		}
-    }
+	}
 
-    function EditAsArray($adding = false, $tab = 0, $showadmin = false)
-    {
+	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	{
 		switch($tab) {
 		case '0':
 			return $this->display_attributes($adding);
@@ -143,10 +143,10 @@ class PageLink extends ContentBase
 			return $this->display_attributes($adding,1);
 			break;
 		}
-    }
+	}
 
-    function GetURL($rewrite = true)
-    {
+	function GetURL($rewrite = true)
+	{
 		$page = $this->GetPropertyValue('page');
 		$params = $this->GetPropertyValue('params');
 
@@ -157,7 +157,7 @@ class PageLink extends ContentBase
 			$url .= $params;
 			return $url;
 		}
-    }
+	}
 }
 
 ?>
