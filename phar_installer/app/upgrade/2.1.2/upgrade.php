@@ -1,7 +1,7 @@
 <?php
 $gCms = cmsms();
 $dbdict = NewDataDictionary($db);
-$taboptarray = array('mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
 
 status_msg('performing database changes for CMSMS 2.1.2');
 verbose_msg('database schema has not changed');

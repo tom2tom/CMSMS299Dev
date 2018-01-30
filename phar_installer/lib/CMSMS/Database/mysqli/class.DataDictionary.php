@@ -285,7 +285,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
 
 	function CreateTableSQL($tabname, $flds, $tableoptions=false)
 	{
-        $str = 'ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci';
+        $str = 'CHARACTER SET utf8 COLLATE utf8_general_ci';
         $dbtype = $this->_DBType();
 
         // clean up input tableoptions

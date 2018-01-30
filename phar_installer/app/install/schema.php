@@ -85,12 +85,12 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
 if (isset($CMS_INSTALL_CREATE_TABLES)) {
 
     status_msg(ilang('install_createtablesindexes'));
-    if ($db->dbtype == 'mysql' || $db->dbtype == 'mysqli') {
+    if ($db->dbtype == 'mysqli') {
         @$db->Execute("ALTER DATABASE `" . $db->database . "` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci");
     }
 
     $dbdict = NewDataDictionary($db);
-    $taboptarray = array('mysqli' => 'ENGINE=MyISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+    $taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
 
 	$flds = "
 		additional_users_id I KEY,
