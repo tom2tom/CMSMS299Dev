@@ -320,7 +320,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
 
     public function CreateTableSQL($tabname, $flds, $tableoptions = false)
     {
-        $str = 'CHARACTER SET utf8 COLLATE utf8_general_ci';
+        $str = 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci';
         $dbtype = $this->_dbType();
 
         // clean up input tableoptions
@@ -335,8 +335,8 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
         }
 
         foreach ($tableoptions as $key => &$val) {
-            if (strpos($val, 'TYPE=') !== false) {
-                $val = str_replace('TYPE=', 'ENGINE=', $val);
+            if (strpos($val, 'TYPE') !== false) {
+                $val = str_replace(['TYPE=','TYPE ='], ['ENGINE=','ENGINE='], $val);
             }
         }
         if (isset($tableoptions[$dbtype]) && strpos($tableoptions[$dbtype], 'CHARACTER') === false &&

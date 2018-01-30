@@ -11,8 +11,7 @@ class Test_cms_siteprefs extends UnitTestCase
 
     $config = cmsms()->GetConfig();
     $dbdict = NewDataDictionary(cmsms()->GetDb());
-    $taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci', 
-			 'mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+    $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 
     $flds = "
 	sitepref_name C(255) KEY,

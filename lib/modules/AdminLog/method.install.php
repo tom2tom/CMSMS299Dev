@@ -3,16 +3,17 @@ if (!isset($gCms)) exit;
 
 $db = $this->GetDb();
 $dict = NewDataDictionary($db);
-$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 
-$flds = "timestamp I NOTNULL,
-         severity  I NOTNULL DEFAULT 0,
-         uid I,
-         ip_addr C(40),
-         username C(50),
-         subject C(255),
-         msg X NOTNULL,
-         item_id I
+$flds = "
+    timestamp I NOTNULL,
+    severity  I NOTNULL DEFAULT 0,
+    uid I,
+    ip_addr C(40),
+    username C(50),
+    subject C(255),
+    msg X NOTNULL,
+    item_id I
 ";
 $sqlarr = $dict->CreateTableSQL( \AdminLog\storage::table_name(), $flds, $taboptarray );
 $dict->ExecuteSQLArray( $sqlarr );

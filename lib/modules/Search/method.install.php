@@ -20,7 +20,7 @@ $flds= "
 		extra_attr C(100),
 		expires " . CMS_ADODB_DT;
 
-$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
@@ -40,7 +40,7 @@ $flds= "
 		word C(255),
 		count I
 	";
-$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
@@ -50,7 +50,7 @@ $dict->ExecuteSQLArray($sqlarray);
 $flds = "word C(255) KEY,
          count       I
         ";
-$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 

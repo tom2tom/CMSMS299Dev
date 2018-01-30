@@ -1,5 +1,5 @@
 <?php
-# installation-process  for CmsJobManager, a core module for CMS Made Simple
+# installation-process for CmsJobManager, a core module for CMS Made Simple
 # to manage asynchronous jobs and cron jobs.
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # See license details at the top of file CmsJobManager.module.php
@@ -10,7 +10,8 @@ $this->CreatePermission(\CmsJobManager::MANAGE_JOBS,\CmsJobManager::MANAGE_JOBS)
 $this->CreateEvent(\CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleUninstalled',FALSE);
 
-$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'); //TODO InnoDB relevant?
+//TODO check InnoDB relevant here?
+$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 $dict = NewDataDictionary($db);
 
 $flds = "

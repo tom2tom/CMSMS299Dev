@@ -88,7 +88,8 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
 	}
 
 	$dbdict = NewDataDictionary($db);
-	$taboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+	$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+//	$innotaboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
 
 	$flds = "
 additional_users_id I KEY,
@@ -202,12 +203,12 @@ modified_date DT
 	verbose_msg(ilang('install_creating_index', 'idx_content_props_by_content', $ado_ret));
 
 	$flds = "
+handler_id I KEY,
 event_id I,
 tag_name C(255),
 module_name C(160),
 removable I,
-handler_order I,
-handler_id I KEY
+handler_order I
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX."event_handlers", $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -215,9 +216,9 @@ handler_id I KEY
 	verbose_msg(ilang('install_created_table', 'event_handlers', $ado_ret));
 
 	$flds = "
+event_id I KEY,
 originator C(200) NOTNULL,
-event_name C(200) NOTNULL,
-event_id I KEY
+event_name C(200) NOTNULL
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX."events", $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -351,6 +352,7 @@ modified_date DT
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX."user_groups", $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
+//CHECKME separate index on user_id field ?
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
 	verbose_msg(ilang('install_created_table', 'user_groups', $ado_ret));
 
@@ -362,6 +364,7 @@ type C(25)
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX."userprefs", $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
+//CHECKME separate index on preference field ?
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
 	verbose_msg(ilang('install_created_table', 'userprefs', $ado_ret));
 
@@ -391,7 +394,7 @@ modified_date DT
 version I
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX."version", $flds,
-	    array('mysqli' => 'ENGINE=MyISAM COLLATE ascii_general_ci'));
+	    array('mysqli' => 'COLLATE ascii_general_ci'));
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
 	verbose_msg(ilang('install_created_table', 'version', $ado_ret));
@@ -425,6 +428,7 @@ created DT
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX."routes", $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
+//CHECKME separate 2nd index on key1 field ?
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
 	verbose_msg(ilang('install_created_table', 'routes', $ado_ret));
 
@@ -456,7 +460,7 @@ modified I
 		CMS_DB_PREFIX.'idx_layout_tpl_type_1',
 		CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME,
 		'originator,name',
-		['UNIQUE']
+		array('UNIQUE')
 	);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
@@ -548,6 +552,7 @@ user_id I KEY
 		$taboptarray
 	);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
+//CHECKME separate 2nd index on user_id field ?
 	verbose_msg(ilang('install_created_table', CmsLayoutTemplate::ADDUSERSTABLE, $ado_ret));
 
 	$flds = "
@@ -573,6 +578,7 @@ tpl_id   I KEY NOTNULL
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
+//CHECKME separate 2nd index on tpl_id field ?
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
 	verbose_msg(ilang('install_created_table', CmsLayoutCollection::TPLTABLE, $ado_ret));
 	$sqlarray = $dbdict->CreateIndexSQL(CMS_DB_PREFIX.'index_dsnassoc1', CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, 'tpl_id');
@@ -587,6 +593,7 @@ item_order I NOTNULL
 ";
 	$sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE, $flds, $taboptarray);
 	$return = $dbdict->ExecuteSQLArray($sqlarray);
+//CHECKME separate 2nd index on css_id field ?
 	$ado_ret = ($return == 2) ? ilang('done') : ilang('failed');
 	verbose_msg(ilang('install_created_table', CmsLayoutCollection::CSSTABLE, $ado_ret));
 
