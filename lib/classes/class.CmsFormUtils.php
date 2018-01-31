@@ -182,6 +182,7 @@ class CmsFormUtils
                     case 'frontendlink':
                         $parms['inline'] = true;
                         $parms['targetcontentonly'] = false;
+                        $withmod = true;
                         $myfunc = 'create_action_link';
                         break;
                     case 'link':
@@ -371,7 +372,7 @@ class CmsFormUtils
      * @ignore
      * @since 2.3
      * @param array $parms tag parameters/attributes
-     * @param array $excludes key(s) which must be ignored in $parms
+     * @param array $excludes $parms key(s) which must be ignored
      * @return string
      */
     protected static function join_attrs(array &$parms, array $excludes) : string
@@ -380,7 +381,9 @@ class CmsFormUtils
         foreach ($parms as $key=>$val) {
             if (!in_array($key, $excludes)) {
                 if (!is_numeric($key)) {
-                    $out .= ' '.$key.'='.'"'.$val.'"';
+	                if (!is_array($val)) {
+	                    $out .= ' '.$key.'='.'"'.$val.'"';
+					}
                 } else {
                     $out .= ' '.$val;
                 }
@@ -626,7 +629,7 @@ class CmsFormUtils
      * @param array  $parms   Attribute(s)/definition(s) to be included in
      *  the element, each member like name=>value. Any name may be numeric,
      *  in which case only the value is used. Must include at least 'type' and
-     *  'name' and at least 2 of 'htmlid', 'modid', 'id', the latter being an
+     * 'name' and at least 2 of 'htmlid', 'modid', 'id', the latter being an
      *  alias for either 'htmlid' or 'modid'
      *
      * @return string
@@ -948,6 +951,7 @@ class CmsFormUtils
          'method',
          'params',
          'inline',
+		 'attrs',
         ]);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
@@ -1047,6 +1051,7 @@ class CmsFormUtils
      */
     public static function create_action_link(&$mod, array $parms) : string
     {
+/* TODO no name etc for this one
         $err = self::clean_attrs($parms);
         if (!$err) {
             //must have these $parms, each with a usable value
@@ -1057,6 +1062,8 @@ class CmsFormUtils
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
+*/
+		$modid = $parms['id']; //hack until above is fixed
 
         extract($parms);
 
@@ -1071,7 +1078,7 @@ class CmsFormUtils
             $params = [];
         }
 
-        $prettyurl = (!$empty($prettyurl)) ? filter_var($prettyurl, FILTER_SANITIZE_URL) : '';
+        $prettyurl = (!empty($prettyurl)) ? filter_var($prettyurl, FILTER_SANITIZE_URL) : '';
 
         // create the url
         $out = $mod->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
