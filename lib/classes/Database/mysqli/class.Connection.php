@@ -406,7 +406,7 @@ class Connection extends \CMSMS\Database\Connection
     public function createSequence($seqname, $startID = 0)
     {
 		//TODO ensure this is really an upsert, cuz' can be repeated during failed installation
-        $rs = $this->do_sql("CREATE TABLE $seqname (id INT NOT NULL) COLLATE ascii_general_ci");
+        $rs = $this->do_sql("CREATE TABLE $seqname (id INT NOT NULL) ENGINE=MYISAM COLLATE ascii_general_ci");
         if ($rs) {
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
