@@ -68,7 +68,6 @@ require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php';
 require_once $dirname.'autoloader.php';
 require_once $dirname.'module.functions.php';
 require_once $dirname.'page.functions.php';
-require_once $dirname.'content.functions.php';
 require_once $dirname.'translation.functions.php';
 
 debug_buffer('done loading basic files');
