@@ -78,7 +78,7 @@ function cms_module_plugin(array $params, &$smarty) : string
     if (isset($_REQUEST['mact'])) {
         // we're handling an action.  check if it is for this call.
         // we may be calling module plugins multiple times in the template,
-		// but a POST or GET mact can only be for one of them.
+        // but a POST or GET mact can only be for one of them.
         $checkid = null;
         $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
         $ary = explode(',', $mact, 4);
@@ -109,7 +109,7 @@ function cms_module_plugin(array $params, &$smarty) : string
 
         if( isset($params['assign']) ) {
             $smarty->assign(trim($params['assign']),$modresult);
-            return;
+            return '';
         }
         return $modresult;
     }
