@@ -30,8 +30,8 @@ $src_excludes = [
 '/\.md$/i',
 '/\.svn/',
 '/svn-.*/',
-'/config\.php$/',
-'/index\.html$/',
+'/\/config\.php$/',
+'/\/index\.html$/',
 '/\.bak$/',
 '/~$/',
 '/#.*/',
@@ -378,13 +378,6 @@ function create_source_archive()
 		unlink($fp);
 	} catch (Exception $e) {
 		die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
-/*
-		$cmd = "tar -zcf {$fp}.gz *";
-		verbose(2, "USING: shell command $cmd");
-		chdir($tmpdir); //get appropriate relative-paths in archive
-		system($cmd);
-		chdir($owd);
-*/
 	}
 }
 
@@ -458,6 +451,8 @@ build_user = $u
 build_host = $h
 EOS;
 		$phar[$relpath]->setMetaData(['mime-type'=>'text/plain']);
+
+		@copy($version_php, joinpath($datadir, 'version.php'));
 
 		$iter = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($phardir,
@@ -547,6 +542,17 @@ EOS;
 			$arch->setExternalAttributesName('README-PHAR.TXT', ZipArchive::OPSYS_UNIX, 0644 << 16);
 			$arch->close();
 			@unlink($infile);
+
+			$fp = joinpath($phardir, 'app', 'upgrade', $version_num);
+			@mkdir($fp, 0771, true);
+			//TODO should include at least MANIFEST.DAT.gz changelog.txt
+			// maybe upgrade.php etc
+			//TODO mechanism to create MANIFEST.DAT.gz, interface with
+			// create_local_manifest.php using $outdir/cmsms-{$version_num}-checksum.dat
+			//TODO warn if no changelog.txt, or copy some of doc/CHANGELOG.txt ?
+
+			rrmdir($tmpdir); //sources can go now
+
 			// zip up most of the install dir contents, plus the sources archive
 			$outfile = joinpath($outdir, $basename.'.expanded.zip');
 			verbose(1, "INFO: zipping phar_installer and source data into $outfile");
@@ -557,14 +563,6 @@ EOS;
 			file_put_contents($fp, $str);
 			$arch->addFile($fp, basename($fp));
 */
-
-			//TODO need mechanism to create app/upgrade/$version and related stuff e.g. MANIFEST
-			//create_manifest.php ?
-			$tp = joinpath($phardir, 'data');
-			@mkdir($tp, 0755, true);
-			@copy($version_php, joinpath($tp, 'version.php'));
-			@copy(joinpath($datadir, 'data.tar.gz'),  joinpath($tp, 'data.tar.gz'));
-
 //			rchmod($phardir); NO: build scripts are there
 
 			$len = strlen($phardir.DIRECTORY_SEPARATOR);
@@ -578,23 +576,23 @@ EOS;
 			);
 			foreach ($iter as $fp) {
 				$relpath = substr($fp, $len);
-				if (strpos($relpath, 'build') !== false ||
-					strpos($relpath, 'out') !== false ||
-					strpos($relpath, 'source') !== false) {
-					verbose(1, "EXCLUDED: $relpath (matched pattern 'build')");
+				if (strncmp($relpath, 'build', 5) == 0 ||
+					strncmp($relpath, 'out', 3) == 0) {
+					verbose(2, "EXCLUDED: $relpath from the zip");
 				} else {
-					verbose(1, "ADDING: $relpath to the zip");
+					verbose(2, "ADDING: $relpath to the zip");
 					$arch->addFile($fp, $relpath);
 				}
 			}
 
 			$arch->close();
 
-			//eliminate files we're done with
 			rrmdir($tp);
-			rrmdir($tmpdir);
-		} // zip
+		} else { // zip
+			rrmdir($tmpdir); //sources can go now
+		}
 	} // archive only
+	rrmdir($datadir);
 
 	echo "INFO: Done, see files in $outdir\n";
 } catch (Exception $e) {
