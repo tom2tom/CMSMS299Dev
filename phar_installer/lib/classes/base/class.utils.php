@@ -79,6 +79,11 @@ class utils
 
     public static function get_sys_tmpdir()
     {
+        if( function_exists('sys_get_temp_dir') ) {
+            $tmp = rtrim(sys_get_temp_dir(),'\\/');
+            if( $tmp && @is_dir($tmp) && @is_writable($tmp) ) return $tmp;
+        }
+
         $vars = array('TMP','TMPDIR','TEMP');
         foreach( $vars as $var ) {
             if( isset($_ENV[$var]) && $_ENV[$var] ) {
@@ -89,11 +94,6 @@ class utils
 
         $tmpdir = ini_get('upload_tmp_dir');
         if( $tmpdir && @is_dir($tmpdir) && @is_writable($tmpdir) ) return $tmpdir;
-
-        if( function_exists('sys_get_temp_dir') ) {
-            $tmp = rtrim(sys_get_temp_dir(),'\\/');
-            if( $tmp && @is_dir($tmp) && @is_writable($tmp) ) return $tmp;
-        }
 
         if( ini_get('safe_mode') != '1' ) {
             // last ditch effort to find a place to write to.
