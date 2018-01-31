@@ -24,92 +24,27 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $informational[] = new _tests_\informational_test('server_os',array(PHP_OS,php_uname('r'),php_uname('m')));
 
         // required test for php version
-        $obj = new _tests_\version_range_test('php_version',phpversion());
-        $obj->minimum = '5.4.11';
-        $obj->recommended = '5.5.2';
-        $obj->fail_msg = \__appbase\lang('pass_php_version',$obj->minimum,$obj->recommended,phpversion());
-        $obj->warn_msg = \__appbase\lang('msg_yourvalue',phpversion());
-        $obj->pass_msg = \__appbase\lang('msg_yourvalue',phpversion());
-        $obj->required = true;
+        $v = phpversion();
+        $obj = new _tests_\version_range_test('php_version',$v);
+        $obj->minimum = '7.0';
+//        $obj->recommended = '7.0';
+//        if (version_compare($obj->minimum, $obj->recommended) < 0) {
+//            $obj->fail_msg = \__appbase\lang('pass_php_version2',$v,$obj->minimum,$obj->recommended);
+//        } else {
+            $obj->fail_msg = \__appbase\lang('pass_php_version',$v,$obj->minimum);
+//        }
+        $obj->warn_msg = \__appbase\lang('msg_yourvalue',$v);
+        $obj->pass_msg = \__appbase\lang('msg_yourvalue',$v);
+        $obj->required = 1;
         $tests[] = $obj;
 
-        // required test... check if most files are writable.
-        {
-            $dirs = array('modules','lib','plugins','admin','uploads','doc','scripts','install','tmp','assets');
-            $failed = array();
-            $list = glob($app->get_destdir().'/*');
-            foreach( $list as $one ) {
-                $basename = basename($one);
-                if( is_file($one) ) {
-                    $relative = substr($one,strlen($app->get_destdir())+1);
-                    if( !is_writable($one) ) $failed[] = $relative;
-                }
-                else if( in_array($basename,$dirs) ) {
-                    $b = \__appbase\utils::is_directory_writable($one,TRUE);
-                    if( !$b ) {
-                        $tmp = \__appbase\utils::get_writable_error();
-                        $failed = array_merge($failed,\__appbase\utils::get_writable_error());
-                    }
-                }
-            }
-        }
-
-        // required test... tmpfile
-        $fh = tmpfile();
-        $b = ($fh === FALSE)?FALSE:TRUE;
-        $obj = new _tests_\boolean_test('tmpfile',$b);
-        $obj->required = true;
-        if( !$b ) $obj->fail_msg = \__appbase\lang('fail_tmpfile');
+        // required test... database driver
+        $obj = new _tests_\matchany_test('database_support');
+        $obj->required = 1;
+        $t1 = new _tests_\boolean_test('mysqli',_tests_\test_extension_loaded('mysqli'));
+        $obj->add_child($t1);
+        $obj->fail_key = 'fail_database_support';
         $tests[] = $obj;
-        unset($fh);
-
-        // its an upgrade
-        if( $version_info ) {
-            // config file must be writable.
-            $obj = new _tests_\boolean_test('config_writable',is_writable($version_info['config_file']));
-            $obj->required = true;
-            $obj->fail_key = 'fail_config_writable';
-            $tests[] = $obj;
-
-            if( $action == 'upgrade' && version_compare($version_info['version'],'2.2') < 0 ) {
-                $dir = $app->get_destdir().'/assets';
-                if( is_dir($dir) ) {
-                    $obj = new _tests_\boolean_test('assets_dir_exists',FALSE);
-                    $obj->fail_key = 'fail_assets_dir';
-                    $obj->warn_key = 'fail_assets_dir';
-                    $obj->required = 0;
-                    $tests[] = $obj;
-                }
-            }
-        } else {
-            $dest = $app->get_destdir();
-            $config_file = $dest.'/config.php';
-            $obj = new _tests_\boolean_test('config_writable',!is_file($config_file) || is_writable($config_file));
-            $obj->required = true;
-            $obj->fail_key = 'fail_config_writable';
-            $tests[] = $obj;
-
-            $is_dir_empty = function($dir) {
-                $dir = trim($dir);
-                if( !$dir ) return FALSE;  // fail on invalid dir
-                if( !is_dir($dir) ) return TRUE; // pass on dir not existing yet
-                $files = glob($dir.'/*' );
-                if( !count($files) ) return TRUE; // no files yet.
-                if( count($files) > 1 ) return FALSE; // morre than one file
-                // trivial check for index.html
-                $bn = strtolower(basename($files[0]));
-                if( fnmatch('index.htm*',$bn) ) return TRUE;
-                return FALSE;
-            };
-            $res = true;
-            if( $res && !$is_dir_empty($dest.'/tmp/cache') ) $res = false;
-            if( $res && !$is_dir_empty($dest.'/tmp/templates_c') ) $res = false;
-
-            $obj = new _tests_\boolean_test('tmp_dirs_empty',$res);
-            $obj->required = true;
-            $obj->fail_key = 'fail_tmp_dirs_empty';
-            $tests[] = $obj;
-        }
 
         // required test... gd version 2
         $obj = new _tests_\version_range_test('gd_version',$this->_GDVersion());
@@ -117,6 +52,32 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->required = 1;
         $obj->fail_msg = \__appbase\lang('msg_yourvalue',$this->_GDVersion());
         $tests[] = $obj;
+
+        // required test... multibyte extensions
+        $obj = new _tests_\boolean_test('multibyte_support',_tests_\test_extension_loaded('mbstring') && function_exists('mb_get_info'));
+        $obj->required = 1;
+        $obj->fail_key = 'fail_multibyte_support';
+        $tests[] = $obj;
+
+        // xml extension
+        $obj = new _tests_\boolean_test('xml_functions',_tests_\test_extension_loaded('xml'));
+        $obj->required = 1;
+        $obj->fail_key = 'fail_xml_functions';
+        $tests[] = $obj;
+
+        // curl extension
+        $obj = new _tests_\boolean_test('curl_extension',_tests_\test_extension_loaded('curl'));
+        $obj->fail_key = 'fail_curl_extension';
+        $tests[] = $obj;
+
+        // required test... tmpfile
+        $fh = tmpfile();
+        $b = ($fh === FALSE)?FALSE:TRUE;
+        $obj = new _tests_\boolean_test('tmpfile',$b);
+        $obj->required = 1;
+        if( !$b ) $obj->fail_msg = \__appbase\lang('fail_tmpfile');
+        $tests[] = $obj;
+        unset($fh);
 
         // required test ... tempnam function
         $obj = new _tests_\boolean_test('func_tempnam',function_exists('tempnam'));
@@ -136,28 +97,6 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->fail_key = 'fail_func_ziparchive';
         $tests[] = $obj;
 
-        // required test...  magic_quotes_runtime
-        $obj = new _tests_\boolean_test('magic_quotes_runtime',!get_magic_quotes_runtime());
-        $obj->required = 1;
-        $obj->fail_key = 'fail_magic_quotes_runtime';
-        $tests[] = $obj;
-
-        // required test... multibyte extensions
-        $obj = new _tests_\boolean_test('multibyte_support',_tests_\test_extension_loaded('mbstring') && function_exists('mb_get_info'));
-        $obj->required = 1;
-        $obj->fail_key = 'fail_multibyte_support';
-        $tests[] = $obj;
-
-        // required test... at least one supported database driver.
-        $obj = new _tests_\matchany_test('database_support');
-        $obj->required = 1;
-        $t1 = new _tests_\boolean_test('mysql',_tests_\test_extension_loaded('mysql'));
-        $obj->add_child($t1);
-        $t1 = new _tests_\boolean_test('mysqli',_tests_\test_extension_loaded('mysqli'));
-        $obj->add_child($t1);
-        $obj->fail_key = 'fail_database_support';
-        $tests[] = $obj;
-
         // required test ... md5 function
         $obj = new _tests_\boolean_test('func_md5',function_exists('md5'));
         $obj->fail_key = 'fail_func_md5';
@@ -168,6 +107,18 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj = new _tests_\boolean_test('func_json',function_exists('json_decode'));
         $obj->fail_key = 'pass_func_json';
         $obj->required = 1;
+        $tests[] = $obj;
+
+        // file get contents
+        $obj = new _tests_\boolean_test('file_get_contents',function_exists('file_get_contents'));
+        $obj->required = 1;
+        $obj->fail_key = 'fail_file_get_contents';
+        $tests[] = $obj;
+
+        // required test...  magic_quotes_runtime
+        $obj = new _tests_\boolean_test('magic_quotes_runtime',!get_magic_quotes_runtime());
+        $obj->required = 1;
+        $obj->fail_key = 'fail_magic_quotes_runtime';
         $tests[] = $obj;
 
         // open basedir is recommended
@@ -222,16 +173,6 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->warn_key = 'edeprecated_enabled';
         $tests[] = $obj;
 
-        // required test ... MEMORY LIMIT
-        $obj = new _tests_\range_test('memory_limit',ini_get('memory_limit'));
-        $obj->minimum = '16M';
-        $obj->recommended = '32M';
-        $obj->pass_msg = ini_get('memory_limit');
-        $obj->fail_msg = \__appbase\lang('fail_memory_limit',ini_get('memory_limit'),$obj->minimum,$obj->recommended);
-        $obj->warn_msg = \__appbase\lang('warn_memory_limit',ini_get('memory_limit'),$obj->minimum,$obj->recommended);
-        $obj->required = 1;
-        $tests[] = $obj;
-
         // required test ... safe mode
         $obj = new _tests_\boolean_test('safe_mode',_tests_\test_is_false(ini_get('safe_mode')));
         $obj->required = 1;
@@ -252,10 +193,14 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->warn_msg = \__appbase\lang('warn_upload_max_filesize',ini_get('upload_max_filesize'),$obj->recommended);
         $tests[] = $obj;
 
-        // xml extension
-        $obj = new _tests_\boolean_test('xml_functions',_tests_\test_extension_loaded('xml'));
+        // required test ... MEMORY LIMIT
+        $obj = new _tests_\range_test('memory_limit',ini_get('memory_limit'));
+        $obj->minimum = '16M';
+        $obj->recommended = '32M';
+        $obj->pass_msg = ini_get('memory_limit');
+        $obj->fail_msg = \__appbase\lang('fail_memory_limit',ini_get('memory_limit'),$obj->minimum,$obj->recommended);
+        $obj->warn_msg = \__appbase\lang('warn_memory_limit',ini_get('memory_limit'),$obj->minimum,$obj->recommended);
         $obj->required = 1;
-        $obj->fail_key = 'fail_xml_functions';
         $tests[] = $obj;
 
         // recommended test ... max_execution_time
@@ -294,23 +239,6 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->warn_msg = \__appbase\lang('warn_disable_functions',str_replace(',',', ',ini_get('disable_functions')));
         $tests[] = $obj;
 
-        // recommended test... remote_url
-        $obj = new _tests_\boolean_test('remote_url',_tests_\test_remote_file('https://www.cmsmadesimple.org/latest_version.php',3,'cmsmadesimple'));
-        $obj->fail_key = 'fail_remote_url';
-        $obj->warn_key = 'fail_remote_url';
-        $tests[] = $obj;
-
-        // curl extension
-        $obj = new _tests_\boolean_test('curl_extension',_tests_\test_extension_loaded('curl'));
-        $obj->fail_key = 'fail_curl_extension';
-        $tests[] = $obj;
-
-        // file get contents.
-        $obj = new _tests_\boolean_test('file_get_contents',function_exists('file_get_contents'));
-        $obj->required = 1;
-        $obj->fail_key = 'fail_file_get_contents';
-        $tests[] = $obj;
-
         // test ini set
         {
             $val = (ini_get('log_errors_max_len')) ? ini_get('log_errors_max_len').'0':'99';
@@ -319,6 +247,81 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
             $obj->fail_key = 'fail_ini_set';
             $tests[] = $obj;
         }
+
+        // required test... check if most files are writable.
+        {
+            $dirs = array('modules','lib','plugins','admin','uploads','doc','scripts','install','tmp','assets');
+            $failed = array();
+            $list = glob($app->get_destdir().DIRECTORY_SEPRATOR.'*');
+            foreach( $list as $one ) {
+                $basename = basename($one);
+                if( is_file($one) ) {
+                    $relative = substr($one,strlen($app->get_destdir())+1);
+                    if( !is_writable($one) ) $failed[] = $relative;
+                }
+                else if( in_array($basename,$dirs) ) {
+                    $b = \__appbase\utils::is_directory_writable($one,TRUE);
+                    if( !$b ) {
+                        $tmp = \__appbase\utils::get_writable_error();
+                        $failed = array_merge($failed,\__appbase\utils::get_writable_error());
+                    }
+                }
+            }
+        }
+
+        // its an upgrade
+        if( $version_info ) {
+            // config file must be writable.
+            $obj = new _tests_\boolean_test('config_writable',is_writable($version_info['config_file']));
+            $obj->required = true;
+            $obj->fail_key = 'fail_config_writable';
+            $tests[] = $obj;
+
+            if( $action == 'upgrade' && version_compare($version_info['version'],'2.2') < 0 ) {
+                $dir = $app->get_destdir().DIRECTORY_SEPRATOR.'assets';
+                if( is_dir($dir) ) {
+                    $obj = new _tests_\boolean_test('assets_dir_exists',FALSE);
+                    $obj->fail_key = 'fail_assets_dir';
+                    $obj->warn_key = 'fail_assets_dir';
+                    $obj->required = 0;
+                    $tests[] = $obj;
+                }
+            }
+        } else {
+            $dest = $app->get_destdir();
+            $config_file = $dest.'/config.php';
+            $obj = new _tests_\boolean_test('config_writable',!is_file($config_file) || is_writable($config_file));
+            $obj->required = true;
+            $obj->fail_key = 'fail_config_writable';
+            $tests[] = $obj;
+
+            $is_dir_empty = function($dir) {
+                $dir = trim($dir);
+                if( !$dir ) return FALSE;  // fail on invalid dir
+                if( !is_dir($dir) ) return TRUE; // pass on dir not existing yet
+                $files = glob($dir.DIRECTORY_SEPRATOR.'*' );
+                if( !count($files) ) return TRUE; // no files yet.
+                if( count($files) > 1 ) return FALSE; // morre than one file
+                // trivial check for index.html
+                $bn = strtolower(basename($files[0]));
+                if( fnmatch('index.htm*',$bn) ) return TRUE;
+                return FALSE;
+            };
+            $res = true;
+            if( $res && !$is_dir_empty($dest.DIRECTORY_SEPRATOR.'tmp/cache') ) $res = false;
+            if( $res && !$is_dir_empty($dest.DIRECTORY_SEPRATOR.'tmp/templates_c') ) $res = false;
+
+            $obj = new _tests_\boolean_test('tmp_dirs_empty',$res);
+            $obj->required = true;
+            $obj->fail_key = 'fail_tmp_dirs_empty';
+            $tests[] = $obj;
+        }
+
+        // recommended test... remote_url
+        $obj = new _tests_\boolean_test('remote_url',_tests_\test_remote_file('https://www.cmsmadesimple.org/latest_version.php',3,'cmsmadesimple'));
+        $obj->fail_key = 'fail_remote_url';
+        $obj->warn_key = 'fail_remote_url';
+        $tests[] = $obj;
 
         //
         // now run the tests
@@ -366,7 +369,7 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $smarty->assign('verbose',$verbose);
         $smarty->assign('retry_url',$_SERVER['REQUEST_URI']);
         if( $verbose ) $smarty->assign('information',$informational);
-        if( count($tests) )	$smarty->assign('tests',$tests);
+        if( count($tests) ) $smarty->assign('tests',$tests);
         $url = $this->get_wizard()->next_url();
         $smarty->assign('next_url',$url);
 
