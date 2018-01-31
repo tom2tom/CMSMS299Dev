@@ -19,16 +19,11 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
                                'samplecontent'=>TRUE,
                                'query_var'=>'','timezone'=>$tz);
 
-        // get saved date
+        // get saved data
         $tmp = $this->get_wizard()->get_data('config');
         if( $tmp ) $this->_config = array_merge($this->_config,$tmp);
 
-        $databases = array('mysqli'=>'MySQLi (4.1+)');
-        $this->_dbms_options = array();
-        foreach ($databases as $db => $lbl) {
-            if( extension_loaded($db) ) $this->_dbms_options[$db] = $lbl;
-        }
-        if( !count($this->_dbms_options) ) throw new \Exception(\__appbase\lang('error_nodatabases'));
+        if( !extension_loaded('mysqli') ) throw new \Exception(\__appbase\lang('error_nodatabases'));
 
         $action = $this->get_wizard()->get_data('action');
         if( $action == 'freshen' || $action == 'upgrade' ) {
@@ -123,8 +118,7 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
 
     protected function process()
     {
-        $tmp = array_keys($this->_dbms_options);
-        $this->_config['dbtype'] = $tmp[0];
+		$this->_config['dbtype'] = 'mysqli';
         $this->_config['dbhost'] = trim(\__appbase\utils::clean_string($_POST['dbhost']));
         $this->_config['dbname'] = trim(\__appbase\utils::clean_string($_POST['dbname']));
         $this->_config['dbuser'] = trim(\__appbase\utils::clean_string($_POST['dbuser']));
