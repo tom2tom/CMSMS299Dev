@@ -2,9 +2,9 @@
 
 namespace __appbase;
 
-require_once(__DIR__.'/compat.functions.php');
-require_once(__DIR__.'/misc.functions.php');
-require_once(dirname(__DIR__).'/accessor.functions.php');
+require_once __DIR__.DIRECTORY_SEPARATOR.'compat.functions.php';
+require_once __DIR__.DIRECTORY_SEPARATOR'misc.functions.php';
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'accessor.functions.php';
 
 abstract class app
 {
@@ -23,25 +23,25 @@ abstract class app
 
         if( $filename ) {
             $this->_appdir = dirname($filename);
-            $config_file = $this->_appdir.'/config.ini';
+            $config_file = $this->_appdir.DIRECTORY_SEPARATOR.'config.ini';
             if( file_exists($config_file) ) $this->_config = parse_ini_file($config_file);
         }
     }
 
     public static function &get_instance()
     {
-        if( !is_object(self::$_instance) )	throw new \Exception('There is no registered app instance');
+        if( !is_object(self::$_instance) ) throw new \Exception('There is no registered app instance');
         return self::$_instance;
     }
 
     public function get_name()
     {
-        return get_class();
+        return __CLASS__;
     }
 
     public function get_tmpdir()
     {
-        // not modifyiable, ye
+        // not modifiable, yet
         return \__appbase\utils::get_sys_tmpdir();
     }
 
@@ -98,7 +98,7 @@ abstract class app
         foreach( $dirs as $dir ) {
             $fn = "$dir/$dirsuffix/class.$classname.php";
             if( file_exists($fn) ) {
-                include_once($fn);
+                include_once $fn;
                 return;
             }
         }
