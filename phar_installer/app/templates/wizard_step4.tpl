@@ -12,21 +12,9 @@
 {wizard_form_start}
 
     <h3>{'prompt_dbinfo'|tr}</h3>
-    <p>{'info_dbinfo'|tr}</p>
+    <p class="info">{'info_dbinfo'|tr}</p>
 
     <fieldset>
-        {if $verbose}
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'prompt_dbtype'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <select class="form-field" name="dbtype">
-                    {html_options options=$dbtypes selected=$config.dbtype}
-                </select>
-            </div>
-        </div>
-        {/if}
         <div class="row form-row">
             <div class="four-col">
                 <label>{'prompt_dbhost'|tr}</label>
@@ -92,7 +80,7 @@
     </fieldset>
 
     <h3>{'prompt_timezone'|tr}</h3>
-    <p>{'info_timezone'|tr}</p>
+    <p class="info">{'info_timezone'|tr}</p>
 
     <div class="row form-row">
         <label class="visuallyhidden">{'prompt_timezone'|tr}</label>
@@ -117,7 +105,7 @@
 
     {if $verbose and $action == 'install'}
     <h3>{'prompt_installcontent'|tr}</h3>
-    <p>{'info_installcontent'|tr}</p>
+    <p class="info">{'info_installcontent'|tr}</p>
 
     <div class="row form-row">
         <label>{'prompt_installcontent'|tr}</label>
