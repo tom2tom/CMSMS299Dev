@@ -12,8 +12,7 @@ class wizard_step7 extends \cms_autoinstaller\wizard_step
 
     private function _createIndexHTML($filename)
     {
-        $str = '<!-- DUMMY HTML FILE -->';
-        file_put_contents($filename,$str);
+        touch($filename);
     }
 
     private function detect_languages()
