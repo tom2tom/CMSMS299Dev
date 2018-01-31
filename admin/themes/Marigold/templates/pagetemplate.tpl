@@ -7,7 +7,7 @@
 		<meta charset="utf-8" />
 		<title>{$thetitle}{sitename}</title>
 		<base href="{$config.admin_url}/" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-14 Ted Kulp. All rights reserved." />
+		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 Ted Kulp. All rights reserved." />
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="referrer" content="origin"/>
 		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
