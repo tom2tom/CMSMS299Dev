@@ -10,58 +10,55 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
     $uid = get_userid();
 }
 
-
-$db_prefix = CMS_DB_PREFIX;
 $dict = NewDataDictionary($db);
-$flds= "
-		id I KEY,
-		module_name C(100),
-		content_id I,
-		extra_attr C(100),
-		expires " . CMS_ADODB_DT;
-
 $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+
+$flds= '
+id I KEY,
+module_name C(100),
+content_id I,
+extra_attr C(100),
+expires DT
+';
+
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-$db->CreateSequence(CMS_DB_PREFIX."module_search_items_seq");
+$db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
 
-$sqlarray = $dict->CreateIndexSQL('module_name', $db_prefix."module_search_items", 'module_name');
+$sqlarray = $dict->CreateIndexSQL('module_name', CMS_DB_PREFIX.'module_search_items', 'module_name');
 $dict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dict->CreateIndexSQL('content_id', $db_prefix."module_search_items", 'content_id');
+$sqlarray = $dict->CreateIndexSQL('content_id', CMS_DB_PREFIX.'module_search_items', 'content_id');
 $dict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dict->CreateIndexSQL('extra_attr', $db_prefix."module_search_items", 'extra_attr');
+$sqlarray = $dict->CreateIndexSQL('extra_attr', CMS_DB_PREFIX.'module_search_items', 'extra_attr');
 $dict->ExecuteSQLArray($sqlarray);
 
-$flds= "
-		item_id I,
-		word C(255),
-		count I
-	";
-$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$flds = '
+item_id I,
+word C(255),
+count I
+';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_count', $db_prefix."module_search_index", 'count');
+$sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_count', CMS_DB_PREFIX.'module_search_index', 'count');
 $dict->ExecuteSQLArray($sqlarray);
 
-$flds = "word C(255) KEY,
-         count       I
-        ";
-$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$flds = '
+word C(255) KEY,
+count I
+';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-# Indexes
+# Indices
 $sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_items',
-				   CMS_DB_PREFIX.'module_search_items',
-				   'module_name,content_id');
+			CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_index',
-				   CMS_DB_PREFIX.'module_search_index',
-				   'word');
+			CMS_DB_PREFIX.'module_search_index', 'word');
 $dict->ExecuteSQLArray($sqlarray);
 
 $this->SetPreference('stopwords', $this->DefaultStopWords());
@@ -88,7 +85,7 @@ try {
 
     // Setup Simplex Theme search form template
     try {
-        $fn = dirname(__FILE__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
+        $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
         if( file_exists( $fn ) ) {
             $template = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
@@ -99,9 +96,8 @@ try {
             $tpl->add_design('Simplex');
             $tpl->save();
         }
-    }
-    catch( Exception $e ) {
-        audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+    } catch( Exception $e ) {
+        audit('', $this->GetName(), 'Installation Error: '.$e->GetMessage());
     }
 
     $searchresults_type = new CmsLayoutTemplateType();
@@ -120,8 +116,7 @@ try {
     $tpl->set_type($searchresults_type);
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
-}
-catch( CmsException $e ) {
+} catch( CmsException $e ) {
     audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
 }
 
