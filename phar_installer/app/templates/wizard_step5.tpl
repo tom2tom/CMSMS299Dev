@@ -27,21 +27,6 @@
         </div>
         <div class="row form-row">
             <div class="four-col">
-                <label>{'emailaddr'|tr}</label>
-            </div>
-            <div class="eight-col">
-            {if $verbose}
-                <input class="form-field full-width" type="email" name="emailaddr" />
-            {else}
-                <input class="form-field required full-width" type="email" name="emailaddr" required="required" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-	    {/if}
-            </div>
-        </div>
-        <div class="row form-row">
-            <div class="four-col">
                 <label>{'password'|tr}</label>
             </div>
             <div class="eight-col">
@@ -60,6 +45,21 @@
                 <div class="corner red">
                     <i class="icon-asterisk"></i>
                 </div>
+            </div>
+        </div>
+        <div class="row form-row">
+            <div class="four-col">
+                <label>{'emailaddr'|tr}</label>
+            </div>
+            <div class="eight-col">
+            {if $verbose}
+                <input class="form-field full-width" type="email" name="emailaddr" />
+            {else}
+                <input class="form-field required full-width" type="email" name="emailaddr" required="required" />
+                <div class="corner red">
+                    <i class="icon-asterisk"></i>
+                </div>
+	        {/if}
             </div>
         </div>
         {if $verbose}
