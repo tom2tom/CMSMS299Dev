@@ -551,7 +551,7 @@ abstract class CMSModule
      * @param bool A flag indicating whether keys should be treated as strings and cleaned.
      * @return array
      */
-    private function _cleanParamHash(string $modulename, array $data, bool $map = false, bool $allow_unknown = false, bool $clean_keys = true) : array
+    private function _cleanParamHash(string $modulename, array $data, array $map, bool $allow_unknown = false, bool $clean_keys = true) : array
     {
         $mappedcount = 0;
         $result = [];
@@ -1422,9 +1422,9 @@ abstract class CMSModule
      * @param array  $params The action params
      * @param mixed  $returnid The current page id. int or ''for admin requests.
      * @param Smarty_Internal_Template &$parent The currrent smarty template object.
-     * @return string The action output.
+     * @return mixed The action output, normally a string but maybe null.
      */
-    final public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$parent ) : string
+    final public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$parent )
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
         if( $returnid !== '' ) {
@@ -1486,7 +1486,7 @@ abstract class CMSModule
 
         if( isset($params['assign']) ) {
             $smarty->assign(cms_htmlentities($params['assign']),$output);
-            return '';
+            return;
         }
         return $output;
     }
@@ -2494,10 +2494,10 @@ abstract class CMSModule
      * Returns a formatted page status message
      *
      * @final
-     * @param string $message Message to be shown
+     * @param string|string[] $message Message(s) to be shown
      * @return string
      */
-    final public function ShowMessage(string $message)
+    final public function ShowMessage($message)
     {
         $theme = cms_utils::get_theme_object();
         if( is_object($theme) ) return $theme->ShowMessage($message);
