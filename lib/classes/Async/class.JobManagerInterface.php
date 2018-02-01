@@ -18,5 +18,5 @@ interface JobManagerInterface
 
 	public function unload_job(Job &$job);
 
-	public function trigger_async_processing($deep=FALSE);
+	public function trigger_async_processing();
 }
