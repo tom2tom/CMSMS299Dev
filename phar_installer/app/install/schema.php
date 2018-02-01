@@ -89,7 +89,7 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
 
     $dbdict = NewDataDictionary($db);
     $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
-    //	$innotaboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+    //  $innotaboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
 
     $flds = '
 additional_users_id I KEY,
@@ -126,29 +126,29 @@ url C(255)
 content_id I KEY,
 content_name C(255),
 type C(25),
+default_content I(1) DEFAULT 0,
+show_in_menu I(1) DEFAULT 1,
+active I(1) DEFAULT 1,
+cachable I(1) DEFAULT 1,
+secure I(1) DEFAULT 0,
 owner_id I,
 parent_id I,
 template_id I,
 item_order I,
 hierarchy C(255),
-default_content I1,
 menu_text C(255),
 content_alias C(255),
-show_in_menu I1,
-active I1,
-cachable I1,
 id_hierarchy C(255),
 hierarchy_path X,
 prop_names X,
 metadata X,
 titleattribute C(255),
+page_url C(255),
 tabindex C(10),
 accesskey C(5),
 last_modified_by I,
 create_date DT,
-modified_date DT,
-secure I1,
-page_url C(255)
+modified_date DT
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'content', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -309,7 +309,7 @@ modified_date DT
 group_id I KEY,
 group_name C(25),
 group_desc C(255),
-active I1,
+active I(1) DEFAULT 1,
 create_date DT,
 modified_date DT
 ';
@@ -322,24 +322,16 @@ modified_date DT
 module_name C(160) KEY,
 status C(255),
 version C(255),
-admin_only I1 DEFAULT 0,
-active I1,
-allow_fe_lazyload I1,
-allow_admin_lazyload I1
+admin_only I(1) DEFAULT 0,
+active I(1) DEFAULT 1,
+allow_fe_lazyload I(1) DEFAULT 1,
+allow_admin_lazyload I(1) DEFAULT 0
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'modules', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_created_table', 'modules', $msg_ret));
-
-    $sqlarray = $dbdict->CreateIndexSQL(
-        CMS_DB_PREFIX.'idx_modules_by_name',
-        CMS_DB_PREFIX.'modules',
-        'module_name'
-    );
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
-    verbose_msg(ilang('install_creating_index', 'idx_modules_by_name', $msg_ret));
+//deleted here: a duplicate index on the module_name field
 
     $flds = '
 parent_module C(25),
@@ -436,11 +428,11 @@ type C(25)
 user_id I KEY,
 username C(80),
 password C(128),
-admin_access I1,
 first_name C(50),
 last_name C(50),
 email C(255),
-active I1,
+admin_access I(1) DEFAULT 1,
+active I(1) DEFAULT 1,
 create_date DT,
 modified_date DT
 ';
@@ -462,13 +454,13 @@ version I
     verbose_msg(ilang('install_created_table', 'version', $msg_ret));
 
     $flds = '
-sig  C(80) KEY NOTNULL,
+sig C(80) KEY NOTNULL,
 name C(80) NOTNULL,
 module C(160) NOTNULL,
 type C(40) NOTNULL,
 callback C(255) NOTNULL,
 available I,
-cachable I1
+cachable I(1) DEFAULT 0
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'module_smarty_plugins', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -502,14 +494,14 @@ created DT
 id I KEY AUTO,
 originator C(50) NOTNULL,
 name C(100) NOTNULL,
-has_dflt I1,
 dflt_contents X2,
 description X,
-lang_cb	C(255),
+lang_cb C(255),
 dflt_content_cb C(255),
-requires_contentblocks I1,
 help_content_cb C(255),
-one_only I1,
+has_dflt I(1) DEFAULT 0,
+requires_contentblocks I(1),
+one_only I(1),
 owner I,
 created I,
 modified I
@@ -564,10 +556,10 @@ name C(100) NOTNULL,
 content X2,
 description X,
 type_id I NOTNULL,
-type_dflt I1,
 category_id I,
 owner_id I NOTNULL,
-listable I1 DEFAULT 1,
+type_dflt I(1) DEFAULT 0,
+listable I(1) DEFAULT 1,
 created I,
 modified I
 ';
@@ -644,7 +636,7 @@ user_id I KEY
 id I KEY AUTO,
 name C(100) NOTNULL,
 description X,
-dflt I1,
+dflt I(1) DEFAULT 0,
 created I,
 modified I
 ';
@@ -706,12 +698,12 @@ item_order I NOTNULL
     $flds = '
 id I AUTO KEY NOTNULL,
 type C(20) NOTNULL,
-oid  I NOTNULL,
-uid  I NOTNULL,
+oid I NOTNULL,
+uid I NOTNULL,
 created I NOTNULL,
 modified I NOTNULL,
 lifetime I NOTNULL,
-expires  I NOTNULL
+expires I NOTNULL
 ';
     $sqlarray = $dbdict->CreateTableSQL(
         CMS_DB_PREFIX.CmsLock::LOCK_TABLE,
