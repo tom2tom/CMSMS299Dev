@@ -41,7 +41,7 @@ else if (isset($params['submit'])) {
     if ($newval != $curval) {
         $this->SetPreference('usestemming', $newval);
         $this->Reindex();
-        echo $this->ShowMessage('reindexcomplete');
+        echo $this->ShowMessage($this->Lang('reindexcomplete'));
     }
 
     $newval = 'false';
