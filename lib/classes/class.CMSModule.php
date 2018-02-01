@@ -1486,7 +1486,7 @@ abstract class CMSModule
 
         if( isset($params['assign']) ) {
             $smarty->assign(cms_htmlentities($params['assign']),$output);
-            return;
+            return '';
         }
         return $output;
     }
@@ -2267,7 +2267,7 @@ abstract class CMSModule
      */
     final public function ProcessTemplate(string $tpl_name, string $designation = null, bool $cache = false, string $cacheid = '') : string
     {
-        if( strpos($tpl_name, '..') !== false ) return;
+        if( strpos($tpl_name, '..') !== false ) return '';
         $template = $this->_action_tpl;
         if( !$template ) $template = \CmsApp::get_instance()->GetSmarty();
         return $template->fetch('module_file_tpl:'.$this->GetName().';'.$tpl_name );
