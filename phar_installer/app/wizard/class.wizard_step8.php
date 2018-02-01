@@ -105,8 +105,8 @@ class wizard_step8 extends \cms_autoinstaller\wizard_step
 
             // create tmp directories
             $this->verbose(\__appbase\lang('install_createtmpdirs'));
-            @mkdir($destdir.'/tmp/cache',0777,TRUE);
-            @mkdir($destdir.'/tmp/templates_c',0777,TRUE);
+            @mkdir($destdir.'/tmp/cache',0771,TRUE);
+            @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
 
             include_once($dir.'/base.php');
 
