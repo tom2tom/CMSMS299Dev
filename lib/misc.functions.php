@@ -236,6 +236,8 @@ function cms_htmlentities(string $val, int $param = 0, string $charset = 'UTF-8'
         return '';
     }
 
+    global $deflang, $defenc;
+
     if ($param === 0) {
         $param = ($convert_single_quotes) ? ENT_QUOTES : ENT_COMPAT;
     }
@@ -274,6 +276,8 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
     if ($val === '') {
         return '';
     }
+
+    global $deflang, $defenc;
 
     if ($param === 0) {
         $param = ENT_QUOTES;
