@@ -51,7 +51,7 @@ class CmsFormUtils
 //    protected function __construct() {}
 
     /**
-     * Migrate $addtext to members of $converted
+     * Migrate content of string $addtext to members of $converted
      * @ignore
      * @since 2.3
      * @param string $addtext tag attributes, may be empty
@@ -289,12 +289,13 @@ class CmsFormUtils
      * Check and update tag-properties.
      * @ignore
      * @since 2.3
-     * @param array  $parms tag parameters/attributes. Must include 'name'
-     * @param array  $alts optional extra renames for keys in #parms, each member like 'oldname'=>'newname'
+     * @param array  $parms tag parameters/attributes. Must include 'name', unless $withname = false
+     * @param bool   $withname optional flag whether a 'name' parameter is required. Default true
+     * @param array  $alts optional extra renames for keys in $parms, each member like 'oldname'=>'newname'
      *
      * @return mixed Error-message string, or false if no error
      */
-    protected static function clean_attrs(array &$parms, array $alts = [])
+    protected static function clean_attrs(array &$parms, bool $withname = true, array $alts = [])
     {
         //aliases
         $alts += ['classname'=>'class'];
@@ -307,6 +308,12 @@ class CmsFormUtils
 
         extract($parms, EXTR_SKIP);
 
+        if (empty($name)) {
+            if ($withname) {
+                return sprintf(self::ERRTPL, 'name', '%s');
+            }
+            $name = 'anon'; //TODO sensible fallback for id (never used as 'name' by caller)
+        }
         //identifiers
         if (!empty($htmlid)) {
             $tmp = $htmlid;
@@ -328,7 +335,7 @@ class CmsFormUtils
         } else {
             $modid = 'm1_';
             $tmp = $modid.$name;
-		}
+        }
         unset($parms['htmlid']);
 
         $parms['modid'] = \sanitize($modid);
@@ -372,22 +379,23 @@ class CmsFormUtils
     }
 
     /**
-     * Generate output representing members of $parms that are not in $excludes
+     * Generate output representing scalar members of $parms that are not in $excludes
+     * $parms key(s) may be numeric, in which case only the value is used.
+     * $parms with array-value are automatically ignored.
+     * There is no 'sanitization' of URL keys or values.
      * @ignore
      * @since 2.3
      * @param array $parms tag parameters/attributes
-     * @param array $excludes $parms key(s) which must be ignored
+     * @param array $excludes $parms key(s) to be skipped
      * @return string
      */
     protected static function join_attrs(array &$parms, array $excludes) : string
     {
         $out = '';
         foreach ($parms as $key=>$val) {
-            if (!in_array($key, $excludes)) {
+            if (!(is_array($val) || in_array($key, $excludes))) {
                 if (!is_numeric($key)) {
-	                if (!is_array($val)) {
-	                    $out .= ' '.$key.'='.'"'.$val.'"';
-					}
+                    $out .= ' '.$key.'='.'"'.$val.'"';
                 } else {
                     $out .= ' '.$val;
                 }
@@ -521,7 +529,7 @@ class CmsFormUtils
         $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
         if (!$err) {
             //common checks
-            $err = self::clean_attrs($parms, ['items'=>'options']);
+            $err = self::clean_attrs($parms, true, ['items'=>'options']);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
@@ -553,7 +561,6 @@ class CmsFormUtils
 
                 $each = '<input' . self::join_attrs($parms, [
                  'id',
-                 'options',
                  'selectedvalue',
                  'delimiter',
                 ]);
@@ -606,7 +613,6 @@ class CmsFormUtils
 
                 $out = '<select' . self::join_attrs($parms, [
                  'type',
-                 'options',
                  'selectedindex',
                  'selectedvalue',
                 ]);
@@ -645,7 +651,7 @@ class CmsFormUtils
             $err = self::must_attrs($parms, ['type'=>'c', 'name'=>'c']);
             if (!$err) {
                 //common checks
-                $err = self::clean_attrs($parms, ['text'=>'value', 'contents'=>'value']);
+                $err = self::clean_attrs($parms, true, ['text'=>'value', 'contents'=>'value']);
             }
             if ($err) {
                 $tmp = sprintf($err, __METHOD__);
@@ -657,7 +663,7 @@ class CmsFormUtils
             //custom checks
             $value = $parms['value'] ?? '';
             //TODO tailoring for lots of html5 types
-            $parms['value'] = ($value && $type == 'text') ? \entitize($value) : $value;
+            $parms['value'] = ($value && $type == 'text') ? \cms_htmlentities($value) : $value;
 
             $out = '<input';
             $out .= self::join_attrs($parms, ['modid']);
@@ -753,7 +759,7 @@ class CmsFormUtils
         $err = self::must_attrs($parms, ['name'=>'c']);
         if (!$err) {
             //common checks
-            $err = self::clean_attrs($parms, [
+            $err = self::clean_attrs($parms, true, [
              'height'=>'rows',
              'width'=>'cols',
              'text'=>'value',
@@ -770,21 +776,23 @@ class CmsFormUtils
 
         extract($parms);
 
+        // do we want a wysiwyg area ?
+        $enablewysiwyg = !empty($enablewysiwyg) && \cms_to_bool($enablewysiwyg);
+
         if (empty($cols) || $cols <= 0) {
-            $parms['cols'] = 20;
+            $parms['cols'] = ($enablewysiwyg) ? 80 : 20;
         }
         if (empty($rows) || $rows <= 0) {
-            $parms['rows'] = 5;
+            $parms['rows'] = ($enablewysiwyg) ? 15 : 5;
         }
         if (!empty($maxlength) && $maxlength <= 0) {
             unset($parms['maxlength']);
         }
 
         $value = $value ?? '';
-
+        $forcemodule = $forcemodule ?? '';
         $module = null;
-        // do we want a wysiwyg area ?
-        $enablewysiwyg = !empty($enablewysiwyg) && \cms_to_bool($enablewysiwyg);
+
         if ($enablewysiwyg) {
             // we want a wysiwyg
             if (empty($parms['class'])) {
@@ -794,7 +802,8 @@ class CmsFormUtils
             }
             $module = \ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
             if ($module && $module->HasCapability(\CmsCoreCapabilities::WYSIWYG_MODULE)) {
-                $parms['data-cms-lang'] = 'html'; //park badly-named variable TODO config['?']
+                // TODO use $config['content_language']
+                $parms['data-cms-lang'] = 'html'; //park badly-named variable
                 $module_name = $module->GetName();
                 $parms['class'] .= ' '.$module_name;  //not for CSS ?!
                 if (empty($cssname)) {
@@ -820,11 +829,10 @@ class CmsFormUtils
         }
 
         if ($value && $enablewysiwyg && !$wantedsyntax) {
-//           if( empty($encoding) ) $encoding = CmsNlsOperations::get_encoding();
             if (!isset($encoding)) {
-                $encoding = '';
-            } //use the system-default
-            $value = cms_htmlentities($value, ENT_NOQUOTES, $encoding); //TODO syntax flag
+                $encoding = ''; //use the system-default
+            }
+            $value = cms_htmlentities($value, ENT_NOQUOTES, $encoding);
         }
 
         $out = '<textarea';
@@ -890,7 +898,9 @@ class CmsFormUtils
         static $_formcount = 1;
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['action'=>'c']);
-        //no clean_attrs(), cuz no 'name' parm
+        if (!$err) {
+            $err = self::clean_attrs($parms, false);
+        }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
@@ -898,28 +908,6 @@ class CmsFormUtils
         }
 
         extract($parms);
-
-        if (!empty($htmlid)) {
-//            $tmp = $htmlid;
-            if (empty($modid)) {
-                if (!empty($id)) {
-                    $modid = $id;
-                } else {
-                    $tmp = sprintf(self::ERRTPL, 'id', __METHOD__);
-                    assert(!$id, $tmp);
-                    return '<!-- ERROR: '.$tmp.' -->';
-                }
-            }
-        } elseif (!empty($modid)) {
-//            $tmp = $modid.$TODO;
-        } elseif (!empty($id)) {
-            $modid = $id;
-//            $tmp = $id.$TODO;
-        } else {
-            $tmp = sprintf(self::ERRTPL, 'id', __METHOD__);
-            assert(!$id, $tmp);
-            return '<!-- ERROR: '.$tmp.' -->';
-        }
 
         $idsuffix = (!empty($idsuffix)) ? \sanitize($idsuffix) : '';
         if ($idsuffix === '') {
@@ -953,9 +941,7 @@ class CmsFormUtils
          'returnid',
          'action',
          'method',
-         'params',
          'inline',
-		 'attrs',
         ]);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
@@ -1006,7 +992,7 @@ class CmsFormUtils
     {
         // no 'name', no compulsory
         extract($parms);
-//<fieldset  +cms_fieldset $attrs > \n
+
         if (isset($classname)) {
             $parms['class'] = $parms['classname'];
             unset($parms['classname']);
@@ -1017,9 +1003,9 @@ class CmsFormUtils
         $out .= '>'."\n";
         if (!empty($legend) || (isset($legend) && is_numeric($legend))) {
             $out .= '<legend';
-//<legend  +cms_legend $other-attrs> text </legend> \n
-            $out .= '>'.\entitize($legend);
-            $out .= '</legend>'."\n";
+            //$out .= self::join_attrs($TODO);
+            $contents = \cms_htmlentities($legend);
+            $out .= '>'.$contents.'</legend>'."\n";
         }
         return $out;
     }
@@ -1055,19 +1041,16 @@ class CmsFormUtils
      */
     public static function create_action_link(&$mod, array $parms) : string
     {
-/* TODO no name etc for this one
-        $err = self::clean_attrs($parms);
+        //must have these $parms, each with a usable value
+        $err = self::must_attrs($parms, ['action'=>'c']);
         if (!$err) {
-            //must have these $parms, each with a usable value
-            $err = self::must_attrs($parms, ['action'=>'c', 'modid'=>'c']);
+            $err = self::clean_attrs($parms, false);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
             return '<!-- ERROR: '.$tmp.' -->';
         }
-*/
-		$modid = $parms['id']; //hack until above is fixed
 
         extract($parms);
 
@@ -1090,8 +1073,16 @@ class CmsFormUtils
         if (!$onlyhref) {
             $out = '<a href="' . $out . '"';
             $out .= self::join_attrs($parms, [
-            'modid', 'action', 'returnid', 'params', 'inline', 'targetcontentonly', 'prettyurl',
-            'warn_message', 'contents', 'onlyhref']);
+            'modid',
+            'action',
+            'returnid',
+            'inline',
+            'targetcontentonly',
+            'prettyurl',
+            'warn_message',
+            'contents',
+            'onlyhref',
+            ]);
             if ($warn_message) {
                 $out .= ' onclick="return confirm(\''.$warn_message.'\');"';
             }
@@ -1121,7 +1112,8 @@ class CmsFormUtils
      */
     public static function create_return_link(&$mod, array $parms) : string
     {
-        $err = self::clean_attrs($parms);
+        //TODO any must-have's here ?
+        $err = self::clean_attrs($parms, false);
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
             assert(!$err, $tmp);
@@ -1149,7 +1141,6 @@ class CmsFormUtils
                  'modid',
                  'returnid',
                  'contents',
-                 'params',
                  'onlyhref',
                 ]);
                 $contents = \cms_htmlentities($contents);
@@ -1176,7 +1167,7 @@ class CmsFormUtils
         //must have these $parms, each with a usable value
         $err = self::must_attrs($parms, ['pageid'=>'i']);
         if (!$err) {
-            $err = self::clean_attrs($parms);
+            $err = self::clean_attrs($parms, false);
         }
         if ($err) {
             $tmp = sprintf($err, __METHOD__);
