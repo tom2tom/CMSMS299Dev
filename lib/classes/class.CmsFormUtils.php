@@ -320,11 +320,15 @@ class CmsFormUtils
         } elseif (!empty($modid)) {
             $tmp = $modid.$name;
         } elseif (!empty($id)) {
-            $tmp = $id.$name;
             $modid = $id;
+            $tmp = $id.$name;
+        } elseif (CmsApp::get_instance()->is_frontend_request()) {
+            $modid = 'cntnt01';
+            $tmp = $modid.$name;
         } else {
-            return sprintf(self::ERRTPL, 'id', '%s');
-        }
+            $modid = 'm1_';
+            $tmp = $modid.$name;
+		}
         unset($parms['htmlid']);
 
         $parms['modid'] = \sanitize($modid);
