@@ -70,7 +70,7 @@ if ($modinst) {
 
 	cms_siteprefs::setup();
 	Events::setup();
-	CMSMS\AuditManager::init();
+	CMSMS\CmsAuditManager::init();
 
 	if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
 		$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
