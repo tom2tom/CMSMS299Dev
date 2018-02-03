@@ -252,7 +252,7 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         {
             $dirs = array('modules','lib','plugins','admin','uploads','doc','scripts','install','tmp','assets');
             $failed = array();
-            $list = glob($app->get_destdir().DIRECTORY_SEPRATOR.'*');
+            $list = glob($app->get_destdir().DIRECTORY_SEPARATOR.'*');
             foreach( $list as $one ) {
                 $basename = basename($one);
                 if( is_file($one) ) {
@@ -278,7 +278,7 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
             $tests[] = $obj;
 
             if( $action == 'upgrade' && version_compare($version_info['version'],'2.2') < 0 ) {
-                $dir = $app->get_destdir().DIRECTORY_SEPRATOR.'assets';
+                $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
                 if( is_dir($dir) ) {
                     $obj = new _tests_\boolean_test('assets_dir_exists',FALSE);
                     $obj->fail_key = 'fail_assets_dir';
@@ -299,7 +299,7 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
                 $dir = trim($dir);
                 if( !$dir ) return FALSE;  // fail on invalid dir
                 if( !is_dir($dir) ) return TRUE; // pass on dir not existing yet
-                $files = glob($dir.DIRECTORY_SEPRATOR.'*' );
+                $files = glob($dir.DIRECTORY_SEPARATOR.'*' );
                 if( !count($files) ) return TRUE; // no files yet.
                 if( count($files) > 1 ) return FALSE; // morre than one file
                 // trivial check for index.html
@@ -308,8 +308,8 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
                 return FALSE;
             };
             $res = true;
-            if( $res && !$is_dir_empty($dest.DIRECTORY_SEPRATOR.'tmp/cache') ) $res = false;
-            if( $res && !$is_dir_empty($dest.DIRECTORY_SEPRATOR.'tmp/templates_c') ) $res = false;
+            if( $res && !$is_dir_empty($dest.DIRECTORY_SEPARATOR.'tmp/cache') ) $res = false;
+            if( $res && !$is_dir_empty($dest.DIRECTORY_SEPARATOR.'tmp/templates_c') ) $res = false;
 
             $obj = new _tests_\boolean_test('tmp_dirs_empty',$res);
             $obj->required = true;
