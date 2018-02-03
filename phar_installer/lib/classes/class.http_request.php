@@ -755,7 +755,7 @@ class http_request
 	    $queryString = http_build_query($this->params,'','&');
         }
 
-        // If cURL is not installed, we'll force fscokopen
+        // If cURL is not installed, we'll force fsockopen
 	$this->useCurl = $this->useCurl && $this->_isCurlSuitable();
 
         // GET method configuration
