@@ -1,7 +1,7 @@
 <?php
 #autoloader for CMS Made Simple <http://www.cmsmadesimple.org>
 #(c)2004-2010 by Ted Kulp (wishy@users.sf.net)
-#(c)2010-2018 The CMSMS Dev Team <@#cmsmadesimple.org> 
+#(c)2010-2018 The CMSMS Dev Team <@#cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -34,8 +34,9 @@
 function cms_autoloader(string $classname)
 {
 	$root = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
+
 	// standard content types (prioritized)
-	$fp = $root.'contenttypes'.DIRECTORY_SEPARATOR.$classname.'.inc.php';
+	$fp = $root.'contenttypes'.DIRECTORY_SEPARATOR.'class.'.$classname.'.php';
 	if (is_file($fp)) {
 		require_once $fp;
 		return;
@@ -122,15 +123,7 @@ function cms_autoloader(string $classname)
 	}
 
 	// standard internal classes - all are spaced
-
-	// lowercase classes
-	$lowercase = strtolower($classname);
-	$fp = $root.'class.'.$lowercase.'.inc.php';
-	if (is_file($fp)) {
-		require_once $fp;
-		return;
-	}
-
+	// lowercase classes - all are renamed
 	// lowercase internal classes - all are spaced
 
 	// standard interfaces
@@ -183,5 +176,80 @@ function cms_autoloader(string $classname)
 	}
 }
 
+/*
+/ *
+@ since 2.3 spaced and/or renamed 'core' CMSMS classes
+@ deprecated, remove this in a decade or so ...
+* /
+function cms_deprecated_autoloader(string $classname)
+{
+	static $class_replaces = null;
+
+	if ($class_replaces == null) {
+		$class_replaces = [
+		'cms_admin_tabs' => '\CMSMS\CmsAdminTabs',
+		'cms_admin_utils' => '\CMSMS\CmsAdminUtils2',
+		'cms_cache_driver' => '\CMSMS\CmsCacheDriver',
+		'cms_cache_handler' => '\CMSMS\CmsCacheHandler',
+		'cms_config' => '\CMSMS\CmsConfig',
+		'cms_content_tree' => '\CMSMS\CmsContentTree',
+		'cms_cookies' => '\CMSMS\CmsCookies',
+		'cms_filecache_driver' => '\CMSMS\CmsFilecacheDriver',
+		'cms_http_request' => '\CMSMS\CmsHttpRequest',
+		'cms_mailer' => '\CMSMS\CmsMailer',
+		'cms_module_smarty_plugin_manager' => '\CMSMS\CmsModulePluginManager',
+		'cms_route_manager' => '\CMSMS\CmsRouteManager',
+		'cms_siteprefs' => '\CMSMS\CmsSiteprefs',
+		'cms_tree' => '\CMSMS\CmsTree',
+		'cms_tree_operations' => '\CMSMS\CmsTreeOperations',
+		'cms_url' => '\CMSMS\CmsUrl',
+		'cms_userprefs' => '\CMSMS\CmsUserprefs',
+		'cms_utils' => '\CMSMS\CmsUtils',
+		'Bookmark' => '\CMSMS\CmsBookmark',
+		'BookmarkOperations' => '\CMSMS\CmsBookmarkOperations',
+		'ContentOperations' => '\CMSMS\CmsContentOperations',
+		'Events'=> '\CMSMS\CmsEvents',
+		'Group' => '\CMSMS\CmsGroup',
+		'GroupOperations' => '\CMSMS\CmsGroupOperations',
+		'ModuleOperations' => '\CMSMS\CmsModuleOperations',
+		'User' => '\CMSMS\CmsUser',
+		'UserOperations' => '\CMSMS\CmsUserOperations',
+		'UserTagOperations' => '\CMSMS\CmsUserTagOperations',
+/ *
+		'CmsApp' => '\CMSMS\CmsApp',
+		'CMSModule' => '\CMSMS\CmsModule',
+		'CMSModuleContentType' => '\CMSMS\CmsModuleContentType',
+		 rename only
+		'simple_plugin_operations' => 'CmsSimplePluginOperations' new class, all uses changed
+		'FileType' => 'CmsFileType'
+		'FileTypeHelper' => 'CmsFileTypeHelper'
+		'FilePickerProfile' => 'CmsFilePickerProfile'
+		'HookManager' => 'CmsHookManager'
+		'AuditManager' => 'CmsAuditManager' new class, all uses changed
+* /
+		];
+	}
+
+	if (array_key_exists($classname, $class_replaces)) {
+		$nowclass = $class_replaces[$classname];
+		$path = substr($nowclass, 7);
+		$class = basename($path);
+		$path = dirname($path);
+
+		$fp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
+		if ($path != '.') {
+			$fp .= $path.DIRECTORY_SEPARATOR;
+		}
+		$fp .= 'class.'.$class.'.php';
+		if (is_file($fp)) {
+			require_once $fp;
+			class_alias($nowclass, $classname, true);
+			return;
+		}
+	}
+}
+*/
+
 spl_autoload_register('cms_autoloader');
+//spl_autoload_register('cms_deprecated_autoloader');
 
