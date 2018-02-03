@@ -46,13 +46,13 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
 
     private function validate($config)
     {
-        if( !isset($config['dbtype']) || !$config['dbtype'] ) throw new \Exception(\__appbase\lang('error_nodbtype'));
-        if( !isset($config['dbhost']) || !$config['dbhost'] ) throw new \Exception(\__appbase\lang('error_nodbhost'));
-        if( !isset($config['dbname']) || !$config['dbname'] ) throw new \Exception(\__appbase\lang('error_nodbname'));
-        if( !isset($config['dbuser']) || !$config['dbuser'] ) throw new \Exception(\__appbase\lang('error_nodbuser'));
-        if( !isset($config['dbpass']) || !$config['dbpass'] ) throw new \Exception(\__appbase\lang('error_nodbpass'));
-        if( !isset($config['dbprefix']) || !$config['dbprefix'] ) throw new \Exception(\__appbase\lang('error_nodbprefix'));
-        if( !isset($config['timezone']) || !$config['timezone'] ) throw new \Exception(\__appbase\lang('error_notimezone'));
+        if( empty($config['dbtype']) ) throw new \Exception(\__appbase\lang('error_nodbtype'));
+        if( empty($config['dbhost']) ) throw new \Exception(\__appbase\lang('error_nodbhost'));
+        if( empty($config['dbname']) ) throw new \Exception(\__appbase\lang('error_nodbname'));
+        if( empty($config['dbuser']) ) throw new \Exception(\__appbase\lang('error_nodbuser'));
+        if( empty($config['dbpass']) ) throw new \Exception(\__appbase\lang('error_nodbpass'));
+        if( empty($config['dbprefix']) ) throw new \Exception(\__appbase\lang('error_nodbprefix'));
+        if( empty($config['timezone']) ) throw new \Exception(\__appbase\lang('error_notimezone'));
 
         $re = '/^[a-zA-Z0-9_\.]*$/';
         if( isset($config['query_var']) && $config['query_var'] && !preg_match($re,$config['query_var']) ) {
@@ -69,7 +69,7 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
         }
 
         // try a test connection
-        $spec = new \CMSMS\Database\ConnectionSpec;
+        $spec = new \CMSMS\Database\ConnectionSpec; //TODO CHECK this works
         $spec->type = $config['dbtype'];
         $spec->host = $config['dbhost'];
         $spec->username = $config['dbuser'];
@@ -77,7 +77,7 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
         $spec->dbname = $config['dbname'];
         $spec->port = isset($config['dbport']) ? $config['dbport'] : null;
         $spec->prefix = $config['dbprefix'];
-        $db = \CMSMS\Database\Connection::initialize($spec);
+        $db = \CMSMS\Database\Connection::initialize($spec); //TODO CHECK this works
         $db->Execute("SET NAMES 'utf8'");
 
         // see if we can create and drop a table.
