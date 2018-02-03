@@ -26,7 +26,7 @@ class cms_smarty extends \Smarty
     $this->registerPlugin('modifier','tr',array($this,'modifier_tr'));
     $dirs = array($this->compile_dir,$this->cache_dir);
     for( $i = 0; $i < count($dirs); $i++ ) {
-      @mkdir($dirs[$i],0777,TRUE);
+      @mkdir($dirs[$i],0771,TRUE);
       if( !is_dir($dirs[$i]) ) throw new \Exception('Required directory '.$dirs[$i].' does not exist');
     }
   }
