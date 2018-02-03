@@ -565,6 +565,7 @@ EOS;
 */
 //			rchmod($phardir); NO: build scripts are there
 
+			$pharname = basename($phardir).DIRECTORY_SEPARATOR;
 			$len = strlen($phardir.DIRECTORY_SEPARATOR);
 			$iter = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator($phardir,
@@ -581,7 +582,7 @@ EOS;
 					verbose(2, "EXCLUDED: $relpath from the zip");
 				} else {
 					verbose(2, "ADDING: $relpath to the zip");
-					$arch->addFile($fp, $relpath);
+					$arch->addFile($fp, $pharname.$relpath);
 				}
 			}
 
