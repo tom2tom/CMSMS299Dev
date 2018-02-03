@@ -26,6 +26,7 @@
  * @license GPL
  */
 
+use CMSMS\internal\LoginOperations;
 
 /**
  * Gets the userid of the currently logged in user.
@@ -39,7 +40,7 @@
  */
 function get_userid(bool $redirect = true)
 {
-    $login_ops = CMSMS\internal\LoginOperations::get_instance();
+    $login_ops = LoginOperations::get_instance();
     $uid = $login_ops->get_effective_uid();
     if( !$uid && $redirect ) {
         $config = cms_config::get_instance();
@@ -61,7 +62,7 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $check = true)
 {
-    $login_ops = CMSMS\internal\LoginOperations::get_instance();
+    $login_ops = LoginOperations::get_instance();
     $uname = $login_ops->get_effective_username();
     if( !$uname && $check ) {
         $config = cms_config::get_instance();
@@ -89,7 +90,7 @@ function check_login(bool $no_redirect = false)
     $res = false;
     if( $uid > 0 ) {
         $res = true;
-        $login_ops = CMSMS\internal\LoginOperations::get_instance();
+        $login_ops = LoginOperations::get_instance();
         $res = $login_ops->validate_requestkey();
     }
     if( !$res ) {

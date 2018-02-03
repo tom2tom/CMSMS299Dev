@@ -19,6 +19,8 @@
 #
 #$Id$
 
+use CMSMS\internal\content_plugins;
+
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 
@@ -117,13 +119,13 @@ while ($trycount < 2) {
 
         if ($config['content_processing_mode'] == 2) {
             debug_buffer('preprocess module action');
-            CMSMS\internal\content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
+            content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
         }
 
         $html = null;
         $showtemplate = $_app->template_processing_allowed();
         if (!$showtemplate) {
-            $html = CMSMS\internal\content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
+            $html = content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
             $trycount = 99;
         } else {
             $tpl_id = $contentobj->TemplateId();
@@ -138,7 +140,7 @@ while ($trycount < 2) {
 
             if ($config['content_processing_mode'] == 1) {
                 debug_buffer('preprocess module action');
-                CMSMS\internal\content_plugins::get_default_content_block_content($contentobj->Id());
+                content_plugins::get_default_content_block_content($contentobj->Id());
             }
 
             // if the request has a mact in it, process and cache the output.
