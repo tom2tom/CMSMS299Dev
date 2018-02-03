@@ -181,7 +181,7 @@ function copy_source_files()
       }
       if( $test ) continue;
       $dir = $tmpdir.'/'.dirname($file);
-      @mkdir($dir,0777,TRUE);
+      @mkdir($dir,0771,TRUE);
       copy($indir.$file,$tmpdir.'/'.$file);
       verbose(2,"COPIED $file to {$tmpdir}/{$file}");
   }
