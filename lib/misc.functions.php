@@ -223,16 +223,16 @@ static $defenc = '';
  *
  * @see htmlentities
  *
- * @param string $val     The input string
+ * @param mixed  $val     The input string, or maybe null
  * @param int    $param   Optional flag(s) indicating how htmlentities() should handle quotes etc. Default 0, hence ENT_QUOTES | cms_preferred_lang().
  * @param string $charset Optional character set of $val. Default 'UTF-8'. If empty the system setting will be used.
  * @param bool   $convert_single_quotes Optional flag indicating whether single quotes should be converted to entities. Default false.
  *
  * @return string the converted string
  */
-function cms_htmlentities(string $val, int $param = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
+function cms_htmlentities($val, int $param = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-    if ($val === '') {
+	if ($val === '' || $val === null) {
         return '';
     }
 
@@ -1045,7 +1045,6 @@ function get_secure_param() : string
  * Accepts number != 0, 'y','yes','true','on' as true (case insensitive) all other values represent false.
  *
  * @param string $str Input to test.
- * Rolf: only used in lib/classes/contenttypes/Content.inc.php
  */
 function cms_to_bool(string $str) : bool
 {
