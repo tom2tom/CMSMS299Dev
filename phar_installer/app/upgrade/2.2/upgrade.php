@@ -9,7 +9,7 @@ $create_private_dir = function($relative_dir) {
 
     $dir = $destdir.'/'.$relative_dir;
     if( !is_dir($dir) ) {
-        @mkdir($dir,0777,true);
+        @mkdir($dir,0771,true);
     }
     @touch($dir.'/index.html');
 };

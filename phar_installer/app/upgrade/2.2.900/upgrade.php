@@ -11,7 +11,7 @@ if( $udt_list ) {
         throw new \LogicException('Destination directory does not exist');
     }
     $to = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-    if( !is_dir( $to ) ) @mkdir( $to, 0777, true );
+    if( !is_dir( $to ) ) @mkdir( $to, 0775, true );
     if( !is_dir( $to ) ) throw new \LogicException("Could not create $to directory");
 
     $create_simple_plugin = function( array $row, string $destdir ) {
@@ -50,8 +50,8 @@ if( $udt_list ) {
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)' );
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)' );
 
-    verbose_msg(ilang('upgrading_schema',202));
-    $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 202';
+    verbose_msg(ilang('upgrading_schema',204));
+    $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 204';
     $db->Execute($query);
 }
 

@@ -14,7 +14,7 @@ $dest_folder = "$assets_modules/MenuManager";
 if( is_dir( $src_folder) && !is_dir($dest_folder) ) {
     verbose_msg("Moving Menumanger to $assets_modules");
     if( !is_dir($assets_modules) ) {
-        $res = mkdir( $assets_modules, 0777, true );
+        $res = mkdir( $assets_modules, 0771, true );
         if( !$res ) throw new \RuntimeException('Problem creating directory at '.$assets_modules);
     }
     rename( $src_folder, $dest_folder );
