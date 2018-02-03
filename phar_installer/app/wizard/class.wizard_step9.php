@@ -10,14 +10,13 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         // nothing here
     }
 
-
     private function do_upgrade($version_info)
     {
         $app = \__appbase\get_app();
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new \Exception(\__appbase\lang('error_internal',900));
 
-        $this->connect_to_cmsms();
+        $this->connect_to_cmsms($destdir);
 
         // upgrade modules
         $this->message(\__appbase\lang('msg_upgrademodules'));
@@ -40,7 +39,7 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         $this->message(\__appbase\lang('msg_clearedcache'));
 
         // write protect config.php
-        @chmod("$destdir/config.php",0444);
+        @chmod("$destdir/config.php",0440);
 
         // todo: write history
 
@@ -60,33 +59,34 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
 
     public function do_install()
     {
-        // create tmp directories
         $app = \__appbase\get_app();
         $destdir = \__appbase\get_app()->get_destdir();
         if( !$destdir ) throw new \Exception(\__appbase\lang('error_internal',901));
+/* done in step 8
+        // create tmp directories
         $this->message(\__appbase\lang('install_createtmpdirs'));
-        @mkdir($destdir.'/tmp/cache',0777,TRUE);
-        @mkdir($destdir.'/tmp/templates_c',0777,TRUE);
-
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( !$siteinfo ) throw new \Exception(\__appbase\lang('error_internal',902));
-
+        @mkdir($destdir.'/tmp/cache',0771,TRUE);
+        @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
+*/
         // install modules
         $this->message(\__appbase\lang('install_modules'));
-        $this->connect_to_cmsms();
+        $this->connect_to_cmsms($destdir);
         $modops = \cmsms()->GetModuleOperations();
         $allmodules = $modops->FindAllModules();
         foreach( $allmodules as $name ) {
-            // we force all system modules to be loaded, if it's a system module
-            // and needs upgrade, then it should automagically upgrade.
+            // force-load all system modules. If a system module
+            // needs upgrade, it should automagically happen.
             if( $modops->IsSystemModule($name) ) {
-                $this->verbose(\__appbase\lang('install_module',$name));
-                $module = $modops->get_module_instance($name,'',TRUE);
+                $this->verbose(\__appbase\lang('install_module', $name));
+                //CHECKME $modops->InstallModule() is not viable at this stage of the installation
+//              if( !$this->mod_install($name) ) {
+//                  $this->verbose(' >> '.$name.' '.\__appbase\lang('error_moduleinstallfailed'));
+//              }
             }
         }
 
-        // write protect config.php
-        @chmod("$destdir/config.php",0444);
+        // write-protect config.php
+        @chmod("$destdir/config.php",0440);
 
         $adminacct = $this->get_wizard()->get_data('adminaccount');
         $root_url = $app->get_root_url();
@@ -147,14 +147,14 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         $destdir = \__appbase\get_app()->get_destdir();
         if( !$destdir ) throw new \Exception(\__appbase\lang('error_internal',901));
         $this->message(\__appbase\lang('install_createtmpdirs'));
-        @mkdir($destdir.'/tmp/cache',0777,TRUE);
-        @mkdir($destdir.'/tmp/templates_c',0777,TRUE);
+        @mkdir($destdir.'/tmp/cache',0771,TRUE);
+        @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
 
         // write protect config.php
-        @chmod("$destdir/config.php",0444);
+        @chmod("$destdir/config.php",0440);
 
         // clear the cache
-        $this->connect_to_cmsms();
+        $this->connect_to_cmsms($destdir);
         \cmsms()->clear_cached_files();
         $this->message(\__appbase\lang('msg_clearedcache'));
 
@@ -173,7 +173,7 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         }
     }
 
-    private function connect_to_cmsms()
+    private function connect_to_cmsms($destdir)
     {
         // this loads the standard CMSMS stuff, except smarty cuz it's already done.
         // we do this here because both upgrade and install stuff needs it.
@@ -182,17 +182,18 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         $CMS_PHAR_INSTALLER = 1;
         $DONT_LOAD_SMARTY = 1;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
-        $app = \__appbase\get_app();
-        $destdir = $app->get_destdir();
         if( is_file("$destdir/include.php") ) {
             include_once($destdir.'/include.php');
-        } else {
+        }
+        else {
             include_once($destdir.'/lib/include.php');
         }
-        $config = \cms_config::get_instance();
 
         // we do this here, because the config.php class may not set the define when in an installer.
-        if( !defined('CMS_DB_PREFIX')) define('CMS_DB_PREFIX',$config['db_prefix']);
+        if( !defined('CMS_DB_PREFIX') ) {
+            $config = \cms_config::get_instance();
+            define('CMS_DB_PREFIX',$config['db_prefix']);
+        }
     }
 
     protected function display()
@@ -237,7 +238,52 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
 
         $app->cleanup();
     }
+/*
+    protected function mod_install($modname)
+    {
+        return false;
 
+        //TODO install main autoloader
+        $db = \__appbase::get_db();
+        //get each dir in base/lib/modules
+        $bp = 'TODObase/lib/modules/';
+        foreach (glob($bp.'*', GLOB_MARK | GLOB_NOSORT | GLOB_NOESCAPE | GLOB_ONLYDIR) as $fp) {
+            include $fp.DIRECTORY_SEPARATOR.$name.'.module.php';
+            $module_obj = new $name();
+            if ($module_obj) {
+                $result = $module_obj->Install();
+                if (empty($result)) {
+                    // successful install returned nothing or false
+                    $module_name = $module_obj->GetName();
+                    $lazyload_fe = (method_exists($module_obj, 'LazyLoadFrontend') && $module_obj->LazyLoadFrontend()) ? 1 : 0;
+                    $lazyload_admin = (method_exists($module_obj, 'LazyLoadAdmin') && $module_obj->LazyLoadAdmin()) ? 1 : 0;
+                    $query = 'INSERT INTO '.CMS_DB_PREFIX.'modules
+(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
+VALUES (?,?,\'installed\',?,1,?,?)';
+                    $db->Execute($query, [
+                    $module_name,
+                    $module_obj->GetVersion(),
+                    ($module_obj->IsAdminOnly()) ? 1 : 0,
+                    $lazyload_fe,
+                    $lazyload_admin
+                    ]);
+
+                    $deps = $module_obj->GetDependencies();
+                    if (is_array($deps) && $deps) {
+                        $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
+(parent_module,child_module,minimum_version,create_date,modified_date)
+VALUES (?,?,?,NOW(),NOW())';
+                        foreach ($deps as $depname => $depversion) {
+                            if ($depname && $depversion) {
+                                $db->Execute($query, [$depname,$module_name,$depversion]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+*/
 } // end of class
 
 ?>
