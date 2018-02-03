@@ -3,7 +3,7 @@ global $admin_user;
 
 status_msg(ilang('install_requireddata'));
 
-$query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (203)';
+$query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (204)';
 $db->Execute($query);
 verbose_msg(ilang('install_setschemaver'));
 
@@ -188,7 +188,7 @@ $create_private_dir = function(string $destdir, string $relative_dir) {
 
     $dir = $destdir.DIRECTORY_SEPARATOR.$relative_dir;
     if( !is_dir($dir) ) {
-        @mkdir($dir,0777,true);
+        @mkdir($dir,0771,true);
     }
     @touch($dir.DIRECTORY_SEPARATOR.'index.html');
 };
