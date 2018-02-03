@@ -42,36 +42,39 @@
  * CMS_LOGIN_PAGE - Indicates that the file was included from the admin login form.
  */
 
-define('CMS_DEFAULT_VERSIONCHECK_URL','https://www.cmsmadesimple.org/latest_version.php');
-define('CMS_SECURE_PARAM_NAME','_sk_');
-define('CMS_USER_KEY','_userkey_');
+use CMSMS\internal\global_cachable;
+use CMSMS\internal\global_cache;
+
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 global $CMS_INSTALL_PAGE,$CMS_ADMIN_PAGE,$CMS_LOGIN_PAGE,$DONT_LOAD_DB,$DONT_LOAD_SMARTY;
-
-if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
-    $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
-}
 
 if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
     die ('FATAL ERROR: config.php file not found or invalid');
 }
 
+define('CMS_DEFAULT_VERSIONCHECK_URL','https://www.cmsmadesimple.org/latest_version.php');
+define('CMS_SECURE_PARAM_NAME','_sk_');
+define('CMS_USER_KEY','_userkey_');
+
 $dirname = __DIR__.DIRECTORY_SEPARATOR;
 // include some stuff
-require_once $dirname.'compat.functions.php';
-require_once $dirname.'misc.functions.php';
 require_once $dirname.'version.php'; // tells us where the config file is and other things.
-require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
-require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.HookManager.php';
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
+require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
+require_once $dirname.'misc.functions.php'; //some used in config setup
+cms_config::get_instance(); //populate relevant defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php';
 require_once $dirname.'autoloader.php';
+require_once $dirname.'compat.functions.php';
 require_once $dirname.'module.functions.php';
 require_once $dirname.'page.functions.php';
 require_once $dirname.'translation.functions.php';
 
 debug_buffer('done loading basic files');
 
+if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
+    $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
+}
 // sanitize $_SERVER and $_GET
 cleanArray($_SERVER);
 cleanArray($_GET);
@@ -79,7 +82,7 @@ cleanArray($_GET);
 // Grab the current configuration & some define's
 $_app = CmsApp::get_instance(); // for use in this file only.
 $config = $_app->GetConfig();
-CMSMS\AuditManager::init();
+CMSMS\CmsAuditManager::init();
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
@@ -107,48 +110,49 @@ require_once $dirname.'std_hooks.php';
 
 // since 2.0 ... mechanism whereby data can be cached automatically (in file-system text files), and fetched (or calculated) via a callback
 // if the cache is too old, or the cached value has been cleared or not yet been saved.
-$obj = new CMSMS\internal\global_cachable('schema_version',
+$obj = new global_cachable('schema_version',
            function(){
                $db = CmsApp::get_instance()->GetDb();
                $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
                return $db->GetOne($query);
            });
-CMSMS\internal\global_cache::add_cachable($obj);
-$obj = new CMSMS\internal\global_cachable('latest_content_modification',
+global_cache::add_cachable($obj);
+$obj = new global_cachable('latest_content_modification',
            function(){
                $db = CmsApp::get_instance()->GetDb();
                $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
                $tmp = $db->GetOne($query);
                return $db->UnixTimeStamp($tmp);
            });
-CMSMS\internal\global_cache::add_cachable($obj);
-$obj = new CMSMS\internal\global_cachable('default_content',
+global_cache::add_cachable($obj);
+$obj = new global_cachable('default_content',
            function(){
                $db = CmsApp::get_instance()->GetDb();
                $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
                return $db->GetOne($query);
            });
-CMSMS\internal\global_cache::add_cachable($obj);
-$obj = new CMSMS\internal\global_cachable('modules',
+global_cache::add_cachable($obj);
+$obj = new global_cachable('modules',
            function(){
                $db = CmsApp::get_instance()->GetDb();
                $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules ORDER BY module_name';
                return $db->GetArray($query);
            });
-CMSMS\internal\global_cache::add_cachable($obj);
-$obj = new CMSMS\internal\global_cachable('module_deps',
+global_cache::add_cachable($obj);
+$obj = new global_cachable('module_deps',
 		   function(){
 		       $db = CmsApp::get_instance()->GetDb();
                $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
 		       $tmp = $db->GetArray($query);
-		       if (!is_array($tmp) || !count($tmp)) return '-';  // special value so that we actually return something to cache.
+		       if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
 		       $out = [];
 		       foreach( $tmp as $row) {
 		           $out[$row['child_module']][$row['parent_module']] = $row['minimum_version'];
 		       }
 		       return $out;
 		   });
-CMSMS\internal\global_cache::add_cachable($obj);
+global_cache::add_cachable($obj);
+
 cms_siteprefs::setup();
 Events::setup();
 ContentOperations::setup_cache();
