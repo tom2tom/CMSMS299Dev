@@ -3,7 +3,7 @@
 namespace __appbase;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'compat.functions.php';
-require_once __DIR__.DIRECTORY_SEPARATOR'misc.functions.php';
+require_once __DIR__.DIRECTORY_SEPARATOR.'misc.functions.php';
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'accessor.functions.php';
 
 abstract class app
