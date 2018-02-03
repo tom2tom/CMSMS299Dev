@@ -78,7 +78,7 @@ abstract class filehandler
 
     $dn = dirname($filespec);
     $tmp = $this->get_destdir()."/$dn";
-    return @mkdir($tmp,0777,TRUE);
+    return @mkdir($tmp,0771,TRUE);
   }
 
   protected function is_imagefile($filespec)

@@ -106,7 +106,7 @@ class cms_install extends \__appbase\app
 
         for( $i = 0; $i < 2; $i++ ) {
             if( !file_exists($dest_archive) ) {
-                @mkdir($tmpdir,0777,TRUE);
+                @mkdir($tmpdir,0771,TRUE);
                 @copy($src_archive,$dest_archive);
             }
             $dest_md5 = md5_file($dest_archive);
