@@ -85,7 +85,7 @@ $smarty->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installa
 $smarty->assign('cms_version', $GLOBALS['CMS_VERSION']);
 
 
-$query = "SELECT * FROM ".cms_db_prefix()."modules WHERE active=1";
+$query = "SELECT * FROM ".CMS_DB_PREFIX."modules WHERE active=1";
 $modules = $db->GetArray($query);
 asort($modules);
 $smarty->assign('installed_modules', $modules);

@@ -58,7 +58,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function InitializeFrontend()
     {
         $this->RegisterModulePlugin();
-        $this->RestrictUnknownParams();
+//2.3 does nothing        $this->RestrictUnknownParams();
     }
 
     public function GetEventHelp($name)

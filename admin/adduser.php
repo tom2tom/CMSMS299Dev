@@ -123,7 +123,7 @@ if (isset($_POST["submit"])) {
             }
 
             if ($assign_group_perm && is_array($sel_groups) && count($sel_groups)) {
-                $iquery = "INSERT INTO " . cms_db_prefix() . "user_groups (user_id,group_id) VALUES (?,?)";
+                $iquery = "INSERT INTO " . CMS_DB_PREFIX . "user_groups (user_id,group_id) VALUES (?,?)";
                 foreach ($sel_groups as $gid) {
                     $gid = (int)$gid;
                     if ($gid < 1)

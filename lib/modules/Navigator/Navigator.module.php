@@ -47,24 +47,24 @@ final class Navigator extends CMSModule
 {
     const __DFLT_PAGE = '**DFLT_PAGE**';
 
-    function GetName() { return get_class($this); }
-    function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    function IsPluginModule() { return true; }
-    function HasAdmin() { return false; }
-    function GetVersion() { return '1.0.7'; }
-    function MinimumCMSVersion() { return '2.1.99'; }
-    function GetAdminDescription() { return $this->Lang('description'); }
-    function GetAdminSection() { return 'layout'; }
-    function LazyLoadFrontend() { return TRUE; }
-    function LazyLoadAdmin() { return TRUE; }
-    function GetHelp($lang='en_US') { return $this->Lang('help'); }
-    function GetAuthor() { return 'Robert Campbell'; }
-    function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    function GetChangeLog() { return file_get_contents(dirname(__FILE__).'/changelog.inc'); }
+    public function GetName() { return get_class($this); }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+    public function IsPluginModule() { return true; }
+    public function HasAdmin() { return false; }
+    public function GetVersion() { return '1.0.7'; }
+    public function MinimumCMSVersion() { return '2.1.99'; }
+    public function GetAdminDescription() { return $this->Lang('description'); }
+    public function GetAdminSection() { return 'layout'; }
+    public function LazyLoadFrontend() { return TRUE; }
+    public function LazyLoadAdmin() { return TRUE; }
+    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
+    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function GetChangeLog() { return file_get_contents(dirname(__FILE__).'/changelog.inc'); }
 
     public function InitializeFrontend()
     {
-        $this->RestrictUnknownParams();
+//2.3 does nothing        $this->RestrictUnknownParams();
         $this->SetParameterType('items',CLEAN_STRING);
         $this->SetParameterType('nlevels',CLEAN_INT);
         $this->SetParameterType('number_of_levels',CLEAN_INT);
@@ -104,7 +104,7 @@ final class Navigator extends CMSModule
         $this->CreateParameter('excludeprefix','',$this->Lang('help_excludeprefix'));
     }
 
-    final static public function nav_breadcrumbs($params,&$smarty)
+    final public static function nav_breadcrumbs($params,&$smarty)
     {
         $params['action'] = 'breadcrumbs';
         $params['module'] = __CLASS__;
@@ -144,6 +144,5 @@ final class Navigator extends CMSModule
             if( is_file($file) ) return file_get_contents($file);
         }
     }
-
 
 } // End of class

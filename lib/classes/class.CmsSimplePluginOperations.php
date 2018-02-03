@@ -17,7 +17,7 @@
 
 namespace CMSMS;
 
-final class simple_plugin_operations
+final class CmsSimplePluginOperations
 {
     /**
      * @ignore
@@ -98,8 +98,8 @@ final class simple_plugin_operations
      * Check and log whether a simple plugin corresponding to $name exists.
      *
      * @since 2.3
-     * @return string like: \CMSMS\simple_plugin_operations::the_name or
-     * may throw InvalidArgumentException
+     * @return string like: CMSMS\CmsSimplePluginOperations::the_name or
+     *   may throw InvalidArgumentException
      */
     public function load_plugin(string $name) : string
     {
@@ -112,7 +112,7 @@ final class simple_plugin_operations
             $code = trim(file_get_contents($fn));
             if( !startswith( $code, '<?php' ) ) throw new \RuntimeException('Invalid format for simple plugin '.$name);
 
-            $this->_loaded[$name] = "\\CMSMS\\simple_plugin_operations::$name";
+            $this->_loaded[$name] = "\\CMSMS\\CmsSimplePluginOperations::$name";
         }
         return $this->_loaded[$name];
     }

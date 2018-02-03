@@ -19,6 +19,10 @@
 #$Id: content.functions.php 6863 2011-01-18 02:34:48Z calguy1000 $
 
 namespace CMSMS\internal;
+use CMSMS\internal\layout_template_resource;
+use CMSMS\internal\module_db_template_resource;
+use CMSMS\internal\module_file_template_resource;
+use CMSMS\internal\layout_stylesheet_resource;
 
 /**
  * @package CMS
@@ -57,11 +61,11 @@ class Smarty extends smarty_base_template
         $this->template_class = '\\CMSMS\internal\template_wrapper';
 
         // common resources.
-        $this->registerResource('module_db_tpl',new \CMSMS\internal\module_db_template_resource());
-        $this->registerResource('module_file_tpl',new \CMSMS\internal\module_file_template_resource());
-        $this->registerResource('cms_template',new \CMSMS\internal\layout_template_resource());
+        $this->registerResource('module_db_tpl',new module_db_template_resource());
+        $this->registerResource('module_file_tpl',new module_file_template_resource());
+        $this->registerResource('cms_template',new layout_template_resource());
         //$this->registerResource('template',new CmsTemplateResource()); // <- Should proably be global and removed from parser? // deprecated
-        $this->registerResource('cms_stylesheet',new \CMSMS\internal\layout_stylesheet_resource());
+        $this->registerResource('cms_stylesheet', new layout_stylesheet_resource());
 
         // register default plugin handler
         $this->registerDefaultPluginHandler( [ $this, 'defaultPluginHandler' ] );
@@ -86,9 +90,9 @@ class Smarty extends smarty_base_template
             }
 
             // Load resources
-            $this->registerResource('tpl_top',new \CMSMS\internal\layout_template_resource('top'));
-            $this->registerResource('tpl_head',new \CMSMS\internal\layout_template_resource('head'));
-            $this->registerResource('tpl_body',new \CMSMS\internal\layout_template_resource('body'));
+            $this->registerResource('tpl_top',new layout_template_resource('top'));
+            $this->registerResource('tpl_head',new layout_template_resource('head'));
+            $this->registerResource('tpl_body',new layout_template_resource('body'));
             $this->registerResource('content',new \CMSMS\internal\content_template_resource());
 
             // just for frontend actions.
@@ -221,7 +225,7 @@ class Smarty extends smarty_base_template
             }
 
             // see if it is a simple plugin
-            $plugin = \CMSMS\simple_plugin_operations::get_instance()->load_plugin( $name );
+            $plugin = \CMSMS\CmsSimplePluginOperations::get_instance()->load_plugin( $name );
             if( $plugin ) {
                 $callback = $plugin;
 //TODO CHECKME                $cachable = FALSE;

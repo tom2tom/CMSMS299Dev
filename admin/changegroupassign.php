@@ -92,9 +92,9 @@ if ($submitted == 1) {
         // Send the ChangeGroupAssignPre event
         \CMSMS\HookManager::do_hook( 'Core::ChangeGroupAssignPre',
                                      [ 'group' => $thisGroup, 'users' => $userops->LoadUsersInGroup($thisGroup->id) ] );
-        $query = "DELETE FROM ".cms_db_prefix()."user_groups WHERE group_id = ? AND user_id != ?";
+        $query = "DELETE FROM ".CMS_DB_PREFIX."user_groups WHERE group_id = ? AND user_id != ?";
         $result = $db->Execute($query, array($thisGroup->id,$userid));
-        $iquery = "INSERT INTO ".cms_db_prefix().
+        $iquery = "INSERT INTO ".CMS_DB_PREFIX.
             "user_groups (group_id, user_id, create_date, modified_date) VALUES (?,?,NOW(),NOW())";
 
         foreach ($_POST as $key=>$value) {
@@ -119,7 +119,7 @@ if ($submitted == 1) {
 
 
 $query = "SELECT u.user_id, u.username, ug.group_id FROM ".
-    cms_db_prefix()."users u LEFT JOIN ".cms_db_prefix().
+    CMS_DB_PREFIX."users u LEFT JOIN ".CMS_DB_PREFIX.
     "user_groups ug ON u.user_id = ug.user_id ORDER BY u.username";
 $result = $db->Execute($query);
 

@@ -252,7 +252,7 @@ class CmsFormUtils
                     }
                     break;
                 case 's': //any non-empty string
-                    if (is_string($tmp) && $tmp !== '') {
+                    if (!is_string($tmp) || $tmp === '') {
                         return sprintf(self::ERRTPL2, $key, '%s');
                     }
                     break;
@@ -554,7 +554,7 @@ class CmsFormUtils
                 $out .= ' />'."\n";
                 break;
             case 'radio':
-                $err = self::must_attrs($parms, ['items'=>'a', 'selectedvalue'=>'s']);
+                $err = self::must_attrs($parms, ['options'=>'a', 'selectedvalue'=>'s']);
                 if ($err) {
                     break;
                 }
@@ -584,7 +584,7 @@ class CmsFormUtils
                 unset($parms['multiple']);
                 //no break here
             case 'list':
-                $err = self::must_attrs($parms, ['items'=>'a']);
+                $err = self::must_attrs($parms, ['options'=>'a']);
                 if ($err) {
                     break;
                 }

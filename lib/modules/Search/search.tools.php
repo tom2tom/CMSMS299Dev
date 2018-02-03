@@ -16,6 +16,8 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+use CMSMS\internal\content_cache;
+
 function search_StemPhrase(&$module,$phrase)
 {
     // strip out smarty tags
@@ -176,7 +178,7 @@ function search_Reindex(&$module)
             $content_obj = $contentops->LoadContentFromId($one);
             $parms = array('content'=>$content_obj);
             search_DoEvent($module,'Core','ContentEditPost',$parms);
-            \CMSMS\internal\content_cache::unload($one);
+			content_cache::unload($one);
         }
     }
 

@@ -53,7 +53,7 @@ $smarty = $gCms->GetSmarty();
 
 $load_perms = function() use ($db) {
     $query = "SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id FROM ".
-    cms_db_prefix()."permissions p LEFT JOIN ".cms_db_prefix().
+    CMS_DB_PREFIX."permissions p LEFT JOIN ".CMS_DB_PREFIX.
     "group_perms up ON p.permission_id = up.permission_id ORDER BY p.permission_text";
 
     $result = $db->Execute($query);
@@ -148,7 +148,7 @@ $smarty->assign('allgroups',$allgroups);
 if ($submitted == 1) {
     // we have group permissions
     $now = $db->DbTimeStamp(time());
-    $iquery = "INSERT INTO ".cms_db_prefix().
+    $iquery = "INSERT INTO ".CMS_DB_PREFIX.
         "group_perms (group_perm_id, group_id, permission_id, create_date, modified_date)
        VALUES (?,?,?,$now,$now)";
 
@@ -163,7 +163,7 @@ if ($submitted == 1) {
                     $one = (int)$one;
                     if( $one > 0 ) $tmp[] = $one;
                 }
-                $query = 'DELETE FROM '.cms_db_prefix().'group_perms WHERE group_id IN ('.implode(',',$tmp).')';
+                $query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id IN ('.implode(',',$tmp).')';
                 $db->Execute($query);
             }
             unset($selected_groups);
@@ -176,7 +176,7 @@ if ($submitted == 1) {
             $keyparts = explode('_',$key);
             $keyparts[1] = (int)$keyparts[1];
             if ($keyparts[1] > 0 && $keyparts[2] != '1' && $value == '1') {
-                $new_id = $db->GenID(cms_db_prefix()."group_perms_seq");
+                $new_id = $db->GenID(CMS_DB_PREFIX."group_perms_seq");
                 $result = $db->Execute($iquery, array($new_id,$keyparts[2],$keyparts[1]));
                 if( !$result ) {
                     echo "FATAL: ".$db->ErrorMsg().'<br/>'.$db->sql; exit();

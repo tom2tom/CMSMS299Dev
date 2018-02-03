@@ -56,7 +56,7 @@ $smarty->assign('theme', $themeObject);
  */
 
 
-$query = 'SHOW TABLES LIKE '.cms_db_prefix().'%';
+$query = 'SHOW TABLES LIKE '.CMS_DB_PREFIX.'%';
 $tablestmp = $db->GetArray($query);
 $tables = array();
 $nonseqtables = array();
@@ -181,7 +181,7 @@ foreach ($contenttypes as $typeid => $typename) {
 if (isset($_POST["addaliases"])) {
   //$contentops->SetAllHierarchyPositions();
   $count = 0;
-  $query = "SELECT * FROM " . cms_db_prefix() . "content";
+  $query = "SELECT * FROM " . CMS_DB_PREFIX . "content";
   $allcontent = $db->Execute($query);
   while ($contentpiece = $allcontent->FetchRow()) {
     $content_id = $contentpiece["content_id"];
@@ -203,7 +203,7 @@ if (isset($_POST["addaliases"])) {
         }
         $alias .= '-' . $alias_num_add;
       }
-      $query2 = "UPDATE " . cms_db_prefix() . "content SET content_alias=? WHERE content_id=?";
+      $query2 = "UPDATE " . CMS_DB_PREFIX . "content SET content_alias=? WHERE content_id=?";
       $params2 = array($alias, $content_id);
       $dbresult = $db->Execute($query2, $params2);
       $count++;
@@ -220,11 +220,11 @@ if (isset($_POST["fixtypes"])) {
   //$contentops->SetAllHierarchyPositions();
 
   $count = 0;
-  $query = "SELECT * FROM " . cms_db_prefix() . "content";
+  $query = "SELECT * FROM " . CMS_DB_PREFIX . "content";
   $allcontent = $db->Execute($query);
   while ($contentpiece = $allcontent->FetchRow()) {
     if (!in_array($contentpiece["type"], $simpletypes)) {
-      $query2 = "UPDATE " . cms_db_prefix() . "content SET type='content' WHERE content_id=?";
+      $query2 = "UPDATE " . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?";
       $params2 = array($contentpiece["content_id"]);
       $dbresult = $db->Execute($query2, $params2);
       $count++;
@@ -237,7 +237,7 @@ if (isset($_POST["fixtypes"])) {
 }
 
 
-$query = "SELECT * FROM " . cms_db_prefix() . "content";
+$query = "SELECT * FROM " . CMS_DB_PREFIX . "content";
 $allcontent = $db->Execute($query);
 $pages = array();
 $withoutalias = array();

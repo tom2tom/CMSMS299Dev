@@ -35,7 +35,7 @@ modified_date DT,
 author_id I,
 news_extra C(255),
 news_url C(255),
-searchable I1
+searchable I(1)
 ';
 
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news', $flds, $taboptarray);

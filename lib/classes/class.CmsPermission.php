@@ -17,7 +17,7 @@
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 #
-#$Id: class.user.inc.php 8109 2012-06-24 20:14:56Z calguy1000 $
+#$Id:$
 
 /**
  * Class and utilities for working with permissions.

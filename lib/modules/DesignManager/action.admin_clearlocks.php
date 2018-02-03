@@ -46,7 +46,7 @@ default:
 if( $is_admin ) {
     // clear all locks of type content
     $db = cmsms()->GetDb();
-    $sql = 'DELETE FROM '.CMS_DB_PREFIX().CmsLock::LOCK_TABLE.' WHERE type = ?';
+    $sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLock::LOCK_TABLE.' WHERE type = ?';
     $db->Execute($sql,array($type));
     cms_notice("Cleared all $type locks");
 } else {

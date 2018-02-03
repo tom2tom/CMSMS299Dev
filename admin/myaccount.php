@@ -16,7 +16,9 @@
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#$Id: editprefs.php 7685 2012-01-22 21:52:55Z calguy1000 $
+#$Id$
+
+use \CMSMS\internal\module_meta;
 
 /**
  * Init variables / objects

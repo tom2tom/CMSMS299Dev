@@ -16,12 +16,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#$Id: class.content.inc.php 6905 2011-02-20 22:23:40Z calguy1000 $
+#$Id:$
 
 /**
  * This file provides the basic abstract content class
  * @package CMS
  */
+
+use CMSMS\internal\content_assistant;
+use CMSMS\internal\global_cache;
 
 /**
  * @ignore
@@ -566,8 +569,8 @@ abstract class ContentBase
 	 */
 	public function SetParentId(int $parentid)
 	{
-        $parentid = (int) $parentid;
-        if( $parentid < 1 ) $parentid = -1;
+		$parentid = (int) $parentid;
+		if( $parentid < 1 ) $parentid = -1;
 		$this->mParentId = $parentid;
 	}
 
@@ -648,7 +651,7 @@ abstract class ContentBase
 	 * A string like #.##.## indicating the path to the page and it's order
 	 * this property uses the id's of pages when calculating the output i.e: 21.5.17
 	 * to indicate that page id 17 is the child of page with id 5 which is inturn the
-     * child of the page with id 21
+	 * child of the page with id 21
 	 *
 	 * @return string
 	 */
@@ -839,17 +842,17 @@ abstract class ContentBase
 		return TRUE;
 	}
 
-    /**
-     * Indicates wether the current user is permitted to view this content page.
-     *
-     * @since 1.11.12
-     * @abstract
-     * @return boolean
-     */
-    public function IsPermitted()
-    {
-      return TRUE;
-    }
+	/**
+	 * Indicates wether the current user is permitted to view this content page.
+	 *
+	 * @since 1.11.12
+	 * @abstract
+	 * @return boolean
+	 */
+	public function IsPermitted()
+	{
+	  return TRUE;
+	}
 
 	/**
 	 * Indicates whether this content type is searchable.
@@ -862,7 +865,7 @@ abstract class ContentBase
 	 * @since 2.0
 	 * @return bool
 	 */
-    public function IsSearchable()
+	public function IsSearchable()
 	{
 		if( !$this->isPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage() ) return FALSE;
 		return $this->HasSearchableContent();
@@ -907,8 +910,8 @@ abstract class ContentBase
 	 */
 	public function SetAlias($alias = null, $doAutoAliasIfEnabled = true)
 	{
-        $contentops = ContentOperations::get_instance();
-        $config = \cms_config::get_instance();
+		$contentops = ContentOperations::get_instance();
+		$config = \cms_config::get_instance();
 		if ($alias == '' && $doAutoAliasIfEnabled && $config['auto_alias_content'] == true) {
 			$alias = trim($this->mMenuText);
 			if ($alias == '') $alias = trim($this->mName);
@@ -916,44 +919,44 @@ abstract class ContentBase
 			// auto generate an alias
 			$tolower = true;
 			$alias = munge_string_to_url($alias, $tolower);
-            $res = $contentops->CheckAliasValid($alias);
-            if( !$res ) {
-                $alias = 'p'.$alias;
-                $res = $contentops->CheckAliasValid($alias);
-                if( !$res ) throw new \CmsContentException(lang('invalidalias2'));
-            }
-        }
+			$res = $contentops->CheckAliasValid($alias);
+			if( !$res ) {
+				$alias = 'p'.$alias;
+				$res = $contentops->CheckAliasValid($alias);
+				if( !$res ) throw new \CmsContentException(lang('invalidalias2'));
+			}
+		}
 
-        if( $alias ) {
+		if( $alias ) {
 			// Make sure auto-generated new alias is not already in use on a different page, if it does, add "-2" to the alias
 
-            // make sure we start with a valid alias.
-            $res = $contentops->CheckAliasValid($alias);
-            if( !$res ) throw new \CmsContentException(lang('invalidalias2'));
+			// make sure we start with a valid alias.
+			$res = $contentops->CheckAliasValid($alias);
+			if( !$res ) throw new \CmsContentException(lang('invalidalias2'));
 
-            // now auto-increment the alias.
-            $prefix = $alias;
-            $num = 1;
-            if( preg_match('/(.*)-([0-9]*)$/',$alias,$matches) ) {
-                $prefix = $matches[1];
-                $num = (int) $matches[2];
-            }
-            $test = $alias;
-            do {
-                if( !$contentops->CheckAliasUsed($test,$this->Id()) ) {
-                    $alias = $test;
-                    break;
-                }
-                $num++;
-                $test = $prefix.'-'.$num;
-            } while( $num < 100 );
-            if( $num >= 100 ) throw new \CmsContentException(lang('aliasalreadyused'));
+			// now auto-increment the alias.
+			$prefix = $alias;
+			$num = 1;
+			if( preg_match('/(.*)-([0-9]*)$/',$alias,$matches) ) {
+				$prefix = $matches[1];
+				$num = (int) $matches[2];
+			}
+			$test = $alias;
+			do {
+				if( !$contentops->CheckAliasUsed($test,$this->Id()) ) {
+					$alias = $test;
+					break;
+				}
+				$num++;
+				$test = $prefix.'-'.$num;
+			} while( $num < 100 );
+			if( $num >= 100 ) throw new \CmsContentException(lang('aliasalreadyused'));
 		}
 
 		$this->mAlias = $alias;
-        \CMSMS\internal\global_cache::clear('content_quicklist');
-        \CMSMS\internal\global_cache::clear('content_tree');
-        \CMSMS\internal\global_cache::clear('content_flatlist');
+		global_cache::clear('content_quicklist');
+		global_cache::clear('content_tree');
+		global_cache::clear('content_flatlist');
 	}
 
 	/**
@@ -1061,8 +1064,8 @@ abstract class ContentBase
 
 		$now = $db->DbTimeStamp(time());
 		$iquery = 'INSERT INTO '.CMS_DB_PREFIX."content_props
-                    (content_id,type,prop_name,content,modified_date)
-                    VALUES (?,?,?,?,$now)";
+					(content_id,type,prop_name,content,modified_date)
+					VALUES (?,?,?,?,$now)";
 		$uquery = 'UPDATE '.CMS_DB_PREFIX."content_props SET content = ?, modified_date = $now WHERE content_id = ? AND prop_name = ?";
 
 		foreach( $this->_props as $key => $value ) {
@@ -1222,8 +1225,8 @@ abstract class ContentBase
 
 	/**
 	 * Convert the current object to an array.
-     *
-     * This can be considered a simple DTO (Data Transfer Object)
+	 *
+	 * This can be considered a simple DTO (Data Transfer Object)
 	 *
 	 * @since 2.0
 	 * @author Robert Campbell
@@ -1255,8 +1258,8 @@ abstract class ContentBase
 		$out['last_modified_by'] = $this->mLastModifiedBy;
 		$out['create_date'] = $this->mCreationDate;
 		$out['modified_date'] = $this->mModifiedDate;
-        $out['wants_children'] = $this->WantsChildren();
-        $out['has_usable_link'] = $this->HasUsableLink();
+		$out['wants_children'] = $this->WantsChildren();
+		$out['has_usable_link'] = $this->HasUsableLink();
 		return $out;
 	}
 
@@ -1277,7 +1280,7 @@ abstract class ContentBase
 	 */
 	public function Save()
 	{
-        \CMSMS\HookManager::do_hook('Core::ContentEditPre', [ 'content' => &$this ] );
+		\CMSMS\HookManager::do_hook('Core::ContentEditPre', [ 'content' => &$this ] );
 
 		if( !is_array($this->_props) ) {
 			debug_buffer('save is loading properties');
@@ -1291,10 +1294,10 @@ abstract class ContentBase
 			$this->Insert();
 		}
 
-        $contentops = ContentOperations::get_instance();
-        $contentops->SetContentModified();
-        $contentops->SetAllHierarchyPositions();
-        \CMSMS\HookManager::do_hook('Core::ContentEditPost', [ 'content' => &$this ] );
+		$contentops = ContentOperations::get_instance();
+		$contentops->SetContentModified();
+		$contentops->SetAllHierarchyPositions();
+		\CMSMS\HookManager::do_hook('Core::ContentEditPost', [ 'content' => &$this ] );
 	}
 
 	/**
@@ -1336,27 +1339,27 @@ abstract class ContentBase
 
 		$query = "UPDATE ".CMS_DB_PREFIX."content SET content_name = ?, owner_id = ?, type = ?, template_id = ?, parent_id = ?, active = ?, default_content = ?, show_in_menu = ?, cachable = ?, page_url = ?, menu_text = ?, content_alias = ?, metadata = ?, titleattribute = ?, accesskey = ?, tabindex = ?, modified_date = ?, item_order = ?, last_modified_by = ? WHERE content_id = ?";
 		$dbresult = $db->Execute($query, array(
-                                     $this->mName,
-                                     $this->mOwner,
-                                     $this->Type(),
-                                     $this->mTemplateId,
-                                     $this->mParentId,
-                                     ($this->mActive == true         ? 1 : 0),
-                                     ($this->mDefaultContent == true ? 1 : 0),
-                                     ($this->mShowInMenu == true     ? 1 : 0),
-                                     ($this->mCachable == true       ? 1 : 0),
-                                     $this->mURL,
-                                     $this->mMenuText,
-                                     $this->mAlias,
-                                     $this->mMetadata,
-                                     $this->mTitleAttribute,
-                                     $this->mAccessKey,
-                                     $this->mTabIndex,
-                                     $this->mModifiedDate,
-                                     $this->mItemOrder,
-                                     $this->mLastModifiedBy,
-                                     (int) $this->mId
-                                     ));
+									 $this->mName,
+									 $this->mOwner,
+									 $this->Type(),
+									 $this->mTemplateId,
+									 $this->mParentId,
+									 ($this->mActive == true         ? 1 : 0),
+									 ($this->mDefaultContent == true ? 1 : 0),
+									 ($this->mShowInMenu == true     ? 1 : 0),
+									 ($this->mCachable == true       ? 1 : 0),
+									 $this->mURL,
+									 $this->mMenuText,
+									 $this->mAlias,
+									 $this->mMetadata,
+									 $this->mTitleAttribute,
+									 $this->mAccessKey,
+									 $this->mTabIndex,
+									 $this->mModifiedDate,
+									 $this->mItemOrder,
+									 $this->mLastModifiedBy,
+									 (int) $this->mId
+									 ));
 
 		if (isset($this->mAdditionalEditors)) {
 			$query = "DELETE FROM ".CMS_DB_PREFIX."additional_users WHERE content_id = ?";
@@ -1392,17 +1395,17 @@ abstract class ContentBase
 	 */
 	protected function Insert()
 	{
-        # :TODO: This function should return something
-        # :TODO: Take care bout hierarchy here, it has no value !
-        # :TODO: Figure out proper item_order
+		# :TODO: This function should return something
+		# :TODO: Take care bout hierarchy here, it has no value !
+		# :TODO: Figure out proper item_order
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
 		$result = false;
 
-        $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
-        $dflt_pageid = (int) $db->GetOne($query);
-        if( $dflt_pageid < 1 ) $this->SetDefaultContent(TRUE);
+		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
+		$dflt_pageid = (int) $db->GetOne($query);
+		if( $dflt_pageid < 1 ) $this->SetDefaultContent(TRUE);
 
 		// Figure out the item_order
 		if ($this->mItemOrder < 1) {
@@ -1427,30 +1430,30 @@ abstract class ContentBase
 		$query = "INSERT INTO ".CMS_DB_PREFIX."content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		$dbresult = $db->Execute($query, array(
-                                     $newid,
-                                     $this->mName,
-                                     $this->mAlias,
-                                     $this->Type(),
-                                     $this->mOwner,
-                                     $this->mParentId,
-                                     $this->mTemplateId,
-                                     $this->mItemOrder,
-                                     $this->mHierarchy,
-                                     $this->mIdHierarchy,
-                                     ($this->mActive == true         ? 1 : 0),
-                                     ($this->mDefaultContent == true ? 1 : 0),
-                                     ($this->mShowInMenu == true     ? 1 : 0),
-                                     ($this->mCachable == true       ? 1 : 0),
-                                     $this->mURL,
-                                     $this->mMenuText,
-                                     $this->mMetadata,
-                                     $this->mTitleAttribute,
-                                     $this->mAccessKey,
-                                     $this->mTabIndex,
-                                     $this->mLastModifiedBy,
-                                     $this->mModifiedDate,
-                                     $this->mCreationDate
-                                     ));
+									 $newid,
+									 $this->mName,
+									 $this->mAlias,
+									 $this->Type(),
+									 $this->mOwner,
+									 $this->mParentId,
+									 $this->mTemplateId,
+									 $this->mItemOrder,
+									 $this->mHierarchy,
+									 $this->mIdHierarchy,
+									 ($this->mActive == true         ? 1 : 0),
+									 ($this->mDefaultContent == true ? 1 : 0),
+									 ($this->mShowInMenu == true     ? 1 : 0),
+									 ($this->mCachable == true       ? 1 : 0),
+									 $this->mURL,
+									 $this->mMenuText,
+									 $this->mMetadata,
+									 $this->mTitleAttribute,
+									 $this->mAccessKey,
+									 $this->mTabIndex,
+									 $this->mLastModifiedBy,
+									 $this->mModifiedDate,
+									 $this->mCreationDate
+									 ));
 
 		if (! $dbresult) {
 			die($db->sql.'<br/>'.$db->ErrorMsg());
@@ -1526,7 +1529,7 @@ abstract class ContentBase
 			}
 		}
 
-		$auto_type = \CMSMS\internal\content_assistant::auto_create_url();
+		$auto_type = content_assistant::auto_create_url();
 		if( $this->mURL == '' && cms_siteprefs::get('content_autocreate_urls') ) {
 			// create a valid url.
 			if( !$this->DefaultContent() ) {
@@ -1591,7 +1594,7 @@ abstract class ContentBase
 	function Delete()
 	{
 		$gCms = CmsApp::get_instance();
-        \CMSMS\HookManager::do_hook('Core::ContentDeletePre', [ 'content' => &$this ] );
+		\CMSMS\HookManager::do_hook('Core::ContentDeletePre', [ 'content' => &$this ] );
 		$db = $gCms->GetDb();
 		$result = false;
 
@@ -1617,7 +1620,7 @@ abstract class ContentBase
 			if( $this->mURL != '' ) cms_route_manager::del_static($this->mURL);
 		}
 
-        	\CMSMS\HookManager::do_hook('Core::ContentDeletePost', [ 'content' => &$this ] );
+			\CMSMS\HookManager::do_hook('Core::ContentDeletePost', [ 'content' => &$this ] );
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 	}
@@ -1668,15 +1671,15 @@ abstract class ContentBase
 		if (isset($params['showinmenu'])) $this->mShowInMenu = (int) $params['showinmenu'];
 
 		// alias
-        // alias field can exist if the user has manage all content... OR alias is a basic property
-        // and this user has other edit rights to the content page.
-        // empty value on the alias field means we need to generate a new alias
+		// alias field can exist if the user has manage all content... OR alias is a basic property
+		// and this user has other edit rights to the content page.
+		// empty value on the alias field means we need to generate a new alias
 		$new_alias = null;
-        $alias_field_exists = isset( $params['alias'] );
+		$alias_field_exists = isset( $params['alias'] );
 		if( isset($params['alias']) ) $new_alias = trim(strip_tags($params['alias']));
-        // if we are adding or we have a new alias, set alias to the field value, or calculate one, adjust as needed
+		// if we are adding or we have a new alias, set alias to the field value, or calculate one, adjust as needed
 		if( $new_alias || $alias_field_exists ) {
-            $this->SetAlias($new_alias);
+			$this->SetAlias($new_alias);
 		}
 
 		// target
@@ -1747,24 +1750,24 @@ abstract class ContentBase
 			return $url;
 		}
 
-        if( $rewrite == true ) {
-            $url_rewriting = $config['url_rewriting'];
-            $page_extension = $config['page_extension'];
-            if ($url_rewriting == 'mod_rewrite') {
-                $str = $this->HierarchyPath();
-                if( $this->mURL != '') $str = $this->mURL;	// we have a url path
-                $url = $base_url . '/' . $str . $page_extension;
-                return $url;
-            }
-            else if (isset($_SERVER['PHP_SELF']) && $url_rewriting == 'internal') {
-                $str = $this->HierarchyPath();
-                if( $this->mURL != '') $str = $this->mURL; // we have a url path
-                $url = $base_url . '/index.php/' . $str . $page_extension;
-                return $url;
-            }
-        }
+		if( $rewrite == true ) {
+			$url_rewriting = $config['url_rewriting'];
+			$page_extension = $config['page_extension'];
+			if ($url_rewriting == 'mod_rewrite') {
+				$str = $this->HierarchyPath();
+				if( $this->mURL != '') $str = $this->mURL;	// we have a url path
+				$url = $base_url . '/' . $str . $page_extension;
+				return $url;
+			}
+			else if (isset($_SERVER['PHP_SELF']) && $url_rewriting == 'internal') {
+				$str = $this->HierarchyPath();
+				if( $this->mURL != '') $str = $this->mURL; // we have a url path
+				$url = $base_url . '/index.php/' . $str . $page_extension;
+				return $url;
+			}
+		}
 
-        $url = $base_url . '/index.php?' . $config['query_var'] . '=' . $alias;
+		$url = $base_url . '/index.php?' . $config['query_var'] . '=' . $alias;
 		return $url;
 	}
 
@@ -1785,23 +1788,23 @@ abstract class ContentBase
 		if( $direction < 0 && $this->ItemOrder() > 1 ) {
 			// up
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order + 1), modified_date = '.$time.'
-                  WHERE item_order = ? AND parent_id = ?';
+				  WHERE item_order = ? AND parent_id = ?';
 			$db->Execute($query,array($order-1,$parentid));
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order - 1), modified_date = '.$time.'
-                  WHERE content_id = ?';
+				  WHERE content_id = ?';
 			$db->Execute($query,array($this->Id()));
 		}
 		else if( $direction > 0 ) {
 			// down.
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order - 1), modified_date = '.$time.'
-                  WHERE item_order = ? AND parent_id = ?';
+				  WHERE item_order = ? AND parent_id = ?';
 			$db->Execute($query,array($order+1,$parentid));
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order + 1), modified_date = '.$time.'
-                  WHERE content_id = ?';
+				  WHERE content_id = ?';
 			$db->Execute($query,array($this->Id()));
 		}
-        \CMSMS\internal\global_cache::clear('content_tree');
-        \CMSMS\internal\global_cache::clear('content_flatlist');
+		global_cache::clear('content_tree');
+		global_cache::clear('content_flatlist');
 	}
 
 	/**
@@ -1845,35 +1848,35 @@ abstract class ContentBase
 		// todo: filter out the elements that this user isn't allowed to see.
 	}
 
-    /**
-     * @ignore
-     */
+	/**
+	 * @ignore
+	 */
 	private function _SortProperties(array $props)
 	{
 		// sort the properties.
 		// sort the attributes by tab, priority, name...
 		usort($props,function($a,$b) {
-                if( !isset($a->tab) || $a->tab == '' ) $a->tab = ContentBase::TAB_MAIN;
-                if( !isset($b->tab) || $b->tab == '' ) $b->tab = ContentBase::TAB_MAIN;
+				if( !isset($a->tab) || $a->tab == '' ) $a->tab = ContentBase::TAB_MAIN;
+				if( !isset($b->tab) || $b->tab == '' ) $b->tab = ContentBase::TAB_MAIN;
 
-                // sort elements by tabname, and then priority
-                $atab = $a->tab;
-                $btab = $b->tab;
+				// sort elements by tabname, and then priority
+				$atab = $a->tab;
+				$btab = $b->tab;
 
-                $res = null;
-                if( ($r = strcmp($atab,$btab)) != 0 ) $res = $r;
-                else if( $a->priority < $b->priority ) $res = -1;
-                else if( $a->priority > $b->priority ) $res = 1;
-                else $res = strcmp($a->name,$b->name);
-                return $res;
-            });
+				$res = null;
+				if( ($r = strcmp($atab,$btab)) != 0 ) $res = $r;
+				else if( $a->priority < $b->priority ) $res = -1;
+				else if( $a->priority > $b->priority ) $res = 1;
+				else $res = strcmp($a->name,$b->name);
+				return $res;
+			});
 
 		return $props;
 	}
 
-    /**
-     * @ignore
-     */
+	/**
+	 * @ignore
+	 */
 	private function _GetEditableProperties()
 	{
 		if( isset($this->_editable_properties) ) return $this->_editable_properties;
@@ -1948,7 +1951,7 @@ abstract class ContentBase
 	 */
 	public function HasChildren(bool $activeonly = false)
 	{
-        $node = ContentOperations::get_instance()->quickfind_node_by_id($id);
+		$node = ContentOperations::get_instance()->quickfind_node_by_id($id);
 		if( !$node->has_children() ) return false;
 		if( $activeonly == false) return true;
 
@@ -1999,7 +2002,7 @@ abstract class ContentBase
 		$this->mAdditionalEditors = $editorarray;
 	}
 
-    /**
+	/**
 	 * A utility method to return all of the userid and group ids in a format that is
 	 * suitable to be used in a select field.
 	 * Note: group ids are expressed as negative integers in the keys.
@@ -2024,8 +2027,8 @@ abstract class ContentBase
 		return $opts;
 	}
 
-    /**
-     * A utility method to generate a <select> field for selecting additional editors.
+	/**
+	 * A utility method to generate a <select> field for selecting additional editors.
 	 * If a positive owner id is specified that user will be excluded from output select element.
 	 *
 	 * @see ContentBase::GetAdditionalEditorOptions
@@ -2067,22 +2070,22 @@ abstract class ContentBase
 		return self::GetAdditionalEditorInput($addteditors,$this->Owner());
 	}
 
-    /**
-     * Handles setting the value (by member) of a base (not addon property) property of the content object
-     * for base properties that have been removed from the form.
-     *
+	/**
+	 * Handles setting the value (by member) of a base (not addon property) property of the content object
+	 * for base properties that have been removed from the form.
+	 *
 	 * @ignore
 	 */
 	private function _handleRemovedBaseProperty(string $name,string $member)
 	{
 		if( !is_array($this->_attributes) ) return FALSE;
-        $fnd = false;
-        foreach( $this->_attributes as $attr ) {
-            if( $attr->name == $name ) {
-                $fnd = true;
-                break;
-            }
-        }
+		$fnd = false;
+		foreach( $this->_attributes as $attr ) {
+			if( $attr->name == $name ) {
+				$fnd = true;
+				break;
+			}
+		}
 		if( !$fnd ) {
 			if( isset($this->_prop_defaults[$name]) ) {
 				$this->$member = $this->_prop_defaults[$name];
@@ -2119,7 +2122,7 @@ abstract class ContentBase
 	 * @param int $priority The property priority, for sorting.
 	 * @param string $tab The tab for the property (see tab constants)
 	 * @param bool $required (whether the property is required)
-     * @param bool $basic Whether or not the property is a basic property (editable by even restricted editors)
+	 * @param bool $basic Whether or not the property is a basic property (editable by even restricted editors)
 	 */
 	protected function AddProperty(string $name,int $priority,string $tab = self::TAB_MAIN,bool $required = FALSE,bool $basic = FALSE)
 	{
@@ -2128,7 +2131,7 @@ abstract class ContentBase
 		$ob->priority = (int) $priority;
 		$ob->tab = (string) $tab;
 		$ob->required = (bool) $required;
-        $ob->basic = $basic;
+		$ob->basic = $basic;
 
 		if( !is_array($this->_attributes) ) $this->_attributes = array();
 		$this->_attributes[] = $ob;
@@ -2145,7 +2148,7 @@ abstract class ContentBase
 		return $this->_SortProperties($this->_attributes);
 	}
 
-    /**
+	/**
 	 * Add a property that is directly associtated with a field in the content table.
 	 * @alias for AddProperty
 	 *
@@ -2160,7 +2163,7 @@ abstract class ContentBase
 		$this->AddProperty($name,$priority,self::TAB_OPTIONS,$is_required);
 	}
 
-    /**
+	/**
 	 * Alias for AddBaseProperty.
 	 *
 	 * @param string $name
@@ -2206,7 +2209,7 @@ abstract class ContentBase
 			$tmp = $contentops->CreateHierarchyDropdown($this->mId, $this->mParentId, 'parent_id', ($this->mId > 0) ? 0 : 1, 1, 0, 1, 1);
 			if( empty($tmp) && !check_permission(get_userid(),'Manage All Content') ) {
 				return array('','<input type="hidden" name="parent_id" value="'.$this->mParentId.'" />');
-            }
+			}
 			$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_content_parent',lang('help_title_content_parent'));
 			if( !empty($tmp) ) return array('<label for="parent_id">*'.lang('parent').':</label>'.$help,$tmp);
 			break;
@@ -2254,15 +2257,15 @@ abstract class ContentBase
 		case 'image':
 			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_imagefield_path'));
 			$data = $this->GetPropertyValue('image');
-            $filepicker = \cms_utils::get_filepicker_module();
-            if( $filepicker ) {
-                $profile = $filepicker->get_default_profile( $dir, get_userid() );
-                $profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image'] );
-                $input = $filepicker->get_html( 'image', $data, $profile);
-            }
-            else {
-                $input = create_file_dropdown('image',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
-            }
+			$filepicker = \cms_utils::get_filepicker_module();
+			if( $filepicker ) {
+				$profile = $filepicker->get_default_profile( $dir, get_userid() );
+				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image'] );
+				$input = $filepicker->get_html( 'image', $data, $profile);
+			}
+			else {
+				$input = create_file_dropdown('image',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
+			}
 			if( !$input ) return FALSE;
 			$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_content_image',lang('help_title_content_image'));
 			return array('<label for="image">'.lang('image').':</label>'.$help,$input);
@@ -2270,21 +2273,21 @@ abstract class ContentBase
 		case 'thumbnail':
 			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_thumbnailfield_path'));
 			$data = $this->GetPropertyValue('thumbnail');
-            $filepicker = \cms_utils::get_filepicker_module();
-            if( $filepicker ) {
-                $profile = $filepicker->get_default_profile( $dir, get_userid() );
-                $profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image', 'match_prefix'=>'thumb_' ] );
-                $input = $filepicker->get_html( 'thumbnail', $data, $profile);
-            }
-            else {
-                $input = create_file_dropdown('thumbnail',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
-            }
+			$filepicker = \cms_utils::get_filepicker_module();
+			if( $filepicker ) {
+				$profile = $filepicker->get_default_profile( $dir, get_userid() );
+				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image', 'match_prefix'=>'thumb_' ] );
+				$input = $filepicker->get_html( 'thumbnail', $data, $profile);
+			}
+			else {
+				$input = create_file_dropdown('thumbnail',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
+			}
 			if( !$input ) return FALSE;
 			$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_content_thumbnail',lang('help_title_content_thumbnail'));
 			return array('<label for="thumbnail">'.lang('thumbnail').':</label>'.$help,$input);
 
 		case 'titleattribute':
-            $help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_content_titleattribute',lang('help_title_content_ta'));
+			$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_content_titleattribute',lang('help_title_content_ta'));
 			return array('<label for="titleattribute">'.lang('titleattribute').':</label>'.$help,
 						 '<input type="text" name="titleattribute" id="titleattribute" maxlength="255" size="80" value="'.cms_htmlentities($this->mTitleAttribute).'" />');
 
@@ -2316,7 +2319,7 @@ abstract class ContentBase
 		case 'owner':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
 			if (!$adding && (check_permission(get_userid(),'Manage All Content') || $showadmin) ) {
-                $userops = UserOperations::get_instance();
+				$userops = UserOperations::get_instance();
 				$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_content_owner',lang('help_title_content_owner'));
 				return array('<label for="owner">'.lang('owner').':</label>'.$help, $userops->GenerateDropdown($this->Owner()));
 			}

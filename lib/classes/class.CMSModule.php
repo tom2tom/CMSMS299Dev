@@ -1420,14 +1420,14 @@ abstract class CMSModule
      * @param string $name The action name
      * @param string $id The action identifier
      * @param array  $params The action params
-     * @param mixed  $returnid The current page id. int or ''for admin requests.
+     * @param mixed  $returnid The current page id. int for frontend, null/'' for admin requests.
      * @param Smarty_Internal_Template &$parent The currrent smarty template object.
      * @return mixed The action output, normally a string but maybe null.
      */
     final public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$parent )
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
-        if( $returnid !== '' ) {
+        if( $returnid != '' ) {
 
             // merge in params from module hints.
             $hints = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
@@ -1486,7 +1486,7 @@ abstract class CMSModule
 
         if( isset($params['assign']) ) {
             $smarty->assign(cms_htmlentities($params['assign']),$output);
-            return;
+            return '';
         }
         return $output;
     }
@@ -2228,10 +2228,10 @@ abstract class CMSModule
      * @param string $tpl_name The template name
      * @param string $content The template content
      * @param string $modulename The module name, if empty the current module name is used.
-     * @return bool
+     * @return bool ?? maybe null
      * @deprecated TODO suggest replacement
      */
-    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '') : bool
+    final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')
     {
         $this->_loadTemplateMethods();
         return cms_module_SetTemplate($this, $tpl_name, $content, $modulename);
@@ -2494,7 +2494,7 @@ abstract class CMSModule
      * Returns a formatted page status message
      *
      * @final
-     * @param string|string[] $message Message(s) to be shown
+     * @param mixed $message Message to be shown string or array of them
      * @return string
      */
     final public function ShowMessage($message)
@@ -2688,10 +2688,10 @@ abstract class CMSModule
      * @param string $modulename       The name of the module sending the event, or 'Core'
      * @param string $eventname       The name of the event
      * @param bool $removable      Can this event be removed from the list?
-     * @returns bool
+     * @returns mixed bool or nothing ??
      * @deprecated TODO explain
      */
-    final public function AddEventHandler(string $modulename, string $eventname, bool $removable = true) : bool
+    final public function AddEventHandler(string $modulename, string $eventname, bool $removable = true)
     {
         Events::AddEventHandler( $modulename, $eventname, false, $this->GetName(), $removable );
     }

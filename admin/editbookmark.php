@@ -76,7 +76,7 @@ if (isset($_POST["editbookmark"])) {
   }
 }
 else if ($bookmark_id != -1) {
-  $query = "SELECT * from ".cms_db_prefix()."admin_bookmarks WHERE bookmark_id = ?";
+  $query = "SELECT * from ".CMS_DB_PREFIX."admin_bookmarks WHERE bookmark_id = ?";
   $result = $db->Execute($query, array($bookmark_id));
   $row = $result->FetchRow();
 

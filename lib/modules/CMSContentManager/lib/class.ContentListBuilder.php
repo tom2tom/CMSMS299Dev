@@ -118,7 +118,7 @@ final class ContentListQuery extends \CmsDbQueryBase
     {
         if( $this->_rs ) return;
 
-        $sql = 'SELECT SQL_CALC_FOUND_ROWS C.content_id FROM '.cms_db_prefix().'content C';
+        $sql = 'SELECT SQL_CALC_FOUND_ROWS C.content_id FROM '.CMS_DB_PREFIX.'content C';
         $where = $parms = [];
         switch( $this->_filter->type ) {
         case ContentListFilter::EXPR_OWNER:
@@ -126,7 +126,7 @@ final class ContentListQuery extends \CmsDbQueryBase
             $parms[] = (int) $this->_filter->expr;
             break;
         case ContentListFilter::EXPR_EDITOR:
-            $sql .= ' INNER JOIN '.cms_db_prefix().'additional_users A ON C.content_id = A.content_id AND A.user_id = ?';
+            $sql .= ' INNER JOIN '.CMS_DB_PREFIX.'additional_users A ON C.content_id = A.content_id AND A.user_id = ?';
             $parms[] = (int) $this->_filter->expr;
             break;
         case ContentListFilter::EXPR_TEMPLATE:
@@ -134,7 +134,7 @@ final class ContentListQuery extends \CmsDbQueryBase
             $parms[] = (int) $this->_filter->expr;
             break;
         case ContentListFilter::EXPR_DESIGN:
-            $sql .= ' INNER JOIN '.cms_db_prefix().'content_props P ON C.content_id = P.content_id AND P.prop_name = ?';
+            $sql .= ' INNER JOIN '.CMS_DB_PREFIX.'content_props P ON C.content_id = P.content_id AND P.prop_name = ?';
             $parms[] = 'design_id';
             $where[] = 'P.content = ?';
             $parms[] = (int) $this->_filter->expr;

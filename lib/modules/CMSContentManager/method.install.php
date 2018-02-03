@@ -30,17 +30,20 @@ $this->CreatePermission('Modify Any Page', $this->Lang('perm_modify'));
 $this->CreatePermission('Remove Pages', $this->Lang('perm_remove'));
 $this->CreatePermission('Reorder Content', $this->Lang('perm_reorder'));
 
-$editor_group = new Group();
-$editor_group->name = 'Editor';
-$editor_group->description = $this->Lang('group_desc');
-$editor_group->active = 1;
-CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$editor_group]);
-$editor_group->Save();
-CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$editor_group]);
+//CHECKME DesignManager race when 1st installing?
+$group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Editor'");
+if (!$group_id) {
+	$editor_group = new Group();
+	$editor_group->name = 'Editor';
+	$editor_group->description = $this->Lang('group_desc');
+	$editor_group->active = 1;
+	CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$editor_group]);
+	$editor_group->Save();
+	CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$editor_group]);
 
-$editor_group->GrantPermission('Manage All Content');
-$editor_group->GrantPermission('Manage My Account');
-$editor_group->GrantPermission('Manage My Bookmarks');
-$editor_group->GrantPermission('Manage My Settings');
-$editor_group->GrantPermission('View Tag Help'); //CHECKME DesignManager race when 1st installing?
-
+	$editor_group->GrantPermission('Manage All Content');
+	$editor_group->GrantPermission('Manage My Account');
+	$editor_group->GrantPermission('Manage My Bookmarks');
+	$editor_group->GrantPermission('Manage My Settings');
+	$editor_group->GrantPermission('View Tag Help');
+}

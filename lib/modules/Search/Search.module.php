@@ -79,7 +79,7 @@ class Search extends CMSModule
 
     public function InitializeFrontend()
     {
-        $this->RestrictUnknownParams();
+//2.3 does nothing        $this->RestrictUnknownParams();
 
         $this->SetParameterType('inline',CLEAN_STRING);
         $this->SetParameterType(CLEAN_REGEXP.'/passthru_.*/',CLEAN_STRING);

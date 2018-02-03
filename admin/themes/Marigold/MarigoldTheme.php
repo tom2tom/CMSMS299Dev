@@ -32,6 +32,8 @@
 #
 #-------------------------------------------------------------------------
 
+use CMSMS\internal\Smarty;
+
 class MarigoldTheme extends CmsAdminThemeBase {
 	private $_errors = array();
 	private $_messages = array();
@@ -139,7 +141,7 @@ class MarigoldTheme extends CmsAdminThemeBase {
 	}
 
 	public function do_toppage($section_name) {
-		$smarty = \CMSMS\internal\Smarty::get_instance();
+		$smarty = Smarty::get_instance();
 		$otd = $smarty->template_dir;
 		$smarty->template_dir = __DIR__ . '/templates';
 		if ($section_name) {
@@ -167,7 +169,7 @@ class MarigoldTheme extends CmsAdminThemeBase {
 	{
 	  // by default we're gonna grab the theme name
         $config = cms_config::get_instance();
-        $smarty = \CMSMS\internal\Smarty::get_instance();
+        $smarty = Smarty::get_instance();
 
 	  $smarty->template_dir = __DIR__ . '/templates';
 	  global $error,$warningLogin,$acceptLogin,$changepwhash;
@@ -180,7 +182,7 @@ class MarigoldTheme extends CmsAdminThemeBase {
 	}
 
 	public function postprocess($html) {
-		$smarty = \CMSMS\internal\Smarty::get_instance();
+		$smarty = Smarty::get_instance();
 		$otd = $smarty->template_dir;
 		$smarty->template_dir = __DIR__ . '/templates';
 		$module_help_type = $this->get_value('module_help_type');

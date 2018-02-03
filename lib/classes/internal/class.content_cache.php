@@ -90,7 +90,7 @@ final class content_cache
 	private function __construct()
 	{
 		if( !\CmsApp::get_instance()->is_frontend_request() ) return;
-        debug_buffer('cms_content_cache: begin load needed content objects');
+        debug_buffer('content_cache: begin load needed content objects');
 		$content_ids = null;
 		$deep = FALSE;
 		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET));
@@ -106,7 +106,7 @@ final class content_cache
 			$contentops = \ContentOperations::get_instance();
 			$tmp = $contentops->LoadChildren(null,$deep,false,$content_ids);
 		}
-        debug_buffer('cms_content_cache: end loading needed content objects');
+        debug_buffer('content_cache: end loading needed content objects');
 	}
 
 	/**

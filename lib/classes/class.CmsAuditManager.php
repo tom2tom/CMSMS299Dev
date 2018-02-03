@@ -1,4 +1,22 @@
 <?php
+#CMS Made Simple class
+#(c)2018 The CMSMS Dev Team
+#Visit our homepage at: http://cmsmadesimple.org
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
+
 namespace CMSMS {
 
     interface IAuditManager
@@ -41,7 +59,7 @@ namespace CMSMS {
         }
     }
 
-    final class AuditManager
+    final class CmsAuditManager
     {
         private static $_instance;
         private static $_std_mgr;
@@ -49,7 +67,7 @@ namespace CMSMS {
 
         protected function __construct() {}
 
-        public static function init() {} // does nothing... just so we can audoload the thing.
+        public static function init() {} // does nothing... just so we can autoload the thing.
 
         public static function set_auditor( IAuditManager $mgr )
         {
@@ -89,20 +107,23 @@ namespace CMSMS {
 
 
 namespace  {
-    function audit( $item_id, $item, $action ) {
-        \CMSMS\AuditManager::audit( $item, $action, $item_id );
+    function audit( $item_id, $item, $action )
+    {
+        CMSMS\CmsAuditManager::audit( $item, $action, $item_id );
     }
 
-    function cms_notice( $msg, $subject = null ) {
-        \CMSMS\AuditManager::notice( $msg, $subject );
+    function cms_notice( $msg, $subject = null )
+    {
+        CMSMS\CmsAuditManager::notice( $msg, $subject );
     }
 
-    function cms_warning( $msg, $subject = null ) {
-        \CMSMS\AuditManager::warning( $msg, $subject );
+    function cms_warning( $msg, $subject = null )
+    {
+        CMSMS\CmsAuditManager::warning( $msg, $subject );
     }
 
-    function cms_error( $msg, $subject = null ) {
-        \CMSMS\AuditManager::error( $msg, $subject );
+    function cms_error( $msg, $subject = null )
+    {
+        CMSMS\CmsAuditManager::error( $msg, $subject );
     }
-
-}
+} // namespace

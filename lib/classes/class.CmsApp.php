@@ -140,7 +140,7 @@ final class CmsApp {
 	}
 
 	/**
-	 * Retrieve the single app instancce.
+	 * Retrieve the single app instance.
 	 *
 	 * @since 1.10
 	 */
@@ -396,11 +396,11 @@ final class CmsApp {
     /**
      * Get the simple plugin operations object.
      *
-     * @return \CMSMS\simple_plugin_operations
+     * @return \CMSMS\CmsSimplePluginOperations
      */
     public function GetSimplePluginOperations()
     {
-        return \CMSMS\simple_plugin_operations::get_instance();
+        return \CMSMS\CmsSimplePluginOperations::get_instance();
     }
 
 	/**
@@ -719,7 +719,7 @@ class CmsContentTypePlaceholder
  */
 function &cmsms()
 {
-   return CmsApp::get_instance();
+    return CmsApp::get_instance();
 }
 
 
@@ -728,7 +728,6 @@ function &cmsms()
  *
  * @since 0.4
  * @return string
- * @see CmsApp::GetDbPrefix();
  */
 function cms_db_prefix() {
     return CMS_DB_PREFIX;

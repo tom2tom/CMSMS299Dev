@@ -35,6 +35,8 @@
 #END_LICENSE
 #$Id: News.module.php 2114 2005-11-04 21:51:13Z wishy $
 
+use CMSMS\internal\content_cache;
+
 final class Nav_utils
 {
     private static $_excludes;
@@ -141,7 +143,7 @@ final class Nav_utils
                 if( is_array($children) && count($children) ) {
                     foreach( $children as $node ) {
                         $id = $node->get_tag('id');
-                        if( \CMSMS\internal\content_cache::content_exists($id) ) {
+                        if( content_cache::content_exists($id) ) {
                             $obj->children_exist = TRUE;
                             break;
                         }

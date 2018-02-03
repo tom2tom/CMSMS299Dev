@@ -41,7 +41,7 @@ $is_admin = UserOperations::get_instance($uid,1);
 if( $is_admin ) {
     // clear all locks of type content
     $db = cmsms()->GetDb();
-    $sql = 'DELETE FROM '.CMS_DB_PREFIX().CmsLock::LOCK_TABLE.' WHERE type = ?';
+    $sql = 'DELETE FROM '.CMS_DB_PREFIX.CmsLock::LOCK_TABLE.' WHERE type = ?';
     $db->Execute($sql,array('content'));
     cms_notice('Cleared all content locks');
 } else {
