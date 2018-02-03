@@ -27,7 +27,7 @@ class Connection extends \CMSMS\Database\Connection
     protected $_in_smart_transaction = 0;
     protected $_transaction_status = true;
     protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
-	private $_asyncQ = []; // queue of cached results from prior pretend-async commands, pending pretend-reaps
+    private $_asyncQ = []; // queue of cached results from prior pretend-async commands, pending pretend-reaps
 
     public function __construct()
     {
@@ -242,36 +242,36 @@ class Connection extends \CMSMS\Database\Connection
     {
         if ($this->isNative()) {
 //TODO
-		} else {
-			$rs = $this->execute($sql, $valsarr);
-			if ($rs) {
-				$this->_asyncQ[] = $rs;
-			} else {
+        } else {
+            $rs = $this->execute($sql, $valsarr);
+            if ($rs) {
+                $this->_asyncQ[] = $rs;
+            } else {
 //TODO arrange to handle error when 'reaped'
-			}
-		}
+            }
+        }
     }
 
     public function reap()
-	{
+    {
         if ($this->isNative()) {
             $rs = $this->_mysql->reap_async_query();
-		} else {
-			$rs = array_shift($this->_asyncQ);
-		}
-		if ($rs) { // && $rs is not some error-data
-			$this->_conn->errno = 0;
-			$this->_conn->error = '';
+        } else {
+            $rs = array_shift($this->_asyncQ);
+        }
+        if ($rs) { // && $rs is not some error-data
+            $this->_conn->errno = 0;
+            $this->_conn->error = '';
 
-			return new ResultSet($rs);
-		} else {
-			$errno = 98;
-			$error = 'No async result available';
-			$this->processerror(parent::ERROR_EXECUTE, $errno, $error);
+            return new ResultSet($rs);
+        } else {
+            $errno = 98;
+            $error = 'No async result available';
+            $this->processerror(parent::ERROR_EXECUTE, $errno, $error);
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 
     public function beginTrans()
     {
@@ -381,32 +381,24 @@ class Connection extends \CMSMS\Database\Connection
         return false;
     }
 
-    //TODO CHECK thread-safety
+    //kinda-atomic update + select TODO CHECK thread-safety
     public function genId($seqname)
     {
-        if ($this->_mysql->multi_query(
-     "BEGIN; SELECT id FROM $seqname FOR UPDATE; UPDATE $seqname SET id = id + 1; COMMIT;"
-        )) {
-            do {
-                $rs = $this->_mysql->store_result(); //NOT use_result()
-                if ($rs) {
-                    $data = $rs->fetch_array(MYSQLI_NUM);
-                    $rs->free();
-                }
-            } while ($this->_mysql->next_result());
-
-            return $data[0] + 1;
-        } elseif ($this->_debug) {
-            $this->add_debug_query("genId($seqname)");
+        $this->_mysql->query("UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1");
+        $rs = $this->_mysql->query('SELECT LAST_INSERT_ID()');
+        if ($rs) {
+            $rs->data_seek(0); 
+            $valsarr = $rs->fetch_array(MYSQLI_NUM);
+            return $valsarr[0] + 1;
         }
-
+        //TODO handle error
         return -1;
     }
 
     public function createSequence($seqname, $startID = 0)
     {
-		//TODO ensure this is really an upsert, cuz' can be repeated during failed installation
-        $rs = $this->do_sql("CREATE TABLE $seqname (id INT NOT NULL) ENGINE=MYISAM COLLATE ascii_general_ci");
+        //TODO ensure this is really an upsert, cuz' can be repeated during failed installation
+        $rs = $this->do_sql("CREATE TABLE $seqname (id I(4) UNSIGNED) ENGINE=MYISAM COLLATE ascii_general_ci");
         if ($rs) {
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
