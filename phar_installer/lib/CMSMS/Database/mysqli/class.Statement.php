@@ -1,188 +1,411 @@
 <?php
+/*
+Class Statement: represents a prepared SQL statement
+Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+For CMS Made Simple <http:www.cmsmadesimple.org>
+Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 
 namespace CMSMS\Database\mysqli;
 
-class Statement extends \CMSMS\Database\Statement
+/**
+ * A class defining a prepared database statement.
+ *
+ * @since 2.2
+ *
+ * @property-read Connection $db The database connection
+ * @property-read string $sql The SQL query
+ */
+class Statement
 {
-    private $_data;
+    const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
+    /**
+     * @ignore
+     */
+    protected $_conn; // Connection object
+    /**
+     * @ignore
+     */
+    protected $_stmt; // mysqli_stmt object
+    /**
+     * @ignore
+     */
+    protected $_sql;
+    /**
+     * @ignore
+     */
+    protected $_prep = false; // whether prepare() succeeded
+    protected $_bound = false; // whether bind() succeeded
 
-    // meta...
-    private $_bind;
-    private $_bound;
-    private $_types;
-    private $_stmt; // the statement object.
-    private $_meta; // after first execute
-    private $_num_rows; // after first execute
-    private $_row; // updates after each execute for queries with a resultset
-    private $_pos; // updates after each execute for queries with a resultset
-
-    public function __construct(Connection $conn,$sql = null)
+    /**
+     * Constructor.
+     *
+     * @param Connection      $conn The database connection
+     * @param optional string $sql  The SQL query, default null
+     */
+    public function __construct(Connection &$conn, $sql = null)
     {
-        // this is just for type checking.
-        parent::__construct($conn,$sql);
+        $this->_conn = $conn;
+        $this->_sql = $sql;
     }
 
+/* BAD !! TODO check proper cleanup happens anyway, upon destruction
     public function __destruct()
     {
-        if( $this->_stmt ) {
-            $this->_stmt->free_result();
-            $this->_stmt->close();
-        }
-    }
-
-    protected function get_type_char($var)
-    {
-        $t = gettype($var);
-        switch( $t ) {
-        case 'double':
-            return 'd';
-        case 'boolean':
-        case 'integer':
-            return 'i';
-        case 'string':
-        default:
-            return 's';
-        }
-    }
-
-    protected function set_bound_data($data)
-    {
-        $this->_data = $data;
-        reset($this->_data);
-    }
-
-    protected function bind_params()
-    {
-        if( !$this->_stmt ) $this->prepare($this->sql);
-
-        // get the type string
-        $this->types = '';
-        $keys = null;
-        $args = func_get_args();
-        if( count($args) == 1 && is_array($args) && is_array($args[0]) ) {
-            // we expect that the data is an associtive array
-            $row = $args[0];
-            foreach( $row as $key => $val ) {
-            	$this->_types .= $this->get_type_char($val);
+        if ($this->_stmt) {
+            if ($this->_bound) {
+                $this->_stmt->free_result();
             }
-            $this->_bind = array_values($row);
-            $keys = array_keys($row);
+            if ($this->_prep) {
+                $this->_stmt->close();
+            }
+        }
+    }
+*/
+    /**
+     * @ignore
+     */
+    public function __get($key)
+    {
+        switch ($key) {
+         case 'db':
+         case 'conn':
+            return $this->_conn;
+         case 'sql':
+            return $this->_sql;
+        }
+    }
+
+    protected function processerror ($type, $errno, $error)
+    {
+        $this->_conn->OnError($type, $errno, $error);
+    }
+
+    /**
+     * Prepare a command.
+     *
+     * @param optional string $sql parameterized SQL command default null
+     * If $sql is not provided here, $this->_sql must have previously been
+     * populated with the relevant command.
+     *
+     * @return bool indicating success
+     */
+    public function prepare($sql = null)
+    {
+        $mysql = $this->_conn->get_inner_mysql();
+        if (!$mysql || !$this->_conn->isConnected()) {
+            $errno = 5;
+            $error = 'Attempt to create prepared statement when database is not connected';
+            $this->processerror(\CMSMS\Database\Connection::ERROR_CONNECT, $errno, $error);
+            $this->_prep = false;
+
+            return false;
+        } elseif (!($sql || $this->_sql)) {
+            $errno = 1;
+            $error = 'No SQL to prepare';
+            $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+            $this->_prep = false;
+
+            return false;
+        }
+
+        if (!$sql) {
+            $sql = $this->_sql;
         } else {
-            // function called with numerous parameters... get their types
-            $keys = array_keys($args);
-            foreach( $args as $val ) {
-                $this->_types .= $this->get_type_char($val);
-            }
-            $this->_bind = array_values($args);
+            $this->_sql = $sql;
+        }
+        $this->_stmt = $mysql->stmt_init();
+        $this->_prep = $this->_stmt->prepare((string) $sql);
+        if ($this->_prep) {
+            $this->_conn->errno = 0;
+            $this->_conn->error = '';
+
+            return true;
         }
 
-        $this->_bound = array();
-        $this->_bound[] =& $this->_types;
-        for( $i = 0; $i < count($keys); $i++ ) {
-            $this->_bound[] =& $this->_bind[$i];
+        $errno = $this->_stmt->errno;
+        if ($errno == self::NOPARMCMD) {
+            //the SQL cannot be parameterized
+            debug_to_log('SQL: '.$sql);
+            debug_bt_to_log();
+            //deprecated - setup to try to emulate the command, later
+            //$this->_stmt persists (non-null)
+            $this->_prep = true;
+            $this->_conn->errno = $errno;
+            $this->_conn->error = '';
+
+            return true;
         }
-        call_user_func_array(array($this->_stmt,'bind_param'),$this->_bound);
+        $error = $this->_stmt->error;
+        $this->processerror (\CMSMS\Database\Connection::ERROR_PREPARE, $errno, $error);
+        $this->_stmt = null;
+
+        return false;
     }
 
-    protected function prepare($sql)
+    /*
+     * @deprecated support for binding multiple sets of command-parameters
+     *   in a single 2-D array, to be processed with ->next() until ->EOF()
+     */
+    private $all_tobind = [];
+    private $now_bind = false;
+    /**
+     * @deprecated
+     *
+     * Go to the next member of an array of query-parameters that are
+     *  being successively executed, and run the query
+     */
+    public function movenext()
     {
-        $conn = $this->db->get_inner_mysql();
-        if( !$conn || !$this->db->IsConnected() ) throw new \LogicException('Attempt to create prepared statement when database is not connected');
-        $this->_stmt = $conn->prepare( (string) $sql );
-        $this->_row = null;
-        $this->_pos = 0;
+        $this->now_bind = next($this->all_bound);
+        $this->bind($this->now_bind);
     }
 
-    public function Bind(array $data)
-    {
-        parent::Bind($data);
-        $first = $data[0];
-        $this->bind_params($first);
-    }
-
+    /**
+     * @deprecated
+     *
+     * @return bool indicating we're now at the end of an array of
+     * parameters that are being successively executed
+     */
     public function EOF()
     {
-        if( $this->_meta ) return ($this->_pos >= $this->_num_rows);
-        if( !$this->_data ) return TRUE;
-        return (current($this->_data) === FALSE);
+        return !$this->now_bind;
     }
 
-    public function MoveFirst()
+    /**
+     * Bind parameters in $valsarr to the sql statement.
+     *
+     * @return bool indicating success
+     */
+    public function bind($valsarr)
     {
-        if( $this->_meta ) $this->_stmt->data_seek(0);
-        if( $this->_data ) reset($this->_data);
-    }
+        if (!$this->_stmt) {
+            if ($this->_sql) {
+                $this->prepare($this->_sql);
+                if (!$this->_prep) {
+                    $this->_bound = false;
 
-    public function MoveNext()
-    {
-        if( $this->_meta ) $this->_pos = $this->_pos + 1;
-        if( $this->_data ) next($this->_data);
-    }
+                    return false;
+                }
+            } else {
+                $errno = 1;
+                $error = 'No SQL to bind to';
+                $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+                $this->_bound = false;
 
-    public function Fields($col = null)
-    {
-        $row = null;
-        if( $this->_stmt ) {
-            $this->_stmt->fetch();
-            $row = $this->_row;
+                return false;
+            }
         }
-        if( !$row && $this->_data ) $row = current($this->_data);
-        if( !$row ) return; // nothing
 
-        if( $col ) {
-            if( isset($row[$col]) ) return $row[$col];
-        } else {
-            return $row;
+        if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
+            $valsarr = $valsarr[0];
+        } elseif (is_array($valsarr[0])) {
+            //deprecated stuff
+            $this->all_bound = $valsarr;
+            $valsarr = $this->now_bind = reset($this->all_bound);
         }
+
+        //deprecated - attempt emulation
+        if ($this->_conn->errno == self::NOPARMCMD) {
+            $sql = \CMSMS\Database\compatibility::interpret($this->_conn, $this->sql, $valsarr);
+            if ($sql) {
+                $this->_sql = $sql;
+                $this->_bound = false;
+
+                return true;
+            } else {
+                $this->_bound = false;
+
+                return false;
+            }
+        }
+
+        $types = '';
+        $bound = [''];
+        foreach ($valsarr as $k => &$val) {
+            switch (gettype($val)) {
+             case 'double': //i.e. float
+//          $val = strtr($val, ',', '.');
+                $types .= 'd';
+                break;
+             case 'boolean':
+                $valsarr[$k] = $val ? 1 : 0;
+             case 'integer':
+                $types .= 'i';
+                break;
+//             case 'string':
+//TODO handle blobs for data > max_allowed_packet, send them using ::send_long_data()
+// to get the max_allowed_packet
+//$mysql = $this->_conn->get_inner_mysql();
+//$maxp = $mysql->query('SELECT @@global.max_allowed_packet')->fetch_array();
+//             case 'array':
+//             case 'object':
+//             case 'resource':
+//                $val = serialize($val);
+//                $types .= 's';
+//                break;
+//             case 'NULL':
+//             case 'unknown type':
+             default:
+                $types .= 's';
+                break;
+            }
+            $bound[] = &$valsarr[$k];
+        }
+        unset($val);
+        $bound[0] = $types;
+
+        if ($this->_bound) {
+            $this->_stmt->free_result();
+        }
+
+        if (call_user_func_array([$this->_stmt, 'bind_param'], $bound)) {
+            $this->_conn->errno = 0;
+            $this->_conn->error = '';
+            $this->_bound = true;
+
+            return true;
+        }
+
+        $errno = 6;
+        $error = 'Failed to bind paramers to prepared statement';
+        $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+        $this->_bound = false;
+
+        return false;
     }
 
-    public function Execute()
+    /**
+     * Execute the query, using supplied $valsarr (if any) as bound values.
+     *
+     * @param array $valsarr parameters to bind, or not set if running a
+     *   deprecated multi-bind command
+     * @return mixed object (ResultSet or EmptyResultSet or PrepResultSet) or null
+     */
+    public function execute($valsarr = null)
     {
-        if( !$this->_stmt ) $this->prepare($this->_sql);
-        $args = func_get_args();
-        if( count($args) == 1 && is_array($args) && is_array($args[0]) ) $args = $args[0];
+        if (!$this->_stmt) {
+            if ($this->_sql) {
+                $this->prepare($this->_sql);
+                if (!$this->_prep) {
+                    $this->_bound = false;
 
-        /* if we have param count, find some arguments... either via the execute method... or via bound params */
+                    return null;
+                }
+            } else {
+                $errno = 1;
+                $error = 'No SQL to prepare';
+                $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+
+                return null;
+            }
+        }
+
         $pc = $this->_stmt->param_count;
-        $fc = $this->_stmt->field_count;
-        if( $args ) {
-            $this->_data = $args;
-            $this->bind_params($args);
-        }
-        if( $pc ) {
-            // we are expecting paramers
-            if( !count($args) ) {
-                // get the arguments via the bound data current row.
-                if( !$this->_bind ) throw new \LogicException('No bound parameters, and no arguments passed');
-                if( count($this->_bind) != $pc ) throw new \LogicException('Incorrect number of bound parameters.  Expecting '.$this->_stmt->field_count);
-                $args = $this->Fields();
-            }
-        }
-        if( $pc != count($args) ) throw new \LogicException('Incorrect number of arguments. Expecting '.$pc);
-
-        if( $args ) {
-            // update bound values
-            $keys = array_keys($args);
-            for( $i = 0; $i < count($this->_bind); $i++ ) {
-                $this->_bind[$i] = $args[$keys[$i]];
-            }
+        //check for deprecated multi-bind process
+        if ($valsarr === null) {
+            $valsarr = $this->now_bind;
         }
 
-        $res = $this->_stmt->execute();
-        if( !$res ) die('ERROR: '.$this->_stmt->error."\n");
-
-        $this->_stmt->store_result();
-
-        $meta = $this->_stmt->result_metadata();
-        if( !$this->_meta && $meta ) {
-            $this->_num_rows = $this->_stmt->num_rows;
-            $this->_meta = $meta;
-            $this->_row = array();
-            while( $field = $this->_meta->fetch_field() ) {
-                $this->_row[$field->name] = null;
-                $params[] =& $this->_row[$field->name];
+        if ($valsarr) {
+            if (is_array($valsarr) && count($valsarr) == 1 && is_array($valsarr[0])) {
+                $valsarr = $valsarr[0];
             }
-            call_user_func_array(array($this->_stmt,'bind_result'),$params);
+            if ($pc == count($valsarr)) {
+                $this->bind($valsarr);
+                if (!$this->_bound) {
+                    return null;
+                }
+            } else {
+                //TODO this is in wrong spot : maybe not yet bound
+                //check for deprecated emulation of non-parameterizable command
+                if ($this->_conn->errno == self::NOPARMCMD) {
+                    $sql = \CMSMS\Database\compatibility::interpret($this->_conn, $this->sql, $valsarr);
+                    if ($sql) {
+                        $this->_sql = $sql;
+                    }
+
+                    $this->_stmt = null;
+                    $rs = $this->_conn->execute($this->_sql); //mysqli_result or false
+                    if ($rs) {
+                        $this->_conn->errno = 0;
+                        $this->_conn->error = '';
+
+                        return new ResultSet($rs);
+                    } else {
+                        $errno = 6;
+                        $error = 'Unbindable SQL - '.$this->_sql;
+                        $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+
+                        return null;
+                    }
+                }
+
+                $errno = 2;
+                $error = 'Incorrect number of bound parameters - should be '.$pc;
+                $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+
+                return null;
+            }
+        } elseif ($pc > 0 && !$this->_bound) {
+            $errno = 3;
+            $error = 'No bound parameters, and no arguments passed';
+            $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+
+            return null;
+        }
+
+        if (!$this->_stmt->execute()) {
+            $errno = $this->_stmt->errno;
+            $error = $this->_stmt->error;
+            $this->processerror(\CMSMS\Database\Connection::ERROR_EXECUTE, $errno, $error);
+
+            return null;
+        }
+
+        if ($this->_stmt->field_count > 0) {
+            if ($this->_conn->isNative()) {
+                $rs = $this->_stmt->get_result(); //mysqli_result or false
+                if ($rs) {
+                    $this->_conn->errno = 0;
+                    $this->_conn->error = '';
+
+                    return new ResultSet($rs);
+                } elseif (($n = $this->_stmt->errno) > 0) {
+                    $error = $this->_stmt->error;
+                    $this->processerror(\CMSMS\Database\Connection::ERROR_EXECUTE, $n, $error);
+
+                    return null;
+                } else { //should never happen
+                    $errno = 99;
+                    $error = 'No result (reason unknown)';
+                    $this->processerror(\CMSMS\Database\Connection::ERROR_EXECUTE, $errno, $error);
+
+                    return null;
+                }
+            } else {
+                $this->_conn->errno = 0;
+                $this->_conn->error = '';
+
+                return new PrepResultSet($this->_stmt);
+            }
+        } else { //INSERT,UPDATE,DELETE etc
+            $this->_conn->errno = 0;
+            $this->_conn->error = '';
+
+            return true;
         }
     }
 }
