@@ -19,10 +19,10 @@ function smarty_function_last_modified_by($params, &$smarty)
 {
     $gCms = CmsApp::get_instance();
     $content_obj = $gCms->get_content_object();
-	$Id$
+	$id = "";
 
 	if (isset($content_obj) && $content_obj->LastModifiedBy() > -1)	{
-		$Id$
+		$id = $content_obj->LastModifiedBy();
 	} else {
 		return;
 	}

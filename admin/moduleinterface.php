@@ -31,7 +31,7 @@ $userid = get_userid();
 
 $smarty = CMSMS\internal\Smarty::get_instance();
 
-$Id$
+$id = 'm1_';
 $module = '';
 $action = 'defaultadmin';
 //UNUSED $suppressOutput = false;

@@ -5,8 +5,8 @@
 #this is where the things are executed from, must be parent of twigs
 SHAREDROOT='..'
 #dirs to scan
-#TWIGS="lib admin assets uploads tests phar_installer"
-TWIGS="admin"
+TWIGS="lib admin assets uploads tests phar_installer"
+#TWIGS="admin"
 #TWIGS="tests"
 
 THISYEAR=$(date +%04Y)
@@ -29,8 +29,9 @@ fi
 KILLARG='/^#.*as a special exception.*$/,/^#\s*$/d'
 
 PATTERN1="^\\(#\s*\\)CMS - CMS Made Simple"
-REPL1="\1This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>"
-SEDARG1="1,5s~$PATTERN1~$REPL1~"
+#REPL1="\1This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>"
+REPL1="\1..."
+SEDARG1="1,2s~$PATTERN1~$REPL1~"
 
 LONGPATTERN="^\\(\s*#\?\s*\\)[(][Cc][)].*20\\($PATTERN\\)-20\\($PATTERN\\).*Ted Kulp.*"
 SHORTPATTERN="^\\(\s*#\?\s*\\)[(][Cc][)].*20\\($PATTERN\\).*Ted Kulp.*"
@@ -43,19 +44,33 @@ SEDARG2B="1,5s~$SHORTPATTERN~\1Copyright (C) 20\2-$THISYEAR Ted Kulp <ted@cmsmad
 LONGPATTERN2="^\\(\s*#\?\s*\\)[(][Cc][)].*20\\($PATTERN\\)-20\\($PATTERN\\).*[tT]he\s\+CMSMS\s\+Dev\\(elopment\\)\?\s\+Team.*"
 SHORTPATTERN2="^\\(\s*#\?\s*\\)[(][Cc][)].*20\\($PATTERN\\).*[tT]he\s\+CMSMS\s\+Dev\\(elopment\\)\?\s\+Team.*"
 
-SEDARG3A="1,6s~$LONGPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team <@cmsmadesimple.org>~"
-SEDARG3B="1,6s~$SHORTPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team <@cmsmadesimple.org>~"
+SEDARG3A="1,6s~$LONGPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team <coreteam@cmsmadesimple.org>~"
+SEDARG3B="1,6s~$SHORTPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team <coreteam@cmsmadesimple.org>~"
 #echo -e "sed patterns =\n$SEDARG3A\n$SEDARG3B\n"
 
-PATTERN5="^#\s*Visit our homepage at: http:\/\/www.cmsmadesimple.org"
-SEDARG5="1,10{/$PATTERN5/d;}"
+#PATTERN5="^#\s*Visit our homepage at: http:\/\/www.cmsmadesimple.org"
+#SEDARG5="1,10{/$PATTERN5/d;}"
+PATTERN5="^\\(#\s*\\)Visit our homepage at.*cmsmadesimple.org"
+REPL5="\1This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>"
+SEDARG5="1,10s~$PATTERN5~$REPL5~"
+
+PATTERN6="WARRANthe TY"
+REPL6="WARRANTY"
+SEDARG6="1,40s~$PATTERN6~$REPL6~"
 
 PATTERN8="^\\(\s*#\?\s*\\)along with this program[;.] [iI]f not.*$"
 REPL8="\1along with this program. If not, see <https://www.gnu.org/licenses/>."
 SEDARG8="1,40s~$PATTERN8~$REPL8~"
 
-PATTERN9="^.*Foundation.*Inc.*Boston.*$"
+PATTERN9="^.*Foundation.*Inc.*Boston.*"
 SEDARG9="1,40{/$PATTERN9/d;}"
+
+PATTERN10="^\\(\s*#\?\s*\\)\$[iI]d.*\$"
+REPL10="\1\$Id\$"
+SEDARG10="1,40s~$PATTERN10~$REPL10~"
+
+PATTERN11="^\\(\s*#\?\s*\\)Or read it online.*gnu.*licenses.*"
+SEDARG11="20,40{/$PATTERN11/d;}"
 
 cd $SHAREDROOT
 SHAREDROOT=$(pwd)
@@ -79,14 +94,16 @@ for dir in $TWIGS; do
     if [ "$MODYEAR" -ge "$THISYEAR" ]; then
 #      echo "$LEAF needs to be checked"
       rm -f  $LEAF-newyear >/dev/null
-      sed -e "$SEDARG1" -e "$SEDARG2A" -e "$SEDARG2B" -e "$SEDARG3A" -e "$SEDARG3B" -e "$KILLARG" -e "$SEDARG5" -e "$SEDARG8" -e "$SEDARG9" $LEAF > $LEAF-newyear
+      sed -e "$SEDARG1" -e "$SEDARG2A" -e "$SEDARG2B" -e "$SEDARG3A" -e "$SEDARG3B" -e "$KILLARG" -e "$SEDARG5" -e "$SEDARG6" -e "$SEDARG8" -e "$SEDARG9" -e "$SEDARG10" -e "$SEDARG11" $LEAF > $LEAF-newyear
       OLDCS=$(md5sum $LEAF | gawk '{ print $1 }')
       NEWCS=$(md5sum $LEAF-newyear | gawk '{ print $1 }')
       if [ "$OLDCS" = "$NEWCS" ] ; then
         echo "stet $LEAF"
         rm -f  $LEAF-newyear >/dev/null
       else
-#        mv -f $LEAF $LEAF-old >/dev/null
+        if [ "$TWIGS" = "tests" ]; then
+           mv -f $LEAF $LEAF-old >/dev/null
+        fi
         mv -f $LEAF-newyear $LEAF >/dev/null
         echo "$LEAF has been updated"
       fi
