@@ -1,7 +1,8 @@
 <?php
-#admin-request-start processing for CMS Made Simple <http://www.cmsmadesimple.org>
+#admin-request-start processing for CMSMS
 #Copyright (C) 2004-2016 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2017-2018 The CMSMS Dev Team <@cmsmadesimple.org>
+#Copyright (C) 2017-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -13,9 +14,7 @@
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
-#along with this program; if not, write to the Free Software
-#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#Or read it online, at https://www.gnu.org/licenses/gpl-2.0.html
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 #$Id$
 
@@ -32,7 +31,7 @@ $userid = get_userid();
 
 $smarty = CMSMS\internal\Smarty::get_instance();
 
-$id = 'm1_';
+$Id$
 $module = '';
 $action = 'defaultadmin';
 //UNUSED $suppressOutput = false;

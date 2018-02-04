@@ -1,7 +1,7 @@
 <?php
 # Reflectable method-definitions for form-tag creation
-# Copyright (C) 2018 The CMSMS Dev Team <@cmsmadesimple.org>
-# For CMS Made Simple <http://cmsmadesimple.org>
+# Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

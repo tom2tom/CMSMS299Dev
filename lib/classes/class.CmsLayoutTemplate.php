@@ -1,5 +1,5 @@
 <?php
-#Visit our homepage at: http://cmsmadesimple.org
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 /**
  * This file contails the classes and methods to define the LayoutTemplate functionality
