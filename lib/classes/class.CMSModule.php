@@ -1889,7 +1889,7 @@ abstract class CMSModule
      * @param array  $params Parameters for the URL.  These will be ignored if the prettyurl argument is specified.
      * @param bool   $inline Whether the target of the output link is the same tag on the same page.
      * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
-     * @param string $prettyurl An url segment related to the root of the page, for pretty url creation.
+     * @param string $prettyurl An url segment related to the root of the page, for pretty url creation. Used verbatim.
      * @param int    $mode since 2.3 Indicates how to format the url
 	 *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
 	 *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
