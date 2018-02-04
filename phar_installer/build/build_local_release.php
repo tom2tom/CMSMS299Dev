@@ -47,6 +47,7 @@ $phar_excludes = [
 '/source\//',
 '/ext\//',
 '/scripts\//',
+'/README\.TXT/',
 '/\.bak$/',
 '/~$/',
 '/\.#/',
@@ -536,8 +537,6 @@ EOS;
 			$arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
 			$arch->addFile($infile, basename($infile));
 			$arch->setExternalAttributesName(basename($infile), ZipArchive::OPSYS_UNIX, 0755 << 16);
-			$arch->addFile($phardir.DIRECTORY_SEPARATOR.'README.TXT', 'README.TXT');
-			$arch->setExternalAttributesName('README.TXT', ZipArchive::OPSYS_UNIX, 0644 << 16);
 			$arch->addFile($phardir.DIRECTORY_SEPARATOR.'README-PHAR.TXT', 'README-PHAR.TXT');
 			$arch->setExternalAttributesName('README-PHAR.TXT', ZipArchive::OPSYS_UNIX, 0644 << 16);
 			$arch->close();
@@ -578,7 +577,8 @@ EOS;
 			foreach ($iter as $fp) {
 				$relpath = substr($fp, $len);
 				if (strncmp($relpath, 'build', 5) == 0 ||
-					strncmp($relpath, 'out', 3) == 0) {
+					strncmp($relpath, 'out', 3) == 0 ||
+					strncasecmp($relpath, 'README-PHAR', 11) == 0) {
 					verbose(2, "EXCLUDED: $relpath from the zip");
 				} else {
 					verbose(2, "ADDING: $relpath to the zip");
