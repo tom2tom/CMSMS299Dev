@@ -1890,15 +1890,18 @@ abstract class CMSModule
      * @param bool   $inline Whether the target of the output link is the same tag on the same page.
      * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
      * @param string $prettyurl An url segment related to the root of the page, for pretty url creation.
-     * @param bool   $for_display since 2.3 Whether to format the url for display on a page. Default true (for compatibilty) means not usable as an actual url.
+     * @param int    $mode since 2.3 Indicates how to format the url
+	 *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+	 *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+	 *  2 = page-displayable: all html_entitized, probably not usable as-is
      * @return string
      */
     public function create_url($id, $action, $returnid = '', $params = [],
-                       $inline = false, $targetcontentonly = false, $prettyurl = '', $for_display = true)
+                       $inline = false, $targetcontentonly = false, $prettyurl = '', $mode = 0)
     {
         $this->_loadUrlMethods();
         return cms_module_create_actionurl($this, $id, $action, $returnid,
-            $params, $inline, $targetcontentonly, $prettyurl, $for_display);
+            $params, $inline, $targetcontentonly, $prettyurl, $mode);
     }
 
     /**
@@ -1920,21 +1923,23 @@ abstract class CMSModule
 
     /**
      * Return the URL to open a website page
-     * Effectively replaces calling one of the CreateLink methods, with $onlyhref=true.
+     * Effectively replaces calling one of the CreateLink methods with $onlyhref=true.
      *
      * @since 2.3
      *
      * @param string $id The module action id.
      * @param int    $returnid Optional return-page identifier. Default '' (i.e. admin)
      * @param array  $params Optional array of parameters for the action. Default []
-     * @param bool   $for_display Whether to format the url for display on a page. Default false
-     *
+     * @param int    $mode since 2.3 Indicates how to format the url
+	 *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+	 *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+	 *  2 = page-displayable: all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_pageurl($id, $returnid = '', $params = [], $for_display = false)
+    public function create_pageurl($id, $returnid = '', $params = [], $mode = 0)
     {
         $this->_loadUrlMethods();
-        return cms_module_create_pageurl($id, $returnid, $params, $for_display);
+        return cms_module_create_pageurl($id, $returnid, $params, $mode);
     }
 
     /**

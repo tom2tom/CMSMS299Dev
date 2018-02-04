@@ -36,7 +36,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  * @param string $action	The module action name
  * Optional parameters
  * @param mixed $returnid The integer page-id to return to after the action
- *   is done, or '' for admin
+ *   is done, or ''/null for admin
  * @param array $params	Parameters to include in the URL.
  *   These will be ignored if the prettyurl parameter is present
  * @param string $prettyurl URL segment(s) relative to the root-URL of the
@@ -45,9 +45,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *   tag on the same page
  * @param bool	$targetcontentonly Whether the target of the output link
  *   targets the content area of the destination page
- * @param bool 	$for_display Whether the generated URL is for public
- *   (on page) display, hence is probably not usable verbatim. Defaults to true
- *   (for compatibility reasons). Since 2.3
+ * @param int    $mode since 2.3 Indicates how to format the url
+ *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+ *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+ *  2 = page-displayable: all html_entitized, probably not usable as-is
  *
  * @return string Ready-to-use or corresponding displayable URL.
  */
@@ -60,7 +61,7 @@ function cms_module_create_actionurl(
 	bool $inline = false,
 	bool $targetcontentonly = false,
 	string $prettyurl = '',
-	bool $for_display = true
+	int $mode = 0
 	) : string {
 
 	$id = sanitize($id);
@@ -89,38 +90,66 @@ function cms_module_create_actionurl(
 		if ($targetcontentonly || ($returnid !== '' && !$inline)) {
 			$id = 'cntnt01';
 		}
-		if ($returnid === '') {
-			$text = $config['admin_url'];
-			$goto = 'moduleinterface.php';
-			$secureparam = '&'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+
+		$parms = [
+		'mact' => $modinstance->GetName().','.$id.','.$action.','.($inline ? 1 : 0)
+		];
+
+		if ($returnid == '') {
+			$text = $config['admin_url'] . '/moduleinterface.php';
+			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
 		} else {
-			$text = $base_url;
-			$goto = 'index.php';
-			$secureparam = '';
+			$text = $base_url . 'index.php';
 		}
 
-		$text .= '/'.$goto.'?mact='.$modinstance->GetName().','.$id.','.$action.','.($inline ? 1 : 0).$secureparam;
-		if (isset($params['returnid']) && $returnid !== '') {
+		if (isset($params['returnid']) && $returnid != '') {
 			unset($params['returnid']);
 		}
 
 		$ignores = ['assign', 'id', 'returnid', 'action', 'module'];
 		foreach ($params as $key => $value) {
 			if (!in_array($key, $ignores)) {
-				$text .= '&'.$id.$key.'='.$value;
+				$parms[$id.$key] = $value;
 			}
 		}
-		if ($returnid !== '') {
-			$text .= '&'.$id.'returnid='.$returnid;
+		if ($returnid != '') {
+			$parms[$id.'returnid'] = $returnid;
 			if ($inline) {
-				$text .= '&'.$config['query_var'].'='.$returnid;
+				$parms[$id.$config['query_var']] = $returnid;
+			}
+		}
+
+		switch ($mode) {
+			case 1:
+				$sep = '&';
+				$enc = true;
+				break;
+			case 2:
+				$sep = '&';
+				$enc = false;
+				break;
+			default:
+				$sep = '&amp;';
+				$enc = true;
+				break;
+		}
+
+		$count = 0;
+		foreach ($parms as $key => $value) {
+			if ($enc) {
+				$key = rawurlencode($key);
+				$value = rawurlencode($value);
+			}
+			if ($count == 0) {
+				$text .= '?'.$key.'='.$value;
+				++$count;
+			} else {
+				$text .= $sep.$key.'='.$value;
 			}
 		}
 	}
-	if ($for_display) {
+	if ($mode == 2) {
 		$text = cms_htmlentities($text);
-	} else {
-		$text = rawurlencode($text);
 	}
 	return $text;
 }
@@ -133,14 +162,15 @@ function cms_module_create_actionurl(
  * @param string $id		  The module action-id (e.g. 'cntnt01'indicates that the
  *   default content block of the destination frontend-page is to be targeted)
  * @param mixed $returnid The integer page-id to return to after the action
- *   is done, or '' for admin
+ *   is done, or ''/null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
- * @param bool 	$for_display Whether the generated URL is for public
- *  (on page) display, hence is probably not usable verbatim. Defaults
- *  to false.
+ * @param int   $mode since 2.3 Indicates how to format the url
+ *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+ *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+ *  2 = page-displayable: all html_entitized, probably not usable as-is
  * @return string
  */
-function cms_module_create_pageurl($id, $returnid, array $params = [], bool $for_display = false) : string
+function cms_module_create_pageurl($id, $returnid, array $params = [], int $mode = 0) : string
 {
 	$text = '';
 	$gCms = \CmsApp::get_instance();
@@ -151,7 +181,23 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], bool $for
 		if ($content) { //CHECKME
 			$pageurl = $content->GetURL();
 			if ($pageurl) {
-				$text .= $pageurl;
+
+				switch ($mode) {
+					case 1:
+						$sep = '&';
+						$enc = true;
+						break;
+					case 2:
+						$sep = '&';
+						$enc = false;
+						break;
+					default:
+						$sep = '&amp;';
+						$enc = true;
+						break;
+				}
+
+				$text = $pageurl;
 				$count = 0;
 				foreach ($params as $key => $value) {
 					if ($count == 0) {
@@ -159,19 +205,23 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], bool $for
 						if ($config['url_rewriting'] != 'none') {
 							$text .= '?';
 						} else {
-							$text .= '&';
+							$text .= $sep;
 						}
+						++$count;
 					} else {
-						$text .= '&';
+						$text .= $sep;
 					}
-					$text .= $id.$key.'='.$value;
-					++$count;
+
+					$key = $id.$key;
+					if ($enc) {
+						$key = rawurlencode($key);
+						$value = rawurlencode($value);
+					}
+					$text .= $key.'='.$value;
 				}
-			}
-			if ($for_display) {
-				$text = cms_htmlentities($text);
-			} else {
-				$text = rawurlencode($text);
+				if ($mode == 2) {
+					$text = cms_htmlentities($text);
+				}
 			}
 		}
 	}
