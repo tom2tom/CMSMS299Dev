@@ -34,7 +34,7 @@ class News extends CMSModule
     public function GetHelp() { return $this->Lang('help'); }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'wishy@cmsmadesimple.org'; }
-    public function GetChangeLog() { return file_get_contents(dirname(__FILE__).'/changelog.inc'); }
+    public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
     public function GetEventDescription( $eventname ) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp( $eventname ) { return $this->lang('eventhelp-' . $eventname); }
 

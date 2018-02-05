@@ -52,7 +52,7 @@ final class Navigator extends CMSModule
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    public function GetChangeLog() { return file_get_contents(dirname(__FILE__).'/changelog.inc'); }
+    public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
 
     public function InitializeFrontend()
     {
@@ -123,7 +123,7 @@ final class Navigator extends CMSModule
             break;
         }
 
-        $fn = cms_join_path(dirname(__FILE__),'templates',$fn);
+        $fn = cms_join_path(__DIR__,'templates',$fn);
         if( file_exists($fn) ) return @file_get_contents($fn);
     }
 

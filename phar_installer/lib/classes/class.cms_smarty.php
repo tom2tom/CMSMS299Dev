@@ -2,7 +2,7 @@
 
 namespace __appbase;
 
-require_once(dirname(dirname(__FILE__)).'/Smarty/Smarty.class.php');
+require_once dirname(__DIR__).'/Smarty/Smarty.class.php';
 
 class cms_smarty extends \Smarty
 {
@@ -16,7 +16,7 @@ class cms_smarty extends \Smarty
     $rootdir = $app->get_rootdir();
     $tmpdir = $app->get_tmpdir().'/m'.md5(__FILE__);
     $appdir = $app->get_appdir();
-    $basedir = dirname(dirname(dirname(__FILE__)));
+    $basedir = dirname(__DIR__,2);
 
     $this->setTemplateDir($appdir.'/templates');
     $this->setConfigDir($appdir.'/configs');

@@ -24,7 +24,7 @@ final class CMSContentManager extends CMSModule
     public function GetHelp() { return CmsLangOperations::lang_from_realm('help','help_cmscontentmanager_help'); }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    public function GetChangeLog() { return @file_get_contents(dirname(__FILE__).'/changelog.inc'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.'/changelog.inc'); }
     public function IsPluginModule() { return FALSE; }
     public function HasAdmin() { return TRUE; }
     public function LazyLoadAdmin() { return TRUE; }

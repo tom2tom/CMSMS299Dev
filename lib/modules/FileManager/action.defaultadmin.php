@@ -45,5 +45,6 @@ $smarty->assign('path',$path);
 $smarty->assign('path_parts',$path_parts);
 echo $this->ProcessTemplate('fmpath.tpl');
 
-include(dirname(__FILE__)."/uploadview.php");
-include(dirname(__FILE__)."/action.admin_fileview.php"); // this is also an action.
+include __DIR__."/uploadview.php";
+include __DIR__."/action.admin_fileview.php"; // this is also an action.
+

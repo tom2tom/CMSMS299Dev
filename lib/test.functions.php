@@ -870,7 +870,7 @@ function & testCreateDirAndFile( $required, $title, $message = '', $debug = fals
 
 	if($debug) {
 		if(file_exists($file)) unlink($file);
-		if( (is_dir($dir)) && (false !== strpos($dir, dirname(dirname(__FILE__)))) ) rmdir($dir);
+		if( (is_dir($dir)) && (false !== strpos($dir, dirname(__DIR__))) ) rmdir($dir);
 
 		if(! mkdir($dir)) $test->error = $lang_fn('errordirectorynotwritable') .' ('. $dir . ')';
 		if(! touch($file)) $test->error = $lang_fn('errorcantcreatefile') .' ('. $file . ')';
@@ -878,7 +878,7 @@ function & testCreateDirAndFile( $required, $title, $message = '', $debug = fals
 	}
 	else {
 		if(file_exists($file)) @unlink($file);
-		if( (@is_dir($dir)) && (false !== strpos($dir, dirname(dirname(__FILE__)))) ) @rmdir($dir);
+		if( (@is_dir($dir)) && (false !== strpos($dir, dirname(__DIR__))) ) @rmdir($dir);
 
 		@mkdir($dir);
 		@touch($file);

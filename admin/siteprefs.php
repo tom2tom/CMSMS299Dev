@@ -472,7 +472,7 @@ $smarty->assign('pretty_urls',$pretty_urls);
   $smarty->assign('wysiwyg',$tmp2);
 }
 
-if ($dir=opendir(dirname(__FILE__)."/themes/"))
+if ($dir=opendir(__DIR__."/themes/"))
 {
   $themes = array();
   while (($file = readdir($dir)) !== false ) {

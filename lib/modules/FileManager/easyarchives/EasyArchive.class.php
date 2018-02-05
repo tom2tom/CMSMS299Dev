@@ -16,11 +16,10 @@
  +-------------------------------------------------- **/
 //www.phpclasses.org/browse/package/4239.html
 
-$dirname=dirname(__FILE__);
-require ($dirname.'/EasyZip.class.php');
-require ($dirname.'/EasyTar.class.php');
-require ($dirname.'/EasyGzip.class.php');
-require ($dirname.'/EasyBzip2.class.php');
+require __DIR__.'/EasyZip.class.php';
+require __DIR__.'/EasyTar.class.php';
+require __DIR__.'/EasyGzip.class.php';
+require __DIR__.'/EasyBzip2.class.php';
 //echo "hi";die();
 
 /**

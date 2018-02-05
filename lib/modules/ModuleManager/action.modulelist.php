@@ -49,7 +49,7 @@ $instmodules = '';
   $instmodules = $result[1];
 }
 
-$dir = CMS_ASSETS_PATH.'/modules';
+$dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
 $caninstall = (is_dir($dir) && is_writable($dir));
 
 $data = modmgr_utils::build_module_data($repmodules,$instmodules,false);
@@ -57,7 +57,7 @@ if( count( $data ) ) {
   $size = count($data);
 
   // check for permissions
-  $moduledir = dirname(dirname(dirname(__FILE__))).DIRECTORY_SEPARATOR."modules";
+  $moduledir = dirname(__DIR__,2).DIRECTORY_SEPARATOR.'modules';
   $writable = is_writable( $moduledir );
 
   // build the table

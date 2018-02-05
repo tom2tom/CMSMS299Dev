@@ -358,7 +358,7 @@ class dUnzip2{
 	}
 	Function unzipAll($targetDir=false, $baseDir="", $maintainStructure=true, $chmod=false){
 		if($targetDir === false)
-			$targetDir = dirname(__FILE__)."/";
+			$targetDir = __DIR__."/";
 
 		$lista = $this->getList();
 		if(sizeof($lista)) foreach($lista as $fileName=>$trash){

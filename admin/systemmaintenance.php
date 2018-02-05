@@ -36,7 +36,7 @@ if (!$access) {
 
 include_once("header.php");
 
-define('CMS_BASE', dirname(dirname(__FILE__)));
+define('CMS_BASE', dirname(__DIR__));
 require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
 
 

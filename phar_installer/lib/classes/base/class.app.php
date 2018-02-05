@@ -52,7 +52,7 @@ abstract class app
 
     public static function get_rootdir()
     {
-        return dirname(dirname(dirname(__DIR__)));
+        return dirname(__DIR__, 3);
     }
 
     static public function get_rooturl()
@@ -94,7 +94,7 @@ abstract class app
         $dirsuffix = str_replace('__appbase','.',$dirsuffix);
         //if( $dirsuffix == "__appbase" ) $dirsuffix = '.';
 
-        $dirs = array(__DIR__,dirname(__DIR__),dirname(__DIR__).'/tests',dirname(__DIR__).'/base',dirname(dirname(__DIR__)) );
+        $dirs = array(__DIR__,dirname(__DIR__),dirname(__DIR__).'/tests',dirname(__DIR__).'/base',dirname(__DIR__,2) );
         foreach( $dirs as $dir ) {
             $fn = "$dir/$dirsuffix/class.$classname.php";
             if( file_exists($fn) ) {

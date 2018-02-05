@@ -12,7 +12,7 @@ if( ini_get('phar.readonly') ) throw new Exception('phar.readonly must be turned
 $script_file = basename($argv[0]);
 $owd = getcwd();
 if( !file_exists("$owd/$script_file") ) throw new Exception('This script must be executed from the same directory as the '.$script_file.' script');
-$rootdir = dirname(dirname(__FILE__));
+$rootdir = dirname(__DIR__);
 $repos_root='http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 $repos_branch="/trunk";
 $repos_branch = null;
@@ -24,8 +24,8 @@ $exclude_patterns = array('/\.svn\//','/^ext\//','/^build\/.*/','/.*~$/','/tmp\/
 $exclude_from_zip = array('*~','tmp/','.#*','#*'.'*.bak');
 $src_excludes = array('/\/phar_installer\//','/\/config\.php$/', '/\/find-mime$/', '/\/install\//', '/^\/tmp\/.*/', '/^#.*/', '/^\/scripts\/.*/', '/\.git/', '/\.svn/', '/svn-.*/',
                       '/^\/tests\/.*/', '/^\/build\/.*/', '/^\.htaccess/', '/\.svn/', '/^config\.php$/','/.*~$/', '/\.\#.*/', '/\#.*/', '/.*\.bak/');
-$priv_file = dirname(__FILE__).'/priv.pem';
-$pub_file = dirname(__FILE__).'/pub.pem';
+$priv_file = __DIR__.'/priv.pem';
+$pub_file = __DIR__.'/pub.pem';
 $verbose = 0;
 $rename = 1;
 $indir = '';

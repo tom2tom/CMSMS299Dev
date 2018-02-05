@@ -68,7 +68,7 @@ echo $this->EndTabHeaders();
 echo $this->StartTabContent();
 
 echo $this->StartTab('statistics',$params);
-include(dirname(__FILE__).'/function.admin_statistics_tab.php');
+include __DIR__.'/function.admin_statistics_tab.php';
 echo $this->EndTab();
 
 echo $this->StartTab('options', $params);

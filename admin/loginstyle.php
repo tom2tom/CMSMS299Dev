@@ -39,13 +39,13 @@ $cms_readfile = function($filename) {
 };
 
 header("Content-type: text/css; charset=" . \CmsNlsOperations::get_encoding());
-if (file_exists(dirname(__FILE__)."/themes/$theme/css/style.css")) {
-    echo file_get_contents(dirname(__FILE__)."/themes/$theme/css/style.css");
+if (file_exists(__DIR__."/themes/$theme/css/style.css")) {
+    echo file_get_contents(__DIR__."/themes/$theme/css/style.css");
 }
 else {
-    echo file_get_contents(dirname(__FILE__)."/themes/OneEleven/css/style.css");
+    echo file_get_contents(__DIR__."/themes/OneEleven/css/style.css");
 }
 
-if (file_exists(dirname(__FILE__)."/themes/".$theme."/extcss/style.css")) {
-    $cms_readfile(dirname(__FILE__)."/themes/".$theme."/extcss/style.css");
+if (file_exists(__DIR__."/themes/".$theme."/extcss/style.css")) {
+    $cms_readfile(__DIR__."/themes/".$theme."/extcss/style.css");
 }

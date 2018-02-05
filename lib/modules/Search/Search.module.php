@@ -17,7 +17,7 @@
 #
 #$Id$
 
-include_once(dirname(__FILE__) . '/PorterStemmer.class.php');
+include_once __DIR__ . '/PorterStemmer.class.php';
 
 define( "NON_INDEXABLE_CONTENT", "<!-- pageAttribute: NotSearchable -->" );
 

@@ -18,7 +18,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
-include_once dirname(__FILE__).DIRECTORY_SEPARATOR.'fileinfo.php';
+include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
