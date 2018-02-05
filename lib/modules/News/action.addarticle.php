@@ -17,15 +17,15 @@ if ($this->CheckPermission('Approve News'))  $status = 'published';
 $userid       = get_userid();
 $postdate     = time();
 $startdate    = time();
-$content      = isset($params['content']) ? $params['content'] : '';
-$summary      = isset($params['summary']) ? $params['summary'] : '';
-$status       = isset($params['status']) ? $params['status'] : $status;
-$usedcategory = isset($params['category']) ? $params['category'] : $this->GetPreference('default_category', '');
+$content      = $params['content'] ?? '';
+$summary      = $params['summary'] ?? '';
+$status       = $params['status'] ?? $status;
+$usedcategory = $params['category'] ?? $this->GetPreference('default_category', '');
 $useexp       = isset($params['useexp']) ? 1: 0;
 $searchable   = isset($params['searchable']) ? (int)$params['searchable'] : 1;
-$news_url     = isset($params['news_url']) ? $params['news_url'] : '';
+$news_url     = $params['news_url'] ?? '';
 $extra        = isset($params['extra']) ? trim($params['extra']) : '';
-$title        = isset($params['title']) ? $params['title'] : '';
+$title        = $params['title'] ?? '';
 $ndays        = (int)$this->GetPreference('expiry_interval', 180);
 
 if ($ndays == 0)

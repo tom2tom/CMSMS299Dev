@@ -13,17 +13,17 @@ $status       = 'draft';
 $postdate     = time();
 $startdate    = time();
 $enddate      = strtotime('+6 months', time());
-$articleid    = isset($params['articleid']) ? $params['articleid'] : '';
-$content      = isset($params['content']) ? $params['content'] : '';
-$summary      = isset($params['summary']) ? $params['summary'] : '';
-$news_url     = isset($params['news_url']) ? $params['news_url'] : '';
-$usedcategory = isset($params['category']) ? $params['category'] : '';
-$author_id    = isset($params['author_id']) ? $params['author_id'] : '-1';
+$articleid    = $params['articleid'] ?? '';
+$content      = $params['content'] ?? '';
+$summary      = $params['summary'] ?? '';
+$news_url     = $params['news_url'] ?? '';
+$usedcategory = $params['category'] ?? '';
+$author_id    = $params['author_id'] ?? '-1';
 $useexp       = isset($params['useexp']) ? 1: 0;
 $extra        = isset($params['extra']) ? trim($params['extra']) : '';
 $searchable   = isset($params['searchable']) ? (int)$params['searchable'] : 1;
-$title        = isset($params['title']) ? $params['title'] : '';
-$status       = isset($params['status']) ? $params['status'] : $status;
+$title        = $params['title'] ?? '';
+$status       = $params['status'] ?? $status;
 
 if (isset($params['postdate_Month'])) {
     $postdate = mktime($params['postdate_Hour'], $params['postdate_Minute'], $params['postdate_Second'], $params['postdate_Month'], $params['postdate_Day'], $params['postdate_Year']);

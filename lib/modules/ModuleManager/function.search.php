@@ -103,7 +103,7 @@ if( isset($params['submit']) ) {
                                                  array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
             $obj->age = modmgr_utils::get_status($row['date']);
             $obj->date = $row['date'];
-            $obj->downloads = isset($row['downloads'])?$row['downloads']:$this->Lang('unknown');
+            $obj->downloads = $row['downloads']??$this->Lang('unknown');
             $obj->candownload = FALSE;
 
             switch( $row['status'] ) {

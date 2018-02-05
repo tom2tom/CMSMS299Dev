@@ -357,9 +357,8 @@ class langtools
    * @param mixed - uses sprintf formatting,
    * @return string
    */
-  public function translate()
+  public function translate(...$args)
   {
-    $args = func_get_args();
     if( count($args) == 0 ) return;
     if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 
@@ -383,10 +382,9 @@ class langtools
 } // end of class
 
 
-function lang()
+function lang(...$args)
 {
   try {
-    $args = func_get_args();
     return langtools::get_instance()->translate($args);
   }
   catch( Exception $e ) {

@@ -189,7 +189,7 @@ namespace CMSMS {
          *
          * @return mixed The output of this method depends on the hook.
          */
-        public static function do_hook()
+        public static function do_hook(...$args)
         {
             $is_assoc = function($in) {
                 $keys = array_keys($in);
@@ -199,7 +199,6 @@ namespace CMSMS {
                 }
                 return TRUE;
             };
-            $args = func_get_args();
             $name = array_shift($args);
             $name = trim($name);
 
@@ -257,7 +256,7 @@ namespace CMSMS {
          *
          * @return mixed The output of this method depends on the hook.
          */
-        public static function do_hook_first_result()
+        public static function do_hook_first_result(...$args)
         {
             $is_assoc = function($in) {
                 $keys = array_keys($in);
@@ -267,7 +266,6 @@ namespace CMSMS {
                 }
                 return TRUE;
             };
-            $args = func_get_args();
             $name = array_shift($args);
             $name = trim($name);
             if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers)  ) return; // nothing to do.
@@ -315,7 +313,7 @@ namespace CMSMS {
          *
          * @return array Mixed data, as it cannot be ascertained what data is passed back from event handlers.
          */
-        public static function do_hook_accumulate()
+        public static function do_hook_accumulate(...$args)
         {
             $is_assoc = function($in) {
                 $keys = array_keys($in);
@@ -325,7 +323,6 @@ namespace CMSMS {
                 }
                 return TRUE;
             };
-            $args = func_get_args();
             $name = array_shift($args);
             $name = trim($name);
             //if( is_array($args) && count($args) == 1 && is_array($args[0]) && !$is_assoc($args[0]) ) $args = $args[0];

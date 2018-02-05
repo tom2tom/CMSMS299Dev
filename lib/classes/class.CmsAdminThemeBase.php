@@ -156,7 +156,7 @@ abstract class CmsAdminThemeBase
         if( is_object(self::$_instance) ) throw new CmsLogicExceptin('Only one instance of a theme object is permitted');
 
         $this->_url = $_SERVER['SCRIPT_NAME'];
-        $this->_query = (isset($_SERVER['QUERY_STRING'])?$_SERVER['QUERY_STRING']:'');
+        $this->_query = $_SERVER['QUERY_STRING']??'';
         if( $this->_query == '' && isset($_POST['mact']) ) {
             $tmp = explode(',',$_POST['mact']);
             $this->_query = 'module='.$tmp[0];
@@ -634,13 +634,13 @@ abstract class CmsAdminThemeBase
             if( $a1 < $a2 ) return -1;
             if( $a1 > $a2 ) return 1;
 
-            $sa = isset($a['system'])?$a['system']:0;
-            $sb = isset($b['system'])?$b['system']:0;
+            $sa = $a['system'] ?? 0;
+            $sb = $b['system'] ?? 0;
             if( $sa && !$sb ) return -1;
             if( $sb && !$sa ) return 1;
 
-            $pa = isset($a['priority'])?$a['priority']:999;
-            $pb = isset($b['priority'])?$b['priority']:999;
+            $pa = $a['priority'] ?? 999;
+            $pb = $b['priority'] ?? 999;
             if( $pa < $pb ) return -1;
             if( $pa > $pb ) return 1;
 

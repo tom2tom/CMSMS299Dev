@@ -26,8 +26,8 @@ function smarty_function_recently_updated($params, &$smarty)
     $showtitle='true';
 	if(!empty($params['showtitle'])) $showtitle = $params['showtitle'];
 
-	$dateformat = isset($params['dateformat']) ? $params['dateformat'] : "d.m.y h:m" ;
-	$css_class = isset($params['css_class']) ? $params['css_class'] : "" ;
+	$dateformat = $params['dateformat'] ?? "d.m.y h:m" ;
+	$css_class = $params['css_class'] ?? "" ;
 
 	if (isset($params['css_class'])) {
 		$output = '<div class="'.$css_class.'"><ul>';

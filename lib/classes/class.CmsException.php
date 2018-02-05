@@ -55,11 +55,10 @@ abstract class CmsExtraDataException extends Exception
    *
    * @see \Exception
    */
-  public function __construct(/* var args */)
+  public function __construct(...$args)
   {
-      $args = $msg = $prev = NULL;
+      $msg = $prev = NULL;
       $code = 0;
-      $args = func_get_args();
       if( is_array($args) && count($args) == 1 ) $args = $args[0];
       for( $i = 0; $i < count($args); $i++ ) {
           switch( $i ) {
@@ -120,8 +119,7 @@ class CmsException extends CmsExtraDataException
      *
    * @see \Exception
      */
-    public function __construct(/* var args */) {
-        $args = func_get_args();
+    public function __construct(...$args) {
         parent::__construct($args);
         if( is_int($this->message) ) $this->messsage = 'CMSEX_'.$msg;
         if( startswith($this->message,'CMSEX_') && !CmsLangOperations::key_exists($this->message) ) {

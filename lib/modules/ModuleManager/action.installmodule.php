@@ -66,7 +66,7 @@ try {
             $ops = cmsms()->GetModuleOperations();
             foreach( $modlist as $key => &$rec ) {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
-                $xml_filename = modmgr_utils::get_module_xml($rec['filename'],$rec['size'],(isset($rec['md5sum']))?$rec['md5sum']:'');
+                $xml_filename = modmgr_utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
                 $rec['tmpfile'] = $xml_filename;
                 $res = $ops->ExpandXMLPackage( $xml_filename, 1 );
             }
@@ -108,7 +108,7 @@ try {
                 debug_buffer('ERROR: problem installing/upgrading/activating '.$name);
                 debug_buffer($rec,'action record');
                 debug_buffer($res,'error info');
-                throw new CmsException( (isset($res[1])) ? $res[1] : 'Error processing module '.$name);
+                throw new CmsException($res[1] ?? 'Error processing module '.$name);
             }
         }
 

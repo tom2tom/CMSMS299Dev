@@ -99,12 +99,11 @@ final class cms_admin_utils
 	 * @param string $keys,... [$key2|$key1,$key2]
 	 * @return string HTML content of the help tag
 	 */
-	public static function get_help_tag()
+	public static function get_help_tag(...$args)
 	{
 		if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 
 		$params = array();
-		$args = func_get_args();
 		if( count($args) >= 2 && is_string($args[0]) && is_string($args[1]) ) {
 			$params['key1'] = $args[0];
 			$params['key2'] = $args[1];

@@ -40,7 +40,7 @@ function smarty_function_cms_selflink($params, &$smarty)
 	$dir = null;
 	$pageid = null;
 
-	$rellink = (isset($params['rellink']) && $params['rellink'] == '1' ? true : false);
+	$rellink = isset($params['rellink']) && $params['rellink'] == '1';
 	if ( isset($params['urlparam']) && ( strlen($params['urlparam']) > 0 ) ) $urlparam = trim($params['urlparam']);
 
 	if (isset($params['page']) or isset($params['href'])) {
@@ -216,7 +216,7 @@ function smarty_function_cms_selflink($params, &$smarty)
 		$label = cms_htmlentities($label);
 	}
 
-	$title = (isset($name)) ? $name : '';
+	$title = $name ?? '';
 	if( isset($params['title']) ) {
 		$title = $params['title'];
 	}
@@ -265,9 +265,9 @@ function smarty_function_cms_selflink($params, &$smarty)
 		}
 
 		if (isset($params['image']) && ! empty($params['image'])) {
-			$width = (isset($params['width']) && !empty($params['width'])) ? (int)$params['width'] : '';
-			$height = (isset($params['height']) && !empty($params['height'])) ? (int)$params['height'] : '';
-			$alt = (isset($params['alt']) && ! empty($params['alt'])) ? $params['alt'] : '';
+			$width = (!empty($params['width'])) ? (int)$params['width'] : '';
+			$height = (!empty($params['height'])) ? (int)$params['height'] : '';
+			$alt = (!empty($params['alt'])) ? $params['alt'] : '';
 			$result .= "<img src=\"{$params['image']}\" alt=\"$alt\"";
 			if( $width ) $width = max(1,$width);
 			if( $width ) $result .= " width=\"$width\"";

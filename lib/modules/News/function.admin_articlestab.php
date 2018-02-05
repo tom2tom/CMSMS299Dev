@@ -88,7 +88,7 @@ if( isset($params['submitfilter']) ) {
     if( isset( $params['pagelimit'] ) ) {
         $this->SetPreference('article_pagelimit',(int)$params['pagelimit']);
     }
-    $allcategories = (isset($params['allcategories'])?$params['allcategories']:'no');
+    $allcategories = $params['allcategories'] ?? 'no';
     $this->SetPreference('allcategories',$allcategories);
     unset($_SESSION['news_pagenumber']);
     $pagenumber = 1;

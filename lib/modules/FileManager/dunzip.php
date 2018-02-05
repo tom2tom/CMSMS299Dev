@@ -1,4 +1,4 @@
-<?php 
+<?php
 // 28/11/2005 (2.4)
 // - dUnzip2 is now compliant with wrong placed "Data Description", made by some compressors,
 //   like the classes ZipLib and ZipLib2 by 'Hasin Hayder'. Thanks to Ricardo Parreno for pointing it.
@@ -318,10 +318,7 @@ class dUnzip2{
 		return $this->compressedList;
 	}
 	Function getExtraInfo($compressedFileName){
-		return
-			isset($this->centralDirList[$compressedFileName])?
-			$this->centralDirList[$compressedFileName]:
-			false;
+		return $this->centralDirList[$compressedFileName] ?? false;
 	}
 	Function getZipInfo($detail=false){
 		return $detail?

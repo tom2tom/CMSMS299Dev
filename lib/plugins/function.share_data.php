@@ -17,8 +17,8 @@
 function smarty_function_share_data($params, &$template)
 {
     $dest = trim(strtolower(get_parameter_value($params,'scope','parent')));
-    $vars = (isset($params['data']))?$params['data']:null;
-    $vars = (isset($params['vars']))?$params['vars']:$vars;
+    $vars = $params['data']??null;
+    $vars = $params['vars']??$vars;
     if( !$vars ) return; // nothing to do.
 
     if( is_string($vars) ) {
@@ -37,7 +37,7 @@ function smarty_function_share_data($params, &$template)
     $fn = 'assign';
     switch( $dest ) {
     case 'global':
-	if( $template instanceof \Smarty ) { 
+	if( $template instanceof \Smarty ) {
 		$scope = $template;
 	}
 	else {

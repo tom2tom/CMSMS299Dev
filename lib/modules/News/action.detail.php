@@ -7,7 +7,7 @@ if (!isset($gCms)) exit;
 $query = null;
 $article = null;
 $preview = FALSE;
-$articleid = (isset($params['articleid']))?$params['articleid']:-1;
+$articleid = $params['articleid']??-1;
 
 $template = null;
 if (isset($params['detailtemplate'])) {

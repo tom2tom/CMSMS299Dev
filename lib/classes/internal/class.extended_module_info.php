@@ -21,7 +21,7 @@ class extended_module_info extends module_info
             $this['installed'] = true;
             $this['status'] = $minfo[$module_name]['status'];
             $this['installed_version'] = $minfo[$module_name]['version'];
-            $this['admin_only'] = isset($minfo[$module_name]['admin_only'])?$minfo[$module_name]['admin_only']:0;
+            $this['admin_only'] = $minfo[$module_name]['admin_only'] ?? 0;
             $this['active'] = $minfo[$module_name]['active'];
             $this['allow_fe_lazyload'] = $minfo[$module_name]['allow_fe_lazyload'];
             $this['allow_admin_lazyload'] = $minfo[$module_name]['allow_admin_lazyload'];

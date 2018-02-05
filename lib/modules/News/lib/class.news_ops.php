@@ -95,7 +95,7 @@ public static function get_categories($id,$params,$returnid=-1)
     for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {
         $row =& $catinfo[$i];
         $row['index'] = $rowcounter++;
-        $row['count'] = (isset($counts[$row['news_category_id']]))?$counts[$row['news_category_id']]:0;
+        $row['count'] = $counts[$row['news_category_id']]??0;
         $row['prevdepth'] = $depth;
         $depth = count(explode('.', $row['hierarchy']));
         $row['depth']=$depth;

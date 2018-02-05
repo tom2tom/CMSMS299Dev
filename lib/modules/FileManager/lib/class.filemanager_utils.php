@@ -129,9 +129,8 @@ final class filemanager_utils
     }
 
 
-    public static function join_path()
+    public static function join_path(...$args)
     {
-        $args = func_get_args();
         if( count($args) < 1 ) return;
         if( count($args) < 2 ) return $args[0];
 
@@ -246,7 +245,7 @@ final class filemanager_utils
 
             if (function_exists('posix_getpwuid')) {
                 $userinfo = @posix_getpwuid($statinfo['uid']);
-                $info['fileowner']= isset($userinfo['name'])?$userinfo['name']:$filemod->Lang('unknown');
+                $info['fileowner']=$userinfo['name']??$filemod->Lang('unknown');
             } else {
                 $info['fileowner']='N/A';
             }

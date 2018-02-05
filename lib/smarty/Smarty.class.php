@@ -889,7 +889,7 @@ class Smarty extends Smarty_Internal_TemplateBase
             $this->_nomalizeTemplateConfig($isConfig);
         }
         if ($index !== null) {
-            return isset($dir[ $index ]) ? $dir[ $index ] : null;
+            return $dir[ $index ] ?? null;
         }
         return $dir;
     }
@@ -1185,7 +1185,7 @@ class Smarty extends Smarty_Internal_TemplateBase
 
         if ((isset($template) && strpos($template_name, ':.') !== false) || $this->allow_ambiguous_resources) {
             $_templateId =
-                Smarty_Resource::getUniqueTemplateName((isset($template) ? $template : $this), $template_name) .
+                Smarty_Resource::getUniqueTemplateName(($template ?? $this), $template_name) .
                 "#{$cache_id}#{$compile_id}#{$caching}";
         } else {
             $_templateId = $this->_joined_template_dir . "#{$template_name}#{$cache_id}#{$compile_id}#{$caching}";

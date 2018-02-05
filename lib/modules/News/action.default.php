@@ -260,7 +260,7 @@ if( is_object($dbresult) ) {
         $onerow->fieldsbyname = $onerow->fields; // dumb, I know.
         $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
 
-        $moretext = isset($params['moretext'])?$params['moretext']:$this->Lang('more');
+        $moretext = $params['moretext']??$this->Lang('more');
         $sendtodetail = array('articleid'=>$row['news_id']);
         if (isset($params['showall'])) $sendtodetail['showall'] = $params['showall'];
         if (isset($params['detailpage'])) $sendtodetail['origid'] = $returnid;

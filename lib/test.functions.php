@@ -788,8 +788,8 @@ function permission_stat( $file, $debug = false )
 			$userinfo = @posix_getpwuid($filestat[4]);
 			$groupinfo = @posix_getgrgid($filestat[5]);
 		}
-		$opt['username'] = isset($userinfo['name']) ? $userinfo['name'] : $lang_fn('unknown');
-		$opt['usergroup'] = isset($groupinfo['name']) ? $groupinfo['name'] : $lang_fn('unknown');
+		$opt['username'] = $userinfo['name'] ?? $lang_fn('unknown');
+		$opt['usergroup'] = $groupinfo['name'] ?? $lang_fn('unknown');
 	}
 	else {
 		$opt['username'] = $lang_fn('unknown');
@@ -1057,14 +1057,14 @@ function & testRemoteFile( $required, $title, $url = '', $message = '', $debug =
 		switch($url_info['scheme']) {
 		case 'https':
 			$scheme = 'ssl://';
-			$port = (isset($url_info['port'])) ? $url_info['port'] : 443;
+			$port = $url_info['port'] ?? 443;
 			break;
 		case 'http':
 		default:
 			$scheme = '';
-			$port = (isset($url_info['port'])) ? $url_info['port'] : 80;
+			$port = $url_info['port'] ?? 80;
 		}
-		$complete_url  = (isset($url_info['path'])) ? $url_info['path'] : '/';
+		$complete_url  = $url_info['path'] ?? '/';
 		$complete_url .= (isset($url_info['query'])) ? '?'.$url_info['query'] : '';
 
 		// TEST FSOCKOPEN

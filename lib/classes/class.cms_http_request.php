@@ -722,7 +722,7 @@ class cms_http_request
         }
 
         // Finalize the target path
-        $this->path   = (isset($urlParsed['path']) ? $urlParsed['path'] : '/') . (isset($urlParsed['query']) ? '?' . $urlParsed['query'] : '');
+        $this->path   = ($urlParsed['path'] ?? '/') . (isset($urlParsed['query']) ? '?' . $urlParsed['query'] : '');
         $this->schema = $urlParsed['scheme'];
 
         // Pass the requred cookies

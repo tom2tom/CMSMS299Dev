@@ -40,8 +40,8 @@ $message           = '';
 $user_id           = $userid;
 // Post data
 $user              = isset($_POST["user"]) ? cleanValue($_POST["user"]) : '';
-$password          = isset($_POST["password"]) ? $_POST["password"] : '';
-$passwordagain     = isset($_POST["passwordagain"]) ? $_POST["passwordagain"] : '';
+$password          = $_POST["password"] ?? '';
+$passwordagain     = $_POST["passwordagain"] ?? '';
 $firstname         = isset($_POST["firstname"]) ? cleanValue($_POST["firstname"]) : '';
 $lastname          = isset($_POST["lastname"]) ? cleanValue($_POST["lastname"]) : '';
 $email             = isset($_POST["email"]) ? trim(strip_tags($_POST["email"])) : '';
@@ -76,7 +76,7 @@ if (isset($_POST["submit"])) {
 
     if( !$access_user && isset($_POST['active']) ) $active = (int) $_POST['active'];
 
-    $adminaccess = !isset($_POST["adminaccess"]) ? 0 : 1;
+    $adminaccess = isset($_POST["adminaccess"]) ? 1 : 0;
     $validinfo   = true;
 
     // check for errors

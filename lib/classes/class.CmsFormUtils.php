@@ -1184,7 +1184,7 @@ class CmsFormUtils
             $contentops = \CmsApp::get_instance()->GetContentOperations();
             $alias = $contentops->GetPageAliasFromID($pageid);
             if ($alias) {
-                $out .= CMS_ROOT_URL.'/'.$alias.(isset($config['page_extension']) ? $config['page_extension'] : '.shtml');
+                $out .= CMS_ROOT_URL.'/'.$alias.($config['page_extension'] ?? '.shtml');
             } else {
                 $tmp = 'no alias for page with id='.$pageid;
                 assert(!$alias, $tmp);

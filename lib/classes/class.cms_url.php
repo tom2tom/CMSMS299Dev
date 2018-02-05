@@ -346,7 +346,7 @@ class cms_url
 
         $parts = $this->_parts;
 
-        $path = (isset($parts['path'])) ?$parts['path'] : '';
+        $path = $parts['path'] ?? '';
         if( $path && $path[0] != '/' ) $path = '/'.$path;
 
 		$parts = $this->_parts;

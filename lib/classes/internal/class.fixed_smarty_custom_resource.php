@@ -45,7 +45,7 @@ abstract class fixed_smarty_custom_resource extends \Smarty_Resource_Custom
             $source->timestamp = $mtime;
         } else {
             $this->fetch($source->name, $content, $timestamp);
-            $source->timestamp = isset($timestamp) ? $timestamp : false;
+            $source->timestamp = $timestamp ?? false;
             if( isset($content) ) $source->content = $content;
         }
         $source->exists = !!$source->timestamp;

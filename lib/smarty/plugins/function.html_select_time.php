@@ -151,8 +151,7 @@ function smarty_function_html_select_time($params)
             foreach (array('H' => 'Hour', 'i' => 'Minute', 's' => 'Second') as $_elementKey => $_elementName) {
                 $_variableName = '_' . strtolower($_elementName);
                 $$_variableName =
-                    isset($params[ 'time' ][ $prefix . $_elementName ]) ? $params[ 'time' ][ $prefix . $_elementName ] :
-                        date($_elementKey);
+                    $params[ 'time' ][ $prefix . $_elementName ] ?? date($_elementKey);
             }
             $_meridian =
                 isset($params[ 'time' ][ $prefix . 'Meridian' ]) ? (' ' . $params[ 'time' ][ $prefix . 'Meridian' ]) :
@@ -163,8 +162,8 @@ function smarty_function_html_select_time($params)
             // $_REQUEST given
             foreach (array('H' => 'Hour', 'i' => 'Minute', 's' => 'Second') as $_elementKey => $_elementName) {
                 $_variableName = '_' . strtolower($_elementName);
-                $$_variableName = isset($params[ 'time' ][ $field_array ][ $prefix . $_elementName ]) ?
-                    $params[ 'time' ][ $field_array ][ $prefix . $_elementName ] : date($_elementKey);
+                $$_variableName =
+                    $params[ 'time' ][ $field_array ][ $prefix . $_elementName ] ?? date($_elementKey);
             }
             $_meridian = isset($params[ 'time' ][ $field_array ][ $prefix . 'Meridian' ]) ?
                 (' ' . $params[ 'time' ][ $field_array ][ $prefix . 'Meridian' ]) : '';
@@ -208,7 +207,7 @@ function smarty_function_html_select_time($params)
         $_html_hours .= $_extra . $extra_attrs . '>' . $option_separator;
 
         if (isset($hour_empty) || isset($all_empty)) {
-            $_html_hours .= '<option value="">' . (isset($hour_empty) ? $hour_empty : $all_empty) . '</option>' .
+            $_html_hours .= '<option value="">' . ($hour_empty ?? $all_empty) . '</option>' .
                             $option_separator;
         }
 
@@ -256,7 +255,7 @@ function smarty_function_html_select_time($params)
         $_html_minutes .= $_extra . $extra_attrs . '>' . $option_separator;
 
         if (isset($minute_empty) || isset($all_empty)) {
-            $_html_minutes .= '<option value="">' . (isset($minute_empty) ? $minute_empty : $all_empty) . '</option>' .
+            $_html_minutes .= '<option value="">' . ($minute_empty ?? $all_empty) . '</option>' .
                               $option_separator;
         }
 
@@ -297,7 +296,7 @@ function smarty_function_html_select_time($params)
         $_html_seconds .= $_extra . $extra_attrs . '>' . $option_separator;
 
         if (isset($second_empty) || isset($all_empty)) {
-            $_html_seconds .= '<option value="">' . (isset($second_empty) ? $second_empty : $all_empty) . '</option>' .
+            $_html_seconds .= '<option value="">' . ($second_empty ?? $all_empty) . '</option>' .
                               $option_separator;
         }
 
@@ -339,7 +338,7 @@ function smarty_function_html_select_time($params)
         $_html_meridian .= $_extra . $extra_attrs . '>' . $option_separator;
 
         if (isset($meridian_empty) || isset($all_empty)) {
-            $_html_meridian .= '<option value="">' . (isset($meridian_empty) ? $meridian_empty : $all_empty) .
+            $_html_meridian .= '<option value="">' . ($meridian_empty ?? $all_empty) .
                                '</option>' . $option_separator;
         }
 

@@ -51,7 +51,7 @@ abstract class jquery_upload_handler
       	return
         		(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
         		(isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-        		(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
+        		($_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'].
         		(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] === 443 ||
         		$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
         		substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
@@ -305,28 +305,20 @@ abstract class jquery_upload_handler
             foreach ($upload['tmp_name'] as $index => $value) {
                 $res = $this->handle_file_upload(
                     $upload['tmp_name'][$index],
-                    isset($_SERVER['HTTP_X_FILE_NAME']) ?
-                        $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'][$index],
-                    isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-                        $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'][$index],
-                    isset($_SERVER['HTTP_X_FILE_TYPE']) ?
-                        $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type'][$index],
+                    $_SERVER['HTTP_X_FILE_NAME'] ?? $upload['name'][$index],
+                    $_SERVER['HTTP_X_FILE_SIZE'] ?? $upload['size'][$index],
+                    $_SERVER['HTTP_X_FILE_TYPE'] ?? $upload['type'][$index],
                     $upload['error'][$index]
                 );
 		$info[] = $res;
             }
         } elseif ($upload || isset($_SERVER['HTTP_X_FILE_NAME'])) {
             $res = $this->handle_file_upload(
-                isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
-                isset($_SERVER['HTTP_X_FILE_NAME']) ? $_SERVER['HTTP_X_FILE_NAME'] : (isset($upload['name']) ?
-                        isset($upload['name']) : null),
-                isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-                    $_SERVER['HTTP_X_FILE_SIZE'] : (isset($upload['size']) ?
-                        isset($upload['size']) : null),
-                isset($_SERVER['HTTP_X_FILE_TYPE']) ?
-                    $_SERVER['HTTP_X_FILE_TYPE'] : (isset($upload['type']) ?
-                        isset($upload['type']) : null),
-                isset($upload['error']) ? $upload['error'] : null
+                $upload['tmp_name'] ?? null,
+                $_SERVER['HTTP_X_FILE_NAME'] ?? ($upload['name'] ?? null),
+                $_SERVER['HTTP_X_FILE_SIZE'] ?? ($upload['size'] ?? null),
+                $_SERVER['HTTP_X_FILE_TYPE'] ?? ($upload['type'] ?? null),
+                $upload['error'] ?? null
             );
 	    $info[] = $res;
         }

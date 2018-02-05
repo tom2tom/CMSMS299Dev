@@ -90,7 +90,7 @@ class microtiny_profile implements ArrayAccess
     case 'name':
     case 'label':
     case 'system':
-      return (isset($this->_data[$key]))?TRUE:FALSE;
+      return isset($this->_data[$key]);
 
     default:
       throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');

@@ -152,9 +152,8 @@ final class CmsLangOperations
      * @param string $key The language key (required)
      * @return bool
      */
-    public static function lang_key_exists()
+    public static function lang_key_exists(...$args)
     {
-        $args = func_get_args();
         if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
         if( count($args) < 2 ) return;
 
@@ -190,9 +189,8 @@ final class CmsLangOperations
      * @param mixed  Further arguments to this function are passed to vsprintf
      * @return string
      */
-    public static function lang_from_realm()
+    public static function lang_from_realm(...$args)
     {
-        $args = func_get_args();
         if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
         if( count($args) < 2 ) return;
 
@@ -244,9 +242,8 @@ final class CmsLangOperations
      * @param mixed  Optional further arguments.
      * @return string
      */
-    public static function lang()
+    public static function lang(...$args)
     {
-        $args = func_get_args();
         if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 
         array_unshift($args,self::$_current_realm);

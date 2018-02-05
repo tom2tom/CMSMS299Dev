@@ -98,7 +98,7 @@ class cms_install extends \__appbase\app
         // we do this because phar data cannot read from a .tar.gz file that is already embedded within a phar
         // (some environments)
         $tmpdir = $this->get_tmpdir().'/m'.md5(__FILE__.session_id());
-        $src_archive = (isset($config['archive']))?$config['archive']:'data/data.tar.gz';
+        $src_archive = $config['archive']??'data/data.tar.gz';
         $src_archive = dirname(__DIR__).DIRECTORY_SEPARATOR.$src_archive;
         if( !file_exists($src_archive) ) throw new \Exception('Could not find installation archive at '.$src_archive);
         $dest_archive = $tmpdir.DIRECTORY_SEPARATOR."f".md5($src_archive.session_id()).'.tgz';

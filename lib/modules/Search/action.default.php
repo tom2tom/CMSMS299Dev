@@ -36,8 +36,8 @@ if( isset( $params['resultpage'] ) ) {
 $is_method = isset($params['search_method'])?'post':'get';
 
 // Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html
-$submittext = (isset($params['submit'])) ? $params['submit'] : $this->Lang('searchsubmit');
-$searchtext = (isset($params['searchtext'])) ? $params['searchtext'] : $this->GetPreference('searchtext','');
+$submittext = $params['submit'] ?? $this->Lang('searchsubmit');
+$searchtext = $params['searchtext'] ?? $this->GetPreference('searchtext','');
 $tpl_ob->assign('search_actionid',$id);
 $tpl_ob->assign('searchtext',$searchtext);
 $tpl_ob->assign('destpage',$returnid);

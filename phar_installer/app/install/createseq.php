@@ -20,11 +20,10 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
     {
         $sql = 'SELECT COALESCE(MAX(?),0) AS maxid FROM '.CMS_DB_PREFIX.$tablename;
         $max = $db->GetOne($sql,array($tableinfo['id']));
-        $tableinfo['seq'] = isset($tableinfo['seq']) ? $tableinfo['seq'] : $tablename . '_seq';
+        $tableinfo['seq'] = $tableinfo['seq'] ?? $tablename . '_seq';
         verbose_msg(ilang('install_updateseq',$tableinfo['seq']));
         $db->CreateSequence(CMS_DB_PREFIX.$tableinfo['seq'], $max);
     }
 }
 
-# vim:ts=4 sw=4 noet
 ?>

@@ -55,7 +55,7 @@ if( isset($params['setoptions']) ) {
     cms_userprefs::set($this->GetName().'_pagelimit',$pagelimit);
 
     $filter = null;
-    $filter_type = (isset($params['filter_type'])) ? $params['filter_type'] : null;
+    $filter_type = $params['filter_type'] ?? null;
     switch( $filter_type ) {
     case ContentListFilter::EXPR_DESIGN:
         $filter = new ContentListFilter;

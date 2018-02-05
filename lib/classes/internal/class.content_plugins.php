@@ -218,7 +218,7 @@ final class content_plugins
         $result = null;
         if (is_object($contentobj)) {
             if( !$contentobj->IsPermitted() ) throw new CmsError403Exception();
-            $block = (isset($params['block']))?$params['block']:'content_en';
+            $block = $params['block'] ?? 'content_en';
             // if content_en
             //    get primary content
             // otherwise other block
