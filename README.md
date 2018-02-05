@@ -1,2 +1,2 @@
-# CMSMS 2.3 Development
-workspace for CMSMS 2.3 development
+# CMSMS23Dev
+CMSMS 2.3 core development work
