@@ -151,7 +151,7 @@ if (isset($_POST['submit_prefs']) && check_permission($userid,'Manage My Setting
   if (isset($_POST['old_default_cms_lang'])) $old_default_cms_lang = cleanValue($_POST['old_default_cms_lang']);
   $admintheme = cleanValue($_POST['admintheme']);
   $bookmarks = (isset($_POST['bookmarks']) ? 1 : 0);
-  $indent = (isset($_POST['indent']) ? true : false);
+  $indent = isset($_POST['indent']);
   $paging = (isset($_POST['paging']) ? 1 : 0);
   $date_format_string = trim(strip_tags($_POST['date_format_string']));
   $default_parent = '';

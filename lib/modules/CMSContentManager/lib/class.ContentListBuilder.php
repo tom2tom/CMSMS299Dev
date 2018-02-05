@@ -493,7 +493,7 @@ final class ContentListBuilder
   public function pretty_urls_configured()
   {
       $config = \cms_config::get_instance();
-      return (isset($config['url_rewriting']) && $config['url_rewriting'] != 'none' ) ? TRUE : FALSE;
+      return isset($config['url_rewriting']) && $config['url_rewriting'] != 'none';
   }
 
   /**
