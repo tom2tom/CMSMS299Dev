@@ -346,7 +346,8 @@ final class CmsApp {
 		global $DONT_LOAD_DB;
 
 		if( !isset($DONT_LOAD_DB) ) {
-			$this->db = new \CMSMS\Database\mysqli\Connection();
+            $config = cms_config::get_instance();
+			$this->db = new \CMSMS\Database\mysqli\Connection($config);
 			//deprecated: make old stuff available
 			require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
 			return $this->db;
