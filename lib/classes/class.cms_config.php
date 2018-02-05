@@ -1,5 +1,5 @@
 <?php
-#CMS Made Simple class
+#class for handling configuration data
 #Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2014-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,7 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 
 /**
  * This file contains the class that manages the CMSMS config.php file
@@ -65,18 +64,18 @@ final class cms_config implements ArrayAccess
     /**
      * ignore
      */
-    private $_data = array();
+    private $_data = [];
 
     /**
      * ignore
      */
-    private $_cache = array();
+    private $_cache = [];
 
 
     /**
      * ignore
      */
-    private function __construct()  {}
+    private function __construct() {}
 
     /**
      * Retrieve the maximum file upload size (in bytes)
@@ -88,14 +87,15 @@ final class cms_config implements ArrayAccess
             $l=strlen($maxFileSize);
             $i=0;$ss='';$x=0;
             while ($i < $l) {
-                if (is_numeric($maxFileSize[$i]))
-				{$ss .= $maxFileSize[$i];}
+                if (is_numeric($maxFileSize[$i])) {
+                    $ss .= $maxFileSize[$i];
+                }
                 else {
                     if (strtolower($maxFileSize[$i]) == 'g') $x=1000000000;
                     if (strtolower($maxFileSize[$i]) == 'm') $x=1000000;
                     if (strtolower($maxFileSize[$i]) == 'k') $x=1000;
                 }
-                $i ++;
+                $i++;
             }
             $maxFileSize=$ss;
             if ($x >0) $maxFileSize = $ss * $x;
@@ -111,50 +111,51 @@ final class cms_config implements ArrayAccess
      */
     private function load_config()
     {
-        $this->_types = array();
-        $this->_types['dbms'] = self::TYPE_STRING;
-        $this->_types['db_hostname'] = self::TYPE_STRING;
-        $this->_types['db_username'] = self::TYPE_STRING;
-        $this->_types['db_password'] = self::TYPE_STRING;
-        $this->_types['db_name'] = self::TYPE_STRING;
-        $this->_types['db_port'] = self::TYPE_INT;
-        $this->_types['db_prefix'] = self::TYPE_STRING;
-        $this->_types['root_url'] = self::TYPE_STRING;
-        $this->_types['pr_root_url'] = self::TYPE_STRING;
-        $this->_types['root_path'] = self::TYPE_STRING;
-        $this->_types['admin_dir'] = self::TYPE_STRING;
-        $this->_types['uploads_path'] = self::TYPE_STRING;
-        $this->_types['uploads_url'] = self::TYPE_STRING;
-        $this->_types['image_uploads_path'] = self::TYPE_STRING;
-        $this->_types['image_uploads_url'] = self::TYPE_STRING;
-        $this->_types['debug'] = self::TYPE_BOOL;
-        $this->_types['debug_to_log'] = self::TYPE_BOOL;
-        $this->_types['timezone'] = self::TYPE_STRING;
-        $this->_types['persist_db_conn'] = self::TYPE_BOOL;
-        $this->_types['max_upload_size'] = self::TYPE_INT;
-        $this->_types['default_upload_permission'] = self::TYPE_STRING;
-        $this->_types['auto_alias_content'] = self::TYPE_BOOL;
-        $this->_types['url_rewriting'] = self::TYPE_STRING;
-        $this->_types['page_extension'] = self::TYPE_STRING;
-        $this->_types['query_var'] = self::TYPE_STRING;
-        $this->_types['locale'] = self::TYPE_STRING;
-        $this->_types['default_encoding'] = self::TYPE_STRING;
-        $this->_types['admin_encoding'] = self::TYPE_STRING;
-        $this->_types['set_names'] = self::TYPE_BOOL;
-        $this->_types['set_db_timezone'] = self::TYPE_BOOL;
-        $this->_types['admin_url'] = self::TYPE_STRING;
-        $this->_types['ignore_lazy_load'] = self::TYPE_BOOL;
-        $this->_types['tmp_cache_location'] = self::TYPE_STRING;
-        $this->_types['tmp_templates_c_location'] = self::TYPE_STRING;
-        $this->_types['public_cache_location'] = self::TYPE_STRING;
-        $this->_types['public_cache_url'] = self::TYPE_STRING;
-        $this->_types['assets_dir'] = self::TYPE_STRING;
-        $this->_types['assets_path'] = self::TYPE_STRING;
-        $this->_types['permissive_smarty'] = self::TYPE_BOOL;
-        $this->_types['content_processing_mode'] = self::TYPE_INT;
-        $this->_types['content_language'] = self::TYPE_STRING;
+        $this->_types = [
+        'admin_dir' => self::TYPE_STRING,
+        'admin_encoding' => self::TYPE_STRING,
+        'admin_url' => self::TYPE_STRING,
+        'assets_dir' => self::TYPE_STRING,
+        'assets_path' => self::TYPE_STRING,
+        'auto_alias_content' => self::TYPE_BOOL,
+        'content_language' => self::TYPE_STRING,
+        'content_processing_mode' => self::TYPE_INT,
+        'db_hostname' => self::TYPE_STRING,
+        'db_name' => self::TYPE_STRING,
+        'db_password' => self::TYPE_STRING,
+        'db_port' => self::TYPE_INT,
+        'db_prefix' => self::TYPE_STRING,
+        'db_username' => self::TYPE_STRING,
+        'dbms' => self::TYPE_STRING,
+        'debug_to_log' => self::TYPE_BOOL,
+        'debug' => self::TYPE_BOOL,
+        'default_encoding' => self::TYPE_STRING,
+        'default_upload_permission' => self::TYPE_STRING,
+        'ignore_lazy_load' => self::TYPE_BOOL,
+        'image_uploads_path' => self::TYPE_STRING,
+        'image_uploads_url' => self::TYPE_STRING,
+        'locale' => self::TYPE_STRING,
+        'max_upload_size' => self::TYPE_INT,
+        'page_extension' => self::TYPE_STRING,
+        'permissive_smarty' => self::TYPE_BOOL,
+        'persist_db_conn' => self::TYPE_BOOL,
+        'pr_root_url' => self::TYPE_STRING,
+        'public_cache_location' => self::TYPE_STRING,
+        'public_cache_url' => self::TYPE_STRING,
+        'query_var' => self::TYPE_STRING,
+        'root_path' => self::TYPE_STRING,
+        'root_url' => self::TYPE_STRING,
+        'set_db_timezone' => self::TYPE_BOOL,
+        'set_names' => self::TYPE_BOOL,
+        'timezone' => self::TYPE_STRING,
+        'tmp_cache_location' => self::TYPE_STRING,
+        'tmp_templates_c_location' => self::TYPE_STRING,
+        'uploads_path' => self::TYPE_STRING,
+        'uploads_url' => self::TYPE_STRING,
+        'url_rewriting' => self::TYPE_STRING,
+        ];
 
-        $config = array();
+        $config = [];
         if (defined('CONFIG_FILE_LOCATION') && is_file(CONFIG_FILE_LOCATION)) {
             include(CONFIG_FILE_LOCATION);
             foreach( $config as $key => &$value ) {
@@ -209,8 +210,7 @@ final class cms_config implements ArrayAccess
     public static function &get_instance()
     {
         if (!isset(self::$_instance)) {
-            $c = __CLASS__;
-            self::$_instance = new $c;
+            self::$_instance = new self();
 
             // now load the config
             self::$_instance->load_config();
@@ -315,12 +315,12 @@ final class cms_config implements ArrayAccess
         case 'use_adodb_lite':
         case 'use_hierarchy':
             // deprecated, backwards compat only
-            return TRUE;
+            return true;
 
         case 'use_smarty_php_tags':
         case 'output_compression':
             // deprecated, backwards compat only
-            return FALSE;
+            return false;
 
         case 'default_upload_permission':
             $mask = octdec(cms_siteprefs::get('global_umask','0022'));
@@ -329,11 +329,11 @@ final class cms_config implements ArrayAccess
 
         case 'assume_mod_rewrite':
             // deprecated, backwards compat only
-            return ($this['url_rewriting'] == 'mod_rewrite')?true:false;
+            return $this['url_rewriting'] == 'mod_rewrite';
 
         case 'internal_pretty_urls':
             // deprecated, backwards compat only
-            return ($this['url_rewriting'] == 'internal')?true:false;
+            return $this['url_rewriting'] == 'internal';
         }
 
         // from the config file.
@@ -372,9 +372,9 @@ final class cms_config implements ArrayAccess
             return 2;
 
         case 'root_path':
-            $out = dirname(dirname(__DIR__)); // realpath here?
-            $this->_cache[$key] = $out;
-            return $out;
+            $str = dirname(__DIR__, 2);
+            $this->_cache[$key] = $str;
+            return $str;
 
         case 'root_url':
             if( !isset($_SERVER['HTTP_HOST']) ) return;
@@ -385,21 +385,28 @@ final class cms_config implements ArrayAccess
                 if( endswith($path,'install') ) {
                     $path = substr($path,0,strlen($path)-strlen('install')-1);
                 }
-                else if( endswith($path,$this->offsetGet('admin_dir')) ) {
+                elseif( endswith($path,$this->offsetGet('admin_dir')) ) {
                     $path = substr($path,0,strlen($path)-strlen($this->offsetGet('admin_dir'))-1);
                 }
-                else if (strstr($path,'/lib') !== FALSE) {
-                    while( strstr($path,'/lib') !== FALSE ) {
-                        $path = dirname($path);
+                else {
+                    $lseg = DIRECTORY_SEPARATOR.'lib';
+                    if( strstr($path,$lseg) !== false ) {
+                        while( strstr($path,$lseg) !== false ) {
+                            $path = dirname($path);
+                        }
                     }
                 }
                 while(endswith($path, DIRECTORY_SEPARATOR)) {
                     $path = substr($path,0,strlen($path)-1);
                 }
-                if( ($pos = strpos($path,'/index.php')) !== FALSE ) $path = substr($path,0,$pos);
+                if( ($pos = strpos($path,DIRECTORY_SEPARATOR.'index.php')) !== false ) $path = substr($path,0,$pos);
             }
-            $prefix = 'http://';
-            if( CmsApp::get_instance()->is_https_request() ) $prefix = 'https://';
+            if( CmsApp::get_instance()->is_https_request() ) {
+                $prefix = 'https://';
+            }
+            else {
+                $prefix = 'http://';
+            }
             $str = $prefix.$_SERVER['HTTP_HOST'].$path;
             $this->_cache[$key] = $str;
             return $str;
@@ -409,7 +416,7 @@ final class cms_config implements ArrayAccess
             if( startswith($str,'http:') ) {
                 $str = substr($str,5);
             }
-            else if( startswith($str,'https:') ) {
+            elseif( startswith($str,'https:') ) {
                 $str = substr($str,6);
             }
             $this->_cache[$key] = $str;
@@ -459,7 +466,7 @@ final class cms_config implements ArrayAccess
             return 'assets';
 
         case 'assets_path':
-            $this->_cache[$key] = $this->OffsetGet('root_path').'/'.$this->OffsetGet('assets_dir');
+            $this->_cache[$key] = cms_join_path($this->OffsetGet('root_path'),$this->OffsetGet('assets_dir'));
             return $this->_cache[$key];
 
         case 'db_port':
@@ -501,7 +508,7 @@ final class cms_config implements ArrayAccess
             return false;
 
         case 'css_path':
-            return PUBLIC_CACHE_LOCATION.'/';
+            return PUBLIC_CACHE_LOCATION.DIRECTORY_SEPARATOR;
 
         case 'css_url':
             return PUBLIC_CACHE_URL;
