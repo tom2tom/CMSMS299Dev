@@ -323,7 +323,7 @@ final class ModuleOperations
 
         $info = $this->_get_module_info();
         if( !isset($info[$module_name]) && !$force_load ) {
-            cms_warning("Nothing is known about $module_name... cant load it");
+            cms_warning("Nothing is known about $module_name... can't load it");
             return FALSE;
         }
 
@@ -803,15 +803,15 @@ final class ModuleOperations
     }
 
     /**
-     * A function to return the object reference to the module object
-     * if the module is not already loaded, it will be loaded.  Version checks are done
-     * with the module to allow only loading versions of modules that are greater than the
-     * specified value.
+     * A function to return a reference to a module object
+     * if the module is not already loaded, and $force is true, the module will be [re]loaded.
+	 * Version checks are done with the module to allow only loading versions of
+	 * modules that are greater than the specified value.
      *
      * @param string $module_name The module name
      * @param string $version an optional version string.
      * @param bool $force an optional flag to indicate wether the module should be force loaded if necesary.
-     * @return CMSModule
+     * @return CMSModule or a subclass of that
      */
     public function &get_module_instance(string $module_name,string $version = '',bool $force = FALSE)
     {
