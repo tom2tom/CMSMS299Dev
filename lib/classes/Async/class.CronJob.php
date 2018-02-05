@@ -1,9 +1,8 @@
 <?php
 #BEGIN_LICENSE
 #-------------------------------------------------------------------------
-# Module: \CMSMS\Database\Connection (c) 2016 by Robert Campbell
+# Module: CronJob (c) 2016 by Robert Campbell
 #         (calguy1000@cmsmadesimple.org)
-#  A class to define interaction with a database.
 #
 #-------------------------------------------------------------------------
 # CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
