@@ -135,10 +135,10 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
                 return TRUE;
             }
         } else {
-        $now = time();
-        $lastcheck = (int) $this->GetPreference('tasks_lastcheck');
-        if ($lastcheck < $now - 900) {
-            $this->SetPreference('tasks_lastcheck',$now);
+            $now = time();
+            $lastcheck = (int) $this->GetPreference('tasks_lastcheck');
+            if ($lastcheck < $now - 900) {
+                $this->SetPreference('tasks_lastcheck',$now);
                 if ($this->create_jobs_from_eligible_tasks()) {
                     return TRUE;
                 }
@@ -153,7 +153,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
      */
     protected function create_jobs_from_eligible_tasks()
     {
-//        $now = time();
+        $now = time();
         $res = FALSE;
 
         // 1.  Get task objects from files.
