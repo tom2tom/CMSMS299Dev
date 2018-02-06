@@ -1,4 +1,5 @@
 <?php
+/*
 class Connection: represents a MySQL database connection
 Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http:www.cmsmadesimple.org>
