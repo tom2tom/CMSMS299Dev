@@ -1202,10 +1202,10 @@ abstract class ContentBase
 		$this->mTitleAttribute             = $data['titleattribute'];
 		$this->mAccessKey                  = $data['accesskey'];
 		$this->mTabIndex                   = $data['tabindex'];
-		$this->mDefaultContent             = ($data["default_content"] == 1 ? true : false);
-		$this->mActive                     = ($data["active"] == 1          ? true : false);
-		$this->mShowInMenu                 = ($data["show_in_menu"] == 1    ? true : false);
-		$this->mCachable                   = ($data["cachable"] == 1        ? true : false);
+		$this->mDefaultContent             = ($data["default_content"] == 1);
+		$this->mActive                     = ($data["active"] == 1);
+		$this->mShowInMenu                 = ($data["show_in_menu"] == 1);
+		$this->mCachable                   = ($data["cachable"] == 1);
 		if( isset($data['page_url']) ) $this->mURL  = $data["page_url"];
 		$this->mLastModifiedBy             = $data["last_modified_by"];
 		$this->mCreationDate               = $data["create_date"];

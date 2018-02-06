@@ -72,12 +72,12 @@ class request implements \ArrayAccess
 
   public function is_post()
   {
-    return ($this->method() == self::METHOD_POST)?TRUE:FALSE;
+    return $this->method() == self::METHOD_POST;
   }
 
   public function is_get()
   {
-    return ($this->method() == self::METHOD_GET)?TRUE:FALSE;
+    return $this->method() == self::METHOD_GET;
   }
 
   public function accept()

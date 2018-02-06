@@ -219,7 +219,7 @@ final class ModuleOperations
                       (module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
                       VALUES (?,?,?,?,?,?,?)';
             $dbr = $db->Execute($query,array($module_obj->GetName(),$module_obj->GetVersion(),'installed',
-                                             ($module_obj->IsAdminOnly()==true)?1:0,
+                                             ($module_obj->IsAdminOnly())?1:0,
                                              1,$lazyload_fe,$lazyload_admin));
 
             $deps = $module_obj->GetDependencies();

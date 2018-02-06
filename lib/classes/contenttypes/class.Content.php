@@ -64,7 +64,7 @@ class Content extends ContentBase
 	public function IsSearchable()
 	{
 		if( !parent::IsSearchable() ) return FALSE;
-		return ($this->GetPropertyValue('searchable') == 0)?FALSE:TRUE;
+		return $this->GetPropertyValue('searchable') != 0;
 	}
 
 	public function HasSearchableContent() { return TRUE; }

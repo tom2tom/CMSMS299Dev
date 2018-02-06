@@ -68,7 +68,7 @@ abstract class filehandler
 
     $dn = dirname($filespec);
     $tmp = $this->get_destdir()."/$dn";
-    return (is_dir($tmp))?TRUE:FALSE;
+    return is_dir($tmp);
   }
 
   protected function create_directory($filespec)

@@ -26,8 +26,8 @@ class extended_module_info extends module_info
             $this['allow_fe_lazyload'] = $minfo[$module_name]['allow_fe_lazyload'];
             $this['allow_admin_lazyload'] = $minfo[$module_name]['allow_admin_lazyload'];
 
-            $this->_edata['can_deactivate'] = ($this['name'] == 'ModuleManager') ? FALSE : TRUE;
-            $this->_edata['can_uninstall'] = ($this['name'] == 'ModuleManager') ? FALSE : TRUE;
+            $this->_edata['can_deactivate'] = $this['name'] != 'ModuleManager';
+            $this->_edata['can_uninstall'] = $this['name'] != 'ModuleManager';
 
             // dependants is the list of modules that use this module (i.e:  CGBlog uses CGExtensions)
             if( isset($minfo[$module_name]['dependants']) ) $this['dependants'] = $minfo[$module_name]['dependants'];

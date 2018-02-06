@@ -60,8 +60,8 @@ else if (isset($params['submit'])) {
 echo $this->StartTabHeaders();
 $tab = '';
 if (FALSE == empty($params['active_tab'])) $tab = $params['active_tab'];
-echo $this->SetTabHeader('statistics',$this->Lang('statistics'),('statistics' == $tab)?true:false);
-echo $this->SetTabHeader('options',$this->Lang('options'), ('options' == $tab)?true:false);
+echo $this->SetTabHeader('statistics',$this->Lang('statistics'),('statistics' == $tab));
+echo $this->SetTabHeader('options',$this->Lang('options'), ('options' == $tab));
 echo $this->EndTabHeaders();
 
 #The content of the tabs
