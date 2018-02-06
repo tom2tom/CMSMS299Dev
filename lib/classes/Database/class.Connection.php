@@ -128,9 +128,9 @@ abstract class Connection
 
     /**
      * Construct a new Connection.
-     *
+     * @param array $config assoc. array of connection parameters etc
      */
-    public function __construct()
+    public function __construct($config)
     {
         $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG != 0;
         if ($this->_debug) {
@@ -823,7 +823,7 @@ abstract class Connection
     /**
      * Create a new database connection object.
      *
-     * @deprecated - use new <namespace>\Connection()
+     * @deprecated - use new <namespace>\mysqli\Connection()
      *
      */
     public static function Initialize()

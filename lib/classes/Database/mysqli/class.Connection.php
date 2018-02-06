@@ -1,9 +1,8 @@
 <?php
 /*
-Class Connection: represents a MySQL database connection
+class Connection: represents a MySQL database connection
 Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-For CMS Made Simple <http:www.cmsmadesimple.org>
-Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http:www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,10 +28,21 @@ class Connection extends \CMSMS\Database\Connection
     protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
     private $_asyncQ = []; // queue of cached results from prior pretend-async commands, pending pretend-reaps
 
-    public function __construct()
+    /*
+     * @param array $config assoc. array of db connection parameters etc,
+     * including at least:
+     *  'db_hostname'
+     *  'db_username'
+     *  'db_password'
+     *  'db_name'
+     *  'db_port'
+     *  'set_names' (opt)
+     *  'set_db_timezone' (opt)
+     *  'timezone' used only if 'set_db_timezone' is true
+     */
+    public function __construct($config)
     {
         if (class_exists('\mysqli')) {
-            $config = \cms_config::get_instance();
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
                 $this->_mysql = new \mysqli(
@@ -42,11 +52,16 @@ class Connection extends \CMSMS\Database\Connection
                 if (!$this->_mysql->connect_error) {
                     parent::__construct();
                     $this->_type = 'mysqli';
-                    if ($config['set_names']) {
+                    if (!empty($config['set_names'])) {
                         $this->_mysql->set_charset('utf8');
                     }
-                    if ($config['set_db_timezone']) {
-                        $dt = new \DateTime(new \DateTimeZone($config['timezone']));
+                    if (!empty($config['set_db_timezone'])) {
+                        try {
+                            $dt = new \DateTime(new \DateTimeZone($config['timezone']));
+                        } catch (\Exception $e) {
+                            $this->_mysql = null;
+                            $this->on_error(parent::ERROR_PARAM, $e->getCode(), $e->getMessage());
+                        }
                         $offset = $dt->getOffset();
                         if ($offset < 0) {
                             $offset = -$offset;
@@ -157,11 +172,11 @@ class Connection extends \CMSMS\Database\Connection
 
     /**
      * @internal
+     * no error checking
+     * no return data
      */
     protected function do_multisql($sql)
     {
-        // no error checking for this stuff
-        // and no return data
         if ($this->_mysql->multi_query($sql)) {
             do {
                 $res = $this->_mysql->store_result();
@@ -387,7 +402,7 @@ class Connection extends \CMSMS\Database\Connection
         $this->_mysql->query("UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1");
         $rs = $this->_mysql->query('SELECT LAST_INSERT_ID()');
         if ($rs) {
-            $rs->data_seek(0); 
+            $rs->data_seek(0);
             $valsarr = $rs->fetch_array(MYSQLI_NUM);
             return $valsarr[0] + 1;
         }
