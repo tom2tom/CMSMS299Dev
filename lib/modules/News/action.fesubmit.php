@@ -149,7 +149,7 @@ if( isset( $params['submit'] ) ) {
                 $value = trim($value);
                 if( empty($value) ) continue;
                 if( preg_match('/^news_customfield_/',$key) ) {
-                    $field_id = intval(substr($key,17));
+                    $field_id = (int)substr($key,17);
                     $db->Execute($query,array($articleid,$field_id,$value));
                 }
             }

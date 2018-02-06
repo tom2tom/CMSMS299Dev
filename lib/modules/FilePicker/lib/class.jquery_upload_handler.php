@@ -193,7 +193,7 @@ abstract class jquery_upload_handler
 
     protected function orient_image($file_path) {
       	$exif = exif_read_data($file_path);
-      	$orientation = intval(@$exif['Orientation']);
+      	$orientation = (int)@$exif['Orientation'];
       	if (!in_array($orientation, array(3, 6, 8))) {
       	    return false;
       	}
@@ -223,7 +223,7 @@ abstract class jquery_upload_handler
     private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
         $file = new \stdClass();
         $file->name = $this->trim_file_name($name, $type);
-        $file->size = intval($size);
+        $file->size = (int)$size;
         $file->type = $type;
         $error = $this->has_error($uploaded_file, $file, $error);
         if (!$error && $file->name) {

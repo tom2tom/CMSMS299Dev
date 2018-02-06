@@ -29,11 +29,11 @@ class SearchItemCollection
             $newitem->url = $url;
             $newitem->urltxt = search_CleanupText($txt);
             $newitem->title = $title;
-            $newitem->intweight = intval($weight);
-            if (intval($weight) > $this->maxweight) $this->maxweight = intval($weight);
+            $newitem->intweight = (int)$weight;
+            if ((int)$weight > $this->maxweight) $this->maxweight = (int)$weight;
             if (!empty($module) ) {
                 $newitem->module = $module;
-                if( intval($modulerecord) > 0 )	$newitem->modulerecord = $modulerecord;
+                if((int)$modulerecord > 0 )	$newitem->modulerecord = $modulerecord;
             }
             $this->_ary[] = $newitem;
         }
@@ -44,7 +44,7 @@ class SearchItemCollection
         reset($this->_ary);
         while (list($key) = each($this->_ary)) {
             $oneitem =& $this->_ary[$key];
-            $oneitem->weight = intval(($oneitem->intweight / $this->maxweight) * 100);
+            $oneitem->weight = (int)($oneitem->intweight / $this->maxweight) * 100;
         }
     }
 
