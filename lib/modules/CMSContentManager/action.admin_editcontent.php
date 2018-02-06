@@ -75,7 +75,7 @@ try {
         $content_obj = unserialize($_SESSION['__cms_copy_obj__']);
         $content_type = $content_obj->Type();
     }
-    else if( $content_id < 1 ) {
+    elseif( $content_id < 1 ) {
         // creating a new content object
         if( isset($params['content_type']) ) $content_type = trim($params['content_type']);
         $content_obj = $contentops->CreateNewContent($content_type);

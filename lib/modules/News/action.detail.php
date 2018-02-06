@@ -44,7 +44,7 @@ $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,nul
 if( isset($params['articleid']) && $params['articleid'] == -1 ) {
     $article = news_ops::get_latest_article();
 }
-else if( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
+elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
     $show_expired = $this->GetPreference('expired_viewable',1);
     if( isset($params['showall']) ) $show_expired = 1;
     $article = news_ops::get_article_by_id((int)$params['articleid'],TRUE,$show_expired);

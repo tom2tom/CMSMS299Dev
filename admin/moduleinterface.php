@@ -52,7 +52,7 @@ if( !$modinst ) {
 if( isset($_REQUEST['showtemplate']) && ($_REQUEST['showtemplate'] == 'false')) {
     // for simplicity and compatibility with the frontend.
     $USE_THEME = false;
-} elseif( $modinst->SuppressAdminOutput($_REQUEST) != false || isset($_REQUEST['suppressoutput']) ) {
+} elseif( $modinst->SuppressAdminOutput($_REQUEST) || isset($_REQUEST['suppressoutput']) ) {
     $USE_THEME = false;
 } else {
     $USE_THEME = true;

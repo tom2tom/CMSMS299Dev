@@ -1864,8 +1864,8 @@ abstract class ContentBase
 
 				$res = null;
 				if( ($r = strcmp($atab,$btab)) != 0 ) $res = $r;
-				else if( $a->priority < $b->priority ) $res = -1;
-				else if( $a->priority > $b->priority ) $res = 1;
+				elseif( $a->priority < $b->priority ) $res = -1;
+				elseif( $a->priority > $b->priority ) $res = 1;
 				else $res = strcmp($a->name,$b->name);
 				return $res;
 			});

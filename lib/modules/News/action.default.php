@@ -230,7 +230,7 @@ if( is_object($dbresult) ) {
             $onerow->author = $row['username'];
             $onerow->authorname = trim($row['first_name'].' '.$row['last_name']);
         }
-        else if( $onerow->author_id == 0 ) {
+        elseif( $onerow->author_id == 0 ) {
             $onerow->author = $this->Lang('anonymous');
             $onerow->authorname = $this->Lang('unknown');
         }

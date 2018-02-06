@@ -32,7 +32,7 @@ class news_article
                     $this->_meta['authorname'] = $theuser->firstname.' '.$theuser->lastname; // is there some locale way we can do this?
                 }
             }
-            else if( $author_id < 0 ) {
+            elseif( $author_id < 0 ) {
                 $author_id *= -1;
                 $feu = cms_utils::get_module('FrontEndUsers');
                 if( $feu ) {

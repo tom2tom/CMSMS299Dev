@@ -264,7 +264,7 @@ try {
                 // install
                 $rec['action']='i';
             }
-            else if( version_compare($allmoduleinfo[$name]['version'],$rec['version']) < 0 ) {
+            elseif( version_compare($allmoduleinfo[$name]['version'],$rec['version']) < 0 ) {
                 // upgrade
                 $rec['action']='u';
             }

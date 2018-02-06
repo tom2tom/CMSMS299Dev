@@ -890,7 +890,7 @@ class CmsLayoutTemplate
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->GetRow($query,array((int)$a));
 		}
-		else if( is_string($a) && strlen($a) > 0 ) {
+		else if( is_string($a) && $a !== '' ) {
 			if( isset(self::$_name_cache[$a]) ) {
 				$n = self::$_name_cache[$a];
 				return self::$_obj_cache[$n];

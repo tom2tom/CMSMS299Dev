@@ -583,7 +583,7 @@ class CmsLayoutCollection
             $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
             $row = $db->GetRow($query,array((int)$x));
         }
-        else if( is_string($x) && strlen($x) > 0 ) {
+        else if( is_string($x) && $x !== '' ) {
             if( is_array(self::$_raw_cache) && count(self::$_raw_cache) ) {
 				foreach( self::$_raw_cache as $row ) {
 					if( $row['name'] == $x ) return self::_load_from_data($row);

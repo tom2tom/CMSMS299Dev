@@ -674,7 +674,7 @@ class CmsLayoutStylesheet
             $query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
             $row = $db->GetRow($query,array($a));
         }
-        else if( is_string($a) && strlen($a) > 0 ) {
+        else if( is_string($a) && $a !== '' ) {
 			if( isset(self::$_name_cache[$a]) ) {
 				$b = (int)self::$_name_cache[$a];
 				if( isset(self::$_css_cache[$b]) ) return self::$_css_cache[$b];
@@ -710,7 +710,7 @@ class CmsLayoutStylesheet
 				$ids[$i] = (int)$ids[$i];
 			}
 		}
-		else if( is_string($ids[0]) && strlen($ids[0]) > 0 ) {
+		else if( is_string($ids[0]) && $ids[0] !== '' ) {
 			for( $i = 0, $n = count($ids); $i < $n; $i++ ) {
 				$ids[$i] = "'".trim($ids[$i])."'";
 			}
@@ -813,7 +813,7 @@ class CmsLayoutStylesheet
         if( is_numeric($id) && (int)$id > 0 ) {
             if( isset(self::$_css_cache[$id]) ) return TRUE;
         }
-        else if( is_string($id) && strlen($id) > 0 ) {
+        else if( is_string($id) && $id !== '' ) {
             if( isset(self::$_name_cache[$id]) ) return TRUE;
         }
         return FALSE;
