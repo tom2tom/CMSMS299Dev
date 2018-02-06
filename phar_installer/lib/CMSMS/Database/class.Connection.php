@@ -823,7 +823,7 @@ abstract class Connection
     /**
      * Create a new database connection object.
      *
-     * @deprecated - use new <namespace>\Connection()
+     * @deprecated - use new <namespace>\mysqli\Connection($config)
      *
      */
     public static function Initialize()
