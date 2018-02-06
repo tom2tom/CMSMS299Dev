@@ -733,10 +733,9 @@ class http_request
     public function execute($target = '', $referrer = '', $method = '', $data = array())
     {
         // Populate the properties
-        $this->target = ($target) ? $target : $this->target;
-        $this->method = ($method) ? $method : $this->method;
-
-        $this->referrer = ($referrer) ? $referrer : $this->referrer;
+        $this->target = ($target) ?: $this->target;
+        $this->method = ($method) ?: $this->method;
+        $this->referrer = ($referrer) ?: $this->referrer;
 
         // Add the new params
         if( is_array($data) && count($data) )
@@ -1233,7 +1232,7 @@ class http_request
         $name  = $this->_encodeCookie($name, true);
         $value = $this->_encodeCookie($value, false);
 
-        $secure = intval($secure);
+        $secure = (int)$secure;
 
         $this->_cookies[] = array( "name"      =>  $name,
                                    "value"     =>  $value,

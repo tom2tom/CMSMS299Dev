@@ -245,7 +245,7 @@ function smarty_function_html_select_time($params)
         $_html_minutes = '<select name="' . $_name . '"';
         if ($minute_id !== null || $all_id !== null) {
             $_html_minutes .= ' id="' . smarty_function_escape_special_chars($minute_id !== null ?
-                                                                                 ($minute_id ? $minute_id : $_name) :
+                                                                                 ($minute_id ?: $_name) :
                                                                                  ($all_id ? ($all_id . $_name) :
                                                                                      $_name)) . '"';
         }
@@ -286,7 +286,7 @@ function smarty_function_html_select_time($params)
         $_html_seconds = '<select name="' . $_name . '"';
         if ($second_id !== null || $all_id !== null) {
             $_html_seconds .= ' id="' . smarty_function_escape_special_chars($second_id !== null ?
-                                                                                 ($second_id ? $second_id : $_name) :
+                                                                                 ($second_id ?: $_name) :
                                                                                  ($all_id ? ($all_id . $_name) :
                                                                                      $_name)) . '"';
         }
@@ -327,8 +327,7 @@ function smarty_function_html_select_time($params)
         $_html_meridian = '<select name="' . $_name . '"';
         if ($meridian_id !== null || $all_id !== null) {
             $_html_meridian .= ' id="' . smarty_function_escape_special_chars($meridian_id !== null ?
-                                                                                  ($meridian_id ? $meridian_id :
-                                                                                      $_name) :
+                                                                                  ($meridian_id ?: $_name) :
                                                                                   ($all_id ? ($all_id . $_name) :
                                                                                       $_name)) . '"';
         }
