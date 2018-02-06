@@ -34,7 +34,7 @@ namespace CMSMS\Database;
  * </ul>
  *
  * @author Robert Campbell
- * @copyright Copyright (C) 2017 Robert Campbell <calguy1000@cmsmadesimple.org>
+ * @copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
  *
  * @since 2.2
  */
@@ -811,11 +811,13 @@ abstract class Connection
 
     protected function on_error($errtype, $error_number, $error_msg)
     {
-        debug_to_log("Database error: $errtype($error_number) - $error_msg");
-        debug_bt_to_log();
-        if ($this->_debug) {
-            \CmsApp::get_instance()->add_error(debug_display($error_msg, '', false, true));
-        }
+		if (function_exists('\\debug_to_log')) { //N/A during installation
+			\debug_to_log("Database error: $errtype($error_number) - $error_msg");
+			\debug_bt_to_log();
+			if ($this->_debug) {
+				\CmsApp::get_instance()->add_error(\debug_display($error_msg, '', false, true));
+			}
+		}
     }
 
     //// initialization
