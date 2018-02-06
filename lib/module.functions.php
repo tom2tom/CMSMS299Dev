@@ -68,7 +68,7 @@ function cms_module_plugin(array $params, &$smarty) : string
         cms_utils::set_app_data('mid_cache',$mid_cache);
     }
 
-    if (isset($params['action']) && $params['action'] != '') {
+    if (!empty($params['action'])) {
         // action was set in the module tag
         $action = $params['action'];
         unset( $params['action']);

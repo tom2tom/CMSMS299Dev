@@ -41,9 +41,9 @@ function smarty_function_cms_selflink($params, &$smarty)
 	$pageid = null;
 
 	$rellink = isset($params['rellink']) && $params['rellink'] == '1';
-	if ( isset($params['urlparam']) && ( strlen($params['urlparam']) > 0 ) ) $urlparam = trim($params['urlparam']);
+	if( isset($params['urlparam']) && strlen($params['urlparam']) > 0 ) $urlparam = trim($params['urlparam']);
 
-	if (isset($params['page']) or isset($params['href'])) {
+	if( isset($params['page']) || isset($params['href']) ) {
 		$page = null;
 		if (isset($params['href'])) {
 			$page = trim($params['href']);
@@ -264,7 +264,7 @@ function smarty_function_cms_selflink($params, &$smarty)
 			$linktext = $menu_text;
 		}
 
-		if (isset($params['image']) && ! empty($params['image'])) {
+		if ( !empty($params['image']) ) {
 			$width = (!empty($params['width'])) ? (int)$params['width'] : '';
 			$height = (!empty($params['height'])) ? (int)$params['height'] : '';
 			$alt = (!empty($params['alt'])) ? $params['alt'] : '';
@@ -274,7 +274,7 @@ function smarty_function_cms_selflink($params, &$smarty)
 			if( $height ) $height = max(1,$height);
 			if( $height ) $result .= " height=\"$height\"";
 			$result .= "/>";
-			if (! (isset($params['imageonly']) && $params['imageonly'])) $result .= " $linktext";
+			if( empty($params['imageonly']) ) $result .= " $linktext";
 		} else {
 			$result .= $linktext;
 		}

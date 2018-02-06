@@ -75,10 +75,10 @@ function smarty_function_html_table($params)
                 break;
 
             case 'cols':
-                if (is_array($_value) && !empty($_value)) {
+                if (is_array($_value) && count($_value)) {
                     $cols = $_value;
                     $cols_count = count($_value);
-                } elseif (!is_numeric($_value) && is_string($_value) && !empty($_value)) {
+                } elseif (!is_numeric($_value) && is_string($_value) && $_value !== '') {
                     $cols = explode(',', $_value);
                     $cols_count = count($cols);
                 } elseif (!empty($_value)) {

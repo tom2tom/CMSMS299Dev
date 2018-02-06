@@ -60,7 +60,7 @@ function smarty_function_share_data($params, &$template)
 
     foreach( $vars as $one ) {
         $var = $template->getVariable($one,null,false,false);
-        if( !is_a($var,'Smarty_Undefined_Variable') ) $scope->$fn($one,$var->value);
+        if( !($var instanceof Smarty_Undefined_Variable) ) $scope->$fn($one,$var->value);
     }
 }
 

@@ -47,12 +47,13 @@ function smarty_function_cms_stylesheet($params, &$smarty)
 	#---------------------------------------------
 
     try {
-        if (isset($params['name']) && $params['name'] != '' ) {
+        if( !empty($params['name']) ) {
             $name = trim($params['name']);
         }
-        else if (isset($params['designid']) && $params['designid']!='') {
+        elseif( !empty($params['designid']) ) {
             $design_id = (int)$params['designid'];
-        } else {
+        }
+		else {
             $content_obj = $gCms->get_content_object();
             if( !is_object($content_obj) ) return;
             $design_id = (int) $content_obj->GetPropertyValue('design_id');

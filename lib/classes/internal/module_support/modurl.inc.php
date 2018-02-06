@@ -102,7 +102,7 @@ function cms_module_create_actionurl(
 			$text = $base_url . 'index.php';
 		}
 
-		if (isset($params['returnid']) && $returnid != '') {
+		if (!empty($params['returnid'])) {
 			unset($params['returnid']);
 		}
 
