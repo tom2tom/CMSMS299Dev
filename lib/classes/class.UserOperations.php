@@ -213,14 +213,10 @@ class UserOperations
 				}
 			} else {
 				$tmp = md5(get_site_preference('sitemask', '').$password);
-				$check = 0;
-				for ($i = 0; $i < $len; ++$i) {
-					$check |= (ord($hash[$i]) ^ ord($tmp[$i]));
-				}
-				if ($check !== 0) {
+				if (!hash_equals($tmp, $hash)) {
 					sleep(1);
 					return $result;
-				}
+				} 
 				$oneuser = new User();
 				$oneuser->SetPassword($password);
 				$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';
