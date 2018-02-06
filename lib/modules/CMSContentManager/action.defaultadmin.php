@@ -123,7 +123,7 @@ if( isset($params['delete']) ) {
 }
 
 if( isset($params['multisubmit']) && isset($params['multiaction']) &&
-    isset($params['multicontent']) && is_array($params['multicontent']) && count($params['multicontent']) > 0 ) {
+    isset($params['multicontent']) && is_array($params['multicontent']) && count($params['multicontent']) ) {
     list($module,$bulkaction) = explode('::',$params['multiaction'],2);
     if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
         $this->SetMessage($this->Lang('error_nobulkaction'));

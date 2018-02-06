@@ -674,8 +674,7 @@ final class CmsApp {
 	 */
     public function is_https_request()
     {
-        if( isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' ) return TRUE;
-        return FALSE;
+        return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
     }
 }
 

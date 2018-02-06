@@ -337,13 +337,13 @@ class CmsLayoutStylesheet
     public function add_design($a)
     {
         $n = null;
-        if( is_object($a) && is_a($a,'CmsLayoutCollection') ) {
+        if( $a instanceof CmsLayoutCollection ) {
             $n = $a->get_id();
         }
-        else if( is_numeric($a) && (int)$a > 0 ) {
+        elseif( is_numeric($a) && (int)$a > 0 ) {
             $n = $a;
         }
-        else if( (is_string($a) && strlen($a)) ) {
+        elseif( is_string($a) && $a !== '' ) {
             $design = CmsLayoutCollection::load($a);
             $n = $design->get_id();
         }
@@ -372,13 +372,13 @@ class CmsLayoutStylesheet
         if( !is_array($this->_design_assoc) || count($this->_design_assoc) == 0 ) return;
 
         $n = null;
-        if( is_object($a) && is_a($a,'CmsLayoutCollection') ) {
+        if( $a instanceof CmsLayoutCollection ) {
             $n = $a->get_id();
         }
-        else if( is_numeric($a) && (int)$a > 0 ) {
+        elseif( is_numeric($a) && (int)$a > 0 ) {
             $n = $a;
         }
-        else if( (is_string($a) && strlen($a)) ) {
+        elseif( is_string($a) && $a !== '' ) {
             $design = CmsLayoutCollection::load($a);
             $n = $design->get_id();
         }

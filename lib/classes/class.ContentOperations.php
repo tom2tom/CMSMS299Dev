@@ -188,7 +188,7 @@ class ContentOperations
 	 */
 	public function &CreateNewContent($type)
 	{
-		if( is_object($type) && $type instanceof CmsContentTypePlaceHolder ) $type = $type->type;
+		if( $type instanceof CmsContentTypePlaceHolder ) $type = $type->type;
 		$result = NULL;
 
 		$ctph = $this->LoadContentType($type);

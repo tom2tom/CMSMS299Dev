@@ -275,7 +275,7 @@ class CmsFormUtils
                     }
                     // no break
                 case 'a': //any non-empty array
-                    if (is_array($tmp) && $tmp) {
+                    if (is_array($tmp) && count($tmp)) {
                         break;
                     } else {
                         return sprintf(self::ERRTPL2, $key, '%s');

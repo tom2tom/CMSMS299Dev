@@ -350,7 +350,7 @@ class Content extends ContentBase
 		static $_templates;
 		if( $_designlist == null ) {
 			$_tpl = CmsLayoutTemplate::template_query(array('as_list'=>1));
-			if( is_array($_tpl) && count($_tpl) > 0 ) {
+			if( is_array($_tpl) && count($_tpl) ) {
 				$_templates = array();
 				foreach( $_tpl as $tpl_id => $tpl_name ) {
 					$_templates[] = array('value'=>$tpl_id,'label'=>$tpl_name);
@@ -608,7 +608,7 @@ class Content extends ContentBase
 		$module = cms_utils::get_module($blockInfo['module']);
 		if( !is_object($module) ) return FALSE;
 		if( !$module->HasCapability(CmsCoreCapabilities::CONTENT_BLOCKS) ) return FALSE;
-		if( isset($blockInfo['inputname']) && !empty($blockInfo['inputname']) ) {
+		if( !empty($blockInfo['inputname']) ) {
 			// a hack to allow overriding the input field name.
 			$blockName = $blockInfo['inputname'];
 		}

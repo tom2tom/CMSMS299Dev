@@ -31,6 +31,7 @@ class nlstools
 
     $rdi = new \RecursiveDirectoryIterator($this->get_nls_dir());
     $rii = new \RecursiveIteratorIterator($rdi);
+    $want = __NAMESPACE__.'\\nls';
 
     $this->_nls = array();
     foreach( $rii as $file => $info ) {
@@ -42,7 +43,7 @@ class nlstools
 
       $tmp = __NAMESPACE__.'\\'.$name;
       $obj = new $tmp;
-      if( !is_a($obj,__NAMESPACE__.'\nls') ) {
+      if( !($obj instanceof $want) ) {
           unset($obj);
           continue;
       }

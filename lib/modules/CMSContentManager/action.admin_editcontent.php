@@ -118,7 +118,7 @@ try {
     }
 
     // validate the content type.
-    if( is_array($existingtypes) && count($existingtypes) > 0 && !in_array($content_type,array_keys($existingtypes)) ) {
+    if( is_array($existingtypes) && count($existingtypes) && !in_array($content_type,array_keys($existingtypes)) ) {
         $this->SetError($this->Lang('error_editpage_contenttype'));
         $this->RedirectToAdminTab();
     }

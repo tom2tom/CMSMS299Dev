@@ -159,7 +159,7 @@ $pagecount = -1;
 $startelement = 0;
 $pagenumber = 1;
 
-if( isset( $params['pagenumber'] ) && $params['pagenumber'] != '' ) {
+if( !empty($params['pagenumber']) ) {
     // if given a page number, determine a start element
     $pagenumber = (int)$params['pagenumber'];
     $startelement = ($pagenumber-1) * $pagelimit;

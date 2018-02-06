@@ -783,7 +783,7 @@ class CmsLayoutTemplateType
             foreach( $classnames as $cn ) {
                 if( class_exists($cn) ) {
                     $tmp = new $cn;
-                    if( is_a($tmp,'\CMSMS\Layout\TemplateTypeAssistant') ) {
+                    if( $tmp instanceof \CMSMS\Layout\TemplateTypeAssistant ) {
                         $this->_assistant = $tmp;
                         break;
                     }

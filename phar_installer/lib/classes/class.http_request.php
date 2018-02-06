@@ -288,11 +288,11 @@ class http_request
         $this->clear();
         foreach ($config as $key => $val)
         {
-            if (isset($this->$key))
+            if( isset($this->$key) )
             {
                 $method = 'set' . ucfirst(str_replace('_', '', $key));
 
-                if (method_exists($this, $method))
+                if( method_exists($this, $method) )
                 {
                     $this->$method($val);
                 }
@@ -370,7 +370,7 @@ class http_request
      */
     function setTarget($url)
     {
-        if ($url)
+        if( $url )
         {
             $this->target = $url;
         }
@@ -384,7 +384,7 @@ class http_request
      */
     function setMethod($method)
     {
-        if ($method == 'GET' || $method == 'POST')
+        if( $method == 'GET' || $method == 'POST' )
         {
             $this->method = $method;
         }
@@ -398,7 +398,7 @@ class http_request
      */
     function setReferrer($referrer)
     {
-        if ($referrer)
+        if( $referrer )
         {
             $this->referrer = $referrer;
         }
@@ -412,7 +412,7 @@ class http_request
      */
     function setUseragent($agent)
     {
-        if ($agent)
+        if( $agent )
         {
             $this->userAgent = $agent;
         }
@@ -426,7 +426,7 @@ class http_request
      */
     function setTimeout($seconds)
     {
-        if ($seconds > 0)
+        if( $seconds > 0)
         {
             $this->timeout = $seconds;
         }
@@ -440,7 +440,7 @@ class http_request
      */
     function setCookiepath($path)
     {
-        if ($path)
+        if( $path )
         {
             $this->cookiePath = $path;
         }
@@ -459,13 +459,13 @@ class http_request
      */
     function setParams($dataArray)
     {
-      if( !is_array($dataArray) )
-	{
-	  $this->setRawPostData($dataArray);
-	}
-      else if (is_array($dataArray))
+        if( !is_array($dataArray) )
         {
-	  $this->params = array_merge($this->params, $dataArray);
+            $this->setRawPostData($dataArray);
+        }
+        elseif( is_array($dataArray) )
+        {
+            $this->params = array_merge($this->params, $dataArray);
         }
     }
 
@@ -478,7 +478,7 @@ class http_request
      */
     function setAuth($username, $password)
     {
-        if (!empty($username) && !empty($password))
+        if( !empty($username) && !empty($password) )
         {
             $this->username = $username;
             $this->password = $password;
@@ -493,7 +493,7 @@ class http_request
      */
     function setMaxredirect($value)
     {
-        if (!empty($value))
+        if( !empty($value) )
         {
             $this->maxRedirect = $value;
         }
@@ -508,7 +508,7 @@ class http_request
      */
     function addParam($name, $value)
     {
-        if (!empty($name) && $value !== '')
+        if( !empty($name) && $value !== '' )
         {
             $this->params[$name] = $value;
         }
@@ -523,7 +523,7 @@ class http_request
      */
     function addCookie($name, $value)
     {
-        if (!empty($name) && !empty($value))
+        if( !empty($name) && !empty($value) )
         {
             $this->cookies[$name] = $value;
         }
@@ -537,7 +537,7 @@ class http_request
      */
     function useCurl($value = TRUE)
     {
-        if (is_bool($value))
+        if( is_bool($value) )
         {
             $this->useCurl = $value;
         }
@@ -551,7 +551,7 @@ class http_request
      */
     function useCookie($value = TRUE)
     {
-        if (is_bool($value))
+        if( is_bool($value) )
         {
             $this->useCookie = $value;
         }
@@ -565,7 +565,7 @@ class http_request
      */
     function saveCookie($value = TRUE)
     {
-        if (is_bool($value))
+        if( is_bool($value) )
         {
             $this->saveCookie = $value;
         }
@@ -579,7 +579,7 @@ class http_request
      */
     function followRedirects($value = TRUE)
     {
-        if (is_bool($value))
+        if( is_bool($value) )
         {
             $this->redirect = $value;
         }
@@ -630,22 +630,22 @@ class http_request
      */
     function requestHeaderExists($key)
     {
-      if( !is_array($this->headerArray) )
-	{
-	  $this->headerArray = array();
-	}
-      if( strpos($key,':') !== FALSE )
-	{
-	  $tmp = explode(':',$key);
-	  $key = trim($tmp[0]);
-	}
-      for( $i = 0; $i < count($this->headerArray); $i++ )
-	{
-	  $tmp = explode(':',$this->headerArray[$i],1);
-	  $key2 = trim($tmp[0]);
-	  if( $key2 == $key ) return TRUE;
-	}
-      return FALSE;
+        if( !is_array($this->headerArray) )
+        {
+            $this->headerArray = array();
+        }
+        if( strpos($key,':') !== FALSE )
+        {
+            $tmp = explode(':',$key);
+            $key = trim($tmp[0]);
+        }
+        for( $i = 0; $i < count($this->headerArray); $i++ )
+        {
+            $tmp = explode(':',$this->headerArray[$i],1);
+            $key2 = trim($tmp[0]);
+            if( $key2 == $key ) return TRUE;
+        }
+        return FALSE;
     }
 
     /**
@@ -654,67 +654,67 @@ class http_request
      */
     function addRequestHeader($str,$prepend = false)
     {
-      if( !is_array($this->headerArray) )
-	{
-	  $this->headerArray = array();
-	}
+        if( !is_array($this->headerArray) )
+        {
+            $this->headerArray = array();
+        }
 
-      $f = 0;
-      if( strpos($str,':') !== FALSE )
-	{
-	  $tmp = explode(':',$str,1);
-	  $key = trim($tmp[0]);
-	  for( $i = 0; $i < count($this->headerArray); $i++ )
-	    {
-	      $tmp = explode(':',$this->headerArray[$i],1);
-	      $key2 = trim($tmp[0]);
-	      if( $key2 == $key )
-		{
-		  // found a duplicate.
-		  $this->headerArray[$i] = $str;
-		  $f = 1;
-		  break;
-		}
-	    }
-	}
-      if( !$f )
-	{
-	  if( $prepend )
-	    {
-	      array_unshift($this->headerArray,$str);
-	    }
-	  else
-	    {
-	      $this->headerArray[] = $str;
-	    }
-	}
+        $f = 0;
+        if( strpos($str,':') !== FALSE )
+        {
+            $tmp = explode(':',$str,1);
+            $key = trim($tmp[0]);
+            for( $i = 0; $i < count($this->headerArray); $i++ )
+            {
+                $tmp = explode(':',$this->headerArray[$i],1);
+                $key2 = trim($tmp[0]);
+                if( $key2 == $key )
+                {
+                    // found a duplicate.
+                    $this->headerArray[$i] = $str;
+                    $f = 1;
+                    break;
+                }
+            }
+        }
+        if( !$f )
+        {
+            if( $prepend )
+            {
+                array_unshift($this->headerArray,$str);
+            }
+            else
+            {
+                $this->headerArray[] = $str;
+            }
+        }
     }
 
 
     private function _isCurlSuitable()
     {
-      static $_curlgood = -1;
+        static $_curlgood = -1;
 
-      if( $_curlgood == -1 )
-	{
-	  $_curlgood = 0;
-	  if( in_array('curl',get_loaded_extensions()) )
-	    {
-	      if( function_exists('curl_version') )
-		{
-		  $tmp = curl_version();
-		  if( isset($tmp['version']) )
-		    {
-		      if( version_compare($tmp['version'],'7.19.7') >= 0 )
-			{
-			  $_curlgood = 1;
-			}
-		    }
-		}
-	    }
-	}
+        if( $_curlgood == -1 )
+        {
+            $_curlgood = 0;
+            if( in_array('curl',get_loaded_extensions()) )
+            {
+                if( function_exists('curl_version') )
+                {
+                    $tmp = curl_version();
+                    if( isset($tmp['version']) )
+                    {
+                        if( version_compare($tmp['version'],'7.19.7') >= 0 )
+                        {
+                            $_curlgood = 1;
+                        }
+                    }
+                }
+            }
+        }
 
-      return $_curlgood;
+        return $_curlgood;
     }
 
     /**
@@ -739,29 +739,29 @@ class http_request
         $this->referrer = ($referrer) ? $referrer : $this->referrer;
 
         // Add the new params
-        if (is_array($data) && count($data) > 0)
+        if( is_array($data) && count($data) )
         {
             $this->params = array_merge($this->params, $data);
         }
 
         // Process data, if presented
-	$queryString = '';
-	if($this->rawPostData)
-	{
-	  $queryString = $this->rawPostData;
-	}
-        else if(is_array($this->params) && count($this->params) > 0)
+        $queryString = '';
+        if( $this->rawPostData )
         {
-	    $queryString = http_build_query($this->params,'','&');
+          $queryString = $this->rawPostData;
+        }
+        elseif( is_array($this->params) && count($this->params) )
+        {
+            $queryString = http_build_query($this->params,'','&');
         }
 
         // If cURL is not installed, we'll force fsockopen
-	$this->useCurl = $this->useCurl && $this->_isCurlSuitable();
+        $this->useCurl = $this->useCurl && $this->_isCurlSuitable();
 
         // GET method configuration
-        if($this->method == 'GET')
+        if( $this->method == 'GET' )
         {
-            if($queryString)
+            if( $queryString )
             {
                 $this->target = $this->target . "?" . $queryString;
             }
@@ -769,23 +769,23 @@ class http_request
 
         // Parse target URL
         $urlParsed = parse_url($this->target);
-	if( $this->port == 0 && isset($urlParsed['port']) && $urlParsed['port'] > 0 )
-	  {
-	    $this->port = $urlParsed['port'];
-	  }
+        if( $this->port == 0 && isset($urlParsed['port']) && $urlParsed['port'] > 0 )
+        {
+            $this->port = $urlParsed['port'];
+        }
 
         // Handle SSL connection request
-        if ($urlParsed['scheme'] == 'https')
+        if( $urlParsed['scheme'] == 'https' )
         {
             $this->host = $urlParsed['host'];
             $this->port = ($this->port != 0) ? $this->port : 443;
-	    $this->_socket = 'ssl://'.$urlParsed['host'].':'.$this->port;
+            $this->_socket = 'ssl://'.$urlParsed['host'].':'.$this->port;
         }
         else
         {
             $this->host = $urlParsed['host'];
             $this->port = ($this->port != 0) ? $this->port : 80;
-	    $this->_socket = 'tcp://'.$urlParsed['host'].':'.$this->port;
+            $this->_socket = 'tcp://'.$urlParsed['host'].':'.$this->port;
         }
 
         // Finalize the target path
@@ -796,8 +796,8 @@ class http_request
         $this->_passCookies();
 
         // Process cookies, if requested
-	$cookieString = '';
-        if(is_array($this->cookies) && count($this->cookies) > 0)
+        $cookieString = '';
+        if( is_array($this->cookies) && count($this->cookies) > 0 )
         {
             // Get a blank slate
             $tempString   = array();
@@ -805,7 +805,7 @@ class http_request
             // Convert cookiesa array into a query string (ie animal=dog&sport=baseball)
             foreach ($this->cookies as $key => $value)
             {
-                if(strlen(trim($value)) > 0)
+                if( strlen(trim($value)) > 0 )
                 {
                     $tempString[] = $key . "=" . urlencode($value);
                 }
@@ -815,13 +815,13 @@ class http_request
         }
 
         // Do we need to use cURL
-        if ($this->useCurl)
+        if( $this->useCurl )
         {
             // Initialize PHP cURL handle
             $ch = curl_init();
 
             // GET method configuration
-            if($this->method == 'GET')
+            if( $this->method == 'GET' )
             {
                 curl_setopt ($ch, CURLOPT_HTTPGET, TRUE);
                 curl_setopt ($ch, CURLOPT_POST, FALSE);
@@ -832,51 +832,51 @@ class http_request
                 curl_setopt ($ch, CURLOPT_POST, TRUE);
                 curl_setopt ($ch, CURLOPT_HTTPGET, FALSE);
 
-                if(isset($queryString))
+                if( isset($queryString) )
                 {
                     curl_setopt ($ch, CURLOPT_POSTFIELDS, $queryString);
                 }
             }
 
             // Basic Authentication configuration
-            if ($this->username && $this->password)
+            if( $this->username && $this->password )
             {
                 curl_setopt($ch, CURLOPT_USERPWD, $this->username . ':' . $this->password);
             }
 
-	    if ($this->proxy)
-	    {
-	        curl_setop($ch,CURL_PROXY,$this->proxy);
-	    }
+            if( $this->proxy)
+            {
+                curl_setop($ch,CURL_PROXY,$this->proxy);
+            }
 
             // Custom cookie configuration
-            if($this->useCookie)
+            if( $this->useCookie )
             {
-	      // we are sending cookies.
-	      if(isset($cookieString))
-		{
-		  curl_setopt ($ch, CURLOPT_COOKIE, $cookieString);
-		}
-	      else
-		{
-		  curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookiePath);
-		}
+                // we are sending cookies.
+                if( isset($cookieString) )
+                {
+                  curl_setopt ($ch, CURLOPT_COOKIE, $cookieString);
+                }
+                else
+                {
+                  curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookiePath);
+                }
             }
-            if($this->saveCookie)
-	    {
-	      curl_setopt($ch, CURLOPT_COOKIEJAR,      $this->cookiePath);    // Save cookies here.
-	    }
+            if( $this->saveCookie )
+            {
+                curl_setopt($ch, CURLOPT_COOKIEJAR,  $this->cookiePath);    // Save cookies here.
+            }
 
-	    curl_setopt($ch, CURLOPT_HEADER,     TRUE);                 // No need of headers
-	    if( is_array($this->headerArray) )
-	      {
-		curl_setopt($ch,CURLOPT_HTTPHEADER,$this->headerArray);
-	      }
-	    else
-	      {
-		curl_setopt($ch, CURLOPT_HEADER,     TRUE);                 // No need of headers
-	      }
-	    curl_setopt($ch, CURLOPT_NOBODY,         FALSE);                // Return body
+            curl_setopt($ch, CURLOPT_HEADER,         TRUE);                 // No need of headers
+            if( is_array($this->headerArray) )
+            {
+                curl_setopt($ch,CURLOPT_HTTPHEADER,$this->headerArray);
+            }
+            else
+            {
+                curl_setopt($ch, CURLOPT_HEADER,     TRUE);                 // No need of headers
+            }
+            curl_setopt($ch, CURLOPT_NOBODY,         FALSE);                // Return body
             curl_setopt($ch, CURLOPT_TIMEOUT,        $this->timeout);       // Timeout
             curl_setopt($ch, CURLOPT_USERAGENT,      $this->userAgent);     // Webbot name
             curl_setopt($ch, CURLOPT_URL,            $this->target);        // Target site
@@ -890,23 +890,23 @@ class http_request
 
             // Get the target contents
             $content = curl_exec($ch);
-	    if( !empty($content) )
-	      {
-		$tmp = explode("\r\n\r\n", $content,2);
-		for( $i = 0; $i < count($tmp); $i++ )
-		  {
-		    if( empty($tmp[$i]) ) unset($tmp[$i]);
-		  }
+            if( !empty($content) )
+            {
+                $tmp = explode("\r\n\r\n", $content,2);
+                for( $i = 0; $i < count($tmp); $i++ )
+                {
+                    if( empty($tmp[$i]) ) unset($tmp[$i]);
+                }
 
-		if( count($tmp) > 1 )
-		  {
-		    // Store the contents
-		    $this->result = $tmp[1];
-		  }
+                if( count($tmp) > 1 )
+                {
+                    // Store the contents
+                    $this->result = $tmp[1];
+                }
 
-		// Parse the headers
-		$this->_parseHeaders($tmp[0]);
-	      }
+                // Parse the headers
+                $this->_parseHeaders($tmp[0]);
+            }
 
             // Get the request info
             $status  = curl_getinfo($ch);
@@ -919,56 +919,56 @@ class http_request
         }
         else
         {
-	  // Get a file pointer
-	  $filePointer = @stream_socket_client($this->_socket, $errorNumber, $errorString, $this->timeout);
+            // Get a file pointer
+            $filePointer = @stream_socket_client($this->_socket, $errorNumber, $errorString, $this->timeout);
 
-	  // We have an error if pointer is not there
-	  if (!$filePointer)
+            // We have an error if pointer is not there
+            if( !$filePointer )
             {
-	      $this->_setError('Failed opening http socket connection: ' . $errorString . ' (' . $errorNumber . ')');
-	      return FALSE;
+                $this->_setError('Failed opening http socket connection: ' . $errorString . ' (' . $errorNumber . ')');
+                return FALSE;
             }
 
             // Set http headers with host, user-agent and content type
             $this->addRequestHeader($this->method .' '. $this->path. "  HTTP/1.1",true);
-	    $this->addRequestHeader("Host: " . $this->host);
-	    $this->addRequestHeader('Accept: */*');
- 	    $this->addRequestHeader("User-Agent: " . $this->userAgent);
-	    if( !$this->requestHeaderExists('Content-Type') )
-	      {
-		$this->addRequestHeader("Content-Type: application/x-www-form-urlencoded");
-	      }
+            $this->addRequestHeader("Host: " . $this->host);
+            $this->addRequestHeader('Accept: */*');
+            $this->addRequestHeader("User-Agent: " . $this->userAgent);
+            if( !$this->requestHeaderExists('Content-Type') )
+            {
+                $this->addRequestHeader("Content-Type: application/x-www-form-urlencoded");
+            }
 
             // Specify the custom cookies
-            if ($this->useCookie && $cookieString != '')
+            if( $this->useCookie && $cookieString != '' )
             {
-	      $this->addRequestHeader("Cookie: " . $cookieString);
+                $this->addRequestHeader("Cookie: " . $cookieString);
             }
 
             // POST method configuration
-            if ($this->method == "POST")
+            if( $this->method == "POST" )
             {
-              $this->addRequestHeader("Content-Length: " . strlen($queryString));
+                $this->addRequestHeader("Content-Length: " . strlen($queryString));
             }
 
             // Specify the referrer
-	    $this->addRequestHeader("Referer: " . $this->referrer);
-            if ($this->referrer != '')
+            $this->addRequestHeader("Referer: " . $this->referrer);
+            if( $this->referrer != '')
             {
-	      $this->addRequestHeader("Referer: " . $this->referrer);
+                $this->addRequestHeader("Referer: " . $this->referrer);
             }
 
             // Specify http authentication (basic)
-            if ($this->username && $this->password)
+            if( $this->username && $this->password )
             {
-	      $this->addRequestheader("Authorization: Basic " . base64_encode($this->username . ':' . $this->password));
+                $this->addRequestheader("Authorization: Basic " . base64_encode($this->username . ':' . $this->password));
             }
 
-	    $this->addRequestHeader("Connection: close");
+            $this->addRequestHeader("Connection: close");
 
             // POST method configuration
-	    $requestHeader = implode("\r\n",$this->headerArray)."\r\n\r\n";
-            if ($this->method == "POST")
+            $requestHeader = implode("\r\n",$this->headerArray)."\r\n\r\n";
+            if( $this->method == "POST" )
             {
                 $requestHeader .= $queryString;
             }
@@ -982,7 +982,7 @@ class http_request
             $responseContent = '';
 
             // 3...2...1...Launch !
-	    $n = 0;
+            $n = 0;
             do
             {
                 $responseHeader .= fread($filePointer, 1);
@@ -993,14 +993,14 @@ class http_request
             $this->_parseHeaders($responseHeader);
 
             // Do we have a 301/302 redirect ?
-            if (($this->status == '301' || $this->status == '302') && $this->redirect == TRUE)
+            if( ($this->status == '301' || $this->status == '302') && $this->redirect == TRUE )
             {
-                if ($this->curRedirect < $this->maxRedirect)
+                if( $this->curRedirect < $this->maxRedirect )
                 {
                     // Let's find out the new redirect URL
                     $newUrlParsed = parse_url($this->headers['location']);
 
-                    if ($newUrlParsed['host'])
+                    if( $newUrlParsed['host'] )
                     {
                         $newTarget = $this->headers['location'];
                     }
@@ -1031,22 +1031,22 @@ class http_request
             else
             {
                 // Nope...so lets get the rest of the contents (non-chunked)
-	      if (!isset($this->headers['transfer-encoding']) || $this->headers['transfer-encoding'] != 'chunked')
+                if( !isset($this->headers['transfer-encoding']) || $this->headers['transfer-encoding'] != 'chunked' )
                 {
-                    while (!feof($filePointer))
+                    while (!feof($filePointer) )
                     {
                         $responseContent .= fgets($filePointer, 128);
                     }
                 }
                 else
-		  {
+                {
                     // Get the contents (chunked)
-		    while (!feof($filePointer) && $chunkLength = hexdec(fgets($filePointer)))
+                    while( !feof($filePointer) && $chunkLength = hexdec(fgets($filePointer)) )
                     {
                         $responseContentChunk = '';
                         $readLength = 0;
 
-                        while ($readLength < $chunkLength)
+                        while( $readLength < $chunkLength )
                         {
                             $responseContentChunk .= fread($filePointer, $chunkLength - $readLength);
                             $readLength = strlen($responseContentChunk);
@@ -1085,10 +1085,10 @@ class http_request
         $this->_clearHeaders();
 
         // Get resposne status
-        if($this->status == 0)
+        if( $this->status == 0 )
         {
             // Oooops !
-            if(!preg_match("/http\/[0-9]+\.[0-9]+[ \t]+([0-9]+)[ \t]*(.*)\$/i", $headers[0], $matches))
+            if( !preg_match("/http\/[0-9]+\.[0-9]+[ \t]+([0-9]+)[ \t]*(.*)\$/i", $headers[0], $matches) )
             {
                 $this->_setError('Unexpected HTTP response status');
                 return FALSE;
@@ -1100,16 +1100,16 @@ class http_request
         }
 
         // Prepare all the other headers
-        foreach ($headers as $header)
+        foreach( $headers as $header )
         {
             // Get name and value
             $headerName  = strtolower($this->_tokenize($header, ':'));
             $headerValue = trim(chop($this->_tokenize("\r\n")));
 
             // If its already there, then add as an array. Otherwise, just keep there
-            if(isset($this->headers[$headerName]))
+            if( isset($this->headers[$headerName]) )
             {
-                if(gettype($this->headers[$headerName]) == "string")
+                if( gettype($this->headers[$headerName]) == "string" )
                 {
                     $this->headers[$headerName] = array($this->headers[$headerName]);
                 }
@@ -1123,7 +1123,7 @@ class http_request
         }
 
         // Save cookies if asked
-        if ($this->saveCookie && isset($this->headers['set-cookie']))
+        if( $this->saveCookie && isset($this->headers['set-cookie']) )
         {
             $this->_parseCookie();
         }
@@ -1151,7 +1151,7 @@ class http_request
     function _parseCookie()
     {
         // Get the cookie header as array
-        if(gettype($this->headers['set-cookie']) == "array")
+        if( gettype($this->headers['set-cookie']) == "array" )
         {
             $cookieHeaders = $this->headers['set-cookie'];
         }
@@ -1161,7 +1161,7 @@ class http_request
         }
 
         // Loop through the cookies
-        for ($cookie = 0; $cookie < count($cookieHeaders); $cookie++)
+        for( $cookie = 0; $cookie < count($cookieHeaders); $cookie++ )
         {
             $cookieName  = trim($this->_tokenize($cookieHeaders[$cookie], "="));
             $cookieValue = $this->_tokenize(";");
@@ -1174,7 +1174,7 @@ class http_request
             $path        = "/";
             $expires     = "";
 
-            while(($name = trim(urldecode($this->_tokenize("=")))) != "")
+            while( ($name = trim(urldecode($this->_tokenize("=")))) != "" )
             {
                 $value = urldecode($this->_tokenize(";"));
 
@@ -1208,24 +1208,24 @@ class http_request
      */
     function _setCookie($name, $value, $expires = "" , $path = "/" , $domain = "" , $secure = 0)
     {
-        if(strlen($name) == 0)
+        if( strlen($name) == 0 )
         {
             return($this->_setError("No valid cookie name was specified."));
         }
 
-        if(strlen($path) == 0 || strcmp($path[0], "/"))
+        if( strlen($path) == 0 || strcmp($path[0], "/") )
         {
             return($this->_setError("$path is not a valid path for setting cookie $name."));
         }
 
-        if($domain == "" || !strpos($domain, ".", $domain[0] == "." ? 1 : 0))
+        if( $domain == "" || !strpos($domain, ".", $domain[0] == "." ? 1 : 0) )
         {
             return($this->_setError("$domain is not a valid domain for setting cookie $name."));
         }
 
         $domain = strtolower($domain);
 
-        if(!strcmp($domain[0], "."))
+        if( !strcmp($domain[0], ".") )
         {
             $domain = substr($domain, 1);
         }
@@ -1268,15 +1268,15 @@ class http_request
      */
     function _passCookies()
     {
-        if (is_array($this->_cookies) && count($this->_cookies) > 0)
+        if( is_array($this->_cookies) && count($this->_cookies) )
         {
             $urlParsed = parse_url($this->target);
             $tempCookies = array();
 
             foreach($this->_cookies as $cookie)
             {
-                if ($this->_domainMatch($urlParsed['host'], $cookie['domain']) && (0 === strpos($urlParsed['path'], $cookie['path']))
-                    && (empty($cookie['secure']) || $urlParsed['protocol'] == 'https'))
+                if( $this->_domainMatch($urlParsed['host'], $cookie['domain']) && (0 === strpos($urlParsed['path'], $cookie['path']) )
+                    && (empty($cookie['secure']) || $urlParsed['protocol'] == 'https') )
                 {
                     $tempCookies[$cookie['name']][strlen($cookie['path'])] = $cookie['value'];
                 }
@@ -1307,11 +1307,11 @@ class http_request
     */
     function _domainMatch($requestHost, $cookieDomain)
     {
-        if ('.' != $cookieDomain{0})
+        if( '.' != $cookieDomain{0} )
         {
             return $requestHost == $cookieDomain;
         }
-        elseif (substr_count($cookieDomain, '.') < 2)
+        elseif( substr_count($cookieDomain, '.') < 2 )
         {
             return false;
         }
@@ -1335,7 +1335,7 @@ class http_request
      */
     function _tokenize($string, $separator = '')
     {
-        if(!strcmp($separator, ''))
+        if( !strcmp($separator, '') )
         {
             $separator = $string;
             $string = $this->nextToken;
@@ -1343,13 +1343,13 @@ class http_request
 
         for($character = 0; $character < strlen($separator); $character++)
         {
-            if(gettype($position = strpos($string, $separator[$character])) == "integer")
+            if( gettype($position = strpos($string, $separator[$character])) == "integer" )
             {
                 $found = (isset($found) ? min($found, $position) : $position);
             }
         }
 
-        if(isset($found))
+        if( isset($found) )
         {
             $this->nextToken = substr($string, $found + 1);
             return(substr($string, 0, $found));
@@ -1370,7 +1370,7 @@ class http_request
      */
     function _setError($error)
     {
-        if ($error != '')
+        if( $error != '' )
         {
             $this->error = $error;
             return $error;

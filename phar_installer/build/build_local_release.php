@@ -290,7 +290,7 @@ function create_checksums($dir, $salt)
 		$fp = joinpath($dir, $fn);
 		if (is_dir($fp)) {
 			$tmp = create_checksums($fp, $salt); //recurse
-			if (is_array($tmp) && $tmp) {
+			if (is_array($tmp) && count($tmp)) {
 				$out = array_merge($out, $tmp);
 			}
 		} else {

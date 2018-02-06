@@ -230,7 +230,7 @@ class CmsLayoutCollection
     public function add_stylesheet($css)
     {
         $css_t = null;
-        if( is_object($css) && is_a($css,'CmsLayoutStylesheet') ) {
+        if( $css instanceof CmsLayoutStylesheet ) {
             $css_t = $css->get_id();
         }
         else if( is_numeric($css) && $css > 0 ) {
@@ -253,7 +253,7 @@ class CmsLayoutCollection
     public function delete_stylesheet($css)
     {
         $css_t = null;
-        if( is_object($css) && is_a($css,'CmsLayoutStylesheet') ) {
+        if( $css instanceof CmsLayoutStylesheet ) {
             $css_t = $css->id;
         }
         else if( is_numeric($css) ) {
@@ -327,7 +327,7 @@ class CmsLayoutCollection
 	public function add_template($tpl)
 	{
         $tpl_id = null;
-        if( is_object($tpl) && is_a($tpl,'CmsLayoutTemplate') ) {
+        if( $tpl instanceof CmsLayoutTemplate ) {
             $tpl_id = $tpl->get_id();
         }
         else if( is_numeric($tpl) ) {
@@ -349,7 +349,7 @@ class CmsLayoutCollection
     public function delete_template($tpl)
     {
         $tpl_id = null;
-        if( is_object($tpl) && is_a($tpl,'CmsLayoutTemplate') ) {
+        if( $tpl instanceof CmsLayoutTemplate ) {
             $tpl_id = $tpl->get_id();
         }
         else if( is_numeric($tpl) ) {

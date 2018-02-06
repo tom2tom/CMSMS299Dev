@@ -255,7 +255,7 @@ if (isset($params['submit'])) {
 
     $response = '<?xml version="1.0"?>';
     $response .= '<EditArticle>';
-    if (isset($error) && $error != '') {
+    if (!empty($error)) {
         $response .= '<Response>Error</Response>';
         $response .= '<Details><![CDATA[' . $error . ']]></Details>';
     } else {
@@ -294,7 +294,7 @@ $dbr = $db->Execute($query);
 $custom_flds = array();
 
 while ($dbr && ($row = $dbr->FetchRow())) {
-    if (isset($row['extra']) && $row['extra'])
+    if (!empty($row['extra']))
         $row['extra'] = unserialize($row['extra']);
 
     $options = null;

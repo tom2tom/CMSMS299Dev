@@ -301,7 +301,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
 
     $response = '<?xml version="1.0"?>';
     $response .= '<EditArticle>';
-    if (isset($error) && $error != '') {
+    if (!empty($error)) {
         $response .= '<Response>Error</Response>';
         $response .= '<Details><![CDATA[' . $error . ']]></Details>';
     } else {

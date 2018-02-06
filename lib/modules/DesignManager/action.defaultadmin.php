@@ -90,7 +90,7 @@ if( isset($params['tpl_page']) ) {
 }
 
 $efilter = $filter_tpl_rec;
-if( isset($efilter['tpl']) && $efilter['tpl'] != '' ) {
+if( !empty($efilter['tpl']) ) {
 	$efilter[] = $efilter['tpl'];
 	unset($efilter['tpl']);
 }

@@ -182,13 +182,13 @@ class CmsLayoutTemplate
 	public function set_type($a)
 	{
 		$n = null;
-		if( is_object($a) && is_a($a,'CmsLayoutTemplateType') ) {
+		if( $a instanceof CmsLayoutTemplateType ) {
 			$n = $a->get_id();
 		}
 		else if( is_numeric($a) && (int)$a > 0 ) {
 			$n = (int)$a;
 		}
-		else if( is_string($a) && strlen($a) ) {
+		else if( is_string($a) && $a !== '' ) {
 			$type = CmsLayoutTemplateType::load($a);
 			$n = $type->get_id();
 		}
@@ -260,13 +260,13 @@ class CmsLayoutTemplate
 	{
         if( !$a ) return;
 		$n = null;
-		if( is_object($a) && is_a($a,'CmsLayoutTemplateCategory') ) {
+		if( $a instanceof CmsLayoutTemplateCategory ) {
 			$n = $a->get_id();
 		}
         else if( is_numeric($a) && (int) $a > 0 ) {
             $n = $a;
         }
-		else if( is_string($a) && strlen($a) ) {
+		else if( is_string($a) && $a !== '' ) {
 			$cat = CmsLayoutTemplateCategory::load($a);
 			$n = $cat->get_id();
 		}
@@ -323,7 +323,7 @@ class CmsLayoutTemplate
 	public function add_design($a)
 	{
 		$n = null;
-		if( is_object($a) && is_a($a,'CmsLayoutCollection') ) {
+		if( $a instanceof CmsLayoutCollection ) {
 			$n = $a->get_id();
 		}
 		else if( is_numeric($a) && (int)$a > 0 ) {
@@ -354,13 +354,13 @@ class CmsLayoutTemplate
 		if( !is_array($this->_design_assoc) || count($this->_design_assoc) == 0 ) return;
 
 		$n = null;
-		if( is_object($a) && is_a($a,'CmsLayoutCollection') ) {
+		if( $a instanceof CmsLayoutCollection ) {
 			$n = $a->get_id();
 		}
 		else if( is_numeric($a) && (int)$a > 0 ) {
 			$n = $a;
 		}
-		else if( (is_string($a) && strlen($a)) ) {
+		else if( is_string($a) && $a !== '' ) {
 			$design = CmsLayoutCollection::load($a);
 			$n = $design->get_id();
 		}
@@ -404,13 +404,13 @@ class CmsLayoutTemplate
         if( is_numeric($a) && $a > 0 ) {
 			$n = (int)$a;
 		}
-		else if( is_string($a) && strlen($a) ) {
+		else if( is_string($a) && $a !== '' ) {
 			// load the user by name.
 			$ops = UserOperations::get_instance();
 			$ob = $ops->LoadUserByUsername($a);
-			if( is_object($a) && is_a($a,'User') ) $n = $a->id;
+			if( $a instanceof User ) $n = $a->id;
 		}
-		else if( is_object($a) && is_a($a,'User') ) {
+		else if( $a instanceof User ) {
 			$n = $a->id;
 		}
 
@@ -469,9 +469,9 @@ class CmsLayoutTemplate
 		if( is_string($a) && strlen($a) ) {
 			$ops = UserOperations::get_instance();
 			$ob = $ops->LoadUserByUsername($a);
-			if( is_object($a) && is_a($a,'User') ) return $a->id;
+			if( $a instanceof User ) return $a->id;
 		}
-		if( is_object($a) && is_a($a,'User') ) return $a->id;
+		if( $a instanceof User ) return $a->id;
 		throw new \CmsLogicException('Could not resolve '.$a.' to a user id');
 	}
 
@@ -1026,7 +1026,7 @@ class CmsLayoutTemplate
 		if( is_int($t) || is_string($t) ) {
 			$t2 = CmsLayoutTemplateType::load($t);
 		}
-		else if( is_object($t) && is_a($t,'CmsLayoutTemplateType') ) {
+		else if( $t instanceof CmsLayoutTemplateType ) {
 			$t2 = $t;
 		}
 
@@ -1049,7 +1049,7 @@ class CmsLayoutTemplate
 		if( is_int($t) || is_string($t) ) {
 			$t2 = CmsLayoutTemplateType::load($t);
 		}
-		else if( is_object($t) && is_a($t,'CmsLayoutTemplateType') ) {
+		else if( $t instanceof CmsLayoutTemplateType ) {
 			$t2 = $t;
 		}
 
