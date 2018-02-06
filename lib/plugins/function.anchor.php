@@ -33,15 +33,16 @@ function smarty_function_anchor($params, &$smarty)
     $url = str_replace('&amp;','***',$url);
     $url = str_replace('&', '&amp;', $url);
     $url = str_replace('***','&amp;',$url);
-    if (isset($params['onlyhref']) && ($params['onlyhref'] == '1' || $params['onlyhref'] == 'true')) {
+
+    if (isset($params['onlyhref']) && cms_to_bool($params['onlyhref'])) {
         $tmp =  $url;
     }
     else {
-	$text = get_parameter_value( $params, 'text','<!-- anchor tag: no text provided -->anchor');
+        $text = get_parameter_value( $params, 'text','<!-- anchor tag: no text provided -->anchor');
         $tmp = '<a href="'.$url.'"'.$class.$title.$tabindex.$accesskey.'>'.$text.'</a>';
     }
 
-    if( isset($params['assign']) ){
+    if (isset($params['assign'])){
         $smarty->assign(trim($params['assign']),$tmp);
         return;
     }

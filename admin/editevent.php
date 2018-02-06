@@ -53,8 +53,8 @@ if ($access) {
     $handler = "";
     if( isset( $_POST['add'] ) ) {
         // we're adding some funky event handler
-        if( isset( $_POST['module'] ) && $_POST['module'] != '' ) $module = trim(cleanValue($_POST['module']));
-        if( isset( $_POST['event'] ) && $_POST['event'] != '' ) $event = trim(cleanValue($_POST['event']));
+        if( !empty( $_POST['module']) ) $module = trim(cleanValue($_POST['module']));
+        if( !empty( $_POST['event']) ) $event = trim(cleanValue($_POST['event']));
         if( isset( $_POST['handler'] ) ) $handler = trim(cleanValue($_POST['handler']));
         if( $module && $event && $handler ) {
             if( substr( $handler, 0, 2 ) == "m:" ) {
@@ -70,11 +70,11 @@ if ($access) {
         $cur_order = -1;
 
         // we're processing an up/down or delete
-        if( isset( $_GET['action'] ) && $_GET['action'] != '' ) $action = trim(cleanValue($_GET['action']));
-        if( isset( $_GET['module'] ) && $_GET['module'] != '' ) $module = trim(cleanValue($_GET['module']));
-        if( isset( $_GET['event'] ) && $_GET['event'] != '' ) $event = trim(cleanValue($_GET['event']));
-        if( isset( $_GET['handler'] ) && $_GET['handler'] != '' ) $handler = (int)$_GET['handler'];
-        if( isset( $_GET['order'] ) && $_GET['order'] != '' ) $cur_order = (int)$_GET['order'];
+        if( !empty( $_GET['action']) ) $action = trim(cleanValue($_GET['action']));
+        if( !empty( $_GET['module']) ) $module = trim(cleanValue($_GET['module']));
+        if( !empty( $_GET['event']) ) $event = trim(cleanValue($_GET['event']));
+        if( !empty( $_GET['handler']) ) $handler = (int)$_GET['handler'];
+        if( !empty( $_GET['order']) ) $cur_order = (int)$_GET['order'];
         if( $module == "" || $event == "" || $action == "" ) {
             display_error( lang("missingparams" ) );
             return;

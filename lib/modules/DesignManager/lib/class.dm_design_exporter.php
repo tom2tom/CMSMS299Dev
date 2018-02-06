@@ -169,7 +169,7 @@ EOT;
             $this->_css_list = array();
 
             $csslist = $this->_design->get_stylesheets();
-            if( is_array($csslist) && count($csslist) > 0 ) {
+            if( is_array($csslist) && count($csslist) ) {
                 foreach( $csslist as $css_id ) {
                     $css_ob = CmsLayoutStylesheet::load($css_id);
 
@@ -350,7 +350,7 @@ EOT;
             $this->_tpl_list = array();
 
             $idlist = $this->_design->get_templates();
-            if( is_array($idlist) && count($idlist) > 0 ) {
+            if( is_array($idlist) && count($idlist) ) {
                 $tpllist = \CmsLayoutTemplate::load_bulk($idlist);
                 if( count($idlist) != count($tpllist) ) throw new \CmsException('Internal error... could not directly load all of the templates associated with this design');
                 foreach( $tpllist as $tpl ) {

@@ -118,13 +118,13 @@ final class Events
             $params['_modulename'] = $modulename;
             $params['_eventname'] = $eventname;
 			foreach( $results as $row ) {
-				if( isset( $row['tag_name'] ) && $row['tag_name'] != '' ) {
+				if( !empty( $row['tag_name']) ) {
 					debug_buffer('calling simple plugin ' . $row['tag_name'] . ' from event ' . $eventname);
                     $gCms = CmsApp::get_instance();
                     $mgr = $gCms->GetSimplePluginOperations();
                     $mgr->call_plugin( $row['tag_name']);
 				}
-				else if( isset( $row['module_name'] ) && $row['module_name'] != '' ) {
+				else if( !empty( $row['module_name']) ) {
 					// here's a quick check to make sure that we're not calling the module
 					// DoEvent function for an event originated by the same module.
 					if( $row['module_name'] == $modulename ) continue;

@@ -117,8 +117,7 @@ class request implements \ArrayAccess
 
   public function https()
   {
-    if( isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'on' ) return TRUE;
-    return FALSE;
+    return isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'on';
   }
 
 } // end of class

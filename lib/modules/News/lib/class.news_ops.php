@@ -73,7 +73,7 @@ public static function get_categories($id,$params,$returnid=-1)
     {
         $q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
         $q2 .= implode(',',$cat_ids).')';
-        if (isset($params['showarchive']) && $params['showarchive'] == true) {
+        if( !empty($params['showarchive']) ) {
             $q2 .= " AND (end_time < ".$db->DBTimeStamp(time()).") ";
         }
         else {

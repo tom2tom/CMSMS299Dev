@@ -38,10 +38,10 @@ $action = '';
 $module = '';
 $event = '';
 $modulefilter = '';
-if( isset( $_GET['action'] ) && $_GET['action'] != '' ) $action = $_GET['action'];
-if( isset( $_GET['module'] ) && $_GET['module'] != '' ) $module = $_GET['module'];
-if( isset( $_GET['event'] ) && $_GET['event'] != '' ) $event = $_GET['event'];
-if( isset( $_GET['modulefilter'] ) && $_GET['modulefilter'] != '' ) $modulefilter = $_GET['modulefilter'];
+if( !empty( $_GET['action']) ) $action = $_GET['action'];
+if( !empty( $_GET['module']) ) $module = $_GET['module'];
+if( !empty( $_GET['event']) ) $event = $_GET['event'];
+if( !empty( $_GET['modulefilter']) ) $modulefilter = $_GET['modulefilter'];
 
 // display the page
 include_once("header.php");

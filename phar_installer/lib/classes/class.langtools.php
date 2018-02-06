@@ -45,7 +45,7 @@ class langtools
       $tmp2 = explode(';q=',$tmp[$i],2);
       if( $tmp2[0] == '' || $tmp2[0] == '*' ) continue;
       $priority = 1;
-      if( isset($tmp2[1]) && $tmp2[1] != '' ) $priority = floatval($tmp2[1]);
+      if( !empty($tmp2[1]) ) $priority = floatval($tmp2[1]);
       $out[] = array('lang'=>$tmp2[0],'priority'=>$priority);
     }
 
