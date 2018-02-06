@@ -36,7 +36,8 @@ namespace CMSMS\Database {
          */
         public static function init()
         {
-            return new mysqli\Connection();
+            $config = \cms_config::get_instance();
+            return new mysqli\Connection($config);
         }
 
         public static function on_error()
