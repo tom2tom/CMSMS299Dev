@@ -267,7 +267,7 @@ $lang['submit'] = 'Submit';
 
 #T
 $lang['title_clearlocks'] = 'Clear all content locks';
-$lang['title_contentmanager_settings'] = 'Settings - Content Manager';
+$lang['title_contentmanager_settings'] = 'Content Manager Settings';
 $lang['title_editpage_apply'] = 'Save the changes to this content page, and continue editing';
 $lang['title_editpage_cancel'] = 'Abandon all unsaved changes to this page, and return to the content list';
 $lang['title_editpage_submit'] = 'Save the changes to this content page, and return to the content list';

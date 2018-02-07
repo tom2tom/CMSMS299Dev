@@ -24,7 +24,7 @@ final class CMSContentManager extends CMSModule
     public function GetHelp() { return CmsLangOperations::lang_from_realm('help','help_cmscontentmanager_help'); }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.'/changelog.inc'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function IsPluginModule() { return FALSE; }
     public function HasAdmin() { return TRUE; }
     public function LazyLoadAdmin() { return TRUE; }
@@ -63,7 +63,7 @@ final class CMSContentManager extends CMSModule
         if( $this->CheckPermission('Modify Site Preferences') ) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
-            $obj->section = 'siteadmin';
+            $obj->section = 'content';
             $obj->title = $this->Lang('title_contentmanager_settings');
             $obj->description = $this->Lang('desc_contentmanager_settings');
             $obj->action = 'admin_settings';
