@@ -37,12 +37,12 @@ function smarty_function_share_data($params, &$template)
     $fn = 'assign';
     switch( $dest ) {
     case 'global':
-	if( $template instanceof \Smarty ) {
-		$scope = $template;
-	}
-	else {
-		$scope = $template->smarty;
-	}
+        if( $template instanceof \Smarty ) {
+            $scope = $template;
+        }
+        else {
+            $scope = $template->smarty;
+        }
         $fn = 'assignGlobal';
         break;
 
