@@ -231,6 +231,10 @@ $(document).ready(function(){
 				</select>
 		</div>
 		<div class="pageoverflow">
+			<p class="pagetext">{lang('sitedownmessage')}: {cms_help key2='settings_sitedownmessage' title=lang('sitedownmessage')}</p>
+			<p class="pageinput">{$textarea_sitedownmessage}</p>
+		</div>
+		<div class="pageoverflow">
 			<p class="pagetext">{lang('sitedownexcludeadmins')}: {cms_help key2='settings_sitedownexcludeadmins' title=lang('sitedownexcludeadmins')}</p>
 			<p class="pageinput">
 				<select id="sitedownexcludeadmins" name="sitedownexcludeadmins">
