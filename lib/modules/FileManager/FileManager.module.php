@@ -1,9 +1,6 @@
 <?php
-# FileManager. A plugin for CMS - CMS Made Simple
-# Copyright (c) 2006-12 by Morten Poulsen <morten@poulsen.org>
-#
-#CMS - CMS Made Simple
-#(c)2004 by Ted Kulp (wishy@users.sf.net)
+#FileManager plugin for CMSMS
+#Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -244,7 +241,7 @@ final class FileManager extends CMSModule
       if( $this->CheckPermission('Modify Site Preferences') ) {
           $obj = new CmsAdminMenuItem();
           $obj->module = $this->GetName();
-          $obj->section = 'siteadmin';
+          $obj->section = 'content';
           $obj->title = $this->Lang('title_filemanager_settings');
           $obj->description = $this->Lang('desc_filemanager_settings');
           $obj->action = 'admin_settings';
