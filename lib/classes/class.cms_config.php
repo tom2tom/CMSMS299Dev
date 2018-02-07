@@ -39,79 +39,19 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    const TYPE_STRING = 'STRING';
+    const TYPE_STRING = 'S';
 
     /**
      * @ignore
      */
-    const TYPE_INT = 'INT';
+    const TYPE_INT = 'I';
 
     /**
      * @ignore
      */
-    const TYPE_BOOL = 'BOOL';
+    const TYPE_BOOL = 'B';
 
-    /**
-     * ignore
-     */
-    private static $_instance;
-
-    /**
-     * ignore
-     */
-    private $_types;
-
-    /**
-     * ignore
-     */
-    private $_data = [];
-
-    /**
-     * ignore
-     */
-    private $_cache = [];
-
-
-    /**
-     * ignore
-     */
-    private function __construct() {}
-
-    /**
-     * Retrieve the maximum file upload size (in bytes)
-     */
-    private function get_upload_size()
-    {
-        $maxFileSize = ini_get('upload_max_filesize');
-        if (!is_numeric($maxFileSize)) {
-            $l=strlen($maxFileSize);
-            $i=0;$ss='';$x=0;
-            while ($i < $l) {
-                if (is_numeric($maxFileSize[$i])) {
-                    $ss .= $maxFileSize[$i];
-                }
-                else {
-                    if (strtolower($maxFileSize[$i]) == 'g') $x=1000000000;
-                    if (strtolower($maxFileSize[$i]) == 'm') $x=1000000;
-                    if (strtolower($maxFileSize[$i]) == 'k') $x=1000;
-                }
-                $i++;
-            }
-            $maxFileSize=$ss;
-            if ($x >0) $maxFileSize = $ss * $x;
-        }
-        else {
-            $maxFileSize = 1000000;
-        }
-        return $maxFileSize;
-    }
-
-    /**
-     * @ignore
-     */
-    private function load_config()
-    {
-        $this->_types = [
+    const KNOWN = [
         'admin_dir' => self::TYPE_STRING,
         'admin_encoding' => self::TYPE_STRING,
         'admin_url' => self::TYPE_STRING,
@@ -153,14 +93,39 @@ final class cms_config implements ArrayAccess
         'uploads_path' => self::TYPE_STRING,
         'uploads_url' => self::TYPE_STRING,
         'url_rewriting' => self::TYPE_STRING,
-        ];
+    ];
 
+    /**
+     * ignore
+     */
+    private static $_instance;
+
+    /**
+     * ignore
+     */
+    private $_data = [];
+
+    /**
+     * ignore
+     */
+    private $_cache = [];
+
+    /**
+     * ignore
+     */
+    private function __construct() {}
+
+    /**
+     * @ignore
+     */
+    private function load_config()
+    {
         $config = [];
         if (defined('CONFIG_FILE_LOCATION') && is_file(CONFIG_FILE_LOCATION)) {
-            include(CONFIG_FILE_LOCATION);
+            include CONFIG_FILE_LOCATION;
             foreach( $config as $key => &$value ) {
-                if( isset($this->_types[$key]) ) {
-                    switch( $this->_types[$key] ) {
+                if( isset(self::KNOWN[$key]) ) {
+                    switch( self::KNOWN[$key] ) {
                     case self::TYPE_BOOL:
                         $value = cms_to_bool($value);
                         break;
@@ -175,6 +140,7 @@ final class cms_config implements ArrayAccess
                     }
                 }
             }
+            //we will always get these from INI
             unset($config['max_upload_size']);
             unset($config['upload_max_filesize']);
         }
@@ -301,7 +267,7 @@ final class cms_config implements ArrayAccess
      */
     public function offsetExists($key)
     {
-        return isset($this->_types[$key]) || isset($this->_data[$key]);
+        return isset(self::KNOWN[$key]) || isset($this->_data[$key]);
     }
 
     /**
@@ -344,7 +310,6 @@ final class cms_config implements ArrayAccess
 
         // it's not explicitly specified in the config file.
         switch( $key ) {
-        case 'dbms':
         case 'db_hostname':
         case 'db_username':
         case 'db_password':
@@ -353,6 +318,9 @@ final class cms_config implements ArrayAccess
             stack_trace();
             die('FATAL ERROR: Could not find database connection key "'.$key.'" in the config file');
             break;
+
+        case 'dbms':
+            return 'mysqli';
 
         case 'db_prefix':
             return 'cms_';
@@ -460,7 +428,7 @@ final class cms_config implements ArrayAccess
             return false;
 
         case 'timezone':
-            return '';
+            return 'UTC';
 
         case 'assets_dir':
             return 'assets';
@@ -493,7 +461,7 @@ final class cms_config implements ArrayAccess
         case 'admin_encoding':
             return 'utf-8';
 
-		case 'content_language':
+        case 'content_language':
             return 'xhtml';
 
         case 'admin_path':
@@ -555,11 +523,41 @@ final class cms_config implements ArrayAccess
 
     /**
      * @ignore
+     * Retrieve the maximum file upload size (in bytes)
+     */
+    private function get_upload_size()
+    {
+        $maxFileSize = ini_get('upload_max_filesize');
+        if (!is_numeric($maxFileSize)) {
+            $l=strlen($maxFileSize);
+            $i=0;$ss='';$x=0;
+            while ($i < $l) {
+                if (is_numeric($maxFileSize[$i])) {
+                    $ss .= $maxFileSize[$i];
+                }
+                else {
+                    if (strtolower($maxFileSize[$i]) == 'g') $x=1000000000;
+                    if (strtolower($maxFileSize[$i]) == 'm') $x=1000000;
+                    if (strtolower($maxFileSize[$i]) == 'k') $x=1000;
+                }
+                $i++;
+            }
+            $maxFileSize=$ss;
+            if ($x >0) $maxFileSize = $ss * $x;
+        }
+        else {
+            $maxFileSize = 1000000;
+        }
+        return $maxFileSize;
+    }
+
+    /**
+     * @ignore
      */
     private function _printable_value($key,$value)
     {
-        $type = self::TYPE_STRING;
-        if( isset($this->_types[$key]) ) $type = $this->_types[$key];
+        if( isset(self::KNOWN[$key]) ) $type = self::KNOWN[$key];
+		else $type = self::TYPE_STRING;
 
         $str = '';
         switch( $type ) {
