@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#class of utility-methods for operating on and with modules
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -20,7 +21,7 @@
 use \CMSMS\internal\module_meta;
 
 /**
- * Classes and utilities for operationg on and with modules
+ * Classes and utilities for operating on and with modules
  *
  * @package CMS
  * @license GPL
@@ -36,12 +37,10 @@ use \CMSMS\internal\module_meta;
 final class ModuleOperations
 {
 	/**
-	 * System Modules - a list (hardcoded) of all system modules
-	 *
-	 * @access private
-	 * @internal
+	 * Core/system modules list
+     * @ignore
 	 */
-	protected $cmssystemmodules = [
+	const COREMODULES = [
 		'AdminLog',
 		'AdminSearch',
 		'CMSContentManager',
@@ -56,6 +55,11 @@ final class ModuleOperations
 		'Search',
 	];
 
+    /**
+     * @ignore
+     */
+    const CLASSMAP_PREF = 'module_classmap';
+
 	/**
 	 * @ignore
 	 */
@@ -64,12 +68,12 @@ final class ModuleOperations
     /**
      * @ignore
      */
-    const CLASSMAP_PREF = 'module_classmap';
+    static private $_classmap = null;
 
-    /**
+    /* *
      * @ignore
      */
-    static private $_classmap = null;
+//    private $_module_class_map;
 
 	/**
 	 * @ignore
@@ -86,12 +90,6 @@ final class ModuleOperations
      */
     private function __construct() {}
 
-
-    /**
-     * @ignore
-     */
-    private $_module_class_map;
-
     /**
      * Get the only permitted instance of this object.  It will be created if necessary
      *
@@ -100,8 +98,7 @@ final class ModuleOperations
     public static function &get_instance()
     {
         if( !isset(self::$_instance) ) {
-            $c = __CLASS__;
-            self::$_instance = new $c;
+            self::$_instance = new self();
         }
         return self::$_instance;
     }
@@ -109,7 +106,7 @@ final class ModuleOperations
     /**
      * @ignore
      */
-    protected function get_module_classmap()
+    private function get_module_classmap()
     {
         if( !is_array(self::$_classmap) ) {
             self::$_classmap = [];
@@ -122,7 +119,7 @@ final class ModuleOperations
     /**
      * @ignore
      */
-    protected function get_module_classname(string $module)
+    private function get_module_classname(string $module)
     {
         $module = trim($module);
         if( !$module ) return;
@@ -389,7 +386,7 @@ final class ModuleOperations
         $this->_modules[$module_name] = $obj;
 
         $tmp = $gCms->get_installed_schema_version();
-        if( $tmp == CMS_SCHEMA_VERSION && isset($CMS_INSTALL_PAGE) && in_array($module_name, $this->cmssystemmodules) ) {
+        if( $tmp == CMS_SCHEMA_VERSION && isset($CMS_INSTALL_PAGE) && in_array($module_name, self::COREMODULES) ) {
             // during the phar installer, we can use get_module_instance() to install or upgrade core modules
             if( !isset($info[$module_name]) || $info[$module_name]['status'] != 'installed' ) {
                 $res = $this->_install_module($obj);
@@ -861,7 +858,7 @@ final class ModuleOperations
      */
     public function IsSystemModule(string $module_name)
     {
-        return in_array($module_name,$this->cmssystemmodules);
+        return in_array($module_name,self::COREMODULES);
     }
 
 
