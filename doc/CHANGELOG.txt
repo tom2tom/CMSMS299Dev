@@ -353,7 +353,7 @@ News v2.51
   - Changes the default summary and detail templates to support the linked_file field type, and uses {thumbnail_url} and {file_url}.
 
 FileManager v1.6.3
-  - Move settings to it's own menu item under Site Admin.
+  - Move settings to its own menu item.
   - Fix minor problem with moving a directory.
   - Minor fix to move file functionality.
   - Adds OnFileDeleted event.
