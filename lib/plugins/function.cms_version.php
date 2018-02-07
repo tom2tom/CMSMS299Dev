@@ -15,13 +15,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_version($params, $smarty) {
+function smarty_function_cms_version($params, $template) {
 
 	global $CMS_VERSION;
 	
 	if( isset($params['assign']) )
 	{
-		$smarty->assign(trim($params['assign']),$CMS_VERSION);
+		$template->assign(trim($params['assign']),$CMS_VERSION);
 		return;
 	}
 	

@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_metadata($params, &$smarty)
+function smarty_function_metadata($params, &$template)
 {
     $gCms = CmsApp::get_instance();
 	$config = \cms_config::get_instance();
@@ -45,13 +45,13 @@ function smarty_function_metadata($params, &$smarty)
 
 	if (is_object($content_obj) && $content_obj->Metadata() != '') $result .= "\n" . $content_obj->Metadata();
 
-	if ((!strpos($result,$smarty->left_delimiter) === false) and (!strpos($result,$smarty->right_delimiter) === false))	{
-        $result = $smarty->fetch('string:'.$result);
+	if (strpos($result,$template->smarty->left_delimiter) !== false && strpos($result,$template->smarty->right_delimiter) !== false) {
+        $result = $template->fetch('string:'.$result);
     }
 
     \CMSMS\HookManager::do_hook('metadata_postrender', [ 'content_id'=>$content_obj->Id(), 'html'=>&$result ]);
 	if( isset($params['assign']) )	{
-		$smarty->assign(trim($params['assign']),$result);
+		$template->assign(trim($params['assign']),$result);
 		return;
 	}
 	return $result;

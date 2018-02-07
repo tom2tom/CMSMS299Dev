@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_redirect_url($params, &$smarty)
+function smarty_function_redirect_url($params, &$template)
 {
 	if( isset($params['to']) ) redirect(trim($params['to']));
 }

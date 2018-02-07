@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_stylesheet($params, &$smarty)
+function smarty_function_cms_stylesheet($params, &$template)
 {
 	#---------------------------------------------
 	# Initials
@@ -131,7 +131,7 @@ function smarty_function_cms_stylesheet($params, &$smarty)
                         if( in_array($params['media'],$one->get_media_types()) ) $list[] = $one->get_name();
                     }
 
-                    cms_stylesheet_writeCache($fn, $list, $trimbackground, $smarty);
+                    cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
                 }
 
                 cms_stylesheet_toString($filename, $params['media'], '', $root_url, $stylesheet, $params);
@@ -155,7 +155,7 @@ function smarty_function_cms_stylesheet($params, &$smarty)
                             $list[] = $one->get_name();
                         }
 
-                        cms_stylesheet_writeCache($fn, $list, $trimbackground, $smarty);
+                        cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
                     }
 
                     cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
@@ -178,7 +178,7 @@ function smarty_function_cms_stylesheet($params, &$smarty)
                 $filename = 'stylesheet_'.md5('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
                 $fn = cms_join_path($cache_dir,$filename);
 
-                if (!file_exists($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $smarty);
+                if (!file_exists($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $template);
 
                 cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
             }
@@ -207,7 +207,7 @@ function smarty_function_cms_stylesheet($params, &$smarty)
 	unset($GLOBALS['CMS_STYLESHEET']);
 
 	if( isset($params['assign']) ){
-	    $smarty->assign(trim($params['assign']), $stylesheet);
+	    $template->assign(trim($params['assign']), $stylesheet);
 	    return;
     }
 
@@ -219,22 +219,22 @@ function smarty_function_cms_stylesheet($params, &$smarty)
 	Misc functions
 **********************************************************/
 
-function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$smarty)
+function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template)
 {
 	$_contents = '';
     if( is_string($list) && !is_array($list) ) $list = array($list);
 
 	// Smarty processing
-	$smarty->left_delimiter = '[[';
-	$smarty->right_delimiter = ']]';
+	$template->smarty->left_delimiter = '[[';
+	$template->smarty->right_delimiter = ']]';
 
 	try {
         foreach( $list as $name ) {
             // force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72
-            $tmp = $smarty->force_compile;
-            $smarty->force_compile = 1;
-            $_contents .= $smarty->fetch('cms_stylesheet:'.$name);
-            $smarty->force_compile = $tmp;
+            $tmp = $template->smarty->force_compile;
+            $template->smarty->force_compile = 1;
+            $_contents .= $template->fetch('cms_stylesheet:'.$name);
+            $template->smarty->force_compile = $tmp;
         }
 	}
 	catch (SmartyException $e) {
@@ -243,8 +243,8 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$smarty)
         return;
 	}
 
-	$smarty->left_delimiter = '{';
-	$smarty->right_delimiter = '}';
+	$template->smarty->left_delimiter = '{';
+	$template->smarty->right_delimiter = '}';
 
 	// Fix background
 	if($trimbackground) {

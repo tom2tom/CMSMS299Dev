@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_image($params, &$smarty)
+function smarty_function_image($params, &$template)
 {
   $gCms = CmsApp::get_instance();
   $text = '';
@@ -58,7 +58,7 @@ function smarty_function_image($params, &$smarty)
   }
 
   if( isset($params['assign']) )	{
-      $smarty->assign(trim($params['assign']),$text);
+      $template->assign(trim($params['assign']),$text);
       return;
   }
   return $text;

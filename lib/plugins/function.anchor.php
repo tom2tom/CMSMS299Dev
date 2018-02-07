@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_anchor($params, &$smarty)
+function smarty_function_anchor($params, &$template)
 {
     $content = cms_utils::get_current_content();
     if( !is_object($content) ) return;
@@ -43,9 +43,9 @@ function smarty_function_anchor($params, &$smarty)
     }
 
     if (isset($params['assign'])){
-        $smarty->assign(trim($params['assign']),$tmp);
+        $template->assign(trim($params['assign']),$tmp);
         return;
     }
-    echo $tmp;
+    return $tmp;
 }
 ?>

@@ -27,7 +27,7 @@
 #-------------------------------------------------------------------------
 #END_LICENSE
 
-function smarty_function_cms_selflink($params, &$smarty)
+function smarty_function_cms_selflink($params, &$template)
 {
     $gCms = \CmsApp::get_instance();
 	$manager = $gCms->GetHierarchyManager();
@@ -203,7 +203,7 @@ function smarty_function_cms_selflink($params, &$smarty)
 
 	if( $urlonly ) {
 		if( isset($params['assign']) ) {
-			$smarty->assign(trim($params['assign']),$url);
+			$template->assign(trim($params['assign']),$url);
 			return;
 		}
 		return $url;
@@ -285,7 +285,7 @@ function smarty_function_cms_selflink($params, &$smarty)
 
 	$result = trim($result);
 	if( isset($params['assign']) ){
-		$smarty->assign(trim($params['assign']),$result);
+		$template->assign(trim($params['assign']),$result);
 		return;
 	}
 	return $result;

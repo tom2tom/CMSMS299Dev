@@ -15,13 +15,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_global_content($params, &$smarty)
+function smarty_function_global_content($params, &$template)
 {
-	$smarty->assign('gcb_params',$params);
-	$txt = $smarty->fetch('cms_template:'.$params['name']);
+	$template->assign('gcb_params',$params);
+	$txt = $template->fetch('cms_template:'.$params['name']);
 	if( isset($params['assign']) )
 	{
-		$smarty->assign(trim($params['assign']),$txt);
+		$template->assign(trim($params['assign']),$txt);
 		return;
 	}
 	return $txt;

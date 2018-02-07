@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_title($params, &$smarty)
+function smarty_function_title($params, &$template)
 {
 	$contentobj = CmsApp::get_instance()->get_content_object();
 	$result = '';
@@ -30,7 +30,7 @@ function smarty_function_title($params, &$smarty)
 	}
 
 	if( isset($params['assign']) ) {
-	    $smarty->assign(trim($params['assign']),$result);
+	    $template->assign(trim($params['assign']),$result);
 	    return;
     }
     return $result;

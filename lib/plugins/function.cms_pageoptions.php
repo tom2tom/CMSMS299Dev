@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_pageoptions($params, &$smarty)
+function smarty_function_cms_pageoptions($params, &$template)
 {
   if( !isset($params['numpages']) ) return;
   $numpages = (int)$params['numpages'];
@@ -28,7 +28,7 @@ function smarty_function_cms_pageoptions($params, &$smarty)
   $surrund = max(1,min(20,$surround));
   $elipsis = get_parameter_value($params,'elipsis','');
   $bare = cms_to_bool(get_parameter_value($params,'bare',0));
-  
+
   $list = array();
   for( $i = 1; $i <= min($surround,$numpages); $i++ ) {
     $list[] = (int)$i;
@@ -72,7 +72,7 @@ function smarty_function_cms_pageoptions($params, &$smarty)
   }
 
   if( isset($params['assign']) ) {
-    $smarty->assign($params['assign'],$out);
+    $template->assign(trim($params['assign']),$out);
     return;
   }
   return $out;

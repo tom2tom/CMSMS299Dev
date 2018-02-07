@@ -15,12 +15,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_repeat($params, &$smarty)
+function smarty_function_repeat($params, &$template)
 {
 	$out=(isset($params['times']) && (int)$params['times'] > 0) ? str_repeat($params['string'], $params['times']) : '';
 
 	if( isset($params['assign']) ){
-		$smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;

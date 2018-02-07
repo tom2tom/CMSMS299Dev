@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_cms_function_module_available($params, &$smarty) 
+function smarty_cms_function_module_available($params, &$template) 
 {
 	$name = '';
 	if( isset($params['name']) ) 
@@ -36,7 +36,7 @@ function smarty_cms_function_module_available($params, &$smarty)
 	}
 	if( isset($params['assign']) )
     {
-		$smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
     }
 	return $out;

@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_site_mapper($params, &$smarty)
+function smarty_function_site_mapper($params, &$template)
 {
 	$params['module'] = 'Navigator';
 	
@@ -24,7 +24,7 @@ function smarty_function_site_mapper($params, &$smarty)
 		$params['template'] = 'minimal_menu.tpl';
     }
 	
-	return cms_module_plugin($params,$smarty);
+	return cms_module_plugin($params,$template);
 }
 
 ?>

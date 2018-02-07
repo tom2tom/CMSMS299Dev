@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_page_image($params, &$smarty)
+function smarty_function_page_image($params, &$template)
 {
     $get_bool = function(array $params,$key,$dflt) {
         if( !isset($params[$key]) ) return (bool) $dflt;
@@ -62,7 +62,7 @@ function smarty_function_page_image($params, &$smarty)
     }
 
 	if( $assign ) {
-		$smarty->assign($assign,$out);
+		$template->assign($assign,$out);
 		return;
     }
 	return $out;

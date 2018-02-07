@@ -15,14 +15,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_textarea($params, &$smarty)
+function smarty_function_cms_textarea($params, &$template)
 {
   if( !isset($params['name']) ) throw new CmsInvalidDataException('syntax_area misssing parameter: name');
   if( isset($params['prefix']) ) $params['name'] = $params['prefix'].$params['name'];
 
   $out = CmsFormUtils::create_textarea($params);
   if( isset($params['assign']) ) {
-    $smarty->assign(trim($params['assign']),$out);
+    $template->assign(trim($params['assign']),$out);
     return;
   }
   return $out;

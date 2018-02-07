@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_created_date($params, &$smarty)
+function smarty_function_created_date($params, &$template)
 {
     $content_obj = CmsApp::get_instance()->get_content_object();
 
@@ -27,7 +27,7 @@ function smarty_function_created_date($params, &$smarty)
 		$str = cms_htmlentities(strftime($format, $time));;
 
 		if( isset($params['assign']) ) {
-			$smarty->assign(trim($params['assign']),$str);
+			$template->assign(trim($params['assign']),$str);
 			return;
 	    }
 		return $str;

@@ -14,7 +14,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_disable_template( $params, $smarty )
+function smarty_function_disable_template( $params, $template )
 {
     \CmsApp::get_instance()->disable_template_processing();
 }

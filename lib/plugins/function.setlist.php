@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_setlist($params, &$smarty) 
+function smarty_function_setlist($params, &$template) 
 {
 	$newlist = array();
 	
@@ -38,7 +38,7 @@ function smarty_function_setlist($params, &$smarty)
 	}
 	
 	$newlist = json_decode($params['value'],true);
-	$smarty->assign($params['var'],$newlist);
+	$template->assign($params['var'],$newlist);
 }
 
 function smarty_cms_help_function_setlist() {

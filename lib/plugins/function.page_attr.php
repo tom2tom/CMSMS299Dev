@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_page_attr($params, &$smarty)
+function smarty_function_page_attr($params, &$template)
 {
     $key = trim(get_parameter_value($params,'key'));
     $page = trim(get_parameter_value($params,'page'));
@@ -90,7 +90,7 @@ function smarty_function_page_attr($params, &$smarty)
         }
     }
     if( $assign ) {
-        $smarty->assign($assign,$result);
+        $template->assign($assign,$result);
         return;
     }
 	return $result;

@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_recently_updated($params, &$smarty)
+function smarty_function_recently_updated($params, &$template)
 {
     $number = 10;
 	if(!empty($params['number'])) $number = min(100,max(1,(int) $params['number']));
@@ -47,7 +47,7 @@ function smarty_function_recently_updated($params, &$smarty)
 	$dbresult = $db->Execute( $q );
 	if( !$dbresult ) {
         // @todo: throw an exception here
-		echo 'DB error: '. $db->ErrorMsg()."<br/>";
+		return 'DB error: '. $db->ErrorMsg()."<br/>";
 	}
 	while ($dbresult && $updated_page = $dbresult->FetchRow())
 	{
@@ -69,7 +69,7 @@ function smarty_function_recently_updated($params, &$smarty)
 	if (isset($params['css_class'])) $output .= '</div>';
 
 	if( isset($params['assign']) ) {
-		$smarty->assign(trim($params['assign']),$output);
+		$template->assign(trim($params['assign']),$output);
 		return;
 	}
 	return $output;

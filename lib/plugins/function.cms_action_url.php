@@ -16,11 +16,11 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-function smarty_function_cms_action_url($params, &$smarty)
+function smarty_function_cms_action_url($params, &$template)
 {
-    $module = $smarty->getTemplateVars('_module');
-    $returnid = $smarty->getTemplateVars('returnid');
-    $mid = $smarty->getTemplateVars('actionid');
+    $module = $template->getTemplateVars('_module');
+    $returnid = $template->getTemplateVars('returnid');
+    $mid = $template->getTemplateVars('actionid');
     $action = null;
     $assign = null;
     $forjs  = 0;
@@ -79,7 +79,7 @@ function smarty_function_cms_action_url($params, &$smarty)
         $url = str_replace('&amp;','&',$url);
     }
     if( $assign ) {
-        $smarty->assign($assign,$url);
+        $template->assign($assign,$url);
         return;
     }
     return $url;

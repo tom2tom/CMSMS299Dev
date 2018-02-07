@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_browser_lang($params, &$smarty)
+function smarty_function_browser_lang($params, &$template)
 {
   $default = 'en';
 
@@ -82,7 +82,7 @@ function smarty_function_browser_lang($params, &$smarty)
 
   if( isset($params['assign']) )
     {
-		$smarty->assign(trim($params['assign']),$res);
+		$template->assign(trim($params['assign']),$res);
 		return;
     }
   

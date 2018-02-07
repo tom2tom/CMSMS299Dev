@@ -16,10 +16,10 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-function smarty_function_breadcrumbs($params, &$smarty)
+function smarty_function_breadcrumbs($params, &$template)
 {
-    echo '<span style="font-weight: bold; color: #f00;">WARNING:<br />The &#123breadcrumbs&#125 tag is removed from CMSMS Core<br />Instead, now use in your HTML template: &#123nav_breadcrumbs&#125 !</span>';
+    // put mention into the admin log
+    cms_error('', '&#123breadcrumbs&#125 tag', 'is removed from CMSMS Core. Instead, now use in your HTML template: &#123nav_breadcrumbs&#125 !');
 
-// put mention into the admin log
-cms_error('', '&#123breadcrumbs&#125 tag', 'is removed from CMSMS Core. Instead, now use in your HTML template: &#123nav_breadcrumbs&#125 !');
+    return '<span style="font-weight: bold; color: #f00;">WARNING:<br />The &#123breadcrumbs&#125 tag is removed from CMSMS Core<br />Instead, now use in your HTML template: &#123nav_breadcrumbs&#125 !</span>';
 }

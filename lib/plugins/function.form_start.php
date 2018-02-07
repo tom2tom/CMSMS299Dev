@@ -15,14 +15,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_form_start($params, &$smarty)
+function smarty_function_form_start($params, &$template)
 {
     $gCms = CmsApp::get_instance();
     $tagparms = array();
     $mactparms = array();
-    $mactparms['module'] = $smarty->getTemplateVars('_module');
-    $mactparms['mid'] = $smarty->getTemplateVars('actionid');
-    $mactparms['returnid'] = $smarty->getTemplateVars('returnid');
+    $mactparms['module'] = $template->getTemplateVars('_module');
+    $mactparms['mid'] = $template->getTemplateVars('actionid');
+    $mactparms['returnid'] = $template->getTemplateVars('returnid');
     $mactparms['inline'] = 0;
 
     $tagparms['method'] = 'post';
@@ -30,7 +30,7 @@ function smarty_function_form_start($params, &$smarty)
     if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
         // check if it's a module action
         if( $mactparms['module'] ) {
-            $tmp = $smarty->getTemplateVars('_action');
+            $tmp = $template->getTemplateVars('_action');
             if( $tmp ) $mactparms['action'] = $tmp;
 
             $tagparms['action'] = 'moduleinterface.php';
@@ -41,7 +41,7 @@ function smarty_function_form_start($params, &$smarty)
     }
     else if( $gCms->is_frontend_request() ) {
         if( $mactparms['module'] ) {
-            $tmp = $smarty->getTemplateVars('actionparams');
+            $tmp = $template->getTemplateVars('actionparams');
             if( is_array($tmp) && isset($tmp['action']) ) $mactparms['action'] = $tmp['action'];
 
             $tagparms['action'] = 'moduleinterface.php';
@@ -142,7 +142,7 @@ function smarty_function_form_start($params, &$smarty)
     $out .= '</div>';
 
     if( isset($params['assign']) ) {
-        $smarty->assign($params['assign'],$out);
+        $template->assign(trim($params['assign']),$out);
         return;
     }
     return $out;

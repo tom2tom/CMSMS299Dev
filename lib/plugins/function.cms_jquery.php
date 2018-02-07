@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_jquery($params, &$smarty)
+function smarty_function_cms_jquery($params, &$template)
 {
 	$exclude = trim(get_parameter_value($params,'exclude'));
 	$cdn = cms_to_bool(get_parameter_value($params,'cdn'));
@@ -27,7 +27,7 @@ function smarty_function_cms_jquery($params, &$smarty)
 	// get the output
 	$out = cms_get_jquery($exclude,$ssl,$cdn,$append,$custom_root,$include_css);
 	if( isset($params['assign']) ) {
-		$smarty->assign(trim($params['assign']),$out);
+		$template->assign(trim($params['assign']),$out);
 		return;
 	}
 

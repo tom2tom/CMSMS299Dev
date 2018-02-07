@@ -15,12 +15,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_set_language($params, &$smarty)
+function smarty_function_cms_set_language($params, &$template)
 {
-  $lang = null;
   if( isset($params['lang']) ) {
     $lang = trim($params['lang']);
   }
-  $res = CmsNlsOperations::set_language($lang);
+  else {
+    $lang = null;
+  } 
+//$res = 
+  \CmsNlsOperations::set_language($lang);
 }
 ?>

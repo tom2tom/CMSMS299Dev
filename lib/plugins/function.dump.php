@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_dump($params, &$smarty)
+function smarty_function_dump($params, &$template)
 {
 	$ignore = array('cms','smarty','db','config','params','param_map','langhash','xml_exclude_files','xmldtd');
 
@@ -142,12 +142,12 @@ function smarty_function_dump($params, &$smarty)
 	$work = substr($item,$pos+$len);
 
 	// get the base object from smarty.
-	$baseobj = $smarty->getTemplateVars($str);
+	$baseobj = $template->getTemplateVars($str);
 	$obj = $baseobj;
 
 	$str = '$baseobj';
 	$done = false;
-	$tmpobj =& $baseobj->modules['Album'];
+//	$tmpobj =& $baseobj->modules['Album'];
 	$count = 0;
 	while( $done == false ) {
 		$count++;
@@ -179,8 +179,8 @@ function smarty_function_dump($params, &$smarty)
 			$work = substr($work,$pos+$len);
 			$tmp2 = '$obj =& '.$str.';';
 			eval($tmp2);
-			$type = gettype($obj);
-			if( $count > 4 ) { print_r( $obj ); echo '<hr/>'; }
+//			$type = gettype($obj);
+			if( $count > 4 ) { $str .= print_r( $obj,TRUE )."\n".'<hr/>'; }
 		}
 		else {
 			$done = true;
@@ -188,14 +188,13 @@ function smarty_function_dump($params, &$smarty)
     }
 
 	$parenttype = gettype($obj);
-	$str = '<pre>';
-	$str .= '<strong>Dump of: $'.$item;
-	$str .= '</strong> ('.ucwords($parenttype).')<br/>';
+	$str .= "/n".'<pre><strong>Dump of: $'.$item;
+	$str .= '</strong> ('.ucwords($parenttype).')<br/>'."\n";
 
 	if( is_object($obj) ) {
 		$str .= dump_object($params,$obj,0,$ignore,$item);
     }
-	else if( is_array($obj) ) {
+	elseif( is_array($obj) ) {
 		$str .= dump_array($params,$obj,0,$ignore,$item);
     }
 	else {
@@ -204,7 +203,7 @@ function smarty_function_dump($params, &$smarty)
 	$str.='</pre>';
 
 	if( isset($params['assign']) ) {
-	    $smarty->assign(trim($params['assign']),$str);
+	    $template->assign(trim($params['assign']),$str);
 	    return;
     }
 	return $str;
@@ -212,7 +211,7 @@ function smarty_function_dump($params, &$smarty)
 
 function smarty_cms_about_function_dump() {
 ?>
-	<p>Author: Robert Campbell &lt;calguy1000@hotmail.com&gt;</p>
+	<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
 
 	<p>Change History:</p>
 	<ul>
