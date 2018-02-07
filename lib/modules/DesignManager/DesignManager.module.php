@@ -61,7 +61,7 @@ final class DesignManager extends CMSModule
         if( $this->CheckPermission('Modify Site Preferences') ) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
-            $obj->section = 'siteadmin';
+            $obj->section = 'layout';
             $obj->title = $this->Lang('title_designmanager_settings');
             $obj->description = $this->Lang('desc_designmanager_settings');
             $obj->action = 'admin_settings';

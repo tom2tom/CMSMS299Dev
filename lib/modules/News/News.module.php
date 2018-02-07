@@ -34,7 +34,7 @@ class News extends CMSModule
     public function GetHelp() { return $this->Lang('help'); }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'wishy@cmsmadesimple.org'; }
-    public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
+    public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetEventDescription( $eventname ) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp( $eventname ) { return $this->lang('eventhelp-' . $eventname); }
 
@@ -366,7 +366,7 @@ class News extends CMSModule
         if( $this->CheckPermission('Modify Site Preferences') ) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
-            $obj->section = 'siteadmin';
+            $obj->section = 'content';
             $obj->title = $this->Lang('title_news_settings');
             $obj->description = $this->Lang('desc_news_settings');
             $obj->action = 'admin_settings';

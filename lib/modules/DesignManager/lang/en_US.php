@@ -377,7 +377,7 @@ $lang['no'] = 'No';
 
 #P
 $lang['perm_add'] = 'Add Templates';
-$lang['perm_designs'] = 'Manage Designs'; 
+$lang['perm_designs'] = 'Manage Designs';
 $lang['perm_styles'] = 'Manage Stylesheets';
 $lang['perm_modify'] = 'Modify Templates';
 $lang['perm_viewhelp'] = 'View Tag Help';
@@ -497,7 +497,7 @@ $lang['title_css_modified'] = 'Displays the date the stylesheet was last modifie
 $lang['title_css_name'] = 'This column displays the unique name for the stylesheet.';
 $lang['title_css_selectall'] = 'Select <em>(or deselect)</em> all visible stylesheets.';
 $lang['title_delete'] = 'Delete the selected items';
-$lang['title_designmanager_settings'] = 'Settings - Design Manager';
+$lang['title_designmanager_settings'] = 'Design Manager Settings';
 $lang['title_designs_default'] = 'The default design is automatically selected when creating new content pages.';
 $lang['title_tpl_filename'] = 'When templates are stored in a file this column displays the filename within the assets/templates directory';
 $lang['title_filter'] = 'Select an item in this list to reduce the number of visible templates';
