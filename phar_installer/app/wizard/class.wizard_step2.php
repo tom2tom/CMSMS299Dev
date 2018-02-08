@@ -8,24 +8,24 @@ class wizard_step2 extends \cms_autoinstaller\wizard_step
     private function get_cmsms_info($dir)
     {
         if( !$dir ) return;
-        //if( !is_dir($dir.'/lib/modules') ) return;
-        if( !is_file($dir.'/version.php') && !is_file("$dir/lib/version.php") ) return;
-        if( !is_file($dir.'/include.php') && !is_file("$dir/lib/include.php") ) return;
-        if( !is_file($dir.'/config.php') ) return;
-        if( !is_file($dir.'/moduleinterface.php') ) return;
+        //if( !is_dir($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules') ) return;
+        if( !is_file($dir.DIRECTORY_SEPARATOR.'version.php') && !is_file($dir.DIRECTORY_SEPARATOR.'lib/version.php') ) return;
+        if( !is_file($dir.DIRECTORY_SEPARATOR.'include.php') && !is_file($dir.DIRECTORY_SEPARATOR.'lib/include.php') ) return;
+        if( !is_file($dir.DIRECTORY_SEPARATOR.'config.php') ) return;
+        if( !is_file($dir.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
 
         $info = array();
         if( is_file("$dir/version.php") ) {
-            include_once($dir.'/version.php');
-            $info['mtime'] = filemtime($dir.'/version.php');
+            include_once($dir.DIRECTORY_SEPARATOR.'version.php');
+            $info['mtime'] = filemtime($dir.DIRECTORY_SEPARATOR.'version.php');
         } else {
-            include_once("$dir/lib/version.php");
-            $info['mtime'] = filemtime($dir.'/lib/version.php');
+            include_once($dir.DIRECTORY_SEPARATOR.'lib/version.php');
+            $info['mtime'] = filemtime($dir.DIRECTORY_SEPARATOR.'lib/version.php');
         }
         $info['version'] = $CMS_VERSION;
         $info['version_name'] = $CMS_VERSION_NAME;
         $info['schema_version'] = $CMS_SCHEMA_VERSION;
-        $info['config_file'] = $dir.'/config.php';
+        $info['config_file'] = $dir.DIRECTORY_SEPARATOR.'config.php';
 
         $app = \__appbase\get_app();
         $app_config = $app->get_config();
@@ -34,7 +34,7 @@ class wizard_step2 extends \cms_autoinstaller\wizard_step
         if( version_compare($info['version'],$app->get_dest_version()) == 0 ) $info['error_status'] = 'same_ver';
         if( version_compare($info['version'],$app->get_dest_version()) > 0 ) $info['error_status'] = 'too_new';
 
-        $fn = $dir.'/config.php';
+        $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
         include_once($fn);
         $info['config'] = $config;
         if( isset($config['admin_dir']) ) {
@@ -93,7 +93,7 @@ class wizard_step2 extends \cms_autoinstaller\wizard_step
         else {
             // looks like a new install
             // double check for the phar stuff.
-            if( is_dir($rpwd.'/app') && is_file($rpwd.'/index.php') && is_dir($rpwd.'/lib') && is_file($rpwd.'/app/class.cms_install.php') ) {
+            if( is_dir($rpwd.DIRECTORY_SEPARATOR.'app') && is_file($rpwd.DIRECTORY_SEPARATOR.'index.php') && is_dir($rpwd.DIRECTORY_SEPARATOR.'lib') && is_file($rpwd.DIRECTORY_SEPARATOR.'app/class.cms_install.php') ) {
                 // should never happen except if you're working on this project.
                 throw new \Exception(\__appbase\lang('error_invalid_directory'));
             }
@@ -101,7 +101,7 @@ class wizard_step2 extends \cms_autoinstaller\wizard_step
             $is_dir_empty = function($dir,$phar_url) {
                 if( !$dir ) return FALSE;
                 if( !is_dir($dir) ) return FALSE;
-                $files = glob($dir.'/*');
+                $files = glob($dir.DIRECTORY_SEPARATOR.'*');
                 if( !count($files) ) return TRUE;
                 if( count($files) > 3 ) return FALSE;
                 // trivial check for index.html
@@ -122,7 +122,7 @@ class wizard_step2 extends \cms_autoinstaller\wizard_step
                 $n = max(1,min(100,$n));
                 if( !$dir ) return;
                 if( !is_dir($dir) ) return;
-                $files = glob($dir.'/*');
+                $files = glob($dir.DIRECTORY_SEPARATOR.'*');
                 $files = array_slice($files,0,$n);
                 foreach( $files as &$file ) {
                     $file = basename($file);
