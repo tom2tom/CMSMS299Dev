@@ -136,10 +136,13 @@ final class ModuleOperations
     {
         $module = trim($module);
         if( !$module ) return;
-        $config = \cms_config::get_instance();
-        $path = CMS_ROOT_PATH.'/lib/modules';
-        if( !self::get_instance()->IsSystemModule( $module ) ) $path = CMS_ASSETS_PATH.'/modules/';
-        $fn = $path."/$module/$module.module.php";
+        if( self::get_instance()->IsSystemModule( $module ) ) {
+	        $parts = [CMS_ROOT_PATH,'lib','modules'];
+		} else {
+			$parts = [CMS_ASSETS_PATH,'modules'];
+		}
+		$parts = array_merge($parts, [$module, $module.'.module.php']);
+        $fn = cms_join_path($parts);
         if( is_file($fn) ) return $fn;
     }
 
@@ -435,9 +438,8 @@ final class ModuleOperations
     public function FindAllModules()
     {
         $result = [];
-        $paths = [ CMS_ASSETS_PATH.'/modules', CMS_ROOT_PATH.'/lib/modules' ];
+        $paths = [ CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules', CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib/modules' ];
         foreach( $paths as $dir ) {
-            if( !is_dir($dir) ) continue;
             if( is_dir($dir) && $handle = @opendir($dir) ) {
                 while( ($file = readdir($handle)) !== false ) {
                     if( $file == '..' || $file == '.' ) continue;
