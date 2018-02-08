@@ -1,7 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#Microtiny module for CMS Made Simple <http://dev.cmsmadesimple.org/projects/microtiny>
+#Copyright (C) 2009-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -14,7 +13,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
 
 class MicroTiny extends CMSModule
 {
@@ -24,7 +22,7 @@ class MicroTiny extends CMSModule
   public function __construct() { parent::__construct(); }
   public function GetName() { return 'MicroTiny'; }
   public function GetFriendlyName() { return $this->Lang("friendlyname"); }
-  public function GetVersion(){ return '2.2.1'; }
+  public function GetVersion(){ return '2.2.2'; }
   public function HasAdmin() { return TRUE; }
   public function IsPluginModule() { return TRUE; }
   public function LazyLoadFrontend() { return TRUE; }
