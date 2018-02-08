@@ -452,6 +452,33 @@ $(document).ready(function(){
 	</form>
 
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
+{tab_start name='smarty'}
+	<form id="siteprefform_smarty" method="post" action="{$formurl}">
+		<div>
+			<input type="hidden" name="{$SECURE_PARAM_NAME}" value="{$CMS_USER_KEY}"/>
+			<input type="hidden" name="active_tab" value="smarty" />
+			<input type="hidden" name="editsiteprefs" value="true" />
+		</div>
+		<div class="pageoverflow">
+			<p class="pageinput">
+				<input type="submit" name="submit" value="{lang('submit')}" class="pagebutton"  />
+				<input type="submit" name="cancel" value="{lang('cancel')}" class="pagebutton"  />
+			</p>
+			<br />
+		</div>
+
+		<div class="pageoverflow">
+			<p class="pagetext"><label for="compilecheck">{lang('prompt_smarty_compilecheck')}:</label></p>
+			<p class="pageinput">
+				<select for="compilecheck" name="use_smartycompilecheck">
+					{html_options options=$yesno selected=$use_smartycompilecheck}
+				</select>&nbsp;{cms_help key2='settings_smartycompilecheck' title=lang('prompt_smarty_compilecheck')}
+			</p>
+		</div>
+	</form>
+{tab_end}
+
+{* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='setup'}
 	<form id="siteprefform_setup" method="post" action="{$formurl}">
 		<div>
@@ -545,32 +572,5 @@ $(document).ready(function(){
 			</p>
 		</div>
 	</form>
-
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
-{tab_start name='smarty'}
-	<form id="siteprefform_smarty" method="post" action="{$formurl}">
-		<div>
-			<input type="hidden" name="{$SECURE_PARAM_NAME}" value="{$CMS_USER_KEY}"/>
-			<input type="hidden" name="active_tab" value="smarty" />
-			<input type="hidden" name="editsiteprefs" value="true" />
-		</div>
-		<div class="pageoverflow">
-			<p class="pageinput">
-				<input type="submit" name="submit" value="{lang('submit')}" class="pagebutton"  />
-				<input type="submit" name="cancel" value="{lang('cancel')}" class="pagebutton"  />
-			</p>
-			<br />
-		</div>
-
-		<div class="pageoverflow">
-			<p class="pagetext"><label for="compilecheck">{lang('prompt_smarty_compilecheck')}:</label></p>
-			<p class="pageinput">
-				<select for="compilecheck" name="use_smartycompilecheck">
-					{html_options options=$yesno selected=$use_smartycompilecheck}
-				</select>&nbsp;{cms_help key2='settings_smartycompilecheck' title=lang('prompt_smarty_compilecheck')}
-			</p>
-		</div>
-	</form>
-{tab_end}
 
 </div>
