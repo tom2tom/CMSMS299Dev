@@ -70,6 +70,7 @@ $lang['contractall'] = 'Collapse All';
 $lang['critical_error'] = '** ERROR **';
 
 #D
+$lang['dependencies'] = 'Dependencies';
 $lang['desc_contentmanager_settings'] = 'Adjust settings related to listing, or editing content pages';
 
 #E
@@ -109,26 +110,37 @@ $lang['go'] = 'Go';
 $lang['group_desc'] = 'Members of this group can manage content';
 
 #H
+$lang['help_content_tabindex'] = 'Specify an integer value for the tab order used when surfing the navigation to browse to this page. This is useful when building accessible websites';
+$lang['help_content_target'] = 'Specify a target attribute to use when including this item in the navigation.  A target of _blank will open this page in a new navigator window, or tab.';
+$lang['help_content_thumbnail'] = 'This field allows you to associate a thumbnail image with the content page.  The images must have already been generated on the website <em>(The FileManager module can generate thumbnails on upload)</em> to a directory specified by the website designer.  The image may optionally be displayed on the page, or used when building a navigation';
+$lang['help_content_titleattribute'] = 'Specify a brief description for this content page.  This data can be used for search engine optimization, or in the navigation';
+$lang['help_content_title'] = 'The title of the page is displayed in the title bar of the browser, is used in search engine optimization, and is usually displayed prominently on the website';
 $lang['help_content_type'] = 'The content type controls the overall function of an item.  Some content types are used for building HTML pages, while others are for building links or other navigation functions.';
+$lang['help_css_max_age'] = 'This parameter should be set relatively high for static sites, and should be set to 0 for site development';
 $lang['help_general_lockrefresh'] = 'Specify the number of seconds (at most) at which a lock should be refreshed.  Setting a value of 0 will disable refreshing of locks.<br/><strong>Note:</strong> Locks are not refreshed unless there are some changes in the form.<br />The minimum value for this field (other than 0) is 30.';
 $lang['help_general_locktimeout'] = 'Specify the number of minutes after which a non-refreshed lock will expire.  Specifying a value of 0 will disable locking all together.  The minimum value for this field is 5 and the maximum value is 480.';
 $lang['help_general_templatelistmode'] = 'This option controls how templates will be listed in the add/edit content form.';
 $lang['help_listsettings_namecolumn'] = 'Specify what text should be displayed in the &quot;Name&quot; column of the content list view.  Choose either the page title, or menu text';
 $lang['help_listsettings_visiblecolumns'] = 'Select which columns to display in the content list view.  Use caution here as some functionality may not be available if the column is hidden';
+$lang['help_page_alias'] = 'The alias is used as an alternate to the page id to uniquely identify a page. It must be unique across all pages.  The alias is also used to assist in building the URL for the page';
+$lang['help_page_cachable'] = 'Performance can be increased by setting as many pages as possible to cachable.  However this cannot be used for pages where content may change on a per request basis';
 $lang['help_pagedflt_active'] = 'Indicate whether new pages will be active by default.  Site visitors cannot navigate to inactive pages';
 $lang['help_pagedflt_addteditors'] = 'Specify a default list of additional editors for each new page';
 $lang['help_pagedflt_cachable'] = 'Specify whether new pages should be cachable or not.';
 $lang['help_pagedflt_content'] = 'Specify the default HTML or Smarty code that should be placed in the primary content area of the newly created page';
 $lang['help_pagedflt_contenttype'] = 'Specify the default content type for new pages.  This is useful if using other third party modules that provide optional content editing functionality';
-$lang['help_pagedflt_metadata'] = 'Specify HTML tags <em>(usually meta tags)</em> or Smarty tags here that are specific to each page, and should be placed by default in the head section of each page.  You will have the ability to customize this code for each page when creating or editing the page.';
 $lang['help_pagedflt_design_id'] = 'Specify the default design of the new content page.  The design is used to find the stylesheets to use';
 $lang['help_pagedflt_extra1'] = 'Specify the default value for the extra1 field for newly created content pages';
 $lang['help_pagedflt_extra2'] = 'Specify the default value for the extra2 field for newly created content pages';
 $lang['help_pagedflt_extra3'] = 'Specify the default value for the extra3 field for newly created content pages';
+$lang['help_pagedflt_metadata'] = 'Specify HTML tags <em>(usually meta tags)</em> or Smarty tags here that are specific to each page, and should be placed by default in the head section of each page.  You will have the ability to customize this code for each page when creating or editing the page.';
 $lang['help_pagedflt_searchable'] = 'Specify whether new pages should be searchable, or not.';
 $lang['help_pagedflt_secure'] = 'Specify whether new pages should be <em>(by default)</em> secure <em>(uses the HTTPS protocol)</em>.  For secure pages to work the site must have a valid certificate installed on the web server, and the site must be configured properly';
 $lang['help_pagedflt_showinmenu'] = 'Specify whether new pages should be visible in normal navigations by default';
 $lang['help_pagedflt_template_id'] = 'Specify the default template to use for the new content page.  The template controls page logic, and what content blocks are visible to the editor';
+$lang['help_page_disablewysiwyg'] = 'This option will disable the WYSIWYG editor for all content areas on this page independent of settings in the {content} block or user settings';
+$lang['help_page_searchable'] = 'This setting indicates whether the content of this page should be indexed by the Search module';
+$lang['help_page_url'] = 'Specify an alternate URL (relative to the root of your website) that can be used to uniquely identify this page.  i.e: path/to/mypage.  The page URL is only useful when pretty URLs are enabled.';
 $lang['help_title_content_type'] = 'Content Type Selector';
 
 #I
@@ -136,6 +148,7 @@ $lang['info_javascript_required'] = '<strong>Warning:</strong> In order to opera
 $lang['info_ordercontent'] = 'Drag and drop elements to adjust their order in the content tree.  <strong>Note: </strong> Some content items, such as separators do not accept children';
 $lang['info_pagedflt'] = 'This panel allows setting default values for various content properties when creating a new page of type &quot;Content&quot; <em>or its derived types.  These settings will have no effect on existing pages, and user settings may override some settings.</em>';
 $lang['info_preview_notice'] = '<strong>Warning:</strong> This preview panel behaves much like a browser window allowing you to navigate away from the initially previewed page. However, if you do that, you may experience unexpected behavior. If you navigate away from the initial display and return, you may not see the un-committed content until you make a change to the content in the main tab, and then reload this tab. When adding content, if you navigate away from this page, you will be unable to return, and must refresh this panel.';
+$lang['invalid_url2'] = 'The page URL specified is invalid.  It should contain only alphanumeric characters, or - or /.  Extensions must contain only alphanumeric chars and be less than 5 characters in length.  It is also possible that the URL specified is already in use.';
 
 #J
 
