@@ -35,7 +35,7 @@ $lang['addusertag'] = "Add User Defined Tag";
 $lang['admin'] = "Site Admin";
 $lang['adminaccess'] = "Access to login to Admin";
 $lang['admincallout'] = "Administration Shortcuts";
-$lang['admindescription'] = "Site Administration functions";
+$lang['admindescription'] = "Site administration functions";
 $lang['adminhome'] = "Administration Home";
 $lang['adminindent'] = "Content Display";
 $lang['adminlog'] = "Admin Log";
@@ -174,7 +174,7 @@ $lang['connection_failed'] = "Connection failed!";
 $lang['content'] = "Content";
 $lang['contentadded'] = "The content was successfully added to the database.";
 $lang['contentdeleted'] = "The content was successfully removed from the database.";
-$lang['contentdescription'] = "This is where we add and edit content.";
+$lang['contentdescription'] = "Add, edit and examine site content";
 $lang['contentimage_path'] = "Path for {content_image} tag";
 $lang['contentmanagement'] = "Content Management";
 $lang['contenttype'] = "Content Type";
@@ -872,7 +872,7 @@ $lang['expandall'] = "Expand All Sections";
 $lang['expanded_xml'] = "Expanded XML file consisting of %s %s";
 $lang['export'] = "Export";
 $lang['extensions'] = "Extensions";
-$lang['extensionsdescription'] = "Modules, plugin tags and other features to expand CMSMS";
+$lang['extensionsdescription'] = "Tailor the way CMSMS works, and other functions";
 $lang['extra1'] = "Extra Page Attribute 1";
 $lang['extra2'] = "Extra Page Attribute 2";
 $lang['extra3'] = "Extra Page Attribute 3";
@@ -1104,7 +1104,7 @@ $lang['lastname'] = "Last Name";
 $lang['last_modified_at'] = "Last modified at";
 $lang['last_modified_by'] = "Last modified by";
 $lang['layout'] = "Layout";
-$lang['layoutdescription'] = "Site layout options.";
+$lang['layoutdescription'] = "Site layout functions";
 //$lang['lctitle_active'] = "Indicates whether the content item is active. Inactive items cannot be displayed.";
 //$lang['lctitle_alias'] = "The alias of existing content items. Some content items do not have aliases";
 //$lang['lctitle_default'] = "Specify the content item that is accessed when the root URL is requested.  Only one item can be default";
@@ -1226,7 +1226,7 @@ $lang['msg_usersettingscopied'] = "User settings copied from template user accou
 $lang['myaccount'] = "My Account";
 $lang['myaccountdescription'] = "This is where you can update your personal account details.";
 $lang['myprefs'] = "My Preferences";
-$lang['myprefsdescription'] = "This is where you can customize the site Admin area to work the way you want.";
+$lang['myprefsdescription'] = "Adjust the way this Admin console works for you";
 
 ## N
 $lang['name'] = "Name";
@@ -1622,20 +1622,20 @@ $lang['upload_max_filesize'] = "Maximum Upload Size";
 $lang['url'] = "URL";
 //$lang['useadvancedcss'] = "Use Advanced Stylesheet Management";
 $lang['user'] = "User";
-$lang['useraccount'] = "User Account";
+$lang['useraccount'] = "Profile";
 $lang['userdefinedtags'] = "User Defined Tags";
 $lang['usermanagement'] = "User Management";
 $lang['username'] = "User name";
 $lang['usernameincorrect'] = "User name or password incorrect";
 $lang['usernotfound'] = "User Not Found";
-$lang['userprefs'] = "User Preferences";
+$lang['userprefs'] = "Settings";
 $lang['users'] = "Backend Users";
 $lang['usersassignedtogroup'] = "Users Assigned to Group %s";
 $lang['usersdescription'] = "Here you can manage Admin users.";
 $lang['userdisabled'] = 'User account disabled';
 $lang['usersettings'] = "User Settings";
 $lang['usersgroups'] = "User Management";
-$lang['usersgroupsdescription'] = "User and Group related items.";
+$lang['usersgroupsdescription'] = "User and user-group related functions";
 $lang['usertagadded'] = "The User Defined Tag was successfully added";
 $lang['usertagdeleted'] = "The User Defined Tag was successfully removed.";
 $lang['usertagdescription'] = "User Defined Tags (UDT's) that you can create and modify yourself to perform specific tasks, right from your browser.";
@@ -1690,24 +1690,7 @@ $lang['zz_2logic_tab__'] = "Logic";
 $lang['zz_3options_tab__'] = "Options";
 $lang['zz_4perms_tab__'] = "Permissions";
 
-
-## Serving Content Manager module
-$lang['dependencies'] = "Dependencies"; // also serving third-party modules
-
-$lang['help_content_tabindex'] = "Specify an integer value for the tab order used when surfing the navigation to browse to this page. This is useful when building accessible websites";
-$lang['help_content_target'] = "Specify a target attribute to use when including this item in the navigation.  A target of _blank will open this page in a new navigator window, or tab.";
-$lang['help_content_thumbnail'] = "This field allows you to associate a thumbnail image with the content page.  The images must have already been generated on the website <em>(The FileManager module can generate thumbnails on upload)</em> to a directory specified by the website designer.  The image may optionally be displayed on the page, or used when building a navigation";
-$lang['help_content_title'] = "The title of the page is displayed in the title bar of the browser, is used in search engine optimization, and is usually displayed prominently on the website";
-$lang['help_content_titleattribute'] = "Specify a brief description for this content page.  This data can be used for search engine optimization, or in the navigation";
-$lang['help_css_max_age'] = "This parameter should be set relatively high for static sites, and should be set to 0 for site development";
-$lang['help_page_alias'] = "The alias is used as an alternate to the page id to uniquely identify a page. It must be unique across all pages.  The alias is also used to assist in building the URL for the page";
-$lang['help_page_cachable'] = "Performance can be increased by setting as many pages as possible to cachable.  However this cannot be used for pages where content may change on a per request basis";
-$lang['help_page_disablewysiwyg'] = "This option will disable the WYSIWYG editor for all content areas on this page independent of settings in the {content} block or user settings";
-$lang['help_page_searchable'] = "This setting indicates whether the content of this page should be indexed by the Search module";
-$lang['help_page_url'] = "Specify an alternate URL (relative to the root of your website) that can be used to uniquely identify this page.  i.e: path/to/mypage.  The page URL is only useful when pretty URLs are enabled.";
-$lang['invalid_url2'] = "The page URL specified is invalid.  It should contain only alphanumeric characters, or - or /.  Extensions must contain only alphanumeric chars and be less than 5 characters in length.  It is also possible that the URL specified is already in use.";
-
-
+/*
 ## Serving third-party modules
 $lang['added_template'] = "Added Template";
 $lang['addtemplate'] = "Add New Template";
@@ -1715,6 +1698,7 @@ $lang['addtemplate'] = "Add New Template";
 $lang['deleted_template'] = "Deleted Template";
 $lang['deletetemplate'] = "Delete Template";
 $lang['deletetemplates'] = "Delete Templates";
+$lang['dependencies'] = "Dependencies";
 
 $lang['edittemplate'] = "Edit Template";
 $lang['edittemplatesuccess'] = "Template updated";
@@ -1722,5 +1706,6 @@ $lang['edittemplatesuccess'] = "Template updated";
 $lang['template'] = "Template";
 $lang['templateexists'] = "Template name already exists";
 $lang['templates'] = "Templates";
+*/
 
 ?>
