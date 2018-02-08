@@ -55,7 +55,7 @@ $smarty->assign('theme', $themeObject);
  */
 
 
-$query = 'SHOW TABLES LIKE '.CMS_DB_PREFIX.'%';
+$query = "SHOW TABLES LIKE '".CMS_DB_PREFIX."%'";
 $tablestmp = $db->GetArray($query);
 $tables = array();
 $nonseqtables = array();
