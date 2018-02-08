@@ -72,7 +72,7 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
 
         // required test... tmpfile
         $fh = tmpfile();
-        $b = ($fh === FALSE)?FALSE:TRUE;
+        $b = $fh !== FALSE;
         $obj = new _tests_\boolean_test('tmpfile',$b);
         $obj->required = 1;
         if( !$b ) $obj->fail_msg = \__appbase\lang('fail_tmpfile');
