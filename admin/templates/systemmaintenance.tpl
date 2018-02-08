@@ -14,7 +14,7 @@
 		<form action="{$formurl}" method="post">
 			<fieldset>
 				<legend>{'sysmain_database_status'|lang}:&nbsp;</legend>
-				<p>{$tablecount} {'sysmain_tablesfound'|lang:$nonseqcount}</p>
+				<p>{'sysmain_tablesfound'|lang:$tablecount:$nonseqcount}</p>
 
 				{if $errorcount==0}
 					<p class='green'><strong>{'sysmain_nostr_errors'|lang}</strong></p>
