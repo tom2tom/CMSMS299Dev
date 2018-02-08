@@ -1,7 +1,8 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#utility-methods class for Microtiny
+#Copyright (C) 2009-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of the Microtiny module for CMS Made Simple
+# <http://dev.cmsmadesimple.org/projects/microtiny>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -14,7 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
 
 class microtiny_utils
 {
