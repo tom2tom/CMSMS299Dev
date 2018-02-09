@@ -1,204 +1,201 @@
 <script type="text/javascript">
-// <![CDATA[
-$(document).ready(function(){
+//<![CDATA[
+$(document).ready(function() {
   var do_locking = {if isset($content_id) && $content_id > 0 && isset($lock_timeout) && $lock_timeout > 0}1{else}0{/if};
 
   // initialize the dirtyform stuff.
   $('#Edit_Content').dirtyForm({
     beforeUnload: function(is_dirty) {
-      if( do_locking ) $('#Edit_Content').lockManager('unlock').done(function(){
-         console.log('after dirtyform unlock');
-      });
+    if (do_locking) $('#Edit_Content').lockManager('unlock').done(function() {
+      console.log('after dirtyform unlock');
+    });
     },
-    unloadCancel: function(){
-      if( do_locking ) $('#Edit_Content').lockManager('relock');
+    unloadCancel: function() {
+    if (do_locking) $('#Edit_Content').lockManager('relock');
     }
   });
 
   // initialize lock manager
-  if( do_locking ) {
+  if (do_locking) {
     $('#Edit_Content').lockManager({
-      type: 'content',
-      oid: {$content_id|default:-1},
-      uid: {get_userid(FALSE)},
-      lock_timeout: {$lock_timeout|default:0},
-      lock_refresh: {$lock_refresh|default:0},
-      error_handler: function (err) {
-          cms_alert('Locking error: ' + err.type + ' -- ' + err.msg);
-      },
-      lostlock_handler: function (err) {
-          // we lost the lock on this content... make sure we can't save anything.
-          // and display a nice message.
-          $('[name$=cancel]').fadeOut().attr('value', '{$mod->Lang('close')}').fadeIn();
-          $('#Edit_Content').dirtyForm('option', 'dirty', false);
-          cms_alert('{$mod->Lang('msg_lostlock')|escape:'javascript'}');
-      }
+    type: 'content',
+    oid: {$content_id|default:-1},
+    uid: {get_userid(false)},
+    lock_timeout: {$lock_timeout|default:0},
+    lock_refresh: {$lock_refresh|default:0},
+    error_handler: function(err) {
+      cms_alert('Locking error: ' + err.type + ' -- ' + err.msg);
+    },
+    lostlock_handler: function(err) {
+      // we lost the lock on this content... make sure we can't save anything.
+      // and display a nice message.
+      $('[name$=cancel]').fadeOut().attr('value', '{$mod->Lang("close")}').fadeIn();
+      $('#Edit_Content').dirtyForm('option', 'dirty', false);
+      cms_alert('{$mod->Lang("msg_lostlock")|escape:"javascript"}');
+    }
     });
   }
 
 {if $content_obj->HasPreview()}
-  $('#_preview_').click(function(){
-      if( typeof tinyMCE != 'undefined') tinyMCE.triggerSave();
-        // serialize the form data
-        var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
-        data.push({
-            'name': '{$actionid}preview',
-            'value': 1
-        });
-        data.push({
-            'name': '{$actionid}ajax',
-            'value': 1
-        });
-        $.post('{$preview_ajax_url}&showtemplate=false', data, function (resultdata, text) {
-            if( resultdata != null && resultdata.response == 'Error' ) {
-	        $('#previewframe').attr('src','').hide();
-                $('#preview_errors').html('<ul></ul>');
-	        for( var i = 0; i < resultdata.details.length; i++ ) {
-                  $('#preview_errors').append('<li>'+resultdata.details[i]+'</li>');
-                }
-                $('#previewerror').show();
-            }
-            else {
-		var x = new Date().getTime();
-	        var url = '{$preview_url}&junk='+x;
-	        $('#previewerror').hide();
-                $('#previewframe').attr('src', url).show();
-            }
-        },'json');
+  $('#_preview_').click(function() {
+    if (typeof tinyMCE != 'undefined') tinyMCE.triggerSave();
+    // serialize the form data
+    var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
+    data.push({
+      'name': '{$actionid}preview',
+      'value': 1
     });
+    data.push({
+    'name': '{$actionid}ajax',
+    'value': 1
+    });
+    $.post('{$preview_ajax_url}&showtemplate=false', data, function(resultdata, text) {
+      if (resultdata !== null && resultdata.response == 'Error') {
+        $('#previewframe').attr('src', '').hide();
+        $('#preview_errors').html('<ul></ul>');
+        for (var i = 0; i < resultdata.details.length; i++) {
+          $('#preview_errors').append('<li>' + resultdata.details[i] + '</li>');
+        }
+        $('#previewerror').show();
+      } else {
+        var x = new Date().getTime();
+        var url = '{$preview_url}&junk=' + x;
+        $('#previewerror').hide();
+        $('#previewframe').attr('src', url).show();
+      }
+    }, 'json');
+  });
 {/if}
 
-    // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
-    $('#id_disablewysiwyg, #template_id, #content_type').on('change', function () {
-        // disable the dirty form stuff, and unlock because we're gonna relockit on reload.
-        var self = this;
-	var this_id = $(this).attr('id');
-        $('#Edit_Content').dirtyForm('disable');
-	if( this_id != 'content_type') $('#active_tab').val('{$options_tab_name}');
-	if( do_locking ) {
-	  if( do_locking) $('#Edit_Content').lockManager('unlock',1).done(function(){
-            $(self).closest('form').submit();
-	  });
-        } else {
-          $(self).closest('form').submit();
+  // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
+  $('#id_disablewysiwyg, #template_id, #content_type').on('change', function() {
+    // disable the dirty form stuff, and unlock because we're gonna relockit on reload.
+    var self = this;
+    var this_id = $(this).attr('id');
+    $('#Edit_Content').dirtyForm('disable');
+    if (this_id != 'content_type') $('#active_tab').val('{$options_tab_name}');
+    if (do_locking) {
+      if (do_locking) $('#Edit_Content').lockManager('unlock', 1).done(function() {
+        $(self).closest('form').submit();
+      });
+    } else {
+      $(self).closest('form').submit();
+    }
+  });
+
+  // handle cancel/close ... and unlock
+  $(document).on('click', '[name$=cancel]', function(ev) {
+    // turn off all required elements, we're cancelling
+    $('#Edit_Content :hidden').removeAttr('required');
+    // do not touch the dirty flag, so that theunload handler stuff can warn us.
+    if (do_locking) {
+      // unlock the item, and submit the form.
+      var self = this;
+      var form = $(this).closest('form');
+      ev.preventDefault();
+      $('#Edit_Content').lockManager('unlock', 1).done(function() {
+        var el = $('<input type="hidden"/>');
+        el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
+        form.submit();
+      });
+    }
+  });
+
+  $(document).on('click', '[name$=submit]', function(ev) {
+    // set the form to not dirty.
+    $('#Edit_Content').dirtyForm('option', 'dirty', false);
+    if (do_locking) {
+      // unlock the item, and submit the form
+      var self = this;
+      ev.preventDefault();
+      var form = $(this).closest('form');
+      $('#Edit_Content').lockManager('unlock', 1).done(function() {
+        var el = $('<input type="hidden"/>');
+        el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
+        form.submit();
+      });
+    }
+  });
+
+  // handle apply (ajax submit)
+  $(document).on('click', '[name$=apply]', function() {
+    // apply does not do an unlock.
+    if (typeof tinyMCE != 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
+    var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
+    data.push({
+      'name': '{$actionid}ajax',
+      'value': 1
+    });
+    data.push({
+      'name': '{$actionid}apply',
+      'value': 1
+    });
+    $.ajax({
+      type: 'POST',
+      url: '{$apply_ajax_url}',
+      data: data,
+      dataType: 'json',
+    }).done(function(data, text) {
+      var event = $.Event('cms_ajax_apply');
+      event.response = data.response;
+      event.details = data.details;
+      event.close = '{$mod->Lang("close")|escape:"javascript"}';
+      if (typeof data.url !== undefined && data.url !== '') event.url = data.url;
+      $('body').trigger(event);
+    });
+    return false;
+  });
+
+  $(document).on('cms_ajax_apply', function(e) {
+    $('#Edit_Content').dirtyForm('option', 'dirty', false);
+    if (typeof e.url !== undefined && e.url !== '') {
+      $('a#viewpage').attr('href', e.url);
+    }
+  });
+
+{if isset($designchanged_ajax_url)}
+  $('#design_id').change(function(e, edata) {
+    var v = $(this).val();
+    var lastValue = $(this).data('lastValue');
+    var data = {'{$actionid}design_id': v};
+    $.get('{$designchanged_ajax_url}', data, function(data, text) {
+      if (typeof data == 'object') {
+        var sel = $('#template_id').val();
+        var fnd = false;
+        var first = null;
+        for (var key in data) {
+          if (first === null) first = key;
+          if (key == sel) fnd = true;
         }
-    });
-
-    // handle cancel/close ... and unlock
-    $(document).on('click', '[name$=cancel]', function (ev) {
-        // turn off all required elements, we're cancelling
-        $('#Edit_Content :hidden').removeAttr('required');
-	// do not touch the dirty flag, so that theunload handler stuff can warn us.
-        if( do_locking ) {
-	  // unlock the item, and submit the form.
-	  var self = this;
-	  var form = $(this).closest('form');
-	  ev.preventDefault();
-	  $('#Edit_Content').lockManager('unlock',1).done(function(){
-	     var el = $('<input type="hidden"/>');
-	     el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
-	     form.submit();
-	  });
-	}
-    });
-
-    $(document).on('click', '[name$=submit]', function (ev) {
-        // set the form to not dirty.
-        $('#Edit_Content').dirtyForm('option','dirty',false);
-    	if( do_locking ) {
-	    // unlock the item, and submit the form
-	    var self = this;
-	    ev.preventDefault();
-	    var form = $(this).closest('form');
-	    $('#Edit_Content').lockManager('unlock',1).done(function(){
- 	    	var el = $('<input type="hidden"/>');
-            	el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
-	    	form.submit();
-	    });
-	}
-    });
-
-    // handle apply (ajax submit)
-    $(document).on('click', '[name$=apply]', function () {
-        // apply does not do an unlock.
-        if( typeof tinyMCE != 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
-        var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
-        data.push({
-            'name': '{$actionid}ajax',
-            'value': 1
-        });
-        data.push({
-            'name': '{$actionid}apply',
-            'value': 1
-        });
-	$.ajax({
-	   type: 'POST',
-	   url: '{$apply_ajax_url}',
-	   data: data,
-	   dataType: 'json',
-	}).done(function(data, text) {
-            var event = $.Event('cms_ajax_apply');
-	    event.response = data.response;
-	    event.details = data.details;
-	    event.close = '{$mod->Lang('close')|escape:'javascript'}';
-	    if( typeof data.url != '' ) event.url = data.url;
-            $('body').trigger(event);
-        });
-        return false;
-    });
-
-    $(document).on('cms_ajax_apply',function(e){
-      $('#Edit_Content').dirtyForm('option','dirty',false);
-      if( typeof e.url != '' && typeof e.url != undefined ) {
-        $('a#viewpage').attr('href',e.url);
-      }
-    });
-
-    {if isset($designchanged_ajax_url)}
-    $('#design_id').change(function(e,edata){
-      var v = $(this).val();
-      var lastValue = $(this).data('lastValue');
-      var data = { '{$actionid}design_id': v };
-      $.get('{$designchanged_ajax_url}',data,function(data,text) {
-        if( typeof data == 'object' ) {
-	  var sel = $('#template_id').val();
-	  var fnd = false;
-	  var first = null;
-	  for( key in data ) {
-	    if( first == null ) first = key;
-	    if( key == sel ) fnd = true;
-	  }
-	  if( !first ) {
-	    $('#design_id').val(lastValue);
-	    cms_alert('{$mod->Lang('warn_notemplates_for_design')}');
-	  }
-	  else {
-  	    $('#template_id').val('');
-            $('#template_id').empty();
-            for( key in data ) {
-	      $('#template_id').append('<option value="'+key+'">'+data[key]+'</option>');
-	    }
-	    if( fnd ) {
-  	      $('#template_id').val(sel);
-	    }
-	    else if( first ) {
-  	      $('#template_id').val(first);
-	    }
-	    if( typeof edata == 'undefined' || typeof edata.skip_fallthru == 'undefined' ) {
-  	      $('#template_id').trigger('change');
-	    }
+        if (!first) {
+          $('#design_id').val(lastValue);
+          cms_alert('{$mod->Lang("warn_notemplates_for_design")}');
+        } else {
+          $('#template_id').val('');
+          $('#template_id').empty();
+          for (key in data) {
+            $('#template_id').append('<option value="' + key + '">' + data[key] + '</option>');
           }
-	}
-      }, 'json' );
-    });
+          if (fnd) {
+            $('#template_id').val(sel);
+          } else if (first) {
+            $('#template_id').val(first);
+          }
+          if (typeof edata == 'undefined' || typeof edata.skip_fallthru == 'undefined') {
+            $('#template_id').trigger('change');
+          }
+        }
+      }
+    }, 'json');
+  });
 
-    $('#design_id').trigger('change', [{ skip_fallthru: 1 }]);
-    $('#design_id').data('lastValue',$('#design_id').val());
-    $('#template_id').data('lastValue',$('#template_id').val());
-    $('#Edit_Content').dirtyForm('option','dirty',false);
-    {/if}
+  $('#design_id').trigger('change', [{ skip_fallthru: 1 }]);
+  $('#design_id').data('lastValue', $('#design_id').val());
+  $('#template_id').data('lastValue', $('#template_id').val());
+  $('#Edit_Content').dirtyForm('option', 'dirty', false);
+{/if}
 });
-// ]]>
+//]]>
 </script>
 
 {$extra_content|default:''}
