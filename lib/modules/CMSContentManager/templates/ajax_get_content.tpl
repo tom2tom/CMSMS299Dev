@@ -201,7 +201,7 @@
   {strip}<table id="contenttable" class="pagetable" width="100%">
     <thead>
       <tr>
-        {foreach from=$columns key='column' item='flag'}
+        {foreach $columns as $column => $flag}
           {if $flag}<th class="{*$column TODO Rolf *}{if $flag=='icon'}pageicon{/if}">
           <!-- {$column} -->
           {if $column == 'expand' or $column == 'hier' or $column == 'icon1' or $column == 'view' or $column == 'copy' or $column == 'edit' or $column == 'delete'}
@@ -244,7 +244,10 @@
     <select name="{$actionid}multiaction" id="multiaction">
       {html_options options=$bulk_options}
     </select>
-    <input type="submit" id="multisubmit" name="{$actionid}multisubmit" accesskey="s" value="{$mod->Lang('submit')}" />
+    <button type="submit" role="button" id="multisubmit" name="{$actionid}multisubmit" accesskey="s" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+      <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
+      <span class="ui-button-text">{$mod->Lang('submit')}</span>
+    </button>
   </div>
   {/if}
   </div>
