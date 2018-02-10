@@ -211,18 +211,18 @@ $(document).ready(function() {
 {function submit_buttons}
 <p class="pagetext"></p>
 <p class="pageinput">
-  <button type="submit" role="button" name="{$actionid}submit " value="{$mod->Lang('submit')}" title="{$mod->Lang('title_editpage_submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+  <button type="submit" role="button" name="{$actionid}submit" value="{$mod->Lang('submit')}" title="{$mod->Lang('title_editpage_submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
     <span class="ui-button-text">{$mod->Lang('submit')}</span>
   </button>
-  <button type="submit" role="button" name="{$actionid}cancel " formnovalidate value="{$mod->Lang('cancel')}" title="{$mod->Lang('title_editpage_cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
+  <button type="submit" role="button" name="{$actionid}cancel" formnovalidate value="{$mod->Lang('cancel')}" title="{$mod->Lang('title_editpage_cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
   </button>
   {if $content_id != ''}
     <button type="submit" role="button" name="{$actionid}apply" value="{$mod->Lang('apply')}" title="{$mod->Lang('title_editpage_apply')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-      <span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>
-      <span class="ui-button-text">{$mod->Lang('revert')}</span>
+      <span class="ui-button-icon-primary ui-icon"></span>
+      <span class="ui-button-text">{$mod->Lang('apply')}</span>
     </button>
   {/if}
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
