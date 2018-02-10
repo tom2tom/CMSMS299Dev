@@ -78,7 +78,7 @@ $lang['editcontent_confirm_cancel'] = 'Are you sure you want to cancel this oper
 $lang['error_action_contentlocked'] = 'This operation cannot be performed while there is locked content';
 $lang['error_bulk_permission'] = 'You do not have permission to perform this bulk action';
 $lang['error_contentlocked'] = 'It appears that this content is already locked. Try to refresh this page to see up-to-date information';
-$lang['error_contenttype_disallowed'] = 'Default Content Type is also set to Disallowed';
+$lang['error_contenttype_disallowed'] = 'Default content type is also set to Disallowed';
 $lang['error_copy_permission'] = 'You do not have permission to copy this content page';
 $lang['error_delete_defaultcontent'] = 'You cannot delete the default content page';
 $lang['error_delete_haschildren'] = 'You cannot delete a page that has children';
@@ -162,7 +162,7 @@ $lang['lock_expired'] = 'Expired';
 $lang['lock_expires'] = 'Expires';
 
 #M
-$lang['moddescription'] = 'A module for managing content within CMSMS';
+$lang['moddescription'] = 'Add, edit or remove website pages';
 $lang['msg_bulk_successful'] = 'Bulk content operation successful';
 $lang['msg_editpage_success'] = 'Content Updated';
 $lang['msg_cancelled'] = 'Operation Canceled';
@@ -183,13 +183,13 @@ $lang['opt_designpage'] = 'All page templates associated with the design';
 #P
 $lang['page'] = 'Page';
 $lang['pages'] = 'Pages';
-$lang['perm_add'] = 'Add Pages';
-$lang['perm_manage'] = 'Manage All Content';
-$lang['perm_modify'] = 'Modify Any Page';
-$lang['perm_remove'] = 'Remove Pages';
-$lang['perm_reorder'] = 'Reorder Content';
-$lang['postinstall'] = 'Content module installed';
-$lang['postuninstall'] = 'The content module has been uninstalled. Note: no content has been removed from CMSMS.  You are free to reinstall this module or install an alternate content management module';
+$lang['perm_add'] = 'Add pages';
+$lang['perm_manage'] = 'Manage all content';
+$lang['perm_modify'] = 'Modify any page';
+$lang['perm_remove'] = 'Remove pages';
+$lang['perm_reorder'] = 'Reorder content';
+$lang['postinstall'] = 'Content Manager module installed';
+$lang['postuninstall'] = 'The Content Manager module has been uninstalled.<br/><br/>Note: no content has been removed from CMSMS.  You are free to reinstall this module or install an alternate content management module';
 $lang['preuninstall'] = 'Are you sure you want to uninstall this module?<br/>Although uninstalling this module will not destroy any content, it may prevent you from being able to manage the pages of your website.';
 $lang['prompt_alias'] = 'Alias';
 $lang['prompt_bulk_changeowner'] = 'Change Page Ownership';
@@ -245,7 +245,7 @@ $lang['prompt_pagelimit'] = 'Page Limit';
 $lang['prompt_page_collapse'] = 'Hide children of this page';
 $lang['prompt_page_expand'] = 'Show children of this page';
 $lang['prompt_page_copy'] = 'Copy this page';
-$lang['prompt_page_default'] = 'This is the default page. I.e: The home page for the website';
+$lang['prompt_page_default'] = 'This is the default page, the home page for the website';
 $lang['prompt_page_delete'] = 'Delete this page';
 $lang['prompt_page_edit'] = 'Edit this page';
 $lang['prompt_page_menutext'] = 'Menu Text';
@@ -295,8 +295,9 @@ $lang['toggle'] = 'Toggle Selected';
 #V
 
 #W
+$lang['wantschildren'] = 'Wants Children';
 $lang['warn_destructive'] = 'This operation can have undesired side effects, please exercise extreme caution';
-$lang['warn_notemplates_for_design'] = 'Sorry, but it does not appear that there are any usable page templates for the selected design';
+$lang['warn_notemplates_for_design'] = 'It appears that there is no usable page template for the selected design';
 
 #X
 
