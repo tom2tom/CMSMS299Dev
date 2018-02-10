@@ -20,7 +20,7 @@
 $CMS_ADMIN_PAGE=1;
 $CMS_LOGIN_PAGE=1;
 
-require_once("../lib/include.php");
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 //require_once("../lib/classes/class.user.inc.php");
 
 $themeObject = cms_utils::get_theme_object();

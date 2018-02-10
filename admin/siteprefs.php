@@ -25,7 +25,7 @@ $CMS_ADMIN_PAGE=1;
 $CMS_TOP_MENU='admin';
 $CMS_ADMIN_TITLE='preferences';
 
-require_once("../lib/include.php");
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $thisurl=basename(__FILE__).$urlext;
 $userid = get_userid(); // <- Checks also login

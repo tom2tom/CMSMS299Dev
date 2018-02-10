@@ -20,7 +20,7 @@
 $CMS_ADMIN_PAGE = 1;
 $CMS_STYLESHEET = TRUE;
 
-require_once("../lib/include.php");
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 /**
  * Rolf: only used in admin/style.php

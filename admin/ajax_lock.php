@@ -21,7 +21,7 @@ $handlers = ob_list_handlers();
 for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
 
 $CMS_ADMIN_PAGE=1;
-require_once("../lib/include.php");
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 $ruid = get_userid(FALSE);
 
 $fh = fopen('php://input','r');

@@ -18,7 +18,7 @@
 #$Id$
 
 $CMS_ADMIN_PAGE=1;
-require_once("../lib/include.php");
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $op = 'pageinfo';
 if( isset($_REQUEST['op']) ) $op = trim($_REQUEST['op']);
