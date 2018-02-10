@@ -1,55 +1,57 @@
 <script type="text/javascript">
-//<![CDATA[
+//<![CDATA[{literal}
 $(document).ready(function() {
-  var do_locking = {if isset($content_id) && $content_id > 0 && isset($lock_timeout) && $lock_timeout > 0}1{else}0{/if};
+  var do_locking = {/literal}{if isset($content_id) && $content_id > 0 && isset($lock_timeout) && $lock_timeout > 0}1{else}0{/if}{literal};
 
   // initialize the dirtyform stuff.
   $('#Edit_Content').dirtyForm({
     beforeUnload: function(is_dirty) {
-    if (do_locking) $('#Edit_Content').lockManager('unlock').done(function() {
-      console.log('after dirtyform unlock');
-    });
+      if (do_locking) $('#Edit_Content').lockManager('unlock').done(function() {
+        console.log('after dirtyform unlock');
+      });
     },
     unloadCancel: function() {
-    if (do_locking) $('#Edit_Content').lockManager('relock');
+      if (do_locking) $('#Edit_Content').lockManager('relock');
     }
   });
 
   // initialize lock manager
   if (do_locking) {
     $('#Edit_Content').lockManager({
-    type: 'content',
-    oid: {$content_id|default:-1},
-    uid: {get_userid(false)},
-    lock_timeout: {$lock_timeout|default:0},
-    lock_refresh: {$lock_refresh|default:0},
-    error_handler: function(err) {
-      cms_alert('Locking error: ' + err.type + ' -- ' + err.msg);
-    },
-    lostlock_handler: function(err) {
+      type: 'content',
+{/literal}
+      oid: {$content_id|default:-1},
+      uid: {get_userid(false)},
+      lock_timeout: {$lock_timeout|default:0},
+      lock_refresh: {$lock_refresh|default:0},
+{literal}
+      error_handler: function(err) {
+        cms_alert('Locking error: ' + err.type + ' -- ' + err.msg);
+      },
+      lostlock_handler: function(err) {
       // we lost the lock on this content... make sure we can't save anything.
       // and display a nice message.
-      $('[name$=cancel]').fadeOut().attr('value', '{$mod->Lang("close")}').fadeIn();
-      $('#Edit_Content').dirtyForm('option', 'dirty', false);
-      cms_alert('{$mod->Lang("msg_lostlock")|escape:"javascript"}');
-    }
+        $('[name$=cancel]').fadeOut().attr('value', {/literal}'{$mod->Lang("close")}'{literal}).fadeIn();
+        $('#Edit_Content').dirtyForm('option', 'dirty', false);
+        cms_alert({/literal}'{$mod->Lang("msg_lostlock")|escape:"javascript"}'{literal});
+      }
     });
   }
 
-{if $content_obj->HasPreview()}
+{/literal}{if $content_obj->HasPreview()}{literal}
   $('#_preview_').click(function() {
-    if (typeof tinyMCE != 'undefined') tinyMCE.triggerSave();
+    if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave();
     // serialize the form data
     var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
     data.push({
-      'name': '{$actionid}preview',
+      'name': {/literal}'{$actionid}preview'{literal},
       'value': 1
     });
     data.push({
-    'name': '{$actionid}ajax',
-    'value': 1
+      'name': {/literal}'{$actionid}ajax'{literal},
+      'value': 1
     });
-    $.post('{$preview_ajax_url}&showtemplate=false', data, function(resultdata, text) {
+    $.post({/literal}'{$preview_ajax_url}&showtemplate=false'{literal}, data, function(resultdata, text) {
       if (resultdata !== null && resultdata.response == 'Error') {
         $('#previewframe').attr('src', '').hide();
         $('#preview_errors').html('<ul></ul>');
@@ -59,13 +61,13 @@ $(document).ready(function() {
         $('#previewerror').show();
       } else {
         var x = new Date().getTime();
-        var url = '{$preview_url}&junk=' + x;
+        var url = {/literal}'{$preview_url}&junk='{literal} + x;
         $('#previewerror').hide();
         $('#previewframe').attr('src', url).show();
       }
     }, 'json');
   });
-{/if}
+{/literal}{/if}{literal}
 
   // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
   $('#id_disablewysiwyg, #template_id, #content_type').on('change', function() {
@@ -73,7 +75,7 @@ $(document).ready(function() {
     var self = this;
     var this_id = $(this).attr('id');
     $('#Edit_Content').dirtyForm('disable');
-    if (this_id != 'content_type') $('#active_tab').val('{$options_tab_name}');
+    if (this_id != 'content_type') $('#active_tab').val({/literal}'{$options_tab_name}'{literal});
     if (do_locking) {
       if (do_locking) $('#Edit_Content').lockManager('unlock', 1).done(function() {
         $(self).closest('form').submit();
@@ -120,27 +122,27 @@ $(document).ready(function() {
   // handle apply (ajax submit)
   $(document).on('click', '[name$=apply]', function() {
     // apply does not do an unlock.
-    if (typeof tinyMCE != 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
+    if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
     var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
     data.push({
-      'name': '{$actionid}ajax',
+      'name': {/literal}'{$actionid}ajax'{literal},
       'value': 1
     });
     data.push({
-      'name': '{$actionid}apply',
+      'name': {/literal}'{$actionid}apply'{literal},
       'value': 1
     });
     $.ajax({
       type: 'POST',
-      url: '{$apply_ajax_url}',
+      url: {/literal}'{$apply_ajax_url}'{literal},
       data: data,
       dataType: 'json',
     }).done(function(data, text) {
       var event = $.Event('cms_ajax_apply');
       event.response = data.response;
       event.details = data.details;
-      event.close = '{$mod->Lang("close")|escape:"javascript"}';
-      if (typeof data.url !== undefined && data.url !== '') event.url = data.url;
+      event.close = {/literal}'{$mod->Lang("close")|escape:"javascript"}'{literal};
+      if (typeof data.url !== 'undefined' && data.url !== '') event.url = data.url;
       $('body').trigger(event);
     });
     return false;
@@ -148,17 +150,17 @@ $(document).ready(function() {
 
   $(document).on('cms_ajax_apply', function(e) {
     $('#Edit_Content').dirtyForm('option', 'dirty', false);
-    if (typeof e.url !== undefined && e.url !== '') {
+    if (typeof e.url !== 'undefined' && e.url !== '') {
       $('a#viewpage').attr('href', e.url);
     }
   });
 
-{if isset($designchanged_ajax_url)}
+{/literal}{if isset($designchanged_ajax_url)}{literal}
   $('#design_id').change(function(e, edata) {
     var v = $(this).val();
     var lastValue = $(this).data('lastValue');
-    var data = {'{$actionid}design_id': v};
-    $.get('{$designchanged_ajax_url}', data, function(data, text) {
+    var data = {{/literal}'{$actionid}design_id': v{literal}};
+    $.get({/literal}'{$designchanged_ajax_url}'{literal}, data, function(data, text) {
       if (typeof data == 'object') {
         var sel = $('#template_id').val();
         var fnd = false;
@@ -169,7 +171,7 @@ $(document).ready(function() {
         }
         if (!first) {
           $('#design_id').val(lastValue);
-          cms_alert('{$mod->Lang("warn_notemplates_for_design")}');
+          cms_alert({/literal}'{$mod->Lang("warn_notemplates_for_design")}'{literal});
         } else {
           $('#template_id').val('');
           $('#template_id').empty();
@@ -181,7 +183,7 @@ $(document).ready(function() {
           } else if (first) {
             $('#template_id').val(first);
           }
-          if (typeof edata == 'undefined' || typeof edata.skip_fallthru == 'undefined') {
+          if (typeof edata === 'undefined' || typeof edata.skip_fallthru === 'undefined') {
             $('#template_id').trigger('change');
           }
         }
@@ -193,9 +195,9 @@ $(document).ready(function() {
   $('#design_id').data('lastValue', $('#design_id').val());
   $('#template_id').data('lastValue', $('#template_id').val());
   $('#Edit_Content').dirtyForm('option', 'dirty', false);
-{/if}
+{/literal}{/if}{literal}
 });
-//]]>
+//]]>{/literal}
 </script>
 
 {$extra_content|default:''}
@@ -209,10 +211,19 @@ $(document).ready(function() {
 {function submit_buttons}
 <p class="pagetext"></p>
 <p class="pageinput">
-  <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton" title="{$mod->Lang('title_editpage_submit')}"/>
-  <input type="submit" name="{$actionid}cancel" formnovalidate value="{$mod->Lang('cancel')}" class="pagebutton" title="{$mod->Lang('title_editpage_cancel')}"/>
+  <button type="submit" role="button" name="{$actionid}submit " value="{$mod->Lang('submit')}" title="{$mod->Lang('title_editpage_submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+    <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
+    <span class="ui-button-text">{$mod->Lang('submit')}</span>
+  </button>
+  <button type="submit" role="button" name="{$actionid}cancel " formnovalidate value="{$mod->Lang('cancel')}" title="{$mod->Lang('title_editpage_cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
+    <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
+    <span class="ui-button-text">{$mod->Lang('cancel')}</span>
+  </button>
   {if $content_id != ''}
-    <input type="submit" name="{$actionid}apply" value="{$mod->Lang('apply')}" class="pagebutton" title="{$mod->Lang('title_editpage_apply')}"/>
+    <button type="submit" role="button" name="{$actionid}apply" value="{$mod->Lang('apply')}" title="{$mod->Lang('title_editpage_apply')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
+      <span class="ui-button-icon-primary ui-icon ui-icon-circle-plus"></span>
+      <span class="ui-button-text">{$mod->Lang('revert')}</span>
+    </button>
   {/if}
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
     <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt='view_page'|lang}</a>
