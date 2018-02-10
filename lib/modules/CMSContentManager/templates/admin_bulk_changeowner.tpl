@@ -2,36 +2,43 @@
 
 {form_start multicontent=$multicontent}
 <div class="pageoverflow">
-	<ul>
-		{foreach from=$displaydata item='rec'}
-		<li>({$rec.id}) : {$rec.name} <em>({$rec.alias})</em></li>
-		{/foreach}
-	</ul>
+  <ul>
+    {foreach $displaydata as $rec}
+    <li>({$rec.id}) : {$rec.name} <em>({$rec.alias})</em></li>
+    {/foreach}
+  </ul>
 </div>
 
 <div class="pageoverflow">
-	<p class="pagetext"><label for="owner_ctl">{$mod->Lang('prompt_owner')}:</label></p>
-	<p class="pageinput">
-		<select id="owner_ctl" name="{$actionid}owner">
-			{html_options options=$userlist selected=$userid}
-		</select></p>
+  <p class="pagetext"><label for="owner_ctl">{$mod->Lang('prompt_owner')}:</label></p>
+  <p class="pageinput">
+    <select id="owner_ctl" name="{$actionid}owner">
+     {html_options options=$userlist selected=$userid}
+    </select>
+  </p>
 </div>
 
 <div class="pageoverflow">
-	<p class="pagetext">{$mod->Lang('prompt_confirm_operation')}:</p>
-	<p class="pageinput">
-		<input type="checkbox" id="confirm1" value="1" name="{$actionid}confirm1">
-		&nbsp; <label for="confirm1">{$mod->Lang('prompt_confirm1')}</label>
-		<br/>
-		<input type="checkbox" id="confirm2" value="1" name="{$actionid}confirm2">
-		&nbsp; <label for="confirm2">{$mod->Lang('prompt_confirm2')}</label></p>
+  <p class="pagetext">{$mod->Lang('prompt_confirm_operation')}:</p>
+  <p class="pageinput">
+    <input type="checkbox" id="confirm1" value="1" name="{$actionid}confirm1" />
+    &nbsp; <label for="confirm1">{$mod->Lang('prompt_confirm1')}</label>
+    <br />
+    <input type="checkbox" id="confirm2" value="1" name="{$actionid}confirm2" />
+    &nbsp; <label for="confirm2">{$mod->Lang('prompt_confirm2')}</label>
+  </p>
 </div>
-
+<br/>
 <div class="pageoverflow">
-	<p class="pagetext"></p>
-	<p class="pageinput">
-		<input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-		<input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
-	</p>
+  <p class="pageinput">
+    <button type="submit" role="button" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
+     <span class="ui-button-text">{$mod->Lang('submit')}</span>
+    </button>
+    <button type="submit" role="button" name="{$actionid}cancel" value="{$mod->Lang('cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
+     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
+     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
+    </button>
+  </p>
 </div>
 {form_end}
