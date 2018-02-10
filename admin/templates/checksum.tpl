@@ -1,12 +1,11 @@
-<div class="pagecontainer">
 {* checksum verification template *}
-
+<div class="pagecontainer">
 {if isset($error)}
 <div class="pageerrorcontainer message no-slide">
  <div class="pageoverflow">
    <p class="pageerror">{$error}</p>
  </div>
- </div>
+</div>
 {/if}
 
 {if isset($message)}
@@ -14,7 +13,7 @@
  <div class="pageoverflow">
    <p>{$message}</p>
  </div>
- </div>
+</div>
 {/if}
 
 <form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
@@ -33,7 +32,9 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">&nbsp;</p>
-    <p class="pageinput"><input type="submit" name="submit" value="{lang key='submit'}" /></p>
+    <p class="pageinput">
+      <input type="submit" name="submit" value="{lang key='submit'}" />
+    </p>
   </div>
 </fieldset>
 </form>
@@ -51,10 +52,11 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">&nbsp;</p>
-    <p class="pageinput"><input type="submit" name="submit" value="{lang key='submit'}" /></p>
+    <p class="pageinput">
+      <input type="submit" name="submit" value="{lang key='submit'}" />
+    </p>
   </div>
 </fieldset>
 </form>
-
-{* end template *}
 </div>
+
