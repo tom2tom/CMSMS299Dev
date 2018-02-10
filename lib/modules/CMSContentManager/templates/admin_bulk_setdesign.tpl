@@ -1,11 +1,11 @@
 <script type="text/javascript">
-//<![CDATA[
+//<![CDATA[{literal}
 $(document).ready(function() {
   $('#showmore_ctl').click(function() {
     $(this).closest('form').submit();
   });
 });
-//]]>
+//]]>{/literal}
 </script>
 
 <h3>{$mod->Lang('prompt_bulk_setdesign')}:</h3>
@@ -13,7 +13,7 @@ $(document).ready(function() {
 {form_start multicontent=$multicontent}
 <div class="pageoverflow">
   <ul>
-   {foreach from=$displaydata item='rec'}
+   {foreach $displaydata as $rec}
     <li>({$rec.id}) : {$rec.name} <em>({$rec.alias})</em></li>
    {/foreach}
   </ul>
@@ -56,8 +56,14 @@ $(document).ready(function() {
 
 <div class="pageoverflow">
   <p class="pageinput">
-    <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" role="button" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
+     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
+     <span class="ui-button-text">{$mod->Lang('submit')}</span>
+    </button>
+    <button type="submit" role="button" name="{$actionid}cancel" value="{$mod->Lang('cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
+     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
+     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
+    </button>
   </p>
 </div>
 {form_end}
