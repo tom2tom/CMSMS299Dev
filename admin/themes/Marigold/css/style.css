@@ -860,6 +860,11 @@ input[type="submit"]:hover {
     cursor: pointer
 }
 
+input[type="checkbox"], input[type="radio"] {
+    box-sizing: border-box;
+    padding: 0;
+    vertical-align: middle
+}
 input[type="checkbox"] {
     background: #fff;
     border: none
