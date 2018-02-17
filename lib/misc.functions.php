@@ -15,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * Miscellaneous support functions
@@ -819,7 +817,7 @@ function munge_string_to_url(string $alias, bool $tolower = false, bool $withsla
 }
 
 /**
- * Get $str scrubbed of any (or most?) non-alphanumeric chars CHECKME allow "_-." etc ?
+ * Get $str scrubbed of most non-alphanumeric chars CHECKME allow [_-.] etc ?
  * @param string $str String to clean
  * @return string
  */
@@ -916,10 +914,10 @@ function stack_trace()
     foreach( $stack as $elem ) {
         if( $elem['function'] == 'stack_trace' ) continue;
         if( isset($elem['file'])  ) {
-            echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br/>';
+            echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
         }
         else {
-            echo ' - '.$elem['function'].'<br/>';
+            echo ' - '.$elem['function'].'<br />';
         }
     }
 }
