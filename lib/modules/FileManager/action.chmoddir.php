@@ -85,8 +85,8 @@ if (isset($params["newmode"])) {
 
 	$this->smarty->assign('modetable', $this->GetModeTable($id,$this->GetPermissions($params["path"],$params["dirname"])));
 
-	$this->smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
-	$this->smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+// see template	$this->smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
+//	$this->smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 	echo $this->ProcessTemplate('chmoddir.tpl');
 
 }

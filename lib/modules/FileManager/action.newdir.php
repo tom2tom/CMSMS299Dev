@@ -39,8 +39,8 @@ $smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid
 $smarty->assign('newdirtext', $this->lang("newdir"));
 $smarty->assign('newdirname',$newdirname);
 $smarty->assign('endform', $this->CreateFormEnd());
-$smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', $this->Lang('create')));
-$smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+// see template $smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('create')));
+//$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 echo $this->ProcessTemplate('newdir.tpl');
 
 ?>

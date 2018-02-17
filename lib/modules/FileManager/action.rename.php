@@ -66,8 +66,8 @@ $this->smarty->assign('newnameinput',$this->CreateInputText($id,"newname",$newna
 
 $this->smarty->assign('endform', $this->CreateFormEnd());
 
-$this->smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', $this->Lang('rename')));
-$this->smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+//see template $this->smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('rename')));
+//$this->smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 echo $this->ProcessTemplate('renamefile.tpl');
 
 ?>

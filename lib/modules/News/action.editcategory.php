@@ -95,8 +95,8 @@ $smarty->assign('startform', $this->CreateFormStart($id, 'editcategory',
 $smarty->assign('endform', $this->CreateFormEnd());
 $smarty->assign('nametext', $this->Lang('name'));
 $smarty->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
-$smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')));
-$smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')));
+//see template $smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')));
+//$smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')));
 
 $smarty->assign('mod',$this);
 echo $this->ProcessTemplate('editcategory.tpl');

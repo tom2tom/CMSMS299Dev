@@ -182,7 +182,7 @@ else {
 $searchstart = $this->CreateFormStart( $id, 'searchmod', $returnid );
 $searchend = $this->CreateFormEnd();
 $searchfield = $this->CreateInputText($id, 'search_input', "Doesn't Work",  30, 100); //todo
-$searchsubmit = $this->CreateInputSubmit( $id, 'submit', 'Search'); // todo -- $this->Lang('search'));
+$searchsubmit = //$this->CreateInputSubmit( $id, 'submit', 'Search'); // todo -- $this->Lang('search'));
 $smarty->assign('search',$searchstart.$searchfield.$searchsubmit.$searchend);
 
 // and display our page

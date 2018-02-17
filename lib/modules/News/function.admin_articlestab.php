@@ -127,10 +127,9 @@ $smarty->assign('pagelimit',$pagelimit);
 $smarty->assign('sortby',$sortby);
 $smarty->assign('prompt_showchildcategories',$this->Lang('showchildcategories'));
 $smarty->assign('prompt_sorting',$this->Lang('prompt_sorting'));
-$smarty->assign('submitfilter',
-                $this->CreateInputSubmit($id,'submitfilter',$this->Lang('submit')));
-$smarty->assign('prompt_pagelimit',
-                $this->Lang('prompt_pagelimit'));
+//see template $smarty->assign('submitfilter',
+//                $this->CreateInputSubmit($id,'submitfilter',$this->Lang('submit')));
+$smarty->assign('prompt_pagelimit', $this->Lang('prompt_pagelimit'));
 
 $smarty->assign('formend',$this->CreateFormEnd());
 
@@ -222,13 +221,13 @@ if( $this->CheckPermission('Modify News') ) {
 $smarty->assign('can_add',$this->CheckPermission('Modify News'));
 $smarty->assign('form2start',$this->CreateFormStart($id,'defaultadmin',$returnid));
 $smarty->assign('form2end',$this->CreateFormEnd());
-$smarty->assign('submit_reassign',$this->CreateInputSubmit($id,'submit_reassign',$this->Lang('submit')));
+//see template $smarty->assign('submit_reassign', $this->CreateInputSubmit($id,'submit_reassign',$this->Lang('submit')));
 $categorylist = news_ops::get_category_list();
 $smarty->assign('categoryinput',$this->CreateInputDropdown($id,'category',$categorylist));
 if( $this->CheckPermission('Delete News') ) {
-    $smarty->assign('submit_massdelete',
-                    $this->CreateInputSubmit($id,'submit_massdelete',$this->Lang('delete_selected'),
-                                             '','',$this->Lang('areyousure_deletemultiple')));
+//see template    $smarty->assign('submit_massdelete',
+//                    $this->CreateInputSubmit($id,'submit_massdelete',$this->Lang('delete_selected'),
+//                                             '','',$this->Lang('areyousure_deletemultiple')));
 }
 
 $smarty->assign('reassigntext',$this->Lang('reassign_category'));

@@ -48,8 +48,8 @@ if (isset($params["newmode"])) {
   $this->smarty->assign('quickmodetext', $this->Lang("quickmode"));
   $this->smarty->assign('quickmodeinput', $this->CreateInputText($id, "quickmode", "", 3, 3));
 
-  $this->smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
-  $this->smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+//see template  $this->smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
+//  $this->smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
   echo $this->ProcessTemplate('chmodfile.tpl');
 }
 ?>
