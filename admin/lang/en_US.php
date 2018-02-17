@@ -174,7 +174,7 @@ $lang['connection_failed'] = 'Connection failed!';
 $lang['content'] = 'Content';
 $lang['contentadded'] = 'The content was successfully added to the database.';
 $lang['contentdeleted'] = 'The content was successfully removed from the database.';
-$lang['contentdescription'] = 'Add, edit and examine site content';
+$lang['contentdescription'] = 'Add, edit or examine website content';
 $lang['contentimage_path'] = 'Path for {content_image} tag';
 $lang['contentmanagement'] = 'Content Management';
 $lang['contenttype'] = 'Content Type';
@@ -268,8 +268,8 @@ $lang['deletepages'] = 'Delete these pages?';
 $lang['deleteuser'] = 'Delete User Account';
 //$lang['depsformodule'] = 'Dependencies for %s Module';
 $lang['description'] = 'Description';
-$lang['design'] = 'Design';
-$lang['design_id'] = 'Design Id';
+//$lang['design'] = 'Design';
+//$lang['design_id'] = 'Design Id';
 $lang['destinationnotfound'] = 'The selected page could not be found or is invalid';
 $lang['destination_page'] = 'Destination Page';
 $lang['directoryabove'] = 'directory above current level';
@@ -316,7 +316,7 @@ $lang['emptyblock'] = 'Empty content block: %s';
 $lang['enable'] = 'Enable';
 $lang['enablecustom404'] = 'Enable Custom 404 Message';
 $lang['enablenotifications'] = 'Enable user notifications in the Admin section';
-$lang['enablesitedown'] = 'Is the website &quot;Down for Maintenance&quot';
+$lang['enablesitedown'] = 'The website is &quot;Down for Maintenance&quot';
 $lang['enablewysiwyg'] = 'Use the WYSIWYG on the &quot;Site Down&quot; message';
 $lang['encoding'] = 'Encoding';
 $lang['error'] = 'Error';
@@ -404,8 +404,8 @@ $lang['eventhandler'] = 'Event Handlers';
 $lang['eventhandlerdescription'] = 'Associate User Defined Tags with Events';
 $lang['eventhandlers'] = 'Event Manager';
 $lang['event_description'] = 'Event Description';
-$lang['event_desc_adddesignpost'] = 'Sent after a design/theme is saved';
-$lang['event_desc_adddesignpre'] = 'Sent just before a design/theme is saved to the database';
+//$lang['event_desc_adddesignpost'] = 'Sent after a design/theme is saved';
+//$lang['event_desc_adddesignpre'] = 'Sent just before a design/theme is saved to the database';
 $lang['event_desc_addglobalcontentpost'] = 'Sent after a new global content block is created';
 $lang['event_desc_addglobalcontentpre'] = 'Sent before a new global content block is created';
 $lang['event_desc_addgrouppost'] = 'Sent after a new group is created';
@@ -416,23 +416,23 @@ $lang['event_desc_addtemplatepost'] = 'Sent after a new template is created';
 $lang['event_desc_addtemplatepre'] = 'Sent before a new template is created';
 $lang['event_desc_addtemplatetypepost'] = 'Sent just after a template type definition is saved to the database';
 $lang['event_desc_addtemplatetypepre'] = 'Sent just prior to a template type definition being saved to the database';
-$lang['event_desc_adduserdefinedtagpost'] = 'Sent after a user defined tag is inserted';
-$lang['event_desc_adduserdefinedtagpre'] = 'Sent prior to a user defined tag insert';
+//$lang['event_desc_adduserdefinedtagpost'] = 'Sent after a user defined tag is inserted';
+//$lang['event_desc_adduserdefinedtagpre'] = 'Sent prior to a user defined tag insert';
 $lang['event_desc_adduserpost'] = 'Sent after a new user is created';
 $lang['event_desc_adduserpre'] = 'Sent before a new user is created';
 $lang['event_desc_changegroupassignpost'] = 'Sent after group assignments are saved';
 $lang['event_desc_changegroupassignpre'] = 'Sent before group assignments are saved';
 $lang['event_desc_contentdeletepost'] = 'Sent after content is deleted from the system';
-$lang['event_desc_contentdeletepre'] = 'Sent before content is deleted from the system';
-$lang['event_desc_contenteditpost'] = 'Sent after edits to content are saved';
-$lang['event_desc_contenteditpre'] = 'Sent before edits to content are saved';
+//$lang['event_desc_contentdeletepre'] = 'Sent before content is deleted from the system';
+//$lang['event_desc_contenteditpost'] = 'Sent after edits to content are saved';
+//$lang['event_desc_contenteditpre'] = 'Sent before edits to content are saved';
 $lang['event_desc_contentpostcompile'] = 'Sent after content has been processed by Smarty';
 $lang['event_desc_contentpostrender'] = 'Sent before the combined HTML is sent to the browser';
 $lang['event_desc_contentprecompile'] = 'Sent before content is sent to Smarty for processing';
 $lang['event_desc_contentprerender'] = 'Sent before any Smarty processing is performed.';
 $lang['event_desc_contentstylesheet'] = 'Sent before the stylesheet is sent to the browser';
-$lang['event_desc_deletedesignpost'] = 'Sent just after a design/theme is removed';
-$lang['event_desc_deletedesignpre'] = 'Sent just prior to a design/theme being removed';
+//$lang['event_desc_deletedesignpost'] = 'Sent just after a design/theme is removed';
+//$lang['event_desc_deletedesignpre'] = 'Sent just prior to a design/theme being removed';
 $lang['event_desc_deleteglobalcontentpost'] = 'Sent after a global content block is deleted from the system';
 $lang['event_desc_deleteglobalcontentpre'] = 'Sent before a global content block is deleted from the system';
 $lang['event_desc_deletegrouppost'] = 'Sent after a group is deleted from the system';
@@ -447,8 +447,8 @@ $lang['event_desc_deleteuserdefinedtagpost'] = 'Sent after a user defined tag is
 $lang['event_desc_deleteuserdefinedtagpre'] = 'Sent prior to deleting a user defined tag';
 $lang['event_desc_deleteuserpost'] = 'Sent after a user is deleted from the system';
 $lang['event_desc_deleteuserpre'] = 'Sent before a user is deleted from the system';
-$lang['event_desc_editdesignpost'] = 'Sent just after a design/theme is saved to the database';
-$lang['event_desc_editdesignpre'] = 'Sent just before a design/theme is saved to the database';
+//$lang['event_desc_editdesignpost'] = 'Sent just after a design/theme is saved to the database';
+//$lang['event_desc_editdesignpre'] = 'Sent just before a design/theme is saved to the database';
 $lang['event_desc_editglobalcontentpost'] = 'Sent after edits to a global content block are saved';
 $lang['event_desc_editglobalcontentpre'] = 'Sent before edits to a global content block are saved';
 $lang['event_desc_editgrouppost'] = 'Sent after edits to a group are saved';
@@ -481,6 +481,7 @@ $lang['event_desc_stylesheetpostrender'] = 'Sent after a stylesheet is passed th
 $lang['event_desc_templatepostcompile'] = 'Sent after a template has been processed by Smarty';
 $lang['event_desc_templateprecompile'] = 'Sent before a template is sent to Smarty for processing';
 $lang['event_desc_templateprefetch'] = 'Sent before a template is fetched from Smarty';
+/*
 $lang['event_help_adddesignpost'] = 'Sent just after a new design/theme is saved to the database';
 $lang['event_help_adddesignpre'] = "<h4>Parameters</h4>
 <ul>
@@ -492,6 +493,7 @@ $lang['event_help_adddesignpost'] = "<h4>Parameters</h4>
   <li>'CmsLayoutCollection' - Reference to the affected design/collection object.</li>
 </ul>
 ";
+*/
 $lang['event_help_addglobalcontentpost'] = "<h4>Parameters</h4>
 <ul>
 <li>'global_content' - Reference to the affected global content block object.</li>
@@ -540,7 +542,7 @@ $lang['event_help_addtemplatetypepre'] = "<h4>Parameters</h4>
 <ul>
   <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
 </ul>";
-$lang['event_help_adduserdefinedtagpost'] = '<h4>Parameters</h4>
+/*$lang['event_help_adduserdefinedtagpost'] = '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
@@ -550,6 +552,7 @@ $lang['event_help_adduserdefinedtagpre'] = '<h4>Parameters</h4>
 <li>None</li>
 </ul>
 ';
+*/
 $lang['event_help_adduserpost'] = "<h4>Parameters</h4>
 <ul>
 <li>'user' - Reference to the affected user object.</li>
@@ -617,7 +620,7 @@ $lang['event_help_contentstylesheet'] = "<h4>Parameters</h4>
 <li>'content' - Reference to the affected stylesheet text.</li>
 </ul>
 ";
-$lang['event_help_deletedesignpost'] = '<h4>Parameters</h4>
+/*$lang['event_help_deletedesignpost'] = '<h4>Parameters</h4>
 <ul>
   <li>\'CmsLayoutCollection\' - A reference to the affected collection (aka design/theme) object.</li>
 </ul>
@@ -627,6 +630,7 @@ $lang['event_help_deletedesignpre'] = '<h4>Parameters</h4>
   <li>\'CmsLayoutCollection\' - A reference to the affected collection (aka design/theme) object.</li>
 </ul>
 ';
+*/
 $lang['event_help_deleteglobalcontentpost'] = "<h4>Parameters</h4>
 <ul>
 <li>'global_content' - Reference to the affected global content block object.</li>
@@ -675,7 +679,7 @@ $lang['event_help_deletetemplatetypepre'] = "<h4>Parameters</h4>
 <ul>
   <li>'CmsLayoutTemplateType' - Reference to the affected template type object.</li>
 </ul>";
-$lang['event_help_deleteuserdefinedtagpost'] = '<h4>Parameters</h4>
+/*$lang['event_help_deleteuserdefinedtagpost'] = '<h4>Parameters</h4>
 <ul>
 <li>None</li>
 </ul>
@@ -685,6 +689,7 @@ $lang['event_help_deleteuserdefinedtagpre'] = '<h4>Parameters</h4>
 <li>None</li>
 </ul>
 ';
+*/
 $lang['event_help_deleteuserpost'] = "<h4>Parameters</h4>
 <ul>
 <li>'user' - Reference to the affected user object.</li>
@@ -695,7 +700,7 @@ $lang['event_help_deleteuserpre'] = "<h4>Parameters</h4>
 <li>'user' - Reference to the affected user object.</li>
 </ul>
 ";
-$lang['event_help_editdesignpost'] = '<h4>Parameters</h4>
+/*$lang['event_help_editdesignpost'] = '<h4>Parameters</h4>
 <ul>
   <li>\'CmsLayoutCollection\' - A reference to the affected collection (aka design/theme) object.</li>
 </ul>
@@ -705,6 +710,7 @@ $lang['event_help_editdesignpre'] = '<h4>Parameters</h4>
   <li>\'CmsLayoutCollection\' - A reference to the affected collection (aka design/theme) object.</li>
 </ul>
 ';
+*/
 $lang['event_help_editglobalcontentpost'] = "<h4>Parameters</h4>
 <ul>
 <li>'global_content' - Reference to the affected global content block object.</li>
@@ -877,8 +883,8 @@ $lang['extra1'] = 'Extra Page Attribute 1';
 $lang['extra2'] = 'Extra Page Attribute 2';
 $lang['extra3'] = 'Extra Page Attribute 3';
 $lang['E_ALL'] = 'Is E_ALL enabled in error_reporting';
-$lang['E_DEPRECATED'] = 'Is E_DEPRECATED disabled in error_reporting';
-$lang['E_STRICT'] = 'Is E_STRICT disabled in error_reporting';
+$lang['E_DEPRECATED'] = 'Is E_DEPRECATED disabled in error_reporting ?';
+$lang['E_STRICT'] = 'Is E_STRICT disabled in error_reporting ?';
 
 ## F
 $lang['failure'] = 'Failure';
@@ -991,7 +997,7 @@ $lang['help_title_content_tabindex'] = 'Tab Index field';
 $lang['help_title_content_target'] = 'Target field';
 $lang['help_title_content_thumbnail'] = 'Thumbnail selector';
 $lang['help_title_content_title'] = 'Page Title field';
-$lang['help_title_editcontent_design'] = 'Design selector';
+$lang['help_title_editcontent_design'] = 'Design selector'; //not a DesignManager string
 $lang['help_title_editcontent_template'] = 'Template selector';
 $lang['help_title_maincontent'] = 'Primary Page content';
 $lang['help_title_page_alias'] = 'Page Alias field';
@@ -1039,12 +1045,12 @@ $lang['info_deletepages'] = 'Note: due to permission restrictions, some of the p
 $lang['info_edeprecated_failed'] = 'If E_DEPRECATED is enabled in your error reporting users will see a lot of warning messages that could affect the display and functionality';
 $lang['info_editcontent_design'] = 'Associating a design with a content page allows the rendering engine to output the proper stylesheets for the page';
 $lang['info_editcontent_template'] = 'You must associate a template with each content page, and that template must have at least the default <code>{content}</code> block defined within it.  The template does not need to be a page template type';
-$lang['info_edituser_password'] = "Change this field to change the user's password";
-$lang['info_edituser_passwordagain'] = "Change this field to change the user's password";
+$lang['info_edituser_password'] = 'Change this field to change the current password';
+$lang['info_edituser_passwordagain'] = 'Match this field to the other password entry, to change the password';
 $lang['info_estrict_failed'] = 'Some libraries that CMSMS uses do not work well with E_STRICT.  Please disable this before continuing';
 $lang['info_generate_cksum_file'] = 'This function will allow you to generate a checksum file and save it on your local computer for later validation.  This should be done just prior to rolling out the website, and/or after any upgrades, or major modifications.';
 $lang['info_group_inactive'] = 'This group is inactive.  Members of this group will not realize the permissions associated with the group';
-$lang['info_mailtest'] = 'This form will send a pre formatted email to the address you specify.<br/>If you do not receive the mail you may need to re-check your settings.<br/><strong>Note:</strong> you may also want to check your spam folder.';
+$lang['info_mailtest'] = 'This form will send a pre formatted email to the address you specify.<br />If you do not receive the mail you may need to re-check your settings.<br /><strong>Note:</strong> you may also want to check your spam folder.';
 $lang['info_mail_notset'] = 'Mail settings have not yet been saved. Please ensure the information in Site Admin >> System Settings >> Mail Settings tab is correct for your server.';
 $lang['info_membergroups'] = 'A user may be a member of zero or more groups.  A user who is not a member of any groups will still be able to login to the Admin console';
 $lang['info_noalerts'] = 'There are no alerts at this time';
@@ -1055,7 +1061,7 @@ $lang['info_preview_notice'] = 'Warning: This preview panel behaves much like a 
 $lang['info_selectuser'] = 'Toggle selection to perform actions on multiple users at once';
 $lang['info_settings_sitedown'] = 'These options allow you to toggle the website as &quot;down for maintenance&quot; for website visitor.';
 //$lang['info_setusersettings'] = "Set this users settings to be a template for newly created users and to effect other users";
-$lang['info_sitedownexcludes'] = 'This parameter allows listing a comma separated list of IP addresses or networks that should not be subject to the Site Down mechanism.  This allows administrators to work on a site whilst anonymous visitors receive a Site Down message.<br/><br/>Addresses can be specified in the following formats:<br />
+$lang['info_sitedownexcludes'] = 'This parameter allows listing a comma separated list of IP addresses or networks that should not be subject to the Site Down mechanism.  This allows administrators to work on a site while anonymous visitors receive a Site Down message.<br /><br />Addresses can be specified in the following formats:<br />
 1. xxx.xxx.xxx.xxx -- (exact IP address)<br />
 2. xxx.xxx.xxx.[yyy-zzz] -- (IP address range)<br />
 3. xxx.xxx.xxx.xxx/nn -- (nnn = number of bits, cisco style.  i.e:  192.168.0.100/24 = entire 192.168.0 class C subnet)';
@@ -1217,7 +1223,7 @@ $lang['msg_userdeleted'] = 'Selected user account successfully deleted.';
 $lang['msg_grantall_found'] = 'Found a &quot;GRANT ALL&quot; statement that appears to be suitable';
 $lang['msg_mailprefs_set'] = 'Email settings saved';
 $lang['msg_notimedifference2'] = 'No time difference found';
-$lang['msg_permstab'] = 'Authorized administrators, or page owners can adjust the ownership and additional editors of a content page';
+$lang['msg_permstab'] = 'Authorized administrators or page owners can adjust the ownership and additional editors of a content page';
 $lang['msg_settemplateuser'] = 'Template user account set';
 $lang['msg_usersdeleted'] = '%d users were deleted';
 $lang['msg_usersedited'] = '%d users were modified';
@@ -1227,6 +1233,8 @@ $lang['myaccount'] = 'My Account';
 $lang['myaccountdescription'] = 'This is where you can update your personal account details.';
 $lang['myprefs'] = 'My Preferences';
 $lang['myprefsdescription'] = 'Adjust the way this Admin console works for you';
+$lang['mysettings'] = 'My Settings';
+$lang['mysettingsdescription'] = 'This is where you can update your preferences for how things should work';
 
 ## N
 $lang['name'] = 'Name';
@@ -1345,7 +1353,7 @@ $lang['perm_Clear_Admin_Log'] = 'Clear Admin Log';
 $lang['perm_Delete_News_Articles'] = 'Delete News Articles'; // should go in News
 $lang['perm_Manage_All_Content'] = 'Manage All Content';
 $lang['permdesc_Manage_All_Content'] = 'A user with this permission can perform all tasks on any and all content pages';
-$lang['perm_Manage_Designs'] = 'Manage Designs';
+//$lang['perm_Manage_Designs'] = 'Manage Designs';
 $lang['perm_Manage_Groups'] = 'Manage Groups';
 $lang['perm_Manage_Jobs'] = 'Manage Asynchronous Jobs'; // should be in CmsJobManager
 $lang['perm_Manage_My_Account'] = 'Manage My Account';
