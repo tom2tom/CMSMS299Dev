@@ -143,7 +143,7 @@ else if (isset($_REQUEST['forgotpwchangeform']) && $_REQUEST['forgotpwchangeform
             }
         }
         else {
-            $error = lang('nofieldgiven', array(lang('password')));
+            $error = lang('nofieldgiven', lang('password'));
             $changepwhash = $_REQUEST['changepwhash'];
         }
     }

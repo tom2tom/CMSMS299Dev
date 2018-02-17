@@ -1,45 +1,67 @@
 <script type="text/javascript">
-$(document).ready(function(){
-   $('a.delusertag').click(function(ev){
-      ev.preventDefault();
-      var _hr = $(this).attr('href');
-      cms_confirm('{lang('confirm_deleteusertag')|cms_escape:'javascript'}').done(function(){
-         window.location.href = _hr;
-      })
-   })
-})
+{literal}//<![CDATA[
+$(document).ready(function() {
+  $('a.delusertag').click(function(ev) {
+    ev.preventDefault();
+    var _hr = $(this).attr('href');
+    cms_confirm({/literal}'{lang("confirm_deleteusertag")|cms_escape:"javascript"}'{literal}).done(function() {
+      window.location.href = _hr;
+    });
+  });
+});
+{/literal}//]]>
 </script>
 
 <div class="pagecontainer">
-    <div class="pageoptions">
-       <a href="{$addurl}">{admin_icon icon='newobject.gif'} {lang('addusertag')}</a>
-    </div>
-</div>
-
-{if $tags}
+  {if $padd}
+  <div class="pageoptions">
+    <a href="{$addurl}{$urlext}" title="{lang('addusertag')}">$iconadd</a>
+    <a href="{$addurl}{$urlext}">{lang('addusertag')}</a>
+  </div>
+  <br />
+  {/if}
+  {$maintitle}
   <table class="pagetable">
-     <thead>
-       <tr>
-         <th>{lang('name')}</th>
-         <th>{lang('description')}</th>
-	 <th class="pageicon"></th>
-	 <th class="pageicon"></th>
-       </tr>
-     </thead>
-     <tbody>
-     {foreach $tags as $tag_id => $tag}
-       {$edit_url="editusertag.php{$urlext}&amp;userplugin_id={$tag_id}"}
-       <tr class="{cycle values='row1,row2'}">
-          <td><a href="{$edit_url}" title="{lang('editusertag')}">{$tag.name}</a></td>
-          <td>{$tag.description}</td>
-	  <td>
-	     <a href="{$edit_url}">{admin_icon icon='edit.gif' title=lang('editusertag')}</a>
-	  </td>
-	  <td>
-	     <a class="delusertag" href="deleteuserplugin.php{$urlext}&amp;userplugin_id={$tag_id}">{admin_icon icon='delete.gif' title=lang('delete')}</a>
-	  </td>
-       </tr>
-     {/foreach}
-     </tbody>
+    <thead>
+      <tr>
+        <th>{lang('name')}</th>
+        <th>{lang('description')}</th>
+        {if $access}
+        <th class="pageicon">&nbsp;</th>
+        <th class="pageicon">&nbsp;</th>
+        {/if}
+      </tr>
+    </thead>
+    <tbody>
+      {foreach $tags as $tag_id => $tag}
+      <tr class="{cycle values='row1,row2'}">
+        {strip}
+        <td>
+         {if $access}
+          <a href="{$editurl}{$urlext}&amp;plugin_id={$tag_id}" title="{lang('editusertag')}">{$tag.name}</a>
+         {else}
+          {$tag.name}
+         {/if}
+        </td>
+        <td>{$tag.description}</td>
+        {if $access}
+        <td>
+          <a href="{$editurl}{$urlext}&amp;plugin_id={$tag_id}">{$iconedit}</a>
+        </td>
+        <td>
+          <a href="{$deleteurl}{$urlext}&amp;plugin_id={$tag_id}" class="delusertag">{$icondel}</a>
+        </td>
+        {/if}
+{/strip}
+      </tr>
+      {/foreach}
+    </tbody>
   </table>
-{/if}
+  {if $padd && count($tags) > 20}
+  <br />
+  <div class="pageoptions">
+    <a href="{$addurl}{$urlext}" title="{lang('addusertag')}">$iconadd</a>
+    <a href="{$addurl}{$urlext}">{lang('addusertag')}</a>
+  </div>
+  {/if}
+</div>

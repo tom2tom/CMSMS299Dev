@@ -18,7 +18,7 @@
     </tr>
   </thead>
   <tbody>
-  {foreach from=$list_designs item='design'}
+  {foreach $list_designs as $design}
     {cycle values="row1,row2" assign='rowclass'}
     {cms_action_url action=admin_edit_design design=$design->get_id() assign='edit_url'}
     {cms_action_url action=admin_delete_design design=$design->get_id() assign='delete_url'}

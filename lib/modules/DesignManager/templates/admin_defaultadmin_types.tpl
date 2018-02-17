@@ -11,9 +11,9 @@
     </tr>
   </thead>
   <tbody>
-  {foreach from=$list_all_types item='type'}
+  {foreach $list_all_types as $type}
    {cycle values="row1,row2" assign='rowclass'}
-   {assign var='reset_url' value=''}
+   {$reset_url=''}
    {if $type->get_dflt_flag()}
      {cms_action_url action='admin_reset_type' type=$type->get_id() assign='reset_url'}
    {/if}

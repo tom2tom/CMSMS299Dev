@@ -1,12 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('#runbtn').button({
-    icons: {
-      primary: 'ui-icon-gear'
-    }
-  });
-
   $(document).on('click', '#runbtn', function(ev) {
     // get the data
     ev.preventDefault();
@@ -25,7 +19,7 @@ $(document).ready(function() {
       data.push({ 'name': 'run', 'value': 1 });
       data.push({ 'name': 'apply', 'value': 1 });
       data.push({ 'name': 'ajax', 'value': 1 });
-      $.post({/literal}'{$smarty.server.REQUEST_URI}'{literal}, data, function(resultdata, text) {
+      $.post({/literal}'{$smarty.server.REQUEST_URI}'{literal}, data, function(resultdata, textStatus, jqXHR) {
         var r, d, e;
         try {
           var x = JSON.parse(resultdata); //IE8+
@@ -61,8 +55,8 @@ $(document).ready(function() {
       .serializeArray();
     data.push({ 'name': 'ajax', 'value': 1 });
     data.push({ 'name': 'apply', 'value': 1 });
-    $.post({/literal}'{$smarty.server.REQUEST_URI}'{literal}, data, function(resultdata, text) {
-      var x = $.parseJSON(resultdata);
+    $.post({/literal}'{$smarty.server.REQUEST_URI}'{literal}, data, function(resultdata, textStatus, jqXHR) {
+      var x = JSON.parse(resultdata); //IE8+
       var r = x.response;
       var d = x.details;
       var txt = '';
@@ -91,28 +85,32 @@ $(document).ready(function() {
     <h3>{lang('editusertag')}</h3>
   {/if}
 
-  <div id="edit_userplugin_runout" title="{lang('output')}" style="display: none;"></div>
+  <div id="edit_userplugin_runout" title="{lang('output')}" style="display:none;"></div>
   <div id="edit_userplugin_result"></div>
 
-{form_start url='editusertag.php' id='edit_userplugin' userplugin_id=$record.userplugin_id}
+  <form id="edit_userplugin" action="{$selfurl}{$urlext}" method="post">
+  <div class="hidden">
+  <input type="hidden" name="userplugin_id=" value="{$record.userplugin_id}" />
+  </div>
   <fieldset>
     <div style="width: 49%; float: left;">
 
       <div class="pageoverflow">
         <p class="pagetext"></p>
         <p class="pageinput">
-          <input type="submit" name="submit" id="submitme" value="{lang('submit')}" />
-          <input type="submit" name="cancel" value="{lang('cancel')}" />
+          <button type="submit" name="submit" id="submitme" class="adminsubmit iconcheck">{lang('submit')}</button>
+          <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
           {if $record.userplugin_id != ''}
-            <input type="submit" name="apply" id="applybtn" value="{lang('apply')}" title="{lang('title_applyusertag')}" />
-            <button id="runbtn" type="submit" name="run" title="{lang('runuserplugin')}"/>{lang('run')}</button>
+            <button type="submit" name="apply" id="applybtn" title="{lang('title_applyusertag')}" class="adminsubmit iconapply">{lang('apply')}</button>
+            <button type="submit" name="run" id="runbtn" title="{lang('runuserplugin')}" class="adminsubmit icondo">{lang('run')}</button>
           {/if}
         </p>
       </div>
 
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="name">{lang('name')}:&nbsp;{cms_help key1=h_udtname title=lang('name')}</label>
+          <label for="name">{lang('name')}:</label>
+          {cms_help key1=h_udtname title=lang('name')}
         </p>
         <p class="pageinput">
           <input type="text" id="name" name="userplugin_name" value="{$record.userplugin_name}" size="50" maxlength="50" />
@@ -144,7 +142,8 @@ $(document).ready(function() {
   {tab_start name='code'}
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="code"><strong>{lang('code')}:</strong></label>&nbsp;{cms_help key1=h_udtcode title=lang('code')}
+        <label for="code"><strong>{lang('code')}:</strong></label>
+        {cms_help key1=h_udtcode title=lang('code')}
       </p>
       <p class="pageinput">
         {cms_textarea id='udtcode' name='code' value=$record.code wantedsyntax=php rows=10 cols=80}
@@ -154,7 +153,8 @@ $(document).ready(function() {
   {tab_start name='description'}
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="description">{lang('description')}:</label>&nbsp;{cms_help key1=h_udtdesc title=lang('description')}
+        <label for="description">{lang('description')}:</label>
+        {cms_help key1=h_udtdesc title=lang('description')}
       </p>
       <p class="pageinput">
         <textarea id="description" name="description" rows="3" cols="80">{$record.description}</textarea>

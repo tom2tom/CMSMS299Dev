@@ -1,5 +1,5 @@
-<script>
-$('#css_selall').cmsms_checkall();
+<script type="text/javascript">
+ $('#css_selall').cmsms_checkall();
 </script>
 
 <div class="row">
@@ -18,11 +18,12 @@ $('#css_selall').cmsms_checkall();
   {if isset($css_nav) && $css_nav.numpages > 1}
     <div class="pageoptions" style="text-align: right;">
       {form_start action=defaultadmin}
-        <label for="css_page">{$mod->Lang('prompt_page')}:</label>&nbsp;
+        <label for="css_page">{$mod->Lang('prompt_page')}:</label>
+    &nbsp;
         <select id="css_page" name="{$actionid}css_page">
-        {cms_pageoptions numpages=$css_nav.numpages curpage=$css_nav.curpage}
+          {cms_pageoptions numpages=$css_nav.numpages curpage=$css_nav.curpage}
         </select>
-        &nbsp;<input type="submit" value="{$mod->Lang('go')}"/>
+        &nbsp;<button type="submit" name="{$actionid}go" class="adminsubmit">{$mod->Lang('go')}</button>
       {form_end}
     </div>
   {/if}
@@ -43,18 +44,18 @@ $('#css_selall').cmsms_checkall();
 	<th class="pageicon"></th>{* edit *}
 	<th class="pageicon"></th>{* copy *}
 	<th class="pageicon"></th>{* delete *}
-	<th class="pageicon"><label for="css_selall" style="display: none;">{$mod->Lang('title_css_selectall')}</label><input type="checkbox" value="1" id="css_selall" title="{$mod->Lang('title_css_selectall')}"/></th>{* multiple *}
+	<th class="pageicon">
+      <label for="css_selall" style="display: none;">{$mod->Lang('title_css_selectall')}</label><input type="checkbox" value="1" id="css_selall" title="{$mod->Lang('title_css_selectall')}" /></th>{* multiple *}
       </tr>
     </thead>
     <tbody>
       {foreach $stylesheets as $css}
-        {cycle values="row1,row2" assign='rowclass'}
         {include file='module_file_tpl:DesignManager;admin_defaultadmin_csstooltip.tpl' assign='css_tooltip'}
         {cms_action_url action='admin_edit_css' css=$css->get_id() assign='edit_css'}
         {cms_action_url action='admin_copy_css' css=$css->get_id() assign='copy_css'}
         {cms_action_url action='admin_delete_css' css=$css->get_id() assign='delete_css'}
 
-	<tr class="{$rowclass}">
+	<tr class="{cycle values='row1,row2'}">
 	{if !$css->locked()}
           <td><a href="{$edit_css}" data-css-id="{$css->get_id()}" class="edit_css tooltip" title="{$mod->Lang('edit_stylesheet')}" data-cms-description='{$css_tooltip}'>{$css->get_id()}</a></td>
           <td></td>
@@ -66,10 +67,10 @@ $('#css_selall').cmsms_checkall();
         {/if}
 
         <td>
-	  {assign var='t1' value=$css->get_designs()}
+	  {$t1=$css->get_designs()}
 	  {if count($t1) == 1}
-	    {assign var='t1' value=$t1[0]}
-	    {assign var='hn' value=$design_names.$t1}
+	    {$t1=$t1[0]}
+	    {$hn=$design_names.$t1}
 	    {if $manage_designs}
 	      {cms_action_url action=admin_edit_design design=$t1 assign='edit_design_url'}
 	      <a href="{$edit_design_url}" title="{$mod->Lang('edit_design')}">{$hn}</a>
@@ -124,13 +125,15 @@ $('#css_selall').cmsms_checkall();
 
   {capture assign='stylesheet_dropdown_options'}
     <div class="pageoptions" id="bulkoptions" style="text-align: right;">
-      <label for="css_bulk_action">{$mod->Lang('prompt_with_selected')}:</label>&nbsp;
+      <label for="css_bulk_action">{$mod->Lang('prompt_with_selected')}:</label>
+    &nbsp;
       <select name="{$actionid}css_bulk_action" id="css_bulk_action" class="cssx_bulk_action">
-        <option value="delete" title="{$mod->Lang('title_delete')}">{$mod->lang('prompt_delete')}</option>
-        <option value="export">{$mod->lang('export')}</option>
-        <option value="import">{$mod->lang('import')}</option>
+        <option value="delete" title="{$mod->Lang('title_delete')}">{$mod->Lang('prompt_delete')}</option>
+        <option value="export">{$mod->Lang('export')}</option>
+        <option value="import">{$mod->Lang('import')}</option>
       </select>
-      <input id="css_bulk_submit" class="css_bulk_action" type="submit" name="{$actionid}submit_bulk_css" value="{$mod->Lang('submit')}"/>&nbsp;{cms_help key2='help_css_bulk' title=$mod->lang('prompt_delete')}
+      <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+          {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_delete')}
     </div>
   {/capture}
 

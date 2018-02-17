@@ -51,7 +51,7 @@ $(document).ready(function() {
       'name': {/literal}'{$actionid}ajax'{literal},
       'value': 1
     });
-    $.post({/literal}'{$preview_ajax_url}&showtemplate=false'{literal}, data, function(resultdata, text) {
+    $.post({/literal}'{$preview_ajax_url}&showtemplate=false'{literal}, data, function(resultdata, textStatus, jqXHR) {
       if (resultdata !== null && resultdata.response == 'Error') {
         $('#previewframe').attr('src', '').hide();
         $('#preview_errors').html('<ul></ul>');
@@ -211,22 +211,13 @@ $(document).ready(function() {
 {function submit_buttons}
 <p class="pagetext"></p>
 <p class="pageinput">
-  <button type="submit" role="button" name="{$actionid}submit" value="{$mod->Lang('submit')}" title="{$mod->Lang('title_editpage_submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-    <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-    <span class="ui-button-text">{$mod->Lang('submit')}</span>
-  </button>
-  <button type="submit" role="button" name="{$actionid}cancel" formnovalidate value="{$mod->Lang('cancel')}" title="{$mod->Lang('title_editpage_cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-    <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
-    <span class="ui-button-text">{$mod->Lang('cancel')}</span>
-  </button>
-  {if $content_id != ''}
-    <button type="submit" role="button" name="{$actionid}apply" value="{$mod->Lang('apply')}" title="{$mod->Lang('title_editpage_apply')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-      <span class="ui-button-icon-primary ui-icon"></span>
-      <span class="ui-button-text">{$mod->Lang('apply')}</span>
-    </button>
+  <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit iconcancel" formnovalidate>{$mod->Lang('cancel')}</button>
+  {if $content_id}
+    <button type="submit" name="{$actionid}apply" title="{$mod->Lang('title_editpage_apply')}" class="adminsubmit iconapply">{$mod->Lang('apply')}</button>
   {/if}
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
-    <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt='view_page'|lang}</a>
+    <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt=lang('view_page')}</a>
   {/if}
 </p>
 {/function}
@@ -253,7 +244,7 @@ $(document).ready(function() {
         {foreach $tab_contents_array.$key as $fld}
         <div class="pageoverflow">
           <p class="pagetext">{$fld[0]}</p>
-          <p class="pageinput">{$fld[1]}{if count($fld) == 3}<br/>{$fld[2]}{/if}</p>
+          <p class="pageinput">{$fld[1]}{if count($fld) == 3}<br />{$fld[2]}{/if}</p>
         </div>
         {/foreach}
       {/if}

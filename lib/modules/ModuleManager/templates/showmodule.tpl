@@ -26,11 +26,11 @@
 <table class="pagetable scrollable">
 	<thead>
 		<tr>
-            <th></th>
+			<th></th>
 			<th>{$nametext}</th>
 			<th><span title="{$ModuleManager->Lang('title_modulelastversion')}">{$vertext}</span></th>
-            <th><span title="{$ModuleManager->Lang('title_modulereleasedate')}">{$ModuleManager->Lang('releasedate')}</span></th>
-            <th><span title="{$ModuleManager->Lang('title_moduledownloads')}">{$ModuleManager->Lang('downloads')}</span></th>
+			<th><span title="{$ModuleManager->Lang('title_modulereleasedate')}">{$ModuleManager->Lang('releasedate')}</span></th>
+			<th><span title="{$ModuleManager->Lang('title_moduledownloads')}">{$ModuleManager->Lang('downloads')}</span></th>
 			<th>{$sizetext}</th>
 			<th>{$statustext}</th>
 			<th>&nbsp;</th>
@@ -39,9 +39,8 @@
 		</tr>
 	</thead>
 	<tbody>
-{foreach from=$items item=entry}
-		{cycle values="row1,row2" assign='rowclass'}
-	        <tr class="{$rowclass}" {if $entry->age=='new'}style="font-weight: bold;"{/if}>
+{foreach $items as $entry}
+	        <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold;"{/if}>
 		    <td>{get_module_status_icon status=$entry->age}</td>
 			<td><span title="{$entry->description|strip_tags|cms_escape|default:''}">{$entry->name}</span></td>
 			<td>{$entry->version}</td>
@@ -52,7 +51,7 @@
 			<td><span title="{$ModuleManager->Lang('title_modulereleasedepends')}">{$entry->dependslink}</span></td>
 			<td><span title="{$ModuleManager->Lang('title_modulereleasehelp')}">{$entry->helplink}</span></td>
 			<td><span title="{$ModuleManager->Lang('title_modulereleaseabout')}">{$entry->aboutlink}</span></td>
-		</tr> 
+		</tr>
 {/foreach}
 	</tbody>
 </table>

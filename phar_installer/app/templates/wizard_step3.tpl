@@ -25,10 +25,9 @@
         </tr>
     </thead>
     <tbody>
-    {foreach from=$tests item='test'}
-        {cycle values='odd,even' assign='rowclass'}
-        <tr class="{$rowclass}{if $test->status == 'test_fail'} error{/if}{if $test->status == 'test_warn'} warning{/if}">
-            <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel-circle red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="icon-checkmark-circle green"></i>{/if}</td>
+    {foreach $tests as $test}
+        <tr class="{cycle values='odd,even'}{if $test->status == 'test_fail'} error{/if}{if $test->status == 'test_warn'} warning{/if}">
+            <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel-circle red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="checkmark-circle green"></i>{/if}</td>
             <td>
                 {$test->name|tr}
                 {$str = $test->msg()}
@@ -61,7 +60,7 @@
             <td>{'test_failed'|tr}</td>
         </tr>
         <tr>
-            <td class="test_pass green"><i title="{'test_passed'|tr|strip_tags}" class="icon-checkmark-circle green"></i></td>
+            <td class="test_pass green"><i title="{'test_passed'|tr|strip_tags}" class="checkmark-circle green"></i></td>
             <td>{'test_passed'|tr}</td>
         </tr>
         <tr>

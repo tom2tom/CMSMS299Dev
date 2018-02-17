@@ -1,5 +1,5 @@
 <fieldset>
-  <legend>{$mod->lang('prompt_profiles')}</legend>
+  <legend>{$mod->Lang('prompt_profiles')}</legend>
   <table class="pagetable">
     <thead>
       <tr>

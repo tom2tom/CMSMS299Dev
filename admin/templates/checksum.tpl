@@ -33,13 +33,13 @@
   <div class="pageoverflow">
     <p class="pagetext">&nbsp;</p>
     <p class="pageinput">
-      <input type="submit" name="submit" value="{lang key='submit'}" />
+      <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
     </p>
   </div>
 </fieldset>
 </form>
 
-<br/>
+<br />
 <form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
 <div>
   <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
@@ -53,7 +53,7 @@
   <div class="pageoverflow">
     <p class="pagetext">&nbsp;</p>
     <p class="pageinput">
-      <input type="submit" name="submit" value="{lang key='submit'}" />
+      <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
     </p>
   </div>
 </fieldset>

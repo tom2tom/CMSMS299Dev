@@ -1,6 +1,6 @@
 <h3>{$ModuleManager->Lang('operation_results')}</h3>
 
-{foreach from=$queue_results key='module_name' item='item'}
+{foreach $queue_results as $module_name => $item}
   <div class="pageoverflow">
     {if $item[0]}
       {* success *}

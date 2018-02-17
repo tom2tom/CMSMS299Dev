@@ -10,45 +10,71 @@ $(document).ready(function() {
 </script>
 
 <div class="pagecontainer">
-  <form method="post" action="{$formurl}">
+  <form action="{$selfurl}{$urlext}" method="post">
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="username">*{lang('username')}:</label>&nbsp;{cms_help key2='help_myaccount_username' title=lang('name')}
+        <label for="username">*{lang('username')}:</label>
+        {cms_help key2='help_myaccount_username' title=lang('name')}
       </p>
-      <p class="pageinput"><input type="text" id="username" name="user" maxlength="25" value="{$userobj->username}" class="standard" /></p>
-    </div>
-
-    <div class="pageoverflow">
-      <p class="pagetext"><label for="password">{lang('password')}:</label>&nbsp;{cms_help key2='help_myaccount_password' title=lang('password')}</p>
       <p class="pageinput">
-        <input type="password" id="password" name="password" maxlength="100" value="" />&nbsp;{lang('info_edituser_password')}
+        <input type="text" name="user" id="username" maxlength="25" value="{$userobj->username}" class="standard" />
       </p>
     </div>
 
     <div class="pageoverflow">
-      <p class="pagetext"><label for="passwordagain">{lang('passwordagain')}:</label>&nbsp;{cms_help key2='help_myaccount_passwordagain' title=lang('passwordagain')}</p>
-      <p class="pageinput"><input type="password" id="passwordagain" name="passwordagain" maxlength="100" value="" class="standard" />&nbsp;{lang('info_edituser_passwordagain')}</p>
+      <p class="pagetext">
+        <label for="password">{lang('password')}:</label>
+        {cms_help key2='help_myaccount_password' title=lang('password')}
+      </p>
+      <p class="pageinput">
+        <input type="password" name="password" id="password" maxlength="100" value="" class="standard" />
+      </p>
     </div>
 
     <div class="pageoverflow">
-      <p class="pagetext"><label for="firstname">{lang('firstname')}:</label>&nbsp;{cms_help key2='help_myaccount_firstname' title=lang('firstname')}</p>
-      <p class="pageinput"><input type="text" id="firstname" name="firstname" maxlength="50" value="{$userobj->firstname}" class="standard" /></p>
+      <p class="pagetext">
+        <label for="passwordagain">{lang('passwordagain')}:</label>
+        {cms_help key2='help_myaccount_passwordagain' title=lang('passwordagain')}
+      </p>
+      <p class="pageinput">
+          <input type="password" name="passwordagain" id="passwordagain" maxlength="100" value="" class="standard" />
+      </p>
     </div>
 
     <div class="pageoverflow">
-      <p class="pagetext"><label for="lastname">{lang('lastname')}:</label>&nbsp;{cms_help key2='help_myaccount_lastname' title=lang('lastname')}</p>
-      <p class="pageinput"><input type="text" id="lastname" name="lastname" maxlength="50" value="{$userobj->lastname}" class="standard" /></p>
+      <p class="pagetext">
+        <label for="firstname">{lang('firstname')}:</label>
+        {cms_help key2='help_myaccount_firstname' title=lang('firstname')}
+      </p>
+      <p class="pageinput">
+        <input type="text" name="firstname" id="firstname" maxlength="50" value="{$userobj->firstname}" class="standard" />
+      </p>
     </div>
 
     <div class="pageoverflow">
-      <p class="pagetext"><label for="email">{lang('email')}:</label>&nbsp;{cms_help key2='help_myaccount_email' title=lang('email')}</p>
-      <p class="pageinput"><input type="text" id="email" name="email" maxlength="255" value="{$userobj->email}" class="standard" /></p>
+      <p class="pagetext">
+        <label for="lastname">{lang('lastname')}:</label>
+        {cms_help key2='help_myaccount_lastname' title=lang('lastname')}
+      </p>
+      <p class="pageinput">
+        <input type="text" name="lastname" id="lastname" maxlength="50" value="{$userobj->lastname}" class="standard" />
+      </p>
+    </div>
+
+    <div class="pageoverflow">
+      <p class="pagetext">
+        <label for="email">{lang('email')}:</label>
+        {cms_help key2='help_myaccount_email' title=lang('email')}
+      </p>
+      <p class="pageinput">
+        <input type="text" name="email" id="email" size="40" maxlength="255" value="{$userobj->email}" class="standard" />
+      </p>
     </div>
     <br />
     <div class="pageoverflow">
       <div class="pageinput">
-        <input type="submit" name="submit_account" value="{lang('submit')}" class="pagebutton" />
-        <input type="submit" name="cancel" value="{lang('cancel')}" class="pagebutton" />
+        <button type="submit" name="submit_account" class="adminsubmit iconcheck">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </div>
     </div>
   </form>

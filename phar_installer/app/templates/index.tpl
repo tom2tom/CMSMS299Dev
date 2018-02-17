@@ -44,7 +44,7 @@
                             {foreach $wizard_steps as $classname => $step}
                             {strip}
                             <li class="step {if $step.active} current-step{/if}{if isset($current_step) && $current_step > $step@iteration} done-step{/if}">
-                                <h4 class="step-title">{$step.classname|tr}{if isset($current_step) && $current_step > $step@iteration} <i class="icon-checkmark">&#x2713;</i>{/if}</h4>
+                                <h4 class="step-title">{$step.classname|tr}{if isset($current_step) && $current_step > $step@iteration} <i class="checkmark">&#x2713;</i>{/if}</h4>
                                 <p class="step-description"><em>{'desc_'|cat:$step.classname|tr}</em></p>
                             </li>
                             {/strip}

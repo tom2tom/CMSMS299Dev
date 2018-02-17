@@ -1,21 +1,21 @@
 <script type="text/javascript">
-function parseTree(ul)
-{
+{literal}//<![CDATA[
+function parseTree(ul) {
   var tags = [];
-  ul.children('li').each(function(){
-     var subtree = $(this).children('ul');
-     if( subtree.size() > 0 ) {
-       tags.push([$(this).attr('id'), parseTree(subtree)]);
-     } else {
-       tags.push($(this).attr('id'));
-     }
+  ul.children('li').each(function() {
+    var subtree = $(this).children('ul');
+    if(subtree.size() > 0) {
+      tags.push([$(this).attr('id'), parseTree(subtree)]);
+    } else {
+      tags.push($(this).attr('id'));
+    }
   });
   return tags;
 }
 
-$(document).ready(function(){
-  $(document).on('click','[name={$actionid}submit]',function(){
-    var tree = $.toJSON(parseTree($('ul.sortable')));
+$(document).ready(function() {
+  $(document).on('click','[name={$actionid}submit]',function() {
+    var tree = JSON.stringify(parseTree($('ul.sortable'))); //IE8+
     $('#submit_data').val(tree);
   });
 
@@ -24,14 +24,15 @@ $(document).ready(function(){
     forcePlaceholderSize: true,
     handle: 'div',
     items: 'li',
-    opacity: .6,
+    opacity: 0.6,
     placeholder: 'placeholder',
     tabSize: 25,
     tolerance: 'pointer',
     listType: 'ul',
     toleranceElement: '> div'
-  })
+  });
 });
+{/literal}//]]>
 </script>
 
 {function category_tree parent=-1 depth=1}{strip}
@@ -50,15 +51,14 @@ $(document).ready(function(){
 <h3>{$mod->Lang('reorder_categories')}</h3>
 <div class="information">{$mod->Lang('info_reorder_categories')}</div>
 {category_tree}
-
+<br />
 {form_start id="reorder_form"}
 <input type="hidden" name="{$actionid}submit_type" id="submit_type" value=""/>
 <input type="hidden" name="{$actionid}data" id="submit_data" value=""/>
 <div class="pageoverflow">
-  <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

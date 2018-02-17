@@ -84,8 +84,8 @@ if( $USE_THEME ) {
         }
     }
 
-    if ( !empty($params['module_message']) ) echo $themeObject->ShowMessage($params['module_message']);
-    if ( !empty($params['module_error']) ) echo $themeObject->ShowErrors($params['module_error']);
+    if ( !empty($params['module_message']) ) echo $themeObject->ShowMessage($params['module_message']); //TODO is accumulator, not displayer
+    if ( !empty($params['module_error']) ) echo $themeObject->ShowErrors($params['module_error']); //TODO is accumulator, not displayer
     include_once 'header.php';
 
     // this is hackish
@@ -102,7 +102,7 @@ if( $USE_THEME ) {
     include_once 'footer.php';
 } else {
     // no theme output.
-    echo $modinst->DoActionBase($action, $id, $params, '', $smarty);
+    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
 //FUTURE USE \CMSMS\HookManager::do_hook('PostRequest');

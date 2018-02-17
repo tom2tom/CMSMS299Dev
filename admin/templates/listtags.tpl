@@ -1,34 +1,39 @@
 <div class="pagecontainer">
-  <div class="pageoverflow">{$header}</div>
+  {$maintitle}
   {if isset($subheader)}
     <div class="pageheader">{$subheader}
-    {if isset($wiki_url) && isset($image_help_external)}
-       <span class="helptext">
-         <a class='helpicon' href="{$wiki_url}" target="_blank">{$image_help_external}</a><a href="{$wiki_url}" target="_blank">{'help'|lang}</a> ({'new_window'|lang})
-       </span>
-    {/if}
+     {if isset($wiki_url) && isset($image_help_external)}
+      <span class="helptext">
+        <a href="{$wiki_url}" target="_blank" class="helpicon">{$image_help_external}</a>
+        <a href="{$wiki_url}" target="_blank">{lang('help')}</a> ({lang('new_window')})
+      </span>
+     {/if}
     </div>
   {/if}
-  
+
   {if isset($content)}
     <br />{$content}
   {elseif isset($error)}
-    <div class="pageerrorcontainer"><div class="pageoverflow"><ul class="pageerror"><li>{$error}</li></ul></div></div>
+    <div class="pageerrorcontainer">
+     <div class="pageoverflow">
+       <ul class="pageerror"><li>{$error}</li></ul>
+     </div>
+    </div>
   {elseif isset($plugins)}
     <table class="pagetable">
-      <thead> 
+      <thead>
        <tr>
-         <th><span title="{lang_by_realm('tags','tag_name')}">{'name'|lang}</span></th>
-         <th><span title="{lang_by_realm('tags','tag_type')}">{'type'|lang}</span></th>
-	 <th class="pagew10"><span title="{lang_by_realm('tags','tag_adminplugin')}">{lang('adminplugin')}</span></th>
-         <th class="pagew10"><span title="{lang_by_realm('tags','tag_help')}">{'help'|lang}</span></th>
-         <th class="pagew10"><span title="{lang_by_realm('tags','tag_about')}">{'about'|lang}</span></th>
+         <th title="{lang_by_realm('tags','tag_name')}">{lang('name')}</th>
+         <th title="{lang_by_realm('tags','tag_type')}">{lang('type')}</th>
+         <th class="pagew10" title="{lang_by_realm('tags','tag_adminplugin')}">{lang('adminplugin')}</th>
+         <th class="pagew10" title="{lang_by_realm('tags','tag_help')}">{lang('help')}</th>
+         <th class="pagew10" title="{lang_by_realm('tags','tag_about')}">{lang('about')}</th>
        </tr>
-      </thead> 
+      </thead>
       <tbody>
-      {foreach from=$plugins item='one'}
-	{cycle values="row1,row2" assign='rowclass'}
-	<tr class="{$rowclass}">
+        {foreach $plugins as $one}
+        <tr class="{cycle values='row1,row2'}">
+         {strip}
          <td>
            {if isset($one.help_url)}
              <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{$one.name}</a>
@@ -48,14 +53,15 @@
          </td>
          <td>
            {if isset($one.help_url)}
-             <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{'help'|lang}</a>
+             <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{lang('help')}</a>
            {/if}
          </td>
          <td>
            {if isset($one.about_url)}
-             <a href="{$one.about_url}" title="{lang_by_realm('tags','viewabout')}">{'about'|lang}</a>
+             <a href="{$one.about_url}" title="{lang_by_realm('tags','viewabout')}">{lang('about')}</a>
            {/if}
          </td>
+{/strip}
        </tr>
       {/foreach}
       </tbody>

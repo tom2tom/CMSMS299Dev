@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to display a user's bookmarks
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 
@@ -24,89 +23,51 @@ $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
-include_once("header.php");
+$userid = get_userid();
+$access = check_permission($userid, 'Manage Bookmarks');
+$padd = $access || check_permission($userid, 'Add Bookmarks');
 
-?>
-<div class="pagecontainer">
-	<div class="pageoverflow">
+$bookops = cmsms()->GetBookmarkOperations();
+$marklist = $bookops->LoadBookmarks($userid);
+$n = count($marklist);
+$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$limit = 20;
 
-<?php
+include_once 'header.php';
 
-	$userid = get_userid();
+if ($n > $limit) {
+	$pagination = pagination($page, $n, $limit); //TODO
+	$minsee = $page * $limit - $limit;
+	$maxsee = $page * $limit - 1;
+} else {
+	$pagination = null;
+	$minsee = 0;
+	$maxsee = $n;
+}
 
-	$bookops = cmsms()->GetBookmarkOperations();
-	$marklist = $bookops->LoadBookmarks($userid);
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('addbookmark'),'','','systemicon');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
+$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
 
-	$page = 1;
-	if (isset($_GET['page'])) $page = $_GET['page'];
-	$limit = 20;
+$maintitle = $themeObject->ShowHeader('bookmarks');
 
-	if (count($marklist) > $limit)
-	{
-		echo "<p class=\"pageshowrows\">".pagination($page, count($marklist), $limit)."</p>";
-	}
-	echo $themeObject->ShowHeader('bookmarks').'</div>';
+$smarty->assign([
+	'access' => $access,
+	'addurl' => 'addbookmark.php',
+	'deleteurl' => 'deletebookmark.php',
+	'editurl' => 'editbookmark.php',
+	'iconadd' => $iconadd,
+	'icondel' => $icondel,
+	'iconedit' => $iconedit,
+	'maintitle' => $maintitle,
+	'markslist' => $marklist,
+	'maxsee' => $maxsee,
+	'minsee' => $minsee,
+	'padd' => $padd,
+	'pagination' => $pagination,
+	'urlext' => $urlext,
+]);
 
-	if (count($marklist) > 0) {
+$smarty->display('listbookmarks.tpl');
 
-		echo'<p class="pagewarning visible">' . lang('show_shortcuts_message') . '</p>';
-
-		echo "<table class=\"pagetable\">\n";
-		echo '<thead>';
-		echo "<tr>\n";
-		echo "<th class=\"pagew60\">".lang('name')."</th>\n";
-		echo "<th class=\"pagew60\">".lang('url')."</th>\n";
-		echo "<th class=\"pageicon\">&nbsp;</th>\n";
-		echo "<th class=\"pageicon\">&nbsp;</th>\n";
-		echo "</tr>\n";
-		echo '</thead>';
-		echo '<tbody>';
-
-		$currow = "row1";
-
-		// construct true/false button images
-        $image_true = $themeObject->DisplayImage('icons/system/true.gif', lang('true'),'','','systemicon');
-        $image_false = $themeObject->DisplayImage('icons/system/false.gif', lang('false'),'','','systemicon');
-
-		$counter=0;
-		foreach ($marklist as $onemark){
-			if ($counter < $page*$limit && $counter >= ($page*$limit)-$limit) {
-				echo "<tr class=\"$currow\">\n";
-				echo "<td><a href=\"editbookmark.php".$urlext."&amp;bookmark_id=".$onemark->bookmark_id."\">".$onemark->title."</a></td>\n";
-				echo "<td>".$onemark->url."</td>\n";
-				echo "<td><a href=\"editbookmark.php".$urlext."&amp;bookmark_id=".$onemark->bookmark_id."\">";
-                echo $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
-                echo "</a></td>\n";
-				echo "<td><a href=\"deletebookmark.php".$urlext."&amp;bookmark_id=".$onemark->bookmark_id."\" onclick=\"return confirm('".cms_html_entity_decode(lang('deleteconfirm', $onemark->title) )."');\">";
-                echo $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
-                echo "</a></td>\n";
-				echo "</tr>\n";
-				($currow == "row1"?$currow="row2":$currow="row1");
-			}
-			$counter++;
-		}
-
-		echo '</tbody>';
-		echo "</table>\n";
-
-	} else {
-		echo'<p class="information">' . lang('no_shortcuts') . '</p>';
-	}
-?>
-	<div class="pageoptions">
-		<p class="pageoptions">
-			<a href="addbookmark.php<?php echo $urlext ?>">
-				<?php
-					echo $themeObject->DisplayImage('icons/system/newobject.gif', lang('addbookmark'),'','','systemicon').'</a>';
-					echo ' <a class="pageoptions" href="addbookmark.php'.$urlext.'">'.lang("addbookmark");
-				?>
-			</a>
-		</p>
-	</div>
-</div>
-<?php
-
-include_once("footer.php");
-
-
-?>
+include_once 'footer.php';

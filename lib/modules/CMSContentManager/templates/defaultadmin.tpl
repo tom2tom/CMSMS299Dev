@@ -238,8 +238,7 @@ $(document).ready(function() {
       </select>
     </div>
 {if $can_manage_content}
-    {$type=''}{$expr=''}
-    {$opts=[]}
+    {$type=''}{$expr=''}{$opts=[]}
     {$opts['']=$mod->Lang('none')}
     {$opts['DESIGN_ID']=$mod->Lang('prompt_design')}
     {$opts['TEMPLATE_ID']=$mod->Lang('prompt_template')}

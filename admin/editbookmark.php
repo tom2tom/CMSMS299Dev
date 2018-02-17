@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to modify a user's bookmark
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -10,12 +11,10 @@
 #
 #This program is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 
@@ -23,100 +22,75 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
-$db = cmsms()->GetDb();
 
-$error = "";
-
-$title = "";
-if (isset($_POST["title"])) $title = trim(cleanValue($_POST["title"]));
-
-$myurl = "";
-if (isset($_POST["url"])) $myurl = trim(cleanValue($_POST["url"]));
-
-$bookmark_id = -1;
-if (isset($_POST["bookmark_id"])) $bookmark_id = (int)$_POST["bookmark_id"];
-else if (isset($_GET["bookmark_id"])) $bookmark_id = (int)$_GET["bookmark_id"];
-
-if (isset($_POST["cancel"])) {
-  redirect("listbookmarks.php".$urlext);
-  return;
+if (isset($_POST['cancel'])) {
+	redirect('listbookmarks.php'.$urlext);
+	return;
 }
 
-$userid = get_userid();
-
-if (isset($_POST["editbookmark"])) {
-  $validinfo = true;
-  if ($title == "") {
-    $validinfo = false;
-    $error .= "<li>".lang('nofieldgiven', array(lang('title')))."</li>";
-  }
-  if ($myurl == "") {
-    $validinfo = false;
-    $error .= "<li>".lang('nofieldgiven', array(lang('url')))."</li>";
-  }
-
-  if ($validinfo) {
-    cmsms()->GetBookmarkOperations();
-    $markobj = new Bookmark();
-    $markobj->bookmark_id = $bookmark_id;
-    $markobj->title = $title;
-    $markobj->url = $myurl;
-    $markobj->user_id = $userid;
-
-    $result = $markobj->save();
-
-    if ($result) {
-      redirect("listbookmarks.php".$urlext);
-      return;
-    }
-    else {
-      $error .= "<li>".lang('errorupdatingbookmark')."</li>";
-    }
-  }
-}
-else if ($bookmark_id != -1) {
-  $query = "SELECT * from ".CMS_DB_PREFIX."admin_bookmarks WHERE bookmark_id = ?";
-  $result = $db->Execute($query, array($bookmark_id));
-  $row = $result->FetchRow();
-
-  $myurl = $row["url"];
-  $title = $row["title"];
+$title = '';
+$url = '';
+$error = '';
+if (isset($_GET['bookmark_id'])) {
+	$bookmark_id = (int)$_GET['bookmark_id'];
+} else {
+	$bookmark_id = -1;
 }
 
-if (strlen($title) > 0) $CMS_ADMIN_SUBTITLE = $title;
+if (isset($_POST['editbookmark'])) {
+	$bookmark_id = (int)$_POST['bookmark_id'];
+	$title = trim(cleanValue($_POST['title']));
+	$url = trim(cleanValue($_POST['url']));
 
-include_once("header.php");
+	$validinfo = true;
+	if ($title === '') {
+		$validinfo = false;
+		$error .= '<li>'.lang('nofieldgiven', lang('title')).'</li>';
+	}
+	if ($url === '') {
+		$validinfo = false;
+		$error .= '<li>'.lang('nofieldgiven', lang('url')).'</li>';
+	}
 
-if ($error != "") echo '<div class="pageerrorcontainer"><p class="pageerror">'.$error.'</p></div>';
-?>
+	if ($validinfo) {
+		cmsms()->GetBookmarkOperations();
+		$markobj = new Bookmark();
+		$markobj->bookmark_id = $bookmark_id;
+		$markobj->title = $title;
+		$markobj->url = $url;
+		$markobj->user_id = get_userid();
 
-<div class="pagecontainer">
-	<?php echo $themeObject->ShowHeader('editbookmark'); ?>
-	<form method="post" action="editbookmark.php">
-        <div>
-          <input type="hidden" name="<?php echo CMS_SECURE_PARAM_NAME ?>" value="<?php echo $_SESSION[CMS_USER_KEY] ?>" />
-        </div>
-		<div class="pageoverflow">
-			<p class="pagetext"><?php echo lang('title')?>:</p>
-			<p class="pageinput"><input type="text" name="title" maxlength="255" value="<?php echo $title?>" /></p>
-		</div>
-		<div class="pageoverflow">
-			<p class="pagetext"><?php echo lang('url')?>:</p>
-			<p class="pageinput"><input type="text" name="url" size="80" maxlength="255" value="<?php echo $myurl ?>" /></p>
-		</div>
-		<div class="pageoverflow">
-			<p class="pagetext">&nbsp;</p>
-			<p class="pageinput">
-				<input type="hidden" name="bookmark_id" value="<?php echo $bookmark_id?>" /><input type="hidden" name="editbookmark" value="true" /><input type="hidden" name="userid" value="<?php echo $userid?>" />
-				<input type="submit" value="<?php echo lang('submit')?>" class="pagebutton" />
-				<input type="submit" name="cancel" value="<?php echo lang('cancel')?>" class="pagebutton" />
-			</p>
-		</div>
-	</form>
-</div>
-<?php
+		if ($markobj->save()) {
+			redirect('listbookmarks.php'.$urlext);
+			return;
+		} else {
+			$error .= '<li>'.lang('errorupdatingbookmark').'</li>';
+		}
+	}
+} elseif ($bookmark_id != -1) {
+	$db = cmsms()->GetDb();
+	$query = 'SELECT title,url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
+	$result = $db->Execute($query, [$bookmark_id]);
+	$row = $result->FetchRow();
+	$title = $row['title'];
+	$url = $row['url'];
+}
 
-include_once("footer.php");
+include_once 'header.php';
 
+$selfurl = basename(__FILE__);
+$maintitle = $themeObject->ShowHeader('editbookmark');
 
-?>
+$smarty->assign([
+	'bookmark_id' => $bookmark_id,
+	'error' => $error,
+	'maintitle' => $maintitle,
+	'title' => $title,
+	'url' => $url,
+	'selfurl' => $selfurl,
+	'urlext' => $urlext,
+]);
+
+$smarty->display('editbookmark.tpl');
+
+include_once 'footer.php';

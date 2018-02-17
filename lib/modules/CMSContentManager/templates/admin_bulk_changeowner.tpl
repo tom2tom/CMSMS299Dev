@@ -10,7 +10,9 @@
 </div>
 
 <div class="pageoverflow">
-  <p class="pagetext"><label for="owner_ctl">{$mod->Lang('prompt_owner')}:</label></p>
+  <p class="pagetext">
+      <label for="owner_ctl">{$mod->Lang('prompt_owner')}:</label>
+  </p>
   <p class="pageinput">
     <select id="owner_ctl" name="{$actionid}owner">
      {html_options options=$userlist selected=$userid}
@@ -31,14 +33,8 @@
 <br/>
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" role="button" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-     <span class="ui-button-text">{$mod->Lang('submit')}</span>
-    </button>
-    <button type="submit" role="button" name="{$actionid}cancel" value="{$mod->Lang('cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
-     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
-    </button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

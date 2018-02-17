@@ -1,30 +1,32 @@
 <script type="text/javascript">
-$(document).ready(function(){
-  $('.helpicon').click(function(){
+{literal}//<![CDATA[
+$(document).ready(function() {
+  $('.helpicon').click(function() {
     var x = $(this).attr('name');
     $('#'+x).dialog({ width: 'auto' });
   });
-  $('.template_view').click(function(){
+  $('.template_view').click(function() {
     var row = $(this).closest('tr');
     $('.template_content',row).dialog({
       width: 'auto',
-      close: function( ev, ui ) {
-         $(this).dialog('destroy');
+      close: function(ev, ui) {
+        $(this).dialog('destroy');
       }
     });
     return false;
   });
-  $('.stylesheet_view').click(function(){
+  $('.stylesheet_view').click(function() {
     var row = $(this).closest('tr');
     $('.stylesheet_content',row).dialog({
       width: 'auto',
-      close: function( ev, ui ) {
+      close: function(ev, ui) {
          $(this).dialog('destroy');
       }
     });
     return false;
   });
 });
+{/literal}//]]>
 </script>
 
 <h3>{$mod->Lang('import_design_step2')}</h3>
@@ -35,7 +37,9 @@ $(document).ready(function(){
 <fieldset>
   <div style="width: 49%; float: left;">
     <div class="pageoverflow">
-      <p class="pagetext"><label for="import_newname">{$mod->Lang('prompt_name')}:</label></p>
+      <p class="pagetext">
+      <label for="import_newname">{$mod->Lang('prompt_name')}:</label>
+  </p>
       <p class="pageinput">
         <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50"/>
         &nbsp;{admin_icon name='help_import_newname' icon='info.gif' class='helpicon'}
@@ -48,7 +52,7 @@ $(document).ready(function(){
       <p class="pagetext">{$mod->Lang('prompt_created')}:</p>
       <p class="pageinput">
         {$tmp=$design_info.generated|date_format:'%x %X'}{if $tmp == ''}{$tmp=$mod->Lang('unknown')}{/if}
-        <span style="color: red;">{$tmp}</span>&nbsp;{cms_help key2='help_import_created' title=''}
+        <span style="color: red;">{$tmp}</span>{cms_help realm=$_module key2='help_import_created' title=''}
       </p>
     </div>
   </div>
@@ -110,7 +114,6 @@ $(document).ready(function(){
   </tbody>
 </table>
 
-
 {tab_start name='stylesheets'}
 <div id="stylesheet_list">
   <table class="pagetable">
@@ -124,7 +127,7 @@ $(document).ready(function(){
       </tr>
     </thead>
     <tbody>
-      {foreach from=$stylesheets item='one' name='css'}
+      {foreach $stylesheets as $one}
       <tr>
         <td>{$one.name}</td>
 	<td>
@@ -155,8 +158,8 @@ $(document).ready(function(){
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}next2" value="{$mod->Lang('next')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}next2" class="adminsubmit">{$mod->Lang('next')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

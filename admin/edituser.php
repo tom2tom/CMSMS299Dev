@@ -14,20 +14,27 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
 $CMS_ADMIN_PAGE = 1;
-require_once ('../lib/include.php');
+
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
-$userid = get_userid();
 
-if (!check_permission($userid, 'Manage Users')) die('Permission Denied');
+if (isset($_POST['cancel'])) {
+    redirect('listusers.php'.$urlext);
+    return;
+}
+
+$userid = get_userid();
+if (!check_permission($userid, 'Manage Users')) {
+    die('Permission Denied');
+}
 
 /*--------------------
  * Variables
  ---------------------*/
-$urlext            = CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
 $gCms              = cmsms();
 $db                = $gCms->GetDb();
 $error             = '';
@@ -67,11 +74,6 @@ $thisuser          = $userops->LoadUserByID($user_id);
  * Logic
  ---------------------*/
 
-if (isset($_POST['cancel'])) {
-    redirect('listusers.php?' . $urlext);
-    return;
-}
-
 if (isset($_POST["submit"])) {
 
     if( !$access_user && isset($_POST['active']) ) $active = (int) $_POST['active'];
@@ -82,12 +84,12 @@ if (isset($_POST["submit"])) {
     // check for errors
     if ($user == '') {
         $validinfo = false;
-        $error .= "<li>" . lang('nofieldgiven', array(lang('username'))) . "</li>";
+        $error .= "<li>" . lang('nofieldgiven', lang('username')) . "</li>";
     }
 
     if (!preg_match("/^[a-zA-Z0-9\._ ]+$/", $user)) {
         $validinfo = false;
-        $error .= "<li>" . lang('illegalcharacters', array(lang('username'))) . "</li>";
+        $error .= "<li>" . lang('illegalcharacters', lang('username')) . "</li>";
     }
 
     if ($password != $passwordagain) {
@@ -188,9 +190,11 @@ if (isset($_POST["submit"])) {
  * Display view
  ---------------------*/
 
-include_once ('header.php');
+include_once 'header.php';
 
-if (false == empty($error)) echo $themeObject->ShowErrors('<ul class="error">' . $error . '</ul>');
+if (!empty($error)) {
+    echo $themeObject->ShowErrors('TODO<ul class="error">' . $error . '</ul>'); //TODO accumulator, not displayer
+}
 
 $out      = array(-1 => lang('none'));
 $userlist = UserOperations::get_instance()->LoadUsers();
@@ -206,20 +210,25 @@ if ($assign_group_perm && !$access_user) {
     $smarty->assign('membergroups', UserOperations::get_instance()->GetMemberGroups($user_id));
 }
 
-$smarty->assign('user_id', $user_id);
-$smarty->assign('user', $user);
-$smarty->assign('firstname', $firstname);
-$smarty->assign('lastname', $lastname);
-$smarty->assign('email', $email);
-$smarty->assign('adminaccess', $adminaccess);
-$smarty->assign('active', $active);
-$smarty->assign('tplmaster', $tplmaster);
-$smarty->assign('copyfromtemplate', $copyfromtemplate);
-$smarty->assign('access_user', $access_user);
-$smarty->assign('manage_users', $manage_users);
-$smarty->assign('users', $out);
+$selfurl = basename(__FILE__);
+
+$smarty->assign([
+    'access_user' => $access_user,
+    'active' => $active,
+    'adminaccess' => $adminaccess,
+    'copyfromtemplate' => $copyfromtemplate,
+    'email' => $email,
+    'firstname' => $firstname,
+    'lastname' => $lastname,
+    'manage_users' => $manage_users,
+    'tplmaster' => $tplmaster,
+    'urlext' => $urlext,
+    'selfurl' => $selfurl,
+    'user_id' => $user_id,
+    'users' => $out,
+    'user' => $user,
+]);
 
 $smarty->display('edituser.tpl');
 
-include_once ('footer.php');
-?>
+include_once 'footer.php';

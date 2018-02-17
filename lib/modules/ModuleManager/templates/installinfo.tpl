@@ -53,11 +53,11 @@
   <p class="pagetext"></p>
   <p class="pageinput">
     {if count($dependencies) > 1}
-      <input type="submit" name="{$actionid}submit" value="{$ModuleManager->Lang('install_procede')}"/>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit">{$ModuleManager->Lang('install_procede')}</button>
     {else}
-      <input type="submit" name="{$actionid}submit" value="{$ModuleManager->Lang('install_submit')}"/>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('install_submit')}</button>
     {/if}
-    <input type="submit" name="{$actionid}cancel" value="{$ModuleManager->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {$formend}

@@ -1,6 +1,6 @@
 {if $count > 0}
 <ul class="list1">
-{foreach from=$cats item=node}
+{foreach $cats as $node}
 {if $node.depth > $node.prevdepth}
 {repeat string="<ul>" times=$node.depth-$node.prevdepth}
 {elseif $node.depth < $node.prevdepth}

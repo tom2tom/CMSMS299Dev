@@ -4,7 +4,7 @@
 <article class='news-summary'>
 <span class='heading'><span>News</span></span>
         <ul class='category-list cf'>
-        {foreach from=$cats item='node'}
+        {foreach $cats as $node}
         {if $node.depth > $node.prevdepth}
             {repeat string='<ul>' times=$node.depth-$node.prevdepth}
         {elseif $node.depth < $node.prevdepth}
@@ -18,7 +18,7 @@
         {/foreach}
         {repeat string='</li></ul>' times=$node.depth-1}</li>
         </ul>
-    {foreach from=$items item='entry'}
+    {foreach $items as $entry}
     <!-- .news-article (wrapping each article) -->
     <section class='news-article'>
         <header>

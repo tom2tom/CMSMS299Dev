@@ -22,14 +22,18 @@ $(document).ready(function() {
 <div class="warning">{$mod->Lang('warn_destructive')}</div>
 
 <div class="pageoverflow">
-  <p class="pagetext"><label for="design_ctl">{$mod->Lang('prompt_design')}:</label></p>
+  <p class="pagetext">
+      <label for="design_ctl">{$mod->Lang('prompt_design')}:</label>
+  </p>
   <p class="pageinput"><select id="design_ctl" name="{$actionid}design">
     {html_options options=$alldesigns selected=$dflt_design_id}
   </select></p>
 </div>
 
 <div class="pageoverflow">
-  <p class="pagetext"><label for="template_ctl">{$mod->Lang('prompt_template')}:</label></p>
+  <p class="pagetext">
+      <label for="template_ctl">{$mod->Lang('prompt_template')}:</label>
+  </p>
   <p class="pageinput"><select id="template_ctl" name="{$actionid}template">
     {html_options options=$alltemplates selected=$dflt_tpl_id}
   </select></p>
@@ -56,14 +60,8 @@ $(document).ready(function() {
 
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" role="button" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-     <span class="ui-button-text">{$mod->Lang('submit')}</span>
-    </button>
-    <button type="submit" role="button" name="{$actionid}cancel" value="{$mod->Lang('cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
-     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
-    </button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

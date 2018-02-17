@@ -6,14 +6,16 @@
   <p class="pagetext">{$mod->Lang('itemstomove')}:</p>
   <p class="pageinput">
     <ul>
-    {foreach from=$selall item='one'}
+    {foreach $selall as $one}
       <li>{$one}</li>
     {/foreach}
     </ul>
   </p>
 </div>
 <div class="pageoverflow">
-  <p class="pagetext"><label for="destdir">{$mod->Lang('move_destdir')}:</label></p>
+  <p class="pagetext">
+    <label for="destdir">{$mod->Lang('move_destdir')}:</label>
+  </p>
   <p class="pageinput">
     <select id="destdir" name="{$actionid}destdir">
     {html_options options=$dirlist selected=$cwd}
@@ -23,8 +25,8 @@
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}submit" value="{$mod->Lang('move')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icondo">{$mod->Lang('move')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {$endform}

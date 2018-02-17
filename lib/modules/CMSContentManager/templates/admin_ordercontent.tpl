@@ -82,18 +82,9 @@ $(document).ready(function() {
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" role="button" id="btn_submit" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-     <span class="ui-button-text">{$mod->Lang('submit')}</span>
-    </button>
-    <button type="submit" role="button" name="{$actionid}cancel" value="{$mod->Lang('cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
-     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
-    </button>
-    <button type="submit" role="button" id="btn_revert" name="{$actionid}revert" value="{$mod->Lang('revert')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-triangle-n"></span>
-     <span class="ui-button-text">{$mod->Lang('revert')}</span>
-    </button>
+    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit iconundo">{$mod->Lang('revert')}</button>
   </p>
 </div>
 <div class="pageoverflow">
@@ -105,18 +96,9 @@ $(document).ready(function() {
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" role="button" id="btn_submit" name="{$actionid}submit" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-     <span class="ui-button-text">{$mod->Lang('submit')}</span>
-    </button>
-    <button type="submit" role="button" name="{$actionid}cancel" value="{$mod->Lang('cancel')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-close"></span>
-     <span class="ui-button-text">{$mod->Lang('cancel')}</span>
-    </button>
-    <button type="submit" role="button" id="btn_revert" name="{$actionid}revert" value="{$mod->Lang('revert')}" class="pagebutton ui-button ui-widget ui-corner-all ui-button-text-icon-primary">
-     <span class="ui-button-icon-primary ui-icon ui-icon-circle-triangle-n"></span>
-     <span class="ui-button-text">{$mod->Lang('revert')}</span>
-    </button>
+    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit iconundo">{$mod->Lang('revert')}</button>
   </p>
 </div>
 {form_end}

@@ -1,7 +1,7 @@
 <!-- Start News Display Template -->
 {* This section shows a clickable list of your News categories. *}
 <ul class="list1">
-{foreach from=$cats item=node}
+{foreach $cats as $node}
 {if $node.depth > $node.prevdepth}
 {repeat string="<ul>" times=$node.depth-$node.prevdepth}
 {elseif $node.depth < $node.prevdepth}
@@ -34,7 +34,7 @@
 {/if}
 </p>
 {/if}
-{foreach from=$items item=entry}
+{foreach $items as $entry}
 <div class="NewsSummary">
 
 {if $entry->postdate}
@@ -81,7 +81,7 @@
     </div>
 {/if}
 {if isset($entry->fields)}
-  {foreach from=$entry->fields item='field'}
+  {foreach $entry->fields as $field}
      <div class="NewsSummaryField">
         {if $field->type == 'file'}
           {if isset($field->value) && $field->value}

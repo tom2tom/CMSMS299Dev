@@ -8,9 +8,11 @@
 <fieldset>
   <div style="width: 49%; float: left;">
   <div class="pageoverflow">
-    <p class="pagetext"><label for="tpl_name">*{$mod->Lang('prompt_name')}:</label></p>
+    <p class="pagetext">
+      <label for="tpl_name">*{$mod->Lang('prompt_name')}:</label>
+  </p>
     <p class="pageinput">
-      <input id="tpl_name" type="text" size="50" maxlength="50" value="{$tpl->get_name()}" readonly="readonly"/>&nbsp;{admin_icon name='help_copytemplate_name' icon='info.gif' class='helpicon'}
+      <input id="tpl_name" type="text" size="50" maxlength="50" value="{$tpl->get_name()}" readonly="readonly" />&nbsp;{admin_icon name='help_copytemplate_name' icon='info.gif' class='helpicon'}
     </p>
   </div>
 
@@ -36,9 +38,9 @@
   <div class="pageoverflow">
     <p class="pagetext">{$mod->Lang('prompt_designs')}:</p>
     <p class="pageinput">
-      {foreach from=$tpl->get_designs() name='dsn' item='dsn'}
+      {foreach $tpl->get_designs() as $dsn}
         {$design_list[$dsn]}
-        {if !$smarty.foreach.dsn.last}<br/>{/if}
+        {if !$dsn@last}<br />{/if}
       {/foreach}
     </p>
   </div>
@@ -55,7 +57,9 @@
       </p>
     </div>
     <div class="pageoverflow">
-      <p class="pagetext"><label for="tpl_modified">{$mod->Lang('prompt_modified')}:</label></p>
+      <p class="pagetext">
+      <label for="tpl_modified">{$mod->Lang('prompt_modified')}:</label>
+  </p>
       <p class="pageinput">
         <input type="text" id="tpl_modified" value="{$tpl->get_modified()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
@@ -79,16 +83,16 @@
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-     <input id="check1" type="checkbox" name="{$actionid}check1" value="1"/>&nbsp;<label for="check1">{$mod->Lang('confirm_delete_template_1')}</label><br/>
-     <input id="check2" type="checkbox" name="{$actionid}check2" value="1"/>&nbsp;<label for="check2">{$mod->Lang('confirm_delete_template_2')}</label>
+     <input id="check1" type="checkbox" name="{$actionid}check1" value="1" />&nbsp;<label for="check1">{$mod->Lang('confirm_delete_template_1')}</label><br/>
+     <input id="check2" type="checkbox" name="{$actionid}check2" value="1" />&nbsp;<label for="check2">{$mod->Lang('confirm_delete_template_2')}</label>
   </p>
 </div>
 
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-     <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-     <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+     <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

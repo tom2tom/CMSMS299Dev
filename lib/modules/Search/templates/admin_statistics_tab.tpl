@@ -11,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-    {foreach from=$topwords item='entry'}
+    {foreach $topwords as $entry}
       {cycle assign='rowclass' values='row1,row2'}
       <tr class="{$rowclass}">
         <td>{$entry.word}</td>

@@ -5,7 +5,9 @@
 <fieldset>
   <div style="width: 49%; float: left;">
     <div class="pageoverflow">
-      <p class="pagetext"><label for="css_name">*{$mod->Lang('prompt_name')}:</label></p>
+      <p class="pagetext">
+      <label for="css_name">*{$mod->Lang('prompt_name')}:</label>
+  </p>
       <p class="pageinput">
         <input id="css_name" type="text" readonly="readonly" size="50" maxlength="50" value="{$css->get_name()}"/>
       </p>
@@ -15,13 +17,17 @@
   <div style="width: 49%; float: right;">
     {if $css->get_id()}
     <div class="pageoverflow">
-      <p class="pagetext"><label for="css_created">{$mod->Lang('prompt_created')}:</label></p>
+      <p class="pagetext">
+      <label for="css_created">{$mod->Lang('prompt_created')}:</label>
+  </p>
       <p class="pageinput">
         <input type="text" id="css_created" value="{$css->get_created()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
     </div>
     <div class="pageoverflow">
-      <p class="pagetext"><label for="css_modified">{$mod->Lang('prompt_modified')}:</label></p>
+      <p class="pagetext">
+      <label for="css_modified">{$mod->Lang('prompt_modified')}:</label>
+  </p>
       <p class="pageinput">
         <input type="text" id="css_modified" value="{$css->get_modified()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
@@ -41,8 +47,8 @@
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

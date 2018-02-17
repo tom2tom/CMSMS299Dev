@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to list all backend users
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,27 +15,25 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 use \CMSMS\HookManager;
 
 $CMS_ADMIN_PAGE = 1;
-require_once ('../lib/include.php');
+
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
-$userid = get_userid();
 
+$userid = get_userid();
 if (!check_permission($userid, 'Manage Users')) {
     die('Permission Denied');
-    return;
 }
 
 /*--------------------
  * Variables
  ---------------------*/
 
-$urlext       = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
 $gCms         = cmsms();
 $db           = $gCms->GetDb();
 $templateuser = cms_siteprefs::get('template_userid');
@@ -43,34 +42,33 @@ $limit        = 100;
 $message      = '';
 $error        = '';
 $userops      = UserOperations::get_instance();
+$selfurl      = basename(__FILE__);
 
 /*--------------------
  * Logic
  ---------------------*/
 
-if( isset($_GET['switchuser']) ) {
+if (isset($_GET['switchuser'])) {
     // switch user functionality is only allowed to members of the admin group
-    if( !\UserOperations::get_instance()->UserInGroup($userid,1) ) {
+    if (!\UserOperations::get_instance()->UserInGroup($userid, 1)) {
         $error .= '<li>'.lang('permissiondenied').'</li>';
     } else {
         $to_uid = (int) $_GET['switchuser'];
         $to_user = $userops->LoadUserByID($to_uid);
-        if( !$to_user ) {
+        if (!$to_user) {
             $error .= '<li>'.lang('usernotfound').'</li>';
         }
-        if( ! $to_user->active ) {
+        if (! $to_user->active) {
             $error .= '<li>'.lang('userdisabled').'</li>';
-        }
-        else {
+        } else {
             CMSMS\internal\LoginOperations::get_instance()->set_effective_user($to_user);
             $urlext       = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
             redirect('index.php'.$urlext);
         }
     }
-}
-else if (isset($_GET["toggleactive"])) {
-    if ($_GET["toggleactive"] == 1) {
-        $error .= "<li>" . lang('errorupdatinguser') . "</li>";
+} elseif (isset($_GET['toggleactive'])) {
+    if ($_GET['toggleactive'] == 1) {
+        $error .= '<li>' . lang('errorupdatinguser') . '</li>';
     } else {
         $thisuser = $userops->LoadUserByID((int)$_GET['toggleactive']);
         if ($thisuser) {
@@ -79,39 +77,46 @@ else if (isset($_GET["toggleactive"])) {
 
             $result = false;
             $thisuser->active == 1 ? $thisuser->active = 0 : $thisuser->active = 1;
-            HookManager::do_hook('Core::EditUserPre', [ 'user' => &$thisuser ] );
+            HookManager::do_hook('Core::EditUserPre', [ 'user' => &$thisuser ]);
             $result = $thisuser->save();
 
             if ($result) {
                 // put mention into the admin log
                 audit($userid, 'Admin Username: ' . $thisuser->username, 'Edited');
-                HookManager::do_hook('Core::EditUserPost', [ 'user' => &$thisuser ] );
+                HookManager::do_hook('Core::EditUserPost', [ 'user' => &$thisuser ]);
             } else {
-                $error .= "<li>" . lang('errorupdatinguser') . "</li>";
+                $error .= '<li>' . lang('errorupdatinguser') . '</li>';
             }
         }
     }
-} else if (isset($_POST['bulk']) && isset($_POST['bulkaction']) && isset($_POST['multiselect']) && is_array($_POST['multiselect']) && count($_POST['multiselect'])) {
-    switch( $_POST['bulkaction'] ) {
-        case 'delete' :
+} elseif (isset($_POST['bulk']) && isset($_POST['bulkaction']) && isset($_POST['multiselect']) && is_array($_POST['multiselect']) && count($_POST['multiselect'])) {
+    switch ($_POST['bulkaction']) {
+        case 'delete':
             $ndeleted = 0;
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
-                if ($uid <= 1) continue; // can't delete the magic user...
+                if ($uid <= 1) {
+                    continue; // can't delete the magic user...
+                }
 
-                if ($uid == get_userid()) continue; // can't delete self.
+                if ($uid == get_userid()) {
+                    continue; // can't delete self.
+                }
 
                 $oneuser = $userops->LoadUserById($uid);
-                if (!is_object($oneuser)) continue; // invalid user
+                if (!is_object($oneuser)) {
+                    continue; // invalid user
+                }
 
                 $ownercount = $userops->CountPageOwnershipById($uid);
-                if ($ownercount > 0)
+                if ($ownercount > 0) {
                     continue; // can't delete user who owns pages.
+                }
 
                 // ready to delete.
-                HookManager::do_hook('Core::DeleteUserPre', [ 'user'=>&$oneuser ] );
+                HookManager::do_hook('Core::DeleteUserPre', [ 'user'=>&$oneuser ]);
                 $oneuser->Delete();
-                HookManager::do_hook('Core::DeleteUserPost', [ 'user'=>&$oneuser ] );
+                HookManager::do_hook('Core::DeleteUserPost', [ 'user'=>&$oneuser ]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Deleted');
                 $ndeleted++;
             }
@@ -120,18 +125,22 @@ else if (isset($_GET["toggleactive"])) {
             }
             break;
 
-        case 'clearoptions' :
+        case 'clearoptions':
             $nusers = 0;
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
-                if ($uid <= 1) continue; // can't edit the magic user...
+                if ($uid <= 1) {
+                    continue;
+                } // can't edit the magic user...
 
                 $oneuser = $userops->LoadUserById($uid);
-                if (!is_object($oneuser)) continue; // invalid user
+                if (!is_object($oneuser)) {
+                    continue;
+                } // invalid user
 
-                HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ] );
+                HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
                 cms_userprefs::remove_for_user($uid);
-                HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ] );
+                HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
                 $nusers++;
             }
@@ -140,7 +149,7 @@ else if (isset($_GET["toggleactive"])) {
             }
             break;
 
-        case 'copyoptions' :
+        case 'copyoptions':
             $nusers = 0;
             if (isset($_POST['userlist'])) {
                 $fromuser = (int)$_POST['userlist'];
@@ -149,19 +158,24 @@ else if (isset($_GET["toggleactive"])) {
                     if (is_array($prefs) && count($prefs)) {
                         foreach ($_POST['multiselect'] as $uid) {
                             $uid = (int)$uid;
-                            if ($uid <= 1) continue; // can't edit the magic user...
+                            if ($uid <= 1) {
+                                continue; // can't edit the magic user...
+                            }
 
-                            if ($uid == $fromuser) continue; // can't overwrite the same users prefs.
-
+                            if ($uid == $fromuser) {
+                                continue; // can't overwrite the same users prefs.
+                            }
                             $oneuser = $userops->LoadUserById($uid);
-                            if (!is_object($oneuser)) continue; // invalid user
+                            if (!is_object($oneuser)) {
+                                continue; // invalid user
+                            }
 
-                            HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ] );
+                            HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
                             cms_userprefs::remove_for_user($uid);
                             foreach ($prefs as $k => $v) {
                                 cms_userprefs::set_for_user($uid, $k, $v);
                             }
-                            HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ] );
+                            HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
                             audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
                             $nusers++;
                         }
@@ -173,22 +187,28 @@ else if (isset($_GET["toggleactive"])) {
             }
             break;
 
-        case 'disable' :
+        case 'disable':
             $nusers = 0;
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
-                if ($uid <= 1) continue; // can't disable the magic user...
+                if ($uid <= 1) {
+                    continue; // can't disable the magic user...
+                }
 
-                if ($uid == get_userid()) continue; // can't disable self.
+                if ($uid == get_userid()) {
+                    continue; // can't disable self.
+                }
 
                 $oneuser = $userops->LoadUserById($uid);
-                if (!is_object($oneuser)) continue; // invalid user
+                if (!is_object($oneuser)) {
+                    continue; // invalid user
+                }
 
                 if ($oneuser->active) {
-                    HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ] );
+                    HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
                     $oneuser->active = 0;
                     $oneuser->save();
-                    HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ] );
+                    HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
                     audit($uid, 'Admin Username: ' . $oneuser->username, 'Disabled');
                     $nusers++;
                 }
@@ -198,22 +218,28 @@ else if (isset($_GET["toggleactive"])) {
             }
             break;
 
-        case 'enable' :
+        case 'enable':
             $nusers = 0;
             foreach ($_POST['multiselect'] as $uid) {
                 $uid = (int)$uid;
-                if ($uid <= 1) continue; // can't disable the magic user...
+                if ($uid <= 1) {
+                    continue; // can't disable the magic user...
+                }
 
-                if ($uid == get_userid()) continue; // can't disable self.
+                if ($uid == get_userid()) {
+                    continue; // can't disable self.
+                }
 
                 $oneuser = $userops->LoadUserById($uid);
-                if (!is_object($oneuser)) continue; // invalid user
+                if (!is_object($oneuser)) {
+                    continue; // invalid user
+                }
 
                 if (!$oneuser->active) {
-                    HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ] );
+                    HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
                     $oneuser->active = 1;
                     $oneuser->save();
-                    HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ] );
+                    HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
                     audit($uid, 'Admin Username: ' . $oneuser->username, 'Enabled');
                     $nusers++;
                 }
@@ -229,34 +255,60 @@ else if (isset($_GET["toggleactive"])) {
  * Display view
  ---------------------*/
 
-include_once ('header.php');
+include_once 'header.php';
 
-if (false == empty($error)) echo $themeObject->ShowErrors('<ul class="error">' . $error . '</ul>');
-if (isset($_GET["message"])) $message = preg_replace('/\</', '', $_GET['message']);
-if (false == empty($message)) echo '<div class="pagemcontainer"><p class="pagemessage">' . $message . '</p></div>';
+if (!empty($error)) {
+  //TODO accumulator, not displayer
+    echo $themeObject->ShowErrors('TODO<ul class="error">' . $error . '</ul>');
+}
+if (isset($_GET['message'])) {
+    $message = preg_replace('/\</', '', $_GET['message']);
+}
+if (!empty($message)) {
+   //TODO
+    echo '<div class="pagemcontainer"><p class="pagemessage">' . $message . '</p></div>';
+}
 
-$out      = array();
+$userlist = [];
 $offset   = ((int)$page - 1) * $limit;
-$userlist = $userops->LoadUsers($limit, $offset);
-$is_admin = $userops->UserInGroup($userid,1);
+$users = $userops->LoadUsers($limit, $offset);
+$is_admin = $userops->UserInGroup($userid, 1);
 
-foreach ($userlist as $one) {
-    $out[$one->id] = $one->username;
+foreach ($users as &$one) {
+    $userlist[$one->id] = $one->username;
+    $one->access_to_user = 1;
+
+    if ($userops->UserInGroup($one->id, 1) && !$userops->UserInGroup($userid, 1)) {
+        $one->access_to_user = 0;
+    }
+    $one->pagecount = $userops->CountPageOwnershipById($one->id);
 }
+unset($one);
 
-foreach ($userlist as &$oneuser) {
-    $oneuser->access_to_user = 1;
+$iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('adduser'), '', '', 'systemicon');
+$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), '', '', 'systemicon');
+$icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
+$icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '', '', 'systemicon');
+$iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
+$iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('TODO'), '', '', 'systemicon'); //used for switch-user
 
-    if ($userops->UserInGroup($oneuser->id, 1) && !$userops->UserInGroup($userid, 1)) $oneuser->access_to_user = 0;
-    $oneuser->pagecount = $userops->CountPageOwnershipById($oneuser->id);
-}
-
-$smarty->assign('is_admin',$is_admin);
-$smarty->assign('users', $userlist);
-$smarty->assign('my_userid', get_userid());
-$smarty->assign('urlext', $urlext);
-$smarty->assign('userlist', $out);
+$smarty->assign([
+    'addurl' => 'adduser.php',
+    'editurl' => 'edituser.php',
+    'deleteurl' => 'deleteuser.php',
+    'is_admin' => $is_admin,
+    'iconadd' => $iconadd,
+    'icondel' => $icondel,
+    'iconedit' => $iconedit,
+    'iconfalse' => $iconfalse,
+    'iconrun' => $iconrun,
+    'icontrue' => $icontrue,
+    'my_userid' => $userid,
+    'urlext' => $urlext,
+    'selfurl' => $selfurl,
+    'userlist' => $userlist,
+]);
 
 $smarty->display('listusers.tpl');
 
-include_once ('footer.php');
+include_once('footer.php');

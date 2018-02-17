@@ -803,6 +803,180 @@ input[type='text'] {
 }
 */
 
+/*============ TEST STUFF ===========*/
+
+.topsubmits{
+ margin-top: 0.5em;
+ margin-bottom: 1.5em;
+}
+.bottomsubmits{
+ margin-top: 1.5em;
+ margin-bottom: 0.5em;
+}
+
+a.link_button,
+a.link_button:visited{
+ border: 1px solid #d3d3d3;
+ border-radius: 6px;
+ padding: 0.4em 0.5em;
+ margin: 0.1em;
+ height: auto;
+ background: #cecece url("themes/Marigold/css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png") 0 50%/1px auto repeat-x;
+ color: #555;
+ text-indent: 0;
+ text-decoration: none;
+ font-size: 1.05em
+}
+a.link_button:hover{
+ background: #000;
+ color: #fa8004
+}
+
+.adminsubmit{
+ border: 1px solid #d3d3d3;
+ border-radius: 6px;
+ padding: 0.4em 0.5em;
+ margin: 0.1em;
+ height: auto;
+ background: #cecece url("themes/Marigold/css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png") 0 50%/1px auto repeat-x;
+ color: #555;
+ text-indent: 0;
+ font-weight: 600;
+ font-size: 1.05em
+}
+.adminsubmit:hover,
+.adminsubmit:active{
+ background: #000;
+ color: #fa8004
+}
+
+.iconnone{
+}
+
+/* TODO useless on IE7, need to insert a span into the button */
+.iconcheck{
+ padding-left: 0.8em;
+}
+/* IE8 recognises .before, not :before ,.iconcheck.before */
+.iconcheck:before,
+.iconcheck.before{
+ background-image:url("themes/Marigold/images/buttonssprite.png");
+ background-size: 5em 2em;
+ background-position: 1em 1em;
+ display: inline-block;
+ position: relative;
+ left: -0.3em;
+ vertical-align: middle;
+ z-index: 20;
+ width: 1em;
+ height: 1em;
+ content: '';
+}
+.iconcheck:hover:before,
+.iconcheck:active:before,
+.iconcheck:hover.before,
+.iconcheck:active.before{
+ background-position: 1em 0;
+}
+
+.iconcancel{
+ padding-left: 0.8em;
+}
+.iconcancel:before,
+.iconcancel.before{
+ background-image:url("themes/Marigold/images/buttonssprite.png");
+ background-size: 5em 2em;
+ background-position: 2em 1em;
+ display: inline-block;
+ position: relative;
+ left: -0.3em;
+ vertical-align: middle;
+ z-index: 20;
+ width: 1em;
+ height: 1em;
+ content: '';
+}
+.iconcancel:hover:before,
+.iconcancel:active:before,
+.iconcancel:hover.before,
+.iconcancel:active.before{
+ background-position: 2em 0;
+}
+
+.iconapply{
+ padding-left: 0.8em;
+}
+.iconapply:before,
+.iconapply.before{
+ background-image:url("themes/Marigold/images/buttonssprite.png");
+ background-size: 5em 2em;
+ background-position: 3em 1em;
+ display: inline-block;
+ position: relative;
+ left: -0.3em;
+ vertical-align: middle;
+ z-index: 20;
+ width: 1em;
+ height: 1em;
+ content: '';
+}
+.iconapply:hover:before,
+.iconapply:active:before,
+.iconapply:hover.before,
+.iconapply:active.before{
+ background-position: 3em 0;
+}
+
+.iconundo{
+ padding-left: 0.8em;
+}
+.iconundo:before,
+.iconundo.before{
+ background-image:url("themes/Marigold/images/buttonssprite.png");
+ background-size: 5em 2em;
+ background-position: 4em 1em;
+ display: inline-block;
+ position: relative;
+ left: -0.3em;
+ vertical-align: middle;
+ z-index: 20;
+ width: 1em;
+ height: 1em;
+ content: '';
+}
+.iconundo:hover:before,
+.iconundo:active:before,
+.iconundo:hover.before,
+.iconundo:active.before{
+ background-position: 4em 0;
+}
+
+.icondo{
+ padding-left: 0.8em;
+}
+.icondo:before,
+.icondo.before{
+ background-image:url("themes/Marigold/images/buttonssprite.png");
+ background-size: 5em 2em;
+ background-position: 5em 1em;
+ display: inline-block;
+ position: relative;
+ left: -0.3em;
+ vertical-align: middle;
+ z-index: 20;
+ width: 1em;
+ height: 1em;
+ content: '';
+}
+.icondo:hover:before,
+.icondo:active:before,
+.icondo:hover.before,
+.icondo:active.before{
+ background-position: 5em 0;
+}
+
+/*============*/
+
 input[type='text']#in_title,
 input[type='text']#in_menutext {
     min-width: 30%

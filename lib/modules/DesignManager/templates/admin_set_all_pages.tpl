@@ -5,7 +5,9 @@
 <fieldset>
   <div style="width: 49%; float: left;">
     <div class="pageoverflow">
-      <p class="pagetext"><label for="tpl_name">{$mod->Lang('prompt_name')}:</label></p>
+      <p class="pagetext">
+        <label for="tpl_name">{$mod->Lang('prompt_name')}:</label>
+      </p>
       <p class="pageinput">
         <input id="tpl_name" type="text" size="50" maxlength="50" value="{$template->get_name()}" value="{$template->get_name()}" readonly="readonly"/>
       </p>
@@ -20,7 +22,9 @@
 
     {if isset($user_list)}
     <div class="pageoverflow">
-      <p class="pagetext"><label for="tpl_name">{$mod->Lang('prompt_owner')}:</label></p>
+      <p class="pagetext">
+        <label for="tpl_name">{$mod->Lang('prompt_owner')}:</label>
+      </p>
       <p class="pageinput">
         {$user_list[$template->get_owner_id()]}
       </p>
@@ -46,7 +50,9 @@
       </p>
     </div>
     <div class="pageoverflow">
-      <p class="pagetext"><label for="template_modified">{$mod->Lang('prompt_modified')}:</label></p>
+      <p class="pagetext">
+        <label for="template_modified">{$mod->Lang('prompt_modified')}:</label>
+      </p>
       <p class="pageinput">
         <input type="text" value="{$template->get_modified()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
@@ -67,15 +73,15 @@
 <div class="pageoverflow">
   <p class="pagetext">{$mod->Lang('confirm_setall_1')}:</p>
   <p class="pageinput">
-    <input type="checkbox" name="{$actionid}check1" value="1" id="check1"/>&nbsp;<label for="check1">{$mod->Lang('confirm_setall_2')}</label><br/>
-    <input type="checkbox" name="{$actionid}check2" value="1" id="check2"/>&nbsp;<label for="check2">{$mod->Lang('confirm_setall_3')}</label>
+    <input type="checkbox" name="{$actionid}check1" value="1" id="check1" />&nbsp;<label for="check1">{$mod->Lang('confirm_setall_2')}</label><br/>
+    <input type="checkbox" name="{$actionid}check2" value="1" id="check2" />&nbsp;<label for="check2">{$mod->Lang('confirm_setall_3')}</label>
   </p>
 </div>
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

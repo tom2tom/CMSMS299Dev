@@ -23,12 +23,12 @@
 </div>
 <div class="pageoverflow">
   <p class="pagetext">{$prompt_resultpage}:</p>
-  <p class="pageinput">{page_selector name="{$actionid}resultpage" value=$mod->GetPreference('resultpage')}</p>
+  <p class="pageinput">{page_selector name="{$actionid}resultpage" value="{$mod->GetPreference('resultpage')}"}</p>
 </div>
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">{$submit}
-    <input type="submit" name="{$actionid}reindex" value="{$mod->Lang('reindexallcontent')}" onclick="return confirm('{$mod->Lang('confirm_reindex')|escape:'javascript'}')"/>
+    <button type="submit" name="{$actionid}reindex" class="adminsubmit icondo" onclick="return confirm('{$mod->Lang("confirm_reindex")|escape:"javascript"}')">{$mod->Lang('reindexallcontent')}</button>
   </p>
 </div>
 {$formend}

@@ -10,7 +10,7 @@
    </tr>
   </thead>
   <tbody>
-  {foreach from=$templates item='tpl'}
+  {foreach $templates as $tpl}
     <tr>
       <td>{$tpl->get_id()}</td>
       <td>{$tpl->get_name()}</td>
@@ -27,16 +27,16 @@
   <div class="pageoverflow">
     <p class="pagetext"></p>
     <p class="pageinput">
-      <input id="check1" type="checkbox" name="{$actionid}check1" value="1"/>&nbsp;<label for="check1">{$mod->Lang('confirm_bulk_css_1')}</label><br/>
-      <input id="check2" type="checkbox" name="{$actionid}check2" value="1"/>&nbsp;<label for="check2">{$mod->Lang('confirm_bulk_css_2')}</label>
+      <input id="check1" type="checkbox" name="{$actionid}check1" value="1" />&nbsp;<label for="check1">{$mod->Lang('confirm_bulk_css_1')}</label><br/>
+      <input id="check2" type="checkbox" name="{$actionid}check2" value="1" />&nbsp;<label for="check2">{$mod->Lang('confirm_bulk_css_2')}</label>
     </p>
   </div>
 {/if}
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}submit" value="{$mod->Lang('submit')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

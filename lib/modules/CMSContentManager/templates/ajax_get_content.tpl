@@ -13,13 +13,15 @@
     <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('title_clearlocks')}">{admin_icon icon='run.gif' alt=''}&nbsp;{$mod->Lang('prompt_clearlocks')}</a>
     {/if}
     {/if}
-    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_settings')}">{admin_icon icon='edit.gif' alt=$mod->Lang('prompt_settings')}&nbsp;{$mod->lang('prompt_settings')}</a>
+    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_settings')}">{admin_icon icon='edit.gif' alt=$mod->Lang('prompt_settings')}&nbsp;{$mod->Lang('prompt_settings')}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({$mod->Lang('filter_applied')})</em></span>{/if}
   </div>
 
   <div class="pageoptions options-form grid_4" style="float: right;">
     {if isset($content_list)}
-    <span><label for="ajax_find">{$mod->Lang('find')}:</label>&nbsp;<input type="text" id="ajax_find" name="ajax_find" title="{$mod->Lang('title_listcontent_find')}" value="" size="25"/></span>
+    <span>
+      <label for="ajax_find">{$mod->Lang('find')}:</label>
+    &nbsp;<input type="text" id="ajax_find" name="ajax_find" title="{$mod->Lang('title_listcontent_find')}" value="" size="25" /></span>
     {/if}
     {if isset($content_list) && $npages > 1}
       {form_start action='defaultadmin'}
@@ -27,10 +29,7 @@
         <select name="{$actionid}curpage" id="{$actionid}curpage">
           {html_options options=$pagelist selected=$curpage}
         </select>
-        <button name="{$actionid}submitpage" class="invisible ui-button ui-widget ui-corner-all ui-state-default ui-button-text-icon-primary">
-          <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-          <span class="ui-button-text">{$mod->Lang('go')}</span>
-        </button>
+        <button name="{$actionid}submitpage" class="invisible adminsubmit iconcheck">{$mod->Lang('go')}</button>
       </span>
       {form_end}
     {/if}
@@ -67,7 +66,7 @@
       <strong>{$mod->Lang('prompt_content_id')}:</strong> {$row.id}<br/>
       <strong>{$mod->Lang('prompt_title')}:</strong> {$row.title|escape}<br/>
       <strong>{$mod->Lang('prompt_name')}:</strong> {$row.menutext|escape}<br/>
-      {if isset($row.alias)}<strong>{$mod->Lang('prompt_alias')}:</strong> {$row.alias}<br/>{/if}
+      {if isset($row.alias)}<strong>{$mod->Lang('prompt_alias')}:</strong> {$row.alias}<br />{/if}
       <strong>{$mod->Lang('prompt_cachable')}:</strong> {if $row.cachable}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}<br/>
       <strong>{$mod->Lang('prompt_showinmenu')}:</strong> {if $row.showinmenu}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}<br/>
       <strong>{$mod->Lang('wantschildren')}:</strong> {if $row.wantschildren|default:1}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}
@@ -76,7 +75,7 @@
       {else}
         {if isset($row.lock)}
          {capture assign='tooltip_lockinfo'}{strip}
-       {if $row.can_steal}<strong>{$mod->Lang('locked_steal')}:</strong><br/>{/if}
+       {if $row.can_steal}<strong>{$mod->Lang('locked_steal')}:</strong><br />{/if}
       <strong>{$mod->Lang('locked_by')}:</strong> {$row.lockuser}<br/>
       <strong>{$mod->Lang('locked_since')}:</strong> {$row.lock.created|date_format:'%x %H:%M'}<br/>
       {if $row.lock.expires < $smarty.now}
@@ -84,7 +83,7 @@
       {else}
        <strong>{$mod->Lang('lock_expires')}:</strong> {$row.lock.expires|relative_time}
       {/if}
-      <br/>{/strip}{/capture}
+      <br />{/strip}{/capture}
          {if !$row.can_steal}
           <span class="tooltip" data-cms-description='{$tooltip_lockinfo|htmlentities}'>{$row.page}</span>
          {else}
@@ -222,8 +221,8 @@
       </tr>
     </thead>
     <tbody class="contentrows">
-      {foreach $content_list as $row} {cycle values="row1,row2" assign='rowclass'}
-      <tr id="row_{$row.id}" class="{$rowclass} {if isset($row.selected)}selected{/if}">
+      {foreach $content_list as $row}
+      <tr id="row_{$row.id}" class="{cycle values='row1,row2'}{if isset($row.selected)} selected{/if}">
         {do_content_row row=$row columns=$columns}
       </tr>
       {/foreach}
@@ -240,14 +239,12 @@
   {/if}
   {if $multiselect && isset($bulk_options)}
   <div class="pageoptions grid_6" style="text-align: right;">
-    <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>&nbsp;&nbsp;
+    <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>
+    &nbsp;&nbsp;
     <select name="{$actionid}multiaction" id="multiaction">
       {html_options options=$bulk_options}
     </select>
-    <button type="submit" role="button" id="multisubmit" name="{$actionid}multisubmit" accesskey="s" value="{$mod->Lang('submit')}" class="pagebutton ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary">
-      <span class="ui-button-icon-primary ui-icon ui-icon-circle-check"></span>
-      <span class="ui-button-text">{$mod->Lang('submit')}</span>
-    </button>
+    <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
   </div>
   {/if}
   </div>

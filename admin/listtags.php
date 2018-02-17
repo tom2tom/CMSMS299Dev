@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to list all plugins (aka tags)
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 $CMS_LOAD_ALL_PLUGINS=1;
@@ -25,72 +24,65 @@ $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
-$plugin = "";
-if (isset($_GET["plugin"])) $plugin = basename(cleanValue($_GET["plugin"]));
-
-$type = "";
-if (isset($_GET["type"])) $type = basename(cleanValue($_GET["type"]));
-
-$action = "";
-if (isset($_GET["action"])) $action = cleanValue($_GET["action"]);
-
 $userid = get_userid();
-$access = check_permission($userid, "View Tag Help");
+$access = check_permission($userid, 'View Tag Help'); //TODO relevant permission
 
 if (!$access) {
     die('Permission Denied');
-    return;
 }
 
+$plugin = (isset($_GET['plugin'])) ? basename(cleanValue($_GET['plugin'])) : '';
+$type = (isset($_GET['type'])) ? basename(cleanValue($_GET['type'])) : '';
+$action = (isset($_GET['action'])) ? cleanValue($_GET['action']) : '';
+
 $dirs = [];
-$dirs[] = $config['root_path'].'/assets/plugins';
-$dirs[] = $config['root_path'].'/plugins';
-$dirs[] = $config['root_path'].'/lib/plugins';
-$dirs[] = $config['admin_path'].'/plugins';
+$dirs[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins';
+$bp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR;
+$dirs[] = $bp.'lib'.DIRECTORY_SEPARATOR.'plugins';
+$dirs[] = $bp.'plugins';
 $config = cmsms()->GetConfig();
+$dirs[] = $config['admin_path'].DIRECTORY_SEPARATOR.'plugins';
 
 $find_file = function($filename) use ($dirs) {
     $filename = basename($filename); // no sneaky paths
-    foreach( $dirs as $dir ) {
-        $fn = "$dir/$filename";
-        if( is_file($fn) ) return $fn;
+    foreach ($dirs as $dir) {
+        $fn = $dir.DIRECTORY_SEPARATOR.$filename;
+        if (is_file($fn)) return $fn;
     }
 };
 
-include_once("header.php");
-$smarty = cmsms()->GetSmarty();
-$smarty->assign('header',$themeObject->ShowHeader('tags'));
+$selfurl = basename(__FILE__);
 
-if ($action == "showpluginhelp") {
+include_once 'header.php';
+
+$smarty->assign('maintitle', $themeObject->ShowHeader('tags'));
+
+if ($action == 'showpluginhelp') {
     $content = '';
     $file = $find_file("$type.$plugin.php");
-    if( is_file($file) ) require_once($file);
+    if (is_file($file)) require_once $file;
 
-    if( function_exists('smarty_cms_help_'.$type.'_'.$plugin) ) {
+    if (function_exists('smarty_cms_help_'.$type.'_'.$plugin)) {
         // Get and display the plugin's help
         @ob_start();
         call_user_func_array('smarty_cms_help_'.$type.'_'.$plugin, array());
         $content = @ob_get_contents();
         @ob_end_clean();
-    }
-    else if( CmsLangOperations::key_exists("help_{$type}_{$plugin}",'tags') ) {
+    } elseif (CmsLangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
         $content = CmsLangOperations::lang_from_realm('tags',"help_{$type}_{$plugin}");
-    }
-    else if( CmsLangOperations::key_exists("help_{$type}_{$plugin}") ) {
+    } elseif (CmsLangOperations::key_exists("help_{$type}_{$plugin}")) {
         $content = lang("help_{$type}_{$plugin}");
     }
 
-    if( $content ) {
-        $smarty->assign('subheader',lang('pluginhelp',array($plugin)));
+    if ($content) {
+        $smarty->assign('subheader',lang('pluginhelp',$plugin));
         $smarty->assign('content',$content);
-    }
-    else {
+    } else {
         $smarty->assign('error',lang('nopluginhelp'));
     }
-}
-else if ($action == "showpluginabout") {
+} elseif ($action == 'showpluginabout') {
     $file = $find_file("$type.$plugin.php");
-    if( file_exists($file) ) require_once($file);
+    if (file_exists($file)) require_once $file;
 
     $smarty->assign('subheader',lang('pluginabout',$plugin));
     $func_name = 'smarty_cms_about_'.$type.'_'.$plugin;
@@ -100,50 +92,46 @@ else if ($action == "showpluginabout") {
         $content = @ob_get_contents();
         @ob_end_clean();
         $smarty->assign('content',$content);
-    }
-    else {
+    } else {
         $smarty->assign('error',lang('nopluginabout'));
     }
-}
-else {
-    $files = array();
-    foreach( $dirs as $one ) {
+} else {
+    $files = [];
+    foreach ($dirs as $one) {
         $files = array_merge($files,glob($one.'/*.php'));
     }
 
-    if( is_array($files) && count($files) ) {
-        $file_array = array();
-        foreach($files as $onefile) {
+    if (is_array($files) && count($files)) {
+        $file_array = [];
+        foreach ($files as $onefile) {
             $file = basename($onefile);
             $parts = explode('.',$file);
-	    if( startswith($file,'prefilter.') || startswith($file,'postfilter.') ) continue;
-            if( !is_array($parts) || count($parts) != 3 ) continue;
+            if (startswith($file,'prefilter.') || startswith($file,'postfilter.')) continue;
+            if (!is_array($parts) || count($parts) != 3 ) continue;
 
-            $rec = array();
+            $rec = [];
             $rec['type'] = $parts[0];
             $rec['name'] = $parts[1];
             $rec['admin'] = 0;
-            if( startswith($onefile,$config['admin_path']) ) $rec['admin'] = 1;
+            if (startswith($onefile,$config['admin_path'])) $rec['admin'] = 1;
 
-            include_once($onefile);
+            include_once $onefile;
 
-	    // leave samrty_nocache for compatibility for a while
-            if( !function_exists('smarty_'.$rec['type'].'_'.$rec['name']) &&
-	        !function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']) &&
+            // leave smarty_nocache for compatibility for a while
+            if (!function_exists('smarty_'.$rec['type'].'_'.$rec['name']) &&
+	             !function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']) &&
                 !function_exists('smarty_cms_'.$rec['type'].'_'.$rec['name']) ) continue;
 
-            if( function_exists("smarty_cms_help_".$rec['type']."_".$rec['name']) ) {
-                $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
-            }
-            else if( CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'],'tags') ) {
-                $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
-            }
-            else if( CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name']) ) {
-                $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+            if (function_exists("smarty_cms_help_".$rec['type']."_".$rec['name'])) {
+                $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+            } elseif (CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'],'tags')) {
+                $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+            } elseif (CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'])) {
+                $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
             }
 
-            if( function_exists("smarty_cms_about_".$rec['type']."_".$rec['name']) ) {
-                $rec['about_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginabout&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+            if (function_exists("smarty_cms_about_".$rec['type']."_".$rec['name'])) {
+                $rec['about_url'] = $selfurl.$urlext.'&amp;action=showpluginabout&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
             }
 
             $file_array[] = $rec;
@@ -151,31 +139,35 @@ else {
     }
 
     // add in standard tags...
-    $rec = array('type'=>'function','name'=>'content');
-    $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec = ['type'=>'function','name'=>'content'];
+    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
     $file_array[] = $rec;
 
-    $rec = array('type'=>'function','name'=>'content_image');
-    $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec = ['type'=>'function','name'=>'content_image'];
+    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
     $file_array[] = $rec;
 
-    $rec = array('type'=>'function','name'=>'content_module');
-    $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec = ['type'=>'function','name'=>'content_module'];
+    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
     $file_array[] = $rec;
 
-    $rec = array('type'=>'function','name'=>'process_pagedata');
-    $rec['help_url'] = 'listtags.php'.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
+    $rec = ['type'=>'function','name'=>'process_pagedata'];
+    $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
     $file_array[] = $rec;
 
-    function listtags_plugin_sort($a,$b)
-    {
+    usort($file_array, function($a,$b)
+     {
         return strcmp($a['name'],$b['name']);
-    }
-
-    usort($file_array,'listtags_plugin_sort');
-
+     });
     $smarty->assign('plugins',$file_array);
 }
 
-echo $smarty->fetch('listtags.tpl');
-include_once("footer.php");
+$smarty->assign([
+	'maintitle' => $maintitle,
+	'urlext' => $urlext,
+	'selfurl' => $selfurl,
+]);
+
+$smarty->display('listtags.tpl');
+
+include_once 'footer.php';

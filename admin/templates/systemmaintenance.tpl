@@ -7,91 +7,91 @@
   {$theme->EndTabHeaders()}
   {$theme->StartTabContent()}
   {$theme->StartTab('database')}
-  <form action="{$formurl}" method="post">
+  <form action="{$selfurl}{$urlext}" method="post">
     <fieldset>
-      <legend>{'sysmain_database_status'|lang}:&nbsp;</legend>
-      <p>{'sysmain_tablesfound'|lang:$tablecount:$nonseqcount}</p>
+      <legend>{lang('sysmain_database_status')}:&nbsp;</legend>
+      <p>{lang('sysmain_tablesfound'):$tablecount:$nonseqcount}</p>
 
       {if $errorcount==0}
-      <p class='green'><strong>{'sysmain_nostr_errors'|lang}</strong></p>
+      <p class='green'><strong>{lang('sysmain_nostr_errors')}</strong></p>
       {else}
-      <p class='red'><strong>{$errorcount} {if $errorcount>1}{'sysmain_str_errors'|lang}{else}{'sysmain_str_error'|lang}{/if}: {$errortables}</strong></p>
+      <p class='red'><strong>{$errorcount} {if $errorcount>1}{lang('sysmain_str_errors')}{else}{lang('sysmain_str_error')}{/if}: {$errortables}</strong></p>
       {/if}
 
       <div class="pageoverflow">
-        <p class="pagetext">{'sysmain_optimizetables'|lang}:</p>
+        <p class="pagetext">{lang('sysmain_optimizetables')}:</p>
         <p class="pageinput">
-          <input type="submit" name="optimizeall" value="{'sysmain_optimize'|lang}" class="pagebutton" />
+          <button type="submit" name="optimizeall" class="adminsubmit icondo">{lang('sysmain_optimize')}</button>
         </p>
       </div>
       <div class="pageoverflow">
-        <p class="pagetext">{'sysmain_repairtables'|lang}:</p>
+        <p class="pagetext">{lang('sysmain_repairtables')}:</p>
         <p class="pageinput">
-          <input type="submit" name="repairall" value="{'sysmain_repair'|lang}" class="pagebutton" />
+          <button type="submit" name="repairall" class="adminsubmit icondo">{lang('sysmain_repair')}</button>
         </p>
       </div>
     </fieldset>
   </form>
   {$theme->EndTab()}
   {$theme->StartTab('content')}
-  <form action="{$formurl}" method="post">
+  <form action="{$selfurl}{$urlext}" method="post">
     <fieldset>
-      <legend>{'sysmain_cache_status'|lang}&nbsp;</legend>
+      <legend>{lang('sysmain_cache_status')}&nbsp;</legend>
       <div class="pageoverflow">
-        <p class="pagetext">{'clearcache'|lang}:</p>
+        <p class="pagetext">{lang('clearcache')}:</p>
         <p class="pageinput">
-          <input type="submit" name="clearcache" value="{'clear'|lang}" class="pagebutton" />
+          <button type="submit" name="clearcache" class="adminsubmit icondo">{lang('clear')}</button>
         </p>
       </div>
     </fieldset>
   </form>
 
   <fieldset>
-    <legend>{'sysmain_content_status'|lang}&nbsp;</legend>
-    <form action="{$formurl}" method="post" onsubmit="return confirm('{'sysmain_confirmupdatehierarchy'|lang|escape:'javascript'}')">
-      {$pagecount} {'sysmain_pagesfound'|lang}
+    <legend>{lang('sysmain_content_status')}&nbsp;</legend>
+    <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmupdatehierarchy')|escape:'javascript'}');">
+      {$pagecount} {lang('sysmain_pagesfound')}
 
       <div class="pageoverflow">
-        <p class="pagetext">{'sysmain_updatehierarchy'|lang}:</p>
+        <p class="pagetext">{lang('sysmain_updatehierarchy')}:</p>
         <p class="pageinput">
-          <input type="submit" name="updatehierarchy" value="{'sysmain_update'|lang}" class="pagebutton" />
+          <button type="submit" name="updatehierarchy" class="adminsubmit icondo">{lang('sysmain_update')}</button>
         </p>
       </div>
     </form>
 
-    <form action="{$formurl}" method="post" onsubmit="return confirm('{'sysmain_confirmupdateurls'|lang|escape:'javascript'}')">
+    <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmupdateurls')|escape:'javascript'}');">
       <div class="pageoverflow">
-        <p class="pagetext">{'sysmain_updateurls'|lang}:</p>
+        <p class="pagetext">{lang('sysmain_updateurls')}:</p>
         <p class="pageinput">
-          <input type="submit" name="updateurls" value="{'sysmain_update'|lang}" class="pagebutton" />
+          <button type="submit" name="updateurls" class="adminsubmit icondo">{lang('sysmain_update')}</button>
         </p>
       </div>
     </form>
 
     {if $withoutaliascount!="0"}
-    <form action="{$formurl}" method="post" onsubmit="return confirm('{'sysmain_confirmfixaliases'|lang|escape:'javascript'}')">
+    <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmfixaliases')|escape:'javascript'}');">
       <div class="pageoverflow">
-        <p class="pagetext">{$withoutaliascount} {'sysmain_pagesmissinalias'|lang}:</p>
+        <p class="pagetext">{$withoutaliascount} {lang('sysmain_pagesmissinalias')}:</p>
         <p class="pageinput">
-          {foreach $pagesmissingalias as $page} {*{$page.count}.*} {$page.content_name}<br/> {/foreach}
+          {foreach $pagesmissingalias as $page} {*{$page.count}.*} {$page.content_name}<br /> {/foreach}
           <br />
-          <input type="submit" name="addaliases" value="{'sysmain_fixaliases'|lang}" class="pagebutton" />
+          <button type="submit" name="addaliases" class="adminsubmit icondo">{lang('sysmain_fixaliases')}</button>
         </p>
       </div>
     </form>
     {/if} {if $invalidtypescount!="0"}
-    <form action="{$formurl}" method="post" onsubmit="return confirm('{'sysmain_confirmfixtypes'|lang|escape:'javascript'}')">
+    <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmfixtypes')|escape:'javascript'}');">
       <div class="pageoverflow">
-        <p class="pagetext">{$invalidtypescount} {'sysmain_pagesinvalidtypes'|lang}:</p>
+        <p class="pagetext">{$invalidtypescount} {lang('sysmain_pagesinvalidtypes')}:</p>
         <p class="pageinput">
-          {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br/> {/foreach}
+          {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br /> {/foreach}
           <br />
-          <input type="submit" name="fixtypes" value="{'sysmain_fixtypes'|lang|escape:'javascript'}" class="pagebutton" />
+          <button type="submit" name="fixtypes" class="adminsubmit icondo">{lang('sysmain_fixtypes')}<button>
         </p>
       </div>
     </form>
     {/if} {if $invalidtypescount=="0" && $withoutaliascount==""}
-    <p class='green'><strong>{'sysmain_nocontenterrors'|lang}</strong></p>
+    <p class='green'><strong>{lang('sysmain_nocontenterrors')}</strong></p>
     {/if}
 
   </fieldset>

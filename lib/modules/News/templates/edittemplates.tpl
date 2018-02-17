@@ -8,7 +8,7 @@
       <th class="pageicon">&nbsp;</th>
     </tr>
   </thead>
-{foreach from=$items item=entry}
+{foreach $items as $entry}
    <tr class="{$entry->rowclass}">
      <td>{$entry->name}</td>
      <td>{$entry->default}</td>

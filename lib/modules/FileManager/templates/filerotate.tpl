@@ -1,34 +1,45 @@
-<h3>{$mod->Lang('rotateimage')}</h3>
-
 <style type="text/css">
+{literal}
 img#rotimg {
   z-index: 0;
 }
+{/literal}
 </style>
 
 <script type="text/javascript">
-$(function(){
-  $('#rotangle').slider({ min: -180, max: 180, value: 0,
-	                  change: function( event, ui ) {
-                            $('#angletxt').val(ui.value);
-                          },
-	                  slide: function( event, ui ) {
-                            $('#angletxt').val(ui.value);
-			    $('#rotimg').rotate({ animateTo: ui.value });
-                          }
-                        });
-   $(document).on('click', 'button.autorotate', function(){
-      var id = $(this).attr('id');
-      var dir = id.substr(0,3);
-      var val = parseInt(id.substr(3),10);
-      if( dir == 'neg' ) val = val * -1;
-      $('#angletxt').val(val);
-      $('#rotimg').rotate({ animateTo: val });
-      $('#rotangle').slider( 'value', val );
-      return false;
-   });
+{literal}//<![CDATA[
+$(document).ready(function() {
+  $('#rotangle').slider({
+    min: -180,
+    max: 180,
+    value: 0,
+    change: function(ev, ui) {
+      $('#angletxt').val(ui.value);
+    },
+    slide: function(ev, ui) {
+      $('#angletxt').val(ui.value);
+      $('#rotimg').rotate({
+        animateTo: ui.value
+      });
+    }
+  });
+  $(document).on('click', 'button.autorotate', function() {
+    var id = $(this).attr('id');
+    var dir = id.substr(0, 3);
+    var val = parseInt(id.substr(3), 10);
+    if(dir === 'neg') val = -val;
+    $('#angletxt').val(val);
+    $('#rotimg').rotate({
+      animateTo: val
+    });
+    $('#rotangle').slider('value', val);
+    return false;
+  });
 });
+{/literal}//]]>
 </script>
+
+<h3>{$mod->Lang('rotateimage')}</h3>
 
 {$startform}
 <div class="information">{$mod->Lang('info_rotate')}</div>
@@ -39,7 +50,10 @@ $(function(){
   </p>
 </div>
 <div class="pageoverflow">
-  <p class="pagetext"><label>{$mod->Lang('angle')}: <input type="text" readonly="readonly" id="angletxt" name="{$actionid}angle" value="0"/></label></p>
+  <p class="pagetext">
+    <label>{$mod->Lang('angle')}:</label>
+  </p>
+  <input type="text" readonly="readonly" id="angletxt" name="{$actionid}angle" value="0" />
   <p class="pageinput">{$mod->Lang('predefined')}:
     <button class="autorotate" id="neg180" title="{$mod->Lang('rotate_neg180')}">-180</button>
     <button class="autorotate" id="neg135" title="{$mod->Lang('rotate_neg135')}">-135</button>
@@ -56,7 +70,10 @@ $(function(){
   </p>
 </div>
 <div class="pageoverflow">
-  <p class="pagetext"><label for="postrotate">{$mod->Lang('postrotate')}:</label>&nbsp;{cms_help key2='help_postrotate' title=$mod->Lang('postrotate')}</p>
+  <p class="pagetext">
+    <label for="postrotate">{$mod->Lang('postrotate')}:</label>
+    {cms_help realm=$_module key2='help_postrotate' title=$mod->Lang('postrotate')}
+  </p>
   <p class="pageinput">
     <select id="postrotate" name="{$actionid}postrotate">
     {html_options options=$opts selected=$postrotate}
@@ -64,16 +81,19 @@ $(function(){
   </p>
 </div>
 <div class="pageoverflow">
-  <p class="pagetext"><label for="createthumb">{$mod->Lang('createthumbnail')}:</label></p>
+  <p class="pagetext">
+    <label for="createthumb">{$mod->Lang('createthumbnail')}:</label>
+  </p>
+  <input type="hidden" name="{$actionid}createthumb" value="0" />
   <p class="pageinput">
-    <select id="createthumb" name="{$actionid}createthumb">{cms_yesno selected=$createthumb}</select>
+    <input type="checkbox" name="{$actionid}createthumb" id="createthumb" value="1"{if $createthumb} checked="checked"{/if} />
   </p>
 </div>
+<br />
 <div class="pageoverflow">
-  <p class="pagetext"></p>
   <p class="pageinput">
-    <input type="submit" name="{$actionid}save" value="{$mod->Lang('save')}"/>
-    <input type="submit" name="{$actionid}cancel" value="{$mod->Lang('cancel')}"/>
+    <button type="submit" name="{$actionid}save" class="adminsubmit icondo">{$mod->Lang('save')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {$endform}
