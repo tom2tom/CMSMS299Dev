@@ -1,7 +1,8 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#class: News module
+#Copyright (C) 2005-2018 Ted Kulp <ted@cmsmadesimple.org>
+#This file is a component of a News module for CMS Made Simple
+# <http://dev.cmsmadesimple.org/projects/newsmodule>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -14,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 class News extends CMSModule
 {
@@ -33,7 +32,7 @@ class News extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetAuthor() { return 'Ted Kulp'; }
-    public function GetAuthorEmail() { return 'wishy@cmsmadesimple.org'; }
+    public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetEventDescription( $eventname ) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp( $eventname ) { return $this->lang('eventhelp-' . $eventname); }
