@@ -126,18 +126,18 @@ function smarty_function_form_start($params, &$template)
     $out .= '><div class="hidden">';
     if( $mactparms['module'] && $mactparms['action'] ) {
         $mact = $mactparms['module'].','.$mactparms['mid'].','.$mactparms['action'].','.(int)$mactparms['inline'];
-        $out .= '<input type="hidden" name="mact" value="'.$mact.'"/>';
+        $out .= '<input type="hidden" name="mact" value="'.$mact.'" />';
         if( $mactparms['returnid'] != '' ) {
-            $out .= '<input type="hidden" name="'.$mactparms['mid'].'returnid" value="'.$mactparms['returnid'].'"/>';
+            $out .= '<input type="hidden" name="'.$mactparms['mid'].'returnid" value="'.$mactparms['returnid'].'" />';
         }
     }
     if( !$gCms->is_frontend_request() ) {
         if( !isset($mactparms['returnid']) || $mactparms['returnid'] == '' ) {
-            $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'"/>';
+            $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />';
         }
     }
     foreach( $parms as $key => $value ) {
-        $out .= '<input type="hidden" name="'.$mactparms['mid'].$key.'" value="'.$value.'"/>';
+        $out .= '<input type="hidden" name="'.$mactparms['mid'].$key.'" value="'.$value.'" />';
     }
     $out .= '</div>';
 

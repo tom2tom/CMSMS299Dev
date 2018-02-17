@@ -104,13 +104,13 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
 
 //  function ValidateContentBlockFieldValue($blockName,$value,$blockparams,ContentBase $content_obj)
 //  {
-//    echo('<br/>:::::::::::::::::::::<br/>');
+//    echo('<br />:::::::::::::::::::::<br />');
 //    debug_display($blockName, '$blockName');
 //    debug_display($value, '$value');
 //    debug_display($blockparams, '$blockparams');
 //    //debug_display($adding, '$adding');
-//    echo('<br/>' . __FILE__ . ' : (' . __CLASS__ . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br/>');
-//    //die('<br/>RIP!<br/>');
+//    echo('<br />' . __FILE__ . ' : (' . __CLASS__ . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br />');
+//    //die('<br />RIP!<br />');
 //  }
 
     public function GetFileList($path = '')

@@ -132,7 +132,7 @@ if (isset($params['submit'])) {
         }
 
         if (!$dbr) {
-            echo "DEBUG: SQL = " . $db->sql . "<br/>";
+            echo "DEBUG: SQL = " . $db->sql . "<br />";
             die($db->ErrorMsg());
         }
 
@@ -177,7 +177,7 @@ if (isset($params['submit'])) {
                     $now
                 ));
                 if (!$dbr)
-                    die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br/>QUERY: ' . $db->sql);
+                    die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
             }
         }// if
 

@@ -786,7 +786,7 @@ class ContentOperations
         $value = (int) $value;
         $uid = get_userid(FALSE);
 
-		$out = "<input type=\"text\" title=\"".lang('title_hierselect')."\" name=\"{$name}\" id=\"{$id}\" class=\"cms_hierdropdown\" value=\"{$value}\" size=\"50\" maxlength=\"50\"/>";
+		$out = "<input type=\"text\" title=\"".lang('title_hierselect')."\" name=\"{$name}\" id=\"{$id}\" class=\"cms_hierdropdown\" value=\"{$value}\" size=\"50\" maxlength=\"50\" />";
 		$opts = array();
 		$opts['current'] = $current;
 		$opts['value'] = $value;

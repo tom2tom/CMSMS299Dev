@@ -1,6 +1,6 @@
 {strip}{if $template->locked()}
   {$lock=$template->get_lock()}
-  {if $template->lock_expired()}<strong style="color: red;">{$mod->Lang('msg_steal_lock')}</strong><br/>{/if}
+  {if $template->lock_expired()}<strong style="color: red;">{$mod->Lang('msg_steal_lock')}</strong><br />{/if}
   <strong>{$mod->Lang('prompt_lockedby')}:</strong> {cms_admin_user uid=$lock.uid}<br/>
   <strong>{$mod->Lang('prompt_lockedsince')}:</strong> {$lock.created|date_format:'%x %H:%M'}<br/>
   {if $lock.expires < $smarty.now}
@@ -14,5 +14,5 @@
   <strong>{$mod->Lang('prompt_created')}:</strong> {$template->get_created()|cms_date_format|cms_escape}<br/>
   <strong>{$mod->Lang('prompt_modified')}:</strong> {$template->get_modified()|relative_time}
   {$tmp=$template->get_description()}
-  {if $tmp != ''}<br/><strong>{$mod->Lang('prompt_description')}:</strong> {$tmp|strip_tags|cms_escape|summarize}{/if}
+  {if $tmp != ''}<br /><strong>{$mod->Lang('prompt_description')}:</strong> {$tmp|strip_tags|cms_escape|summarize}{/if}
 {/if}{/strip}

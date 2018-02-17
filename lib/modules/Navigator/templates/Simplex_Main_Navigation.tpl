@@ -38,7 +38,7 @@
                 </li>
             {else if $node->type == 'separator'}
                 {$list_class[] = 'separator'}
-                <li{do_class classes=$list_class}'><hr class='separator'/></li>
+                <li{do_class classes=$list_class}'><hr class='separator' /></li>
             {else}
                 {* regular item *}
                 <li{do_class classes=$list_class}{$aria_support}>

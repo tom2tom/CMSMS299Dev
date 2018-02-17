@@ -29,7 +29,7 @@ class dm_xml_reader extends XMLReader
     if( strpos($errstr,'XMLReader') !== FALSE ) {
       cms_error("DesignManger\\dm_xml_reader: ".$errstr);
       $mod = cms_utils::get_module('DesignManager');
-      throw new CmsXMLErrorException($mod->Lang('error_xmlstructure').':<br/>'.$errstr);
+      throw new CmsXMLErrorException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
       return TRUE;
     }
   }

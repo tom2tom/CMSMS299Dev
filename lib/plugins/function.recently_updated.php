@@ -47,7 +47,7 @@ function smarty_function_recently_updated($params, &$template)
 	$dbresult = $db->Execute( $q );
 	if( !$dbresult ) {
         // @todo: throw an exception here
-		return 'DB error: '. $db->ErrorMsg()."<br/>";
+		return 'DB error: '. $db->ErrorMsg()."<br />";
 	}
 	while ($dbresult && $updated_page = $dbresult->FetchRow())
 	{

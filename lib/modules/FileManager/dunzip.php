@@ -441,7 +441,7 @@ class dUnzip2{
 		}
 	}
 	Function debugMsg($level, $string){
-		if ($level==2) $this->debugstrings.="<br/>".$string;
+		if ($level==2) $this->debugstrings.="<br />".$string;
 		if($this->debug)
 			if($level == 1)
 				echo "<b style='color: #777'>dUnzip2:</b> $string<br>";

@@ -1,6 +1,6 @@
 {* cssmenu_ulshadow navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -11,30 +11,30 @@
 <ul{if $depth ==0} id="primary-nav"{else} class="unli"{/if}>
   {foreach $data as $node}
     {* setup classes for the anchor and list item *}
-    {assign var='liclass' value=''}
-    {*{assign var='liclass' value=' depth'|cat:$depth}*}
-    {assign var='aclass' value=''}
+    {$liclasse=''}
+    {*{$liclass=' depth'|cat:$depth}*}
+    {$aclass=''}
 
-    {* the first child gets a special class 
-    {if $node@first && $node@total > 1}{assign var='liclass' value=$liclass|cat:' first_child'}{/if}
+    {* the first child gets a special class
+    {if $node@first && $node@total > 1}{$liclass=$liclass|cat:' first_child'}{/if}
     *}
 
-    {* the last child gets a special class 
-    {if $node@last && $node@total > 1}{assign var='liclass' value=$liclass|cat:' last_child'}{/if}
+    {* the last child gets a special class
+    {if $node@last && $node@total > 1}{$liclass=$liclass|cat:' last_child'}{/if}
     *}
 
     {if $node->current}
       {* this is the current page *}
-      {assign var='liclass' value=$liclass|cat:' menuactive'}
-      {assign var='aclass' value=$aclass|cat:' menuactive'}
-    {else if $node->parent}
+      {$liclass=$liclass|cat:' menuactive'}
+      {$aclass=$aclass|cat:' menuactive'}
+    {elseif $node->parent}
       {* this is a parent of the current page *}
-      {assign var='liclass' value=$liclass|cat:' parent'}
-      {assign var='aclass' value=$aclass|cat:' parent'}
+      {$liclass=$liclass|cat:' parent'}
+      {$aclass=$aclass|cat:' parent'}
     {/if}
     {if isset($node->children)}
-      {assign var='liclass' value=$liclass|cat:' menuparent'}
-      {assign var='aclass' value=$aclass|cat:' menuparent'}
+      {$liclass=$liclass|cat:' menuparent'}
+      {$aclass=$aclass|cat:' menuparent'}
     {/if}
 
     {* build the menu item node *}
@@ -44,8 +44,8 @@
           {cssmenu_ulshadow data=$node->children depth=$depth+1}
         {/if}
       </li>
-    {else if $node->type == 'separator'}
-      <li class='separator {$liclass}'><hr class='separator'/></li>
+    {elseif $node->type == 'separator'}
+      <li class='separator {$liclass}'><hr class='separator' /></li>
     {else}
       {* regular item *}
       <li class="{$liclass}">

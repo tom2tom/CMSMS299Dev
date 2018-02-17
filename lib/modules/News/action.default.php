@@ -244,7 +244,7 @@ if( is_object($dbresult) ) {
         $onerow->id = $row['news_id'];
         $onerow->title = $row['news_title'];
         $onerow->content = $row['news_data'];
-        $onerow->summary = (trim($row['summary'])!='<br/>'?$row['summary']:'');
+        $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
         if( FALSE == empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
         $onerow->postdate = $row['news_date'];
         $onerow->startdate = $row['start_time'];

@@ -273,7 +273,7 @@ function smarty_function_cms_selflink($params, &$template)
 			if( $width ) $result .= " width=\"$width\"";
 			if( $height ) $height = max(1,$height);
 			if( $height ) $result .= " height=\"$height\"";
-			$result .= "/>";
+			$result .= " />";
 			if( empty($params['imageonly']) ) $result .= " $linktext";
 		} else {
 			$result .= $linktext;
