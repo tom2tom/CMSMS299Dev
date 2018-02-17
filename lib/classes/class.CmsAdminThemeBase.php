@@ -383,7 +383,8 @@ abstract class CmsAdminThemeBase
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] | $this->_perms['taghelpPerms'] |
             (isset($this->_sectionCount['extensions']) && $this->_sectionCount['extensions'] > 0);
 
-        $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Settings') |
+        $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
+        $this->_perms['myaccount'] = $this->_perms['mysettings'] |
             check_permission($this->userid,'Manage My Account');
         $this->_perms['bookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
         $this->_perms['myprefs'] = $this->_perms['myaccount'] | $this->_perms['bookmarks'];
@@ -513,22 +514,27 @@ abstract class CmsAdminThemeBase
         // base my prefs menu ---------------------------------------------------------
         $items['myprefs'] = array('url'=>'index.php?section=myprefs','parent'=>-1,'priority'=>8,
                                   'title'=>$this->_FixSpaces(lang('myprefs')),
-                                  'description'=>lang('myprefsdescription'),'show_in_menu'=>$this->_perms['myprefs']);
+                                  'description'=>lang('myprefsdescription'),
+			                      'show_in_menu'=>$this->_perms['myprefs']);
         $items['myaccount'] = array('url'=>'myaccount.php','parent'=>'myprefs',
                                     'title'=>$this->_FixSpaces(lang('myaccount')),
                                     'description'=>lang('myaccountdescription'),
                                     'show_in_menu'=>$this->_perms['myaccount']);
+        $items['mysettngs'] = array('url'=>'mysettings.php','parent'=>'myprefs',
+                                    'title'=>$this->_FixSpaces(lang('mysettings')),
+                                    'description'=>lang('mysettingsdescription'),
+                                    'show_in_menu'=>$this->_perms['mysettings']);
         $items['managebookmarks'] = array('url'=>'listbookmarks.php','parent'=>'myprefs',
-                                          'title'=>$this->_FixSpaces(lang('managebookmarks')),
-                                          'description'=>lang('managebookmarksdescription'),
-                                          'show_in_menu'=>$this->_perms['bookmarks']);
-        $items['addbookmark'] = array('url'=>'addbookmark.php','parent'=>'myprefs',
+                                    'title'=>$this->_FixSpaces(lang('managebookmarks')),
+                                    'description'=>lang('managebookmarksdescription'),
+                                    'show_in_menu'=>$this->_perms['bookmarks']);
+/*        $items['addbookmark'] = array('url'=>'addbookmark.php','parent'=>'myprefs',
                                       'title'=>$this->_FixSpaces(lang('addbookmark')),
                                       'description'=>lang('addbookmark'),'show_in_menu'=>false);
         $items['editbookmark'] = array('url'=>'editbookmark.php','parent'=>'myprefs',
                                        'title'=>$this->_FixSpaces(lang('editbookmark')),
                                        'description'=>lang('editbookmark'),'show_in_menu'=>false);
-
+*/
         debug_buffer('after menu items');
 
         // slightly cleaner syntax
@@ -1054,7 +1060,7 @@ abstract class CmsAdminThemeBase
 
 
     /**
-     * Abstract function for showing errors in the admin theme.
+     * Abstract function for caching error-messages to be shown in the admin theme.
      *
      * @abstract
      * @param mixed $errors The errors, either a string, or an array of strings
@@ -1063,7 +1069,7 @@ abstract class CmsAdminThemeBase
     abstract public function ShowErrors($errors, $get_var = null);
 
     /**
-     * Abstrct function for showing messages in the admin theme.
+     * Abstract function for caching non-error-messages to be shown in the admin theme.
      *
      * @abstract
      * @param mixed $message The message, either a string, or an array of stri9ngs
