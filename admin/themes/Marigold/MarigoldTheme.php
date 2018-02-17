@@ -1,14 +1,8 @@
 <?php
-#-------------------------------------------------------------------------
-# Marigold- An admin theme for CMS Made Simple
-# (c) 2012 by Goran Ilic (ja@ich-mach-das.at) http://dev.cmsmadesimple.org/users/uniqu3
-# (c) 2012-2018 by Robert Campbell (calguy1000@cmsmadesimple.org)
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# Marigold- an admin theme for CMS Made Simple
+# Copyright (C) 2012 Goran Ilic <ja@ich-mach-das.at>
+# Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +15,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
 use CMSMS\internal\Smarty;
 
@@ -227,7 +219,8 @@ class MarigoldTheme extends CmsAdminThemeBase {
 
 		// my preferences
 		if (check_permission(get_userid(),'Manage My Settings')) {
-		  $smarty->assign('myaccount',1);
+		  $smarty->assign('mysettings',1);
+		  $smarty->assign('myaccount',1); //TODO maybe a separate check
 		}
 
 		// if bookmarks
