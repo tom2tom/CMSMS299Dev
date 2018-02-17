@@ -49,7 +49,7 @@ $lang['delete'] = 'Delete';
 $lang['deleteselected'] = 'Delete the selected files/directories';
 $lang['deleteselectedcancelled'] = 'Deletion of selected files canceled';
 $lang['deletesuccess'] = 'Items successfully deleted';
-$lang['desc_filemanager_settings'] = 'Edit File Manager Settings';
+$lang['desc_filemanager_settings'] = 'Adjust settings for the system file manager';
 $lang['dirchmodfailmulti'] = 'Changing permissions on the directory failed, some of it\'s content may have gotten new permissions, though.';
 $lang['dirchmodfailure'] = 'Changing permissions of the directory failed';
 $lang['dirchmodsuccess'] = 'The directory successfully got new permissions';
@@ -124,7 +124,7 @@ $lang['help_showhiddenfiles'] = '<p>When enabled files and directories whose nam
 $lang['help_showthumbnails'] = 'If enabled, the file list will display a thumbnail <em>(if one exists)</em> for all images.  If disabled, the system will attempt to display an icon representing the file type.';
 $lang['help']=<<<EOF
 <h3>What does this do?</h3>
-<p>This module provides your CMS Made Simple website with file management functions.</p>
+<p>This module provides file management functions for this website.</p>
 EOF;
 $lang['help_postrotate'] = <<<EOT
 <p>Options:</p>
@@ -201,8 +201,8 @@ $lang['owner'] = 'Owner';
 // P
 $lang['packfileopenfail'] = 'Could not open the packed file for unpacking (non-supported format?)';
 $lang['packfilewritefail'] = 'Could not open the file %s for writing';
-$lang['permission'] = 'Usage of the File Manager module';
-$lang['permissionadvanced'] = 'Advanced usage of the File Manager module';
+$lang['permission'] = 'Use the FileManager module';
+$lang['permissionadvanced'] = 'Use the FileManager module\'s advanced functions';
 $lang['permissionstyle'] = 'Permission style';
 $lang['pie_image_natural_size'] = 'Image natural size';
 $lang['pie_lock_proportion'] = 'lock proportion';
@@ -218,7 +218,7 @@ $lang['pie_crop_w'] = 'crop width';
 $lang['pie_crop_h'] = 'crop height';
 $lang['pie_warn_action'] = 'Are you sure? There is no CTRL+Z down here..';
 $lang['pie_warn_reset'] = 'Are you sure? It will reset your current modifications';
-$lang['postinstall'] = 'FileManager module was installed';
+$lang['postinstall'] = 'The FileManager module has been installed';
 $lang['postrotate'] = 'Action for after image rotation';
 $lang['predefined'] = 'Predefined Angles';
 $lang['prompt_copy'] = 'Copy one or more Items';
@@ -309,14 +309,14 @@ $lang['toggle'] = 'Toggle selection';
 $lang['top'] = 'Top';
 
 // U
-$lang['uninstalled'] = 'The FileManager module is uninstalled';
+$lang['uninstalled'] = 'The FileManager module has been uninstalled';
 $lang['unknown'] = 'Unknown';
 $lang['unknownfileaction'] = 'Internal error: unknown file action';
 $lang['unpack'] = 'Unpack';
 $lang['unpackafterupload'] = 'Try to unpack file after upload (only tgz and most zip-files)?';
 $lang['unpackfail'] = ' failed with this error: ';
 $lang['unpacksuccess'] = 'is successfully unpacked';
-$lang['upgraded'] = 'The FileManager module is upgraded to version %s';
+$lang['upgraded'] = 'The FileManager module has been upgraded to version %s';
 $lang['uploaderstandard'] = 'Standard HTML input-method (allows unpacking)';
 $lang['uploadfail'] = 'failed to upload successfully';
 $lang['uploadmethod'] = 'Upload method';
