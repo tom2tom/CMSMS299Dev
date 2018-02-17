@@ -34,7 +34,7 @@ $lang['confirm_reseturl'] = 'Are you sure you want to reset the repository URL?'
 $lang['confirm_settings'] = 'Are you sure you want to save these settings?';
 $lang['confirm_remove'] = 'Are you sure you want to remove this modules files from the file system';
 $lang['confirm_upgrade'] = 'Are you sure you want to upgrade this module?';
-$lang['compatibility_disclaimer'] = 'The modules displayed here are contributed by both the CMSMS Developers and independent third parties.  We make no guarantees that the modules available here are functional, tested, or compatible with your system.  You are encouraged to read the information found in the help and about links for each module before attempting the installation.';
+$lang['compatibility_disclaimer'] = 'Some of the modules have been created by the CMSMS team, and others are by independent developers. There are <strong>no guarantees</strong> that the modules are compatible with your system, or tested, or even functional.  Please read the information found in the "help" and "about" links for each module before attempting installation.';
 
 // D
 $lang['db_newer'] = 'Database Version Newer';
@@ -104,7 +104,7 @@ $lang['export'] = 'Export';
 $lang['friendlyname'] = 'Module Manager';
 
 // G
-$lang['general_notice'] = 'The versions displayed here represent the latest XML files uploaded to the CMSMS module repository.  They may or may not represent the latest available versions. Additionally, the module repository may only contain modules released within the last few months';
+$lang['general_notice'] = 'This shows the latest XML files in the CMSMS modules-repository.  The modules may or may not be the latest available versions. Additionally, the module repository may only contain modules released within the last few months.';
 
 // H
 $lang['help'] = '<h3>What Does This Do?</h3>
@@ -146,7 +146,7 @@ $lang['lbl_version'] = 'Version';
 $lang['minversion'] = 'Minimum Version';
 $lang['missingdeps'] = 'Missing dependencies';
 $lang['mod_name_ver'] = '%s version %s';
-$lang['moddescription'] = 'A client for the CMS Made Simple™ Module Repository. This module allows previewing and installing modules from the CMSMS Forge without the need for ftp-ing, or unzipping archives.  Module XML files are downloaded using REST, integrity verified, and then expanded automatically.';
+$lang['moddescription'] = 'A client for the CMS Made Simple&trade; Module Repository. This module allows previewing and installing modules from the CMSMS Forge without the need for ftp-ing, or unzipping archives.  Module XML files are downloaded using REST, integrity verified, and then expanded automatically.';
 $lang['msg_batch_completed'] = '%d operations completed';
 $lang['msg_cachecleared'] = 'Cache cleared';
 $lang['msg_cancelled'] = 'Operation canceled';
