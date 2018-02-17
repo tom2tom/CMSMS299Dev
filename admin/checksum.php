@@ -135,16 +135,16 @@ function check_checksum_data(&$report)
     if( count($filenotfound) ) $tmp2[] = sprintf("%d %s",count($filenotfound),lang('files_not_found'));
     if( $notreadable ) $tmp2[] = sprintf("%d %s",$notreadable,lang('files_not_readable'));
     if( $md5failed ) $tmp2[] = sprintf("%d %s",$md5failed,lang('files_checksum_failed'));
-    if( !empty($tmp) ) $tmp .= "<br/>";
+    if( !empty($tmp) ) $tmp .= "<br />";
 
-    $tmp = implode( "<br/>", $tmp2 );
+    $tmp = implode( "<br />", $tmp2 );
     if( count($filenotfound) ) {
-      $tmp .= "<br/>".lang('files_not_found').':';
-      $tmp .= "<br/>".implode("<br/>",$filenotfound)."<br/>";
+      $tmp .= "<br />".lang('files_not_found').':';
+      $tmp .= "<br />".implode("<br />",$filenotfound)."<br />";
     }
     if( count($filesfailed) ) {
-      $tmp .= "<br/>".count($filesfailed).' '.lang('files_failed').':';
-      $tmp .= "<br/>".implode("<br/>",$filesfailed)."<br/>";
+      $tmp .= "<br />".count($filesfailed).' '.lang('files_failed').':';
+      $tmp .= "<br />".implode("<br />",$filesfailed)."<br />";
     }
 
     $report = $tmp;
