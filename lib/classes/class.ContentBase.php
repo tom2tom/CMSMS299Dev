@@ -1502,7 +1502,7 @@ abstract class ContentBase
 				$this->mName = $this->mMenuText;
 			}
 			else {
-				$errors[]= lang('nofieldgiven',array(lang('title')));
+				$errors[]= lang('nofieldgiven', lang('title'));
 				$result = false;
 			}
 		}
@@ -1512,7 +1512,7 @@ abstract class ContentBase
 				$this->mMenuText = $this->mName;
 			}
 			else {
-				$errors[]=lang('nofieldgiven',array(lang('menutext')));
+				$errors[]=lang('nofieldgiven', lang('menutext'));
 				$result = false;
 			}
 		}

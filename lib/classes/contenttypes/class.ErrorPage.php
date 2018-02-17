@@ -158,11 +158,11 @@ class ErrorPage extends Content
 		//Do our own alias check
 		if ($this->mAlias == '')
 		{
-			$errors[] = lang('nofieldgiven', array(lang('error_type')));
+			$errors[] = lang('nofieldgiven', lang('error_type'));
 		}
 		else if (in_array($this->mAlias, $this->error_types))
 		{
-			$errors[] = lang('nofieldgiven', array(lang('error_type')));
+			$errors[] = lang('nofieldgiven', lang('error_type'));
 		}
 		else if ($this->mAlias != $this->mOldAlias)
 		{

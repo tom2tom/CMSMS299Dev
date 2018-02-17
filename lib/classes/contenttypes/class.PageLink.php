@@ -82,7 +82,7 @@ class PageLink extends ContentBase
 
 		$page = $this->GetPropertyValue('page');
 		if ($page == '-1') {
-			$errors[]= lang('nofieldgiven',array(lang('page')));
+			$errors[]= lang('nofieldgiven', lang('page'));
 			$result = false;
 		}
 

@@ -69,7 +69,7 @@ class Link extends ContentBase
 		if( $errors === FALSE )	$errors = array();
 
 		if ($this->GetPropertyValue('url') == '') {
-			$errors[]= lang('nofieldgiven',array(lang('url')));
+			$errors[]= lang('nofieldgiven', lang('url'));
 			$result = false;
 		}
 
