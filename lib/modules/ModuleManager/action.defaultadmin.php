@@ -1,16 +1,9 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2008 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# action: defaultadmin
+# Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of ModuleManager, an addon module for
+# CMS Made Simple to allow browsing remotely stored modules, viewing
+# information about them, and downloading or upgrading
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,9 +16,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 use \ModuleManager\utils as modmgr_utils;
 if( !isset($gCms) ) exit;
 
@@ -38,13 +29,6 @@ if( isset($params['modulehelp']) ) {
 }
 
 if( !$this->VisibleToAdminUser() ) exit;
-
-echo '<div class="pagewarning">'."\n";
-echo '<h3>'.$this->Lang('notice')."</h3>\n";
-$link = '<a target="_blank" href="http://dev.cmsmadesimple.org">forge</a>';
-echo '<p>'.$this->Lang('general_notice',$link,$link)."</p>\n";
-echo '<h3>'.$this->Lang('use_at_your_own_risk')."</h3>\n";
-echo '<p>'.$this->Lang('compatibility_disclaimer')."</p></div>\n";
 
 $connection_ok = modmgr_utils::is_connection_ok();
 if( !$connection_ok ) echo $this->ShowErrors($this->Lang('error_request_problem'));
@@ -62,17 +46,23 @@ if( $connection_ok ) {
     }
 }
 
+if (isset($params['active_tab'])) {
+    $seetab = $params['active_tab'];
+} else {
+    $seetab = 'installed';
+}
+
 echo $this->StartTabHeaders();
-if( $this->CheckPermission('Modify Modules') ) {
-    echo $this->SetTabHeader('installed',$this->Lang('installed'));
-    if( $connection_ok ) {
-	$num = ( is_array($newversions) ) ? count($newversions) : 0;
-        echo $this->SetTabHeader('newversions',$num.' '.$this->Lang('tab_newversions') );
-        echo $this->SetTabHeader('search',$this->Lang('search'));
-        echo $this->SetTabHeader('modules',$this->Lang('availmodules'));
+if ($this->CheckPermission('Modify Modules')) {
+    echo $this->SetTabHeader('installed',$this->Lang('installed'),$seetab=='installed');
+    if ($connection_ok) {
+        $num = (is_array($newversions)) ? count($newversions) : 0;
+        echo $this->SetTabHeader('newversions',$num.' '.$this->Lang('tab_newversions'),$seetab=='newversions');
+        echo $this->SetTabHeader('search',$this->Lang('search'),$seetab=='search');
+        echo $this->SetTabHeader('modules',$this->Lang('availmodules'),$seetab=='modules');
     }
 }
-if( $this->CheckPermission('Modify Site Preferences') ) echo $this->SetTabHeader('prefs',$this->Lang('prompt_settings'));
+if ($this->CheckPermission('Modify Site Preferences')) echo $this->SetTabHeader('prefs',$this->Lang('prompt_settings'),$seetab=='prefs');
 echo $this->EndTabHeaders();
 
 echo $this->StartTabContent();
@@ -95,7 +85,7 @@ if( $this->CheckPermission('Modify Modules') ) {
         echo $this->EndTab();
     }
 }
-if( $this->CheckPermission('Modify Site Preferences') ) {
+if ($this->CheckPermission('Modify Site Preferences')) {
     echo $this->StartTab('prefs',$params);
     include __DIR__.'/function.admin_prefs_tab.php';
     echo $this->EndTab();
