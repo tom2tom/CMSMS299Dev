@@ -7,6 +7,7 @@ $lang['addnewsitem'] = 'Add News Item';
 $lang['allcategories'] = 'All Categories';
 $lang['allentries'] = 'All Entries';
 $lang['allowed_upload_types'] = 'Allow only files with these extensions to be uploaded';
+$lang['allow_fesubmit'] = 'Allow frontend users to submit news items';
 $lang['allow_summary_wysiwyg'] = 'Allow using a WYSIWYG editor on the summary field';
 $lang['anonymous'] = 'Anonymous';
 $lang['apply'] = 'Apply';
@@ -46,13 +47,13 @@ $lang['customfields'] = 'Field Definitions';
 
 // D
 $lang['dateformat'] = '%s not in a valid yyyy-mm-dd hh:mm:ss format';
-$lang['default_category'] = 'Default Category';
+$lang['default_category'] = 'Default category';
 $lang['default_templates'] = 'Default Templates';
 $lang['delete'] = 'Delete';
 $lang['delete_article'] = 'Delete Article';
 $lang['delete_selected'] = 'Delete Selected Articles';
 $lang['deprecated'] = 'unsupported';
-$lang['description'] = 'Add, edit and remove News entries';
+$lang['description'] = 'Add, edit or remove news items';
 $lang['desc_adminsearch'] = 'Search all news articles (regardless of status or expiry)';
 $lang['desc_news_settings'] = 'Settings for the News module';
 $lang['detailtemplate'] = 'Detail Templates';
@@ -69,8 +70,8 @@ $lang['edit'] = 'Edit';
 $lang['editarticle'] = 'Edit Article';
 $lang['editcategory'] = 'Edit Category';
 $lang['editfielddef'] = 'Edit Field Definition';
-$lang['email_subject'] = 'The Subject of the outgoing email';
-$lang['email_template'] = 'The format of the email message';
+$lang['email_subject'] = 'Outgoing emails\' subject ';
+$lang['email_template'] = 'Outgoing emails\' template';
 $lang['enddate'] = 'End Date';
 $lang['endrequiresstart'] = 'Entering an end date requires a start date also';
 $lang['entries'] = '%s Entries';
@@ -158,7 +159,7 @@ $lang['expired_viewable'] = 'Expired articles can be viewed in the detail view';
 $lang['expiry'] = 'Expiry';
 $lang['expiry_date_asc'] = 'Expiry Date Ascending';
 $lang['expiry_date_desc'] = 'Expiry Date Descending';
-$lang['expiry_interval'] = 'The number of days (by default) before an article expires (if expiry is selected)';
+$lang['expiry_interval'] = 'The default number of days until an article expires (if expiry is enabled)';
 $lang['extra'] = 'Extra';
 $lang['extra_label'] = 'Extra:';
 
@@ -180,7 +181,7 @@ $lang['help'] = <<<EOF
 <h3>Important Notes</h3>
 <p>Version 2.9 and greater of News has removed the formatpostdate member from the templates, and has also removed the dateformat parameter.  You should be using the cms_date_format modifier (as indicated in the default templates) to format dates, and should be using entry->postdate instead of entry->formatpostdate in your templates.</p>
 <h3>What does this do?</h3>
-<p>News is a module for displaying news events on your page, similar to a blog style, except with more features!.  When the module is installed, a News admin page is added to administration menu that will allow you to select or add a news category.  Once a news category is created or selected, a list of news items for that category will be displayed.  From here, you can add, edit or delete news items for that category.</p>
+<p>News is a module for displaying news events on your page, similar to a blog style, except with more features!.  When the module is installed, a News admin item is added to the administration menu, and that will allow you to select or add a news category.  After a news category is created or selected, a list of news items for that category will be displayed.  From here, you can add, edit or delete news items for that category.</p>
 <h4>Numerous display methods</h4>
 <p>The parameters supported by the news module, and support for numerous templates of each time mean that your options for displaying news articles are limitless.</p>
 <h4>Custom Fields</h4>
@@ -259,13 +260,13 @@ $lang['help_opt_alert_drafts'] = 'If enabled, you will receive notifications (al
 $lang['help_opt_allowed_upload_types'] = 'For custom fields of type &quot;file&quot; This setting indicates a comma separated list of file extensions that are valid for the article editor to upload.';
 $lang['help_opt_dflt_category'] = 'This option allows specifying the default category for new news articles.';
 $lang['help_opt_hide_summary'] = 'This option allows disabling the summary field when adding and/or editing a news article <em>(including with the fesubmit action)</em>';
-$lang['help_opt_allow_summary_wysiwyg'] = 'This field indicates whether a WYSIWYG editor should be enabled for the summary field when editing an article.  In many circumstances the summary field is a simple text field, however this is optional.<br/>This setting is ignored if the summary field is disabled completely <em>(see above)</em>';
-$lang['help_opt_expiry_interval'] = 'Set the default number of days (minimum 1) That articles will expire in when article expiry is enabled.   The expiry date can be adjusted when adding or editing a news article';
+$lang['help_opt_allow_summary_wysiwyg'] = 'This field indicates whether a WYSIWYG editor should be enabled for the summary field when editing an article.  In many circumstances the summary field is a simple text field, however this is optional.<br />This setting is ignored if the summary field is disabled completely <em>(see above)</em>';
+$lang['help_opt_expiry_interval'] = 'Set the default lifetime (days, minimum 1) for articles flagged to expire.  The expiry date can be adjusted when adding or editing a news article';
 $lang['help_pagelimit'] = 'Maximum number of items to display (per page).  If this parameter is not supplied all matching items will be displayed.  If it is, and there are more items available than specified in the parameter, text and links will be supplied to allow scrolling through the results.  The maximum value for this parameter is 1000.';
 $lang['hide_summary_field'] = 'Hide the summary field when adding or editing articles';
 
 // I
-$lang['info_allow_fesubmit'] = 'This option controls wether the fesubmit action will be allowed to function at all for this site.  Use caution when enabling this.';
+$lang['info_allow_fesubmit'] = 'Whether the fesubmit action will be allowed to function at all for this site. <strong>Be careful about enabling this!</strong>';
 $lang['info_categories'] = 'For organization purposes news articles can be organized into hierarchical categories';
 $lang['info_detail_returnid'] = 'This preference is used to determine a page (and therefore a template) to use to view detail pages.  Custom news Detail URLS will not work if this parameter is not set to a valid page.  Additionally, if this preference is set, and no detailpage parameter is provided on the news tag, then this value will be used for detail links';
 $lang['info_expired_searchable'] = 'If enabled, expired articles may continue to be indexed by the search module, and appear in search results';
@@ -330,8 +331,7 @@ $lang['post_date_desc'] = 'Post Date Descending';
 $lang['preview'] = 'Preview';
 $lang['prevpage'] = '&lt;';
 $lang['print'] = 'Print';
-$lang['prompt_alert_drafts'] = 'Alert on Unapproved Articles';
-$lang['prompt_allow_fesubmit'] = 'Allow news articles to be submitted by the frontend';
+$lang['prompt_alert_drafts'] = 'Alert on un-approved articles';
 $lang['prompt_default'] = 'Default';
 $lang['prompt_go'] = 'Go';
 $lang['prompt_name'] = 'Name';
@@ -371,7 +371,7 @@ $lang['startrequiresend'] = 'Entering a start date requires an end date also';
 $lang['status'] = 'Status';
 $lang['status_asc'] = 'Status Ascending';
 $lang['status_desc'] = 'Status Descending';
-$lang['subject_newnews'] = 'A new News article has been posted';
+$lang['subject_newnews'] = 'A news-item has been submitted';
 $lang['submit'] = 'Submit';
 $lang['summary'] = 'Summary';
 $lang['summarytemplate'] = 'Summary Templates';
@@ -423,7 +423,7 @@ $lang['useexpiration'] = 'Use Expiration Date';
 $lang['viewfilter'] = 'View Filter';
 
 // W
-$lang['warning_preview'] = 'Warning: This preview panel behaves much like a browser window allowing you to navigate away from the initially previewed page. However, if you do that, you may experience unexpected behaviour.  Navigating away from the initial page and returning will not give the expected results.<br/><strong>Note:</strong> The preview does not upload files you may have selected for upload.';
+$lang['warning_preview'] = 'Warning: This preview panel behaves much like a browser window allowing you to navigate away from the initially previewed page. However, if you do that, you may experience unexpected behaviour.  Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you may have selected for upload.';
 $lang['with_selected'] = 'With Selected';
 
 ?>
