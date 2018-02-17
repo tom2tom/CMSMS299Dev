@@ -33,9 +33,9 @@ CMSMS theme functions
             $('a[rel=external]').attr('target', '_blank');
             // focus on input with .defaultfocus class
             $('input.defaultfocus:eq(0), input[autofocus]').focus();
-            // load cookie.js if localStorage is not supported
+            // async-load a cookie handler if localStorage is not supported
             if(!_this._isLocalStorage()) {
-                _this.loadScript('themes/Marigold/includes/jquery.cookie.min.js'); //TODO url not hardcoded
+                _this.loadScript('themes/Marigold/includes/js-cookie.min.js'); //TODO url not hardcoded
             }
         },
         /**
@@ -83,8 +83,8 @@ CMSMS theme functions
             }
         },
         /**
-         * @description saves a defined key and value to localStorage if localStorgae is supported, else falls back to jquery cookie plugin
-         * @requires cookie https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js
+         * @description saves a defined key and value to localStorage if localStorgae is supported, else falls back to cookie script
+         * @requires js-cookie https://github.com/js-cookie/js-cookie
          * @memberof NS.helper
          * @function setStorageValue(key, value)
          * @param {string} key
@@ -92,13 +92,13 @@ CMSMS theme functions
          * @param {number} expires (number in days)
          */
         setStorageValue: function(key, value, expires) {
-            var _this = this,
-                expiration = new Date().getTime() + (expires * 24 * 60 * 60 * 1000),
-                obj = {};
+            var _this = this;
             try {
                 if(_this._isLocalStorage() === true) {
                     localStorage.removeItem(key);
+                    var obj;
                     if(expires !== null) {
+                        var expiration = new Date().getTime() + (expires * 24 * 60 * 60 * 1000);
                         obj = {
                             value: value,
                             timestamp: expiration
@@ -110,15 +110,16 @@ CMSMS theme functions
                         };
                     }
                     localStorage.setItem(key, JSON.stringify(obj));
-                } else {
+                } else if(_this._isCookieScript() === true) {
                     if(expires !== null) {
-                        obj = {
+                        Cookies.set(key, value, {
                             expires: expires
-                        };
+                        });
+                    } else {
+                        Cookies.set(key, value);
                     }
-                    if($.fn.cookie !== 'undefined') {
-                        $.cookie(key, value, obj);
-                    }
+                } else {
+                    throw "No cookie storage!";
                 }
             } catch(error) {
                 console.log('localStorage Error: set(' + key + ', ' + value + ')');
@@ -126,16 +127,15 @@ CMSMS theme functions
             }
         },
         /**
-         * @description gets value for defined key from localStorage if localStorgae is supported, else falls back to jquery cookie plugin
-         * @requires cookie https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js
+         * @description gets value for defined key from localStorage if localStorgae is supported, else falls back to js-cookie script
+         * @requires js-cookie https://github.com/js-cookie/js-cookie
          * @memberof NS.helper
          * @function getStorageValue(key)
          * @param {string} key
          */
         getStorageValue: function(key) {
             var _this = this,
-                data = '',
-                value;
+                data, value;
             if(_this._isLocalStorage()) {
                 data = JSON.parse(localStorage.getItem(key));
                 if(data !== null && data.timestamp < new Date().getTime()) {
@@ -143,26 +143,26 @@ CMSMS theme functions
                 } else if(data !== null) {
                     value = data.value;
                 }
+            } else if(_this._isCookieScript() === true) {
+                value = Cookies(key);
             } else {
-                if($.fn.cookie !== 'undefined') {
-                    value = $.cookie(key);
-                }
+                value = ''; //TODO handle no cookie
             }
             return value;
         },
         /**
-         * @description removes defined key from localStorage if localStorgae is supported, else falls back to jquery cookie plugin
-         * @requires cookie https://github.com/carhartl/jquery-cookie/blob/master/jquery.cookie.js
+         * @description removes defined key from localStorage if localStorage is supported, else falls back to js-cookie script
+         * @requires js-cookie https://github.com/js-cookie/js-cookie
          * @memberof NS.helper
          * @function removeStorageValue(key)
          * @param {string} key
          */
         removeStorageValue: function(key) {
             var _this = this;
-            if(_this._isLocalStorage()) {
+            if(_this._isLocalStorage() === true) {
                 localStorage.removeItem(key);
-            } else {
-                $.cookie(key, null);
+            } else if(_this._isCookieScript() === true) {
+                Cookies.remove(key);
             }
         },
         /**
@@ -188,6 +188,14 @@ CMSMS theme functions
          */
         _isLocalStorage: function() {
             return typeof(Storage) !== 'undefined';
+        },
+        /**
+         * @description detects if js-cookie.js is present
+         * @function _isCookieScript()
+         * @private
+         */
+        _isCookieScript: function() {
+            return typeof(Cookies) !== 'undefined';
         },
         /**
          * @description Basic check for common mobile devices and touch capability
