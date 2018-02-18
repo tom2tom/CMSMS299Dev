@@ -56,7 +56,7 @@ $lang['HelpPopup_ProfileShowthumbs'] = 'If enabled, thumbnails will be visible f
 
 // N
 $lang['name'] = 'Name';
-$lang['no_profiles'] = 'No profiles defined yet. You can add them by clicking the button above.';
+$lang['no_profiles'] = 'No profile defined yet. You can add them by clicking the button above.';
 
 // O
 $lang['ok'] = 'Ok';

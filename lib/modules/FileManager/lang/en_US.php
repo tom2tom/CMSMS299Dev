@@ -116,7 +116,7 @@ $lang['friendlyname'] = 'File Manager';
 $lang['group'] = 'Group';
 
 // H
-$lang['help_advancedmode'] ='<p>Advanced mode allows users to browse and manage all of the files in the CMSMS installation (including system files).</p><br /><p><strong>Use Caution</strong> as it is possible to corrupt a working installation when using advanced mode.</p>';
+$lang['help_advancedmode'] ='<p>Advanced mode allows users to browse and manage all of the files in the CMSMS installation (including system files).</p><br /><p><strong>Be careful</strong> as it is possible to corrupt a working installation when using advanced mode.</p>';
 $lang['help_create_thumbnails'] = 'If enabled, FileManager will automatically create a new thumbnail for each newly uploaded image';
 $lang['help_iconsize'] = 'This option allows specifying the size of the icons displayed in the file list.';
 $lang['help_permissionstyle'] = '<p>This option allows changing the way that permissions are displayed in the file list.  Options include somewhat human readable <em>(rwx)</em> style, or octal <em>(755)</em> format.</p>';
@@ -188,7 +188,7 @@ $lang['newunsupportedarchive'] = '%s is an unsupported archive format';
 $lang['newuploadfailed'] = '%s file(s) failed to upload (or possibly unpack) successfully';
 $lang['newuploadsuccess'] = '%s file(s) was successfully uploaded (and unpacked if chosen)';
 $lang['nodestinationdirs'] = 'Could not find any valid destination directories for the operation';
-$lang['nofilesselected'] = 'No files selected';
+$lang['nofilesselected'] = 'No file selected';
 $lang['none'] = 'None';
 $lang['nothinguploaded'] = 'Nothing uploaded';
 $lang['notwritable'] = 'Not writable';

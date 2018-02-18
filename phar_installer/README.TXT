@@ -42,7 +42,7 @@ Instructions:
 2.  Upload the cmsms-<version>-install.expanded.zip file to this subdirectory.
 
 3.  Extract the files from the .zip archive into this subdirectory.
-    This will create numerous files and directories.  So use caution that you are extracting the files into the proper directory.
+    This will create numerous files and directories.  So be careful to extract the files into the proper directory.
 
 3.  Using your browser, navigate to the directory created in step 1.
     For Example:   http://www.mywebsite.site/cmsms_install
