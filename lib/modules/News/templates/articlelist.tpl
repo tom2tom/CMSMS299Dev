@@ -109,7 +109,7 @@ $(document).ready(function() {
       <select name="{$actionid}pagenumber">
         {cms_pageoptions numpages=$pagecount curpage=$pagenumber}
       </select>&nbsp;
-    <button type="submit" name="{$actionid}paginate" class="adminsubmit">{$mod->Lang('prompt_go')}</button>
+    <button type="submit" name="{$actionid}paginate" class="adminsubmit icondo">{$mod->Lang('prompt_go')}</button>
     {form_end}
   </div>
   {/if}
@@ -197,7 +197,7 @@ $(document).ready(function() {
     <div id="bulk_category" style="display: inline-block;">
       {$mod->Lang('category')}: {$categoryinput}
     </div>
-    <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icondo">{$mod->Lang('submit')}</button>
   </div>
   {/if}
   <div class="clearb"></div>

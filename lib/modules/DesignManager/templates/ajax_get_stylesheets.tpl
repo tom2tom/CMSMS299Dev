@@ -23,7 +23,7 @@
         <select id="css_page" name="{$actionid}css_page">
           {cms_pageoptions numpages=$css_nav.numpages curpage=$css_nav.curpage}
         </select>
-        &nbsp;<button type="submit" name="{$actionid}go" class="adminsubmit">{$mod->Lang('go')}</button>
+        &nbsp;<button type="submit" name="{$actionid}go" class="adminsubmit icongo">{$mod->Lang('go')}</button>
       {form_end}
     </div>
   {/if}

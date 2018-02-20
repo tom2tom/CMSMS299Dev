@@ -9,8 +9,8 @@
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit">{$mod->Lang('create')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button> 
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icondo">{$mod->Lang('create')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {$endform}

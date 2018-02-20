@@ -22,7 +22,7 @@ $('#tpl_selall').cmsms_checkall();
     <select id="tpl_page" name="{$actionid}tpl_page">
       {cms_pageoptions numpages=$tpl_nav.numpages curpage=$tpl_nav.curpage}
     </select>&nbsp;
-    <button type="submit" name="{$actionid}go" class="adminsubmit">{$mod->Lang('go')}</button>
+    <button type="submit" name="{$actionid}go" class="adminsubmit icongo">{$mod->Lang('go')}</button>
   </div>
   {/if}
 </div>

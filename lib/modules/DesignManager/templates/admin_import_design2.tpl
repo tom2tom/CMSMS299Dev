@@ -158,7 +158,7 @@ $(document).ready(function() {
 <div class="pageoverflow">
   <p class="pagetext"></p>
   <p class="pageinput">
-    <button type="submit" name="{$actionid}next2" class="adminsubmit">{$mod->Lang('next')}</button>
+    <button type="submit" name="{$actionid}next2" class="adminsubmit icongo">{$mod->Lang('next')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
