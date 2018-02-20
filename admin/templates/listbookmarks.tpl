@@ -1,7 +1,7 @@
 <div class="pagecontainer">
   {if $padd}
   <div class="pageoptions">
-    <a href="{$addurl}{$urlext}">{$iconadd}</a> OK ALL
+    <a href="{$addurl}{$urlext}">{$iconadd}</a>
     <a href="{$addurl}{$urlext}" class="pageoptions">{lang('addbookmark')}</a>
   </div>
   <br />
