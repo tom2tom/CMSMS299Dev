@@ -42,7 +42,7 @@ $(document).ready(function() {
           {cms_help key2='help_myaccount_dateformat' title=lang('date_format_string')}
         </p>
         <p class="pageinput">
-          <input class="pagenb" size="20" maxlength="255" type="text" name="date_format_string" value="{$date_format_string}" /> {lang('date_format_string_help')}
+          <input class="pagenb" size="20" maxlength="255" type="text" name="date_format_string" value="{$date_format_string}" />
         </p>
       </div>
     </fieldset>
@@ -88,20 +88,20 @@ $(document).ready(function() {
 
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="parent_id">{lang('defaultparentpage')}:</label>
-          {cms_help key2='help_myaccount_dfltparent' title=lang('defaultparentpage')}
-        </p>
-        <p class="pageinput">{$default_parent}</p>
-      </div>
-
-      <div class="pageoverflow">
-        <p class="pagetext">
           <label for="indent">{lang('adminindent')}:</label>
           {cms_help key2='help_myaccount_indent' title=lang('adminindent')}
         </p>
         <p class="pageinput">
-          <input class="pagenb" type="checkbox" id="indent" name="indent"{if $indent} checked="checked"{/if} /> {lang('indent')}
+          <input class="pagenb" type="checkbox" id="indent" name="indent"{if $indent} checked="checked"{/if} />
         </p>
+      </div>
+
+      <div class="pageoverflow">
+        <p class="pagetext">
+          <label for="parent_id">{lang('defaultparentpage')}:</label>
+          {cms_help key2='help_myaccount_dfltparent' title=lang('defaultparentpage')}
+        </p>
+        <p class="pageinput">{$default_parent}</p>
       </div>
       <!-- content display //-->
     </fieldset>
@@ -136,7 +136,7 @@ $(document).ready(function() {
           {cms_help key2='help_myaccount_admincallout' title=lang('admincallout')}
         </p>
         <p class="pageinput">
-          <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked="checked"{/if} /> {lang('showbookmarks')}
+          <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked="checked"{/if} />
         </p>
       </div>
 
@@ -146,7 +146,7 @@ $(document).ready(function() {
           {cms_help key2='help_myaccount_hidehelp' title=lang('hide_help_links')}
         </p>
         <p class="pageinput">
-          <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked="checked"{/if} /> {lang('hide_help_links_help')}
+          <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked="checked"{/if} />
         </p>
       </div>
 
