@@ -60,7 +60,7 @@ $smarty->assign([
 	'icondel' => $icondel,
 	'iconedit' => $iconedit,
 	'maintitle' => $maintitle,
-	'markslist' => $marklist,
+	'marklist' => $marklist,
 	'maxsee' => $maxsee,
 	'minsee' => $minsee,
 	'padd' => $padd,
