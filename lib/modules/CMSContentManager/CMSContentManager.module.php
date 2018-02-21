@@ -1,5 +1,4 @@
 <?php
-#-------------------------------------------------------------------------
 # CMSContentManager - A CMSMS module to provide page-content management.
 # Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,7 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------
 
 final class CMSContentManager extends CMSModule
 {
