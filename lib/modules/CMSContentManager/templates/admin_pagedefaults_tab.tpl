@@ -6,8 +6,10 @@
 <div class="pageoverflow">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
+<br />
 <div class="pageoverflow">
   <p class="pagetext">
     <label for="contenttype">{$mod->Lang('prompt_pagedflt_contenttype')}</label>:
@@ -141,6 +143,7 @@
 <div class="pageoverflow">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

@@ -1,10 +1,4 @@
 {form_start action='admin_listsettings_tab'}
-<br />
-<div class="pageoverflow">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-  </p>
-</div>
 <div class="pageoverflow">
   <p class="pagetext">
       <label for="namecolumn">{$mod->Lang('prompt_list_namecolumn')}:</label>
@@ -25,6 +19,13 @@
     <select id="visiblecolumns" name="{$actionid}list_visiblecolumns[]" multiple="multiple" size="5">
       {html_options options=$visible_column_opts selected=$list_visiblecolumns}
     </select>
+  </p>
+</div>
+<br />
+<div class="pageoverflow">
+  <p class="pageinput">
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

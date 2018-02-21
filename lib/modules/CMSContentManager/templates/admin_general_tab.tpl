@@ -1,11 +1,5 @@
 {form_start action='admin_general_tab'}
 <div class="pageoverflow">
-  <p class="pagetext"></p>
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-  </p>
-</div>
-<div class="pageoverflow">
   <p class="pagetext">
       <label for="locktimeout">{$mod->Lang('prompt_locktimeout')}:</label>
     {cms_help realm=$_module key2='help_general_locktimeout' title=$mod->Lang('prompt_locktimeout')}
@@ -32,6 +26,13 @@
     <select name="{$actionid}template_list_mode">
       {html_options options=$template_list_opts selected=$template_list_mode}
     </select>
+  </p>
+</div>
+<br />
+<div class="pageoverflow">
+  <p class="pageinput">
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}
