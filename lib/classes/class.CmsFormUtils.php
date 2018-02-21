@@ -1086,7 +1086,6 @@ class CmsFormUtils
             if ($warn_message) {
                 $out .= ' onclick="return confirm(\''.$warn_message.'\');"';
             }
-            $contents = \cms_htmlentities($contents);
             $out .= '>'.$contents.'</a>';
         }
         return $out;
@@ -1143,7 +1142,6 @@ class CmsFormUtils
                  'contents',
                  'onlyhref',
                 ]);
-                $contents = \cms_htmlentities($contents);
                 $out .= '>'.$contents.'</a>';
             }
         }
@@ -1200,7 +1198,6 @@ class CmsFormUtils
          'modid',
          'contents',
         ]);
-        $contents = \cms_htmlentities($contents);
         $out .= '>'.$contents.'</a>';
         return $out;
     }
@@ -1257,13 +1254,14 @@ class CmsFormUtils
             $out .= ' style="width:'.$forcewidth.'px";'; //TODO merge with other style $parms
         }
 
-        $contents = \cms_htmlentities($contents);
+        if (empty($href)) {
+            $contents = \cms_htmlentities($contents);
+        }
         $out .= '>'.$contents;
-
-        if (!empty($href)) {
-            $out .= '</a>'."\n";
-        } else {
+        if (empty($href)) {
             $out .= '</span>';
+        } else {
+            $out .= '</a>'."\n";
         }
         return $out;
     }
