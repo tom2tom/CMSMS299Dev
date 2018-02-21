@@ -75,7 +75,7 @@ $(document).ready(function() {
 
 <h3>{$mod->Lang('prompt_ordercontent')}</h3>
 {form_start action='admin_ordercontent' id="theform"}
-<input type="hidden" id="orderlist" name="{$actionid}orderlist" value=""/>
+<input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
 <div class="information">
   {$mod->Lang('info_ordercontent')}
 </div>
