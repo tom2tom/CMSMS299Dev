@@ -15,16 +15,20 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+/**
+ *
+ * @param array $params
+ * @param CMSMS\internal\template_wrapper $smarty
+ * @return mixed result of template conversion, or null
+ */
 function smarty_function_global_content($params, &$template)
 {
 	$template->assign('gcb_params',$params);
 	$txt = $template->fetch('cms_template:'.$params['name']);
-	if( isset($params['assign']) )
-	{
+	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$txt);
 		return;
 	}
 	return $txt;
 }
 
-?>
