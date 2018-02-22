@@ -3,7 +3,7 @@
   <div class="pageerrorcontainer">
     <p class="pageerror">{lang('noaccessto', lang('addgroup'))}</p>
   </div>
-  {elseif !$padd}
+  {elseif !$access}
   <div class="pageerrorcontainer">
     <p class="pageerror">{$error}</p>
   </div>
