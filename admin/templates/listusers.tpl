@@ -87,7 +87,7 @@ $(document).ready(function() {
     </tr>
   </thead>
   <tbody>
-    {foreach $users as $user} {$can_edit = $user->access_to_user}
+    {foreach $userlist as $user} {$can_edit = $user->access_to_user}
     <tr class="{cycle values='row1,row2'}">
 {strip}
       <td>
