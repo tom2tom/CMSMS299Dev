@@ -191,6 +191,27 @@ function cms_relative_path(string $in,string $relative_to = null) : string
 }
 
 /**
+ * A module-file locator which doesn't need the module to be loaded
+ *
+ * @param string $modname name of the module.
+ * @return string (maybe empty)
+ */
+function cms_module_path(string $modname) : string
+{
+	// core-modules place
+    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname,$modname.'.module.php');
+    if( is_file($path) ) {
+        return $path;
+    }
+	// other-modules place
+    $path = cms_join_path(CMS_ASSETS_PATH,'modules',$modname,$modname.'.module.php');
+    if( is_file($path) ) {
+        return $path;
+    }
+    return '';
+}
+
+/**
  * Get PHP flag corresponding to the configured 'content_language' i.e. the
  * preferred language/syntax for page-content
  *
@@ -588,7 +609,7 @@ function get_parameter_value(array $parameters, string $value, $default_value = 
  * @param  string  $path Start directory.
  * @return bool
  */
-function is_directory_writable( string $path )
+function is_directory_writable(string $path)
 {
     if ( substr ( $path , strlen ( $path ) - 1 ) != '/' ) $path .= '/' ;
 
@@ -1080,7 +1101,7 @@ function cms_to_bool(string $str) : bool
  * @param bool $ssl Force use of the ssl_url for the root url to necessary scripts.
  * @param bool $cdn Force the use of a CDN url for the libraries if one is known
  * @param string  $append A comma separated list of library URLS to the output
- * @param string  $custom_root A custom root URL for all scripts (when using local mode).  If this is spefied the $ssl param will be ignored.
+ * @param string  $custom_root A custom root URL for all scripts (when using local mode).  If this is specified the $ssl param will be ignored.
  * @param bool $include_css Optionally output stylesheet tags for the included javascript libraries.
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
@@ -1109,13 +1130,14 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
           $url = $config['admin_url'];
           $scripts['cms_js_setup'] = array('local'=>$url.'/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
       }
-      $scripts['cms_admin'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.min.js');
-      $scripts['cms_dirtyform'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_dirtyform.js');
-      $scripts['cms_lock'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_lock.js');
-      $scripts['cms_hiersel'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_hierselector.js');
-      $scripts['cms_autorefresh'] = array('local'=>$basePath.'/lib/jquery/js/jquery.cmsms_autorefresh.js');
-      $scripts['ui_touch_punch'] = array('local'=>$basePath.'/lib/jquery/js/jquery.ui.touch-punch.min.js');
-      $scripts['cms_filepicker'] = [ 'local'=>$basePath.'/lib/jquery/js/jquery.cmsms_filepicker.js' ];
+//      $scripts['cms_admin'] =       ['local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.min.js'];
+      $scripts['cms_admin'] =       ['local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.js']; //DEBUG
+      $scripts['cms_dirtyform'] =   ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_dirtyform.js'];
+      $scripts['cms_lock'] =        ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_lock.js'];
+      $scripts['cms_hiersel'] =     ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_hierselector.js'];
+      $scripts['cms_autorefresh'] = ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_autorefresh.js'];
+      $scripts['ui_touch_punch'] =  ['local'=>$basePath.'/lib/jquery/js/jquery.ui.touch-punch.min.js'];
+      $scripts['cms_filepicker'] =  ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_filepicker.js'];
   }
 
   // Check if we need to exclude some script
