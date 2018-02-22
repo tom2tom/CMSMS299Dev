@@ -13,7 +13,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="username">*{lang('name')}:</label>
-      {cms_help key='info_adduser_username' title=lang('name')}
+      {cms_help realm='admin' key2='info_adduser_username' title=lang('name')}
     </p>
     <p class="pageinput">
       <input id="username" type="text" name="user" maxlength="255" value="{$user}" class="standard"/>
@@ -22,7 +22,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="password">*{lang('password')}:</label>
-      {cms_help key='info_edituser_password' title=lang('password')}
+      {cms_help realm='admin' key2='info_edituser_password' title=lang('password')}
     </p>
     <p class="pageinput">
       <input type="password" id="password" name="password" maxlength="100" value="{$password}" class="standard"/>
@@ -31,7 +31,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="passwordagain">*{lang('passwordagain')}:</label>
-      {cms_help key='info_edituser_passwordagain' title=lang('passwordagain')}
+      {cms_help realm='admin' key2='info_edituser_passwordagain' title=lang('passwordagain')}
     </p>
     <p class="pageinput">
       <input type="password" id="passwordagain" name="passwordagain" maxlength="100" value="{$passwordagain}" class="standard"/>
@@ -67,7 +67,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {lang('active')}:
-      {cms_help key='info_user_active' title=lang('active')}
+      {cms_help realm='admin' key2='info_user_active' title=lang('active')}
     </p>
     <p class="pageinput">
       <input type="checkbox" class="pagecheckbox" name="active" value="1"{if $active == 1} checked="checked"{/if}/>
@@ -80,7 +80,7 @@
   <div class="pageverflow">
     <p class="pagetext">
       {lang('groups')}:
-      {cms_help key='info_membergroups' title=lang('groups')}
+      {cms_help realm='admin' key2='info_membergroups' title=lang('groups')}
     </p>
     <div class="pageinput">
       <div class="group_memberships clear">
@@ -114,7 +114,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {lang('copyusersettings')}:
-      {cms_help key='info_copyusersettings' title=lang('copyusersettings')}
+      {cms_help realm='admin' key2='info_copyusersettings' title=lang('copyusersettings')}
     </p>
     <p class="pageinput">
       <select name="copyusersettings">
