@@ -110,7 +110,7 @@
     </p>
     <input type="hidden" name="{$actionid}profile_allowcssoverride" value="0" />
     <p class="pageinput">
-      <input type="checkbox" name="{$actionid}profile_allowcssoverride" id="profile_allowcssoverride" value="1"{if $$data.allowcssoverride} checked="checked"{/if} />
+      <input type="checkbox" name="{$actionid}profile_allowcssoverride" id="profile_allowcssoverride" value="1"{if $data.allowcssoverride} checked="checked"{/if} />
     </p>
   </div>
 
