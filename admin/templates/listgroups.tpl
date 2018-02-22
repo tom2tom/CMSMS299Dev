@@ -1,5 +1,5 @@
 <div class="pagecontainer">
-  {if $padd}
+  {if $access}
   <div class="pageoptions">
     <a href="{$addurl}{$urlext}">{$iconadd}</a>
     <a href="{$addurl}{$urlext}" class="pageoptions">{lang('addgroup')}</a>
@@ -16,7 +16,7 @@
     <thead>
       <tr>
         <th class="pagew60">{lang('name')}</th>
-        <th class="pagepos">{lang('active'}</th>
+        <th class="pagepos">{lang('active')}</th>
         {if $access}
         <th class="pageicon">&nbsp;</th>
         <th class="pageicon">&nbsp;</th>
@@ -52,7 +52,7 @@
         </td>
         <td class="pagepos icons_wide">
           {if $one->id != 1}
-          <a href="{$deleteurl}{$urlext}&amp;group_id={$one->id}" onclick="return confirm('{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');">{$icondelete}</a>
+          <a href="{$deleteurl}{$urlext}&amp;group_id={$one->id}" onclick="return confirm('{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');">{$icondel}</a>
           {/if}
         </td>
         {/if}
@@ -61,7 +61,7 @@
       {/if} {/foreach}
     </tbody>
   </table>
-  {if $padd && count($grouplist) > 20}
+  {if $access && count($grouplist) > 20}
   <br />
   <div class="pageoptions">
     <a href="{$addurl}{$urlext}">{$iconadd}</a>
