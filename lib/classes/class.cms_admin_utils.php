@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: cms_tree (c) 2010-2018 Robert Campbell
-#         <calguy1000@cmsmadesimple.org>
-#  A simple php tree class.
-#
-#-------------------------------------------------------------------------
-# CMS Made Simple (c) 2004-2018 Ted Kulp <wishy@cmsmadesimple.org>
+# A class of convenience functions for admin console requests
+# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
 
 /**
  * Static classes providing convenience functions for admin console requests.
@@ -65,13 +54,14 @@ final class cms_admin_utils
 		$smarty = \CMSMS\internal\Smarty::get_instance();
 		$module = $smarty->get_template_vars('actionmodule');
 
-		$dirs = array();
+		$dirs = [];
 		if( $module ) {
 			$obj = cms_utils::get_module($module);
 			if( is_object($obj) ) {
 				$img = basename($icon);
-				$dirs[] = array(cms_join_path($obj->GetModulePath(),'icons',"{$img}"),$obj->GetModuleURLPath()."/icons/{$img}");
-				$dirs[] = array(cms_join_path($obj->GetModulePath(),'images',"{$img}"),$obj->GetModuleURLPath()."/images/{$img}");
+				$path = $obj->GetModulePath();
+				$dirs[] = [cms_join_path($path,'icons',"{$img}"), $path."/icons/{$img}"];
+				$dirs[] = [cms_join_path($path,'images',"{$img}"), $path."/images/{$img}"];
 			}
 		}
 		if( basename($icon) == $icon ) $icon = "icons/system/{$icon}";
@@ -92,18 +82,26 @@ final class cms_admin_utils
 	/**
 	 * Get a help tag for displaying inlne, popup help.
 	 *
-	 * This method accepts variable arguments.  If only one argument is passed it is assumed to be
-	 * the second key for the help tag and the first key is assumed to be the current module name.
-	 * If two arguments are passed the first argument is assumed to be key1 and the second to be key2.
+	 * This method accepts variable arguments. Recognized keys are
+	 " 'key1'/'realm','key'/'key2','title'/'titlekey'
+	 * If neither 'key1'/'realm' is provided, the fallback will be action-module
+	 * name, or else 'help'
+	 * If neither 'title'/'titlekey' is provided, the fallback will be 'key'/'key2'
 	 *
-	 * @param string $keys,... [$key2|$key1,$key2]
-	 * @return string HTML content of the help tag
+	 * @param strings array
+	 * @return string HTML content of the help tag, or null
 	 */
 	public static function get_help_tag(...$args)
 	{
 		if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 
-		$params = array();
+		$theme = cms_utils::get_theme_object();
+		if( !is_object($theme) ) return;
+
+		$icon = self::get_icon('info.gif');
+		if( !$icon ) return;
+
+		$params = [];
 		if( count($args) >= 2 && is_string($args[0]) && is_string($args[1]) ) {
 			$params['key1'] = $args[0];
 			$params['key2'] = $args[1];
@@ -116,13 +114,9 @@ final class cms_admin_utils
 			$params = $args[0];
 		}
 
-		$theme = cms_utils::get_theme_object();
-		if( !is_object($theme) ) return;
-
 		$key1 = '';
 		$key2 = '';
 		$title = '';
-        $titlekey = '';
 		foreach( $params as $key => $value ) {
 			switch( $key ) {
 			case 'key1':
@@ -131,14 +125,11 @@ final class cms_admin_utils
 				break;
 			case 'key':
 			case 'key2':
-			case 'key':
 				$key2 = trim($value);
 				break;
-            case 'titlekey':
-                $titlekey = $value;
-                break;
 			case 'title':
-				$title = $value;
+            case 'titlekey':
+				$title = trim($value); //TODO ensure $value including e.g. &quot; works
 			}
 		}
 
@@ -149,22 +140,15 @@ final class cms_admin_utils
 				$key1 = $module;
 			}
 			else {
-				$key1 = 'help';
+				$key1 = 'help'; //default realm for lang
 			}
 		}
 
-		if( !$key1 ) 	return;
+		if( !$key1 ) return;
 
-		$key = $key1;
-		if( $key2 !== '' ) $key .= '__'.$key2;
-		if( $title === '' ) $title = $key2;
+		if( $key2 !== '' ) { $key1 .= '__'.$key2; }
+		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
 
-		$icon = self::get_icon('info.gif');
-		if( !$icon ) return;
-
-		return '<span class="cms_help" data-cmshelp-key="'.$key.'" data-cmshelp-title="'.$title.'"><img class="cms_helpicon" src="'.$icon.'" alt="'.$icon.'" /></span>';
+		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'"><img class="cms_helpicon" src="'.$icon.'" alt="'.$icon.'" /></span>';
 	}
 } // end of class
-
-#
-# EOF
