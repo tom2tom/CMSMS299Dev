@@ -172,13 +172,13 @@ $(document).ready(function() {
 {tab_header name='template' label=$mod->Lang('prompt_template')}
 {tab_header name='description' label=$mod->Lang('prompt_description')}
 {if $has_themes_right}
-   {tab_header name='designs' label=$mod->Lang('prompt_designs')}
+  {tab_header name='designs' label=$mod->Lang('prompt_designs')}
+{/if}
+{if $template->get_owner_id() == get_userid() || $has_manage_right}
+  {tab_header name='permissions' label=$mod->Lang('prompt_permissions')}
 {/if}
 {if $has_manage_right}
-   {tab_header name='advanced' label=$mod->Lang('prompt_advanced')}
-{/if}
-{if $template->get_owner_id() == get_userid() or $has_manage_right}
-   {tab_header name='permissions' label=$mod->Lang('prompt_permissions')}
+  {tab_header name='advanced' label=$mod->Lang('prompt_advanced')}
 {/if}
 
 {tab_start name='template'}
@@ -225,6 +225,36 @@ $(document).ready(function() {
    </div>
 {/if}
 
+{if $template->get_owner_id() == get_userid() or $has_manage_right}
+   {tab_start name='permissions'}
+   {if isset($user_list)}
+   <div class="pageoverflow">
+     <p class="pagetext">
+      <label for="tpl_owner">{$mod->Lang('prompt_owner')}:</label>
+    {cms_help realm=$_module key2=help_template_owner title=$mod->Lang('prompt_owner')}
+      </p>
+     <p class="pageinput">
+       <select id="tpl_owner" name="{$actionid}owner_id">
+         {html_options options=$user_list selected=$template->get_owner_id()}
+       </select>
+     </p>
+   </div>
+   {/if}
+   {if isset($addt_editor_list)}
+   <div class="pageoverflow">
+     <p class="pagetext">
+      <label for="tpl_addeditor">{$mod->Lang('additional_editors')}:</label>
+    {cms_help realm=$_module key2=help_template_addteditors title=$mod->Lang('additional_editors')}
+      </p>
+     <p class="pageinput">
+       <select id="tpl_addeditor" name="{$actionid}addt_editors[]" multiple="multiple" size="5">
+         {html_options options=$addt_editor_list selected=$template->get_additional_editors()}
+       </select>
+     </p>
+   </div>
+   {/if}
+{/if}
+
 {if $has_manage_right}
    {tab_start name='advanced'}
      <div class="pageoverflow">
@@ -234,7 +264,7 @@ $(document).ready(function() {
        </p>
        <input type="hidden" name="{$actionid}listable" value="0" />
        <p class="pageinput">
-         <input type="checkbox" name="{$actionid}listable" id="tpl_listable" value="1"{if $$template->get_listable()} checked="checked"{/if}
+         <input type="checkbox" name="{$actionid}listable" id="tpl_listable" value="1"{if $template->get_listable()} checked="checked"{/if}
          {if $type_is_readonly} disabled="disabled"{/if} />
        </p>
      </div>
@@ -287,36 +317,6 @@ $(document).ready(function() {
       {/if}
       </p>
      </div>
-   {/if}
-{/if}
-
-{if $template->get_owner_id() == get_userid() or $has_manage_right}
-   {tab_start name='permissions'}
-   {if isset($user_list)}
-   <div class="pageoverflow">
-     <p class="pagetext">
-      <label for="tpl_owner">{$mod->Lang('prompt_owner')}:</label>
-    {cms_help realm=$_module key2=help_template_owner title=$mod->Lang('prompt_owner')}
-      </p>
-     <p class="pageinput">
-       <select id="tpl_owner" name="{$actionid}owner_id">
-         {html_options options=$user_list selected=$template->get_owner_id()}
-       </select>
-     </p>
-   </div>
-   {/if}
-   {if isset($addt_editor_list)}
-   <div class="pageoverflow">
-     <p class="pagetext">
-      <label for="tpl_addeditor">{$mod->Lang('additional_editors')}:</label>
-    {cms_help realm=$_module key2=help_template_addteditors title=$mod->Lang('additional_editors')}
-      </p>
-     <p class="pageinput">
-       <select id="tpl_addeditor" name="{$actionid}addt_editors[]" multiple="multiple" size="5">
-         {html_options options=$addt_editor_list selected=$template->get_additional_editors()}
-       </select>
-     </p>
-   </div>
    {/if}
 {/if}
 {tab_end}
