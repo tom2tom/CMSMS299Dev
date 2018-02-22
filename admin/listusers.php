@@ -275,13 +275,12 @@ $users = $userops->LoadUsers($limit, $offset);
 $is_admin = $userops->UserInGroup($userid, 1);
 
 foreach ($users as &$one) {
-    $userlist[$one->id] = $one->username;
     $one->access_to_user = 1;
-
     if ($userops->UserInGroup($one->id, 1) && !$userops->UserInGroup($userid, 1)) {
         $one->access_to_user = 0;
     }
     $one->pagecount = $userops->CountPageOwnershipById($one->id);
+    $userlist[$one->id] = $one;
 }
 unset($one);
 
