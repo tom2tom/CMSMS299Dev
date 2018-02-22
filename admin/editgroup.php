@@ -41,7 +41,7 @@ if (isset($_GET['group_id'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 
-$userops = $gCms->GetUserOperations();
+$userops = cmsms()->GetUserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
 if ($access) {
