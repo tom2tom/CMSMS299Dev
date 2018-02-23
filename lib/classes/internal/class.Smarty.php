@@ -1,6 +1,7 @@
 <?php
-#...
+#Smarty sub-class
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2013-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 namespace CMSMS\internal;
-use CMSMS\internal\layout_template_resource;
-use CMSMS\internal\module_db_template_resource;
-use CMSMS\internal\module_file_template_resource;
-use CMSMS\internal\layout_stylesheet_resource;
 
 /**
  * @package CMS
@@ -35,12 +30,10 @@ use CMSMS\internal\layout_stylesheet_resource;
  */
 class Smarty extends smarty_base_template
 {
-    private static $_instance;
+    private static $_instance = null;
 
     /**
      * Constructor
-     *
-     * @param array The hash of CMSMS config settings
      */
     public function __construct()
     {
@@ -53,32 +46,33 @@ class Smarty extends smarty_base_template
         $this->setCompileDir(TMP_TEMPLATES_C_LOCATION);
         $this->assignGlobal('app_name','CMSMS');
 
-        if (CMS_DEBUG == true) $this->error_reporting = 'E_ALL';
+        if (CMS_DEBUG) $this->error_reporting = 'E_ALL';
 
         // set our own template class with some funky stuff in it
         // note, can get rid of the CMS_Smarty_Template class and the Smarty_Parser classes.
-        $this->template_class = '\\CMSMS\internal\template_wrapper';
+        $this->template_class = '\\CMSMS\\internal\\template_wrapper';
 
         // common resources.
         $this->registerResource('module_db_tpl',new module_db_template_resource());
         $this->registerResource('module_file_tpl',new module_file_template_resource());
         $this->registerResource('cms_template',new layout_template_resource());
-        //$this->registerResource('template',new CmsTemplateResource()); // <- Should proably be global and removed from parser? // deprecated
-        $this->registerResource('cms_stylesheet', new layout_stylesheet_resource());
+//      $this->registerResource('template',new CmsTemplateResource()); // <- Should proably be global and removed from parser? // deprecated
+        $this->registerResource('cms_stylesheet',new layout_stylesheet_resource());
+        $this->registerResource('content',new content_template_resource());
 
         // register default plugin handler
         $this->registerDefaultPluginHandler( [ $this, 'defaultPluginHandler' ] );
 
-        $this->addConfigDir(CMS_ASSETS_PATH.'/configs');
-        $this->addPluginsDir(CMS_ASSETS_PATH.'/plugins');
-        $this->addPluginsDir(CMS_ROOT_PATH.'/plugins'); // deprecated
-        $this->addPluginsDir(CMS_ROOT_PATH.'/lib/plugins');
+        $this->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
+        $this->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins');
+        $this->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins'); // deprecated
+        $this->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins');
 
         $_gCms = \CmsApp::get_instance();
         $config = \cms_config::get_instance();
         if( $_gCms->is_frontend_request()) {
-            $this->addTemplateDir(CMS_ASSETS_PATH.'/templates');
-            $this->addTemplateDir(CMS_ROOT_PATH.'/lib/assets/templates');
+            $this->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates');
+            $this->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates');
 
             // Check if we are at install page, don't register anything if so, cause nothing below is needed.
             if(isset($CMS_INSTALL_PAGE)) return;
@@ -92,14 +86,12 @@ class Smarty extends smarty_base_template
             $this->registerResource('tpl_top',new layout_template_resource('top'));
             $this->registerResource('tpl_head',new layout_template_resource('head'));
             $this->registerResource('tpl_body',new layout_template_resource('body'));
-            $this->registerResource('content',new \CMSMS\internal\content_template_resource());
 
-            // just for frontend actions.
-            $this->registerPlugin('compiler','content','\\CMSMS\internal\content_plugins::smarty_compile_fecontentblock',false);
-            $this->registerPlugin('function','content_image','\\CMSMS\\internal\content_plugins::smarty_fetch_imageblock',false);
-            $this->registerPlugin('function','content_module','\\CMSMS\\internal\\content_plugins::smarty_fetch_moduleblock',false);
-            $this->registerPlugin('function','content_text','\\CMSMS\\internal\\content_plugins::smarty_fetch_textblock',false);
-            $this->registerPlugin('function','process_pagedata','\\CMSMS\internal\\content_plugins::smarty_fetch_pagedata',false);
+            $this->registerPlugin('compiler','content','\\CMSMS\internal\\page_template_parser::compile_fecontentblock',false);
+            $this->registerPlugin('function','content_image','\\CMSMS\\internal\content_plugins::fetch_imageblock',false);
+            $this->registerPlugin('function','content_module','\\CMSMS\\internal\\content_plugins::fetch_moduleblock',false);
+            $this->registerPlugin('function','content_text','\\CMSMS\\internal\\content_plugins::fetch_textblock',false);
+            $this->registerPlugin('function','process_pagedata','\\CMSMS\\internal\\content_plugins::fetch_pagedata',false);
 
             // Autoload filters
             //$this->autoloadFilters();
@@ -107,13 +99,14 @@ class Smarty extends smarty_base_template
             // Enable security object
             if( !$config['permissive_smarty'] ) $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
         }
-        else if($_gCms->test_state(\CmsApp::STATE_ADMIN_PAGE)) {
+        elseif ($_gCms->test_state(\CmsApp::STATE_ADMIN_PAGE)) {
             $this->setCaching(false);
             $admin_dir = $config['admin_path'];
-            $this->addPluginsDir($admin_dir.'/plugins');
-            $this->addTemplateDir($admin_dir.'/templates');
-            $this->addTemplateDir(CMS_ROOT_PATH.'/lib/assets/templates');
-            $this->setConfigDir($admin_dir.'/configs');;
+            $this->addPluginsDir($admin_dir.DIRECTORY_SEPARATOR.'plugins');
+            $this->addTemplateDir($admin_dir.DIRECTORY_SEPARATOR.'templates');
+            $this->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates');
+            $this->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates');
+            $this->setConfigDir($admin_dir.DIRECTORY_SEPARATOR.'configs');
         }
     }
 
@@ -124,7 +117,7 @@ class Smarty extends smarty_base_template
      */
     public static function &get_instance()
     {
-        if( !self::$_instance ) self::$_instance = new self;
+        if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
     }
 
