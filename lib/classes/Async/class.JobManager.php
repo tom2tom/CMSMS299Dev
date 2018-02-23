@@ -56,7 +56,7 @@ final class JobManager
     /**
      * @ignore
      */
-    private static $_instance;
+    private static $_instance = null;
 
     /**
      * @ignore

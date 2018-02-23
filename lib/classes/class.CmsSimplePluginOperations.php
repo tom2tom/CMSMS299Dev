@@ -21,7 +21,7 @@ final class CmsSimplePluginOperations
     /**
      * @ignore
      */
-    private static $_instance;
+    private static $_instance = null;
     private $_loaded = [];
 
 //  protected function __construct() {} we're final

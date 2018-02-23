@@ -40,12 +40,12 @@ final class UserTagOperations
 	/**
 	 * @ignore
 	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	protected function __construct() {}
+	private function __construct() {}
 
 	/**
 	 * Get a reference to thie only allowed instance of this class
@@ -53,7 +53,7 @@ final class UserTagOperations
 	 */
 	public static function &get_instance()
 	{
-		if( !isset(self::$_instance) ) self::$_instance = new UserTagOperations();
+		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
 	}
 

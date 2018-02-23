@@ -60,7 +60,7 @@ final class CmsApp {
 	/**
 	 * @ignore
 	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -78,7 +78,7 @@ final class CmsApp {
     private $_showtemplate = true;
 
 	/**
-	 * List of currrent states.
+	 * List of current states.
 	 * @ignore
 	 */
 	private $_states;
@@ -144,7 +144,7 @@ final class CmsApp {
 	 */
 	public static function &get_instance()
 	{
-		if( !isset(self::$_instance)  ) self::$_instance = new CmsApp();
+		if( !self::$_instance  ) self::$_instance = new self();
 		return self::$_instance;
 	}
 

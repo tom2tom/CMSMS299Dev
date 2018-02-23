@@ -20,7 +20,7 @@ class cms_cache_handler
   /**
    * @ignore
    */
-  static private $_instance;
+  static private $_instance = null;
 
   /**
    * @ignore
@@ -61,7 +61,7 @@ class cms_cache_handler
    */
   final public static function get_instance()
   {
-    if( !is_object(self::$_instance) ) self::$_instance = new cms_cache_handler;
+    if( !is_object(self::$_instance) ) self::$_instance = new self();
     return self::$_instance;
   }
 

@@ -41,17 +41,18 @@ final class GroupOperations
 	/**
 	 * @ignore
 	 */
-	protected function __construct() {}
-
-	/**
-	 * @ignore
-	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
 	private $_perm_cache;
+
+
+	/**
+	 * @ignore
+	 */
+	private function __construct() {}
 
 	/**
 	 * Retrieve the single instance of this class
@@ -60,7 +61,7 @@ final class GroupOperations
 	 */
 	public static function &get_instance()
 	{
-		if( !is_object(self::$_instance) ) self::$_instance = new GroupOperations();
+		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
 	}
 

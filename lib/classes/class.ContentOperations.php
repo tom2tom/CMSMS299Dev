@@ -42,11 +42,6 @@ class ContentOperations
 	/**
 	 * @ignore
 	 */
-	protected function __construct() {}
-
-	/**
-	 * @ignore
-	 */
 	private $_quickfind;
 
 	/**
@@ -57,7 +52,7 @@ class ContentOperations
 	/**
 	 * @ignore
 	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -70,13 +65,18 @@ class ContentOperations
 	private $_ownedpages;
 
 	/**
+	 * @ignore
+	 */
+	private function __construct() {}
+
+	/**
 	 * Return a reference to the only allowed instance of this singleton object
 	 *
 	 * @return ContentOperations
 	 */
 	public static function &get_instance()
 	{
-		if( !is_object( self::$_instance ) ) self::$_instance = new ContentOperations();
+		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
 	}
 

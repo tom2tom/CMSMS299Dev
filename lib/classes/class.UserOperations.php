@@ -48,7 +48,7 @@ class UserOperations
 	/**
 	 * @ignore
 	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -72,7 +72,7 @@ class UserOperations
 	 */
 	public static function &get_instance()
 	{
-		if (!is_object(self::$_instance)) {
+		if (!self::$_instance) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
@@ -216,7 +216,7 @@ class UserOperations
 				if (!hash_equals($tmp, $hash)) {
 					sleep(1);
 					return $result;
-				} 
+				}
 				$oneuser = new User();
 				$oneuser->SetPassword($password);
 				$query = 'UPDATE '.CMS_DB_PREFIX.'users SET password = ? WHERE user_id = ?';

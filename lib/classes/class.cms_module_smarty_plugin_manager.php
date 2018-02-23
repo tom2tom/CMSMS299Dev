@@ -48,7 +48,7 @@ final class cms_module_smarty_plugin_manager
 	/**
 	 * @ignore
 	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -85,7 +85,7 @@ final class cms_module_smarty_plugin_manager
 	 */
 	public static function &get_instance()
 	{
-		if( !self::$_instance ) self::$_instance = new cms_module_smarty_plugin_manager();
+		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
 	}
 
