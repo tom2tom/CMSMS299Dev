@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#class for managing module metadata
+#Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -38,8 +38,8 @@ use \ModuleOperations;
  */
 final class module_meta
 {
-    static private $_instance = null;
-    private $_data = array();
+    private static $_instance = null;
+    private $_data = [];
 
     private function __construct() {}
 
@@ -50,10 +50,7 @@ final class module_meta
      */
     public static function &get_instance()
     {
-        if( !isset(self::$_instance) ) {
-            $c = __CLASS__;
-            self::$_instance = new $c;
-        }
+        if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
     }
 
