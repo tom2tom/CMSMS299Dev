@@ -1,6 +1,7 @@
 <?php
-#...
+#class of methods for the main Content class
 #Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,10 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-use CMSMS\internal\content_plugins;
+use CMSMS\internal\page_template_parser;
 
 /**
  * Class definition and methods for the main Content class.
@@ -55,7 +54,7 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * Indicates wether this content object can be used in search
+	 * Indicates whether this content object can be used in search
 	 * (does not test if individual properties are indexable or not)
 	 *
 	 * @since 2.0
@@ -70,7 +69,7 @@ class Content extends ContentBase
 	public function HasSearchableContent() { return TRUE; }
 
 	/**
-	 * Indicates wether ths page type uses a template.
+	 * Indicates whether this page type uses a template.
 	 * Content pages do use a template.
 	 *
 	 * @since 2.0
@@ -123,7 +122,7 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * Indicates wether pages of this type can be previewed.
+	 * Indicates whether pages of this type can be previewed.
 	 * "Content" pages can be previewed in the editor.
 	 *
 	 * @return bool TRUE
@@ -266,7 +265,7 @@ class Content extends ContentBase
 		if( $errors === FALSE ) $errors = array();
 
 		if ($this->mTemplateId <= 0 ) {
-			$errors[] = lang('nofieldgiven',array(lang('template')));
+			$errors[] = lang('nofieldgiven', lang('template'));
 			$result = false;
 		}
 
@@ -281,7 +280,7 @@ class Content extends ContentBase
 			foreach($blocks as $blockName => $blockInfo) {
 				if( $blockInfo['id'] == 'content_en' ) $have_content_en = TRUE;
 				if( isset($blockInfo['required']) && $blockInfo['required'] && ($val = $this->GetPropertyValue($blockName)) == '' ) {
-					$errors[] = lang('emptyblock',array($blockName));
+					$errors[] = lang('emptyblock', $blockName);
 				}
 				if( isset($blockInfo['type']) && $blockInfo['type'] == 'module' ) {
 					$module = cms_utils::get_module($blockInfo['module']);
@@ -315,16 +314,17 @@ class Content extends ContentBase
 	 */
 	private function get_content_blocks()
 	{
-		if( is_array($this->_contentBlocks) ) return $this->_contentBlocks;
+		if( is_array($this->_contentBlocks) ) {
+			return $this->_contentBlocks;
+		}
 
-		content_plugins::reset();
-		$this->_contentBlocks = array();
+		$this->_contentBlocks = [];
+		$smarty = \CMSMS\internal\Smarty::get_instance();
 		try {
-			$smarty = \CMSMS\internal\Smarty::get_instance();
-			$parser = new \CMSMS\internal\page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
+			$parser = new page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
+//redundant  page_template_parser::reset();
 			$parser->compileTemplateSource();
-
-			$this->_contentBlocks = content_plugins::get_content_blocks();
+			$this->_contentBlocks = page_template_parser::get_content_blocks();
 		}
 		catch( SmartyException $e ) {
 			// smarty exceptions here could be a bad template, or missing template, or something else.
@@ -428,7 +428,7 @@ class Content extends ContentBase
 			$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_page_searchable',lang('help_title_page_searchable'));
 			return array('<label for="id_searchable">'.lang('searchable').':</label>'.$help,
 						 '<input type="hidden" name="searchable" value="0"/>
-						  <input id="id_searchable" type="checkbox" name="searchable" value="1" '.($searchable==1?'checked="checked"':'').'/>');
+						  <input id="id_searchable" type="checkbox" name="searchable" value="1" '.($searchable==1?'checked="checked"':'').' />');
 
 		case 'disable_wysiwyg':
 			$disable_wysiwyg = $this->GetPropertyValue('disable_wysiwyg');
@@ -436,7 +436,7 @@ class Content extends ContentBase
 			$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_page_disablewysiwyg',lang('help_title_page_disablewysiwyg'));
 			return array('<label for="id_disablewysiwyg">'.lang('disable_wysiwyg').':</label>'.$help,
 						 '<input type="hidden" name="disable_wysiwyg" value="0" />
-						  <input id="id_disablewysiwyg" type="checkbox" name="disable_wysiwyg" value="1"  '.($disable_wysiwyg==1?'checked="checked"':'').'/>');
+						  <input id="id_disablewysiwyg" type="checkbox" name="disable_wysiwyg" value="1"  '.($disable_wysiwyg==1?'checked="checked"':'').' />');
 
 		case 'wantschildren':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
@@ -445,7 +445,7 @@ class Content extends ContentBase
 				$help = '&nbsp;'.cms_admin_utils::get_help_tag('core','help_page_wantschildren',lang('help_title_page_wantschildren'));
 				return array('<label for="id_wantschildren">'.lang('wantschildren').':</label>'.$help,
 							 '<input type="hidden" name="wantschildren" value="0"/>
-							  <input id="id_wantschildren" type="checkbox" name="wantschildren" value="1" '.($wantschildren?'checked="checked"':'').'/>');
+							  <input id="id_wantschildren" type="checkbox" name="wantschildren" value="1" '.($wantschildren?'checked="checked"':'').' />');
 			}
 			break;
 
@@ -503,7 +503,7 @@ class Content extends ContentBase
 			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'.cms_htmlentities($value, ENT_NOQUOTES).'"';
 			if( $required ) $ret .= " required=\"required\"";
 			if( $placeholder ) $ret .= " placeholder=\"{$placeholder}\"";
-			$ret .= '/>';
+			$ret .= ' />';
 		}
 		else {
 			$block_wysiwyg = true;
