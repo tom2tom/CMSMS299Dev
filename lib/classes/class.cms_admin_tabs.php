@@ -7,6 +7,12 @@
 
 /**
  * A simple convenience class for creating a tabbed interface in the CMSMS admin console
+ * Includes some automation, which can be a problem if the order of method-calls is
+ * non-standard.
+ * Typical use:
+ * 1. set_tab_header() - n times, then
+ * 2. start_tab() - n times each where appropriate, then
+ * 3. end_tab_content() where appropriate
  *
  * @package CMS
  * @license GPL
@@ -80,18 +86,20 @@ final class cms_admin_tabs
    * @param bool   $active Whether the tab is active or not.  If the current active tag matches the $tabid then the tab will be marked as active.
    * @return string
    */
-  public static function set_tab_header($tabid,$title,$active = FALSE)
+  public static function set_tab_header($tabid,$title,$active = false)
   {
-    if( $active == FALSE ) {
-      if( (self::$_tab_idx == 0 && self::$_current_tab == '') || $tabid == self::$_current_tab ) $active = TRUE;
+    if( !$active ) {
+      if( (self::$_tab_idx == 0 && self::$_current_tab == '') || $tabid == self::$_current_tab ) $active = true;
       self::$_tab_idx++;
     }
 
-    $a="";
-    if (TRUE == $active) {
-      $a=" class='active'";
+    if( $active ) {
+      $a = ' class="active"';
       self::$_current_tab = $tabid;
+    } else {
+      $a = '';
     }
+
     $tabid = strtolower(str_replace(' ','_',$tabid));
 
     $out = '';
@@ -142,10 +150,10 @@ final class cms_admin_tabs
    * Start the content portion of a specific tab
    *
    * @param string $tabid The tab key
-   * @param array  $params Array of parameters for the tab
+   * @param array  $params Unused, deprecated
    * @return string
    */
-  public static function start_tab($tabid,$params = [])
+  public static function start_tab($tabid)
   {
     $out = '';
     if( !self::$_start_content_sent ) $out .= self::start_tab_content();
