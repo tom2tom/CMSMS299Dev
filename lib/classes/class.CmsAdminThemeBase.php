@@ -1,5 +1,5 @@
 <?php
-#CMS Made Simple classes
+#admin-theme-related classes
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2012-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,19 +15,15 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
- * Classes and utilities for the base CMS Admin theme
+ * Classes and utilities for the base CMS admin theme
  * @package CMS
  * @license GPL
  */
 
-
 /**
- * Base class for CMSMS Admin themes.
- * This is an abstract class that is used for building CMSMS Admin Themes.
+ * This is an abstract base class for building CMSMS admin themes.
  * This is also a singleton object.
  *
  * @package CMS
@@ -44,7 +40,7 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
-    private static $_instance;
+    private static $_instance = null;
 
     /**
      * @ignore
@@ -65,16 +61,6 @@ abstract class CmsAdminThemeBase
      * @ignore
      */
     private $_breadcrumbs;
-
-    /**
-     * @ignore
-     */
-    private $_errors;
-
-    /**
-     * @ignore
-     */
-    private $_messages;
 
     /**
      * @ignore
@@ -149,6 +135,15 @@ abstract class CmsAdminThemeBase
     private $_valid_sections = ['main','content','layout','files','usersgroups','extensions','siteadmin','ecommerce','myprefs'];
 
     /**
+     * Feedback-message-string accumulators
+     * @ignore
+     */
+    protected $_errors = [];
+    protected $_warnings = [];
+    protected $_successes = [];
+    protected $_infos = [];
+
+    /**
      * @ignore
      */
     protected function __construct()
@@ -177,14 +172,18 @@ abstract class CmsAdminThemeBase
      */
     public function __get($key)
     {
-        if( $key == 'themeName' ) {
+        switch( $key ) {
+        case 'themeName':
             $class = get_class($this);
             if( endswith($class,'Theme') ) $class = substr($class,0,strlen($class)-5);
             return $class;
+        case 'userid':
+            return get_userid();
+        case 'title':
+            return $this->_title;
+        case 'subtitle':
+            return $this->_subtitle;
         }
-        if( $key == 'userid' ) return get_userid();
-        if( $key == 'title' ) return $this->_title;
-        if( $key == 'subtitle' ) return $this->_subtitle;
     }
 
     /**
@@ -515,7 +514,7 @@ abstract class CmsAdminThemeBase
         $items['myprefs'] = array('url'=>'index.php?section=myprefs','parent'=>-1,'priority'=>8,
                                   'title'=>$this->_FixSpaces(lang('myprefs')),
                                   'description'=>lang('myprefsdescription'),
-			                      'show_in_menu'=>$this->_perms['myprefs']);
+                                  'show_in_menu'=>$this->_perms['myprefs']);
         $items['myaccount'] = array('url'=>'myaccount.php','parent'=>'myprefs',
                                     'title'=>$this->_FixSpaces(lang('myaccount')),
                                     'description'=>lang('myaccountdescription'),
@@ -1029,8 +1028,8 @@ abstract class CmsAdminThemeBase
     public function DisplayImage($imageName, $alt='', $width = '', $height = '', $class = null)
     {
         // @todo: fix me...
-        if( !is_array($this->_imageLink) ) $this->_imageLink = array();
-        if (! isset($this->_imageLink[$imageName])) {
+        if (!is_array($this->_imageLink)) $this->_imageLink = [];
+        if (!isset($this->_imageLink[$imageName])) {
             $imagePath = '';
             if (strpos($imageName,'/') !== false) {
                 $imagePath = substr($imageName,0,strrpos($imageName,'/')+1);
@@ -1059,84 +1058,123 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Function for caching error-messages to be shown in the admin theme.
+     * Cache error-messages to be shown in the admin theme.
      *
      * @param mixed $errors The error message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
-	 *  contains a lang key for an error string, or an array of such keys.
-	 *  If specified, $errors is ignored.
-	 * @deprecated since 2.3 Use PrepareError instead
-	 * @return empty string (in case someone thinks it's worth echoing)
+     *  contains a lang key for an error string, or an array of such keys.
+     *  If specified, $errors is ignored.
+     * @deprecated since 2.3 Use PrepareError instead
+     * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowErrors($errors, $get_var = null)
-	{
-		$this->PrepareError($errors, $get_var);
-		return '';
-	}
+    {
+        $this->PrepareStrings($this->_errors, $errors, $get_var);
+        return '';
+    }
 
     /**
-     * Function for caching success-messages to be shown in the admin theme.
+     * Cache success-messages to be shown in the admin theme.
      *
      * @param mixed $message The message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
-	 *  contains a lang key for an error string, or an array of such keys.
-	 *  If specified, $errors is ignored.
-	 * @deprecated since 2.3 Use PrepareSuccess instead
-	 * @return empty string (in case someone thinks it's worth echoing)
+     *  contains a lang key for an error string, or an array of such keys.
+     *  If specified, $message is ignored.
+     * @deprecated since 2.3 Use PrepareSuccess instead
+     * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowMessage($message, $get_var = null)
-	{
-		$this->PrepareSuccess($message, $get_var);
-		return '';
-	}
+    {
+        $this->PrepareStrings($this->_successes, $message, $get_var);
+        return '';
+    }
 
     /**
-     * Abstract function for caching error-message(s) to be shown in the admin theme.
+     * Cache message(s) to be shown in the admin theme.
      *
-     * @abstract
+     * @internal
+     * @param array store The relevant string-accumulator
      * @param mixed $message The error message(s), string|strings array
-     * @param string $get_var An optional $_GET variable name. Such variable
-	 *  contains a lang key for an error string, or an array of such keys.
-	 *  If specified, $errors is ignored.
-	 * @since 2.3
+     * @param mixed $get_var A $_GET variable name, or null. If specified,
+     *  such variable is expected to contain a lang key for an error string,
+     *  or an array of such keys. If non-null, $message is ignored.
+     * @since 2.3
      */
-    abstract public function PrepareError($message, $get_var = null);
+    protected function PrepareStrings(&$store, $message, $get_var)
+    {
+        if ($get_var && !empty($_GET[$get_var])) {
+            if (is_array($_GET[$get_var])) {
+                cleanArray($_GET[$get_var]);
+                foreach ($_GET[$get_var] as $one) {
+                    if ($one) {
+                        $store[] = lang($one);
+                    }
+                }
+            } else {
+                $store[] = lang(cleanValue($_GET[$get_var]));
+            }
+        } elseif (is_array($message)) {
+            $store = array_merge($store, $message);
+        } elseif (is_string($message)) {
+            $store[] = $message;
+        }
+    }
+
+    /**
+     * Cache error-message(s) to be shown in the admin theme.
+     *
+     * @param mixed $message The error message(s), string|strings array
+     * @param mixed $get_var Optional $_GET variable name. Such variable
+     *  is expected to contain a lang key for an error string, or an
+     *  array of such keys. If specified, $message is ignored.
+     * @since 2.3
+     */
+    public function PrepareError($message, $get_var = null)
+    {
+        $this->PrepareStrings($this->_errors, $message, $get_var);
+    }
 
    /**
-     * Abstract function for caching warning-message(s) to be shown in the admin theme.
+     * Cache warning-message(s) to be shown in the admin theme.
      *
-     * @abstract
      * @param mixed $message The message(s), string|strings array
-     * @param string $get_var An optional $_GET variable name. Such variable
-	 *  contains a lang key for an error string, or an array of such keys.
-	 *  If specified, $errors is ignored.
-	 * @since 2.3
+     * @param mixed $get_var Optional $_GET variable name. Such variable
+     *  is expected to contain a lang key for an error string, or an
+     *  array of such keys. If specified, $message is ignored.
+     * @since 2.3
      */
-     abstract public function PrepareWarning($message, $get_var = null);
+    public function PrepareWarning($message, $get_var = null)
+    {
+        $this->PrepareStrings($this->_warnings, $message, $get_var);
+    }
 
     /**
-     * Abstract function for caching success-message(s) to be shown in the admin theme.
+     * Cache success-message(s) to be shown in the admin theme.
      *
-     * @abstract
      * @param mixed $message The message(s), string|strings array
-     * @param string $get_var An optional $_GET variable name. Such variable
-	 *  contains a lang key for an error string, or an array of such keys.
-	 *  If specified, $errors is ignored.
-	 * @since 2.3
+     * @param mixed $get_var Optional $_GET variable name. Such variable
+     *  is expected to contain a lang key for an error string, or an
+     *  array of such keys. If specified, $message is ignored.
+     * @since 2.3
      */
-    abstract public function PrepareSuccess($message, $get_var = null);
+    public function PrepareSuccess($message, $get_var = null)
+    {
+        $this->PrepareStrings($this->_successes, $message, $get_var);
+    }
 
     /**
-     * Abstract function for caching information-message(s) to be shown in the admin theme.
+     * Cache information-message(s) to be shown in the admin theme.
      *
-     * @abstract
      * @param mixed $message The message(s), string|strings array
-     * @param string $get_var An optional $_GET variable name. Such variable
-	 *  contains a lang key for an error string, or an array of such keys.
-	 *  If specified, $errors is ignored.
-	 * @since 2.3
+     * @param mixed $get_var Optional $_GET variable name. Such variable
+     *  is expected to contain a lang key for an error string, or an
+     *  array of such keys. If specified, $message is ignored.
+     * @since 2.3
      */
-    abstract public function PrepareInfo($message, $get_var = null);
+    public function PrepareInfo($message, $get_var = null)
+    {
+        $this->PrepareStrings($this->_infos, $message, $get_var);
+    }
 
     /**
      * Abstract method for showing a header in the content area of a theme
@@ -1150,7 +1188,6 @@ abstract class CmsAdminThemeBase
      * @param mixed  $module_help_type Flag for how to display module help types.   Possible values are TRUE to display a simple link, FALSE for no help, and 'both' for both types of links
      */
     abstract public function ShowHeader($title_name,$extra_lang_params = [],$link_text = null,$module_help_type = FALSE);
-
 
     /**
      * A function to return the name of the default admin theme.
@@ -1194,7 +1231,8 @@ abstract class CmsAdminThemeBase
 
     /**
      * A function to retrieve the global admin theme object.
-     * This method will create the admin theme object if has not yet been created.  It will read the cms preferences and cross reference with available themes.
+     * This method will create the admin theme object if has not yet been created.
+     * It will read the CMSMS preferences and cross reference with available themes.
      *
      * @param string $name optional theme name.
      * @return CmsAdminThemeBase Reference to the initialized admin theme.
@@ -1486,11 +1524,12 @@ abstract class CmsAdminThemeBase
      * i.e:  echo $this->StartTabHeaders();
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::start_tab_headers()
      * @return string
      */
     final public function StartTabHeaders() : string
     {
-        return '<div id="page_tabs">';
+        return cms_admin_tabs::start_tab_headers();
     }
 
     /**
@@ -1500,53 +1539,49 @@ abstract class CmsAdminThemeBase
      * @final
      * @param string $tabid The tab id
      * @param string $title The tab title
-     * @param bool $active A flag indicating wether this tab is active.
+     * @param bool $active Flag indicating whether this tab is active
+     * @deprecated since 2.3 Use cms_admin_tabs::set_tab_header()
      * @return string
      */
     final public function SetTabHeader(string $tabid,string $title,bool $active=false) : string
     {
-        if ($active) {
-            $a=' class="active"';
-            $this->_activetab = $tabid;
-        } else {
-            $a='';
-		}
-
-        $tabid = strtolower(str_replace(' ','_',$tabid));
-        return '<div id="'.$tabid.'"'.$a.'>'.$title.'</div>';
+        return cms_admin_tabs::set_tab_header($tabid,$title,$active);
     }
 
     /**
      * Output a string to stop the output of headers and close the necessary XHTML div.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_headers()
      * @return string
      */
     final public function EndTabHeaders() : string
     {
-        return '</div><!-- EndTabHeaders -->';
+        return cms_admin_tabs::end_tab_headers();
     }
 
     /**
      * Output a string to indicate the start of XHTML areas for tabs.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::start_tab_content()
      * @return string
      */
     final public function StartTabContent() : string
     {
-        return '<div class="clearb"></div><div id="page_content">';
+        return cms_admin_tabs::start_tab_content();
     }
 
     /**
      * Output a string to indicate the end of XHTML areas for tabs.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_content()
      * @return string
      */
     final public function EndTabContent() : string
     {
-        return '</div> <!-- EndTabContent -->';
+        return cms_admin_tabs::end_tab_content();
     }
 
     /**
@@ -1555,22 +1590,24 @@ abstract class CmsAdminThemeBase
      * @final
      * @param string $tabid The tabid (see SetTabHeader)
      * @param array $params Parameters unused since 2.3
+     * @deprecated since 2.3 Use cms_admin_tabs::start_tab()
      * @return string
      */
     final public function StartTab(string $tabid) : string
     {
-        return '<div id="' . strtolower(str_replace(' ', '_', $tabid)) . '_c">';
+        return cms_admin_tabs::start_tab($tabid);
     }
 
     /**
      * Output a string to indicate the end of the output for a specific tab.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::end_tab()
      * @return string
      */
     final public function EndTab() : string
     {
-        return '</div> <!-- EndTab -->';
+        return cms_admin_tabs::end_tab();
     }
 } // end of class
 
