@@ -26,6 +26,6 @@ $db->Execute($query, array($catid));
 audit($catid, 'News category: '.$catid, ' Category deleted');
 
 news_admin_ops::UpdateHierarchyPositions();
-$params = array('tab_message'=> 'categorydeleted', 'active_tab' => 'categories');
-$this->Setmessage($this->Lang('categorydeleted'));
+
+$this->SetMessage($this->Lang('categorydeleted'));
 $this->RedirectToAdminTab('categories','','admin_settings');

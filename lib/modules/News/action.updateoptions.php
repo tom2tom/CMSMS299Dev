@@ -19,7 +19,5 @@ $this->SetPreference('allow_fesubmit',(int)$params['allow_fesubmit']);
 $this->SetPreference('alert_drafts',(int)$params['alert_drafts']);
 
 $this->CreateStaticRoutes();
-$params = array('tab_message'=> 'optionsupdated', 'active_tab' => 'options');
 $this->SetMessage($this->Lang('optionsupdated'));
 $this->RedirectToAdminTab('options','','admin_settings');
-?>
