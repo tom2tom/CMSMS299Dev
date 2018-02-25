@@ -3,7 +3,6 @@
 {/if}
 
 <div class="pagewarning">
-  <h3>{$mod->Lang('notice')}</h3>
   <p>{$mod->Lang('general_notice')} {$mod->Lang('compatibility_disclaimer')}</p>
   <h3>{$mod->Lang('use_at_your_own_risk')}</h3>
 </div>
@@ -11,15 +10,15 @@
 <p class="pagerows">
 {foreach $letter_urls as $key => $url}
   {if $key == $curletter}
-  <strong>{$key}</strong>&nbsp;
+  <span class="current">{$key}</span>&nbsp;
   {else}
   <a href="{$url}" title="{$mod->Lang('title_letter',$key)}">{$key}</a>&nbsp;
   {/if}
 {/foreach}
 </p>
 
-{if isset($message) && $message != ''}
-<div class="warning"><p>{$message}</p></div>
+{if isset($message) && $message}
+<div class="information"><p>{$message}</p></div>
 {/if}
 
 {function get_module_status_icon}

@@ -423,7 +423,7 @@ $lang['useexpiration'] = 'Use Expiration Date';
 $lang['viewfilter'] = 'View Filter';
 
 // W
-$lang['warning_preview'] = 'Warning: This preview panel behaves much like a browser window allowing you to navigate away from the initially previewed page. However, if you do that, you may experience unexpected behaviour.  Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you may have selected for upload.';
+$lang['warning_preview'] = 'This preview panel allows you to navigate away from the initially previewed page. Be aware that if you do so, you may experience unexpected behaviour.  Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you may have selected for upload.';
 $lang['with_selected'] = 'With Selected';
 
 ?>

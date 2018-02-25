@@ -93,8 +93,8 @@ Step 4:
 
 Step 5:
   This step is used only during the installation path.  It asks you to provide basic credentials to the first Admin user
-  account.  This Admin user account allows you to login to the CMSMS Admin console with all privileges and access to all
-  of its functionality.   From within the CMSMS Admin console you can create user groups, and further user accounts
+  account.  This Admin user account allows you to login to the CMSMS admin console with all privileges and access to all
+  of its functionality.   From within the CMSMS admin console you can create user groups, and further user accounts
   for additional site managers or editors.
 
   Unless you have enabled "Advanced mode" in step 1, you must also provide an email address.  The email address will be
@@ -104,7 +104,7 @@ Step 5:
 Step 6:
   This step asks you for a human readable name for your website, and allows you to select additional language packs to install.
 
-  Additional language packs allow users who login to the CMSMS Admin console to display the output in their native language.
+  Additional language packs allow users who login to the CMSMS admin console to display the output in their native language.
   Please note: though there are multiple languages available, not all of them are complete.
 
 Step 7:
@@ -130,7 +130,7 @@ Step 9:
   During the upgrade process core modules are upgraded if necessary, and a new version of the configuration file is written.
   Any existing configuration file is backed up for safety.  Additionally, the CMSMS cache is cleared.
 
-  Once everything is complete you will be presented with links to either visit your CMSMS website, or to login to its Admin console.
+  Once everything is complete you will be presented with links to either visit your CMSMS website, or to login to its admin console.
 
 -----------
 Afterwards

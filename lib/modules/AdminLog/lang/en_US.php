@@ -1,10 +1,10 @@
 <?php
-$lang['clearlog'] = 'Clear admin log';
+$lang['clearlog'] = 'Clear';
 $lang['date'] = 'Date';
 $lang['download'] = 'Download';
 $lang['filter'] = 'Filter';
 $lang['f_msg'] = 'Message contains';
-$lang['friendlyname'] = 'View Admin Log';
+$lang['friendlyname'] = 'Admin Log';
 $lang['f_sev'] = 'Min severity';
 $lang['f_subj'] = 'Subject contains';
 $lang['f_user'] = 'Username is';

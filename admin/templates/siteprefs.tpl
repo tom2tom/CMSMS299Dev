@@ -49,6 +49,11 @@ $(document).ready(function() {
 </script>
 
 <div class="pagecontainer">
+  {if !empty($message)}<div class="messagebox {/strip}
+{if $error}error
+{elseif $warning}warning
+{elseif $info}info
+{elseif $success}success{/if}{/strip}">{$message}</div>{/if}
 
   {tab_header name='general' label=lang('general_settings') active=$tab}
   {tab_header name='editcontent' label=lang('editcontent_settings') active=$tab}
@@ -173,7 +178,7 @@ $(document).ready(function() {
       <input type="hidden" name="active_tab" value="editcontent" />
     </div>
     {if !$pretty_urls}
-    <div class="warning" style="display: block;">
+    <div class="pagewarn">
       {lang('warn_nosefurl')}
       {cms_help key2='settings_nosefurl' title=lang('warn_nosefurl')}
     </div>
@@ -292,15 +297,13 @@ $(document).ready(function() {
     <div class="hidden">
       <input type="hidden" name="active_tab" value="sitedown" />
     </div>
-    <div class="information" style="display: block;">{lang('info_settings_sitedown')}</div>
     <div class="pageoverflow">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>
-      <br />
     </div>
-
+    <br />
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="enablesitedown">{lang('enablesitedown')}:</label>
@@ -334,10 +337,10 @@ $(document).ready(function() {
         {cms_help key2='settings_sitedownexcludes' title=lang('sitedownexcludes')}
       </p>
       <p class="pageinput">
-        <input id="sitedownexcludes" type="text" name="sitedownexcludes" size="50" maxlength="255" value="{$sitedownexcludes}" />
-        <br />
-        <strong>{lang('your_ipaddress')}:</strong>&nbsp;<span style="color: red;">{cms_utils::get_real_ip()}</span>
+        <input type="text" name="sitedownexcludes" id="sitedownexcludes" size="50" maxlength="255" value="{$sitedownexcludes}" />
         <br />{$lang_info_sitedownexcludes}
+        <br />
+        <strong>{lang('your_ipaddress')}:</strong>&nbsp;<span style="color:red;">{cms_utils::get_real_ip()}</span>
       </p>
     </div>
     <br />
@@ -355,7 +358,7 @@ $(document).ready(function() {
       <div class="hidden">
         <input type="hidden" name="active_tab" value="mail" />
       </div>
-      <div class="information">{lang('info_mailtest')}</div>
+      <div class="pageinfo">{lang('info_mailtest')}</div>
       <div class="pageoverflow">
         <p class="pagetext">
           <label for="testaddress">{lang('settings_testaddress')}:</label>

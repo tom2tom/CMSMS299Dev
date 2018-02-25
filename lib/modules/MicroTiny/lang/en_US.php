@@ -60,8 +60,8 @@ $lang['height'] = 'Height';
 $lang['help'] = <<<EOT
 <h3>What Does This Do?</h3>
 <p>MicroTiny is a small, restricted version of the <a href="http://www.tinymce.com" target="_blank">TinyMCE</a> editor. allowing content editors a near WYSIWYG appearance for editing content.  It works with content blocks in CMSMS content pages (when a WYSIWYG has been allowed), in module Admin forms where WYSIWYG editors are allowed, and allows restricted capabilities for editing HTML blocks on frontend pages.</p>
-</p>In order for MicroTiny to be used as the WYSIWYG editor in the Admin console the MicroTiny WYSIWYG Editor needs to be selected in the users preferences.  Please select &quot;MicroTiny&quot; in the &quot;Select WYSIWYG to Use&quot; option under &quot;My Preferences &gt;&gt; User Preferences&quot; in the CMSMS Admin panel.  Additional options in various modules or in content page templates, and content pages themselves can control whether a text area or a WYSIWYG field is provided in various edit forms.</p>
-<p>For Frontend editing capabilities MicroTiny must be selected as the &quot;Frontend WYSIWYG&quot; in the global settings page of the CMSMS Admin console.</p>
+</p>In order for MicroTiny to be used as the WYSIWYG editor in the admin console the MicroTiny WYSIWYG Editor needs to be selected in the users preferences.  Please select &quot;MicroTiny&quot; in the &quot;Select WYSIWYG to Use&quot; option under &quot;My Preferences &gt;&gt; User Preferences&quot; in the CMSMS Admin panel.  Additional options in various modules or in content page templates, and content pages themselves can control whether a text area or a WYSIWYG field is provided in various edit forms.</p>
+<p>For Frontend editing capabilities MicroTiny must be selected as the &quot;Frontend WYSIWYG&quot; in the global settings page of the CMSMS admin console.</p>
 <h3>Features:</h3>
 <ul>
   <li>Supports a subset of HTML5 block and inline elements.</li>

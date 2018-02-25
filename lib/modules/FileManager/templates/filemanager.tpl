@@ -10,7 +10,6 @@ a.filelink:visited {
 {literal}//<![CDATA[
 var refresh_url = {/literal}'{$refresh_url}'{literal} + '&showtemplate=false';
 refresh_url = refresh_url.replace(/amp;/g, '');
-//<![CDATA[
 function enable_button(idlist) {
   $(idlist).removeAttr('disabled').removeClass('ui-state-disabled ui-button-disabled');
 }
@@ -107,8 +106,8 @@ $(document).ready(function() {
 </script>
 
 {function filebtn}
-{if isset($text) && $text != ''}
-  {$addclass={if isset($icon) && $icon != ''}' icon'|cat:$icon{else}''{/if}}
+{if isset($text) && $text}
+  {if isset($icon) && $icon}{$addclass=' icon'|cat:$icon}{else}{$addclass=''}{/if}
   {if !isset($title) || $title == ''}{$title=$text}{/if}
 {/if}
   <button type="submit" name="{$iname}" id="{$id}" title="{$title|default:''}" class="filebtn adminsubmit{$addclass}">{$text}</button>
@@ -117,7 +116,7 @@ $(document).ready(function() {
 <div id="popup" style="display: none;">
   <div id="popup_contents" style="min-width: 500px; max-height: 600px;"></div>
 </div>
-<!-- TODO custom icons for buttons -->
+<!-- TODO custom icons for buttons newdir view rename delete move copy unpack thumbnail size rotate -->
 <div>
   {$formstart}
   {$hiddenpath}
@@ -158,7 +157,7 @@ $(document).ready(function() {
       <tbody>
         {foreach $files as $file} {$thedate=str_replace(' ','&nbsp;',$file->filedate|cms_date_format)}{$thedate=str_replace('-','&minus;',$thedate)}
         <tr class="{cycle values='row1,row2'}">
-          <td style="vertical-align:middle;">{if isset($file->thumbnail) && $file->thumbnail!=''}{$file->thumbnail}{else}{$file->iconlink}{/if}</td>
+          <td style="vertical-align:middle;">{if isset($file->thumbnail) && $file->thumbnail}{$file->thumbnail}{else}{$file->iconlink}{/if}</td>
           <td class="clickable" style="vertical-align:middle;">{$file->txtlink}</td>
           <td class="clickable" style="vertical-align:middle;">{$file->mime}</td>
           <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{$file->fileinfo}</td>
@@ -169,7 +168,7 @@ $(document).ready(function() {
           <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{$thedate}</td>
           <td>{if !isset($file->noCheckbox)}
             <label for="x_{$file->urlname}" style="display: none;">{$mod->Lang('toggle')}</label>
-            <input type="checkbox" id="x_{$file->urlname}" name="{$actionid}selall[]" value="{$file->urlname}" title="{$mod->Lang('toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked="checked"{/if} />
+            <input type="checkbox" name="{$actionid}selall[]" id="x_{$file->urlname}" value="{$file->urlname}" title="{$mod->Lang('toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked="checked"{/if} />
           {/if}</td>
         </tr>
         {/foreach}

@@ -1,14 +1,35 @@
-<div class="pagecontainer">
-  <div class="pageoverflow">
-    <h2>{si_lang a=systeminfo_copy_paste}</h2>
-    <br />
-  </div>
-  <hr />
+<script type="text/javascript">
+{literal}//<![CDATA[
+function fnSelect(objId) {
+ fnDeSelect();
+ if(document.selection) {
+  var range = document.body.createTextRange();
+  range.moveToElementText(document.getElementById(objId));
+  range.select();
+ } elseif(window.getSelection) {
+  var range = document.createRange();
+  range.selectNode(document.getElementById(objId));
+  window.getSelection().addRange(range);
+ }
+}
 
+function fnDeSelect() {
+ if(document.selection) document.selection.empty();
+ elseif(window.getSelection) window.getSelection().removeAllRanges();
+}
+
+$(document).ready(function() {
+ fnSelect('copy_paste_in_forum');
+});
+{/literal}//]]>
+</script>
+
+<div class="pagecontainer">
+  <h3>{si_lang a=systeminfo_copy_paste}</h3>
   <div class="pageoverflow">
     <div id="copy_paste_in_forum">
 
-      <p>----------------------------------------------</p>
+      <hr />
 
       <p><strong>{'cms_version'|replace:'_':' '|ucwords}</strong>: {$cms_version}</p>
       <p><strong>{'installed_modules'|replace:'_':' '|ucwords}</strong>:</p>
@@ -71,34 +92,9 @@
       </ul>
       {/if}
 
-      <p>----------------------------------------------</p>
+      <hr />
 
     </div>
   </div>
 </div>
 
-<script type="text/javascript">
-{literal}//<![CDATA[
-function fnSelect(objId) {
- fnDeSelect();
- if(document.selection) {
-  var range = document.body.createTextRange();
-  range.moveToElementText(document.getElementById(objId));
-  range.select();
- } elseif(window.getSelection) {
-  var range = document.createRange();
-  range.selectNode(document.getElementById(objId));
-  window.getSelection().addRange(range);
- }
-}
-
-function fnDeSelect() {
- if(document.selection) document.selection.empty();
- elseif(window.getSelection) window.getSelection().removeAllRanges();
-}
-
-$(document).ready(function() {
- fnSelect('copy_paste_in_forum');
-});
-{/literal}//]]>
-</script>

@@ -164,7 +164,7 @@ $lang['goback'] = 'Back';
 
 # I
 $lang['info_addlanguages'] = 'Select languages (in addition to English) to install. <strong>Note:</strong> not all translations are complete.';
-$lang['info_adminaccount'] = 'Please provide credentials for the initial administrator account. This account will have access to all of the functionality of the CMSMS Admin console.';
+$lang['info_adminaccount'] = 'Please provide credentials for the initial administrator account. This account will have access to all of the functionality of the CMSMS admin console.';
 $lang['info_advanced'] = 'Advanced mode enables more options in the installation procedure.';
 $lang['info_dbinfo'] = 'CMS Made Simple stores most of its data in a database. A MySQL 4.1+ or compatible database is mandatory. The user specified here must have ALL PRIVILEGES on the specified database to allow creating, dropping and modifying tables, indexes and views.';
 $lang['info_errorlevel_edeprecated'] = 'E_DEPRECATED is a flag for PHP&quot;s error reporting that indicates that warnings should be displayed about code that is using deprecated techniques.  Although the CMSMS core attempts to ensure that we no longer use deprecated techniques, some modules may not.  This setting should be disabled in the PHP configuration';

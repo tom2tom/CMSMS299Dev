@@ -1,4 +1,9 @@
 <div class="pagecontainer">
+  {if !empty($message)}<div class="messagebox {/strip}
+{if $error}error
+{elseif $warning}warning
+{elseif $info}info
+{elseif $success}success{/if}{/strip}">{$message}</div>{/if}
 
   {$theme->StartTabHeaders()}
   {$theme->SetTabHeader('database',lang('sysmaintab_database'),isset($active_database))}

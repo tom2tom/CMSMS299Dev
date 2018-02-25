@@ -32,11 +32,8 @@ try {
   echo $this->ProcessTemplate('settings.tpl');
 }
 catch( Exception $e ) {
-  echo $this->ShowMessage($e->GetMessage());
+  $this->SetError($e->GetMessage()); //probably useless
 }
-
-
-
 #
 # EOF
 #

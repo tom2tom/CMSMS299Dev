@@ -77,7 +77,7 @@ final class cms_admin_tabs
    *
    * @param string $tabid The tab key
    * @param string $title The title to display in the tab
-   * @param bool   $active Wether the tab is active or not.  If the current active tag matches the $tabid then the tab will be marked as active.
+   * @param bool   $active Whether the tab is active or not.  If the current active tag matches the $tabid then the tab will be marked as active.
    * @return string
    */
   public static function set_tab_header($tabid,$title,$active = FALSE)
@@ -145,19 +145,13 @@ final class cms_admin_tabs
    * @param array  $params Array of parameters for the tab
    * @return string
    */
-  public static function start_tab($tabid,$params = array())
+  public static function start_tab($tabid,$params = [])
   {
-    $message = '';
-    if( $tabid == self::$_current_tab && !empty($params['tab_message']) ) {
-      $theme = cms_utils::get_theme_object();
-      if( is_object($theme) ) $message = $theme->ShowMessage($params['tab_message']);
-    }
-
     $out = '';
     if( !self::$_start_content_sent ) $out .= self::start_tab_content();
     if( self::$_in_tab ) $out .= self::end_tab();
     self::$_in_tab = 1;
-    $out .= '<div id="' . strtolower(str_replace(' ', '_', $tabid)) . '_c">'.$message;
+    $out .= '<div id="' . strtolower(str_replace(' ', '_', $tabid)) . '_c">';
     return $out;
   }
 

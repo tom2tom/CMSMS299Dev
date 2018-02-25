@@ -145,9 +145,9 @@ $lang['help_title_content_type'] = 'Content Type Selector';
 
 #I
 $lang['info_javascript_required'] = '<strong>Warning: </strong>In order to operate correctly, this module requires a browser with JavaScript support enabled.';
-$lang['info_ordercontent'] = 'Drag and drop elements to adjust their order in the content tree.  <strong>Note: </strong> Some content items, such as separators do not accept children';
+$lang['info_ordercontent'] = 'Drag and drop elements to adjust their order in the content tree.  <strong>Note:</strong> Some content items, such as separators, do not accept children';
 $lang['info_pagedflt'] = 'Here you can set default values of properties of new pages of type &quot;<em>Content</em>&quot; and derived types.  These settings will have no effect on existing pages, and user settings may override some of them.';
-$lang['info_preview_notice'] = '<strong>Warning:</strong> This preview panel behaves much like a browser window allowing you to navigate away from the initially previewed page. However, if you do that, you may experience unexpected behavior. If you navigate away from the initial display and return, you may not see the un-committed content until you make a change to the content in the main tab, and then reload this tab. When adding content, if you navigate away from this page, you will be unable to return, and must refresh this panel.';
+$lang['info_preview_notice'] = 'You can navigate away from the initially previewed page. <strong>Warning</strong> - if you do that, you might experience unexpected behavior. After returning, you might be unable to see un-committed content until you make a change to the content in the main tab, and then reload this tab. When adding content, if you navigate away from this page, you will be unable to return, and must refresh this view.';
 $lang['invalid_url2'] = 'The page URL specified is invalid.  It should contain only alphanumeric characters, or - or /.  Extensions must contain only alphanumeric chars and be less than 5 characters in length.  It is also possible that the URL specified is already in use.';
 
 #J
@@ -206,9 +206,9 @@ $lang['prompt_content_id'] = 'Content ID';
 $lang['prompt_created'] = 'Created';
 $lang['prompt_design'] = 'Design';
 $lang['prompt_editor'] = 'Editor';
-$lang['prompt_editpage_addcontent']= 'Add Content Page';
+$lang['prompt_editpage_addcontent']= 'Add Page';
 $lang['prompt_editpage_contenttype'] = 'Content Type';
-$lang['prompt_editpage_editcontent']= 'Edit Content Page';
+$lang['prompt_editpage_editcontent']= 'Edit Page';
 $lang['prompt_editsettings']= 'Edit Settings';
 $lang['prompt_expandall'] = 'Expand all content pages';
 $lang['prompt_filter_type'] = 'Filter Type';

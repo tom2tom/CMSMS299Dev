@@ -3,7 +3,7 @@
 $lang['help_group_permissions'] = <<<EOT
 <h4>CMSMS Admin Permission Model</h4>
 <ul>
-<li>CMSMS Uses a system of named permissions.  Access to these permissions determines a users ability to perform different functions in the CMSMS Admin console.</li>
+<li>CMSMS Uses a system of named permissions.  Access to these permissions determines a users ability to perform different functions in the CMSMS admin console.</li>
 <li>The CMSMS core creates several permissions on installation <em>(occasionally permissions are added or deleted during an upgrade process)</em>.  Third party modules may create additional permissions.</li>
 <li>Permissions are associated with user groups.  An authorized user can adjust the permissions that are associated with certain member groups <em>(including the permission to change a group permissions)</em>.  The <strong>Admin</strong> group is a special group.  Members of this group will have all permissions.</li>
 <li>Admin user accounts can be members of zero or more groups.  It may be possible for a user account that is not a member of any groups to still perform various functionality <em>(please read about ownership and additional-editors in the Content Manager help, and Design Manager help).</em>.  The first user account <em>(uid == 1)</em>, which is typically named &quot;Admin&quot; is a special user account and will have all permissions.</li>
@@ -246,7 +246,7 @@ $lang['help_cmscontentmanager_help'] = <<<EOT
  <p>The add (or edit) content page form is divided into numerous tabs; numerous properties of the content item will appear on different tabs.  The list of tabs that are visible, and the &quot;properties&quot; on those tabs is influenced by numerous factors:</p>
    <ul>
      <li>The content item type
- <p>Some content item types (such as separators, and section headers) do not require much information, therefore very few tabs and properties will be displayed.</p>
+ <p>Some content item types (such as separators and section headers) do not require much information, therefore very few tabs and properties will be displayed.</p>
      </li>
      <li>Your permission level
        <p>If your user account does not have the &quot;Manage All Content&quot; permission level, then you are only permitted to manage <em>(by default)</em> the basic properties of the content item.  Enough to edit content, and pick a page in its navigation.  You may also be restricted as to where new content items can be placed in the content hierarchy.</p>
@@ -412,7 +412,7 @@ $lang['help_designmanager_help'] = <<<EOT
 
 <h3>The Primary Interface</h3>
   <p>The Design Manager Admin panel is located in the CMSMS Admin navigation as &quot;Design Manager&quot; under the &quot;Layout&quot; section.</p>
-  <p>The Design Manager Admin panel has numerous tabs.  Each tab serves a particular purpose, and may require special privileges.  Only a user with one of the required permissions <em>(or ownership/additional editor status on one or more templates)</em> will be able to see the design manager in the CMSMS Admin console.</p>
+  <p>The Design Manager Admin panel has numerous tabs.  Each tab serves a particular purpose, and may require special privileges.  Only a user with one of the required permissions <em>(or ownership/additional editor status on one or more templates)</em> will be able to see the design manager in the CMSMS admin console.</p>
   <ul>
     <li>The Templates Tab
       <p>The templates tab provides all of the functionality to conveniently and easily create and manage templates.  It is visible to Admin users with the &quot;Modify Templates&quot; permission, or who are owners or additional editors of one or more templates.</p>
@@ -623,7 +623,7 @@ $lang['help_designmanager_help'] = <<<EOT
 <h3>Upgrade Notes</h3>
 EOT;
 
-$lang['help_myaccount_admincallout'] = 'If enabled administrative bookmarks <em>(shortcuts)</em> will be enabled allowing you to manage a list of frequently used actions in the Admin console.';
+$lang['help_myaccount_admincallout'] = 'If enabled administrative bookmarks <em>(shortcuts)</em> will be enabled allowing you to manage a list of frequently used actions in the admin console.';
 $lang['help_myaccount_admintheme'] = 'Select an administration theme to use.  Different administration themes have different menu layouts, work better for mobile displays, and have various additional features.';
 $lang['help_myaccount_ce_navdisplay'] = 'Select which content field should be displayed in content lists.  Options include the page title, or menu text.  If &quot;None&quot; is selected, then the site preference will be used';
 $lang['help_myaccount_dateformat'] = 'Specify a date format string to use when dates are displayed.  This string uses <a href="http://php.net/manual/en/function.strftime.php" class="external" target="_blank">strftime</a> format.  <strong>Note:</strong> some third party add-ons may not obey this setting.</strong>';
@@ -631,8 +631,8 @@ $lang['help_myaccount_dfltparent'] = 'Specify the default parent page for creati
 $lang['help_myaccount_email'] = 'Specify an email address.  This is used for the lost password functionality, and for any notification emails sent by the system (or add-on modules).';
 $lang['help_myaccount_enablenotifications'] = 'If enabled, the system will display various notifications about things that need to be taken care of in the navigation';
 $lang['help_myaccount_firstname'] = 'Optionally specify your given name.  This may be used in the Admin theme, or to personally address emails to you';
-$lang['help_myaccount_hidehelp'] = 'If enabled the system will hide module help links from the Admin console.  In most circumstances the help provided with modules is targeted towards site developers and may not be useful to content editors.';
-$lang['help_myaccount_homepage'] = 'You may select a page to automatically direct to when you login to the CMSMS Admin console.  This may be useful when you primarily use one function.';
+$lang['help_myaccount_hidehelp'] = 'If enabled the system will hide module help links from the admin console.  In most circumstances the help provided with modules is targeted towards site developers and may not be useful to content editors.';
+$lang['help_myaccount_homepage'] = 'You may select a page to automatically direct to when you login to the CMSMS admin console.  This may be useful when you primarily use one function.';
 $lang['help_myaccount_ignoremodules'] = 'If Admin notifications are enabled you can select to ignore notifications from some modules';
 $lang['help_myaccount_indent'] = 'This option will indent the content list view to illustrate the parent and child page relationship';
 $lang['help_myaccount_language'] = 'Select the language to display for the Admin interface.  The list of available languages may vary on each CMSMS install';
@@ -657,7 +657,7 @@ $lang['settings_contentimage_path'] = 'This setting is used when a page template
 $lang['settings_cssnameisblockname'] = 'If enabled, the content block name <em>(id)</em> will be used as a default value for the cssname parameter for each content block.<br/><br/>This is useful for WYSIWYG editors.  The stylesheet (block name) can be loaded by the WYSIWYG editor and provide an appearance that is closer to that of the front web page.<br/><br/><strong>Note:</strong> WYSIWYG Editors may not read information from the supplied stylesheets (if they exist) depending upon their settings and capabilities.';
 $lang['settings_disablesafemodewarn'] = 'This option will disable a warning notice if CMSMS detects that <a href="http://php.net/manual/en/features.safe-mode.php" class="external" target="_blank">PHP Safe Mode</a> has been detected.<br /><br /><strong>Note:</strong> Safe mode has been deprecated as of PHP 5.3.0 and removed for PHP 5.4.0.  CMSMS Does not support operation under safe mode, and our support team will not render any technical assistance for installs where safe mode is active';
 $lang['settings_enablenotifications'] = 'This option will enable notifications being shown at the top of the page in each Admin request.  This is useful for important notifications about the system that may require user action.  It is possible for each Admin user to turn off notifications in their preferences.';
-$lang['settings_enablesitedown'] = 'This option allow you to toggle the website as "down for maintenance" for website visitor';
+//$lang['settings_enablesitedown'] = 'This option allow you to toggle the website as "down for maintenance" for website visitor';
 $lang['settings_enablewysiwyg'] = 'Enable WYSIWYG editor in the text area below';
 $lang['settings_imagefield_path'] = 'This setting is used when editing content.  The directory specified here is used to provide a list of images from which to associate an image with the content page.<br/></br/>Relative to the image uploads path, specify a directory name that contains the paths containing files for the image field';
 $lang['settings_lock_timeout'] = 'Enter a default value (in minutes) for locks to timeout.  This is used if a piece of functionality does not provide a custom lock timeout value';
@@ -677,9 +677,9 @@ $lang['settings_mandatory_urls'] = 'If SEF/pretty URLs are enabled, this option 
 $lang['settings_nosefurl'] = 'To configure <strong>S</strong>each <strong>E</strong>ngine <strong>F</strong>riendly <em>(pretty)</em> URLs you need to edit a few lines in your config.php file and possibly to edit a .htaccess file or your web servers configuration.   You can read more about configuring pretty URLS <a href="https://docs.cmsmadesimple.org/configuration/pretty-url" class="external" target="blank"><u>here</u></a> &raquo;';
 $lang['settings_pseudocron_granularity'] = 'This setting indicates how often the system will attempt to handle regularly scheduled tasks.';
 $lang['settings_searchmodule'] = 'Select the module that should be used to index words for searching, and will provide the site search capabilities';
-$lang['settings_sitedownexcludeadmins'] = 'Do show the website to Admin users logged in to the CMSMS Admin console';
+$lang['settings_sitedownexcludeadmins'] = 'Do show the website to users logged in to the CMSMS admin console. This allows administrators to work on the site without interference';
 $lang['settings_sitedownexcludes'] = 'Do show the website to these IP addresses';
-$lang['settings_sitedownmessage'] = 'The message shown to your website visitors when the site is down for maintenance';
+$lang['settings_sitedownmessage'] = 'The message shown to website visitors when the site is &quote;down for maintenance&quote;';
 $lang['settings_smartycaching'] = 'When enabled, the output from various plugins will be cached to increase performance. Additionally, most portions of compiled templates will be cached. This only applies to output on content pages marked as cachable, and only for non-Admin users.  Note, this functionality may interfere with the behaviour of some modules or plugins, or plugins that use non-inline forms.<br/><br/><strong>Note:</strong> When smarty caching is enabled, global content blocks <em>(GCBs)</em> are always cached by smarty, and user defined tags <em>(UDTs)</em> are never cached.  Additionally, content blocks are never cached.';
 $lang['settings_smartycompilecheck'] = 'If disabled, smarty will not check the modification dates of templates to see if they have been modified.  This can significantly improve performance.  However performing any template change (or even some content changes) may require a cache clearing';
 $lang['settings_thumbfield_path'] = 'This setting is used when editing content.  The directory specified here is used to provide a list of images from which to associate a thumbnail with the content page.<br/><br/>Relative to the image uploads path, specify a directory name that contains the paths containing files for the image field.  Usually this will be the same as the path above.';
