@@ -1,5 +1,5 @@
 <?php
-# Marigold- an admin theme for CMS Made Simple
+# Marigold - an admin theme for CMS Made Simple
 # Copyright (C) 2012 Goran Ilic <ja@ich-mach-das.at>
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,71 +18,51 @@
 
 use CMSMS\internal\Smarty;
 
-class MarigoldTheme extends CmsAdminThemeBase {
-	private $_errors = array();
-	private $_messages = array();
-
-	public function ShowErrors($errors, $get_var = '') {
-		// cache errors for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-			if (is_array($_GET[$get_var])) {
-				foreach ($_GET[$get_var] as $one) {
-					$this->_errors[] = lang(cleanValue($one));
-				}
-			} else {
-				$this->_errors[] = lang(cleanValue($_GET[$get_var]));
-			}
-		} else if (is_array($errors)) {
-			foreach ($errors as $one) {
-				$this->_errors[] = $one;
-			}
-		} else if (is_string($errors)) {
-			$this->_errors[] = $errors;
+class MarigoldTheme extends CmsAdminThemeBase
+{
+	/**
+	 *
+	 * @param string $title_name
+	 * @param array $extra_lang_params
+	 * @param string $link_text
+	 * @param bool $module_help_type
+	 */
+	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE)
+	{
+		if ($title_name) {
+			$this->set_value('pagetitle', $title_name);
 		}
-		return '<!-- Marigold::ShowErrors() called -->';
-	}
-
-	public function ShowMessage($message, $get_var = '') {
-		// cache message for use in the template.
-		if ($get_var != '' && isset($_GET[$get_var]) && !empty($_GET[$get_var])) {
-			if (is_array($_GET[$get_var])) {
-				foreach ($_GET[$get_var] as $one) {
-					$this->_messages[] = lang(cleanValue($one));
-				}
-			} else {
-				$this->_messages[] = lang(cleanValue($_GET[$get_var]));
-			}
-		} else if (is_array($message)) {
-			foreach ($message as $one) {
-				$this->_messages[] = $one;
-			}
-		} else if (is_string($message)) {
-			$this->_messages[] = $message;
+		if (is_array($extra_lang_params) && count($extra_lang_params)) {
+			$this->set_value('extra_lang_params', $extra_lang_params);
 		}
-	}
-
-	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE) {
-		if ($title_name) $this->set_value('pagetitle', $title_name);
-		if (is_array($extra_lang_params) && count($extra_lang_params)) $this->set_value('extra_lang_params', $extra_lang_params);
 		$this->set_value('module_help_type', $module_help_type);
 
-		// get the image url.
-		$config = cms_config::get_instance();
+		// get the image url
 		if ($module_help_type) {
-			// help for a module.
+			// help for a module
 			$module = '';
 			if (isset($_REQUEST['module'])) {
 				$module = $_REQUEST['module'];
-			} else if (isset($_REQUEST['mact'])) {
+			} elseif (isset($_REQUEST['mact'])) {
 				$tmp = explode(',', $_REQUEST['mact']);
 				$module = $tmp[0];
 			}
-			$icon = "modules/{$module}/images/icon.gif";
-			$path = cms_join_path($config['root_path'], $icon);
-			if (file_exists($path)) {
-				$url = $config->smart_root_url() . '/' . $icon;
-				$this->set_value('module_icon_url', $url);
+
+			$base = cms_module_path($module).DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR;
+			$path = $base.'icon.png';
+			if (!file_exists($path)) {
+				$path = $base.'icon.gif';
+				if (!file_exists($path)) {
+					$path = '';
+				}
 			}
+			if ($path) {
+				$config = \cms_config::get_instance();
+				$url = str_replace([$config['root_path'],DIRECTORY_SEPARATOR],[$config['root_url'],'/'],$path);
+			} else {
+				$url = '';
+			}
+			$this->set_value('module_icon_url', $url);
 
 			// set the module help url (this should be supplied TO the theme)
 			$module_help_url = $this->get_module_help_url();
@@ -91,10 +71,11 @@ class MarigoldTheme extends CmsAdminThemeBase {
 
 		$bc = $this->get_breadcrumbs();
 		if ($bc) {
-			for ($i = 0; $i < count($bc); $i++) {
+			$n = count($bc);
+			for ($i = 0; $i < $n; ++$i) {
 				$rec = $bc[$i];
 				$title = $rec['title'];
-				if ($module_help_type && $i + 1 == count($bc)) {
+				if ($module_help_type && $i + 1 == $n) {
 					$module_name = '';
 					if (!empty($_GET['module'])) {
 						$module_name = trim($_GET['module']);
@@ -105,29 +86,35 @@ class MarigoldTheme extends CmsAdminThemeBase {
 					$orig_module_name = $module_name;
 					$module_name = preg_replace('/([A-Z])/', "_$1", $module_name);
 					$module_name = preg_replace('/_([A-Z])_/', "$1", $module_name);
-					if ($module_name[0] == '_')
+					if ($module_name[0] == '_') {
 						$module_name = substr($module_name, 1);
+					}
 				} else {
-					if (($p = strrchr($title, ':')) !== FALSE) {
+					if (($p = strrchr($title, ':')) !== false) {
 						$title = substr($title, 0, $p);
 					}
 					// find the key of the item with this title.
-					$title_key = $this->find_menuitem_by_title($title);
+//unused			$title_key = $this->find_menuitem_by_title($title);
 				}
-			}// for loop.
+			} // for loop
 		}
 	}
 
-	public function do_header() {
+	public function do_header()
+	{
 	}
 
-	public function do_footer() {
+	public function do_footer()
+	{
 	}
 
-	public function do_toppage($section_name) {
+	/**
+	 *
+	 * @param type $section_name
+	 */
+	public function do_toppage($section_name)
+	{
 		$smarty = Smarty::get_instance();
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . '/templates';
 		if ($section_name) {
 			$smarty->assign('section_name', $section_name);
 			$smarty->assign('pagetitle', lang($section_name));
@@ -141,64 +128,66 @@ class MarigoldTheme extends CmsAdminThemeBase {
 		$smarty->assign('theme', $this);
 
 		// is the website set down for maintenance?
-		if( get_site_preference('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
+		if (get_site_preference('enablesitedownmessage'))  {
+			$smarty->assign('is_sitedown', 'true');
+		}
 
-		$_contents = $smarty->display('topcontent.tpl');
+		$otd = $smarty->template_dir;
+		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR. 'templates';
+		$smarty->display('topcontent.tpl');
 		$smarty->template_dir = $otd;
-		echo $_contents;
 	}
 
-
+	/**
+	 *
+	 * @param array $params UNUSED
+	 */
 	public function do_login($params)
 	{
-	  // by default we're gonna grab the theme name
-        $config = cms_config::get_instance();
-        $smarty = Smarty::get_instance();
-
-	  $smarty->template_dir = __DIR__ . '/templates';
-	  global $error,$warningLogin,$acceptLogin,$changepwhash;
-	  $fn = $config['admin_path']."/themes/".$this->themeName."/login.php";
-	  include($fn);
-
-	  $smarty->assign('lang', get_site_preference('frontendlang'));
-	  $_contents = $smarty->display('login.tpl');
-	  return $_contents;
+		include __DIR__ . DIRECTORY_SEPARATOR . 'login.php'; //various init's, including $smarty
+		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
+		$smarty->display('login.tpl');
 	}
 
-	public function postprocess($html) {
+	/**
+	 *
+	 * @param type $html
+	 * @return string (or maybe null?)
+	 */
+	public function postprocess($html)
+	{
 		$smarty = Smarty::get_instance();
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . '/templates';
 		$module_help_type = $this->get_value('module_help_type');
 
 		// get a page title
-		$alias = $title = $this->get_value('pagetitle');
+		$title = $this->get_value('pagetitle');
 		if ($title) {
 			if (!$module_help_type) {
 				// if not doing module help, translate the string.
 				$extra = $this->get_value('extra_lang_params');
-				if (!$extra)
-					$extra = array();
+				if (!$extra) {
+					$extra = [];
+				}
 				$title = lang($title, $extra);
 			}
 		} else {
-		  if( $this->title ) {
-		    $title = $this->title;
-		  }
-		  else {
-		    // no title, get one from the breadcrumbs.
-		    $bc = $this->get_breadcrumbs();
-		    if (is_array($bc) && count($bc)) {
-		      $title = $bc[count($bc) - 1]['title'];
-		    }
-		  }
-            if( !$title ) $title = '';
+			if ($this->title) {
+				$title = $this->title;
+			} else {
+				// no title, get one from the breadcrumbs.
+				$bc = $this->get_breadcrumbs();
+				if (is_array($bc) && count($bc)) {
+					$title = $bc[count($bc) - 1]['title'];
+				}
+			}
+			if (!$title) $title = '';
 		}
 
-        // page title and alias
+		// page title and alias
 		$smarty->assign('pagetitle', $title);
-        $smarty->assign('subtitle',$this->subtitle);
-        $smarty->assign('pagealias', munge_string_to_url($title)); //CHECKME $alias?
+		$smarty->assign('subtitle',$this->subtitle);
+//		$alias = $this->get_value(??) else munge CHECKME
+		$smarty->assign('pagealias', munge_string_to_url($title));
 
 		// module name?
 		if (($module_name = $this->get_value('module_name'))) {
@@ -210,17 +199,17 @@ class MarigoldTheme extends CmsAdminThemeBase {
 			$smarty->assign('module_icon_url', $module_icon_url);
 		}
 
-		// module_help_url
-		if( !cms_userprefs::get_for_user(get_userid(),'hide_help_links',0) ) {
-		  if (($module_help_url = $this->get_value('module_help_url'))) {
-		    $smarty->assign('module_help_url', $module_help_url);
-		  }
+		// module_help_url?
+		if (!cms_userprefs::get_for_user(get_userid(),'hide_help_links',0)) {
+			if (($module_help_url = $this->get_value('module_help_url'))) {
+				$smarty->assign('module_help_url', $module_help_url);
+			}
 		}
 
 		// my preferences
 		if (check_permission(get_userid(),'Manage My Settings')) {
-		  $smarty->assign('mysettings',1);
-		  $smarty->assign('myaccount',1); //TODO maybe a separate check
+			$smarty->assign('mysettings',1);
+			$smarty->assign('myaccount',1); //TODO maybe a separate check
 		}
 
 		// if bookmarks
@@ -230,7 +219,7 @@ class MarigoldTheme extends CmsAdminThemeBase {
 		}
 
 		$smarty->assign('headertext',$this->get_headtext());
-        $smarty->assign('footertext',$this->get_footertext());
+		$smarty->assign('footertext',$this->get_footertext());
 
 		// and some other common variables
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
@@ -246,23 +235,26 @@ class MarigoldTheme extends CmsAdminThemeBase {
 		$info = CmsNlsOperations::get_language_info($lang);
 		$smarty->assign('lang_dir',$info->direction());
 
-
-		if (is_array($this->_errors) && count($this->_errors))
+		if (is_array($this->_errors) && count($this->_errors)) {
 			$smarty->assign('errors', $this->_errors);
-		if (is_array($this->_messages) && count($this->_messages))
-			$smarty->assign('messages', $this->_messages);
+		}
+		if (is_array($this->_successes) && count($this->_successes)) {
+			$smarty->assign('messages', $this->_successes);
+		}
+		// is the website down for maintenance?
+		if (get_site_preference('enablesitedownmessage')) {
+			$smarty->assign('is_sitedown', 'true');
+		}
 
-		// is the website set down for maintenance?
-		if( get_site_preference('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
-
+		$otd = $smarty->template_dir;
+		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
 		$_contents = $smarty->fetch('pagetemplate.tpl');
 		$smarty->template_dir = $otd;
 		return $_contents;
 	}
 
-    public function get_my_alerts()
-    {
-        return \CMSMS\AdminAlerts\Alert::load_my_alerts();
-    }
+	public function get_my_alerts()
+	{
+		return \CMSMS\AdminAlerts\Alert::load_my_alerts();
+	}
 }
-?>
