@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#function to generate page content for start-of-tab 
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -17,31 +18,13 @@
 
 function smarty_function_tab_start($params,&$template)
 {
-	$smarty = $template->smarty;
+	if( empty($params['name']) ) return '';
 
-	if( !isset($params['name']) ) return;
-
-	$parms = array();
-	foreach( $params as $key => $value )
-	{
-		switch( $key )
-		{
-			case 'name':
-				$name = trim($value);
-				break;
-			case 'assign':
-				break;
-			default:
-				$parms[$key] = trim($value);
-		}
-	}
-
-	$out = cms_admin_tabs::start_tab($name,$parms);
-	if( isset($params['assign']) )
-	{
-		$smarty->assign(trim($params['assign']),$out);
+	$out = cms_admin_tabs::start_tab(trim($params['name']));
+	if( isset($params['assign']) ) {
+		//TODO why global smarty instead of $template ?
+		$template->smarty->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;
 }
-?>
