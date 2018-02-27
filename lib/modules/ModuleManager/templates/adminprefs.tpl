@@ -82,11 +82,9 @@ $(document).ready(function(){
     </p>
   </div>
 {/if}
-
-  <div class="pageoverflow">
-    <p class="pagetext"></p>
+  <div class="bottomsubmits">
     <p class="pageinput">
       <button type="submit" name="{$actionid}submit" id="settings_submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
     </p>
   </div>
-{form_end}
+</form>

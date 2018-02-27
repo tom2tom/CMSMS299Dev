@@ -26,7 +26,7 @@ $(document).ready(function() {
 <legend>{$mod->Lang('search_input')}:</legend>
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="searchterm">{$mod->Lang('searchterm')}:</label>
+    <label for="searchterm">{$mod->Lang('searchterm')}:</label>
   </p>
   <p class="pageinput">
     <input id="searchterm" type="text" name="{$actionid}term" size="50" value="{$term}" title="{$mod->Lang('title_searchterm')}" placeholder="{$mod->Lang('entersearchterm')}" />&nbsp;
@@ -35,15 +35,13 @@ $(document).ready(function() {
     <span id="advhelp" style="display: none;"><br />{$mod->Lang('advancedsearch_help')}</span>
   </p>
 </div>
-
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconsearch">{$mod->Lang('search')}</button>
   </p>
 </div>
 </fieldset>
-{$formend}
+</form>
 
 {if isset($search_data)}
 <fieldset>
