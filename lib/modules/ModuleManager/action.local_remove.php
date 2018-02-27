@@ -8,8 +8,12 @@ if( !isset($params['mod']) ) {
 }
 $module = get_parameter_value($params,'mod');
 
-$dir = cms_join_path($config['root_path'],'modules',$module);
-$result = recursive_delete( $dir );
+$dir = cms_module_path($module);
+if( $dir ) {
+  $result = recursive_delete( $dir );
+} else {
+  $result = FALSE;
+}
 
 if( !$result ) {
   $this->SetError($this->Lang('error_moduleremovefailed'));
