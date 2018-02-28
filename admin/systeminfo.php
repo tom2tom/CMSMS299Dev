@@ -68,7 +68,6 @@ $db = $gCms->GetDb();
 
 //smartyfier
 $smarty->assign('themename', $themeObject->themeName);
-$smarty->assign('showheader', $themeObject->ShowHeader('systeminfo'));
 $smarty->assign('backurl', $themeObject->BackUrl());
 $smarty->assign('sysinfurl', 'systeminfo.php');
 
@@ -307,8 +306,13 @@ $tmp[0]['tmp_cache'] = testDirWrite(0, $dir, $dir);
 $dir = TMP_TEMPLATES_C_LOCATION;
 $tmp[0]['templates_c'] = testDirWrite(0, $dir, $dir);
 
-$dir = $config['root_path'] . DIRECTORY_SEPARATOR . 'modules';
-$tmp[0]['modules'] = testDirWrite(0, $dir, $dir);
+$flag = true;
+$count = 0;
+foreach (cms_module_places() as $dir) {
+	$flag = $flag && testDirWrite(0, $dir, $dir);
+	++$count;
+}
+$tmp[0]['modules'] = $flag && ($count > 0);
 
 $dir = $config['uploads_path'];
 $tmp[0]['uploads'] = testDirWrite(0, $dir, $dir);
