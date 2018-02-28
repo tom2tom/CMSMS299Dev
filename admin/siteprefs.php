@@ -486,15 +486,15 @@ if (isset($_POST['editsiteprefs'])) {
 
 include_once 'header.php';
 
-if ($error) {
-    $themeObject->ShowErrors($error);  //TODO accumulator, not displayer
+if (!empty($error)) {
+    $themeObject->PrepareError($error);
 }
-if ($message) {
-    $themeObject->ShowMessage($message); //TODO accumulator, not displayer
+if (!empty($message)) {
+    $themeObject->PrepareSuccess($message);
 }
 // Error if cache folders are not writable
 if (!is_writable(TMP_CACHE_LOCATION) || !is_writable(TMP_TEMPLATES_C_LOCATION)) {
-    $themeObject->ShowErrors(lang('cachenotwritable'));  //accumulator, not displayer
+    $themeObject->PrepareError(lang('cachenotwritable'));
 }
 
 $modules = ModuleOperations::get_instance()->get_modules_with_capability('search');

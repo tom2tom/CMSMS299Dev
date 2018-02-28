@@ -258,15 +258,13 @@ if (isset($_GET['switchuser'])) {
 include_once 'header.php';
 
 if (!empty($error)) {
-  //TODO accumulator, not displayer
-    echo $themeObject->ShowErrors('TODO<ul class="error">' . $error . '</ul>');
+    $themeObject->PrepareError($error );
 }
 if (isset($_GET['message'])) {
     $message = preg_replace('/\</', '', $_GET['message']);
 }
 if (!empty($message)) {
-   //TODO
-    echo '<div class="pagemcontainer"><p class="pagemessage">' . $message . '</p></div>';
+    $themeObject->PrepareSuccess($message);
 }
 
 $userlist = [];

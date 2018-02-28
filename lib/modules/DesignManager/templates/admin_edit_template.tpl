@@ -60,26 +60,11 @@ $(document).ready(function() {
     var url = $('#form_edittemplate').attr('action') + '?showtemplate=false&m1_apply=1',
       data = $('#form_edittemplate').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {
-      var $response = $('<aside/>').addClass('message');
       if(data.status === 'success') {
-        $response.addClass('pagemcontainer')
-          .append($('<span>').text({/literal}'{$mod->Lang("close")}'{literal}).addClass('close-warning'))
-          .append($('<p/>').text(data.message));
+        cms_notify('info', data.message);
       } else if(data.status === 'error') {
-        $response.addClass('pageerrorcontainer')
-          .append($('<span>').text({/literal}'{$mod->Lang("close")}'{literal}).addClass('close-warning'))
-          .append($('<p/>').text(data.message));
+        cms_notify('error', data.message);
       }
-      $('body').append($response.hide());
-      $response.slideDown(1000, function() {
-        window.setTimeout(function() {
-          $response.slideUp();
-          $response.remove();
-        }, 10000);
-      });
-      $('#cancelbtn').button('option', 'label', {/literal}'{$mod->Lang("cancel")}'{literal});
-      $('#tpl_modified_cont').hide();
-      $('#content').focus();
     });
   });
   $(document).on('click', '#a_helptext', function(ev) {
@@ -105,9 +90,7 @@ $(document).ready(function() {
 {/capture}
 
 {if isset($get_lock)}
-  <div class="warning lock-warning">
-   {$mod->Lang('lock_warning')}
-  </div>
+  <div class="pagewarn lock-warning">{$mod->Lang('lock_warning')}</div>
 {/if}
 
 {form_start id="form_edittemplate" extraparms=$extraparms}
@@ -191,7 +174,7 @@ $(document).ready(function() {
     {/if}
    </p>
    {if $template->has_content_file()}
-    <div class="information">{$mod->Lang('info_template_content_file',$template->get_content_filename())}</div>
+    <div class="pageinfo">{$mod->Lang('info_template_content_file',$template->get_content_filename())}</div>
    {else}
    <p class="pageinput">
      {cms_textarea id='content' prefix=$actionid name=contents value=$template->get_content() type='smarty' rows=20}
@@ -321,4 +304,4 @@ $(document).ready(function() {
 {/if}
 {tab_end}
 
-{form_end}
+</form>

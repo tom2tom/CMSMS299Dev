@@ -193,7 +193,7 @@ if (isset($_POST["submit"])) {
 include_once 'header.php';
 
 if (!empty($error)) {
-    echo $themeObject->ShowErrors('TODO<ul class="error">' . $error . '</ul>'); //TODO accumulator, not displayer
+    $themeObject->PrepareError($error);
 }
 
 $out      = array(-1 => lang('none'));

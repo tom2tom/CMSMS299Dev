@@ -72,7 +72,7 @@ if( isset($params['submit']) ) {
 
 // give everything to smarty.
 if( count($errors) ) {
-  echo $this->ShowErrors($errors);
+  $this->ShowErrors($errors);
   $smarty->assign('errors',$errors);
 }
 if( is_array($params['selall']) ) $params['selall'] = serialize($params['selall']);

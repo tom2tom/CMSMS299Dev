@@ -103,7 +103,7 @@ if( isset($params['submit']) ) {
     }
 } // submit
 
-if( count($errors) ) echo $this->ShowErrors($errors);
+if( count($errors) ) $this->ShowErrors($errors);
 if( is_array($params['selall']) ) $params['selall'] = serialize($params['selall']);
 $smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
 $smarty->assign('endform', $this->CreateFormEnd());

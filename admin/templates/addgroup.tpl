@@ -1,17 +1,7 @@
 <div class="pagecontainer">
-  {if !empty($error)}
-  <div class="pageerrorcontainer">
-    <p class="pageerror">{lang('noaccessto', lang('addgroup'))}</p>
-  </div>
-  {elseif !$access}
-  <div class="pageerrorcontainer">
-    <p class="pageerror">{$error}</p>
-  </div>
-  {/if}
-
-  <div class="pagewarning">{lang('warn_addgroup')}</div>
-
+  <div class="pagewarn">{lang('warn_addgroup')}</div>
   <form action="{$selfurl}{$urlext}" method="post">
+
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="groupname">{lang('name')}:</label>
@@ -29,6 +19,7 @@
       </p>
     </div>
     <div class="pageoverflow">
+      <input type="hidden" name="active" value="0" />
       <p class="pagetext">
         <label for="active">{lang('active')}:</label>
       </p>
@@ -36,8 +27,7 @@
         <input type="checkbox" name="active" id="active" class="pagecheckbox"{if $active} checked="checked"{/if} />
       </p>
     </div>
-    <br />
-    <div class="pageoverflow ">
+    <div class="bottomsubmits">
       <p class="pageinput ">
         <button type="submit " name="addgroup" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit " name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>

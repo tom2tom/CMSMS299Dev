@@ -270,7 +270,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
     }
 
     if ($error)
-        echo $this->ShowErrors($error);
+        $this->ShowErrors($error);
 
 // end submit or apply
 } elseif (isset($params['preview'])) {

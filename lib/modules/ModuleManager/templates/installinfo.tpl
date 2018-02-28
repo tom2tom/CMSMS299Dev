@@ -4,9 +4,9 @@
   <h3>{$mod->Lang('install_module')} {$module_name} <em>({$mod->Lang('vertext')} {$module_version})</em></h3>
 {/if}
 
-<div class="warning">
+<div class="pagewarn">
   <h3>{$mod->Lang('notice')}:</h3>
-  <p>{$mod->Lang('time_warning')}</p>
+  {$mod->Lang('time_warning')}
 </div>
 <div class="clearb"></div>
 
@@ -16,9 +16,9 @@
      {if $rec.has_custom}{$has_custom=1}{/if}
   {/foreach}
   {if $has_custom}
-    <div class="warning">
+    <div class="pagewarn">
       <h3>{$mod->Lang('warning')}</h3>
-      <p>{$mod->Lang('warn_modulecustom')}</p>
+      {$mod->Lang('warn_modulecustom')}
       <ul>
         {foreach $dependencies as $name => $rec}
           {if $rec.has_custom}<li>{$name}</li>{/if}
@@ -29,9 +29,9 @@
   {/if}
 
   {if count($dependencies) > 1}
-    <div class="warning">
+    <div class="pagewarn">
       <h3>{$mod->Lang('warning')}</h3>
-      <p>{$mod->Lang('warn_dependencies')}</p>
+      {$mod->Lang('warn_dependencies')}
     </div>
 
     <ul>
@@ -47,10 +47,8 @@
 {/if}
 
 {if isset($form_start)}
-<br />
 {$form_start}
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
     {if count($dependencies) > 1}
       <button type="submit" name="{$actionid}submit" class="adminsubmit icondo">{$mod->Lang('install_procede')}</button>
@@ -60,5 +58,5 @@
     <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{$formend}
+</form>
 {/if}

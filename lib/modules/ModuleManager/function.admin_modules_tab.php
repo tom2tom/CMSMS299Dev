@@ -27,7 +27,7 @@ if (!$this->CheckPermission('Modify Modules')) {
 }
 
 if (!modmgr_utils::is_connection_ok()) {
-    echo $this->ShowErrors($this->Lang('error_request_problem'));
+    $this->SetError($this->Lang('error_request_problem'));
     return;
 }
 

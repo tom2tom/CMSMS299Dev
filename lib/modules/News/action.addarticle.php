@@ -52,45 +52,50 @@ if (isset($params['enddate_Month'])) {
  ---------------------*/
 
 if (isset($params['submit'])) {
-    $error = FALSE;
+    $error = false;
     if (empty($title)) {
-        $error = $this->ShowErrors($this->Lang('notitlegiven'));
-    } else if (empty($content)) {
-        $error = $this->ShowErrors($this->Lang('nocontentgiven'));
-    } else if ($useexp == 1) {
-        if ($startdate >= $enddate)
-            $error = $this->ShowErrors($this->Lang('error_invaliddates'));
+        $this->ShowErrors($this->Lang('notitlegiven'));
+	    $error = true;
+    }
+    if (empty($content)) {
+        $this->ShowErrors($this->Lang('nocontentgiven'));
+	    $error = true;
+    }
+    if ($useexp == 1) {
+        if ($startdate >= $enddate) {
+            $this->ShowErrors($this->Lang('error_invaliddates'));
+		    $error = true;
+		}
     }
 
-    if (empty($error) && $news_url != '') {
+    if ($news_url) {
         // check for starting or ending slashes
-        if (startswith($news_url, '/') || endswith($news_url, '/'))
-            $error = $this->ShowErrors($this->Lang('error_invalidurl'));
+        if (startswith($news_url, '/') || endswith($news_url, '/')) {
+            $this->ShowErrors($this->Lang('error_invalidurl'));
+		    $error = true;
+		}
 
-        if ($error === FALSE) {
-            // check for invalid chars.
-            $translated = munge_string_to_url($news_url, false, true);
-            if (strtolower($translated) != strtolower($news_url))
-                $error = $this->ShowErrors($this->Lang('error_invalidurl'));
-        }
+        // check for invalid chars.
+        $translated = munge_string_to_url($news_url, false, true);
+        if (strtolower($translated) != strtolower($news_url)) {
+            $this->ShowErrors($this->Lang('error_invalidurl'));
+            $error = true;
+		}
 
-        if ($error === FALSE) {
-            // make sure this url isn't taken.
-            cms_route_manager::load_routes();
-            $route = cms_route_manager::find_match($news_url);
-            if ($route) {
-                $error = $this->ShowErrors($this->Lang('error_invalidurl'));
-                // we're adding an article, not editing... any matching route is bad.
-            }
+        // make sure this url isn't taken.
+        cms_route_manager::load_routes();
+        $route = cms_route_manager::find_match($news_url);
+        if ($route) {
+            $this->ShowErrors($this->Lang('error_invalidurl'));
+            $error = true;
+            // we're adding an article, not editing... any matching route is bad.
         }
     }
 
     //
     // database work
     //
-    if ($error !== FALSE) {
-        echo $error;
-    } else {
+    if (!$error) {
         $articleid = $db->GenID(CMS_DB_PREFIX . "module_news_seq");
         $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news (news_id, news_category_id, news_title, news_data, summary, status, news_date, start_time, end_time, create_date, modified_date,author_id,news_extra,news_url,searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         if ($useexp == 1) {
@@ -147,13 +152,13 @@ if (isset($params['submit'])) {
             $elem = $id . 'customfield_' . $onetype['id'];
             if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
                 if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
-                    echo $this->ShowErrors($this->Lang('error_upload'));
+                    $this->ShowErrors($this->Lang('error_upload'));
                     $error = true;
                 } else {
                     $error = '';
                     $value = news_admin_ops::handle_upload($articleid, $elem, $error);
                     if ($value === FALSE) {
-                        echo $this->ShowErrors($error);
+                        $this->ShowErrors($error);
                         $error = true;
                     } else {
                         $params['customfield'][$onetype['id']] = $value;
@@ -251,7 +256,7 @@ if (isset($params['submit'])) {
     $tparms = array('preview' => md5(serialize($_SESSION['news_preview'])));
     if (isset($params['detailtemplate']))
         $tparms['detailtemplate'] = trim($params['detailtemplate']);
-    $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, TRUE);
+    $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true);
 
     $response = '<?xml version="1.0"?>';
     $response .= '<EditArticle>';

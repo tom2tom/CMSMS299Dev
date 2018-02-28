@@ -1,7 +1,7 @@
 <h3>{$mod->Lang('delete_template')}</h3>
 
 {if count($tpl->get_designs()) gt 0 || $page_usage gt 0 }
-<div class="pagewarning">{$mod->Lang('warn_template_used')}</div>
+<div class="pagewarn">{$mod->Lang('pagewarn_template_used')}</div>
 {/if}
 
 {form_start tpl=$actionparams.tpl}
@@ -59,7 +59,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="tpl_modified">{$mod->Lang('prompt_modified')}:</label>
-  </p>
+      </p>
       <p class="pageinput">
         <input type="text" id="tpl_modified" value="{$tpl->get_modified()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
@@ -78,21 +78,18 @@
   </div>{* column *}
 </fieldset>
 
-<div class="pagewarning">{$mod->Lang('info_template_delete')}</div>
-
+<div class="pagewarn">{$mod->Lang('info_template_delete')}</div>
+<br />
 <div class="pageoverflow">
-  <p class="pagetext"></p>
   <p class="pageinput">
-     <input id="check1" type="checkbox" name="{$actionid}check1" value="1" />&nbsp;<label for="check1">{$mod->Lang('confirm_delete_template_1')}</label><br/>
-     <input id="check2" type="checkbox" name="{$actionid}check2" value="1" />&nbsp;<label for="check2">{$mod->Lang('confirm_delete_template_2')}</label>
+    <input id="check1" type="checkbox" name="{$actionid}check1" value="1" />&nbsp;<label for="check1">{$mod->Lang('confirm_delete_template_1')}</label><br/>
+    <input id="check2" type="checkbox" name="{$actionid}check2" value="1" />&nbsp;<label for="check2">{$mod->Lang('confirm_delete_template_2')}</label>
   </p>
 </div>
-
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
-     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-     <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{form_end}
+</form>

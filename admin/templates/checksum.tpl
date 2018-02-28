@@ -1,62 +1,42 @@
-{* checksum verification template *}
 <div class="pagecontainer">
-{if isset($error)}
-<div class="pageerrorcontainer message no-slide">
- <div class="pageoverflow">
-   <p class="pageerror">{$error}</p>
- </div>
-</div>
-{/if}
-
-{if isset($message)}
-<div class="pagemcontainer success message">
- <div class="pageoverflow">
-   <p>{$message}</p>
- </div>
-</div>
-{/if}
-
-<form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
-<div>
-  <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
-  <input type="hidden" name="action" value="upload" />
-</div>
-<fieldset>
-  <legend>{lang key='perform_validation'}</legend>
-  <div class="pageoverflow">
-    <p>{lang key='info_validation'}</p>
+  <form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+  <div class="hidden">
+    <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
+    <input type="hidden" name="action" value="upload" />
   </div>
-  <div class="pageoverflow">
-    <p class="pagetext">{lang key='upload_cksum_file'}</p>
+  <fieldset>
+    <legend>{lang('perform_validation')}</legend>
+    <div class="pageoverflow">
+    <p>{lang('info_validation')}</p>
+    </div>
+    <div class="pageoverflow">
+    <p class="pagetext">{lang('upload_cksum_file')}</p>
     <p class="pageinput"><input type="file" name="cksumdat" size="30" maxlength="255" /></p>
-  </div>
+    </div>
+    <div class="bottomsubmits">
+      <p class="pageinput">
+       <button type="submit" name="upload" class="adminsubmit icondo">{lang('validate')}</button>
+      </p>
+    </div>
+  </fieldset>
+  </form>
   <br />
-  <div class="pageoverflow">
-    <p class="pageinput">
-      <button type="submit" name="submit" class="adminsubmit icondo">{lang('validate')}</button>
-    </p>
+  <form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
+  <div class="hidden">
+    <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
+    <input type="hidden" name="action" value="download" />
   </div>
-</fieldset>
-</form>
-
-<br />
-<form action="{$smarty.server.PHP_SELF}" method="post" enctype="multipart/form-data">
-<div>
-  <input type="hidden" name="{$cms_secure_param_name}" value="{$cms_user_key}" />
-  <input type="hidden" name="action" value="download" />
-</div>
-<fieldset>
-  <legend>{lang key='download_cksum_file'}</legend>
-  <div class="pageoverflow">
-    <p>{lang key='info_generate_cksum_file'}</p>
-  </div>
-  <br />
-  <div class="pageoverflow">
-    <p class="pageinput">
-      <button type="submit" name="submit" class="adminsubmit icondo">{lang('create')}</button>
-    </p>
-  </div>
-</fieldset>
-</form>
+  <fieldset>
+    <legend>{lang('download_cksum_file')}</legend>
+    <div class="pageoverflow">
+    <p>{lang('info_generate_cksum_file')}</p>
+    </div>
+    <div class="bottomsubmits">
+      <p class="pageinput">
+        <button type="submit" name="download" class="adminsubmit icondo">{lang('create')}</button>
+      </p>
+    </div>
+  </fieldset>
+  </form>
 </div>
 

@@ -2,8 +2,8 @@
 <h3>{$header}</h3>
 {/if}
 
-<div class="pagewarning">
-  <p>{$mod->Lang('general_notice')} {$mod->Lang('compatibility_disclaimer')}</p>
+<div class="pagewarn">
+  {$mod->Lang('general_notice')} {$mod->Lang('compatibility_disclaimer')}
   <h3>{$mod->Lang('use_at_your_own_risk')}</h3>
 </div>
 
@@ -18,7 +18,7 @@
 </p>
 
 {if isset($message) && $message}
-<div class="information"><p>{$message}</p></div>
+<div class="pageinfo">{$message}</div>
 {/if}
 
 {function get_module_status_icon}

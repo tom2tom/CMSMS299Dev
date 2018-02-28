@@ -49,11 +49,6 @@ $(document).ready(function() {
 </script>
 
 <div class="pagecontainer">
-  {if !empty($message)}<div class="messagebox {/strip}
-{if $error}error
-{elseif $warning}warning
-{elseif $info}info
-{elseif $success}success{/if}{/strip}">{$message}</div>{/if}
 
   {tab_header name='general' label=lang('general_settings') active=$tab}
   {tab_header name='editcontent' label=lang('editcontent_settings') active=$tab}
@@ -64,15 +59,12 @@ $(document).ready(function() {
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
   {tab_start name='general'}
   <form id="siteprefform_general" action="{$selfurl}{$urlext}" method="post">
-    <div class="hidden">
-      <input type="hidden" name="active_tab" value="general" />
-    </div>
-    <div class="pageoverflow">
+    <input type="hidden" name="active_tab" value="general" />
+    <div class="topsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>
-      <br />
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
@@ -174,22 +166,19 @@ $(document).ready(function() {
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
   {tab_start name='editcontent'}
   <form id="siteprefform_editcontent" action="{$selfurl}{$urlext}" method="post">
-    <div class="hidden">
-      <input type="hidden" name="active_tab" value="editcontent" />
-    </div>
+    <input type="hidden" name="active_tab" value="editcontent" />
     {if !$pretty_urls}
     <div class="pagewarn">
       {lang('warn_nosefurl')}
       {cms_help key2='settings_nosefurl' title=lang('warn_nosefurl')}
     </div>
     {/if}
-    <div class="pageoverflow">
+    <div class="topsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>
     </div>
-    <br />
     {if $pretty_urls}
     <div class="pageoverflow">
       <p class="pagetext">
@@ -294,16 +283,13 @@ $(document).ready(function() {
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
   {tab_start name='sitedown'}
   <form id="siteprefform_sitedown" action="{$selfurl}{$urlext}" method="post">
-    <div class="hidden">
-      <input type="hidden" name="active_tab" value="sitedown" />
-    </div>
-    <div class="pageoverflow">
+    <input type="hidden" name="active_tab" value="sitedown" />
+    <div class="topsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>
     </div>
-    <br />
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="enablesitedown">{lang('enablesitedown')}:</label>
@@ -343,8 +329,7 @@ $(document).ready(function() {
         <strong>{lang('your_ipaddress')}:</strong>&nbsp;<span style="color:red;">{cms_utils::get_real_ip()}</span>
       </p>
     </div>
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
@@ -355,9 +340,7 @@ $(document).ready(function() {
   {tab_start name='mail'}
   <div id="testpopup" title="{lang('title_mailtest')}" style="display: none;">
     <form id="siteprefform_mailtest" action="{$selfurl}{$urlext}" method="post">
-      <div class="hidden">
-        <input type="hidden" name="active_tab" value="mail" />
-      </div>
+      <input type="hidden" name="active_tab" value="mail" />
       <div class="pageinfo">{lang('info_mailtest')}</div>
       <div class="pageoverflow">
         <p class="pagetext">
@@ -368,8 +351,7 @@ $(document).ready(function() {
           <input type="text" id="testaddress" name="mailtest_testaddress" size="50" maxlength="255" />
         </p>
       </div>
-      <br />
-      <div class="pageoverflow">
+      <div class="bottomsubmits">
         <p class="pageinput">
           <button type="submit" name="testmail" id="testsend" class="adminsubmit iconcheck">{lang('sendtest')}</button>
           <button type="submit" name="canceltest" id="testcancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
@@ -379,17 +361,14 @@ $(document).ready(function() {
   </div>
 
   <form id="siteprefform_mail" action="{$selfurl}{$urlext}" method="post">
-    <div>
-      <input type="hidden" name="active_tab" value="mail" />
-    </div>
-    <div class="pageoverflow">
+    <input type="hidden" name="active_tab" value="mail" />
+    <div class="topsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="testemail" id="mailertest" class="adminsubmit icondo">{lang('test')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>
     </div>
-    <br />
 
     <fieldset id="set_general">
       <legend>{lang('general_settings')}</legend>
@@ -515,8 +494,7 @@ $(document).ready(function() {
         </p>
       </div>
     </fieldset>
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
@@ -526,10 +504,7 @@ $(document).ready(function() {
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
   {tab_start name='smarty'}
   <form id="siteprefform_smarty" action="{$selfurl}{$urlext}" method="post">
-    <div class="hidden">
-      <input type="hidden" name="active_tab" value="smarty" />
-    </div>
-
+    <input type="hidden" name="active_tab" value="smarty" />
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="compilecheck">{lang('prompt_smarty_compilecheck')}:</label>
@@ -540,8 +515,7 @@ $(document).ready(function() {
         <input type="checkbox" name="use_smartycompilecheck" id="compilecheck" value="1"{if $use_smartycompilecheck} checked="checked"{/if} />
       </p>
     </div>
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
@@ -552,17 +526,13 @@ $(document).ready(function() {
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
   {tab_start name='setup'}
   <form id="siteprefform_setup" action="{$selfurl}{$urlext}" method="post">
-    <div class="hidden">
-      <input type="hidden" name="active_tab" value="setup" />
-    </div>
-    <div class="pageoverflow">
+    <input type="hidden" name="active_tab" value="setup" />
+    <div class="topsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>
     </div>
-    <br />
-
     <fieldset>
       <legend>{lang('browser_cache_settings')}</legend>
       <div class="pageoverflow">
@@ -652,8 +622,7 @@ $(document).ready(function() {
         </p>
       </div>
     </fieldset>
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
         <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>

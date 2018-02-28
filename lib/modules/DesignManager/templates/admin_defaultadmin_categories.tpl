@@ -5,22 +5,11 @@ $(document).ready(function() {
   $('#categorylist tbody').cmsms_sortable_table({
     actionurl: {/literal}'{cms_action_url action="ajax_order_cats" forjs=1}&showtemplate=false'{literal},
     callback: function(data) {
-      var $response = $('<aside/>').addClass('message');
       if(data.status === 'success') {
-        $response.addClass('pagemcontainer')
-          .append($('<span>').text('Close').addClass('close-warning'))
-          .append($('<p/>').text(data.message));
+        cms_notify('info', data.message);
       } else if(data.status === 'error') {
-        $response.addClass('pageerrorcontainer')
-          .append($('<span>').text('Close').addClass('close-warning'))
-          .append($('<p/>').text(data.message));
+        cms_notify('error', data.message);
       }
-      $('body').append($response).slideDown(1000, function() {
-        window.setTimeout(function() {
-          $response.slideUp();
-          $response.remove();
-        }, 10000);
-      });
     }
   });
   $('#categorylist a.del_cat').click(function(ev) {
@@ -35,12 +24,12 @@ $(document).ready(function() {
 </script>
 
 {if count($list_categories) > 1}
-  <div class="pagewarning" style="display: block;">{$mod->Lang('warning_category_dragdrop')}</div>
+  <div class="pagewarn">{$mod->Lang('warning_category_dragdrop')}</div>
 {/if}
 
 {/if}{* list_categories *}
 
-<div class="information">{$mod->Lang('info_about_categories')}</div>
+<div class="pageinfo">{$mod->Lang('info_about_categories')}</div>
 <div class="pageoptions">
   {cms_action_url action='admin_edit_category' assign='url'}
   <a id="addcategory" href="{$url}" title="{$mod->Lang('create_category')}">{admin_icon icon='newobject.gif'} {$mod->Lang('create_category')}</a>
@@ -50,7 +39,7 @@ $(document).ready(function() {
 <table id="categorylist" class="pagetable">
   <thead>
     <tr>
-      <th width="5%" title="{$mod->Lang('title_cat_id')}">{$mod->Lang('prompt_id')}</th>
+      <th style="width:5%;" title="{$mod->Lang('title_cat_id')}">{$mod->Lang('prompt_id')}</th>
       <th title="{$mod->Lang('title_cat_name')}">{$mod->Lang('prompt_name')}</th>
       <th class="pageicon"></th>
       <th class="pageicon"></th>

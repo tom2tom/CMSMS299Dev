@@ -4,7 +4,7 @@ if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
 if (isset($params['reindex'])) {
     $this->Reindex();
-    echo $this->ShowMessage($this->Lang('reindexcomplete'));
+    $this->ShowMessage($this->Lang('reindexcomplete'));
 }
 else if (isset($params['clearwordcount'])) {
     $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_search_words';
@@ -41,7 +41,7 @@ else if (isset($params['submit'])) {
     if ($newval != $curval) {
         $this->SetPreference('usestemming', $newval);
         $this->Reindex();
-        echo $this->ShowMessage('reindexcomplete');
+        $this->ShowMessage($this->Lang('reindexcomplete'));
     }
 
     $newval = 'false';

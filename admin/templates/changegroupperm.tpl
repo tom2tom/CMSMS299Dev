@@ -1,11 +1,8 @@
 <div class="pagecontainer">
-  {if !empty($message)}
-  <div class="pageerrorcontainer">
-    <p class="pageerror">{$message}</p>
-  </div>
-  {/if}
-  {$maintitle}
-  <div class="information">
+
+  <h3 class="pagesubtitle">{$pagesubtitle}</h3>
+
+  <div class="pageinfo">
     {lang('info_changegroupperms')}
     {cms_help key2='help_group_permissions' title=lang('info_changegroupperms')}
   </div>
@@ -76,8 +73,8 @@
       </tbody>
     </table>
 
-    <div class="pageoverflow">
-      <p class="pageoptions">
+    <div class="bottomsubmits">
+      <p class="pageinput">
         <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
       </p>

@@ -174,10 +174,10 @@ $(document).ready(function() {
   </tbody>
 </table>
 {else}
-<p class="warning">{if $curcategory == ''}{$mod->Lang('noarticles')}{else}{$mod->Lang('noarticlesinfilter')}{/if}</p>
+<div class="pagewarn">{if $curcategory == ''}{$mod->Lang('noarticles')}{else}{$mod->Lang('noarticlesinfilter')}{/if}</div>
 {/if}
 
-<div style="width: 99%;">
+<div style="width:99%;">
   {if isset($addlink)}
   <div class="pageoptions" style="float: left;">
     <p class="pageoptions">{$addlink}</p>

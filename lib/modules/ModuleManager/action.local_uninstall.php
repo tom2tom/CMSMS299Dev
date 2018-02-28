@@ -48,5 +48,5 @@ try {
     $tpl->display();
 }
 catch( \Exception $e ) {
-    echo $this->ShowErrors($e->GetMessage());
+    $this->SetError($e->GetMessage());
 }

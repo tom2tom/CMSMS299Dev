@@ -113,16 +113,14 @@ $(document).ready(function() {
 <input type="hidden" name="disable_buffer" value="1" />
 <fieldset>
   {if isset($is_ie)}
-  <div class="pageerrorcontainer message">
-    <p class="pageerror">{$ie_upload_message}</p>
-  </div>
+  <div class="pageerror">{$ie_upload_message}</div>
   {/if}
   <div class="upload-wrapper">
-    <div style="width: 60%; float: left;">
+    <div style="width:60%;float:left;">
       {*<input type="hidden" name="MAX_FILE_SIZE" value="{$maxfilesize}" />*}{* recommendation for browser *}
       <input id="fileupload" type="file" name="{$actionid}files[]" size="50" title="{$mod->Lang('title_filefield')}" multiple />
+      <br />
       <div id="pageoverflow">
-        <p class="pagetext"></p>
         <p class="pageinput">
           <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit iconcancel" style="display:none;">{$mod->Lang('cancel')}</button>
         </p>
@@ -139,4 +137,4 @@ $(document).ready(function() {
     <div id="progressarea"></div>
   </div>
 </fieldset>
-{$formend}
+</form>

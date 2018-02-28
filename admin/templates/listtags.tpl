@@ -1,5 +1,4 @@
 <div class="pagecontainer">
-  {$maintitle}
   {if isset($subheader)}
     <div class="pageheader">{$subheader}
      {if isset($wiki_url) && isset($image_help_external)}
@@ -13,12 +12,6 @@
 
   {if isset($content)}
     <br />{$content}
-  {elseif isset($error)}
-    <div class="pageerrorcontainer">
-     <div class="pageoverflow">
-       <ul class="pageerror"><li>{$error}</li></ul>
-     </div>
-    </div>
   {elseif isset($plugins)}
     <table class="pagetable">
       <thead>

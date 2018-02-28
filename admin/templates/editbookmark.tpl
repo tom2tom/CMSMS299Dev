@@ -1,14 +1,5 @@
 <div class="pagecontainer">
-  {if !empty($error)}
-   <div class="pageerrorcontainer">
-     <p class="pageerror">{$error}</p>
-   </div>
-  {/if}
-
-  {$maintitle}
-
   <form action="{$selfurl}{$urlext}" method="post">
-
     <input type="hidden" name="bookmark_id" value="{$bookmark_id}" />
 
     <div class="pageoverflow">
@@ -23,8 +14,7 @@
         <input type="text" name="url" size="80" maxlength="255" value="{$url}" />
       </p>
     </div>
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
         <button type="submit" name="editbookmark" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>

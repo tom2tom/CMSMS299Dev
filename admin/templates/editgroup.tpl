@@ -1,11 +1,6 @@
 <div class="pagecontainer">
-  {if !empty($error)}
-   <div class="pageerrorcontainer">
-     <p class="pageerror">{$error}</p>
-   </div>
-  {/if}
 
-  {$maintitle}
+  {if $group}<h3 class="pagesubtitle">{lang('name')}:&nbsp;{$group}</h3>{/if}
 
   <form action="{$selfurl}{$urlext}" method="post">
 
@@ -40,8 +35,7 @@
     {else}
     <input type="hidden" name="active" value="{$active}" />
     {/if}
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
         <button type="submit" name="editgroup" class="adminsubmit iconcheck">{lang('submit')}</button>
         <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>

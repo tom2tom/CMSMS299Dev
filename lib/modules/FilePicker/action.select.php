@@ -16,5 +16,5 @@ try {
     echo $this->get_html($name, $value, $profile );
 }
 catch( \Exception $e ) {
-    echo $this->ShowErrors($e->GetMessage());
+    $this->SetError($e->GetMessage());
 }

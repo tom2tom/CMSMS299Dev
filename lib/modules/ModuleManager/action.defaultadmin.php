@@ -31,7 +31,7 @@ if( isset($params['modulehelp']) ) {
 if( !$this->VisibleToAdminUser() ) exit;
 
 $connection_ok = modmgr_utils::is_connection_ok();
-if( !$connection_ok ) echo $this->ShowErrors($this->Lang('error_request_problem'));
+if( !$connection_ok ) $this->ShowErrors($this->Lang('error_request_problem'));
 
 // this is a bit ugly.
 modmgr_utils::get_images();
@@ -42,7 +42,7 @@ if( $connection_ok ) {
         $newversions = modulerep_client::get_newmoduleversions();
     }
     catch( Exception $e ) {
-        echo $this->ShowErrors($e->GetMessage());
+        $this->ShowErrors($e->GetMessage());
     }
 }
 

@@ -11,7 +11,7 @@ if (isset($params["newdirname"])) {
 
   if (!filemanager_utils::is_valid_filename($params['newdirname'])) {
     // $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"invalidnewdir"));
-    echo $this->ShowErrors($this->Lang("invalidnewdir"));
+    $this->ShowErrors($this->Lang("invalidnewdir"));
     //fallthrough
   } else {
 
@@ -21,7 +21,7 @@ if (isset($params["newdirname"])) {
     $newdir = $this->Slash($base, $newdir);
 
     if (is_dir($newdir)) {
-      echo $this->ShowErrors($this->Lang("direxists"));
+      $this->ShowErrors($this->Lang("direxists"));
       //fallthrough
     } else {
       if (mkdir($newdir)) {

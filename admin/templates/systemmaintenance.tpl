@@ -1,17 +1,11 @@
 <div class="pagecontainer">
-  {if !empty($message)}<div class="messagebox {/strip}
-{if $error}error
-{elseif $warning}warning
-{elseif $info}info
-{elseif $success}success{/if}{/strip}">{$message}</div>{/if}
 
-  {$theme->StartTabHeaders()}
-  {$theme->SetTabHeader('database',lang('sysmaintab_database'),isset($active_database))}
-  {$theme->SetTabHeader('content',lang('sysmaintab_content'),isset($active_content))}
-  {if isset($changelog)} {$theme->SetTabHeader('changelog',lang('sysmaintab_changelog'),isset($active_changelog))} {/if}
-  {$theme->EndTabHeaders()}
-  {$theme->StartTabContent()}
-  {$theme->StartTab('database')}
+  {tab_header name='database' label=lang('sysmaintab_database') active=isset($active_database))}
+  {tab_header name='content' label=lang('sysmaintab_content') active=isset($active_content)}
+{if isset($changelog)}
+  {tab_header name='changelog' label=lang('sysmaintab_changelog') active=isset($active_changelog)}
+ {/if}
+  {tab_start name='database'}
   <form action="{$selfurl}{$urlext}" method="post">
     <fieldset>
       <legend>{lang('sysmain_database_status')}:</legend>
@@ -37,8 +31,7 @@
       </div>
     </fieldset>
   </form>
-  {$theme->EndTab()}
-  {$theme->StartTab('content')}
+  {tab_start name='content'}
   <form action="{$selfurl}{$urlext}" method="post">
     <fieldset>
       <legend>{lang('sysmain_cache_status')}&nbsp;</legend>
@@ -98,16 +91,12 @@
     {/if} {if $invalidtypescount=="0" && $withoutaliascount==""}
     <p class='green'><strong>{lang('sysmain_nocontenterrors')}</strong></p>
     {/if}
-
   </fieldset>
-  {$theme->EndTab()}
 
   {if isset($changelog)}
-  {$theme->StartTab('changelog')}
+  {tab_start name='changelog'}
     <p class='file'>{$changelogfilename}</p>
     <div class="changelog">{$changelog}</div>
-  {$theme->EndTab()}
   {/if}
-  {$theme->EndTabContent()}
-
+  {tab_end}
 </div>

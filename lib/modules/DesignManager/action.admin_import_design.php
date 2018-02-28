@@ -56,7 +56,7 @@ try {
       }
     }
     catch( CmsException $e ) {
-      echo $this->ShowErrors($e->GetMessage());
+      $this->ShowErrors($e->GetMessage());
     }
 
     echo $this->ProcessTemplate('admin_import_design.tpl');
@@ -83,11 +83,11 @@ try {
 				$error = null;
 				if( !isset($params['check1']) ) {
 					$error = 1;
-					echo $this->ShowErrors($this->Lang('error_notconfirmed'));
+					$this->ShowErrors($this->Lang('error_notconfirmed'));
 				}
 				else if( !isset($params['newname']) || $params['newname'] == '' ) {
 					$error = 1;
-					echo $this->ShowErrors($this->Lang('error_missingparam'));
+					$this->ShowErrors($this->Lang('error_missingparam'));
 				}
 				else {
 					// redirect to this action, with step3.
@@ -107,7 +107,7 @@ try {
             $smarty->assign('new_name',$newname);
 		}
     catch( CmsException $e ) {
-      echo $this->ShowErrors($e->GetMessage());
+      $this->ShowErrors($e->GetMessage());
     }
     echo $this->ProcessTemplate('admin_import_design2.tpl');
     break;

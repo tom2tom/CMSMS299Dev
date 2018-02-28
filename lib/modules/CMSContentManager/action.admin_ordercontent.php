@@ -82,7 +82,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
     }
 
     if( !is_array($changelist) || count($changelist) == 0 ) {
-        echo $this->ShowErrors($this->Lang('error_ordercontent_nothingtodo'));
+        $this->ShowErrors($this->Lang('error_ordercontent_nothingtodo'));
     }
     else {
         $query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = ?, parent_id = ? WHERE content_id = ?';

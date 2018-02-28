@@ -151,8 +151,8 @@ if (isset($_POST['submit'])) {
 
 include_once 'header.php';
 
-if ($error != '') {
-    echo $themeObject->ShowErrors('TODO<ul class="error">' . $error . '</ul>'); //accumulator, not displayer
+if (!empty($error)) {
+    $themeObject->PrepareError($error);
 }
 
 $out      = [-1 => lang('none')];

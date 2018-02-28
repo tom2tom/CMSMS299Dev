@@ -74,7 +74,7 @@ else if( isset($params['design_setdflt']) && $this->CheckPermission('Manage Desi
     $new_dflt->save();
 
     $this->SetCurrentTab('designs');
-    echo $this->ShowMessage($this->Lang('msg_dflt_design_saved'));
+    $this->ShowMessage($this->Lang('msg_dflt_design_saved'));
 }
 
 $tmp = cms_userprefs::get($this->GetName().'template_filter');

@@ -84,9 +84,10 @@ if( $USE_THEME ) {
         }
     }
 
-    if ( !empty($params['module_message']) ) echo $themeObject->ShowMessage($params['module_message']); //TODO is accumulator, not displayer
-    if ( !empty($params['module_error']) ) echo $themeObject->ShowErrors($params['module_error']); //TODO is accumulator, not displayer
-    include_once 'header.php';
+   include_once 'header.php';
+
+    if ( !empty($params['module_error']) ) $themeObject->PrepareError($params['module_error']);
+    if ( !empty($params['module_message']) ) $themeObject->PrepareSuccess($params['module_message']);
 
     // this is hackish
     echo '<div class="pagecontainer">';

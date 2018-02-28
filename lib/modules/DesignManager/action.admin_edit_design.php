@@ -54,12 +54,12 @@ try {
 				$this->RedirectToAdminTab();
 			}
 			else {
-				echo $this->ShowMessage($this->Lang('msg_design_saved'));
+				$this->ShowMessage($this->Lang('msg_design_saved'));
 			}
 		}
 	}
 	catch( Exception $e ) {
-		echo $this->ShowErrors($e->GetMessage());
+		$this->ShowErrors($e->GetMessage());
 	}
 
     $templates = CmsLayoutTemplate::get_editable_templates(get_userid());

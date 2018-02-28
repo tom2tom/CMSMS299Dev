@@ -154,7 +154,7 @@ try {
     if ($apply) {
         $this->GetJSONResponse($response, $message);
     } elseif (!$apply && $response == 'error') {
-        echo $this->ShowErrors($message);
+        $this->ShowErrors($message);
     }
 
     if( ($tpl_id = $tpl_obj->get_id()) > 0 ) {

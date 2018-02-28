@@ -1,11 +1,8 @@
 <div class="pagecontainer">';
-  {if !empty($message)}
-  <div class="pageerrorcontainer">
-    <p class="pageerror">{$message}</p>
-  </div>
-  {/if}
-  {$maintitle}
-  <div class="information">
+
+  <h3 class="pagesubtitle">{$pagesubtitle}</h3>
+
+  <div class="pageinfo">
     {lang('info_changeusergroup')}
     {cms_help key2='help_group_permissions' title=lang('info_changeusergroup')}
   </div>
@@ -32,8 +29,8 @@
   <br />
   <form id="groupname" action="{$selfurl}{$urlext}" method="post">
   <div class="pageoptions">
-     <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
-     <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>'
+    <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>'
   </div>
   {$group_count=count($group_list)}
   <table class="pagetable" id="permtable">
@@ -71,9 +68,11 @@
     </tbody>
   </table>
 
-  <div class="pageoptions">
+  <div class="bottomsubmits">
+    <p class="pageinput">
      <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
-     <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>'
+     <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+    </p>
   </div>
   </form>
 </div>

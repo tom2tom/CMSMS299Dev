@@ -6,14 +6,14 @@ if (isset($params["fmmessage"]) && $params["fmmessage"]!="") {
     // gotta get rid of this stuff.
     $count="";
     if (isset($params["fmmessagecount"]) && $params["fmmessagecount"]!="") $count=$params["fmmessagecount"];
-    echo $this->ShowMessage($this->Lang($params["fmmessage"],$count));
+    $this->ShowMessage($this->Lang($params["fmmessage"],$count));
 }
 
 if (isset($params["fmerror"]) && $params["fmerror"]!="") {
     // gotta get rid of this stuff
     $count="";
     if (isset($params["fmerrorcount"]) && $params["fmerrorcount"]!="") $count=$params["fmerrorcount"];
-    echo $this->ShowErrors($this->Lang($params["fmerror"],$count));
+    $this->ShowErrors($this->Lang($params["fmerror"],$count));
 }
 
 if (isset($params["newsort"])) $this->SetPreference("sortby",$params["newsort"]);

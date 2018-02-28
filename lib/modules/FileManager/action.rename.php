@@ -29,12 +29,12 @@ $newname=$oldname; //for initial input box
 if (isset($params["newname"])) {
   $newname=$params["newname"];
   if (!filemanager_utils::is_valid_filename($newname)) {
-    echo $this->ShowErrors($this->Lang("invaliddestname"));
+    $this->ShowErrors($this->Lang("invaliddestname"));
   } else {
     $cwd = filemanager_utils::get_cwd();
     $fullnewname = filemanager_utils::join_path(filemanager_utils::get_full_cwd(),trim($params['newname']));
     if (file_exists($fullnewname)) {
-      echo $this->ShowErrors($this->Lang("namealreadyexists"));
+      $this->ShowErrors($this->Lang("namealreadyexists"));
       //fallthrough
     } else {
       $fulloldname = filemanager_utils::join_path(filemanager_utils::get_full_cwd(),$oldname);

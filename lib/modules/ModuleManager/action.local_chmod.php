@@ -8,14 +8,18 @@ if( !isset($params['mod']) ) {
 }
 $module = get_parameter_value($params,'mod');
 
-$dir = cms_join_path($config['root_path'],'modules',$module);
-$result = chmod_r($dir,0777);
-if( !$result ) {
-  $this->SetError($this->Lang('error_chmodfailed'));
+$dir = cms_module_path($module);
+if( $dir ) {
+  $result = chmod_r($dir,0777); //TODO BAD PERM FOR NON-DIRS
+} else {
+  $result = false;
 }
-else {
+
+if( $result ) {
   audit('',$this->GetName(),'Changed permissions on '.$module.' directory');
   $this->SetMessage($this->Lang('msg_module_chmod'));
+} else {
+  $this->SetError($this->Lang('error_chmodfailed'));
 }
 
 $this->RedirectToAdminTab();

@@ -5,7 +5,7 @@ $smarty->assign('formstart',$this->CreateFormStart($id,'defaultadmin'));
 
 if (isset($params['bulk_action']) ) {
     if( !isset($params['sel']) || !is_array($params['sel']) || count($params['sel']) == 0 ) {
-        echo $this->ShowErrors($this->Lang('error_noarticlesselected'));
+        $this->ShowErrors($this->Lang('error_noarticlesselected'));
     }
     else {
 
@@ -20,14 +20,14 @@ if (isset($params['bulk_action']) ) {
         switch($params['bulk_action']) {
         case 'delete':
             if (!$this->CheckPermission('Delete News')) {
-                echo $this->ShowErrors($this->Lang('needpermission', array('Modify News')));
+                $this->ShowErrors($this->Lang('needpermission', 'Modify News'));
             }
             else {
                 foreach( $sel as $news_id ) {
                     news_admin_ops::delete_article( $news_id );
                 }
+                $this->ShowMessage($this->Lang('msg_success'));
             }
-            echo $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setcategory':
@@ -36,7 +36,7 @@ if (isset($params['bulk_action']) ) {
             $parms = array((int)$params['category']);
             $db7->Execute($query,$parms);
             audit('',$this->GetName(),'category changed on '.count($sel).' articles');
-            echo $this->ShowMessage($this->Lang('msg_success'));
+            $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setpublished':
@@ -44,7 +44,7 @@ if (isset($params['bulk_action']) ) {
                 WHERE news_id IN ('.implode(',',$sel).')';
             $db->Execute($query,array('published'));
             audit('',$this->GetName(),'status changed on '.count($sel).' articles');
-            echo $this->ShowMessage($this->Lang('msg_success'));
+            $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setdraft':
@@ -52,7 +52,7 @@ if (isset($params['bulk_action']) ) {
                 WHERE news_id IN ('.implode(',',$sel).')';
             $db->Execute($query,array('draft'));
             audit('',$this->GetName(),'status changed on '.count($sel).' articles');
-            echo $this->ShowMessage($this->Lang('msg_success'));
+            $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         default:

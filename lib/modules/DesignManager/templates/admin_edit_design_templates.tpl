@@ -157,9 +157,9 @@ $(document).ready(function() {
 {/literal}//]]>
 </script>
 
-<div class="information">{$mod->Lang('info_edittemplate_templates_tab')}</div>
+<div class="pageinfo">{$mod->Lang('info_edittemplate_templates_tab')}</div>
 {if !isset($all_templates)}
-<div class="pagewarning">{$mod->Lang('warning_edittemplate_notemplates')}</div>
+<div class="pagewarn">{$mod->Lang('warning_edittemplate_notemplates')}</div>
 {else} {$tmpl=$design->get_templates()}
 <div class="c_full cf" id="template_sel">
   <div class="grid_6 draggable-area">

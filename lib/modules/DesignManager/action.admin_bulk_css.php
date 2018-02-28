@@ -44,7 +44,7 @@ try {
         $bulk_op = 'bulk_action_delete_css';
         if( isset($params['submit']) ) {
             if( !isset($params['check1']) || !isset($params['check2']) ) {
-                echo $this->ShowErrors($this->Lang('error_notconfirmed'));
+                $this->ShowErrors($this->Lang('error_notconfirmed'));
             }
             else {
                 $stylesheets = CmsLayoutStylesheet::load_bulk($params['css_select']);

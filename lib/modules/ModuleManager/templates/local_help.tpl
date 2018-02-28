@@ -1,5 +1,5 @@
 {if isset($force_english)}
-	<div class="pagewarning">{$mod->Lang('help_forceenglish')}</div>
+	<div class="pagewarn">{$mod->Lang('help_forceenglish')}</div>
 {/if}
 
 <div class="pageheader">

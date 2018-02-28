@@ -54,12 +54,11 @@ if (isset($params['submit'])) {
         audit('', 'News custom: '.$name, 'Field definition added');
 
         // done.
-        $params = array('tab_message'=> 'fielddefadded', 'active_tab' => 'customfields');
         $this->SetMessage($this->Lang('fielddefadded'));
         $this->RedirectToAdminTab('customfields','','admin_settings');
     }
 
-    if( $error ) echo $this->ShowErrors($error);
+    if( $error ) $this->ShowErrors($error);
 }
 
 #Display template

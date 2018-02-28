@@ -1,10 +1,4 @@
 <div class="pagecontainer">
-  {if !empty($message)}<div class="messagebox {/strip}
-{if $error}error
-{elseif $warning}warning
-{elseif $info}info
-{elseif $success}success{/if}{/strip}">{$message}</div>{/if}
-
   {if empty($smarty.get.cleanreport)}
   <p class="pageshowrows">
     <a href="{$sysinfurl}{$urlext}&amp;cleanreport=1" class="link_button icondo">

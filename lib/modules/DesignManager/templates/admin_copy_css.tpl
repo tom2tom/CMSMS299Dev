@@ -50,7 +50,7 @@
   </div>{* column *}
 </fieldset>
 
-<div class="information">{$mod->Lang('info_copy_css')}</div>
+<div class="pageinfo">{$mod->Lang('info_copy_css')}</div>
 
 <fieldset>
   <legend>{$mod->Lang('prompt_dest_css')}:</legend>
@@ -63,13 +63,11 @@
     </p>
   </div>
 </fieldset>
-
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
-     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-     <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
-     <button type="submit" name="{$actionid}submitandedit" class="adminsubmit iconapply">{$mod->Lang('submitandedit')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submitandedit" class="adminsubmit iconapply">{$mod->Lang('submitandedit')}</button>
   </p>
 </div>
-{form_end}
+</form>

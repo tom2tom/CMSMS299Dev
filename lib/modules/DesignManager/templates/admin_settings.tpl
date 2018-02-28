@@ -1,6 +1,5 @@
 {form_start}
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="topsubmits">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
   </p>
@@ -26,4 +25,4 @@
     </p>
   </div>
 </fieldset>
-{form_end}
+</form>

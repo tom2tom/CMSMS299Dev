@@ -40,7 +40,6 @@ $group_id = (isset($_GET['group_id'])) ? $_GET['group_id'] : -1;
 $gCms = cmsms();
 $userops = $gCms->GetUserOperations();
 $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
-$group_name = '';
 $message = '';
 
 include_once 'header.php';
@@ -54,7 +53,6 @@ $disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1
 
 // always display the group pulldown
 $groupops = $gCms->GetGroupOperations();
-$userops = $gCms->GetUserOperations();
 $tmp = new stdClass();
 $tmp->name = lang('all_groups');
 $tmp->id=-1;
@@ -139,16 +137,15 @@ $smarty->assign('users', $user_struct);
 $smarty->assign('adminuser', ($adminuser?1:0));
 
 if (!empty($message)) {
-    $smarty->assign('message', $themeObject->ShowMessage($message)); //TODO accumulator not displayer
-} else {
-    $smarty->assign('message', null);
+    $themeObject->PrepareSuccess($message);
 }
+
 $selfurl = basename(__FILE__);
 $smarty->assign('selfurl', $selfurl);
 $smarty->assign('urlext', $urlext);
 $smarty->assign('disp_group', $disp_group);
 $smarty->assign('user_id', $userid);
-$smarty->assign('maintitle', $themeObject->ShowHeader('groupassignments', array($group_name)));
+$smarty->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
 
 $smarty->display('changeusergroup.tpl');
 

@@ -109,11 +109,11 @@ $hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
  */
 include_once 'header.php';
 
-if ($error) {
-  $themeObject->ShowErrors($error);  //TODO accumulator, not displayer
+if (!empty($error)) {
+  $themeObject->PrepareError($error);
 }
-if ($message) {
-  $themeObject->ShowMessage($message);  //TODO accumulator, not displayer
+if (!empty($message)) {
+  $themeObject->PrepareSuccess($message);
 }
 
 $contentops = cmsms()->GetContentOperations();

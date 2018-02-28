@@ -203,13 +203,10 @@ if ($submitted) {
     $gCms->clear_cached_files();
 }
 
-$selfurl = basename(__FILE__);
 if (!empty($message)) {
-    $message = $themeObject->ShowMessage($message); //TODO accumulator not displayer
-} else {
-    $message = null;
+    $themeObject->PrepareSuccess($message);
 }
-$maintitle = $themeObject->ShowHeader('groupperms', array($group_name));
+$pagesubtitle = lang('groupperms', $group_name);
 $perm_struct = $load_perms();
 $perm_struct = $group_perms($perm_struct);
 $tmp = base64_encode(serialize($sel_group_ids));
@@ -220,8 +217,7 @@ $selfurl = basename(__FILE__);
 $smarty->assign([
     'disp_group' => $disp_group,
     'hidden2' => $hidden,
-    'maintitle' => $maintitle,
-    'message' => $message,
+    'pagesubtitle' => $pagesubtitle,
     'perms' => $perm_struct,
     'urlext' => $urlext,
     'selfurl' => $selfurl,

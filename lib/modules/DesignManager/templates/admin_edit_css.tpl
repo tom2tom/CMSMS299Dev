@@ -58,26 +58,11 @@ $(document).ready(function() {
     var url = $('#form_editcss').attr('action') + '?showtemplate=false&m1_apply=1',
       data = $('#form_editcss').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {
-      var $response = $('<aside/>').addClass('message');
       if(data.status === 'success') {
-        $response.addClass('pagemcontainer')
-          .append($('<span>').text({/literal}'{$mod->Lang("close")}'{literal}).addClass('close-warning'))
-          .append($('<p/>').text(data.message));
-      } else if(data.status === 'error') {
-        $response.addClass('pageerrorcontainer')
-          .append($('<span>').text({/literal}'{$mod->Lang("close")}'{literal}).addClass('close-warning'))
-          .append($('<p/>').text(data.message));
+        cms_notify('info', data.message);
+      } else {
+        cms_notify('error', data.message);
       }
-      $('body').append($response.hide());
-      $response.slideDown(1000, function() {
-        window.setTimeout(function() {
-          $response.slideUp();
-          $response.remove();
-        }, 10000);
-      });
-      $('#cancelbtn').button('option', 'label', {/literal}'{$mod->Lang("cancel")}'{literal});
-      $('#tpl_modified_cont').hide();
-      $('#content').focus();
     });
   });
   // disabling Media Type checkboxes if Media query is in use
@@ -115,9 +100,7 @@ $(document).ready(function() {
 *}
 
 {if isset($get_lock)}
-  <div class="warning lock-warning">
-   {$mod->Lang('lock_warning')}
-  </div>
+  <div class="warning lock-warning">{$mod->Lang('lock_warning')}</div>
 {/if}
 
 {form_start id='form_editcss' extraparms=$extraparms}
@@ -177,22 +160,22 @@ $(document).ready(function() {
 
 {tab_start name='content'}
 {if $css->has_content_file()}
-  <div class="information">{$mod->Lang('info_css_content_file',$css->get_content_filename())}</div>
+  <div class="pageinfo">{$mod->Lang('info_css_content_file',$css->get_content_filename())}</div>
 {else}
   <div class="pageoverflow">
       <p class="pagetext">
       <label for="stylesheet">{$mod->Lang('prompt_stylesheet')}:</label>
-    {cms_help realm=$_module key2=help_stylesheet_content title=$mod->Lang('prompt_stylesheet')}
+      {cms_help realm=$_module key2=help_stylesheet_content title=$mod->Lang('prompt_stylesheet')}
       </p>
       <p class="pageinput">
-          {cms_textarea id='stylesheet' prefix=$actionid name=content value=$css->get_content() type=css rows=20 cols=80}
+        {cms_textarea id='stylesheet' prefix=$actionid name=content value=$css->get_content() type=css rows=20 cols=80}
       </p>
   </div>
 {/if}
 
 {tab_start name='media_type'}
 <!-- media -->
-<div class="pagewarning">{$mod->Lang('info_editcss_mediatype_tab')}</div>
+<div class="pagewarn">{$mod->Lang('info_editcss_mediatype_tab')}</div>
 <div class="pageoverflow">
   <p class="patetext">{$mod->Lang('prompt_media_type')}:</p>
   {$tmp='all,aural,speech,braille,embossed,handheld,print,projection,screen,tty,tv'}
@@ -211,7 +194,7 @@ $(document).ready(function() {
 </div>
 
 {tab_start name='media_query'}
-<div class="pagewarning">{$mod->Lang('info_editcss_mediaquery_tab')}</div>
+<div class="pagewarn">{$mod->Lang('info_editcss_mediaquery_tab')}</div>
 <div class="pageoverflow">
   <p class="pagetext">
       <label for="mediaquery">{$mod->Lang('prompt_media_query')}:</label>
@@ -264,4 +247,4 @@ $(document).ready(function() {
 {/if}
 {tab_end}
 
-{form_end}
+</form>

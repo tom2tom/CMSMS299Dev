@@ -6,9 +6,8 @@
   </div>
   <br />
   {/if}
-  {$maintitle}
   {if $pagination}
-  <p class="pagewarning visible">{lang('show_shortcuts_message')}</p>
+  <div class="pagewarn">{lang('show_shortcuts_message')}</div>
   <br />
   <p class="pageshowrows">{$pagination}</p>
   {/if}

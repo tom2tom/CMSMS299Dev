@@ -129,7 +129,7 @@ try {
     if ($apply) {
         $this->GetJSONResponse($response, $message);
     } elseif (!$apply && $response == 'error') {
-        echo $this->ShowErrors($message);
+        $this->ShowErrors($message);
     }
 
     $designs = CmsLayoutCollection::get_all();

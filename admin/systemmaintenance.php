@@ -87,7 +87,7 @@ if (isset($_POST['optimizeall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables optimized');
-    $themeObject->ShowMessage(lang('sysmain_tablesoptimized'));
+    $themeObject->PrepareSuccess(lang('sysmain_tablesoptimized'));
 }
 
 if (isset($_POST['repairall'])) {
@@ -104,7 +104,7 @@ if (isset($_POST['repairall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables repaired');
-    $themeObject->ShowMessage(lang('sysmain_tablesrepaired'));
+    $themeObject->PrepareSuccess(lang('sysmain_tablesrepaired'));
 }
 
 $query = 'CHECK TABLE ' . MakeCommaList($tables);
@@ -132,7 +132,7 @@ $contentops = cmsms()->GetContentOperations();
 if (isset($_POST['updateurls'])) {
     cms_route_manager::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
-    $themeObject->ShowMessage(lang('routesrebuilt'));
+    $themeObject->PrepareSuccess(lang('routesrebuilt'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -140,14 +140,14 @@ if (isset($_POST['clearcache'])) {
     cmsms()->clear_cached_files(-1);
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
-    $themeObject->ShowMessage(lang('cachecleared'));
+    $themeObject->PrepareSuccess(lang('cachecleared'));
     $smarty->assign('active_content', 'true');
 }
 
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
-    $themeObject->ShowMessage(lang('sysmain_hierarchyupdated'));
+    $themeObject->PrepareSuccess(lang('sysmain_hierarchyupdated'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -189,7 +189,7 @@ if (isset($_POST['addaliases'])) {
         }
     }
     audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
-    $themeObject->ShowMessage($count . ' ' . lang('sysmain_aliasesfixed'));
+    $themeObject->PrepareSuccess($count . ' ' . lang('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -207,7 +207,7 @@ if (isset($_POST['fixtypes'])) {
     }
 
     audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
-    $themeObject->ShowMessage($count . ' ' . lang('sysmain_typesfixed'));
+    $themeObject->PrepareSuccess($count . ' ' . lang('sysmain_typesfixed'));
     $smarty->assign('active_content', 'true');
 }
 

@@ -120,9 +120,9 @@ $(document).ready(function() {
 {/literal}//]]>
 </script>
 
-<div class="information">{$mod->Lang('info_edittemplate_stylesheets_tab')}</div>
+<div class="pageinfo">{$mod->Lang('info_edittemplate_stylesheets_tab')}</div>
 {if !isset($all_stylesheets)}
-<div class="warning" style="width: 95%;">{$mod->Lang('warning_editdesign_nostylesheets')}</div>
+<div class="pagewarn">{$mod->Lang('warning_editdesign_nostylesheets')}</div>
 {else} {$cssl = $design->get_stylesheets()}
 <div class="c_full cf">
   <div class="grid_6 draggable-area">

@@ -1,5 +1,5 @@
 <h3>{$mod->Lang('set_all_pages')}</h3>
-<div class="pagewarning">{$mod->Lang('warning_set_all_pages')}</div>
+<div class="pagewarn">{$mod->Lang('warning_set_all_pages')}</div>
 
 {form_start extraparms=$extraparms}
 <fieldset>
@@ -65,9 +65,9 @@
 </fieldset>
 
 {if isset($noblocks)}
-<div class="pagewarning">{$mod->Lang('warn_setall_nocontentblocks')}</div>
+<div class="pagewarn">{$mod->Lang('warn_setall_nocontentblocks')}</div>
 {elseif isset($template_error)}
-<div class="pagewarning">{$template_error}</div>
+<div class="pagewarn">{$template_error}</div>
 {/if}
 
 <div class="pageoverflow">
@@ -77,11 +77,10 @@
     <input type="checkbox" name="{$actionid}check2" value="1" id="check2" />&nbsp;<label for="check2">{$mod->Lang('confirm_setall_3')}</label>
   </p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{form_end}
+</form>

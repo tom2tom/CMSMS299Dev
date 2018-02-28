@@ -119,11 +119,11 @@ if (isset($_POST['submit_account']) && check_permission($userid,'Manage My Accou
 
 include_once 'header.php';
 
-if ($error) {
-  $themeObject->ShowErrors($error);  //TODO accumulator, not displayer
+if (!empty($error)) {
+  $themeObject->PrepareError($error);
 }
-if ($message) {
-  $themeObject->ShowMessage($message);  //TODO accumulator, not displayer
+if (!empty($message)) {
+  $themeObject->PrepareSuccess($message);
 }
 
 $contentops = cmsms()->GetContentOperations();

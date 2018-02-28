@@ -20,7 +20,6 @@ $(document).ready(function() {
   </div>
   <br />
   {/if}
-  {$maintitle}
   <table class="pagetable">
     <thead>
       <tr>
