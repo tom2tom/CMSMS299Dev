@@ -1058,7 +1058,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache error-messages to be shown in the admin theme.
+     * Cache error-message(s) to be shown in a dialog during the current request.
      *
      * @param mixed $errors The error message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
@@ -1074,7 +1074,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache success-messages to be shown in the admin theme.
+     * Cache success-message(s) to be shown in a dialog during the current request.
      *
      * @param mixed $message The message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
@@ -1090,7 +1090,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache message(s) to be shown in the admin theme.
+     * Cache message string(s) to be shown in a dialog during the current request.
      *
      * @internal
      * @param array store The relevant string-accumulator
@@ -1121,7 +1121,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache error-message(s) to be shown in the admin theme.
+     * Cache error-message(s) to be shown in a dialog during the current request.
      *
      * @param mixed $message The error message(s), string|strings array
      * @param mixed $get_var Optional $_GET variable name. Such variable
@@ -1135,7 +1135,7 @@ abstract class CmsAdminThemeBase
     }
 
    /**
-     * Cache warning-message(s) to be shown in the admin theme.
+     * Cache warning-message(s) to be shown in a dialog during the current request.
      *
      * @param mixed $message The message(s), string|strings array
      * @param mixed $get_var Optional $_GET variable name. Such variable
@@ -1149,7 +1149,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache success-message(s) to be shown in the admin theme.
+     * Cache success-message(s) to be shown in a dialog during the current request.
      *
      * @param mixed $message The message(s), string|strings array
      * @param mixed $get_var Optional $_GET variable name. Such variable
@@ -1163,7 +1163,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache information-message(s) to be shown in the admin theme.
+     * Cache information-message(s) to be shown in a dialog during the current request.
      *
      * @param mixed $message The message(s), string|strings array
      * @param mixed $get_var Optional $_GET variable name. Such variable
