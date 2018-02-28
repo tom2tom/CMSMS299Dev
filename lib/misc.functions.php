@@ -198,17 +198,43 @@ function cms_relative_path(string $in,string $relative_to = null) : string
  */
 function cms_module_path(string $modname) : string
 {
-	// core-modules place
+    // core-modules place
     $path = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname,$modname.'.module.php');
     if( is_file($path) ) {
         return $path;
     }
-	// other-modules place
+    // other-modules place
     $path = cms_join_path(CMS_ASSETS_PATH,'modules',$modname,$modname.'.module.php');
     if( is_file($path) ) {
         return $path;
     }
     return '';
+}
+
+/**
+ * A module-directories lister. Checks for the actual directory of $modname, if provided.
+ *
+ * @param string $modname Optional name of a module
+ * @return array of absolute filepaths, no trailing separators, or maybe empty. Core modules path first.
+ */
+function cms_module_places($modname = null) : array
+{
+    $ret = [];
+    $dir = CMS_ROOT_PATH . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'modules';
+    if ($modname) {
+        $dir .= DIRECTORY_SEPARATOR . $modname;
+    }
+    if (is_dir($dir) {
+        $ret[] = $dir;
+    }
+    $dir = CMS_ASSETS_PATH. DIRECTORY_SEPARATOR . 'modules';
+    if ($modname) {
+        $dir .= DIRECTORY_SEPARATOR . $modname;
+    }
+    if (is_dir($dir) {
+        $ret[] = $dir;
+    }
+    return ret;
 }
 
 /**
@@ -250,7 +276,7 @@ static $defenc = '';
  */
 function cms_htmlentities($val, int $param = 0, string $charset = 'UTF-8', bool $convert_single_quotes = false) : string
 {
-	if ($val === '' || $val === null) {
+    if ($val === '' || $val === null) {
         return '';
     }
 
@@ -726,11 +752,11 @@ function recursive_delete($path)
 {
     if (is_dir($path)) {
         $res = true;
-		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($path,
-		        FilesystemIterator::CURRENT_AS_PATHNAME |
-		        FilesystemIterator::SKIP_DOTS
-			), RecursiveIteratorIterator::CHILD_FIRST);
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path,
+                FilesystemIterator::CURRENT_AS_PATHNAME |
+                FilesystemIterator::SKIP_DOTS
+            ), RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $p) {
             if (is_dir($p)) {
                 if (!@rmdir($p)) {
@@ -763,11 +789,11 @@ function chmod_r($path, $mode)
 {
     $res = true;
     if (is_dir($path)) {
-		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($path,
-		        FilesystemIterator::CURRENT_AS_PATHNAME |
-		        FilesystemIterator::SKIP_DOTS
-			), RecursiveIteratorIterator::CHILD_FIRST);
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path,
+                FilesystemIterator::CURRENT_AS_PATHNAME |
+                FilesystemIterator::SKIP_DOTS
+            ), RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $p) {
             if (!(is_link($p) || @chmod($p, $mode))) {
                 $res = false;
@@ -806,7 +832,7 @@ function startswith( string $str, string $sub ) : bool
 function endswith( string $str, string $sub ) : bool
 {
     $o = strlen( $sub );
-	if( $o > 0 && $o <= strlen($str) ) {
+    if( $o > 0 && $o <= strlen($str) ) {
         return strpos($str, $sub, -$o) !== false;
     }
     return false;
