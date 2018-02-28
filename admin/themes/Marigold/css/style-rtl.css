@@ -1027,7 +1027,7 @@ aside .no-slide,
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparent url(themes/Marigold/images/icons/extra/spinner.gif) no-repeat;
+    background: transparent url(themes/Marigold/images/spinner.gif) no-repeat;
 	background-size: 50px 50px;
     cursor: wait;
 }
