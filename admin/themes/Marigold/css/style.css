@@ -1064,8 +1064,8 @@ aside .no-slide,
  width: 1.5em;
  height: 1.5em;
 }
-.infoclose:hover:,
-.infoclose:active:
+.infoclose:hover,
+.infoclose:active{
  background-position: 1.5em 0;
 }
 
