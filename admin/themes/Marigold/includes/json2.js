@@ -161,7 +161,6 @@ if (typeof JSON !== "object") {
 }
 
 (function () {
-    "usestrict:nomunge";
     "use strict";
 
     var rx_one = /^[\],:{}\s]*$/;
