@@ -225,6 +225,13 @@ final class cms_config implements ArrayAccess
                 define('CMS_ROOT_PATH',self::$_instance['root_path']);
 
                 /**
+                 * A constant containing the directory where admin stuff is stored.
+                 *
+                 * @return string
+                 */
+                define('CMS_ADMIN_PATH',self::$_instance['root_path'] .DIRECTORY_SEPARATOR. self::$_instance['admin_dir']);
+
+                /**
                  * A constant containing the directory where CMSMS third party assets are stored.
                  *
                  * @return string
