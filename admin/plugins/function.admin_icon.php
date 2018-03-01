@@ -1,5 +1,5 @@
 <?php
-#...
+#function to get page-content representing an admin icon
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,12 +17,10 @@
 
 function smarty_function_admin_icon($params,&$template)
 {
-    $smarty = $template->smarty;
-
     if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 
     $icon = null;
-    $tagparms = array('class'=>'systemicon');
+    $tagparms = ['class'=>'systemicon'];
     foreach( $params as $key => $value ) {
         switch( $key ) {
         case 'icon':
@@ -57,10 +55,9 @@ function smarty_function_admin_icon($params,&$template)
     $out .= ' />';
 
     if( isset($params['assign']) ) {
-        $smarty->assign(trim($params['assign']),$out);
+        //TODO why global smarty instead of template ?
+        $template->smarty->assign(trim($params['assign']),$out);
         return;
     }
     return $out;
 }
-
-?>

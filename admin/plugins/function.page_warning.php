@@ -1,5 +1,5 @@
 <?php
-#...
+#function to generate page-content for a styled warning
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,17 +17,16 @@
 
 function smarty_function_page_warning($params,&$template)
 {
-	$smarty = $template->smarty;
-
 	if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 	if( !isset($params['msg']) ) return;
 
-	$out = '<div class="warning">'.trim($params['msg']).'</div>';
+	$out = '<div class="pagewarn">'.trim($params['msg']).'</div>';
 	if( isset($params['assign']) )
 	{
-		$smarty->assign(trim($params['assign']),$out);
+		//TODO why the global smarty instead of $template?
+		$template->smarty->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;
 }
-?>
+
