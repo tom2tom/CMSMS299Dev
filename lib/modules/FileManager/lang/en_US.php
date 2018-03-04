@@ -50,14 +50,14 @@ $lang['deleteselected'] = 'Delete the selected files/directories';
 $lang['deleteselectedcancelled'] = 'Deletion of selected files canceled';
 $lang['deletesuccess'] = 'Items successfully deleted';
 $lang['desc_filemanager_settings'] = 'Adjust settings for the system file manager';
-$lang['dirchmodfailmulti'] = 'Changing permissions on the directory failed, some of it\'s content may have gotten new permissions, though.';
+$lang['dirchmodfailmulti'] = 'Changing permissions on the directory failed, though some of its contents might have new permissions.';
 $lang['dirchmodfailure'] = 'Changing permissions of the directory failed';
 $lang['dirchmodsuccess'] = 'The directory successfully got new permissions';
-$lang['dirchmodsuccessmulti'] = 'Changing permissions on the directory and it\'s content was successful';
+$lang['dirchmodsuccessmulti'] = 'Changing permissions on the directory and its contents was successful';
 $lang['direxists'] = 'The directory already exists';
 $lang['dirnotemptyconfirm'] = 'The directory isn\'t empty! Do you really want to delete it, including all content and subdirectories?';
 $lang['dirtreedeletecancelled'] = 'Deletion of directory canceled';
-$lang['dirtreedeletefail'] = 'An error occurred when deleting this directory. Some of the contents may have been deleted, however.';
+$lang['dirtreedeletefail'] = 'An error occurred when deleting this directory. Some of the contents might have been deleted, however.';
 $lang['dirtreedeletesuccess'] = 'The directory including content was successfully deleted.';
 
 // E
@@ -131,7 +131,7 @@ $lang['help_postrotate'] = <<<EOT
 <br />
 <ul>
   <li><strong>None</strong> - No postrotate action will be taken.  The rotated image could be larger than the original image.</li>
-  <li><strong>Crop</strong> - The rotated image will be cropped to the size of the original source image.  This may result in some of the image being clipped.</li>
+  <li><strong>Crop</strong> - The rotated image will be cropped to the size of the original source image.  This might result in some of the image being clipped.</li>
   <li><strong>Resize</strong> - The rotated image will be resized to fit inside the largest dimension of the rotated image.  The result will most likely be larger than the original image, but nothing should be clipped.';
 </ul>
 EOT;
@@ -145,7 +145,7 @@ $lang['in'] = 'in';
 $lang['info_createthumb'] = 'The following thumbnail will be created';
 $lang['info_create_thumbnails'] = 'If enabled, thumbnail files for images will be created on upload';
 $lang['info_move'] = 'This option will allow moving one or more items to a different directory.  Use this with caution as it can break links to files, or break other functionality on the website';
-$lang['info_rotate'] = 'The saved image will not appear identical to the rotated image in this view, and the dimensions of the saved image may change';
+$lang['info_rotate'] = 'The saved image will not appear identical to the rotated image in this view, and the dimensions of the saved image might change';
 $lang['info_rotate_slider'] = 'Drag this slider to the desired rotation angle';
 $lang['installed'] = 'FileManager version %s installed';
 $lang['insufficientpermission'] = 'Insufficient permission to %s';

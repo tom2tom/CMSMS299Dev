@@ -125,7 +125,7 @@ $lang['eventhelp-NewsArticleEdited'] = '<h4>Parameters</h4>
 <li>"end_time" - Date the article should stop being displayed</li>
 <li>"useexp" - Whether the expiration date should be ignored or not</li>
 </ul>
-<p><strong>Note:</strong> Not all parameters may be present when this event is sent.</p>
+<p><strong>Note:</strong> Not all parameters might be present when this event is sent.</p>
 ';
 
 $lang['eventdesc-NewsCategoryAdded'] = 'Sent when a category is added.';
@@ -235,10 +235,10 @@ $lang['help_article_title'] = 'Enter the article title.  It should be a brief, a
 $lang['help_article_category'] = 'For organization purposes, you may select a category';
 $lang['help_article_content'] = 'Enter the main article content here';
 $lang['help_article_enddate'] = 'If use expiry is enabled, this date specifies when the article will be hidden from view';
-$lang['help_article_extra'] = 'This is extra data to associate with the news article.  It may be used for a sorting order or for other designer intended behavior.  You should consult your site developer as to how this field is used (if at all)';
+$lang['help_article_extra'] = 'This is extra data to associate with the news article.  It might be used for a sorting order or for other designer intended behavior.  You should consult your site developer as to how this field is used (if at all)';
 $lang['help_article_searchable'] = 'This field indicates whether this article should be indexed by the search module';
 $lang['help_article_postdate'] = 'The postdate <em>(usually the current date, for new articles)</em> is the date that will be used as the publish date for the article.  It is also used in sorting';
-$lang['help_article_summary'] = 'Enter a brief paragraph to describe the article.  This summary may be used when displaying views of a number of articles';
+$lang['help_article_summary'] = 'Enter a brief paragraph to describe the article.  This summary might be used when displaying views of a number of articles';
 $lang['help_article_startdate'] = 'When use expiry is enabled, this date specifies the date from which the article will be visible on the website';
 $lang['help_article_status'] = 'If you want the article to be immediately viewable by others then select a status of published.  If you would like to continue working on this article for a while, then select draft.';
 $lang['help_article_url'] = 'The optional article url <em>(some other platforms call this a slug)</em> is a unique url suffix to access this article.  Users can navigate to &lt;site_root&gt;/&lt;your_url&gt; to view this article.';
@@ -269,7 +269,7 @@ $lang['hide_summary_field'] = 'Hide the summary field when adding or editing art
 $lang['info_allow_fesubmit'] = 'Whether the fesubmit action will be allowed to function at all for this site. <strong>Be careful about enabling this!</strong>';
 $lang['info_categories'] = 'For organization purposes news articles can be organized into hierarchical categories';
 $lang['info_detail_returnid'] = 'This preference is used to determine a page (and therefore a template) to use to view detail pages.  Custom news Detail URLS will not work if this parameter is not set to a valid page.  Additionally, if this preference is set, and no detailpage parameter is provided on the news tag, then this value will be used for detail links';
-$lang['info_expired_searchable'] = 'If enabled, expired articles may continue to be indexed by the search module, and appear in search results';
+$lang['info_expired_searchable'] = 'If enabled, expired articles might continue to be indexed by the search module, and appear in search results';
 $lang['info_expired_viewable'] = 'If enabled, expired articles can be viewed in detail mode (this is reproducing older functionality).  the showall parameter can be used on the URL (when not using pretty urls) to also indicate that expired articles can be viewed';
 $lang['info_fesubmit_notification'] = 'You may optionally send an email to a single email address when a new article is submitted via the fesubmit action.';
 $lang['info_maxlength'] = 'The maximum length only applies to text input fields.';
@@ -277,7 +277,7 @@ $lang['info_public'] = 'Only Public fields are available for frontend editing, a
 $lang['info_reorder_categories'] = 'Drag and drop each item into the correct order to change category relationships';
 $lang['info_searchable'] = 'This field indicates whether this article should be indexed by the search module';
 $lang['info_sysdefault'] = '(the content used by default when a new template is created)';
-$lang['info_sysdefault2'] = '<strong>Note:</strong> This tab contains text areas to allow you to edit a set of templates that are displayed when you create a \'new\' summary, detail, or form template.  Changing content in this tab, and clicking \'submit\' will <strong>not effect any current displays</strong>.';
+$lang['info_sysdefault2'] = '<strong>Note:</strong> This tab contains text areas to allow you to edit a set of templates that are displayed when you create a \'new\' summary, detail, or form template.  Changing content in this tab, and clicking \'submit\' will <strong>not affect any current displays</strong>.';
 
 // L
 $lang['lastpage'] = '&gt;&gt;';
@@ -423,7 +423,7 @@ $lang['useexpiration'] = 'Use Expiration Date';
 $lang['viewfilter'] = 'View Filter';
 
 // W
-$lang['warning_preview'] = 'This preview panel allows you to navigate away from the initially previewed page. Be aware that if you do so, you may experience unexpected behaviour.  Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you may have selected for upload.';
+$lang['warning_preview'] = 'This preview panel allows you to navigate away from the initially previewed page. Be aware that if you do so, you might experience unexpected behaviour.  Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you might have selected for upload.';
 $lang['with_selected'] = 'With Selected';
 
 ?>

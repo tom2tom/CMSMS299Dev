@@ -60,16 +60,16 @@ $lang['confirm_setall_1'] = 'Please confirm that you wish to set all content pag
 $lang['confirm_setall_2'] = 'Yes, I am sure';
 $lang['confirm_setall_3'] = 'Yes, I am <strong>really</strong> sure';
 $lang['confirm_steal_lock'] = 'Are you sure you want to steal this lock?  This will destroy any of the other users unsaved work.';
-$lang['confirm_template_setall'] = 'Setting all pages to use this template may cause problems with a working site.  Use extreme caution!';
+$lang['confirm_template_setall'] = 'Setting all pages to use this template might cause problems with a working site.  Use extreme caution!';
 $lang['copy_stylesheet'] = 'Copy Stylesheet';
 $lang['copy_template'] = 'Copy Template';
 //$lang['close'] = 'Close';
 $lang['create'] = 'Create';
 $lang['created'] = 'Created';
-$lang['create_category'] = 'Create a new Category';
-$lang['create_design'] = 'Create a new Design';
-$lang['create_stylesheet'] = 'Create a new Stylesheet';
-$lang['create_template'] = 'Create a new Template';
+$lang['create_category'] = 'Add New Category';
+$lang['create_design'] = 'Add New Design';
+$lang['create_stylesheet'] = 'Add New Stylesheet';
+$lang['create_template'] = 'Add New Template';
 $lang['css_filter'] = 'Filter Stylesheets';
 $lang['category_reordered'] = 'Category order changed';
 
@@ -127,7 +127,7 @@ $lang['group_desc'] = 'Members of this group can manage stylesheets, templates, 
 /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 $lang['help'] = <<<'EOT'
 <h3>What does this do?</h3>
-  <p>The &quot;DesignManager&quot; module is a mechanism to comprehensively manage the various templates, stylesheets, and &quot;designs&quot; used in your website.  It provides convenient sorting, filtering, and organization mechanisms for these various primary elements.</p>
+  <p>The &quot;DesignManager&quot; module is a mechanism to comprehensively manage the various templates, stylesheets, and &quot;designs&quot; used in this website.  It provides convenient sorting, filtering, and organization mechanisms for these various primary elements.</p>
 
 <h3>What is a &quot;Design&quot; ?</h3>
   <p>A &quot;Design&quot; is an entity that manages in one logical unit the various templates and stylesheets that are required for a particular look and feel on a website.</p>
@@ -138,13 +138,13 @@ $lang['help'] = <<<'EOT'
 <p>Each template must have a name that must be unique across the entire installation.  Additionally, each template is capable of having a description that allows providing human readable information and notes about the characteristics of the template.  You can optionally assign each template to a category to aide in quickly finding the template when edits are required.</p>
 <p>Templates can optionally be associated with one or more designs.  This helps when needing to quickly find a template to edit.  As well, when exporting a design all the templates that are associated with the design will be exported.</p>
 <p>Depending upon the template type <em>(see below)</em> A template can be set as the &quot;default&quot; for that type.  This functionality allows a module to find a template to use of an appropriate type if no template name is specified in the module tag, or via any other means.  For example, in a default installation the &quot;News Summary Sample&quot; template is the default template for the News default <em>(summary)</em> action.  Therefore calling <em>{News}</em> without specifying a template will use this template.</p>
-<p>Optionally, you can select one or more admin user accounts, or admin user groups that have the ability to edit the template.  This gives the ability for restricted users to have limited access to some templates.  This may be useful for editing seasonal messages, or for modifying API keys or RSS feed URLS.</p>
+<p>Optionally, you can select one or more admin user accounts, or admin user groups that have the ability to edit the template.  This gives the ability for restricted users to have limited access to some templates.  This might be useful for editing seasonal messages, or for modifying API keys or RSS feed URLS.</p>
 <p>When templates are edited the user(s) selected syntax highlighter module will be used, assuming that a syntax highlighter module has been installed, and that the user has selected one from within his user preferences.</p>
 <p>To call a template you can either specify the template name in a module call or explicitly call/include the template from another one with the <code>{include file='cms_template:&lt;template_name&gt;'}</code> syntax.  See the smarty {include} tag.  Additionally, for backwards compatibility purposes the <code>{global_content name='&lt;template_name&gt;'}</code> syntax still works.</p>
 
 <h4>Template Types Explained:</h4>
 <p>A template type loosely indicates the general purpose for the template.  Template types indicate the module or code that uses them, and a subtype.  For example two common template types are Core::Page indicating a template used by the core CMSMS system to structure a web page, and News::Summary indicating a template that the News module can use to create a summary listing.</p>
-<p>Modules may create new template types on installation, and delete template types when they uninstall.  Most modules will delete all templates that are associated with its types when the module is uninstalled.</p>
+<p>Modules might create new template types on installation, and delete template types when they uninstall.  Most modules will delete all templates that are associated with its types when the module is uninstalled.</p>
 <p>Template types can optionally contain a &quot;Prototype Template&quot;.  The prototype is used when creating a new template of that type.  For example, if you create a new template of type &quot;News::Detail&quot; the template will initially be filled with the prototype data from that type.  You can then change the template to your liking.</p>
 
 <h3>Categories Explained:</h3>
@@ -162,7 +162,7 @@ div.error {
 <p><strong>Note:</strong> Due to the fact that stylesheets can be associated with zero or more designs, and/or called individually, and that stylesheets are combined and cached for all visitors, on the browser you must be careful when including smarty in templates.  Here are a few notes:</p>
   <ul>
     <li>Never put server specific conditions, state conditions, time related, or page specific conditions into a stylesheet.</li>
-    <li>You should assume that each stylesheet may be called individually, therefore smarty variable initialization should be placed in each stylesheet.</li>
+    <li>You should assume that each stylesheet might be called individually, therefore smarty variable initialization should be placed in each stylesheet.</li>
   </ul>
 <p><strong>Note:</strong> You can include other templates inside of stylesheets using the <code>[[include file='cms_template::&lt;template_name&gt;']]</code> syntax as mentioned above however you must be aware of the change in smarty delimiters when processing stylesheets.  For example:</p>
 
@@ -222,29 +222,29 @@ body {
 <p>Prior to the development of the DesignManager module in CMSMS 2.0 each separate section, and each module managed their own templates.  This meant that module management had different interfaces for each different type of template.  CMS Made Simple provided a table to store module templates, and various methods in the module API to allow interfacing with those templates.  However, each module was responsible for its own functionality for managing its templates.</p>
 
 <h3>Compatibility:</h3>
-<p>For compatibility purposes, the old method of managing module templates has been kept. <em>(This functionality is <strong>deprecated</strong> and may be removed at a future date.)</em>  Therefore until modules migrate their functionality to use the new APIs for managing template types, templates and stylesheets you may still have to visit numerous different admin pages and experience different interfaces to manage the templates of those modules.</p>
+<p>For compatibility purposes, the old method of managing module templates has been kept. <em>(This functionality is <strong>deprecated</strong> and might be removed at a future date.)</em>  Therefore until modules migrate their functionality to use the new APIs for managing template types, templates and stylesheets you might still have to visit numerous different admin pages and experience different interfaces to manage the templates of those modules.</p>
 <br />
 EOT;
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
 $lang['help_bulk_templates'] = 'This option allows performing actions on many templates at one time.  Only the templates selected will be operated upon.';
-$lang['help_category_desc'] = 'A description for a template category is optional, but may help when organizing templates';
+$lang['help_category_desc'] = 'A description for a template category is optional, but might help when organizing templates';
 $lang['help_category_name'] = 'A category name is required, and must be unique';
 $lang['help_create'] = 'This option will allow you to create a new template of the selected type';
 $lang['help_create_template'] = 'This function allows creating a new template of the selected template type.  The default contents from the template type will be used';
 $lang['help_css_bulk'] = 'This option allows performing actions on multiple stylesheets at one time.';
-$lang['help_css_description'] = 'You may (optionally) include a description for this stylesheet.  This may be useful to describe the items that are in the stylesheet and aide in organization';
-$lang['help_css_designs'] = 'You may associate one or more designs with a stylesheet.  Stylesheets associated with a design are automatically output by the {cms_stylesheet} tag, and when exporting a design for sharing';
+$lang['help_css_description'] = 'You might (optionally) include a description for this stylesheet.  This might be useful to describe the items that are in the stylesheet and aide in organization';
+$lang['help_css_designs'] = 'You might associate one or more designs with a stylesheet.  Stylesheets associated with a design are automatically output by the {cms_stylesheet} tag, and when exporting a design for sharing';
 $lang['help_css_mediaquery'] = <<<'EOT'
 <p>A media query consists of a media type and at least one expression that limits the style sheets' scope by using media features, such as width, height, and color. Added in CSS3, media queries let the presentation of content be tailored to a specific range of output devices without having to change the content itself. For a simple reference see this page on the <a href="https://developer.mozilla.org/en/docs/CSS/Media_queries">Mozilla developer network</a></p><br/>
 <p>CMSMS Allows associating a media query with a stylesheet.  When <code>{cms_stylesheet}</code> renders its output the media query will be automatically placed in the stylesheet tag.</p>
 EOT;
 $lang['help_design_name'] = 'This field contains the unique, logician name for the collection of templates and stylesheets';
 $lang['help_design_created'] = 'The date and time when the design was originally created';
-$lang['help_design_description'] = 'Specify a description for this design (text only).  This may be useful for your future reference, or when sharing this design with others';
+$lang['help_design_description'] = 'Specify a description for this design (text only).  This might be useful for your future reference, or when sharing this design with others';
 $lang['help_design_modified'] = 'The date and time when the design was last modified';
 $lang['help_has_dflt'] = 'If &quot;Yes&quot;, this template type has some default content that is used as a sample when creating a new template of this type.  Of course you are able to change the contents of the template';
-$lang['help_import_cmsversion'] = 'This design file was generated from an earlier version of CMSMS.  This may cause difficulties, so please take care!';
+$lang['help_import_cmsversion'] = 'This design file was generated from an earlier version of CMSMS.  This might cause difficulties, so please take care!';
 $lang['help_import_created'] = 'The date that the XML file was created.  For themes created from the older CMSMS Theme manager there is no embedded creation date so &quot;unknown&quot; will be displayed';
 $lang['help_import_newname'] = 'If you already have a design with the name specified, the system will suggest a new design name.  You must ensure that the design name you create is unique';
 $lang['help_import_xml_file'] = 'Select an XML File to import.  The XML file have been generated by the CMSMS Design Manager, or by the older CMSMS Theme Manager';
@@ -252,7 +252,7 @@ $lang['help_lockrefresh'] = 'Specify the maximum number of seconds before a lock
 $lang['help_locktimeout'] = 'Specify the minimum number of minutes after which a non-refreshed lock will expire.  Specifying a value of 0 will disable locking all together.  Minimum is 5 and maximum is 480';
 $lang['help_move_down'] = 'Move the selected item down';
 $lang['help_move_left'] = 'Remove the selected item from the target list';
-$lang['help_move_right'] = 'Move the selected item to the target list.  You may also be able to adjust the order of the item in the target list, with the up and down buttons';
+$lang['help_move_right'] = 'Move the selected item to the target list.  You might also be able to adjust the order of the item in the target list, with the up and down buttons';
 $lang['help_move_up'] = 'Move the selected item up';
 $lang['help_proto_template'] = 'The prototype template contains the contents that are used when you create a new template of this type.  It is not used during frontend processing';
 $lang['help_rm_tpl'] = 'Enabling this option will delete all templates that are attached to this design, but not attached to another design.  Use extreme caution when enabling this option.';
@@ -265,9 +265,9 @@ $lang['help_stylesheet_name'] = 'Specify a name for this stylesheet.  Only alpha
 $lang['help_stylesheet_no_designs'] = 'This stylesheet is not attached to any designs';
 $lang['help_template_addteditors'] = 'Here you can specify additional users that have permission to edit this template';
 $lang['help_template_bulk'] = 'This option allows performing actions on multiple templates at once.  Use with caution';
-$lang['help_template_category'] = 'The template category is used for organizing and filtering templates.  A template may only belong to one category.  Selecting a category is optional';
+$lang['help_template_category'] = 'The template category is used for organizing and filtering templates.  A template might only belong to one category.  Selecting a category is optional';
 $lang['help_template_contents'] = 'Enter or edit the contents for the particular template.  This is a Smarty template.  The data available to the smarty template depends on where in the application this template is called.';
-$lang['help_template_description'] = 'You may provide a text description for this template to help with searching, organization, and to describe any special features or notes that are specific to this template';
+$lang['help_template_description'] = 'You might provide a text description for this template to help with searching, organization, and to describe any special features or notes that are specific to this template';
 $lang['help_template_designlist'] = 'Specify the designs (zero or more) that this template is attached to.  Attaching a template to a design is used for quickly finding templates, and when exporting a design for sharing.  You can select or deselect multiple designs by holding the CTRL button down when clicking';
 $lang['help_template_designs'] = 'A template can belong to zero or more designs.  If a template is attached to a design then that template can be chosen for a content page, or exported with the template to an XML file';
 $lang['help_template_dflt'] = 'Some templates (depending on their type) can be the &quot;default&quot; template for that type.  The &quot;default&quot; template for a type is typically used when a request is made for a specific template type, but without specifying a template name.';
@@ -275,7 +275,7 @@ $lang['help_template_listable'] = 'Indicate whether this template should appear 
 $lang['help_template_multiple_designs'] = 'This template is attached to multiple designs';
 $lang['help_template_name'] = 'Specify a name for this template.  The name must contain only alphanumeric characters, and must be unique to the system';
 $lang['help_template_no_designs'] = 'This template is not attached to any designs';
-$lang['help_template_owner'] = 'You may change the authorized &quot;owner&quot; of this template.  The owner of a template is allowed to edit the template at any time (even without specific template editing permissions, and can change the additional editors.';
+$lang['help_template_owner'] = 'You might change the authorized &quot;owner&quot; of this template.  The owner of a template is allowed to edit the template at any time (even without specific template editing permissions, and can change the additional editors.';
 $lang['help_template_type'] = 'The template type is used for organizational purposes, and for finding default contents when restoring the template to its default value (if any).  Templates belonging to a certain module type may be removed if the module is uninstalled.';
 $lang['help_tpl_created'] = 'The date and time when this template was initially created';
 $lang['help_tpl_modified'] = 'The date and time when this template was last modified';
@@ -293,7 +293,7 @@ $lang['import'] = 'Import';
 $lang['import_design'] = 'Import Design';
 $lang['import_design_step1'] = 'Import Design Step 1';
 $lang['import_design_step2'] = 'Import Design Step 2';
-$lang['info_about_categories'] = 'Categories provide an additional, useful method of sorting and organizing templates.  A template can belong to multiple categories and filtering on categories is permitted in the template list.  Examples of categories may include &quot;landing page templates&quot; or &quot;base templates&quot; when utilizing template inheritance.';
+$lang['info_about_categories'] = 'Categories provide an additional, useful method of sorting and organizing templates.  A template can belong to multiple categories. Filtering on categories is permitted in the template list.  Examples of categories might include &quot;landing page templates&quot; or &quot;base templates&quot; when utilizing template inheritance.';
 $lang['info_copy_css'] = '<strong>Note:</strong><br />Copying a stylesheet will copy the stylesheet contents, as well as the description, media query, and media types.  However, the new stylesheet will not be associated with any designs';
 $lang['info_css_content_file'] = 'The contents of this stylesheet are stored in a file.  You can edit this item by editing <strong>%s</strong> with your favorite editor.';
 $lang['info_editcss_mediatype_tab'] = '<strong>Warning:</strong> This functionality is deprecated and will be removed at a later date.  If both the media type and media query are specified, then the media query will take preference when rendering stylesheets';
@@ -314,7 +314,7 @@ $lang['info_import_xml_step1'] = 'Step 1: Choose a Design XML File to import';
 $lang['info_import_xml_step2'] = 'Step 2: Read information about this design before importing it to your CMSMS installation.';
 $lang['info_nodescription'] = 'There is no description entered for this item';
 $lang['info_template_content_file'] = 'The contents of this template are stored in a file.  You can edit this template by editing <strong>%s</strong> with your favorite editor.';
-$lang['info_template_delete'] = 'This template may be used by a working system.  Deleting it may break an otherwise working website.  Be careful!';
+$lang['info_template_delete'] = 'This template might be used by a working system.  Deleting it might break an otherwise working website.  Be careful!';
 
 #J
 
@@ -530,13 +530,13 @@ $lang['unknown'] = 'Unknown';
 #V
 
 #W
-$lang['warn_bulk_delete_templates'] = '<strong>Warning:</strong> Deleting multiple templates at once is usually a bad idea.  No checks are performed to see if these templates are actually used in the system.  This operation may break a working website!';
+$lang['warn_bulk_delete_templates'] = '<strong>Warning:</strong> Deleting multiple templates at once is usually a bad idea.  No checks are performed to see if these templates are actually used in the system.  This operation might break a working website!';
 $lang['warn_setall_nocontentblocks'] = '<strong>Warning:</strong> No content blocks were detected in the destination template.  This will prevent editing content in all current content pages.';
-$lang['warn_template_used'] = '<strong>Warning:</strong> This template is in use by one or more pages, and/or designs.  It may also be included by other templates.  Deleting this template may break a working website. <strong>Use Extreme Caution!</strong>';
+$lang['warn_template_used'] = '<strong>Warning:</strong> This template is in use by one or more pages, and/or designs.  It might also be included by other templates.  Deleting this template might break a working website. <strong>Use Extreme Caution!</strong>';
 $lang['warning_category_dragdrop'] = 'To change the display order of categories you can drag the rows into their correct order';
-$lang['warning_deletetemplate_attachments'] = 'This design has templates attached to it.  These templates may be in use on some page or by a module. Deleting these templates, even if they are attached to no other design, may break an otherwise working site.   Please exercise extreme caution!';
-$lang['warning_deletedesign'] = '<strong>Warning:  Use extreme caution.</strong>  Deleting a design may break a functioning website.';
-$lang['warning_deletestylesheet_attachments'] = 'This design has stylesheets attached to it.  Some of the templates in use by the system but not necessarily attached to this design may rely on these stylesheets.  Deleting these stylesheets, even if they are attached to no other design may break an otherwise working site. Please exercise extreme caution!';
+$lang['warning_deletetemplate_attachments'] = 'This design has templates attached to it.  These templates might be in use on some page or by a module. Deleting these templates, even if they are attached to no other design, might break an otherwise working site.   Please exercise extreme caution!';
+$lang['warning_deletedesign'] = '<strong>Warning:  Use extreme caution.</strong>  Deleting a design might break a functioning website.';
+$lang['warning_deletestylesheet_attachments'] = 'This design has stylesheets attached to it.  Some of the templates in use by the system but not necessarily attached to this design might rely on these stylesheets.  Deleting these stylesheets, even if they are attached to no other design might break an otherwise working site. Please exercise extreme caution!';
 $lang['warning_editdesign_nostylesheets'] = 'There is no stylesheet available in the system.';
 $lang['warning_edittemplate_nostylesheets'] = 'No stylesheet attached';
 $lang['warning_edittemplate_notemplates'] = 'We could not find a template that you are authorised to edit';

@@ -105,7 +105,7 @@ $lang['help'] = <<<EOT
 <p>This module also allows for the creation of multiple profiles with different capabilities.  Profiles can be used by the <code>{cms_filepicker}</code> plugin or by the module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions can override the settings defined in the profile.</p>
 
 <h3>How Do I Use It</h3>
-<p>This module is intended to be used in the core or third party modules via various core API's.  And via the {cms_filepicker} plugin.</p>
+<p>This module is intended to be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
 <p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended.   See the {cms_filepicker} tag for information about the type, and other parameters.</p>
 
 <h3>Support</h3>

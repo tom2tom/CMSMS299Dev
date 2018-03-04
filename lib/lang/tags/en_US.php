@@ -16,7 +16,7 @@ $lang['help_function_page_selector'] = <<<EOT
 EOT;
 $lang['help_function_cms_html_options'] = <<<EOT
 <h3>What does this do?</h3>
-<p>This is a powerful plugin to render options for select elements into html &lt;option&gt; and &lt;optgroup&gt; tags.  Each option can have child elements, it's own title tag, and it's own class attribute.</p>
+<p>This is a powerful plugin to render options for select elements into html &lt;option&gt; and &lt;optgroup&gt; tags.  Each option can have child elements, its own title tag, and its own class attribute.</p>
 <h3>Usage:</h3>
 <pre><code>{cms_html_options options=\$options [selected=value]}</code></pre>
 <h3>What Parameters Does it Take?</h3>
@@ -187,7 +187,7 @@ $lang['help_function_cms_init_editor'] = <<<EOT
 <h3>What does this do?</h3>
   <p>This plugin is used to initialize the selected WYSIWYG editor for display when WYSIWYG functionalities are required for frontend data submission.  This module will find the selected frontend WYSIWYG <em>(see global settings).</em>, determine if it has been requested, and if so generate the appropriate html code <em>(usually JavaScript links)</em> so that the WYSIWYG will initialize properly when the page is loaded.  If no WYSIWYG editors have been requested for the frontend request this plugin will produce no output.</p>
 <h3>How do I use it?</h3>
-<p>The first thing you must do is select the frontend WYSIWYG editor to use in the global settings page of the admin console.  Next If you use frontend WYSIWYG editors on numerous pages, it may be best to place the {cms_init_editor} plugin directly into your page template.  If you only require the WYSIWYG editor to be enabled on a limited amount of pages you may just place it into the &quot;Page Specific Metadata&quot; field in each page.</p>
+<p>The first thing you must do is select the frontend WYSIWYG editor to use in the global settings page of the admin console.  Next If you use frontend WYSIWYG editors on numerous pages, it might be best to place the {cms_init_editor} plugin directly into your page template.  If you only require the WYSIWYG editor to be enabled on a limited amount of pages you may just place it into the &quot;Page Specific Metadata&quot; field in each page.</p>
 <h3>What parameters does it take?</h3>
 <ul>
 <li><em>(optional)assign</em> - Assign the output of the plugin to the named smarty variable.</li>
@@ -291,7 +291,7 @@ EOT;
 $lang['help_function_content_module'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This content block type allows interfacing with different modules to create different content block types.</p>
-<p>Some modules can define content block types for use in module templates.  i.e: The FrontEndUsers module may define a group list content block type.  It will then indicate how you can use the content_module tag to utilize that block type within your templates.</p>
+<p>Some modules can define content block types for use in module templates.  i.e: The FrontEndUsers module might define a group list content block type.  It will then indicate how you can use the content_module tag to utilize that block type within your templates.</p>
 <p><strong>Note:</strong> This block type must be used only with compatible modules.  You should not use this in any way except for as guided by add-on modules.</p>
 <p>This tag accepts a few parameters, and passes all other parameters to the module for processing.</p>
 <p>Parameters:
@@ -593,19 +593,19 @@ $lang['help_function_cms_textarea'] = <<<EOT
   <ul>
     <li>name - required string : name attribute for the text area element.</li>
     <li>prefix - optional string : optional prefix for the name attribute.</li>
-    <li>class - optional string : class attribute for the text area element.  Additional classes may be added automatically.</li>
+    <li>class - optional string : class attribute for the text area element.  Additional classes might be added automatically.</li>
     <li>classname - alias for the class parameter.</li>
     <li>forcemodule - optional string : used to specify the WYSIWYG or syntax highlighter module to enable.  If specified, and available, the module name will be added o the class attribute.</li>
     <li>enablewysiwyg - optional boolean : used to specify whether a WYSIWYG textarea is required.  Sets the language to &quot;html&quot;</li>
     <li>wantedsyntax - optional string used to specify the language (html,css,php,smarty...) to use.  If non empty indicates that a syntax highlighter module is requested.</li>
     <li>type - alias for the wantedsyntax parameter.</li>
-    <li>cols - optional integer : columns of the text area (admin theme css or the syntax/WYSIWYG module may override this).</li>
+    <li>cols - optional integer : columns of the text area (admin theme css or the syntax/WYSIWYG module might override this).</li>
     <li>width - alias for the cols parameter.</li>
-    <li>rows - optional integer : rows of the text area (admin theme css or the syntax/WYSIWYG module may override this).</li>
+    <li>rows - optional integer : rows of the text area (admin theme css or the syntax/WYSIWYG module might override this).</li>
     <li>height - alias for the rows parameter.</li>
-    <li>maxlength - optional integer : maxlength attribute of the text area (syntax/WYSIWYG module may ignore this).</li>
+    <li>maxlength - optional integer : maxlength attribute of the text area (syntax/WYSIWYG module might ignore this).</li>
     <li>required  - optional boolean : indicates a required field.</li>
-    <li>placeholder - optional string : placeholder attribute of the text area (syntax/WYSIWYG module may ignore this).</li>
+    <li>placeholder - optional string : placeholder attribute of the text area (syntax/WYSIWYG module might ignore this).</li>
     <li>value - optional string : default text for the text area, will undergo entity conversion.</li>
     <li>text - alias for the value parameter</li>
     <li>cssname - optional string : pass this stylesheet name to the WYSIWYG module if a WYSIWYG module is enabled.</li>
@@ -752,11 +752,11 @@ EOT;
 
 $lang['help_function_google_search'] = <<<EOT
 	<h3>What does this do?</h3>
-	<p>Search's your website using Google's search engine.</p>
+	<p>Searches this website using Google's search engine.</p>
 	<h3>How do I use it?</h3>
 	<p>Just insert the tag into your template/page like: <code>{google_search}</code><br />
 	<br />
-	Note: Google needs to have your website indexed for this to work. You can submit your website to Google <a href="http://www.google.com/addurl.html">here</a>.</p>
+	Note: Google needs an index of this website, for this to work. You can submit this website to Google <a href="http://www.google.com/addurl.html">here</a>.</p>
 	<h3>What if I want to change the look of the textbox or button?</h3>
 	<p>The look of the textbox and button can be changed via css. The textbox is given an id of textSearch and the button is given an id of buttonSearch.</p>
 
@@ -967,7 +967,7 @@ EOT;
 
 $lang['help_function_cms_module'] = <<<EOT
 	<h3>What does this do?</h3>
-	<p>This tag is used to insert modules into your templates and pages. If a module is created to be used as a tag plugin (check it's help for details), then you should be able to insert it with this tag.</p>
+	<p>This tag is used to insert modules into your templates and pages. If a module is created to be used as a tag plugin (check its help for details), then you should be able to insert it with this tag.</p>
 	<h3>How do I use it?</h3>
 	<p>It's just a basic tag plugin.  You would insert it into your template or page like so: <code>{cms_module module="somemodulename"}</code></p>
 	<h3>What parameters does it take?</h3>
@@ -988,7 +988,7 @@ $lang['help_function_cms_module_hint'] = <<<EOT
 </ul>
 <p>Any further parameters to this tag are stored as hints.</p>
 <h3>Example:</h3>
-<p>When using the News module, and pretty urls are configured.  You wish to display news articles for a specific category on one page, and would like to use a non standard detail template to display the individual articles on a different page.  I.e: perhaps on your &quot;Sports&quot; page you are calling News like: <code>{News category=sports detailpage=sports_detail}</code>.  However, using pretty urls it may be impossible to specify a detailtemplate on the links that will generate the detail views.  The solution is to use the {cms_module_hint} tag on the <u>sports_detail</u> page to provide some hints as to how News should behave on that page.</p>
+<p>When using the News module, and pretty urls are configured.  You wish to display news articles for a specific category on one page, and would like to use a non standard detail template to display the individual articles on a different page.  I.e: perhaps on your &quot;Sports&quot; page you are calling News like: <code>{News category=sports detailpage=sports_detail}</code>.  However, using pretty urls it might be impossible to specify a detailtemplate on the links that will generate the detail views.  The solution is to use the {cms_module_hint} tag on the <u>sports_detail</u> page to provide some hints as to how News should behave on that page.</p>
 <p>When editing the <u>sports_detail</u> page on the options tab, in the textarea entitled &quot;Smarty data or logic that is specific to this page:&quot; you could enter a tag such as: <code>{cms_module_hint module=News detailtemplate=sports}</code>.  Now when a user clicks on a link from the News summary display on your &quot;sports&quot; page he will be directed to the <u>sports_detail</u> page, and the News detail template entitled &quot;sports&quot; will be used to display the article.</p>
 <h3>Usage:</h3>
 <p><code>{cms_module_hint module=ModuleName paramname=value ...}</code></p>
@@ -1081,13 +1081,13 @@ $lang['help_function_cms_filepicker'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This plugin will create an input field that is controlled by the <em>(current)</em> file picker module to allow selecting a file.  This is an admin only plugin useful for module templates, and other admin forms.</p>
 <p>This plugin should be used in a module's admin template, and the output created by selecting a file should be handled in the normal way in the modules action php file.</p>
-<p>Note: This plugin will detect (using internal mechanisms) the currently preferred filepicker module, which may be different than the CMSMS core file picker module, and that filepicker module may ignore some of these parameters.</p>
+<p>Note: This plugin will detect (using internal mechanisms) the currently preferred filepicker module, which might be different than the CMSMS core file picker module, and that filepicker module might ignore some of these parameters.</p>
 <h3>Usage:</h3>
 <ul>
   <li>name - <strong>required</strong> string - The name for the input field.</li>
   <li>prefix - <em>(optional)</em> string - A prefix for the name of the input field.</li>
   <li>value - <em>(optional)</em> string - The current value for the input field..</li>
-  <li>profile - <em>(optional)</em> string - The name of the profile to use.  The profile must exist within the selected file picker module, or a default profile may be used.</li>
+  <li>profile - <em>(optional)</em> string - The name of the profile to use.  The profile must exist within the selected file picker module, or a default profile might be used.</li>
   <li>top - <em>(optional)</em> string - A top directory, relative to the uploads directory.  This should override any top value already specified in the profile.</li>
   <li>type - <em>(optional)</em> string - An indication of the file type that can be selected.
       <p>Possible values are: image,audio,video,media,xml,document,archive,any</p>
@@ -1147,7 +1147,7 @@ EOT;
 $lang['help_function_form_start'] = <<<EOT
 <h3>What does this do?</h3>
   <p>Thie tag creates a &lt;form&gt; tag for a module action.  It is useful in module templates and is part of the separation of design from logic principle that is at the heart of CMSMS.</p>
-  <p>This tag accepts numerous parameters that can accept the &lt;form&gt; tag, and effect its styling.</p>
+  <p>This tag accepts numerous parameters that can accept the &lt;form&gt; tag, and affect its styling.</p>
 <h3>What parameters does it take?</h3>
 <ul>
   <li>module - <em>(optional string)</em>
@@ -1187,7 +1187,7 @@ $lang['help_function_form_start'] = <<<EOT
     <p>Assign the output of the tag to the named smarty variable.</p>
   </li>
 </ul>
-<p>You may also provide extra attributes to the &lt;form&gt; tag by prepending the attribute with the &quot;form-&quot;prefix.  i.e:</p>
+<p>You might also provide extra attributes to the &lt;form&gt; tag by prepending the attribute with the &quot;form-&quot;prefix.  i.e:</p>
 <pre><code>{form_start form-data-foo="bar" form-novalidate=""}</code></pre>
 <p><strong>Note:</strong> Smarty shorthand attributes are not permitted.  Each attribute provided must have a value, even if it is empty.</p>
 <h3>Usage:</h3>
@@ -1228,7 +1228,7 @@ $lang['help_function_form_start'] = <<<EOT
 {News pagelimit=\$pagelimit}</code></pre>
 EOT;
 
-$lang['function'] = 'Functions may perform a task, or query the database, and typically display output.  They can be called like {tagname [attribute=value...]}';
+$lang['function'] = 'Functions might perform a task, or query the database, and typically display output.  They can be called like {tagname [attribute=value...]}';
 $lang['modifier'] = 'Modifiers take the output of a smarty variable and modify it.  They are called like: {$variable|modifier[:arg:...]}';
 $lang['postfilter'] = 'Postfilters are called automatically by smarty after the compilation of every template.  They cannot be called manually.';
 $lang['prefilter'] = 'Prefilters are called automatically by smarty before the compilation of every template.  They canot be called manually.';

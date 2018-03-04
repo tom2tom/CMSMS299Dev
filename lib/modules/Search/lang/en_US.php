@@ -58,7 +58,7 @@ $lang['help'] = '<h3>What does this do?</h3>
 <h3>How do I use it?</h3>
 <p>The easiest way to use it is with the {search} wrapper tag (wraps the module in a tag, to simplify the syntax). This will insert the module into your template or page anywhere you wish, and display the search form.  The code would look something like: <code>{search}</code></p>
 <h4>How do i prevent certain content from being indexed</h4>
-<p>The search module will not search any "inactive" pages. However on occasion, when you are using the CustomContent module, or other smarty logic to show different content to different groups of users, it may be advisable to prevent the entire page from being indexed even when it is live.  To do this include the following tag anywhere on the page <em>&lt;!-- pageAttribute: NotSearchable --&gt;</em> When the search module sees this tag in the page it will not index any content for that page.</p>
+<p>The search module will not search any "inactive" pages. However on occasion, when you are using the CustomContent module, or other smarty logic to show different content to different groups of users, it might be advisable to prevent the entire page from being indexed even when it is live.  To do this include the following tag anywhere on the page <em>&lt;!-- pageAttribute: NotSearchable --&gt;</em> When the search module sees this tag in the page it will not index any content for that page.</p>
 <p>The <em>&lt;!-- pageAttribute: NotSearchable --&gt;</em> tag can be placed in the template as well.  if this is done, none of the pages attached to that template will be indexed.  Those pages will be re-indexed if the tag is removed</p>
 ';
 
@@ -88,7 +88,7 @@ $lang['param_submit'] = 'Text to place into the submit button';
 $lang['param_useor'] = 'Change the default relationship from an OR relationship to an AND relationship';
 $lang['prompt_alpharesults'] = 'Sort results alphabetically instead of by weight';
 $lang['prompt_resetstopwords'] = 'Load default Stop Words from language';
-$lang['prompt_resultpage'] = 'Page for individual module results <em>(Note modules may optionally override this)</em>';
+$lang['prompt_resultpage'] = 'Page for individual module results <em>(Note modules might optionally override this)</em>';
 $lang['prompt_savephrases'] = 'Track Search Phrases, not Individual Words';
 $lang['prompt_searchtext'] = 'Default Search Text';
 
