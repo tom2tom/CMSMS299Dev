@@ -78,14 +78,19 @@ final class cms_module_smarty_plugin_manager
 	/**
 	 * @ignore
 	 */
-	protected function __construct() {}
+	private function __construct() {}
+
+	/**
+     * @ignore
+     */
+    private function __clone() {}
 
 	/**
 	 * Get the single allowed instance of this class
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
-		if( !self::$_instance ) self::$_instance = new self();
+        if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
 	}
 

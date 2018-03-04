@@ -24,9 +24,17 @@ final class CmsSimplePluginOperations
     private static $_instance = null;
     private $_loaded = [];
 
-//  protected function __construct() {} we're final
+    /**
+     * @ignore
+     */
+	private function __construct() {}
 
-    public static function get_instance() : self
+	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+    final public static function &get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;

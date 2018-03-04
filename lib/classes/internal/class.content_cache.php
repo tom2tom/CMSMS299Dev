@@ -48,7 +48,7 @@ final class content_cache
 	/**
 	 * @ignore
 	 */
-	private static $_instance;
+	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -74,7 +74,6 @@ final class content_cache
 	 * @ignore
 	 */
 	private $_key;
-
 
 	/**
 	 * @ignore
@@ -102,11 +101,16 @@ final class content_cache
 	}
 
 	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+	/**
 	 * @ignore
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
-		if( !is_object(self::$_instance) ) self::$_instance = new self();
+		if( !(self::$_instance) ) self::$_instance = new self();
 		return self::$_instance;
 	}
 
@@ -308,8 +312,7 @@ final class content_cache
    */
   public static function have_preloaded()
   {
-	  if( is_array(self::get_instance()->_preload_cache) ) return TRUE;
-	  return FALSE;
+	  return is_array(self::get_instance()->_preload_cache);
   }
 
   /**
