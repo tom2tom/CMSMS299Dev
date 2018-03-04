@@ -287,59 +287,27 @@ CMSMS theme functions
          * @function showNotifications()
          */
         showNotifications: function() {
-            //TODO some user preference(s) for toast parameters?
+            //stack the popup(s) from info to error
             if (typeof cms_data.toastinfos !== 'undefined') {
-                $.toast({
-                    text: cms_data.toastinfos,
-                    showHideTransition: 'fade',
-                    hideAfter: 0,
-                    loader: false,
-                    position: 'top-center',
-                    myclass: 'info',
-                    closeicon: ''
-                });
+                cms_notify('info', cms_data.toastinfos);
             }
             if (typeof cms_data.toastgoods !== 'undefined') {
-                $.toast({
-                    text: cms_data.toastgoods,
-                    showHideTransition: 'fade',
-                    hideAfter: 0,
-                    loader: false,
-                    position: 'top-center',
-                    myclass: 'success',
-                    closeicon: ''
-                });
+                cms_notify('success', cms_data.toastgoods);
             }
             if (typeof cms_data.toastwarns !== 'undefined') {
-                $.toast({
-                    text: cms_data.toastwarns,
-                    showHideTransition: 'fade',
-                    hideAfter: 0,
-                    loader: false,
-                    position: 'top-center',
-                    myclass: 'warn',
-                    closeicon: ''
-                });
+                cms_notify('warn', cms_data.toastwarns);
             }
             if (typeof cms_data.toasterrs !== 'undefined') {
-                $.toast({
-                    text: cms_data.toasterrs,
-                    showHideTransition: 'fade',
-                    hideAfter: 0,
-                    loader: false,
-                    position: 'top-center',
-                    myclass: 'error',
-                    closeicon: ''
-                });
+                cms_notify('error', cms_data.toasterrs);
             }
 
-			//the rest of this stuff is probably redundant - toasts are created in-place
-            $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_data.lang_gotit + '"></span>');
+            $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_lang('gotit') + '"></span>');
             $(document).on('click', '.close-warning', function() {
                 $(this).parent().hide();
                 $(this).parent().remove();
             });
-            // pagewarning status hidden?
+
+           // pagewarning status hidden? TODO is this stuff still relevant ?
             var key = $('body').attr('id') + '_notification';
             $('.pagewarning .close-warning').click(function() {
                 NS.helper.setStorageValue(key, 'hidden', 60);
@@ -347,28 +315,10 @@ CMSMS theme functions
             if(NS.helper.getStorageValue(key) === 'hidden') {
                 $('.pagewarning').addClass('hidden');
             }
+
             $(document).on('cms_ajax_apply', function(e) {
-                $('button[name=cancel], button[name=m1_cancel]').fadeOut();
-                $('button[name=cancel], button[name=m1_cancel]').button('option', 'label', e.close);
-                $('button[name=cancel], button[name=m1_cancel]').fadeIn();
-                var htmlShow = '';
-                if(e.response === 'Success') {
-                    htmlShow = '<aside class="messagecontainer" role="status"><span class="close-warning">' + cms_data.lang_close + '</span><p>' + e.details + '</p></aside>';
-                } else {
-                    htmlShow = '<aside class="pageerror" role="alert"><span class="close-warning">' + cms_data.lang_close + '</span><ul>';
-                    htmlShow += e.details;
-                    htmlShow += '</ul></aside>';
-                }
-                $('body').append(htmlShow).slideDown(1000, function() {
-                    window.setTimeout(function() {
-                        $('.message').slideUp();
-                        $('.message').remove();
-                    }, 10000);
-                });
-                $(document).on('click', '.close-warning', function() {
-                    $('.message').slideUp();
-                    $('.message').remove();
-                });
+                var type = (e.response === 'Success') ? 'success' : 'error';
+                cms_notify(type, e.details);
             });
         },
         /**
