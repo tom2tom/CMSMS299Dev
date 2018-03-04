@@ -12,7 +12,7 @@ CMSMS theme functions
  */
 
 (function(global, $) {
-    "$:nomunge,usestrict:nomunge";
+    "$:nomunge";
     'use strict';
     /*jslint nomen: true , devel: true*/
     /**
@@ -232,8 +232,8 @@ CMSMS theme functions
             _this.toggleSubMenu($menu, 50);
             // handle notifications
             _this.showNotifications();
-            // apply jQueryUI buttons
-            _this.setUIButtons();
+            // substitute buttons for inputs, etc
+            _this.migrateUIElements();
             // setup alert handlers
             _this.setupAlerts();
             // handle updating the display.
@@ -283,12 +283,58 @@ CMSMS theme functions
             });
         },
         /**
-         * @description Handles Core and Module messages
-         * @function showNotification()
+         * @description Handles core and module messages
+         * @function showNotifications()
          */
-        // TODO Rethink this in next versions, define an object based on type or something (maybe use plugin http://akquinet.github.io/jquery-toastmessage-plugin/demo/demo.html), move messages to global function in cms_admin.js so it can be reused by other themes
         showNotifications: function() {
-            $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning"></span>');
+            //TODO some user preference(s) for toast parameters?
+            if (typeof cms_data.toastinfos !== 'undefined') {
+                $.toast({
+                    text: cms_data.toastinfos,
+                    showHideTransition: 'fade',
+                    hideAfter: 0,
+                    loader: false,
+                    position: 'top-center',
+                    myclass: 'info',
+                    closeicon: ''
+                });
+            }
+            if (typeof cms_data.toastgoods !== 'undefined') {
+                $.toast({
+                    text: cms_data.toastgoods,
+                    showHideTransition: 'fade',
+                    hideAfter: 0,
+                    loader: false,
+                    position: 'top-center',
+                    myclass: 'success',
+                    closeicon: ''
+                });
+            }
+            if (typeof cms_data.toastwarns !== 'undefined') {
+                $.toast({
+                    text: cms_data.toastwarns,
+                    showHideTransition: 'fade',
+                    hideAfter: 0,
+                    loader: false,
+                    position: 'top-center',
+                    myclass: 'warn',
+                    closeicon: ''
+                });
+            }
+            if (typeof cms_data.toasterrs !== 'undefined') {
+                $.toast({
+                    text: cms_data.toasterrs,
+                    showHideTransition: 'fade',
+                    hideAfter: 0,
+                    loader: false,
+                    position: 'top-center',
+                    myclass: 'error',
+                    closeicon: ''
+                });
+            }
+
+			//the rest of this stuff is probably redundant - toasts are created in-place
+            $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_data.lang_gotit + '"></span>');
             $(document).on('click', '.close-warning', function() {
                 $(this).parent().hide();
                 $(this).parent().remove();
@@ -301,28 +347,17 @@ CMSMS theme functions
             if(NS.helper.getStorageValue(key) === 'hidden') {
                 $('.pagewarning').addClass('hidden');
             }
-            $('.message:not(.no-slide)').click(function() {
-                $('.message').slideUp();
-            });
-            $('.message:not(.no-slide), .pageerrorcontainer:not(.no-slide), .pagemcontainer:not(.no-slide)').each(function() {
-                var message = $(this);
-                $(message).hide().slideDown(1000, function() {
-                    window.setTimeout(function() {
-                        message.slideUp();
-                    }, 10000);
-                });
-            });
             $(document).on('cms_ajax_apply', function(e) {
                 $('button[name=cancel], button[name=m1_cancel]').fadeOut();
                 $('button[name=cancel], button[name=m1_cancel]').button('option', 'label', e.close);
                 $('button[name=cancel], button[name=m1_cancel]').fadeIn();
                 var htmlShow = '';
                 if(e.response === 'Success') {
-                    htmlShow = '<aside class="message pagemcontainer" role="status"><span class="close-warning">Close</span><p class="pagemessage">' + e.details + '<\/p><\/aside>';
+                    htmlShow = '<aside class="messagecontainer" role="status"><span class="close-warning">' + cms_data.lang_close + '</span><p>' + e.details + '</p></aside>';
                 } else {
-                    htmlShow = '<aside class="message pageerrorcontainer" role="alert"><span class="close-warning">Close</span><ul class="pageerror">';
+                    htmlShow = '<aside class="pageerror" role="alert"><span class="close-warning">' + cms_data.lang_close + '</span><ul>';
                     htmlShow += e.details;
-                    htmlShow += '<\/ul><\/aside>';
+                    htmlShow += '</ul></aside>';
                 }
                 $('body').append(htmlShow).slideDown(1000, function() {
                     window.setTimeout(function() {
@@ -338,9 +373,9 @@ CMSMS theme functions
         },
         /**
          * @description Substitutes styled buttons for input-submits. And some links
-         * @function setUIButtons()
+         * @function migrateUIElements()
          */
-        setUIButtons: function() {
+        migrateUIElements: function() {
             // Standard input buttons
             $('input[type="submit"], :button[data-ui-icon]').each(function() {
                 var button = $(this);
@@ -463,7 +498,7 @@ CMSMS theme functions
         /**
          * @description Handles popping up the notification area
          * @private
-         * @function _showAlerts()
+         * @function setupAlerts()
          */
         setupAlerts: function() {
             var _this = this;
