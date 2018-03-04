@@ -126,7 +126,7 @@ $lang['clearadminlog'] = 'Clear Admin Log';
 $lang['clearcache'] = 'Clear Cache';
 $lang['clearcache_taskdescription'] = 'Executed daily, this task will clear cached files that are older than the age pre-set in the global preferences';
 $lang['clearcache_taskname'] = 'Clear Cached Files';
-$lang['clearusersettings'] = 'Clear all settings';
+$lang['clearusersettings'] = 'Reset';
 $lang['close'] = 'Close';
 $lang['CMSEX_C001'] = 'Sorry, we could not create a valid page alias from the input supplied';
 $lang['CMSEX_F001'] = 'File system permissions problem';
@@ -162,7 +162,7 @@ $lang['confirm_bulkuserop'] = "Be cautious about performing operations on multip
 $lang['confirm_edituser'] = 'Are you sure you want to apply changes to this user account';
 $lang['confirm_delete_user'] = 'Are you sure you want to delete this user account';
 $lang['confirm_deleteusertag'] = 'Are you sure you want to delete this user defined tag?';
-$lang['confirm_runusertag'] = "Running a UDT may have adverse effects on your website.  Please be careful!\n\nAre you sure you want to continue?";
+$lang['confirm_runusertag'] = "Running a UDT may have adverse effects on this website.  Please be careful!\n\nAre you sure you want to continue?";
 $lang['confirm_set_template_1'] = 'Are you sure you want to set all of these pages to use this template';
 $lang['confirm_set_template_2'] = 'Yes, I am sure.';
 $lang['confirm_set_template_3'] = 'Yes, I am <strong>really</strong> sure.';
@@ -200,7 +200,7 @@ $lang['copycontent'] = 'Copy Content Item';
 $lang['copyfromuser'] = 'User';
 $lang['copystylesheet'] = 'Copy Stylesheet';
 $lang['copytemplate'] = 'Copy Template';
-$lang['copyusersettings'] = 'Copy settings and preferences from another user';
+$lang['copyusersettings'] = 'Get From Another User';
 $lang['copyusersettings2'] = 'Copy settings from another user';
 $lang['copy_from'] = 'Copy From';
 $lang['copy_paste_forum'] = 'View Text Report <em>(suitable for copying into forum posts)</em>';
@@ -391,7 +391,7 @@ $lang['error_passwordrequired'] = 'A <b>password</b> is required for SMTP authen
 $lang['error_portinvalid'] = 'Port number is invalid';
 $lang['error_retrieving_file_list'] = 'Error retrieving file list';
 //$lang['error_setusersettings_self'] = "Cannot set the template user to this account";
-$lang['error_sitedownmessage'] = 'It appears that your sitedown message is empty.  Please at least display some text to inform visitors that your website is down for maintenance';
+$lang['error_sitedownmessage'] = 'It appears that your sitedown message is empty.  Please at least display some text to inform visitors that this website is down for maintenance';
 $lang['error_timedifference2'] = 'A discrepancy in time with the PHP environment was detected. This may cause problems when publishing i.e. news articles.';
 $lang['error_timeoutinvalid'] = 'The time-out specified is invalid (must be between 1 and 3600 seconds)';
 $lang['error_type'] = 'Error Type';
@@ -919,7 +919,7 @@ $lang['filteruser'] = 'Username is';
 $lang['first'] = 'First';
 $lang['firstname'] = 'First Name';
 $lang['forge'] = 'Forge';
-$lang['forgotpwprompt'] = 'Enter your Admin username.  An email will then be sent to the email address associated with that username with new login information';
+$lang['forgotpwprompt'] = 'Enter your admin username.  After submitting, an email containing new login information will be sent to the address associated with the entered username.';
 $lang['forums'] = 'Forums';
 $lang['frontendlang'] = 'Default language for the frontend';
 $lang['frontendwysiwygtouse'] = 'Frontend WYSIWYG';
@@ -934,7 +934,8 @@ $lang['generic'] = 'Generic';
 $lang['globalconfig'] = 'System Settings';
 $lang['globalmetadata'] = 'Global Metadata';
 $lang['global_umask'] = 'File Creation Mask (umask)';
-$lang['goto'] = 'Back to:';
+$lang['gotit'] = 'Got it!';
+$lang['goto'] = 'Go to:';
 $lang['group'] = 'Group';
 $lang['groupassignmentdescription'] = 'Here you can assign users to groups.';
 $lang['groupassignments'] = 'Backend Group Assignments';
@@ -953,7 +954,7 @@ $lang['hasdependents'] = 'Has Dependants';
 $lang['headtags'] = 'Head Tags';
 $lang['help'] = 'Help';
 $lang['helpaddtemplate'] = "<p>A template is what controls the look and feel of your site's content.</p><p>Create the layout here and also add your CSS in the Stylesheet section to control the look of your various elements.</p>";
-$lang['helplisttemplate'] = '<p>This page allows you to edit, delete, and create templates.</p><p>To create a new template, click on the <u>Add New Template</u> button.</p><p>If you wish to set all content pages to use the same template, click on the <u>Set All Content</u> link.</p><p>If you wish to duplicate a template, click on the <u>Copy</u> icon and you will be prompted to name the new duplicate template.</p>';
+$lang['helplisttemplate'] = '<p>Here you can edit, delete, and create templates.</p><p>To create a new template, click on the <u>Add New Template</u> button.</p><p>If you wish to set all content pages to use the same template, click on the <u>Set All Content</u> link.</p><p>If you wish to duplicate a template, click on the <u>Copy</u> icon and you will be prompted to name the new duplicate template.</p>';
 $lang['helpwithsection'] = '%s Help';
 $lang['help_content_accesskey'] = 'Specify an access key character (single character) that can be used to access this content page.  This is useful for accessibility purposes';
 $lang['help_content_active'] = 'Inactive pages cannot be displayed, or appear in the navigation';
@@ -1036,10 +1037,10 @@ $lang['informationmissing'] = 'Information missing';
 $lang['info_adduser'] = 'Add a administrative new user account';
 $lang['info_adduser_username'] = 'The username field must consist of alphanumeric characters, dot(.), underscore, or space';
 $lang['info_autoalias'] = 'If this field is empty, an alias will be created automatically.';
-$lang['info_changegroupperms'] = 'This page allows specifying which Admin user groups have which permission.  Keep in mind that an individual Admin user can belong to multiple Admin groups.<br /><strong>Note:</strong> the &quot;Admin&quot; group is a special group and is automatically granted all permissions.';
-$lang['info_changeusergroup'] = 'This page allows specifying the member groups for each Admin user.  Group membership determines the permissions the user has, and therefore his capabilities in the admin console.<br /><strong>Note:</strong> the &quot;Admin&quot; group is a special group and is automatically granted all permissions.';
-$lang['info_clearusersettings'] = 'This will cause all of this user\'s settings to be reverted to default values';
-$lang['info_copyusersettings'] = 'Ensure that this user\'s settings and preferences are identical to those of another existing user';
+$lang['info_changegroupperms'] = 'Here you can specify the permission(s) of each admin user group.  Keep in mind: any admin user can belong to multiple admin groups.<br /><strong>Note:</strong> the &quot;Admin&quot; group is a special group and is automatically granted all permissions.';
+$lang['info_changeusergroup'] = 'Group membership determines which permissions the user has, hence her/his capabilities in the admin console.<br /><strong>Note:</strong> the &quot;Admin&quot; group is automatically granted all permissions.';
+$lang['info_clearusersettings'] = 'This will cause all of this user\'s settings to be returned to default values';
+$lang['info_copyusersettings'] = 'Change this user\'s settings to match those of another existing user';
 $lang['info_default_contenttype'] = 'Applicable when adding new content objects, this control specifies the type that is selected by default.  Please ensure that the selected item is not one of the &quot;disallowed types&quot;.';
 $lang['info_deletepages'] = 'Note: due to permission restrictions, some of the pages you selected for deletion may not be listed below';
 $lang['info_edeprecated_failed'] = 'If E_DEPRECATED is enabled in your error reporting users will see a lot of warning messages that could affect the display and functionality';
@@ -1132,14 +1133,17 @@ $lang['lines_in_error'] = '%d lines with errors';
 $lang['lock_refresh'] = 'Locking Refresh';
 $lang['lock_timeout'] = 'Locking Time-out';
 $lang['loginprompt'] = 'Enter a valid user credential to get access to the Admin Console.';
-$lang['logintitle'] = 'Login to CMS Made Simple&trade;';
+$lang['logintitle'] = 'Log in to CMS Made Simple&trade;';
+$lang['loginsitetitle'] = 'Log in to %s';
 $lang['login_failed'] = 'User Login Failed';
 $lang['login_info'] = 'For the admin console to work properly';
-$lang['login_info_params'] = '<ol>
-  <li>Cookies must be enabled in your browser</li>
-  <li>Javascript must be enabled in your browser</li>
-  <li>Popup windows must be allowed for the following address:</li>
-</ol>';
+$lang['login_info_params'] = <<<EOS
+<ol>
+ <li>Cookies must be enabled in your browser</li>
+ <li>Javascript must be enabled in your browser</li>
+ <li>Popup windows must be allowed for:</li>
+</ol>
+EOS;
 $lang['login_info_title'] = 'Information';
 $lang['logout'] = 'Logout';
 $lang['lostpw'] = 'Forgot your password?';
@@ -1320,7 +1324,7 @@ $lang['parameters'] = 'Parameters';
 $lang['parent'] = 'Parent';
 $lang['password'] = 'Password';
 $lang['passwordagain'] = 'Password (again)';
-$lang['passwordchange'] = 'Please, provide the new password';
+$lang['passwordchange'] = 'Please provide the new password';
 $lang['passwordchangedlogin'] = 'Password changed.  Please log in using the new credentials.';
 $lang['performance_information'] = 'Performance and Tuning Information (recommended settings, but not required)';
 $lang['perform_validation'] = 'Perform Validation';
@@ -1402,6 +1406,8 @@ $lang['pseudocron_granularity'] = 'Pseudocron Granularity';
 ## R
 $lang['read'] = 'Read';
 $lang['recentpages'] = 'Recent Pages';
+$lang['recoversitetitle'] = 'Recover login credentials for %s';
+$lang['recover_start'] = 'Start recovery';
 $lang['recoveryemailsent'] = 'Email sent to recorded address.  Please check your inbox for further instructions.';
 $lang['register_globals'] = 'PHP register_globals';
 $lang['remote_connection_timeout'] = 'Connection Timed Out!';
@@ -1636,13 +1642,13 @@ $lang['user'] = 'User';
 $lang['useraccount'] = 'Profile';
 $lang['userdefinedtags'] = 'User Defined Tags';
 $lang['usermanagement'] = 'User Management';
-$lang['username'] = 'User name';
-$lang['usernameincorrect'] = 'User name or password incorrect';
+$lang['username'] = 'Username';
+$lang['usernameincorrect'] = 'Username or password incorrect';
 $lang['usernotfound'] = 'User Not Found';
 $lang['userprefs'] = 'Settings';
 $lang['users'] = 'Backend Users';
 $lang['usersassignedtogroup'] = 'Users Assigned to Group %s';
-$lang['usersdescription'] = 'Here you can manage Admin users.';
+$lang['usersdescription'] = 'Here you can manage admin users.';
 $lang['userdisabled'] = 'User account disabled';
 $lang['usersettings'] = 'User Settings';
 $lang['usersgroups'] = 'User Management';
@@ -1670,13 +1676,13 @@ $lang['view_page'] = 'View this page in a new window';
 
 ## W
 $lang['wantschildren'] = 'Wants Children';
-$lang['warning_mail_settings'] = 'Your mail settings have not been configured.  This could interfere with the ability of your website to send email messages. You should go to <a href="%s">Extensions >> CMSMailer</a> and configure the mail settings with the information provided by your host.';
+$lang['warning_mail_settings'] = 'The website mailer settings have not been configured.  This could interfere with the ability of this website to send email messages. You should go to <a href="%s">Extensions >> CMSMailer</a> and configure the mail settings with the information provided by your host.';
 $lang['warning_safe_mode'] = '<strong><em>WARNING:</em></strong> PHP Safe mode is enabled. This will cause difficulty with files uploaded via the web browser interface, including images, theme and module XML packages.  You are advised to contact your site administrator to see about disabling safe mode.';
 $lang['warning_upgrade'] = '<em><strong>Warning:</strong></em> CMSMS is in need of an upgrade!';
 $lang['warning_upgrade_info1'] = 'The website is now running schema version %s and needs to be upgraded to version %s';
 $lang['warning_upgrade_info2'] = 'Please click the following link: %s.';
 $lang['warn_addgroup'] = 'Creating a new group does not assign any permissions. You will need to assign permissions to the new group in a separate step.';
-$lang['warn_admin_ipandcookies'] = 'Warning: Admin activities use cookies and tracks your IP address';
+$lang['warn_admin_ipandcookies'] = '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address';
 //$lang['warn_bulk_settemplate'] = '<strong>Warning:</strong> This is potentially a destructive operation, and may break an existing website.  <span style="color: red;">Be careful!</span>';
 $lang['warn_nosefurl'] = 'SEO Friendly or Pretty URLs have not been configured. Its settings are not visible here';
 $lang['welcomemsg'] = 'Welcome %s';
