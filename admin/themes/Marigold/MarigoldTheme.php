@@ -21,7 +21,23 @@ use CMSMS\internal\Smarty;
 class MarigoldTheme extends CmsAdminThemeBase
 {
 	/**
-	 *
+	 * Hook function to populate runtime js variables
+	 * @since 2.3
+	 * @param array $vars to be populated with members like key=>value
+	 * @param array $add_list to be populated with ...
+	 * @param array $exclude_list to be populated with ...
+	 * @return array updated values of each of the supplied arguments
+	 */
+	public function JsSetup($vars, $add_list, $exclude_list)
+	{
+		list($vars, $add_list, $exclude_list) = parent::JsSetup($vars, $add_list, $exclude_list);
+		$url = cms_path_url(__DIR__);
+//		$add_list[] = $url.'/includes/standard.min.js'; DEBUG
+		$add_list[] = $url.'/includes/standard.js';
+		return [$vars, $add_list, $exclude_list];
+	}
+
+	/**
 	 * @param string $title_name
 	 * @param array $extra_lang_params
 	 * @param string $link_text
@@ -48,17 +64,22 @@ class MarigoldTheme extends CmsAdminThemeBase
 				$module = $tmp[0];
 			}
 
-			$base = cms_module_path($module).DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR;
-			$path = $base.'icon.png';
-			if (!file_exists($path)) {
-				$path = $base.'icon.gif';
-				if (!file_exists($path)) {
-					$path = '';
-				}
-			}
+			$path = cms_module_path($module);
 			if ($path) {
-				$config = \cms_config::get_instance();
-				$url = str_replace([$config['root_path'],DIRECTORY_SEPARATOR],[$config['root_url'],'/'],$path);
+				$base = dirname($path).DIRECTORY_SEPARATOR.'images'.DIRECTORY_SEPARATOR;
+				$path = $base.'icon.png';
+				if (!file_exists($path)) {
+					$path = $base.'icon.gif';
+					if (!file_exists($path)) {
+						$path = '';
+					}
+				}
+				if ($path) {
+					$config = \cms_config::get_instance();
+					$url = str_replace([$config['root_path'],DIRECTORY_SEPARATOR],[$config['root_url'],'/'],$path);
+				} else {
+					$url = '';
+				}
 			} else {
 				$url = '';
 			}
@@ -67,7 +88,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 			// set the module help url (this should be supplied TO the theme)
 			$module_help_url = $this->get_module_help_url();
 			$this->set_value('module_help_url', $module_help_url);
-		}
+        }
 
 		$bc = $this->get_breadcrumbs();
 		if ($bc) {
@@ -109,7 +130,6 @@ class MarigoldTheme extends CmsAdminThemeBase
 	}
 
 	/**
-	 *
 	 * @param type $section_name
 	 */
 	public function do_toppage($section_name)
@@ -139,18 +159,44 @@ class MarigoldTheme extends CmsAdminThemeBase
 	}
 
 	/**
-	 *
 	 * @param array $params UNUSED
 	 */
 	public function do_login($params)
 	{
-		include __DIR__ . DIRECTORY_SEPARATOR . 'login.php'; //various init's, including $smarty
+		// setup
+		include __DIR__ . DIRECTORY_SEPARATOR . 'login.php'; //various init's, including $smarty & $config
+		// the only needed scripts are: jquery, jquery-ui, and our custom login
+		$jqcore = '';
+		$jqui = '';
+		//the 'core' jquery files are named like jquery-*min.js
+		$patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-*min.js');
+		$files = glob($patn);
+		//grab the (or the latest) core and ui
+ 		foreach ($files as $path) {
+			if (preg_match('/jquery\-[0-9.]+min/',$path)) {
+				$jqcore = $path;
+			} elseif (preg_match('/jquery\-ui\-[0-9.]+.*min/',$path)) {
+				$jqui = $path;
+			}
+		}
+
+        $jsinc = '';
+        $tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+
+		$url = cms_path_url($jqcore);
+		$jsinc .= sprintf($tpl,$url);
+		$url = cms_path_url($jqui);
+		$jsinc .= sprintf($tpl,$url);
+	    $url = cms_path_url(__DIR__);
+	    $url .= '/includes/login.js';
+		$jsinc .= sprintf($tpl,$url);
+
+		$smarty->assign('jsinc', $jsinc);
 		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
 		$smarty->display('login.tpl');
 	}
 
 	/**
-	 *
 	 * @param type $html
 	 * @return string (or maybe null?)
 	 */
@@ -194,9 +240,9 @@ class MarigoldTheme extends CmsAdminThemeBase
 			$smarty->assign('module_name', $module_name);
 		}
 
-		// module icon?
+		// module icon? TODO support in-title icon for admin operations
 		if (($module_icon_url = $this->get_value('module_icon_url'))) {
-			$smarty->assign('module_icon_url', $module_icon_url);
+			$smarty->assign('page_icon_url', $module_icon_url);
 		}
 
 		// module_help_url?
@@ -220,6 +266,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 
 		$smarty->assign('headertext',$this->get_headtext());
 		$smarty->assign('footertext',$this->get_footertext());
+//		$smarty->assign('pagelast', X); TODO API for action etc to specify post-body content e.g. js
 
 		// and some other common variables
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
@@ -235,12 +282,6 @@ class MarigoldTheme extends CmsAdminThemeBase
 		$info = CmsNlsOperations::get_language_info($lang);
 		$smarty->assign('lang_dir',$info->direction());
 
-		if (is_array($this->_errors) && count($this->_errors)) {
-			$smarty->assign('errors', $this->_errors);
-		}
-		if (is_array($this->_successes) && count($this->_successes)) {
-			$smarty->assign('messages', $this->_successes);
-		}
 		// is the website down for maintenance?
 		if (get_site_preference('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 'true');
