@@ -41,6 +41,8 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         parent::__construct();
         $this->_dao = new \FilePicker\ProfileDAO( $this );
         $this->_typehelper = new \CMSMS\FileTypeHelper( \cms_config::get_instance() );
+
+        \CMSMS\HookManager::add_hook('RuntimeJsSetup', [$this, 'JsSetup']);
     }
 
     private function _encodefilename($filename)
@@ -53,22 +55,36 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         return base64_decode($encodedfilename . '==');
     }
 
-    function VisibleToAdminUser()
-    {
-        return $this->CheckPermission('Modify Site Preferences');
-    }
-
     private function _GetTemplateObject()
     {
         $ret = $this->GetActionTemplateObject();
         if( is_object($ret) ) return $ret;
         return CmsApp::get_instance()->GetSmarty();
     }
-
-    /**
+    /*
      * end of private methods
      */
 
+    /**
+     * Hook function to populate runtime js variables
+     * @since 2.3
+     * @param array $vars to be populated with members like key=>value
+     * @param array $add_list to be updated with script-file url(s)
+     * @param array $exclude_list to be updated with script 'identifiers' see ...
+     * @return array Its members are updated values of each of the supplied arguments
+     */
+    public function JsSetup (array $vars, array $add_list, array $exclude_list) : array
+    {
+        $str = $this->get_browser_url();
+        $vars['filepicker_url'] = '\''.str_replace('&amp;','&',$str).'&showtemplate=false\'';
+
+        $config = \cms_config::get_instance();
+        $base = (false) ? $config['ssl_url'] : CMS_ROOT_URL; //TODO
+        $add_list['cms_filepicker'] = $base.'/lib/jquery/js/jquery.cmsms_filepicker.js';
+        return [$vars, $add_list, $exclude_list];
+    }
+
+    function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
     function GetFriendlyName() { return $this->Lang('friendlyname');  }
     function GetVersion() { return '1.0.1'; }
     function GetHelp() { return $this->Lang('help'); }
