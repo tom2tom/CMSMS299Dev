@@ -10,12 +10,12 @@
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="HandheldFriendly" content="True" />
   <link rel="shortcut icon" href="{$config.admin_url}/themes/Marigold/images/favicon/cmsms-favicon.ico" />
-  <link rel="stylesheet" href="loginstyle.php" />
-  <!-- learn IE html5 -->
-  <!--[if lt IE 9]>
-   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
-  {cms_jquery exclude="jquery.ui.nestedSortable-1.3.4.js,jquery.json-2.2.js" append="`$config.admin_url`/themes/Marigold/includes/login.js"}
+  <link rel="stylesheet" type="text/css" href="{$config.admin_url}/themes/Marigold/css/style.css" />{* TODO if RTL *}
+<!-- html5 for old IE -->
+<!--[if lt IE 9]>
+ <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+ {$jsinc}
 </head>
 
 <body id="login">
@@ -25,19 +25,17 @@
         <div class="logo">
           <img src="{$config.admin_url}/themes/Marigold/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple&trade;" />
         </div>
-        <div class="info-wrapper open">
+        <div class="info-wrapper">
           <aside class="info">
             <h2>{lang('login_info_title')}</h2>
-            <p>{lang('login_info')}</p>
+            {lang('login_info')}
             {lang('login_info_params')}
-            <p><strong>({$smarty.server.HTTP_HOST})</strong></p>
-            <p class="warning">{lang('warn_admin_ipandcookies')}</p>
+            <p style="margin-left:2em;font-weight:bold">{$smarty.server.HTTP_HOST}</p>
+            <div class="pagewarn" style="padding:5px;">{lang('warn_admin_ipandcookies')}</div>
           </aside>
           <a href="#" title="{lang('open')}/{lang('close')}" class="toggle-info">{lang('open')}/{lang('close')}</a>
         </div>
-        <header>
-          <h1>{lang('logintitle')}</h1>
-        </header>
+        <h1>{if isset($smarty.get.forgotpw)}{lang('recoversitetitle',{sitename})}{else}{lang('loginsitetitle',{sitename})}{/if}</h1>
         <form method="post" action="login.php">
           <fieldset>
             {$usernamefld = 'username'} {if isset($smarty.get.forgotpw)}{$usernamefld ='forgottenusername'}{/if}
@@ -55,35 +53,24 @@
           </fieldset>
         </form>
         {if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
-        <div class="message warning">
-          {lang('forgotpwprompt')}
-        </div>
+        <div class="pageinfo" style="padding:10px;">{lang('forgotpwprompt')}</div>
         {/if} {if isset($error)}
-        <div class="message error">
-          {$error}
-        </div>
+        <div class="pageerror" style="padding:10px;">{$error}</div>
         {/if} {if isset($warninglogin)}
-        <div class="message warning">
-          {$warninglogin}
-        </div>
-        {/if} {if isset($acceptlogin)}
-        <div class="message success">
-          {$acceptlogin}
-        </div>
+        <div class="pagewarn" style="padding:10px;">{$warninglogin}</div>
+        {/if} {if isset($acceptlogin)}<div class="pagesuccess">{$acceptlogin}</div> TODO
         {/if} {if isset($changepwhash) && !empty($changepwhash)}
-        <div class="warning message">
-          {lang('passwordchange')}
-        </div>
-        {/if} <a href="{root_url}" title="{lang('goto')} {sitename}"><img class="goback" width="16" height="16" src="{$config.admin_url}/themes/Marigold/images/layout/goback.png" alt="{lang('goto')} {sitename}" /> </a>
+        <div class="pageinfo" style="padding:10px;">{lang('passwordchange')}</div>
+        {/if}
         <p class="forgotpw">
-          <a href="login.php?forgotpw=1">{lang('lostpw')}</a>
+          <a href="login.php?forgotpw=1" title="{lang('recover_start')}">{lang('lostpw')}</a>
+        </p>
+        <p class="goto">
+          <a href="{root_url}" title="{lang('goto')} {sitename}"></a>
         </p>
       </div>
-      <footer>
-        <small class="copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a></small>
-      </footer>
     </div>
   </div>
 </body>
-
+{$pagelast|default:''}
 </html>
