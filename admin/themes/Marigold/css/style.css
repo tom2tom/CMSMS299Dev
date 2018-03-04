@@ -895,10 +895,11 @@ table.pagetable a.text-red {
 }
 */
 
+.warn,
 .warning,
 .pagewarn,
 .pagewarning {
-    background: #fcf1d0 url(themes/Marigold/images/icons/extra/warning.png) 10px 8px no-repeat;
+    background: #fcf1d0 url(themes/Marigold/images/icons/extra/warning.png) 10px 50% no-repeat;
     border: 1px solid #f4ca4c;
     color: #b08f0e
 }
@@ -906,20 +907,21 @@ table.pagetable a.text-red {
 .pageerror,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-    background: #fcd0d0 url(themes/Marigold/images/icons/extra/error.png) 10px 8px no-repeat;
+    background: #fcd0d0 url(themes/Marigold/images/icons/extra/error.png) 10px 50% no-repeat;
     border: 1px solid #f44c4c;
     color: #490707
 }
 .success,
 .pagesuccess,
 .pagemcontainer {
-    background: #d0fcdc url(themes/Marigold/images/icons/extra/accept.png) 10px 8px no-repeat;
-    border: 1px solid #4cf47c;
+    background: #d0fcdc url(themes/Marigold/images/icons/extra/accept.png) 10px 50% no-repeat;
+    border: 1px solid #28e65f;
     color: #0bb33a
 }
+.info,
 .pageinfo,
 .information {
-    background: #d1e8fc url(themes/Marigold/images/icons/extra/info.png) 10px 8px no-repeat;
+    background: #d1e8fc url(themes/Marigold/images/icons/extra/info.png) 10px 50% no-repeat;
     border: 1px solid #4ca6f4;
     color: #0e2a42
 }
@@ -944,7 +946,7 @@ table.pagetable a.text-red {
 .block {
     display: block;
 }
-aside.message,
+/*aside.message, */
 .pagemcontainer,
 .pageerrorcontainer,
 .pageerrorinstalldir {
@@ -1012,6 +1014,108 @@ aside .no-slide,
     color: #0e2a42;
     font-size: 1em;
 }
+
+/*
+ * styles for jQuery toast plugin created by Kamran Ahmed copyright MIT license 2014
+ */
+.jqtoast {
+ display: block;
+ position: fixed;
+ border-width: 1px;
+ border-width: 1px;
+ border-style: solid;
+ border-radius: 4px;
+ margin: 0;
+ padding: 10px;
+ max-width: 40em;
+ line-height: 1.1em;
+ letter-spacing: normal;
+ font-size: 1em;
+/* font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
+ pointer-events: all !important;
+ z-index: 9000 !important;
+}
+.jqtoast.bottom-left { bottom: 20px; left: 20px; }
+.jqtoast.bottom-right { bottom: 20px; right: 40px; }
+.jqtoast.top-left { top: 20px; left: 20px; }
+.jqtoast.top-right { top: 20px; right: 40px; }
+.jqtoast.bottom-center { bottom: 20px; }
+.jqtoast.top-center { top: 20px; }
+
+.jqtoast * { margin: 0; padding: 0; }
+.jqtoast ul { margin-left: 15px; background: none; padding: 0; }
+.jqtoast ul li { list-style-type: disc !important; line-height: 1.1em; background: none; padding: 0; letter-spacing: normal; }
+
+.jqt-heading { margin-bottom: 10px; padding: 10px; font-size: 1.1em; font-weight: bold; text-align: center; }
+.jqt-close { position: absolute;
+ background-image:url("themes/Marigold/images/closesprite.png");
+ background-size: 7.5em 1.5em;
+ width: 1.5em;
+ height: 1.5em;
+ top: 7px;
+ right: 7px;
+ cursor: pointer;
+}
+.error .jqt-close:hover,
+.error .jqt-close:active,
+.warn .jqt-close:hover,
+.warn .jqt-close:active,
+.success .jqt-close:hover,
+.success .jqt-close:active,
+.info .jqt-close:hover,
+.info.jqt-close:active { background-position: 0 0; }
+
+.jqt-loader { display: block; position: absolute; top: -2px; height: 5px; width: 0; left: 0; border-radius: 5px; background: red; }
+.jqt-loaded { width: 100%; }
+
+.jqt-has-icon { padding-left: 40px; background-repeat: no-repeat; background-position: 50% 50%; }
+
+.error.jqtoast {
+/* border-color: #f44c4c;
+ background-color: #fcd0d0;
+ color: #490707;
+*/
+ padding: 10px 40px;
+}
+.error .jqt-close { background-position: 1.5em 0; }
+.error .jqt-heading { background-color: #e20e0e; color: #fff; }
+.jqt-icon-error { padding-left: 50px; background-image: url("themes/Marigold/images/icons/extra/error.png"); }
+
+.warn.jqtoast {
+/*
+ border-color: #f4ca4c;
+ background-color: #fcf1d0;
+ color: #42350e;
+*/
+ padding: 10px 40px;
+}
+.warn .jqt-close { background-position: 3em 0; }
+.warn .jqt-heading { background-color: #b08f0e; color: #fff; }
+.jqt-icon-warning { background-image: url("themes/Marigold/images/icons/extra/warning.png"); }
+
+.success.jqtoast {
+/*
+ border-color: #28e65f;
+ background-color: #d0fcdc;
+ color: #07491a;
+*/
+ padding: 10px 40px;
+}
+.success .jqt-close { background-position: 4.5em 0; }
+.success .jqt-heading { background-color: #0bb33a; color: #fff; }
+.jqt-icon-success { background-image: url("themes/Marigold/images/icons/extra/accept.png"); }
+
+.info.jqtoast {
+/*
+ border-color: #4ca6f4;
+ background-color: #d1e8fc;
+ color: #0e2a42;
+*/
+ padding: 10px 40px;
+}
+.info .jqt-close { background-position: 6em 0; }
+.info .jqt-heading { background-color: #147fdb; color: #fff; }
+.jqt-icon-info { background-image: url("themes/Marigold/images/icons/extra/info.png"); }
 
 #cms_busy, .busy {
     position: fixed;
@@ -1565,6 +1669,7 @@ nav ul#oe_pagemenu li.current li a:active {
 }
 
 .cms_helpicon {
+    margin-bottom: -3px;
     cursor: pointer;
 }
 
@@ -2487,7 +2592,7 @@ a.toggle-dropzone:focus {
 }
 
 #login div.login-box {
-    background: #d5d5d5 url(themes/Marigold/images/layout/sprite_repeatx.png) 214px -339px repeat-x;
+    background: #d5d5d5 url(login/sprite_repeatx.png) 214px -339px repeat-x;
     position: relative;
     border-radius: 4px 4px 0 4px;
     border: 1px solid #aaa;
@@ -2500,9 +2605,9 @@ a.toggle-dropzone:focus {
 
 #login h1 {
     color: #585858;
-    margin-bottom: 20px;
-    font-size: 12px;
-    text-shadow: 0 1px 0 #fff;
+    font-size: 1.1em;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff
 }
 
 #login aside.info {
@@ -2517,7 +2622,7 @@ a.toggle-dropzone:focus {
 
 #login label {
     color: #585858;
-    font-size: 13px
+    font-size: 1.01em
 }
 
 #login input[type="text"],
@@ -2540,8 +2645,9 @@ a.toggle-dropzone:focus {
     -o-transition: all 200ms ease-in-out
 }
 
-#login input.loginsubmit {
+#login button.loginsubmit {
     border: 1px solid #838282;
+    border-radius: 4px;
     color: #fff;
     text-indent: 0;
     line-height: 28px;
@@ -2549,13 +2655,13 @@ a.toggle-dropzone:focus {
     width: auto;
     padding: 0 14px;
     margin-top: 15px;
-    background: #838282 url(themes/Marigold/images/layout/input-bg.gif) repeat-x top
+    background: #838282 url(login/button-bg.gif) repeat-x top
 }
 
-#login input.loginsubmit:hover,
-#login input.loginsubmit:focus {
+#login button.loginsubmit:hover,
+#login button.loginsubmit:focus {
     border: 1px solid #e87602;
-    background: #fa8106 url(themes/Marigold/images/layout/input-hover-bg.gif) repeat-x top
+    background: #fa8106 url(login/button-hover-bg.gif) repeat-x top
 }
 
 #login div.info-wrapper {
@@ -2574,20 +2680,20 @@ a.toggle-dropzone:focus {
 #login a.toggle-info {
     width: 25px;
     outline: none;
-    border-radius: 4px 0 0 4px;
     position: absolute;
     top: 0;
     left: 0;
     border: 1px solid #aaa;
+    border-radius: 4px 0 0 4px;
     border-right: none;
     height: 25px;
     display: block;
     text-indent: -9999em;
-    background: #ececec url(themes/Marigold/images/layout/information.png) no-repeat center
+    background: #ececec url(login/information.png) no-repeat scroll center center
 }
 
 #login aside.info {
-    font-size: 12px;
+    font-size: 0.9em;
     color: #585858;
     background: #ececec;
     width: 255px;
@@ -2595,10 +2701,6 @@ a.toggle-dropzone:focus {
     border: 1px solid #aaa;
     border-right: none;
     border-radius: 0 0 0 4px
-}
-
-#login aside.info p {
-    font-size: 12px
 }
 
 #login aside.info p.warning {
@@ -2613,39 +2715,38 @@ a.toggle-dropzone:focus {
 }
 
 #login div.info-wrapper h2 {
-    font-size: 12px;
-    margin: 5px 0 10px 0
+    font-size: 1.01em;
+    margin: 5px 0
 }
 
-#login img.goback {
-    padding-top: 2px;
-    float: left
+#login p.goto {
+    cursor: pointer;
+}
+
+#login p.goto a {
+    padding: 0 0 10px 16px;
+    background: url(login/goback.png) left top no-repeat;
+    text-decoration: none
 }
 
 #login p.forgotpw {
     display: inline-block;
-    width: auto;
     float: right;
-    margin-bottom: 0
+    cursor: pointer;
 }
 
 #login p.forgotpw a {
-    padding-left: 20px;
-    background: url(themes/Marigold/images/layout/help.png) left 50% no-repeat;
+    padding: 8px 0 3px 20px;
+    background: url(login/help.png) left 50% no-repeat;
     color: #585858;
     text-shadow: 0 1px 0 #fff;
-    font-size: 12px;
+    font-size: 1.01em;
     text-decoration: none
-}
-
-#login .copyright {
-    margin: 5px auto;
-    text-align: center
 }
 
 #login small {
     text-align: center;
-    font-size: 12px;
+    font-size: 0.8em;
     color: #585858;
     display: block
 }
