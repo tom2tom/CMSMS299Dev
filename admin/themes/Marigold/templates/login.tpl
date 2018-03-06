@@ -13,9 +13,9 @@
   <link rel="stylesheet" type="text/css" href="{$config.admin_url}/themes/Marigold/css/style.css" />{* TODO if RTL *}
 <!-- html5 for old IE -->
 <!--[if lt IE 9]>
- <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
- {$jsinc}
+{$jsinc}
 </head>
 
 <body id="login">
@@ -23,7 +23,7 @@
     <div class="login-container">
       <div class="login-box cf" {if isset($error)} id="error" {/if}>
         <div class="logo">
-          <img src="{$config.admin_url}/themes/Marigold/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple&trade;" />
+          <img src="{$config.admin_url}/themes/Marigold/images/cmsms_logotext.png" width="185" height="36" alt="CMS Made Simple&trade;" />
         </div>
         <div class="info-wrapper">
           <aside class="info">
@@ -49,22 +49,26 @@
             <input type="hidden" name="forgotpwchangeform" value="1" />
             <input type="hidden" name="changepwhash" value="{$changepwhash}" /> {/if}
             <button type="submit" name="loginsubmit" class="loginsubmit">{lang('submit')}</button>
+            {if isset($smarty.get.forgotpw)}
             <button type="submit" name="logincancel" class="loginsubmit">{lang('cancel')}</button>
+            {/if}
           </fieldset>
         </form>
         {if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
-        <div class="pageinfo" style="padding:10px;">{lang('forgotpwprompt')}</div>
+         <div class="pageinfo" style="padding:10px;">{lang('forgotpwprompt')}</div>
         {/if} {if isset($error)}
-        <div class="pageerror" style="padding:10px;">{$error}</div>
+         <div class="pageerror" style="padding:10px;">{$error}</div>
         {/if} {if isset($warninglogin)}
-        <div class="pagewarn" style="padding:10px;">{$warninglogin}</div>
+         <div class="pagewarn" style="padding:10px;">{$warninglogin}</div>
         {/if} {if isset($acceptlogin)}<div class="pagesuccess">{$acceptlogin}</div> TODO
         {/if} {if isset($changepwhash) && !empty($changepwhash)}
         <div class="pageinfo" style="padding:10px;">{lang('passwordchange')}</div>
         {/if}
+        {if !isset($smarty.get.forgotpw)}
         <p class="forgotpw">
           <a href="login.php?forgotpw=1" title="{lang('recover_start')}">{lang('lostpw')}</a>
         </p>
+        {/if}
         <p class="goto">
           <a href="{root_url}" title="{lang('goto')} {sitename}"></a>
         </p>
