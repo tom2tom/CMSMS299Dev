@@ -166,13 +166,11 @@ if( isset($_POST['logincancel']) ) {
     $login_ops->deauthenticate(); // just in case
     redirect($config['root_url'].'/index.php', true);
 }
-else if( isset($_POST['loginsubmit']) ) {
+elseif( isset($_POST['loginsubmit']) ) {
     // login form submitted
     $login_ops->deauthenticate();
-    $username = $password = null;
-    if (isset($_POST["username"])) $username = cleanValue($_POST["username"]);
-    if (isset($_POST["password"])) $password = $_POST["password"];
-
+    $username = (isset($_POST['username'])) ? cleanValue($_POST['username']) : null;
+    $password = $_POST['password'] ?? null; //no cleanup: any char is valid, & hashed before storage
     $userops = $gCms->GetUserOperations();
 
     class CmsLoginError extends CmsException {}
@@ -247,7 +245,8 @@ cms_admin_sendheaders();
 header("Content-Language: " . CmsNlsOperations::get_current_language());
 
 $themeObject = cms_utils::get_theme_object();
-$vars = ['error'=>$error];
+$vars = [];
+if( $error ) $vars['error'] = $error;
 if( isset($warningLogin) ) $vars['warningLogin'] = $warningLogin;
 if( isset($acceptLogin) ) $vars['acceptLogin'] = $acceptLogin;
 if( isset($changepwhash) ) $vars['changepwhash'] = $changepwhash;
