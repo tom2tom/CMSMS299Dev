@@ -159,12 +159,14 @@ class MarigoldTheme extends CmsAdminThemeBase
 	}
 
 	/**
-	 * @param array $params UNUSED
+	 * @param array $params data for smarty, maybe empty
 	 */
 	public function do_login($params)
 	{
 		// setup
 		include __DIR__ . DIRECTORY_SEPARATOR . 'login.php'; //various init's, including $smarty & $config
+
+		if ($params) $smarty->assign($params);
 		// the only needed scripts are: jquery, jquery-ui, and our custom login
 		$jqcore = '';
 		$jqui = '';
@@ -231,7 +233,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 
 		// page title and alias
 		$smarty->assign('pagetitle', $title);
-		$smarty->assign('subtitle',$this->subtitle);
+		$smarty->assign('subtitle', $this->subtitle);
 //		$alias = $this->get_value(??) else munge CHECKME
 		$smarty->assign('pagealias', munge_string_to_url($title));
 
@@ -242,7 +244,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 
 		// module icon? TODO support in-title icon for admin operations
 		if (($module_icon_url = $this->get_value('module_icon_url'))) {
-			$smarty->assign('page_icon_url', $module_icon_url);
+			$smarty->assign('module_icon_url', $module_icon_url);
 		}
 
 		// module_help_url?
