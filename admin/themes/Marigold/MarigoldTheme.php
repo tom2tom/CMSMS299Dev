@@ -182,8 +182,8 @@ class MarigoldTheme extends CmsAdminThemeBase
 			}
 		}
 
-        $jsinc = '';
-        $tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+		$jsinc = '';
+		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
 		$url = cms_path_url($jqcore);
 		$jsinc .= sprintf($tpl,$url);
@@ -206,6 +206,15 @@ class MarigoldTheme extends CmsAdminThemeBase
 	{
 		$smarty = Smarty::get_instance();
 		$module_help_type = $this->get_value('module_help_type');
+
+		// page logo, if any
+		$sitelogo = cms_siteprefs::get('sitelogo');
+		if ($sitelogo) {
+			if( !preg_match('~^\w*:?//~',$sitelogo) ) {
+				$sitelogo = CMS_ROOT_URL.'/'.$sitelogo;
+			}
+			$smarty->assign('sitelogo', $sitelogo);
+		}
 
 		// get a page title
 		$title = $this->get_value('pagetitle');
