@@ -1,47 +1,74 @@
 /*!
-CMSMS theme functions
-(C) Goran Ilic <ja@ich-mach-das.at>
+Marigold-theme support
+(C) CMSMS <coreteam@cmsmadesimple.org>
+License: GPL2+
 */
 /**
- * CMSMS theme functions
- * Originally developed for OneEleven theme
  * @package CMS Made Simple
- * @module NS
+ * @description CMSMS theme functions - tailored for Marigold theme
  * @author Goran Ilic - uniqu3 <ja@ich-mach-das.at>
- * NOTE includes a hardcoded url to the cookie processor, and viewport width
+ * Updates since 2012 by the CMSMS Dev Team
+ * NOTE includes a hardcoded url for an external cookie processor, and viewport width-threshold
  */
-
-(function(global, $) {
-    "$:nomunge";
+;(function(global, $) {
+    "$:nomunge"; //compressor directive
     'use strict';
     /*jslint nomen: true , devel: true*/
-    /**
-     * @namespace NS
-     */
-    var NS = global.NS = {};
+
     $(document).ready(function() {
-        NS.helper.init();
-        NS.view.init();
+        ThemeJS.view_init();
+        ThemeJS.helper_init();
     });
-    /**
-     * @namespace NS.helper
-     */
-    NS.helper = {
-        init: function() {
-            var _this = this;
+
+    var ThemeJS = {
+        cookie_handler: 'themes/Marigold/includes/js-cookie.min.js',  //TODO more suitable place
+        small_width: 992, // viewport-width threshold
+
+        view_init: function() {
+            var _this = this,
+      $sidebar_toggle = $('.toggle-button'), // object for sidebar toggle
+           $container = $('#pg_container'), // page container
+                $menu = $('#pg_pagemenu'); // page nav menu
+            // handle the initial collapsed/expanded state of the sidebar
+            this.handleSidebar($container);
+            // handle navigation sidebar toggling
+            $sidebar_toggle.on('click', function(e) {
+                e.preventDefault();
+                if($container.hasClass('sidebar-on')) {
+                    _this._closeSidebar($container, $menu);
+                } else {
+                    _this._showSidebar($container, $menu);
+                }
+            });
+            $(window).resize(function() {
+                _this.handleSidebar($container);
+                _this.updateDisplay();
+            });
+            // toggle display of menu children
+            this.toggleSubMenu($menu, 50);
+            // handle notifications
+            this.showNotifications();
+            // substitute elements - buttons for inputs etc
+            this.migrateUIElements();
+            // handle updating the display.
+            this.updateDisplay();
+            // setup deprecated alert-handlers
+            this.setupAlerts();
+        },
+
+        helper_init: function() {
             // open external links with rel="external" attribute in new window
             $('a[rel=external]').attr('target', '_blank');
             // focus on input with .defaultfocus class
             $('input.defaultfocus:eq(0), input[autofocus]').focus();
             // async-load a cookie handler if localStorage is not supported
-            if(!_this._isLocalStorage()) {
-                _this.loadScript('themes/Marigold/includes/js-cookie.min.js'); //TODO url not hardcoded
+            if(!this._isLocalStorage()) {
+                this.loadScript(this.cookie_handler);
             }
         },
         /**
          * @description conditional load script helper function
          * @author Brad Vincent https://gist.github.com/2313262
-         * @memberof NS.helper
          * @function loadScript(url, arg1, arg2)
          * @param {string} url
          * @callback requestCallback
@@ -85,16 +112,14 @@ CMSMS theme functions
         /**
          * @description saves a defined key and value to localStorage if localStorgae is supported, else falls back to cookie script
          * @requires js-cookie https://github.com/js-cookie/js-cookie
-         * @memberof NS.helper
          * @function setStorageValue(key, value)
          * @param {string} key
          * @param {string} value
          * @param {number} expires (number in days)
          */
         setStorageValue: function(key, value, expires) {
-            var _this = this;
             try {
-                if(_this._isLocalStorage() === true) {
+                if(this._isLocalStorage()) {
                     localStorage.removeItem(key);
                     var obj;
                     if(expires !== null) {
@@ -110,7 +135,7 @@ CMSMS theme functions
                         };
                     }
                     localStorage.setItem(key, JSON.stringify(obj));
-                } else if(_this._isCookieScript() === true) {
+                } else if(this._isCookieScript()) {
                     if(expires !== null) {
                         Cookies.set(key, value, {
                             expires: expires
@@ -129,21 +154,19 @@ CMSMS theme functions
         /**
          * @description gets value for defined key from localStorage if localStorgae is supported, else falls back to js-cookie script
          * @requires js-cookie https://github.com/js-cookie/js-cookie
-         * @memberof NS.helper
          * @function getStorageValue(key)
          * @param {string} key
          */
         getStorageValue: function(key) {
-            var _this = this,
-                data, value;
-            if(_this._isLocalStorage()) {
-                data = JSON.parse(localStorage.getItem(key));
+            var value;
+            if(this._isLocalStorage()) {
+                var data = JSON.parse(localStorage.getItem(key));
                 if(data !== null && data.timestamp < new Date().getTime()) {
-                    _this.removeStorageValue(key);
+                    this.removeStorageValue(key);
                 } else if(data !== null) {
                     value = data.value;
                 }
-            } else if(_this._isCookieScript() === true) {
+            } else if(this._isCookieScript()) {
                 value = Cookies(key);
             } else {
                 value = ''; //TODO handle no cookie
@@ -153,21 +176,18 @@ CMSMS theme functions
         /**
          * @description removes defined key from localStorage if localStorage is supported, else falls back to js-cookie script
          * @requires js-cookie https://github.com/js-cookie/js-cookie
-         * @memberof NS.helper
          * @function removeStorageValue(key)
          * @param {string} key
          */
         removeStorageValue: function(key) {
-            var _this = this;
-            if(_this._isLocalStorage() === true) {
+            if(this._isLocalStorage()) {
                 localStorage.removeItem(key);
-            } else if(_this._isCookieScript() === true) {
+            } else if(this._isCookieScript()) {
                 Cookies.remove(key);
             }
         },
         /**
          * @description Sets equal height on specified element group
-         * @memberof NS.helper
          * @function equalHeight(obj)
          * @param {object}
          */
@@ -208,53 +228,16 @@ CMSMS theme functions
             if(ua.match(devices) && (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || window.DocumentTouch && document instanceof DocumentTouch)) {
                 return true;
             }
-        }
-    };
-    /**
-     * @namespace NS.view
-     */
-    NS.view = {
-        init: function() {
-            var _this = this,
-                $sidebar_toggle = $('.toggle-button'), // object for sidebar toggle
-                $container = $('#oe_container'), // page container
-                $menu = $('#oe_pagemenu'); // page menu
-            // handle navigation sidebar toggling
-            $sidebar_toggle.on('click', function(e) {
-                e.preventDefault();
-                if($container.hasClass('sidebar-on')) {
-                    _this._closeSidebar($container, $menu);
-                } else {
-                    _this._showSidebar($container, $menu);
-                }
-            });
-            // toggle hide/reveal menu children
-            _this.toggleSubMenu($menu, 50);
-            // handle notifications
-            _this.showNotifications();
-            // substitute buttons for inputs, etc
-            _this.migrateUIElements();
-            // setup alert handlers
-            _this.setupAlerts();
-            // handle updating the display.
-            _this.updateDisplay();
-            // handles the initial state of the sidebar (collapsed or expanded)
-            _this.handleSidebar($container);
-            $(window).resize(function() {
-                _this.handleSidebar($container);
-                _this.updateDisplay();
-            });
         },
         /**
          * @description Checks for saved state of sidebar
          * @function handleSidebar(trigger, container)
          * @param {object} trigger
          * @param {object} container
-         * @memberof NS.view
          */
         handleSidebar: function(container) {
             var viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-            if(NS.helper.getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= 992) {
+            if(this.getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= this.small_width) {
                 container.addClass('sidebar-off').removeClass('sidebar-on');
             } else {
                 container.addClass('sidebar-on').removeClass('sidebar-off');
@@ -265,14 +248,13 @@ CMSMS theme functions
          * @function toggleSubMenu(obj)
          * @param {object} obj - Menu container object
          * @param {number} duration - A positive number for toggle speed control
-         * @memberof NS.view
          */
         toggleSubMenu: function(obj, duration) {
             var _this = this;
             obj.find('li.current span').addClass('open-sub');
             obj.find('> li > span').click(function() {
-                var ul = $(this).next();
-                var _p = [];
+                var ul = $(this).next(),
+                    _p = [];
                 if(ul.is(':visible') === false) {
                     _p.push(obj.find('ul').slideUp(duration));
                 }
@@ -283,8 +265,9 @@ CMSMS theme functions
             });
         },
         /**
-         * @description Handles core and module messages
+         * @description Handles 'dynamic' notifications
          * @function showNotifications()
+         * @requires global cms_data{}, cms_notify(), cms_lang()
          */
         showNotifications: function() {
             //stack the popup(s) from info to error
@@ -308,11 +291,12 @@ CMSMS theme functions
             });
 
            // pagewarning status hidden? TODO is this stuff still relevant ?
-            var key = $('body').attr('id') + '_notification';
+            var _this = this,
+                key = $('body').attr('id') + '_notification';
             $('.pagewarning .close-warning').click(function() {
-                NS.helper.setStorageValue(key, 'hidden', 60);
+                _this.setStorageValue(key, 'hidden', 60);
             });
-            if(NS.helper.getStorageValue(key) === 'hidden') {
+            if(this.getStorageValue(key) === 'hidden') {
                 $('.pagewarning').addClass('hidden');
             }
 
@@ -372,11 +356,10 @@ CMSMS theme functions
         },
         /**
          * @description Placeholder function for functions that need to be triggered on window resize
-         * @memberof NS.view
          * @function updateDisplay()
          */
         updateDisplay: function() {
-            var $menu = $('#oe_menu');
+            var $menu = $('#pg_menu');
             var $alert_box = $('#admin-alerts');
             var $header = $('header.header');
             var offset = $header.outerHeight() + $header.offset().top;
@@ -392,7 +375,7 @@ CMSMS theme functions
                 if($menu.offset().top < $(window).scrollTop()) {
                     //if the top of the menu is not visible, scroll to it.
                     $('html, body').animate({
-                        scrollTop: $("#oe_menu").offset().top
+                        scrollTop: $("#pg_menu").offset().top
                     }, 1000);
                 }
             }
@@ -407,7 +390,7 @@ CMSMS theme functions
         _showSidebar: function(obj, target) {
             obj.addClass('sidebar-on').removeClass('sidebar-off');
             target.find('li.current ul').show();
-            NS.helper.setStorageValue('sidebar-pref', 'sidebar-on', 60);
+            this.setStorageValue('sidebar-pref', 'sidebar-on', 60);
         },
         /**
          * @description Handles setting for Sidebar and sets closed state
@@ -419,15 +402,23 @@ CMSMS theme functions
         _closeSidebar: function(obj, target) {
             obj.removeClass('sidebar-on').addClass('sidebar-off');
             target.find('li ul').hide();
-            NS.helper.setStorageValue('sidebar-pref', 'sidebar-off', 60);
+            this.setStorageValue('sidebar-pref', 'sidebar-off', 60);
         },
+        /**
+         * @description
+         * @private
+         * @function _handleAlert(target)
+         * @requires global cms_data{}
+         * @params {object} target
+         * @deprecated since 2.3 use showNotifications()
+         */
         _handleAlert: function(target) {
             var _row = $(target).closest('.alert-box');
             var _alert_name = _row.data('alert-name');
             if(!_alert_name) return;
             return $.ajax({
                 method: 'POST',
-                url: cms_data.ajax_alerts_url, //TODO what is cms_data ?
+                url: cms_data.ajax_alerts_url,
                 data: {
                     op: 'delete',
                     alert: _alert_name
@@ -449,6 +440,7 @@ CMSMS theme functions
          * @description Handles popping up the notification area
          * @private
          * @function setupAlerts()
+         * @deprecated since 2.3 use showNotifications()
          */
         setupAlerts: function() {
             var _this = this;
@@ -458,12 +450,12 @@ CMSMS theme functions
             });
             $('.alert-msg a').click(function(e) {
                 e.preventDefault();
-                NS.view.handleAlert(e.target);
+                _this.handleAlert(e.target);
             });
             $('.alert-icon,.alert-remove').click(function(e) {
                 e.preventDefault();
                 _this._handleAlert(e.target);
             });
-        },
+        }
     };
 })(this, jQuery);
