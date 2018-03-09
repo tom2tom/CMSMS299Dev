@@ -42,6 +42,9 @@ $smarty->assign('allow_summary_wysiwyg',$this->GetPreference('allow_summary_wysi
 $smarty->assign('title_expiry_interval',$this->Lang('expiry_interval'));
 $smarty->assign('expiry_interval',$this->GetPreference('expiry_interval',180));
 
+$smarty->assign('title_allow_fesubmit', $this->Lang('allow_fesubmit'));
+$smarty->assign('allow_fesubmit',$this->GetPreference('allow_fesubmit',0));
+
 $smarty->assign('title_expired_searchable',$this->Lang('expired_searchable'));
 $smarty->assign('expired_searchable',$this->GetPreference('expired_searchable'));
 
@@ -49,11 +52,11 @@ $smarty->assign('title_expired_viewable',$this->Lang('expired_viewable'));
 $smarty->assign('expired_viewable',$this->GetPreference('expired_viewable',1));
 $smarty->assign('info_expired_viewable',$this->Lang('info_expired_viewable'));
 
-$smarty->assign('title_fesubmit_status',$this->Lang('fesubmit_status'));
 $statusdropdown = array();
 $statusdropdown[$this->Lang('draft')] = 'draft';
 $statusdropdown[$this->Lang('published')] = 'published';
 $smarty->assign('statuses',array_flip($statusdropdown));
+$smarty->assign('title_fesubmit_status',$this->Lang('fesubmit_status'));
 $smarty->assign('fesubmit_status',$this->GetPreference('fesubmit_status'));
 $smarty->assign('input_fesubmit_status',
 		$this->CreateInputDropdown($id,'fesubmit_status',$statusdropdown,-1,$this->GetPreference('fesubmit_status','draft')));
@@ -72,7 +75,6 @@ $smarty->assign('title_submission_settings',$this->Lang('title_submission_settin
 $smarty->assign('title_fesubmit_settings',$this->Lang('title_fesubmit_settings'));
 $smarty->assign('title_notification_settings',$this->Lang('title_notification_settings'));
 $smarty->assign('title_detail_settings',$this->Lang('title_detail_settings'));
-$smarty->assign('allow_fesubmit',$this->GetPreference('allow_fesubmit',0));
 $smarty->assign('alert_drafts',$this->GetPreference('alert_drafts',1));
 
 // Display the populated template
