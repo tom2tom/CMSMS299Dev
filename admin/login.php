@@ -1,5 +1,5 @@
 <?php
-#code for CMSMS
+#CMSMS admin-login processing
 #Copyright (C) 2004-2016 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>#
@@ -15,15 +15,14 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 $CMS_LOGIN_PAGE=1;
 
-require_once '..'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
+
 $gCms = CmsApp::get_instance();
-$db = $gCms->GetDb();
+//$db = $gCms->GetDb();
 $login_ops = CMSMS\internal\LoginOperations::get_instance();
 
 $error = '';
@@ -79,14 +78,12 @@ function find_recovery_user($hash)
     return null;
 }
 
-
-
 //Redirect to the normal login screen if we hit cancel on the forgot pw one
 //Otherwise, see if we have a forgotpw hit
 if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform'])) && isset($_REQUEST['logincancel'])) {
     redirect('login.php');
 }
-else if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
+elseif (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     $userops = $gCms->GetUserOperations();
     $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_SRING);
     unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
@@ -111,41 +108,39 @@ else if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'
         $error = lang('usernotfound');
     }
 }
-else if (isset($_REQUEST['recoverme']) && $_REQUEST['recoverme']) {
+elseif (!empty($_REQUEST['recoverme'])) {
     $user = find_recovery_user($_REQUEST['recoverme']);
     if ($user == null) {
         $error = lang('usernotfound');
     }
     else {
-        $changepwhash = $_REQUEST['recoverme'];
+        $changepwhash = true;
     }
 }
-else if (isset($_REQUEST['forgotpwchangeform']) && $_REQUEST['forgotpwchangeform']) {
+elseif (!empty($_REQUEST['forgotpwchangeform'])) {
     $user = find_recovery_user($_REQUEST['changepwhash']);
     if ($user == null) {
         $error = lang('usernotfound');
     }
-    else {
-        if ($_REQUEST['password'] != '') {
-            if ($_REQUEST['password'] == $_REQUEST['passwordagain']) {
-                $user->SetPassword($_REQUEST['password']);
-                $user->Save();
-                // put mention into the admin log
-                $ip_passw_recovery = cms_utils::get_real_ip();
-                audit('','Core','Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
-                CMSMS\HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ] );
-                $acceptLogin = lang('passwordchangedlogin');
-                $changepwhash = '';
-            }
-            else {
-                $error = lang('nopasswordmatch');
-                $changepwhash = $_REQUEST['changepwhash'];
-            }
+    elseif ($_REQUEST['password'] != '') {
+        if ($_REQUEST['password'] == $_REQUEST['passwordagain']) {
+            $user->SetPassword($_REQUEST['password']);
+            $user->Save();
+            // put mention into the admin log
+            $ip_passw_recovery = cms_utils::get_real_ip();
+            audit('','Core','Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
+            CMSMS\HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ] );
+            $acceptLogin = lang('passwordchangedlogin');
+            $changepwhash = '';
         }
         else {
-            $error = lang('nofieldgiven', lang('password'));
+            $error = lang('nopasswordmatch');
             $changepwhash = $_REQUEST['changepwhash'];
         }
+    }
+    else {
+        $error = lang('nofieldgiven', lang('password'));
+        $changepwhash = $_REQUEST['changepwhash'];
     }
 }
 
@@ -236,18 +231,42 @@ elseif( isset($_POST['loginsubmit']) ) {
     }
 }
 
+$vars = [];
+
+$modname = cms_siteprefs::get('loginmodule');
+if ($modname) {
+    $modinst = ModuleOperations::get_instance()->get_module_instance($modname, '', true);
+    if ($modinst) {
+        $vars['processor'] = $modinst;
+    }
+}
+
+$lang = CmsNlsOperations::get_current_language();
+$info = CmsNlsOperations::get_language_info($lang);
+$dir = $info->direction();
+if( $dir == 'rtl' ) {
+    $vars['lang_dir'] = $dir;
+}
+
+$sitelogo = cms_siteprefs::get('sitelogo');
+if( $sitelogo ) {
+    if( !preg_match('~^\w*:?//~',$sitelogo) ) {
+        $vars['sitelogo'] = CMS_ROOT_URL.'/'.trim($sitelogo, ' /');
+    }
+}
+
+if( $error ) $vars['error'] = $error;
+if( isset($warningLogin) ) $vars['warningLogin'] = $warningLogin;
+if( isset($acceptLogin) ) $vars['acceptLogin'] = $acceptLogin;
+if( isset($changepwhash) ) $vars['changepwhash'] = $changepwhash;
+
 //
 // display the login form
 //
 
 // Language shizzle
 cms_admin_sendheaders();
-header("Content-Language: " . CmsNlsOperations::get_current_language());
+header('Content-Language: ' . $lang);
 
-$themeObject = cms_utils::get_theme_object();
-$vars = [];
-if( $error ) $vars['error'] = $error;
-if( isset($warningLogin) ) $vars['warningLogin'] = $warningLogin;
-if( isset($acceptLogin) ) $vars['acceptLogin'] = $acceptLogin;
-if( isset($changepwhash) ) $vars['changepwhash'] = $changepwhash;
-$themeObject->do_login($vars);
+cms_utils::get_theme_object()->do_login($vars);
+
