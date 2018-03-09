@@ -56,8 +56,8 @@ $(document).ready(function() {
   </div>
   <div class="c_full cf">
     <div class="grid_12">
-      <button type="submit" name="{$actionid}filter" class="adminsubmit icondo">{$mod->Lang('filter')}</button>
-      <button type="submit" name="{$actionid}reset" class="adminsubmit iconundo">{$mod->Lang('reset')}</button>
+      <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{$mod->Lang('filter')}</button>
+      <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
     </div>
   </div>
   {form_end}
@@ -68,7 +68,7 @@ $(document).ready(function() {
   <thead>
     <tr>
       <th>{$mod->Lang('severity')}</th>
-      <th>{$mod->Lang('date')}</th>
+      <th>{$mod->Lang('when')}</th>
       <th>{$mod->Lang('subject')}</th>
       <th>{$mod->Lang('msg')}</th>
       <th>{$mod->Lang('itemid')}</th>
