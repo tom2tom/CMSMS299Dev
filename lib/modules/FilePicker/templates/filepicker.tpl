@@ -137,8 +137,9 @@
 </body>
 {/strip}
 {cms_jquery exclude='ui_touch_punch,nestedSortable,json,migrate,cms_autorefresh,cms_dirtyform,cms_hiersel,cms_lock,cms_filepicker'}
-<script type="text/javascript" src="{$mod->GetModuleURLPath()}/js/ext/jquery.fileupload.js"></script>
-<script type="text/javascript" src="{$mod->GetModuleURLPath()}/lib/js/cmsms_filebrowser/filebrowser.js"></script>
+{$baseurl=$mod->GetModuleURLPath()}
+<script type="text/javascript" src="{$baseurl}/lib/js/jquery.fileupload.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.js"></script>
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
