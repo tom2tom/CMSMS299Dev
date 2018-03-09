@@ -12,13 +12,13 @@
     {'<br />'|implode:$selall}
   </p>
 </div>
+<br />
 <div class="pageoverflow">
-  <p class="pagetext"></p>
   <p class="pageinput">
     {if !isset($errors)}
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icondo">{$mod->Lang('delete')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('delete')}</button>
     {/if}
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$cancellabel}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$cancellabel}</button>
   </p>
 </div>
-{$endform}
+</form>

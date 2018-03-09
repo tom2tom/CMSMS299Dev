@@ -122,7 +122,7 @@ $(document).ready(function() {
       <br />
       <div id="pageoverflow">
         <p class="pageinput">
-          <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit iconcancel" style="display:none;">{$mod->Lang('cancel')}</button>
+          <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" style="display:none;">{$mod->Lang('cancel')}</button>
         </p>
       </div>
     </div>

@@ -31,7 +31,7 @@ $(document).ready(function(){
     </p>
     <p class="pageinput">
       <input type="text" name="{$actionid}url" id="mr_url" size="50" maxlength="255" value="{$module_repository}" />
-      <button type="submit" name="{$actionid}reset" id="reseturl" class="adminsubmit iconundo">{$mod->Lang('reset')}</button>
+      <button type="submit" name="{$actionid}reset" id="reseturl" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
     </p>
   </div>
 {/if}
@@ -84,7 +84,7 @@ $(document).ready(function(){
 {/if}
   <div class="bottomsubmits">
     <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" id="settings_submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}submit" id="settings_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
     </p>
   </div>
 </form>

@@ -4,13 +4,12 @@
   <input type="hidden" name="{$actionid}profile" value="{$profile}"/>
   <input type="hidden" name="{$actionid}origname" value="{$data.name}"/>
 
-  {if $data.system}<div class="information">{$tmp='profiledesc_'|cat:$data.name}{$mod->Lang($tmp)}</div>{/if}
-
+  {if $data.system}<div class="pageinfo">{$tmp='profiledesc_'|cat:$data.name}{$mod->Lang($tmp)}</div>{/if}
+  <br />
   <div class="pageoverflow">
-    <p class="pagetext"></p>
     <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
     </p>
   </div>
 
@@ -113,12 +112,11 @@
       <input type="checkbox" name="{$actionid}profile_allowcssoverride" id="profile_allowcssoverride" value="1"{if $data.allowcssoverride} checked="checked"{/if} />
     </p>
   </div>
-
+  <br />
   <div class="pageoverflow">
-    <p class="pagetext"></p>
     <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
     </p>
   </div>
-{form_end}
+</form>

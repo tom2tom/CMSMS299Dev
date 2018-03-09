@@ -12,8 +12,8 @@
 </div>
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconundo">{$mod->Lang('uninstall')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon undo">{$mod->Lang('uninstall')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {form_end}

@@ -13,7 +13,7 @@
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="destdir">{$mod->Lang('copy_destdir')}:</label>
+    <label for="destdir">{$mod->Lang('copy_destdir')}:</label>
   </p>
   <p class="pageinput">
     <select id="destdir" name="{$actionid}destdir">
@@ -24,18 +24,18 @@
 {if count($selall) == 1}
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="destname">{$mod->Lang('copy_destname')}:</label>
+    <label for="destname">{$mod->Lang('copy_destname')}:</label>
   </p>
   <p class="pageinput">
     <input type="text" id="destname" name="{$actionid}destname" size="50" maxlength="255" />
   </p>
 </div>
 {/if}
+<br />
 <div class="pageoverflow">
-  <p class="pagetext"></p>
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icondo">{$mod->Lang('copy')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('copy')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{$endform}
+</form>

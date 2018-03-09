@@ -1,7 +1,7 @@
 {$startform}
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}optionssubmitbutton" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}optionssubmitbutton" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </p>
 </div>
 
@@ -102,7 +102,7 @@
 
   <fieldset>
   <legend>{$title_notification_settings}:</legend>
-    <div class="information">{$mod->Lang('info_fesubmit_notification')}</div>
+    <div class="pageinfo">{$mod->Lang('info_fesubmit_notification')}</div> TODO
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="fld6">{$title_formsubmit_emailaddress}:</label>

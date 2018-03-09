@@ -37,7 +37,7 @@ $(document).ready(function() {
 </div>
 <div class="bottomsubmits">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconsearch">{$mod->Lang('search')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon search">{$mod->Lang('search')}</button>
   </p>
 </div>
 </fieldset>

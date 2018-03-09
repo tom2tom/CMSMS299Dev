@@ -206,7 +206,7 @@ if (count($data)) {
 $searchstart = $this->CreateFormStart($id, 'searchmod', $returnid);
 $searchend = $this->CreateFormEnd();
 $searchfield = $this->CreateInputText($id, 'search_input', "Doesn't Work", 30, 100); //TODO lang
-$searchsubmit =  '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit iconsearch">'.$this->Lang('search').'</button>';
+$searchsubmit =  '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon search">'.$this->Lang('search').'</button>';
 $smarty->assign('search', $searchstart.$searchfield.$searchsubmit.$searchend);
 
 // and display our page

@@ -49,7 +49,7 @@ $(document).ready(function() {
 {/strip}{/function}
 
 <h3>{$mod->Lang('reorder_categories')}</h3>
-<div class="information">{$mod->Lang('info_reorder_categories')}</div>
+<div class="pageinfo">{$mod->Lang('info_reorder_categories')}</div>
 {category_tree}
 <br />
 {form_start id="reorder_form"}
@@ -57,8 +57,8 @@ $(document).ready(function() {
 <input type="hidden" name="{$actionid}data" id="submit_data" value=""/>
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{form_end}
+</form>

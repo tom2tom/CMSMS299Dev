@@ -6,7 +6,7 @@ if (!$this->CheckPermission('Modify Files')) exit;
 $smarty->assign('formstart',$this->CreateFormStart($id, 'upload', $returnid,"post","multipart/form-data"));
 $smarty->assign('actionid',$id);
 $smarty->assign('maxfilesize',$config["max_upload_size"]);
-$smarty->assign('submit', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit iconcheck">'.$this->Lang('submit').'</button>');
+$smarty->assign('submit', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$this->Lang('submit').'</button>');
 $smarty->assign('formend',$this->CreateFormEnd());
 
 $post_max_size = filemanager_utils::str_to_bytes(ini_get('post_max_size'));

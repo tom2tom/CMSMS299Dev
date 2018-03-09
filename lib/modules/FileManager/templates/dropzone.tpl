@@ -61,7 +61,7 @@ $(document).ready(function() {
           <select class="cms_dropdown" id="fm_newdir" name="m1_newdir">
             {html_options options=$dirlist selected="/`$cwd`"}
           </select>
-          <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+          <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
         </fieldset>
       </form>
     </div>

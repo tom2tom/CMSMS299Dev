@@ -42,11 +42,11 @@ $(document).ready(function() {
 <h3>{$mod->Lang('rotateimage')}</h3>
 
 {$startform}
-<div class="information">{$mod->Lang('info_rotate')}</div>
+<div class="pageinfo">{$mod->Lang('info_rotate')}</div>
 <div class="pageoverflow">
   <p class="pagetext">{$mod->Lang('image')}: {$filename}</p>
   <p class="pageinput">
-    <img id="rotimg" src="{$image}" width="{$width}" height="{$height}"/>
+    <img id="rotimg" src="{$image}" width="{$width}" height="{$height}" />
   </p>
 </div>
 <div class="pageoverflow">
@@ -92,8 +92,8 @@ $(document).ready(function() {
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}save" class="adminsubmit icondo">{$mod->Lang('save')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}save" class="adminsubmit icon do">{$mod->Lang('save')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 {$endform}
