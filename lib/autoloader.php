@@ -118,22 +118,10 @@ function cms_autoloader(string $classname)
 			if (!class_exists($space, false)) { //CHECKME nested autoload ok here?
 				return;
 			}
-			//multiple module-places in 2.3+
-			$sroot = false;
-			$bp = dirname(__DIR__).DIRECTORY_SEPARATOR; //or CMS_ROOT_PATH...
-			$fn = DIRECTORY_SEPARATOR.$space.DIRECTORY_SEPARATOR.$space.'.module.php';
-
-			foreach ([
-				'lib'.DIRECTORY_SEPARATOR.'modules',
-				'assets'.DIRECTORY_SEPARATOR.'modules',
-				'modules', //deprecated place
-			] as $path) {
-				if (is_file($bp.$path.$fn)) {
-					$sroot = $bp.$path.DIRECTORY_SEPARATOR.$space.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
-					break;
-				}
-			}
-			if (!$sroot) {
+			$path = cms_module_path($space);
+			if ($path) {
+				$sroot = dirname($path).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
+			} else {
 				return;
 			}
 		}
