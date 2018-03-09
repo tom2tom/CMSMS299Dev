@@ -213,7 +213,7 @@ final class FileManager extends CMSModule
             $out .= sprintf($fmt,$urlpath,$one)."\n";
         }
 
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s"/>';
+        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
         $cssfiles = array('jrac/style.jrac.css');
         foreach( $cssfiles as $one ) {
             $out .= sprintf($fmt,$urlpath,$one);
