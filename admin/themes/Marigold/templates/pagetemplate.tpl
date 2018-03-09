@@ -2,47 +2,48 @@
 <html lang="{$lang|truncate:'2':''}" dir="{$lang_dir}">
 
 <head>
-  {$thetitle=$pagetitle} {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if} {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   <meta charset="utf-8" />
-  <title>{$thetitle}{sitename}</title>
+  <title>{strip}
+  {$thetitle=$pagetitle}
+  {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
+  {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
+  {if $thetitle}{$thetitle}{/if}{sitename}
+  {/strip}</title>
   <base href="{$config.admin_url}/" />
   <meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 Ted Kulp. All rights reserved." />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="origin" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-  <meta name="HandheldFriendly" content="True" />
-  <link rel="shortcut icon" href="{$config.admin_url}/themes/Marigold/images/favicon/cmsms-favicon.ico" />
-  <link rel='apple-touch-icon' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-iphone.png' />
-  <link rel='apple-touch-icon' sizes='72x72' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-ipad.png' />
-  <link rel='apple-touch-icon' sizes='114x114' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-iphone4.png' />
-  <link rel='apple-touch-icon' sizes='144x144' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-ipad3.png' />
-  <meta name='msapplication-TileImage' content='{$config.admin_url}/themes/Marigold/images/favicon/ms-application-icon.png' />
-  <meta name='msapplication-TileColor' content='#f89938'>
-  <!-- learn IE html5 -->
-  <!--[if lt IE 9]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-  <![endif]-->
-  <!-- custom jQueryUI Theme 1.10.04 see link in UI Stylesheet for color reference //-->
-  <link rel="stylesheet" href="style.php?{$secureparam}" /> {cms_jquery append="`$config.admin_url`/themes/Marigold/includes/standard.js" include_css=0}
-  <link href="{$config.admin_url}/themes/Marigold/css/font-awesome.min.css" rel="stylesheet" />
-  <link href="{$config.admin_url}/themes/Marigold/css/default-cmsms/jquery-ui-1.10.4.custom.min.css" rel="stylesheet" />
-  <!-- THIS IS WHERE HEADER STUFF SHOULD GO -->
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
+  <meta name="HandheldFriendly" content="true" />
+  {header_includes}
   {$headertext|default:''}
 </head>
 
-<body lang="{$lang|truncate:'2':''}" id="{$pagetitle|md5}" class="oe_{$pagealias}">
+<body lang="{$lang|truncate:'2':''}" id="{$pagetitle|md5}" class="pg_{$pagealias}">
   <!-- start container -->
-  <div id="oe_container" class="sidebar-on">
+  <div id="pg_container" class="sidebar-on">
     <!-- start header -->
     <header role="banner" class="cf header">
       <!-- start header-top -->
       <div class="header-top cf">
+       {if isset($sitelogo)}
+        <div class="admin-title">
+          <img src="{$sitelogo}" alt="{sitename}" />
+        </div>
+        <div class="admin-title">
+          {lang('adminpaneltitle')}
+        </div>
+       {else}
+        <div class="admin-title">
+         {sitename} - {lang('adminpaneltitle')}
+        </div>
+        {/if}
         <!-- logo -->
         <div class="cms-logo">
-          <a href="http://www.cmsmadesimple.org" rel="external"><img src="{$config.admin_url}/themes/Marigold/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" /></a>
+          <a href="http://www.cmsmadesimple.org" rel="external"><img src="{$config.admin_url}/themes/Marigold/images/cmsms_logotext.png" width="185" height="36" alt="CMS Made Simple" title="CMS Made Simple" /></a>
         </div>
+        <div class="cms-text">{lang('power_by')}</div>
         <!-- title -->
-        <span class="admin-title"> {lang('adminpaneltitle')} - {sitename}</span>
       </div>
       <div class='clear'></div>
       <!-- end header-top //-->
@@ -51,8 +52,11 @@
         <!-- welcome -->
         <div class="welcome">
           {if isset($myaccount)}
-          <span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{lang('myaccount')}"><i class="fa fa-user"></i></a> {lang('welcome_user')}: <a href="myaccount.php?{$secureparam}">{$user->username}</a></span> {else}
-          <span><a class="welcome-user"><i class="fa fa-user"></i></a> {lang('welcome_user')}: {$user->username}</span> {/if}
+          <span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{lang('myaccount')}"><i class="fa fa-user"></i></a>
+              <a href="myaccount.php?{$secureparam}">{lang('signed_in',{$user->username})}</a></span>
+          {else}
+          <span><a class="welcome-user"><i class="fa fa-user"></i></a> {lang('signed_in',{$user->username})}</span>
+          {/if}
         </div>
         <!-- bookmarks -->
         {include file='shortcuts.tpl'}
@@ -61,24 +65,24 @@
     </header>
     <!-- end header //-->
     <!-- start content -->
-    <div id="oe_admin-content">
+    <div id="pg_content">
       <div class="shadow">
         &nbsp;
       </div>
       <!-- start sidebar -->
-      <div id="oe_sidebar">
+      <div id="pg_sidebar">
         <aside>
           <span title="{lang('open')}/{lang('close')}" class="toggle-button close"></span> {include file='navigation.tpl' nav=$theme->get_navigation_tree()}
         </aside>
       </div>
       <!-- end sidebar //-->
       <!-- start main -->
-      <div id="oe_mainarea" class="cf">
-        {strip} {include file='messages.tpl'}
+      <div id="pg_mainarea" class="cf">
+        {strip}
         <article role="main" class="content-inner">
           <header class="pageheader{if isset($is_ie)} drop-hidden{/if} cf">
-            {if isset($module_icon_url) or isset($pagetitle)}
-            <h1>{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if} {$pagetitle|default:''}
+            {if isset($module_icon_url) || isset($pagetitle)}
+            <h1>{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if}{$pagetitle|default:''}
             </h1>
             {/if} {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
           </header>
@@ -105,5 +109,6 @@
   </div>
   <!-- end container //-->
 </body>
-
+{bottom_includes}
+{$pagelast|default:''}
 </html>
