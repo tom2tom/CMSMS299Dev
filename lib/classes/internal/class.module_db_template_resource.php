@@ -85,9 +85,9 @@ class module_file_template_resource extends fixed_smarty_custom_resource
         $module_name = trim($params[0]);
         $filename = trim($params[1]);
         $module = \ModuleOperations::get_instance()->get_module_instance($module_name);
-        $files = [ CMS_ASSETS_PATH."/module_custom/$module_name/templates/$filename" ];
-        $files[] = $module->GetModulePath()."/templates/$filename";
-        $files[] = cms_join_path(CMS_ROOT_PATH,'modules',$module_name,'templates',$filename);
+		$files = [];
+        $files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'templates',$filename); //TODO only use of module_custom - what for?
+        $files[] = cms_join_path($module->GetModulePath(),'templates',$filename);
 
         foreach( $files as $one ) {
             if( is_file($one) ) {
