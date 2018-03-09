@@ -28,9 +28,7 @@ $(document).ready(function() {
   <h3>{si_lang a=systeminfo_copy_paste}</h3>
   <div class="pageoverflow">
     <div id="copy_paste_in_forum">
-
       <hr />
-
       <p><strong>{'cms_version'|replace:'_':' '|ucwords}</strong>: {$cms_version}</p>
       <p><strong>{'installed_modules'|replace:'_':' '|ucwords}</strong>:</p>
       <ul>
@@ -91,9 +89,7 @@ $(document).ready(function() {
         {/foreach}
       </ul>
       {/if}
-
       <hr />
-
     </div>
   </div>
 </div>
