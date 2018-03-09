@@ -8,6 +8,7 @@ $lang['friendlyname'] = 'Admin Log';
 $lang['f_sev'] = 'Min severity';
 $lang['f_subj'] = 'Subject contains';
 $lang['f_user'] = 'Username is';
+$lang['ip_addr'] = 'IP Address';
 $lang['itemid'] = 'Item ID';
 $lang['msg_cleared'] = 'Admin log cleared';
 $lang['msg'] = 'Message';
@@ -25,5 +26,7 @@ $lang['sev_warning'] = 'Warning';
 $lang['subject'] = 'Subject';
 $lang['tabhdr_log'] = 'Log Entries';
 $lang['tabhdr_prefs'] = 'Settings';
+$lang['username'] = 'Username';
+$lang['when'] = 'When';
 $lang['help'] = <<<EOS
 EOS;
