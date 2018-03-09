@@ -109,7 +109,7 @@ elseif (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername']
     }
 }
 elseif (!empty($_REQUEST['recoverme'])) {
-    $user = find_recovery_user($_REQUEST['recoverme']);
+    $user = find_recovery_user(cleanVariable($_REQUEST['recoverme']));
     if ($user == null) {
         $error = lang('usernotfound');
     }
