@@ -47,7 +47,7 @@ $tpl_ob->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, 
 $tpl_ob->assign('label', '<label for="'.$id.'searchinput">'.$this->Lang('search').'</label>');
 $tpl_ob->assign('searchprompt',$this->Lang('search'));
 //$tpl_ob->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, $hogan));
-//$tpl_ob->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit iconcheck">'.$submittext.'</button>');
+//$tpl_ob->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$submittext.'</button>');
 $tpl_ob->assign('submittext', $submittext);
 
 // only here for backwards compatibility.

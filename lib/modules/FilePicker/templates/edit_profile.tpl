@@ -7,8 +7,8 @@
 {form_start pid=$profile->id}
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" id="submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit iconcancel" formnovalidate>{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" id="submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
   </p>
 </div>
 <hr/>

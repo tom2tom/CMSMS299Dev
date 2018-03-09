@@ -106,7 +106,7 @@ class Search extends CMSModule
 <br/>
 <input type="checkbox" name="{$search_actionid}use_or" value="1"/>
 *}
-<button type="submit" name="submit" class="adminsubmit icondo search-button">{$submittext}</button>
+<button type="submit" name="submit" class="adminsubmit icon do search-button">{$submittext}</button>
 {if isset($hidden)}{$hidden}{/if}
 {$endform}';
     }

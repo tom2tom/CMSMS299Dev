@@ -5,9 +5,9 @@ $smarty->assign('formend',$this->CreateFormEnd());
 $smarty->assign('wordtext',$this->Lang('word'));
 $smarty->assign('counttext',$this->Lang('count'));
 $smarty->assign('exportcsv',
-        '<button type="submit" name="'.$id.'exportcsv" id="'.$id.'exportcsv" class="adminsubmit icondo">'.$this->Lang('export_to_csv').'</button>');
+        '<button type="submit" name="'.$id.'exportcsv" id="'.$id.'exportcsv" class="adminsubmit icon do">'.$this->Lang('export_to_csv').'</button>');
 $smarty->assign('clearwordcount',
-        '<button type="submit" name="'.$id.'clearwordcount" id="'.$id.'clearwordcount" class="adminsubmit iconundo" onclick="return confirm(\''.$this->Lang('confirm_clearstats').'\');">'.$this->Lang('clear').'</button>');
+        '<button type="submit" name="'.$id.'clearwordcount" id="'.$id.'clearwordcount" class="adminsubmit icon undo" onclick="return confirm(\''.$this->Lang('confirm_clearstats').'\');">'.$this->Lang('clear').'</button>');
 
 $results = [];
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_search_words ORDER BY count DESC';

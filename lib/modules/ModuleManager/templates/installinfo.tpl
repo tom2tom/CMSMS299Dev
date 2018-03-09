@@ -51,11 +51,11 @@
 <div class="bottomsubmits">
   <p class="pageinput">
     {if count($dependencies) > 1}
-      <button type="submit" name="{$actionid}submit" class="adminsubmit icondo">{$mod->Lang('install_procede')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('install_procede')}</button>
     {else}
-      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('install_submit')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('install_submit')}</button>
     {/if}
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 </form>

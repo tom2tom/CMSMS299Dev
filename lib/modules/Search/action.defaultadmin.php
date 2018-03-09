@@ -74,14 +74,14 @@ echo $this->EndTab();
 echo $this->StartTab('options', $params);
 $smarty->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
                                                    array('active_tab'=>'options')));
-$smarty->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icondo">'.$this->Lang('reindexallcontent').'</button>');
+$smarty->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>');
 $smarty->assign('prompt_stopwords',$this->Lang('stopwords'));
 $smarty->assign('input_stopwords',
                 $this->CreateTextArea(false, $id, str_replace(array("\r", "\n"), '',
                                       $this->GetPreference('stopwords', $this->DefaultStopWords())),
                                       'stopwords', '', '', '', '', '50', '6'));
 $smarty->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'));
-$smarty->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit iconundo">'.$this->Lang('input_resetstopwords').'</button>');
+$smarty->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>');
 
 $smarty->assign('prompt_stemming',$this->Lang('usestemming'));
 $smarty->assign('input_stemming',
@@ -110,7 +110,7 @@ $smarty->assign('input_resultpage',
                 $contentops->CreateHierarchyDropdown('',$this->GetPreference('resultpage',-1),$id.'resultpage',1));
 */
 
-$smarty->assign('submit', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit iconcheck">'.$this->Lang('submit').'</button>');
+$smarty->assign('submit', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$this->Lang('submit').'</button>');
 $smarty->assign('formend',$this->CreateFormEnd());
 echo $this->ProcessTemplate('options_tab.tpl');
 echo $this->EndTab();
