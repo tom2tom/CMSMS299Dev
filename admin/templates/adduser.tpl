@@ -1,8 +1,6 @@
 <div class="pagecontainer">
-  {$maintitle}
-
   <form action="{$selfurl}{$urlext}" method="post">
-  {tab_header name='user' label=lang('profile')}
+  {tab_header name='user' label=lang('myaccount')}
   {if isset($groups)}
     {tab_header name='groups' label=lang('groups')}
   {/if}
@@ -12,8 +10,8 @@
   <!-- user -->
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="username">*{lang('name')}:</label>
-      {cms_help realm='admin' key2='info_adduser_username' title=lang('name')}
+      <label for="username">*{lang('username')}:</label>
+      {cms_help realm='admin' key2='info_adduser_username' title=lang('username')}
     </p>
     <p class="pageinput">
       <input id="username" type="text" name="user" maxlength="255" value="{$user}" class="standard"/>
@@ -95,11 +93,13 @@
           <tbody>
             {foreach $groups as $onegroup}
             <tr>
+              {strip}
               <td>
               <input type="checkbox" name="sel_groups[]" id="g{$onegroup->id}" value="{$onegroup->id}"{if in_array($onegroup->id,$sel_groups)} checked="checked"{/if} /></td>
               <td>
-      <label for="g{$onegroup->id}">{$onegroup->name}</label></td>
+              <label for="g{$onegroup->id}">{$onegroup->name}</label></td>
               <td>{$onegroup->description}</td>
+{/strip}
             </tr>
             {/foreach}
           </tbody>
@@ -123,10 +123,11 @@
     </p>
   </div>
   {tab_end}
-
-  <div class="pageoverflow">
-    <button type="submit" name="submit" id="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
-    <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+  <div class="bottomsubmits">
+    <p class="pageinput">
+     <button type="submit" name="submit" id="submit" class="adminsubmit icon check">{lang('submit')}</button>
+     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+    </p>
   </div>
-  {form_end}
+  </form>
 </div>
