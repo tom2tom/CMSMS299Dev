@@ -29,8 +29,8 @@
     </div>
     <div class="bottomsubmits">
       <p class="pageinput ">
-        <button type="submit " name="addgroup" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit " name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit " name="addgroup" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit " name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
 

@@ -22,7 +22,7 @@ $('#tpl_selall').cmsms_checkall();
     <select id="tpl_page" name="{$actionid}tpl_page">
       {cms_pageoptions numpages=$tpl_nav.numpages curpage=$tpl_nav.curpage}
     </select>&nbsp;
-    <button type="submit" name="{$actionid}go" class="adminsubmit icongo">{$mod->Lang('go')}</button>
+    <button type="submit" name="{$actionid}go" class="adminsubmit icon go">{$mod->Lang('go')}</button>
   </div>
   {/if}
 </div>
@@ -152,7 +152,7 @@ $('#tpl_selall').cmsms_checkall();
           <option value="export">{$mod->Lang('export')}</option>
           <option value="import">{$mod->Lang('import')}</option>
         </select>
-      <button type="submit" name="{$actionid}submit_bulk" id="tpl_bulk_submit" class="tpl_bulk_action adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}submit_bulk" id="tpl_bulk_submit" class="tpl_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
       {cms_help realm=$_module key2='help_bulk_templates' title=$mod->Lang('prompt_delete')}
     </p>
   </div>

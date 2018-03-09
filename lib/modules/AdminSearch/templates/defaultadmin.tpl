@@ -39,7 +39,7 @@
 
 <table class="pagetable">
 <tr valign="top">
-<td width="50%">
+<td style="width:50%;">
 <div class="pageoverflow">
   <p class="pagetext">
     <label for="searchtext">{$mod->Lang('search_text')}:</label>
@@ -51,11 +51,11 @@
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" id="searchbtn" class="adminsubmit icondo">{$mod->Lang('search')}</button>
+    <button type="submit" name="{$actionid}submit" id="searchbtn" class="adminsubmit icon do">{$mod->Lang('search')}</button>
   </p>
 </div>
 </td>
-<td width="50%">
+<td style="width:50%;">
 <div class="pageoverflow" id="filter_box">
   <p class="pagetext">{$mod->Lang('filter')}:</p>
   <p class="pageinput">

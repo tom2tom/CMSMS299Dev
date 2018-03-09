@@ -1,5 +1,4 @@
 <div class="pagecontainer">
-  {$maintitle}
   <h4>{lang('filterbymodule')}:</h4>
   <form action="{$selfurl}{$urlext}" method="post">
     <select name="modulefilter">
@@ -8,8 +7,11 @@
       <option value="{$one}"{if $one == $modulefilter} selected="selected"{/if}>{$one}</option>
      {/foreach}
     </select>
-    <br />
-    <button type="submit" name="submit" class="adminsubmit icondo">{lang('submit')}</button>
+    <div class="bottomsubmits">
+      <p class="pageinput">
+       <button type="submit" name="submit" class="adminsubmit icon do">{lang('submit')}</button>
+      </p>
+    </div>
   </form>
 
   <table class="pagetable">
@@ -18,7 +20,7 @@
         <th title="{lang('title_event_originator')}">{lang('originator')}</th>
         <th title="{lang('title_event_name')}">{lang('event')}</th>
         <th title="{lang('title_event_handlers')}">{lang('eventhandler')}</th>
-        <th title="{lang('title_event_description')}" width="50%">{lang('description')}</th>
+        <th title="{lang('title_event_description')}" style="width:50%;">{lang('description')}</th>
         <th class="pageicon">&nbsp;</th>
         {if $access}
         <th class="pageicon">&nbsp;</th>

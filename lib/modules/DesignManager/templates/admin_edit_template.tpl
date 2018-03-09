@@ -98,10 +98,10 @@ $(document).ready(function() {
   <div class="grid_6">
     <div class="pageoverflow">
       <p class="pageinput">
-        <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit iconcheck" {$disable|strip}>{$mod->Lang('submit')}</button>
-        <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+        <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
+        <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
         {if $template->get_id()}
-        <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit iconapply" {$disable|strip}>{$mod->Lang('apply')}</button>
+        <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
        {/if}
       </p>
     </div>
@@ -294,9 +294,9 @@ $(document).ready(function() {
       <p class="pagetext">{$mod->Lang('prompt_filetemplate')}:</p>
       <p class="pageinput">
       {if $template->has_content_file()}
-       <button type="submit" name="{$actionid}import" id="importbtn" class="adminsubmit icondo">{$mod->Lang('import')}</button>
+       <button type="submit" name="{$actionid}import" id="importbtn" class="adminsubmit icon do">{$mod->Lang('import')}</button>
       {elseif $template->get_id() > 0}
-       <button type="submit" name="{$actionid}export" id="exportbtn" class="adminsubmit icondo">{$mod->Lang('export')}</button>
+       <button type="submit" name="{$actionid}export" id="exportbtn" class="adminsubmit icon do">{$mod->Lang('export')}</button>
       {/if}
       </p>
      </div>

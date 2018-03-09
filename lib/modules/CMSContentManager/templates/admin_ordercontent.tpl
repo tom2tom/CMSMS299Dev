@@ -76,15 +76,13 @@ $(document).ready(function() {
 <h3>{$mod->Lang('prompt_ordercontent')}</h3>
 {form_start action='admin_ordercontent' id="theform"}
 <input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
-<div class="information">
-  {$mod->Lang('info_ordercontent')}
-</div>
+<div class="pageinfo">{$mod->Lang('info_ordercontent')}</div>
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
-    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit iconundo">{$mod->Lang('revert')}</button>
+    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
   </p>
 </div>
 <div class="pageoverflow">
@@ -96,9 +94,9 @@ $(document).ready(function() {
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
-    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit iconundo">{$mod->Lang('revert')}</button>
+    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
   </p>
 </div>
 {form_end}

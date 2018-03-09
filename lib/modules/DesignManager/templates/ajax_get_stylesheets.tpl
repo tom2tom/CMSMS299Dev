@@ -23,7 +23,7 @@
         <select id="css_page" name="{$actionid}css_page">
           {cms_pageoptions numpages=$css_nav.numpages curpage=$css_nav.curpage}
         </select>
-        &nbsp;<button type="submit" name="{$actionid}go" class="adminsubmit icongo">{$mod->Lang('go')}</button>
+        &nbsp;<button type="submit" name="{$actionid}go" class="adminsubmit icon go">{$mod->Lang('go')}</button>
       {form_end}
     </div>
   {/if}
@@ -132,7 +132,7 @@
         <option value="export">{$mod->Lang('export')}</option>
         <option value="import">{$mod->Lang('import')}</option>
       </select>
-      <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
           {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_delete')}
     </div>
   {/capture}

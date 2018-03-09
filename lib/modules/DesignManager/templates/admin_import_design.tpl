@@ -23,15 +23,13 @@ $(document).ready(function() {
     {admin_icon name='help_import_xml_file' icon='info.gif' class='helpicon'}
   </p>
 </div>
-
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}next1" class="adminsubmit icongo">{$mod->Lang('next')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}next1" class="adminsubmit icon go">{$mod->Lang('next')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{form_end}
+</form>
 
 <div style="display:none;">{strip}
   <div id="help_import_xml_file" title="{$mod->Lang('prompt_help')}">{$mod->Lang('help_import_xml_file')}</div>

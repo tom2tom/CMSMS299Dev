@@ -3,14 +3,12 @@
 {form_start}
 <fieldset>
   <div class="pagecontainer" style="width: 49%; float: left;">{* left container *}
-    <div class="pageoverflow">
-      <p class="pagetext"></p>
+    <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-        <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+        <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+        <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
       </p>
     </div>
-
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="originator">{$mod->Lang('prompt_originator')}:</label>
@@ -22,7 +20,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="name">{$mod->Lang('prompt_name')}:</label>
-    {cms_help realm=$_module key2='help_type_name' title=$mod->Lang('prompt_name')}
+      {cms_help realm=$_module key2='help_type_name' title=$mod->Lang('prompt_name')}
       </p>
       <p class="pageinput">{$type->get_name()}</p>
     </div>
@@ -30,7 +28,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="descname">{$mod->Lang('prompt_descriptive_name')}:</label>
-       {cms_help realm=$_module key2='help_type_descriptive_name' title=$mod->Lang('prompt_descriptive_name')}
+      {cms_help realm=$_module key2='help_type_descriptive_name' title=$mod->Lang('prompt_descriptive_name')}
       </p>
       <p class="pageinput">{$type->get_langified_display_value()}</p>
     </div>
@@ -42,7 +40,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="hasdflt">{$mod->Lang('prompt_has_dflt')}:</label>
-    {cms_help realm=$_module key2=help_has_dflt title=$mod->Lang('prompt_has_dflt')}
+      {cms_help realm=$_module key2=help_has_dflt title=$mod->Lang('prompt_has_dflt')}
       </p>
       <p class="pageinput">{if $type->get_dflt_flag()}{$mod->Lang('yes')}{else}{$mod->Lang('no')}{/if}</p>
     </div>
@@ -78,7 +76,6 @@
 {if $type->get_content_callback() != ''}
 {tab_header name='content' label=$mod->Lang('prompt_proto_template')}
 {/if}
-
 {tab_header name='description' label=$mod->Lang('prompt_description')}
 
 {if $type->get_content_callback() != ''}
@@ -93,7 +90,7 @@
   </p>
 
   <div class="pagecontainer">
-    <button type="submit" name="{$actionid}reset" class="adminsubmit iconundo" onclick="return confirm('{$mod->Lang('confirm_reset_type')|escape:'javascript'}');">{$mod->Lang('reset_factory')}</button>
+    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo" onclick="return confirm('{$mod->Lang('confirm_reset_type')|escape:'javascript'}');">{$mod->Lang('reset_factory')}</button>
   </div>
 </div>
 {/if}
@@ -109,4 +106,5 @@
 </div>
 {tab_end}
 
-{form_end}
+</form>
+

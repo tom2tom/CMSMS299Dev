@@ -1,7 +1,7 @@
 {form_start}
 <div class="topsubmits">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </p>
 </div>
 <fieldset>

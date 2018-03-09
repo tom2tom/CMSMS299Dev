@@ -37,7 +37,7 @@ $(document).ready(function() {
         {cms_help key2='help_myaccount_passwordagain' title=lang('passwordagain')}
       </p>
       <p class="pageinput">
-          <input type="password" name="passwordagain" id="passwordagain" maxlength="100" value="" class="standard" />
+        <input type="password" name="passwordagain" id="passwordagain" maxlength="100" value="" class="standard" />
       </p>
     </div>
 
@@ -70,12 +70,11 @@ $(document).ready(function() {
         <input type="text" name="email" id="email" size="40" maxlength="255" value="{$userobj->email}" class="standard" />
       </p>
     </div>
-    <br />
-    <div class="pageoverflow">
-      <div class="pageinput">
-        <button type="submit" name="submit_account" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
-      </div>
+    <div class="bottomsubmits">
+      <p class="pageinput">
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+      </p>
     </div>
   </form>
 </div>

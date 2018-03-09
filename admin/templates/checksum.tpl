@@ -15,7 +15,7 @@
     </div>
     <div class="bottomsubmits">
       <p class="pageinput">
-       <button type="submit" name="upload" class="adminsubmit icondo">{lang('validate')}</button>
+       <button type="submit" name="upload" class="adminsubmit icon do">{lang('validate')}</button>
       </p>
     </div>
   </fieldset>
@@ -33,7 +33,7 @@
     </div>
     <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="download" class="adminsubmit icondo">{lang('create')}</button>
+        <button type="submit" name="download" class="adminsubmit icon add">{lang('create')}</button>
       </p>
     </div>
   </fieldset>

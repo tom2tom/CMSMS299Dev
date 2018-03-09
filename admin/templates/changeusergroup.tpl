@@ -1,7 +1,4 @@
-<div class="pagecontainer">';
-
-  <h3 class="pagesubtitle">{$pagesubtitle}</h3>
-
+<div class="pagecontainer">
   <div class="pageinfo">
     {lang('info_changeusergroup')}
     {cms_help key2='help_group_permissions' title=lang('info_changeusergroup')}
@@ -23,14 +20,14 @@
         {/if}
       {/foreach}
       </select>&nbsp;
-      <button type="submit" name="filter" class="adminsubmit iconapply">{lang('apply')}</button>
+      <button type="submit" name="filter" class="adminsubmit icon do">{lang('apply')}</button>
     </form>
   </div>
   <br />
   <form id="groupname" action="{$selfurl}{$urlext}" method="post">
   <div class="pageoptions">
-    <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
-    <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>'
+    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>'
   </div>
   {$group_count=count($group_list)}
   <table class="pagetable" id="permtable">
@@ -67,12 +64,13 @@
       {/foreach}
     </tbody>
   </table>
-
+{if count($users) > 10}
   <div class="bottomsubmits">
     <p class="pageinput">
-     <button type="submit" name="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
-     <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+     <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
     </p>
   </div>
+{/if}
   </form>
 </div>

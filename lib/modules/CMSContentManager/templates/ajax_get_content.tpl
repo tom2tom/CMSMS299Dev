@@ -29,7 +29,7 @@
         <select name="{$actionid}curpage" id="{$actionid}curpage">
           {html_options options=$pagelist selected=$curpage}
         </select>
-        <button name="{$actionid}submitpage" class="invisible adminsubmit iconcheck">{$mod->Lang('go')}</button>
+        <button name="{$actionid}submitpage" class="invisible adminsubmit icon check">{$mod->Lang('go')}</button>
       </span>
       {form_end}
     {/if}
@@ -40,7 +40,7 @@
 <div id="contentlist">{* everything from here down is part of the ajax stuff *}
  {* error container *}
  {if isset($error)}
- <div id="error_cont" class="red" style="color: red; width: 80%; margin-left: 2%; margin-right: 10%; text-align: center; vertical-align: middle;">{$error}</div>
+ <div id="error_cont" class="pageerror">{$error}</div>
  {/if}
  {if isset($content_list)}
   {function do_content_row}
@@ -111,7 +111,7 @@
           {$row.template}
         {/if}
       {elseif $row.viewable}
-        <span class="text-red" title="{$mod->Lang('error_template_notavailable')}">{$mod->Lang('critical_error')}</span>
+        <span class="text-red" title="{$mod->Lang('error_template_notavailable')}">{$mod->Lang('critical_error')}</span> //TODO pageerror
       {/if}
     {elseif $column == 'friendlyname'}
       {$row.friendlyname}
@@ -197,7 +197,7 @@
   </td>
   {/foreach}
   {/function}
-  {strip}<table id="contenttable" class="pagetable" width="100%">
+  {strip}<table id="contenttable" class="pagetable" style="width:100%;">
     <thead>
       <tr>
         {foreach $columns as $column => $flag}
@@ -244,7 +244,7 @@
     <select name="{$actionid}multiaction" id="multiaction">
       {html_options options=$bulk_options}
     </select>
-    <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </div>
   {/if}
   </div>

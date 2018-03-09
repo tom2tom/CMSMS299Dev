@@ -11,17 +11,13 @@ $(document).ready(function() {
 
 <div class="pagecontainer">
   <form action="{$selfurl}{$urlext}" method="post">
-     <div class="invisible">
-      <input type="hidden" name="edituserprefs" value="true" />
-      <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
-    </div>
-    <div class="pageoverflow">
+    <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
+    <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="submit_prefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
-    <br />
     <fieldset>
       <legend>{lang('lang_settings_legend')}:</legend>
       <div class="pageoverflow">
@@ -150,15 +146,10 @@ $(document).ready(function() {
         </p>
       </div>
 
-      <div class="invisible">
-        <input type="hidden" name="edituserprefs" value="true" />
-        <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
-      </div>
-      <br />
-      <div class="pageoverflow">
+      <div class="bottomsubmits">
         <p class="pageinput">
-          <button type="submit" name="submit_prefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-          <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+          <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+          <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
         </p>
       </div>
   </form>

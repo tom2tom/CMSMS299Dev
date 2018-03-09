@@ -209,12 +209,11 @@ $(document).ready(function() {
 {/if}
 
 {function submit_buttons}
-<p class="pagetext"></p>
 <p class="pageinput">
-  <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit iconcancel" formnovalidate>{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
   {if $content_id}
-    <button type="submit" name="{$actionid}apply" title="{$mod->Lang('title_editpage_apply')}" class="adminsubmit iconapply">{$mod->Lang('apply')}</button>
+    <button type="submit" name="{$actionid}apply" title="{$mod->Lang('title_editpage_apply')}" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
   {/if}
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
     <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt=lang('view_page')}</a>
@@ -251,11 +250,11 @@ $(document).ready(function() {
   {/foreach}
   {if $content_obj->HasPreview()}
     {tab_start name='_preview_'}
-      <div class="pagewarning">{$mod->Lang('info_preview_notice')}</div>
+      <div class="pagewarn">{$mod->Lang('info_preview_notice')}</div>
       <iframe name="_previewframe_" class="preview" id="previewframe"></iframe>
       <div id="previewerror" class="red" style="display: none; color: #000;">
         <fieldset>
-          <legend>LEGEND</legend>
+          <legend>REPORT</legend>
           <ul id="preview_errors"></ul>
         </fieldset>
       </div>

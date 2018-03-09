@@ -7,7 +7,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="css_name">*{$mod->Lang('prompt_name')}:</label>
-  </p>
+      </p>
       <p class="pageinput">
         <input id="css_name" type="text" readonly="readonly" size="50" maxlength="50" value="{$css->get_name()}"/>
       </p>
@@ -19,7 +19,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="css_created">{$mod->Lang('prompt_created')}:</label>
-  </p>
+      </p>
       <p class="pageinput">
         <input type="text" id="css_created" value="{$css->get_created()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
@@ -27,7 +27,7 @@
     <div class="pageoverflow">
       <p class="pagetext">
       <label for="css_modified">{$mod->Lang('prompt_modified')}:</label>
-  </p>
+      </p>
       <p class="pageinput">
         <input type="text" id="css_modified" value="{$css->get_modified()|date_format:'%x %X'}" readonly="readonly"/>
       </p>
@@ -35,20 +35,18 @@
     {/if}
   </div>{* column *}
 </fieldset>
-
+<br />
 <div class="pageoverflow">
-  <p class="pagetext"></p>
   <p class="pageinput">
     <input id="check1" type="checkbox" name="{$actionid}check1" value="1">&nbsp;<label for="check1">{$mod->Lang('confirm_delete_css_1')}</label>
-    <br/>
+    <br />
     <input id="check2" type="checkbox" name="{$actionid}check2" value="1">&nbsp;<label for="check2">{$mod->Lang('confirm_delete_css_2')}</label>
   </p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="bottomsubmits">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{form_end}
+</form>

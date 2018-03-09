@@ -6,32 +6,31 @@
 
 {form_start}
 {if $category->get_id() != ''}
-  <input type="hidden" name="{$actionid}cat" value="{$category->get_id()}"/>
+  <input type="hidden" name="{$actionid}cat" value="{$category->get_id()}" />
 {/if}
-<div class="pageoverflow">
-  <p class="pagetext"></p>
+<div class="topsubmits">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="cat_name">*{$mod->Lang('prompt_name')}:</label>
+    <label for="cat_name">*{$mod->Lang('prompt_name')}:</label>
     {cms_help realm=$_module key='help_category_name' title=$mod->Lang('prompt_name')}
-      </p>
+  </p>
   <p class="pageinput">
     <input type="text" id="cat_name" name="{$actionid}name" value="{$category->get_name()}" size="50" maxlength="50" placeholder="{$mod->Lang('create_category')}"/>
   </p>
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="cat_description">{$mod->Lang('prompt_description')}:</label>
+    <label for="cat_description">{$mod->Lang('prompt_description')}:</label>
     {cms_help realm=$_module key='help_category_desc' title=$mod->Lang('prompt_description')}
-      </p>
+  </p>
   <p class="pageinput">
     <textarea id="cat_description" name="{$actionid}description" rows="5" cols="80">{$category->get_description()}</textarea>
   </p>
 </div>
-{form_end}
+</form>
 {/strip}</div>

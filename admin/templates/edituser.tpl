@@ -173,8 +173,8 @@ $(document).ready(function() {
     {tab_end}
     <div class="bottomsubmits">
       <p class="pageinput">
-       <button type="submit" name="submit" id="submit" class="adminsubmit iconcheck">{lang('submit')}</button>
-       <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+       <button type="submit" name="submit" id="submit" class="adminsubmit icon check">{lang('submit')}</button>
+       <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
