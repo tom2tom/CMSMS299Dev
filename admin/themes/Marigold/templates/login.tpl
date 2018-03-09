@@ -3,18 +3,14 @@
 
 <head>
   <meta charset="{$encoding}" />
-  <title>{lang('logintitle')} - {sitename}</title>
+  <title>{lang('login_sitetitle', {sitename})}</title>
   <base href="{$config.admin_url}/" />
-  <meta name="generator" content="CMS Made Simple Copyright (C) 2004-2018. All rights reserved." />
+  <meta name="copyright" content="Ted Kulp, CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
   <meta name="HandheldFriendly" content="true" />
   <link rel="shortcut icon" href="{$config.admin_url}/themes/Marigold/images/favicon/cmsms-favicon.ico" />
   <link rel="stylesheet" type="text/css" href="{$config.admin_url}/themes/Marigold/css/style.css{if !empty($lang_dir)}-{$lang_dir}{/if}" />
-<!-- html5 for old IE -->
-<!--[if lt IE 9]>
-<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
 {$jsinc}
 </head>
 
@@ -82,7 +78,7 @@
         </p>{/if}
       </div>
       <div class="cmslogo">
-        <img src="{root_url}/admin/themes/Marigold/images/cmsms_logotext_small.png" height="30" width="154" alt="CMS Made Simple&trade;" />
+        <img src="{root_url}/admin/themes/Marigold/images/cmsms_logotext_small.png" height="30" width="154" alt="CMS Made Simple" />
       </div>
       <div class="cmstext">{lang('power_by')}</div>
     </div>
