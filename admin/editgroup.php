@@ -19,16 +19,15 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
 	redirect('listgroups.php'.$urlext);
 	return;
 }
 
-$error = '';
 $group = '';
 $description = '';
 $active = 1;
@@ -41,66 +40,64 @@ if (isset($_GET['group_id'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 
+include_once 'header.php';
+
+if (!$access) {
+//TODO some immediate popup	$themeObject->RecordMessage('error', lang('needpermissionto', '"Manage Groups"'));
+	return;
+}
+
+$groupobj = new Group;
+if( $group_id > 0 ) {
+	$groupobj = Group::load($group_id);
+}
+
+if (isset($_POST['editgroup'])) {
+	$group_id = (int)$_POST['group_id'];
+	$description = trim(cleanValue($_POST['description']));
+	if ($group_id != 1) {
+		$active = (!empty($_POST['active'])) ? 1 : 0;
+	}
+
+	$validinfo = true;
+	$group = trim(cleanValue($_POST['group']));
+	if ($group == '') {
+		$validinfo = false;
+		$themeObject->RecordMessage('error', lang('nofieldgiven', lang('groupname')));
+	}
+
+	if ($validinfo) {
+		$groupobj->name = $group;
+		$groupobj->description = $description;
+		$groupobj->active = $active;
+		\CMSMS\HookManager::do_hook('Core::EditGroupPre', [ 'group'=>&$groupobj ] );
+		if ($groupobj->save()) {
+			\CMSMS\HookManager::do_hook('Core::EditGroupPost', [ 'group'=>&$groupobj ] );
+			// put mention into the admin log
+			audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Edited');
+			redirect('listgroups.php'.$urlext);
+			return;
+		} else {
+			$themeObject->RecordMessage('error', lang('errorupdatinggroup'));
+		}
+	}
+} elseif ($group_id != -1) {
+	$group = $groupobj->name;
+	$description = $groupobj->description;
+	$active = $groupobj->active;
+}
+
+$selfurl = basename(__FILE__);
 $userops = cmsms()->GetUserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
-if ($access) {
-	$groupobj = new Group;
-	if( $group_id > 0 ) {
-		$groupobj = Group::load($group_id);
-	}
-
-	if (isset($_POST['editgroup'])) {
-		$group_id = (int)$_POST['group_id'];
-		$description = trim(cleanValue($_POST['description']));
-		if ($group_id != 1) {
-			$active = (int)$_POST['active'];
-		}
-
-		$validinfo = true;
-		$group = trim(cleanValue($_POST['group']));
-		if ($group == '') {
-			$validinfo = false;
-			$error .= '<li>'.lang('nofieldgiven', lang('groupname')).'</li>';
-		}
-
-		if ($validinfo) {
-			$groupobj->name = $group;
-			$groupobj->description = $description;
-			$groupobj->active = $active;
-			\CMSMS\HookManager::do_hook('Core::EditGroupPre', [ 'group'=>&$groupobj ] );
-			if ($groupobj->save()) {
-				\CMSMS\HookManager::do_hook('Core::EditGroupPost', [ 'group'=>&$groupobj ] );
-				// put mention into the admin log
-				audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Edited');
-				redirect('listgroups.php'.$urlext);
-				return;
-			} else {
-				$error .= '<li>'.lang('errorupdatinggroup').'</li>';
-			}
-		}
-	} elseif ($group_id != -1) {
-		$group = $groupobj->name;
-		$description = $groupobj->description;
-		$active = $groupobj->active;
-	}
-}
-
-include_once 'header.php';
-
-$maintitle = $themeObject->ShowHeader('editgroup');
-$selfurl = basename(__FILE__);
-
 $smarty->assign([
-//	'access' => $access,
 	'active' => $active,
 	'description' => $description,
-	'error' => $error,
 	'group' => $group,
 	'group_id' => $group_id,
-	'maintitle' => $maintitle,
-	'urlext' => $urlext,
 	'selfurl' => $selfurl,
+	'urlext' => $urlext,
 	'useringroup' => $useringroup,
 ]);
 

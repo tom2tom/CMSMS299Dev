@@ -19,10 +19,10 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
 	redirect('listevents.php'.$urlext);
 	return;
@@ -31,14 +31,19 @@ if (isset($_POST['cancel'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Events');
 
+include_once 'header.php';
+
+if (!$access) {
+//TODO some immediate popup	$themeObject->RecordMessage('error', lang('noaccessto', lang('editeventhandler')));
+    return;
+}
+
 $action = '';
 $module = '';
 $modulename = '';
 $event = '';
 $description = '';
 $handler = '';
-
-include_once 'header.php';
 
 if ($access) {
 	$icondown = $themeObject->DisplayImage('icons/system/arrow-d.gif', lang('down'),'','','systemicon');
@@ -146,7 +151,6 @@ if ($access) {
 	$icondel = null;
 }
 
-$maintitle = $themeObject->ShowHeader('editeventhandler');
 $selfurl = basename(__FILE__);
 
 $smarty->assign([
@@ -158,7 +162,6 @@ $smarty->assign([
 	'icondel' => $icondel,
 	'icondown' => $icondown,
 	'iconup' => $iconup,
-	'maintitle' => $maintitle,
 	'module' => $module, //internal name
 	'modulename' => $modulename, //public/friendly name
 	'urlext' => $urlext,

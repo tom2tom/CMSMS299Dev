@@ -1,15 +1,14 @@
 <h3>{if isset($articleid)}{$mod->Lang('editarticle')}{else}{$mod->Lang('addarticle')}{/if}</h3>
 {strip}
-<div id="editarticle_result"></div>
 <div id="edit_news">
   {$startform}
   {$hidden|default:''}
   <div class="pageoptions">
     <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
       {if isset($articleid)}
-      <button type="submit" name="{$actionid}apply" class="adminsubmit iconapply">{$mod->Lang('apply')}</button>
+      <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
       {/if}
     </p>
   </div>
@@ -190,9 +189,7 @@
   </div>
   {if isset($end_tab_article)} {$end_tab_article} {/if} {/strip}
   {if isset($start_tab_preview)} {$start_tab_preview} {strip}
-  <div class="pagewarning">
-    {$warning_preview} {* display a warning *}
-  </div>
+  <div class="pagewarn">{$warning_preview}</div>
   <fieldset>
     <label for="preview_template">{$prompt_detail_template}:</label>
     <select name="{$actionid}preview_template" id="preview_template">
@@ -208,10 +205,10 @@
 
   <div class="pageoverflow">
     <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">&nbsp;{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">&nbsp;{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
       {if isset($articleid)}&nbsp;
-      <button type="submit" name="{$actionid}apply" class="adminsubmit iconapply">{$mod->Lang('apply')}</button>
+      <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
       {/if}
     </p>
   </div>
@@ -248,9 +245,7 @@ function news_dopreview() {
         details = 'An unknown error occurred';
       }
       // preview save did not work
-      var htmlShow = '<div class="pageerrorcontainer"><ul class="pageerror">' +
-        details + '</ul></div>';
-      $('#editarticle_result').html(htmlShow);
+      cms_notify('error, details);
     }
   }, 'xml');
 }
@@ -290,18 +285,14 @@ $(document).ready(function() {
     data.push({ 'name': {/literal}'{$actionid}ajax'{literal}, 'value': 1 });
     data.push({ 'name': {/literal}'{$actionid}apply'{literal}, 'value': 1 });
     data.push({ 'name': 'showtemplate', 'value': 'false' }); //deprecated url param to curtail display
-    $.post(url, data, function(resultdata, textStatus, jqXHR) {
+    $.post(url, data, function(resultdata, textStatus, jqXHR) { //TODO robust API
       var resp = $(resultdata).find('Response').text(),
-        details = $(resultdata).find('Details').text(),
-        htmlShow;
+        details = $(resultdata).find('Details').text();
       if(resp === 'Success' && details !== '') {
-        $('[name$=cancel]').button('option', 'label', {/literal}'{$mod->Lang("close")}{literal}');
-        $('[name$=cancel]').val({/literal}'{$mod->Lang("close")}'{literal});
-        htmlShow = '<div class="pagemcontainer"><p class="pagemessage">' + details + '</p></div>';
+        cms_notify('info', details);
       } else {
-        htmlShow = '<div class="pageerrorcontainer"><ul class="pageerror">' + details + '</ul></div>';
+        cms_notify('error, details);
       }
-      $('#editarticle_result').html(htmlShow);
     }, 'xml');
   });
 
