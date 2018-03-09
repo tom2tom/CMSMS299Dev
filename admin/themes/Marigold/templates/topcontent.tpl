@@ -1,9 +1,8 @@
 {strip}
 <div id="topcontent_wrap">
  {foreach $nodes as $node}
-{* RUBBISH CONSTANT PATH $module="../modules/`$node.name`/images/icon" *}
 {if $node.show_in_menu && $node.url && $node.title}
-  <div class="dashboard-box{if $node@index % 3 == 2} last{/if}">
+  <div class="dashboard-box{if $node@index && $node@index % 3 == 0} last{/if}">
     <nav class="dashboard-inner cf">
       <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if $node.selected} class="selected"{/if} tabindex="-1"></a>
       <h3 class="dashboard-icon {$node.name}">
@@ -24,9 +23,11 @@
       {/if}
     </nav>
   </div>
-  {if $node@index % 3 == 2}
+{*
+  {if $node@index && $node@index % 3 == 0}
   <div class="clear"></div>
   {/if}
+*}
 {/if}
  {/foreach}
 </div>
