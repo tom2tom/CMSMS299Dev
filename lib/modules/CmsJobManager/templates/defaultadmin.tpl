@@ -9,11 +9,11 @@ $(document).ready(function() {
 {/literal}//]]>
 </script>
 
-<div class="information">{$mod->Lang('info_background_jobs')}</div>
+<div class="pageinfo">{$mod->Lang('info_background_jobs')}</div>
 
 {if !count($jobs)}
   <div style="text-align: center;">
-    <div class="information">{$mod->Lang('info_no_jobs')}</div>
+    <div class="pageinfo">{$mod->Lang('info_no_jobs')}</div>
   </div>
 {else}
   <table class="pagetable">
@@ -54,6 +54,6 @@ $(document).ready(function() {
 
 {*
 delete me before distributing - TODO ??
-<a id="simple1" href="{cms_action_url action=test1}" class="link_button icondo">Simple Derived Class Test</a>
-<a href="{cms_action_url action=test2}" class="link_button iconcheck">Simple Derived Cron Test</a>
+<a id="simple1" href="{cms_action_url action=test1}" class="link_button icon do">Simple Derived Class Test</a>
+<a href="{cms_action_url action=test2}" class="link_button icon check">Simple Derived Cron Test</a>
 *}

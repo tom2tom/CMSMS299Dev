@@ -21,5 +21,5 @@
 {$help_page}
 
 <p class="pageback" style="margin-top:2em;">
-	<a href="{$back_url}" class="link_button iconback">{$mod->Lang('back')}</a>
+	<a href="{$back_url}" class="link_button icon back">{$mod->Lang('back')}</a>
 </p>

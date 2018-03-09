@@ -352,7 +352,7 @@ License: GPL2+
                 }
             });
             // Back links
-            $('a.pageback').addClass('link_button iconback');
+            $('a.pageback').addClass('link_button icon back');
         },
         /**
          * @description Placeholder function for functions that need to be triggered on window resize

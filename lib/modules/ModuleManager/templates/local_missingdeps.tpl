@@ -1,5 +1,5 @@
 <div class="pageoptions" style="text-align: right; float: right; margin-right: 3%;">
-  <a href="{$back_url}" class="link_button iconback">{$mod->Lang('back')}</a>
+  <a href="{$back_url}" class="link_button icon back">{$mod->Lang('back')}</a>
 </div>
 
 <p class="pageheader">{$mod->Lang('title_missingdeps2')}:</p>
