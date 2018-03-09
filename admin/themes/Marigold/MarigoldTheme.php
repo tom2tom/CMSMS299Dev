@@ -182,7 +182,13 @@ class MarigoldTheme extends CmsAdminThemeBase
 			}
 		}
 
-		$jsinc = '';
+		$jsinc = <<<EOS
+<!-- html5 for old IE -->
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+EOS;
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
 		$url = cms_path_url($jqcore);
