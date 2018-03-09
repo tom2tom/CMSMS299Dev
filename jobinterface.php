@@ -24,28 +24,23 @@ if (count($ary) != 4 || empty($ary[0]) || empty($ary[2])) {
 	exit;
 }
 
-$mp = false;
-$fn = DIRECTORY_SEPARATOR.$ary[0].DIRECTORY_SEPARATOR.'action.'.$ary[2].'.php';
-foreach ([
- 'lib'.DIRECTORY_SEPARATOR.'modules',
- 'assets'.DIRECTORY_SEPARATOR.'modules',
- 'modules'
-] as $bp) {
-	if (is_file(__DIR__.DIRECTORY_SEPARATOR.$bp.$fn)) {
-		$mp = __DIR__.DIRECTORY_SEPARATOR.$bp.DIRECTORY_SEPARATOR.$ary[0].DIRECTORY_SEPARATOR.'class'.$ary[0].'.php';
-		break;
-	}
-}
+$bp = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
+require_once $bp.'misc.functions.php';
+$mp = cms_module_path($ary[0]);
 if (!$mp) {
 	exit;
 }
 
-$bp = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
-$bpc = 	$bp .'classes'.DIRECTORY_SEPARATOR;
-require_once $bp.'misc.functions.php';
+$fn = dirname($mp).DIRECTORY_SEPARATOR.'action.'.$ary[2].'.php';
+if (!is_file($fn)) {
+	exit;
+}
+
 // defines
 require_once $bp.'version.php';
 define('CONFIG_FILE_LOCATION', __DIR__.DIRECTORY_SEPARATOR.'config.php');
+
+$bpc = 	$bp .'classes'.DIRECTORY_SEPARATOR;
 require_once $bpc.'class.cms_config.php';
 cms_config::get_instance();
 define('CMS_DEFAULT_VERSIONCHECK_URL','https://www.cmsmadesimple.org/latest_version.php');
