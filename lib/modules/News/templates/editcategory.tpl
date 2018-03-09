@@ -9,11 +9,11 @@ $(document).ready(function() {
 </script>
 
 {if isset($catid)}
- <h3>{$mod->Lang('editcategory')}</h3>
+ <h3 class="subtitle">{$mod->Lang('editcategory')}</h3>
 {else}
- <h3>{$mod->Lang('addcategory')}</h3>
+ <h3 class="subtitle">{$mod->Lang('addcategory')}</h3>
 {/if}
-<div class="information">{$mod->Lang('info_categories')}</div>
+<div class="pageinfo">{$mod->Lang('info_categories')}</div>
 
 {$startform}
 <div class="pageoverflow">
@@ -36,11 +36,10 @@ $(document).ready(function() {
     </select>
   </p>
 </div>
-<br />
-<div class="pageoverflow">
+<div class="bottomsubmits">
   <p class="pageinput">
-   <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
-   <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit iconcancel">{$mod->Lang('cancel')}</button>
+   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+   <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-{$endform}
+</form>
