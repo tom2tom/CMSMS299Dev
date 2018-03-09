@@ -55,24 +55,33 @@ $(document).ready(function() {
   {tab_header name='sitedown' label=lang('sitedown_settings') active=$tab}
   {tab_header name='mail' label=lang('mail_settings') active=$tab}
   {tab_header name='smarty' label=lang('smarty_settings') active=$tab}
-  {tab_header name='setup' label=lang('advanced') active=$tab}
+  {tab_header name='advanced' label=lang('advanced') active=$tab}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
   {tab_start name='general'}
   <form id="siteprefform_general" action="{$selfurl}{$urlext}" method="post">
     <input type="hidden" name="active_tab" value="general" />
     <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="sitename">{lang('sitename')}:</label>
-        {cms_help key2='siteprefs_sitename' title=lang('sitename')}
+        {cms_help key2='siteprefs_sitelogo' title=lang('sitename')}
       </p>
       <p class="pageinput">
         <input type="text" id="sitename" class="pagesmalltextarea" name="sitename" size="30" value="{$sitename}" />
+      </p>
+    </div>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        <label for="sitelogo">{lang('sitelogo')}:</label>
+        {cms_help key2='siteprefs_sitelogo' title=lang('sitelogo')}
+      </p>
+      <p class="pageinput">
+        <input type="text" id="sitelogo" name="sitelogo" size="60" value="{$sitelogo}" />
       </p>
     </div>
     <div class="pageoverflow">
@@ -83,17 +92,6 @@ $(document).ready(function() {
       <p class="pageinput">
         <select id="frontendlang" name="frontendlang" style="vertical-align: middle;">
           {html_options options=$languages selected=$frontendlang}
-        </select>
-      </p>
-    </div>
-    <div class="pageoverflow">
-      <p class="pagetext">
-        <label for="frontendwysiwyg">{lang('frontendwysiwygtouse')}:</label>
-        {cms_help key2='siteprefs_frontendwysiwyg' title=lang('frontendwysiwygtouse')}
-      </p>
-      <p class="pageinput">
-        <select id="frontendwysiwyg" name="frontendwysiwyg">
-          {html_options options=$wysiwyg selected=$frontendwysiwyg}
         </select>
       </p>
     </div>
@@ -144,7 +142,18 @@ $(document).ready(function() {
         <input id="thumbnail_height" class="pagenb" type="text" name="thumbnail_height" size="3" maxlength="3" value="{$thumbnail_height}" />
       </p>
     </div>
-    {if isset($search_modules)}
+    <div class="pageoverflow">
+      <p class="pagetext">
+        <label for="frontendwysiwyg">{lang('frontendwysiwygtouse')}:</label>
+        {cms_help key2='siteprefs_frontendwysiwyg' title=lang('frontendwysiwygtouse')}
+      </p>
+      <p class="pageinput">
+        <select id="frontendwysiwyg" name="frontendwysiwyg">
+          {html_options options=$wysiwyg selected=$frontendwysiwyg}
+        </select>
+      </p>
+    </div>
+    {if !empty($search_modules)}
     <p class="pagetext">
        <label for="search_module">{lang('search_module')}:</label>
        {cms_help key2='settings_searchmodule' title=lang('search_module')}
@@ -155,11 +164,10 @@ $(document).ready(function() {
       </select>
     </p>
     {/if}
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
@@ -175,8 +183,8 @@ $(document).ready(function() {
     {/if}
     <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
     {if $pretty_urls}
@@ -272,11 +280,10 @@ $(document).ready(function() {
         <input type="checkbox" name="content_cssnameisblockname" id="cssnameisblockname" value="1"{if $content_cssnameisblockname} checked="checked"{/if} />
       </p>
     </div>
-    <br />
-    <div class="pageoverflow">
+    <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
@@ -286,8 +293,8 @@ $(document).ready(function() {
     <input type="hidden" name="active_tab" value="sitedown" />
     <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
     <div class="pageoverflow">
@@ -331,8 +338,8 @@ $(document).ready(function() {
     </div>
     <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
@@ -353,8 +360,8 @@ $(document).ready(function() {
       </div>
       <div class="bottomsubmits">
         <p class="pageinput">
-          <button type="submit" name="testmail" id="testsend" class="adminsubmit iconcheck">{lang('sendtest')}</button>
-          <button type="submit" name="canceltest" id="testcancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+          <button type="submit" name="testmail" id="testsend" class="adminsubmit icon check">{lang('sendtest')}</button>
+          <button type="submit" name="canceltest" id="testcancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
         </p>
       </div>
     </form>
@@ -364,9 +371,9 @@ $(document).ready(function() {
     <input type="hidden" name="active_tab" value="mail" />
     <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="testemail" id="mailertest" class="adminsubmit icondo">{lang('test')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="testemail" id="mailertest" class="adminsubmit icon do">{lang('test')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
 
@@ -496,8 +503,8 @@ $(document).ready(function() {
     </fieldset>
     <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
@@ -517,20 +524,19 @@ $(document).ready(function() {
     </div>
     <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
-  {tab_end}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
-  {tab_start name='setup'}
-  <form id="siteprefform_setup" action="{$selfurl}{$urlext}" method="post">
-    <input type="hidden" name="active_tab" value="setup" />
+  {tab_start name='advanced'}
+  <form id="siteprefform_advanced" action="{$selfurl}{$urlext}" method="post">
+    <input type="hidden" name="active_tab" value="advanced" />
     <div class="topsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
     <fieldset>
@@ -572,7 +578,18 @@ $(document).ready(function() {
       <legend>{lang('general_operation_settings')}</legend>
       <div class="pageoverflow">
         <p class="pagetext">
-      <label for="umask">{lang('global_umask')}:</label>
+          <label for="login_module">{lang('admin_login_module')}:</label>
+          {cms_help key2='settings_login_module' title=lang('admin_login_module')}
+        </p>
+        <p class="pageinput">
+          <select id="login_module" name="login_module">
+            {html_options options=$login_modules selected=$login_module}
+          </select>
+        </p>
+      </div>
+      <div class="pageoverflow">
+        <p class="pagetext">
+        <label for="umask">{lang('global_umask')}:</label>
           {cms_help key2='settings_umask' title=lang('global_umask')}
         </p>
         <p class="pageinput">
@@ -588,7 +605,7 @@ $(document).ready(function() {
       <br />
       <div class="pageoverflow">
         <p class="pageinput">
-          <button type="submit" name="testumask" class="adminsubmit icondo">{lang('test')}</button>
+          <button type="submit" name="testumask" class="adminsubmit icon do">{lang('test')}</button>
         </p>
       </div>
       <div class="pageoverflow">
@@ -624,10 +641,10 @@ $(document).ready(function() {
     </fieldset>
     <div class="bottomsubmits">
       <p class="pageinput">
-        <button type="submit" name="editsiteprefs" class="adminsubmit iconcheck">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit iconcancel">{lang('cancel')}</button>
+        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
       </p>
     </div>
   </form>
-
+ {tab_end}
 </div>
