@@ -14,14 +14,15 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
+
 use \FilePicker\TemporaryInstanceStorage;
 use \FilePicker\TemporaryProfileStorage;
 use \FilePicker\PathAssistant;
 use \FilePicker\utils;
 use \CMSMS\FileType;
+
 if( !isset($gCms) ) exit;
-if( !check_login(FALSE) ) exit; // admin only.... but any admin
+if( !check_login() ) exit; // admin only.... but any admin
 
 //$handlers = ob_list_handlers();
 //for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
