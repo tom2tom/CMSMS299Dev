@@ -17,7 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if( !isset($gCms) ) exit;
-if( !check_login(FALSE) ) exit; // admin only.... but any admin
+if( !check_login() ) exit; // admin only.... but any admin
 
 //$handlers = ob_list_handlers();
 //for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
