@@ -6,14 +6,13 @@
   <table class="pagetable">
     <thead>
       <tr>
-        <th width="75%">{$wordtext}</th>
-        <th width="25%">{$counttext}</th>
+        <th style="column-width:75%;">{$wordtext}</th>
+        <th>{$counttext}</th>
       </tr>
     </thead>
     <tbody>
     {foreach $topwords as $entry}
-      {cycle assign='rowclass' values='row1,row2'}
-      <tr class="{$rowclass}">
+      <tr class="{cycle values='row1,row2'}">
         <td>{$entry.word}</td>
         <td>{$entry.count}</td>
       </tr>
@@ -21,11 +20,10 @@
     </tbody>
   </table>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">&nbsp;</p>
+<div class="bottomsubmits">
   <p class="pageinput">{$clearwordcount}&nbsp;{$exportcsv}</p>
 </div>
-{$formend}
+</form>
 {else}
-<div class="information">{lang_by_realm('Search','nostatistics')}</div>
+<div class="pageinfo">{lang_by_realm('Search','nostatistics')}</div>
 {/if}
