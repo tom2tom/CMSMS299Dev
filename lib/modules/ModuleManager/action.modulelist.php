@@ -49,8 +49,13 @@ $instmodules = '';
   $instmodules = $result[1];
 }
 
-$dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
-$caninstall = (is_dir($dir) && is_writable($dir));
+$caninstall = true;
+foreach (cms_admin_utils::module_places() as $dir) {
+   if (!is_dir($dir) || !is_writable($dir)) {
+	   $caninstall = false;
+	   break;
+   }
+}
 
 $data = modmgr_utils::build_module_data($repmodules,$instmodules,false);
 if( count( $data ) ) {

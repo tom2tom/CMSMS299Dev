@@ -73,9 +73,13 @@ if( isset($params['submit']) ) {
         $data = array();
         if( count($res) ) $res = modmgr_utils::build_module_data($res, $instmodules);
 
-        $config = cmsms()->GetConfig();
-        $moduledir = $config['root_path'].DIRECTORY_SEPARATOR.'modules';
-        $writable = is_writable($moduledir);
+        $writable = true;
+        foreach (cms_admin_utils::module_places() as $dir) {
+           if (!is_dir($dir) || !is_writable($dir)) {
+               $writable = false;
+               break;
+           }
+        }
 
         $search_data = array();
         for( $i = 0; $i < count($res); $i++ ) {
@@ -157,7 +161,7 @@ if( isset($params['submit']) ) {
     }
     catch( \Exception $e ) {
         $clear_search();
-        echo $this->ShowErrors($e->GetMessage());
+        $this->ShowErrors($e->GetMessage());
     }
 }
 
