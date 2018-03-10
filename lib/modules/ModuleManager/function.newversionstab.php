@@ -23,17 +23,19 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 use \ModuleManager\utils as modmgr_utils;
+
 if( !isset($gCms) ) exit;
 
 global $CMS_VERSION;
-$dir = CMS_ASSETS_PATH.'/modules';
+//TODO what's expected to go into the alternate dir ?
+$dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
 $caninstall = (is_dir($dir) && is_writable($dir));
-$moduledir = $config['root_path'].DIRECTORY_SEPARATOR.'modules';
-$writable = is_writable( $moduledir );
+//this is a core module, so it goes here ...
+$moduledir = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules';
+$writable = is_dir($moduledir) && is_writable( $moduledir );
+
 $results = array();
 
 if( !empty($newversions) ) {
