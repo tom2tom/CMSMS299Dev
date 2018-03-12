@@ -207,7 +207,7 @@ License: GPL2+
          * @private
          */
         _isLocalStorage: function() {
-            return typeof(Storage) !== 'undefined';
+            return typeof Storage !== 'undefined';
         },
         /**
          * @description detects if js-cookie.js is present
@@ -215,7 +215,7 @@ License: GPL2+
          * @private
          */
         _isCookieScript: function() {
-            return typeof(Cookies) !== 'undefined';
+            return typeof Cookies !== 'undefined';
         },
         /**
          * @description Basic check for common mobile devices and touch capability
@@ -270,18 +270,9 @@ License: GPL2+
          * @requires global cms_data{}, cms_notify(), cms_lang()
          */
         showNotifications: function() {
-            //stack the popup(s) from info to error
-            if (typeof cms_data.toastinfos !== 'undefined') {
-                cms_notify('info', cms_data.toastinfos);
-            }
-            if (typeof cms_data.toastgoods !== 'undefined') {
-                cms_notify('success', cms_data.toastgoods);
-            }
-            if (typeof cms_data.toastwarns !== 'undefined') {
-                cms_notify('warn', cms_data.toastwarns);
-            }
-            if (typeof cms_data.toasterrs !== 'undefined') {
-                cms_notify('error', cms_data.toasterrs);
+            //back compatibility check might be relevant in some contexts
+            if (typeof cms_notify_all === 'function') {
+                cms_notify_all();
             }
 
             $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_lang('gotit') + '"></span>');
