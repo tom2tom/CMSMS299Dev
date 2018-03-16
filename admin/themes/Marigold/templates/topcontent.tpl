@@ -1,17 +1,16 @@
 {strip}
 <div id="topcontent_wrap">
  {foreach $nodes as $node}
-{if $node.show_in_menu && $node.url && $node.title}
-  <div class="dashboard-box{if $node@index && $node@index % 3 == 0} last{/if}">
+{if $node.show_in_menu && $node.url && $node.title && !empty($node.children)}
+  <div class="dashboard-box">
     <nav class="dashboard-inner cf">
-      <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if $node.selected} class="selected"{/if} tabindex="-1"></a>
+      <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if !empty($node.selected)} class="selected"{/if} tabindex="-1"></a>
       <h3 class="dashboard-icon {$node.name}">
-        <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if $node.selected} class="selected"{/if}>{$node.title}</a>
+        <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if !empty($node.selected)} class="selected"{/if}>{$node.title}</a>
       </h3>
       {if $node.description}
       <span class="description">{$node.description}</span>
       {/if}
-      {if isset($node.children)}
       <h4>{lang('subitems')}</h4>
       <ul class="subitems cf">
         {foreach $node.children as $one}
@@ -20,14 +19,8 @@
         </a></li>
        {/foreach}
       </ul>
-      {/if}
     </nav>
   </div>
-{*
-  {if $node@index && $node@index % 3 == 0}
-  <div class="clear"></div>
-  {/if}
-*}
 {/if}
  {/foreach}
 </div>
