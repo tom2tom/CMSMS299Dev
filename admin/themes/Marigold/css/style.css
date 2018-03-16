@@ -438,7 +438,7 @@ a.link_button, a.link_button:visited{
 a.link_button:hover{
     background: #838282 url(../images/layout/submit-hover-bg.gif) repeat-x top;
 }
-.adminsubmit{
+.adminsubmit, .ui-button{
     border: 1px solid #d3d3d3;
     border-radius: 6px;
     padding: 0.4em 0.5em;
@@ -450,19 +450,20 @@ a.link_button:hover{
     font-weight: 600;
     font-size: 1em
 }
-.adminsubmit:hover, .adminsubmit:active{
+.adminsubmit:hover, .adminsubmit:active, .ui-button:hover, .ui-button:active{
     background: #838282 url(../images/layout/submit-hover-bg.gif) repeat-x top;
 }
 .iconnone{
 }
-.adminsubmit.icon {
+.adminsubmit.icon, .ui-button.ui-icon{
     padding-left: 0.8em;
 }
 /* TODO useless on IE7, need to insert a span into the button,
 or for recent browsers, a double-background */
 /* IE8 recognises .before, not :before */
 .adminsubmit.icon:before, .adminsubmit.icon.before,
-a.link_button.icon:before, a.link_button.icon.before {
+.ui-button.ui-icon:before, .ui-button.ui-icon.before,
+a.link_button.icon:before, a.link_button.icon.before{
     background-image:url(../images/buttonssprite.png);
     background-size: 10em 1em;
     display: inline-block;
@@ -472,9 +473,9 @@ a.link_button.icon:before, a.link_button.icon.before {
     z-index: 20;
     width: 1em;
     height: 1em;
-    content: '';
+    content: ' ';
 }
-.icon.check:before, .icon.check.before{
+.icon.check:before, .icon.check.before, .ui-icon-check:before, .ui-icon-check.before{
     background-position: 1em 0;
 }
 .icon.cancel:before, .icon.cancel.before{
@@ -505,170 +506,6 @@ a.link_button.icon:before, a.link_button.icon.before {
     background-position: 10em 0;
 }
 
-/*
-/ * TODO useless on IE7, need to insert a span into the button * /
-.iconcheck{
-    padding-left: 0.8em;
-}
-/ * IE8 recognises .before, not :before ,.iconcheck.before * /
-.iconcheck:before, .iconcheck.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 1em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.iconcancel{
-    padding-left: 0.8em;
-}
-.iconcancel:before, .iconcancel.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 2em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.iconapply{
-    padding-left: 0.8em;
-}
-.iconapply:before, .iconapply.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 3em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.iconundo{
-    padding-left: 0.8em;
-}
-.iconundo:before, .iconundo.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 4em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.icondo{
-    padding-left: 0.8em;
-}
-.icondo:before, .icondo.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 5em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.icongo{
-    padding-left: 0.8em;
-}
-.icongo:before, .icongo.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 6em 1em;
-    background-position: 5em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.iconback{
-    padding-left: 0.8em;
-}
-.iconback:before, .iconback.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 7em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.icondelete{
-    padding-left: 0.8em;
-}
-.icondelete:before, .icondelete.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 8em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.iconsearch{
-    padding-left: 0.8em;
-}
-.iconsearch:before, .iconsearch.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 9em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-.iconadd{
-    padding-left: 0.8em;
-}
-.iconadd:before, .iconadd.before{
-    background-image:url(../images/buttonssprite.png);
-    background-size: 10em 1em;
-    background-position: 10em 0;
-    display: inline-block;
-    position: relative;
-    left: -0.3em;
-    vertical-align: middle;
-    z-index: 20;
-    width: 1em;
-    height: 1em;
-    content: '';
-}
-*/
 input[type='text']#in_title, input[type='text']#in_menutext {
     min-width: 30%
 }
@@ -1115,7 +952,7 @@ aside .no-slide, .no-slide {
     background: transparent url(../images/layout/sprite-bg.png) 831px -148px repeat-x;
     z-index: 50;
     position: absolute;
-    top: 86px; /*100px;*/
+    top: 81px; /*100px;*/
     left: 0;
     width: 100%;
     height: 7px
@@ -1123,7 +960,7 @@ aside .no-slide, .no-slide {
 
 /*** header ***/
 header.header {
-    height: 86px; /* 100px;*/
+    height: 81px; /* 100px;*/
     background: #cecece
 }
 header .header-top {
@@ -1272,33 +1109,41 @@ header .shortcuts li.notifications span.bubble {
 #pg_sidebar nav.navigation {
     height: auto;
     margin-top: 45px;
-    position: relative
+    position: fixed;
+    top: 81px;
 }
 
 /* toggle sidebar */
 
-#pg_sidebar .toggle-button {
-    z-index: 99;
-    display: block;
-    cursor: pointer;
-    width: 24px;
-    height: 25px;
-    position: absolute;
-    right: -1px;
-    top: 12px
+.sidebar-on #pg_sidebar .toggle-button:before {
+    display: inline-block;
+    background-image: url(../images/icons/extra/angles.png);
+    background-size: 2.4em 2.4em;
+    background-position: 0 1.2em;
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 9px;
+    margin-left: 10px;
+    content: ' ';
+    z-index: 20;
 }
-#pg_sidebar .toggle-button.top {
-    top: -33px
+.sidebar-on #pg_sidebar .toggle-button:hover:before {
+    background-position: 0 0;
 }
-#pg_sidebar .toggle-button {
-    font-family: FontAwesome;
-    font-size: 1.2em;
+.sidebar-off #pg_sidebar .toggle-button:before {
+    display: inline-block;
+    background-image: url(../images/icons/extra/angles.png);
+    background-size: 2.4em 2.4em;
+    background-position: 1.2em 1.2em;
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 9px;
+    margin-left: 10px;
+    content: ' ';
+    z-index: 20;
 }
-.sidebar-on #pg_sidebar .toggle-button:after {
-    content: "\f100";
-}
-.sidebar-off #pg_sidebar .toggle-button:after {
-    content: "\f101";
+.sidebar-off #pg_sidebar .toggle-button:hover:before {
+    background-position: 1.2em 0;
 }
 
 /* sidebar notifications */
@@ -1319,7 +1164,7 @@ nav ul#pg_pagemenu {
     border-bottom: 1px solid #adadad;
     /*margin-top: 45px*/
 }
-nav ul#pg_pagemenu li {
+nav ul#pg_pagemenu > li {
     position: relative;
     zoom: 1;
     background: url(../images/layout/navigation-bg.gif) repeat-x top;
@@ -1359,18 +1204,45 @@ nav ul#pg_pagemenu li.current:hover span.open-nav,
 nav ul#pg_pagemenu li a span:hover {
     cursor: pointer;
 }
+/* TODO there's no fa icon for 'up/down or open/close - goto a custom ? */
 nav ul#pg_pagemenu li span.open-nav.open-sub:after,
 nav ul#pg_pagemenu li.current span.open-nav:after,
+nav ul#pg_pagemenu li.current span.open-nav:after
+/*
 nav ul#pg_pagemenu li:hover span.open-nav:after,
-nav ul#pg_pagemenu li.current span.open-nav:after,
-nav ul#pg_pagemenu li.current:hover span.open-nav:after,
-nav ul#pg_pagemenu li a span:hover:after {
+nav ul#pg_pagemenu li a span:hover:after
+nav ul#pg_pagemenu li.current:hover span.open-nav:after
+*/
+ {
+/*
     font-family: FontAwesome;
     float: right;
     margin-right: 0.8em;
     content: "\f0d7";
+*/
+    display: inline-block;
+    background-image: url(../images/icons/extra/opens.png);
+    background-position: 0 8px;
+    float: right;
+    margin-right: 0.8em;
+    width: 12px;
+    height: 8px;
+    margin-top: 9px;
+    content: ' ';
+    z-index: 20;
 }
+
+nav ul#pg_pagemenu li span.open-nav.open-sub:hover:after,
+nav ul#pg_pagemenu li.current span.open-nav:hover:after,
+nav ul#pg_pagemenu li.current span.open-nav:hover:after {
+    background-position: 0 0;
+}
+
 nav ul#pg_pagemenu li span.open-nav.open-sub:after {
+    background-position: 12px 8px;
+}
+nav ul#pg_pagemenu li span.open-nav.open-sub:hover:after {
+    background-position: 12px 0;
 }
 
 /*** menu style ***/
@@ -1406,72 +1278,91 @@ nav ul#pg_pagemenu li a:focus {
     border: 1px solid #147fdb;
     margin-right: 10px;
 }
-nav ul#pg_pagemenu li a.main:before, h3.main:before {
-    font-family: FontAwesome;
-    content: '\f015';
+
+nav ul#pg_pagemenu > li > a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 9px;
     margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
+    content: ' ';
 }
-nav ul#pg_pagemenu li a.content:before, h3.content:before {
+nav ul#pg_pagemenu li a.view:before {
+    background-position: 12em 1.2em;
+}
+nav ul#pg_pagemenu li a.view:hover:before {
+    background-position: 12em 0;
+}
+nav ul#pg_pagemenu li a.content:before {
+    background-position: 10.8em 1.2em;
+}
+nav ul#pg_pagemenu li a.content:hover:before {
+    background-position: 10.8em 0;
+}
+nav ul#pg_pagemenu li a.layout:before {
+    background-position: 9.6em 1.2em;
+}
+nav ul#pg_pagemenu li a.layout:hover:before  {
+    background-position: 9.6em 0;
+}
+nav ul#pg_pagemenu li a.files:before {
+    background-position: 8.4em 1.2em;
+}
+nav ul#pg_pagemenu li a.files:hover:before {
+    background-position: 8.4em 0;
+}
+nav ul#pg_pagemenu li a.usersgroups:before {
+    background-position: 7.2em 1.2em;
+}
+nav ul#pg_pagemenu li a.usersgroups:hover:before {
+    background-position: 7.2em 0;
+}
+nav ul#pg_pagemenu li a.extensions:before {
+    background-position: 6em 1.2em;
+}
+nav ul#pg_pagemenu li a.extensions:hover:before {
+    background-position: 6em 0;
+}
+nav ul#pg_pagemenu li a.services:before {
+    background-position: 4.8em 1.2em;
+}
+nav ul#pg_pagemenu li a.services:hover:before {
+    background-position: 4.8em 0;
+}
+nav ul#pg_pagemenu li a.siteadmin:before {
+    background-position: 3.6em 1.2em;
+}
+nav ul#pg_pagemenu li a.siteadmin:hover:before {
+    background-position: 3.6em 0;
+}
+nav ul#pg_pagemenu li a.myprefs:before {
+    background-position: 2.4em 1.2em;
+}
+nav ul#pg_pagemenu li a.myprefs:hover:before {
+    background-position: 2.4em 0;
+}
+nav ul#pg_pagemenu li a.ecommerce:before {
+    background-position: 1.2em 1.2em;
+}
+nav ul#pg_pagemenu li a.ecommerce:hover:before {
+    background-position: 1.2em 0;
+}
+nav ul#pg_pagemenu li a.logout:before {
+    background-image: url();
+    margin: 0;
     font-family: FontAwesome;
-    content: '\f0f6';
-    margin-right: 15px;
     font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
+    color: #232323;
+    text-align: left;
+    content: "\f08b";
 }
-nav ul#pg_pagemenu li a.layout:before, h3.layout:before {
-    font-family: FontAwesome;
-    content: '\f00a';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
+nav ul#pg_pagemenu li a.logout:hover:before {
+    color: #147fdb;
 }
-nav ul#pg_pagemenu li a.usersgroups:before, h3.usersgroups:before {
-    font-family: FontAwesome;
-    content: '\f0c0';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-nav ul#pg_pagemenu li a.extensions:before, h3.extensions:before {
-    font-family: FontAwesome;
-    content: '\f12e';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-nav ul#pg_pagemenu li a.siteadmin:before, h3.siteadmin:before {
-    font-family: FontAwesome;
-    content: '\f013';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-nav ul#pg_pagemenu li a.myprefs:before, h3.myprefs:before {
-    font-family: FontAwesome;
-    content: '\f007';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-nav ul#pg_pagemenu li a.ecommerce:before, h3.ecommerce:before {
-    font-family: FontAwesome;
-    content: '\f07a';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
+
 nav ul#pg_pagemenu li a.parent:before {
-    width: 1em;
+    width: 1.2em;
     display: inline-block;
     text-align: center;
 }
@@ -1503,7 +1394,7 @@ nav ul#pg_pagemenu li li.module {
 nav ul#pg_pagemenu li.current li a,
 nav ul#pg_pagemenu li li a,
 nav ul#pg_pagemenu li:hover li a {
-    padding: 5px 5px 5px 30px;
+    padding: 5px 5px 5px 10px;
     color: #232323;
     font-size: 0.85em;
     font-weight: normal;
@@ -1513,8 +1404,162 @@ nav ul#pg_pagemenu li:hover li a {
 nav ul#pg_pagemenu li li a:hover, nav ul#pg_pagemenu li li.current a {
     color: #147fdb;
 }
+/*
 nav ul#pg_pagemenu li li a:hover, nav ul#pg_pagemenu li li a:active, nav ul#pg_pagemenu li.current li a:hover, nav ul#pg_pagemenu li.current li a:active {
-    padding-left: 30px
+//    padding: 5px 5px 5px 10px
+//    padding-left: 10px
+}
+*/
+/*** dashboard ***/
+
+#topcontent_wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+.dashboard-box {
+    float: left;
+    margin-right: 2.29%;
+    margin-bottom: 10px;
+    background: #d5d5d5 url(../images/layout/sprite-bg.png) 214px -339px repeat-x;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 100px;
+    width: 31.513%;
+}
+.dashboard-box.last {
+    margin-right: 0
+}
+.dashboard-box nav {
+    padding: 10px
+}
+.dashboard-box img {
+    max-height: 48px;
+    padding: 20px;
+    box-shadow: 0 1px 15px 1px #ddd inset;
+    -webkit-box-shadow: 0 1px 15px 1px #ddd inset;
+    margin-right: 10px;
+    float: left;
+    border: 1px solid #ddd;
+    background: #fff
+}
+.dashboard-box:hover img {
+    box-shadow: 0 1px 15px 1px #ffd8b0 inset;
+    -webkit-box-shadow: 0 1px 15px 1px #ffd8b0 inset;
+    transition: all 600ms ease-in-out;
+    -webkit-transition: all 600ms ease-in-out;
+    -moz-transition: all 600ms ease-in-out;
+    -o-transition: all 600ms ease-in-out
+}
+.dashboard-box h3 {
+    margin: 0 0 5px 0;
+    line-height: 1.5;
+    text-shadow: 0 1px 0 #fff
+}
+
+h3.dashboard-icon:before {
+}
+
+.dashboard-box h3.dashboard-icon a:before {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: -0.2em;
+    width: 1.2em;
+    height: 1.2em;
+    content: ' ';
+}
+
+/* TODO generalise these for all modules with an icon */
+.dashboard-box h3.CMSContentManager a:before {
+    background-image: url(../../../../assets/images/topfiles/CMSContentManager.png);
+    background-size: 1.2em 1.2em;
+}
+.dashboard-box h3.News a:before {
+    background-image: url(../../../../assets/images/topfiles/News.png);
+    background-size: 1.2em 1.2em;
+}
+.dashboard-box h3.DesignManager a:before {
+    background-image: url(../../../../assets/images/topfiles/DesignManager.png);
+    background-size: 1.2em 1.2em;
+}
+
+.dashboard-box h3.view a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 12em 0;
+}
+.dashboard-box h3.content a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 10.8em 0;
+}
+.dashboard-box h3.layout a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 9.6em 0;
+}
+.dashboard-box h3.files a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 8.4em 0;
+}
+.dashboard-box h3.usersgroups a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 7.2em 0;
+}
+.dashboard-box h3.extensions a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 6em 0;
+}
+.dashboard-box h3.services a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 4.8em 0;
+}
+.dashboard-box h3.siteadmin a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 3.6em 0;
+}
+.dashboard-box h3.myprefs a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 2.4em 0;
+}
+.dashboard-box h3.ecommerce a:before {
+    background-image: url(../images/navicons.png);
+    background-size: 13.2em 2.4em;
+    background-position: 1.2em 0;
+}
+
+.dashboard-box h3 a:focus {
+    border: 1px solid #147fdb;
+}
+
+.dashboard-box span.description {
+    color: #585858;
+    font-size: 0.9em;
+    font-style: italic
+}
+.dashboard-box h4 {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #232323
+}
+#pg_mainarea .dashboard-box ul.subitems {
+    margin: 0;
+    padding: 0
+}
+.dashboard-box ul.subitems li {
+    list-style: none;
+    margin: 0 4px;
+    line-height: 1.4;
+    float: left
+}
+.dashboard-box ul.subitems li a {
+    font-size: 0.85em;
+    text-decoration: underline
 }
 
 /*** page content ***/
@@ -2119,7 +2164,7 @@ textarea.pageextrasmalltextarea {
 #page_tabs div.active {
     color: #fff;
     text-shadow: -1px -1px 0 #054882;
-    background: #147fdb url(../images/layout/tab-active.png) no-repeat center bottom
+    background: #147fdb url(../images/extra/tab-active.png) no-repeat center bottom
 }
 #page_content {
     background: #fff;
@@ -2127,80 +2172,6 @@ textarea.pageextrasmalltextarea {
     padding: 10px;
     border: 1px solid #ddd;
     border-top: 3px solid #ddd
-}
-
-/*** topcontent - dashboard ***/
-
-#topcontent_wrap {
-    display: flex;
-    flex-wrap: wrap;
-}
-.dashboard-box {
-    min-height: 100px;
-    width: 31.513%;
-    float: left;
-    border-radius: 4px;
-    margin-right: 2.29%;
-    margin-bottom: 10px;
-    background: #d5d5d5 url(../images/layout/sprite-bg.png) 214px -339px repeat-x;
-    border: 1px solid #ddd
-}
-.dashboard-box.last {
-    margin-right: 0
-}
-.dashboard-box nav {
-    padding: 10px
-}
-.dashboard-box img {
-    max-height: 48px;
-    padding: 20px;
-    box-shadow: 0 1px 15px 1px #ddd inset;
-    -webkit-box-shadow: 0 1px 15px 1px #ddd inset;
-    margin-right: 10px;
-    float: left;
-    border: 1px solid #ddd;
-    background: #fff
-}
-.dashboard-box:hover img {
-    box-shadow: 0 1px 15px 1px #ffd8b0 inset;
-    -webkit-box-shadow: 0 1px 15px 1px #ffd8b0 inset;
-    transition: all 600ms ease-in-out;
-    -webkit-transition: all 600ms ease-in-out;
-    -moz-transition: all 600ms ease-in-out;
-    -o-transition: all 600ms ease-in-out
-}
-.dashboard-box h3 {
-    text-shadow: 0 1px 0 #fff;
-    margin: 0 0 5px 0
-}
-.dashboard-box h3 a:focus {
-    border: 1px solid #147fdb;
-}
-.dashboard-box span.description {
-    color: #585858;
-    font-size: 0.9em;
-    font-style: italic
-}
-.dashboard-box h4 {
-    margin: 5px 0;
-    font-size: 0.9em;
-    color: #232323
-}
-#pg_mainarea .dashboard-box ul.subitems {
-    margin: 0;
-    padding: 0
-}
-.dashboard-box ul.subitems li {
-    list-style: none;
-    margin: 0 4px;
-    line-height: 1.4;
-    float: left
-}
-.dashboard-box ul.subitems li a {
-    font-size: 0.85em;
-    text-decoration: underline
-}
-h3.dashboard-icon:before {
 }
 
 /*** reorder pages ***/
@@ -2272,7 +2243,7 @@ ul.sortable .placeholder {
     top: 0
 }
 .drop-inner + a.toggle-dropzone {
-    background: transparent url(../images/layout/toggle-dropzone.png) no-repeat -15px 0;
+    background: transparent url(../images/extra/toggle-dropzone.png) no-repeat -15px 0;
     border: 1px solid #ccc;
     border-top: none;
     text-indent: -9999em;
@@ -2286,7 +2257,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
     outline: none
 }
 .drop-inner.hidden + a.toggle-dropzone {
-    background: transparent url(../images/layout/toggle-dropzone.png) no-repeat 0 0;
+    background: transparent url(../images/extra/toggle-dropzone.png) no-repeat 0 0;
 }
 .drop .drop-inner {
     float: none;
@@ -2486,7 +2457,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 }
 #login p.goto a {
     padding: 0 0 10px 16px;
-    background: url(../images/icons/extra/goback.png) left top no-repeat;
+    background: url(../images/icons/extra/go-rtl.png) left top no-repeat;
     text-decoration: none
 }
 #login p.forgotpw {
