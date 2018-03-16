@@ -238,7 +238,7 @@ $lang['currentusers'] = 'Backend Users';
 $lang['custom404'] = 'Custom 404 Error Message';
 
 ## D
-$lang['dashboard'] = 'View Dashboard';
+$lang['dashboard'] = 'Dashboard';
 $lang['database'] = 'Database';
 $lang['databaseprefix'] = 'Database Prefix';
 $lang['databasetype'] = 'Database Type';
@@ -1007,7 +1007,7 @@ $lang['help_title_page_disablewysiwyg'] = 'WYSIWYG toggle';
 $lang['help_title_page_searchable'] = 'Searchable toggle';
 $lang['help_title_page_url'] = 'Page URL field';
 $lang['help_title_page_wantschildren'] = 'Page wants children';
-$lang['home'] = 'Home';
+$lang['home'] = 'Dashboard';// TODO this is theme/nav-specific  'Home';
 $lang['homepage'] = 'Homepage';
 $lang['hostname'] = 'Host name';
 $lang['hour'] = 'hour';
@@ -1456,6 +1456,8 @@ $lang['server_information'] = 'Server Information';
 $lang['server_os'] = 'Server Operating System';
 $lang['server_software'] = 'Server Software';
 $lang['server_time_diff'] = 'Check for file system time differences';
+$lang['services'] = 'Services';
+$lang['servicesdescription'] = 'Utilities and activities for site visitors';
 $lang['session_save_path'] = 'Session Save Path';
 $lang['session_use_cookies'] = 'Sessions are allowed to use Cookies';
 //$lang['setallcontent'] = "Set All Pages";
@@ -1645,7 +1647,7 @@ $lang['url'] = 'URL';
 $lang['user'] = 'User';
 $lang['useraccount'] = 'Profile';
 $lang['userdefinedtags'] = 'User Defined Tags';
-$lang['usermanagement'] = 'User Management';
+//$lang['usermanagement'] = 'User Management'; see usersgroups
 $lang['username'] = 'Username';
 $lang['usernameincorrect'] = 'Username or password incorrect';
 $lang['usernotfound'] = 'User Not Found';
@@ -1674,8 +1676,9 @@ $lang['use_wysiwyg'] = 'Use WYSIWYG';
 ## V
 $lang['validate'] = 'Validate';
 $lang['version'] = 'Version';
-$lang['view'] = 'View';
-$lang['viewsite'] = 'View Site';
+$lang['view'] = 'Display';
+$lang['viewdescription'] = 'Places and things which can be examined';
+$lang['viewsite'] = 'Main Site';
 $lang['view_page'] = 'View this page in a new window';
 
 ## W
