@@ -221,10 +221,10 @@ class ArrayTreeIterator extends RecursiveArrayIterator implements RecursiveItera
 	}
 }
 
-/* *
+/**
  * A RecursiveIterator that supports getting non-leaves only
+ * (ParentIterator doesn't support mode)
  */
-/* see FilterIterator
 class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements OuterIterator
 {
 	const NONLEAVES_ONLY = 16384;
@@ -264,6 +264,5 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
 		}
 	}
 }
-*/
 
 } //namespace
