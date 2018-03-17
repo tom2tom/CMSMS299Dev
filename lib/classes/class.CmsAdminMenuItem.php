@@ -1,6 +1,6 @@
 <?php
-# ...
-# Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+# Class to provide menu items in the CMSMS admin navigation
+# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,19 +14,17 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
- * Classes and utilities to provide menu items in the CMSMS admin navigation
- * @package CMS
+ * Class to provide menu items in the CMSMS admin navigation
+ * @package     CMS
  * @license     GPL
  */
 
 /**
  * Base module class.
  *
- * All modules should inherit and extend this class with their functionality.
+ * Modules should extend this class as appropriate, to provide their functionality.
  *
  * @package		CMS
  * @since		2.0
@@ -109,7 +107,18 @@ final class CmsAdminMenuItem
     }
 
     /**
+     * Return all recorded data for this item
+     * @since 2.3
+     * @return associative array
+     */
+    public function get_all() : array
+    {
+        return $this->_data;
+    }
+
+    /**
      * Test if the object is valid
+     * @return bool
      */
     public function valid()
     {
@@ -125,19 +134,20 @@ final class CmsAdminMenuItem
      *
      * @internal
      * @param CMSModule $mod
+     * @return mixed CmsAdminMenuItem or null
      */
     public static function &from_module(\CMSModule $mod)
     {
         $obj = null;
         if( $mod->HasAdmin() ) {
-            $obj = new CmsAdminMenuItem;
+            $obj = new static();
             $obj->module = $mod->GetName();
             $obj->section = $mod->GetAdminSection();
             $obj->title   = $mod->GetFriendlyName();
             $obj->description = $mod->GetAdminDescription();
             $obj->priority = 50;
             $obj->action = 'defaultadmin';
-            //$obj->url = $mod->create_url('m1_',$obj->action);
+//          $obj->url = $mod->create_url('m1_',$obj->action);
         }
         return $obj;
     }
