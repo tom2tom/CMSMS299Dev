@@ -14,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * Classes and utilities for working with the CMSMS admin interface.
@@ -63,17 +61,18 @@ final class CmsAdminUtils
         return $str;
     }
 
-    /**
-     * Convert an admin request URL to a generic form that is suitable for saving to a database.
+	/**
+     * Convert an admin request URL to a generic form suitable for saving to a database.
      * This is useful for things like bookmarks and homepages.
-     *
+	 *
      * @param string $in_url The input URL that has the session key in it.
-     * @return string A URL that is converted to a generic form.
-     */
+     * @return string URL $in_url converted to a generic form.
+	 * @throws \LogicException
+	 */
     public static function get_generic_url($in_url)
     {
         if( !defined('CMS_USER_KEY') ) throw new \LogicException('This method can only be called for admin requests');
-        IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
+        if( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
 
         $len = strlen($_SESSION[CMS_USER_KEY]);
         $in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}+';
@@ -88,11 +87,12 @@ final class CmsAdminUtils
      *
      * @param string $in_url The generic url.  usually retrieved from a preference or from the database
      * @return string A URL that has a session key in it.
-     */
+	 * @throws \LogicException
+	 */
     public static function get_session_url($in_url)
     {
         if( !defined('CMS_USER_KEY') ) throw new \LogicException('This method can only be called for admin requests');
-        IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
+        if( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
 
         $len = strlen($_SESSION[CMS_USER_KEY]);
         $in_p = '+_CMSKEY_=[X]{'.$len.'}+';
@@ -135,12 +135,6 @@ final class CmsAdminUtils
     public static function site_needs_updating()
     {
         $remote_ver = self::fetch_latest_cmsms_ver();
-        if( version_compare(CMS_VERSION,$remote_ver) < 0 ) {
-            return TRUE;
-        }
-        else {
-            return FALSE;
-        }
+        return version_compare(CMS_VERSION,$remote_ver) < 0;
     }
-
 }
