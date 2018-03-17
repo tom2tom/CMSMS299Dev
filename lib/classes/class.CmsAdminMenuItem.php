@@ -45,12 +45,12 @@ final class CmsAdminMenuItem
      * @ignore
      * 'system' is for internal use only.
      */
-    private static $_keys = array('module','section','title','description','action','url','icon','priority','system');
+    const ITEMKEYS = ['module','section','name','title','description','action','url','icon','priority','system'];
 
     /**
      * @ignore
      */
-    private $_data = array();
+    private $_data = [];
 
 
     /**
@@ -58,7 +58,7 @@ final class CmsAdminMenuItem
      */
     public function __get($k)
     {
-        if( !in_array($k,self::$_keys) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
         switch( $k ) {
         case 'url':
             if( isset($this->_data[$k]) && $this->_data[$k] ) return $this->_data[$k];
@@ -83,7 +83,7 @@ final class CmsAdminMenuItem
      */
     public function __set($k,$v)
     {
-        if( !in_array($k,self::$_keys) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
         $this->_data[$k] = $v;
     }
 
@@ -92,7 +92,7 @@ final class CmsAdminMenuItem
      */
     public function __isset($k)
     {
-        if( !in_array($k,self::$_keys) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
         return isset($this->_data[$k]);
     }
 
@@ -102,7 +102,7 @@ final class CmsAdminMenuItem
      */
     public function __unset($k)
     {
-        if( !in_array($k,self::$_keys) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
+        if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
         throw new CmsException('Cannot unset data from a CmsAdminMenuItem object');
     }
 
@@ -122,11 +122,20 @@ final class CmsAdminMenuItem
      */
     public function valid()
     {
-        foreach( self::$_keys as $ok ) {
-            if( $ok == 'icon' || $ok == 'system' || $ok == 'priority' || $ok == 'description' || $ok == 'url' ) continue;  // we don't care if this is set.
-            if( !isset($this->_data[$ok]) ) return FALSE;
+        foreach (self::ITEMKEYS as $ok) {
+			switch ($ok) {
+				case 'name':
+				case 'description':
+				case 'icon':
+				case 'system':
+				case 'priority':
+				case 'url':
+					break 2;  // we don't care whether these are set
+				default:
+					if (!isset($this->_data[$ok])) return false;
+			}
         }
-        return TRUE;
+        return true;
     }
 
     /**
@@ -134,20 +143,21 @@ final class CmsAdminMenuItem
      *
      * @internal
      * @param CMSModule $mod
-     * @return mixed CmsAdminMenuItem or null
+     * @param since 2.3 Optional action name, default 'defaultadmin'
+     * @return mixed CmsAdminMenuItem-object or null
      */
-    public static function &from_module(\CMSModule $mod)
+    public static function from_module(\CMSModule $mod, $action = 'defaultadmin')
     {
         $obj = null;
         if( $mod->HasAdmin() ) {
             $obj = new static();
             $obj->module = $mod->GetName();
             $obj->section = $mod->GetAdminSection();
-            $obj->title   = $mod->GetFriendlyName();
+            $obj->title = $mod->GetFriendlyName();
             $obj->description = $mod->GetAdminDescription();
             $obj->priority = 50;
-            $obj->action = 'defaultadmin';
-//          $obj->url = $mod->create_url('m1_',$obj->action);
+            $obj->action = $action;
+            $obj->url = $mod->create_url('m1_',$action);
         }
         return $obj;
     }
