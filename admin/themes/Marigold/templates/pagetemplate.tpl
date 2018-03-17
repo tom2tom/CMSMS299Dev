@@ -72,7 +72,7 @@
       <!-- start sidebar -->
       <div id="pg_sidebar">
         <aside>
-          <span title="{lang('open')}/{lang('close')}" class="toggle-button close"></span> {include file='navigation.tpl' nav=$theme->get_navigation_tree()}
+          <span title="{lang('open')}/{lang('close')}" class="toggle-button close"></span> {include file='navigation.tpl'}
         </aside>
       </div>
       <!-- end sidebar //-->
