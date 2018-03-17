@@ -41,6 +41,77 @@ final class cms_admin_utils
 	private function __construct() {}
 
 	/**
+	 * Return the url corresponding to a provided site-path
+	 *
+	 * @since 2.3
+	 * @param string $in The input path, absolute or relative
+	 * @param string $relative_to Optional absolute path which (relative) $in is relative to
+	 * @return string
+	 */
+	public static function path_to_url(string $in, string $relative_to = '') : string
+	{
+		$in = trim($in);
+		if( $relative_to ) {
+			$in = realpath(cms_join_path($relative_to, $in));
+			return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
+		} elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in) ) {
+			// $in is absolute
+			$in = realpath($in);
+			return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
+		} else {
+			return strtr($in, DIRECTORY_SEPARATOR, '/');
+		}
+	}
+
+	/**
+	 * Module-directories lister. Checks for directories existence, including $modname if provided.
+	 *
+	 * @since 2.3
+	 * @param string $modname Optional name of a module
+	 * @return array of absolute filepaths, no trailing separators, or maybe empty.
+	 *  Core-modules-path first.
+	 */
+	public static function module_places(string $modname = '') : array
+	{
+		$dirlist = [];
+		$path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
+		if ($modname) {
+			$path .= DIRECTORY_SEPARATOR . $modname;
+		}
+		if (is_dir($path)) {
+			$dirlist[] = $path;
+		}
+		$path = cms_join_path(CMS_ASSETS_PATH,'modules');
+		if ($modname) {
+			$path .= DIRECTORY_SEPARATOR . $modname;
+		}
+		if (is_dir($path)) {
+			$dirlist[] = $path;
+		}
+		// pre-2.3, deprecated
+		$path = cms_join_path(CMS_ROOT_PATH,'modules');
+		if ($modname) {
+			$path .= DIRECTORY_SEPARATOR . $modname;
+		}
+		return $dirlist;
+	}
+
+	/**
+	 * get indicator whether current lang is ltr or rtl
+	 *
+	 * @since 2.3
+	 * @return string 'ltr' or 'rtl'
+	 */
+	public static function lang_direction() : string
+	{
+		$lang = CmsNlsOperations::get_language_info(CmsNlsOperations::get_current_language());
+		if (is_object($lang) && $lang->direction() == 'rtl') {
+			return 'rtl';
+		}
+		return 'ltr';
+	}
+
+	/**
 	 * Get the complete URL to an admin icon
 	 *
 	 * @param string $icon the basename of the desired icon
@@ -149,6 +220,33 @@ final class cms_admin_utils
 		if( $key2 !== '' ) { $key1 .= '__'.$key2; }
 		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
 
-		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'"><img class="cms_helpicon" src="'.$icon.'" alt="'.$icon.'" /></span>';
+		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'"><img class="cms_helpicon" src="'.$icon.'" alt="'.basename($icon).'" /></span>';
+	}
+
+	public static function get_header_includes()
+	{
+        list($vars,$add_list) = \CMSMS\HookManager::do_hook('AdminHeaderSetup', [], []);
+		$out = implode("\n",$add_list);
+
+		$allmodules = ModuleOperations::get_instance()->GetLoadedModules();
+		if (is_array($allmodules) && count($allmodules)) {
+			foreach ($allmodules as $modinst) {
+				if (is_object($modinst) && $modinst->HasAdmin()) {
+					$tmp = $modinst->AdminStyle();
+					if ($tmp) {
+						$out .= "\n".$tmp;
+					}
+				}
+			}
+		}
+		return $out;
+	}
+
+	public static function get_bottom_includes()
+	{
+        list($vars,$add_list) = \CMSMS\HookManager::do_hook('AdminBottomSetup', [], []);
+		$out = implode("\n",$add_list);
+
+		return $out;
 	}
 } // end of class
