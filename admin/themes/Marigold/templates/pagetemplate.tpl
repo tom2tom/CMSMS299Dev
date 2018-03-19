@@ -46,68 +46,67 @@
         <!-- title -->
       </div>
       <div class='clear'></div>
-      <!-- end header-top //-->
+      <!-- end header-top -->
       <!-- start header-bottom -->
       <div class="header-bottom cf">
         <!-- welcome -->
         <div class="welcome">
           {if isset($myaccount)}
-          <span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{lang('myaccount')}"><i class="fa fa-user"></i></a>
-              <a href="myaccount.php?{$secureparam}">{lang('signed_in',{$user->username})}</a></span>
+          <span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{lang('myaccount')}">{lang('signed_in',{$user->username})}</a></span>
           {else}
-          <span><a class="welcome-user"><i class="fa fa-user"></i></a> {lang('signed_in',{$user->username})}</span>
+          <span>{lang('signed_in',{$user->username})}</span>
           {/if}
         </div>
         <!-- bookmarks -->
         {include file='shortcuts.tpl'}
       </div>
-      <!-- end header-bottom //-->
+      <!-- end header-bottom -->
     </header>
-    <!-- end header //-->
+    <!-- end header -->
+    <div class="shadow">&nbsp;</div>
     <!-- start content -->
     <div id="pg_content">
-      <div class="shadow">
-        &nbsp;
-      </div>
       <!-- start sidebar -->
       <div id="pg_sidebar">
         <aside>
           <span title="{lang('open')}/{lang('close')}" class="toggle-button close"></span> {include file='navigation.tpl'}
         </aside>
       </div>
-      <!-- end sidebar //-->
+      <!-- end sidebar -->
       <!-- start main -->
       <div id="pg_mainarea" class="cf">
         {strip}
         <article role="main" class="content-inner">
           <header class="pageheader{if isset($is_ie)} drop-hidden{/if} cf">
-            {if isset($module_icon_url) || isset($pagetitle)}
-            <h1>{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if}{$pagetitle|default:''}
-            </h1>
-            {/if} {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
+            {if !empty($icon_url) || !empty($pagetitle)}<h1>
+            {if isset($icon_url)}<img src="{$icon_url}" alt="{$icon_alt|default:''}" class="headericon" />{/if}{$pagetitle|default:''}
+            </h1>{/if}
+            {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
           </header>
-          {if $pagetitle && $subtitle}
+          {if !empty($pagetitle) && !empty($subtitle)}
           <header class="subheader">
             <h3 class="subtitle">{$subtitle}</h3>
           </header>{/if}
           <section class="cf">
+            <div class="pagecontainer">
             {$content}
+            </div>
           </section>
         </article>
         {/strip}
       </div>
-      <!-- end main //-->
+      <!-- end main -->
       <div class="spacer">
         &nbsp;
       </div>
     </div>
-    <!-- end content //-->
+    <!-- end content -->
     <!-- start footer -->
     {include file='footer.tpl'}
-    <!-- end footer //-->
+    <!-- end footer -->
     {$footertext|default:''}
   </div>
-  <!-- end container //-->
+  <!-- end container -->
 </body>
 {bottom_includes}
 {$pagelast|default:''}
