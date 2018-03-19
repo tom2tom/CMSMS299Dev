@@ -1,32 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $(document).on('click', '#submit', function() {
-    return confirm({/literal}'{lang("confirm_edituser")|escape:"javascript"}'{literal});
-  });
-{/literal}{if $manage_users}{literal}
-  $('#copyusersettings').change(function() {
-    var v = $(this).val();
-    if(v === -1) {
-      $('#clearusersettings').removeAttr('disabled');
-    } else {
-      $('#clearusersettings').attr('disabled', 'disabled');
-    }
-  });
-  $('#clearusersettings').click(function() {
-    $('#copyusersettings').val(-1);
-    var v = $(this).attr('checked');
-    if(v === 'checked') {
-      $('#copyusersettings').attr('disabled', 'disabled');
-    } else {
-      $('#copyusersettings').removeAttr('disabled');
-    }
-  });
-{/literal}{/if}{literal}
-});
-{/literal}//]]>
-</script>
-
 {if $user}<h3 class="pagesubtitle">{lang('username')}:&nbsp;{$user}</h3>{/if}
 
 <form action="{$selfurl}{$urlext}" method="post">

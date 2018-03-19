@@ -1,29 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-function fnSelect(objId) {
- fnDeSelect();
- if(document.selection) {
-  var range = document.body.createTextRange();
-  range.moveToElementText(document.getElementById(objId));
-  range.select();
- } elseif(window.getSelection) {
-  var range = document.createRange();
-  range.selectNode(document.getElementById(objId));
-  window.getSelection().addRange(range);
- }
-}
-
-function fnDeSelect() {
- if(document.selection) document.selection.empty();
- elseif(window.getSelection) window.getSelection().removeAllRanges();
-}
-
-$(document).ready(function() {
- fnSelect('copy_paste_in_forum');
-});
-{/literal}//]]>
-</script>
-
 <h3>{si_lang a=systeminfo_copy_paste}</h3>
 <div class="pageoverflow">
   <div id="copy_paste_in_forum">

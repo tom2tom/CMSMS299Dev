@@ -1,17 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $('a.delusertag').click(function(ev) {
-    ev.preventDefault();
-    var _hr = $(this).attr('href');
-    cms_confirm({/literal}'{lang("confirm_deleteusertag")|cms_escape:"javascript"}'{literal}).done(function() {
-      window.location.href = _hr;
-    });
-  });
-});
-{/literal}//]]>
-</script>
-
 {if $padd}
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}" title="{lang('addusertag')}">$iconadd</a>

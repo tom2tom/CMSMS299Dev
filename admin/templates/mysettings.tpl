@@ -1,14 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
- $('.helpicon').click(function() {
-  var x = $(this).attr('name');
-  $('#'+x).dialog();
- });
-});
-{/literal}//]]>
-</script>
-
 <form action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
   <div class="topsubmits">
