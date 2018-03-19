@@ -23,6 +23,14 @@ debug_buffer('after theme load');
 $smarty = CMSMS\internal\Smarty::get_instance();
 $config = \cms_config::get_instance();
 
+$out = \CMSMS\HookManager::do_hook_accumulate('admin_add_headtext');
+if ($out) {
+    foreach ($out as $one) {
+        $one = trim($one);
+        if ($one) $themeObject->add_headtext($one);
+    }
+}
+
 cms_admin_sendheaders();
 
 if (isset($config['show_performance_info'])) {
