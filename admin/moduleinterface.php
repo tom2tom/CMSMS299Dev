@@ -1,7 +1,7 @@
 <?php
-#admin-request-start processing for CMSMS
-#Copyright (C) 2004-2016 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2017-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#module-action-request processing for CMSMS
+#Copyright (C) 2004-2014 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2015-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -15,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 $CMS_MODULE_PAGE=1;
@@ -65,41 +63,22 @@ if( $USE_THEME ) {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->set_action_module($module);
 
-    // get module output
-    @ob_start();
+    ob_start();
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
-    $content = @ob_get_contents();
-    @ob_end_clean();
+    // retrieve module output, so it can be top-n-tail'd
+    $content = ob_get_contents();
+    ob_end_clean();
 
-    // deprecate this.
+    // deprecate this ?
     $txt = $modinst->GetHeaderHTML($action);
     if( $txt ) $themeObject->add_headtext($txt);
 
-    // call admin_add_headtext to get any admin data to add to the <head>
-    $out = \CMSMS\HookManager::do_hook_accumulate('admin_add_headtext');
-    if( $out ) {
-        foreach( $out as $one ) {
-            $one = trim($one);
-            if( $one ) $themeObject->add_headtext($one);
-        }
-    }
+    if ( !empty($params['module_error']) ) $themeObject->RecordMessage('error', $params['module_error']);
+    if ( !empty($params['module_message']) ) $themeObject->RecordMessage('success', $params['module_message']);
 
-   include_once 'header.php';
-
-    if ( !empty($params['module_error']) ) $themeObject->PrepareError($params['module_error']);
-    if ( !empty($params['module_message']) ) $themeObject->PrepareSuccess($params['module_message']);
-
-    // this is hackish
-    echo '<div class="pagecontainer">';
-    echo '<div class="pageoverflow">';
-    $title = $themeObject->title;
-    $module_help_type = 'both';
-    if( $title ) $module_help_type = null;
-    if( !$title ) $title = $themeObject->get_active_title();
-    if( !$title ) $title = $modinst->GetFriendlyName();
-    echo $themeObject->ShowHeader($title,[],'',$module_help_type).'</div>';
+    include_once 'header.php';
+    // back into the buffer,  now that pre-content things are in place
     echo $content;
-    echo '</div>';
     include_once 'footer.php';
 } else {
     // no theme output.
@@ -107,4 +86,3 @@ if( $USE_THEME ) {
 }
 
 //FUTURE USE \CMSMS\HookManager::do_hook('PostRequest');
-
