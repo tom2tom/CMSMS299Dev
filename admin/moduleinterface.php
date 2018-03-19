@@ -34,7 +34,7 @@ $module = '';
 $action = 'defaultadmin';
 //UNUSED $suppressOutput = false;
 if (isset($_REQUEST['mact'])) {
-	$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+    $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
     $ary = explode(',', $mact, 4);
     $module = $ary[0] ?? '';
     $id = $ary[1] ?? 'm1_';
