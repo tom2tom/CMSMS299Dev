@@ -2,8 +2,7 @@
 {if !isset($depth)}{$depth = 0}{/if}
 {if $depth == 0}
 <nav class="navigation" id="pg_menu" role="navigation">
-    <div class="box-shadow">&nbsp;</div>
-    <ul id="pg_pagemenu">
+<ul id="pg_pagemenu">
 {/if}
 {foreach $nav as $navitem}
     <li class="nav{if !isset($navitem.system) && (isset($navitem.module) || isset($navitem.firstmodule))} module{/if}{if !empty($navitem.selected) || (isset($smarty.get.section) && $smarty.get.section == $navitem.name|lower)} current{/if}">
