@@ -5,12 +5,20 @@ $(document).ready(function() {
         distance: '3'
     }, 15);
     // nicely display message
-    $('.message').hide().fadeIn(2600);
+    $('.message').hide().fadeIn(2000);
+    $('#info-wrapper').removeClass('open');
     // toggle info window
-    $('.info-wrapper').removeClass('open');
-    $('.toggle-info').click(function() {
-        $('.info').toggle();
-        $('.info-wrapper').toggleClass('open');
+    $('#toggle-info').click(function() {
+        var $p = $('#info-wrapper');
+        if($p.hasClass('open')) {
+            $p.fadeOut(300, function() {
+               $p.removeClass('open');
+            });
+        } else {
+            $p.fadeIn(400, function() {
+               $p.addClass('open');
+            });
+        }
         return false;
     });
     // focus input with class focus
