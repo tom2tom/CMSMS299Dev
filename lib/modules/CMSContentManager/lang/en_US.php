@@ -71,7 +71,7 @@ $lang['critical_error'] = '** ERROR **';
 
 #D
 $lang['dependencies'] = 'Dependencies';
-$lang['desc_contentmanager_settings'] = 'Adjust settings related to listing, or editing content pages';
+$lang['desc_contentmanager_settings'] = 'Adjust settings related to displaying or editing content pages';
 
 #E
 $lang['editcontent_confirm_cancel'] = 'Are you sure you want to cancel this operation?  Any changes will be lost!';
@@ -162,7 +162,7 @@ $lang['lock_expired'] = 'Expired';
 $lang['lock_expires'] = 'Expires';
 
 #M
-$lang['moddescription'] = 'Add, edit or remove website pages';
+$lang['moddescription'] = 'Add, change or remove website pages';
 $lang['msg_bulk_successful'] = 'Bulk content operation successful';
 $lang['msg_editpage_success'] = 'Content Updated';
 $lang['msg_cancelled'] = 'Operation Canceled';
