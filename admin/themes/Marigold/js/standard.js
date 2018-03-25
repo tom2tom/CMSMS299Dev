@@ -26,26 +26,52 @@ License: GPL2+
 
         view_init: function() {
             var _this = this,
-      $sidebar_toggle = $('.toggle-button'), // object for sidebar toggle
-           $container = $('#pg_container'), // page container
-                $menu = $('#pg_pagemenu'); // page nav menu
+           $container = $('#ggp_container'), // outer container
+       $menucontainer = $container.find('#ggp_navwrap'), // nav menu container
+             $toggler = $menucontainer.find('#toggle-button'), // span for sidebar toggle
+                $menu = $menucontainer.find('#ggp_nav'); // nav menu
             // handle the initial collapsed/expanded state of the sidebar
-            this.handleSidebar($container);
+            this.handleSidebar($container, $menucontainer);
             // handle navigation sidebar toggling
-            $sidebar_toggle.on('click', function(e) {
+            $toggler.on('click', function(e) {
                 e.preventDefault();
                 if($container.hasClass('sidebar-on')) {
-                    _this._closeSidebar($container, $menu);
+                    _this.closeSidebar($container, $menucontainer);
                 } else {
-                    _this._showSidebar($container, $menu);
+                    _this.openSidebar($container, $menucontainer);
                 }
+                return false;
             });
             $(window).resize(function() {
-                _this.handleSidebar($container);
+                _this.handleSidebar($container, $menucontainer);
                 _this.updateDisplay();
             });
-            // toggle display of menu children
-            this.toggleSubMenu($menu, 50);
+            // handle initial display of sub-menu
+            this.handleSubMenu($menu);
+            // handle sub-menu display toggling
+            $menu.find('.open-nav').on('click', function(e) {
+                //clicked span in a menu item title
+                e.preventDefault();
+                var $ob = $(this),
+                    $ul = $ob.next(), //sub-menu container for this item
+                     _p = [];
+                if(!$ul.is(':visible')) {
+                    //close any other open submenu
+                    var $open = $menu.find('.open-sub');
+                    if($open.length) {
+                        $open.removeClass('open-sub');
+                        _p.push($open.next().slideUp(50));
+                    }
+                    $ob.addClass('open-sub');
+                } else {
+                    $ob.removeClass('open-sub');
+                }
+                _p.push($ul.slideToggle(50));
+                $.when.apply($, _p).done(function() {
+                    _this.updateDisplay();
+                });
+                return false;
+            });
             // handle notifications
             this.showNotifications();
             // substitute elements - buttons for inputs etc
@@ -192,7 +218,7 @@ License: GPL2+
          * @param {object}
          */
         equalHeight: function(obj) {
-            var tallest = 0;
+/* see jquery plugin             var tallest = 0;
             obj.each(function() {
                 var elHeight = $(this).height();
                 if(elHeight > tallest) {
@@ -200,6 +226,7 @@ License: GPL2+
                 }
             });
             obj.height(tallest);
+*/
         },
         /**
          * @description detects if localStorage is supported by browser
@@ -235,34 +262,49 @@ License: GPL2+
          * @param {object} trigger
          * @param {object} container
          */
-        handleSidebar: function(container) {
+        handleSidebar: function(container, menu) {
             var viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
             if(this.getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= this.small_width) {
                 container.addClass('sidebar-off').removeClass('sidebar-on');
+                menu.addClass('sidebar-off').removeClass('sidebar-on');
             } else {
                 container.addClass('sidebar-on').removeClass('sidebar-off');
+                menu.addClass('sidebar-on').removeClass('sidebar-off');
             }
         },
         /**
-         * @description Handles toggling of main menu child items
-         * @function toggleSubMenu(obj)
-         * @param {object} obj - Menu container object
-         * @param {number} duration - A positive number for toggle speed control
+         * @description Handles setting for Sidebar and sets open state
+         * @private
+         * @function _openSidebar(obj, target)
+         * @params {object} obj
+         * @params {object} target
          */
-        toggleSubMenu: function(obj, duration) {
-            var _this = this;
-            obj.find('li.current span').addClass('open-sub');
-            obj.find('> li > span').click(function() {
-                var ul = $(this).next(),
-                    _p = [];
-                if(ul.is(':visible') === false) {
-                    _p.push(obj.find('ul').slideUp(duration));
-                }
-                _p.push(ul.slideToggle(duration));
-                $.when.apply($, _p).done(function() {
-                    _this.updateDisplay();
-                });
-            });
+        openSidebar: function(container, menu) {
+            container.addClass('sidebar-on').removeClass('sidebar-off');
+            menu.addClass('sidebar-on').removeClass('sidebar-off');
+            menu.find('li.current ul').show();
+            this.setStorageValue('sidebar-pref', 'sidebar-on', 60);
+        },
+        /**
+         * @description Handles setting for Sidebar and sets closed state
+         * @private
+         * @function _closeSidebar(obj, target)
+         * @params {object} obj
+         * @params {object} target
+         */
+        closeSidebar: function(container, menu) {
+            container.removeClass('sidebar-on').addClass('sidebar-off');
+            menu.removeClass('sidebar-on').addClass('sidebar-off');
+            menu.find('li ul').hide();
+            this.setStorageValue('sidebar-pref', 'sidebar-off', 60);
+        },
+        /**
+         * @description Sets intial state of main menu child items
+         * @function handleSubMenu($ob)
+         * @param {object} $ob - Menu container object
+         */
+        handleSubMenu: function($ob) {
+            $ob.find('li.current span').addClass('open-sub');
         },
         /**
          * @description Handles 'dynamic' notifications
@@ -270,10 +312,12 @@ License: GPL2+
          * @requires global cms_data{}, cms_notify(), cms_lang()
          */
         showNotifications: function() {
-            //back compatibility check might be relevant in some contexts
-            if (typeof cms_notify_all === 'function') {
+            //back-compatibility check might be relevant in some contexts
+//            if (typeof cms_notify_all === 'function') {
                 cms_notify_all();
-            }
+//            } else {
+//                do old-style notifications
+//            }
 
             $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_lang('gotit') + '"></span>');
             $(document).on('click', '.close-warning', function() {
@@ -350,6 +394,7 @@ License: GPL2+
          * @function updateDisplay()
          */
         updateDisplay: function() {
+/*
             var $menu = $('#pg_menu');
             var $alert_box = $('#admin-alerts');
             var $header = $('header.header');
@@ -370,30 +415,7 @@ License: GPL2+
                     }, 1000);
                 }
             }
-        },
-        /**
-         * @description Handles setting for Sidebar and sets open state
-         * @private
-         * @function _showSidebar(obj, target)
-         * @params {object} obj
-         * @params {object} target
-         */
-        _showSidebar: function(obj, target) {
-            obj.addClass('sidebar-on').removeClass('sidebar-off');
-            target.find('li.current ul').show();
-            this.setStorageValue('sidebar-pref', 'sidebar-on', 60);
-        },
-        /**
-         * @description Handles setting for Sidebar and sets closed state
-         * @private
-         * @function _closeSidebar(obj, target)
-         * @params {object} obj
-         * @params {object} target
-         */
-        _closeSidebar: function(obj, target) {
-            obj.removeClass('sidebar-on').addClass('sidebar-off');
-            target.find('li ul').hide();
-            this.setStorageValue('sidebar-pref', 'sidebar-off', 60);
+*/
         },
         /**
          * @description
