@@ -35,5 +35,5 @@ if (!empty($changepwhash)) {
 
 $smarty->assign('encoding', CmsNlsOperations::get_encoding());
 $smarty->assign('lang', get_site_preference('frontendlang'));
-$config = \cms_config::get_instance();
+$config = cms_config::get_instance();
 $smarty->assign('config', $config);
