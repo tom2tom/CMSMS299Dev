@@ -20,15 +20,15 @@ $CMS_ADMIN_PAGE=1;
 $CMS_LOAD_ALL_PLUGINS=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
-$access = check_permission($userid, 'View Tag Help'); //TODO relevant permission
+$access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
 
 if (!$access) {
-    die('Permission Denied');
+//TODO some immediate popup    die('Permission Denied');
 }
 
 $plugin = (isset($_GET['plugin'])) ? basename(cleanValue($_GET['plugin'])) : '';
@@ -55,8 +55,6 @@ $selfurl = basename(__FILE__);
 
 include_once 'header.php';
 
-$smarty->assign('maintitle', $themeObject->ShowHeader('tags'));
-
 if ($action == 'showpluginhelp') {
     $content = '';
     $file = $find_file("$type.$plugin.php");
@@ -64,8 +62,9 @@ if ($action == 'showpluginhelp') {
 
     if (function_exists('smarty_cms_help_'.$type.'_'.$plugin)) {
         // Get and display the plugin's help
+        $func_name = 'smarty_cms_help_'.$type.'_'.$plugin;
         @ob_start();
-        call_user_func_array('smarty_cms_help_'.$type.'_'.$plugin, array());
+        $func_name([]);
         $content = @ob_get_contents();
         @ob_end_clean();
     } elseif (CmsLangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
@@ -88,7 +87,7 @@ if ($action == 'showpluginhelp') {
     $func_name = 'smarty_cms_about_'.$type.'_'.$plugin;
     if (function_exists($func_name)) {
         @ob_start();
-        call_user_func_array($func_name, array());
+        $func_name([]);
         $content = @ob_get_contents();
         @ob_end_clean();
         $smarty->assign('content',$content);
@@ -163,7 +162,6 @@ if ($action == 'showpluginhelp') {
 }
 
 $smarty->assign([
-	'maintitle' => $maintitle,
 	'urlext' => $urlext,
 	'selfurl' => $selfurl,
 ]);

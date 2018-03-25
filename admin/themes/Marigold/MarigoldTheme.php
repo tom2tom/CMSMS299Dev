@@ -28,13 +28,72 @@ class MarigoldTheme extends CmsAdminThemeBase
 	 * @param array $exclude_list to be populated with ...
 	 * @return array updated values of each of the supplied arguments
 	 */
-	public function JsSetup($vars, $add_list, $exclude_list)
+	public function JsSetup(array $vars, array $add_list, array $exclude_list) : array
 	{
 		list($vars, $add_list, $exclude_list) = parent::JsSetup($vars, $add_list, $exclude_list);
-		$url = cms_path_url(__DIR__);
-//		$add_list[] = $url.'/includes/standard.min.js'; DEBUG
-		$add_list[] = $url.'/includes/standard.js';
+		$url = cms_admin_utils::path_to_url(__DIR__);
+//		$add_list[] = $url.'/js/standard.min.js'; DEBUG
+		$add_list[] = $url.'/js/standard.js';
 		return [$vars, $add_list, $exclude_list];
+	}
+
+	public function AdminHeaderSetup(array $vars, array $add_list) : array
+	{
+		$config = \cms_config::get_instance();
+		$rel = substr(__DIR__, strlen($config['admin_path']));
+		$root_url = $config['admin_url'];
+		$base_url = $root_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
+		$script_url = CMS_SCRIPTS_URL;
+		$fn = 'style';
+		$dir = cms_admin_utils::lang_direction();
+		if ($dir == 'rtl') {
+			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+				$fn .= '-rtl';
+			}
+		}
+		//TODO  if (X) $fn .= '_ie';
+
+		$out = <<<EOS
+<meta name="msapplication-TileColor" content='#f89938'>
+<meta name="msapplication-TileImage" content='{$base_url}/images/favicon/ms-application-icon.png' />
+<link rel="shortcut icon" href="{$base_url}/images/favicon/cmsms-favicon.ico" />
+<link rel="apple-touch-icon" href="{$base_url}/images/favicon/apple-touch-icon-iphone.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="{$base_url}/images/favicon/apple-touch-icon-ipad.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="{$base_url}/images/favicon/apple-touch-icon-iphone4.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="{$base_url}/images/favicon/apple-touch-icon-ipad3.png" />
+<link rel="stylesheet" type="text/css" href="{$base_url}/css/{$fn}.css" />
+
+EOS;
+		if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
+		$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$base_url}/extcss/{$fn}.css" />
+
+EOS;
+		}
+		$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$base_url}/css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="{$script_url}/css/smoothness/jquery-ui-1.11.4.custom.min.css" />
+<link rel="stylesheet" type="text/css" href="{$base_url}/css/wrecker.css"/>
+<!-- old IE html5 support -->
+<!--[if lt IE 9]>
+<script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+EOS;
+		$out .= cms_get_jquery();
+		$out .= <<<EOS
+<!--[if lt IE 9]>
+<script type="text/javascript" src="{$base_url}/js/libs/jquery-extra-selectors.js"></script>
+<script type="text/javascript" src="{$base_url}/js/libs/selectivizr-min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="{$base_url}/js/jquery.wrecker.js"></script>
+EOS;
+		$add_list[] = $out;
+		return [$vars, $add_list];
+	}
+
+	public function AdminBottomSetup(array $vars, array $add_list) : array
+	{
+		return [$vars, $add_list];
 	}
 
 	/**
@@ -75,8 +134,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 					}
 				}
 				if ($path) {
-					$config = \cms_config::get_instance();
-					$url = str_replace([$config['root_path'],DIRECTORY_SEPARATOR],[$config['root_url'],'/'],$path);
+					$url = cms_admin_utils::path_to_url($path);
 				} else {
 					$url = '';
 				}
@@ -138,12 +196,12 @@ class MarigoldTheme extends CmsAdminThemeBase
 		if ($section_name) {
 			$smarty->assign('section_name', $section_name);
 			$smarty->assign('pagetitle', lang($section_name));
-			$smarty->assign('nodes', $this->get_navigation_tree($section_name, -1, FALSE));
+			$nodes = $this->get_navigation_tree($section_name, -1);
 		} else {
-			$nodes = $this->get_navigation_tree(-1, 2, FALSE);
-			$smarty->assign('nodes', $nodes);
+			$nodes = $this->get_navigation_tree(null, 2);
 		}
-
+		$smarty->assign('nodes', $nodes);
+        $smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 		$smarty->assign('config', cms_config::get_instance());
 		$smarty->assign('theme', $this);
 
@@ -167,6 +225,12 @@ class MarigoldTheme extends CmsAdminThemeBase
 		include __DIR__ . DIRECTORY_SEPARATOR . 'login.php'; //various init's, including $smarty & $config
 
 		if ($params) $smarty->assign($params);
+
+        $dir = cms_admin_utils::lang_direction();
+        if($dir == 'rtl') {
+			$smarty->assign('lang_dir', $dir);
+		}
+
 		// the only needed scripts are: jquery, jquery-ui, and our custom login
 		$jqcore = '';
 		$jqui = '';
@@ -191,12 +255,12 @@ class MarigoldTheme extends CmsAdminThemeBase
 EOS;
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
-		$url = cms_path_url($jqcore);
+		$url = cms_admin_utils::path_to_url($jqcore);
 		$jsinc .= sprintf($tpl,$url);
-		$url = cms_path_url($jqui);
+		$url = cms_admin_utils::path_to_url($jqui);
 		$jsinc .= sprintf($tpl,$url);
-	    $url = cms_path_url(__DIR__);
-	    $url .= '/includes/login.js';
+	    $url = cms_admin_utils::path_to_url(__DIR__);
+	    $url .= '/js/login.js';
 		$jsinc .= sprintf($tpl,$url);
 
 		$smarty->assign('jsinc', $jsinc);
@@ -289,16 +353,15 @@ EOS;
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 		$smarty->assign('config', cms_config::get_instance());
 		$smarty->assign('theme', $this);
+		// navigation menu data
+		$smarty->assign('nav', $this->get_navigation_tree(null, 2));
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 		$userops = UserOperations::get_instance();
 		$smarty->assign('user', $userops->LoadUserByID(get_userid()));
-		// get user selected language
+		// user selected language
 		$smarty->assign('lang',cms_userprefs::get_for_user(get_userid(), 'default_cms_language'));
-		// get language direction
-		$lang = CmsNlsOperations::get_current_language();
-		$info = CmsNlsOperations::get_language_info($lang);
-		$smarty->assign('lang_dir',$info->direction());
-
+		// language direction
+        $smarty->assign('lang_dir', cms_admin_utils::lang_direction());
 		// is the website down for maintenance?
 		if (get_site_preference('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 'true');

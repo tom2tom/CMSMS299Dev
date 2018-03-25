@@ -44,11 +44,12 @@ class CmsArrayTree
 	}
 
 	/**
-	 * Converts 'flat' $data to corresponding tree-form array, using
+	 * Converts flat $data to corresponding tree-form array, using
 	 *  modified pre-order tree traversal (a.k.a. nested set)
-	 * Posted at http://bytes.schibsted.com/building-tree-structures-in-php-using-references
-	 * @param array $data	data to be converted, each member is assoc. array
-	 *  with members $selfkey, $parentkey (at least)
+	 * See http://bytes.schibsted.com/building-tree-structures-in-php-using-references
+	 * Node-data for a parent must be present in $data before any child of that parent.
+	 * @param array $data      The data to be converted, each member is
+	 *  assoc. array with members $selfkey, $parentkey (at least)
 	 * @param string $selfkey   $data key-identifier default self::SELFKEY
 	 * @param string $parentkey $data key-identifier default self::PARENTKEY
 	 * @param string $childkey  $data key-identifier default self::CHILDKEY
@@ -65,12 +66,16 @@ class CmsArrayTree
 			// Add empty placeholder for children
 			$node[$childkey] = [];
 			if (is_null($node[$parentkey])) {
-   				// If it's a root node, add it directly to the tree
+   				// Add a root-parented node directly to the tree
+				$node['path'] = [$node[$selfkey]];
 				$tree[$node[$selfkey]] = &$node;
 			} else {
 		  		// Otherwise, add this node as a reference in its parent
+				$parentpath = $references[$node[$parentkey]]['path'];
+				$node['path'] = $parentpath + [count($parentpath)=>$node[$selfkey]];
 				$references[$node[$parentkey]][$childkey][$node[$selfkey]] = &$node;
 			}
+			unset($node[$parentkey]);
 		}
 		unset($node);
 		return $tree;
@@ -78,114 +83,237 @@ class CmsArrayTree
 
 	/**
 	 *
-	 * @param
-	 * @param
-	 * @param string $selfkey   $data key-identifier default self::SELFKEY
-	 * @param string $parentkey $data key-identifier default self::PARENTKEY
-	 * @param string $childkey  $data key-identifier default self::CHILDKEY
+	 * @param array $tree       Tree-structured data to process
+	 * @param mixed $parentname $tree key-identifier or null for the root.
+	 *   Other than for root node, a node with the specified 'name' property must exist.
+	 * @param string $parentkey $tree key-identifier default self::PARENTKEY
 	 */
-	public static function attach_dangles(array &$tree, string $parentname,
-		string $selfkey = self::SELFKEY, string $parentkey = self::PARENTKEY, string $childkey = self::CHILDKEY) : void
+	public static function attach_dangles(array &$tree, $parentname,
+		string $parentkey = self::PARENTKEY) : void
 	{
+		//IS THIS POSSIBLE ?
 	}
 
 	/**
 	 *
-	 * @param
-	 * @param string $selfkey   $data key-identifier default self::SELFKEY
-	 * @param string $parentkey $data key-identifier default self::PARENTKEY
-	 * @param string $childkey  $data key-identifier default self::CHILDKEY
+	 * @param array $tree       Tree-structured data to process
+	 * @param string $parentkey $tree key-identifier default self::PARENTKEY
 	 */
 	public static function drop_dangles(array &$tree,
-		string $selfkey = self::SELFKEY, string $parentkey = self::PARENTKEY, string $childkey = self::CHILDKEY) : void
+		string $parentkey = self::PARENTKEY) : void
 	{
+		//IS THIS POSSIBLE ?
 	}
 
 	/**
 	 *
-	 * @param
-	 * @param
-	 * @param
-	 * @param string $childkey  $data key-identifier default self::CHILDKEY
-	 * @return string
+	 * @param array $tree    Tree-structured data to process
+	 * @param string $getkey $tree key-identifier
+	 * @param mixed $getval  Value to be matched
+	 * @param bool  $strict  Optional flag for strict comparison, default true
+	 * @return mixed path-array or null if not found
 	 */
 	public static function find(array $tree, string $getkey, $getval,
-		string $childkey = self::CHILDKEY) : string
+		bool $strict = true, string $childkey = self::CHILDKEY)
 	{
-		return '';
+		$iter = new \RecursiveArrayTreeIterator(
+				new \ArrayTreeIterator($tree, 0, $childkey),
+				\RecursiveIteratorIterator::SELF_FIRST
+				);
+		foreach ($iter as $node) {
+			if (isset($node[$getkey])) {
+				if ($strict && $node[$getkey] === $getval) {
+					return $node['path'];
+				}
+				if (!$strict && $node[$getkey] == $getval) {
+					return $node['path'];
+				}
+			}
+		}
+	}
+
+	/**
+	 * Process $path into clean array
+	 *
+	 * @param mixed $path array, or ':'-separated string, of node names
+	 *  Keys may be 'name'-property strings and/or 0-based children-index ints.
+	 *  The first key is for the root node.
+	 * @return array of node name strings, or false
+	 */
+	public static function process_path($path)
+	{
+		if (is_string($path)) {
+			$pathkeys = explode(':',$path);
+		} elseif (is_array($path)) {
+			$pathkeys = $path;
+		} else {
+			return false;
+		}
+
+		foreach ($pathkeys as &$key) {
+			if (is_numeric($key)) {
+				$key = (int)$key;
+			} else {
+				$key = trim($key);
+			}
+		}
+		unset($key);
+		return $pathkeys;
 	}
 
 	/**
 	 * Get the value of $getkey for each node of $tree which is on $path
-	 * @param mixed $path	  numeric-indices array, or ':'-separated string
-	 *   first member/char must be 0 (for the root node)
-	 * @param array $tree	  tree-structured data to process
+     *
+	 * @param array $tree	  Tree-structured data to process
+	 * @param mixed $path	  array, or ':'-separated string, of keys
+	 *  Keys may be 'name'-property strings and/or 0-based children-index ints.
+	 *  The first key for the root node.
 	 * @param string $getkey   $tree key-identifier for nodes in $path
+	 * @param mixed $default   Optional value to return if no match found, default null
 	 * @param string $childkey $tree key-identifier default self::CHILDKEY
 	 * @return array of values, missing values null'd
 	 */
-	public static function path_get_data($path, array $tree, string $getkey, string $childkey = self::CHILDKEY) : array
+	public static function path_get_data(array $tree, $path, string $getkey,
+		$default = null, string $childkey = self::CHILDKEY) : array
 	{
-		if (is_string($path)) {
-			$path = explode(',',$path);
-		} elseif (!is_array($path)) {
-			return [];
+		$pathkeys = self::process_path($path);
+		if (!$pathkeys) {
+			return []; //TODO handle error
 		}
 
 		$ret = [];
-		foreach ($path as $indx) {
-			//TODO
+		$name = array_shift($pathkeys);
+		$node = $tree[$name];
+		foreach ($pathkeys as $key) {
+			//TODO support index-keys too
+			if (isset($node[$childkey][$key])) {
+				$node = $node[$childkey][$key];
+			    $ret[] = $node[$getkey] ?? $default;
+			} else {
+				return []; //error
+			}
 		}
 		return $ret;
 	}
 
 	/**
 	 * Set/add array-member $setkey=>$setval to each node of $tree which is on $path
-	 * @since 2.3
-	 * @param mixed $path	  numeric-indices array, or ':'-separated string
-	 *   first member/char must be 0 (for the root node)
+	 *
 	 * @param array $tree	  tree-structured data to process
+	 * @param mixed $path	  array, or ':'-separated string, of keys
+	 *  Keys may be 'name'-property strings and/or 0-based children-index ints.
+	 *  The first key for the root node.
 	 * @param string $setkey   $tree key-identifier
 	 * @param mixed $setval	value to be added as $setkey=>$setval in each node of $path
 	 * @param string $childkey $tree key-identifier default self::CHILDKEY
 	 * @return boolean indicating success
 	 */
-	public static function path_set_data($path, array &$tree, string $setkey, $setval, string $childkey = self::CHILDKEY) : bool
+	public static function path_set_data(array &$tree, $path, string $setkey, $setval,
+		string $childkey = self::CHILDKEY) : bool
 	{
-		if (is_string($path)) {
-			$path = explode(',',$path);
-		} elseif (!is_array($path)) {
-			return false;
+		$pathkeys = self::process_path($path);
+		if (!$pathkeys) {
+			return false; //TODO handle error
 		}
 
-		foreach ($path as $indx) {
-			//TODO
+		$name = array_shift($pathkeys);
+		$node = &$tree[$name];
+		foreach ($pathkeys as $key) {
+			//TODO support index-keys too
+			if (isset($node[$childkey][$key])) {
+				$node = &$node[$childkey][$key];
+			    $node[$setkey] = $setval;
+			} else {
+				return false; //error
+			}
 		}
-		return false;
+		return true;
 	}
 
 	/**
 	 *
-	 * @param string $selfkey   $data key-identifier default self::SELFKEY
-	 * @param string $parentkey $data key-identifier default self::PARENTKEY
+	 * @param array $tree	  tree-structured data to process
+	 * @param mixed $path	  array, or ':'-separated string, of keys
+	 *  Keys may be 'name'-property strings and/or 0-based children-index ints.
+	 *  The first key for the root node.
+	 * @param string $getkey   $tree key-identifier. May be '*' or 'all' or 'node'
+	 *  to return the whole node
+	 * @param mixed $default   Optional value to return if no match found, default null
 	 * @param string $childkey  $data key-identifier default self::CHILDKEY
-	 * @return array
+	 * @return mixed
 	 */
-	public static function node_get_data($path, array $tree, string $getkey, string $childkey = self::CHILDKEY) : array
+	public static function node_get_data(array $tree, $path, string $getkey,
+		$default = null, string $childkey = self::CHILDKEY)
 	{
-		return [];
+		$pathkeys = self::process_path($path);
+		if (!$pathkeys) {
+			return false; //TODO handle error
+		}
+
+		$name = array_shift($pathkeys);
+		$node = $tree[$name];
+		foreach ($pathkeys as $key) {
+			//TODO support index-keys too
+			if (isset($node[$childkey][$key])) {
+				$node = $node[$childkey][$key];
+			} else {
+				return false; //error
+			}
+		}
+
+		if (isset($node[$getkey])) {
+			if ($getkey != $childkey) {
+				return $node[$getkey];
+			}
+			$ret = &$node[$getkey];
+			return $ret;
+		}
+		switch ($getkey) {
+			case '*':
+			case 'all':
+			case 'node':
+				$ret = &$node;
+				return $ret;
+		}
+		return $default;
 	}
 
 	/**
 	 *
-	 * @param string $selfkey   $data key-identifier default self::SELFKEY
-	 * @param string $parentkey $data key-identifier default self::PARENTKEY
-	 * @param string $childkey  $data key-identifier default self::CHILDKEY
+	 * @param array $tree	  Tree-structured data to process
+	 * @param mixed $path	  Array, or ':'-separated string, of keys
+	 *  Keys may be 'name'-property strings and/or 0-based children-index ints.
+	 *  The first key for the root node.
+	 * @param string $setkey   $tree key-identifier
+	 * @param mixed $setval	value to be added as $setkey=>$setval in each node of $path
+	 * @param string $childkey $tree key-identifier default self::CHILDKEY
 	 * @return boolean indicating success
 	 */
-	public static function node_set_data($path, array &$tree, string $setkey, $setval, string $childkey = self::CHILDKEY) : bool
+	public static function node_set_data(array &$tree, $path, string $setkey, $setval,
+		string $childkey = self::CHILDKEY) : bool
 	{
-		return false;
+		$pathkeys = self::process_path($path);
+		if (!$pathkeys) {
+			return false; //TODO handle error
+		}
+
+		$name = array_shift($pathkeys);
+		$node = &$tree[$name];
+		foreach ($pathkeys as $key) {
+			//TODO support index-keys too
+			if (isset($node[$childkey][$key])) {
+				$node = &$node[$childkey][$key];
+			} else {
+				return false; //error
+			}
+		}
+		if ($setkey != $childkey) {
+		    $node[$setkey] = $setval;
+		} else {
+			unset($node[$setkey]);
+		    $node[$setkey] = $setval;
+		}
+		return true;
 	}
 } //class
 

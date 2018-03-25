@@ -50,7 +50,12 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
-    private $_menuItems;
+    private $_menuTree = [];
+
+    /**
+     * @ignore
+     */
+    private $_activePath = [];
 
     /**
      * @ignore
@@ -60,7 +65,7 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
-    private $_breadcrumbs;
+    private $_breadcrumbs = [];
 
     /**
      * @ignore
@@ -102,7 +107,7 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
-    private $_modulesBySection;
+//    private $_modulesBySection;
 
     /**
      * @ignore
@@ -132,7 +137,7 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
-    private $_valid_sections = ['main','content','layout','files','usersgroups','extensions','siteadmin','ecommerce','myprefs'];
+    private $_valid_sections = ['view','content','layout','files','usersgroups','extensions','services','ecommerce','siteadmin','myprefs'];
 
     /**
      * Feedback-message-string accumulators
@@ -156,7 +161,7 @@ abstract class CmsAdminThemeBase
             $tmp = explode(',',$_POST['mact']);
             $this->_query = 'module='.$tmp[0];
         }
-        //if ($this->_query == '' && isset($_POST['module']) && $_POST['module'] != '') $this->_query = 'module='.$_POST['module'];
+        //if ($this->_query == '' && isset($_POST['module']) && $_POST['module']) $this->_query = 'module='.$_POST['module'];
         if (strpos( $this->_url, '/' ) === false) {
             $this->_script = $this->_url;
         }
@@ -165,6 +170,15 @@ abstract class CmsAdminThemeBase
             $toam_tmp2 = array_pop($toam_tmp);
             $this->_script = $toam_tmp2;
         }
+/* TOAST DEBUGGING
+        $this->_infos = ['dummy 1st line','This is some cool stuff that you\'ll want to remember'];
+        $this->_successes = ['1234 5678 91011 All good to go, <b>great!</b>'];
+        $this->_warnings = ['WOOPS!','this is just enough wider','and higher','as you can see'];
+        $this->_errors = ['OOPS!'];
+*/
+        \CMSMS\HookManager::add_hook('RuntimeJsSetup', [$this, 'JsSetup']);
+        \CMSMS\HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
+        \CMSMS\HookManager::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
     }
 
     /**
@@ -187,6 +201,62 @@ abstract class CmsAdminThemeBase
     }
 
     /**
+     * Helper for constructing js data
+     * @ignore
+     * @since 2.3
+     * @param array $strings
+     * @return mixed string or false
+     */
+    private function merger(array $strings)
+    {
+        if ($strings) {
+            if (count($strings) > 1) {
+                foreach ($strings as &$one) {
+                    if ($one) {
+                        $one = json_encode($one);
+                    }
+                }
+                unset($one);
+                return '['.implode(',',array_filter($strings)).']';
+            } else {
+                return json_encode(reset($strings));
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Hook function to populate runtime js variables
+     * This will probably be subclassed for specific themes, to also do extra setup
+     * @since 2.3
+     * @param array $vars to be populated with members like key=>value
+     * @param array $add_list to be populated with ...
+     * @param array $exclude_list to be populated with ...
+     * @return array updated values of each of the supplied arguments
+     */
+    public function JsSetup(array $vars, array $add_list, array $exclude_list) : array
+    {
+        $msgs = [
+            'toasterrs' => $this->merger($this->_errors),
+            'toastwarns' => $this->merger($this->_warnings),
+            'toastgoods' => $this->merger($this->_successes),
+            'toastinfos' => $this->merger($this->_infos),
+        ];
+        $vars += array_filter($msgs);
+
+        $add_list['toast'] = CMS_SCRIPTS_URL.'/js/jquery.toast.js';
+
+        return [$vars, $add_list, $exclude_list];
+    }
+
+    /**
+     * Abstract hook functions to populate page content at runtime
+     * @since 2.3
+     */
+    public function AdminHeaderSetup(array $vars, array $add_list) : array {}
+    public function AdminBottomSetup(array $vars, array $add_list) : array {}
+
+    /**
      * FixSpaces
      * This method converts spaces into a non-breaking space HTML entity.
      * It's used for making menus that work nicely
@@ -196,44 +266,46 @@ abstract class CmsAdminThemeBase
      */
     private function _FixSpaces(string $str) : string
     {
-        $tmp = preg_replace('/\s+/u',"&nbsp;",$str); // PREG UTF8
+/* RUBBISH - UTF-8 whitespace is ASCII-compatible
+        $tmp = preg_replace('/\s+/u','&nbsp;',$str); // PREG UTF8
         if(!empty($tmp)) return $tmp;
         else return preg_replace('/\s+/',"&nbsp;",$str); // bad UTF8
+*/
+        return preg_replace('/\s+/','&nbsp;',$str);
     }
 
     /**
      * @ignore
+     * @param mixed $url string or null
+     * @return mixed string or null
      */
-    private function _fix_url_userkey(string $url) :string
+    private function _fix_url_userkey($url)
     {
-        $newurl = $url;
         if( strpos($url,CMS_SECURE_PARAM_NAME) !== FALSE ) {
             $from = '/'.CMS_SECURE_PARAM_NAME.'=[a-zA-Z0-9]{16,19}/i';
             $to = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-            $newurl = preg_replace($from,$to,$url);
+            return preg_replace($from,$to,$url);
         }
         elseif( startswith($url,CMS_ROOT_URL) || !startswith($url,'http') ) {
-            $prefix = '?';
-            if( strpos($url,'?') !== FALSE ) $prefix = '&amp;';
-            $newurl .= $prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+            $prefix ( strpos($url,'?') !== FALSE ) ? '&amp;' : '?';
+            return $url.$prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         }
-        return $newurl;
+        return $url;
     }
 
     /**
      * _get_user_module_info
-     *
-     * Given the currently logged in user, this will read cache information representing info for all avallable modules
+     * Given the currently logged in user, this will read cache information representing info for all available modules
      * for that particular user.   If cache information is not available, then modules will be loaded and the information
      * will be gleaned from the module for that user.
-     *
      *
      * @since 1.10
      * @access private
      * @ignore
      * @author calguy1000
+     * @return array
      */
-    private function _get_user_module_info()
+    private function _get_user_module_info() : array
     {
         $uid = get_userid(FALSE);
         if( ($data = cms_cache_handler::get_instance()->get('themeinfo'.$uid)) ) {
@@ -243,7 +315,7 @@ abstract class CmsAdminThemeBase
         if( !$data ) {
             // data doesn't exist.. gotta build it.
             $allmodules = ModuleOperations::get_instance()->GetInstalledModules();
-            $usermoduleinfo = array();
+            $usermoduleinfo = [];
             foreach( $allmodules as $key ) {
                 $object = ModuleOperations::get_instance()->get_module_instance($key);
                 if( is_object($object) && $object->HasAdmin() ) {
@@ -253,10 +325,10 @@ abstract class CmsAdminThemeBase
                         foreach( $recs as $one ) {
                             if( !$one->valid() ) continue;
                             if( ModuleOperations::Get_instance()->IsSystemModule($object->GetName()) ) {
-                                $one->system = TRUE;
+                                $one->system = true;
                             }
                             else {
-                                $one->system = FALSE;
+                                $one->system = false;
                             }
                             $key = $one->module.$suffix++;
                             $usermoduleinfo[$key] = $one;
@@ -274,7 +346,6 @@ abstract class CmsAdminThemeBase
         return $data;
     }
 
-
     /**
      * _SetModuleAdminInterfaces
      *
@@ -285,23 +356,30 @@ abstract class CmsAdminThemeBase
      * @access private
      * @ignore
      */
-    private function _SetModuleAdminInterfaces()
+    private function _SetModuleAdminInterfaces() : void
     {
         if( is_array($this->_sectionCount) ) return;
 
-        $this->_sectionCount = array();
-        $this->_modulesBySection = array();
+        $this->_sectionCount = [];
+//        $this->_modulesBySection = [];
 
         // get the info from the cache
         $usermoduleinfo = $this->_get_user_module_info();
+        // Are there any modules with an admin interface?
         if( !is_array($usermoduleinfo) ) {
             // put mention into the admin log
             audit(get_userid(FALSE),'Admin Theme','No module information found for user');
         }
         else {
-            // Are there any modules with an admin interface?
+            $appends = [
+                ['images','icon.png'],
+                ['icons','icon.png'],
+                ['images','icon.gif'],
+                ['icons','icon.gif'],
+            ];
+
             foreach( $usermoduleinfo as $key => $obj ) {
-                if( $obj->section == '' ) $obj->section = 'extensions';
+                if( empty($obj->section) ) $obj->section = 'extensions';
 
                 $section = $obj->section;
                 if( !in_array($section,$this->_valid_sections) ) $section = 'extensions';
@@ -309,28 +387,25 @@ abstract class CmsAdminThemeBase
 
                 // fix up the session key stuff.
                 $obj->url = $this->_fix_url_userkey($obj->url);
-
-                // find an icon for this thing.
                 if( $obj->icon == '' ) {
-                    $tmp = array("modules/{$key}/images/icon.gif",
-                                 "modules/{$key}/icons/icons.gif",
-                                 "modules/{$key}/images/icon.png",
-                                 "modules/{$key}/icons/icons.png");
-                    foreach( $tmp as $one ) {
-                        $fn = cms_join_path(CMS_ROOT_PATH,$one);
-                        if( is_file($fn) ) {
-                            $obj->icon = CMS_ROOT_URL.'/'.$one;
-                            break;
+                    // find an icon for this thing.
+                    $dirs = cms_admin_utils::module_places($key);
+                    foreach( $dirs as $base ) {
+                        foreach( $appends as $one ) {
+                            $path = cms_join_path($base, ...$one);
+                            if( is_file($path) ) {
+                                $obj->icon = cms_admin_utils::path_to_url($path);
+                                break;
+                            }
                         }
                     }
                 }
 
-                $this->_modulesBySection[$section][] = $obj;
+//                $this->_modulesBySection[$section][] = $obj;
                 $this->_sectionCount[$section]++;
             }
         }
     }
-
 
     /**
      * SetAggregatePermissions
@@ -343,35 +418,44 @@ abstract class CmsAdminThemeBase
      * @access private
      * @ignore
      */
-    private function _SetAggregatePermissions(bool $force = FALSE)
+    private function _SetAggregatePermissions(bool $force = false) : void
     {
         if( is_array($this->_perms) && !$force ) return;
 
-        $this->_perms = array();
-        $this->_breadcrumbs = array();
+        $this->_perms = [];
 
-        // content section.
-        $this->_perms['contentPerms'] = (isset($this->_sectionCount['content']) && $this->_sectionCount['content'] > 0);
+        // content section TODO individual
+        $this->_perms['contentPerms'] =
+            check_permission($this->userid, 'Manage All Content') |
+            check_permission($this->userid, 'Modify Any Page') |
+            check_permission($this->userid, 'Add Pages') |
+            check_permission($this->userid, 'Remove Pages') |
+            check_permission($this->userid, 'Reorder Content');
 
-        // layout
-        $this->_perms['layoutPerms'] = (isset($this->_sectionCount['layout']) && $this->_sectionCount['layout'] > 0);
+        // layout TODO individual
+        $this->_perms['layoutPerms'] =
+            check_permission($this->userid, 'Manage Designs') |
+            check_permission($this->userid, 'Manage Stylesheets') |
+            check_permission($this->userid, 'Add Templates') |
+            check_permission($this->userid, 'Modify Templates');
 
         // file
-        $this->_perms['filePerms'] = (isset($this->_sectionCount['files']) && $this->_sectionCount['files'] > 0);
+        $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
+
+        // simple plugins (2.3+)
+        $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify SimpleTags');
 
         // user/group
         $this->_perms['userPerms'] = check_permission($this->userid, 'Manage Users');
         $this->_perms['groupPerms'] = check_permission($this->userid, 'Manage Groups');
         $this->_perms['usersGroupsPerms'] = $this->_perms['userPerms'] |
-            $this->_perms['groupPerms'] | (isset($this->_sectionCount['usersgroups']) && $this->_sectionCount['usersgroups'] > 0);
+            $this->_perms['groupPerms'];
 
         // admin
-        $this->_perms['sitePrefPerms'] = check_permission($this->userid, 'Modify Site Preferences') |
-            (isset($this->_sectionCount['preferences']) && $this->_sectionCount['preferences'] > 0);
-        $this->_perms['adminPerms'] = $this->_perms['sitePrefPerms'] |
-            (isset($this->_sectionCount['siteadmin']) && $this->_sectionCount['siteadmin'] > 0);
+        $this->_perms['sitePrefPerms'] = check_permission($this->userid, 'Modify Site Preferences');
+        $this->_perms['adminPerms'] = $this->_perms['sitePrefPerms'];
         $this->_perms['siteAdminPerms'] = $this->_perms['sitePrefPerms'] |
-            $this->_perms['adminPerms'] | (isset($this->_sectionCount['siteadmin']) && $this->_sectionCount['siteadmin'] > 0);
+            $this->_perms['adminPerms'];
 
         // extensions
         $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
@@ -379,376 +463,28 @@ abstract class CmsAdminThemeBase
         $this->_perms['eventPerms'] = check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
-            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] | $this->_perms['taghelpPerms'] |
-            (isset($this->_sectionCount['extensions']) && $this->_sectionCount['extensions'] > 0);
+            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] | $this->_perms['taghelpPerms'];
 
+        // myprefs
+        $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
         $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
-        $this->_perms['myaccount'] = $this->_perms['mysettings'] |
-            check_permission($this->userid,'Manage My Account');
         $this->_perms['bookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
-        $this->_perms['myprefs'] = $this->_perms['myaccount'] | $this->_perms['bookmarks'];
+        $this->_perms['myprefPerms'] = $this->_perms['myaccount'] |
+                $this->_perms['mysettings'] | $this->_perms['bookmarks'];
     }
 
-
-    /**
-     * PopulateAdminNavigation
-     * This method populates a big array containing the Navigation Taxonomy
-     * for the admin section. This array is then used to create menus and
-     * section main pages. It uses aggregate permissions to hide sections for which
-     * the user doesn't have permissions, and highlights the current section so
-     * menus can show the user where they are.
-     *
-     * @param subtitle any info to add to the page title
-     * @access private
-     * @ignore
-     */
-    private function _populate_admin_navigation(string $subtitle = null)
+    private function _parse_request()
     {
-        if ($this->_menuitems && count($this->_menuItems) > 0) return;
-        // note: it would be interesting if we could cache these menuItems in the session
-        // then clear this data when the cache is cleared (for when modules become available)
-
-        debug_buffer('before populate admin navigation');
-        if( $subtitle ) $this->_subtitle = $subtitle;
-
-        $this->_SetModuleAdminInterfaces();
-
-        debug_buffer('before menu items');
-        $this->_menuItems = array();
-        $items =& $this->_menuItems;
-        // base main menu ---------------------------------------------------------
-        $items['main'] = array('url'=>'index.php','parent'=>-1,'title'=>'CMS','priority'=>1,'description'=>'','show_in_menu'=>true);
-        $items['home'] = array('url'=>'index.php','parent'=>'main','priority'=>1,'title'=>$this->_FixSpaces(lang('home')),
-                               'description'=>'','show_in_menu'=>true);
-        $items['viewsite'] = array('url'=>CMS_ROOT_URL.'/index.php','parent'=>'main',
-                                   'title'=>$this->_FixSpaces(lang('viewsite')),'type'=>'external','priority'=>2,
-                                   'description'=>'','show_in_menu'=>true, 'target'=>'_blank');
-        $items['logout'] = array('url'=>'logout.php','parent'=>'main','title'=>$this->_FixSpaces(lang('logout')),'priority'=>3,
-                                 'description'=>'','show_in_menu'=>true);
-        // base content menu ---------------------------------------------------------
-        $items['content'] = array('url'=>'index.php?section=content','parent'=>-1,'priority'=>2,
-                                 'title'=>$this->_FixSpaces(lang('content')),'description'=>lang('contentdescription'),
-                                  'show_in_menu'=>$this->HasPerm('contentPerms'));
-
-        // base layout menu ---------------------------------------------------------
-        $items['layout'] = array('url'=>'index.php?section=layout','parent'=>-1,'priority'=>3,
-                                 'title'=>$this->_FixSpaces(lang('layout')),'description'=>lang('layoutdescription'),
-                                 'show_in_menu'=>$this->HasPerm('layoutPerms'));
-
-        // base filest menu --------------------------------------------------------------
-        $items['files'] = array('url'=>'index.php?section=files','parent'=>-1,'priority'=>4,
-                                 'title'=>$this->_FixSpaces(lang('files')),'description'=>lang('filesdescription'),
-                                 'show_in_menu'=>$this->HasPerm('filePerms'));
-
-        // base user/groups menu ---------------------------------------------------------
-        $items['usersgroups'] = array('url'=>'index.php?section=usersgroups','parent'=>-1,
-                                      'title'=>$this->_FixSpaces(lang('usersgroups')),'priority'=>5,
-                                      'description'=>lang('usersgroupsdescription'),'show_in_menu'=>$this->HasPerm('usersGroupsPerms'));
-        $items['users'] = array('url'=>'listusers.php','parent'=>'usersgroups',
-                                'title'=>$this->_FixSpaces(lang('users')),'description'=>lang('usersdescription'),
-                                'show_in_menu'=>$this->HasPerm('userPerms'));
-        $items['adduser'] = array('url'=>'adduser.php','parent'=>'users',
-                                  'title'=>$this->_FixSpaces(lang('adduser')),
-                                  'description'=>lang('adduser'),'show_in_menu'=>false);
-        $items['edituser'] = array('url'=>'edituser.php','parent'=>'users',
-                                   'title'=>$this->_FixSpaces(lang('edituser')),
-                                   'description'=>lang('edituser'),'show_in_menu'=>false);
-        $items['groups'] = array('url'=>'listgroups.php','parent'=>'usersgroups',
-                                 'title'=>$this->_FixSpaces(lang('groups')),
-                                 'description'=>lang('groupsdescription'),
-                                 'show_in_menu'=>$this->HasPerm('groupPerms'));
-        $items['addgroup'] = array('url'=>'addgroup.php','parent'=>'groups',
-                                   'title'=>$this->_FixSpaces(lang('addgroup')),
-                                   'description'=>lang('addgroup'),'show_in_menu'=>false);
-        $items['editgroup'] = array('url'=>'editgroup.php','parent'=>'groups',
-                                    'title'=>$this->_FixSpaces(lang('editgroup')),
-                                    'description'=>lang('editgroup'),'show_in_menu'=>false);
-        $items['groupmembers'] = array('url'=>'changegroupassign.php',
-                                       'parent'=>'usersgroups',
-                                       'title'=>$this->_FixSpaces(lang('groupassignments')),
-                                       'description'=>lang('groupassignmentdescription'),
-                                       'show_in_menu'=>$this->HasPerm('groupPerms'));
-        $items['groupperms'] = array('url'=>'changegroupperm.php','parent'=>'usersgroups',
-                                     'title'=>$this->_FixSpaces(lang('groupperms')),
-                                     'description'=>lang('grouppermsdescription'),
-                                     'show_in_menu'=>$this->HasPerm('groupPerms'));
-        // base extensions menu ---------------------------------------------------------
-        $items['extensions'] = array('url'=>'index.php?section=extensions','parent'=>-1,'priority'=>6,
-                                     'title'=>$this->_FixSpaces(lang('extensions')),
-                                     'description'=>lang('extensionsdescription'),
-                                     'show_in_menu'=>$this->HasPerm('extensionsPerms'));
-        $items['tags'] = array('url'=>'listtags.php','parent'=>'extensions',
-                               'title'=>$this->_FixSpaces(lang('tags')),
-                               'description'=>lang('tagdescription'),
-                               'show_in_menu'=>$this->HasPerm('taghelpPerms'));
-        $items['eventhandlers'] = array('url'=>'eventhandlers.php','parent'=>'extensions',
-                                        'title'=>$this->_FixSpaces(lang('eventhandlers')),
-                                        'description'=>lang('eventhandlerdescription'),
-                                        'show_in_menu'=>$this->HasPerm('eventPerms'));
-        $items['editeventhandler'] = array('url'=>'editevent.php','parent'=>'eventhandlers',
-                                           'title'=>$this->_FixSpaces(lang('editeventhandler')),
-                                           'description'=>lang('editeventhandlerdescription'),
-                                           'show_in_menu'=>false);
-        // base admin menu ---------------------------------------------------------
-        $items['siteadmin'] = array('url'=>'index.php?section=siteadmin','parent'=>-1,
-                                    'title'=>$this->_FixSpaces(lang('admin')),'priority'=>7,
-                                    'description'=>lang('admindescription'),
-                                    'show_in_menu'=>$this->HasPerm('siteAdminPerms'));
-        $items['siteprefs'] = array('url'=>'siteprefs.php','parent'=>'siteadmin','priority'=>1,
-                                    'title'=>$this->_FixSpaces(lang('globalconfig')),
-                                    'description'=>lang('preferencesdescription'),
-                                    'show_in_menu'=>$this->HasPerm('sitePrefPerms'));
-        $items['systeminfo'] = array('url' => 'systeminfo.php', 'parent' => 'siteadmin','priority'=>2,
-                                     'title' => $this->_FixSpaces(lang('systeminfo')),
-                                     'description' => lang('systeminfodescription'),
-                                     'show_in_menu' => $this->HasPerm('adminPerms'));
-        $items['systemmaintenance'] = array('url' => 'systemmaintenance.php','priority'=>1,'parent' => 'siteadmin',
-                                            'title' => $this->_FixSpaces(lang('systemmaintenance')),
-                                            'description' => lang('systemmaintenancedescription'),
-                                            'show_in_menu' => $this->HasPerm('adminPerms'));
-        $items['checksum'] = array('url' => 'checksum.php', 'parent' => 'siteadmin','priority'=>4,
-                                   'title' => $this->_FixSpaces(lang('system_verification')),
-                                   'description' => lang('checksumdescription'),
-                                   'show_in_menu' => $this->HasPerm('adminPerms'));
-        // base my prefs menu ---------------------------------------------------------
-        $items['myprefs'] = array('url'=>'index.php?section=myprefs','parent'=>-1,'priority'=>8,
-                                  'title'=>$this->_FixSpaces(lang('myprefs')),
-                                  'description'=>lang('myprefsdescription'),
-                                  'show_in_menu'=>$this->_perms['myprefs']);
-        $items['myaccount'] = array('url'=>'myaccount.php','parent'=>'myprefs',
-                                    'title'=>$this->_FixSpaces(lang('myaccount')),
-                                    'description'=>lang('myaccountdescription'),
-                                    'show_in_menu'=>$this->_perms['myaccount']);
-        $items['mysettngs'] = array('url'=>'mysettings.php','parent'=>'myprefs',
-                                    'title'=>$this->_FixSpaces(lang('mysettings')),
-                                    'description'=>lang('mysettingsdescription'),
-                                    'show_in_menu'=>$this->_perms['mysettings']);
-        $items['mybookmarks'] = array('url'=>'listbookmarks.php','parent'=>'myprefs',
-                                    'title'=>$this->_FixSpaces(lang('mybookmarks')),
-                                    'description'=>lang('mybookmarksdescription'),
-                                    'show_in_menu'=>$this->_perms['bookmarks']);
-/*        $items['addbookmark'] = array('url'=>'addbookmark.php','parent'=>'myprefs',
-                                      'title'=>$this->_FixSpaces(lang('addbookmark')),
-                                      'description'=>lang('addbookmark'),'show_in_menu'=>false);
-        $items['editbookmark'] = array('url'=>'editbookmark.php','parent'=>'myprefs',
-                                       'title'=>$this->_FixSpaces(lang('editbookmark')),
-                                       'description'=>lang('editbookmark'),'show_in_menu'=>false);
-*/
-        debug_buffer('after menu items');
-
-        // slightly cleaner syntax
-        $items['ecommerce'] = array('url'=>'index.php?section=ecommerce','parent'=>-1,'priority'=>9,
-                                    'title'=>$this->_FixSpaces(lang('ecommerce')),
-                                    'description'=>lang('ecommerce_desc'),
-                                    'show_in_menu'=>true);
-
-        // adjust all the urls to include the session key
-        // and set an icon if we can. also mark them as system items.
-        foreach( $this->_menuItems as $sectionKey => $sectionArray ) {
-            if( isset($sectionArray['url']) && (!isset($sectionArray['type']) || $sectionArray['type'] != 'external' )) {
-                $this->_menuItems[$sectionKey]['url'] = $this->_fix_url_userkey($this->_menuItems[$sectionKey]['url']);
-            }
-            $this->_menuItems[$sectionKey]['system'] = 1;
-        }
-
-        debug_buffer('before system modules');
-
-        // add in all of the 'system' modules next
-        $moduleops = ModuleOperations::get_instance();
-        // todo: cleanup
-        foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-            if( !isset($this->_modulesBySection[$sectionKey]) ) continue;
-            $tmpArray = $this->_modulesBySection[$sectionKey];
-
-            foreach ($tmpArray as $menuItem) {
-                if( !$menuItem->system ) continue;
-                // don't clobber existing keys
-                $key = $menuItem->module;
-                if (array_key_exists($key,$this->_menuItems)) {
-                    $counter = 2;
-                    while (array_key_exists($key,$this->_menuItems)) {
-                        $key = $menuItem->module.$counter;
-                        $counter++;
-                    }
-                }
-
-                $this->_menuItems[$key]=array('url'=>$menuItem->url,'parent'=>$sectionKey,'title'=>$this->_FixSpaces($menuItem->title),
-                                              'description'=>$menuItem->description,'show_in_menu'=>true,'system'=>1,
-                                              'module'=>$menuItem->module,'priority'=>1);
-            }
-        }
-
-        debug_buffer('before non system module menu items');
-
-        // add in all of the non system modules
-        // non system modules cannot have a priority less than 2
-        // todo: cleanup
-        foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-            if( !isset($this->_modulesBySection[$sectionKey]) ) continue;
-            $tmpArray = $this->_modulesBySection[$sectionKey];
-
-            foreach ($tmpArray as $menuItem) {
-                if( $menuItem->system ) continue;
-
-                // don't clobber existing keys
-                $key = $menuItem->module;
-                if (array_key_exists($key,$this->_menuItems)) {
-                    $counter = 2;
-                    while (array_key_exists($key,$this->_menuItems)) {
-                        $key = $menuItem->module.$counter;
-                        $counter++;
-                    }
-                }
-
-                $this->_menuItems[$key]=array('url'=>$menuItem->url,'parent'=>$sectionKey,'title'=>$this->_FixSpaces($menuItem->title),
-                                              'description'=>$menuItem->description, 'show_in_menu'=>true,'module'=>$menuItem->module,
-                                              'priority'=>($menuItem->priority > 0)?max(2,$menuItem->priority):999);
-            }
-        }
-
-        debug_buffer('after non system module menu items');
-
-        // remove any menu items that don't fit into our valid sections
-        foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-            if( isset($sectionArray['system']) && $sectionArray['system'] ) continue;
-            if( $sectionArray['parent'] == -1 && in_array($sectionKey,$this->_valid_sections) ) continue;
-            if( isset($sectionArray['parent']) && in_array($sectionArray['parent'],$this->_valid_sections) ) continue;
-            unset($this->_menuItems[$sectionKey]);
-        }
-
-        // remove any top level items that don't have children
-        $parents = array();
-        foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-            if( $this->_menuItems[$sectionKey]['parent'] == -1 ) $parents[] = $sectionKey;
-        }
-        foreach( $parents as $oneparent ) {
-            $found = 0;
-            foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-                if( $sectionArray['parent'] == $oneparent) {
-                    $found = 1;
-                    break;
-                }
-            }
-            if( !$found ) unset($this->_menuItems[$oneparent]);
-        }
-
-        // sort the menu items by root level, system, priority, and then name (case insensitive)
-        $fn = function($a,$b) {
-            $a1 = (int)$a['parent'];
-            $a2 = (int)$b['parent'];
-            if( $a1 < $a2 ) return -1;
-            if( $a1 > $a2 ) return 1;
-
-            $sa = $a['system'] ?? 0;
-            $sb = $b['system'] ?? 0;
-            if( $sa && !$sb ) return -1;
-            if( $sb && !$sa ) return 1;
-
-            $pa = $a['priority'] ?? 999;
-            $pb = $b['priority'] ?? 999;
-            if( $pa < $pb ) return -1;
-            if( $pa > $pb ) return 1;
-
-            return strnatcmp($a['title'],$b['title']);
-        };
-        uasort($this->_menuItems,$fn);
-
-        // set everything to be not selected.
-        // resolve the tree to be doubly-linked,
-        foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-            $this->_menuItems[$sectionKey]['selected'] = FALSE;
-            $this->_menuItems[$sectionKey]['children'] = array();
-
-            // link the children to the parents; a little clumsy.
-            foreach ($this->_menuItems as $subsectionKey=>$subsectionArray) {
-                if ($subsectionArray['parent'] == $sectionKey) {
-                    $this->_menuItems[$sectionKey]['children'][] = $subsectionKey;
-                }
-            }
-        }
-
-        // find the selected menu item.
-        $selected_key = null;
-        $pending_selected_key = null;
+        $req_vars = [];
         $req_url = new cms_url($_SERVER['REQUEST_URI']);
-        $req_vars = array();
         if( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mact']) && !isset($_GET['mact']) ) {
-            // if mact is available via post and not via get we fake it, so that comparisons
-            // can get the mact from the query
+            // if mact is available via post and not via get, we fake it
+            // so that comparisons can get the mact from the query
             $req_url->set_queryvar('mact',$_REQUEST['mact']);
             $req_url = new cms_url((string)$req_url);
         }
         parse_str($req_url->get_query(),$req_vars);
-
-        foreach ($this->_menuItems as $sectionKey=>$sectionArray) {
-            if( strstr($_SERVER['REQUEST_URI'],'moduleinterface.php') !== FALSE &&
-                isset($_REQUEST['mact']) &&
-                isset($sectionArray['module']) && $sectionArray['module'] ) {
-
-                // note, this is kludgy
-                // we compare each and every menu item against the request.
-                // if the mact is set for both, and the module portion of the mact
-                // are the same, we add a reference to the option to our 'matches'
-                // list.  at the end, we re-compare
-                $u1 = new cms_url(cms_html_entity_decode($sectionArray['url']));
-                $v1 = array();
-                parse_str($u1->get_query(),$v1);
-                if( $u1->get_path() == $req_url->get_path() &&
-                    isset($v1['mact']) && isset($req_vars['mact']) ) {
-
-                    $t1 = explode(',',$v1['mact']);
-                    $t2 = explode(',',$req_vars['mact']);
-                    if( $t1[0] == $t2[0] ) {
-                        if( $t1[1] == $t2[1] && $t1[2] == $t2[2] ) {
-                            // requested action is for the same module and same action, we're done.
-                            $selected_key = $sectionKey;
-                            break;
-                        }
-                        else if( !$pending_selected_key ) {
-                            // requested action is for the same module, but different actions
-                            // we continue, but set a pending key (only once)
-                            $pending_selected_key = $sectionKey;
-                        }
-                    }
-                }
-            }
-            else if (strstr($_SERVER['REQUEST_URI'],$sectionArray['url']) !== FALSE &&
-                     (!isset($sectionArray['type']) || $sectionArray['type'] != 'external')) {
-                // this handles selecting internal actions that are not part of modules
-                // i.e (admin/somefile.php stuff)
-                $selected_key = $sectionKey;
-                break;
-            }
-        }
-
-        if( $selected_key || $pending_selected_key ) {
-            // if we only have a pending key, we use it... not ideal.
-            if( !$selected_key && $pending_selected_key ) $selected_key = $pending_selected_key;
-
-            // we have the sectionKey of the selected match
-            // now set it active, and set the parent all the way to the top
-            // and build breadcrumbs
-            $item =& $this->_menuItems[$selected_key];
-            $item['selected'] = TRUE;
-            $this->_title .= $item['title'];
-            $this->_active_item = $selected_key;
-            $this->_breadcrumbs[] = array('title'=>$item['title'],'url'=>$item['url']);
-            if( $item['parent'] != -1 ) {
-                $parent = $item['parent'];
-                // walk up to the root.
-                while( $parent != -1 ) {
-                    $this->_menuItems[$parent]['selected'] = TRUE;
-                    $this->_breadcrumbs[] = array('title'=>$this->_menuItems[$parent]['title'],
-                                                  'url'=>$this->_menuItems[$parent]['url']);
-                    $parent = $this->_menuItems[$parent]['parent'];
-                }
-            }
-            $this->_breadcrumbs = array_reverse($this->_breadcrumbs);
-        }
-
-        // fix subtitle, if any
-        if ($subtitle != '') $this->_title .= ': '.$subtitle;
-        debug_buffer('after populate admin navigation');
+        return $req_vars;
     }
 
 
@@ -766,7 +502,6 @@ abstract class CmsAdminThemeBase
         $this->_title = $str;
     }
 
-
     /**
      * Set the page subtitle.
      * This is used in the admin to set the title for the page, and for the visible page header.
@@ -781,10 +516,10 @@ abstract class CmsAdminThemeBase
         $this->_subtitle = $str;
     }
 
-
     /**
      * HasPerm
      *
+     * @ignore
      * Check if the user has one of the aggregate permissions
      *
      * @param string $permission the permission to check.
@@ -793,65 +528,352 @@ abstract class CmsAdminThemeBase
     protected function HasPerm($permission)
     {
         $this->_SetAggregatePermissions();
-
-        if (isset($this->_perms[$permission]) && $this->_perms[$permission]) return true;
-        return false;
+        return !empty($this->_perms[$permission]);
     }
 
     /**
-     * A function to return the admin navigation
-     * This function returns a doubly linked list of arrays representing the admin navigation
-     *
-     * @deprecated
-     * @access protected
-     * @return array Doubly linked list of menu nodes.  The parent, and children members of each node represent the links.  a parent value of -1 represents a top level node.
-     */
-    protected function get_admin_navigation()
-    {
-        $smarty = \CMSMS\internal\Smarty::get_instance();
-        $smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
-        $this->_populate_admin_navigation();
-        return $this->_menuItems;
-    }
-
-
-    /**
-     * Return the menu items as a nested tree using recursion.
+     * populate_tree
      *
      * @ignore
+     * Generate admin menu data
+     * @since 2.3
      */
-    private function _get_navigation_tree_sub(string $parent = null,int $maxdepth = -1,int $depth = 0) : array
+    protected function populate_tree()
     {
-        $result = [];
-        $flatitems = $this->get_admin_navigation();
-        foreach( $flatitems as $key => $one ) {
-            if( (empty($one['parent']) && !$parent) || ($one['parent'] == '-1' && !$parent) || (isset($one['parent']) && $one['parent'] == $parent) ) {
-                if( isset($one['children']) ) unset($one['children']);
+        $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
-                if( $maxdepth < 0 || $depth + 1 < $maxdepth ) {
-                    $children = $this->_get_navigation_tree_sub($key,$maxdepth,$depth+1);
-                    if( is_array($children) && count($children) ) $one['children'] = $children;
-                }
-                $one['name'] = $key;
-                $result[] = $one;
+        $items = [
+
+        ['name'=>'root','parent'=>null,
+        'show_in_menu'=>false],
+
+        ['name'=>'view','parent'=>'root',
+        'url'=>'index.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('view')),
+        'description'=>lang('viewdescription'),
+        'priority'=>1,
+        'show_in_menu'=>true],
+
+        ['name'=>'content','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=content',
+        'title'=>$this->_FixSpaces(lang('content')),
+        'description'=>lang('contentdescription'),
+        'priority'=>2,
+        'show_in_menu'=>$this->HasPerm('contentPerms')],
+
+        ['name'=>'layout','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=layout',
+        'title'=>$this->_FixSpaces(lang('layout')),
+        'description'=>lang('layoutdescription'),
+        'priority'=>3,
+        'show_in_menu'=>$this->HasPerm('layoutPerms')],
+
+        ['name'=>'files','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=files',
+        'title'=>$this->_FixSpaces(lang('files')),
+        'description'=>lang('filesdescription'),
+        'priority'=>4,
+        'show_in_menu'=>$this->HasPerm('filePerms')],
+
+        ['name'=>'usersgroups','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=usersgroups',
+        'title'=>$this->_FixSpaces(lang('usersgroups')),
+        'description'=>lang('usersgroupsdescription'),
+        'priority'=>5,
+        'show_in_menu'=>$this->HasPerm('usersGroupsPerms')],
+
+        ['name'=>'extensions','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=extensions',
+        'title'=>$this->_FixSpaces(lang('extensions')),
+        'description'=>lang('extensionsdescription'),
+        'priority'=>6,
+        'show_in_menu'=>$this->HasPerm('extensionsPerms')],
+
+        ['name'=>'services','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=services',
+        'title'=>$this->_FixSpaces(lang('services')),
+        'description'=>lang('servicesdescription'),
+        'priority'=>7,
+        'show_in_menu'=>true],
+
+        ['name'=>'siteadmin','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=siteadmin',
+        'title'=>$this->_FixSpaces(lang('admin')),
+        'description'=>lang('admindescription'),
+        'priority'=>8,
+        'show_in_menu'=>$this->HasPerm('siteAdminPerms')],
+
+        ['name'=>'myprefs','parent'=>'root',
+        'url'=>'index.php'.$urlext.'&section=myprefs',
+        'title'=>$this->_FixSpaces(lang('myprefs')),
+        'description'=>lang('myprefsdescription'),
+        'priority'=>9,
+        'show_in_menu'=>$this->HasPerm('myprefPerms')],
+
+        ['name'=>'logout','parent'=>'root',
+        'url'=>'logout.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('logout')),
+        'description'=>'',
+        'final'=>true, //force keep
+        'priority'=>10,
+        'show_in_menu'=>true],
+
+        ];
+
+        // ~~~~~~~~~~ main/view menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'dashboard','parent'=>'view',
+        'url'=>'index.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('dashboard')),
+        'description'=>'',
+        'priority'=>1,
+        'show_in_menu'=>true];
+
+        $items[] = ['name'=>'site','parent'=>'view',
+        'url'=>CMS_ROOT_URL.'/index.php',
+        'title'=>$this->_FixSpaces(lang('viewsite')),
+        'type'=>'external',
+        'description'=>'',
+        'priority'=>2,
+        'show_in_menu'=>true,
+        'target'=>'_blank'];
+
+        // ~~~~~~~~~~ services menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'ecommerce','parent'=>'services',
+        'url'=>'index.php'.$urlext.'&section=ecommerce',
+        'title'=>$this->_FixSpaces(lang('ecommerce')),
+        'description'=>lang('ecommerce_desc'),
+        'show_in_menu'=>true]; //TODO relevant perm
+
+        // ~~~~~~~~~~ user/groups menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'listusers','parent'=>'usersgroups',
+        'url'=>'listusers.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('currentusers')),
+        'description'=>lang('usersdescription'),
+        'priority'=>1,
+        'show_in_menu'=>$this->HasPerm('userPerms')];
+
+        $items[] = ['name'=>'adduser','parent'=>'usersgroups',
+        'url'=>'adduser.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('adduser')),
+        'description'=>lang('adduser'),
+        'priority'=>1,
+        'show_in_menu'=>false]; //??
+
+        $items[] = ['name'=>'edituser','parent'=>'usersgroups',
+        'url'=>'edituser.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('edituser')),
+        'description'=>lang('edituser'),
+        'priority'=>1,
+        'show_in_menu'=>false]; //??
+
+        $items[] = ['name'=>'listgroups','parent'=>'usersgroups',
+        'url'=>'listgroups.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('currentgroups')),
+        'description'=>lang('groupsdescription'),
+        'priority'=>2,
+        'show_in_menu'=>$this->HasPerm('groupPerms')];
+
+        $items[] = ['name'=>'addgroup','parent'=>'usersgroups',
+        'url'=>'addgroup.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('addgroup')),
+        'description'=>lang('addgroup'),
+        'priority'=>2,
+        'show_in_menu'=>false]; //??
+
+        $items[] = ['name'=>'editgroup','parent'=>'usersgroups',
+        'url'=>'editgroup.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('editgroup')),
+        'description'=>lang('editgroup'),
+        'priority'=>2,
+        'show_in_menu'=>false]; //??
+
+        $items[] = ['name'=>'groupmembers','parent'=>'usersgroups',
+        'url'=>'changegroupassign.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('groupassignments')),
+        'description'=>lang('groupassignmentdescription'),
+        'priority'=>3,
+        'show_in_menu'=>$this->HasPerm('groupPerms')];
+
+        $items[] = ['name'=>'groupperms','parent'=>'usersgroups',
+        'url'=>'changegroupperm.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('grouppermissions')),
+        'description'=>lang('grouppermsdescription'),
+        'priority'=>3,
+        'show_in_menu'=>$this->HasPerm('groupPerms')];
+
+        // ~~~~~~~~~~ extensions menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'tags','parent'=>'extensions',
+        'url'=>'listtags.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('tags')),
+        'description'=>lang('tagdescription'),
+        'show_in_menu'=>$this->HasPerm('taghelpPerms')];
+        $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
+        'url'=>'eventhandlers.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('eventhandlers')),
+        'description'=>lang('eventhandlerdescription'),
+        'show_in_menu'=>$this->HasPerm('eventPerms')];
+        $items[] = ['name'=>'editeventhandler','parent'=>'eventhandlers',
+        'url'=>'editevent.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('editeventhandler')),
+        'description'=>lang('editeventhandlerdescription'),
+        'show_in_menu'=>false]; //??
+
+        // ~~~~~~~~~~ admin menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'siteprefs','parent'=>'siteadmin',
+        'url'=>'siteprefs.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('globalconfig')),
+        'description'=>lang('preferencesdescription'),
+        'priority'=>1,
+        'show_in_menu'=>$this->HasPerm('sitePrefPerms')];
+        $items[] = ['name'=>'systeminfo','parent'=>'siteadmin',
+        'url' => 'systeminfo.php'.$urlext,
+        'title' => $this->_FixSpaces(lang('systeminfo')),
+        'description' => lang('systeminfodescription'),
+        'priority'=>2,
+        'show_in_menu' => $this->HasPerm('adminPerms')];
+        $items[] = ['name'=>'systemmaintenance','parent'=>'siteadmin',
+        'url' => 'systemmaintenance.php'.$urlext,
+        'title' => $this->_FixSpaces(lang('systemmaintenance')),
+        'description' => lang('systemmaintenancedescription'),
+        'priority'=>3,
+        'show_in_menu' => $this->HasPerm('adminPerms')];
+        $items[] = ['name'=>'checksum','parent'=>'siteadmin',
+        'url' => 'checksum.php'.$urlext,
+        'title' => $this->_FixSpaces(lang('system_verification')),
+        'description' => lang('checksumdescription'),
+        'priority'=>4,
+        'show_in_menu' => $this->HasPerm('adminPerms')];
+
+        // ~~~~~~~~~~ myprefs menu items ~~~~~~~~~~
+
+        $items[] = ['name'=>'myaccount','parent'=>'myprefs',
+        'url'=>'myaccount.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('myaccount')),
+        'description'=>lang('myaccountdescription'),
+        'show_in_menu'=>$this->_perms['myaccount']];
+        $items[] = ['name'=>'mysettngs','parent'=>'myprefs',
+        'url'=>'mysettings.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('mysettings')),
+        'description'=>lang('mysettingsdescription'),
+        'show_in_menu'=>$this->_perms['mysettings']];
+        $items[] = ['name'=>'mybookmarks','parent'=>'myprefs',
+        'url'=>'listbookmarks.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('mybookmarks')),
+        'description'=>lang('mybookmarksdescription'),
+        'show_in_menu'=>$this->_perms['bookmarks']];
+/*      $items[] = ['name'=>'addbookmark','parent'=>'myprefs',
+        'url'=>'addbookmark.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('addbookmark')),
+        'description'=>lang('addbookmark'),
+        'show_in_menu'=>false];
+        $items[] = ['name'=>'editbookmark','parent'=>'myprefs',
+        'url'=>'editbookmark.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('editbookmark')),
+        'description'=>lang('editbookmark'),
+        'show_in_menu'=>false];
+*/
+
+        $moduledata = $this->_get_user_module_info();
+        if ($moduledata) {
+            foreach ($moduledata as $key => $obj) {
+                $item = [
+                'name' => $key,
+                'parent' => null,
+                'url' => null,
+                'show_in_menu'=>true,
+                ] + $obj->get_all();
+                $item['parent'] = (!empty($item['section'])) ? $item['section'] : 'extensions';
+                unset($item['section']);
+                if ($item['url']) {
+					$item['url'] = $this->_fix_url_userkey($item['url']);
+				} else {
+				}
+                $item['title'] = $this->_FixSpaces($item['title']);
+//TODO          $item['icon'] = cms_admin_utils::path_to_url($image-file-path);
+                $items[] = $item;
             }
         }
-        return $result;
+
+        $req_vars = $this->_parse_request();
+        $TODOURL = 'index.php'.$urlext.'&section=content';
+
+        $tree = CMSMS\CmsArrayTree::load_array($items);
+        $this->_activePath = CMSMS\CmsArrayTree::find($tree, 'url', $TODOURL);
+        CMSMS\CmsArrayTree::path_set_data($tree, $this->_activePath, 'current', true);
+
+        $iter = new \RecursiveArrayTreeIterator(
+                new \ArrayTreeIterator($tree),
+                \RecursiveIteratorIterator::SELF_FIRST | \RecursiveArrayTreeIterator::NONLEAVES_ONLY
+                );
+        foreach ($iter as $key => $value) {
+/* TODO
+        // find the selected menu item
+        $selected_key = null;
+        $pending_selected_key = null;
+
+ e.g. add/remove properties,
+ remove those without children (unless 'forcekeep' => true)
+ mark active 'selected' => true and for all ancestors
+ $this->_active_item = $selected_key;
+ $this->_title = '';
+ sort children
+ breadcrumbs to $this->_breadcrumbs = [];
+*/
+            if (!empty($value['children'])) {
+$depth = $iter->getDepth();
+$adbg = $value;
+                $iter->uasort(function($a,$b) use ($value) {
+                    $pa = $a['priority'] ?? 999;
+                    $pb = $b['priority'] ?? 999;
+                    $c = $pa <=> $pb;
+                    if ($c != 0) {
+                        return $c;
+                    }
+                    return strnatcmp($a['title'],$b['title']); //TODO mb_cmp if available
+                });
+            } else {
+$adbg = $value;
+                $depth = $iter->getDepth();
+                if ($depth < 2 && empty($value['final'])) { //c.f. upstream $maxdepth
+$X = 1;
+//                    $iter->offsetUnset(X); //TODO relevant offset
+                }
+            }
+        }
+
+        $this->_menuTree = $tree;
     }
 
-
     /**
-     * Retrieve the admin navigation tree
+     * Populate the admin navigation tree (if not done before), and return some or all of it
+     * (This might be called direct from a template.)
      *
      * @since 1.11
-     * @param string $parent Indicates the parent to start at.  use a value of -1 to indicate the top node.
-     * @param int $maxdepth The maximum depth of the tree.  -1 indicates no maximum depth
-     * @return array A nested array of menu nodes.  The children member represents the nesting.
+     * @param mixed $parent    Optional name of the wanted root node, or null for actual root node
+     * @param int   $maxdepth  Optional maximum depth of the wanted tree. < 1 indicates no maximum depth
+     * @param bool  $striproot Since 2.3 Optional flag whether to omit the tree root-node
+     *  from the returned array Default (backward compatible) true
+     * @return array  Nested menu nodes.  Each node's 'children' member represents the nesting
      */
-    public function get_navigation_tree($parent = null,$maxdepth = -1)
+    public function get_navigation_tree($parent = null, $maxdepth = -1, $striproot = true)
     {
-        $nodes = $this->_get_navigation_tree_sub($parent,$maxdepth);
-        return $nodes;
+        if (!$this->_menuTree) {
+            $this->populate_tree();
+        }
+
+        $tree = $this->_menuTree;
+        if ($parent || ($maxdepth > 0)) {
+            //TODO $tree = func($tree) //filter $tree
+        }
+        if ($striproot) {
+            return reset($tree)['children'];
+        }
+        return $tree;
     }
 
     /**
@@ -880,24 +902,53 @@ abstract class CmsAdminThemeBase
     }
 
     /**
+     * Retrieve a list of available images in CMS_ASSETS_PATH/images/topfiles.
+     * For runtime generation of css that's specific to installed modules.
+     *
+     * @since 2.3
+     * @return array key = filename (typically a module-name), value = absolute url
+     */
+    protected function get_asset_images() : array
+    {
+        $res = [];
+        $path = cms_join_path(CMS_ASSETS_PATH,'images','topfiles','*');
+        $files = glob($path, GLOB_NOSORT|GLOB_NOESCAPE);
+        if( is_array($files) && count($files) ) {
+            $fmt = cms_admin_utils::path_to_url($path);
+            $fmt = str_replace('/*','/%s',$fmt);
+            foreach( $files as $file ) {
+                if( !is_dir($file) ) {
+                    $info = pathinfo($file,PATHINFO_BASENAME|PATHINFO_FILENAME|PATHINFO_EXTENSION);
+                    if( $info['filename'] && $info['extension'] ) {
+                        $res[$info['filename']] = sprintf($fmt, $info['basename']);
+                    }
+                }
+            }
+        }
+        return $res;
+    }
+
+    /**
      * Get the help URL for a module.
      *
      * @since 2.0
      * @access protected
      * @param string $module_name
+     * @return mixed url-string or null
      */
     protected function get_module_help_url($module_name = null)
     {
         if( !$module_name ) $module_name = $this->get_action_module();
         if( !$module_name ) return;
-
+        //TODO some core method c.f. CmsAdminUtils::get_generic_url()
         $modman = cms_utils::get_module('ModuleManager');
-        if( !is_object($modman) ) return;
-        return $modman->create_url('m1_','defaultadmin','',array('modulehelp'=>$module_name));
+        if( is_object($modman) ) {
+            return $modman->create_url('m1_','defaultadmin','',['modulehelp'=>$module_name]);
+        }
     }
 
     /**
-     * A function to return the name (key) of a menu item given it's title
+     * A function to return the name (key) of a menu item given its title
      * returns the first match.
      *
      * @access protected
@@ -906,12 +957,11 @@ abstract class CmsAdminThemeBase
      */
     protected function find_menuitem_by_title($title)
     {
-        $nav = $this->get_admin_navigation();
-        foreach( $nav as $key => $rec ) {
-            if( isset($rec['title']) && $rec['title'] == $title ) return $key;
+        $path = CMSMS\CmsArrayTree::find($this->menuTree, 'title', $title);
+        if ($path) {
+            return CMSMS\CmsArrayTree::node_get_data($this->menuTree, $path, 'name', 'MISSING');
         }
     }
-
 
     /**
      * Return the list of bookmarks
@@ -946,10 +996,19 @@ abstract class CmsAdminThemeBase
      */
     public function get_breadcrumbs()
     {
-        $this->_populate_admin_navigation();
+        if (!$this->_breadcrumbs) {
+            $this->_breadcrumbs = [];
+            $urls = CMSMS\CmsArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
+            $titles = CMSMS\CmsArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
+            foreach ($urls as $key => $value) {
+                $this->_breadcrumbs[] = [
+                    'url' => $value,
+                    'title' => $titles[$key],
+				];
+            }
+        }
         return $this->_breadcrumbs;
     }
-
 
     /**
      * Return the title of the active item.
@@ -958,8 +1017,7 @@ abstract class CmsAdminThemeBase
      */
     public function get_active_title()
     {
-        $this->_populate_admin_navigation();
-        if( $this->_active_item ) return $this->_menuItems[$this->_active_item]['title'];
+        return CMSMS\CmsArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'title');
     }
 
     /**
@@ -981,7 +1039,6 @@ abstract class CmsAdminThemeBase
         }
     }
 
-
     /**
      * Return attached data
      *
@@ -992,7 +1049,6 @@ abstract class CmsAdminThemeBase
     {
         if( is_array($this->_data) && isset($this->_data[$key]) ) return $this->_data[$key];
     }
-
 
     /**
      * HasDisplayableChildren
@@ -1015,7 +1071,6 @@ abstract class CmsAdminThemeBase
         }
         return $displayableChildren;
     }
-
 
     /**
      * DisplayImage will display the themed version of an image (if it exists),
@@ -1064,12 +1119,12 @@ abstract class CmsAdminThemeBase
      * @param string $get_var An optional $_GET variable name. Such variable
      *  contains a lang key for an error string, or an array of such keys.
      *  If specified, $errors is ignored.
-     * @deprecated since 2.3 Use PrepareError instead
+     * @deprecated since 2.3 Use RecordMessage instead
      * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowErrors($errors, $get_var = null)
     {
-        $this->PrepareStrings($this->_errors, $errors, $get_var);
+        $this->PrepareStrings($this->_errors, $errors, '', $get_var);
         return '';
     }
 
@@ -1080,12 +1135,12 @@ abstract class CmsAdminThemeBase
      * @param string $get_var An optional $_GET variable name. Such variable
      *  contains a lang key for an error string, or an array of such keys.
      *  If specified, $message is ignored.
-     * @deprecated since 2.3 Use PrepareSuccess instead
+     * @deprecated since 2.3 Use RecordMessage instead
      * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowMessage($message, $get_var = null)
     {
-        $this->PrepareStrings($this->_successes, $message, $get_var);
+        $this->PrepareStrings($this->_successes, $message, '', $get_var);
         return '';
     }
 
@@ -1095,12 +1150,13 @@ abstract class CmsAdminThemeBase
      * @internal
      * @param array store The relevant string-accumulator
      * @param mixed $message The error message(s), string|strings array
+     * @param string $title  Title for the message(s), may be empty
      * @param mixed $get_var A $_GET variable name, or null. If specified,
      *  such variable is expected to contain a lang key for an error string,
      *  or an array of such keys. If non-null, $message is ignored.
      * @since 2.3
      */
-    protected function PrepareStrings(&$store, $message, $get_var)
+    protected function PrepareStrings(array &$store, $message, string $title, $get_var = null) : void
     {
         if ($get_var && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
@@ -1113,71 +1169,94 @@ abstract class CmsAdminThemeBase
             } else {
                 $store[] = lang(cleanValue($_GET[$get_var]));
             }
-        } elseif (is_array($message)) {
-            $store = array_merge($store, $message);
-        } elseif (is_string($message)) {
-            $store[] = $message;
+        } elseif ($title) {
+            $store[$title] = $message;
+        } else {
+            if (is_array($message)) {
+                $store = array_merge($store, $message);
+            } else {
+                $store[] = $message;
+            }
+        }
+    }
+
+/*
+       $key = $this->GetName().'::errors';
+        $_SESSION[$key][] = $str;
+*/
+
+    protected function ParkStrings(string $type, $message, string $title, $get_var = null) : void
+    {
+        if ($get_var && !empty($_GET[$get_var])) {
+            if (is_array($_GET[$get_var])) {
+                cleanArray($_GET[$get_var]);
+                foreach ($_GET[$get_var] as $one) {
+
+                }
+            } else {
+
+            }
+        } elseif ($title) {
+
+        } else {
+
+        }
+    }
+
+    public function UnParkStrings() : void
+    {
+
+    }
+
+    /**
+     * Cache message(s) to be shown in a dialog
+     *
+     * @param string $type Message-type indicator 'error','warn','success' or 'info'
+     * @param mixed $message The error message(s), string|strings array
+     * @param string $title Optional title for the message(s)
+     * @param bool $cache Optional flag, whether to setup for display during the next request (instead of the current one)
+     * @param mixed $get_var Optional $_GET variable name. Such variable
+     *  is expected to contain a lang key for an error string, or an
+     *  array of such keys. If specified, $message is ignored.
+     * @since 2.3
+     */
+    public function RecordMessage(string $type, $message, string $title= '', bool $cache = false, $get_var = null) : void
+    {
+        if (!$cache) {
+            switch ($type) {
+                case 'error':
+                    $into = $this->_errors;
+                    break;
+                case 'warn':
+                    $into = $this->_warnings;
+                    break;
+                case 'success':
+                    $into = $this->_successes;
+                    break;
+    //            case 'info':
+                default:
+                    $into = $this->_infos;
+                    break;
+            }
+            $this->PrepareStrings($into, $message, $title, $get_var);
+        } else {
+            switch ($type) {
+                case 'error':
+                case 'warn':
+                case 'success':
+                case 'info':
+                    break;
+                default:
+                    $type = 'info';
+                    break;
+            }
+            $this->ParkStrings($type, $message, $title, $get_var);
         }
     }
 
     /**
-     * Cache error-message(s) to be shown in a dialog during the current request.
-     *
-     * @param mixed $message The error message(s), string|strings array
-     * @param mixed $get_var Optional $_GET variable name. Such variable
-     *  is expected to contain a lang key for an error string, or an
-     *  array of such keys. If specified, $message is ignored.
-     * @since 2.3
-     */
-    public function PrepareError($message, $get_var = null)
-    {
-        $this->PrepareStrings($this->_errors, $message, $get_var);
-    }
-
-   /**
-     * Cache warning-message(s) to be shown in a dialog during the current request.
-     *
-     * @param mixed $message The message(s), string|strings array
-     * @param mixed $get_var Optional $_GET variable name. Such variable
-     *  is expected to contain a lang key for an error string, or an
-     *  array of such keys. If specified, $message is ignored.
-     * @since 2.3
-     */
-    public function PrepareWarning($message, $get_var = null)
-    {
-        $this->PrepareStrings($this->_warnings, $message, $get_var);
-    }
-
-    /**
-     * Cache success-message(s) to be shown in a dialog during the current request.
-     *
-     * @param mixed $message The message(s), string|strings array
-     * @param mixed $get_var Optional $_GET variable name. Such variable
-     *  is expected to contain a lang key for an error string, or an
-     *  array of such keys. If specified, $message is ignored.
-     * @since 2.3
-     */
-    public function PrepareSuccess($message, $get_var = null)
-    {
-        $this->PrepareStrings($this->_successes, $message, $get_var);
-    }
-
-    /**
-     * Cache information-message(s) to be shown in a dialog during the current request.
-     *
-     * @param mixed $message The message(s), string|strings array
-     * @param mixed $get_var Optional $_GET variable name. Such variable
-     *  is expected to contain a lang key for an error string, or an
-     *  array of such keys. If specified, $message is ignored.
-     * @since 2.3
-     */
-    public function PrepareInfo($message, $get_var = null)
-    {
-        $this->PrepareStrings($this->_infos, $message, $get_var);
-    }
-
-    /**
      * Abstract method for showing a header in the content area of a theme
+     * Used only for nodules admin
      * This is usually an advanced function with some special behavior based on the module_help_type
      *
      * @abstract
@@ -1194,7 +1273,7 @@ abstract class CmsAdminThemeBase
      *
      * @returns string
      */
-    static public function GetDefaultTheme()
+    public static function GetDefaultTheme()
     {
         $tmp = self::GetAvailableThemes();
         if( is_array($tmp) && count($tmp) ) {
@@ -1205,17 +1284,14 @@ abstract class CmsAdminThemeBase
         }
     }
 
-
     /**
      * Retrieve a list of the available admin themes.
      *
      * @return array A hash of strings.
      */
-    static public function GetAvailableThemes()
+    public static function GetAvailableThemes()
     {
-        $config = \cms_config::get_instance();
-
-        $files = glob(cms_join_path($config['admin_path'],'themes').'/*');
+        $files = glob(cms_join_path(CMS_ADMIN_PATH,'themes','*'));
         if( is_array($files) && count($files) ) {
             $res = array();
             foreach( $files as $file ) {
@@ -1228,7 +1304,6 @@ abstract class CmsAdminThemeBase
         }
     }
 
-
     /**
      * A function to retrieve the global admin theme object.
      * This method will create the admin theme object if has not yet been created.
@@ -1237,7 +1312,7 @@ abstract class CmsAdminThemeBase
      * @param string $name optional theme name.
      * @return CmsAdminThemeBase Reference to the initialized admin theme.
      */
-    static public function GetThemeObject($name = null)
+    public static function GetThemeObject($name = null)
     {
         if( is_object(self::$_instance) ) return self::$_instance;
 
@@ -1273,7 +1348,6 @@ abstract class CmsAdminThemeBase
         return self::$_instance;
     }
 
-
     /**
      * A public function to add a notification for display in the theme.
      *
@@ -1303,7 +1377,6 @@ abstract class CmsAdminThemeBase
       $this->add_notification($notification);
     }
 
-
     /**
      * Retrieve the current list of notifications.
      *
@@ -1314,21 +1387,21 @@ abstract class CmsAdminThemeBase
         return $this->_notifications;
     }
 
-
     /**
      * Return an array of admin pages, suitable for use in a dropdown.
      *
      * @internal
      * @since 1.12
-     * @param bool $none A flag indicating wether 'none' should be the first option.
+     * @param bool $none A flag indicating whether 'none' should be the first option.
      * @return array The keys of the array are langified strings to display to the user.  The values are URLS.
      */
-    public function GetAdminPages($none = TRUE)
+    public function GetAdminPages($none = true)
     {
-        $opts = array();
+        $opts = [];
         if( $none ) $opts[ucfirst(lang('none'))] = '';
 
         $depth = 0;
+/*
         $menuItems = $this->get_admin_navigation();
         foreach( $menuItems as $sectionKey=>$menuItem ) {
             if( $menuItem['parent'] != -1 ) continue; // only parent pages
@@ -1354,6 +1427,8 @@ abstract class CmsAdminThemeBase
                 }
             }
         }
+*/
+        //TODO iterwalk
         return $opts;
     }
 
@@ -1392,7 +1467,6 @@ abstract class CmsAdminThemeBase
         return $output;
     }
 
-
     /**
      *  BackUrl
      *  "Back" Url - link to the next-to-last item in the breadcrumbs
@@ -1400,14 +1474,14 @@ abstract class CmsAdminThemeBase
      */
     public function BackUrl()
     {
+        $this->get_breadcrumbs(); //ensure data are populated
         $count = $this->_breadcrumbs ? count($this->_breadcrumbs) - 2 : -1;
-        $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         if ($count > -1) {
-            $txt = $this->_breadcrumbs[$count]['url'];
-            return $txt;
+            $url = $this->_breadcrumbs[$count]['url'];
+            return $url;
         }
-        // rely on base href to redirect back to the
-        // admin home page
+        // rely on base href to redirect back to the admin home page
+        $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         return 'index.php'.$urlext;
     }
 
@@ -1521,10 +1595,10 @@ abstract class CmsAdminThemeBase
 
     /**
      * Output a string suitable for staring tab headers
-     * i.e:  echo $this->StartTabHeaders();
+     * i.e. echo $this->StartTabHeaders();
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::start_tab_headers()
+     * @deprecated since 2.3. Instead use cms_admin_tabs::start_tab_headers()
      * @return string
      */
     final public function StartTabHeaders() : string
@@ -1610,7 +1684,6 @@ abstract class CmsAdminThemeBase
         return cms_admin_tabs::end_tab();
     }
 } // end of class
-
 
 /**
  * A class representing a simple notification.
