@@ -1,7 +1,7 @@
 {strip}
 <div id="topcontent_wrap">
  {foreach $nodes as $node}
-{if $node.show_in_menu && $node.url && $node.title && !empty($node.children)}
+{if $node.show_in_menu && $node.url}
   <div class="dashboard-box">
     <nav class="dashboard-inner cf">
       <a href="{$node.url}"{if isset($node.target)} target="{$node.target}"{/if}{if !empty($node.selected)} class="selected"{/if} tabindex="-1"></a>
@@ -11,6 +11,7 @@
       {if $node.description}
       <span class="description">{$node.description}</span>
       {/if}
+      {if !empty($node.children)}
       <h4>{lang('subitems')}</h4>
       <ul class="subitems cf">
         {foreach $node.children as $one}
@@ -19,6 +20,7 @@
         </a></li>
        {/foreach}
       </ul>
+      {/if}
     </nav>
   </div>
 {/if}
