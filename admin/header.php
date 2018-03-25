@@ -16,19 +16,36 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// variables for general use
 $userid = get_userid(); //also checks login status
-debug_buffer('before theme load');
-$themeObject = cms_utils::get_theme_object();
-debug_buffer('after theme load');
-$smarty = CMSMS\internal\Smarty::get_instance();
-$config = \cms_config::get_instance();
+if (!isset($themeObject)) {
+	$themeObject = cms_utils::get_theme_object();
+}
+if (!isset($smarty)) {
+	$smarty = CMSMS\internal\Smarty::get_instance();
+}
+$config = cms_config::get_instance();
 
-$out = \CMSMS\HookManager::do_hook_accumulate('admin_add_headtext');
-if ($out) {
-    foreach ($out as $one) {
-        $one = trim($one);
-        if ($one) $themeObject->add_headtext($one);
-    }
+list($vars,$add_list) = \CMSMS\HookManager::do_hook('AdminHeaderSetup', [], []);
+if ($add_list) {
+    $themeObject->add_headtext(implode("\n",$add_list));
+}
+//NOTE downstream must ensure var keys and values are formatted for js
+if ($vars) {
+    $out = <<<EOT
+<script type="text/javascript">
+//<![CDATA[
+
+EOT;
+   foreach ($vars as $key => $value) {
+       $out .= "cms_data.{$key} = {$value};\n";
+   }
+   $out .= <<<EOT
+//]]>
+</script>
+
+EOT;
+    $themeObject->add_headtext($out);
 }
 
 cms_admin_sendheaders();
@@ -55,5 +72,5 @@ if (!isset($USE_THEME) || $USE_THEME) {
 
     $themeObject->do_header();
 //} else {
-    //echo '<!-- admin theme disabled -->';
+//    echo '<!-- admin theme disabled -->';
 }
