@@ -3,18 +3,18 @@
   <ul class="cf">
     <li class="help">
       {if isset($module_help_url)}
-      <a href="{$module_help_url}" title="{lang('module_help')}"><span class="shortcuticon help">&nbsp</span></a>
+      <a href="{$module_help_url}" title="{lang('module_help')}"><span class="shortcuticon">&nbsp</span></a>
       {else}
-      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentation')}"><span class="shortcuticon help">&nbsp</span></a>
+      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentationtip')}"><span class="shortcuticon">&nbsp;</span></a>
       {/if}
     </li>
     {if isset($marks)}
     <li class="favorites open">
-      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><span class="shortcuticon bookmark">&nbsp;</span></a>
+      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><span class="shortcuticon">&nbsp;</span></a>
     </li>
     {/if}
     <li class="view-site">
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><span class="shortcuticon home">&nbsp</span></a>
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><span class="shortcuticon">&nbsp;</span></a>
     </li>
     {$my_alerts=$theme->get_my_alerts()} {$num_alerts=count($my_alerts)} {if $num_alerts > 0} {if $num_alerts > 10}{$txt='&#2295'}{else}{$num=$num_alerts}{$txt="{$num}"}{/if}
     <li class="notifications">
@@ -22,7 +22,7 @@
     </li>
     {/if}
     <li class="logout">
-      <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="return confirm('{lang('maintenance_warning')|escape:'javascript'}')" {/if}><span class="shortcuticon logout">&nbsp</span></a>
+      <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="return confirm('{lang('maintenance_warning')|escape:'javascript'}');" {/if}><span class="shortcuticon">&nbsp;</span></a>
     </li>
   </ul>
 </div>
