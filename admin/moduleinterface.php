@@ -27,8 +27,6 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 $userid = get_userid();
 
-$smarty = CMSMS\internal\Smarty::get_instance();
-
 $id = 'm1_';
 $module = '';
 $action = 'defaultadmin';
@@ -56,29 +54,32 @@ if( isset($_REQUEST['showtemplate']) && ($_REQUEST['showtemplate'] == 'false')) 
     $USE_THEME = true;
 }
 
-// module output
+$smarty = CMSMS\internal\Smarty::get_instance();
+
 $params = ModuleOperations::get_instance()->GetModuleParameters($id);
 $content = null;
-if( $USE_THEME ) {
+if ($USE_THEME) {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->set_action_module($module);
 
-    ob_start();
-    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
-    // retrieve module output, so it can be top-n-tail'd
-    $content = ob_get_contents();
-    ob_end_clean();
-
-    // deprecate this ?
     $txt = $modinst->GetHeaderHTML($action);
-    if( $txt ) $themeObject->add_headtext($txt);
-
-    if ( !empty($params['module_error']) ) $themeObject->RecordMessage('error', $params['module_error']);
-    if ( !empty($params['module_message']) ) $themeObject->RecordMessage('success', $params['module_message']);
+    if ($txt) {
+        $themeObject->add_headtext($txt);
+    }
+	if ($modinst->HasAdmin()) {
+	    $txt = $modinst->AdminStyle();
+		if ($txt) {
+            $themeObject->add_headtext($txt);
+		}
+	}
 
     include_once 'header.php';
-    // back into the buffer,  now that pre-content things are in place
-    echo $content;
+    // module output
+    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+
+    if (!empty($params['module_error'])) $themeObject->RecordMessage('error', $params['module_error']);
+    if (!empty($params['module_message'])) $themeObject->RecordMessage('success', $params['module_message']);
+
     include_once 'footer.php';
 } else {
     // no theme output.
