@@ -1,6 +1,7 @@
 <?php
 #...
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2013-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE = 1;
 $CMS_STYLESHEET = TRUE;
@@ -42,8 +41,8 @@ $theme = $themeObject->themeName;
 $style="style";
 cms_admin_sendheaders('text/css');
 
-$thelang = CmsNlsOperations::get_language_info(CmsNlsOperations::get_current_language());
-if( is_object($thelang) && $thelang->direction() == 'rtl' ) $style.="-rtl";
+$dir = cms_admin_utils::lang_direction();
+if( $dir == 'rtl' ) $style.="-rtl";
 if (isset($_GET['ie'])) $style.="_ie";
 $style .= ".css";
 
@@ -58,4 +57,3 @@ if( is_array($allmodules) && count($allmodules) ) {
     }
 }
 
-?>
