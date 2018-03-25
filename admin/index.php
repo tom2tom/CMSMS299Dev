@@ -15,10 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
-
-$orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 
 $CMS_ADMIN_PAGE=1;
 $CMS_TOP_MENU='main';
@@ -28,21 +24,15 @@ $CMS_EXCLUDE_FROM_RECENT=1;
 
 require_once '..'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
+check_login();
+
 // if this page was accessed directly, and the secure param name is not in the URL
 // but it is in the session, assume it is correct.
 if( isset($_SESSION[CMS_USER_KEY]) && !isset($_GET[CMS_SECURE_PARAM_NAME]) ) $_REQUEST[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
 
-check_login();
+$themeObject = cms_utils::get_theme_object();
 
+$section = (isset($_GET['section'])) ? trim(cleanValue($_GET['section'])) : '';
 include_once 'header.php';
-$section = (isset($_GET['section'])) ? trim($_GET['section']) : '';
-// todo: we should just be getting the html, and giving it to the theme. maybe
 $themeObject->do_toppage($section);
-$out = CMSMS\HookManager::do_hook_accumulate('admin_add_headtext');
-if( $out ) {
-    foreach( $out as $one ) {
-        $one = trim($one);
-        if( $one ) $themeObject->add_headtext($one);
-    }
-}
 include_once 'footer.php';
