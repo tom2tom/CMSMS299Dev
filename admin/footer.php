@@ -43,7 +43,7 @@ if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
 
 // do any header replacements (this is for WYSIWYG stuff)
 // initialize the requested wysiwyg modules
-// done here (after content generation) because this can change based on module actions etc 
+// done here (after content generation) because this can change based on module actions etc
 $list = CmsFormUtils::get_requested_wysiwyg_modules();
 if (is_array($list) && count($list)) {
     foreach ($list as $module_name => $info) {
@@ -111,12 +111,9 @@ if (is_array($list) && count($list)) {
     }
 }
 
-$out = \CMSMS\HookManager::do_hook_accumulate('admin_add_footertext');
-if ($out && count($out)) {
-    foreach ($out as $one) {
-        $one = trim($one);
-        if ($one) $themeObject->add_footertext($one);
-    }
+$add_list = \CMSMS\HookManager::do_hook('AdminBottomSetup', []);
+if ($add_list) {
+    $themeObject->add_footertext(implode("\n",$add_list));
 }
 
 if ($pagecontent) {
