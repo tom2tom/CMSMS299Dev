@@ -1,7 +1,7 @@
 <form action="{$selfurl}{$urlext}" method="post">
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="username">*{lang('username')}:</label>
+      <label for="username">*&nbsp;{lang('username')}:</label>
       {cms_help key2='help_myaccount_username' title=lang('name')}
     </p>
     <p class="pageinput">
