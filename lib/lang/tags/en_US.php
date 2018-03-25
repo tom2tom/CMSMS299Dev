@@ -1146,9 +1146,9 @@ EOT;
 
 $lang['help_function_form_start'] = <<<EOT
 <h3>What does this do?</h3>
-  <p>Thie tag creates a &lt;form&gt; tag for a module action.  It is useful in module templates and is part of the separation of design from logic principle that is at the heart of CMSMS.</p>
-  <p>This tag accepts numerous parameters that can accept the &lt;form&gt; tag, and affect its styling.</p>
+  <p>This tag creates a &lt;form&gt; tag for a module action.  It is useful in module templates and is part of the separation of design from logic principle that is at the heart of CMSMS.</p>
 <h3>What parameters does it take?</h3>
+  <p>This tag accepts numerous parameters that can accept the &lt;form&gt; tag.</p>
 <ul>
   <li>module - <em>(optional string)</em>
     <p>The module that is the destination for the form data.  If this parameter is not specified then an attempt is made to determine the current module.<p>
@@ -1226,6 +1226,27 @@ $lang['help_function_form_start'] = <<<EOT
 {\$pagelimit=25}
 {if isset(\$smarty.get.pagelimit)}{\$pagelimit=\$smarty.get.pagelimit}{/if}
 {News pagelimit=\$pagelimit}</code></pre>
+EOT;
+
+$lang['help_function_gather_content'] = <<<EOT
+<h3>What does this do?</h3>
+  <p>This tag collects page content by running a hooklist. List member-functions could have been registered by anything.<br /><br />
+Each such registered function must be like<pre><code>
+  public function myfuncname($a)
+  {
+    array $a\[\] = my content or $a = array_merge($a, [my content])
+    return $a; //supplied parameter, updated as required
+  }</code></pre>
+</p>
+<h3>What parameters does it take?</h3>
+<ul>
+  <li>list <em>(optional)</em>
+	<p>Name of the hooklist to run. Defaults to &quot;gatherlist&quot;.</p>
+  </li>
+  <li>assign <em>(optional string)</em>
+    <p>Assign the output of the tag to the named smarty variable.</p>
+  </li>
+</ul>
 EOT;
 
 $lang['function'] = 'Functions might perform a task, or query the database, and typically display output.  They can be called like {tagname [attribute=value...]}';
