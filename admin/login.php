@@ -39,15 +39,12 @@ $changepwhash = '';
  */
 function send_recovery_email(User $user)
 {
-    $gCms = CmsApp::get_instance();
-    $config = $gCms->GetConfig();
-    $userops = $gCms->GetUserOperations();
-
     $obj = new cms_mailer();
     $obj->IsHTML(TRUE);
     $obj->AddAddress($user->email,cms_html_entity_decode($user->firstname.' '.$user->lastname));
     $obj->SetSubject(lang('lostpwemailsubject',html_entity_decode(get_site_preference('sitename','CMSMS Site'))));
 
+    $config = cms_config::get_instance();
     $url = $config['admin_url'] . '/login.php?recoverme=' . md5(md5($config['root_path'] . '--' . $user->username . md5($user->password)));
     $body = lang('lostpwemail',cms_html_entity_decode(get_site_preference('sitename','CMSMS Site')), $user->username, $url, $url);
 
@@ -67,9 +64,8 @@ function send_recovery_email(User $user)
  */
 function find_recovery_user($hash)
 {
-    $gCms = CmsApp::get_instance();
-    $config = $gCms->GetConfig();
-    $userops = $gCms->GetUserOperations();
+    $config = cms_config::get_instance();
+    $userops = CmsApp::get_instance()->GetUserOperations();
 
     foreach ($userops->LoadUsers() as $user) {
         if ($hash == md5(md5($config['root_path'] . '--' . $user->username . md5($user->password)))) return $user;
@@ -234,16 +230,14 @@ elseif( isset($_POST['loginsubmit']) ) {
 $vars = [];
 
 $modname = cms_siteprefs::get('loginmodule');
-if ($modname) {
+if( $modname ) {
     $modinst = ModuleOperations::get_instance()->get_module_instance($modname, '', true);
-    if ($modinst) {
+    if( $modinst ) {
         $vars['processor'] = $modinst;
     }
 }
 
-$lang = CmsNlsOperations::get_current_language();
-$info = CmsNlsOperations::get_language_info($lang);
-$dir = $info->direction();
+$dir = cms_admin_utils::lang_direction();
 if( $dir == 'rtl' ) {
     $vars['lang_dir'] = $dir;
 }
@@ -264,6 +258,7 @@ if( isset($changepwhash) ) $vars['changepwhash'] = $changepwhash;
 // display the login form
 //
 
+$lang = CmsNlsOperations::get_current_language();
 // Language shizzle
 cms_admin_sendheaders();
 header('Content-Language: ' . $lang);
