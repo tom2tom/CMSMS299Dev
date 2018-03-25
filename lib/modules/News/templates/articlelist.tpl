@@ -178,11 +178,11 @@ $(document).ready(function() {
 {/if}
 
 <div style="width:99%;">
-  {if isset($addlink)}
-  <div class="pageoptions" style="float: left;">
+  {if isset($addlink)} {if $itemcount > 10}
+  <div class="pageoptions grid_6" style="margin-top: 0;">
     <p class="pageoptions">{$addlink}</p>
   </div>
-  {/if}
+  {/if}{/if}
   {if $itemcount > 0}
   <div class="pageoptions" style="float: right; text-align: right;" id="bulkactions">
     <label for="bulk_action">{$mod->Lang('with_selected')}:</label>
