@@ -1,18 +1,18 @@
-<h4>{lang('filterbymodule')}:</h4>
+{if $events}
+<h4>{lang('filterbymodule')}</h4>
 <form action="{$selfurl}{$urlext}" method="post">
+  <div class="oneliner cf">
   <select name="modulefilter">
    <option value="{lang('showall')}"</option>
    {foreach $modlist as $one}
     <option value="{$one}"{if $one == $modulefilter} selected="selected"{/if}>{$one}</option>
    {/foreach}
   </select>
-  <div class="bottomsubmits">
-    <p class="pageinput">
-     <button type="submit" name="submit" class="adminsubmit icon do">{lang('submit')}</button>
-    </p>
+  <button type="submit" name="submit" class="adminsubmit icon do">{lang('submit')}</button>
   </div>
 </form>
-
+<br />
+{/if}
 <table class="pagetable">
   <thead>
     <tr>
