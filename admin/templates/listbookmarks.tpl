@@ -1,4 +1,5 @@
 {if $padd}
+<br />
 <div class="pageoptions">
   <a href="{$addurl}{$urlext}">{$iconadd}</a>
   <a href="{$addurl}{$urlext}" class="pageoptions">{lang('addbookmark')}</a>
