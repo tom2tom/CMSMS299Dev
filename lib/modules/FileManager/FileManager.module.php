@@ -22,7 +22,7 @@ final class FileManager extends CMSModule
     public function GetName() { return 'FileManager'; }
     public function LazyLoadFrontend() { return TRUE; }
     public function GetChangeLog() { return $this->ProcessTemplate('changelog.tpl'); }
-    public function GetHeaderHTML() { return $this->_output_header_javascript(); }
+    public function GetHeaderHTML() { return $this->_output_header_content(); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetVersion() { return '1.6.4'; }
     public function GetHelp() { return $this->Lang('help'); }
@@ -31,7 +31,7 @@ final class FileManager extends CMSModule
     public function IsPluginModule() { return FALSE; }
     public function HasAdmin() { return TRUE; }
     public function IsAdminOnly() { return TRUE; }
-    public function GetAdminSection() { return 'content'; }
+    public function GetAdminSection() { return 'files'; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function MinimumCMSVersion() { return "2.2.2"; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
@@ -199,24 +199,31 @@ final class FileManager extends CMSModule
         return $result;
     }
 
-    protected function _output_header_javascript()
+    protected function _output_header_content()
     {
         $out = '';
-        $urlpath = $this->GetModuleURLPath().DIRECTORY_SEPARATOR."js";
-        $jsfiles = array('jquery-file-upload/jquery.iframe-transport.js');
-        $jsfiles[] = 'jquery-file-upload/jquery.fileupload.js';
-        $jsfiles[] = 'jqueryrotate/jQueryRotate-2.2.min.js';
-        $jsfiles[] = 'jrac/jquery.jrac.js';
+        $urlpath = $this->GetModuleURLPath();
 
-        $fmt = '<script type="text/javascript" src="%s/%s"></script>';
-        foreach( $jsfiles as $one ) {
+        $fmt = '<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
+        $cssfiles = [
+        'css/filemanager.css',
+        'js/jrac/style.jrac.min.css'
+        ];
+        foreach( $cssfiles as $one ) {
             $out .= sprintf($fmt,$urlpath,$one)."\n";
         }
 
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
-        $cssfiles = array('jrac/style.jrac.css');
-        foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one);
+        $fmt = '<script type="text/javascript" src="%s/js/%s"></script>';
+//needed if global jq-ui not loaded	'jquery-file-upload/jquery.ui.widget.min.js',
+        $jsfiles = [
+        'jquery-file-upload/jquery.iframe-transport.js',
+        'jquery-file-upload/jquery.fileupload.min.js',
+        'jqueryrotate/jQueryRotate.min.js',
+        'jrac/jquery.jrac.min.js',
+        ];
+
+        foreach( $jsfiles as $one ) {
+            $out .= sprintf($fmt,$urlpath,$one)."\n";
         }
 
         return $out;
@@ -230,25 +237,25 @@ final class FileManager extends CMSModule
         return base64_decode($encodedfilename."==");
     }
 
-  public function GetAdminMenuItems()
-  {
-      $out = array();
+    public function GetAdminMenuItems()
+    {
+        $out = [];
 
-      if( $this->CheckPermission('Modify Files') ) {
-          $out[] = CmsAdminMenuItem::from_module($this);
-      }
+        if( $this->CheckPermission('Modify Files') ) {
+            $out[] = CmsAdminMenuItem::from_module($this);
+        }
 
-      if( $this->CheckPermission('Modify Site Preferences') ) {
-          $obj = new CmsAdminMenuItem();
-          $obj->module = $this->GetName();
-          $obj->section = 'content';
-          $obj->title = $this->Lang('title_filemanager_settings');
-          $obj->description = $this->Lang('desc_filemanager_settings');
-          $obj->action = 'admin_settings';
-          $obj->url = $this->create_url('m1_',$obj->action);
-          $out[] = $obj;
-      }
+        if( $this->CheckPermission('Modify Site Preferences') ) {
+            $obj = new CmsAdminMenuItem();
+            $obj->module = $this->GetName();
+            $obj->section = 'files';
+            $obj->title = $this->Lang('title_filemanager_settings');
+            $obj->description = $this->Lang('desc_filemanager_settings');
+            $obj->action = 'admin_settings';
+            $obj->url = $this->create_url('m1_',$obj->action);
+            $out[] = $obj;
+        }
 
-      return $out;
-  }
+        return $out;
+    }
 } // end of class
