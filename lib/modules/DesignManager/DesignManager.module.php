@@ -53,6 +53,21 @@ final class DesignManager extends CMSModule
         return parent::DoAction($name,$id,$params,$returnid);
     }
 
+    public function GetHeaderHTML()
+    {
+        $out = '';
+        $urlpath = $this->GetModuleURLPath();
+
+        $fmt = '<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
+        $cssfiles = [
+        'css/designmanager.css',
+        ];
+        foreach( $cssfiles as $one ) {
+            $out .= sprintf($fmt,$urlpath,$one)."\n";
+        }
+        return $out;
+    }
+
     public function GetAdminMenuItems()
     {
         $out = [];
