@@ -39,50 +39,56 @@ if (isset($_REQUEST['mact'])) {
     $action = $ary[2] ?? '';
 }
 
-$modinst = ModuleOperations::get_instance()->get_module_instance($module);
+$modops = ModuleOperations::get_instance();
+$modinst = $modops->get_module_instance($module);
 if( !$modinst ) {
     trigger_error('Module '.$module.' not found in memory. This could indicate that the module is in need of upgrade or that there are other problems');
     redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
 }
 
-if( isset($_REQUEST['showtemplate']) && ($_REQUEST['showtemplate'] == 'false')) {
-    // for simplicity and compatibility with the frontend.
-    $USE_THEME = false;
-} elseif( $modinst->SuppressAdminOutput($_REQUEST) || isset($_REQUEST['suppressoutput']) ) {
-    $USE_THEME = false;
-} else {
-    $USE_THEME = true;
-}
-
+$params = $modops->GetModuleParameters($id);
 $smarty = CMSMS\internal\Smarty::get_instance();
 
-$params = ModuleOperations::get_instance()->GetModuleParameters($id);
-$content = null;
-if ($USE_THEME) {
+if (isset($_REQUEST['showtemplate']) && ($_REQUEST['showtemplate'] == 'false')) {
+    // for simplicity and compatibility with the frontend.
+    $fullpage = false;
+} elseif ($modinst->SuppressAdminOutput($_REQUEST) || isset($_REQUEST['suppressoutput'])) {
+    $fullpage = false;
+} else {
+    $fullpage = true;
+}
+
+if ($fullpage) {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->set_action_module($module);
 
+    if ($modinst->HasAdmin()) {
+        $txt = $modinst->AdminStyle();
+        if ($txt) {
+            $themeObject->add_headtext($txt);
+        }
+    }
     $txt = $modinst->GetHeaderHTML($action);
     if ($txt) {
         $themeObject->add_headtext($txt);
     }
-	if ($modinst->HasAdmin()) {
-	    $txt = $modinst->AdminStyle();
-		if ($txt) {
-            $themeObject->add_headtext($txt);
-		}
-	}
+
+    // retrieve and park the action output now, in case the action also generates header content
+    ob_start();
+    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+    $content = ob_get_contents();
+    ob_end_clean();
 
     include_once 'header.php';
-    // module output
-    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+    // back into the buffer,  now that 'pre-content' things are in place
+    echo $content;
 
     if (!empty($params['module_error'])) $themeObject->RecordMessage('error', $params['module_error']);
     if (!empty($params['module_message'])) $themeObject->RecordMessage('success', $params['module_message']);
 
     include_once 'footer.php';
 } else {
-    // no theme output.
+    // minimal output only
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
