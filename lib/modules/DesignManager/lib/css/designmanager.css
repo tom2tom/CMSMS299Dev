@@ -1,0 +1,32 @@
+ul.sortable-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 321px;
+    overflow: auto;
+    min-height: 25px;
+}
+.sortable-list li {
+    list-style: none;
+    padding: 4px 12px;
+    margin-bottom: 1px;
+    display: block;
+    position: relative;
+    cursor: move;
+}
+.sortable-list li .sortable-remove {
+    float: right;
+    display: inline-block;
+}
+.available-templates li .sortable-remove,
+.available-stylesheets li .sortable-remove {
+    display: none;
+}
+/*
+.sortable-list > li.ui-state-highlight {
+    padding: 14px 0;
+}
+*/
+.sortable-table {
+    cursor: move;
+}
