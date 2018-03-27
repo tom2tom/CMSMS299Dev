@@ -204,7 +204,7 @@
           {if $flag}<th class="{*$column TODO Rolf *}{if $flag=='icon'}pageicon{/if}">
           <!-- {$column} -->
           {if $column == 'expand' or $column == 'hier' or $column == 'icon1' or $column == 'view' or $column == 'copy' or $column == 'edit' or $column == 'delete'}
-            <span title="{$mod->Lang(" coltitle_{$column} ")}">&nbsp;</span>{* no column header *}
+            <span title="{$mod->Lang("coltitle_{$column}")}">&nbsp;</span>{* no column header *}
           {elseif $column == 'multiselect'}
             <input type="checkbox" id="selectall" value="1" title="{$mod->Lang('select_all')}" />
           {elseif $column == 'page'}
@@ -213,7 +213,7 @@
             {if ($have_locks == '1') && ($column == 'default' || $column == 'move')}
               <span title="{$mod->Lang('error_action_contentlocked')}">({$mod->Lang("colhdr_{$column}")})</span>
             {else}
-              <span title="{$mod->Lang(" coltitle_{$column} ")}">{$mod->Lang("colhdr_{$column}")}</span>
+              <span title="{$mod->Lang("coltitle_{$column}")}">{$mod->Lang("colhdr_{$column}")}</span>
             {/if}
           {/if}
         </th>{/if}
