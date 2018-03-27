@@ -225,8 +225,9 @@ $(document).ready(function() {
 <div id="Edit_Content">
 {form_start content_id=$content_id}
   <input type="hidden" id="active_tab" name="{$actionid}active_tab"/>
+  <div class="topsubmits">
   {submit_buttons}
-
+  </div>
   {* tab headers *}
   {foreach $tab_names as $key => $tabname}
     {tab_header name=$key label=$tabname active=$active_tab}

@@ -2,13 +2,12 @@
 <br />
 
 {form_start action=admin_pagedefaults_tab pagedefaults=1}
-<div class="pageoverflow">
+<div class="topsubmits">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
-<br />
 <div class="pageoverflow">
   <p class="pagetext">
     <label for="contenttype">{$mod->Lang('prompt_pagedflt_contenttype')}</label>:
@@ -138,8 +137,7 @@
     <input type="text" name="{$actionid}extra3" id="extra3" value="{$page_prefs.extra3}" size="80" maxlength="255" />
   </p>
 </div>
-<br />
-<div class="pageoverflow">
+<div class="bottomsubmits">
   <p class="pageinput">
     <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
