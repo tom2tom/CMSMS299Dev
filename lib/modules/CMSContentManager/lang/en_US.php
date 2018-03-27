@@ -63,7 +63,7 @@ $lang['confirm_delete_page'] = 'Are you sure you want to delete this content ite
 $lang['confirm_expandall'] = 'Are you sure you want to expand all content?  On large sites this might cause problems.  Please be careful';
 $lang['confirm_reorder'] = 'Are you sure you want to save the content in this order';
 $lang['confirm_setdefault'] = 'Are you sure you want to change the default content page for this website?';
-$lang['confirm_setinactive'] = 'Are you sure you want to make his page inactive? This page will not be viewable, and might affect the behavior of a working website.';
+$lang['confirm_setinactive'] = 'Are you sure you want to make his page inactive? The page would then be hidden, which might affect the behavior of the website.';
 $lang['confirm_steal_lock'] = 'This page is locked.  Although you may steal this lock it is not always a nice thing to do.  The other party might lose valuable content edits.<br /><br />Are you sure you want to continue?';
 $lang['confirm_viewpage'] = 'Are you sure you want to open a new window to view this page?';
 $lang['contractall'] = 'Collapse All';
@@ -144,8 +144,8 @@ $lang['help_page_url'] = 'An alternate URL (relative to the root of this website
 $lang['help_title_content_type'] = 'Content Type Selector';
 
 #I
-$lang['info_javascript_required'] = '<strong>Warning: </strong>In order to operate correctly, this module requires a browser with JavaScript support enabled.';
-$lang['info_ordercontent'] = 'Drag and drop elements to adjust their order in the content tree.  <strong>Note:</strong> Some content items, such as separators, do not accept children';
+$lang['info_javascript_required'] = '<strong>Warning:</strong> This module will not work properly unless javascript is enabled in your web browser.';
+$lang['info_ordercontent'] = 'Drag and drop rows or groups of rows to change their position in the content tree. <strong>Note:</strong> Some content items, such as separators, do not accept children';
 $lang['info_pagedflt'] = 'Here you can set default values of properties of new pages of type &quot;<em>Content</em>&quot; and derived types.  These settings will have no effect on existing pages, and user settings might override some of them.';
 $lang['info_preview_notice'] = 'You can navigate away from the initially previewed page. <strong>Warning</strong> - if you do that, you might experience unexpected behavior. After returning, you might be unable to see un-committed content until you make a change to the content in the main tab, and then reload this tab. When adding content, if you navigate away from this page, you will be unable to return, and must refresh this view.';
 $lang['invalid_url2'] = 'The page URL specified is invalid.  It should contain only alphanumeric characters, or - or /.  Extensions must contain only alphanumeric chars and be less than 5 characters in length.  It is also possible that the URL specified is already in use.';
