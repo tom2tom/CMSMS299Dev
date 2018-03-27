@@ -48,15 +48,13 @@
 
 {if isset($form_start)}
 {$form_start}
-<div class="bottomsubmits">
-  <p class="pageinput">
-    {if count($dependencies) > 1}
-      <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('install_procede')}</button>
-    {else}
-      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('install_submit')}</button>
-    {/if}
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput pregap">
+ {if count($dependencies) > 1}
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('install_procede')}</button>
+{else}
+ <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('install_submit')}</button>
+{/if}
+ <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>
 {/if}

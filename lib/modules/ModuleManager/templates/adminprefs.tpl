@@ -82,9 +82,7 @@ $(document).ready(function(){
     </p>
   </div>
 {/if}
-  <div class="bottomsubmits">
-    <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" id="settings_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="{$actionid}submit" id="settings_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </div>
 </form>

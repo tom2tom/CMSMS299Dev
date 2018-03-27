@@ -63,11 +63,9 @@
     </p>
   </div>
 </fieldset>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-    <button type="submit" name="{$actionid}submitandedit" class="adminsubmit icon apply">{$mod->Lang('submitandedit')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}submitandedit" class="adminsubmit icon apply">{$mod->Lang('submitandedit')}</button>
 </div>
 </form>

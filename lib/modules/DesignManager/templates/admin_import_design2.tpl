@@ -155,11 +155,9 @@ $(document).ready(function() {
     <input type="checkbox" name="{$actionid}check1" value="1" id="check1">&nbsp;<label for="check1">{$mod->Lang('confirm_import_1')}</label>
   </p>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}next2" class="adminsubmit icon go">{$mod->Lang('next')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}next2" class="adminsubmit icon go">{$mod->Lang('next')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>
 

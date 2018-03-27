@@ -70,17 +70,15 @@
 <div class="pagewarn">{$template_error}</div>
 {/if}
 
-<div class="pageoverflow">
+<div class="pageoverflow pregap">
   <p class="pagetext">{$mod->Lang('confirm_setall_1')}:</p>
-  <p class="pageinput">
+  <div class="pageinput">
     <input type="checkbox" name="{$actionid}check1" value="1" id="check1" />&nbsp;<label for="check1">{$mod->Lang('confirm_setall_2')}</label><br/>
     <input type="checkbox" name="{$actionid}check2" value="1" id="check2" />&nbsp;<label for="check2">{$mod->Lang('confirm_setall_3')}</label>
-  </p>
+  </div>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>

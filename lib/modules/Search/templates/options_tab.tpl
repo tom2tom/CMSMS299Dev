@@ -25,9 +25,8 @@
   <p class="pagetext">{$prompt_resultpage}:</p>
   <p class="pageinput">{page_selector name="{$actionid}resultpage" value="{$mod->GetPreference('resultpage')}"}</p>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">{$submit}
-    <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do" onclick="return confirm('{$mod->Lang("confirm_reindex")|escape:"javascript"}')">{$mod->Lang('reindexallcontent')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do" onclick="return confirm('{$mod->Lang("confirm_reindex")|escape:"javascript"}');">{$mod->Lang('reindexallcontent')}</button>
 </div>
 </form>

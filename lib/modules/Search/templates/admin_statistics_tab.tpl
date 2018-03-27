@@ -20,8 +20,8 @@
     </tbody>
   </table>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">{$clearwordcount}&nbsp;{$exportcsv}</p>
+<div class="pageinput pregap">
+  {$clearwordcount}&nbsp;{$exportcsv}
 </div>
 </form>
 {else}

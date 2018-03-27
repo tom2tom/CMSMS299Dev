@@ -23,11 +23,9 @@ $(document).ready(function() {
     {admin_icon name='help_import_xml_file' icon='info.gif' class='helpicon'}
   </p>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}next1" class="adminsubmit icon go">{$mod->Lang('next')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}next1" class="adminsubmit icon go">{$mod->Lang('next')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>
 

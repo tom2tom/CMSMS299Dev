@@ -1,9 +1,4 @@
 {form_start}
-<div class="topsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  </p>
-</div>
 <fieldset>
   <legend>{$mod->Lang('prompt_locksettings')}:</legend>
   <div class="pageoverflow">
@@ -25,4 +20,7 @@
     </p>
   </div>
 </fieldset>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+</div>
 </form>

@@ -1,12 +1,9 @@
-<div class="pageinfo">{$mod->Lang('info_pagedflt')}</div>
-<br />
+<div class="pageinfo postgap">{$mod->Lang('info_pagedflt')}</div>
 
 {form_start action=admin_pagedefaults_tab pagedefaults=1}
-<div class="topsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput postgap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
@@ -137,10 +134,8 @@
     <input type="text" name="{$actionid}extra3" id="extra3" value="{$page_prefs.extra3}" size="80" maxlength="255" />
   </p>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>

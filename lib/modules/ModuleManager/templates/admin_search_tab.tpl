@@ -35,10 +35,8 @@ $(document).ready(function() {
     <span id="advhelp" style="display: none;"><br />{$mod->Lang('advancedsearch_help')}</span>
   </p>
 </div>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon search">{$mod->Lang('search')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon search">{$mod->Lang('search')}</button>
 </div>
 </fieldset>
 </form>

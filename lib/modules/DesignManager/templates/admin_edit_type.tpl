@@ -3,11 +3,9 @@
 {form_start}
 <fieldset>
   <div class="pagecontainer" style="width: 49%; float: left;">{* left container *}
-    <div class="topsubmits">
-      <p class="pageinput">
-        <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-        <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-      </p>
+    <div class="pageinput postgap">
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
     </div>
     <div class="pageoverflow">
       <p class="pagetext">

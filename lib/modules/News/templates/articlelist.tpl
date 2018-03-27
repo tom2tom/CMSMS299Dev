@@ -84,13 +84,11 @@ $(document).ready(function() {
       </select>
     </p>
   </div>
-  <div class="bottomsubmits">
-    <p class="pageinput">
-      <button type="submit" name="{$actionid}submitfilter" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}resetfilter" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="{$actionid}submitfilter" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}resetfilter" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
   </div>
-  {$formend}
+ </form>
 </div>
 {/if}
 
@@ -197,13 +195,11 @@ $(document).ready(function() {
     <div id="bulk_category" style="display: inline-block;">
       {$mod->Lang('category')}: {$categoryinput}
     </div>
-    <div class="bottomsubmits">
-      <p class="pageinput">
-        <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icon do">{$mod->Lang('submit')}</button>
-      </p>
+    <div class="pageinput pregap">
+      <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icon do">{$mod->Lang('submit')}</button>
     </div>
   </div>
   {/if}
   <div class="clearb"></div>
 </div>
-{$form2end}
+</form>

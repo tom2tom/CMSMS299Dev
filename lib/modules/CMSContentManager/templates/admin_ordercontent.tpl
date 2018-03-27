@@ -77,12 +77,10 @@ $(document).ready(function() {
 {form_start action='admin_ordercontent' id="theform"}
 <input type="hidden" id="orderlist" name="{$actionid}orderlist" value="" />
 <div class="pageinfo">{$mod->Lang('info_ordercontent')}</div>
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
-  </p>
+<div class="pageinput postgap">
+  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
 </div>
 <div class="pageoverflow">
   {$list = $tree->getChildren(false,true)}
@@ -91,12 +89,10 @@ $(document).ready(function() {
   </ul>
 </div>
 {if $list|count > 10}
-<div class="bottomsubmits">
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-    <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
-  </p>
-</div>
+ <div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" id="btn_submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+  <button type="submit" name="{$actionid}revert" id="btn_revert" class="adminsubmit icon undo">{$mod->Lang('revert')}</button>
+ </div>
 {/if}
-{form_end}
+</form>

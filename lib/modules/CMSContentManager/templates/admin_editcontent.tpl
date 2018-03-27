@@ -209,7 +209,6 @@ $(document).ready(function() {
 {/if}
 
 {function submit_buttons}
-<p class="pageinput">
   <button type="submit" name="{$actionid}submit" title="{$mod->Lang('title_editpage_submit')}" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   <button type="submit" name="{$actionid}cancel" title="{$mod->Lang('title_editpage_cancel')}" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
   {if $content_id}
@@ -218,14 +217,14 @@ $(document).ready(function() {
   {if ($content_id != '') && $content_obj->IsViewable() && $content_obj->Active()}
     <a id="viewpage" rel="external" href="{$content_obj->GetURL()}" title="{$mod->Lang('title_editpage_view')}">{admin_icon icon='view.gif' alt=lang('view_page')}</a>
   {/if}
-</p>
 {/function}
 
 <div id="Edit_Content_Result"></div>
 <div id="Edit_Content">
+<div class="pregap"></div>
 {form_start content_id=$content_id}
   <input type="hidden" id="active_tab" name="{$actionid}active_tab"/>
-  <div class="topsubmits">
+  <div class="pageinput postgap">
   {submit_buttons}
   </div>
   {* tab headers *}
