@@ -13,11 +13,11 @@
       <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><span class="shortcuticon">&nbsp;</span></a>
     </li>
     {/if}
-    <li class="view-site">
+    <li class="mainsite">
       <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><span class="shortcuticon">&nbsp;</span></a>
     </li>
     {$my_alerts=$theme->get_my_alerts()} {$num_alerts=count($my_alerts)} {if $num_alerts > 0} {if $num_alerts > 10}{$txt='&#2295'}{else}{$num=$num_alerts}{$txt="{$num}"}{/if}
-    <li class="notifications">
+    <li class="notice">
       <a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><span class="bubble">{$txt}</span></a>
     </li>
     {/if}
