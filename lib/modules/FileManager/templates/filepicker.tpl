@@ -40,7 +40,7 @@ function ChooseFile(filename) {
         <legend>{$fileoperations}</legend>
         {$formstart}
 
-        <table width="100%">
+        <table style="width:100%;">
           <tr>
             <td align="left">
               {$fileuploadtext}: {$fileuploadinput}{$fileuploadsubmit}
@@ -56,23 +56,23 @@ function ChooseFile(filename) {
       {/if}
     </div>
     <div class="filelist">
-      <table width="100%">
+      <table style="width:100%;">
         <thead>
           <tr>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
-            <td width="1%" align="right" style="white-space:nowrap;"><b>{$dimensionstext}</b></td>
-            <td width="1%" align="right" style="white-space:nowrap;"><b>{$sizetext}</b></td>
+            <td style="width:1%;" align="right" style="white-space:nowrap;"><b>{$dimensionstext}</b></td>
+            <td style="width:1%;" align="right" style="white-space:nowrap;"><b>{$sizetext}</b></td>
           </tr>
         </thead>
         {foreach $files as $file}
         <tr>
           {strip} {if $file->isdir=="1"}
-          <td width="1%" align="center"><img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/dir.png" title="Dir" alt="Dir" /></td>
+          <td style="width:1%;" align="center"><img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/dir.png" title="Dir" alt="Dir" /></td>
           <!-- diricon?? -->
           <td>{$file->namelink} </td>
-          <td width="1%">&nbsp;</td>
-          <td width="1%">&nbsp;</td>
+          <td style="width:1%;">&nbsp;</td>
+          <td style="width:1%;">&nbsp;</td>
           {else}
           <td align="right">
             {if $filepickerstyle=="filename"} {if $file->isimage=="1"}
@@ -98,8 +98,8 @@ function ChooseFile(filename) {
              {$file->name}
             </a>
           </td>
-          <td width="1%" align="right">{$file->dimensions}</td>
-          <td width="1%" align="right">{$file->size}</td>
+          <td style="width:1%;" align="right">{$file->dimensions}</td>
+          <td style="width:1%;" align="right">{$file->size}</td>
           {/if} {/strip}
         </tr>
         {/foreach}

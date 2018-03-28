@@ -137,7 +137,7 @@ $(document).ready(function() {
 {/if} {* !isset($noform) *}
 
   <div id="filesarea">
-    <table width="100%" class="pagetable scrollable">
+    <table style="width:100%;" class="pagetable scrollable">
       <thead>
         <tr>
           <th class="pageicon">&nbsp;</th>
