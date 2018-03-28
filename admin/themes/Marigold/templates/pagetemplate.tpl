@@ -21,17 +21,20 @@
 <body lang="{$lang|truncate:'2':''}" id="{$pagetitle|md5}" class="pg_{$pagealias}">
   <!-- start header -->
   <div id="ggp_header">
-   {if isset($sitelogo)}
      <div id="site-logo">
      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}">
+     {if isset($sitelogo)}
       <img src="{$sitelogo}" alt="{sitename}" />
+     {else}
+      {sitename}
+     {/if}
      </a>
+     {if !isset($sitelogo)}     
+       <span class="site-text">- {lang('adminpaneltitle')}</span>
+     {/if}
      </div>
+   {if isset($sitelogo)}
      <div class="site-text">{lang('adminpaneltitle')}</div>
-   {else}
-     <div id="site-logo">
-       {sitename}<span class="site-text"> - {lang('adminpaneltitle')}</span>
-     </div>
    {/if}
     <div class="header-links">
     <div>
