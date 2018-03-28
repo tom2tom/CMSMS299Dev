@@ -1,9 +1,9 @@
 {strip}
-{if !isset($depth)}{$depth = 0}{/if}
+{function menu_branch}
 {if $depth == 0}
-<ul id="ggp_menu">
+ <ul id="ggp_menu">
 {else}
-<ul>
+ <ul>
 {/if}
 {foreach $nav as $navitem}
     <li class="nav{if !isset($navitem.system) && (isset($navitem.module) || isset($navitem.firstmodule))} module{/if}{if !empty($navitem.selected) || (isset($smarty.get.section) && $smarty.get.section == $navitem.name|lower)} current{/if}">
@@ -20,9 +20,11 @@
             {/if}
         {/if}
         {if !empty($navitem.children)}
-        {include file=$smarty.template nav=$navitem.children depth=$depth+1}
+          {menu_branch nav=$navitem.children depth=$depth+1}
         {/if}
     </li>
 {/foreach}
-</ul>
+ </ul>
+{/function}
 {/strip}
+{menu_branch nav=$nav depth=0}
