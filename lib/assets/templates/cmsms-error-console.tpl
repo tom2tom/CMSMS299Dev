@@ -6,6 +6,7 @@
   <title>CMS Made Simple - Error console</title>
   <meta name="robots" content="noindex, nofollow" />
   <style type="text/css">
+{literal}
 body {
  min-width: 900px;
  font-family: sans-serif;
@@ -101,7 +102,9 @@ a {
 .clear {
  clear: both;
 }
+{/literal}
   </style>
+
   <script type="text/javascript">
 //<![CDATA[{literal}
 function toggle() {
@@ -121,7 +124,7 @@ function toggle() {
 
 <body>
   <div class="logo">
-    <img src="{root_url}/lib/assets/images/cmsms-logo.png" alt="CMS Made Simple" />
+    <img src="{root_url}/lib/assets/images/cmsms-logotext.png" alt="CMS Made Simple" />
   </div>
   <div id="wrapper">
     <h1>Oops!</h1>
@@ -130,17 +133,15 @@ function toggle() {
     </p>
     <div class="clear"></div>
     {if $loggedin}
-    <div class="error">
-      <h2 class="error-message"><span class="important">Error:</span> at line {$e_line} in file {$e_file}:</h2>
-      <p class="message">
-        <strong>Message:</strong>
-      </p>
+    <div class="pageerror"> TODO
+      <h2 class="error-message"><span class="important">Error:</span> at line {$e_line} in file {$e_file}:</h2> TODO
+      <p class="information" style="font-weight:bold;">Message:</p> TODO
       <pre>{$e_message}</pre>
       {if !empty($e_trace)}
-      <p class="message btn">
+      <p class="messagecontainer btn">
         <a id="open" href="javascript:toggle();">View Full Trace &darr;</a>
       </p>
-      <pre id="show" style="display: none;">{$e_trace}</pre>
+      <pre id="show" style="display:none;">{$e_trace}</pre>
       {/if}
     </div>
     {/if}
