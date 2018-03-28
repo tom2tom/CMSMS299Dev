@@ -12,10 +12,8 @@
   <p class="pagetext">{lang('upload_cksum_file')}</p>
   <p class="pageinput"><input type="file" name="cksumdat" size="30" maxlength="255" /></p>
   </div>
-  <div class="bottomsubmits">
-    <p class="pageinput">
-     <button type="submit" name="upload" class="adminsubmit icon do">{lang('validate')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="upload" class="adminsubmit icon do">{lang('validate')}</button>
   </div>
 </fieldset>
 </form>
@@ -30,10 +28,8 @@
   <div class="pageoverflow">
   <p>{lang('info_generate_cksum_file')}</p>
   </div>
-  <div class="bottomsubmits">
-    <p class="pageinput">
-      <button type="submit" name="download" class="adminsubmit icon add">{lang('create')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="download" class="adminsubmit icon add">{lang('create')}</button>
   </div>
 </fieldset>
 </form>

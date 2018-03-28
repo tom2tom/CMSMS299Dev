@@ -1,10 +1,8 @@
 <form action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
-  <div class="topsubmits">
-    <p class="pageinput">
-      <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </p>
+  <div class="pageinput postgap">
+    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
   <fieldset>
     <legend>{lang('lang_settings_legend')}:</legend>
@@ -134,10 +132,8 @@
       </p>
     </div>
 
-    <div class="bottomsubmits">
-      <p class="pageinput">
-        <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-        <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-      </p>
+    <div class="pageinput pregap">
+      <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
     </div>
 </form>

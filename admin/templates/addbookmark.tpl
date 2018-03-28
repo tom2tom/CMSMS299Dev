@@ -11,10 +11,8 @@
       <input type="text" name="url" size="50" maxlength="255" value="{$url}" class="standard" />
     </p>
   </div>
-  <div class="bottomsubmits">
-    <p class="pageinput">
-      <button type="submit" name="addbookmark" class="adminsubmit icon check">{lang('submit'}</button>
-      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel'}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="addbookmark" class="adminsubmit icon check">{lang('submit'}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel'}</button>
   </div>
 </form>

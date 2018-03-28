@@ -140,10 +140,8 @@
   </div>
   {/if}
   {tab_end}
-  <div class="bottomsubmits">
-    <p class="pageinput">
-     <button type="submit" name="submit" id="submit" class="adminsubmit icon check">{lang('submit')}</button>
-     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="submit" id="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>

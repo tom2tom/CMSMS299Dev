@@ -32,7 +32,8 @@ $(document).ready(function() {
 <div class="pageinfo">{$mod->Lang('info_about_categories')}</div>
 <div class="pageoptions">
   {cms_action_url action='admin_edit_category' assign='url'}
-  <a id="addcategory" href="{$url}" title="{$mod->Lang('create_category')}">{admin_icon icon='newobject.gif'} {$mod->Lang('create_category')}</a>
+  <a href="{$url}" title="{$mod->Lang('create_category')}">{admin_icon icon='newobject.gif'}</a>
+  <a href="{$url}">{$mod->Lang('create_category')}</a>
 </div>
 
 {if isset($list_categories)}

@@ -33,11 +33,9 @@
   {else}
   <input type="hidden" name="active" value="{$active}" />
   {/if}
-  <div class="bottomsubmits">
-    <p class="pageinput">
-      <button type="submit" name="editgroup" class="adminsubmit icon check">{lang('submit')}</button>
-      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="editgroup" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 
 </form>

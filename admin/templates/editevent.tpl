@@ -62,9 +62,8 @@
   {/foreach}
   </select>
 {/if}
-  <div class="bottomsubmits">
-    <p class="pageinput">
-TODO why add when editing         <button type="submit" name="create" class="adminsubmit icon add">{lang('add')}</button>
-    </p>
+  <div class="pageinput pregap">
+    TODO why add when editing
+    <button type="submit" name="create" class="adminsubmit icon add">{lang('add')}</button>
   </div>
 </form>

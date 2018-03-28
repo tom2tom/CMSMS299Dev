@@ -25,10 +25,8 @@
       <input type="checkbox" name="active" id="active" class="pagecheckbox"{if $active} checked="checked"{/if} />
     </p>
   </div>
-  <div class="bottomsubmits">
-    <p class="pageinput ">
-      <button type="submit " name="addgroup" class="adminsubmit icon check">{lang('submit')}</button>
-      <button type="submit " name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit " name="addgroup" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit " name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>

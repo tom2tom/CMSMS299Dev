@@ -58,10 +58,8 @@
       <input type="text" name="email" id="email" size="40" maxlength="255" value="{$userobj->email}" class="standard" />
     </p>
   </div>
-  <div class="bottomsubmits">
-    <p class="pageinput">
-      <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </p>
+  <div class="pageinput pregap">
+    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>

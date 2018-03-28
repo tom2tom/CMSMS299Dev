@@ -39,14 +39,14 @@
         <input name="passwordagain" type="password" size="25" placeholder="{lang('passwordagain')}" maxlength="100" />
         <input type="hidden" name="forgotpwchangeform" value="1" />
         <input type="hidden" name="changepwhash" value="{$changepwhash}" /> {/if}
-        <div class="bottomsubmits">
-        <button type="submit" name="loginsubmit" class="loginsubmit">{lang('submit')}</button>
+        <div class="pageinput pregap">
+          <button type="submit" name="loginsubmit" class="loginsubmit">{lang('submit')}</button>
         {if isset($smarty.get.forgotpw)}
-        <button type="submit" name="logincancel" class="loginsubmit">{lang('cancel')}</button>
+          <button type="submit" name="logincancel" class="loginsubmit">{lang('cancel')}</button>
         {/if}
         {if !isset($smarty.get.forgotpw)}<span id="forgotpw">
-         <a href="login.php?forgotpw=1" title="{lang('recover_start')}">{lang('lostpw')}</a>
-         </span>{/if}
+          <a href="login.php?forgotpw=1" title="{lang('recover_start')}">{lang('lostpw')}</a>
+          </span>{/if}
         </div>
       </form>
       {if !empty($smarty.get.forgotpw)}
