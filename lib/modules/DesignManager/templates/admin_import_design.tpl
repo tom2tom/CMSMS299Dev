@@ -20,7 +20,7 @@ $(document).ready(function() {
   </p>
   <p class="pageinput">
     <input type="file" name="{$actionid}import_xml_file" id="import_xml_file" size="50"/>
-    {admin_icon name='help_import_xml_file' icon='info.gif' class='helpicon'}
+    {admin_icon name='help_import_xml_file' icon='info.png' class='helpicon'}
   </p>
 </div>
 <div class="pageinput pregap">

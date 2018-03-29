@@ -20,7 +20,7 @@ $(document).ready(function() {
   <p class="pageinput">
     <input type="checkbox" name="{$actionid}delete_templates" id="opt_rm_tpl" value="yes" />&nbsp;
     <label for="opt_rm_tpl">{$mod->Lang('delete_attached_templates')}</label><br />
-    {admin_icon class='helpicon' name='help_rm_tpl' icon='info.gif'}
+    {admin_icon class='helpicon' name='help_rm_tpl' icon='info.png'}
   </p>
 </div>
 {/if}
@@ -32,7 +32,7 @@ $(document).ready(function() {
   </p>
   <p class="pageinput">
     <input type="checkbox" name="{$actionid}delete_stylesheets" id="opt_rm_css" value="yes" />&nbsp;
-    {admin_icon class='helpicon' name='help_rm_css' icon='info.gif'}
+    {admin_icon class='helpicon' name='help_rm_css' icon='info.png'}
   </p>
 </div>
 {/if}

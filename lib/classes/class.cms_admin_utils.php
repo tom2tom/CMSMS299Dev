@@ -169,7 +169,7 @@ final class cms_admin_utils
 		$theme = cms_utils::get_theme_object();
 		if( !is_object($theme) ) return;
 
-		$icon = self::get_icon('info.gif');
+		$icon = self::get_icon('info.png');
 		if( !$icon ) return;
 
 		$params = [];
@@ -221,32 +221,5 @@ final class cms_admin_utils
 		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
 
 		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'"><img class="cms_helpicon" src="'.$icon.'" alt="'.basename($icon).'" /></span>';
-	}
-
-	public static function get_header_includes()
-	{
-        list($vars,$add_list) = \CMSMS\HookManager::do_hook('AdminHeaderSetup', [], []);
-		$out = implode("\n",$add_list);
-
-		$allmodules = ModuleOperations::get_instance()->GetLoadedModules();
-		if (is_array($allmodules) && count($allmodules)) {
-			foreach ($allmodules as $modinst) {
-				if (is_object($modinst) && $modinst->HasAdmin()) {
-					$tmp = $modinst->AdminStyle();
-					if ($tmp) {
-						$out .= "\n".$tmp;
-					}
-				}
-			}
-		}
-		return $out;
-	}
-
-	public static function get_bottom_includes()
-	{
-        list($vars,$add_list) = \CMSMS\HookManager::do_hook('AdminBottomSetup', [], []);
-		$out = implode("\n",$add_list);
-
-		return $out;
 	}
 } // end of class

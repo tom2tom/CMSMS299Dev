@@ -42,7 +42,7 @@ $(document).ready(function() {
   </p>
       <p class="pageinput">
         <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50"/>
-        &nbsp;{admin_icon name='help_import_newname' icon='info.gif' class='helpicon'}
+        &nbsp;{admin_icon name='help_import_newname' icon='info.png' class='helpicon'}
         <br/>
         {$mod->Lang('prompt_orig_name')}: {$design_info.name}
       </p>
@@ -62,7 +62,7 @@ $(document).ready(function() {
       <p class="pagetext">{$mod->Lang('prompt_cmsversion')}:</p>
       <p class="pageinput">
         {if version_compare($design_info.cmsversion,$cms_version) < 0}
-          <span style="color: red;">{$design_info.cmsversion}</span>&nbsp;{admin_icon name='help_import_cmsversion' icon='info.gif' class='helpicon'}
+          <span style="color: red;">{$design_info.cmsversion}</span>&nbsp;{admin_icon name='help_import_cmsversion' icon='info.png' class='helpicon'}
         {else}
           {$design_info.cmsversion}
         {/if}
