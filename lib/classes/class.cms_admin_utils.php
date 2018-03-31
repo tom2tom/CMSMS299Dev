@@ -115,39 +115,31 @@ final class cms_admin_utils
 	 * Get the complete URL to an admin icon
 	 *
 	 * @param string $icon the basename of the desired icon
+	 * @param array $attrs Since 2.3 Optional assoc array of attributes for the created tag
 	 * @return string
 	 */
-	public static function get_icon($icon)
+	public static function get_icon($icon, $attrs = [])
 	{
-		$theme = cms_utils::get_theme_object();
-		if( !is_object($theme) ) return;
-
 		$smarty = \CMSMS\internal\Smarty::get_instance();
 		$module = $smarty->get_template_vars('actionmodule');
 
-		$dirs = [];
 		if( $module ) {
 			$obj = cms_utils::get_module($module);
 			if( is_object($obj) ) {
+				//TODO use aglgoritm in adminthemebase - favour different image-types etc
 				$img = basename($icon);
 				$path = $obj->GetModulePath();
-				$dirs[] = [cms_join_path($path,'icons',"{$img}"), $path."/icons/{$img}"];
-				$dirs[] = [cms_join_path($path,'images',"{$img}"), $path."/images/{$img}"];
+				$dirs = [];
+				$dirs[] = [cms_join_path($path,'icons',"{$img}"),$path."/icons/{$img}"];
+				$dirs[] = [cms_join_path($path,'images',"{$img}"),$path."/images/{$img}"];
 			}
-		}
-		if( basename($icon) == $icon ) $icon = "icons/system/{$icon}";
-		$config = \cms_config::get_instance();
-		$dirs[] = array(cms_join_path($config['root_path'],$config['admin_dir'],"themes/{$theme->themeName}/images/{$icon}"),
-						$config['admin_url']."/themes/{$theme->themeName}/images/{$icon}");
+		} else {
+			$theme = cms_utils::get_theme_object();
+			if( !is_object($theme) ) return;
 
-		$fnd = null;
-		foreach( $dirs as $one ) {
-			if( file_exists($one[0]) ) {
-				$fnd = $one[1];
-				break;
-			}
+			if( basename($icon) == $icon ) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
+			return $theme->DisplayImage($icon,'','','',null,$attrs);
 		}
-		return $fnd;
 	}
 
 	/**

@@ -43,16 +43,10 @@ function smarty_function_admin_icon($params,&$template)
     }
 
     if( !$icon ) return;
-    $fnd = cms_admin_utils::get_icon($icon);
-    if( !$fnd ) return;
 
-    if( !isset($tagparms['alt']) ) $tagparms['alt'] = basename($fnd);
-
-    $out = "<img src=\"{$fnd}\"";
-    foreach( $tagparms as $key => $value ) {
-        $out .= " $key=\"$value\"";
-    }
-    $out .= ' />';
+    if( !isset($tagparms['alt']) ) $tagparms['alt'] = basename($icon);
+    $out = cms_admin_utils::get_icon($icon,$tagparms);
+    if( !$out ) return;
 
     if( isset($params['assign']) ) {
         //TODO why global smarty instead of template ?
