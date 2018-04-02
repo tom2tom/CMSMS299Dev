@@ -1,0 +1,19 @@
+
+.icon-mainsite:before { content: '\e800'; } /* '' */
+.icon-extensions:before { content: '\e801'; } /* '' */
+.icon-services:before { content: '\e802'; } /* '' */
+.icon-logout-right:before { content: '\e803'; } /* '' */
+.icon-logout-left:before { content: '\e804'; } /* '' */
+.icon-users:before { content: '\e805'; } /* '' */
+.icon-user:before { content: '\e806'; } /* '' */
+.icon-files:before { content: '\e807'; } /* '' */
+.icon-layout:before { content: '\e808'; } /* '' */
+.icon-basket:before { content: '\e809'; } /* '' */
+.icon-content:before { content: '\e80a'; } /* '' */
+.icon-admin:before { content: '\e80b'; } /* '' */
+.icon-help:before { content: '\e80c'; } /* '' */
+.icon-bell:before { content: '\e80d'; } /* '' */
+.icon-star:before { content: '\e80e'; } /* '' */
+.icon-home:before { content: '\e80f'; } /* '' */
+.icon-expand-right:before { content: '\f152'; } /* '' */
+.icon-expand-left:before { content: '\f191'; } /* '' */
