@@ -22,7 +22,7 @@ if( !$this->VisibleToAdminUser() ) return;
 
 $template = get_parameter_value( $params, 'template', 'defaultadmin.tpl' );
 $url = $this->create_url($id,'admin_search');
-$url = str_replace('&amp;','&',$url).'&showtemplate=false';
+$url = str_replace('&amp;','&',$url).'&cmsjobtype=1';
 $smarty->assign('ajax_url',$url);
 $smarty->assign('js_url',$this->GetModuleURLPath().'/lib/admin_search_tab.js');
 
