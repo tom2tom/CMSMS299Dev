@@ -151,7 +151,7 @@ while( false !== ($filename = $dh->read()) ) {
   	$file['size'] = null;
   }
   if( $file['isdir'] ) {
-    $url = $this->create_url($id,'filepicker',$returnid)."&showtemplate=false&subdir=$filename&type=$type&field=$field";
+    $url = $this->create_url($id,'filepicker',$returnid)."&cmsjobtype=1&subdir=$filename&type=$type&field=$field";
     $file['chdir_url'] = str_replace('&amp;','&',$url);
   }
   $files[] = $file;

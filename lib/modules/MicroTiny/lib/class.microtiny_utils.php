@@ -126,7 +126,7 @@ class microtiny_utils
   private static function _generate_config($frontend=false, $selector = null, $css_name = null, $languageid="en")
   {
       $ajax_url = function($url) {
-          return str_replace('&amp;','&',$url).'&showtemplate=false';
+          return str_replace('&amp;','&',$url).'&cmsjobtype=1';
       };
 
       $mod = cms_utils::get_module('MicroTiny');
