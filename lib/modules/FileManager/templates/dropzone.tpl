@@ -6,7 +6,7 @@ $(document).ready(function() {
   var thediv = '#theme_dropzone';
   $(document).on('dialogopen', '.drop .dialog', function(event, ui) {
     var url = '{/literal}{$chdir_url}{literal}';
-    url = url.replace(/amp;/g, '') + '&showtemplate=false';
+    url = url.replace(/amp;/g, '') + '&cmsjobtype=1';
     $.get(url, function(data) {
       $('#fm_newdir').val('/' + data);
     });
@@ -14,7 +14,7 @@ $(document).ready(function() {
   $('#chdir_form').submit(function(e) {
     var data = $(this).serialize();
     var url = '{/literal}{$chdir_url}{literal}';
-    url = url.replace(/amp;/g, '') + '&showtemplate=false';
+    url = url.replace(/amp;/g, '') + '&cmsjobtype=1';
     $.post(url, data, function(data, textStatus, jqXHR) {
       // stuff to do on post finishing.
       $('#chdir_form').trigger('dropzone_chdir');

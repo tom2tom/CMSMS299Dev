@@ -8,7 +8,7 @@ a.filelink:visited {
 </style>
 <script type="text/javascript">
 {literal}//<![CDATA[
-var refresh_url = {/literal}'{$refresh_url}'{literal} + '&showtemplate=false';
+var refresh_url = {/literal}'{$refresh_url}'{literal} + '&cmsjobtype=1';
 refresh_url = refresh_url.replace(/amp;/g, '');
 function enable_button(idlist) {
   $(idlist).removeAttr('disabled').removeClass('ui-state-disabled ui-button-disabled');
@@ -84,7 +84,7 @@ $(document).ready(function() {
   $(document).on('click', '#btn_view', function() {
     // find the selected item.
     var tmp = $("#filesarea input[type='checkbox']").filter(':checked').val();
-    var url = {/literal}'{$viewfile_url}&showtemplate=false&{$actionid}viewfile='{literal} + tmp;
+    var url = {/literal}'{$viewfile_url}&cmsjobtype=1&{$actionid}viewfile='{literal} + tmp;
     url = url.replace(/amp;/g, '');
     $('#popup_contents').load(url);
     $('#popup').dialog({
