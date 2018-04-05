@@ -509,22 +509,6 @@ input[type="button"], input[type="submit"], .ui-button {
     height: 28px;
     font-size: 1em
 }
-/* UNUSED
-.ui-button {
-    margin: 4px 0
-}
-.ui-button-text {
-    font-size: 1em;
-    margin-left: 2px;
-    text-transform: uppercase
-}
-button.ui-button.ui-state-active {
-    border: 1px solid #d3d3d3;
-    background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
-    font-weight: normal;
-    color: #147fdb
-}
-*/
 input[type="button"]:hover, input[type="submit"]:hover, .ui-button:hover {
     cursor: pointer
 }
@@ -536,174 +520,15 @@ input[type="checkbox"], input[type="radio"] {
 input[type="checkbox"] {
     margin-left: 4px;
 }
-/* TODO custom selects e.g. per https://codepen.io/ericrasch/pen/zjDBx
-
-/*  Box Styles: bavotasan.com Method (with special adaptations by ericrasch.com) * /
-/*  http://bavotasan.com/2011/style-select-box-using-only-css/ * /
-.styled-select {
-   background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
-   height: 29px;
-   overflow: hidden;
-   width: 240px;
-}
-
-.styled-select select {
-   background: transparent;
-   border: none;
-   font-size: 14px;
-   height: 29px;
-   padding: 5px; /* If you add too much padding here, the options won't show in IE * /
-   width: 268px;
-}
-
-.styled-select.slate {
-   background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
-   height: 34px;
-   width: 240px;
-}
-
-.styled-select.slate select {
-   border: 1px solid #ccc;
-   font-size: 16px;
-   height: 34px;
-   width: 268px;
-}
-
-/*  Corners * /
-.rounded {
-   -webkit-border-radius: 20px;
-   -moz-border-radius: 20px;
-   border-radius: 20px;
-}
-
-.semi-square {
-   -webkit-border-radius: 5px;
-   -moz-border-radius: 5px;
-   border-radius: 5px;
-}
-
-/* : Background * /
-.slate   { background-color: #ddd; }
-.green   { background-color: #779126; }
-.blue    { background-color: #3b8ec2; }
-.yellow  { background-color: #eec111; }
-.black   { background-color: #000; }
-
-/* : Text * /
-.slate select   { color: #000; }
-.green select   { color: #fff; }
-.blue select    { color: #fff; }
-.yellow select  { color: #000; }
-.black select   { color: #fff; }
-
-/*  Box Styles: danielneumann.com Method * /
-/*  http://danielneumann.com/blog/how-to-style-dropdown-with-css-only/ * /
-#mainselection select {
-   border: 0;
-   color: #EEE;
-   background: transparent;
-   font-size: 20px;
-   font-weight: bold;
-   padding: 2px 10px;
-   width: 378px;
-   *width: 350px;
-   *background: #58B14C;
-   -webkit-appearance: none;
-}
-#mainselection {
-   overflow:hidden;
-   width:350px;
-   -moz-border-radius: 9px 9px 9px 9px;
-   -webkit-border-radius: 9px 9px 9px 9px;
-   border-radius: 9px 9px 9px 9px;
-   box-shadow: 1px 1px 11px #330033;
-   background: #58B14C url("http://i62.tinypic.com/15xvbd5.png") no-repeat scroll 319px center;
-}
-/*  Box Styles: stackoverflow.com Method * /
-/*  http://stackoverflow.com/a/5809186 * /
-select#soflow, select#soflow-color {
-   -webkit-appearance: button;
-   -webkit-border-radius: 2px;
-   -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-   -webkit-padding-end: 20px;
-   -webkit-padding-start: 2px;
-   -webkit-user-select: none;
-   background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#FAFAFA, #F4F4F4 40%, #E5E5E5);
-   background-position: 97% center;
-   background-repeat: no-repeat;
-   border: 1px solid #AAA;
-   color: #555;
-   font-size: inherit;
-   margin: 20px;
-   overflow: hidden;
-   padding: 5px 10px;
-   text-overflow: ellipsis;
-   white-space: nowrap;
-   width: 300px;
-}
-
-select#soflow-color {
-   color: #fff;
-   background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#779126, #779126 40%, #779126);
-   background-color: #779126;
-   -webkit-border-radius: 20px;
-   -moz-border-radius: 20px;
-   border-radius: 20px;
-   padding-left: 15px;
-}
+/* select-button custom styling requires fixed select-width, or
+   runtime js to process actual width NOT WORTH THE BOTHER ..
 */
-
-/*
-select {
-//    background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
-//    background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
-    background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#779126, #779126 40%, #779126);
-//   height: 29px;
-    overflow: hidden;
-//    width: 240px;
-//    height: 34px;
-//    width: 240px;
-}
-*/
-
-/*
-select select {
-   background: transparent;
-//   border: none;
-//   font-size: 14px;
-//   height: 29px;
-   padding: 5px; /* If you add too much padding here, the options won't show in IE * /
-//   width: 268px;
-
-//   border: 1px solid #ccc;
-//   font-size: 16px;
-//   height: 34px;
-//   width: 268px;
-}
-*/
-
 select {
     margin-left: 4px;
     border-color: #aaa;
     border-radius: 3px 0 0 3px;
     padding: 0.5em;
 }
-
-select {
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    appearance: none;
-}
-/*for IE10(+?) */
-select::-ms-expand {
-    display: none;
-}
-/*for older IE*/
-select {
-    overflow:hidden;
-    width: 120%;
-}
-
 select:hover, select:focus {
     box-shadow: 0 0 5px #3c9b0a;
     -webkit-box-shadow: 0 0 5px #3c9b0a;
@@ -712,8 +537,6 @@ select:hover, select:focus {
     -moz-transition: all 200ms ease-in-out;
     -o-transition: all 200ms ease-in-out;
 }
-
-
 
 textarea {
     margin-left: 4px;
@@ -2395,7 +2218,7 @@ textarea.pageextrasmalltextarea {
 #page_tabs div.active {
     color: #fff;
     text-shadow: -1px -1px 0 #054882;
-    background: #3c9b0a url(../images/extra/tab-active.png) no-repeat center bottom
+    background: #3c9b0a /*url(../images/extra/tab-active.png) no-repeat center bottom */
 }
 #page_content {
 /*    background: #fff;
