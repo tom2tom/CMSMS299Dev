@@ -171,13 +171,13 @@ class microtiny_profile implements ArrayAccess
     self::$_module = $module;
   }
 
-  private static function &_get_module()
+  private static function _get_module()
   {
     if( is_object(self::$_module) ) return self::$_module;
     return cms_utils::get_module('MicroTiny');
   }
 
-  public static function &load($name)
+  public static function load($name)
   {
     if( $name == '' ) return;
     $data = self::_get_module()->GetPreference('profile_'.$name);
