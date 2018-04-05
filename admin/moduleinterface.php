@@ -16,49 +16,55 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//REMINDER: vars defined here might be used as globals by downstream hook functions
+
 $CMS_ADMIN_PAGE=1;
 $CMS_MODULE_PAGE=1;
 
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
+if (isset($_REQUEST['cmsjobtype'])) {
+    // for simplicity and compatibility with the frontend
+    $type = (int)$_REQUEST['cmsjobtype'];
+    $CMS_JOB_TYPE = min(max($type, 0), 2);
+} elseif (
+    // undocumented, deprecated, output-suppressor
+    (isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
+    || $modinst->SuppressAdminOutput($_REQUEST)
+    || isset($_REQUEST['suppressoutput'])) {
+    $CMS_JOB_TYPE = 1;
+} else {
+    //normal output
+    $CMS_JOB_TYPE = 0;
+}
+
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 $userid = get_userid();
 
-$id = 'm1_';
-$module = '';
-$action = 'defaultadmin';
-//UNUSED $suppressOutput = false;
 if (isset($_REQUEST['mact'])) {
     $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
     $ary = explode(',', $mact, 4);
     $module = $ary[0] ?? '';
     $id = $ary[1] ?? 'm1_';
     $action = $ary[2] ?? '';
+} else {
+    $module = ''; // trigger error
 }
 
 $modops = ModuleOperations::get_instance();
 $modinst = $modops->get_module_instance($module);
-if( !$modinst ) {
+if (!$modinst) {
     trigger_error('Module '.$module.' not found in memory. This could indicate that the module is in need of upgrade or that there are other problems');
     redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
 }
 
 $params = $modops->GetModuleParameters($id);
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = ($CMS_JOB_TYPE < 2) ? CMSMS\internal\Smarty::get_instance() : null;
 
-if (isset($_REQUEST['showtemplate']) && ($_REQUEST['showtemplate'] == 'false')) {
-    // for simplicity and compatibility with the frontend.
-    $fullpage = false;
-} elseif ($modinst->SuppressAdminOutput($_REQUEST) || isset($_REQUEST['suppressoutput'])) {
-    $fullpage = false;
-} else {
-    $fullpage = true;
-}
-
-if ($fullpage) {
+if ($CMS_JOB_TYPE == 0) {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->set_action_module($module);
 
@@ -88,7 +94,7 @@ if ($fullpage) {
 
     include_once 'footer.php';
 } else {
-    // minimal output only
+    // 1 or 2 i.e. not full-page output
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
