@@ -4,21 +4,21 @@ $(document).ready(function() {
   $('a.mod_upgrade').click(function(ev) {
     ev.preventDefault();
     var href = $(this).attr('href');
-    cms_confirm({/literal}'{$mod->Lang("confirm_upgrade")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("confirm_upgrade")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       window.location.href = href;
     });
   });
   $('a.mod_remove').click(function(ev) {
     ev.preventDefault();
     var href = $(this).attr('href');
-    cms_confirm({/literal}'{$mod->Lang("confirm_remove")|escape:"javascript"}'{literal}).done(function(){
+    cms_confirm({/literal}'{$mod->Lang("confirm_remove")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function(){
       window.location.href = href;
     });
   });
   $('a.mod_chmod').click(function(ev) {
     ev.preventDefault();
     var href = $(this).attr('href');
-    cms_confirm({/literal}'{$mod->Lang("confirm_chmod")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("confirm_chmod")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       window.location.href = href;
     });
   });

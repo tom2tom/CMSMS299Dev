@@ -3,7 +3,7 @@
 {literal}//<![CDATA[
 $(document).ready(function() {
   $('#categorylist tbody').cmsms_sortable_table({
-    actionurl: {/literal}'{cms_action_url action="ajax_order_cats" forjs=1}&showtemplate=false'{literal},
+    actionurl: {/literal}'{cms_action_url action="ajax_order_cats" forjs=1}&cmsjobtype=1'{literal},
     callback: function(data) {
       if(data.status === 'success') {
         cms_notify('info', data.message);
@@ -15,7 +15,7 @@ $(document).ready(function() {
   $('#categorylist a.del_cat').click(function(ev) {
     var self = $(this);
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("confirm_delete_category")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("confirm_delete_category")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       window.location = self.attr('href');
     });
   });

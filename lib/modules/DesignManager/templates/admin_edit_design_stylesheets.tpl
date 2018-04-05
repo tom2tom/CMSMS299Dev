@@ -108,7 +108,7 @@ $(document).ready(function() {
     if(__changed) {
       ev.preventDefault();
       var url = $(this).attr('href');
-      cms_confirm({/literal}'{$mod->Lang("confirm_save_design")}'{literal}).done(function() {
+      cms_confirm({/literal}'{$mod->Lang("confirm_save_design")}','{$mod->Lang("yes")}'{literal}).done(function() {
         // save and redirect
         save_design().done(function() {
           window.location.href = url;

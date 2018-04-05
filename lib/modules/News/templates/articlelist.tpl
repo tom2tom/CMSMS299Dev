@@ -13,7 +13,7 @@ $(document).ready(function() {
   $('a.delete_article').click(function(ev) {
     var self = $(this);
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("areyousure")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("areyousure")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       window.location = self.attr('href');
       return true;
     });
@@ -37,7 +37,7 @@ $(document).ready(function() {
   $('#bulkactions').on('click', '#submit_bulkaction', function(ev) {
     var form = $(this).closest('form');
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("areyousure_multiple")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("areyousure_multiple")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       form.submit();
     });
   });

@@ -9,7 +9,7 @@ $(document).ready(function() {
   $(document).on('click','#clearlocks,#cssclearlocks',function(ev) {
     var url = $(this).attr('href');
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("confirm_clearlocks")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("confirm_clearlocks")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       window.location = url;
     });
   });

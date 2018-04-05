@@ -4,7 +4,7 @@ $(document).ready(function(){
   $('a.del_cat').click(function(ev){
     var self = $(this);
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("areyousure")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm({/literal}'{$mod->Lang("areyousure")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
       window.location = self.attr('href');
     });
   });
