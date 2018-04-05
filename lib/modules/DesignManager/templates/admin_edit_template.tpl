@@ -57,7 +57,7 @@ $(document).ready(function() {
 */
   $(document).on('click', '#applybtn', function(ev) {
     ev.preventDefault();
-    var url = $('#form_edittemplate').attr('action') + '?showtemplate=false&m1_apply=1',
+    var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&m1_apply=1',
       data = $('#form_edittemplate').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {
       if(data.status === 'success') {

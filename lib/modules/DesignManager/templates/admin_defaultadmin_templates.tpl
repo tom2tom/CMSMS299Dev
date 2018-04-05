@@ -31,7 +31,7 @@ $(document).ready(function() {
     if($(this).hasClass('steal_tpl_lock')) return true;
     // do a double check to see if this page is locked or not.
     var tpl_id = $(this).attr('data-tpl-id');
-    var url = {/literal}'{$admin_url}/ajax_lock.php?showtemplate=false'{literal};
+    var url = {/literal}'{$admin_url}/ajax_lock.php?cmsjobtype=1'{literal};
     var opts = { opt: 'check', type: 'template', oid: tpl_id };
     opts[cms_data.secure_param_name] = cms_data.user_key;
     $.ajax({
