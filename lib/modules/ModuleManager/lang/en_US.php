@@ -9,7 +9,7 @@ $lang['action_installed'] = 'Module %s has been installed with the following mes
 $lang['action_upgraded'] = 'Module %s has been upgraded';
 $lang['action'] = 'Action';
 $lang['active'] = 'Active';
-$lang['admindescription'] = 'Modules extend CMS Made Simple&trade; to provide all kinds of custom functionality';
+$lang['admindescription'] = 'Modules extend CMS Made Simple&trade; to provide custom functionality';
 $lang['advancedsearch_help'] = 'Specify words to include or exclude from the search using a + or -, surround exact phrases with quotes.  i.e:  +red -apple +"some text"';
 $lang['allowuninstall'] = 'Allow Module Manager to be uninstalled? Be careful, the uninstallation is irreversible!';
 $lang['all_modules_up_to_date'] = 'No module newer than the ones installed is available in the repository';
@@ -162,7 +162,7 @@ $lang['msg_module_uninstalled'] = 'Module %s successfully uninstalled. Templates
 $lang['msg_module_upgraded'] = 'Module %s successfully upgraded';
 $lang['msg_nodependencies'] = 'This file has not listed any dependencies';
 $lang['msg_prefssaved'] = 'Preferences Updated';
-$lang['msg_urlreset'] = 'The ModuleRepository URL has been reset to the default value';
+$lang['msg_urlreset'] = 'The modules-repository URL has been reset to its default value';
 
 // N
 $lang['nametext'] = 'Module Name';
@@ -187,7 +187,7 @@ $lang['prompt_advancedsearch'] = 'Advanced Search';
 $lang['prompt_disable_caching'] = 'Disable caching of requests from the server';
 $lang['prompt_dl_chunksize'] = 'Download Chunk Size (kB)';
 $lang['prompt_otheroptions'] = 'Other Options';
-$lang['prompt_repository_url'] = 'ModuleRepository URL';
+$lang['prompt_repository_url'] = 'Modules-Repository URL';
 $lang['prompt_settings'] = 'Settings';
 
 // R
