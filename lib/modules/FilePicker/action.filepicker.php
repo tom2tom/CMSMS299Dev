@@ -181,7 +181,7 @@ try {
         if( $file['isdir'] ) {
             $parms = [ 'subdir'=>$filename, 'inst'=>$inst, 'sig'=>$sig ];
             if( $type ) $parms['type'] = $type;
-            $url = $this->create_url($id,'filepicker',$returnid)."&showtemplate=false&_enc=".base64_encode(serialize($parms));
+            $url = $this->create_url($id,'filepicker',$returnid)."&cmsjobtype=1&_enc=".base64_encode(serialize($parms));
             $file['chdir_url'] = $url;
         }
         $files[$filename] = $file;

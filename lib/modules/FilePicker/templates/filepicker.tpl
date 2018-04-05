@@ -145,7 +145,7 @@
 $(document).ready(function() {
  var options = {};
 {/literal}
- options.cmd_url = '{cms_action_url action=ajax_cmd forjs=1}&showtemplate=false';
+ options.cmd_url = '{cms_action_url action=ajax_cmd forjs=1}&cmsjobtype=1';
  options.cwd = '{$cwd}';
  options.sig = '{$sig}';
  options.inst = '{$inst}';
