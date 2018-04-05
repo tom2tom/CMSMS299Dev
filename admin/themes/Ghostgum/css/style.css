@@ -470,7 +470,7 @@ input, select, menu, textarea {
     background: #f2ecdf;
     font-size: 1em;
 }
-input:hover, input:focus, textarea:hover, textarea:focus, checkbox:hover {
+input:hover, input:focus, textarea:hover, textarea:focus {
     border-color: #aaa;
     box-shadow: 0 0 5px #3c9b0a;
     -webkit-box-shadow: 0 0 5px #3c9b0a;
@@ -536,174 +536,15 @@ input[type="checkbox"], input[type="radio"] {
 input[type="checkbox"] {
     margin-left: 4px;
 }
-/* TODO custom selects e.g. per https://codepen.io/ericrasch/pen/zjDBx
-
-/*  Box Styles: bavotasan.com Method (with special adaptations by ericrasch.com) * /
-/*  http://bavotasan.com/2011/style-select-box-using-only-css/ * /
-.styled-select {
-   background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
-   height: 29px;
-   overflow: hidden;
-   width: 240px;
-}
-
-.styled-select select {
-   background: transparent;
-   border: none;
-   font-size: 14px;
-   height: 29px;
-   padding: 5px; /* If you add too much padding here, the options won't show in IE * /
-   width: 268px;
-}
-
-.styled-select.slate {
-   background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
-   height: 34px;
-   width: 240px;
-}
-
-.styled-select.slate select {
-   border: 1px solid #ccc;
-   font-size: 16px;
-   height: 34px;
-   width: 268px;
-}
-
-/*  Corners * /
-.rounded {
-   -webkit-border-radius: 20px;
-   -moz-border-radius: 20px;
-   border-radius: 20px;
-}
-
-.semi-square {
-   -webkit-border-radius: 5px;
-   -moz-border-radius: 5px;
-   border-radius: 5px;
-}
-
-/* : Background * /
-.slate   { background-color: #ddd; }
-.green   { background-color: #779126; }
-.blue    { background-color: #3b8ec2; }
-.yellow  { background-color: #eec111; }
-.black   { background-color: #000; }
-
-/* : Text * /
-.slate select   { color: #000; }
-.green select   { color: #fff; }
-.blue select    { color: #fff; }
-.yellow select  { color: #000; }
-.black select   { color: #fff; }
-
-/*  Box Styles: danielneumann.com Method * /
-/*  http://danielneumann.com/blog/how-to-style-dropdown-with-css-only/ * /
-#mainselection select {
-   border: 0;
-   color: #EEE;
-   background: transparent;
-   font-size: 20px;
-   font-weight: bold;
-   padding: 2px 10px;
-   width: 378px;
-   *width: 350px;
-   *background: #58B14C;
-   -webkit-appearance: none;
-}
-#mainselection {
-   overflow:hidden;
-   width:350px;
-   -moz-border-radius: 9px 9px 9px 9px;
-   -webkit-border-radius: 9px 9px 9px 9px;
-   border-radius: 9px 9px 9px 9px;
-   box-shadow: 1px 1px 11px #330033;
-   background: #58B14C url("http://i62.tinypic.com/15xvbd5.png") no-repeat scroll 319px center;
-}
-/*  Box Styles: stackoverflow.com Method * /
-/*  http://stackoverflow.com/a/5809186 * /
-select#soflow, select#soflow-color {
-   -webkit-appearance: button;
-   -webkit-border-radius: 2px;
-   -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
-   -webkit-padding-end: 20px;
-   -webkit-padding-start: 2px;
-   -webkit-user-select: none;
-   background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#FAFAFA, #F4F4F4 40%, #E5E5E5);
-   background-position: 97% center;
-   background-repeat: no-repeat;
-   border: 1px solid #AAA;
-   color: #555;
-   font-size: inherit;
-   margin: 20px;
-   overflow: hidden;
-   padding: 5px 10px;
-   text-overflow: ellipsis;
-   white-space: nowrap;
-   width: 300px;
-}
-
-select#soflow-color {
-   color: #fff;
-   background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#779126, #779126 40%, #779126);
-   background-color: #779126;
-   -webkit-border-radius: 20px;
-   -moz-border-radius: 20px;
-   border-radius: 20px;
-   padding-left: 15px;
-}
+/* select-button custom styling requires fixed select-width, or
+   runtime js to process actual width NOT WORTH THE BOTHER ..
 */
-
-/*
-select {
-//    background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
-//    background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
-    background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#779126, #779126 40%, #779126);
-//   height: 29px;
-    overflow: hidden;
-//    width: 240px;
-//    height: 34px;
-//    width: 240px;
-}
-*/
-
-/*
-select select {
-   background: transparent;
-//   border: none;
-//   font-size: 14px;
-//   height: 29px;
-   padding: 5px; /* If you add too much padding here, the options won't show in IE * /
-//   width: 268px;
-
-//   border: 1px solid #ccc;
-//   font-size: 16px;
-//   height: 34px;
-//   width: 268px;
-}
-*/
-
 select {
     margin-left: 4px;
     border-color: #aaa;
     border-radius: 3px 0 0 3px;
     padding: 0.5em;
 }
-
-select {
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    appearance: none;
-}
-/*for IE10(+?) */
-select::-ms-expand {
-    display: none;
-}
-/*for older IE*/
-select {
-    overflow:hidden;
-    width: 120%;
-}
-
 select:hover, select:focus {
     box-shadow: 0 0 5px #3c9b0a;
     -webkit-box-shadow: 0 0 5px #3c9b0a;
@@ -712,8 +553,6 @@ select:hover, select:focus {
     -moz-transition: all 200ms ease-in-out;
     -o-transition: all 200ms ease-in-out;
 }
-
-
 
 textarea {
     margin-left: 4px;
@@ -1047,6 +886,94 @@ aside .no-slide, .no-slide {
     background-image: url(../images/icons/extra/info.png);
 }
 
+/*** alertable plugin popups ***/
+
+/* Overlay */
+.alertable-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, .5);
+    z-index: 9998;
+}
+.alertable {
+    position: fixed;
+    top: 38vh;
+    left: calc(50% - 11em);
+    width: 22em;
+    border-radius: 3px;
+    margin: 0 auto;
+    padding: 1em;
+    background: #fffaf0;
+    z-index: 9999;
+}
+/* Message */
+.alertable-message {
+  margin-bottom: 20px;
+}
+
+/* Prompt * /
+.alertable-prompt {
+  margin-bottom: 20px;
+}
+.alertable-input {
+  width: 100%;
+  border-radius: 4px;
+  box-shadow: none;
+  border: solid 1px #ccc;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  padding: 6px 12px;
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+*/
+.alertable-buttons button {
+    margin-right: 1em;
+}
+/* Button group * /
+.alertable-buttons {
+  text-align: right;
+}
+/* OK button * /
+.alertable-ok {
+  background: #09d;
+  border: solid 1px #09d;
+  font-family: inherit;
+  font-size: inherit;
+  color: white;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.alertable-ok:hover,
+.alertable-ok:focus,
+.alertable-ok:active {
+  background-color: #08c;
+}
+/* Cancel button * /
+.alertable-cancel {
+  border: solid 1px #ddd;
+  background: white;
+  font-family: inherit;
+  font-size: inherit;
+  color: #888;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.alertable-cancel:hover,
+.alertable-cancel:focus,
+.alertable-cancel:active {
+  background-color: #f2f2f2;
+}
+*/
 #cms_busy, .busy {
     position: fixed;
     z-index: 999;
@@ -1374,9 +1301,30 @@ header .shortcuts li i {
     right: 2.6em;
 }
 #ggp_navhead {
-    height: 2.2em;
+    margin-left: 3px;
     background: fffaf0;
+    height: 2.2em;
 }
+
+#toggle-button span {
+    float: left;
+    position: absolute;
+    height: 2.2em;
+    width: 10.3em;
+    left: 2.3em;
+}
+#ggp_navwrap.sidebar-off #toggle-button span {
+    width: 0;
+}
+#toggle-button span:hover {
+    background-color: #3c9b0a;
+}
+
+#toggle-button {
+    padding: 0.8em 0.2em 0.4em 0.1em;
+    cursor: pointer;
+}
+
 /*
 #toggle-button {
     display: inline-block;
@@ -1398,8 +1346,7 @@ header .shortcuts li i {
     background-color: #3c9b0a;
 }
 #toggle-button:before {
-    margin: 0 0 0 5px;
-    padding: 0.3em;
+    padding: 0.5em 0 0 0.3em;
     font-size: 1.2em;
     content: '\f191';
 }
@@ -1440,9 +1387,16 @@ header .shortcuts li i {
     font-weight: normal;
 }
 #ggp_contenthead .headericon {
+    display: inline-block;
     vertical-align: middle;
-    margin-right: 15px;
+    margin: 0 1em 0 0;
+    height: 2em;
+    width: 2em;
 }
+/*
+#ggp_contenthead img.module-icon {
+}
+*/
 #ggp_contenthead span.helptext {
     display: inline;
     float: right;
@@ -1622,6 +1576,11 @@ header .shortcuts li i {
     padding: 0;
     zoom: 1;
 }
+/*
+#ggp_menu li {
+    margin: 1px 2px 3px 4px;
+}
+*/
 #ggp_menu li > span:hover, #ggp_menu > li a.no-nav:hover {
     background-color: #3c9b0a
 }
@@ -1780,6 +1739,7 @@ header .shortcuts li i {
 /*    background: #f0f0f0 */
 }
 #ggp_menu li li {
+    margin: 4px 0 5px 10px;
     background: none;
     line-height: 1;
 }
@@ -1787,9 +1747,10 @@ header .shortcuts li i {
     background-color: #e5e5e5;
     border-bottom: 1px dotted #f0f0f0
 }
-#ggp_menu li.current li a,
-#ggp_menu li li a,
-#ggp_menu li:hover li a {
+/* #ggp_menu li.current li a, */
+#ggp_menu li li a
+/* ,#ggp_menu li:hover li a */
+{
     padding: 5px 5px 5px 16px;
 /*    color: #157200; TODO relevant green */
     font-size: 0.8em;
@@ -2041,9 +2002,10 @@ header .shortcuts li i {
 */
 span.helptext a.external, span.helptext a {
     display: inline-block;
-    width: auto;
-    margin-left: 8px;
-    padding-right: 20px
+//    width: auto;
+//    margin-left: 8px;
+    padding-right: 24px;
+    vertical-align: middle
 }
 span.helptext a.external {
     background: url(../images/icons/system/help.png) no-repeat right
@@ -2072,7 +2034,7 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
 }
 img.systemicon {
     border: none;
-    vertical-align: middle
+    vertical-align: text-bottom
 }
 #copy_paste_in_forum {
     width: 80%;
@@ -2416,7 +2378,7 @@ textarea.pageextrasmalltextarea {
 #page_tabs div.active {
     color: #fff;
     text-shadow: -1px -1px 0 #054882;
-    background: #3c9b0a url(../images/extra/tab-active.png) no-repeat center bottom
+    background: #3c9b0a /* url(../images/extra/tab-active.png) no-repeat center bottom */
 }
 #page_content {
 /*    background: #fff;
@@ -3033,6 +2995,7 @@ ul.sortableList > li {
         height: auto
     }
     select {
+        appearance: listbox;
         -webkit-appearance: listbox;
         -moz-appearance: listbox;
     }
