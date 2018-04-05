@@ -80,6 +80,9 @@ License: GPL2+
             this.updateDisplay();
             // setup deprecated alert-handlers
             this.setupAlerts();
+            // setup custom dialogs
+            cms_data.alertfunc = this._alert;
+            cms_data.confirmfunc = this._confirm;
         },
 
         helper_init: function() {
@@ -468,6 +471,33 @@ License: GPL2+
             $('.alert-icon,.alert-remove').click(function(e) {
                 e.preventDefault();
                 _this._handleAlert(e.target);
+            });
+        },
+        /**
+         * @description display a modal alert dialog
+         * @function
+         * @param (String) msg The message to display (text, no markup TODO)
+         * @param (String) title Unused title string.
+         * @return promise
+         */
+        _alert: function(msg, title) {
+            return $.alertable.alert(msg,{
+               okButton: '<button type="button" class="adminsubmit">'+ cms_lang('close') + '</button>',
+            });
+        },
+        /**
+         * @description display a modal confirm dialog
+         * @function
+         * @param (String) msg The message to display
+         * @param (String) title Unused title string
+         * @param (String) yestxt Text for the yes button label
+         * @param (String) notxt Text for the no button label
+         * @return promise
+         */
+        _confirm: function(msg, title, yestxt, notxt) {
+            return $.alertable.confirm(msg,{
+               okButton: '<button type="button" class="adminsubmit icon check">' + yestxt + '</button>',
+               cancelButton: '<button type="button" class="adminsubmit icon cancel">' + notxt + '</button>'
             });
         }
     };
