@@ -17,7 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // A
-$lang['admindescription'] = 'A stripped down, but still powerful implementation of the TinyMCE WYSIWYG editor';
+$lang['admindescription'] = 'A trimmed down, but still powerful, implementation of the TinyMCE editor';
 
 // B
 $lang['browse'] = 'Browse';
