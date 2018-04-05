@@ -109,8 +109,6 @@ $smarty->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
 $smarty->assign('input_resultpage',
                 $contentops->CreateHierarchyDropdown('',$this->GetPreference('resultpage',-1),$id.'resultpage',1));
 */
-
-$smarty->assign('submit', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$this->Lang('submit').'</button>');
 $smarty->assign('formend',$this->CreateFormEnd());
 echo $this->ProcessTemplate('options_tab.tpl');
 echo $this->EndTab();
