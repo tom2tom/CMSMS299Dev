@@ -25,29 +25,16 @@ class GhostgumTheme extends CmsAdminThemeBase
 	private $_havetree = null;
 
 	/**
-	 * migrate php stings-array to js form
-	 * @ignore
+	 * Hook function to nominate runtime resources, which will be included in the page header
+	 *
+	 * @param array $vars assoc array of js-variable names and their values
+	 * @param array $add_list array of strings representing includables
+	 * @return array 2-members, which are the supplied params after any updates
 	 */
-	private function merger(array $strings)
-	{
-		if ($strings) {
-			if (count($strings) > 1) {
-				foreach ($strings as &$one) {
-					if ($one) {
-						$one = json_encode($one);
-					}
-				}
-				unset($one);
-				return '['.implode(',',array_filter($strings)).']';
-			} else {
-				return json_encode(reset($strings));
-			}
-		}
-		return false;
-	}
-
 	public function AdminHeaderSetup(array $vars, array $add_list) : array
 	{
+		list($vars, $add_list) = parent::AdminHeaderSetup($vars, $add_list);
+
 		$config = cms_config::get_instance();
 		$rel = substr(__DIR__, strlen($config['admin_path']));
 		$root_url = $config['admin_url'];
@@ -87,9 +74,10 @@ EOS;
 <script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 EOS;
+//<script type="text/javascript" src="{$script_url}/js/jquery.toast.js"></script> this is now in cms_get_jquery()
 		$out .= cms_get_jquery();
 		$out .= <<<EOS
-<script type="text/javascript" src="{$script_url}/js/jquery.toast.js"></script>
+<script type="text/javascript" src="{$base_url}/js/jquery.alertable.min.js"></script>
 <script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
 <script type="text/javascript" src="{$base_url}/js/libs/jquery-extra-selectors.js"></script>
@@ -97,21 +85,14 @@ EOS;
 <![endif]-->
 EOS;
 		$add_list[] = $out;
-		// these are applied AFTER headers are included
-        $msgs = [
-            'toasterrs' => $this->merger($this->_errors),
-            'toastwarns' => $this->merger($this->_warnings),
-            'toastgoods' => $this->merger($this->_successes),
-            'toastinfos' => $this->merger($this->_infos),
-        ];
-        $vars += array_filter($msgs);
+
 		return [$vars, $add_list];
 	}
 
 	/**
-	 * Record some parameters for later use by postprocess()
+	 * Record some parameters for later use. Such parameters may not be used by
+	 * a theme (and are not, by this one, so this method is really a demo)
      *
-     * @deprecated since 2.3
 	 * @param string $title_name        Displayable content, or a lang key, for the title-text to be displayed
 	 * @param array  $extra_lang_params Optional extra string(s) to be supplied (with $title_key) to lang()
 	 * @param string $link_text         Optional link ... TODO
@@ -144,9 +125,10 @@ EOS;
 		}
 
 		if ($module) {
-			$tag = cms_admin_utils::get_module_icon($module, [TODO]);
+			$tag = cms_admin_utils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
 		} else {
 			$tag = ''; //TODO get icon for admin operation
+            //$tag = $this->get_active_icon());
 		}
 		$this->set_value('icon_tag', $tag);
 
@@ -332,7 +314,6 @@ EOS;
 		$smarty->assign('subtitle', $this->subtitle);
 //		$alias = $this->get_value(??) else munge CHECKME
 		$smarty->assign('pagealias', munge_string_to_url($title));
-//		$smarty->assign('icon_tag', $this->get_active_icon());
 
 		// module name, if any
 		if (isset($_REQUEST['module'])) {
@@ -345,7 +326,7 @@ EOS;
 		$smarty->assign('module_name', $module);
 
 		if ($module) {
-			$tag = cms_admin_utils::get_module_icon($module, [TODO]);
+			$tag = cms_admin_utils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
 			// module_help_url?
 			if (!cms_userprefs::get_for_user(get_userid(),'hide_help_links',0)) {
 				if (($module_help_url = $this->get_module_help_url())) {
@@ -354,8 +335,9 @@ EOS;
 			}
 		} else {
 			$tag = ''; //TODO get icon for admin operation
+            //$tag = $this->get_active_icon());
 		}
-		$this->set_value('icon_tag', $tag);
+		$smarty->assign('icon_tag', $tag);
 
 		// my preferences
 		if (check_permission(get_userid(),'Manage My Settings')) {
@@ -403,6 +385,7 @@ EOS;
 		return $_contents;
 	}
 
+	/* REDUNDANT ?? */
 	public function get_my_alerts()
 	{
 		return \CMSMS\AdminAlerts\Alert::load_my_alerts();
