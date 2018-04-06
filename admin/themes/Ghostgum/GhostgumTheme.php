@@ -75,6 +75,7 @@ EOS;
 <![endif]-->
 EOS;
 //<script type="text/javascript" src="{$script_url}/js/jquery.toast.js"></script> this is now in cms_get_jquery()
+//? exclude defaults jquery-ui nestedSortable cms_lock, cms_hiersel, cms_autorefresh
 		$out .= cms_get_jquery();
 		$out .= <<<EOS
 <script type="text/javascript" src="{$base_url}/js/jquery.alertable.min.js"></script>
@@ -100,7 +101,7 @@ EOS;
 	 */
 	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = false)
 	{
-		if ($title_name) {
+/*		if ($title_name) {
 			$this->set_value('pagetitle', $title_name);
 			if (is_array($extra_lang_params) && count($extra_lang_params)) {
 				$this->set_value('extra_lang_params', $extra_lang_params);
@@ -155,6 +156,7 @@ EOS;
 				}
 			} // for loop
 		}
+*/
 	}
 
 	/**
@@ -213,7 +215,10 @@ EOS;
 		$smarty->template_dir = $otd;
 	}
 
-	/**
+    /**
+     * Display and process a login form.
+	 * This supplements the login module.
+	 *
 	 * @param array $params data for smarty, maybe empty
 	 */
 	public function do_login($params)
