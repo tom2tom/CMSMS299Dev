@@ -505,12 +505,16 @@
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="login_module">{lang('admin_login_module')}:</label>
-        {cms_help key2='settings_login_module' title=lang('admin_login_module')}
+        {if $login_modules}{cms_help key2='settings_login_module' title=lang('admin_login_module')}{/if}
       </p>
       <p class="pageinput">
+      {if $login_modules}
         <select id="login_module" name="login_module">
           {html_options options=$login_modules selected=$login_module}
         </select>
+      {else}
+        {$login_module}
+      {/if}
       </p>
     </div>
     <div class="pageoverflow">
