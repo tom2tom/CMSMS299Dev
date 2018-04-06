@@ -42,7 +42,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         $this->_dao = new \FilePicker\ProfileDAO( $this );
         $this->_typehelper = new \CMSMS\FileTypeHelper( \cms_config::get_instance() );
 
-        \CMSMS\HookManager::add_hook('RuntimeJsSetup', [$this, 'JsSetup']);
+        \CMSMS\HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
     }
 
     private function _encodefilename($filename)
@@ -70,18 +70,14 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
      * @since 2.3
      * @param array $vars to be populated with members like key=>value
      * @param array $add_list to be updated with script-file url(s)
-     * @param array $exclude_list to be updated with script 'identifiers' see ...
-     * @return array Its members are updated values of each of the supplied arguments
+     * @return array whose members are updated values of the supplied parameters
      */
-    public function JsSetup (array $vars, array $add_list, array $exclude_list) : array
+    public function AdminHeaderSetup (array $vars, array $add_list) : array
     {
         $str = $this->get_browser_url();
-        $vars['filepicker_url'] = '\''.str_replace('&amp;','&',$str).'&showtemplate=false\'';
-
-        $config = \cms_config::get_instance();
-        $base = (false) ? $config['ssl_url'] : CMS_ROOT_URL; //TODO
-        $add_list['cms_filepicker'] = $base.'/lib/jquery/js/jquery.cmsms_filepicker.js';
-        return [$vars, $add_list, $exclude_list];
+        $vars['filepicker_url'] = '\''.str_replace('&amp;','&',$str).'&cmsjobtype=1\'';
+        $add_list['cms_filepicker'] = $this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js';
+        return [$vars, $add_list];
     }
 
     function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
@@ -90,7 +86,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
     function GetHelp() { return $this->Lang('help'); }
     function IsPluginModule() { return FALSE; }
     function HasAdmin() { return TRUE; }
-    function GetAdminSection() { return 'extensions'; }
+    function GetAdminSection() { return 'files'; }
 
     function HasCapability( $capability, $params = array() )
     {
