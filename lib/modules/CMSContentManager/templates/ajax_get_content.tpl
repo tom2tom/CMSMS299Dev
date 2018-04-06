@@ -146,15 +146,15 @@
       {if isset($row.move)}
         {if $row.move == 'up'}
         <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">
-          {admin_icon icon='sort_up.gif' title=$mod->Lang('prompt_page_sortup')}
+          {admin_icon icon='arrow-u.gif' title=$mod->Lang('prompt_page_sortup')}
         </a>
         {elseif $row.move == 'down'}
          <a href="{cms_action_url action='defaultadmin' movedown=$row.id}" class="page_sortdown" accesskey="m">
-          {admin_icon icon='sort_down.gif' title=$mod->Lang('prompt_page_sortdown')}
+          {admin_icon icon='arrow-d.gif' title=$mod->Lang('prompt_page_sortdown')}
          </a>
         {elseif $row.move == 'both'}
-        <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">{admin_icon icon='sort_up.gif' title=$mod->Lang('prompt_page_sortup')}</a>
-        <a href="{cms_action_url action='defaultadmin' movedown=$row.id}" class="page_sortdown" accesskey="m">{admin_icon icon='sort_down.gif' title=$mod->Lang('prompt_page_sortdown')}</a>
+        <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">{admin_icon icon='arrow-u.gif' title=$mod->Lang('prompt_page_sortup')}</a>
+        <a href="{cms_action_url action='defaultadmin' movedown=$row.id}" class="page_sortdown" accesskey="m">{admin_icon icon='arrow-d.gif' title=$mod->Lang('prompt_page_sortdown')}</a>
         {/if}
       {/if}
     {elseif $column == 'view'}
