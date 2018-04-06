@@ -1,5 +1,5 @@
 <?php
-#...
+#setup classes, includes etc for request processing
 #Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * This file is included in every page.  It does all setup functions including
@@ -38,17 +36,19 @@
  * CMS_PHAR_INSTALLER - Indicates that the file was included from the CMSMS PHAR based installer (note: CMS_INSTALL_PAGE will also be set).
  * CMS_ADMIN_PAGE - Indicates that the file was included from an admin side request.
  * CMS_LOGIN_PAGE - Indicates that the file was included from the admin login form.
+ * CMS_JOB_TYPE - Since 2.3 Value 0|1|2 indicates the type of request, hence appropriate inclusions
  */
 
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
-global $CMS_INSTALL_PAGE,$CMS_ADMIN_PAGE,$CMS_LOGIN_PAGE,$DONT_LOAD_DB,$DONT_LOAD_SMARTY;
 
 if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
     die ('FATAL ERROR: config.php file not found or invalid');
 }
+
+if (!isset($CMS_JOB_TYPE)) $CMS_JOB_TYPE = 0;
 
 define('CMS_DEFAULT_VERSIONCHECK_URL','https://www.cmsmadesimple.org/latest_version.php');
 define('CMS_SECURE_PARAM_NAME','_sk_');
@@ -66,7 +66,9 @@ require_once $dirname.'autoloader.php';
 require_once $dirname.'compat.functions.php';
 require_once $dirname.'module.functions.php';
 require_once $dirname.'page.functions.php';
-require_once $dirname.'translation.functions.php';
+if ($CMS_JOB_TYPE < 2) {
+    require_once $dirname.'translation.functions.php';
+}
 
 debug_buffer('done loading basic files');
 
@@ -97,6 +99,7 @@ if (cms_to_bool(ini_get('register_globals'))) {
 if (isset($CMS_ADMIN_PAGE)) {
     setup_session();
 
+// TODO is this $CMS_JOB_TYPE-dependant ?
     function cms_admin_sendheaders($content_type = 'text/html',$charset = '') {
         // Language shizzle
         if (!$charset) $charset = CmsNlsOperations::get_encoding();
@@ -108,6 +111,7 @@ require_once $dirname.'std_hooks.php';
 
 // since 2.0 ... mechanism whereby data can be cached automatically (in file-system text files), and fetched (or calculated) via a callback
 // if the cache is too old, or the cached value has been cleared or not yet been saved.
+// some of these caches could be omitted per $CMS_JOB_TYPE, but probably won't be used anyway
 $obj = new global_cachable('schema_version',
            function(){
                $db = CmsApp::get_instance()->GetDb();
@@ -138,23 +142,24 @@ $obj = new global_cachable('modules',
            });
 global_cache::add_cachable($obj);
 $obj = new global_cachable('module_deps',
-		   function(){
-		       $db = CmsApp::get_instance()->GetDb();
+           function(){
+               $db = CmsApp::get_instance()->GetDb();
                $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
-		       $tmp = $db->GetArray($query);
-		       if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
-		       $out = [];
-		       foreach( $tmp as $row) {
-		           $out[$row['child_module']][$row['parent_module']] = $row['minimum_version'];
-		       }
-		       return $out;
-		   });
+               $tmp = $db->GetArray($query);
+               if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
+               $out = [];
+               foreach( $tmp as $row) {
+                   $out[$row['child_module']][$row['parent_module']] = $row['minimum_version'];
+               }
+               return $out;
+           });
 global_cache::add_cachable($obj);
 
 cms_siteprefs::setup();
 Events::setup();
-ContentOperations::setup_cache();
-
+if ($CMS_JOB_TYPE < 2) {
+    ContentOperations::setup_cache();
+}
 // Attempt to override the php memory limit
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
 
@@ -166,7 +171,7 @@ if (!isset($DONT_LOAD_DB)) {
         debug_buffer('Done Initializing Database');
     }
     catch( CMSMS\Database\DatabaseConnectionException $e) {
-        die('Sorry, something has gone wrong.  Please contact a site administator. <em>('.get_class($e).')</em>');
+        die('Sorry, something has gone wrong.  Please contact a site administrator. <em>('.get_class($e).')</em>');
     }
 }
 
@@ -181,30 +186,35 @@ if (!isset($CMS_INSTALL_PAGE)) {
     $global_umask = cms_siteprefs::get('global_umask','');
     if ($global_umask != '') umask( octdec($global_umask));
 
+    if ($CMS_JOB_TYPE < 2) {
 /*
-    // Load all eligible modules
-    debug_buffer('Loading Modules');
-    $modops = ModuleOperations::get_instance();
-    $modops->LoadModules(!isset($CMS_ADMIN_PAGE));
-    debug_buffer('End of Loading Modules');
+        // Load all eligible modules
+        debug_buffer('Loading Modules');
+        $modops = ModuleOperations::get_instance();
+        $modops->LoadModules(!isset($CMS_ADMIN_PAGE));
+        debug_buffer('End of Loading Modules');
 */
-
-    // test for async tasks.
-    // we hardcode CmsJobManager here until such point as we need to abstract it.
-    CMSMS\Async\JobManager::get_instance()->trigger_async_processing();
+        // test for async tasks.
+        // we hardcode CmsJobManager here until such point as we need to abstract it.
+        //TODO use a site preference to identify the handler
+        CMSMS\Async\JobManager::get_instance()->trigger_async_processing();
+    }
 }
 
-// Setup language stuff.... will auto-detect languages (Launch only to admin at this point)
-if (isset($CMS_ADMIN_PAGE)) CmsNlsOperations::set_language();
+if ($CMS_JOB_TYPE < 2) {
+    // Setup language stuff.... will auto-detect languages (Launch only to admin at this point)
+    if (isset($CMS_ADMIN_PAGE)) CmsNlsOperations::set_language();
 
-if (!isset($DONT_LOAD_SMARTY)) {
-    debug_buffer('Initialize Smarty');
-    $smarty = $_app->GetSmarty();
-    debug_buffer('Done Initializing Smarty');
-    if (defined('CMS_DEBUG') && CMS_DEBUG) $smarty->error_reporting = 'E_ALL';
-    $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
+    if (!isset($DONT_LOAD_SMARTY)) {
+        debug_buffer('Initialize Smarty');
+        $smarty = $_app->GetSmarty();
+        debug_buffer('Done Initializing Smarty');
+        if (defined('CMS_DEBUG') && CMS_DEBUG) $smarty->error_reporting = 'E_ALL';
+        $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
+    }
 }
 
 if (!isset($CMS_INSTALL_PAGE)) {
     require_once($dirname.'classes'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR.'class_compatibility.php');
 }
+
