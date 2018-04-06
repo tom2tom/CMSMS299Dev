@@ -210,7 +210,7 @@ EOT;
 
 $lang['help_function_cms_pageoptions'] = <<<EOT
 <h3>What does this do?</h3>
- <p>This is a simple plugin to generate a sequence of &lt;option&gt; tags for a dropdown list that represent page numbers in a pagination.</p>
+ <p>This plugin creates a sequence of &lt;option&gt; tags for a dropdown list that represent page numbers in a pagination.</p>
  <p>Given the number of pages, and the current page this plugin will generate a list of page numbers that allow quick navigation to a subset of the pages.</p>
 <h3>What parameters does it take?</h3>
   <ul>
@@ -239,7 +239,7 @@ EOT;
 
 $lang['help_function_cms_yesno'] = <<<EOT
 <h3>What does this do?</h3>
-<p>This is a simple plugin used in form generation to create a set of options for a &lt;select&gt; representing a yes/no choice.</p>
+<p>This plugin creates a set of options for a &lt;select&gt; representing a yes/no choice in a form.</p>
 <p>This plugin will generate translated yes/no options, with the proper selected value.</p>
 <h3>What parameters does it take?</h3>
 <ul>
