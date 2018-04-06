@@ -128,7 +128,7 @@ try {
     echo $out;
 }
 catch( \Exception $e ) {
-    echo '<div class="red">'.$e->GetMessage().'</div>';
+    echo '<div class="error">'.$e->GetMessage().'</div>';
     debug_to_log($e);
 }
 exit;

@@ -566,7 +566,7 @@ class Content extends ContentBase
 		$dropdown = null;
 		if( !startswith($rp2,$rp1) ) {
 			$err = lang('err_invalidcontentimgpath');
-			return '<div class="red">'.$err.'</div>';
+			return '<div class="error">'.$err.'</div>';
 		}
 
 		$inputname = $blockInfo['id'];

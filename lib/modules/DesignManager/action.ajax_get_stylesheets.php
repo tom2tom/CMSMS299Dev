@@ -38,7 +38,7 @@ try {
     echo $this->ProcessTemplate('ajax_get_stylesheets.tpl');
 }
 catch( Exception $e ) {
-    echo '<div class="red">'.$e->GetMessage().'</div>';
+    echo '<div class="error">'.$e->GetMessage().'</div>';
     // nothing here
 }
 exit;
