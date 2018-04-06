@@ -531,7 +531,7 @@ input[type="button"]:hover, input[type="submit"]:hover, .ui-button:hover {
 input[type="checkbox"], input[type="radio"] {
     box-sizing: border-box;
     padding: 0;
-    vertical-align: middle
+    vertical-align: text-bottom
 }
 input[type="checkbox"] {
     margin-left: 4px;
@@ -642,22 +642,22 @@ a.tooltip {
 }
 */
 .warn, .warning, .pagewarn, .pagewarning {
-    background: #fcf1d0 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
+    background: #fcf1d0 url(../images/extra/warn.png) 10px 50% no-repeat;
     border: 1px solid #f4ca4c;
     color: #b08f0e
 }
 .error, .pageerror, .pageerrorcontainer, .pageerrorinstalldir {
-    background: #fcd0d0 url(../images/icons/extra/error.png) 10px 50% no-repeat;
+    background: #fcd0d0 url(../images/extra/error.png) 10px 50% no-repeat;
     border: 1px solid #f44c4c;
     color: #490707
 }
 .success, .pagesuccess, .pagemcontainer {
-    background: #d0fcdc url(../images/icons/extra/success.png) 10px 50% no-repeat;
+    background: #d0fcdc url(../images/extra/success.png) 10px 50% no-repeat;
     border: 1px solid #28e65f;
     color: #0bb33a
 }
 .info, .pageinfo, .information {
-    background: #d1e8fc url(../images/icons/extra/info.png) 10px 50% no-repeat;
+    background: #d1e8fc url(../images/extra/info.png) 10px 50% no-repeat;
     border: 1px solid #4ca6f4;
     color: #0e2a42
 }
@@ -844,7 +844,7 @@ aside .no-slide, .no-slide {
 }
 .jqt-icon-error {
     padding-left: 50px;
-    background-image: url(../images/icons/extra/error.png);
+    background-image: url(../images/extra/error.png);
 }
 .warn.jqtoast {
     padding: 10px 40px;
@@ -857,7 +857,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-warning {
-    background-image: url(../images/icons/extra/warning.png);
+    background-image: url(../images/extra/warn.png);
 }
 .success.jqtoast {
     padding: 10px 40px;
@@ -870,7 +870,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.png);
+    background-image: url(../images/extra/accept.png);
 }
 .info.jqtoast {
     padding: 10px 40px;
@@ -883,7 +883,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-info {
-    background-image: url(../images/icons/extra/info.png);
+    background-image: url(../images/extra/info.png);
 }
 
 /*** alertable plugin popups ***/
@@ -996,21 +996,21 @@ aside .no-slide, .no-slide {
     width: 16px;
     height: 16px;
     text-indent: -9999em;
-    background: transparent url(../images/icons/extra/close.png) 8px no-repeat;
+    background: transparent url(../images/extra/close.png) 8px no-repeat;
     cursor: pointer;
     margin: 5px
 }
 .image-error{
-    background-image: url(../images/icons/extra/error.png) 10px 8px no-repeat;
+    background-image: url(../images/extra/error.png) 10px 8px no-repeat;
 }
 .image-warning{
-    background-image: url(../images/icons/extra/warning.png) 10px 8px no-repeat;
+    background-image: url(../images/extra/warn.png) 10px 8px no-repeat;
 }
 .image-info {
-    background-image: url(../images/icons/extra/info.png) 10px 8px no-repeat;
+    background-image: url(../images/extra/info.png) 10px 8px no-repeat;
 }
 .image-close {
-    background-image: url(../images/icons/extra/close.png) no-repeat;
+    background-image: url(../images/extra/close.png) no-repeat;
 }
 .infoclose{
     background-image:url(../images/closesprite.png);
@@ -2002,8 +2002,8 @@ header .shortcuts li i {
 */
 span.helptext a.external, span.helptext a {
     display: inline-block;
-//    width: auto;
-//    margin-left: 8px;
+/*    width: auto;
+    margin-left: 8px; */
     padding-right: 24px;
     vertical-align: middle
 }
@@ -2411,7 +2411,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 10px 3px 35px;
-    background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;
+    background: #eee url(../images/extra/reorder.gif) no-repeat 10px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
@@ -2572,7 +2572,7 @@ ul.sortableList li div.label span {
     margin-top: 8px;
     margin-left: 5px;
     margin-right: 5px;
-    background: transparent url(../images/icons/extra/reorder.gif) no-repeat 0 0;
+    background: transparent url(../images/extra/reorder.gif) no-repeat 0 0;
 }
 */
 ul.sortableList span.haschildren.expanded {
@@ -2646,7 +2646,7 @@ ul.sortableList > li {
 }
 #login a#toggle-info {
     position: absolute;
-    background: transparent url(../images/icons/extra/info.png) no-repeat scroll center center;
+    background: transparent url(../images/extra/info.png) no-repeat scroll center center;
     top: 2em;
     left: 2em;
     height: 24px;
