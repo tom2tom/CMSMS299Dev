@@ -47,7 +47,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *   targets the content area of the destination page
  * @param int    $mode since 2.3 Indicates how to format the url
  *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
- *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+ *  1 = raw: no rawurlencoding, '&' for parameter separators - e.g. for use in js
  *  2 = page-displayable: all html_entitized, probably not usable as-is
  *
  * @return string Ready-to-use or corresponding displayable URL.
@@ -87,7 +87,7 @@ function cms_module_create_actionurl(
 	} elseif ($prettyurl && $config['url_rewriting'] == 'internal') {
 		$text = $base_url.'/index.php/'.$prettyurl.$config['page_extension'];
 	} else {
-		if ($targetcontentonly || ($returnid !== '' && !$inline)) {
+		if ($targetcontentonly || ($returnid != '' && !$inline)) {
 			$id = 'cntnt01';
 		}
 
@@ -96,6 +96,10 @@ function cms_module_create_actionurl(
 		];
 
 		if ($returnid == '') {
+/*TODO			if (!isset($_SESSION[CMS_USER_KEY])) {
+				return '<!-- '.__METHOD__.' error : "session has expired -->';
+			}
+*/
 			$text = $config['admin_url'] . '/moduleinterface.php';
 			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
 		} else {
@@ -121,9 +125,6 @@ function cms_module_create_actionurl(
 
 		switch ($mode) {
 			case 1:
-				$sep = '&';
-				$enc = true;
-				break;
 			case 2:
 				$sep = '&';
 				$enc = false;
