@@ -60,9 +60,6 @@ class News extends CMSModule
         $this->SetParameterType('pagenumber',CLEAN_INT);
         $this->SetParameterType('articleid',CLEAN_INT);
         $this->SetParameterType('origid',CLEAN_INT);
-        $this->SetParameterType('showtemplate',CLEAN_STRING);
-        $this->SetParameterType('assign',CLEAN_STRING);
-        $this->SetParameterType('inline',CLEAN_STRING);
         $this->SetParameterType('preview',CLEAN_STRING);
         $this->SetParameterType('idlist',CLEAN_STRING);
 
@@ -133,7 +130,7 @@ class News extends CMSModule
 
     public function GetDfltEmailTemplate()
     {
-        $text = "A new news article has been posted to your website.  The details are as follows:\n";
+        $text = "A new news article has been posted to the website.  The details are as follows:\n";
         $text .= "Title:      {\$title}\n";
         $text .= "IP Address: {\$ipaddress}\n";
         $text .= "Summary:    {\$summary|strip_tags}\n";
