@@ -353,7 +353,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             return; // nothing to do
         }
 
-        list ($host, $path, $transport, $port) = $this->GetActionParams('CmsJobManager', 'process', ['cms_jobman'=>1, 'showtemplate'=>'false']);
+        list ($host, $path, $transport, $port) = $this->GetActionParams('CmsJobManager', 'process', ['cms_jobman'=>1, 'cmsjobtype'=>2]);
 
         $remote = $transport.'://'.$host.':'.$port;
 
@@ -396,14 +396,14 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     protected function GetActionParams($modname, $action, $params = [])
     {
-        //TODO support custom URL == module preference
-        $config = \cmsms()->GetConfig();
+        //TODO support custom URL == module preference or config setting
+//        $config = \cmsms()->GetConfig();
+
+        $root = CMS_ROOT_URL;
         if (empty($_SERVER['HTTPS'])) {
-            $root = $config['root_url'];
             $transport = 'tcp';
             $port = 80;
         } else {
-            $root = $config['ssl_url'];
             $opts = stream_get_transports();
             if (in_array('tls', $opts)) {
                 $transport = 'tls';

@@ -232,7 +232,7 @@ function news_dopreview() {
   data.push({ 'name': {/literal}'{$actionid}preview'{literal}, 'value': 1 });
   data.push({ 'name': {/literal}'{$actionid}previewpage'{literal}, 'value': $("input[name='preview_returnid']").val() });
   data.push({ 'name': {/literal}'{$actionid}detailtemplate'{literal}, 'value': $('#preview_template').val() });
-  data.push({ 'name': 'showtemplate', 'value': 'false' }); //deprecated url param to curtail display
+  data.push({ 'name': 'cmsjobtype', 'value': 1 }); //url param to curtail display
   $.post(url, data, function(resultdata, textStatus, jqXHR) {
     var resp = $(resultdata).find('Response').text(),
       details = $(resultdata).find('Details').text();
@@ -284,7 +284,7 @@ $(document).ready(function() {
       url = $('form').attr('action');
     data.push({ 'name': {/literal}'{$actionid}ajax'{literal}, 'value': 1 });
     data.push({ 'name': {/literal}'{$actionid}apply'{literal}, 'value': 1 });
-    data.push({ 'name': 'showtemplate', 'value': 'false' }); //deprecated url param to curtail display
+    data.push({ 'name': 'cmsjobtype', 'value': 1 }); //url param to curtail display
     $.post(url, data, function(resultdata, textStatus, jqXHR) { //TODO robust API
       var resp = $(resultdata).find('Response').text(),
         details = $(resultdata).find('Details').text();

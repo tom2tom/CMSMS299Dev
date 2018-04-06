@@ -2,7 +2,7 @@
 if (!function_exists("cmsms")) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 
-if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['showtemplate']) && $_GET['showtemplate'] == 'false' ) {
+if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['cmsjobtype']) && $_GET['cmsjobtype'] > 0 ) {
   echo filemanager_utils::get_cwd();
   exit;
 }
