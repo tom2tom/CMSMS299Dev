@@ -415,7 +415,7 @@ $lang['help_designmanager_help'] = <<<EOT
   <p>The Design Manager Admin panel has numerous tabs.  Each tab serves a particular purpose, and might require special privileges.  Only a user with one of the required permissions <em>(or ownership/additional editor status on one or more templates)</em> will be able to see the design manager in the CMSMS admin console.</p>
   <ul>
     <li>The Templates Tab
-      <p>The templates tab provides all of the functionality to conveniently and easily create and manage templates.  It is visible to Admin users with the &quot;Modify Templates&quot; permission, or who are owners or additional editors of one or more templates.</p>
+      <p>The templates tab provides all of the functionality to conveniently and easily create and manage templates.  It is visible to admin users with the &quot;Modify Templates&quot; permission, or who are owners or additional editors of one or more templates.</p>
       <p>Some of the features of this tab include:</p>
       <ul>
         <li>A tabular format which displays summary information about each template, and provides convenient actions for working on templates individually, or en-masse.</li>
@@ -426,20 +426,20 @@ $lang['help_designmanager_help'] = <<<EOT
     </li>
 
     <li>The Categories Tab
-      <p>The categories tab is visible to all Admin users with the &quot;Modify Templates&quot; permission.  It provides the ability to add, edit, delete, rename and re-order categories.</p>
+      <p>The categories tab is visible to all admin users with the &quot;Modify Templates&quot; permission.  It provides the ability to add, edit, delete, rename and re-order categories.</p>
       <p>When adding or editing a category it is possible to provide a description of the use of the category for reference purposes.</p>
     </li>
 
     <li>The Template Types Tab
-      <p>This tab is visible to all Admin users with the &quot;Modify Templates&quot; permission.  It provides the ability to edit information about the template type including the prototype template.  And to create a new template of each type.</p>
+      <p>This tab is visible to all admin users with the &quot;Modify Templates&quot; permission.  It provides the ability to edit information about the template type including the prototype template.  And to create a new template of each type.</p>
     </li>
 
     <li>The Stylesheets Tab
-      <p>This tab is visible to all Admin users with the &quot;Manage Stylesheets&quot; permission.  It provides the ability to create, delete, edit, and manage stylesheets.<p>
+      <p>This tab is visible to all admin users with the &quot;Manage Stylesheets&quot; permission.  It provides the ability to create, delete, edit, and manage stylesheets.<p>
     </li>
 
     <li>The Designs Tab
-      <p>This admin panel tab is visible to all Admin users with the &quot;Manage Designs&quot; permission.  <em>(Note: users with that permission and no others might not have access to the full functionality of this tab)</em>.
+      <p>This admin panel tab is visible to all admin users with the &quot;Manage Designs&quot; permission.  <em>(Note: users with that permission and no others might not have access to the full functionality of this tab)</em>.
       <p>This tab provides the ability to import, export, create, edit, and delete designs.</p>
     </li>
   </ul>
@@ -623,7 +623,7 @@ $lang['help_designmanager_help'] = <<<EOT
 <h3>Upgrade Notes</h3>
 EOT;
 
-$lang['help_myaccount_admincallout'] = 'If enabled administrative bookmarks <em>(shortcuts)</em> will be enabled allowing you to manage a list of frequently used actions in the admin console.';
+$lang['help_myaccount_admincallout'] = 'If enabled administrative bookmarks <em>(bookmarks)</em> will be enabled allowing you to manage a list of frequently used actions in the admin console.';
 $lang['help_myaccount_admintheme'] = 'Select an administration theme to use.  Different administration themes have different menu layouts, work better for mobile displays, and have various additional features.';
 $lang['help_myaccount_ce_navdisplay'] = 'Select which content field should be displayed in content lists.  Options include the page title, or menu text.  If &quot;None&quot; is selected, then the site preference will be used';
 $lang['help_myaccount_dateformat'] = 'Specify a date format string to use when dates are displayed.  This string uses <a href="http://php.net/manual/en/function.strftime.php" class="external" target="_blank">strftime</a> format.  <strong>Note:</strong> some independently-developed modules and plugins might ignore this setting.</strong>';
@@ -681,7 +681,7 @@ $lang['settings_searchmodule'] = 'Select the module that should be used to index
 $lang['settings_sitedownexcludeadmins'] = 'Do show the website to users logged in to the CMSMS admin console. This allows administrators to work on the site without interference';
 $lang['settings_sitedownexcludes'] = 'Do show the website to these IP addresses';
 $lang['settings_sitedownmessage'] = 'The message shown to website visitors when the site is &quote;down for maintenance&quote;';
-$lang['settings_smartycaching'] = 'When enabled, the output from various plugins will be cached to increase performance. Additionally, most portions of compiled templates will be cached. This only applies to output on content pages marked as cachable, and only for non-Admin users.  Note, this functionality might interfere with the behaviour of some modules or plugins, or plugins that use non-inline forms.<br/><br/><strong>Note:</strong> When smarty caching is enabled, global content blocks <em>(GCBs)</em> are always cached by smarty, and user defined tags <em>(UDTs)</em> are never cached.  Additionally, content blocks are never cached.';
+$lang['settings_smartycaching'] = 'When enabled, the output from various plugins will be cached to increase performance. Additionally, most portions of compiled templates will be cached. This only applies to output on content pages marked as cachable, and only for non-admin users.  Note, this functionality might interfere with the behaviour of some modules or plugins, or plugins that use non-inline forms.<br/><br/><strong>Note:</strong> When smarty caching is enabled, global content blocks <em>(GCBs)</em> are always cached by smarty, and user defined tags <em>(UDTs)</em> are never cached.  Additionally, content blocks are never cached.';
 $lang['settings_smartycompilecheck'] = 'If disabled, smarty will not check the modification dates of templates to see if they have been modified.  This can significantly improve performance.  However performing any template change (or even some content changes) might require a cache clearing';
 $lang['settings_thumbfield_path'] = 'This setting is used when editing content.  The directory specified here is used to provide a list of images from which to associate a thumbnail with the content page.<br/><br/>Relative to the image uploads path, specify a directory name that contains the paths containing files for the image field.  Usually this will be the same as the path above.';
 $lang['settings_umask'] = 'The &quot;umask&quot; is an octal value that is used to specify the default permission for newly created files (this is used for files in the cache directory, and uploaded files.  For more information see the appropriate <a href="http://en.wikipedia.org/wiki/Umask" class="external" target="_blank">Wikipedia article.</a>';
