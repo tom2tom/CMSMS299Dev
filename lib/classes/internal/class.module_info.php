@@ -1,17 +1,61 @@
 <?php
+#class to process module information
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace CMSMS\internal;
 use \ModuleOperations;
 
 class module_info implements \ArrayAccess
 {
-    private static $_keys = array('name','version','depends','mincmsversion', 'author', 'authoremail', 'help', 'about',
-                                  'lazyloadadmin', 'lazyloadfrontend', 'changelog','ver_compatible','dir','writable','root_writable',
-                                  'description','has_meta','has_custom','notavailable','is_system_module');
-    private $_data = array();
+    const PROPNAMES = ['name','version','depends','mincmsversion', 'author', 'authoremail', 'help', 'about',
+                       'lazyloadadmin', 'lazyloadfrontend', 'changelog','ver_compatible','dir','writable','root_writable',
+                       'description','has_meta','has_custom','notavailable','is_system_module'];
+    private $_data = [];
+
+    public function __construct($module_name,$can_load = true)
+    {
+        $fn1 = $this->_get_module_meta_file( $module_name );
+		$if1 = is_file($fn1);
+        $ft1 = ( $if1 ) ? filemtime($fn1) : 0 ;
+        $fn2 = $this->_get_module_file( $module_name );
+		$if2 = is_file($fn2);
+        $ft2 = ( $if2) ? filemtime($fn2) : 0;
+        if( ($ft2 > $ft1 && $can_load) || ($if2 && !$if1) ) {
+            // module file is newer or the only choice
+            $arr = $this->_read_from_module($module_name);
+        } elseif( $if1 && $if2 ) {
+            // moduleinfo file is newer
+            $arr = $this->_read_from_module_meta($module_name);
+        } else {
+            $arr = null;
+		}
+        if( $arr ) {
+            $arr2 = $this->_check_modulecustom($module_name);
+            $this->_setData( array_merge($arr2, $arr ));
+		} else {
+            $arr['name'] = $module_name;
+            $this->_setData( $arr );
+            $this->_data['notavailable'] = true;
+        }
+    }
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::$_keys) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
+        if( !in_array($key,self::PROPNAMES) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         switch( $key ) {
         case 'about':
             break;
@@ -42,7 +86,7 @@ class module_info implements \ArrayAccess
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::$_keys) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
+        if( !in_array($key,self::PROPNAMES) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         if( $key == 'about' ) throw new CmsLogicException('CMSEX_INVALIDMEMBERSET',$key);
         if( $key == 'ver_compatible' ) throw new CmsLogicException('CMSEX_INVALIDMEMBERSET',$key);
         if( $key == 'dir' ) throw new CmsLogicException('CMSEX_INVALIDMEMBERSET',$key);
@@ -54,79 +98,54 @@ class module_info implements \ArrayAccess
 
     public function OffsetExists($key)
     {
-        if( !in_array($key,self::$_keys) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
+        if( !in_array($key,self::PROPNAMES) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         return isset($this->_data[$key]);
     }
 
     public function OffsetUnset($key)
     {
-        return; // do nothing
     }
 
-    private function _get_module_meta_file( $module_name )
+    private function _get_module_meta_file( string $module_name ) : string
     {
-        $modops = \ModuleOperations::get_instance();
-        $path = $modops->get_module_path( $module_name );
-        return $path;
+        $path = cms_module_path($module_name);
+		if ($path) {
+		    return str_replace($module_name.'.module.php','moduleinfo.ini',$path);
+		}
+		return '';
     }
 
-    private function _get_module_file( $module_name )
+    private function _get_module_file( string $module_name ) : string
     {
-        $modops = \ModuleOperations::get_instance();
-        $fn = $modops->get_module_filename( $module_name );
-        return $fn;
-    }
-
-    public function __construct($module_name,$can_load = TRUE)
-    {
-        $arr = $arr2 = $fn1 = $fn2 = $ft1 = $ft2 = null;
-        $fn1 = $this->_get_module_meta_file( $module_name );
-        $fn2 = $this->_get_module_file( $module_name );
-        if( is_file($fn1) ) $ft1 = filemtime($fn1);
-        if( is_file($fn2) ) $ft2 = filemtime($fn2);
-        if( $ft2 > $ft1 && $can_load ) {
-            // module file is newer.
-            $arr = $this->_read_from_module($module_name);
-        }
-        else {
-            // moduleinfo file is newer.
-            $arr = $this->_read_from_module_meta($module_name);
-        }
-        if( !$arr ) {
-            $arr['name'] = $module_name;
-            $this->_setData( $arr );
-            $this->_data['notavailable'] = true;
-        } else {
-            $arr2 = $this->_check_modulecustom($module_name);
-            $this->_setData( array_merge($arr2, $arr ));
-        }
+		return cms_module_path($module_name);
     }
 
     private function _setData( array $in )
     {
         foreach( $in as $key => $value ) {
-            if( in_array( $key, self::$_keys ) ) $this->_data[$key] = $value;
+            if( in_array( $key, self::PROPNAMES ) ) $this->_data[$key] = $value;
         }
     }
 
-    private function _check_modulecustom($module_name)
+    private function _check_modulecustom(string $module_name) : array
     {
-        $dir = CMS_ASSETS_PATH."/module_custom/$module_name";
-        $files1 = glob($dir."/templates/*.tpl");
-        $files2 = glob($dir."/lang/??_??.php");
-
-        $tmp = ['has_custom' => FALSE ];
-        if( count($files1) || count($files2) ) $this->_tmp['has_custom'] = TRUE;
-        return $tmp;
+        $path = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'');
+        $files = glob($path.'templates/*.tpl'); //TODO lazy separator!
+		if (!$files) {
+	        $files = glob($path.'lang/??_??.php');
+		}
+        $has = count($files) > 0;
+        return ['has_custom' => $has];
     }
 
-    private function _remove_module_meta( $module_name )
+    private function _remove_module_meta(string  $module_name )
     {
         $fn = $this->_get_module_meta_file( $module_name );
         if( is_file($fn) && is_writable($fn) ) unlink($fn);
     }
 
-    private function _read_from_module_meta($module_name)
+    /* return mixed array or null */
+    private function _read_from_module_meta(string $module_name)
     {
         $dir = \ModuleOperations::get_instance()->get_module_path( $module_name );
         $fn = $this->_get_module_meta_file( $module_name );
@@ -162,27 +181,35 @@ class module_info implements \ArrayAccess
         return $arr;
     }
 
-    private function _read_from_module($module_name)
+    /* return mixed array or null */
+    private function _read_from_module(string $module_name)
     {
-        // load the module... this is more likely to result in fatal errors than exceptions
-        // so we don't bother to read
         $mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
-        if( !is_object($mod) ) return;
-
-        $arr = [];
-        $arr['name'] = $mod->GetName();
-        $arr['description'] = $mod->GetDescription();
-        if( $arr['description'] == '' ) $arr['description'] = $mod->GetAdminDescription();
-        $arr['version'] = $mod->GetVersion();
-        $arr['depends'] = $mod->GetDependencies();
-        $arr['mincmsversion'] = $mod->MinimumCMSVersion();
-        $arr['author'] = $mod->GetAuthor();
-        $arr['authoremail'] = $mod->GetAuthor();
-        $arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
-        $arr['lazyloadfrontend'] = $mod->LazyLoadAdmin();
-        $arr['help'] = $mod->GetHelp();
-        $arr['changelog'] = $mod->GetChangelog();
-        return $arr;
+        if( !is_object($mod) ) {
+		    // if the module is not installed, try to interrogate it anyway
+			$path = cms_module_path($module_name);
+			if ($path) {
+				include $path;
+				$module_name = '\\'.$module_name; //modules in global namespace
+				$mod = new $module_name();
+			}
+		}
+        if( is_object($mod) ) {
+			$arr = [];
+			$arr['name'] = $mod->GetName();
+			$arr['description'] = $mod->GetDescription();
+			if( $arr['description'] == '' ) $arr['description'] = $mod->GetAdminDescription();
+			$arr['version'] = $mod->GetVersion();
+			$arr['depends'] = $mod->GetDependencies();
+			$arr['mincmsversion'] = $mod->MinimumCMSVersion();
+			$arr['author'] = $mod->GetAuthor();
+			$arr['authoremail'] = $mod->GetAuthor();
+			$arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
+			$arr['lazyloadfrontend'] = $mod->LazyLoadAdmin();
+			$arr['help'] = $mod->GetHelp();
+			$arr['changelog'] = $mod->GetChangelog();
+			return $arr;
+		}
     }
 
 } // end of class
