@@ -1,5 +1,5 @@
 <?php
-#...
+#make relevant css available for an admin page
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -14,8 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
+//Deprecated since 2.3 - just include the relevant .css in the page header during its construction 
 
 $CMS_ADMIN_PAGE=1;
 $CMS_LOGIN_PAGE=1;
