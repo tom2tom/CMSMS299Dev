@@ -48,7 +48,7 @@ EOT;
     $themeObject->add_headtext($out);
 }
 
-cms_admin_sendheaders();
+cms_admin_sendheaders(); //TODO is this $CMS_JOB_TYPE-related ?
 
 if (isset($config['show_performance_info'])) {
     $starttime = microtime();
