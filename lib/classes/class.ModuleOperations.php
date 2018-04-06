@@ -15,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 use \CMSMS\internal\module_meta;
 
@@ -36,25 +34,6 @@ use \CMSMS\internal\module_meta;
  */
 final class ModuleOperations
 {
-	/**
-	 * Core/system modules list
-     * @ignore
-	 */
-	const COREMODULES = [
-		'AdminLog',
-		'AdminSearch',
-		'CMSContentManager',
-		'CmsJobManager',
-		'DesignManager',
-		'FileManager',
-		'FilePicker',
-		'MicroTiny',
-		'ModuleManager',
-        'Navigator',
-		'News',
-		'Search',
-	];
-
     /**
      * @ignore
      */
@@ -63,12 +42,12 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	static private $_instance = null;
+	private static $_instance = null;
 
     /**
      * @ignore
      */
-    static private $_classmap = null;
+    private static $_classmap = null;
 
     /* *
      * @ignore
@@ -81,6 +60,13 @@ final class ModuleOperations
 	private $_modules = null;
 
 	/**
+	 * Curently-installed core/system modules list
+     * The population of core modules can change, so this is not hardcoded
+     * @ignore
+	 */
+	private $_coremodules = null;
+
+	/**
 	 * @ignore
 	 */
 	private $_moduleinfo;
@@ -88,19 +74,24 @@ final class ModuleOperations
     /**
      * @ignore
      */
-    private function __construct() {}
+	private function __construct() {}
 
-    /**
+	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+	/**
      * Get the only permitted instance of this object.  It will be created if necessary
      *
      * @return ModuleOperations
      */
-    public static function &get_instance()
+    final public static function &get_instance() : self
     {
-        if( !isset(self::$_instance) ) {
-            self::$_instance = new self();
-        }
-        return self::$_instance;
+        if( !self::$_instance ) {
+			self::$_instance = new self();
+		}
+		return self::$_instance;
     }
 
     /**
@@ -135,15 +126,10 @@ final class ModuleOperations
     public function get_module_filename(string $module)
     {
         $module = trim($module);
-        if( !$module ) return;
-        if( self::get_instance()->IsSystemModule( $module ) ) {
-	        $parts = [CMS_ROOT_PATH,'lib','modules'];
-		} else {
-			$parts = [CMS_ASSETS_PATH,'modules'];
+        if( $module ) {
+            $fn = cms_module_path($module);
+            if( is_file($fn) ) return $fn;
 		}
-		$parts = array_merge($parts, [$module, $module.'.module.php']);
-        $fn = cms_join_path($parts);
-        if( is_file($fn) ) return $fn;
     }
 
     /**
@@ -362,7 +348,7 @@ final class ModuleOperations
         if( !class_exists($class_name,true) ) {
             $fname = $this->get_module_filename($module_name);
             if( !is_file($fname) ) {
-                warning("Cannot load $module_name because the module file does not exist");
+                cms_warning("Cannot load $module_name because the module file does not exist");
                 return FALSE;
             }
 
@@ -389,7 +375,7 @@ final class ModuleOperations
         $this->_modules[$module_name] = $obj;
 
         $tmp = $gCms->get_installed_schema_version();
-        if( $tmp == CMS_SCHEMA_VERSION && isset($CMS_INSTALL_PAGE) && in_array($module_name, self::COREMODULES) ) {
+        if( $tmp == CMS_SCHEMA_VERSION && isset($CMS_INSTALL_PAGE) && $this->IsSystemModule($module_name)) {
             // during the phar installer, we can use get_module_instance() to install or upgrade core modules
             if( !isset($info[$module_name]) || $info[$module_name]['status'] != 'installed' ) {
                 $res = $this->_install_module($obj);
@@ -860,7 +846,25 @@ final class ModuleOperations
      */
     public function IsSystemModule(string $module_name)
     {
-        return in_array($module_name,self::COREMODULES);
+        if ($this->_coremodules === null) {
+			//log 'core' modules
+			$names = [];
+			$path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
+			if (is_dir($path)) {
+				$patn = $path.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'*.module.php';
+				$files = glob($patn,GLOB_NOESCAPE);
+				foreach ($files as $fn) {
+					$names[] = basename($fn,'.module.php');
+				}
+			}
+			global $CMS_INSTALL_PAGE;
+            if (isset($CMS_INSTALL_PAGE)) {
+                return in_array($module_name,$names);
+			} else {
+				$this->_coremodules = $names;
+			}
+		}
+        return in_array($module_name,$this->_coremodules);
     }
 
 
