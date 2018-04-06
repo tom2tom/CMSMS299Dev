@@ -83,7 +83,8 @@
    </div>
    <div id="ggp_navwrap" class="column sidebar-on">
     <div id="ggp_navhead">
-     <span id="toggle-button" title="{lang('open')}/{lang('close')}"></span>
+     <span id="toggle-button" title="{lang('open')}/{lang('close')}">
+     <span title="{lang('close')}">&nbsp;</span></span>
     </div>
     <div id="ggp_nav">
      {include file='navigation.tpl'}
