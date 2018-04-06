@@ -31,7 +31,6 @@ if (isset($_REQUEST['cmsjobtype'])) {
 } elseif (
     // undocumented, deprecated, output-suppressor
     (isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
-    || $modinst->SuppressAdminOutput($_REQUEST)
     || isset($_REQUEST['suppressoutput'])) {
     $CMS_JOB_TYPE = 1;
 } else {
@@ -59,6 +58,9 @@ $modinst = $modops->get_module_instance($module);
 if (!$modinst) {
     trigger_error('Module '.$module.' not found in memory. This could indicate that the module is in need of upgrade or that there are other problems');
     redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
+}
+if ($modinst->SuppressAdminOutput($_REQUEST)) {
+    $CMS_JOB_TYPE = 1; //too bad about irelevant includes
 }
 
 $params = $modops->GetModuleParameters($id);
