@@ -160,6 +160,7 @@ $lang['locked_since'] = 'Since';
 $lang['locked_steal'] = 'You can steal this lock';
 $lang['lock_expired'] = 'Expired';
 $lang['lock_expires'] = 'Expires';
+$lang['lockerror'] = 'Locking error';
 
 #M
 $lang['moddescription'] = 'Add, change or remove website pages';
