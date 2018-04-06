@@ -1,8 +1,8 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004-2011 by Ted Kulp (wishy@users.sf.net)
-#(c)2011-2018 by The CMSMS Dev Team
-#Visit our homepage at: http://www.cmsmadesimple.org
+#Entry point for all non-admin pages
+#Copyright (C) 2004-2011 by Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2011-2018 by The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -16,13 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program; if not, write to the Free Software
 #Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-#$Id$
-
-use CMSMS\internal\content_plugins;
-
-$starttime = microtime();
-$orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 
 /**
  * Entry point for all non-admin pages
@@ -30,9 +23,26 @@ $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
  * @package CMS
  */
 
+use CMSMS\internal\content_plugins;
+
+$starttime = microtime();
+$orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
+
+if (isset($_REQUEST['cmsjobtype'])) {
+    $type = (int)$_REQUEST['cmsjobtype'];
+    $CMS_JOB_TYPE = min(max($type, 0), 2);
+} elseif (isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false') {
+    // undocumented, deprecated, output-suppressor
+    $CMS_JOB_TYPE = 1;
+} else {
+    //normal output
+    $CMS_JOB_TYPE = 0;
+}
+
 clearstatcache();
 
 if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
+
 require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) {
@@ -52,12 +62,18 @@ tmp/templates_c<br /></p>
 $_app = CmsApp::get_instance(); // internal use only, subject to change.
 $config = cms_config::get_instance();
 $params = array_merge($_GET, $_POST);
+if ($CMS_JOB_TYPE > 0) {
+    $showtemplate = false;
+    $_app->disable_template_processing();
+} else {
+    $showtemplate = true;
+}
+//TODO which of the following should be $CMS_JOB_TYPE-dependant ?
 $smarty = $_app->GetSmarty();
 $page = get_pageid_or_alias_from_url();
 $contentops = ContentOperations::get_instance();
 $contentobj = null;
 $trycount = 0;
-$showtemplate = true;
 
 CMSMS\internal\content_cache::get_instance();
 $_tpl_cache = new CMSMS\internal\TemplateCache();
@@ -111,10 +127,6 @@ while ($trycount < 2) {
         $smarty->assignGlobal('lang',CmsNlsOperations::get_current_language());
         $smarty->assignGlobal('encoding',CmsNlsOperations::get_encoding());
 
-        if ((isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')) {
-            $_app->disable_template_processing();
-        }
-
         CMSMS\HookManager::do_hook('Core::ContentPreRender', [ 'content' => &$contentobj ]);
 
         if ($config['content_processing_mode'] == 2) {
@@ -123,11 +135,8 @@ while ($trycount < 2) {
         }
 
         $html = null;
-        $showtemplate = $_app->template_processing_allowed();
-        if (!$showtemplate) {
-            $html = content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
-            $trycount = 99;
-        } else {
+//        $showtemplate = $_app->template_processing_allowed();
+        if ($showtemplate) {
             $tpl_id = $contentobj->TemplateId();
             $top = $body = $head = null;
 
@@ -140,7 +149,7 @@ while ($trycount < 2) {
 
             if ($config['content_processing_mode'] == 1) {
                 debug_buffer('preprocess module action');
-                content_plugins::get_default_content_block_content($contentobj->Id());
+                content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
             }
 
             // if the request has a mact in it, process and cache the output.
@@ -159,8 +168,10 @@ while ($trycount < 2) {
             CMSMS\HookManager::do_hook('Core::PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
 
             $html = $top.$head.$body;
-            $trycount = 99; // no more iterations
+        } else {
+            $html = content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
         }
+        $trycount = 99; // no more iterations
     }
 
     catch (CmsError404Exception $e) {
