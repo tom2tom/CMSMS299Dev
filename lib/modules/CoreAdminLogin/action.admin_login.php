@@ -1,37 +1,51 @@
 <?php
+#action: admin login
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#BUT WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace CoreAdminLogin;
+
 if( !isset($gCms) ) exit;
 
 class LoginUserError extends \RuntimeException {}
 
-$username = $password = null;
-$theme_object = \cms_utils::get_theme_object();
 $csrf_key = md5(__FILE__);
-$login_ops = \CMSMS\LoginOperations::get_instance();
-$username = $password = $error = $warning = $pwhash = $message = null;
+$username = $password = $pwhash = $error = $warning = $message = null;
 
-if( isset( $_GET['recoverme'] ) ) {
-    $code = filter_var( $_GET['recoverme'], FILTER_SANITIZE_STRING );
-    $user = $this->getLoginUtils()->find_recovery_user( $code );
-    if( !$user ) {
+// all $params[] members have been appropriately cleaned upstream
+
+if( isset( $params['recoverme'] ) ) {
+    $usercode = trim($params['recoverme']);
+    $user = $this->getLoginUtils()->find_recovery_user( $usercode );
+    if( $user ) {
+        $pwhash = $usercode;
+    } else {
         $error = $this->Lang('err_usernotfound');
     }
-    else {
-        $pwhash = $code;
-    }
 }
-else if( isset( $params['forgotpwchangeform']) ) {
+elseif( isset( $params['forgotpwchangeform']) ) {
     try {
-        $expected_csrf_val = ( isset($_SESSION[$csrf_key]) ) ? $_SESSION[$csrf_key] : null;
-        $provided_csrf_val = ( isset($params['csrf']) ) ? $params['csrf'] : null;
+        $expected_csrf_val = $_SESSION[$csrf_key] ?? null;
+        $provided_csrf_val = $params['csrf'] ?? null;
         if( !$expected_csrf_val || !$provided_csrf_val || $expected_csrf_val != $provided_csrf_val ) {
             throw new \RuntimeException( $this->Lang('err_csrfinvalid') );
         }
-
-        $usercode = filter_var( $params['changepwhash'], FILTER_SANITIZE_STRING );
-        $username = html_entity_decode( filter_var( $params['username'], FILTER_SANITIZE_STRING ) );
-        $password1 = html_entity_decode( filter_var( $params['password'], FILTER_SANITIZE_STRING ) );
-        $password2 = html_entity_decode( filter_var( $params['passwordagain'], FILTER_SANITIZE_STRING ) );
+        $usercode = trim($params['changepwhash']);
+        $username = html_entity_decode( trim($params['username'] ));
+        $password1 = $params['password'];
+        $password2 = $params['passwordagain'];
         if( !$usercode || !$username || !$password1 || !$password2 ) throw new LoginUserError( $this->Lang('err_missingdata') );
         if( $password1 != $password2 ) throw new LoginUserError( $this->Lang('err_passwordmismatch') );
         \CMSMS\HookManager::do_hook('Core::PasswordStrengthTest', $password1 );
@@ -59,18 +73,18 @@ else if( isset( $params['forgotpwchangeform']) ) {
         $error = $e->GetMessage();
     }
 }
-else if( isset( $params['forgotpwform']) ) {
+elseif( isset( $params['forgotpwform']) ) {
     // got the forgot password form request
     try {
-        $expected_csrf_val = ( isset($_SESSION[$csrf_key]) ) ? $_SESSION[$csrf_key] : null;
-        $provided_csrf_val = ( isset($params['csrf']) ) ? $params['csrf'] : null;
+        $expected_csrf_val = $_SESSION[$csrf_key] ?? null;
+        $provided_csrf_val = $params['csrf'] ?? null;
         if( !$expected_csrf_val || !$provided_csrf_val || $expected_csrf_val != $provided_csrf_val ) {
             throw new \RuntimeException( $this->Lang('err_csrfinvalid') );
         }
 
-        $username = html_entity_decode( filter_var( $params['username'] ?? null, FILTER_SANITIZE_STRING ) );
-        unset( $params['username'] );
+        $username = (isset($params['username'])) ? html_entity_decode(trim($params['username'])) : null;
         if( !$username ) throw new LoginUserError( $this->Lang('err_usernotfound') );
+        unset( $params['username'] );
 
         \CMSMS\HookManager::do_hook('Core::LostPassword', [ 'username'=>$username] );
         $userops = $gCms->GetUserOperations();
@@ -93,17 +107,16 @@ else if( isset( $params['forgotpwform']) ) {
         $error = $e->GetMessage();
     }
 }
-else if( isset( $params['submit'] ) ) {
-    // validatte CSRF key
+elseif( isset( $params['submit'] ) ) {
     try {
-        $expected_csrf_val = ( isset($_SESSION[$csrf_key]) ) ? $_SESSION[$csrf_key] : null;
-        $provided_csrf_val = ( isset($params['csrf']) ) ? $params['csrf'] : null;
+        // validate CSRF key
+        $expected_csrf_val = $_SESSION[$csrf_key] ?? null;
+        $provided_csrf_val = $params['csrf'] ?? null;
         if( !$expected_csrf_val || !$provided_csrf_val || $expected_csrf_val != $provided_csrf_val ) {
             throw new \RuntimeException( lang('csrfinvalid') );
         }
-
-        $username = html_entity_decode( filter_var( $params['username'] ?? null, FILTER_SANITIZE_STRING ) );
-        $password = html_entity_decode( filter_var( $params['password'] ?? null, FILTER_SANITIZE_STRING ) );
+        $username = (isset($params['username'])) ? html_entity_decode(trim($params['username'])) : null;
+        $password = $params['password'] ?? null;
         if( !$username || !$password ) throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
 
         $userops = $gCms->GetUserOperations();
@@ -111,11 +124,11 @@ else if( isset( $params['submit'] ) ) {
         if( !$oneuser ) throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
         if( !$oneuser->Authenticate( $password ) )  throw new LoginUserError( $this->Lang('err_invalidusernamepassword') );
 
-        // now we could redirect somewhere for a second stage of authenticateion.
+        // now we could redirect somewhere for a second stage of authentication.
         // but for core... we don't need to.
 
-        // user is authenticated. log him hin.
-        $login_ops->save_authentication( $oneuser );
+        // user is authenticated
+        \CMSMS\LoginOperations::get_instance()->save_authentication( $oneuser );
         audit($oneuser->id, "Admin Username: ".$oneuser->username, 'Logged In');
         \CMSMS\HookManager::do_hook('Core::LoginPost', [ 'user'=>&$oneuser ] );
 
@@ -136,23 +149,39 @@ else if( isset( $params['submit'] ) ) {
         $error = $e->GetMessage();
     }
 }
-else if( isset( $params['cancel'] ) ) {
+elseif( isset( $params['cancel'] ) ) {
     debug_buffer("Login cancelled.  Returning to login.");
-    $login_ops->deauthenticate(); // just in case
+    \CMSMS\LoginOperations::get_instance()->deauthenticate(); // just in case
     redirect( $config['root_url'].'/index.php', true );
 }
 
+$csrf = $_SESSION[$csrf_key] = md5(__FILE__.time().rand());
+
 // display the login form
+
+$theme_object = \cms_utils::get_theme_object();
+if ($theme_object && method_exists($theme_object, 'display_login')) {
+    $params += [
+        'actionid' => $id,
+        'error' => $error,
+        'warning' => $warning,
+        'message' => $message,
+        'csrf' => $csrf,
+    ];
+    return $theme_object->display_login($params);
+}
+
+// default format
 $tpl = $smarty->CreateTemplate( $this->GetTemplateResource( 'admin_login.tpl' ), null, null, $smarty );
-$tpl->assign( 'error', $error );
-$tpl->assign( 'warning', $warning );
-$tpl->assign( 'message', $message );
-$tpl->assign( 'changepwhash', $pwhash );
-$tpl->assign( 'username', $username);
-$tpl->assign( 'password', $password);
+$tpl->assign([
+    'error' => $error,
+    'warning' => $warning,
+    'message' => $message,
+    'changepwhash' => $pwhash,
+    'username' => $username,
+    'password' => $password,
+    'csrf' => $csrf,
+]);
 //$tpl->assign( 'theme', $theme_object);
 //$tpl->assign( 'theme_root', $theme_object->root_url );
-$csrf = $_SESSION[$csrf_key] = md5(__FILE__.time().rand());
-$tpl->assign( 'csrf', $csrf );
-$content = $tpl->fetch();
-return $content;
+return $tpl->fetch();
