@@ -97,25 +97,57 @@ final class cms_admin_utils
 	}
 
 	/**
-	 * get indicator whether current lang is ltr or rtl
+	 * Get a tag representing a module icon
 	 *
 	 * @since 2.3
-	 * @return string 'ltr' or 'rtl'
+	 * @param string $module Name of the module
+	 * @param array $attrs Optional assoc array of attributes for the created img tag
+	 * @return string
 	 */
-	public static function lang_direction() : string
+	public static function get_module_icon(string $module, array $attrs = []) : string
 	{
-		$lang = CmsNlsOperations::get_language_info(CmsNlsOperations::get_current_language());
-		if (is_object($lang) && $lang->direction() == 'rtl') {
-			return 'rtl';
+		$dirs = self::module_places($module);
+		if ($dirs) {
+            $appends = [
+                ['images','icon.svg'],
+                ['icons','icon.svg'],
+                ['images','icon.png'],
+                ['icons','icon.png'],
+                ['images','icon.gif'],
+                ['icons','icon.gif'],
+            ];
+			foreach ($dirs as $base) {
+				foreach ($appends as $one) {
+					$path = cms_join_path($base, ...$one);
+					if (is_file($path)) {
+						$path = self::path_to_url($path);
+						if (endswith($path, '.svg')) {
+							// see https://css-tricks.com/using-svg
+							$alt = str_replace('svg','png',$path);
+							$out = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
+						} else {
+							$out = '<img src="'.$path.'"';
+						}
+		                $extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
+						foreach( $extras as $key => $value ) {
+							if ($value !== '' || $key == 'title') {
+								$out .= " $key=\"$value\"";
+							}
+						}
+						$out .= ' />';
+						return $out;
+					}
+				}
+			}
 		}
-		return 'ltr';
 	}
 
 	/**
-	 * Get the complete URL to an admin icon
+	 * Get a tag representing a themed icon or module icon
 	 *
-	 * @param string $icon the basename of the desired icon
-	 * @param array $attrs Since 2.3 Optional assoc array of attributes for the created tag
+	 * @param string $icon the basename of the desired icon file, may include theme-dir-relative path,
+	 *  may omit file type/suffix, ignored if smarty variable $actionmodule is currently set
+	 * @param array $attrs Since 2.3 Optional assoc array of attributes for the created img tag
 	 * @return string
 	 */
 	public static function get_icon($icon, $attrs = [])
@@ -123,22 +155,14 @@ final class cms_admin_utils
 		$smarty = \CMSMS\internal\Smarty::get_instance();
 		$module = $smarty->get_template_vars('actionmodule');
 
-		if( $module ) {
-			$obj = cms_utils::get_module($module);
-			if( is_object($obj) ) {
-				//TODO use aglgoritm in adminthemebase - favour different image-types etc
-				$img = basename($icon);
-				$path = $obj->GetModulePath();
-				$dirs = [];
-				$dirs[] = [cms_join_path($path,'icons',"{$img}"),$path."/icons/{$img}"];
-				$dirs[] = [cms_join_path($path,'images',"{$img}"),$path."/images/{$img}"];
-			}
+		if ($module) {
+			return self::get_module_icon($module, attrs);
 		} else {
 			$theme = cms_utils::get_theme_object();
-			if( !is_object($theme) ) return;
-
-			if( basename($icon) == $icon ) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
-			return $theme->DisplayImage($icon,'','','',null,$attrs);
+			if( is_object($theme) ) {
+				if( basename($icon) == $icon ) $icon = 'icons'.DIRECTORY_SEPARATOR.'system'.DIRECTORY_SEPARATOR.$icon;
+				return $theme->DisplayImage($icon,'','','',null,$attrs);
+			}
 		}
 	}
 
@@ -161,7 +185,7 @@ final class cms_admin_utils
 		$theme = cms_utils::get_theme_object();
 		if( !is_object($theme) ) return;
 
-		$icon = self::get_icon('info.png');
+		$icon = self::get_icon('info.png', ['class'=>'cms_helpicon']);
 		if( !$icon ) return;
 
 		$params = [];
@@ -212,6 +236,6 @@ final class cms_admin_utils
 		if( $key2 !== '' ) { $key1 .= '__'.$key2; }
 		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
 
-		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'"><img class="cms_helpicon" src="'.$icon.'" alt="'.basename($icon).'" /></span>';
+		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'">'.$icon.'</span>';
 	}
 } // end of class
