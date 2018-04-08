@@ -1,6 +1,6 @@
 <?php
 /*
-class Connection: represents a MySQL database connection
+Class Connection: represents a MySQL database connection
 Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http:www.cmsmadesimple.org>
 
@@ -29,7 +29,7 @@ class Connection extends \CMSMS\Database\Connection
     private $_asyncQ = []; // queue of cached results from prior pretend-async commands, pending pretend-reaps
 
     /*
-     * @param array $config assoc. array of db connection parameters etc,
+     * @param array $config Optional assoc. array of db connection parameters etc,
      * including at least:
      *  'db_hostname'
      *  'db_username'
@@ -40,9 +40,10 @@ class Connection extends \CMSMS\Database\Connection
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true
      */
-    public function __construct($config)
+    public function __construct($config = null)  //NB installer-API
     {
         if (class_exists('\mysqli')) {
+            if (!$config) $config =  \cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
                 $this->_mysql = new \mysqli(
@@ -52,12 +53,12 @@ class Connection extends \CMSMS\Database\Connection
                 if (!$this->_mysql->connect_error) {
                     parent::__construct();
                     $this->_type = 'mysqli';
-                    if (!empty($config['set_names'])) {
+                    if (!empty($config['set_names'])) { //N/A during installation
                         $this->_mysql->set_charset('utf8');
                     }
-                    if (!empty($config['set_db_timezone'])) {
+                    if (!empty($config['set_db_timezone'])) { //ditto
                         try {
-                            $dt = new \DateTime(new \DateTimeZone($config['timezone']));
+	                        $dt = new \DateTime(new \DateTimeZone($config['timezone']));
                         } catch (\Exception $e) {
                             $this->_mysql = null;
                             $this->on_error(parent::ERROR_PARAM, $e->getCode(), $e->getMessage());
@@ -172,11 +173,11 @@ class Connection extends \CMSMS\Database\Connection
 
     /**
      * @internal
+     * no error checking
+     * no return data
      */
     protected function do_multisql($sql)
     {
-        // no error checking for this stuff
-        // and no return data
         if ($this->_mysql->multi_query($sql)) {
             do {
                 $res = $this->_mysql->store_result();
@@ -257,36 +258,36 @@ class Connection extends \CMSMS\Database\Connection
     {
         if ($this->isNative()) {
 //TODO
-		} else {
-			$rs = $this->execute($sql, $valsarr);
-			if ($rs) {
-				$this->_asyncQ[] = $rs;
-			} else {
+        } else {
+            $rs = $this->execute($sql, $valsarr);
+            if ($rs) {
+                $this->_asyncQ[] = $rs;
+            } else {
 //TODO arrange to handle error when 'reaped'
-			}
-		}
+            }
+        }
     }
 
     public function reap()
-	{
+    {
         if ($this->isNative()) {
             $rs = $this->_mysql->reap_async_query();
-		} else {
-			$rs = array_shift($this->_asyncQ);
-		}
-		if ($rs) { // && $rs is not some error-data
-			$this->_conn->errno = 0;
-			$this->_conn->error = '';
+        } else {
+            $rs = array_shift($this->_asyncQ);
+        }
+        if ($rs) { // && $rs is not some error-data
+            $this->_conn->errno = 0;
+            $this->_conn->error = '';
 
-			return new ResultSet($rs);
-		} else {
-			$errno = 98;
-			$error = 'No async result available';
-			$this->processerror(parent::ERROR_EXECUTE, $errno, $error);
+            return new ResultSet($rs);
+        } else {
+            $errno = 98;
+            $error = 'No async result available';
+            $this->processerror(parent::ERROR_EXECUTE, $errno, $error);
 
-			return null;
-		}
-	}
+            return null;
+        }
+    }
 
     public function beginTrans()
     {
@@ -396,32 +397,24 @@ class Connection extends \CMSMS\Database\Connection
         return false;
     }
 
-    //TODO CHECK thread-safety
+    //kinda-atomic update + select TODO CHECK thread-safety
     public function genId($seqname)
     {
-        if ($this->_mysql->multi_query(
-     "BEGIN; SELECT id FROM $seqname FOR UPDATE; UPDATE $seqname SET id = id + 1; COMMIT;"
-        )) {
-            do {
-                $rs = $this->_mysql->store_result(); //NOT use_result()
-                if ($rs) {
-                    $data = $rs->fetch_array(MYSQLI_NUM);
-                    $rs->free();
-                }
-            } while ($this->_mysql->next_result());
-
-            return $data[0] + 1;
-        } elseif ($this->_debug) {
-            $this->add_debug_query("genId($seqname)");
+        $this->_mysql->query("UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1");
+        $rs = $this->_mysql->query('SELECT LAST_INSERT_ID()');
+        if ($rs) {
+            $rs->data_seek(0);
+            $valsarr = $rs->fetch_array(MYSQLI_NUM);
+            return $valsarr[0] + 1;
         }
-
+        //TODO handle error
         return -1;
     }
 
     public function createSequence($seqname, $startID = 0)
     {
-		//TODO ensure this is really an upsert, cuz' can be repeated during failed installation
-        $rs = $this->do_sql("CREATE TABLE $seqname (id INT NOT NULL) ENGINE=MYISAM COLLATE ascii_general_ci");
+        //TODO ensure this is really an upsert, cuz' can be repeated during failed installation
+        $rs = $this->do_sql("CREATE TABLE $seqname (id INT(4) UNSIGNED) ENGINE=MYISAM COLLATE ascii_general_ci");
         if ($rs) {
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
