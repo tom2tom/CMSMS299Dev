@@ -62,7 +62,7 @@
 	        {/if}
             </div>
         </div>
-        {if $verbose}
+{*        {if $verbose}
         <div class="row form-row">
             <div class="four-col">
                 <label>{'emailaccountinfo'|tr}</label>
@@ -73,7 +73,7 @@
                 </select>
             </div>
         </div>
-        {/if}
+        {/if}*}
 
 	<div id="bottom_nav">
         <input class="action-button positive" type="submit" name="next" value="{'next'|tr} &rarr;" />

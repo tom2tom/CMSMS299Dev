@@ -37,6 +37,7 @@ $lang['disable_functions'] = 'PHP core functions are enabled ?';
 $lang['done'] = 'Done';
 
 # E
+/*
 $lang['email_accountinfo_message'] = <<<EOT
 Installation of CMS Made Simple is complete.
 
@@ -62,9 +63,10 @@ install directory: %s
 EOT;
 $lang['email_accountinfo_subject'] = 'CMS Made Simple Installation Successful';
 $lang['emailaccountinfo'] = 'Email the account information';
+*/
 $lang['emailaddr'] = 'Email Address';
 $lang['error_adminacct_emailaddr'] = 'The email address you specified is invalid';
-$lang['error_adminacct_emailaddrrequired'] = 'You have selected to email the account information, but have not entered a valid email address';
+//$lang['error_adminacct_emailaddrrequired'] = 'You have selected to email the account information, but have not entered a valid email address';
 $lang['error_adminacct_password'] = 'The password you specified is invalid (must be at least six characters long)';
 $lang['error_adminacct_repeatpw'] = 'The passwords you entered did not match.';
 $lang['error_adminacct_username'] = 'The username you specified is invalid. Please try again';
@@ -80,7 +82,7 @@ $lang['error_filenotwritable'] = 'The file %s could not be overwritten (permissi
 $lang['error_internal'] = 'Sorry, something has gone wrong... (internal error) (%s)';
 $lang['error_invalid_directory'] = 'It appears that the directory you have selected to install in is a working directory for the installer itself';
 $lang['error_invalidconfig'] = 'Error in the config file, or config file missing';
-$lang['error_invaliddbpassword'] = 'Database password contains invalid characters that cannot be safely saved.';
+$lang['error_invaliddbpassword'] = 'Database password contains characters that cannot be safely saved.';
 $lang['error_invalidkey'] = 'Invalid member variable or key %s for class %s';
 $lang['error_invalidparam'] = 'Invalid parameter or value for parameter: %s';
 $lang['error_invalidtimezone'] = 'The timezone specified is invalid';

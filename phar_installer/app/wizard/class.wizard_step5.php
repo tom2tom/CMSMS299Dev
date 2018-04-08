@@ -10,7 +10,7 @@ class wizard_step5 extends \cms_autoinstaller\wizard_step
     public function __construct()
     {
         parent::__construct();
-        $this->_adminacct = array('username'=>'admin','emailaddr'=>'','password'=>'','repeatpw'=>'','emailaccountinfo'=>1);
+        $this->_adminacct = array('username'=>'admin','emailaddr'=>'','password'=>'','repeatpw'=>''); //,'emailaccountinfo'=>1);
         $tmp = $this->get_wizard()->get_data('adminaccount');
         if( is_array($tmp) && count($tmp) ) $this->_adminacct = $tmp;
     }
@@ -27,9 +27,10 @@ class wizard_step5 extends \cms_autoinstaller\wizard_step
         if( isset($acct['emailaddr']) && $acct['emailaddr'] != '' && !\__appbase\utils::is_email($acct['emailaddr']) ) {
             throw new \Exception(\__appbase\lang('error_adminacct_emailaddr'));
         }
-        if( (!isset($acct['emailaddr']) || $acct['emailaddr'] == '') && $acct['emailaccountinfo'] ) {
+/*        if( (!isset($acct['emailaddr']) || $acct['emailaddr'] == '') && $acct['emailaccountinfo'] ) {
             throw new \Exception(\__appbase\lang('error_adminacct_emailaddrrequired'));
         }
+*/
     }
 
     protected function process()
@@ -38,9 +39,10 @@ class wizard_step5 extends \cms_autoinstaller\wizard_step
         $this->_adminacct['emailaddr'] = trim(\__appbase\utils::clean_string($_POST['emailaddr']));
         $this->_adminacct['password'] = trim(\__appbase\utils::clean_string($_POST['password']));
         $this->_adminacct['repeatpw'] = trim(\__appbase\utils::clean_string($_POST['repeatpw']));
-        $this->_adminacct['emailaccountinfo'] = 1;
+/*
         if( isset($_POST['emailaccountinfo']) ) $this->_adminacct['emailaccountinfo'] = (int)$_POST['emailaccountinfo'];
-
+		else $this->_adminacct['emailaccountinfo'] = 1;
+*/
         $this->get_wizard()->set_data('adminaccount',$this->_adminacct);
         try {
             $this->validate($this->_adminacct);
