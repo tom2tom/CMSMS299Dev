@@ -1,5 +1,5 @@
 <?php
-#...
+#MicroTiny module installation procedure
 #Copyright (C) 2009-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of the Microtiny module for CMS Made Simple
 # <http://dev.cmsmadesimple.org/projects/microtiny>
@@ -16,17 +16,26 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$obj = new microtiny_profile(array('name'=>MicroTiny::PROFILE_FRONTEND,'label'=>$this->Lang('profile_frontend'),
-				   'menubar'=>false,'allowimages'=>false,'showstatusbar'=>false,
-				   'allowresize'=>false,'system'=>true));
+//best to avoid module-specific class autoloading during installation
+$fp = cms_join_path(__DIR__,'lib','class.microtiny_profile.php');
+require_once $fp;
+
+$obj = new MicroTiny\microtiny_profile([
+	'name'=>MicroTiny::PROFILE_FRONTEND,
+	'label'=>$this->Lang('profile_frontend'),
+	'menubar'=>false,
+	'allowimages'=>false,
+	'showstatusbar'=>false,
+	'allowresize'=>false,
+	'system'=>true]);
 $obj->save();
 
-
-$obj = new microtiny_profile(array('name'=>MicroTiny::PROFILE_ADMIN,'label'=>$this->Lang('profile_admin'),
-				   'menubar'=>true,'allowimages'=>true,'showstatusbar'=>true,
-				   'allowresize'=>true,'system'=>true));
+$obj = new MicroTiny\microtiny_profile([
+	'name'=>MicroTiny::PROFILE_ADMIN,
+	'label'=>$this->Lang('profile_admin'),
+	'menubar'=>true,
+	'allowimages'=>true,
+	'showstatusbar'=>true,
+	'allowresize'=>true,
+	'system'=>true]);
 $obj->save();
-#
-# EOF
-#
-?>
