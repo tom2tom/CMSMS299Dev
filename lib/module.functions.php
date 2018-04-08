@@ -1,6 +1,7 @@
 <?php
-#...
+#module-related methods available for every request
 #Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * Extend smarty for moduleinterface.php
@@ -23,18 +22,77 @@
  * @package CMS
  */
 
+/**
+ * Module-directories lister. Checks for directories existence, including $modname if provided.
+ *
+ * @since 2.3
+ * @param string $modname Optional name of a module
+ * @return array of absolute filepaths, no trailing separators, or maybe empty.
+ *  Core-modules-path first, deprecated last.
+ */
+function cms_module_places(string $modname = '') : array
+{
+    $dirlist = [];
+    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
+    if ($modname) {
+        $path .= DIRECTORY_SEPARATOR . $modname;
+    }
+    if (is_dir($path)) {
+        $dirlist[] = $path;
+    }
+    $path = cms_join_path(CMS_ASSETS_PATH,'modules');
+    if ($modname) {
+        $path .= DIRECTORY_SEPARATOR . $modname;
+    }
+    if (is_dir($path)) {
+        $dirlist[] = $path;
+    }
+    // pre-2.3, deprecated
+    $path = cms_join_path(CMS_ROOT_PATH,'modules');
+    if ($modname) {
+        $path .= DIRECTORY_SEPARATOR . $modname;
+    }
+    return $dirlist;
+}
 
 /**
- * A function to call a module as a smarty plugin
+ * Module-file locator which doesn't need the module to be loaded.
+ *
+ * @since 2.3
+ * @param string $modname name of the module.
+ * @return string (maybe empty)
+ */
+function cms_module_path(string $modname) : string
+{
+    // core-modules place
+    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname,$modname.'.module.php');
+    if (is_file($path)) {
+        return $path;
+    }
+    // other-modules place
+    $path = cms_join_path(CMS_ASSETS_PATH,'modules',$modname,$modname.'.module.php');
+    if (is_file($path)) {
+        return $path;
+    }
+    // pre-2.3, deprecated
+    $path = cms_join_path(CMS_ROOT_PATH,'modules',$modname,$modname.'.module.php');
+    if (is_file($path)) {
+        return $path;
+    }
+    return '';
+}
+
+/**
+ * Call a module as a smarty plugin
  * This method is used by the {cms_module} plugin, and internally when {ModuleName} is called
  *
  * @internal
  * @access private
  * @param array A hash of parameters
- * @param object The smarty template object
- * @return string The module output
+ * @param object A Smarty_Internal_Template object
+ * @return mixed The module output string or null
  */
-function cms_module_plugin(array $params, &$smarty) : string
+function cms_module_plugin(array $params, &$template)
 {
     //if( get_class($smarty) == 'Smarty_Parser' ) return; // if we are in the parser, we don't process module calls.
     $modulename = '';
@@ -99,15 +157,15 @@ function cms_module_plugin(array $params, &$smarty) : string
     class_exists($modulename); // autoload? why
     $module = cms_utils::get_module($modulename);
     global $CMS_ADMIN_PAGE, $CMS_LOGIN_PAGE, $CMS_INSTALL;
-    if( $module && ($module->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE) ) ) ) {
+    if( $module && ($module->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE))) ) {
         @ob_start();
-        $result = $module->DoActionBase($action, $id, $params, $returnid,$smarty);
+        $result = $module->DoActionBase($action, $id, $params, $returnid, $template);
         if ($result !== FALSE) echo $result;
         $modresult = @ob_get_contents();
         @ob_end_clean();
 
         if( isset($params['assign']) ) {
-            $smarty->assign(trim($params['assign']),$modresult);
+            $template->assign(trim($params['assign']),$modresult);
             return '';
         }
         return $modresult;
