@@ -1,5 +1,5 @@
 <?php
-// 1. Convert UDT's to simple_plugins, widen users-table columns
+// 1. Convert UDT's to simple plugins, widen users-table columns
 $app = \__appbase\get_app();
 $destdir = $app->get_destdir();
 $config = $app->get_config();
@@ -45,7 +45,7 @@ if( $udt_list ) {
     $dict->ExecuteSQLArray($sqlarr);
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
-    status_msg('Converted User Defined Tags to simple_plugin files');
+    status_msg('Converted User Defined Tags to simple-plugin files');
 
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)' );
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)' );
