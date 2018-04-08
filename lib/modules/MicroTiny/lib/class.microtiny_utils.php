@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace MicroTiny;
+
 class microtiny_utils
 {
 
@@ -36,11 +38,11 @@ class microtiny_utils
       static $first_time = true;
 
       // Check if we are in object instance
-      $config = cms_utils::get_config();
-      $mod = cms_utils::get_module('MicroTiny');
-      if(!is_object($mod)) throw new CmsLogicException('Could not find the microtiny module...');
+      $config = \cms_utils::get_config();
+      $mod = \cms_utils::get_module('MicroTiny');
+      if(!is_object($mod)) throw new \CmsLogicException('Could not find the microtiny module...');
 
-      $frontend = CmsApp::get_instance()->is_frontend_request();
+      $frontend = \CmsApp::get_instance()->is_frontend_request();
       $languageid = self::GetLanguageId($frontend);
       $mtime = time() - 300; // by defaul cache for 5 minutes ??
 
@@ -68,7 +70,7 @@ class microtiny_utils
       // if we have a stylesheet name, use it's modification time as our mtime
       if( $css_name ) {
           try {
-              $css = CmsLayoutStylesheet::load($css_name);
+              $css = \CmsLayoutStylesheet::load($css_name);
               $css_name = $css->get_name();
               $mtime = $css->get_modified();
           }
@@ -79,14 +81,14 @@ class microtiny_utils
       }
 
       // if this is an action for MicroTiny disable caching.
-      $smarty = CmsApp::get_instance()->GetSmarty();
+      $smarty = \CmsApp::get_instance()->GetSmarty();
       $module = $smarty->get_template_vars('actionmodule');
       if( $module == $mod->GetName() ) $mtime = time() + 60;
 
       // also disable caching if told to by the config.php
-      if( isset($config['mt_disable_cache']) && cms_to_bool($config['mt_disable_cache']) ) $mtime = time() + 60;
+      if( isset($config['mt_disable_cache']) && \cms_to_bool($config['mt_disable_cache']) ) $mtime = time() + 60;
 
-      $fn = cms_join_path(PUBLIC_CACHE_LOCATION,'mt_'.md5(__DIR__.session_id().$frontend.$selector.$css_name.$languageid).'.js');
+      $fn = \cms_join_path(PUBLIC_CACHE_LOCATION,'mt_'.md5(__DIR__.session_id().$frontend.$selector.$css_name.$languageid).'.js');
       if( !file_exists($fn) || filemtime($fn) < $mtime ) {
           // we have to generate an mt config js file.
           self::_save_static_config($fn,$frontend,$selector,$css_name,$languageid);
@@ -111,7 +113,7 @@ class microtiny_utils
     if( !$fn ) return;
     $configcontent = self::_generate_config($frontend, $selector, $css_name, $languageid);
     $res = file_put_contents($fn,$configcontent);
-    if( !$res ) throw new CmsFileSystemException('Problem writing data to '.$fn);
+    if( !$res ) throw new \CmsFileSystemException('Problem writing data to '.$fn);
   }
 
   /**
@@ -129,8 +131,8 @@ class microtiny_utils
           return str_replace('&amp;','&',$url).'&cmsjobtype=1';
       };
 
-      $mod = cms_utils::get_module('MicroTiny');
-      $_gCms = CmsApp::get_instance();
+      $mod = \cms_utils::get_module('MicroTiny');
+      $_gCms = \CmsApp::get_instance();
       $config = $_gCms->GetConfig();
       $smarty = $_gCms->GetSmarty();
       $page_id = ($_gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
@@ -181,11 +183,11 @@ class microtiny_utils
    * @return string
    */
   private static function GetLanguageId() {
-    $mylang = CmsNlsOperations::get_current_language();
+    $mylang = \CmsNlsOperations::get_current_language();
     if ($mylang=="") return "en"; //Lang setting "No default selected"
     $shortlang = substr($mylang,0,2);
 
-    $mod = cms_utils::get_module('MicroTiny');
+    $mod = \cms_utils::get_module('MicroTiny');
     $dir = $mod->GetModulePath().'/lib/js/tinymce/langs';
     $langs = array();
     {
@@ -238,9 +240,4 @@ class microtiny_utils
     return $result;
   }
 
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

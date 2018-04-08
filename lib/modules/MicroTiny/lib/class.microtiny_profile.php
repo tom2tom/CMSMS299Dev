@@ -1,5 +1,5 @@
 <?php
-#class microtiny_profile for Microtiny
+#class microtiny_profile for MicroTiny
 #Copyright (C) 2009-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of the Microtiny module for CMS Made Simple
 # <http://dev.cmsmadesimple.org/projects/microtiny>
@@ -16,12 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-class microtiny_profile implements ArrayAccess
+namespace MicroTiny;
+
+class microtiny_profile implements \ArrayAccess
 {
-  private static $_keys = array('menubar','allowimages','showstatusbar','allowresize','formats','name','label','system',
-                                'dfltstylesheet','allowcssoverride','allowtables');
+  private static $_keys = ['menubar','allowimages','showstatusbar','allowresize','formats','name','label','system',
+                                'dfltstylesheet','allowcssoverride','allowtables'];
   private static $_module;
-  private $_data = array();
+  private $_data = [];
 
   public function __construct($data = null)
   {
@@ -59,7 +61,7 @@ class microtiny_profile implements ArrayAccess
       return $this['name'];
 
     default:
-      throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+      throw new \CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
     }
   }
 
@@ -73,7 +75,7 @@ class microtiny_profile implements ArrayAccess
     case 'allowresize':
     case 'allowcssoverride':
     case 'system':
-      $this->_data[$key] = cms_to_bool($value);
+      $this->_data[$key] = \cms_to_bool($value);
       break;
 
     case 'formats':
@@ -88,7 +90,7 @@ class microtiny_profile implements ArrayAccess
       break;
 
     default:
-      throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+      throw new \CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
     }
   }
 
@@ -109,7 +111,7 @@ class microtiny_profile implements ArrayAccess
       return isset($this->_data[$key]);
 
     default:
-      throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+      throw new \CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
     }
   }
 
@@ -130,17 +132,17 @@ class microtiny_profile implements ArrayAccess
 
     case 'system':
     case 'name':
-      throw new CmsLogicException('Cannot unset '.$key.' for '.__CLASS__);
+      throw new \CmsLogicException('Cannot unset '.$key.' for '.__CLASS__);
 
     default:
-      throw new CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
+      throw new \CmsInvalidDataException('invalid key '.$key.' for '.__CLASS__.' object');
     }
   }
 
   public function save()
   {
     if( !isset($this->_data['name']) || $this->_data['name'] == '' ) {
-      throw new CmsInvalidDataException('Invalid microtiny profile name');
+      throw new \CmsInvalidDataException('Invalid microtiny profile name');
     }
 
     $data = serialize($this->_data);
@@ -156,11 +158,11 @@ class microtiny_profile implements ArrayAccess
 
   private static function &_load_from_data($data)
   {
-    if( !is_array($data) || !count($data) ) throw new CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
+    if( !is_array($data) || !count($data) ) throw new \CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
 
-    $obj = new microtiny_profile;
+    $obj = new self();
     foreach( $data as $key => $value ) {
-      if( !in_array($key,self::$_keys) ) throw new CmsInvalidDataException('Invalid key '.$key.' for data in .'.__CLASS__);
+      if( !in_array($key,self::$_keys) ) throw new \CmsInvalidDataException('Invalid key '.$key.' for data in .'.__CLASS__);
       $obj->_data[$key] = trim($value);
     }
     return $obj;
@@ -174,14 +176,14 @@ class microtiny_profile implements ArrayAccess
   private static function _get_module()
   {
     if( is_object(self::$_module) ) return self::$_module;
-    return cms_utils::get_module('MicroTiny');
+    return \cms_utils::get_module('MicroTiny');
   }
 
   public static function load($name)
   {
     if( $name == '' ) return;
     $data = self::_get_module()->GetPreference('profile_'.$name);
-    if( !$data ) throw new CmsInvalidDataException('Unknown microtiny profile '.$name);
+    if( !$data ) throw new \CmsInvalidDataException('Unknown microtiny profile '.$name);
 
     $obj = new self();
     $obj->_data = unserialize($data);
@@ -194,6 +196,4 @@ class microtiny_profile implements ArrayAccess
     return self::_get_module()->ListPreferencesByPrefix($prefix);
   }
 
-} // end of class
-
-?>
+} //class
