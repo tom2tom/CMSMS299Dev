@@ -1,6 +1,6 @@
 <?php
 /*
-class Connection: represents a MySQL database connection
+Class Connection: represents a MySQL database connection
 Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http:www.cmsmadesimple.org>
 
@@ -29,7 +29,7 @@ class Connection extends \CMSMS\Database\Connection
     private $_asyncQ = []; // queue of cached results from prior pretend-async commands, pending pretend-reaps
 
     /*
-     * @param array $config assoc. array of db connection parameters etc,
+     * @param array $config Optional assoc. array of db connection parameters etc,
      * including at least:
      *  'db_hostname'
      *  'db_username'
@@ -40,9 +40,10 @@ class Connection extends \CMSMS\Database\Connection
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true
      */
-    public function __construct($config)
+    public function __construct($config = null)  //installer-API
     {
         if (class_exists('\mysqli')) {
+            if (!$config) $config =  \cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
                 $this->_mysql = new \mysqli(
@@ -52,10 +53,10 @@ class Connection extends \CMSMS\Database\Connection
                 if (!$this->_mysql->connect_error) {
                     parent::__construct();
                     $this->_type = 'mysqli';
-                    if (!empty($config['set_names'])) {
+                    if (!empty($config['set_names'])) { //N/A during installation
                         $this->_mysql->set_charset('utf8');
                     }
-                    if (!empty($config['set_db_timezone'])) {
+                    if (!empty($config['set_db_timezone'])) { //ditto
                         try {
                             $dt = new \DateTime(new \DateTimeZone($config['timezone']));
                         } catch (\Exception $e) {
@@ -413,7 +414,7 @@ class Connection extends \CMSMS\Database\Connection
     public function createSequence($seqname, $startID = 0)
     {
         //TODO ensure this is really an upsert, cuz' can be repeated during failed installation
-        $rs = $this->do_sql("CREATE TABLE $seqname (id I(4) UNSIGNED) ENGINE=MYISAM COLLATE ascii_general_ci");
+        $rs = $this->do_sql("CREATE TABLE $seqname (id INT(4) UNSIGNED) ENGINE=MYISAM COLLATE ascii_general_ci");
         if ($rs) {
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
