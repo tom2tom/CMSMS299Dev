@@ -1,9 +1,9 @@
 <?php
 if (!isset($gCms)) exit;
 
+//best to avoid module-specific class autoloading during installation
 if( !class_exists('news_admin_ops') ) {
-  // this is required if called from the installer
-  $fn = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'class.news_admin_ops.php';
+  $fn = cms_join_path(__DIR__,'lib','class.news_admin_ops.php');
   require_once($fn);
 }
 
