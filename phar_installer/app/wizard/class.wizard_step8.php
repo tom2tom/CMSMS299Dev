@@ -13,30 +13,9 @@ class wizard_step8 extends \cms_autoinstaller\wizard_step
 
     private function &db_connect($destconfig)
     {
-        $spec = new \CMSMS\Database\ConnectionSpec;
-        if( isset($destconfig['dbms']) ) {
-            $spec->type = $destconfig['dbms'];
-            $spec->host = $destconfig['db_hostname'];
-            $spec->username = $destconfig['db_username'];
-            $spec->password = $destconfig['db_password'];
-            $spec->dbname = $destconfig['db_name'];
-            $spec->prefix = $destconfig['db_prefix'];
-        }
-        else {
-            $spec->type = $destconfig['dbtype'];
-            $spec->host = $destconfig['dbhost'];
-            $spec->username = $destconfig['dbuser'];
-            $spec->password = $destconfig['dbpass'];
-            $spec->dbname = $destconfig['dbname'];
-            $spec->port = isset($destconfig['dbport']) ? $destconfig['dbport'] : null;
-            $spec->prefix = $destconfig['dbprefix'];
-        }
-        if( !defined('CMS_DB_PREFIX')) define('CMS_DB_PREFIX',$spec->prefix);
-        $db = \CMSMS\Database\Connection::initialize($spec);
-        $obj =& $this;
-        $db->SetErrorHandler(function() { /* do nohing */ });
+        if( !defined('CMS_DB_PREFIX') ) define('CMS_DB_PREFIX',$destconfig['db_prefix']);
+		$db = new \CMSMS\Database\mysqli\Connection($destconfig);
         $db->Execute("SET NAMES 'utf8'");
-        \CMSMS\Database\compatibility::noop();
         \CmsApp::get_instance()->_setDb($db);
         return $db;
     }
@@ -50,8 +29,8 @@ class wizard_step8 extends \cms_autoinstaller\wizard_step
         $CMS_PHAR_INSTALLER = 1;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
 
-        // setup and initialize the cmsms API's
-        // note DONT_LOAD_DB and DONT_LOAD_SMARTY are used.
+        // setup and initialize the CMSMS API's
+        // note DONT_LOAD_DB and DONT_LOAD_SMARTY are true
         if( is_file("$destdir/include.php") ) {
             include_once($destdir.'/include.php');
         }
@@ -129,7 +108,7 @@ class wizard_step8 extends \cms_autoinstaller\wizard_step
             \cms_siteprefs::set('global_umask','022');
         }
         catch( \Exception $e ) {
-	    die('got exception');
+	        die('got exception');
             $this->error($e->GetMessage());
         }
     }
@@ -227,16 +206,16 @@ class wizard_step8 extends \cms_autoinstaller\wizard_step
 
         $this->message(\__appbase\lang('install_createconfig'));
         $newconfig = \cms_config::get_instance();
-        $newconfig['dbms'] = trim($destconfig['dbtype']);
-        $newconfig['db_hostname'] = trim($destconfig['dbhost']);
-        $newconfig['db_username'] = trim($destconfig['dbuser']);
-        $newconfig['db_password'] = trim($destconfig['dbpass']);
-        $newconfig['db_name'] = trim($destconfig['dbname']);
-        $newconfig['db_prefix'] = trim($destconfig['dbprefix']);
+        $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']);
+        $newconfig['db_hostname'] = trim($destconfig['db_hostname']);
+        $newconfig['db_username'] = trim($destconfig['db_username']);
+        $newconfig['db_password'] = trim($destconfig['db_password']);
+        $newconfig['db_name'] = trim($destconfig['db_name']);
+        $newconfig['db_prefix'] = trim($destconfig['db_prefix']);
         $newconfig['timezone'] = trim($destconfig['timezone']);
         if( $destconfig['query_var'] ) $newconfig['query_var'] = trim($destconfig['query_var']);
-        if( isset($destconfig['dbport']) ) {
-            $num = (int)$destconfig['dbport'];
+        if( isset($destconfig['db_port']) ) {
+            $num = (int)$destconfig['db_port'];
             if( $num > 0 ) $newconfig['db_port'] = $num;
         }
         $newconfig->save();
