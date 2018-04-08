@@ -139,7 +139,7 @@ while( false !== ($filename = $dh->read()) ) {
   $file['filetype'] = set_filetype($file['ext']);
   $file['dimensions'] = '';
   if( $file['is_image'] ) {
-    $file['thumbnail'] = microtiny_utils::GetThumbnailFile($filename,$startdir,$starturl);
+    $file['thumbnail'] = MicroTiny\microtiny_utils::GetThumbnailFile($filename,$startdir,$starturl);
     $imgsize = @getimagesize($fullname);
     if( $imgsize ) $file['dimensions'] = $imgsize[0].' x '.$imgsize[1];
   }

@@ -22,11 +22,11 @@ if (!$this->VisibleToAdminUser()) return;
 // some default profiles
 
 try {
-  $list = microtiny_profile::list_all();
+  $list = MicroTiny\microtiny_profile::list_all();
   if( !is_array($list) || count($list) == 0 ) throw new CmsInvalidDataException('No profiles found');
   $profiles = array();
   foreach( $list as $one ) {
-    $profiles[] = microtiny_profile::load($one);
+    $profiles[] = MicroTiny\microtiny_profile::load($one);
   }
   $smarty->assign('profiles',$profiles);
   echo $this->ProcessTemplate('settings.tpl');

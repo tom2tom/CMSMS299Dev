@@ -31,7 +31,7 @@ try {
   }
 
   // load the profile
-  $profile = microtiny_profile::load($name);
+  $profile = MicroTiny\microtiny_profile::load($name);
 
   if( isset($params['submit']) ) {
     //
