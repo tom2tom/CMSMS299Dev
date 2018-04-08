@@ -3,8 +3,8 @@
 namespace cms_autoinstaller;
 use \__appbase\utils;
 
-include_once __DIR__.'/lib/compat.functions.php';
-include_once dirname(__DIR__).'/lib/classes/base/class.app.php';
+require_once __DIR__.'/lib/compat.functions.php';
+require_once dirname(__DIR__).'/lib/classes/base/class.app.php';
 
 class cms_install extends \__appbase\app
 {
