@@ -62,9 +62,9 @@ require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
 require_once $dirname.'misc.functions.php'; //some used in config setup
 cms_config::get_instance(); //populate relevant defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php';
+require_once $dirname.'module.functions.php'; //some used in autoloader
 require_once $dirname.'autoloader.php';
 require_once $dirname.'compat.functions.php';
-require_once $dirname.'module.functions.php';
 require_once $dirname.'page.functions.php';
 if ($CMS_JOB_TYPE < 2) {
     require_once $dirname.'translation.functions.php';
