@@ -50,7 +50,7 @@ $instmodules = '';
 }
 
 $caninstall = true;
-foreach (cms_admin_utils::module_places() as $dir) {
+foreach (cms_module_places() as $dir) {
    if (!is_dir($dir) || !is_writable($dir)) {
 	   $caninstall = false;
 	   break;
