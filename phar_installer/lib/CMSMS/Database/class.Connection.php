@@ -34,7 +34,7 @@ namespace CMSMS\Database;
  * </ul>
  *
  * @author Robert Campbell
- * @copyright Copyright (C) 2017 Robert Campbell <calguy1000@cmsmadesimple.org>
+ * @copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
  *
  * @since 2.2
  */
@@ -128,7 +128,6 @@ abstract class Connection
 
     /**
      * Construct a new Connection.
-     *
      */
     public function __construct()
     {
@@ -312,14 +311,14 @@ abstract class Connection
 
     /**
      * As for execute, but non-blocking. Works as such only if the native driver
-	 * is present. Otherwise reverts to normal execution, and caches the result.
-	 */
+     * is present. Otherwise reverts to normal execution, and caches the result.
+     */
     abstract public function async_execute($sql, $valsarr = null);
 
     /**
      * Get result from async SQL query. If the native driver is not present, this
-	 * just returns the cached result of the prior not-really-async command.
-	 */
+     * just returns the cached result of the prior not-really-async command.
+     */
     abstract public function reap();
 
     /**
@@ -811,10 +810,12 @@ abstract class Connection
 
     protected function on_error($errtype, $error_number, $error_msg)
     {
-        debug_to_log("Database error: $errtype($error_number) - $error_msg");
-        debug_bt_to_log();
-        if ($this->_debug) {
-            \CmsApp::get_instance()->add_error(debug_display($error_msg, '', false, true));
+        if (function_exists('\\debug_to_log')) { //N/A during installation
+            \debug_to_log("Database error: $errtype($error_number) - $error_msg");
+            \debug_bt_to_log();
+            if ($this->_debug) {
+                \CmsApp::get_instance()->add_error(\debug_display($error_msg, '', false, true));
+            }
         }
     }
 
@@ -823,7 +824,7 @@ abstract class Connection
     /**
      * Create a new database connection object.
      *
-     * @deprecated - use new <namespace>\mysqli\Connection($config)
+     * @deprecated - use new <namespace>\mysqli\Connection()
      *
      */
     public static function Initialize()
