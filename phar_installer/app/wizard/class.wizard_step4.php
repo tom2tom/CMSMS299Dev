@@ -10,107 +10,117 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
 
     public function __construct()
     {
+        if( !extension_loaded('mysqli') ) throw new \Exception(\__appbase\lang('error_nodatabases'));
+
         parent::__construct();
 
         $tz = date_default_timezone_get();
-        if( !$tz ) @date_default_timezone_set('UTC');
-        $this->_config = array('dbtype'=>'','dbhost'=>'localhost','dbname'=>'','dbuser'=>'',
-                               'dbpass'=>'','dbprefix'=>'cms_','dbport'=>'',
-                               'samplecontent'=>TRUE,
-                               'query_var'=>'','timezone'=>$tz);
+        if( !$tz ) {
+			$tz = 'UTC';
+			@date_default_timezone_set('UTC');
+		}
+        $this->_config = [
+//			'db_type'=>'mysqli',
+			'db_hostname'=>'localhost',
+			'db_name'=>'',
+			'db_username'=>'',
+            'db_password'=>'',
+			'db_prefix'=>'cms_',
+			'db_port'=>'',
+			'timezone'=>$tz,
+            'query_var'=>'',
+            'samplecontent'=>TRUE,
+		];
 
         // get saved data
         $tmp = $this->get_wizard()->get_data('config');
         if( $tmp ) $this->_config = array_merge($this->_config,$tmp);
 
-        if( !extension_loaded('mysqli') ) throw new \Exception(\__appbase\lang('error_nodatabases'));
-
         $action = $this->get_wizard()->get_data('action');
         if( $action == 'freshen' || $action == 'upgrade' ) {
-            // read config data from config.php for freshen action.
+            // read config data from config.php for these actions
             $app = \__appbase\get_app();
             $destdir = $app->get_destdir();
-            $config_file = $destdir.'/config.php';
-            include_once($config_file);
-            $this->_config['dbtype'] = $config['dbms'];
-            $this->_config['dbhost'] = $config['db_hostname'];
-            $this->_config['dbuser'] = $config['db_username'];
-            $this->_config['dbpass'] = $config['db_password'];
-            $this->_config['dbname'] = $config['db_name'];
-            $this->_config['dbprefix'] = $config['db_prefix'];
-            if( isset($config['db_port']) ) $this->_config['dbport'] = $config['db_port'];
-            if( isset($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
+            $config_file = $destdir.DIRECTORY_SEPARATOR.'config.php';
+            include_once $config_file;
+//            $this->_config['db_type'] = $config['dbms'];
+            $this->_config['db_hostname'] = $config['db_hostname'];
+            $this->_config['db_username'] = $config['db_username'];
+            $this->_config['db_password'] = $config['db_password'];
+            $this->_config['db_name'] = $config['db_name'];
+            $this->_config['db_prefix'] = $config['db_prefix'];
+            if( isset($config['db_port']) ) $this->_config['db_port'] = $config['db_port'];
             if( isset($config['timezone']) ) $this->_config['timezone'] = $config['timezone'];
+            if( isset($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
         }
     }
 
     private function validate($config)
     {
-        if( empty($config['dbtype']) ) throw new \Exception(\__appbase\lang('error_nodbtype'));
-        if( empty($config['dbhost']) ) throw new \Exception(\__appbase\lang('error_nodbhost'));
-        if( empty($config['dbname']) ) throw new \Exception(\__appbase\lang('error_nodbname'));
-        if( empty($config['dbuser']) ) throw new \Exception(\__appbase\lang('error_nodbuser'));
-        if( empty($config['dbpass']) ) throw new \Exception(\__appbase\lang('error_nodbpass'));
-        if( empty($config['dbprefix']) ) throw new \Exception(\__appbase\lang('error_nodbprefix'));
+//        if( empty($config['db_type']) ) throw new \Exception(\__appbase\lang('error_nodbtype'));
+        if( empty($config['db_hostname']) ) throw new \Exception(\__appbase\lang('error_nodbhost'));
+        if( empty($config['db_name']) ) throw new \Exception(\__appbase\lang('error_nodbname'));
+        if( empty($config['db_username']) ) throw new \Exception(\__appbase\lang('error_nodbuser'));
+        if( empty($config['db_password']) ) throw new \Exception(\__appbase\lang('error_nodbpass'));
+        if( empty($config['db_prefix']) ) throw new \Exception(\__appbase\lang('error_nodbprefix'));
         if( empty($config['timezone']) ) throw new \Exception(\__appbase\lang('error_notimezone'));
 
+		//TODO filter_var($config['query_var'], FILTER_SANITIZE ...);
         $re = '/^[a-zA-Z0-9_\.]*$/';
-        if( isset($config['query_var']) && $config['query_var'] && !preg_match($re,$config['query_var']) ) {
+        if( !empty($config['query_var']) && !preg_match($re,$config['query_var']) ) {
             throw new \Exception(\__appbase\lang('error_invalidqueryvar'));
         }
 
         $all_timezones = timezone_identifiers_list();
         if( !in_array($config['timezone'],$all_timezones) ) throw new \Exception(\__appbase\lang('error_invalidtimezone'));
 
-        if( $config['dbpass'] ) {
-            if( strpos($config['dbpass'],"'") !== FALSE || strpos($config['dbpass'],'\\') !== FALSE ) {
+		$config['db_password'] = trim($config['db_password']);
+        if( $config['db_password'] ) {
+            $tmp = filter_var($config['db_password'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
+            if( $tmp != $config['db_password'] ) {
                 throw new \Exception(\__appbase\lang('error_invaliddbpassword'));
             }
         }
 
         // try a test connection
-        $spec = new \CMSMS\Database\ConnectionSpec; //TODO CHECK this works
-        $spec->type = $config['dbtype'];
-        $spec->host = $config['dbhost'];
-        $spec->username = $config['dbuser'];
-        $spec->password = $config['dbpass'];
-        $spec->dbname = $config['dbname'];
-        $spec->port = isset($config['dbport']) ? $config['dbport'] : null;
-        $spec->prefix = $config['dbprefix'];
-        $db = \CMSMS\Database\Connection::initialize($spec); //TODO CHECK this works
-        $db->Execute("SET NAMES 'utf8'");
-
+		try {
+	        $db = new \CMSMS\Database\mysqli\Connection($config);
+		}
+        catch( \Exception $e ) {
+            throw new \Exception(\__appbase\lang('error_createtable'));
+        }
         // see if we can create and drop a table.
         $action = $this->get_wizard()->get_data('action');
         try {
-            $db->Execute('CREATE TABLE '.$config['dbprefix'].'_dummyinstall (i int)');
+            $db->Execute('CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)');
         }
         catch( \Exception $e ) {
             throw new \Exception(\__appbase\lang('error_createtable'));
         }
 
         try {
-            $db->Execute('DROP TABLE '.$config['dbprefix'].'_dummyinstall');
+            $db->Execute('DROP TABLE '.$config['db_prefix'].'_dummyinstall');
         }
         catch( \Exception $e ) {
             throw new \Exception(\__appbase\lang('error_droptable'));
         }
 
-        // see if a smatering of core tables exist
+        // see if a smattering of core tables exist
         if( $action == 'install' ) {
             try {
-                $res = $db->GetOne('SELECT content_id FROM '.$config['dbprefix'].'content');
+                $res = $db->GetOne('SELECT content_id FROM '.$config['db_prefix'].'content');
                 if( $res > 0 ) throw new \Exception(\__appbase\lang('error_cmstablesexist'));
             }
-            catch( \CMSMS\Database\DatabaseException $e ) {
+            catch( \LogicException $e ) {
                 // if this fails it's not a problem
             }
 
             try {
-                $db->GetOne('SELECT module_name FROM '.$config['dbprefix'].'modules');
+                $db->GetOne('SELECT module_name FROM '.$config['db_prefix'].'modules');
                 if( $res > 0 ) throw new \Exception(\__appbase\lang('error_cmstablesexist'));
             }
-            catch( \CMSMS\Database\DatabaseException $e ) {
+            catch( \LogicException $e ) {
                 // if this fails it's not a problem.
             }
         }
@@ -118,17 +128,23 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
 
     protected function process()
     {
-		$this->_config['dbtype'] = 'mysqli';
-        $this->_config['dbhost'] = trim(\__appbase\utils::clean_string($_POST['dbhost']));
-        $this->_config['dbname'] = trim(\__appbase\utils::clean_string($_POST['dbname']));
-        $this->_config['dbuser'] = trim(\__appbase\utils::clean_string($_POST['dbuser']));
-        $this->_config['dbpass'] = trim(\__appbase\utils::clean_string($_POST['dbpass']));
-        $this->_config['timezone'] = trim(\__appbase\utils::clean_string($_POST['timezone']));
-        if( isset($_POST['dbtype']) ) $this->_config['dbtype'] = trim(\__appbase\utils::clean_string($_POST['dbtype']));
-        if( isset($_POST['dbport']) ) $this->_config['dbport'] = trim(\__appbase\utils::clean_string($_POST['dbport']));
-        if( isset($_POST['dbprefix']) ) $this->_config['dbprefix'] = trim(\__appbase\utils::clean_string($_POST['dbprefix']));
-        if( isset($_POST['query_var']) ) $this->_config['query_var'] = trim(\__appbase\utils::clean_string($_POST['query_var']));
-        if( isset($_POST['samplecontent']) ) $this->_config['samplecontent'] = (int)$_POST['samplecontent'];
+		$this->_config['db_type'] = 'mysqli';
+//        if( isset($_POST['db_type']) ) $this->_config['db_type'] = trim(\__appbase\utils::clean_string($_POST['db_type']));
+        $this->_config['db_hostname'] = trim(filter_var($_POST['db_hostname'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+        $this->_config['db_name'] = trim(filter_var($_POST['db_name'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+        $this->_config['db_username'] = trim(filter_var($_POST['db_username'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+        $this->_config['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
+        if( isset($_POST['db_port']) ) $this->_config['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
+        if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = trim(filter_var($_POST['db_prefix'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
+        $this->_config['timezone'] = trim(filter_var($_POST['timezone'], FILTER_SANITIZE_STRING));
+        if( isset($_POST['query_var']) ) $this->_config['query_var'] = trim(filter_var($_POST['query_var'], FILTER_SANITIZE_STRING,
+			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
+        if( isset($_POST['samplecontent']) ) $this->_config['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
         $this->get_wizard()->set_data('config',$this->_config);
 
         try {
@@ -162,7 +178,7 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
         if( !is_array($tmp) ) throw new \Exception(\__appbase\lang('error_tzlist'));
         $tmp2 = array_combine(array_values($tmp),array_values($tmp));
         $smarty->assign('timezones',array_merge(array(''=>\__appbase\lang('none')),$tmp2));
-        $smarty->assign('dbtypes',$this->_dbms_options);
+//        $smarty->assign('db_types',$this->_dbms_options);
         $smarty->assign('action',$this->get_wizard()->get_data('action'));
         $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
         $smarty->assign('config',$this->_config);
