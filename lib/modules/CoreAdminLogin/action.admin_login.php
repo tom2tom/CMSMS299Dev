@@ -161,6 +161,7 @@ $encoding = 'utf8'; //TODO dynamic
 $header_includes = ''; //TODO dynamic
 $bottom_includes = ''; //TODO dynamic
 $baseurl = $this->GetModuleURLPath();
+$actionurl = ''; //TODO
 
 // display the login form
 
@@ -173,8 +174,9 @@ $tpl->assign([
     'encoding' => $encoding,
     'header_includes' => $header_includes,
     'bottom_includes' => $bottom_includes,
-    'module_url' => $baseurl,
     'root_url'=> CMS_ROOT_URL,
+    'module_url' => $baseurl,
+    'action_url' => $actionurl,
     'csrf' => $csrf,
     'error' => $error,
     'warning' => $warning,
