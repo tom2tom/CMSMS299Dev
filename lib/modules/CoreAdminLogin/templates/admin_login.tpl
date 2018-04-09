@@ -1,4 +1,4 @@
-<doctype html>
+<!doctype html>
 <html lang="{$lang_code}" dir="{$lang_dir}">
 <head>
   <meta charset="{$encoding}" />
