@@ -19,21 +19,23 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Site Preferences');
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!$access) {
-    die('Permission Denied');
+//TODO some immediate popup    $themeObject->RecordMessage('error', lang('needpermissionto', '"Modify Site Preferences"'));
+    return;
 }
 
-include_once 'header.php';
-
 define('CMS_BASE', dirname(__DIR__));
-require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
 
+require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
 
 function installerHelpLanguage($lang, $default_null=null)
 {
@@ -60,11 +62,41 @@ function systeminfo_lang($params, &$smarty)
     }
 }
 
-$gCms = cmsms();
-$smarty = $gCms->GetSmarty();
+if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
+    $out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function fnSelect(objId) {
+ fnDeSelect();
+ if(document.selection) {
+  var range = document.body.createTextRange();
+  range.moveToElementText(document.getElementById(objId));
+  range.select();
+ } else if(window.getSelection) {
+  var range = document.createRange();
+  range.selectNode(document.getElementById(objId));
+  window.getSelection().addRange(range);
+ }
+}
+function fnDeSelect() {
+ if(document.selection)
+  document.selection.empty();
+ else if(window.getSelection)
+  window.getSelection().removeAllRanges();
+}
+$(document).ready(function() {
+ fnSelect('copy_paste_in_forum');
+});
+//]]>
+</script>
+EOS;
+	$themeObject->add_footertext($out);
+}
+
+$db = cmsms()->GetDb();
+$smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->register_function('si_lang', 'systeminfo_lang');
 $smarty->force_compile = true;
-$db = $gCms->GetDb();
 
 //smartyfier
 $smarty->assign('themename', $themeObject->themeName);
@@ -95,13 +127,12 @@ $tmp[0]['page_extension'] = testConfig('page_extension', 'page_extension');
 $tmp[0]['query_var'] = testConfig('query_var', 'query_var');
 
 $tmp[1]['root_url'] = testConfig('root_url', 'root_url');
-$tmp[1]['ssl_url'] = testConfig('ssl_url', 'ssl_url');
 $tmp[1]['root_path'] = testConfig('root_path', 'root_path', 'testDirWrite');
+$tmp[1]['scripts_url'] = testConfig('scripts_url', 'scripts_url');
 $tmp[1]['uploads_path'] = testConfig('uploads_path', 'uploads_path', 'testDirWrite');
 $tmp[1]['uploads_url'] = testConfig('uploads_url', 'uploads_url');
 $tmp[1]['image_uploads_path'] = testConfig('image_uploads_path', 'image_uploads_path', 'testDirWrite');
 $tmp[1]['image_uploads_url'] = testConfig('image_uploads_url', 'image_uploads_url');
-$tmp[1]['ssl_uploads_url'] = testConfig('ssl_uploads_url', 'ssl_uploads_url');
 $tmp[0]['auto_alias_content'] = testConfig('auto_alias_content', 'auto_alias_content');
 $tmp[0]['locale'] = testConfig('locale', 'locale');
 //$tmp[0]['default_encoding'] = testConfig('default_encoding', 'default_encoding');
@@ -309,8 +340,8 @@ $tmp[0]['templates_c'] = testDirWrite(0, $dir, $dir);
 $flag = true;
 $count = 0;
 foreach (cms_module_places() as $dir) {
-	$flag = $flag && testDirWrite(0, $dir, $dir);
-	++$count;
+    $flag = $flag && testDirWrite(0, $dir, $dir);
+    ++$count;
 }
 $tmp[0]['modules'] = $flag && ($count > 0);
 
@@ -329,6 +360,8 @@ $smarty->assign('permission_info', $tmp);
 
 $smarty->assign('selfurl', basename(__FILE__));
 $smarty->assign('urlext', $urlext);
+
+include_once 'header.php';
 
 if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
     $orig_lang = CmsNlsOperations::get_current_language();
