@@ -16,7 +16,7 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $db->DropSequence(CMS_DB_PREFIX.'permissions_seq');
     $db->DropSequence(CMS_DB_PREFIX.'users_seq');
 
-    $dbdict = NewDataDictionary($db);
+    $dbdict = GetDataDictionary($db);
 
     $sqlarray = $dbdict->DropIndexSQL('idx_template_id_modified_date');
     $dbdict->ExecuteSQLArray($sqlarray);
@@ -87,7 +87,7 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
         @$db->Execute('ALTER DATABASE `' . $db->database . '` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
     }
 
-    $dbdict = NewDataDictionary($db);
+    $dbdict = GetDataDictionary($db);
     $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
     //  $innotaboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
 

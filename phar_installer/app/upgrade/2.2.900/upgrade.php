@@ -40,7 +40,7 @@ if( $udt_list ) {
         $create_simple_plugin( $udt, $to );
     }
 
-    $dict = NewDataDictionary($db);
+    $dict = GetDataDictionary($db);
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins_seq');
     $dict->ExecuteSQLArray($sqlarr);
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
