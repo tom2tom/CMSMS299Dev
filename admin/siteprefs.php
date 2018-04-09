@@ -135,7 +135,7 @@ $frontendlang = cms_siteprefs::get('frontendlang', '');
 $frontendwysiwyg = cms_siteprefs::get('frontendwysiwyg', '');
 $global_umask = cms_siteprefs::get('global_umask', '022');
 $lock_timeout = (int)cms_siteprefs::get('lock_timeout', 60);
-$login_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
+$login_module = cms_siteprefs::get('loginmodule', '');
 $logintheme = cms_siteprefs::get('logintheme', 'default');
 $mail_is_set = cms_siteprefs::get('mail_is_set', 0);
 $metadata = cms_siteprefs::get('metadata', '');
@@ -285,10 +285,10 @@ if(isset($_POST['submit'])) {
                     $search_module = '';
                 }
                 cms_siteprefs::set('searchmodule', $search_module);
-                if(!empty($_POST['login_module']) && $_POST['login_module'] != -1) {
-                    $login_module = trim($_POST['search_module']);
+                if(!empty($_POST['login_module'])) {
+                    $login_module = trim($_POST['login_module']);
                 } else {
-                    $login_module = 'CoreAdminLogin';
+                    $login_module = '';
                 }
                 cms_siteprefs::set('loginmodule', $login_module);
                 break;
@@ -514,18 +514,19 @@ if (is_array($modules) && ($n = count($modules))) {
 }
 $smarty->assign('search_modules', $tmp);
 
+$tmp = ['' => lang('theme')];
 $modules = $modops->get_modules_with_capability('adminlogin');
-if (is_array($modules) && ($n = count($modules)) > 1) {
-    $tmp = [-1 => lang('default')];
+if (is_array($modules)) {
     for ($i = 0; $i < $n; $i++) {
-        $tmp[$modules[$i]] = $modules[$i];
+		if ($modules[$i] == 'CoreAdminLogin') {
+            $tmp[$modules[$i]] = lang('default');
+		} else {
+           $tmp[$modules[$i]] = $modules[$i];
+		}
     }
-    $smarty->assign('login_module', $login_module);
-    $smarty->assign('login_modules', $tmp);
-} else {
-    $smarty->assign('login_module', lang('default'));
-    $smarty->assign('login_modules', null);
 }
+$smarty->assign('login_module', $login_module);
+$smarty->assign('login_modules', $tmp);
 
 $maileritems = [];
 $maileritems['mail'] = 'mail';
