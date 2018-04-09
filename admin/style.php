@@ -41,7 +41,7 @@ $theme = $themeObject->themeName;
 $style="style";
 cms_admin_sendheaders('text/css');
 
-$dir = cms_admin_utils::lang_direction();
+$dir = CmsNlsOperations::get_language_direction();
 if( $dir == 'rtl' ) $style.="-rtl";
 if (isset($_GET['ie'])) $style.="_ie";
 $style .= ".css";
