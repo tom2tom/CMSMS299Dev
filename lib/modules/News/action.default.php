@@ -31,8 +31,7 @@ if (isset($params['detailpage'])) {
     $params['detailpage'] = $detailpage;
 }
 if (isset($params['browsecat']) && $params['browsecat']==1) {
-    $this->DoAction('browsecat', $id, $params, $returnid);
-    return;
+    return $this->DoAction('browsecat', $id, $params, $returnid);
 }
 
 $entryarray = [];

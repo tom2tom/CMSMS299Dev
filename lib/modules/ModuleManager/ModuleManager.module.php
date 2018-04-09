@@ -90,7 +90,7 @@ class ModuleManager extends CMSModule
           $smarty->assign($this->GetName(), $this);
           $smarty->assign('mod', $this);
         */
-        parent::DoAction( $action, $id, $params, $returnid );
+        return parent::DoAction( $action, $id, $params, $returnid );
     }
 
     public function HasCapability($capability,$params = array())
