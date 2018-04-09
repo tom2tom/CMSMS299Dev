@@ -60,7 +60,7 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
     public function do_install()
     {
         $app = \__appbase\get_app();
-        $destdir = \__appbase\get_app()->get_destdir();
+        $destdir = $app->get_destdir();
         if( !$destdir ) throw new \Exception(\__appbase\lang('error_internal',901));
 /* done in step 8
         // create tmp directories
@@ -72,16 +72,30 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         $this->message(\__appbase\lang('install_modules'));
         $this->connect_to_cmsms($destdir);
         $modops = \cmsms()->GetModuleOperations();
-        $allmodules = $modops->FindAllModules();
-        foreach( $allmodules as $name ) {
-            // force-load all system modules. If a system module
-            // needs upgrade, it should automagically happen.
-            if( $modops->IsSystemModule($name) ) {
-                $this->verbose(\__appbase\lang('install_module', $name));
-                //CHECKME $modops->InstallModule() is not viable at this stage of the installation
-//              if( !$this->mod_install($name) ) {
-//                  $this->verbose(' >> '.$name.' '.\__appbase\lang('error_moduleinstallfailed'));
-//              }
+        $db = \cmsms()->GetDb();
+        $stmt1 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
+(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
+VALUES (?,?,\'installed\',?,1,?,?)');
+        $stmt2 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
+(parent_module,child_module,minimum_version,create_date,modified_date)
+VALUES (?,?,?,NOW(),NOW())');
+
+        $patn = $destdir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.'*';
+        $dirs = glob($patn, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_ONLYDIR);
+        $patn = $destdir.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.'*';
+        $dirs = array_merge($dirs, glob($patn, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_ONLYDIR));
+
+        foreach ($dirs as $bp) {
+            $modname = basename($bp);
+            $fp = $bp.DIRECTORY_SEPARATOR.$modname.'.module.php';
+            if (file_exists($fp)) {
+                require_once $fp;
+                $modname = '\\'.$modname;
+                $module_obj = new $modname();
+                if ($module_obj) {
+                    $this->verbose(\__appbase\lang('install_module', $modname));
+                    $this->mod_install($modops, $module_obj, $db, $stmt1, $stmt2);
+                }
             }
         }
 
@@ -92,7 +106,7 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         $root_url = $app->get_root_url();
         if( !endswith($root_url,'/') ) $root_url .= '/';
         $admin_url = $root_url.'admin';
-
+/*
         if( is_array($adminacct) && isset($adminacct['emailaccountinfo']) && $adminacct['emailaccountinfo'] && isset($adminacct['emailaddr']) && $adminacct['emailaddr'] ) {
             try {
                 $this->message(\__appbase\lang('send_admin_email'));
@@ -117,9 +131,8 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
             catch( \Exception $e ) {
                 $this->error(\__appbase\lang('error_sendingmail').': '.$e->GetMessage());
             }
-
         }
-
+*/
         // todo: set initial preferences.
 
         // todo: write history
@@ -184,15 +197,54 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
         if( is_file("$destdir/include.php") ) {
             include_once($destdir.'/include.php');
-        }
-        else {
+        } else {
             include_once($destdir.'/lib/include.php');
         }
 
+        if( !defined('CMS_VERSION') ) {
+            define('CMS_VERSION',$CMS_VERSION);
+        }
         // we do this here, because the config.php class may not set the define when in an installer.
         if( !defined('CMS_DB_PREFIX') ) {
             $config = \cms_config::get_instance();
             define('CMS_DB_PREFIX',$config['db_prefix']);
+        }
+    }
+
+    private function mod_install(\ModuleOperations &$modops, \CmsModule &$module_obj, $db, $stmt1, $stmt2)
+    {
+        $result = $module_obj->Install();
+        if( !isset($result) || $result === FALSE ) {
+            // a successful installation
+            $modname = $module_obj->GetName();
+            $admin = ($module_obj->IsAdminOnly()) ? 1 : 0;
+            $lazy_fe = ($admin || (method_exists($module_obj,'LazyLoadFrontend') && $module_obj->LazyLoadFrontend())) ? 1 : 0;
+            $lazy_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin()) ? 1 : 0;
+/*
+stmt1: 'INSERT INTO '.CMS_DB_PREFIX.'modules
+(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
+VALUES (?,?,\'installed\',?,1,?,?)');
+ */
+            $rs = $db->Execute($stmt1, [
+                $modname,$module_obj->GetVersion(),$admin,$lazy_fe,$lazy_admin
+            ]);
+
+            $deps = $module_obj->GetDependencies();
+            if( is_array($deps) && count($deps) ) {
+                foreach( $deps as $depname => $depversion ) {
+                    if( $depname && $depversion ) {
+/*
+stmt2: 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
+(parent_module,child_module,minimum_version,create_date,modified_date)
+VALUES (?,?,?,NOW(),NOW())');
+*/
+                        $rs = $db->Execute($stmt2,[$depname,$modname,$depversion]);
+                    }
+                }
+            }
+            $modops->generate_moduleinfo($module_obj); //uses defined CMS_VERSION
+        } else {
+            throw new \Exception($result);
         }
     }
 
@@ -238,52 +290,5 @@ class wizard_step9 extends \cms_autoinstaller\wizard_step
 
         $app->cleanup();
     }
-/*
-    protected function mod_install($modname)
-    {
-        return false;
+} // class
 
-        //TODO install main autoloader
-        $db = \__appbase::get_db();
-        //get each dir in base/lib/modules
-        $bp = 'TODObase/lib/modules/';
-        foreach (glob($bp.'*', GLOB_MARK | GLOB_NOSORT | GLOB_NOESCAPE | GLOB_ONLYDIR) as $fp) {
-            include $fp.DIRECTORY_SEPARATOR.$name.'.module.php';
-            $module_obj = new $name();
-            if ($module_obj) {
-                $result = $module_obj->Install();
-                if (empty($result)) {
-                    // successful install returned nothing or false
-                    $module_name = $module_obj->GetName();
-                    $lazyload_fe = (method_exists($module_obj, 'LazyLoadFrontend') && $module_obj->LazyLoadFrontend()) ? 1 : 0;
-                    $lazyload_admin = (method_exists($module_obj, 'LazyLoadAdmin') && $module_obj->LazyLoadAdmin()) ? 1 : 0;
-                    $query = 'INSERT INTO '.CMS_DB_PREFIX.'modules
-(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
-VALUES (?,?,\'installed\',?,1,?,?)';
-                    $db->Execute($query, [
-                    $module_name,
-                    $module_obj->GetVersion(),
-                    ($module_obj->IsAdminOnly()) ? 1 : 0,
-                    $lazyload_fe,
-                    $lazyload_admin
-                    ]);
-
-                    $deps = $module_obj->GetDependencies();
-                    if (is_array($deps) && $deps) {
-                        $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
-(parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,NOW(),NOW())';
-                        foreach ($deps as $depname => $depversion) {
-                            if ($depname && $depversion) {
-                                $db->Execute($query, [$depname,$module_name,$depversion]);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-*/
-} // end of class
-
-?>
