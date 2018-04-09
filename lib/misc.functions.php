@@ -1,5 +1,5 @@
 <?php
-#utility-methods for CMSMS
+#utility-methods available for every request
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2012-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -120,19 +120,19 @@ function redirect(string $to)
  */
 function redirect_to_alias(string $alias)
 {
-  $manager = CmsApp::get_instance()->GetHierarchyManager();
-  $node = $manager->sureGetNodeByAlias($alias);
-  if ( !$node ) {
-    // put mention into the admin log
-    cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
-    return;
-  }
-  $content = $node->GetContent();
-  if (!is_object($content)) {
-    cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
-    return;
-  }
-  if ($content->GetURL() != '') redirect($content->GetURL());
+    $manager = CmsApp::get_instance()->GetHierarchyManager();
+    $node = $manager->sureGetNodeByAlias($alias);
+    if ( !$node ) {
+        // put mention into the admin log
+        cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
+        return;
+    }
+    $content = $node->GetContent();
+    if (!is_object($content)) {
+        cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
+        return;
+    }
+    if ($content->GetURL() != '') redirect($content->GetURL());
 }
 
 /**
@@ -158,12 +158,16 @@ function microtime_diff(string $a, string $b) : int
  * This method accepts a variable number of string arguments
  * e.g. $out = cms_join_path($dir1,$dir2,$dir3,$filename)
  * or $out = cms_join_path($dir1,$dir2,$filename)
+ * or $out = cms_join_path([$dir1,$dir2,$filename])
  *
  * @since 0.14
  * @return string
  */
 function cms_join_path(...$args) : string
 {
+    if (is_array($args[0])) {
+        $args = $args[0];
+    }
     $path = implode(DIRECTORY_SEPARATOR, $args);
     return str_replace(['\\', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR],
         [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
@@ -178,7 +182,7 @@ function cms_join_path(...$args) : string
  * @param string $relative_to The optional path to compute relative to.  If not supplied the cmsms root path will be used.
  * @return string The relative portion of the input string.
  */
-function cms_relative_path(string $in,string $relative_to = null) : string
+function cms_relative_path(string $in, string $relative_to = null) : string
 {
     $in = realpath(trim($in));
     if ( !$relative_to ) $relative_to = CMS_ROOT_PATH;
@@ -191,56 +195,10 @@ function cms_relative_path(string $in,string $relative_to = null) : string
 }
 
 /**
- * Module-file locator which doesn't need the module to be loaded
- *
- * @param string $modname name of the module.
- * @return string (maybe empty)
- */
-function cms_module_path(string $modname) : string
-{
-    // core-modules place
-    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname,$modname.'.module.php');
-    if (is_file($path)) {
-        return $path;
-    }
-    // other-modules place
-    $path = cms_join_path(CMS_ASSETS_PATH,'modules',$modname,$modname.'.module.php');
-    if (is_file($path)) {
-        return $path;
-    }
-    return '';
-}
-
-/**
- * Module-directories lister. Checks for directories existence, including $modname if provided.
- *
- * @param string $modname Optional name of a module
- * @return array of absolute filepaths, no trailing separators, or maybe empty. Core modules path first.
- */
-function cms_module_places($modname = null) : array
-{
-    $dirlist = [];
-    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
-    if ($modname) {
-        $path .= DIRECTORY_SEPARATOR . $modname;
-    }
-    if (is_dir($path)) {
-        $dirlist[] = $path;
-    }
-    $path = cms_join_path(CMS_ASSETS_PATH,'modules');
-    if ($modname) {
-        $path .= DIRECTORY_SEPARATOR . $modname;
-    }
-    if (is_dir($path)) {
-        $dirlist[] = $path;
-    }
-    return $dirlist;
-}
-
-/**
  * Get PHP flag corresponding to the configured 'content_language' i.e. the
  * preferred language/syntax for page-content
  *
+ * @since 2.3
  * @return PHP flag
  */
 function cms_preferred_lang() : int
@@ -841,13 +799,16 @@ function endswith( string $str, string $sub ) : bool
 /**
  * Convert a human readable string into something that is suitable for use in URLS.
  *
- * @param string $alias String to convert
+ * @param mixed $alias String to convert, or null
  * @param bool   $tolower Indicates whether output string should be converted to lower case
- * @param bool   $withslash Indicates wether slashes should be allowed in the input.
+ * @param bool   $withslash Indicates whether slashes should be allowed in the input.
  * @return string
  */
-function munge_string_to_url(string $alias, bool $tolower = false, bool $withslash = false) : string
+function munge_string_to_url($alias, bool $tolower = false, bool $withslash = false) : string
 {
+    if ( !$alias ) {
+        return '';
+    }
     if ($tolower) $alias = mb_strtolower($alias); //TODO if mb_string N/A?
 
     // remove invalid chars
@@ -1120,103 +1081,157 @@ function cms_to_bool(string $str) : bool
  *   nestedSortable
  *   json
  *   migrate
+
+ * Since 2.3 script(s) etc can be otherwise be 'gathered' via functions added to
+ * hooklist "RuntimeSetup", or tag {gather_content list='RuntimeSetup'}
  *
  * @since 1.10
- * @deprecated
- * @param string $exclude A comma separated list of script names or aliases to exclude.
- * @param bool $ssl Force use of the ssl_url for the root url to necessary scripts.
+ * @param string $exclude A comma-separated series of script names or aliases to exclude.
+ * @param bool $ssl UNUSED Force use of the ssl_url for the root url to necessary scripts. ssl_url N/A for 2.3+
  * @param bool $cdn Force the use of a CDN url for the libraries if one is known
- * @param string  $append A comma separated list of library URLS to the output
+ * @param string  $append A comma-separated series of library URLs to append to the 'core' inclusions
  * @param string  $custom_root A custom root URL for all scripts (when using local mode).  If this is specified the $ssl param will be ignored.
  * @param bool $include_css Optionally output stylesheet tags for the included javascript libraries.
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
-    $config = cms_config::get_instance();
-    $scripts = [];
-    $base_url = CMS_ROOT_URL;
-    if ( $ssl === true || $ssl === true ) $base_url = $config['ssl_url'];
-    $basePath=$custom_root!=''?trim($custom_root,'/'):$base_url;
+    $baseUrl = ($custom_root) ? trim($custom_root,'/lib/jquery/') : CMS_SCRIPTS_URL.'/';
+    // scripts etc to include (unless excluded)
+    $scripts = [
+        'jquery' => [
+         'aliases'=>['jquery-min','jquery.min.js'],
+         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
+         'local'=>$baseUrl.'js/jquery-1.12.4.min.js',
+        ],
+        'jquery-ui' => [
+         'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
+         'css'=>$baseUrl.'css/smoothness/jquery-ui-1.11.4.custom.min.css',
+         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
+         'local'=>$baseUrl.'js/jquery-ui-1.11.4.custom.min.js',
+        ],
+        'migrate' => [
+         'local'=>$baseUrl.'js/jquery-migrate-1.3.0.min.js'
+        ],
+//      'json' => ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'],
+        'nestedSortable' => [
+         'local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'
+        ],
+    ];
 
-    // Scripts to include
-    $scripts['jquery'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
-                 'local'=>$basePath.'/lib/jquery/js/jquery-1.12.4.min.js',
-                 'aliases'=>array('jquery.min.js','jquery',));
-    $scripts['jquery-ui'] = array('cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
-                'local'=>$basePath.'/lib/jquery/js/jquery-ui-1.11.4.custom.min.js',
-                'aliases'=>array('jquery-ui.min.js','ui'),
-                'css'=>$basePath.'/lib/jquery/css/smoothness/jquery-ui-1.11.4.custom.min.css');
-    $scripts['nestedSortable'] = array('local'=>$basePath.'/lib/jquery/js/jquery.mjs.nestedSortable.min.js');
-//  $scripts['json'] = array('local'=>$basePath.'/lib/jquery/js/jquery.json-2.4.min.js');
-    $scripts['migrate'] = array('local'=>$basePath.'/lib/jquery/js/jquery-migrate-1.3.0.min.js');
+    if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+        global $CMS_LOGIN_PAGE;
+//      $scripts['cms_admin'] =       ['local'=>$baseUrl.'/lib/jquery/js/jquery.cms_admin.min.js']; see CMS_SCRIPTS_URL
+        $scripts['cms_admin'] =       ['local'=>$baseUrl.'js/jquery.cms_admin.js']; //DEBUG
+        $scripts['cms_vars'] =        ['variables'=>0]; //placeholder, after admin & before others which might use the vars
+        if ( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
+            //populate runtime data (i.e. cms_data{}) via ajax
+            $url = cms_config::get_instance()['admin_url'];
+            $scripts['cms_js_setup'] = ['local'=>$url.'/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]];
+        }
 
-  if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
-      global $CMS_LOGIN_PAGE;
-      if ( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
-          $url = $config['admin_url'];
-          $scripts['cms_js_setup'] = array('local'=>$url.'/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
-      }
-//      $scripts['cms_admin'] =       ['local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.min.js'];
-      $scripts['cms_admin'] =       ['local'=>$basePath.'/lib/jquery/js/jquery.cms_admin.js']; //DEBUG
-      $scripts['cms_dirtyform'] =   ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_dirtyform.js'];
-      $scripts['cms_lock'] =        ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_lock.js'];
-      $scripts['cms_hiersel'] =     ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_hierselector.js'];
-      $scripts['cms_autorefresh'] = ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_autorefresh.js'];
-      $scripts['ui_touch_punch'] =  ['local'=>$basePath.'/lib/jquery/js/jquery.ui.touch-punch.min.js'];
-      $scripts['cms_filepicker'] =  ['local'=>$basePath.'/lib/jquery/js/jquery.cmsms_filepicker.js'];
-  }
+        $scripts['cms_dirtyform'] =   ['local'=>$baseUrl.'js/jquery.cmsms_dirtyform.js'];
+        $scripts['cms_lock'] =        ['local'=>$baseUrl.'js/jquery.cmsms_lock.js']; //TODO module-specific
+        $scripts['cms_hiersel'] =     ['local'=>$baseUrl.'js/jquery.cmsms_hierselector.js'];
+        $scripts['cms_autorefresh'] = ['local'=>$baseUrl.'js/jquery.cmsms_autorefresh.js'];
+        $scripts['ui_touch_punch'] =  ['local'=>$baseUrl.'js/jquery.ui.touch-punch.min.js'];
+		$scripts['notifier'] =        ['local'=>$baseUrl.'js/jquery.toast.js'];
+    }
 
-  // Check if we need to exclude some script
-  if (!empty($exclude)) {
-      $exclude_list = explode(",", trim(str_replace(' ','',$exclude)));
-      foreach($exclude_list as $one) {
-          $one = trim(strtolower($one));
+    list($vars,$add_list,$exclude_list) = \CMSMS\HookManager::do_hook('RuntimeSetup', [], [], []);
 
-          // find a match
-          $found = null;
-          foreach( $scripts as $key => $rec ) {
-              if ( strtolower($one) == strtolower($key) ) {
-                  $found = $key;
-                  break;
-              }
-              if ( isset($rec['aliases']) && is_array($rec['aliases']) ) {
-                  foreach( $rec['aliases'] as $alias ) {
-                      if ( strtolower($one) == strtolower($alias) ) {
-                          $found = $key;
-                          break;
-                      }
-                  }
-                  if ( $found ) break;
-              }
-          }
+    // Supply vars if wanted
+    if ($vars) {
+        $vout = <<<EOT
+<script type="text/javascript">
+//<![CDATA[
 
-          if ( $found ) unset($scripts[$found]);
-      }
-  }
+EOT;
+        //NOTE downstream must ensure keys and values are formatted for js
+        foreach ($vars as $key => $value) {
+            $vout .= "cms_data.{$key} = {$value};\n";
+        }
+        $vout .= <<<EOT
+//]]>
+</script>
 
-  // let them add scripts to the end ie: a jQuery plugin
-  if (!empty($append)) {
-      $append_list = explode(",", trim(str_replace(' ','',$append)));
-      foreach($append_list as $key => $item) {
-          $scripts['user_'.$key] = array('local'=>$item);
-      }
-  }
+EOT;
+
+    } else {
+        unset($scripts['cms_vars']);
+    }
+
+    // Add script(s) if wanted
+    if ($append) {
+        if (!$add_list) {
+            $add_list = [];
+        }
+        $tmp = explode(',', trim(str_replace(' ','',$append)));
+        $add_list = array_merge($add_list, $tmp);
+    }
+    if ($add_list) {
+        foreach($add_list as $key => $item) {
+            $scripts['user_'.$key] = ['local'=>$item];
+        }
+    }
+
+    // Exclude script(s) if wanted
+    if ($exclude) {
+        if (!$exclude_list) {
+            $exclude_list = [];
+        }
+        $tmp = explode(',', trim(str_replace(' ','',$exclude)));
+        $exclude_list = array_merge($exclude_list, $tmp);
+    }
+    if ($exclude_list) {
+        foreach($exclude_list as $one) {
+            $one = trim(strtolower($one));
+
+             // find a match
+            $found = null;
+            foreach( $scripts as $key => $rec ) {
+                if ( strtolower($one) == strtolower($key) ) {
+                    $found = $key;
+                    break;
+                }
+                if ( isset($rec['aliases']) && is_array($rec['aliases']) ) {
+                    foreach( $rec['aliases'] as $alias ) {
+                        if ( strtolower($one) == strtolower($alias) ) {
+                            $found = $key;
+                            break;
+                        }
+                    }
+                    if ( $found ) break;
+                }
+            }
+
+            if ( $found ) unset($scripts[$found]);
+        }
+    }
 
   // Output
-  $output = '';
-  $fmt_js = '<script type="text/javascript" src="%s"></script>';
-  $fmt_css = '<link rel="stylesheet" type="text/css" href="%s"/>';
-  foreach($scripts as $script) {
-      $url_js = $script['local'];
-      if ( $cdn && isset($script['cdn']) ) $url_js = $script['cdn'];
-      $output .= sprintf($fmt_js,$url_js)."\n";
-      if ( isset($script['css']) && $script['css'] != '' ) {
-          $url_css = $script['css'];
-          if ( $cdn && isset($script['css_cdn']) ) $url_css = $script['css_cdn'];
-          if ( $include_css ) $output .= sprintf($fmt_css,$url_css)."\n";
-      }
-  }
-  return $output;
+
+    $output = "\n";
+
+    $fmt_js = '<script type="text/javascript" src="%s"></script>';
+    $fmt_css = '<link rel="stylesheet" type="text/css" href="%s" />';
+
+    foreach($scripts as $script) {
+        if (isset($script['variables'])) {
+            if ($vout) {
+                $output .= $vout;
+            }
+            continue;
+        }
+        $url_js = $script['local'];
+        if ( $cdn && isset($script['cdn']) ) $url_js = $script['cdn'];
+        $output .= sprintf($fmt_js,$url_js)."\n";
+        if ( isset($script['css']) && $script['css'] != '' ) {
+            $url_css = $script['css'];
+            if ( $cdn && isset($script['css_cdn']) ) $url_css = $script['css_cdn'];
+            if ( $include_css ) $output .= sprintf($fmt_css,$url_css)."\n";
+        }
+    }
+    return $output;
 }
 
 /**
