@@ -17,7 +17,9 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // variables for general use
-$userid = get_userid(); //also checks login status
+if (empty($CMS_LOGIN_PAGE)) {
+	$userid = get_userid(); //also checks login status
+}
 if (!isset($themeObject)) {
 	$themeObject = cms_utils::get_theme_object();
 }
@@ -58,17 +60,19 @@ if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
 }
 
 if (!isset($USE_THEME) || $USE_THEME) {
-    $smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
+	if (empty($CMS_LOGIN_PAGE)) {
+		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
-    // Display notification stuff from modules
-    // should be controlled by preferences or something
-    $ignoredmodules = explode(',',cms_userprefs::get_for_user($userid,'ignoredmodules'));
-    if( cms_siteprefs::get('enablenotifications',1) && cms_userprefs::get_for_user($userid,'enablenotifications',1) ) {
-        // Display a warning sitedownwarning
-        $sitedown_message = lang('sitedownwarning', TMP_CACHE_LOCATION . '/SITEDOWN');
-        $sitedown_file = TMP_CACHE_LOCATION . '/SITEDOWN';
-        if (file_exists($sitedown_file)) $themeObject->AddNotification(1,'Core',$sitedown_message);
-    }
+		// Display notification stuff from modules
+		// should be controlled by preferences or something
+		$ignoredmodules = explode(',',cms_userprefs::get_for_user($userid,'ignoredmodules'));
+		if( cms_siteprefs::get('enablenotifications',1) && cms_userprefs::get_for_user($userid,'enablenotifications',1) ) {
+			// Display a warning sitedownwarning
+			$sitedown_message = lang('sitedownwarning', TMP_CACHE_LOCATION . '/SITEDOWN');
+			$sitedown_file = TMP_CACHE_LOCATION . '/SITEDOWN';
+			if (file_exists($sitedown_file)) $themeObject->AddNotification(1,'Core',$sitedown_message);
+		}
+	}
 
     $themeObject->do_header();
 //} else {
