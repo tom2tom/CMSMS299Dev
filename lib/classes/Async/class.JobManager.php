@@ -61,14 +61,19 @@ final class JobManager
     /**
      * @ignore
      */
-    protected function __construct() {}
+    private function __construct() {}
+
+    /**
+     * @ignore
+     */
+    private function __clone() {}
 
     /**
      * Get the sole permitted instance of this object
      *
      * @return \CMSMS\JobManager
      */
-    public static function get_instance()
+    final public static function &get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
