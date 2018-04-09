@@ -21,15 +21,15 @@ namespace MicroTiny;
 class microtiny_profile implements \ArrayAccess
 {
   private static $_keys = ['menubar','allowimages','showstatusbar','allowresize','formats','name','label','system',
-                                'dfltstylesheet','allowcssoverride','allowtables'];
-  private static $_module;
+                           'dfltstylesheet','allowcssoverride','allowtables'];
+  private static $_module = null;
   private $_data = [];
 
   public function __construct($data = null)
   {
       if( is_array($data) && count($data) ) {
           foreach( $data as $key => $value ) {
-              $this[$key] = $value;
+              $this->_data[$key] = $value;
           }
       }
   }
@@ -175,8 +175,14 @@ class microtiny_profile implements \ArrayAccess
 
   private static function _get_module()
   {
-    if( is_object(self::$_module) ) return self::$_module;
-    return \cms_utils::get_module('MicroTiny');
+    if( !is_object(self::$_module) ) {
+      self::$_module = \cms_utils::get_module('MicroTiny');
+      if( !is_object(self::$_module) ) {
+        // module not yet installed - hack for installation
+        self::$_module = new \MicroTiny();
+      }
+    }
+    return self::$_module;
   }
 
   public static function load($name)
