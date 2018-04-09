@@ -19,9 +19,7 @@
 /**
  * Send lost-password recovery email to a specified admin user (by name)
  *
- * @internal
- * @access private
- * @param string the username
+ * @param object $user user data
  * @return results from the attempt to send a message.
  */
 function send_recovery_email(User $user)
@@ -41,15 +39,14 @@ function send_recovery_email(User $user)
         audit('','Core','Sent Lost Password Email for '.$user->username);
     } else {
         //TODO handle error
+        //throw new CmsLoginError (TODO);
     }
     return $res;
 }
 
 /**
- * Find the user id corresponding to the given identity hash
+ * Find the user id corresponding to the given identity-hash
  *
- * @internal
- * @access private
  * @param string the hash
  * @return object The matching user object if found, or null otherwise.
  */
@@ -61,74 +58,76 @@ function find_recovery_user($hash)
     foreach ($userops->LoadUsers() as $user) {
         if ($hash == md5(md5($config['root_path'] . '--' . $user->username . md5($user->password)))) return $user;
     }
-
     return null;
+}
+
+function check_secure_param($id)
+{
+    $expected = $_SESSION[$csrf_key] ?? null;
+    $provided = $_POST['csrf'] ?? null; //comparison value, no sanitize needed (unless $_SESSION hacked!)
+    if (!$expected || !$provided || $expected != $provided) {
+        throw new \RuntimeException ($this->Lang('err_csrfinvalid').' ('.$id.')');
+    }
 }
 
 $gCms = CmsApp::get_instance();
 $login_ops = CMSMS\internal\LoginOperations::get_instance();
+$csrf_key = md5(__FILE__);
 
 //Redirect to the normal login screen if we hit cancel on the forgot pw one
 //Otherwise, see if we have a forgotpw hit
+
 if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform'])) && isset($_REQUEST['logincancel'])) {
     redirect('login.php');
-}
-elseif (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
+} elseif (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     $userops = $gCms->GetUserOperations();
     $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_STRING);
     unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
-    CMSMS\HookManager::do_hook('Core::LostPassword', [ 'username'=>$forgot_username] );
+    CMSMS\HookManager::do_hook('Core::LostPassword', [ 'username'=>$forgot_username]);
     $oneuser = $userops->LoadUserByUsername($forgot_username);
     unset($_REQUEST['loginsubmit'],$_POST['loginsubmit']);
 
     if ($oneuser != null) {
         if ($oneuser->email == '') {
             $error = lang('nopasswordforrecovery');
-        }
-        else if (send_recovery_email($oneuser)) {
+        } elseif (send_recovery_email($oneuser)) {
             $warning = lang('recoveryemailsent');
-        }
-        else {
+        } else {
             $error = lang('errorsendingemail');
         }
-    }
-    else {
+    } else {
         unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
-        CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$forgot_username ] );
+        CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$forgot_username ]);
         $error = lang('usernotfound');
     }
-}
-elseif (!empty($_REQUEST['recoverme'])) {
+} elseif (!empty($_REQUEST['recoverme'])) {
+//    check_secure_param('002');
     $user = find_recovery_user(cleanVariable($_REQUEST['recoverme']));
     if ($user == null) {
         $error = lang('usernotfound');
-    }
-    else {
+    } else {
         $changepwhash = true;
     }
-}
-elseif (!empty($_REQUEST['forgotpwchangeform'])) {
+} elseif (!empty($_REQUEST['forgotpwchangeform'])) {
+//    check_secure_param('003');
     $user = find_recovery_user($_REQUEST['changepwhash']);
     if ($user == null) {
         $error = lang('usernotfound');
-    }
-    elseif ($_REQUEST['password'] != '') {
+    } elseif ($_REQUEST['password'] != '') {
         if ($_REQUEST['password'] == $_REQUEST['passwordagain']) {
             $user->SetPassword($_REQUEST['password']);
             $user->Save();
             // put mention into the admin log
             $ip_passw_recovery = cms_utils::get_real_ip();
             audit('','Core','Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
-            CMSMS\HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ] );
+            CMSMS\HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ]);
             $message = lang('passwordchangedlogin');
             $changepwhash = '';
-        }
-        else {
+        } else {
             $error = lang('nopasswordmatch');
             $changepwhash = $_REQUEST['changepwhash'];
         }
-    }
-    else {
+    } else {
         $error = lang('nofieldgiven', lang('password'));
         $changepwhash = $_REQUEST['changepwhash'];
     }
@@ -142,17 +141,16 @@ if (isset($_SESSION['logout_user_now'])) {
     debug_buffer("Logging out.  Cleaning cookies and session variables.");
     $userid = $login_ops->get_loggedin_uid();
     $username = $login_ops->get_loggedin_username();
-    CMSMS\HookManager::do_hook('Core::LogoutPre', [ 'uid'=>$userid, 'username'=>$username ] );
+    CMSMS\HookManager::do_hook('Core::LogoutPre', [ 'uid'=>$userid, 'username'=>$username ]);
     $login_ops->deauthenticate(); // unset all the cruft needed to make sure we're logged in.
-    CMSMS\HookManager::do_hook('Core::LogoutPost', [ 'uid'=>$userid, 'username'=>$username ] );
+    CMSMS\HookManager::do_hook('Core::LogoutPost', [ 'uid'=>$userid, 'username'=>$username ]);
     audit($userid, "Admin Username: ".$username, 'Logged Out');
 }
 
-if( isset($_POST['cancel']) ) {
+if (isset($_POST['cancel'])) {
 //    $login_ops->deauthenticate(); // just in case
     redirect('login.php');
-}
-elseif( isset($_POST['submit']) ) {
+} elseif (isset($_POST['submit'])) {
     // login form submitted
     $login_ops->deauthenticate();
     $username = (isset($_POST['username'])) ? cleanValue($_POST['username']) : null;
@@ -162,11 +160,12 @@ elseif( isset($_POST['submit']) ) {
     class CmsLoginError extends CmsException {}
 
     try {
-        if( !$password ) throw new CmsLoginError(lang('usernameincorrect'));
+//        check_secure_param('004');
+        if (!$password) throw new CmsLoginError(lang('usernameincorrect'));
         $oneuser = $userops->LoadUserByUsername($username, $password, TRUE, TRUE);
-        if( !$oneuser ) throw new CmsLoginError(lang('usernameincorrect'));
-        if( ! $oneuser->Authenticate( $password ) ) {
-            throw new CmsLoginError( lang('usernameincorrect') );
+        if (!$oneuser) throw new CmsLoginError(lang('usernameincorrect'));
+        if (! $oneuser->Authenticate ($password)) {
+            throw new CmsLoginError (lang('usernameincorrect'));
         }
         $login_ops->save_authentication($oneuser);
 
@@ -175,10 +174,10 @@ elseif( isset($_POST['submit']) ) {
 
         // send the post login event
         unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
-        CMSMS\HookManager::do_hook('Core::LoginPost', [ 'user'=>&$oneuser ] );
+        CMSMS\HookManager::do_hook('Core::LoginPost', ['user'=>&$oneuser]);
 
         // redirect outa hre somewhere
-        if( isset($_SESSION['login_redirect_to']) ) {
+        if (isset($_SESSION['login_redirect_to'])) {
             // we previously attempted a URL but didn't have the user key in the request.
             $url_ob = new cms_url($_SESSION['login_redirect_to']);
             unset($_SESSION['login_redirect_to']);
@@ -190,7 +189,7 @@ elseif( isset($_POST['submit']) ) {
         } else {
             // find the users homepage, if any, and redirect there.
             $homepage = cms_userprefs::get_for_user($oneuser->id,'homepage');
-            if( !$homepage ) {
+            if (!$homepage) {
                 $homepage = $config['admin_url'];
             }
             // quick hacks to remove old secure param name from homepage url
@@ -198,30 +197,31 @@ elseif( isset($_POST['submit']) ) {
             $homepage = str_replace('&amp;','&',$homepage);
             $tmp = explode('?',$homepage);
             @parse_str($tmp[1],$tmp2);
-            if( in_array('_s_',array_keys($tmp2)) ) unset($tmp2['_s_']);
-            if( in_array('sp_',array_keys($tmp2)) ) unset($tmp2['sp_']);
+            if (in_array('_s_',array_keys($tmp2))) unset($tmp2['_s_']);
+            if (in_array('sp_',array_keys($tmp2))) unset($tmp2['sp_']);
             $tmp2[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
-            foreach( $tmp2 as $k => $v ) {
+            foreach ($tmp2 as $k => $v) {
                 $tmp3[] = $k.'='.$v;
             }
             $homepage = $tmp[0].'?'.implode('&amp;',$tmp3);
 
             // and redirect.
             $homepage = cms_html_entity_decode($homepage);
-            if( !startswith($homepage,'http') && !startswith($homepage,'//') && startswith($homepage,'/') ) $homepage = CMS_ROOT_URL.$homepage;
+            if (!startswith($homepage,'http') && !startswith($homepage,'//') && startswith($homepage,'/')) $homepage = CMS_ROOT_URL.$homepage;
             redirect($homepage);
         }
-    }
-    catch( Exception $e ) {
+    } catch (Exception $e) {
         $error = $e->GetMessage();
         debug_buffer("Login failed.  Error is: " . $error);
         unset($_POST['password'],$_REQUEST['password']);
-        CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$_POST['username'] ] );
+        CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$_POST['username'] ]);
         // put mention into the admin log
         $ip_login_failed = cms_utils::get_real_ip();
         audit('', '(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Login Failed');
     }
 }
+
+// vars for smarty
 
 $params = [];
 $params['actionid'] = ''; //maybe altered upstream
@@ -236,14 +236,14 @@ $params['lang_code'] = $lang;
 $params['lang_dir'] = CmsNlsOperations::get_language_direction();
 $sitelogo = cms_siteprefs::get('sitelogo');
 if ($sitelogo) {
-    if( !preg_match('~^\w*:?//~',$sitelogo) ) {
+    if (!preg_match('~^\w*:?//~',$sitelogo)) {
         $sitelogo = CMS_ROOT_URL.'/'.trim($sitelogo, ' /');
     }
 }
 $params['sitelogo'] = $sitelogo;
+$_SESSION[$csrf_key] = $params['csrf'] = md5(uniqid($csrf_key));
 
-
-if( isset($error) ) $params['error'] = $error;
-if( isset($warning) ) $params['warning'] = $warning;
-if( isset($message) ) $params['message'] = $message;
-if( isset($changepwhash) ) $params['changepwhash'] = $changepwhash;
+if (isset($error)) $params['error'] = $error;
+if (isset($warning)) $params['warning'] = $warning;
+if (isset($message)) $params['message'] = $message;
+if (isset($changepwhash)) $params['changepwhash'] = $changepwhash;
