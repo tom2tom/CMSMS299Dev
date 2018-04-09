@@ -41,7 +41,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 		$base_url = $root_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 		$script_url = CMS_SCRIPTS_URL;
 		$fn = 'style';
-		$dir = cms_admin_utils::lang_direction();
+		$dir = CmsNlsOperations::get_language_direction();
 		if ($dir == 'rtl') {
 			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
@@ -216,22 +216,19 @@ EOS;
 	}
 
     /**
-     * Display and process a login form.
-	 * This supplements the login module.
-	 *
-	 * @param array $params data for smarty, maybe empty
+	 * Display and process a login form
+	 * @since 2.3, there is no $params argument
 	 */
-	public function do_login($params)
+	public function do_login()
 	{
-		// setup
-		include __DIR__ . DIRECTORY_SEPARATOR . 'login.php'; //various init's, including $smarty & $config
+		$smarty = \CMSMS\internal\Smarty::get_instance();
 
-		if ($params) $smarty->assign($params);
-
-        $dir = cms_admin_utils::lang_direction();
-        if($dir == 'rtl') {
-			$smarty->assign('lang_dir', $dir);
+		if (1) {
+			// process the supplied inputs TODO skip if this is 1st-pass
+			require_once __DIR__.DIRECTORY_SEPARATOR.'login.php';
 		}
+
+		if (!empty($params)) $smarty->assign($params);
 
 		// the only needed scripts are: jquery, jquery-ui, and our custom login
 		$jqcore = '';
@@ -377,7 +374,7 @@ EOS;
 		// user selected language
 		$smarty->assign('lang',cms_userprefs::get_for_user(get_userid(), 'default_cms_language'));
 		// language direction
-        $smarty->assign('lang_dir', cms_admin_utils::lang_direction());
+        $smarty->assign('lang_dir', CmsNlsOperations::get_language_direction());
 		// is the website down for maintenance?
 		if (get_site_preference('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 'true');
