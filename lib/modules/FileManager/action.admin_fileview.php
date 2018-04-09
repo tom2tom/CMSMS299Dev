@@ -144,7 +144,7 @@ for ($i = 0; $i < $times; $i++) {
       // for the parent directory
       $onerow->noCheckbox = 1;
       $icon = $this->GetModuleURLPath().'/icons/themes/default/actions/dir_up.gif';
-      $img_tag = '<img src="'.$icon.'" width="32" title="'.$this->Lang('title_changeupdir').'" />';
+      $img_tag = '<img src="'.$icon.'" width="32" height="32" title="'.$this->Lang('title_changeupdir').'" />';
       $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $img_tag, $parms);
       $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changeupdir')}\">{$link}</a>";
     }
