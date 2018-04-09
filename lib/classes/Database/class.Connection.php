@@ -128,9 +128,9 @@ abstract class Connection
 
     /**
      * Construct a new Connection.
-     * @param array $config assoc. array of connection parameters etc
+     * @param array $config Optional assoc. array of connection parameters etc
      */
-    public function __construct($config)
+    public function __construct($config = null)
     {
         $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG != 0;
         if ($this->_debug) {
@@ -312,14 +312,14 @@ abstract class Connection
 
     /**
      * As for execute, but non-blocking. Works as such only if the native driver
-	 * is present. Otherwise reverts to normal execution, and caches the result.
-	 */
+     * is present. Otherwise reverts to normal execution, and caches the result.
+     */
     abstract public function async_execute($sql, $valsarr = null);
 
     /**
      * Get result from async SQL query. If the native driver is not present, this
-	 * just returns the cached result of the prior not-really-async command.
-	 */
+     * just returns the cached result of the prior not-really-async command.
+     */
     abstract public function reap();
 
     /**
@@ -811,13 +811,13 @@ abstract class Connection
 
     protected function on_error($errtype, $error_number, $error_msg)
     {
-		if (function_exists('\\debug_to_log')) { //N/A during installation
-			\debug_to_log("Database error: $errtype($error_number) - $error_msg");
-			\debug_bt_to_log();
-			if ($this->_debug) {
-				\CmsApp::get_instance()->add_error(\debug_display($error_msg, '', false, true));
-			}
-		}
+        if (function_exists('\\debug_to_log')) { //N/A during installation
+            \debug_to_log("Database error: $errtype($error_number) - $error_msg");
+            \debug_bt_to_log();
+            if ($this->_debug) {
+                \CmsApp::get_instance()->add_error(\debug_display($error_msg, '', false, true));
+            }
+        }
     }
 
     //// initialization
