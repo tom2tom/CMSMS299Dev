@@ -134,6 +134,8 @@ elseif (!empty($_REQUEST['forgotpwchangeform'])) {
     }
 }
 
+$config = cms_config::get_instance();
+
 if (isset($_SESSION['logout_user_now'])) {
     // this does the actual logout stuff.
     unset($_SESSION['logout_user_now']);
@@ -189,7 +191,6 @@ elseif( isset($_POST['submit']) ) {
             // find the users homepage, if any, and redirect there.
             $homepage = cms_userprefs::get_for_user($oneuser->id,'homepage');
             if( !$homepage ) {
-                $config = cms_config::get_instance();
                 $homepage = $config['admin_url'];
             }
             // quick hacks to remove old secure param name from homepage url
@@ -224,6 +225,7 @@ elseif( isset($_POST['submit']) ) {
 
 $params = [];
 $params['actionid'] = ''; //maybe altered upstream
+$params['admin_url'] = $config['admin_url'];
 
 $params['encoding'] = CmsNlsOperations::get_encoding();
 $lang = CmsNlsOperations::get_current_language();
@@ -239,6 +241,7 @@ if ($sitelogo) {
     }
 }
 $params['sitelogo'] = $sitelogo;
+
 
 if( isset($error) ) $params['error'] = $error;
 if( isset($warning) ) $params['warning'] = $warning;
