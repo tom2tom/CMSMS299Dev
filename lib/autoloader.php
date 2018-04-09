@@ -14,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * @package CMS
@@ -114,10 +112,10 @@ function cms_autoloader(string $classname)
 			}
 			$sroot = $root;
 		} else {
-			//CHECKME module supposed to be loaded, if a related class is used !? if lazy ??
 			if (!class_exists($space, false)) { //CHECKME nested autoload ok here?
 				return;
 			}
+            //do not require module to be loaded & current (we might be installing, upgrading)
 			$path = cms_module_path($space);
 			if ($path) {
 				$sroot = dirname($path).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
@@ -219,18 +217,14 @@ function cms_autoloader(string $classname)
 		return;
 	}
 
-	// unspaced loaded-module-ancillary classes
-	$modules = $modops->GetLoadedModules();
-	if ($modules) {
-		foreach (array_keys($modules) as $modname) {
-			$root = $modops->get_module_path($modname);
-			foreach (['class.', 'trait.', 'interface.', ''] as $test) {
-				$fp = $root.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$test.$classname.'.php';
-				if (is_file($fp)) {
-					require_once $fp;
-					return;
-				}
-			}
+	// unspaced module-ancillary classes
+	// (the module need not be loaded - we might be installing, upgrading)
+	foreach (cms_module_places() as $root) {
+		$fp = $root.DIRECTORY_SEPARATOR.'*'.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'{class.,,interface.,trait.}'.$classname.'.php';
+		$files = glob($fp, GLOB_NOSORT | GLOB_NOESCAPE | GLOB_BRACE);
+		if ($files) {
+			require_once $files[0];
+			return;
 		}
 	}
 }
