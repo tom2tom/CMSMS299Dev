@@ -40,7 +40,7 @@ class Connection extends \CMSMS\Database\Connection
      *  'set_db_timezone' (opt)
      *  'timezone' used only if 'set_db_timezone' is true
      */
-    public function __construct($config = null)  //NB installer-API
+    public function __construct($config = null)  //installer-API
     {
         if (class_exists('\mysqli')) {
             if (!$config) $config =  \cms_config::get_instance(); //normal API
@@ -240,7 +240,7 @@ class Connection extends \CMSMS\Database\Connection
                 $stmt = new Statement($this, $sql);
 
                 return $stmt->execute($valsarr);
-            } elseif (is_object($sql) && $sql instanceof CMSMS\Database\mysqli\Statement) {
+            } elseif (is_object($sql) && ($sql instanceof Statement)) {
                 return $sql->execute($valsarr);
             } else {
                 $errno = 4;

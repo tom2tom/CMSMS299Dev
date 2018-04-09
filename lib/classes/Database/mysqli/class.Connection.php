@@ -240,7 +240,7 @@ class Connection extends \CMSMS\Database\Connection
                 $stmt = new Statement($this, $sql);
 
                 return $stmt->execute($valsarr);
-            } elseif (is_object($sql) && $sql instanceof CMSMS\Database\mysqli\Statement) {
+            } elseif (is_object($sql) && ($sql instanceof Statement)) {
                 return $sql->execute($valsarr);
             } else {
                 $errno = 4;
