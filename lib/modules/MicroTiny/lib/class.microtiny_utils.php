@@ -40,7 +40,7 @@ class microtiny_utils
       // Check if we are in object instance
       $config = \cms_utils::get_config();
       $mod = \cms_utils::get_module('MicroTiny');
-      if(!is_object($mod)) throw new \CmsLogicException('Could not find the microtiny module...');
+      if(!is_object($mod)) throw new \CmsLogicException('Could not find the MicroTiny module...');
 
       $frontend = \CmsApp::get_instance()->is_frontend_request();
       $languageid = self::GetLanguageId($frontend);
@@ -50,10 +50,10 @@ class microtiny_utils
       try {
           $profile = null;
           if( $frontend ) {
-              $profile = microtiny_profile::load(MicroTiny::PROFILE_FRONTEND);
+              $profile = microtiny_profile::load(\MicroTiny::PROFILE_FRONTEND);
           }
           else {
-              $profile = microtiny_profile::load(MicroTiny::PROFILE_ADMIN);
+              $profile = microtiny_profile::load(\MicroTiny::PROFILE_ADMIN);
           }
 
           if( !$profile['allowcssoverride'] ) {
@@ -158,10 +158,10 @@ class microtiny_utils
       try {
           $profile = null;
           if( $frontend ) {
-              $profile = microtiny_profile::load(MicroTiny::PROFILE_FRONTEND);
+              $profile = microtiny_profile::load(\MicroTiny::PROFILE_FRONTEND);
           }
           else {
-              $profile = microtiny_profile::load(MicroTiny::PROFILE_ADMIN);
+              $profile = microtiny_profile::load(\MicroTiny::PROFILE_ADMIN);
           }
 
           $tpl_ob->assign('mt_profile',$profile);
@@ -188,17 +188,15 @@ class microtiny_utils
     $shortlang = substr($mylang,0,2);
 
     $mod = \cms_utils::get_module('MicroTiny');
-    $dir = $mod->GetModulePath().'/lib/js/tinymce/langs';
-    $langs = array();
-    {
-        $files = glob($dir.'/*.js');
-        if( is_array($files) && count($files) ) {
-            foreach( $files as $one ) {
-                $one = basename($one);
-                $one = substr($one,0,-3);
-                $langs[] = $one;
-            }
-        }
+    $dir = cms_join_path($mod->GetModulePath(),'lib','js','tinymce','langs');
+    $langs = [];
+    $files = glob($dir.DIRECTORY_SEPARATOR.'*.js');
+    if( is_array($files) && count($files) ) {
+         foreach( $files as $one ) {
+             $one = basename($one);
+             $one = substr($one,0,-3);
+             $langs[] = $one;
+         }
     }
 
     if( in_array($mylang,$langs) ) return $mylang;
@@ -217,13 +215,13 @@ class microtiny_utils
    */
   public static function GetThumbnailFile($file,$path,$url)
   {
-    $image='';
-    $imagepath = self::Slashes($path."/thumb_".$file);
-    $imageurl = self::Slashes($url."/thumb_".$file);
-    if (!file_exists($imagepath)) {
-      $image='';
-    } else {
+    $imagepath = str_replace(["\\",'/'],[DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR,], $path.'/thumb_'.$file);
+    if( file_exists($imagepath) ) {
+      $imageurl = self::Slashes($url."/thumb_".$file);
+      //TODO omit extension from alt, title
       $image="<img src='".$imageurl."' alt='".$file."' title='".$file."' />";
+    } else {
+      $image='';
     }
     return $image;
   }
