@@ -23,12 +23,13 @@ final class CMSContentManager extends CMSModule
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
-    public function IsPluginModule() { return FALSE; }
-    public function HasAdmin() { return TRUE; }
-    public function LazyLoadAdmin() { return TRUE; }
-    public function LazyLoadFrontend() { return TRUE; }
+    public function IsPluginModule() { return false; }
+    public function HasAdmin() { return true; }
+    public function LazyLoadAdmin() { return true; }
+    public function LazyLoadFrontend() { return true; }
     public function GetAdminSection() { return 'content'; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
+    public function IsAdminOnly() { return true; }
     public function MinimumCMSVersion() { return "1.99-alpha0"; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
@@ -39,11 +40,11 @@ final class CMSContentManager extends CMSModule
      */
     public function CanEditContent($content_id = -1)
     {
-        if( $this->CheckPermission('Manage All Content') ) return TRUE;
-        if( $this->CheckPermission('Modify Any Page') ) return TRUE;
+        if( $this->CheckPermission('Manage All Content') ) return true;
+        if( $this->CheckPermission('Modify Any Page') ) return true;
 
-        $pages = author_pages(get_userid(FALSE));
-        if( count($pages) == 0 ) return FALSE;
+        $pages = author_pages(get_userid(false));
+        if( count($pages) == 0 ) return false;
 
         return $content_id <= 0 || in_array($content_id,$pages);
     }

@@ -7,7 +7,6 @@
 # CMS - CMS Made Simple is (c) 2006 by Ted Kulp (wishy@cmsmadesimple.org)
 # This projects homepage is: http://www.cmsmadesimple.org
 #-------------------------------------------------------------------------
-#-------------------------------------------------------------------------
 # BEGIN_LICENSE
 #-------------------------------------------------------------------------
 # This file is part of AdminLog
@@ -39,6 +38,7 @@ final class AdminLog extends \CMSModule
     {
         parent::InitializeAdmin();
 
+        //NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
         \CMSMS\HookManager::add_hook('localizeperm',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
                 $key = 'perm_'.str_replace(' ','_',$perm_name);
@@ -67,16 +67,17 @@ final class AdminLog extends \CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname');  }
     public function GetVersion() { return '1.0'; }
     public function GetHelp() { return $this->Lang('help'); }
-    public function IsPluginModule() { return FALSE; }
-    public function HasAdmin() { return TRUE; }
+    public function IsPluginModule() { return false; }
+    public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'siteadmin'; }
-    public function LazyLoadAdmin() { return FALSE; }
+    public function IsAdminOnly() { return true; }
+    public function LazyLoadAdmin() { return false; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function HasCapability($capability, $params = array())
     {
-        if( $capability == \CmsCoreCapabilities::TASKS ) return TRUE;
-        if( $capability == 'clicommands' ) return TRUE;
+        if( $capability == \CmsCoreCapabilities::TASKS ) return true;
+        if( $capability == 'clicommands' ) return true;
     }
 
     public function get_tasks()

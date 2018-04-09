@@ -1,5 +1,4 @@
 <?php
-#-------------------------------------------------------------------------
 # Module: AdminSearch - A CMSMS addon module to provide admin side search capbilities.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,26 +14,25 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
 final class AdminSearch extends CMSModule
 {
-  function GetFriendlyName()  { return $this->Lang('friendlyname');  }
-  function GetVersion()  { return '1.0.5'; }
-  function MinimumCMSVersion()  { return '1.12-alpha0';  }
-  function LazyLoadAdmin() { return TRUE; }
-  function LazyLoadFrontend() { return TRUE; }
-  function IsPluginModule() { return FALSE; }
-  function GetAuthor() { return 'Calguy1000'; }
-  function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-  function HasAdmin() { return true; }
-  function GetAdminSection() { return 'extensions'; }
-  function GetHelp() { return $this->Lang('help'); }
-  function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
-  function GetAdminDescription() { return $this->Lang('moddescription'); }
+  public function GetFriendlyName()  { return $this->Lang('friendlyname');  }
+  public function GetVersion()  { return '1.0.5'; }
+  public function MinimumCMSVersion()  { return '1.12-alpha0';  }
+  public function LazyLoadAdmin() { return true; }
+  public function LazyLoadFrontend() { return true; }
+  public function IsPluginModule() { return false; }
+  public function GetAuthor() { return 'Calguy1000'; }
+  public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+  public function HasAdmin() { return true; }
+  public function GetAdminSection() { return 'extensions'; }
+  public function IsAdminOnly() { return true; }
+  public function GetHelp() { return $this->Lang('help'); }
+  public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
+  public function GetAdminDescription() { return $this->Lang('moddescription'); }
 
-  function VisibleToAdminUser()
+  public function VisibleToAdminUser()
   {
     return $this->can_search();
   }
@@ -44,12 +42,12 @@ final class AdminSearch extends CMSModule
       return $this->CheckPermission('Use Admin Search');
   }
 
-  function InstallPostMessage()
+  public function InstallPostMessage()
   {
     return $this->Lang('postinstall');
   }
 
-  function UninstallPostMessage()
+  public function UninstallPostMessage()
   {
     return $this->Lang('postuninstall');
   }
@@ -74,18 +72,13 @@ final class AdminSearch extends CMSModule
     if( count($files) ) {
       $output = array();
       foreach( $files as $onefile ) {
-	$parts = explode('.',basename($onefile));
-	$classname = implode('.',array_slice($parts,1,count($parts)-2));
-	if( $classname == 'AdminSearch_slave' ) continue;
-	$output[] = $classname;
+    $parts = explode('.',basename($onefile));
+    $classname = implode('.',array_slice($parts,1,count($parts)-2));
+    if( $classname == 'AdminSearch_slave' ) continue;
+    $output[] = $classname;
       }
       return $output;
     }
   }
 
 } // class
-
-#
-# EOF
-#
-?>

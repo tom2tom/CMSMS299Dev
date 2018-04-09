@@ -49,6 +49,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function HasAdmin() { return TRUE; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
+    public function IsAdminOnly()  { return TRUE; }
     public function LazyLoadFrontend() { return FALSE; }
     public function LazyLoadAdmin() { return FALSE; }
     public function VisibleToAdminUser() { return $this->CheckPermission(self::MANAGE_JOBS); }

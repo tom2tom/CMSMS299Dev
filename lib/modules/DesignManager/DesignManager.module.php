@@ -23,14 +23,15 @@ final class DesignManager extends CMSModule
     public function GetFriendlyName()  { return $this->Lang('friendlyname'); }
     public function GetVersion()  { return '1.1.6'; }
     public function MinimumCMSVersion()  { return '2.1'; }
-    public function LazyLoadAdmin() { return TRUE; }
-    public function LazyLoadFrontend() { return TRUE; }
-    public function IsPluginModule() { return FALSE; }
+    public function LazyLoadAdmin() { return true; }
+    public function LazyLoadFrontend() { return true; }
+    public function IsPluginModule() { return false; }
     public function GetAuthor() { return 'Calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'layout'; }
-    public function AllowAutoInstall() { return TRUE; }
+    public function IsAdminOnly() { return true; }
+    public function AllowAutoInstall() { return true; }
     public function GetHelp() { return CmsLangOperations::lang_from_realm('help','help_designmanager_help'); }
     public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }

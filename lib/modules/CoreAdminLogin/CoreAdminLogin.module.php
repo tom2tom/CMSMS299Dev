@@ -26,21 +26,22 @@ class CoreAdminLogin extends CMSModule
 {
     public $loginaction = 'admin_login';
     public $logoutaction = 'admin_login';
-	// mimimal methods used by metafile processor
+    // mimimal methods used by metafile processor
     public function GetName() { return 'CoreAdminLogin'; }
     public function GetVersion() { return '0.0.2'; }
-	public function GetAuthor() { return 'Robert Campbell'; }
-	public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function IsAdminOnly() { return true; }
 
-	public function GetChangeLog()
-	{
-		return ''.@file_get_contents(cms_join_path(__DIR__,'lib','doc','changelog.htm'));
-	}
+    public function GetChangeLog()
+    {
+        return ''.@file_get_contents(cms_join_path(__DIR__,'lib','doc','changelog.htm'));
+    }
 
-	public function GetHelp()
-	{
-		return ''.@file_get_contents(cms_join_path(__DIR__,'lib','doc','modhelp.htm'));
-	}
+    public function GetHelp()
+    {
+        return ''.@file_get_contents(cms_join_path(__DIR__,'lib','doc','modhelp.htm'));
+    }
 
     public function DoAction($name, $id, $params, $returnid = '')
     {
