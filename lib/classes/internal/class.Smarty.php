@@ -34,6 +34,7 @@ class Smarty extends smarty_base_template
 
     /**
      * Constructor
+	 * Although this is a singleton, the contructor must be public to conform with the class ancestors
      */
     public function __construct()
     {
@@ -112,10 +113,9 @@ class Smarty extends smarty_base_template
 
     /**
      * get_instance method
-     *
-     * @return object $this
+     * @return object
      */
-    public static function &get_instance()
+    final public static function &get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
@@ -216,7 +216,7 @@ class Smarty extends smarty_base_template
                 return TRUE;
             }
 
-            // see if it is a simple plugin
+            // check if it is a simple plugin
             $plugin = \CMSMS\CmsSimplePluginOperations::get_instance()->load_plugin( $name );
             if( $plugin ) {
                 $callback = $plugin;

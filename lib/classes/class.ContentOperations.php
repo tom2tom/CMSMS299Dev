@@ -70,11 +70,15 @@ class ContentOperations
 	private function __construct() {}
 
 	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+	/**
 	 * Return a reference to the only allowed instance of this singleton object
-	 *
 	 * @return ContentOperations
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;

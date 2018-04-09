@@ -43,11 +43,6 @@ class UserOperations
 	/**
 	 * @ignore
 	 */
-//	protected function __construct() {}
-
-	/**
-	 * @ignore
-	 */
 	private static $_instance = null;
 
 	/**
@@ -66,15 +61,23 @@ class UserOperations
 	private $_saved_users = [];
 
 	/**
+	 * @ignore
+	 */
+	private function __construct() {}
+
+	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+	/**
 	 * Get the reference to the only instance of this object.
 	 *
 	 * @return UserOperations
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
-		if (!self::$_instance) {
-			self::$_instance = new self();
-		}
+		if (!self::$_instance) self::$_instance = new self();
 		return self::$_instance;
 	}
 

@@ -131,23 +131,28 @@ final class CmsApp {
 
 	/**
 	 * Constructor
+	 * @ignore
 	 */
-	protected function __construct()
+	private function __construct()
 	{
 		register_shutdown_function(array(&$this, 'dbshutdown'));
 	}
+
+    /**
+     * @ignore
+     */
+    private function __clone() {}
 
 	/**
 	 * Retrieve the single app instance.
 	 *
 	 * @since 1.10
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
 		if( !self::$_instance  ) self::$_instance = new self();
 		return self::$_instance;
 	}
-
 
 	/**
 	 * Retrieve the installed schema version.

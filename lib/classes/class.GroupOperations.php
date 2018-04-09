@@ -48,18 +48,22 @@ final class GroupOperations
 	 */
 	private $_perm_cache;
 
-
 	/**
 	 * @ignore
 	 */
 	private function __construct() {}
 
 	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+	/**
 	 * Retrieve the single instance of this class
 	 *
 	 * @return GroupOperations
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;

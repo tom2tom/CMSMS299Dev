@@ -21,16 +21,27 @@ namespace CMSMS\internal;
 
 final class LoginOperations
 {
-    private static $_instance;
+	/**
+     * @ignore
+     */
+    private static $_instance = null;
     private $_loginkey;
     private $_data;
 
-    protected function __construct()
+	/**
+     * @ignore
+     */
+    private function __construct()
     {
         $this->_loginkey = md5(__FILE__.__CLASS__.CMS_VERSION);
     }
 
-    public static function &get_instance()
+	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+    final public static function &get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;

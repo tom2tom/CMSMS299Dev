@@ -38,17 +38,28 @@ use \ModuleOperations;
  */
 final class module_meta
 {
+	/**
+     * @ignore
+     */
     private static $_instance = null;
     private $_data = [];
 
+	/**
+     * @ignore
+     */
     private function __construct() {}
+
+	/**
+     * @ignore
+     */
+    private function __clone() {}
 
     /**
      * Get the instance of this object.  The object will be instantiated if necessary
      *
      * @return object
      */
-    public static function &get_instance()
+    final public static function &get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;

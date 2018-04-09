@@ -48,15 +48,19 @@ final class UserTagOperations
 	private function __construct() {}
 
 	/**
+     * @ignore
+     */
+    private function __clone() {}
+
+	/**
 	 * Get a reference to thie only allowed instance of this class
 	 * @return UserTagOperations
 	 */
-	public static function &get_instance()
+	final public static function &get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
 	}
-
 
 	/**
 	 * @ignore
