@@ -1,5 +1,5 @@
 <?php
-#module action: edit page content
+#CMSContentManager-module action: edit page content
 #Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple module CMSContentManager
 #  <http://dev.cmsmadesimple.org>
@@ -16,9 +16,17 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+global $CMS_JOB_TYPE;
+
 if( !isset($gCms) ) exit;
 
 $this->SetCurrentTab('pages');
+
+if( isset($params['cancel']) ) {
+    unset($_SESSION['__cms_copy_obj__']);
+    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->RedirectToAdminTab();
+}
 
 //
 // init
@@ -33,12 +41,6 @@ try {
     $active_tab = null;
 
     if( isset($params['content_id']) ) $content_id = (int)$params['content_id'];
-
-    if( isset($params['cancel']) ) {
-        unset($_SESSION['__cms_copy_obj__']);
-        $this->SetMessage($this->Lang('msg_cancelled'));
-        $this->RedirectToAdminTab();
-    }
 
     if( $content_id < 1 ) {
         // adding.
@@ -100,7 +102,7 @@ try {
         $content_obj->SetParentId($dflt_parent);
     }
     else {
-        // editint an existing content object
+        // editing an existing content object
         $content_obj = $contentops->LoadContentFromId($content_id);
         $content_type = $content_obj->Type();
         if( isset($params['content_type']) ) {
@@ -248,12 +250,13 @@ if( $content_id && CmsContentManagerUtils::locking_enabled() ) {
 }
 
 $tab_names = null;
-$tab_contents_array = array();
-$tab_message_array = array();
+$tab_contents_array = [];
+$tab_message_array = [];
+
 try {
     $tab_names = $content_obj->GetTabNames();
-    $tab_contents_array = array();
-    $tab_message_array = array();
+    $tab_contents_array = [];
+    $tab_message_array = [];
 
     // the content object may not have a main tab, but we require one
     if( !in_array($content_obj::TAB_MAIN,$tab_names) ) {
@@ -288,42 +291,263 @@ catch( Exception $e ) {
     $error = $e->GetMessage();
 }
 
-if( $error ) echo $this->ShowErrors($error);
+if( $error ) {
+    $this->ShowErrors($error);
+}
 
-
-// give stuff to smarty.
 if( $content_obj->HasPreview() ) {
-    $config = cmsms()->GetConfig();
     $smarty->assign('has_preview',1);
-    $smarty->assign('preview_url',"{$config['root_url']}/index.php?{$config['query_var']}=".__CMS_PREVIEW_PAGE__);
+    $preview_url = $config['root_url'].'/index.php?'.$config['query_var'].'='.__CMS_PREVIEW_PAGE__;
+    $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
+    $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
+} else {
+    $preview_url = '';
+    $preview_ajax_url = '';
 }
 
 if( $this->GetPreference('template_list_mode','designpage') != 'all')  {
     $tmp = $this->create_url($id,'admin_ajax_gettemplates',$returnid);
-    $tmp = str_replace('amp;','',$tmp).'&showtemplate=false';
-    $smarty->assign('designchanged_ajax_url',$tmp);
+    $designchanged_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
+} else {
+    $designchanged_ajax_url = '';
 }
 
-$parms = array();
-if( $content_id > 0 ) $parms['content_id']=$content_id;
-$url = str_replace('&amp','&',$this->create_url($id,'admin_editcontent',$returnid,$parms)).'&showtemplate=false';
-$smarty->assign('apply_ajax_url',$url);
-$smarty->assign('preview_ajax_url',$this->create_url($id,'admin_editcontent',$returnid,array('preview'=>1)));
-$smarty->assign('lock_timeout',$this->GetPreference('locktimeout'));
-$smarty->assign('lock_refresh',$this->GetPreference('lockrefresh'));
-$smarty->assign('options_tab_name',$content_obj::TAB_OPTIONS);
+$parms = [];
+if( $content_id > 0 ) $parms['content_id'] = $content_id;
+$tmp = $this->create_url($id,'admin_editcontent',$returnid,$parms);
+$apply_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
+$lock_timeout = $this->GetPreference('locktimeout');
+$lock_refresh = $this->GetPreference('lockrefresh');
+$do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
+$options_tab_name = $content_obj::TAB_OPTIONS;
+$msg = json_encode($this->Lang('msg_lostlock'));
+
+$out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  var do_locking = $do_locking;
+  // initialize the dirtyform stuff
+  $('#Edit_Content').dirtyForm({
+    beforeUnload: function(is_dirty) {
+      if (do_locking) $('#Edit_Content').lockManager('unlock').done(function() {
+        console.log('after dirtyform unlock');
+      });
+    },
+    unloadCancel: function() {
+      if (do_locking) $('#Edit_Content').lockManager('relock');
+    }
+  });
+  // initialize lock manager
+  if (do_locking) {
+    $('#Edit_Content').lockManager({
+      type: 'content',
+      oid: $content_id,
+      uid: $user_id,
+      lock_timeout: $lock_timeout,
+      lock_refresh: $lock_refresh,
+      error_handler: function(err) {
+        cms_alert({$this->Lang("lockerror")}: ' + err.type + ' -- ' + err.msg);
+      },
+      lostlock_handler: function(err) {
+      // we lost the lock on this content... make sure we can't save anything.
+      // and display a nice message.
+        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang("close")}').fadeIn();
+        $('#Edit_Content').dirtyForm('option', 'dirty', false);
+        cms_alert($msg);
+      }
+    });
+  }
+
+EOS;
+
+if ($preview_url) {
+    $out .= <<<EOS
+  $('#_preview_').click(function() {
+    if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave();
+    // serialize the form data
+    var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
+    data.push({
+      'name': '{$id}preview',
+      'value': 1
+    });
+    data.push({
+      'name': '{$id}ajax',
+      'value': 1
+    });
+    $.post('$preview_ajax_url', data, function(resultdata, textStatus, jqXHR) {
+      if (resultdata !== null && resultdata.response == 'Error') {
+        $('#previewframe').attr('src', '').hide();
+        $('#preview_errors').html('<ul></ul>');
+        for (var i = 0; i < resultdata.details.length; i++) {
+          $('#preview_errors').append('<li>' + resultdata.details[i] + '</li>');
+        }
+        $('#previewerror').show();
+      } else {
+        var x = new Date().getTime();
+        var url = '{$preview_url}&junk=' + x;
+        $('#previewerror').hide();
+        $('#previewframe').attr('src', url).show();
+      }
+    }, 'json');
+  });
+
+EOS;
+}
+    $out .= <<<EOS
+  // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
+  $('#id_disablewysiwyg, #template_id, #content_type').on('change', function() {
+    // disable the dirty form stuff, and unlock because we're gonna relockit on reload.
+    var self = this;
+    var this_id = $(this).attr('id');
+    $('#Edit_Content').dirtyForm('disable');
+    if (this_id != 'content_type') $('#active_tab').val('{$options_tab_name}');
+    if (do_locking) {
+      if (do_locking) $('#Edit_Content').lockManager('unlock', 1).done(function() {
+        $(self).closest('form').submit();
+      });
+    } else {
+      $(self).closest('form').submit();
+    }
+  });
+
+  // handle cancel/close ... and unlock
+  $(document).on('click', '[name$=cancel]', function(ev) {
+    // turn off all required elements, we're cancelling
+    $('#Edit_Content :hidden').removeAttr('required');
+    // do not touch the dirty flag, so that theunload handler stuff can warn us.
+    if (do_locking) {
+      // unlock the item, and submit the form.
+      var self = this;
+      var form = $(this).closest('form');
+      ev.preventDefault();
+      $('#Edit_Content').lockManager('unlock', 1).done(function() {
+        var el = $('<input type="hidden"/>');
+        el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
+        form.submit();
+      });
+    }
+  });
+
+  $(document).on('click', '[name$=submit]', function(ev) {
+    // set the form to not dirty.
+    $('#Edit_Content').dirtyForm('option', 'dirty', false);
+    if (do_locking) {
+      // unlock the item, and submit the form
+      var self = this;
+      ev.preventDefault();
+      var form = $(this).closest('form');
+      $('#Edit_Content').lockManager('unlock', 1).done(function() {
+        var el = $('<input type="hidden"/>');
+        el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
+        form.submit();
+      });
+    }
+  });
+
+  // handle apply (ajax submit)
+  $(document).on('click', '[name$=apply]', function() {
+    // apply does not do an unlock.
+    if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
+    var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
+    data.push({
+      'name': '{$id}ajax',
+      'value': 1
+    });
+    data.push({
+      'name': '{$id}apply',
+      'value': 1
+    });
+    $.ajax({
+      type: 'POST',
+      url: '{$apply_ajax_url}',
+      data: data,
+      dataType: 'json',
+    }).done(function(data, text) {
+      var event = $.Event('cms_ajax_apply');
+      event.response = data.response;
+      event.details = data.details;
+      event.close = '{$this->Lang("close")}';
+      if (typeof data.url !== 'undefined' && data.url !== '') event.url = data.url;
+      $('body').trigger(event);
+    });
+    return false;
+  });
+
+  $(document).on('cms_ajax_apply', function(e) {
+    $('#Edit_Content').dirtyForm('option', 'dirty', false);
+    if (typeof e.url !== 'undefined' && e.url !== '') {
+      $('a#viewpage').attr('href', e.url);
+    }
+  });
+
+EOS;
+if ($designchanged_ajax_url) {
+    $msg = json_encode($this->Lang('warn_notemplates_for_design'));
+    $out .= <<<EOS
+  $('#design_id').change(function(e, edata) {
+    var v = $(this).val();
+    var lastValue = $(this).data('lastValue');
+    var data = {'{$id}design_id': v};
+    $.get('$designchanged_ajax_url', data, function(data, text) {
+      if (typeof data == 'object') {
+        var sel = $('#template_id').val();
+        var fnd = false;
+        var first = null;
+        for (var key in data) {
+          if (first === null) first = key;
+          if (key == sel) fnd = true;
+        }
+        if (!first) {
+          $('#design_id').val(lastValue);
+          cms_alert($msg);
+        } else {
+          $('#template_id').val('');
+          $('#template_id').empty();
+          for (key in data) {
+            $('#template_id').append('<option value="' + key + '">' + data[key] + '</option>');
+          }
+          if (fnd) {
+            $('#template_id').val(sel);
+          } else if (first) {
+            $('#template_id').val(first);
+          }
+          if (typeof edata === 'undefined' || typeof edata.skip_fallthru === 'undefined') {
+            $('#template_id').trigger('change');
+          }
+        }
+      }
+    }, 'json');
+  });
+
+  $('#design_id').trigger('change', [{ skip_fallthru: 1 }]);
+  $('#design_id').data('lastValue', $('#design_id').val());
+  $('#template_id').data('lastValue', $('#template_id').val());
+  $('#Edit_Content').dirtyForm('option', 'dirty', false);
+
+EOS;
+}
+    $out .= <<<EOS
+});
+//]]>
+</script>
+EOS;
+
+if (!empty($CMS_JOB_TYPE)) {
+    echo $out;
+} else {
+	$themeObject = cms_utils::get_theme_object();
+	$themeObject->add_footertext($out);
+}
+
 $smarty->assign('active_tab',$active_tab);
 $smarty->assign('content_id',$content_id);
 $smarty->assign('content_obj',$content_obj);
 $smarty->assign('tab_names',$tab_names);
 $smarty->assign('tab_contents_array',$tab_contents_array);
 $smarty->assign('tab_message_array',$tab_message_array);
-$factory = new ContentAssistantFactory($content_obj);
-/* $assistant = $factory->getEditContentAssistant(); */
+/*$factory = new ContentAssistantFactory($content_obj);
+  $assistant = $factory->getEditContentAssistant(); */
 /* if( is_object($assistant) ) $smarty->assign('extra_content',$assistant->getExtraCode()); */
 
 echo $this->ProcessTemplate('admin_editcontent.tpl');
-
-#
-# EOF
-#
