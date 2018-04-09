@@ -59,7 +59,7 @@ class cms_cache_handler
    *
    * @return cms_cache_handler
    */
-  final public static function get_instance()
+  final public static function get_instance() : self
   {
     if( !is_object(self::$_instance) ) self::$_instance = new self();
     return self::$_instance;
@@ -95,7 +95,7 @@ class cms_cache_handler
    * @param string $group
    * @return bool
    */
-  final public function clear($group = '')
+  final public function clear(string $group = '') : bool
   {
     if( !$this->can_cache() ) return FALSE;
     if( is_object($this->_driver) ) return $this->_driver->clear($group);
@@ -110,7 +110,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return mixed
    */
-  final public function get($key,$group = '')
+  final public function get(string $key, string $group = '')
   {
     if( !$this->can_cache() ) return FALSE;
     if( is_object($this->_driver) ) return $this->_driver->get($key,$group);
@@ -125,7 +125,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function exists($key,$group = '')
+  final public function exists(string $key, string $group = '') : bool
   {
     if( !$this->can_cache() ) return FALSE;
     if( is_object($this->_driver) ) return $this->_driver->exists($key,$group);
@@ -140,7 +140,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function erase($key,$group = '')
+  final public function erase(string $key, string $group = '') : bool
   {
     if( !$this->can_cache() ) return FALSE;
     if( is_object($this->_driver) ) return $this->_driver->erase($key,$group);
@@ -156,7 +156,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function set($key,$value,$group = '')
+  final public function set(string $key,$value, string $group = '') : bool
   {
     if( !$this->can_cache() ) return FALSE;
     if( is_object($this->_driver) ) return $this->_driver->set($key,$value,$group);
@@ -170,7 +170,7 @@ class cms_cache_handler
    * @param string $group
    * @return bool
    */
-  final public function set_group($group)
+  final public function set_group(string $group) : bool
   {
     if( is_object($this->_driver) ) return $this->_driver->set_group($group);
     return FALSE;
@@ -181,7 +181,7 @@ class cms_cache_handler
    * Caching is not possible if there is no driver, or in an install request.
    * @return bool
    */
-  final public function can_cache()
+  final public function can_cache() : bool
   {
     global $CMS_INSTALL_PAGE;
 
@@ -192,4 +192,3 @@ class cms_cache_handler
   }
 }
 
-?>
