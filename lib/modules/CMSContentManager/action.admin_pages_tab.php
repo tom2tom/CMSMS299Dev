@@ -1,10 +1,10 @@
 <?php
 #BEGIN_LICENSE
 #-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell 
+# Module: Content (c) 2013 by Robert Campbell
 #         (calguy1000@cmsmadesimple.org)
 #  A module for managing content in CMSMS.
-# 
+#
 #-------------------------------------------------------------------------
 # CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,7 +29,6 @@
 use \CMSMS\internal\bulkcontentoperations;
 
 if( !isset($gCms) ) exit;
-$error = '';
 
 if( !function_exists('cm_prettyurls_ok') ) {
   function cm_prettyurls_ok()
@@ -46,11 +45,11 @@ if( !function_exists('cm_prettyurls_ok') ) {
   }
 }
 
-if( isset($params['multisubmit']) && isset($params['multiaction']) && 
+if( isset($params['multisubmit']) && isset($params['multiaction']) &&
     isset($params['multicontent']) && is_array($params['multicontent']) && count($params['multicontent']) > 0 ) {
   list($module,$bulkaction) = explode('::',$params['multiaction'],2);
   if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
-    $this->SetMessage($this->Lang('error_nobulkaction'));
+    $this->SetError($this->Lang('error_nobulkaction'));
     $this->RedirectToAdminTab();
   }
   // redirect to special action to handle bulk content stuff.
@@ -63,7 +62,7 @@ $smarty->assign('prettyurls_ok',cm_prettyurls_ok());
 $smarty->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'));
 $smarty->assign('can_reorder_content',$this->CheckPermission('Manage All Content'));
 
-// load all the content that this user can display... 
+// load all the content that this user can display...
 // organize it into a tree
 $builder = new \CMSContentManager\ContentListBuilder($this);
 $curpage = 1;
@@ -93,27 +92,27 @@ if( isset($params['collapse']) ) {
 }
 if( isset($params['setinactive']) ) {
   $builder->set_active($params['setinactive'],FALSE);
-  if( !$res ) $error = $this->Lang('error_setinactive');
+  if( !$res ) $this->ShowErrors($this->Lang('error_setinactive'));
 }
 if( isset($params['setactive']) ) {
   $res = $builder->set_active($params['setactive'],TRUE);
-  if( !$res ) $error = $this->Lang('error_setactive');
+  if( !$res ) $this->ShowErrors($this->Lang('error_setactive'));
 }
 if( isset($params['setdefault']) ) {
   $res = $builder->set_default($params['setdefault'],TRUE);
-  if( !$res ) $error = $this->Lang('error_setdefault');
+  if( !$res ) $this->ShowErrors($this->Lang('error_setdefault'));
 }
 if( isset($params['moveup']) ) {
   $res = $builder->move_content($params['moveup'],-1);
-  if( !$res ) $error = $this->Lang('error_movecontent');
+  if( !$res ) $this->ShowErrors($this->Lang('error_movecontent'));
 }
 if( isset($params['movedown']) ) {
   $res = $builder->move_content($params['movedown'],1);
-  if( !$res ) $error = $this->Lang('error_movecontent');
+  if( !$res ) $this->ShowErrors($this->Lang('error_movecontent'));
 }
 if( isset($params['delete']) ) {
   $res = $builder->delete_content($params['delete']);
-  if( $res ) $error = $res;
+  if( $res ) $this->ShowErrors($res);
 }
 
 //
@@ -149,10 +148,9 @@ else {
 }
 $smarty->assign('content_list',$editinfo);
 $smarty->assign('ajax',$ajax);
-if( $error ) $smarty->assign('error',$error);
 
 $opts = array();
-if( $this->CheckPermission('Remove Pages') || 
+if( $this->CheckPermission('Remove Pages') ||
     $this->CheckPermission('Manage All Content') ) {
   bulkcontentoperations::register_function($this->Lang('bulk_delete'),'delete');
 }

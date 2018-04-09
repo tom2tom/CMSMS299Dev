@@ -110,7 +110,7 @@ if( isset( $params['submit'] ) ) {
             $elem = $id.'news_customfield_'.$onefield['id'];
             if( isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
                 if( $_FILES[$elem]['error'] == 0 && $_FILES[$elem]['tmp_name'] != '' ) {
-                    $error = '';
+                    $error = false;
                     $value = news_admin_ops::handle_upload($articleid,$elem,$error);
                     if( $value === FALSE ) throw new CmsException($error);
                     $params['news_customfield_'.$onefield['id']] = $value;

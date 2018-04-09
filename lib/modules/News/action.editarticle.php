@@ -137,12 +137,13 @@ if (isset($params['submit']) || isset($params['apply'])) {
                 $elem = $id . 'customfield_' . $onetype['id'];
                 if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
                     if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
-                        $error = $this->Lang('error_upload');
+                        $error = true;
+						$this->ShowErrors($this->Lang('error_upload'));
                     } else {
-                        $error = '';
+                        $error = false;
                         $value = news_admin_ops::handle_upload($articleid, $elem, $error);
                         $smarty->assign('checking', 'blah');
-                        if ($value !== FALSE)
+                        if ($value !== false)
                             $params['customfield'][$onetype['id']] = $value;
                     }
                 }
@@ -269,9 +270,6 @@ if (isset($params['submit']) || isset($params['apply'])) {
         return;
     }
 
-    if ($error)
-        $this->ShowErrors($error);
-
 // end submit or apply
 } elseif (isset($params['preview'])) {
     // save data for preview.
@@ -311,7 +309,8 @@ if (isset($params['submit']) || isset($params['apply'])) {
     $response .= '</EditArticle>';
 
     $handlers = ob_list_handlers();
-    for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean();
+    for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) {
+        ob_end_clean();
     }
     header('Content-Type: text/xml');
     echo $response;
