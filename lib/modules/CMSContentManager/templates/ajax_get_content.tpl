@@ -1,5 +1,5 @@
-<div class="row pageoverflow">
-  <div class="pageoptions" style="margin-top: 8px;">
+<div class="row c_full cf">
+  <div class="pageoptions grid_8" style="margin-top: 8px;">
     {if $can_add_content}
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('addcontent')}" class="pageoptions">{admin_icon icon='newobject.gif' alt=$mod->Lang('addcontent')}&nbsp;{$mod->Lang('addcontent')}</a>
     {/if}
@@ -17,7 +17,7 @@
     {if !empty($have_filter)}<span style="color: red;"><em>({$mod->Lang('filter_applied')})</em></span>{/if}
   </div>
 
-  <div class="pageoptions options-form" style="float: right;">
+  <div class="pageoptions options-form grid_4" style="float: right;">
     {if isset($content_list)}
     <span>
       <label for="ajax_find">{$mod->Lang('find')}:</label>
@@ -231,14 +231,14 @@
  {/if}
 </div>{* #contentlist *}
 {if isset($content_list)}
-  <div class="row pageoverflow">
+  <div class="row c_full cf">
   {if $can_add_content}
-  <div class="pageoptions pregap">
+  <div class="pageoptions grid_6" style="margin-top: 8px;">
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('addcontent')}" class="pageoptions">{admin_icon icon='newobject.gif' alt=$mod->Lang('addcontent')}&nbsp;{$mod->Lang('addcontent')}</a>
   </div>
   {/if}
   {if $multiselect && isset($bulk_options)}
-  <div class="pageoptions" style="text-align: right;">
+  <div class="pageoptions grid_6" style="text-align: right;">
     <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>
     &nbsp;&nbsp;
     <select name="{$actionid}multiaction" id="multiaction">

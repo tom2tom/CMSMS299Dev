@@ -94,13 +94,16 @@ $(document).ready(function() {
 {/if}
 
 {form_start id="form_edittemplate" extraparms=$extraparms}
-<fieldset>
-    <div class="pageinput postgap">
+<fieldset class="cf">
+  <div class="grid_6">
+    <div class="pageoverflow">
+      <p class="pageinput">
         <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
         <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
         {if $template->get_id()}
         <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
        {/if}
+      </p>
     </div>
 
     <div class="pageoverflow">
@@ -124,6 +127,8 @@ $(document).ready(function() {
     </div>
     {/if}
 
+  </div>{* column *}
+  <div class="grid_6">
     {if $template->get_id()}
     <div class="pageoverflow">
       <p class="pagetext">
@@ -144,6 +149,7 @@ $(document).ready(function() {
       </p>
     </div>
     {/if}
+  </div>{* column *}
 </fieldset>
 
 {tab_header name='template' label=$mod->Lang('prompt_template')}

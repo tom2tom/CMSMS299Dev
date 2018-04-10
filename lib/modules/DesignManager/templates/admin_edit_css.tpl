@@ -104,43 +104,49 @@ $(document).ready(function() {
 {/if}
 
 {form_start id='form_editcss' extraparms=$extraparms}
-<fieldset>
-  <div class="pageinput postgap">
+<fieldset class="cf">
+<div class="grid_6">
+  <div class="pageoverflow">
+    <p class="pageinput">
       <button type="submit" name="{$actionid}submit" id="submitbtn" class="adminsubmit icon check"  {$disable|strip}>{$mod->Lang('submit')}</button>
       <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
       {if $css->get_id()}
        <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
       {/if}
+    </p>
   </div>
-  <div class="pageinput postgap">
+  <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_name">*{$mod->Lang('prompt_name')}:</label>
     {cms_help realm=$_module key2=help_stylesheet_name title=$mod->Lang('prompt_name')}
       </p>
-    <p>
+    <p class="pageinput">
       <input id="css_name" type="text" name="{$actionid}name" size="50" maxlength="90" value="{$css->get_name()}" placeholder="{$mod->Lang('new_stylesheet')}" />
     </p>
   </div>
+</div>{* column *}
+<div class="grid_6">
   {if $css->get_id()}
-  <div class="pageinput postgap">
+  <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_created">{$mod->Lang('prompt_created')}:</label>
     {cms_help realm=$_module key2=help_stylesheet_created title=$mod->Lang('prompt_created')}
       </p>
-    <p>
+    <p class="pageinput">
       {$css->get_created()|date_format:'%x %X'}
     </p>
   </div>
-  <div class="pageinput pageoverflow">
+  <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_modified">{$mod->Lang('prompt_modified')}:</label>
     {cms_help realm=$_module key2=help_stylesheet_modified title=$mod->Lang('prompt_modified')}
       </p>
-    <p>
+    <p class="pageinput">
       {$css->get_modified()|date_format:'%x %X'}
     </p>
   </div>
   {/if}
+</div>{* column *}
 </fieldset>
 
 {tab_header name='content' label=$mod->Lang('prompt_stylesheet')}

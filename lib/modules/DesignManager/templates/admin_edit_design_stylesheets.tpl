@@ -124,8 +124,8 @@ $(document).ready(function() {
 {if !isset($all_stylesheets)}
 <div class="pagewarn">{$mod->Lang('warning_editdesign_nostylesheets')}</div>
 {else} {$cssl = $design->get_stylesheets()}
-<div class="pageoverflow">
-  <div class="draggable-area">
+<div class="c_full cf">
+  <div class="grid_6 draggable-area">
     <fieldset>
       <legend>{$mod->Lang('available_stylesheets')}</legend>
       <div id="available-stylesheets">
@@ -140,7 +140,7 @@ $(document).ready(function() {
       </div>
     </fieldset>
   </div>
-  <div>
+  <div class="grid_6">
     <fieldset>
       <legend>{$mod->Lang('attached_stylesheets')}</legend>
       <div id="selected-stylesheets">
