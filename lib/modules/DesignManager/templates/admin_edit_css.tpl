@@ -118,8 +118,8 @@ $(document).ready(function() {
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_name">*{$mod->Lang('prompt_name')}:</label>
-    {cms_help realm=$_module key2=help_stylesheet_name title=$mod->Lang('prompt_name')}
-      </p>
+      {cms_help realm=$_module key2=help_stylesheet_name title=$mod->Lang('prompt_name')}
+    </p>
     <p class="pageinput">
       <input id="css_name" type="text" name="{$actionid}name" size="50" maxlength="90" value="{$css->get_name()}" placeholder="{$mod->Lang('new_stylesheet')}" />
     </p>
