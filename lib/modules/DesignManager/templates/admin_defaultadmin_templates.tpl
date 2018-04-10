@@ -124,7 +124,7 @@ $(document).ready(function() {
       <option value="100"{if $tpl_filter.limit == 100} selected="selected"{/if}>100</option>
     </select>
   </div>
-  {form_end}
+  </form>
 </div>{* #filterdialog *}
 
 {if $has_add_right}
@@ -134,14 +134,14 @@ $(document).ready(function() {
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="tpl_import_type">{$mod->Lang('tpl_type')}:</label>
-  </p>
+    </p>
     <p class="pageinput">
       <select name="{$actionid}import_type" id="tpl_import_type" title="{$mod->Lang('title_tpl_import_type')}">
         {html_options options=$list_types}
       </select>
     </p>
   </div>
-  {form_end}
+  </form>
 </div>{* #addtemplatedialog *}
 {/if}
 

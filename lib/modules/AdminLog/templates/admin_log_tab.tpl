@@ -60,7 +60,7 @@ $(document).ready(function() {
       <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
     </div>
   </div>
-  {form_end}
+ </form>
 </div>
 
 {if !empty($results)}

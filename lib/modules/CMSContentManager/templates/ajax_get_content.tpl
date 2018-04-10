@@ -249,5 +249,5 @@
   {/if}
   </div>
 {/if}
-{form_end}
+</form>
 <div class="clearb"></div>

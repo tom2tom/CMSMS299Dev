@@ -84,7 +84,7 @@ $(document).ready(function() {
         <option value="100"{if isset($css_filter.limit) && $css_filter.limit == 100} selected="selected"{/if}>100</option>
       </select>
     </div>
-  {form_end}
+  </form>
 </div>
 
 <div id="stylesheet_area"></div>
