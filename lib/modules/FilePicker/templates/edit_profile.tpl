@@ -58,4 +58,4 @@
     <input type="checkbox" name="{$actionid}can_mkdir" id="profile_canmkdir" value="1"{if $profile->can_mkdir} checked="checked"{/if} />
   </p>
 </div>
-{form_end}
+</form>
