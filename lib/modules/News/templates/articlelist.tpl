@@ -92,8 +92,8 @@ $(document).ready(function() {
 </div>
 {/if}
 
-<div class="row c_full">
-  <div class="pageoptions grid_6" style="margin-top: 8px;">
+<div class="row pageoverflow">
+  <div class="pageoptions">
     {if $can_add}
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=$mod->Lang('addarticle')} {$mod->Lang('addarticle')}</a>&nbsp;
     {/if}
@@ -101,7 +101,7 @@ $(document).ready(function() {
     {$mod->Lang('viewfilter')}</a>
   </div>
   {if $itemcount > 0 && $pagecount > 1}
-  <div class="pageoptions grid_6" style="text-align: right;">
+  <div class="pageoptions">
     {form_start}
     {$mod->Lang('prompt_page')}&nbsp;
       <select name="{$actionid}pagenumber">
@@ -177,7 +177,7 @@ $(document).ready(function() {
 
 <div style="width:99%;">
   {if isset($addlink)} {if $itemcount > 10}
-  <div class="pageoptions grid_6" style="margin-top: 0;">
+  <div class="pageoptions">
     <p class="pageoptions">{$addlink}</p>
   </div>
   {/if}{/if}

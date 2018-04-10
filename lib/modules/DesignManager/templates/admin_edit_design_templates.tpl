@@ -161,8 +161,8 @@ $(document).ready(function() {
 {if !isset($all_templates)}
 <div class="pagewarn">{$mod->Lang('warning_edittemplate_notemplates')}</div>
 {else} {$tmpl=$design->get_templates()}
-<div class="c_full cf" id="template_sel">
-  <div class="grid_6 draggable-area">
+<div class="pageoverflow" id="template_sel">
+  <div class="draggable-area">
     <fieldset>
       <legend>{$mod->Lang('available_templates')}</legend>
       <div id="available-templates">
@@ -177,7 +177,7 @@ $(document).ready(function() {
       </div>
     </fieldset>
   </div>
-  <div class="grid_6">
+  <div>
     <fieldset>
       <legend>{$mod->Lang('attached_templates')}</legend>
       <div id="selected-templates">

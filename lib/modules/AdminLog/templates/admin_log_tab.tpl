@@ -18,7 +18,7 @@ $(document).ready(function() {
 {/literal}//]]>
 </script>
 
-<div class="c_full cf">
+<div class="pageoverflow">
   <a href="{cms_action_url action=download}&cmsjobtype=1">{admin_icon icon='export.gif'} {$mod->Lang('download')}</a>
   {if $mod->CheckPermission('Clear Admin Log')}
     <a href="{cms_action_url action=clear}">{admin_icon icon='delete.gif'} {$mod->Lang('clearlog')}</a>
@@ -36,26 +36,26 @@ $(document).ready(function() {
 
 <div id="filter_dlg" title="{$mod->Lang('filter')}" style="display: none; min-width: 500px;">
   {form_start}
-  <div class="c_full cf">
-    <label class="grid_3" for="f_sev">{$mod->Lang('f_sev')}:</label>
-    <select class="grid_8" id="f_sev" name="{$actionid}f_sev">
+  <div class="pageoverflow">
+    <label for="f_sev">{$mod->Lang('f_sev')}:</label>
+    <select id="f_sev" name="{$actionid}f_sev">
       {html_options options=$severity_list selected=$filter->severity}
     </select>
   </div>
-  <div class="c_full cf">
-    <label class="grid_3" for="f_act">{$mod->Lang('f_msg')}:</label>
-    <input class="grid_8" id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
+  <div class="pageoverflow">
+    <label for="f_act">{$mod->Lang('f_msg')}:</label>
+    <input id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
   </div>
-  <div class="c_full cf">
-    <label class="grid_3" for="f_item">{$mod->Lang('f_subj')}:</label>
-    <input class="grid_8" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
+  <div class="pageoverflow">
+    <label for="f_item">{$mod->Lang('f_subj')}:</label>
+    <input id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
   </div>
-  <div class="c_full cf">
-    <label class="grid_3" for="f_user">{$mod->Lang('f_user')}:</label>
-    <input class="grid_8" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
+  <div class="pageoverflow">
+    <label for="f_user">{$mod->Lang('f_user')}:</label>
+    <input id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
   </div>
-  <div class="c_full cf">
-    <div class="grid_12">
+  <div class="pageoverflow">
+    <div>
       <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{$mod->Lang('filter')}</button>
       <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
     </div>
