@@ -8,8 +8,8 @@
 {tab_start name='general'}
 <form id="siteprefform_general" action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="active_tab" value="general" />
-  <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+  <div class="pageinput">
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
   <div class="pageoverflow">
@@ -111,7 +111,7 @@
   </p>
   {/if}
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
@@ -125,8 +125,8 @@
     {cms_help key2='settings_nosefurl' title=lang('warn_nosefurl')}
   </div>
   {/if}
-  <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+  <div class="pageinput">
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
   {if $pretty_urls}
@@ -223,7 +223,7 @@
     </p>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
@@ -231,8 +231,8 @@
 {tab_start name='sitedown'}
 <form id="siteprefform_sitedown" action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="active_tab" value="sitedown" />
-  <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+  <div class="pageinput">
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
   <div class="pageoverflow">
@@ -269,13 +269,13 @@
     </p>
     <p class="pageinput">
       <input type="text" name="sitedownexcludes" id="sitedownexcludes" size="50" maxlength="255" value="{$sitedownexcludes}" />
-      <br />{$lang_info_sitedownexcludes}
+      <br />{lang('info_sitedownexcludes')}
       <br />
       <strong>{lang('your_ipaddress')}:</strong>&nbsp;<span style="color:red;">{cms_utils::get_real_ip()}</span>
     </p>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
@@ -295,8 +295,7 @@
       </p>
     </div>
     <div class="pageinput pregap">
-      <button type="submit" name="testmail" id="testsend" class="adminsubmit icon check">{lang('sendtest')}</button>
-      <button type="submit" name="canceltest" id="testcancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+      <button type="submit" name="testmail" id="testsend" class="adminsubmit icon do">{lang('sendtest')}</button>
     </div>
   </form>
 </div>
@@ -304,9 +303,9 @@
 <form id="siteprefform_mail" action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="active_tab" value="mail" />
   <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-    <button type="submit" name="testemail" id="mailertest" class="adminsubmit icon do">{lang('test')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+    <button type="submit" name="testemail" id="mailertest" class="adminsubmit icon do">{lang('test')}</button>
   </div>
 
   <fieldset id="set_general">
@@ -434,7 +433,7 @@
     </div>
   </fieldset>
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
@@ -453,7 +452,7 @@
     </p>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
@@ -462,7 +461,7 @@
 <form id="siteprefform_advanced" action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="active_tab" value="advanced" />
   <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
   <fieldset>
@@ -566,7 +565,7 @@
     </div>
   </fieldset>
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
