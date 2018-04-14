@@ -6,13 +6,14 @@
 
 {form_start tpl=$actionparams.tpl}
 <fieldset>
-  <div style="width: 49%; float: left;">
+  <div style="width:49%;float:left;">
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="tpl_name">*{$mod->Lang('prompt_name')}:</label>
-  </p>
+      {$lbltext=$mod->Lang('prompt_name')}<label for="tpl_name">* {$lbltext}:</label>
+      {cms_help realm=$_module key2='help_copytemplate_name' title=$lbltext}
+    </p>
     <p class="pageinput">
-      <input id="tpl_name" type="text" size="50" maxlength="50" value="{$tpl->get_name()}" readonly="readonly" />&nbsp;{admin_icon name='help_copytemplate_name' icon='info.png' class='helpicon'}
+      <input id="tpl_name" type="text" size="50" maxlength="50" value="{$tpl->get_name()}" readonly="readonly" />
     </p>
   </div>
 

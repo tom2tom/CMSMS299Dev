@@ -14,8 +14,8 @@
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
-    <label for="cat_name">*{$mod->Lang('prompt_name')}:</label>
-    {cms_help realm=$_module key='help_category_name' title=$mod->Lang('prompt_name')}
+    {$lbltext=$mod->Lang('prompt_name')}<label for="cat_name">* {$lbltext}:</label>
+    {cms_help realm=$_module key2='help_category_name' title=$lbltext}
   </p>
   <p class="pageinput">
     <input type="text" id="cat_name" name="{$actionid}name" value="{$category->get_name()}" size="50" maxlength="50" placeholder="{$mod->Lang('create_category')}"/>
@@ -23,8 +23,8 @@
 </div>
 <div class="pageoverflow">
   <p class="pagetext">
-    <label for="cat_description">{$mod->Lang('prompt_description')}:</label>
-    {cms_help realm=$_module key='help_category_desc' title=$mod->Lang('prompt_description')}
+    {$lbltext=$mod->Lang('prompt_description')}<label for="cat_description">{$lbltext}:</label>
+    {cms_help realm=$_module key2='help_category_desc' title=$lbltext}
   </p>
   <p class="pageinput">
     <textarea id="cat_description" name="{$actionid}description" rows="5" cols="80">{$category->get_description()}</textarea>

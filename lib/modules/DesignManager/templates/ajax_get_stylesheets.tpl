@@ -126,14 +126,14 @@
   {capture assign='stylesheet_dropdown_options'}
     <div class="pageoptions" id="bulkoptions" style="text-align: right;">
       <label for="css_bulk_action">{$mod->Lang('prompt_with_selected')}:</label>
-    &nbsp;
       <select name="{$actionid}css_bulk_action" id="css_bulk_action" class="cssx_bulk_action">
         <option value="delete" title="{$mod->Lang('title_delete')}">{$mod->Lang('prompt_delete')}</option>
         <option value="export">{$mod->Lang('export')}</option>
         <option value="import">{$mod->Lang('import')}</option>
       </select>
-      <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
-          {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_delete')}
+     {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_delete')}
+     <br />
+     <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
     </div>
   {/capture}
 

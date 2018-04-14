@@ -1,26 +1,22 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('.helpicon').click(function() {
-    var x = $(this).attr('name');
-    $('#'+x).dialog({ width: 'auto' });
-  });
-  $('.template_view').click(function() {
+  $('.template_view').on('click', function() {
     var row = $(this).closest('tr');
-    $('.template_content',row).dialog({
+    cms_dialog($('.template_content',row), {
       width: 'auto',
       close: function(ev, ui) {
-        $(this).dialog('destroy');
+        cms_dialog($(this), 'destroy');
       }
     });
     return false;
   });
-  $('.stylesheet_view').click(function() {
+  $('.stylesheet_view').on('click', function() {
     var row = $(this).closest('tr');
-    $('.stylesheet_content',row).dialog({
+    cms_dialog($('.stylesheet_content',row), {
       width: 'auto',
       close: function(ev, ui) {
-         $(this).dialog('destroy');
+        cms_dialog($(this), 'destroy');
       }
     });
     return false;
@@ -35,34 +31,41 @@ $(document).ready(function() {
 <div class="pageinfo">{$mod->Lang('info_import_xml_step2')}</div>
 
 <fieldset>
-  <div style="width: 49%; float: left;">
+  <!-- TODO GRID -->
+  <div style="width:49%;float:left;">
     <div class="pageoverflow">
       <p class="pagetext">
-      <label for="import_newname">{$mod->Lang('prompt_name')}:</label>
-  </p>
+      {$lbltxt=$mod->Lang('prompt_name')}<label for="import_newname">{$lbltxt}:</label>
+      {cms_help realm=$_module key2='help_import_newname' title=$lbltxt}
+      </p>
       <p class="pageinput">
-        <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50"/>
-        &nbsp;{admin_icon name='help_import_newname' icon='info.png' class='helpicon'}
+        <input id="import_newname" type="text" name="{$actionid}newname" value="{$new_name}" size="50" maxlength="50" />
         <br/>
         {$mod->Lang('prompt_orig_name')}: {$design_info.name}
       </p>
     </div>
 
     <div class="pageoverflow">
-      <p class="pagetext">{$mod->Lang('prompt_created')}:</p>
+      <p class="pagetext">
+      {$lbltxt=$mod->Lang('prompt_created')}{$lbltext}:
+      {cms_help realm=$_module key2='help_import_created' title=$lbltext}
+      </p>
       <p class="pageinput">
         {$tmp=$design_info.generated|date_format:'%x %X'}{if $tmp == ''}{$tmp=$mod->Lang('unknown')}{/if}
-        <span style="color: red;">{$tmp}</span>{cms_help realm=$_module key2='help_import_created' title=''}
+        <span class="red">{$tmp}</span>
       </p>
     </div>
   </div>
 
-  <div style="width: 49%; float: right;">
+  <div style="width:49%;float:right;">
     <div class="pageoverflow">
-      <p class="pagetext">{$mod->Lang('prompt_cmsversion')}:</p>
+      <p class="pagetext">
+      {$lbltxt=$mod->Lang('prompt_cmsversion')}{$lbltext}:
+      {cms_help realm=$_module key2='help_import_cmsversion' title=$lbltext}
+      </p>
       <p class="pageinput">
         {if version_compare($design_info.cmsversion,$cms_version) < 0}
-          <span style="color: red;">{$design_info.cmsversion}</span>&nbsp;{admin_icon name='help_import_cmsversion' icon='info.png' class='helpicon'}
+          <span class="red">{$design_info.cmsversion}</span>
         {else}
           {$design_info.cmsversion}
         {/if}
@@ -104,7 +107,7 @@ $(document).ready(function() {
     <td><h3>{$one.newname}</h3></td>
     <td>{$type_obj->get_langified_display_value()}</td>
     <td>{$one.desc|default:$mod->Lang('info_nodescription')|summarize:80}
-      <div id="tpl_{$one@index}" class="template_content" title="{$one.name}" style="display: none;"><textarea rows="10" cols="80">{$one.data}</textarea></div>
+      <div id="tpl_{$one@index}" class="template_content" title="{$one.name}" style="display:none;"><textarea rows="10" cols="80">{$one.data}</textarea></div>
     </td>
     <td>
       {admin_icon class="template_view pointer" icon='view.gif' alt=lang('view')}
@@ -160,9 +163,3 @@ $(document).ready(function() {
   <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
 </form>
-
-<div style="display: none;">{strip}
-  <div id="help_import_xml_file" title="{$mod->Lang('prompt_help')}">{$mod->Lang('help_import_xml_file')}</div>
-  <div id="help_import_newname" title="{$mod->Lang('prompt_help')}">{$mod->Lang('help_import_newname')}</div>
-  <div id="help_import_cmsversion" title="{$mod->Lang('prompt_help')}">{$mod->Lang('help_import_cmsversion')}</div>
-{/strip}</div>
