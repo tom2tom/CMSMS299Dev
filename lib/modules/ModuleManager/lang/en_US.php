@@ -292,6 +292,7 @@ $lang['warn_modulecustom'] = 'The following modules have customizations in the &
 $lang['xmltext'] = 'XML File';
 
 // Y
+$lang['yes'] = 'Yes';
 $lang['yourversion'] = 'Your Version';
 
 ?>
