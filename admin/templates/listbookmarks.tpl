@@ -39,7 +39,7 @@
         <a href="{$editurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}">{$iconedit}</a>
       </td>
       <td>
-        <a href="{$deleteurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}" onclick="return confirm('{cms_html_entity_decode(lang('deleteconfirm', $one->title))}');">{$icondel}</a>
+        <a href="{$deleteurl}{$urlext}&amp;bookmark_id={$one->bookmark_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(lang('deleteconfirm', $one->title))}');return false;">{$icondel}</a>
       </td>
       {/if}
 {/strip}

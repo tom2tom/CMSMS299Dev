@@ -76,13 +76,13 @@ $(document).ready(function() {
       set_changed();
     }
   });
-  $(document).on('click', '#available-templates li', function(ev) {
+  $('#available-templates li').on('click', function(ev) {
     $(this).focus();
   });
-  $(document).on('click', '#selected-templates li', function(ev) {
+  $('#selected-templates li').on('click', function(ev) {
     $('a:first', this).focus();
   });
-  $(document).on('keyup', '#available-templates li', function(ev) {
+  $('#available-templates li').on('keyup', function(ev) {
     if(ev.keyCode === $.ui.keyCode.ESCAPE) {
       // escape
       $('#available-templates li').removeClass('selected');
@@ -132,7 +132,7 @@ $(document).ready(function() {
       console.debug('got arrow');
     }
   });
-  $(document).on('click', '#selected-templates .sortable-remove', function(e) {
+  $('#selected-templates .sortable-remove').on('click', function(e) {
     // click on remove icon
     e.preventDefault();
     set_changed();
@@ -140,16 +140,17 @@ $(document).ready(function() {
     $(this).parent('li').removeClass('no-sort').appendTo('#available-templates ul');
     $(this).remove();
   });
-  $(document).on('click', 'a.edit_tpl', function(ev) {
+  $('a.edit_tpl').on('click', function(ev) {
     if(__changed) {
       ev.preventDefault();
-      var url = $(this).attr('href');
-      cms_confirm({/literal}'{$mod->Lang("confirm_save_design")}','{$mod->Lang("yes")}'{literal}).done(function() {
+      var el = this;
+      cms_confirm('{/literal}{$mod->Lang("confirm_save_design")}','{$mod->Lang("yes")}{literal}').done(function() {
         // save and redirect
         save_design().done(function() {
-          window.location.href = url;
+          window.location = $(el).attr('href');
         });
       });
+      return false;
     }
     // normal default link behavior.
   });

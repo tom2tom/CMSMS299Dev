@@ -12,12 +12,10 @@ $(document).ready(function() {
       }
     }
   });
-  $('#categorylist a.del_cat').click(function(ev) {
-    var self = $(this);
+  $('#categorylist a.del_cat').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("confirm_delete_category")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
-      window.location = self.attr('href');
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_delete_category")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
 });
 {/literal}//]]>

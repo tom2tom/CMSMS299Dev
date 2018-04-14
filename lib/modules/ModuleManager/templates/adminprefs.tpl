@@ -1,20 +1,22 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
-$(document).ready(function(){
-  $(document).on('click','#reseturl',function(ev) {
+$(document).ready(function() {
+  $('#reseturl').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');
     cms_confirm({/literal}'{$mod->Lang("confirm_reseturl")|escape:"javascript"}'{literal}).done(function() {
       $('#inp_reset').val(1);
       form.submit();
     });
+    return false;
   });
-  $(document).on('click','#settings_submit',function(ev) {
+  $('#settings_submit').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');
     cms_confirm({/literal}'{$mod->Lang("confirm_settings")|escape:"javascript"}{literal}').done(function() {
       form.submit();
     });
+    return false;
   });
 });
 {/literal}//]]>

@@ -50,7 +50,7 @@
       </td>
       <td class="pagepos icons_wide">
         {if $one->id != 1}
-        <a href="{$deleteurl}{$urlext}&amp;group_id={$one->id}" onclick="return confirm('{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');">{$icondel}</a>
+        <a href="{$deleteurl}{$urlext}&amp;group_id={$one->id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');return false;">{$icondel}</a>
         {/if}
       </td>
       {/if}

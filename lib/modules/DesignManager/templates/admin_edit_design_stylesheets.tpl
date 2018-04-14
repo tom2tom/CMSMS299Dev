@@ -104,16 +104,17 @@ $(document).ready(function() {
     $(this).parent('li').appendTo('#available-stylesheets ul');
     $(this).remove();
   });
-  $(document).on('click', 'a.edit_css', function(ev) {
+  $('a.edit_css').on('click', function(ev) {
     if(__changed) {
       ev.preventDefault();
-      var url = $(this).attr('href');
-      cms_confirm({/literal}'{$mod->Lang("confirm_save_design")}','{$mod->Lang("yes")}'{literal}).done(function() {
+      var el = this;
+      cms_confirm('{/literal}{$mod->Lang("confirm_save_design")}','{$mod->Lang("yes")}{literal}').done(function() {
         // save and redirect
         save_design().done(function() {
-          window.location.href = url;
+          window.location = $(el).attr('href');
         });
       });
+      return false;
     }
   });
 });

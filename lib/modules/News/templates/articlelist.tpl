@@ -10,13 +10,10 @@ $(document).ready(function() {
       modal: true
     });
   });
-  $('a.delete_article').click(function(ev) {
-    var self = $(this);
+  $('a.delete_article').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("areyousure")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
-      window.location = self.attr('href');
-      return true;
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("areyousure")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
   $('#articlelist').on('cms_checkall_toggle', '[type=checkbox]', function() {
     var l = $('#articlelist :checked').length;

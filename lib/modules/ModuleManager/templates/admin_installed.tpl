@@ -1,39 +1,33 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('a.mod_upgrade').click(function(ev) {
+  $('a.mod_upgrade').on('click', function(ev) {
     ev.preventDefault();
-    var href = $(this).attr('href');
-    cms_confirm({/literal}'{$mod->Lang("confirm_upgrade")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
-      window.location.href = href;
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_upgrade")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
-  $('a.mod_remove').click(function(ev) {
+  $('a.mod_remove').on('click', function(ev) {
     ev.preventDefault();
-    var href = $(this).attr('href');
-    cms_confirm({/literal}'{$mod->Lang("confirm_remove")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function(){
-      window.location.href = href;
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_remove")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
-  $('a.mod_chmod').click(function(ev) {
+  $('a.mod_chmod').on('click', function(ev) {
     ev.preventDefault();
-    var href = $(this).attr('href');
-    cms_confirm({/literal}'{$mod->Lang("confirm_chmod")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
-      window.location.href = href;
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_chmod")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
-  $('#importbtn').click(function() {
+  $('#importbtn').on('click', function() {
     $('#importdlg').dialog({
       modal: true,
       buttons: {
       {/literal}{$mod->Lang('submit')}{literal}: function() {
         var file = $('#xml_upload').val();
         if(file.length == 0) {
-          cms_alert({/literal}'{$mod->Lang("error_nofileuploaded")|escape:"javascript"}{literal}');
+          cms_alert('{/literal}{$mod->Lang("error_nofileuploaded")|escape:"javascript"}{literal}');
         } else {
           var ext = file.split('.').pop().toLowerCase();
           if($.inArray(ext, ['xml','cmsmod']) == -1) {
-            cms_alert({/literal}'{$mod->Lang("error_invaliduploadtype")|escape:"javascript"}'{literal});
+            cms_alert('{/literal}{$mod->Lang("error_invaliduploadtype")|escape:"javascript"}{literal}');
           } else {
             $(this).dialog('close');
             $('#local_import').submit();

@@ -6,7 +6,7 @@
   <table class="pagetable">
     <thead>
       <tr>
-        <th style="column-width:75%;">{$wordtext}</th>
+        <th style="width:75%;">{$wordtext}</th>
         <th>{$counttext}</th>
       </tr>
     </thead>
@@ -21,7 +21,8 @@
   </table>
 </div>
 <div class="pageinput pregap">
-  {$clearwordcount}&nbsp;{$exportcsv}
+  <button type="submit" name="{$actionid}clearwordcount" id="{$actionid}clearwordcount" class="adminsubmit icon undo" onclick="cms_confirm_btnclick(this,'{$mod->Lang("confirm_clearstats"}');return false;">{$mod->Lang('clear')}</button>
+  <button type="submit" name="{$actionid}exportcsv" id="{$actionid}exportcsv" class="adminsubmit icon do">{$mod->Lang('export_to_csv')}</button>
 </div>
 </form>
 {else}

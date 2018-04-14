@@ -88,7 +88,7 @@
   </p>
 
   <div class="pagecontainer">
-    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo" onclick="return confirm('{$mod->Lang('confirm_reset_type')|escape:'javascript'}');">{$mod->Lang('reset_factory')}</button>
+    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo" onclick="cms_confirm_btnclick(this,'{$mod->Lang('confirm_reset_type')|escape:'javascript'}');return false;">{$mod->Lang('reset_factory')}</button>
   </div>
 </div>
 {/if}

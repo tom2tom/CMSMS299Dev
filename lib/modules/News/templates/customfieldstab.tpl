@@ -1,12 +1,10 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('a.del_fielddef').click(function(ev) {
-    var self = $(this);
+  $('a.del_fielddef').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("areyousure")}','{$mod->Lang("yes")}'{literal}).done(function() {
-      window.location = self.attr('href');
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("areyousure")}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
 });
 {/literal}//]]>

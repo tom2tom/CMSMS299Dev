@@ -13,17 +13,17 @@ function parseTree(ul) {
 }
 
 $(document).ready(function() {
-  $(document).on('click', '#btn_submit', function(ev) {
+  $('#btn_submit').on('click', function(ev) {
     ev.preventDefault();
     var form = $(this).closest('form');
-    cms_confirm({/literal}'{$mod->Lang("confirm_reorder")|escape:"javascript"}'{literal}).done(function() {
+    cms_confirm('{/literal}{$mod->Lang("confirm_reorder")|escape:"javascript"}{literal}').done(function() {
       var tree = JSON.stringify(parseTree($('#masterlist'))); //IE8+
       $('#orderlist').val(tree);
       form.submit();
     });
   });
 
-  $(document).on('click', '.haschildren', function(ev) {
+  $('.haschildren').on('click', function(ev) {
     ev.preventDefault();
     var list = $(this).closest('div.label').next('ul');
     if ($(this).hasClass('expanded')) {

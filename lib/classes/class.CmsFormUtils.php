@@ -1084,7 +1084,7 @@ class CmsFormUtils
             'onlyhref',
             ]);
             if ($warn_message) {
-                $out .= ' onclick="return confirm(\''.$warn_message.'\');"';
+                $out .= ' onclick="cms_confirm_linkclick(this,\''.$warn_message.'\');return false;"';
             }
             $out .= '>'.$contents.'</a>';
         }

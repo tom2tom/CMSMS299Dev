@@ -46,7 +46,7 @@
       </td>
       <td>
       {if $one->removable}
-      <a href="{$selfurl}{$urlext}&amp;action=delete&amp;handler={$one->handler_id}" onclick="return confirm('{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');">{$icondel}</a>
+      <a href="{$selfurl}{$urlext}&amp;action=delete&amp;handler={$one->handler_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');return false;">{$icondel}</a>
       {/if}
       </td>
 {/strip}

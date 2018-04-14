@@ -1,17 +1,15 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('img.viewhelp').click(function() {
+  $('img.viewhelp').on('click', function() {
     var n = $(this).attr('name');
     $('#'+n).dialog();
   });
 
-  $(document).on('click','#clearlocks,#cssclearlocks',function(ev) {
-    var url = $(this).attr('href');
+  $('#clearlocks,#cssclearlocks').on('click', function(ev) {
     ev.preventDefault();
-    cms_confirm({/literal}'{$mod->Lang("confirm_clearlocks")|escape:"javascript"}','{$mod->Lang("yes")}'{literal}).done(function() {
-      window.location = url;
-    });
+    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_clearlocks")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
+    return false;
   });
 });
 {/literal}//]]>

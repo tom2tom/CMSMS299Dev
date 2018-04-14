@@ -85,7 +85,7 @@ function siteprefs_interpret_permissions(int $perms) : array
 /**
  * Interpret permissions $permsarr into a human-readable string
  *
- * @param array $permsarr 3-members  
+ * @param array $permsarr 3-members
  * @return string
  */
 function siteprefs_display_permissions(array $permsarr) : string
@@ -463,10 +463,8 @@ $(document).ready(function() {
  on_mailer();
  $('[name=submit]').click(function(ev) {
   ev.preventDefault();
-  var _btn = $(this);
-  cms_confirm($confirm).done(function() {
-    _btn.unbind('click').click();
-  });
+  cms_confirm_btnclick(this, $confirm);
+  return false;
  });
 });
 //]]>

@@ -22,7 +22,7 @@
     </li>
     {/if}
     <li class="logout">
-      <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="return confirm('{lang('maintenance_warning')|escape:'javascript'}');" {/if}><span class="shortcuticon">&nbsp;</span></a>
+      <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}><span class="shortcuticon">&nbsp;</span></a>
     </li>
   </ul>
 </div>

@@ -14,11 +14,12 @@
       {if !empty($node.children)}
       <h4>{lang('subitems')}</h4>
       <ul class="subitems cf">
-        {foreach $node.children as $one}
-          <li><a href="{$one.url}"{if isset($one.target)} target="{$one.target}"{/if}
-        {if strncmp($one.url,'logout',6)==0 && isset($is_sitedown)} onclick="return confirm('{lang('maintenance_warning')|escape:'javascript'}')"{/if}>{$one.title}
+      {foreach $node.children as $one}
+        <li><a href="{$one.url}"{if isset($one.target)} target="{$one.target}"{/if}
+        {if strncmp($one.url,'logout',6)==0 && isset($is_sitedown)} onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}
+        >{$one.title}
         </a></li>
-       {/foreach}
+      {/foreach}
       </ul>
       {/if}
     </nav>

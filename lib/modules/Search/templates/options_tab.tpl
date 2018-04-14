@@ -27,6 +27,6 @@
 </div>
 <div class="pageinput pregap">
   <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-  <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do" onclick="return confirm('{$mod->Lang("confirm_reindex")|escape:"javascript"}');">{$mod->Lang('reindexallcontent')}</button>
+  <button type="submit" name="{$actionid}reindex" class="adminsubmit icon do" onclick="cms_confirm_btnclick(this, '{$mod->Lang("confirm_reindex")|escape:"javascript"}');return false;">{$mod->Lang('reindexallcontent')}</button>
 </div>
 </form>
