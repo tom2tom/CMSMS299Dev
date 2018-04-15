@@ -44,7 +44,7 @@
 
 <fieldset>
   <legend>{lang('sysmain_content_status')}&nbsp;</legend>
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmupdatehierarchy')|escape:'javascript'}');">
+  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdatehierarchy")|escape:"javascript"}');return false;">
     {$pagecount} {lang('sysmain_pagesfound')}
 
     <div class="pageoverflow">
@@ -54,8 +54,7 @@
       </p>
     </div>
   </form>
-
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmupdateurls')|escape:'javascript'}');">
+  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdateurls")|escape:"javascript"}');return false;">
     <div class="pageoverflow">
       <p class="pagetext">{lang('sysmain_updateurls')}:</p>
       <p class="pageinput">
@@ -65,7 +64,7 @@
   </form>
 
   {if $withoutaliascount!="0"}
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmfixaliases')|escape:'javascript'}');">
+  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixaliases")|escape:"javascript"}');return false;">
     <div class="pageoverflow">
       <p class="pagetext">{$withoutaliascount} {lang('sysmain_pagesmissinalias')}:</p>
       <p class="pageinput">
@@ -76,11 +75,11 @@
     </div>
   </form>
   {/if} {if $invalidtypescount!="0"}
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="return confirm('{lang('sysmain_confirmfixtypes')|escape:'javascript'}');">
+  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixtypes")|escape:"javascript"}');return false;">
     <div class="pageoverflow">
       <p class="pagetext">{$invalidtypescount} {lang('sysmain_pagesinvalidtypes')}:</p>
       <p class="pageinput">
-        {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br /> {/foreach}
+        {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br />{/foreach}
         <br />
         <button type="submit" name="fixtypes" class="adminsubmit icon do">{lang('sysmain_fixtypes')}<button>
       </p>
