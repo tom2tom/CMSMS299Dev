@@ -442,26 +442,26 @@ function on_mailer() {
  }
 }
 $(document).ready(function() {
- $(document).on('click', '#mailertest', function(e) {
-  $('#testpopup').dialog({
+ $('#mailertest').on('click', function(e) {
+  cms_dialog($('#testpopup'),{
    width: 'auto',
    modal: true
   });
   return false;
  });
- $(document).on('click', '#testcancel', function(e) {
-  $('#testpopup').dialog('close');
+ $('#testcancel').on('click', function(e) {
+  cms_dialog($('#testpopup'),'close');
   return false;
  });
- $(document).on('click','#testsend', function(e) {
-  $('#testpopup').dialog('close');
+ $('#testsend').on('click', function(e) {
+  cms_dialog($('#testpopup'),'close');
   $(this).closest('form').submit();
  });
  $('#mailer').change(function() {
   on_mailer();
  });
  on_mailer();
- $('[name=submit]').click(function(ev) {
+ $('[name=submit]').on('click', function(ev) {
   ev.preventDefault();
   cms_confirm_btnclick(this, $confirm);
   return false;

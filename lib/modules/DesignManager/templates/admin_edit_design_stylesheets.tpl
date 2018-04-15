@@ -48,13 +48,13 @@ $(document).ready(function() {
         .attr('checked', true);
     }
   });
-  $(document).on('click', '#available-stylesheets li', function(ev) {
+  $('#available-stylesheets li').on('click', function(ev) {
     $(this).focus();
   });
-  $(document).on('click', '#selected-stylesheets li', function(ev) {
+  $('#selected-stylesheets li').on('click', function(ev) {
     $('a:first', this).focus();
   });
-  $(document).on('keyup', '#available-stylesheets li', function(ev) {
+  $('#available-stylesheets li').on('keyup', function(ev) {
     if(ev.keyCode === $.ui.keyCode.ESCAPE) {
       // escape
       $('#selected-stylesheets li').removeClass('selected');
@@ -97,7 +97,7 @@ $(document).ready(function() {
       });
     }
   });
-  $(document).on('click', '#selected-stylesheets .sortable-remove', function(e) {
+  $('#selected-stylesheets .sortable-remove').on('click', function(e) {
     e.preventDefault();
     set_changed();
     $(this).next('input[type="checkbox"]').attr('checked', false);

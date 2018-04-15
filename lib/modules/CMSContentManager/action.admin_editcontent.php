@@ -363,7 +363,7 @@ EOS;
 
 if ($preview_url) {
     $out .= <<<EOS
-  $('#_preview_').click(function() {
+  $('#_preview_').on('click', function() {
     if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave();
     // serialize the form data
     var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();
@@ -412,7 +412,7 @@ EOS;
   });
 
   // handle cancel/close ... and unlock
-  $(document).on('click', '[name$=cancel]', function(ev) {
+  $('[name$=cancel]').on('click', function(ev) {
     // turn off all required elements, we're cancelling
     $('#Edit_Content :hidden').removeAttr('required');
     // do not touch the dirty flag, so that theunload handler stuff can warn us.
@@ -429,7 +429,7 @@ EOS;
     }
   });
 
-  $(document).on('click', '[name$=submit]', function(ev) {
+  $('[name$=submit]').on('click', function(ev) {
     // set the form to not dirty.
     $('#Edit_Content').dirtyForm('option', 'dirty', false);
     if (do_locking) {
@@ -446,7 +446,7 @@ EOS;
   });
 
   // handle apply (ajax submit)
-  $(document).on('click', '[name$=apply]', function() {
+  $('[name$=apply]').on('click', function() {
     // apply does not do an unlock.
     if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave(); // TODO this needs better approach, create a common "ajax save" function that can be reused
     var data = $('#Edit_Content').find('input:not([type=submit]), select, textarea').serializeArray();

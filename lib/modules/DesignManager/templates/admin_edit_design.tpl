@@ -86,13 +86,13 @@ function save_design() {
 */
 $(document).ready(function() {
   $('.sortable-list input[type="checkbox"]').hide();
-  $(document).on('change',':input', function() {
+  $(':input').on('change', function() {
     set_changed();
   });
   $('ul.available-items').on('click', 'li', function () {
     $(this).toggleClass('selected ui-state-hover');
   });
-  $(document).on('click', '#submitme,#applyme', function() {
+  $('#submitme,#applyme').on('click', function() {
     $('select.selall').attr('multiple','multiple');
     $('select.selall option').attr('selected','selected');
   });

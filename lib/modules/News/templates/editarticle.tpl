@@ -263,13 +263,13 @@ $(document).ready(function() {
     // editor text change, set the form dirty.
     $('#edit_news').dirtyForm('option', 'dirty', true);
   });
-  $(document).on('click', '[name$=submit],[name$=apply],[name$=cancel]', function() {
+  $('[name$=submit],[name$=apply],[name$=cancel]').on('click', function() {
     $('#edit_news').dirtyForm('option', 'disabled', true);
   });
-  $('#fld11').click(function() {
+  $('#fld11').on('click', function() {
     $('#expiryinfo').toggle('slow');
   });
-  $('[name$=cancel]').click(function() {
+  $('[name$=cancel]').on('click', function() {
     $(this).closest('form').attr('novalidate', 'novalidate');
   });
 {/literal}
@@ -296,11 +296,11 @@ $(document).ready(function() {
     }, 'xml');
   });
 
-  $('#preview').click(function(ev) {
+  $('#preview').on('click', function(ev) {
     news_dopreview();
     ev.preventDefault();
   });
-  $(document).on('change', "input[name='preview_returnid'],#preview_template", function(ev) {
+  $("input[name='preview_returnid'],#preview_template").on('change', function(ev) {
     news_dopreview();
     ev.preventDefault();
   });

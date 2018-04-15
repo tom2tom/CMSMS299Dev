@@ -8,7 +8,7 @@ $(document).ready(function() {
     $('.message').hide().fadeIn(2000);
     $('#info-wrapper').removeClass('open');
     // toggle info window
-    $('#toggle-info').click(function() {
+    $('#toggle-info').on('click', function() {
         var $p = $('#info-wrapper');
         if($p.hasClass('open')) {
             $p.fadeOut(300, function() {

@@ -4,7 +4,7 @@
 {literal}
 $(document).ready(function() {
   var thediv = '#theme_dropzone';
-  $(document).on('dialogopen', '.drop .dialog', function(event, ui) {
+  $('.drop .dialog').on('dialogopen', function(event, ui) {
     var url = '{/literal}{$chdir_url}{literal}';
     url = url.replace(/amp;/g, '') + '&cmsjobtype=1';
     $.get(url, function(data) {
@@ -12,20 +12,22 @@ $(document).ready(function() {
     });
   });
   $('#chdir_form').submit(function(e) {
+    e.preventDefault();
     var data = $(this).serialize();
     var url = '{/literal}{$chdir_url}{literal}';
     url = url.replace(/amp;/g, '') + '&cmsjobtype=1';
     $.post(url, data, function(data, textStatus, jqXHR) {
       // stuff to do on post finishing.
       $('#chdir_form').trigger('dropzone_chdir');
-      $('.dialog').dialog('close');
+      cms_dialog($('.dialog'), 'close');
     });
-    e.preventDefault();
+    return false;
   });
   // prevent browser default drag/drop handling
   $(document).on('drop dragover', function(e) {
     // prevent default drag/drop stuff.
     e.preventDefault();
+    return false;
   });
   $(thediv + '_i').fileupload({
     dataType: 'json',

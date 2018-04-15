@@ -1,9 +1,10 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('#simple1').click(function(ev) {
+  $('#simple1').on('click', function(ev) {
     ev.preventDefault();
     cms_confirm('woot it works');
+    return false;
   });
 });
 {/literal}//]]>

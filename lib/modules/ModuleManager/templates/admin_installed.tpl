@@ -17,7 +17,7 @@ $(document).ready(function() {
     return false;
   });
   $('#importbtn').on('click', function() {
-    $('#importdlg').dialog({
+    cms_dialog($('#importdlg'), {
       modal: true,
       buttons: {
       {/literal}{$mod->Lang('submit')}{literal}: function() {
@@ -29,13 +29,13 @@ $(document).ready(function() {
           if($.inArray(ext, ['xml','cmsmod']) == -1) {
             cms_alert('{/literal}{$mod->Lang("error_invaliduploadtype")|escape:"javascript"}{literal}');
           } else {
-            $(this).dialog('close');
+            cms_dialog($(this), 'close');
             $('#local_import').submit();
           }
         }
       },
       {/literal}{$mod->Lang('cancel')}{literal}: function() {
-        $(this).dialog('close');
+        cms_dialog($(this), 'close');
       }
       }
     });

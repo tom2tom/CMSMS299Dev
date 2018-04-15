@@ -1,11 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('img.viewhelp').on('click', function() {
-    var n = $(this).attr('name');
-    $('#'+n).dialog();
-  });
-
   $('#clearlocks,#cssclearlocks').on('click', function(ev) {
     ev.preventDefault();
     cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_clearlocks")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');

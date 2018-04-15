@@ -1,11 +1,12 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  $('#selall').cmsms_checkall();
   $('#bulkactions').hide();
   $('#bulk_category').hide();
-  $('#toggle_filter').click(function() {
-    $('#filter').dialog({
+  $('#selall').cmsms_checkall();
+  $('#toggle_filter').on('click', function() {
+    //TODO where is #filter ?
+    cms_dialog($('#filter'), {
       width: 'auto',
       modal: true
     });
@@ -94,7 +95,7 @@ $(document).ready(function() {
     {if $can_add}
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=$mod->Lang('addarticle')} {$mod->Lang('addarticle')}</a>&nbsp;
     {/if}
-    <a id="toggle_filter" {if $curcategory !='' } style="font-weight: bold; color: green;" {/if}>{admin_icon icon='view.gif' alt=$mod->Lang('viewfilter')} {if $curcategory != ''}*{/if}
+    <a id="toggle_filter"{if $curcategory !='' } style="font-weight:bold;color:green;"{/if}>{admin_icon icon='view.gif' alt=$mod->Lang('viewfilter')} {if $curcategory != ''}*{/if}
     {$mod->Lang('viewfilter')}</a>
   </div>
   {if $itemcount > 0 && $pagecount > 1}

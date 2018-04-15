@@ -11,11 +11,11 @@ $(document).ready(function() {
   var _jqXHR = []; // jqXHR array
   var _files = []; // filenames
   // prevent browser default drag/drop handling
-  $(document).bind('drop dragover', function(e) {
+  $(document).on('drop dragover', function(e) {
     // prevent default drag/drop stuff.
     e.preventDefault();
   });
-  $(document).on('click', '#cancel', function(e) {
+  $('#cancel').on('click', function(e) {
     e.preventDefault();
 //    aborting = true; //CHECKME
     var ul = $('#fileupload').data('fileupload');

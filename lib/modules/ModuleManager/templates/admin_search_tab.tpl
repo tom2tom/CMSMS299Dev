@@ -2,7 +2,7 @@
 {literal}//<![CDATA[
 $(document).ready(function() {
   {/literal}{if !$advanced}$('#advhelp').hide();{/if}{literal}
-  $('#advanced').click(function() {
+  $('#advanced').on('click', function() {
     $('#advhelp').toggle();
   });
 });

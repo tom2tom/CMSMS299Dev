@@ -38,22 +38,23 @@ $(document).ready(function() {
     // editor textchange, set the form dirty.
     $('#form_editcss').dirtyForm('option', 'dirty', true);
   });
-  $(document).on('click', '[name$=apply],[name$=submit]', function() {
+  $('[name$=apply],[name$=submit]').on('click', function() {
     $('#form_editcss').dirtyForm('option', 'dirty', false);
   });
-  $(document).on('click', '#submitbtn, #cancelbtn, #importbtn, #exportbtn', function(ev) {
+  $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(e) {
     if(!do_locking) return;
+    e.preventDefault();
     // unlock the item, and submit the form
     var self = this;
-    ev.preventDefault();
     var form = $(this).closest('form');
     $('#form_editcss').lockManager('unlock').done(function() {
       var el = $('<input type="hidden" />');
       el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
       form.submit();
     });
+    return false;
   });
-  $(document).on('click', '#applybtn', function(e) {
+  $('#applybtn').on('click', function(e) {
     e.preventDefault();
     var url = $('#form_editcss').attr('action') + '?cmsjobtype=1&m1_apply=1',
       data = $('#form_editcss').serializeArray();
@@ -64,6 +65,7 @@ $(document).ready(function() {
         cms_notify('error', data.message);
       }
     });
+    return false;
   });
   // disabling Media Type checkboxes if Media query is in use
   if($('#mediaquery').val() !== '') {
@@ -72,7 +74,7 @@ $(document).ready(function() {
       checked: false
     });
   }
-  $('#mediaquery').keyup(function(e) {
+  $('#mediaquery').on('keyup', function(e) {
     if($('#mediaquery').val() !== '') {
       $('.media-type :checkbox').attr({
         disabled: 'disabled',

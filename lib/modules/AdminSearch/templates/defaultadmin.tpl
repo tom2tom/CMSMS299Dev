@@ -17,12 +17,11 @@
 <script type="text/javascript">
 //<![CDATA[{literal}
  {/literal}var ajax_url = '{$ajax_url}';
- var clickthru_msg = '{$mod->Lang("warn_clickthru")|escape:"javascript"}';
  {if isset($saved_search.slaves) && in_array(-1,$saved_search.slaves)}
  var sel_all = 1;
  {/if}{literal}
 
- $(document).on('click','#searchbtn',function() {
+ $('#searchbtn').on('click', function() {
    var l = $('#filter_box :checkbox.filter_toggle:checked').length;
    if(l === 0) {
      cms_alert({/literal}'{$mod->Lang("error_select_slave")|escape:"javascript"}'{literal});

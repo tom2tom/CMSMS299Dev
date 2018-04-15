@@ -42,20 +42,21 @@ $(document).ready(function() {
     $('#form_edittemplate').dirtyForm('option', 'dirty', false);
   });
 /*
-  $(document).on('click', '#submitbtn, #cancelbtn, #importbtn, #exportbtn', function(ev) {
+  $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
    if( ! do_locking ) return;
+   ev.preventDefault();
    // unlock the item, and submit the form
    var self = this;
-   ev.preventDefault();
    var form = $(this).closest('form');
    $('#form_edittemplate').lockManager('unlock').done(function() {
     var el = $('<input type="hidden"/>');
     el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
     form.submit();
    });
+   return false;
   });
 */
-  $(document).on('click', '#applybtn', function(ev) {
+  $('#applybtn').on('click', function(ev) {
     ev.preventDefault();
     var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&m1_apply=1',
       data = $('#form_edittemplate').serializeArray();
@@ -66,12 +67,14 @@ $(document).ready(function() {
         cms_notify('error', data.message);
       }
     });
+    return false;
   });
-  $(document).on('click', '#a_helptext', function(ev) {
+  $('#a_helptext').on('click', function(ev) {
     ev.preventDefault();
-    $('#helptext_dlg').dialog({
+    cms_dialog($('#helptext_dlg'), {
       'width': 'auto'
     });
+    return false;
   });
 });
 {/literal}//]]>

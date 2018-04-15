@@ -49,8 +49,7 @@ function enable_action_buttons() {
 
 $(document).ready(function() {
   enable_action_buttons();
-  $('#refresh').unbind('click');
-  $('#refresh').bind('click', function() {
+  $('#refresh').off('click').on('click', function() {
     // ajaxy reload for the files area.
     $('#filesarea').load(refresh_url);
     return false;
@@ -63,9 +62,8 @@ $(document).ready(function() {
     // if change dir via the dropzone, make sure filemanager refreshes.
     location.reload();
   });
-  $(document).on('change', '#filesarea input[type="checkbox"].fileselect', function(e) {
+  $('#filesarea input[type="checkbox"].fileselect').on('change', function(e) {
     // find the parent row
-    e.stopPropagation();
     var t = $(this).attr('checked');
     if(t) {
       $(this).closest('tr').addClass('selected');
@@ -73,27 +71,28 @@ $(document).ready(function() {
       $(this).closest('tr').removeClass('selected');
     }
     enable_action_buttons();
+    return false;
   });
-  $(document).on('change', '#tagall', function(event) {
+  $('#tagall').on('change', function() {
     if($(this).is(':checked')) {
       $('#filesarea input:checkbox.fileselect').attr('checked', true).trigger('change');
     } else {
       $('#filesarea input:checkbox.fileselect').attr('checked', false).trigger('change');
     }
   });
-  $(document).on('click', '#btn_view', function() {
+  $('#btn_view').on('click', function() {
     // find the selected item.
     var tmp = $("#filesarea input[type='checkbox']").filter(':checked').val();
     var url = {/literal}'{$viewfile_url}&cmsjobtype=1&{$actionid}viewfile='{literal} + tmp;
     url = url.replace(/amp;/g, '');
     $('#popup_contents').load(url);
-    $('#popup').dialog({
+    cms_dialog($('#popup'), {
       minWidth: 380,
       maxHeight: 600
     });
     return false;
   });
-  $(document).on('click', 'td.clickable', function() {
+  $('td.clickable').on('click', function() {
     var t = $(this).parent().find(':checkbox').attr('checked');
     if(t !== 'checked') {
       $(this).parent().find(':checkbox').attr('checked', true).trigger('change');
