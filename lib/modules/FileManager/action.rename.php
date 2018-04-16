@@ -8,7 +8,7 @@ if (isset($params["cancel"])) {
 
 $selall = $params['selall'];
 if( !is_array($selall) ) {
-  $selall = unserialize($selall);
+  $selall = unserialize($selall, ['allowed_classes'=>false]);
 }
 if (count($selall)==0) {
   $params["fmerror"]="nofilesselected";

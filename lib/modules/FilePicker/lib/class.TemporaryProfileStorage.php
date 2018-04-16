@@ -19,7 +19,7 @@ class TemporaryProfileStorage
     public static function get($sig)
     {
         $key = md5(__FILE__);
-        if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig]);
+        if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig], ['allowed_classes'=>false]);
     }
 
     public static function clear($sig)

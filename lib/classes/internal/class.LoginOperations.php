@@ -121,7 +121,7 @@ final class LoginOperations
         $tmp = [ md5(__FILE__),\cms_utils::get_real_ip(),$_SERVER['HTTP_USER_AGENT'].CMS_VERSION ];
         $salt = sha1(serialize($tmp));
         if( sha1( $parts[1].$salt ) != $parts[0] ) return;
-        $private_data = unserialize( base64_decode( $parts[1]) );
+        $private_data = unserialize( base64_decode( $parts[1]), ['allowed_classes'=>false] );
 
         if( !is_array($private_data) ) return;
         if( empty($private_data['uid']) ) return;

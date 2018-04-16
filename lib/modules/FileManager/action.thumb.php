@@ -25,7 +25,7 @@ if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$para
 
 $selall = $params['selall'];
 if( !is_array($selall) ) {
-  $selall = unserialize($selall);
+  $selall = unserialize($selall, ['allowed_classes'=>false]);
 }
 unset($params['selall']);
 
@@ -53,7 +53,7 @@ $thumb = filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),'thu
 if( isset($params['submit']) ) {
   $thumb = filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),'thumb_'.$filename);
   $thumb = filemanager_utils::create_thumbnail($src);
-  
+
   if( !$thumb ) {
     $params["fmerror"]="thumberror";
   }

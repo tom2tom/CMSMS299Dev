@@ -4,7 +4,7 @@ if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) 
 if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
 
 $selall = $params['selall'];
-if( !is_array($selall) ) $selall = unserialize($selall);
+if( !is_array($selall) ) $selall = unserialize($selall, ['allowed_classes'=>false]);
 if (count($selall)==0) {
     $params["fmerror"]="nofilesselected";
     $this->Redirect($id,"defaultadmin",$returnid,$params);

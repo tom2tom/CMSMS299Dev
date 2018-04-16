@@ -26,7 +26,7 @@ if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$para
 
 $selall = $params['selall'];
 if( !is_array($selall) ) {
-  $selall = unserialize($selall);
+  $selall = unserialize($selall, ['allowed_classes'=>false]);
 }
 unset($params['selall']);
 
@@ -107,7 +107,7 @@ if( isset($params['save']) ) {
     imagefill($newimg,0,0,$bgcolor);
     imagesavealpha($newimg,TRUE);
     imagecopy($newimg,$rotated,0,0,$x0,$y0,$width,$height);
-    
+
     imagedestroy($rotated);
     $rotated = $newimg;
   }
@@ -116,7 +116,7 @@ if( isset($params['save']) ) {
     $src_h = imagesy($rotated);
 
     if( $width < $height ) {
-      // height is greater... 
+      // height is greater...
       $new_h = $height;
       $new_w = round(($new_h / $src_h) * $src_w, 0);
     }
@@ -138,7 +138,7 @@ if( isset($params['save']) ) {
 
 
     imagecopyresampled($newimg,$rotated,$x0,$y0,0,0,$new_w,$new_h,$src_w,$src_h);
-    
+
     imagedestroy($rotated);
     $rotated = $newimg;
   }

@@ -7,7 +7,7 @@ if (isset($params["cancel"])) {
 }
 
 $selall = $params['selall'];
-if( !is_array($selall) ) $selall = unserialize($selall);
+if( !is_array($selall) ) $selall = unserialize($selall, ['allowed_classes'=>false]);
 if (count($selall)==0) {
   $params["fmerror"]="nofilesselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -52,7 +52,7 @@ if( isset($params['submit']) ) {
 	$src = filemanager_utils::join_path(filemanager_utils::get_full_cwd(),$file);
 	$dest = filemanager_utils::join_path($basedir,$destdir,$file);
 	if( $destname ) $dest = filemanager_utils::join_path($basedir,$destdir,$destname);
-      
+
 	if( !file_exists($src) ) {
 	  $errors[] = $this->Lang('filenotfound')." $file";
 	  continue;

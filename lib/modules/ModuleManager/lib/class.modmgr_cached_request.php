@@ -1,11 +1,11 @@
 <?php
 #BEGIN_LICENSE
 #-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2011 by Robert Campbell 
+# Module: ModuleManager (c) 2011 by Robert Campbell
 #         (calguy1000@cmsmadesimple.org)
 #  An addon module for CMS Made Simple to allow browsing remotely stored
 #  modules, viewing information about them, and downloading or upgrading
-# 
+#
 #-------------------------------------------------------------------------
 # CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
 # Visit our homepage at: http://www.cmsmadesimple.org
@@ -58,7 +58,7 @@ final class modmgr_cached_request
     $atime = time() - ($age * 60);
     $status = '';
     $resutl = '';
-    if( (isset($config['developer_mode']) && $mod->GetPreference('disable_caching',0)) || 
+    if( (isset($config['developer_mode']) && $mod->GetPreference('disable_caching',0)) ||
 	!file_exists($fn) || filemtime($fn) <= $atime ) {
       // execute the request
       $req = new cms_http_request();
@@ -77,7 +77,7 @@ final class modmgr_cached_request
     }
     else {
       // get data from the cache.
-      $data = unserialize(file_get_contents($fn));
+      $data = unserialize(file_get_contents($fn), ['allowed_classes'=>false]);
       $this->_status = $data[0];
       $this->_result = $data[1];
     }

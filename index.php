@@ -91,7 +91,7 @@ while ($trycount < 2) {
 
             // todo: get the content type, and load it.
             $contentops->LoadContentType($_SESSION['__cms_preview_type__']);
-            $contentobj = unserialize($_SESSION['__cms_preview__']);
+            $contentobj = unserialize($_SESSION['__cms_preview__'], ['allowed_classes'=>false]);
             $contentobj->SetCachable(FALSE);
             $contentobj->SetId(__CMS_PREVIEW_PAGE__);
         } else {

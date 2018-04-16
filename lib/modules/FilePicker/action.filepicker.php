@@ -32,7 +32,7 @@ if( !check_login() ) exit; // admin only.... but any admin
 //
 $sesskey = md5(__FILE__);
 if( isset($_GET['_enc']) ) {
-   $parms = unserialize(base64_decode($_GET['_enc']));
+   $parms = unserialize(base64_decode($_GET['_enc'], ['allowed_classes'=>false]));
    $_GET = array_merge($_GET,$parms);
    unset($_GET['_enc']);
 }
