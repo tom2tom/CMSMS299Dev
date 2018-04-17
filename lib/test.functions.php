@@ -306,8 +306,7 @@ function testDummy( string $title, string $value, string $return, string $messag
  */
 function testConfig( string $title, string $varname, string $testfunc = '', string $message = '' ) : CmsInstallTest
 {
-	$gCms = cmsms();
-	$config = $gCms->GetConfig();
+	$config = cmsms()->GetConfig();
 
 	$value = '';
 	if( (isset($config[$varname])) && (is_bool($config[$varname])) ) {
@@ -315,7 +314,12 @@ function testConfig( string $title, string $varname, string $testfunc = '', stri
 	}
 	else if(! empty($config[$varname])) {
 		$value = $config[$varname];
-		if(! empty($testfunc)) $test = $testfunc('', $title, $value);
+		if(! empty($testfunc)) {
+			$test = $testfunc('', $title, $value);
+			if( $test->res == 'green' && $testfunc == 'testDirWrite' ) {
+				$test->secondvalue = null;
+			}
+		}
 	}
 
 	if(! isset($test)) {
@@ -397,6 +401,8 @@ function testIntegerMask(bool $required, string $title, $var, int $mask,
 						string $message = '', bool $ini = true, bool $negate = false,
 						bool $display_value = true, string $error_fragment = '') : CmsInstallTest
 {
+	global $lang_fn;
+
 	$test = new CmsInstallTest();
 	$test->title = $title;
 
@@ -408,18 +414,17 @@ function testIntegerMask(bool $required, string $title, $var, int $mask,
 	}
 
 	// did the ini test work.
-	$test->value = 0;
-	if( $test->ini_val !== '' ) $test->value = $test->ini_val;
+	$res = (int)$test->ini_val;
+	if( $negate ) $res = !$res;
 
-	$res = $test->value;
-	if( $negate ) $res = !(int)$res;
-
-	$test->res = 'green';
-	if(empty($res)) {
-		$test->res = 'yellow';
-		if($required) $test->res = 'red';
+	if( !$res ) {
+		$test->res = ($required) ? 'red' : 'yellow';
+		$test->value = $negate ? $lang_fn('no') : $lang_fn('yes');
 	}
-
+	else {
+		$test->res = 'green';
+		$test->value = $negate ? $lang_fn('no') : $lang_fn('yes');
+	}
 	$test->display_value = $display_value;
 	getTestReturn($test, $required, $message, $error_fragment);
 	return $test;
@@ -484,6 +489,7 @@ function testString( bool $required, string $title, $var, string $message = '',
 					string $code_not_empty = 'yellow', string $error_fragment = '' ) : CmsInstallTest
 {
 	global $lang_fn;
+
 	$test = new CmsInstallTest();
 	$test->title = $title;
 
@@ -497,10 +503,11 @@ function testString( bool $required, string $title, $var, string $message = '',
 	$test->value = $test->ini_val;
 	if(empty($test->value)) {
 		$test->res = $code_empty;
+		$test->value = $lang_fn('no');
 	}
 	else {
-		$test->value = str_replace(',', ', ', $test->value);
 		$test->res = $code_not_empty;
+		$test->value = str_replace(',', ', ', $test->value);
 	}
 
 	getTestReturn($test, $required, $message, $error_fragment);
@@ -534,13 +541,13 @@ function testBoolean( bool $required, string $title, $var, string $message = '',
 	$test->ini_val = $negative_test ? (! (bool) $test->ini_val) : (bool) $test->ini_val;
 
 	if($test->ini_val == false) {
-		$test->value = $negative_test ? $lang_fn('on') : $lang_fn('off');
-		$test->secondvalue = $negative_test ? $lang_fn('true') : $lang_fn('false');
+		$test->value = $negative_test ? $lang_fn('yes') : $lang_fn('no');
+//		$test->secondvalue = $negative_test ? $lang_fn('true') : $lang_fn('false');
 		$test->res = ($required) ? 'red' : 'yellow';
 	}
 	else {
-		$test->value = $negative_test ? $lang_fn('off') : $lang_fn('on');
-		$test->secondvalue = $negative_test ? $lang_fn('false') : $lang_fn('true');
+		$test->value = $negative_test ? $lang_fn('no') : $lang_fn('yes');
+//		$test->secondvalue = $negative_test ? $lang_fn('false') : $lang_fn('true');
 		$test->res = 'green';
 	}
 
@@ -720,8 +727,8 @@ function testUmask( bool $required, string $title, string $umask, string $messag
 	$_test = true;
 
 	clearstatcache();
-	$test->value = $dir;
-	$test->secondvalue = substr(sprintf('%o', @fileperms($dir)), -4);
+	$test->value = $umask;
+//	$test->secondvalue = substr(sprintf('%o', @fileperms($dir)), -4);
 
 	$test_file = $dir . DIRECTORY_SEPARATOR . $file;
 	if(file_exists($test_file)) @unlink($test_file);
@@ -749,7 +756,7 @@ function testUmask( bool $required, string $title, string $umask, string $messag
 			return $test;
 		}
 
-		$test->opt = $_opt;
+//		$test->opt = $_opt;
 
 		if($debug) unlink($test_file);
 		else      @unlink($test_file);
@@ -870,6 +877,8 @@ function testCreateDirAndFile( bool $required, string $title, string $message = 
 								bool $debug = false, string $dir = '_test_dir_file_',
 								string $file = '_test_dir_file_' ) : CmsInstallTest
 {
+	global $lang_fn;
+
 	$test = new CmsInstallTest();
 	$test->title = $title;
 	$dir = cms_join_path(TMP_CACHE_LOCATION, $dir);
@@ -897,13 +906,13 @@ function testCreateDirAndFile( bool $required, string $title, string $message = 
 	}
 
 	if(! $_test) {
-		$test->value = 0;
 		$test->res = 'red';
+		$test->value = $lang_fn('no');
 		getTestReturn($test, $required, $message, 'Can.27t_create_file');
 	}
 	else {
-		$test->value = 1;
 		$test->res = 'green';
+		$test->value = $lang_fn('yes');
 		getTestReturn($test, $required);
 	}
 
@@ -958,7 +967,7 @@ function testDirWrite( bool $required, string $title, string $dir, string $messa
 		if($debug) $fp = fopen($test_file, "w");
 		else       $fp = @fopen($test_file, "w");
 		if($fp !== false) {
-			$_return = '';
+//			$_return = '';
 			if($debug) $_return = fwrite($fp, $data);
 			else       $_return = @fwrite($fp, $data);
 			@fclose($fp);
@@ -976,6 +985,23 @@ function testDirWrite( bool $required, string $title, string $dir, string $messa
 	$test->res = 'red';
 	global $lang_fn;
 	getTestReturn($test, $required, $message, 'Directory_not_writable', $lang_fn('errordirectorynotwritable').' ('.$dir.')');
+	return $test;
+}
+
+function testMultiDirWrite( bool $required, string $title, array $dirs, string $message = '',
+						bool $quick = false, bool $debug = false,
+						string $file = '_test_dir_write_', string $data = 'this is a test' ) : CmsInstallTest
+{
+	$test = new CmsInstallTest();
+	$test->title = $title;
+	$test->opt = [];
+	foreach ($dirs as $dir) {
+		$one = testDirWrite( $required, '', $dir, $message, $quick, $debug, $file, $data);
+        $test->opt[$dir] = ['res'=>$one->res,'message'=>$one->message ?? '','res_text'=>$one->res_text ?? ''];
+	}
+	$test->res = '';
+	$test->message = $message;
+	getTestReturn($test, $required, $message, 'Directory_not_writable', '');
 	return $test;
 }
 
@@ -1051,7 +1077,7 @@ function testRemoteFile( bool $required, string $title, string $url = '',
 
 	$test = new CmsInstallTest();
 	$test->title = $title;
-	$test->value = $lang_fn('success');
+//	$test->value = $lang_fn('success'); no display
 
 	if(! $url_info = parse_url($url)) {
 		// Relative or invalid URL?
@@ -1237,7 +1263,7 @@ function testRemoteFile( bool $required, string $title, string $url = '',
 	switch($result)
 	{
 		case 0:
-			$test->res = 'green';
+			$test->res = ''; //no 'primary' icon
 			getTestReturn($test, $required);
 			break;
 		case 1:
