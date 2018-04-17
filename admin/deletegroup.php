@@ -16,53 +16,56 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+if (!isset($_GET['group_id'])) {
+    return;
+}
+
 $CMS_ADMIN_PAGE=1;
 
-require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib/include.php';
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-if (isset($_GET["group_id"])) {
-
-    $userid = get_userid();
-	if( !check_permission($userid, 'Manage Groups') ) {
-        cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', 'Manage Groups'));
-	    redirect("listgroups.php".$urlext);
-	}
-
-	$group_id = (int) $_GET["group_id"];
-	if( $group_id == 1 ) {
-	    // can't delete this group
-        cms_utils::get_theme_object()->ParkString('error', lang('invalid'));
-	    redirect("listgroups.php".$urlext);
-    }
-
-	$result = false;
-
-	$gCms = cmsms();
-	$groupops = $gCms->GetGroupOperations();
-	$userops = $gCms->GetUserOperations();
-	$groupobj = $groupops->LoadGroupByID($group_id);
-	$group_name = $groupobj->name;
-
-	if( $userops->UserInGroup($userid,$group_id) ) {
-        // check to make sure we're not a member of this group
-        // can't delete a group we're a member of.
-        redirect("listgroups.php".$urlext);
-    }
-
-	// now do the work.
-    \CMSMS\HookManager::do_hook('Core::DeleteGroupPre', [ 'group'=>&$groupobj ] );
-
-	if ($groupobj) $result = $groupobj->Delete();
-
-    \CMSMS\HookManager::do_hook('Core::DeleteGroupPost', [ 'group'=>&$groupobj ] );
-
-	if ($result == true) {
-        // put mention into the admin log
-        audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
-    }
+$userid = get_userid();
+if (!check_permission($userid, 'Manage Groups')) {
+    cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', 'Manage Groups'));
+    redirect('listgroups.php'.$urlext);
 }
 
-redirect("listgroups.php".$urlext);
+$group_id = (int) $_GET['group_id'];
+if ($group_id == 1) {
+    // can't delete this group
+    cms_utils::get_theme_object()->ParkString('error', lang('error_deletespecialgroup'));
+    redirect('listgroups.php'.$urlext);
+}
+
+$gCms = cmsms();
+$userops = $gCms->GetUserOperations();
+if ($userops->UserInGroup($userid,$group_id)) {
+    // can't delete a group to which the current user belongs
+    cms_utils::get_theme_object()->ParkString('error', lang('cantremove')); //TODO
+    redirect('listgroups.php'.$urlext);
+}
+
+$groupops = $gCms->GetGroupOperations();
+$groupobj = $groupops->LoadGroupByID($group_id);
+
+if ($groupobj) {
+	$group_name = $groupobj->name;
+
+	// now do the work
+	\CMSMS\HookManager::do_hook('Core::DeleteGroupPre', [ 'group'=>&$groupobj ] );
+
+	if ($groupobj->Delete()) {
+		\CMSMS\HookManager::do_hook('Core::DeleteGroupPost', [ 'group'=>&$groupobj ] );
+		// put mention into the admin log
+		audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
+	} else {
+	    cms_utils::get_theme_object()->ParkString('error', lang('failure'));
+	}
+} else {
+    cms_utils::get_theme_object()->ParkString('error', lang('invalid'));
+}
+
+redirect('listgroups.php'.$urlext);
