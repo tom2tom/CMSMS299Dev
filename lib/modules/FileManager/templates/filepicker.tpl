@@ -33,7 +33,7 @@ function ChooseFile(filename) {
       {/if}
       <fieldset>
         <legend>{$youareintext}</legend>
-        <h2><img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/dir.png" title="{$subdir}" alt="{$subdir}" />/{$subdir}</h2>
+        <h2><img src="{$module_url}/icons/themes/{$admintheme}/extensions/dir.png" title="{$subdir}" alt="{$subdir}" />/{$subdir}</h2>
       </fieldset>
       {if isset($formstart) && $formstart!=''}
       <fieldset>
@@ -68,7 +68,7 @@ function ChooseFile(filename) {
         {foreach $files as $file}
         <tr>
           {strip} {if $file->isdir=="1"}
-          <td style="width:1%;" align="center"><img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/dir.png" title="Dir" alt="Dir" /></td>
+          <td style="width:1%;" align="center"><img src="{$module_url}/icons/themes/{$admintheme}/extensions/dir.png" title="Dir" alt="Dir" /></td>
           <!-- diricon?? -->
           <td>{$file->namelink} </td>
           <td style="width:1%;">&nbsp;</td>
@@ -76,17 +76,17 @@ function ChooseFile(filename) {
           {else}
           <td align="right">
             {if $filepickerstyle=="filename"} {if $file->isimage=="1"}
-            <img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/png.png" title="{$file->name}" alt="{$file->name}" /> {else}
-            <img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/{$file->fileicon}" title="{$file->name}" alt="{$file->name}" /> {/if} {else}
+            <img src="{$module_url}/icons/themes/{$admintheme}/extensions/png.png" title="{$file->name}" alt="{$file->name}" /> {else}
+            <img src="{$module_url}/icons/themes/{$admintheme}/extensions/{$file->fileicon}" title="{$file->name}" alt="{$file->name}" /> {/if} {else}
             <div class="thumbnail">
               <a title="{$file->name}" href='#' onclick='ChooseFile("{$file->fullurl}")'>
                 {if isset($file->thumbnail) && $file->thumbnail!=''}
                   {$file->thumbnail}
                 {else}
                   {if $file->isimage=="1"}
-                  <img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/png.png" title="{$file->name}" alt="{$file->name}" />
+                  <img src="{$module_url}/icons/themes/{$admintheme}/extensions/png.png" title="{$file->name}" alt="{$file->name}" />
                   {else}
-                  <img src="{$rooturl}/modules/FileManager/icons/themes/{$admintheme}/extensions/{$file->fileicon}" title="{$file->name}" alt="{$file->name}" />
+                  <img src="{$module_url}/icons/themes/{$admintheme}/extensions/{$file->fileicon}" title="{$file->name}" alt="{$file->name}" />
                   {/if}
                 {/if}
               </a>

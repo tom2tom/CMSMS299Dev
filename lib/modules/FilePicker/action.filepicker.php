@@ -212,7 +212,10 @@ try {
             }
         }
     }
-    $smarty->assign('cssurl',$this->GetModuleURLPath().$sel_file);
+	$url = $this->GetModuleURLPath();
+
+    $smarty->assign('module_url',$url);
+    $smarty->assign('cssurl',$url.$sel_file);
     $smarty->assign('cwd_for_display',$cwd_for_display);
     $smarty->assign('cwd',$cwd);
     $smarty->assign('files',$files);
@@ -232,6 +235,3 @@ catch( \Exception $e ) {
     audit('','FilePicker',$e->GetMessage());
     echo $smarty->errorConsole( $e, false );
 }
-#
-# EOF
-#
