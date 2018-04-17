@@ -155,13 +155,13 @@ if (isset($params['submit'])) {
                     $this->ShowErrors($this->Lang('error_upload'));
                     $error = true;
                 } else {
-                    $error = '';
                     $value = news_admin_ops::handle_upload($articleid, $elem, $error);
-                    if ($value === FALSE) {
+                    if ($value === false) {
                         $this->ShowErrors($error);
                         $error = true;
                     } else {
                         $params['customfield'][$onetype['id']] = $value;
+                        $error = false;
                     }
                 }
             }
