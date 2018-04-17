@@ -33,9 +33,7 @@ if (!$access) {
     return;
 }
 
-define('CMS_BASE', dirname(__DIR__));
-
-require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
+require_once cms_join_path(dirname(__DIR__), 'lib', 'test.functions.php');
 
 function installerHelpLanguage($lang, $default_null=null)
 {
@@ -150,17 +148,18 @@ $res = get_site_preference('allow_browser_cache', 0);
 $tmp[0]['allow_browser_cache'] = testBoolean(0, lang('allow_browser_cache'), $res, lang('test_allow_browser_cache'), false);
 $res = get_site_preference('browser_cache_expiry', 60);
 $tmp[0]['browser_cache_expiry'] = testRange(0, lang('browser_cache_expiry'), $res, lang('test_browser_cache_expiry'), 1, 60, false);
-
+/* N/A for PHP7
 if (version_compare(phpversion(), '5.5') >= 0) {
     $opcache = ini_get('opcache.enable');
     $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), $opcache, '', false, false, 'opcache_enabled');
 } else {
     $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), false, '', false, false, 'opcache_notavailable');
 }
+*/
 $res = get_site_preference('use_smarty_compilecheck', false);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('prompt_smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
 $res = get_site_preference('auto_clear_cache_age', 0);
-$tmp[0]['auto_clear_cache_age'] = testBoolean(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), false);
+$tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
 
 $smarty->assign('performance_info', $tmp);
 
@@ -183,10 +182,10 @@ $tmp[0]['gd_version'] = testGDVersion(0, 'gd_version', $minimum, '', 'min_GD_ver
 $tmp[0]['tempnam_function'] = testBoolean(0, 'tempnam_function', function_exists('tempnam'), '', false, false, 'Function_tempnam_disabled');
 
 $tmp[0]['magic_quotes_runtime'] = testBoolean(0, 'magic_quotes_runtime', 'magic_quotes_runtime', lang('magic_quotes_runtime_on'), true, true, 'magic_quotes_runtime_On');
-$tmp[0]['E_ALL'] = testIntegerMask(0, lang('test_error_eall'), 'error_reporting', E_ALL, lang('test_eall_failed'), true, false, false);
-$tmp[0]['E_STRICT'] = testIntegerMask(0, lang('test_error_estrict'), 'error_reporting', E_STRICT, lang('test_estrict_failed'), true, true, false);
+$tmp[0]['E_ALL'] = testIntegerMask(0, lang('test_error_eall'), 'error_reporting', E_ALL, lang('test_eall_failed'));
+$tmp[0]['E_STRICT'] = testIntegerMask(0, lang('test_error_estrict'), 'error_reporting', E_STRICT, '', true, true);
 if (defined('E_DEPRECATED')) {
-    $tmp[0]['E_DEPRECATED'] =  testIntegerMask(0, lang('test_error_edeprecated'), 'error_reporting', E_DEPRECATED, lang('test_edeprecated_failed'), true, true, false);
+    $tmp[0]['E_DEPRECATED'] =  testIntegerMask(0, lang('test_error_edeprecated'), 'error_reporting', E_DEPRECATED, '', true, true);
 }
 
 $_tmp = _testTimeSettings1();
@@ -262,9 +261,9 @@ if (in_array('curl', get_loaded_extensions())) {
     }
 }
 if (!$hascurl) {
-    $tmp[0]['curl'] = testDummy('curl', lang('off'), 'yellow', '', 'curl_not_available', '');
+    $tmp[0]['curl'] = testDummy('curl', lang('no'), 'yellow', '', 'curl_not_available', '');
 } else {
-    $tmp[0]['curl'] = testDummy('curl', lang('on'), 'green');
+    $tmp[0]['curl'] = testDummy('curl', lang('yes'), 'green');
     if ($curlgood) {
         $tmp[1]['curlversion'] = testDummy(
             'curlversion',
@@ -290,7 +289,7 @@ $tmp[0]['server_software'] = testDummy('', $_SERVER['SERVER_SOFTWARE'], '');
 $tmp[0]['server_api'] = testDummy('', PHP_SAPI, '');
 $tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('on') .' '. php_uname('m'), '');
 
-switch ($config['dbms']) { //workaround: ServerInfo() is unsupported in adodblite
+switch ($config['dbms']) {
  case 'mysqli':
  case 'mysql':
    $v = $db->GetOne('SELECT version()');
@@ -337,13 +336,7 @@ $tmp[0]['tmp_cache'] = testDirWrite(0, $dir, $dir);
 $dir = TMP_TEMPLATES_C_LOCATION;
 $tmp[0]['templates_c'] = testDirWrite(0, $dir, $dir);
 
-$flag = true;
-$count = 0;
-foreach (cms_module_places() as $dir) {
-    $flag = $flag && testDirWrite(0, $dir, $dir);
-    ++$count;
-}
-$tmp[0]['modules'] = $flag && ($count > 0);
+$tmp[0]['modules'] = testMultiDirWrite(0, 'Module directories', cms_module_places()); //TODO lang
 
 $dir = $config['uploads_path'];
 $tmp[0]['uploads'] = testDirWrite(0, $dir, $dir);
