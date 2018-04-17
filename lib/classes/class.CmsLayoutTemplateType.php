@@ -560,7 +560,7 @@ class CmsLayoutTemplateType
         $originator = $this->get_originator();
         $name = $this->get_name();
         if( $cb && is_callable($cb) ) {
-            $text = call_user_func($cb,$name);
+            $text = $cb($name);
             return $text;
         }
 
@@ -588,8 +588,8 @@ class CmsLayoutTemplateType
         $t = $this->get_lang_callback();
         $to = $tn = null;
         if( is_callable($t) ) {
-            $to = call_user_func($t,$this->get_originator());
-            $tn = call_user_func($t,$this->get_name());
+            $to = $t($this->get_originator());
+            $tn = $t($this->get_name());
         }
         if( !$to ) $to = $this->get_originator();
         if( $to == self::CORE ) $to = 'Core';
@@ -609,10 +609,10 @@ class CmsLayoutTemplateType
         $cb = $this->get_content_callback();
         if( !$cb ) throw new CmsDataNotFoundException('No callback information to reset content');
         if( !is_callable($cb) ) {
-		die('not callable');
-		throw new CmsDataNotFoundException('No callback information to reset content');
-	}
-        $content = call_user_func($cb,$this);
+			die('not callable');
+			throw new CmsDataNotFoundException('No callback information to reset content');
+		}
+        $content = $cb($this);
         $this->set_dflt_contents($content);
     }
 
