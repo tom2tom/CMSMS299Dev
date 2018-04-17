@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to delete an admin group
+#Copyright (C) 2004-2016 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2017-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,35 +15,28 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib/include.php';
-//require_once("../lib/classes/class.group.inc.php");
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
-$group_id = -1;
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_GET["group_id"])) {
-	$group_id = $_GET["group_id"];
 
+    $userid = get_userid();
+	if( !check_permission($userid, 'Manage Groups') ) {
+        cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', 'Manage Groups'));
+	    redirect("listgroups.php".$urlext);
+	}
+
+	$group_id = (int) $_GET["group_id"];
 	if( $group_id == 1 ) {
 	    // can't delete this group
+        cms_utils::get_theme_object()->ParkString('error', lang('invalid'));
 	    redirect("listgroups.php".$urlext);
     }
-
-	$group_name = "";
-	$userid = get_userid();
-	$access = check_permission($userid, 'Manage Groups');
-
-	if( !$access ) {
-        // you can't delete admin group (also admin group it's the first group)
-        // no access
-        redirect("listgroups.php".$urlext);
-	}
 
 	$result = false;
 
