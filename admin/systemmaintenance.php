@@ -19,31 +19,32 @@
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
-$access = check_permission($userid, 'Modify Site Preferences'); //TODO a better permission for here
+$access = true; //check_permission($userid, 'TODO some Site Perm');
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!$access) {
-    die('Permission Denied');
+//TODO some immediate popup    $themeObject->RecordMessage('error', lang('needpermissionto', '"Modify Site Preferences"'));
+	return;
 }
 
-include_once 'header.php';
+$CMS_BASE = dirname(__DIR__);
+require_once cms_join_path($CMS_BASE, 'lib', 'test.functions.php');
 
-define('CMS_BASE', dirname(__DIR__));
-require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
+$smarty = CMSMS\internal\Smarty::get_instance();
 
-$gCms = cmsms();
-$smarty = $gCms->GetSmarty();
 $smarty->force_compile = true;
-$db = $gCms->GetDb();
-
 $smarty->assign('theme', $themeObject);
 
 /*
  * Database
  */
+$db = cmsms()->GetDb();
 $query = "SHOW TABLES LIKE '".CMS_DB_PREFIX."%'";
 $tablestmp = $db->GetArray($query);
 $tables = [];
@@ -72,7 +73,7 @@ function MakeCommaList($tables)
     return $out;
 }
 
-if (isset($_POST['optimizeall'])) {
+if (!empty($_POST['optimizeall'])) {
     $query = 'OPTIMIZE TABLE ' . MakeCommaList($nonseqtables);
     $optimizearray = $db->GetArray($query);
     //print_r($optimizearray);
@@ -87,10 +88,10 @@ if (isset($_POST['optimizeall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables optimized');
-    $themeObject->PrepareSuccess(lang('sysmain_tablesoptimized'));
+    $themeObject->RecordMessage('success', lang('sysmain_tablesoptimized'));
 }
 
-if (isset($_POST['repairall'])) {
+if (!empty($_POST['repairall'])) {
     $query = 'REPAIR TABLE ' . MakeCommaList($tables);
     $repairarray = $db->GetArray($query);
     $errorsfound = 0;
@@ -104,7 +105,7 @@ if (isset($_POST['repairall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables repaired');
-    $themeObject->PrepareSuccess(lang('sysmain_tablesrepaired'));
+    $themeObject->RecordMessage('success', lang('sysmain_tablesrepaired'));
 }
 
 $query = 'CHECK TABLE ' . MakeCommaList($tables);
@@ -129,25 +130,25 @@ if (count($errortables) > 0) {
  */
 $contentops = cmsms()->GetContentOperations();
 
-if (isset($_POST['updateurls'])) {
+if (!empty($_POST['updateurls'])) {
     cms_route_manager::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
-    $themeObject->PrepareSuccess(lang('routesrebuilt'));
+    $themeObject->RecordMessage('success', lang('routesrebuilt'));
     $smarty->assign('active_content', 'true');
 }
 
-if (isset($_POST['clearcache'])) {
+if (!empty($_POST['clearcache'])) {
     cmsms()->clear_cached_files(-1);
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
-    $themeObject->PrepareSuccess(lang('cachecleared'));
+    $themeObject->RecordMessage('success', lang('cachecleared'));
     $smarty->assign('active_content', 'true');
 }
 
-if (isset($_POST['updatehierarchy'])) {
+if (!empty($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
-    $themeObject->PrepareSuccess(lang('sysmain_hierarchyupdated'));
+    $themeObject->RecordMessage('success', lang('sysmain_hierarchyupdated'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -159,7 +160,7 @@ foreach ($contenttypes as $typeid => $typename) {
     $simpletypes[] = $typeid;
 }
 
-if (isset($_POST['addaliases'])) {
+if (!empty($_POST['addaliases'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
@@ -189,11 +190,11 @@ if (isset($_POST['addaliases'])) {
         }
     }
     audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
-    $themeObject->PrepareSuccess($count . ' ' . lang('sysmain_aliasesfixed'));
+    $themeObject->RecordMessage('success', $count . ' ' . lang('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 'true');
 }
 
-if (isset($_POST['fixtypes'])) {
+if (!empty($_POST['fixtypes'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
@@ -207,7 +208,7 @@ if (isset($_POST['fixtypes'])) {
     }
 
     audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
-    $themeObject->PrepareSuccess($count . ' ' . lang('sysmain_typesfixed'));
+    $themeObject->RecordMessage('success', $count . ' ' . lang('sysmain_typesfixed'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -238,7 +239,7 @@ $smarty->assign('withoutaliascount', count($withoutalias));
 /*
  * Changelog
  */
-$ch_filename = cms_join_path(CMS_BASE, 'doc', 'CHANGELOG.txt');
+$ch_filename = cms_join_path($CMS_BASE, 'doc', 'CHANGELOG.txt');
 $changelog = @file($ch_filename);
 
 if (is_readable($ch_filename)) {
@@ -259,10 +260,26 @@ if (is_readable($ch_filename)) {
     $smarty->assign('changelogfilename', $ch_filename);
 }
 
+/*
+ * Footer script
+ */
+$out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function confirmsubmit(form,msg) {
+ cms_confirm(msg,'',cms_lang('yes')).done(function() {
+  $(form).off('submit').trigger('submit');
+ });
+}
+//]]>
+</script>
+EOS;
+$themeObject->add_footertext($out);
+
 $smarty->assign('backurl', $themeObject->BackUrl());
 $smarty->assign('selfurl', basename(__FILE__));
 $smarty->assign('urlext', $urlext);
 
+include_once 'header.php';
 $smarty->display('systemmaintenance.tpl');
-
 include_once 'footer.php';
