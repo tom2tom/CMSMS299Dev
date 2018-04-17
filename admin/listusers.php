@@ -21,13 +21,17 @@ use \CMSMS\HookManager;
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!check_permission($userid, 'Manage Users')) {
-    die('Permission Denied');
+    //TODO some immediate popup
+    return;
 }
 
 /*--------------------
@@ -51,24 +55,24 @@ $selfurl      = basename(__FILE__);
 if (isset($_GET['switchuser'])) {
     // switch user functionality is only allowed to members of the admin group
     if (!\UserOperations::get_instance()->UserInGroup($userid, 1)) {
-        $error .= '<li>'.lang('permissiondenied').'</li>';
+        $themeObject->RecordMessage('error', lang('permissiondenied'));
     } else {
         $to_uid = (int) $_GET['switchuser'];
         $to_user = $userops->LoadUserByID($to_uid);
         if (!$to_user) {
-            $error .= '<li>'.lang('usernotfound').'</li>';
+            $themeObject->RecordMessage('error', lang('usernotfound'));
         }
         if (! $to_user->active) {
-            $error .= '<li>'.lang('userdisabled').'</li>';
+            $themeObject->RecordMessage('error', lang('userdisabled'));
         } else {
             CMSMS\internal\LoginOperations::get_instance()->set_effective_user($to_user);
-            $urlext       = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
+            $urlext = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
             redirect('index.php'.$urlext);
         }
     }
 } elseif (isset($_GET['toggleactive'])) {
     if ($_GET['toggleactive'] == 1) {
-        $error .= '<li>' . lang('errorupdatinguser') . '</li>';
+        $themeObject->RecordMessage('error', lang('errorupdatinguser'));
     } else {
         $thisuser = $userops->LoadUserByID((int)$_GET['toggleactive']);
         if ($thisuser) {
@@ -85,11 +89,11 @@ if (isset($_GET['switchuser'])) {
                 audit($userid, 'Admin Username: ' . $thisuser->username, 'Edited');
                 HookManager::do_hook('Core::EditUserPost', [ 'user' => &$thisuser ]);
             } else {
-                $error .= '<li>' . lang('errorupdatinguser') . '</li>';
+                $themeObject->RecordMessage('error', lang('errorupdatinguser'));
             }
         }
     }
-} elseif (isset($_POST['bulk']) && isset($_POST['bulkaction']) && isset($_POST['multiselect']) && is_array($_POST['multiselect']) && count($_POST['multiselect'])) {
+} elseif (isset($_POST['bulk']) && isset($_POST['multiselect']) && is_array($_POST['multiselect']) && count($_POST['multiselect'])) {
     switch ($_POST['bulkaction']) {
         case 'delete':
             $ndeleted = 0;
@@ -252,19 +256,92 @@ if (isset($_GET['switchuser'])) {
 }
 
 /*--------------------
+ * Script for page footer
+ ---------------------*/
+
+$confirm1 = json_encode(lang('confirm_switchuser'));
+$confirm2 = json_encode(lang('confirm_toggleuseractive'));
+$confirm3 = json_encode(lang('confirm_delete_user'));
+$confirm4 = json_encode(lang('confirm_bulkuserop'));
+$out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('#sel_all').cmsms_checkall();
+ $('.switchuser').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_linkclick(this, $confirm1);
+  return false;
+ });
+ $('.toggleactive').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_linkclick(this, $confirm2);
+  return false;
+ });
+ $('.js-delete').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_linkclick(this, $confirm3);
+  return false;
+ });
+ $('#withselected, #bulksubmit').attr('disabled', 'disabled');
+ $('#bulksubmit').button({
+  'disabled': true
+ });
+ $('#sel_all, .multiselect').on('click', function() {
+  if(!$(this).is(':checked')) {
+   $('#withselected').attr('disabled', 'disabled');
+   $('#bulksubmit').attr('disabled', 'disabled').button({
+    'disabled': true
+   });
+  } else {
+   $('#withselected').removeAttr('disabled');
+   $('#bulksubmit').removeAttr('disabled').button({
+    'disabled': false
+   });
+  }
+ });
+ $('#listusers').submit(function(ev) {
+  ev.preventDefault();
+  val el = this,
+    v = $('#withselected').val();
+  if(v === 'delete') {
+   cms_confirm($confirm3).done(function() {
+    $(el).off('submit').submit();
+   });
+  } else {
+   cms_confirm($confirm4).done(function() {
+    $(el).off('submit').submit();
+   });
+  }
+  return false;
+ });
+ $('#withselected').change(function() {
+  var v = $(this).val();
+  if(v === 'copyoptions') {
+   $('#userlist').show();
+  } else {
+   $('#userlist').hide();
+  }
+ });
+});
+//]]>
+</script>
+EOS;
+
+$themeObject->add_footertext($out);
+
+/*--------------------
  * Display view
  ---------------------*/
 
-include_once 'header.php';
-
 if (!empty($error)) {
-    $themeObject->PrepareError($error );
+    $themeObject->RecordMessage('error', $error );
 }
 if (isset($_GET['message'])) {
     $message = preg_replace('/\</', '', $_GET['message']);
 }
 if (!empty($message)) {
-    $themeObject->PrepareSuccess($message);
+    $themeObject->RecordMessage('success', $message);
 }
 
 $userlist = [];
@@ -289,6 +366,8 @@ $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '',
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
 $iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('TODO'), '', '', 'systemicon'); //used for switch-user
 
+$smarty = CMSMS\internal\Smarty::get_instance();
+
 $smarty->assign([
     'addurl' => 'adduser.php',
     'editurl' => 'edituser.php',
@@ -306,6 +385,6 @@ $smarty->assign([
     'userlist' => $userlist,
 ]);
 
+include_once 'header.php';
 $smarty->display('listusers.tpl');
-
 include_once('footer.php');
