@@ -115,6 +115,11 @@ final class cms_config implements ArrayAccess
      */
     private function __construct() {}
 
+	/**
+     * @ignore
+     */
+    private function __clone() {}
+
     /**
      * @ignore
      */
@@ -173,7 +178,7 @@ final class cms_config implements ArrayAccess
      *
      * @return cms_config
      */
-    public static function &get_instance()
+    final public static function &get_instance() : self
     {
         if (!isset(self::$_instance)) {
             self::$_instance = new self();
@@ -249,7 +254,13 @@ final class cms_config implements ArrayAccess
 
 
                 /**
-                 * A cnstant containing the CMSMS uploads url.
+                 * A constant containing the CMSMS core-javascript-assets url.
+                 * @return string
+                 */
+                define('CMS_SCRIPTS_URL',self::$_instance['root_url'].'/lib/jquery');
+
+                /**
+                 * A constant containing the CMSMS uploads url.
                  * If the uploads_url is not specified in the config file, then CMSMS will calculate one from the root url.
                  *
                  * @return string
