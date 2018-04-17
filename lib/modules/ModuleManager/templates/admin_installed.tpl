@@ -175,7 +175,7 @@ $(document).ready(function() {
         {if $allow_export}<td>
           {if $item.active && $item.root_writable && $item.e_status != 'need_upgrade' && !$item.missing_deps}
           <a class="modop mod_export" href="{cms_action_url action='local_export' mod=$item.name}">
-            <img src="{$iconsurl}/xml.png" class="systemicon" width="32" height="32" alt="xml.png" title="{$mod->Lang('title_moduleexport')}" /></a>
+            <img src="{$iconsurl}/xml.png" class="systemicon" width="32" height="32" alt="xml" title="{$mod->Lang('title_moduleexport')}" /></a>
           {/if}
         </td>{/if}
       </tr>
