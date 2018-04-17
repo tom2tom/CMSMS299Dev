@@ -65,7 +65,7 @@ function cms_module_GetTemplate(&$modinstance, $tpl_name, $modulename = '')
 }
 
 /**
- * Returns contents of the template that resides in modules/ModuleName/templates/{template_name}.tpl
+ * Returns contents of the template that resides in path-to/ModuleName/templates/{template_name}.tpl
  * Code adapted from the Guestbook module
  * @access private
  */
@@ -74,9 +74,7 @@ function cms_module_GetTemplateFromFile(&$modinstance, $template_name)
 	$ok = (strpos($template_name, '..') === false);
 	if (!$ok) return;
 
-	$tpl_base  = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR;
-	$tpl_base .= $modinstance->GetName().DIRECTORY_SEPARATOR.'templates';
-	$template = $tpl_base.DIRECTORY_SEPARATOR.$template_name;
+	$template = $modinstance->GetModulePath().DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$template_name;
 	if( !endswith($template,'.tpl') ) $template .= '.tpl';
 	if (is_file($template)) {
 		return file_get_contents($template);
