@@ -1,68 +1,74 @@
-<h3>{si_lang a=systeminfo_copy_paste}</h3>
+<h3>{si_lang a=systeminfo}</h3>
 <div class="pageoverflow">
-  <div id="copy_paste_in_forum">
-    <hr />
-    <p><strong>{'cms_version'|replace:'_':' '|ucwords}</strong>: {$cms_version}</p>
-    <p><strong>{'installed_modules'|replace:'_':' '|ucwords}</strong>:</p>
+    <p><strong>CMSMS version</strong>: {$cms_version}</p>
+    <br />
+    <p><strong>Installed Modules</strong>:</p>
     <ul>
       {foreach $installed_modules as $module}
       <li>{$module.module_name}: {$module.version}</li>
       {/foreach}
     </ul>
-    <br />
     {if $count_config_info > 1}
-    <p><strong>{'config_information'|replace:'_':' '|ucwords}</strong>:</p>
+    <br />
+    <p><strong>Config information</strong>:</p>
     <ul>
       {foreach $config_info as $view => $tmp}
         {if $view < 1} {foreach $tmp as $key => $test}
-          <li>{$key}:{if isset($test->value)} {$test->value}{/if}</li>
+          <li>{$key|ucfirst|replace:'_':' '}:{if isset($test->value)} {$test->value}{/if}</li>
         {/foreach} {/if}
       {/foreach}
     </ul>
-    <br />
     {/if}
     {if $count_php_information > 1}
-    <p><strong>{'php_information'|replace:'_':' '|ucwords}</strong>:</p>
+    <br />
+    <p><strong>PHP information</strong>:</p>
     <ul>
       {foreach $php_information as $view => $tmp}
        {if $view < 1} {foreach $tmp as $key => $test}
-        <li>{$key}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}</li>
+        <li>{$key|ucfirst|replace:'_':' '}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}
+         {if isset($test->opt)}<ul>{foreach $test->opt as $key => $opt}
+           <li>{$key} {$opt.message|default:''}</li>  
+         {/foreach}</ul>{/if}
+        </li>
        {/foreach} {/if}
       {/foreach}
     </ul>
-    <br />
     {/if}
     {if count($performance_info)}
-    <p><strong>{'performance_title'|ucwords}:</strong></p> {*'performance_title' >> 'Performance Information'*}
+    <br />
+    <p><strong>Performance information</strong>:</p>
     <ul>
       {$list=$performance_info[0]}
       {foreach $list as $key => $test}
-      <li>{$key}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}</li>
+      <li>{$key|ucfirst|replace:'_':' '}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}</li>
       {/foreach}
     </ul>
     {/if}
     {if $count_server_info > 1}
-    <p><strong>{'server_information'|replace:'_':' '|ucwords}</strong>:</p>
+    <br />
+    <p><strong>Server information</strong>:</p>
     <ul>
       {foreach $server_info as $view => $tmp}
         {if $view < 1} {foreach $tmp as $key => $test}
-         <li>{$key|replace:'_':' '|ucwords}: {if isset($test->value)}{$test->value}{/if}</li>
+         <li>{$key|ucfirst|replace:'_':' '}: {if isset($test->value)}{$test->value}{/if}</li>
         {/foreach} {/if}
       {/foreach}
     </ul>
-    <br />
     {/if}
     {if $count_permission_info > 1}
-    <p><strong>{'permission_information'|replace:'_':' '|ucwords}</strong>:</p>
+    <br />
+    <p><strong>Permission information</strong>:</p>
     <ul>
       {foreach $permission_info as $view => $tmp}
        {if $view < 1} {foreach $tmp as $key => $test}
-        <li>{$key}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}</li>
+        <li>{$key}: {if isset($test->secondvalue)}{$test->value} ({$test->secondvalue}){elseif isset($test->value)}{$test->value}{/if}
+          {if isset($test->opt)}<ul>{foreach $test->opt as $key => $opt}
+           <li>{$key} {$opt.message|default:''}</li>  
+          {/foreach}</ul>{/if}
+        </li>
        {/foreach} {/if}
       {/foreach}
     </ul>
     {/if}
-    <hr />
-  </div>
 </div>
 
