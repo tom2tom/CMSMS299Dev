@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to delete an admin user
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,56 +15,54 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
+if (!isset($_GET['user_id'])) {
+    return;
+}
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
+
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-die('Permission Denied');
-return;
+    cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', '"Manage Users"'));
+    redirect('listusers.php'.$urlext);
 }
 
-$dodelete = true;
-
-$user_id = -1;
-if (isset($_GET["user_id"])) {
-    $user_id = $_GET["user_id"];
-    $user_name = "";
-    $userid = get_userid();
-
-    if ($user_id != $cur_userid) {
-        $gCms = cmsms();
-        $userops = $gCms->GetUserOperations();
+$key = '';
+$user_id = (int)$_GET['user_id'];
+if ($user_id != $cur_userid) {
+    $userops = cmsms()->GetUserOperations();
+    $ownercount = $userops->CountPageOwnershipByID($user_id);
+    if ($ownercount <= 0) {
         $oneuser = $userops->LoadUserByID($user_id);
         $user_name = $oneuser->username;
-        $ownercount = $userops->CountPageOwnershipByID($user_id);
 
-        if ($ownercount > 0) {
-            $dodelete = false;
-        }
+        \CMSMS\HookManager::do_hook('Core::DeleteUserPre', ['user'=>&$oneuser] );
 
-        if ($dodelete) {
-            \CMSMS\HookManager::do_hook('Core::DeleteUserPre', [ 'user'=>&$oneuser] );
+		if ($oneuser->Delete()) {
+	        cms_userprefs::remove_for_user($user_id);
 
-            cms_userprefs::remove_for_user($user_id);
-            $oneuser->Delete();
+	        \CMSMS\HookManager::do_hook('Core::DeleteUserPost', ['user'=>&$oneuser] );
 
-            \CMSMS\HookManager::do_hook('Core::DeleteUserPost', [ 'user'=>&$oneuser] );
-
-            // put mention into the admin log
-            audit($user_id, 'Admin Username: '.$user_name, 'Deleted');
-        }
+	        // put mention into the admin log
+	        audit($user_id, 'Admin User: '.$user_name, 'Deleted');
+		} else {
+	        $key = 'failure';
+		}
+    } else {
+        $key = 'erroruserinuse';
     }
+} else {
+    $key = 'cantremove';
 }
 
-if ($dodelete == true) {
-    redirect("listusers.php".$urlext);
+if ($key) {
+    cms_utils::get_theme_object()->ParkString('error', lang($key));
 }
-else {
-    redirect("listusers.php".$urlext."&message=".lang('erroruserinuse'));
-}
+redirect('listusers.php'.$urlext);
+
