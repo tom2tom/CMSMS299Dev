@@ -164,10 +164,10 @@ class TranslatableAlert extends Alert
     {
         $modname = $this->module;
         if( !$modname || strtolower($modname) == 'core' ) {
-            return call_user_func('lang', $this->_titlekey );;
+            return lang($this->_titlekey);
         }
         $mod = \cms_utils::get_module($modname);
-        if( $mod ) return call_user_func( [ $mod, 'Lang'], $this->_titlekey );
+        if( $mod ) return $mod->Lang($this->_titlekey);
     }
 
     /**
@@ -181,10 +181,10 @@ class TranslatableAlert extends Alert
         $args = [ $this->_msgkey ];
         if( $this->_msgargs ) $args = array_merge( $args, $this->_msgargs );
         if( !$modname || strtolower($modname) == 'core' ) {
-            return call_user_func_array('lang',$args);;
+            return lang(...$args);
         }
         $mod = \cms_utils::get_module($modname);
-        if( $mod ) return call_user_func_array([ $mod, 'Lang'], $args);
+        if( $mod ) return $mod->Lang(...$args);
     }
 
     /**
