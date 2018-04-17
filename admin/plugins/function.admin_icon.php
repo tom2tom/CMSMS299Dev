@@ -44,7 +44,7 @@ function smarty_function_admin_icon($params,&$template)
 
     if( !$icon ) return;
 
-    if( !isset($tagparms['alt']) ) $tagparms['alt'] = basename($icon);
+    if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
     $out = cms_admin_utils::get_icon($icon,$tagparms);
     if( !$out ) return;
 
