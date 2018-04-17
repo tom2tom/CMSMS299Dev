@@ -18,10 +18,11 @@ License: GPL2+
     $(document).ready(function() {
         ThemeJS.view_init();
         ThemeJS.helper_init();
+        $('table').responsivetable(); //TESTER TODO
     });
 
     var ThemeJS = {
-        cookie_handler: 'themes/Ghostgum/includes/js-cookie.min.js',  //TODO more suitable place
+        cookie_handler: 'themes/assets/js/js-cookie.min.js',
         small_width: 992, // viewport-width threshold
 
         view_init: function() {
@@ -181,7 +182,7 @@ License: GPL2+
             }
         },
         /**
-         * @description gets value for defined key from localStorage if localStorgae is supported, else falls back to js-cookie script
+         * @description gets value for defined key from localStorage if that's supported, else falls back to js-cookie script
          * @requires js-cookie https://github.com/js-cookie/js-cookie
          * @function getStorageValue(key)
          * @param {string} key
@@ -203,7 +204,7 @@ License: GPL2+
             return value;
         },
         /**
-         * @description removes defined key from localStorage if localStorage is supported, else falls back to js-cookie script
+         * @description removes defined key from localStorage if that's supported, else falls back to js-cookie script
          * @requires js-cookie https://github.com/js-cookie/js-cookie
          * @function removeStorageValue(key)
          * @param {string} key
@@ -323,7 +324,7 @@ License: GPL2+
 //            }
 
             $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning" title="' + cms_lang('gotit') + '"></span>');
-            $(document).on('click', '.close-warning', function() {
+            $('.close-warning').on('click', function() {
                 $(this).parent().hide();
                 $(this).parent().remove();
             });
@@ -331,7 +332,7 @@ License: GPL2+
            // pagewarning status hidden? TODO is this stuff still relevant ?
             var _this = this,
                 key = $('body').attr('id') + '_notification';
-            $('.pagewarning .close-warning').click(function() {
+            $('.pagewarning .close-warning').on('click', function() {
                 _this.setStorageValue(key, 'hidden', 60);
             });
             if(this.getStorageValue(key) === 'hidden') {
@@ -443,7 +444,7 @@ License: GPL2+
                 _row.slideUp(1000);
                 var _parent = _row.parent();
                 if(_parent.children().length <= 1) {
-                    _row.closest('div.ui-dialog-content').dialog('close');
+                    cms_dialog(_row.closest('div.ui-dialog-content'), 'close');
                     $('#alert-noalerts').show();
                     $('a#alerts').closest('li').remove();
                 }
@@ -460,17 +461,20 @@ License: GPL2+
          */
         setupAlerts: function() {
             var _this = this;
-            $('a#alerts').click(function(e) {
+            $('a#alerts').on('click', function(e) {
                 e.preventDefault();
-                $('#alert-dialog').dialog();
+                cms_dialog($('#alert-dialog'));
+                return false;
             });
-            $('.alert-msg a').click(function(e) {
+            $('.alert-msg a').on('click', function(e) {
                 e.preventDefault();
                 _this.handleAlert(e.target);
+                return false;
             });
-            $('.alert-icon,.alert-remove').click(function(e) {
+            $('.alert-icon,.alert-remove').on('click', function(e) {
                 e.preventDefault();
                 _this._handleAlert(e.target);
+                return false;
             });
         },
         /**
