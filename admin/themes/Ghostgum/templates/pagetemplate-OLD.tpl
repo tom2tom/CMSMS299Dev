@@ -41,7 +41,7 @@
             <div>
             <!-- logo -->
             <div class="cms-logo">
-              <a href="http://www.cmsmadesimple.org" rel="external"><img src="{$config.admin_url}/themes/Ghostgum/images/cmsms_logotext.png" width="185" height="36" alt="CMS Made Simple" title="CMS Made Simple" /></a>
+              <a href="http://www.cmsmadesimple.org" rel="external"><img src="{$config.admin_url}/themes/assets/images/cmsms-logotext-dark.png" width="185" height="36" alt="CMS Made Simple" title="CMS Made Simple" /></a>
             </div>
             <!-- title -->
             <div class="cms-text">{lang('power_by')}</div>

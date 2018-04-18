@@ -69,7 +69,7 @@
     </div>
     <div id="cmslogo">
       <span id="logotext">{lang('power_by')}</span>
-      <img src="{root_url}/admin/themes/Ghostgum/images/cmsms_logotext_small.png" height="30" width="154" alt="CMS Made Simple" />
+      <img src="{root_url}/admin/themes/assets/images/cmsms-logotext-dark-small.png" height="30" width="154" alt="CMS Made Simple" />
     </div>
   </div>
  </div>
