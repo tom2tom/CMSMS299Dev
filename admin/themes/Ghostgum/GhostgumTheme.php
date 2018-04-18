@@ -25,9 +25,9 @@ class GhostgumTheme extends CmsAdminThemeBase
 	private $_havetree = null;
 
 	/**
-	 * Hook function to nominate runtime resources, which will be included in the page header
+	 * Hook function to nominate runtime resources, which will be included in the header of each displayed admin page
 	 *
-	 * @param array $vars assoc array of js-variable names and their values
+	 * @param array $vars assoc. array of js-variable names and their values
 	 * @param array $add_list array of strings representing includables
 	 * @return array 2-members, which are the supplied params after any updates
 	 */
@@ -36,8 +36,9 @@ class GhostgumTheme extends CmsAdminThemeBase
 		list($vars, $add_list) = parent::AdminHeaderSetup($vars, $add_list);
 
 		$config = cms_config::get_instance();
-		$rel = substr(__DIR__, strlen($config['admin_path']));
 		$root_url = $config['admin_url'];
+		$assets_url = $root_url . '/themes/assets/';
+		$rel = substr(__DIR__, strlen($config['admin_path']));
 		$base_url = $root_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 		$script_url = CMS_SCRIPTS_URL;
 		$fn = 'style';
@@ -47,17 +48,20 @@ class GhostgumTheme extends CmsAdminThemeBase
 				$fn .= '-rtl';
 			}
 		}
-
-		//TODO  if (X) $fn .= '_ie';
-		//TODO relevant tile color
+		//TODO
+/*        if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
+		    $fn .= '_ie';
+		}
+*/
+		//TODO relevant tile color #bfc2b8 =
 		$out = <<<EOS
 <meta name="msapplication-TileColor" content="#bfc2b8" />
-<meta name="msapplication-TileImage" content="{$base_url}/images/favicon/ms-application-icon.png" />
-<link rel="shortcut icon" href="{$base_url}/images/favicon/cmsms-favicon.ico" />
-<link rel="apple-touch-icon" href="{$base_url}/images/favicon/apple-touch-icon-iphone.png" />
-<link rel="apple-touch-icon" sizes="72x72" href="{$base_url}/images/favicon/apple-touch-icon-ipad.png" />
-<link rel="apple-touch-icon" sizes="114x114" href="{$base_url}/images/favicon/apple-touch-icon-iphone4.png" />
-<link rel="apple-touch-icon" sizes="144x144" href="{$base_url}/images/favicon/apple-touch-icon-ipad3.png" />
+<meta name="msapplication-TileImage" content="{$assets_url}images/ms-application-icon.png" />
+<link rel="shortcut icon" href="{$assets_url}images/cmsms-favicon.ico" />
+<link rel="apple-touch-icon" href="{$assets_url}images/apple-touch-icon-iphone.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="{$assets_url}images/apple-touch-icon-ipad.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}images/apple-touch-icon-iphone4.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}images/apple-touch-icon-ipad3.png" />
 <link rel="stylesheet" type="text/css" href="{$base_url}/css/{$fn}.css" />
 
 EOS;
@@ -69,8 +73,8 @@ EOS;
 		}
 		$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$script_url}/css/smoothness/jquery-ui-1.11.4.custom.min.css" />
-<!-- old IE html5 support -->
 <!--[if lt IE 9]>
+<!-- old IE html5 support -->
 <script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 EOS;
@@ -78,6 +82,7 @@ EOS;
 //? exclude defaults jquery-ui nestedSortable cms_lock, cms_hiersel, cms_autorefresh
 		$out .= cms_get_jquery();
 		$out .= <<<EOS
+<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script>
 <script type="text/javascript" src="{$base_url}/js/jquery.alertable.min.js"></script>
 <script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
