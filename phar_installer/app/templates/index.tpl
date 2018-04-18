@@ -30,7 +30,7 @@
     <body class="cmsms-ui">
         <div class="row header-section">
             <a href="http://www.cmsmadesimple.org" rel="external" target="_blank" class="cmsms-logo" title="CMS Made Simple&trade;">
-                <img src="app/assets/images/cmsms-logo.png" alt="CMS Made Simple&trade;" title="CMS Made Simple&trade;" width="332" height="77" />
+                <img src="app/assets/images/cmsms-logo.png" alt="CMS Made Simple" title="CMS Made Simple" width="332" height="77" />
             </a>
             <span class="installer-title">{'apptitle'|tr}</span>
         </div>
