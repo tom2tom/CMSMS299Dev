@@ -1,7 +1,6 @@
 *~
 *.bak
 \#*\#
-lib/assets/modules/
 tmp/
 .htaccess
 config.php
