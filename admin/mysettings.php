@@ -23,49 +23,47 @@ $CMS_TOP_MENU = 'admin';
 $CMS_ADMIN_TITLE = 'mysettings';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
   redirect('index.php'.$urlext);
 }
 
-$userid = get_userid(); // Also checks login
+$userid = get_userid();
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!check_permission($userid,'Manage My Settings')) {
+//TODO some immediate popup  lang('needpermissionto','"Manage My Settings"'));
   return;
 }
 
-$selfurl = basename(__FILE__);
-
 $userobj = UserOperations::get_instance()->LoadUserByID($userid); // <- Safe to do, cause if $userid fails, it redirects automatically to login.
 $db = cmsms()->GetDb();
-$error = '';
-$message = '';
 
 /**
  * Submit account
  *
  * NOTE: Assumes that we successfully acquired user object.
  */
-if (isset($_POST['submit_prefs']) && check_permission($userid,'Manage My Settings')) {
+if (isset($_POST['submit'])) {
+  cleanArray($_POST);
   // Get values from request and drive em to variables
-  $wysiwyg = cleanValue($_POST['wysiwyg']);
-  $ce_navdisplay = cleanValue($_POST['ce_navdisplay']);
-  $syntaxhighlighter = cleanValue($_POST['syntaxhighlighter']);
-  $default_cms_language = '';
-  if (isset($_POST['default_cms_language'])) $default_cms_language = cleanValue($_POST['default_cms_language']);
-  $old_default_cms_lang = '';
-  if (isset($_POST['old_default_cms_lang'])) $old_default_cms_lang = cleanValue($_POST['old_default_cms_lang']);
-  $admintheme = cleanValue($_POST['admintheme']);
-  $bookmarks = (isset($_POST['bookmarks']) ? 1 : 0);
-  $indent = isset($_POST['indent']);
-  $paging = (isset($_POST['paging']) ? 1 : 0);
-  $date_format_string = trim(strip_tags($_POST['date_format_string']));
-  $default_parent = '';
-  if (isset($_POST['parent_id'])) $default_parent = (int)$_POST['parent_id'];
-  $homepage = cleanValue($_POST['homepage']);
-  $hide_help_links = (isset($_POST['hide_help_links']) ? 1 : 0);
+  $wysiwyg = $_POST['wysiwyg'];
+  $ce_navdisplay = $_POST['ce_navdisplay'];
+  $syntaxhighlighter = $_POST['syntaxhighlighter'];
+  $default_cms_language = $_POST['default_cms_language'];
+  $old_default_cms_lang = $_POST['old_default_cms_lang'];
+  $admintheme = $_POST['admintheme'];
+  $bookmarks = (!empty($_POST['bookmarks'])) ? 1 : 0;
+  $indent = (!empty($_POST['indent'])) ? 1 : 0;
+  $paging = (!empty($_POST['paging'])) ? 1 : 0;
+  $date_format_string = $_POST['date_format_string'];
+  $default_parent = (int)$_POST['parent_id'];
+  $homepage = $_POST['homepage'];
+  $hide_help_links = (!empty($_POST['hide_help_links'])) ? 1 : 0;
 
   // Set prefs
   cms_userprefs::set_for_user($userid, 'wysiwyg', $wysiwyg);
@@ -83,7 +81,7 @@ if (isset($_POST['submit_prefs']) && check_permission($userid,'Manage My Setting
 
   // Audit, message, cleanup
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
-  $message = lang('prefsupdated');
+  $themeObject->RecordMessage('success', lang('prefsupdated'));
   cmsms()->clear_cached_files();
 } // end of prefs submit
 
@@ -107,18 +105,9 @@ $hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
 /**
  * Build page
  */
-include_once 'header.php';
-
-if (!empty($error)) {
-  $themeObject->PrepareError($error);
-}
-if (!empty($message)) {
-  $themeObject->PrepareSuccess($message);
-}
 
 $contentops = cmsms()->GetContentOperations();
-$smarty->assign('SECURE_PARAM_NAME', CMS_SECURE_PARAM_NAME); // Assigned at include.php?
-$smarty->assign('CMS_USER_KEY', $_SESSION[CMS_USER_KEY]); // Assigned at include.php?
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 # WYSIWYG editors
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);
@@ -153,6 +142,8 @@ foreach ((array)$allmodules as $onemodule) {
 # Prefs
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 
+$selfurl = basename(__FILE__);
+
 $smarty->assign([
   'admintheme'=>$admintheme,
   'backurl'=>$themeObject->backUrl(),
@@ -170,13 +161,13 @@ $smarty->assign([
   'old_default_cms_lang'=>$old_default_cms_lang,
   'pagelimit_opts'=>$tmp,
   'paging'=>$paging,
+  'selfurl' => $selfurl,
   'syntaxhighlighter'=>$syntaxhighlighter,
   'urlext' => $urlext,
-  'selfurl' => $selfurl,
   'userobj'=>$userobj,
   'wysiwyg'=>$wysiwyg,
 ]);
 
+include_once 'header.php';
 $smarty->display('mysettings.tpl');
-
 include_once 'footer.php';
