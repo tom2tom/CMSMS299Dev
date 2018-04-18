@@ -19,12 +19,12 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
-$access = check_permission($userid, 'Manage Bookmarks');
+$access = check_permission($userid, 'Manage My Bookmarks'); //TODO or 'Manage Bookmarks' or always
 $padd = $access || check_permission($userid, 'Add Bookmarks');
 
 $bookops = cmsms()->GetBookmarkOperations();
@@ -32,8 +32,6 @@ $marklist = $bookops->LoadBookmarks($userid);
 $n = count($marklist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 $limit = 20;
-
-include_once 'header.php';
 
 if ($n > $limit) {
 	$pagination = pagination($page, $n, $limit); //TODO
@@ -45,11 +43,13 @@ if ($n > $limit) {
 	$maxsee = $n;
 }
 
+$themeObject = cms_utils::get_theme_object();
+
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('addbookmark'),'','','systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),'','','systemicon');
 
-$maintitle = $themeObject->ShowHeader('bookmarks');
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 $smarty->assign([
 	'access' => $access,
@@ -59,7 +59,6 @@ $smarty->assign([
 	'iconadd' => $iconadd,
 	'icondel' => $icondel,
 	'iconedit' => $iconedit,
-	'maintitle' => $maintitle,
 	'marklist' => $marklist,
 	'maxsee' => $maxsee,
 	'minsee' => $minsee,
@@ -68,6 +67,6 @@ $smarty->assign([
 	'urlext' => $urlext,
 ]);
 
+include_once 'header.php';
 $smarty->display('listbookmarks.tpl');
-
 include_once 'footer.php';
