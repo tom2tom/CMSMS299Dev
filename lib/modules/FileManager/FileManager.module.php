@@ -1,5 +1,5 @@
 <?php
-#FileManager plugin for CMSMS
+#FileManager module for CMSMS
 #Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
