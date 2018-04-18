@@ -79,7 +79,24 @@ class cms_mailer
    */
   public function reset()
   {
-    $prefs = unserialize(cms_siteprefs::get('mailprefs'));
+	$val = cms_siteprefs::get('mailprefs');
+	$prefs = ($val) ? unserialize($val) : null;
+	if(!$prefs) {
+		$prefs = [
+		 'mailer'=>'mail',
+		 'host'=>'localhost',
+		 'port'=>25,
+		 'from'=>'root@localhost.localdomain',
+		 'fromuser'=>'CMS Administrator',
+		 'sendmail'=>'/usr/sbin/sendmail',
+		 'smtpauth'=>0,
+		 'username'=>'',
+		 'password'=>'',
+		 'secure'=>'',
+		 'timeout'=>60,
+		 'charset'=>'utf-8',
+		];
+	}
     $this->_mailer->Mailer = get_parameter_value($prefs,'mailer','mail');
     $this->_mailer->Sendmail = get_parameter_value($prefs,'sendmail','/usr/sbin/sendmail');
     $this->_mailer->Timeout = get_parameter_value($prefs,'timeout',60);
