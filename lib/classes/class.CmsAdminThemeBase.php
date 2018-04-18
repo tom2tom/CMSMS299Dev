@@ -1182,8 +1182,8 @@ $X = 1;
                 }
             }
             if (!$path) {
-//                $this->_imageLink[$imageName] = 'themes/'.$this->themeName.'/images/missing-image.png'; //fake it
-                $this->_imageLink[$imageName] = 'themes/'.$this->themeName.'/images/'.$imageName; //DEBUG
+//                $this->_imageLink[$imageName] = 'themes/'.$this->themeName.'/images/'.$imageName; //DEBUG
+                $this->_imageLink[$imageName] = 'themes/assets/images/space.png';
             }
         }
         $path = $this->_imageLink[$imageName];
@@ -1300,7 +1300,7 @@ $X = 1;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    protected function ParkStrings(string $type, $message, string $title, $get_var = null) : void
+    protected function ParkString(string $type, $message, string $title, $get_var = null) : void
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
