@@ -35,7 +35,7 @@ $markobj = $bookops->LoadBookmarkByID($bookmark_id);
 if ($markobj) {
 	$userid = get_userid();
 	if ($userid != $markobj->user_id && !check_permission($userid, 'Manage My Bookmarks')) { //TODO or 'Manage Bookmarks'
-		cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', 'Manage My Bookmarks'));
+		cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', '"Manage My Bookmarks"'));
 		redirect("listbookmarks.php".$urlext);
 	}
 

@@ -29,7 +29,7 @@ check_login();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Groups')) {
-    cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', 'Manage Groups'));
+    cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', '"Manage Groups"'));
     redirect('listgroups.php'.$urlext);
 }
 
