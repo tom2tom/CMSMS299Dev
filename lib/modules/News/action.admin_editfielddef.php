@@ -1,5 +1,5 @@
 <?php
-#...
+#CMSMS News module action: editfield
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -14,10 +14,12 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Site Preferences')) return;
+if (!$this->CheckPermission('Modify Site Preferences')) {
+    //TODO some immediate error display	>> lang('needpermissionto', '"Modify Site Preferences"'));
+	return;
+}
 
 if (isset($params['cancel'])) $this->RedirectToAdminTab('customfields','','admin_settings');
 
@@ -47,13 +49,20 @@ $public = 0;
 if( isset($params['public']) ) $public = (int)$params['public'];
 
 if (isset($params['submit'])) {
-  $error = '';
-  if ($name == '') $error = $this->Lang('nonamegiven');
+  if ($name == '') {
+    $error = true;
+    $this->ShowErrors($this->Lang('nonamegiven'));
+  } else {
+    $error = false;
+  }
 
   if( !$error ) {
     $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE name = ? AND id != ?';
     $tmp = $db->GetOne($query,array($name,$fdid));
-    if( $tmp ) $error = $this->Lang('nameexists');
+    if( $tmp ) {
+		$error = true;
+		$this->ShowErrors($this->Lang('nameexists'));
+	}
   }
 
   if( !$error ) {
@@ -61,7 +70,10 @@ if (isset($params['submit'])) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = '.$db->DBTimeStamp(time()).', public = ?, extra = ? WHERE id = ?';
     $res = $db->Execute($query, array($name, $type, $max_length, $public, serialize($extra), $fdid));
 
-    if( !$res ) die( $db->ErrorMsg() );
+    if( !$res ) { //TODO update-command result is never reliable
+		//TODO some immediate error display >> $db->ErrorMsg()
+		return;
+	}
     // put mention into the admin log
     audit($name, 'News custom: '.$name, 'Field definition edited');
     $this->SetMessage($this->Lang('fielddefupdated'));
@@ -108,6 +120,6 @@ $smarty->assign('mod',$this);
 $smarty->assign('hidden',
 		$this->CreateInputHidden($id, 'fdid', $fdid).
 		$this->CreateInputHidden($id, 'origname', $origname));
+
 echo $this->ProcessTemplate('editfielddef.tpl');
 
-// EOF
