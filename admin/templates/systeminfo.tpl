@@ -7,7 +7,7 @@
 {/if}
 <div class="pageinfo">{si_lang a=help_systeminformation}</div>
 <div class="pageoverflow">
-  <table class="pagetable" summary="{si_lang a=cms_install_information}">
+  <table class="pagetable" style="width:100%;" summary="{si_lang a=cms_install_information}">
     <thead>
       <tr>
         <th colspan="3">{si_lang a=cms_install_information}</th>
@@ -15,15 +15,15 @@
     </thead>
     <tbody>
       <tr class="{cycle name='c1' values='row1,row2'}">
-        <td>{si_lang a=cms_version}</td>
-        <td></td>
+        <td style="width:30%;">{si_lang a=cms_version}</td>
+        <td style="width:24px;"></td>
         <td>{$cms_version}</td>
       </tr>
     </tbody>
   </table>
   <br />
 
-  <table class="pagetable" summary="{si_lang a=installed_modules}">
+  <table class="pagetable" style="width:100%;" summary="{si_lang a=installed_modules}">
     <thead>
       <tr>
         <th colspan="3">{si_lang a=installed_modules}</th>
@@ -32,8 +32,8 @@
     <tbody>
       {foreach $installed_modules as $module}
       <tr class="{cycle name='c2' values='row1,row2'}">
-        <td>{$module.module_name}</td>
-        <td></td>
+        <td style="width:30%;">{$module.module_name}</td>
+        <td style="width:24px;"></td>
         <td>{$module.version}</td>
       </tr>
       {/foreach}
@@ -41,7 +41,7 @@
   </table>
   <br />
 
-  <table class="pagetable" summary="{si_lang a=config_information}">
+  <table class="pagetable" style="width:100%;" summary="{si_lang a=config_information}">
     <thead>
       <tr>
         <th colspan="3">{si_lang a=config_information}</th>
@@ -50,8 +50,8 @@
     <tbody>
       {foreach $config_info as $view => $tmp} {foreach $tmp as $key => $test}
       <tr class="{cycle name='c3' values='row1,row2'}">
-        <td>{$test->title}</td>
-        <td>{if isset($test->res)}{admin_icon
+        <td style="width:30%;">{$test->title}</td>
+        <td style="width:24px;">{if isset($test->res)}{admin_icon
             icon="icons/extra/{$test->res|default:'space'}.gif"
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
@@ -71,7 +71,7 @@
   </table>
   <br />
 
-  <table class="pagetable" summary="{lang('performance_information')}">
+  <table class="pagetable" style="width:100%;" summary="{lang('performance_information')}">
     <thead>
       <tr>
         <th colspan="3">{lang('performance_information')}</th>
@@ -80,8 +80,8 @@
     <tbody>
       {foreach $performance_info as $view => $tmp} {foreach $tmp as $key => $test}
       <tr class="{cycle name='c4' values='row1,row2'}">
-        <td>{$test->title}</td>
-        <td>{if isset($test->res)}{admin_icon
+        <td style="width:30%;">{$test->title}</td>
+        <td style="width:24px;">{if isset($test->res)}{admin_icon
             icon="icons/extra/{$test->res|default:'space'}.gif"
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
@@ -99,7 +99,7 @@
   </table>
   <br />
 
-  <table class="pagetable" summary="{si_lang a=php_information}">
+  <table class="pagetable" style="width:100%;" summary="{si_lang a=php_information}">
     <thead>
       <tr>
         <th colspan="3">{si_lang a=php_information}</th>
@@ -108,8 +108,8 @@
     <tbody>
       {foreach $php_information as $view => $tmp} {foreach $tmp as $key => $test}
       <tr class="{cycle name='c5' values='row1,row2'}">
-        <td>{si_lang a=$key} ({$key})</td>
-        <td>{if isset($test->res)}{admin_icon
+        <td style="width:30%;">{si_lang a=$key} ({$key})</td>
+        <td style="width:24px;">{if isset($test->res)}{admin_icon
             icon="icons/extra/{$test->res|default:'space'}.gif"
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
@@ -128,7 +128,7 @@
   </table>
   <br />
 
-  <table class="pagetable" summary="{si_lang a=server_information}">
+  <table class="pagetable" style="width:100%;" summary="{si_lang a=server_information}">
     <thead>
       <tr>
         <th colspan="3">{si_lang a=server_information}</th>
@@ -137,13 +137,13 @@
     <tbody>
       {foreach $server_info as $view => $tmp} {foreach $tmp as $key => $test}
       <tr class="{cycle name='c6' values='row1,row2'}">
-        <td>{si_lang a=$key} ({$key})</td>
-        <td>{if isset($test->res)}{admin_icon
+        <td style="width:30%;">{si_lang a=$key} ({$key})</td>
+        <td style="width:24px;">{if isset($test->res)}{admin_icon
             icon="icons/extra/{$test->res|default:'space'}.gif"
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
         <td>
-          {if isset($test->value)}{$test->value|lower}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if} {if isset($test->message)}<br />{$test->message}{/if}
+          {if isset($test->value)}{$test->value}{/if}{if isset($test->secondvalue)} ({$test->secondvalue}){/if} {if isset($test->message)}<br />{$test->message}{/if}
         </td>
       </tr>
       {/foreach} {/foreach}
@@ -151,7 +151,7 @@
   </table>
   <br />
 
-  <table class="pagetable" summary="{si_lang a=permission_information}">
+  <table class="pagetable" style="width:100%;" summary="{si_lang a=permission_information}">
     <thead>
       <tr>
         <th colspan="3">{si_lang a=permission_information}</th>
@@ -160,8 +160,8 @@
     <tbody>
       {foreach $permission_info as $view => $tmp} {foreach $tmp as $key => $test}
       <tr class="{cycle name='c7' values='row1,row2'}">
-        <td>{$key}</td>
-        <td>{if isset($test->res)}{admin_icon
+        <td style="width:30%;">{$key}</td>
+        <td style="width:24px;">{if isset($test->res)}{admin_icon
             icon="icons/extra/{$test->res|default:'space'}.gif"
            title={$test->res_text|default:''}
              alt={$test->res_text|default:''}}{/if}</td>
