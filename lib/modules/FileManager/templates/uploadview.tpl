@@ -44,7 +44,7 @@ $(document).ready(function() {
     },
     fail: function(e, data) {
       $.each(_jqXHR, function(index, obj) {
-        if(typeof obj == 'object') {
+        if(typeof obj === 'object') {
           obj.abort();
           if(index < _files.length && typeof data.url !== 'undefined') {
             // now delete the file.
@@ -70,7 +70,7 @@ $(document).ready(function() {
       barValue(total, str);
     },
     stop: function(e, data) {
-      $('#filesarea').load({/literal}'{$refresh_url}'{literal});
+      $('#filesarea').load('{/literal}{$refresh_url}{literal}');
       $('#cancel').fadeOut();
       $('#progressarea').fadeOut();
     }
@@ -110,23 +110,21 @@ $(document).ready(function() {
 {/literal}</style>
 
 {$formstart}
-<input type="hidden" name="disable_buffer" value="1" />
-<fieldset>
+ <input type="hidden" name="disable_buffer" value="1" />
+{*<input type="hidden" name="MAX_FILE_SIZE" value="{$maxfilesize}" />*}{* recommendation for browser *}
+ <fieldset>
   {if isset($is_ie)}
   <div class="pageerror">{$ie_upload_message}</div>
   {/if}
   <div class="upload-wrapper">
     <div style="width:60%;float:left;">
-      {*<input type="hidden" name="MAX_FILE_SIZE" value="{$maxfilesize}" />*}{* recommendation for browser *}
       <input id="fileupload" type="file" name="{$actionid}files[]" size="50" title="{$mod->Lang('title_filefield')}" multiple />
-      <br />
-      <div id="pageoverflow">
-        <p class="pageinput">
-          <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" style="display:none;">{$mod->Lang('cancel')}</button>
-        </p>
+      <div class="pageinput pregap">
+{*TODO  <button type="submit" name="{$actionid}submit" id="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>*}
+        <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel" style="display:none;">{$mod->Lang('cancel')}</button>
       </div>
     </div>
-    <div id="leftcol" style="height: 4em; width: 40%; float: left; display: table;">
+    <div id="leftcol" style="height:4em;width:40%;float:left;display:table;">
       {if !isset($is_ie)}
       <div id="dropzone" class="vcentered hcentered" title="{$mod->Lang('title_dropzone')}">
         <p id="dropzonetext">{$mod->Lang('prompt_dropfiles')}</p>
@@ -136,5 +134,5 @@ $(document).ready(function() {
     <div class="clearb"></div>
     <div id="progressarea"></div>
   </div>
-</fieldset>
+ </fieldset>
 </form>
