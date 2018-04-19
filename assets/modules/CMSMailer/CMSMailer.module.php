@@ -1,13 +1,6 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: CMSMailer - a simple wrapper around phpmailer
-# Version: 1.73.10, Robert Campbell <rob@techcom.dyndns.org>
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# Module: CMSMailer - a simple wrapper around PHPMailer
+# Copyright (C) 2015-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,8 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 # Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 
 class CMSMailer extends CMSModule
@@ -125,6 +117,5 @@ class CMSMailer extends CMSModule
     throw new CmsException('Call to invalid method '.$method.' on '.get_class($this->the_mailer).' object');
     // todo, throw exception here.
   }
-} // class CMSMailer
+} // class
 
-?>
