@@ -1,13 +1,7 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: CMSMailer - a simple wrapper around phpmailer
-# copyright (c) Robert Campbell <rob@techcom.dyndns.org>
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# Module: CMSMailer - a simple wrapper around PHPMailer
+# Copyright (C) Robert Campbell 2016-2018 <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,8 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
 /**
  * This file contains the class that wraps PHPMailer usage for CMSMS.
@@ -54,10 +46,7 @@ class cms_mailer
    */
   public function __construct($exceptions = true)
   {
-    $dir = dirname(__DIR__).'/phpmailer/';
-    require_once($dir.'/PHPMailerAutoload.php');
-
-    $this->_mailer = new PHPMailer($exceptions);
+    $this->_mailer = new PHPMailer\PHPMailer($exceptions);
     $this->reset();
   }
 
