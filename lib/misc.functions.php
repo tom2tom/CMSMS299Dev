@@ -668,7 +668,7 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
  * @param  int     $d        for internal use only
  * @return mixed bool or array
 **/
-function get_recursive_file_list ( string $path ,array $excludes, int $maxdepth = -1, string $mode = "FULL" , int $d = 0 )
+function get_recursive_file_list(string $path ,array $excludes, int $maxdepth = -1, string $mode = "FULL" , int $d = 0)
 {
     $fn = function( $file, $excludes ) {
         // strip the path from the file
@@ -1067,6 +1067,35 @@ function cms_to_bool(string $str) : bool
 }
 
 /**
+ * A function to identify locally-installed jquery scripts
+ * @since 2.3
+ * @return 3-member array
+ *  [0] = path of main jquery (min) file or ''
+ *  [1] = path of jquery-ui (min) file or ''
+ *  [2] = path of jquery-migrate (min) file or ''
+ */
+function cms_jquery_scripts() : array
+{
+    $core = '';
+    $ui = '';
+    $migrate = '';
+    //the 'core' jquery files are named like jquery-*min.js
+    $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-*min.js');
+    $files = glob($patn);
+    //grab the (or the last-sorted) versions
+    foreach ($files as $path) {
+        if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
+            $ui = $path;
+        } elseif (preg_match('/\-migrate\-?([0-9.]+)?min/',$path)) {
+            $migrate = $path;
+        } elseif (preg_match('/jquery\-?([0-9.]+)?min/',$path)) {
+            $core = $path;
+        }
+    }
+    return [$core, $ui, $migrate];
+} 
+
+/**
  * A function to return the appropriate HTML tags to include the CMSMS included jquery in a web page.
  *
  * CMSMS is distributed with a recent version of jQuery, jQueryUI and various other jquery based
@@ -1096,21 +1125,23 @@ function cms_to_bool(string $str) : bool
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
     $baseUrl = ($custom_root) ? trim($custom_root,'/lib/jquery/') : CMS_SCRIPTS_URL.'/';
+    list ($core, $ui, $migrate) = cms_jquery_scripts();
+
     // scripts etc to include (unless excluded)
     $scripts = [
         'jquery' => [
          'aliases'=>['jquery-min','jquery.min.js'],
-         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js',
-         'local'=>$baseUrl.'js/jquery-1.12.4.min.js',
+         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js',
+         'local'=>$baseUrl.'js/'.basename($core),
         ],
         'jquery-ui' => [
          'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
-         'css'=>$baseUrl.'css/smoothness/jquery-ui-1.11.4.custom.min.css',
-         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js',
-         'local'=>$baseUrl.'js/jquery-ui-1.11.4.custom.min.js',
+         'css'=>$baseUrl.'css/smoothness/jquery-ui-1.12.1.min.css', //TODO generalise this
+         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+         'local'=>$baseUrl.'js/'.basename($ui),
         ],
         'migrate' => [
-         'local'=>$baseUrl.'js/jquery-migrate-1.3.0.min.js'
+         'local'=>$baseUrl.'js/'.basename($migrate)
         ],
 //      'json' => ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'],
         'nestedSortable' => [
@@ -1134,7 +1165,7 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
         $scripts['cms_hiersel'] =     ['local'=>$baseUrl.'js/jquery.cmsms_hierselector.js'];
         $scripts['cms_autorefresh'] = ['local'=>$baseUrl.'js/jquery.cmsms_autorefresh.js'];
         $scripts['ui_touch_punch'] =  ['local'=>$baseUrl.'js/jquery.ui.touch-punch.min.js'];
-		$scripts['notifier'] =        ['local'=>$baseUrl.'js/jquery.toast.js'];
+        $scripts['notifier'] =        ['local'=>$baseUrl.'js/jquery.toast.js'];
     }
 
     list($vars,$add_list,$exclude_list) = \CMSMS\HookManager::do_hook('RuntimeSetup', [], [], []);
