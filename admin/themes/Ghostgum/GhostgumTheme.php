@@ -235,39 +235,26 @@ EOS;
 
 		if (!empty($params)) $smarty->assign($params);
 
-		// the only needed scripts are: jquery, jquery-ui, and our custom login
-		$jqcore = '';
-		$jqui = '';
-		//the 'core' jquery files are named like jquery-*min.js
-		$patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-*min.js');
-		$files = glob($patn);
-		//grab the (or the latest) core and ui
- 		foreach ($files as $path) {
-			if (preg_match('/jquery\-[0-9.]+min/',$path)) {
-				$jqcore = $path;
-			} elseif (preg_match('/jquery\-ui\-[0-9.]+.*min/',$path)) {
-				$jqui = $path;
-			}
-		}
+		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
-		$out = <<<EOS
-<!-- html5 for old IE -->
+		// the only needed scripts are: jquery, jquery-ui, and our custom login
+		list ($jqcore, $jqui, $jqmigrate) = cms_jquery_scripts();
+		$url = cms_admin_utils::path_to_url($jqcore);
+		$out = sprintf($tpl,$url);
+		$url = cms_admin_utils::path_to_url($jqui);
+		$out .= sprintf($tpl,$url);
+		$out .= <<<EOS
 <!--[if lt IE 9]>
+<!-- html5 for old IE -->
 <script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
 
 EOS;
-		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
-
-		$url = cms_admin_utils::path_to_url($jqcore);
-		$out .= sprintf($tpl,$url);
-		$url = cms_admin_utils::path_to_url($jqui);
-		$out .= sprintf($tpl,$url);
-	    $url = cms_admin_utils::path_to_url(__DIR__);
-	    $url .= '/js/login.js';
+		$url = cms_admin_utils::path_to_url(__DIR__);
+		$url .= '/js/login.js';
 		$out .= sprintf($tpl,$url);
 
-		$smarty->assign('header_includes', $out);
+		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
 		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
 		$smarty->display('login.tpl');
 	}
