@@ -229,10 +229,6 @@ abbr[title], dfn[title] {
     border-bottom: 1px dotted;
     cursor: help
 }
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-}
 hr {
     display: block;
     height: 1px;
@@ -245,6 +241,9 @@ ul, ol {
     list-style: none;
     margin: 0;
     padding: 0
+}
+ul ul, ul ol, ol ol, ol ul {
+    margin-left: 2em;
 }
 h1, h2, h3, h4, h5, h6 {
     margin: 0.5em 0;
@@ -270,9 +269,6 @@ h6 {
 p {
     font-size: 0.9em;
     margin: 2px 0
-}
-table, td, tr {
-    text-align: left
 }
 form {
     margin: 0px;
@@ -378,19 +374,26 @@ form {
 }
 
 a.link_button, a.link_button:visited{
-    border: 1px solid #d3d3d3;  /* TODO */
-    border-radius: 6px;
-    padding: 0.4em 0.5em;
     margin: 0.1em;
+/*    border: 1px solid #d3d3d3; */
+    border-width: 0;
+    border-radius: 3px;
+    padding: 0.4em 0.5em;
+    background: #58814c url(../images/submit-bg.png) top;
+    background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    -ms-background-size: cover;
+    color: #fffaf0; /* same as body */
     height: auto;
-    background: #cecece url(../images/submit-bg.gif) repeat-x top;  /* TODO */
-    color: #555; /* TODO */
     text-indent: 0;
     text-decoration: none;
+    font-weight: 600;
     font-size: 1em
 }
 a.link_button:hover{
-    background: #838282 url(../images/submit-hover-bg.gif) repeat-x top; /* TODO */
+    background: #3c9b0a url(../images/submit-bg.png) top;
 }
 .adminsubmit, .loginsubmit, .ui-button {
     margin: 0.1em;
@@ -465,6 +468,15 @@ a.link_button.icon:before, a.link_button.icon.before{
     background-position: 10em 0;
 }
 
+.move {
+    width: 60px;
+    padding-left: 5px;
+    text-align: left;
+}
+.checkbox {
+    padding-left: 10px
+}
+
 input, select, menu, textarea {
     border: 1px solid;
     background: #f2ecdf;
@@ -502,7 +514,7 @@ input[type='text']#in_title, input[type='text']#in_menutext {
 }
 input[type="button"], input[type="submit"], .ui-button {
     border: 1px solid #d3d3d3;
-    background: #cecece url(../images/submit-bg.gif) repeat-x top; /*TODO*/
+    background: #cecece url(../images/submit-bg.png) top; /*TODO*/
     font-weight: normal;
     color: #555;
     cursor: pointer;
@@ -642,22 +654,22 @@ a.tooltip {
 }
 */
 .warn, .warning, .pagewarn, .pagewarning {
-    background: #fcf1d0 url(../images/extra/warn.png) 10px 50% no-repeat;
+    background: #fcf1d0 url(../images/icons/extra/warn.png) 10px 50% no-repeat;
     border: 1px solid #f4ca4c;
     color: #b08f0e
 }
 .error, .pageerror, .pageerrorcontainer, .pageerrorinstalldir {
-    background: #fcd0d0 url(../images/extra/error.png) 10px 50% no-repeat;
+    background: #fcd0d0 url(../images/icons/extra/error.png) 10px 50% no-repeat;
     border: 1px solid #f44c4c;
     color: #490707
 }
 .success, .pagesuccess, .pagemcontainer {
-    background: #d0fcdc url(../images/extra/success.png) 10px 50% no-repeat;
+    background: #d0fcdc url(../images/icons/extra/success.png) 10px 50% no-repeat;
     border: 1px solid #28e65f;
     color: #0bb33a
 }
 .info, .pageinfo, .information {
-    background: #d1e8fc url(../images/extra/info.png) 10px 50% no-repeat;
+    background: #d1e8fc url(../images/icons/extra/info.png) 10px 50% no-repeat;
     border: 1px solid #4ca6f4;
     color: #0e2a42
 }
@@ -844,7 +856,7 @@ aside .no-slide, .no-slide {
 }
 .jqt-icon-error {
     padding-left: 50px;
-    background-image: url(../images/extra/error.png);
+    background-image: url(../images/icons/extra/error.png);
 }
 .warn.jqtoast {
     padding: 10px 40px;
@@ -857,7 +869,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-warning {
-    background-image: url(../images/extra/warn.png);
+    background-image: url(../images/icons/extra/warn.png);
 }
 .success.jqtoast {
     padding: 10px 40px;
@@ -870,7 +882,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-success {
-    background-image: url(../images/extra/accept.png);
+    background-image: url(../images/icons/extra/accept.png);
 }
 .info.jqtoast {
     padding: 10px 40px;
@@ -883,7 +895,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-info {
-    background-image: url(../images/extra/info.png);
+    background-image: url(../images/icons/extra/info.png);
 }
 
 /*** alertable plugin popups ***/
@@ -996,21 +1008,21 @@ aside .no-slide, .no-slide {
     width: 16px;
     height: 16px;
     text-indent: -9999em;
-    background: transparent url(../images/extra/close.png) 8px no-repeat;
+    background: transparent url(../images/icons/extra/close.png) 8px no-repeat;
     cursor: pointer;
     margin: 5px
 }
 .image-error{
-    background-image: url(../images/extra/error.png) 10px 8px no-repeat;
+    background-image: url(../images/icons/extra/error.png) 10px 8px no-repeat;
 }
 .image-warning{
-    background-image: url(../images/extra/warn.png) 10px 8px no-repeat;
+    background-image: url(../images/icons/extra/warn.png) 10px 8px no-repeat;
 }
 .image-info {
-    background-image: url(../images/extra/info.png) 10px 8px no-repeat;
+    background-image: url(../images/icons/extra/info.png) 10px 8px no-repeat;
 }
 .image-close {
-    background-image: url(../images/extra/close.png) no-repeat;
+    background-image: url(../images/icons/extra/close.png) no-repeat;
 }
 .infoclose{
     background-image:url(../images/closesprite.png);
@@ -1116,7 +1128,7 @@ body {
 }
 #ggp_header #cms-logo span {
     display: inline-block;
-    background: transparent url(../images/cmsms_logotext.png) no-repeat left;
+    background: transparent url(../../assets/images/cmsms-logotext-dark.png) no-repeat left;
     height: 36px;
     width: 185px
 }
@@ -1356,6 +1368,9 @@ header .shortcuts li i {
 #ggp_nav {
     overflow-x: hidden;
     overflow-y: auto;
+}
+#ggp_nav ul ul {
+    margin-left: 0
 }
 #ggp_contentwrap {
     width: 100%;
@@ -2094,22 +2109,31 @@ div.dialog form#chdir_form select {
 
 /*** tables ***/
 
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+table, tr, td {
+    text-align: left
+}
 table th:first-child {
-    border-top-left-radius: 4px
+    border-top-left-radius: 3px
 }
 table th:last-child {
-    border-top-right-radius: 4px
+    border-top-right-radius: 3px
 }
 table tr:last-child td:first-child {
-    border-bottom-left-radius: 4px
+    border-bottom-left-radius: 3px
 }
 table tr:last-child td:last-child {
-    border-bottom-right-radius: 4px
+    border-bottom-right-radius: 3px
 }
 table.pagetable {
     border-collapse: inherit;
     border: 1px solid #aaa;
-    width: 100%;
+/*    width: 100%; */
+    width: auto;
+    table-layout: auto;
     margin: 3px 0;
     font-size: 0.8em;
     line-height: 1.15
@@ -2147,11 +2171,8 @@ table.pagetable tr {
     height: 2.5em
 }
 table.pagetable td {
+    padding: 2px 5px
     color: #244323;
-/*    padding-left: 5px;
-    padding-right: 5px
-*/
-     padding: 2px 5px
 }
 table.pagetable a {
     color: #244323
@@ -2162,19 +2183,16 @@ table.pagetable td a:focus {
 table.pagetable th.pagepos {
     text-align: center
 }
-.move {
-    width: 60px;
-    padding-left: 5px;
-    text-align: left;
-}
-.checkbox {
-    padding-left: 10px
-}
 table.pagetable th.pageicon {
     min-width: 16px;
     width: 1%;
     border: none
 }
+
+table.responsive, table.responsive th, table.responsive td {
+    border: none;
+}
+
 th.pagew10 {
     width: 10%
 }
@@ -2203,7 +2221,7 @@ tr.row2 {
     background: #f2ecdf
 }
 tr.row1:hover, tr.row2:hover, tr.row1hover, tr.row2hover {
-    background: #ded4bf /*TODO*/
+    background: #ded4bf
 }
 td.pageicon {
     background: #f2f2f2 !important
@@ -2376,9 +2394,9 @@ textarea.pageextrasmalltextarea {
     color: #3c9b0a
 }
 #page_tabs div.active {
+    background-color: #3c9b0a;
     color: #fff;
     text-shadow: -1px -1px 0 #054882;
-    background: #3c9b0a /* url(../images/extra/tab-active.png) no-repeat center bottom */
 }
 #page_content {
 /*    background: #fff;
@@ -2411,7 +2429,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 10px 3px 35px;
-    background: #eee url(../images/extra/reorder.gif) no-repeat 10px 50%;
+    background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
@@ -2458,7 +2476,7 @@ ul.sortable .placeholder {
     top: 0
 }
 .drop-inner + a.toggle-dropzone {
-    background: transparent url(../images/extra/toggle-dropzone.png) no-repeat -15px 0;
+    background: transparent url(../images/icons/extra/toggle-dropzone.png) no-repeat -15px 0;
     border: 1px solid #ccc;
     border-top: none;
     text-indent: -9999em;
@@ -2472,7 +2490,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
     outline: none
 }
 .drop-inner.hidden + a.toggle-dropzone {
-    background: transparent url(../images/extra/toggle-dropzone.png) no-repeat 0 0;
+    background: transparent url(../images/icons/extra/toggle-dropzone.png) no-repeat 0 0;
 }
 .drop .drop-inner {
     float: none;
@@ -2572,7 +2590,7 @@ ul.sortableList li div.label span {
     margin-top: 8px;
     margin-left: 5px;
     margin-right: 5px;
-    background: transparent url(../images/extra/reorder.gif) no-repeat 0 0;
+    background: transparent url(../images/icons/extra/reorder.gif) no-repeat 0 0;
 }
 */
 ul.sortableList span.haschildren.expanded {
@@ -2646,7 +2664,7 @@ ul.sortableList > li {
 }
 #login a#toggle-info {
     position: absolute;
-    background: transparent url(../images/extra/info.png) no-repeat scroll center center;
+    background: transparent url(../images/icons/extra/info.png) no-repeat scroll center center;
     top: 2em;
     left: 2em;
     height: 24px;
@@ -2725,6 +2743,8 @@ ul.sortableList > li {
     margin-bottom: 8px;
 }
 
+/*** RESPONSIVE TABLES ***/
+
 /* --- SCREEN UP TO 1024px --- */
 
 @media screen and (max-width: 1024px) {
@@ -2751,11 +2771,10 @@ ul.sortableList > li {
         border-radius: 3px 3px 0 0;
         margin-right: 0
     }
-*/
+
     .sidebar-on #page_tabs div.active {
-        background-color: #3c9b0a;
-        color: #fff
     }
+*/
 
     article.content-inner {
         margin-left: 2.5em;
@@ -2958,7 +2977,7 @@ ul.sortableList > li {
         margin: 5px 0 1rem;
         overflow-x: auto;
         display: block;
-        padding-bottom: 2rem;
+/*        padding-bottom: 2rem; */
     }
     /* position:fixed doesn't work well with mobile devices */
     footer#pg_footer {
@@ -3103,7 +3122,7 @@ ul.sortableList > li {
 
     #ggp_header #cms-logo span {
         display: inline-block;
-        background: transparent url(../images/cmsms-logo.png) no-repeat left;
+        background: transparent url(../../assets/images/cmsms-logo.png) no-repeat left;
         height: 36px;
         width: 36px;
     }
