@@ -19,34 +19,37 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
     redirect('listusers.php'.$urlext);
-    return;
+//    return;
 }
 
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!$access) {
-    die('Permission Denied');
+//TODO some immediate popup    lang('needpermissionto', '"Manage Groups"');
+    return;
 }
 
-$submitted = (isset($_POST['submit']));
-$group_id = (isset($_GET['group_id'])) ? $_GET['group_id'] : -1;
+$group_id = (isset($_GET['group_id'])) ? (int)$_GET['group_id'] : -1;
 
 $gCms = cmsms();
 $userops = $gCms->GetUserOperations();
 $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $message = '';
 
-include_once 'header.php';
 $db = $gCms->GetDb();
+$smarty = CMSMS\internal\Smarty::get_instance();
 
-if (isset($_POST['filter'])) {
-    $disp_group = $_POST['groupsel'];
+if (!empty($_POST['filter'])) {
+    $disp_group = cleanValue($_POST['groupsel']);
     cms_userprefs::set_for_user($userid, 'changegroupassign_group', $disp_group);
 }
 $disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1);
@@ -74,14 +77,13 @@ $smarty->assign('group_list', $groups);
 $smarty->assign('allgroups', $allgroups);
 $smarty->assign('groupidlist', implode(',', $groupidlist));
 
-if ($submitted) {
+if (isset($_POST['submit'])) {
     foreach ($groups as $onegroup) {
         if ($onegroup->id <= 0) {
             continue;
         }
         // Send the ChangeGroupAssignPre event
-        \CMSMS\HookManager::do_hook(
-            'Core::ChangeGroupAssignPre',
+        \CMSMS\HookManager::do_hook('Core::ChangeGroupAssignPre',
              ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
         );
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ? AND user_id != ?';
@@ -89,6 +91,7 @@ if ($submitted) {
         $iquery = 'INSERT INTO '.CMS_DB_PREFIX.
             'user_groups (group_id, user_id, create_date, modified_date) VALUES (?,?,NOW(),NOW())';
 
+        cleanArray($_POST);
         foreach ($_POST as $key=>$value) {
             if (strncmp($key, 'ug', 2) == 0) {
                 $keyparts = explode('_', $key);
@@ -98,8 +101,7 @@ if ($submitted) {
             }
         }
 
-        \CMSMS\HookManager::do_hook(
-            'Core::ChangeGroupAssignPost',
+        \CMSMS\HookManager::do_hook('Core::ChangeGroupAssignPost',
             ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
         );
         // put mention into the admin log
@@ -137,7 +139,7 @@ $smarty->assign('users', $user_struct);
 $smarty->assign('adminuser', ($adminuser?1:0));
 
 if (!empty($message)) {
-    $themeObject->PrepareSuccess($message);
+    $themeObject->RecordMessage('success', $message);
 }
 
 $selfurl = basename(__FILE__);
@@ -147,6 +149,6 @@ $smarty->assign('disp_group', $disp_group);
 $smarty->assign('user_id', $userid);
 $smarty->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
 
+include_once 'header.php';
 $smarty->display('changeusergroup.tpl');
-
 include_once 'footer.php';
