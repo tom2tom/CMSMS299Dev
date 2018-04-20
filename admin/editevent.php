@@ -31,10 +31,10 @@ if (isset($_POST['cancel'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Modify Events');
 
-include_once 'header.php';
+$themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup	$themeObject->RecordMessage('error', lang('noaccessto', lang('editeventhandler')));
+//TODO some immediate popup	lang('noaccessto', lang('editeventhandler'))
     return;
 }
 
@@ -153,6 +153,7 @@ if ($access) {
 
 $selfurl = basename(__FILE__);
 
+$smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,
@@ -168,6 +169,7 @@ $smarty->assign([
 	'selfurl' => $selfurl,
 ]);
 
+include_once 'header.php';
 $smarty->display('editevent.tpl');
 include_once 'footer.php';
 

@@ -19,10 +19,10 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 $padd = $access || check_permission($userid, 'Add Groups');
@@ -35,8 +35,6 @@ $n = count($grouplist);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 $limit = 20;
 
-include_once 'header.php';
-
 if ($n > $limit) {
     $pagination = pagination($page, $n, $limit); //TODO
     $minsee = $page * $limit - $limit;
@@ -47,6 +45,8 @@ if ($n > $limit) {
     $maxsee = $n;
 }
 
+$themeObject = cms_utils::get_theme_object();
+
 $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('true'), '', '', 'systemicon');
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('false'), '', '', 'systemicon');
 $iconassign = $themeObject->DisplayImage('icons/system/groupassign.gif', lang('assignments'), '', '', 'systemicon');
@@ -55,8 +55,9 @@ $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('add'),
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), '', '', 'systemicon');
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
 
-$maintitle = $themeObject->ShowHeader('currentgroups');
 $selfurl = basename(__FILE__);
+
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 $smarty->assign([
     'access' => $access,
@@ -72,7 +73,6 @@ $smarty->assign([
     'iconfalse' => $iconfalse,
     'iconperms' => $iconperms,
     'icontrue' => $icontrue,
-    'maintitle' => $maintitle,
     'maxsee' => $maxsee,
     'minsee' => $minsee,
     'padd' => $padd,
@@ -82,6 +82,6 @@ $smarty->assign([
     'selfurl' => $selfurl,
 ]);
 
+include_once 'header.php';
 $smarty->display('listgroups.tpl');
-
 include_once 'footer.php';

@@ -40,10 +40,10 @@ if (isset($_GET['group_id'])) {
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 
-include_once 'header.php';
+$themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup	$themeObject->RecordMessage('error', lang('needpermissionto', '"Manage Groups"'));
+//TODO some immediate popup	lang('needpermissionto', '"Manage Groups"')
 	return;
 }
 
@@ -91,6 +91,7 @@ $selfurl = basename(__FILE__);
 $userops = cmsms()->GetUserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
+$smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->assign([
 	'active' => $active,
 	'description' => $description,
@@ -101,6 +102,6 @@ $smarty->assign([
 	'useringroup' => $useringroup,
 ]);
 
+include_once 'header.php';
 $smarty->display('editgroup.tpl');
-
 include_once 'footer.php';
