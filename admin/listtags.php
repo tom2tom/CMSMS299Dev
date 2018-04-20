@@ -28,7 +28,8 @@ $userid = get_userid();
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
 
 if (!$access) {
-//TODO some immediate popup    die('Permission Denied');
+//TODO some immediate popup    ;
+    return;
 }
 
 $plugin = (isset($_GET['plugin'])) ? basename(cleanValue($_GET['plugin'])) : '';
@@ -40,7 +41,7 @@ $dirs[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins';
 $bp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR;
 $dirs[] = $bp.'lib'.DIRECTORY_SEPARATOR.'plugins';
 $dirs[] = $bp.'plugins';
-$config = cmsms()->GetConfig();
+$config = cms_config::get_instance();
 $dirs[] = $config['admin_path'].DIRECTORY_SEPARATOR.'plugins';
 
 $find_file = function($filename) use ($dirs) {
@@ -51,9 +52,9 @@ $find_file = function($filename) use ($dirs) {
     }
 };
 
-$selfurl = basename(__FILE__);
+$smarty = CMSMS\internal\Smarty::get_instance();
 
-include_once 'header.php';
+$selfurl = basename(__FILE__);
 
 if ($action == 'showpluginhelp') {
     $content = '';
@@ -166,6 +167,6 @@ $smarty->assign([
 	'selfurl' => $selfurl,
 ]);
 
+include_once 'header.php';
 $smarty->display('listtags.tpl');
-
 include_once 'footer.php';
