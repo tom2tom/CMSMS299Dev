@@ -1,6 +1,6 @@
 <?php
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
+if( !$this->CheckPermission('Modify Site Preferences') ) return; //TODO sensible permission
 $this->SetCurrentTab('categories');
 
 function news_reordercats_create_flatlist($tree,$parent_id = -1)
@@ -43,15 +43,15 @@ else if( isset($params['submit']) ) {
   }
 }
 
-
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $allcats = $db->GetArray($query);
 
-
 $smarty->assign('allcats',$allcats);
-echo $this->ProcessTemplate('admin_reorder_cats.tpl');
 
-#
-# EOF
-#
-?>
+/*
+//custom requirements TODO generalise e.g. footer hookfunction
+cms_utils::get_theme_object()->add_footertext(
+'<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/js/jquery.mjs.nestedSortable.min.js"></script>'."\n");
+*/
+
+echo $this->ProcessTemplate('admin_reorder_cats.tpl');
