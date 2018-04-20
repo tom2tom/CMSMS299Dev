@@ -19,22 +19,24 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
-    redirect('changegroupperm.php'.$urlext); //TODO other relevant view
+    redirect('listgroups.php'.$urlext); //TODO go to relevant menu section
     return;
 }
 
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
-if (!$access) {
-    die('Permission Denied');
-}
 
-$submitted = (isset($_POST['submit']));
+$themeObject = cms_utils::get_theme_object();
+
+if (!$access) {
+//TODO some immediate popup  lang('needpermissionto', '"Manage Groups"'));
+	return;
+}
 
 $gCms = cmsms();
 $userops = $gCms->GetUserOperations();
@@ -42,8 +44,8 @@ $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $group_name = '';
 $message = '';
 
-include_once 'header.php';
 $db = $gCms->GetDb();
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 $load_perms = function () use ($db) {
     $query = 'SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id FROM '.
@@ -53,6 +55,7 @@ $load_perms = function () use ($db) {
     $result = $db->Execute($query);
 
     // use hooks to localize permissions.
+	//NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
     \CMSMS\HookManager::add_hook('localizeperm', function ($perm_source, $perm_name) {
         $key = 'perm_'.str_replace(' ', '_', $perm_name);
         if (\CmsLangOperations::lang_key_exists('admin', $key)) {
@@ -125,8 +128,8 @@ $group_perms = function ($in_struct) {
     return $out;
 };
 
-if (isset($_POST['filter'])) {
-    $disp_group = $_POST['groupsel'];
+if (!empty($_POST['filter'])) {
+    $disp_group = filter_var($_POST['groupsel'], FILTER_SANITIZE_NUMBER_INT);
     cms_userprefs::set_for_user($userid, 'changegroupassign_group', $disp_group);
 }
 $disp_group = cms_userprefs::get_for_user($userid, 'changegroupassign_group', -1);
@@ -154,7 +157,7 @@ foreach ($group_list as $onegroup) {
 $smarty->assign('group_list', $sel_groups);
 $smarty->assign('allgroups', $allgroups);
 
-if ($submitted) {
+if (isset($_POST['submit'])) {
     // we have group permissions
     $now = $db->DbTimeStamp(time());
     $iquery = 'INSERT INTO '.CMS_DB_PREFIX.
@@ -164,7 +167,7 @@ if ($submitted) {
     $parts = explode('::', $_POST['sel_groups']);
     if (count($parts) == 2) {
         if (md5(__FILE__.$parts[1]) == $parts[0]) {
-            $selected_groups = (array) unserialize(base64_decode($parts[1]));
+            $selected_groups = (array) unserialize(base64_decode($parts[1]), ['allowed_classes'=>false]);
             if (is_array($selected_groups) && count($selected_groups)) {
                 // clean this array
                 $tmp = array();
@@ -182,6 +185,7 @@ if ($submitted) {
     }
     unset($parts);
 
+    cleanArray($_POST);
     foreach ($_POST as $key=>$value) {
         if (strncmp($key, 'pg', 2) == 0) {
             $keyparts = explode('_', $key);
@@ -204,7 +208,7 @@ if ($submitted) {
 }
 
 if (!empty($message)) {
-    $themeObject->PrepareSuccess($message);
+    $themeObject->RecordMessage('success', $message);
 }
 $pagesubtitle = lang('groupperms', $group_name);
 $perm_struct = $load_perms();
@@ -223,6 +227,6 @@ $smarty->assign([
     'selfurl' => $selfurl,
 ]);
 
+include_once 'header.php';
 $smarty->display('changegroupperm.tpl');
-
 include_once 'footer.php';
