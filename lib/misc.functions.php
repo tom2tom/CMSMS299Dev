@@ -1126,6 +1126,7 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
 {
     $baseUrl = ($custom_root) ? trim($custom_root,'/lib/jquery/') : CMS_SCRIPTS_URL.'/';
     list ($core, $ui, $migrate) = cms_jquery_scripts();
+    //TODO glob(cms_join_path(CMS_ROOT_PATH,'lib','jquery','css','*','jquery-ui*min.css'));
 
     // scripts etc to include (unless excluded)
     $scripts = [
@@ -1136,18 +1137,16 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
         ],
         'jquery-ui' => [
          'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
-         'css'=>$baseUrl.'css/smoothness/jquery-ui-1.12.1.min.css', //TODO generalise this
          'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
          'local'=>$baseUrl.'js/'.basename($ui),
-        ],
-        'migrate' => [
-         'local'=>$baseUrl.'js/'.basename($migrate)
+         'css'=>$baseUrl.'css/smoothness/jquery-ui-1.12.1.min.css', //TODO generalise this
         ],
 //      'json' => ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'],
-        'nestedSortable' => [
-         'local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'
-        ],
+        'nestedSortable' => ['local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'],
     ];
+    if ($migrate) {
+        $scripts['migrate'] = ['local'=>$baseUrl.'js/'.basename($migrate)];
+    }
 
     if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
         global $CMS_LOGIN_PAGE;
