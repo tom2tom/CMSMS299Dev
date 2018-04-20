@@ -1,6 +1,7 @@
 <?php
+#class: CmsSimplePluginOperations
 #This file is part of CMS Made Simple <http://cmsmadesimple.org>
-#(c)2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#Copyright (C)2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #
 #This file is free software. You can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -41,7 +42,7 @@ final class CmsSimplePluginOperations
     }
 
     /**
-     * List all simple plugins in the assets/simple_plugins directory.
+     * List all simple (aka user-defined) plugins in the assets/simple_plugins directory.
      *
      * @since 2.3
      * @return string[]|null
