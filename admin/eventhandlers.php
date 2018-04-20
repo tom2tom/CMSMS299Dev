@@ -20,10 +20,10 @@ $CMS_ADMIN_PAGE=1;
 $CMS_LOAD_ALL_PLUGINS=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = check_permission($userid, "Modify Events");
 $modulefilter = (!empty($_POST['modulefilter'])) ? $_POST['modulefilter'] : '';
@@ -39,17 +39,18 @@ if (is_array($events)) {
 	sort($modlist, SORT_NATURAL);
 }
 
-include_once 'header.php';
+$themeObject = cms_utils::get_theme_object();
 
 if ($access) {
 	$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
 } else {
 	$iconedit = null;
 }
-$iconinfo = $themeObject->DisplayImage('icons/system/info.gif', lang('help'),'','','systemicon');
+$iconinfo = $themeObject->DisplayImage('icons/system/info.png', lang('help'),'','','systemicon');
 
-$maintitle = $themeObject->ShowHeader('eventhandlers');
 $selfurl = basename(__FILE__);
+
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 $smarty->assign([
 	'access' => $access,
@@ -58,13 +59,12 @@ $smarty->assign([
 	'helpurl' => 'eventhelp.php',
 	'iconedit' => $iconedit,
 	'iconinfo' => $iconinfo,
-	'maintitle' => $maintitle,
 	'modlist' => $modlist,
 	'modulefilter' => $modulefilter,
 	'selfurl' => $selfurl,
 	'urlext' => $urlext,
 ]);
 
+include_once 'header.php';
 $smarty->display('listevents.tpl');
-
 include_once 'footer.php';
