@@ -14,24 +14,26 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 $CMS_ADMIN_TITLE = 'system_verification';
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
 
+check_login();
+
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 @set_time_limit(9999); // this may not work on all hosts
 
-check_login();
 $userid = get_userid();
 $access = check_permission($userid, "Modify Site Preferences");
-if (!$access) die('Permission Denied');
 
+$themeObject = cms_utils::get_theme_object();
 
-include_once("header.php");
+if (!$access) {
+//TODO some immediate popup  lang('needpermissionto', '"Modify Site Preferences"')
+	return;
+}
 
 define('CMS_BASE', dirname(__DIR__));
 require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
@@ -62,9 +64,7 @@ function check_checksum_data(&$report)
     return false;
   }
 
-
-
-  $config = \cms_config::get_instance();
+  $config = cms_config::get_instance();
   $salt = md5_file($config['root_path']."/lib/version.php").md5_file($config['root_path']."/index.php");
   $filenotfound = array();
   $notreadable = 0;
@@ -157,8 +157,7 @@ function check_checksum_data(&$report)
 
 function generate_checksum_file(&$report)
 {
-  $gCms = cmsms();
-  $config = $gCms->GetConfig();
+  $config = cms_config::get_instance();
   $output = '';
   $salt = md5_file($config['root_path']."/lib/version.php").md5_file($config['root_path']."/index.php");
 
@@ -188,16 +187,13 @@ function generate_checksum_file(&$report)
   header('Content-Transfer-Encoding: binary');
   header('Content-Length: ' . strlen($output));
   echo $output;
-  exit();
+  exit;
 }
 
+$smarty = CMSMS\internal\Smarty::get_instance();
 // Get ready
-$gCms = \CmsApp::get_instance();
-$theme = \cms_utils::get_theme_object();
-$smarty = $gCms->GetSmarty();
 $smarty->register_function('lang','checksum_lang');
 $smarty->force_compile = true;
-$db = $gCms->GetDb();
 
 // Handle output
 $res = true;
@@ -206,7 +202,7 @@ if( isset($_POST['action']) ) {
   switch($_POST['action']) {
   case 'upload':
     $res = check_checksum_data($report);
-    if( $res === true )  $smarty->assign('message',lang('checksum_passed'));
+    if( $res === true ) $themeObject->RecordMessage('success', lang('checksum_passed'));
     break;
   case 'download':
     $res = generate_checksum_file($report);
@@ -214,14 +210,11 @@ if( isset($_POST['action']) ) {
   }
 }
 
-if( !$res ) $smarty->assign('error',$report);
+if( !$res ) $themeObject->RecordMessage('error', $report);
+
+$smarty->assign('urlext',$urlext);
 
 // Display the output
-$smarty->assign('urlext',$urlext);
-$smarty->assign('cms_secure_param_name',CMS_SECURE_PARAM_NAME);
-$smarty->assign('cms_user_key',$_SESSION[CMS_USER_KEY]);
-echo $smarty->fetch('checksum.tpl');
-include_once("footer.php");
-
-
-?>
+include_once 'header.php';
+$smarty->display('checksum.tpl');
+include_once 'footer.php';
