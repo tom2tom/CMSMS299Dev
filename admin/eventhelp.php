@@ -18,10 +18,10 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-//$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+//$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (empty($_GET['module'])) {
 	return;
 }
@@ -29,10 +29,8 @@ if (empty($_GET['event'])) {
     return;
 }
 
-$module = $_GET['module'];
-$event = $_GET['event'];
-$desctext = '';
-$text = '';
+$module = cleanValue($_GET['module']);
+$event = cleanValue($_GET['event']);
 if ($module == 'Core') {
 	$desctext = Events::GetEventDescription($event);
 	$text = Events::GetEventHelp($event);
@@ -41,11 +39,14 @@ if ($module == 'Core') {
     if (is_object($modinstance)) {
 		$desctext = $modinstance->GetEventDescription($event);
 		$text = $modinstance->GetEventHelp($event);
-    }
+    } else {
+        $desctext = '';
+        $text = '';
+	}
 }
 $hlist = Events::ListEventHandlers($module,$event);
 
-include_once 'header.php';
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 $smarty->assign([
 	'desctext' => $desctext,
@@ -54,6 +55,6 @@ $smarty->assign([
 	'text' => $text,
 ]);
 
+include_once 'header.php';
 $smarty->display('eventhelp.tpl');
 include_once 'footer.php';
-
