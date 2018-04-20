@@ -96,11 +96,12 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
     }
 }
 
+/*
+//custom requirements TODO generalise e.g. footer hookfunction
+cms_utils::get_theme_object()->add_footertext(
+'<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/js/jquery.mjs.nestedSortable.min.js"></script>'."\n");
+*/
 
 $tree = $gCms->GetHierarchyManager();
 $smarty->assign('tree',$tree);
 echo $this->ProcessTemplate('admin_ordercontent.tpl');
-
-#
-# EOF
-#
