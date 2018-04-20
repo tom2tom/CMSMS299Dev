@@ -1,15 +1,9 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
 # Module: Content (c) 2013 by Robert Campbell
 #         (calguy1000@cmsmadesimple.org)
 #  A module for managing content in CMSMS.
 #
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,14 +16,13 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
+global $CMS_JOB_TYPE;
+
 if( !isset($gCms) ) exit;
 // no permissions checks here.
 
-echo '<noscript><h3 style="color: red; text-align: center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'."\n";
-$error = '';
+echo '<noscript><h3 style="color:red;text-align:center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'."\n";
 
 $builder = new \CMSContentManager\ContentListBuilder($this);
 $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);
@@ -94,32 +87,32 @@ if( isset($params['collapse']) ) {
 
 if( isset($params['setinactive']) ) {
     $builder->set_active($params['setinactive'],FALSE);
-    if( !$res ) $error = $this->Lang('error_setinactive');
+    if( !$res ) $this->ShowErrors($this->Lang('error_setinactive'));
 }
 
 if( isset($params['setactive']) ) {
     $res = $builder->set_active($params['setactive'],TRUE);
-    if( !$res ) $error = $this->Lang('error_setactive');
+    if( !$res ) $this->ShowErrors($this->Lang('error_setactive'));
 }
 
 if( isset($params['setdefault']) ) {
     $res = $builder->set_default($params['setdefault'],TRUE);
-    if( !$res ) $error = $this->Lang('error_setdefault');
+    if( !$res ) $this->ShowErrors($this->Lang('error_setdefault'));
 }
 
 if( isset($params['moveup']) ) {
     $res = $builder->move_content($params['moveup'],-1);
-    if( !$res ) $error = $this->Lang('error_movecontent');
+    if( !$res ) $this->ShowErrors($this->Lang('error_movecontent'));
 }
 
 if( isset($params['movedown']) ) {
     $res = $builder->move_content($params['movedown'],1);
-    if( !$res ) $error = $this->Lang('error_movecontent');
+    if( !$res ) $this->ShowErrors($this->Lang('error_movecontent'));
 }
 
 if( isset($params['delete']) ) {
     $res = $builder->delete_content($params['delete']);
-    if( $res ) $error = $res;
+    if( $res ) $this->ShowErrors($res);
 }
 
 if( isset($params['multisubmit']) && isset($params['multiaction']) &&
@@ -130,39 +123,260 @@ if( isset($params['multisubmit']) && isset($params['multiaction']) &&
         $this->RedirectToAdminTab();
     }
     // redirect to special action to handle bulk content stuff.
-    $this->Redirect($id,'admin_multicontent',$returnid,
-                    array('multicontent'=>base64_encode(serialize($params['multicontent'])),
-                          'multiaction'=>$params['multiaction']));
+    $this->Redirect($id,'admin_multicontent',$returnid,[
+		'multicontent'=>base64_encode(serialize($params['multicontent'])),
+        'multiaction'=>$params['multiaction']
+	]);
 }
 
-if( isset($curpage) ) $_SESSION[$this->GetName().'_curpage'] = $curpage; // for use by ajax_get_content
+$modname = $this->GetName();
+if( isset($curpage) ) $_SESSION[$modname.'_curpage'] = $curpage; // for use by ajax_get_content
 
-$url = $this->create_url($id,'ajax_get_content',$returnid);
-$smarty->assign('ajax_get_content',str_replace('amp;','',$url));
+$locks = $builder->get_locks();
+$have_locks = (is_array($locks) && count($locks)) ? 1 : 0;
+$url = $this->create_url($id,'admin_ajax_pagelookup','');
+$u1 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
+$url = $this->create_url($id,'ajax_get_content','');
+$u2 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
+$u3 = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'&cmsjobtype=1';
+
+$s1 = json_encode($this->Lang('confirm_setinactive'));
+$s2 = json_encode($this->Lang('confirm_setdefault'));
+$s3 = json_encode($this->Lang('confirm_delete_page'));
+$s4 = json_encode($this->Lang('confirm_steal_lock'));
+$s8 = json_encode($this->Lang('confirm_clearlocks'));
+$s5 = json_encode($this->Lang('error_contentlocked'));
+$s9 = json_encode($this->Lang('error_action_contentlocked'));
+$s6 = $this->Lang('submit');
+$s7 = $this->Lang('cancel');
+
+$out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function cms_CMloadUrl(link, lang) {
+ $(link).on('click', function(e) {
+  var url = $(this).attr('href') + '&{$id}ajax=1&cmsjobtype=1';
+  var _do_ajax = function() {
+   $.ajax({
+    url: url,
+   }).done(function() {
+    $('#content_area').autoRefresh('refresh').done(function() {
+     console.debug('after refresh');
+    });
+   });
+  };
+  e.preventDefault();
+  $('#ajax_find').val('');
+  if(typeof lang === 'string' && lang.length > 0) {
+   cms_confirm(lang).done(_do_ajax);
+  } else {
+   _do_ajax();
+  }
+ });
+}
+function cms_CMtoggleState(el) {
+ $(el).attr('disabled', true);
+ $('button' + el).button({
+  'disabled': true
+ });
+ $('input:checkbox').on('click', function() {
+  if($('input:checkbox').is(':checked')) {
+   $(el).attr('disabled', false);
+   $('button' + el).button({
+    'disabled': false
+   });
+  } else {
+   $(el).attr('disabled', true);
+   $('button' + el).button({
+    'disabled': true
+   });
+  }
+ });
+}
+$(document).ready(function() {
+ cms_busy();
+ var pageurl = '$u2',
+  findurl = '$u1',
+  lockurl = '$u3';
+ $('#content_area').autoRefresh({
+  url: pageurl,
+  done_handler: function() {
+   $('#ajax_find').autocomplete({
+    source: findurl,
+    minLength: 2,
+    position: {
+     my: 'right top',
+     at: 'right bottom'
+    },
+    change: function(e, ui) {
+     // goes back to the full list, no options
+     $('#ajax_find').val('');
+     $('#content_area').autoRefresh('option', 'url', pageurl);
+    },
+    select: function(e, ui) {
+     e.preventDefault();
+     $(this).val(ui.item.label);
+     var url = pageurl + '&{$id}seek=' + ui.item.value;
+     $('#content_area').autoRefresh('option', 'url', url).autoRefresh('refresh').done(function() {
+      $('html,body').animate({
+       scrollTop: $('#row_' + ui.item.value).offset().top
+      });
+     });
+    }
+   });
+  }
+ });
+
+ $('#selectall').cmsms_checkall({
+  target: '#contenttable'
+ });
+ cms_CMtoggleState('#multiaction');
+ cms_CMtoggleState('#multisubmit');
+/* these links can't use ajax as they affect pagination.
+ cms_CMloadUrl('a.expandall');
+ cms_CMloadUrl('a.collapseall');
+ cms_CMloadUrl('a.page_collapse');
+ cms_CMloadUrl('a.page_expand');
+*/
+ cms_CMloadUrl('a.page_sortup');
+ cms_CMloadUrl('a.page_sortdown');
+ cms_CMloadUrl('a.page_setinactive', $s1);
+ cms_CMloadUrl('a.page_setactive');
+ cms_CMloadUrl('a.page_setdefault', $s2);
+ cms_CMloadUrl('a.page_delete', $s3);
+ $('a.steal_lock').on('click', function(e) {
+  // we're gonna confirm stealing this lock
+  e.preventDefault();
+  var el = this;
+  cms_confirm($s4).done(function() {
+   var url = $(el).attr('href') + '&{$id}steal=1';
+   window.location = url;
+  });
+  return false;
+ });
+ $('a.page_edit').on('click', function(e) {
+  var v = $(this).data('steal_lock');
+  $(this).removeData('steal_lock');
+  if(typeof(v) !== 'undefined' && v !== null && !v) return false;
+  if(typeof(v) === 'undefined' || v !== null) return true;
+  // double check whether this page is locked
+  var content_id = $(this).attr('data-cms-content');
+  $.ajax({
+   url: lockurl,
+   data: {
+    opt: 'check',
+    type: 'content',
+    oid: content_id
+   },
+   success: function(data, textStatus, jqXHR) {}
+  }).done(data, function() {
+   if(data.status == 'success') {
+    if(data.locked) {
+     // gotta display a message.
+     e.preventDefault();
+     cms_alert($s5);
+    }
+   }
+  });
+ });
+ // filter dialog
+ $('#filter_type').change(function() {
+  var map = {
+   'DESIGN_ID': '#filter_design',
+   'TEMPLATE_ID': '#filter_template',
+   'OWNER_UID': '#filter_owner',
+   'EDITOR_UID': '#filter_editor'
+  };
+  var v = $(this).val();
+  $('.filter_fld').hide();
+  $(map[v]).show();
+ });
+ $('#filter_type').trigger('change');
+ $('#myoptions').on('click', function() {
+  cms_dialog($('#useroptions'), {
+   minWidth: '600',
+   minHeight: 225,
+   resizable: false,
+   buttons: {
+    $s6: function() {
+     cms_dialog($(this), 'close');
+     $('#myoptions_form').submit();
+    },
+    $s7: function() {
+     cms_dialog($(this), 'close');
+    },
+   }
+  });
+ });
+ // other events
+ $('#selectall,input.multicontent').on('change', function() {
+  $('#content_area').autoRefresh('reset');
+ });
+ $('#ajax_find').on('keypress', function(e) {
+  $('#content_area').autoRefresh('reset');
+  if(e.which == 13) e.preventDefault();
+ });
+ // go to page on option change
+ $('#{$id}curpage').on('change', function() {
+  $(this).closest('form').submit();
+ });
+ $(document).ajaxComplete(function() {
+  $('#selectall').cmsms_checkall();
+  $('tr.selected').css('background', 'yellow');
+ });
+ $('a#clearlocks').on('click', function(e) {
+  e.preventDefault();
+  cms_confirm_linkclick(this, $s8)
+  return false;
+ });
+ $('a#ordercontent').on('click', function(e) {
+  var have_locks = $have_locks;
+  if(!have_locks) {
+   // double check whether anything is locked
+   $.ajax({
+    url: lockurl,
+    async: false,
+    data: {
+     opt: 'check',
+     type: 'content'
+    },
+    success: function(data, textStatus, jqXHR) {
+     if(data.status != 'success') return;
+     if(data.locked) have_locks = true;
+    }
+   });
+  }
+  if(have_locks) {
+   e.preventDefault();
+   cms_alert($s9);
+  }
+ });
+});
+//]]>
+</script>
+EOS;
+//TODO other needed js e.g. nested sortable, cmsms autoRefresh widget/plugin
+
+if (!empty($CMS_JOB_TYPE)) {
+	echo $out;
+} else {
+    $themeObject = cms_utils::get_theme_object();
+    $themeObject->add_footertext($out);
+}
+
 $smarty->assign('ajax',$ajax);
 $smarty->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'));
 $smarty->assign('can_manage_content',$this->CheckPermission('Manage All Content'));
-$smarty->assign('admin_url',$config['admin_url']);
 $smarty->assign('filter',$filter);
-$locks = $builder->get_locks();
-$have_locks = (is_array($locks) && count($locks))?1:0;
-$smarty->assign('have_locks',$have_locks);
-$pagelimits = array(10=>10,25=>25,100=>100,250=>250,500=>500);
+$pagelimits = [10=>10,25=>25,100=>100,250=>250,500=>500];
 $smarty->assign('pagelimits',$pagelimits);
 $smarty->assign('pagelimit',$pagelimit);
 $smarty->assign('locking',CmsContentManagerUtils::locking_enabled());
 // get a list of admin users
 $smarty->assign('user_list',UserOperations::get_instance()->GetList());
+// get a list of designs
 $smarty->assign('design_list',\CmsLayoutCollection::get_list());
 // get a list of templates
-$smarty->assign('template_list',CmsLayoutTemplate::template_query(array('as_list'=>1)));
-// get a list of designs
-if( $error ) $smarty->assign('error',$error);
+$smarty->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]));
 
-$res = $this->ProcessTemplate('defaultadmin.tpl');
-echo $res;
-
-#
-# EOF
-#
-?>
+echo $this->ProcessTemplate('defaultadmin.tpl');
