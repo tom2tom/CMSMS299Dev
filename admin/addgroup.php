@@ -19,16 +19,15 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
 	redirect('listgroups.php'.$urlext);
-	return;
+//	return;
 }
 
-$error = '';
 $group= '';
 $description= '';
 $active = 1;
@@ -36,54 +35,55 @@ $active = 1;
 $userid = get_userid();
 $access = check_permission($userid, 'Manage Groups');
 
-if ($access) {
-	if (isset($_POST['addgroup'])) {
-		$group = cleanValue($_POST['group']);
-		$active = (int)cleanValue($_POST['active']);
-		$description = cleanValue($_POST['description']);
-		try {
-			if ($group == '') {
-				 throw new \CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
-			}
+$themeObject = cms_utils::get_theme_object();
 
-			$groupobj = new Group();
-			$groupobj->name = $group;
-			$groupobj->description = $description;
-			$groupobj->active = $active;
-			\CMSMS\HookManager::do_hook('Core::AddGroupPre', [ 'group'=>&$groupobj ] );
+if (!$access) {
+//TODO some immediate popup	lang('needpermissionto', '"Manage Groups"'));
+	return;
+}
 
-			if($groupobj->save()) {
-				\CMSMS\HookManager::do_hook('Core::AddGroupPost', [ 'group'=>&$groupobj ] );
-				// put mention into the admin log
-				audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
-				redirect('listgroups.php'.$urlext);
-				return;
-			} else {
-				throw new \RuntimeException(lang('errorinsertinggroup'));
-			}
-		} catch( \Exception $e ) {
-			$error .= '<li>'.$e->GetMessage().'</li>';
+if (!empty($_POST['addgroup'])) {
+	$group = cleanValue($_POST['group']);
+	$description = cleanValue($_POST['description']);
+	$active = !empty($_POST['active']);
+	try {
+		if ($group == '') {
+			 throw new \CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
 		}
+
+		$groupobj = new Group();
+		$groupobj->name = $group;
+		$groupobj->description = $description;
+		$groupobj->active = $active;
+		\CMSMS\HookManager::do_hook('Core::AddGroupPre', [ 'group'=>&$groupobj ] );
+
+		if($groupobj->save()) {
+			\CMSMS\HookManager::do_hook('Core::AddGroupPost', [ 'group'=>&$groupobj ] );
+			// put mention into the admin log
+			audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
+			redirect('listgroups.php'.$urlext);
+			return;
+		} else {
+			throw new \RuntimeException(lang('errorinsertinggroup'));
+		}
+	} catch( \Exception $e ) {
+		$themeObject->RecordMessage('error', $e->GetMessage());
 	}
 }
 
-include_once 'header.php';
-
 $selfurl = basename(__FILE__);
-$maintitle = $themeObject->ShowHeader('addgroup');
 
+$smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->assign([
 	'access' => $access,
 	'active' => $active,
 	'description' => $description,
-	'error' => $error,
 	'group' => $group,
-	'maintitle' => $maintitle,
-	'urlext' => $urlext,
 	'selfurl' => $selfurl,
+	'urlext' => $urlext,
 ]);
 
+include_once 'header.php';
 $smarty->display('addgroup.tpl');
-
 include_once 'footer.php';
 
