@@ -2,9 +2,9 @@
 <h3>{$mod->Lang('title_fesubmit_form')}</h3>
 
 {if isset($error)}
-  <div class="error>{$error}</div>
+  <div class="error">{$error}</div>
 {elseif isset($message)}
-  <div class="message>{$message}</div>
+  <div class="message">{$message}</div>
 {/if}
 
 {form_start category_id=$category_id}
@@ -96,8 +96,9 @@
   <div class="row">
     <p class="col4">&nbsp;</p>
     <p class="col8">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit iconcheck">{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
       <a href="{cms_selflink href=$page_alias}">{$mod->Lang('prompt_redirecttocontent')}</a>
     </p>
   </div>
-{form_end}
+</form>
+
