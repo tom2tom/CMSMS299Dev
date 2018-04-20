@@ -19,37 +19,38 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
 	redirect('listbookmarks.php'.$urlext);
 	return;
 }
 
+$themeObject = cms_utils::get_theme_object();
+
 $title = '';
 $url = '';
-$error = '';
 if (isset($_GET['bookmark_id'])) {
 	$bookmark_id = (int)$_GET['bookmark_id'];
 } else {
 	$bookmark_id = -1;
 }
 
-if (isset($_POST['editbookmark'])) {
+if (!empty($_POST['editbookmark'])) {
 	$bookmark_id = (int)$_POST['bookmark_id'];
 	$title = trim(cleanValue($_POST['title']));
-	$url = trim(cleanValue($_POST['url']));
+	$url = filter_var($_POST['url'], FILTER_SANITIZE_URL);
 
 	$validinfo = true;
 	if ($title === '') {
 		$validinfo = false;
-		$error .= '<li>'.lang('nofieldgiven', lang('title')).'</li>';
+		$themeObject->RecordMessage('error', lang('nofieldgiven', lang('title')));
 	}
 	if ($url === '') {
 		$validinfo = false;
-		$error .= '<li>'.lang('nofieldgiven', lang('url')).'</li>';
+		$themeObject->RecordMessage('error', lang('nofieldgiven', lang('url')));
 	}
 
 	if ($validinfo) {
@@ -64,7 +65,7 @@ if (isset($_POST['editbookmark'])) {
 			redirect('listbookmarks.php'.$urlext);
 			return;
 		} else {
-			$error .= '<li>'.lang('errorupdatingbookmark').'</li>';
+			$themeObject->RecordMessage('error', lang('errorupdatingbookmark'));
 		}
 	}
 } elseif ($bookmark_id != -1) {
@@ -76,21 +77,17 @@ if (isset($_POST['editbookmark'])) {
 	$url = $row['url'];
 }
 
-include_once 'header.php';
-
 $selfurl = basename(__FILE__);
-$maintitle = $themeObject->ShowHeader('editbookmark');
 
+$smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->assign([
 	'bookmark_id' => $bookmark_id,
-	'error' => $error,
-	'maintitle' => $maintitle,
+	'selfurl' => $selfurl,
 	'title' => $title,
 	'url' => $url,
-	'selfurl' => $selfurl,
 	'urlext' => $urlext,
 ]);
 
+include_once 'header.php';
 $smarty->display('editbookmark.tpl');
-
 include_once 'footer.php';
