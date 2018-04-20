@@ -1,20 +1,20 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  var url = {/literal}'{cms_action_url action=defaultadmin page=xxx forjs=1}'{literal};
-    $('#pagenum').change(function() {
-      var v = $(this).val();
-      var t_url = url.replace('xxx', v);
-      window.location = t_url;
-    });
-    $('#filterbtn').click(function() {
-      $('#filter_dlg').dialog({
-        modal: true,
-        width: 'auto',
-        height: 'auto'
-      });
+  var url = '{/literal}{cms_action_url action=defaultadmin page=xxx forjs=1}{literal}';
+  $('#pagenum').on('change', function() {
+    var v = $(this).val();
+    var t_url = url.replace('xxx', v);
+    window.location = t_url;
+  });
+  $('#filterbtn').on('click', function() {
+    cms_dialog($('#filter_dlg'), {
+      modal: true,
+      width: 'auto',
+      height: 'auto'
     });
   });
+});
 {/literal}//]]>
 </script>
 
@@ -34,33 +34,35 @@ $(document).ready(function() {
   {/if}
 </div>
 
-<div id="filter_dlg" title="{$mod->Lang('filter')}" style="display: none; min-width: 500px;">
+<div id="filter_dlg" title="{$mod->Lang('filter')}" style="display:none;min-width:500px;">
   {form_start}
-  <div class="c_full cf">
-    <label class="grid_3" for="f_sev">{$mod->Lang('f_sev')}:</label>
-    <select class="grid_8" id="f_sev" name="{$actionid}f_sev">
+  <table class="responsive">
+  <tbody>
+  <tr>
+    <td><label for="f_sev">{$mod->Lang('f_sev')}:</label></td>
+    <td><select id="f_sev" name="{$actionid}f_sev">
       {html_options options=$severity_list selected=$filter->severity}
-    </select>
+    </select></td>
+  </tr>
+  <tr>
+    <td><label for="f_act">{$mod->Lang('f_msg')}:</label></td>
+    <td><input id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" /></td>
+  </tr>
+  <tr>
+    <td><label for="f_item">{$mod->Lang('f_subj')}:</label></td>
+    <td><input id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" /></td>
+  </tr>
+  <tr>
+    <td><label for="f_user">{$mod->Lang('f_user')}:</label></td>
+    <td><input id="f_user" name="{$actionid}f_user" value="{$filter->username}" /></td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="pregap">
+    <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{$mod->Lang('filter')}</button>
+    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
   </div>
-  <div class="c_full cf">
-    <label class="grid_3" for="f_act">{$mod->Lang('f_msg')}:</label>
-    <input class="grid_8" id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
-  </div>
-  <div class="c_full cf">
-    <label class="grid_3" for="f_item">{$mod->Lang('f_subj')}:</label>
-    <input class="grid_8" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
-  </div>
-  <div class="c_full cf">
-    <label class="grid_3" for="f_user">{$mod->Lang('f_user')}:</label>
-    <input class="grid_8" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
-  </div>
-  <div class="c_full cf">
-    <div class="grid_12">
-      <button type="submit" name="{$actionid}filter" class="adminsubmit icon do">{$mod->Lang('filter')}</button>
-      <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset')}</button>
-    </div>
-  </div>
- </form>
+  </form>
 </div>
 
 {if !empty($results)}
