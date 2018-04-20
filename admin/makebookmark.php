@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#procedure to record a bookmark for the current user
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,19 +15,15 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-global $CMS_ADMIN_PAGE;
 $CMS_ADMIN_PAGE = 1;
 
-require_once('../lib/include.php');
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-
-include_once("header.php");
+require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 check_login();
-$config = cmsms()->GetConfig();
+
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+
 $link = $_SERVER['HTTP_REFERER'];
 $newmark = new Bookmark();
 $newmark->user_id = get_userid();
@@ -34,15 +31,14 @@ $newmark->url = $link;
 $newmark->title = $_GET['title'];
 $result = $newmark->save();
 
-if ($result)
-	{
+if ($result) {
+    $config = cms_config::get_instance();
 	header('HTTP_REFERER: '.$config['admin_url'].'/index.php');
 	redirect($link);
-	}
-else
-	{
-	include_once("header.php");
-	echo "<h3>". lang('erroraddingbookmark') . "</h3>";
-	}
+}
 
-?>
+//TODO use an error-display template perhaps with popup notice
+
+include_once 'header.php';
+echo "<h3>". lang('erroraddingbookmark') . "</h3>";
+include_once 'footer.php';
