@@ -1232,10 +1232,10 @@ $lang['help_function_gather_content'] = <<<EOT
 <h3>What does this do?</h3>
   <p>This tag collects page content by running a hooklist. List member-functions could have been registered by anything.<br /><br />
 Each such registered function must be like<pre><code>
-  public function myfuncname($a)
+  public function myfuncname(\$a)
   {
-    array $a\[\] = my content or $a = array_merge($a, [my content])
-    return $a; //supplied parameter, updated as required
+    array \$a\[\] = my content or \$a = array_merge(\$a, [my content])
+    return \$a; //supplied parameter, updated as required
   }</code></pre>
 </p>
 <h3>What parameters does it take?</h3>
