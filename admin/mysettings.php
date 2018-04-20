@@ -81,7 +81,7 @@ if (isset($_POST['submit'])) {
 
   // Audit, message, cleanup
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
-  $themeObject->RecordMessage('success', lang('prefsupdated'));
+  $themeObject->RecordNotice('success', lang('prefsupdated'));
   cmsms()->clear_cached_files();
 } // end of prefs submit
 

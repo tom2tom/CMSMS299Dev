@@ -208,7 +208,7 @@ if (isset($_POST['submit'])) {
 }
 
 if (!empty($message)) {
-    $themeObject->RecordMessage('success', $message);
+    $themeObject->RecordNotice('success', $message);
 }
 $pagesubtitle = lang('groupperms', $group_name);
 $perm_struct = $load_perms();

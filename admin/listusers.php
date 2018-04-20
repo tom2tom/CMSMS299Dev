@@ -55,15 +55,15 @@ $selfurl      = basename(__FILE__);
 if (isset($_GET['switchuser'])) {
     // switch user functionality is only allowed to members of the admin group
     if (!\UserOperations::get_instance()->UserInGroup($userid, 1)) {
-        $themeObject->RecordMessage('error', lang('permissiondenied'));
+        $themeObject->RecordNotice('error', lang('permissiondenied'));
     } else {
         $to_uid = (int) $_GET['switchuser'];
         $to_user = $userops->LoadUserByID($to_uid);
         if (!$to_user) {
-            $themeObject->RecordMessage('error', lang('usernotfound'));
+            $themeObject->RecordNotice('error', lang('usernotfound'));
         }
         if (! $to_user->active) {
-            $themeObject->RecordMessage('error', lang('userdisabled'));
+            $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
             CMSMS\internal\LoginOperations::get_instance()->set_effective_user($to_user);
             $urlext = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
@@ -72,7 +72,7 @@ if (isset($_GET['switchuser'])) {
     }
 } elseif (isset($_GET['toggleactive'])) {
     if ($_GET['toggleactive'] == 1) {
-        $themeObject->RecordMessage('error', lang('errorupdatinguser'));
+        $themeObject->RecordNotice('error', lang('errorupdatinguser'));
     } else {
         $thisuser = $userops->LoadUserByID((int)$_GET['toggleactive']);
         if ($thisuser) {
@@ -89,7 +89,7 @@ if (isset($_GET['switchuser'])) {
                 audit($userid, 'Admin Username: ' . $thisuser->username, 'Edited');
                 HookManager::do_hook('Core::EditUserPost', [ 'user' => &$thisuser ]);
             } else {
-                $themeObject->RecordMessage('error', lang('errorupdatinguser'));
+                $themeObject->RecordNotice('error', lang('errorupdatinguser'));
             }
         }
     }
@@ -335,13 +335,13 @@ $themeObject->add_footertext($out);
  ---------------------*/
 
 if (!empty($error)) {
-    $themeObject->RecordMessage('error', $error );
+    $themeObject->RecordNotice('error', $error );
 }
 if (isset($_GET['message'])) {
     $message = preg_replace('/\</', '', $_GET['message']);
 }
 if (!empty($message)) {
-    $themeObject->RecordMessage('success', $message);
+    $themeObject->RecordNotice('success', $message);
 }
 
 $userlist = [];

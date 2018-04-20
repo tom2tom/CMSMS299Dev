@@ -29,7 +29,7 @@ check_login();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $cur_userid = get_userid();
 if( !check_permission($cur_userid, 'Manage Users') ) {
-    cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', '"Manage Users"'));
+    cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Users"'));
     redirect('listusers.php'.$urlext);
 }
 
@@ -62,7 +62,7 @@ if ($user_id != $cur_userid) {
 }
 
 if ($key) {
-    cms_utils::get_theme_object()->ParkString('error', lang($key));
+    cms_utils::get_theme_object()->ParkNotice('error', lang($key));
 }
 redirect('listusers.php'.$urlext);
 

@@ -29,7 +29,7 @@ $access = check_permission($userid, 'Modify Site Preferences');
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup    $themeObject->RecordMessage('error', lang('needpermissionto', '"Modify Site Preferences"'));
+//TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     return;
 }
 

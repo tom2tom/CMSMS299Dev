@@ -29,7 +29,7 @@ $access = true; //check_permission($userid, 'TODO some Site Perm');
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup    $themeObject->RecordMessage('error', lang('needpermissionto', '"Modify Site Preferences"'));
+//TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
 	return;
 }
 
@@ -88,7 +88,7 @@ if (!empty($_POST['optimizeall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables optimized');
-    $themeObject->RecordMessage('success', lang('sysmain_tablesoptimized'));
+    $themeObject->RecordNotice('success', lang('sysmain_tablesoptimized'));
 }
 
 if (!empty($_POST['repairall'])) {
@@ -105,7 +105,7 @@ if (!empty($_POST['repairall'])) {
 
     // put mention into the admin log
     audit('', 'System Maintenance', 'All db-tables repaired');
-    $themeObject->RecordMessage('success', lang('sysmain_tablesrepaired'));
+    $themeObject->RecordNotice('success', lang('sysmain_tablesrepaired'));
 }
 
 $query = 'CHECK TABLE ' . MakeCommaList($tables);
@@ -133,7 +133,7 @@ $contentops = cmsms()->GetContentOperations();
 if (!empty($_POST['updateurls'])) {
     cms_route_manager::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
-    $themeObject->RecordMessage('success', lang('routesrebuilt'));
+    $themeObject->RecordNotice('success', lang('routesrebuilt'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -141,14 +141,14 @@ if (!empty($_POST['clearcache'])) {
     cmsms()->clear_cached_files(-1);
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
-    $themeObject->RecordMessage('success', lang('cachecleared'));
+    $themeObject->RecordNotice('success', lang('cachecleared'));
     $smarty->assign('active_content', 'true');
 }
 
 if (!empty($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
-    $themeObject->RecordMessage('success', lang('sysmain_hierarchyupdated'));
+    $themeObject->RecordNotice('success', lang('sysmain_hierarchyupdated'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -190,7 +190,7 @@ if (!empty($_POST['addaliases'])) {
         }
     }
     audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
-    $themeObject->RecordMessage('success', $count . ' ' . lang('sysmain_aliasesfixed'));
+    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
     $smarty->assign('active_content', 'true');
 }
 
@@ -208,7 +208,7 @@ if (!empty($_POST['fixtypes'])) {
     }
 
     audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
-    $themeObject->RecordMessage('success', $count . ' ' . lang('sysmain_typesfixed'));
+    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_typesfixed'));
     $smarty->assign('active_content', 'true');
 }
 

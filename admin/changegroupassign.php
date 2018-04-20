@@ -139,7 +139,7 @@ $smarty->assign('users', $user_struct);
 $smarty->assign('adminuser', ($adminuser?1:0));
 
 if (!empty($message)) {
-    $themeObject->RecordMessage('success', $message);
+    $themeObject->RecordNotice('success', $message);
 }
 
 $selfurl = basename(__FILE__);

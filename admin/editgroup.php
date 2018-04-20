@@ -63,7 +63,7 @@ if (isset($_POST['editgroup'])) {
 	$group = trim(cleanValue($_POST['group']));
 	if ($group == '') {
 		$validinfo = false;
-		$themeObject->RecordMessage('error', lang('nofieldgiven', lang('groupname')));
+		$themeObject->RecordNotice('error', lang('nofieldgiven', lang('groupname')));
 	}
 
 	if ($validinfo) {
@@ -78,7 +78,7 @@ if (isset($_POST['editgroup'])) {
 			redirect('listgroups.php'.$urlext);
 			return;
 		} else {
-			$themeObject->RecordMessage('error', lang('errorupdatinggroup'));
+			$themeObject->RecordNotice('error', lang('errorupdatinggroup'));
 		}
 	}
 } elseif ($group_id != -1) {

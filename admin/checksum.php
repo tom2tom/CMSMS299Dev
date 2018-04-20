@@ -202,7 +202,7 @@ if( isset($_POST['action']) ) {
   switch($_POST['action']) {
   case 'upload':
     $res = check_checksum_data($report);
-    if( $res === true ) $themeObject->RecordMessage('success', lang('checksum_passed'));
+    if( $res === true ) $themeObject->RecordNotice('success', lang('checksum_passed'));
     break;
   case 'download':
     $res = generate_checksum_file($report);
@@ -210,7 +210,7 @@ if( isset($_POST['action']) ) {
   }
 }
 
-if( !$res ) $themeObject->RecordMessage('error', $report);
+if( !$res ) $themeObject->RecordNotice('error', $report);
 
 $smarty->assign('urlext',$urlext);
 

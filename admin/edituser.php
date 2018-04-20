@@ -18,19 +18,57 @@
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
     redirect('listusers.php'.$urlext);
     return;
 }
 
 $userid = get_userid();
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!check_permission($userid, 'Manage Users')) {
-    die('Permission Denied');
+//TODO some immediate popup    $themeObject->RecordNotice('error', lang('TODO', 'Manage Users'));
+    return;
 }
+
+$confirm = json_encode(lang('confirm_edituser'));
+$out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('#submit').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_btnclick(this, $confirm);
+  return false;
+ });
+ $('#copyusersettings').change(function() {
+  var v = $(this).val();
+  if(v === -1) {
+   $('#clearusersettings').removeAttr('disabled');
+  } else {
+   $('#clearusersettings').attr('disabled', 'disabled');
+  }
+ });
+ $('#clearusersettings').on('click', function() {
+  $('#copyusersettings').val(-1);
+  var v = $(this).attr('checked');
+  if(v === 'checked') {
+   $('#copyusersettings').attr('disabled', 'disabled');
+  } else {
+   $('#copyusersettings').removeAttr('disabled');
+  }
+ });
+});
+//]]>
+</script>
+EOS;
+
+$themeObject->add_footertext($out);
 
 /*--------------------
  * Variables
@@ -45,18 +83,18 @@ $tplmaster         = 0;
 $copyfromtemplate  = 1;
 $message           = '';
 $user_id           = $userid;
-// Post data
-$user              = isset($_POST["user"]) ? cleanValue($_POST["user"]) : '';
-$password          = $_POST["password"] ?? '';
-$passwordagain     = $_POST["passwordagain"] ?? '';
-$firstname         = isset($_POST["firstname"]) ? cleanValue($_POST["firstname"]) : '';
-$lastname          = isset($_POST["lastname"]) ? cleanValue($_POST["lastname"]) : '';
-$email             = isset($_POST["email"]) ? trim(strip_tags($_POST["email"])) : '';
+// Post data TODO WHERE
+//$user              = cleanValue($_POST['user']);
+//$password          = $_POST['password']; //no cleanup: any char is valid, & hashed before storage
+//$passwordagain     = $_POST['passwordagain'];
+//$firstname         = cleanValue($_POST['firstname']);
+//$lastname          = cleanValue($_POST['lastname']);
+//$email             = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
 
-if (isset($_POST["user_id"])) {
-    $user_id = cleanValue($_POST["user_id"]);
-} elseif (isset($_GET["user_id"])) {
-    $user_id = cleanValue($_GET["user_id"]);
+if (isset($_POST['user_id'])) {
+    $user_id = (int)$_POST['user_id'];
+} elseif (isset($_GET['user_id'])) {
+    $user_id = (int)$_GET['user_id'];
 }
 
 // this is now always true... but we may want to change how things work, so I'll leave it
@@ -74,44 +112,44 @@ $thisuser          = $userops->LoadUserByID($user_id);
  * Logic
  ---------------------*/
 
-if (isset($_POST["submit"])) {
+if (isset($_POST['submit'])) {
 
-    if( !$access_user && isset($_POST['active']) ) $active = (int) $_POST['active'];
+    if( !$access_user ) $active = !empty($_POST['active']);
 
-    $adminaccess = isset($_POST["adminaccess"]) ? 1 : 0;
-    $validinfo   = true;
+    $adminaccess = !empty($_POST['adminaccess']) ? 1 : 0;
+    $error = false;
 
     // check for errors
     if ($user == '') {
-        $validinfo = false;
-        $error .= "<li>" . lang('nofieldgiven', lang('username')) . "</li>";
+        $error = true;
+        $themeObject->RecordNotice('error', lang('nofieldgiven', lang('username')));
     }
 
     if (!preg_match("/^[a-zA-Z0-9\._ ]+$/", $user)) {
-        $validinfo = false;
-        $error .= "<li>" . lang('illegalcharacters', lang('username')) . "</li>";
+        $error = true;
+        $themeObject->RecordNotice('error', lang('illegalcharacters', lang('username')));
     }
 
     if ($password != $passwordagain) {
-        $validinfo = false;
-        $error .= "<li>" . lang('nopasswordmatch') . "</li>";
+        $error = true;
+        $themeObject->RecordNotice('error', lang('nopasswordmatch'));
     }
 
     if (!empty($email) && !is_email($email)) {
-        $validinfo = false;
-        $error .= '<li>' . lang('invalidemail') . ': ' . $email . '</li>';
+        $error = true;
+        $themeObject->RecordNotice('error', lang('invalidemail') . ': ' . $email);
     }
 
     if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
-        if (isset($_POST['clearusersettings'])) {
+        if (!empty($_POST['clearusersettings'])) {
             // error: both can't be set
-            $validinfo = false;
-            $error .= '</li>' . lang('error_multiusersettings') . '</li>';
+            $error = true;
+            $themeObject->RecordNotice('error', lang('error_multiusersettings'));
         }
     }
 
     // save data
-    if ($validinfo) {
+    if (!$error) {
         $result = false;
         if ($thisuser) {
             $thisuser->username    = $user;
@@ -156,7 +194,7 @@ if (isset($_POST["submit"])) {
                     audit($user_id, 'Admin Username: ' . $thisuser->username, 'settings copied from template user');
                     $message = lang('msg_usersettingscopied');
                 }
-            } else if (isset($_POST['clearusersettings'])) {
+            } else if (!empty($_POST['clearusersettings'])) {
                 // clear all preferences for this user.
                 audit($user_id, 'Admin Username: ' . $thisuser->username, ' settings cleared');
                 cms_userprefs::remove_for_user($user_id);
@@ -173,7 +211,7 @@ if (isset($_POST["submit"])) {
             }
             redirect($url);
         } else {
-            $error .= "<li>" . lang('errorupdatinguser') . "</li>";
+            $themeObject->RecordNotice('error', lang('errorupdatinguser'));
         }
     }
 
@@ -190,10 +228,10 @@ if (isset($_POST["submit"])) {
  * Display view
  ---------------------*/
 
-include_once 'header.php';
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 if (!empty($error)) {
-    $themeObject->PrepareError($error);
+    $themeObject->RecordNotice('error', $error);
 }
 
 $out      = array(-1 => lang('none'));
@@ -229,6 +267,6 @@ $smarty->assign([
     'user' => $user,
 ]);
 
+include_once 'header.php';
 $smarty->display('edituser.tpl');
-
 include_once 'footer.php';

@@ -40,11 +40,11 @@ if (!empty($_POST['addbookmark'])) {
 	$validinfo = true;
 	if ($title === '') {
 		$validinfo = false;
-		$themeObject->RecordMessage('error', lang('nofieldgiven', lang('title')));
+		$themeObject->RecordNotice('error', lang('nofieldgiven', lang('title')));
 	}
 	if ($url === '') {
 		$validinfo = false;
-		$themeObject->RecordMessage('error', 'nofieldgiven', lang('url'));
+		$themeObject->RecordNotice('error', 'nofieldgiven', lang('url'));
 	}
 
 	if ($validinfo) {
@@ -58,7 +58,7 @@ if (!empty($_POST['addbookmark'])) {
 			redirect('listbookmarks.php'.$urlext);
 			return;
 		} else {
-			$themeObject->RecordMessage('error', lang('errorinsertingbookmark'));
+			$themeObject->RecordNotice('error', lang('errorinsertingbookmark'));
 		}
 	}
 }

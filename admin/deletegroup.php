@@ -29,14 +29,14 @@ check_login();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 if (!check_permission($userid, 'Manage Groups')) {
-    cms_utils::get_theme_object()->ParkString('error', lang('needpermissionto', '"Manage Groups"'));
+    cms_utils::get_theme_object()->ParkNotice('error', lang('needpermissionto', '"Manage Groups"'));
     redirect('listgroups.php'.$urlext);
 }
 
 $group_id = (int) $_GET['group_id'];
 if ($group_id == 1) {
     // can't delete this group
-    cms_utils::get_theme_object()->ParkString('error', lang('error_deletespecialgroup'));
+    cms_utils::get_theme_object()->ParkNotice('error', lang('error_deletespecialgroup'));
     redirect('listgroups.php'.$urlext);
 }
 
@@ -44,7 +44,7 @@ $gCms = cmsms();
 $userops = $gCms->GetUserOperations();
 if ($userops->UserInGroup($userid,$group_id)) {
     // can't delete a group to which the current user belongs
-    cms_utils::get_theme_object()->ParkString('error', lang('cantremove')); //TODO
+    cms_utils::get_theme_object()->ParkNotice('error', lang('cantremove')); //TODO
     redirect('listgroups.php'.$urlext);
 }
 
@@ -62,10 +62,10 @@ if ($groupobj) {
 		// put mention into the admin log
 		audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
 	} else {
-	    cms_utils::get_theme_object()->ParkString('error', lang('failure'));
+	    cms_utils::get_theme_object()->ParkNotice('error', lang('failure'));
 	}
 } else {
-    cms_utils::get_theme_object()->ParkString('error', lang('invalid'));
+    cms_utils::get_theme_object()->ParkNotice('error', lang('invalid'));
 }
 
 redirect('listgroups.php'.$urlext);

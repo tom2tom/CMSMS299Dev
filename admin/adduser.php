@@ -151,7 +151,7 @@ $smarty = CMSMS\internal\Smarty::get_instance();
  * Display view
  ---------------------*/
 if ($errors) {
-    $themeObject->RecordMessage('error', $errors);
+    $themeObject->RecordNotice('error', $errors);
 }
 
 $out      = [-1 => lang('none')];

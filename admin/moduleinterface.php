@@ -91,8 +91,8 @@ if ($CMS_JOB_TYPE == 0) {
     // back into the buffer,  now that 'pre-content' things are in place
     echo $content;
 
-    if (!empty($params['module_error'])) $themeObject->RecordMessage('error', $params['module_error']);
-    if (!empty($params['module_message'])) $themeObject->RecordMessage('success', $params['module_message']);
+    if (!empty($params['module_error'])) $themeObject->RecordNotice('error', $params['module_error']);
+    if (!empty($params['module_message'])) $themeObject->RecordNotice('success', $params['module_message']);
 
     include_once 'footer.php';
 } else {

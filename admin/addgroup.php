@@ -67,7 +67,7 @@ if (!empty($_POST['addgroup'])) {
 			throw new \RuntimeException(lang('errorinsertinggroup'));
 		}
 	} catch( \Exception $e ) {
-		$themeObject->RecordMessage('error', $e->GetMessage());
+		$themeObject->RecordNotice('error', $e->GetMessage());
 	}
 }
 

@@ -172,7 +172,7 @@ abstract class CmsAdminThemeBase
             $this->_script = $toam_tmp2;
         }
 
-        $this->UnParkStrings();
+        $this->UnParkNotices();
 
         \CMSMS\HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
         \CMSMS\HookManager::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
@@ -1227,7 +1227,7 @@ $X = 1;
      * @param string $get_var An optional $_GET variable name. Such variable
      *  contains a lang key for an error string, or an array of such keys.
      *  If specified, $errors is ignored.
-     * @deprecated since 2.3 Use RecordMessage instead
+     * @deprecated since 2.3 Use RecordNotice instead
      * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowErrors($errors, $get_var = null)
@@ -1243,7 +1243,7 @@ $X = 1;
      * @param string $get_var An optional $_GET variable name. Such variable
      *  contains a lang key for an error string, or an array of such keys.
      *  If specified, $message is ignored.
-     * @deprecated since 2.3 Use RecordMessage instead
+     * @deprecated since 2.3 Use RecordNotice instead
      * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowMessage($message, $get_var = null)
@@ -1300,7 +1300,7 @@ $X = 1;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    protected function ParkString(string $type, $message, string $title, $get_var = null) : void
+    public function ParkNotice(string $type, $message, string $title, $get_var = null) : void
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
@@ -1340,7 +1340,7 @@ $X = 1;
      *
      * @since 2.3
      */
-    protected function UnParkStrings($type = null) : void
+    protected function UnParkNotices($type = null) : void
     {
 /* TOAST DEBUGGING
         $this->_infos = ['dummy 1st line','This is some cool stuff that you\'ll want to remember'];
@@ -1382,22 +1382,22 @@ $X = 1;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function RecordMessage(string $type, $message, string $title= '', bool $cache = false, $get_var = null) : void
+    public function RecordNotice(string $type, $message, string $title= '', bool $cache = false, $get_var = null) : void
     {
         if (!$cache) {
             switch ($type) {
                 case 'error':
-                    $into = $this->_errors;
+                    $into =& $this->_errors;
                     break;
                 case 'warn':
-                    $into = $this->_warnings;
+                    $into =& $this->_warnings;
                     break;
                 case 'success':
-                    $into = $this->_successes;
+                    $into =& $this->_successes;
                     break;
 //              case 'info':
                 default:
-                    $into = $this->_infos;
+                    $into =& $this->_infos;
                     break;
             }
             $this->PrepareStrings($into, $message, $title, $get_var);
