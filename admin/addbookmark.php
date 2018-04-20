@@ -1,5 +1,5 @@
 <?php
-#procedure to add a bookmark for the user
+#procedure to add a bookmark for a user
 #Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,31 +19,32 @@
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
 	redirect('listbookmarks.php'.$urlext);
 	return;
 }
 
+$themeObject = cms_utils::get_theme_object();
+
 $title= '';
 $url = '';
-$error = '';
 
-if (isset($_POST['addbookmark'])) {
+if (!empty($_POST['addbookmark'])) {
 	$title = trim(cleanValue($_POST['title']));
-	$url = trim(cleanValue($_POST['url']));
+	$url = filter_var($_POST['url'], FILTER_SANITIZE_URL);
 
 	$validinfo = true;
 	if ($title === '') {
 		$validinfo = false;
-		$error .= '<li>'.lang('nofieldgiven', lang('title')).'</li>';
+		$themeObject->RecordMessage('error', lang('nofieldgiven', lang('title')));
 	}
 	if ($url === '') {
 		$validinfo = false;
-		$error .= '<li>'.lang('nofieldgiven', lang('url')).'</li>';
+		$themeObject->RecordMessage('error', 'nofieldgiven', lang('url'));
 	}
 
 	if ($validinfo) {
@@ -57,25 +58,21 @@ if (isset($_POST['addbookmark'])) {
 			redirect('listbookmarks.php'.$urlext);
 			return;
 		} else {
-			$error .= '<li>'.lang('errorinsertingbookmark').'</li>';
+			$themeObject->RecordMessage('error', lang('errorinsertingbookmark'));
 		}
 	}
 }
 
-include_once 'header.php';
-
-$maintitle = $themeObject->ShowHeader('addbookmark');
 $selfurl = basename(__FILE__);
 
+$smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->assign([
-	'error' => $error,
-	'maintitle' => $maintitle,
 	'title' => $title,
 	'url' => $url,
 	'urlext' => $urlext,
 	'selfurl' => $selfurl,
 ]);
 
+include_once 'header.php';
 $smarty->display('addbookmark.tpl');
-
 include_once 'footer.php';
