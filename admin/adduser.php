@@ -19,18 +19,22 @@
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 check_login();
 
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
     redirect('listusers.php' . $urlext);
-    return;
+//    return;
 }
 
 $userid = get_userid();
+
+$themeObject = cms_utils::get_theme_object();
+
 if (!check_permission($userid, 'Manage Users')) {
-    die('Permission Denied');
+//TODO some immediate popup   lang('needpermissionto', '"Manage Users"'));
+    return;
 }
 
 /*--------------------
@@ -38,56 +42,42 @@ if (!check_permission($userid, 'Manage Users')) {
  ---------------------*/
 
 $gCms              = cmsms();
-$db                = $gCms->GetDb();
 $assign_group_perm = check_permission($userid, 'Manage Groups');
 $groupops          = $gCms->GetGroupOperations();
-$error             = '';
-$adminaccess       = 1;
-$active            = 1;
-$sel_groups        = [];
-// Post data
-$user              = isset($_POST['user']) ? cleanValue($_POST['user']) : '';
-$password          = isset($_POST['password']) ? trim($_POST['password']) : '';
-$passwordagain     = isset($_POST['passwordagain']) ? trim($_POST['passwordagain']) : '';
-$firstname         = isset($_POST['firstname']) ? cleanValue($_POST['firstname']) : '';
-$lastname          = isset($_POST['lastname']) ? cleanValue($_POST['lastname']) : '';
-$email             = isset($_POST['email']) ? trim(strip_tags($_POST['email'])) : '';
-$copyusersettings  = isset($_POST['copyusersettings']) ? (int)$_POST['copyusersettings'] : null;
-$sel_groups        = (isset($_POST['sel_groups']) && is_array($_POST['sel_groups'])) ? $_POST['sel_groups'] : $sel_groups;
-
-/*--------------------
- * Variables
- ---------------------*/
+$errors            = [];
 
 if (isset($_POST['submit'])) {
 
-    $active      = isset($_POST['active']) ? 1 : 0;
-    $adminaccess = isset($_POST['adminaccess']) ? 1 : 0;
-    $validinfo   = true;
+    $user             = cleanValue($_POST['user']);
+    $password         = $_POST['password']; //no cleanup: any char is valid, & hashed before storage
+    $passwordagain    = $_POST['passwordagain'];
+    $firstname        = cleanValue($_POST['firstname']);
+    $lastname         = cleanValue($_POST['lastname']);
+    $email            = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $copyusersettings = (int)$_POST['copyusersettings'];
+    $sel_groups       = cleanArray($_POST['sel_groups']);
+    $active           = (!empty($_POST['active'])) ? 1 : 0;
+    $adminaccess      = (!empty($_POST['adminaccess'])) ? 1 : 0;
 
     if ($user == '') {
-        $validinfo = false;
-        $error .= '<li>' . lang('nofieldgiven', lang('username')) . '</li>';
+        $error = true;
+        (lang('nofieldgiven', lang('username')));
     } else if (!preg_match('/^[a-zA-Z0-9\._ ]+$/', $user)) {
-        $validinfo = false;
-        $error .= '<li>' . lang('illegalcharacters', lang('username')) . '</li>';
+        $errors[] = lang('illegalcharacters', lang('username'));
     }
 
     if ($password == '') {
-        $validinfo = false;
-        $error .= '<li>' . lang('nofieldgiven', lang('password')) . '</li>';
+        $errors[] = lang('nofieldgiven', lang('password'));
     } else if ($password != $passwordagain) {
         // We don't want to see this if no password was given
-        $validinfo = false;
-        $error .= '<li>' . lang('nopasswordmatch') . '</li>';
+        $errors[] = lang('nopasswordmatch');
     }
 
     if (!empty($email) && !is_email($email)) {
-        $validinfo = false;
-        $error .= '<li>' . lang('invalidemail') . '</li>';
+        $errors[] = lang('invalidemail');
     }
 
-    if ($validinfo) {
+    if (!$errors) {
         $newuser = new User();
 
         $newuser->username    = $user;
@@ -124,15 +114,13 @@ if (isset($_POST['submit'])) {
             }
 
             if ($assign_group_perm && is_array($sel_groups) && count($sel_groups)) {
+                $db = $gCms->GetDb();
                 $iquery = 'INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
                 foreach ($sel_groups as $gid) {
                     $gid = (int)$gid;
-                    if ($gid < 1)
-                        continue;
-                    $db->Execute($iquery, array(
-                        $userid,
-                        $gid
-                    ));
+                    if ($gid > 0) {
+                        $db->Execute($iquery, [$userid, $gid]);
+                    }
                 }
             }
 
@@ -140,19 +128,30 @@ if (isset($_POST['submit'])) {
             audit($newuser->id, 'Admin Username: ' . $newuser->username, 'Added');
             redirect('listusers.php' . $urlext);
         } else {
-            $error .= '<li>' . lang('errorinsertinguser') . '</li>';
+            $errors[] = lang('errorinsertinguser');
         }
     }
+} else {
+    $user              = '';
+    $firstname         = '';
+    $lastname          = '';
+    $userid            = -1;
+    $password          = '';
+    $passwordagain     = '';
+    $email             = '';
+    $sel_groups        = [];
+    $adminaccess       = 1;
+    $active            = 1;
+    $copyusersettings  = null;
 }
+
+$smarty = CMSMS\internal\Smarty::get_instance();
 
 /*--------------------
  * Display view
  ---------------------*/
-
-include_once 'header.php';
-
-if (!empty($error)) {
-    $themeObject->PrepareError($error);
+if ($errors) {
+    $themeObject->RecordMessage('error', $errors);
 }
 
 $out      = [-1 => lang('none')];
@@ -180,12 +179,12 @@ $smarty->assign([
     'password' => $password,
     'passwordagain' => $passwordagain,
     'sel_groups' => $sel_groups,
-    'urlext' => $urlext,
     'selfurl' => $selfurl,
+    'urlext' => $urlext,
     'user' => $user,
     'users' => $out,
 ]);
 
+include_once 'header.php';
 $smarty->display('adduser.tpl');
-
 include_once 'footer.php';
