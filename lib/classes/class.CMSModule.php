@@ -115,7 +115,8 @@ abstract class CMSModule
             $this->SetParameterType('lang',CLEAN_STRING); // this will be ignored.
             $this->SetParameterType('returnid',CLEAN_INT);
             $this->SetParameterType('action',CLEAN_STRING);
-            $this->SetParameterType('showtemplate',CLEAN_STRING);
+            $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated, use cmsjobtype
+            $this->SetParameterType('cmsjobtype',CLEAN_INT);
             $this->SetParameterType('inline',CLEAN_INT);
 
             $this->InitializeFrontend();
@@ -471,17 +472,39 @@ abstract class CMSModule
     }
 
     /**
-     * Dynamically add header text to go between the <head> tags when the modle is called from an admin side action.
-     * This is a convenient way of including javascript libraries, or custom styles for your actions.
+     * Provide extra/custom content which is to be inserted verbatim between the <head> tags on an admin page.
+     * This is a convenient way of providing action-specific css or javascript.
      *
      * @since 2.3
-     * @param string $text the complete XHTML text.
+     * @param string $text the complete [X]HTML
      */
-    public function AddAdminHeaderText($text)
+    public function AdminHeaderContent(string $text)
     {
-        $text = trim($text);
-        $obj = \cms_utils::get_theme_object();
-        if( $obj ) $obj->add_headtext( $text );
+        global $CMS_ADMIN_PAGE;
+
+        if( !empty($CMS_ADMIN_PAGE) ) {
+            $text = trim($text);
+            $obj = \cms_utils::get_theme_object();
+            if( $text && $obj ) $obj->add_headtext($text);
+        }
+    }
+
+    /**
+     * Provide extra/custom content which is to be inserted verbatim at the bottom of an admin page (not displayed)
+     * This is one way to defer inclusion of action-specific javascript.
+     *
+     * @since 2.3
+     * @param string $text the complete [X]HTML
+     */
+    public function AdminBottomContent(string $text)
+    {
+        global $CMS_ADMIN_PAGE;
+
+        if( !empty($CMS_ADMIN_PAGE) ) {
+            $text = trim($text);
+            $obj = \cms_utils::get_theme_object();
+            if( $text && $obj ) $obj->add_footertext($text);
+        }
     }
 
     /**
@@ -489,7 +512,7 @@ abstract class CMSModule
      * theme, etc, so your module can output files directly to the administrator.
      * Do this by returning true.
      *
-     * @param  array $request The input request.  This can be used to test conditions whether or not admin output should be suppressed.
+     * @param  array $request The input $_REQUEST[]. This can be used to test whether or not admin output should be suppressed.
      * @return bool
      */
     public function SuppressAdminOutput($request)
@@ -1362,10 +1385,10 @@ abstract class CMSModule
      * in the modules directory, and if it exists include it.
      *
      * @param string $name The Name of the action to perform
-     * @param string $id The ID of the module
+     * @param string $id Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
-     * @param mixed int|'' $returnid The current page id that is being displayed.
-     * @return string output XHTML.
+     * @param mixed int|'' $returnid Identifier of the page being displayed, '' for admin
+     * @return mixed output from 'controller', or null
      */
     public function DoAction($name, $id, $params, $returnid = '')
     {
@@ -1376,10 +1399,10 @@ abstract class CMSModule
                 unset($_SESSION[$key]);
             }
             if( ($errs = $this->GetErrors()) ) {
-                echo $this->ShowErrors();
+                $this->ShowErrors($errs);
             }
             if( ($msg = $this->GetMessage()) ) {
-                echo $this->Showmessage($msg);
+                $this->ShowMessage($msg);
             }
         }
 
@@ -1392,13 +1415,15 @@ abstract class CMSModule
                 if( is_callable( $controller ) ) return $controller( $params );
             }
             else {
-                $filename = $this->GetModulePath().'/action.' . $name . '.php';
+                $filename = $this->GetModulePath() . DIRECTORY_SEPARATOR . 'action.'.$name.'.php';
                 if( is_file($filename) ) {
                     // these are included in scope in the included file for convenience.
                     $gCms = CmsApp::get_instance();
                     $db = $gCms->GetDb();
                     $config = $gCms->GetConfig();
-                    $smarty = $this->_action_tpl; // smarty in scope.
+                    $smarty = ( !empty($this->_action_tpl) ) ?
+                        $this->_action_tpl :
+                        CMSMS\internal\Smarty::get_instance();
                     include $filename;
                     return;
                 }
@@ -1415,15 +1440,14 @@ abstract class CMSModule
      *
      * @internal
      * @ignore
-     * @final
      * @param string $name The action name
      * @param string $id The action identifier
      * @param array  $params The action params
      * @param mixed  $returnid The current page id. int for frontend, null/'' for admin requests.
-     * @param Smarty_Internal_Template &$parent The currrent smarty template object.
+     * @param mixed  $smartob  The global Smarty object, or a Smarty_Internal_Template-class object.
      * @return mixed The action output, normally a string but maybe null.
      */
-    final public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$parent )
+    public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$smartob)
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
         if( $returnid != '' ) {
@@ -1455,36 +1479,37 @@ abstract class CMSModule
         $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
         $name = filter_var($name, FILTER_SANITIZE_STRING); //alphanum + '_' ?
 
-        if ($returnid !== '') {
+        if ($returnid != '') {
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
             $tmp['action'] = $name;
             \CMSMS\HookManager::do_hook('module_action', $tmp);
         } else {
-            $returnid = 0;
+            $returnid = null;
         }
 
-        $gCms = CmsApp::get_instance(); // in scope for compatibility reasons.
-        if( $gCms->template_processing_allowed() ) {
-            $smarty = $gCms->GetSmarty();
-            $tpl = $smarty->createTemplate( 'string:EMPTY MODULE ACTION TEMPLATE', null, null, $parent );
-            $tpl->assign('_action',$name);
-            $tpl->assign('_module',$this->GetName());
-            $tpl->assign('actionid',$id);
-            $tpl->assign('actionparams',$params);
-            $tpl->assign('returnid',$returnid);
-            $tpl->assign('mod',$this);
+        $gCms = CmsApp::get_instance();
+        if( ($cando = $gCms->template_processing_allowed()) ) {
+            $tpl = $gCms->GetSmarty()->createTemplate('string:EMPTY MODULE ACTION TEMPLATE', null, null, $smartob);
+            $tpl->assign([
+            '_action' => $name,
+            '_module' => $this->GetName(),
+            'actionid' => $id,
+            'actionparams' => $params,
+            'returnid' => $returnid,
+            'mod' => $this,
+            ]);
 
-            $this->_action_tpl = $tpl; // parent smarty template,  which is the global smarty object if this is called directly from a template
+            $this->_action_tpl = $tpl; // 'parent' smarty template, which is the global smarty object if this is called directly from a template
         }
         $output = $this->DoAction($name, $id, $params, $returnid);
-        if( $gCms->template_processing_allowed() ) {
+        if( $cando ) {
             $this->_action_tpl = null;
         }
 
         if( isset($params['assign']) ) {
-            $smarty->assign(cms_htmlentities($params['assign']),$output);
+            $smartob->assign(sanitize($params['assign']),$output);
             return '';
         }
         return $output;
@@ -1891,9 +1916,9 @@ abstract class CMSModule
      * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
      * @param string $prettyurl An url segment related to the root of the page, for pretty url creation. Used verbatim.
      * @param int    $mode since 2.3 Indicates how to format the url
-	 *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
-	 *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
-	 *  2 = page-displayable: all html_entitized, probably not usable as-is
+     *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+     *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+     *  2 = page-displayable: all html_entitized, probably not usable as-is
      * @return string
      */
     public function create_url($id, $action, $returnid = '', $params = [],
@@ -1931,9 +1956,9 @@ abstract class CMSModule
      * @param int    $returnid Optional return-page identifier. Default '' (i.e. admin)
      * @param array  $params Optional array of parameters for the action. Default []
      * @param int    $mode since 2.3 Indicates how to format the url
-	 *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
-	 *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
-	 *  2 = page-displayable: all html_entitized, probably not usable as-is
+     *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+     *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
+     *  2 = page-displayable: all html_entitized, probably not usable as-is
      * @return string
      */
     public function create_pageurl($id, $returnid = '', $params = [], $mode = 0)
@@ -1974,7 +1999,7 @@ abstract class CMSModule
      * @since 1.11
      * @author Robert Campbell
      * @param string $tab The tab name.  If empty, the current tab is used.
-     * @param mixed|null  $params An assoiciative array of params, or null
+     * @param mixed|null  $params An associative array of params, or null
      * @param string $action The action name (if not specified, defaultadmin is assumed)
      * @see CMSModule::SetCurrentTab
      */
@@ -2472,7 +2497,7 @@ abstract class CMSModule
     {
         $key = $this->GetName().'::errors';
         if( !isset( $_SESSION[$key] ) ) return;
-
+        //TODO
         $data = $_SESSION[$key];
         unset($_SESSION[$key]);
         return $data;
@@ -2486,7 +2511,7 @@ abstract class CMSModule
     {
         $key = $this->GetName().'::message';
         if( !isset( $_SESSION[$key] ) ) return;
-
+        //TODO
         $msg = $_SESSION[$key];
         if( !$msg ) $msg = null;
         unset($_SESSION[$key]);
@@ -2494,22 +2519,23 @@ abstract class CMSModule
     }
 
     /**
-     * ShowMessage
-     * Returns a formatted page status message
+     * Append $str to the accumulated 'information' strings to be displayed
+     * in a theme-specific dialog during the next request e.g. after redirection
+     * For admin-side use only
      *
-     * @final
-     * @param mixed $message Message to be shown string or array of them
-     * @return string
-     */
-    final public function ShowMessage($message)
+     * @since 2.3
+     * @author Robert Campbell
+     * @param string|string[] $str The message.  Accepts either an array of messages or a single string.
+    public function SetInfo($str)
     {
         $theme = cms_utils::get_theme_object();
-        if( is_object($theme) ) return $theme->ShowMessage($message);
-        return '';
+        if( is_object($theme) ) $theme->RecordNotice('info', $str, '', true);
     }
 
     /**
-     * Set a display message.
+     * Append $str to the accumulated 'success' strings to be displayed
+     * in a theme-specific dialog during the next request e.g. after redirection
+     * For admin-side use only
      *
      * @since 1.11
      * @author Robert Campbell
@@ -2517,27 +2543,29 @@ abstract class CMSModule
      */
     public function SetMessage($str)
     {
-        if( is_string($str) ) $str = [$str];
-        $_SESSION[$this->GetName().'::message'] = $str;
+        $theme = cms_utils::get_theme_object();
+        if( is_object($theme) ) $theme->RecordNotice('success', $str, '', true);
     }
 
     /**
-     * ShowErrors
-     * Outputs errors in a nice error box with a troubleshooting link to the wiki
+     * Append $str to the accumulated 'warning' strings to be displayed
+     * in a theme-specific dialog during the next request e.g. after redirection
+     * For admin-side use only
      *
-     * @final
-     * @param mixed string|string[] $errors array or string of errors to be shown
-     * @return string
-     */
-    final public function ShowErrors($errors)
+     * @since 2.3
+     * @author Robert Campbell
+     * @param string|string[] $str The message.  Accepts either an array of messages or a single string.
+    public function SetWarning($str)
     {
         $theme = cms_utils::get_theme_object();
-        if( is_object($theme) ) return $theme->ShowErrors($errors);
-        return '';
+        if( is_object($theme) ) $theme->RecordNotice('warn', $str, '', true);
     }
 
     /**
-     * Set an error  message.
+     * Append $str to the accumulated error-strings to be displayed
+     * in a theme-specific error dialog during the next request
+     * e.g. after redirection
+     * For admin-side use only
      *
      * @since 1.11
      * @author Robert Campbell
@@ -2545,10 +2573,88 @@ abstract class CMSModule
      */
     public function SetError($str)
     {
-        $key = $this->GetName().'::errors';
-        $_SSSION[$key][] = $str;
+        $theme = cms_utils::get_theme_object();
+        if( is_object($theme) ) $theme->RecordNotice('error', $str, '', true);
     }
 
+    /**
+     * Append $message to the accumulated 'information' strings to be displayed
+     * in a theme-specific popup dialog during the current request
+     * For admin-side use only
+     *
+     * @since 2.3
+     * @param mixed $message Message to be shown string or array of them
+     * @return empty string (something might like to echo)
+     */
+    public function ShowInfo($message)
+    {
+        global $CMS_ADMIN_PAGE;
+
+        if( !empty($CMS_ADMIN_PAGE) ) {
+		    $theme = cms_utils::get_theme_object();
+		    if( is_object($theme) ) $theme->RecordNotice('info', $message);
+		}
+        return '';
+    }
+
+    /**
+     * Append $message to the accumulated 'success' strings to be displayed in a
+     * theme-specific popup dialog during the current request
+     * For admin-side use only
+     *
+     * @param mixed $message Message to be shown string or array of them
+     * @return empty string (something might like to echo)
+     */
+    public function ShowMessage($message)
+    {
+        global $CMS_ADMIN_PAGE;
+
+        if( !empty($CMS_ADMIN_PAGE) ) {
+		    $theme = cms_utils::get_theme_object();
+		    if( is_object($theme) ) $theme->RecordNotice('success', $message);
+		}
+        return '';
+    }
+
+    /**
+     * Append $message to the accumulated 'warning' strings to be displayed in a
+     * theme-specific popup dialog during the current request
+     * For admin-side use only
+     *
+     * @since 2.3
+     * @param mixed $message Message to be shown string or array of them
+     * @return empty string (something might like to echo)
+     */
+    public function ShowWarning($message)
+    {
+        global $CMS_ADMIN_PAGE;
+
+        if( !empty($CMS_ADMIN_PAGE) ) {
+		    $theme = cms_utils::get_theme_object();
+		    if( is_object($theme) ) $theme->RecordNotice('warn', $message);
+		}
+        return '';
+    }
+
+    /**
+     * Append $errors to the accumulated error-strings to be displayed in a
+     * theme-specific error dialog during the current request
+     * For admin-side use only
+     *
+     * @final
+     * @param mixed string|string[] $errors array or string of errors to be shown
+     * @return empty string (something might like to echo)
+     */
+    final public function ShowErrors($errors)
+    {
+        global $CMS_ADMIN_PAGE;
+
+        if( !empty($CMS_ADMIN_PAGE) ) {
+		    $theme = cms_utils::get_theme_object();
+		    if (is_object($theme)) $theme->RecordNotice('error', $errors);
+        }
+        return '';
+    }
 
     /**
      * ------------------------------------------------------------------
@@ -2558,7 +2664,7 @@ abstract class CMSModule
 
 
     /**
-     * Create's a new permission for use by the module.
+     * Creates a new permission for use by the module.
      *
      * @final
      * @param string $permission_name Name of the permission to create
