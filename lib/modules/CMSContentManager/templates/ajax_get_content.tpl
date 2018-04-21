@@ -1,5 +1,5 @@
-<div class="row c_full cf">
-  <div class="pageoptions grid_8" style="margin-top: 8px;">
+<div class="hbox flow">
+  <div class="pageoptions boxchild">
     {if $can_add_content}
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('addcontent')}" class="pageoptions">{admin_icon icon='newobject.gif' alt=$mod->Lang('addcontent')}&nbsp;{$mod->Lang('addcontent')}</a>
     {/if}
@@ -15,26 +15,25 @@
     {/if}
     <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_settings')}">{admin_icon icon='edit.gif' alt=$mod->Lang('prompt_settings')}&nbsp;{$mod->Lang('prompt_settings')}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({$mod->Lang('filter_applied')})</em></span>{/if}
-  </div>
+  </div>{*boxchild*}
 
-  <div class="pageoptions options-form grid_4" style="float: right;">
+  <div class="pageoptions options-form boxchild">
     {if isset($content_list)}
-    <span>
-      <label for="ajax_find">{$mod->Lang('find')}:</label>
-    &nbsp;<input type="text" id="ajax_find" name="ajax_find" title="{$mod->Lang('title_listcontent_find')}" value="" size="25" /></span>
+    <span><label for="ajax_find">{$mod->Lang('find')}:</label>&nbsp;
+    <input type="text" id="ajax_find" name="ajax_find" title="{$mod->Lang('title_listcontent_find')}" value="" size="25" /></span>
     {/if}
     {if isset($content_list) && $npages > 1}
       {form_start action='defaultadmin'}
-      <span>{$mod->Lang('page')}:&nbsp;
+       <span>{$mod->Lang('page')}:&nbsp;
         <select name="{$actionid}curpage" id="{$actionid}curpage">
-          {html_options options=$pagelist selected=$curpage}
+        {html_options options=$pagelist selected=$curpage}
         </select>
         <button name="{$actionid}submitpage" class="invisible adminsubmit icon check">{$mod->Lang('go')}</button>
-      </span>
-      {form_end}
+       </span>
+      </form>
     {/if}
-  </div>
-</div>
+  </div>{*boxchild*}
+</div>{*hbox*}
 
 {form_start action='defaultadmin' id='listform'}
 <div id="contentlist">{* everything from here down is part of the ajax stuff *}
@@ -231,14 +230,14 @@
  {/if}
 </div>{* #contentlist *}
 {if isset($content_list)}
-  <div class="row c_full cf">
+  <div class="hbox expand">
   {if $can_add_content}
-  <div class="pageoptions grid_6" style="margin-top: 8px;">
+  <div class="pageoptions boxchild">
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('addcontent')}" class="pageoptions">{admin_icon icon='newobject.gif' alt=$mod->Lang('addcontent')}&nbsp;{$mod->Lang('addcontent')}</a>
   </div>
   {/if}
   {if $multiselect && isset($bulk_options)}
-  <div class="pageoptions grid_6" style="text-align: right;">
+  <div class="pageoptions boxchild">
     <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>
     &nbsp;&nbsp;
     <select name="{$actionid}multiaction" id="multiaction">
@@ -247,7 +246,7 @@
     <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </div>
   {/if}
-  </div>
+  </div>{*hbox*}
 {/if}
 </form>
 <div class="clearb"></div>

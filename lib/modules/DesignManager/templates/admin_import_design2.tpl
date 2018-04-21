@@ -31,8 +31,8 @@ $(document).ready(function() {
 <div class="pageinfo">{$mod->Lang('info_import_xml_step2')}</div>
 
 <fieldset>
-  <!-- TODO GRID -->
-  <div style="width:49%;float:left;">
+ <div class="hbox expand">
+  <div class="boxchild">
     <div class="pageoverflow">
       <p class="pagetext">
       {$lbltxt=$mod->Lang('prompt_name')}<label for="import_newname">{$lbltxt}:</label>
@@ -55,9 +55,9 @@ $(document).ready(function() {
         <span class="red">{$tmp}</span>
       </p>
     </div>
-  </div>
+  </div>{*boxchild*}
 
-  <div style="width:49%;float:right;">
+  <div class="boxchild">
     <div class="pageoverflow">
       <p class="pagetext">
       {$lbltxt=$mod->Lang('prompt_cmsversion')}{$lbltext}:
@@ -71,7 +71,8 @@ $(document).ready(function() {
         {/if}
       </p>
     </div>
-  </div>
+  </div>{*boxchild*}
+ </div>{*hbox*}
 </fieldset>
 
 {tab_header name='description' label=$mod->Lang('prompt_description')}
@@ -124,27 +125,25 @@ $(document).ready(function() {
       <tr>
         <th>{$mod->Lang('name')}</th>
         <th>{$mod->Lang('newname')}</th>
-	<th>{$mod->Lang('prompt_media_type')}</th>
+        <th>{$mod->Lang('prompt_media_type')}</th>
         <th>{$mod->Lang('prompt_description')}</th>
-	<th class="pageicon"></th>
+        <th class="pageicon"></th>
       </tr>
     </thead>
     <tbody>
       {foreach $stylesheets as $one}
       <tr>
         <td>{$one.name}</td>
-	<td>
-	  <h3>{$one.newname}</h3>
-	</td>
-	<td>{$one.mediatype}</td>
+        <td><h3>{$one.newname}</h3></td>
+        <td>{$one.mediatype}</td>
         <td>{$one.desc|default:$mod->Lang('info_nodescription')}
            <div class="stylesheet_content" title="{$one.name}" style="display: none;">
-	     <textarea rows="10" cols="80">{$one.data}</textarea>
-	   </div>
-	</td>
-	<td>
-          {admin_icon class="stylesheet_view pointer" icon='view.gif' alt=lang('view')}
-	</td>
+	       <textarea rows="10" cols="80">{$one.data}</textarea>
+	      </div>
+	    </td>
+        <td>
+        {admin_icon class="stylesheet_view pointer" icon='view.gif' alt=lang('view')}
+        </td>
       </tr>
       {/foreach}
     </tbody>
@@ -153,7 +152,7 @@ $(document).ready(function() {
 {tab_end}
 
 <div class="pageoverflow">
-  <p class="pagetext">*{$mod->Lang('confirm_import')}:</p>
+  <p class="pagetext">* {$mod->Lang('confirm_import')}:</p>
   <p class="pageinput">
     <input type="checkbox" name="{$actionid}check1" value="1" id="check1">&nbsp;<label for="check1">{$mod->Lang('confirm_import_1')}</label>
   </p>

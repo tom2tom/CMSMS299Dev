@@ -97,16 +97,15 @@ $(document).ready(function() {
 {/if}
 
 {form_start id="form_edittemplate" extraparms=$extraparms}
-<fieldset class="cf">
-  <div class="grid_6">
-    <div class="pageoverflow">
-      <p class="pageinput">
-        <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
-        <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-        {if $template->get_id()}
-        <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
-       {/if}
-      </p>
+<fieldset>
+<div class="hbox">
+  <div class="boxchild">
+    <div class="pageinput postgap">
+      <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
+      <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+      {if $template->get_id()}
+      <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
+     {/if}
     </div>
 
     <div class="pageoverflow">
@@ -130,8 +129,8 @@ $(document).ready(function() {
     </div>
     {/if}
 
-  </div>{* column *}
-  <div class="grid_6">
+  </div>{* boxchild *}
+  <div class="boxchild">
     {if $template->get_id()}
     <div class="pageoverflow">
       <p class="pagetext">
@@ -152,7 +151,8 @@ $(document).ready(function() {
       </p>
     </div>
     {/if}
-  </div>{* column *}
+  </div>{*boxchild*}
+</div>{*hbox*}
 </fieldset>
 
 {tab_header name='template' label=$mod->Lang('prompt_template')}

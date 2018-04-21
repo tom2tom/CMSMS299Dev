@@ -224,12 +224,11 @@ try {
         }
         if (is_array($tmp) && count($tmp)) $smarty->assign('addt_editor_list', $tmp);
     }
+    
+//TODO ensure flexbox css for .hbox, .boxchild
+  
     echo $this->ProcessTemplate('admin_edit_template.tpl');
 } catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#

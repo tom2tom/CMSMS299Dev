@@ -67,8 +67,9 @@
   </div>
 </fieldset>
 <br />
+
 <fieldset>
-<legend>{$title_fesubmit_settings}:</legend>
+  <legend>{$title_fesubmit_settings}:</legend>
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="fld9_a">{$mod->Lang('allow_fesubmit')}:</label>
@@ -99,10 +100,12 @@
       <input type="text" id="fld10" name="{$actionid}fesubmit_redirect" value="{$fesubmit_redirect}" size="20" maxlength="20" />
     </p>
   </div>
+</fieldset>
+<br />
 
-  <fieldset>
+<fieldset>
   <legend>{$title_notification_settings}:</legend>
-    <div class="pageinfo">{$mod->Lang('info_fesubmit_notification')}</div> TODO
+  <div class="pageinfo">{$mod->Lang('info_fesubmit_notification')}</div> TODO
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="fld6">{$title_formsubmit_emailaddress}:</label>
@@ -127,13 +130,11 @@
       <textarea id="fld8" name="{$actionid}email_template" rows="5" cols="80">{$email_template}</textarea>
     </p>
   </div>
-  </fieldset>
-
 </fieldset>
 <br />
 
 <fieldset>
-<legend>{$title_detail_settings}:</legend>
+  <legend>{$title_detail_settings}:</legend>
   <div class="pageoverflow">
     <p class="pagetext">{$title_detail_returnid}:
        {cms_help realm=$_module key='info_detail_returnid' title=$title_detail_returnid}
@@ -162,4 +163,4 @@
   </div>
 </fieldset>
 
-{$endform}
+</form>

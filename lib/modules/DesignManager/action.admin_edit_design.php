@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: edit design
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
@@ -94,15 +92,49 @@ try {
     $smarty->assign('manage_stylesheets',$this->CheckPermission('Manage Stylesheets'));
     $smarty->assign('manage_templates',$this->CheckPermission('Modify Templates'));
     $smarty->assign('design',$design);
+
+//TODO ensure flexbox css for .hbox.expand, .boxchild
+
+/*
+function save_design() {
+  var form = $('#admin_edit_design');
+  var action = form.attr('action');
+
+  $('#ajax').val(1);
+  return $.ajax({
+    url: action,
+    data: form.serialize()
+  });
+}
+*/
+	//TODO js into page bottom
+    $js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+var __changed = 0;
+function set_changed() {
+  __changed = 1;
+  console.debug('design is changed');
+}
+$(document).ready(function() {
+  $('.sortable-list input[type="checkbox"]').hide();
+  $(':input').on('change', function() {
+    set_changed();
+  });
+  $('ul.available-items').on('click', 'li', function () {
+    $(this).toggleClass('selected ui-state-hover');
+  });
+  $('#submitme,#applyme').on('click', function() {
+    $('select.selall').attr('multiple','multiple');
+    $('select.selall option').attr('selected','selected');
+  });
+});
+//]]>
+</script>
+EOS;
     echo $this->ProcessTemplate('admin_edit_design.tpl');
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
-
-
-#
-# EOF
-#
-?>

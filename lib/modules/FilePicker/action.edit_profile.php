@@ -44,6 +44,9 @@ try {
     }
 
     $smarty->assign('profile',$profile);
+
+//TODO ensure flexbox css for multi-row .vbox, .hbox.flow, .boxchild
+
     echo $this->ProcessTemplate('edit_profile.tpl');
 }
 catch( \CmsInvalidDataException $e ) {

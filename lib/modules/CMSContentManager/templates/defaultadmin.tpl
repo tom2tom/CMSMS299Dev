@@ -3,55 +3,47 @@
 <div id="useroptions" title="{$mod->Lang('title_userpageoptions')}">
   {form_start action='defaultadmin' id='myoptions_form'}
     <input type="hidden" name="{$actionid}setoptions" value="1"/>
-    <table class="responsive">
-    <tbody>
-    <tr>
-      <td><label>{$mod->Lang('prompt_pagelimit')}:</label></td>
-      <td><select name="{$actionid}pagelimit">
+    <div class="vbox">
+    <div class="hbox flow">
+      <div class="boxchild"><label>{$mod->Lang('prompt_pagelimit')}:</label></div>
+      <div class="boxchild fill"><select name="{$actionid}pagelimit">
         {html_options options=$pagelimits selected=$pagelimit}
-      </select></td>
-    </tr>
+      </select></div>
+    </div>
 {if $can_manage_content}
-    {$type=''}{$expr=''}{$opts=[]}
-    {$opts['']=$mod->Lang('none')}
-    {$opts['DESIGN_ID']=$mod->Lang('prompt_design')}
-    {$opts['TEMPLATE_ID']=$mod->Lang('prompt_template')}
-    {$opts['OWNER_UID']=$mod->Lang('prompt_owner')}
-    {$opts['EDITOR_UID']=$mod->Lang('prompt_editor')}
-    {if $filter}{$type=$filter->type}{$expr=$filter->expr}{/if}
-    <tr>
-      <td><label>{$mod->Lang('prompt_filter_type')}:</label></td>
-      <td><select name="{$actionid}filter_type" id="filter_type">
+    {if $filter}{$type=$filter->type}{$expr=$filter->expr}{else}{$type=''}{$expr=''}{/if}
+    <div class="hbox flow">
+      <div class="boxchild"><label>{$mod->Lang('prompt_filter_type')}:</label></div>
+      <div class="boxchild fill"><select name="{$actionid}filter_type" id="filter_type">
         {html_options options=$opts selected=$type}
-      </select></td>
-    </tr>
-    <tr class="filter_fld" id="filter_design">
-      <td><label>{$mod->Lang('prompt_design')}:</label></td>
-      <td><select name="{$actionid}filter_design">
+      </select></div>
+    </div>
+    <div class="hbox flow filter_fld" id="filter_design">
+      <div class="boxchild"><label>{$mod->Lang('prompt_design')}:</label></div>
+      <div class="boxchild fill"><select name="{$actionid}filter_design">
         {html_options options=$design_list selected=$expr}
-      </select></td>
-    </tr>
-    <tr class="filter_fld" id="filter_template">
-      <td><label>{$mod->Lang('prompt_template')}:</label></td>
-      <td><select name="{$actionid}filter_template">
+      </select></div>
+    </div>
+    <div class="hbox flow filter_fld" id="filter_template"></div>
+      <div class="boxchild"><label>{$mod->Lang('prompt_template')}:</label>
+      <div class="boxchild fill"><select name="{$actionid}filter_template">
         {html_options options=$template_list selected=$expr}
-      </select></td>
-    </tr>
-    <tr class="filter_fld" id="filter_owner">
-      <td><label>{$mod->Lang('prompt_owner')}:</label></td>
-      <td><select name="{$actionid}filter_owner">
+      </select></div>
+    </div>
+    <div class="hbox flow filter_fld" id="filter_owner">
+      <div class="boxchild"><label>{$mod->Lang('prompt_owner')}:</label></div>
+      <div class="boxchild fill"><select name="{$actionid}filter_owner">
         {html_options options=$user_list selected=$expr}
-      </select></td>
-    </tr>
-    <tr class="filter_fld" id="filter_editor">
-      <td><label>{$mod->Lang('prompt_editor')}:</label></td>
-      <td><select name="{$actionid}filter_editor">
+      </select></div>
+    </div>
+    <div class="hbox flow filter_fld" id="filter_editor">
+      <div class="boxchild"><label>{$mod->Lang('prompt_editor')}:</label></div>
+      <div class="boxchild fill"><select name="{$actionid}filter_editor">
         {html_options options=$user_list selected=$expr}
-      </select></td>
-    </tr>
-  </tbody>
-  </table>
+      </select></div>
+    </div>
 {/if}
+  </div>{*vbox*}
   </form>
 </div>
 

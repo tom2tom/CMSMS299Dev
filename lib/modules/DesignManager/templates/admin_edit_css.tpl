@@ -107,15 +107,14 @@ $(document).ready(function() {
 
 {form_start id='form_editcss' extraparms=$extraparms}
 <fieldset class="cf">
-<div class="grid_6">
-  <div class="pageoverflow">
-    <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" id="submitbtn" class="adminsubmit icon check"  {$disable|strip}>{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-      {if $css->get_id()}
-       <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
-      {/if}
-    </p>
+<div class="hbox flow">
+ <div class="boxchild">
+  <div class="pageinput postgap">
+    <button type="submit" name="{$actionid}submit" id="submitbtn" class="adminsubmit icon check"  {$disable|strip}>{$mod->Lang('submit')}</button>
+    <button type="submit" name="{$actionid}cancel" id="cancelbtn" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
+    {if $css->get_id()}
+     <button type="submit" name="{$actionid}apply" id="applybtn" class="adminsubmit icon apply" {$disable|strip}>{$mod->Lang('apply')}</button>
+    {/if}
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
@@ -126,9 +125,9 @@ $(document).ready(function() {
       <input id="css_name" type="text" name="{$actionid}name" size="50" maxlength="90" value="{$css->get_name()}" placeholder="{$mod->Lang('new_stylesheet')}" />
     </p>
   </div>
-</div>{* column *}
-<div class="grid_6">
-  {if $css->get_id()}
+ </div>{* boxchild *}
+{if $css->get_id()}
+ <div class="boxchild">
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_created">{$mod->Lang('prompt_created')}:</label>
@@ -147,8 +146,9 @@ $(document).ready(function() {
       {$css->get_modified()|date_format:'%x %X'}
     </p>
   </div>
-  {/if}
-</div>{* column *}
+ </div>{* boxchild *}
+{/if}
+</div>{* hbox *}
 </fieldset>
 
 {tab_header name='content' label=$mod->Lang('prompt_stylesheet')}
@@ -199,9 +199,9 @@ $(document).ready(function() {
 <div class="pagewarn">{$mod->Lang('info_editcss_mediaquery_tab')}</div>
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="mediaquery">{$mod->Lang('prompt_media_query')}:</label>
+    <label for="mediaquery">{$mod->Lang('prompt_media_query')}:</label>
     {cms_help realm=$_module key2=help_css_mediaquery title=$mod->Lang('prompt_media_query')}
-      </p>
+  </p>
   <p class="pageinput">
     <textarea id="mediaquery" name="{$actionid}media_query" rows="10" cols="80">{$css->get_media_query()}</textarea>
   </p>
@@ -210,9 +210,9 @@ $(document).ready(function() {
 {tab_start name='description'}
 <div class="pageoverflow">
   <p class="pagetext">
-      <label for="txt_description">{$mod->Lang('prompt_description')}:</label>
+    <label for="txt_description">{$mod->Lang('prompt_description')}:</label>
     {cms_help realm=$_module key2=help_css_description title=$mod->Lang('prompt_description')}
-      </p>
+  </p>
   <p class="pageinput">
     <textarea id="txt_description" name="{$actionid}description" rows="10" cols="80">{$css->get_description()}</textarea>
   </p>
@@ -220,15 +220,14 @@ $(document).ready(function() {
 
 {if $has_designs_right}
   {tab_start name='designs'}
-  <!-- designs -->
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="designlist">{$mod->Lang('prompt_designs')}:</label>
-    {cms_help realm=$_module key2=help_css_designs title=$mod->Lang('prompt_designs')}
-      </p>
+      {cms_help realm=$_module key2=help_css_designs title=$mod->Lang('prompt_designs')}
+    </p>
     <p class="pageinput">
       <select id="designlist" name="{$actionid}design_list[]" multiple="multiple" size="5">
-        {html_options options=$design_list selected=$css->get_designs()}
+      {html_options options=$design_list selected=$css->get_designs()}
       </select>
     </p>
   </div>

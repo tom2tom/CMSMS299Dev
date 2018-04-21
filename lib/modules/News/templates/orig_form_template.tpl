@@ -1,83 +1,64 @@
 {* original form template *}
 <h3>{$mod->Lang('title_fesubmit_form')}</h3>
 
-{if isset($error)}
+{if !empty($error)}
   <div class="error">{$error}</div>
-{elseif isset($message)}
+{elseif !empty($message)}
   <div class="message">{$message}</div>
 {/if}
 
 {form_start category_id=$category_id}
-  <div class="row">
-    <p class="col4">
-      <label for="news_title">*{$mod->Lang('title')}:</label>
-    </p>
-    <p class="col8">
-      <input id="news_title" type="text" name="{$actionid}title" value="{$title}" size="30" required/>
-    </p>
+ <div class="vbox">
+  <div class="hbox flow">
+    <div class="boxchild"><label for="news_title">*{$mod->Lang('title')}:</label></div>
+    <div class="boxchild fill"><input id="news_title" type="text" name="{$actionid}title" value="{$title}" size="30" required /></div>
   </div>
-  <div class="row">
-    <p class="col4">
-      <label for="news_category">{$mod->Lang('category')}:</label>
-    </p>
-    <p class="col8">
-      <select id="news_category" name="{$actionid}input_category">
-       {html_options options=$categorylist selected=$category_id}
-      </select>
-    </p>
+  <div class="hbox flow">
+    <div class="boxchild"><label for="news_category">{$mod->Lang('category')}:</label></div>
+    <div class="boxchild fill"><select id="news_category" name="{$actionid}input_category">
+      {html_options options=$categorylist selected=$category_id}
+    </select></div>
   </div>
-
-{if !isset($hide_summary_field) or $hide_summary_field == 0}
-  <div class="row">
-    <p class="col4">
-      <label for="news_summary">{$mod->Lang('summary')}:</label>
-    </p>
-    <p class="col8">
+{if empty($hide_summary_field)}
+  <div class="hbox flow">
+    <div class="boxchild"><label for="news_summary">{$mod->Lang('summary')}:</label></div>
+    <div class="boxchild fill">
       {$tmp=$actionid|cat:'summary'}
       {cms_textarea enablewysiwyg=true id=news_summary name=$tmp value=$summary required=true}
-    </p>
+    </div>
   </div>
 {/if}
-  <div class="row">
-    <p class="col4">
-      <label for="news_content">*{$mod->Lang('content')}:</label>
-    </p>
-    <p class="col8">
+  <div class="hbox flow">
+    <div class="boxchild"><label for="news_content">*{$mod->Lang('content')}:</label></div>
+    <div class="boxchild fill">
       {$tmp=$actionid|cat:'content'}
       {cms_textarea enablewysiwyg=true id=news_content name=$tmp value=$content required=true}
-                </p>
+    </div>
   </div>
-  <div class="row">
-    <p class="col4">
-      <label for="news_extra">{$mod->Lang('extra')}:</label>
-   </p>
-    <p class="col8">
-      <input id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30"/>
-    </p>
+  <div class="hbox flow">
+    <div class="boxchild"><label for="news_extra">{$mod->Lang('extra')}:</label></div>
+    <div class="boxchild fill"><input id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" /></div>
   </div>
-  <div class="row">
-    <p class="col4">{$mod->Lang('startdate')}:</p>
-    <p class="col8">
+  <div class="hbox flow">
+    <div class="boxchild">{$mod->Lang('startdate')}:</div>
+    <div class="boxchild fill">
       {$tmp=$actionid|cat:'startdate_'}
       {html_select_date prefix=$tmp time=$startdate end_year="+15"}
       {html_select_time prefix=$tmp time=$startdate}
-    </p>
+    </div>
   </div>
-  <div class="row">
-    <p class="col4">{$mod->Lang('enddate')}:</p>
-    <p class="col8">
+  <div class="hbox flow">
+    <div class="boxchild">{$mod->Lang('enddate')}:</div>
+    <div class="boxchild fill">
       {$tmp=$actionid|cat:'enddate_'}
       {html_select_date prefix=$tmp time=$enddate end_year="+15"}
       {html_select_time prefix=$tmp time=$enddate}
-    </p>
+    </div>
   </div>
-  {if isset($customfields)}
-     {foreach $customfields as $field}
-       <div class="row">
-    <p class="col4">
-      <label for="news_fld_{$field->id}">{$field->name}:</label>
-    </p>
-    <p class="col8">
+  {if isset($customfields)}{foreach $customfields as $field}
+   <div class="hbox flow">
+    <div class="boxchild"><label for="news_fld_{$field->id}">{$field->name}:</label></div>
+    <div class="boxchild fill">
     {if $field->type == 'file'}
       <input id="news_fld_{$field->id}" type="file" name="{$actionid}news_customfield_{$field->id}"/>
     {elseif $field->type == 'checkbox'}
@@ -89,16 +70,13 @@
     {elseif $field->type == 'textbox'}
       <input id="news_fld_{$field->id}" type="text" name="{$actionid}news_customfield_{$field->id}" maxlength="{$field->max_length}"/>
     {/if}
-    </p>
-        </div>
-     {/foreach}
-  {/if}
-  <div class="row">
-    <p class="col4">&nbsp;</p>
-    <p class="col8">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-      <a href="{cms_selflink href=$page_alias}">{$mod->Lang('prompt_redirecttocontent')}</a>
-    </p>
+    </div>
   </div>
+  {/foreach}{/if}
+ </div>{*.vbox*}
+ <div class="pageinput pregap">
+   <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+   <a href="{cms_selflink href=$page_alias}">{$mod->Lang('prompt_redirecttocontent')}</a>
+ </div>
 </form>
 

@@ -77,11 +77,8 @@ $(document).ready(function() {
     <input type="checkbox" name="{$actionid}public" id="fld_public" value="1"{if $public==1} checked="checked"{/if} />
   </p>
 </div>
-<div class="pageoverflow">
-  <p class="pagetext">&nbsp;</p>
-  <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-    <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-  </p>
+<div class="pageinput pregap">
+  <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+  <button type="submit" name="{$actionid}cancel" id="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 </div>
-{$endform}
+</form>

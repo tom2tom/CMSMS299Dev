@@ -49,11 +49,11 @@ $(document).ready(function() {
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="filter_category">{$prompt_category}:</label>
-    {cms_help realm=$_module key='help_articles_filtercategory' title=$prompt_category}
-      </p>
+      {cms_help realm=$_module key='help_articles_filtercategory' title=$prompt_category}
+    </p>
     <p class="pageinput">
       <select id="filter_category" name="{$actionid}category">
-        {html_options options=$categorylist selected=$curcategory}
+      {html_options options=$categorylist selected=$curcategory}
       </select>
       <label for="filter_allcategories">{$prompt_showchildcategories}:</label>
       <input id="filter_allcategories" type="checkbox" name="{$actionid}allcategories" value="yes"{if $allcategories=="yes" } checked="checked"{/if} />
@@ -63,18 +63,18 @@ $(document).ready(function() {
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="filter_sortby">{$prompt_sorting}:</label>
-    {cms_help realm=$_module key='help_articles_sortby' title=$prompt_sorting}
-      </p>
+      {cms_help realm=$_module key='help_articles_sortby' title=$prompt_sorting}
+    </p>
     <p class="pageinput">
       <select id="filter_sorting" name="{$actionid}sortby">
-       {html_options options=$sortlist selected=$sortby}
+      {html_options options=$sortlist selected=$sortby}
       </select>
     </p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="filter_pagelimit">{$prompt_pagelimit}:</label>
-    {cms_help realm=$_module key='help_articles_pagelimit' title=$prompt_pagelimit}
+      {cms_help realm=$_module key='help_articles_pagelimit' title=$prompt_pagelimit}
       </p>
     <p class="pageinput">
       <select id="filter_pagelimit" name="{$actionid}pagelimit">
@@ -90,26 +90,26 @@ $(document).ready(function() {
 </div>
 {/if}
 
-<div class="row c_full">
-  <div class="pageoptions grid_6" style="margin-top: 8px;">
+<div class="hbox expand">
+  <div class="pageoptions boxchild">
     {if $can_add}
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=$mod->Lang('addarticle')} {$mod->Lang('addarticle')}</a>&nbsp;
     {/if}
     <a id="toggle_filter"{if $curcategory !='' } style="font-weight:bold;color:green;"{/if}>{admin_icon icon='view.gif' alt=$mod->Lang('viewfilter')} {if $curcategory != ''}*{/if}
     {$mod->Lang('viewfilter')}</a>
-  </div>
+  </div>{*boxchild*}
   {if $itemcount > 0 && $pagecount > 1}
-  <div class="pageoptions grid_6" style="text-align: right;">
+  <div class="pageoptions boxchild">
     {form_start}
     {$mod->Lang('prompt_page')}&nbsp;
       <select name="{$actionid}pagenumber">
         {cms_pageoptions numpages=$pagecount curpage=$pagenumber}
       </select>&nbsp;
     <button type="submit" name="{$actionid}paginate" class="adminsubmit icon do">{$mod->Lang('prompt_go')}</button>
-    {form_end}
-  </div>
+    </form>
+  </div>{*boxchild*}
   {/if}
-</div>{* .row *}
+</div>{*hbox*}
 {if $itemcount > 0}
 {$form2start}
 <table class="pagetable" id="articlelist">
@@ -173,14 +173,14 @@ $(document).ready(function() {
 <div class="pagewarn">{if $curcategory == ''}{$mod->Lang('noarticles')}{else}{$mod->Lang('noarticlesinfilter')}{/if}</div>
 {/if}
 
-<div style="width:99%;">
+<div class="hbox expand">
   {if isset($addlink)} {if $itemcount > 10}
-  <div class="pageoptions grid_6" style="margin-top: 0;">
-    <p class="pageoptions">{$addlink}</p>
+  <div class="pageoptions boxchild">
+    <p>{$addlink}</p>
   </div>
   {/if}{/if}
   {if $itemcount > 0}
-  <div class="pageoptions" style="float: right; text-align: right;" id="bulkactions">
+  <div class="pageoptions boxchild" id="bulkactions">
     <label for="bulk_action">{$mod->Lang('with_selected')}:</label>
     <select id="bulk_action" name="{$actionid}bulk_action">
       {if isset($submit_massdelete)}
@@ -190,14 +190,13 @@ $(document).ready(function() {
       <option value="setpublished">{$mod->Lang('bulk_setpublished')}</option>
       <option value="setcategory">{$mod->Lang('bulk_setcategory')}</option>
     </select>
-    <div id="bulk_category" style="display: inline-block;">
+    <div id="bulk_category" style="display:inline-block;">
       {$mod->Lang('category')}: {$categoryinput}
     </div>
     <div class="pageinput pregap">
       <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icon do">{$mod->Lang('submit')}</button>
     </div>
-  </div>
+  </div>{*boxchild*}
   {/if}
-  <div class="clearb"></div>
-</div>
+</div>{*hbox*}
 </form>

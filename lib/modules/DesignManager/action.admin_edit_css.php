@@ -152,6 +152,8 @@ try {
     $smarty->assign('css', $css_ob);
     if ($css_ob && $css_ob->get_id()) $smarty->assign('css_id', $css_ob->get_id());
 
+//TODO ensure flexbox css for .hbox, .boxchild
+
     echo $this->ProcessTemplate('admin_edit_css.tpl');
 } catch( CmsException $e ) {
     $this->SetError($e->GetMessage());

@@ -1,8 +1,6 @@
 <?php
-# Module: Content (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-#
+# CMSContentManger module action: defaultadmin
+# Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -124,9 +122,9 @@ if( isset($params['multisubmit']) && isset($params['multiaction']) &&
     }
     // redirect to special action to handle bulk content stuff.
     $this->Redirect($id,'admin_multicontent',$returnid,[
-		'multicontent'=>base64_encode(serialize($params['multicontent'])),
+        'multicontent'=>base64_encode(serialize($params['multicontent'])),
         'multiaction'=>$params['multiaction']
-	]);
+    ]);
 }
 
 $modname = $this->GetName();
@@ -355,21 +353,31 @@ $(document).ready(function() {
 //]]>
 </script>
 EOS;
-//TODO other needed js e.g. nested sortable, cmsms autoRefresh widget/plugin
+
+//TODO other action-specific js e.g. nested sortable, cmsms autoRefresh widget/plugin
+//TODO flexbox css for multi-row .vbox, .hbox.flow, .boxchild
 
 if (!empty($CMS_JOB_TYPE)) {
-	echo $out;
+    echo $out;
 } else {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->add_footertext($out);
 }
 
+$pmod = $this->CheckPermission('Manage All Content');
+$opts = ($pmod) ? 
+    ['' => $this->Lang('none'),
+    'DESIGN_ID' => $this->Lang('prompt_design'),
+    'TEMPLATE_ID' => $this->Lang('prompt_template'),
+    'OWNER_UID' => $this->Lang('prompt_owner'),
+    'EDITOR_UID' => $this->Lang('prompt_editor')] : null;
+
 $smarty->assign('ajax',$ajax);
-$smarty->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'));
-$smarty->assign('can_manage_content',$this->CheckPermission('Manage All Content'));
+$smarty->assign('can_add_content',$pmod || $this->CheckPermission('Add Pages'));
+$smarty->assign('can_manage_content',$pmod);
+$smarty->assign('opts',$opts);
 $smarty->assign('filter',$filter);
-$pagelimits = [10=>10,25=>25,100=>100,250=>250,500=>500];
-$smarty->assign('pagelimits',$pagelimits);
+$smarty->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500]);
 $smarty->assign('pagelimit',$pagelimit);
 $smarty->assign('locking',CmsContentManagerUtils::locking_enabled());
 // get a list of admin users

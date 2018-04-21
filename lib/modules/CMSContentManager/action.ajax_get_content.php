@@ -124,6 +124,8 @@ try {
     $opts = bulkcontentoperations::get_operation_list();
     if( is_array($opts) && count($opts) ) $smarty->assign('bulk_options',$opts);
 
+//TODO ensure flexbox css for .hbox, .boxchild
+
     $out = $this->ProcessTemplate('ajax_get_content.tpl');
     echo $out;
 }

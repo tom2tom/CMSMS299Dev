@@ -245,5 +245,7 @@ $themedir = $config['admin_url'].'/themes/'.$admintheme->themeName.'/images/icon
 
 $smarty->assign('iconurl',$themedir);
 
+//TODO ensure flexbox css for .hbox.expand, .boxchild
+
 #Display template
 echo $this->ProcessTemplate('articlelist.tpl');

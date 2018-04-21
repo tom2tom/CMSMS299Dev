@@ -109,6 +109,9 @@ try {
     catch( CmsException $e ) {
       $this->ShowErrors($e->GetMessage());
     }
+
+//TODO ensure flexbox css for .hbox.expand, .boxchild
+
     echo $this->ProcessTemplate('admin_import_design2.tpl');
     break;
 
