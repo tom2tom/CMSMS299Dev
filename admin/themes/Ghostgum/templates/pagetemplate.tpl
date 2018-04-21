@@ -61,7 +61,7 @@
   </div>
   <!-- end header -->
   <div id="ggp_container">
-   <div id="ggp_contentwrap" class="column sidebar-on">
+   <div id="ggp_contentwrap">
      <div id="ggp_contenthead">
 {*      <div class="{if isset($is_ie)}drop-hidden {/if}"> *}
       {if !empty($icon_tag) || !empty($pagetitle)}<h1>
@@ -81,10 +81,12 @@
      {$content}
     </div>
    </div>
-   <div id="ggp_navwrap" class="column sidebar-on">
+   <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_navhead">
-     <span id="toggle-button" title="{lang('open')}/{lang('close')}">
-     <span title="{lang('close')}">&nbsp;</span></span>
+     <li class="nav">
+      <a href="javascript:clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}"></a>
+      <span class="open-nav" title="{lang('close')}" onclick="clickSidebar();">&nbsp;</span>
+     </li>
     </div>
     <div id="ggp_nav">
      {include file='navigation.tpl'}
@@ -97,6 +99,6 @@
     {$footertext|default:''}
   </div>
   <!-- end footer -->
-  {$bottom_includes|default:''}
 </body>
+  {$bottom_includes|default:''}
 </html>
