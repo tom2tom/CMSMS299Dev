@@ -170,31 +170,6 @@ EOS;
 	 */
 	public function do_toppage($section_name)
 	{
-		// extra header content for this page
-		$config = cms_config::get_instance();
-		$rel = substr(__DIR__, strlen($config['admin_path']));
-		$base_url = $config['admin_url'] . strtr($rel,DIRECTORY_SEPARATOR,'/');
-		// responsiveColumns[] members are: windowMaxWidth : columns
-		// windowMaxWidth order and values should match those in your responsive CSS
-		$out = <<<EOS
-
-<link rel="stylesheet" type="text/css" href="{$base_url}/css/wrecker.css"/>
-<script type="text/javascript" src="{$base_url}/js/jquery.wrecker.js"></script>
-<script type="text/javascript">
-//<![CDATA[
-$(document).ready(function() {
- $('#topcontent_wrap').wrecker({
-  itemSelector: '.dashboard-box',
-  maxColumns: 3,
-  responsiveColumns: [ {1024: 3}, {800: 2}, {640: 1} ]
- });
-});
-//]]>
-</script>
-
-EOS;
-		$this->add_headtext($out);
-
 		$smarty = Smarty::get_instance();
 		if ($section_name) {
 			$nodes = $this->get_navigation_tree($section_name, 0);
