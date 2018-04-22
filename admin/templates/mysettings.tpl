@@ -4,6 +4,7 @@
     <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
+
   <fieldset>
     <legend>{lang('lang_settings_legend')}:</legend>
     <div class="pageoverflow">
@@ -17,7 +18,6 @@
         </select>
       </p>
     </div>
-
     <div class="pageoverflow">
       <p class="pagetext">
         <label for="dateformat">{lang('date_format_string')}:</label>
@@ -29,7 +29,7 @@
     </div>
   </fieldset>
 
-  <fieldset>
+  <fieldset class="pregap">
     <legend>{lang('content_editor_legend')}:</legend>
     <div class="pageoverflow">
       <p class="pagetext">
@@ -88,7 +88,7 @@
     <!-- content display //-->
   </fieldset>
 
-  <fieldset>
+  <fieldset class="pregap">
     <legend>{lang('admin_layout_legend')}:</legend>
     <div class="pageoverflow">
       <p class="pagetext">
@@ -131,9 +131,10 @@
         <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked="checked"{/if} />
       </p>
     </div>
+  </fieldset>
 
-    <div class="pageinput pregap">
-      <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
-      <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    </div>
+  <div class="pageinput pregap">
+    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
+  </div>
 </form>
