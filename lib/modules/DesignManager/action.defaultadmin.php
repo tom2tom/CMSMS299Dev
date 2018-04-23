@@ -203,8 +203,8 @@ if( $this->CheckPermission('Manage Stylesheets') ) {
 $smarty->assign('filter_tpl_options',$opts);
 $smarty->assign('tpl_filter',$filter_tpl_rec); // used for filter form
 $smarty->assign('css_filter',$filter_css_rec); // used for filter form
-$smarty->assign('jsoncssfilter',json_encode($filter_css_rec)); // used for ajaxy stuff
-$smarty->assign('jsonfilter',json_encode($efilter)); // used for ajaxy stuff.
+$jsoncssfilter = json_encode($filter_css_rec); // used for ajaxy stuff
+$jsonfilter = json_encode($efilter); // used for ajaxy stuff
 
 $smarty->assign('has_add_right',
                 $this->CheckPermission('Modify Templates') ||
@@ -214,12 +214,12 @@ $smarty->assign('manage_stylesheets',$this->CheckPermission('Manage Stylesheets'
 $smarty->assign('manage_templates',$this->CheckPermission('Modify Templates'));
 $smarty->assign('manage_designs',$this->CheckPermission('Manage Designs'));
 $smarty->assign('import_url',$this->create_url($id,'admin_import_template'));
-$smarty->assign('admin_url',$config['admin_url']);
+$admin_url = $config['admin_url'];
 $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
 $url = $this->create_url($id,'ajax_get_templates');
-$smarty->assign('ajax_templates_url',str_replace('amp;','',$url));
+$ajax_templates_url = str_replace('amp;','',$url);
 $url = $this->create_url($id,'ajax_get_stylesheets');
-$smarty->assign('ajax_stylesheets_url',str_replace('amp;','',$url));
+$ajax_stylesheets_url = str_replace('amp;','',$url);
 
 // templates script
 $s1 = json_encode($this->Lang('confirm_steal_lock'));
