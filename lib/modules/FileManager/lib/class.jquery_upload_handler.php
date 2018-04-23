@@ -10,6 +10,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
+namespace FileManager;
+
 abstract class jquery_upload_handler
 {
     private $options;
