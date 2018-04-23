@@ -138,6 +138,8 @@ $url = $this->create_url($id,'ajax_get_content','');
 $u2 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
 $u3 = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'&cmsjobtype=1';
 
+//TODO other action-specific js e.g. nested sortable, cmsms autoRefresh widget/plugin
+//TODO flexbox css for multi-row .vbox, .hbox.flow, .boxchild
 $s1 = json_encode($this->Lang('confirm_setinactive'));
 $s2 = json_encode($this->Lang('confirm_setdefault'));
 $s3 = json_encode($this->Lang('confirm_delete_page'));
@@ -148,7 +150,7 @@ $s9 = json_encode($this->Lang('error_action_contentlocked'));
 $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
 
-$out = <<<EOS
+$js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 function cms_CMloadUrl(link, lang) {
@@ -353,19 +355,10 @@ $(document).ready(function() {
 //]]>
 </script>
 EOS;
-
-//TODO other action-specific js e.g. nested sortable, cmsms autoRefresh widget/plugin
-//TODO flexbox css for multi-row .vbox, .hbox.flow, .boxchild
-
-if (!empty($CMS_JOB_TYPE)) {
-    echo $out;
-} else {
-    $themeObject = cms_utils::get_theme_object();
-    $themeObject->add_footertext($out);
-}
+$this->AdminBottomContent($js);
 
 $pmod = $this->CheckPermission('Manage All Content');
-$opts = ($pmod) ? 
+$opts = ($pmod) ?
     ['' => $this->Lang('none'),
     'DESIGN_ID' => $this->Lang('prompt_design'),
     'TEMPLATE_ID' => $this->Lang('prompt_template'),
