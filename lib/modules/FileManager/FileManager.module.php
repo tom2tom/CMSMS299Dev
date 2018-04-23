@@ -168,7 +168,7 @@ final class FileManager extends CMSModule
 
     public function GetThumbnailLink($file,$path) {
         $config = cmsms()->GetConfig();
-        $advancedmode = filemanager_utils::check_advanced_mode();
+//        $advancedmode = FileManager\filemanager_utils::check_advanced_mode();
         $basedir = $config['root_path'];
         $baseurl = $config['root_url'];
 
