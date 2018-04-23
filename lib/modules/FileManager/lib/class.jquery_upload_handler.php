@@ -51,7 +51,7 @@ abstract class jquery_upload_handler
     private function get_file_object($file_name) {
         $file_path = $this->options['upload_dir'].$file_name;
         if (is_file($file_path) && $file_name[0] !== '.') {
-            $file = new stdClass();
+            $file = new \stdClass();
             $file->name = $file_name;
             $file->size = filesize($file_path);
             $file->url = $this->options['upload_url'].rawurlencode($file->name);
@@ -210,7 +210,7 @@ abstract class jquery_upload_handler
     protected function after_uploaded_files($fileobjects_array) {}
 
     private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
-        $file = new stdClass();
+        $file = new \stdClass();
         $file->name = $this->trim_file_name($name, $type);
         $file->size = (int)$size;
         $file->type = $type;
