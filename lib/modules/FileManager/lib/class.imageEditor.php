@@ -122,8 +122,8 @@ final class imageEditor
 	 **/
 	public static function open($path) {
 
-		$mimeType = imageEditor::getMime($path);
-		if (!$mimeType){
+		$mimeType = self::getMime($path);
+		if (!$mimeTypeimageEditor){
 			return "INVALID IMAGE TYPE";
 		}
 
