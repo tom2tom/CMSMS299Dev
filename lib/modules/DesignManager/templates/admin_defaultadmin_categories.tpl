@@ -1,30 +1,5 @@
-{if isset($list_categories)}
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $('#categorylist tbody').cmsms_sortable_table({
-    actionurl: {/literal}'{cms_action_url action="ajax_order_cats" forjs=1}&cmsjobtype=1'{literal},
-    callback: function(data) {
-      if(data.status === 'success') {
-        cms_notify('info', data.message);
-      } else if(data.status === 'error') {
-        cms_notify('error', data.message);
-      }
-    }
-  });
-  $('#categorylist a.del_cat').on('click', function(ev) {
-    ev.preventDefault();
-    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_delete_category")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
-    return false;
-  });
-});
-{/literal}//]]>
-</script>
-
-{if count($list_categories) > 1}
+{if isset($list_categories) && count($list_categories) > 1}
   <div class="pagewarn">{$mod->Lang('warning_category_dragdrop')}</div>
-{/if}
-
 {/if}{* list_categories *}
 
 <div class="pageinfo">{$mod->Lang('info_about_categories')}</div>

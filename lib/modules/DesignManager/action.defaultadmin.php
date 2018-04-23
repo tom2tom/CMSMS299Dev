@@ -221,9 +221,185 @@ $smarty->assign('ajax_templates_url',str_replace('amp;','',$url));
 $url = $this->create_url($id,'ajax_get_stylesheets');
 $smarty->assign('ajax_stylesheets_url',str_replace('amp;','',$url));
 
-echo $this->ProcessTemplate('defaultadmin.tpl');
+// templates script
+$s1 = json_encode($this->Lang('confirm_steal_lock'));
+$s2 = json_encode($this->Lang('error_contentlocked'));
+$s3 = json_encode($this->Lang('error_nothingselected'));
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  // load the templates area.
+  cms_busy();
+  $('#template_area').autoRefresh({
+    url: '$ajax_templates_url',
+    data: {
+      filter: '$jsonfilter'
+    }
+  });
+  $('#tpl_bulk_action,#tpl_bulk_submit').attr('disabled', 'disabled');
+  $('#tpl_bulk_submit').button({ 'disabled': true });
+  $('#tpl_selall,.tpl_select').on('click', function() {
+    var l = $('.tpl_select:checked').length;
+    if(l === 0) {
+      $('#tpl_bulk_action').attr('disabled', 'disabled');
+      $('#tpl_bulk_submit').attr('disabled', 'disabled');
+      $('#tpl_bulk_submit').button({ 'disabled': true });
+    } else {
+      $('#tpl_bulk_action').removeAttr('disabled');
+      $('#tpl_bulk_submit').removeAttr('disabled');
+      $('#tpl_bulk_submit').button({ 'disabled': false });
+    }
+  });
+  $('a.steal_tpl_lock').on('click', function(e) {
+    // we're gonna confirm stealing this lock
+    e.preventDefault();
+    cms_confirm_linkclick(this,$s1);
+    return false;
+  });
+  $('a.sedit_tpl').on('click', function(e) {
+    if($(this).hasClass('steal_tpl_lock')) return true;
+    // do a double check to see if this page is locked or not.
+    var tpl_id = $(this).attr('data-tpl-id');
+    var url = '{$admin_url}/ajax_lock.php?cmsjobtype=1';
+    var opts = { opt: 'check', type: 'template', oid: tpl_id };
+    opts[cms_data.secure_param_name] = cms_data.user_key;
+    $.ajax({
+      url: url,
+      data: opts,
+    }).done(function(data) {
+      if(data.status === 'success') {
+        if(data.locked) {
+          // gotta display a message.
+          ev.preventDefault();
+          cms_alert($s2);
+        }
+      }
+    });
+  });
+  $('#tpl_bulk_submit').on('click', function() {
+    var n = $('input:checkbox:checked.tpl_select').length;
+    if(n === 0) {
+      cms_alert($s3);
+      return false;
+    }
+  });
+  $('#template_area').on('click', '#edittplfilter', function() {
+    cms_dialog($('#filterdialog'), {
+      width: 'auto',
+      buttons: {
+        '{$this->Lang("submit")}': function() {
+          cms_dialog($(this), 'close');
+          $('#filterdialog_form').submit();
+        },
+        '{$this->Lang("reset")}': function() {
+          cms_dialog($(this), 'close');
+          $('#submit_filter_tpl').val('-1');
+          $('#filterdialog_form').submit();
+        },
+        '{$this->Lang("cancel")}': function() {
+          cms_dialog($(this), 'close');
+        }
+      }
+    });
+  });
+  $('#addtemplate').on('click', function() {
+    cms_dialog($('#addtemplatedialog'), {
+      width: 'auto',
+      buttons: {
+        '{$this->Lang("submit")}': function() {
+          cms_dialog($(this), 'close');
+          $('#addtemplate_form').submit();
+        },
+        '{$this->Lang("cancel")}': function() {
+          cms_dialog($(this), 'close');
+        }
+      }
+    });
+  });
+});
+EOS;
 
-#
-# EOF
-#
-?>
+//stylesheets script
+$js .= <<<EOS
+$(document).ready(function() {
+  cms_busy();
+  $('#stylesheet_area').autoRefresh({
+    url: '$ajax_stylesheets_url',
+    data: {
+      filter: '$jsoncssfilter'
+    }
+  });
+  $('#css_bulk_action,#css_bulk_submit').attr('disabled', 'disabled');
+  $('#css_bulk_submit').button({ 'disabled': true });
+  $('#css_selall,.css_select').on('click', function() {
+    // if one or more .css_select is checked, enable the bulk actions
+    var l = $('.css_select:checked').length;
+    if(l === 0) {
+      $('#css_bulk_action').attr('disabled', 'disabled');
+      $('#css_bulk_submit').attr('disabled', 'disabled');
+      $('#css_bulk_submit').button({ 'disabled': true });
+    } else {
+      $('#css_bulk_action').removeAttr('disabled');
+      $('#css_bulk_submit').removeAttr('disabled');
+      $('#css_bulk_submit').button({ 'disabled': false });
+    }
+  });
+  $('a.steal_css_lock').on('click', function(e) {
+    // we're gonna confirm stealing this lock
+    e.preventDefault();
+    cms_confirm_linkclick(this,$s1);
+    return false;
+  });
+  $('#stylesheet_area').on('click', '#editcssfilter', function() {
+    cms_dialog($('#filtercssdlg'), {
+      width: 'auto',
+      buttons: {
+        '{$this->Lang("submit")}': function() {
+          cms_dialog($(this), 'close');
+          $('#filtercssdlg_form').submit();
+        },
+        '{$this->Lang("reset")}': function() {
+          cms_dialog($(this), 'close');
+          $('#submit_filter_css').val('-1');
+          $('#filtercssdlg_form').submit();
+        },
+        '{$this->Lang("cancel")}': function() {
+          cms_dialog($(this), 'close');
+        }
+      }
+    });
+  });
+});
+EOS;
+// categories script
+if (isset($list_categories)) {
+	$yes = $this->Lang('yes');
+	$s1 = json_encode($this->Lang('confirm_delete_category'));
+	$js .= <<<EOS
+$(document).ready(function() {
+  $('#categorylist tbody').cmsms_sortable_table({
+    actionurl: '{cms_action_url action="ajax_order_cats" forjs=1}&cmsjobtype=1',
+    callback: function(data) {
+      if(data.status === 'success') {
+        cms_notify('info', data.message);
+      } else if(data.status === 'error') {
+        cms_notify('error', data.message);
+      }
+    }
+  });
+  $('#categorylist a.del_cat').on('click', function(ev) {
+    ev.preventDefault();
+    cms_confirm_linkclick(this,$s1,'$yes');
+    return false;
+  });
+});
+EOS;
+}
+$js .= <<<EOS
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
+
+echo $this->ProcessTemplate('defaultadmin.tpl');
