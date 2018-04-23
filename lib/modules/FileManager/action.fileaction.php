@@ -1,8 +1,8 @@
 <?php
-if (!function_exists("cmsms")) exit;
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 if (!isset($params["path"])) $this->Redirect($id, 'defaultadmin');
-if( !filemanager_utils::test_valid_path($params['path']) ) {
+if( !FileManager\filemanager_utils::test_valid_path($params['path']) ) {
   $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"fileoutsideuploads"));
 }
 

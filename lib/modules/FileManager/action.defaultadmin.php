@@ -1,5 +1,7 @@
 <?php
-if (!function_exists("cmsms")) exit;
+use FileManager\filemanager_utils;
+
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) exit;
 
 if (isset($params["fmmessage"]) && $params["fmmessage"]!="") {

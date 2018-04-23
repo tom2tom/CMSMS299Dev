@@ -16,7 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if (!function_exists('cmsms')) {
+use FileManager\filemanager_utils;
+
+if (!isset($gCms)) {
   exit;
 }
 
@@ -226,12 +228,119 @@ if ($countdirs == 1) {
 }
 $smarty->assign('countstext', $counts);
 $smarty->assign('formend', $this->CreateFormEnd());
+$smarty->assign('mod', $this);
+$smarty->assign('confirm_unpack', $this->Lang('confirm_unpack'));
 
 if (isset($params['noform'])) {
   $smarty->assign('noform', 1);
+} else {
+  $out = <<<EOS
+<style type="text/css">
+a.filelink:visited {
+ color:#000;
 }
-$smarty->assign('refresh_url', $this->create_url($id, 'admin_fileview', '', array('noform'=>1)));
-$smarty->assign('viewfile_url', $this->create_url($id, 'admin_fileview', '', array('ajax'=>1)));
-$smarty->assign('mod', $this);
-$smarty->assign('confirm_unpack', $this->Lang('confirm_unpack'));
+</style>
+EOS;
+  $this->AdminHeaderContent($out);
+
+  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['noform'=>1]));
+  $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1]));
+  $out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function enable_button(idlist) {
+  $(idlist).removeAttr('disabled').removeClass('ui-state-disabled ui-button-disabled');
+}
+function disable_button(idlist) {
+  $(idlist).attr('disabled', 'disabled').addClass('ui-state-disabled ui-button-disabled');
+}
+function enable_action_buttons() {
+  var files = $("#filesarea input[type='checkbox'].fileselect").filter(':checked').length,
+    dirs = $("#filesarea input[type='checkbox'].dir").filter(':checked').length,
+    arch = $("#filesarea input[type='checkbox'].archive").filter(':checked').length,
+    text = $("#filesarea input[type='checkbox'].text").filter(':checked').length,
+    imgs = $("#filesarea input[type='checkbox'].image").filter(':checked').length;
+  disable_button('button.filebtn');
+  $('button.filebtn').attr('disabled', 'disabled');
+  if(files === 0 && dirs === 0) {
+    // nothing selected, enable anything with select_none
+    enable_button('#btn_newdir');
+  } else if(files == 1) {
+    // 1 selected, enable anything with select_one
+    enable_button('#btn_rename');
+    enable_button('#btn_move');
+    enable_button('#btn_delete');
+    if(dirs === 0) enable_button('#btn_copy');
+    if(arch == 1) enable_button('#btn_unpack');
+    if(imgs == 1) enable_button('#btn_view,#btn_thumb,#btn_resizecrop,#btn_rotate');
+    if(text == 1) enable_button('#btn_view');
+  } else if(files > 1 && dirs === 0) {
+    // multiple files selected
+    enable_button('#btn_delete,#btn_copy,#btn_move');
+  } else if(files > 1 && dirs > 0) {
+    // multiple selected, at least one dir
+    enable_button('#btn_delete,#btn_move');
+  }
+}
+
+$(document).ready(function() {
+  enable_action_buttons();
+  $('#refresh').off('click').on('click', function() {
+    // ajaxy reload for the files area.
+	$('#filesarea').load('{$refresh_url}&cmsjobtype=1');
+    return false;
+  });
+  $(document).on('dropzone_chdir', $(this), function(e, data) {
+    // if change dir via the dropzone, make sure filemanager refreshes.
+    location.reload();
+  });
+  $(document).on('dropzone_stop', $(this), function(e, data) {
+    // if change dir via the dropzone, make sure filemanager refreshes.
+    location.reload();
+  });
+  $('#filesarea input[type="checkbox"].fileselect').on('change', function(e) {
+    // find the parent row
+    var t = $(this).attr('checked');
+    if(t) {
+      $(this).closest('tr').addClass('selected');
+    } else {
+      $(this).closest('tr').removeClass('selected');
+    }
+    enable_action_buttons();
+    return false;
+  });
+  $('#tagall').on('change', function() {
+    if($(this).is(':checked')) {
+      $('#filesarea input:checkbox.fileselect').attr('checked', true).trigger('change');
+    } else {
+      $('#filesarea input:checkbox.fileselect').attr('checked', false).trigger('change');
+    }
+  });
+  $('#btn_view').on('click', function() {
+    // find the selected item.
+    var tmp = $("#filesarea input[type='checkbox']").filter(':checked').val();
+    var url = '{$viewfile_url}&cmsjobtype=1&{$id}viewfile=' + tmp;
+    url = url.replace(/amp;/g, '');
+    $('#popup_contents').load(url);
+    cms_dialog($('#popup'), {
+      minWidth: 380,
+      maxHeight: 600
+    });
+    return false;
+  });
+  $('td.clickable').on('click', function() {
+    var t = $(this).parent().find(':checkbox').attr('checked');
+    if(t !== 'checked') {
+      $(this).parent().find(':checkbox').attr('checked', true).trigger('change');
+    } else {
+      $(this).parent().find(':checkbox').attr('checked', false).trigger('change');
+    }
+  });
+});
+//]]>
+</script>
+EOS;
+  $this->AdminBottomContent($out);
+}
+
 echo $this->ProcessTemplate('filemanager.tpl');

@@ -1,5 +1,7 @@
 <?php
-if (!function_exists("cmsms")) exit;
+use FileManager\filemanager_utils;
+
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) return;
 
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {

@@ -1,5 +1,7 @@
 <?php
-if (!function_exists("cmsms")) exit;
+use FileManager\filemanager_utils;
+
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 
 class FileManagerUploadHandler extends jquery_upload_handler

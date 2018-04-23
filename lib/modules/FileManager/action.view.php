@@ -1,6 +1,7 @@
 <?php
-if (!function_exists("cmsms")) exit;
+use FileManager\filemanager_utils;
 
+if (!isset($gCms)) exit;
 if( !isset($params['file']) ) {
     $params["fmerror"]="nofilesselected";
     $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -19,7 +20,7 @@ $mimetype = filemanager_utils::mime_content_type($src);
 
 $handlers = ob_list_handlers();
 for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Expires: Mon, 26 Jul 2027 05:00:00 GMT");
 header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
 header("Cache-Control: no-store, no-cache, must-revalidate");
 header("Cache-Control: post-check=0, pre-check=0", false);

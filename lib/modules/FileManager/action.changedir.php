@@ -1,5 +1,7 @@
 <?php
-if (!function_exists("cmsms")) exit;
+use FileManager\filemanager_utils;
+
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 
 if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['cmsjobtype']) && $_GET['cmsjobtype'] > 0 ) {

@@ -17,8 +17,10 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-if (!function_exists("cmsms")) exit;
+
+use FileManager\filemanager_utils;
+
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 
 if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
