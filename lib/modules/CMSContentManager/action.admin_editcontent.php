@@ -322,7 +322,7 @@ $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
 $options_tab_name = $content_obj::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
 
-$out = <<<EOS
+$js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
@@ -362,7 +362,7 @@ $(document).ready(function() {
 EOS;
 
 if ($preview_url) {
-    $out .= <<<EOS
+    $js .= <<<EOS
   $('#_preview_').on('click', function() {
     if (typeof tinyMCE !== 'undefined') tinyMCE.triggerSave();
     // serialize the form data
@@ -394,7 +394,7 @@ if ($preview_url) {
 
 EOS;
 }
-    $out .= <<<EOS
+    $js .= <<<EOS
   // submit the form if disable wysiwyg, template id, and/or content-type fields are changed.
   $('#id_disablewysiwyg, #template_id, #content_type').on('change', function() {
     // disable the dirty form stuff, and unlock because we're gonna relockit on reload.
@@ -484,7 +484,7 @@ EOS;
 EOS;
 if ($designchanged_ajax_url) {
     $msg = json_encode($this->Lang('warn_notemplates_for_design'));
-    $out .= <<<EOS
+    $js .= <<<EOS
   $('#design_id').change(function(e, edata) {
     var v = $(this).val();
     var lastValue = $(this).data('lastValue');
@@ -527,18 +527,12 @@ if ($designchanged_ajax_url) {
 
 EOS;
 }
-    $out .= <<<EOS
+    $js .= <<<EOS
 });
 //]]>
 </script>
 EOS;
-
-if (!empty($CMS_JOB_TYPE)) {
-    echo $out;
-} else {
-	$themeObject = cms_utils::get_theme_object();
-	$themeObject->add_footertext($out);
-}
+$this->AdminBottomContent($js);
 
 $smarty->assign('active_tab',$active_tab);
 $smarty->assign('content_id',$content_id);
