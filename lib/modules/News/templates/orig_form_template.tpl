@@ -1,3 +1,17 @@
+<script type="text/javascript">
+{literal}//<![CDATA[
+$(document).ready(function() {
+  var max = 0,
+    $lbls = $('label.boxchild');
+  $lbls.each(function() {
+    var w = $(this).width();
+    if (w > max) max = w;
+  });
+  $lbls.width(max);
+});
+{/literal}//]]>
+</script>
+
 {* original form template *}
 <h3>{$mod->Lang('title_fesubmit_form')}</h3>
 
@@ -10,18 +24,18 @@
 {form_start category_id=$category_id}
  <div class="vbox">
   <div class="hbox flow">
-    <div class="boxchild"><label for="news_title">*{$mod->Lang('title')}:</label></div>
-    <div class="boxchild fill"><input id="news_title" type="text" name="{$actionid}title" value="{$title}" size="30" required /></div>
+    <label class="boxchild" for="news_title">*{$mod->Lang('title')}:</label>
+    <input type="text" class="boxchild fill" id="news_title" name="{$actionid}title" value="{$title}" size="30" required />
   </div>
   <div class="hbox flow">
-    <div class="boxchild"><label for="news_category">{$mod->Lang('category')}:</label></div>
-    <div class="boxchild fill"><select id="news_category" name="{$actionid}input_category">
+    <label class="boxchild" for="news_category">{$mod->Lang('category')}:</label>
+    <select class="boxchild fill" id="news_category" name="{$actionid}input_category">
       {html_options options=$categorylist selected=$category_id}
-    </select></div>
+    </select>
   </div>
 {if empty($hide_summary_field)}
   <div class="hbox flow">
-    <div class="boxchild"><label for="news_summary">{$mod->Lang('summary')}:</label></div>
+    <label class="boxchild" for="news_summary">{$mod->Lang('summary')}:</label>
     <div class="boxchild fill">
       {$tmp=$actionid|cat:'summary'}
       {cms_textarea enablewysiwyg=true id=news_summary name=$tmp value=$summary required=true}
@@ -29,18 +43,18 @@
   </div>
 {/if}
   <div class="hbox flow">
-    <div class="boxchild"><label for="news_content">*{$mod->Lang('content')}:</label></div>
+    <label class="boxchild" for="news_content">*{$mod->Lang('content')}:</label>
     <div class="boxchild fill">
       {$tmp=$actionid|cat:'content'}
       {cms_textarea enablewysiwyg=true id=news_content name=$tmp value=$content required=true}
     </div>
   </div>
   <div class="hbox flow">
-    <div class="boxchild"><label for="news_extra">{$mod->Lang('extra')}:</label></div>
-    <div class="boxchild fill"><input id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" /></div>
+    <label class="boxchild" for="news_extra">{$mod->Lang('extra')}:</label>
+    <input class="boxchild fill" id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" />
   </div>
   <div class="hbox flow">
-    <div class="boxchild">{$mod->Lang('startdate')}:</div>
+    <label class="boxchild">{$mod->Lang('startdate')}:</label>
     <div class="boxchild fill">
       {$tmp=$actionid|cat:'startdate_'}
       {html_select_date prefix=$tmp time=$startdate end_year="+15"}
@@ -48,7 +62,7 @@
     </div>
   </div>
   <div class="hbox flow">
-    <div class="boxchild">{$mod->Lang('enddate')}:</div>
+    <label class="boxchild">{$mod->Lang('enddate')}:</label>
     <div class="boxchild fill">
       {$tmp=$actionid|cat:'enddate_'}
       {html_select_date prefix=$tmp time=$enddate end_year="+15"}
@@ -57,7 +71,7 @@
   </div>
   {if isset($customfields)}{foreach $customfields as $field}
    <div class="hbox flow">
-    <div class="boxchild"><label for="news_fld_{$field->id}">{$field->name}:</label></div>
+    <label class="boxchild" for="news_fld_{$field->id}">{$field->name}:</label>
     <div class="boxchild fill">
     {if $field->type == 'file'}
       <input id="news_fld_{$field->id}" type="file" name="{$actionid}news_customfield_{$field->id}"/>
@@ -71,7 +85,7 @@
       <input id="news_fld_{$field->id}" type="text" name="{$actionid}news_customfield_{$field->id}" maxlength="{$field->max_length}"/>
     {/if}
     </div>
-  </div>
+   </div>
   {/foreach}{/if}
  </div>{*.vbox*}
  <div class="pageinput pregap">
