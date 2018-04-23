@@ -1,5 +1,6 @@
 <?php
 use FileManager\filemanager_utils;
+use FileManager\imageEditor;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
