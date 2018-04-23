@@ -1,27 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $('#reseturl').on('click', function(ev) {
-    ev.preventDefault();
-    var form = $(this).closest('form');
-    cms_confirm({/literal}'{$mod->Lang("confirm_reseturl")|escape:"javascript"}'{literal}).done(function() {
-      $('#inp_reset').val(1);
-      form.submit();
-    });
-    return false;
-  });
-  $('#settings_submit').on('click', function(ev) {
-    ev.preventDefault();
-    var form = $(this).closest('form');
-    cms_confirm({/literal}'{$mod->Lang("confirm_settings")|escape:"javascript"}{literal}').done(function() {
-      form.submit();
-    });
-    return false;
-  });
-});
-{/literal}//]]>
-</script>
-
 {if isset($message)}<p>{$message}</p>{/if}
 
 {form_start action='setprefs'}

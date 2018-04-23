@@ -1,16 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2008 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# ModuleManager module action: defaultadmin - preferences-tab populator
+# Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,9 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 if (!isset($gCms)) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
@@ -38,9 +27,34 @@ $smarty->assign('dl_chunksize',$this->GetPreference('dl_chunksize',256));
 $smarty->assign('latestdepends',$this->GetPreference('latestdepends',1));
 $smarty->assign('allowuninstall',$this->GetPreference('allowuninstall',0));
 
-echo $this->ProcessTemplate('adminprefs.tpl');
+$s1 = json_encode($this->Lang('confirm_reseturl'));
+$s2 = json_encode($this->Lang('confirm_settings'));
 
-#
-# EOF
-#
-?>
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  $('#reseturl').on('click', function(ev) {
+    ev.preventDefault();
+    var form = $(this).closest('form');
+    cms_confirm($s1).done(function() {
+      $('#inp_reset').val(1);
+      form.submit();
+    });
+    return false;
+  });
+  $('#settings_submit').on('click', function(ev) {
+    ev.preventDefault();
+    var form = $(this).closest('form');
+    cms_confirm($s2).done(function() {
+      form.submit();
+    });
+    return false;
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
+
+echo $this->ProcessTemplate('adminprefs.tpl');
