@@ -96,11 +96,67 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
     }
 }
 
-/*
-//custom requirements TODO generalise e.g. footer hookfunction
-cms_utils::get_theme_object()->add_footertext(
-'<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/js/jquery.mjs.nestedSortable.min.js"></script>'."\n");
-*/
+//custom requirements TODO
+$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/js/jquery.mjs.nestedSortable.min.js"></script>'."\n");
+
+$msg = json_encode($this->Lang('confirm_reorder'));
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function parseTree(ul) {
+  var tags = [];
+  ul.children('li').each(function() {
+    var subtree = $(this).children('ul');
+    tags.push($(this).attr('id'));
+    if (subtree.size() > 0) {
+      tags.push(parseTree(subtree));
+    }
+  });
+  return tags;
+}
+
+$(document).ready(function() {
+  $('#btn_submit').on('click', function(ev) {
+    ev.preventDefault();
+    var form = $(this).closest('form');
+    cms_confirm($msg).done(function() {
+      var tree = JSON.stringify(parseTree($('#masterlist'))); //IE8+
+      $('#orderlist').val(tree);
+      form.submit();
+    });
+  });
+
+  $('.haschildren').on('click', function(ev) {
+    ev.preventDefault();
+    var list = $(this).closest('div.label').next('ul');
+    if ($(this).hasClass('expanded')) {
+      // currently expanded, now collapse
+      list.hide();
+      $(this).removeClass('expanded').addClass('collapsed').text('+');
+    } else {
+      // currently collapsed, now expand
+      list.show();
+      $(this).removeClass('collapsed').addClass('expanded').text('-');
+    }
+  });
+
+  $('ul.sortable').nestedSortable({
+    disableNesting: 'no-nest',
+    forcePlaceholderSize: true,
+    handle: 'div',
+    items: 'li',
+    opacity: 0.6,
+    placeholder: 'placeholder',
+    tabSize: 20,
+    tolerance: 'pointer',
+    listType: 'ul',
+    toleranceElement: '> div'
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
 
 $tree = $gCms->GetHierarchyManager();
 $smarty->assign('tree',$tree);
