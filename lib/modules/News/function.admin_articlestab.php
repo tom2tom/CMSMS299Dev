@@ -236,15 +236,64 @@ $smarty->assign('filtertext',$this->Lang('title_filter'));
 $smarty->assign('statustext',$this->Lang('status'));
 $smarty->assign('startdatetext',$this->Lang('startdate'));
 $smarty->assign('enddatetext',$this->Lang('enddate'));
-$smarty->assign('titletext', $this->Lang('title'));
-$smarty->assign('postdatetext', $this->Lang('postdate'));
-$smarty->assign('categorytext', $this->Lang('category'));
+$smarty->assign('titletext',$this->Lang('title'));
+$smarty->assign('postdatetext',$this->Lang('postdate'));
+$smarty->assign('categorytext',$this->Lang('category'));
 
 $config = $this->GetConfig();
 $themedir = $config['admin_url'].'/themes/'.$admintheme->themeName.'/images/icons/system';
-
 $smarty->assign('iconurl',$themedir);
 
+$yes = $this->Lang('yes');
+$s1 = json_encode($this->Lang('areyousure'));
+$s2 = json_encode($this->Lang('areyousure_multiple'));
+
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  $('#bulkactions').hide();
+  $('#bulk_category').hide();
+  $('#selall').cmsms_checkall();
+  $('#toggle_filter').on('click', function() {
+    cms_dialog($('#filter'), {
+      width: 'auto',
+      modal: true
+    });
+  });
+  $('a.delete_article').on('click', function(ev) {
+    ev.preventDefault();
+    cms_confirm_linkclick(this,$s1,'$yes');
+    return false;
+  });
+  $('#articlelist [type=checkbox]').on('cms_checkall_toggle', function() {
+    var l = $('#articlelist :checked').length;
+    if(l === 0) {
+      $('#bulkactions').hide(50);
+    } else {
+      $('#bulkactions').show(50);
+    }
+  });
+  $('#bulk_action').on('change', function() {
+    var v = $(this).val();
+    if(v === 'setcategory') {
+      $('#bulk_category').show(50);
+    } else {
+      $('#bulk_category').hide(50);
+    }
+  });
+  $('#bulkactions #submit_bulkaction').on('click', function(ev) {
+    var form = $(this).closest('form');
+    ev.preventDefault();
+    cms_confirm($s2,'$yes').done(function() {
+      form.submit();
+    });
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
 //TODO ensure flexbox css for .hbox.expand, .boxchild
 
 #Display template
