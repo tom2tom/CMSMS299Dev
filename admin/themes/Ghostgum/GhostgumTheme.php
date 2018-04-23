@@ -71,11 +71,12 @@ EOS;
 
 EOS;
 		}
+//TODO generalise jquery-ui-*css
 		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$script_url}/css/smoothness/jquery-ui-1.11.4.custom.min.css" />
+<link rel="stylesheet" type="text/css" href="{$script_url}/css/smoothness/jquery-ui-1.12.1.min.css" />
 <!--[if lt IE 9]>
 <!-- old IE html5 support -->
-<script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <![endif]-->
 EOS;
 //<script type="text/javascript" src="{$script_url}/js/jquery.toast.js"></script> this is now in cms_get_jquery()
@@ -221,7 +222,7 @@ EOS;
 		$out .= <<<EOS
 <!--[if lt IE 9]>
 <!-- html5 for old IE -->
-<script type="text/javascript" src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <![endif]-->
 
 EOS;
@@ -282,7 +283,7 @@ EOS;
 		$smarty->assign('pagetitle', $title);
 		$smarty->assign('subtitle', $this->subtitle);
 //		$alias = $this->get_value(??) else munge CHECKME
-		$smarty->assign('pagealias', munge_string_to_url($title));
+//		$smarty->assign('pagealias', munge_string_to_url($title));
 
 		// module name, if any
 		if (isset($_REQUEST['module'])) {
