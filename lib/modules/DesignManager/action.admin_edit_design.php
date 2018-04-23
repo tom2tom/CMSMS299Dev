@@ -89,12 +89,12 @@ try {
         \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_design'));
     }
 
-    $smarty->assign('manage_stylesheets',$this->CheckPermission('Manage Stylesheets'));
-    $smarty->assign('manage_templates',$this->CheckPermission('Modify Templates'));
+    $manage_stylesheets = $this->CheckPermission('Manage Stylesheets');
+    $manage_templates = $this->CheckPermission('Modify Templates');
     $smarty->assign('design',$design);
 
 //TODO ensure flexbox css for .hbox.expand, .boxchild
-
+	//designs tab
 /*
 function save_design() {
   var form = $('#admin_edit_design');
@@ -107,8 +107,7 @@ function save_design() {
   });
 }
 */
-	//TODO js into page bottom
-    $js = <<<EOS
+    $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 var __changed = 0;
@@ -129,9 +128,303 @@ $(document).ready(function() {
     $('select.selall option').attr('selected','selected');
   });
 });
+EOS;
+	$this->AdminBottomContent($out);
+
+// stylesheets tab
+/* TODO conform to theme, if used
+	$out = <<<EOS
+<style type="text/css">
+#available-stylesheets li.selected {
+ background-color: #147fdb;
+}
+#available-stylesheets li:focus {
+ color: #147fdb;
+}
+#selected-stylesheets li a:focus {
+ color: #147fdb;
+}
+#selected-stylesheets a.ui-icon+a:focus {
+ border: 2px solid #147fdb;
+}
+</style>
+EOS;
+	$this->AdminTopContent($out);
+*/
+
+    $out = <<<EOS
+$(document).ready(function() {
+  var _edit_url = '{cms_action_url action=admin_edit_css css=xxxx forjs=1}';
+  $('ul.sortable-stylesheets').sortable({
+    connectWith: '#selected-stylesheets ul',
+    delay: 150,
+    revert: true,
+    placeholder: 'ui-state-highlight',
+    items: 'li:not(.placeholder)',
+    helper: function(event, ui) {
+      if(!ui.hasClass('selected')) {
+        ui.addClass('selected').siblings().removeClass('selected');
+      }
+      var elements = ui.parent().children('.selected').clone(),
+        helper = $('<li/>');
+      ui.data('multidrag', elements).siblings('.selected').remove();
+      return helper.append(elements);
+    },
+    stop: function(event, ui) {
+      var elements = ui.item.data('multidrag');
+      ui.item.after(elements).remove();
+    },
+    receive: function(event, ui) {
+      var elements = ui.item.data('multidrag');
+      $('.sortable-stylesheets .placeholder').hide();
+      $(elements).removeClass('selected ui-state-hover')
+        .append($('<a href="#"/>')
+        .addClass('ui-icon ui-icon-trash sortable-remove')
+        .text('{$mod->Lang("remove")}'))
+        .find('input[type="checkbox"]')
+        .attr('checked', true);
+    }
+  });
+  $('#available-stylesheets li').on('click', function(ev) {
+    $(this).focus();
+  });
+  $('#selected-stylesheets li').on('click', function(ev) {
+    $('a:first', this).focus();
+  });
+  $('#available-stylesheets li').on('keyup', function(ev) {
+    if(ev.keyCode === $.ui.keyCode.ESCAPE) {
+      // escape
+      $('#selected-stylesheets li').removeClass('selected');
+      ev.preventDefault();
+    } else if(ev.keyCode === $.ui.keyCode.SPACE || ev.keyCode === 107) {
+      // spacebar or plus
+      ev.preventDefault();
+      $(this).toggleClass('selected ui-state-hover');
+      find_sortable_focus(this);
+    } else if(ev.keyCode == 39) {
+      // right arrow
+      ev.preventDefault();
+      $('#available-stylesheets li.selected').each(function() {
+        $(this).removeClass('selected ui-state-hover');
+        var _css_id = $(this).data('cmsms-item-id');
+        var _url = _edit_url.replace('xxx', _css_id);
+        var _text = $(this).text().trim();
+        var _el = $(this).clone();
+        var _a = $('<a/>')
+          .attr('href', _url)
+          .text(_text)
+          .addClass('edit_css unsaved')
+          .attr('title', '{$this->Lang("edit_stylesheet")}');
+        $('span', _el).remove();
+        $(_el).append(_a);
+        $(_el).removeClass('selected ui-state-hover')
+          .attr('tabindex', -1)
+          .addClass('unsaved no-sort')
+          .append($('<a href="#"/>')
+          .addClass('ui-icon ui-icon-trash sortable-remove')
+          .text('{$this->Lang("remove")}')
+          .attr('title', '{$this->Lang("remove")}'))
+          .find('input[type="checkbox"]')
+          .attr('checked', true);
+        $('#selected-stylesheets > ul').append(_el);
+        $(this).remove();
+        set_changed();
+        // set focus somewhere
+        find_sortable_focus(this);
+      });
+    }
+  });
+  $('#selected-stylesheets .sortable-remove').on('click', function(e) {
+    e.preventDefault();
+    set_changed();
+    $(this).next('input[type="checkbox"]').attr('checked', false);
+    $(this).parent('li').appendTo('#available-stylesheets ul');
+    $(this).remove();
+  });
+  $('a.edit_css').on('click', function(ev) {
+    if(__changed) {
+      ev.preventDefault();
+      var el = this;
+      cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
+        // save and redirect
+        save_design().done(function() {
+          window.location = $(el).attr('href');
+        });
+      });
+      return false;
+    }
+  });
+});
+EOS;
+	$this->AdminBottomContent($out);
+
+// templates tab
+/* TODO conform to theme, if used
+	$out = <<<EOS
+<style type="text/css">
+#available-templates li.selected {
+ background-color: #147fdb;
+}
+#template_sel li:focus {
+ color: #147fdb;
+}
+#template_sel li a:focus {
+ color: #147fdb;
+}
+#template_sel a.ui-icon+a:focus {
+ border: 2px solid #147fdb;
+}
+</style>
+EOS;
+	$this->AdminTopContent($out);
+*/
+    $out = <<<EOS
+function find_sortable_focus(in_e) {
+  var _list = $(':tabbable');
+  var _idx = _list.index(in_e);
+  var _out_e = _list.eq(_idx + 1).length ? _list.eq(_idx + 1) : _list.eq(0);
+  _out_e.focus();
+}
+
+$(document).ready(function() {
+  var _edit_url = '{cms_action_url action=admin_edit_template tpl=xxxx forjs=1}';
+  $('ul.sortable-templates').sortable({
+    connectWith: '#selected-templates ul',
+    delay: 150,
+    revert: true,
+    placeholder: 'ui-state-highlight',
+    items: 'li:not(.no-sort)',
+    helper: function(event, ui) {
+      if(!ui.hasClass('selected')) {
+        ui.addClass('selected').siblings().removeClass('selected');
+      }
+      var elements = ui.parent().children('.selected').clone(),
+        helper = $('<li/>');
+      ui.data('multidrag', elements).siblings('.selected').remove();
+      return helper.append(elements);
+    },
+    stop: function(event, ui) {
+      var elements = ui.item.data('multidrag');
+      ui.item.after(elements).remove();
+    },
+    receive: function(event, ui) {
+      var elements = ui.item.data('multidrag');
+      $('.sortable-templates .placeholder').hide();
+      $(elements).each(function() {
+        var _tpl_id = $(this).data('cmsms-item-id');
+        var _url = _edit_url.replace('xxxx', _tpl_id);
+        var _text = $(this).text().trim();
+        var _e;
+        if($manage_templates) {
+          _e = $('<a/>').attr('href', _url)
+            .text(_text)
+            .addClass('edit_tpl unsaved')
+            .attr('title', '{$this->Lang("edit_template")}');
+        } else {
+          _e = $('<span/>').text(_text);
+        }
+        $('span', this).remove();
+        $(this).append(_e);
+        $(this).removeClass('selected ui-state-hover')
+          .attr('tabindex', -1)
+          .addClass('unsaved no-sort')
+          .append($('<a href="#"/>')
+          .addClass('ui-icon ui-icon-trash sortable-remove')
+          .text('{$this->Lang("remove")}'))
+          .find('input[type="checkbox"]')
+          .attr('checked', true);
+      });
+      set_changed();
+    }
+  });
+  $('#available-templates li').on('click', function(ev) {
+    $(this).focus();
+  });
+  $('#selected-templates li').on('click', function(ev) {
+    $('a:first', this).focus();
+  });
+  $('#available-templates li').on('keyup', function(ev) {
+    if(ev.keyCode === $.ui.keyCode.ESCAPE) {
+      // escape
+      $('#available-templates li').removeClass('selected');
+      ev.preventDefault();
+    }
+    if(ev.keyCode === $.ui.keyCode.SPACE || ev.keyCode === 107) {
+      // spacebar or plus
+      console.debug('selected');
+      ev.preventDefault();
+      $(this).toggleClass('selected ui-state-hover');
+      find_sortable_focus(this);
+    } else if(ev.keyCode === 39) {
+      // right arrow.
+      $('#available-templates li.selected').each(function() {
+        $(this).removeClass('selected');
+        var _tpl_id = $(this).data('cmsms-item-id');
+        var _url = _edit_url.replace('xxxx', _tpl_id);
+        var _text = $(this).text().trim();
+        var _el = $(this).clone();
+        var _a;
+        if($manage_templates) {
+          _a = $('<a/>')
+            .attr('href', _url)
+            .text(_text)
+            .addClass('edit_tpl unsaved')
+            .attr('title', '{$this->Lang("edit_template")}');
+        } else {
+          _a = $('<span/>').text(_text);
+        }
+        $('span', _el).remove();
+        $(_el).append(_a);
+        $(_el).removeClass('selected ui-state-hover')
+          .attr('tabindex', -1)
+          .addClass('unsaved no-sort')
+          .append($('<a href="#"/>')
+          .addClass('ui-icon ui-icon-trash sortable-remove')
+          .text('{$this->Lang("remove")}')
+          .attr('title', '{$this->Lang("remove")}'))
+          .find('input[type="checkbox"]')
+          .attr('checked', true);
+        $('#selected-templates > ul').append(_el);
+        $(this).remove();
+        set_changed();
+        // set focus somewhere
+        find_sortable_focus(this);
+      });
+      console.debug('got arrow');
+    }
+  });
+  $('#selected-templates .sortable-remove').on('click', function(e) {
+    // click on remove icon
+    e.preventDefault();
+    set_changed();
+    $(this).next('input[type="checkbox"]').attr('checked', false);
+    $(this).parent('li').removeClass('no-sort').appendTo('#available-templates ul');
+    $(this).remove();
+  });
+  $('a.edit_tpl').on('click', function(ev) {
+    if(__changed) {
+      ev.preventDefault();
+      var el = this;
+      cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
+        // save and redirect
+        save_design().done(function() {
+          window.location = $(el).attr('href');
+        });
+      });
+      return false;
+    }
+    // normal default link behavior.
+  });
+});
+EOS;
+	$this->AdminBottomContent($out);
+
+    $out = <<<EOS
 //]]>
 </script>
 EOS;
+	$this->AdminBottomContent($out);
+
     echo $this->ProcessTemplate('admin_edit_design.tpl');
 }
 catch( CmsException $e ) {
