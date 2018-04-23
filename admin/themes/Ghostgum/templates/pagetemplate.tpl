@@ -18,7 +18,7 @@
   {$header_includes|default:''}
 </head>
 
-<body lang="{$lang|truncate:'2':''}" id="{$pagetitle|md5}" class="pg_{$pagealias}">
+<body>
   <!-- start header -->
   <div id="ggp_header">
      <div id="site-logo">
@@ -84,8 +84,8 @@
    <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_navhead">
      <li class="nav">
-      <a href="javascript:clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}"></a>
-      <span class="open-nav" title="{lang('close')}" onclick="clickSidebar();">&nbsp;</span>
+      <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}"></a>
+      <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
      </li>
     </div>
     <div id="ggp_nav">
