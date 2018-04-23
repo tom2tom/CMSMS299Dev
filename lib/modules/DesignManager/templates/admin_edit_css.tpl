@@ -1,93 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  var do_locking = {/literal}{if $css_id > 0 && isset($lock_timeout) && $lock_timeout > 0}1{else}0{/if}{literal};
-  $('#form_editcss').dirtyForm({
-    beforeUnload: function() {
-      if(do_locking) $('#form_editcss').lockManager('unlock');
-    },
-    unloadCancel: function() {
-      if(do_locking) $('#form_editcss').lockManager('relock');
-    }
-  });
-  // initialize lock manager
-  if(do_locking) {
-    $('#form_editcss').lockManager({
-      type: 'stylesheet',
-      oid: {/literal}{$css_id}{literal},
-      uid: {/literal}{get_userid(false)}{literal},
-      lock_timeout: {/literal}{$lock_timeout|default:0}{literal},
-      lock_refresh: {/literal}{$lock_refresh|default:0}{literal},
-      error_handler: function(err) {
-        cms_alert('got error ' + err.type + ' // ' + err.msg);
-      },
-      lostlock_handler: function(err) {
-        // we lost the lock on this stylesheet... make sure we can't save anything.
-        // and display a nice message.
-        console.debug('lost lock handler');
-        $('[name$=cancel]').fadeOut().attr('value', {/literal}'{$mod->Lang("cancel")}'{literal}).fadeIn();
-        $('#form_editcss').dirtyForm('option', 'dirty', false);
-        $('#submitbtn, #applybtn').attr('disabled', 'disabled');
-        $('#submitbtn, #applybtn').button({ 'disabled': true });
-        $('.lock-warning').removeClass('hidden-item');
-        cms_alert({/literal}'{$mod->Lang("msg_lostlock")|escape:"javascript"}'{literal});
-      }
-    });
-  }
-  $(document).on('cmsms_textchange', function() {
-    // editor textchange, set the form dirty.
-    $('#form_editcss').dirtyForm('option', 'dirty', true);
-  });
-  $('[name$=apply],[name$=submit]').on('click', function() {
-    $('#form_editcss').dirtyForm('option', 'dirty', false);
-  });
-  $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(e) {
-    if(!do_locking) return;
-    e.preventDefault();
-    // unlock the item, and submit the form
-    var self = this;
-    var form = $(this).closest('form');
-    $('#form_editcss').lockManager('unlock').done(function() {
-      var el = $('<input type="hidden" />');
-      el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
-      form.submit();
-    });
-    return false;
-  });
-  $('#applybtn').on('click', function(e) {
-    e.preventDefault();
-    var url = $('#form_editcss').attr('action') + '?cmsjobtype=1&m1_apply=1',
-      data = $('#form_editcss').serializeArray();
-    $.post(url, data, function(data, textStatus, jqXHR) {
-      if(data.status === 'success') {
-        cms_notify('info', data.message);
-      } else {
-        cms_notify('error', data.message);
-      }
-    });
-    return false;
-  });
-  // disabling Media Type checkboxes if Media query is in use
-  if($('#mediaquery').val() !== '') {
-    $('.media-type :checkbox').attr({
-      disabled: 'disabled',
-      checked: false
-    });
-  }
-  $('#mediaquery').on('keyup', function(e) {
-    if($('#mediaquery').val() !== '') {
-      $('.media-type :checkbox').attr({
-        disabled: 'disabled',
-        checked: false
-      });
-    } else {
-      $('.media-type:checkbox').removeAttr('disabled');
-    }
-  });
-});
-{/literal}
-</script>
-
 {$get_lock = $css->get_lock()}
 {capture assign='disable'}
   {if isset($get_lock) && ({get_userid(false)} != $get_lock.uid)}disabled="disabled"{/if}
@@ -106,7 +16,7 @@ $(document).ready(function() {
 {/if}
 
 {form_start id='form_editcss' extraparms=$extraparms}
-<fieldset class="cf">
+<fieldset>
 <div class="hbox flow">
  <div class="boxchild">
   <div class="pageinput postgap">

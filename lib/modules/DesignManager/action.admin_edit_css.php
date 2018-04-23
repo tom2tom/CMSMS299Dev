@@ -103,8 +103,8 @@ try {
     // prepare to display.
     //
     if (!$apply && $css_ob && $css_ob->get_id() && dm_utils::locking_enabled()) {
-        $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
-        $smarty->assign('lock_refresh', $this->GetPreference('lock_refresh'));
+//        $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
+//        $smarty->assign('lock_refresh', $this->GetPreference('lock_refresh'));
         try {
             $lock_id = CmsLockOperations::is_locked('stylesheet', $css_ob->get_id());
             $lock = null;
@@ -152,14 +152,104 @@ try {
     $smarty->assign('css', $css_ob);
     if ($css_ob && $css_ob->get_id()) $smarty->assign('css_id', $css_ob->get_id());
 
-//TODO ensure flexbox css for .hbox, .boxchild
+    //TODO ensure flexbox css for .hbox, .boxchild
+	$lock_timeout = $this->GetPreference('lock_timeout');
+    $do_locking = ($css_id > 0 && $lock_timeout > 0) ? 1 : 0;
+	$lock_refresh = $this->GetPreference('lock_refresh');
+	$msg = json_encode($this->Lang('msg_lostlock'));
+	$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  $('#form_editcss').dirtyForm({
+    beforeUnload: function() {
+      if($do_locking) $('#form_editcss').lockManager('unlock');
+    },
+    unloadCancel: function() {
+      if($do_locking) $('#form_editcss').lockManager('relock');
+    }
+  });
+  // initialize lock manager
+  if($do_locking) {
+    $('#form_editcss').lockManager({
+      type: 'stylesheet',
+      oid: $css_id,
+      uid: {get_userid(false)},
+      lock_timeout: $lock_timeout,
+      lock_refresh: $lock_refresh,
+      error_handler: function(err) {
+        cms_alert('got error ' + err.type + ' // ' + err.msg);
+      },
+      lostlock_handler: function(err) {
+        // we lost the lock on this stylesheet... make sure we can't save anything.
+        // and display a nice message.
+        console.debug('lost lock handler');
+        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang("cancel")}').fadeIn();
+        $('#form_editcss').dirtyForm('option', 'dirty', false);
+        $('#submitbtn, #applybtn').attr('disabled', 'disabled');
+        $('#submitbtn, #applybtn').button({ 'disabled': true });
+        $('.lock-warning').removeClass('hidden-item');
+        cms_alert($msg);
+      }
+    });
+  }
+  $(document).on('cmsms_textchange', function() {
+    // editor textchange, set the form dirty.
+    $('#form_editcss').dirtyForm('option', 'dirty', true);
+  });
+  $('[name$=apply],[name$=submit]').on('click', function() {
+    $('#form_editcss').dirtyForm('option', 'dirty', false);
+  });
+  $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(e) {
+    if(!$do_locking) return;
+    e.preventDefault();
+    // unlock the item, and submit the form
+    var self = this;
+    var form = $(this).closest('form');
+    $('#form_editcss').lockManager('unlock').done(function() {
+      var el = $('<input type="hidden" />');
+      el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
+      form.submit();
+    });
+    return false;
+  });
+  $('#applybtn').on('click', function(e) {
+    e.preventDefault();
+    var url = $('#form_editcss').attr('action') + '?cmsjobtype=1&{$id}apply=1',
+      data = $('#form_editcss').serializeArray();
+    $.post(url, data, function(data, textStatus, jqXHR) {
+      if(data.status === 'success') {
+        cms_notify('info', data.message);
+      } else {
+        cms_notify('error', data.message);
+      }
+    });
+    return false;
+  });
+  // disabling Media Type checkboxes if Media query is in use
+  if($('#mediaquery').val() !== '') {
+    $('.media-type :checkbox').attr({
+      disabled: 'disabled',
+      checked: false
+    });
+  }
+  $('#mediaquery').on('keyup', function(e) {
+    if($('#mediaquery').val() !== '') {
+      $('.media-type :checkbox').attr({
+        disabled: 'disabled',
+        checked: false
+      });
+    } else {
+      $('.media-type:checkbox').removeAttr('disabled');
+    }
+  });
+});
+</script>
+EOS;
+    $this->AdminBottomContent($js);
 
     echo $this->ProcessTemplate('admin_edit_css.tpl');
 } catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#
