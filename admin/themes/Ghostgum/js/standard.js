@@ -6,37 +6,36 @@ License: GPL2+
 /**
  * @package CMS Made Simple
  * @description CMSMS theme functions - tailored for Ghostgum theme
- * @author Goran Ilic - uniqu3 <ja@ich-mach-das.at>
- * Updates since 2012 by the CMSMS Dev Team
  * NOTE includes a hardcoded url for an external cookie processor, and viewport width-threshold
  */
  /*jslint nomen: true , devel: true*/
 
 var cookie_handler = 'themes/assets/js/js-cookie.min.js',
-    small_width = 992, // viewport-width threshold
+    small_width = 992, // viewport-width threshold related to sidebar display
     $container, // outer container
     $menucontainer, // nav menu container
-    $menu; // nav menu
+    $menu, // nav menu
+    ggjs = {};
 
 $(document).ready(function() {
     $container = $('#ggp_container');
     $menucontainer = $container.find('#ggp_navwrap');
     $menu = $menucontainer.find('#ggp_nav');
 
-    view_init();
-    helper_init();
+    ggjs.view_init();
+    ggjs.helper_init();
 });
 
-function view_init() {
+ggjs.view_init = function() {
     // handle the initial collapsed/expanded state of the sidebar
-    handleSidebar($container, $menucontainer);
+    ggjs.handleSidebar($container, $menucontainer);
     // handle navigation sidebar toggling
     $(window).resize(function() {
-        handleSidebar();
-        updateDisplay();
+        ggjs.handleSidebar();
+        ggjs.updateDisplay();
     });
     // handle initial display of sub-menu
-    handleSubMenu($menu);
+    ggjs.handleSubMenu($menu);
     // handle sub-menu display toggling
     $menu.find('.open-nav').on('click', function(e) {
         //clicked span in a menu item title
@@ -57,34 +56,34 @@ function view_init() {
         }
         _p.push($ul.slideToggle(50));
         $.when.apply($, _p).done(function() {
-            updateDisplay();
+            ggjs.updateDisplay();
         });
         return false;
     });
     // handle notifications
-    showNotifications();
+    ggjs.showNotifications();
     // substitute elements - buttons for inputs etc
-    migrateUIElements();
+    ggjs.migrateUIElements();
     // handle updating the display.
-    updateDisplay();
+    ggjs.updateDisplay();
     // setup deprecated alert-handlers
-    setupAlerts();
+    ggjs.setupAlerts();
     // setup custom dialogs
-    cms_data.alertfunc = popup_alert;
-    cms_data.confirmfunc = popup_confirm;
-//    cms_data.dialogfunc = popup_dialog;
-}
+    cms_data.alertfunc = ggjs.popup_alert;
+    cms_data.confirmfunc = ggjs.popup_confirm;
+//    cms_data.dialogfunc = ggjs.popup_dialog;
+};
 
-function helper_init() {
+ggjs.helper_init = function() {
     // open external links with rel="external" attribute in new window
     $('a[rel=external]').attr('target', '_blank');
     // focus on input with .defaultfocus class
     $('input.defaultfocus:eq(0), input[autofocus]').focus();
     // async-load a cookie handler if localStorage is not supported
-    if(!isLocalStorage()) {
-        loadScript(cookie_handler);
+    if(!ggjs.isLocalStorage()) {
+        ggjs.loadScript(cookie_handler);
     }
-}
+};
 /**
  * @description conditional load script helper function
  * @author Brad Vincent https://gist.github.com/2313262
@@ -94,7 +93,7 @@ function helper_init() {
  * @param {requestCallback|boolean} arg1
  * @param {requestCallback|boolean} arg2
  */
-function loadScript(url, arg1, arg2) {
+ggjs.loadScript = function(url, arg1, arg2) {
     var cache = true,
         callback = null,
         load = true;
@@ -127,7 +126,7 @@ function loadScript(url, arg1, arg2) {
             callback.call(this);
         }
     }
-}
+};
 /**
  * @description saves a defined key and value to localStorage if localStorgae is supported, else falls back to cookie script
  * @requires js-cookie https://github.com/js-cookie/js-cookie
@@ -136,9 +135,9 @@ function loadScript(url, arg1, arg2) {
  * @param {string} value
  * @param {number} expires (number in days)
  */
-function setStorageValue(key, value, expires) {
+ggjs.setStorageValue = function(key, value, expires) {
     try {
-        if(isLocalStorage()) {
+        if(ggjs.isLocalStorage()) {
             localStorage.removeItem(key);
             var obj;
             if(expires !== null) {
@@ -169,145 +168,129 @@ function setStorageValue(key, value, expires) {
         console.log('localStorage Error: set(' + key + ', ' + value + ')');
         console.log(error);
     }
-}
+};
 /**
  * @description gets value for defined key from localStorage if that's supported, else falls back to js-cookie script
  * @requires js-cookie https://github.com/js-cookie/js-cookie
  * @function getStorageValue(key)
  * @param {string} key
  */
-function getStorageValue(key) {
+ggjs.getStorageValue = function(key) {
     var value;
-    if(isLocalStorage()) {
+    if(ggjs.isLocalStorage()) {
         var data = JSON.parse(localStorage.getItem(key));
         if(data !== null && data.timestamp < new Date().getTime()) {
-            removeStorageValue(key);
+            ggjs.removeStorageValue(key);
         } else if(data !== null) {
             value = data.value;
         }
-    } else if(isCookieScript()) {
+    } else if(ggjs.isCookieScript()) {
         value = Cookies(key);
     } else {
         value = ''; //TODO handle no cookie
     }
     return value;
-}
+};
 /**
  * @description removes defined key from localStorage if that's supported, else falls back to js-cookie script
  * @requires js-cookie https://github.com/js-cookie/js-cookie
  * @function removeStorageValue(key)
  * @param {string} key
  */
-function removeStorageValue(key) {
-    if(isLocalStorage()) {
+ggjs.removeStorageValue = function(key) {
+    if(ggjs.isLocalStorage()) {
         localStorage.removeItem(key);
-    } else if(isCookieScript()) {
+    } else if(ggjs.isCookieScript()) {
         Cookies.remove(key);
     }
-}
-/**
- * @description Sets equal height on specified element group
- * @function equalHeight(obj)
- * @param {object}
- */
-function equalHeight(obj) {
-/* see jquery plugin             var tallest = 0;
-    obj.each(function() {
-        var elHeight = $(this).height();
-        if(elHeight > tallest) {
-            tallest = elHeight;
-        }
-    });
-    obj.height(tallest);
-*/
 }
 /**
  * @description detects if localStorage is supported by browser
  * @function isLocalStorage()
  * @private
  */
-function isLocalStorage() {
+ggjs.isLocalStorage = function() {
     return typeof Storage !== 'undefined';
-}
+};
 /**
  * @description detects if js-cookie.js is present
  * @function isCookieScript()
  * @private
  */
-function isCookieScript() {
+ggjs.isCookieScript = function() {
     return typeof Cookies !== 'undefined';
-}
+};
 /**
  * @description Basic check for common mobile devices and touch capability
  * @function isMobileDevice()
  * @private
  */
-function isMobileDevice() {
+ggjs.isMobileDevice = function() {
     var ua = navigator.userAgent.toLowerCase(),
         devices = /(Android|iPhone|iPad|iPod|Blackberry|Dolphin|IEMobile|WPhone|Windows Mobile|IEMobile9||IEMobile10||IEMobile11|Kindle|Mobile|MMP|MIDP|Pocket|PSP|Symbian|Smartphone|Sreo|Up.Browser|Up.Link|Vodafone|WAP|Opera Mini|Opera Tablet|Mobile|Fennec)/i;
     if(ua.match(devices) && (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0) || window.DocumentTouch && document instanceof DocumentTouch)) {
         return true;
     }
-}
+};
 /**
  * @description Checks for saved state of sidebar
  * @function handleSidebar()
  */
-function handleSidebar() {
+ggjs.handleSidebar = function() {
     var viewportWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    if(getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= small_width) {
+    if(ggjs.getStorageValue('sidebar-pref') === 'sidebar-off' || viewportWidth <= small_width) {
         $menucontainer.addClass('sidebar-off').removeClass('sidebar-on');
         $menu.addClass('sidebar-off').removeClass('sidebar-on');
     } else {
         $menucontainer.addClass('sidebar-on').removeClass('sidebar-off');
         $menu.addClass('sidebar-on').removeClass('sidebar-off');
     }
-}
+};
 /*
  * @description Toggles Sidebar open/closed state
  * @function clickSidebar()
 */
-function clickSidebar() {
+ggjs.clickSidebar = function() {
    if($menucontainer.hasClass('sidebar-on')) {
-     closeSidebar();
+     ggjs.closeSidebar();
    } else {
-     openSidebar();
+     ggjs.openSidebar();
    }
-}
+};
 /**
- * @description Handles setting for Sidebar and sets open state
+ * @description Handles setting for sidebar and sets open state
  * @private
  * @function openSidebar()
  */
-function openSidebar() {
+ggjs.openSidebar = function() {
     $menucontainer.addClass('sidebar-on').removeClass('sidebar-off');
     $menu.find('li.current ul').show();
-    setStorageValue('sidebar-pref', 'sidebar-on', 60);
+    ggjs.setStorageValue('sidebar-pref', 'sidebar-on', 60);
 }
 /**
  * @description Handles setting for Sidebar and sets closed state
  * @private
  * @function closeSidebar()
  */
-function closeSidebar() {
+ggjs.closeSidebar = function() {
     $menucontainer.removeClass('sidebar-on').addClass('sidebar-off');
     $menu.find('li ul').hide();
-    setStorageValue('sidebar-pref', 'sidebar-off', 60);
-}
+    ggjs.setStorageValue('sidebar-pref', 'sidebar-off', 60);
+};
 /**
  * @description Sets intial state of main menu child items
  * @function handleSubMenu($ob)
  * @param {object} $ob - Menu container object
  */
-function handleSubMenu($ob) {
+ggjs.handleSubMenu = function($ob) {
     $ob.find('li.current span').addClass('open-sub');
-}
+};
 /**
  * @description Handles 'dynamic' notifications
  * @function showNotifications()
  * @requires global cms_data{}, cms_notify(), cms_lang()
  */
-function showNotifications() {
+ggjs.showNotifications = function() {
  //back-compatibility check might be relevant in some contexts
  //if (typeof cms_notify_all === 'function') {
     cms_notify_all();
@@ -324,9 +307,9 @@ function showNotifications() {
    // pagewarning status hidden? TODO is this stuff still relevant ?
     var key = $('body').attr('id') + '_notification';
     $('.pagewarning .close-warning').on('click', function() {
-        setStorageValue(key, 'hidden', 60);
+        ggjs.setStorageValue(key, 'hidden', 60);
     });
-    if(getStorageValue(key) === 'hidden') {
+    if(ggjs.getStorageValue(key) === 'hidden') {
         $('.pagewarning').addClass('hidden');
     }
 
@@ -334,12 +317,12 @@ function showNotifications() {
         var type = (e.response === 'Success') ? 'success' : 'error';
         cms_notify(type, e.details);
     });
-}
+};
 /**
  * @description Substitutes styled buttons for input-submits. And some links
  * @function migrateUIElements()
  */
-function migrateUIElements() {
+ggjs.migrateUIElements = function() {
     // Standard input buttons
     $('input[type="submit"], :button[data-ui-icon]').each(function() {
         var button = $(this);
@@ -363,8 +346,7 @@ function migrateUIElements() {
                 label = button.text();
             }
             $btn = $('<button type="submit" class="adminsubmit ' + xclass + '">' + label + '</button>');
-            var attributes = []; //TODO;
-            $(attributes).each(function(idx, attrib) {
+            $(this.attributes).each(function(idx, attrib) {
                 switch (attrib.name) {
                   case 'type':
                     break;
@@ -384,12 +366,12 @@ function migrateUIElements() {
     });
     // Back links
     $('a.pageback').addClass('link_button icon back');
-}
+};
 /**
  * @description Placeholder function for functions that need to be triggered on window resize
  * @function updateDisplay()
  */
-function updateDisplay() {
+ggjs.updateDisplay = function() {
 /*
     var $menu = $('#pg_menu');
     var $alert_box = $('#admin-alerts');
@@ -412,7 +394,7 @@ function updateDisplay() {
         }
     }
 */
-}
+};
 /**
  * @description
  * @private
@@ -421,7 +403,7 @@ function updateDisplay() {
  * @params {object} target
  * @deprecated since 2.3 use showNotifications()
  */
-function handleAlert(target) {
+ggjs.handleAlert = function(target) {
     var _row = $(target).closest('.alert-box');
     var _alert_name = _row.data('alert-name');
     if(!_alert_name) return;
@@ -444,14 +426,14 @@ function handleAlert(target) {
     }).fail(function(xhr, status, msg) {
         console.debug('problem deleting an alert: ' + msg);
     });
-}
+};
 /**
  * @description Handles popping up the notification area
  * @private
  * @function setupAlerts()
  * @deprecated since 2.3 use showNotifications()
  */
-function setupAlerts() {
+ggjs.setupAlerts = function() {
     $('a#alerts').on('click', function(e) {
         e.preventDefault();
         cms_dialog($('#alert-dialog'));
@@ -459,15 +441,15 @@ function setupAlerts() {
     });
     $('.alert-msg a').on('click', function(e) {
         e.preventDefault();
-        handleAlert(e.target);
+        ggjs.handleAlert(e.target);
         return false;
     });
     $('.alert-icon,.alert-remove').on('click', function(e) {
         e.preventDefault();
-        handleAlert(e.target);
+        ggjs.handleAlert(e.target);
         return false;
     });
-}
+};
 /**
  * @description display a modal alert dialog
  * @function
@@ -475,11 +457,11 @@ function setupAlerts() {
  * @param (String) title Unused title string.
  * @return promise
  */
-function popup_alert(msg, title) {
+ggjs.popup_alert = function(msg, title) {
     return $.alertable.alert(msg,{
        okButton: '<button type="button" class="adminsubmit">'+ cms_lang('close') + '</button>',
     });
-}
+};
 /**
  * @description display a modal confirm dialog
  * @function
@@ -489,9 +471,9 @@ function popup_alert(msg, title) {
  * @param (String) notxt Text for the no button label
  * @return promise
  */
-function popup_confirm(msg, title, yestxt, notxt) {
+ggjs.popup_confirm = function(msg, title, yestxt, notxt) {
     return $.alertable.confirm(msg,{
        okButton: '<button type="button" class="adminsubmit icon check">' + yestxt + '</button>',
        cancelButton: '<button type="button" class="adminsubmit icon cancel">' + notxt + '</button>'
     });
-}
+};
