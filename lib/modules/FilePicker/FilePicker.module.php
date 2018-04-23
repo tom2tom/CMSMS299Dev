@@ -83,6 +83,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
     function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
     function GetFriendlyName() { return $this->Lang('friendlyname');  }
     function GetVersion() { return '1.0.1'; }
+    function GetDependencies() { return ['FileManager'=>'1.5']; }
     function GetHelp() { return $this->Lang('help'); }
     function IsPluginModule() { return FALSE; }
     function HasAdmin() { return TRUE; }
@@ -127,7 +128,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
 
     public function GetFileList($path = '')
     {
-        return filemanager_utils::get_file_list($path);
+        return FileManager\filemanager_utils::get_file_list($path);
     }
 
     public function get_profile_or_default( $profile_name, $dir = null, $uid = null )
