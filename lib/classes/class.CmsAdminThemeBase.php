@@ -1377,14 +1377,14 @@ $X = 1;
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
      * @param string $title Optional title for the message(s)
-     * @param bool $cache Optional flag, whether to setup for display during the next request (instead of the current one)
+     * @param bool $defer Optional flag, whether to setup for display during the next request (instead of the current one)
      * @param mixed $get_var Optional $_GET variable name. Such variable
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function RecordNotice(string $type, $message, string $title= '', bool $cache = false, $get_var = null) : void
+    public function RecordNotice(string $type, $message, string $title= '', bool $defer = false, $get_var = null) : void
     {
-        if (!$cache) {
+        if (!$defer) {
             switch ($type) {
                 case 'error':
                     $into =& $this->_errors;
@@ -1412,7 +1412,7 @@ $X = 1;
                     $type = 'info';
                     break;
             }
-            $this->ParkStrings($type, $message, $title, $get_var);
+            $this->ParkNotice($type, $message, $title, $get_var);
         }
     }
 
