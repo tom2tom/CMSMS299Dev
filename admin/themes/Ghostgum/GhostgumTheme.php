@@ -53,9 +53,9 @@ class GhostgumTheme extends CmsAdminThemeBase
 		    $fn .= '_ie';
 		}
 */
-		//TODO relevant tile color #bfc2b8 =
+		//TODO relevant tile color #f79838 = orange
 		$out = <<<EOS
-<meta name="msapplication-TileColor" content="#bfc2b8" />
+<meta name="msapplication-TileColor" content="#f79838" />
 <meta name="msapplication-TileImage" content="{$assets_url}images/ms-application-icon.png" />
 <link rel="shortcut icon" href="{$assets_url}images/cmsms-favicon.ico" />
 <link rel="apple-touch-icon" href="{$assets_url}images/apple-touch-icon-iphone.png" />
@@ -63,30 +63,19 @@ class GhostgumTheme extends CmsAdminThemeBase
 <link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}images/apple-touch-icon-iphone4.png" />
 <link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}images/apple-touch-icon-ipad3.png" />
 <link rel="stylesheet" type="text/css" href="{$base_url}/css/{$fn}.css" />
-
 EOS;
 		if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
 		$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$base_url}/extcss/{$fn}.css" />
-
 EOS;
 		}
-//TODO generalise jquery-ui-*css
-		$out .= <<<EOS
-<link rel="stylesheet" type="text/css" href="{$script_url}/css/smoothness/jquery-ui-1.12.1.min.css" />
-<!--[if lt IE 9]>
-<!-- old IE html5 support -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
-<![endif]-->
-EOS;
-//<script type="text/javascript" src="{$script_url}/js/jquery.toast.js"></script> this is now in cms_get_jquery()
-//? exclude defaults jquery-ui nestedSortable cms_lock, cms_hiersel, cms_autorefresh
 		$out .= cms_get_jquery();
 		$out .= <<<EOS
 <script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script>
 <script type="text/javascript" src="{$base_url}/js/jquery.alertable.min.js"></script>
 <script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script type="text/javascript" src="{$base_url}/js/libs/jquery-extra-selectors.js"></script>
 <script type="text/javascript" src="{$base_url}/js/libs/selectivizr-min.js"></script>
 <![endif]-->
@@ -214,9 +203,10 @@ EOS;
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
 		// the only needed scripts are: jquery, jquery-ui, and our custom login
-		list ($jqcore, $jqui, $jqmigrate) = cms_jquery_scripts();
+		list ($jqcore, $jqmigrate) = cms_jquery_local();
 		$url = cms_admin_utils::path_to_url($jqcore);
 		$out = sprintf($tpl,$url);
+		list ($jqui, $jqcss) = cms_jqueryui_local();
 		$url = cms_admin_utils::path_to_url($jqui);
 		$out .= sprintf($tpl,$url);
 		$out .= <<<EOS
