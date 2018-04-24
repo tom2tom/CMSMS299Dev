@@ -524,8 +524,8 @@ abstract class CmsAdminThemeBase
         //  so that comparisons can get the mact from the query
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mact']) && !isset($_GET['mact'])) {
 			$value = cleanValue(rawurldecode($_POST['mact'])); //direct use N/A
-            $$url_ob->set_queryvar('mact', $value);
-            $$url_ob = new cms_url((string)$url_ob);
+            $url_ob->set_queryvar('mact', $value);
+            $url_ob = new cms_url((string)$url_ob);
         }
         $urlparms = [];
         parse_str($url_ob->get_query(), $urlparms);
