@@ -1,7 +1,6 @@
 <?php
 use \FilePicker\TemporaryProfileStorage;
 use \FilePicker\PathAssistant;
-use \FilePicker\UploadHandler;
 
 if( !isset($gCms) ) exit;
 try {
@@ -15,8 +14,7 @@ try {
     $cwd = strip_tags(get_parameter_value($_POST,'cwd'));
 
     // get the profile.
-    $profile = null;
-    if( $sig ) $profile = TemporaryProfileStorage::get($sig);
+    $profile = ( $sig ) ? TemporaryProfileStorage::get($sig) : null;
     if( !$profile ) $profile = $this->get_default_profile();
 
     // check the cwd make sure it is okay
@@ -60,8 +58,8 @@ try {
 
     case 'upload':
         if( !$profile->can_upload ) throw new \LogicException('Internal error: upload command executed, but profile says we cannot upload');
-        // todo: checks for upload functionality
-        $upload_handler = new UploadHandler( $this, $profile, $fullpath );
+
+        $upload_handler = new FilePicker\CustomUploader(['profile'=>$profile, 'upload_dir'=>$fullpath]);
 
         header('Pragma: no-cache');
         header('Cache-Control: private, no-cache');
@@ -99,4 +97,5 @@ catch( \Exception $e ) {
     debug_to_log($e->GetTraceAsString());
     header("HTTP/1.1 500 ".$e->GetMessage());
 }
-exit();
+
+exit;
