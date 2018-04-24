@@ -8,7 +8,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
   <meta name="HandheldFriendly" content="true" />
-  <link rel="shortcut icon" href="{$admin_url}/themes/Ghostgum/images/favicon/cmsms-favicon.ico" />
+  <link rel="shortcut icon" href="{$admin_url}/themes/assets/images/cmsms-favicon.ico" />
   <link rel="stylesheet" type="text/css" href="{$admin_url}/themes/Ghostgum/css/style{if $lang_dir == 'rtl'}-rtl{/if}.css" />
   {$header_includes|default:''}
 </head>
