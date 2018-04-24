@@ -1067,36 +1067,62 @@ function cms_to_bool(string $str) : bool
 }
 
 /**
- * A function to identify locally-installed jquery scripts
+ * Identify locally-installed jquery scripts
  * @since 2.3
- * @return 3-member array
+ * @return 2-member array
  *  [0] = path of main jquery (min) file or ''
- *  [1] = path of jquery-ui (min) file or ''
- *  [2] = path of jquery-migrate (min) file or ''
+ *  [1] = path of jquery-migrate (min) file or ''
  */
-function cms_jquery_scripts() : array
+function cms_jquery_local() : array
 {
     $core = '';
-    $ui = '';
     $migrate = '';
     //the 'core' jquery files are named like jquery-*min.js
     $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-*min.js');
     $files = glob($patn);
     //grab the (or the last-sorted) versions
     foreach ($files as $path) {
-        if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
-            $ui = $path;
-        } elseif (preg_match('/\-migrate\-?([0-9.]+)?min/',$path)) {
+        if (preg_match('/\-migrate\-?([0-9.]+)?min/',$path)) {
             $migrate = $path;
         } elseif (preg_match('/jquery\-?([0-9.]+)?min/',$path)) {
             $core = $path;
         }
     }
-    return [$core, $ui, $migrate];
-} 
+    return [$core, $migrate];
+}
 
 /**
- * A function to return the appropriate HTML tags to include the CMSMS included jquery in a web page.
+ * Identify locally-installed jquery-ui script and related css
+ * @since 2.3
+ * @return 2-member array
+ *  [0] = path of jquery-ui (min) file or ''
+ *  [1] = path of related css (min) file or ''
+ */
+function cms_jqueryui_local() : array
+{
+    $ui = '';
+    //the 'core' jquery-ui file is named like jquery-ui*min.js
+    $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-ui*min.js');
+    $files = glob($patn);
+    //grab the (or the last-sorted) version
+    foreach ($files as $path) {
+        if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
+            $ui = $path;
+		}
+	}
+	$css = '';
+    $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','css','*','jquery-ui*min.css');
+    $files = glob($patn);
+    foreach ($files as $path) {
+        if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
+            $css = $path;
+		}
+	}
+    return [$ui, $css];
+}
+
+/**
+ * Return the appropriate HTML tags to include the CMSMS included jquery in a web page.
  *
  * CMSMS is distributed with a recent version of jQuery, jQueryUI and various other jquery based
  * libraries.  This function generates the HTML code that will include these scripts.
@@ -1125,28 +1151,31 @@ function cms_jquery_scripts() : array
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
     $baseUrl = ($custom_root) ? trim($custom_root,'/lib/jquery/') : CMS_SCRIPTS_URL.'/';
-    list ($core, $ui, $migrate) = cms_jquery_scripts();
-    //TODO glob(cms_join_path(CMS_ROOT_PATH,'lib','jquery','css','*','jquery-ui*min.css'));
+    list ($core, $migrate) = cms_jquery_local();
+	list ($ui, $css) = cms_jqueryui_local();
+	if ($css) {
+		$p = strpos($css, DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR);
+		$css = $baseUrl.str_replace(DIRECTORY_SEPARATOR,'/',substr($css,$p+1));
+	}
 
     // scripts etc to include (unless excluded)
-    $scripts = [
-        'jquery' => [
+    $scripts = [];
+    $scripts['jquery'] = [
          'aliases'=>['jquery-min','jquery.min.js'],
          'cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js',
          'local'=>$baseUrl.'js/'.basename($core),
-        ],
-        'jquery-ui' => [
-         'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
-         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-         'local'=>$baseUrl.'js/'.basename($ui),
-         'css'=>$baseUrl.'css/smoothness/jquery-ui-1.12.1.min.css', //TODO generalise this
-        ],
-//      'json' => ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'],
-        'nestedSortable' => ['local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'],
-    ];
+        ];
     if ($migrate) {
         $scripts['migrate'] = ['local'=>$baseUrl.'js/'.basename($migrate)];
     }
+	$scripts['jquery-ui'] = [
+         'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
+         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+         'local'=>$baseUrl.'js/'.basename($ui),
+         'css'=>$css,
+        ];
+//  $scripts['json'] = ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'];
+	$scripts['nestedSortable'] = ['local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'];
 
     if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
         global $CMS_LOGIN_PAGE;
@@ -1242,9 +1271,20 @@ EOT;
 
     $output = "\n";
 
+	if ($include_css) {
+		$fmt_css = '<link rel="stylesheet" type="text/css" href="%s" />';
+		foreach($scripts as $script) {
+			if (!empty($script['css'])) {
+				$url = $script['css'];
+			} elseif ($cdn && !empty($script['css_cdn'])) {
+				$url = $script['css_cdn'];
+			} else {
+				continue;
+			}
+			$output .= sprintf($fmt_css,$url)."\n";
+		}
+	}
     $fmt_js = '<script type="text/javascript" src="%s"></script>';
-    $fmt_css = '<link rel="stylesheet" type="text/css" href="%s" />';
-
     foreach($scripts as $script) {
         if (isset($script['variables'])) {
             if ($vout) {
@@ -1252,14 +1292,14 @@ EOT;
             }
             continue;
         }
-        $url_js = $script['local'];
-        if ( $cdn && isset($script['cdn']) ) $url_js = $script['cdn'];
-        $output .= sprintf($fmt_js,$url_js)."\n";
-        if ( isset($script['css']) && $script['css'] != '' ) {
-            $url_css = $script['css'];
-            if ( $cdn && isset($script['css_cdn']) ) $url_css = $script['css_cdn'];
-            if ( $include_css ) $output .= sprintf($fmt_css,$url_css)."\n";
-        }
+		if (!empty($script['local'])) {
+			$url = $script['local'];
+		} elseif ($cdn && !empty($script['cdn']) ) {
+			$url = $script['cdn'];
+		} else {
+			continue;
+		}
+        $output .= sprintf($fmt_js,$url)."\n";
     }
     return $output;
 }
