@@ -7,6 +7,7 @@ class UploadHandler extends jquery_upload_handler
     private $_mod;
     private $_profile;
 
+    //NOTE parent constructor API is ($options=null) i.e. this violates STRICT standard
     public function __construct( \FilePicker $mod, \CMSMS\FilePickerProfile $profile, $path )
     {
         $this->_mod = $mod;
@@ -18,13 +19,13 @@ class UploadHandler extends jquery_upload_handler
         parent::__construct( $opts );
     }
 
-    public function is_file_type_acceptable( $fileobject )
+    protected function is_file_type_acceptable( $fileobject )
     {
         $complete_path = $this->_path.$fileobject->name;
         return $this->_mod->is_acceptable_filename( $this->_profile, $complete_path );
     }
 
-    public function process_error( $fileobject, $error )
+    protected function process_error( $fileobject, $error )
     {
         $fileobject = parent::process_error( $fileobject, $error );
         if( $fileobject->error ) {
@@ -33,7 +34,7 @@ class UploadHandler extends jquery_upload_handler
         return $fileobject;
     }
 
-    public function after_uploaded_file( $fileobject )
+    protected function after_uploaded_file( $fileobject )
     {
         if( !$this->_profile->show_thumbs ) return;
 
