@@ -1,8 +1,7 @@
 <?php
-#action: display list of files
-#Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
-#This file is a component of CMS Made Simple module FileManager
-#  <http://dev.cmsmadesimple.org ....>
+#FileManager module action: display list of files
+#Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
+#This file is a component of CMS Made Simple <http://dev.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
