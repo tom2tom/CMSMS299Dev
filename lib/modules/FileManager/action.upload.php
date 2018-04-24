@@ -1,9 +1,9 @@
 <?php
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
+if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
-$upload_handler = new FileManager\UploadHandler(['param_name'=>$id.'files']);
+$UploadHandler = new FileManager\CustomUploader(['param_name'=>$id.'files']);
 
 header('Pragma: no-cache');
 header('Cache-Control: private, no-cache');
@@ -18,13 +18,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
         break;
     case 'HEAD':
     case 'GET':
-        $upload_handler->get();
+        $UploadHandler->get();
         break;
     case 'POST':
-        $upload_handler->post();
+        $UploadHandler->post();
         break;
     case 'DELETE':
-        $upload_handler->delete();
+        $UploadHandler->delete();
         break;
     default:
         header('HTTP/1.1 405 Method Not Allowed');
