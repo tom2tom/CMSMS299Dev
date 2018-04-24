@@ -1,14 +1,7 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  var max = 0,
-    $lbls = $('.boxchild label');
-  $lbls.each(function(){
-    var w = $(this).width();
-    if (w > max) max = w;
-  });
-  $lbls.width(max);
-});
+ cms_equalWidth($('.boxchild label'));
 {/literal}//]]>
 </script>
 
@@ -27,32 +20,32 @@ $(document).ready(function() {
  <div class="hbox flow">
   <div class="boxchild"><label for="profile_name" class="required">* {$mod->Lang('name')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileName' title=$mod->Lang('HelpPopupTitle_ProfileName')}</div>
-  <input class="boxchild fill" type="text" size="40" id="profile_name" name="{$actionid}name" value="{$profile->name}" required />
+  <input class="boxchild" type="text" size="40" id="profile_name" name="{$actionid}name" value="{$profile->name}" required />
  </div>
  <div class="hbox flow">
   <div class="boxchild"><label for="profile_top">{$mod->Lang('topdir')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileDir' title=$mod->Lang('HelpPopupTitle_ProfileDir')}</div>
-  <input class="boxchild fill" type="text" id="profile_top" name="{$actionid}top" value="{$profile->reltop}" size="80" />
+  <input class="boxchild" type="text" id="profile_top" name="{$actionid}top" value="{$profile->reltop}" size="80" />
  </div>
  <div class="hbox flow">
   <div class="boxchild"><label for="profile_thumbs">{$mod->Lang('show_thumbs')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileShowthumbs' title=$mod->Lang('HelpPopupTitle_ProfileShowthumbs')}</div>
-  <input class="boxchild fill" type="checkbox" name="{$actionid}show_thumbs" id="profile_thumbs" value="1"{if $profile->show_thumbs} checked="checked"{/if} />
+  <input class="boxchild" type="checkbox" name="{$actionid}show_thumbs" id="profile_thumbs" value="1"{if $profile->show_thumbs} checked="checked"{/if} />
  </div>
  <div class="hbox flow">
   <div class="boxchild"><label for="profile_canupload">{$mod->Lang('can_upload')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileCan_Upload' title=$mod->Lang('HelpPopupTitle_ProfileCan_Upload')}</div>
-  <input class="boxchild fill" type="checkbox" name="{$actionid}can_upload" id="profile_canupload" value="1"{if $profile->can_upload} checked="checked"{/if} />
+  <input class="boxchild" type="checkbox" name="{$actionid}can_upload" id="profile_canupload" value="1"{if $profile->can_upload} checked="checked"{/if} />
  </div>
  <div class="hbox flow">
   <div class="boxchild"><label for="profile_candelete">{$mod->Lang('can_delete')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileCan_Delete' title=$mod->Lang('HelpPopupTitle_ProfileCan_Delete')}</div>
-  <input class="boxchild fill" type="checkbox" name="{$actionid}can_delete" id="profile_candelete" value="1"{if $profile->can_delete} checked="checked"{/if} />
+  <input class="boxchild" type="checkbox" name="{$actionid}can_delete" id="profile_candelete" value="1"{if $profile->can_delete} checked="checked"{/if} />
  </div>
  <div class="hbox flow">
   <div class="boxchild"><label for="profile_canmkdir">{$mod->Lang('can_mkdir')}:</label>
   {cms_help realm=$_module key2='HelpPopup_ProfileCan_Mkdir' title=$mod->Lang('HelpPopupTitle_ProfileCan_Mkdir')}</div>
-  <input class="boxchild fill" type="checkbox" name="{$actionid}can_mkdir" id="profile_canmkdir" value="1"{if $profile->can_mkdir} checked="checked"{/if} />
+  <input class="boxchild" type="checkbox" name="{$actionid}can_mkdir" id="profile_canmkdir" value="1"{if $profile->can_mkdir} checked="checked"{/if} />
  </div>
 </div>{*vbox*}
 <div class="pageinput pregap">
