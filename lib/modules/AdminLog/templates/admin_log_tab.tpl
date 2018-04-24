@@ -1,13 +1,6 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  var max = 0,
-    $lbls = $('label.boxchild');
-  $lbls.each(function(){
-    var w = $(this).width();
-    if (w > max) max = w;
-  });
-  $lbls.width(max);
   var url = '{/literal}{cms_action_url action=defaultadmin page=xxx forjs=1}{literal}';
   $('#pagenum').on('change', function() {
     var v = $(this).val();
@@ -16,6 +9,9 @@ $(document).ready(function() {
   });
   $('#filterbtn').on('click', function() {
     cms_dialog($('#filter_dlg'), {
+      open: function(ev, ui) {
+        cms_equalWidth($('#filter_dlg label.boxchild'));
+      },
       modal: true,
       width: 'auto',
       height: 'auto'
@@ -41,26 +37,26 @@ $(document).ready(function() {
   {/if}
 </div>
 
-<div id="filter_dlg" title="{$mod->Lang('filter')}" style="display:none;min-width:500px;">
+<div id="filter_dlg" title="{$mod->Lang('filter')}" style="display:none;min-width:35em;">
   {form_start}
   <div class="vbox">
     <div class="hbox flow">
       <label class="boxchild" for="f_sev">{$mod->Lang('f_sev')}:</label>
-      <select class="boxchild fill" id="f_sev" name="{$actionid}f_sev">
+      <select class="boxchild" id="f_sev" name="{$actionid}f_sev">
       {html_options options=$severity_list selected=$filter->severity}
       </select>
     </div>
     <div class="hbox flow">
       <label class="boxchild" for="f_act">{$mod->Lang('f_msg')}:</label>
-      <input class="boxchild fill" id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
+      <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
     </div>
     <div class="hbox flow">
       <label class="boxchild" for="f_item">{$mod->Lang('f_subj')}:</label>
-      <input class="boxchild fill" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
+      <input class="boxchild" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
     </div>
     <div class="hbox flow">
       <label class="boxchild" for="f_user">{$mod->Lang('f_user')}:</label>
-      <input class="boxchild fill" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
+      <input class="boxchild" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
     </div>
   </div>
   <div class="pregap">
