@@ -1,17 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  var max = 0,
-    $lbls = $('label.boxchild');
-  $lbls.each(function(){
-    var w = $(this).width();
-    if (w > max) max = w;
-  });
-  $lbls.width(max);
-});
-{/literal}//]]>
-</script>
-
 <div id="template_area"></div>
 
 <div id="filterdialog" style="display:none;" title="{$mod->Lang('tpl_filter')|escape:'javascript'}">
@@ -20,13 +6,13 @@ $(document).ready(function() {
   <div class="vbox">
   <div class="hbox flow">
     <label class="boxchild" for="filter_tpl">{$mod->Lang('prompt_options')}:</label>
-    <select class="boxchild fill" id="filter_tpl" name="{$actionid}filter_tpl" title="{$mod->Lang('title_filter')}">
+    <select class="boxchild" id="filter_tpl" name="{$actionid}filter_tpl" title="{$mod->Lang('title_filter')}">
       {html_options options=$filter_tpl_options selected=$tpl_filter.tpl}
     </select>
   </div>
   <div class="hbox flow">
     <label class="boxchild" for="filter_sortby">{$mod->Lang('prompt_sortby')}:</label>
-    <select class="boxchild fill" id="filter_sortby" name="{$actionid}filter_sortby" title="{$mod->Lang('title_sortby')}">
+    <select class="boxchild" id="filter_sortby" name="{$actionid}filter_sortby" title="{$mod->Lang('title_sortby')}">
       <option value="name"{if $tpl_filter.sortby == 'name'} selected="selected"{/if}>{$mod->Lang('name')}</option>
       <option value="type"{if $tpl_filter.sortby == 'type'} selected="selected"{/if}>{$mod->Lang('type')}</option>
       <option value="created"{if $tpl_filter.sortby == 'created'} selected="selected"{/if}>{$mod->Lang('created')}</option>
@@ -35,14 +21,14 @@ $(document).ready(function() {
   </div>
   <div class="hbox flow">
     <label class="boxchild" for="filter_sortorder">{$mod->Lang('prompt_sortorder')}:</label>
-    <select class="boxchild fill" id="filter_sortorder" name="{$actionid}filter_sortorder" title="{$mod->Lang('title_sortorder')}">
+    <select class="boxchild" id="filter_sortorder" name="{$actionid}filter_sortorder" title="{$mod->Lang('title_sortorder')}">
       <option value="asc"{if $tpl_filter.sortorder == 'asc'} selected="selected"{/if}>{$mod->Lang('asc')}</option>
       <option value="desc"{if $tpl_filter.sortorder == 'desc'} selected="selected"{/if}>{$mod->Lang('desc')}</option>
     </select>
   </div>
   <div class="hbox flow">
     <label class="boxchild" for="filter_limit">{$mod->Lang('prompt_limit')}:</label>
-    <select class="boxchild fill" id="filter_limit" name="{$actionid}filter_limit_tpl" title="{$mod->Lang('title_filterlimit')}">
+    <select class="boxchild" id="filter_limit" name="{$actionid}filter_limit_tpl" title="{$mod->Lang('title_filterlimit')}">
       <option value="10"{if $tpl_filter.limit == 10} selected="selected"{/if}>10</option>
       <option value="25"{if $tpl_filter.limit == 25} selected="selected"{/if}>25</option>
       <option value="50"{if $tpl_filter.limit == 50} selected="selected"{/if}>50</option>
