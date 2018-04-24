@@ -1,5 +1,5 @@
 <?php
-/*
+/* NOTE this file is an orphan!
  * jQuery File Upload Plugin PHP Example 5.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
