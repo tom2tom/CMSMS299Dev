@@ -1,15 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $('#clearlocks,#cssclearlocks').on('click', function(ev) {
-    ev.preventDefault();
-    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("confirm_clearlocks")|escape:"javascript"}','{$mod->Lang("yes")}{literal}');
-    return false;
-  });
-});
-{/literal}//]]>
-</script>
-
 {* always display templates tab *}
 {tab_header name='templates' label=$mod->Lang('prompt_templates')}
 
