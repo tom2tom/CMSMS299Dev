@@ -194,6 +194,7 @@ function cms_CMtoggleState(el) {
  });
 }
 $(document).ready(function() {
+ cms_equalWidth($('#useroptions label.boxchild'));
  cms_busy();
  var pageurl = '$u2',
   findurl = '$u1',

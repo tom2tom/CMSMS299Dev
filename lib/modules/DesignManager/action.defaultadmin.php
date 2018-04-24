@@ -223,8 +223,9 @@ $ajax_stylesheets_url = str_replace('amp;','',$url);
 
 // templates script
 $s1 = json_encode($this->Lang('confirm_steal_lock'));
-$s2 = json_encode($this->Lang('error_contentlocked'));
-$s3 = json_encode($this->Lang('error_nothingselected'));
+$s2 = json_encode($this->Lang('confirm_clearlocks'));
+$s3 = json_encode($this->Lang('error_contentlocked'));
+$s4 = json_encode($this->Lang('error_nothingselected'));
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -257,6 +258,11 @@ $(document).ready(function() {
     cms_confirm_linkclick(this,$s1);
     return false;
   });
+  $('#clearlocks,#cssclearlocks').on('click', function(e) {
+    e.preventDefault();
+    cms_confirm_linkclick(this,$s2,'{$this->Lang("yes")}');
+    return false;
+  });
   $('a.sedit_tpl').on('click', function(e) {
     if($(this).hasClass('steal_tpl_lock')) return true;
     // do a double check to see if this page is locked or not.
@@ -272,7 +278,7 @@ $(document).ready(function() {
         if(data.locked) {
           // gotta display a message.
           ev.preventDefault();
-          cms_alert($s2);
+          cms_alert($s3);
         }
       }
     });
@@ -280,12 +286,15 @@ $(document).ready(function() {
   $('#tpl_bulk_submit').on('click', function() {
     var n = $('input:checkbox:checked.tpl_select').length;
     if(n === 0) {
-      cms_alert($s3);
+      cms_alert($s4);
       return false;
     }
   });
   $('#template_area').on('click', '#edittplfilter', function() {
     cms_dialog($('#filterdialog'), {
+      open: function(ev, ui) {
+        cms_equalWidth($('#filterdialog label.boxchild'));
+	  },
       width: 'auto',
       buttons: {
         '{$this->Lang("submit")}': function() {
@@ -353,6 +362,9 @@ $(document).ready(function() {
   });
   $('#stylesheet_area').on('click', '#editcssfilter', function() {
     cms_dialog($('#filtercssdlg'), {
+      open: function(ev, ui) {
+        cms_equalWidth($('#filtercssdlg label.boxchild'));
+      },
       width: 'auto',
       buttons: {
         '{$this->Lang("submit")}': function() {
