@@ -2,7 +2,7 @@
 
 <div id="useroptions" title="{$mod->Lang('title_userpageoptions')}">
   {form_start action='defaultadmin' id='myoptions_form'}
-    <input type="hidden" name="{$actionid}setoptions" value="1"/>
+    <input type="hidden" name="{$actionid}setoptions" value="1" />
     <div class="vbox">
     <div class="hbox flow">
       <label class="boxchild">{$mod->Lang('prompt_pagelimit')}:</label>
@@ -24,7 +24,7 @@
         {html_options options=$design_list selected=$expr}
       </select>
     </div>
-    <div class="hbox flow filter_fld" id="filter_template"></div>
+    <div class="hbox flow filter_fld" id="filter_template">
       <label class="boxchild">{$mod->Lang('prompt_template')}:</label>
       <select class="boxchild" name="{$actionid}filter_template">
         {html_options options=$template_list selected=$expr}
