@@ -405,22 +405,27 @@ class CmsFormUtils
     }
 
     /**
-     * A simple recursive utility function to create an option, or a set of options for a select list or multiselect list.
+     * A simple recursive utility function to create an option, or a set of options,
+     * for a select list or multiselect list.
      *
      * Accepts an associative 'option' array with at least two populated keys: 'label' and 'value'.
-     * If 'value' is not an array then a single '<option>' is created.  However, if 'value' is itself
-     * an array then an 'optgroup' will be created with it's values.
-     *
-     * i.e: $tmp = array('label'=>'myoptgroup','value'=>array( array('label'=>'opt1','value'=>'value1'), array('label'=>'opt2','value'=>'value2') ) );
-     *
-     * The 'option' array can have additional keys for 'title' and 'class'
-     *
-     * i.e: $tmp = array('label'=>'opt1','value'=>'value1','title'=>'My title','class'=>'foo');
+     * If 'value' is not an array then a single '<option>' will be created.
+     * Or if 'value' is itself an array, then an 'optgroup' will be
+     * created with its values e.g:
+     * $tmp = [
+     *   'label'=>'myoptgroup','value'=> [
+     *      [ 'label'=>'opt1','value'=>'value1' ],
+     *      [ 'label'=>'opt2','value'=>'value2' ]
+     *   ]
+     * ];
+     * The 'option' array may have additional keys for 'title' and 'class' e.g:
+     * $tmp = [ 'label'=>'opt1','value'=>'value1','title'=>'My title','class'=>'foo'
+     * ];
      *
      * @param array $data The option data
      * @param string[]|string $selected  The selected elements
      * @return string The generated <option> element(s).
-     * @see self::create_options()
+     * @see CmsFormUtils::create_options()
      */
     public static function create_option($data, $selected = null) : string
     {
@@ -459,18 +464,15 @@ class CmsFormUtils
 
     /**
      * Create a series of options suitable for use in a select input element.
-     *
-     * This method is intended to provide a simple way of creating options from a simple associative array
-     * but can accept multiple arrays of options as specified for the CmsFormUtils::create_option method
-     *
-     * i.e: $tmp = array('value1'=>'label1','value2'=>'label2');
-     * $options = CmsFormUtils::create_options($tmp);
-     *
-     * i.e: $tmp = array( array('label'=>'label1','value'=>'value1','title'=>'title1'),
-     *                    array('label'=>'label2','value'=>'value2','class'=>'class2') );
-     * $options = CmsFormUtils::create_options($tmp)
-     *
-     * @param array $options
+     * The options data may be a simple associative array e.g:
+     *   [ 'value1'=>'label1','value2'=>'label2' ]
+     * or a nested array e.g:
+     *   [
+     *    [ 'label'=>'label1','value'=>'value1' ],
+     *    [ 'label'=>'label2','value'=>'value2' ]
+     *   ]
+     * 'title' and/or 'class' members may be included as appropriate
+     * @param array $options options data
      * @param mixed $selected string value or array of them
      * @return string
      * @see CmsFormUtils::create_options()
@@ -946,7 +948,7 @@ class CmsFormUtils
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
         '<input type="hidden" name="mact" value="'.$mod->GetName().','.$modid.','.$action.','.($inline?1:0).'" />'."\n";
-        if ($returnid !== '') {
+        if ($returnid != '') { //NB not strict - it may be null
             $out .= '<input type="hidden" name="'.$modid.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
                 $config = \cms_config::get_instance();
@@ -957,9 +959,13 @@ class CmsFormUtils
         }
         $excludes = ['module','action','id'];
         foreach ($params as $key=>$val) {
+//          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
-//TODO          $val = TODOfunc($val); //urlencode ? serialize?
-                $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.$val.'" />'."\n";
+				if(is_array($val)) {
+//TODO e.g. serialize $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.TODO.'" />'."\n";
+				} else {
+                    $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.$val.'" />'."\n";
+				}
             }
         }
         $out .= '</div>'."\n";
