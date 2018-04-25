@@ -32,6 +32,9 @@
  * @since 2.0
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
+
+use PHPMailer\PHPMailer\PHPMailer;
+
 class cms_mailer
 {
   /**
@@ -46,7 +49,12 @@ class cms_mailer
    */
   public function __construct($exceptions = true)
   {
-    $this->_mailer = new PHPMailer\PHPMailer($exceptions);
+    //TODO a real autoloader for namespaced PHPMailer
+    include_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'phpmailer' . DIRECTORY_SEPARATOR . 'PHPMailer.php';
+	if ($exceptions) {
+      include_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'phpmailer' . DIRECTORY_SEPARATOR . 'Exception.php';
+    }
+    $this->_mailer = new PHPMailer($exceptions);
     $this->reset();
   }
 
