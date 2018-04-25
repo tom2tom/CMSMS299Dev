@@ -49,7 +49,7 @@ final class DesignManager extends CMSModule
 
     public function DoAction($name,$id,$params,$returnid='')
     {
-        $smarty = cmsms()->GetSmarty();
+        $smarty = CmsApp::get_instance()->GetSmarty();
         $smarty->assign('mod',$this);
         return parent::DoAction($name,$id,$params,$returnid);
     }
