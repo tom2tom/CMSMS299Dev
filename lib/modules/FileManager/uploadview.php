@@ -38,9 +38,9 @@ $smarty->assign('ie_upload_message',$this->Lang('ie_upload_message'));
 
 $out = <<<EOS
 <style type="text/css">
-.upload-wrapper {
+/*.upload-wrapper {
  margin: 10px 0
-}
+} */
 .hcentered {
  text-align: center
 }
@@ -120,7 +120,7 @@ $(document).ready(function() {
           obj.abort();
           if(index < _files.length && typeof data.url !== 'undefined') {
             // now delete the file
-			var turl = '{$action_url}&' + $.param({ file: _files[index] });
+            var turl = '{$action_url}&' + $.param({ file: _files[index] });
             $.ajax({
               url: turl,
               type: 'DELETE'
