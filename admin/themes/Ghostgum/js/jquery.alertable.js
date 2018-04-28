@@ -1,5 +1,5 @@
 /*!
-jquery.alertable.js V.1.0.2 <github.com/claviska/jquery-alertable>
+jquery.alertable.js V.1.1 <github.com/claviska/jquery-alertable>
 (C) Cory LaViska
 License: MIT 
 */
@@ -53,10 +53,13 @@ License: MIT
       modal.find('.alertable-prompt').remove();
     }
 
-    // Add buttons
-    $(modal).find('.alertable-buttons')
-    .append(type === 'alert' ? '' : cancelButton)
-    .append(okButton);
+    // Add button(s)
+    var ob = $(modal).find('.alertable-buttons');
+    if (options.ltr) {
+      ob.append(okButton).append(type === 'alert' ? '' : cancelButton);
+    } else {
+      ob.append(type === 'alert' ? '' : cancelButton).append(okButton);
+    }
 
     // Add to container
     $(options.container).append(overlay).append(modal);
@@ -161,7 +164,7 @@ License: MIT
       // Preferences
       container: 'body',
       html: false,
-
+      ltr: true,
       // Templates
       cancelButton: '<button class="alertable-cancel" type="button">Cancel</button>',
       okButton: '<button class="alertable-ok" type="submit">OK</button>',
