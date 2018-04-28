@@ -20,11 +20,11 @@ if (isset($params["fmerror"]) && $params["fmerror"]!="") {
 
 if (isset($params["newsort"])) $this->SetPreference("sortby",$params["newsort"]);
 
-$path = trim(ltrim(filemanager_utils::get_cwd(),'/'));
-if( \filemanager_utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {
-    $path = '::top::/'.$path;
+$path = trim(ltrim(filemanager_utils::get_cwd(), DIRECTORY_SEPARATOR));
+if( filemanager_utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {
+    $path = '::top::'.DIRECTORY_SEPARATOR.$path;
 }
-$tmp_path_parts = explode('/',$path);
+$tmp_path_parts = explode(DIRECTORY_SEPARATOR,$path);
 $path_parts = [];
 for( $i = 0; $i < count($tmp_path_parts); $i++ ) {
     $obj = new StdClass;
@@ -35,7 +35,7 @@ for( $i = 0; $i < count($tmp_path_parts); $i++ ) {
     }
     if( $i < count($tmp_path_parts) - 1 ) {
         // not the last entry
-        $fullpath = implode('/',array_slice($tmp_path_parts,0,$i+1));
+        $fullpath = implode(DIRECTORY_SEPARATOR,array_slice($tmp_path_parts,0,$i+1));
         if( startswith($fullpath,'::top::') ) $fullpath = substr($fullpath,7);
         $obj->url = $this->create_url( $id, 'changedir', '',[ 'setdir' => $fullpath ] );
     } else {
@@ -47,6 +47,6 @@ $smarty->assign('path',$path);
 $smarty->assign('path_parts',$path_parts);
 echo $this->ProcessTemplate('fmpath.tpl');
 
-include __DIR__."/uploadview.php";
-include __DIR__."/action.admin_fileview.php"; // this is also an action.
+include __DIR__.DIRECTORY_SEPARATOR.'uploadview.php';
+include __DIR__.DIRECTORY_SEPARATOR.'action.admin_fileview.php'; // this is also an action.
 
