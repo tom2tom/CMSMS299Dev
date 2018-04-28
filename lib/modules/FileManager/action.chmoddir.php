@@ -68,25 +68,25 @@ if (isset($params["newmode"])) {
 	}
 } else {
 	$currentmode=$this->GetMode($params["path"],$params["dirname"]);
-	$this->smarty->assign('startform', $this->CreateFormStart($id, 'chmoddir', $returnid));
+	$smarty->assign('startform', $this->CreateFormStart($id, 'chmoddir', $returnid));
 
-	$this->smarty->assign('filename', $this->CreateInputHidden($id,"dirname",$params["dirname"]));
-	$this->smarty->assign('path', $this->CreateInputHidden($id,"path",$params["path"]));
-	$this->smarty->assign('endform', $this->CreateFormEnd());
-	$this->smarty->assign('newmodetext', $this->Lang("newpermissions"));
+	$smarty->assign('filename', $this->CreateInputHidden($id,"dirname",$params["dirname"]));
+	$smarty->assign('path', $this->CreateInputHidden($id,"path",$params["path"]));
+	$smarty->assign('endform', $this->CreateFormEnd());
+	$smarty->assign('newmodetext', $this->Lang("newpermissions"));
 
-	$this->smarty->assign('recurseinputtext', $this->Lang("recursetext"));
-	$this->smarty->assign('recurseinput', $this->CreateInputCheckbox($id,"recurse","1"));
+	$smarty->assign('recurseinputtext', $this->Lang("recursetext"));
+	$smarty->assign('recurseinput', $this->CreateInputCheckbox($id,"recurse","1"));
 
-	$this->smarty->assign('newmode', $this->CreateInputHidden($id,"newmode","newset"));
+	$smarty->assign('newmode', $this->CreateInputHidden($id,"newmode","newset"));
 
-	$this->smarty->assign('quickmodetext', $this->Lang("quickmode"));
-	$this->smarty->assign('quickmodeinput', $this->CreateInputText($id,"quickmode","",3,3));
+	$smarty->assign('quickmodetext', $this->Lang("quickmode"));
+	$smarty->assign('quickmodeinput', $this->CreateInputText($id,"quickmode","",3,3));
 
-	$this->smarty->assign('modetable', $this->GetModeTable($id,$this->GetPermissions($params["path"],$params["dirname"])));
+	$smarty->assign('modetable', $this->GetModeTable($id,$this->GetPermissions($params["path"],$params["dirname"])));
 
-// see template	$this->smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
-//	$this->smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+// see template	$smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
+//	$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 	echo $this->ProcessTemplate('chmoddir.tpl');
 
 }

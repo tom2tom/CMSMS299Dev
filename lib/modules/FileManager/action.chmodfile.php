@@ -34,22 +34,22 @@ if (isset($params["newmode"])) {
   }
 } else {
   $currentmode = $this->GetMode($params["path"], $params["filename"]);
-  $this->smarty->assign('startform', $this->CreateFormStart($id, 'chmodfile', $returnid));
+  $smarty->assign('startform', $this->CreateFormStart($id, 'chmodfile', $returnid));
 
-  $this->smarty->assign('filename', $this->CreateInputHidden($id, "filename", $params["filename"]));
-  $this->smarty->assign('path', $this->CreateInputHidden($id, "path", $params["path"]));
-  $this->smarty->assign('endform', $this->CreateFormEnd());
-  $this->smarty->assign('newmodetext', $this->Lang("newpermissions"));
+  $smarty->assign('filename', $this->CreateInputHidden($id, "filename", $params["filename"]));
+  $smarty->assign('path', $this->CreateInputHidden($id, "path", $params["path"]));
+  $smarty->assign('endform', $this->CreateFormEnd());
+  $smarty->assign('newmodetext', $this->Lang("newpermissions"));
 
-  $this->smarty->assign('newmode', $this->CreateInputHidden($id, "newmode", "newset"));
+  $smarty->assign('newmode', $this->CreateInputHidden($id, "newmode", "newset"));
 
-  $this->smarty->assign('modetable', $this->GetModeTable($id, $this->GetPermissions($params["path"], $params["filename"])));
+  $smarty->assign('modetable', $this->GetModeTable($id, $this->GetPermissions($params["path"], $params["filename"])));
 
-  $this->smarty->assign('quickmodetext', $this->Lang("quickmode"));
-  $this->smarty->assign('quickmodeinput', $this->CreateInputText($id, "quickmode", "", 3, 3));
+  $smarty->assign('quickmodetext', $this->Lang("quickmode"));
+  $smarty->assign('quickmodeinput', $this->CreateInputText($id, "quickmode", "", 3, 3));
 
-//see template  $this->smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
-//  $this->smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+//see template  $smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
+//  $smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
   echo $this->ProcessTemplate('chmodfile.tpl');
 }
 ?>

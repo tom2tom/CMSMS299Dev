@@ -60,16 +60,16 @@ if (isset($params["newname"])) {
 if( is_array($params['selall']) ) {
   $params['selall'] = serialize($params['selall']);
 }
-$this->smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
+$smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
 //$this->CreateInputHidden($id,"fileaction","rename");
-$this->smarty->assign('newnametext',$this->lang("newname"));
+$smarty->assign('newnametext',$this->lang("newname"));
 $smarty->assign('newname',$newname);
-$this->smarty->assign('newnameinput',$this->CreateInputText($id,"newname",$newname,40));
+$smarty->assign('newnameinput',$this->CreateInputText($id,"newname",$newname,40));
 
-$this->smarty->assign('endform', $this->CreateFormEnd());
+$smarty->assign('endform', $this->CreateFormEnd());
 
-//see template $this->smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('rename')));
-//$this->smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+//see template $smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('rename')));
+//$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 echo $this->ProcessTemplate('renamefile.tpl');
 
 ?>
