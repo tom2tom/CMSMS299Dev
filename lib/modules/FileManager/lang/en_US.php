@@ -92,6 +92,7 @@ $lang['filedeletesuccess'] = 'was successfully deleted';
 $lang['fileexistsdest'] = '%s already exists at the destination';
 $lang['fileimagetype'] = 'Cannot perform this action on this type of image';
 $lang['fileinfo'] = 'File info';
+$lang['filemodified'] = 'Modified';
 $lang['filemovesame'] = 'Cannot move a directory';
 $lang['filename'] = 'File name';
 $lang['fileno'] = 'File no.';
@@ -281,7 +282,7 @@ $lang['switchtofileview'] = 'Switch to file view';
 // T
 $lang['title_changedir'] = 'Change working directory to this directory';
 $lang['title_changeupdir'] = 'Go to the parent folder';
-$lang['title_col_filedate'] = 'This column displays the last modification date of the file';
+$lang['title_col_filedate'] = 'This column displays the date/time when the file was last modified';
 $lang['title_col_fileperms'] = 'This column displays the permissions of the file';
 $lang['title_col_filesize'] = 'This column displays the size of the file';
 $lang['title_col_fileowner'] = 'This column displays the user name of the owner of the file';
