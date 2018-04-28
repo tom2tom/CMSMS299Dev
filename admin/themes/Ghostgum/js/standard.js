@@ -64,6 +64,7 @@ var ggjs = {
     // setup custom dialogs
     cms_data.alertfunc = this.popup_alert;
     cms_data.confirmfunc = this.popup_confirm;
+    cms_data.promptfunc = this.popup_prompt;
 //  cms_data.dialogfunc = this.popup_dialog;
     // open external links with rel="external" attribute in new window
     $('a[rel=external]').attr('target', '_blank');
@@ -464,6 +465,37 @@ var ggjs = {
       okButton: '<button type="button" class="adminsubmit icon check">' + yestxt + '</button>',
       cancelButton: '<button type="button" class="adminsubmit icon cancel">' + notxt + '</button>'
     });
+  },
+  /**
+   * @description Display a modal prompt dialog
+   * @function
+   * @param (String) msg The prompt to display
+   * @param (String) suggest Optional initial value
+   * @param (String) title Unused title string
+   * @return promise
+   */
+  popup_prompt: function(msg, suggest, title) {
+    return $.alertable.prompt(msg, {
+      prompt: '<input type="text" class="alertable-input" value="'+ suggest +'" />',
+      okButton: '<button type="button" class="adminsubmit icon check">' + cms_lang('ok') + '</button>',
+      cancelButton: '<button type="button" class="adminsubmit icon cancel">' + cms_lang('cancel') + '</button>'
+    });
+  },
+   /** @description Display a modal dialog with caller-defined content
+   * @function
+   * @param (String) content The entire dialog markup, often wrapped in a div styled 'hidden'
+   * @param (object) opts Optional parameters
+   */
+  popup_dialog: function(content, opts) {
+    //TODO process opts, if any
+    $.alertable.prompt('', {
+      modal: content
+    });/*.then(function(data) {
+      console.log('Dialog promise data', data);
+    }, function() {
+      console.log('Dialog cancelled');
+    });
+*/
   }
 };
 
