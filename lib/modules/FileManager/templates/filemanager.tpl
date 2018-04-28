@@ -1,10 +1,10 @@
 {if !isset($noform)}
 
 {function filebtn}
-{if isset($text) && $text}
-  {if isset($icon) && $icon}{$addclass=' icon'|cat:$icon}{else}{$addclass=''}{/if}
+{strip}{if isset($text) && $text}
+  {if !empty($icon)}{$addclass=' icon '|cat:$icon}{else}{$addclass=''}{/if}
   {if !isset($title) || $title == ''}{$title=$text}{/if}
-{/if}
+{/if}{/strip}
   <button type="submit" name="{$iname}" id="{$id}" title="{$title|default:''}" class="filebtn adminsubmit{$addclass}">{$text}</button>
 {/function}
 
@@ -15,19 +15,17 @@
 <div>
   {$formstart}
   {$hiddenpath}
-  <div>
-    <fieldset>
+  <div class="postgap">
       {filebtn id='btn_newdir' iname="{$actionid}fileactionnewdir" icon='plus' text=$mod->Lang('newdir') title=$mod->Lang('title_newdir')}
-      {filebtn id='btn_view' iname="{$actionid}fileactionview" icon='zoomin' text=$mod->Lang('view') title=$mod->Lang('title_view')}
-      {filebtn id='btn_rename' iname="{$actionid}fileactionrename" icon='TODO' text=$mod->Lang('rename') title=$mod->Lang('title_rename')}
-      {filebtn id='btn_delete' iname="{$actionid}fileactiondelete" icon='trash' text=$mod->Lang('delete') title=$mod->Lang('title_delete')}
-      {filebtn id='btn_move' iname="{$actionid}fileactionmove" icon='TODO' text=$mod->Lang('move') title=$mod->Lang('title_move')}
-      {filebtn id='btn_copy' iname="{$actionid}fileactioncopy" icon='copy' text=$mod->Lang('copy') title=$mod->Lang('title_copy')}
-      {filebtn id='btn_unpack' iname="{$actionid}fileactionunpack" icon='suitcase' text=$mod->Lang('unpack') title=$mod->Lang('title_unpack')}
-      {filebtn id='btn_thumb' iname="{$actionid}fileactionthumb" icon='star' text=$mod->Lang('thumbnail') title=$mod->Lang('title_thumbnail')}
-      {filebtn id='btn_resizecrop' iname="{$actionid}fileactionresizecrop" icon='image' text=$mod->Lang('resizecrop') title=$mod->Lang('title_resizecrop')}
-      {filebtn id='btn_rotate' iname="{$actionid}fileactionrotate" icon='image' text=$mod->Lang('rotate') title=$mod->Lang('title_rotate')}
-    </fieldset>
+      {filebtn id='btn_view' iname="{$actionid}fileactionview" icon='' text=$mod->Lang('view') title=$mod->Lang('title_view')}
+      {filebtn id='btn_rename' iname="{$actionid}fileactionrename" icon='' text=$mod->Lang('rename') title=$mod->Lang('title_rename')}
+      {filebtn id='btn_delete' iname="{$actionid}fileactiondelete" icon='delete' text=$mod->Lang('delete') title=$mod->Lang('title_delete')}
+      {filebtn id='btn_move' iname="{$actionid}fileactionmove" icon='' text=$mod->Lang('move') title=$mod->Lang('title_move')}
+      {filebtn id='btn_copy' iname="{$actionid}fileactioncopy" icon='' text=$mod->Lang('copy') title=$mod->Lang('title_copy')}
+      {filebtn id='btn_unpack' iname="{$actionid}fileactionunpack" icon='' text=$mod->Lang('unpack') title=$mod->Lang('title_unpack')}
+      {filebtn id='btn_thumb' iname="{$actionid}fileactionthumb" icon='' text=$mod->Lang('thumbnail') title=$mod->Lang('title_thumbnail')}
+      {filebtn id='btn_resizecrop' iname="{$actionid}fileactionresizecrop" icon='' text=$mod->Lang('resizecrop') title=$mod->Lang('title_resizecrop')}
+      {filebtn id='btn_rotate' iname="{$actionid}fileactionrotate" icon='' text=$mod->Lang('rotate') title=$mod->Lang('title_rotate')}
   </div>
 {/if} {* !isset($noform) *}
 
