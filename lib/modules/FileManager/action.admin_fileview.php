@@ -69,7 +69,7 @@ $smarty->assign('fileownertext', $this->Lang('fileowner'));
 $smarty->assign('filepermstext', $this->Lang('fileperms'));
 $smarty->assign('fileinfotext', $this->Lang('fileinfo'));
 
-$smarty->assign('filedatetext', $this->Lang('filedate'));
+$smarty->assign('filedatetext', $this->Lang('filemodified'));
 $smarty->assign('actionstext', $this->Lang('actions'));
 
 $times = count($filelist);
