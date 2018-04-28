@@ -172,19 +172,19 @@ final class ModuleOperations
 
         $fh = fopen($dir."/moduleinfo.ini",'w');
         fputs($fh,"[module]\n");
-        fputs($fh,"name = ".$modinstance->GetName()."\n");
-        fputs($fh,"version = ".$modinstance->GetVersion()."\n");
+        fputs($fh,"name = \"".$modinstance->GetName()."\"\n");
+        fputs($fh,"version = \"".$modinstance->GetVersion()."\"\n");
         fputs($fh,"description = \"".$modinstance->GetDescription()."\"\n");
-        fputs($fh,"author = ".$modinstance->GetAuthor()."\n");
-        fputs($fh,"authoremail = ".$modinstance->GetAuthorEmail()."\n");
-        fputs($fh,"mincmsversion = ".$modinstance->MinimumCMSVersion()."\n");
+        fputs($fh,"author = \"".$modinstance->GetAuthor()."\"\n");
+        fputs($fh,"authoremail = \"".$modinstance->GetAuthorEmail()."\"\n");
+        fputs($fh,"mincmsversion = \"".$modinstance->MinimumCMSVersion()."\"\n");
         fputs($fh,"lazyloadadmin = ".($modinstance->LazyLoadAdmin()?'1':'0')."\n");
         fputs($fh,"lazyloadfrontend = ".($modinstance->LazyLoadFrontend()?'1':'0')."\n");
         $depends = $modinstance->GetDependencies();
         if( is_array($depends) && count($depends) ) {
             fputs($fh,"[depends]\n");
             foreach( $depends as $key => $val ) {
-                fputs($fh,"$key = $val\n");
+                fputs($fh,"$key = \"$val\"\n");
             }
         }
         fputs($fh,"[meta]\n");
@@ -951,10 +951,11 @@ final class ModuleOperations
     /**
      * Return the current filepicker module object.
      *
-     * This method returns module object for the currently selected search module.
+     * This method returns module object for the currently selected filepicker module.
      *
-     * @return \CMSMS\FilePickerInterface
+     * @return \FilePicker\FilePickerInterface
      * @since 2.2
+	 * @deprecated since 2.3 : TODO make 'file-picking' redundant
      */
     public function &GetFilePickerModule()
     {
