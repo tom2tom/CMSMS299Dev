@@ -72,7 +72,7 @@ EOS;
 		$out .= cms_get_jquery();
 		$out .= <<<EOS
 <script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script>
-<script type="text/javascript" src="{$base_url}/js/jquery.alertable.min.js"></script>
+<script type="text/javascript" src="{$base_url}/js/jquery.alertable.js"></script>
 <script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
