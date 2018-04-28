@@ -90,7 +90,7 @@ $(document).ready(function() {
      {else}
       {$rowclass=''}
      {/if}
-    <tr class="{cycle values='row1,row2'} {$rowclass}">
+    <tr class="{cycle values='row1,row2'}">
       <td>{$severity_list[$one.severity]}</td>
       <td>{$one.timestamp|date_format:'%e %h. %Y %H:%M:%S'}</td>
       <td>{$one.subject}</td>
