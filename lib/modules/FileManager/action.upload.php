@@ -3,7 +3,7 @@
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
-$UploadHandler = new FileManager\CustomUploader(['param_name'=>$id.'files']);
+$UploadHandler = new FileManager\UploadHandler(['param_name'=>$id.'files']);
 
 header('Pragma: no-cache');
 header('Cache-Control: private, no-cache');
