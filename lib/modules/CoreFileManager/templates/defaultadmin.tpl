@@ -1,51 +1,50 @@
-<div id="main-nav">
+<div class="vbox">
+ <div class="hbox expand flow">
+  <div id="main-nav" class="boxchild">
 {if !empty($crumbs)}{foreach $crumbs as $one}
 {if $one@first}
  <a href="?p={$one->url}">
- <i class="fa fa-home" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
+ <i class="if-home-outline" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
  </a>
 {else}
  <i class="{$crumbjoiner}"></i> <a href="?p={$one->url}" title="{$mod->Lang('goto_named',{$one->name})}">{$one->name}</a>
 {/if}
 {/foreach}{/if}
-</div>
-<div id="main-actions">
-<a title="{$mod->Lang('goto_parent')}" href="#TODO"><i class="fa fa-level-up"></i></a>
-<a title="{$mod->Lang('newfolder')}" href="#createNewItem"><i class="fa fa-folder-open"></i></a>
-<a title="{$mod->Lang('search')}" href="javascript:showSearch('{$rooturl}')"><i class="fa fa-search"></i></a>
-<a title="{$mod->Lang('upload')}" href="?p={$rooturl}&amp;{$actionid}upload"><i class="fa fa-upload" aria-hidden="true"></i></a>
-</div>
+  </div>{*/boxchild*}
+  <div id="main-actions" class="boxchild">
+<a title="{$mod->Lang('goto_parent')}" href="#TODO"><i class="if-level-up"></i></a>
+<a title="{$mod->Lang('newfolder')}" href="#createNewItem"><i class="if-folder-add"></i></a>
+<a title="{$mod->Lang('search')}" href="javascript:showSearch('{$rooturl}')"><i class="if-search"></i></a>
+<a title="{$mod->Lang('upload')}" href="?p={$rooturl}&amp;{$actionid}upload"><i class="if-upload" aria-hidden="true"></i></a>
+  </div>{*/boxchild*}
+ </div>{*/hbox*}
 
-<div style="clear:both;">{*hbox*}
+ <div class="hbox flow">
 
 {if !empty($FM_TREEVIEW)}
-<div class="file-tree-view" id="file-tree-view">{*boxchild*}
- <div class="tree-title">Browse</div>
+  <div id="file-tree-view" class="boxchild file-tree-view">
+   <p class="tree-title">{$mod->Lang('browse')}</p>
 TREEVIEW HERE
-</div>{*/boxchild*}
+  </div>{*/boxchild*}
 {/if}
 
-<div>{*boxchild*}
-{$form_start}
-<input type="hidden" name="{$actionid}p" value="{$rooturl}" />
-<input type="hidden" name="{$actionid}task" id="settask" value="" />
-{*<input type="hidden" name="{$actionid}group" value="1" />*}
-
-<table class="pagetable" id="main-table">
-<thead><tr>
-  <th class="center">{$mod->Lang('name')}</th>
-  <th class="center">{$mod->Lang('size')}</th>
-  <th class="center">{$mod->Lang('modified')}</th>
+  <div class="boxchild">
+  {$form_start}
+  <table id="main-table" class="pagetable">
+  <thead><tr>
+   <th class="center">{$mod->Lang('name')}</th>
+   <th class="center">{$mod->Lang('size')}</th>
+   <th class="center">{$mod->Lang('modified')}</th>
 {if !$FM_IS_WIN}
-  <th class="center">{$mod->Lang('perms')}</th>
-  <th class="center">{$mod->Lang('owner')}</th>
+   <th class="center">{$mod->Lang('perms')}</th>
+   <th class="center">{$mod->Lang('owner')}</th>
 {/if}
-  <th></th>
+   <th></th>
 {if !$FM_READONLY}
-  <th><input type="checkbox" id="checkall" onclick="checkall_toggle(this);"></th>
+   <th><input type="checkbox" id="checkall" onclick="checkall_toggle(this);"></th>
 {/if}
-</tr></thead>
-<tbody>
+  </tr></thead>
+  <tbody>
 {foreach $items as $one}
  <tr class="{cycle values='row1,row2'}">
   <td class="filename"{if $one->is_link} title="{$pointer} {$one->realpath}"{/if}><i class="{$one->icon}"></i> {if $one->link}{$one->link}{else}{$one->name}{/if}</td>
@@ -61,25 +60,24 @@ TREEVIEW HERE
 {/if}
  </tr>
 {/foreach}
-</tbody>
-</table>
-</form>
-<br />
-{$mod->Lang('summary', $filescount, $folderscount, $totalcount)}
-<br /><br />
-<div class="path footer-links">
-<a href="javascript:copyclick()" class="link_button fonticon"><i class="fa fa-files-o"></i> {$mod->Lang('copy')}</a>
-<a href="javascript:moveclick()" class="link_button fonticon"><i class="fa fa-location-arrow"></i> {$mod->Lang('move')}</a>
-<a href="javascript:compressclick()" class="link_button fonticon"><i class="fa fa-compress"></i> {$mod->Lang('compress')}</a>
-<a href="javascript:decompressclick()" class="link_button fonticon"><i class="fa fa-expand"></i> {$mod->Lang('expand')}</a>
-<a href="javascript:deleteclick()" class="link_button fonticon"><i class="fa fa-trash"></i> {$mod->Lang('delete')}</a>
-<a href="javascript:invert_all()" class="link_button fonticon"><i class="fa fa-adjust"></i> {$mod->Lang('selectother')}</a>
-</div>
-
-</div>{*/boxchild*}
-</div>{*/hbox*}
-
-{* POPUP DIALOGS *}
+  </tbody>
+  </table>
+  <br />
+  {$mod->Lang('summary', $filescount, $folderscount, $totalcount)}
+  <br /><br />
+  <div class="path footer-links">
+   <button type="submit" name="{$actionid}copy" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-docs"></i> {$mod->Lang('copy')}</button>
+   <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-direction"></i> {$mod->Lang('move')}</button>
+   <button type="submit" name="{$actionid}compress" class="adminsubmit fonticon" onclick="compressclick(this);return false;"><i class="if-resize-small"></i> {$mod->Lang('compress')}</button>
+   <button type="submit" name="{$actionid}decompress" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-resize-full"></i> {$mod->Lang('expand')}</button>
+   <button type="submit" name="{$actionid}delete" class="adminsubmit fonticon" onclick="deleteclick(this);return false;"><i class="if-trash-empty"></i> {$mod->Lang('delete')}</button>
+   <button type="button" class="adminsubmit fonticon" onclick="invert_all();return false;"><i class="if-adjust"></i> {$mod->Lang('selectother')}</button>
+  </div>
+  </form>
+  </div>{*/boxchild*}
+ </div>{*/hbox*}
+</div>{*vbox*}
+{*POPUP DIALOGS*}
 <div id="createNewItem" title="{$mod->Lang('newitem')}" style="display:none;">
  <label for="newfile">{$mod->Lang('itemtype')}:</label>
  <input type="radio" name="{$actionid}newfile" id="newfile" value="file" />{$mod->Lang('file')}
