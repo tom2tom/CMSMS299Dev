@@ -340,7 +340,7 @@ function php_file_tree_dir($directory, $first_call = true) {
             if( $this_file != "." && $this_file != ".." ) {
                 if( is_dir("$directory/$this_file") ) {
                     // Directory
-                    $php_file_tree .= "<li class=\"pft-directory\"><i class=\"fa fa-folder-o\"></i><a href=\"#\">" . htmlspecialchars($this_file) . "</a>";
+                    $php_file_tree .= "<li class=\"pft-directory\"><i class=\"if-folder-empty\"></i><a href=\"#\">" . htmlspecialchars($this_file) . "</a>";
                     $php_file_tree .= php_file_tree_dir("$directory/$this_file", false);
                     $php_file_tree .= "</li>";
                 } else {
@@ -419,78 +419,78 @@ function fm_get_file_icon_class($path)
         case 'ico': case 'gif': case 'jpg': case 'jpeg': case 'jpc': case 'jp2':
         case 'jpx': case 'xbm': case 'wbmp': case 'png': case 'bmp': case 'tif':
         case 'tiff': case 'svg':
-            $img = 'fa fa-picture-o';
+            $img = 'if-file-image';
             break;
-        case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'json': case 'sh':
-        case 'config': case 'twig': case 'tpl': case 'md': case 'gitignore':
+        case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'json':
+        case 'config': case 'twig': case 'tpl':
         case 'c': case 'cpp': case 'cs': case 'py': case 'map': case 'lock': case 'dtd':
-            $img = 'fa fa-file-code-o';
+            $img = 'if-file-code';
             break;
-        case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess':
-            $img = 'fa fa-file-text-o';
+        case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess': case 'md': case 'gitignore':
+            $img = 'if-doc-text';
             break;
         case 'css': case 'less': case 'sass': case 'scss':
-            $img = 'fa fa-css3';
+            $img = 'if-css3';
             break;
         case 'zip': case 'rar': case 'gz': case 'tar': case '7z':
-            $img = 'fa fa-file-archive-o';
+            $img = 'if-file-archive';
             break;
         case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
-            $img = 'fa fa-code';
+            $img = 'if-file-code';
             break;
         case 'htm': case 'html': case 'shtml': case 'xhtml':
-            $img = 'fa fa-html5';
+            $img = 'if-html5';
             break;
         case 'xml': case 'xsl':
-            $img = 'fa fa-file-excel-o';
+            $img = 'if-doc-text';
             break;
         case 'wav': case 'mp3': case 'mp2': case 'm4a': case 'aac': case 'ogg':
         case 'oga': case 'wma': case 'mka': case 'flac': case 'ac3': case 'tds':
-            $img = 'fa fa-music';
+            $img = 'if-file-audio';
             break;
         case 'm3u': case 'm3u8': case 'pls': case 'cue':
-            $img = 'fa fa-headphones';
+            $img = 'fa fa-headphones'; //TODO
             break;
         case 'avi': case 'mpg': case 'mpeg': case 'mp4': case 'm4v': case 'flv':
         case 'f4v': case 'ogm': case 'ogv': case 'mov': case 'mkv': case '3gp':
         case 'asf': case 'wmv':
-            $img = 'fa fa-file-video-o';
+            $img = 'if-file-video';
             break;
         case 'eml': case 'msg':
-            $img = 'fa fa-envelope-o';
+            $img = 'if-chat-empty';
             break;
         case 'xls': case 'xlsx':
-            $img = 'fa fa-file-excel-o';
+            $img = 'if-file-excel';
             break;
         case 'csv':
-            $img = 'fa fa-file-text-o';
+            $img = 'if-doc-text';
             break;
         case 'bak':
-            $img = 'fa fa-clipboard';
+            $img = 'if-history';
             break;
         case 'doc': case 'docx':
-            $img = 'fa fa-file-word-o';
+            $img = 'if-file-word';
             break;
         case 'ppt': case 'pptx':
-            $img = 'fa fa-file-powerpoint-o';
+            $img = 'if-file-powerpoint';
             break;
-        case 'ttf': case 'ttc': case 'otf': case 'woff':case 'woff2': case 'eot': case 'fon':
-            $img = 'fa fa-font';
+        case 'ttf': case 'ttc': case 'otf': case 'woff': case 'woff2': case 'eot': case 'fon':
+            $img = 'if-font';
             break;
         case 'pdf':
-            $img = 'fa fa-file-pdf-o';
+            $img = 'if-file-pdf';
             break;
         case 'psd': case 'ai': case 'eps': case 'fla': case 'swf':
-            $img = 'fa fa-file-image-o';
+            $img = 'if-file-image';
             break;
-        case 'exe': case 'msi':
-            $img = 'fa fa-file-o';
+        case 'exe': case 'msi': case 'so': case 'dll':
+            $img = 'if-cog';
             break;
-        case 'bat':
-            $img = 'fa fa-terminal';
+        case 'bat': case 'sh':
+            $img = 'if-terminal';
             break;
         default:
-            $img = 'fa fa-info-circle';
+            $img = 'if-doc';
     }
 
     return $img;
@@ -680,7 +680,7 @@ class FM_Zipper
  * Get image
  * @param string $img
  */
-function fm_get_image($img)
+/*function fm_get_image($img)
 {
     $img = trim($img);
     $images = fm_get_images();
@@ -691,12 +691,12 @@ function fm_get_image($img)
     }
     return base64_decode($image);
 }
-
+*/
 /**
  * Get base64-encoded images
  * @return array
  */
-function fm_get_images()
+/*function fm_get_images()
 {
     return array(
         'favicon' => 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
@@ -795,4 +795,4 @@ yfg3wNf+r99KxafOibNu5IQvKKsv2x9lTtEFvmGlXq9/rFeL/gnWD2kB6KcwcpB+wP/IyeP2svqp
 RK5CYII=',
     );
 }
-
+*/
