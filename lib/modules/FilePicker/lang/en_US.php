@@ -7,6 +7,7 @@ $lang['add_profile'] = 'Add a new Profile';
 $lang['can_delete'] = 'Allow file deletion';
 $lang['can_mkdir'] = 'Allow directory creation';
 $lang['can_upload'] = 'Uploads allowed';
+$lang['cancel'] = 'Cancel'; 
 $lang['changedir'] = 'Change directory to';
 $lang['clear'] = 'Clear';
 $lang['confirm_delete'] = 'Are you sure you want to delete this?';
@@ -16,6 +17,7 @@ $lang['create_dir'] = 'Create a new folder';
 $lang['dimension'] = 'Dimensions';
 $lang['delete'] = 'Delete';
 $lang['delete_profile'] = 'Delete Profile';
+$lang['dependencies'] = 'Dependencies';
 
 // E
 $lang['edit_profile'] = 'Edit Profile';
@@ -72,6 +74,7 @@ $lang['select_an_image'] = 'Select an image';
 $lang['select_upload_files'] = 'Select files to upload';
 $lang['show_thumbs'] = 'Show thumbnails';
 $lang['size'] = 'Size';
+$lang['submit'] = 'Submit';
 $lang['switcharchive'] = 'Only show archive files';
 $lang['switchaudio'] = 'Only show audio files';
 $lang['switchfiles'] = 'Only show regular files';
