@@ -21,13 +21,13 @@
  * smarty-discussion-subscribe@googlegroups.com
  *
  * @link      http://www.smarty.net/
- * @copyright 2017 New Digital Group, Inc.
- * @copyright 2017 Uwe Tews
+ * @copyright 2018 New Digital Group, Inc.
+ * @copyright 2018 Uwe Tews
  * @author    Monte Ohrt <monte at ohrt dot com>
- * @author    Uwe Tews
+ * @author    Uwe Tews   <uwe dot tews at gmail dot com>
  * @author    Rodney Rehm
  * @package   Smarty
- * @version   3.1.32-dev
+ * @version   3.1.32
  */
 /**
  * set SMARTY_DIR to absolute path to Smarty library files.
@@ -112,7 +112,7 @@ class Smarty extends Smarty_Internal_TemplateBase
     /**
      * smarty version
      */
-    const SMARTY_VERSION = '3.1.32-dev-45';
+    const SMARTY_VERSION = '3.1.32';
     /**
      * define variable scopes
      */
@@ -1042,9 +1042,21 @@ class Smarty extends Smarty_Internal_TemplateBase
      */
     public function _realpath($path, $realpath = null)
     {
-        $nds = DIRECTORY_SEPARATOR === '/' ? '\\' : '/';
+        static $nds = null;
+        static $sepDotsep = null;
+        static $sepDot = null;
+        static $sepSep =null;
+        if (!isset($nds)) {
+            $nds = array('/' => '\\', '\\' => '/');
+            $sepDotsep = DIRECTORY_SEPARATOR . '.' . DIRECTORY_SEPARATOR;
+            $sepDot = DIRECTORY_SEPARATOR . '.';
+            $sepSep = DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR;
+        }
         // normalize DIRECTORY_SEPARATOR
-        $path = str_replace($nds, DIRECTORY_SEPARATOR, $path);
+        $path = str_replace(array($nds[DIRECTORY_SEPARATOR], $sepDotsep), DIRECTORY_SEPARATOR, $path);
+        if (strpos($path,$sepDot) === false && (($realpath === false && $path[0] === '.') || $realpath === null) && $path[0] !== '\\') {
+            return $path;
+        }
         preg_match('%^(?<root>(?:[[:alpha:]]:[\\\\]|/|[\\\\]{2}[[:alpha:]]+|[[:print:]]{2,}:[/]{2}|[\\\\])?)(?<path>(.*))$%u',
                    $path,
                    $parts);
@@ -1056,11 +1068,11 @@ class Smarty extends Smarty_Internal_TemplateBase
                 $path = getcwd() . DIRECTORY_SEPARATOR . $path;
             }
         }
-        // remove noop 'DIRECTORY_SEPARATOR DIRECTORY_SEPARATOR' and 'DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR' patterns
-        $path = preg_replace('#([\\\\/]([.]?[\\\\/])+)#u', DIRECTORY_SEPARATOR, $path);
+       // remove noop 'DIRECTORY_SEPARATOR DIRECTORY_SEPARATOR' and 'DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR' patterns
+        $path = str_replace(array($sepDotsep,$sepSep), DIRECTORY_SEPARATOR, $path);
         // resolve '..DIRECTORY_SEPARATOR' pattern, smallest first
         if (strpos($path, '..' . DIRECTORY_SEPARATOR) !== false &&
-            preg_match_all('#(([.]?[\\\\/])*([.][.])[\\\\/]([.]?[\\\\/])*)+#u', $path, $match)
+            preg_match_all('#[\\\\/]([.][.][\\\\/])+#u', $path, $match)
         ) {
             $counts = array();
             foreach ($match[ 0 ] as $m) {
@@ -1068,13 +1080,13 @@ class Smarty extends Smarty_Internal_TemplateBase
             }
             sort($counts);
             foreach ($counts as $count) {
-                $path = preg_replace('#(([\\\\/]([.]?[\\\\/])*[^\\\\/.]+){' . $count .
-                                     '}[\\\\/]([.]?[\\\\/])*([.][.][\\\\/]([.]?[\\\\/])*){' . $count . '})(?=[^.])#u',
+                $path = preg_replace('#([\\\\/]+[^\\\\/]+){' . $count .
+                                     '}[\\\\/]+([.][.][\\\\/]+){' . $count . '}#u',
                                      DIRECTORY_SEPARATOR,
                                      $path);
             }
         }
-        return $parts[ 'root' ] . $path;
+        return $realpath !== false ? $parts[ 'root' ] . $path : str_ireplace(getcwd(), '.', $parts[ 'root' ] . $path);
     }
 
     /**
