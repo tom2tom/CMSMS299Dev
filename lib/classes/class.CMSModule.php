@@ -2529,6 +2529,7 @@ abstract class CMSModule
      * @since 2.3
      * @author Robert Campbell
      * @param string|string[] $str The message.  Accepts either an array of messages or a single string.
+	 */
     public function SetInfo($str)
     {
         $theme = cms_utils::get_theme_object();
@@ -2558,6 +2559,7 @@ abstract class CMSModule
      * @since 2.3
      * @author Robert Campbell
      * @param string|string[] $str The message.  Accepts either an array of messages or a single string.
+	 */
     public function SetWarning($str)
     {
         $theme = cms_utils::get_theme_object();
