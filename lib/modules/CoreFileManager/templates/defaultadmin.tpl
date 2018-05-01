@@ -6,28 +6,29 @@
  <a href="?p={$one->url}">
  <i class="if-home-outline" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
  </a>
+{elseif $one@last}
+ <i class="{$crumbjoiner}"></i> {$one->name}
 {else}
  <i class="{$crumbjoiner}"></i> <a href="?p={$one->url}" title="{$mod->Lang('goto_named',{$one->name})}">{$one->name}</a>
 {/if}
 {/foreach}{/if}
   </div>{*/boxchild*}
   <div id="main-actions" class="boxchild">
+{if !empty($crumbs)}
 <a title="{$mod->Lang('goto_parent')}" href="#TODO"><i class="if-level-up"></i></a>
-<a title="{$mod->Lang('newfolder')}" href="#createNewItem"><i class="if-folder-add"></i></a>
-<a title="{$mod->Lang('search')}" href="javascript:showSearch('{$rooturl}')"><i class="if-search"></i></a>
-<a title="{$mod->Lang('upload')}" href="?p={$rooturl}&amp;{$actionid}upload"><i class="if-upload" aria-hidden="true"></i></a>
+{/if}
+<a title="{$mod->Lang('newfolder')}" href="javascript:createNewItem()"><i class="if-folder-add"></i></a>
+<a title="{$mod->Lang('search')}" href="javascript:doSearch('{$rooturl}')"><i class="if-search"></i></a>
+<a title="{$mod->Lang('upload')}" href="javascript:doUpload('{$rooturl}')"><i class="if-upload" aria-hidden="true"></i></a>
   </div>{*/boxchild*}
  </div>{*/hbox*}
-
  <div class="hbox flow">
-
-{if !empty($FM_TREEVIEW)}
+{*
   <div id="file-tree-view" class="boxchild file-tree-view">
    <p class="tree-title">{$mod->Lang('browse')}</p>
-TREEVIEW HERE
-  </div>{*/boxchild*}
-{/if}
-
+   {$treeview}
+  </div>{* /boxchild* }
+*}
   <div class="boxchild">
   {$form_start}
   <table id="main-table" class="pagetable">
@@ -85,7 +86,7 @@ TREEVIEW HERE
  <br />
  <label for="newfilename">{$mod->Lang('itemname')}:</label>
  <input type="text" name="{$actionid}newfilename" id="newfilename" value="" />
- <br >
+ <br />
  <button type="button" name="{$actionid}submit" class="group-btn" onclick="newfolder('{$parenturl}');return false;">{$mod->Lang('create')}</button>
 </div>
 
@@ -96,3 +97,9 @@ TREEVIEW HERE
 <div id="searchResult" title="{$mod->Lang('searchresults')}" style="display:none;">
 </div>
 
+<div id="upload_dlg" title="{$mod->Lang('upload')}" style="display:none;">
+ <h4>Drag file(s) and drop anywhere here<h4/>
+ or
+ <h4>Select file(s)</h4>
+ <input type="file" title="Click to add Files">
+</div>
