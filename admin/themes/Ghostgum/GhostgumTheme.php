@@ -70,8 +70,8 @@ EOS;
 EOS;
 		}
 		$out .= cms_get_jquery();
+//<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script> TESTER
 		$out .= <<<EOS
-<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script>
 <script type="text/javascript" src="{$base_url}/js/jquery.alertable.js"></script>
 <script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
