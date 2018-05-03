@@ -1,10 +1,24 @@
 <?php
+# Class defining folder-specific properties and roles
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A class that defines a base profile of information needed to display a filepicker
+ * A class that defines folder-specific properties, permitted operations, and/or permitted users/groups
  * @package CMS
  * @license GPL
- *
  */
 
 namespace CMSMS;
@@ -27,7 +41,7 @@ namespace CMSMS;
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  2.2
  * @property-read string $top The top directory for the filepicker (relative to the CMSMS uploads directory)
- * @property-read FileType $type The CMSMS FileType representing what files can be selected.
+ * @property-read FileType $type A FileType object representing files which may be selected.
  * @property-read string $match_prefix List only files/items that have the specified prefix.
  * @property-read string exclude_prefix  Exclude any files/items that have the specified prefix.
  * @property-read bool $can_mkdir  Users of the filepicker can create new directories.
@@ -36,18 +50,38 @@ namespace CMSMS;
  * @property-read bool $show_thumbs Whether thumbnail images should be shown in place of normal icons for images.
  * @property-read bool $show_hidden Indicates that hidden files should be shown in the filepicker.
  * @property-read bool $sort Indicates whether files should be sorted before listing them in the filepicker.
+ * @property-read array $allow_groups Since 2.3 group-id's which are permitted to perform the suitably-flagged operations defined in the profile default ['*']
+ * @property-read array $block_groups Since 2.3 group-id's which may not perform the suitably-flagged operations defined in the profile default []
+ * @property-read array $allow_users  Since 2.3 user-id's which are permitted to perform the suitably-flagged operations defined in the profile default ['*']
+ * @property-read array $block_groups Since 2.3 user-id's which may not perform the suitably-flagged operations defined in the profile default []
  */
 class FilePickerProfile
 {
     const FLAG_NONE = 0;
     const FLAG_YES = 1;
     const FLAG_BYGROUP = 2;
+    const FLAG_BYUSER = 3;
+    const FLAG_BYGRPANDUSR = 4;
 
     /**
      * @ignore
      */
-    private $_data = [ 'top'=>null, 'type'=>FileType::TYPE_ANY, 'can_upload'=>self::FLAG_YES, 'show_thumbs'=>1, 'can_delete'=>self::FLAG_YES,
-                       'match_prefix'=>null, 'show_hidden'=>FALSE, 'exclude_prefix'=>null, 'sort'=>TRUE, 'can_mkdir'=>TRUE ];
+    private $_data = [
+      'allow_groups'=>['*'],
+      'allow_users'=>['*'],
+      'block_groups'=>[],
+      'block_users'=>[],
+      'can_delete'=>self::FLAG_YES,
+      'can_mkdir'=>TRUE,
+      'can_upload'=>self::FLAG_YES,
+      'exclude_prefix'=>null,
+      'match_prefix'=>null,
+      'show_hidden'=>FALSE,
+      'show_thumbs'=>1,
+      'sort'=>TRUE,
+      'top'=>null,
+      'type'=>FileType::TYPE_ANY,
+   ];
 
     /**
      * Set a value into this profile
@@ -152,9 +186,10 @@ class FilePickerProfile
     }
 
     /**
-     * Create a new profile object based on the current one, with various aadjusments.
+     * Create a new profile object based on the current one, with
+	 *  property-adjustments per $params.
      *
-     * @param array $params Associative array of paramaters for the setValue method.
+     * @param array $params Associative array of parameters for the setValue method.
      * @return FilePickerProfile
      */
     public function overrideWith( array $params )
@@ -176,4 +211,4 @@ class FilePickerProfile
     {
         return $this->_data;
     }
-} // end of class
+} // class
