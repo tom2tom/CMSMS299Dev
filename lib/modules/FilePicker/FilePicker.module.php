@@ -1,37 +1,26 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: FilePicker - A CMSMS addon module to provide file picking capabilities.
-# (c) 2016 by Fernando Morgado <jomorg@cmsmadesimple.org>
-# (c) 2016 by Robert Campbell <calguy1000@cmsmadesimple.org>
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2006 by Ted Kulp (wishy@cmsmadesimple.org)
-# This projects homepage is: http://www.cmsmadesimple.org
-#-------------------------------------------------------------------------
-#-------------------------------------------------------------------------
-# BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# This file is part of FilePicker
-# FilePicker is free software; you can redistribute it and/or modify
+# FilePicker - a CMSMS module providing folder-profile management and some file-upload capabilities
+# Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# FilePicker is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------
-# END_LICENSE
-#-------------------------------------------------------------------------
-use \FilePicker\TemporaryProfileStorage;
-use \CMSMS\FilePickerProfile as Profile;
-use \CMSMS\FileType;
+
+use CMSMS\FileType;
 
 require_once(__DIR__.'/lib/class.ProfileDAO.php');
 
-final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
+final class FilePicker extends CMSModule implements CMSMS\FilePickerInterface
 {
     protected $_dao;
     protected $_typehelper;
@@ -39,10 +28,8 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
     public function __construct()
     {
         parent::__construct();
-        $this->_dao = new \FilePicker\ProfileDAO( $this );
-        $this->_typehelper = new \CMSMS\FileTypeHelper( \cms_config::get_instance() );
-
-        \CMSMS\HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
+        $this->_dao = new FilePicker\ProfileDAO( $this );
+        $this->_typehelper = new CMSMS\FileTypeHelper( \cms_config::get_instance() );
     }
 
     private function _encodefilename($filename)
@@ -65,31 +52,16 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
      * end of private methods
      */
 
-    /**
-     * Hook function to populate runtime js variables
-     * @since 2.3
-     * @param array $vars to be populated with members like key=>value
-     * @param array $add_list to be updated with script-file url(s)
-     * @return array whose members are updated values of the supplied parameters
-     */
-    public function AdminHeaderSetup (array $vars, array $add_list) : array
-    {
-        $str = $this->get_browser_url();
-        $vars['filepicker_url'] = '\''.str_replace('&amp;','&',$str).'&cmsjobtype=1\'';
-        $add_list['cms_filepicker'] = $this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js';
-        return [$vars, $add_list];
-    }
+    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
+    public function GetFriendlyName() { return $this->Lang('friendlyname');  }
+    public function GetVersion() { return '1.0.1'; }
+    public function GetDependencies() { return ['FileManager'=>'1.5']; }
+    public function GetHelp() { return $this->Lang('help'); }
+    public function IsPluginModule() { return FALSE; }
+    public function HasAdmin() { return TRUE; }
+    public function GetAdminSection() { return 'files'; }
 
-    function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
-    function GetFriendlyName() { return $this->Lang('friendlyname');  }
-    function GetVersion() { return '1.0.1'; }
-    function GetDependencies() { return ['FileManager'=>'1.5']; }
-    function GetHelp() { return $this->Lang('help'); }
-    function IsPluginModule() { return FALSE; }
-    function HasAdmin() { return TRUE; }
-    function GetAdminSection() { return 'files'; }
-
-    function HasCapability( $capability, $params = array() )
+    public function HasCapability( $capability, $params = [] )
     {
         switch( $capability ) {
         case 'contentblocks':
@@ -101,7 +73,27 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         }
     }
 
-    function GetContentBlockFieldInput($blockName, $value, $params, $adding, ContentBase $content_obj)
+    /**
+     * Generate page-header js. For use by relevant module actions.
+     * @since 2.3
+     * @return string
+     */
+    protected function HeaderJsContent() : string
+    {
+        $url = str_replace('&amp;','&',$this->get_browser_url());
+        $url2 = $this->GetModuleURLPath();
+        $out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+ cms_data.filepicker_url = '{$url}&cmsjobtype=1';
+//]]>
+</script>
+<script type="text/javascript" src="{$url2}/lib/js/jquery.cmsms_filepicker.js"></script>
+EOS;
+        return $out;
+    }
+
+    public function GetContentBlockFieldInput($blockName, $value, $params, $adding, ContentBase $content_obj)
     {
         if( empty($blockName) ) return FALSE;
         $uid = get_userid(FALSE);
@@ -114,18 +106,18 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         $out = $this->get_html($blockName, $value, $profile);
         return $out;
     }
-
-//  function ValidateContentBlockFieldValue($blockName,$value,$blockparams,ContentBase $content_obj)
-//  {
-//    echo('<br />:::::::::::::::::::::<br />');
-//    debug_display($blockName, '$blockName');
-//    debug_display($value, '$value');
-//    debug_display($blockparams, '$blockparams');
-//    //debug_display($adding, '$adding');
-//    echo('<br />' . __FILE__ . ' : (' . __CLASS__ . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br />');
-//    //die('<br />RIP!<br />');
-//  }
-
+/*
+    function ValidateContentBlockFieldValue($blockName,$value,$blockparams,ContentBase $content_obj)
+    {
+        echo('<br />:::::::::::::::::::::<br />');
+        debug_display($blockName, '$blockName');
+        debug_display($value, '$value');
+        debug_display($blockparams, '$blockparams');
+        //debug_display($adding, '$adding');
+        echo('<br />' . __FILE__ . ' : (' . __CLASS__ . ' :: ' . __FUNCTION__ . ') : ' . __LINE__ . '<br />');
+        //die('<br />RIP!<br />');
+    }
+*/
     public function GetFileList($path = '')
     {
         return FileManager\filemanager_utils::get_file_list($path);
@@ -146,7 +138,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         $profile = $this->_dao->loadDefault();
         if( $profile ) return $profile;
 
-        $profile = new \CMSMS\FilePickerProfile;
+        $profile = new CMSMS\FilePickerProfile;
         return $profile;
     }
 
@@ -155,14 +147,14 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         return $this->create_url('m1_','filepicker');
     }
 
-    public function get_html( $name, $value, \CMSMS\FilePickerProfile $profile, $required = false )
+    public function get_html( $name, $value, CMSMS\FilePickerProfile $profile, $required = false )
     {
         $_instance = 'i'.uniqid();
         if( $value === '-1' ) $value = null;
 
         // store the profile as a 'useonce' and add it's signature to the params on the url
-        $sig = TemporaryProfileStorage::set( $profile );
-        $smarty = \cms_utils::get_smarty(); // $this->_GetTemplateObject();
+        $sig = FilePicker\TemporaryProfileStorage::set( $profile );
+        $smarty = CmsApp::get_instance()->GetSmarty();
         $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
         $tpl_ob->assign('mod',$this);
         $tpl_ob->assign('sig',$sig);
@@ -193,7 +185,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         case FileType::TYPE_ARCHIVE:
             $tpl_ob->assign('title',$this->Lang('select_an_archive_file'));
             break;
-        case FileType::TYPE_ANY:
+//        case FileType::TYPE_ANY:
         default:
             $tpl_ob->assign('title',$this->Lang('select_a_file'));
             break;
@@ -213,7 +205,7 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
 
 
     // INTERNAL UTILITY FUNCTION
-    public function is_acceptable_filename( \CMSMS\FilePickerProfile $profile, $filename )
+    public function is_acceptable_filename( CMSMS\FilePickerProfile $profile, $filename )
     {
         $filename = trim($filename);
         $filename = basename($filename);  // incase it's a path
@@ -224,36 +216,29 @@ final class FilePicker extends \CMSModule implements \CMSMS\FilePickerInterface
         if( $profile->exclude_prefix && startswith( $filename, $profile->exclude_prefix) ) return FALSE;
 
         switch( $profile->type ) {
-        case \CMSMS\FileType::TYPE_IMAGE:
-            if( $this->_typehelper->is_image( $filename ) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_IMAGE:
+            return $this->_typehelper->is_image( $filename );
 
-        case \CMSMS\FileType::TYPE_AUDIO:
-            if( $this->_typehelper->is_audio( $filename ) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_AUDIO:
+            return $this->_typehelper->is_audio( $filename );
 
-        case \CMSMS\FileType::TYPE_VIDEO:
-            if( $this->_typehelper->is_video( $filename ) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_VIDEO:
+            return $this->_typehelper->is_video( $filename );
 
-        case \CMSMS\FileType::TYPE_MEDIA:
-            if( $this->_typehelper->is_media( $filename) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_MEDIA:
+            return $this->_typehelper->is_media( $filename);
 
-        case \CMSMS\FileType::TYPE_XML:
-            if( $this->_typehelper->is_xml( $filename) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_XML:
+            return $this->_typehelper->is_xml( $filename);
 
-        case \CMSMS\FileType::TYPE_DOCUMENT:
-            if( $this->_typehelper->is_document( $filename) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_DOCUMENT:
+            return $this->_typehelper->is_document( $filename);
 
-        case \CMSMS\FileType::TYPE_ARCHIVE:
-            if( $this->_typehelper->is_archive( $filename ) ) return TRUE;
-            return FALSE;
+        case CMSMS\FileType::TYPE_ARCHIVE:
+            return $this->_typehelper->is_archive( $filename );
         }
 
         // passed
         return TRUE;
     }
-} // end of class
+} // class
