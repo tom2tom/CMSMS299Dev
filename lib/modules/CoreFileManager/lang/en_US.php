@@ -19,7 +19,6 @@ $lang['delete'] = 'Delete';
 $lang['del_confirm'] = 'Delete item?';
 $lang['delete_confirm'] = 'Delete selected files and folders?';
 $lang['desc_filemanager_settings'] = 'Adjust settings for the system file manager';
-$lang['linktip'] = 'Link to...';
 $lang['download'] = 'Download';
 
 // E
@@ -49,6 +48,7 @@ $lang['friendlyname'] = 'File Manager';
 
 // G
 $lang['gb'] = 'GB';
+$lang['goto'] = 'Display folder';
 $lang['goto_named'] = 'Display folder %s';
 $lang['goto_parent'] = 'Display parent folder';
 $lang['group'] = 'Group';
@@ -67,6 +67,9 @@ $lang['itemtype'] = 'Item Type';
 // K
 $lang['kb'] = 'kB';
 
+// L
+$lang['linktip'] = 'Link to...';
+
 // N
 $lang['name'] = 'Name';
 $lang['newname'] = 'New Name';
@@ -82,7 +85,6 @@ $lang['move'] = 'Move';
 
 // O
 $lang['ok'] = 'OK';
-$lang['open'] = 'Display folder';
 $lang['others'] = 'Others';
 $lang['owner'] = 'Owners';
 
@@ -110,6 +112,7 @@ $lang['summary'] = 'Totals: file(s) %d, folder(s) %d, used %d B';
 
 // T
 $lang['title_filemanager_settings'] = 'File Manager Settings';
+$lang['top'] = 'Top';
 
 // U
 $lang['unpack'] = 'Unpack';
