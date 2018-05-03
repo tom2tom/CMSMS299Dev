@@ -295,7 +295,7 @@ function fm_file_tree_dir($directory, $current, $first_call = true)
         }
 
         $php_file_tree = "<ul";
-        if( $first_call ) { $php_file_tree .= " class=\"fm-tree\""; $first_call = false; }
+        if( $first_call ) { $php_file_tree .= " id=\"fm-tree\""; $first_call = false; }
         $php_file_tree .= ">";
         foreach( $dirs as $name => $path ) {
             $relpath = substr($path, $len); 
