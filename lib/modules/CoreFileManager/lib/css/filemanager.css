@@ -1,0 +1,194 @@
+
+/* --- LAYOUT --- */
+.vbox {
+ display: flex;
+ flex-direction: column
+}
+.hbox {
+ display: flex;
+ flex-direction: row
+}
+.vbox.expand, .hbox.expand {
+ justify-content: space-between
+}
+.vbox.flow, .hbox.flow {
+ flex-wrap: wrap
+}
+.boxchild {
+ flex: 0 1 auto
+}
+.boxchild.fill {
+ flex: 1
+}
+.hbox .boxchild {
+ margin-right: 0;
+}
+.vbox .boxchild {
+ margin-bottom: 0;
+}
+
+.resize-horizontal {
+ resize: horizontal;
+}
+.resize-vertical {
+ resize: vertical;
+}
+
+#main-nav {
+ float:left
+}
+#main-actions {
+ float:right
+}
+#main-actions i {
+ font-size: 1.5em;
+}
+
+table.pagetable thead th.center {
+ text-align: center
+}
+table.pagetable tbody td {
+ padding-left: 5px;
+ padding-right: 10px
+}
+td.filename i {
+ font-size: 18px;
+}
+
+@font-face {
+  font-family: 'cfm';
+  src: url('../font/cfm.eot?78212363');
+  src: url('../font/cfm.eot?78212363#iefix') format('embedded-opentype'),
+       url('../font/cfm.woff2?78212363') format('woff2'),
+       url('../font/cfm.woff?78212363') format('woff'),
+       url('../font/cfm.ttf?78212363') format('truetype'),
+       url('../font/cfm.svg?78212363#cfm') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'cfm';
+    src: url('../font/cfm.svg?78212363#cfm') format('svg');
+  }
+}
+*/
+ 
+ [class^="if-"]:before, [class*=" if-"]:before, .toggler:before {
+  font-family: "cfm";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+ 
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: 0.2em;
+  text-align: center;
+  /* opacity: 0.8; */
+ 
+  /* For safety - reset parent styles that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+ 
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+ 
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+ 
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+ 
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+ 
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+ 
+.if-headphones:before { content: '\e800'; } /* '' */
+.if-music:before { content: '\e801'; } /* '' */
+.if-trash-empty:before { content: '\e802'; } /* '' */
+.if-doc:before { content: '\e803'; } /* '' */
+.if-adjust:before { content: '\e804'; } /* '' */
+.if-resize-full:before { content: '\e805'; } /* '' */
+.if-resize-small:before { content: '\e806'; } /* '' */
+.if-home-outline:before { content: '\e807'; } /* '' */
+.if-upload:before { content: '\e808'; } /* '' */
+.if-font:before { content: '\e809'; } /* '' */
+.if-cog:before { content: '\e80a'; } /* '' */
+.if-folder-add:before { content: '\e80b'; } /* '' */
+.if-block:before { content: '\e80d'; } /* '' */
+.if-docs:before { content: '\f0c5'; } /* '' */
+.if-chat-empty:before { content: '\f0e6'; } /* '' */
+.if-doc-text:before { content: '\f0f6'; } /* '' */
+.if-angle-double-left:before { content: '\f100'; } /* '' */
+.if-angle-double-right:before { content: '\f101'; } /* '' */
+.if-folder-empty:before { content: '\f114'; } /* '' */
+.if-folder-open-empty:before { content: '\f115'; } /* '' */
+.if-terminal:before { content: '\f120'; } /* '' */
+.if-direction:before { content: '\f124'; } /* '' */
+.if-html5:before { content: '\f13b'; } /* '' */
+.if-css3:before { content: '\f13c'; } /* '' */
+.if-level-up:before { content: '\f148'; } /* '' */
+.if-file-pdf:before { content: '\f1c1'; } /* '' */
+.if-file-word:before { content: '\f1c2'; } /* '' */
+.if-file-excel:before { content: '\f1c3'; } /* '' */
+.if-file-powerpoint:before { content: '\f1c4'; } /* '' */
+.if-file-image:before { content: '\f1c5'; } /* '' */
+.if-file-archive:before { content: '\f1c6'; } /* '' */
+.if-file-audio:before { content: '\f1c7'; } /* '' */
+.if-file-video:before { content: '\f1c8'; } /* '' */
+.if-file-code:before { content: '\f1c9'; } /* '' */
+.if-history:before { content: '\f1da'; } /* '' */
+.if-search:before { content: '\f50d'; } /* '' */
+
+td.filename .if-folder-empty {
+ color: #eeaf4b
+}
+td.filename .if-file-image {
+ color: #26b99a
+}
+td.filename .if-file-audio {
+ color: #da7d7d
+}
+td.filename .if-file-archive {
+ color: #296ea3
+}
+td.filename .if-css3 {
+ color: #f36fa0
+}
+td.filename .if-file-code {
+ color: #ec6630
+}
+td.filename .if-file-pdf {
+ color: #cc4b4c
+}
+td.filename .if-doc-text {
+ color: #0096e6
+}
+td.filename .if-html5 {
+ color: #d75e72
+}
+td.filename .if-file-excel {
+ color: #09c55d
+}
+td.filename .if-file-powerpoint {
+ color: #f6712e
+}
+
+.treemenu ul { margin-left: 1em; }
+.treemenu li { list-style: none; margin-left: 0; }
+.treemenu li a { font-size: 0.9em; }
+.treemenu .toggler { cursor: pointer; }
+.treemenu .toggler:before { display: inline-block; margin-right: 5px; }
+li.tree-empty > .toggler { opacity: 0.3; cursor: default; }
+li.tree-empty > .toggler:before { content: '\f114' }
+li.tree-closed > .toggler:before { content: '\f114'; }
+li.tree-opened > .toggler:before { content: '\f115'; }
