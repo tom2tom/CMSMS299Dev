@@ -3,32 +3,30 @@
   <div id="main-nav" class="boxchild">
 {if !empty($crumbs)}{foreach $crumbs as $one}
 {if $one@first}
- <a href="?p={$one->url}">
+ <a href="{$one->url}">
  <i class="if-home-outline" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
  </a>
 {elseif $one@last}
  <i class="{$crumbjoiner}"></i> {$one->name}
 {else}
- <i class="{$crumbjoiner}"></i> <a href="?p={$one->url}" title="{$mod->Lang('goto_named',{$one->name})}">{$one->name}</a>
+ <i class="{$crumbjoiner}"></i> <a href="{$one->url}" title="{$mod->Lang('goto_named',{$one->name})}">{$one->name}</a>
 {/if}
 {/foreach}{/if}
   </div>{*/boxchild*}
   <div id="main-actions" class="boxchild">
 {if !empty($crumbs)}
-<a title="{$mod->Lang('goto_parent')}" href="#TODO"><i class="if-level-up"></i></a>
+<a title="{$mod->Lang('goto_parent')}" href="{$parent_url}"><i class="if-level-up"></i></a>
 {/if}
 <a title="{$mod->Lang('newfolder')}" href="javascript:createNewItem()"><i class="if-folder-add"></i></a>
-<a title="{$mod->Lang('search')}" href="javascript:doSearch('{$rooturl}')"><i class="if-search"></i></a>
-<a title="{$mod->Lang('upload')}" href="javascript:doUpload('{$rooturl}')"><i class="if-upload" aria-hidden="true"></i></a>
+<a title="{$mod->Lang('search')}" href="javascript:doSearch()"><i class="if-search"></i></a>
+<a title="{$mod->Lang('upload')}" href="javascript:doUpload()"><i class="if-upload" aria-hidden="true"></i></a>
   </div>{*/boxchild*}
  </div>{*/hbox*}
  <div class="hbox flow">
-{*
-  <div id="file-tree-view" class="boxchild file-tree-view">
-   <p class="tree-title">{$mod->Lang('browse')}</p>
+  <div class="boxchild">
+   <p class="fm-tree-title">{$mod->Lang('browse')}</p>
    {$treeview}
-  </div>{* /boxchild* }
-*}
+  </div>{*/boxchild*}
   <div class="boxchild">
   {$form_start}
   <table id="main-table" class="pagetable">
@@ -57,7 +55,7 @@
 {/if}
   <td>{$one->acts}</td>
 {if !$FM_READONLY}
-  <td><input type="checkbox" name="{$actionid}file[]" value="{$one->sel}" /></td>
+  <td><input type="checkbox" name="{$actionid}sel[{$one->sel}]" value="1" /></td>
 {/if}
  </tr>
 {/foreach}
@@ -87,7 +85,7 @@
  <label for="newfilename">{$mod->Lang('itemname')}:</label>
  <input type="text" name="{$actionid}newfilename" id="newfilename" value="" />
  <br />
- <button type="button" name="{$actionid}submit" class="group-btn" onclick="newfolder('{$parenturl}');return false;">{$mod->Lang('create')}</button>
+ <button type="button" name="{$actionid}submit" class="group-btn" onclick="newfolder();">{$mod->Lang('create')}</button>
 </div>
 
 <div id="search" title="{$mod->Lang('search')}" style="display:none;">
