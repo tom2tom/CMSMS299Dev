@@ -1,7 +1,22 @@
 <?php
+#Files manipulation class
+#Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * This file describes the class that provides numerous utilities for determining and manipulating files by temp.
+ * This class  provides utilities for determining and manipulating files by type.
  *
  * @package CMS
  * @license GPL
@@ -40,7 +55,7 @@ class FileTypeHelper
     /**
      * @ignore
      */
-    private $_archive_extensions = ['.zip', '.tar.gz', '.tar.bz2', '.7z', '.rar', '.s7z', '.gz', '.z' ];
+    private $_archive_extensions = ['.zip', '.tar.gz', '.tar.bz2', '.7z', '.rar', '.s7z', '.gz', '.z', 'xz'];
     /**
      * @ignore
      */
