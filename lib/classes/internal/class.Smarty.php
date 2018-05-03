@@ -217,7 +217,7 @@ class Smarty extends smarty_base_template
             }
 
             // check if it is a simple plugin
-            $plugin = \CMSMS\CmsSimplePluginOperations::get_instance()->load_plugin( $name );
+            $plugin = \CMSMS\SimplePluginOperations::get_instance()->load_plugin( $name );
             if( $plugin ) {
                 $callback = $plugin;
 //TODO CHECKME                $cachable = FALSE;

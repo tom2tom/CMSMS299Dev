@@ -953,9 +953,8 @@ final class ModuleOperations
      *
      * This method returns module object for the currently selected filepicker module.
      *
-     * @return \FilePicker\FilePickerInterface
+     * @return \CMSMS\FilePickerInterface
      * @since 2.2
-	 * @deprecated since 2.3 : TODO make 'file-picking' redundant
      */
     public function &GetFilePickerModule()
     {

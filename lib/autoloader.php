@@ -86,7 +86,7 @@ function cms_autoloader(string $classname)
 'CMSModule' => 'CMSMS\CmsModule',
 'CMSModuleContentType' => 'CMSMS\CmsModuleContentType',
 //rename only
-'simple_plugin_operations' => 'CmsSimplePluginOperations', //new class, all uses changed
+'simple_plugin_operations' => 'SimplePluginOperations', //new class, all uses changed
 'HookManager' => 'CmsHookManager',
 'AuditManager' => 'CmsAuditManager', //new class, all uses changed
 */

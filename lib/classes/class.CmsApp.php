@@ -400,11 +400,11 @@ final class CmsApp {
     /**
      * Get the simple plugin operations object.
      *
-     * @return \CMSMS\CmsSimplePluginOperations
+     * @return \CMSMS\SimplePluginOperations
      */
     public function GetSimplePluginOperations()
     {
-        return \CMSMS\CmsSimplePluginOperations::get_instance();
+        return \CMSMS\SimplePluginOperations::get_instance();
     }
 
 	/**
