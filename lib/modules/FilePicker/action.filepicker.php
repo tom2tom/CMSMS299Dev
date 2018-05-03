@@ -1,25 +1,26 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+# FilePicker module action: select
+# Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
 #
-#This program is distributed in the hope that it will be useful,
-#but WITHOpUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \FilePicker\TemporaryInstanceStorage;
-use \FilePicker\TemporaryProfileStorage;
-use \FilePicker\PathAssistant;
-use \FilePicker\utils;
-use \CMSMS\FileType;
+use FilePicker\TemporaryInstanceStorage;
+use FilePicker\TemporaryProfileStorage;
+use FilePicker\PathAssistant;
+use FilePicker\utils;
+use CMSMS\FileType;
 
 if( !isset($gCms) ) exit;
 if( !check_login() ) exit; // admin only.... but any admin
@@ -87,7 +88,7 @@ try {
         return strnatcasecmp($file1["name"],$file2["name"]);
     };
 
-    $accept_file = function(\CMSMS\FilePickerProfile $profile,$cwd,$path,$filename) use (&$filemanager,&$assistant) {
+    $accept_file = function(CMSMS\FilePickerProfile $profile,$cwd,$path,$filename) use (&$filemanager,&$assistant) {
         if( $filename == '.' ) return FALSE;
         $fullpath = cms_join_path($path,$filename);
         if( $filename == '..' ) {
@@ -229,6 +230,8 @@ try {
     $lang['error_problem_upload'] = $this->Lang('error_problem_upload');
     $lang['error_failed_ajax'] = $this->Lang('error_failed_ajax');
     $smarty->assign('lang_js',json_encode($lang));
+//NB this template constructs an entire page, not just 'core' content
+//TODO relevance of $this->AdminHeaderContent($this->HeaderJsContent()); here
     echo $this->ProcessTemplate('filepicker.tpl');
 }
 catch( \Exception $e ) {
