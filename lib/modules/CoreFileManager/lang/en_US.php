@@ -1,5 +1,11 @@
 <?php
 
+// A
+$lang['arch_bz'] = 'bzip2';
+$lang['arch_gz'] = 'gzip';
+$lang['arch_xz'] = 'xz';
+$lang['arch_zz'] = 'zip';
+
 // B
 $lang['bb'] = 'B'; //byte symbol
 $lang['browse'] = 'Browse';
@@ -9,6 +15,9 @@ $lang['bytes'] = 'bytes';
 $lang['cancel'] = 'Cancel';
 $lang['changeperms'] = 'Change permissions'; //tooltip
 $lang['compress'] = 'Compress';
+$lang['compress_sel'] = 'Compress selected item(s)';
+$lang['compress_typed'] = 'Compress into a %s file';
+
 $lang['copy'] = 'Copy';
 $lang['copytip'] = 'Copy to...';
 
@@ -72,6 +81,7 @@ $lang['linktip'] = 'Link to...';
 
 // N
 $lang['name'] = 'Name';
+$lang['namecompressed'] = 'Compressed file name';
 $lang['newname'] = 'New Name';
 $lang['newfolder'] = 'New sub-folder here';
 $lang['newitem'] = 'Create New Item';
@@ -113,6 +123,7 @@ $lang['summary'] = 'Totals: file(s) %d, folder(s) %d, used %d B';
 // T
 $lang['title_filemanager_settings'] = 'File Manager Settings';
 $lang['top'] = 'Top';
+$lang['typecompressed'] = 'Type';
 
 // U
 $lang['unpack'] = 'Unpack';
