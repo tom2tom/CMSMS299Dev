@@ -109,14 +109,15 @@ $lang['rename'] = 'Rename';
 
 // S
 $lang['save'] = 'Save';
-$lang['search'] = 'Search in this folder';
-$lang['searchresults'] = 'Search Results';
-$lang['searchtip'] = 'Find item in current folder';
-$lang['selectall'] = 'Select All';
-$lang['selectnone'] = 'UnSelect All';
+$lang['search1'] = 'Search in this folder';
+$lang['search2'] = 'Search for folder';
+$lang['searchfor'] = 'Search for';
+//$lang['searchresults'] = 'Search Results';
+//$lang['searchtip'] = 'Find item in current folder';
+//$lang['selectall'] = 'Select All';
+//$lang['selectnone'] = 'UnSelect All';
 $lang['selectother'] = 'Invert Selection'; //button label
 $lang['selecttip'] = 'Invert selection'; //checkbox tip
-
 $lang['size'] = 'Size';
 $lang['summary'] = 'Totals: file(s) %d, folder(s) %d, used %d B';
 
