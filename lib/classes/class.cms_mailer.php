@@ -1,5 +1,5 @@
 <?php
-# Module: CMSMailer - a simple wrapper around PHPMailer
+# class cms_mailer - a simple wrapper around PHPMailer
 # Copyright (C) Robert Campbell 2016-2018 <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -49,13 +49,25 @@ class cms_mailer
    */
   public function __construct($exceptions = true)
   {
-    //TODO a real autoloader for namespaced PHPMailer
-    include_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'phpmailer' . DIRECTORY_SEPARATOR . 'PHPMailer.php';
-	if ($exceptions) {
-      include_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'phpmailer' . DIRECTORY_SEPARATOR . 'Exception.php';
+    if (spl_autoload_register([$this, 'PHPMailerAutoload'], $exceptions)) {
+      $this->_mailer = new PHPMailer($exceptions);
+      $this->reset();
+    } else {
+      $this->_mailer = null;
     }
-    $this->_mailer = new PHPMailer($exceptions);
-    $this->reset();
+  }
+
+  public function PHPMailerAutoload($classname)
+  {
+    $p = strpos($classname, 'PHPMailer\\PHPMailer');
+    if ($p === 0 || ($p == 1 && $classname[0] == '\\')) {
+      $parts = explode('\\', $classname);
+      $class = end($parts);
+      $fp = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'phpmailer' . DIRECTORY_SEPARATOR . $class . '.php';
+      if (is_readable($fp)) {
+        require_once $fp;
+      }
+    }
   }
 
   /**
@@ -67,8 +79,9 @@ class cms_mailer
    */
   public function __call($method,$args)
   {
-    if(method_exists($this->_mailer, $method))
-		return call_user_func_array(array($this->_mailer,$method), $args);
+    if (method_exists($this->_mailer, $method)) {
+      return call_user_func_array([$this->_mailer,$method], $args);
+    }
   }
 
   /**
@@ -76,24 +89,24 @@ class cms_mailer
    */
   public function reset()
   {
-	$val = cms_siteprefs::get('mailprefs');
-	$prefs = ($val) ? unserialize($val) : null;
-	if(!$prefs) {
-		$prefs = [
-		 'mailer'=>'mail',
-		 'host'=>'localhost',
-		 'port'=>25,
-		 'from'=>'root@localhost.localdomain',
-		 'fromuser'=>'CMS Administrator',
-		 'sendmail'=>'/usr/sbin/sendmail',
-		 'smtpauth'=>0,
-		 'username'=>'',
-		 'password'=>'',
-		 'secure'=>'',
-		 'timeout'=>60,
-		 'charset'=>'utf-8',
-		];
-	}
+    $val = cms_siteprefs::get('mailprefs');
+    $prefs = ($val) ? unserialize($val) : null;
+    if(!$prefs) {
+      $prefs = [
+       'mailer'=>'mail',
+       'host'=>'localhost',
+       'port'=>25,
+       'from'=>'root@localhost.localdomain',
+       'fromuser'=>'CMS Administrator',
+       'sendmail'=>'/usr/sbin/sendmail',
+       'smtpauth'=>0,
+       'username'=>'',
+       'password'=>'',
+       'secure'=>'',
+       'timeout'=>60,
+       'charset'=>'utf-8',
+      ];
+    }
     $this->_mailer->Mailer = get_parameter_value($prefs,'mailer','mail');
     $this->_mailer->Sendmail = get_parameter_value($prefs,'sendmail','/usr/sbin/sendmail');
     $this->_mailer->Timeout = get_parameter_value($prefs,'timeout',60);
