@@ -99,6 +99,6 @@
     {$footertext|default:''}
   </div>
   <!-- end footer -->
-</body>
   {$bottom_includes|default:''}
+</body>
 </html>
