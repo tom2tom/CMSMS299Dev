@@ -224,6 +224,15 @@ li.tree-empty > .toggler:before { content: '\f114' }
 li.tree-closed > .toggler:before { content: '\f114'; }
 li.tree-opened > .toggler:before { content: '\f115'; }
 
+/*
+#searchbox > input {
+}
+*/
+#searchbox > i {
+ width:20px;
+ margin-left:-30px;
+ cursor:pointer;
+}
 
 #compress_dlg p {
  text-align: center
