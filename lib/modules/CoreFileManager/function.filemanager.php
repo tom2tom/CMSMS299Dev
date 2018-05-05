@@ -298,7 +298,7 @@ function fm_file_tree_dir($directory, $current, $first_call = true)
         if( $first_call ) { $php_file_tree .= " id=\"fm-tree\""; $first_call = false; }
         $php_file_tree .= ">";
         foreach( $dirs as $name => $path ) {
-            $relpath = substr($path, $len); 
+            $relpath = substr($path, $len);
             $php_file_tree .= "<li class=\"fm-directory\"><a href=\"".$FM_FOLDER_URL.rawurlencode($relpath)."\"";
             if ($FM_FOLDER_TITLE) {
                 $php_file_tree .= " title=\"".$FM_FOLDER_TITLE."\"";
@@ -369,15 +369,16 @@ function fm_get_file_icon_class($path)
     // get extension
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
+    if (in_array($ext, fm_get_image_exts())) return 'if-file-image';
+    if (in_array($ext, fm_get_archive_exts())) return 'if-file-archive';
+    if (in_array($ext, fm_get_audio_exts())) return 'if-file-audio';
+    if (in_array($ext, fm_get_video_exts())) return 'if-file-video';
+
     switch ($ext) {
-        case 'ico': case 'gif': case 'jpg': case 'jpeg': case 'jpc': case 'jp2':
-        case 'jpx': case 'xbm': case 'wbmp': case 'png': case 'bmp': case 'tif':
-        case 'tiff': case 'svg':
-            $img = 'if-file-image';
-            break;
         case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'json':
         case 'config': case 'twig': case 'tpl':
         case 'c': case 'cpp': case 'cs': case 'py': case 'map': case 'lock': case 'dtd':
+        case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
             $img = 'if-file-code';
             break;
         case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess': case 'md': case 'gitignore':
@@ -386,29 +387,17 @@ function fm_get_file_icon_class($path)
         case 'css': case 'less': case 'sass': case 'scss':
             $img = 'if-css3';
             break;
-        case 'zip': case 'rar': case 'gz': case 'tar': case '7z':
-            $img = 'if-file-archive';
-            break;
-        case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
-            $img = 'if-file-code';
-            break;
         case 'htm': case 'html': case 'shtml': case 'xhtml':
             $img = 'if-html5';
             break;
         case 'xml': case 'xsl':
             $img = 'if-doc-text';
             break;
-        case 'wav': case 'mp3': case 'mp2': case 'm4a': case 'aac': case 'ogg':
-        case 'oga': case 'wma': case 'mka': case 'flac': case 'ac3': case 'tds':
-            $img = 'if-file-audio';
+        case 'pdf':
+            $img = 'if-file-pdf';
             break;
         case 'm3u': case 'm3u8': case 'pls': case 'cue':
-            $img = 'fa fa-headphones'; //TODO
-            break;
-        case 'avi': case 'mpg': case 'mpeg': case 'mp4': case 'm4v': case 'flv':
-        case 'f4v': case 'ogm': case 'ogv': case 'mov': case 'mkv': case '3gp':
-        case 'asf': case 'wmv':
-            $img = 'if-file-video';
+            $img = 'if-headphones';
             break;
         case 'eml': case 'msg':
             $img = 'if-chat-empty';
@@ -431,12 +420,6 @@ function fm_get_file_icon_class($path)
         case 'ttf': case 'ttc': case 'otf': case 'woff': case 'woff2': case 'eot': case 'fon':
             $img = 'if-font';
             break;
-        case 'pdf':
-            $img = 'if-file-pdf';
-            break;
-        case 'psd': case 'ai': case 'eps': case 'fla': case 'swf':
-            $img = 'if-file-image';
-            break;
         case 'exe': case 'msi': case 'so': case 'dll':
             $img = 'if-cog';
             break;
@@ -456,7 +439,29 @@ function fm_get_file_icon_class($path)
  */
 function fm_get_image_exts()
 {
-    return array('ico', 'gif', 'jpg', 'jpeg', 'jpc', 'jp2', 'jpx', 'xbm', 'wbmp', 'png', 'bmp', 'tif', 'tiff', 'psd');
+    return [
+        'ai',
+        'bmp',
+        'eps',
+        'fla',
+        'gif',
+        'ico',
+        'jp2',
+        'jpc',
+        'jpeg',
+        'jpg',
+        'jpx',
+        'png',
+        'psd',
+        'psd',
+        'svg',
+        'swf',
+        'tif',
+        'tiff',
+        'wbmp',
+        'webp',
+        'xbm',
+    ];
 }
 
 /**
@@ -465,7 +470,25 @@ function fm_get_image_exts()
  */
 function fm_get_video_exts()
 {
-    return array('webm', 'mp4', 'm4v', 'ogm', 'ogv', 'mov');
+    return [
+        '3gp',
+        'asf',
+        'avi',
+        'f4v',
+        'flv',
+        'm4v',
+        'mkv',
+        'mov',
+        'mp4',
+        'mpeg',
+        'mpg',
+        'ogm',
+        'ogv',
+        'rm',
+        'swf',
+        'webm',
+        'wmv',
+    ];
 }
 
 /**
@@ -474,7 +497,23 @@ function fm_get_video_exts()
  */
 function fm_get_audio_exts()
 {
-    return array('wav', 'mp3', 'ogg', 'm4a');
+    return [
+        'aac',
+        'ac3',
+        'flac',
+        'm4a',
+        'mka',
+        'mp2',
+        'mp3',
+        'oga',
+        'ogg',
+        'ra',
+        'ram',
+        'tds',
+        'wav',
+        'wm',
+        'wma',
+    ];
 }
 
 /**
@@ -483,12 +522,12 @@ function fm_get_audio_exts()
  */
 function fm_get_text_exts()
 {
-    return array(
+    return [
         'txt', 'css', 'ini', 'conf', 'log', 'htaccess', 'passwd', 'ftpquota', 'sql', 'js', 'json', 'sh', 'config',
         'php', 'php4', 'php5', 'phps', 'phtml', 'htm', 'html', 'shtml', 'xhtml', 'xml', 'xsl', 'm3u', 'm3u8', 'pls', 'cue',
         'eml', 'msg', 'csv', 'bat', 'twig', 'tpl', 'md', 'gitignore', 'less', 'sass', 'scss', 'c', 'cpp', 'cs', 'py',
-        'map', 'lock', 'dtd', 'svg',
-    );
+        'map', 'lock', 'dtd',
+    ];
 }
 
 /**
@@ -518,6 +557,20 @@ function fm_get_text_names()
         'authors',
         'contributors',
         'changelog',
+    );
+}
+
+function fm_get_archive_exts()
+{
+    return array(
+        '7z',
+        'gz',
+        'rar',
+        's7z',
+        'tar',
+        'xz',
+        'z',
+        'zip',
     );
 }
 
