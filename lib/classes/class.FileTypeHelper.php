@@ -51,19 +51,84 @@ class FileTypeHelper
     /**
      * @ignore
      */
-    private $_image_extensions = ['jpg','jpeg','bmp','wbmp','gif','png','webp'];
+    private $_image_extensions = [
+        'ai',
+        'bmp',
+        'eps',
+        'fla',
+        'gif',
+        'ico',
+        'jp2',
+        'jpc',
+        'jpeg',
+        'jpg',
+        'jpx',
+        'png',
+        'psd',
+        'psd',
+        'svg',
+        'swf',
+        'tif',
+        'tiff',
+        'wbmp',
+        'webp',
+        'xbm',
+    ];
     /**
      * @ignore
      */
-    private $_archive_extensions = ['.zip', '.tar.gz', '.tar.bz2', '.7z', '.rar', '.s7z', '.gz', '.z', 'xz'];
+    private $_archive_extensions = [
+        '7z',
+        'gz',
+        'rar',
+        's7z',
+        'tar',
+        'xz',
+        'z',
+        'zip',
+    ];
     /**
      * @ignore
      */
-    private $_audio_extensions = ['mp3','wav','flac','ra','ram','wm','ogg'];
+    private $_audio_extensions = [
+        'aac',
+        'ac3',
+        'flac',
+        'm4a',
+        'mka',
+        'mp2',
+        'mp3',
+        'oga',
+        'ogg',
+        'ra',
+        'ram',
+        'tds',
+        'wav',
+        'wm',
+        'wma',
+    ];
     /**
      * @ignore
      */
-    private $_video_extensions = ['swf','mov','mpg','mp4','mpeg','wmv','rm','avi'];
+    private $_video_extensions = [
+        '3gp',
+        'asf',
+        'avi',
+        'f4v',
+        'flv',
+        'm4v',
+        'mkv',
+        'mov',
+        'mp4',
+        'mpeg',
+        'mpg',
+        'ogm',
+        'ogv',
+        'rm',
+        'swf',
+        'webm',
+        'wmv',
+    ];
     /**
      * @ignore
      */
@@ -71,7 +136,22 @@ class FileTypeHelper
     /**
      * @ignore
      */
-    private $_document_extensions = ['doc','docx','odt','ods','odp','odg','odf','txt','pdf','text','xls','xlsx','ppt','pptx'];
+    private $_document_extensions = [
+        'doc',
+        'docx',
+        'odf',
+        'odg',
+        'odp',
+        'ods',
+        'odt',
+        'pdf',
+        'ppt',
+        'pptx',
+        'text',
+        'txt',
+        'xls',
+        'xlsx',
+    ];
 
     /**
      * Constructor
