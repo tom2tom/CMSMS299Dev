@@ -16,9 +16,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /*
-This action applies a CMSMS UI to H3K | Tiny File Manager
-See https://github.com/prasathmani/tinyfilemanager
-License: GPL3
+This action was inspired by and somewhat derives from H3K Tiny File Manager
+https://github.com/prasathmani/tinyfilemanager
 */
 
 if (!isset($gCms)) exit;
@@ -54,21 +53,12 @@ if ($format) {
 
 $pdev = !empty($config['developer_mode']); //AND/OR $this->CheckPermission('Modify Sitecode')
 
-/* TODO get/use these properties
-$use_highlightjs = $pdev && $this->GetPreference('syntaxhighlight', 1);
-$highlightjs_style = $this->GetPreference('highlightstyle', 'Vs');
-$upload_extensions = ($pdev) ? '' : //everything
-    'svg,png,gif,txt,pdf,htm,html' ;
-*/
-/* tinyfilemanager parameters - not necessarily relevant here */
-
 global $FM_ROOT_PATH, $FM_IS_WIN, $FM_ICONV_INPUT_ENC, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE;
 
 $FM_ROOT_PATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
 $FM_PATH = $params['p'] ?? '';
 $FM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 $FM_ICONV_INPUT_ENC = CmsNlsOperations::get_encoding(); //'UTF-8';
-
 $FM_READONLY = !($pdev || $this->CheckPermission('Modify Files'));
 $FM_EXCLUDE_FOLDERS = []; //TODO
 $FM_FOLDER_URL = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);
@@ -77,6 +67,12 @@ $FM_SHOW_HIDDEN = $this->GetPreference('showhiddenfiles', 0);
 $FM_DATETIME_FORMAT = $format;
 //$FM_TREEVIEW = true;
 
+$smarty->assign('mod', $this);
+$smarty->assign('actionid', $id);
+$smarty->assign('form_start', $this->CreateFormStart($id, 'fileaction', $returnid, 'post', '', false, '', ['p'=> rawurlencode($FM_PATH)]));
+$smarty->assign('FM_IS_WIN', $FM_IS_WIN);
+$smarty->assign('FM_READONLY', $FM_READONLY);
+
 global $bytename, $kbname, $mbname, $gbname; //$tbname
 $bytename = $this->Lang('bb');
 $kbname = $this->Lang('kb');
@@ -84,9 +80,11 @@ $mbname = $this->Lang('mb');
 $gbname = $this->Lang('gb');
 //$tbname = $this->Lang('tb');
 
+$smarty->assign('bytename', $bytename);
+
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 
-//TODO
+/* TODO toastifed notices
 if (isset($_SESSION['message'])) {
     $t = $_SESSION['status'] ?? 'success';
     if ($t == 'success') {
@@ -97,6 +95,7 @@ if (isset($_SESSION['message'])) {
     unset($_SESSION['message']);
     unset($_SESSION['status']);
 }
+*/
 
 $pathnow = $FM_ROOT_PATH;
 if ($FM_PATH) {
@@ -108,6 +107,7 @@ if (!is_dir($pathnow)) { //CHECKME link to a dir ok?
 }
 
 // breadcrumbs
+
 if ($FM_PATH) {
     $u = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);
     //root
@@ -133,40 +133,7 @@ if ($FM_PATH) {
     $smarty->assign('parent_url', $u.$t);
 }
 
-/*
-echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">';
-if (isset($_GET['view']) && $FM_USE_HIGHLIGHTJS) {
- echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/';
- echo $FM_HIGHLIGHTJS_STYLE ;
- echo '.min.css">';
-}
-
-//popup dialogs
-echo '
-<div id="wrapper">
-<div id="createNewItem" class="modalDialog"><div class="model-wrapper"><a href="#close" title="Close" class="close">X</a>
-<h2>Create New Item</h2>
-<p>
- <label for="newfile">Item Type &nbsp; : </label><input type="radio" name="newfile" id="newfile" value="file">File <input type="radio" name="newfile" value="folder" checked> Folder<br><label for="newfilename">Item Name : </label><input type="text" name="newfilename" id="newfilename" value=""><br>
- <input type="submit" name="submit" class="group-btn" value="Create New" onclick="newfolder(';
-  echo fm_enc($FM_PATH) ; echo ');return false;">
-</p>
-</div></div>
-<div id="searchResult" class="modalDialog">
-<div class="model-wrapper"><a href="#close" title="Close" class="close">X</a>
-<input type="search" name="search" value="" placeholder="Find item in current folder...">
-<h2>Search Results</h2>
-<div id="searchresultWrapper"></div>
-</div>
-</div>
-';
-*/
-
-$smarty->assign('mod', $this);
-$smarty->assign('actionid', $id);
-$smarty->assign('form_start', $this->CreateFormStart($id, 'fileaction', $returnid, 'post', '', false, '', ['p'=> rawurlencode($FM_PATH)]));
-$smarty->assign('FM_IS_WIN', $FM_IS_WIN);
-$smarty->assign('FM_READONLY', $FM_READONLY);
+// folders tree
 
 $smarty->assign('pointer', '&rarr;'); //or '&larr;' for 'rtl'
 $smarty->assign('crumbjoiner', 'if-angle-double-right'); //or 'if-angle-double-left' for 'rtl'
@@ -175,6 +142,8 @@ $smarty->assign('browse', $this->Lang('browse'));
     $t = fm_dir_tree($FM_ROOT_PATH, (($FM_PATH) ? $pathnow : ''));
     $smarty->assign('treeview', $t);
 //}
+
+// folders & files
 
 $tz = (!empty($config['timezone'])) ? $config['timezone'] : 'UTC';
 $dt = new DateTime(null, new DateTimeZone($tz));
@@ -252,6 +221,8 @@ $items = [];
 $c = 0;
 foreach ($folders as $f) {
     $oneset = new stdClass();
+    $oneset->dir = true;
+    
     $fp = $pathnow . DIRECTORY_SEPARATOR . $f;
     $encf = rawurlencode($f);
 
@@ -266,10 +237,14 @@ foreach ($folders as $f) {
     } else {
         $oneset->link = fm_convert_win($f);
     }
-    $oneset->name = null;
+    $oneset->name = $f;
 
+    $oneset->rawsize = 0;
     $oneset->size = ''; //no size-display for a folder
-    $dt->setTimestamp(filemtime($fp));
+
+    $st = filemtime($fp);
+    $oneset->rawtime = $st;
+    $dt->setTimestamp($st);
     $oneset->modat = $dt->format($FM_DATETIME_FORMAT);
 
     if (!$FM_IS_WIN) {
@@ -312,6 +287,7 @@ $c = 0;
 
 foreach ($files as $f) {
     $oneset = new stdClass();
+    $oneset->dir = false;
     $fp = $pathnow . DIRECTORY_SEPARATOR . $f;
     $encf = rawurlencode($f);
 
@@ -322,9 +298,11 @@ foreach ($files as $f) {
 
     $oneset->path = rawurlencode(trim($FM_PATH . DIRECTORY_SEPARATOR . $f, DIRECTORY_SEPARATOR)); //TODO
     $oneset->link = str_replace(['XXX','YYY'], [$encf, fm_convert_win($f)], $linkview);
-    $oneset->name = null;
+    $oneset->name = $f;
 
-    $dt->setTimestamp(filemtime($fp));
+    $st = filemtime($fp);
+    $oneset->rawtime = $st;
+    $dt->setTimestamp($st);
     $oneset->modat = $dt->format($FM_DATETIME_FORMAT);
 
     $filesize_raw = filesize($fp);
@@ -371,279 +349,85 @@ foreach ($files as $f) {
 $smarty->assign('filescount', $c);
 $smarty->assign('totalcount', $total_size);
 $smarty->assign('items', $items);
-$smarty->assign('bytename', $bytename);
+
+// compression UI
+
+$items = [];
+//TODO also check phar-extension availability for some of these
+if (class_exists('ZipArchive')) $items['zz'] = ['label' => $this->Lang('arch_zz')];
+if (function_exists('gzwrite')) $items['gz'] = ['label' => $this->Lang('arch_gz')];
+if (function_exists('bzcompress')) $items['bz'] = ['label' => $this->Lang('arch_bz')];
+if (function_exists('xzopen')) $items['xz'] = ['label' => $this->Lang('arch_xz')];
+if ($FM_IS_WIN) {
+  if (isset($items['zz'])) {
+    $items['zz']['check'] = 1;
+  }
+} else {
+  foreach(['bz','gz','zz','xz'] as $t) {
+      if (isset($items[$t])) {
+          $items[$t]['check'] = 1;
+          break;
+      }
+  }
+}
+$smarty->assign('archtypes', $items);
+if (count($items) > 1) {
+    $t = $this->Lang('compress_sel');
+}else {
+    $t = $this->Lang('compress_typed', reset($items)['label']);
+}
+$smarty->assign('title_compress', $t);
+
+
+// page infrastructure
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'upload'=>1]);
 $upload_url = rawurldecode(str_replace('&amp;', '&', $u));
 
-/*
-$this->AdminHeaderContent('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">');
-$baseurl = $this->GetModuleURLPath().'/lib/css/';
-$css = <<<EOS
-<link rel="stylesheet" href="{$baseurl}font-awesome.min.css">
-<link rel="stylesheet" href="{$baseurl}tinyfilemanager.css">
-
-EOS;
-*/
-//<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
-//<link rel="stylesheet" href="{$baseurl}fontawesome-4.7.css">
-//$baseurl .= '/lib/css/';
-//merged <link rel="stylesheet" href="{$baseurl}/lib/css/jquery.treemenu.css">
+//<link rel="stylesheet" href="{$baseurl}/lib/css/jquery.dm-uploader.css">
 $css = <<<EOS
 <link rel="stylesheet" href="{$baseurl}/lib/css/filemanager.css">
-<link rel="stylesheet" href="{$baseurl}/lib/css/jquery.dm-uploader.css">
 
 EOS;
 $this->AdminHeaderContent($css);
 
-$js = '';
-
-if (isset($_GET['view']) && $FM_USE_HIGHLIGHTJS) {
-    $js .= <<<'EOS'
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-EOS;
-}
-
-if (isset($_GET['edit']) && isset($_GET['env']) && $FM_EDIT_FILE) {
-    $js .= <<<'EOS'
-<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.2.9/ace.js"></script>
-<script>
-//<![CDATA[
-var editor = ace.edit("editor");
-editor.getSession().setMode("ace/mode/javascript");
-//]]>
-</script>
-EOS;
-}
-
-$js .= <<<EOS
-<script src="{$baseurl}/lib/js/jquery.treemenu.js"></script>
+$js = <<<EOS
+<script src="{$baseurl}/lib/js/jquery.SSsort+metadata.min.js"></script>
+<script src="{$baseurl}/lib/js/jquery.treemenu.min.js"></script>
+<script src="{$baseurl}/lib/js/jquery.easysearch.js"></script>
 <script src="{$baseurl}/lib/js/jquery.dm-uploader.js"></script>
 <script>
 //<![CDATA[
-$(document).ready(function() {
- $('.fm-tree').treemenu({
-  delay: 300,
-  closeOther: true,
-  activeSelector: 'active',
-  openActive: true
- });
-});
 
 EOS;
-
-/*
-//if ($FM_TREEVIEW) {
-    $js .= <<<'EOS'
-function init_php_file_tree() {
-  if(document.getElementsByTagName) {
-    for(var e = document.getElementsByTagName("LI"), t = 0; t < e.length; t++) {
-      var n = e[t].className;
-      if(n.indexOf("pft-directory") > -1) {
-        for(var a = e[t].childNodes, o = 0; o < a.length; o++) {
-          if("A" == a[o].tagName) {
-            a[o].onclick = function() {
-              for(var e = this.nextSibling;;) {
-                if(null === e) return !1;
-                if("UL" == e.tagName) {
-                  var t = "none" == e.style.display;
-                  return e.style.display = t ? "block" : "none", this.className = t ? "open" : "closed", !1;
-                }
-                e = e.nextSibling;
-              }
-              return !1;
-            };
-            a[o].className = n.indexOf("open") > -1 ? "open" : "closed"
-          }
-          if("UL" == a[o].tagName) a[o].style.display = n.indexOf("open") > -1 ? "block" : "none";
-        }
-      }
+$t = file_get_contents(cms_join_path(__DIR__, 'lib', 'js', 'defaultadmin.inc.js'));
+// included js may include variables enclosed in markers '~%' and '%~'.
+// like $varname or lang|key or lang|key,param[,param2 ...] Such $varname's must all be 'used' here
+$js .= preg_replace_callback('/~%(.+?)%~/', function ($match) use ($id, $upload_url)
+{
+ $name = $match[1];
+ if ($name[0] == '$') {
+    $name = substr($name, 1);
+    $adbg = $$name;
+    return $$name;
+ } elseif (strncmp($name,'lang|',5) == 0) {
+    $name = substr($name, 5);
+    if (strpos($name,',') === false) {
+       return $this->Lang($name);
+    } else {
+       $parts = explode(',',$name);
+       return $this->Lang(...$parts);
     }
-    return !1;
-  }
-}
-window.onload = init_php_file_tree;
-if(document.getElementById("file-tree-view")) {
-  var tableViewHt = document.getElementById("main-table").offsetHeight - 2;
-  document.getElementById("file-tree-view").setAttribute("style", "height:" + tableViewHt + "px");
-}
-
-EOS;
-//}
-*/
+ } else {
+    return '';
+ }
+}, $t);
 
 $js .= <<<EOS
-function newfolder(e) {
-  var t = document.getElementById("newfilename").value,
-    n = document.querySelector('input[name="newfile"]:checked').value;
-  if(null !== t && '' !== t && n) {
-    window.location.hash = "#";
-    window.location.search = "p=" + encodeURIComponent(e) + "&new=" + encodeURIComponent(t) + "&type=" + encodeURIComponent(n);
-  }
-}
-function rename(e, t) {
-  cms_prompt('{$this->Lang('newname')}', t).done(function(n) {
-    if(null !== n && "" !== n && n != t) {
-      window.location.search = "p=" + encodeURIComponent(e) + "&ren=" + encodeURIComponent(t) + "&to=" + encodeURIComponent(n);
-    }
-  });
-}
-function compressclick(el) {
-  if (any_check()) {
-    //TODO full dialog with compression-types radio
-    cms_confirm_btnclick(el, '{$this->Lang('zip_confirm')}');
-  }
-  return false;
-}
-function deleteclick(el) {
-  if (any_check()) {
-    cms_confirm_btnclick(el, '{$this->Lang('delete_confirm')}');
-  }
-  return false;
-}
-function any_check() {
-  var e = get_checkboxes();
-  for(var n = e.length - 1; n >= 0; n--) {
-    if (e[n].checked) return true;
-  }
-  return false;
-}
-function change_checkboxes(e, t) {
-  for(var n = e.length - 1; n >= 0; n--) e[n].checked = "boolean" == typeof t ? t : !e[n].checked;
-}
-function get_checkboxes() {
-  for(var e = document.getElementsByName("{$id}file[]"), t = [], n = e.length - 1; n >= 0; n--)(e[n].type = "checkbox") && t.push(e[n]);
-  return t;
-}
-function checkall_toggle(btn) {
-  change_checkboxes(get_checkboxes(), btn.checked);
-}
-function checkbox_toggle() {
-  var e = get_checkboxes();
-  e.push(this), change_checkboxes(e);
-}
-function select_all() {
-  change_checkboxes(get_checkboxes(), !0);
-  var btn = document.getElementById("checkall");
-  btn.checked = !0;
-}
-function unselect_all() {
-  change_checkboxes(get_checkboxes(), !1);
-  var btn = document.getElementById("checkall");
-  btn.checked = !1;
-}
-function invert_all() {
-  change_checkboxes(get_checkboxes());
-}
-function backup(e, t) {
-  var n = new XMLHttpRequest(),
-    a = "path=" + e + "&file=" + t + "&type=backup&ajax=true";
-  return n.open("POST", "", !0), n.setRequestHeader("Content-type", "application/x-www-form-urlencoded"), n.onreadystatechange = function() {
-    if(4 == n.readyState && 200 == n.status) alert(n.responseText);
-  }, n.send(a), !1;
-}
-function edit_save(e, t) {
-  var n = "ace" == t ? editor.getSession().getValue() : document.getElementById("normal-editor").value;
-  if(n) {
-    var a = document.createElement("form");
-    a.setAttribute("method", "POST"), a.setAttribute("action", "");
-    var o = document.createElement("textarea");
-    o.setAttribute("type", "textarea"), o.setAttribute("name", "savedata");
-    var c = document.createTextNode(n);
-    o.appendChild(c), a.appendChild(o), document.body.appendChild(a), a.submit();
-  }
-}
-function doUpload(url) {
-  var e = $('#upload_dlg');
-  //onetime only ...
-  e.dmUploader({
-    url: '{$upload_url}'
-/*    maxFileSize: 3000000, // 3 Megs
-    onInit: function() {
-      // Plugin is ready to use
-     console.log('Callback: Plugin initialized');
-    },
-    onComplete: function() {
-      // All files in the queue are processed (success or error)
-    },
-    onBeforeUpload: function(id) {
-      // about tho start uploading a file
-    },
-    onUploadCanceled: function(id) {
-      // Happens when a file is directly canceled by the user.
-    },
-    onUploadProgress: function(id, percent) {
-      // Updating file progress
-    },
-    onUploadSuccess: function(id, data) {
-      // A file was successfully uploaded
-    },
-    onUploadError: function(id, xhr, status, message) {
-      // A file upload failed
-    },
-    onFileSizeError: function(file) {
-      // When the file is too big
-    },
-    onFallbackMode: function() {
-      // When the browser doesn't support this plugin
-    }
-*/
-  });
-  cms_dialog(e, {
-    open: function(ev, ui) {
-      cms_equalWidth($('#upload_dlg label.boxchild'));
-    },
-    modal: true,
-    width: 'auto',
-    height: 'auto'
-  });
-}
-function doSearch(url) {
-  var t = new XMLHttpRequest(),
-    n = "path=" + e + "&type=search&ajax=true";
-  t.open("POST", "", !0), t.setRequestHeader("Content-type", "application/x-www-form-urlencoded"), t.onreadystatechange = function() {
-    if(4 == t.readyState && 200 == t.status) {
-      window.searchObj = t.responseText;
-      document.getElementById("searchresultWrapper").innerHTML = "";
-      window.location.hash = "#searchResult";
-    }
-  }, t.send(n);
-}
-function getSearchResult(e, t) {
-  var n = [],
-    a = [];
-  return e.forEach(function(e) {
-    "folder" === e.type ? (getSearchResult(e.items, t), e.name.toLowerCase().match(t) && n.push(e)) : "file" === e.type && e.name.toLowerCase().match(t) && a.push(e);
-  }), {
-    folders: n,
-    files: a
-  };
-}
-
-var searchEl = document.querySelector("input[type=search]"),
-  timeout = null;
-searchEl.onkeyup = function(e) {
-  clearTimeout(timeout);
-  var t = JSON.parse(window.searchObj),
-    n = document.querySelector("input[type=search]").value;
-  timeout = setTimeout(function() {
-    if(n.length >= 2) {
-      var e = getSearchResult(t, n),
-        a = "",
-        o = "";
-      e.folders.forEach(function(e) {
-        a += '<li class="' + e.type + '"><a href="?p=' + e.path + '">' + e.name + "</a></li>";
-      }), e.files.forEach(function(e) {
-        o += '<li class="' + e.type + '"><a href="?p=' + e.path + "&view=" + e.name + '">' + e.name + "</a></li>";
-      }), document.getElementById("searchresultWrapper").innerHTML = '<div class="model-wrapper">' + a + o + "</div>";
-    }
-  }, 500);
-};
 //]]>
 </script>
-EOS;
 
+EOS;
 $this->AdminBottomContent($js);
 
 echo $this->ProcessTemplate('defaultadmin.tpl');
