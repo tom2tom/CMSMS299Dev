@@ -37,7 +37,6 @@
    <th class="center {ldelim}sss:'fint'{rdelim}">{$mod->Lang('modified')}</th>
 {if !$FM_IS_WIN}
    <th class="center">{$mod->Lang('perms')}</th>
-   <th class="center">{$mod->Lang('owner')}</th>
 {/if}
    <th class="{ldelim}sss:false{rdelim}"></th>
 {if !$FM_READONLY}
@@ -53,7 +52,6 @@
   <td data-sort="{$one->rawtime}">{$one->modat}</td>
 {if !$FM_IS_WIN}
   <td style="text-align:center;">{$one->perms}</td>
-  <td>{$one->owner}</td>
 {/if}
   <td>{$one->acts}</td>
 {if !$FM_READONLY}
