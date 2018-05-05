@@ -183,7 +183,6 @@ if (count($folders) > 1) {
 
 $total_size = 0;
 
-$posix = function_exists('posix_getpwuid') && function_exists('posix_getgrgid');
 $themeObject = cms_utils::get_theme_object();
 $baseurl = $this->GetModuleURLPath();
 
@@ -217,6 +216,10 @@ $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'dl'=>'XXX'
 $icon = $themeObject->DisplayImage('icons/system/arrow-d.gif', $this->Lang('download'), '', '', 'systemicon');
 $linkdown = '<a href="'. $u .'">'.$icon.'</a>'."\n";
 
+$pr = $this->Lang('perm_r');
+$pw = $this->Lang('perm_w');
+$px = $this->Lang('perm_x');
+
 $items = [];
 $c = 0;
 foreach ($folders as $f) {
@@ -248,19 +251,16 @@ foreach ($folders as $f) {
     $oneset->modat = $dt->format($FM_DATETIME_FORMAT);
 
     if (!$FM_IS_WIN) {
-        $perms = substr(decoct(fileperms($fp)), -4);
+        $t = fileperms($fp);
+        $perms = [];
+        if ($t & 0x0100) $perms[] = $pr;
+        if ($t & 0x0080) $perms[] = $pw;
+        if ($t & 0x0040) $perms[] = $px; //ignore static flag
+        $perms = implode('+',$perms);
         if (!$FM_READONLY) {
             $oneset->perms = str_replace(['XXX', 'YYY'], [$encf, $perms], $linkchmod);
         } else {
             $oneset->perms = $perms;
-        }
-
-        if ($posix) {
-            $owner = posix_getpwuid(fileowner($fp));
-            $group = posix_getgrgid(filegroup($fp));
-            $oneset->owner = fm_enc($owner['name'] . ':' . $group['name']);
-        } else {
-            $oneset->owner = '?';
         }
     }
 
@@ -311,19 +311,16 @@ foreach ($files as $f) {
     $oneset->size = fm_get_filesize($filesize_raw);
 
     if (!$FM_IS_WIN) {
-        $perms = substr(decoct(fileperms($fp)), -4);
+        $t = fileperms($fp);
+        $perms = [];
+        if ($t & 0x0100) $perms[] = $pr;
+        if ($t & 0x0080) $perms[] = $pw;
+        if ($t & 0x0040) $perms[] = $px; //ignore static flag
+        $perms = implode('+',$perms);
         if (!$FM_READONLY) {
             $oneset->perms = str_replace(['XXX','YYY'], [$encf, $perms], $linkchmod);
         } else {
             $oneset->perms = $perms;
-        }
-
-        if ($posix) {
-            $owner = posix_getpwuid(fileowner($fp));
-            $group = posix_getgrgid(filegroup($fp));
-            $oneset->owner = fm_enc($owner['name'] . ':' . $group['name']);
-        } else {
-            $oneset->owner = '?';
         }
     }
 
