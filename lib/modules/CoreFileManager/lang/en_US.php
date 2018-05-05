@@ -5,6 +5,8 @@ $lang['arch_bz'] = 'bzip2';
 $lang['arch_gz'] = 'gzip';
 $lang['arch_xz'] = 'xz';
 $lang['arch_zz'] = 'zip';
+$lang['archive'] = 'Archive';
+$lang['audio'] = 'Audio file';
 
 // B
 $lang['bb'] = 'B'; //byte symbol
@@ -69,6 +71,7 @@ $lang['help'] = <<<EOT
 EOT;
 
 // I
+$lang['image'] = 'Image file';
 $lang['itemcounts'] = '%d file(s) and %d directory(ies)';
 $lang['itemname'] = 'Item Name';
 $lang['itemtype'] = 'Item Type';
@@ -100,7 +103,11 @@ $lang['owner'] = 'Owners';
 
 // P
 $lang['pack'] = 'Pack';
+$lang['perm_r'] = 'read';
+$lang['perm_w'] = 'write';
+$lang['perm_x'] = 'exec';
 $lang['perms'] = 'Permissions';
+
 $lang['postinstall'] = 'The File Manager module has been installed';
 
 // R
@@ -122,6 +129,7 @@ $lang['size'] = 'Size';
 $lang['summary'] = 'Totals: file(s) %d, folder(s) %d, used %d B';
 
 // T
+$lang['text'] = 'File';
 $lang['title_filemanager_settings'] = 'File Manager Settings';
 $lang['top'] = 'Top';
 $lang['typecompressed'] = 'Type';
@@ -133,6 +141,7 @@ $lang['uninstalled'] = 'The File Manager module has been uninstalled';
 $lang['upload'] = 'Upload to this folder';
 
 // V
+$lang['video'] = 'Video file';
 $lang['view'] = 'View file';
 
 // Z
