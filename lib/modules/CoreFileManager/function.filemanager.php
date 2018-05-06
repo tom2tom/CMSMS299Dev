@@ -6,6 +6,70 @@
  */
 
 /**
+ * Recursive function called by fm_file_tree() to list directories
+ * @param string $directory of this dir
+ * @param string $current 'current' path
+ * @param int  $depth 0-based recursion depth
+ */
+function _fm_dir_tree($directory, $current, $depth)
+{
+    global $FM_ROOT_PATH, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE;
+
+    if (!is_readable($directory)) {
+        return '';
+    }
+
+    $len = strlen($FM_ROOT_PATH) + 1; //skip to relative-path
+    $tree_content = '';
+    // Get and sort directories
+    $file = glob($directory. DIRECTORY_SEPARATOR . '*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
+    if ($file) {
+        natcasesort($file);
+        $dirs = array();
+        foreach ($file as $this_file) {
+            $name = basename($this_file);
+            if (!($name == '.' || $name == '..' || in_array($this_file, $FM_EXCLUDE_FOLDERS))) {
+                $dirs[$name] = $this_file;
+            }
+        }
+
+        $tree_content = '<ul';
+        if ($depth == 0) {
+            $tree_content .= ' id="fm-tree"';
+        }
+        $tree_content .= '>';
+        foreach ($dirs as $name => $path) {
+            $relpath = substr($path, $len);
+            $tree_content .= '<li class="fm-directory"><a href="'.$FM_FOLDER_URL.rawurlencode($relpath).'"';
+            if ($FM_FOLDER_TITLE) {
+                $tree_content .= ' title="'.$FM_FOLDER_TITLE.'"';
+            }
+            $tree_content .= '>' . htmlspecialchars($name) . '</a>';
+            $path = $directory . DIRECTORY_SEPARATOR . $name;
+            $tree_content .= _fm_dir_tree($path, $current, $depth+1) . '</li>';
+        }
+        $tree_content .= '</ul>';
+    }
+    return $tree_content;
+}
+
+/**
+  * Scan directory and render tree view
+  * @param string $directory
+  */
+function fm_dir_tree($directory, $current = '')
+{
+    // Remove trailing separator
+    if (substr($directory, -1) == DIRECTORY_SEPARATOR) {
+        $directory = substr($directory, 0, strlen($directory) - 1);
+    }
+    if ($current && substr($current, -1) == DIRECTORY_SEPARATOR) {
+        $current = substr($current, 0, strlen($current) - 1);
+    }
+    return _fm_dir_tree($directory, $current, 0);
+}
+
+/**
  * Delete  file or folder (recursively)
  * @param string $path
  * @return bool
@@ -153,29 +217,6 @@ function fm_copy($f1, $f2, $upd)
 }
 
 /**
- * Get mime type
- * @param string $file_path
- * @return mixed|string
- */
-function fm_get_mime_type($file_path)
-{
-    if (function_exists('finfo_open')) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $file_path);
-        finfo_close($finfo);
-        return $mime;
-    } elseif (function_exists('mime_content_type')) {
-        return mime_content_type($file_path);
-    } elseif (!stristr(ini_get('disable_functions'), 'shell_exec')) {
-        $file = escapeshellarg($file_path);
-        $mime = shell_exec('file -bi ' . $file);
-        return $mime;
-    } else {
-        return '--';
-    }
-}
-
-/**
  * Clean path
  * @param string $path
  * @return string
@@ -185,10 +226,10 @@ function fm_clean_path($path)
     $path = trim($path);
     $path = trim($path, '\\/');
     $path = str_replace(array('../', '..\\'), array('', ''), $path);
-    if ($path == '..') {
-        $path = '';
+    if ($path !== '..') {
+        return str_replace(array('\\', '/'), array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $path);
     }
-    return str_replace(array('\\', '/'), array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $path);
+    return '';
 }
 
 /**
@@ -206,57 +247,6 @@ function fm_get_parent_path($path)
 }
 
 /**
- * Get nice filesize
- * @param int $size
- * @return string
- */
-function fm_get_filesize($size)
-{
-    global $bytename, $kbname, $mbname, $gbname; //$tbname
-
-    if ($size < 1000) {
-        return sprintf('%s %s', $size, $bytename);
-    } elseif (($size / 1024) < 1000) {
-        return sprintf('%s %s', round(($size / 1024), 2), $kbname);
-    } elseif (($size / 1024 / 1024) < 1000) {
-        return sprintf('%s %s', round(($size / 1024 / 1024), 2), $mbname);
-    } elseif (($size / 1024 / 1024 / 1024) < 1000) {
-        return sprintf('%s %s', round(($size / 1024 / 1024 / 1024), 2), $gbname);
-    } else {
-        return sprintf('%s TiB', round(($size / 1024 / 1024 / 1024 / 1024), 2));
-    }
-}
-
-/**
- * Get info about zip archive
- * @param string $path
- * @return array|bool
- */
-function fm_get_zif_info($path)
-{
-    if (function_exists('zip_open')) {
-        $arch = zip_open($path);
-        if ($arch) {
-            $filenames = array();
-            while ($zip_entry = zip_read($arch)) {
-                $zip_name = zip_entry_name($zip_entry);
-                $zip_folder = substr($zip_name, -1) == DIRECTORY_SEPARATOR;
-                $filenames[] = array(
-                    'name' => $zip_name,
-                    'filesize' => zip_entry_filesize($zip_entry),
-                    'compressed_size' => zip_entry_compressedsize($zip_entry),
-                    'folder' => $zip_folder
-                    //'compression_method' => zip_entry_compressionmethod($zip_entry),
-                );
-            }
-            zip_close($arch);
-            return $filenames;
-        }
-    }
-    return false;
-}
-
-/**
  * Encode html entities
  * @param string $text
  * @return string
@@ -264,64 +254,6 @@ function fm_get_zif_info($path)
 function fm_enc($text)
 {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-}
-
-/**
-* Recursive function called by fm_file_tree() to list directories
-* @param string $directory
-* @param string $current
-* @param boolean $first_call
-*/
-function fm_file_tree_dir($directory, $current, $first_call = true)
-{
-    global $FM_ROOT_PATH, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE;
-
-    if( !is_readable($directory) ) {
-        return "";
-    }
-
-    $len = strlen($FM_ROOT_PATH) + 1; //skip to relative-path
-    $php_file_tree = "";
-    // Get and sort directories
-    $file = glob ($directory. DIRECTORY_SEPARATOR . "*", GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
-    if( $file ) {
-        natcasesort($file);
-        $dirs = array();
-        foreach($file as $this_file) {
-            $name = basename($this_file);
-            if( !($name == '.' || $name == '..' || in_array($this_file, $FM_EXCLUDE_FOLDERS)) ) {
-                $dirs[$name] = $this_file;
-            }
-        }
-
-        $php_file_tree = "<ul";
-        if( $first_call ) { $php_file_tree .= " id=\"fm-tree\""; $first_call = false; }
-        $php_file_tree .= ">";
-        foreach( $dirs as $name => $path ) {
-            $relpath = substr($path, $len);
-            $php_file_tree .= "<li class=\"fm-directory\"><a href=\"".$FM_FOLDER_URL.rawurlencode($relpath)."\"";
-            if ($FM_FOLDER_TITLE) {
-                $php_file_tree .= " title=\"".$FM_FOLDER_TITLE."\"";
-            }
-            $php_file_tree .= ">" . htmlspecialchars($name) . "</a>";
-            $path = $directory . DIRECTORY_SEPARATOR . $name;
-            $php_file_tree .= fm_file_tree_dir($path, $current, false) . "</li>";
-        }
-        $php_file_tree .= "</ul>";
-    }
-    return $php_file_tree;
-}
-
-/**
- * Scan directory and render tree view
- * @param string $directory
- */
-function fm_dir_tree($directory, $current = '')
-{
-    // Remove trailing separator
-    if( substr($directory, -1) == DIRECTORY_SEPARATOR ) $directory = substr($directory, 0, strlen($directory) - 1);
-    if( $current && substr($current, -1) == DIRECTORY_SEPARATOR ) $current = substr($current, 0, strlen($current) - 1);
-    return fm_file_tree_dir($directory, $current);
 }
 
 /**
@@ -360,6 +292,52 @@ function fm_convert_win($filename)
 }
 
 /**
+ * Get nice filesize
+ * @param int $size
+ * @return string
+ */
+function fm_get_filesize($size)
+{
+    global $bytename, $kbname, $mbname, $gbname; //$tbname
+
+    if ($size < 1000) {
+        return sprintf('%s %s', $size, $bytename);
+    } elseif (($size / 1024) < 1000) {
+        return sprintf('%s %s', round(($size / 1024), 2), $kbname);
+    } elseif (($size / 1024 / 1024) < 1000) {
+        return sprintf('%s %s', round(($size / 1024 / 1024), 2), $mbname);
+    } elseif (($size / 1024 / 1024 / 1024) < 1000) {
+        return sprintf('%s %s', round(($size / 1024 / 1024 / 1024), 2), $gbname);
+    } else {
+        return sprintf('%s TiB', round(($size / 1024 / 1024 / 1024 / 1024), 2));
+    }
+}
+
+/**
+ * Get mime type
+ * @param string $file_path
+ * @return mixed|string
+ */
+function fm_get_mime_type($file_path)
+{
+    static $finfo = null;
+    if ($finfo == null && function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    }
+    if ($finfo != null) {
+        return finfo_file($finfo, $file_path);
+    } elseif (function_exists('mime_content_type')) {
+        return mime_content_type($file_path);
+    } elseif (!stristr(ini_get('disable_functions'), 'shell_exec')) {
+        $file = escapeshellarg($file_path);
+        $mime = shell_exec('file -bi ' . $file);
+        return ($mime) ? $mime : '--';
+    } else {
+        return '--';
+    }
+}
+
+/**
  * Get CSS classname for file
  * @param string $path
  * @return string
@@ -369,68 +347,58 @@ function fm_get_file_icon_class($path)
     // get extension
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
-    if (in_array($ext, fm_get_image_exts())) return 'if-file-image';
-    if (in_array($ext, fm_get_archive_exts())) return 'if-file-archive';
-    if (in_array($ext, fm_get_audio_exts())) return 'if-file-audio';
-    if (in_array($ext, fm_get_video_exts())) return 'if-file-video';
+    if (in_array($ext, fm_get_image_exts())) {
+        return 'if-file-image';
+    }
+    if (in_array($ext, fm_get_archive_exts())) {
+        return 'if-file-archive';
+    }
+    if (in_array($ext, fm_get_audio_exts())) {
+        return 'if-file-audio';
+    }
+    if (in_array($ext, fm_get_video_exts())) {
+        return 'if-file-video';
+    }
 
     switch ($ext) {
         case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'json':
         case 'config': case 'twig': case 'tpl':
         case 'c': case 'cpp': case 'cs': case 'py': case 'map': case 'lock': case 'dtd':
         case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
-            $img = 'if-file-code';
-            break;
+            return 'if-file-code';
         case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess': case 'md': case 'gitignore':
-            $img = 'if-doc-text';
-            break;
+            return 'if-doc-text';
         case 'css': case 'less': case 'sass': case 'scss':
-            $img = 'if-css3';
-            break;
+            return 'if-css3';
         case 'htm': case 'html': case 'shtml': case 'xhtml':
-            $img = 'if-html5';
-            break;
+            return 'if-html5';
         case 'xml': case 'xsl':
-            $img = 'if-doc-text';
-            break;
+            return 'if-doc-text';
         case 'pdf':
-            $img = 'if-file-pdf';
-            break;
+            return 'if-file-pdf';
         case 'm3u': case 'm3u8': case 'pls': case 'cue':
-            $img = 'if-headphones';
-            break;
+            return 'if-headphones';
         case 'eml': case 'msg':
-            $img = 'if-chat-empty';
-            break;
+            return 'if-chat-empty';
         case 'xls': case 'xlsx':
-            $img = 'if-file-excel';
-            break;
+            return 'if-file-excel';
         case 'csv':
-            $img = 'if-doc-text';
-            break;
+            return 'if-doc-text';
         case 'bak':
-            $img = 'if-history';
-            break;
+            return 'if-history';
         case 'doc': case 'docx':
-            $img = 'if-file-word';
-            break;
+            return 'if-file-word';
         case 'ppt': case 'pptx':
-            $img = 'if-file-powerpoint';
-            break;
+            return 'if-file-powerpoint';
         case 'ttf': case 'ttc': case 'otf': case 'woff': case 'woff2': case 'eot': case 'fon':
-            $img = 'if-font';
-            break;
+            return 'if-font';
         case 'exe': case 'msi': case 'so': case 'dll':
-            $img = 'if-cog';
-            break;
+            return 'if-cog';
         case 'bat': case 'sh':
-            $img = 'if-terminal';
-            break;
+            return 'if-terminal';
         default:
-            $img = 'if-doc';
+            return 'if-doc';
     }
-
-    return $img;
 }
 
 /**
@@ -536,13 +504,13 @@ function fm_get_text_exts()
  */
 function fm_get_text_mimes()
 {
-    return array(
+    return [
         'application/xml',
         'application/javascript',
         'application/x-javascript',
         'image/svg+xml',
         'message/rfc822',
-    );
+    ];
 }
 
 /**
@@ -551,18 +519,18 @@ function fm_get_text_mimes()
  */
 function fm_get_text_names()
 {
-    return array(
+    return [
         'license',
         'readme',
         'authors',
         'contributors',
         'changelog',
-    );
+    ];
 }
 
 function fm_get_archive_exts()
 {
-    return array(
+    return [
         '7z',
         'gz',
         'rar',
@@ -571,7 +539,53 @@ function fm_get_archive_exts()
         'xz',
         'z',
         'zip',
-    );
+    ];
+}
+
+/**
+ * Get info about some archive-types
+ * @param string $path
+ * @return array|bool
+ */
+function fm_get_archive_info($path)
+{
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    switch ($ext) {
+        case 'zip':
+            if (function_exists('zip_open')) {
+                $arch = zip_open($path);
+                if ($arch) {
+                    $filenames = array();
+                    while ($zip_entry = zip_read($arch)) {
+                        $zip_name = zip_entry_name($zip_entry);
+                        $zip_folder = substr($zip_name, -1) == DIRECTORY_SEPARATOR;
+                        $zip_size = zip_entry_filesize($zip_entry);
+                        $filenames[] = array(
+                            'folder' => $zip_folder,
+                            'name' => fm_enc($zip_name),
+                            'filesize' => fm_get_filesize($zip_size),
+                        );
+                    }
+                    zip_close($arch);
+                    return $filenames;
+                }
+            }
+            return false;
+        case 'gz':
+//            if (function_exists('')) {
+//			}
+            return false;
+        case 'bzip2':
+//            if (function_exists('')) {
+//			}
+            return false;
+        case 'xz':
+//            if (function_exists('')) {
+//			}
+            return false;
+        default:
+            return false;
+    }
 }
 
 /**
