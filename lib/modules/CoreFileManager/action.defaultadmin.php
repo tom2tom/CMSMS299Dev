@@ -186,7 +186,7 @@ $total_size = 0;
 $themeObject = cms_utils::get_theme_object();
 $baseurl = $this->GetModuleURLPath();
 
-$u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'view'=>'XXX']);
+$u = $this->create_url($id, 'open', $returnid, ['p'=>$FM_PATH, 'view'=>'XXX']);
 $linkview = '<a href="'. $u .'" title="'. $this->Lang('view') .'">YYY</a>';
 
 $t = ($FM_PATH) ? $FM_PATH.DIRECTORY_SEPARATOR : '';
