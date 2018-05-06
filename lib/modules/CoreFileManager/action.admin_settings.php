@@ -23,26 +23,21 @@ if (!$this->CheckPermission('Modify Site Preferences')) {
     exit;
 }
 
-$advancedmode = $this->GetPreference('advancedmode', 0);
+//ACE theme selector https://ace.c9.io/build/kitchen-sink.html
+//hilight.js theme demo  https://highlightjs.org/static/demo
+
+$edittheme = $this->GetPreference('editortheme', 'default'));
+//$hilite = $this->GetPreference('highlight', 1);
+//$viewstyle = $this->GetPreference('highlightstyle', 'default'));
 $showhiddenfiles = $this->GetPreference('showhiddenfiles', 0);
-$showthumbnails = $this->GetPreference('showthumbnails', 1);
-$iconsize = $this->GetPreference('iconsize', 0);
-$permissionstyle = $this->GetPreference('permissionstyle', 'xxx');
+$uploadables = $this->GetPreference('uploadable', '%image%,txt,text,pdf');
 
-//$smarty->assign('path',$this->CreateInputHidden($id,"path",$path)); //why?
-
-$smarty->assign('advancedmode', $advancedmode);
-$smarty->assign('showhiddenfiles', $showhiddenfiles);
-$smarty->assign('showthumbnails', $showthumbnails);
-$smarty->assign('create_thumbnails', $this->GetPreference('create_thumbnails', 1));
-$iconsizes = [];
-$iconsizes['32px'] = $this->Lang('largeicons').' (32px)';
-$iconsizes['16px'] = $this->Lang('smallicons').' (16px)';
-$smarty->assign('iconsizes', $iconsizes);
-$smarty->assign('iconsize', $this->GetPreference('iconsize', '16px'));
-
-$permstyles = [$this->Lang('rwxstyle')=>'xxxxxxxxx', $this->Lang('755style')=>'xxx'];
-$smarty->assign('permstyles', array_flip($permstyles));
-$smarty->assign('permissionstyle', $permissionstyle);
+$smarty->assign([
+    'edittheme' => $edittheme, 
+//    'hilite' => $hilite,
+//    'viewstyle' => $viewstyle,
+    'showhidden' => $showhidden,
+    'uploadables' => explode(',',$uploadables),
+]);
 
 echo $this->ProcessTemplate('settings.tpl');
