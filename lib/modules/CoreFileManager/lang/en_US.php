@@ -72,6 +72,13 @@ EOT;
 
 // I
 $lang['image'] = 'Image file';
+$lang['info_path'] = 'Site path';
+$lang['info_size'] = 'File size';
+$lang['info_mime'] = 'MIME-type';
+$lang['info_archcount'] = 'Files in archive';
+$lang['info_archsize'] = 'Total size';
+$lang['info_image'] = 'Image dimensions';
+$lang['info_charset'] = 'Text encoding';
 $lang['itemcounts'] = '%d file(s) and %d directory(ies)';
 $lang['itemname'] = 'Item Name';
 $lang['itemtype'] = 'Item Type';
