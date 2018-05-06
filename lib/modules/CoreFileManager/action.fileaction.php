@@ -37,185 +37,16 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 $root = (!empty($config['developer_mode'])) ? CMS_ROOT_PATH : $config['uploads_path'];
 //TODO maybe and/or some permission e.g. 'Manage Sitecode'
 $relpath = $params['p'];
-$path = ($relpath) ? cms_join_path($root, $relpath) : $root;
-
-if (isset($params['view'])) {
-    $file = fm_clean_path($params['view']);
-    $file = str_replace(DIRECTORY_SEPARATOR, '', $file);
-    $file_path = $path . DIRECTORY_SEPARATOR . $file;
-    if ($file == '' || !is_file($file_path)) {
-        $this->SetError('File not found');
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
-    }
-
-    $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
-    $mime_type = fm_get_mime_type($file_path);
-    $filesize = filesize($file_path);
-    $file_url = cms_admin_utils::path_to_url($file_path);
-
-    $is_arch = false;
-    $is_image = false;
-    $is_audio = false;
-    $is_video = false;
-    $is_text = false;
-    $filenames = false; // for archive
-    $content = ''; // for text
-
-    if (in_array($ext, fm_get_archive_exts())) {
-        $is_arch = true;
-        $type = 'archive';
-        $filenames = fm_get_zif_info($file_path); //TODO any supported archive
-    } elseif (in_array($ext, fm_get_image_exts())) {
-        $is_image = true;
-        $type = 'image';
-    } elseif (in_array($ext, fm_get_audio_exts())) {
-        $is_audio = true;
-        $type = 'audio';
-    } elseif (in_array($ext, fm_get_video_exts())) {
-        $is_video = true;
-        $type = 'video';
-    } elseif (in_array($ext, fm_get_text_exts()) || substr($mime_type, 0, 4) == 'text' || in_array($mime_type, fm_get_text_mimes())) {
-        $is_text = true;
-        $type = 'text';
-        $content = file_get_contents($file_path);
-    } else {
-        $type = 'file';
-    }
-    $smarty->assign('ftype', $type);
-    $smarty->assign('file_url', $file_url);
-
-    $items = [];
-/*
-    $items[] = '<a href="?p={$urlencode($FM_PATH)}&amp}dl={$urlencode($file)}"><img downarrow /> Download</a>'
-    $items[] = '<a href="{$fm_enc($file_url)}" target="_blank"><i class="if-whatever"></i> Open</a>' ???
-    if (!$FM_READONLY && $is_zip && $filenames !== false) {
-        $zip_name = pathinfo($path, PATHINFO_FILENAME);
-        $items[] = '<a href="?p={$urlencode($FM_PATH)}&amp}unzip={$urlencode($file)}"><i class="if-whatever"></i> Expand</a>'
-    }
-    if (!$FM_READONLY && $is_text) {
-        $items[] = '<a href="?p={$urlencode(trim($FM_PATH))}&amp}edit={$urlencode($file)}" class="edit-file">
-          <i class="whatever"></i> Edit</a>';
-    }
-*/
-    $smarty->assign('acts', $items);
-
-    $items = [];
-    $items[$this->Lang($type)] = fm_enc($file);
-    $items['Site path'] = ($relpath) ? fm_enc(fm_convert_win($relpath)) : $this->Lang('top');
-    $items['File size'] = fm_get_filesize($filesize);
-    $items['MIME-type'] = $mime_type;
-    if ($is_arch && $filenames) {
-        $total_files = 0;
-        $total_uncomp = 0;
-/*
-   {strip}{if $fn.folder}
-    <strong>{fm_enc($fn.name)}</strong>
-   {else}
-    {fm_enc($fn.name)} ({$fn.filesize})
-   {/if}<br />{/strip}
-  {/foreach}
-*/
-        foreach ($filenames as $fn) {
-            if (!$fn['folder']) {
-                ++$total_files;
-            }
-            $total_uncomp += $fn['filesize'];
-        }
-        $items['Files in archive'] = $total_files;
-        $items['Total size'] = fm_get_filesize($total_uncomp);
-    } elseif ($is_image) {
-        $image_size = getimagesize($file_path);
-        if (!empty($image_size[0]) || !empty($image_size[1])) {
-            $items['Image dimesions'] = ($image_size[0] ?? '0') . ' x ' . ($image_size[1] ?? '0');
-        } else {
-            $smarty->assign('setsize', 1); //svg
-        }
-    } elseif ($is_text) {
-        $enc = '?';
-        if (preg_match("//u", $content)) {
-            // string includes some UTF-8
-            $enc = 'UTF-8';
-        } elseif (function_exists('mb_detect_encoding')) {
-            $enc = mb_detect_encoding($content, mb_detect_order(), true);
-        } else {
-            $enc = '?';
-        }
-        $items['Text encoding'] = $enc;
-    }
-    $smarty->assign('about', $items);
-
-    $FM_USE_HIGHLIGHTJS = $this->GetPreference('syntaxhighlight', 1);
-    if ($FM_USE_HIGHLIGHTJS) {
-        $style = strtolower($this->GetPreference('highlightstyle', 'default'));
-        $js = <<<EOS
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/{$style}.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>
-//<![CDATA[
-hljs.initHighlightingOnLoad();
-//]]>
-</script>
-
-EOS;
-        $this->AdminHeaderContent($js);
-
-        if (empty($ext) || in_array(strtolower($file), fm_get_text_names()) || preg_match('#\.min\.(css|js)$#i', $file)) {
-            $hl_class = 'nohighlight';
-        } else {
-            $hl_classes = [
-            'shtml' => 'xml',
-            'htaccess' => 'apache',
-            'phtml' => 'php',
-            'lock' => 'json',
-            'svg' => 'xml',
-            ];
-            $hl_class = (isset($hl_classes[$ext])) ? 'lang-' . $hl_classes[$ext] : 'lang-' . $ext;
-        }
-    } else {
-        if (in_array($ext, ['php', 'php4', 'php5', 'phtml', 'phps'])) {
-            $content = highlight_string($content, true);
-            $smarty->assign('phpstyled', 1);
-        } else {
-            $content = fm_enc($content);
-        }
-        $hl_class =  null;
-    }
-    $smarty->assign('hl_class', $hl_class);
-    $smarty->assign('content', $content);
-
-    echo $this->ProcessTemplate('view.tpl');
-    return;
-}
-
-if (isset($params['edit'])) {
-    $js = <<<'EOS'
-<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.2.9/ace.js"></script>
-<script>
-//<![CDATA[
-var editor = ace.edit('editor');
-editor.getSession().setMode('ace/mode/javascript');
-//]]>
-</script>
-
-EOS;
-    $this->AdminHeaderContent($css);
-
-    echo $this->ProcessTemplate('edit.tpl');
-    return;
-}
+$dir_path = ($relpath) ? cms_join_path($root, $relpath) : $root;
 
 if (isset($params['ajax'])) {
     //AJAX request
-    if (isset($params['type']) && $params['type']=='search') {
-        //get list of items in the current folder
-        $response = scan($path);
-        echo json_encode($response);
-    } elseif (isset($params['type']) && $params['type']=='backup') {
+    if (isset($params['type']) && $params['type']=='backup') {
         //backup files
-        $file = $params['file'];
+        $file = $params['sel'];
         $date = date('Ymd-His');
         $newFile = $file.'-'.$date.'.bak';
-        if (copy($path.DIRECTORY_SEPARATOR.$file, $path.DIRECTORY_SEPARATOR.$newFile)) {
+        if (copy($dir_path.DIRECTORY_SEPARATOR.$file, $dir_path.DIRECTORY_SEPARATOR.$newFile)) {
             echo "Backup $newFile Created"; //TODO $this->Lang('', $newfile);
         } else {
             echo 'Unable to backup';
@@ -239,7 +70,7 @@ if (!empty($_FILES)) {
     $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
 
     if (empty($f['file']['error']) && !empty($tmp_name) && $tmp_name != 'none' && $isFileAllowed) {
-        if (move_uploaded_file($tmp_name, $path . DIRECTORY_SEPARATOR . $f['file']['name'])) {
+        if (move_uploaded_file($tmp_name, $dir_path . DIRECTORY_SEPARATOR . $f['file']['name'])) {
             echo 'Successfully uploaded';
         } else {
             echo sprintf('Error while uploading files. Uploaded files: %s', $uploads);
@@ -249,14 +80,14 @@ if (!empty($_FILES)) {
 }
 
 if (isset($params['delete'])) {
-    if (isset($params['group'])) {  //TODO some array
+    if (isset($params['sel'])) {
         // Mass delete
         $errors = 0;
-        $files = $params['file'];
+        $files = $params['sel'];
         if (is_array($files) && count($files)) {
             foreach ($files as $f) {
                 if ($f != '') {
-                    $new_path = $path . DIRECTORY_SEPARATOR . $f;
+                    $new_path = $dir_path . DIRECTORY_SEPARATOR . $f;
                     if (!fm_rdelete($new_path)) {
                         $errors++;
                     }
@@ -273,10 +104,9 @@ if (isset($params['delete'])) {
     } else {
         // Delete file / folder
         $del = fm_clean_path($params['del']);
-        $del = str_replace(DIRECTORY_SEPARATOR, '', $del); //??
         if ($del != '' && $del != '..' && $del != '.') {
-            $is_dir = is_dir($path . DIRECTORY_SEPARATOR . $del);
-            if (fm_rdelete($path . DIRECTORY_SEPARATOR . $del)) {
+            $is_dir = is_dir($dir_path . DIRECTORY_SEPARATOR . $del);
+            if (fm_rdelete($dir_path . DIRECTORY_SEPARATOR . $del)) {
                 $msg = $is_dir ? 'Folder <strong>%s</strong> deleted' : 'File <strong>%s</strong> deleted';
                 $this->SetMessage(sprintf($msg, fm_enc($del)));
             } else {
@@ -294,19 +124,18 @@ if (isset($params['new'], $params['type'])) {
     // Create folder
     $new = strip_tags($params['new']);
     $new = fm_clean_path($params['type']);
-    $new = str_replace(DIRECTORY_SEPARATOR, '', $new); //??
     if ($new != '' && $new != '..' && $new != '.') {
         if ($params['type']=='file') {
-            if (!file_exists($path . DIRECTORY_SEPARATOR . $new)) {
-                @fopen($path . DIRECTORY_SEPARATOR . $new, 'w') or die('Cannot open file:  '.$new);
+            if (!file_exists($dir_path . DIRECTORY_SEPARATOR . $new)) {
+                @fopen($dir_path . DIRECTORY_SEPARATOR . $new, 'w') or die('Cannot open file:  '.$new);
                 $this->SetMessage(sprintf('File <strong>%s</strong> created', fm_enc($new)));
             } else {
                 $this->SetInfo(sprintf('File <strong>%s</strong> already exists', fm_enc($new)));
             }
         } else {
-            if (fm_mkdir($path . DIRECTORY_SEPARATOR . $new, false) === true) {
+            if (fm_mkdir($dir_path . DIRECTORY_SEPARATOR . $new, false) === true) {
                 $this->SetMessage(sprintf('Folder <strong>%s</strong> created', $new));
-            } elseif (fm_mkdir($path . DIRECTORY_SEPARATOR . $new, false) === $path . DIRECTORY_SEPARATOR . $new) {
+            } elseif (fm_mkdir($dir_path . DIRECTORY_SEPARATOR . $new, false) === $dir_path . DIRECTORY_SEPARATOR . $new) {
                 $this->SetInfo(sprintf('Folder <strong>%s</strong> already exists', fm_enc($new)));
             } else {
                 $this->SetError(sprintf('Folder <strong>%s</strong> not created', fm_enc($new)));
@@ -335,12 +164,10 @@ if (isset($params['copy'], $params['finish'])) {
         $dest .= DIRECTORY_SEPARATOR . FM_PATH;
     }
     $dest .= DIRECTORY_SEPARATOR . basename($from);
-    // move?
-    $move = isset($params['move']);
     // copy/move
     if ($from != $dest) {
         $msg_from = trim(FM_PATH . DIRECTORY_SEPARATOR . basename($from), DIRECTORY_SEPARATOR);
-        if ($move) {
+        if (isset($params['move'])) {
             $rename = fm_rename($from, $dest);
             if ($rename) {
                 $this->SetMessage(sprintf('Moved from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
@@ -362,16 +189,15 @@ if (isset($params['copy'], $params['finish'])) {
     $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
 }
 
-if (isset($params['file'], $params['copy_to'], $params['finish'])) {
-    // Mass copy files/folders
-    // from $path
-    // to
-    $copy_to_path = FM_ROOT_PATH;
+if (isset($params['sel'], $params['copy_to'])) {
+    // Mass copy/move files/folders from $dir_path to
     $copy_to = fm_clean_path($params['copy_to']);
     if ($copy_to != '') {
         $copy_to_path .= DIRECTORY_SEPARATOR . $copy_to;
+    } else {
+        $copy_to_path = $FM_ROOT_PATH;
     }
-    if ($path == $copy_to_path) {
+    if ($dir_path == $copy_to_path) {
         $this->SetInfo('Paths must be different');
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
     }
@@ -381,19 +207,17 @@ if (isset($params['file'], $params['copy_to'], $params['finish'])) {
             $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
         }
     }
-    // move?
-    $move = isset($params['move']);
     // copy/move
     $errors = 0;
-    $files = $params['file'];
+    $files = $params['sel'];
     if (is_array($files) && count($files)) {
+	    $move = isset($params['move']);
         foreach ($files as $f) {
             if ($f != '') {
                 // abs path from
-                $from = $path . DIRECTORY_SEPARATOR . $f;
+                $from = $dir_path . DIRECTORY_SEPARATOR . $f;
                 // abs path to
                 $dest = $copy_to_path . DIRECTORY_SEPARATOR . $f;
-                // do
                 if ($move) {
                     $rename = fm_rename($from, $dest);
                     if ($rename === false) {
@@ -420,17 +244,14 @@ if (isset($params['file'], $params['copy_to'], $params['finish'])) {
 }
 
 if (isset($params['ren'], $params['to'])) {
-    // Rename
-    // old name
+    // Rename, from
     $old = fm_clean_path($params['ren']);
-    $old = str_replace(DIRECTORY_SEPARATOR, '', $old); //??
-    // new name
+    // to new name
     $new = fm_clean_path($params['to']);
-    $new = str_replace(DIRECTORY_SEPARATOR, '', $new); //??
 
     // rename
     if ($old != '' && $new != '') {
-        if (fm_rename($path . DIRECTORY_SEPARATOR . $old, $path . DIRECTORY_SEPARATOR . $new)) {
+        if (fm_rename($dir_path . DIRECTORY_SEPARATOR . $old, $dir_path . DIRECTORY_SEPARATOR . $new)) {
             $this->SetMessage(sprintf('Renamed from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($new)));
         } else {
             $this->SetError(sprintf('Error while renaming from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($new)));
@@ -443,11 +264,10 @@ if (isset($params['ren'], $params['to'])) {
 
 if (isset($params['dl'])) {
     // Download
-    $dl = fm_clean_path($params['dl']);
-    $dl = str_replace(DIRECTORY_SEPARATOR, '', $dl); //??
-    $fp = $path . DIRECTORY_SEPARATOR . $dl;
+    $file = fm_clean_path($params['dl']);
+    $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
 
-    if ($dl != '' && is_file($fp)) {
+    if ($file != '' && is_file($fp)) {
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($fp) . '"');
@@ -467,20 +287,15 @@ if (isset($params['dl'])) {
 
 if (isset($params['compress'])) {
     // Pack files
-    if (isset($params['group'])) {   //TODO some array
-
-    } else {
-
-    }
-
+    // TODO per wanted archive-type
     if (!class_exists('ZipArchive')) {
         $this->SetError('Operations with archives are not available');
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
     }
 
-    $files = $params['file'];
+    $files = $params['sel'];
     if (!empty($files)) {
-        chdir($path);
+        chdir($dir_path);
 
         if (count($files) == 1) {
             $one_file = reset($files);
@@ -506,8 +321,7 @@ if (isset($params['compress'])) {
 
 if (isset($params['decompress'])) {
     // Unpack
-    $unzip = fm_clean_path($params['unzip']);
-    $unzip = str_replace(DIRECTORY_SEPARATOR, '', $unzip); //??
+    $file = fm_clean_path($params['unzip']);
 
     // TODO per archive-type
     if (!class_exists('ZipArchive')) {
@@ -515,19 +329,19 @@ if (isset($params['decompress'])) {
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
     }
 
-    $zip_path = $path . DIRECTORY_SEPARATOR . $unzip;
-    if ($unzip != '' && is_file($zip_path)) {
+    $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
+    if ($file != '' && is_file($fp)) {
         //to folder
         $tofolder = '';
         if (isset($params['tofolder'])) {
-            $tofolder = pathinfo($zip_path, PATHINFO_FILENAME);
-            if (fm_mkdir($path . DIRECTORY_SEPARATOR . $tofolder, true)) {
-                $path .= DIRECTORY_SEPARATOR . $tofolder;
+            $tofolder = pathinfo($fp, PATHINFO_FILENAME);
+            if (fm_mkdir($dir_path . DIRECTORY_SEPARATOR . $tofolder, true)) {
+                $dir_path .= DIRECTORY_SEPARATOR . $tofolder;
             }
         }
 
         $zipper = new FM_Zipper();
-        $res = $zipper->unzip($zip_path, $path);
+        $res = $zipper->unzip($fp, $dir_path);
 
         if ($res) {
             $this->SetMessage('Archive unpacked');
@@ -543,8 +357,7 @@ if (isset($params['decompress'])) {
 if (isset($params['chmod']) && !FM_IS_WIN) {
     // Change Perms (not for Windows)
     $file = fm_clean_path($params['chmod']);
-    $file = str_replace(DIRECTORY_SEPARATOR, '', $file); //??
-    $fp = $path . DIRECTORY_SEPARATOR . $file;
+    $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
     if ($file == '' || (!(is_file($fp) || is_dir($fp)))) {
         $this->SetError('File not found');
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
@@ -588,93 +401,3 @@ if (isset($params['chmod']) && !FM_IS_WIN) {
 
 $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
 
-/*
-
- TODO get/use these properties
-$use_highlightjs = $pdev && $this->GetPreference('syntaxhighlight', 1);
-$highlightjs_style = $this->GetPreference('highlightstyle', 'Vs');
-$upload_extensions = ($pdev) ? '' : //everything
-    'svg,png,gif,txt,pdf,htm,html' ;
-
-
-echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">';
-if (isset($_GET['view']) && $FM_USE_HIGHLIGHTJS) {
- echo '<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/';
- echo $FM_HIGHLIGHTJS_STYLE ;
- echo '.min.css">';
-}
-
-//popup dialogs
-echo '
-<div id="wrapper">
-<div id="createNewItem" class="modalDialog"><div class="model-wrapper"><a href="#close" title="Close" class="close">X</a>
-<h2>Create New Item</h2>
-<p>
- <label for="newfile">Item Type &nbsp; : </label><input type="radio" name="newfile" id="newfile" value="file">File <input type="radio" name="newfile" value="folder" checked> Folder<br><label for="newfilename">Item Name : </label><input type="text" name="newfilename" id="newfilename" value=""><br>
- <input type="submit" name="submit" class="group-btn" value="Create New" onclick="newfolder(';
-  echo fm_enc($FM_PATH) ; echo ');return false;">
-</p>
-</div></div>
-<div id="searchResult" class="modalDialog">
-<div class="model-wrapper"><a href="#close" title="Close" class="close">X</a>
-<input type="search" name="search" value="" placeholder="Find item in current folder...">
-<h2>Search Results</h2>
-<div id="searchresultWrapper"></div>
-</div>
-</div>
-';
-
-
-
-$this->AdminHeaderContent('<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">');
-//$baseurl = $this->GetModuleURLPath().'/lib/css/';
-$css = <<<EOS
-<link rel="stylesheet" href="{$baseurl}font-awesome.min.css">
-<link rel="stylesheet" href="{$baseurl}tinyfilemanager.css">
-
-EOS;
-
-if (isset($_GET['view']) && $FM_USE_HIGHLIGHTJS) {
-    $js .= <<<'EOS'
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-EOS;
-}
-
-if (isset($_GET['edit']) && isset($_GET['env']) && $FM_EDIT_FILE) {
-    $js .= <<<'EOS'
-<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.2.9/ace.js"></script>
-<script>
-//<![CDATA[
-var editor = ace.edit("editor");
-editor.getSession().setMode("ace/mode/javascript");
-//]]>
-</script>
-EOS;
-}
-
-function backup(e, t) {
-  var n = new XMLHttpRequest(),
-    a = "path=" + e + "&file=" + t + "&type=backup&ajax=true";
-  return n.open("POST", "", !0), n.setRequestHeader("Content-type", "application/x-www-form-urlencoded"), n.onreadystatechange = function() {
-    if(4 == n.readyState && 200 == n.status) alert(n.responseText);
-  }, n.send(a), !1;
-}
-function edit_save(e, t) {
-  var n = "ace" == t ? editor.getSession().getValue() : document.getElementById("normal-editor").value;
-  if(n) {
-    var a = document.createElement("form");
-    a.setAttribute("method", "POST");
-    a.setAttribute("action", "");
-    var o = document.createElement("textarea");
-    o.setAttribute("type", "textarea");
-    o.setAttribute("name", "savedata");
-    var c = document.createTextNode(n);
-    o.appendChild(c);
-    a.appendChild(o);
-    document.body.appendChild(a);
-    a.submit();
-  }
-}
-
-*/
