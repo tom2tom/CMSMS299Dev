@@ -29,11 +29,5 @@
 {elseif $ftype == 'audio'}
   <p><audio src="{$file_url}" controls preload="metadata"></audio></p>
 {elseif $ftype == 'text'}
- {if !empty($hl_class)}
-   <pre class="with-hljs"><code class="{$hl_class}">{$content}</code></pre>
- {elseif empty($phpstyled)}
-   <pre class="with-phphl">{$content}</pre>
- {else}
-  {$content}
- {/if}
+<div id="Editor" class="editor">{$content}</div>
 {/if}
