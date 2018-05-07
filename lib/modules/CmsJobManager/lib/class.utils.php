@@ -12,20 +12,19 @@ final class utils
 
     public static function get_async_freq()
     {
-        $config = \cms_config::get_instance();
-        $minutes = (int) $config['cmsjobmgr_asyncfreq'];
-        $minutes = max(3, $minutes);
-        $minutes = min(60, $minutes);
-        $freq = (int) $minutes * 60; // config entry is in minutes.
-        return $freq;
+        $mod = \ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
+        $minutes = (int) $mod->GetPreference('jobinterval');
+        $minutes = max(1, $minutes);
+        $minutes = min(10, $minutes);
+        return $minutes * 60; // seconds
     }
 
     public static function job_recurs(\CMSMS\Async\Job $job)
     {
-        if (!$job instanceof \CMSMS\Async\CronJobInterface) {
-            return false;
+        if ($job instanceof \CMSMS\Async\CronJobInterface) {
+            return $job->frequency != $job::RECUR_NONE;
         }
-        return $job->frequency != $job::RECUR_NONE;
+        return false;
     }
 
     public static function calculate_next_start_time(\CMSMS\Async\CronJob $job)
