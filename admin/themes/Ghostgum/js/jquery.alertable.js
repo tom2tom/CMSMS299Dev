@@ -100,6 +100,12 @@ License: MIT
       defer.resolve(values);
     });
 
+    // Watch for OK
+    okButton.on('click.alertable', function() {
+      hide(options);
+      defer.resolve();
+    });
+
     // Watch for cancel
     cancelButton.on('click.alertable', function() {
       hide(options);
