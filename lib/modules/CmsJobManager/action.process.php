@@ -51,7 +51,7 @@ try {
         }
     }
 
-    $time_limit = (int) $config['cmsjobmanager_timelimit'];
+    $time_limit = (int)$this->GetPreference('jobtimeout');
     if (!$time_limit) {
         $time_limit = (int) ini_get('max_execution_time');
     }
