@@ -36,8 +36,6 @@ License: MIT
     // Create elements
     modal = $(options.modal).hide();
     overlay = $(options.overlay).hide();
-    okButton = $(options.okButton);
-    cancelButton = $(options.cancelButton);
 
     // Add message
     if(options.html) {
@@ -55,10 +53,17 @@ License: MIT
 
     // Add button(s)
     var ob = $(modal).find('.alertable-buttons');
-    if (options.ltr) {
-      ob.append(okButton).append(type === 'alert' ? '' : cancelButton);
+    if (ob.length == 1) {
+      okButton = $(options.okButton);
+      cancelButton = (type === 'alert') ? '' : $(options.cancelButton);
+      if (options.ltr) {
+        ob.append(okButton).append(cancelButton);
+      } else {
+        ob.append(cancelButton).append(okButton);
+      }
     } else {
-      ob.append(type === 'alert' ? '' : cancelButton).append(okButton);
+      okButton = null;
+      cancelButton = null;
     }
 
     // Add to container
@@ -101,16 +106,20 @@ License: MIT
     });
 
     // Watch for OK
-    okButton.on('click.alertable', function() {
-      hide(options);
-      defer.resolve();
-    });
+    if(okButton) {
+      okButton.on('click.alertable', function() {
+        hide(options);
+        defer.resolve();
+      });
+    }
 
     // Watch for cancel
-    cancelButton.on('click.alertable', function() {
-      hide(options);
-      defer.reject();
-    });
+    if(cancelButton) {
+      cancelButton.on('click.alertable', function() {
+        hide(options);
+        defer.reject();
+      });
+    }
 
     // Cancel on escape
     $(document).on('keydown.alertable', function(event) {
