@@ -15,27 +15,32 @@ if( $udt_list ) {
     if( !is_dir( $to ) ) throw new \LogicException("Could not create $to directory");
 
     $create_simple_plugin = function( array $row, string $destdir ) {
-        $fn = $destdir . DIRECTORY_SEPARATOR . $row['userplugin_name'];
-        if( is_file($fn) ) {
-            verbose_msg('simple plugin with name '.$row['userplugin_name'].' already exists');
+        $fp = $destdir . DIRECTORY_SEPARATOR . $row['userplugin_name'];
+        if( is_file( $fp ) ) {
+            verbose_msg('simple plugin named '.$row['userplugin_name'].' already exists');
             return;
         }
 
-		$code = preg_replace(
-				['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/'],
-				['', ''], $row['code']);
-		if ( !$code ) {
+        $code = preg_replace(
+                ['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/'],
+                ['', ''], $row['code']);
+        if ( !$code ) {
             verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
-			return;
-		}
+            return;
+        }
 
-		$out = "<?php\n";
-        if( $row['description'] ) $out .= "/*\n" . trim($row['description']) . "\n*/\n";
-		$out .= $code . "\n";
+        $out = "<?php\n/*\n[insert license here]\n<description>\n";
+        if( $row['description'] ) { 
+            $out .= trim($row['description']);
+        } else {
+            $out .= '[insert description here]';
+        }
+        $out .= "\n</description>\n*/\n" . $code . "\n";
 
-        file_put_contents($fn, $out);
+        file_put_contents($fp, $out);
         verbose_msg('Converted UDT '.$row['userplugin_name'].' to a simple plugin');
     };
+
     foreach( $udt_list as $udt ) {
         $create_simple_plugin( $udt, $to );
     }
@@ -57,13 +62,13 @@ if( $udt_list ) {
 
 // 2. Move ex-core modules to /assets/modules
 foreach( ['MenuManager', 'CMSMailer'] as $modname ) {
-    $fr = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-    if( is_dir( $fr ) ) {
+    $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
+    if( is_dir( $fp ) ) {
         $to = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
         if( !is_dir( $to ) ) {
-            rename( $fr, $to );
+            rename( $fp, $to );
         } else {
-            unlink( $fr );
+            unlink( $fp );
         }
     }
 }
