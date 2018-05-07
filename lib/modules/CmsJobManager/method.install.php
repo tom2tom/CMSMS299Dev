@@ -6,7 +6,15 @@
 
 if( !isset($gCms) ) exit;
 
+$this->SetPreference('enabled',1); //whether async job-processing by this module is currently enabled
+$this->SetPreference('jobinterval',5); //minutes between updates 1 .. 10
+$this->SetPreference('jobtimeout',30); //seconds, max jobs execution-time 30 .. 1800
+$this->SetPreference('joburl',''); //custom url for job processing
+$this->SetPreference('last_check',0); //timestamp for internal use only
+$this->SetPreference('last_processing',0); //ditto
+
 $this->CreatePermission(\CmsJobManager::MANAGE_JOBS,\CmsJobManager::MANAGE_JOBS);
+
 $this->CreateEvent(\CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleUninstalled',FALSE);
 
