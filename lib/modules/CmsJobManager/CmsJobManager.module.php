@@ -1,6 +1,4 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
 # CmsJobManager: a core module for CMS Made Simple to allow management of
 # asynchronous and cron jobs.
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
@@ -16,8 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------
-#END_LICENSE
 
 use \CMSMS\Async\Job, \CMSMS\Async\CronJobTrait, \CMSMS\HookManager;
 
@@ -41,7 +37,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public static function table_name() { return CMS_DB_PREFIX.'mod_cmsjobmgr'; }
 
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '0.2'; }
+    public function GetVersion() { return '0.3'; }
     public function MinimumCMSVersion() { return '2.1.99'; }
     public function GetAuthor() { return 'Calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
@@ -137,9 +133,9 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             }
         } else {
             $now = time();
-            $lastcheck = (int) $this->GetPreference('tasks_lastcheck');
+            $lastcheck = (int) $this->GetPreference('last_check');
             if ($lastcheck < $now - 900) {
-                $this->SetPreference('tasks_lastcheck',$now);
+                $this->SetPreference('last_check',$now);
                 if ($this->create_jobs_from_eligible_tasks()) {
                     return TRUE;
                 }
@@ -328,6 +324,11 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     public function trigger_async_processing()
     {
+        // if this module is disabled - do nothing
+        if (!$this->GetPreference('enabled')) {
+            return;
+        }
+
         // flag to make sure this method only works once per request
         // and anyhow, preserve a returnid.
         static $_returnid = -1;
@@ -341,9 +342,9 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         }
 
         // if we're not yet ready to re-trigger - do nothing
-        $last_trigger = (int) $this->GetPreference('last_async_trigger');
+        $last_trigger = (int) $this->GetPreference('last_processing');
         $now = time();
-        $gap = \CmsJobManager\utils::get_async_freq(); //TODO consider module preference instead of $config
+        $gap = $this->GetPreference('jobinterval');
         if ($last_trigger >= $now - $gap) {
             return;
         }
@@ -354,14 +355,18 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             return; // nothing to do
         }
 
-        list ($host, $path, $transport, $port) = $this->GetActionParams('CmsJobManager', 'process', ['cms_jobman'=>1, 'cmsjobtype'=>2]);
+        $url = $this->GetPreference('joburl');
+        if ($url) {
+            list ($host, $path, $transport, $port) = $this->GetUrlParams($url);
+        } else {
+            list ($host, $path, $transport, $port) = $this->GetActionParams('CmsJobManager', 'process', ['cms_jobman'=>1, 'cmsjobtype'=>2]);
+        }
 
         $remote = $transport.'://'.$host.':'.$port;
-
         if ($transport == 'tcp') {
             $context = stream_context_create();
         } else {
-            //internal-use only, skip verification
+            //internal-use only, can skip verification
             $opts = [
             'ssl' => [
 //              'allow_self_signed' => TRUE,
@@ -383,7 +388,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             fputs($res, $req);
             stream_socket_shutdown($res, STREAM_SHUT_RDWR);
 
-            $this->SetPreference('last_async_trigger',$now+1);
+            $this->SetPreference('last_processing',$now+1);
 //            return;
         }
 
@@ -395,11 +400,34 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 */
     }
 
+    protected function GetUrlParams($url)
+    {
+        $url_ob = new \cms_url($url);
+        $host = $url_ob->get_host();
+        $path = $url_ob->get_path();
+        $secure = (strcasecmp($url_ob->get_scheme(),'https') == 0);
+        if ($secure) {
+            $opts = stream_get_transports();
+            if (in_array('tls', $opts)) {
+                $transport = 'tls';
+            } elseif (in_array('ssl', $opts)) { //deprecated PHP7
+                $transport = 'ssl';
+            } else {
+                $transport = 'tcp';
+                $secure = false;
+            }
+        } else {
+            $transport = 'tcp';
+        }
+        $port = $url_ob->get_port();
+        if (!$port) {
+            $port = ($secure) ? 443 : 80;
+        }
+        return [$host, $path, $transport, $port];
+    }
+
     protected function GetActionParams($modname, $action, $params = [])
     {
-        //TODO support custom URL == module preference or config setting
-//        $config = \cmsms()->GetConfig();
-
         $root = CMS_ROOT_URL;
         if (empty($_SERVER['HTTPS'])) {
             $transport = 'tcp';
@@ -429,8 +457,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
         $id = 'aj_';
 
-        //THIS IS CUSTOM - COULD REVERT TO index.php
-        $path .= '/jobinterface.php?mact='.$modname.','.$id.','.$action.',0';
+        $path .= '/moduleinterface.php?mact='.$modname.','.$id.','.$action.',0';
 
         if ($params) {
             $ignores = ['assign', 'id', 'returnid', 'action', 'module'];
@@ -442,5 +469,4 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         }
         return [$host, $path, $transport, $port];
     }
-
-} // class CmsJobManager
+} // class
