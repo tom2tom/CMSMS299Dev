@@ -32,9 +32,9 @@ $lang['until'] = 'Until';
 
 $lang['prompt_enabled'] = 'Enable job processing by this module';
 $lang['help_enabled'] = 'Background job-processing is an essential element of this website. Only disable this if another compatible job processor is present, and <strong>you understand what you\'re doing</strong>.';
-$lang['prompt_frequency'] = 'Minimum interval between jobs processing (<em>minutes</em>)';
+$lang['prompt_frequency'] = 'Minimum interval between processing of jobs (<em>minutes</em>)';
 $lang['help_frequency'] = 'Enter a value from 1 to 10. Lower is better, but not so low that performance of the website is noticeably degraded.';
-$lang['prompt_timelimit'] = 'Timeout for each batch of jobs (<em>seconds</em>)';
+$lang['prompt_timelimit'] = 'Jobs timeout (<em>seconds</em>)';
 $lang['help_timelimit'] = 'Enter a value from 30 to 1800. This is akin to PHP’s maximum execution time setting.';
 $lang['prompt_joburl'] = 'Custom URL for job processing';
 $lang['help_joburl'] = 'Enter a suitable URL to replace the default internal URL, if that cannot be used. Leave blank to use the default.';
