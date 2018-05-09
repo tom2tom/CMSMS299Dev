@@ -140,6 +140,12 @@ abstract class CmsAdminThemeBase
     private $_headtext;
 
     /**
+     * Cache for content to be included in the page footer
+     * @ignore
+     */
+    private $_foottext;
+
+    /**
      * Use small-size icons (named like *-small.ext) if available
      * @ignore
      */
@@ -523,7 +529,7 @@ abstract class CmsAdminThemeBase
         // if mact is available via post and not via get, we fake it
         //  so that comparisons can get the mact from the query
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mact']) && !isset($_GET['mact'])) {
-			$value = cleanValue(rawurldecode($_POST['mact'])); //direct use N/A
+            $value = cleanValue(rawurldecode($_POST['mact'])); //direct use N/A
             $url_ob->set_queryvar('mact', $value);
             $url_ob = new cms_url((string)$url_ob);
         }
@@ -1193,8 +1199,8 @@ $X = 1;
             if ($extras['alt']) {
                 $extras['title'] = $extras['alt'];
             } else {
-				$extras['title'] = pathinfo($path, PATHINFO_FILENAME);
-			}
+                $extras['title'] = pathinfo($path, PATHINFO_FILENAME);
+            }
         }
         if (!$extras['alt']) {
             $p = strrpos($path,'/');
@@ -1655,13 +1661,17 @@ $X = 1;
      * The CMSMS core code calls this method to add text and javascript to output in the head section required for various functionality.
      *
      * @param string $txt The text to add to the head section.
+     * @param bool   $after Since 2.3 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
      * @author Robert Campbell
      */
-    public function add_headtext($txt)
+    public function add_headtext($txt, $after = true)
     {
         $txt = trim($txt);
-        if( $txt ) $this->_headtext .= "\n".$txt;
+        if( $txt ) {
+            if( $after ) { $this->_headtext .= "\n".$txt; }
+            else { $this->_headtext = $txt."\n".$this->_headtext; }
+        }
     }
 
     /**
@@ -1682,13 +1692,17 @@ $X = 1;
      * Accumulate content to be inserted at the bottom of the output, immediately before the </body> tag.
      *
      * @param string $txt The text to add to the end of the output.
+     * @param bool   $after Since 2.3 Optional flag whether to append (instead of prepend) default true
      * @since 2.2
      * @author Robert Campbell
      */
-    public function add_footertext($txt)
+    public function add_footertext($txt, $after = true)
     {
         $txt = trim($txt);
-        if( $txt ) $this->_footertext .= "\n".$txt;
+        if( $txt ) {
+            if( $after ) { $this->_foottext .= "\n".$txt; }
+            else { $this->_foottext = $txt."\n".$this->_foottext; }
+        }
     }
 
     /**
@@ -1702,7 +1716,7 @@ $X = 1;
      */
     public function get_footertext()
     {
-        return $this->_footertext;
+        return $this->_foottext;
     }
 
     /**
