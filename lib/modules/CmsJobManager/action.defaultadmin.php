@@ -7,18 +7,18 @@ if( isset($params['apply']) && $this->CheckPermission('Modify Site Preferences')
     $t = max(30, min(1800, (int)$params['jobtimeout']));
     $this->SetPreference('jobtimeout', $t);
     $t = max(1, min(10, (int)$params['jobinterval']));
-	$this->SetPreference('jobinterval', $t);
-	$t = trim($params['joburl']);
-	if( $t ) {
-		$t2 = filter_var($t, FILTER_SANITIZE_URL);
-		if( filter_var($t2, FILTER_VALIDATE_URL) ) {
+    $this->SetPreference('jobinterval', $t);
+    $t = trim($params['joburl']);
+    if( $t ) {
+        $t2 = filter_var($t, FILTER_SANITIZE_URL);
+        if( filter_var($t2, FILTER_VALIDATE_URL) ) {
             $this->SetPreference('joburl', $t2);
-		} else {
-			$this->ShowErrors($this-Lang('err_url'));
-		}
+        } else {
+            $this->ShowErrors($this-Lang('err_url'));
+        }
     } else {
-		$this->SetPreference('joburl', '');
-	}
+        $this->SetPreference('joburl', '');
+    }
 }
 
 $jobs = [];
@@ -55,30 +55,33 @@ $tpl->assign('jobinterval',(int)$this->GetPreference('jobinterval'));
 $tpl->assign('last_processing',(int)$this->GetPreference('last_processing'));
 
 if( $this->CheckPermission('Modify Site Preferences') ) {
-	$tpl->assign('tabbed',1);
-	$tpl->assign('enabled',(int)$this->GetPreference('enabled'));
-	$tpl->assign('jobtimeout',(int)$this->GetPreference('jobtimeout'));
-	$tpl->assign('joburl',$this->GetPreference('joburl'));
+    $tpl->assign('tabbed',1);
+    $tpl->assign('enabled',(int)$this->GetPreference('enabled'));
+    $tpl->assign('jobtimeout',(int)$this->GetPreference('jobtimeout'));
+    $tpl->assign('joburl',$this->GetPreference('joburl'));
 }
 
-/* TESTING
-extra template content
-<a id="simple1" href="{cms_action_url action=test1}" class="link_button icon do">Simple Derived Class Test</a>
-<a href="{cms_action_url action=test2}" class="link_button icon check">Simple Derived Cron Test</a>
+//DEBUG - DISABLE FOR PRODUCTION
+$u1 = $this->create_url($id,'test1',$returnid,[],false,false,'',1);
+$u2 = $this->create_url($id,'test2',$returnid,[],false,false,'',1);
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
-  $('#simple1').on('click', function(ev) {
-    ev.preventDefault();
-    cms_confirm('woot it works');
-    return false;
-  });
+ $('body').append(
+'<a id="simple1" href="$u1" class="link_button icon do">Simple Derived Class Test</a>' +
+'<a href="$u2" class="link_button icon do">Simple Derived Cron Test</a>'
+ );
+ $('#simple1').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm('woot it works'); //TODO linkclick ...
+  return false;
+ });
 });
 //]]>
 </script>
 EOS;
-$this->AdminFooterContent($js);
-*/
+$this->AdminHeaderContent($js);
+//DEBUG - END
 
 $tpl->display();
