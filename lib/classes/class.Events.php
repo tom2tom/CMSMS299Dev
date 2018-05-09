@@ -226,7 +226,7 @@ final class Events
 	/**
 	 * Add an event handler for a module event.
 	 *
-	 * @param string $modulename The name of the module sending the event
+	 * @param string $modulename The name of the module sending the event, or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param string $tag_name The name of a user defined tag. If not passed, no user defined tag is set.
 	 * @param string $module_handler The name of the module. If not passed, no module is set.
