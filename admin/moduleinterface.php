@@ -81,15 +81,8 @@ if ($CMS_JOB_TYPE == 0) {
         $themeObject->add_headtext($txt);
     }
 
-    // retrieve and park the action output now, in case the action also generates header content
-    ob_start();
-    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
-    $content = ob_get_contents();
-    ob_end_clean();
-
     include_once 'header.php';
-    // back into the buffer,  now that 'pre-content' things are in place
-    echo $content;
+    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 
     if (!empty($params['module_error'])) $themeObject->RecordNotice('error', $params['module_error']);
     if (!empty($params['module_message'])) $themeObject->RecordNotice('success', $params['module_message']);
@@ -100,4 +93,5 @@ if ($CMS_JOB_TYPE == 0) {
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
-//FUTURE USE \CMSMS\HookManager::do_hook('PostRequest');
+CMSMS\HookManager::do_hook('PostRequest');
+
