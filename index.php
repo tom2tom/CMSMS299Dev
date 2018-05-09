@@ -317,6 +317,6 @@ if ($debug && !is_sitedown()) {
     }
 }
 
-//FUTURE USE: CMSMS\HookManager::do_hook('PostRequest');
+CMSMS\HookManager::do_hook('PostRequest');
 
 exit;
