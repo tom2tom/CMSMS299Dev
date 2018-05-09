@@ -15,8 +15,11 @@ $this->SetPreference('last_processing',0); //ditto
 
 $this->CreatePermission(\CmsJobManager::MANAGE_JOBS,\CmsJobManager::MANAGE_JOBS);
 
+$this->refresh_jobs(); //init jobs-data
+
 $this->CreateEvent(\CmsJobManager::EVT_ONFAILEDJOB);
-$this->AddEventHandler('Core','ModuleUninstalled',FALSE);
+$this->AddEventHandler('Core','ModuleInstalled',false);
+$this->AddEventHandler('Core','ModuleUninstalled',false);
 
 //TODO check InnoDB relevant here?
 $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
