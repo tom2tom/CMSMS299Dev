@@ -2800,15 +2800,15 @@ abstract class CMSModule
      * Add an event handler for an existing eg event.
      *
      * @final
-     * @param string $modulename       The name of the module sending the event, or 'Core'
-     * @param string $eventname       The name of the event
-     * @param bool $removable      Can this event be removed from the list?
+     * @param string $realm      The name of the module sending the event, or 'Core'
+     * @param string $eventname  The name of the event
+     * @param bool $removable    Whether this event can be removed from the list
      * @returns mixed bool or nothing ??
      * @deprecated TODO explain
      */
-    final public function AddEventHandler(string $modulename, string $eventname, bool $removable = true)
+    final public function AddEventHandler(string $realm, string $eventname, bool $removable = true)
     {
-        Events::AddEventHandler( $modulename, $eventname, false, $this->GetName(), $removable );
+        Events::AddEventHandler( $realm, $eventname, false, $this->GetName(), $removable );
     }
 
     /**
