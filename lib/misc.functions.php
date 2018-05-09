@@ -1108,16 +1108,16 @@ function cms_jqueryui_local() : array
     foreach ($files as $path) {
         if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
             $ui = $path;
-		}
-	}
-	$css = '';
+        }
+    }
+    $css = '';
     $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','css','*','jquery-ui*min.css');
     $files = glob($patn);
     foreach ($files as $path) {
         if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
             $css = $path;
-		}
-	}
+        }
+    }
     return [$ui, $css];
 }
 
@@ -1152,11 +1152,11 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
 {
     $baseUrl = ($custom_root) ? trim($custom_root,'/lib/jquery/') : CMS_SCRIPTS_URL.'/';
     list ($core, $migrate) = cms_jquery_local();
-	list ($ui, $css) = cms_jqueryui_local();
-	if ($css) {
-		$p = strpos($css, DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR);
-		$css = $baseUrl.str_replace(DIRECTORY_SEPARATOR,'/',substr($css,$p+1));
-	}
+    list ($ui, $css) = cms_jqueryui_local();
+    if ($css) {
+        $p = strpos($css, DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR);
+        $css = $baseUrl.str_replace(DIRECTORY_SEPARATOR,'/',substr($css,$p+1));
+    }
 
     // scripts etc to include (unless excluded)
     $scripts = [];
@@ -1168,14 +1168,14 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
     if ($migrate) {
         $scripts['migrate'] = ['local'=>$baseUrl.'js/'.basename($migrate)];
     }
-	$scripts['jquery-ui'] = [
+    $scripts['jquery-ui'] = [
          'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
          'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
          'local'=>$baseUrl.'js/'.basename($ui),
          'css'=>$css,
         ];
 //  $scripts['json'] = ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'];
-	$scripts['nestedSortable'] = ['local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'];
+    $scripts['nestedSortable'] = ['local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'];
 
     if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
         global $CMS_LOGIN_PAGE;
@@ -1271,19 +1271,19 @@ EOT;
 
     $output = "\n";
 
-	if ($include_css) {
-		$fmt_css = '<link rel="stylesheet" type="text/css" href="%s" />';
-		foreach($scripts as $script) {
-			if (!empty($script['css'])) {
-				$url = $script['css'];
-			} elseif ($cdn && !empty($script['css_cdn'])) {
-				$url = $script['css_cdn'];
-			} else {
-				continue;
-			}
-			$output .= sprintf($fmt_css,$url)."\n";
-		}
-	}
+    if ($include_css) {
+        $fmt_css = '<link rel="stylesheet" type="text/css" href="%s" />';
+        foreach($scripts as $script) {
+            if (!empty($script['css'])) {
+                $url = $script['css'];
+            } elseif ($cdn && !empty($script['css_cdn'])) {
+                $url = $script['css_cdn'];
+            } else {
+                continue;
+            }
+            $output .= sprintf($fmt_css,$url)."\n";
+        }
+    }
     $fmt_js = '<script type="text/javascript" src="%s"></script>';
     foreach($scripts as $script) {
         if (isset($script['variables'])) {
@@ -1292,13 +1292,13 @@ EOT;
             }
             continue;
         }
-		if (!empty($script['local'])) {
-			$url = $script['local'];
-		} elseif ($cdn && !empty($script['cdn']) ) {
-			$url = $script['cdn'];
-		} else {
-			continue;
-		}
+        if (!empty($script['local'])) {
+            $url = $script['local'];
+        } elseif ($cdn && !empty($script['cdn']) ) {
+            $url = $script['cdn'];
+        } else {
+            continue;
+        }
         $output .= sprintf($fmt_js,$url)."\n";
     }
     return $output;
