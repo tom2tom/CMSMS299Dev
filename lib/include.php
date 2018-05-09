@@ -194,10 +194,6 @@ if (!isset($CMS_INSTALL_PAGE)) {
         $modops->LoadModules(!isset($CMS_ADMIN_PAGE));
         debug_buffer('End of Loading Modules');
 */
-        // test for async tasks.
-        // we hardcode CmsJobManager here until such point as we need to abstract it.
-        //TODO use a site preference to identify the handler
-        CMSMS\Async\JobManager::get_instance()->trigger_async_processing();
     }
 }
 
