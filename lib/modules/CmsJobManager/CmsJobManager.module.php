@@ -22,7 +22,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     const LOCKPREF = 'lock';
     const ASYNCFREQ_PREF = 'asyncfreq';
     const MANAGE_JOBS = 'Manage Jobs';
-    const EVT_ONFAILEDJOB = 'CmsJobManager::OnJobFailed';
+    const EVT_ONFAILEDJOB = 'OnJobFailed';
 
     private $_current_job;
     private $_lock;
@@ -30,8 +30,11 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function __construct()
     {
         parent::construct();
-        //alternative to hard-coded method call
-        HookManager::add_hook('PostRequest', [$this, 'trigger_async_processing'], HookManager::PRIORITY_LOW);
+        if ($this->GetPreference('enabled')) {
+            HookManager::add_hook('PostRequest', [$this, 'trigger_async_processing'], HookManager::PRIORITY_LOW);
+        }
+// ?? for event-processing purposes
+//        $this->RegisterModulePlugin();
     }
 
     public static function table_name() { return CMS_DB_PREFIX.'mod_cmsjobmgr'; }
@@ -52,12 +55,23 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function GetHelp() { return $this->Lang('help'); }
     public function HandlesEvents() { return TRUE; }
 
-    public function InitializeFrontend()
+    public function DoEvent($originator, $eventname, &$params)
     {
-        $this->RegisterModulePlugin();
-//2.3 does nothing        $this->RestrictUnknownParams();
+        if ($originator == 'Core') {
+            switch ($eventname) {
+                case 'ModuleInstalled':
+                case 'ModuleUninstalled':
+                    $this->refresh_jobs(); // or create_jobs_from_eligible_tasks();
+            }
+        }
+        parent::DoEvent($originator, $eventname, $params);
     }
 
+/*    public function InitializeFrontend()
+   {
+//2.3 does nothing        $this->RestrictUnknownParams();
+    }
+*/
     public function GetEventHelp($name)
     {
         return $this->Lang('evthelp_'.$name);
@@ -324,7 +338,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     public function trigger_async_processing()
     {
-        // if this module is disabled - do nothing
+        // if this module is disabled (but running anyway i.e. pre-hooklist) - do nothing
         if (!$this->GetPreference('enabled')) {
             return;
         }
