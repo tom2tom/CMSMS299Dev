@@ -24,6 +24,8 @@ $CMS_MODULE_PAGE=1;
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
+//for async DEBUG define('ASYNCLOG', dirname(__DIR__).DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'async'.DIRECTORY_SEPARATOR.'debug.log');
+
 if (isset($_REQUEST['cmsjobtype'])) {
     // for simplicity and compatibility with the frontend
     $type = (int)$_REQUEST['cmsjobtype'];
@@ -40,8 +42,12 @@ if (isset($_REQUEST['cmsjobtype'])) {
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
-check_login();
-$userid = get_userid();
+if ($CMS_JOB_TYPE < 2) {
+    check_login();
+//  $userid = get_userid();
+} else {
+    //TODO security for async ? $params[CMS_SECURE_PARAM_NAME] == $_SESSION[CMS_USER_KEY] etc
+}
 
 if (isset($_REQUEST['mact'])) {
     $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
@@ -60,7 +66,9 @@ if (!$modinst) {
     redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
 }
 if ($modinst->SuppressAdminOutput($_REQUEST)) {
-    $CMS_JOB_TYPE = 1; //too bad about irelevant includes
+    if ($CMS_JOB_TYPE == 0) {
+        $CMS_JOB_TYPE = 1; //too bad about irelevant includes
+    }
 }
 
 $params = $modops->GetModuleParameters($id);
@@ -94,4 +102,3 @@ if ($CMS_JOB_TYPE == 0) {
 }
 
 CMSMS\HookManager::do_hook('PostRequest');
-
