@@ -1933,23 +1933,6 @@ abstract class CMSModule
     }
 
     /**
-     * Return the URL for a job-action of this module
-     *
-     * @since 2.3
-     *
-     * @param string $action The module action name
-     * @param array  $params Optional array of parameters for the action. Default []
-     * @param bool   $secure Optional flag, whether to include security-check-parameters in the created URL. Default true
-     *
-     * @return string
-     */
-    public function create_joburl($action, $params = [], $secure = true)
-    {
-        $this->_loadUrlMethods();
-        return cms_module_create_joburl($this, $action, $params, $secure);
-    }
-
-    /**
      * Return the URL to open a website page
      * Effectively replaces calling one of the CreateLink methods with $onlyhref=true.
      *
