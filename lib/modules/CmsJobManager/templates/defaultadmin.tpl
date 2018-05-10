@@ -30,8 +30,8 @@
         <td>{$job->module|default:''}</td>
         <td>{$job->created|relative_time}</td>
         <td>
-           {if $job->start < $smarty.now - $jobinterval}<span style="color: red;">
-           {elseif $job->start < $smarty.now + $jobinterval}<span style="color: green;">
+           {if $job->start < $smarty.now - $jobinterval*60}<span style="color: red;">
+           {elseif $job->start < $smarty.now + $jobinterval*60}<span style="color: green;">
            {else}<span>
            {/if}
            {$job->start|relative_time}</span>
