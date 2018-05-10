@@ -4,10 +4,19 @@
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # See license details at the top of file CmsJobManager.module.php
 
+if (defined('ASYNCLOG')) {
+    error_log('async processing @start'."\n", 3, ASYNCLOG);
+}
+
 if (!isset($gCms)) {
     exit;
 }
-if (!isset($_REQUEST['cms_jobman'])) {
+
+//TODO more-robust security
+if (!isset($params['cms_jobman'])) {
+    if (defined('ASYNCLOG')) {
+        error_log('async processing exit no "cms_jobman" param'."\n", 3, ASYNCLOG);
+    }
     exit;
 }
 
@@ -28,6 +37,9 @@ try {
     $now = time();
     $last_run = (int) $this->GetPreference('last_processing');
     if ($last_run >= $now - \CmsJobManager\utils::get_async_freq()) {
+        if (defined('ASYNCLOG')) {
+            error_log('Async processing @3'."\n", 3, ASYNCLOG);
+        }
         return;
     }
 
@@ -36,6 +48,9 @@ try {
 
     $jobs = \CmsJobManager\JobQueue::get_jobs();
     if (!$jobs) {
+        if (defined('ASYNCLOG')) {
+            error_log('Async processing @4 no jobs'."\n", 3, ASYNCLOG);
+        }
         return; // nothing to do.
     }
 
@@ -60,6 +75,10 @@ try {
     $started_at = $now;
 
     $this->lock(); // get a new lock.
+    if (defined('ASYNCLOG')) {
+        error_log('Async processing @5 - locked'."\n", 3, ASYNCLOG);
+    }
+
     foreach ($jobs as $job) {
         // make sure we are not out of time.
         if ($now - $time_limit >= $started_at) {
@@ -87,12 +106,18 @@ try {
             $job = $this->get_current_job();
             audit('', 'CmsJobManager', 'An error occurred while processing: '.$job->name);
             \CmsJobManager\utils::joberrorhandler($job, $e->GetMessage(), $e->GetFile(), $e->GetLine());
+			if (defined('ASYNCLOG')) {
+				error_log($job->name.' exception: '. $e->GetMessage()."\n", 3, ASYNCLOG);
+			}
         }
     }
     $this->unlock();
     $this->GetPreference('last_processing', $now);
 } catch (\Exception $e) {
     // some other error occurred, not processing jobs.
+    if (defined('ASYNCLOG')) {
+        error_log('exception '.$e->GetMessage()."\n", 3, ASYNCLOG);
+    }
     debug_to_log('--Major async processing exception--');
     debug_to_log('exception '.$e->GetMessage());
     debug_to_log($e->GetTraceAsString());
