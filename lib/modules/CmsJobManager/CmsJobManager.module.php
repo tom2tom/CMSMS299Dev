@@ -29,7 +29,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     public function __construct()
     {
-        parent::construct();
+        parent::__construct();
         if ($this->GetPreference('enabled')) {
             HookManager::add_hook('PostRequest', [$this, 'trigger_async_processing'], HookManager::PRIORITY_LOW);
         }
@@ -160,7 +160,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     }
 
     /**
-     * Create jobs from CmsRegularTask objects that we find, and that need to be executed.
+     * Create jobs from CmsRegularTask objects that need to be executed.
      */
     protected function create_jobs_from_eligible_tasks()
     {
@@ -209,7 +209,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         return $res;
     }
 
-    // JobManager interface stuff - maybe into a relevant class?
+    // JobManager interface stuff - maybe into a relevant class or trait?
 
     public function load_jobs_by_module($module)
     {
@@ -343,15 +343,14 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             return;
         }
 
-        // flag to make sure this method only works once per request
-        // and anyhow, preserve a returnid.
-        static $_returnid = -1;
-        if ($_returnid !== -1) {
-            return;
-        }
+        global $params;
 
+/*        if (defined('ASYNCLOG')) {
+            error_log('trigger_async_processing @1: $params: '.print_r($params, true)."\n", 3, ASYNCLOG);
+        }
+*/
         // if we're processing a prior job-manager request - do nothing
-        if (isset($_REQUEST['cms_jobman'])) {
+        if (isset($params['cms_jobman'])) {
             return; // no re-entrance
         }
 
@@ -359,7 +358,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         $last_trigger = (int) $this->GetPreference('last_processing');
         $now = time();
         $gap = $this->GetPreference('jobinterval');
-        if ($last_trigger >= $now - $gap) {
+        if ($last_trigger >= $now - $gap * 60) {
             return;
         }
 
@@ -369,57 +368,87 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             return; // nothing to do
         }
 
-        $url = $this->GetPreference('joburl');
-        if ($url) {
-            list ($host, $path, $transport, $port) = $this->GetUrlParams($url);
-        } else {
-            list ($host, $path, $transport, $port) = $this->GetActionParams('CmsJobManager', 'process', ['cms_jobman'=>1, 'cmsjobtype'=>2]);
+        $joburl = $this->GetPreference('joburl');
+        if (!$joburl) {
+            $joburl = $this->create_url('aj_','process', '', ['cms_jobman'=>1]) . '&cmsjobtype=2';
         }
-
+        $joburl = str_replace('&amp;', '&', $joburl);  //fix needed for direct use
+        
+/*        if (defined('ASYNCLOG')) {
+            error_log('async job url: '.$joburl."\n", 3, ASYNCLOG);
+        }
+*/
+        list ($host, $path, $transport, $port) = $this->get_url_params($joburl);
+        if (!$host) {
+            if (defined('ASYNCLOG')) {
+                error_log('bad async-job url: '.$joburl."\n", 3, ASYNCLOG);
+            }
+            return;
+        }
+/*        if (defined('ASYNCLOG')) {
+            error_log('host: '.$host."\n", 3, ASYNCLOG);
+            error_log('path: '.$path."\n", 3, ASYNCLOG);
+            error_log('transport: '.$transport."\n", 3, ASYNCLOG);
+            error_log('port: '.$port."\n", 3, ASYNCLOG);
+        }
+*/
         $remote = $transport.'://'.$host.':'.$port;
-        if ($transport == 'tcp') {
-            $context = stream_context_create();
-        } else {
+        $opts = ['http' => ['method' => 'POST']];
+        if ($transport != 'tcp') {
             //internal-use only, can skip verification
-            $opts = [
-            'ssl' => [
+            $opts['ssl'] = [
 //              'allow_self_signed' => TRUE,
                 'verify_host' => FALSE,
                 'verify_peer' => FALSE,
-             ],
-            'tls' => [
-//              'allow_self_signed' => TRUE,
-                'verify_host' => FALSE,
-                'verify_peer' => FALSE,
-             ]
             ];
-            $context = stream_context_create($opts); //, $params);
         }
+        $context = stream_context_create($opts); //, $params);
 
         $res = stream_socket_client($remote, $errno, $errstr, 1, STREAM_CLIENT_ASYNC_CONNECT, $context);
         if ($res) {
+            if (defined('ASYNCLOG')) {
+                error_log('stream-socket client created: '.$remote."\n", 3, ASYNCLOG);
+            }
             $req = "GET $path HTTP/1.1\r\nHost: {$host}\r\nContent-type: text/plain\r\nContent-length: 0\r\nConnection: Close\r\n\r\n";
             fputs($res, $req);
+            if (defined('ASYNCLOG')) {
+                error_log('stream-socket sent: '.$req."\n", 3, ASYNCLOG);
+            }
+
             stream_socket_shutdown($res, STREAM_SHUT_RDWR);
 
-            $this->SetPreference('last_processing',$now+1);
-//            return;
+            if ($errno == 0) {
+                $this->SetPreference('last_processing',$now+1);
+                return;
+            }
+        } else {
+            if (defined('ASYNCLOG')) {
+                error_log('stream-socket client failure: '.$remote."\n", 3, ASYNCLOG);
+            }
         }
 
-/*        if ($errno > 0) {
-            error_log('stream-socket error: '.$errstr."\n", 3, $logfile);
-        } else {
-            error_log('stream-socket error: connection failure'."\n", 3, $logfile);
+/*        if (defined('ASYNCLOG')) {
+            if ($errno > 0) {
+                error_log('stream-socket error: '.$errstr."\n", 3, ASYNCLOG);
+            } else {
+                error_log('stream-socket error: connection failure'."\n", 3, ASYNCLOG);
+            }
         }
 */
     }
 
-    protected function GetUrlParams($url)
+    //Since 2.3
+    protected function get_url_params(string $url) : array
     {
-        $url_ob = new \cms_url($url);
-        $host = $url_ob->get_host();
-        $path = $url_ob->get_path();
-        $secure = (strcasecmp($url_ob->get_scheme(),'https') == 0);
+        $urlparts = parse_url($url);
+        if (!$urlparts || !$urlparts['host']) {
+            return [null, null, null, null];
+        }
+        $host = $urlparts['host'];
+        $path = $urlparts['path'] ?? '';
+        if (!empty($urlparts['query'])) $path .= '?'.$urlparts['query'];
+        $scheme = $urlparts['scheme'] ?? 'http';
+        $secure = (strcasecmp($scheme,'https') == 0);
         if ($secure) {
             $opts = stream_get_transports();
             if (in_array('tls', $opts)) {
@@ -433,54 +462,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         } else {
             $transport = 'tcp';
         }
-        $port = $url_ob->get_port();
-        if (!$port) {
-            $port = ($secure) ? 443 : 80;
-        }
-        return [$host, $path, $transport, $port];
-    }
-
-    protected function GetActionParams($modname, $action, $params = [])
-    {
-        $root = CMS_ROOT_URL;
-        if (empty($_SERVER['HTTPS'])) {
-            $transport = 'tcp';
-            $port = 80;
-        } else {
-            $opts = stream_get_transports();
-            if (in_array('tls', $opts)) {
-                $transport = 'tls';
-                $port = 443;
-            } elseif (in_array('ssl', $opts)) { //deprecated PHP7
-                $transport = 'ssl';
-                $port = 443;
-            } else {
-                $transport = 'tcp';
-                $port = 80;
-            }
-        }
-
-        $p = strpos($root, '://');
-        $host = substr($root, $p + 3);
-        if (($p = strpos($host, '/')) !== FALSE)  {
-            $path = substr($host, $p);
-            $host = substr($host, 0, $p);
-        } else {
-            $path = '';
-        }
-
-        $id = 'aj_';
-
-        $path .= '/moduleinterface.php?mact='.$modname.','.$id.','.$action.',0';
-
-        if ($params) {
-            $ignores = ['assign', 'id', 'returnid', 'action', 'module'];
-            foreach ($params as $key => $value) {
-                if (!in_array($key, $ignores)) {
-                    $path .= '&'.$id.rawurlencode($key).'='.rawurlencode($value);
-                }
-            }
-        }
+        $port = $urlparts['port'] ?? (($secure) ? 443 : 80);
         return [$host, $path, $transport, $port];
     }
 } // class
