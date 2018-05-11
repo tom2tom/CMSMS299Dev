@@ -25,58 +25,14 @@ if (!$this->CheckPermission('Modify Files')) {
   exit;
 }
 
-$sortby=$this->GetPreference('sortby', 'nameasc');
-$path=filemanager_utils::get_cwd();
-$filelist=filemanager_utils::get_file_list($path);
-
-$config = $gCms->GetConfig();
-$smarty->assign('path', $path);
-$smarty->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path));
-$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid));
-
-$themeObject = cms_utils::get_theme_object();
-$titlelink = $this->Lang('filename');
-$newsort = '';
-if ($sortby == 'nameasc') {
-  $newsort = 'namedesc';
-  $titlelink .= '+';
-} else {
-  $newsort = 'nameasc';
-  if ($sortby == 'namedesc') {
-    $titlelink.='-';
-  }
-}
-$params['newsort'] = $newsort;
-$titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
-$smarty->assign('filenametext', $titlelink);
-
-$titlelink = $this->Lang('filesize');
-$newsort = '';
-if ($sortby == 'sizeasc') {
-  $newsort = 'sizedesc';
-  $titlelink .= '+';
-} else {
-  $newsort = 'sizeasc';
-  if ($sortby == 'sizedesc') {
-    $titlelink .= '-';
-  }
-}
-$params['newsort'] = $newsort;
-//}
-$titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
-$smarty->assign('filesizetext', $titlelink);
-$smarty->assign('fileownertext', $this->Lang('fileowner'));
-$smarty->assign('filepermstext', $this->Lang('fileperms'));
-$smarty->assign('fileinfotext', $this->Lang('fileinfo'));
-
-$smarty->assign('filedatetext', $this->Lang('filemodified'));
-$smarty->assign('actionstext', $this->Lang('actions'));
-
+$sortby = $this->GetPreference('sortby', 'nameasc');
+$path = filemanager_utils::get_cwd();
+$filelist = filemanager_utils::get_file_list($path);
 $times = count($filelist);
 $countdirs = 0;
 $countfiles = 0;
 $countfilesize = 0;
-$files = array();
+$files = [];
 
 for ($i = 0; $i < $times; $i++) {
   $onerow = new stdClass();
@@ -96,26 +52,25 @@ for ($i = 0; $i < $times; $i++) {
   }
 
   if ($filelist[$i]['dir']) {
-    $urlname='dir_' . $this->encodefilename($filelist[$i]['name']);
-    $value='';
+    $urlname = 'dir_' . $this->encodefilename($filelist[$i]['name']);
+    $value = '';
     if (isset($params[$urlname])) {
-      $value='true';
+      $value = 'true';
     }
-    $onerow->checkbox = $this->CreateInputCheckBox($id, $urlname, 'true', $value);
   } else {
-    $urlname='file_' . $this->encodefilename($filelist[$i]['name']);
-    $value='';
+    $urlname = 'file_' . $this->encodefilename($filelist[$i]['name']);
+    $value = '';
     if (isset($params[$urlname])) {
-      $value='true';
+      $value = 'true';
     }
-    $onerow->checkbox = $this->CreateInputCheckBox($id, $urlname, 'true', $value);
   }
+  $onerow->checkbox = $this->CreateInputCheckBox($id, $urlname, 'true', $value);
 
   $onerow->thumbnail = '';
   $onerow->editor = '';
   if ($filelist[$i]['image']) {
     $onerow->type[] = 'image';
-    $params['imagesrc'] = $path.'/'.$filelist[$i]['name'];
+    $params['imagesrc'] = $path.DIRECTORY_SEPARATOR.$filelist[$i]['name'];
     if ($this->GetPreference('showthumbnails', 0) == 1) {
       $onerow->thumbnail = $this->GetThumbnailLink($filelist[$i], $path);
     }
@@ -127,7 +82,7 @@ for ($i = 0; $i < $times; $i++) {
       'changedir',
       '',
       $this->GetFileIcon($filelist[$i]['ext'], $filelist[$i]['dir'],
-        ['newdir' => $filelist[$i]['name'], 'path' => $path, 'sortby' => $sortby])
+        ['newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby])
     );
   } else {
     $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext']) . '</a>';
@@ -189,41 +144,80 @@ for ($i = 0; $i < $times; $i++) {
 if (!empty($params['viewfile'])) {
   foreach ($files as $file) {
     if ($file->urlname == $params['viewfile']) {
-      $fn = cms_join_path(filemanager_utils::get_full_cwd(), $file->name);
       if (in_array('text', $file->type)) {
+        $fn = cms_join_path(filemanager_utils::get_full_cwd(), $file->name);
         if (file_exists($fn)) {
           $data = @file_get_contents($fn);
         }
         if ($data) {
           $data = cms_htmlentities($data);
           $data = nl2br($data);
-          echo $data;
-          exit;
-        }
+		}
+        echo $data;
       } elseif (in_array('image', $file->type)) {
         $data = '<img src="'.$file->url.'" alt="'.$file->name.'" />';
         echo $data;
-        exit;
       }
+	  break;
     }
   }
+  exit;
 }
 
 // build display
+
+$smarty->assign('path', $path);
+$smarty->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path));
+$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid));
+
+$titlelink = $this->Lang('filename');
+if ($sortby == 'nameasc') {
+  $newsort = 'namedesc';
+  $titlelink .= '+';
+} else {
+  $newsort = 'nameasc';
+  if ($sortby == 'namedesc') {
+    $titlelink.='-';
+  }
+}
+$params['newsort'] = $newsort;
+$titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
+$smarty->assign('filenametext', $titlelink);
+
+$titlelink = $this->Lang('filesize');
+if ($sortby == 'sizeasc') {
+  $newsort = 'sizedesc';
+  $titlelink .= '+';
+} else {
+  $newsort = 'sizeasc';
+  if ($sortby == 'sizedesc') {
+    $titlelink .= '-';
+  }
+}
+$params['newsort'] = $newsort;
+$titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
+$smarty->assign('filesizetext', $titlelink);
+
+$smarty->assign('fileownertext', $this->Lang('fileowner'));
+$smarty->assign('filepermstext', $this->Lang('fileperms'));
+$smarty->assign('fileinfotext', $this->Lang('fileinfo'));
+$smarty->assign('filedatetext', $this->Lang('filemodified'));
+$smarty->assign('actionstext', $this->Lang('actions'));
+
 $smarty->assign('files', $files);
 $smarty->assign('itemcount', count($files));
 $totalsize = filemanager_utils::format_filesize($countfilesize);
 $counts = $totalsize['size'] . ' ' . $totalsize['unit'] . ' ' . $this->Lang('in') . ' ' . $countfiles . ' ';
 if ($countfiles == 1) {
-  $counts.=$this->Lang('file');
+  $counts .= $this->Lang('file');
 } else {
-  $counts.=$this->Lang('files');
+  $counts .= $this->Lang('files');
 }
-$counts.=' ' . $this->Lang('and') . ' ' . $countdirs . ' ';
+$counts .= ' ' . $this->Lang('and') . ' ' . $countdirs . ' ';
 if ($countdirs == 1) {
-  $counts.=$this->Lang('subdir');
+  $counts .= $this->Lang('subdir');
 } else {
-  $counts.=$this->Lang('subdirs');
+  $counts .= $this->Lang('subdirs');
 }
 $smarty->assign('countstext', $counts);
 $smarty->assign('formend', $this->CreateFormEnd());
@@ -286,7 +280,7 @@ $(document).ready(function() {
   enable_action_buttons();
   $('#refresh').off('click').on('click', function() {
     // ajaxy reload for the files area.
-	$('#filesarea').load('{$refresh_url}&cmsjobtype=1');
+    $('#filesarea').load('{$refresh_url}&cmsjobtype=1');
     return false;
   });
   $(document).on('dropzone_chdir', $(this), function(e, data) {
@@ -319,7 +313,6 @@ $(document).ready(function() {
     // find the selected item.
     var tmp = $("#filesarea input[type='checkbox']").filter(':checked').val();
     var url = '{$viewfile_url}&cmsjobtype=1&{$id}viewfile=' + tmp;
-    url = url.replace(/amp;/g, '');
     $('#popup_contents').load(url);
     cms_dialog($('#popup'), {
       minWidth: 380,
