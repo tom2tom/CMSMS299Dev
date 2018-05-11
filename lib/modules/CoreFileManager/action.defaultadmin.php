@@ -225,7 +225,7 @@ $c = 0;
 foreach ($folders as $f) {
     $oneset = new stdClass();
     $oneset->dir = true;
-    
+
     $fp = $pathnow . DIRECTORY_SEPARATOR . $f;
     $encf = rawurlencode($f);
 
@@ -379,7 +379,7 @@ $smarty->assign('title_compress', $t);
 // page infrastructure
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'upload'=>1]);
-$upload_url = rawurldecode(str_replace('&amp;', '&', $u));
+$upload_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
 
 //<link rel="stylesheet" href="{$baseurl}/lib/css/jquery.dm-uploader.css">
 $css = <<<EOS
