@@ -70,7 +70,7 @@
    <button type="submit" name="{$actionid}delete" class="adminsubmit fonticon" onclick="deleteclick(this);return false;"><i class="if-trash-empty"></i> {$mod->Lang('delete')}</button>
    <button type="button" name="compress" class="adminsubmit fonticon" onclick="compressclick(this);return false;"><i class="if-resize-small"></i> {$mod->Lang('compress')}</button>
    <button type="submit" name="{$actionid}decompress" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-resize-full"></i> {$mod->Lang('expand')}</button>
-   <button type="button" class="adminsubmit fonticon" onclick="invert_all();return false;"><i class="if-switch"></i> {$mod->Lang('selectother')}</button>
+   <button type="button" class="adminsubmit fonticon" title="{$mod->Lang('selecttip')}" onclick="invert_all();return false;"><i class="if-switch"></i> {$mod->Lang('selectother')}</button>
   </div>
   </form>
   </div>{*/boxchild*}
@@ -92,11 +92,12 @@
 <input type="text" id="searchinput" placeholder="{$mod->Lang('searchfor')} ..." /><i class="if-cancel"></i>
 </div>'
 
-<div id="upload_dlg" title="{$mod->Lang('upload')}" style="display:none;">
- <h4>Drag file(s) and drop anywhere here<h4/>
- or
- <h4>Select file(s)</h4>
- <input type="file" title="Click to add Files">
+<div id="upload_dlg" title="{$mod->Lang('title_upload')}" style="display:none;">
+ <div title="{$mod->Lang('tip_upload')}">
+ <h4>{$mod->Lang('title_dnd')}</h4>
+ {$mod->Lang('alternate')}
+ <h4><input type="file" title="{$mod->Lang('select')}" multiple /></h4>
+ </div>
 </div>
 
 <div id="compress_dlg" title="{$title_compress}" style="display:none;">
