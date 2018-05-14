@@ -40,6 +40,7 @@ foreach( [
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
+	'Modify Site Code',
 	'Modify Site Preferences',
 //	'Modify Templates', >DM
 //	'Remove Pages', >CM
@@ -113,74 +114,83 @@ cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, 
 // otherwise, some of these could be exported to CmsContentManager or DesignManager install routines.
 //
 verbose_msg(ilang('install_initevents'));
-Events::CreateEvent('Core','LoginFailed');
-Events::CreateEvent('Core','LoginPost');
-Events::CreateEvent('Core','LogoutPost');
-Events::CreateEvent('Core','LostPassword');
-Events::CreateEvent('Core','LostPasswordReset');
+
+Events::CreateEvent('Core','AddDesignPost');
+Events::CreateEvent('Core','AddDesignPre');
 
 Events::CreateEvent('Core','AddGroupPost');
 Events::CreateEvent('Core','AddGroupPre');
-Events::CreateEvent('Core','AddUserPost');
-Events::CreateEvent('Core','AddUserPre');
-Events::CreateEvent('Core','DeleteGroupPost');
-Events::CreateEvent('Core','DeleteGroupPre');
-Events::CreateEvent('Core','DeleteUserPost');
-Events::CreateEvent('Core','DeleteUserPre');
-Events::CreateEvent('Core','EditGroupPost');
-Events::CreateEvent('Core','EditGroupPre');
-Events::CreateEvent('Core','EditUserPost');
-Events::CreateEvent('Core','EditUserPre');
 
 Events::CreateEvent('Core','AddStylesheetPost');
 Events::CreateEvent('Core','AddStylesheetPre');
 Events::CreateEvent('Core','AddTemplatePost');
 Events::CreateEvent('Core','AddTemplatePre');
-Events::CreateEvent('Core','DeleteStylesheetPost');
-Events::CreateEvent('Core','DeleteStylesheetPre');
-Events::CreateEvent('Core','EditStylesheetPost');
-Events::CreateEvent('Core','EditStylesheetPre');
-Events::CreateEvent('Core','EditTemplatePre');
-
-Events::CreateEvent('Core','AddDesignPost');
-Events::CreateEvent('Core','AddDesignPre');
 Events::CreateEvent('Core','AddTemplateTypePost');
 Events::CreateEvent('Core','AddTemplateTypePre');
-Events::CreateEvent('Core','DeleteDesignPost');
-Events::CreateEvent('Core','DeleteDesignPre');
-Events::CreateEvent('Core','DeleteTemplatePost');
-Events::CreateEvent('Core','DeleteTemplatePre');
-Events::CreateEvent('Core','DeleteTemplateTypePost');
-Events::CreateEvent('Core','DeleteTemplateTypePre');
-Events::CreateEvent('Core','EditDesignPost');
-Events::CreateEvent('Core','EditDesignPre');
-Events::CreateEvent('Core','EditTemplatePost');
-Events::CreateEvent('Core','EditTemplateTypePost');
-Events::CreateEvent('Core','EditTemplateTypePre');
 
-Events::CreateEvent('Core','TemplatePostCompile');
-Events::CreateEvent('Core','TemplatePreCompile');
-Events::CreateEvent('Core','TemplatePreFetch');
+Events::CreateEvent('Core','AddUserPost');
+Events::CreateEvent('Core','AddUserPre');
+Events::CreateEvent('Core','ChangeGroupAssignPost');
+Events::CreateEvent('Core','ChangeGroupAssignPre');
 
 Events::CreateEvent('Core','ContentDeletePost');
 Events::CreateEvent('Core','ContentDeletePre');
 Events::CreateEvent('Core','ContentEditPost');
 Events::CreateEvent('Core','ContentEditPre');
 
-Events::CreateEvent('Core','ChangeGroupAssignPost');
-Events::CreateEvent('Core','ChangeGroupAssignPre');
 Events::CreateEvent('Core','ContentPostCompile');
 Events::CreateEvent('Core','ContentPostRender');
 Events::CreateEvent('Core','ContentPreCompile');
 Events::CreateEvent('Core','ContentPreRender'); // 2.2
+
+Events::CreateEvent('Core','DeleteDesignPost');
+Events::CreateEvent('Core','DeleteDesignPre');
+
+Events::CreateEvent('Core','DeleteGroupPost');
+Events::CreateEvent('Core','DeleteGroupPre');
+
+Events::CreateEvent('Core','DeleteStylesheetPost');
+Events::CreateEvent('Core','DeleteStylesheetPre');
+Events::CreateEvent('Core','DeleteTemplatePost');
+Events::CreateEvent('Core','DeleteTemplatePre');
+Events::CreateEvent('Core','DeleteTemplateTypePost');
+Events::CreateEvent('Core','DeleteTemplateTypePre');
+
+Events::CreateEvent('Core','DeleteUserPost');
+Events::CreateEvent('Core','DeleteUserPre');
+Events::CreateEvent('Core','EditDesignPost');
+Events::CreateEvent('Core','EditDesignPre');
+Events::CreateEvent('Core','EditGroupPost');
+Events::CreateEvent('Core','EditGroupPre');
+
+Events::CreateEvent('Core','EditStylesheetPost');
+Events::CreateEvent('Core','EditStylesheetPre');
+Events::CreateEvent('Core','EditTemplatePost');
+Events::CreateEvent('Core','EditTemplatePre');
+Events::CreateEvent('Core','EditTemplateTypePost');
+Events::CreateEvent('Core','EditTemplateTypePre');
+
+Events::CreateEvent('Core','EditUserPost');
+Events::CreateEvent('Core','EditUserPre');
+Events::CreateEvent('Core','LoginFailed');
+
+Events::CreateEvent('Core','LoginPost');
+Events::CreateEvent('Core','LogoutPost');
+Events::CreateEvent('Core','LostPassword');
+Events::CreateEvent('Core','LostPasswordReset');
+
 Events::CreateEvent('Core','ModuleInstalled');
 Events::CreateEvent('Core','ModuleUninstalled');
 Events::CreateEvent('Core','ModuleUpgraded');
 Events::CreateEvent('Core','SmartyPostCompile');
 Events::CreateEvent('Core','SmartyPreCompile');
+
 Events::CreateEvent('Core','StylesheetPostCompile');
 Events::CreateEvent('Core','StylesheetPostRender');
 Events::CreateEvent('Core','StylesheetPreCompile');
+Events::CreateEvent('Core','TemplatePostCompile');
+Events::CreateEvent('Core','TemplatePreCompile');
+Events::CreateEvent('Core','TemplatePreFetch');
 
 $create_private_dir = function(string $destdir, string $relative_dir) {
 //    $relative_dir = trim($relative_dir);
