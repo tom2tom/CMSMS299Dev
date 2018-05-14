@@ -89,7 +89,7 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
 
     $dbdict = GetDataDictionary($db);
     $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
-    //  $innotaboptarray = array('mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci');
+//  $innotaboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
     $flds = '
 additional_users_id I KEY,
