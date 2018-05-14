@@ -27,18 +27,18 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $v = phpversion();
         $obj = new _tests_\version_range_test('php_version',$v);
         $obj->minimum = '7.0';
-//        $obj->recommended = '7.0';
-//        if (version_compare($obj->minimum, $obj->recommended) < 0) {
-//            $obj->fail_msg = \__appbase\lang('pass_php_version2',$v,$obj->minimum,$obj->recommended);
-//        } else {
+        $obj->recommended = '7.2';
+        if (version_compare($obj->minimum, $obj->recommended) < 0) {
+            $obj->fail_msg = \__appbase\lang('pass_php_version2',$v,$obj->minimum,$obj->recommended);
+        } else {
             $obj->fail_msg = \__appbase\lang('pass_php_version',$v,$obj->minimum);
-//        }
+        }
         $obj->warn_msg = \__appbase\lang('msg_yourvalue',$v);
         $obj->pass_msg = \__appbase\lang('msg_yourvalue',$v);
         $obj->required = 1;
         $tests[] = $obj;
 
-        // required test... database driver
+        // required test... mysqli extension
         $obj = new _tests_\matchany_test('database_support');
         $obj->required = 1;
         $t1 = new _tests_\boolean_test('mysqli',_tests_\test_extension_loaded('mysqli'));
@@ -53,13 +53,13 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->fail_msg = \__appbase\lang('msg_yourvalue',$this->_GDVersion());
         $tests[] = $obj;
 
-        // required test... multibyte extensions
+        // required test... multibyte extension
         $obj = new _tests_\boolean_test('multibyte_support',_tests_\test_extension_loaded('mbstring') && function_exists('mb_get_info'));
         $obj->required = 1;
         $obj->fail_key = 'fail_multibyte_support';
         $tests[] = $obj;
 
-        // xml extension
+        // required test... xml extension
         $obj = new _tests_\boolean_test('xml_functions',_tests_\test_extension_loaded('xml'));
         $obj->required = 1;
         $obj->fail_key = 'fail_xml_functions';
@@ -239,6 +239,13 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->warn_msg = \__appbase\lang('warn_disable_functions',str_replace(',',', ',ini_get('disable_functions')));
         $tests[] = $obj;
 
+        // recommended test ... default charset/encoding
+        $default_charset = ini_get('default_charset');
+        $obj = new _tests_\boolean_test('default_charset',(strtolower($default_charset) == 'utf-8'));
+        $obj->required = 0;
+        $obj->warn_msg = \__appbase\lang('warn_default_charset',$default_charset);
+        $tests[] = $obj;
+
         // test ini set
         {
             $val = (ini_get('log_errors_max_len')) ? ini_get('log_errors_max_len').'0':'99';
@@ -250,7 +257,7 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
 
         // required test... check if most files are writable.
         {
-            $dirs = array('modules','lib','plugins','admin','uploads','doc','scripts','install','tmp','assets');
+            $dirs = array('lib','plugins','admin','uploads','doc','scripts','install','tmp','assets');
             $failed = array();
             $list = glob($app->get_destdir().DIRECTORY_SEPARATOR.'*');
             foreach( $list as $one ) {
@@ -410,6 +417,5 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         return $gd_version_number;
     }
 
-} // end of class
+} // class
 
-?>
