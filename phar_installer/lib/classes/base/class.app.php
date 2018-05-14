@@ -93,10 +93,11 @@ abstract class app
         $classname = basename(str_replace('\\','/',$classname));
         $dirsuffix = str_replace('__appbase','.',$dirsuffix);
         //if( $dirsuffix == "__appbase" ) $dirsuffix = '.';
-
-        $dirs = array(__DIR__,dirname(__DIR__),dirname(__DIR__).'/tests',dirname(__DIR__).'/base',dirname(__DIR__,2) );
+        $s = DIRECTORY_SEPARATOR.$dirsuffix.DIRECTORY_SEPARATOR."class.$classname.php";
+        $p = dirname(__DIR__);
+        $dirs = [__DIR__,$p,$p.DIRECTORY_SEPARATOR.'tests',$p.DIRECTORY_SEPARATOR.'base',dirname($p)];
         foreach( $dirs as $dir ) {
-            $fn = "$dir/$dirsuffix/class.$classname.php";
+            $fn = $dir.$s;
             if( file_exists($fn) ) {
                 include_once $fn;
                 return;
@@ -106,11 +107,10 @@ abstract class app
 
     abstract function run();
 
-} // end of class
+} // class
 
 function &get_app()
 {
     return app::get_instance();
 }
 
-?>
