@@ -20,8 +20,14 @@ $lang['confirm_upgrade'] = 'Are you sure you want to begin the upgrade process';
 $lang['curl_extension'] = 'PHP Curl extension is available ?';
 $lang['create_assets_structure'] = 'Create a location for file resources';
 
+# CLI
+$lang['cli_welcome'] = 'Welcome to the CMSMS installation assistant';
+$lang['cli_cmsver'] = 'for CMSMS version %s';
+$lang['cli_hdr_op'] = '%s CMSMS in %s';
+
 # D
 $lang['database_support'] = 'PHP database interface module is available ?';
+$lang['default_charset'] = 'Default Character-encoding';
 $lang['desc_wizard_step1'] = 'Start the installation or upgrade process';
 $lang['desc_wizard_step2'] = 'Analyze destination directory to find existing software';
 $lang['desc_wizard_step3'] = 'Check to make sure everything is OK to install the CMSMS core';
@@ -363,6 +369,7 @@ $lang['username'] = 'User name';
 # V
 
 # W
+$lang['warn_default_charset'] = 'The site\'s default character-encoding is: %s.  A value other than UTF-8 may cause difficulties with text processing in non-english languages';
 $lang['warn_disable_functions'] = 'Note: one or more PHP core functions are disabled. This can have negative impact on your CMSMS installation, particularly with third party extensions. Please keep an eye on your error log. Your disabled functions are: <br /><br />%s';
 $lang['warn_max_execution_time'] = 'Although the max execution time (%s) meets or exceeds the minimum value of %s, we recommend it be increased to %s or greater';
 $lang['warn_memory_limit'] = 'The memory limit value is %s, which is above the minimum of %s. However, %s is recommended';
