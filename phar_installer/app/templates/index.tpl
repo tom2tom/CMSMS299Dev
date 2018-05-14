@@ -8,7 +8,7 @@
         <meta name='MobileOptimized' content='320' />
         <meta name='viewport' content='width=device-width, initial-scale=1.0' />
         <meta http-equiv='cleartype' content='on' />
-        <script src="app/assets/vendor/jquery-1.12.4.min.js"></script>
+        <script src="app/assets/vendor/jquery.min.js"></script>
         <script src="app/assets/vendor/jquery-ui/jquery-ui.min.js"></script>
         <link rel="stylesheet" type="text/css" href="app/assets/vendor/jquery-ui/jquery-ui.min.css"/>
         <title>
@@ -44,7 +44,7 @@
                             {foreach $wizard_steps as $classname => $step}
                             {strip}
                             <li class="step {if $step.active} current-step{/if}{if isset($current_step) && $current_step > $step@iteration} done-step{/if}">
-                                <h4 class="step-title">{$step.classname|tr}{if isset($current_step) && $current_step > $step@iteration} <i class="checkmark">&#x2713;</i>{/if}</h4>
+                                <h4 class="step-title">{$step.classname|tr}{if isset($current_step) && $current_step > $step@iteration} <i class="icon-checkmark-circle">&#x2713;</i>{/if}</h4>
                                 <p class="step-description"><em>{'desc_'|cat:$step.classname|tr}</em></p>
                             </li>
                             {/strip}
