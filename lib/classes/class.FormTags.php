@@ -29,7 +29,7 @@ namespace CMSMS;
 
 use CreateInputFile as CreateFileUploadInput;
 
-class CmsFormTags
+class FormTags
 {
 	/**
 	 * Returns a form element representing a tooltip help link.

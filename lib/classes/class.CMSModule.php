@@ -156,7 +156,7 @@ abstract class CMSModule
             static $flect = null;
 
             if ($flect === null) {
-                $flect = new ReflectionClass('CMSMS\\CmsFormTags');
+                $flect = new ReflectionClass('CMSMS\\FormTags');
             }
             try {
                 $md = $flect->getMethod($name);
