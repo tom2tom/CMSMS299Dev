@@ -1,5 +1,5 @@
 <?php
-#Audit mamagement classes and interface
+#Audit management classes and interface
 #Copyright (C) 2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -44,7 +44,7 @@ namespace CMSMS {
             @error_log( $msg, 0, TMP_CACHE_LOCATION.'/audit_log' );
         }
 
-        public function warning( $msg, string $subject = '' )
+        public function warning( string $msg, string $subject = '' )
         {
             $msg = "CMSMS WARNING: SUBJECT=$subject, $msg";
             @error_log( $msg, 0, TMP_CACHE_LOCATION.'/audit_log' );
