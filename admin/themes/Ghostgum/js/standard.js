@@ -65,7 +65,7 @@ var ggjs = {
     cms_data.alertfunc = this.popup_alert;
     cms_data.confirmfunc = this.popup_confirm;
     cms_data.promptfunc = this.popup_prompt;
-//  cms_data.dialogfunc = this.popup_dialog;
+    cms_data.dialogfunc = this.popup_dialog;
     // open external links with rel="external" attribute in new window
     $('a[rel=external]').attr('target', '_blank');
     // focus on input with .defaultfocus class
@@ -481,13 +481,21 @@ var ggjs = {
       cancelButton: '<button type="button" class="adminsubmit icon cancel">' + cms_lang('cancel') + '</button>'
     });
   },
-   /** @description Display a modal dialog with caller-defined content
+  /** @description Display a modal dialog with caller-defined content, and related settings in opts
    * @function
    * @param (String) content The entire dialog markup, often wrapped in a div styled 'hidden'
    * @param (object) opts Optional parameters
    */
   popup_dialog: function(content, opts) {
-    //TODO process opts, if any
+   opts = opts || {};
+   opts.classes = $.extend(opts.classes || {}, {
+    'ui-dialog': 'alertable',
+    'ui-dialog-titlebar': 'alertable-message',
+    'ui-dialog-buttonpane': 'alertable-buttons',
+    'ui-dialog-buttonset': 'alertable-buttons'
+   });
+   content.dialog(opts);
+/* TODO alertable only :: process opts, if any
     $.alertable.prompt('', {
       modal: content
     });/*.then(function(data) {
