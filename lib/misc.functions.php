@@ -1078,7 +1078,7 @@ function cms_jquery_local() : array
     $core = '';
     $migrate = '';
     //the 'core' jquery files are named like jquery-*min.js
-    $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-*min.js');
+    $patn = cms_join_path(__DIR__,'js','jquery','jquery-*min.js');
     $files = glob($patn);
     //grab the (or the last-sorted) versions
     foreach ($files as $path) {
@@ -1102,7 +1102,7 @@ function cms_jqueryui_local() : array
 {
     $ui = '';
     //the 'core' jquery-ui file is named like jquery-ui*min.js
-    $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js','jquery-ui*min.js');
+    $patn = cms_join_path(__DIR__,'js','jquery-ui','jquery-ui*min.js');
     $files = glob($patn);
     //grab the (or the last-sorted) version
     foreach ($files as $path) {
@@ -1111,7 +1111,7 @@ function cms_jqueryui_local() : array
         }
     }
     $css = '';
-    $patn = cms_join_path(CMS_ROOT_PATH,'lib','jquery','css','*','jquery-ui*min.css');
+    $patn = cms_join_path(__DIR__,'js','jquery-ui','jquery-ui*min.css');
     $files = glob($patn);
     foreach ($files as $path) {
         if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
@@ -1150,37 +1150,32 @@ function cms_jqueryui_local() : array
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
-    $baseUrl = ($custom_root) ? trim($custom_root,'/lib/jquery/') : CMS_SCRIPTS_URL.'/';
+    $baseUrl = ($custom_root) ? trim($custom_root,'/lib/js/') : CMS_SCRIPTS_URL.'/';
     list ($core, $migrate) = cms_jquery_local();
     list ($ui, $css) = cms_jqueryui_local();
-    if ($css) {
-        $p = strpos($css, DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR);
-        $css = $baseUrl.str_replace(DIRECTORY_SEPARATOR,'/',substr($css,$p+1));
-    }
 
     // scripts etc to include (unless excluded)
     $scripts = [];
     $scripts['jquery'] = [
          'aliases'=>['jquery-min','jquery.min.js'],
          'cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js',
-         'local'=>$baseUrl.'js/'.basename($core),
+         'local'=>$baseUrl.'jquery/'.basename($core),
         ];
     if ($migrate) {
-        $scripts['migrate'] = ['local'=>$baseUrl.'js/'.basename($migrate)];
+        $scripts['migrate'] = ['local'=>$baseUrl.'jquery/'.basename($migrate)];
     }
     $scripts['jquery-ui'] = [
          'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
          'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-         'local'=>$baseUrl.'js/'.basename($ui),
-         'css'=>$css,
+         'local'=>$baseUrl.'jquery-ui/'.basename($ui),
+         'css'=>$baseUrl.'jquery-ui/'.basename($css),
         ];
-//  $scripts['json'] = ['local'=>$baseUrl.'js/jquery.json-2.4.min.js'];
-    $scripts['nestedSortable'] = ['local'=>$baseUrl.'js/jquery.mjs.nestedSortable.min.js'];
+    $scripts['nestedSortable'] = ['local'=>$baseUrl.'jquery.mjs.nestedSortable.min.js'];
 
     if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
         global $CMS_LOGIN_PAGE;
-//      $scripts['cms_admin'] =       ['local'=>$baseUrl.'/lib/jquery/js/jquery.cms_admin.min.js']; see CMS_SCRIPTS_URL
-        $scripts['cms_admin'] =       ['local'=>$baseUrl.'js/jquery.cms_admin.js']; //DEBUG
+//      $scripts['cms_admin'] =       ['local'=>$baseUrl.'jquery.cms_admin.min.js']; see CMS_SCRIPTS_URL
+        $scripts['cms_admin'] =       ['local'=>$baseUrl.'jquery.cms_admin.js']; //DEBUG
         $scripts['cms_vars'] =        ['variables'=>0]; //placeholder, after admin & before others which might use the vars
         if ( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
             //populate runtime data (i.e. cms_data{}) via ajax
@@ -1188,12 +1183,13 @@ function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false
             $scripts['cms_js_setup'] = ['local'=>$url.'/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]];
         }
 
-        $scripts['cms_dirtyform'] =   ['local'=>$baseUrl.'js/jquery.cmsms_dirtyform.js'];
-        $scripts['cms_lock'] =        ['local'=>$baseUrl.'js/jquery.cmsms_lock.js']; //TODO module-specific
-        $scripts['cms_hiersel'] =     ['local'=>$baseUrl.'js/jquery.cmsms_hierselector.js'];
-        $scripts['cms_autorefresh'] = ['local'=>$baseUrl.'js/jquery.cmsms_autorefresh.js'];
-        $scripts['ui_touch_punch'] =  ['local'=>$baseUrl.'js/jquery.ui.touch-punch.min.js'];
-        $scripts['notifier'] =        ['local'=>$baseUrl.'js/jquery.toast.js'];
+        $scripts['cms_defer'] =       ['local'=>$baseUrl.'jquery.cmsms_defer.js'];
+        $scripts['cms_dirtyform'] =   ['local'=>$baseUrl.'jquery.cmsms_dirtyform.js'];
+        $scripts['cms_lock'] =        ['local'=>$baseUrl.'jquery.cmsms_lock.js']; //TODO module-specific
+        $scripts['cms_hiersel'] =     ['local'=>$baseUrl.'jquery.cmsms_hierselector.js'];
+        $scripts['cms_autorefresh'] = ['local'=>$baseUrl.'jquery.cmsms_autorefresh.js']; //TODO module-specific
+        $scripts['ui_touch_punch'] =  ['local'=>$baseUrl.'jquery.ui.touch-punch.min.js'];
+        $scripts['notifier'] =        ['local'=>$baseUrl.'jquery.toast.js'];
     }
 
     list($vars,$add_list,$exclude_list) = \CMSMS\HookManager::do_hook('RuntimeSetup', [], [], []);
