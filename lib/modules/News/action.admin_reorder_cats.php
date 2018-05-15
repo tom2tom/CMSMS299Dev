@@ -50,7 +50,7 @@ $smarty->assign('allcats',$allcats);
 
 /*
 //custom requirements TODO e.g.
-$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/js/jquery.mjs.nestedSortable.min.js"></script>'."\n");
+$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/jquery.mjs.nestedSortable.min.js"></script>'."\n");
 */
 
 echo $this->ProcessTemplate('admin_reorder_cats.tpl');
