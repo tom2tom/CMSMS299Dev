@@ -82,7 +82,7 @@ cleanArray($_GET);
 // Grab the current configuration & some define's
 $_app = CmsApp::get_instance(); // for use in this file only.
 $config = $_app->GetConfig();
-CMSMS\CmsAuditManager::init();
+CMSMS\AuditManager::init();
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
