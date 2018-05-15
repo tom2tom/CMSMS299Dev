@@ -25,7 +25,7 @@ namespace CMSMS
  * @package CMS
  * @license GPL
  */
-class CmsArrayTree
+class ArrayTree
 {
 	const SELFKEY = 'name';
 	const PARENTKEY = 'parent';
