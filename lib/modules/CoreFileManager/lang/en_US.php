@@ -1,6 +1,7 @@
 <?php
 
 // A
+$lang['alternate'] = 'or';
 $lang['arch_bz'] = 'bzip2';
 $lang['arch_gz'] = 'gzip';
 $lang['arch_xz'] = 'xz';
@@ -130,22 +131,26 @@ $lang['searchfor'] = 'Search for';
 //$lang['searchtip'] = 'Find item in current folder';
 //$lang['selectall'] = 'Select All';
 //$lang['selectnone'] = 'UnSelect All';
-$lang['selectother'] = 'Invert Selection'; //button label
-$lang['selecttip'] = 'Invert selection'; //checkbox tip
+$lang['select'] = 'Select';
+$lang['selectother'] = 'Selection'; //button label
+$lang['selecttip'] = 'Invert selection'; //button tip
 $lang['size'] = 'Size';
+$lang['submit'] = 'Submit';
 $lang['summary'] = 'Totals: file(s) %d, folder(s) %d, used %d B';
 
 // T
 $lang['text'] = 'File';
+$lang['tip_upload'] = 'Upload file(s) and/or folder(s)';
+$lang['title_dnd'] = 'Drag and drop anywhere here';
+$lang['title_upload'] = 'Upload to this folder';
 $lang['title_filemanager_settings'] = 'File Manager Settings';
 $lang['top'] = 'Top';
-$lang['typecompressed'] = 'Type';
+$lang['typecompressed'] = 'Compression type';
 
 // U
 $lang['unpack'] = 'Unpack';
 $lang['unzip'] = 'Unzip';
 $lang['uninstalled'] = 'The File Manager module has been uninstalled';
-$lang['upload'] = 'Upload to this folder';
 
 // V
 $lang['video'] = 'Video file';

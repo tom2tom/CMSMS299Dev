@@ -105,7 +105,7 @@
 <p id="namer">
  {$mod->Lang('namecompressed')}:<br /><input type="text" name="{$actionid}archname" value="" />
 </p>
-{if count($archtypes) > 1}
+{if count($archtypes) > 1}<br />
 <p>{$mod->Lang('typecompressed')}:<br />
 {foreach $archtypes as $val=>$one}
 <label for="{$val}compress">{$one.label}:</label>
