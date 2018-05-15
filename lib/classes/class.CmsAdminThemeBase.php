@@ -158,6 +158,12 @@ abstract class CmsAdminThemeBase
 
     /**
      * @ignore
+     * @since 2.3
+     */
+//    private $_primary_content;
+
+    /**
+     * @ignore
      */
     protected function __construct()
     {
@@ -247,7 +253,7 @@ abstract class CmsAdminThemeBase
         ];
         $vars += array_filter($msgs);
 
-//        $add_list['toast'] = CMS_SCRIPTS_URL.'/js/jquery.toast.js';
+//        $add_list['toast'] = CMS_SCRIPTS_URL.'/jquery.toast.js';
 
         return [$vars, $add_list, $exclude_list];
     }
@@ -859,7 +865,7 @@ abstract class CmsAdminThemeBase
             $items[] = $item;
         }
 
-        $tree = CMSMS\CmsArrayTree::load_array($items);
+        $tree = CMSMS\ArrayTree::load_array($items);
 
         $iter = new \RecursiveArrayTreeIterator(
                 new \ArrayTreeIterator($tree),
@@ -870,7 +876,7 @@ abstract class CmsAdminThemeBase
  remove those without children (unless 'forcekeep' => true)
 */
             if (!empty($value['children'])) {
-                $node = CMSMS\CmsArrayTree::node_get_data($tree, $value['path'], '*');
+                $node = CMSMS\ArrayTree::node_get_data($tree, $value['path'], '*');
                 uasort($node['children'], function($a,$b) use ($value) {
                     $pa = $a['priority'] ?? 999;
                     $pb = $b['priority'] ?? 999;
@@ -880,7 +886,7 @@ abstract class CmsAdminThemeBase
                     }
                     return strnatcmp($a['title'],$b['title']); //TODO mb_cmp if available
                 });
-                $ret = CMSMS\CmsArrayTree::node_set_data($tree, $value['path'], 'children', $node['children']);
+                $ret = CMSMS\ArrayTree::node_set_data($tree, $value['path'], 'children', $node['children']);
             } else {
 $adbg = $value;
                 $depth = $iter->getDepth();
@@ -925,9 +931,9 @@ $X = 1;
             $parent = null;
         }
         if ($parent) {
-            $path = CMSMS\CmsArrayTree::find($tree, 'name', $parent);
+            $path = CMSMS\ArrayTree::find($tree, 'name', $parent);
             if ($path) {
-                $tree = CMSMS\CmsArrayTree::node_get_data($tree, $path, '*');
+                $tree = CMSMS\ArrayTree::node_get_data($tree, $path, '*');
             }
         } else {
             $alldepth = $maxdepth;
@@ -939,15 +945,15 @@ $X = 1;
 
         if ($usepath) {
             if (is_string($usepath)) {
-                $this->_activePath = CMSMS\CmsArrayTree::process_path($usepath);
+                $this->_activePath = CMSMS\ArrayTree::process_path($usepath);
             } else {
                 list($req_url, $req_vars) = $this->_parse_request();
-                $this->_activePath = CMSMS\CmsArrayTree::find($tree, 'url', $req_url);
+                $this->_activePath = CMSMS\ArrayTree::find($tree, 'url', $req_url);
             }
 
-            CMSMS\CmsArrayTree::path_set_data($tree, $this->_activePath, 'selected', true);
-            $this->_title = CMSMS\CmsArrayTree::node_get_data($tree, $this->_activePath, 'title');
-            $this->_subtitle = CMSMS\CmsArrayTree::node_get_data($tree, $this->_activePath, 'description');
+            CMSMS\ArrayTree::path_set_data($tree, $this->_activePath, 'selected', true);
+            $this->_title = CMSMS\ArrayTree::node_get_data($tree, $this->_activePath, 'title');
+            $this->_subtitle = CMSMS\ArrayTree::node_get_data($tree, $this->_activePath, 'description');
 //          $this->_breadcrumbs(); on-demand only?
         } else {
             $this->_activePath = [];
@@ -1017,9 +1023,9 @@ $X = 1;
      */
     protected function find_menuitem_by_title($title)
     {
-        $path = CMSMS\CmsArrayTree::find($this->menuTree, 'title', $title);
+        $path = CMSMS\ArrayTree::find($this->menuTree, 'title', $title);
         if ($path) {
-            return CMSMS\CmsArrayTree::node_get_data($this->menuTree, $path, 'name');
+            return CMSMS\ArrayTree::node_get_data($this->menuTree, $path, 'name');
         }
     }
 
@@ -1058,8 +1064,8 @@ $X = 1;
     {
         if (!$this->_breadcrumbs) {
             $this->_breadcrumbs = [];
-            $urls = CMSMS\CmsArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
-            $titles = CMSMS\CmsArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
+            $urls = CMSMS\ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
+            $titles = CMSMS\ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
             foreach ($urls as $key => $value) {
                 $this->_breadcrumbs[] = [
                     'url' => $value,
@@ -1078,12 +1084,12 @@ $X = 1;
      */
     public function get_active_title()
     {
-        return CMSMS\CmsArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'title');
+        return CMSMS\ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'title');
     }
 
     public function get_active_icon()
     {
-        return CMSMS\CmsArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'icon');
+        return CMSMS\ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'icon');
     }
 
     /**
@@ -1746,6 +1752,36 @@ $X = 1;
      */
     abstract public function do_toppage($section_name);
 
+/* TODO DISCUSS WITH ROBERT ... BETTER SOME OTHER WAY ?
+    @since 2.3
+
+    abstract public function do_authenticated_page();
+
+    abstract public function do_loginpage( string $pageid = null );
+
+    /**
+     * Set the HTML for the primary content for the page.
+     *
+     * @see do_minimal()
+     * /
+    public function set_content( string $content )
+    {
+        $this->_primary_content = $content;
+    }
+
+    /**
+     * Get the HTML for the primary content of the page.
+     * /
+    public function get_content()
+    {
+        return $this->_primary_content;
+    }
+
+    /**
+     * An abstract method to output a minimal HTML page (typically for login and other operations that do not require navigations)
+     * /
+    abstract public function do_minimal();
+*/
     /**
      * Display and process a login form
      * Since 2.3 this is an optional supplement to the login module
