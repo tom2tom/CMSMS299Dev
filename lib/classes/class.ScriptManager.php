@@ -55,7 +55,7 @@ class ScriptManager
 
         // auto append the defer script
         if( $allow_defer ) {
-            $defer_script = CMS_ROOT_PATH.'/lib/jquery/js/jquery.cmsms_defer.js';
+            $defer_script = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.cmsms_defer.js';
             $this->queue_script( $defer_script, 3 );
         }
 
