@@ -97,7 +97,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 }
 
 //custom requirements TODO
-$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/js/jquery.mjs.nestedSortable.min.js"></script>'."\n");
+$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/jquery.mjs.nestedSortable.min.js"></script>'."\n");
 
 $msg = json_encode($this->Lang('confirm_reorder'));
 $js = <<<EOS
