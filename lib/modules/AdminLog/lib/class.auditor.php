@@ -21,10 +21,10 @@ class auditor implements \CMSMS\IAuditManager
         return $parms;
     }
 
-    public function audit( $item, $msg, $item_id = null )
+    public function audit( string $subject, string $msg, $item_id = null )
     {
         $parms = $this->get_event_parms();
-        $parms = array_merge($parms,[ 'severity'=>event::TYPE_MSG, 'subject'=>$item, 'msg'=>$msg, 'item_id'=>$item_id ] );
+        $parms = array_merge($parms,[ 'severity'=>event::TYPE_MSG, 'subject'=>$subject, 'msg'=>$msg, 'item_id'=>$item_id ] );
 
         $ev = new event( $parms );
         $this->_storage->save( $ev );
@@ -48,7 +48,7 @@ class auditor implements \CMSMS\IAuditManager
         @error_log( $msg, 0 );
     }
 
-    public function notice( $msg, $subject = null )
+    public function notice( string $msg, string $subject = '' )
     {
         $parms = $this->get_event_parms();
         $parms = array_merge($parms,[ 'severity'=>event::TYPE_NOTICE, 'msg'=>$msg, 'subject'=>$subject ]);
@@ -58,7 +58,7 @@ class auditor implements \CMSMS\IAuditManager
         $this->error_log( $ev::TYPE_NOTICE, $msg );
     }
 
-    public function warning( $msg, $subject = null )
+    public function warning( string $msg, string $subject = '' )
     {
         $parms = $this->get_event_parms();
         $parms = array_merge($parms,[ 'severity'=>event::TYPE_WARNING, 'msg'=>$msg, 'subject'=>$subject ]);
@@ -68,7 +68,7 @@ class auditor implements \CMSMS\IAuditManager
         $this->error_log( $ev::TYPE_WARNING, $msg );
     }
 
-    public function error( $msg, $subject = null )
+    public function error( string $msg, string $subject = '' )
     {
         $parms = $this->get_event_parms();
         $parms = array_merge($parms,[ 'severity'=>event::TYPE_ERROR, 'msg'=>$msg, 'subject'=>$subject ]);
@@ -78,4 +78,4 @@ class auditor implements \CMSMS\IAuditManager
         $this->error_log( $ev::TYPE_ERROR, $msg );
     }
 
-} // end of class
+} // class
