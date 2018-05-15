@@ -189,88 +189,71 @@ final class cms_config implements ArrayAccess
             if( !defined('TMP_CACHE_LOCATION') ) {
                 /**
                  * A constant to indicate the location where private cachable files can be written.
-                 *
-                 * @return string
                  */
                 define('TMP_CACHE_LOCATION',self::$_instance['tmp_cache_location']);
 
                 /**
                  * A constant to indicate where public (browsable) cachable files can be written.
-                 *
-                 * @return string
                  */
                 define('PUBLIC_CACHE_LOCATION',self::$_instance['public_cache_location']);
 
                 /**
                  * A constant to indicate the public address for cachable files.
-                 *
-                 * @return string
                  */
                 define('PUBLIC_CACHE_URL',self::$_instance['public_cache_url']);
 
                 /**
                  * A constant containing the smarty template compile directory.
-                 *
-                 * @return string
                  */
                 define('TMP_TEMPLATES_C_LOCATION',self::$_instance['tmp_templates_c_location']);
 
                 /**
-                 * A constant indicating if CMSMS is in debug mode.
-                 *
-                 * @return bool
+                 * A constant indicating whether CMSMS is in debug mode.
                  */
                 define('CMS_DEBUG',self::$_instance['debug']);
 
                 /**
                  * A constant containing the directory where CMSMS is installed.
-                 *
-                 * @return string
                  */
                 define('CMS_ROOT_PATH',self::$_instance['root_path']);
 
                 /**
                  * A constant containing the directory where admin stuff is stored.
-                 *
-                 * @return string
                  */
                 define('CMS_ADMIN_PATH',self::$_instance['root_path'] .DIRECTORY_SEPARATOR. self::$_instance['admin_dir']);
 
                 /**
                  * A constant containing the directory where CMSMS third party assets are stored.
-                 *
-                 * @return string
                  */
                 define('CMS_ASSETS_PATH',self::$_instance['assets_path']);
+
+                /**
+                 * A constant containing the 'top' directory where javascript files are stored
+				 * @since 2.3
+                 */
+				define('CMS_SCRIPTS_PATH',self::$_instance['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js');
 
                 /**
                  * A constant containing the CMSMS root url.
                  * If the root_url variable is not specified in the config file, then
                  * CMSMS will attempt to calculate one.
-                 *
-                 * @return string
                  */
                 define('CMS_ROOT_URL',self::$_instance['root_url']);
 
-
                 /**
-                 * A constant containing the CMSMS core-javascript-assets url.
-                 * @return string
+                 * A constant containing the 'top' url where javascript files are stored
+				 * @since 2.3
                  */
-                define('CMS_SCRIPTS_URL',self::$_instance['root_url'].'/lib/jquery');
+                define('CMS_SCRIPTS_URL',self::$_instance['root_url'].'/lib/js');
 
                 /**
                  * A constant containing the CMSMS uploads url.
                  * If the uploads_url is not specified in the config file, then CMSMS will calculate one from the root url.
-                 *
-                 * @return string
                  */
                 define('CMS_UPLOADS_URL',self::$_instance['uploads_url']);
 
                 /**
                  * A constant containing the CMSMS database table prefix to be used on all queries.
-                 *
-                 * @return string
                  */
                 global $CMS_INSTALL_PAGE;
                 if( !isset($CMS_INSTALL_PAGE) ) @define('CMS_DB_PREFIX',self::$_instance['db_prefix']);
