@@ -535,22 +535,7 @@ input[type="button"], input[type="submit"] {
     height: 28px;
     font-size: 1em
 }
-/* UNUSED
-.ui-button {
-    margin: 4px 0
-}
-.ui-button-text {
-    font-size: 1em;
-    margin-left: 2px;
-    text-transform: uppercase
-}
-button.ui-button.ui-state-active {
-    border: 1px solid #d3d3d3;
-    background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
-    font-weight: normal;
-    color: #147fdb
-}
-*/
+
 input[type="button"]:hover, input[type="submit"]:hover, .ui-button:hover {
     cursor: pointer
 }
@@ -926,7 +911,7 @@ aside .no-slide, .no-slide {
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, .4);
     opacity: 1.0;  /* override to ensure the background .5 opacity applies */
     z-index: 9998;
 }
@@ -1072,6 +1057,22 @@ aside .no-slide, .no-slide {
 
 /* jquery-ui dialog */
 
+/* UNUSED
+.ui-button {
+    margin: 4px 0
+}
+.ui-button-text {
+    font-size: 1em;
+    margin-left: 2px;
+    text-transform: uppercase
+}
+button.ui-button.ui-state-active {
+    border: 1px solid #d3d3d3;
+    background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #147fdb
+}
+*/
 /* revert elements inside jq-ui dialog */
 /*.ui-dialog input, .ui-dialog select, .ui-dialog menu, .ui-dialog textarea, .ui-dialog fieldset {
     background-color: #fff;
@@ -1100,7 +1101,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     background-color: #3c9b0a
 }
 
-.ui-dialog .ui-dialog-buttonpane {
+.ui-dialog .ui-dialog-buttonpane.alertable-buttons {
     border: 0 none;
     margin: 0;
     padding: 0;
