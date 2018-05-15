@@ -57,13 +57,13 @@ $(document).ready(function() {
             if($.inArray(ext, ['xml','cmsmod']) == -1) {
               cms_alert($s5);
             } else {
-              cms_dialog($(this), 'close');
+              $(this).dialog('close');
               $('#local_import').submit();
             }
           }
         },
         {$this->Lang('cancel')}: function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
         }
       }
     });

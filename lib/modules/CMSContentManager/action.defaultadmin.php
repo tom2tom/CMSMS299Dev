@@ -300,11 +300,11 @@ $(document).ready(function() {
    resizable: false,
    buttons: {
     $s6: function() {
-     cms_dialog($(this), 'close');
+     $(this).dialog('close');
      $('#myoptions_form').submit();
     },
     $s7: function() {
-     cms_dialog($(this), 'close');
+     $(this).dialog('close');
     },
    }
   });

@@ -298,16 +298,16 @@ $(document).ready(function() {
       width: 'auto',
       buttons: {
         '{$this->Lang("submit")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
           $('#filterdialog_form').submit();
         },
         '{$this->Lang("reset")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
           $('#submit_filter_tpl').val('-1');
           $('#filterdialog_form').submit();
         },
         '{$this->Lang("cancel")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
         }
       }
     });
@@ -317,11 +317,11 @@ $(document).ready(function() {
       width: 'auto',
       buttons: {
         '{$this->Lang("submit")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
           $('#addtemplate_form').submit();
         },
         '{$this->Lang("cancel")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
         }
       }
     });
@@ -368,16 +368,16 @@ $(document).ready(function() {
       width: 'auto',
       buttons: {
         '{$this->Lang("submit")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
           $('#filtercssdlg_form').submit();
         },
         '{$this->Lang("reset")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
           $('#submit_filter_css').val('-1');
           $('#filtercssdlg_form').submit();
         },
         '{$this->Lang("cancel")}': function() {
-          cms_dialog($(this), 'close');
+          $(this).dialog('close');
         }
       }
     });
