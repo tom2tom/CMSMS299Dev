@@ -57,7 +57,7 @@ final class AdminLog extends \CMSModule
         $this->auditor = new \AdminLog\auditor( $this, $this->storage );
 
         try {
-            \CMSMS\CmsAuditManager::set_auditor( $this->auditor );
+            \CMSMS\AuditManager::set_auditor( $this->auditor );
         }
         catch( \Exception $e ) {
             // ignore any error.
