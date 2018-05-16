@@ -68,7 +68,7 @@ function find_recovery_user($hash)
 
 $gCms = \CmsApp::get_instance();
 $config = $gCms->GetConfig();
-$login_ops = \CMSMS\LoginOperations::get_instance();
+$login_ops = \CMSMS\internal\LoginOperations::get_instance();
 
 $error = "";
 $forgotmessage = "";
