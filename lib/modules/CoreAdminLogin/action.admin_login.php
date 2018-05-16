@@ -127,7 +127,7 @@ elseif( isset( $_POST['submit'] ) ) {
         // but for core... we don't need to.
 
         // user is authenticated
-        \CMSMS\LoginOperations::get_instance()->save_authentication( $oneuser );
+        \CMSMS\internal\LoginOperations::get_instance()->save_authentication( $oneuser );
         audit($oneuser->id, "Admin Username: ".$oneuser->username, 'Logged In');
         \CMSMS\HookManager::do_hook('Core::LoginPost', [ 'user'=>&$oneuser ] );
 
@@ -150,18 +150,21 @@ elseif( isset( $_POST['submit'] ) ) {
 }
 elseif( isset( $_POST['cancel'] ) ) {
     debug_buffer("Login cancelled.  Returning to login.");
-    \CMSMS\LoginOperations::get_instance()->deauthenticate(); // just in case
+    \CMSMS\internal\LoginOperations::get_instance()->deauthenticate(); // just in case
     redirect( $config['root_url'].'/index.php', true );
 }
 
 $csrf = $_SESSION[$csrf_key] = md5(__FILE__.time().rand());
-$lang_code = 'en'; //TODO dynamic
-$lang_dir = 'ltr'; //TODO dynamic
-$encoding = 'utf8'; //TODO dynamic
+$lang_code = CmsNlsOperations::get_current_language();
+if (($p = strpos($lang_code,'_')) !== false) {
+    $lang_code = substr($lang_code,0,$p);
+}
+$lang_dir = CmsNlsOperations::get_language_direction();
+$encoding = CmsNlsOperations::get_encoding();
 $header_includes = ''; //TODO dynamic
 $bottom_includes = ''; //TODO dynamic
 $baseurl = $this->GetModuleURLPath();
-$actionurl = ''; //TODO
+$actionurl = ''; //TODO $this->create_url( whatever );
 
 // display the login form
 
@@ -183,6 +186,6 @@ $tpl->assign([
     'message' => $message,
     'changepwhash' => $pwhash,
     'username' => $username,
-    'password' => $password,   
+    'password' => $password,
 ]);
 $tpl->display();
