@@ -17,7 +17,7 @@
 {if !empty($crumbs)}
 <a title="{$mod->Lang('goto_parent')}" href="{$parent_url}"><i class="if-level-up"></i></a>
 {/if}
-<a title="{$mod->Lang('newfolder')}" href="javascript:createNewItem()"><i class="if-folder-add"></i></a>
+<a title="{$mod->Lang('newfolder')}" href="javascript:newFolder()"><i class="if-folder-add"></i></a>
 <a title="{$mod->Lang('search1')}" href="javascript:doSearch(true)"><i class="if-search"></i></a>
 <a title="{$mod->Lang('upload')}" href="javascript:doUpload()"><i class="if-upload" aria-hidden="true"></i></a>
   </div>{*/boxchild*}
