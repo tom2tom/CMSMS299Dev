@@ -931,17 +931,10 @@ aside .no-slide, .no-slide {
     z-index: 9999;
 }
 /* Message */
-.alertable-message, .ui-dialog-titlebar.ui-widget-header {
+.alertable-message, .ui-dialog-title.alertable-message {
     margin-bottom: 1.5em;
     font-weight: bold;
     text-align: center;
-}
-
-.ui-dialog .ui-dialog-titlebar.ui-widget-header {
-    background: #fffaf0;
-    border-width: 0;
-    margin: 0;
-    padding: 0;
 }
 
 /* Prompt */
@@ -1080,12 +1073,20 @@ button.ui-button.ui-state-active {
     -webkit-box-shadow: none;
 }
 */
+
+.ui-dialog .ui-dialog-titlebar.ui-widget-header {
+    background: #fffaf0;
+    border-width: 0;
+    margin: 0;
+    padding: 0;
+}
 button.ui-button.ui-dialog-titlebar-close {
-    position: relative;
+/*    position: relative; */
     margin: 0;
     border: 0;
     width: 1.5em;
     height: 1.5em;
+    top: 0;
     right: 0.1em;
 }
 button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
@@ -1099,6 +1100,10 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
 }
 button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     background-color: #3c9b0a
+}
+
+.ui-dialog-title.alertable-message {
+    width: auto;
 }
 
 .ui-dialog .ui-dialog-buttonpane.alertable-buttons {

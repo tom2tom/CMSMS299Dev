@@ -490,7 +490,7 @@ var ggjs = {
    opts = opts || {};
    opts.classes = $.extend(opts.classes || {}, {
     'ui-dialog': 'alertable',
-    'ui-dialog-titlebar': 'alertable-message',
+    'ui-dialog-title': 'alertable-message',
     'ui-dialog-buttonpane': 'alertable-buttons',
     'ui-dialog-buttonset': 'alertable-buttons'
    });
