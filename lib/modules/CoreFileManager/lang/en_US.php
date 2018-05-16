@@ -94,6 +94,7 @@ $lang['linktip'] = 'Link to...';
 $lang['name'] = 'Name';
 $lang['namecompressed'] = 'Compressed file name';
 $lang['newname'] = 'New Name';
+$lang['newfoldername'] = 'New Folder Name';
 $lang['newfolder'] = 'New sub-folder here';
 $lang['newitem'] = 'Create New Item';
 
