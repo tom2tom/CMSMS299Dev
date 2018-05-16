@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#class of user-related functions
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +15,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * User related functions.
@@ -24,13 +23,8 @@
  * @license GPL
  */
 
-/*
- * Include user class definition.
- */
-//require_once __DIR__.DIRECTORY_SEPARATOR.'class.User.php';
-
 /**
- * Class for doing user related functions. Maybe of the User object functions
+ * Class for doing user related functions. Many User-class functions
  * are just wrappers around these.
  *
  * @package CMS
