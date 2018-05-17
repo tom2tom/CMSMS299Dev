@@ -427,15 +427,14 @@ button.ui-button:hover, button.ui-button.ui-state-hover, button.ui-button:active
 
 .iconnone{
 }
-.adminsubmit.icon, .ui-button.ui-icon{
+.adminsubmit.icon, .ui-button.ui-icon {
     padding-left: 0.8em;
 }
 /* TODO useless on IE7, need to insert a span into the button,
 or for recent browsers, a double-background */
 /* IE8 recognises .before, not :before */
 .adminsubmit.icon:before, .adminsubmit.icon.before,
-.ui-button.ui-icon:before, .ui-button.ui-icon.before,
-a.link_button.icon:before, a.link_button.icon.before{
+a.link_button.icon:before, a.link_button.icon.before {
     background-image:url(../images/buttonssprite.png);
     background-size: 10em 1em;
     display: inline-block;
@@ -447,10 +446,33 @@ a.link_button.icon:before, a.link_button.icon.before{
     height: 1em;
     content: ' ';
 }
-.icon.check:before, .icon.check.before, .ui-icon-check:before, .ui-icon-check.before{
+
+.ui-dialog-buttonset .ui-button .ui-icon,
+.ui-dialog-buttonset .ui-button:hover .ui-icon,
+.ui-dialog-buttonset .ui-button.ui-state-hover .ui-icon,
+.ui-dialog-buttonset .ui-button:focus .ui-icon,
+.ui-dialog-buttonset .ui-button.ui-state-focus .ui-icon
+{
+    background: none;
+    display: inline;
+    width: 1em;
+    height: 1em;
+}
+/*.ui-button.ui-icon:before, .ui-button.ui-icon.before, */
+.ui-dialog-buttonset .ui-icon:before {
+    background-image:url(../images/buttonssprite.png);
+    background-size: 10em 1em;
+    display: inline-block;
+    vertical-align: middle;
+    width: 1em;
+    height: 1em;
+    content: ' ';
+}
+
+.icon.check:before, .icon.check.before, .ui-icon-check:before, .ui-icon-check.before {
     background-position: 1em 0;
 }
-.icon.cancel:before, .icon.cancel.before{
+.icon.cancel:before, .icon.cancel.before, .ui-icon-cancel:before, .ui-icon-cancel.before{
     background-position: 2em 0;
 }
 .icon.apply:before, .icon.apply.before{
@@ -485,8 +507,6 @@ a.link_button.icon:before, a.link_button.icon.before{
 }
 .checkbox {
     padding-left: 10px
-}
-
 }
 
 .ui-dialog input, .ui-dialog select, .ui-dialog menu, .ui-dialog textarea,
@@ -1954,8 +1974,7 @@ header .shortcuts li i {
 }
 
 /*** page content ***/
-//================= RECOVERY ? #pg_* doesn't exist, but style-removal has side-effects
-/*
+/* ========== CHECKME ? #pg_* doesn't exist, but style-removal has side-effects
 #pg_mainarea .content-inner {
 /*    overflow: auto;
 //    overflow: hidden;
@@ -1970,7 +1989,7 @@ header .shortcuts li i {
 #pg_mainarea .content-inner.sidebar-off {
     margin-left: 2.5em
 }
-*/
+============ */
 
 .row {
     width: 100%;
@@ -1992,7 +2011,7 @@ header .shortcuts li i {
     text-align: right;
 }
 
-/*
+/* ======= CHECKME =========
 #pg_mainarea header.pageheader {
     margin-bottom: 5px;
 / *     border-bottom: 1px solid #1a3225
@@ -2064,7 +2083,7 @@ header .shortcuts li i {
     font-size: 1.1em;
     font-weight: normal
 }
-*/
+======= */
 span.helptext a.external, span.helptext a {
     display: inline-block;
 /*    width: auto;
@@ -2221,8 +2240,8 @@ table.pagetable tr {
     height: 2.5em
 }
 table.pagetable td {
-    padding: 2px 5px
-    color: #244323;
+    padding: 2px 5px;
+    color: #244323
 }
 table.pagetable a {
     color: #157200
@@ -2898,11 +2917,11 @@ ul.sortableList > li {
         font-size: 0.75em
     }
 */
-//==================
+/* ======== CHECKME ==========
     #pg_mainarea header.pageheader span.helptext em {
         display: none
     }
-//==================
+================== */
     .move {
         width: auto;
         padding: 0;
@@ -3092,11 +3111,11 @@ ul.sortableList > li {
         right: 5%;
         width: auto
     }
-//================
+/* ======= CHECKME =========
     #pg_mainarea header.pageheader span.helptext {
         display: none;
     }
-//================
+================ */
     textarea, select {
         max-width: 23em
     }
