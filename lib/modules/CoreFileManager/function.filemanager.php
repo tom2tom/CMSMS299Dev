@@ -135,11 +135,12 @@ function fm_rchmod($path, $filemode, $dirmode)
  * Safely rename
  * @param string $old
  * @param string $new
+ * @param bool $force whether to overwrite existing item with new name
  * @return bool|null
  */
-function fm_rename($old, $new)
+function fm_rename($old, $new, $force = true)
 {
-    return (!file_exists($new) && file_exists($old)) ? rename($old, $new) : null;
+    return (file_exists($old) && ($force || !file_exists($new))) ? rename($old, $new) : null;
 }
 
 /**
@@ -190,7 +191,7 @@ function fm_mkdir($dir, $force)
         }
         unlink($dir);
     }
-    return mkdir($dir, 0777, true);
+    return mkdir($dir, 0771, true);
 }
 
 /**
@@ -211,7 +212,7 @@ function fm_copy($f1, $f2, $upd)
     }
     $ok = copy($f1, $f2);
     if ($ok) {
-        touch($f2, $time1);
+        @chmod($f2, octdec('644'));
     }
     return $ok;
 }
