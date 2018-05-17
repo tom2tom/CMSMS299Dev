@@ -202,15 +202,15 @@ $linkdel = '<a href="'. $u .'" onclick="cms_confirm_linkclick(this, \''. $this->
 
 $t = $this->Lang('rename');
 $icon = '<img src="'.$baseurl.'/images/rename.png" class="systemicon" alt="'.$t.'" title="'.$t.'" />';
-$linkren = '<a href="javascript:rename(\'' . fm_enc($FM_PATH) .'\',\'XXX\')">'.$icon.'</a>'."\n";
+$linkren = '<a href="javascript:oneRename(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'copy'=>'XXX']);
 $icon = $themeObject->DisplayImage('icons/system/copy.gif', $this->Lang('copytip'), '', '', 'systemicon');
-$linkcopy = '<a href="'. $u .'">'.$icon.'</a>'."\n";
+$linkcopy = '<a href="javascript:oneCopy(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $t = $this->Lang('linktip');
 $icon = '<img src="'.$baseurl.'/images/link.png" class="systemicon" alt="'.$t.'" title="'.$t.'" />';
-$linklink = '<a href="XXX" target="_blank">'.$icon.'</a>'."\n";
+$linklink = '<a href="javascript:oneLink(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'dl'=>'XXX']);
 $icon = $themeObject->DisplayImage('icons/system/arrow-d.gif', $this->Lang('download'), '', '', 'systemicon');
@@ -219,6 +219,7 @@ $linkdown = '<a href="'. $u .'">'.$icon.'</a>'."\n";
 $pr = $this->Lang('perm_r');
 $pw = $this->Lang('perm_w');
 $px = $this->Lang('perm_x');
+$pxf = $this->Lang('perm_xf');
 
 $items = [];
 $c = 0;
@@ -255,7 +256,7 @@ foreach ($folders as $f) {
         $perms = [];
         if ($t & 0x0100) $perms[] = $pr;
         if ($t & 0x0080) $perms[] = $pw;
-        if ($t & 0x0040) $perms[] = $px; //ignore static flag
+        if ($t & 0x0040) $perms[] = $pxf; //ignore static flag
         $perms = implode('+',$perms);
         if (!$FM_READONLY) {
             $oneset->perms = str_replace(['XXX', 'YYY'], [$encf, $perms], $linkchmod);
@@ -267,11 +268,12 @@ foreach ($folders as $f) {
     if ($FM_READONLY) {
         $acts = '';
     } else {
-        $acts = str_replace('XXX', $encf, $linkdel);
-        $acts .= str_replace('XXX', fm_enc($f), $linkren);
-        $acts .= str_replace('XXX', rawurlencode(trim($FM_PATH . DIRECTORY_SEPARATOR . $f, DIRECTORY_SEPARATOR)), $linkcopy);
+        $df = fm_enc($f);
+        $acts = str_replace('XXX', $f, $linkdel);
+        $acts .= str_replace(['XXX','YYY'], [$f, $df], $linkren);
+        $acts .= str_replace(['XXX','YYY'], [$f, $df], $linkcopy);
+        $acts .= str_replace(['XXX','YYY'], [$f, $df], $linklink);
     }
-    $acts .= str_replace('XXX', fm_enc($FM_ROOT_PATH . ($FM_PATH ? DIRECTORY_SEPARATOR . $FM_PATH : '') . DIRECTORY_SEPARATOR . $f), $linklink);
 
     $oneset->acts = $acts;
 
@@ -327,11 +329,12 @@ foreach ($files as $f) {
     if ($FM_READONLY) {
         $acts = '';
     } else {
-        $acts = str_replace('XXX', $encf, $linkdel);
-        $acts .= str_replace('XXX', fm_enc($f), $linkren);
-        $acts .= str_replace('XXX', rawurlencode(trim($FM_PATH . DIRECTORY_SEPARATOR . $f, DIRECTORY_SEPARATOR)), $linkcopy);
+        $df = fm_enc($f);
+        $acts = str_replace('XXX', $f, $linkdel);
+        $acts .= str_replace(['XXX','YYY'], [$f, $df], $linkren);
+        $acts .= str_replace(['XXX','YYY'], [$f, $df], $linkcopy);
+        $acts .= str_replace(['XXX','YYY'], [$f, $df], $linklink);
     }
-    $acts .= str_replace('XXX', fm_enc($FM_ROOT_PATH . ($FM_PATH ? DIRECTORY_SEPARATOR . $FM_PATH : '') . DIRECTORY_SEPARATOR . $f), $linklink);
     $acts .= str_replace('XXX', $encf, $linkdown);
 
     $oneset->acts = $acts;
@@ -380,6 +383,8 @@ $smarty->assign('title_compress', $t);
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'upload'=>1]);
 $upload_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
+//TODO $FM_ROOT_PATH
+$here = $FM_PATH;
 
 //<link rel="stylesheet" href="{$baseurl}/lib/css/jquery.dm-uploader.css">
 $css = <<<EOS
@@ -400,7 +405,7 @@ EOS;
 $t = file_get_contents(cms_join_path(__DIR__, 'lib', 'js', 'defaultadmin.inc.js'));
 // included js may include variables enclosed in markers '~%' and '%~'.
 // like $varname or lang|key or lang|key,param[,param2 ...] Such $varname's must all be 'used' here
-$js .= preg_replace_callback('/~%(.+?)%~/', function ($match) use ($id, $upload_url)
+$js .= preg_replace_callback('/~%(.+?)%~/', function ($match) use ($id, $upload_url, $here)
 {
  $name = $match[1];
  if ($name[0] == '$') {
