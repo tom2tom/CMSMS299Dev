@@ -241,7 +241,7 @@ li.tree-opened > .toggler:before { content: '\f115'; }
  cursor:pointer;
 }
 
-#compress_dlg p {
+#link_dlg p, #compress_dlg p {
  text-align: center
 }
 
