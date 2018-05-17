@@ -19,7 +19,7 @@
 {/if}
 <a title="{$mod->Lang('newfolder')}" href="javascript:newFolder()"><i class="if-folder-add"></i></a>
 <a title="{$mod->Lang('search1')}" href="javascript:doSearch(true)"><i class="if-search"></i></a>
-<a title="{$mod->Lang('upload')}" href="javascript:doUpload()"><i class="if-upload" aria-hidden="true"></i></a>
+<a title="{$mod->Lang('title_upload')}" href="javascript:doUpload()"><i class="if-upload" aria-hidden="true"></i></a>
   </div>{*/boxchild*}
  </div>{*/hbox*}
  <div class="hbox flow">
@@ -65,10 +65,10 @@
   {$mod->Lang('summary', $filescount, $folderscount, $totalcount)}
   <br /><br />
   <div class="path footer-links">
-   <button type="submit" name="{$actionid}copy" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-docs"></i> {$mod->Lang('copy')}</button>
-   <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-direction"></i> {$mod->Lang('move')}</button>
-   <button type="submit" name="{$actionid}delete" class="adminsubmit fonticon" onclick="deleteclick(this);return false;"><i class="if-trash-empty"></i> {$mod->Lang('delete')}</button>
-   <button type="button" name="compress" class="adminsubmit fonticon" onclick="compressclick(this);return false;"><i class="if-resize-small"></i> {$mod->Lang('compress')}</button>
+   <button type="submit" name="{$actionid}copy" class="adminsubmit fonticon" onclick="doCopy();return false;"><i class="if-docs"></i> {$mod->Lang('copy')}</button>
+   <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="doMove();return false;"><i class="if-direction"></i> {$mod->Lang('move')}</button>
+   <button type="submit" name="{$actionid}delete" class="adminsubmit fonticon" onclick="doDelete(this);return false;"><i class="if-trash-empty"></i> {$mod->Lang('delete')}</button>
+   <button type="button" name="compress" class="adminsubmit fonticon" onclick="doCompress();return false;"><i class="if-resize-small"></i> {$mod->Lang('compress')}</button>
    <button type="submit" name="{$actionid}decompress" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-resize-full"></i> {$mod->Lang('expand')}</button>
    <button type="button" class="adminsubmit fonticon" title="{$mod->Lang('selecttip')}" onclick="invert_all();return false;"><i class="if-switch"></i> {$mod->Lang('selectother')}</button>
   </div>
@@ -76,23 +76,12 @@
   </div>{*/boxchild*}
  </div>{*/hbox*}
 </div>{*vbox*}
-{*POPUP DIALOGS*}
-<div id="create_dlg" title="{$mod->Lang('newitem')}" style="display:none;">
- <label for="newfile">{$mod->Lang('itemtype')}:</label>
- <input type="radio" name="{$actionid}newfile" id="newfile" value="file" />{$mod->Lang('file')}
- <input type="radio" name="{$actionid}newfile" value="folder" checked="checked" />{$mod->Lang('folder')}
- <br />
- <label for="newfilename">{$mod->Lang('itemname')}:</label>
- <input type="text" name="{$actionid}newfilename" id="newfilename" value="" />
- <br />
- <button type="button" name="{$actionid}submit" class="group-btn" onclick="newfolder();">{$mod->Lang('create')}</button>
+<div style="display:none;">{*TRANSIENT ELEMENTS*}
+<div id="searchbox">
+<input type="text" id="searchinput" placeholder="{$mod->Lang('searchfor')} ..." /><i class="if-cancel"></i>
 </div>
 
-<div id="searchbox" style="display:none;">
-<input type="text" id="searchinput" placeholder="{$mod->Lang('searchfor')} ..." /><i class="if-cancel"></i>
-</div>'
-
-<div id="upload_dlg" title="{$mod->Lang('title_upload')}" style="display:none;">
+<div id="upload_dlg" title="{$mod->Lang('title_upload')}">
  <div title="{$mod->Lang('tip_upload')}">
  <h4>{$mod->Lang('title_dnd')}</h4>
  {$mod->Lang('alternate')}
@@ -100,8 +89,17 @@
  </div>
 </div>
 
-<div id="compress_dlg" title="{$title_compress}" style="display:none;">
-<input type="hidden" name="{$actionid}compress" value="1" />
+<div id="link_dlg" title="{$mod->Lang('linktitle')}">
+{$form_start}
+<input type="hidden" name="{$actionid}linkto" value="1" />
+<input type="hidden" name="{$actionid}target" value="" />
+<p><label for="tofolder">{$mod->Lang('linkfolder')}:</label><br /><input type="text" id="tofolder" name="{$actionid}tofolder" title="{$mod->Lang('folder_tip2')}" value="" /></p>
+<br />
+<p><label for="toname">{$mod->Lang('linkname')}:</label><br /><input type="text" id="toname" name="{$actionid}toname" value="" /></p>
+</form>
+</div>
+
+<div id="compress_dlg" title="{$title_compress}">
 <p id="namer">
  {$mod->Lang('namecompressed')}:<br /><input type="text" name="{$actionid}archname" value="" />
 </p>
@@ -115,3 +113,4 @@
 <input type="hidden" name="{$actionid}archiver" value="{key($archtypes)}" />
 {/if}
 </div>
+</div>{*TRANSIENTS*}
