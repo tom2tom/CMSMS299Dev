@@ -56,6 +56,8 @@ $lang['expand'] = 'Expand';
 // F
 $lang['file'] = 'File';
 $lang['folder'] = 'Folder';
+$lang['folder_tip'] = 'Absolute or relative filesystem path';
+$lang['folder_tip2'] = 'Absolute or relative filesystem path, or empty for current path';
 $lang['friendlyname'] = 'File Manager';
 
 // G
@@ -88,7 +90,10 @@ $lang['itemtype'] = 'Item Type';
 $lang['kb'] = 'kB';
 
 // L
+$lang['linkfolder'] = 'Folder where link file will be';
+$lang['linkname'] = 'Name of link file';
 $lang['linktip'] = 'Link to...';
+$lang['linktitle'] = 'Create Link';
 
 // N
 $lang['name'] = 'Name';
@@ -115,6 +120,7 @@ $lang['pack'] = 'Pack';
 $lang['perm_r'] = 'read';
 $lang['perm_w'] = 'write';
 $lang['perm_x'] = 'exec';
+$lang['perm_xf'] = 'enter';
 $lang['perms'] = 'Permissions';
 
 $lang['postinstall'] = 'The File Manager module has been installed';
@@ -145,6 +151,7 @@ $lang['tip_upload'] = 'Upload file(s) and/or folder(s)';
 $lang['title_dnd'] = 'Drag and drop anywhere here';
 $lang['title_upload'] = 'Upload to this folder';
 $lang['title_filemanager_settings'] = 'File Manager Settings';
+$lang['tofolder'] = 'Destination Folder';
 $lang['top'] = 'Top';
 $lang['typecompressed'] = 'Compression type';
 
