@@ -66,8 +66,7 @@
   </table>
 
 {if count($userlist) > 10}
-  <div class="pageoptions">
-  <div style="float:left;">
+  <div class="pageoptions" style="float:left;">
     <a href="{$addurl}{$urlext}" title="{lang('info_adduser')}">{$iconadd}</a>
     <a href="{$addurl}{$urlext}">{lang('adduser')}</a>
   </div>
@@ -91,6 +90,5 @@
   </div>
   <br />
   <button type="submit" id="bulksubmit" name="bulk" class="adminsubmit icon do">{lang('submit')}</button>
-  </div>
   </div>
 </form>
