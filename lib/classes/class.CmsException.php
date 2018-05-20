@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# CmsException (c) 2012 by Robert Campbell
-# (calguy1000@cmsmadesimple.org)
-# A collection of CMSMS Exception classes
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# A basic exception class that holds on to extended information, plus various extenstions.
+# Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,24 +14,16 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
 
-/**
- * Contains definitions for the various CMSMS exception classes.
- * @package CMS
- * @license GPL
- */
+//namespace CMSMS;
 
 /**
  * A basic exception class that holds on to extended information.
  *
  * @package CMS
- * @license GPL
  * @since 2.0
  */
-abstract class CmsExtraDataException extends Exception
+abstract class CmsExtraDataException extends \Exception
 {
   /**
    * @ignore
@@ -50,8 +34,8 @@ abstract class CmsExtraDataException extends Exception
    * Constructor
    * This method accepts variable arguments
    *
-   * i.e:  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
-   * i.e:  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
+   * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
+   * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
    *
    * @see \Exception
    */
@@ -104,8 +88,6 @@ abstract class CmsExtraDataException extends Exception
  * if the string passed in contains a space it is not translated.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsException extends CmsExtraDataException
@@ -114,8 +96,8 @@ class CmsException extends CmsExtraDataException
      * Constructor
      * This method accepts variable arguments.
      *
-     * i.e:  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
-     * i.e:  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
+     * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
+     * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
      *
    * @see \Exception
      */
@@ -135,8 +117,6 @@ class CmsException extends CmsExtraDataException
  * A base CMSMS Logic Exception
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsLogicException extends CmsException {}
@@ -145,8 +125,6 @@ class CmsLogicException extends CmsException {}
  * A base CMSMS Communications Exception
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsCommunicationException extends CmsException {}
@@ -155,8 +133,6 @@ class CmsCommunicationException extends CmsException {}
  * A base CMSMS Privacy Exception
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsPrivacyException extends CmsException {}
@@ -165,8 +141,6 @@ class CmsPrivacyException extends CmsException {}
  * A base CMSMS Singleton Exception
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsSingletonException extends CmsException {}
@@ -175,8 +149,6 @@ class CmsSingletonException extends CmsException {}
  * An exception indicating invalid data was supplied to a function or class.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsInvalidDataException extends CmsLogicException {}
@@ -185,8 +157,6 @@ class CmsInvalidDataException extends CmsLogicException {}
  * An exception indicating that the requested data could not be found.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.10
  */
 class CmsDataNotFoundException extends CmsException {}
@@ -195,8 +165,6 @@ class CmsDataNotFoundException extends CmsException {}
  * A special exception indicating that a 404 error should be supplied.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.3
  */
 class CmsError400Exception extends CmsException {}
@@ -205,8 +173,6 @@ class CmsError400Exception extends CmsException {}
  * A special exception indicating that a 404 error should be supplied.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.11
  */
 class CmsError404Exception extends CmsException {}
@@ -215,7 +181,6 @@ class CmsError404Exception extends CmsException {}
  * A special exception indicating that a 403 error should be supplied.
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.12
  */
 class CmsError403Exception extends CmsException {}
@@ -224,7 +189,6 @@ class CmsError403Exception extends CmsException {}
  * A special exception indicating that the install is temporarily unavailable (down for maintenance)
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.12
  */
 class CmsError503Exception extends CmsException {}
@@ -233,8 +197,6 @@ class CmsError503Exception extends CmsException {}
  * A special exception indicating an error with a content object
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsContentException extends CmsException {}
@@ -243,8 +205,6 @@ class CmsContentException extends CmsException {}
  * A special exception indicating an error when editing content.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 1.11
  */
 class CmsEditContentException extends CmsContentException {}
@@ -253,8 +213,6 @@ class CmsEditContentException extends CmsContentException {}
  * A special exception indicating an SQL Error.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsSQLErrorException extends CmsException {}
@@ -264,8 +222,6 @@ class CmsSQLErrorException extends CmsException {}
  * A special exception indicating an XML Error.
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsXMLErrorException extends CmsException {}
@@ -274,10 +230,27 @@ class CmsXMLErrorException extends CmsException {}
  * A special exception indicating a problem with a file, directory, or filesystem
  *
  * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsFileSystemException extends CmsException {}
 
-?>
+/* for future use
+// backward compatibility
+class_alias('CMSMS\CmsException', 'CmsCmsException', false);
+class_alias('CMSMS\CommunicationException', 'CmsCommunicationException', false);
+class_alias('CMSMS\ContentException', 'CmsContentException', false);
+class_alias('CMSMS\DataNotFoundException', 'CmsDataNotFoundException', false);
+class_alias('CMSMS\EditContentException', 'CmsEditContentException', false);
+class_alias('CMSMS\Error400Exception', 'CmsError400Exception', false);
+class_alias('CMSMS\Error403Exception', 'CmsError403Exception', false);
+class_alias('CMSMS\Error404Exception', 'CmsError404Exception', false);
+class_alias('CMSMS\Error503Exception', 'CmsError503Exception', false);
+class_alias('CMSMS\ExtraDataException', 'CmsExtraDataException', false);
+class_alias('CMSMS\FileSystemException', 'CmsFileSystemException', false);
+class_alias('CMSMS\InvalidDataException', 'CmsInvalidDataException', false);
+class_alias('CMSMS\LogicException', 'CmsLogicException', false);
+class_alias('CMSMS\PrivacyException', 'CmsPrivacyException', false);
+class_alias('CMSMS\SingletonException', 'CmsSingletonException', false);
+class_alias('CMSMS\SQLErrorException', 'CmsSQLErrorException', false);
+class_alias('CMSMS\XMLErrorException', 'CmsXMLErrorException', false);
+*/
