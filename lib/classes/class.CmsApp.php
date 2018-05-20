@@ -1,5 +1,5 @@
 <?php
-#CMS Made Simple class
+#Singleton class for accessing system variables
 #Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2010-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,18 +15,28 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
+/* for future use
+namespace CMSMS {
+
+use cms_config;
+use CMSModule;
+use CMSMS\contenttypes\ErrorPage;
+//use CMSMS\Database\Connection as Connection2;
+use CMSMS\Database\mysqli\Connection;
+use CMSMS\internal\global_cache;
+use CMSMS\internal\Smarty;
+use const CMS_DB_PREFIX;
+use const PUBLIC_CACHE_LOCATION;
+use const TMP_CACHE_LOCATION;
+use const TMP_TEMPLATES_C_LOCATION;
+use function cms_join_path;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+*/
 
 /**
- * Global class for easy access to all important variables.
- *
- * @package CMS
- * @license GPL
- */
-
-/**
- * Simple singleton class that contains various functions and states
+ * Singleton class that contains various functions and states
  * representing the application.
  *
  * Note: This class was named CmsObject before version 1.10
@@ -35,8 +45,8 @@
  * @license GPL
  * @since 0.5
  */
-final class CmsApp {
-
+final class CmsApp
+{
 	/**
 	 * A constant indicating that the request is for a page in the CMSMS admin console
 	 */
@@ -55,7 +65,7 @@ final class CmsApp {
 	/**
 	 * A constant indicating that we are currently parsing page templates
 	 */
-    const STATE_PARSE_TEMPLATE = 'parse_page_template';
+	const STATE_PARSE_TEMPLATE = 'parse_page_template';
 
 	/**
 	 * @ignore
@@ -72,10 +82,10 @@ final class CmsApp {
 	 */
 	private $_content_type;
 
-    /**
-     * @ignore
-     */
-    private $_showtemplate = true;
+	/**
+	 * @ignore
+	 */
+	private $_showtemplate = true;
 
 	/**
 	 * List of current states.
@@ -100,22 +110,16 @@ final class CmsApp {
 	 */
 	private $dbprefix;
 
-    /**
-     * @ignore
-     */
-    private $hrinstance;
+	/**
+	 * @ignore
+	 */
+	private $hrinstance;
 
 	/**
 	 * Internal error array - So functions/modules can store up debug info and spit it all out at once
 	 * @ignore
 	 */
 	private $errors = [];
-
-    /**
-     * Get the simple plugin operations class
-     * @ignore
-     */
-    private $simple_plugin_manager;
 
 	/**
 	 * @ignore
@@ -138,10 +142,10 @@ final class CmsApp {
 		register_shutdown_function(array(&$this, 'dbshutdown'));
 	}
 
-    /**
-     * @ignore
-     */
-    private function __clone() {}
+	/**
+	 * @ignore
+	 */
+	private function __clone() {}
 
 	/**
 	 * Retrieve the single app instance.
@@ -161,18 +165,18 @@ final class CmsApp {
 	 */
 	public function get_installed_schema_version()
 	{
-        if( self::test_state(self::STATE_INSTALL) ) {
-            $db = $this->GetDb();
-            $query = 'SELECT version FROM '.CmsApp::get_instance()->GetDbPrefix().'version';
-            return $db->GetOne($query);
-        }
-        return \CMSMS\internal\global_cache::get('schema_version');
+		if( self::test_state(self::STATE_INSTALL) ) {
+			$db = $this->GetDb();
+			$query = 'SELECT version FROM '.self::get_instance()->GetDbPrefix().'version';
+			return $db->GetOne($query);
+		}
+		return global_cache::get('schema_version');
 	}
 
 	/**
 	 * Retrieve the list of errors
 	 *
-     * @ignore
+	 * @ignore
 	 * @since 1.9
 	 * @internal
 	 * @access private.
@@ -183,11 +187,10 @@ final class CmsApp {
 		return $this->errors;
 	}
 
-
 	/**
 	 * Add an error to the list
 	 *
-     * @ignore
+	 * @ignore
 	 * @since 1.9
 	 * @internal
 	 * @access private
@@ -198,7 +201,6 @@ final class CmsApp {
 		if( !is_array($this->errors) ) $this->errors = [];
 		$this->errors[] = $str;
 	}
-
 
 	/**
 	 * Retrieve the request content type (for frontend requests)
@@ -225,32 +227,32 @@ final class CmsApp {
 		if( $mime_type ) $this->_content_type = $mime_type;
 	}
 
-    /**
-     * Disable the processing of the page template.
-     * This function controls whether the page template will be processed at all.
-     * It must be called early enough in the content generation process.
-     *
-     * Ideally this method can be called from within a module action that is called from within the default content block
-     * when content_processing is set to 2 (the default) in the config.php
-     *
-     * @return void
-     * @since 2.3
-     */
-    public function disable_template_processing()
-    {
-        $this->_showtemplate = false;
-    }
+	/**
+	 * Disable the processing of the page template.
+	 * This function controls whether the page template will be processed at all.
+	 * It must be called early enough in the content generation process.
+	 *
+	 * Ideally this method can be called from within a module action that is called from within the default content block
+	 * when content_processing is set to 2 (the default) in the config.php
+	 *
+	 * @return void
+	 * @since 2.3
+	 */
+	public function disable_template_processing()
+	{
+		$this->_showtemplate = false;
+	}
 
-    /**
-     * Get the flag indicating whether or not template processing is allowed.
-     *
-     * @return bool
-     * @since 2.3
-     */
-    public function template_processing_allowed()
-    {
-        return $this->_showtemplate;
-    }
+	/**
+	 * Get the flag indicating whether or not template processing is allowed.
+	 *
+	 * @return bool
+	 * @since 2.3
+	 */
+	public function template_processing_allowed()
+	{
+		return $this->_showtemplate;
+	}
 
 	/**
 	 * Set the current content page
@@ -262,7 +264,7 @@ final class CmsApp {
 	 */
 	public function set_content_object(ContentBase &$content)
 	{
-        if( !$this->_current_content_page || $content instanceof ErrorPage ) $this->_current_content_page = $content;
+		if( !$this->_current_content_page || $content instanceof ErrorPage ) $this->_current_content_page = $content;
 	}
 
 	/**
@@ -286,7 +288,6 @@ final class CmsApp {
 		if( is_object($obj) ) return $obj->Id();
 	}
 
-
 	/**
 	 * Get a list of all installed and available modules
 	 *
@@ -301,7 +302,6 @@ final class CmsApp {
 	{
 		return ModuleOperations::get_instance()->get_available_modules();
 	}
-
 
 	/**
 	 * Get a reference to an installed module instance.
@@ -321,14 +321,13 @@ final class CmsApp {
 		return ModuleOperations::get_instance()->get_module_instance($module_name,$version);
 	}
 
-
 	/**
 	 * Set the database connection object.
 	 *
 	 * @final
 	 * @internal
 	 * @ignore
-	 * @param \CMSMS\Database\Connection $connection
+	 * @param \CMSMS\Database\Connection $conn
 	 */
 	final public function _setDb(\CMSMS\Database\Connection $conn)
 	{
@@ -346,12 +345,12 @@ final class CmsApp {
 	{
 		/* Check to see if we have a valid instance.
 		 * If not, build the connection
-         */
+		 */
 		if (isset($this->db)) return $this->db;
 		global $DONT_LOAD_DB;
 
 		if( !isset($DONT_LOAD_DB) ) {
-            $config = cms_config::get_instance();
+			$config = cms_config::get_instance();
 			$this->db = new \CMSMS\Database\mysqli\Connection($config);
 			//deprecated: make old stuff available
 			require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
@@ -367,7 +366,7 @@ final class CmsApp {
 	public function GetDbPrefix()
 	{
 		return CMS_DB_PREFIX;
-    }
+	}
 
 	/**
 	* Get a handle to the global CMS config.
@@ -382,7 +381,6 @@ final class CmsApp {
 		return cms_config::get_instance();
 	}
 
-
 	/**
 	* Get a handle to the CMS ModuleOperations object.
 	* If it does not yet exist, this method will instantiate it.
@@ -396,16 +394,15 @@ final class CmsApp {
 		return ModuleOperations::get_instance();
 	}
 
-
-    /**
-     * Get the simple plugin operations object.
-     *
-     * @return \CMSMS\SimplePluginOperations
-     */
-    public function GetSimplePluginOperations()
-    {
-        return \CMSMS\SimplePluginOperations::get_instance();
-    }
+	/**
+	 * Get the simple plugin operations object.
+	 *
+	 * @return SimplePluginOperations
+	 */
+	public function GetSimplePluginOperations()
+	{
+		return SimplePluginOperations::get_instance();
+	}
 
 	/**
 	* Get a handle to the CMS UserOperations singleton object.
@@ -414,7 +411,7 @@ final class CmsApp {
 	* @final
 	* @see UserOperations
 	* @return UserOperations handle to the UserOperations object
-    * @deprecated
+	* @deprecated
 	*/
 	public function & GetUserOperations()
 	{
@@ -428,7 +425,7 @@ final class CmsApp {
 	* @final
 	* @see ContentOperations::get_instance()
 	* @return ContentOperations handle to the ContentOperations object
-    * @deprecated
+	* @deprecated
 	*/
 	public function & GetContentOperations()
 	{
@@ -442,14 +439,12 @@ final class CmsApp {
 	* @final
 	* @see BookmarkOperations
 	* @return BookmarkOperations handle to the BookmarkOperations object, useful only in the admin
-    * @deprecated
+	* @deprecated
 	*/
 	public function & GetBookmarkOperations()
 	{
-        if (!isset($this->bookmarkoperations)) $this->bookmarkoperations = new BookmarkOperations();
-		return $this->bookmarkoperations;
+		return BookmarkOperations::get_instance();
 	}
-
 
 	/**
 	* Get a handle to the CMS GroupOperations object.
@@ -458,7 +453,7 @@ final class CmsApp {
 	* @final
 	* @see GroupOperations
 	* @return GroupOperations handle to the GroupOperations object
-    * @deprecated
+	* @deprecated
 	*/
 	public function & GetGroupOperations()
 	{
@@ -472,7 +467,7 @@ final class CmsApp {
 	* @final
 	* @see UserTagOperations
 	* @return UserTagOperations handle to the UserTagOperations object
-    * @deprecated
+	* @deprecated
 	*/
 	public function & GetUserTagOperations()
 	{
@@ -512,7 +507,7 @@ final class CmsApp {
 		/* Check to see if a HierarchyManager has been instantiated yet,
 		  and, if not, go ahead an create the instance. */
         if( is_null($this->_hrinstance) ) $this->_hrinstance = \CMSMS\internal\global_cache::get('content_tree');
-        return $this->_hrinstance;
+		return $this->_hrinstance;
 	}
 
 	/**
@@ -520,7 +515,7 @@ final class CmsApp {
 	*
 	* @final
 	* @internal
-    * @ignore
+	* @ignore
 	* @access private
 	*/
 	public function dbshutdown()
@@ -530,7 +525,6 @@ final class CmsApp {
 			if ($db->IsConnected())	$db->Close();
 		}
 	}
-
 
 	/**
 	 * Clear out cached files from the CMS tmp/cache and tmp/templates_c directories.
@@ -545,10 +539,10 @@ final class CmsApp {
 	 */
 	final public function clear_cached_files($age_days = 0)
 	{
-        $age_days = max(-1,(int) $age_days);
+		$age_days = max(-1,(int) $age_days);
 		global $CMS_LOGIN_PAGE, $CMS_INSTALL_PAGE;
 		if( !defined('TMP_CACHE_LOCATION') ) return;
-        	$age_days = max(0,(int)$age_days);
+			$age_days = max(0,(int)$age_days);
         	\CMSMS\HookManager::do_hook('clear_cached_files', [ 'older_than' => $age_days ]);
 		$the_time = time() - $age_days * 24*60*60;
 
@@ -559,7 +553,7 @@ final class CmsApp {
 			foreach( $dirContents as $one ) {
 				if( $one->isFile() && $one->getMTime() <= $the_time ) @unlink($one->getPathname());
 			}
-            		@touch(cms_join_path($start_dir,'index.html'));
+					@touch(cms_join_path($start_dir,'index.html'));
 		}
 	}
 
@@ -586,7 +580,7 @@ final class CmsApp {
 		}
 	}
 
-    /**
+	/**
 	 * Test if the current application state matches the requested value.
 	 * This method will throw an exception if invalid data is passed in.
 	 *
@@ -603,20 +597,20 @@ final class CmsApp {
 		return FALSE;
 	}
 
-    /**
+	/**
 	 * Get a list of all current states.
 	 *
 	 * @since 1.11.2
 	 * @author Robert Campbell
 	 * @return stringp[] Array of state strings, or null.
 	 */
-    public function get_states()
-    {
+	public function get_states()
+	{
 		$this->set_states();
 		if( isset($this->_states) ) return $this->_states;
 	}
 
-    /**
+	/**
 	 * Add a state to the list of states.
 	 *
 	 * This method will throw an exception if an invalid state is passed in.
@@ -627,14 +621,14 @@ final class CmsApp {
 	 * @author Robert Campbell
 	 * @param string The state.  We recommend you use the class constants for this.
 	 */
-    public function add_state($state)
-    {
+	public function add_state($state)
+	{
 		if( !in_array($state,self::$_statelist) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
 		$this->set_states();
 		$this->_states[] = $state;
-    }
+	}
 
-    /**
+	/**
 	 * Remove a state to the list of states.
 	 *
 	 * This method will throw an exception if an invalid state is passed in.
@@ -645,8 +639,8 @@ final class CmsApp {
 	 * @author Robert Campbell
 	 * @param string The state.  We recommend you use the class constants for this.
 	 */
-    public function remove_state(string $state)
-    {
+	public function remove_state(string $state)
+	{
 		if( !in_array($state,self::$_statelist) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
 		$this->set_states();
 		if( !is_array($this->_states) || !in_array($state,$this->_states) ) {
@@ -655,66 +649,40 @@ final class CmsApp {
 			return TRUE;
 		}
 		return FALSE;
-    }
+	}
 
-    /**
+	/**
 	 * A convenience method to test if the current request is a frontend request.
 	 *
 	 * @since 1.11.2
 	 * @author Robert Campbell
 	 * @return bool
 	 */
-    public function is_frontend_request()
-    {
+	public function is_frontend_request()
+	{
 		$tmp = $this->get_states();
 		if( !is_array($tmp) || count($tmp) == 0 ) return TRUE;
 		return FALSE;
 	}
 
-    /** A convenience method to test if the current request was over HTTPS.
-     *
+	/** A convenience method to test if the current request was over HTTPS.
+	 *
 	 * @since 1.11.12
 	 * @author Robert Campbell
 	 * @return bool
 	 */
-    public function is_https_request()
-    {
-        return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
-    }
+	public function is_https_request()
+	{
+		return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
+	}
 }
 
+//} //namespace
+
+//namespace {
 
 /**
- * Simple global convenience object to hold CMS Content Type structure.
- *
- * @package CMS
- */
-class CmsContentTypePlaceholder
-{
-	/**
-	 * @var string The type name
-	 */
-	public $type;
-
-	/**
-	 * @var string The filename containing the type class
-	 */
-	public $filename;
-
-	/**
-	 * @var string A friendly name for the type
-	 */
-	public $friendlyname;
-
-	/**
-	 * @var Wether the type has been loaded
-	 */
-	public $loaded;
-}
-
-
-/**
- * Return the global cmsms() object.
+ * Return the global CmsApp object.
  *
  * @since 1.7
  * @return CmsApp
@@ -722,18 +690,17 @@ class CmsContentTypePlaceholder
  */
 function &cmsms()
 {
-    return CmsApp::get_instance();
+	return CmsApp::get_instance();
 }
 
-
 /**
- * Returns the currently configured database prefix.
+ * Return the currently configured database prefix.
  *
  * @since 0.4
  * @return string
  */
 function cms_db_prefix() {
-    return CMS_DB_PREFIX;
+	return CMS_DB_PREFIX;
 }
 
-?>
+//} //namespace
