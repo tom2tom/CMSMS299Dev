@@ -15,12 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Class to provide menu items in the CMSMS admin navigation
- * @package     CMS
- * @license     GPL
- */
-
+/* for future use
+namespace CMSMS;
+use cms_utils;
+use CMSModule;
+*/
 /**
  * Base module class.
  *
@@ -64,7 +63,7 @@ final class CmsAdminMenuItem
             if( isset($this->_data[$k]) && $this->_data[$k] ) return $this->_data[$k];
             // url can be dynamically generated... maybe
             if( $this->module && $this->action ) {
-                $mod = \cms_utils::get_module($this->module);
+                $mod = cms_utils::get_module($this->module);
                 if( $mod ) {
                     $url = $mod->create_url('m1_',$this->action);
                     return $url;
@@ -95,7 +94,6 @@ final class CmsAdminMenuItem
         if( !in_array($k,self::ITEMKEYS) ) throw new CmsException('Invalid key: '.$k.' for '.__CLASS__.' object');
         return isset($this->_data[$k]);
     }
-
 
     /**
      * @ignore
@@ -146,7 +144,7 @@ final class CmsAdminMenuItem
      * @param since 2.3 Optional action name, default 'defaultadmin'
      * @return mixed CmsAdminMenuItem-object or null
      */
-    public static function from_module(\CMSModule $mod, $action = 'defaultadmin')
+    public static function from_module(CMSModule $mod, $action = 'defaultadmin')
     {
         $obj = null;
         if( $mod->HasAdmin() ) {
@@ -161,8 +159,4 @@ final class CmsAdminMenuItem
         }
         return $obj;
     }
-} // end of class
-
-#
-# EOF
-#
+} // class
