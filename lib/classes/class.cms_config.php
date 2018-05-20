@@ -1,5 +1,5 @@
 <?php
-#class for handling configuration data
+#Class for handling configuration data
 #Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2014-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,13 +16,20 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file contains the class that manages the CMSMS config.php file
- *
- * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
- */
+/* for future use
+namespace CMSMS;
+use cms_siteprefs;
+use CMSMS\App as CmsApp;
+use const CONFIG_FILE_LOCATION;
+use const PUBLIC_CACHE_LOCATION;
+use const PUBLIC_CACHE_URL;
+use const TMP_CACHE_LOCATION;
+use function cms_join_path;
+use function cms_to_bool;
+use function endswith;
+use function stack_trace;
+use function startswith;
+*/
 
 /**
  * A singleton class for interacting with the CMSMS config.php file.
@@ -34,7 +41,7 @@
  * @license GPL
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-final class cms_config implements ArrayAccess
+final class cms_config implements \ArrayAccess
 {
     /**
      * @ignore
@@ -115,7 +122,7 @@ final class cms_config implements ArrayAccess
      */
     private function __construct() {}
 
-	/**
+    /**
      * @ignore
      */
     private function __clone() {}
@@ -173,7 +180,7 @@ final class cms_config implements ArrayAccess
 
 
     /**
-     * Retrieve the global instance of the cms_config class
+     * Retrieve the global config object
      * This method will instantiate the object if necessary
      *
      * @return cms_config
@@ -183,83 +190,9 @@ final class cms_config implements ArrayAccess
         if (!isset(self::$_instance)) {
             self::$_instance = new self();
 
-            // now load the config
+            // populate from file
             self::$_instance->load_config();
-
-            if( !defined('TMP_CACHE_LOCATION') ) {
-                /**
-                 * A constant to indicate the location where private cachable files can be written.
-                 */
-                define('TMP_CACHE_LOCATION',self::$_instance['tmp_cache_location']);
-
-                /**
-                 * A constant to indicate where public (browsable) cachable files can be written.
-                 */
-                define('PUBLIC_CACHE_LOCATION',self::$_instance['public_cache_location']);
-
-                /**
-                 * A constant to indicate the public address for cachable files.
-                 */
-                define('PUBLIC_CACHE_URL',self::$_instance['public_cache_url']);
-
-                /**
-                 * A constant containing the smarty template compile directory.
-                 */
-                define('TMP_TEMPLATES_C_LOCATION',self::$_instance['tmp_templates_c_location']);
-
-                /**
-                 * A constant indicating whether CMSMS is in debug mode.
-                 */
-                define('CMS_DEBUG',self::$_instance['debug']);
-
-                /**
-                 * A constant containing the directory where CMSMS is installed.
-                 */
-                define('CMS_ROOT_PATH',self::$_instance['root_path']);
-
-                /**
-                 * A constant containing the directory where admin stuff is stored.
-                 */
-                define('CMS_ADMIN_PATH',self::$_instance['root_path'] .DIRECTORY_SEPARATOR. self::$_instance['admin_dir']);
-
-                /**
-                 * A constant containing the directory where CMSMS third party assets are stored.
-                 */
-                define('CMS_ASSETS_PATH',self::$_instance['assets_path']);
-
-                /**
-                 * A constant containing the 'top' directory where javascript files are stored
-				 * @since 2.3
-                 */
-				define('CMS_SCRIPTS_PATH',self::$_instance['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js');
-
-                /**
-                 * A constant containing the CMSMS root url.
-                 * If the root_url variable is not specified in the config file, then
-                 * CMSMS will attempt to calculate one.
-                 */
-                define('CMS_ROOT_URL',self::$_instance['root_url']);
-
-                /**
-                 * A constant containing the 'top' url where javascript files are stored
-				 * @since 2.3
-                 */
-                define('CMS_SCRIPTS_URL',self::$_instance['root_url'].'/lib/js');
-
-                /**
-                 * A constant containing the CMSMS uploads url.
-                 * If the uploads_url is not specified in the config file, then CMSMS will calculate one from the root url.
-                 */
-                define('CMS_UPLOADS_URL',self::$_instance['uploads_url']);
-
-                /**
-                 * A constant containing the CMSMS database table prefix to be used on all queries.
-                 */
-                global $CMS_INSTALL_PAGE;
-                if( !isset($CMS_INSTALL_PAGE) ) @define('CMS_DB_PREFIX',self::$_instance['db_prefix']);
-            }
         }
-
         return self::$_instance;
     }
 
@@ -558,7 +491,7 @@ final class cms_config implements ArrayAccess
     private function _printable_value($key,$value)
     {
         if( isset(self::KNOWN[$key]) ) $type = self::KNOWN[$key];
-		else $type = self::TYPE_STRING;
+        else $type = self::TYPE_STRING;
 
         $str = '';
         switch( $type ) {
@@ -576,7 +509,6 @@ final class cms_config implements ArrayAccess
         }
         return $str;
     }
-
 
     /**
      * A function to save the current state of the config.php file.  Any existing file is backed up
@@ -643,4 +575,4 @@ final class cms_config implements ArrayAccess
     {
         return $this->offsetGet('image_uploads_url');
     }
-} // end of class
+} // class
