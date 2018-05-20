@@ -1,21 +1,21 @@
 <?php
 # A class providing functionality for building forms.
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-# This file is part of CMS Made Simple ('the program') <http://www.cmsmadesimple.org>
-# Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
-#
-# The program is free software; you can redistribute it and/or modify
+# This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# The program is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with the program. If not, see <https://www.gnu.org/licenses/licenses.html>.
+
+//namespace CMSMS;
 
 /**
  * A static class providing functionality for building forms.
@@ -961,11 +961,11 @@ class CmsFormUtils
         foreach ($params as $key=>$val) {
 //          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
-				if(is_array($val)) {
+                if(is_array($val)) {
 //TODO e.g. serialize $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.TODO.'" />'."\n";
-				} else {
+                } else {
                     $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.$val.'" />'."\n";
-				}
+                }
             }
         }
         $out .= '</div>'."\n";
@@ -1271,4 +1271,4 @@ class CmsFormUtils
         }
         return $out;
     }
-} // end of class
+} // class

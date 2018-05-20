@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Translation functions/classes
+#Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Translation functions/classes
- * @package CMS
- * @license GPL
- */
+//namespace CMSMS;
 
 /**
  * An abstract class that is used to determine a suitable language for display
@@ -46,9 +40,4 @@ abstract class CmsLanguageDetector
    */
   abstract public function find_language();
 
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

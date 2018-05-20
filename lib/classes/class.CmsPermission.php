@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class and utilities for working with permissions.
+#Copyright (C) 2014-2010 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,15 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#
-#$Id$
 
-/**
- * Class and utilities for working with permissions.
- * @package CMS
- * @license GPL
- */
+//namespace CMSMS;
 
 /**
  * Simple class for dealing with a permission.
@@ -30,7 +23,7 @@
  * @since 2.0
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@gmail.com>
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 final class CmsPermission
 {
@@ -219,9 +212,4 @@ final class CmsPermission
 		catch( CmsException $e ) {
 		}
 	}
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

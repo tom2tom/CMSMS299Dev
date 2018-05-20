@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Class to represent a template query, and its results.
+#Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Contains classes to represent a template query and its results.
- * @package CMS
- * @license GPL
- */
+//namespace CMSMS;
 
 /**
  * A class to represent a template query, and its results.
@@ -46,7 +40,7 @@
  * @package CMS
  * @license GPL
  * @since 2.0
- * @author Robert Campbell <calguy1000@gmail.com>
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @see CmsDbQueryBase
  * @property string $sortby The sorting field for the returned results.  Possible values are: id,name,created,modified,type.  The default is to sort by template name.';
  * @property string $sortorder The sorting order for the returned results.  Possible values are: ASC,DESC.  The default is ASC.
@@ -66,40 +60,40 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 	/**
 	 * Execute the query given the parameters saved in the query
 	 *
-o	 * @throws CmsInvalidDataException
+	 * @throws CmsInvalidDataException
 	 * @throws CmsSQLErrorException
 	 * Though this method can be called directly, it is also called by other members automatically.
 	 */
-    public function execute()
-    {
-        if( !is_null($this->_rs) ) return;
+	public function execute()
+	{
+		if( !is_null($this->_rs) ) return;
 
-        $query = 'SELECT SQL_CALC_FOUND_ROWS tpl.id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' tpl
-              LEFT JOIN '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' type ON tpl.type_id = type.id';
-        $where = array('id'=>array(),'type'=>array(),'category'=>array(),'user'=>array(),'design'=>array());
+		$query = 'SELECT SQL_CALC_FOUND_ROWS tpl.id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' tpl
+			  LEFT JOIN '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' type ON tpl.type_id = type.id';
+		$where = array('id'=>array(),'type'=>array(),'category'=>array(),'user'=>array(),'design'=>array());
 
-        $this->_limit = 1000;
-        $this->_offset = 0;
-        $db = CmsApp::get_instance()->GetDb();
-        foreach( $this->_args as $key => $val ) {
-            if( empty($val) ) continue;
-            if( is_numeric($key) && $val[1] == ':' ) list($key,$second) = explode(':',$val,2);
+		$this->_limit = 1000;
+		$this->_offset = 0;
+		$db = CmsApp::get_instance()->GetDb();
+		foreach( $this->_args as $key => $val ) {
+			if( empty($val) ) continue;
+			if( is_numeric($key) && $val[1] == ':' ) list($key,$second) = explode(':',$val,2);
 
-            switch( strtolower($key) ) {
+			switch( strtolower($key) ) {
 			case 'o': // orginator
 			case 'originator':
 				$second = trim($second);
-                $q2 = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE originator = ?';
-                $typelist = $db->GetCol($q2,array($second));
-                if( !count($typelist) ) $typelist = array(-999);
-                $where['type'][] = 'type_id IN ('.implode(',',$typelist).')';
+				$q2 = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE originator = ?';
+				$typelist = $db->GetCol($q2,array($second));
+				if( !count($typelist) ) $typelist = array(-999);
+				$where['type'][] = 'type_id IN ('.implode(',',$typelist).')';
 				break;
 
-            case 'l':
-            case 'listable':
-                $second = (cms_to_bool($second)) ? 0 : 1;
-                $where['listable'] = array('listable = '.$second);
-                break;
+			case 'l':
+			case 'listable':
+				$second = (cms_to_bool($second)) ? 0 : 1;
+				$where['listable'] = array('listable = '.$second);
+				break;
 
 			case 'i': // id list
 			case 'idlist':
@@ -115,52 +109,52 @@ o	 * @throws CmsInvalidDataException
 				$where['id'][] = 'id IN '.implode(',',$tmp2);
 				break;
 
-            case 't': // type
+			case 't': // type
 			case 'type':
 				$second = (int)$second;
 				$where['type'][] = 'type_id = '.$db->qstr($second);
 				break;
 
-            case 'c': // category
+			case 'c': // category
 			case 'category':
 				$second = (int)$second;
 				$where['category'][] = 'category_id = '.$db->qstr($second);
 				break;
 
-            case 'd': // design
+			case 'd': // design
 			case 'design':
 				// find all the templates in design: d
 				$q2 = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE design_id = ?';
 				$tpls = $db->GetCol($q2,array((int)$second));
-                if( !count($tpls) )  $tpls = array(-999); // this won't match anything
-                $where['design'][] = 'tpl.id IN ('.implode(',',$tpls).')';
+				if( !count($tpls) )  $tpls = array(-999); // this won't match anything
+				$where['design'][] = 'tpl.id IN ('.implode(',',$tpls).')';
 				break;
 
-            case 'u': // user
+			case 'u': // user
 			case 'user':
 				$second = (int)$second;
 				$where['user'][] = 'owner_id = '.$db->qstr($second);
 				break;
 
-            case 'e': // editable
+			case 'e': // editable
 			case 'editable':
 				$second = (int)$second;
 				$q2 = 'SELECT DISTINCT tpl_id FROM (
-                 SELECT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE.'
-                   WHERE user_id = ?
-                 UNION
-                 SELECT id AS tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.'
-                   WHERE owner_id = ?)
-                 AS tmp1';
+				 SELECT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE.'
+				   WHERE user_id = ?
+				 UNION
+				 SELECT id AS tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.'
+				   WHERE owner_id = ?)
+				 AS tmp1';
 				$t2 = $db->GetCol($q2,array($second,$second));
 				if( is_array($t2) && count($t2) ) $where['user'][] = 'tpl.id IN ('.implode(',',$t2).')';
 				break;
 
-            case 'limit':
+			case 'limit':
 				$this->_limit = max(1,min(1000,$val));
 				break;
 
-            case 'offset':
+			case 'offset':
 				$this->_offset = max(0,$val);
 				break;
 
@@ -195,21 +189,21 @@ o	 * @throws CmsInvalidDataException
 					throw new CmsInvalidDataException($val.' is an invalid sortorder for '.__CLASS__);
 				}
 				break;
-            }
-        }
+			}
+		}
 
-        $tmp = array();
-        foreach( $where as $key => $exprs ) {
-            if( count($exprs) ) $tmp[] = '('.implode(' OR ',$exprs).')';
-        }
-        if( count($tmp) ) $query .= ' WHERE ' . implode(' AND ',$tmp);
-        $query .= ' ORDER BY '.$this->_sortby.' '.$this->_sortorder;
+		$tmp = array();
+		foreach( $where as $key => $exprs ) {
+			if( count($exprs) ) $tmp[] = '('.implode(' OR ',$exprs).')';
+		}
+		if( count($tmp) ) $query .= ' WHERE ' . implode(' AND ',$tmp);
+		$query .= ' ORDER BY '.$this->_sortby.' '.$this->_sortorder;
 
-        // execute the query
-        $this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);
-        if( !$this->_rs ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
-        $this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
-    }
+		// execute the query
+		$this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);
+		if( !$this->_rs ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
+	}
 
 	/**
 	 * Get the template object for the current member of the resultset (if any)
@@ -219,27 +213,27 @@ o	 * @throws CmsInvalidDataException
 	 * @throws CmsLogicException
 	 * @return CmsLayoutTemplate
 	 */
-    public function &GetTemplate()
-    {
-        return $this->GetObject();
-    }
+	public function &GetTemplate()
+	{
+		return $this->GetObject();
+	}
 
 	/**
 	 * Get the template object for the current member of the resultset (if any).
-     *
-     * This method is not as efficient as GetMatches() when the resultset has multiple items.
+	 *
+	 * This method is not as efficient as GetMatches() when the resultset has multiple items.
 	 *
 	 * This method calls the execute method.
 	 *
 	 * @throws CmsLogicException
 	 * @return CmsLayoutTemplate
 	 */
-    public function &GetObject()
-    {
-        $this->execute();
-        if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
-        return CmsLayoutTemplate::load($this->fields['id']);
-    }
+	public function &GetObject()
+	{
+		$this->execute();
+		if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
+		return CmsLayoutTemplate::load($this->fields['id']);
+	}
 	/**
 	 * Get the list of matched template ids
 	 *
@@ -248,19 +242,19 @@ o	 * @throws CmsInvalidDataException
 	 * @throws CmsLogicException
 	 * @return array Array of integers
 	 */
-    public function GetMatchedTemplateIds()
-    {
-        $this->execute();
-        if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
+	public function GetMatchedTemplateIds()
+	{
+		$this->execute();
+		if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
 
-        $out = array();
-        while( !$this->EOF() ) {
-            $out[] = $this->fields['id'];
-            $this->MoveNext();
-        }
-        $this->Rewind();
-        return $out;
-    }
+		$out = array();
+		while( !$this->EOF() ) {
+			$out[] = $this->fields['id'];
+			$this->MoveNext();
+		}
+		$this->Rewind();
+		return $out;
+	}
 
 	/**
 	 * Get all matches
@@ -269,13 +263,8 @@ o	 * @throws CmsInvalidDataException
 	 *
 	 * @return array Array of CmsLayoutTemplate objects
 	 */
-    public function GetMatches()
-    {
-        return CmsLayoutTemplate::load_bulk($this->GetMatchedTemplateIds());
-    }
+	public function GetMatches()
+	{
+		return CmsLayoutTemplate::load_bulk($this->GetMatchedTemplateIds());
+	}
 }
-
-#
-# EOF
-#
-?>

@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Class: cms_objlock (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A class for managing locks on various objects.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
+# Class for Lock functionality plus related exceptions
+# Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,20 +14,13 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
 
-/**
- * Provides the CmsLock functionality and various utilities
- * @package CMS
- */
+//namespace CMSMS;
 
 /**
  * An exception indicating an error creating a lock
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsLockException extends CmsException {}
@@ -44,7 +29,6 @@ class CmsLockException extends CmsException {}
  * An exception indicating a uid mismatch wrt a lock (person operating on the lock is not the owner)
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsLockOwnerException extends CmsLockException {}
@@ -53,7 +37,6 @@ class CmsLockOwnerException extends CmsLockException {}
  * An exception indicating an error removing a lock
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsUnLockException extends CmsLockException {}
@@ -62,7 +45,6 @@ class CmsUnLockException extends CmsLockException {}
  * An exception indicating an error loading or finding a lock
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  */
 class CmsNoLockException extends CmsLockException {}
@@ -71,7 +53,6 @@ class CmsNoLockException extends CmsLockException {}
  * A simple class represeinting a lock on a logical object in CMSMS.
  *
  * @package CMS
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  * @since 2.0
  * @param-read int $id
  * @param string $type
@@ -82,7 +63,7 @@ class CmsNoLockException extends CmsLockException {}
  * @param-read int $lifetime (minutes)
  * @param-read int $expires  (unixtime)
  */
-final class CmsLock implements ArrayAccess
+final class CmsLock implements \ArrayAccess
 {
     /**
      * @ignore
@@ -322,9 +303,4 @@ final class CmsLock implements ArrayAccess
 
         return self::from_row($row);
     }
-} // end of clsss
-
-#
-# EOF
-#
-?>
+} // class

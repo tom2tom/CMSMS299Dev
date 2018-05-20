@@ -1,5 +1,6 @@
 <?php
-# Module: CmsRoute (c) 2010 by Robert Campbell (calguy1000@cmsmadesimple.org)
+# Class to hold information for a single route.
+# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,11 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file manages the route class.
- * @package CMS
- * @license GPL
- */
+//namespace CMSMS;
 
 /**
  * Simple global convenience object to hold information for a single route.
@@ -35,7 +32,7 @@
  * @property string absolute
  * @property string results
  */
-class CmsRoute implements ArrayAccess
+class CmsRoute implements \ArrayAccess
 {
 	/**
 	 * @ignore
@@ -233,6 +230,4 @@ class CmsRoute implements ArrayAccess
 		return $res;
 	}
 
-} // end of class
-
-?>
+} // class

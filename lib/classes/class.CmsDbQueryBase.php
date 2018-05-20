@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#An abstract class for building database queries and managing results.
+#Copyright (C) 2016-2018  Robert Campbell <calguy1000@gmail.com>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,16 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * An abstract class for building database queries and managing results.
- *
- * @since 2.0
- * @package CMS
- * @license GPL
- */
+//namespace CMSMS;
 
 /**
  * An abstract class for building queries and managing results.
@@ -50,45 +42,45 @@ abstract class CmsDbQueryBase
 	 *
 	 * @see execute()
 	 */
-    protected $_totalmatchingrows = null;
+	protected $_totalmatchingrows = null;
 
 	/**
 	 * The current (integer) offset in the list of results
 	 */
-    protected $_offset = 0;
+	protected $_offset = 0;
 
 	/**
 	 * The (integer) page limit.
 	 */
-    protected $_limit = 1000;
+	protected $_limit = 1000;
 
 	/**
 	 * This member stores the raw database resultset object.
 	 */
-    protected $_rs = null;
+	protected $_rs = null;
 
 	/**
 	 * This member stores the original arguments passed to the constructor and used when generating
 	 * the query.
 	 */
-    protected $_args = array();
+	protected $_args = array();
 
 	/**
 	 * Constructor
 	 *
 	 * @param mixed $args Accepts an associative array (key=>value) with arguments for the query, or a comma separarated string of arguments.
 	 */
-    public function __construct($args = '')
-    {
-        if( empty($args) ) return;
+	public function __construct($args = '')
+	{
+		if( empty($args) ) return;
 
-        if( is_array($args) ) {
-            $this->_args = $args;
-        }
-        else if( is_string($args) ) {
-            $this->_args = explode(',',$args);
-        }
-    }
+		if( is_array($args) ) {
+			$this->_args = $args;
+		}
+		else if( is_string($args) ) {
+			$this->_args = explode(',',$args);
+		}
+	}
 
 	/**
 	 * Execute the query.
@@ -99,20 +91,20 @@ abstract class CmsDbQueryBase
 	 * This method should be smart enough to not execute the database query more than once
 	 * independent of how many times it is called.
 	 */
-    abstract public function execute();
+	abstract public function execute();
 
-    /**
-     * Return the total number of matching records that match the current query
-     *
+	/**
+	 * Return the total number of matching records that match the current query
+	 *
 	 * If execute has not already been called, this method will call it.
 	 *
 	 * @return int
 	 */
-    public function TotalMatches()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_totalmatchingrows;
-    }
+	public function TotalMatches()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_totalmatchingrows;
+	}
 
 	/**
 	 * Return the number of records that match the the current query
@@ -122,11 +114,11 @@ abstract class CmsDbQueryBase
 	 *
 	 * @return int
 	 */
-    public function RecordCount()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->RecordCount();
-    }
+	public function RecordCount()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->RecordCount();
+	}
 
 
 	/**
@@ -134,22 +126,22 @@ abstract class CmsDbQueryBase
 	 *
 	 * If execute has not been called yet, this method will call it.
 	 */
-    public function MoveNext()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->MoveNext();
-    }
+	public function MoveNext()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->MoveNext();
+	}
 
 	/**
 	 * Modify the resultset object and point to the first record of the matched rows.
 	 *
 	 * If execute has not been called yet, this method will call it.
 	 */
-    public function MoveFirst()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->MoveFirst();
-    }
+	public function MoveFirst()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->MoveFirst();
+	}
 
 	/**
 	 * Modify the resultset object and point to the first record of the matched rows.
@@ -159,92 +151,87 @@ abstract class CmsDbQueryBase
 	 *
 	 * @see MoveFirst()
 	 */
-    public function Rewind()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->MoveFirst();
-    }
+	public function Rewind()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->MoveFirst();
+	}
 
 	/**
 	 * Modify the resultset object and point to the last record of the matched rows.
 	 *
 	 * If execute has not been called yet, this method will call it.
 	 */
-    public function MoveLast()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->MoveLast();
-    }
+	public function MoveLast()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->MoveLast();
+	}
 
 	/**
 	 * Test if the resultset is pointing past the last record in the returned set
 	 *
 	 * @return bool
 	 */
-    public function EOF()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->EOF();
-        return TRUE;
-    }
+	public function EOF()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->EOF();
+		return TRUE;
+	}
 
 	/**
 	 * Close the resultset and free any resources it may have claimed.
 	 */
-    public function Close()
-    {
-        $this->execute();
-        if( $this->_rs ) return $this->_rs->Close();
-        return TRUE;
-    }
+	public function Close()
+	{
+		$this->execute();
+		if( $this->_rs ) return $this->_rs->Close();
+		return TRUE;
+	}
 
-    /**
-     * Get the object for the current matching database row.
-     *
-     * @see $this->fields
-     * @return mixed
-     */
-    abstract public function &GetObject();
+	/**
+	 * Get the object for the current matching database row.
+	 *
+	 * @see $this->fields
+	 * @return mixed
+	 */
+	abstract public function &GetObject();
 
 	/**
 	 * Return an array of matched objects.
-     *
-     * This method will iterate through all of the rows of the resultset, and convert each resulting
-     * row into an object.
+	 *
+	 * This method will iterate through all of the rows of the resultset, and convert each resulting
+	 * row into an object.
 	 *
 	 * The output of this method depends on the derived class.
 	 *
-     * @see GetObject()
+	 * @see GetObject()
 	 * @return array|null
 	 */
-    public function GetMatches()
-    {
-        $this->MoveFirst();
-        $out = array();
-        while( !$this->EOF() ) {
-            $out[] = $this->GetObject();
-            $this->MoveNext();
-        }
-        if( count($out) ) return $out;
-    }
+	public function GetMatches()
+	{
+		$this->MoveFirst();
+		$out = array();
+		while( !$this->EOF() ) {
+			$out[] = $this->GetObject();
+			$this->MoveNext();
+		}
+		if( count($out) ) return $out;
+	}
 
 	/**
 	 * @ignore
 	 */
-    public function __get($key)
-    {
-        $this->execute();
-        if( $key == 'fields' && $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
-        if( $key == 'EOF' ) return $this->_rs->EOF();
-        if( $key == 'limit' ) return $this->_limit;
-        if( $key == 'offset' ) return $this->_offset;
-        if( $key == 'totalrows' ) return $this->_totalmatchingrows;
-        if( $key == 'numpages' ) return ceil($this->_totalmatchingrows / $this->_limit);
-    }
+	public function __get($key)
+	{
+		$this->execute();
+		if( $key == 'fields' && $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
+		if( $key == 'EOF' ) return $this->_rs->EOF();
+		if( $key == 'limit' ) return $this->_limit;
+		if( $key == 'offset' ) return $this->_offset;
+		if( $key == 'totalrows' ) return $this->_totalmatchingrows;
+		if( $key == 'numpages' ) return ceil($this->_totalmatchingrows / $this->_limit);
+	}
 
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

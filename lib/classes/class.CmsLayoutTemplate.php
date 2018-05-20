@@ -1,35 +1,43 @@
 <?php
+#class representing a LayoutTemplate.
+#Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file contails the classes and methods to define the LayoutTemplate functionality
- * @package CMS
- * @license GPL
- */
-
+//namespace CMSMS;
 use \CMSMS\HookManager;
 use \CMSMS\internal\TemplateCache;
 
 /**
- * A class to represent a smarty template.
+ * A class to represent a LayoutTemplate.
  *
  * @package CMS
  * @license GPL
  * @since 2.0
- * @author Robert Campbell <calguy1000@gmail.com>
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class CmsLayoutTemplate
 {
+	/**
+	 * @ignore
+	 */
+	const TABLENAME = 'layout_templates';
 
 	/**
 	 * @ignore
 	 */
-    const TABLENAME = 'layout_templates';
-
-	/**
-	 * @ignore
-	 */
-    const ADDUSERSTABLE = 'layout_tpl_addusers';
+	const ADDUSERSTABLE = 'layout_tpl_addusers';
 
 	/**
 	 * @ignore
@@ -77,7 +85,7 @@ class CmsLayoutTemplate
 	public function __clone()
 	{
 		if( isset($this->_data['id']) ) unset($this->_data['id']);
-        $this->_data['type_dflt'] = false;
+		$this->_data['type_dflt'] = false;
 		$this->_dirty = TRUE;
 	}
 
@@ -112,7 +120,7 @@ class CmsLayoutTemplate
 	 */
 	public function set_name($str)
 	{
-        if( !CmsAdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
+		if( !CmsAdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -124,7 +132,7 @@ class CmsLayoutTemplate
 	 */
 	public function get_content()
 	{
-        if( isset($this->_data['content']) ) return $this->_data['content'];
+		if( isset($this->_data['content']) ) return $this->_data['content'];
 	}
 
 	/**
@@ -175,7 +183,7 @@ class CmsLayoutTemplate
 	/**
 	 * Set the type id for the template
 	 *
-     * @throws \CmsLogicException
+	 * @throws \CmsLogicException
 	 * @param mixed $a Either an instance of CmsLayoutTemplateType object, an integer type id, or a string template type identifier
 	 * @see CmsLayoutTemplateType
 	 */
@@ -192,9 +200,9 @@ class CmsLayoutTemplate
 			$type = CmsLayoutTemplateType::load($a);
 			$n = $type->get_id();
 		}
-        else {
-            throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
-        }
+		else {
+			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+		}
 
 		$this->_data['type_id'] = (int) $n;
 		$this->_dirty = TRUE;
@@ -252,27 +260,27 @@ class CmsLayoutTemplate
 	/**
 	 * Set the category for a template
 	 *
-     * @throws \CmsLogicException
+	 * @throws \CmsLogicException
 	 * @param mixed $a Either a CmsLayoutTemplateCategory object, a category name (string) or category id (int)
 	 * @see CmsLayoutTemplateCategory
 	 */
 	public function set_category($a)
 	{
-        if( !$a ) return;
+		if( !$a ) return;
 		$n = null;
 		if( $a instanceof CmsLayoutTemplateCategory ) {
 			$n = $a->get_id();
 		}
-        else if( is_numeric($a) && (int) $a > 0 ) {
-            $n = $a;
-        }
+		else if( is_numeric($a) && (int) $a > 0 ) {
+			$n = $a;
+		}
 		else if( is_string($a) && $a !== '' ) {
 			$cat = CmsLayoutTemplateCategory::load($a);
 			$n = $cat->get_id();
 		}
-        else {
-            throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
-        }
+		else {
+			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+		}
 
 		$this->_data['category_id'] = (int) $n;
 		$this->_dirty = TRUE;
@@ -286,7 +294,7 @@ class CmsLayoutTemplate
 	public function get_designs()
 	{
 		if( !is_array($this->_design_assoc) ) {
-            if( !$this->get_id() ) return;
+			if( !$this->get_id() ) return;
 			$this->_design_assoc = array();
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
@@ -307,16 +315,16 @@ class CmsLayoutTemplate
 		if( !is_array($x) ) return;
 
 		foreach( $x as $y ) {
-            if( !is_numeric($y) || (int) $y < 1 ) throw new CmsInvalidDataException('Invalid data in design list.  Expect array of integers');
+			if( !is_numeric($y) || (int) $y < 1 ) throw new CmsInvalidDataException('Invalid data in design list.  Expect array of integers');
 		}
 
 		$this->_design_assoc = $x;
 	}
 
-    /**
+	/**
 	 * Associate a new design with this template
 	 *
-     * @throws CmsLogicException
+	 * @throws CmsLogicException
 	 * @param mixed $a A CmsLayoutCollection object, an integer design id, or a string design name.
 	 * @see CmsLayoutCollection
 	 */
@@ -333,9 +341,9 @@ class CmsLayoutTemplate
 			$design = CmsLayoutCollection::load($a);
 			$n = $design->get_id();
 		}
-        else {
-            throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
-        }
+		else {
+			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+		}
 
 		if( !is_array($this->_design_assoc) ) $this->get_designs();
 		$this->_design_assoc[] = (int) $n;
@@ -345,7 +353,7 @@ class CmsLayoutTemplate
 	/**
 	 * Remove a design from the list of associated designs
 	 *
-     * @throws CmsLogicException
+	 * @throws CmsLogicException
 	 * @param mixed $a A CmsLayoutCollection object, an integer design id, or a string design name.
 	 * @see CmsLayoutCollection
 	 */
@@ -364,11 +372,11 @@ class CmsLayoutTemplate
 			$design = CmsLayoutCollection::load($a);
 			$n = $design->get_id();
 		}
-        else {
-            throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
-        }
+		else {
+			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+		}
 
-        $designs = $this->get_designs();
+		$designs = $this->get_designs();
 		if( in_array($n,$designs) ) {
 			$t = array();
 			foreach( $designs as $one ) {
@@ -394,14 +402,14 @@ class CmsLayoutTemplate
 	/**
 	 * Set the owner id
 	 *
-     * @throws CmsInvalidDataException
+	 * @throws CmsInvalidDataException
 	 * @param mixed $a An integer admin user id, a string admin username, or an instance of a User object
 	 * @see User
 	 */
 	public function set_owner($a)
 	{
 		$n = null;
-        if( is_numeric($a) && $a > 0 ) {
+		if( is_numeric($a) && $a > 0 ) {
 			$n = (int)$a;
 		}
 		else if( is_string($a) && $a !== '' ) {
@@ -494,8 +502,8 @@ class CmsLayoutTemplate
 		else {
 			$tmp = array();
 			for( $i = 0; $i < count($a); $i++ ) {
-                if( !is_numeric($a[$i]) ) continue;
-                $tmp2 = (int)$a[$i];  // intentional cast to int, may have negative values.
+				if( !is_numeric($a[$i]) ) continue;
+				$tmp2 = (int)$a[$i];  // intentional cast to int, may have negative values.
 				if( $tmp2 != 0 ) {
 					$tmp[] = $tmp2;
 				}
@@ -522,39 +530,39 @@ class CmsLayoutTemplate
 		return FALSE;
 	}
 
-    /**
-     * Get wether this template is listable in public template lists.
-     *
-     * @return bool
-     * @since 2.1
-     */
-    public function get_listable()
-    {
-        return (bool) $this->_data['listable'];
-    }
+	/**
+	 * Get wether this template is listable in public template lists.
+	 *
+	 * @return bool
+	 * @since 2.1
+	 */
+	public function get_listable()
+	{
+		return (bool) $this->_data['listable'];
+	}
 
-    /**
-     * Get wether this template is listable in public template lists.
-     *
-     * @return bool
-     * @since 2.1
-     */
-    public function is_listable()
-    {
-        return $this->get_listable();
-    }
+	/**
+	 * Get wether this template is listable in public template lists.
+	 *
+	 * @return bool
+	 * @since 2.1
+	 */
+	public function is_listable()
+	{
+		return $this->get_listable();
+	}
 
-    /**
-     * Get wether this template is listable in public template lists.
-     *
-     * @param bool $flag The value for the listable attribute.
-     * @return bool
-     * @since 2.1
-     */
-    public function set_listable($flag)
-    {
-        $this->_data['listable'] = cms_to_bool($flag);
-    }
+	/**
+	 * Get wether this template is listable in public template lists.
+	 *
+	 * @param bool $flag The value for the listable attribute.
+	 * @return bool
+	 * @since 2.1
+	 */
+	public function set_listable($flag)
+	{
+		$this->_data['listable'] = cms_to_bool($flag);
+	}
 
 	/**
 	 * Process the template through smarty
@@ -576,7 +584,7 @@ class CmsLayoutTemplate
 	{
 		if( !$this->get_name() ) throw new CmsInvalidDataException('Each template must have a name');
 		if( endswith($this->get_name(),'.tpl') ) throw new CmsInvalidDataException('Invalid name for a database template');
-        if( !CmsAdminUtils::is_valid_itemname($this->get_name()) ) {
+		if( !CmsAdminUtils::is_valid_itemname($this->get_name()) ) {
 			throw new CmsInvalidDataException('There are invalid characters in the template name');
 		}
 
@@ -608,14 +616,14 @@ class CmsLayoutTemplate
 		$this->validate();
 
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'
-              SET name = ?, content = ?, description = ?, type_id = ?, type_dflt = ?, category_id = ?, owner_id = ?, listable = ?, modified = ?
-              WHERE id = ?';
+			  SET name = ?, content = ?, description = ?, type_id = ?, type_dflt = ?, category_id = ?, owner_id = ?, listable = ?, modified = ?
+			  WHERE id = ?';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->Execute($query,
-                            array($this->get_name(),$this->get_content(),$this->get_description(),
-                                  $this->get_type_id(),$this->get_type_dflt(),$this->get_category_id(),
-                                  $this->get_owner_id(),$this->get_listable(),time(),
-                                  $this->get_id()));
+							array($this->get_name(),$this->get_content(),$this->get_description(),
+								  $this->get_type_id(),$this->get_type_dflt(),$this->get_category_id(),
+								  $this->get_owner_id(),$this->get_listable(),time(),
+								  $this->get_id()));
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		if( $this->get_type_dflt() ) {
@@ -663,8 +671,8 @@ class CmsLayoutTemplate
 
 		// insert the record
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.'
-              (name,content,description,type_id,type_dflt,category_id,owner_id,
-               listable,created,modified) VALUES (?,?,?,?,?,?,?,?,?,?)';
+			  (name,content,description,type_id,type_dflt,category_id,owner_id,
+			   listable,created,modified) VALUES (?,?,?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->Execute($query,
 							array($this->get_name(),$this->get_content(),$this->get_description(),
@@ -707,14 +715,14 @@ class CmsLayoutTemplate
 	public function save()
 	{
 		if( $this->get_id() ) {
-            HookManager::do_hook('Core::EditTemplatePre', [ get_class($this) => &$this ] );
+			HookManager::do_hook('Core::EditTemplatePre', [ get_class($this) => &$this ] );
 			$this->_update();
-            HookManager::do_hook('Core::EditTemplatePost', [ get_class($this) => &$this ] );
+			HookManager::do_hook('Core::EditTemplatePost', [ get_class($this) => &$this ] );
 			return;
 		}
-        HookManager::do_hook('Core::AddTemplatePre', [ get_class($this) => &$this ] );
+		HookManager::do_hook('Core::AddTemplatePre', [ get_class($this) => &$this ] );
 		$this->_insert();
-        HookManager::do_hook('Core::AddTemplatePost', [ get_class($this) => &$this ] );
+		HookManager::do_hook('Core::AddTemplatePost', [ get_class($this) => &$this ] );
 	}
 
 	/**
@@ -722,9 +730,9 @@ class CmsLayoutTemplate
 	 */
 	public function delete()
 	{
-        if( !$this->get_id() ) return;
+		if( !$this->get_id() ) return;
 
-        HookManager::do_hook('Core::DeleteTemplatePre', [ get_class($this) => &$this ] );
+		HookManager::do_hook('Core::DeleteTemplatePre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
 		$dbr = $db->Execute($query,array($this->get_id()));
@@ -732,11 +740,11 @@ class CmsLayoutTemplate
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,array($this->get_id()));
 
-        @unlink($this->get_content_filename());
+		@unlink($this->get_content_filename());
 
 		TemplateCache::clear_cache();
 		audit($this->get_id(),'CMSMS','Template '.$this->get_name().' Deleted');
-        HookManager::do_hook('Core::DeleteTemplatePost', [ get_class($this) => &$this ] );
+		HookManager::do_hook('Core::DeleteTemplatePost', [ get_class($this) => &$this ] );
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}
@@ -802,11 +810,11 @@ class CmsLayoutTemplate
 	{
 		$ob = new CmsLayoutTemplate();
 		$ob->_data = $row;
-        $fn = $ob->get_content_filename();
-        if( is_file($fn) && is_readable($fn) ) {
-            $ob->_data['content'] = file_get_contents($fn);
-            $ob->_data['modified'] = filemtime($fn);
-        }
+		$fn = $ob->get_content_filename();
+		if( is_file($fn) && is_readable($fn) ) {
+			$ob->_data['content'] = file_get_contents($fn);
+			$ob->_data['modified'] = filemtime($fn);
+		}
 		if( is_array($design_list) ) $ob->_design_assoc = $design_list;
 
 		self::$_obj_cache[$ob->get_id()] = $ob;
@@ -827,7 +835,7 @@ class CmsLayoutTemplate
 
 		$list2 = array();
 		foreach( $list as $one ) {
-            if( !is_numeric($one) ) continue;
+			if( !is_numeric($one) ) continue;
 			$one = (int)$one;
 			if( $one < 1 ) continue;
 			if( isset(self::$_obj_cache[$one]) ) continue;
@@ -844,8 +852,8 @@ class CmsLayoutTemplate
 				foreach( $list2 as $one ) {
 					$designs_by_tpl[$one] = array();
 				}
-                $dquery = 'SELECT tpl_id,design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.'
-                   WHERE tpl_id IN ('.implode(',',$list2).') ORDER BY tpl_id';
+				$dquery = 'SELECT tpl_id,design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.'
+				   WHERE tpl_id IN ('.implode(',',$list2).') ORDER BY tpl_id';
 				$designs_tmp1 = $db->GetArray($dquery);
 				foreach( $designs_tmp1 as $row ) {
 					$designs_by_tpl[$row['tpl_id']][] = $row['design_id'];
@@ -864,9 +872,9 @@ class CmsLayoutTemplate
 		// pull what we can from the cache
 		$out = array();
 		foreach( $list as $one ) {
-            if( !is_numeric($one) ) continue;
+			if( !is_numeric($one) ) continue;
 			$one = (int)$one;
-            if( $one < 1 ) continue;
+			if( $one < 1 ) continue;
 			if( isset(self::$_obj_cache[$one]) ) $out[] = self::$_obj_cache[$one];
 		}
 		return $out;
@@ -875,7 +883,7 @@ class CmsLayoutTemplate
 	/**
 	 * Load a specific template
 	 *
-     * @throws CmsDataNotFoundException
+	 * @throws CmsDataNotFoundException
 	 * @param mixed $a Either an integer template id, or a template name (string)
 	 * @return CmsLayoutTemplate
 	 */
@@ -885,7 +893,7 @@ class CmsLayoutTemplate
 
 		$db = CmsApp::get_instance()->GetDb();
 		$row = null;
-        if( is_numeric($a) && $a > 0 ) {
+		if( is_numeric($a) && $a > 0 ) {
 			if( isset(self::$_obj_cache[$a]) ) return self::$_obj_cache[$a];
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->GetRow($query,array((int)$a));
@@ -907,7 +915,7 @@ class CmsLayoutTemplate
 	/**
 	 * Get a list of the templates owned by a specific user
 	 *
-     * @throws CmsInvalidDataException
+	 * @throws CmsInvalidDataException
 	 * @param mixed $a An integer user id, or a string user name
 	 * @return array Array of integer template ids
 	 */
@@ -939,13 +947,13 @@ class CmsLayoutTemplate
 			}
 			return $tmp2;
 		}
-        return $out;
+		return $out;
 	}
 
 	/**
 	 * Get a list of the templates that a specific user can edit
 	 *
-     * @throws CmsInvalidDataException
+	 * @throws CmsInvalidDataException
 	 * @param mixed $a An integer userid or a string username
 	 */
 	public static function get_editable_templates($a)
@@ -1032,7 +1040,7 @@ class CmsLayoutTemplate
 
 		if( !$t2 ) throw new CmsInvalidDataException('Invalid data passed to CmsLayoutTemplate::create_by_type()');
 
-        return $t2->create_new_template();
+		return $t2->create_new_template();
 	}
 
 	/**
@@ -1128,7 +1136,7 @@ class CmsLayoutTemplate
 	 * Generate a unique name for a template
 	 *
 	 * @throws CmsInvalidDataException
-     * @throws CmsLogicException
+	 * @throws CmsLogicException
 	 * @param string $prototype A prototype template name
 	 * @param string $prefix An optional name prefix.
 	 */
@@ -1139,7 +1147,7 @@ class CmsLayoutTemplate
 		$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 		for( $i = 0; $i < 25; $i++ ) {
 			$name = $prefix.$prototype;
-            if( $i == 0 ) $name = $prototype;
+			if( $i == 0 ) $name = $prototype;
 			if( $i > 1 ) $name = $prefix.$prototype.' '.$i;
 			$tmp = $db->GetOne($query,array($name));
 			if( !$tmp ) return $name;
@@ -1147,58 +1155,54 @@ class CmsLayoutTemplate
 		throw new CmsLogicException('Could not generate a template name for '.$prototype);
 	}
 
-    /**
-     * Return the template type object for this template.
-     *
-     * @return CmsLayoutTemplateType
-     * @since 2.2
-     */
-    public function &get_type()
-    {
-        $obj = null;
-        $tid = $this->get_type_id();
-        if( $tid > 0 ) $obj = \CmsLayoutTemplateType::load($this->get_type_id());
-        return $obj;
-    }
+	/**
+	 * Return the template type object for this template.
+	 *
+	 * @return CmsLayoutTemplateType
+	 * @since 2.2
+	 */
+	public function &get_type()
+	{
+		$obj = null;
+		$tid = $this->get_type_id();
+		if( $tid > 0 ) $obj = \CmsLayoutTemplateType::load($this->get_type_id());
+		return $obj;
+	}
 
-    /**
-     * Get the usage string (if any) for this template.
-     *
-     * @return string A sample usage string for this template.
-     * @since 2.2
-     */
-    public function get_usage_string()
-    {
-        $type = $this->get_type();
-        return $type->get_usage_string($this->get_name());
-    }
+	/**
+	 * Get the usage string (if any) for this template.
+	 *
+	 * @return string A sample usage string for this template.
+	 * @since 2.2
+	 */
+	public function get_usage_string()
+	{
+		$type = $this->get_type();
+		return $type->get_usage_string($this->get_name());
+	}
 
-    /**
-     * Get the filename that will be used to read template contents from file.
-     *
-     * @since 2.2
-     * @return string
-     */
-    public function get_content_filename()
-    {
-        $config = \cms_config::get_instance();
-        $name = munge_string_to_url($this->get_name()).'.'.$this->get_id().'.tpl';
-        return cms_join_path($config['assets_path'],'templates',$name);
-    }
+	/**
+	 * Get the filename that will be used to read template contents from file.
+	 *
+	 * @since 2.2
+	 * @return string
+	 */
+	public function get_content_filename()
+	{
+		$config = \cms_config::get_instance();
+		$name = munge_string_to_url($this->get_name()).'.'.$this->get_id().'.tpl';
+		return cms_join_path($config['assets_path'],'templates',$name);
+	}
 
-    /**
-     * Does this template have an associated file.
-     *
-     * @since 2.2
-     * @return bool
-     */
-    public function has_content_file()
-    {
-        $fn = $this->get_content_filename();
-        if( is_file($fn) && is_readable($fn) ) return TRUE;
-    }
-} // end of class
-
-#
-# EOF
-#
+	/**
+	 * Does this template have an associated file.
+	 *
+	 * @since 2.2
+	 * @return bool
+	 */
+	public function has_content_file()
+	{
+		$fn = $this->get_content_filename();
+		if( is_file($fn) && is_readable($fn) ) return TRUE;
+	}
+} // class
