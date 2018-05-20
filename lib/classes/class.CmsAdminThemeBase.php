@@ -1,7 +1,6 @@
 <?php
-#admin-theme-related classes
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2012-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#Base class for CMS admin themes
+#Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,11 +15,36 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Classes and utilities for the base CMS admin theme
- * @package CMS
- * @license GPL
- */
+/* for future use
+namespace CMSMS;
+use cms_admin_tabs;
+use cms_admin_utils;
+use cms_cache_handler;
+use cms_config;
+use cms_url;
+use cms_userprefs;
+use cms_utils;
+use CMSMS\App as CmsApp;
+use const CMS_ADMIN_PATH;
+use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function audit;
+use function check_permission;
+use function cleanArray;
+use function cleanValue;
+use function cms_join_path;
+use function cms_module_places;
+use function endswith;
+use function get_site_preference;
+use function get_userid;
+use function lang;
+use function startswith;
+use ArrayTreeIterator;
+use RecursiveArrayTreeIterator;
+use RecursiveIteratorIterator;
+*/
+use CMSMS\HookManager, CMSMS\ArrayTree;
 
 /**
  * This is an abstract base class for building CMSMS admin themes.
@@ -186,8 +210,8 @@ abstract class CmsAdminThemeBase
 
         $this->UnParkNotices();
 
-        \CMSMS\HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
-        \CMSMS\HookManager::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
+        HookManager::add_hook('AdminHeaderSetup', [$this, 'AdminHeaderSetup']);
+        HookManager::add_hook('AdminBottomSetup', [$this, 'AdminBottomSetup']);
     }
 
     /**
@@ -865,7 +889,7 @@ abstract class CmsAdminThemeBase
             $items[] = $item;
         }
 
-        $tree = CMSMS\ArrayTree::load_array($items);
+        $tree = ArrayTree::load_array($items);
 
         $iter = new \RecursiveArrayTreeIterator(
                 new \ArrayTreeIterator($tree),
@@ -876,7 +900,7 @@ abstract class CmsAdminThemeBase
  remove those without children (unless 'forcekeep' => true)
 */
             if (!empty($value['children'])) {
-                $node = CMSMS\ArrayTree::node_get_data($tree, $value['path'], '*');
+                $node = ArrayTree::node_get_data($tree, $value['path'], '*');
                 uasort($node['children'], function($a,$b) use ($value) {
                     $pa = $a['priority'] ?? 999;
                     $pb = $b['priority'] ?? 999;
@@ -886,7 +910,7 @@ abstract class CmsAdminThemeBase
                     }
                     return strnatcmp($a['title'],$b['title']); //TODO mb_cmp if available
                 });
-                $ret = CMSMS\ArrayTree::node_set_data($tree, $value['path'], 'children', $node['children']);
+                $ret = ArrayTree::node_set_data($tree, $value['path'], 'children', $node['children']);
             } else {
 $adbg = $value;
                 $depth = $iter->getDepth();
@@ -931,9 +955,9 @@ $X = 1;
             $parent = null;
         }
         if ($parent) {
-            $path = CMSMS\ArrayTree::find($tree, 'name', $parent);
+            $path = ArrayTree::find($tree, 'name', $parent);
             if ($path) {
-                $tree = CMSMS\ArrayTree::node_get_data($tree, $path, '*');
+                $tree = ArrayTree::node_get_data($tree, $path, '*');
             }
         } else {
             $alldepth = $maxdepth;
@@ -945,15 +969,15 @@ $X = 1;
 
         if ($usepath) {
             if (is_string($usepath)) {
-                $this->_activePath = CMSMS\ArrayTree::process_path($usepath);
+                $this->_activePath = ArrayTree::process_path($usepath);
             } else {
                 list($req_url, $req_vars) = $this->_parse_request();
-                $this->_activePath = CMSMS\ArrayTree::find($tree, 'url', $req_url);
+                $this->_activePath = ArrayTree::find($tree, 'url', $req_url);
             }
 
-            CMSMS\ArrayTree::path_set_data($tree, $this->_activePath, 'selected', true);
-            $this->_title = CMSMS\ArrayTree::node_get_data($tree, $this->_activePath, 'title');
-            $this->_subtitle = CMSMS\ArrayTree::node_get_data($tree, $this->_activePath, 'description');
+            ArrayTree::path_set_data($tree, $this->_activePath, 'selected', true);
+            $this->_title = ArrayTree::node_get_data($tree, $this->_activePath, 'title');
+            $this->_subtitle = ArrayTree::node_get_data($tree, $this->_activePath, 'description');
 //          $this->_breadcrumbs(); on-demand only?
         } else {
             $this->_activePath = [];
@@ -1023,9 +1047,9 @@ $X = 1;
      */
     protected function find_menuitem_by_title($title)
     {
-        $path = CMSMS\ArrayTree::find($this->menuTree, 'title', $title);
+        $path = ArrayTree::find($this->menuTree, 'title', $title);
         if ($path) {
-            return CMSMS\ArrayTree::node_get_data($this->menuTree, $path, 'name');
+            return ArrayTree::node_get_data($this->menuTree, $path, 'name');
         }
     }
 
@@ -1064,8 +1088,8 @@ $X = 1;
     {
         if (!$this->_breadcrumbs) {
             $this->_breadcrumbs = [];
-            $urls = CMSMS\ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
-            $titles = CMSMS\ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
+            $urls = ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'url');
+            $titles = ArrayTree::path_get_data($this->_menuTree, $this->_activePath, 'title');
             foreach ($urls as $key => $value) {
                 $this->_breadcrumbs[] = [
                     'url' => $value,
@@ -1084,12 +1108,12 @@ $X = 1;
      */
     public function get_active_title()
     {
-        return CMSMS\ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'title');
+        return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'title');
     }
 
     public function get_active_icon()
     {
-        return CMSMS\ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'icon');
+        return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'icon');
     }
 
     /**
@@ -1895,66 +1919,5 @@ $X = 1;
     {
         return cms_admin_tabs::end_tab();
     }
-} // end of class
+} // class
 
-/**
- * A class representing a simple notification.
- *
- * @package CMS
- * @license GPL
- * @since   1.11
- * @author  Robert Campbell
- * @property string $module Module name
- * @property int $priority Priority between 1 and 3
- * @property string $html HTML contents of the notification
- */
-class CmsAdminThemeNotification
-{
-    /**
-     * @ignore
-     */
-    private $_module;
-
-    /**
-     * @ignore
-     */
-    private $_priority;
-
-    /**
-     * @ignore
-     */
-    private $_html;
-
-
-    /**
-     * @ignore
-     */
-    public function __get($key)
-    {
-        switch( $key ) {
-        case 'module':
-        case 'priority':
-        case 'html':
-            return $this->$key;
-        }
-
-        throw new CmsInvalidDataException('Attempt to retrieve invalid property from CmsAdminThemeNotification');
-    }
-
-
-    /**
-     * @ignore
-     */
-    public function __set($key,$value)
-    {
-        switch( $key ) {
-        case 'module':
-        case 'priority':
-        case 'html':
-            $this->$key = $value;
-            return;
-        }
-
-        throw new CmsInvalidDataException('Attempt to set invalid property from CmsAdminThemeNotification');
-    }
-} // end of class
