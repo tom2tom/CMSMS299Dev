@@ -1,5 +1,4 @@
 <?php
-#-------------------------------------------------------------------------
 # Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,8 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
 final class DesignManager extends CMSModule
 {
@@ -33,7 +30,7 @@ final class DesignManager extends CMSModule
     public function IsAdminOnly() { return true; }
     public function AllowAutoInstall() { return true; }
     public function GetHelp() { return CmsLangOperations::lang_from_realm('help','help_designmanager_help'); }
-    public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
