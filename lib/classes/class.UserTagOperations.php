@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#compatibility class to manage simple plugins
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,16 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#
-#$Id$
-
-/**
- * Usertag related functions.
- *
- * @package CMS
- * @license GPL
- */
 
 /**
  * A compatibility class to manage simple plugins.
@@ -35,6 +25,10 @@
  * @license GPL
  * @deprecated
  */
+namespace CMSMS;
+
+use CmsApp;
+
 final class UserTagOperations
 {
 	/**
@@ -48,9 +42,9 @@ final class UserTagOperations
 	private function __construct() {}
 
 	/**
-     * @ignore
-     */
-    private function __clone() {}
+	 * @ignore
+	 */
+	private function __clone() {}
 
 	/**
 	 * Get a reference to thie only allowed instance of this class
@@ -67,32 +61,32 @@ final class UserTagOperations
 	 */
 	public function __call($name,$arguments)
 	{
-        return $this->CallUserTag($name,$arguments);
+		return $this->CallUserTag($name,$arguments);
 	}
 
 	/**
 	 * Load all the information about user tags.
-     * Since 2.3, his function is now an empty stub.
-     *
-     * @deprecated
+	 * Since 2.3, his function is now an empty stub.
+	 *
+	 * @deprecated
 	 */
-    public function LoadUserTags()
-    {
-        // does not do anything.
-    }
+	public function LoadUserTags()
+	{
+		// does not do anything.
+	}
 
 
 	/**
 	 * Retrieve the body of a user defined tag
-     * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, his function is now an empty stub.
 	 *
 	 * @param string $name User defined tag name
-     * @deprecated
+	 * @deprecated
 	 * @return string|false
 	 */
 	function GetUserTag( $name )
 	{
-        return false;
+		return false;
 	}
 
 	/**
@@ -104,38 +98,38 @@ final class UserTagOperations
 	 */
 	function UserTagExists($name)
 	{
-        $gCms = \CmsApp::get_instance();
-        $mgr = $gCms->GetSimplePluginOperations();
-        return $mgr->plugin_exists($name);
+		$gCms = CmsApp::get_instance();
+		$mgr = $gCms->GetSimplePluginOperations();
+		return $mgr->plugin_exists($name);
 	}
 
 
 	/**
 	 * Add or update a named user defined tag into the database
-     * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, his function is now an empty stub.
 	 *
 	 * @param string $name User defined tag name
 	 * @param string $text Body of user defined tag
 	 * @param string $description Description for the user defined tag.
-     * @param int    $id ID of existing user tag (for updates).
+	 * @param int    $id ID of existing user tag (for updates).
 	 * @return bool
 	 */
 	function SetUserTag( $name, $text, $description, $id = null )
 	{
-        return false;
+		return false;
 	}
 
 
 	/**
 	 * Remove a named user defined tag from the database
-     * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, his function is now an empty stub.
 	 *
 	 * @param string $name User defined tag name
 	 * @return bool
 	 */
 	function RemoveUserTag( $name )
 	{
-        return false;
+		return false;
 	}
 
 
@@ -146,17 +140,17 @@ final class UserTagOperations
 	 */
 	function ListUserTags()
 	{
-        $gCms = \CmsApp::get_instance();
-        $mgr = $gCms->GetSimplePluginOperations();
-        $tmp = $mgr->get_list();
-        if( !$tmp ) return;
+		$gCms = CmsApp::get_instance();
+		$mgr = $gCms->GetSimplePluginOperations();
+		$tmp = $mgr->get_list();
+		if( !$tmp ) return;
 
-        $out = null;
-        foreach( $tmp as $name ) {
-            $out[$name] = $name;
-        }
-        asort($out);
-        return $out;
+		$out = null;
+		foreach( $tmp as $name ) {
+			$out[$name] = $name;
+		}
+		asort($out);
+		return $out;
 	}
 
 
@@ -166,25 +160,28 @@ final class UserTagOperations
 	 * @param string $name The name of the user defined tag
 	 * @param array  $params Optional parameters.
 	 * @return string|false
-     * @deprecated
+	 * @deprecated
 	 */
 	function CallUserTag($name, &$params)
 	{
-        $gCms = \CmsApp::get_instance();
-        $mgr = $gCms->GetSimplePluginOperations();
+		$gCms = CmsApp::get_instance();
+		$mgr = $gCms->GetSimplePluginOperations();
 		return $mgr->call_plugin($name,$params,$gCms->GetSmarty());
 	}
 
 	/**
 	 * Given a UDT name create an executable function from it
-     * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, his function is now an empty stub.
 	 *
 	 * @internal
 	 * @param string $name The name of the user defined tag to operate with.
 	 */
 	function CreateTagFunction($name)
 	{
-        return;
+		return;
 	}
 
 } // class
+
+//backward-compatibility shiv
+\class_alias(UserTagOperations::class, 'UserTagOperations', false);

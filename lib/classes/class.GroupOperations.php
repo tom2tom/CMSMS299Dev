@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class of group-related functions
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,22 +15,13 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
+namespace CMSMS;
+use CMSMS\Group, CmsPermission, CmsApp, \Exception;
+use const CMS_DB_PREFIX;
 
 /**
- * Group related functions
- * @package CMS
- * @license GPL
- */
-
-/**
- * Include group class definition
- */
-//include_once(__DIR__ . DIRECTORY_SEPARATOR . 'class.Group.php');
-
-/**
- * A singleton Class for doing group related functions.
+ * A singleton class for doing group related functions.
  * Many of the Group object functions are just wrappers around these.
  *
  * @since 0.6
@@ -54,9 +46,9 @@ final class GroupOperations
 	private function __construct() {}
 
 	/**
-     * @ignore
-     */
-    private function __clone() {}
+	 * @ignore
+	 */
+	private function __clone() {}
 
 	/**
 	 * Retrieve the single instance of this class
@@ -76,8 +68,8 @@ final class GroupOperations
 	 */
 	public function LoadGroups()
 	{
-        $list = Group::load_all();
-        return $list;
+		$list = Group::load_all();
+		return $list;
 	}
 
 	/**
@@ -85,11 +77,11 @@ final class GroupOperations
 	 *
 	 * @param int $id The id of the group to load
 	 * @return mixed The group if found. If it's not found, then false
-     * @deprecated
+	 * @deprecated
 	 */
 	public function &LoadGroupByID($id)
 	{
-        return Group::load($id);
+		return Group::load($id);
 	}
 
 	/**
@@ -97,11 +89,11 @@ final class GroupOperations
 	 *
 	 * @param mixed $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
-     * @deprecated
+	 * @deprecated
 	 */
 	public function InsertGroup(Group $group)
 	{
-        $group->save();
+		$group->save();
 	}
 
 	/**
@@ -109,11 +101,11 @@ final class GroupOperations
 	 *
 	 * @param mixed $group The group to update
 	 * @return bool True if the update was successful, false if not
-     * @deprecated
+	 * @deprecated
 	 */
 	public function UpdateGroup(Group $group)
 	{
-        $group->save();
+		$group->save();
 	}
 
 	/**
@@ -121,17 +113,17 @@ final class GroupOperations
 	 *
 	 * @param int $id The group's id to delete
 	 * @return bool True if the delete was successful. False if not.
-     * @deprecated
+	 * @deprecated
 	 */
 	public function DeleteGroupByID($id)
 	{
-        try {
-            $group = Group::load($id);
-            return $group->delete();
-        }
-        catch( \Exception $e ) {
-            return FALSE;
-        }
+		try {
+			$group = Group::load($id);
+			return $group->delete();
+		}
+		catch( Exception $e ) {
+			return FALSE;
+		}
 	}
 
 	/**
@@ -176,7 +168,7 @@ final class GroupOperations
 
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms (group_perm_id,group_id,permission_id,create_date,modified_date)
-                  VALUES (?,?,?,$now,$now)";
+				  VALUES (?,?,?,$now,$now)";
  		$dbr = $db->Execute($query,array($new_id,$groupid,$permid));
 		unset($this->_perm_cache);
 	}
@@ -197,6 +189,7 @@ final class GroupOperations
 		$dbr = $db->Execute($query,array($groupid,$permid));
 		unset($this->_perm_cache);
 	}
-}
+} // class
 
-?>
+//backward-compatibility shiv
+\class_alias(GroupOperations::class, 'GroupOperations', false);

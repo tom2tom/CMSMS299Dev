@@ -1,7 +1,8 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-#This projects homepage is: http://cmsmadesimple.org
+#Class for CMS Made Simple ErrorPage content type
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -14,14 +15,11 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Define the error page content type
- * @package CMS
- * @license GPL
- */
+namespace CMSMS\contenttypes;
+
+use function cmsms;
+use function lang;
 
 /**
  * Main class for CMS Made Simple ErrorPage content type
@@ -186,4 +184,5 @@ class ErrorPage extends Content
 	}
 }
 
-?>
+//backward-compatibility shiv
+\class_alias(ErrorPage::class, 'ErrorPage', false);

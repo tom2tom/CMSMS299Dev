@@ -17,13 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * User related functions.
- *
- * @package CMS
- * @license GPL
- */
-
-/**
  * Class for doing user related functions. Many User-class functions
  * are just wrappers around these.
  *
@@ -32,6 +25,15 @@
  *
  * @since 0.6.1
  */
+namespace CMSMS;
+
+use CmsApp;
+use CmsException;
+use const CMS_DB_PREFIX;
+use function check_permission;
+use function get_site_preference;
+use function get_userid;
+
 class UserOperations
 {
 	/**
@@ -562,4 +564,8 @@ class UserOperations
 		}
 		return false;
 	}
-}
+} //class
+
+//backward-compatibility shiv
+\class_alias(UserOperations::class, 'UserOperations', false);
+

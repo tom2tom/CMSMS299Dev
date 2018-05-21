@@ -30,9 +30,13 @@
  * @since 0.6.1
  * @license GPL
  */
+ 
+namespace CMSMS;
+
+use function get_site_preference;
+
 class User
 {
-
 	/**
 	 * @var int $id User id
 	 */
@@ -98,16 +102,16 @@ class User
 		$this->adminaccess = false;
 	}
 
-    /**
-     * Sets the user's active state.
-     *
-     * @since 2.3
-     * @param bool $flag The active state.
-     */
-    public function SetActive($flag = true)
-    {
-        $this->active = (bool) $flag;
-    }
+	/**
+	 * Sets the user's active state.
+	 *
+	 * @since 2.3
+	 * @param bool $flag The active state.
+	 */
+	public function SetActive($flag = true)
+	{
+		$this->active = (bool) $flag;
+	}
 
 	/**
 	 * Encrypts and sets password for the User
@@ -117,26 +121,26 @@ class User
 	 */
 	function SetPassword($password)
 	{
-        $this->password = password_hash( $password, PASSWORD_DEFAULT );
+		$this->password = password_hash( $password, PASSWORD_DEFAULT );
 	}
 
-    /**
-     * Authenticate a users password.
-     *
-     * @since 2.3
-     * @param string $password The plaintext password.
-     * @author calguy1000
-     */
-    public function Authenticate( $password )
-    {
-        if( strlen($this->password) == 32 && strpos( $this->password, '.') === FALSE ) {
-            // old md5 methodology
-            $hash = md5( get_site_preference('sitemask','').$password);
-            return ($hash == $this->password);
-        } else {
-            return password_verify( $password, $this->password );
-        }
-    }
+	/**
+	 * Authenticate a users password.
+	 *
+	 * @since 2.3
+	 * @param string $password The plaintext password.
+	 * @author calguy1000
+	 */
+	public function Authenticate( $password )
+	{
+		if( strlen($this->password) == 32 && strpos( $this->password, '.') === FALSE ) {
+			// old md5 methodology
+			$hash = md5( get_site_preference('sitemask','').$password);
+			return ($hash == $this->password);
+		} else {
+			return password_verify( $password, $this->password );
+		}
+	}
 
 	/**
 	 * Saves the user to the database.  If no user_id is set, then a new record
@@ -150,7 +154,7 @@ class User
 	{
 		$result = false;
 
-        $userops = UserOperations::get_instance();
+		$userops = UserOperations::get_instance();
 		if ($this->id > -1) {
 			$result = $userops->UpdateUser($this);
 		}
@@ -182,6 +186,7 @@ class User
 		}
 		return $result;
 	}
-}
+} //class
 
-?>
+//backward-compatiblity shiv
+\class_alias(User::class, 'User', false);

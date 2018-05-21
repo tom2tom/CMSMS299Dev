@@ -1,6 +1,7 @@
 <?php
-#...
+#Bookmark class for the CMSMS admin console
 #Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +15,9 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * This file contains a class that defines a bookmark in the CMSMS admin console.
- * @package CMS
- * @license GPL
- */
+namespace CMSMS;
+use CMSMS\BookmarkOperations;
 
 /**
  * Bookmark class for the CMSMS admin console.
@@ -82,7 +78,7 @@ class Bookmark
 	function Save()
 	{
 		$result = false;
-		$bookops = cmsms()->GetBookmarkOperations();
+		$bookops = BookmarkOperations::get_instance();
 
 		if ($this->bookmark_id > -1) {
 			$result = $bookops->UpdateBookmark($this);
@@ -93,7 +89,6 @@ class Bookmark
 				$this->bookmark_id = $newid;
 				$result = true;
 			}
-
 		}
 
 		return $result;
@@ -108,9 +103,9 @@ class Bookmark
 	function Delete()
 	{
 		$result = false;
-		$bookops = cmsms()->GetBookmarkOperations();
 
 		if ($this->bookmark_id > -1) {
+			$bookops = BookmarkOperations::get_instance();
 			$result = $bookops->DeleteBookmarkByID($this->bookmark_id);
 			if ($result) $this->SetInitialValues();
 		}
@@ -119,4 +114,5 @@ class Bookmark
 	}
 }
 
-?>
+//backward-compatibility shiv
+\class_alias(Bookmark::class, 'Bookmark');
