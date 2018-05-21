@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#CMS Made Simple link content type
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,15 +15,13 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Define the link content type
- * @package CMS
- * @subpackage content_types
- * @license GPL
- */
+namespace CMSMS\contenttypes;
+
+use function check_permission;
+use function cms_htmlentities;
+use function get_userid;
+use function lang;
 
 /**
  * Implementation of the CMS Made Simple link content type
@@ -34,22 +33,22 @@
  * @subpackage content_types
  * @license GPL
  */
-class Link extends ContentBase
+class Link extends \CMSMS\ContentBase
 {
-	public function IsCopyable() { return TRUE; }
-	public function IsViewable() { return FALSE; }
-	public function HasSearchableContent() { return FALSE; }
+	public function IsCopyable() { return true; }
+	public function IsViewable() { return false; }
+	public function HasSearchableContent() { return false; }
 	public function FriendlyName() { return lang('contenttype_redirlink'); }
 
-	function SetProperties()
+	public function SetProperties()
 	{
 		parent::SetProperties();
 		$this->RemoveProperty('secure',0);
 		$this->RemoveProperty('cachable',true);
-		$this->AddProperty('url',3,self::TAB_MAIN,TRUE,TRUE);
+		$this->AddProperty('url',3,self::TAB_MAIN,true,true);
 	}
 
-	function FillParams(array $params, bool $editing = false)
+	public function FillParams(array $params, bool $editing = false)
 	{
 		parent::FillParams($params,$editing);
 
@@ -63,20 +62,20 @@ class Link extends ContentBase
 		}
 	}
 
-	function ValidateData()
+	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === FALSE )	$errors = array();
+		if( $errors === false )	$errors = array();
 
 		if ($this->GetPropertyValue('url') == '') {
 			$errors[]= lang('nofieldgiven', lang('url'));
 			$result = false;
 		}
 
-		return (count($errors) > 0?$errors:FALSE);
+		return (count($errors) > 0?$errors:false);
 	}
 
-	function TabNames()
+	public function TabNames()
 	{
 		$res = array(lang('main'));
 		if( check_permission(get_userid(),'Manage All Content') ) {
@@ -85,7 +84,7 @@ class Link extends ContentBase
 		return $res;
 	}
 
-	function display_single_element(string $one,bool $adding)
+	public function display_single_element(string $one,bool $adding)
 	{
 		switch($one) {
 		case 'url':
@@ -97,7 +96,7 @@ class Link extends ContentBase
 		}
 	}
 
-	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
 		switch($tab) {
 		case '0':
@@ -109,11 +108,12 @@ class Link extends ContentBase
 		}
 	}
 
-	function GetURL($rewrite = true)
+	public function GetURL($rewrite = true)
 	{
 		return $this->GetPropertyValue('url');
-		//return cms_htmlentities($this->GetPropertyValue('url'));
+		//return \cms_htmlentities($this->GetPropertyValue('url'));
 	}
 }
 
-?>
+//backward-compatibility shiv
+\class_alias(Link::class, 'Link', false);

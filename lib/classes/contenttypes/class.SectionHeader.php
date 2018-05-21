@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class definition and methods for Section Header content type
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,16 +15,12 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Class definition and methods for Section Header content type
- *
- * @package CMS
- * @subpackage content_types
- * @license GPL
- */
+namespace CMSMS\contenttypes;
+
+use function check_permission;
+use function get_userid;
+use function lang;
 
 /**
  * Implements the CMS Made Simple Section Header content type
@@ -34,7 +31,7 @@
  * @subpackage content_types
  * @license GPL
  */
-class SectionHeader extends ContentBase
+class SectionHeader extends \CMSMS\ContentBase
 {
 	function FriendlyName() { return lang('contenttype_sectionheader'); }
 
@@ -92,7 +89,7 @@ class SectionHeader extends ContentBase
 		$this->mTemplateId = -1;
 		return $res;
 	}
-
 }
 
-?>
+//backward-compatibility shiv
+\class_alias(SectionHeader::class, 'SectionHeader', false);

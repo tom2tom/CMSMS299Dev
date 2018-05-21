@@ -1,7 +1,7 @@
 <?php
-#class of methods for the main Content class
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#The main Content class
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,15 +16,37 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\page_template_parser;
+namespace CMSMS\contenttypes;
 
-/**
- * Class definition and methods for the main Content class.
- *
- * @package CMS
- * @subpackage content_types
- * @license GPL
- */
+use cms_admin_utils;
+use cms_config;
+use cms_siteprefs;
+use cms_utils;
+use CmsContentException;
+use CmsCoreCapabilities;
+use CmsException;
+use CmsFormUtils;
+use CmsLayoutCollection;
+use CmsLayoutTemplate;
+use CmsLayoutTemplateType;
+use CMSMS\ContentOperations;
+use CMSMS\internal\page_template_parser;
+use CMSMS\internal\Smarty;
+use Exception;
+use PHPMailer\PHPMailer\Exception as Exception2;
+use SmartyException;
+use stdClass;
+use function check_permission;
+use function cms_error;
+use function cms_htmlentities;
+use function cms_join_path;
+use function cms_to_bool;
+use function create_file_dropdown;
+use function get_parameter_value;
+use function get_site_preference;
+use function get_userid;
+use function lang;
+use function startswith;
 
 /**
  * Implements the Content (page) content type.
@@ -35,7 +57,7 @@ use CMSMS\internal\page_template_parser;
  * @subpackage content_types
  * @license GPL
  */
-class Content extends ContentBase
+class Content extends \CMSMS\ContentBase
 {
 	/**
 	 * @ignore
@@ -46,11 +68,11 @@ class Content extends ContentBase
 	 * Indicates whether or not this content type may be copied.
 	 * Content pages are copyable (for those with sufficient permission)
 	 *
-	 * @return bool TRUE
+	 * @return bool true
 	 */
 	public function IsCopyable()
 	{
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -62,11 +84,11 @@ class Content extends ContentBase
 	 */
 	public function IsSearchable()
 	{
-		if( !parent::IsSearchable() ) return FALSE;
+		if( !parent::IsSearchable() ) return false;
 		return $this->GetPropertyValue('searchable') != 0;
 	}
 
-	public function HasSearchableContent() { return TRUE; }
+	public function HasSearchableContent() { return true; }
 
 	/**
 	 * Indicates whether this page type uses a template.
@@ -77,7 +99,7 @@ class Content extends ContentBase
 	 */
 	public function HasTemplate()
 	{
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -90,7 +112,7 @@ class Content extends ContentBase
 	 */
 	public function FriendlyName()
 	{
-	  return lang('contenttype_content');
+		return lang('contenttype_content');
 	}
 
 	/**
@@ -101,7 +123,7 @@ class Content extends ContentBase
 	 */
 	public function IsDefaultPossible()
 	{
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -111,33 +133,33 @@ class Content extends ContentBase
 	 */
 	public function SetProperties()
 	{
-	  parent::SetProperties();
-	  $this->AddProperty('design_id',0,self::TAB_OPTIONS);
-	  $this->AddProperty('template',0,self::TAB_OPTIONS);
-	  $this->AddProperty('searchable',20,self::TAB_OPTIONS);
-	  $this->AddProperty('disable_wysiwyg',60,self::TAB_OPTIONS);
-	  $this->AddProperty('pagemetadata',1,self::TAB_LOGIC);
-	  $this->AddProperty('pagedata',2,self::TAB_LOGIC);
-	  $this->AddProperty('wantschildren',10,self::TAB_OPTIONS);
+		parent::SetProperties();
+		$this->AddProperty('design_id',0,self::TAB_OPTIONS);
+		$this->AddProperty('template',0,self::TAB_OPTIONS);
+		$this->AddProperty('searchable',20,self::TAB_OPTIONS);
+		$this->AddProperty('disable_wysiwyg',60,self::TAB_OPTIONS);
+		$this->AddProperty('pagemetadata',1,self::TAB_LOGIC);
+		$this->AddProperty('pagedata',2,self::TAB_LOGIC);
+		$this->AddProperty('wantschildren',10,self::TAB_OPTIONS);
 	}
 
 	/**
 	 * Indicates whether pages of this type can be previewed.
 	 * "Content" pages can be previewed in the editor.
 	 *
-	 * @return bool TRUE
+	 * @return bool true
 	 */
 	public function HasPreview()
 	{
-		return TRUE;
+		return true;
 	}
 
 	public function WantsChildren()
 	{
 		// an empty/null response defaults to true.
 		$tmp = $this->GetPropertyValue('wantschildren');
-		if( $tmp === '0' ) return FALSE;
-		return TRUE;
+		if( $tmp === '0' ) return false;
+		return true;
 	}
 
 	/**
@@ -262,7 +284,7 @@ class Content extends ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === FALSE ) $errors = array();
+		if( $errors === false ) $errors = [];
 
 		if ($this->mTemplateId <= 0 ) {
 			$errors[] = lang('nofieldgiven', lang('template'));
@@ -275,10 +297,10 @@ class Content extends ContentBase
 			$result = false;
 		}
 
-		$have_content_en = FALSE;
+		$have_content_en = false;
 		if( is_array($blocks) && count($blocks) ) {
 			foreach($blocks as $blockName => $blockInfo) {
-				if( $blockInfo['id'] == 'content_en' ) $have_content_en = TRUE;
+				if( $blockInfo['id'] == 'content_en' ) $have_content_en = true;
 				if( isset($blockInfo['required']) && $blockInfo['required'] && ($val = $this->GetPropertyValue($blockName)) == '' ) {
 					$errors[] = lang('emptyblock', $blockName);
 				}
@@ -301,7 +323,7 @@ class Content extends ContentBase
 			$result = false;
 		}
 
-		return (count($errors) > 0?$errors:FALSE);
+		return (count($errors) > 0?$errors:false);
 	}
 
 	/**
@@ -319,7 +341,7 @@ class Content extends ContentBase
 		}
 
 		$this->_contentBlocks = [];
-		$smarty = \CMSMS\internal\Smarty::get_instance();
+		$smarty = Smarty::get_instance();
 		try {
 			$parser = new page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
 //redundant  page_template_parser::reset();
@@ -369,7 +391,7 @@ class Content extends ContentBase
 						$dflt_design = CmsLayoutCollection::load_default();
 						$design_id = $dflt_design->get_id();
 					}
-					catch( \Exception $e ) {
+					catch( Exception $e ) {
 						cms_error('No default design specified');
 					}
 				}
@@ -394,7 +416,7 @@ class Content extends ContentBase
 						$dflt_tpl = CmsLayoutTemplate::load_dflt_by_type(CmsLayoutTemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
-					catch( \Exception $e ) {
+					catch( Exception2 $e ) {
 						cms_error('No default page template found');
 					}
 				}
@@ -485,14 +507,14 @@ class Content extends ContentBase
 		$maxlength = (int) $this->_get_param($blockInfo,'maxlength',255);
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
-			$uid = get_userid(FALSE);
-			$res = \UserOperations::get_instance()->UserInGroup($uid,1);
+			$uid = get_userid(false);
+			$res = UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
 		$adminonly = cms_to_bool(get_parameter_value($blockInfo,'adminonly',0));
 		if( $adminonly ) {
-			$uid = get_userid(FALSE);
-			$res = \UserOperations::get_instance()->UserInGroup($uid,1);
+			$uid = get_userid(false);
+			$res = UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
 		if( $this->Id() < 1 && empty($value) ) {
@@ -552,11 +574,11 @@ class Content extends ContentBase
 	{
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
-			$uid = get_userid(FALSE);
-			$res = \UserOperations::get_instance()->UserInGroup($uid,1);
+			$uid = get_userid(false);
+			$res = UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
-		$config = \cms_config::get_instance();
+		$config = cms_config::get_instance();
 		$adddir = get_site_preference('contentimage_path');
 		if( $blockInfo['dir'] != '' ) $adddir = $blockInfo['dir'];
 		$dir = cms_join_path($config['uploads_path'],$adddir);
@@ -574,12 +596,12 @@ class Content extends ContentBase
 		$prefix = '';
 		if( isset($blockInfo['sort']) ) $sort = (int)$blockInfo['sort'];
 		if( isset($blockInfo['exclude']) ) $prefix = $blockInfo['exclude'];
-		$filepicker = \cms_utils::get_filepicker_module();
+		$filepicker = cms_utils::get_filepicker_module();
 		if( $filepicker ) {
 			$profile_name = get_parameter_value($blockInfo,'profile');
 			$profile = $filepicker->get_profile_or_default($profile_name, $dir, get_userid() );
 			$parms = ['top'=>$dir, 'type'=>'image' ];
-			if( $sort ) $parms['sort'] = TRUE;
+			if( $sort ) $parms['sort'] = true;
 			if( $prefix ) $parms['exclude_prefix'] = $prefix;
 			$profile = $profile->overrideWith( $parms );
 			$input = $filepicker->get_html( $inputname, $value, $profile);
@@ -598,16 +620,16 @@ class Content extends ContentBase
 	{
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
-			$uid = get_userid(FALSE);
-			$res = \UserOperations::get_instance()->UserInGroup($uid,1);
+			$uid = get_userid(false);
+			$res = UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
 
 		$ret = '';
-		if( !isset($blockInfo['module']) ) return FALSE;
+		if( !isset($blockInfo['module']) ) return false;
 		$module = cms_utils::get_module($blockInfo['module']);
-		if( !is_object($module) ) return FALSE;
-		if( !$module->HasCapability(CmsCoreCapabilities::CONTENT_BLOCKS) ) return FALSE;
+		if( !is_object($module) ) return false;
+		if( !$module->HasCapability(CmsCoreCapabilities::CONTENT_BLOCKS) ) return false;
 		if( !empty($blockInfo['inputname']) ) {
 			// a hack to allow overriding the input field name.
 			$blockName = $blockInfo['inputname'];
@@ -678,9 +700,12 @@ class Content extends ContentBase
 			}
 			break;
 		}
-		if( empty($field) ) return FALSE;
+		if( empty($field) ) return false;
 		if( empty($label) ) $label = $blockName.':';
 		return array($label,$field);
 	}
 
-} // end of class
+} // class
+
+//backward-compatibility shiv
+\class_alias(Content::class, 'Content', false);

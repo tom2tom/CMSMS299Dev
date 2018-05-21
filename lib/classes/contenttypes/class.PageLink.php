@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class definition and methods for Page Link content type
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,16 +15,14 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Class definition and methods for Page Link content type
- *
- * @package CMS
- * @subpackage content_types
- * @license GPL
- */
+namespace CMSMS\contenttypes;
+
+use CMSMS\ContentOperations;
+use function check_permission;
+use function cms_htmlentities;
+use function get_userid;
+use function lang;
 
 /**
  * Implements the PageLink content type.
@@ -35,12 +34,11 @@
  * @subpackage content_types
  * @license GPL
  */
-class PageLink extends ContentBase
+class PageLink extends \CMSMS\ContentBase
 {
-
-	public function IsCopyable() { return TRUE; }
-	public function IsViewable() { return FALSE; }
-	public function HasSearchableContent() { return FALSE; }
+	public function IsCopyable() { return true; }
+	public function IsViewable() { return false; }
+	public function HasSearchableContent() { return false; }
 	public function FriendlyName() { return lang('contenttype_pagelink'); }
 
 // calguy1000: commented this out so that this page can be seen in cms_selflink
@@ -56,8 +54,8 @@ class PageLink extends ContentBase
 		$this->RemoveProperty('cachable',1);
 		//$this->RemoveProperty('showinmenu',1);
 		$this->RemoveProperty('secure',0);
-		$this->AddProperty('page',3,self::TAB_MAIN,TRUE,TRUE);
-		$this->AddProperty('params',4,self::TAB_OPTIONS,TRUE,TRUE);
+		$this->AddProperty('page',3,self::TAB_MAIN,true,true);
+		$this->AddProperty('params',4,self::TAB_OPTIONS,true,true);
 
 		//Turn off caching
 		$this->mCachable = false;
@@ -78,7 +76,7 @@ class PageLink extends ContentBase
 	function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === FALSE ) $errors = array();
+		if( $errors === false ) $errors = array();
 
 		$page = $this->GetPropertyValue('page');
 		if ($page == '-1') {
@@ -103,7 +101,7 @@ class PageLink extends ContentBase
 				$result = false;
 			}
 		}
-		return (count($errors) > 0?$errors:FALSE);
+		return (count($errors) > 0?$errors:false);
 	}
 
 	function TabNames()
@@ -159,4 +157,5 @@ class PageLink extends ContentBase
 	}
 }
 
-?>
+//backward-compatibility shiv
+\class_alias(PageLink::class, 'PageLink', false);

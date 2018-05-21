@@ -1,6 +1,7 @@
 <?php
-# ...
-# Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+# base content class
+# Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+# Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,22 +15,43 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * This file provides the basic abstract content class
  * @package CMS
  */
 
+namespace CMSMS {
+
+use cms_admin_utils;
+use cms_config;
+use cms_route_manager;
+use cms_siteprefs;
+use cms_utils;
+use CmsApp;
+use CmsContentException;
+use CmsFormUtils;
+use CmsInvalidDataException;
+use CMSMS\ContentBase;
+use CMSMS\ContentOperations;
+use CMSMS\GroupOperations;
+use CMSMS\HookManager;
 use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
-
-/**
- * @ignore
- */
-define('CMS_CONTENT_HIDDEN_NAME','--------');
-define('__CMS_PREVIEW_PAGE__',-100);
+use CMSMS\UserOperations;
+use CmsRoute;
+use stdClass;
+use const CMS_DB_PREFIX;
+use const CMS_ROOT_URL;
+use function check_permission;
+use function cms_htmlentities;
+use function cms_join_path;
+use function create_file_dropdown;
+use function debug_buffer;
+use function endswith;
+use function get_userid;
+use function lang;
+use function munge_string_to_url;
 
 /**
  * Base level content object.
@@ -910,7 +932,7 @@ abstract class ContentBase
 	public function SetAlias($alias = null, $doAutoAliasIfEnabled = true)
 	{
 		$contentops = ContentOperations::get_instance();
-		$config = \cms_config::get_instance();
+		$config = cms_config::get_instance();
 		if ($alias == '' && $doAutoAliasIfEnabled && $config['auto_alias_content'] == true) {
 			$alias = trim($this->mMenuText);
 			if ($alias == '') $alias = trim($this->mName);
@@ -922,7 +944,7 @@ abstract class ContentBase
 			if( !$res ) {
 				$alias = 'p'.$alias;
 				$res = $contentops->CheckAliasValid($alias);
-				if( !$res ) throw new \CmsContentException(lang('invalidalias2'));
+				if( !$res ) throw new CmsContentException(lang('invalidalias2'));
 			}
 		}
 
@@ -931,7 +953,7 @@ abstract class ContentBase
 
 			// make sure we start with a valid alias.
 			$res = $contentops->CheckAliasValid($alias);
-			if( !$res ) throw new \CmsContentException(lang('invalidalias2'));
+			if( !$res ) throw new CmsContentException(lang('invalidalias2'));
 
 			// now auto-increment the alias.
 			$prefix = $alias;
@@ -949,7 +971,7 @@ abstract class ContentBase
 				$num++;
 				$test = $prefix.'-'.$num;
 			} while( $num < 100 );
-			if( $num >= 100 ) throw new \CmsContentException(lang('aliasalreadyused'));
+			if( $num >= 100 ) throw new CmsContentException(lang('aliasalreadyused'));
 		}
 
 		$this->mAlias = $alias;
@@ -1279,7 +1301,7 @@ abstract class ContentBase
 	 */
 	public function Save()
 	{
-		\CMSMS\HookManager::do_hook('Core::ContentEditPre', [ 'content' => &$this ] );
+		HookManager::do_hook('Core::ContentEditPre', [ 'content' => &$this ] );
 
 		if( !is_array($this->_props) ) {
 			debug_buffer('save is loading properties');
@@ -1296,7 +1318,7 @@ abstract class ContentBase
 		$contentops = ContentOperations::get_instance();
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
-		\CMSMS\HookManager::do_hook('Core::ContentEditPost', [ 'content' => &$this ] );
+		HookManager::do_hook('Core::ContentEditPost', [ 'content' => &$this ] );
 	}
 
 	/**
@@ -1593,7 +1615,7 @@ abstract class ContentBase
 	function Delete()
 	{
 		$gCms = CmsApp::get_instance();
-		\CMSMS\HookManager::do_hook('Core::ContentDeletePre', [ 'content' => &$this ] );
+		HookManager::do_hook('Core::ContentDeletePre', [ 'content' => &$this ] );
 		$db = $gCms->GetDb();
 		$result = false;
 
@@ -1619,7 +1641,7 @@ abstract class ContentBase
 			if( $this->mURL != '' ) cms_route_manager::del_static($this->mURL);
 		}
 
-			\CMSMS\HookManager::do_hook('Core::ContentDeletePost', [ 'content' => &$this ] );
+			HookManager::do_hook('Core::ContentDeletePost', [ 'content' => &$this ] );
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 	}
@@ -1737,7 +1759,7 @@ abstract class ContentBase
 	 */
 	public function GetURL(bool $rewrite = true)
 	{
-		$config = \cms_config::get_instance();
+		$config = cms_config::get_instance();
 		$url = "";
 		$alias = ($this->mAlias != ''?$this->mAlias:$this->mId);
 
@@ -1974,7 +1996,7 @@ abstract class ContentBase
 	public function GetAdditionalEditors()
 	{
 		if (!isset($this->mAdditionalEditors)) {
-			$db = \CmsApp::get_instance()->GetDb();
+			$db = CmsApp::get_instance()->GetDb();
 			$this->mAdditionalEditors = array();
 
 			$query = "SELECT user_id FROM ".CMS_DB_PREFIX."additional_users WHERE content_id = ?";
@@ -2125,7 +2147,7 @@ abstract class ContentBase
 	 */
 	protected function AddProperty(string $name,int $priority,string $tab = self::TAB_MAIN,bool $required = FALSE,bool $basic = FALSE)
 	{
-		$ob = new StdClass;
+		$ob = new stdClass;
 		$ob->name = (string) $name;
 		$ob->priority = (int) $priority;
 		$ob->tab = (string) $tab;
@@ -2185,7 +2207,7 @@ abstract class ContentBase
 	 */
 	protected function display_single_element(string $one,bool $adding)
 	{
-		$config = \cms_config::get_instance();
+		$config = cms_config::get_instance();
 
 		switch( $one ) {
 		case 'cachable':
@@ -2256,7 +2278,7 @@ abstract class ContentBase
 		case 'image':
 			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_imagefield_path'));
 			$data = $this->GetPropertyValue('image');
-			$filepicker = \cms_utils::get_filepicker_module();
+			$filepicker = cms_utils::get_filepicker_module();
 			if( $filepicker ) {
 				$profile = $filepicker->get_default_profile( $dir, get_userid() );
 				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image'] );
@@ -2272,7 +2294,7 @@ abstract class ContentBase
 		case 'thumbnail':
 			$dir = cms_join_path($config['image_uploads_path'],cms_siteprefs::get('content_thumbnailfield_path'));
 			$data = $this->GetPropertyValue('thumbnail');
-			$filepicker = \cms_utils::get_filepicker_module();
+			$filepicker = cms_utils::get_filepicker_module();
 			if( $filepicker ) {
 				$profile = $filepicker->get_default_profile( $dir, get_userid() );
 				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image', 'match_prefix'=>'thumb_' ] );
@@ -2336,4 +2358,20 @@ abstract class ContentBase
 			throw new CmsInvalidDataException('Attempt to display invalid property '.$one);
 		}
 	}
-} // end of class
+} // class
+
+//backward-compatibility shiv
+\class_alias(ContentBase::class, 'ContentBase', false);
+
+} // namespace
+
+
+namespace {
+	 /**
+	 * @ignore
+	 */
+	define('CMS_CONTENT_HIDDEN_NAME','--------');
+	define('__CMS_PREVIEW_PAGE__',-100);
+}
+
+

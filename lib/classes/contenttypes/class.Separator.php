@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class definition and methods for the Separator content type
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,16 +15,13 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * Class definition and methods for the Separator content type
- *
- * @package CMS
- * @subpackage content_types
- * @license GPL
- */
+namespace CMSMS\contenttypes;
+
+use const CMS_CONTENT_HIDDEN_NAME;
+use function check_permission;
+use function get_userid;
+use function lang;
 
 /**
  * Implements the CMS Made Simple Separator content type
@@ -35,10 +33,9 @@
  * @subpackage content_types
  * @license GPL
  */
-class Separator extends ContentBase
+class Separator extends \CMSMS\ContentBase
 {
-
-	function SetProperties()
+	public function SetProperties()
 	{
 		parent::SetProperties();
 		$this->RemoveProperty('secure',0);
@@ -54,22 +51,22 @@ class Separator extends ContentBase
 		$this->RemoveProperty('tabindex','');
 	}
 
-	function GetURL($rewrite = true) { return '#';  }
-	function IsViewable() { return FALSE; }
-	function FriendlyName() { return lang('contenttype_separator'); }
-	function HasUsableLink() { return false; }
-	function WantsChildren() { return false; }
-	function RequiresAlias() { return FALSE; }
-	public function HasSearchableContent() { return FALSE; }
+	public function GetURL($rewrite = true) { return '#';  }
+	public function IsViewable() { return false; }
+	public function FriendlyName() { return lang('contenttype_separator'); }
+	public function HasUsableLink() { return false; }
+	public function WantsChildren() { return false; }
+	public function RequiresAlias() { return false; }
+	public function HasSearchableContent() { return false; }
 
-	function TabNames()
+	public function TabNames()
 	{
 		$res = array(lang('main'));
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
 		return $res;
 	}
 
-	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
 		switch($tab) {
 		case '0':
@@ -81,13 +78,12 @@ class Separator extends ContentBase
 		}
 	}
 
-	function ValidateData()
+	public function ValidateData()
 	{
 		$this->mName = CMS_CONTENT_HIDDEN_NAME;
 		return parent::ValidateData();
 	}
+} // class
 
-}
-
-
-?>
+//backward-compatibility shiv
+\class_alias(Separator::class, 'Separator', false);
