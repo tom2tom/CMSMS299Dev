@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: DesignManager - A CMSMS addon module to provide template management.
+# DesignManager module action: defaultadmin
 # Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,13 +14,12 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
 
-$filter_tpl_rec = array('tpl'=>'','limit'=>100,'offset'=>0,'sortby'=>'name','sortorder'=>'asc');
-$filter_css_rec = array('limit'=>100,'offset'=>0,'sortby'=>'name','sortorder'=>'asc','design'=>'');
+$filter_tpl_rec = ['tpl'=>'','limit'=>100,'offset'=>0,'sortby'=>'name','sortorder'=>'asc'];
+$filter_css_rec = ['limit'=>100,'offset'=>0,'sortby'=>'name','sortorder'=>'asc','design'=>''];
 if( isset($params['submit_filter_tpl']) ) {
     if( $params['submit_filter_tpl'] == 1 ) {
         $filter_tpl_rec['tpl'] = $params['filter_tpl'];
@@ -45,15 +43,15 @@ else if( isset($params['submit_filter_css']) ) {
     cms_userprefs::set($this->GetName().'css_filter',serialize($filter_css_rec));
 }
 else if( isset($params['submit_create']) ) {
-	$this->Redirect($id,'admin_edit_template',$returnid,array('import_type'=>$params['import_type']));
+	$this->Redirect($id,'admin_edit_template',$returnid,['import_type'=>$params['import_type']]);
 	return;
 }
 else if( isset($params['submit_bulk']) ) {
-	$tmp = array('allparms'=>base64_encode(serialize($params)));
+	$tmp = ['allparms'=>base64_encode(serialize($params))];
 	$this->Redirect($id,'admin_bulk_template',$returnid,$tmp);
 }
 else if( isset($params['submit_bulk_css']) ) {
-	$tmp = array('allparms'=>base64_encode(serialize($params)));
+	$tmp = ['allparms'=>base64_encode(serialize($params))];
 	$this->Redirect($id,'admin_bulk_css',$returnid,$tmp);
 }
 else if( isset($params['design_setdflt']) && $this->CheckPermission('Manage Designs') ) {
@@ -116,10 +114,9 @@ if( count($templates) ) {
 */
 
 // build a list of the types, and categories, and later (designs).
-$opts = array();
-$opts[''] = $this->Lang('prompt_none');
+$opts = ['' => $this->Lang('prompt_none')];
 $types = CmsLayoutTemplateType::get_all();
-$originators = array();
+$originators = [];
 if( count($types) ) {
     $tmp = $tmp2 = $tmp3 = [];
     for( $i = 0; $i < count($types); $i++ ) {
@@ -151,7 +148,7 @@ if( count($types) ) {
 $cats = CmsLayoutTemplateCategory::get_all();
 if( $cats && count($cats) ) {
     $smarty->assign('list_categories',$cats);
-    $tmp = array();
+    $tmp = [];
     for( $i = 0; $i < count($cats); $i++ ) {
         $tmp['c:'.$cats[$i]->get_id()] = $cats[$i]->get_name();
     }
@@ -160,7 +157,7 @@ if( $cats && count($cats) ) {
 $designs = CmsLayoutCollection::get_all();
 if( $designs && count($designs) ) {
     $smarty->assign('list_designs',$designs);
-    $tmp = array();
+    $tmp = [];
     for( $i = 0; $i < count($designs); $i++ ) {
         $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
         $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
@@ -173,8 +170,8 @@ if( $designs && count($designs) ) {
 if( $this->CheckPermission('Manage Designs') ) {
     $userops = cmsms()->GetUserOperations();
     $allusers = $userops->LoadUsers();
-    $users = array(-1=>$this->Lang('prompt_unknown'));
-    $tmp = array();
+    $users = [-1=>$this->Lang('prompt_unknown')];
+    $tmp = [];
     for( $i = 0; $i < count($allusers); $i++ ) {
         $tmp['u:'.$allusers[$i]->id] = $allusers[$i]->username;
         $users[$allusers[$i]->id] = $allusers[$i]->username;
@@ -220,13 +217,16 @@ $url = $this->create_url($id,'ajax_get_templates');
 $ajax_templates_url = str_replace('amp;','',$url);
 $url = $this->create_url($id,'ajax_get_stylesheets');
 $ajax_stylesheets_url = str_replace('amp;','',$url);
+$script_url = CMS_SCRIPTS_URL;
 
 // templates script
 $s1 = json_encode($this->Lang('confirm_steal_lock'));
 $s2 = json_encode($this->Lang('confirm_clearlocks'));
 $s3 = json_encode($this->Lang('error_contentlocked'));
 $s4 = json_encode($this->Lang('error_nothingselected'));
+
 $js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
