@@ -98,6 +98,7 @@ $lang['error_create_tempfile'] = 'Error creating temporary file';
 $lang['error_direxists'] = 'Directory %s already exists';
 $lang['error_fileopen'] = 'Could not open %s for reading.  Permissions problem?';
 $lang['error_filenotfound'] = 'Could not find a file we were expecting: %s';
+$lang['error_lock'] = 'Lock Error';
 $lang['error_missingparam'] = 'A required parameter is missing or invalid';
 $lang['error_nofileuploaded'] = 'No file was uploaded';
 $lang['error_notconfirmed'] = 'The action was not confirmed';
