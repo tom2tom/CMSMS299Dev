@@ -1041,7 +1041,7 @@ $lang['help_function_redirect_page'] = <<<EOT
 <p>Simply insert this tag into your page or template: <code>{redirect_page page='some-page-alias'}</code></p>
 EOT;
 
-
+/*plugin removed 2.3
 $lang['help_function_cms_jquery'] = <<<EOT
 <h3>What does this do?</h3>
  <p>This plugin allows you output the JavaScript libraries and plugins used from the admin.</p>
@@ -1076,6 +1076,7 @@ $lang['help_function_cms_jquery'] = <<<EOT
 	<li><em>(optional)</em> <tt>assign</tt> - Assign the results to the named smarty variable.</li>
 	</ul>
 EOT;
+*/
 
 $lang['help_function_cms_filepicker'] = <<<EOT
 <h3>What does this do?</h3>
