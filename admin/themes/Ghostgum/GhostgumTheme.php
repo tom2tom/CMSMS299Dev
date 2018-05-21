@@ -63,16 +63,52 @@ class GhostgumTheme extends CmsAdminThemeBase
 <link rel="apple-touch-icon" sizes="72x72" href="{$assets_url}images/apple-touch-icon-ipad.png" />
 <link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}images/apple-touch-icon-iphone4.png" />
 <link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}images/apple-touch-icon-ipad3.png" />
+
+EOS;
+		list ($jqui, $jqcss) = cms_jqueryui_local();
+		$url = AdminUtils::path_to_url($jqcss);
+		$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$url}" />
 <link rel="stylesheet" type="text/css" href="{$base_url}/css/{$fn}.css" />
+
 EOS;
 		if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
-		$out .= <<<EOS
+			$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$base_url}/extcss/{$fn}.css" />
+
 EOS;
 		}
-		$out .= cms_get_jquery();
-//<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script> TESTER
+		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+		list ($jqcore, $jqmigrate) = cms_jquery_local();
+		$url = AdminUtils::path_to_url($jqcore);
+		$out .= sprintf($tpl,$url);
+		$url = AdminUtils::path_to_url($jqmigrate);
+		$out .= sprintf($tpl,$url);
+		$url = AdminUtils::path_to_url($jqui);
+		$out .= sprintf($tpl,$url);
 		$out .= <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cms_admin.js"></script>
+
+EOS;
+        global $CMS_LOGIN_PAGE;
+        if ( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
+            //populate runtime data (i.e. cms_data{}) via ajax
+            $url = cms_config::get_instance()['admin_url'];
+            $url .= '/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+		    $out .= sprintf($tpl,$url);
+        }
+//<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script> TESTER
+/* action-specific inclusions elsewhere:
+jquery.cmsms_autorefresh.js DONE
+jquery.cmsms_dirtyform.js DONE
+jquery.cmsms_hierselector.js DONE
+jquery.cmsms_lock.js DONE
+ jquery.mjs.nestedSortable.min.js DONE
+*/
+		$out .= <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_defer.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.toast.js"></script>
 <script type="text/javascript" src="{$base_url}/js/jquery.alertable.js"></script>
 <script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
@@ -82,6 +118,7 @@ EOS;
 <![endif]-->
 EOS;
 		$add_list[] = $out;
+//		$vars[] = if any;
 
 		return [$vars, $add_list];
 	}
