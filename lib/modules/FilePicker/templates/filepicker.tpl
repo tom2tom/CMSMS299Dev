@@ -134,31 +134,13 @@
       </div>
     </div>
   </div>
-</body>
 {/strip}
-{cms_jquery exclude='ui_touch_punch,nestedSortable,json,migrate,cms_autorefresh,cms_dirtyform,cms_hiersel,cms_lock,cms_filepicker'}
-{$baseurl=$mod->GetModuleURLPath()}
-<script type="text/javascript" src="{$baseurl}/lib/js/jquery.fileupload.js"></script>
-<script type="text/javascript" src="{$baseurl}/lib/js/filebrowser.js"></script>
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
- var options = {};
-{/literal}
- options.cmd_url = '{cms_action_url action=ajax_cmd forjs=1}&cmsjobtype=1';
- options.cwd = '{$cwd}';
- options.sig = '{$sig}';
- options.inst = '{$inst}';
- options.lang = {$lang_js}; //CHECKME quoted?
-{literal}
- var filepicker = new CMSFileBrowser(options);
-});
-{/literal}//]]>
-</script>
-
-<div id="mkdir_dlg" title="{$mod->Lang('title_mkdir')}" style="display:none;" data-oklbl="{$mod->Lang('ok')}">
-  <div class="dlg-options">
-    <label>{$mod->Lang('name')}: <input type="text" id="fld_mkdir" size="40" />
-  </div>
-</div>
+ {*popup dialog*}
+ <div id="mkdir_dlg" title="{$mod->Lang('title_mkdir')}" style="display:none;" data-oklbl="{$mod->Lang('ok')}">
+   <div class="dlg-options">
+     <label for="fld_mkdir">{$mod->Lang('name')}:</label> <input type="text" id="fld_mkdir" size="40" />
+   </div>
+ </div>
+ {$bottomcontent}
+</body>
 </html>
