@@ -1067,11 +1067,11 @@ function cms_to_bool(string $str) : bool
 }
 
 /**
- * Identify locally-installed jquery scripts
+ * Identify the, or the highest-versioned, installed jquery scripts
  * @since 2.3
  * @return 2-member array
- *  [0] = path of main jquery (min) file or ''
- *  [1] = path of jquery-migrate (min) file or ''
+ *  [0] = filepath of main jquery (min) file or ''
+ *  [1] = filepath of jquery-migrate (min) file or ''
  */
 function cms_jquery_local() : array
 {
@@ -1092,11 +1092,12 @@ function cms_jquery_local() : array
 }
 
 /**
- * Identify locally-installed jquery-ui script and related css
+ * Identify the, or the highest-versioned, installed jquery-ui script
+ * and its related css
  * @since 2.3
  * @return 2-member array
- *  [0] = path of jquery-ui (min) file or ''
- *  [1] = path of related css (min) file or ''
+ *  [0] = filepath of jquery-ui (min) file or ''
+ *  [1] = filepath of related css (min) file or ''
  */
 function cms_jqueryui_local() : array
 {
@@ -1122,182 +1123,18 @@ function cms_jqueryui_local() : array
 }
 
 /**
- * Return the appropriate HTML tags to include the CMSMS included jquery in a web page.
- *
- * CMSMS is distributed with a recent version of jQuery, jQueryUI and various other jquery based
- * libraries.  This function generates the HTML code that will include these scripts.
- *
- * See the {cms_jquery} smarty plugin for a convenient way of including the CMSMS provided jquery
- * libraries from within a smarty template.
- *
- * Known libraries:
- *   jquery
- *   jquery-ui
- *   nestedSortable
- *   json
- *   migrate
-
- * Since 2.3 script(s) etc can be otherwise be 'gathered' via functions added to
- * hooklist "RuntimeSetup", or tag {gather_content list='RuntimeSetup'}
- *
+ * Return content which will include wanted js (jQuery etc) and css in a
+ * displayed page.
  * @since 1.10
- * @param string $exclude A comma-separated series of script names or aliases to exclude.
- * @param bool $ssl UNUSED Force use of the ssl_url for the root url to necessary scripts. ssl_url N/A for 2.3+
- * @param bool $cdn Force the use of a CDN url for the libraries if one is known
- * @param string  $append A comma-separated series of library URLs to append to the 'core' inclusions
- * @param string  $custom_root A custom root URL for all scripts (when using local mode).  If this is specified the $ssl param will be ignored.
- * @param bool $include_css Optionally output stylesheet tags for the included javascript libraries.
+ * @deprecated since 2.3 Returns only a on-page comment/notice
+ * Instead, relevant content can be gathered via functions added to hook
+ * 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag e.g.
+ * {gather_content list='AdminHeaderSetup'}.
+ * See also tags {cms_queue_script} and {cms_render_scripts}
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
-    $baseUrl = ($custom_root) ? trim($custom_root,'/lib/js/') : CMS_SCRIPTS_URL.'/';
-    list ($core, $migrate) = cms_jquery_local();
-    list ($ui, $css) = cms_jqueryui_local();
-
-    // scripts etc to include (unless excluded)
-    $scripts = [];
-    $scripts['jquery'] = [
-         'aliases'=>['jquery-min','jquery.min.js'],
-         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js',
-         'local'=>$baseUrl.'jquery/'.basename($core),
-        ];
-    if ($migrate) {
-        $scripts['migrate'] = ['local'=>$baseUrl.'jquery/'.basename($migrate)];
-    }
-    $scripts['jquery-ui'] = [
-         'aliases'=>['jquery-ui-min','jquery-ui.min.js','ui'],
-         'cdn'=>'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-         'local'=>$baseUrl.'jquery-ui/'.basename($ui),
-         'css'=>$baseUrl.'jquery-ui/'.basename($css),
-        ];
-    $scripts['nestedSortable'] = ['local'=>$baseUrl.'jquery.mjs.nestedSortable.min.js'];
-
-    if ( CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
-        global $CMS_LOGIN_PAGE;
-//      $scripts['cms_admin'] =       ['local'=>$baseUrl.'jquery.cms_admin.min.js']; see CMS_SCRIPTS_URL
-        $scripts['cms_admin'] =       ['local'=>$baseUrl.'jquery.cms_admin.js']; //DEBUG
-        $scripts['cms_vars'] =        ['variables'=>0]; //placeholder, after admin & before others which might use the vars
-        if ( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
-            //populate runtime data (i.e. cms_data{}) via ajax
-            $url = cms_config::get_instance()['admin_url'];
-            $scripts['cms_js_setup'] = ['local'=>$url.'/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]];
-        }
-
-        $scripts['cms_defer'] =       ['local'=>$baseUrl.'jquery.cmsms_defer.js'];
-        $scripts['cms_dirtyform'] =   ['local'=>$baseUrl.'jquery.cmsms_dirtyform.js'];
-        $scripts['cms_lock'] =        ['local'=>$baseUrl.'jquery.cmsms_lock.js']; //TODO module-specific
-        $scripts['cms_hiersel'] =     ['local'=>$baseUrl.'jquery.cmsms_hierselector.js'];
-        $scripts['cms_autorefresh'] = ['local'=>$baseUrl.'jquery.cmsms_autorefresh.js']; //TODO module-specific
-        $scripts['ui_touch_punch'] =  ['local'=>$baseUrl.'jquery.ui.touch-punch.min.js'];
-        $scripts['notifier'] =        ['local'=>$baseUrl.'jquery.toast.js'];
-    }
-
-    list($vars,$add_list,$exclude_list) = \CMSMS\HookManager::do_hook('RuntimeSetup', [], [], []);
-
-    // Supply vars if wanted
-    if ($vars) {
-        $vout = <<<EOT
-<script type="text/javascript">
-//<![CDATA[
-
-EOT;
-        //NOTE downstream must ensure keys and values are formatted for js
-        foreach ($vars as $key => $value) {
-            $vout .= "cms_data.{$key} = {$value};\n";
-        }
-        $vout .= <<<EOT
-//]]>
-</script>
-
-EOT;
-
-    } else {
-        unset($scripts['cms_vars']);
-    }
-
-    // Add script(s) if wanted
-    if ($append) {
-        if (!$add_list) {
-            $add_list = [];
-        }
-        $tmp = explode(',', trim(str_replace(' ','',$append)));
-        $add_list = array_merge($add_list, $tmp);
-    }
-    if ($add_list) {
-        foreach($add_list as $key => $item) {
-            $scripts['user_'.$key] = ['local'=>$item];
-        }
-    }
-
-    // Exclude script(s) if wanted
-    if ($exclude) {
-        if (!$exclude_list) {
-            $exclude_list = [];
-        }
-        $tmp = explode(',', trim(str_replace(' ','',$exclude)));
-        $exclude_list = array_merge($exclude_list, $tmp);
-    }
-    if ($exclude_list) {
-        foreach($exclude_list as $one) {
-            $one = trim(strtolower($one));
-
-             // find a match
-            $found = null;
-            foreach( $scripts as $key => $rec ) {
-                if ( strtolower($one) == strtolower($key) ) {
-                    $found = $key;
-                    break;
-                }
-                if ( isset($rec['aliases']) && is_array($rec['aliases']) ) {
-                    foreach( $rec['aliases'] as $alias ) {
-                        if ( strtolower($one) == strtolower($alias) ) {
-                            $found = $key;
-                            break;
-                        }
-                    }
-                    if ( $found ) break;
-                }
-            }
-
-            if ( $found ) unset($scripts[$found]);
-        }
-    }
-
-  // Output
-
-    $output = "\n";
-
-    if ($include_css) {
-        $fmt_css = '<link rel="stylesheet" type="text/css" href="%s" />';
-        foreach($scripts as $script) {
-            if (!empty($script['css'])) {
-                $url = $script['css'];
-            } elseif ($cdn && !empty($script['css_cdn'])) {
-                $url = $script['css_cdn'];
-            } else {
-                continue;
-            }
-            $output .= sprintf($fmt_css,$url)."\n";
-        }
-    }
-    $fmt_js = '<script type="text/javascript" src="%s"></script>';
-    foreach($scripts as $script) {
-        if (isset($script['variables'])) {
-            if ($vout) {
-                $output .= $vout;
-            }
-            continue;
-        }
-        if (!empty($script['local'])) {
-            $url = $script['local'];
-        } elseif ($cdn && !empty($script['cdn']) ) {
-            $url = $script['cdn'];
-        } else {
-            continue;
-        }
-        $output .= sprintf($fmt_js,$url)."\n";
-    }
-    return $output;
+    return '<!-- page inclusions not provided -->';
 }
 
 /**
