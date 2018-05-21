@@ -90,7 +90,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         //
         $query = 'UPDATE ' . CMS_DB_PREFIX . 'module_news SET news_title=?, news_data=?, summary=?, status=?, news_date=?, news_category_id=?, start_time=?, end_time=?, modified_date=?, news_extra=?, news_url = ?, searchable = ? WHERE news_id = ?';
         if ($useexp == 1) {
-            $db->Execute($query, array(
+            $db->Execute($query, [
                 $title,
                 $content,
                 $summary,
@@ -104,9 +104,9 @@ if (isset($params['submit']) || isset($params['apply'])) {
                 $news_url,
                 $searchable,
                 $articleid
-            ));
+            ]);
         } else {
-            $db->Execute($query, array(
+            $db->Execute($query, [
                 $title,
                 $content,
                 $summary,
@@ -120,7 +120,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
                 $news_url,
                 $searchable,
                 $articleid
-            ));
+            ]);
         }
 
         //
@@ -155,35 +155,35 @@ if (isset($params['submit']) || isset($params['apply'])) {
             foreach ($params['customfield'] as $fldid => $value) {
                 // first check if it's available
                 $query = "SELECT value FROM " . CMS_DB_PREFIX . "module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?";
-                $tmp = $db->GetOne($query, array(
+                $tmp = $db->GetOne($query, [
                     $articleid,
                     $fldid
-                ));
+                ]);
                 $dbr = true;
                 if ($tmp === false) {
                     if (!empty($value)) {
                         $query = "INSERT INTO " . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,$now,$now)";
-                        $dbr = $db->Execute($query, array(
+                        $dbr = $db->Execute($query, [
                             $articleid,
                             $fldid,
                             $value
-                        ));
+                        ]);
                     }
                 } else {
                     if (empty($value)) {
                         $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                        $dbr = $db->Execute($query, array(
+                        $dbr = $db->Execute($query, [
                             $articleid,
                             $fldid
-                        ));
+                        ]);
                     } else {
                         $query = "UPDATE " . CMS_DB_PREFIX . "module_news_fieldvals
                       SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
-                        $dbr = $db->Execute($query, array(
+                        $dbr = $db->Execute($query, [
                             $value,
                             $articleid,
                             $fldid
-                        ));
+                        ]);
                     }
                 }
                 if (!$dbr)
@@ -197,10 +197,10 @@ if (isset($params['submit']) || isset($params['apply'])) {
             if ($v != 'delete')
                 continue;
             $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-            $db->Execute($query, array(
+            $db->Execute($query, [
                 $articleid,
                 $k
-            ));
+            ]);
         }
     }
 
@@ -231,7 +231,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
             }
         }
 
-        \CMSMS\HookManager::do_hook('News::NewsArticleEdited', array(
+        \CMSMS\HookManager::do_hook('News::NewsArticleEdited', [
             'news_id' => $articleid,
             'category_id' => $usedcategory,
             'title' => $title,
@@ -244,7 +244,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
             'extra' => $extra,
             'useexp' => $useexp,
             'news_url' => $news_url
-        ));
+        ]);
         // put mention into the admin log
         audit($articleid, 'News: ' . $title, 'Article edited');
     }// if no error.
@@ -288,11 +288,11 @@ if (isset($params['submit']) || isset($params['apply'])) {
     if (isset($params['previewpage']) && (int)$params['previewpage'] > 0)
         $detail_returnid = (int)$params['previewpage'];
 
-    $_SESSION['news_preview'] = array(
+    $_SESSION['news_preview'] = [
         'fname' => basename($tmpfname),
         'checksum' => md5_file($tmpfname)
-    );
-    $tparms = array('preview' => md5(serialize($_SESSION['news_preview'])));
+    ];
+    $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
     if (isset($params['detailtemplate']))
         $tparms['detailtemplate'] = trim($params['detailtemplate']);
     $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, TRUE);
@@ -320,7 +320,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
     // Load data from database
     //
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news WHERE news_id = ?';
-    $row = $db->GetRow($query, array($articleid));
+    $row = $db->GetRow($query, [$articleid]);
 
     if ($row) {
         $title        = $row['news_title'];
@@ -342,11 +342,11 @@ if (isset($params['submit']) || isset($params['apply'])) {
     }
 }
 
-$statusdropdown = array();
+$statusdropdown = [];
 $statusdropdown[$this->Lang('draft')] = 'draft';
 $statusdropdown[$this->Lang('published')] = 'published';
 
-$categorylist = array();
+$categorylist = [];
 $query = "SELECT * FROM " . CMS_DB_PREFIX . "module_news_categories ORDER BY hierarchy";
 $dbresult = $db->Execute($query);
 
@@ -359,9 +359,9 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
  ---------------------*/
 
 // Get the field values
-$fieldvals = array();
+$fieldvals = [];
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ?';
-$tmp = $db->GetArray($query, array($articleid));
+$tmp = $db->GetArray($query, [$articleid]);
 if (is_array($tmp)) {
     foreach ($tmp as $one) {
         $fieldvals[$one['fielddef_id']] = $one;
@@ -370,7 +370,7 @@ if (is_array($tmp)) {
 
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fielddefs ORDER BY item_order';
 $dbr = $db->Execute($query);
-$custom_flds = array();
+$custom_flds = [];
 while ($dbr && ($row = $dbr->FetchRow())) {
     if (isset($row['extra']) && $row['extra']) $row['extra'] = unserialize($row['extra']);
 
@@ -520,13 +520,13 @@ $smarty->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $th
 try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
     $templates = $type->get_template_list();
-    $list = array();
+    $list = [];
     if (is_array($templates) && count($templates)) {
         foreach ($templates as $template) {
             $list[$template->get_id()] = $template->get_name();
         }
     }
-    if (count($list)) {
+    if ($list) {
         $smarty->assign('prompt_detail_template', $this->Lang('detail_template'));
         $smarty->assign('prompt_detail_page', $this->Lang('detail_page'));
         $smarty->assign('detail_templates', $list);
@@ -534,9 +534,10 @@ try {
         $smarty->assign('start_tab_preview', $this->StartTab('preview', $params));
         $smarty->assign('end_tab_preview', $this->EndTab());
     }
+	include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
 }
 
-// and display the template.
+// and display the template
 echo $this->ProcessTemplate('editarticle.tpl');

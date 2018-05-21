@@ -99,7 +99,7 @@ if (isset($params['submit'])) {
         $articleid = $db->GenID(CMS_DB_PREFIX . "module_news_seq");
         $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news (news_id, news_category_id, news_title, news_data, summary, status, news_date, start_time, end_time, create_date, modified_date,author_id,news_extra,news_url,searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         if ($useexp == 1) {
-            $dbr = $db->Execute($query, array(
+            $dbr = $db->Execute($query, [
                 $articleid,
                 $usedcategory,
                 $title,
@@ -115,9 +115,9 @@ if (isset($params['submit'])) {
                 $extra,
                 $news_url,
                 $searchable
-            ));
+            ]);
         } else {
-            $dbr = $db->Execute($query, array(
+            $dbr = $db->Execute($query, [
                 $articleid,
                 $usedcategory,
                 $title,
@@ -133,7 +133,7 @@ if (isset($params['submit'])) {
                 $extra,
                 $news_url,
                 $searchable
-            ));
+            ]);
         }
 
         if (!$dbr) {
@@ -174,13 +174,13 @@ if (isset($params['submit'])) {
                     continue;
 
                 $query = "INSERT INTO " . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,?,?)";
-                $dbr = $db->Execute($query, array(
+                $dbr = $db->Execute($query, [
                     $articleid,
                     $fldid,
                     $value,
                     $now,
                     $now
-                ));
+                ]);
                 if (!$dbr)
                     die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
             }
@@ -212,7 +212,7 @@ if (isset($params['submit'])) {
 
         if (!$error) {
             \CMSMS\HookManager::do_hook('News::NewsArticleAdded',
-                                        array('news_id' => $articleid,
+                                        ['news_id' => $articleid,
                                               'category_id' => $usedcategory,
                                               'title' => $title,
                                               'content' => $content,
@@ -222,7 +222,7 @@ if (isset($params['submit'])) {
                                               'end_time' => $enddate,
                                               'postdate' => $postdate,
                                               'useexp' => $useexp,
-                                              'extra' => $extra ));
+                                              'extra' => $extra ]);
             // put mention into the admin log
             audit($articleid, 'News: ' . $title, 'Article added');
 			$this->SetMessage($this->Lang('articleadded'));
@@ -249,11 +249,11 @@ if (isset($params['submit'])) {
     if (isset($params['previewpage']) && (int)$params['previewpage'] > 0)
         $detail_returnid = (int)$params['previewpage'];
 
-    $_SESSION['news_preview'] = array(
+    $_SESSION['news_preview'] = [
         'fname' => basename($tmpfname),
         'checksum' => md5_file($tmpfname)
-    );
-    $tparms = array('preview' => md5(serialize($_SESSION['news_preview'])));
+    ];
+    $tparms = ['preview' => md5(serialize($_SESSION['news_preview']))];
     if (isset($params['detailtemplate']))
         $tparms['detailtemplate'] = trim($params['detailtemplate']);
     $url = $this->create_url('_preview_', 'detail', $detail_returnid, $tparms, true);
@@ -280,11 +280,11 @@ if (isset($params['submit'])) {
 //
 // build the form
 //
-$statusdropdown = array();
+$statusdropdown = [];
 $statusdropdown[$this->Lang('draft')] = 'draft';
 $statusdropdown[$this->Lang('published')] = 'published';
 
-$categorylist = array();
+$categorylist = [];
 $query = "SELECT * FROM " . CMS_DB_PREFIX . "module_news_categories ORDER BY hierarchy";
 $dbresult = $db->Execute($query);
 
@@ -296,7 +296,7 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
 // Display custom fields
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_fielddefs ORDER BY item_order';
 $dbr = $db->Execute($query);
-$custom_flds = array();
+$custom_flds = [];
 
 while ($dbr && ($row = $dbr->FetchRow())) {
     if (!empty($row['extra']))
@@ -403,13 +403,13 @@ $smarty->assign('end_tab_article', $this->EndTab());
 $smarty->assign('end_tab_content', $this->EndTabContent());
 $smarty->assign('warning_preview', $this->Lang('warning_preview'));
 
-$parms = array(
+$parms = [
     'enablewysiwyg' => 1,
     'name' => $id . 'content',
     'text' => $content,
     'rows' => 10,
     'cols' => 80
-);
+];
 $smarty->assign('inputcontent', CmsFormUtils::create_textarea($parms));
 
 $parms = [
@@ -441,13 +441,13 @@ $smarty->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $th
 try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
     $templates = $type->get_template_list();
-    $list = array();
+    $list = [];
     if (is_array($templates) && count($templates)) {
         foreach ($templates as $template) {
             $list[$template->get_id()] = $template->get_name();
         }
     }
-    if (count($list)) {
+    if ($list) {
         $smarty->assign('prompt_detail_template', $this->Lang('detail_template'));
         $smarty->assign('prompt_detail_page', $this->Lang('detail_page'));
         $smarty->assign('detail_templates', $list);
@@ -455,8 +455,9 @@ try {
         $smarty->assign('start_tab_preview', $this->StartTab('preview', $params));
         $smarty->assign('end_tab_preview', $this->EndTab());
     }
+	include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
 }
 echo $this->ProcessTemplate('editarticle.tpl');
-?>
+
