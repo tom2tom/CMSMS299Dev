@@ -24,7 +24,6 @@ use CMSModule;
 use CMSMS\contenttypes\ErrorPage;
 //use CMSMS\Database\Connection as Connection2;
 use CMSMS\Database\mysqli\Connection;
-use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
 use const CMS_DB_PREFIX;
 use const PUBLIC_CACHE_LOCATION;
@@ -34,6 +33,7 @@ use function cms_join_path;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 */
+use CMSMS\internal\global_cache;
 
 /**
  * Singleton class that contains various functions and states
