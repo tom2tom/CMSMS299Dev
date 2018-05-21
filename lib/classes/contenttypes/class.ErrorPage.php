@@ -39,9 +39,9 @@ class ErrorPage extends Content
 
 		global $CMS_ADMIN_PAGE;
 		if( isset($CMS_ADMIN_PAGE) ) {
-			$this->error_types = array('404' => lang('404description'),
-									   '403' => lang('403description'),
-									   '503' => lang('503description') );
+			$this->error_types = ['404' => lang('404description'),
+								  '403' => lang('403description'),
+								  '503' => lang('503description') ];
 		}
 		$this->doAliasCheck = false;
 		$this->doAutoAliasIfEnabled = false;
@@ -87,12 +87,12 @@ class ErrorPage extends Content
 
 	function IsCopyable()
 	{
-		return FALSE;
+		return false;
 	}
 
 	function IsDefaultPossible()
 	{
-		return FALSE;
+		return false;
 	}
 
 	function HasUsableLink()
@@ -125,16 +125,14 @@ class ErrorPage extends Content
 		case 'alias':
 			$dropdownopts = '';
 			//$dropdownopts = '<option value="">'.lang('none').'</option>';
-			foreach ($this->error_types as $code=>$name)
-			{
+			foreach ($this->error_types as $code=>$name) {
 				$dropdownopts .= '<option value="error' . $code . '"';
-				if ('error'.$code == $this->mAlias)
-				{
+				if ('error'.$code == $this->mAlias) {
 					$dropdownopts .= ' selected="selected" ';
 				}
 				$dropdownopts .= ">{$name} ({$code})</option>";
 			}
-			return array(lang('error_type').':', '<select name="alias">'.$dropdownopts.'</select>');
+			return [lang('error_type').':', '<select name="alias">'.$dropdownopts.'</select>'];
 			break;
 
 		default:
@@ -148,39 +146,32 @@ class ErrorPage extends Content
 		// force not searchable.
 
 		$errors = parent::ValidateData();
-		if ($errors == FALSE)
-		{
-			$errors = array();
+		if ($errors == false) {
+			$errors = [];
 		}
 
 		//Do our own alias check
-		if ($this->mAlias == '')
-		{
+		if ($this->mAlias == '') {
 			$errors[] = lang('nofieldgiven', lang('error_type'));
 		}
-		else if (in_array($this->mAlias, $this->error_types))
-		{
+		else if (in_array($this->mAlias, $this->error_types)) {
 			$errors[] = lang('nofieldgiven', lang('error_type'));
 		}
-		else if ($this->mAlias != $this->mOldAlias)
-		{
+		else if ($this->mAlias != $this->mOldAlias) {
 			$gCms = cmsms();
 			$contentops =& $gCms->GetContentOperations();
 			$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
-			if ($error !== FALSE)
-			{
-				if ($error == lang('aliasalreadyused'))
-				{
+			if ($error !== false) {
+				if ($error == lang('aliasalreadyused')) {
 					$errors[] = lang('errorpagealreadyinuse');
 				}
-				else
-				{
+				else {
 					$errors[] = $error;
 				}
 			}
 		}
 
-		return (count($errors) > 0 ? $errors : FALSE);
+		return (count($errors) > 0 ? $errors : false);
 	}
 }
 

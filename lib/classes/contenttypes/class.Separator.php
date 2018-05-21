@@ -61,7 +61,7 @@ class Separator extends \CMSMS\ContentBase
 
 	public function TabNames()
 	{
-		$res = array(lang('main'));
+		$res = [lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
 		return $res;
 	}

@@ -66,7 +66,7 @@ class PageLink extends \CMSMS\ContentBase
 		parent::FillParams($params,$editing);
 
 		if (isset($params)) {
-			$parameters = array('page', 'params' );
+			$parameters = ['page', 'params' ];
 			foreach ($parameters as $oneparam) {
 				if (isset($params[$oneparam])) $this->SetPropertyValue($oneparam, $params[$oneparam]);
 			}
@@ -76,7 +76,7 @@ class PageLink extends \CMSMS\ContentBase
 	function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === false ) $errors = array();
+		if( $errors === false ) $errors = [];
 
 		$page = $this->GetPropertyValue('page');
 		if ($page == '-1') {
@@ -106,7 +106,7 @@ class PageLink extends \CMSMS\ContentBase
 
 	function TabNames()
 	{
-		$res = array(lang('main'));
+		$res = [lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
 		return $res;
 	}
@@ -117,12 +117,12 @@ class PageLink extends \CMSMS\ContentBase
 		case 'page':
 			$contentops = ContentOperations::get_instance();
 			$tmp = $contentops->CreateHierarchyDropdown($this->mId, $this->GetPropertyValue('page'), 'page', 1, 0, 0, 0);
-			if( !empty($tmp) ) return array(lang('destination_page').':',$tmp);
+			if( !empty($tmp) ) return [lang('destination_page').':',$tmp];
 			break;
 
 		case 'params':
 			$val = cms_htmlentities($this->GetPropertyValue('params'));
-			return array(lang('additional_params').':','<input type="text" name="params" value="'.$val.'" />');
+			return [lang('additional_params').':','<input type="text" name="params" value="'.$val.'" />'];
 			break;
 
 		default:

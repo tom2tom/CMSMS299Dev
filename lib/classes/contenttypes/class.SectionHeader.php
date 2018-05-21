@@ -50,14 +50,14 @@ class SectionHeader extends \CMSMS\ContentBase
 	}
 
 	public function HasUsableLink() { return false; }
-	public function RequiresAlias() { return TRUE; }
-	public function HasSearchableContent() { return FALSE; }
+	public function RequiresAlias() { return true; }
+	public function HasSearchableContent() { return false; }
 	public function GetURL($rewrite = true) { return '#'; }
-	public function IsViewable() { return FALSE; }
+	public function IsViewable() { return false; }
 
 	function TabNames()
 	{
-		$res = array(lang('main'));
+		$res = [lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) {
 			$res[] = lang('options');
 		}
