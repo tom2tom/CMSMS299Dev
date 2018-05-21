@@ -168,10 +168,10 @@ class Content extends \CMSMS\ContentBase
 	 * @param array $params Hash of parameters to load into content attributes
 	 * @param bool  $editing Whether we in an add or edit operation.
 	 */
-	public function FillParams(array $params, bool $editing = false)
+	public function FillParams($params, $editing = false)
 	{
 		if (isset($params)) {
-			$parameters = array('pagedata','searchable','disable_wysiwyg','design_id','wantschildren');
+			$parameters = ['pagedata','searchable','disable_wysiwyg','design_id','wantschildren'];
 
 			//pick up the template id before we do parameters
 			if (isset($params['template_id'])) {
@@ -227,7 +227,7 @@ class Content extends \CMSMS\ContentBase
 	 * @param string $param which attribute to return (content_en is assumed)
 	 * @return string the specified content
 	 */
-	public function Show(string $param = 'content_en')
+	public function Show($param = 'content_en')
 	{
 		$param = trim($param);
 		if( !$param ) $param = 'content_en';
@@ -334,7 +334,7 @@ class Content extends \CMSMS\ContentBase
 	 * @access private
 	 * @internal
 	 */
-	private function get_content_blocks()
+	private function get_content_blocks() : array
 	{
 		if( is_array($this->_contentBlocks) ) {
 			return $this->_contentBlocks;
@@ -360,10 +360,10 @@ class Content extends \CMSMS\ContentBase
 	 *
 	 * @param string $one The property name
 	 * @param string $adding A flag indicating whether or not we are in add or edit mode
-	 * @return array consisting of two elements: A label, and the input element HTML and javascript.
+	 * @return 2-member array: [0] = label, [1] = input element HTML and javascript.
 	 * @internal
 	 */
-	protected function display_single_element(string $one,bool $adding)
+	protected function display_single_element($one, $adding)
 	{
 		static $_designs;
 		static $_types;
@@ -371,11 +371,11 @@ class Content extends \CMSMS\ContentBase
 		static $_designlist;
 		static $_templates;
 		if( $_designlist == null ) {
-			$_tpl = CmsLayoutTemplate::template_query(array('as_list'=>1));
+			$_tpl = CmsLayoutTemplate::template_query(['as_list'=>1]);
 			if( is_array($_tpl) && count($_tpl) ) {
-				$_templates = array();
+				$_templates = [];
 				foreach( $_tpl as $tpl_id => $tpl_name ) {
-					$_templates[] = array('value'=>$tpl_id,'label'=>$tpl_name);
+					$_templates[] = ['value'=>$tpl_id,'label'=>$tpl_name];
 				}
 			}
 			$_designlist = CmsLayoutCollection::get_list();
@@ -398,9 +398,9 @@ class Content extends \CMSMS\ContentBase
 				$out = '';
 				if( is_array($_designlist) && count($_designlist) ) {
 					$out = CmsFormUtils::create_dropdown('design_id',$_designlist,$this->GetPropertyValue('design_id'),
-														 array('id'=>'design_id'));
+														 ['id'=>'design_id']);
 					$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_design',lang('help_title_editcontent_design'));
-					return array('<label for="design_id">*'.lang('design').':</label>'.$help,$out);
+					return ['<label for="design_id">*'.lang('design').':</label>'.$help,$out];
 				}
 			}
 			catch( CmsException $e ) {
@@ -420,9 +420,9 @@ class Content extends \CMSMS\ContentBase
 						cms_error('No default page template found');
 					}
 				}
-				$out = CmsFormUtils::create_dropdown('template_id',$_templates,$template_id,array('id'=>'template_id'));
+				$out = CmsFormUtils::create_dropdown('template_id',$_templates,$template_id,['id'=>'template_id']);
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_template',lang('help_title_editcontent_template'));
-				return array('<label for="template_id">*'.lang('template').':</label>'.$help,$out);
+				return ['<label for="template_id">*'.lang('template').':</label>'.$help,$out];
 			}
 			catch( CmsException $e ) {
 				// nothing here yet.
@@ -431,43 +431,43 @@ class Content extends \CMSMS\ContentBase
 
 		case 'pagemetadata':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_pagemeta',lang('help_title_content_pagemeta'));
-			return array('<label for="id_pagemetadata">'.lang('page_metadata').':</label>'.$help,
-						 CmsFormUtils::create_textarea(array('name'=>'metadata','value'=>$this->MetaData(),
+			return ['<label for="id_pagemetadata">'.lang('page_metadata').':</label>'.$help,
+						 CmsFormUtils::create_textarea(['name'=>'metadata','value'=>$this->MetaData(),
 															 'classname'=>'pagesmalltextarea',
 															 'width'=>80,'height'=>3,
-															 'id'=>'metadata')));
+															 'id'=>'metadata'])];
 
 		case 'pagedata':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_pagedata',lang('help_title_content_pagedata'));
-			return array('<label for="id_pagedata">'.lang('pagedata_codeblock').':</label>'.$help,
-						 CmsFormUtils::create_textarea(array('name'=>'pagedata','value'=>$this->GetPropertyValue('pagedata'),
+			return ['<label for="id_pagedata">'.lang('pagedata_codeblock').':</label>'.$help,
+						 CmsFormUtils::create_textarea(['name'=>'pagedata','value'=>$this->GetPropertyValue('pagedata'),
 															 'width'=>80,'height'=>3,
-															 'classname'=>'pagesmalltextarea','id'=>'id_pagedata')));
+															 'classname'=>'pagesmalltextarea','id'=>'id_pagedata'])];
 
 		case 'searchable':
 			$searchable = $this->GetPropertyValue('searchable');
 			if( $searchable == '' ) $searchable = 1;
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_searchable',lang('help_title_page_searchable'));
-			return array('<label for="id_searchable">'.lang('searchable').':</label>'.$help,
+			return ['<label for="id_searchable">'.lang('searchable').':</label>'.$help,
 						 '<input type="hidden" name="searchable" value="0"/>
-						  <input id="id_searchable" type="checkbox" name="searchable" value="1" '.($searchable==1?'checked="checked"':'').' />');
+						  <input id="id_searchable" type="checkbox" name="searchable" value="1" '.($searchable==1?'checked="checked"':'').' />'];
 
 		case 'disable_wysiwyg':
 			$disable_wysiwyg = $this->GetPropertyValue('disable_wysiwyg');
 			if( $disable_wysiwyg == '' ) $disable_wysiwyg = 0;
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_disablewysiwyg',lang('help_title_page_disablewysiwyg'));
-			return array('<label for="id_disablewysiwyg">'.lang('disable_wysiwyg').':</label>'.$help,
+			return ['<label for="id_disablewysiwyg">'.lang('disable_wysiwyg').':</label>'.$help,
 						 '<input type="hidden" name="disable_wysiwyg" value="0" />
-						  <input id="id_disablewysiwyg" type="checkbox" name="disable_wysiwyg" value="1"  '.($disable_wysiwyg==1?'checked="checked"':'').' />');
+						  <input id="id_disablewysiwyg" type="checkbox" name="disable_wysiwyg" value="1"  '.($disable_wysiwyg==1?'checked="checked"':'').' />'];
 
 		case 'wantschildren':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
 			if ( check_permission(get_userid(),'Manage All Content') || $showadmin ) {
 				$wantschildren = $this->WantsChildren();
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_wantschildren',lang('help_title_page_wantschildren'));
-				return array('<label for="id_wantschildren">'.lang('wantschildren').':</label>'.$help,
+				return ['<label for="id_wantschildren">'.lang('wantschildren').':</label>'.$help,
 							 '<input type="hidden" name="wantschildren" value="0"/>
-							  <input id="id_wantschildren" type="checkbox" name="wantschildren" value="1" '.($wantschildren?'checked="checked"':'').' />');
+							  <input id="id_wantschildren" type="checkbox" name="wantschildren" value="1" '.($wantschildren?'checked="checked"':'').' />'];
 			}
 			break;
 
@@ -498,7 +498,7 @@ class Content extends \CMSMS\ContentBase
 	/**
 	 * @ignore
 	 */
-	private function _display_text_block($blockInfo,$value,$adding)
+	private function _display_text_block(array $blockInfo, $value/*, bool $adding*/)
 	{
 		$ret = '';
 		$oneline = cms_to_bool($this->_get_param($blockInfo,'oneline'));
@@ -559,7 +559,7 @@ class Content extends \CMSMS\ContentBase
 	/**
 	 * @ignore
 	 */
-	private function _display_static_text_block($blockInfo)
+	private function _display_static_text_block(array $blockInfo) : array
 	{
 		$out = '<div class="static_text" data-name="'.$blockInfo['name'].'"}>';
 		$out .= $blockInfo['static_content'];
@@ -570,7 +570,7 @@ class Content extends \CMSMS\ContentBase
 	/**
 	 * @ignore
 	 */
-	private function _display_image_block($blockInfo,$value,$adding)
+	private function _display_image_block(array $blockInfo,$value/*, bool $adding*/)
 	{
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
@@ -616,7 +616,7 @@ class Content extends \CMSMS\ContentBase
 	/**
 	 * @ignore
 	 */
-	private function _display_module_block($blockName,$blockInfo,$value,$adding)
+	private function _display_module_block(string $blockName, array $blockInfo, $value, bool $adding)
 	{
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
@@ -641,11 +641,11 @@ class Content extends \CMSMS\ContentBase
 	/**
 	 * @ignore
 	 */
-	private function display_content_block($blockName,$blockInfo,$value,$adding = false)
+	private function display_content_block(string $blockName, array $blockInfo, $value, bool $adding = false)
 	{
 		// it'd be nice if the content block was an object..
 		// but I don't have the time to do it at the moment.
-			   $noedit = cms_to_bool($this->_get_param($blockInfo,'noedit','false'));
+		$noedit = cms_to_bool($this->_get_param($blockInfo,'noedit','false'));
 		if( $noedit ) return;
 
 		$field = '';
@@ -663,11 +663,11 @@ class Content extends \CMSMS\ContentBase
 		case 'text':
 			$label = '<label for="'.$blockName.'">'.$label.':</label>';
 			if( $help ) $label .= '&nbsp;'.$help;
-			$field = $this->_display_text_block($blockInfo,$value,$adding);
+			$field = $this->_display_text_block($blockInfo,$value/*,$adding*/);
 			break;
 
 		case 'image':
-			$field = $this->_display_image_block($blockInfo,$value,$adding);
+			$field = $this->_display_image_block($blockInfo,$value/*,$adding*/);
 			break;
 
 		case 'static':
@@ -702,7 +702,7 @@ class Content extends \CMSMS\ContentBase
 		}
 		if( empty($field) ) return false;
 		if( empty($label) ) $label = $blockName.':';
-		return array($label,$field);
+		return [$label,$field];
 	}
 
 } // class

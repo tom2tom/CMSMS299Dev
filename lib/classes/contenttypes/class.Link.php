@@ -48,12 +48,12 @@ class Link extends \CMSMS\ContentBase
 		$this->AddProperty('url',3,self::TAB_MAIN,true,true);
 	}
 
-	public function FillParams(array $params, bool $editing = false)
+	public function FillParams($params, $editing = false)
 	{
 		parent::FillParams($params,$editing);
 
 		if (isset($params)) {
-			$parameters = array('url');
+			$parameters = ['url'];
 			foreach ($parameters as $oneparam) {
 				if (isset($params[$oneparam])) $this->SetPropertyValue($oneparam, $params[$oneparam]);
 			}
@@ -65,7 +65,7 @@ class Link extends \CMSMS\ContentBase
 	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
-		if( $errors === false )	$errors = array();
+		if( $errors === false )	$errors = [];
 
 		if ($this->GetPropertyValue('url') == '') {
 			$errors[]= lang('nofieldgiven', lang('url'));
@@ -77,18 +77,18 @@ class Link extends \CMSMS\ContentBase
 
 	public function TabNames()
 	{
-		$res = array(lang('main'));
+		$res = [lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) {
 			$res[] = lang('options');
 		}
 		return $res;
 	}
 
-	public function display_single_element(string $one,bool $adding)
+	public function display_single_element($one, $adding)
 	{
 		switch($one) {
 		case 'url':
-			return array(lang('url').':','<input type="text" name="url" size="80" value="'.cms_htmlentities($this->GetPropertyValue('url')).'" />');
+			return [lang('url').':','<input type="text" name="url" size="80" value="'.cms_htmlentities($this->GetPropertyValue('url')).'" />'];
 			break;
 
 		default:
