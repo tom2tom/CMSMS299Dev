@@ -48,7 +48,6 @@ if (!empty($_POST['addbookmark'])) {
 	}
 
 	if ($validinfo) {
-		cmsms()->GetBookmarkOperations();
 		$markobj = new Bookmark();
 		$markobj->title = $title;
 		$markobj->url = $url;
