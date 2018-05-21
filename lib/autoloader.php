@@ -50,7 +50,6 @@ function cms_autoloader(string $classname)
 
 	if ($class_replaces === null) {
 		$class_replaces = [
-'User' => 'CMSMS\User',
 /*
 'cms_admin_tabs' => 'CMSMS\AdminTabs',
 'cms_admin_utils' => 'CMSMS\AdminUtils2',
@@ -70,23 +69,10 @@ function cms_autoloader(string $classname)
 'cms_url' => 'CMSMS\Url',
 'cms_userprefs' => 'CMSMS\Userprefs',
 'cms_utils' => 'CMSMS\Utils',
-//'lowercase'
-'Bookmark' => 'CMSMS\Bookmark',
-'BookmarkOperations' => 'CMSMS\BookmarkOperations',
-'ContentOperations' => 'CMSMS\ContentOperations',
-'Events'=> 'CMSMS\Events',
-'Group' => 'CMSMS\Group',
-'GroupOperations' => 'CMSMS\GroupOperations',
-'ModuleOperations' => 'CMSMS\ModuleOperations',
-'User' => 'CMSMS\User',
-'UserOperations' => 'CMSMS\UserOperations',
-'UserTagOperations' => 'CMSMS\UserTagOperations',
 //mebbe not these
 'CmsApp' => 'CMSMS\App',
 'CMSModule' => 'CMSMS\Module',
 'CMSModuleContentType' => 'CMSMS\ModuleContentType',
-//rename only
-'simple_plugin_operations' => 'SimplePluginOperations', //new class, all uses changed
 */
 		];
 	}
