@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: edit template
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -8,16 +7,15 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-if (!isset($gCms)) exit ;
+
+if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Templates')) {
     // no manage templates permission
     if (!$this->CheckPermission('Add Templates')) {
@@ -38,14 +36,14 @@ if (isset($params['cancel'])) {
 }
 
 try {
-    $tpl_obj = null;
-    $type_obj = null;
+//    $tpl_obj = null;
+//    $type_obj = null;
     $type_is_readonly = false;
     $message = $this->Lang('msg_template_saved');
     $response = 'success';
     $apply = isset($params['apply']) ? 1 : 0;
 
-    $extraparms = array();
+    $extraparms = [];
     if (isset($params['import_type'])) {
         $tpl_obj = CmsLayoutTemplate::create_by_type($params['import_type']);
         $tpl_obj->set_owner(get_userid());
@@ -89,7 +87,7 @@ try {
             }
 
             if ($this->CheckPermission('Manage Designs')) {
-                $design_list = array();
+                $design_list = [];
                 if (isset($params['design_list'])) $design_list = $params['design_list'];
                 $tpl_obj->set_designs($design_list);
             }
@@ -132,8 +130,8 @@ try {
     // BUILD THE DISPLAY
     //
     if (!$apply && $tpl_obj && $tpl_obj->get_id() && dm_utils::locking_enabled()) {
-        $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
-        $smarty->assign('lock_refresh', $this->GetPreference('lock_refresh'));
+        $lock_timeout = $this->GetPreference('lock_timeout', 0);
+        $lock_refresh = $this->GetPreference('lock_refresh', 0);
         try {
             $lock_id = CmsLockOperations::is_locked('template', $tpl_obj->get_id());
             $lock = null;
@@ -148,6 +146,9 @@ try {
             $this->SetError($message);
             $this->RedirectToAdminTab();
         }
+    } else {
+        $lock_timeout = 0;
+        $lock_refresh = 0;
     }
 
     // handle the response message
@@ -160,6 +161,7 @@ try {
     if( ($tpl_id = $tpl_obj->get_id()) > 0 ) {
         \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
     } else {
+        $tpl_id = 0;
         \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_template'));
     }
 
@@ -168,8 +170,7 @@ try {
     $smarty->assign('template', $tpl_obj);
 
     $cats = CmsLayoutTemplateCategory::get_all();
-    $out = array();
-    $out[''] = $this->Lang('prompt_none');
+    $out = ['' => $this->Lang('prompt_none')];
     if (is_array($cats) && count($cats)) {
         foreach ($cats as $one) {
             $out[$one->get_id()] = $one->get_name();
@@ -179,8 +180,8 @@ try {
 
     $types = CmsLayoutTemplateType::get_all();
     if (is_array($types) && count($types)) {
-        $out = array();
-        $out2 = array();
+        $out = [];
+        $out2 = [];
         foreach ($types as $one) {
             $out2[] = $one->get_id();
             $out[$one->get_id()] = $one->get_langified_display_value();
@@ -191,21 +192,21 @@ try {
 
     $designs = CmsLayoutCollection::get_all();
     if (is_array($designs) && count($designs)) {
-        $out = array();
+        $out = [];
         foreach ($designs as $one) {
             $out[$one->get_id()] = $one->get_name();
         }
         $smarty->assign('design_list', $out);
     }
 
-    if ($tpl_obj->get_id()) $smarty->assign('tpl_id', $tpl_obj->get_id());
+    $user_id = get_userid(false);
     $smarty->assign('has_manage_right', $this->CheckPermission('Modify Templates'));
     $smarty->assign('has_themes_right', $this->CheckPermission('Manage Designs'));
-    if ($this->CheckPermission('Modify Templates') || $tpl_obj->get_owner_id() == get_userid()) {
+    if ($this->CheckPermission('Modify Templates') || $tpl_obj->get_owner_id() == $user_id) {
 
         $userops = cmsms()->GetUserOperations();
         $allusers = $userops->LoadUsers();
-        $tmp = array();
+        $tmp = [];
         foreach ($allusers as $one) {
             //FIXME Why skip admin here? If template owner is admin this would unset admin as owner
             //if ($one->id == 1)
@@ -224,9 +225,92 @@ try {
         }
         if (is_array($tmp) && count($tmp)) $smarty->assign('addt_editor_list', $tmp);
     }
-    
+
 //TODO ensure flexbox css for .hbox, .boxchild
-  
+
+    $script_url = CMS_SCRIPTS_URL;
+    $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1:0;
+    $s1 = json_encode($this->Lang('msg_lostlock'));
+
+    $js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  var do_locking = $do_locking;
+  $('#form_edittemplate').dirtyForm({
+    beforeUnload: function() {
+      if(do_locking) $('#form_edittemplate').lockManager('unlock');
+    },
+    unloadCancel: function() {
+      if(do_locking) $('#form_edittemplate').lockManager('relock');
+    }
+  });
+  // initialize lock manager
+  if(do_locking) {
+    $('#form_edittemplate').lockManager({
+      type: 'template',
+      oid: $tpl_id,
+      uid: $user_id,
+      lock_timeout: $lock_timeout,
+      lock_refresh: $lock_refresh,
+      error_handler: function(err) {
+        cms_alert('$this->Lang("error_lock")' + ' ' + err.type + ' // ' + err.msg);
+      },
+      lostlock_handler: function(err) {
+       // we lost the lock on this content... make sure we can't save anything.
+       // and display a nice message.
+        $('[name$=cancel]').fadeOut().attr('value', '$this->Lang("cancel")').fadeIn();
+        $('#form_edittemplate').dirtyForm('option', 'dirty', false);
+        $('#submitbtn, #applybtn').attr('disabled', 'disabled');
+        $('#submitbtn, #applybtn').button({ 'disabled': true });
+        $('.lock-warning').removeClass('hidden-item');
+        cms_alert($s1);
+      }
+    });
+  } // do_locking
+  $(document).on('cmsms_textchange', function() {
+    // editor textchange, set the form dirty.
+    $('#form_edittemplate').dirtyForm('option', 'dirty', true);
+  });
+  $('#form_edittemplate').on('click', '[name$=apply],[name$=submit],[name$=cancel]', function() {
+    // if we manually click on one of these buttons, the form is no longer considered dirty for the purposes of warnings.
+    $('#form_edittemplate').dirtyForm('option', 'dirty', false);
+  });
+/*
+  $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
+   if( ! do_locking ) return;
+   ev.preventDefault();
+   // unlock the item, and submit the form
+   var self = this;
+   $('#form_edittemplate').lockManager('unlock').done(function() {
+    var form = $(self).closest('form'),
+      el = $('<input type="hidden"/>');
+    el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
+    form.submit();
+   });
+   return false;
+  });
+*/
+  $('#applybtn').on('click', function(ev) {
+    ev.preventDefault();
+    var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&m1_apply=1',
+      data = $('#form_edittemplate').serializeArray();
+    $.post(url, data, function(data, textStatus, jqXHR) {
+      if(data.status === 'success') {
+        cms_notify('info', data.message);
+      } else if(data.status === 'error') {
+        cms_notify('error', data.message);
+      }
+    });
+    return false;
+  });
+});
+//]]>
+</script>
+EOS;
+    $this->AdminBottomContent($js);
+
     echo $this->ProcessTemplate('admin_edit_template.tpl');
 } catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
