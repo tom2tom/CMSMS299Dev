@@ -18,7 +18,7 @@ $simplex_theme->set_name('Simplex');
 $simplex_theme->set_description('Simplex Template is a HTML5 based theme, introduced with CMSMS 1.11 release and improved with 2.0 release.
 Purpose of this theme is to demonstrate what and how can be done with CMSMS Templates using HTML5 and responsive CSS for a better mobile experience.
 All Smarty templates which are used by Simplex Theme are prefix with "Simplex", therefore be careful when renaming or deleting these templates.
-Theme itself is using jQuery, which is included with {cms_jquery} tag, the functions JavaScript file is minified, in case you wish to change some JavaScript functions, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.');
+Theme itself is using jQuery, whose JavaScript file is minified, in case you wish to change some JavaScript functions, refer to /uploads/simplex/js/functions.js file and replace functions.min.js file.');
 $simplex_theme->set_default(TRUE);
 $simplex_theme->save();
 
