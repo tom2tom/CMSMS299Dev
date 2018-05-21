@@ -18,7 +18,7 @@ Core - General
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
   - Removed many previously deprecated and seldom used methods from the module API
   - Removed many deprecated and seldom used methods from the core API
-  - CHANGE: A new simple_plugin API. Simple plugins (files) are stored in /assets/plugins and must contain the <?php tag. 
+  - CHANGE: A new simple_plugin API. Simple plugins (files) are stored in /assets/plugins and must contain the <?php tag.
     (we will try to auto add it on upgrade)
   - CHANGE: Adds the new pr_root_url config entry.  to return the protocol relative root URI. root_url will always include the protocol.
   - Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
@@ -64,7 +64,7 @@ Core - General
   - Refactor the cms_module_plugin function for performance).
   - Refactor the route-lookup functionality for performance.
   - FEATURE: The database connection class now accepts a single scalar for an argument when only one parameter is required in functions like GetOne()
-  - CHANGE:  
+  - CHANGE:
   - Remove the startup_mact_processing config entry, and replace it with content_processing_mode config entry that supports 3 values
     0 - no content processing.
     1 - do content processing AFTER the template page top
@@ -89,8 +89,8 @@ Core - General
   - cms_mailer class now throws an exception if attempting to send an email without setting preferences first.
   - BREAKING: New methods and minor cleanup to admin themes (may introduce some breakage)
   - BREAKING:  Remove the {cms_jquery} plugin and the cms_get_jquery function in lib/misc.functions.php
-    - Users using {cms_jquery} in frontend templates will need to find alternate solutins
-    - See {cms_queue_script} and {cms_render_scripts} 
+    - Templates with {cms_jquery} will need to find alternate solutions
+    - See {cms_queue_script} and {cms_render_scripts}
   - FEATURE: Adds {cms_queue_script} and {cms_render_scripts} plugins to allow combining javascripts and rendering them in fewer requests.
   - Adds new Core::PreProcessScripts and Core::PostProcessScripts hooks
   - BREAKING: Upgrade the embedded jquery and jquery-ui scripts.
@@ -102,7 +102,7 @@ Core - General
   - SECURITY: checksum verification can no longer fish for files outside of the root directory.
   - Improvement to contentoperations::SetDefaultContent()
 
-News v2.21.5 
+News v2.21.5
   - Minor cleaning of parameters.
 
 CMSContentManager - 1.2
@@ -167,7 +167,7 @@ Version 2.2.5 - Wawa
 ----------------------------------
 Core - General
   - Fix minor security issue in the way login information was cached in cookies and the session.
-  - Simplify rules around alias editing/generation in fillparams. 
+  - Simplify rules around alias editing/generation in fillparams.
     If the alias field exists then we can adjust its value or recalculate an alias.
     Use basic properties, and ownership and permissions to determine if that field exists on the edit form.
   - Minor fixes to the CmsJobManager.
