@@ -1,6 +1,7 @@
 <?php
 # Module: CMSMailer - a simple wrapper around PHPMailer
 # Copyright (C) 2015-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +35,7 @@ class CMSMailer extends CMSModule
   function GetHelp() { return $this->Lang('help'); }
   function GetAuthor() { return 'Calguy1000'; }
   function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
-  function GetChangeLog() { return file_get_contents(dirname(__FILE__).'/changelog.inc'); }
+  function GetChangeLog() { return @file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'changelog.inc'); }
   function IsPluginModule() { return FALSE; }
   function HasAdmin() { return FALSE; }
   function GetAdminSection() { return 'extensions'; }
