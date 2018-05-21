@@ -17,7 +17,7 @@
 
 function smarty_function_cms_help($params,&$template)
 {
-  $out = cms_admin_utils::get_help_tag($params);
+  $out = CMSMS\AdminUtils::get_help_tag($params);
 
   if( isset($params['assign']) ) {
     $template->assign(trim($params['assign']),$out);
@@ -27,7 +27,3 @@ function smarty_function_cms_help($params,&$template)
   }
 }
 
-#
-# EOF
-#
-?>

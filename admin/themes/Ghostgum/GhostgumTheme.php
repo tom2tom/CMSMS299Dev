@@ -16,6 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\internal\Smarty;
+use CMSMS\AdminUtils;
 
 class GhostgumTheme extends CmsAdminThemeBase
 {
@@ -121,7 +122,7 @@ EOS;
 		}
 
 		if ($module) {
-			$tag = cms_admin_utils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
+			$tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
 		} else {
 			$tag = ''; //TODO get icon for admin operation
             //$tag = $this->get_active_icon());
@@ -204,10 +205,10 @@ EOS;
 
 		// the only needed scripts are: jquery, jquery-ui, and our custom login
 		list ($jqcore, $jqmigrate) = cms_jquery_local();
-		$url = cms_admin_utils::path_to_url($jqcore);
+		$url = AdminUtils::path_to_url($jqcore);
 		$out = sprintf($tpl,$url);
 		list ($jqui, $jqcss) = cms_jqueryui_local();
-		$url = cms_admin_utils::path_to_url($jqui);
+		$url = AdminUtils::path_to_url($jqui);
 		$out .= sprintf($tpl,$url);
 		$out .= <<<EOS
 <!--[if lt IE 9]>
@@ -216,7 +217,7 @@ EOS;
 <![endif]-->
 
 EOS;
-		$url = cms_admin_utils::path_to_url(__DIR__);
+		$url = AdminUtils::path_to_url(__DIR__);
 		$url .= '/js/login.js';
 		$out .= sprintf($tpl,$url);
 
@@ -286,7 +287,7 @@ EOS;
 		$smarty->assign('module_name', $module);
 
 		if ($module) {
-			$tag = cms_admin_utils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
+			$tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
 			// module_help_url?
 			if (!cms_userprefs::get_for_user(get_userid(),'hide_help_links',0)) {
 				if (($module_help_url = $this->get_module_help_url())) {

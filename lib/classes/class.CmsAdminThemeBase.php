@@ -18,7 +18,6 @@
 /* for future use
 namespace CMSMS;
 use cms_admin_tabs;
-use cms_admin_utils;
 use cms_cache_handler;
 use cms_config;
 use cms_url;
@@ -44,7 +43,7 @@ use ArrayTreeIterator;
 use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
 */
-use CMSMS\HookManager, CMSMS\ArrayTree;
+use CMSMS\AdminUtils, CMSMS\ArrayTree, CMSMS\HookManager;
 
 /**
  * This is an abstract base class for building CMSMS admin themes.
@@ -455,7 +454,7 @@ abstract class CmsAdminThemeBase
                             foreach ($smallappends as $one) {
                                 $path = cms_join_path($base, ...$one);
                                 if (is_file($path)) {
-                                    $obj->icon = cms_admin_utils::path_to_url($path);
+                                    $obj->icon = AdminUtils::path_to_url($path);
                                     break 2;
                                 }
                             }
@@ -463,7 +462,7 @@ abstract class CmsAdminThemeBase
                         foreach ($appends as $one) {
                             $path = cms_join_path($base, ...$one);
                             if (is_file($path)) {
-                                $obj->icon = cms_admin_utils::path_to_url($path);
+                                $obj->icon = AdminUtils::path_to_url($path);
                                 break 2;
                             }
                         }
@@ -1211,7 +1210,7 @@ $X = 1;
                 if (file_exists($path)) {
                     //admin-relative URL will do
                     $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
-                    $this->_imageLink[$imageName] = cms_admin_utils::path_to_url($path);
+                    $this->_imageLink[$imageName] = AdminUtils::path_to_url($path);
                     break;
                 } else {
                     $path = '';
