@@ -30,7 +30,7 @@ class ModuleManager extends CMSModule
     public function GetHelp() { return $this->Lang('help'); }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
-    public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function IsPluginModule() { return FALSE; }
     public function HasAdmin() { return TRUE; }
     public function IsAdminOnly() { return TRUE; }
