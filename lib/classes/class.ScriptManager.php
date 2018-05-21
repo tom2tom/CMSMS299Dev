@@ -1,5 +1,5 @@
 <?php
-#Scripts mamagement class
+#Scripts management class
 #Copyright (C) 2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,13 +16,16 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
+use CMSMS\HookManager
+use const CMS_SCRIPTS_PATH;
+use function file_put_contents;
 
 class ScriptManager
 {
     private $_scripts = [];
     private $_script_priority = 2;
 
-    public function get_script_priority()
+    public function get_script_priority() : int
     {
         return $this->_script_priority;
     }
@@ -59,7 +62,7 @@ class ScriptManager
             $this->queue_script( $defer_script, 3 );
         }
 
-        $t_scripts = \CMSMS\HookManager::do_hook( 'Core::PreProcessScripts', $this->_scripts );
+        $t_scripts = HookManager::do_hook( 'Core::PreProcessScripts', $this->_scripts );
         if( $t_scripts ) $scripts = $t_scripts;
 
         // sort the scripts by their priority, then their index (to preserve order)
@@ -87,7 +90,7 @@ class ScriptManager
                 $content = file_get_contents( $rec['file'] );
                 $output .= $content."\n\n";
             }
-            $tmp = \CMSMS\HookManager::do_hook( 'Core::PostProcessScripts', $output );
+            $tmp = HookManager::do_hook( 'Core::PostProcessScripts', $output );
             if( $tmp ) $output = $tmp;
             file_put_contents( $output_file, $output );
         }
