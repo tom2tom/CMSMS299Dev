@@ -1,5 +1,5 @@
 <?php
-#Scripts management class
+#Class for consolidating various javascript's into a single file
 #Copyright (C) 2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -35,7 +35,7 @@ class ScriptManager
         $this->_script_priority = max(1,min(3,$val));
     }
 
-    public function queue_script( string $filename, int $priority = null )
+    public function queue_script( string $filename, int $priority = 0 )
     {
         if( !is_file($filename) ) return;
 
@@ -51,7 +51,7 @@ class ScriptManager
             ];
     }
 
-    public function render_scripts( string $output_path, $force = false, $allow_defer = true )
+    public function render_scripts( string $output_path, bool $force = false, bool $allow_defer = true )
     {
         if( $this->_scripts && !count($this->_scripts) ) return; // nothing to do
         if( !is_dir( $output_path ) ) return; // nowhere to put it
@@ -85,7 +85,7 @@ class ScriptManager
         $js_filename = "cms_$sig.js";
         $output_file = "$output_path/$js_filename";
         if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
-        $output = null;
+            $output = '';
             foreach( $scripts as $sig => $rec ) {
                 $content = file_get_contents( $rec['file'] );
                 $output .= $content."\n\n";
