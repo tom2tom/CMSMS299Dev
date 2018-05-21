@@ -719,4 +719,4 @@ class CmsLayoutCollection
 	}
 } // class
 
-class_alias('CmsLayoutCollection','CmsLayoutDesign')
+class_alias('CmsLayoutCollection','CmsLayoutDesign');
