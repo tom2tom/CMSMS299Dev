@@ -782,12 +782,12 @@ class ContentOperations
 	/**
 	 * Create a hierarchical ordered dropdown of all the content objects in the system for use
 	 * in the admin and various modules.  If $current or $parent variables are passed, care is taken
-	 * to make sure that children which could cause a loop are hidden, in cases of when you're creating
+	 * to make sure that children which could cause a loop are hidden, when creating
 	 * a dropdown for changing a content object's parent.
 		 *
 	 	 * This method was rewritten for 2.0 to use the jquery hierselector plugin to better accommodate larger websites.
 		 *
-		 * Since many parameters are now ignored, A new method needs to be writtent o replace this archaic method...
+		 * Many parameters are now ignored. A new method is needed to replace this archaic method...
 		 * so consider this method to be deprecateed.
 	 *
 	 * @deprecated
@@ -809,24 +809,28 @@ class ContentOperations
 		$id = 'cms_hierdropdown'.$count;
 		$value = (int) $value;
 		$uid = get_userid(FALSE);
+		$script_url = CMS_SCRIPTS_URL;
 
-		$out = "<input type=\"text\" title=\"".lang('title_hierselect')."\" name=\"{$name}\" id=\"{$id}\" class=\"cms_hierdropdown\" value=\"{$value}\" size=\"50\" maxlength=\"50\" />";
-		$opts = array();
+		$opts = [];
 		$opts['current'] = $current;
 		$opts['value'] = $value;
 		$opts['allowcurrent'] = ($allowcurrent)?'true':'false';
 		$opts['allow_all'] = ($allow_all)?'true':'false';
 		$opts['use_perms'] = ($use_perms)?'true':'false';
-			$opts['for_child'] = ($for_child)?'true':'false';
-			$opts['use_simple'] = !(check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page'));
-			$opts['is_manager'] = !$opts['use_simple'];
-		$str = '{';
+		$opts['for_child'] = ($for_child)?'true':'false';
+		$opts['use_simple'] = !(check_permission($uid,'Manage All Content') || check_permission($uid,'Modify Any Page'));
+		$opts['is_manager'] = !$opts['use_simple'];
+		$str = '';
 		foreach($opts as $key => $val) {
 			if( $val == '' ) continue;
 			$str .= $key.': '.$val.',';
 		}
-		$str = substr($str,0,-1).'}';
-		$out .= "<script type=\"text/javascript\">$(function(){ $('#$id').hierselector($str) });</script>";
+		$str = substr($str,0,-1);
+		$out = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_hierselector.js"></script>
+<script type="text/javascript">$(document).ready(function() { $('#$id').hierselector({{$str}}); });</script>
+<input type="text" title="{lang('title_hierselect')}" name="$name" id="$id" class="cms_hierdropdown" value="$value" size="50" maxlength="50" />
+EOS;
 		return $out;
 	}
 
