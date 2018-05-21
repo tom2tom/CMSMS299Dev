@@ -48,9 +48,47 @@ $allcats = $db->GetArray($query);
 
 $smarty->assign('allcats',$allcats);
 
-/*
-//custom requirements TODO e.g.
-$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/jquery.mjs.nestedSortable.min.js"></script>'."\n");
-*/
+$script_url = CMS_SCRIPTS_URL;
+
+$js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.mjs.nestedSortable.min.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function parseTree(ul) {
+  var tags = [];
+  ul.children('li').each(function() {
+    var subtree = $(this).children('ul');
+    if(subtree.size() > 0) {
+      tags.push([$(this).attr('id'), parseTree(subtree)]);
+    } else {
+      tags.push($(this).attr('id'));
+    }
+  });
+  return tags;
+}
+
+$(document).ready(function() {
+  $('[name={$id}submit]').on('click', function() {
+    var tree = JSON.stringify(parseTree($('ul.sortable'))); //IE8+
+    $('#submit_data').val(tree);
+  });
+
+  $('ul.sortable').nestedSortable({
+    disableNesting: 'no-nest',
+    forcePlaceholderSize: true,
+    handle: 'div',
+    items: 'li',
+    opacity: 0.6,
+    placeholder: 'placeholder',
+    tabSize: 25,
+    tolerance: 'pointer',
+    listType: 'ul',
+    toleranceElement: '> div'
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
 
 echo $this->ProcessTemplate('admin_reorder_cats.tpl');
