@@ -1,5 +1,5 @@
 <?php
-#FileManager module for CMSMS
+#FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
 #Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -21,7 +21,7 @@ final class FileManager extends CMSModule
 {
     public function GetName() { return 'FileManager'; }
     public function LazyLoadFrontend() { return TRUE; }
-    public function GetChangeLog() { return $this->ProcessTemplate('changelog.tpl'); }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetHeaderHTML() { return $this->_output_header_content(); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetVersion() { return '1.6.4'; }
@@ -43,7 +43,8 @@ final class FileManager extends CMSModule
     public function AccessAllowed() { return $this->CheckPermission("Modify Files"); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
 
-    public function GetFileIcon($extension,$isdir=false) {
+    public function GetFileIcon($extension,$isdir=false)
+    {
         if (empty($extension)) $extension = '---'; // hardcode extension to something.
         if ($extension[0] == ".") $extension = substr($extension,1);
         $config = \cms_config::get_instance();
@@ -70,7 +71,8 @@ final class FileManager extends CMSModule
         return $result;
     }
 
-    protected function Slash($str,$str2="",$str3="") {
+    protected function Slash($str,$str2="",$str3="")
+    {
         if ($str=="") return $str2;
         if ($str2=="") return $str;
         if ($str[strlen($str)-1]!="/") {
@@ -90,21 +92,24 @@ final class FileManager extends CMSModule
         return "Error in Slash-function. Please report";
     }
 
-    public function GetPermissions($path,$file) {
+    public function GetPermissions($path,$file)
+    {
         $config = cmsms()->GetConfig();
         $realpath=$this->Slash($config["root_path"],$path);
         $statinfo=stat($this->Slash($realpath,$file));
         return $statinfo["mode"];
     }
 
-    public function GetMode($path,$file) {
+    public function GetMode($path,$file)
+    {
         $config = cmsms()->GetConfig();
         $realpath=$this->Slash($config["root_path"],$path);
         $statinfo=stat($this->Slash($realpath,$file));
         return filemanager_util::format_permissions($statinfo["mode"]);
     }
 
-    public function GetModeWin($path,$file) {
+    public function GetModeWin($path,$file)
+    {
         $config = cmsms()->GetConfig();
         $realpath=$this->Slash($config["root_path"],$path);
         $realpath=$this->Slash($realpath,$file);
@@ -115,7 +120,8 @@ final class FileManager extends CMSModule
         }
     }
 
-    public function GetModeTable($id,$permissions) {
+    public function GetModeTable($id,$permissions)
+    {
         $smarty = CmsApp::get_instance()->GetSmarty();
 
         $smarty->assign('ownertext', $this->Lang("owner"));
@@ -152,7 +158,8 @@ final class FileManager extends CMSModule
         return $this->ProcessTemplate('modetable.tpl');
     }
 
-    public function GetModeFromTable($params) {
+    public function GetModeFromTable($params)
+    {
         $owner=0;
         if (isset($params["ownerr"])) $owner+=4;
         if (isset($params["ownerw"])) $owner+=2;
@@ -168,7 +175,8 @@ final class FileManager extends CMSModule
         return $owner.$group.$others;
     }
 
-    public function GetThumbnailLink($file,$path) {
+    public function GetThumbnailLink($file,$path)
+    {
         $config = cmsms()->GetConfig();
 //        $advancedmode = FileManager\filemanager_utils::check_advanced_mode();
         $basedir = $config['root_path'];
@@ -191,11 +199,13 @@ final class FileManager extends CMSModule
         }
     }
 
-    public function WinSlashes($url) {
+    public function WinSlashes($url)
+    {
         return str_replace("/","\\",$url);
     }
 
-    public function Slashes($url) {
+    public function Slashes($url)
+    {
         $result=str_replace("\\","/",$url);
         $result=str_replace("//","/",$result);
         return $result;
@@ -231,11 +241,13 @@ final class FileManager extends CMSModule
         return $out;
     }
 
-    protected function encodefilename($filename) {
+    protected function encodefilename($filename)
+    {
         return str_replace("==","",base64_encode($filename));
     }
 
-    protected function decodefilename($encodedfilename) {
+    protected function decodefilename($encodedfilename)
+    {
         return base64_decode($encodedfilename."==");
     }
 
@@ -260,4 +272,4 @@ final class FileManager extends CMSModule
 
         return $out;
     }
-} // end of class
+} // class
