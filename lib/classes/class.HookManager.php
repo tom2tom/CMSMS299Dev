@@ -1,7 +1,6 @@
 <?php
-#class: HookHandler
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2013-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#hook-related classes: HookHandler, HookManager
+#Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -28,7 +27,7 @@
  */
 namespace CMSMS\Hooks {
 
-    use \CMSMS\HookManager;
+	use CMSMS\HookManager;
 
     /**
      * An internal class to represent a hook handler.
@@ -53,12 +52,12 @@ namespace CMSMS\Hooks {
          */
         public function __construct($callable,$priority)
         {
-			if (is_callable($callable, true)) {
-		        $this->callable = $callable;
-			    $this->priority = max(HookManager::PRIORITY_HIGH,min(HookManager::PRIORITY_LOW,(int)$priority));
-			} else {
-				throw new \InvalidArgumentException('Invalid callable passed to '. __CLASS__.'::'.__METHOD__);
-			}
+            if (is_callable($callable, true)) {
+                $this->callable = $callable;
+                $this->priority = max(HookManager::PRIORITY_HIGH,min(HookManager::PRIORITY_LOW,(int)$priority));
+            } else {
+                throw new \InvalidArgumentException('Invalid callable passed to '. __CLASS__.'::'.__METHOD__);
+            }
         }
     }
 
@@ -94,6 +93,9 @@ namespace CMSMS\Hooks {
 } // namespace
 
 namespace CMSMS {
+
+	use CMSMS\Hooks\HookDefn;
+	use CMSMS\Hooks\HookHandler;
 
     /**
      * A class to manage hooks, and to call hook handlers.
@@ -161,19 +163,19 @@ namespace CMSMS {
         {
             $name = trim($name);
             $hash = self::calc_hash($callable);
-			try {
-	            self::$_hooks[$name]->handlers[$hash] = new Hooks\HookHandler($callable,$priority);
-			} catch (\InvalidArgumentException $e) {
-				//TODO warn the user about failure
-				return;
-			}
-            if( !isset(self::$_hooks[$name]) ) self::$_hooks[$name] = new Hooks\HookDefn($name);
+            try {
+                self::$_hooks[$name]->handlers[$hash] = new HookHandler($callable,$priority);
+            } catch (\InvalidArgumentException $e) {
+                //TODO warn the user about failure
+                return;
+            }
+            if( !isset(self::$_hooks[$name]) ) self::$_hooks[$name] = new HookDefn($name);
             self::$_hooks[$name]->sorted = false;
         }
 
         /**
          * Remove a handler from a hook
-		 * @since 2.3
+         * @since 2.3
          * @param string $name The hook name.  If the hook does not already exist, it is added.
          * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
          */
@@ -186,7 +188,7 @@ namespace CMSMS {
 
         /**
          * Enable or disable a handler
-		 * @since 2.3
+         * @since 2.3
          * @param string $name The hook name.  If the hook does not already exist, it is added.
          * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
          * @param bool $state Optiopnal flag whether the handler is to be disabled, default true
@@ -216,12 +218,12 @@ namespace CMSMS {
          * Run a hook, progressively altering the value of the input i.e. a filter.
          *
          * This method accepts variable arguments.  The first argument (required)
-		 * is the name of the hook to execute. Further arguments will be passed
-		 * to registered handlers.
+         * is the name of the hook to execute. Further arguments will be passed
+         * to registered handlers.
          *
          * If an event with the specified name exists, it will be 'sent' first.
-		 *
-		 * The event/hook handlers must each return the same number and type of arguments
+         *
+         * The event/hook handlers must each return the same number and type of arguments
          * as were provided to it, so that they can be passed to the next handler.
          *
          * @return mixed The output of this method depends on the hook.
@@ -259,10 +261,10 @@ namespace CMSMS {
                 }
 
                 foreach( self::$_hooks[$name]->handlers as $obj ) {
-					//TODO if not blocked
+                    //TODO if not blocked
                     // input is passed to each handler in turn
                     // NOTE each handler must return the same number and type
-					// of parameters as were provided, but their values may be different
+                    // of parameters as were provided, but their values may be different
                     $cb = $obj->callable;
                     if( empty($value) || !is_array($value) ) {
                         $value = $cb($value);
@@ -280,8 +282,8 @@ namespace CMSMS {
          * This method does not call event handlers with similar name.
          *
          * This method accepts variable arguments.  The first argument (required)
-		 * is the name of the hook to execute. Further arguments will be passed
-		 * to the various handlers.
+         * is the name of the hook to execute. Further arguments will be passed
+         * to the various handlers.
          *
          * This method passes the same input parameter(s) to each hook handler.
          *
@@ -311,7 +313,7 @@ namespace CMSMS {
                 }
 
                 foreach( self::$_hooks[$name]->handlers as $obj ) {
-					//TODO if not blocked
+                    //TODO if not blocked
                     $cb = $obj->callable;
                     if( empty($value) || !is_array($value) ) {
                         $out = $cb($value);
@@ -325,18 +327,18 @@ namespace CMSMS {
             return $out;
         }
 
-		/*
+        /*
          * Send an event, or run a hook
          *
          * This method accepts variable arguments.  The first argument (required)
-		 * is the name of the hook to execute. Further arguments will be passed
-		 * to each hook handler or event handler.
+         * is the name of the hook to execute. Further arguments will be passed
+         * to each hook handler or event handler.
          *
          * If an event with the specified name exists, it will be 'sent'. Otherwise,
          * a hook with that name (if any) will be processed.
-		 * @since 2.3
-		 */
-		public static function do_hook_all(...$args)
+         * @since 2.3
+         */
+        public static function do_hook_all(...$args)
         {
             $name = trim(array_shift($args));
 
@@ -353,19 +355,19 @@ namespace CMSMS {
                 // attempt to call an event with this data.
                 \Events::SendEvent($module,$eventname,$value[0]);
             }
-			elseif( isset(self::$_hooks[$name]->handlers) && count(self::$_hooks[$name]->handlers) ) {
-	            foreach( self::$_hooks[$name]->handlers as $obj ) {
-					//TODO if not blocked
-	                $cb = $obj->callable;
-	                if( empty($value) || !is_array($value) ) {
-	                    $cb($value);
-	                } else {
-	                    $cb(...$value);
-	                }
-	            }
-	        }
+            elseif( isset(self::$_hooks[$name]->handlers) && count(self::$_hooks[$name]->handlers) ) {
+                foreach( self::$_hooks[$name]->handlers as $obj ) {
+                    //TODO if not blocked
+                    $cb = $obj->callable;
+                    if( empty($value) || !is_array($value) ) {
+                        $cb($value);
+                    } else {
+                        $cb(...$value);
+                    }
+                }
+            }
             array_pop(self::$_in_process);
-		}
+        }
 
 /*      private function is_assoc($in)
         {
@@ -382,13 +384,13 @@ namespace CMSMS {
          * Run a hook, accumulating the results of each handler into an array.
          *
          * This method accepts variable arguments.
-		 * The first argument (required) is the name of the hook to execute. If an
-		 * event with the same name exists, it will be called first.
+         * The first argument (required) is the name of the hook to execute. If an
+         * event with the same name exists, it will be called first.
 
          * Further arguments will be passed to the various handlers.
-		 *
+         *
          * Each handler's return probably should have the same number and type
-		 * of parameters, for sane accumulation in the results array.
+         * of parameters, for sane accumulation in the results array.
          *
          * @return array Mixed data, as it cannot be ascertained what data is passed back from event handlers.
          */
