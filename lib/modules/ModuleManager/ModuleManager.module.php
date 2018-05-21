@@ -1,7 +1,7 @@
 <?php
-# Module: ModuleManager
-# An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
+# ModuleManager: an addon module for CMS Made Simple to allow browsing
+#  remotely stored modules, viewing information about them, and downloading
+#  or upgrading
 # Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #

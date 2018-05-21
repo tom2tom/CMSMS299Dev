@@ -1,5 +1,5 @@
 <?php
-# Module: CMSMailer - a simple wrapper around PHPMailer
+# CMSMailer module: a wrapper around PHPMailer
 # Copyright (C) 2015-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #

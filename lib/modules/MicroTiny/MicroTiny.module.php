@@ -1,6 +1,7 @@
 <?php
-#Microtiny module for CMS Made Simple <http://dev.cmsmadesimple.org/projects/microtiny>
+#Microtiny: a module for CMS Made Simple to allow WYSIWYG editing using a TinyMCE-derivative
 #Copyright (C) 2009-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -32,7 +33,7 @@ class MicroTiny extends CMSModule
   public function GetHelp() { return $this->Lang('help'); }
   public function GetAuthor() { return 'Morten Poulsen'; }
   public function GetAuthorEmail() { return '&lt;morten@poulsen.org&gt;'; }
-  public function GetChangeLog() { return $this->ProcessTemplate('changelog.tpl'); }
+  public function GetChangeLog() { @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
   public function GetAdminDescription() { return $this->Lang('admindescription'); }
 
