@@ -321,8 +321,11 @@ $lock_refresh = $this->GetPreference('lockrefresh');
 $do_locking = ($content_id > 0 && $lock_timeout > 0) ? 1:0;
 $options_tab_name = $content_obj::TAB_OPTIONS;
 $msg = json_encode($this->Lang('msg_lostlock'));
+$script_url = CMS_SCRIPTS_URL;
 
 $js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
