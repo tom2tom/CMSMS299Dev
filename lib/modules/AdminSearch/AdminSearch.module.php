@@ -29,7 +29,7 @@ final class AdminSearch extends CMSModule
   public function GetAdminSection() { return 'extensions'; }
   public function IsAdminOnly() { return true; }
   public function GetHelp() { return $this->Lang('help'); }
-  public function GetChangeLog() { return file_get_contents(__DIR__.'/changelog.inc'); }
+  public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
   public function GetAdminDescription() { return $this->Lang('moddescription'); }
 
   public function VisibleToAdminUser()
