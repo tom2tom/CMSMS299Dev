@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: edit css
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if (!isset($gCms)) exit ;
 if (!$this->CheckPermission('Manage Stylesheets')) return;
 
@@ -33,7 +31,7 @@ try {
     $message = $this->Lang('msg_stylesheet_saved');
     $response = 'success';
     $apply = isset($params['apply']) ? 1 : 0;
-    $extraparms = array();
+    $extraparms = [];
 
     if ($css_id) {
         $css_ob = CmsLayoutStylesheet::load($css_id);
@@ -46,12 +44,12 @@ try {
         if (isset($params['submit']) || isset($params['apply']) && $response !== 'error') {
             if (isset($params['description'])) $css_ob->set_description($params['description']);
             if (isset($params['content'])) $css_ob->set_content($params['content']);
-            $typ = array();
+            $typ = [];
             if (isset($params['media_type'])) $typ = $params['media_type'];
             $css_ob->set_media_types($typ);
             if (isset($params['media_query'])) $css_ob->set_media_query($params['media_query']);
             if ($this->CheckPermission('Manage Designs')) {
-                $design_list = array();
+                $design_list = [];
                 if (isset($params['design_list'])) $design_list = $params['design_list'];
                 $css_ob->set_designs($design_list);
             }
@@ -134,7 +132,7 @@ try {
 
     $designs = CmsLayoutCollection::get_all();
     if (is_array($designs) && count($designs)) {
-        $out = array();
+        $out = [];
         foreach ($designs as $one) {
             $out[$one->get_id()] = $one->get_name();
         }
@@ -153,11 +151,13 @@ try {
     if ($css_ob && $css_ob->get_id()) $smarty->assign('css_id', $css_ob->get_id());
 
     //TODO ensure flexbox css for .hbox, .boxchild
+	$script_url = CMS_SCRIPTS_URL;
 	$lock_timeout = $this->GetPreference('lock_timeout');
     $do_locking = ($css_id > 0 && $lock_timeout > 0) ? 1 : 0;
 	$lock_refresh = $this->GetPreference('lock_refresh');
 	$msg = json_encode($this->Lang('msg_lostlock'));
 	$js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
