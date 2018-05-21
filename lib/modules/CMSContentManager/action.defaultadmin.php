@@ -137,9 +137,11 @@ $u1 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
 $url = $this->create_url($id,'ajax_get_content','');
 $u2 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
 $u3 = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'&cmsjobtype=1';
+$script_url = CMS_SCRIPTS_URL;
 
-//TODO other action-specific js e.g. nested sortable, cmsms autoRefresh widget/plugin
+//TODO any other action-specific js
 //TODO flexbox css for multi-row .vbox, .hbox.flow, .boxchild
+
 $s1 = json_encode($this->Lang('confirm_setinactive'));
 $s2 = json_encode($this->Lang('confirm_setdefault'));
 $s3 = json_encode($this->Lang('confirm_delete_page'));
@@ -151,6 +153,7 @@ $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
 
 $js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 function cms_CMloadUrl(link, lang) {
