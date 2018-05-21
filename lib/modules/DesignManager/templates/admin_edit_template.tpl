@@ -1,91 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  var do_locking = {/literal}{if !empty($tpl_id) && $tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0}1{else}0{/if}{literal};
-  $('#form_edittemplate').dirtyForm({
-    beforeUnload: function() {
-      if(do_locking) $('#form_edittemplate').lockManager('unlock');
-    },
-    unloadCancel: function() {
-      if(do_locking) $('#form_edittemplate').lockManager('relock');
-    }
-  });
-  // initialize lock manager
-  if(do_locking) {
-    $('#form_edittemplate').lockManager({
-      type: 'template',
-      oid: {/literal}{$tpl_id|default:0}{literal},
-      uid: {/literal}{get_userid(false)}{literal},
-      lock_timeout: {/literal}{$lock_timeout|default:0}{literal},
-      lock_refresh: {/literal}{$lock_refresh|default:0}{literal},
-      error_handler: function(err) {
-        cms_alert('Lock Error ' + err.type + ' // ' + err.msg);
-      },
-      lostlock_handler: function(err) {
-       // we lost the lock on this content... make sure we can't save anything.
-       // and display a nice message.
-        $('[name$=cancel]').fadeOut().attr('value', {/literal}'{$mod->Lang("cancel")}'{literal}).fadeIn();
-        $('#form_edittemplate').dirtyForm('option', 'dirty', false);
-        $('#submitbtn, #applybtn').attr('disabled', 'disabled');
-        $('#submitbtn, #applybtn').button({ 'disabled': true });
-        $('.lock-warning').removeClass('hidden-item');
-        cms_alert({/literal}'{$mod->Lang("msg_lostlock")|escape:"javascript"}'{literal});
-      }
-    });
-  } // do_locking
-  $(document).on('cmsms_textchange', function() {
-    // editor textchange, set the form dirty.
-    $('#form_edittemplate').dirtyForm('option', 'dirty', true);
-  });
-  $('#form_edittemplate').on('click', '[name$=apply],[name$=submit],[name$=cancel]', function() {
-    // if we manually click on one of these buttons, the form is no longer considered dirty for the purposes of warnings.
-    $('#form_edittemplate').dirtyForm('option', 'dirty', false);
-  });
-/*
-  $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
-   if( ! do_locking ) return;
-   ev.preventDefault();
-   // unlock the item, and submit the form
-   var self = this;
-   var form = $(this).closest('form');
-   $('#form_edittemplate').lockManager('unlock').done(function() {
-    var el = $('<input type="hidden"/>');
-    el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
-    form.submit();
-   });
-   return false;
-  });
-*/
-  $('#applybtn').on('click', function(ev) {
-    ev.preventDefault();
-    var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&m1_apply=1',
-      data = $('#form_edittemplate').serializeArray();
-    $.post(url, data, function(data, textStatus, jqXHR) {
-      if(data.status === 'success') {
-        cms_notify('info', data.message);
-      } else if(data.status === 'error') {
-        cms_notify('error', data.message);
-      }
-    });
-    return false;
-  });
-  $('#a_helptext').on('click', function(ev) {
-    ev.preventDefault();
-    cms_dialog($('#helptext_dlg'), {
-      'width': 'auto'
-    });
-    return false;
-  });
-});
-{/literal}//]]>
-</script>
-
-{$helptext=$type_obj->get_template_helptext($type_obj->get_name())}
-{if !empty($helptext)}
-  <div id="helptext_dlg" title="{$mod->Lang('prompt_template_help')}" style="display: none;">
-  {$helptext}
-  </div>
-{/if}
 {$get_lock = $template->get_lock()}
 
 {capture assign='disable'}
@@ -169,12 +81,9 @@ $(document).ready(function() {
 
 {tab_start name='template'}
 <div class="pageoverflow">
-   <p class="pagetext">
-    <label for="contents">{$mod->Lang('prompt_template_content')}:</label>
-    {cms_help realm=$_module key2=help_template_contents title=$mod->Lang('prompt_template_content')}
-    {if !empty($helptext)}
-     <a id="a_helptext" href="#" style="float: right;">{$mod->Lang('prompt_template_help')}</a>
-    {/if}
+   <p class="pagetext">{$t=$mod->Lang('prompt_template_content')}
+    <label for="contents">{$t}:</label>
+    {cms_help realm=$_module key2=help_template_contents title=$t}
    </p>
    {if $template->has_content_file()}
     <div class="pageinfo">{$mod->Lang('info_template_content_file',$template->get_content_filename())}</div>
