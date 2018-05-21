@@ -56,11 +56,11 @@ define('CMS_USER_KEY','_userkey_');
 
 $dirname = __DIR__.DIRECTORY_SEPARATOR;
 // include some stuff
-require_once $dirname.'version.php'; // tells us where the config file is and other things.
+require_once $dirname.'version.php'; // some defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
 require_once $dirname.'misc.functions.php'; //some used in config setup
-cms_config::get_instance(); //populate relevant defines
+require_once $dirname.'defines.php'; //populate relevant defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php';
 require_once $dirname.'module.functions.php'; //some used in autoloader
 require_once $dirname.'autoloader.php';
