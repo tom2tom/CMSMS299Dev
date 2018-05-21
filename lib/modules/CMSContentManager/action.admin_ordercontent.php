@@ -97,10 +97,11 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 }
 
 //custom requirements TODO
-$this->AdminBottomContent('<script type="text/javascript" src="'.CMS_SCRIPTS_URL.'/jquery.mjs.nestedSortable.min.js"></script>'."\n");
-
+$script_ulr = CMS_SCRIPTS_URL;
 $msg = json_encode($this->Lang('confirm_reorder'));
+
 $js = <<<EOS
+<script type="text/javascript" src="{$script_url}/jquery.mjs.nestedSortable.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 function parseTree(ul) {
