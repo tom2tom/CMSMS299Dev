@@ -41,7 +41,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 		$assets_url = $root_url . '/themes/assets/';
 		$rel = substr(__DIR__, strlen($config['admin_path']));
 		$base_url = $root_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
-		$script_url = CMS_SCRIPTS_URL;
+//		$script_url = CMS_SCRIPTS_URL;
 		$fn = 'style';
 		$dir = CmsNlsOperations::get_language_direction();
 		if ($dir == 'rtl') {
@@ -51,7 +51,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 		}
 		//TODO
 /*        if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
-		    $fn .= '_ie';
+			$fn .= '_ie';
 		}
 */
 		//TODO relevant tile color #f79838 = orange
@@ -80,37 +80,39 @@ EOS;
 		}
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 		list ($jqcore, $jqmigrate) = cms_jquery_local();
-		$url = AdminUtils::path_to_url($jqcore);
-		$out .= sprintf($tpl,$url);
-		$url = AdminUtils::path_to_url($jqmigrate);
-		$out .= sprintf($tpl,$url);
-		$url = AdminUtils::path_to_url($jqui);
-		$out .= sprintf($tpl,$url);
-		$out .= <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cms_admin.js"></script>
 
-EOS;
-        global $CMS_LOGIN_PAGE;
-        if ( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
-            //populate runtime data (i.e. cms_data{}) via ajax
-            $url = cms_config::get_instance()['admin_url'];
-            $url .= '/cms_js_setup.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-		    $out .= sprintf($tpl,$url);
-        }
+		$sm = new \CMSMS\ScriptManager();
+		$sm->queue_script($jqcore, 1);
+		$sm->queue_script($jqmigrate, 1);
+		$sm->queue_script($jqui, 1);
+        $p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
+		$sm->queue_script($p.'jquery.cms_admin.js', 2); //OR .min for production
+		$fn = $sm->render_scripts('', false, false);
+		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$out .= sprintf($tpl,$url);
+
+		global $CMS_LOGIN_PAGE;
+		if( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
+			$sm->reset();
+			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
+            $sm->queue_string($_out_);
+			$fn = $sm->render_scripts('', false, false);
+			$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+			$out .= sprintf($tpl,$url);
+		}
+
+		$sm->reset();
+		$sm->queue_script($p.'jquery.ui.touch-punch.min.js', 1);
+		$sm->queue_script($p.'jquery.toast.js', 1); //OR .min for production
+        $p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
+		$sm->queue_script($p.'jquery.alertable.js', 2); //OR .min for production
+		$sm->queue_script($p.'standard.js', 3); //OR .min for production
+		$fn = $sm->render_scripts();
+		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$out .= sprintf($tpl,$url);
+
 //<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script> TESTER
-/* action-specific inclusions elsewhere:
-jquery.cmsms_autorefresh.js DONE
-jquery.cmsms_dirtyform.js DONE
-jquery.cmsms_hierselector.js DONE
-jquery.cmsms_lock.js DONE
- jquery.mjs.nestedSortable.min.js DONE
-*/
 		$out .= <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_defer.js"></script>
-<script type="text/javascript" src="{$script_url}/jquery.ui.touch-punch.min.js"></script>
-<script type="text/javascript" src="{$script_url}/jquery.toast.js"></script>
-<script type="text/javascript" src="{$base_url}/js/jquery.alertable.js"></script>
-<script type="text/javascript" src="{$base_url}/js/standard.js"></script>
 <!--[if lt IE 9]>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script type="text/javascript" src="{$base_url}/js/libs/jquery-extra-selectors.js"></script>
@@ -118,7 +120,7 @@ jquery.cmsms_lock.js DONE
 <![endif]-->
 EOS;
 		$add_list[] = $out;
-//		$vars[] = if any;
+//		$vars[] = anything needed ?;
 
 		return [$vars, $add_list];
 	}
@@ -126,7 +128,7 @@ EOS;
 	/**
 	 * Record some parameters for later use. Such parameters may not be used by
 	 * a theme (and are not, by this one, so this method is really a demo)
-     *
+	 *
 	 * @param string $title_name        Displayable content, or a lang key, for the title-text to be displayed
 	 * @param array  $extra_lang_params Optional extra string(s) to be supplied (with $title_key) to lang()
 	 * @param string $link_text         Optional link ... TODO
@@ -146,10 +148,10 @@ EOS;
 			// set the module help url TODO supply this TO the theme
 			$module_help_url = $this->get_module_help_url();
 			$this->set_value('module_help_url', $module_help_url);
-        }
+		}
 
-        // are we processing a module action?
-        // TODO maybe cache this in $this->_modname ??
+		// are we processing a module action?
+		// TODO maybe cache this in $this->_modname ??
 		if (isset($_REQUEST['module'])) {
 			$module = $_REQUEST['module'];
 		} elseif (isset($_REQUEST['mact'])) {
@@ -162,7 +164,7 @@ EOS;
 			$tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
 		} else {
 			$tag = ''; //TODO get icon for admin operation
-            //$tag = $this->get_active_icon());
+			//$tag = $this->get_active_icon());
 		}
 		$this->set_value('icon_tag', $tag);
 
@@ -208,7 +210,7 @@ EOS;
 //		$this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes);
 		$smarty->assign('pagetitle', $this->title); //not used in current template
-        $smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
+		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 		$smarty->assign('config', cms_config::get_instance());
 		$smarty->assign('theme', $this);
 
@@ -223,7 +225,7 @@ EOS;
 		$smarty->template_dir = $otd;
 	}
 
-    /**
+	/**
 	 * Display and process a login form
 	 * @since 2.3, there is no $params argument
 	 */
@@ -289,7 +291,7 @@ EOS;
 				if (!$extra) {
 					$extra = [];
 				}
-     			$title = lang($title, $extra);
+	 			$title = lang($title, $extra);
 			}
 		} else {
 			if ($this->title) {
@@ -333,7 +335,7 @@ EOS;
 			}
 		} else {
 			$tag = ''; //TODO get icon for admin operation
-            //$tag = $this->get_active_icon());
+			//$tag = $this->get_active_icon());
 		}
 		$smarty->assign('icon_tag', $tag);
 
@@ -370,7 +372,7 @@ EOS;
 		// user selected language
 		$smarty->assign('lang',cms_userprefs::get_for_user(get_userid(), 'default_cms_language'));
 		// language direction
-        $smarty->assign('lang_dir', CmsNlsOperations::get_language_direction());
+		$smarty->assign('lang_dir', CmsNlsOperations::get_language_direction());
 		// is the website down for maintenance?
 		if (get_site_preference('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 'true');
