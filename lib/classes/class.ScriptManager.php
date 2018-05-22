@@ -16,10 +16,12 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
+
 use CMSMS\HookManager;
 use const CMS_SCRIPTS_PATH, TMP_CACHE_LOCATION;
+use function startswith;
 
-//TODO maybe a job to clear very old consolidations ??
+//TODO a job to clear old consolidations ? how old ?
 
 /**
  * A class for consolidating specified javascript's into a single file.
@@ -79,12 +81,12 @@ class ScriptManager
     }
 
     /**
-     * Record a script to be merged if necessary
+     * Record a script-file to be merged if necessary
      *
      * @param string $filename Filesystem path of script file
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
      */
-    public function queue_script( string $filename, int $priority = 0 )
+    public function queue_file( string $filename, int $priority = 0 )
     {
         if( !is_file($filename) ) return;
 
@@ -133,32 +135,48 @@ class ScriptManager
         $tmp = HookManager::do_hook( 'Core::PreProcessScripts', $this->_scripts );
         $scripts = ( $tmp ) ? $tmp : $this->_scripts;
 
-        // sort the scripts by priority, then index (to preserve order)
-        usort( $scripts, function( $a, $b ) {
-            if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
-            return $a['index'] <=> $b['index'];
-        });
+		if( $scripts ) {
+			if( count($scripts) > 1) {
+				// sort the scripts by priority, then index (to preserve order)
+				usort( $scripts, function( $a, $b ) {
+					if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
+					return $a['index'] <=> $b['index'];
+				});
 
-        $t_sig = '';
-        $t_mtime = -1;
-        foreach( $scripts as $sig => $rec ) {
-            $t_sig .= $sig;
-            $t_mtime = max( $rec['mtime'], $t_mtime );
-        }
-        $sig = md5( __FILE__.$t_sig.$t_mtime );
-        $js_filename = "cms_$sig.js";
-        $output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+				$t_sig = '';
+				$t_mtime = -1;
+				foreach( $scripts as $sig => $rec ) {
+					$t_sig .= $sig;
+					$t_mtime = max( $rec['mtime'], $t_mtime );
+				}
+				$sig = md5( __FILE__.$t_sig.$t_mtime );
+				$js_filename = "cms_$sig.js";
+				$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
 
-        if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
-            $output = '';
-            foreach( $scripts as $sig => $rec ) {
-                $content = @file_get_contents( $rec['file'] );
-                if( $content ) $output .= $content."\n\n";
-            }
-            $tmp = HookManager::do_hook( 'Core::PostProcessScripts', $output );
-            if( $tmp ) $output = $tmp;
-            file_put_contents( $output_file, $output, LOCK_EX );
-        }
-        return $js_filename;
+				if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
+					$output = '';
+					foreach( $scripts as $sig => $rec ) {
+						$content = @file_get_contents( $rec['file'] );
+						if( $content ) $output .= $content."\n\n";
+					}
+					$tmp = HookManager::do_hook( 'Core::PostProcessScripts', $output );
+					if( $tmp ) $output = $tmp;
+					file_put_contents( $output_file, $output, LOCK_EX );
+				}
+			} else {
+				$rec = reset($scripts);
+				$js_filename = basename($rec['file']);
+				if( !startswith($js_filename, 'cms_') ) {
+                     $js_filename = 'cms_'.$js_filename;
+				}
+				$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+			    if( $force || !is_file($output_file) || filemtime($output_file) <  filemtime($rec['file']) ) {
+//					$tmp = HookManager::do_hook( 'Core::PostProcessScripts', $X );
+//			        if( $tmp ) $X = $tmp;
+					@copy($rec['file'], $output_file); //maybe does nothing
+				}
+			}
+			return $js_filename;
+		}
     }
 } // class
