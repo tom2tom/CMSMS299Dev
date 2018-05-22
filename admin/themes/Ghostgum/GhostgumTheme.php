@@ -82,11 +82,11 @@ EOS;
 		list ($jqcore, $jqmigrate) = cms_jquery_local();
 
 		$sm = new \CMSMS\ScriptManager();
-		$sm->queue_script($jqcore, 1);
-		$sm->queue_script($jqmigrate, 1);
-		$sm->queue_script($jqui, 1);
+		$sm->queue_file($jqcore, 1);
+		$sm->queue_file($jqmigrate, 1);
+		$sm->queue_file($jqui, 1);
         $p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
-		$sm->queue_script($p.'jquery.cms_admin.js', 2); //OR .min for production
+		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
 		$fn = $sm->render_scripts('', false, false);
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
@@ -102,11 +102,11 @@ EOS;
 		}
 
 		$sm->reset();
-		$sm->queue_script($p.'jquery.ui.touch-punch.min.js', 1);
-		$sm->queue_script($p.'jquery.toast.js', 1); //OR .min for production
+		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
+		$sm->queue_file($p.'jquery.toast.js', 1); //OR .min for production
         $p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
-		$sm->queue_script($p.'jquery.alertable.js', 2); //OR .min for production
-		$sm->queue_script($p.'standard.js', 3); //OR .min for production
+		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
+		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$fn = $sm->render_scripts();
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);

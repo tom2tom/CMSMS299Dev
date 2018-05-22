@@ -77,7 +77,7 @@ class ScriptManager
         if( $force || !is_file($output_file) ) {
             file_put_contents( $output_file, $output, LOCK_EX );
         }
-        $this->queue_script($output_file, $priority);
+        $this->queue_file($output_file, $priority);
     }
 
     /**
@@ -129,7 +129,7 @@ class ScriptManager
         // auto append the defer script
         if( $allow_defer ) {
             $defer_script = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.cmsms_defer.js';
-            $this->queue_script( $defer_script, 3 );
+            $this->queue_file( $defer_script, 3 );
         }
 
         $tmp = HookManager::do_hook( 'Core::PreProcessScripts', $this->_scripts );

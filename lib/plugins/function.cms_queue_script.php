@@ -7,15 +7,15 @@ function smarty_function_cms_queue_script( $params, &$template )
 
     $file = trim($params['file']);
     if( is_file( $file ) ) {
-        $combiner->queue_script( $file );
+        $combiner->queue_file( $file );
         return;
     }
 
     // if it's relative to a CMSMS path
-    if( !startswith( $file, DIRECTORY_SEPARATOR ) ) $file = "/$file";
+    if( !startswith( $file, DIRECTORY_SEPARATOR ) ) $file = DIRECTORY_SEPARATOR.$file;
     $config = \cms_config::get_instance();
     $paths = [ CMS_ASSETS_PATH.$file, $config['uploads_path'].$file, CMS_ROOT_PATH.$file ];
     foreach( $paths as $one ) {
-        if( is_file( $one ) ) $combiner->queue_script( $one );
+        if( is_file( $one ) ) $combiner->queue_file( $one );
     }
 }
