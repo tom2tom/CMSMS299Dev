@@ -828,7 +828,11 @@ class ContentOperations
 		$str = substr($str,0,-1);
 		$out = <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_hierselector.js"></script>
-<script type="text/javascript">$(document).ready(function() { $('#$id').hierselector({{$str}}); });</script>
+<script type="text/javascript">$(document).ready(function() {
+ cms_data.lang_hierselect_title = 'lang("title_hierselect_select")';
+ $('#$id').hierselector({{$str}});
+);
+</script>
 <input type="text" title="{lang('title_hierselect')}" name="$name" id="$id" class="cms_hierdropdown" value="$value" size="50" maxlength="50" />
 EOS;
 		return $out;
