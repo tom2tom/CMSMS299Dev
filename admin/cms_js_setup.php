@@ -31,7 +31,6 @@ $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $config = cms_config::get_instance();
 
 // get some urls and language strings
-// TODO some of these should be action-specific
 $data = [];
 $data['lang_title_help'] = lang('help');
 $data['lang_alert'] = lang('alert');
@@ -45,10 +44,7 @@ $data['lang_yes'] = lang('yes');
 $data['lang_no'] = lang('no');
 $data['lang_none'] = lang('none');
 $data['lang_disabled'] = lang('disabled');
-$data['lang_hierselect_title'] = lang('title_hierselect_select'); // jquery.cmsms_hierselector.js
-$data['lang_select_file'] = lang('select_file'); // jquery.cmsms_filepicker.js
 $data['lang_choose'] = lang('choose');
-//$data['lang_filetobig'] = lang('upload_filetobig'); //unused
 $data['lang_largeupload'] = lang('upload_largeupload');
 $data['max_upload_size'] = $config['max_upload_size'];
 $data['admin_url'] = $config['admin_url'];
