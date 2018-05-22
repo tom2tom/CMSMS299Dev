@@ -19,6 +19,8 @@ namespace CMSMS;
 use CMSMS\HookManager;
 use const CMS_SCRIPTS_PATH, TMP_CACHE_LOCATION;
 
+//TODO maybe a job to clear very old consolidations ??
+
 /**
  * A class for consolidating specified javascript's into a single file.
  *
@@ -69,7 +71,7 @@ class ScriptManager
             $priority = 3;
         } else {
             $priority = (int)$priority;
-		}
+        }
 
         $this->_scripts[$sig] = [
             'file' => $filename,
