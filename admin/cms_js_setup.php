@@ -16,6 +16,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+/*
+Deprecated since 2.3
+Use corresponding immediate setup via  jsruntime.php
+*/
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -26,7 +31,7 @@ $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $config = cms_config::get_instance();
 
 // get some urls and language strings
-// TODO some of these should be action-spacific
+// TODO some of these should be action-specific
 $data = [];
 $data['lang_title_help'] = lang('help');
 $data['lang_alert'] = lang('alert');
