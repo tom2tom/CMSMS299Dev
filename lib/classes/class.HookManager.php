@@ -226,7 +226,8 @@ namespace CMSMS {
          * The event/hook handlers must each return the same number and type of arguments
          * as were provided to it, so that they can be passed to the next handler.
          *
-         * @return mixed The output of this method depends on the hook.
+		 * @param  array $args 1 or more members, 1st is hook-name
+         * @return mixed The output of this method depends on the hook. Null if nothing to do.
          */
         public static function do_hook(...$args)
         {
@@ -238,7 +239,7 @@ namespace CMSMS {
 
             if( !$is_event && ( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) )  ) return; // nothing to do.
 
-            // note: $args is an array
+            // note: if present, $args is an array
             $value = $args;
             self::$_in_process[] = $name;
             if( $is_event && is_array($value) && count($value) == 1 && isset($value[0]) && is_array($value[0]) ) {
@@ -251,11 +252,10 @@ namespace CMSMS {
                 // sort the handlers.
                 if( !self::$_hooks[$name]->sorted ) {
                     if( count(self::$_hooks[$name]->handlers) > 1 ) {
-                        usort(self::$_hooks[$name]->handlers,function($a,$b){
-                                if( $a->priority < $b->priority ) return -1;
-                                if( $a->priority > $b->priority ) return 1;
-                                return 0;
-                            });
+                        usort(self::$_hooks[$name]->handlers, function($a,$b)
+						{
+                           return $a->priority <=> $b->priority;
+                        });
                     }
                     self::$_hooks[$name]->sorted = TRUE;
                 }
@@ -273,8 +273,9 @@ namespace CMSMS {
                     }
                 }
             }
+            $out = (is_array($value) && count($value) == 1) ? $value[0] : $value;
             array_pop(self::$_in_process);
-            return $value;
+            return $out;
         }
 
         /**
@@ -287,6 +288,7 @@ namespace CMSMS {
          *
          * This method passes the same input parameter(s) to each hook handler.
          *
+		 * @param  array $args 1 or more members, 1st is hook-name
          * @return mixed The output of this method depends on the hook.
          */
         public static function do_hook_first_result(...$args)
@@ -295,7 +297,7 @@ namespace CMSMS {
 
             if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers)  ) return; // nothing to do.
 
-            // note $args is an array
+            // note if present, $args is an array
             $value = $args;
             self::$_in_process[] = $name;
 
@@ -323,6 +325,7 @@ namespace CMSMS {
                     if( !empty( $out ) ) break;
                 }
             }
+            $out = (is_array($out) && count($out) == 1) ? $out[0] : $out;
             array_pop(self::$_in_process);
             return $out;
         }
@@ -336,6 +339,8 @@ namespace CMSMS {
          *
          * If an event with the specified name exists, it will be 'sent'. Otherwise,
          * a hook with that name (if any) will be processed.
+		 *
+		 * @param  array $args 1 or more members, 1st is hook-name
          * @since 2.3
          */
         public static function do_hook_all(...$args)
@@ -392,6 +397,7 @@ namespace CMSMS {
          * Each handler's return probably should have the same number and type
          * of parameters, for sane accumulation in the results array.
          *
+		 * @param  array $args 1 or more members, 1st is hook-name
          * @return array Mixed data, as it cannot be ascertained what data is passed back from event handlers.
          */
         public static function do_hook_accumulate(...$args)
@@ -409,11 +415,10 @@ namespace CMSMS {
             // sort the handlers.
             if( !self::$_hooks[$name]->sorted ) {
                 if( count(self::$_hooks[$name]->handlers) > 1 ) {
-                    usort(self::$_hooks[$name]->handlers,function($a,$b){
-                            if( $a->priority < $b->priority ) return -1;
-                            if( $a->priority > $b->priority ) return 1;
-                            return 0;
-                        });
+                    usort(self::$_hooks[$name]->handlers, function($a,$b)
+					{
+                       return $a->priority <=> $b->priority;
+                    });
                 }
                 self::$_hooks[$name]->sorted = TRUE;
             }
@@ -429,10 +434,11 @@ namespace CMSMS {
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 $cb = $obj->callable;
                 if( empty($value) || !is_array($value) ) {
-                    $out[] = $cb($value);
+                    $ret = $cb($value);
                 } else {
-                    $out[] = $cb(...$value);
+                    $ret = $cb(...$value);
                 }
+	            $out[] = (is_array($ret) && count($ret) == 1) ? $ret[0] : $ret;
             }
             array_pop(self::$_in_process);
             return $out;
