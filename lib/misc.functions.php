@@ -1128,9 +1128,10 @@ function cms_jqueryui_local() : array
  * @since 1.10
  * @deprecated since 2.3 Returns only a on-page comment/notice
  * Instead, relevant content can be gathered via functions added to hook
- * 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag e.g.
- * {gather_content list='AdminHeaderSetup'}.
- * See also tags {cms_queue_script} and {cms_render_scripts}
+ * 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag
+ *  e.g. {gather_content list='AdminHeaderSetup'}.
+ * See also the ScriptManager class, for consolidating scripts into a single
+ * download.
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
