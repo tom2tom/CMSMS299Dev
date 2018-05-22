@@ -97,7 +97,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 }
 
 //custom requirements TODO
-$script_ulr = CMS_SCRIPTS_URL;
+$script_url = CMS_SCRIPTS_URL;
 $msg = json_encode($this->Lang('confirm_reorder'));
 
 $js = <<<EOS
