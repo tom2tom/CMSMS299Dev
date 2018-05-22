@@ -75,6 +75,7 @@ final class FilePicker extends CMSModule implements CMSMS\FilePickerInterface
 
     /**
      * Generate page-header js. For use by relevant module actions.
+     * Include after jQuery and core js.
      * @since 2.3
      * @return string
      */
@@ -82,9 +83,11 @@ final class FilePicker extends CMSModule implements CMSMS\FilePickerInterface
     {
         $url = str_replace('&amp;','&',$this->get_browser_url());
         $url2 = $this->GetModuleURLPath();
+		$msg = $this->Lang('select_file');
         $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
+ cms_data.lang_select_file = '$msg';
  cms_data.filepicker_url = '{$url}&cmsjobtype=1';
 //]]>
 </script>

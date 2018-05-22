@@ -71,6 +71,7 @@ $lang['select_a_document'] = 'Select a document';
 $lang['select_an_archive_file'] = 'Select an archive file';
 $lang['select_a_file'] = 'Select a file';
 $lang['select_an_image'] = 'Select an image';
+$lang['select_file'] = 'Select File'; //popup dialog title
 $lang['select_upload_files'] = 'Select files to upload';
 $lang['show_thumbs'] = 'Show thumbnails';
 $lang['size'] = 'Size';

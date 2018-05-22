@@ -1442,7 +1442,6 @@ $lang['security_issue'] = 'Security Issue';
 $lang['selectall'] = 'Select All';
 $lang['selecteditems'] = 'With Selected';
 $lang['selectgroup'] = 'Select Group';
-$lang['select_file'] = 'Select File';
 $lang['send'] = 'Send';
 $lang['sendmail_settings'] = 'Sendmail Settings';
 $lang['sendtest'] = 'Send';
