@@ -17,24 +17,24 @@
 
 $config = cms_config::get_instance();
 /**
- * Where private cachable files can be written.
+ * Where private cacheable files can be written.
  */
 define('TMP_CACHE_LOCATION',$config['tmp_cache_location']);
-
-/**
- * Where public (browsable) cachable files can be written.
- */
-define('PUBLIC_CACHE_LOCATION',$config['public_cache_location']);
-
-/**
- * The public address for cachable files.
- */
-define('PUBLIC_CACHE_URL',$config['public_cache_url']);
 
 /**
  * The smarty template compile directory.
  */
 define('TMP_TEMPLATES_C_LOCATION',$config['tmp_templates_c_location']);
+
+/**
+ * Where public (browsable) cacheable files can be written.
+ */
+define('PUBLIC_CACHE_LOCATION',$config['public_cache_location']);
+
+/**
+ * The public address for cacheable files.
+ */
+define('PUBLIC_CACHE_URL',$config['public_cache_url']);
 
 /**
  * Whether CMSMS is in debug mode.
