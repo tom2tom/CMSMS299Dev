@@ -53,6 +53,32 @@ class ScriptManager
     }
 
     /**
+     * Revert to initial state
+     */
+    public function reset()
+    {
+        $this->_scripts = [];
+        $this->_script_priority = 2;
+    }
+
+    /**
+     * Record a string to be merged
+     *
+     * @param string $output   js string
+     * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
+     * @param bool   $force    Optional flag whether to force recreation of the merged file. Default false
+     */
+    public function queue_string( string $output, int $priority = 0, bool $force = false )
+    {
+        $sig = md5( __FILE__.$output );
+        $output_file = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR."cms_$sig.js";
+        if( $force || !is_file($output_file) ) {
+            file_put_contents( $output_file, $output, LOCK_EX );
+        }
+        $this->queue_script($output_file, $priority);
+    }
+
+    /**
      * Record a script to be merged if necessary
      *
      * @param string $filename Filesystem path of script file
