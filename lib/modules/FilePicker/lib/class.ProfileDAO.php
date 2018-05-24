@@ -1,5 +1,27 @@
 <?php
+# Filepicker module: profile interaction class
+# Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace FilePicker;
+
+use CmsInvalidDataException;
+use FilePicker;
+use LogicException;
+use RuntimeException;
+use const CMS_DB_PREFIX;
 
 class ProfileDAO
 {
@@ -9,7 +31,7 @@ class ProfileDAO
 
     public static function table_name() { return CMS_DB_PREFIX.'mod_filepicker_profiles'; }
 
-    public function __construct( \FilePicker $mod )
+    public function __construct( FilePicker $mod )
     {
         $this->_mod = $mod;
         $this->_db = $mod->GetDb();
@@ -38,7 +60,7 @@ class ProfileDAO
 
     public function setDefault( Profile $profile )
     {
-        if( $profile->id < 1 ) throw new \LogicException('Cannot set a profile as default if it is not yet saved');
+        if( $profile->id < 1 ) throw new LogicException('Cannot set a profile as default if it is not yet saved');
         $this->_mod->SetPreference(self::DFLT_PREF,$profile->id);
     }
 
@@ -53,7 +75,7 @@ class ProfileDAO
     public function loadById( $id )
     {
         $id = (int) $id;
-        if( $id < 1 ) throw new \LogicException('Invalid id passed to '.__METHOD__);
+        if( $id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
         $sql = 'SELECT * FROM '.self::table_name().' WHERE id = ?';
         $row = $this->_db->GetRow($sql,[ $id ]);
         if( is_array($row) && count($row) ) return $this->profile_from_row($row);
@@ -62,7 +84,7 @@ class ProfileDAO
     public function loadByName( $name )
     {
         $name = trim($name);
-        if( !$name ) throw new \LogicException('Invalid name passed to '.__METHOD__);
+        if( !$name ) throw new LogicException('Invalid name passed to '.__METHOD__);
         $sql = 'SELECT * FROM '.self::table_name().' WHERE name = ?';
         $row = $this->_db->GetRow($sql,[ $name ]);
         if( is_array($row) && count($row) ) return $this->profile_from_row($row);
@@ -70,7 +92,7 @@ class ProfileDAO
 
     public function delete( Profile $profile )
     {
-        if( $profile->id < 1 ) throw new \LogicException('Invalid profile passed to '.__METHOD__);
+        if( $profile->id < 1 ) throw new LogicException('Invalid profile passed to '.__METHOD__);
 
         $sql = 'DELETE FROM '.self::table_name().' WHERE id = ?';
         $this->_db->Execute( $sql, [ $profile->id ] );
@@ -83,11 +105,11 @@ class ProfileDAO
     {
         $sql = 'SELECT id FROM '.self::table_name().' WHERE name = ?';
         $tmp = $this->_db->GetOne( $sql, [ $profile->name ] );
-        if( $tmp ) throw new \CmsInvalidDataException('err_profilename_exists');
+        if( $tmp ) throw new CmsInvalidDataException('err_profilename_exists');
 
         $sql = 'INSERT INTO '.self::table_name().' (name, data, create_date, modified_date) VALUES (?, ?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())';
         $dbr = $this->_db->Execute( $sql, [ $profile->name, serialize($profile->getRawData()) ] );
-        if( !$dbr ) throw new \RuntimeException('Problem inserting profile record');
+        if( !$dbr ) throw new RuntimeException('Problem inserting profile record');
 
         $new_id = $this->_db->Insert_ID();
         $obj = $profile->withNewID( $new_id );
@@ -98,11 +120,11 @@ class ProfileDAO
     {
         $sql = 'SELECT id FROM '.self::table_name().' WHERE name = ? AND id != ?';
         $tmp = $this->_db->GetOne( $sql, [ $profile->name, $profile->id ] );
-        if( $tmp ) throw new \CmsInvalidDataException('err_profilename_exists');
+        if( $tmp ) throw new CmsInvalidDataException('err_profilename_exists');
 
         $sql = 'UPDATE '.self::table_name().' SET name = ?, data = ?, modified_date = UNIX_TIMESTAMP() WHERE id = ?';
         $dbr = $this->_db->Execute( $sql, [ $profile->name, serialize($profile->getRawData()), $profile->id ] );
-        if( !$dbr ) throw new \RuntimeException('Problem updating profile record');
+        if( !$dbr ) throw new RuntimeException('Problem updating profile record');
 
         $obj = $profile->markModified();
         return $obj;
@@ -130,4 +152,4 @@ class ProfileDAO
         }
         return $out;
     }
-} // end of class
+} // class
