@@ -1,7 +1,7 @@
 <?php
 
 // A
-$lang['add_profile'] = 'Add a new profile'
+$lang['add_profile'] = 'Add a new profile';
 
 // C
 $lang['can_delete'] = 'Allow file deletion';
