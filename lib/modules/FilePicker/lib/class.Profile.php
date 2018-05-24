@@ -17,34 +17,28 @@
 
 namespace FilePicker;
 
-class ProfileException extends \Exception {}
+use cms_config;
+use CMSMS\FilePickerProfile;
+use Exception;
+use LogicException;
+use function debug_to_log;
+use function startswith;
 
-class Profile extends \CMSMS\FilePickerProfile
+class ProfileException extends Exception {}
+
+class Profile extends FilePickerProfile
 {
-    private $_data = [ 'id'=>null, 'name'=>null, 'create_date'=>null, 'modified_date'=>null, 'file_extensions'=>null ];
-
-    protected function setValue( $key, $val )
+    public function __construct( array $params = [] )
     {
-        switch( $key ) {
-        case 'name':
-        case 'file_extensions':
-            $this->_data[$key] = trim($val);
-            break;
-        case 'create_date':
-        case 'modified_date':
-            $this->_data[$key] = (int) $val;
-            break;
-        default:
-            parent::setValue( $key, $val );
-            break;
-        }
-    }
+        $this->_data += [
+         'create_date'=>null,
+         'file_extensions'=>null,
+         'id'=>null,
+         'modified_date'=>null,
+         'name'=>null,
+        ];
 
-    public function __construct(array $in = null)
-    {
-        if( !is_array( $in ) ) return;
-
-        foreach( $in as $key => $value ) {
+        foreach( $params as $key => $value ) {
             switch( $key ) {
             case 'id':
                 $this->_data[$key] = (int) $value;
@@ -56,30 +50,30 @@ class Profile extends \CMSMS\FilePickerProfile
         }
     }
 
-    public function __get($key)
+    public function __get( string $key )
     {
         switch( $key ) {
         case 'id':
+        case 'create_date':
+        case 'modified_date':
             return (int) $this->_data[$key];
 
         case 'name':
         case 'file_extensions':
             return trim($this->_data[$key]);
 
-        case 'create_date':
-        case 'modified_date':
-            return (int) $this->_data[$key];
-
         case 'relative_top':
         case 'reltop':
             // parent top is checked for relative or absolute
             // return relative to uploads path
             $val = parent::__get('top');
-            if( startswith($val,'/') ) {
-                $config = \cms_config::get_instance();
+       		if( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
+			   // path is absolute
+                $config = cms_config::get_instance();
+			//TODO sometimes relative to site root
                 $uploads_path = $config['uploads_path'];
                 if( startswith( $val, $uploads_path ) ) $val = substr($val,strlen($uploads_path));
-                if( startswith( $val, '/') ) $val = substr($val,1);
+                if( startswith( $val, DIRECTORY_SEPARATOR) ) $val = substr($val,1);
             }
             return $val;
 
@@ -87,14 +81,33 @@ class Profile extends \CMSMS\FilePickerProfile
             // parent top is checked for relative or absolute
             // if relative, prepend uploads path
             $val = parent::__get('top');
-            if( !startswith($val,'/') ) {
-                $config = \cms_config::get_instance();
-                $val = $config['uploads_path'].'/'.$val;
+       		if( !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $val) ) {
+			//TODO sometimes relative to site root
+                $config = cms_config::get_instance();
+                $val = $config['uploads_path'].DIRECTORY_SEPARATOR.$val;
             }
             return $val;
 
         default:
             return parent::__get($key);
+        }
+    }
+
+    protected function setValue( string $key, $val )
+    {
+        switch( $key ) {
+            case 'name':
+            case 'file_extensions':
+                $this->_data[$key] = trim($val);
+                break;
+            case 'id':
+            case 'create_date':
+            case 'modified_date':
+                $this->_data[$key] = (int) $val;
+                break;
+            default:
+                parent::setValue( $key, $val );
+                break;
         }
     }
 
@@ -108,7 +121,7 @@ class Profile extends \CMSMS\FilePickerProfile
     {
         if( !is_null($new_id) ) {
             $new_id = (int) $new_id;
-            if( $new_id < 1 ) throw new \LogicException('Invalid id passed to '.__METHOD__);
+            if( $new_id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
         }
         $obj = clone $this;
         $obj->_data['id'] = $new_id;
