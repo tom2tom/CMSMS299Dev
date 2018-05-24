@@ -16,6 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use FileManager\filemanager_utils;
+use FilePicker\Utils;
 
 if (!isset($gCms)) {
   exit;
@@ -25,9 +26,12 @@ if (!$this->CheckPermission('Modify Files')) {
   exit;
 }
 
-$sortby = $this->GetPreference('sortby', 'nameasc');
-$path = filemanager_utils::get_cwd();
-$filelist = filemanager_utils::get_file_list($path);
+$sortby = $this->GetPreference('sortby', 'nameasc'); //TODO per FilePickerProfile
+$permissionstyle = $this->GetPreference('permissionstyle','xxx');
+
+$value = filemanager_utils::get_cwd(); //relative path, but with leading separator
+$path = substr($value, 1);
+$filelist = Utils::get_file_list($path);
 $times = count($filelist);
 $countdirs = 0;
 $countfiles = 0;
@@ -42,7 +46,7 @@ for ($i = 0; $i < $times; $i++) {
   $onerow->name = $filelist[$i]['name'];
   $onerow->urlname = $this->encodefilename($filelist[$i]['name']);
   $onerow->type = array('file');
-  $onerow->mime = $filelist[$i]['mime'];
+  $onerow->mime = $filelist[$i]['mime'] ?? null;
   if (isset($params[$onerow->urlname])) {
     $onerow->checked = true;
   }
@@ -68,10 +72,10 @@ for ($i = 0; $i < $times; $i++) {
 
   $onerow->thumbnail = '';
   $onerow->editor = '';
-  if ($filelist[$i]['image']) {
+  if (!empty($filelist[$i]['image'])) {
     $onerow->type[] = 'image';
     $params['imagesrc'] = $path.DIRECTORY_SEPARATOR.$filelist[$i]['name'];
-    if ($this->GetPreference('showthumbnails', 0) == 1) {
+    if ($this->GetPreference('showthumbnails', 0) == 1) { //TODO per FilePickerProfile
       $onerow->thumbnail = $this->GetThumbnailLink($filelist[$i], $path);
     }
   }
@@ -81,7 +85,7 @@ for ($i = 0; $i < $times; $i++) {
       $id,
       'changedir',
       '',
-      $this->GetFileIcon($filelist[$i]['ext'], $filelist[$i]['dir'],
+      $this->GetFileIcon('', $filelist[$i]['dir'],
         ['newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby])
     );
   } else {
@@ -112,17 +116,17 @@ for ($i = 0; $i < $times; $i++) {
     //$onerow->txtlink = "<a href='" . $filelist[$i]["url"] . "' target='_blank' title=\"".$this->Lang('title_view_newwindow')."\">" . $link . "</a>";
     $onerow->txtlink = "<a class=\"filelink\" href='" . $url . "' target='_blank' title=\"".$this->Lang('title_view_newwindow').'">' . $link . '</a>';
   }
-  if ($filelist[$i]['archive']) {
+  if (!empty($filelist[$i]['archive'])) {
     $onerow->type[] = 'archive';
   }
 
-  $onerow->fileinfo = trim($filelist[$i]['fileinfo']);
+  $onerow->fileinfo = filemanager_utils::get_file_details($filelist[$i]);
   if ($filelist[$i]['name'] == '..') {
     $onerow->fileaction = '&nbsp;';
     $onerow->filepermissions = '&nbsp;';
   } else {
     $onerow->fileowner = $filelist[$i]['fileowner'];
-    $onerow->filepermissions = $filelist[$i]['permissions'];
+    $onerow->filepermissions = filemanager_utils::format_permissions($filelist[$i]['mode'],$permissionstyle);
   }
   if ($filelist[$i]['dir']) {
     $onerow->filesize = '&nbsp;';
@@ -152,13 +156,13 @@ if (!empty($params['viewfile'])) {
         if ($data) {
           $data = cms_htmlentities($data);
           $data = nl2br($data);
-		}
+        }
         echo $data;
       } elseif (in_array('image', $file->type)) {
         $data = '<img src="'.$file->url.'" alt="'.$file->name.'" />';
         echo $data;
       }
-	  break;
+      break;
     }
   }
   exit;
