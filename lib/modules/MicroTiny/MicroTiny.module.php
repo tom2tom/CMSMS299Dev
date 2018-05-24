@@ -23,13 +23,13 @@ class MicroTiny extends CMSModule
   public function __construct() { parent::__construct(); }
   public function GetName() { return 'MicroTiny'; }
   public function GetFriendlyName() { return $this->Lang("friendlyname"); }
-  public function GetVersion(){ return '2.2.2'; }
+  public function GetVersion(){ return '2.3'; }
   public function HasAdmin() { return TRUE; }
   public function IsPluginModule() { return TRUE; }
   public function LazyLoadFrontend() { return TRUE; }
   public function LazyLoadAdmin() { return TRUE; }
   public function MinimumCMSVersion() { return "1.99-alpha0"; }
-  public function GetDependencies() { return ['FileManager'=>'1.5']; }
+  public function GetDependencies() { return ['FilePicker'=>'1.1']; }
   public function GetHelp() { return $this->Lang('help'); }
   public function GetAuthor() { return 'Morten Poulsen'; }
   public function GetAuthorEmail() { return '&lt;morten@poulsen.org&gt;'; }
