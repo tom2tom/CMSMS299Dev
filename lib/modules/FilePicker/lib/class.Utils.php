@@ -20,11 +20,14 @@ namespace FilePicker;
 use cms_config;
 use cms_utils;
 use CMSMS\AdminUtils;
+use CMSMS\FilePickerProfile;
 use CMSMS\FileTypeHelper;
-use FilePicker;
+use CmsNlsOperations;
+use Collator;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
 use function get_userid;
+use function startswith;
 
 /**
  * A class of utility-methods for the FilePicker module
@@ -35,10 +38,10 @@ use function get_userid;
  */
 class Utils
 {
-    /**
+    /* *
      * @ignore
      */
-    private function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
+/*    private function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
     {
         static $pr = null;
         static $pw, $px, $pxf;
@@ -54,16 +57,16 @@ class Utils
         if ($mode & 0x0040) $perms[] = ($isdir) ? $pxf : $px; //ignore static flag
         return implode('+', $perms);
     }
-
-    /**
+*/
+    /* *
      * @ignore
      */
-    private function file_details(string $fullname, array &$info) : string
+/*    private function file_details(string $filepath, array &$info) : string
     {
         if (!empty($info['image'])) {
-            $imginfo = @getimagesize($fullname);
+            $imginfo = @getimagesize($filepath);
             if ($imginfo) {
-                $t = imginfo[0].' x '.$imginfo[1];
+                $t = $imginfo[0].' x '.$imginfo[1];
                 if (isset($imginfo['bits'])) {
                     $t .= ' x '.$imginfo['bits'];
                 }
@@ -72,18 +75,19 @@ class Utils
         }
         return '';
     }
-
+*/
     /**
-     * @paran string $path Optional root-relative filesystem-path of directory
-     *  to be reported. Default '' (use profile)
-     * @return mixed array or false
+	 * Return data for relevant files/sub-folders in folder $path
+     * @param string $path Optional absolute or root-relative filesystem-path
+	 *  of folder to be reported. Default '' (hence use relevant root)
+     * @return array (maybe empty)
      */
-    public static function get_file_list(string $path = '')
+    public static function get_file_list(string $path = '') : array
     {
         $config = cms_config::get_instance();
         $mod = cms_utils::get_module('FilePicker');
-		$advancedmode = $mod->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
-        $rootpath = ($advancedmode) ? CMS_ROOT_PATH : $config['uploads_path'];
+        $devmode = $mod->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
+        $rootpath = ($devmode) ? CMS_ROOT_PATH : $config['uploads_path'];
 
         if (!$path) {
             $path = $rootpath;
@@ -91,23 +95,24 @@ class Utils
             // $path is relative
             $path = cms_join_path($rootpath, $path);
         } elseif (!startswith($path, CMS_ROOT_PATH)) {
-            return false;
-		}
-
-        if (!is_dir($path)) {
-            return false;
+            return [];
         }
-        $dh = @opendir($path);
-        if (!$dh) {
-            return false;
+        if (!is_dir($path)) {
+            return [];
+        }
+
+		// not a huge no. of items in website folders, no need for opendir/readdir/closedir
+        $items = scandir($path, SCANDIR_SORT_NONE);
+        if (!$items) {
+            return [];
         }
 
         $user_id = get_userid(false);
         $profile = $mod->get_default_profile($path, $user_id); //CHECKME
-        $showhidden = $profile->show_hidden || $advancedmode;
-		$showthumb = $profile->show_thumbs;
-		$pex = $profile->exclude_prefix;
-		$pin = $profile->match_prefix;
+        $showhidden = $profile->show_hidden || $devmode;
+        $showthumb = $profile->show_thumbs;
+        $pex = $profile->exclude_prefix;
+        $pin = $profile->match_prefix;
 
         $typer = new FileTypeHelper($config);
         $posix = function_exists('posix_getpwuid');
@@ -117,75 +122,65 @@ class Utils
         $showup = ($path != $rootpath);
 
         $result = [];
-
-        while ($file = readdir($dh)) {
-            if ($file == '.') {
+        for ($name = current($items); $name !== false; $name = next($items)) {
+            if ($name == '.') {
                 continue;
             }
-            if ($file == '..') {
-                // can we go up
+            if ($name == '..') {
+                // can we go up ?
                 if (!$showup) {
                     continue;
                 }
-            } elseif ($file[0] == '.' || $file[0] == '_' || $file[0] == '~') {
+            } elseif ($name[0] == '.' || $name[0] == '_' || $name[0] == '~') {
                 if (!$showhidden) {
                     continue;
                 }
             }
-			if ($pin !== '' && !startswith($file, $pin) ) {
-				continue;
-			}
-			if ($pex !== '' && startswith($file, $pex) ) {
-				continue;
-			}
-
-            $fullname = $path.DIRECTORY_SEPARATOR.$file;
-            if (!$showthumb && $typer->is_thumb($fullname)) {
+            if ($pin !== '' && !startswith($name, $pin) ) {
+                continue;
+            }
+            if ($pex !== '' && startswith($name, $pex) ) {
                 continue;
             }
 
-            $statinfo = stat($fullname);
-
-            $info = ['name' => $file];
-
-            if (is_dir($fullname)) {
-                $info['dir'] = true;
-                $info['size'] = $statinfo['size'];
-                $info['date'] = $statinfo['mtime']; //timestamp
-            } else {
-                $info['dir'] = false;
-                $info['ext'] = $typer->get_extension($file);
-                $info['image'] = $typer->is_image($fullname);
-                $info['archive'] = !$info['image'] && $typer->is_archive($fullname);
-                $info['mime'] = $typer->get_mime_type($fullname);
-                $info['size'] = $statinfo['size'];
-                $info['date'] = $statinfo['mtime']; //timestamp
-                $info['url'] = AdminUtils::path_to_url($fullname);
+            $filepath = $path.DIRECTORY_SEPARATOR.$name;
+            if (!$showthumb && $typer->is_thumb($filepath)) {
+                continue;
             }
+
+            $info = ['fullpath' => $filepath, 'dir' => is_dir($filepath), 'name' => $name];
+            if (!$info['dir']) {
+                $info['ext'] = $typer->get_extension($name);
+                $info['text'] = $typer->is_text($filepath);
+                $info['image'] = $typer->is_image($filepath);
+                $info['archive'] = !$info['text'] && !$info['image'] && $typer->is_archive($filepath);
+                $info['mime'] = $typer->get_mime_type($filepath);
+                $info['url'] = AdminUtils::path_to_url($filepath);
+            }
+
+            $statinfo = stat($filepath);
+            $info['mode'] = $statinfo['mode'];
+            $info['size'] = $statinfo['size'];
+            $info['date'] = $statinfo['mtime']; //timestamp
             if ($posix) {
                 $userinfo = @posix_getpwuid($statinfo['uid']);
                 $info['fileowner'] = $userinfo['name'] ?? $mod->Lang('unknown');
             } else {
                 $info['fileowner'] = $ownerna;
             }
-
-            $info['writable'] = is_writable($fullname);
-            $info['permissions'] = self::format_permissions($mod, $statinfo['mode'], $info['dir']);
-            $info['fileinfo'] = self::file_details($fullname, $info);
+            $info['writable'] = is_writable($filepath);
 
             $result[] = $info;
         }
 
-        closedir($dh);
-
         $sortby = $profile->sort;
         if ($sortby != FilePickerProfile::FLAG_NO) {
             if (class_exists('Collator')) {
-                $lang = \CmsNlsOperations::get_current_language();
-                $col = new Collator($lang); //e.g. new Collator('pl_PL');
+                $lang = CmsNlsOperations::get_default_language();
+                $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
             } else {
                 $col = false;
-                // fallback ?? setlocale () + strcoll ()
+                // fallback ?? e.g. setlocale() then strcoll()
             }
 
             usort($result, function ($a, $b) use ($col, $sortby) {
