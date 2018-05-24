@@ -167,7 +167,7 @@ $lang['largeicons'] = 'Large icons';
 // M
 $lang['mb'] = 'mb';
 $lang['mimetype'] = 'Mime Type';
-$lang['moddescription'] = 'Handling of files and directories in the upload-file section of CMSMS';
+$lang['moddescription'] = 'Manage files and directories in the the website\'s uploads section';
 $lang['morethanonefiledirselected'] = 'Only one file or directory should be marked for this action.';
 $lang['move'] = 'Move';
 $lang['movedestdirsame'] = 'The destination directory specified is the same as the source';
