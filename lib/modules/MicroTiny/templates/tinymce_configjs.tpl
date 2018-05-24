@@ -64,8 +64,8 @@ tinymce.init({
     plugins: ['tabfocus hr autolink paste link mailto anchor wordcount lists {if $mt_profile.allowimages} media image{/if} {if $mt_profile.allowtables}table{/if}'],
 {else}
     image_advtab: true,
-    toolbar: 'undo redo | cut copy paste | styleselect | bold italic underline | alignleft aligncenter alignright alignjustify indent outdent | bullist numlist | anchor link mailto unlink cmsms_linker{if $mt_profile.allowimages} | image {/if}',
-    plugins: ['tabfocus hr paste autolink link lists mailto cmsms_linker charmap anchor searchreplace wordcount code fullscreen insertdatetime {if $mt_profile.allowtables}table{/if} {if $mt_profile.allowimages}media image cmsms_filepicker {/if}'],
+    toolbar: 'undo redo | cut copy paste | styleselect | bold italic underline | alignleft aligncenter alignright alignjustify indent outdent | bullist numlist | anchor link mailto unlink cmsms_linker{if $mt_profile.allowimages} | image{/if}',
+    plugins: ['tabfocus hr paste autolink link lists mailto cmsms_linker charmap anchor searchreplace wordcount code fullscreen insertdatetime{if $mt_profile.allowtables} table{/if}{if $mt_profile.allowimages} media image cmsms_filepicker{/if}'],
 {/if}
 {literal}
     // callback functions
