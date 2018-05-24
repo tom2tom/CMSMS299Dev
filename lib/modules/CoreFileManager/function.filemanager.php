@@ -574,15 +574,15 @@ function fm_get_archive_info($path)
             return false;
         case 'gz':
 //            if (function_exists('')) {
-//			}
+//            }
             return false;
         case 'bzip2':
 //            if (function_exists('')) {
-//			}
+//            }
             return false;
         case 'xz':
 //            if (function_exists('')) {
-//			}
+//            }
             return false;
         default:
             return false;
