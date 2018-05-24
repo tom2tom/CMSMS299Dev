@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use FileManager\filemanager_utils;
+
 final class CoreFileManager extends CMSModule
 {
     public function GetName() { return 'CoreFileManager'; }
@@ -34,182 +36,223 @@ final class CoreFileManager extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
-    public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name);    }
+    public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name); }
     public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }
-    public function VisibleToAdminUser() { return $this->AccessAllowed(); }
-    public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
-    public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
+    public function VisibleToAdminUser() { return $this->AccessAllowed() || $this->CheckPermission('Modify Site Code'); }
+
+    public function AccessAllowed() {
+		if ($this->CheckPermission('Modify Files')) {
+			return true;
+	    }
+        $config = cms_config::get_instance();
+		return !empty($config['developer_mode']);
+	}
+
+	public function AdvancedAccessAllowed() {
+		if ($this->CheckPermission('Modify Files') ||
+	       $this->CheckPermission('Modify Site Code')) {
+			return true;
+	    }
+        $config = cms_config::get_instance();
+		return !empty($config['developer_mode']);
+	}
 
     public function GetChangeLog()
-    {
-        return ''.file_get_contents(cms_join_path(__DIR__,'lib','doc','changelog.htm'));
+	{
+        return ''.file_get_contents(cms_join_path(__DIR__, 'lib', 'doc', 'changelog.htm'));
     }
 
-    public function GetFileIcon($extension,$isdir=false)
+    public function GetFileIcon($extension, $isdir=false)
     {
-        if (empty($extension)) $extension = '---'; // hardcode extension to something.
-        if ($extension[0] == ".") $extension = substr($extension,1);
-        $config = \cms_config::get_instance();
-        $iconsize=$this->GetPreference("iconsize","32px");
-        $iconsizeHeight=str_replace("px","",$iconsize);
+        if (empty($extension)) {
+            $extension = '---';
+        } // hardcode extension to something.
+        if ($extension[0] == '.') {
+            $extension = substr($extension, 1);
+        }
+        $config = cms_config::get_instance();
+        $iconsize=$this->GetPreference('iconsize', '32px');
+        $iconsizeHeight=str_replace('px', '', $iconsize);
 
-        $result="";
+        $result='';
         if ($isdir) {
-            $result="<img height=\"".$iconsizeHeight."\" style=\"border:0;\" src=\"".$this->GetModuleURLPath()."/icons/themes/default/extensions/".$iconsize."/dir.png\" ".
-                "alt=\"directory\" ".
-                "align=\"middle\" />";
+            $result='<img height="'.$iconsizeHeight.'" style="border:0;" src="'.$this->GetModuleURLPath().'/icons/themes/default/extensions/'.$iconsize.'/dir.png" '.
+                'alt="directory" '.
+                'align="middle" />';
             return $result;
         }
 
-        if( is_file($this->GetModulePath()."/icons/themes/default/extensions/".$iconsize."/".strtolower($extension).".png")) {
-            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath()."/icons/themes/default/extensions/".$iconsize."/".strtolower($extension).".png' ".
+        if (is_file($this->GetModulePath().'/icons/themes/default/extensions/'.$iconsize.'/'.strtolower($extension).'.png')) {
+            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath().'/icons/themes/default/extensions/'.$iconsize.'/'.strtolower($extension).".png' ".
                 "alt='".$extension."-file' ".
                 "align='middle' />";
         } else {
-            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath()."/icons/themes/default/extensions/".$iconsize."/0.png' ".
-                "alt=".$extension."-file' ".
+            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath().'/icons/themes/default/extensions/'.$iconsize."/0.png' ".
+                'alt='.$extension."-file' ".
                 "align='middle' />";
         }
         return $result;
     }
 
-    protected function Slash($str,$str2="",$str3="")
+    protected function Slash($str, $str2='', $str3='')
     {
-        if ($str=="") return $str2;
-        if ($str2=="") return $str;
-        if ($str[strlen($str)-1]!="/") {
-            if ($str2[0]!="/") {
-                return $str."/".$str2;
+        if ($str=='') {
+            return $str2;
+        }
+        if ($str2=='') {
+            return $str;
+        }
+        if ($str[strlen($str)-1]!='/') {
+            if ($str2[0]!='/') {
+                return $str.'/'.$str2;
             } else {
                 return $str.$str2;
             }
         } else {
-            if ($str2[0]!="/") {
+            if ($str2[0]!='/') {
                 return $str.$str2;
             } else {
-                return $str.substr($str2,1); //trim away one of the slashes
+                return $str.substr($str2, 1); //trim away one of the slashes
             }
         }
         //Three strings not supported yet...
-        return "Error in Slash-function. Please report";
+        return 'Error in Slash-function. Please report';
     }
 
-    public function GetPermissions($path,$file)
+    public function GetPermissions($path, $file)
     {
         $config = cmsms()->GetConfig();
-        $realpath=$this->Slash($config["root_path"],$path);
-        $statinfo=stat($this->Slash($realpath,$file));
-        return $statinfo["mode"];
+        $realpath=$this->Slash($config['root_path'], $path);
+        $statinfo=stat($this->Slash($realpath, $file));
+        return $statinfo['mode'];
     }
 
-    public function GetMode($path,$file)
+    public function GetMode($path, $file)
     {
         $config = cmsms()->GetConfig();
-        $realpath=$this->Slash($config["root_path"],$path);
-        $statinfo=stat($this->Slash($realpath,$file));
-        return filemanager_util::format_permissions($statinfo["mode"]);
+        $realpath=$this->Slash($config['root_path'], $path);
+        $statinfo=stat($this->Slash($realpath, $file));
+        return filemanager_utils::format_permissions($statinfo['mode']); //TODO decouple
     }
 
-    public function GetModeWin($path,$file)
+    public function GetModeWin($path, $file)
     {
         $config = cmsms()->GetConfig();
-        $realpath=$this->Slash($config["root_path"],$path);
-        $realpath=$this->Slash($realpath,$file);
+        $realpath=$this->Slash($config['root_path'], $path);
+        $realpath=$this->Slash($realpath, $file);
         if (is_writable($realpath)) {
-            return "777";
+            return '777';
         } else {
-            return "444";
+            return '444';
         }
     }
 
-    public function GetModeTable($id,$permissions)
+    public function GetModeTable($id, $permissions)
     {
         $smarty = CmsApp::get_instance()->GetSmarty();
 
-        $smarty->assign('ownertext', $this->Lang("owner"));
-        $smarty->assign('groupstext', $this->Lang("group"));
-        $smarty->assign('otherstext', $this->Lang("others"));
+        $smarty->assign('ownertext', $this->Lang('owner'));
+        $smarty->assign('groupstext', $this->Lang('group'));
+        $smarty->assign('otherstext', $this->Lang('others'));
 
-        $ownerr="0"; if ($permissions & 0400) $ownerr="1";
-        $smarty->assign('ownerr', $this->CreateInputCheckbox($id,"ownerr","1",$ownerr));
+        $ownerr = ($permissions & 0400) ? '1':'0';
+        $smarty->assign('ownerr', $this->CreateInputCheckbox($id, 'ownerr', '1', $ownerr));
 
-        $ownerw="0"; if ($permissions & 0200) $ownerw="1";
-        $smarty->assign('ownerw', $this->CreateInputCheckbox($id,"ownerw","1",$ownerw));
+        $ownerw = ($permissions & 0200) ? '1':'0';
+        $smarty->assign('ownerw', $this->CreateInputCheckbox($id, 'ownerw', '1', $ownerw));
 
-        $ownerx="0"; if ($permissions & 0100) $ownerx="1";
-        $smarty->assign('ownerx', $this->CreateInputCheckbox($id,"ownerx","1",$ownerx));
+        $ownerx = ($permissions & 0100) ? '1':'0';
+        $smarty->assign('ownerx', $this->CreateInputCheckbox($id, 'ownerx', '1', $ownerx));
 
-        $groupr="0"; if ($permissions & 0040) $groupr="1";
-        $smarty->assign('groupr', $this->CreateInputCheckbox($id,"groupr","1",$groupr));
+        $groupr = ($permissions & 0040) ? '1':'0';
+        $smarty->assign('groupr', $this->CreateInputCheckbox($id, 'groupr', '1', $groupr));
 
-        $groupw="0"; if ($permissions & 0020) $groupw="1";
-        $smarty->assign('groupw', $this->CreateInputCheckbox($id,"groupw","1",$groupw));
+        $groupw = ($permissions & 0020) ? '1':'0';
+        $smarty->assign('groupw', $this->CreateInputCheckbox($id, 'groupw', '1', $groupw));
 
-        $groupx="0"; if ($permissions & 0010) $groupx="1";
-        $smarty->assign('groupx', $this->CreateInputCheckbox($id,"groupx","1",$groupx));
+        $groupx = ($permissions & 0010) ? '1':'0';
+        $smarty->assign('groupx', $this->CreateInputCheckbox($id, 'groupx', '1', $groupx));
 
-        $othersr="0"; if ($permissions & 0004) $othersr="1";
-        $smarty->assign('othersr', $this->CreateInputCheckbox($id,"othersr","1",$othersr));
+        $othersr = ($permissions & 0004) ? '1':'0';
+        $smarty->assign('othersr', $this->CreateInputCheckbox($id, 'othersr', '1', $othersr));
 
-        $othersw="0"; if ($permissions & 0002) $othersw="1";
-        $smarty->assign('othersw', $this->CreateInputCheckbox($id,"othersw","1",$othersw));
+        $othersw = ($permissions & 0002) ? '1':'0';
+        $smarty->assign('othersw', $this->CreateInputCheckbox($id, 'othersw', '1', $othersw));
 
-        $othersx="0"; if ($permissions & 0001) $othersx="1";
-        $smarty->assign('othersx', $this->CreateInputCheckbox($id,"othersx","1",$othersx));
+        $othersx = ($permissions & 0001) ? '1':'0';
+        $smarty->assign('othersx', $this->CreateInputCheckbox($id, 'othersx', '1', $othersx));
 
         return $this->ProcessTemplate('modetable.tpl');
     }
 
     public function GetModeFromTable($params)
     {
-        $owner=0;
-        if (isset($params["ownerr"])) $owner+=4;
-        if (isset($params["ownerw"])) $owner+=2;
-        if (isset($params["ownerx"])) $owner+=1;
-        $group=0;
-        if (isset($params["groupr"])) $group+=4;
-        if (isset($params["groupw"])) $group+=2;
-        if (isset($params["groupx"])) $group+=1;
-        $others=0;
-        if (isset($params["othersr"])) $others+=4;
-        if (isset($params["othersw"])) $others+=2;
-        if (isset($params["othersx"])) $others+=1;
+        $owner = 0;
+        if (isset($params['ownerr'])) {
+            $owner += 4;
+        }
+        if (isset($params['ownerw'])) {
+            $owner += 2;
+        }
+        if (isset($params['ownerx'])) {
+            $owner += 1;
+        }
+        $group = 0;
+        if (isset($params['groupr'])) {
+            $group += 4;
+        }
+        if (isset($params['groupw'])) {
+            $group += 2;
+        }
+        if (isset($params['groupx'])) {
+            $group += 1;
+        }
+        $others = 0;
+        if (isset($params['othersr'])) {
+            $others += 4;
+        }
+        if (isset($params['othersw'])) {
+            $others += 2;
+        }
+        if (isset($params['othersx'])) {
+            $others += 1;
+        }
         return $owner.$group.$others;
     }
 
-    public function GetThumbnailLink($file,$path)
+    public function GetThumbnailLink($file, $path)
     {
         $config = cmsms()->GetConfig();
-//        $advancedmode = FileManager\filemanager_utils::check_advanced_mode();
+//        $advancedmode = filemanager_utils::check_advanced_mode(); TODO decouple
         $basedir = $config['root_path'];
         $baseurl = $config['root_url'];
 
-        $filepath=$basedir.DIRECTORY_SEPARATOR.$path;
-        $url=$baseurl.'/'.$path;
-        $image="";
-        $imagepath=$this->Slashes($filepath."/thumb_".$file["name"]);
+        $filepath = $basedir.DIRECTORY_SEPARATOR.$path;
+        $url = $baseurl.'/'.$path;
+        $image = '';
+        $imagepath = $this->Slashes($filepath.DIRECTORY_SEPARATOR.'thumb_'.$file['name']);
 
         if (file_exists($imagepath)) {
-            $imageurl=$url.'/thumb_'.$file["name"];
-            $image="<img src=\"".$imageurl."\" alt=\"".$file["name"]."\" title=\"".$file["name"]."\" />";
-            $url = $this->create_url('m1_','view','',array('file'=>$this->encodefilename($file['name'])));
+            $imageurl = $url.'/thumb_'.$file['name'];
+            $image = '<img src="'.$imageurl.'" alt="'.$file['name'].'" title="'.$file['name'].'" />';
+            $url = $this->create_url('m1_', 'view', '', ['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
-            $result="<a href=\"".$url."\" target=\"_blank\">";
-            $result.=$image;
-            $result.="</a>";
+            $result = '<a href="'.$url.'" target="_blank">';
+            $result .= $image;
+            $result .= '</a>';
             return $result;
         }
     }
 
     public function WinSlashes($url)
     {
-        return str_replace("/","\\",$url);
+        return str_replace('/', '\\', $url);
     }
 
     public function Slashes($url)
     {
-        $result=str_replace("\\","/",$url);
-        $result=str_replace("//","/",$result);
+        $result = str_replace('\\', '/', $url);
+        $result = str_replace('//', '/', $result);
         return $result;
     }
 
@@ -223,12 +266,12 @@ final class CoreFileManager extends CMSModule
         'css/filemanager.css',
         'js/jrac/style.jrac.min.css'
         ];
-        foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one)."\n";
+        foreach ($cssfiles as $one) {
+            $out .= sprintf($fmt, $urlpath, $one)."\n";
         }
 
         $fmt = '<script type="text/javascript" src="%s/js/%s"></script>';
-//needed if global jq-ui not loaded 'jquery-file-upload/jquery.ui.widget.min.js',
+        //needed if global jq-ui not loaded 'jquery-file-upload/jquery.ui.widget.min.js',
         $jsfiles = [
         'jquery-file-upload/jquery.iframe-transport.js',
         'jquery-file-upload/jquery.fileupload.min.js',
@@ -236,8 +279,8 @@ final class CoreFileManager extends CMSModule
         'jrac/jquery.jrac.min.js',
         ];
 
-        foreach( $jsfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one)."\n";
+        foreach ($jsfiles as $one) {
+            $out .= sprintf($fmt, $urlpath, $one)."\n";
         }
 
         return $out;
@@ -245,30 +288,30 @@ final class CoreFileManager extends CMSModule
 
     protected function encodefilename($filename)
     {
-        return str_replace("==","",base64_encode($filename));
+        return str_replace('==', '', base64_encode($filename));
     }
 
     protected function decodefilename($encodedfilename)
     {
-        return base64_decode($encodedfilename."==");
+        return base64_decode($encodedfilename.'==');
     }
 
     public function GetAdminMenuItems()
     {
         $out = [];
 
-        if( $this->CheckPermission('Modify Files') ) {
+        if ($this->CheckPermission('Modify Files')) {
             $out[] = CmsAdminMenuItem::from_module($this);
         }
 
-        if( $this->CheckPermission('Modify Site Preferences') ) {
+        if ($this->CheckPermission('Modify Site Preferences')) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'files';
             $obj->title = $this->Lang('title_filemanager_settings');
             $obj->description = $this->Lang('desc_filemanager_settings');
             $obj->action = 'admin_settings';
-            $obj->url = $this->create_url('m1_',$obj->action);
+            $obj->url = $this->create_url('m1_', $obj->action);
             $out[] = $obj;
         }
 
