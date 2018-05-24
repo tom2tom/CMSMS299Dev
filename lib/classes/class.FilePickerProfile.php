@@ -64,7 +64,7 @@ class FilePickerProfile
     /**
      * @ignore
      */
-    private $_data = [
+    protected $_data = [
       'can_delete'=>self::FLAG_YES,
       'can_mkdir'=>self::FLAG_YES,
       'can_upload'=>self::FLAG_YES,
