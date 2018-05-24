@@ -55,7 +55,7 @@ function image_info($file = null, $out = null) {
        // If $out is supplied, but is not a valid key, nullify it.
        if (!is_null($out) && !in_array($out, $redefine_keys)) $out = null;
 
-       // Assign usefull values for the third index.
+       // Assign useful values for the third index.
        $types = array(
        1 => 'GIF',
        2 => 'JPG',
@@ -122,6 +122,3 @@ function GetFileInfo($filename,$ext,$dir=false) {
   return $result;
 }
 
-
-
-?>
