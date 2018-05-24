@@ -1374,6 +1374,7 @@ $lang['perm_Modify_Events'] = 'Modify Events';
 $lang['perm_Modify_Files'] = 'Modify Files';
 $lang['perm_Modify_Modules'] = 'Modify Modules';
 $lang['perm_Modify_Permissions'] = 'Modify Permissions';
+$lang['perm_Modify_Site_Code'] = 'Modify Site Code';
 $lang['perm_Modify_Site_Preferences'] = 'Modify Site Preferences';
 $lang['perm_Modify_Templates'] = 'Modify Templates';
 $lang['perm_Modify_User-defined_Tags'] = 'Modify User-defined Tags';
