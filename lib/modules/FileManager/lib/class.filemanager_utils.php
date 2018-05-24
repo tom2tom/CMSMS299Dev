@@ -202,7 +202,7 @@ final class filemanager_utils
         return FilePicker\Utils::get_file_list($path);
     }
 
-	/**
+    /**
      * @since 1.7
      */
     public static function get_file_details($data)
