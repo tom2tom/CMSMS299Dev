@@ -133,7 +133,6 @@ class microtiny_utils
 
       $mod = \cms_utils::get_module('MicroTiny');
       $_gCms = \CmsApp::get_instance();
-      $config = $_gCms->GetConfig();
       $smarty = $_gCms->GetSmarty();
       $page_id = ($_gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
       $tpl_ob = $smarty->CreateTemplate('module_file_tpl:MicroTiny;tinymce_configjs.tpl',null,null,$smarty); // child of the global smarty
