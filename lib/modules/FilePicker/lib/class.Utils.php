@@ -174,7 +174,7 @@ class Utils
         }
 
         $sortby = $profile->sort;
-        if ($sortby != FilePickerProfile::FLAG_NO) {
+        if ($sortby !== FilePickerProfile::FLAG_NO) {
             if (class_exists('Collator')) {
                 $lang = CmsNlsOperations::get_default_language();
                 $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
