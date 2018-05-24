@@ -1,5 +1,5 @@
 <?php
-#Files manipulation class
+#File identification class
 #Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,19 +15,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This class  provides utilities for determining and manipulating files by type.
- *
- * @package CMS
- * @license GPL
- * @author Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since  2.2
- */
-
 namespace CMSMS;
 
+use cms_config;
+use function mime_content_type;
+use function startswith;
+
 /**
- * A class to provide utilities for manipulating files by their type.
+ * A class to identify file type.
  *
  * @package CMS
  * @license GPL
@@ -39,7 +34,8 @@ class FileTypeHelper
     /**
      * @ignore
      */
-    private $_mime_ok;
+    private $_finfo;
+
     /**
      * @ignore
      */
@@ -152,22 +148,60 @@ class FileTypeHelper
         'xls',
         'xlsx',
     ];
+    /**
+     * @ignore
+     */
+    private $_text_names = [
+        'license',
+        'readme',
+        'authors',
+        'contributors',
+        'changelog',
+    ];
+    /**
+     * @ignore
+     */
+    private $_text_extensions = [
+        'txt', 'css', 'ini', 'conf', 'log', 'htaccess', 'passwd', 'ftpquota', 'sql', 'js', 'json', 'sh', 'config',
+        'php', 'php4', 'php5', 'phps', 'phtml', 'htm', 'html', 'shtml', 'xhtml', 'xml', 'xsl', 'm3u', 'm3u8', 'pls', 'cue',
+        'eml', 'msg', 'csv', 'bat', 'twig', 'tpl', 'md', 'gitignore', 'less', 'sass', 'scss', 'c', 'cpp', 'cs', 'py',
+        'map', 'lock', 'dtd',
+    ];
+    /**
+	 * These are essentially for editable-file checking, rather than text per se
+      * @ignore
+     */
+    private $_text_mimes = [
+        'application/xml',
+        'application/javascript',
+        'application/x-javascript',
+        'image/svg+xml',
+        'message/rfc822',
+    ];
 
     /**
      * Constructor
      *
      * @param cms_config $config
      */
-    public function __construct( \cms_config $config )
+    public function __construct( cms_config $config )
     {
-        $this->_use_mimetype = $this->_mime_ok = function_exists('finfo_open') && function_exists('finfo_file');
-        $this->_use_mimetype = $this->_use_mimetype && !$config['FileTypeHelper_usemimetype'];
-
         $this->update_config_extensions('_image_extensions', $config['FileTypeHelper_image_extensions']);
         $this->update_config_extensions('_audio_extensions', $config['FileTypeHelper_audio_extensions']);
         $this->update_config_extensions('_video_extensions', $config['FileTypeHelper_video_extensions']);
         $this->update_config_extensions('_xml_extensions', $config['FileTypeHelper_xml_extensions']);
         $this->update_config_extensions('_document_extensions', $config['FileTypeHelper_document_extensions']);
+        $this->update_config_extensions('_text_extensions', $config['FileTypeHelper_text_extensions']);
+    }
+
+    /**
+     * @ignore
+     */
+    public function __destruct()
+    {
+        if( !empty($this->_finfo) ) {
+            finfo_close($this->_finfo);
+        }
     }
 
     /**
@@ -192,23 +226,22 @@ class FileTypeHelper
     }
 
     /**
-     * Test if the file specified is readable
+     * Test whether the specified file is readable, and its parent directory exists
      *
-     * @param string $filename
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
      * @return bool
      */
     public function is_readable( $filename )
     {
         $dn = dirname($filename);
-        if( $dn && is_dir($dn) && is_file($filename) && is_readable($filename) ) return TRUE;
-        return FALSE;
+        return ( $dn && is_dir($dn) && is_file($filename) && is_readable($filename) );
     }
 
     /**
-     * Get the extension of a filename
+     * Get the extension of the specified file
      *
-     * @param string $filename
-     * @return string
+     * @param string $filename Basename (at least) of a file. Assumes strtolower() works on the extension (ASCII)
+     * @return string, lowercase
      */
     public function get_extension( $filename )
     {
@@ -216,25 +249,34 @@ class FileTypeHelper
     }
 
     /**
-     * Get the mime type of a filename.
-     * requires the finfo_open function.
+     * Get the mime type of the specified file
      *
-     * @param string $filename
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
      * @return string
      */
     public function get_mime_type( $filename )
     {
-        if( !$this->_mime_ok ) return;
-        $fh = finfo_open(FILEINFO_MIME_TYPE);
-        if( $fh ) {
-            $mime_type = finfo_file($fh,$filename);
-            finfo_close($fh);
-            return $mime_type;
+        if( !isset($this->_finfo) ) {
+            if( function_exists('finfo_open') ) {
+                $this->_finfo = finfo_open(FILEINFO_MIME_TYPE);
+            } else {
+                $this->_finfo = null;
+            }
         }
+        if( $this->_finfo ) {
+             return finfo_file($this->_finfo, $filename);
+        } elseif( function_exists('mime_content_type') ) {
+             return mime_content_type($filename);
+        } elseif( !stristr(ini_get('disable_functions'), 'shell_exec')) {
+             $file = escapeshellarg($filename);
+             $type = shell_exec('file -bi ' . $file);
+             if ($type) return $type;
+        }
+        return '--';
     }
 
     /**
-     * Test if the file specified is an image.
+     * Test whether the specified file is an image.
      * This method will use the mime type if possible, otherwise an extension is used to determine if the file is an image.
      *
      * @param string $filename
@@ -242,19 +284,20 @@ class FileTypeHelper
      */
     public function is_image( $filename )
     {
-        if( $this->_use_mimetype && $this->is_readable( $filename ) ) {
+        if( $this->is_readable( $filename ) ) {
             $type = $this->get_mime_type( $filename );
-            $res = startswith( $type, 'image/');
-            if( $res ) return TRUE;
+            if($type && $type != '--') {
+                return startswith( $type, 'image/' );
+            }
+            // fall back to extension-check
+            $ext = $this->get_extension( $filename );
+            return in_array( $ext, $this->_image_extensions );
         }
-
-        // fall back to extensions
-        $ext = $this->get_extension( $filename );
-        return in_array( $ext, $this->_image_extensions );
+        return FALSE;
     }
 
     /**
-     * Test if the file specified is a thumbnail
+     * Test whether the specified file is a thumbnail
      * This method first tests if the file is an image, and then if it is also a thumbnail.
      *
      * @param string $filename
@@ -267,7 +310,7 @@ class FileTypeHelper
     }
 
     /**
-     * Using the file extension, test if the filename provided is a known archive.
+     * Using the file extension, test whether the specified file is a known archive.
      *
      * @param string $filename
      * @return bool
@@ -280,45 +323,47 @@ class FileTypeHelper
     }
 
     /**
-     * Using mime types if possible, or extensions, test if the filename provided is a known audio file.
+     * Using mime types if possible, or extensions, test whether the specified file is a known audio file.
      *
-     * @param string $filename
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
      * @return bool
      */
     public function is_audio( $filename )
     {
-        if( $this->_use_mimetype && $this->is_readable( $filename ) ) {
+        if( $this->is_readable( $filename ) ) {
             $type = $this->get_mime_type( $filename );
-            $res = startswith( $type, 'audio/');
-            if( $res ) return TRUE;
+            if($type && $type != '--') {
+                return startswith( $type, 'audio/' );
+            }
+            $ext = $this->get_extension( $filename );
+            return in_array( $ext, $this->_audio_extensions );
         }
-
-        $ext = $this->get_extension( $filename );
-        return in_array($ext, $this->_audio_extensions );
+        return FALSE;
     }
 
     /**
-     * Using mime types if possible, or extensions, test if the filename provided is a known audio file.
+     * Using mime types if possible, or extensions, test whether the specified file is a known audio file.
      *
-     * @param string $filename
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
      * @return bool
      */
     public function is_video( $filename )
     {
-        if( $this->_use_mimetype && $this->is_readable( $filename ) ) {
+        if( $this->is_readable( $filename ) ) {
             $type = $this->get_mime_type( $filename );
-            $res = startswith( $type, 'video/');
-            if( $res ) return TRUE;
+            if($type && $type != '--') {
+                return startswith( $type, 'video/' );
+            }
+            $ext = $this->get_extension( $filename );
+            return in_array( $ext, $this->_video_extensions );
         }
-
-        $ext = $this->get_extension( $filename );
-        return in_array($ext, $this->_video_extensions );
+        return FALSE;
     }
 
     /**
-     * Test if the file name specified is a known media (image, audio, video) file.
+     * Test whether the file name specified is a known media (image, audio, video) file.
      *
-     * @param string $filename
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
      * @return bool
      */
     public function is_media( $filename )
@@ -330,44 +375,70 @@ class FileTypeHelper
     }
 
     /**
-     * Test if the file name specified is a known XML file.
+     * Test whether the file name specified is a known XML file.
      *
-     * @param string $filename
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
      * @return bool
      */
     public function is_xml( $filename )
     {
-        if( $this->_use_mimetype && $this->is_readable( $filename ) ) {
+        if( $this->is_readable( $filename ) ) {
             $type = $this->get_mime_type( $filename );
             switch( $type ) {
-            case 'text/xml';
-            case 'application/xml':
-            case 'application/rss+xml':
-                return TRUE;
+                case 'text/xml';
+                case 'application/xml':
+                case 'application/rss+xml':
+                    return TRUE;
             }
+            $ext = $this->get_extension( $filename );
+            return in_array( $ext, $this->_video_extensions ); //???
         }
-        $ext = strtolower(substr($filename,strrpos($filename,'.')+1));
-        return in_array($ext, $this->_video_extensions );
+        return FALSE;
     }
 
     /**
-     * Using the file extension, test if the file name specified is a known document file.
+     * Using the file extension, test whether the file name specified is a known text file.
      *
-     * @param string $filename
+     * @param string $filename At least the basename of a file
      * @return bool
      */
     public function is_document( $filename )
     {
         // extensions only
-        $ext = strtolower(substr($filename,strrpos($filename,'.')+1));
-        return in_array($ext, $this->_document_extensions );
+        $ext = $this->get_extension( $filename );
+        return in_array( $ext, $this->_document_extensions );
     }
 
     /**
-     * Atempt to find a file type for the given filename.
+     * Using mime type if possible, or extensions, test whether the file name specified is a known text file.
      *
-     * @param string $filename
-     * @return string A FileType type constant describing the file type, if found.
+     * @since 2.3
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @return bool
+     */
+    public function is_text( $filename )
+    {
+        if( $this->is_readable( $filename ) ) {
+            $type = $this->get_mime_type( $filename );
+            if( startswith($type, 'text/') || in_array($type, $this->_text_mimes)) {
+                return TRUE;
+            }
+            $ext = $this->get_extension( $filename );
+            if( $ext !== '' && in_array($ext, $this->_text_extensions) ) {
+                return TRUE;
+            }
+            if( $ext === '' && in_array(strtolower(basename($filename)), $this->_text_names) ) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
+    /**
+     * Attempt to find a file type for the given filename.
+     *
+     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @return mixed A FileType type constant string describing the file type, if found. Otherwise null
      */
     public function get_file_type( $filename )
     {
@@ -378,4 +449,4 @@ class FileTypeHelper
         if( $this->is_document( $filename ) ) return FileType::TYPE_DOCUMENT;
         if( $this->is_archive( $filename ) ) return FileType::TYPE_ARCHIVE;
     }
-} // end of class
+} // class
