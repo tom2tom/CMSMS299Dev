@@ -1,6 +1,6 @@
 <?php
 #FileManager: a module for CMS Made Simple to allow website file placement, viewing etc
-#Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
+#Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,8 @@ final class FileManager extends CMSModule
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetHeaderHTML() { return $this->_output_header_content(); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '1.6.4'; }
+    public function GetVersion() { return '1.7.0'; }
+    public function GetDependencies() { return ['FilePicker'=>'1.1']; }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetAuthor() { return 'Morten Poulsen (Silmarillion)'; }
     public function GetAuthorEmail() { return 'morten@poulsen.org'; }
