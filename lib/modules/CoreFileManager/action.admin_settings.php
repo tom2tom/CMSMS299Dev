@@ -26,14 +26,14 @@ if (!$this->CheckPermission('Modify Site Preferences')) {
 //ACE theme selector https://ace.c9.io/build/kitchen-sink.html
 //hilight.js theme demo  https://highlightjs.org/static/demo
 
-$edittheme = $this->GetPreference('editortheme', 'default'));
+$edittheme = $this->GetPreference('editortheme', 'clouds');
 //$hilite = $this->GetPreference('highlight', 1);
 //$viewstyle = $this->GetPreference('highlightstyle', 'default'));
 $showhiddenfiles = $this->GetPreference('showhiddenfiles', 0);
 $uploadables = $this->GetPreference('uploadable', '%image%,txt,text,pdf');
 
 $smarty->assign([
-    'edittheme' => $edittheme, 
+    'edittheme' => $edittheme,
 //    'hilite' => $hilite,
 //    'viewstyle' => $viewstyle,
     'showhidden' => $showhidden,
