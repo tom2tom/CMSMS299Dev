@@ -1,13 +1,13 @@
 <?php
 
 // A
-$lang['add_profile'] = 'Add a new Profile';
+$lang['add_profile'] = 'Add a new profile'
 
 // C
 $lang['can_delete'] = 'Allow file deletion';
 $lang['can_mkdir'] = 'Allow directory creation';
 $lang['can_upload'] = 'Uploads allowed';
-$lang['cancel'] = 'Cancel'; 
+$lang['cancel'] = 'Cancel';
 $lang['changedir'] = 'Change directory to';
 $lang['clear'] = 'Clear';
 $lang['confirm_delete'] = 'Are you sure you want to delete this?';
@@ -57,11 +57,18 @@ $lang['HelpPopupTitle_ProfileShowthumbs'] = 'Show Thumbnails';
 $lang['HelpPopup_ProfileShowthumbs'] = 'If enabled, thumbnails will be visible for image files for which thumbnails are generated.';
 
 // N
+$lang['na'] = 'Not available';
 $lang['name'] = 'Name';
-$lang['no_profiles'] = 'No profile defined yet. You can add them by clicking the button above.';
+$lang['no_profiles'] = 'No profile is recorded. You can add one by clicking the icon above.';
 
 // O
 $lang['ok'] = 'Ok';
+
+// P
+$lang['perm_r'] = 'read';
+$lang['perm_w'] = 'write';
+$lang['perm_x'] = 'exec';
+$lang['perm_xf'] = 'enter';
 
 // S
 $lang['select_an_audio_file'] = 'Select an audio file';
@@ -97,6 +104,7 @@ $lang['topdir'] = 'Top Directory';
 $lang['type'] = 'Type';
 
 // U
+$lang['unknown'] = 'Unknown';
 $lang['upload'] = 'Upload';
 
 // Y
@@ -105,17 +113,29 @@ $lang['youareintext'] = 'The current working directory (relative to the top of t
 // HELP TEXT
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
-<p>This module provides the generic ability to allow an authorized admin editor to select a file.  I.e:  to select an image for use in a WYSIWYG field, or to associate an image or thumbnail with a page, or attach a PDF file to a news article.  The module also has a small amount of ancillary functionality to allow authorized users to upload and delete files, or to create and remove subdirectories.</p>
-<p>This module also allows for the creation of multiple profiles with different capabilities.  Profiles can be used by the <code>{cms_filepicker}</code> plugin or by the module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions can override the settings defined in the profile.</p>
-
+<p>This module provides some file-related capabilities for use by other modules:
+<ol>
+<li>accumulate properties of file(s) and directories for some purpose e.g.
+<ul>
+<li>for upload</li>
+<li>to use in a WYSIWYG field</li>
+<li>to associate an image or thumbnail with a page</li>
+<li>to attach to a news article</li>
+</ul>
+</li>
+<li>upload files</li>
+<li>delete files</li>
+<li>create and remove subdirectories</li>
+</ol>
+</p>
+<p>This module also manages profiles. A profile is a collection of properties (e.g. show hidden files) and permissions (e.g. can create subdirectory) which apply to one or more specified directories.</p>
 <h3>How Do I Use It</h3>
 <p>This module is intended to be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
 <p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended.   See the {cms_filepicker} tag for information about the type, and other parameters.</p>
-
+<p>Profiles can be used by the <code>{cms_filepicker}</code> plugin or by this module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions can override the settings defined in the profile.</p>
 <h3>Support</h3>
 <p>As per the GPL, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
-
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2017, JoMorg and calguy1000. All Rights Are Reserved.</p>
-<p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. You must agree to this license before using the module.</p>
+<p>Copyright &copy; 2017-2018, JoMorg and calguy1000. All rights reserved.</p>
+<p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module may not be used otherwise than in accordance with that license.</p>
 EOT;
