@@ -38,10 +38,46 @@ use function startswith;
  */
 class Utils
 {
-    /* *
-     * @ignore
+    /**
+     * @param string $extension
+     * @param bool $isdir Optional flag indicating this is a directory
+     * @return string
      */
-/*    private function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
+    public function get_file_icon(string $extension, bool $isdir = false) : string
+    {
+        $mod = cms_utils::get_module('FilePicker');
+        $baseurl = $mod->GetModuleURLPath();
+
+        if ($isdir) {
+            return '<img src="'.$baseurl.'/icons/types/dir.png" class"listicon" alt="directory" />';
+        }
+
+        if ($extension === '' || $extension === '.') {
+            $lcext = $ext = '-'; // hardcode extension to something
+        } else {
+		    if ($extension[0] !== '.') {
+                $ext = $extension;
+		    } else {
+		        $ext = substr($extension, 1);
+            }
+		    $lcext = strtolower($extension);
+        }
+
+		$path = cms_join_path(dirname(__DIR__),'icons','types',$lcext.'.png');
+        if (is_file($path)) {
+            return '<img src="'.$baseurl.'/icons/types/'.$lcext.'".png" class"listicon" alt="'.$ext.'-file" />';
+        } else {
+            return '<img src="'.$baseurl.'/icons/types/0.png" class"listicon" alt="'.$ext.'-file" />';
+        }
+    }
+
+    /**
+     * @param FilePicker $mod
+     * @param int $mode
+     * @param bool $isdir
+     * @return string
+     */
+    public function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
     {
         static $pr = null;
         static $pw, $px, $pxf;
@@ -52,34 +88,40 @@ class Utils
             $pxf = $mod->Lang('perm_xf');
         }
         $perms = [];
-        if ($mode & 0x0100) $perms[] = $pr;
-        if ($mode & 0x0080) $perms[] = $pw;
-        if ($mode & 0x0040) $perms[] = ($isdir) ? $pxf : $px; //ignore static flag
+        if ($mode & 0x0100) {
+            $perms[] = $pr;
+        }
+        if ($mode & 0x0080) {
+            $perms[] = $pw;
+        }
+        if ($mode & 0x0040) {
+            $perms[] = ($isdir) ? $pxf : $px;
+        } //ignore static flag
         return implode('+', $perms);
     }
-*/
+
     /* *
      * @ignore
      */
-/*    private function file_details(string $filepath, array &$info) : string
-    {
-        if (!empty($info['image'])) {
-            $imginfo = @getimagesize($filepath);
-            if ($imginfo) {
-                $t = $imginfo[0].' x '.$imginfo[1];
-                if (isset($imginfo['bits'])) {
-                    $t .= ' x '.$imginfo['bits'];
+    /*    private function file_details(string $filepath, array &$info) : string
+        {
+            if (!empty($info['image'])) {
+                $imginfo = @getimagesize($filepath);
+                if ($imginfo) {
+                    $t = $imginfo[0].' x '.$imginfo[1];
+                    if (isset($imginfo['bits'])) {
+                        $t .= ' x '.$imginfo['bits'];
+                    }
+                    return $t;
                 }
-                return $t;
             }
+            return '';
         }
-        return '';
-    }
-*/
+    */
     /**
-	 * Return data for relevant files/sub-folders in folder $path
+     * Return data for relevant files/sub-folders in folder $path
      * @param string $path Optional absolute or root-relative filesystem-path
-	 *  of folder to be reported. Default '' (hence use relevant root)
+     *  of folder to be reported. Default '' (hence use relevant root)
      * @return array (maybe empty)
      */
     public static function get_file_list(string $path = '') : array
@@ -101,7 +143,7 @@ class Utils
             return [];
         }
 
-		// not a huge no. of items in website folders, no need for opendir/readdir/closedir
+        // not a huge no. of items in website folders, no need for opendir/readdir/closedir
         $items = scandir($path, SCANDIR_SORT_NONE);
         if (!$items) {
             return [];
@@ -136,10 +178,10 @@ class Utils
                     continue;
                 }
             }
-            if ($pin !== '' && !startswith($name, $pin) ) {
+            if ($pin !== '' && !startswith($name, $pin)) {
                 continue;
             }
-            if ($pex !== '' && startswith($name, $pex) ) {
+            if ($pex !== '' && startswith($name, $pex)) {
                 continue;
             }
 
