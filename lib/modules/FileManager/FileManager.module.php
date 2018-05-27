@@ -44,32 +44,12 @@ final class FileManager extends CMSModule
     public function AccessAllowed() { return $this->CheckPermission("Modify Files"); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
 
+	/**
+	 * @deprecated since 1.7 use FilePicker\Utils::get_file_icon()
+	 */
     public function GetFileIcon($extension,$isdir=false)
     {
-        if (empty($extension)) $extension = '---'; // hardcode extension to something.
-        if ($extension[0] == ".") $extension = substr($extension,1);
-        $config = \cms_config::get_instance();
-        $iconsize=$this->GetPreference("iconsize","32px");
-        $iconsizeHeight=str_replace("px","",$iconsize);
-
-        $result="";
-        if ($isdir) {
-            $result="<img height=\"".$iconsizeHeight."\" style=\"border:0;\" src=\"".$this->GetModuleURLPath()."/icons/themes/default/extensions/".$iconsize."/dir.png\" ".
-                "alt=\"directory\" ".
-                "align=\"middle\" />";
-            return $result;
-        }
-
-        if( is_file($this->GetModulePath()."/icons/themes/default/extensions/".$iconsize."/".strtolower($extension).".png")) {
-            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath()."/icons/themes/default/extensions/".$iconsize."/".strtolower($extension).".png' ".
-                "alt='".$extension."-file' ".
-                "align='middle' />";
-        } else {
-            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath()."/icons/themes/default/extensions/".$iconsize."/0.png' ".
-                "alt=".$extension."-file' ".
-                "align='middle' />";
-        }
-        return $result;
+		return FilePicker\Utils::get_file_icon($extension,$isdir);
     }
 
     protected function Slash($str,$str2="",$str3="")
@@ -95,7 +75,7 @@ final class FileManager extends CMSModule
 
     public function GetPermissions($path,$file)
     {
-        $config = cmsms()->GetConfig();
+        $config=cmsms()->GetConfig();
         $realpath=$this->Slash($config["root_path"],$path);
         $statinfo=stat($this->Slash($realpath,$file));
         return $statinfo["mode"];
@@ -103,7 +83,7 @@ final class FileManager extends CMSModule
 
     public function GetMode($path,$file)
     {
-        $config = cmsms()->GetConfig();
+        $config=cmsms()->GetConfig();
         $realpath=$this->Slash($config["root_path"],$path);
         $statinfo=stat($this->Slash($realpath,$file));
         return filemanager_util::format_permissions($statinfo["mode"]);
@@ -111,7 +91,7 @@ final class FileManager extends CMSModule
 
     public function GetModeWin($path,$file)
     {
-        $config = cmsms()->GetConfig();
+        $config=cmsms()->GetConfig();
         $realpath=$this->Slash($config["root_path"],$path);
         $realpath=$this->Slash($realpath,$file);
         if (is_writable($realpath)) {
@@ -123,37 +103,37 @@ final class FileManager extends CMSModule
 
     public function GetModeTable($id,$permissions)
     {
-        $smarty = CmsApp::get_instance()->GetSmarty();
+        $smarty=CmsApp::get_instance()->GetSmarty();
 
         $smarty->assign('ownertext', $this->Lang("owner"));
         $smarty->assign('groupstext', $this->Lang("group"));
         $smarty->assign('otherstext', $this->Lang("others"));
 
-        $ownerr="0"; if ($permissions & 0400) $ownerr="1";
+        $ownerr=($permissions & 0400) ? "1":"0";
         $smarty->assign('ownerr', $this->CreateInputCheckbox($id,"ownerr","1",$ownerr));
 
-        $ownerw="0"; if ($permissions & 0200) $ownerw="1";
+        $ownerw=($permissions & 0200) ? "1":"0";
         $smarty->assign('ownerw', $this->CreateInputCheckbox($id,"ownerw","1",$ownerw));
 
-        $ownerx="0"; if ($permissions & 0100) $ownerx="1";
+        $ownerx=($permissions & 0100) ? "1":"0";
         $smarty->assign('ownerx', $this->CreateInputCheckbox($id,"ownerx","1",$ownerx));
 
-        $groupr="0"; if ($permissions & 0040) $groupr="1";
+        $groupr=($permissions & 0040) ? "1":"0";;
         $smarty->assign('groupr', $this->CreateInputCheckbox($id,"groupr","1",$groupr));
 
-        $groupw="0"; if ($permissions & 0020) $groupw="1";
+        $groupw=($permissions & 0020) ? "1":"0";;
         $smarty->assign('groupw', $this->CreateInputCheckbox($id,"groupw","1",$groupw));
 
-        $groupx="0"; if ($permissions & 0010) $groupx="1";
+        $groupx=($permissions & 0010) ? "1":"0";
         $smarty->assign('groupx', $this->CreateInputCheckbox($id,"groupx","1",$groupx));
 
-        $othersr="0"; if ($permissions & 0004) $othersr="1";
+        $othersr=($permissions & 0004) ? "1":"0";
         $smarty->assign('othersr', $this->CreateInputCheckbox($id,"othersr","1",$othersr));
 
-        $othersw="0"; if ($permissions & 0002) $othersw="1";
+        $othersw=($permissions & 0002) ? "1":"0";
         $smarty->assign('othersw', $this->CreateInputCheckbox($id,"othersw","1",$othersw));
 
-        $othersx="0"; if ($permissions & 0001) $othersx="1";
+        $othersx=($permissions & 0001) ? "1":"0";
         $smarty->assign('othersx', $this->CreateInputCheckbox($id,"othersx","1",$othersx));
 
         return $this->ProcessTemplate('modetable.tpl');
@@ -178,10 +158,10 @@ final class FileManager extends CMSModule
 
     public function GetThumbnailLink($file,$path)
     {
-        $config = cmsms()->GetConfig();
+        $config=cmsms()->GetConfig();
 //        $advancedmode = FileManager\filemanager_utils::check_advanced_mode();
-        $basedir = $config['root_path'];
-        $baseurl = $config['root_url'];
+        $basedir=$config['root_path'];
+        $baseurl=$config['root_url'];
 
         $filepath=$basedir.DIRECTORY_SEPARATOR.$path;
         $url=$baseurl.'/'.$path;
@@ -214,10 +194,10 @@ final class FileManager extends CMSModule
 
     protected function _output_header_content()
     {
-        $out = '';
-        $urlpath = $this->GetModuleURLPath();
+        $out='';
+        $urlpath=$this->GetModuleURLPath();
 
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
+        $fmt='<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
         $cssfiles = [
         'css/filemanager.css',
         'js/jrac/style.jrac.min.css'
@@ -226,11 +206,11 @@ final class FileManager extends CMSModule
             $out .= sprintf($fmt,$urlpath,$one)."\n";
         }
 
-        $fmt = '<script type="text/javascript" src="%s/js/%s"></script>';
+        $fmt = '<script type="text/javascript" src="%s/lib/js/%s"></script>';
 //needed if global jq-ui not loaded	'jquery-file-upload/jquery.ui.widget.min.js',
         $jsfiles = [
         'jquery-file-upload/jquery.iframe-transport.js',
-        'jquery-file-upload/jquery.fileupload.min.js',
+        'jquery-file-upload/jquery.fileupload.js',
         'jqueryrotate/jQueryRotate.min.js',
         'jrac/jquery.jrac.min.js',
         ];
@@ -254,21 +234,21 @@ final class FileManager extends CMSModule
 
     public function GetAdminMenuItems()
     {
-        $out = [];
+        $out=[];
 
         if( $this->CheckPermission('Modify Files') ) {
-            $out[] = CmsAdminMenuItem::from_module($this);
+            $out[]=CmsAdminMenuItem::from_module($this);
         }
 
         if( $this->CheckPermission('Modify Site Preferences') ) {
-            $obj = new CmsAdminMenuItem();
-            $obj->module = $this->GetName();
-            $obj->section = 'files';
-            $obj->title = $this->Lang('title_filemanager_settings');
-            $obj->description = $this->Lang('desc_filemanager_settings');
-            $obj->action = 'admin_settings';
-            $obj->url = $this->create_url('m1_',$obj->action);
-            $out[] = $obj;
+            $obj=new CmsAdminMenuItem();
+            $obj->module=$this->GetName();
+            $obj->section='files';
+            $obj->title=$this->Lang('title_filemanager_settings');
+            $obj->description=$this->Lang('desc_filemanager_settings');
+            $obj->action='admin_settings';
+            $obj->url=$this->create_url('m1_',$obj->action);
+            $out[]=$obj;
         }
 
         return $out;
