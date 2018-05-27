@@ -1,4 +1,4 @@
-{if !isset($noform)}
+{if !isset($ajax)}
 
 {function filebtn}
 {strip}{if isset($text) && $text}
@@ -27,9 +27,9 @@
       {filebtn id='btn_resizecrop' iname="{$actionid}fileactionresizecrop" icon='' text=$mod->Lang('resizecrop') title=$mod->Lang('title_resizecrop')}
       {filebtn id='btn_rotate' iname="{$actionid}fileactionrotate" icon='' text=$mod->Lang('rotate') title=$mod->Lang('title_rotate')}
   </div>
-{/if} {* !isset($noform) *}
 
   <div id="filesarea">
+{/if} {* !isset($ajax) *}
     <table style="width:100%;" class="pagetable scrollable">
       <thead>
         <tr>
@@ -73,8 +73,8 @@
         </tr>
       </tfoot>
     </table>
+{if !isset($ajax)}
   </div>
-{if !isset($noform)}
   {*{$actiondropdown}{$targetdir}{$okinput}*}
   {$formend}
 </div>
