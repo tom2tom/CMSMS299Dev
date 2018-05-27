@@ -1,5 +1,5 @@
 <?php
-#CMSMS FileManager module  action: uploadview
+#CMSMS FileManager module action: defaultadmin - included file for uploads setup
 #Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,26 +17,33 @@
 
 use FileManager\filemanager_utils;
 
-if (!isset($gCms)) exit;
+// UPSTREAM
+//if (!isset($gCms)) exit;
+//if (!$this->CheckPermission('Modify Files')) exit;
 
-if (!$this->CheckPermission('Modify Files')) exit;
+$encpath = rawurlencode($path);
 
-$smarty->assign('formstart',$this->CreateFormStart($id, 'upload', $returnid, 'post', 'multipart/form-data'));
-$smarty->assign('formend',$this->CreateFormEnd());
-$smarty->assign('actionid',$id);
-$smarty->assign('maxfilesize',$config['max_upload_size']);
+$smarty->assign('formstart',$this->CreateFormStart($id, 'upload', $returnid, 'post',
+ 'multipart/form-data', false, '', [
+  'disable_buffer' => '1',
+  'path'=>$encpath,
+  ]));
+//$smarty->assign('formend',$this->CreateFormEnd());
+//$smarty->assign('actionid',$id);
+//$smarty->assign('maxfilesize',$config['max_upload_size']);
+
 $action_url = str_replace('&amp;', '&', $this->create_url($id, 'upload', $returnid));
-$refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'upload', '', ['noform'=>1]));
+$refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$encpath])).'&cmsjobtype=1';
 
 $post_max_size = filemanager_utils::str_to_bytes(ini_get('post_max_size'));
 $upload_max_filesize = filemanager_utils::str_to_bytes(ini_get('upload_max_filesize'));
 $max_chunksize = min($upload_max_filesize, $post_max_size - 1024);
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
-    $smarty->assign('is_ie',1);
+    $smarty->assign('is_ie', 1);
 }
-$smarty->assign('ie_upload_message',$this->Lang('ie_upload_message'));
+$smarty->assign('ie_upload_message', $this->Lang('ie_upload_message'));
 
-$out = <<<EOS
+$css = <<<EOS
 <style type="text/css">
 /*.upload-wrapper {
  margin: 10px 0
@@ -67,9 +74,9 @@ $out = <<<EOS
 }
 </style>
 EOS;
-$this->AdminHeaderContent($out);
+$this->AdminHeaderContent($css);
 
-$out = <<<EOS
+$js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 function barValue(total, str) {
@@ -141,7 +148,7 @@ $(document).ready(function() {
       barValue(total, str);
     },
     stop: function(e, data) {
-      $('#filesarea').load('$refresh_url');
+	  $('#filesarea').load('$refresh_url');
       $('#cancel').fadeOut();
       $('#progressarea').fadeOut();
     }
@@ -150,6 +157,6 @@ $(document).ready(function() {
 //]]>
 </script>
 EOS;
-$this->AdminBottomContent($out);
+$this->AdminBottomContent($js);
 
 echo $this->ProcessTemplate('uploadview.tpl');
