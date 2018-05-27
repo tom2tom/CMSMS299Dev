@@ -222,9 +222,9 @@ $lang['pie_crop_h'] = 'crop height';
 $lang['pie_warn_action'] = 'Are you sure? There is no CTRL+Z down here..';
 $lang['pie_warn_reset'] = 'Are you sure? It will reset your current modifications';
 $lang['postinstall'] = 'The FileManager module has been installed';
-$lang['postrotate'] = 'Action for after image rotation';
+$lang['postrotate'] = 'Action after image rotation';
 $lang['predefined'] = 'Predefined Angles';
-$lang['prompt_copy'] = 'Copy one or more Items';
+$lang['prompt_copy'] = 'Copy one or more items';
 $lang['prompt_dropfiles'] = 'Drop files here to upload';
 $lang['prompt_move'] = 'Move Items to Another Directory';
 
