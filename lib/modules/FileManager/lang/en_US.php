@@ -22,6 +22,7 @@ $lang['chmodcancelled'] = 'Changing of permissions canceled';
 $lang['chmodfailure'] = 'Changing permissions of file failed';
 $lang['chmodselected'] = 'Change permissions on selected files';
 $lang['chmodsuccess'] = 'File successfully got new permissions';
+$lang['close'] = 'Close';
 $lang['confirmdeleteselected'] = 'Are you sure the selected files should be deleted?';
 $lang['confirmselected'] = 'Are you sure?';
 $lang['confirmsingledelete'] = 'Are you sure?';
@@ -196,6 +197,7 @@ $lang['notwritable'] = 'Not writable';
 
 // O
 $lang['ok'] = 'OK';
+$lang['open'] = 'Open';
 $lang['others'] = 'Others';
 $lang['owner'] = 'Owner';
 
