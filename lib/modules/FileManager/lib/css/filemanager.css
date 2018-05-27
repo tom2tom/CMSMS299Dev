@@ -1,3 +1,9 @@
 #filesarea img {
-    max-width: 32px
+  max-width: 32px
+}
+.listicon {
+  border: 0;
+  width: 2em;
+  height: 2em;
+  vertical-align: middle;
 }
