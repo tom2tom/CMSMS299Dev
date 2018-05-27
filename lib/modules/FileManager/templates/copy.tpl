@@ -1,11 +1,11 @@
 <h3>{$mod->Lang('prompt_copy')}</h3>
 
-{$startform}
+{$formstart}
 <div class="pageoverflow">
   <p class="pagetext">{$mod->Lang('itemstocopy')}:</p>
   <p class="pageinput">
     <ul>
-    {foreach $selall as $one}
+    {foreach $sel as $one}
       <li>{$one}</li>
     {/foreach}
     </ul>
@@ -21,7 +21,7 @@
     </select>
   </p>
 </div>
-{if count($selall) == 1}
+{if count($sel) == 1}
 <div class="pageoverflow">
   <p class="pagetext">
     <label for="destname">{$mod->Lang('copy_destname')}:</label>
@@ -34,7 +34,7 @@
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('copy')}</button>
+    <button type="submit" name="{$actionid}copy" class="adminsubmit icon do">{$mod->Lang('copy')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>

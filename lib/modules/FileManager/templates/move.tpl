@@ -1,12 +1,12 @@
 <h3>{$mod->Lang('prompt_move')}</h3>
 <p class="pageoverflow">{$mod->Lang('info_move')}:</p>
 
-{$startform}
+{$formstart}
 <div class="pageoverflow">
   <p class="pagetext">{$mod->Lang('itemstomove')}:</p>
   <p class="pageinput">
     <ul>
-    {foreach $selall as $one}
+    {foreach $sel as $one}
       <li>{$one}</li>
     {/foreach}
     </ul>
@@ -25,7 +25,7 @@
 <br />
 <div class="pageoverflow">
   <p class="pageinput">
-    <button type="submit" name="{$actionid}submit" class="adminsubmit icon do">{$mod->Lang('move')}</button>
+    <button type="submit" name="{$actionid}move" class="adminsubmit icon do">{$mod->Lang('move')}</button>
     <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
   </p>
 </div>
