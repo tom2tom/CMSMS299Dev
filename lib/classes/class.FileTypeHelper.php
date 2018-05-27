@@ -151,16 +151,6 @@ class FileTypeHelper
     /**
      * @ignore
      */
-    private $_text_names = [
-        'license',
-        'readme',
-        'authors',
-        'contributors',
-        'changelog',
-    ];
-    /**
-     * @ignore
-     */
     private $_text_extensions = [
         'txt', 'css', 'ini', 'conf', 'log', 'htaccess', 'passwd', 'ftpquota', 'sql', 'js', 'json', 'sh', 'config',
         'php', 'php4', 'php5', 'phps', 'phtml', 'htm', 'html', 'shtml', 'xhtml', 'xml', 'xsl', 'm3u', 'm3u8', 'pls', 'cue',
@@ -168,7 +158,7 @@ class FileTypeHelper
         'map', 'lock', 'dtd',
     ];
     /**
-	 * These are essentially for editable-file checking, rather than text per se
+     * These are essentially for editable-file checking, rather than text per se
       * @ignore
      */
     private $_text_mimes = [
@@ -226,15 +216,18 @@ class FileTypeHelper
     }
 
     /**
-     * Test whether the specified file is readable, and its parent directory exists
+     * Test whether the specified file is readable, and not a directory
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
-     * @return bool
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
+     * @return string real path of the file
      */
     public function is_readable( $filename )
     {
-        $dn = dirname($filename);
-        return ( $dn && is_dir($dn) && is_file($filename) && is_readable($filename) );
+        $real = stream_resolve_include_path($filename); //faster file_exists()
+        if( $real && is_readable($real) && is_file($real) ) {
+            return $real;
+        }
+        return FALSE;
     }
 
     /**
@@ -251,7 +244,7 @@ class FileTypeHelper
     /**
      * Get the mime type of the specified file
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return string
      */
     public function get_mime_type( $filename )
@@ -284,7 +277,7 @@ class FileTypeHelper
      */
     public function is_image( $filename )
     {
-        if( $this->is_readable( $filename ) ) {
+        if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
             if($type && $type != '--') {
                 return startswith( $type, 'image/' );
@@ -325,12 +318,12 @@ class FileTypeHelper
     /**
      * Using mime types if possible, or extensions, test whether the specified file is a known audio file.
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
      */
     public function is_audio( $filename )
     {
-        if( $this->is_readable( $filename ) ) {
+        if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
             if($type && $type != '--') {
                 return startswith( $type, 'audio/' );
@@ -344,12 +337,12 @@ class FileTypeHelper
     /**
      * Using mime types if possible, or extensions, test whether the specified file is a known audio file.
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
      */
     public function is_video( $filename )
     {
-        if( $this->is_readable( $filename ) ) {
+        if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
             if($type && $type != '--') {
                 return startswith( $type, 'video/' );
@@ -363,7 +356,7 @@ class FileTypeHelper
     /**
      * Test whether the file name specified is a known media (image, audio, video) file.
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
      */
     public function is_media( $filename )
@@ -377,12 +370,12 @@ class FileTypeHelper
     /**
      * Test whether the file name specified is a known XML file.
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
      */
     public function is_xml( $filename )
     {
-        if( $this->is_readable( $filename ) ) {
+        if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
             switch( $type ) {
                 case 'text/xml';
@@ -410,24 +403,22 @@ class FileTypeHelper
     }
 
     /**
-     * Using mime type if possible, or extensions, test whether the file name specified is a known text file.
+     * Using mime type if possible, or extension, test whether the specified fule is (potentially-editable) text.
      *
      * @since 2.3
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return bool
      */
     public function is_text( $filename )
     {
-        if( $this->is_readable( $filename ) ) {
+        if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
             if( startswith($type, 'text/') || in_array($type, $this->_text_mimes)) {
                 return TRUE;
             }
             $ext = $this->get_extension( $filename );
-            if( $ext !== '' && in_array($ext, $this->_text_extensions) ) {
-                return TRUE;
-            }
-            if( $ext === '' && in_array(strtolower(basename($filename)), $this->_text_names) ) {
+             // on a website, pretty much everything without an extension will be some form of editable text
+            if( $ext === '' && in_array($ext, $this->_text_extensions) ) {
                 return TRUE;
             }
         }
@@ -437,7 +428,7 @@ class FileTypeHelper
     /**
      * Attempt to find a file type for the given filename.
      *
-     * @param string $filename Fileystem absolute path or 'working-directory-relative' path
+     * @param string $filename Fileystem absolute path or include-path-resolvable path
      * @return mixed A FileType type constant string describing the file type, if found. Otherwise null
      */
     public function get_file_type( $filename )
