@@ -37,7 +37,7 @@ for( $i = 0; $i < count($tmp_path_parts); $i++ ) {
         // not the last entry
         $fullpath = implode(DIRECTORY_SEPARATOR,array_slice($tmp_path_parts,0,$i+1));
         if( startswith($fullpath,'::top::') ) $fullpath = substr($fullpath,7);
-        $obj->url = $this->create_url( $id, 'changedir', '',[ 'setdir' => $fullpath ] );
+        $obj->url = $this->create_url( $id, 'changedir', '', [ 'setdir' => $fullpath ] );
     } else {
         // the last entry... no link
     }
@@ -45,8 +45,9 @@ for( $i = 0; $i < count($tmp_path_parts); $i++ ) {
 }
 $smarty->assign('path',$path);
 $smarty->assign('path_parts',$path_parts);
+$smarty->assign('sep', '&raquo;'); //TODO or '&laquo;' for rtl context
 echo $this->ProcessTemplate('fmpath.tpl');
-
+// get the upload elements
 include __DIR__.DIRECTORY_SEPARATOR.'uploadview.php';
-include __DIR__.DIRECTORY_SEPARATOR.'action.admin_fileview.php'; // this is also an action.
-
+// get the files table
+include __DIR__.DIRECTORY_SEPARATOR.'action.admin_fileview.php'; // this is also an action, for ajax processing
