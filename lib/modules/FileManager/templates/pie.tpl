@@ -91,4 +91,4 @@ input.invalid {
   </div>
   <div style="clear: both;"></div>
 </div>
-{$formend}
+</form>
