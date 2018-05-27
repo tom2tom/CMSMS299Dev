@@ -3,14 +3,18 @@
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
-$UploadHandler = new FileManager\UploadHandler(['param_name'=>$id.'files']);
+$fullpath = cms_join_path(CMS_ROOT_PATH, rawurldecode($params['path']));
+$real = stream_resolve_include_path($fullpath);
+if (!$real) exit;
+
+$UploadHandler = new FilePicker\UploadHandler(['upload_dir'=>$real, 'param_name'=>$id.'files']);
 
 header('Pragma: no-cache');
 header('Cache-Control: private, no-cache');
 header('Content-Disposition: inline; filename="files.json"');
 header('X-Content-Type-Options: nosniff');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, DELETE');
 header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');
 
 switch ($_SERVER['REQUEST_METHOD']) {
