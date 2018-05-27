@@ -1,8 +1,12 @@
 <?php
+
 use FileManager\filemanager_utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) return;
+
+$smarty->assign('mod',$this);
+$smarty->assign('actionid',$id);
 
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
     $smarty->assign('is_ie',1);
@@ -12,9 +16,17 @@ $smarty->assign('formend',$this->CreateFormEnd());
 $post_max_size = filemanager_utils::str_to_bytes(ini_get('post_max_size'));
 $upload_max_filesize = filemanager_utils::str_to_bytes(ini_get('upload_max_filesize'));
 $smarty->assign('max_chunksize',min($upload_max_filesize,$post_max_size-1024));
-$smarty->assign('action_url',$this->create_url('m1_','upload',$returnid));
+$smarty->assign('action_url',$this->create_url($id,'upload',$returnid));
 $smarty->assign('prompt_dropfiles',$this->Lang('prompt_dropfiles'));
-$smarty->assign('chdir_url',$this->create_url('m1_','changedir',$returnid));
+
+$smarty->assign('chdir_formstart',$this->CreateFormStart($id,'changedir',$returnid,'','',[
+  'id'=>'chdir_form',
+  'class'=>'cms_form',
+  'path'=>$cwd,
+  'ajax'=>1
+]));
+$smarty->assign('chdir_url',str_replace('&amp;','&',$this->create_url($id,'changedir',$returnid)).'&cmsjobtype=1');
+
 $advancedmode = $this->GetPreference('advancedmode',0);
 if( strlen($advancedmode) > 1 ) $advancedmode = 0;
 
@@ -59,10 +71,10 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
     }
 }
 
-$smarty->assign('FileManager',$this);
-$template = 'dropzone.tpl';
 if( isset($params['template']) ) {
     $template = trim($params['template']);
-    if( !endswith($template,'.tp;') )  $template .= '.tpl';
+    if( !endswith($template,'.tpl') )  $template .= '.tpl';
+} else {
+    $template = 'dropzone.tpl';
 }
 echo $this->ProcessTemplate($template);
