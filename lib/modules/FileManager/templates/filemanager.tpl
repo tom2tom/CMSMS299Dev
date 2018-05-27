@@ -16,16 +16,16 @@
   {$formstart}
   {$hiddenpath}
   <div class="postgap">
-      {filebtn id='btn_newdir' iname="{$actionid}fileactionnewdir" icon='plus' text=$mod->Lang('newdir') title=$mod->Lang('title_newdir')}
-      {filebtn id='btn_view' iname="{$actionid}fileactionview" icon='' text=$mod->Lang('view') title=$mod->Lang('title_view')}
-      {filebtn id='btn_rename' iname="{$actionid}fileactionrename" icon='' text=$mod->Lang('rename') title=$mod->Lang('title_rename')}
-      {filebtn id='btn_delete' iname="{$actionid}fileactiondelete" icon='delete' text=$mod->Lang('delete') title=$mod->Lang('title_delete')}
-      {filebtn id='btn_move' iname="{$actionid}fileactionmove" icon='' text=$mod->Lang('move') title=$mod->Lang('title_move')}
-      {filebtn id='btn_copy' iname="{$actionid}fileactioncopy" icon='' text=$mod->Lang('copy') title=$mod->Lang('title_copy')}
-      {filebtn id='btn_unpack' iname="{$actionid}fileactionunpack" icon='' text=$mod->Lang('unpack') title=$mod->Lang('title_unpack')}
-      {filebtn id='btn_thumb' iname="{$actionid}fileactionthumb" icon='' text=$mod->Lang('thumbnail') title=$mod->Lang('title_thumbnail')}
-      {filebtn id='btn_resizecrop' iname="{$actionid}fileactionresizecrop" icon='' text=$mod->Lang('resizecrop') title=$mod->Lang('title_resizecrop')}
-      {filebtn id='btn_rotate' iname="{$actionid}fileactionrotate" icon='' text=$mod->Lang('rotate') title=$mod->Lang('title_rotate')}
+    {filebtn id='btn_newdir' iname="{$actionid}newdir" icon='plus' text=$mod->Lang('newdir') title=$mod->Lang('title_newdir')}
+    {filebtn id='btn_view' iname="{$actionid}view" icon='' text=$mod->Lang('view') title=$mod->Lang('title_view')}
+    {filebtn id='btn_rename' iname="{$actionid}rename" icon='' text=$mod->Lang('rename') title=$mod->Lang('title_rename')}
+    {filebtn id='btn_delete' iname="{$actionid}delete" icon='delete' text=$mod->Lang('delete') title=$mod->Lang('title_delete')}
+    {filebtn id='btn_move' iname="{$actionid}move" icon='' text=$mod->Lang('move') title=$mod->Lang('title_move')}
+    {filebtn id='btn_copy' iname="{$actionid}copy" icon='' text=$mod->Lang('copy') title=$mod->Lang('title_copy')}
+    {filebtn id='btn_unpack' iname="{$actionid}unpack" icon='' text=$mod->Lang('unpack') title=$mod->Lang('title_unpack')}
+    {filebtn id='btn_thumb' iname="{$actionid}thumb" icon='' text=$mod->Lang('thumbnail') title=$mod->Lang('title_thumbnail')}
+    {filebtn id='btn_resizecrop' iname="{$actionid}resizecrop" icon='' text=$mod->Lang('resizecrop') title=$mod->Lang('title_resizecrop')}
+    {filebtn id='btn_rotate' iname="{$actionid}rotate" icon='' text=$mod->Lang('rotate') title=$mod->Lang('title_rotate')}
   </div>
 
   <div id="filesarea">
@@ -61,7 +61,7 @@
           <td class="clickable" style="vertical-align:middle;padding-right:8px;white-space:pre;">{$thedate}</td>
           <td>{if !isset($file->noCheckbox)}
             <label for="x_{$file->urlname}" style="display: none;">{$mod->Lang('toggle')}</label>
-            <input type="checkbox" name="{$actionid}selall[]" id="x_{$file->urlname}" value="{$file->urlname}" title="{$mod->Lang('toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked="checked"{/if} />
+            <input type="checkbox" name="{$actionid}sel[]" id="x_{$file->urlname}" value="{$file->urlname}" title="{$mod->Lang('toggle')}" class="fileselect {implode(' ',$file->type)}"{if isset($file->checked)} checked="checked"{/if} />
           {/if}</td>
         </tr>
         {/foreach}
@@ -76,6 +76,6 @@
 {if !isset($ajax)}
   </div>
   {*{$actiondropdown}{$targetdir}{$okinput}*}
-  {$formend}
+  </form>
 </div>
 {/if}
