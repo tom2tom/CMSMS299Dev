@@ -21,7 +21,6 @@ use FilePicker\Utils;
 if (!isset($gCms)) {
   exit;
 }
-
 if (!$this->CheckPermission('Modify Files')) {
   exit;
 }
@@ -80,18 +79,6 @@ for ($i = 0; $i < $times; $i++) {
     }
   }
 
-  if ($filelist[$i]['dir']) {
-    $onerow->iconlink = $this->CreateLink(
-      $id,
-      'changedir',
-      '',
-      $this->GetFileIcon('', $filelist[$i]['dir'],
-        ['newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby])
-    );
-  } else {
-    $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext']) . '</a>';
-  }
-
   $link = $filelist[$i]['name'];
   if ($filelist[$i]['dir']) {
     $parms = [ 'newdir'=>$filelist[$i]['name'], 'path'=>$path, 'sortby'=>$sortby ];
@@ -99,16 +86,18 @@ for ($i = 0; $i < $times; $i++) {
     if ($filelist[$i]['name'] != '..') {
       $countdirs++;
       $onerow->type = array('dir');
+      $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('', true), $parms);
       $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changedir')}\">{$link}</a>";
     } else {
       // for the parent directory
+      $value = basename($config['uploads_path']);
+      if ($value === $path) continue;
       $onerow->noCheckbox = 1;
-      $icon = $this->GetModuleURLPath().'/icons/themes/default/actions/dir_up.gif';
-      $img_tag = '<img src="'.$icon.'" width="32" height="32" title="'.$this->Lang('title_changeupdir').'" />';
-      $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $img_tag, $parms);
+      $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('up', true), $parms);
       $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changeupdir')}\">{$link}</a>";
     }
   } else {
+    $onerow->iconlink = "<a href='" . $filelist[$i]['url'] . "' target='_blank'>" . $this->GetFileIcon($filelist[$i]['ext'], false) . '</a>';
     $countfiles++;
     $countfilesize+=$filelist[$i]['size'];
     //$url = $this->create_url($id,'view','',array('file'=>$this->encodefilename($filelist[$i]['name'])));
@@ -228,8 +217,8 @@ $smarty->assign('formend', $this->CreateFormEnd());
 $smarty->assign('mod', $this);
 $smarty->assign('confirm_unpack', $this->Lang('confirm_unpack'));
 
-if (isset($params['noform'])) {
-  $smarty->assign('noform', 1);
+if (isset($params['ajax'])) {
+  $smarty->assign('ajax', 1);
 } else {
   $out = <<<EOS
 <style type="text/css">
@@ -240,8 +229,8 @@ a.filelink:visited {
 EOS;
   $this->AdminHeaderContent($out);
 
-  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['noform'=>1]));
-  $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1]));
+  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>rawurlencode($path)])).'&cmsjobtype=1' ;
+  $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&cmsjobtype=1';
   $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -284,7 +273,7 @@ $(document).ready(function() {
   enable_action_buttons();
   $('#refresh').off('click').on('click', function() {
     // ajaxy reload for the files area.
-    $('#filesarea').load('{$refresh_url}&cmsjobtype=1');
+    $('#filesarea').load('$refresh_url');
     return false;
   });
   $(document).on('dropzone_chdir', $(this), function(e, data) {
@@ -316,7 +305,7 @@ $(document).ready(function() {
   $('#btn_view').on('click', function() {
     // find the selected item.
     var tmp = $("#filesarea input[type='checkbox']").filter(':checked').val();
-    var url = '{$viewfile_url}&cmsjobtype=1&{$id}viewfile=' + tmp;
+    var url = '{$viewfile_url}&{$id}viewfile=' + tmp;
     $('#popup_contents').load(url);
     cms_dialog($('#popup'), {
       minWidth: 380,
