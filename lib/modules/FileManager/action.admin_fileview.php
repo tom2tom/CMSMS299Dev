@@ -56,16 +56,18 @@ for ($i = 0; $i < $times; $i++) {
 
   if ($filelist[$i]['dir']) {
     $urlname = 'dir_' . $this->encodefilename($filelist[$i]['name']);
-    $value = '';
     if (isset($params[$urlname])) {
       $value = 'true';
-    }
+    } else {
+      $value = '';
+	}
   } else {
     $urlname = 'file_' . $this->encodefilename($filelist[$i]['name']);
-    $value = '';
     if (isset($params[$urlname])) {
       $value = 'true';
-    }
+    } else {
+      $value = '';
+	}
   }
   $onerow->checkbox = $this->CreateInputCheckBox($id, $urlname, 'true', $value);
 
@@ -75,7 +77,7 @@ for ($i = 0; $i < $times; $i++) {
     $onerow->type[] = 'image';
     $params['imagesrc'] = $path.DIRECTORY_SEPARATOR.$filelist[$i]['name'];
     if ($this->GetPreference('showthumbnails', 0) == 1) { //TODO per FilePickerProfile
-      $onerow->thumbnail = $this->GetThumbnailLink($filelist[$i], $path);
+      $onerow->thumbnail = $this->GetThumbnailLink($id, $filelist[$i], $path);
     }
   }
 
@@ -229,7 +231,7 @@ a.filelink:visited {
 EOS;
   $this->AdminHeaderContent($out);
 
-  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>rawurlencode($path)])).'&cmsjobtype=1' ;
+  $refresh_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1,'path'=>$path])).'&cmsjobtype=1' ;
   $viewfile_url = str_replace('&amp;', '&', $this->create_url($id, 'admin_fileview', '', ['ajax'=>1])).'&cmsjobtype=1';
   $out = <<<EOS
 <script type="text/javascript">

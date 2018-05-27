@@ -3,7 +3,7 @@
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
-$fullpath = cms_join_path(CMS_ROOT_PATH, rawurldecode($params['path']));
+$fullpath = cms_join_path(CMS_ROOT_PATH, $params['path']);
 $real = stream_resolve_include_path($fullpath);
 if (!$real) exit;
 
