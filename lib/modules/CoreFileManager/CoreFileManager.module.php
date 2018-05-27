@@ -64,34 +64,7 @@ final class CoreFileManager extends CMSModule
 
     public function GetFileIcon($extension, $isdir=false)
     {
-        if (empty($extension)) {
-            $extension = '---';
-        } // hardcode extension to something.
-        if ($extension[0] == '.') {
-            $extension = substr($extension, 1);
-        }
-        $config = cms_config::get_instance();
-        $iconsize=$this->GetPreference('iconsize', '32px');
-        $iconsizeHeight=str_replace('px', '', $iconsize);
-
-        $result='';
-        if ($isdir) {
-            $result='<img height="'.$iconsizeHeight.'" style="border:0;" src="'.$this->GetModuleURLPath().'/icons/themes/default/extensions/'.$iconsize.'/dir.png" '.
-                'alt="directory" '.
-                'align="middle" />';
-            return $result;
-        }
-
-        if (is_file($this->GetModulePath().'/icons/themes/default/extensions/'.$iconsize.'/'.strtolower($extension).'.png')) {
-            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath().'/icons/themes/default/extensions/'.$iconsize.'/'.strtolower($extension).".png' ".
-                "alt='".$extension."-file' ".
-                "align='middle' />";
-        } else {
-            $result="<img height='".$iconsizeHeight."' style='border:0;' src='".$this->GetModuleURLPath().'/icons/themes/default/extensions/'.$iconsize."/0.png' ".
-                'alt='.$extension."-file' ".
-                "align='middle' />";
-        }
-        return $result;
+		//see FilePicker\Utils::get_file_icon()
     }
 
     protected function Slash($str, $str2='', $str3='')
@@ -254,36 +227,6 @@ final class CoreFileManager extends CMSModule
         $result = str_replace('\\', '/', $url);
         $result = str_replace('//', '/', $result);
         return $result;
-    }
-
-    protected function _output_header_content()
-    {
-        $out = '';
-        $urlpath = $this->GetModuleURLPath();
-
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
-        $cssfiles = [
-        'css/filemanager.css',
-        'js/jrac/style.jrac.min.css'
-        ];
-        foreach ($cssfiles as $one) {
-            $out .= sprintf($fmt, $urlpath, $one)."\n";
-        }
-
-        $fmt = '<script type="text/javascript" src="%s/js/%s"></script>';
-        //needed if global jq-ui not loaded 'jquery-file-upload/jquery.ui.widget.min.js',
-        $jsfiles = [
-        'jquery-file-upload/jquery.iframe-transport.js',
-        'jquery-file-upload/jquery.fileupload.min.js',
-        'jqueryrotate/jQueryRotate.min.js',
-        'jrac/jquery.jrac.min.js',
-        ];
-
-        foreach ($jsfiles as $one) {
-            $out .= sprintf($fmt, $urlpath, $one)."\n";
-        }
-
-        return $out;
     }
 
     protected function encodefilename($filename)
