@@ -1,20 +1,54 @@
 <?php
 namespace FilePicker;
 
+use cms_config;
+use cms_siteprefs;
+use cms_utils;
+use const CMS_ROOT_PATH;
+use function endswith;
+use function get_userid;
+
 class UploadHandler extends jquery_upload_handler
 {
-    private $_path; //maybe just DIRECTORY_SEPARATOR ??
-    private $_mod;
-    private $_profile; //maybe null
+    private $_mod; //FilePicker-module object
+    private $_profile; //CMSMS\FilePickerProfile or derivative
+    private $_path; //absolute filesystem path for upload
 
-    public function __construct( \FilePicker $mod,  \CMSMS\FilePickerProfile $profile, $path )
+    /**
+     * @param array $opts @since 2.3 Optional assoc. array of parameters for the upload
+	 * Of special interest: 'module', 'upload_dir', 'profile' (all optional)
+     */
+    public function __construct($opts = [])
     {
-        $this->_mod = $mod;
-        $this->_profile = $profile;
-        if( !endswith( ''.$path, DIRECTORY_SEPARATOR ) ) $path .= DIRECTORY_SEPARATOR; //TODO if path is null
-        $this->_path = $path;
+        if( empty($opts['module']) ) {
+            $this->_mod = cms_utils::get_module('FilePicker');
+        } else {
+            $this->_mod = $opts['module'];
+            unset($opts['module']);
+        }
 
-        $opts = [ 'upload_dir'=>$path ];
+        if( isset($opts['upload_dir']) ) {
+			$path = trim($opts['upload_dir']);
+		} else {
+			$path = '';
+		}
+		if ($path === '' || !preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $path)) {
+			// $path not provided or is relative
+            $config = cms_config::get_instance();
+            $devmode = $this->_mod->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
+            $base  = ( $devmode ) ? CMS_ROOT_PATH : $config['uploads_path'];
+			$path = ($path === '') ? $base : cms_join_path($base,$path);
+        }
+		// TODO $path existence, validity checks ... per CMSMS\FileTypeHelper-object ??
+		$this->_path =  ( endswith( $path, DIRECTORY_SEPARATOR ) ) ? $path : $path . DIRECTORY_SEPARATOR;
+        $opts['upload_dir'] = $this->_path; //expects trailing separator
+
+        if( empty($opts['profile']) ) {
+            $this->_profile = $this->_mod->get_default_profile($path, get_userid(false));
+        } else {
+            $this->_profile = $opts['profile'];
+            unset($opts['profile']);
+        }
         parent::__construct( $opts );
     }
 
@@ -44,8 +78,8 @@ class UploadHandler extends jquery_upload_handler
         if( !$info || !isset($info['mime']) ) return;
 
         // gotta create a thumbnail
-        $width = (int) \cms_siteprefs::get('thumbnail_width',96);
-        $height = (int) \cms_siteprefs::get('thumbnail_height',96);
+        $width = (int) cms_siteprefs::get('thumbnail_width',96);
+        $height = (int) cms_siteprefs::get('thumbnail_height',96);
         if( $width < 1 || $height < 1 ) return;
 
         $complete_thumb = $this->_path.'thumb_'.$fileobject->name;
