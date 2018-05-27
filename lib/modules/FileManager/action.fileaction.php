@@ -10,8 +10,6 @@ if (!FileManager\filemanager_utils::test_valid_path($params['path'])) {
 }
 $path = $params['path'];
 
-$fileaction = $params['fileaction'] ?? '';
-
 $selfiles = [];
 $seldirs = [];
 $paramsnofiles = [];
@@ -26,14 +24,14 @@ foreach ($params as $key=>$value) {
   }
 }
 
-$selall = array_merge($seldirs,$selfiles);
+$sel = array_merge($seldirs,$selfiles);
 
 // get the dirs from uploadspath
 $dirlist = [];
 $filerec = get_recursive_file_list($config['uploads_path'], [], -1, 'DIRS');
 //$dirlist[$this->Lang('selecttargetdir')] = '-';
 foreach ($filerec as $key => $value) {
-  $value1 = str_replace($config['root_path'], '', $value);
+  $value1 = str_replace(CMS_ROOT_PATH, '', $value);
   //prevent current dir from showing up
   if ($value1 == ($path . DIRECTORY_SEPARATOR)) continue;
   //Check for hidden items (assumes unix-y hiding)
@@ -47,52 +45,54 @@ foreach ($filerec as $key => $value) {
   $dirlist[$this->Slashes($value1)] = $this->Slashes($value1);
 }
 
-if (isset($params['fileactionnewdir']) || $fileaction == 'newdir') {
+$fileaction = $params['fileaction'] ?? '';
+
+if (isset($params['newdir']) || $fileaction == 'newdir') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.newdir.php');
   return;
 }
 
-if (isset($params['fileactionview']) || $fileaction == 'view') {
+if (isset($params['view']) || $fileaction == 'view') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.view.php');
   return;
 }
 
-if (isset($params['fileactionrename']) || $fileaction == 'rename') {
+if (isset($params['rename']) || $fileaction == 'rename') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.rename.php');
   return;
 }
 
-if (isset($params['fileactiondelete']) || $fileaction == 'delete') {
+if (isset($params['delete']) || $fileaction == 'delete') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.delete.php');
   return;
 }
 
-if (isset($params['fileactioncopy']) || $fileaction == 'copy') {
+if (isset($params['copy']) || $fileaction == 'copy') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.copy.php');
   return;
 }
 
-if (isset($params['fileactionmove']) || $fileaction == 'move') {
+if (isset($params['move']) || $fileaction == 'move') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.move.php');
   return;
 }
 
-if (isset($params['fileactionunpack']) || $fileaction == 'unpack') {
+if (isset($params['unpack']) || $fileaction == 'unpack') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.unpack.php');
   return;
 }
 
-if (isset($params['fileactionthumb']) || $fileaction == 'thumb') {
+if (isset($params['thumb']) || $fileaction == 'thumb') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.thumb.php');
   return;
 }
 
-if (isset($params['fileactionresizecrop']) || $fileaction == 'resizecrop') {
+if (isset($params['resizecrop']) || $fileaction == 'resizecrop') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.resizecrop.php');
   return;
 }
 
-if (isset($params['fileactionrotate']) || $fileaction == 'rotate') {
+if (isset($params['rotate']) || $fileaction == 'rotate') {
   include_once(__DIR__.DIRECTORY_SEPARATOR.'action.rotate.php');
   return;
 }
