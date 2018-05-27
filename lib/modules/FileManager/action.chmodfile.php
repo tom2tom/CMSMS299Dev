@@ -12,9 +12,7 @@ if( !FileManager\filemanager_utils::test_valid_path($params['path']) ) {
 }
 
 $config = & $gCms->GetConfig();
-$fullname = $this->Slash($params["path"], $params["filename"]);
-$fullname = $this->Slash($config["root_path"], $fullname);
-
+$fullname = cms_join_path(CMS_ROOT_PATH, $params["path"], $params["filename"]);
 
 if (isset($params["newmode"])) {
   //echo deleting;die();
@@ -34,11 +32,11 @@ if (isset($params["newmode"])) {
   }
 } else {
   $currentmode = $this->GetMode($params["path"], $params["filename"]);
-  $smarty->assign('startform', $this->CreateFormStart($id, 'chmodfile', $returnid));
+  $smarty->assign('formstart', $this->CreateFormStart($id, 'chmodfile', $returnid));
 
   $smarty->assign('filename', $this->CreateInputHidden($id, "filename", $params["filename"]));
   $smarty->assign('path', $this->CreateInputHidden($id, "path", $params["path"]));
-  $smarty->assign('endform', $this->CreateFormEnd());
+  $smarty->assign('formend', $this->CreateFormEnd());
   $smarty->assign('newmodetext', $this->Lang("newpermissions"));
 
   $smarty->assign('newmode', $this->CreateInputHidden($id, "newmode", "newset"));

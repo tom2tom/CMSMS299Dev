@@ -7,9 +7,8 @@ if( !isset($params['file']) ) {
     $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$config=cmsms()->GetConfig();
 $filename=$this->decodefilename($params['file']);
-$src = filemanager_utils::join_path($config['root_path'],filemanager_utils::get_cwd(),$filename);
+$src = cms_join_path(CMS_ROOT_PATH,filemanager_utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
     $params["fmerror"]="filenotfound";
     $this->Redirect($id,"defaultadmin",$returnid,$params);

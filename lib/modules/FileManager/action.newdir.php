@@ -17,10 +17,7 @@ if (isset($params["newdirname"])) {
     //fallthrough
   } else {
 
-    $config = cmsms()->GetConfig();
-    $base = $config['root_path'];
-    $newdir = $this->Slash($params["path"], $params["newdirname"]);
-    $newdir = $this->Slash($base, $newdir);
+    $newdir = cms_join_path(CMS_ROOT_PATH, $params["path"], $params["newdirname"]);
 
     if (is_dir($newdir)) {
       $this->ShowErrors($this->Lang("direxists"));
@@ -37,10 +34,10 @@ if (isset($params["newdirname"])) {
     }
   }
 }
-$smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params));
+$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params));
 $smarty->assign('newdirtext', $this->lang("newdir"));
 $smarty->assign('newdirname',$newdirname);
-$smarty->assign('endform', $this->CreateFormEnd());
+$smarty->assign('formend', $this->CreateFormEnd());
 // see template $smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('create')));
 //$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 echo $this->ProcessTemplate('newdir.tpl');

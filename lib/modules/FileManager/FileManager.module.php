@@ -52,48 +52,23 @@ final class FileManager extends CMSModule
 		return FilePicker\Utils::get_file_icon($extension,$isdir);
     }
 
-    protected function Slash($str,$str2="",$str3="")
-    {
-        if ($str=="") return $str2;
-        if ($str2=="") return $str;
-        if ($str[strlen($str)-1]!="/") {
-            if ($str2[0]!="/") {
-                return $str."/".$str2;
-            } else {
-                return $str.$str2;
-            }
-        } else {
-            if ($str2[0]!="/") {
-                return $str.$str2;
-            } else {
-                return $str.substr($str2,1); //trim away one of the slashes
-            }
-        }
-        //Three strings not supported yet...
-        return "Error in Slash-function. Please report";
-    }
-
     public function GetPermissions($path,$file)
     {
-        $config=cmsms()->GetConfig();
-        $realpath=$this->Slash($config["root_path"],$path);
-        $statinfo=stat($this->Slash($realpath,$file));
+        $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
+        $statinfo=stat($realpath);
         return $statinfo["mode"];
     }
 
     public function GetMode($path,$file)
     {
-        $config=cmsms()->GetConfig();
-        $realpath=$this->Slash($config["root_path"],$path);
-        $statinfo=stat($this->Slash($realpath,$file));
+        $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
+        $statinfo=stat($realpath);
         return filemanager_util::format_permissions($statinfo["mode"]);
     }
 
     public function GetModeWin($path,$file)
     {
-        $config=cmsms()->GetConfig();
-        $realpath=$this->Slash($config["root_path"],$path);
-        $realpath=$this->Slash($realpath,$file);
+        $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
         if (is_writable($realpath)) {
             return "777";
         } else {
@@ -156,28 +131,35 @@ final class FileManager extends CMSModule
         return $owner.$group.$others;
     }
 
-    public function GetThumbnailLink($file,$path)
+	/**
+	 * @since 1.7 param string $id instead of hardcoded value
+	 */
+    public function GetThumbnailLink($id,$file,$path)
     {
-        $config=cmsms()->GetConfig();
 //        $advancedmode = FileManager\filemanager_utils::check_advanced_mode();
-        $basedir=$config['root_path'];
-        $baseurl=$config['root_url'];
 
-        $filepath=$basedir.DIRECTORY_SEPARATOR.$path;
-        $url=$baseurl.'/'.$path;
-        $image="";
-        $imagepath=$this->Slashes($filepath."/thumb_".$file["name"]);
-
+        $imagepath=cms_join_path(CMS_ROOT_PATH, $path, "thumb_".$file["name"]);
         if (file_exists($imagepath)) {
-            $imageurl=$url.'/thumb_'.$file["name"];
-            $image="<img src=\"".$imageurl."\" alt=\"".$file["name"]."\" title=\"".$file["name"]."\" />";
-            $url = $this->create_url('m1_','view','',array('file'=>$this->encodefilename($file['name'])));
+            $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file["name"];
+            $image="<img src=\"".$imageurl."\" class=\"listicon\" alt=\"".$file["name"]."\" title=\"".$file["name"]."\" />";
+            $url = $this->create_url($id,'view','',array('file'=>$this->encodefilename($file['name'])));
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
             $result="<a href=\"".$url."\" target=\"_blank\">";
             $result.=$image;
             $result.="</a>";
             return $result;
         }
+    }
+
+	/**
+	 * @deprecated since 1.7 use cms_join_path()
+	 */
+    protected function Slash($str,$str2="",$str3="")
+    {
+		$parts=[$str];
+		if($str2 !== '') $parts[]=$str2;
+		if($str3 !== '') $parts[]=$str3;
+		return cms_join_path(...$parts);
     }
 
     public function WinSlashes($url)
@@ -187,9 +169,7 @@ final class FileManager extends CMSModule
 
     public function Slashes($url)
     {
-        $result=str_replace("\\","/",$url);
-        $result=str_replace("//","/",$result);
-        return $result;
+        return str_replace(["\\","//"],["/","/"],$url);
     }
 
     protected function _output_header_content()

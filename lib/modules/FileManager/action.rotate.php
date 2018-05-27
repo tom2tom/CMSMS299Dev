@@ -26,25 +26,25 @@ if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) 
 
 if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
 
-$selall = $params['selall'];
-if( !is_array($selall) ) {
-  $selall = unserialize($selall, ['allowed_classes'=>false]);
+$sel = $params['sel'];
+if( !is_array($sel) ) {
+  $sel = json_decode(rawurldecode($sel),true);
 }
-unset($params['selall']);
+unset($params['sel']);
 
-if (count($selall)==0) {
+if (count($sel)==0) {
   $params["fmerror"]="nofilesselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
-if (count($selall)>1) {
+if (count($sel)>1) {
   $params["fmerror"]="morethanonefiledirselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
 $config=cmsms()->GetConfig();
-$basedir = $config['root_path'];
-$filename=$this->decodefilename($selall[0]);
-$src = filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),$filename);
+$basedir = CMS_ROOT_PATH;
+$filename=$this->decodefilename($sel[0]);
+$src = cms_join_path($basedir,filemanager_utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
   $params["fmerror"]="filenotfound";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -179,9 +179,9 @@ $smarty->assign('filename',$filename);
 $smarty->assign('width',$width);
 $smarty->assign('height',$height);
 $smarty->assign('image',$url);
-if( is_array($selall) ) $params['selall'] = serialize($selall);
-$smarty->assign('startform',$this->CreateFormStart($id,'rotate',$returnid,'post','',false,'',$params));
-$smarty->assign('endform',$this->CreateFormEnd());
+if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
+$smarty->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post','',false,'',$params));
+$smarty->assign('formend',$this->CreateFormEnd());
 echo $this->ProcessTemplate('filerotate.tpl');
 
 #

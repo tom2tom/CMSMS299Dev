@@ -34,14 +34,14 @@ if( isset($params['move']) ) {
     $basedir = ( $advancedmode ) ?  CMS_ROOT_PATH : $config['uploads_path'];
 
     if( count($errors) == 0 ) {
-        $destloc = filemanager_utils::join_path($basedir,$destdir);
+        $destloc = cms_join_path($basedir,$destdir);
         if( !is_dir($destloc) || ! is_writable($destloc) ) $errors[] = $this->Lang('invalidmovedir');
     }
 
     if( count($errors) == 0 ) {
         foreach( $sel as $file ) {
-            $src = filemanager_utils::join_path(CMS_ROOT_PATH,$cwd,$file);
-            $dest = filemanager_utils::join_path($basedir,$destdir,$file);
+            $src = cms_join_path(CMS_ROOT_PATH,$cwd,$file);
+            $dest = cms_join_path($basedir,$destdir,$file);
 
             if( !file_exists($src) ) {
                 $errors[] = $this->Lang('filenotfound')." $file";
@@ -65,8 +65,8 @@ if( isset($params['move']) ) {
             $dest_thumb = '';
             if( filemanager_utils::is_image_file($file) ) {
                 $tmp = 'thumb_'.$file;
-                $src_thumb = filemanager_utils::join_path(CMS_ROOT_PATH,$cwd,$tmp);
-                $dest_thumb = filemanager_utils::join_path($basedir,$destdir,$tmp);
+                $src_thumb = cms_join_path(CMS_ROOT_PATH,$cwd,$tmp);
+                $dest_thumb = cms_join_path($basedir,$destdir,$tmp);
 
                 if( file_exists($src_thumb) ) {
                     // have a thumbnail

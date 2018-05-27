@@ -15,7 +15,7 @@ $path = null;
 if( isset($params['newdir']) ) {
     // set a relative directory.
     $newdir = trim($params["newdir"]);
-    $path = filemanager_utils::join_path(filemanager_utils::get_cwd(),$newdir);
+    $path = cms_join_path(filemanager_utils::get_cwd(),$newdir);
 }
 else if( isset($params['setdir']) ) {
     // set an explicit directory

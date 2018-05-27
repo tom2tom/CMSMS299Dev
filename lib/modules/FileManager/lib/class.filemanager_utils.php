@@ -56,7 +56,7 @@ final class filemanager_utils
         if( self::$_can_do_advanced < 0 ) {
             $filemod = cms_utils::get_module('FileManager');
             $config = cms_config::get_instance();
-            if( startswith($config['uploads_path'],$config['root_path']) && $filemod->AdvancedAccessAllowed() ) {
+            if( startswith($config['uploads_path'],CMS_ROOT_PATH) && $filemod->AdvancedAccessAllowed() ) {
                 self::$_can_do_advanced = 1;
             }
             else {
@@ -77,9 +77,13 @@ final class filemanager_utils
     public static function get_default_cwd()
     {
         $advancedmode = self::check_advanced_mode();
-        $dir = cms_config::get_instance()['uploads_path'];
-        if( !startswith($dir,CMS_ROOT_PATH) ) $dir = self::join_path(CMS_ROOT_PATH, 'uploads');
-        if( $advancedmode ) $dir = CMS_ROOT_PATH;
+        if( $advancedmode ) {
+			$dir = CMS_ROOT_PATH;
+		}
+        else {
+			$dir = cms_config::get_instance()['uploads_path'];
+			if( !startswith($dir,CMS_ROOT_PATH) ) $dir = cms_join_path(CMS_ROOT_PATH, 'uploads');
+		}
 
         $dir = cms_relative_path( $dir, CMS_ROOT_PATH );
         return $dir;
@@ -93,9 +97,9 @@ final class filemanager_utils
 
         $prefix = CMS_ROOT_PATH;
         if( $path === '/' ) $path = null;
-        $path = self::join_path($prefix,$path);
+        $path = cms_join_path($prefix,$path);
         $rpath = realpath($path);
-        if( $rpath === FALSE ) return false;
+        if( $rpath === false ) return false;
 
         if (!$advancedmode) {
             // uploading in 'non advanced mode', path has to start with the upload dir.
@@ -104,7 +108,7 @@ final class filemanager_utils
         }
         else {
             // advanced mode, path has to start with the root path.
-            $rprp = realpath($config['root_path']);
+            $rprp = realpath(CMS_ROOT_PATH);
             if (startswith($path,$rprp)) return true;
         }
         return false;
@@ -130,7 +134,7 @@ final class filemanager_utils
         $advancedmode = self::check_advanced_mode();
 
         // validate the path.
-        $tmp = self::join_path(CMS_ROOT_PATH,$path);
+        $tmp = cms_join_path(CMS_ROOT_PATH,$path);
         $tmp = realpath($tmp);
         if( !$tmp || !is_dir($tmp) ) throw new Exception('Cannot set current working directory to an invalid path');
         $newpath = cms_relative_path($tmp,CMS_ROOT_PATH);
@@ -140,30 +144,19 @@ final class filemanager_utils
         cms_userprefs::set('filemanager_cwd',$newpath);
     }
 
-
+	/**
+	 * @deprecated since 1.7 use cms_join_path();
+	 */
     public static function join_path(...$args)
     {
-        if( count($args) < 1 ) return;
-        if( count($args) < 2 ) return $args[0];
-
-        $args2 = [];
-        for( $i = 0; $i < count($args); $i++ ) {
-            if( $args[$i] == '' ) continue;
-            if( $i != 0 && (startswith($args[$i],'/') || startswith($args[$i],'\\')) ) $args[$i] = substr($args[$i],1);
-            if( endswith($args[$i],'/') || endswith($args[$i],'\\') ) $args[$i] = substr($args[$i],0,-1);
-            $args2[] = $args[$i];
-        }
-
-        return implode(DIRECTORY_SEPARATOR,$args2);
+		return cms_join_path($args);
     }
 
     public static function get_full_cwd()
     {
         $path = self::get_cwd();
         if( !self::test_valid_path($path) ) $path = self::get_default_cwd();
-        $base = cms_config::get_instance()['root_path'];
-        $realpath = self::join_path($base,$path);
-        return $realpath;
+        return cms_join_path(CMS_ROOT_PATH,$path);
     }
 
     public static function get_cwd_url()
@@ -325,7 +318,7 @@ final class filemanager_utils
         if ($dh) {
             while( ($entry = readdir($dh)) !== false ) {
                 if( $entry == '.' ) continue;
-                $full = self::join_path($startdir,$entry);
+                $full = cms_join_path($startdir,$entry);
                 if( !is_dir($full) ) continue;
                 if( !$showhiddenfiles && ($entry[0] == '.' || $entry[0] == '_') ) continue;
 
@@ -344,9 +337,13 @@ final class filemanager_utils
         $config = cms_config::get_instance();
         $mod = cms_utils::get_module('FileManager');
         $showhiddenfiles = $mod->GetPreference('showhiddenfiles');
-        $startdir = $config['uploads_path'];
         $advancedmode = self::check_advanced_mode();
-        if( $advancedmode ) $startdir = $config['root_path'];
+        if( $advancedmode ) {
+            $startdir = CMS_ROOT_PATH;
+        }
+        else {
+            $startdir = $config['uploads_path'];
+        }
 
         // now get a simple list of all of the directories we have 'write' access to.
         $output = self::get_dirs($startdir, DIRECTORY_SEPARATOR);

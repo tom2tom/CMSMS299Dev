@@ -36,7 +36,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
     $smarty->assign('cwd',$cwd);
 
     $startdir = $config['uploads_path'];
-    if( $this->AdvancedAccessAllowed() && $advancedmode ) $startdir = $config['root_path'];
+    if( $this->AdvancedAccessAllowed() && $advancedmode ) $startdir = CMS_ROOT_PATH;
 
     // now get a simple list of all of the directories we have 'write' access to.
     $basedir = dirname($startdir);
@@ -49,7 +49,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
         while( false !== ($entry = readdir($dh)) ) {
             if( $entry == '.' ) continue;
             if( $entry == '..' ) continue;
-            $full = filemanager_utils::join_path($startdir,$entry);
+            $full = cms_join_path($startdir,$entry);
             if( !is_dir($full) ) continue;
             if( !is_readable($full) ) continue;
             if( !$showhiddenfiles && ($entry[0] == '.' || $entry[0] == '_') ) continue;

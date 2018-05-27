@@ -11,8 +11,7 @@ if( !FileManager\filemanager_utils::test_valid_path($params['path']) ) {
 }
 
 $config = $gCms->GetConfig();
-$fullname=$this->Slash($params["path"],$params["dirname"]);
-$fullname=$this->Slash($config["root_path"],$fullname);
+$fullname=cms_join_path(CMS_ROOT_PATH,$params["path"],$params["dirname"]);
 
 function chmodRecursive($path,$newmode,&$module) {
 	$dir = opendir($path);
@@ -68,11 +67,11 @@ if (isset($params["newmode"])) {
 	}
 } else {
 	$currentmode=$this->GetMode($params["path"],$params["dirname"]);
-	$smarty->assign('startform', $this->CreateFormStart($id, 'chmoddir', $returnid));
+	$smarty->assign('formstart', $this->CreateFormStart($id, 'chmoddir', $returnid));
 
 	$smarty->assign('filename', $this->CreateInputHidden($id,"dirname",$params["dirname"]));
 	$smarty->assign('path', $this->CreateInputHidden($id,"path",$params["path"]));
-	$smarty->assign('endform', $this->CreateFormEnd());
+	$smarty->assign('formend', $this->CreateFormEnd());
 	$smarty->assign('newmodetext', $this->Lang("newpermissions"));
 
 	$smarty->assign('recurseinputtext', $this->Lang("recursetext"));

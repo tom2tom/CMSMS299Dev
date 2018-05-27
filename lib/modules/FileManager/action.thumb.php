@@ -44,7 +44,7 @@ $advancedmode = filemanager_utils::check_advanced_mode();
 
 $basedir=CMS_ROOT_PATH;
 $filename=$this->decodefilename($sel[0]);
-$src=filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),$filename);
+$src=cms_join_path($basedir,filemanager_utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
   $params["fmerror"]="filenotfound";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -62,7 +62,7 @@ if( isset($params['thumb']) ) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$thumb = filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),'thumb_'.$filename);
+$thumb = cms_join_path($basedir,filemanager_utils::get_cwd(),'thumb_'.$filename);
 
 //
 // build the form

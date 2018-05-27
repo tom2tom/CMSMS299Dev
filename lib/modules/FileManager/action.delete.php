@@ -27,7 +27,7 @@ if( isset($params['delete']) ) {
 
   foreach( $sel as $file ) {
     // build complete path
-    $fn = filemanager_utils::join_path($basedir,$cwd,$file);
+    $fn = cms_join_path($basedir,$cwd,$file);
     if( !file_exists($fn) ) continue; // no error here.
 
     if( !is_writable($fn) ) {
@@ -47,7 +47,7 @@ if( isset($params['delete']) ) {
     $thumb = '';
     if( filemanager_utils::is_image_file($file) ) {
       // check for thumb, make sure it's writable.
-      $thumb = filemanager_utils::join_path($basedir,$cwd,'thumb_'.basename($file));
+      $thumb = cms_join_path($basedir,$cwd,'thumb_'.basename($file));
       if( file_exists($fn) && !is_writable($fn) ) $errors[] = $this->Lang('error_thumbnotwritable',$file);
     }
 

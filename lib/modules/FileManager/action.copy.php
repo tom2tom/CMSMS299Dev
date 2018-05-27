@@ -38,7 +38,7 @@ if( isset($params['copy']) ) {
   if( $destdir == $cwd && count($sel) > 1 ) $errors[] = $this->Lang('movedestdirsame');
 
   if( count($errors) == 0 ) {
-    $destloc = filemanager_utils::join_path($basedir,$destdir);
+    $destloc = cms_join_path($basedir,$destdir);
     if( !is_dir($destloc) || ! is_writable($destloc) ) $errors[] = $this->Lang('invalidmovedir');
   }
 
@@ -50,9 +50,9 @@ if( isset($params['copy']) ) {
 
     if( count($errors) == 0 ) {
       foreach( $sel as $file ) {
-	$src = filemanager_utils::join_path(filemanager_utils::get_full_cwd(),$file);
-	$dest = filemanager_utils::join_path($basedir,$destdir,$file);
-	if( $destname ) $dest = filemanager_utils::join_path($basedir,$destdir,$destname);
+	$src = cms_join_path(filemanager_utils::get_full_cwd(),$file);
+	$dest = cms_join_path($basedir,$destdir,$file);
+	if( $destname ) $dest = cms_join_path($basedir,$destdir,$destname);
 
 	if( !file_exists($src) ) {
 	  $errors[] = $this->Lang('filenotfound')." $file";
@@ -72,9 +72,9 @@ if( isset($params['copy']) ) {
 	$dest_thumb = '';
 	if( filemanager_utils::is_image_file($file) ) {
 	  $tmp = 'thumb_'.$file;
-	  $src_thumb = filemanager_utils::join_path($basedir,$cwd,$tmp);
-	  $dest_thumb = filemanager_utils::join_path($basedir,$destdir,$tmp);
-	  if( $destname ) $dest_thumb = filemanager_utils::join_path($basedir,$destdir,'thumb_'.$destname);
+	  $src_thumb = cms_join_path($basedir,$cwd,$tmp);
+	  $dest_thumb = cms_join_path($basedir,$destdir,$tmp);
+	  if( $destname ) $dest_thumb = cms_join_path($basedir,$destdir,'thumb_'.$destname);
 
 	  if( file_exists($src_thumb) ) {
 	    $thumb = $tmp;

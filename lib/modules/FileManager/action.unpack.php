@@ -7,23 +7,23 @@ if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) 
 if (isset($params["cancel"])) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
-$selall = $params['selall'];
-if( !is_array($selall) ) {
-  $selall = unserialize($selall, ['allowed_classes'=>false]);
+$sel = $params['sel'];
+if( !is_array($sel) ) {
+  $sel = json_decode(rawurldecode($sel), true);
 }
-if (count($selall)==0) {
+if (count($sel)==0) {
   $params["fmerror"]="nofilesselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
-if (count($selall)>1) {
+if (count($sel)>1) {
   $params["fmerror"]="morethanonefiledirselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
 
 $config=cmsms()->GetConfig();
-$filename=$this->decodefilename($selall[0]);
-$src = filemanager_utils::join_path($config['root_path'],filemanager_utils::get_cwd(),$filename);
+$filename=$this->decodefilename($sel[0]);
+$src = cms_join_path(CMS_ROOT_PATH,filemanager_utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
   $params["fmerror"]="filenotfound";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -31,15 +31,10 @@ if( !file_exists($src) ) {
 
 include_once __DIR__.'/easyarchives/EasyArchive.class.php';
 $archive = new EasyArchive;
-$destdir = filemanager_utils::join_path($config['root_path'],filemanager_utils::get_cwd());
+$destdir = cms_join_path(CMS_ROOT_PATH,filemanager_utils::get_cwd());
 if( !endswith($destdir,'/') ) $destdir .= '/';
 $res = $archive->extract($src,$destdir);
 
 $paramsnofiles["fmmessage"]="unpacksuccess"; //strips the file data
 $this->Audit('',"File Manager", "Unpacked file: ".$src);
 $this->Redirect($id,"defaultadmin",$returnid,$paramsnofiles);
-
-#
-# EOF
-#
-?>
