@@ -50,6 +50,19 @@ EOT;
     $themeObject->add_headtext($out);
 }
 
+if (isset($modinst)) {
+    if ($modinst->HasAdmin()) {
+        $txt = $modinst->AdminStyle();
+        if ($txt) {
+            $themeObject->add_headtext($txt);
+        }
+    }
+    $txt = $modinst->GetHeaderHTML($action);
+    if ($txt) {
+        $themeObject->add_headtext($txt);
+    }
+}
+
 cms_admin_sendheaders(); //TODO is this $CMS_JOB_TYPE-related ?
 
 if (isset($config['show_performance_info'])) {

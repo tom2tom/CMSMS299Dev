@@ -78,17 +78,6 @@ if ($CMS_JOB_TYPE == 0) {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->set_action_module($module);
 
-    if ($modinst->HasAdmin()) {
-        $txt = $modinst->AdminStyle();
-        if ($txt) {
-            $themeObject->add_headtext($txt);
-        }
-    }
-    $txt = $modinst->GetHeaderHTML($action);
-    if ($txt) {
-        $themeObject->add_headtext($txt);
-    }
-
     include_once 'header.php';
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 
