@@ -39,36 +39,55 @@ use function startswith;
 class Utils
 {
     /**
-     * @param string $extension
-     * @param bool $isdir Optional flag indicating this is a directory
+     * @param string $extension file extension, or ''|'up'|'home' for a directory. Any case.
+     * @param bool $isdir Optional flag indicating this is a directory. Default false.
      * @return string
      */
-    public function get_file_icon(string $extension, bool $isdir = false) : string
+    public static function get_file_icon(string $extension, bool $isdir = false) : string
     {
-        $mod = cms_utils::get_module('FilePicker');
+        static $mod = null;
+		if ($mod == null) {
+		    $mod = cms_utils::get_module('FilePicker');
+		}
         $baseurl = $mod->GetModuleURLPath();
 
         if ($isdir) {
-            return '<img src="'.$baseurl.'/icons/types/dir.png" class"listicon" alt="directory" />';
+            switch ($extension) {
+                case 'up':
+                    $lcext = 'dir-up';
+                    break;
+                case 'home':
+                    $lcext = 'dir-home';
+                    break;
+                default:
+                    $lcext = 'dir';
+                    break;
+
+            }
+            return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="directory" />';
         }
 
         if ($extension === '' || $extension === '.') {
             $lcext = $ext = '-'; // hardcode extension to something
         } else {
-		    if ($extension[0] !== '.') {
+            if ($extension[0] !== '.') {
                 $ext = $extension;
-		    } else {
-		        $ext = substr($extension, 1);
+            } else {
+                $ext = substr($extension, 1);
             }
-		    $lcext = strtolower($extension);
+            $lcext = strtolower($extension);
         }
 
-		$path = cms_join_path(dirname(__DIR__),'icons','types',$lcext.'.png');
-        if (is_file($path)) {
-            return '<img src="'.$baseurl.'/icons/types/'.$lcext.'".png" class"listicon" alt="'.$ext.'-file" />';
-        } else {
-            return '<img src="'.$baseurl.'/icons/types/0.png" class"listicon" alt="'.$ext.'-file" />';
+        $path = cms_join_path(dirname(__DIR__),'images','types',$lcext.'.png');
+        if (!is_file($path)) {
+			static $getem = true;
+			if ($getem) {
+				require_once cms_join_path(dirname(__DIR__),'images','types','typealias.php');
+				$getem = false;
+			}
+		    $lcext = $dups[$lcext] ?? '0';
         }
+        return '<img src="'.$baseurl.'/images/types/'.$lcext.'.png" class="listicon" alt="'.$ext.'-file" />';
     }
 
     /**
@@ -77,7 +96,7 @@ class Utils
      * @param bool $isdir
      * @return string
      */
-    public function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
+    public static function format_permissions(FilePicker &$mod, int $mode, bool $isdir) : string
     {
         static $pr = null;
         static $pw, $px, $pxf;
