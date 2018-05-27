@@ -193,7 +193,7 @@ final class CoreFileManager extends CMSModule
         return $owner.$group.$others;
     }
 
-    public function GetThumbnailLink($file, $path)
+    public function GetThumbnailLink($id, $file, $path)
     {
         $config = cmsms()->GetConfig();
 //        $advancedmode = filemanager_utils::check_advanced_mode(); TODO decouple
@@ -207,8 +207,8 @@ final class CoreFileManager extends CMSModule
 
         if (file_exists($imagepath)) {
             $imageurl = $url.'/thumb_'.$file['name'];
-            $image = '<img src="'.$imageurl.'" alt="'.$file['name'].'" title="'.$file['name'].'" />';
-            $url = $this->create_url('m1_', 'view', '', ['file'=>$this->encodefilename($file['name'])]);
+            $image = '<img src="'.$imageurl.'" class=\"listicon\" alt="'.$file['name'].'" title="'.$file['name'].'" />';
+            $url = $this->create_url($id, 'view', '', ['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
             $result = '<a href="'.$url.'" target="_blank">';
             $result .= $image;
