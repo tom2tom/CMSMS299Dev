@@ -8,16 +8,16 @@ if (isset($params["cancel"])) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$selall = $params['selall'];
-if( !is_array($selall) ) {
-  $selall = unserialize($selall, ['allowed_classes'=>false]);
+$sel = $params['sel'];
+if( !is_array($sel) ) {
+  $sel = json_decode(rawurldecode($sel),true);
 }
-if (count($selall)==0) {
+if (count($sel)==0) {
   $params["fmerror"]="nofilesselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
-//echo count($selall);
-if (count($selall)>1) {
+//echo count($sel);
+if (count($sel)>1) {
   //echo "hi";die();
   $params["fmerror"]="morethanonefiledirselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -25,7 +25,7 @@ if (count($selall)>1) {
 
 $config=cmsms()->GetConfig();
 
-$oldname=$this->decodefilename($selall[0]);
+$oldname=$this->decodefilename($sel[0]);
 $newname=$oldname; //for initial input box
 
 if (isset($params["newname"])) {
@@ -57,16 +57,16 @@ if (isset($params["newname"])) {
   }
  }
 
-if( is_array($params['selall']) ) {
-  $params['selall'] = serialize($params['selall']);
+if( is_array($params['sel']) ) {
+  $params['sel'] = rawurlencode(json_encode($params['sel']));
 }
-$smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
+$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
 //$this->CreateInputHidden($id,"fileaction","rename");
 $smarty->assign('newnametext',$this->lang("newname"));
 $smarty->assign('newname',$newname);
 $smarty->assign('newnameinput',$this->CreateInputText($id,"newname",$newname,40));
 
-$smarty->assign('endform', $this->CreateFormEnd());
+$smarty->assign('formend', $this->CreateFormEnd());
 
 //see template $smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('rename')));
 //$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));

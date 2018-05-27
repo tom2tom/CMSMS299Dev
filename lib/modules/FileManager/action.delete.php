@@ -5,30 +5,29 @@ if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
 
-$selall = $params['selall'];
-if( !is_array($selall) ) $selall = unserialize($selall, ['allowed_classes'=>false]);
-//if( !is_array($selall) ) $selall = unserialize($selall);
+$sel = $params['sel'];
+if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
 
-if (count($selall)==0) {
+if (count($sel)==0) {
   $params["fmerror"]="nofilesselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
 // decode the sellallstuff.
-foreach( $selall as &$one ) {
+foreach( $sel as &$one ) {
   $one = $this->decodefilename($one);
 }
 
 // process form
 $errors = array();
-if( isset($params['submit']) ) {
+if( isset($params['delete']) ) {
   $advancedmode = filemanager_utils::check_advanced_mode();
-  $basedir = $config['root_path'];
-  $config = cmsms()->GetConfig();
+  $basedir = CMS_ROOT_PATH; //TODO or $config['uploads_path'] ?
+  $cwd = filemanager_utils::get_cwd();
 
-  foreach( $selall as $file ) {
+  foreach( $sel as $file ) {
     // build complete path
-    $fn = filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),$file);
+    $fn = filemanager_utils::join_path($basedir,$cwd,$file);
     if( !file_exists($fn) ) continue; // no error here.
 
     if( !is_writable($fn) ) {
@@ -40,15 +39,15 @@ if( isset($params['submit']) ) {
       // check to make sure it's empty
       $tmp = scandir($fn);
       if( count($tmp) > 2 ) { // account for . and ..
-	$errors[] = $this->Lang('error_dirnotempty',$file);
-	continue;
+        $errors[] = $this->Lang('error_dirnotempty',$file);
+        continue;
       }
     }
 
     $thumb = '';
     if( filemanager_utils::is_image_file($file) ) {
       // check for thumb, make sure it's writable.
-      $thumb = filemanager_utils::join_path($basedir,filemanager_utils::get_cwd(),'thumb_'.basename($file));
+      $thumb = filemanager_utils::join_path($basedir,$cwd,'thumb_'.basename($file));
       if( file_exists($fn) && !is_writable($fn) ) $errors[] = $this->Lang('error_thumbnotwritable',$file);
     }
 
@@ -77,12 +76,10 @@ if( count($errors) ) {
   $this->ShowErrors($errors);
   $smarty->assign('errors',$errors);
 }
-if( is_array($params['selall']) ) $params['selall'] = serialize($params['selall']);
-$smarty->assign('selall',$selall);
+if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
+$smarty->assign('sel',$sel);
 $smarty->assign('mod',$this);
-$smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
-$smarty->assign('endform', $this->CreateFormEnd());
+$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
+$smarty->assign('formend', $this->CreateFormEnd());
 
 echo $this->ProcessTemplate('delete.tpl');
-
-?>

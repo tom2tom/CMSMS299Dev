@@ -8,14 +8,14 @@ if (isset($params["cancel"])) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$selall = $params['selall'];
-if( !is_array($selall) ) $selall = unserialize($selall, ['allowed_classes'=>false]);
-if (count($selall)==0) {
+$sel = $params['sel'];
+if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
+if (count($sel)==0) {
   $params["fmerror"]="nofilesselected";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-foreach( $selall as &$one ) {
+foreach( $sel as &$one ) {
   $one = $this->decodefilename($one);
 }
 
@@ -29,14 +29,13 @@ if( !count($dirlist) ) {
 
 $errors = array();
 $destloc = '';
-if( isset($params['submit']) ) {
+if( isset($params['copy']) ) {
   $advancedmode = filemanager_utils::check_advanced_mode();
-  $basedir = $config['uploads_path'];
-  if( $advancedmode ) $basedir = $config['root_path'];
+  $basedir = ( $advancedmode ) ? CMS_ROOT_PATH : $config['uploads_path'];
 
   $destname = '';
   $destdir = trim($params['destdir']);
-  if( $destdir == $cwd && count($selall) > 1 ) $errors[] = $this->Lang('movedestdirsame');
+  if( $destdir == $cwd && count($sel) > 1 ) $errors[] = $this->Lang('movedestdirsame');
 
   if( count($errors) == 0 ) {
     $destloc = filemanager_utils::join_path($basedir,$destdir);
@@ -44,13 +43,13 @@ if( isset($params['submit']) ) {
   }
 
   if( count($errors) == 0 ) {
-    if( isset($params['destname']) && count($selall) == 1 ) {
+    if( isset($params['destname']) && count($sel) == 1 ) {
       $destname = trim($params['destname']);
       if( $destname == '' ) $errors[] = $this->Lang('invaliddestname');
     }
 
     if( count($errors) == 0 ) {
-      foreach( $selall as $file ) {
+      foreach( $sel as $file ) {
 	$src = filemanager_utils::join_path(filemanager_utils::get_full_cwd(),$file);
 	$dest = filemanager_utils::join_path($basedir,$destdir,$file);
 	if( $destname ) $dest = filemanager_utils::join_path($basedir,$destdir,$destname);
@@ -115,12 +114,12 @@ if( isset($params['submit']) ) {
 } // submit
 
 if( count($errors) ) $this->ShowErrors($errors);
-if( is_array($params['selall']) ) $params['selall'] = serialize($params['selall']);
-$smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
-$smarty->assign('endform', $this->CreateFormEnd());
+if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
+$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
+$smarty->assign('formend', $this->CreateFormEnd());
 $smarty->assign('cwd','/'.$cwd);
 $smarty->assign('dirlist',$dirlist);
-$smarty->assign('selall',$selall);
+$smarty->assign('sel',$sel);
 $smarty->assign('mod',$this);
 echo $this->ProcessTemplate('copy.tpl');
 

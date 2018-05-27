@@ -5,14 +5,14 @@ if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
 
-$selall = $params['selall'];
-if( !is_array($selall) ) $selall = unserialize($selall, ['allowed_classes'=>false]);
-if (count($selall)==0) {
+$sel = $params['sel'];
+if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
+if (count($sel)==0) {
     $params["fmerror"]="nofilesselected";
     $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-foreach( $selall as &$one ) {
+foreach( $sel as &$one ) {
     $one = $this->decodefilename($one);
 }
 
@@ -26,13 +26,12 @@ if( !count($dirlist) ) {
 
 $errors = array();
 $destloc = '';
-if( isset($params['submit']) ) {
+if( isset($params['move']) ) {
     $destdir = trim($params['destdir']);
     if( $destdir == $cwd ) $errors[] = $this->Lang('movedestdirsame');
 
     $advancedmode = filemanager_utils::check_advanced_mode();
-    $basedir = $config['uploads_path'];
-    if( $advancedmode ) $basedir = $config['root_path'];
+    $basedir = ( $advancedmode ) ?  CMS_ROOT_PATH : $config['uploads_path'];
 
     if( count($errors) == 0 ) {
         $destloc = filemanager_utils::join_path($basedir,$destdir);
@@ -40,8 +39,8 @@ if( isset($params['submit']) ) {
     }
 
     if( count($errors) == 0 ) {
-        foreach( $selall as $file ) {
-            $src = filemanager_utils::join_path($config['root_path'],$cwd,$file);
+        foreach( $sel as $file ) {
+            $src = filemanager_utils::join_path(CMS_ROOT_PATH,$cwd,$file);
             $dest = filemanager_utils::join_path($basedir,$destdir,$file);
 
             if( !file_exists($src) ) {
@@ -66,7 +65,7 @@ if( isset($params['submit']) ) {
             $dest_thumb = '';
             if( filemanager_utils::is_image_file($file) ) {
                 $tmp = 'thumb_'.$file;
-                $src_thumb = filemanager_utils::join_path($config['root_path'],$cwd,$tmp);
+                $src_thumb = filemanager_utils::join_path(CMS_ROOT_PATH,$cwd,$tmp);
                 $dest_thumb = filemanager_utils::join_path($basedir,$destdir,$tmp);
 
                 if( file_exists($src_thumb) ) {
@@ -106,12 +105,12 @@ if( isset($params['submit']) ) {
 } // submit
 
 if( count($errors) ) $this->ShowErrors($errors);
-if( is_array($params['selall']) ) $params['selall'] = serialize($params['selall']);
-$smarty->assign('startform', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
-$smarty->assign('endform', $this->CreateFormEnd());
+if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
+$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params));
+$smarty->assign('formend', $this->CreateFormEnd());
 $smarty->assign('cwd','/'.$cwd);
 $smarty->assign('dirlist',$dirlist);
-$smarty->assign('selall',$selall);
+$smarty->assign('sel',$sel);
 $smarty->assign('mod',$this);
 echo $this->ProcessTemplate('move.tpl');
 
