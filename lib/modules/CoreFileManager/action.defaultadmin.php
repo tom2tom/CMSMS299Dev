@@ -197,23 +197,23 @@ $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'chmod'=>'X
 $linkchmod = '<a href="'. $u .'" title="'. $this->Lang('changeperms') .'">YYY</a>';
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'del'=>'XXX']);
-$icon = $themeObject->DisplayImage('icons/system/delete.gif', $this->Lang('delete'), '', '', 'systemicon');
+$icon = '<i class="if-trash-empty red" title="'.$this->Lang('delete').'"></i>';
 $linkdel = '<a href="'. $u .'" onclick="cms_confirm_linkclick(this, \''. $this->Lang('del_confirm') . '\');return false;">'.$icon.'</a>'."\n";
 
 $t = $this->Lang('rename');
-$icon = '<img src="'.$baseurl.'/images/rename.png" class="systemicon" alt="'.$t.'" title="'.$t.'" />';
+$icon = '<i class="if-rename" alt="'.$t.'" title="'.$t.'"></i>';
 $linkren = '<a href="javascript:oneRename(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'copy'=>'XXX']);
-$icon = $themeObject->DisplayImage('icons/system/copy.gif', $this->Lang('copytip'), '', '', 'systemicon');
+$icon = '<i class="if-docs" title="'.$this->Lang('copytip').'"></i>';
 $linkcopy = '<a href="javascript:oneCopy(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $t = $this->Lang('linktip');
-$icon = '<img src="'.$baseurl.'/images/link.png" class="systemicon" alt="'.$t.'" title="'.$t.'" />';
+$icon = '<i class="if-link" alt="'.$t.'" title="'.$t.'"></i>';
 $linklink = '<a href="javascript:oneLink(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'dl'=>'XXX']);
-$icon = $themeObject->DisplayImage('icons/system/arrow-d.gif', $this->Lang('download'), '', '', 'systemicon');
+$icon = '<i class="if-download" title="'.$this->Lang('download').'"></i>';
 $linkdown = '<a href="'. $u .'">'.$icon.'</a>'."\n";
 
 $pr = $this->Lang('perm_r');
@@ -233,7 +233,7 @@ foreach ($folders as $f) {
     $is_link = is_link($fp);
     $oneset->is_link = $is_link;
     $oneset->realpath = $is_link ? readlink($fp) : null;
-    $oneset->icon = $is_link ? 'icon-link_folder' : 'if-folder-empty'; //TODO icon-link_folder
+    $oneset->icon = $is_link ? 'icon-link_folder' : 'if-folder'; //TODO icon-link_folder
 
     $oneset->path = rawurlencode(trim($FM_PATH . DIRECTORY_SEPARATOR . $f, DIRECTORY_SEPARATOR)); //relative path
     if (is_readable($fp)) {

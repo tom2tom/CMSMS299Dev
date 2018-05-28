@@ -66,7 +66,7 @@
   <br /><br />
   <div class="path footer-links">
    <button type="submit" name="{$actionid}copy" class="adminsubmit fonticon" onclick="doCopy();return false;"><i class="if-docs"></i> {$mod->Lang('copy')}</button>
-   <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="doMove();return false;"><i class="if-direction"></i> {$mod->Lang('move')}</button>
+   <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="doMove();return false;"><i class="if-move"></i> {$mod->Lang('move')}</button>
    <button type="submit" name="{$actionid}delete" class="adminsubmit fonticon" onclick="doDelete(this);return false;"><i class="if-trash-empty"></i> {$mod->Lang('delete')}</button>
    <button type="button" name="compress" class="adminsubmit fonticon" onclick="doCompress();return false;"><i class="if-resize-small"></i> {$mod->Lang('compress')}</button>
    <button type="submit" name="{$actionid}decompress" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-resize-full"></i> {$mod->Lang('expand')}</button>
