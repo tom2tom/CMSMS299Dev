@@ -739,7 +739,7 @@ class CmsFormUtils
      *                   default is cms_textarea
      *   forcemodule/forcewysiwyg = (optional string) used to specify the module to enable.  If specified, the module name will be added to the
      *                   class attribute.
-     *   enablewysiwyg = (optional boolean) used to specify wether a wysiwyg textarea is required.  sets the language to html.
+     *   enablewysiwyg = (optional boolean) used to specify whether a wysiwyg textarea is required.  sets the language to html.
      *   wantedsyntax  = (optional string) used to specify the language (html,css,php,smarty) to use.  If non empty indicates that a
      *                   syntax hilighter module is requested.
      *   cols/width    = (optional integer) columns of the text area (css or the syntax/wysiwyg module may override this)
