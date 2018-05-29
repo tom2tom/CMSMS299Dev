@@ -29,41 +29,11 @@
   </div>{*/boxchild*}
   <div class="boxchild">
   {$form_start}
-  <table id="main-table" class="pagetable">
-  <thead><tr>
-   <th class="{ldelim}sss:'fname'{rdelim}"></th>
-   <th class="center {ldelim}sss:'fname'{rdelim}">{$mod->Lang('name')}</th>
-   <th class="center {ldelim}sss:'fint'{rdelim}">{$mod->Lang('size')}</th>
-   <th class="center {ldelim}sss:'fint'{rdelim}">{$mod->Lang('modified')}</th>
-{if !$FM_IS_WIN}
-   <th class="center">{$mod->Lang('perms')}</th>
-{/if}
-   <th class="{ldelim}sss:false{rdelim}"></th>
-{if !$FM_READONLY}
-   <th class="{ldelim}sss:false{rdelim}"><input type="checkbox" id="checkall" onclick="checkall_toggle(this);"></th>
-{/if}
-  </tr></thead>
-  <tbody>
-{foreach $items as $one}
- <tr class="{cycle values='row1,row2'}">
-  <td class="icon" data-sort="{if $one->dir}.{/if}{$one->icon}"><i class="{$one->icon}"></i></td>
-  <td class="filename" data-sort="{if $one->dir}.{/if}{$one->name}"{if $one->is_link} title="{$pointer} {$one->realpath}"{/if}>{if $one->link}{$one->link}{else}{$one->name}{/if}</td>
-  <td data-sort="{if $one->dir}0"{else}{$one->rawsize}" title="{$one->rawsize} {$bytename}"{/if}>{$one->size}</td>
-  <td data-sort="{$one->rawtime}">{$one->modat}</td>
-{if !$FM_IS_WIN}
-  <td style="text-align:center;">{$one->perms}</td>
-{/if}
-  <td>{$one->acts}</td>
-{if !$FM_READONLY}
-  <td><input type="checkbox" name="{$actionid}sel['{$one->sel}']" value="1" /></td>
-{/if}
- </tr>
-{/foreach}
-  </tbody>
-  </table>
+  <div id="display">
+  {include file='module_file_tpl:CoreFileManager;filelist.tpl' nocache}
+  </div>
+  {if count($items) > 0}
   <br />
-  {$mod->Lang('summary', $filescount, $folderscount, $totalcount)}
-  <br /><br />
   <div class="path footer-links">
    <button type="submit" name="{$actionid}copy" class="adminsubmit fonticon" onclick="doCopy();return false;"><i class="if-docs"></i> {$mod->Lang('copy')}</button>
    <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="doMove();return false;"><i class="if-move"></i> {$mod->Lang('move')}</button>
@@ -72,21 +42,22 @@
    <button type="submit" name="{$actionid}decompress" class="adminsubmit fonticon" onclick="return any_check();"><i class="if-resize-full"></i> {$mod->Lang('expand')}</button>
    <button type="button" class="adminsubmit fonticon" title="{$mod->Lang('selecttip')}" onclick="invert_all();return false;"><i class="if-switch"></i> {$mod->Lang('selectother')}</button>
   </div>
+  {/if}
   </form>
   </div>{*/boxchild*}
  </div>{*/hbox*}
 </div>{*vbox*}
 <div style="display:none;">{*TRANSIENT ELEMENTS*}
-<div id="searchbox">
-<input type="text" id="searchinput" placeholder="{$mod->Lang('searchfor')} ..." /><i class="if-cancel"></i>
-</div>
-
 <div id="upload_dlg" title="{$mod->Lang('title_upload')}">
  <div title="{$mod->Lang('tip_upload')}">
  <h4>{$mod->Lang('title_dnd')}</h4>
  {$mod->Lang('alternate')}
  <h4><input type="file" title="{$mod->Lang('select')}" multiple /></h4>
  </div>
+</div>
+{if count($items) > 0}
+<div id="searchbox">
+<input type="text" id="searchinput" placeholder="{$mod->Lang('searchfor')} ..." /><i class="if-cancel"></i>
 </div>
 
 <div id="link_dlg" title="{$mod->Lang('linktitle')}">
@@ -113,4 +84,5 @@
 <input type="hidden" name="{$actionid}archiver" value="{key($archtypes)}" />
 {/if}
 </div>
+{/if}
 </div>{*TRANSIENTS*}
