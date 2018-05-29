@@ -39,7 +39,7 @@
 #main-actions {
  float:right
 }
-#main-actions i:before {
+#main-actions i:before, .actions i:before {
  font-size: 1.5em;
 }
 
