@@ -562,7 +562,8 @@ input[type="button"]:hover, input[type="submit"]:hover, .ui-button:hover {
 input[type="checkbox"], input[type="radio"] {
     box-sizing: border-box;
     padding: 0;
-    vertical-align: text-bottom
+    vertical-align: text-bottom;
+    cursor: pointer;
 }
 input[type="checkbox"] {
     margin-left: 4px;
