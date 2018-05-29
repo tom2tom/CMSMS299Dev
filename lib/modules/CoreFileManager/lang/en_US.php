@@ -3,6 +3,7 @@
 // A
 $lang['actions'] = 'Actions';
 $lang['alternate'] = 'or';
+$lang['apply'] = 'Apply';
 $lang['arch_bz'] = 'bzip2';
 $lang['arch_gz'] = 'gzip';
 $lang['arch_xz'] = 'xz';
@@ -35,7 +36,7 @@ $lang['desc_filemanager_settings'] = 'Adjust settings for the system file manage
 $lang['download'] = 'Download';
 
 // E
-$lang['edit'] = 'Edit';
+$lang['edit'] = 'Edit file';
 $lang['eventdesc_OnFileDeleted'] = 'Sent after a file is deleted';
 $lang['eventhelp_OnFileDeleted'] = <<<EOT
 <h4>Parameters:</h4>
@@ -96,6 +97,13 @@ $lang['linkname'] = 'Name of link file';
 $lang['linktip'] = 'Link to...';
 $lang['linktitle'] = 'Create Link';
 
+// M
+$lang['mb'] = 'MB';
+//$lang['mimetype'] = 'Mime Type';
+$lang['moddescription'] = 'Manage website files and directories';
+$lang['modified'] = 'Modified';
+$lang['move'] = 'Move';
+
 // N
 $lang['name'] = 'Name';
 $lang['namecompressed'] = 'Compressed file name';
@@ -103,13 +111,8 @@ $lang['newname'] = 'New Name';
 $lang['newfoldername'] = 'New Folder Name';
 $lang['newfolder'] = 'New sub-folder here';
 $lang['newitem'] = 'Create New Item';
-
-// M
-$lang['mb'] = 'MB';
-//$lang['mimetype'] = 'Mime Type';
-$lang['moddescription'] = 'Manage website files and directories';
-$lang['modified'] = 'Modified';
-$lang['move'] = 'Move';
+$lang['noitems'] = 'Empty folder';
+$lang['noitemshow'] = 'No displayable item';
 
 // O
 $lang['ok'] = 'OK';
@@ -144,7 +147,7 @@ $lang['selectother'] = 'Selection'; //button label
 $lang['selecttip'] = 'Invert selection'; //button tip
 $lang['size'] = 'Size';
 $lang['submit'] = 'Submit';
-$lang['summary'] = 'Totals: file(s) %d, folder(s) %d, used %d B';
+$lang['summary'] = 'Totals: %d file(s), %d folder(s), %s used';
 
 // T
 $lang['text'] = 'File';
