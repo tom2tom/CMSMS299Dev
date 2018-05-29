@@ -21,8 +21,10 @@ if (!isset($gCms)) exit;
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
 if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
 
-global $FM_ROOT_PATH, $FM_IS_WIN, $FM_ICONV_INPUT_ENC, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE;
+// variables used in included file
+global $FM_ROOT_PATH, $FM_IS_WIN, $FM_ICONV_INPUT_ENC, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE, $helper;
 
+$helper = null;
 $FM_ROOT_PATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
 $FM_PATH = $params['p'] ?? '';
 
@@ -99,6 +101,7 @@ if ($items) {
             continue;
         }
         if (!$FM_SHOW_HIDDEN && $name[0] === '.') {
+            ++$skipped;
             continue;
         }
         $fp = $pathnow . DIRECTORY_SEPARATOR . $name;
@@ -114,6 +117,12 @@ $total_size = 0;
 
 $u = $this->create_url($id, 'open', $returnid, ['p'=>$FM_PATH, 'view'=>'XXX']);
 $linkview = '<a href="'. $u .'" title="'. $this->Lang('view') .'">YYY</a>';
+
+if ($pdev) {
+    $u = $this->create_url($id, 'open', $returnid, ['p'=>$FM_PATH, 'edit'=>'XXX']);
+    $icon = '<i class="if-edit" title="'.$this->Lang('edit').'"></i>';
+    $linkedit = '<a href="'. $u .'" title="'. $this->Lang('edit') .'">'.$icon.'</a>'."\n";
+}
 
 $t = ($FM_PATH) ? $FM_PATH.DIRECTORY_SEPARATOR : '';
 $u = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>$t.'XXX']);
@@ -258,6 +267,9 @@ foreach ($files as $name) {
         $acts = str_replace('XXX', $name, $linkdel);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
+        if ($pdev && $helper->is_text($fp)) {
+            $acts .= str_replace('XXX', $name, $linkedit);
+        }
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linklink);
 
         $oneset->sel = $encf;
@@ -270,63 +282,72 @@ foreach ($files as $name) {
 }
 
 if (count($items) > 1) {
-	$sortby = $profile->sort;
-	if ($sortby !== FilePickerProfile::FLAG_NO) {
-		if (class_exists('Collator')) {
-			$lang = CmsNlsOperations::get_default_language();
-			$col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
-		} else {
-			$col = false;
-			// fallback ?? e.g. setlocale() then strcoll()
-		}
-		usort($items, function ($a, $b) use ($sortby, $col)
-		{
-			if ($a->dir xor $b->dir) {
-				// one is a dir, first
-				return ($a->dir) ? -1 : 1;
-			}
+    $sortby = $profile->sort;
+    if ($sortby !== FilePickerProfile::FLAG_NO) {
+        if (class_exists('Collator')) {
+            $lang = CmsNlsOperations::get_default_language();
+            $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
+        } else {
+            $col = false;
+            // fallback ?? e.g. setlocale() then strcoll()
+        }
+        usort($items, function ($a, $b) use ($sortby, $col)
+        {
+            if ($a->dir xor $b->dir) {
+                // one is a dir, first
+                return ($a->dir) ? -1 : 1;
+            }
 
-			switch ($sortby) {
-				case 'name,d':
-				case 'name,desc':
-				case 'namedesc':
-					return ($col) ? $col->compare($b->name, $a->name) : strnatcmp($b->name, $a->name);
-				case 'size':
-				case 'size,a':
-				case 'size,asc':
-				case 'sizeasc':
-					if (($a->dir && $b->dir) || $a->rawsize == $b->rawsize) {
-						break;
-					}
-					return ($a->rawsize <=> $b->rawsize);
-				case 'size,d':
-				case 'size,desc':
-				case 'sizedesc':
-					if (($a->dir && $b->dir) || $a->rawsize == $b->rawsize) {
-						break;
-					}
-					return ($b->rawsize <=> $a->rawsize);
-				case 'date':
-				case 'date,a':
-				case 'date,asc':
-				case 'dateasc':
-					if ($a->rawtime == $b->rawtime) {
-						break;
-					}
-					return ($a->rawtime <=> $b->rawtime);
-				case 'date,d':
-				case 'date,desc':
-				case 'datedesc':
-					if ($a->rawtime == $b->rawtime) {
-						break;
-					}
-					return ($b->rawtime <=> $a->rawtime);
-				default:
-					break;
-			}
-			return ($col) ? $col->compare($a->name, $b->name) : strnatcmp($a->name, $b->name);
+            switch ($sortby) {
+                case 'name,d':
+                case 'name,desc':
+                case 'namedesc':
+                    return ($col) ? $col->compare($b->name, $a->name) : strnatcmp($b->name, $a->name);
+                case 'size':
+                case 'size,a':
+                case 'size,asc':
+                case 'sizeasc':
+                    if (($a->dir && $b->dir) || $a->rawsize == $b->rawsize) {
+                        break;
+                    }
+                    return ($a->rawsize <=> $b->rawsize);
+                case 'size,d':
+                case 'size,desc':
+                case 'sizedesc':
+                    if (($a->dir && $b->dir) || $a->rawsize == $b->rawsize) {
+                        break;
+                    }
+                    return ($b->rawsize <=> $a->rawsize);
+                case 'date':
+                case 'date,a':
+                case 'date,asc':
+                case 'dateasc':
+                    if ($a->rawtime == $b->rawtime) {
+                        break;
+                    }
+                    return ($a->rawtime <=> $b->rawtime);
+                case 'date,d':
+                case 'date,desc':
+                case 'datedesc':
+                    if ($a->rawtime == $b->rawtime) {
+                        break;
+                    }
+                    return ($b->rawtime <=> $a->rawtime);
+                default:
+                    break;
+            }
+            return ($col) ? $col->compare($a->name, $b->name) : strnatcmp($a->name, $b->name);
         });
-	}
+    }
+}
+
+if ($items) {
+    $t = fm_get_filesize($total_size);
+    $s = $this->Lang('summary', $c2, $c, $t);
+} elseif ($skipped > 0) {
+    $s = $this->Lang('noitemshow');
+} else {
+    $s = $this->Lang('noitems');
 }
 
 $smarty->assign([
@@ -334,11 +355,9 @@ $smarty->assign([
     'actionid' => $id,
     'FM_IS_WIN' => $FM_IS_WIN,
     'FM_READONLY' => $FM_READONLY,
-    'items' => $items,
-	'folderscount' => $c,
-    'filescount' => $c2,
-    'totalcount' => $total_size,
     'bytename' => $bytename,
+    'items' => $items,
+    'summary' => $s,
 ]);
 
 if (!empty($params['ajax'])) {
