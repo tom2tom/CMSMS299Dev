@@ -54,7 +54,7 @@ function _fm_dir_tree($directory, $current, $depth)
 }
 
 /**
-  * Scan directory and render tree view
+  * Scan directory and populate elements to display folders treeview
   * @param string $directory
   */
 function fm_dir_tree($directory, $current = '')
@@ -293,7 +293,7 @@ function fm_convert_win($filename)
 }
 
 /**
- * Get nice filesize
+ * Get nicely-formatted filesize
  * @param int $size
  * @return string
  */
@@ -302,7 +302,7 @@ function fm_get_filesize($size)
     global $bytename, $kbname, $mbname, $gbname; //$tbname
 
     if ($size < 1000) {
-        return sprintf('%s %s', $size, $bytename);
+        return ($size > 0) ? sprintf('%s %s', $size, $bytename) : '0';
     } elseif (($size / 1024) < 1000) {
         return sprintf('%s %s', round(($size / 1024), 2), $kbname);
     } elseif (($size / 1024 / 1024) < 1000) {
@@ -316,26 +316,17 @@ function fm_get_filesize($size)
 
 /**
  * Get mime type
- * @param string $file_path
+ * @param string $path
  * @return mixed|string
  */
-function fm_get_mime_type($file_path)
+function fm_get_mime_type($path)
 {
-    static $finfo = null;
-    if ($finfo == null && function_exists('finfo_open')) {
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+	global $helper;
+    if ($helper == null) {
+        global $config;
+        $helper = new \CMSMS\FileTypeHelper($config);
     }
-    if ($finfo != null) {
-        return finfo_file($finfo, $file_path);
-    } elseif (function_exists('mime_content_type')) {
-        return mime_content_type($file_path);
-    } elseif (!stristr(ini_get('disable_functions'), 'shell_exec')) {
-        $file = escapeshellarg($file_path);
-        $mime = shell_exec('file -bi ' . $file);
-        return ($mime) ? $mime : '--';
-    } else {
-        return '--';
-    }
+    return $helper->get_mime_type($path);
 }
 
 /**
@@ -345,22 +336,26 @@ function fm_get_mime_type($file_path)
  */
 function fm_get_file_icon_class($path)
 {
-    // get extension
-    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+	global $helper;
+    if ($helper == null) {
+        global $config;
+        $helper = new \CMSMS\FileTypeHelper($config);
+    }
 
-    if (in_array($ext, fm_get_image_exts())) {
+    if ($helper->is_image($path)) {
         return 'if-file-image';
     }
-    if (in_array($ext, fm_get_archive_exts())) {
+    if ($helper->is_archive($path)) {
         return 'if-file-archive';
     }
-    if (in_array($ext, fm_get_audio_exts())) {
+    if ($helper->is_audio($path)) {
         return 'if-file-audio';
     }
-    if (in_array($ext, fm_get_video_exts())) {
+    if ($helper->is_video($path)) {
         return 'if-file-video';
     }
 
+    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     switch ($ext) {
         case 'passwd': case 'ftpquota': case 'sql': case 'js': case 'json':
         case 'config': case 'twig': case 'tpl':
@@ -380,7 +375,7 @@ function fm_get_file_icon_class($path)
         case 'm3u': case 'm3u8': case 'pls': case 'cue':
             return 'if-headphones';
         case 'eml': case 'msg':
-            return 'if-chat-empty';
+            return 'if-chat';
         case 'xls': case 'xlsx':
             return 'if-file-excel';
         case 'csv':
@@ -399,193 +394,6 @@ function fm_get_file_icon_class($path)
             return 'if-terminal';
         default:
             return 'if-doc';
-    }
-}
-
-/**
- * Get image files extensions
- * @return array
- */
-function fm_get_image_exts()
-{
-    return [
-        'ai',
-        'bmp',
-        'eps',
-        'fla',
-        'gif',
-        'ico',
-        'jp2',
-        'jpc',
-        'jpeg',
-        'jpg',
-        'jpx',
-        'png',
-        'psd',
-        'psd',
-        'svg',
-        'swf',
-        'tif',
-        'tiff',
-        'wbmp',
-        'webp',
-        'xbm',
-    ];
-}
-
-/**
- * Get video files extensions
- * @return array
- */
-function fm_get_video_exts()
-{
-    return [
-        '3gp',
-        'asf',
-        'avi',
-        'f4v',
-        'flv',
-        'm4v',
-        'mkv',
-        'mov',
-        'mp4',
-        'mpeg',
-        'mpg',
-        'ogm',
-        'ogv',
-        'rm',
-        'swf',
-        'webm',
-        'wmv',
-    ];
-}
-
-/**
- * Get audio files extensions
- * @return array
- */
-function fm_get_audio_exts()
-{
-    return [
-        'aac',
-        'ac3',
-        'flac',
-        'm4a',
-        'mka',
-        'mp2',
-        'mp3',
-        'oga',
-        'ogg',
-        'ra',
-        'ram',
-        'tds',
-        'wav',
-        'wm',
-        'wma',
-    ];
-}
-
-/**
- * Get text file extensions
- * @return array
- */
-function fm_get_text_exts()
-{
-    return [
-        'txt', 'css', 'ini', 'conf', 'log', 'htaccess', 'passwd', 'ftpquota', 'sql', 'js', 'json', 'sh', 'config',
-        'php', 'php4', 'php5', 'phps', 'phtml', 'htm', 'html', 'shtml', 'xhtml', 'xml', 'xsl', 'm3u', 'm3u8', 'pls', 'cue',
-        'eml', 'msg', 'csv', 'bat', 'twig', 'tpl', 'md', 'gitignore', 'less', 'sass', 'scss', 'c', 'cpp', 'cs', 'py',
-        'map', 'lock', 'dtd',
-    ];
-}
-
-/**
- * Get mime types of text files
- * @return array
- */
-function fm_get_text_mimes()
-{
-    return [
-        'application/xml',
-        'application/javascript',
-        'application/x-javascript',
-        'image/svg+xml',
-        'message/rfc822',
-    ];
-}
-
-/**
- * Get file names of text files w/o extensions
- * @return array
- */
-function fm_get_text_names()
-{
-    return [
-        'license',
-        'readme',
-        'authors',
-        'contributors',
-        'changelog',
-    ];
-}
-
-function fm_get_archive_exts()
-{
-    return [
-        '7z',
-        'gz',
-        'rar',
-        's7z',
-        'tar',
-        'xz',
-        'z',
-        'zip',
-    ];
-}
-
-/**
- * Get info about some archive-types
- * @param string $path
- * @return array|bool
- */
-function fm_get_archive_info($path)
-{
-    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-    switch ($ext) {
-        case 'zip':
-            if (function_exists('zip_open')) {
-                $arch = zip_open($path);
-                if ($arch) {
-                    $filenames = array();
-                    while ($zip_entry = zip_read($arch)) {
-                        $zip_name = zip_entry_name($zip_entry);
-                        $zip_folder = substr($zip_name, -1) == DIRECTORY_SEPARATOR;
-                        $zip_size = zip_entry_filesize($zip_entry);
-                        $filenames[] = array(
-                            'folder' => $zip_folder,
-                            'name' => fm_enc($zip_name),
-                            'filesize' => fm_get_filesize($zip_size),
-                        );
-                    }
-                    zip_close($arch);
-                    return $filenames;
-                }
-            }
-            return false;
-        case 'gz':
-//            if (function_exists('')) {
-//            }
-            return false;
-        case 'bzip2':
-//            if (function_exists('')) {
-//            }
-            return false;
-        case 'xz':
-//            if (function_exists('')) {
-//            }
-            return false;
-        default:
-            return false;
     }
 }
 
