@@ -150,11 +150,12 @@ class FileTypeHelper
     ];
     /**
      * @ignore
+	 * xml'ish excluded cuz too hard to process in html context
      */
     private $_text_extensions = [
         'txt', 'css', 'ini', 'conf', 'log', 'htaccess', 'passwd', 'ftpquota', 'sql', 'js', 'json', 'sh', 'config',
-        'php', 'php4', 'php5', 'phps', 'phtml', 'htm', 'html', 'shtml', 'xhtml', 'xml', 'xsl', 'm3u', 'm3u8', 'pls', 'cue',
-        'eml', 'msg', 'csv', 'bat', 'twig', 'tpl', 'md', 'gitignore', 'less', 'sass', 'scss', 'c', 'cpp', 'cs', 'py',
+        'php', 'php4', 'php5', 'phps', 'phtml', 'htm', 'html', 'shtml', 'xhtml',/* 'xml', 'xsl',*/ 'm3u', 'm3u8', 'pls', 'cue',
+        'eml', 'msg', 'csv', 'bat', 'twig', 'tpl', 'md', 'gitignore', 'less', 'sass', 'scss', 'c', 'cpp', 'cs', 'py', 'rb', 'pl',
         'map', 'lock', 'dtd',
     ];
     /**
@@ -162,10 +163,10 @@ class FileTypeHelper
       * @ignore
      */
     private $_text_mimes = [
-        'application/xml',
+//too hard to edit in html context       'application/xml',
         'application/javascript',
         'application/x-javascript',
-        'image/svg+xml',
+//ditto       'image/svg+xml',
         'message/rfc822',
     ];
 
@@ -377,6 +378,9 @@ class FileTypeHelper
     {
         if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
+			if( $type && ($p = strpos($type, ';')) !== FALSE) {
+				$type = trim(substr($type, 0, $p));
+			}
             switch( $type ) {
                 case 'text/xml';
                 case 'application/xml':
@@ -413,9 +417,16 @@ class FileTypeHelper
     {
         if( ($filename = $this->is_readable( $filename )) ) {
             $type = $this->get_mime_type( $filename );
-            if( startswith($type, 'text/') || in_array($type, $this->_text_mimes)) {
+            if( startswith($type, 'text/') ) {
                 return TRUE;
             }
+			if( $type && ($p = strpos($type, ';')) !== FALSE) {
+				$type = trim(substr($type, 0, $p));
+			}
+			if( in_array($type, $this->_text_mimes) ) {
+                return TRUE;
+			}
+
             $ext = $this->get_extension( $filename );
              // on a website, pretty much everything without an extension will be some form of editable text
             if( $ext === '' && in_array($ext, $this->_text_extensions) ) {
