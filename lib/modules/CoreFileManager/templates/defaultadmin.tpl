@@ -30,7 +30,7 @@
   <div class="boxchild">
   {$form_start}
   <div id="display">
-  {include file='module_file_tpl:CoreFileManager;filelist.tpl' nocache}
+  {include file='module_file_tpl:CoreFileManager;getlist.tpl' nocache}
   </div>
   {if count($items) > 0}
   <br />

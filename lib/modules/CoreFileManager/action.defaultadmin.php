@@ -20,7 +20,7 @@ This action was inspired by H3K Tiny File Manager
 https://github.com/prasathmani/tinyfilemanager
 */
 
-require_once __DIR__.DIRECTORY_SEPARATOR.'action.filelist.php';
+require_once __DIR__.DIRECTORY_SEPARATOR.'action.getlist.php';
 
 /* TODO toastifed notices
 if (isset($_SESSION['message'])) {
@@ -107,7 +107,7 @@ $baseurl = $this->GetModuleURLPath();
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'upload'=>1]);
 $upload_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
-$u = $this->create_url($id, 'filelist', $returnid, ['p'=>$FM_PATH, 'ajax'=>1]);
+$u = $this->create_url($id, 'getlist', $returnid, ['p'=>$FM_PATH, 'ajax'=>1]);
 $refresh_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
 //TODO $FM_ROOT_PATH
 $here = $FM_PATH;
