@@ -1,7 +1,8 @@
 {if !empty($acts)}
-<div class="actions">
-{foreach $acts as $one}{$act}{/foreach}
+<div class="actions" style="float:right;">
+{foreach $acts as $one}{$one}{/foreach}
 </div>
+<div class="clearb"></div>
 {/if}
 {if !empty($about)}
 <div class="vbox">
@@ -29,5 +30,16 @@
 {elseif $ftype == 'audio'}
   <p><audio src="{$file_url}" controls preload="metadata"></audio></p>
 {elseif $ftype == 'text'}
+{if isset($edit)}
+{$start_form}{$reporter}
+{/if}
 <div id="Editor" class="editor">{$content}</div>
+{if isset($edit)}
+<div class="pregap">
+<button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
+<button type="submit" name="{$actionid}cancel" class="adminsubmit icon close">{$mod->Lang('cancel')}</button>
+<button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
+</div>
+</form>
+{/if}
 {/if}
