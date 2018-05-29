@@ -33,4 +33,4 @@
  </table>
  <br />
 {/if}{*count $items*} 
- {$mod->Lang('summary', $filescount, $folderscount, $totalcount)}
+ <strong>{$summary}</strong>
