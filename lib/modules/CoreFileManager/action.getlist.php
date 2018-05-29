@@ -1,5 +1,5 @@
 <?php
-# CoreFileManager module action: filelist ajax processor and component of defaultadmin action
+# CoreFileManager module action: getlist ajax processor and component of defaultadmin action
 # Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -361,6 +361,6 @@ $smarty->assign([
 ]);
 
 if (!empty($params['ajax'])) {
-    echo $this->ProcessTemplate('filelist.tpl');
+    echo $this->ProcessTemplate('getlist.tpl');
     exit;
 }
