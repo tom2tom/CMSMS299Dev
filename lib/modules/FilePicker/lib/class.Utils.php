@@ -262,7 +262,7 @@ class Utils
                     case 'name,d':
                     case 'name,desc':
                     case 'namedesc':
-                        return ($col) ? $coll->compare($b['name'], $a['name']) : strncmp($b['name'], $a['name'], strlen($b['name']));
+                        return ($col) ? $col->compare($b['name'], $a['name']) : strncmp($b['name'], $a['name'], strlen($b['name']));
                     case 'size':
                     case 'size,a':
                     case 'size,asc':
@@ -296,7 +296,7 @@ class Utils
                     default:
                         break;
                 }
-                return ($col) ? $coll->compare($a['name'], $b['name']) : strncmp($a['name'], $b['name'], strlen($a['name']));
+                return ($col) ? $col->compare($a['name'], $b['name']) : strncmp($a['name'], $b['name'], strlen($a['name']));
             });
         }
         return $result;
