@@ -1,6 +1,7 @@
 <?php
 
 // A
+$lang['actions'] = 'Actions';
 $lang['alternate'] = 'or';
 $lang['arch_bz'] = 'bzip2';
 $lang['arch_gz'] = 'gzip';
