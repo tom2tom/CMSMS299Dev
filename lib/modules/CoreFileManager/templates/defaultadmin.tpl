@@ -4,7 +4,7 @@
 {if !empty($crumbs)}{foreach $crumbs as $one}
 {if $one@first}
  <a href="{$one->url}">
- <i class="if-home-outline" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
+ <i class="if-home" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
  </a>
 {elseif $one@last}
  <i class="{$crumbjoiner}"></i> {$one->name}
