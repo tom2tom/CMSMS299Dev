@@ -6,8 +6,9 @@
 {/if}
 {if !empty($about)}
 <div class="vbox">
-{foreach $about as $one}<div class="hbox"><div class="boxchild">{$one@key}:</div><div class="boxchild">{$one}</div></div>{/foreach}
+{foreach $about as $one}<div class="hbox"><div class="boxchild">{$one@key}:&nbsp;</div><div class="boxchild">{$one}</div></div>{/foreach}
 </div>
+<br />
 {/if}
 {if $ftype == 'archive'}
  {if $filenames}
@@ -37,7 +38,7 @@
 {if isset($edit)}
 <div class="pregap">
 <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-<button type="submit" name="{$actionid}cancel" class="adminsubmit icon close">{$mod->Lang('cancel')}</button>
+<button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
 <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply">{$mod->Lang('apply')}</button>
 </div>
 </form>
