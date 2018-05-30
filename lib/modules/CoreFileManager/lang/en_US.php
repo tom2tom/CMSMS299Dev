@@ -60,6 +60,10 @@ $lang['expand'] = 'Expand';
 $lang['err_save'] = 'File save error';
 $lang['err_nofile'] = 'File not found';
 $lang['err_arch'] = 'Error while fetching archive info';
+$lang['err_noarch'] = 'Archive not created';
+$lang['newarch'] = 'Archive %s created';
+$lang['err_nounpack'] = 'Archive %s not unpacked';
+$lang['unpackarch'] = 'Archive unpacked';
 
 // F
 $lang['file'] = 'File';
