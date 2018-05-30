@@ -19,10 +19,6 @@ if (!isset($gCms)) exit;
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
 if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
 
-global $FM_IS_WIN, $helper;
-$FM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
-$helper = new \CMSMS\FileTypeHelper($config);
-
 $FM_ROOT_PATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
 $FM_PATH = $params['p'] ?? '';
 
@@ -35,7 +31,15 @@ if (!is_dir($path)) { //CHECKME link to a dir ok?
     $FM_PATH = '';
 }
 
-//labels for sizing, used downstream
+if (isset($params['close'])) {
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+}
+
+// various globals used downstream
+global $FM_IS_WIN, $helper;
+$FM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
+$helper = new \CMSMS\FileTypeHelper($config);
+
 global $bytename, $kbname, $mbname, $gbname; //$tbname
 $bytename = $this->Lang('bb');
 $kbname = $this->Lang('kb');
@@ -49,9 +53,6 @@ if (isset($params['view'])) {
     $file = fm_clean_path($params['view']);
     $edit = false; //in case of text-display
 } elseif (isset($params['edit'])) {
-    if (isset($params['cancel'])) {
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
-    }
     $file = fm_clean_path($params['edit']);
     $edit = true;
 } else {
@@ -60,21 +61,23 @@ if (isset($params['view'])) {
 
 $fullpath = $path . DIRECTORY_SEPARATOR . $file;
 if ($file == '' || !is_file($fullpath)) {
-    $this->SetError('File not found');
+    $this->SetError($this->Lang('err_nofile'));
     $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
 if ($edit) {
     if (isset($params['apply']) || isset($params['submit'])) {
+		$lvl = error_reporting(0);
         $res = file_put_contents($fullpath, $params['content'], LOCK_EX);
+		error_reporting($lvl);
         if (isset($params['submit'])) {
 			if ($res === false) {
-                $this->SetError('File save error'); //TODO Lang()
+                $this->SetError($this->Lang('err_save'));
 			}
             $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
         }
 		if ($res === false) {
-             $this->ShowErrors('File save error');
+             $this->ShowErrors($this->Lang('err_save'));
 		}
     }
 }
@@ -103,11 +106,14 @@ if ($helper->is_archive($fullpath)) {
 } elseif ($helper->is_text($fullpath)) {
     $is_text = true;
     $type = 'text';
-    if ($content === null) $content = file_get_contents($fullpath);
+    if ($content === null) {
+		$content = file_get_contents($fullpath);
+	}
 } else {
     $type = 'file';
 }
 $smarty->assign('ftype', $type);
+$smarty->assign('content', $content);
 
 $file_url = cms_admin_utils::path_to_url($fullpath);
 $smarty->assign('file_url', $file_url);
@@ -161,6 +167,11 @@ if ($is_arch && $filenames) {
     $items[$this->Lang('info_charset')] = $enc;
 }
 $smarty->assign('about', $items);
+
+if (!$edit) {
+    $smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
+      ['p'=>$FM_PATH, 'view'=>$params['view']]));
+}
 
 $baseurl = $this->GetModuleURLPath();
 $css = <<<EOS
@@ -235,7 +246,5 @@ EOS;
 EOS;
     $this->AdminBottomContent($js);
 } //is text
-
-$smarty->assign('content', $content);
 
 echo $this->ProcessTemplate('open.tpl');

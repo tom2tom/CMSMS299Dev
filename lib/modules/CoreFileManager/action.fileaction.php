@@ -280,7 +280,7 @@ if (isset($params['dl'])) {
         readfile($fp);
         exit;
     } else {
-        $this->SetError('File not found');
+        $this->SetError($this->Lang('err_nofile'));
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
     }
 }
@@ -349,7 +349,7 @@ if (isset($params['decompress'])) {
             $this->SetError('Archive not unpacked');
         }
     } else {
-        $this->SetError('File not found');
+        $this->SetError($this->Lang('err_nofile'));
     }
     $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
 }
@@ -359,7 +359,7 @@ if (isset($params['chmod']) && !FM_IS_WIN) {
     $file = fm_clean_path($params['chmod']);
     $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
     if ($file == '' || (!(is_file($fp) || is_dir($fp)))) {
-        $this->SetError('File not found');
+        $this->SetError($this->Lang('err_nofile'));
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
     }
 
