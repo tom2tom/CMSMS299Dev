@@ -15,62 +15,57 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if (!function_exists('cmsms')) exit;
-if (!$this->CheckPermission('Modify Files')) exit;
+use CoreFileManager\UnifiedArchive\UnifiedArchive;
 
+if (!isset($gCms)) exit;
+$pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
+if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
+
+$FM_ROOT_PATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
+$FM_PATH = $params['p'] ?? '';
+
+$path = $FM_ROOT_PATH;
+if ($FM_PATH) {
+    $path .= DIRECTORY_SEPARATOR . $FM_PATH;
+}
+if (!is_dir($path)) { //CHECKME link to a dir ok?
+    $path = $FM_ROOT_PATH;
+    $FM_PATH = '';
+}
+
+// various globals used downstream
 global $FM_IS_WIN;
 $FM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 
-//labels for sizing, used downstream
 global $bytename, $kbname, $mbname, $gbname; //$tbname
 $bytename = $this->Lang('bb');
 $kbname = $this->Lang('kb');
 $mbname = $this->Lang('mb');
 $gbname = $this->Lang('gb');
 //$tbname = $this->Lang('tb');
-//$smarty->assign('bytename', $bytename);
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 
-//here we assume that simple-plugin processing is handled elsewhere, or else
-//simple-plugins storage is somewhere in, or linked into, the uploads dir
-$root = (!empty($config['developer_mode'])) ? CMS_ROOT_PATH : $config['uploads_path'];
-//TODO maybe and/or some permission e.g. 'Manage Sitecode'
-$relpath = $params['p'];
-$dir_path = ($relpath) ? cms_join_path($root, $relpath) : $root;
-
-if (isset($params['ajax'])) {
-    //AJAX request
-    if (isset($params['type']) && $params['type']=='backup') {
-        //backup files
-        $file = $params['sel'];
-        $date = date('Ymd-His');
-        $newFile = $file.'-'.$date.'.bak';
-        if (copy($dir_path.DIRECTORY_SEPARATOR.$file, $dir_path.DIRECTORY_SEPARATOR.$newFile)) {
-            echo "Backup $newFile Created"; //TODO $this->Lang('', $newfile);
-        } else {
-            echo 'Unable to backup';
-        }
-    }
-    exit;
-}
-
 if (!empty($_FILES)) {
     // Upload
-    $f = $_FILES;
-
     $errors = 0;
     $uploads = 0;
-    $total = count($f['file']['name']);
-    $allowed = (FM_EXTENSION) ? explode(',', FM_EXTENSION) : false;
 
+    $f = $_FILES;
     $filename = $f['file']['name'];
+//    $total = count($filename);
     $tmp_name = $f['file']['tmp_name'];
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
+
+    $allowed = (empty($FM_EXTENSION)) ? false : explode(',', $FM_EXTENSION);
+    if ($allowed) {
+        $ext = pathinfo($filename, PATHINFO_EXTENSION);
+        $isFileAllowed = in_array($ext, $allowed);
+    } else {
+        $isFileAllowed = true;
+    }
 
     if (empty($f['file']['error']) && !empty($tmp_name) && $tmp_name != 'none' && $isFileAllowed) {
-        if (move_uploaded_file($tmp_name, $dir_path . DIRECTORY_SEPARATOR . $f['file']['name'])) {
+        if (move_uploaded_file($tmp_name, $path . DIRECTORY_SEPARATOR . $f['file']['name'])) {
             echo 'Successfully uploaded';
         } else {
             echo sprintf('Error while uploading files. Uploaded files: %s', $uploads);
@@ -87,9 +82,9 @@ if (isset($params['delete'])) {
         if (is_array($files) && count($files)) {
             foreach ($files as $f) {
                 if ($f != '') {
-                    $new_path = $dir_path . DIRECTORY_SEPARATOR . $f;
+                    $new_path = $path . DIRECTORY_SEPARATOR . $f;
                     if (!fm_rdelete($new_path)) {
-                        $errors++;
+                        ++$errors;
                     }
                 }
             }
@@ -105,8 +100,8 @@ if (isset($params['delete'])) {
         // Delete file / folder
         $del = fm_clean_path($params['del']);
         if ($del != '' && $del != '..' && $del != '.') {
-            $is_dir = is_dir($dir_path . DIRECTORY_SEPARATOR . $del);
-            if (fm_rdelete($dir_path . DIRECTORY_SEPARATOR . $del)) {
+            $is_dir = is_dir($path . DIRECTORY_SEPARATOR . $del);
+            if (fm_rdelete($path . DIRECTORY_SEPARATOR . $del)) {
                 $msg = $is_dir ? 'Folder <strong>%s</strong> deleted' : 'File <strong>%s</strong> deleted';
                 $this->SetMessage(sprintf($msg, fm_enc($del)));
             } else {
@@ -117,7 +112,7 @@ if (isset($params['delete'])) {
             $this->SetError('Wrong file or folder name');
         }
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
 if (isset($params['new'], $params['type'])) {
@@ -126,16 +121,16 @@ if (isset($params['new'], $params['type'])) {
     $new = fm_clean_path($params['type']);
     if ($new != '' && $new != '..' && $new != '.') {
         if ($params['type']=='file') {
-            if (!file_exists($dir_path . DIRECTORY_SEPARATOR . $new)) {
-                @fopen($dir_path . DIRECTORY_SEPARATOR . $new, 'w') or die('Cannot open file:  '.$new);
+            if (!file_exists($path . DIRECTORY_SEPARATOR . $new)) {
+                @fopen($path . DIRECTORY_SEPARATOR . $new, 'w') or die('Cannot open file:  '.$new);
                 $this->SetMessage(sprintf('File <strong>%s</strong> created', fm_enc($new)));
             } else {
                 $this->SetInfo(sprintf('File <strong>%s</strong> already exists', fm_enc($new)));
             }
         } else {
-            if (fm_mkdir($dir_path . DIRECTORY_SEPARATOR . $new, false) === true) {
+            if (fm_mkdir($path . DIRECTORY_SEPARATOR . $new, false) === true) {
                 $this->SetMessage(sprintf('Folder <strong>%s</strong> created', $new));
-            } elseif (fm_mkdir($dir_path . DIRECTORY_SEPARATOR . $new, false) === $dir_path . DIRECTORY_SEPARATOR . $new) {
+            } elseif (fm_mkdir($path . DIRECTORY_SEPARATOR . $new, false) === $path . DIRECTORY_SEPARATOR . $new) {
                 $this->SetInfo(sprintf('Folder <strong>%s</strong> already exists', fm_enc($new)));
             } else {
                 $this->SetError(sprintf('Folder <strong>%s</strong> not created', fm_enc($new)));
@@ -144,7 +139,7 @@ if (isset($params['new'], $params['type'])) {
     } else {
         $this->SetError('Wrong folder name');
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
 if (isset($params['copy'], $params['finish'])) {
@@ -154,7 +149,7 @@ if (isset($params['copy'], $params['finish'])) {
     // empty path
     if ($copy == '') {
         $this->SetError('Source path not defined');
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
     }
     // abs path from
     $from = FM_ROOT_PATH . DIRECTORY_SEPARATOR . $copy;
@@ -186,36 +181,36 @@ if (isset($params['copy'], $params['finish'])) {
     } else {
         $this->SetWarn('Paths must be different');
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
-if (isset($params['sel'], $params['copy_to'])) {
-    // Mass copy/move files/folders from $dir_path to
+if (isset($params['copy_to'], $params['sel'])) {
+    // Mass copy/move files/folders from $path to
     $copy_to = fm_clean_path($params['copy_to']);
     if ($copy_to != '') {
         $copy_to_path .= DIRECTORY_SEPARATOR . $copy_to;
     } else {
         $copy_to_path = $FM_ROOT_PATH;
     }
-    if ($dir_path == $copy_to_path) {
+    if ($path == $copy_to_path) {
         $this->SetInfo('Paths must be different');
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
     }
     if (!is_dir($copy_to_path)) {
         if (!fm_mkdir($copy_to_path, true)) {
             $this->SetError('Unable to create destination folder');
-            $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+            $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
         }
     }
     // copy/move
     $errors = 0;
     $files = $params['sel'];
     if (is_array($files) && count($files)) {
-	    $move = isset($params['move']);
+        $move = isset($params['move']);
         foreach ($files as $f) {
             if ($f != '') {
                 // abs path from
-                $from = $dir_path . DIRECTORY_SEPARATOR . $f;
+                $from = $path . DIRECTORY_SEPARATOR . $f;
                 // abs path to
                 $dest = $copy_to_path . DIRECTORY_SEPARATOR . $f;
                 if ($move) {
@@ -240,7 +235,7 @@ if (isset($params['sel'], $params['copy_to'])) {
     } else {
         $this->SetWarning('Nothing selected');
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
 if (isset($params['ren'], $params['to'])) {
@@ -251,7 +246,7 @@ if (isset($params['ren'], $params['to'])) {
 
     // rename
     if ($old != '' && $new != '') {
-        if (fm_rename($dir_path . DIRECTORY_SEPARATOR . $old, $dir_path . DIRECTORY_SEPARATOR . $new)) {
+        if (fm_rename($path . DIRECTORY_SEPARATOR . $old, $path . DIRECTORY_SEPARATOR . $new)) {
             $this->SetMessage(sprintf('Renamed from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($new)));
         } else {
             $this->SetError(sprintf('Error while renaming from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($new)));
@@ -259,13 +254,54 @@ if (isset($params['ren'], $params['to'])) {
     } else {
         $this->SetError('Names not set');
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
 if (isset($params['dl'])) {
     // Download
     $file = fm_clean_path($params['dl']);
-    $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
+    $fp = $path . DIRECTORY_SEPARATOR . $file;
+    if ($file != '' && is_dir($fp)) {
+        $istmp = false;
+        foreach (fm_get_arch_types($this) as $ext => $one) {
+            if (!empty($one['check'])) {
+                $istmp = true;
+                break;
+            }
+        }
+        if (!$istmp) {
+            $this->SetError($this->Lang('err_noarch'));
+            $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+        }
+		if ($ext != 'zip') { $ext = 'tar.'.$ext; }
+        $base = basename($file);
+        $tmp = tempnam(sys_get_temp_dir(), $base);
+		unlink($tmp);
+		$tmp .= '.'.$ext;
+        try {
+            if (UnifiedArchive::archiveFiles([$fp], $tmp) === false) {
+                $this->SetError($this->Lang('err_noarch'));
+                $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+            }
+        } catch (\Exception $e) {
+            $this->SetError($this->Lang('err_noarch').' : '.$e->getMessage());
+            $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+        }
+
+		$base .= '.'.$ext;
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $base . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Connection: Keep-Alive');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($tmp));
+        readfile($tmp);
+		unlink($tmp);
+        exit;
+    }
 
     if ($file != '' && is_file($fp)) {
         header('Content-Description: File Transfer');
@@ -281,88 +317,82 @@ if (isset($params['dl'])) {
         exit;
     } else {
         $this->SetError($this->Lang('err_nofile'));
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
     }
 }
 
-if (isset($params['compress'])) {
-    // Pack files
-    // TODO per wanted archive-type
-    if (!class_exists('ZipArchive')) {
-        $this->SetError('Operations with archives are not available');
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
-    }
-
+if (isset($params['compress'], $params['sel'])) {
+   // Pack selected items(s)
+    $aname = $params['aname'] ?? '';
+    $ext = $params['archtype'];
     $files = $params['sel'];
-    if (!empty($files)) {
-        chdir($dir_path);
 
-        if (count($files) == 1) {
-            $one_file = reset($files);
+    if (count($files) == 1) {
+        $one_file = reset($files);
+        $fp = $path . DIRECTORY_SEPARATOR . $one_file;
+        if (is_dir($fp)) {
+			if ($aname === '') { $aname = basename($one_file); }
+			if ($params['archtype'] != 'zip') { $ext = 'tar.'. $ext; }
+        } elseif ($aname === '') {
             $one_file = basename($one_file);
-            $zipname = $one_file . '_' . date('Ymd-His') . '.zip';
-        } else {
-            $zipname = 'archive_' . date('Ymd-His') . '.zip';
+            $aname = substr($one_file, strrpos($one_file, '.') + 1);
         }
-
-        $zipper = new FM_Zipper();
-        $res = $zipper->create($zipname, $files);
-
-        if ($res) {
-            $this->SetMessage(sprintf('Archive <strong>%s</strong> created', fm_enc($zipname)));
-        } else {
-            $this->SetError('Archive not created');
-        }
+        $files = [$fp];
     } else {
-        $this->SetInfo('Nothing selected');
+		if ($aname === '') { $aname = 'archive'; }
+		if ($params['archtype'] != 'zip') { $ext = 'tar.'. $ext; }
+        //fullpath for each
+        array_walk($files, function (&$val) {
+          $val = $path.DIRECTORY_SEPARATOR.$val;
+        }, $path);
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $aname .= '_' . date('Ymd-His') . '.' . $ext;
+
+    try {
+        if (UnifiedArchive::archiveFiles($files, $path.DIRECTORY_SEPARATOR.$aname) !== false) {
+            $this->SetMessage($this->Lang('newarch', fm_enc($aname)));
+        } else {
+            $this->SetError($this->Lang('err_noarch'));
+        }
+    } catch (\Exception $e) {
+        $this->SetError($this->Lang('err_noarch').' : '.$e->getMessage());
+    }
+
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
-if (isset($params['decompress'])) {
-    // Unpack
-    $file = fm_clean_path($params['unzip']);
-
-    // TODO per archive-type
-    if (!class_exists('ZipArchive')) {
-        $this->SetError('Operations with archives are not available');
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
-    }
-
-    $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
-    if ($file != '' && is_file($fp)) {
-        //to folder
-        $tofolder = '';
-        if (isset($params['tofolder'])) {
-            $tofolder = pathinfo($fp, PATHINFO_FILENAME);
-            if (fm_mkdir($dir_path . DIRECTORY_SEPARATOR . $tofolder, true)) {
-                $dir_path .= DIRECTORY_SEPARATOR . $tofolder;
+if (isset($params['decompress'], $params['sel'])) {
+    // Unpack selected file(s)
+    foreach ($params['sel'] as $file) {
+        $fp = $path . DIRECTORY_SEPARATOR . $file;
+        if ($file != '' && is_file($fp)) {
+            try {
+                $archive = UnifiedArchive::open($fp);
+                if ($archive && $archive->extractFiles($path) !== false) {
+					if (count($params['sel']) == 1) { $this->SetMessage($this->Lang('unpackarch')); }
+                } else {
+                    $this->SetError($this->Lang('err_nounpack', fm_enc($file)));
+                }
+            } catch (Exception $e) {
+                $this->SetError($this->Lang('err_nounpack', fm_enc($file)) .' : '. $e->getMessage());
             }
-        }
-
-        $zipper = new FM_Zipper();
-        $res = $zipper->unzip($fp, $dir_path);
-
-        if ($res) {
-            $this->SetMessage('Archive unpacked');
         } else {
-            $this->SetError('Archive not unpacked');
+            $this->SetError($this->Lang('err_nofile'));
         }
-    } else {
-        $this->SetError($this->Lang('err_nofile'));
     }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
 if (isset($params['chmod']) && !FM_IS_WIN) {
     // Change Perms (not for Windows)
     $file = fm_clean_path($params['chmod']);
-    $fp = $dir_path . DIRECTORY_SEPARATOR . $file;
+    $fp = $path . DIRECTORY_SEPARATOR . $file;
     if ($file == '' || (!(is_file($fp) || is_dir($fp)))) {
         $this->SetError($this->Lang('err_nofile'));
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
     }
 
+	//TODO get these from some popup ?
     $mode = 0;
     if (!empty($params['ur'])) {
         $mode |= 0400;
@@ -399,5 +429,5 @@ if (isset($params['chmod']) && !FM_IS_WIN) {
     }
 }
 
-$this->Redirect($id, 'defaultadmin', '', ['p'=>$relpath]);
+$this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 
