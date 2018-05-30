@@ -21,7 +21,7 @@
     <td data-sort="{if $one->dir}0"{else}{$one->rawsize}" title="{$one->rawsize} {$bytename}"{/if}>{$one->size}</td>
     <td data-sort="{$one->rawtime}">{$one->modat}</td>
 {if !$FM_IS_WIN}
-    <td style="text-align:center;">{$one->perms}</td>
+    <td>{$one->perms}</td>
 {/if}
     <td>{$one->acts}</td>
 {if !$FM_READONLY}
