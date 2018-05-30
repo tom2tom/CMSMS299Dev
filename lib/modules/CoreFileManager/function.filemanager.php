@@ -25,7 +25,7 @@ function _fm_dir_tree($directory, $current, $depth)
     $file = glob($directory. DIRECTORY_SEPARATOR . '*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
     if ($file) {
         natcasesort($file);
-        $dirs = array();
+        $dirs = [];
         foreach ($file as $this_file) {
             $name = basename($this_file);
             if (!($name == '.' || $name == '..' || in_array($this_file, $FM_EXCLUDE_FOLDERS))) {
@@ -226,9 +226,9 @@ function fm_clean_path($path)
 {
     $path = trim($path);
     $path = trim($path, '\\/');
-    $path = str_replace(array('../', '..\\'), array('', ''), $path);
+    $path = str_replace(['../', '..\\'], ['', ''], $path);
     if ($path !== '..') {
-        return str_replace(array('\\', '/'), array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $path);
+        return str_replace(['\\', '/'], [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $path);
     }
     return '';
 }
@@ -245,6 +245,16 @@ function fm_get_parent_path($path)
         return dirname($path);
     }
     return false;
+}
+
+/**
+ * Get real path
+ * @param string $path
+ * @return string|false
+ */
+function fm_real_path($path)
+{
+    return stream_resolve_include_path($path);
 }
 
 /**
@@ -282,6 +292,23 @@ function fm_convert_win($filename)
 }
 
 /**
+ * Get nicely-formatted permissions
+ * @param int $mode
+ * @param bool $isdir
+ * @return string
+ */
+function fm_get_fileperms($mode, $isdir = false)
+{
+    global $pr, $pw, $px, $pxf;
+
+    $perms = [];
+    if ($mode & 0x0100) $perms[] = $pr;
+    if ($mode & 0x0080) $perms[] = $pw;
+    if ($mode & 0x0040) $perms[] = ($isdir) ? $pxf : $px; //ignore static flag
+    return implode('+',$perms);
+}
+
+/**
  * Get nicely-formatted filesize
  * @param int $size
  * @return string
@@ -310,7 +337,7 @@ function fm_get_filesize($size)
  */
 function fm_get_mime_type($path)
 {
-	global $helper;
+    global $helper;
     if ($helper == null) {
         global $config;
         $helper = new \CMSMS\FileTypeHelper($config);
@@ -325,7 +352,7 @@ function fm_get_mime_type($path)
  */
 function fm_get_file_icon_class($path)
 {
-	global $helper;
+    global $helper;
     if ($helper == null) {
         global $config;
         $helper = new \CMSMS\FileTypeHelper($config);
@@ -384,4 +411,44 @@ function fm_get_file_icon_class($path)
         default:
             return 'if-doc';
     }
+}
+
+/**
+ * Get available archive type(s) and the preferred one of them
+ * @param object $mod
+ * @return array
+ */
+function fm_get_arch_types($mod)
+{
+	global $FM_IS_WIN;
+
+	$types = [];
+//TODO also check phar-extension availability for some of these
+/* archives supported by UnifiedArchive class
+	zip if (extension_loaded('zip'))
+	7z if (class_exists('\Archive7z\Archive7z'))
+	rar if (extension_loaded('rar'))
+	gz if (extension_loaded('zlib'))
+	bz2 if (extension_loaded('bz2'))
+	xz if (extension_loaded('xz'))
+	iso if (class_exists('\CISOFile'))
+	cab  if (class_exists('\CabArchive'))
+*/
+	if (extension_loaded('zip')) $types['zip'] = ['label' => $mod->Lang('arch_zz')];
+	if (extension_loaded('zlib')) $types['gz'] = ['label' => $mod->Lang('arch_gz')];
+	if (extension_loaded('bz2')) $types['bz2'] = ['label' => $mod->Lang('arch_bz')];
+	if (extension_loaded('xz')) $types['xz'] = ['label' => $mod->Lang('arch_xz')];
+	if ($FM_IS_WIN) {
+	  if (isset($types['zip'])) {
+	    $types['zip']['check'] = 1;
+	  }
+	} else {
+	  foreach(['bz2','gz','zip','xz'] as $t) {
+	      if (isset($types[$t])) {
+	          $types[$t]['check'] = 1;
+	          break;
+	      }
+	  }
+	}
+	return $types;
 }
