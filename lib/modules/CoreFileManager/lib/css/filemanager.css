@@ -223,6 +223,11 @@ td.icon .if-file-powerpoint {
  color: #f6712e
 }
 
+span.actionspacer {
+ display: inline-block;
+ width: 1.6em;
+}
+
 /* folders tree */
 .treemenu ul { margin-left: 1em; }
 .treemenu li { list-style: none; margin-left: 0; }
