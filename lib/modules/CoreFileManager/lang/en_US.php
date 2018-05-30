@@ -19,6 +19,7 @@ $lang['bytes'] = 'bytes';
 // C
 $lang['cancel'] = 'Cancel';
 $lang['changeperms'] = 'Change permissions'; //tooltip
+$lang['close'] = 'Close';
 $lang['compress'] = 'Compress';
 $lang['compress_sel'] = 'Compress selected item(s)';
 $lang['compress_typed'] = 'Compress into a %s file';
@@ -54,6 +55,11 @@ $lang['eventhelp_OnFileUploaded'] = <<<EOT
 </ul>
 EOT;
 $lang['expand'] = 'Expand';
+
+//$lang['err_'] = ';
+$lang['err_save'] = 'File save error';
+$lang['err_nofile'] = 'File not found';
+$lang['err_arch'] = 'Error while fetching archive info';
 
 // F
 $lang['file'] = 'File';
