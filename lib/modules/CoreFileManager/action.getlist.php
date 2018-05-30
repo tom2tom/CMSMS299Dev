@@ -84,6 +84,12 @@ $mbname = $this->Lang('mb');
 $gbname = $this->Lang('gb');
 //$tbname = $this->Lang('tb');
 
+global $pr, $pw, $px, $pxf;
+$pr = $this->Lang('perm_r');
+$pw = $this->Lang('perm_w');
+$px = $this->Lang('perm_x');
+$pxf = $this->Lang('perm_xf');
+
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 
 $folders = [];
@@ -151,11 +157,6 @@ $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'dl'=>'XXX'
 $icon = '<i class="if-download" title="'.$this->Lang('download').'"></i>';
 $linkdown = '<a href="'. $u .'">'.$icon.'</a>'."\n";
 
-$pr = $this->Lang('perm_r');
-$pw = $this->Lang('perm_w');
-$px = $this->Lang('perm_x');
-$pxf = $this->Lang('perm_xf');
-
 $tz = (!empty($config['timezone'])) ? $config['timezone'] : 'UTC';
 $dt = new DateTime(null, new DateTimeZone($tz));
 
@@ -190,12 +191,7 @@ foreach ($folders as $name) {
     $oneset->modat = $dt->format($FM_DATETIME_FORMAT);
 
     if (!$FM_IS_WIN) {
-        $t = fileperms($fp);
-        $perms = [];
-        if ($t & 0x0100) $perms[] = $pr;
-        if ($t & 0x0080) $perms[] = $pw;
-        if ($t & 0x0040) $perms[] = $pxf; //ignore static flag
-        $t = implode('+',$perms);
+        $t = fm_get_fileperms(fileperms($fp), true);
         if (!$FM_READONLY) {
             $oneset->perms = str_replace(['XXX', 'YYY'], [$encf, $t], $linkchmod);
         } else {
@@ -210,10 +206,14 @@ foreach ($folders as $name) {
         $acts = str_replace('XXX', $name, $linkdel);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
+        if ($pdev) {
+            $acts .= '<span class="actionspacer"></span>';
+        }
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linklink);
 
         $oneset->sel = $encf;
     }
+    $acts .= str_replace('XXX', $encf, $linkdown);
     $oneset->acts = $acts;
 
     $items[] = $oneset;
@@ -233,7 +233,11 @@ foreach ($files as $name) {
     $oneset->icon = $is_link ? 'if-doc-text' : fm_get_file_icon_class($fp);
 
     $oneset->path = rawurlencode(trim($FM_PATH . DIRECTORY_SEPARATOR . $name, DIRECTORY_SEPARATOR)); //TODO
-    $oneset->link = str_replace(['XXX','YYY'], [$encf, fm_convert_win($name)], $linkview);
+    if (is_readable($fp)) {
+        $oneset->link = str_replace(['XXX','YYY'], [$encf, fm_convert_win($name)], $linkview);
+    } else {
+        $oneset->link = fm_convert_win($name);
+    }
     $oneset->name = $name;
 
     $st = filemtime($fp);
@@ -247,12 +251,7 @@ foreach ($files as $name) {
     $oneset->size = fm_get_filesize($filesize_raw);
 
     if (!$FM_IS_WIN) {
-        $t = fileperms($fp);
-        $perms = [];
-        if ($t & 0x0100) $perms[] = $pr;
-        if ($t & 0x0080) $perms[] = $pw;
-        if ($t & 0x0040) $perms[] = $px; //ignore static flag
-        $t = implode('+',$perms);
+        $t = fm_get_fileperms(fileperms($fp));
         if (!$FM_READONLY) {
             $oneset->perms = str_replace(['XXX','YYY'], [$encf, $t], $linkchmod);
         } else {
@@ -267,8 +266,12 @@ foreach ($files as $name) {
         $acts = str_replace('XXX', $name, $linkdel);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
-        if ($pdev && $helper->is_text($fp)) {
-            $acts .= str_replace('XXX', $name, $linkedit);
+        if ($pdev) {
+            if ($helper->is_text($fp)) {
+                $acts .= str_replace('XXX', $name, $linkedit);
+            } else {
+                $acts .= '<span class="actionspacer"></span>';
+            }
         }
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linklink);
 
