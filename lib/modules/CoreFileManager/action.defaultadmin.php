@@ -74,24 +74,7 @@ $smarty->assign('browse', $this->Lang('browse'));
 
 // compression UI
 
-$items = [];
-//TODO also check phar-extension availability for some of these
-if (class_exists('ZipArchive')) $items['zz'] = ['label' => $this->Lang('arch_zz')];
-if (function_exists('gzwrite')) $items['gz'] = ['label' => $this->Lang('arch_gz')];
-if (function_exists('bzcompress')) $items['bz'] = ['label' => $this->Lang('arch_bz')];
-if (function_exists('xzopen')) $items['xz'] = ['label' => $this->Lang('arch_xz')];
-if ($FM_IS_WIN) {
-  if (isset($items['zz'])) {
-    $items['zz']['check'] = 1;
-  }
-} else {
-  foreach(['bz','gz','zz','xz'] as $t) {
-      if (isset($items[$t])) {
-          $items[$t]['check'] = 1;
-          break;
-      }
-  }
-}
+$items = fm_get_arch_types($this);
 $smarty->assign('archtypes', $items);
 if (count($items) > 1) {
     $t = $this->Lang('compress_sel');
