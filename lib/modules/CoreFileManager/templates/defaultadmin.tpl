@@ -33,8 +33,7 @@
   {include file='module_file_tpl:CoreFileManager;getlist.tpl' nocache}
   </div>
   {if count($items) > 0}
-  <br />
-  <div class="path footer-links">
+  <div class="pregap path footer-links">
    <button type="submit" name="{$actionid}copy" class="adminsubmit fonticon" onclick="doCopy();return false;"><i class="if-docs"></i> {$mod->Lang('copy')}</button>
    <button type="submit" name="{$actionid}move" class="adminsubmit fonticon" onclick="doMove();return false;"><i class="if-move"></i> {$mod->Lang('move')}</button>
    <button type="submit" name="{$actionid}delete" class="adminsubmit fonticon" onclick="doDelete(this);return false;"><i class="if-trash-empty"></i> {$mod->Lang('delete')}</button>
@@ -68,6 +67,39 @@
 <br />
 <p><label for="toname">{$mod->Lang('linkname')}:</label><br /><input type="text" id="toname" name="{$actionid}toname" value="" /></p>
 </form>
+</div>
+
+<div id="chmod_dlg" title="{$mod->Lang('changeperms')}">
+  <p><span id="filetitle"></span></p><br />
+  {$form_start}
+    <input type="hidden" name="{$actionid}file" value="" />
+    <table class="compact-table">
+      <tr>
+        <td></td>
+        <td style="text-align:center;">{$mod->Lang('owner')}&nbsp</td>
+        <td style="text-align:center;">{$mod->Lang('group')}&nbsp</td>
+        <td style="text-align:center;">{$mod->Lang('others')}</td>
+      </tr>
+      <tr>
+        <td>{$mod->Lang('read')}</td>
+        <td style="text-align:center;"><input type="checkbox" id="ur" name="{$actionid}ur" value="1" /></td>
+        <td style="text-align:center;"><input type="checkbox" id="gr" name="{$actionid}gr" value="1" /></td>
+        <td style="text-align:center;"><input type="checkbox" id="or" name="{$actionid}or" value="1" /></td>
+      </tr>
+      <tr>
+        <td>{$mod->Lang('write')}</td>
+        <td style="text-align:center;"><input type="checkbox" id="uw" name="{$actionid}uw" value="1" /></td>
+        <td style="text-align:center;"><input type="checkbox" id="gw" name="{$actionid}gw" value="1" /></td>
+        <td style="text-align:center;"><input type="checkbox" id="ow" name="{$actionid}ow" value="1" /></td>
+      </tr>
+      <tr>
+        <td id="exectitle">{$mod->Lang('exec')}</td>
+        <td style="text-align:center;"><input type="checkbox" id="ux" name="{$actionid}ux" value="1" /></td>
+        <td style="text-align:center;"><input type="checkbox" id="gx" name="{$actionid}gx" value="1" /></td>
+        <td style="text-align:center;"><input type="checkbox" id="ox" name="{$actionid}ox" value="1" /></td>
+      </tr>
+    </table>
+  </form>
 </div>
 
 <div id="compress_dlg" title="{$title_compress}">
