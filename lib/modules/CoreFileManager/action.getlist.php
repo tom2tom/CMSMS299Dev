@@ -132,13 +132,14 @@ if ($pdev) {
 
 $t = ($FM_PATH) ? $FM_PATH.DIRECTORY_SEPARATOR : '';
 $u = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>$t.'XXX']);
-$linkopen = '<a href="'. $u .'" title="'. $this->Lang('goto') .'">YYY</a>';
+$t = $this->Lang('goto');
+$linkopen = '<a href="'. $u .'" alt="'.$t.'" title="'.$t.'">YYY</a>';
 
-$u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'chmod'=>'XXX']);
-$linkchmod = '<a href="'. $u .'" title="'. $this->Lang('changeperms') .'">YYY</a>';
+$linkchmod = '<a href="javascript:oneChmod(\''.$FM_PATH .'\',\'%s\',\'%s\',%d,%d)" title="'. $this->Lang('changepermstip') .'">%s</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'del'=>'XXX']);
-$icon = '<i class="if-trash-empty red" title="'.$this->Lang('delete').'"></i>';
+$t = $this->Lang('delete');
+$icon = '<i class="if-trash-empty red" alt="'.$t.'" title="'.$t.'"></i>';
 $linkdel = '<a href="'. $u .'" onclick="cms_confirm_linkclick(this, \''. $this->Lang('del_confirm') . '\');return false;">'.$icon.'</a>'."\n";
 
 $t = $this->Lang('rename');
@@ -146,7 +147,8 @@ $icon = '<i class="if-rename" alt="'.$t.'" title="'.$t.'"></i>';
 $linkren = '<a href="javascript:oneRename(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'copy'=>'XXX']);
-$icon = '<i class="if-docs" title="'.$this->Lang('copytip').'"></i>';
+$t = $this->Lang('copytip');
+$icon = '<i class="if-docs" alt="'.$t.'" title="'.$t.'"></i>';
 $linkcopy = '<a href="javascript:oneCopy(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $t = $this->Lang('linktip');
@@ -154,7 +156,8 @@ $icon = '<i class="if-link" alt="'.$t.'" title="'.$t.'"></i>';
 $linklink = '<a href="javascript:oneLink(\'' . $FM_PATH .'\',\'XXX\',\'YYY\')">'.$icon.'</a>'."\n";
 
 $u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'dl'=>'XXX']);
-$icon = '<i class="if-download" title="'.$this->Lang('download').'"></i>';
+$t = $this->Lang('download');
+$icon = '<i class="if-download" alt="'.$t.'" title="'.$t.'"></i>';
 $linkdown = '<a href="'. $u .'">'.$icon.'</a>'."\n";
 
 $tz = (!empty($config['timezone'])) ? $config['timezone'] : 'UTC';
@@ -168,11 +171,12 @@ foreach ($folders as $name) {
 
     $fp = $pathnow . DIRECTORY_SEPARATOR . $name;
     $encf = rawurlencode($name);
+    $df = fm_enc($name);
 
     $is_link = is_link($fp);
     $oneset->is_link = $is_link;
     $oneset->realpath = $is_link ? readlink($fp) : null;
-    $oneset->icon = $is_link ? 'icon-link_folder' : 'if-folder'; //TODO icon-link_folder
+    $oneset->icon = $is_link ? 'if-folder' : 'if-folder'; //TODO icon-link_folder
 
     $oneset->path = rawurlencode(trim($FM_PATH . DIRECTORY_SEPARATOR . $name, DIRECTORY_SEPARATOR)); //relative path
     if (is_readable($fp)) {
@@ -191,9 +195,10 @@ foreach ($folders as $name) {
     $oneset->modat = $dt->format($FM_DATETIME_FORMAT);
 
     if (!$FM_IS_WIN) {
-        $t = fm_get_fileperms(fileperms($fp), true);
+		$m = fileperms($fp);
+        $t = fm_get_fileperms($m, true);
         if (!$FM_READONLY) {
-            $oneset->perms = str_replace(['XXX', 'YYY'], [$encf, $t], $linkchmod);
+            $oneset->perms = sprintf($linkchmod, $name, $df, 1, ($m & 07777), $t);
         } else {
             $oneset->perms = $t;
         }
@@ -202,7 +207,6 @@ foreach ($folders as $name) {
     if ($FM_READONLY) {
         $acts = '';
     } else {
-        $df = fm_enc($name);
         $acts = str_replace('XXX', $name, $linkdel);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
@@ -226,6 +230,7 @@ foreach ($files as $name) {
     $oneset->dir = false;
     $fp = $pathnow . DIRECTORY_SEPARATOR . $name;
     $encf = rawurlencode($name);
+    $df = fm_enc($name);
 
     $is_link = is_link($fp);
     $oneset->is_link = $is_link;
@@ -251,9 +256,10 @@ foreach ($files as $name) {
     $oneset->size = fm_get_filesize($filesize_raw);
 
     if (!$FM_IS_WIN) {
-        $t = fm_get_fileperms(fileperms($fp));
+		$m = fileperms($fp);
+        $t = fm_get_fileperms($m);
         if (!$FM_READONLY) {
-            $oneset->perms = str_replace(['XXX','YYY'], [$encf, $t], $linkchmod);
+            $oneset->perms = sprintf($linkchmod, $name, $df, 0, ($m & 07777), $t);
         } else {
             $oneset->perms = $t;
         }
@@ -262,7 +268,6 @@ foreach ($files as $name) {
     if ($FM_READONLY) {
         $acts = '';
     } else {
-        $df = fm_enc($name);
         $acts = str_replace('XXX', $name, $linkdel);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
