@@ -414,41 +414,78 @@ function fm_get_file_icon_class($path)
 }
 
 /**
- * Get available archive type(s) and the preferred one of them
- * @param object $mod
+ * Get data for archive-type selection UI
+ * @param module-object $mod
  * @return array
  */
-function fm_get_arch_types($mod)
+function fm_get_arch_picker($mod)
 {
-	global $FM_IS_WIN;
+    global $FM_IS_WIN;
 
-	$types = [];
-//TODO also check phar-extension availability for some of these
-/* archives supported by UnifiedArchive class
-	zip if (extension_loaded('zip'))
-	7z if (class_exists('\Archive7z\Archive7z'))
-	rar if (extension_loaded('rar'))
-	gz if (extension_loaded('zlib'))
-	bz2 if (extension_loaded('bz2'))
-	xz if (extension_loaded('xz'))
-	iso if (class_exists('\CISOFile'))
-	cab  if (class_exists('\CabArchive'))
-*/
-	if (extension_loaded('zip')) $types['zip'] = ['label' => $mod->Lang('arch_zz')];
-	if (extension_loaded('zlib')) $types['gz'] = ['label' => $mod->Lang('arch_gz')];
-	if (extension_loaded('bz2')) $types['bz2'] = ['label' => $mod->Lang('arch_bz')];
-	if (extension_loaded('xz')) $types['xz'] = ['label' => $mod->Lang('arch_xz')];
-	if ($FM_IS_WIN) {
-	  if (isset($types['zip'])) {
-	    $types['zip']['check'] = 1;
-	  }
-	} else {
-	  foreach(['bz2','gz','zip','xz'] as $t) {
-	      if (isset($types[$t])) {
-	          $types[$t]['check'] = 1;
-	          break;
-	      }
-	  }
-	}
-	return $types;
+    $types = fm_get_arch_types(true);
+    $keeps = ($FM_IS_WIN) ? ['zip'] : ['gz','bz2','xz','zip'];
+    foreach ($types as $t => $one) {
+        if (in_array($t, $keeps)) {
+            $types[$t]['label'] = $mod->Lang('arch_'.$t);
+        } else {
+            unset($types[$t]);
+        }
+    }
+    return $types;
+}
+
+/**
+ * Get the archive-types supported by UnifiedArchive class (represented as file-extensions)
+ * @param bool $best Optional flag whether to flag (if possible) the type
+ *  which is preferred for compression
+ * @return array keys are (lowercase) file extensions (maybe 'compound' like 'tar.ext')
+ */
+function fm_get_arch_types($best = false)
+{
+    global $FM_IS_WIN;
+
+    $types = [];
+
+    if (extension_loaded('Zip')) $types['zip'] = [];
+    $tar = extension_loaded('Tar');
+    if (extension_loaded('Zlib')) {
+        $types['gz'] = [];
+        if ($tar) {
+            $types['tar.gz'] = [];
+            $types['tgz'] = [];
+        }
+    }
+    if (extension_loaded('Bzip2')) {
+        $types['bz2'] = [];
+        if ($tar) {
+            $types['tar.bz2'] = [];
+            $types['tbz'] = [];
+        }
+    }
+    if (extension_loaded('xz')) {
+        $types['xz'] = [];
+        $types['lzma'] = [];
+        if ($tar) {
+            $types['tar.xz'] = [];
+            $types['tar.lzma'] = [];
+        }
+    }
+    if ($tar) {
+        $types['tar'] = [];
+    }
+    if (extension_loaded('Rar')) $types['rar'] = [];
+    if (class_exists('\Archive7z\Archive7z')) $types['7z'] = [];
+    if (class_exists('\CISOFile')) $types['iso'] = [];
+    if (class_exists('\CabArchive')) $types['cab'] = [];
+
+    if ($best) {
+        $uses = ($FM_IS_WIN) ? ['zip','rar','7z'] : ['xz','bz2','gz','zip'];
+        foreach ($uses as $t) {
+            if (isset($types[$t])) {
+                $types[$t]['use'] = 1;
+                break;
+            }
+        }
+    }
+    return $types;
 }

@@ -263,8 +263,8 @@ if (isset($params['dl'])) {
     $fp = $path . DIRECTORY_SEPARATOR . $file;
     if ($file != '' && is_dir($fp)) {
         $istmp = false;
-        foreach (fm_get_arch_types($this) as $ext => $one) {
-            if (!empty($one['check'])) {
+        foreach (fm_get_arch_types(true) as $ext => $one) {
+            if (!empty($one['use'])) {
                 $istmp = true;
                 break;
             }
@@ -273,7 +273,7 @@ if (isset($params['dl'])) {
             $this->SetError($this->Lang('err_noarch'));
             $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
         }
-		if ($ext != 'zip') { $ext = 'tar.'.$ext; }
+//		if ($ext != 'zip') { $ext = 'tar.'.$ext; }
         $base = basename($file);
         $tmp = tempnam(sys_get_temp_dir(), $base);
 		unlink($tmp);
@@ -332,7 +332,7 @@ if (isset($params['compress'], $params['sel'])) {
         $fp = $path . DIRECTORY_SEPARATOR . $one_file;
         if (is_dir($fp)) {
 			if ($aname === '') { $aname = basename($one_file); }
-			if ($params['archtype'] != 'zip') { $ext = 'tar.'. $ext; }
+//			if ($params['archtype'] != 'zip') { $ext = 'tar.'. $ext; }
         } elseif ($aname === '') {
             $one_file = basename($one_file);
             $aname = substr($one_file, strrpos($one_file, '.') + 1);
@@ -340,13 +340,13 @@ if (isset($params['compress'], $params['sel'])) {
         $files = [$fp];
     } else {
 		if ($aname === '') { $aname = 'archive'; }
-		if ($params['archtype'] != 'zip') { $ext = 'tar.'. $ext; }
+//		if ($params['archtype'] != 'zip') { $ext = 'tar.'. $ext; }
         //fullpath for each
         array_walk($files, function (&$val) {
           $val = $path.DIRECTORY_SEPARATOR.$val;
         }, $path);
     }
-    $aname .= '_' . date('Ymd-His') . '.' . $ext;
+    $aname .= /*'_' . date('Ymd-His') .*/ '.' . $ext;
 
     try {
         if (UnifiedArchive::archiveFiles($files, $path.DIRECTORY_SEPARATOR.$aname) !== false) {

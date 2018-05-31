@@ -74,7 +74,7 @@ $smarty->assign('browse', $this->Lang('browse'));
 
 // compression UI
 
-$items = fm_get_arch_types($this);
+$items = fm_get_arch_picker($this);
 $smarty->assign('archtypes', $items);
 if (count($items) > 1) {
     $t = $this->Lang('compress_sel');
