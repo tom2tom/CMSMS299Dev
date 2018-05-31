@@ -1,13 +1,14 @@
 <?php
 
 // A
+$lang['access'] = 'Access';
 $lang['actions'] = 'Actions';
 $lang['alternate'] = 'or';
 $lang['apply'] = 'Apply';
-$lang['arch_bz'] = 'bzip2';
+$lang['arch_bz2'] = 'bzip2';
 $lang['arch_gz'] = 'gzip';
 $lang['arch_xz'] = 'xz';
-$lang['arch_zz'] = 'zip';
+$lang['arch_zip'] = 'zip';
 $lang['archive'] = 'Archive';
 $lang['audio'] = 'Audio file';
 
@@ -18,15 +19,14 @@ $lang['bytes'] = 'bytes';
 
 // C
 $lang['cancel'] = 'Cancel';
-$lang['changeperms'] = 'Change permissions'; //tooltip
+$lang['changeperms'] = 'Change Permissions';
+$lang['changepermstip'] = 'Change permissions'; //title/tip
 $lang['close'] = 'Close';
 $lang['compress'] = 'Compress';
 $lang['compress_sel'] = 'Compress selected item(s)';
 $lang['compress_typed'] = 'Compress into a %s file';
-
 $lang['copy'] = 'Copy';
 $lang['copytip'] = 'Copy to...';
-
 $lang['create'] = 'Create';
 
 // D
@@ -54,6 +54,7 @@ $lang['eventhelp_OnFileUploaded'] = <<<EOT
 <li>"thumb" - If generated, the complete file specification to the generated thumbnail</li>
 </ul>
 EOT;
+$lang['exec'] = 'Execute';
 $lang['expand'] = 'Expand';
 
 //$lang['err_'] = ';
@@ -83,6 +84,23 @@ $lang['group'] = 'Group';
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This module provides file management functions for this website.</p>
+<h3>Support</h3>
+<p>This module is provided as-is. Please read the text of the license for the full disclaimer.
+Just to be clear, there's no guarantee of support. However, there are some resources available
+to help you with it:</p>
+<ul>
+<li>for the latest version of this module, or to file a bug report, go to the
+<a href="http://dev.cmsmadesimple.org/projects/TODO">module's Forge page</a></li>
+<li>discussion of this module may be found in the
+<a href="http://forum.cmsmadesimple.org">CMS Made Simple Forums</a></li>
+<li>you may have some success emailing the author directly</li>
+</ul>
+<h3>Copyright and license</h3>
+<p>Copyright &copy; 2018 Tom Phane &lt;tomphan@cmsmadesimple.org&gt;<br />
+All rights reserved.</p>
+<p>Use of this module is licensed under version 2 (or at your discretion a later version) of the
+<a href="https://www.gnu.org/licenses/gpl-2.0.html">GNU General Public License</a>.
+The module must not be used otherwise than in accordance with the applicable license.</p>
 EOT;
 
 // I
@@ -94,6 +112,7 @@ $lang['info_archcount'] = 'Files in archive';
 $lang['info_archsize'] = 'Total size';
 $lang['info_image'] = 'Image dimensions';
 $lang['info_charset'] = 'Text encoding';
+$lang['item'] = 'Item';
 $lang['itemcounts'] = '%d file(s) and %d directory(ies)';
 $lang['itemname'] = 'Item Name';
 $lang['itemtype'] = 'Item Type';
@@ -127,19 +146,20 @@ $lang['noitemshow'] = 'No displayable item';
 // O
 $lang['ok'] = 'OK';
 $lang['others'] = 'Others';
-$lang['owner'] = 'Owners';
+$lang['owner'] = 'Owner';
 
 // P
 $lang['pack'] = 'Pack';
 $lang['perm_r'] = 'read';
 $lang['perm_w'] = 'write';
-$lang['perm_x'] = 'exec';
-$lang['perm_xf'] = 'enter';
+$lang['perm_x'] = 'exec'; //files
+$lang['perm_xf'] = 'access'; //folders
 $lang['perms'] = 'Permissions';
 
 $lang['postinstall'] = 'The File Manager module has been installed';
 
 // R
+$lang['read'] = 'Read';
 $lang['really_uninstall'] = 'Are you sure you want to uninstall the File Manager module?';
 $lang['rename'] = 'Rename';
 
@@ -171,13 +191,15 @@ $lang['typecompressed'] = 'Compression type';
 
 // U
 $lang['unpack'] = 'Unpack';
-$lang['unzip'] = 'Unzip';
+$lang['unzip'] = 'Unzip'; //CHECKME
 $lang['uninstalled'] = 'The File Manager module has been uninstalled';
 
 // V
 $lang['video'] = 'Video file';
 $lang['view'] = 'View file';
 
+// W
+$lang['write'] = 'Write';
+
 // Z
-//$lang['zip'] = 'Zip';
-$lang['zip_confirm'] = 'Compress into zip archive?';
+//$lang['zip_confirm'] = 'Compress into zip archive?';
