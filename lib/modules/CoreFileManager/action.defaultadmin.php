@@ -15,25 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/*
-This action was inspired by H3K Tiny File Manager
-https://github.com/prasathmani/tinyfilemanager
-*/
-
 require_once __DIR__.DIRECTORY_SEPARATOR.'action.getlist.php';
-
-/* TODO toastifed notices
-if (isset($_SESSION['message'])) {
-    $t = $_SESSION['status'] ?? 'success';
-    if ($t == 'success') {
-        $this->ShowMessage($_SESSION['message']);
-    } else {
-        $this->ShowErrors($_SESSION['message']);
-    }
-    unset($_SESSION['message']);
-    unset($_SESSION['status']);
-}
-*/
 
 // breadcrumbs
 
@@ -62,17 +44,16 @@ if ($FM_PATH) {
     $smarty->assign('parent_url', $u.$t);
 }
 
-// folders tree
-
 $smarty->assign('pointer', '&rarr;'); //or '&larr;' for 'rtl'
 $smarty->assign('crumbjoiner', 'if-angle-double-right'); //or 'if-angle-double-left' for 'rtl'
-$smarty->assign('browse', $this->Lang('browse'));
-//if($FM_TREEVIEW) {
-    $t = fm_dir_tree($FM_ROOT_PATH, (($FM_PATH) ? $pathnow : ''));
-    $smarty->assign('treeview', $t);
-//}
 
-// compression UI
+// folders tree
+
+$smarty->assign('browse', $this->Lang('browse'));
+$t = fm_dir_tree($FM_ROOT_PATH, (($FM_PATH) ? $pathnow : ''));
+$smarty->assign('treeview', $t);
+
+// tailor the compression UI
 
 $items = fm_get_arch_picker($this);
 $smarty->assign('archtypes', $items);
@@ -88,10 +69,11 @@ $baseurl = $this->GetModuleURLPath();
 
 // page infrastructure
 
-$u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'upload'=>1]);
-$upload_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
+$u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH]);
+$action_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
 $u = $this->create_url($id, 'getlist', $returnid, ['p'=>$FM_PATH, 'ajax'=>1]);
 $refresh_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
+
 //TODO $FM_ROOT_PATH
 $here = $FM_PATH;
 
@@ -114,7 +96,7 @@ EOS;
 $t = file_get_contents(cms_join_path(__DIR__, 'lib', 'js', 'defaultadmin.inc.js'));
 // included js may include variables enclosed in markers '~%' and '%~'.
 // like $varname or lang|key or lang|key,param[,param2 ...] Such $varname's must all be 'used' here
-$js .= preg_replace_callback('/~%(.+?)%~/', function ($match) use ($id, $upload_url, $refresh_url, $here)
+$js .= preg_replace_callback('/~%(.+?)%~/', function ($match) use ($id, $action_url, $refresh_url, $here)
 {
  $name = $match[1];
  if ($name[0] == '$') {
