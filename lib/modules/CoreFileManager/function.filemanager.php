@@ -39,8 +39,10 @@ function _fm_dir_tree($directory, $current, $depth)
         }
         $tree_content .= '>';
         foreach ($dirs as $name => $path) {
+            // $data includes " chars  
+            $data = json_encode(['name'=>$name,'open'=>0,'opendown'=>0], JSON_NUMERIC_CHECK); //TODO name suited to incremental comparison during searches
             $relpath = substr($path, $len);
-            $tree_content .= '<li class="fm-directory"><a href="'.$FM_FOLDER_URL.rawurlencode($relpath).'"';
+            $tree_content .= '<li class="fm-directory tree-closed" data-node=\''.$data.'\'><a href="'.$FM_FOLDER_URL.rawurlencode($relpath).'"';
             if ($FM_FOLDER_TITLE) {
                 $tree_content .= ' title="'.$FM_FOLDER_TITLE.'"';
             }
@@ -446,23 +448,23 @@ function fm_get_arch_types($best = false)
 
     $types = [];
 
-    if (extension_loaded('Zip')) $types['zip'] = [];
+    if (class_exists('ZipArchive')) $types['zip'] = [];
     $tar = extension_loaded('Tar');
-    if (extension_loaded('Zlib')) {
+    if (function_exists('gzopen')) {
         $types['gz'] = [];
         if ($tar) {
             $types['tar.gz'] = [];
             $types['tgz'] = [];
         }
     }
-    if (extension_loaded('Bzip2')) {
+    if (function_exists('bzopen')) {
         $types['bz2'] = [];
         if ($tar) {
             $types['tar.bz2'] = [];
             $types['tbz'] = [];
         }
-    }
-    if (extension_loaded('xz')) {
+	}
+    if (function_exists('xzopen')) {
         $types['xz'] = [];
         $types['lzma'] = [];
         if ($tar) {
