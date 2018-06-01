@@ -110,7 +110,7 @@
 <p>{$mod->Lang('typecompressed')}:<br />
 {foreach $archtypes as $val=>$one}
 <label for="{$val}compress">{$one.label}:</label>
-<input type="radio" name="{$actionid}archiver" id="{$val}compress" value="{$val}"{if !empty($one.check)} checked="checked"{/if} />{if !$one@last}&nbsp;{/if}
+<input type="radio" name="{$actionid}archiver" id="{$val}compress" value="{$val}"{if !empty($one.use)} checked="checked"{/if} />{if !$one@last}&nbsp;{/if}
 {/foreach}</p>
 {else}
 <input type="hidden" name="{$actionid}archiver" value="{key($archtypes)}" />
