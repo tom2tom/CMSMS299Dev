@@ -37,44 +37,70 @@ if (!is_dir($path)) { //CHECKME link to a dir ok?
 global $FM_IS_WIN;
 $FM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 
-global $bytename, $kbname, $mbname, $gbname; //$tbname
-$bytename = $this->Lang('bb');
-$kbname = $this->Lang('kb');
-$mbname = $this->Lang('mb');
-$gbname = $this->Lang('gb');
-//$tbname = $this->Lang('tb');
-
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 
-if (!empty($_FILES)) {
+if (isset($params['upload'])) {
     // Upload
-    $errors = 0;
-    $uploads = 0;
+    if (!empty($_FILES)) {
+		$errors = 0;
+		$uploads = 0;
 
-    $f = $_FILES;
-    $filename = $f['file']['name'];
-//    $total = count($filename);
-    $tmp_name = $f['file']['tmp_name'];
+		$f = $_FILES['file'];
+		$dest = $f['name'];
+//	    $total = count($dest);
 
-    $allowed = (empty($FM_EXTENSION)) ? false : explode(',', $FM_EXTENSION);
-    if ($allowed) {
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        $isFileAllowed = in_array($ext, $allowed);
-    } else {
-        $isFileAllowed = true;
-    }
+		$allowed = (empty($FM_EXTENSION)) ? false : explode(',', $FM_EXTENSION);
+		if ($allowed) {
+			$ext = pathinfo($dest, PATHINFO_EXTENSION);
+			$isFileAllowed = in_array($ext, $allowed);
+		} else {
+			$isFileAllowed = true;
+		}
 
-    if (empty($f['file']['error']) && !empty($tmp_name) && $tmp_name != 'none' && $isFileAllowed) {
-        if (move_uploaded_file($tmp_name, $path . DIRECTORY_SEPARATOR . $f['file']['name'])) {
-            echo 'Successfully uploaded';
-        } else {
-            echo sprintf('Error while uploading files. Uploaded files: %s', $uploads);
-        }
-    }
+		$from = $f['tmp_name'] ?? null;
+		if (empty($f['error']) && !empty($from) && $from != 'none' && $isFileAllowed) {
+			if (move_uploaded_file($from, $path . DIRECTORY_SEPARATOR . $dest)) {
+				echo 'Successfully uploaded';
+				++$uploads;
+			} else {
+				++$errors;
+				echo sprintf('Error while uploading files. Uploaded files: %s', $uploads);
+			}
+		}
+	} else {
+	    echo 'No file specified';
+	}
     exit;
 }
 
-if (isset($params['delete'])) {
+if (isset($params['create'], $params['type'])) {
+    // Create folder or file
+    $newitem = fm_clean_path($params['create']);
+    if (!($newitem === '' || $newitem == '..' || $newitem == '.')) {
+		$item_path = $path . DIRECTORY_SEPARATOR . $newitem;
+        if ($params['type'] == 'file') {
+            if (!file_exists($item_path)) {
+                @fopen($item_path . $newitem, 'w') or die('Cannot open file:  '.$newitem);
+                $this->SetMessage(sprintf('File <strong>%s</strong> created', fm_enc($newitem)));
+            } else {
+                $this->SetInfo(sprintf('File <strong>%s</strong> already exists', fm_enc($newitem)));
+            }
+        } elseif ($params['type'] == 'folder') {
+            if (fm_mkdir($$item_path, false) === true) {
+                $this->SetMessage(sprintf('Folder <strong>%s</strong> created', $newitem));
+            } elseif (fm_mkdir($$item_path, false) === $path . DIRECTORY_SEPARATOR . $newitem) {
+                $this->SetInfo(sprintf('Folder <strong>%s</strong> already exists', fm_enc($newitem)));
+            } else {
+                $this->SetError(sprintf('Folder <strong>%s</strong> not created', fm_enc($newitem)));
+            }
+        }
+    } else {
+        $this->SetError('Wrong folder name');
+    }
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+}
+
+if (isset($params['del'])) {
     if (isset($params['sel'])) {
         // Mass delete
         $errors = 0;
@@ -82,8 +108,8 @@ if (isset($params['delete'])) {
         if (is_array($files) && count($files)) {
             foreach ($files as $f) {
                 if ($f != '') {
-                    $new_path = $path . DIRECTORY_SEPARATOR . $f;
-                    if (!fm_rdelete($new_path)) {
+                    $item_path = $path . DIRECTORY_SEPARATOR . $f;
+                    if (!fm_rdelete($item_path)) {
                         ++$errors;
                     }
                 }
@@ -100,8 +126,9 @@ if (isset($params['delete'])) {
         // Delete file / folder
         $del = fm_clean_path($params['del']);
         if ($del != '' && $del != '..' && $del != '.') {
-            $is_dir = is_dir($path . DIRECTORY_SEPARATOR . $del);
-            if (fm_rdelete($path . DIRECTORY_SEPARATOR . $del)) {
+			$item_path = $path . DIRECTORY_SEPARATOR . $del;
+            $is_dir = is_dir($item_path);
+            if (fm_rdelete($item_path)) {
                 $msg = $is_dir ? 'Folder <strong>%s</strong> deleted' : 'File <strong>%s</strong> deleted';
                 $this->SetMessage(sprintf($msg, fm_enc($del)));
             } else {
@@ -115,104 +142,35 @@ if (isset($params['delete'])) {
     $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
-if (isset($params['new'], $params['type'])) {
-    // Create folder
-    $new = strip_tags($params['new']);
-    $new = fm_clean_path($params['type']);
-    if ($new != '' && $new != '..' && $new != '.') {
-        if ($params['type']=='file') {
-            if (!file_exists($path . DIRECTORY_SEPARATOR . $new)) {
-                @fopen($path . DIRECTORY_SEPARATOR . $new, 'w') or die('Cannot open file:  '.$new);
-                $this->SetMessage(sprintf('File <strong>%s</strong> created', fm_enc($new)));
-            } else {
-                $this->SetInfo(sprintf('File <strong>%s</strong> already exists', fm_enc($new)));
-            }
-        } else {
-            if (fm_mkdir($path . DIRECTORY_SEPARATOR . $new, false) === true) {
-                $this->SetMessage(sprintf('Folder <strong>%s</strong> created', $new));
-            } elseif (fm_mkdir($path . DIRECTORY_SEPARATOR . $new, false) === $path . DIRECTORY_SEPARATOR . $new) {
-                $this->SetInfo(sprintf('Folder <strong>%s</strong> already exists', fm_enc($new)));
-            } else {
-                $this->SetError(sprintf('Folder <strong>%s</strong> not created', fm_enc($new)));
-            }
-        }
-    } else {
-        $this->SetError('Wrong folder name');
-    }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
-}
-
-if (isset($params['copy'], $params['finish'])) {
-    // Copy folder / file
-    // from
-    $copy = fm_clean_path($params['copy']);
-    // empty path
-    if ($copy == '') {
-        $this->SetError('Source path not defined');
-        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
-    }
-    // abs path from
-    $from = FM_ROOT_PATH . DIRECTORY_SEPARATOR . $copy;
-    // abs path to
-    $dest = FM_ROOT_PATH;
-    if (FM_PATH != '') {
-        $dest .= DIRECTORY_SEPARATOR . FM_PATH;
-    }
-    $dest .= DIRECTORY_SEPARATOR . basename($from);
-    // copy/move
-    if ($from != $dest) {
-        $msg_from = trim(FM_PATH . DIRECTORY_SEPARATOR . basename($from), DIRECTORY_SEPARATOR);
-        if (isset($params['move'])) {
-            $rename = fm_rename($from, $dest);
-            if ($rename) {
-                $this->SetMessage(sprintf('Moved from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
-            } elseif ($rename === null) {
-                $this->SetInfo('File or folder with this path already exists');
-            } else {
-                $this->SetError(sprintf('Error while moving from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
-            }
-        } else {
-            if (fm_rcopy($from, $dest)) {
-                $this->SetMessage(sprintf('Copied from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
-            } else {
-                $this->SetError(sprintf('Error while copying from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
-            }
-        }
-    } else {
-        $this->SetWarn('Paths must be different');
-    }
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
-}
-
-if (isset($params['copy_to'], $params['sel'])) {
+if (isset($params['todir'], $params['sel'])) {
     // Mass copy/move files/folders from $path to
-    $copy_to = fm_clean_path($params['copy_to']);
-    if ($copy_to != '') {
-        $copy_to_path .= DIRECTORY_SEPARATOR . $copy_to;
+    $dest = fm_clean_path($params['todir']);
+    if ($dest !== '') {
+        $dest_path .= DIRECTORY_SEPARATOR . $dest;
     } else {
-        $copy_to_path = $FM_ROOT_PATH;
+        $dest_path = $FM_ROOT_PATH;
     }
-    if ($path == $copy_to_path) {
+    if ($path == $dest_path) {
         $this->SetInfo('Paths must be different');
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
     }
-    if (!is_dir($copy_to_path)) {
-        if (!fm_mkdir($copy_to_path, true)) {
+    if (!is_dir($dest_path)) {
+        if (!fm_mkdir($dest_path, true)) {
             $this->SetError('Unable to create destination folder');
             $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
         }
     }
-    // copy/move
+
     $errors = 0;
     $files = $params['sel'];
     if (is_array($files) && count($files)) {
-        $move = isset($params['move']);
+        $move = !isset($params['copy']) && isset($params['move']); //move instead of copy
         foreach ($files as $f) {
             if ($f != '') {
                 // abs path from
                 $from = $path . DIRECTORY_SEPARATOR . $f;
                 // abs path to
-                $dest = $copy_to_path . DIRECTORY_SEPARATOR . $f;
+                $dest = $dest_path . DIRECTORY_SEPARATOR . $f;
                 if ($move) {
                     $rename = fm_rename($from, $dest);
                     if ($rename === false) {
@@ -238,18 +196,64 @@ if (isset($params['copy_to'], $params['sel'])) {
     $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
 }
 
+if (isset($params['oneto'])) {
+    // Copy/move one folder/file
+    $err = false;
+    // from
+    $file = fm_clean_path($params['from']);
+    if ($file === '') {
+    	  $err = true;
+        $this->SetError('Source file not defined');
+    }
+    // to
+    $file2 = fm_clean_path($params['to']);
+    if ($file2 === '') {
+    	  $err = true;
+        $this->SetError('Destination file not defined');
+    } elseif ($file2) {
+    	  $err = true;
+        $this->SetError('Paths must be different');
+    }
+    if ($err) { //TODO
+        $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+    }
+    // abs paths
+    $from = FM_ROOT_PATH . DIRECTORY_SEPARATOR . $file;
+    $dest = FM_ROOT_PATH . DIRECTORY_SEPARATOR . $file2;
+    // copy/move
+    $msg_from = trim(FM_PATH . DIRECTORY_SEPARATOR . basename($from), DIRECTORY_SEPARATOR);
+    if (isset($params['copy'])) {
+        if (fm_rcopy($from, $dest)) {
+            $this->SetMessage(sprintf('Copied from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
+        } else {
+            $this->SetError(sprintf('Error while copying from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
+        }
+    } elseif (isset($params['move'])) {
+        $rename = fm_rename($from, $dest);
+        if ($rename) {
+            $this->SetMessage(sprintf('Moved from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
+        } elseif ($rename === null) {
+            $this->SetInfo('File or folder with this path already exists');
+        } else {
+            $this->SetError(sprintf('Error while moving from <strong>%s</strong> to <strong>%s</strong>', fm_enc($copy), fm_enc($msg_from)));
+        }
+//    } else {
+    }
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+}
+
 if (isset($params['ren'], $params['to'])) {
     // Rename, from
     $old = fm_clean_path($params['ren']);
     // to new name
-    $new = fm_clean_path($params['to']);
+    $newitem = fm_clean_path($params['to']);
 
     // rename
-    if ($old != '' && $new != '') {
-        if (fm_rename($path . DIRECTORY_SEPARATOR . $old, $path . DIRECTORY_SEPARATOR . $new)) {
-            $this->SetMessage(sprintf('Renamed from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($new)));
+    if ($old != '' && $newitem != '') {
+        if (fm_rename($path . DIRECTORY_SEPARATOR . $old, $path . DIRECTORY_SEPARATOR . $newitem)) {
+            $this->SetMessage(sprintf('Renamed from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($newitem)));
         } else {
-            $this->SetError(sprintf('Error while renaming from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($new)));
+            $this->SetError(sprintf('Error while renaming from <strong>%s</strong> to <strong>%s</strong>', fm_enc($old), fm_enc($newitem)));
         }
     } else {
         $this->SetError('Names not set');
@@ -387,7 +391,7 @@ if (isset($params['chmod']) && !FM_IS_WIN) {
     // Change Perms (not for Windows)
     $file = fm_clean_path($params['chmod']);
     $fp = $path . DIRECTORY_SEPARATOR . $file;
-    if ($file == '' || (!(is_file($fp) || is_dir($fp)))) {
+    if ($file === '' || (!(is_file($fp) || is_dir($fp)))) {
         $this->SetError($this->Lang('err_nofile'));
         $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
     }
