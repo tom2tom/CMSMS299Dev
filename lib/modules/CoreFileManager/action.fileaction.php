@@ -412,7 +412,7 @@ if (isset($params['decompress'], $params['sel'])) {
         }
         if ($errors == 0) {
 //          if (count($items) == 1) {
-//              fm_response('success', $this->Lang('stat_unpack'));
+//              fm_response('success', $this->Lang('stat_unpack2'));
 //          } else {
                 fm_response('success', $this->Lang('stat_unpack'));
 //          }
@@ -425,7 +425,7 @@ if (isset($params['decompress'], $params['sel'])) {
     exit;
 }
 
-if (isset($params['chmod']) && !FM_IS_WIN) {
+if (isset($params['chmod']) && !$FM_IS_WIN) {
     // Change Perms (not for Windows)
     $file = fm_clean_path($params['chmod']);
     $item_path = $path . DIRECTORY_SEPARATOR . $file;
@@ -434,7 +434,7 @@ if (isset($params['chmod']) && !FM_IS_WIN) {
         exit;
     }
 
-    $mode = int($params['mode']);
+    $mode = (int)$params['mode'] & 07777;
     if (@chmod($item_path, $mode)) {
         fm_response('success', $this->Lang('stat_perm'));
     } else {
