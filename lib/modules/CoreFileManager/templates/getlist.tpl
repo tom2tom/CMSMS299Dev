@@ -25,7 +25,7 @@
 {/if}
     <td>{$one->acts}</td>
 {if !$FM_READONLY}
-    <td><input type="checkbox" name="{$actionid}sel['{$one->sel}']" value="1" /></td>
+    <td><input type="checkbox" name="{$actionid}sel[]" value="{$one->sel}" /></td>
 {/if}
    </tr>
 {/foreach}
