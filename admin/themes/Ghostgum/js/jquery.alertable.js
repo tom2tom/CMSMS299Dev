@@ -108,8 +108,14 @@ License: MIT
     // Watch for OK
     if(okButton) {
       okButton.on('click.alertable', function() {
-        hide(options);
-        defer.resolve();
+        if(type == 'prompt') {
+          var val = $(modal).find('.alertable-prompt :input:first').val();
+          hide(options);
+          defer.resolve(val);
+        } else {
+          hide(options);
+          defer.resolve();
+        }
       });
     }
 
@@ -122,11 +128,25 @@ License: MIT
     }
 
     // Cancel on escape
-    $(document).on('keydown.alertable', function(event) {
+    $(document).on('keyup.alertable', function(event) {
       if(event.keyCode === 27) {
         event.preventDefault();
         hide(options);
         defer.reject();
+      }
+    });
+
+    // Accept on enter when prompt-input is focused
+    $(modal).find('.alertable-prompt :input:first').on('keydown.alertable', function(event) {
+      if(event.keyCode === 13) {
+        event.preventDefault();
+        return false;
+      }
+    }).on('keyup.alertable', function(event) {
+      if(event.keyCode === 13) {
+        if (okButton) {
+          okButton.trigger('click.alertable');
+        }  
       }
     });
 
