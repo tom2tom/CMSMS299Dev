@@ -449,7 +449,7 @@ function fm_get_arch_types($best = false)
     $types = [];
 
     if (class_exists('ZipArchive')) $types['zip'] = [];
-    $tar = extension_loaded('Tar');
+    $tar = class_exists('PharData') || class_exists('Archive_Tar');
     if (function_exists('gzopen')) {
         $types['gz'] = [];
         if ($tar) {
@@ -461,13 +461,14 @@ function fm_get_arch_types($best = false)
         $types['bz2'] = [];
         if ($tar) {
             $types['tar.bz2'] = [];
-            $types['tbz'] = [];
+            $types['tbz2'] = [];
         }
 	}
     if (function_exists('xzopen')) {
         $types['xz'] = [];
         $types['lzma'] = [];
         if ($tar) {
+            $types['txz'] = [];
             $types['tar.xz'] = [];
             $types['tar.lzma'] = [];
         }
