@@ -44,8 +44,19 @@ if ($FM_PATH) {
     $smarty->assign('parent_url', $u.$t);
 }
 
-$smarty->assign('pointer', '&rarr;'); //or '&larr;' for 'rtl'
 $smarty->assign('crumbjoiner', 'if-angle-double-right'); //or 'if-angle-double-left' for 'rtl'
+
+// permitted operations
+
+if ($profile->can_upload) {
+    $smarty->assign('pupload', 1);
+}
+if ($profile->can_mkdir) {
+    $smarty->assign('pmkdir', 1);
+}
+if ($profile->can_delete) {
+    $smarty->assign('pdel', 1);
+}
 
 // folders tree
 
