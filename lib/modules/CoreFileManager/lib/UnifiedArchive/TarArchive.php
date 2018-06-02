@@ -388,10 +388,12 @@ class TarArchive extends AbstractArchive
                 case 'gz':
                 case 'tgz':
                     $tar->compress(Phar::GZ, $ext);
+					@unlink($basename.'.tar');
                     break;
                 case 'bz2':
                 case 'tbz2':
                     $tar->compress(Phar::BZ2, $ext);
+					@unlink($basename.'.tar');
                     break;
             }
         } else {
