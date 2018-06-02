@@ -24,7 +24,7 @@ if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
 // variables used in included file
 global $FM_ROOT_PATH, $FM_IS_WIN, $FM_ICONV_INPUT_ENC, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE, $helper;
 
-$helper = null;
+$helper = new \CMSMS\FileTypeHelper($config);
 $FM_ROOT_PATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
 $FM_PATH = $params['p'] ?? '';
 
@@ -137,10 +137,11 @@ $linkopen = '<a href="'. $u .'" alt="'.$t.'" title="'.$t.'">YYY</a>';
 
 $linkchmod = '<a href="javascript:oneChmod(\''.$FM_PATH .'\',\'%s\',\'%s\',%d,%d)" title="'. $this->Lang('changepermstip') .'">%s</a>'."\n";
 
-$u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$FM_PATH, 'del'=>'XXX']);
-$t = $this->Lang('delete');
-$icon = '<i class="if-trash-empty red" alt="'.$t.'" title="'.$t.'"></i>';
-$linkdel = '<a href="'. $u .'" onclick="cms_confirm_linkclick(this, \''. $this->Lang('del_confirm') . '\');return false;">'.$icon.'</a>'."\n";
+if ($profile->can_delete) {
+    $t = $this->Lang('delete');
+    $icon = '<i class="if-trash-empty red" alt="'.$t.'" title="'.$t.'"></i>';
+    $linkdel = '<a href="javascript:oneDelete(\'' . $FM_PATH .'\',\'XXX\')">'.$icon.'</a>'."\n";
+}
 
 $t = $this->Lang('rename');
 $icon = '<i class="if-rename" alt="'.$t.'" title="'.$t.'"></i>';
@@ -195,7 +196,7 @@ foreach ($folders as $name) {
     $oneset->modat = $dt->format($FM_DATETIME_FORMAT);
 
     if (!$FM_IS_WIN) {
-		$m = fileperms($fp);
+        $m = fileperms($fp);
         $t = fm_get_fileperms($m, true);
         if (!$FM_READONLY) {
             $oneset->perms = sprintf($linkchmod, $name, $df, 1, ($m & 07777), $t);
@@ -207,7 +208,11 @@ foreach ($folders as $name) {
     if ($FM_READONLY) {
         $acts = '';
     } else {
-        $acts = str_replace('XXX', $name, $linkdel);
+        if ($profile->can_delete) {
+             $acts = str_replace('XXX', $name, $linkdel);
+        } else {
+            $acts = '';
+        }
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
         if ($pdev) {
@@ -256,7 +261,7 @@ foreach ($files as $name) {
     $oneset->size = fm_get_filesize($filesize_raw);
 
     if (!$FM_IS_WIN) {
-		$m = fileperms($fp);
+        $m = fileperms($fp);
         $t = fm_get_fileperms($m);
         if (!$FM_READONLY) {
             $oneset->perms = sprintf($linkchmod, $name, $df, 0, ($m & 07777), $t);
@@ -268,7 +273,11 @@ foreach ($files as $name) {
     if ($FM_READONLY) {
         $acts = '';
     } else {
-        $acts = str_replace('XXX', $name, $linkdel);
+        if ($profile->can_delete) {
+            $acts = str_replace('XXX', $name, $linkdel);
+        } else {
+            $acts = '';
+        }
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkren);
         $acts .= str_replace(['XXX','YYY'], [$name, $df], $linkcopy);
         if ($pdev) {
@@ -363,6 +372,7 @@ $smarty->assign([
     'actionid' => $id,
     'FM_IS_WIN' => $FM_IS_WIN,
     'FM_READONLY' => $FM_READONLY,
+    'pointer' => '&rarr;', //TODO or '&larr;' for 'rtl'
     'bytename' => $bytename,
     'items' => $items,
     'summary' => $s,
