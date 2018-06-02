@@ -58,13 +58,37 @@ $lang['exec'] = 'Execute';
 $lang['expand'] = 'Expand';
 
 //$lang['err_'] = ';
-$lang['err_save'] = 'File save error';
-$lang['err_nofile'] = 'File not found';
-$lang['err_arch'] = 'Error while fetching archive info';
+$lang['err_arch'] = 'Failed to obtain archive info';
+$lang['err_badname2'] = 'Wrong file or folder name';
+$lang['err_badname'] = 'Wrong folder name';
+$lang['err_copy2'] = 'Failed to copy <strong>%s</strong> to <strong>%s</strong>';
+$lang['err_copy'] = 'Copying incomplete due to error(s)';
+$lang['err_del'] = 'Deletions incomplete due to error(s)';
+$lang['err_dup2'] = 'File <strong>%s</strong> already exists';
+$lang['err_dup3'] = 'Folder <strong>%s</strong> already exists';
+$lang['err_dup'] = 'File or folder with this path already exists';
+$lang['err_move2'] = 'Failed to move <strong>%s</strong> to <strong>%s</strong>';
+$lang['err_move'] = 'Moves incomplete due to error(s)';
 $lang['err_noarch'] = 'Archive not created';
-$lang['newarch'] = 'Archive %s created';
-$lang['err_nounpack'] = 'Archive %s not unpacked';
-$lang['unpackarch'] = 'Archive unpacked';
+$lang['err_nocreate2'] = 'Unable to create destination folder';
+$lang['err_nocreate'] = 'Folder <strong>%s</strong> not created';
+$lang['err_nodel2'] = 'File <strong>%s</strong> not deleted';
+$lang['err_nodel'] = 'Folder <strong>%s</strong> not deleted';
+$lang['err_nofile2'] = 'Destination file not defined';
+$lang['err_nofile3'] = 'Source file not defined';
+$lang['err_nofile4'] = 'File not found';
+$lang['err_nofile5'] = 'Unable to create file <strong>%s</strong>';
+$lang['err_nofile'] = 'No file specified';
+$lang['err_noname'] = 'Name(s) not set';
+$lang['err_noperm'] = 'Permissions not changed';
+//$lang['err_nounpack'] = 'Archive %s not unpacked';
+$lang['err_parm'] = 'Invalid or missing parameter(s)';
+$lang['err_ren'] = 'Failed to rename from <strong>%s</strong> to <strong>%s</strong>';
+$lang['err_samepath'] = 'Paths must be different';
+$lang['err_save'] = 'File save error';
+$lang['err_sel'] = 'Nothing selected';
+$lang['err_unpack'] = 'Unpacking incomplete due to error(s)';
+$lang['err_upload'] = 'Uploading incomplete due to error(s)';
 
 // F
 $lang['file'] = 'File';
@@ -178,6 +202,22 @@ $lang['selecttip'] = 'Invert selection'; //button tip
 $lang['size'] = 'Size';
 $lang['submit'] = 'Submit';
 $lang['summary'] = 'Totals: %d file(s), %d folder(s), %s used';
+//action success messages
+$lang['stat_arch'] = 'Archive %s created';
+$lang['stat_copy2'] = 'Selected file(s) and /or folder(s) copied';
+$lang['stat_copy'] = 'Copied from <strong>%s</strong> to <strong>%s</strong>';
+$lang['stat_create2'] = 'Folder <strong>%s</strong> created';
+$lang['stat_create'] = 'File <strong>%s</strong> created';
+$lang['stat_del2'] = 'Folder <strong>%s</strong> deleted';
+$lang['stat_del3'] = 'Selected file(s) and/or folder(s) deleted';
+$lang['stat_del'] = 'File <strong>%s</strong> deleted';
+$lang['stat_move2'] = 'Selected file(s) and/or folder(s) moved';
+$lang['stat_move'] = 'Moved from <strong>%s</strong> to <strong>%s</strong>';
+$lang['stat_perm'] = 'Permissions changed';
+$lang['stat_ren'] = 'Renamed from <strong>%s</strong> to <strong>%s</strong>';
+$lang['stat_unpack'] = 'Selected archive(s) unpacked';
+$lang['stat_upcount'] = 'Uploaded %d item(s)';
+$lang['stat_upped'] = 'Successfully uploaded'; //NEEDED?
 
 // T
 $lang['text'] = 'File';
