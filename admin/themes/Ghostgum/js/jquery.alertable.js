@@ -1,26 +1,27 @@
 /*!
-jquery.alertable.js V.1.1 <github.com/claviska/jquery-alertable>
-(C) Cory LaViska
+jquery alertable plugin V.1.1 <github.com/claviska/jquery-alertable>
+(C) Cory LaViska <https://twitter.com/claviska>
 License: MIT 
 */
-//
-// jquery.alertable.js - Minimal alert, confirmation, and prompt alternatives.
-//
-// Developed by Cory LaViska for A Beautiful Site, LLC
-//
-// Licensed under the MIT license: http://opensource.org/licenses/MIT
-//
+/* jquery-alertable 1.1.0
+ Minimal alert, confirmation, and prompt alternatives
+ Derived from V.1.0.2 by Cory LaViska https://twitter.com/claviska
+ Licensed under the MIT license
+*/
+//requires jQuery 1.7+
+
 ;(function($, window, document, undefined) {
   "$:nomunge";
   'use strict';
 
   var modal,
-   overlay,
-   okButton,
-   cancelButton,
-   activeElement;
+    overlay,
+    okButton,
+    cancelButton,
+    promptElement,
+    activeElement;
 
-  function show(type, message, options) {
+  function show(type, message, useroptions) {
     var defer = $.Deferred();
 
     // Remove focus from the background
@@ -31,8 +32,13 @@ License: MIT
     $(modal).add(overlay).remove();
 
     // Merge options
-    options = $.extend({}, $.alertable.defaults, options);
-
+    var options = $.extend({}, $.alertable.defaults, useroptions);
+    if(!useroptions || typeof useroptions.okButton == 'undefined') {
+      options.okButton = '<button id="alertable-ok" type="submit">' + options.okName + '</button>';
+    }
+    if(!useroptions || typeof useroptions.cancelButton == 'undefined') {
+      options.cancelButton = '<button id="alertable-cancel" type="button">' + options.cancelName + '</button>';
+    }
     // Create elements
     modal = $(options.modal).hide();
     overlay = $(options.overlay).hide();
@@ -47,16 +53,18 @@ License: MIT
     // Add prompt
     if(type === 'prompt') {
       modal.find('.alertable-prompt').html(options.prompt);
+      promptElement = $('.alertable-prompt input', modal);
     } else {
       modal.find('.alertable-prompt').remove();
+      promptElement = null;
     }
 
     // Add button(s)
-    var ob = $(modal).find('.alertable-buttons');
-    if (ob.length == 1) {
+    var ob = modal.find('.alertable-buttons');
+    if(ob.length == 1) {
       okButton = $(options.okButton);
       cancelButton = (type === 'alert') ? '' : $(options.cancelButton);
-      if (options.ltr) {
+      if(options.ltr) {
         ob.append(okButton).append(cancelButton);
       } else {
         ob.append(cancelButton).append(okButton);
@@ -78,22 +86,21 @@ License: MIT
     // Set focus
     if(type === 'prompt') {
       // First input in the prompt
-      $(modal).find('.alertable-prompt :input:first').focus();
+      promptElement.eq(0).focus();
     } else {
       // OK button
-      $(modal).find(':input[type="submit"]').focus();
+      modal.find(':input[type="submit"]').focus();
     }
 
     // Watch for submit
-    $(modal).on('submit.alertable', function(event) {
-      var i;
-      var formData;
-      var values = [];
-
+    modal.on('submit.alertable', function(event) {
+      var i,
+        formData,
+        values = [];
       event.preventDefault();
 
       if(type === 'prompt') {
-        formData = $(modal).serializeArray();
+        formData = modal.serializeArray();
         for(i = 0; i < formData.length; i++) {
           values[formData[i].name] = formData[i].value;
         }
@@ -109,12 +116,28 @@ License: MIT
     if(okButton) {
       okButton.on('click.alertable', function() {
         if(type == 'prompt') {
-          var val = $(modal).find('.alertable-prompt :input:first').val();
+          var val = promptElement.val();
           hide(options);
           defer.resolve(val);
         } else {
           hide(options);
           defer.resolve();
+        }
+      });
+    }
+
+    // Accept on enter when a prompt-input is focused
+    if(promptElement) {
+      promptElement.on('keydown.alertable', function(event) {
+        if(event.keyCode === 13) {
+          event.preventDefault();
+          return false;
+        }
+      }).on('keyup.alertable', function(event) {
+        if(event.keyCode === 13) {
+          if(okButton) {
+            okButton.trigger('click.alertable');
+          }
         }
       });
     }
@@ -133,20 +156,6 @@ License: MIT
         event.preventDefault();
         hide(options);
         defer.reject();
-      }
-    });
-
-    // Accept on enter when prompt-input is focused
-    $(modal).find('.alertable-prompt :input:first').on('keydown.alertable', function(event) {
-      if(event.keyCode === 13) {
-        event.preventDefault();
-        return false;
-      }
-    }).on('keyup.alertable', function(event) {
-      if(event.keyCode === 13) {
-        if (okButton) {
-          okButton.trigger('click.alertable');
-        }  
       }
     });
 
@@ -200,6 +209,9 @@ License: MIT
       container: 'body',
       html: false,
       ltr: true,
+      // Labels
+      cancelName: 'Cancel',
+      okName: 'OK',
       // Templates
       cancelButton: '<button class="alertable-cancel" type="button">Cancel</button>',
       okButton: '<button class="alertable-ok" type="submit">OK</button>',
@@ -211,7 +223,6 @@ License: MIT
         '<div class="alertable-prompt"></div>' +
         '<div class="alertable-buttons"></div>' +
         '</form>',
-
       // Hooks
       hide: function() {
         $(this.modal).add(this.overlay).fadeOut(100);
