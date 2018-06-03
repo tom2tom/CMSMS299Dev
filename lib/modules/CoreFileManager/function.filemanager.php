@@ -1,54 +1,60 @@
 <?php
 /**
- * Derived from H3K | Tiny File Manager https://github.com/prasathmani/tinyfilemanager
+ * Derived in part from H3K | Tiny File Manager https://github.com/prasathmani/tinyfilemanager
  * CCP Programmers http://fb.com/ccpprogrammers
  * Licence GPL3
  */
 
 /**
- * Recursive function called by fm_file_tree() to list directories
- * @param string $directory of this dir
- * @param string $current 'current' path
+ * Recursive function called by cfm_dir_tree() to accumulate directories
+ * @param string $path path of this directory
+ * @param string $current 'current' path TODO use this
  * @param int  $depth 0-based recursion depth
+ * @return string
  */
-function _fm_dir_tree($directory, $current, $depth)
+function _cfm_dir_tree(string $path, string $current, int $depth) : string
 {
-    global $FM_ROOT_PATH, $FM_EXCLUDE_FOLDERS, $FM_FOLDER_URL, $FM_FOLDER_TITLE;
+    global $CFM_ROOTPATH, $CFM_EXCLUDE_FOLDERS, $CFM_FOLDER_URL, $CFM_FOLDER_TITLE;
 
-    if (!is_readable($directory)) {
+    if (!is_readable($path)) {
         return '';
     }
 
-    $len = strlen($FM_ROOT_PATH) + 1; //skip to relative-path
     $tree_content = '';
-    // Get and sort directories
-    $file = glob($directory. DIRECTORY_SEPARATOR . '*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
-    if ($file) {
-        natcasesort($file);
-        $dirs = [];
-        foreach ($file as $this_file) {
-            $name = basename($this_file);
-            if (!($name == '.' || $name == '..' || in_array($this_file, $FM_EXCLUDE_FOLDERS))) {
-                $dirs[$name] = $this_file;
+    // Get directories
+    $alldirs = glob($path.DIRECTORY_SEPARATOR.'*', GLOB_NOSORT|GLOB_NOESCAPE|GLOB_ONLYDIR);
+    if ($alldirs) {
+        $p1 = DIRECTORY_SEPARATOR.'.';
+        $p2 = DIRECTORY_SEPARATOR.'..';
+        foreach ($alldirs as &$onedir) {
+            if (endswith($onedir,$p1) || endswith($onedir,$p2)) {
+                unset($onedir);
+            } elseif (in_array($onedir, $CFM_EXCLUDE_FOLDERS)) {
+                unset($onedir);
             }
         }
+        unset($onedir);
+    }
+    if ($alldirs) {
+        natcasesort($alldirs); //TODO mb_ sorting
 
+        $len = strlen($CFM_ROOTPATH) + 1; //to skip to relative-path
         $tree_content = '<ul';
         if ($depth == 0) {
             $tree_content .= ' id="fm-tree"';
         }
         $tree_content .= '>';
-        foreach ($dirs as $name => $path) {
-            // $data includes " chars  
-            $data = json_encode(['name'=>$name,'open'=>0,'opendown'=>0], JSON_NUMERIC_CHECK); //TODO name suited to incremental comparison during searches
-            $relpath = substr($path, $len);
-            $tree_content .= '<li class="fm-directory tree-closed" data-node=\''.$data.'\'><a href="'.$FM_FOLDER_URL.rawurlencode($relpath).'"';
-            if ($FM_FOLDER_TITLE) {
-                $tree_content .= ' title="'.$FM_FOLDER_TITLE.'"';
+        foreach ($alldirs as $onedir) {
+            $name = basename($onedir);
+            // $data includes " chars
+            $data = json_encode(['name'=>$name,'open'=>0,'opendown'=>0], JSON_NUMERIC_CHECK); //TODO display-compatible name suited to incremental comparison during searches
+            $relpath = substr($onedir, $len);
+            $tree_content .= '<li class="fm-directory tree-closed" data-node=\''.$data.'\'><a href="'.$CFM_FOLDER_URL.rawurlencode($relpath).'"';
+            if ($CFM_FOLDER_TITLE) {
+                $tree_content .= ' title="'.$CFM_FOLDER_TITLE.'"';
             }
             $tree_content .= '>' . htmlspecialchars($name) . '</a>';
-            $path = $directory . DIRECTORY_SEPARATOR . $name;
-            $tree_content .= _fm_dir_tree($path, $current, $depth+1) . '</li>';
+            $tree_content .= _cfm_dir_tree($onedir, $current, $depth+1) . '</li>';
         }
         $tree_content .= '</ul>';
     }
@@ -56,19 +62,21 @@ function _fm_dir_tree($directory, $current, $depth)
 }
 
 /**
-  * Scan directory and populate elements to display folders treeview
-  * @param string $directory
+  * Scan directory $path and populate ul,li elements to represent a folders-treeview
+  * @param string $path
+  * @param string $current Optional 'current'-directory path
+  * @return string
   */
-function fm_dir_tree($directory, $current = '')
+function cfm_dir_tree(string $path, string $current = '') : string
 {
-    // Remove trailing separator
-    if (substr($directory, -1) == DIRECTORY_SEPARATOR) {
-        $directory = substr($directory, 0, strlen($directory) - 1);
+    // Remove trailing separator(s)
+    if (endswith($path, DIRECTORY_SEPARATOR)) {
+        $path = substr($path, 0, -1);
     }
-    if ($current && substr($current, -1) == DIRECTORY_SEPARATOR) {
-        $current = substr($current, 0, strlen($current) - 1);
+    if ($current && endswith($current, DIRECTORY_SEPARATOR)) {
+        $current = substr($current, 0, -1);
     }
-    return _fm_dir_tree($directory, $current, 0);
+    return _cfm_dir_tree($path, $current, 0);
 }
 
 /**
@@ -76,8 +84,7 @@ function fm_dir_tree($directory, $current = '')
  * @param string $path
  * @return bool
  */
-
-function fm_rdelete($path)
+function cfm_rdelete(string $path) : bool
 {
     if (is_link($path)) {
         return unlink($path);
@@ -87,7 +94,7 @@ function fm_rdelete($path)
         if (is_array($objects)) {
             foreach ($objects as $file) {
                 if ($file != '.' && $file != '..') {
-                    if (!fm_rdelete($path . DIRECTORY_SEPARATOR . $file)) {
+                    if (!cfm_rdelete($path . DIRECTORY_SEPARATOR . $file)) {
                         $ok = false;
                     }
                 }
@@ -103,12 +110,11 @@ function fm_rdelete($path)
 /**
  * Recursive chmod
  * @param string $path
- * @param int $filemode
- * @param int $dirmode
+ * @param int $filemode mode flags to set for files
+ * @param int $dirmode mode flags to set for folders
  * @return bool
- * @todo Will use in mass chmod
  */
-function fm_rchmod($path, $filemode, $dirmode)
+function cfm_rchmod(string $path, int $filemode, int $dirmode) : bool
 {
     if (is_dir($path)) {
         if (!chmod($path, $dirmode)) {
@@ -118,7 +124,7 @@ function fm_rchmod($path, $filemode, $dirmode)
         if (is_array($objects)) {
             foreach ($objects as $file) {
                 if ($file != '.' && $file != '..') {
-                    if (!fm_rchmod($path . DIRECTORY_SEPARATOR . $file, $filemode, $dirmode)) {
+                    if (!cfm_rchmod($path . DIRECTORY_SEPARATOR . $file, $filemode, $dirmode)) {
                         return false;
                     }
                 }
@@ -138,9 +144,9 @@ function fm_rchmod($path, $filemode, $dirmode)
  * @param string $old
  * @param string $new
  * @param bool $force whether to overwrite existing item with new name
- * @return bool|null
+ * @return mixed bool|null
  */
-function fm_rename($old, $new, $force = true)
+function cfm_rename(string $old, string $new, bool $force = true)
 {
     return (file_exists($old) && ($force || !file_exists($new))) ? rename($old, $new) : null;
 }
@@ -153,10 +159,10 @@ function fm_rename($old, $new, $force = true)
  * @param bool $force Create folder with same names instead file
  * @return bool
  */
-function fm_rcopy($path, $dest, $upd = true, $force = true)
+function cfm_rcopy(string $path, string $dest, bool $upd = true, bool $force = true) : bool
 {
     if (is_dir($path)) {
-        if (!fm_mkdir($dest, $force)) {
+        if (!cfm_mkdir($dest, $force)) {
             return false;
         }
         $objects = scandir($path);
@@ -164,7 +170,7 @@ function fm_rcopy($path, $dest, $upd = true, $force = true)
         if (is_array($objects)) {
             foreach ($objects as $file) {
                 if ($file != '.' && $file != '..') {
-                    if (!fm_rcopy($path . DIRECTORY_SEPARATOR . $file, $dest . DIRECTORY_SEPARATOR . $file)) {
+                    if (!cfm_rcopy($path . DIRECTORY_SEPARATOR . $file, $dest . DIRECTORY_SEPARATOR . $file)) {
                         $ok = false;
                     }
                 }
@@ -172,7 +178,7 @@ function fm_rcopy($path, $dest, $upd = true, $force = true)
         }
         return $ok;
     } elseif (is_file($path)) {
-        return fm_copy($path, $dest, $upd);
+        return cfm_copy($path, $dest, $upd);
     }
     return false;
 }
@@ -183,7 +189,7 @@ function fm_rcopy($path, $dest, $upd = true, $force = true)
  * @param bool $force
  * @return bool
  */
-function fm_mkdir($dir, $force)
+function cfm_mkdir(string $dir, bool $force) : bool
 {
     if (file_exists($dir)) {
         if (is_dir($dir)) {
@@ -203,7 +209,7 @@ function fm_mkdir($dir, $force)
  * @param bool $upd
  * @return bool
  */
-function fm_copy($f1, $f2, $upd)
+function cfm_copy(string $f1, string $f2, bool $upd) : bool
 {
     $time1 = filemtime($f1);
     if (file_exists($f2)) {
@@ -224,7 +230,7 @@ function fm_copy($f1, $f2, $upd)
  * @param string $path
  * @return string
  */
-function fm_clean_path($path)
+function cfm_clean_path(string $path) : string
 {
     $path = trim($path);
     $path = trim($path, '\\/');
@@ -238,11 +244,11 @@ function fm_clean_path($path)
 /**
  * Get parent path
  * @param string $path
- * @return bool|string
+ * @return mixed string|false
  */
-function fm_get_parent_path($path)
+function cfm_get_parent_path(string $path)
 {
-    $path = fm_clean_path($path);
+    $path = cfm_clean_path($path);
     if ($path != '') {
         return dirname($path);
     }
@@ -252,9 +258,9 @@ function fm_get_parent_path($path)
 /**
  * Get real path
  * @param string $path
- * @return string|false
+ * @return mixed string|false
  */
-function fm_real_path($path)
+function cfm_real_path(string $path)
 {
     return stream_resolve_include_path($path);
 }
@@ -264,7 +270,7 @@ function fm_real_path($path)
  * @param string $text
  * @return string
  */
-function fm_enc($text)
+function cfm_enc(string $text) : string
 {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
@@ -272,9 +278,9 @@ function fm_enc($text)
 /**
  * Check if string is in UTF-8
  * @param string $string
- * @return int
+ * @return int, effectively a bool
  */
-function fm_is_utf8($string)
+function cfm_is_utf8(string $string) : int
 {
     return preg_match('//u', $string);
 }
@@ -284,11 +290,11 @@ function fm_is_utf8($string)
  * @param string $filename
  * @return string
  */
-function fm_convert_win($filename)
+function cfm_convert_win(string $filename) : string
 {
-    global $FM_IS_WIN, $FM_ICONV_INPUT_ENC;
-    if ($FM_IS_WIN && function_exists('iconv')) {
-        $filename = iconv($FM_ICONV_INPUT_ENC, 'UTF-8//IGNORE', $filename);
+    global $CFM_IS_WIN, $CFM_ICONV_INPUT_ENC;
+    if ($CFM_IS_WIN && function_exists('iconv')) {
+        $filename = iconv($CFM_ICONV_INPUT_ENC, 'UTF-8//IGNORE', $filename);
     }
     return $filename;
 }
@@ -299,7 +305,7 @@ function fm_convert_win($filename)
  * @param bool $isdir
  * @return string
  */
-function fm_get_fileperms($mode, $isdir = false)
+function cfm_get_fileperms(int $mode, bool $isdir = false) : string
 {
     global $pr, $pw, $px, $pxf;
 
@@ -315,7 +321,7 @@ function fm_get_fileperms($mode, $isdir = false)
  * @param int $size
  * @return string
  */
-function fm_get_filesize($size)
+function cfm_get_filesize(int $size) : string
 {
     global $bytename, $kbname, $mbname, $gbname; //$tbname
 
@@ -337,7 +343,7 @@ function fm_get_filesize($size)
  * @param string $path
  * @return mixed|string
  */
-function fm_get_mime_type($path)
+function cfm_get_mime_type(string $path)
 {
     global $helper;
     if ($helper == null) {
@@ -352,7 +358,7 @@ function fm_get_mime_type($path)
  * @param string $path
  * @return string
  */
-function fm_get_file_icon_class($path)
+function cfm_get_file_icon_class(string $path) : string
 {
     global $helper;
     if ($helper == null) {
@@ -420,12 +426,12 @@ function fm_get_file_icon_class($path)
  * @param module-object $mod
  * @return array
  */
-function fm_get_arch_picker($mod)
+function cfm_get_arch_picker(\CoreFileManager $mod) : array
 {
-    global $FM_IS_WIN;
+    global $CFM_IS_WIN;
 
-    $types = fm_get_arch_types(true);
-    $keeps = ($FM_IS_WIN) ? ['zip'] : ['gz','bz2','xz','zip'];
+    $types = cfm_get_arch_types(true);
+    $keeps = ($CFM_IS_WIN) ? ['zip'] : ['gz','bz2','xz','zip'];
     foreach ($types as $t => $one) {
         if (in_array($t, $keeps)) {
             $types[$t]['label'] = $mod->Lang('arch_'.$t);
@@ -442,9 +448,9 @@ function fm_get_arch_picker($mod)
  *  which is preferred for compression
  * @return array keys are (lowercase) file extensions (maybe 'compound' like 'tar.ext')
  */
-function fm_get_arch_types($best = false)
+function cfm_get_arch_types(bool $best = false) : array
 {
-    global $FM_IS_WIN;
+    global $CFM_IS_WIN;
 
     $types = [];
 
@@ -482,7 +488,7 @@ function fm_get_arch_types($best = false)
     if (class_exists('\CabArchive')) $types['cab'] = [];
 
     if ($best) {
-        $uses = ($FM_IS_WIN) ? ['zip','rar','7z'] : ['xz','bz2','gz','zip'];
+        $uses = ($CFM_IS_WIN) ? ['zip','rar','7z'] : ['xz','bz2','gz','zip'];
         foreach ($uses as $t) {
             if (isset($types[$t])) {
                 $types[$t]['use'] = 1;
@@ -492,3 +498,17 @@ function fm_get_arch_types($best = false)
     }
     return $types;
 }
+
+/**
+ * Get the archive-type for a multi-item archive
+ * @param string $ext archive type/extension
+ * @return string
+ */
+function cfm_tarify(string $ext) : string
+{
+    if (in_array($ext,['gz','bz2','xz','lzma'])) {
+        return 'tar.'.$ext;
+    }
+    return $ext;
+}
+
