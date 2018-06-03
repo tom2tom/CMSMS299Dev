@@ -5,11 +5,11 @@
    <th class="center {ldelim}sss:'fname'{rdelim}">{$mod->Lang('name')}</th>
    <th class="center {ldelim}sss:'fint'{rdelim}">{$mod->Lang('size')}</th>
    <th class="center {ldelim}sss:'fint'{rdelim}">{$mod->Lang('modified')}</th>
-{if !$FM_IS_WIN}
+{if !$CFM_IS_WIN}
    <th class="center">{$mod->Lang('perms')}</th>
 {/if}
    <th class="center {ldelim}sss:false{rdelim}">{$mod->Lang('actions')}</th>
-{if !$FM_READONLY}
+{if !$CFM_READONLY}
    <th class="{ldelim}sss:false{rdelim}"><input type="checkbox" id="checkall" onclick="checkall_toggle(this);"></th>
 {/if}
   </tr></thead>
@@ -20,12 +20,12 @@
     <td class="filename" data-sort="{if $one->dir}.{/if}{$one->name}"{if $one->is_link} title="{$pointer} {$one->realpath}"{/if}>{if $one->link}{$one->link}{else}{$one->name}{/if}</td>
     <td data-sort="{if $one->dir}0"{else}{$one->rawsize}" title="{$one->rawsize} {$bytename}"{/if}>{$one->size}</td>
     <td data-sort="{$one->rawtime}">{$one->modat}</td>
-{if !$FM_IS_WIN}
+{if !$CFM_IS_WIN}
     <td>{$one->perms}</td>
 {/if}
     <td>{$one->acts}</td>
-{if !$FM_READONLY}
-    <td><input type="checkbox" name="{$actionid}sel[]" value="{$one->sel}" /></td>
+{if !$CFM_READONLY}
+    <td><input type="checkbox" name="isel" value="{$one->sel}" /></td>
 {/if}
    </tr>
 {/foreach}
