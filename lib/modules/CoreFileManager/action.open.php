@@ -1,43 +1,44 @@
 <?php
-# CoreFileManager module action: view or edit or display properties of a file
-# Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+CoreFileManager module action: view or edit or display properties of a file
+Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
 if (!isset($gCms)) exit;
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
 if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
 
-$FM_ROOT_PATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
-$FM_PATH = $params['p'] ?? '';
+$CFM_ROOTPATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
+$CFM_RELPATH = $params['p'] ?? '';
 
-$path = $FM_ROOT_PATH;
-if ($FM_PATH) {
-    $path .= DIRECTORY_SEPARATOR . $FM_PATH;
+$path = $CFM_ROOTPATH;
+if ($CFM_RELPATH) {
+    $path .= DIRECTORY_SEPARATOR . $CFM_RELPATH;
 }
 if (!is_dir($path)) { //CHECKME link to a dir ok?
-    $path = $FM_ROOT_PATH;
-    $FM_PATH = '';
+    $path = $CFM_ROOTPATH;
+    $CFM_RELPATH = '';
 }
 
 if (isset($params['close'])) {
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$CFM_RELPATH]);
 }
 
 // various globals used downstream
-global $FM_IS_WIN, $helper;
-$FM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
+global $CFM_IS_WIN, $helper;
+$CFM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 $helper = new \CMSMS\FileTypeHelper($config);
 
 global $bytename, $kbname, $mbname, $gbname; //$tbname
@@ -50,10 +51,10 @@ $gbname = $this->Lang('gb');
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 
 if (isset($params['view'])) {
-    $file = fm_clean_path($params['view']);
+    $file = cfm_clean_path($params['view']);
     $edit = false; //in case of text-display
 } elseif (isset($params['edit'])) {
-    $file = fm_clean_path($params['edit']);
+    $file = cfm_clean_path($params['edit']);
     $edit = true;
 } else {
     $file = ' '.DIRECTORY_SEPARATOR; //trigger error
@@ -62,7 +63,7 @@ if (isset($params['view'])) {
 $fullpath = $path . DIRECTORY_SEPARATOR . $file;
 if ($file == '' || !is_file($fullpath)) {
     $this->SetError($this->Lang('err_nofile'));
-    $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+    $this->Redirect($id, 'defaultadmin', '', ['p'=>$CFM_RELPATH]);
 }
 
 if ($edit) {
@@ -74,7 +75,7 @@ if ($edit) {
 			if ($res === false) {
                 $this->SetError($this->Lang('err_save'));
 			}
-            $this->Redirect($id, 'defaultadmin', '', ['p'=>$FM_PATH]);
+            $this->Redirect($id, 'defaultadmin', '', ['p'=>$CFM_RELPATH]);
         }
 		if ($res === false) {
              $this->ShowErrors($this->Lang('err_save'));
@@ -93,7 +94,7 @@ $content = $params['content'] ?? null; // for text
 if ($helper->is_archive($fullpath)) {
     $is_arch = true;
     $type = 'archive';
-//    $filenames = fm_get_archive_info($fullpath); //TODO
+//    $filenames = cfm_get_archive_info($fullpath); //TODO
 } elseif ($helper->is_image($fullpath)) {
     $is_image = true;
     $type = 'image';
@@ -119,24 +120,24 @@ $file_url = cms_admin_utils::path_to_url($fullpath);
 $smarty->assign('file_url', $file_url);
 
 $items = [];
-$items[] = '<a href="?p={urlencode($FM_PATH)}&ampdl={urlencode($file)}"><i class="if-download" title="'.$this->Lang('download').'"></i></a>';
+$items[] = '<a href="?p={urlencode($CFM_RELPATH)}&ampdl={urlencode($file)}"><i class="if-download" title="'.$this->Lang('download').'"></i></a>';
 /* TODO
-if (!$FM_READONLY && $is_arch) {
+if (!$CFM_READONLY && $is_arch) {
     $zip_name = pathinfo($fullpath, PATHINFO_FILENAME);
-    $items[] = '<a href="?p={urlencode($FM_PATH)}&ampunzip={urlencode($file)}"><i class="if-resize-full" title="'.$this->Lang('expand').'"></i></a>'
+    $items[] = '<a href="?p={urlencode($CFM_RELPATH)}&ampunzip={urlencode($file)}"><i class="if-resize-full" title="'.$this->Lang('expand').'"></i></a>'
 }
 */
-if (/*!$FM_READONLY && */$pdev && $is_text && !$edit) {
-    $items[] = '<a href="?p={urlencode(trim($FM_PATH))}&ampedit={urlencode($file)}"><i class="if-edit" title="'.$this->Lang('edit').'"></i></a>';
+if (/*!$CFM_READONLY && */$pdev && $is_text && !$edit) {
+    $items[] = '<a href="?p={urlencode(trim($CFM_RELPATH))}&ampedit={urlencode($file)}"><i class="if-edit" title="'.$this->Lang('edit').'"></i></a>';
 }
 $smarty->assign('acts', $items);
 
 $items = [];
-$items[$this->Lang($type)] = fm_enc($file);
-$items[$this->Lang('info_path')] = ($FM_PATH) ? fm_enc(fm_convert_win($FM_PATH)) : $this->Lang('top');
+$items[$this->Lang($type)] = cfm_enc($file);
+$items[$this->Lang('info_path')] = ($CFM_RELPATH) ? cfm_enc(cfm_convert_win($CFM_RELPATH)) : $this->Lang('top');
 $filesize = filesize($fullpath);
-$items[$this->Lang('info_size')] = fm_get_filesize($filesize);
-$items[$this->Lang('info_mime')] = fm_get_mime_type($fullpath);
+$items[$this->Lang('info_size')] = cfm_get_filesize($filesize);
+$items[$this->Lang('info_mime')] = cfm_get_mime_type($fullpath);
 
 if ($is_arch && $filenames) {
     $total_files = 0;
@@ -148,7 +149,7 @@ if ($is_arch && $filenames) {
         $total_uncomp += $fn['filesize'];
     }
     $items[$this->Lang('info_archcount')] = $total_files;
-    $items[$this->Lang('info_archsize')] = fm_get_filesize($total_uncomp);
+    $items[$this->Lang('info_archsize')] = cfm_get_filesize($total_uncomp);
 } elseif ($is_image) {
     $image_size = getimagesize($fullpath);
     if (!empty($image_size[0]) || !empty($image_size[1])) {
@@ -170,7 +171,7 @@ $smarty->assign('about', $items);
 
 if (!$edit) {
     $smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
-      ['p'=>$FM_PATH, 'view'=>$params['view']]));
+      ['p'=>$CFM_RELPATH, 'view'=>$params['view']]));
 }
 
 $baseurl = $this->GetModuleURLPath();
@@ -185,7 +186,7 @@ if ($is_text) {
         $fixed = 'false';
         $smarty->assign('edit', 1);
         $smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
-            ['p'=>$FM_PATH, 'edit'=>$params['edit']]));
+            ['p'=>$CFM_RELPATH, 'edit'=>$params['edit']]));
         $smarty->assign('reporter', CmsFormUtils::create_input([
          'type'=>'textarea',
          'name'=>'content',
@@ -204,8 +205,8 @@ if ($is_text) {
     $style = strtolower($style);
 
     $js = <<<EOS
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ext-modelist.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ext-modelist.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 var editor = ace.edit("Editor");
