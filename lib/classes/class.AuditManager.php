@@ -31,7 +31,6 @@ namespace CMSMS {
         {
             $userid = get_userid(FALSE);
             $username = get_username(FALSE);
-            $ip_addr = null;
             if( $userid < 1 ) $userid = null;
 
             $out = "CMSMS MSG: ADMINUSER=$username ($userid), ITEMID=$itemid: SUBJECT=$subject, MSG=$msg";
