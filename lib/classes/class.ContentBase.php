@@ -767,7 +767,7 @@ abstract class ContentBase
 	 */
 	public function SetDefaultContent($defaultcontent)
 	{
-		$this->mDefaultContent = (bool) $defaultcontent;
+		if( $this->IsDefaultPossible() ) $this->mDefaultContent = (bool) $defaultcontent;
 	}
 
 	/**

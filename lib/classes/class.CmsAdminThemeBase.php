@@ -229,8 +229,11 @@ abstract class CmsAdminThemeBase
             return $this->_title;
         case 'subtitle':
             return $this->_subtitle;
+        case 'root_url':
+            $config = cms_config::get_instance();
+            return $config['admin_url']."/themes/".$this->themeName;
         }
-    }
+	}
 
     /**
      * Helper for constructing js data
@@ -338,7 +341,7 @@ abstract class CmsAdminThemeBase
             return preg_replace($from,$to,$url);
         }
         elseif( startswith($url,CMS_ROOT_URL) || !startswith($url,'http') ) {
-            $prefix ( strpos($url,'?') !== FALSE ) ? '&amp;' : '?';
+            $prefix = ( strpos($url,'?') !== FALSE ) ? '&amp;' : '?';
             return $url.$prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         }
         return $url;
@@ -363,7 +366,7 @@ abstract class CmsAdminThemeBase
             $data = base64_decode($data);
             $data = @unserialize($data);
         }
-*/ $data = false;
+*/$data = false;
         if (!$data) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];

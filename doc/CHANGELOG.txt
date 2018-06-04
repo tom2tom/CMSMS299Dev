@@ -21,7 +21,7 @@ Core - General
   - CHANGE: A new simple_plugin API. Simple plugins (files) are stored in /assets/plugins and must contain the <?php tag.
     (we will try to auto add it on upgrade)
   - CHANGE: Adds the new pr_root_url config entry.  to return the protocol relative root URI. root_url will always include the protocol.
-  - Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
+  - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
   - Improved error message if there was an error parsing the template (or a duplicate content block).
   - Fixes content blocks, image blocks, module blocks containing whitespace in the name.
   - Minor fix to {cms_filepicker} plugin.

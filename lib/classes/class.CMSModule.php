@@ -310,10 +310,8 @@ abstract class CMSModule
     }
 
     /**
-     * Register a plugin to smarty with the
-     * name of the module.  This method should be called
-     * from the module constructor, or from the SetParameters
-     * method.
+     * Register a plugin to smarty with the name of the module.  This method should be called
+     * from the module installation, module constructor or the InitializeFrontend() method.
      *
      * Note:
      * @final
@@ -529,7 +527,6 @@ abstract class CMSModule
      * Note: This method is not compatible wih lazy loading in the front end.
      *
      * @final
-     * @see SetParameters
      * @param string $routeregex Regular Expression Route to register
      * @param array $defaults Associative array containing defaults for parameters that might not be included in the url
      */
@@ -1519,33 +1516,6 @@ abstract class CMSModule
     }
 
     /**
-     * Looks for a file named action.<action name>.php in the module's directory,
-     * and if it exists, includes it. No security checks here (typically the action
-     * itself should perform a context-specific check). No time-wasting. No smarty.
-     *
-     * @since 2.3
-     * @param string $name   The Name of the action to perform
-     * @param string $id     The ID of the module
-     * @param array  $params The parameters targeted for this module
-     *
-     * @return nothing
-     */
-    final public function DoActionJob($name, $id, $params)
-    {
-        $filename = $this->GetModulePath().DIRECTORY_SEPARATOR.'action.'.$name.'.php';
-        if (!is_file($filename)) {
-            @trigger_error("$name is an unknown acton of module ".$this->GetName());
-            throw new \CmsError404Exception('Module action not found');
-        }
-
-        // variables included in scope for convenience
-        $gCms = CmsApp::get_instance();
-        $db = $gCms->GetDb();
-        $config = $gCms->GetConfig();
-        include $filename;
-    }
-
-    /**
      * ------------------------------------------------------------------
      * Form and XHTML Related Methods - relegated to __call()
      * ------------------------------------------------------------------
@@ -2339,6 +2309,7 @@ abstract class CMSModule
      */
     final public function SetCurrentTab(string $tab)
     {
+        $tab = trim($tab);
         $_SESSION[$this->GetName().'::activetab'] = $tab;
         cms_admin_tabs::set_current_tab($tab);
     }

@@ -1,6 +1,7 @@
 <?php
 
 #A
+$lang['addchildhere'] = 'Add child here';
 $lang['addcontent'] = 'Add New Content';
 $lang['apply'] = 'Apply';
 
@@ -24,6 +25,7 @@ $lang['colhdr_id'] = 'Id';
 $lang['coltitle_id'] = 'The unique numeric id for the content page';
 $lang['colhdr_active'] = 'Active';
 $lang['coltitle_active'] = 'Active indicates if users can browse to this page at all';
+$lang['colhdr_addchild'] = 'Add Child';
 $lang['colhdr_alias'] = 'Alias';
 $lang['coltitle_alias'] = 'The unique string id for the content page.  Also used in navigating to the page';
 $lang['colhdr_copy'] = 'Copy';
@@ -243,6 +245,7 @@ $lang['prompt_pagedflt_secure'] = 'Page is secure';
 $lang['prompt_pagedflt_showinmenu'] = 'Page is in the menu';
 $lang['prompt_pagedflt_template_id'] = 'Default Page Template';
 $lang['prompt_pagelimit'] = 'Page Limit';
+$lang['prompt_page_addchild'] = 'Add a new child item here';
 $lang['prompt_page_collapse'] = 'Hide children of this page';
 $lang['prompt_page_expand'] = 'Show children of this page';
 $lang['prompt_page_copy'] = 'Copy this page';
@@ -286,7 +289,7 @@ $lang['title_editpage_apply'] = 'Save the changes to this content page, and cont
 $lang['title_editpage_cancel'] = 'Abandon all unsaved changes to this page, and return to the content list';
 $lang['title_editpage_submit'] = 'Save the changes to this content page, and return to the content list';
 $lang['title_editpage_view'] = 'View the current content page (saved changes only)';
-$lang['title_listcontent_find'] = 'Enter a portion of a page title or menu text and select a matching page';
+$lang['title_listcontent_find2'] = 'Enter a portion of a page title, menu text, alias or url and select a matching page.';
 $lang['title_locked'] = 'This page is currently being edited by another user';
 $lang['title_userpageoptions'] = 'Page List Options';
 $lang['toggle'] = 'Toggle Selected';

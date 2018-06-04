@@ -163,4 +163,3 @@ $('#tpl_selall').cmsms_checkall();
 {page_warning msg=$mod->Lang('warning_no_templates_available')}
 {/if}
 {/strip}{form_end}
-

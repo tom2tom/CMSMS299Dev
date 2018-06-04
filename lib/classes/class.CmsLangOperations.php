@@ -15,8 +15,13 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//namespace CMSMS;
-
+/*
+namespace CMSMS;
+use cms_config;
+use CmsNlsOperations;
+use const CMS_ASSETS_PATH, CMS_ROOT_PATH;
+use function cms_join_path, cms_module_places;
+*/
 /**
  * A singleton class to provide simple, generic mechanism for dealing with languages
  * encodings, and locales.  This class does not handle translation strings.
@@ -71,23 +76,19 @@ final class CmsLangOperations
 		if( is_array(self::$_langdata) && isset(self::$_langdata[$curlang][$realm]) ) return;
 		if( !is_array(self::$_langdata) ) self::$_langdata = array();
 		if( !isset(self::$_langdata[$curlang]) ) self::$_langdata[$curlang] = array();
-		$config = \cms_config::get_instance();
+		$config = cms_config::get_instance();
 
 		// load the english file first.
-		$files = array();
+		$files = [];
 		$is_module = false;
-		$filename = 'en_US.php';
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
-			$files[] = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang','en_US.php');
+			$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','en_US.php');
 		}
 		else {
-			if( is_dir(cms_join_path(CMS_ROOT_PATH,'lib','modules',$realm)) ) {
+			$dirs = cms_module_places($realm);
+			if( $dirs ) {
 				$is_module = true;
-				$files[] = cms_join_path(CMS_ROOT_PATH,'lib','modules',$realm,'lang','en_US.php');
-			}
-			if( is_dir(cms_join_path(CMS_ASSETS_PATH,'modules',$realm)) ) {
-				$is_module = true;
-				$files[] = cms_join_path(CMS_ROOT_PATH,'lib','modules',$realm,'lang','en_US.php');
+				$files[] = cms_join_path($dirs[0],'lang','en_US.php');
 			}
 			$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'en_US.php');
 		}
@@ -95,35 +96,31 @@ final class CmsLangOperations
 		// now handle other lang files.
 		if( $curlang != 'en_US' ) {
 			if( $realm == self::CMSMS_ADMIN_REALM ) {
-				$files[] = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang','ext',$curlang.'.php');
+				$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','ext',$curlang.'.php');
+			}
+			elseif( $is_module ) {
+				$files[] = cms_join_path($dirs[0],'lang','ext',$curlang.'.php');
 			}
 			else {
-				if( $is_module ) {
-					$files[] = cms_join_path(CMS_ROOT_PATH,'modules',$realm,'lang','ext',$curlang.'.php');
-				}
-				else {
-					$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'ext',$curlang.'.php');
-				}
+				$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'ext',$curlang.'.php');
 			}
 		}
 
 		// now load the custom stuff.
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
-			$files[] = cms_join_path($config['assets_path'],'admin_custom','lang',$curlang.'.php');
+			$files[] = cms_join_path(CMS_ASSETS_PATH,'admin_custom','lang',$curlang.'.php');
 		}
-		else {
-			if( $is_module ) {
-				$files[] = cms_join_path($config['assets_path'],'module_custom',$realm,'lang',$curlang.'.php');
-				$files[] = cms_join_path($config['assets_path'],'module_custom',$realm,'lang','ext',$curlang.'.php');
-			}
+		elseif( $is_module ) {
+			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang',$curlang.'.php');
+			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','ext',$curlang.'.php');
 		}
 
 		foreach( $files as $fn ) {
 			if( !is_file($fn) ) continue;
 
-			$lang = array();
+			$lang = [];
 			include($fn);
-			if( !isset(self::$_langdata[$curlang][$realm]) ) self::$_langdata[$curlang][$realm] = array();
+			if( !isset(self::$_langdata[$curlang][$realm]) ) self::$_langdata[$curlang][$realm] = [];
 			self::$_langdata[$curlang][$realm] = array_merge(self::$_langdata[$curlang][$realm],$lang);
 			unset($lang);
 		}

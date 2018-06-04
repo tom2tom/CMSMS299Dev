@@ -1,5 +1,5 @@
 <?php
-#...
+#tag to cfreate elements for a form start
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,16 +18,19 @@
 function smarty_function_form_start($params, &$template)
 {
     $gCms = CmsApp::get_instance();
-    $tagparms = array();
-    $mactparms = array();
+    $mactparms = [];
     $mactparms['module'] = $template->getTemplateVars('_module');
     $mactparms['mid'] = $template->getTemplateVars('actionid');
     $mactparms['returnid'] = $template->getTemplateVars('returnid');
     $mactparms['inline'] = 0;
 
-    $tagparms['method'] = 'post';
-    $tagparms['enctype'] = 'multipart/form-data';
-    if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+    $tagparms = [
+    'method' => 'post';
+    'enctype' => 'multipart/form-data'];
+    if( $gCms->test_state(CmsApp::STATE_LOGIN_PAGE) ) {
+        $tagparms['action'] = 'login.php';
+    }
+    else if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
         // check if it's a module action
         if( $mactparms['module'] ) {
             $tmp = $template->getTemplateVars('_action');
@@ -133,7 +136,9 @@ function smarty_function_form_start($params, &$template)
     }
     if( !$gCms->is_frontend_request() ) {
         if( !isset($mactparms['returnid']) || $mactparms['returnid'] == '' ) {
-            $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />';
+	        if( isset( $_SESSION[CMS_USER_KEY] ) ) {
+                $out .= '<input type="hidden" name="'.CMS_SECURE_PARAM_NAME.'" value="'.$_SESSION[CMS_USER_KEY].'" />';
+            }
         }
     }
     foreach( $parms as $key => $value ) {

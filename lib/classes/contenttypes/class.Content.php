@@ -140,6 +140,7 @@ class Content extends \CMSMS\ContentBase
 		$this->AddProperty('disable_wysiwyg',60,self::TAB_OPTIONS);
 		$this->AddProperty('pagemetadata',1,self::TAB_LOGIC);
 		$this->AddProperty('pagedata',2,self::TAB_LOGIC);
+		$this->AddProperty('defaultcontent',10,self::TAB_OPTIONS);
 		$this->AddProperty('wantschildren',10,self::TAB_OPTIONS);
 	}
 
@@ -177,6 +178,10 @@ class Content extends \CMSMS\ContentBase
 			if (isset($params['template_id'])) {
 				if ($this->mTemplateId != $params['template_id']) $this->_contentBlocks = null;
 				$this->mTemplateId = (int) $params['template_id'];
+			}
+
+			if( $this->IsDefaultPossible() && isset($params['defaultcontent']) ) {
+				$this->mDefaultContent = (int) $params['defaultcontent'];
 			}
 
 			// add content blocks

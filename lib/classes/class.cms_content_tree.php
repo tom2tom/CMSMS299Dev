@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: cms_content_tree (c) 2010 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A caching tree for CMSMS content objects.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# A caching tree for CMSMS content objects
+# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,17 +14,8 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
-use \CMSMS\internal\content_cache as cms_content_cache;
 
-/**
- * Classes and utilities for managing the CMSMS content tree.
- *
- * @package CMS
- * @license GPL
- */
+use CMSMS\ContentOperations, CMSMS\internal\content_cache, CMSMS\internal\global_cache;
 
 /**
  * A tree class that allows backward compatibility (somewhat) to the old Tree class used
@@ -66,7 +49,7 @@ class cms_content_tree extends cms_tree
 	}
 
 	/**
-	 * Retrieve a node by it's id.
+	 * Retrieve a node by its id.
 	 * A backwards compatibility method.
 	 *
 	 * @deprecated
@@ -78,9 +61,8 @@ class cms_content_tree extends cms_tree
         return ContentOperations::get_instance()->quickfind_node_by_id($id);
 	}
 
-
 	/**
-	 * Retrieve a node by it's id.
+	 * Retrieve a node by its id.
 	 *
 	 * A backwards compatibility method.
 	 *
@@ -93,9 +75,21 @@ class cms_content_tree extends cms_tree
 		return $this->find_by_tag('id',$id);
 	}
 
+	/**
+	 * Retrieve the node for a page id
+	 * Method imported from ContentOperations class
+	 *
+	 * @param int $id The page id
+	 * @return cms_content_tree
+	 */
+	public function quickfind_node_by_id(int $id)
+	{
+		$list = global_cache::get('content_quicklist');
+		if( isset($list[$id]) ) return $list[$id];
+	}
 
 	/**
-	 * Retrieve a node by it's alias
+	 * Retrieve a node by its alias
 	 *
 	 * A backwards compatibility method.
 	 *
@@ -110,9 +104,8 @@ class cms_content_tree extends cms_tree
 		return $this->find_by_tag('alias',$alias,true);
 	}
 
-
 	/**
-	 * Retrieve a node by it's alias
+	 * Retrieve a node by its alias
 	 *
 	 * A backwards compatibility method.
 	 *
@@ -124,7 +117,6 @@ class cms_content_tree extends cms_tree
 	{
 		return $this->find_by_tag('alias',$alias,true);
 	}
-
 
 	/**
 	 * Retrieve a node by hierarchy position.
@@ -140,7 +132,6 @@ class cms_content_tree extends cms_tree
 		return $result;
 	}
 
-
 	/**
 	 * Test if this node has children.
 	 *
@@ -154,7 +145,6 @@ class cms_content_tree extends cms_tree
 	{
 		return $this->has_children();
 	}
-
 
 	/**
 	 * Set a tag value
@@ -171,7 +161,6 @@ class cms_content_tree extends cms_tree
 		return $this->set_tag($key,$value);
 	}
 
-
 	/**
 	 * Get this nodes id.
 	 *
@@ -186,7 +175,6 @@ class cms_content_tree extends cms_tree
 		return $this->get_tag('id');
 	}
 
-
 	/**
 	 * Get a node tag.
 	 *
@@ -197,15 +185,13 @@ class cms_content_tree extends cms_tree
 	 * @param  string $key Tag name/key
 	 * @return mixed Node value.
 	 */
-	public function &getTag(string $key = 'id')
+	public function getTag(string $key = 'id')
 	{
 		return $this->get_tag($key);
 	}
 
-
-
 	/**
-	 * Get this nodes parent.
+	 * Get this node's parent.
 	 *
 	 * A backwards compatibility method
 	 *
@@ -217,7 +203,6 @@ class cms_content_tree extends cms_tree
 	{
 		return $this->getParent();
 	}
-
 
 	/**
 	 * Add a node to the tree
@@ -233,7 +218,6 @@ class cms_content_tree extends cms_tree
 		return $this->add_node($node);
 	}
 
-
 	/**
 	 * Retrieve the content object associated with this node.
 	 *
@@ -246,23 +230,23 @@ class cms_content_tree extends cms_tree
 	 */
 	public function &getContent(bool $deep = false,bool $loadsiblings = true,bool $loadall = false)
 	{
-		if( !cms_content_cache::content_exists($this->get_tag('id')) ) {
+        $id = $this->get_tag('id');
+		if( !content_cache::content_exists($id) ) {
 			// not in cache
 			$parent = $this->getParent();
 			if( !$loadsiblings || !$parent ) {
 				// only load this content object
 				// todo: LoadContentFromId should use content cache.
-				$content = ContentOperations::get_instance()->LoadContentFromId($this->get_tag('id'), $deep);
+				$content = ContentOperations::get_instance()->LoadContentFromId($id, $deep);
 				return $content;
 			}
 			else {
 				$parent->getChildren($deep,$loadall);
-				if( cms_content_cache::content_exists($this->get_tag('id')) ) return cms_content_cache::get_content($this->get_tag('id'));
+				if( content_cache::content_exists($id) ) return content_cache::get_content($id);
 			}
 		}
-		return cms_content_cache::get_content($this->get_tag('id'));
+		return content_cache::get_content($id);
 	}
-
 
 	/**
 	 * Count the number of children
@@ -278,7 +262,6 @@ class cms_content_tree extends cms_tree
 		return $this->count_children();
 	}
 
-
 	/**
 	 * Count the number of siblings
 	 *
@@ -293,7 +276,6 @@ class cms_content_tree extends cms_tree
 		return $this->count_siblings();
 	}
 
-
 	/**
 	 * Get this nodes depth in the tree
 	 *
@@ -307,7 +289,6 @@ class cms_content_tree extends cms_tree
 	{
 		return $this->get_level();
 	}
-
 
 	/**
 	 * Get the children for this node.
@@ -340,7 +321,6 @@ class cms_content_tree extends cms_tree
 
 		return $children;
 	}
-
 
     /**
      * @ignore
@@ -381,7 +361,6 @@ class cms_content_tree extends cms_tree
 		return $result;
 	}
 
-
 	/**
 	 * A method to indicate wether the content object for this node is cached.
 	 *
@@ -389,10 +368,9 @@ class cms_content_tree extends cms_tree
 	 */
 	public function isContentCached()
 	{
-		if( cms_content_cache::content_exists($this->get_tag('id')) ) return TRUE;
+		if( content_cache::content_exists($this->get_tag('id')) ) return TRUE;
 		return FALSE;
 	}
-
 
 	/**
 	 * A recursive method to find the (estimated) hierarchy position of this node.
@@ -445,4 +423,4 @@ class cms_content_tree extends cms_tree
 		return $out;
 	}
 
-} // end of class.
+} // class

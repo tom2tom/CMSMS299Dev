@@ -1,5 +1,5 @@
 <?php
-#...
+#admin operation: generate and display checksum
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -23,7 +23,6 @@ check_login();
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-@set_time_limit(9999); // this may not work on all hosts
 
 $userid = get_userid();
 $access = check_permission($userid, "Modify Site Preferences");
@@ -66,14 +65,16 @@ function check_checksum_data(&$report)
 
   $config = cms_config::get_instance();
   $salt = md5_file($config['root_path']."/lib/version.php").md5_file($config['root_path']."/index.php");
-  $filenotfound = array();
+  $filenotfound = [];
   $notreadable = 0;
   $md5failed = 0;
-  $filesfailed = array();
+  $filesfailed = [];
   $filespassed = 0;
   $errorlines = 0;
+  $root = realpath( CMS_ROOT_PATH );
   while( !feof($fh) ) {
       // get a line
+      set_time_limit( 10 );
       $line = fgets($fh,4096);
 
       // strip out comments
@@ -102,10 +103,15 @@ function check_checksum_data(&$report)
       $file = trim($file);
 
       $fn = cms_join_path($config['root_path'],$file);
-      if( !file_exists( $fn ) ) {
+
+      $fn = realpath( $fn );
+      if( $fn === false ) {
           $filenotfound[] = $file;
           continue;
       }
+
+      if( !startswith( $fn, $root ) ) continue;
+      $file = substr( $fn, strlen( $root) );
 
       if( is_dir( $fn ) ) continue;
 
@@ -129,7 +135,7 @@ function check_checksum_data(&$report)
 
   if( $filespassed == 0 || count($filenotfound) || $errorlines || $notreadable || $md5failed || count($filesfailed) ) {
     // build the error report
-    $tmp2 = array();
+    $tmp2 = [];
     if( $filespassed == 0 )  $tmp2[] = lang('no_files_scanned');
     if( $errorlines ) $tmp2[] = lang('lines_in_error',$errorlines);
     if( count($filenotfound) ) $tmp2[] = sprintf("%d %s",count($filenotfound),lang('files_not_found'));
@@ -161,7 +167,7 @@ function generate_checksum_file(&$report)
   $output = '';
   $salt = md5_file($config['root_path']."/lib/version.php").md5_file($config['root_path']."/index.php");
 
-  $excludes = array('^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' );
+  $excludes = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' ];
   $tmp = get_recursive_file_list( $config['root_path'], $excludes);
   if( count($tmp) <= 1 ) {
     $report = lang('error_retrieving_file_list');

@@ -46,7 +46,7 @@ class MicroTiny extends CMSModule
     return false;
   }
 
-} // end of module class
+} // class
 
 function mt_jsbool($val)
 {
@@ -54,7 +54,3 @@ function mt_jsbool($val)
   if( $val ) return 'true';
   return 'false';
 }
-#
-# EOF
-#
-?>

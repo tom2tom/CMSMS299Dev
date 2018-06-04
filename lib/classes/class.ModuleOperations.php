@@ -69,10 +69,20 @@ final class ModuleOperations
 	 */
 	const CLASSMAP_PREF = 'module_classmap';
 
+    /**
+     * @ignore
+     */
+    const STD_AUTH_MODULE = 'CoreAdminLogin';
+
 	/**
 	 * @ignore
 	 */
 	private static $_instance = null;
+
+    /**
+     * @ignore
+     */
+    private $_auth_module = null;
 
 	/**
 	 * @ignore
@@ -439,6 +449,14 @@ final class ModuleOperations
 			unset($obj,$this->_modules[$module_name]);
 			return false;
 		}
+
+		if( !isset($CMS_INSTALL_PAGE) && !isset($CMS_STYLESHEET) ) {
+			if( isset($CMS_ADMIN_PAGE) ) {
+				$obj->InitializeAdmin();
+			} else if( !$force_load ) {
+				if( CmsApp::get_instance()->is_frontend_request() ) $obj->InitializeFrontend();
+			}
+        }
 
 		// we're all done.
 		HookManager::do_hook('Core::ModuleLoaded', [ 'name' => $module_name ] );
@@ -896,6 +914,18 @@ final class ModuleOperations
 		return in_array($module_name,$this->_coremodules);
 	}
 
+	public function RegisterAdminAuthenticationModule( \CMSModule $mod )
+	{
+		if( $this->_auth_module ) throw new \LogicException( 'Sorry, only one non standard auth module is supported' );
+		if( ! $mod instanceof \CMSMS\IAuthModuleInterface ) throw new \LogicException('Sorry. '.$mod->GetName().' is not a valid authentication module');
+		$this->_auth_module = $mod;
+	}
+
+	public function &GetAdminLoginModule()
+	{
+		if( $this->_auth_module ) return $this->_auth_module;
+		return $this->get_module_instance( self::STD_AUTH_MODULE, '', TRUE );
+	}
 
 	/**
 	 * Return the current syntax highlighter module object

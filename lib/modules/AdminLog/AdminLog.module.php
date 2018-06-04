@@ -1,29 +1,20 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminLog - A CMSMS addon module to provide functionality for working with
-#   The CMSM Audit Log
-# (c) 2017 by Robert Campbell <calguy1000@cmsmadesimple.org>
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2006 by Ted Kulp (wishy@cmsmadesimple.org)
-# This projects homepage is: http://www.cmsmadesimple.org
-#-------------------------------------------------------------------------
-# BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# This file is part of AdminLog
-# AdminLog is free software; you can redistribute it and/or modify
+# AdminLog - a CMSMS module providing functionality for working with the
+#   CMSMS audit log
+# Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# AdminLog is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------
-# END_LICENSE
-#-------------------------------------------------------------------------
 
 require_once(__DIR__.'/lib/class.storage.php');
 require_once(__DIR__.'/lib/class.auditor.php');
@@ -97,4 +88,4 @@ final class AdminLog extends \CMSModule
         $out[] = new \AdminLog\ClearLogCommand( $app );
         return $out;
     }
-} // end of class
+} // class

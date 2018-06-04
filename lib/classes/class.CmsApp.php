@@ -33,7 +33,20 @@ use function cms_join_path;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 */
+
+use CMSMS\BookmarkOperations;
+use CMSMS\ContentOperations;
+use CMSMS\contenttypes\ErrorPage;
+use CMSMS\Database\Connection as Connection2;
+use CMSMS\Database\mysqli\Connection;
+use CMSMS\GroupOperations;
+use CMSMS\HookManager;
 use CMSMS\internal\global_cache;
+use CMSMS\internal\Smarty;
+use CMSMS\ModuleOperations;
+use CMSMS\SimplePluginOperations;
+use CMSMS\UserOperations;
+use CMSMS\UserTagOperations;
 
 /**
  * Singleton class that contains various functions and states
@@ -67,6 +80,11 @@ final class CmsApp
 	 */
 	const STATE_PARSE_TEMPLATE = 'parse_page_template';
 
+    /**
+     * A constant indicating that the request is for an admin login
+     */
+    const STATE_LOGIN_PAGE = 'login_request';
+
 	/**
 	 * @ignore
 	 */
@@ -96,7 +114,7 @@ final class CmsApp
 	/**
 	 * @ignore
 	 */
-	private static $_statelist = array(self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE);
+	private static $_statelist = array(self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE,self::STATE_LOGIN_PAGE);
 
 	/**
 	 * Database object - handle/connection to the current database
@@ -120,6 +138,17 @@ final class CmsApp
 	 * @ignore
 	 */
 	private $errors = [];
+
+    /**
+     * Get the simple plugin operations class
+     * @ignore
+     */
+    private $simple_plugin_manager;
+
+    /**
+     * @ignore
+     */
+    private $scriptcombiner;
 
 	/**
 	 * @ignore
@@ -327,9 +356,9 @@ final class CmsApp
 	 * @final
 	 * @internal
 	 * @ignore
-	 * @param \CMSMS\Database\Connection $conn
+	 * @param Connection2 $conn
 	 */
-	final public function _setDb(\CMSMS\Database\Connection $conn)
+	final public function _setDb(Connection2 $conn)
 	{
 		$this->db = $conn;
 	}
@@ -351,7 +380,7 @@ final class CmsApp
 
 		if( !isset($DONT_LOAD_DB) ) {
 			$config = cms_config::get_instance();
-			$this->db = new \CMSMS\Database\mysqli\Connection($config);
+			$this->db = new Connection($config);
 			//deprecated: make old stuff available
 			require_once cms_join_path(__DIR__, 'Database', 'class.compatibility.php');
 			return $this->db;
@@ -479,9 +508,9 @@ final class CmsApp
 	* If it does not yet exist, this method will instantiate it.
 	*
 	* @final
-	* @see CMSMS\internal\Smarty
+	* @see Smarty
 	* @link http://www.smarty.net/manual/en/
-	* @return CMSMS\internal\Smarty handle to the Smarty object
+	* @return Smarty handle to the Smarty object
 	*/
 	public function & GetSmarty()
 	{
@@ -491,7 +520,7 @@ final class CmsApp
 			$out = null;
 			return $out;
 		}
-		return \CMSMS\internal\Smarty::get_instance();
+		return Smarty::get_instance();
 	}
 
 	/**
@@ -506,9 +535,18 @@ final class CmsApp
 	{
 		/* Check to see if a HierarchyManager has been instantiated yet,
 		  and, if not, go ahead an create the instance. */
-        if( is_null($this->_hrinstance) ) $this->_hrinstance = \CMSMS\internal\global_cache::get('content_tree');
+        if( is_null($this->_hrinstance) ) $this->_hrinstance = global_cache::get('content_tree');
 		return $this->_hrinstance;
 	}
+
+    /**
+     * Get a handle to the ScriptCombiner stuff
+     */
+    public function GetScriptManager()
+    {
+        if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new \CMSMS\ScriptManager;
+        return $this->scriptcombiner;
+    }
 
 	/**
 	* Disconnect from the database.
@@ -543,7 +581,7 @@ final class CmsApp
 		global $CMS_LOGIN_PAGE, $CMS_INSTALL_PAGE;
 		if( !defined('TMP_CACHE_LOCATION') ) return;
 			$age_days = max(0,(int)$age_days);
-        	\CMSMS\HookManager::do_hook('clear_cached_files', [ 'older_than' => $age_days ]);
+        	HookManager::do_hook('clear_cached_files', [ 'older_than' => $age_days ]);
 		$the_time = time() - $age_days * 24*60*60;
 
 		$dirs = array(TMP_CACHE_LOCATION,PUBLIC_CACHE_LOCATION,TMP_TEMPLATES_C_LOCATION);
@@ -553,7 +591,7 @@ final class CmsApp
 			foreach( $dirContents as $one ) {
 				if( $one->isFile() && $one->getMTime() <= $the_time ) @unlink($one->getPathname());
 			}
-					@touch(cms_join_path($start_dir,'index.html'));
+			@touch(cms_join_path($start_dir,'index.html'));
 		}
 	}
 
@@ -571,9 +609,11 @@ final class CmsApp
 			global $CMS_ADMIN_PAGE;
 			global $CMS_INSTALL_PAGE;
 			global $CMS_STYLESHEET;
+            global $CMS_LOGIN_PAGE;
 
 			$this->_states = array();
 
+			if( isset($CMS_LOGIN_PAGE) ) $this->_states[] = self::STATE_LOGIN_PAGE;
 			if( isset($CMS_ADMIN_PAGE) ) $this->_states[] = self::STATE_ADMIN_PAGE;
 			if( isset($CMS_INSTALL_PAGE) ) $this->_states[] = self::STATE_INSTALL;
 			if( isset($CMS_STYLESHEET) ) $this->_states[] = self::STATE_STYLESHEET;

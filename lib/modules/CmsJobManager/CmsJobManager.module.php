@@ -125,7 +125,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     protected function unlock()
     {
-        $this->_unlock = null;
+        $this->_lock = null;
         $this->RemovePreference(self::LOCKPREF);
     }
 
@@ -362,7 +362,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             return;
         }
 
-        $deep = TRUE; //TODO algorithm for this
+        $deep = FALSE; //TODO algorithm for this
 
         if (!$this->check_for_jobs_or_tasks($deep)) {
             return; // nothing to do

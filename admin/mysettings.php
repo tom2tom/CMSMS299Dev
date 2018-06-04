@@ -51,33 +51,33 @@ $db = cmsms()->GetDb();
 if (isset($_POST['submit'])) {
   cleanArray($_POST);
   // Get values from request and drive em to variables
-  $wysiwyg = $_POST['wysiwyg'];
-  $ce_navdisplay = $_POST['ce_navdisplay'];
-  $syntaxhighlighter = $_POST['syntaxhighlighter'];
-  $default_cms_language = $_POST['default_cms_language'];
-  $old_default_cms_lang = $_POST['old_default_cms_lang'];
   $admintheme = $_POST['admintheme'];
   $bookmarks = (!empty($_POST['bookmarks'])) ? 1 : 0;
-  $indent = (!empty($_POST['indent'])) ? 1 : 0;
-  $paging = (!empty($_POST['paging'])) ? 1 : 0;
+  $ce_navdisplay = $_POST['ce_navdisplay'];
   $date_format_string = $_POST['date_format_string'];
+  $default_cms_language = $_POST['default_cms_language'];
   $default_parent = (int)$_POST['parent_id'];
-  $homepage = $_POST['homepage'];
   $hide_help_links = (!empty($_POST['hide_help_links'])) ? 1 : 0;
+  $homepage = $_POST['homepage'];
+  $indent = (!empty($_POST['indent'])) ? 1 : 0;
+  $old_default_cms_lang = $_POST['old_default_cms_lang'];
+  $paging = (!empty($_POST['paging'])) ? 1 : 0;
+  $syntaxhighlighter = $_POST['syntaxhighlighter'];
+  $wysiwyg = $_POST['wysiwyg'];
 
   // Set prefs
-  cms_userprefs::set_for_user($userid, 'wysiwyg', $wysiwyg);
-  cms_userprefs::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
-  cms_userprefs::set_for_user($userid, 'syntaxhighlighter', $syntaxhighlighter);
-  cms_userprefs::set_for_user($userid, 'default_cms_language', $default_cms_language);
   cms_userprefs::set_for_user($userid, 'admintheme', $admintheme);
   cms_userprefs::set_for_user($userid, 'bookmarks', $bookmarks);
+  cms_userprefs::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
+  cms_userprefs::set_for_user($userid, 'date_format_string', $date_format_string);
+  cms_userprefs::set_for_user($userid, 'default_cms_language', $default_cms_language);
+  cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
   cms_userprefs::set_for_user($userid, 'hide_help_links', $hide_help_links);
+  cms_userprefs::set_for_user($userid, 'homepage', $homepage);
   cms_userprefs::set_for_user($userid, 'indent', $indent);
   cms_userprefs::set_for_user($userid, 'paging', $paging);
-  cms_userprefs::set_for_user($userid, 'date_format_string', $date_format_string);
-  cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
-  cms_userprefs::set_for_user($userid, 'homepage', $homepage);
+  cms_userprefs::set_for_user($userid, 'syntaxhighlighter', $syntaxhighlighter);
+  cms_userprefs::set_for_user($userid, 'wysiwyg', $wysiwyg);
 
   // Audit, message, cleanup
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
@@ -88,19 +88,19 @@ if (isset($_POST['submit'])) {
 /**
  * Get current preferences
  */
-$wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
-$ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
-$syntaxhighlighter = cms_userprefs::get_for_user($userid, 'syntaxhighlighter');
-$default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
-$old_default_cms_lang = $default_cms_language;
 $admintheme = cms_userprefs::get_for_user($userid, 'admintheme', CmsAdminThemeBase::GetDefaultTheme());
 $bookmarks = cms_userprefs::get_for_user($userid, 'bookmarks', 0);
-$indent = cms_userprefs::get_for_user($userid, 'indent', true);
-$paging = cms_userprefs::get_for_user($userid, 'paging', 0);
+$ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
 $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
+$default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
 $default_parent = cms_userprefs::get_for_user($userid, 'default_parent', -2);
-$homepage = cms_userprefs::get_for_user($userid, 'homepage');
 $hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
+$homepage = cms_userprefs::get_for_user($userid, 'homepage');
+$indent = cms_userprefs::get_for_user($userid, 'indent', true);
+$old_default_cms_lang = $default_cms_language;
+$paging = cms_userprefs::get_for_user($userid, 'paging', 0);
+$syntaxhighlighter = cms_userprefs::get_for_user($userid, 'syntaxhighlighter');
+$wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
 
 /**
  * Build page

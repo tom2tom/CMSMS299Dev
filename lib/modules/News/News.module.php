@@ -22,7 +22,7 @@ class News extends CMSModule
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function IsPluginModule() { return true; }
     public function HasAdmin() { return true; }
-    public function GetVersion() { return '2.51.4'; }
+    public function GetVersion() { return '2.51.5'; }
     public function MinimumCMSVersion() { return '2.1.6'; }
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'content'; }
@@ -60,6 +60,8 @@ class News extends CMSModule
         $this->SetParameterType('pagenumber',CLEAN_INT);
         $this->SetParameterType('articleid',CLEAN_INT);
         $this->SetParameterType('origid',CLEAN_INT);
+        $this->SetParameterType('assign',CLEAN_STRING);
+        $this->SetParameterType('inline',CLEAN_STRING);
         $this->SetParameterType('preview',CLEAN_STRING);
         $this->SetParameterType('idlist',CLEAN_STRING);
 

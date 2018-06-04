@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: cms_content_tree (c) 2010 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A caching tree for CMSMS content objects.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# Class for managing cached content objects
+# Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 namespace CMSMS\internal;
 
 /**
@@ -81,7 +71,6 @@ final class content_cache
 	private function __construct()
 	{
 		if( !\CmsApp::get_instance()->is_frontend_request() ) return;
-        debug_buffer('content_cache: begin load needed content objects');
 		$content_ids = null;
 		$deep = FALSE;
 		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET));
@@ -97,7 +86,6 @@ final class content_cache
 			$contentops = \ContentOperations::get_instance();
 			$tmp = $contentops->LoadChildren(null,$deep,false,$content_ids);
 		}
-        debug_buffer('content_cache: end loading needed content objects');
 	}
 
 	/**
@@ -121,6 +109,7 @@ final class content_cache
 	{
 		if( !\CmsApp::get_instance()->is_frontend_request() ) return;
 		if( !$this->_key ) return;
+        if( $this->_preload_cache ) return;
 
 		$list = $this->get_loaded_page_ids();
 		if( is_array($list) && count($list) ) {
@@ -341,5 +330,3 @@ final class content_cache
 	  }
   }
 }
-
-?>

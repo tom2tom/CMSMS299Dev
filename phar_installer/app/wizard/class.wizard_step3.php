@@ -185,6 +185,12 @@ class wizard_step3 extends \cms_autoinstaller\wizard_step
         $obj->fail_key = 'fail_file_uploads';
         $tests[] = $obj;
 
+        // required test curl extension
+        $obj = new _tests_\boolean_test('curl_extension',_tests_\test_extension_loaded('curl'));
+        $obj->fail_key = 'fail_curl_extension';
+        $obj->required = 1;
+        $tests[] = $obj;
+
         // upload max filesize
         $obj = new _tests_\range_test('upload_max_filesize',ini_get('upload_max_filesize'));
         $obj->minimum = '1M';

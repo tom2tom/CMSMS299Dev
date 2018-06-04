@@ -24,14 +24,15 @@ use cms_tree_operations;
 use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
-use CMSMS\ContentTypePlaceHolder;
 use CMSMS\ContentBase;
+use CMSMS\ContentTypePlaceHolder;
 use CMSMS\internal\content_cache;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 use CMSMS\UserOperations;
 use const CMS_DB_PREFIX;
+use const CMS_SCRIPTS_URL;
 use function check_permission;
 use function debug_buffer;
 use function get_userid;
@@ -738,13 +739,9 @@ class ContentOperations
 	function SetDefaultContent(int $id)
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$query = "SELECT content_id FROM ".CMS_DB_PREFIX."content WHERE default_content=1";
-		$old_id = $db->GetOne($query);
-		if (isset($old_id)) {
-			$one = $this->LoadContentFromId($old_id);
-			$one->SetDefaultContent(false);
-			$one->Save();
-		}
+
+		$sql = 'UPDATE '.CMS_DB_PREFIX."content SET default_content=0 WHERE default_content=1";
+		$db->Execute( $sql );
 		$one = $this->LoadContentFromId($id);
 		$one->SetDefaultContent(true);
 		$one->Save();
@@ -1133,10 +1130,10 @@ EOS;
 
 	/**
 	 * A convenience function to find a hierarchy node given the page id
-	 * This method will be moved to content_tree at a later date.
+	 * This method is replicated in cms_content_tree class
 	 *
 	 * @param int $id The page id
-	 * @return content_tree
+	 * @return cms_content_tree
 	 */
 	public function quickfind_node_by_id(int $id)
 	{
