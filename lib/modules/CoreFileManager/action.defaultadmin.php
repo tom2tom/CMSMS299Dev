@@ -115,7 +115,7 @@ $js = <<<EOS
 
 EOS;
 $t = file_get_contents($p.'defaultadmin.inc.js');
-/*
+/* separate files for development/debug
 $js = <<<EOS
 <script type="text/javascript" src="{$baseurl}/lib/js/jquery.SSsort+metadata.min.js"></script>
 <script type="text/javascript" src="{$baseurl}/lib/js/jquery.treemenu.min.js"></script>
