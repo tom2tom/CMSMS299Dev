@@ -52,7 +52,7 @@ function cms_autoloader(string $classname)
 		$class_replaces = [
 /*
 'cms_admin_tabs' => 'CMSMS\AdminTabs',
-'cms_admin_utils' => 'CMSMS\AdminUtils2',
+'cms_admin_utils' => 'CMSMS\AdminUtils',
 'cms_cache_driver' => 'CMSMS\CacheDriver',
 'cms_cache_handler' => 'CMSMS\CacheHandler',
 'cms_config' => 'CMSMS\Config',
