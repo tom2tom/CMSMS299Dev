@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 // WARNING: this is certainly not my best code.
 // todo: make this interactive via cli.

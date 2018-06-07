@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 // NOTE this assumes UNIX-style filepaths
 
