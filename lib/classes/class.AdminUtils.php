@@ -19,7 +19,7 @@ namespace CMSMS;
 
 use cms_utils;
 use CmsApp;
-use CmsLogicException;
+//use CmsLogicException;
 use CMSMS\internal\Smarty;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
@@ -33,8 +33,8 @@ use function endswith;
  * @license GPL
  */
 
-if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) )
-    throw new CmsLogicException('Attempt to use CMSMS\AdminUtils class from an invalid request');
+//if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) )
+//    throw new CmsLogicException('Attempt to use CMSMS\AdminUtils class from an invalid request');
 
 /**
  * A Simple static class providing various convenience utilities for admin requests.
@@ -48,9 +48,112 @@ if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) )
 final class AdminUtils
 {
 	/**
+	 * A regular expression to use when testing if an item has a valid name.
+	 */
+	const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x7f-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x7f-\xff]*$>';
+
+	/**
 	 * @ignore
 	 */
 	private function __construct() {}
+
+	/**
+	 * Test if a string is suitable for use as a name of an item in CMSMS.
+	 * For use by various modules and the core.
+	 * The name must begin with an alphanumeric character (but some extended characters are allowed).  And must be followed by the same alphanumeric characters
+	 * note the name is not necessarily guaranteed to be usable in smarty without backticks.
+	 *
+	 * @param string $str The string to test
+	 * @return bool|string FALSE on error or the validated string.
+	 */
+	public static function is_valid_itemname($str)
+	{
+		if( !is_string($str) ) return FALSE;
+		$t_str = trim($str);
+		if( !$t_str ) return FALSE;
+		if( !preg_match(self::ITEMNAME_REGEX,$t_str) ) return FALSE;
+		return $str;
+	}
+
+	/**
+	 * Convert an admin request URL to a generic form that is suitable for saving to a database.
+	 * This is useful for things like bookmarks and homepages.
+	 *
+	 * @param string $in_url The input URL that has the session key in it.
+	 * @return string A URL that is converted to a generic form.
+	 */
+	public static function get_generic_url($in_url)
+	{
+		if( !defined('CMS_USER_KEY') ) throw new \LogicException('This method can only be called for admin requests');
+		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
+
+		$len = strlen($_SESSION[CMS_USER_KEY]);
+		$in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}+';
+		$out_p = '_CMSKEY_='.str_repeat('X',$len);
+		$out = preg_replace($in_p,$out_p,$in_url);
+		if( startswith($out,CMS_ROOT_URL) ) $out = str_replace(CMS_ROOT_URL,'',$out);
+		return $out;
+	}
+
+	/**
+	 * Convert a generic URL into something that is suitable for this users session.
+	 *
+	 * @param string $in_url The generic url.  usually retrieved from a preference or from the database
+	 * @return string A URL that has a session key in it.
+	 */
+	public static function get_session_url($in_url)
+	{
+		if( !defined('CMS_USER_KEY') ) throw new \LogicException('This method can only be called for admin requests');
+		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
+
+		$len = strlen($_SESSION[CMS_USER_KEY]);
+		$in_p = '+_CMSKEY_=[X]{'.$len.'}+';
+		$out_p = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+		return preg_replace($in_p,$out_p,$in_url);
+	}
+
+	/**
+	 * Get the latest available CMSMS version.
+	 * This method does a remote request to the version check URL at most once per day.
+	 *
+	 * @return string
+	 */
+	public static function fetch_latest_cmsms_ver()
+	{
+		$last_fetch = (int) cms_siteprefs::get('last_remotever_check');
+		$remote_ver = cms_siteprefs::get('last_remotever');
+		if( $last_fetch < (time() - 24 * 3600) ) {
+			$req = new cms_http_request();
+			$req->setTimeout(3);
+			$req->execute(CMS_DEFAULT_VERSIONCHECK_URL);
+			if( $req->getStatus() == 200 ) {
+				$remote_ver = trim($req->getResult());
+				if( strpos($remote_ver,':') !== FALSE ) {
+					list($tmp,$remote_ver) = explode(':',$remote_ver,2);
+					$remote_ver = trim($remote_ver);
+				}
+				cms_siteprefs::set('last_remotever',$remote_ver);
+				cms_siteprefs::set('last_remotever_check',time());
+			}
+		}
+		return $remote_ver;
+	}
+
+	/**
+	 * Test if the current site is in need of upgrading (a new version of CMSMS is available)
+	 *
+	 * @return bool
+	 */
+	public static function site_needs_updating()
+	{
+		$remote_ver = self::fetch_latest_cmsms_ver();
+		if( version_compare(CMS_VERSION,$remote_ver) < 0 ) {
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
+	}
 
 	/**
 	 * Return the url corresponding to a provided site-path
@@ -87,14 +190,14 @@ final class AdminUtils
 	{
 		$dirs = cms_module_places($module);
 		if ($dirs) {
-            $appends = [
-                ['images','icon.svg'],
-                ['icons','icon.svg'],
-                ['images','icon.png'],
-                ['icons','icon.png'],
-                ['images','icon.gif'],
-                ['icons','icon.gif'],
-            ];
+			$appends = [
+				['images','icon.svg'],
+				['icons','icon.svg'],
+				['images','icon.png'],
+				['icons','icon.png'],
+				['images','icon.gif'],
+				['icons','icon.gif'],
+			];
 			foreach ($dirs as $base) {
 				foreach ($appends as $one) {
 					$path = cms_join_path($base, ...$one);
@@ -107,7 +210,7 @@ final class AdminUtils
 						} else {
 							$out = '<img src="'.$path.'"';
 						}
-		                $extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
+						$extras = array_merge(['alt'=>$module, 'title'=>$module], $attrs);
 						foreach( $extras as $key => $value ) {
 							if ($value !== '' || $key == 'title') {
 								$out .= " $key=\"$value\"";
@@ -171,7 +274,7 @@ final class AdminUtils
 		if( count($args) >= 2 && is_string($args[0]) && is_string($args[1]) ) {
 			$params['key1'] = $args[0];
 			$params['key2'] = $args[1];
-            if( isset($args[2]) ) $params['title'] = $args[2];
+			if( isset($args[2]) ) $params['title'] = $args[2];
 		}
 		else if( count($args) == 1 && is_string($args[0]) ) {
 			$params['key2'] = $args[0];
@@ -194,7 +297,7 @@ final class AdminUtils
 				$key2 = trim($value);
 				break;
 			case 'title':
-            case 'titlekey':
+			case 'titlekey':
 				$title = trim($value); //TODO ensure $value including e.g. &quot; works
 			}
 		}
@@ -217,4 +320,5 @@ final class AdminUtils
 
 		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'">'.$icon.'</span>';
 	}
+
 } // class
