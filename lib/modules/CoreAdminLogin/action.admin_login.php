@@ -135,7 +135,7 @@ elseif( isset( $_POST['submit'] ) ) {
         $homepage = \cms_userprefs::get_for_user($oneuser->id,'homepage');
         if( !$homepage ) $homepage = $config['admin_url'];
         $homepage = html_entity_decode( $homepage );
-        $homepage = \CmsAdminUtils::get_session_url( $homepage );
+        $homepage = \CMSMS\AdminUtils::get_session_url( $homepage );
         redirect( $homepage );
     }
     catch( LoginUserError $e ) {

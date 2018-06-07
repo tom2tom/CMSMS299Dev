@@ -17,6 +17,8 @@
 
 //namespace CMSMS;
 
+use CMSMS\AdminUtils;
+
 /**
  * A class representing a template category.
  *
@@ -76,7 +78,7 @@ class CmsLayoutTemplateCategory
 	{
 		$str = trim($str);
 		if( !$str ) throw new CmsInvalidDataException('Name cannot be empty');
-		if( !CmsAdminUtils::is_valid_itemname($str) ) {
+		if( !AdminUtils::is_valid_itemname($str) ) {
 			throw new CmsInvalidDataException('Invalid characters in name');
 		}
 		$this->_data['name'] = $str;
@@ -150,7 +152,7 @@ class CmsLayoutTemplateCategory
 	protected function validate()
 	{
 		if( !$this->get_name() ) throw new CmsInvalidDataException('A Template Categoy must have a name');
-		if( !CmsAdminUtils::is_valid_itemname($this->get_name()) ) {
+		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
 			throw new CmsInvalidDataException('Name must contain only letters, numbers and underscores.');
 		}
 

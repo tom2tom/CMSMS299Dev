@@ -1,4 +1,10 @@
 <?php
+
+use CMSMS\AdminUtils;
+use CMSMS\CmsException;
+//use \Exception;
+//use function startswith;
+
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
 
@@ -11,19 +17,19 @@ if( version_compare($oldversion,'2.50') < 0 ) {
     }
 
     $_fix_name = function($str) {
-        if( CmsAdminUtils::is_valid_itemname($str) ) return $str;
+        if( AdminUtils::is_valid_itemname($str) ) return $str;
         $orig = $str;
         $str = trim($str);
-        if( !CmsAdminUtils::is_valid_itemname($str[0]) ) $str[0] = '_';
+        if( !AdminUtils::is_valid_itemname($str[0]) ) $str[0] = '_';
         for( $i = 1; $i < strlen($str); $i++ ) {
-            if( !CmsAdminUtils::is_valid_itemname($str[$i]) ) $str[$i] = '_';
+            if( !AdminUtils::is_valid_itemname($str[$i]) ) $str[$i] = '_';
         }
         for( $i = 0; $i < 5; $i++ ) {
             $in = $str;
             $str = str_replace('__','_',$str);
             if( $in == $str ) break;
         }
-        if( $str == '_' ) throw new \Exception('Invalid name '.$orig.' and cannot be corrected');
+        if( $str == '_' ) throw new Exception('Invalid name '.$orig.' and cannot be corrected');
         return $str;
     };
 
@@ -46,7 +52,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
             $mod->DeleteTemplate($tplname);
         }
-        catch( \CmsInvalidDataException $e ) {
+        catch( CmsInvalidDataException $e ) {
         }
 
   };
@@ -90,7 +96,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
               $upgrade_template($summary_template_type,'summary',$tplname,'current_summary_template','News-Summary-');
           }
       }
-      catch( \CmsInvalidDataException $e ) {
+      catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
 
@@ -107,7 +113,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
               $upgrade_template($detail_template_type,'detail',$tplname,'current_detail_template','News-Detail-');
           }
       }
-      catch( \CmsInvalidDataException $e ) {
+      catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
 
@@ -124,7 +130,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
               $upgrade_template($form_template_type,'form',$tplname,'current_form_template','News-Form-');
           }
       }
-      catch( \CmsInvalidDataException $e ) {
+      catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
 
@@ -141,7 +147,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
               $upgrade_template($browsecat_template_type,'browsecat',$tplname,'current_browsecat_template','News-Browsecat-');
           }
       }
-      catch( \CmsInvalidDataException $e ) {
+      catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
   }

@@ -1032,7 +1032,7 @@ $X = 1;
     {
         if( !$module_name ) $module_name = $this->get_action_module();
         if( !$module_name ) return;
-        //TODO some core method c.f. CmsAdminUtils::get_generic_url()
+        //TODO some core method c.f. \CMSMS\AdminUtils::get_generic_url()
         $modman = cms_utils::get_module('ModuleManager');
         if( is_object($modman) ) {
             return $modman->create_url('m1_','defaultadmin','',['modulehelp'=>$module_name]);
@@ -1609,7 +1609,7 @@ $X = 1;
             if( $menuItem['parent'] != -1 ) continue; // only parent pages
             if( !$menuItem['show_in_menu'] || strlen($menuItem['url']) < 1 ) continue; // only visible stuff
 
-            $opts[$menuItem['title']] = CmsAdminUtils::get_generic_url($menuItem['url']);
+            $opts[$menuItem['title']] = AdminUtils::get_generic_url($menuItem['url']);
 
             if( is_array($menuItem['children']) && count($menuItem['children']) ) {
                 foreach( $menuItem['children'] as $one ) {
@@ -1624,7 +1624,7 @@ $X = 1;
 
                     //$opts['&nbsp;&nbsp;'.$menuChild['title']] = cms_htmlentities($menuChild['url']);
                     $url = $menuChild['url'];
-                    $url = CmsAdminUtils::get_generic_url($url);
+                    $url = AdminUtils::get_generic_url($url);
                     $opts['&nbsp;&nbsp;'.$menuChild['title']] = $url;
                 }
             }

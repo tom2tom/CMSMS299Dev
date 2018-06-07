@@ -16,8 +16,13 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //namespace CMSMS;
-use \CMSMS\HookManager;
-use \CMSMS\internal\TemplateCache;
+
+use CMSMS\AdminUtils;
+use CMSMS\HookManager;
+use CMSMS\internal\Smarty;
+use CMSMS\internal\TemplateCache;
+use CMSMS\User;
+use CMSMS\UserOperations;
 
 /**
  * A class to represent a LayoutTemplate.
@@ -120,7 +125,7 @@ class CmsLayoutTemplate
 	 */
 	public function set_name($str)
 	{
-		if( !CmsAdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
+		if( !AdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -183,7 +188,7 @@ class CmsLayoutTemplate
 	/**
 	 * Set the type id for the template
 	 *
-	 * @throws \CmsLogicException
+	 * @throws CmsLogicException
 	 * @param mixed $a Either an instance of CmsLayoutTemplateType object, an integer type id, or a string template type identifier
 	 * @see CmsLayoutTemplateType
 	 */
@@ -201,7 +206,7 @@ class CmsLayoutTemplate
 			$n = $type->get_id();
 		}
 		else {
-			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+			throw new CmsLogicException('Invalid data passed to '.__METHOD__);
 		}
 
 		$this->_data['type_id'] = (int) $n;
@@ -260,7 +265,7 @@ class CmsLayoutTemplate
 	/**
 	 * Set the category for a template
 	 *
-	 * @throws \CmsLogicException
+	 * @throws CmsLogicException
 	 * @param mixed $a Either a CmsLayoutTemplateCategory object, a category name (string) or category id (int)
 	 * @see CmsLayoutTemplateCategory
 	 */
@@ -279,7 +284,7 @@ class CmsLayoutTemplate
 			$n = $cat->get_id();
 		}
 		else {
-			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+			throw new CmsLogicException('Invalid data passed to '.__METHOD__);
 		}
 
 		$this->_data['category_id'] = (int) $n;
@@ -342,7 +347,7 @@ class CmsLayoutTemplate
 			$n = $design->get_id();
 		}
 		else {
-			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+			throw new CmsLogicException('Invalid data passed to '.__METHOD__);
 		}
 
 		if( !is_array($this->_design_assoc) ) $this->get_designs();
@@ -373,7 +378,7 @@ class CmsLayoutTemplate
 			$n = $design->get_id();
 		}
 		else {
-			throw new \CmsLogicException('Invalid data passed to '.__METHOD__);
+			throw new CmsLogicException('Invalid data passed to '.__METHOD__);
 		}
 
 		$designs = $this->get_designs();
@@ -480,7 +485,7 @@ class CmsLayoutTemplate
 			if( $a instanceof User ) return $a->id;
 		}
 		if( $a instanceof User ) return $a->id;
-		throw new \CmsLogicException('Could not resolve '.$a.' to a user id');
+		throw new CmsLogicException('Could not resolve '.$a.' to a user id');
 	}
 
 	/**
@@ -571,7 +576,7 @@ class CmsLayoutTemplate
 	 */
 	public function process()
 	{
-		$smarty = \CMSMS\internal\Smarty::get_instance();
+		$smarty = Smarty::get_instance();
 		return $smarty->fetch('cms_template:id='.$this->get_id());
 	}
 
@@ -584,7 +589,7 @@ class CmsLayoutTemplate
 	{
 		if( !$this->get_name() ) throw new CmsInvalidDataException('Each template must have a name');
 		if( endswith($this->get_name(),'.tpl') ) throw new CmsInvalidDataException('Invalid name for a database template');
-		if( !CmsAdminUtils::is_valid_itemname($this->get_name()) ) {
+		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
 			throw new CmsInvalidDataException('There are invalid characters in the template name');
 		}
 
@@ -1106,7 +1111,7 @@ class CmsLayoutTemplate
 	 */
 	public static function process_by_name($name)
 	{
-		$smarty = \CMSMS\internal\Smarty::get_instance();
+		$smarty = Smarty::get_instance();
 		return $smarty->fetch('cms_template:name='.$this->get_name());
 	}
 
@@ -1165,7 +1170,7 @@ class CmsLayoutTemplate
 	{
 		$obj = null;
 		$tid = $this->get_type_id();
-		if( $tid > 0 ) $obj = \CmsLayoutTemplateType::load($this->get_type_id());
+		if( $tid > 0 ) $obj = CmsLayoutTemplateType::load($this->get_type_id());
 		return $obj;
 	}
 
@@ -1189,7 +1194,7 @@ class CmsLayoutTemplate
 	 */
 	public function get_content_filename()
 	{
-		$config = \cms_config::get_instance();
+		$config = cms_config::get_instance();
 		$name = munge_string_to_url($this->get_name()).'.'.$this->get_id().'.tpl';
 		return cms_join_path($config['assets_path'],'templates',$name);
 	}

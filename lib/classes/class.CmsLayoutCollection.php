@@ -16,7 +16,8 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //namespace CMSMS;
-use \CMSMS\HookManager;
+
+use CMSMS\AdminUtils, CMSMS\HookManager;
 
 /**
  * A class to manage a collection (or theme) of Templates and Stylesheets
@@ -101,7 +102,7 @@ class CmsLayoutCollection
 	 */
 	public function set_name($str)
 	{
-		if( !CmsAdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
+		if( !AdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -207,7 +208,7 @@ class CmsLayoutCollection
 		if( !is_array($id_array) ) return;
 
 		foreach( $id_array as $one ) {
-			if( !is_numeric($one) || $one < 1 ) throw new \CmsLogicException('CmsLayoutCollection::set_stylesheets expects an array of integers');
+			if( !is_numeric($one) || $one < 1 ) throw new CmsLogicException('CmsLayoutCollection::set_stylesheets expects an array of integers');
 		}
 
 		$this->_css_assoc = $id_array;
@@ -217,7 +218,7 @@ class CmsLayoutCollection
 	/**
 	 * Adds a stylesheet to the theme
 	 *
-	 * @throws \CmsLogicException
+	 * @throws CmsLogicException
 	 * @param mixed $css Either an integer stylesheet id, or a CmsLayoutStylesheet object
 	 */
 	public function add_stylesheet($css)
@@ -229,7 +230,7 @@ class CmsLayoutCollection
 		else if( is_numeric($css) && $css > 0 ) {
 			$css_t = (int) $css;
 		}
-		if( $css_t < 1 ) throw new \CmsLogicException('Invalid css id specified to CmsLayoutCollection::add_stylesheet');
+		if( $css_t < 1 ) throw new CmsLogicException('Invalid css id specified to CmsLayoutCollection::add_stylesheet');
 
 		if( !in_array($css_t,$this->_css_assoc) ) {
 			$this->_css_assoc[] = (int) $css_t;
@@ -252,7 +253,7 @@ class CmsLayoutCollection
 		else if( is_numeric($css) ) {
 			$css_t = (int) $css;
 		}
-		if( $css_t < 1 ) throw new \CmsLogicException('Invalid css id specified to CmsLayoutCollection::delete_stylesheet');
+		if( $css_t < 1 ) throw new CmsLogicException('Invalid css id specified to CmsLayoutCollection::delete_stylesheet');
 
 		if( !in_array($css_t,$this->_css_assoc) ) return;
 		$t = array();
@@ -304,7 +305,7 @@ class CmsLayoutCollection
 		if( !is_array($id_array) ) return;
 
 		foreach( $id_array as $one ) {
-			if( !is_numeric($one) && $one < 1 ) throw new \CmsLogicException('CmsLayoutCollection::set_templates expects an array of integers');
+			if( !is_numeric($one) && $one < 1 ) throw new CmsLogicException('CmsLayoutCollection::set_templates expects an array of integers');
 		}
 
 		$this->_tpl_assoc = $id_array;
@@ -372,7 +373,7 @@ class CmsLayoutCollection
 	protected function validate()
 	{
 		if( $this->get_name() == '' ) throw new CmsInvalidDataException('A Design must have a name');
-		if( !CmsAdminUtils::is_valid_itemname($this->get_name()) ) {
+		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
 			throw new CmsInvalidDataException('There are invalid characters in the design name.');
 		}
 
