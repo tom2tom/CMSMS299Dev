@@ -27,12 +27,7 @@ use function cms_join_path;
 use function cms_module_places;
 use function endswith;
 
-/**
- * Static classes providing convenience functions for admin console requests.
- * @package CMS
- * @license GPL
- */
-
+//this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
 //if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) )
 //    throw new CmsLogicException('Attempt to use CMSMS\AdminUtils class from an invalid request');
 
