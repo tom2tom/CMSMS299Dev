@@ -65,7 +65,9 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
+	$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
+    $dbdict->ExecuteSQLArray($sqlarray);
+	$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE);
     $dbdict->ExecuteSQLArray($sqlarray);
@@ -549,6 +551,28 @@ modified I
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
+
+    $flds = '
+category_id I NOTNULL,
+tpl_id I NOTNULL,
+tpl_order I(4) DEFAULT 0
+';
+    $sqlarray = $dbdict->CreateTableSQL(
+        CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
+        $flds,
+        $taboptarray
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    verbose_msg(ilang('install_created_table', CmsLayoutTemplateCategory::TPLTABLE, $msg_ret));
+
+    $sqlarray = $dbdict->CreateIndexSQL(
+        CMS_DB_PREFIX.'idx_layout_cat_tplasoc_1',
+        CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
+        'tpl_id'
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
+    verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
     $flds = '
 id I KEY AUTO,
