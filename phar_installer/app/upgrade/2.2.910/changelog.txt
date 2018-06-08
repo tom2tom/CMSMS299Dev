@@ -1,0 +1,1 @@
+Add table for associating templates with multiple categories
