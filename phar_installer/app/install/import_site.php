@@ -45,7 +45,7 @@ foreach ($xml->children() as $typenode) {
 	if ($typenode->count() > 0) {
 		switch ($typenode->getName()) {
 			case 'designs':
-/*				if (!$LONE) {
+				if (!$LONE) {
 					verbose_msg(ilang('install_default_designs'));
 				}
 				foreach ($typenode->children() as $node) {
@@ -61,10 +61,9 @@ foreach ($xml->children() as $typenode) {
 //					$ob->save();
 					$designs[row['id']] = $ob->get_id();
 				}
-*/
 				break;
 			case 'stylesheets':
-/*				if (!$LONE) {
+				if (!$LONE) {
 					verbose_msg(ilang('install_stylesheets'));
 				}
 				foreach ($typenode->children() as $node) {
@@ -85,9 +84,8 @@ foreach ($xml->children() as $typenode) {
 //					$ob->save();
 					$styles[$row['id']] = $val = $ob->get_id();
 				}
-*/
 				break;
-			case 'designstyles':
+			case 'designstyles': //relations between styles and designs
 				$bank = [];
 				$eid = -99;
 				foreach ($typenode->children() as $node) {
@@ -178,13 +176,13 @@ foreach ($xml->children() as $typenode) {
 					$templates[$row['id']] = $ob->get_id();
 				}
 				break;
-			case 'designtemplates':
+			case 'designtemplates': //relations between templates and designs
 				$bank = [];
 				$eid = -299;
 				foreach ($typenode->children() as $node) {
 					$row = (array)$node;
 					$tid = $templates[$row['tpl_id']] ?? --$eid;
-					$bank[$tid][] = $designs[$row['design_id']] ?? --$eid;
+					$bank[$tid][0][] = $designs[$row['design_id']] ?? --$eid;
 					$bank[$tid][1][] = $row['tpl_order'] ?? 0;
 				}
 				foreach ($bank as $tid=>$arr) {
@@ -198,7 +196,7 @@ foreach ($xml->children() as $typenode) {
 //					$ob->save();
 				}
 				break;
-			case 'categorytemplates':
+			case 'categorytemplates': //relations between templates and categories
 				$bank = [];
 				$eid = -99;
 				foreach ($typenode->children() as $node) {
