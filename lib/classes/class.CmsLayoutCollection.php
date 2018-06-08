@@ -405,7 +405,8 @@ class CmsLayoutCollection
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'INSERT INtO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description,dflt,created,modified) VALUES (?,?,?,?,?)';
-		$dbr = $db->Execute($query,array($this->get_name(), $this->get_description(), ($this->get_default())?1:0, time(),time()));
+		$now = time();
+		$dbr = $db->Execute($query,array($this->get_name(), $this->get_description(), ($this->get_default())?1:0, $now, $now));
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_data['id'] = $db->Insert_ID();
@@ -424,10 +425,10 @@ class CmsLayoutCollection
 			}
 		}
 		if( count($this->_tpl_assoc) ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id) VALUES(?,?)';
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			for( $i = 0, $n = count($this->_tpl_assoc); $i < $n; $i++ ) {
 				$tpl_id = $this->_tpl_assoc[$i];
-				$dbr = $db->Execute($query,array($this->get_id(),$tpl_id));
+				$dbr = $db->Execute($query,array($this->get_id(),$tpl_id,$i+1));
 			}
 		}
 
@@ -469,10 +470,10 @@ class CmsLayoutCollection
 		$db->Execute($query,array($this->get_id()));
 
 		if( count($this->_tpl_assoc) ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id) VALUES (?,?)';
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_tpl_assoc); $i < $n; $i++ ) {
 				$tpl_id = $this->_tpl_assoc[$i];
-				$dbr = $db->Execute($query,array($this->get_id(),$tpl_id));
+				$dbr = $db->Execute($query,array($this->get_id(),$tpl_id,$i+1));
 			}
 		}
 
@@ -636,7 +637,7 @@ class CmsLayoutCollection
 					}
 				}
 
-				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id IN ('.implode(',',$ids).') ORDER BY design_id';
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id IN ('.implode(',',$ids).') ORDER BY design_id,tpl_order';
 				$dbr2 = $db->GetArray($query);
 				if( is_array($dbr2) && count($dbr2) ) {
 					foreach( $dbr2 as $row ) {
