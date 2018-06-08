@@ -6,9 +6,9 @@ Can be run independently, or included in a site-setup script.
 */
 
 global $CMS_INSTALL_PAGE;
-$cli = empty($CMS_INSTALL_PAGE);
+$LONE = empty($CMS_INSTALL_PAGE);
 
-if ($cli) {
+if ($LONE) {
 	require_once dirname(__FILE__, 4).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 }
 
@@ -21,7 +21,7 @@ $infile = __DIR__.DIRECTORY_SEPARATOR.$xmlfile;
 libxml_use_internal_errors(true);
 $xml = simplexml_load_file($infile);
 if ($xml === false) {
-	if ($cli) {
+	if ($LONE) {
 		echo 'Failed to load file '.$infile."\n";
 	} else {
 		verbose_msg(ilang('error_filebad',$infile));
@@ -43,11 +43,9 @@ $pageobs = [];
 
 foreach ($xml->children() as $typenode) {
 	if ($typenode->count() > 0) {
-
-
 		switch ($typenode->getName()) {
 			case 'designs':
-/*				if (!$cli) {
+/*				if (!$LONE) {
 					verbose_msg(ilang('install_default_designs'));
 				}
 				foreach ($typenode->children() as $node) {
@@ -66,7 +64,7 @@ foreach ($xml->children() as $typenode) {
 */
 				break;
 			case 'stylesheets':
-/*				if (!$cli) {
+/*				if (!$LONE) {
 					verbose_msg(ilang('install_stylesheets'));
 				}
 				foreach ($typenode->children() as $node) {
@@ -110,7 +108,7 @@ foreach ($xml->children() as $typenode) {
 				}
 				break;
 			case 'tpltypes':
-				if (!$cli) {
+				if (!$LONE) {
 					verbose_msg(ilang('install_templatetypes'));
 				}
 				foreach ($typenode->children() as $node) {
@@ -140,7 +138,7 @@ foreach ($xml->children() as $typenode) {
 				}
 				break;
 			case 'categories':
-				if (!$cli) {
+				if (!$LONE) {
 					verbose_msg(ilang('install_categories'));
 				}
 				foreach ($typenode->children() as $node) {
@@ -158,7 +156,7 @@ foreach ($xml->children() as $typenode) {
 				}
 				break;
 			case 'templates':
-				if (!$cli) {
+				if (!$LONE) {
 					verbose_msg(ilang('install_templates'));
 				}
 				$eid = -199;
@@ -187,16 +185,16 @@ foreach ($xml->children() as $typenode) {
 					$row = (array)$node;
 					$tid = $templates[$row['tpl_id']] ?? --$eid;
 					$bank[$tid][] = $designs[$row['design_id']] ?? --$eid;
-//TODO				$bank[$tid][1][] = $row['tpl_order'];
+					$bank[$tid][1][] = $row['tpl_order'] ?? 0;
 				}
 				foreach ($bank as $tid=>$arr) {
 					try {
 						$ob = CmsLayoutTemplate::load($tid);
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
 						continue;
 					}
-//					array_multisort($arr[1], $arr[0]);
-					$ob->set_designs($arr);
+					array_multisort($arr[1], $arr[0]);
+					$ob->set_designs($arr[0]);
 //					$ob->save();
 				}
 				break;
@@ -207,12 +205,12 @@ foreach ($xml->children() as $typenode) {
 					$row = (array)$node;
 					$tid = $templates[$row['tpl_id']] ?? --$eid;
 					$bank[$tid][0][] = $categories[$row['category_id']] ?? --$eid;
-					$bank[$tid][1][] = $row['tpl_order'];
+					$bank[$tid][1][] = $row['tpl_order'] ?? 0;
 				}
 				foreach ($bank as $tid=>$arr) {
 					try {
 						$ob = CmsLayoutTemplate::load($tid);
-					} catch (Exception $e) {
+					} catch (\Exception $e) {
 						continue;
 					}
 					array_multisort($arr[1], $arr[0]);
@@ -221,7 +219,7 @@ foreach ($xml->children() as $typenode) {
 				}
 				break;
 			case 'pages':
-				if (!$cli) {
+				if (!$LONE) {
 					verbose_msg(ilang('install_contentpages'));
 				}
 				$eid = -99;
