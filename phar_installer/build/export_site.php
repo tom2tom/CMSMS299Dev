@@ -7,9 +7,9 @@ May be used standalone or included somewhere relevant in the phar-construction p
 */
 
 global $CMS_INSTALL_PAGE;
-$cli = empty($CMS_INSTALL_PAGE);
+$LONE = empty($CMS_INSTALL_PAGE);
 
-if ($cli) {
+if ($LONE) {
     require_once dirname(__FILE__, 3).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 }
 $config = cms_config::get_instance();
@@ -99,6 +99,7 @@ $skeleton = [
    'designtpl' => [
     'design_id' => [],
     'tpl_id' => [],
+    'tpl_order' => ['notempty' => 1],
    ]
   ]
  ],
@@ -191,11 +192,11 @@ $xw->writeDtd('cmsmsinstall', null, null, <<<'EOS'
 <!ELEMENT category_id (#PCDATA)>
 <!ELEMENT type_dflt (#PCDATA)>
 <!ELEMENT designtemplates (designtpl?)>
-<!ELEMENT designtpl(design_id,tpl_id)>
+<!ELEMENT designtpl(design_id,tpl_id,tpl_order?)>
 <!ELEMENT tpl_id (#PCDATA)>
+<!ELEMENT tpl_order (#PCDATA)>
 <!ELEMENT categorytemplates (cattpl?)?
 <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
-<!ELEMENT tpl_order (#PCDATA)>
 <!ELEMENT pages (page)>
 <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
 <!ELEMENT content_id (#PCDATA)>
