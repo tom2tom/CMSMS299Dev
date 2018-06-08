@@ -25,8 +25,9 @@ function smarty_function_form_start($params, &$template)
     $mactparms['inline'] = 0;
 
     $tagparms = [
-    'method' => 'post';
-    'enctype' => 'multipart/form-data'];
+    'method' => 'post',
+    'enctype' => 'multipart/form-data',
+	];
     if( $gCms->test_state(CmsApp::STATE_LOGIN_PAGE) ) {
         $tagparms['action'] = 'login.php';
     }
