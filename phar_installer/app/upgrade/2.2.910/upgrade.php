@@ -3,6 +3,9 @@
 $dbdict = GetDataDictionary($db);
 $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
+$dbdict->ExecuteSQLArray($sqlarray);
+
 $flds = '
 category_id I NOTNULL,
 tpl_id I NOTNULL,
