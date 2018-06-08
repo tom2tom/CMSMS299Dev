@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 /* NOTE
 this requires php extensions zlib, zip
@@ -417,6 +417,10 @@ try {
 	$version_num = $CMS_VERSION;
 	verbose(1, "INFO: found version: $version_num");
 
+    $xmlfile = 'democontent.xml';
+	include_once './export_site.php';
+	@rename('./'.$xmlfile, joinpath($phardir,'app','install',$xmlfile));
+
 	create_source_archive();
 
 	@mkdir($outdir, 0771, true);
@@ -489,6 +493,9 @@ EOS;
 				case 'css':
 					$mimetype = 'text/css';
 					break;
+				case 'xml':
+					$mimetype = 'application/xml';
+					break;
 				default:
 					if ($finfo) {
 						$mimetype = finfo_file($fp);
@@ -499,6 +506,8 @@ EOS;
 						$mimetype = 'image/png';
 					} elseif ($extension == 'gif') {
 						$mimetype = 'image/gif';
+					} elseif ($extension == 'svg') {
+						$mimetype = 'image/svg+xml';
 					} else {
 						$mimetype = 'text/plain';
 					}
