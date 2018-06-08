@@ -39,6 +39,11 @@ class CmsLayoutTemplateCategory
 	/**
 	 * @ignore
 	 */
+	const TPLTABLE  = 'layout_cat_tplassoc';
+
+	/**
+	 * @ignore
+	 */
 	private $_dirty;
 
 	/**
