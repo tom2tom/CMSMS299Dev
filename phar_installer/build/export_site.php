@@ -159,22 +159,22 @@ $xw->startDocument('1.0', 'UTF-8');
 //these data must be manaully reconciled with $skeleton[] above
 $xw->writeDtd('cmsmsinstall', null, null, <<<'EOS'
 
-<!ELEMENT designs (design)>
+<!ELEMENT designs? (design)>
 <!ELEMENT design (id,name,description?,dflt?)>
 <!ELEMENT id (#PCDATA)>
 <!ELEMENT name (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT dflt (#PCDATA)>
-<!ELEMENT stylesheets (stylesheet)>
+<!ELEMENT stylesheets? (stylesheet)>
 <!ELEMENT stylesheet (id,name,description?,media_type?,content)>
 <!ELEMENT media_type (#PCDATA)>
 <!ELEMENT content (#PCDATA)>
-<!ELEMENT designstyles (designcss?)>
+<!ELEMENT designstyles? (designcss)>
 <!ELEMENT designcss(design_id,css_id,item_order)>
 <!ELEMENT design_id (#PCDATA)>
 <!ELEMENT css_id (#PCDATA)>
 <!ELEMENT item_order (#PCDATA)>
-<!ELEMENT tpltypes (tpltype)>
+<!ELEMENT tpltypes? (tpltype)>
 <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
 <!ELEMENT originator (#PCDATA)>
 <!ELEMENT one_only (#PCDATA)>
@@ -184,20 +184,20 @@ $xw->writeDtd('cmsmsinstall', null, null, <<<'EOS'
 <!ELEMENT lang_cb (#PCDATA)>
 <!ELEMENT dflt_content_cb (#PCDATA)>
 <!ELEMENT help_content_cb (#PCDATA)>
-<!ELEMENT categories (category?)>
+<!ELEMENT categories? (category)>
 <!ELEMENT category (id,name,description?,item_order?)>
-<!ELEMENT templates (template)>
+<!ELEMENT templates? (template)>
 <!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
 <!ELEMENT type_id (#PCDATA)>
 <!ELEMENT category_id (#PCDATA)>
 <!ELEMENT type_dflt (#PCDATA)>
-<!ELEMENT designtemplates (designtpl?)>
+<!ELEMENT designtemplates? (designtpl)>
 <!ELEMENT designtpl(design_id,tpl_id,tpl_order?)>
 <!ELEMENT tpl_id (#PCDATA)>
 <!ELEMENT tpl_order (#PCDATA)>
-<!ELEMENT categorytemplates (cattpl?)?
+<!ELEMENT categorytemplates? (cattpl)
 <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
-<!ELEMENT pages (page)>
+<!ELEMENT pages? (page)>
 <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
 <!ELEMENT content_id (#PCDATA)>
 <!ELEMENT content_name (#PCDATA)>
@@ -210,7 +210,7 @@ $xw->writeDtd('cmsmsinstall', null, null, <<<'EOS'
 <!ELEMENT show_in_menu (#PCDATA)>
 <!ELEMENT menu_text (#PCDATA)>
 <!ELEMENT cacheable (#PCDATA)>
-<!ELEMENT properties (property)>
+<!ELEMENT properties? (property)>
 <!ELEMENT property (content_id,prop_name,content)>
 <!ELEMENT prop_name (#PCDATA)>
 
@@ -226,8 +226,6 @@ function fill_section($structarray, $thistype, $indent)
 	global $xwm, $db;
 
 	$pref = "\n".str_repeat("\t", $indent);
-	$xwm->text($pref);
-	$xwm->startElement($thistype);
 	$props = $structarray[$thistype];
 
 	if (!empty($props['table'])) {
@@ -239,13 +237,19 @@ function fill_section($structarray, $thistype, $indent)
 	} elseif (empty($props['subtypes'])) {
 		$sql = '';
     } else {
+		$xwm->text($pref);
+		$xwm->startElement($thistype);
 		foreach ($props['subtypes'] as $one=>$dat) {
 			fill_section($props['subtypes'], $one, $indent+1);
 		}
+		$xwm->text($pref);
+		$xwm->endElement(); //$thistype
 	}
 	if ($sql) {
 		$rows = $db->getArray($sql);
 		if ($rows) {
+			$xwm->text($pref);
+			$xwm->startElement($thistype);
 			$name = key($props['subtypes']);
 			foreach ($rows as $row) {
 				$xwm->text($pref."\t");
@@ -267,10 +271,10 @@ function fill_section($structarray, $thistype, $indent)
 				$xwm->text($pref."\t");
 				$xwm->endElement();
 			}
+			$xwm->text($pref);
+			$xwm->endElement(); //$thistype
 		}
 	}
-	$xwm->text($pref);
-	$xwm->endElement();
 }
 
 $xw->startElement('datatypes');
