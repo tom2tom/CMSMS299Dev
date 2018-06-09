@@ -33,7 +33,7 @@ $filerec = get_recursive_file_list($config['uploads_path'], [], -1, 'DIRS');
 foreach ($filerec as $key => $value) {
   $value1 = str_replace(CMS_ROOT_PATH, '', $value);
   //prevent current dir from showing up
-  if ($value1 == ($path . DIRECTORY_SEPARATOR)) continue;
+  if ($value1 == $path) continue;
   //Check for hidden items (assumes unix-y hiding)
   $dirs = explode(DIRECTORY_SEPARATOR, $value1);
   foreach ($dirs as $dir) {
