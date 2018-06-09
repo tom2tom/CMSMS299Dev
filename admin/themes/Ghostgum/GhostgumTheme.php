@@ -39,7 +39,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 		$config = cms_config::get_instance();
 		$root_url = $config['admin_url'];
 		$assets_url = $root_url . '/themes/assets/';
-		$rel = substr(__DIR__, strlen($config['admin_path']));
+		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH));
 		$base_url = $root_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 //		$script_url = CMS_SCRIPTS_URL;
 		$fn = 'style';

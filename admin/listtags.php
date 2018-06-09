@@ -41,8 +41,7 @@ $dirs[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins';
 $bp = CMS_ROOT_PATH.DIRECTORY_SEPARATOR;
 $dirs[] = $bp.'lib'.DIRECTORY_SEPARATOR.'plugins';
 $dirs[] = $bp.'plugins';
-$config = cms_config::get_instance();
-$dirs[] = $config['admin_path'].DIRECTORY_SEPARATOR.'plugins';
+$dirs[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins';
 
 $find_file = function($filename) use ($dirs) {
     $filename = basename($filename); // no sneaky paths
@@ -113,7 +112,7 @@ if ($action == 'showpluginhelp') {
             $rec['type'] = $parts[0];
             $rec['name'] = $parts[1];
             $rec['admin'] = 0;
-            if (startswith($onefile,$config['admin_path'])) $rec['admin'] = 1;
+            if (startswith($onefile,CMS_ADMIN_PATH)) $rec['admin'] = 1;
 
             include_once $onefile;
 

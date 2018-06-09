@@ -97,12 +97,11 @@ function check_login(bool $no_redirect = false)
         if( $do_redirect ) {
             // redirect to the admin login.php
             // use SCRIPT_FILENAME and make sure it validates with the root_path
-            $config = cms_config::get_instance();
-            if( startswith($_SERVER['SCRIPT_FILENAME'],$config['root_path']) ) {
+            if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
                 $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
             }
             $login_ops->deauthenticate();
-            $config = cms_config::get_instance(); //differs now ?
+            $config = cms_config::get_instance();
             redirect($config['admin_url']."/login.php");
         }
     }

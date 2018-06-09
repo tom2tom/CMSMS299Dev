@@ -293,6 +293,8 @@ if (!$hascurl) {
 $smarty->assign('count_php_information', count($tmp[0]));
 $smarty->assign('php_information', $tmp);
 
+//$config = cms_config::get_instance();
+
 /* Server Information */
 $tmp = [[],[]];
 
@@ -338,7 +340,7 @@ $smarty->assign('server_info', $tmp);
 
 $tmp = [[],[]];
 
-$dir = $config['root_path'] . DIRECTORY_SEPARATOR . 'tmp';
+$dir = CMS_ROOT_PATH . DIRECTORY_SEPARATOR . 'tmp';
 $tmp[0]['tmp'] = testDirWrite(0, $dir, $dir);
 
 $dir = TMP_CACHE_LOCATION;

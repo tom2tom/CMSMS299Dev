@@ -174,7 +174,7 @@ try {
         return strnatcmp($file1['name'],$file2['name']);
     });
 
-    $assistant2 = new PathAssistant($config,$config['root_path']);
+    $assistant2 = new PathAssistant($config,CMS_ROOT_PATH);
     $cwd_for_display = $assistant2->to_relative( $startdir );
 
     $theme = cms_utils::get_theme_object();

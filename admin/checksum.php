@@ -63,8 +63,7 @@ function check_checksum_data(&$report)
     return false;
   }
 
-  $config = cms_config::get_instance();
-  $salt = md5_file($config['root_path']."/lib/version.php").md5_file($config['root_path']."/index.php");
+  $salt = md5_file(CMS_ROOT_PATH."/lib/version.php").md5_file(CMS_ROOT_PATH."/index.php");
   $filenotfound = [];
   $notreadable = 0;
   $md5failed = 0;
@@ -102,7 +101,7 @@ function check_checksum_data(&$report)
       $md5sum = trim($md5sum);
       $file = trim($file);
 
-      $fn = cms_join_path($config['root_path'],$file);
+      $fn = cms_join_path(CMS_ROOT_PATH,$file);
 
       $fn = realpath( $fn );
       if( $fn === false ) {
@@ -163,12 +162,11 @@ function check_checksum_data(&$report)
 
 function generate_checksum_file(&$report)
 {
-  $config = cms_config::get_instance();
   $output = '';
-  $salt = md5_file($config['root_path']."/lib/version.php").md5_file($config['root_path']."/index.php");
+  $salt = md5_file(CMS_ROOT_PATH."/lib/version.php").md5_file(CMS_ROOT_PATH."/index.php");
 
   $excludes = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' ];
-  $tmp = get_recursive_file_list( $config['root_path'], $excludes);
+  $tmp = get_recursive_file_list( CMS_ROOT_PATH, $excludes);
   if( count($tmp) <= 1 ) {
     $report = lang('error_retrieving_file_list');
     return false;
@@ -177,7 +175,7 @@ function generate_checksum_file(&$report)
   foreach( $tmp as $file ) {
     if( is_dir($file) ) continue;
     $md5sum = md5($salt.md5_file($file));
-    $file = str_replace($config['root_path'],'',$file);
+    $file = str_replace(CMS_ROOT_PATH,'',$file);
     $output .= "{$md5sum}--::--{$file}\n";
   }
 

@@ -70,7 +70,6 @@ class Smarty extends smarty_base_template
         $this->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins');
 
         $_gCms = \CmsApp::get_instance();
-        $config = \cms_config::get_instance();
         if( $_gCms->is_frontend_request()) {
             $this->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates');
             $this->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates');
@@ -98,16 +97,16 @@ class Smarty extends smarty_base_template
             //$this->autoloadFilters();
 
             // Enable security object
+            $config = \cms_config::get_instance();
             if( !$config['permissive_smarty'] ) $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
         }
         elseif ($_gCms->test_state(\CmsApp::STATE_ADMIN_PAGE)) {
             $this->setCaching(false);
-            $admin_dir = $config['admin_path'];
-            $this->addPluginsDir($admin_dir.DIRECTORY_SEPARATOR.'plugins');
-            $this->addTemplateDir($admin_dir.DIRECTORY_SEPARATOR.'templates');
+            $this->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins');
+            $this->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates');
             $this->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates');
             $this->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates');
-            $this->setConfigDir($admin_dir.DIRECTORY_SEPARATOR.'configs');
+            $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs');
         }
     }
 

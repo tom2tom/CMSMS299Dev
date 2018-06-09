@@ -55,9 +55,8 @@ final class AdminSearch_template_slave extends AdminSearch_slave
         $url = str_replace('&amp;','&',$url);
         $title = $tpl->get_name();
         if( $tpl->has_content_file() ) {
-            $config = \cms_config::get_instance();
             $file = $tpl->get_content_filename();
-            $title = $tpl->get_name().' ('.cms_relative_path($file,$config['root_path']).')';
+            $title = $tpl->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
         }
         $tmp = [ 'title'=>$title,
                  'description'=>AdminSearch_tools::summarize($tpl->get_description()),

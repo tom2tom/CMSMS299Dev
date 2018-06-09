@@ -233,7 +233,7 @@ abstract class CmsAdminThemeBase
             $config = cms_config::get_instance();
             return $config['admin_url']."/themes/".$this->themeName;
         }
-	}
+    }
 
     /**
      * Helper for constructing js data
@@ -1507,6 +1507,30 @@ $X = 1;
     }
 
     /**
+     * Export the named theme as an xml file
+     *
+     * @since 2.3
+     * @param string $name theme name
+     * @return bool indicating success
+     */
+    public function ExportTheme(string $name) : bool
+    {
+        require __DIR__.DIRECTORY_SEPARATOR.'function.exporttheme.php';
+    }
+
+    /**
+     * Install or update theme from xml file
+     *
+     * @since 2.3
+     * @param string $filepath path of xml file to be processed
+     * @return bool indicating success
+     */
+    public function ImportTheme(string $filepath) : bool
+    {
+        require __DIR__.DIRECTORY_SEPARATOR.'function.importtheme.php';
+    }
+
+    /**
      * Retrieve the global admin theme object.
      * This method will create the admin theme object if has not yet been created.
      * It will read the CMSMS preferences and cross reference with available themes.
@@ -1524,9 +1548,8 @@ $X = 1;
         }
         else {
             $gCms = CmsApp::get_instance();
-            $config = $gCms->GetConfig();
             $themeObjName = $name."Theme";
-            $fn = $config['admin_path']."/themes/$name/{$themeObjName}.php";
+            $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
             if( file_exists($fn) ) {
                 include_once($fn);
                 self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
@@ -1535,7 +1558,7 @@ $X = 1;
                 // theme not found... use default
                 $name = self::GetDefaultTheme();
                 $themeObjName = $name."Theme";
-                $fn = $config['admin_path']."/themes/$name/{$themeObjName}.php";
+                $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
                 if( file_exists($fn) ) {
                     include_once($fn);
                     self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);

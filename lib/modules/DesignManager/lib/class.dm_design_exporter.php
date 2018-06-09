@@ -433,7 +433,6 @@ EOT;
 
     private function _xml_output_file($key,$value,$lvl = 0)
     {
-        $config = \cms_config::get_instance();
         if( !startswith($key,'__') || !endswith($key,'__') ) return; // invalid
         $p = strpos($key,',,');
         $nkey = substr($key,0,$p);
@@ -464,11 +463,11 @@ EOT;
             // now, it should be a full URL, or start at /
             // gotta convert it to a file.
             // assumes it's a filename relative to root.
-            $fn = cms_join_path($config['root_path'],$nvalue);
+            $fn = cms_join_path(CMS_ROOT_PATH,$nvalue);
             if( startswith($nvalue,'/') && !startswith($nvalue,'//') ) {
-                $fn = cms_join_path($config['root_path'],$nvalue);
-            } elseif( startswith($nvalue,$config['root_url']) ) {
-                $fn = str_replace($config['root_url'],$config['root_path'],$nvalue);
+                $fn = cms_join_path(CMS_ROOT_PATH,$nvalue);
+            } elseif( startswith($nvalue,CMS_ROOT_URL) ) {
+                $fn = str_replace(CMS_ROOT_URL,CMS_ROOT_PATH,$nvalue);
             }
 
             if( !is_file($fn) ) throw new CmsException($mod->Lang('error_nophysicalfile',$value));

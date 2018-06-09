@@ -9,7 +9,7 @@ class PathAssistant
     public function __construct(\cms_config $config, $topdir)
     {
         if( !$topdir || !is_dir($topdir) ) throw new \LogicException("Invalid topdir $topdir passed to ".__METHOD__);
-        if( !$this->is_relative_to( $topdir, $config['root_path'] ) ) throw new \LogicException('Invalid topdir passed to '.__METHOD__);
+        if( !$this->is_relative_to( $topdir, CMS_ROOT_PATH ) ) throw new \LogicException('Invalid topdir passed to '.__METHOD__);
 
         if( endswith( $topdir, '/') ) $topdir = substr($topdir,0,-1);
         $this->_topdir = trim($topdir);
@@ -27,8 +27,8 @@ class PathAssistant
             $rel_url = $this->to_relative_sub( $this->_topdir, $config['admin'] );
             $this->_topurl = $config['admin_url'].'/'.$rel_url;
         }
-        else if( $this->is_relative_to( $this->_topdir, $config['root_path']) ) {
-            $rel_url = $this->to_relative_sub( $this->_topdir, $config['root_path'] );
+        else if( $this->is_relative_to( $this->_topdir, CMS_ROOT_PATH) ) {
+            $rel_url = $this->to_relative_sub( $this->_topdir, CMS_ROOT_PATH );
             $this->_topurl = $config['root_url'].'/'.$rel_url;
         }
     }
@@ -91,4 +91,4 @@ class PathAssistant
         $absolute = $this->to_absolute($str);
         return $this->is_relative( $absolute );
     }
-} // end of class
+} // class
