@@ -16,21 +16,21 @@ class operations
 	 */
 	private $xmldtd = '
 <!DOCTYPE module [
-  <!ELEMENT module (dtdversion,name,version,description*,help*,about*,requires*,file+)>
-  <!ELEMENT dtdversion (#PCDATA)>
-  <!ELEMENT name (#PCDATA)>
-  <!ELEMENT version (#PCDATA)>
-  <!ELEMENT mincmsversion (#PCDATA)>
-  <!ELEMENT description (#PCDATA)>
-  <!ELEMENT help (#PCDATA)>
-  <!ELEMENT about (#PCDATA)>
-  <!ELEMENT requires (requiredname,requiredversion)>
-  <!ELEMENT requiredname (#PCDATA)>
-  <!ELEMENT requiredversion (#PCDATA)>
-  <!ELEMENT file (filename,isdir,data)>
-  <!ELEMENT filename (#PCDATA)>
-  <!ELEMENT isdir (#PCDATA)>
-  <!ELEMENT data (#PCDATA)>
+ <!ELEMENT module (dtdversion,name,version,description*,help*,about*,requires*,file+)>
+ <!ELEMENT dtdversion (#PCDATA)>
+ <!ELEMENT name (#PCDATA)>
+ <!ELEMENT version (#PCDATA)>
+ <!ELEMENT mincmsversion (#PCDATA)>
+ <!ELEMENT description (#PCDATA)>
+ <!ELEMENT help (#PCDATA)>
+ <!ELEMENT about (#PCDATA)>
+ <!ELEMENT requires (requiredname,requiredversion)>
+ <!ELEMENT requiredname (#PCDATA)>
+ <!ELEMENT requiredversion (#PCDATA)>
+ <!ELEMENT file (filename,isdir,data)>
+ <!ELEMENT filename (#PCDATA)>
+ <!ELEMENT isdir (#PCDATA)>
+ <!ELEMENT data (#PCDATA)>
 ]>';
 
     public function __construct( \ModuleManager $mod )
@@ -215,6 +215,8 @@ class operations
         \ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
         $files = get_recursive_file_list( $dir, $this->xml_exclude_files );
 
+       // TODO base64_encode(binary data), others htmlspecialchars(data, ENT_XML1);
+
         $xmltxt  = '<?xml version="1.0" encoding="ISO-8859-1"?>';
         $xmltxt .= $this->xmldtd."\n";
         $xmltxt .= "<module>\n";
@@ -234,10 +236,11 @@ class operations
             $xmltxt .= "	  <requiredversion>$val</requiredversion>\n";
             $xmltxt .= "	</requires>\n";
         }
+		$len = strlen($dir);
         foreach( $files as $file ) {
             // strip off the beginning
-            if (substr($file,0,strlen($dir)) == $dir) $file = substr($file,strlen($dir));
-            if( $file == '' ) continue;
+            if( startswith($file, $dir) ) $file = substr($file,$len);
+            if( $file === false || $file == '' ) continue;
 
             $xmltxt .= "	<file>\n";
             $filespec = $dir.DIRECTORY_SEPARATOR.$file;
