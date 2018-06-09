@@ -659,19 +659,20 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
 }
 
 /**
- * Return an array containing a list of files in a directory performs a recursive search.
- *
- * @param  string  $path     Start Path.
- * @param  array   $excludes Array of regular expressions indicating files to exclude.
- * @param  int     $maxdepth How deep to browse (-1=unlimited)
- * @param  string  $mode     "FULL"|"DIRS"|"FILES"
+ * Get list of files and/or directories in and descendant from a specified directory
+ * 
+ * @since 2.3, reported directories do not have a trailing separator
+ * @param  string  $path     start path
+ * @param  array   $excludes Optional array of regular expressions indicating files to exclude. Default []
+ *  '.' and '..' are automatically excluded.
+ * @param  int     $maxdepth Optional max. depth to browse (-1=unlimited) .Default -1
+ * @param  string  $mode     Optional "FULL"|"DIRS"|"FILES". Default "FULL"
  * @param  int     $d        for internal use only
  * @return mixed bool or array
 **/
-function get_recursive_file_list(string $path ,array $excludes, int $maxdepth = -1, string $mode = "FULL" , int $d = 0)
+function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = "FULL", int $d = 0)
 {
     $fn = function( $file, $excludes ) {
-        // strip the path from the file
         if ( empty($excludes) ) return false;
         foreach( $excludes as $excl ) {
             if ( @preg_match( "/".$excl."/i", basename($file) ) ) return true;
@@ -679,10 +680,10 @@ function get_recursive_file_list(string $path ,array $excludes, int $maxdepth = 
         return false;
     };
 
-    if ( substr ( $path , strlen ( $path ) - 1 ) != '/' ) { $path .= '/' ; }
-    $dirlist = array () ;
+    $dirlist = [];
     if ( $mode != "FILES" ) { $dirlist[] = $path ; }
     if ( $handle = opendir ( $path ) ) {
+		$path = rtrim($path, " \\/") . DIRECTORY_SEPARATOR;
         while ( false !== ( $file = readdir ( $handle ) ) ) {
             if ( $file == '.' || $file == '..' ) continue;
             if ( $fn( $file, $excludes ) ) continue;
@@ -690,7 +691,7 @@ function get_recursive_file_list(string $path ,array $excludes, int $maxdepth = 
             $file = $path . $file ;
             if ( ! @is_dir ( $file ) ) { if ( $mode != "DIRS" ) { $dirlist[] = $file ; } }
             elseif ( $d >=0 && ($d < $maxdepth || $maxdepth < 0) ) {
-                $result = get_recursive_file_list ( $file . '/' , $excludes, $maxdepth , $mode , $d + 1 ) ;
+                $result = get_recursive_file_list ( $file, $excludes, $maxdepth , $mode , $d + 1 ) ;
                 $dirlist = array_merge ( $dirlist , $result ) ;
             }
         }
