@@ -1489,7 +1489,8 @@ $X = 1;
     /**
      * Retrieve a list of the available admin themes.
      *
-     * @return array A alphabetic-sorted hash of strings, or maybe empty
+     * @return array A theme-name-sorted hash of themefile-path strings
+     * @since 2.3, array values do not just match respective keys
      */
     public static function GetAvailableThemes()
     {
@@ -1499,7 +1500,7 @@ $X = 1;
             foreach( $files as $one ) {
                 if( is_readable( $one )) {
                     $name = basename($one,'Theme.php');
-                    $res[$name] = $name;
+                    $res[$name] = $one;
                 }
             }
         }
