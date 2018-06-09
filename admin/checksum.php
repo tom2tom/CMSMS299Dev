@@ -166,14 +166,13 @@ function generate_checksum_file(&$report)
   $salt = md5_file(CMS_ROOT_PATH."/lib/version.php").md5_file(CMS_ROOT_PATH."/index.php");
 
   $excludes = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' ];
-  $tmp = get_recursive_file_list( CMS_ROOT_PATH, $excludes);
+  $tmp = get_recursive_file_list( CMS_ROOT_PATH, $excludes, -1, 'FILES');
   if( count($tmp) <= 1 ) {
     $report = lang('error_retrieving_file_list');
     return false;
   }
 
   foreach( $tmp as $file ) {
-    if( is_dir($file) ) continue;
     $md5sum = md5($salt.md5_file($file));
     $file = str_replace(CMS_ROOT_PATH,'',$file);
     $output .= "{$md5sum}--::--{$file}\n";
