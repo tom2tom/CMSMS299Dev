@@ -21,7 +21,7 @@
 use CMSMS\AdminUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\TemplateCache;
-use function endswith;
+//use function \endswith;
 
 /**
  * A class to represent a stylesheet.
@@ -294,7 +294,7 @@ class CmsLayoutStylesheet
 	*/
 	public function get_designs()
 	{
-		if( !$this->get_id() ) return;
+		if( !$this->get_id() ) return [];
 		if( !is_array($this->_design_assoc) ) {
 			$this->_design_assoc = null;
 			$db = CmsApp::get_instance()->GetDb();

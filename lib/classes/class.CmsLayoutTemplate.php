@@ -274,6 +274,7 @@ class CmsLayoutTemplate
 	* @since 2.3
 	* @throws CmsLogicException
 	* @param mixed $a A CmsLayoutTemplateCategory object, an integer category id, or a string category name.
+    * @return int
     */
 	protected function get_categoryid($a) : int
 	{
@@ -301,7 +302,7 @@ class CmsLayoutTemplate
 	public function get_categories() : array
 	{
 		if( !is_array($this->_cat_assoc) ) {
-			if( !$this->get_id() ) return;
+			if( !$this->get_id() ) return [];
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' WHERE tpl_id = ? ORDER BY tpl_order';
 			$tmp = $db->GetCol($query,[(int)$this->get_id()]);
@@ -399,7 +400,7 @@ class CmsLayoutTemplate
 	public function get_designs()
 	{
 		if( !is_array($this->_design_assoc) ) {
-			if( !$this->get_id() ) return;
+			if( !$this->get_id() ) return [];
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
 			$tmp = $db->GetCol($query,[(int)$this->get_id()]);
