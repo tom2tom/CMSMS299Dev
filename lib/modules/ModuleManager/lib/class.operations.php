@@ -16,10 +16,9 @@ use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 use function audit;
 use function cms_join_path;
+use function cms_module_places;
 use function cmsms;
-use function file_put_contents;
 use function get_recursive_file_list;
-use function is_base64;
 use function lang;
 use function startswith;
 
@@ -79,9 +78,9 @@ class operations
     {
         libxml_use_internal_errors(true);
         $xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
-        if ($xml === false) {
+        if( $xml === false ) {
             $e = $this->_mod->Lang('err_xml_open');
-            foreach (libxml_get_errors() as $error) {
+            foreach( libxml_get_errors() as $error ) {
                 $e .= "\n".'Line '.$error->line.': '.$error->message;
             }
             libxml_clear_errors();
@@ -89,14 +88,14 @@ class operations
         }
 
         $val = $xml->dtdversion;
-        if ($val != self::MODULE_DTD_VERSION ) {
-			//TODO self::MODULE_DTD_MINVERSION check
-			throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
-		}
+        if( version_compare($val,self::MODULE_DTD_MINVERSION) < 0 ) {
+            throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
+        }
+        $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
 
         $val = $xml->core;
         // make sure that we can actually write to the module directory
-        $dir = (val) ? cms_join_path(CMS_ROOT_PATH,'lib','modules') : CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
+        $dir = ( $val ) ? cms_join_path(CMS_ROOT_PATH,'lib','modules') : CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 
         $moduledetails = [];
@@ -110,7 +109,7 @@ class operations
                     $val = $xml->$key;
                     // check if this module is already installed
                     $loaded = $modops->GetLoadedModules();
-                    if( isset( $loaded[$val] ) && !$overwrite && !$brief ) {
+                    if( isset($loaded[$val]) && !$overwrite && !$brief ) {
                         throw new CmsLogicException($this->_mod->Lang('err_xml_moduleinstalled'));
                     }
                     $moduledetails[$lkey] = $val;
@@ -147,20 +146,27 @@ class operations
                 case 'help':
                 case 'about':
                 case 'description':
-                    $val = (string)$xml->$key; //strip the CDATA[[ ]] surrounds
-                    $moduledetails[$lkey] = (is_base64($val)) ?
-                         base64_decode($val) : htmlspecialchars_decode($val);
+                    $moduledetails[$lkey] = ( $current ) ?
+                         htmlspecialchars_decode($xml->$key) : base64_decode($xml->$key);
                     break;
                 case 'file':
                     $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
                     if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
                         throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
                     }
+			        $arr = cms_module_places($moduledetails['name']);
+					if( !empty($arr) ) {
+						//already installed
+						if( $arr[0] != $basepath ) {
+//							TODO cleanup
+						}
+			        }
                     foreach ($node->children() as $one) {
-                        $name = $one->filename;
+                        //filename is actually a relative path
+						$name = strtr($one->filename, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
                         $path = $basepath . DIRECTORY_SEPARATOR . $name;
                         $val = $one->isdir;
-                        if ($val) {
+                        if( $val ) {
                             if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
                                 throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
                             }
@@ -168,10 +174,10 @@ class operations
                         else {
                             $val = $one->istext;
                             if( $val ) {
-                                file_put_contents($path, htmlspecialchars_decode((string)$one->data));
+                                file_put_contents($path, htmlspecialchars_decode($one->data));
                             }
                             else {
-                                file_put_contents($path, base64_decode((string)$one->data));
+                                file_put_contents($path, base64_decode($one->data));
                             }
                         }
                     }
@@ -377,12 +383,12 @@ class operations
         $text = $modinstance->GetAdminDescription();
         if( $text != '' ) {
             $xw->startElement('description');
-            $xw-> writeCdata(htmlspecialchars($desc, ENT_XML1, '', false));
+            $xw-> writeCdata(htmlspecialchars($text, ENT_XML1, '', false));
             $xw->endElement();
         }
-		if( startswith($dir, CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib') ) {
-	        $xw->writeElement('core', 1);
-		}
+        if( startswith($dir, CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib') ) {
+            $xw->writeElement('core', 1);
+        }
 
         $depends = $modinstance->GetDependencies();
         foreach( $depends as $key=>$val ) {
@@ -397,9 +403,9 @@ class operations
         $helper = new FileTypeHelper($config);
         $filecount = 0;
         // get a file list
-        $files = get_recursive_file_list( $dir, $this->xml_exclude_files );
-        foreach( $files as $file ) {
-            // strip off the beginning (keep leading separator)
+        $items = get_recursive_file_list( $dir, $this->xml_exclude_files );
+        foreach( $items as $file ) {
+            // strip off the beginning
             $rel = substr($file,$len);
             if( $rel === false || $rel === '' ) continue;
 
@@ -430,11 +436,7 @@ class operations
         $xw->endDocument();
         $xw->flush();
 
-        //TODO $this->_mod->Lang('  ', strlen($xmltxt), $filecount);
-        $message = 'XML package of '.strlen($xmltxt).' bytes created for '.
-            $modinstance->GetName().' including '.$filecount.' files';
-
-//        return $xw->flush();
+        $message = $this->_mod->Lang('xmlstatus', $modinstance->GetName(), $filecount);
         return $outfile;
     }
 } // class
