@@ -17,9 +17,8 @@
 
 $name = 'Ghostgum'; //DEBUG
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'include.php';
-$all = CmsAdminThemeBase::GetAvailableThemes();
-
-//$all = self::GetAvailableThemes(); //DEBUG
+$all = CmsAdminThemeBase::GetAvailableThemes(true);
+//$all = self::GetAvailableThemes(true); //DEBUG
 if (!isset($all[$name])) {
 	return false;
 }
@@ -36,58 +35,60 @@ $xw->setIndent(true);
 $xw->setIndentString("\t");
 $xw->startDocument('1.0', 'UTF-8');
 
-$xw->writeDtd('cmsmsadmintheme', null, null, <<<'EOS'
-
-<!ELEMENT name (#PCDATA)>
-<!ELEMENT version? (#PCDATA)>
-<!ELEMENT items? (item+)>
-<!ELEMENT item (relpath,isdir?,encoded?,content)>
-<!ELEMENT relpath (#PCDATA)>
-<!ELEMENT isdir (#PCDATA)>
-<!ELEMENT encoded (#PCDATA)>
-<!ELEMENT content (#PCDATA)>
-<!ELEMENT design? (id,name,description?,dflt?)>
-<!ELEMENT id (#PCDATA)>
-<!ELEMENT description (#PCDATA)>
-<!ELEMENT dflt (#PCDATA)>
-<!ELEMENT stylesheets? (stylesheet+)>
-<!ELEMENT stylesheet (id,name,description?,media_type?,content)>
-<!ELEMENT media_type (#PCDATA)>
-<!ELEMENT designstyles? (designcss+)>
-<!ELEMENT designcss(design_id,css_id,item_order)>
-<!ELEMENT design_id (#PCDATA)>
-<!ELEMENT css_id (#PCDATA)>
-<!ELEMENT item_order (#PCDATA)>
-<!ELEMENT tpltypes? (tpltype+)>
-<!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
-<!ELEMENT originator (#PCDATA)>
-<!ELEMENT one_only (#PCDATA)>
-<!ELEMENT has_dflt (#PCDATA)>
-<!ELEMENT dflt_contents (#PCDATA)>
-<!ELEMENT requires_contentblocks (#PCDATA)>
-<!ELEMENT lang_cb (#PCDATA)>
-<!ELEMENT dflt_content_cb (#PCDATA)>
-<!ELEMENT help_content_cb (#PCDATA)>
-<!ELEMENT categories? (category+)>
-<!ELEMENT category (id,name,description?,item_order?)>
-<!ELEMENT templates? (template+)>
-<!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
-<!ELEMENT type_id (#PCDATA)>
-<!ELEMENT category_id (#PCDATA)>
-<!ELEMENT type_dflt (#PCDATA)>
-<!ELEMENT designtemplates? (designtpl+)>
-<!ELEMENT designtpl(design_id,tpl_id,tpl_order?)>
-<!ELEMENT tpl_id (#PCDATA)>
-<!ELEMENT tpl_order (#PCDATA)>
-<!ELEMENT categorytemplates? (cattpl+)
-<!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
-
-EOS
-);
+$xw->writeDtd('cmsmsadmintheme', null, null, '
+ <!ELEMENT dtdversion (#PCDATA)>
+ <!ELEMENT name (#PCDATA)>
+ <!ELEMENT version (#PCDATA)>
+ <!ELEMENT items? (item+)>
+ <!ELEMENT item (relpath,isdir?,encoded?,content)>
+ <!ELEMENT relpath (#PCDATA)>
+ <!ELEMENT isdir (#PCDATA)>
+ <!ELEMENT encoded (#PCDATA)>
+ <!ELEMENT content (#PCDATA)>
+ <!ELEMENT design? (id,name,description?,dflt?)>
+ <!ELEMENT id (#PCDATA)>
+ <!ELEMENT description (#PCDATA)>
+ <!ELEMENT dflt (#PCDATA)>
+ <!ELEMENT stylesheets? (stylesheet+)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,content)>
+ <!ELEMENT media_type (#PCDATA)>
+ <!ELEMENT designstyles? (designcss+)>
+ <!ELEMENT designcss(design_id,css_id,item_order)>
+ <!ELEMENT design_id (#PCDATA)>
+ <!ELEMENT css_id (#PCDATA)>
+ <!ELEMENT item_order (#PCDATA)>
+ <!ELEMENT tpltypes? (tpltype+)>
+ <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
+ <!ELEMENT originator (#PCDATA)>
+ <!ELEMENT one_only (#PCDATA)>
+ <!ELEMENT has_dflt (#PCDATA)>
+ <!ELEMENT dflt_contents (#PCDATA)>
+ <!ELEMENT requires_contentblocks (#PCDATA)>
+ <!ELEMENT lang_cb (#PCDATA)>
+ <!ELEMENT dflt_content_cb (#PCDATA)>
+ <!ELEMENT help_content_cb (#PCDATA)>
+ <!ELEMENT categories? (category+)>
+ <!ELEMENT category (id,name,description?,item_order?)>
+ <!ELEMENT templates? (template+)>
+ <!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
+ <!ELEMENT type_id (#PCDATA)>
+ <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT designtemplates? (designtpl+)>
+ <!ELEMENT designtpl(design_id,tpl_id,tpl_order?)>
+ <!ELEMENT tpl_id (#PCDATA)>
+ <!ELEMENT tpl_order (#PCDATA)>
+ <!ELEMENT categorytemplates? (cattpl+)
+ <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
+');
 
 $xw->startElement('cmsmsadmintheme');
+$xw->writeElement('dtdversion', CmsAdminThemeBase::THEME_DTD_VERSION);
 $xw->writeElement('name', $name);
-//$xw->writeElement('version', TODO);
+include_once $all[$name];
+$class = $name.'Theme';
+$val = $class::THEME_VERSION ?? '0';
+$xw->writeElement('version', $val);
 
 $dir = dirname($all[$name]);
 $items = get_recursive_file_list($dir);
