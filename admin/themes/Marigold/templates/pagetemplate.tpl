@@ -106,7 +106,7 @@
 					</header>
 					{if $pagetitle && $subtitle}<header class="subheader"><h3 class="subtitle">{$subtitle}</h3></header>{/if}
 						<section class="cf">
-							{$content}
+							<div class="pagecontainer">{$content}</div>
 						</section>
 					</article>
 					{/strip}
