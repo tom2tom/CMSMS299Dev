@@ -19,6 +19,7 @@ use function cms_join_path;
 use function cms_module_places;
 use function cmsms;
 use function get_recursive_file_list;
+use function recursive_delete;
 use function lang;
 use function startswith;
 
@@ -69,7 +70,7 @@ class operations
      * does not touch the database
      *
      * @internal
-     * @param string $xmlfile The filepath of xml file containing data for the package
+     * @param string $xmlfile The filepath of uploaded xml file containing data for the package
      * @param bool $overwrite Should we overwrite files if they exist?
      * @param bool $brief If set to true, less checking is done and no errors are returned
      * @return array A hash of details about the installed module
@@ -79,43 +80,44 @@ class operations
         libxml_use_internal_errors(true);
         $xml = simplexml_load_file($xmlfile, 'SimpleXMLElement', LIBXML_NOCDATA);
         if( $xml === false ) {
-            $e = $this->_mod->Lang('err_xml_open');
+            $val = $this->_mod->Lang('err_xml_open');
             foreach( libxml_get_errors() as $error ) {
-                $e .= "\n".'Line '.$error->line.': '.$error->message;
+                $val .= "\n".'Line '.$error->line.': '.$error->message;
             }
             libxml_clear_errors();
-            throw new CmsInvalidDataException($e);
+            throw new CmsInvalidDataException($val);
         }
 
-        $val = $xml->dtdversion;
-        if( version_compare($val,self::MODULE_DTD_MINVERSION) < 0 ) {
+        $val = (string)$xml->dtdversion;
+        if( !$val || version_compare($val,self::MODULE_DTD_MINVERSION) < 0 ) {
             throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
         }
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
 
-        $val = $xml->core;
+        $val = (string)$xml->core;
         // make sure that we can actually write to the module directory
         $dir = ( $val ) ? cms_join_path(CMS_ROOT_PATH,'lib','modules') : CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 
-        $moduledetails = [];
         $modops = \ModuleOperations::get_instance();
+        $moduledetails = [];
+		$filedone = false;
 
-        foreach ($xml->children() as $node) {
+        foreach( $xml->children() as $node ) {
             $key = $node->getName();
             $lkey = strtolower($key);
-            switch ($lkey) {
+            switch( $lkey ) {
                 case 'name':
-                    $val = $xml->$key;
+                    $val = (string)$node;
                     // check if this module is already installed
                     $loaded = $modops->GetLoadedModules();
-                    if( isset($loaded[$val]) && !$overwrite && !$brief ) {
+                    if( isset($loaded[$val]) && !$overwrite && !$brief ) { //TODO check logic
                         throw new CmsLogicException($this->_mod->Lang('err_xml_moduleinstalled'));
                     }
                     $moduledetails[$lkey] = $val;
                     break;
                 case 'version':
-                    $val = $xml->$key;
+                    $val = (string)$node;
                     $tmpinst = $modops->get_module_instance($moduledetails['name']);
                     if( !$brief && $tmpinst ) {
                         $version = $tmpinst->GetVersion();
@@ -128,8 +130,8 @@ class operations
                     }
                     $moduledetails[$lkey] = $val;
                     break;
-                case 'minversion':
-                    $val = $xml->$key;
+                case 'mincmsversion':
+                    $val = (string)$node;
                     if( !$brief && version_compare(CMS_VERSION,$val) < 0 ) {
                          throw new CmsLogicException($this->_mod->Lang('err_xml_moduleincompatible'));
                     }
@@ -138,198 +140,54 @@ class operations
                 case 'requires':
                     $reqs = [];
                     foreach ($node->children() as $one) {
-                        $reqs['name'][] = $one->requiredname;
-                        $reqs['version'][] = $one->requiredversion;
+                        $reqs['name'][] = (string)$one->requiredname;
+                        $reqs['version'][] = (string)$one->requiredversion;
                     }
-                    $moduledetails[$lkey] = $reqs;
+                    $moduledetails[$lkey] = $reqs; //upstream validation?
                     break;
                 case 'help':
                 case 'about':
                 case 'description':
                     $moduledetails[$lkey] = ( $current ) ?
-                         htmlspecialchars_decode($xml->$key) : base64_decode($xml->$key);
+                      htmlspecialchars_decode((string)$node) : base64_decode((string)$node);
                     break;
                 case 'file':
-                    $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
-                    if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
-                        throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
-                    }
-			        $arr = cms_module_places($moduledetails['name']);
-					if( !empty($arr) ) {
-						//already installed
-						if( $arr[0] != $basepath ) {
-//							TODO cleanup
+					if( !$filedone ) {
+	                    $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
+						$arr = cms_module_places($moduledetails['name']);
+						if( !empty($arr) ) {
+							//already installed
+//							TODO always cleanup current files (& database?)
+							if( $arr[0] != $basepath ) {
+								recursive_delete($arr[0]);
+							}
 						}
-			        }
-                    foreach ($node->children() as $one) {
-                        //filename is actually a relative path
-						$name = strtr($one->filename, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
-                        $path = $basepath . DIRECTORY_SEPARATOR . $name;
-                        $val = $one->isdir;
-                        if( $val ) {
-                            if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
-                                throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
-                            }
-                        }
-                        else {
-                            $val = $one->istext;
-                            if( $val ) {
-                                file_put_contents($path, htmlspecialchars_decode($one->data));
-                            }
-                            else {
-                                file_put_contents($path, base64_decode($one->data));
-                            }
+						if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
+							throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
+						}
+						$filedone = true;
+					}
+                    //'filename' value is actually a relative path
+					$name = strtr((string)$node->filename, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
+                    $path = $basepath . DIRECTORY_SEPARATOR . $name;
+                    if( (string)$node->isdir ) {
+                        if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
+                            throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
                         }
                     }
+                    elseif( (string)$node->istext ) {
+                        if( @file_put_contents($path, htmlspecialchars_decode((string)$node->data), LOCK_EX) === false ) {
+                            throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
+						}
+                    }
+                    elseif( @file_put_contents($path, base64_decode((string)$node->data), LOCK_EX) === false) {
+                        throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
+                  }
                     break;
             }
         }
 
         $moduledetails['size'] = filesize($xmlfile);
-
-/*  // ~~~~~~~~~~~ START OLD ~~~~~~~~~~~~~~~~~
-
-        $reader = new \XMLReader();
-        $ret = $reader->open($xmlfile);
-
-        $requires = [];
-
-        while( $reader->read() ) {
-            switch($reader->nodeType) {
-            case \XMLReader::ELEMENT:
-                switch( strtoupper($reader->localName) ) {
-                case 'NAME':
-                    $reader->read();
-                    $moduledetails['name'] = $reader->value;
-                    $loaded = $modops->GetLoadedModules();
-                    // check if this module is already installed
-                    if( isset( $loaded[$moduledetails['name']] ) && $overwrite == 0 && $brief == 0 ) {
-                        throw new \CmsLogicException($this->_mod->Lang('err_xml_moduleinstalled'));
-                    }
-                    break;
-
-                case 'DTDVERSION':
-                    $reader->read();
-                    if( $reader->value != self::MODULE_DTD_VERSION ) throw new \CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
-                    $havedtdversion = true;
-                    break;
-
-                case 'VERSION':
-                    $reader->read();
-                    $moduledetails['version'] = $reader->value;
-                    $tmpinst = $modops->get_module_instance($moduledetails['name']);
-                    if( $tmpinst && $brief == 0 ) {
-                        $version = $tmpinst->GetVersion();
-                        if( version_compare($moduledetails['version'],$version) < 0 ) {
-                            throw new \RuntimeException($this->_mod->Lang('err_xml_oldermodule'));
-                        }
-                        else if (version_compare($moduledetails['version'],$version) == 0 && $overwrite == 0 ) {
-                            throw new \RuntimeException($this->_mod->Lang('err_xml_sameversion'));
-                        }
-                    }
-                    break;
-
-                case 'MINCMSVERSION':
-                    $name = $reader->localName;
-                    $reader->read();
-                    if( $brief == 0 && version_compare(CMS_VERSION,$reader->value) < 0 ) {
-                        throw new \CmsLogicException($this->_mod->Lang('err_xml_moduleincompatible'));
-                    }
-                    $moduledetails[$name] = $reader->value;
-                    break;
-
-                case 'MAXCMSVERSION':
-                case 'DESCRIPTION':
-                case 'FILENAME':
-                case 'ISDIR':
-                    $name = $reader->localName;
-                    $reader->read();
-                    $moduledetails[$name] = $reader->value;
-                    break;
-
-                case 'HELP':
-                case 'ABOUT':
-                    $name = $reader->localName;
-                    $reader->read();
-                    $moduledetails[$name] = base64_decode($reader->value);
-                    break;
-
-                case 'REQUIREDNAME':
-                    $reader->read();
-                    $requires['name'] = $reader->value;
-                    break;
-
-                case 'REQUIREDVERSION':
-                    $reader->read();
-                    $requires['version'] = $reader->value;
-                    break;
-
-                case 'DATA':
-                    $reader->read();
-                    $moduledetails['filedata'] = $reader->value;
-                    break;
-                }
-                break;
-
-            case \XMLReader::END_ELEMENT:
-                switch( strtoupper($reader->localName) ) {
-                case 'REQUIRES':
-                    if( count($requires) != 2 ) continue;
-                    if( !isset( $moduledetails['requires'] ) ) $moduledetails['requires'] = array();
-                    $moduledetails['requires'][] = $requires;
-                    $requires = array();
-                    break;
-
-                case 'FILE':
-                    if( $brief != 0 ) continue;
-
-                    // finished a first file
-                    if( !isset( $moduledetails['name'] ) || !isset( $moduledetails['version'] ) ||
-                        !isset( $moduledetails['filename'] ) || !isset( $moduledetails['isdir'] ) ) {
-                        throw new \CmsInvalidDataException($this->Lang('err_xml_invalid'));
-                        return false;
-                    }
-
-                    // ready to go
-                    $moduledir=$dir.DIRECTORY_SEPARATOR.$moduledetails['name'];
-                    $filename=$moduledir.$moduledetails['filename'];
-                    if( !file_exists( $moduledir ) ) {
-                        if( !@mkdir( $moduledir ) && !is_dir( $moduledir ) ) {
-                            throw new \CmsFileSystemException(lang('errorcantcreatefile').': '.$moduledir);
-                            break;
-                        }
-                    }
-                    else if( $moduledetails['isdir'] ) {
-                        if( !@mkdir( $filename ) && !is_dir( $filename ) ) {
-                            throw new \CmsFileSystemException(lang('errorcantcreatefile').': '.$filename);
-                            break;
-                        }
-                    }
-                    else {
-                        $data = $moduledetails['filedata'];
-                        if( strlen( $data ) ) $data = base64_decode( $data );
-                        $fp = @fopen( $filename, "w" );
-                        if( !$fp ) throw new \CmsFileSystemException(lang('errorcantcreatefile').' '.$filename);
-                        if( strlen( $data ) ) @fwrite( $fp, $data );
-                        @fclose( $fp );
-                    }
-                    unset( $moduledetails['filedata'] );
-                    unset( $moduledetails['filename'] );
-                    unset( $moduledetails['isdir'] );
-                    break;
-                }
-                break;
-            }
-        } // while
-
-        $reader->close();
-
-        // we've created the module's directory
-        unset( $moduledetails['filedata'] );
-        unset( $moduledetails['filename'] );
-        unset( $moduledetails['isdir'] );
-
-// ~~~~~~~~~~~ END OLD ~~~~~~~~~~~~~ */
 
         if( !$brief ) audit('','Module', 'Expanded module: '.$moduledetails['name'].' version '.$moduledetails['version']);
 
@@ -338,6 +196,7 @@ class operations
 
     /**
      * generate xml representing all the content of the specified module
+     * @internal
      * @param CMSModule $modinstance
      * @param string $message for returning
      * @param int $filecount for returning
@@ -421,10 +280,10 @@ class operations
                 }
                 $xw->startElement('data');
                 if( $text ) {
-                    $xw-> writeCdata(htmlspecialchars(file_get_contents($file), ENT_XML1));
+                    $xw->writeCdata(htmlspecialchars(file_get_contents($file), ENT_XML1));
                 }
                 else {
-                    $xw-> writeCdata(base64_encode(file_get_contents($file)));
+                    $xw->writeCdata(base64_encode(file_get_contents($file)));
                 }
                 $xw->endElement(); //data
             }
