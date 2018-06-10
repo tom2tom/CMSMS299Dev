@@ -157,62 +157,62 @@ $xw->setIndent(true);
 $xw->setIndentString("\t");
 $xw->startDocument('1.0', 'UTF-8');
 
-//these data must be manaully reconciled with $skeleton[] above
-$xw->writeDtd('cmsmsinstall', null, null,
-'<!ELEMENT designs? (design+)>
-<!ELEMENT design (id,name,description?,dflt?)>
-<!ELEMENT id (#PCDATA)>
-<!ELEMENT name (#PCDATA)>
-<!ELEMENT description (#PCDATA)>
-<!ELEMENT dflt (#PCDATA)>
-<!ELEMENT stylesheets? (stylesheet+)>
-<!ELEMENT stylesheet (id,name,description?,media_type?,content)>
-<!ELEMENT media_type (#PCDATA)>
-<!ELEMENT content (#PCDATA)>
-<!ELEMENT designstyles? (designcss+)>
-<!ELEMENT designcss(design_id,css_id,item_order)>
-<!ELEMENT design_id (#PCDATA)>
-<!ELEMENT css_id (#PCDATA)>
-<!ELEMENT item_order (#PCDATA)>
-<!ELEMENT tpltypes? (tpltype+)>
-<!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
-<!ELEMENT originator (#PCDATA)>
-<!ELEMENT one_only (#PCDATA)>
-<!ELEMENT has_dflt (#PCDATA)>
-<!ELEMENT dflt_contents (#PCDATA)>
-<!ELEMENT requires_contentblocks (#PCDATA)>
-<!ELEMENT lang_cb (#PCDATA)>
-<!ELEMENT dflt_content_cb (#PCDATA)>
-<!ELEMENT help_content_cb (#PCDATA)>
-<!ELEMENT categories? (category+)>
-<!ELEMENT category (id,name,description?,item_order?)>
-<!ELEMENT templates? (template)>
-<!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
-<!ELEMENT type_id (#PCDATA)>
-<!ELEMENT category_id (#PCDATA)>
-<!ELEMENT type_dflt (#PCDATA)>
-<!ELEMENT designtemplates? (designtpl+)>
-<!ELEMENT designtpl(design_id,tpl_id,tpl_order?)>
-<!ELEMENT tpl_id (#PCDATA)>
-<!ELEMENT tpl_order (#PCDATA)>
-<!ELEMENT categorytemplates? (cattpl+)
-<!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
-<!ELEMENT pages? (page+)>
-<!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
-<!ELEMENT content_id (#PCDATA)>
-<!ELEMENT content_name (#PCDATA)>
-<!ELEMENT content_alias (#PCDATA)>
-<!ELEMENT type (#PCDATA)>
-<!ELEMENT template_id (#PCDATA)>
-<!ELEMENT parent_id (#PCDATA)>
-<!ELEMENT active (#PCDATA)>
-<!ELEMENT default_content (#PCDATA)>
-<!ELEMENT show_in_menu (#PCDATA)>
-<!ELEMENT menu_text (#PCDATA)>
-<!ELEMENT cacheable (#PCDATA)>
-<!ELEMENT properties? (property+)>
-<!ELEMENT property (content_id,prop_name,content)>
-<!ELEMENT prop_name (#PCDATA)>
+//these data must be manually reconciled with $skeleton[] above
+$xw->writeDtd('cmsmsinstall', null, null, '
+ <!ELEMENT designs? (design+)>
+ <!ELEMENT design (id,name,description?,dflt?)>
+ <!ELEMENT id (#PCDATA)>
+ <!ELEMENT name (#PCDATA)>
+ <!ELEMENT description (#PCDATA)>
+ <!ELEMENT dflt (#PCDATA)>
+ <!ELEMENT stylesheets? (stylesheet+)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,content)>
+ <!ELEMENT media_type (#PCDATA)>
+ <!ELEMENT content (#PCDATA)>
+ <!ELEMENT designstyles? (designcss+)>
+ <!ELEMENT designcss(design_id,css_id,item_order)>
+ <!ELEMENT design_id (#PCDATA)>
+ <!ELEMENT css_id (#PCDATA)>
+ <!ELEMENT item_order (#PCDATA)>
+ <!ELEMENT tpltypes? (tpltype+)>
+ <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
+ <!ELEMENT originator (#PCDATA)>
+ <!ELEMENT one_only (#PCDATA)>
+ <!ELEMENT has_dflt (#PCDATA)>
+ <!ELEMENT dflt_contents (#PCDATA)>
+ <!ELEMENT requires_contentblocks (#PCDATA)>
+ <!ELEMENT lang_cb (#PCDATA)>
+ <!ELEMENT dflt_content_cb (#PCDATA)>
+ <!ELEMENT help_content_cb (#PCDATA)>
+ <!ELEMENT categories? (category+)>
+ <!ELEMENT category (id,name,description?,item_order?)>
+ <!ELEMENT templates? (template)>
+ <!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
+ <!ELEMENT type_id (#PCDATA)>
+ <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT designtemplates? (designtpl+)>
+ <!ELEMENT designtpl(design_id,tpl_id,tpl_order?)>
+ <!ELEMENT tpl_id (#PCDATA)>
+ <!ELEMENT tpl_order (#PCDATA)>
+ <!ELEMENT categorytemplates? (cattpl+)
+ <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
+ <!ELEMENT pages? (page+)>
+ <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
+ <!ELEMENT content_id (#PCDATA)>
+ <!ELEMENT content_name (#PCDATA)>
+ <!ELEMENT content_alias (#PCDATA)>
+ <!ELEMENT type (#PCDATA)>
+ <!ELEMENT template_id (#PCDATA)>
+ <!ELEMENT parent_id (#PCDATA)>
+ <!ELEMENT active (#PCDATA)>
+ <!ELEMENT default_content (#PCDATA)>
+ <!ELEMENT show_in_menu (#PCDATA)>
+ <!ELEMENT menu_text (#PCDATA)>
+ <!ELEMENT cacheable (#PCDATA)>
+ <!ELEMENT properties? (property+)>
+ <!ELEMENT property (content_id,prop_name,content)>
+ <!ELEMENT prop_name (#PCDATA)>
 ');
 
 $xwm = new XMLWriter();
