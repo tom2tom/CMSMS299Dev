@@ -290,6 +290,7 @@ $lang['warn_dependencies'] = 'The module you selected to install or upgrade depe
 $lang['warn_modulecustom'] = 'The following modules have customizations in the &lt;root&gt;/assets/module_custom directory of your installation.  These customizations might or might not cause errors after the upgrade.  You might need to remove or revise these customizations to restore proper functionality.  Proceed with caution.';
 // X
 $lang['xmltext'] = 'XML File';
+$lang['xmlstatus'] = 'XML package created for %s, containing %d files';
 
 // Y
 $lang['yes'] = 'Yes';
