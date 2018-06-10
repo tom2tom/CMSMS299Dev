@@ -19,7 +19,7 @@ if (empty($xmlfile)) {
 $infile = __DIR__.DIRECTORY_SEPARATOR.$xmlfile;
 
 libxml_use_internal_errors(true);
-$xml = simplexml_load_file($infile);
+$xml = simplexml_load_file($infile, 'SimpleXMLElement', LIBXML_NOCDATA);
 if ($xml === false) {
 	if ($LONE) {
 		echo 'Failed to load file '.$infile."\n";
@@ -59,7 +59,7 @@ foreach ($xml->children() as $typenode) {
 					$ob->set_description($row['description'] ?? null);
 					$ob->set_default($row['dflt'] ?? false);
 //					$ob->save();
-					$designs[row['id']] = $ob->get_id();
+					$designs[$row['id']] = $ob->get_id();
 				}
 				break;
 			case 'stylesheets':
