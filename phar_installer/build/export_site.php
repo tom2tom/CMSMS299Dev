@@ -158,9 +158,8 @@ $xw->setIndentString("\t");
 $xw->startDocument('1.0', 'UTF-8');
 
 //these data must be manaully reconciled with $skeleton[] above
-$xw->writeDtd('cmsmsinstall', null, null, <<<'EOS'
-
-<!ELEMENT designs? (design+)>
+$xw->writeDtd('cmsmsinstall', null, null,
+'<!ELEMENT designs? (design+)>
 <!ELEMENT design (id,name,description?,dflt?)>
 <!ELEMENT id (#PCDATA)>
 <!ELEMENT name (#PCDATA)>
@@ -214,9 +213,7 @@ $xw->writeDtd('cmsmsinstall', null, null, <<<'EOS'
 <!ELEMENT properties? (property+)>
 <!ELEMENT property (content_id,prop_name,content)>
 <!ELEMENT prop_name (#PCDATA)>
-
-EOS
-);
+');
 
 $xwm = new XMLWriter();
 $xwm->openMemory();
