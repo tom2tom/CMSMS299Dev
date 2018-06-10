@@ -21,6 +21,12 @@ use CMSMS\AdminUtils;
 class GhostgumTheme extends CmsAdminThemeBase
 {
 	/**
+	 * For theme exporting/importing
+	 * @ignore
+	 */
+	const THEME_VERSION = '0.8';
+
+	/**
 	 * @ignore
 	 */
 	private $_havetree = null;
