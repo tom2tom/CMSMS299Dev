@@ -1,38 +1,28 @@
 <?php
-#-------------------------------------------------------------------------
-# Marigold- An admin theme for CMS Made Simple
-# (c) 2012 by Author: Goran Ilic (ja@ich-mach-das.at) http://dev.cmsmadesimple.org/users/uniqu3
-# (c) 2012 by Robert Campbell (calguy1000@cmsmadesimple.org)
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# Marigold - an admin theme for CMS Made Simple
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# However, as a special exception to the GPL, this software is distributed
-# as an addon module to CMS Made Simple.  You may not use this software
-# in any Non GPL version of CMS Made simple, or in any version of CMS
-# Made simple that does not indicate clearly and obviously in its admin
-# section that the site was built with CMS Made simple.
-#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-# Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
-#
-#-------------------------------------------------------------------------
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-class MarigoldTheme extends CmsAdminThemeBase {
+class MarigoldTheme extends CmsAdminThemeBase
+{
+	/**
+	 * For theme exporting/importing
+	 * @ignore
+	 */
+	const THEME_VERSION = '0.9';
+
 	private $_errors = array();
 	private $_messages = array();
 
@@ -81,7 +71,6 @@ class MarigoldTheme extends CmsAdminThemeBase {
 		$this->set_value('module_help_type', $module_help_type);
 
 		// get the image url.
-		$config = cms_config::get_instance();
 		if ($module_help_type) {
 			// help for a module.
 			$module = '';
@@ -92,8 +81,9 @@ class MarigoldTheme extends CmsAdminThemeBase {
 				$module = $tmp[0];
 			}
 			$icon = "modules/{$module}/images/icon.gif";
-			$path = cms_join_path($config['root_path'], $icon);
+			$path = cms_join_path(CMS_ROOT_PATH, $icon);
 			if (file_exists($path)) {
+				$config = cms_config::get_instance();
 				$url = $config->smart_root_url() . '/' . $icon;
 				$this->set_value('module_icon_url', $url);
 			}
@@ -188,7 +178,7 @@ class MarigoldTheme extends CmsAdminThemeBase {
         $smarty->assign('subtitle',$this->subtitle);
         $smarty->assign('admin_root', $config['admin_url']);
         $smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
-	$smarty->assign('theme_path', __DIR__);
+        $smarty->assign('theme_path', __DIR__);
         $smarty->assign('footer', $this->do_footer() );
         $smarty->assign('lang',get_site_preference('fronendlang'));
         $smarty->assign('pageid',$pageid);
@@ -206,19 +196,18 @@ class MarigoldTheme extends CmsAdminThemeBase {
 
 	public function do_login(array $params)
 	{
-        die('not used '.__METHOD__);
-	  // by default we're gonna grab the theme name
+	    // by default we're gonna grab the theme name
         $config = cms_config::get_instance();
         $smarty = Smarty_CMS::get_instance();
 
-	  $smarty->template_dir = __DIR__ . '/templates';
-	  global $error,$warningLogin,$acceptLogin,$changepwhash;
-	  $fn = $config['admin_path']."/themes/".$this->themeName."/login.php";
-	  include($fn);
+        $smarty->template_dir = __DIR__ . '/templates';
+        global $error,$warningLogin,$acceptLogin,$changepwhash;
+        $fn = $config['admin_path']."/themes/".$this->themeName."/login.php";
+        include($fn);
 
-	  $smarty->assign('lang', get_site_preference('frontendlang'));
-	  $_contents = $smarty->display('login.tpl');
-	  return $_contents;
+        $smarty->assign('lang', get_site_preference('frontendlang'));
+        $_contents = $smarty->display('login.tpl');
+        return $_contents;
 	}
 
 	public function postprocess(string $html) {
