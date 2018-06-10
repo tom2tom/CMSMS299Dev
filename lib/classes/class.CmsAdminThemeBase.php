@@ -63,6 +63,12 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
+	const THEME_DTD_VERSION = '1.0';
+	const THEME_DTD_MINVERSION = '1.0';
+
+    /**
+     * @ignore
+     */
     private static $_instance = null;
 
     /**
@@ -1478,21 +1484,22 @@ $X = 1;
     public static function GetDefaultTheme()
     {
         $tmp = self::GetAvailableThemes();
-        if( is_array($tmp) && count($tmp) ) {
-            $tmp = array_keys($tmp);
+        if( $tmp ) {
             $logintheme = get_site_preference('logintheme');
             if( $logintheme && in_array($logintheme,$tmp) ) return $logintheme;
             return $tmp[0];
         }
+		return '';
     }
 
     /**
      * Retrieve a list of the available admin themes.
      *
-     * @return array A theme-name-sorted hash of themefile-path strings
-     * @since 2.3, array values do not just match respective keys
+     * @param bool $fullpath since 2.3 Optional flag. Default false.
+	 *  If true, array values are theme-class filepaths. Othersie theme names.
+     * @return array A theme-name-sorted hash of theme names or themefile-path strings
      */
-    public static function GetAvailableThemes()
+    public static function GetAvailableThemes($fullpath = false)
     {
         $res = [];
         $files = glob(cms_join_path(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
@@ -1500,7 +1507,7 @@ $X = 1;
             foreach( $files as $one ) {
                 if( is_readable( $one )) {
                     $name = basename($one,'Theme.php');
-                    $res[$name] = $one;
+                    $res[$name] = ($fullpath) ? $one : $name;
                 }
             }
         }
