@@ -283,8 +283,16 @@ function export_theme(string $themename) : bool
 function delete_theme(string $themename) : bool
 {
 	$all = CmsAdminThemeBase::GetAvailableThemes(true);
-	if (isset($all[$themename])) {
-		return recursive_delete(dirname($all[$themename]));
+	if (isset($all[$themename]) && count($all) > 1) {
+		if (recursive_delete(dirname($all[$themename]))) {
+			//adjust default theme if needed
+			$deftheme = cms_siteprefs::get('logintheme', 'default');
+			if ($deftheme == $themename) {
+				unset($all[$themename]);
+				cms_siteprefs::set('logintheme', key($all));
+			}
+			return true;
+		}
 	}
 	return false;
 }
@@ -308,9 +316,6 @@ if (isset($_POST['export'])) {
 
 if (isset($_POST['delete'])) {
 	if (delete_theme(cleanValue($_POST['delete']))) {
-		//TODO adjust default theme if needed
-		if (0) {
-		}
 		$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 		redirect('siteprefs.php'.$urlext);
 	}
