@@ -173,16 +173,18 @@ class FileTypeHelper
     /**
      * Constructor
      *
-     * @param cms_config $config
+     * @param cms_config $config Optional since 2.3
      */
-    public function __construct( cms_config $config )
+    public function __construct( cms_config $config = null )
     {
-        $this->update_config_extensions('_image_extensions', $config['FileTypeHelper_image_extensions']);
-        $this->update_config_extensions('_audio_extensions', $config['FileTypeHelper_audio_extensions']);
-        $this->update_config_extensions('_video_extensions', $config['FileTypeHelper_video_extensions']);
-        $this->update_config_extensions('_xml_extensions', $config['FileTypeHelper_xml_extensions']);
-        $this->update_config_extensions('_document_extensions', $config['FileTypeHelper_document_extensions']);
-        $this->update_config_extensions('_text_extensions', $config['FileTypeHelper_text_extensions']);
+        if ($config) {
+            $this->update_config_extensions('_image_extensions', $config['FileTypeHelper_image_extensions']);
+            $this->update_config_extensions('_audio_extensions', $config['FileTypeHelper_audio_extensions']);
+            $this->update_config_extensions('_video_extensions', $config['FileTypeHelper_video_extensions']);
+            $this->update_config_extensions('_xml_extensions', $config['FileTypeHelper_xml_extensions']);
+            $this->update_config_extensions('_document_extensions', $config['FileTypeHelper_document_extensions']);
+            $this->update_config_extensions('_text_extensions', $config['FileTypeHelper_text_extensions']);
+        }
     }
 
     /**
