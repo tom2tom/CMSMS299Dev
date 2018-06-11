@@ -63,12 +63,6 @@ abstract class CmsAdminThemeBase
     /**
      * @ignore
      */
-	const THEME_DTD_VERSION = '1.0';
-	const THEME_DTD_MINVERSION = '1.0';
-
-    /**
-     * @ignore
-     */
     private static $_instance = null;
 
     /**
@@ -1489,14 +1483,14 @@ $X = 1;
             if( $logintheme && in_array($logintheme,$tmp) ) return $logintheme;
             return $tmp[0];
         }
-		return '';
+        return '';
     }
 
     /**
      * Retrieve a list of the available admin themes.
      *
      * @param bool $fullpath since 2.3 Optional flag. Default false.
-	 *  If true, array values are theme-class filepaths. Othersie theme names.
+     *  If true, array values are theme-class filepaths. Othersie theme names.
      * @return array A theme-name-sorted hash of theme names or themefile-path strings
      */
     public static function GetAvailableThemes($fullpath = false)
@@ -1512,30 +1506,6 @@ $X = 1;
             }
         }
         return $res;
-    }
-
-    /**
-     * Export the named theme as an xml file
-     *
-     * @since 2.3
-     * @param string $name theme name
-     * @return bool indicating success
-     */
-    public function ExportTheme(string $name) : bool
-    {
-        require __DIR__.DIRECTORY_SEPARATOR.'function.exporttheme.php';
-    }
-
-    /**
-     * Install or update theme from xml file
-     *
-     * @since 2.3
-     * @param string $filepath path of xml file to be processed
-     * @return bool indicating success
-     */
-    public function ImportTheme(string $filepath) : bool
-    {
-        require __DIR__.DIRECTORY_SEPARATOR.'function.importtheme.php';
     }
 
     /**
