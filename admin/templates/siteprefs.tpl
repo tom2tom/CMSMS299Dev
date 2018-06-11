@@ -65,6 +65,9 @@
    <div class="pageoptions">
    {if !empty($imports)}
      <a id="importbtn">{admin_icon icon='import.gif'} {lang('importtheme')}</a>
+    {if count($themes) > 1}
+    &nbsp;<a id="deletebtn">{admin_icon icon='delete.gif'} {lang('deletetheme')}</a>
+    {/if}
    {/if}
    {if isset($themes)}
      {if !empty($imports)}&nbsp;{/if}
@@ -129,24 +132,31 @@
 {if !empty($imports)}
 <div id="importdlg" title="{lang('importtheme')}" style="display:none;">
  <form id="importform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
-  <div class="pageoverflow">
-    <p class="pageinput">
-      <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:"javascript"}" name="import" accept="text/xml"/>
-    </p>
-  </div>
+  <p class="pageinput">
+   <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:"javascript"}" name="import" accept="text/xml"/>
+  </p>
  </form>
 </div>
+{if isset($themes) && count($themes) > 1}
+<div id="deletedlg" title="{lang('deletetheme')}" style="display:none;">
+ <form id="deleteform" action="themeoperation.php{$urlext}" method="post">
+  <p class="pageinput">
+   <select name="delete">
+    {html_options options=$themes}
+   </select>
+  </p>
+ </form>
+</div>
+{/if}
 {/if}
 {if isset($themes)}
 <div id="exportdlg" title="{lang('exporttheme')}" style="display:none;">
  <form id="exportform" action="themeoperation.php{$urlext}" method="post">
-  <div class="pageoverflow">
-    <p class="pageinput">
-      <select id="xml_download" title="{lang('help_themeexport')}" name="export">
-       {html_options options=$themes}
-      </select>
-    </p>
-  </div>
+   <p class="pageinput">
+    <select title="{lang('help_themeexport')}" name="export">
+     {html_options options=$themes}
+    </select>
+   </p>
  </form>
 </div>
 {/if}

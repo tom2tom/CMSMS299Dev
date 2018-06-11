@@ -488,6 +488,21 @@ $(document).ready(function() {
     }
    });
   });
+  $('#deletebtn').on('click', function() {
+   cms_dialog($('#deletedlg'), {
+    modal: true,
+    width: 'auto',
+    buttons: {
+     {$submit}: function() {
+      $(this).dialog('close');
+      $('#deleteform').submit();
+     },
+     {$cancel}: function() {
+      $(this).dialog('close');
+     }
+    }
+   });
+  });
  }
  b = $('#exportbtn');
  if(b.length > 0) {

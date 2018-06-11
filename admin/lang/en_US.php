@@ -267,6 +267,7 @@ $lang['deleted_module'] = 'Permanently removed %s';
 $lang['deleted_udt'] = 'Deleted User Defined Tag';
 $lang['deleted_user'] = 'Deleted User';
 $lang['deletepages'] = 'Delete these pages?';
+$lang['deletetheme'] = 'Delete Theme';
 $lang['deleteuser'] = 'Delete User Account';
 //$lang['depsformodule'] = 'Dependencies for %s Module';
 $lang['description'] = 'Description';
