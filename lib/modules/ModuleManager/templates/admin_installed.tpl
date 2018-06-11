@@ -1,17 +1,3 @@
-<div id="importdlg" title="{$mod->Lang('importxml')}" style="display:none;">
-  {form_start id='local_import' action='local_import'}
-  <div class="pageoverflow">
-    <p class="pagetext">
-      <label for="xml_upload">{$mod->Lang('uploadfile')}:</label>
-       {cms_help title=$mod->Lang('title_mm_importxml') key='help_mm_importxml'}
-    </p>
-    <p class="pageinput">
-      <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml"/>
-    </p>
-  </div>
-  {form_end}
-</div>
-
 {if isset($module_info)}
 <div class="pageoptions">
   <a id="importbtn">{admin_icon icon='import.gif'} {$mod->Lang('importxml')}</a>
@@ -139,3 +125,16 @@
 {else}
   <div class="pagewarn">{$mod->Lang('error_nomodules')}</div>
 {/if}
+<div id="importdlg" title="{$mod->Lang('importxml')}" style="display:none;">
+ {form_start id='local_import' action='local_import'}
+  <div class="pageoverflow">
+    <p class="pagetext">
+      <label for="xml_upload">{$mod->Lang('uploadfile')}:</label>
+       {cms_help key='help_mm_importxml' title=$mod->Lang('title_mm_importxml')}
+    </p>
+    <p class="pageinput">
+      <input id="xml_upload" type="file" name="{$actionid}upload" accept="text/xml"/>
+    </p>
+  </div>
+ </form>
+</div>
