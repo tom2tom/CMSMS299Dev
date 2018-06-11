@@ -423,6 +423,10 @@ if ($messages) {
     $themeObject->RecordNotice('success', $messages);
 }
 
+$submit = lang('submit');
+$cancel = lang('cancel');
+$nofile = json_encode(lang('nofiles'));
+$badfile = json_encode(lang('TODOwrongfile'));
 $confirm = json_encode(lang('siteprefs_confirm'));
 
 $out = <<<EOS
@@ -457,6 +461,52 @@ $(document).ready(function() {
   cms_dialog($('#testpopup'),'close');
   $(this).closest('form').submit();
  });
+ var b = $('#importbtn');
+ if(b.length > 0) {
+  b.on('click', function() {
+   cms_dialog($('#importdlg'), {
+    modal: true,
+    width: 'auto',
+    buttons: {
+     {$submit}: function() {
+      var file = $('#xml_upload').val();
+      if(file.length === 0) {
+       cms_alert($nofile);
+      } else {
+       var ext = file.split('.').pop().toLowerCase();
+       if(ext !== 'xml') {
+        cms_alert($badfile);
+       } else {
+        $(this).dialog('close');
+        $('#importform').submit();
+       }
+      }
+     },
+     {$cancel}: function() {
+      $(this).dialog('close');
+     }
+    }
+   });
+  });
+ }
+ b = $('#exportbtn');
+ if(b.length > 0) {
+  b.on('click', function() {
+   cms_dialog($('#exportdlg'), {
+    modal: true,
+    width: 'auto',
+    buttons: {
+     {$submit}: function() {
+      $(this).dialog('close');
+      $('#exportform').submit();
+     },
+     {$cancel}: function() {
+      $(this).dialog('close');
+     }
+    }
+   });
+  });
+ }
  $('#mailer').change(function() {
   on_mailer();
  });
@@ -543,6 +593,9 @@ if ($tmp) {
 } else {
     $smarty->assign('themes', null);
     $smarty->assign('logintheme', null);
+}
+if (check_permission($userid, 'Modify Site Preferences')) {
+    $smarty->assign('imports', true);
 }
 
 $smarty->assign('sitename', $sitename);
