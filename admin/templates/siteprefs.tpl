@@ -61,6 +61,17 @@
     </p>
   </div>
   {/if}
+  {if isset($themes) || !empty($imports)}
+   <div class="pageoptions">
+   {if !empty($imports)}
+     <a id="importbtn">{admin_icon icon='import.gif'} {lang('importtheme')}</a>
+   {/if}
+   {if isset($themes)}
+     {if !empty($imports)}&nbsp;{/if}
+     <a id="exportbtn">{admin_icon icon='export.gif'} {lang('exporttheme')}</a>
+   {/if}
+   </div>
+  {/if}
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="defaultdateformat">{lang('date_format_string')}:</label>
@@ -115,6 +126,30 @@
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
+{if !empty($imports)}
+<div id="importdlg" title="{lang('importtheme')}" style="display:none;">
+ <form id="importform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
+  <div class="pageoverflow">
+    <p class="pageinput">
+      <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:"javascript"}" name="import" accept="text/xml"/>
+    </p>
+  </div>
+ </form>
+</div>
+{/if}
+{if isset($themes)}
+<div id="exportdlg" title="{lang('exporttheme')}" style="display:none;">
+ <form id="exportform" action="themeoperation.php{$urlext}" method="post">
+  <div class="pageoverflow">
+    <p class="pageinput">
+      <select id="xml_download" title="{lang('help_themeexport')}" name="export">
+       {html_options options=$themes}
+      </select>
+    </p>
+  </div>
+ </form>
+</div>
+{/if}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='editcontent'}
 <form id="siteprefform_editcontent" action="{$selfurl}{$urlext}" method="post">
