@@ -63,12 +63,15 @@ function import_theme(string $xmlfile) : bool
 			return false;
 		}
 */
-	} else {
+	} elseif ($themename != 'assets') {
 		$basepath = cms_join_path(CMS_ADMIN_PATH, 'themes', $themename);
 		if (!(is_dir($basepath) || @mkdir($basepath, 0771, true))) {
-			//('error', 'Failed to create directory for theme data');
+			//cms_notify('error', 'Failed to create directory for theme data');
 			return false;
 		}
+	} else {
+		//malicious name ignored
+		return false;
 	}
 
 	foreach ($xml->children() as $typenode) {
