@@ -61,16 +61,16 @@
     </p>
   </div>
   {/if}
-  {if isset($themes) || !empty($imports)}
+  {if isset($themes) || !empty($modtheme)}
    <div class="pageoptions">
-   {if !empty($imports)}
+   {if !empty($modtheme)}
      <a id="importbtn">{admin_icon icon='import.gif'} {lang('importtheme')}</a>
     {if count($themes) > 1}
     &nbsp;<a id="deletebtn">{admin_icon icon='delete.gif'} {lang('deletetheme')}</a>
     {/if}
    {/if}
    {if isset($themes)}
-     {if !empty($imports)}&nbsp;{/if}
+     {if !empty($exptheme)}&nbsp;{/if}
      <a id="exportbtn">{admin_icon icon='export.gif'} {lang('exporttheme')}</a>
    {/if}
    </div>
@@ -129,7 +129,7 @@
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
-{if !empty($imports)}
+{if !empty($modtheme)}
 <div id="importdlg" title="{lang('importtheme')}" style="display:none;">
  <form id="importform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
   <p class="pageinput">
@@ -149,7 +149,7 @@
 </div>
 {/if}
 {/if}
-{if isset($themes)}
+{if !empty($exptheme)}
 <div id="exportdlg" title="{lang('exporttheme')}" style="display:none;">
  <form id="exportform" action="themeoperation.php{$urlext}" method="post">
    <p class="pageinput">

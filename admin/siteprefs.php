@@ -594,24 +594,16 @@ for ($i = 0; $i < $n; $i++) {
 }
 $smarty->assign('wysiwyg', $tmp2);
 
-$tmp = glob(__DIR__.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'*', GLOB_ONLYDIR);
+$tmp = CmsAdminThemeBase::GetAvailableThemes();
 if ($tmp) {
-    $themes = [];
-    foreach ($tmp as $dir) {
-        $file = basename($dir);
-        if (@is_readable($dir.DIRECTORY_SEPARATOR.$file.'Theme.php')) {
-            $themes[$file] = $file;
-        }
-    }
-    $smarty->assign('themes', $themes);
-    $smarty->assign('logintheme', cms_siteprefs::get('logintheme', 'default'));
+    $smarty->assign('themes', $tmp);
+    $smarty->assign('logintheme', cms_siteprefs::get('logintheme', reset($tmp)));
+    $smarty->assign('exptheme', !empty($config['developer_mode']));
 } else {
     $smarty->assign('themes', null);
     $smarty->assign('logintheme', null);
 }
-if (check_permission($userid, 'Modify Site Preferences')) {
-    $smarty->assign('imports', true);
-}
+$smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
 $smarty->assign('sitename', $sitename);
 $smarty->assign('sitelogo', $sitelogo);
