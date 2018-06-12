@@ -81,7 +81,7 @@
       <p class="pageinput">
         {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br />{/foreach}
         <br />
-        <button type="submit" name="fixtypes" class="adminsubmit icon do">{lang('sysmain_fixtypes')}<button>
+        <button type="submit" name="fixtypes" class="adminsubmit icon do">{lang('sysmain_fixtypes')}</button>
       </p>
     </div>
   </form>
@@ -89,6 +89,16 @@
   <p class='green'><strong>{lang('sysmain_nocontenterrors')}</strong></p>
   {/if}
 </fieldset>
+{if !empty($devmode)}
+<fieldset>
+  <legend>{lang('exportsite')}&nbsp;</legend>
+  <form action="{$selfurl}{$urlext}" method="post">
+  <p class="pageinput">
+    <button type="submit" name="export" class="adminsubmit icon do">{lang('export')}</button>
+  </p>
+  </form>
+</fieldset>
+{/if}
 
 {if isset($changelog)}
 {tab_start name='changelog'}
