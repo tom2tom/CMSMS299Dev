@@ -882,6 +882,7 @@ $lang['expand'] = 'Expand Section';
 $lang['expandall'] = 'Expand All Sections';
 $lang['expanded_xml'] = 'Expanded XML file consisting of %s %s';
 $lang['export'] = 'Export';
+$lang['exportsite'] = 'Export site content';
 $lang['exporttheme'] = 'Export Theme';
 $lang['extensions'] = 'Extensions';
 $lang['extensionsdescription'] = 'Tailor the way CMSMS works, and other functions';
