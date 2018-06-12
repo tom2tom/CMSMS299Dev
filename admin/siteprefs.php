@@ -590,7 +590,7 @@ $tmp = \CMSMS\internal\module_meta::get_instance()->module_list_by_capability('w
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; $i++) {
-   $tmp2[$tmp[$i]] = $tmp[$i];
+    $tmp2[$tmp[$i]] = $tmp[$i];
 }
 $smarty->assign('wysiwyg', $tmp2);
 
