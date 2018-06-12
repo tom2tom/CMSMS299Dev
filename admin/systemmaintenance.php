@@ -240,20 +240,26 @@ $smarty->assign('withoutaliascount', count($withoutalias));
  * Changelog
  */
 $ch_filename = cms_join_path($CMS_BASE, 'doc', 'CHANGELOG.txt');
-$changelog = @file($ch_filename);
 
 if (is_readable($ch_filename)) {
+    $close = false;
+    $changelog = @file($ch_filename);
     $n = count($changelog);
     for ($i = 0; $i < $n; $i++) {
         if (strncmp($changelog[$i], 'Version', 7) == 0) {
-            if ($i == 0) {
+            if (!$close) {
                 $changelog[$i] = '<div class="version"><h3>' . $changelog[$i] . '</h3>';
             } else {
                 $changelog[$i] = '</div><div class="version"><h3>' . $changelog[$i] . '</h3>';
             }
+            $close = true;
+        } else {
+            $changelog[$i] = htmlentities($changelog[$i]);
         }
     }
-
+    if ($close) {
+        $changelog[] = '</div>';
+    }
     $changelog = implode('<br />', $changelog);
 
     $smarty->assign('changelog', $changelog);
