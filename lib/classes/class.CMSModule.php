@@ -256,13 +256,15 @@ abstract class CMSModule
      * This method is used to call the module from
      * within template co.
      *
-     * This function should not be overridden
+     * This function cannot be overridden
      *
      * @final
      * @internal
+	 * @param array $params
+	 * @param type $template
      * @return mixed module call output.
      */
-    final public static function function_plugin(array $params, &$template)
+    final public static function function_plugin(array $params, $template)
     {
         $class = get_called_class();
         if( $class != 'CMSModule' && !isset($params['module']) ) $params['module'] = $class;

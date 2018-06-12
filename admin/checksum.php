@@ -37,7 +37,7 @@ if (!$access) {
 define('CMS_BASE', dirname(__DIR__));
 require_once cms_join_path(CMS_BASE, 'lib', 'test.functions.php');
 
-function checksum_lang($params,&$smarty)
+function checksum_lang($params,$smarty)
 {
   if( isset($params['key']) ) return lang($params['key']);
 }
