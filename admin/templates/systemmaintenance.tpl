@@ -30,17 +30,17 @@
   </fieldset>
 </form>
 {tab_start name='content'}
-<form action="{$selfurl}{$urlext}" method="post">
-  <fieldset>
+<fieldset>
     <legend>{lang('sysmain_cache_status')}&nbsp;</legend>
+    <form action="{$selfurl}{$urlext}" method="post">
     <div class="pageoverflow">
       <p class="pagetext">{lang('clearcache')}:</p>
       <p class="pageinput">
         <button type="submit" name="clearcache" class="adminsubmit icon do">{lang('clear')}</button>
       </p>
     </div>
-  </fieldset>
-</form>
+    </form>
+</fieldset>
 
 <fieldset>
   <legend>{lang('sysmain_content_status')}&nbsp;</legend>
