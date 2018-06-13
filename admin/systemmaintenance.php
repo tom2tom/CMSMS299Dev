@@ -30,7 +30,7 @@ $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
 //TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
-	return;
+    return;
 }
 
 $CMS_BASE = dirname(__DIR__);
@@ -151,6 +151,25 @@ if (!empty($_POST['updatehierarchy'])) {
     $themeObject->RecordNotice('success', lang('sysmain_hierarchyupdated'));
     $smarty->assign('active_content', 'true');
 }
+
+$flag = !empty($config['developer_mode']);
+if ($flag && isset($_POST['export'])) {
+    include __DIR__.DIRECTORY_SEPARATOR.'function.contentoperation.php';
+    $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
+    export_content($xmlfile);
+    $handlers = ob_list_handlers();
+    for ($c = 0, $n = sizeof($handlers); $c < $n; ++$c) {
+        ob_end_clean();
+    }
+    $xmlname = 'Exported-CMSMS-Site.xml'; //TODO better name
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/force-download');
+    header('Content-Disposition: attachment; filename='.$xmlname);
+    echo file_get_contents($xmlfile);
+    @unlink($xmlfile);
+	exit;
+}
+$smarty->assign('devmode', $flag);
 
 //Setting up types
 $contenttypes = $contentops->ListContentTypes(false, true);
