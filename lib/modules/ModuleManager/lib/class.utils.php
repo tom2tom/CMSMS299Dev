@@ -1,16 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2011 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# ModuleManager class: utils
+# Copyright (C) 2011-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,10 +14,15 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 namespace ModuleManager;
+
+use cms_utils;
+use CmsCommunicationException;
+use CmsInvalidDataException;
+use CMSMS\ModuleOperations;
+use const MINIMUM_REPOSITORY_VERSION;
+use function cmsms;
 
 final class utils
 {
@@ -34,7 +30,7 @@ final class utils
 
     public static function get_installed_modules($include_inactive = FALSE, $as_hash = FALSE)
     {
-        $modops = \ModuleOperations::get_instance();
+        $modops = ModuleOperations::get_instance();
         $module_list = $modops->GetInstalledModules($include_inactive);
 
         $results = array();
@@ -95,7 +91,7 @@ final class utils
         // sort
         uasort( $xmldetails, 'ModuleManager\\utils::uasort_cmp_details' );
 
-        $mod = \cms_utils::get_module('ModuleManager');
+        $mod = cms_utils::get_module('ModuleManager');
 
         //
         // Process the xmldetails, and only keep the latest version
@@ -168,16 +164,16 @@ final class utils
 
     public static function get_module_xml($filename,$size,$md5sum = null)
     {
-        $mod = \cms_utils::get_module('ModuleManager');
+        $mod = cms_utils::get_module('ModuleManager');
         $xml_filename = modulerep_client::get_repository_xml($filename,$size);
-        if( !$xml_filename ) throw new \CmsCommunicationException($mod->Lang('error_downloadxml',$filename));
+        if( !$xml_filename ) throw new CmsCommunicationException($mod->Lang('error_downloadxml',$filename));
 
         if( !$md5sum ) $md5sum = modulerep_client::get_module_md5($filename);
         $dl_md5 = md5_file($xml_filename);
 
         if( $md5sum != $dl_md5 ) {
             @unlink($xml_filename);
-            throw new \CmsInvalidDataException($mod->Lang('error_checksum',array($server_md5,$dl_md5)));
+            throw new CmsInvalidDataException($mod->Lang('error_checksum',array($server_md5,$dl_md5)));
         }
 
         return $xml_filename;
@@ -188,11 +184,11 @@ final class utils
         static $ok = -1;
         if( $ok != -1 ) return $ok;
 
-        $mod = \cms_utils::get_module('ModuleManager');
+        $mod = cms_utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
         if( $url ) {
             $url .= '/version';
-            $req = new \modmgr_cached_request($url);
+            $req = new modmgr_cached_request($url);
             $req->setTimeout(3);
             $req->execute($url);
             if( $req->getStatus() == 200 ) {
@@ -231,39 +227,30 @@ final class utils
     public static function get_images()
     {
         // this is a bit ugly.
-        $mod = \cms_utils::get_module('ModuleManager');
+        $mod = cms_utils::get_module('ModuleManager');
+		$base = $mod->GetModuleURLPath().'/images/');
         $smarty = cmsms()->GetSmarty();
 
-        $stale_img=$mod->GetModuleURLPath().'/images/error.png';
-        $stale_img = '<img src="'.$stale_img.'" title="'.$mod->Lang('title_stale').'" alt="stale" height="20" width="20" />';
-        $smarty->assign('stale_img',$stale_img);
+        $img = '<img src="'.$base.'error.png" title="'.$mod->Lang('title_stale').'" alt="stale" height="20" width="20" />';
+        $smarty->assign('stale_img',$img);
 
-        $stale_img=$mod->GetModuleURLPath().'/images/puzzle.png';
-        $stale_img = '<img src="'.$stale_img.'" title="'.$mod->Lang('title_missingdeps').'" alt="missingdeps" height="20" width="20" />';
-        $smarty->assign('missingdep_img',$stale_img);
+        $img = '<img src="'.$base.'puzzle.png" title="'.$mod->Lang('title_missingdeps').'" alt="missingdeps" height="20" width="20" />';
+        $smarty->assign('missingdep_img',$img);
 
-        $warn_img=$mod->GetModuleURLPath().'/images/warn.png';
-        $warn_img = '<img src="'.$warn_img.'" title="'.$mod->Lang('title_warning').'" alt="warning" height="20" width="20" />';
-        $smarty->assign('warn_img',$warn_img);
+        $img = '<img src="'.$base.'warn.png" title="'.$mod->Lang('title_warning').'" alt="warning" height="20" width="20" />';
+        $smarty->assign('warn_img',$img);
 
-        $new_img=$mod->GetModuleURLPath().'/images/new.png';
-        $new_img = '<img src="'.$new_img.'" title="'.$mod->Lang('title_new').'" alt="new" height="20" width="20" />';
-        $smarty->assign('new_img',$new_img);
+        $img = '<img src="'.$base.'new.png" title="'.$mod->Lang('title_new').'" alt="new" height="20" width="20" />';
+        $smarty->assign('new_img',$img);
 
-        $star_img=$mod->GetModuleURLPath().'/images/star.png';
-        $star_img = '<img src="'.$star_img.'" title="'.$mod->Lang('title_star').'" alt="star" height="20" width="20" />';
-        $smarty->assign('star_img',$star_img);
+        $img = '<img src="'.$base.'star.png" title="'.$mod->Lang('title_star').'" alt="star" height="20" width="20" />';
+        $smarty->assign('star_img',$img);
 
-        $system_img=$mod->GetModuleURLPath().'/images/system.png';
-        $system_img = '<img src="'.$system_img.'" title="'.$mod->Lang('title_system').'" alt="system" height="20" width="20" />';
-        $smarty->assign('system_img',$system_img);
+        $img = '<img src="'.$base.'system.png" title="'.$mod->Lang('title_system').'" alt="system" height="20" width="20" />';
+        $smarty->assign('system_img',$img);
 
-        $deprecated_img=$mod->GetModuleURLPath().'/images/deprecate.png';
-        $deprecated_img = '<img src="'.$deprecated_img.'" title="'.$mod->Lang('title_deprecated').'" alt="deprecated" height="20" width="20" />';
-        $smarty->assign('deprecated_img',$deprecated_img);
+        $deprecated_img = '<img src="'.$base.'deprecate.png" title="'.$mod->Lang('title_deprecated').'" alt="deprecated" height="20" width="20" />';
+        $smarty->assign('deprecated_img',$img);
     }
-} // end of class
+} // class
 
-#
-# EOF
-#
