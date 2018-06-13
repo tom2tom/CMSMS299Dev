@@ -25,7 +25,7 @@ else {
 if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['preview']) ) {
     // see if our data matches.
     if( md5(serialize($_SESSION['news_preview'])) == $params['preview'] ) {
-        $fname = TMP_CACHE_LOCATION.'/'.$_SESSION['news_preview']['fname'];
+        $fname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.$_SESSION['news_preview']['fname'];
         if( file_exists($fname) && (md5_file($fname) == $_SESSION['news_preview']['checksum']) ) {
             $data = unserialize(file_get_contents($fname), ['allowed_classes'=>false]);
             if( is_array($data) ) {
