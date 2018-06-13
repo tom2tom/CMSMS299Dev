@@ -81,8 +81,8 @@ if (!isset($USE_THEME) || $USE_THEME) {
 		$ignoredmodules = explode(',',cms_userprefs::get_for_user($userid,'ignoredmodules'));
 		if( cms_siteprefs::get('enablenotifications',1) && cms_userprefs::get_for_user($userid,'enablenotifications',1) ) {
 			// Display a warning sitedownwarning
-			$sitedown_message = lang('sitedownwarning', TMP_CACHE_LOCATION . '/SITEDOWN');
-			$sitedown_file = TMP_CACHE_LOCATION . '/SITEDOWN';
+			$sitedown_file = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'SITEDOWN';
+			$sitedown_message = lang('sitedownwarning', $sitedown_file);
 			if (file_exists($sitedown_file)) $themeObject->AddNotification(1,'Core',$sitedown_message);
 		}
 	}
