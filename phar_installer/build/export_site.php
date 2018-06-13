@@ -6,17 +6,16 @@ This works from an installed site i.e. populated rdatabase, config, autoloader e
 May be used standalone or included somewhere relevant in the phar-construction process.
 */
 
-global $CMS_INSTALL_PAGE;
-$LONE = empty($CMS_INSTALL_PAGE);
+$runtime = empty($CMS_INSTALL_PAGE);
 
-if ($LONE) {
+if ($runtime) {
     require_once dirname(__FILE__, 3).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 }
 $config = cms_config::get_instance();
 $db = new CMSMS\Database\mysqli\Connection($config);
 
-//data arrangement
-//mostly table names and fieldnames, must be manually reconciled with schema
+//data definition
+//mostly table- and field-names, must be manually reconciled with schema
 $skeleton = [
  'designs' => [
   'table' => 'layout_designs',
@@ -146,13 +145,12 @@ $skeleton = [
 
 if (empty($xmlfile)) {
 	//filename not specified by includer: use default
-	$xmlfile = 'democontent.xml';
+	$xmlfile = './democontent.xml';
 }
-$outfile = __DIR__.DIRECTORY_SEPARATOR.$xmlfile;
-@unlink($outfile);
+@unlink($xmlfile);
 
 $xw = new XMLWriter();
-$xw->openUri('file://'.$outfile);
+$xw->openUri('file://'.$xmlfile);
 $xw->setIndent(true);
 $xw->setIndentString("\t");
 $xw->startDocument('1.0', 'UTF-8');
