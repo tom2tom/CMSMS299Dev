@@ -1,16 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2011 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# ModuleManager class: ..
+# Copyright (C) 2011-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,9 +14,14 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
+namespace ModuleManager;
+
+use cms_http_request;
+use cms_utils;
+use const TMP_CACHE_LOCATION;
+use function cmsms;
+use function get_site_preference;
 
 final class modmgr_cached_request
 {
@@ -37,8 +33,7 @@ final class modmgr_cached_request
   private function _getCacheFile()
   {
     if( $this->_signature ) {
-      $fn = TMP_CACHE_LOCATION.'/modmgr_'.$this->_signature.'.dat';
-      return $fn;
+      return TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.$this->_signature.'.dat';
     }
   }
 
@@ -56,10 +51,8 @@ final class modmgr_cached_request
 
     // check for the cached file
     $atime = time() - ($age * 60);
-    $status = '';
-    $resutl = '';
-    if( (isset($config['developer_mode']) && $mod->GetPreference('disable_caching',0)) ||
-	!file_exists($fn) || filemtime($fn) <= $atime ) {
+    if( (!empty($config['developer_mode']) && $mod->GetPreference('disable_caching',0)) ||
+    !file_exists($fn) || filemtime($fn) <= $atime ) {
       // execute the request
       $req = new cms_http_request();
       if( $this->_timeout ) $req->setTimeout($this->_timeout);
@@ -69,10 +62,10 @@ final class modmgr_cached_request
 
       @unlink($fn);
       if( $this->_status == 200 ) {
-	// create a cache file
-	$fh = fopen($fn,'w');
-	fwrite($fh,serialize(array($this->_status,$this->_result)));
-	fclose($fh);
+        // create a cache file
+        $fh = fopen($fn,'w');
+        fwrite($fh,serialize(array($this->_status,$this->_result)));
+        fclose($fh);
       }
     }
     else {
@@ -103,9 +96,4 @@ final class modmgr_cached_request
     $fn = $this->_getCacheFile();
     if( $fn ) @unlink($fn);
   }
-} // end of class.
-
-#
-# EOF
-#
-?>
+} // class

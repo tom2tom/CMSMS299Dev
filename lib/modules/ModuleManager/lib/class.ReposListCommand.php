@@ -1,10 +1,27 @@
 <?php
+# ModuleManager class: ..
+# Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace ModuleManager;
-use \CMSMS\CLI\App;
-use \CMSMS\CLI\GetOptExt\Command;
-use \CMSMS\CLI\GetOptExt\Option;
-use \CMSMS\CLI\GetOptExt\GetOpt;
-use \GetOpt\Operand;
+
+use CMSMS\CLI\App;
+use CMSMS\CLI\GetOptExt\Command;
+use CMSMS\CLI\GetOptExt\Option;
+use GetOpt\Operand;
+use RuntimeException;
 
 class ReposListCommand extends Command
 {
@@ -78,7 +95,7 @@ class ReposListCommand extends Command
             $verbose = $this->getOption('verbose')->value();
             $list = \modulerep_client::get_repository_modules( $module, $latest, TRUE );
 
-            if( !$list || count($list) != 2 || $list[0] != 1 ) throw new \RuntimeException('No matches');
+            if( !$list || count($list) != 2 || $list[0] != 1 ) throw new RuntimeException('No matches');
             $list = $list[1];
             $list = array_slice($list,0,50);
 
@@ -92,7 +109,7 @@ class ReposListCommand extends Command
             }
         }
         catch( \ModuleNoDataException $e ) {
-            throw new \RuntimeException("Module $module not found in repository");
+            throw new RuntimeException("Module $module not found in repository");
         }
 
     }

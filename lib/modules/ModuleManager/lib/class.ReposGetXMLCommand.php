@@ -1,10 +1,25 @@
 <?php
+# ModuleManager class: ...
+# Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace ModuleManager;
-use \CMSMS\CLI\App;
-use \CMSMS\CLI\GetOptExt\Command;
-use \CMSMS\CLI\GetOptExt\Option;
-use \CMSMS\CLI\GetOptExt\GetOpt;
-use \GetOpt\Operand;
+
+use cms_utils;
+use CMSMS\CLI\App;
+use RuntimeException;
 
 class ReposGetXMLCommand extends Command
 {
@@ -31,28 +46,28 @@ EOT;
     public function handle()
     {
         try {
-            $moma = \cms_utils::get_module('ModuleManager');
+            $moma = cms_utils::get_module('ModuleManager');
             $module = $this->getOperand('module')->value();
 
-            $data = \modulerep_client::get_modulelatest( [ $module ] );
-            if( !$data ) throw new \RuntimeException("Module $module not found in repository");
-            if( count($data) > 1 ) throw new \RuntimeException("Internal error: multiple results returned");
+            $data = modulerep_client::get_modulelatest( [ $module ] );
+            if( !$data ) throw new RuntimeException("Module $module not found in repository");
+            if( count($data) > 1 ) throw new RuntimeException("Internal error: multiple results returned");
             $data = $data[0];
 
             $filename = $data['filename'];
             $md5sum = $data['md5sum'];
-            $tmpfile = \modulerep_client::get_repository_xml( $filename );
-            if( !$tmpfile ) throw new \RuntimeException("Problem downloading ".$filename." no data returned");
+            $tmpfile = modulerep_client::get_repository_xml( $filename );
+            if( !$tmpfile ) throw new RuntimeException("Problem downloading ".$filename." no data returned");
             $newsum = md5_file( $tmpfile );
-            if( $md5sum != $newsum ) throw new \RuntimeException("Problem downloading $filename, checksum fail");
+            if( $md5sum != $newsum ) throw new RuntimeException("Problem downloading $filename, checksum fail");
 
             copy( $tmpfile, $filename );
             unlink( $tmpfile );
             echo $filename."\n";
         }
-        catch( \ModuleNoDataException $e ) {
-            throw new \RuntimeException("Module $module not found in repository");
+        catch( ModuleNoDataException $e ) {
+            throw new RuntimeException("Module $module not found in repository");
         }
 
     }
-} // end of class.
+} // class

@@ -1,16 +1,6 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2011 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# ModuleManager class: ...
+# Copyright (C) 2011-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,9 +13,18 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
+namespace ModuleManager;
+
+use cms_http_request;
+use cms_utils;
+use CmsCommunicationException;
+use CmsException;
+use CmsInvalidDataException;
+use CMSMS\ModuleOperations;
+use ModuleManagerModuleInfo;
+use const CMS_VERSION;
+use const TMP_CACHE_LOCATION;
 
 final class modulerep_client
 {
@@ -173,7 +172,7 @@ final class modulerep_client
         if( !$xmlfile ) return FALSE;
 
         // this is manually cached.
-        $tmpname = TMP_CACHE_LOCATION.'/modmgr_'.md5(__DIR__.$xmlfile).'.dat';
+        $tmpname = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'modmgr_'.md5(__DIR__.$xmlfile).'.dat';
         $mod = cms_utils::get_module('ModuleManager');
         if( !file_exists($tmpname) || $mod->GetPreference('disable_caching',0) || (time() - filemtime($tmpname)) > 7200 ) {
             @unlink($tmpname);
@@ -353,12 +352,8 @@ final class modulerep_client
             if( $row['name'] == $module_name ) return $row;
         }
     }
-} // end of class
+} // class
 
-class ModuleManagerException extends \CmsException {}
+class ModuleManagerException extends CmsException {}
 class ModuleNoDataException extends ModuleManagerException {}
 class ModuleNotFoundException extends ModuleManagerException {}
-
-#
-# EOF
-#

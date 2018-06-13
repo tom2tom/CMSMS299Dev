@@ -1,10 +1,27 @@
 <?php
+# ModuleManager class: ..
+# Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace ModuleManager;
-use \CMSMS\CLI\App;
-use \CMSMS\CLI\GetOptExt\Command;
-use \CMSMS\CLI\GetOptExt\Option;
-use \CMSMS\CLI\GetOptExt\GetOpt;
-use \GetOpt\Operand;
+
+use CMSMS\CLI\App;
+use CMSMS\CLI\GetOptExt\Command;
+use CMSMS\CLI\GetOptExt\GetOpt;
+use CMSMS\CLI\GetOptExt\Option;
+use RuntimeException;
 
 class ListModulesCommand extends Command
 {
@@ -16,7 +33,7 @@ class ListModulesCommand extends Command
         $this->addOption( Option::Create('m','module', GetOpt::REQUIRED_ARGUMENT )->SetDescription('Display information about a specific module (in verbose mode)') );
     }
 
-    protected function do_verbose_module( \ModuleManagerModuleInfo $info )
+    protected function do_verbose_module( ModuleManagerModuleInfo $info )
     {
         $do_line = function( $prompt, $value ) {
             printf("%-20s: %s\n", $prompt, $value );
@@ -64,7 +81,7 @@ class ListModulesCommand extends Command
     {
         $column_widths = [ 'name'=>null, 'version'=>null, 'status'=>null, 'system_module'=>null ];
 
-        $get_statuses = function( \ModuleManagerModuleInfo $info ) {
+        $get_statuses = function( ModuleManagerModuleInfo $info ) {
             $out = [];
             if( $info['has_custom'] ) $out[] = 'Has odule custom!';
             // if( !$info['has_meta'] ) $out[] = 'No meta file!';
@@ -153,7 +170,7 @@ class ListModulesCommand extends Command
 
     public function handle()
     {
-        $allmoduleinfo = \ModuleManagerModuleInfo::get_all_module_info(TRUE);
+        $allmoduleinfo = ModuleManagerModuleInfo::get_all_module_info(TRUE);
         $verbose = $this->getOption('verbose')->value();
         $module = $this->getOption('module')->value();
         if( $module ) {
@@ -163,7 +180,7 @@ class ListModulesCommand extends Command
                     return;
                 }
             }
-            throw new \RuntimeException('Could not find module information for '.$module);
+            throw new RuntimeException('Could not find module information for '.$module);
         }
         if( $verbose ) {
             $this->do_verbose_report( $allmoduleinfo );
@@ -171,4 +188,4 @@ class ListModulesCommand extends Command
         }
         $this->do_normal_report( $allmoduleinfo );
     }
-} // end of class.
+} // class
