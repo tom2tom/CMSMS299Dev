@@ -83,10 +83,10 @@
    </div>
    <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_navhead">
-     <li class="nav">
+     <ul><li class="nav">
       <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}"></a>
       <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
-     </li>
+     </li></ul>
     </div>
     <div id="ggp_nav">
      {include file='navigation.tpl'}
