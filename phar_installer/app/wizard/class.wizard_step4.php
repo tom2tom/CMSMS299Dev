@@ -1,16 +1,19 @@
 <?php
 
 namespace cms_autoinstaller;
-use \__appbase;
 
-class wizard_step4 extends \cms_autoinstaller\wizard_step
+use CMSMS\Database\mysqli\Connection;
+use Exception;
+use LogicException;
+
+class wizard_step4 extends wizard_step
 {
     private $_config;
     private $_dbms_options;
 
     public function __construct()
     {
-        if( !extension_loaded('mysqli') ) throw new \Exception(\__appbase\lang('error_nodatabases'));
+        if( !extension_loaded('mysqli') ) throw new Exception(\__appbase\lang('error_nodatabases'));
 
         parent::__construct();
 
@@ -57,70 +60,70 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
 
     private function validate($config)
     {
-//        if( empty($config['db_type']) ) throw new \Exception(\__appbase\lang('error_nodbtype'));
-        if( empty($config['db_hostname']) ) throw new \Exception(\__appbase\lang('error_nodbhost'));
-        if( empty($config['db_name']) ) throw new \Exception(\__appbase\lang('error_nodbname'));
-        if( empty($config['db_username']) ) throw new \Exception(\__appbase\lang('error_nodbuser'));
-        if( empty($config['db_password']) ) throw new \Exception(\__appbase\lang('error_nodbpass'));
-        if( empty($config['db_prefix']) ) throw new \Exception(\__appbase\lang('error_nodbprefix'));
-        if( empty($config['timezone']) ) throw new \Exception(\__appbase\lang('error_notimezone'));
+//        if( empty($config['db_type']) ) throw new Exception(\__appbase\lang('error_nodbtype'));
+        if( empty($config['db_hostname']) ) throw new Exception(\__appbase\lang('error_nodbhost'));
+        if( empty($config['db_name']) ) throw new Exception(\__appbase\lang('error_nodbname'));
+        if( empty($config['db_username']) ) throw new Exception(\__appbase\lang('error_nodbuser'));
+        if( empty($config['db_password']) ) throw new Exception(\__appbase\lang('error_nodbpass'));
+        if( empty($config['db_prefix']) ) throw new Exception(\__appbase\lang('error_nodbprefix'));
+        if( empty($config['timezone']) ) throw new Exception(\__appbase\lang('error_notimezone'));
 
 		//TODO filter_var($config['query_var'], FILTER_SANITIZE ...);
         $re = '/^[a-zA-Z0-9_\.]*$/';
         if( !empty($config['query_var']) && !preg_match($re,$config['query_var']) ) {
-            throw new \Exception(\__appbase\lang('error_invalidqueryvar'));
+            throw new Exception(\__appbase\lang('error_invalidqueryvar'));
         }
 
         $all_timezones = timezone_identifiers_list();
-        if( !in_array($config['timezone'],$all_timezones) ) throw new \Exception(\__appbase\lang('error_invalidtimezone'));
+        if( !in_array($config['timezone'],$all_timezones) ) throw new Exception(\__appbase\lang('error_invalidtimezone'));
 
 		$config['db_password'] = trim($config['db_password']);
         if( $config['db_password'] ) {
             $tmp = filter_var($config['db_password'], FILTER_SANITIZE_STRING,
 			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
             if( $tmp != $config['db_password'] ) {
-                throw new \Exception(\__appbase\lang('error_invaliddbpassword'));
+                throw new Exception(\__appbase\lang('error_invaliddbpassword'));
             }
         }
 
         // try a test connection
 		try {
-	        $db = new \CMSMS\Database\mysqli\Connection($config);
+	        $db = new Connection($config);
 		}
-        catch( \Exception $e ) {
-            throw new \Exception(\__appbase\lang('error_createtable'));
+        catch( Exception $e ) {
+            throw new Exception(\__appbase\lang('error_createtable'));
         }
         // see if we can create and drop a table.
         $action = $this->get_wizard()->get_data('action');
         try {
             $db->Execute('CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)');
         }
-        catch( \Exception $e ) {
-            throw new \Exception(\__appbase\lang('error_createtable'));
+        catch( Exception $e ) {
+            throw new Exception(\__appbase\lang('error_createtable'));
         }
 
         try {
             $db->Execute('DROP TABLE '.$config['db_prefix'].'_dummyinstall');
         }
-        catch( \Exception $e ) {
-            throw new \Exception(\__appbase\lang('error_droptable'));
+        catch( Exception $e ) {
+            throw new Exception(\__appbase\lang('error_droptable'));
         }
 
         // see if a smattering of core tables exist
         if( $action == 'install' ) {
             try {
                 $res = $db->GetOne('SELECT content_id FROM '.$config['db_prefix'].'content');
-                if( $res > 0 ) throw new \Exception(\__appbase\lang('error_cmstablesexist'));
+                if( $res > 0 ) throw new Exception(\__appbase\lang('error_cmstablesexist'));
             }
-            catch( \LogicException $e ) {
+            catch( LogicException $e ) {
                 // if this fails it's not a problem
             }
 
             try {
                 $db->GetOne('SELECT module_name FROM '.$config['db_prefix'].'modules');
-                if( $res > 0 ) throw new \Exception(\__appbase\lang('error_cmstablesexist'));
+                if( $res > 0 ) throw new Exception(\__appbase\lang('error_cmstablesexist'));
             }
-            catch( \LogicException $e ) {
+            catch( LogicException $e ) {
                 // if this fails it's not a problem.
             }
         }
@@ -163,7 +166,7 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
             }
             \__appbase\utils::redirect($url);
         }
-        catch( \Exception $e ) {
+        catch( Exception $e ) {
             $smarty = \__appbase\smarty();
             $smarty->assign('error',$e->GetMessage());
         }
@@ -175,7 +178,7 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
         $smarty = \__appbase\smarty();
 
         $tmp = timezone_identifiers_list();
-        if( !is_array($tmp) ) throw new \Exception(\__appbase\lang('error_tzlist'));
+        if( !is_array($tmp) ) throw new Exception(\__appbase\lang('error_tzlist'));
         $tmp2 = array_combine(array_values($tmp),array_values($tmp));
         $smarty->assign('timezones',array_merge(array(''=>\__appbase\lang('none')),$tmp2));
 //        $smarty->assign('db_types',$this->_dbms_options);
@@ -187,4 +190,4 @@ class wizard_step4 extends \cms_autoinstaller\wizard_step
         $this->finish();
     }
 
-} // end of class
+} // class
