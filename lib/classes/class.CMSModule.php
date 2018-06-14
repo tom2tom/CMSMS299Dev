@@ -518,7 +518,7 @@ abstract class CMSModule
      * @param  array $request The input $_REQUEST[]. This can be used to test whether or not admin output should be suppressed.
      * @return bool
      */
-    public function SuppressAdminOutput($request)
+    public function SuppressAdminOutput(&$request)
     {
         return false;
     }
