@@ -156,7 +156,7 @@ $flag = !empty($config['developer_mode']);
 if ($flag && isset($_POST['export'])) {
     include __DIR__.DIRECTORY_SEPARATOR.'function.contentoperation.php';
     $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
-    export_content($xmlfile);
+    export_content($xmlfile, $db);
     $handlers = ob_list_handlers();
     for ($c = 0, $n = sizeof($handlers); $c < $n; ++$c) {
         ob_end_clean();
