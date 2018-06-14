@@ -1,4 +1,7 @@
 <?php
+
+use ModuleManager\module_info;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -8,12 +11,8 @@ if( !isset($params['mod']) ) {
 }
 $module = get_parameter_value($params,'mod');
 
-$info = ModuleManagerModuleInfo::get_module_info($module);
+$info = module_info::get_module_info($module);
 $smarty->assign('back_url',$this->create_url($id,'defaultadmin',$returnid));
 $smarty->assign('info',$info);
 
 echo $this->ProcessTemplate('local_missingdeps.tpl');
-#
-# EOF
-#
-?>

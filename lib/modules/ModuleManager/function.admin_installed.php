@@ -1,9 +1,12 @@
 <?php
+
+use ModuleManager\module_info;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 
 try {
-    $allmoduleinfo = ModuleManagerModuleInfo::get_all_module_info($connection_ok);
+    $allmoduleinfo = module_info::get_all_module_info($connection_ok);
     uksort($allmoduleinfo,'strnatcasecmp');
 }
 catch( Exception $e ) {

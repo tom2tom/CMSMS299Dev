@@ -22,7 +22,6 @@ use CmsCommunicationException;
 use CmsException;
 use CmsInvalidDataException;
 use CMSMS\ModuleOperations;
-use ModuleManagerModuleInfo;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 
@@ -39,7 +38,7 @@ final class modulerep_client
         if( !$url )	return array(false,$mod->Lang('error_norepositoryurl'));
         $url .= '/version';
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url);
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -78,7 +77,7 @@ final class modulerep_client
         $url .= '/multimoduleinfo';
         $data = array('data'=>json_encode($out));
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,$data);
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -105,7 +104,7 @@ final class modulerep_client
         if( $exact ) $data['exact'] = 1;
         $data['clientcmsversion'] = $CMS_VERSION;
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,$data);
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -130,7 +129,7 @@ final class modulerep_client
 
         $parms = array('name'=>$module_name);
         if( $module_version ) $parms['version'] = $module_version;
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,$parms);
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -155,7 +154,7 @@ final class modulerep_client
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
         $url .= '/moduledepends';
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,array('name'=>$xmlfile));
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -234,7 +233,7 @@ final class modulerep_client
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
         $url .= '/modulemd5sum';
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,array('name'=>$xmlfile));
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -261,7 +260,7 @@ final class modulerep_client
         if( $url == '' ) return array(FALSE,$mod->Lang('error_norepositoryurl'));
         $url .= '/modulesearch';
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,array('json'=>json_encode($qparms)));
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -293,7 +292,7 @@ final class modulerep_client
         $qparms['clientcmsversion'] = CMS_VERSION;
         $url .= '/upgradelistgetall';
 
-        $req = new modmgr_cached_request();
+        $req = new cached_request();
         $req->execute($url,$qparms);
         $status = $req->getStatus();
         $result = $req->getResult();
@@ -333,7 +332,7 @@ final class modulerep_client
 
         $out = array();
         foreach( $versions as $row ) {
-            $info = ModuleManagerModuleInfo::get_module_info( $row['name'] );
+            $info = module_info::get_module_info( $row['name'] );
             if( version_compare($row['version'],$info['version']) > 0 ) {
                 $data = array();
                 $out[$row['name']] = $row;

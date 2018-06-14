@@ -1,16 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2008 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# ModuleManager action: install module
+# Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,10 +14,12 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
-use \ModuleManager\utils as modmgr_utils;
+
+use CMSMS\ModuleOperations;
+use ModuleManager\module_info;
+use ModuleManager\modulerep_client;
+use ModuleManager\utils;
+
 if (!isset($gCms)) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('modules');
@@ -59,14 +52,14 @@ try {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
                 if( !isset($rec['filename']) ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
                 if( !isset($rec['size']) ) throw new CmsInvalidDataException( $this->Lang('error_missingparams') );
-                $filename = modmgr_utils::get_module_xml($rec['filename'],$rec['size']);
+                $filename = utils::get_module_xml($rec['filename'],$rec['size']);
             }
 
             // expand all of the xml files.
             $ops = cmsms()->GetModuleOperations();
             foreach( $modlist as $key => &$rec ) {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
-                $xml_filename = modmgr_utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
+                $xml_filename = utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
                 $rec['tmpfile'] = $xml_filename;
                 $res = $ops->ExpandXMLPackage( $xml_filename, 1 );
             }
@@ -80,11 +73,11 @@ try {
 
     if( isset($params['doinstall']) ) {
         $key = trim($params['doinstall']);
-        if( !isset($_SESSION[$key]) ) throw new \LogicException('No doinstall data found in the session');
+        if( !isset($_SESSION[$key]) ) throw new LogicException('No doinstall data found in the session');
 
         set_time_limit(999);
         $modlist = $_SESSION[$key];
-        if( !is_array($modlist) || !count($modlist) ) throw new \LogicException('Invalid modlist data found in session');
+        if( !is_array($modlist) || !count($modlist) ) throw new LogicException('Invalid modlist data found in session');
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
@@ -152,7 +145,7 @@ try {
                 } else {
                     // module not found in forge?? could be a system module,
                     // but it's still a dependency.
-                    if( !ModuleOperations::get_instance()->IsSystemModule($name) ) throw new \CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
+                    if( !ModuleOperations::get_instance()->IsSystemModule($name) ) throw new CmsInvalidDataException($mod->Lang('error_dependencynotfound2',$name,$onedep['version']));
                     $out[$name] = $onedep;
                 }
             }
@@ -256,7 +249,7 @@ try {
     // remove items that are already installed (where installed version is greater or equal)
     // and create actions as to what we're going to do.
     if( count($alldeps) ) {
-        $allmoduleinfo = ModuleManagerModuleInfo::get_all_module_info(FALSE);
+        $allmoduleinfo = module_info::get_all_module_info(FALSE);
         foreach( $alldeps as $name => &$rec ) {
             $rec['has_custom'] = FALSE;
             if( isset($allmoduleinfo[$name]) ) $rec['has_custom'] = ($allmoduleinfo[$name]['has_custom']) ? TRUE : FALSE;

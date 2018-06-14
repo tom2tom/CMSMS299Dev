@@ -188,7 +188,7 @@ final class utils
         $url = $mod->GetPreference('module_repository');
         if( $url ) {
             $url .= '/version';
-            $req = new modmgr_cached_request($url);
+            $req = new cached_request($url);
             $req->setTimeout(3);
             $req->execute($url);
             if( $req->getStatus() == 200 ) {
@@ -228,7 +228,7 @@ final class utils
     {
         // this is a bit ugly.
         $mod = cms_utils::get_module('ModuleManager');
-		$base = $mod->GetModuleURLPath().'/images/');
+		$base = $mod->GetModuleURLPath().'/images/';
         $smarty = cmsms()->GetSmarty();
 
         $img = '<img src="'.$base.'error.png" title="'.$mod->Lang('title_stale').'" alt="stale" height="20" width="20" />';
