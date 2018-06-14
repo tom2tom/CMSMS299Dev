@@ -72,7 +72,7 @@ class module_info implements \ArrayAccess
             return is_directory_writable($this['dir']);
 
         case 'root_writable':
-            // move this into ModuleManagerModuleInfo
+            // move this into ModuleManager\module_info
             return is_writable($this['dir']);
 
         case 'is_system_module':
