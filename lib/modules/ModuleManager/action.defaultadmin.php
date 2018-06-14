@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \ModuleManager\utils as modmgr_utils;
+use ModuleManager\modulerep_client;
+use ModuleManager\utils;
+
 if( !isset($gCms) ) exit;
 
 if( isset($params['modulehelp']) ) {
@@ -30,11 +32,11 @@ if( isset($params['modulehelp']) ) {
 
 if( !$this->VisibleToAdminUser() ) exit;
 
-$connection_ok = modmgr_utils::is_connection_ok();
+$connection_ok = utils::is_connection_ok();
 if( !$connection_ok ) $this->ShowErrors($this->Lang('error_request_problem'));
 
 // this is a bit ugly.
-modmgr_utils::get_images();
+utils::get_images();
 
 $newversions = null;
 if( $connection_ok ) {

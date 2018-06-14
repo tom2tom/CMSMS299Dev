@@ -1,5 +1,5 @@
 <?php
-# ModuleManager class: ...
+# ModuleManager class: module import/export operations
 # Copyright (C) 2011-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,7 +17,27 @@
 
 namespace ModuleManager;
 
+use CmsFileSystemException;
+use CmsInvalidDataException;
+use CmsLogicException;
+use CMSModule;
 use CMSMS\FileTypeHelper;
+use ModuleManager;
+use RuntimeException;
+use XMLWriter;
+use const CMS_ASSETS_PATH;
+use const CMS_ROOT_PATH;
+use const CMS_VERSION;
+use const TMP_CACHE_LOCATION;
+use function audit;
+use function cms_join_path;
+use function cms_module_places;
+use function cmsms;
+use function file_put_contents;
+use function get_recursive_file_list;
+use function lang;
+use function recursive_delete;
+use function startswith;
 
 class operations
 {

@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \ModuleManager\utils as modmgr_utils;
+use ModuleManager\modulerep_client;
+use ModuleManager\utils;
 
 if (!isset($gCms)) {
     exit;
@@ -26,7 +27,7 @@ if (!$this->CheckPermission('Modify Modules')) {
     exit;
 }
 
-if (!modmgr_utils::is_connection_ok()) {
+if (!utils::is_connection_ok()) {
     $this->SetError($this->Lang('error_request_problem'));
     return;
 }
@@ -56,7 +57,7 @@ $repmodules = '';
 // get the modules that are already installed
 $instmodules = '';
 {
-    $result = modmgr_utils::get_installed_modules();
+    $result = utils::get_installed_modules();
     if (! $result[0]) {
         $this->_DisplayErrorPage($id, $params, $returnid, $result[1]);
         return;
@@ -75,7 +76,7 @@ foreach ($tmp as $i) {
 // cross reference them
 $data = array();
 if (count($repmodules)) {
-    $data = modmgr_utils::build_module_data($repmodules, $instmodules);
+    $data = utils::build_module_data($repmodules, $instmodules);
 }
 if (count($data)) {
     $size = count($data);
@@ -138,7 +139,7 @@ if (count($data)) {
             $this->Lang('abouttxt'),
             array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
         );
-        $onerow->age = modmgr_utils::get_status($row['date']);
+        $onerow->age = utils::get_status($row['date']);
         $onerow->date = $row['date'];
         $onerow->downloads = $row['downloads']??$this->Lang('unknown');
         $onerow->candownload = false;
@@ -218,6 +219,3 @@ $smarty->assign('sizetext', $this->Lang('sizetext'));
 $smarty->assign('statustext', $this->Lang('statustext'));
 echo $this->processTemplate('adminpanel.tpl');
 
-#
-# EOF
-#
