@@ -426,7 +426,7 @@ if ($messages) {
 $submit = lang('submit');
 $cancel = lang('cancel');
 $nofile = json_encode(lang('nofiles'));
-$badfile = json_encode(lang('TODOwrongfile'));
+$badfile = json_encode(lang('errorwrongfile'));
 $confirm = json_encode(lang('siteprefs_confirm'));
 
 $out = <<<EOS
@@ -448,8 +448,8 @@ function on_mailer() {
 $(document).ready(function() {
  $('#mailertest').on('click', function(e) {
   cms_dialog($('#testpopup'),{
-   width: 'auto',
-   modal: true
+   modal: true,
+   width: 'auto'
   });
   return false;
  });
@@ -466,7 +466,6 @@ $(document).ready(function() {
   b.on('click', function() {
    cms_dialog($('#importdlg'), {
     modal: true,
-    width: 'auto',
     buttons: {
      {$submit}: function() {
       var file = $('#xml_upload').val();
@@ -485,13 +484,13 @@ $(document).ready(function() {
      {$cancel}: function() {
       $(this).dialog('close');
      }
-    }
+    },
+    width: 'auto'
    });
   });
   $('#deletebtn').on('click', function() {
    cms_dialog($('#deletedlg'), {
     modal: true,
-    width: 'auto',
     buttons: {
      {$submit}: function() {
       $(this).dialog('close');
@@ -500,7 +499,8 @@ $(document).ready(function() {
      {$cancel}: function() {
       $(this).dialog('close');
      }
-    }
+    },
+    width: 'auto'
    });
   });
  }
