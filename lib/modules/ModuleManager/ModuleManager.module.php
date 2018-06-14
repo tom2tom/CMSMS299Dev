@@ -17,6 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\LogicException;
+use ModuleManager\Command\ListModulesCommand;
+use ModuleManager\Command\ModuleExistsCommand;
+use ModuleManager\Command\ModuleExportCommand;
+use ModuleManager\Command\ModuleImportCommand;
+use ModuleManager\Command\ModuleInstallCommand;
+use ModuleManager\Command\ModuleRemoveCommand;
+use ModuleManager\Command\ModuleUninstallCommand;
+use ModuleManager\Command\PingModuleServerCommand;
+use ModuleManager\Command\ReposDependsCommand;
+use ModuleManager\Command\ReposGetXMLCommand;
+use ModuleManager\Command\ReposListCommand;
+use ModuleManager\operations;
+
 define('MINIMUM_REPOSITORY_VERSION','1.5');
 
 class ModuleManager extends CMSModule
@@ -29,7 +43,7 @@ class ModuleManager extends CMSModule
     public function GetVersion() { return '2.2'; }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetAuthor() { return 'calguy1000'; }
-    public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
+    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function IsPluginModule() { return FALSE; }
     public function HasAdmin() { return TRUE; }
@@ -48,7 +62,7 @@ class ModuleManager extends CMSModule
      */
     public function get_operations()
     {
-        if( !$this->_operations ) $this->_operations = new \ModuleManager\operations( $this );
+        if( !$this->_operations ) $this->_operations = new operations( $this );
         return $this->_operations;
     }
 
@@ -65,12 +79,12 @@ class ModuleManager extends CMSModule
 
     public function Install()
     {
-        $this->SetPreference('module_repository',ModuleManager::_dflt_request_url);
+        $this->SetPreference('module_repository',self::_dflt_request_url);
     }
 
     public function Upgrade($oldversion, $newversion)
     {
-        $this->SetPreference('module_repository',ModuleManager::_dflt_request_url);
+        $this->SetPreference('module_repository',self::_dflt_request_url);
     }
 
     public function DoAction($action, $id, $params, $returnid=-1)
@@ -84,28 +98,28 @@ class ModuleManager extends CMSModule
         return parent::DoAction( $action, $id, $params, $returnid );
     }
 
-    public function HasCapability($capability,$params = array())
+    public function HasCapability($capability,$params = [])
     {
         if( $capability == 'clicommands' ) return true;
     }
 
     public function get_cli_commands( $app )
     {
-        if( ! $app instanceof \CMSMS\CLI\App ) throw new \LogicException(__METHOD__.' Called from outside of cmscli');
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new \LogicException(__METHOD__.' Called from outside of cmscli');
+        if( ! $app instanceof \CMSMS\CLI\App ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
+        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
 
         $out = [];
-        $out[] = new \ModuleManager\PingModuleServerCommand( $app );
-        $out[] = new \ModuleManager\ModuleExistsCommand( $app );
-        $out[] = new \ModuleManager\ModuleExportCommand( $app );
-        $out[] = new \ModuleManager\ModuleImportCommand( $app );
-        $out[] = new \ModuleManager\ModuleInstallCommand( $app );
-        $out[] = new \ModuleManager\ModuleUninstallCommand( $app );
-        $out[] = new \ModuleManager\ModuleRemoveCommand( $app );
-        $out[] = new \ModuleManager\ListModulesCommand( $app );
-        $out[] = new \ModuleManager\ReposListCommand( $app );
-        $out[] = new \ModuleManager\ReposDependsCommand( $app );
-        $out[] = new \ModuleManager\ReposGetXMLCommand( $app );
+        $out[] = new PingModuleServerCommand( $app );
+        $out[] = new ModuleExistsCommand( $app );
+        $out[] = new ModuleExportCommand( $app );
+        $out[] = new ModuleImportCommand( $app );
+        $out[] = new ModuleInstallCommand( $app );
+        $out[] = new ModuleUninstallCommand( $app );
+        $out[] = new ModuleRemoveCommand( $app );
+        $out[] = new ListModulesCommand( $app );
+        $out[] = new ReposListCommand( $app );
+        $out[] = new ReposDependsCommand( $app );
+        $out[] = new ReposGetXMLCommand( $app );
         return $out;
     }
 } // class
