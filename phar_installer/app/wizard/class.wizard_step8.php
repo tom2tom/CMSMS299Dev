@@ -49,8 +49,6 @@ class wizard_step8 extends wizard_step
 
     private function do_install()
     {
-        $dir = \__appbase\get_app()->get_appdir().'/install';
-
         $destdir = \__appbase\get_app()->get_destdir();
         if( !$destdir ) throw new Exception(\__appbase\lang('error_internal',700));
 
@@ -67,6 +65,8 @@ class wizard_step8 extends wizard_step
 
         // connect to the database
         $db = $this->db_connect($destconfig);
+
+        $dir = \__appbase\get_app()->get_appdir().'/install';
 
         include_once __DIR__.'/msg_functions.php';
 
@@ -98,8 +98,13 @@ class wizard_step8 extends wizard_step
 
             $this->message(\__appbase\lang('install_defaultcontent'));
             if( $destconfig['samplecontent'] ) {
-                $xmlfile = 'democontent.xml';
-                include_once $dir.'/import_site.php';
+				$xmlfile = $dir.'/'. \cms_autoinstaller\cms_install::CONTENTXML;
+                if( is_file($xmlfile) ) {
+                    global $CMS_INSTALL_PAGE;
+                    $CMS_INSTALL_PAGE = 1;
+                    require_once joinpath($destdir,'admin','function.contentoperation.php');
+                    import_content($xmlfile);
+                }
             }
             else {
                  include_once $dir.'/initial.php';
@@ -110,7 +115,7 @@ class wizard_step8 extends wizard_step
 
             $this->write_config();
 
-            // update all hierarchy positioss
+            // update all hierarchy positions
             $this->message(\__appbase\lang('install_updatehierarchy'));
             $contentops = cmsms()->GetContentOperations();
             $contentops->SetAllHierarchyPositions();
