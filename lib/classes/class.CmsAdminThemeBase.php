@@ -1360,7 +1360,7 @@ $X = 1;
      * @ignore
      * @since 2.3
      */
-    protected function retrieve_message($type, $into)
+    protected function retrieve_message($type, &$into)
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
