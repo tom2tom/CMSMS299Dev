@@ -8,7 +8,7 @@ require_once dirname(__DIR__).'/lib/classes/base/class.app.php';
 
 class cms_install extends \__appbase\app
 {
-	const CONTENTXML = 'democontent.xml';
+    const CONTENTXML = 'democontent.xml';
 
     private static $_instance;
     private $_archive;
