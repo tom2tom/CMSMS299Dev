@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace ModuleManager;
+namespace ModuleManager\Command;
 
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\CLI\GetOptExt\GetOpt;
 use CMSMS\CLI\GetOptExt\Option;
+use ModuleManager\module_info;
 use RuntimeException;
 
 class ListModulesCommand extends Command
@@ -33,7 +34,7 @@ class ListModulesCommand extends Command
         $this->addOption( Option::Create('m','module', GetOpt::REQUIRED_ARGUMENT )->SetDescription('Display information about a specific module (in verbose mode)') );
     }
 
-    protected function do_verbose_module( ModuleManagerModuleInfo $info )
+    protected function do_verbose_module( module_info $info )
     {
         $do_line = function( $prompt, $value ) {
             printf("%-20s: %s\n", $prompt, $value );
@@ -81,7 +82,7 @@ class ListModulesCommand extends Command
     {
         $column_widths = [ 'name'=>null, 'version'=>null, 'status'=>null, 'system_module'=>null ];
 
-        $get_statuses = function( ModuleManagerModuleInfo $info ) {
+        $get_statuses = function( module_info $info ) {
             $out = [];
             if( $info['has_custom'] ) $out[] = 'Has odule custom!';
             // if( !$info['has_meta'] ) $out[] = 'No meta file!';
@@ -170,7 +171,7 @@ class ListModulesCommand extends Command
 
     public function handle()
     {
-        $allmoduleinfo = ModuleManagerModuleInfo::get_all_module_info(TRUE);
+        $allmoduleinfo = module_info::get_all_module_info(TRUE);
         $verbose = $this->getOption('verbose')->value();
         $module = $this->getOption('module')->value();
         if( $module ) {

@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace ModuleManager;
+namespace ModuleManager\Command;
 
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\CLI\GetOptExt\Option;
 use GetOpt\Operand;
+use ModuleManager\module_info;
 
 class ModuleExistsCommand extends Command
 {
@@ -37,7 +38,7 @@ class ModuleExistsCommand extends Command
         $verbose = $this->getOption( 'verbose' )->value();
         $module = $this->getOperand( 'module' )->value();
 
-        $allmoduleinfo = ModuleManagerModuleInfo::get_all_module_info(TRUE);
+        $allmoduleinfo = module_info::get_all_module_info(TRUE);
         foreach( $allmoduleinfo as $one ) {
             if( $one['name'] == $module ) {
                 // yep... we know about it.

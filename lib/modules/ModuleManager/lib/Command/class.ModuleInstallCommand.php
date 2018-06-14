@@ -15,38 +15,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace ModuleManager;
+namespace ModuleManager\Command;
 
 use cms_utils;
+use CmsLangOperations;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
-use CMSMS\HookManager;
 use CMSMS\ModuleOperations;
 use GetOpt\Operand;
 use RuntimeException;
 use function audit;
 
-class ModuleImportCommand extends Command
+class ModuleInstallCommand extends Command
 {
     public function __construct( App $app )
     {
-        parent::__construct( $app, 'moma-import' );
-        $this->setDescription('Import a module XML file into CMSMS');
-        $this->addOperand( new Operand( 'filename', Operand::REQUIRED ) );
+        parent::__construct( $app, 'moma-install' );
+        $this->setDescription('Install a module that is known, but not installed');
+        $this->addOperand( new Operand( 'module', Operand::REQUIRED ) );
     }
 
     public function handle()
     {
-        $moma = cms_utils::get_module('ModuleManager');
         $ops = ModuleOperations::get_instance();
-        $filename = $this->getOperand('filename')->value();
-        if( !is_file( $filename) ) throw new RuntimeException("Could not find $filename to import");
+        $moma = cms_utils::get_module('ModuleManager');
+        $module = $this->getOperand('module')->value();
 
-        HookManager::do_hook('ModuleManager::BeforeModuleImport', [ 'file'=>$filename ] );
-        $moma->get_operations()->expand_xml_package( $filename, true, false );
-        HookManager::do_hook('ModuleManager::AfterModuleImport', [ 'file'=>$filename ] );
+        CmsLangOperations::allow_nonadmin_lang(TRUE);
+        $ops = ModuleOperations::get_instance();
+        $result = $ops->InstallModule($module);
+        if( !is_array($result) || !isset($result[0]) ) throw new RuntimeException("Module installation failed");
+        if( $result[0] == FALSE ) throw new RuntimeException($result[1]);
 
-        audit('',$moma->GetName(),'Imported Module from '.$filename);
-        echo "Imported: $filename\n";
+        $modinstance = $ops->get_module_instance($module,'',TRUE);
+        if( !is_object($modinstance) ) throw new RuntimeException('Problem instantiating module '.$module);
+
+        audit('',$moma->GetName(),'Installed '.$modinstance->GetName().' '.$modinstance->GetVersion());
+        echo "Installed: ".$modinstance->GetName().' '.$modinstance->GetVersion()."\n";
     }
 } // class

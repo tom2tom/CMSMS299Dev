@@ -15,21 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace ModuleManager;
+namespace ModuleManager\Command;
 
 use cms_utils;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\ModuleOperations;
 use GetOpt\Operand;
+use ModuleManager\module_info;
 use RuntimeException;
+use function audit;
+use function recursive_delete;
 
-class ModuleUninstallCommand extends Command
+class ModuleRemoveCommand extends Command
 {
     public function __construct( App $app )
     {
-        parent::__construct( $app, 'moma-uninstall' );
-        $this->setDescription('Uninstall a module... this does not remove module files, but will potentially clear all module data');
+        parent::__construct( $app, 'moma-remove' );
+        $this->setDescription('Remove an uninstalled module from the filesystem');
         $this->addOperand( new Operand( 'module', Operand::REQUIRED ) );
     }
 
@@ -38,16 +41,15 @@ class ModuleUninstallCommand extends Command
         $ops = ModuleOperations::get_instance();
         $moma = cms_utils::get_module('ModuleManager');
         $module = $this->getOperand('module')->value();
-        $info = new ModuleManagerModuleInfo( $module );
+        $info = new module_info( $module );
+
         if( !$info['dir'] ) throw new RuntimeException("Nothing is known about module ".$module);
-        if( !$info['installed'] ) throw new RuntimeException("module $module is not installed");
+        if( $info['installed'] ) throw new RuntimeException("Cannot remove module ".$module.' because it is installed');
 
-        $instance = $ops->get_module_instance($module);
-        if( !is_object( $instance ) ) throw new RuntimeException('Could not instantiate module '.$module);
+        $result = recursive_delete( $info['dir'] );
+        if( !$result ) throw new RuntimeException("Error removing module ".$module);
 
-        $result = $ops->UninstallModule($module);
-        if( $result[0] == FALSE ) throw new RuntimeException($result[1]);
-
-        echo "Uninstalled module $module\n";
+        audit('',$moma->GetName(),'Removed module '.$module);
+        echo "Removed module $module\n";
     }
 } // class
