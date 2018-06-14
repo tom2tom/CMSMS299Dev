@@ -370,6 +370,7 @@ $lang['errorupdatingtemplate'] = 'Error updating template';
 $lang['errorupdatinguser'] = 'Error updating user';
 $lang['errorupdatingusertag'] = 'Error updating user tag';
 $lang['erroruserinuse'] = 'This user still owns content pages. Please change ownership to another user before deleting.';
+$lang['errorwrongfile'] = 'Invalid file';
 $lang['error_contenttype'] = 'The content type associated with this page is invalid or not permitted';
 $lang['error_copyusersettings_self'] = 'This user account is the template user.  You cannot copy user settings here';
 $lang['error_coreupgradeneeded'] = 'The CMSMS core must be upgraded before this operation can succeed';
