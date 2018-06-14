@@ -417,9 +417,22 @@ try {
 	$version_num = $CMS_VERSION;
 	verbose(1, "INFO: found version: $version_num");
 
-    $xmlfile = 'democontent.xml';
-	include_once './export_site.php';
-	@rename('./'.$xmlfile, joinpath($phardir,'app','install',$xmlfile));
+	$fp = joinpath($phardir,'app','class.cms_install.php');
+	include_once $fp;
+	$xmlfile = joinpath($phardir,'app','install', cms_autoinstaller\cms_install::CONTENTXML);
+	if (!is_file($xmlfile)) {
+		$fp = joinpath($srcdir,'config.php');
+		if (is_file($fp)) {
+			// probably an installed site
+			$CMS_JOB_TYPE = 2;
+			$fp = joinpath($srcdir,'lib','include.php');
+			include_once $fp;
+			$db = CmsApp::get_instance()->GetDb();
+			require_once joinpath($srcdir,'admin','function.contentoperation.php');
+			verbose(1, "INFO: export site content to $xmlfile");
+			export_content($xmlfile, $db);
+		}
+	}
 
 	create_source_archive();
 
