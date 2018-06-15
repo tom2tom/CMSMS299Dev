@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Template-related methods for modules
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * Methods for modules to do template related functions
@@ -31,10 +29,10 @@
 function cms_module_ListTemplates(&$modinstance, $modulename = '')
 {
 	$db = CmsApp::get_instance()->GetDb();
-	$retresult = array();
+	$retresult = [];
 
 	$query = 'SELECT * from '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? ORDER BY template_name ASC';
-	$result = $db->Execute($query, array($modulename != ''?$modulename:$modinstance->GetName()));
+	$result = $db->Execute($query, [$modulename != ''?$modulename:$modinstance->GetName()]);
 
 	while (isset($result) && !$result->EOF) {
 		$retresult[] = $result->fields['template_name'];
@@ -54,7 +52,7 @@ function cms_module_GetTemplate(&$modinstance, $tpl_name, $modulename = '')
 	$db = CmsApp::get_instance()->GetDb();
 
 	$query = 'SELECT * from '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? and template_name = ?';
-	$result = $db->Execute($query, array($modulename != ''?$modulename:$modinstance->GetName(), $tpl_name));
+	$result = $db->Execute($query, [$modulename != ''?$modulename:$modinstance->GetName(), $tpl_name]);
 
 	if ($result && $result->RecordCount() > 0) {
 		$row = $result->FetchRow();
@@ -92,15 +90,32 @@ function cms_module_SetTemplate(&$modinstance, $tpl_name, $content, $modulename 
 	$db = CmsApp::get_instance()->GetDb();
 
 	$query = 'SELECT module_name FROM '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? and template_name = ?';
-	$result = $db->Execute($query, array($modulename != ''?$modulename:$modinstance->GetName(), $tpl_name));
+	$result = $db->Execute($query, [$modulename != ''?$modulename:$modinstance->GetName(), $tpl_name]);
 
 	$time = $db->DBTimeStamp(time());
 	if ($result && $result->RecordCount() < 1) {
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_templates (module_name, template_name, content, create_date, modified_date) VALUES (?,?,?,'.$time.','.$time.')';
-		$db->Execute($query, array($modulename != ''?$modulename:$modinstance->GetName(), $tpl_name, $content));
+		$db->Execute($query, [$modulename != ''?$modulename:$modinstance->GetName(), $tpl_name, $content]);
 	}
 	else {
 		$query = 'UPDATE '.CMS_DB_PREFIX.'module_templates SET content = ?, modified_date = '.$time.' WHERE module_name = ? AND template_name = ?';
-		$db->Execute($query, array($content, $modulename != ''?$modulename:$modinstance->GetName(), $tpl_name));
+		$db->Execute($query, [$content, $modulename != ''?$modulename:$modinstance->GetName(), $tpl_name]);
 	}
+}
+
+/**
+ * @access private
+ */
+function cms_module_DeleteTemplate(&$modinstance, $tpl_name = '', $modulename = '')
+{
+	$db = CmsApp::get_instance()->GetDb();
+
+	$parms = [$modulename != ''?$modulename:$modinstance->GetName()];
+	$query = "DELETE FROM ".CMS_DB_PREFIX."module_templates WHERE module_name = ?";
+	if( $tpl_name != '' ) {
+		$query .= 'AND template_name = ?';
+	    $parms[] = $tpl_name;
+	}
+	$result = $db->Execute($query, $parms);
+	return ($result !== false);
 }
