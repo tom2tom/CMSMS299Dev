@@ -1,7 +1,7 @@
 <?php
 # base class for all CMSMS modules
-# Copyright (C) 2004-2006 Ted Kulp <ted@cmsmadesimple.org>
-# Copyright (C) 2007-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+# Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+# Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,14 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file contains the base module class for all CMSMS modules.
- *
- * @package CMS
- * @license GPL
- */
-
-use \CMSMS\internal\bulkcontentoperations;
+use CMSMS\CmsException;
+use CMSMS\ContentBase;
+use CMSMS\Events;
+use CMSMS\HookManager;
+use CMSMS\internal\bulkcontentoperations;
+use CMSMS\internal\Smarty;
+use CMSMS\ModuleOperations;
 
 /**
  * Base module class.
@@ -31,7 +30,7 @@ use \CMSMS\internal\bulkcontentoperations;
  * All modules should inherit and extend this class with their functionality.
  *
  * @since       0.9
- * @version     2.3
+ * @version     2.1
  * @package     CMS
  */
 abstract class CMSModule
@@ -121,7 +120,7 @@ abstract class CMSModule
             $this->InitializeFrontend();
         }
         else if( isset($CMS_ADMIN_PAGE) && !isset($CMS_STYLESHEET) && !isset($CMS_INSTALL_PAGE) ) {
-            if( \ModuleOperations::get_instance()->IsModuleActive( $this->GetName() ) ) $this->InitializeAdmin();
+            if( ModuleOperations::get_instance()->IsModuleActive( $this->GetName() ) ) $this->InitializeAdmin();
         }
     }
 
@@ -253,8 +252,7 @@ abstract class CMSModule
 
     /**
      * Callback function for module plugins.
-     * This method is used to call the module from
-     * within template co.
+     * This method is used to call the module from within template co.
      *
      * This function cannot be overridden
      *
@@ -394,7 +392,7 @@ abstract class CMSModule
      */
     final public function GetModulePath() : string
     {
-        $modops = \ModuleOperations::get_instance();
+        $modops = ModuleOperations::get_instance();
         return $modops->get_module_path( $this->GetName() );
     }
 
@@ -407,7 +405,7 @@ abstract class CMSModule
      */
     final public function GetModuleURLPath(bool $use_ssl = false) : string
     {
-        $modops = \ModuleOperations::get_instance();
+        $modops = ModuleOperations::get_instance();
         if( $modops->IsSystemModule( $this->GetName() ) ) {
             return CMS_ROOT_URL . '/lib/modules/' . $this->GetName();
         } else {
@@ -485,7 +483,7 @@ abstract class CMSModule
 			echo $text;
 		} elseif (!empty($CMS_ADMIN_PAGE)) {
             $text = trim($text);
-            $obj = \cms_utils::get_theme_object();
+            $obj = cms_utils::get_theme_object();
             if( $text && $obj ) $obj->add_headtext($text);
         }
     }
@@ -505,7 +503,7 @@ abstract class CMSModule
 			echo $text;
 		} elseif (!empty($CMS_ADMIN_PAGE)) {
             $text = trim($text);
-            $obj = \cms_utils::get_theme_object();
+            $obj = cms_utils::get_theme_object();
             if( $text && $obj ) $obj->add_footertext($text);
         }
     }
@@ -676,7 +674,7 @@ abstract class CMSModule
      * @see InitializeAdmin()
      * @deprecated
      */
-// removed per deprectation notice above    public function SetParameters() {}
+	// removed per deprecation notice above
 
     /**
      * Called from within the constructor, ONLY for frontend module
@@ -852,7 +850,7 @@ abstract class CMSModule
      *
      * @final
      * @return array The config hash.
-     * @deprecated Use CmsApp::get_instance()->GetConfig()
+     * @deprecated Use cms_config::get_instance()
      */
     final public function GetConfig()
     {
@@ -1308,6 +1306,24 @@ abstract class CMSModule
     }
 
     /**
+     * Returns a list of the CLI commands that this module supports
+     * Modules supporting such commands must subclass this, and therein call
+     * here for a security-check before returning commands data
+     *
+     * @since 2.3
+     * @param \CMSMS\CLI\App $app (this class may not exist)
+     * @return mixed array of \CMSMS\CLI\GetOptExt\Command objects, or one such object, or NULL if not handled.
+     */
+    public function get_cli_commands($app)
+    {
+        $config = CmsApp::get_instance()->GetConfig();
+		if( empty($config['app_mode']) ) return null;
+        if( ! $app instanceof \CMSMS\CLI\App ) return null;
+        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) return null;
+        return [];
+    }
+
+    /**
      * ------------------------------------------------------------------
      * Syntax Highlighter Related Functions
      *
@@ -1339,14 +1355,14 @@ abstract class CMSModule
      * Returns header code specific to this WYSIWYG
      *
      * @abstract
-     * @param string $selector (optional) The id of the element that is being initialized, if null the WYSIWYG module should assume the selector
-     *   to be textarea.<ModuleName>.
-     * @param string $cssname (optional) The name of the CMSMS stylesheet to associate with the wysiwyg editor for additional styling.
-     *   if elementid is not null then the cssname is only used for the specific element.  WYSIWYG modules may not obey the cssname paramter
-     *   depending on their settings and capabilities.
+     * @param string $selector Optional id of the element that is being initialized.
+     *  If empty, the WYSIWYG module should assume the selector to be textarea.<ModuleName>.
+     * @param string $cssname Optional name of the CMSMS stylesheet to associate with the wysiwyg editor for additional styling.
+     *   If $selector is not empty then $cssname is only used for the specific element.
+     *   WYSIWYG modules might not obey the cssname parameter, depending on their settings and capabilities.
      * @return string
      */
-    public function WYSIWYGGenerateHeader($selector = null, $cssname = null)
+    public function WYSIWYGGenerateHeader($selector = '', $cssname = '')
     {
         return '';
     }
@@ -1357,19 +1373,31 @@ abstract class CMSModule
      * ------------------------------------------------------------------
      */
 
-    protected function get_controller($action_name, $actionid, $params, $returnid)
+    /**
+     * Return an action's 'controller', which if it exists, is a function to be called to
+     * 'do' the action (instead of including the action file). The callable is expected to
+     * be returned by the constructor of a class named "$name_action" placed in, and
+     * namespaced for, folder <path-to-module>/Controllers
+     *
+     * @since 2.3
+     * @param string $name The name of the action to perform
+     * @param string $id Action identifier e.g. typically 'm1_' for admin
+     * @param array  $params The parameters targeted for this module
+     * @param mixed int|''|null $returnid Identifier of the page being displayed, ''|null for admin
+     * @return mixed callable|null
+     */
+    protected function get_controller(string $name, string $id, array $params, $returnid = null)
     {
-        $ctrl = null;
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
         } else {
-            $action_name .= '_action';
             $namespace = basename( get_class( $this ) );
             if( !$namespace ) $namespace = $this->GetName();
-            $ctrl = $namespace."\\Controllers\\$action_name";
+            $name .= '_action';
+            $ctrl = $namespace."\\Controllers\\$name";
         }
         if( is_string($ctrl) && class_exists( $ctrl ) ) {
-            $ctrl = new $ctrl( $this, $actionid, $returnid );
+            $ctrl = new $ctrl( $this, $id, $returnid );
         }
         if( is_callable( $ctrl ) ) return $ctrl;
     }
@@ -1389,12 +1417,12 @@ abstract class CMSModule
      * @param string $name The Name of the action to perform
      * @param string $id Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
-     * @param mixed int|'' $returnid Identifier of the page being displayed, '' for admin
+     * @param mixed int|'' $returnid Identifier of the page being displayed, ''|null for admin
      * @return mixed output from 'controller', or null
      */
-    public function DoAction($name, $id, $params, $returnid = '')
+    public function DoAction($name, $id, $params, $returnid = null)
     {
-        if( $returnid === '' ) {
+        if( !is_int($returnid) ) {
             $key = $this->GetName().'::activetab';
             if( isset($_SESSION[$key]) ) {
                 $this->SetCurrentTab($_SESSION[$key]);
@@ -1425,7 +1453,7 @@ abstract class CMSModule
                     $config = $gCms->GetConfig();
                     $smarty = ( !empty($this->_action_tpl) ) ?
                         $this->_action_tpl :
-                        CMSMS\internal\Smarty::get_instance();
+                        Smarty::get_instance();
                     include $filename;
                     return;
                 }
@@ -1433,7 +1461,7 @@ abstract class CMSModule
         }
 
         @trigger_error("$name is an unknown acton of module ".$this->GetName());
-        throw new \CmsError404Exception("Module action not found");
+        throw new CmsError404Exception("Module action not found");
     }
 
     /**
@@ -1445,15 +1473,14 @@ abstract class CMSModule
      * @param string $name The action name
      * @param string $id The action identifier
      * @param array  $params The action params
-     * @param mixed  $returnid The current page id. int for frontend, null/'' for admin requests.
+     * @param mixed  $returnid The current page id. int for frontend, null|'' for admin requests.
      * @param mixed  $smartob  The global Smarty object, or a Smarty_Internal_Template-class object.
      * @return mixed The action output, normally a string but maybe null.
      */
-    public function DoActionBase(string $name, string $id, array $params, $returnid = null, &$smartob)
+    public function DoActionBase($name, $id, $params, $returnid, &$smartob)
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
-        if( $returnid != '' ) {
-
+        if( is_int($returnid) ) {
             // merge in params from module hints.
             $hints = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
             if( is_array($hints) ) {
@@ -1481,12 +1508,12 @@ abstract class CMSModule
         $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
         $name = filter_var($name, FILTER_SANITIZE_STRING); //alphanum + '_' ?
 
-        if ($returnid != '') {
+        if ( is_int($returnid) ) {
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
             $tmp['action'] = $name;
-            \CMSMS\HookManager::do_hook('module_action', $tmp);
+            HookManager::do_hook('module_action', $tmp);
         } else {
             $returnid = null;
         }
@@ -1885,7 +1912,7 @@ abstract class CMSModule
      * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
      * Optional parameters:
-     * @param mixed  $returnid The id to eventually return to. Default '' (i.e. admin)
+     * @param mixed int|''|null $returnid The id to eventually return to. Default null (i.e. admin)
      * @param array  $params Parameters for the URL.  These will be ignored if the prettyurl argument is specified.
      * @param bool   $inline Whether the target of the output link is the same tag on the same page.
      * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
@@ -1896,7 +1923,7 @@ abstract class CMSModule
      *  2 = page-displayable: all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_url($id, $action, $returnid = '', $params = [],
+    public function create_url($id, $action, $returnid = null, $params = [],
                        $inline = false, $targetcontentonly = false, $prettyurl = '', $mode = 0)
     {
         $this->_loadUrlMethods();
@@ -1911,7 +1938,7 @@ abstract class CMSModule
      * @since 2.3
      *
      * @param string $id The module action id.
-     * @param int    $returnid Optional return-page identifier. Default '' (i.e. admin)
+     * @param mixed int|''|null  $returnid Optional return-page identifier. Default null (i.e. admin)
      * @param array  $params Optional array of parameters for the action. Default []
      * @param int    $mode since 2.3 Indicates how to format the url
      *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
@@ -1919,7 +1946,7 @@ abstract class CMSModule
      *  2 = page-displayable: all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_pageurl($id, $returnid = '', $params = [], $mode = 0)
+    public function create_pageurl(string $id, $returnid = null, array $params = [], int $mode = 0)
     {
         $this->_loadUrlMethods();
         return cms_module_create_pageurl($id, $returnid, $params, $mode);
@@ -1934,12 +1961,12 @@ abstract class CMSModule
      * @since 1.10
      * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
-     * @param mixed  $returnid The id to eventually return to. Default ''
-     * @param array  $params Parameters for the URL. These will be ignored if $prettyurl is provided. Default []
-     * @param bool   $inline Whether the target of the output link is the same tag on the same page. Default false
+     * @param mixed int|''|null $returnid Optional id to eventually return to. Default null
+     * @param array  $params Optional parameters for the URL. These will be ignored if $prettyurl is provided. Default []
+     * @param bool   $inline Optional flag whether the target of the output link is the same tag on the same page. Default false
      * @return string
      */
-    public function get_pretty_url($id, $action, $returnid = '', $params = [], $inline = false)
+    public function get_pretty_url($id, $action, $returnid = null, $params = [], $inline = false)
     {
         return '';
     }
@@ -1956,12 +1983,12 @@ abstract class CMSModule
      *
      * @since 1.11
      * @author Robert Campbell
-     * @param string $tab The tab name.  If empty, the current tab is used.
-     * @param mixed|null  $params An associative array of params, or null
-     * @param string $action The action name (if not specified, defaultadmin is assumed)
+     * @param string $tab Optional tab name.  If empty, the current tab is used.
+     * @param mixed|null  $params Optional associative array of params, or null
+     * @param string $action Optional action name (if not specified, defaultadmin is assumed)
      * @see CMSModule::SetCurrentTab
      */
-    public function RedirectToAdminTab($tab = '', $params = '', $action = '')
+    public function RedirectToAdminTab($tab = '', $params = [], $action = '')
     {
         if( $params === '' ) $params = [];
         if( $tab != '' ) $this->SetCurrentTab($tab);
@@ -1976,8 +2003,8 @@ abstract class CMSModule
      * @param string $id The id given to the module on execution
      * @param mixed  $returnid The id to eventually return to when the module is finished its task
      * @param string $action The action that this form should do when the form is submitted
-     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
-     * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
+     * @param string $params Optional array of params to be passed to the action.  These should be in a $key=>$value format.
+     * @param bool $inline Optional flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend) Default true
      */
     public function RedirectForFrontEnd($id, $returnid, $action, $params = [], $inline = true)
     {
@@ -1989,11 +2016,11 @@ abstract class CMSModule
      *
      * @param string $id The id given to the module on execution
      * @param string $action The action that this form should do when the form is submitted
-     * @param mixed  $returnid The id to eventually return to when the module is finished its task
-     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
+     * @param mixed  $returnid Optional id to eventually return to when the module is finished its task
+     * @param string $params Optional array of params to be included in the URL of the link.  These should be in a $key=>$value format.
      * @param bool $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
      */
-    public function Redirect($id, $action, $returnid = '', $params = [], $inline = false)
+    public function Redirect($id, $action, $returnid = null, $params = [], $inline = false)
     {
         $this->_loadRedirectMethods();
         return cms_module_Redirect($this, $id, $action, $returnid, $params, $inline);
@@ -2001,9 +2028,8 @@ abstract class CMSModule
 
     /**
      * Redirects to an admin page
-     * @param string $page php script to redirect to
-     * @param array  $params optional array of url parameters
-     * @deprecated TODO explain, suggest replacement
+     * @param string $page PHP script to redirect to
+     * @param array  $params Optional array of parameters to be sent to the page
      */
     public function RedirectToAdmin($page, $params = [])
     {
@@ -2033,17 +2059,16 @@ abstract class CMSModule
      * Get a reference to another module object
      *
      * @final
-     * @param string $module The required module name.
-     * @return CMSModule-derivative The module object, or false
+     * @param string $module The required module's name.
+     * @return mixed CMSModule-derivative module object, or false
      */
-    final public static function &GetModuleInstance($module)
+    final public static function GetModuleInstance(string $module)
     {
         return cms_utils::get_module($module);
     }
 
     /**
-     * Returns an array of modulenames with the specified capability
-     * and which are installed and enabled, of course
+     * Returns an array of names of modules having the specified capability
      *
      * @final
      * @param string $capability name of the capability we are checking for. could be "wysiwyg" etc.
@@ -2075,9 +2100,10 @@ abstract class CMSModule
 
     /**
      * Returns the corresponding translated string for the id given.
-     * This method accepts variable arguments.  The first argument (required) is the language string key (a string)
+     * This method accepts variable arguments.  The first argument (required) is the translations-array key (a string)
      * Further arguments may be sprintf arguments matching the specified key.
      *
+     * @param vararg $args Since 2.3
      * @return string
      */
     public function Lang(...$args)
@@ -2115,14 +2141,14 @@ abstract class CMSModule
      * @final
      * @since 1.11
      * @author calguy1000
-     * @param string $template The template name.
+     * @param string $tpl_name The template name.
      * @return string
-     * @deprecated TODO suggest replacement
+     * @deprecated TODO nominate templates-API replacement
      */
-    final public function GetDatabaseResource(string $template) : string
+    final public function GetDatabaseResource(string $tpl_name) : string
     {
-        if( endswith($template,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$template;
-        return 'module_db_tpl:'.$this->GetName().';'.$template;
+        if( endswith($tpl_name,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
+        return 'module_db_tpl:'.$this->GetName().';'.$tpl_name;
     }
 
     /**
@@ -2133,90 +2159,90 @@ abstract class CMSModule
      *
      * @since 2.0
      * @author calguy1000
-     * @param string $template The template name.
+     * @param string $tpl_name The template name.
      * @return string
      */
-    final public function GetTemplateResource(string $template) : string
+    final public function GetTemplateResource(string $tpl_name) : string
     {
-        if( strpos($template,':') !== false ) {
-            if( startswith($template,'string:') || startswith($template,'eval:') || startswith($template,'extends:') ) {
-                throw new \LogicException('Invalid smarty resource specified for a module template.');
+        if( strpos($tpl_name,':') !== false ) {
+            if( startswith($tpl_name,'string:') || startswith($tpl_name,'eval:') || startswith($tpl_name,'extends:') ) {
+                throw new LogicException('Invalid smarty resource specified for a module template.');
             }
-            return $template;
+            return $tpl_name;
         }
-        if( endswith($template,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$template;
-        return 'cms_template:'.$template;
+        if( endswith($tpl_name,'.tpl') ) return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
+        return 'cms_template:'.$tpl_name;
     }
 
-
     /**
-     * A function to return a resource identifier to a module specific file template
+     * A function to return a resource identifier to a module-specific file template
      *
      * @final
      * @since 1.11
      * @author calguy1000
-     * @param string $template The template name.
+     * @param string $tpl_name The template name.
      * @return string
-     * @deprecated TODO suggest replacement
+     * @deprecated TODO nominate templates-API replacement
      */
-    final public function GetFileResource(string $template) : string
+    final public function GetFileResource(string $tpl_name) : string
     {
-        return 'module_file_tpl:'.$this->GetName().';'.$template;
+        return 'module_file_tpl:'.$this->GetName().';'.$tpl_name;
     }
 
     /**
      * List Templates associated with a module
      *
      * @final
-     * @param string $modulename If empty the current module name is used.
+     * @param string $modulename Optional name. If empty the current module name is used.
      * @return array
-     * @deprecated TODO suggest replacement
+     * @deprecated TODO nominate templates-API replacement
      */
-    final public function ListTemplates(string $modulename = null) : array
+    final public function ListTemplates(string $modulename = '') : array
     {
         $this->_loadTemplateMethods();
         return cms_module_ListTemplates($this, $modulename);
     }
 
     /**
-     * Returns a database saved template.  This should be used for admin functions only, as it doesn't
-     * follow any smarty caching rules.
+     * Returns content of a database-stored template.  This should be used for admin functions only,
+	 *  as it doesn't follow any smarty caching rules.
      *
      * @final
      * @param string $tpl_name the template name.
-     * @param string $modulename  If empty the current module name is used.
+     * @param string $modulename  Optional name. If empty the current module name is used.
      * @return string
-     * @deprecated TODO suggest replacement
+     * @deprecated TODO nominate templates-API replacement
      */
-    final public function GetTemplate(string $tpl_name, string $modulename = null) : string
+    final public function GetTemplate(string $tpl_name, string $modulename = '') : string
     {
         $this->_loadTemplateMethods();
         return cms_module_GetTemplate($this, $tpl_name, $modulename);
     }
 
     /**
-     * Returns contents of the template that resides in modules/ModuleName/templates/{template_name}.tpl
+     * Returns content of the template that resides in  <Modulepath>/templates/{template_name}.tpl
      * Code adapted from the Guestbook module
      *
      * @final
-     * @param string $template_name
+     * @param string $tpl_name
      * @return string
+     * @deprecated TODO nominate templates-API replacement
      */
-    final public function GetTemplateFromFile(string $template_name) : string
+    final public function GetTemplateFromFile(string $tpl_name) : string
     {
         $this->_loadTemplateMethods();
-        return cms_module_GetTemplateFromFile($this, $template_name);
+        return cms_module_GetTemplateFromFile($this, $tpl_name);
     }
 
     /**
-     * Sets a smarty template into the database and associates it with a module.
+     * Stores a smarty template into the database and associates it with a module.
      *
      * @final
      * @param string $tpl_name The template name
      * @param string $content The template content
-     * @param string $modulename The module name, if empty the current module name is used.
-     * @return bool ?? maybe null
-     * @deprecated TODO suggest replacement
+     * @param string $modulename Optional module name. If empty, the current module name is used.
+     * @return bool maybe null ??
+     * @deprecated TODO nominate templates-API replacement
      */
     final public function SetTemplate(string $tpl_name, string $content, string $modulename = '')
     {
@@ -2228,48 +2254,46 @@ abstract class CMSModule
      * Delete a module template from the database
      *
      * @final
-     * @param string $tpl_name The Template name, if empty all templates associated with the module are deleted.
-     * @param string $modulename The module name, if empty the current module name is used.
+     * @param string $tpl_name Optional template name. If empty, all templates associated with the module are deleted.
+     * @param string $modulename Optional module name. If empty, the current module name is used.
      * @return bool
-     * @deprecated TODO suggest replacement
+     * @deprecated TODO nominate templates-API replacement
      */
-    final public function DeleteTemplate(string $tpl_name = null, $modulename = null) : bool
+    final public function DeleteTemplate(string $tpl_name = '', string $modulename = '') : bool
     {
         $this->_loadTemplateMethods();
         return cms_module_DeleteTemplate($this, $tpl_name, $modulename);
     }
 
     /**
-     * Process A File template through smarty.
+     * Process a file template through smarty.
      *
      * If called from within a module action, this method will use the action template object.
      * Otherwise, the global smarty object will be used..
      *
      * @final
      * @param string  $tpl_name    Template name
-     * @param string  $designation Cache Designation (ignored)
-     * @param bool    $cache       Cache flag  (ignored)
-     * @param string  $cacheid     Unique cache flag (ignored)
+     * @param string  $designation Optional cache Designation (ignored)
+     * @param bool    $cache       Optional cache flag  (ignored)
+     * @param string  $cacheid     Optional unique cache flag (ignored)
      * @return mixed  string or null
      */
-    final public function ProcessTemplate(string $tpl_name, string $designation = null, bool $cache = false, string $cacheid = '') : string
+    final public function ProcessTemplate(string $tpl_name, string $designation = '', bool $cache = false, string $cacheid = '') : string
     {
         if( strpos($tpl_name, '..') !== false ) return '';
-        $template = $this->_action_tpl;
-        if( !$template ) $template = \CmsApp::get_instance()->GetSmarty();
-        return $template->fetch('module_file_tpl:'.$this->GetName().';'.$tpl_name );
+        $smartob = $this->_action_tpl;
+        if( !$smartob ) $smartob = CmsApp::get_instance()->GetSmarty();
+        return $smartob->fetch('module_file_tpl:'.$this->GetName().';'.$tpl_name );
     }
 
     /**
      * Given a template in a variable, this method processes it through smarty
-     * note, there is no caching involved.
+     * Note, there is no caching involved.
      *
-     * Note: this function is deprecated and scheduled for removal.
-     *
+     * @deprecated
      * @final
-     * @param data $data Input template
+     * @param string $data Input template
      * @return string
-     * @deprecated TODO suggest replacement
      */
     final public function ProcessTemplateFromData(string $data) : string
     {
@@ -2318,88 +2342,92 @@ abstract class CMSModule
 
 
     /**
-     * Output a string suitable for staring tab headers.
-     *
-     * i.e:  echo $this->StartTabHeaders();
+     * Return page content representing the start of tab headers.
+     * e.g.:  echo $this->StartTabHeaders();
      *
      * @final
+     * @deprecated since 2.3. Instead use cms_admin_tabs::start_tab_headers()
      * @return string
      */
-    final public function StartTabHeaders()
+    final public function StartTabHeaders() : string
     {
         return cms_admin_tabs::start_tab_headers();
     }
 
     /**
-     * Set a specific tab header.
-     *
-     * i.e:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
-     *
-     * @final
+     * Return page content representing a specific tab header.
+     * e.g.:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
+
+     * @deprecated since 2.3 Use cms_admin_tabs::set_tab_header(). Not final
      * @param string $tabid The tab id
      * @param string $title The tab title
-     * @param bool $active Flag indicating whether this tab is active.
+     * @param bool $active Optional flag indicating whether this tab is active. Default false
      * @return string
      */
-    final public function SetTabHeader(string $tabid, string $title, bool $active = false)
+    public function SetTabHeader($tabid, $title, $active = false)
     {
         return cms_admin_tabs::set_tab_header($tabid,$title,$active);
     }
 
     /**
-     * Output a string to stop the output of headers and close the necessary XHTML div.
+     * Return page content representing the end of tab headers.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_headers()
      * @return string
      */
-    final public function EndTabHeaders()
+    final public function EndTabHeaders() : string
     {
         return cms_admin_tabs::end_tab_headers();
     }
 
     /**
-     * Output a string to indicate the start of XHTML areas for tabs.
+     * Return page content representing the start of XHTML areas for tabs.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::start_tab_content()
      * @return string
      */
-    final public function StartTabContent()
+    final public function StartTabContent() : string
     {
         return cms_admin_tabs::start_tab_content();
     }
 
     /**
-     * Output a string to indicate the end of XHTML areas for tabs.
+     * Return page content representing the end of XHTML areas for tabs.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_content()
      * @return string
      */
-    final public function EndTabContent()
+    final public function EndTabContent() : string
     {
         return cms_admin_tabs::end_tab_content();
     }
 
     /**
-     * Output a string to indicate the start of the output for a specific tab
+     * Return page content representing the start of a specific tab
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::start_tab()
      * @param string $tabid the tab id
      * @param arrray $params Parameters
      * @see CMSModule::SetTabHeaders()
      * @return string
      */
-    final public function StartTab(string $tabid, array $params = [])
+    final public function StartTab(string $tabid, array $params = []) : string
     {
         return cms_admin_tabs::start_tab($tabid,$params);
     }
 
     /**
-     * Output a string to indicate the end of the output for a specific tab.
+     * Return page content representing the end of a specific tab.
      *
      * @final
+     * @deprecated since 2.3 Use cms_admin_tabs::end_tab()
      * @return string
      */
-    final public function EndTab()
+    final public function EndTab() : string
     {
         return cms_admin_tabs::end_tab();
     }
@@ -2411,7 +2439,6 @@ abstract class CMSModule
      */
 
     /**
-     *
      * Called in the admin theme for every installed module, this method allows
      * the module to output style information for use in the admin theme.
      *
@@ -2429,7 +2456,7 @@ abstract class CMSModule
      * @abstract
      * @param string $contenttype Value to set the content-type header too
      */
-    public function SetContentType(string $contenttype)
+    public function SetContentType($contenttype)
     {
         CmsApp::get_instance()->set_content_type($contenttype);
     }
@@ -2439,11 +2466,11 @@ abstract class CMSModule
      * done on most admin events for consistency.
      *
      * @final
-     * @param string $itemid   useful for working on a specific record (i.e article or user)
+     * @param string $itemid   useful for working on a specific record (i.e. article or user), but often ''
      * @param string $itemname item name
      * @param string $action   action name
      */
-    final public function Audit(string $itemid = '', string $itemname, string $action)
+    final public function Audit(string $itemid, string $itemname, string $action)
     {
         audit($itemid,$itemname,$action);
     }
@@ -2598,21 +2625,21 @@ abstract class CMSModule
     }
 
     /**
-     * Append $errors to the accumulated error-strings to be displayed in a
+     * Append $message to the accumulated error-strings to be displayed in a
      * theme-specific error dialog during the current request
      * For admin-side use only
      *
-     * @final
-     * @param mixed string|string[] $errors array or string of errors to be shown
+     * @since 2.3 not final
+     * @param mixed $message Message to be shown string or array of them
      * @return empty string (something might like to echo)
      */
-    final public function ShowErrors($errors)
+    public function ShowErrors($message)
     {
         global $CMS_ADMIN_PAGE;
 
         if( !empty($CMS_ADMIN_PAGE) ) {
 		    $theme = cms_utils::get_theme_object();
-		    if (is_object($theme)) $theme->RecordNotice('error', $errors);
+		    if (is_object($theme)) $theme->RecordNotice('error', $message);
         }
         return '';
     }
@@ -2629,9 +2656,9 @@ abstract class CMSModule
      *
      * @final
      * @param string $permission_name Name of the permission to create
-     * @param string $permission_text Description of the permission
+     * @param string $permission_text Optional description of the permission
      */
-    final public function CreatePermission(string $permission_name, string $permission_text = null)
+    final public function CreatePermission(string $permission_name, string $permission_text = '')
     {
         try {
             if( !$permission_text ) $permission_text = $permission_name;
@@ -2688,7 +2715,7 @@ abstract class CMSModule
      *
      * @final
      * @param string $preference_name The name of the preference to check
-     * @param string $defaultvalue    The default value, just in case it doesn't exist
+     * @param string $defaultvalue    Optional default value, returned if a stored value doesn't exist
      * @return string
      */
     final public function GetPreference(string $preference_name, string $defaultvalue='') : string
@@ -2713,10 +2740,10 @@ abstract class CMSModule
      * is specified, removes all module preferences.
      *
      * @final
-     * @param string $preference_name The name of the preference to remove.  If empty all preferences associated with the module are removed.
+     * @param string $preference_name Optional name of the preference to remove.  If empty, all preferences associated with the module are removed.
      * @return bool
      */
-    final public function RemovePreference(string $preference_name = null)
+    final public function RemovePreference(string $preference_name = '')
     {
         if( ! $preference_name ) return cms_siteprefs::remove($this->GetName().'_mapi_pref_',true);
         return cms_siteprefs::remove($this->GetName().'_mapi_pref_'.$preference_name);
@@ -2748,7 +2775,7 @@ abstract class CMSModule
 
     /**
      * ------------------------------------------------------------------
-     * Event Handler Related functions
+     * Event Handler Related Functions
      * ------------------------------------------------------------------
      */
 
@@ -2760,7 +2787,6 @@ abstract class CMSModule
      * @param string $eventname  The name of the event
      * @param bool $removable    Whether this event can be removed from the list
      * @returns mixed bool or nothing ??
-     * @deprecated TODO explain
      */
     final public function AddEventHandler(string $realm, string $eventname, bool $removable = true)
     {
@@ -2772,8 +2798,6 @@ abstract class CMSModule
      *
      * @final
      * @param string $eventname The name of the event
-     * @returns nothing
-     * @deprecated TODO explain
      */
     final public function CreateEvent(string $eventname)
     {
@@ -2794,7 +2818,6 @@ abstract class CMSModule
      * @param string $eventname The name of the event
      * @param array  $params Parameters to be provided with the event.
      * @return bool
-     * @deprecated TODO explain
      */
     public function DoEvent($originator, $eventname, &$params)
     {
@@ -2819,7 +2842,6 @@ abstract class CMSModule
      * @abstract
      * @param string $eventname The name of the event
      * @return string
-     * @deprecated TODO explain
      */
     public function GetEventDescription($eventname)
     {
@@ -2835,7 +2857,6 @@ abstract class CMSModule
      * @abstract
      * @param string $eventname The name of the event
      * @return string
-     * @deprecated TODO explain
      */
     public function GetEventHelp($eventname)
     {
@@ -2848,7 +2869,6 @@ abstract class CMSModule
      *
      * @abstract
      * @return bool
-     * @deprecated TODO explain
      */
     public function HandlesEvents()
     {
@@ -2864,7 +2884,6 @@ abstract class CMSModule
      *
      * @final
      * @param string $eventname The name of the event
-     * @deprecated TODO explain hooklists, suggest replacement
      */
     final public function RemoveEvent(string $eventname)
     {
@@ -2900,7 +2919,7 @@ abstract class CMSModule
         Events::SendEvent($this->GetName(), $eventname, $params);
     }
 
-} // end of class
+} // class
 
 
 /**
