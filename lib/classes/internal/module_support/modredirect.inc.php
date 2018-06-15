@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Redirection-related functions for modules
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * Methods for modules to do redirection related functions
@@ -28,11 +26,11 @@
 /**
  * @access private
  */
-function cms_module_RedirectToAdmin(&$modinstance, $page, $params=array())
+function cms_module_RedirectToAdmin(&$modinstance, $page, $params=[])
 {
     $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     $url = $page.$urlext;
-    if( count($params) ) {
+    if (count($params)) {
         foreach ($params as $key=>$value) {
             $url .= '&'.$key.'='.rawurlencode($value);
         }
@@ -43,50 +41,58 @@ function cms_module_RedirectToAdmin(&$modinstance, $page, $params=array())
 /**
  * @access private
  */
-function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=array(), $inline=false)
+function cms_module_Redirect(&$modinstance, $id, $action, $returnid='', $params=[], $inline=false)
 {
-	$name = $modinstance->GetName();
+    $name = $modinstance->GetName();
 
-	// Suggestion by Calguy to make sure 2 actions don't get sent
-	if (isset($params['action']))unset($params['action']);
-	if (isset($params['id'])) unset($params['id']);
-	if (isset($params['module'])) unset($params['module']);
-	if (!$inline && $returnid != '') $id = 'cntnt01';
+    // Suggestion by Calguy to make sure 2 actions don't get sent
+    if (isset($params['action'])) {
+        unset($params['action']);
+    }
+    if (isset($params['id'])) {
+        unset($params['id']);
+    }
+    if (isset($params['module'])) {
+        unset($params['module']);
+    }
+    if (!$inline && $returnid != '') {
+        $id = 'cntnt01';
+    }
 
-	$text = '';
-	if ($returnid != '') {
+    $text = '';
+    if ($returnid != '') {
         $contentops = ContentOperations::get_instance();
-		$content = $contentops->LoadContentFromId($returnid);
-		if( !is_object($content) ) {
-			// no destination content object
-			return;
-		}
-		$text .= $content->GetURL();
+        $content = $contentops->LoadContentFromId($returnid);
+        if (!is_object($content)) {
+            // no destination content object
+            return;
+        }
+        $text .= $content->GetURL();
 
-		$parts = parse_url($text);
-		if( isset($parts['query']) && $parts['query'] != '?' ) {
-			$text .= '&';
-		}
-		else {
-			$text .= '?';
-		}
-	}
-	else {
-		$text .= 'moduleinterface.php?';
-	}
+        $parts = parse_url($text);
+        if (isset($parts['query']) && $parts['query'] != '?') {
+            $text .= '&';
+        } else {
+            $text .= '?';
+        }
+    }
+    else {
+        $text .= 'moduleinterface.php?';
+    }
 
-	$text .= 'mact='.$name.','.$id.','.$action.','.($inline == true?1:0);
-	if ($returnid != '') {
-		$text .= '&'.$id.'returnid='.$returnid;
-	}
-	else {
-	    $text .= '&'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-	}
+    $text .= 'mact='.$name.','.$id.','.$action.','.($inline == true?1:0);
+    if ($returnid != '') {
+        $text .= '&'.$id.'returnid='.$returnid;
+    }
+    else {
+        $text .= '&'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+    }
 
-	foreach ($params as $key=>$value) {
-		if( $key !== '' && $value !== '' ) $text .= '&'.$id.$key.'='.rawurlencode($value);
-	}
-	redirect($text);
+    foreach ($params as $key=>$value) {
+        if ($key !== '' && $value !== '') {
+            $text .= '&'.$id.$key.'='.rawurlencode($value);
+        }
+    }
+    redirect($text);
 }
 
-?>
