@@ -18,17 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\LogicException;
-use ModuleManager\Command\ListModulesCommand;
-use ModuleManager\Command\ModuleExistsCommand;
-use ModuleManager\Command\ModuleExportCommand;
-use ModuleManager\Command\ModuleImportCommand;
-use ModuleManager\Command\ModuleInstallCommand;
-use ModuleManager\Command\ModuleRemoveCommand;
-use ModuleManager\Command\ModuleUninstallCommand;
-use ModuleManager\Command\PingModuleServerCommand;
-use ModuleManager\Command\ReposDependsCommand;
-use ModuleManager\Command\ReposGetXMLCommand;
-use ModuleManager\Command\ReposListCommand;
+use ModuleManager\Command;
 use ModuleManager\operations;
 
 define('MINIMUM_REPOSITORY_VERSION','1.5');
@@ -91,7 +81,7 @@ class ModuleManager extends CMSModule
     {
         @set_time_limit(9999);
         /*
-		  $smarty = CmsApp::get_instance()->GetSmarty(); OR $smarty = \CMSMS\internal\Smarty::get_instance();
+          $smarty = CmsApp::get_instance()->GetSmarty(); OR $smarty = \CMSMS\internal\Smarty::get_instance();
           $smarty->assign($this->GetName(), $this);
           $smarty->assign('mod', $this);
         */
@@ -100,26 +90,31 @@ class ModuleManager extends CMSModule
 
     public function HasCapability($capability,$params = [])
     {
-        if( $capability == 'clicommands' ) return true;
+        if( $capability == 'clicommands' ) return class_exists('CMSMS\\CLI\\App');
     }
 
-    public function get_cli_commands( $app )
+    /**
+     * @since 2.3
+     * @throws LogicException
+     * @param \CMSMS\CLI\App $app (exists only in App mode)
+     * @return array
+     */
+    public function get_cli_commands( $app ) : array
     {
-        if( ! $app instanceof \CMSMS\CLI\App ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
+       if( parent::get_cli_commands($app) === null ) return [];
 
         $out = [];
-        $out[] = new PingModuleServerCommand( $app );
-        $out[] = new ModuleExistsCommand( $app );
-        $out[] = new ModuleExportCommand( $app );
-        $out[] = new ModuleImportCommand( $app );
-        $out[] = new ModuleInstallCommand( $app );
-        $out[] = new ModuleUninstallCommand( $app );
-        $out[] = new ModuleRemoveCommand( $app );
-        $out[] = new ListModulesCommand( $app );
-        $out[] = new ReposListCommand( $app );
-        $out[] = new ReposDependsCommand( $app );
-        $out[] = new ReposGetXMLCommand( $app );
+        $out[] = new Command\PingModuleServerCommand( $app );
+        $out[] = new Command\ModuleExistsCommand( $app );
+        $out[] = new Command\ModuleExportCommand( $app );
+        $out[] = new Command\ModuleImportCommand( $app );
+        $out[] = new Command\ModuleInstallCommand( $app );
+        $out[] = new Command\ModuleUninstallCommand( $app );
+        $out[] = new Command\ModuleRemoveCommand( $app );
+        $out[] = new Command\ListModulesCommand( $app );
+        $out[] = new Command\ReposListCommand( $app );
+        $out[] = new Command\ReposDependsCommand( $app );
+        $out[] = new Command\ReposGetXMLCommand( $app );
         return $out;
     }
 } // class
