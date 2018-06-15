@@ -1833,8 +1833,8 @@ $X = 1;
      */
 
     /**
-     * Output a string suitable for staring tab headers
-     * i.e. echo $this->StartTabHeaders();
+     * Return page content representing the start of tab headers
+     * e.g. echo $this->StartTabHeaders();
      *
      * @final
      * @deprecated since 2.3. Instead use cms_admin_tabs::start_tab_headers()
@@ -1846,23 +1846,23 @@ $X = 1;
     }
 
     /**
-     * Set a specific tab header.
-     * i.e:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
+     * Return page content representing a specific tab header.
+     * e.g.:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
      *
      * @final
      * @param string $tabid The tab id
      * @param string $title The tab title
-     * @param bool $active Flag indicating whether this tab is active
+     * @param bool $active Optional flag indicating whether this tab is active, default false
      * @deprecated since 2.3 Use cms_admin_tabs::set_tab_header()
      * @return string
      */
-    final public function SetTabHeader(string $tabid,string $title,bool $active=false) : string
+    final public function SetTabHeader(string $tabid, string $title, bool $active = false) : string
     {
         return cms_admin_tabs::set_tab_header($tabid,$title,$active);
     }
 
     /**
-     * Output a string to stop the output of headers and close the necessary XHTML div.
+     * Return page content representing the end of tab headers.
      *
      * @final
      * @deprecated since 2.3 Use cms_admin_tabs::end_tab_headers()
@@ -1874,7 +1874,7 @@ $X = 1;
     }
 
     /**
-     * Output a string to indicate the start of XHTML areas for tabs.
+     * Return page content representing the start of XHTML areas for tabs.
      *
      * @final
      * @deprecated since 2.3 Use cms_admin_tabs::start_tab_content()
@@ -1886,7 +1886,7 @@ $X = 1;
     }
 
     /**
-     * Output a string to indicate the end of XHTML areas for tabs.
+     * Return page content representing the end of XHTML areas for tabs.
      *
      * @final
      * @deprecated since 2.3 Use cms_admin_tabs::end_tab_content()
@@ -1898,11 +1898,10 @@ $X = 1;
     }
 
     /**
-     * Output a string to indicate the start of the output for a specific tab
+     * Return page content representing the start of a specific tab.
      *
      * @final
      * @param string $tabid The tabid (see SetTabHeader)
-     * @param array $params Parameters unused since 2.3
      * @deprecated since 2.3 Use cms_admin_tabs::start_tab()
      * @return string
      */
@@ -1912,7 +1911,7 @@ $X = 1;
     }
 
     /**
-     * Output a string to indicate the end of the output for a specific tab.
+     * Return page content representing the end of a specific tab.
      *
      * @final
      * @deprecated since 2.3 Use cms_admin_tabs::end_tab()
