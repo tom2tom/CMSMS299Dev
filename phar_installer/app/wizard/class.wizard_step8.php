@@ -98,11 +98,12 @@ class wizard_step8 extends wizard_step
 
             $this->message(\__appbase\lang('install_defaultcontent'));
             if( $destconfig['samplecontent'] ) {
-				$xmlfile = $dir.'/'. \cms_autoinstaller\cms_install::CONTENTXML;
+                $xmlfile = $dir . DIRECTORY_SEPARATOR . \cms_autoinstaller\cms_install::CONTENTXML;
                 if( is_file($xmlfile) ) {
                     global $CMS_INSTALL_PAGE;
                     $CMS_INSTALL_PAGE = 1;
-                    require_once joinpath($destdir,'admin','function.contentoperation.php');
+                    $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
+                    require_once $fp;
                     import_content($xmlfile);
                 }
             }
