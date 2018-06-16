@@ -33,6 +33,7 @@ $src_excludes = [
 '/\/config\.php$/',
 '/\/index\.html$/',
 '/\.bak$/',
+'/UNUSED/',
 '/~$/',
 '/#.*/',
 '/\.#.*/',
