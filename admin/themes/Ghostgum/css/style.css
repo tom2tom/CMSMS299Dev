@@ -1858,6 +1858,12 @@ header .shortcuts li i {
     background: none;
     line-height: 1;
 }
+#ggp_menu li li li {
+    margin-left: 20px;
+}
+#ggp_menu li li li li {
+    margin-left: 30px;
+}
 #ggp_menu li li.module {
     background-color: #e5e5e5;
     border-bottom: 1px dotted #f0f0f0
