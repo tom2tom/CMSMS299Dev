@@ -211,7 +211,7 @@ EOS;
 			$nodes = $this->get_navigation_tree($section_name, 0);
 //			$smarty->assign('section_name', $section_name);
 		} else {
-			$nodes = $this->get_navigation_tree(null, 2, 'root:view:dashboard');
+			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
 		}
 //		$this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes);
@@ -368,7 +368,7 @@ EOS;
 		$smarty->assign('theme', $this);
 		// navigation menu data
 		if (!$this->_havetree) {
-			$smarty->assign('nav', $this->get_navigation_tree(null, 2));
+			$smarty->assign('nav', $this->get_navigation_tree());
 		} else {
 			$smarty->assign('nav', $this->_havetree);
 		}

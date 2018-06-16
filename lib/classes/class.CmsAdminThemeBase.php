@@ -933,20 +933,20 @@ $X = 1;
      * @since 1.11
      * @param mixed $parent    Optional name of the wanted root node, or
      *  null for actual root node. The formerly used -1 is also recognised
-     *  as an indicator of the root node.
+     *  as an indicator of the root node. Default null
      * @param int   $maxdepth  Optional no. of sub-root levels to be displayed
-     *  for $parent. < 1 indicates no maximum depth. Default 2
+     *  for $parent. < 1 indicates no maximum depth. Default 3
      * $param mixed $usepath   Since 2.3 Optional treepath for the selected item.
      *  Array, or ':'-separated string, of node names (commencing with 'root'),
      *  or (boolean) true in which case a path is derived from the current request,
      *  or false to skip selection-processing. Default true
      * @param int   $alldepth  Optional no. of sub-root levels to be displayed
-     *  for tree-paths other than $parent. < 1 indicates no limit. Default 2
+     *  for tree-paths other than $parent. < 1 indicates no limit. Default 3
      * @param bool  $striproot Since 2.3 Optional flag whether to omit the tree root-node
      *  from the returned array Default (backward compatible) true
      * @return array  Nested menu nodes.  Each node's 'children' member represents the nesting
      */
-    public function get_navigation_tree($parent = null, $maxdepth = 2, $usepath = true, $alldepth = 2, $striproot = true)
+    public function get_navigation_tree($parent = null, $maxdepth = 3, $usepath = true, $alldepth = 3, $striproot = true)
     {
         if (!$this->_menuTree) {
             $this->populate_tree();
