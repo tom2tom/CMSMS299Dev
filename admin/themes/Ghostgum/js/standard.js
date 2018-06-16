@@ -41,12 +41,16 @@ var ggjs = {
         var $open = ggjs.$menu.find('.open-sub');
         if($open.length) {
           $open.removeClass('open-sub');
-          _p.push($open.next().slideUp(50));
+          var $ulo = $open.next();
+          _p.push($ulo.slideUp(50), function() {
+           $ulo.find('li,ul').hide();
+          });
         }
         $ob.addClass('open-sub');
       } else {
         $ob.removeClass('open-sub');
       }
+      $ul.find('li,ul').show();
       _p.push($ul.slideToggle(50));
       $.when.apply($, _p).done(function() {
         ggjs.updateDisplay();
