@@ -126,14 +126,13 @@ class CmsLayoutTemplateCategory
 	/**
 	 * Set the item order.
 	 *
-	 * The item order must be unique and incremental
+	 * The item order must be >0, unique and incremental
 	 * no validation is done on the item order in this method.
 	 *
 	 * @param int $idx
 	 */
 	public function set_item_order($idx)
 	{
-		// description is allowed to be empty.
 		$idx = (int)$idx;
 		if( $idx < 1 ) return;
 		$this->_data['item_order'] = $idx;

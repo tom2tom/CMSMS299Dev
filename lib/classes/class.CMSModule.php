@@ -986,12 +986,12 @@ abstract class CMSModule
      * should return a string message if there is a failure. Returning nothing (false)
      * will allow the install procedure to proceed.
      *
-     * The default behaviour of this method is to include a file named method.install.php
+     * The default behavior of this method is to include a file named method.install.php
      * in the module directory, if one can be found.  This provides a way of splitting
      * secondary functions into other files.
      *
      * @abstract
-     * @return string|false A value of false indicates no error.  Any other value will be used as an error message.
+     * @return mixed A value of false indicates no error.  Any other value will probably be an error message string.
      */
     public function Install()
     {
