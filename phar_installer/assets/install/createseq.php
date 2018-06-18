@@ -5,7 +5,6 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
         'additional_users'          => ['id' => 'additional_users_id'],
         'admin_bookmarks'           => ['id' => 'bookmark_id'],
         'content'                   => ['id' => 'content_id'],
-        'content_props'             => ['id' => 'content_id'],
         'events'                    => ['id' => 'event_id'],
         'event_handlers'            => ['id' => 'handler_id', 'seq' => 'event_handler_seq'],
         'group_perms'               => ['id' => 'group_perm_id'],
