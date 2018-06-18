@@ -17,8 +17,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 # Or read it online: http://www.gnu.org/licenses/licenses.html#GPL
 
-if( !isset($gCms) ) exit;
-
 class CMSMailer extends CMSModule
 {
   private $the_mailer = null;
