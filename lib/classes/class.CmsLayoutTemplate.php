@@ -226,7 +226,7 @@ class CmsLayoutTemplate
 	*/
 	public function get_type_dflt()
 	{
-		if( isset($this->_data['type_dflt']) ) return $this->_data['type_dflt'];
+		return !empty($this->_data['type_dflt']); 
 	}
 
    /**
@@ -360,7 +360,11 @@ class CmsLayoutTemplate
 	{
 		$n = $this->get_categoryid($a);
 		$this->get_categories();
-		if( !in_array($n, $this->_cat_assoc) ) {
+		if( !is_array($this->_cat_assoc) ) {
+			$this->_cat_assoc = [$n];
+			$this->_dirty = TRUE;
+		}
+		elseif( !in_array($n, $this->_cat_assoc) ) {
 			$this->_cat_assoc[] = (int) $n;
 			$this->_dirty = TRUE;
 		}
@@ -377,7 +381,7 @@ class CmsLayoutTemplate
 	public function remove_category($a)
 	{
 		$this->get_categories();
-		if( !$this->_cat_assoc ) return;
+		if( empty($this->_cat_assoc) ) return;
 
 		$n = $this->get_categoryid($a);
 		if( in_array($n, $this->_cat_assoc) ) {
@@ -463,7 +467,11 @@ class CmsLayoutTemplate
 	{
 		$n = $this->get_designid($a);
 		$this->get_designs();
-		if( !in_array($n, $this->_design_assoc) ) {
+		if( !is_array($this->_design_assoc) ) {
+			$this->_design_assoc = [$n];
+			$this->_dirty = TRUE;
+		}
+		elseif( !in_array($n, $this->_design_assoc) ) {
 			$this->_design_assoc[] = (int) $n;
 			$this->_dirty = TRUE;
 		}
@@ -479,7 +487,7 @@ class CmsLayoutTemplate
 	public function remove_design($a)
 	{
 		$this->get_designs();
-		if( !$this->_design_assoc ) return;
+		if( empty($this->_design_assoc) ) return;
 
 		$n = $this->get_designid($a);
 		if( in_array($n, $this->_design_assoc) ) {
