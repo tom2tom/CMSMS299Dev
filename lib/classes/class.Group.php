@@ -94,7 +94,7 @@ class Group
 		$db = CmsApp::get_instance()->GetDb();
 		$sql = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups WHERE group_name = ? AND group_id != ?';
 		$dbresult = $db->GetOne($sql,[$this->name,$this->id]);
-		if( $dbresult ) throw new CmsInvalidDataException(lang('errorgroupexists'));
+		if( $dbresult ) throw new CmsInvalidDataException(lang('errorgroupexists',$this->name));
 	}
 
 	/**
