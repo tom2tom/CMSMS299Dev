@@ -274,7 +274,7 @@ function export_content(string $xmlfile, CMSMS\Database\Connection $db)
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
  <!ELEMENT tpl_order (#PCDATA)>
- <!ELEMENT categorytemplates? (cattpl+)
+ <!ELEMENT categorytemplates (cattpl+)>
  <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
  <!ELEMENT pages (page+)>
  <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
@@ -317,11 +317,11 @@ function export_content(string $xmlfile, CMSMS\Database\Connection $db)
  */
 function import_content(string $xmlfile) : string
 {
-	// security checks right here, not upstream
+	// security checks right here, to supplement upstream/external
 	global $CMS_INSTALL_PAGE;
 	if (isset($CMS_INSTALL_PAGE)) {
 		$runtime = false;
-		$valid = class_exists('wizard'); //TODO some other check too
+		$valid = class_exists('__installer\wizard\wizard'); //TODO some other check too
 	} else {
 		$runtime = true;
 		$uid = get_userid(false);
@@ -384,7 +384,7 @@ function import_content(string $xmlfile) : string
 						}
 						$ob->set_description((string)$node->description);
 						$ob->set_default((string)$node->dflt != false);
-//						$ob->save();
+						$ob->save();
 						$designs[(string)$node->id] = $ob->get_id();
 					}
 					break;
@@ -406,17 +406,20 @@ function import_content(string $xmlfile) : string
 							continue;
 						}
 						$ob->set_media_types((string)$node->media_type);
-//						$ob->save();
-						$styles[(string)$node->id] = $val = $ob->get_id();
+						$ob->save();
+						$styles[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'designstyles': //relations between styles and designs
 					$bank = [];
-					$eid = -99;
 					foreach ($typenode->children() as $node) {
-						$val = $styles[(string)$node->css_id] ?? --$eid;
-						$bank[$val][0][] = $designs[(string)$node->design_id] ?? --$eid;
-						$bank[$val][1][] = (string)$node->item_order + 0;
+						$val = (string)$node->css_id;
+						$val2 = (string)$node->design_id;
+						if (isset($styles[$val]) && isset($designs[$val2])) {
+							$val = $styles[$val];
+							$bank[$val][0][] = $designs[$val2];
+							$bank[$val][1][] = intval((string)$node->item_order);
+                        }
 					}
 					foreach ($bank as $sid=>$arr) {
 						try {
@@ -426,29 +429,36 @@ function import_content(string $xmlfile) : string
 						}
 						array_multisort($arr[1], $arr[0]);
 						$ob->set_designs($arr[0]);
-//						$ob->save();
+						$ob->save();
 					}
 					break;
 				case 'tpltypes':
 					if (!$runtime) {
 						verbose_msg(ilang('install_templatetypes'));
+						$val2 = '__CORE__'; //TODO get real value
+					} else {
+						$val2 = CmsLayoutTemplateType::CORE;
 					}
 					foreach ($typenode->children() as $node) {
+						$val = (string)$node->originator;
+						if (!$val) {
+							$val = $val2;
+						} elseif ($val != $val2) {
+							continue; //core-only: modules' template-data installed by them
+                        }
 						$ob = new CmsLayoutTemplateType();
 						try {
 							$ob->set_name((string)$node->name);
 						} catch (\Exception $e) {
 							continue;
 						}
+						$ob->set_originator($val);
 						$val = (string)$node->description;
 						if ($val !== '') $ob->set_description($val);
 						$ob->set_owner(1);
-						$val = (string)$node->originator;
-						if (!$val) $val = CmsLayoutTemplateType::CORE;
-						$ob->set_originator($val);
 						$val = (string)$node->dflt_contents;
 						if ($val !== '') {
-							$ob-set_dflt_contents(htmlspecialchars_decode($val));
+							$ob->set_dflt_contents(htmlspecialchars_decode($val));
 							$ob->set_dflt_flag(true);
 						} else {
 							$ob->set_dflt_flag(false);
@@ -456,14 +466,23 @@ function import_content(string $xmlfile) : string
 						$ob->set_oneonly_flag((string)$node->one_only != false);
 						$ob->set_content_block_flag((string)$node->requires_contentblocks != false);
 						$val = (string)$node->lang_cb;
-						if ($val) $ob->set_lang_callback($val);
-						$val = (string)$node->dflt_content_cb;
-						if ($val) $ob->set_content_callback($val);
+						if ($val) {
+							if (strncmp($val,'s:',2) == 0) $ob->set_lang_callback(unserialize($val, []));  else $ob->set_lang_callback($val);
+						}
 						$val = (string)$node->help_content_cb;
-						if ($val) $ob->set_help_callback($val);
-						$ob->reset_content_to_factory();
-						$ob->set_content_block_flag((string)$node->requires_contentblocks != false);
-//						$ob->save();
+						if ($val) {
+							if (strncmp($val,'s:',2) == 0) $ob->set_help_callback(unserialize($val, [])); else $ob->set_help_callback($val);
+						}
+						$val = (string)$node->dflt_content_cb;
+						if ($val) {
+							if (strncmp($val,'s:',2) == 0) $ob->set_content_callback(unserialize($val, [])); else $ob->set_content_callback($val);
+						}
+						try {
+							$ob->reset_content_to_factory();
+						} catch (\Exception $e) {
+							$dbg = 1;
+						}
+						$ob->save();
 						$types[(string)$node->id] = $ob->get_id();
 					}
 					break;
@@ -479,8 +498,8 @@ function import_content(string $xmlfile) : string
 							continue;
 						}
 						$ob->set_description((string)$node->description);
-						$ob->set_item_order((string)$node->item_order + 0);
-//						$ob->save();
+						$ob->set_item_order(intval((string)$node->item_order));
+						$ob->save();
 						$categories[(string)$node->id] = $ob->get_id();
 					}
 					break;
@@ -488,32 +507,38 @@ function import_content(string $xmlfile) : string
 					if (!$runtime) {
 						verbose_msg(ilang('install_templates'));
 					}
-					$eid = -199;
 					foreach ($typenode->children() as $node) {
+						$val = (string)$node->type_id;
+						if (!isset($types[$val])) {
+							continue;
+						}
 						$ob = new CmsLayoutTemplate();
 						try {
 							$ob->set_name((string)$node->name);
 						} catch (\Exception $e) {
 							continue;
 						}
+						$ob->set_type($types[$val]);
 						$ob->set_description((string)$node->description);
 						$ob->set_owner(1);
-						$ob->set_type($types[(string)$node->type_id] ?? --$eid);
 						$val = (string)$node->category_id;
 						if ($val !== '') $ob->set_category($val); //name or id
 						$ob->set_type_dflt((string)$node->type_dflt != false);
 						$ob->set_content(htmlspecialchars_decode((string)$node->content));
-//						$ob->save();
+						$ob->save();
 						$templates[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'designtemplates': //relations between templates and designs
 					$bank = [];
-					$eid = -299;
 					foreach ($typenode->children() as $node) {
-						$val = $templates[(string)$node->tpl_id] ?? --$eid;
-						$bank[$val][0][] = $designs[(string)$node->design_id] ?? --$eid;
-						$bank[$val][1][] = (string)$node->tpl_order + 0;
+						$val = (string)$node->tpl_id;
+						$val2 = (string)$node->design_id;
+						if (isset($templates[$val]) && isset($designs[$val2])) {
+							$val = $templates[$val];
+							$bank[$val][0][] = $designs[$val2];
+							$bank[$val][1][] = intval((string)$node->tpl_order);
+						}
 					}
 					foreach ($bank as $tid=>$arr) {
 						try {
@@ -523,16 +548,19 @@ function import_content(string $xmlfile) : string
 						}
 						array_multisort($arr[1], $arr[0]);
 						$ob->set_designs($arr[0]);
-//						$ob->save();
+						$ob->save();
 					}
 					break;
 				case 'categorytemplates': //relations between templates and categories
 					$bank = [];
-					$eid = -99;
 					foreach ($typenode->children() as $node) {
-						$val = $templates[(string)$node->tpl_id] ?? --$eid;
-						$bank[$val][0][] = $categories[(string)$node->category_id] ?? --$eid;
-						$bank[$val][1][] = (string)$node->tpl_order + 0;
+						$val = (string)$node->tpl_id;
+						$val2 = (string)$node->category_id;
+						if (isset($templates[$val]) && isset($categories[$val2])) {
+							$val = $templates[$val];
+							$bank[$val][0][] = $categories[$val2];
+							$bank[$val][1][] = intval((string)$node->tpl_order);
+						}
 					}
 					foreach ($bank as $tid=>$arr) {
 						try {
@@ -542,7 +570,7 @@ function import_content(string $xmlfile) : string
 						}
 						array_multisort($arr[1], $arr[0]);
 						$ob->set_categories($arr[0]);
-//						$ob->save();
+						$ob->save();
 					}
 					break;
 				case 'pages':
@@ -566,7 +594,7 @@ function import_content(string $xmlfile) : string
 						if ($val) $val = htmlspecialchars_decode($val);
 						$ob->SetMenuText($val);
 						$ob->SetCachable((string)$node->cachable != false);
-//						$ob->Save();
+						$ob->Save();
 						$val = (string)$node->content_id;
 						$pages[$val] = $ob->Id();
 						$pageobs[$val] = $ob;
@@ -580,7 +608,7 @@ function import_content(string $xmlfile) : string
 						}
 					}
 					foreach ($pageobs as $ob) {
-//						$ob->Save();
+						$ob->Save();
 					}
 					break;
 			}
