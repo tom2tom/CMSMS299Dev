@@ -129,7 +129,8 @@ function toggle() {
   <div id="wrapper">
     <h1>Oops!</h1>
     <p class="info">
-      Oops, something went wrong!<br />Sadly, it can happen to any of us.
+      Something went wrong!{if !$loggedin}<br />
+      Please report to the appropriate authorities, including this message from the system:<br />{$e_message}{/if}
     </p>
     <div class="clear"></div>
     {if $loggedin}
