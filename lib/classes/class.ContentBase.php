@@ -428,11 +428,13 @@ abstract class ContentBase
 	 */
 	public function Type()
 	{
-		return strtolower(get_class($this));
+		$c = get_called_class();
+        $p = strrpos($c, "\\");
+        return ($p !== false) ? strtolower(substr($c, ++$p)) : strtolower($c);
 	}
 
 	/**
-	 * Returns the Owners user id
+	 * Returns the Owner's user id
 	 *
 	 * @return int
 	 */
