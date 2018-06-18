@@ -1,6 +1,11 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
+
+use __installer\CMSMS\http_request;
+use __installer\utils;
+use Exception;
+use function __installer\CMSMS\lang;
 
 function test_extension_loaded($name)
 {
@@ -22,20 +27,20 @@ function test_apache_module($name)
 
 function test_is_false($val)
 {
-  return (\__appbase\utils::to_bool($val) == FALSE);
+  return (utils::to_bool($val) == FALSE);
 }
 
 
 function test_is_true($val)
 {
-  return (\__appbase\utils::to_bool($val) == TRUE);
+  return (utils::to_bool($val) == TRUE);
 }
 
 
 function test_remote_file($url,$timeout = 3,$searchString = '')
 {
   $timeout = max(1,min(360,$timeout));
-  $req = new \__appbase\http_request;
+  $req = new http_request();
   $req->setTarget($url);
   $req->setTimeout($timeout);
   $req->execute();
@@ -57,7 +62,7 @@ abstract class test_base
 
   public function __construct($name,$value,$key = '')
   {
-    if( !$name ) throw new Exception(\__appbase\lang('error_test_name'));
+    if( !$name ) throw new Exception(lang('error_test_name'));
     $this->name = $name;
     $this->name_key = $name;
     $this->value = $value;
@@ -68,19 +73,19 @@ abstract class test_base
 
   public function __get($key)
   {
-    if( !in_array($key,self::$_keys) ) throw new \Exception(\__appbase\lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     if( isset($this->_data[$key]) ) return $this->_data[$key];
   }
 
   public function __isset($key)
   {
-    if( !in_array($key,self::$_keys) ) throw new \Exception(\__appbase\lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     return isset($this->_data[$key]);
   }
 
   public function __set($key,$value)
   {
-    if( !in_array($key,self::$_keys) ) throw new \Exception(\__appbase\lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     if( is_null($value) || $value === '' ) {
       unset($this->_data[$key]);
       return;
@@ -91,7 +96,7 @@ abstract class test_base
 
   public function __unset($key)
   {
-    if( !in_array($key,self::$_keys) ) throw new \Exception(\__appbase\lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     unset($this->_data[$key]);
   }
 
@@ -109,7 +114,7 @@ abstract class test_base
 
     case self::TEST_UNTESTED:
     default:
-      throw new \Exception(\__appbase\lang('error_test_invalidresult').' '.$res);
+      throw new Exception(lang('error_test_invalidresult').' '.$res);
     }
 
     return $this->status;
@@ -123,21 +128,21 @@ abstract class test_base
     switch( $this->status ) {
     case self::TEST_PASS:
       if( $this->pass_msg ) return $this->pass_msg;
-      if( $this->pass_key ) return \__appbase\lang($this->pass_key);
+      if( $this->pass_key ) return lang($this->pass_key);
       break;
 
     case self::TEST_FAIL:
       if( $this->fail_msg ) return $this->fail_msg;
-      if( $this->fail_key ) return \__appbase\lang($this->fail_key);
+      if( $this->fail_key ) return lang($this->fail_key);
       break;
 
     case self::TEST_WARN:
       if( $this->warn_msg ) return $this->warn_msg;
-      if( $this->warn_key ) return \__appbase\lang($this->warn_key);
+      if( $this->warn_key ) return lang($this->warn_key);
       break;
 
     default:
-      throw new \Exception(\__appbase\lang('error_test_invalidstatus'));
+      throw new Exception(lang('error_test_invalidstatus'));
     }
   }
 
@@ -159,6 +164,4 @@ abstract class test_base
 
       return $val;
   }
-} // end of class
-
-?>
+} // class

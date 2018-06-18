@@ -1,6 +1,6 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
 
 class matchany_test extends test_base
 {
@@ -53,6 +53,5 @@ class matchany_test extends test_base
       }
     return self::TEST_FAIL;
   }
-}
+} //class
 
-?>

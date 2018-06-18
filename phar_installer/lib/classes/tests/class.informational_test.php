@@ -1,6 +1,6 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
 
 class informational_test extends test_base
 {
@@ -19,6 +19,4 @@ class informational_test extends test_base
    * @return integer -1 for fail
    */
   public function execute() {}
-} // end of class
-
-?>
+} // class

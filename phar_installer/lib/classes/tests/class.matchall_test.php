@@ -1,6 +1,8 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
+
+use function __installer\CMSMS\lang;
 
 class matchall_test extends test_base
 {
@@ -59,7 +61,7 @@ class matchall_test extends test_base
                 $obj = $this->_children[$i];
                 if( $obj->status == self::TEST_FAIL ) {
                     if( $obj->fail_msg ) return $obj->fail_msg;
-                    if( $obj->fail_key ) return \__appbase\lang($obj->fail_key);
+                    if( $obj->fail_key ) return lang($obj->fail_key);
                 }
             }
             break;
@@ -69,13 +71,11 @@ class matchall_test extends test_base
                 $obj = $this->_children[$i];
                 if( $obj->status == self::TEST_FAIL ) {
                     if( $obj->warn_msg ) return $obj->warn_msg;
-                    if( $obj->warn_key ) return \__appbase\lang($obj->warn_key);
+                    if( $obj->warn_key ) return lang($obj->warn_key);
                 }
             }
         }
 
         return parent::msg();
     }
-} // end of class
-
-?>
+} // class

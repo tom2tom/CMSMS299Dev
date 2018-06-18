@@ -1,6 +1,9 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
+
+use __installer\utils;
+
 
 // just like a boolean test, but uses TEST_WARN instaed of TESt_FAIL
 class warning_test extends test_base
@@ -15,7 +18,7 @@ class warning_test extends test_base
 
   public function execute()
   {
-    $val = \__appbase\utils::to_bool($this->value);
+    $val = utils::to_bool($this->value);
     if( $val ) return self::TEST_PASS;
     return self::TEST_WARN;
   }

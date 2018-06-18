@@ -1,6 +1,6 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
 
 class version_range_test extends test_base
 {
@@ -19,11 +19,10 @@ class version_range_test extends test_base
       case 'success_key':
       case 'pass_key':
       case 'fail_key':
-	$this->$key = $value;
-	break;
-
+        $this->$key = $value;
+        break;
       default:
-	parent::__set($key,$value);
+        parent::__set($key,$value);
       }
   }
 
@@ -44,5 +43,3 @@ class version_range_test extends test_base
     return self::TEST_PASS;
   }
 }
-
-?>

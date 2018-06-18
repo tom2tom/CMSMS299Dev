@@ -336,7 +336,7 @@ try {
         $destname2 = $tmp.'.php';
 
         echo "INFO: Writing build.ini\n";
-        $fn = "$srcdir/app/build.ini";
+        $fn = "$srcdir/assets/config.ini";
         $fh = fopen($fn,"w");
         fwrite($fh,"[build]\n");
         fwrite($fh,"build_time = ".time()."\n");
@@ -424,7 +424,7 @@ try {
             $outfile = "$outdir/$basename.zip";
 
             echo "INFO: zipping phar file into $outfile\n";
-            $arch = new ZipArchive;
+            $arch = new ZipArchive();
             $arch->open($outfile,ZipArchive::OVERWRITE | ZipArchive::CREATE );
             $arch->addFile($infile,basename($infile));
             $arch->setExternalAttributesName(basename($infile), ZipArchive::OPSYS_UNIX, 0644 << 16);
@@ -440,7 +440,7 @@ try {
             chdir($rootdir);
             $outfile = "$outdir/$basename.expanded.zip";
             echo "INFO: zipping install directory into $outfile\n";
-            $cmd = "zip -q -r -x@{$tmpfile} $outfile README.TXT index.php app lib data";
+            $cmd = "zip -q -r -x@{$tmpfile} $outfile README.TXT index.php assets lib data";
             $cmd = escapeshellcmd($cmd);
             system($cmd);
             unlink($tmpfile);

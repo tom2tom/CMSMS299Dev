@@ -418,9 +418,9 @@ try {
 	$version_num = $CMS_VERSION;
 	verbose(1, "INFO: found version: $version_num");
 
-	$fp = joinpath($phardir,'app','class.cms_install.php');
-	include_once $fp;
-	$xmlfile = joinpath($phardir,'app','install', cms_autoinstaller\cms_install::CONTENTXML);
+	$fp = joinpath($phardir,'lib','classes','class.installer_base.php');
+	require_once $fp;
+	$xmlfile = joinpath($phardir,'assets','install', __installer\installer_base::CONTENTXML);
 	if (!is_file($xmlfile)) {
 		$fp = joinpath($srcdir,'config.php');
 		if (is_file($fp)) {
@@ -459,7 +459,7 @@ try {
 		$phar = new Phar($fp);
 		$phar->startBuffering();
 
-		$relpath = joinpath('app', 'build.ini');
+		$relpath = joinpath('assets', 'config.ini');
 		$t = time();
 		$u = get_current_user();
 		$h = gethostname();
@@ -556,7 +556,7 @@ EOS;
 			$outfile = joinpath($outdir, $basename.'.zip');
 
 			verbose(1, "INFO: compressing phar file into $outfile");
-			$arch = new ZipArchive;
+			$arch = new ZipArchive();
 			$arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
 			$arch->addFile($infile, basename($infile));
 			$arch->setExternalAttributesName(basename($infile), ZipArchive::OPSYS_UNIX, 0755 << 16);
@@ -565,7 +565,7 @@ EOS;
 			$arch->close();
 			@unlink($infile);
 
-			$fp = joinpath($phardir, 'app', 'upgrade', $version_num);
+			$fp = joinpath($phardir, 'assets', 'upgrade', $version_num);
 			@mkdir($fp, 0771, true);
 			//TODO should include at least MANIFEST.DAT.gz changelog.txt
 			// maybe upgrade.php etc
@@ -578,7 +578,7 @@ EOS;
 			// zip up most of the install dir contents, plus the sources archive
 			$outfile = joinpath($outdir, $basename.'.expanded.zip');
 			verbose(1, "INFO: zipping phar_installer and source data into $outfile");
-			$arch = new ZipArchive;
+			$arch = new ZipArchive();
 			$arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
 /*			$fp = joinpath($tmpdir, 'zip_excludes.dat');
 			$str = implode("\n", $exclude_from_zip);

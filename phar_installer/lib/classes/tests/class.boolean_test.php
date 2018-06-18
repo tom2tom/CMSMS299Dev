@@ -1,6 +1,8 @@
 <?php
 
-namespace __appbase\tests;
+namespace __installer\tests;
+
+use __installer\utils;
 
 class boolean_test extends test_base
 {
@@ -14,7 +16,7 @@ class boolean_test extends test_base
 
   public function execute()
   {
-    $val = \__appbase\utils::to_bool($this->value);
+    $val = utils::to_bool($this->value);
     if( $val ) return self::TEST_PASS;
     return self::TEST_FAIL;
   }

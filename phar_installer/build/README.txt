@@ -4,7 +4,7 @@ Creating a CMSMS Release
 
 Creating a CMSMS release involves these steps:
   a: Do all of the required changes to the CMSMS branch in question (change the version.php, update the changelog, make sure those files are committed)
-  b: Create the <installer root>/app/upgrade/<version> directory and its appropriate files
+  b: Create the <installer root>/assets/upgrade/<version> directory and its appropriate files
      MANIFEST.DAT -- this file is created with the 'create_manifest.php' script (see below)
      (a MANIFEST.DAT.GZ file is acceptable too)
      upgrade.php  -- (optional) the script to do any changes to the database or settings
@@ -14,8 +14,8 @@ Creating a CMSMS release involves these steps:
      preprocess_files.php -- (optional) executed at the start of step 7 (if files step is enabled) to perform various tasks related to files
        This is useful if files must be moved around within the installation, and the manifest process cannot do it automatically.
        note: when this script is executed $destdir is available, however the CMSMS api is not.
-  c: optionally delete directories from <installer root>/app/upgrade that are no longer necessary.
-  d: optionally changing <installer root>/app/config.ini to specify the minimum upgrade version.
+  c: optionally delete directories from <installer root>/assets/upgrade that are no longer necessary.
+  d: optionally changing <installer root>/assets/config.ini to specify the minimum upgrade version.
   d: commit those changes to SVN
   e: build the release packages (see below)
   f: ** Begin distribution process **
@@ -35,7 +35,7 @@ Building the manifest
          to subpath:      trunk
      - the script exports the two directories, and (accounting for files that need to be excluded) compares the directories to
        find files that have been added/changed/deleted.
-  b: copy the generated MANIFEST.DAT.GZ file into the <root>/app/upgrade/<version> directory
+  b: copy the generated MANIFEST.DAT.GZ file into the <root>/assets/upgrade/<version> directory
 
 -----------------------------
 Building the release packages

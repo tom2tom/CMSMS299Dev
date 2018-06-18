@@ -338,9 +338,9 @@ function usage()
     echo <<<'EOT'
 This is script compares two sub-paths from the same CMSMS svn repository, and generates a manifest of files which have been added/changed/deleted between the versions, to facilitate cleaning up and verification of files during the upgrade process.
 
-Ideally this script should be executed from the app/upgrade/<to_version> directory.
+Ideally this script should be executed from the assets/upgrade/<to_version> directory.
 
-The created manifest should be placed in the app/upgrade/<to_version> directory as MANIFEST.DAT.gz.
+The created manifest should be placed in the assets/upgrade/<to_version> directory as MANIFEST.DAT.gz.
 
 
 EOT;
@@ -415,6 +415,9 @@ function endswith($haystack, $needle)
 
 function joinpath(...$segs)
 {
+    if (is_array($segs[0])) {
+        $segs = $segs[0];
+    }
     $path = implode(DIRECTORY_SEPARATOR, $segs);
     return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);
 }
@@ -752,4 +755,4 @@ class compare_dirs
         }
         return $out;
     }
-} // end of class
+} // class

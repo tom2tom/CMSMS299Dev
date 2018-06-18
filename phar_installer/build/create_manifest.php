@@ -300,9 +300,9 @@ exit(0);
   {
     global $_scriptname;
     echo <<<EOT
-This is script compares two CMSMS svn sub-paths from the same svn repository to generate a manifest of which files have been added/changed/deleted between versions.  This file should be placed in the app/upgrade/<to_version>/MANIFEST.DAT file to facilitate the cleaning up, and verification of files during the upgrade process.
+This is script compares two CMSMS svn sub-paths from the same svn repository to generate a manifest of which files have been added/changed/deleted between versions.  This file should be placed in the assets/upgrade/<to_version>/MANIFEST.DAT file to facilitate the cleaning up, and verification of files during the upgrade process.
 
-Ideally this script should be executed FROM the app/upgrade/<to_version> directory.
+Ideally this script should be executed FROM the <installer_root>/assets/upgrade/<to_version> directory.
 
 This script will export the two svn directories, verify that they are are indeed CMSMS root directories, and compare them.
 EOT;
@@ -378,9 +378,9 @@ EOT;
     if (is_dir($dir)) {
       $objects = scandir($dir);
       foreach ($objects as $object) {
-	if ($object != "." && $object != "..") {
-	  if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
-	}
+    if ($object != "." && $object != "..") {
+      if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+    }
       }
       reset($objects);
       rmdir($dir);
@@ -464,11 +464,11 @@ EOT;
     }
   }
 
-  //
-  // a simple class to compare directories
-  //
-  class compare_dirs
-  {
+//
+// a simple class to compare directories
+//
+class compare_dirs
+{
     private $_a;
     private $_b;
     private $_do_md5;
@@ -519,7 +519,7 @@ EOT;
     private function _is_ignored($filename)
     {
       foreach( $this->_ignored as $pattern ) {
-	if( $pattern == $filename ||  fnmatch($pattern,$filename,FNM_CASEFOLD) ) return TRUE;
+    if( $pattern == $filename ||  fnmatch($pattern,$filename,FNM_CASEFOLD) ) return TRUE;
       }
       return FALSE;
     }
@@ -534,33 +534,33 @@ EOT;
       if( !$dh ) throw new Exception('Problem getting directory handle for '.$dir);
 
       while( ($file = readdir($dh)) !== false ) {
-	if( $file == '.' || $file == '..' ) continue;
-	$fn = "$dir/$file";
+    if( $file == '.' || $file == '..' ) continue;
+    $fn = "$dir/$file";
 
-	if( $this->_is_ignored($file) ) continue;
+    if( $this->_is_ignored($file) ) continue;
 
-	$base = substr($fn,strlen($this->_get_base()));
-	if( is_dir($fn) ) {
-	  $tmp = $this->_read_dir($fn);
-	  $out = array_merge($out,$tmp);
-	  $rec = array();
+    $base = substr($fn,strlen($this->_get_base()));
+    if( is_dir($fn) ) {
+      $tmp = $this->_read_dir($fn);
+      $out = array_merge($out,$tmp);
+      $rec = array();
           $rec['size'] = @filesize($fn);
           $rec['mtime'] = @filemtime($fn);
-	  if( $this->_do_md5 ) $rec['md5'] = md5_file($fn);
-	  $out[$base] = $rec;
-	  continue;
-	}
+      if( $this->_do_md5 ) $rec['md5'] = md5_file($fn);
+      $out[$base] = $rec;
+      continue;
+    }
 
-	if( !is_readable($fn) ) {
+    if( !is_readable($fn) ) {
         debug("$fn is not readable");
         continue;
-	}
+    }
 
-	$rec = array();
-	$rec['size'] = @filesize($fn);
-	$rec['mtime'] = @filemtime($fn);
-	if( $this->_do_md5 ) $rec['md5'] = md5_file($fn);
-	$out[$base] = $rec;
+    $rec = array();
+    $rec['size'] = @filesize($fn);
+    $rec['mtime'] = @filemtime($fn);
+    if( $this->_do_md5 ) $rec['md5'] = md5_file($fn);
+    $out[$base] = $rec;
       }
 
       return $out;
@@ -623,15 +623,13 @@ EOT;
 
       $out = array();
       foreach($this->_list_a as $path => $rec_a ) {
-	if( !isset($this->_list_b[$path]) ) continue; // deleted/moved in b.
-	$rec_b = $this->_list_b[$path];
-	if( $rec_a['size'] != $rec_b['size'] || $rec_a['mtime'] != $rec_b['mtime'] ||
-	    (isset($rec_a['md5']) && isset($rec_b['md5']) && $rec_a['md5'] != $rec_b['md5']) ) {
-	  $out[] = $path;
-	}
+        if( !isset($this->_list_b[$path]) ) continue; // deleted/moved in b.
+        $rec_b = $this->_list_b[$path];
+        if( $rec_a['size'] != $rec_b['size'] || $rec_a['mtime'] != $rec_b['mtime'] ||
+          (isset($rec_a['md5']) && isset($rec_b['md5']) && $rec_a['md5'] != $rec_b['md5']) ) {
+            $out[] = $path;
+        }
       }
       return $out;
     }
-  } // end of class
-
-?>
+} // class
