@@ -606,11 +606,21 @@ class CmsLayoutTemplateType
 	 * @internal
 	 * @return CmsLayoutTemplateType
 	 */
-	private static function &_load_from_data($row)
+	private static function _load_from_data($row)
 	{
-		if( isset($row['lang_cb']) && $row['lang_cb'] ) $row['lang_callback'] = unserialize($row['lang_cb']);
-		if( isset($row['help_content_cb']) && $row['help_content_cb'] ) $row['help_callback'] = unserialize($row['help_content_cb']);
-		if( isset($row['dflt_content_cb']) && $row['dflt_content_cb'] ) $row['content_callback'] = unserialize($row['dflt_content_cb']);
+		$pattern = '/^([as]:\d+:|N;)/';
+		if( !empty($row['lang_cb']) ) {
+			$t = $row['lang_cb'];
+			$row['lang_callback'] = (preg_match($pattern, $t)) ? unserialize($t) : $t;
+		}
+		if( !empty($row['help_content_cb']) ) {
+			$t = $row['help_content_cb'];
+			$row['help_callback'] = (preg_match($pattern, $t)) ? unserialize($t) : $t;
+		}
+		if( !empty($row['dflt_content_cb']) ) {
+			$t = $row['dflt_content_cb'];
+			$row['content_callback'] = (preg_match($pattern, $t)) ? unserialize($t) : $t;
+		}
 		unset($row['lang_cb'],$row['help_content_cb'],$row['dflt_content_cb']);
 
 		$ob = new self();
