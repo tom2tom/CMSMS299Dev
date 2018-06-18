@@ -354,7 +354,7 @@ final class cms_config implements \ArrayAccess
                 }
                 if( ($pos = strpos($path,DIRECTORY_SEPARATOR.'index.php')) !== false ) $path = substr($path,0,$pos);
             }
-            if( CmsApp::get_instance()->is_https_request() ) {
+            if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. CmsApp::get_instance()->is_https_request() but CmsApp N/A at this stage
                 $prefix = 'https://';
             }
             else {
