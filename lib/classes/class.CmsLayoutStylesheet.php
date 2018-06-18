@@ -631,7 +631,7 @@ class CmsLayoutStylesheet
    /**
 	* @ignore
 	*/
-	private static function &_load_from_data($row,$design_list = null)
+	private static function _load_from_data($row,$design_list = null)
 	{
 		$ob = new CmsLayoutStylesheet();
 		$row['media_type'] = explode(',',$row['media_type']);;

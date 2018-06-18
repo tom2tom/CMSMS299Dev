@@ -181,7 +181,7 @@ final class CmsApp
 	 *
 	 * @since 1.10
 	 */
-	final public static function &get_instance() : self
+	final public static function get_instance() : self
 	{
 		if( !self::$_instance  ) self::$_instance = new self();
 		return self::$_instance;
@@ -345,7 +345,7 @@ final class CmsApp
 	 * @return CMSModule Reference to the module object, or null.
 	 * @deprecated
 	 */
-	public function &GetModuleInstance($module_name,$version = '')
+	public function GetModuleInstance($module_name,$version = '')
 	{
 		return ModuleOperations::get_instance()->get_module_instance($module_name,$version);
 	}
@@ -370,7 +370,7 @@ final class CmsApp
 	* @final
 	* @return mixed \CMSMS\Database\Connection object or NULL
 	*/
-	final public function &GetDb()
+	final public function GetDb()
 	{
 		/* Check to see if we have a valid instance.
 		 * If not, build the connection
@@ -405,7 +405,7 @@ final class CmsApp
 	* @final
 	* @return cms_config The configuration object.
 	*/
-	public function &GetConfig()
+	public function GetConfig()
 	{
 		return cms_config::get_instance();
 	}
@@ -418,7 +418,7 @@ final class CmsApp
 	* @see ModuleOperations
 	* @return ModuleOperations handle to the ModuleOperations object
 	*/
-	public function & GetModuleOperations()
+	public function GetModuleOperations()
 	{
 		return ModuleOperations::get_instance();
 	}
@@ -442,7 +442,7 @@ final class CmsApp
 	* @return UserOperations handle to the UserOperations object
 	* @deprecated
 	*/
-	public function & GetUserOperations()
+	public function GetUserOperations()
 	{
 		return UserOperations::get_instance();
 	}
@@ -456,7 +456,7 @@ final class CmsApp
 	* @return ContentOperations handle to the ContentOperations object
 	* @deprecated
 	*/
-	public function & GetContentOperations()
+	public function GetContentOperations()
 	{
 		return ContentOperations::get_instance();
 	}
@@ -470,7 +470,7 @@ final class CmsApp
 	* @return BookmarkOperations handle to the BookmarkOperations object, useful only in the admin
 	* @deprecated
 	*/
-	public function & GetBookmarkOperations()
+	public function GetBookmarkOperations()
 	{
 		return BookmarkOperations::get_instance();
 	}
@@ -484,7 +484,7 @@ final class CmsApp
 	* @return GroupOperations handle to the GroupOperations object
 	* @deprecated
 	*/
-	public function & GetGroupOperations()
+	public function GetGroupOperations()
 	{
 		return GroupOperations::get_instance();
 	}
@@ -498,7 +498,7 @@ final class CmsApp
 	* @return UserTagOperations handle to the UserTagOperations object
 	* @deprecated
 	*/
-	public function & GetUserTagOperations()
+	public function GetUserTagOperations()
 	{
 		return UserTagOperations::get_instance();
 	}
@@ -512,7 +512,7 @@ final class CmsApp
 	* @link http://www.smarty.net/manual/en/
 	* @return Smarty handle to the Smarty object
 	*/
-	public function & GetSmarty()
+	public function GetSmarty()
 	{
 		global $CMS_PHAR_INSTALLER;
 		if( isset($CMS_PHAR_INSTALLER) ) {
@@ -531,7 +531,7 @@ final class CmsApp
 	* @see HierarchyManager
 	* @return HierarchyManager handle to the HierarchyManager object
 	*/
-	public function & GetHierarchyManager()
+	public function GetHierarchyManager()
 	{
 		/* Check to see if a HierarchyManager has been instantiated yet,
 		  and, if not, go ahead an create the instance. */

@@ -226,7 +226,7 @@ class CmsLayoutTemplate
 	*/
 	public function get_type_dflt()
 	{
-		return !empty($this->_data['type_dflt']); 
+		return !empty($this->_data['type_dflt']);
 	}
 
    /**
@@ -949,7 +949,7 @@ class CmsLayoutTemplate
    /**
 	* @ignore
 	*/
-	private static function &_load_from_data($row,$design_list = null)
+	private static function _load_from_data($row,$design_list = null)
 	{
 		$ob = new CmsLayoutTemplate();
 		$ob->_data = $row;

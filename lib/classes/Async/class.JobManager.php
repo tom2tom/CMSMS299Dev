@@ -64,7 +64,7 @@ final class JobManager
      *
      * @return \CMSMS\JobManager
      */
-    final public static function &get_instance() : self
+    final public static function get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;

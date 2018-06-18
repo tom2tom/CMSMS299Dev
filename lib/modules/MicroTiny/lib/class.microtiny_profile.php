@@ -156,7 +156,7 @@ class microtiny_profile implements \ArrayAccess
       unset($this->_data['name']);
   }
 
-  private static function &_load_from_data($data)
+  private static function _load_from_data($data)
   {
     if( !is_array($data) || !count($data) ) throw new \CmsInvalidDataException('Invalid data passed to '.__CLASS__.'::'.__METHOD__);
 

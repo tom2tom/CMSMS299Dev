@@ -540,7 +540,7 @@ class CmsLayoutCollection
 	/**
 	 * @ignore
 	 */
-	protected static function &_load_from_data($row)
+	protected static function _load_from_data($row)
 	{
 		$ob = new CmsLayoutCollection;
 		$css = null;

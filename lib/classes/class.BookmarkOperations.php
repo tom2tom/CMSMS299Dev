@@ -18,12 +18,13 @@
 
 namespace CMSMS;
 
-use CmsApp, CMSMS\Bookmark;
+use CmsApp;
+use CMSMS\Bookmark;
+use const CMS_DB_PREFIX;
+use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
 use function startswith;
-use const CMS_DB_PREFIX,
- CMS_ROOT_URL,
- CMS_SECURE_PARAM_NAME,
- CMS_USER_KEY;
 
 /**
  * Class for doing bookmark related functions.  Maybe of the Bookmark object functions
@@ -54,7 +55,7 @@ class BookmarkOperations
 	 * Return a reference to the only allowed instance of this singleton object
 	 * @return BookmarkOperations
 	 */
-	final public static function &get_instance() : self
+	final public static function get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
@@ -131,7 +132,7 @@ class BookmarkOperations
 	 * @return Bookmark
 	 * @since 0.6.1
 	 */
-	function &LoadBookmarkByID($id)
+	function LoadBookmarkByID($id)
 	{
 		$result = null;
 		$db = CmsApp::get_instance()->GetDb();
