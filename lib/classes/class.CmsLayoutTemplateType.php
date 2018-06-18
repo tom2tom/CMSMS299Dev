@@ -133,7 +133,7 @@ class CmsLayoutTemplateType
 	 */
 	public function get_dflt_flag()
 	{
-		if( isset($this->_data['has_dflt']) ) return $this->_data['has_dflt'];
+		return !empty($this->_data['has_dflt']);
 	}
 
 	/**
@@ -291,7 +291,7 @@ class CmsLayoutTemplateType
 	{
 		if( !is_bool($flag) ) throw new CmsInvalidDataException('value is invalid for set_oneonly_flag');
 		$this->_data['one_only'] = $flag;
-		$this->_dirty = true();
+		$this->_dirty = TRUE;
 	}
 
 	/**
@@ -301,13 +301,13 @@ class CmsLayoutTemplateType
 	 */
 	public function get_oneonly_flag()
 	{
-		if( isset($this->_data['one_only']) ) return $this->_data['one_only'];
+		return !empty($this->_data['one_only']);
 	}
 
 	/**
-	 * Set a callback to be used when restoring the 'default content' to system default values.
+	 * Set the callback to be used to reset the template content to factory-default value.
 	 *
-	 * Modules typically distribut sample templates.  This callback function is used when the
+	 * Modules typically distribute sample templates.  This callback function is used when the
 	 * user clicks on a button to reset the selected template type to it's factory default values.
 	 *
 	 * @param callable $data A static function name string, or an array of class name and member name.
@@ -319,7 +319,7 @@ class CmsLayoutTemplateType
 	}
 
 	/**
-	 * Return the callback used to reset a template to its factory default values.
+	 * Return the callback used to reset a template to its factory default value.
 	 *
 	 * @return mixed
 	 */
@@ -336,7 +336,7 @@ class CmsLayoutTemplateType
 	 */
 	public function get_content_block_flag()
 	{
-		if( isset($this->_data['requires_contentblocks']) ) return $this->_data['requires_contentblocks'];
+		return !empty($this->_data['requires_contentblocks']);
 	}
 
 	/**
@@ -366,7 +366,7 @@ class CmsLayoutTemplateType
 		if( !$this->get_originator() ) throw new CmsInvalidDataException('Invalid Type Originator');
 		if( !$this->get_name() ) throw new CmsInvalidDataException('Invalid Type Name');
 		if( !preg_match('/[A-Za-z0-9_\,\.\ ]/',$this->get_name()) ) {
-			throw new CmsInvalidDataException('Name must contain only letters, numbers and underscores.');
+			throw new CmsInvalidDataException('Template type name cannot be \''.$this->get_name().'\'. Name must contain only letters, numbers and/or underscores.');
 		}
 
 		if( !$is_insert ) {
@@ -376,7 +376,7 @@ class CmsLayoutTemplateType
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE originator = ? AND name = ? AND id != ?';
 			$dbr = $db->GetOne($query,array($this->get_originator(),$this->get_name(),$this->get_id()));
-			if( $dbr ) throw new CmsInvalidDataException('Template Type with the same name already exists.');
+			if( $dbr ) throw new CmsInvalidDataException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 		else {
 			// check for item with the same name
@@ -384,7 +384,7 @@ class CmsLayoutTemplateType
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.'
 				WHERE originator = ? AND name = ?';
 			$dbr = $db->GetOne($query,array($this->get_originator(),$this->get_name()));
-			if( $dbr ) throw new CmsInvalidDataException('Template Type with the same name already exists.');
+			if( $dbr ) throw new CmsInvalidDataException('A template-type named \''.$this->get_name().'\' already exists.');
 		}
 	}
 
@@ -582,7 +582,7 @@ class CmsLayoutTemplateType
 	}
 
 	 /**
-	 * Reset the default contents of this template type back to factory defaults
+	 * Reset the default contents of this template type back to factory default
 	 *
 	 * @throws CmsException
 	 * @throws CmsDataNotFoundException
