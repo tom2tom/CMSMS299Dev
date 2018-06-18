@@ -26,23 +26,25 @@ class CMSMailer extends CMSModule
     $this->the_mailer = new cms_mailer(FALSE);
   }
 
-  function GetName() { return 'CMSMailer'; }
-  function GetFriendlyName() { return $this->Lang('friendlyname'); }
-  function GetVersion() { return '6.2.14'; }
-  function MinimumCMSVersion() { return '1.99-alpha0'; }
-  function GetHelp() { return $this->Lang('help'); }
-  function GetAuthor() { return 'Calguy1000'; }
-  function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
-  function GetChangeLog() { return @file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'changelog.inc'); }
-  function IsPluginModule() { return FALSE; }
-  function HasAdmin() { return FALSE; }
-  function GetAdminSection() { return 'extensions'; }
-  function GetAdminDescription() { return $this->Lang('moddescription'); }
-  function VisibleToAdminUser() { return FALSE; }
-  function InstallPostMessage() { return $this->Lang('postinstall'); }
-  function LazyLoadFrontend() { return TRUE; }
-  function LazyLoadAdmin() { return TRUE; }
-  function UninstallPostMessage() { return $this->Lang('postuninstall'); }
+  public function GetName() { return 'CMSMailer'; }
+  public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+  public function GetVersion() { return '6.2.14'; }
+  public function MinimumCMSVersion() { return '1.99-alpha0'; }
+  public function GetHelp() { return $this->Lang('help'); }
+  public function GetAuthor() { return 'Calguy1000'; }
+  public function GetAuthorEmail() { return 'calguy1000@hotmail.com'; }
+  public function GetChangeLog() { return @file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'changelog.inc'); }
+  public function IsPluginModule() { return FALSE; }
+  public function HasAdmin() { return FALSE; }
+  public function GetAdminSection() { return 'extensions'; }
+  public function GetAdminDescription() { return $this->Lang('moddescription'); }
+  public function VisibleToAdminUser() { return FALSE; }
+  public function InstallPostMessage() { return $this->Lang('postinstall'); }
+  public function LazyLoadFrontend() { return TRUE; }
+  public function LazyLoadAdmin() { return TRUE; }
+  public function InitializeFrontend() {} //prevent calling the mailer class for this
+  public function InitializeAdmin() {}
+  public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
 
   //////////////////////////////////////////////////////////////////////
   //// BEGIN API SECTION
@@ -114,7 +116,6 @@ class CMSMailer extends CMSModule
       return call_user_func_array(array($this->the_mailer,$method),$args);
     }
     throw new CmsException('Call to invalid method '.$method.' on '.get_class($this->the_mailer).' object');
-    // todo, throw exception here.
   }
 } // class
 
