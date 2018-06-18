@@ -182,7 +182,7 @@ while ($trycount < 2) {
         unset($_REQUEST['module']);
         unset($_REQUEST['action']);
         $handlers = ob_list_handlers();
-        for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
         // specified page not found, load the 404 error page
         $contentobj = $contentops->LoadContentFromAlias('error404',true);
@@ -210,7 +210,7 @@ while ($trycount < 2) {
         unset($_REQUEST['module']);
         unset($_REQUEST['action']);
         $handlers = ob_list_handlers();
-        for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
         // specified page not found, load the 404 error page.
         $contentobj = $contentops->LoadContentFromAlias('error403',true);
@@ -238,12 +238,12 @@ while ($trycount < 2) {
         unset($_REQUEST['module']);
         unset($_REQUEST['action']);
         $handlers = ob_list_handlers();
-        for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
         // specified page not found, load the 404 error page.
         $contentobj = $contentops->LoadContentFromAlias('error503',true);
         $msg = $e->GetMessage();
-        if (!$msg) $msg = '<p>We are sorry, but you do not have the appropriate permission to view this item.</p>';
+        if (!$msg) $msg = '<p>Sorry, you do not have the appropriate permission to view this item.</p>';
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Cache-Control: no-store, no-cache, must-revalidate');
         header('Cache-Control: post-check=0, pre-check=0', false);
@@ -262,9 +262,9 @@ while ($trycount < 2) {
     }
 
     catch (Exception $e) {
-        // Catch rest of exceptions
+        // catch rest of exceptions
         $handlers = ob_list_handlers();
-        for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
         $code = $e->GetCode();
         if (!$showtemplate && $code >= 400) {
             @ob_end_clean();
@@ -273,7 +273,7 @@ while ($trycount < 2) {
         } else {
             echo $smarty->errorConsole($e);
         }
-        exit();
+        exit;
     }
 } // end while trycount
 
