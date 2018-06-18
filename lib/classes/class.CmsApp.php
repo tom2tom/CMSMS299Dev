@@ -728,7 +728,7 @@ final class CmsApp
  * @return CmsApp
  * @see CmsApp::get_instance()
  */
-function &cmsms()
+function cmsms()
 {
 	return CmsApp::get_instance();
 }

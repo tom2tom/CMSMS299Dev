@@ -864,7 +864,7 @@ abstract class CMSModule
      * @return Database object
      * @deprecated Use CmsApp::get_instance()->GetDb()
      */
-    final public function &GetDb()
+    final public function GetDb()
     {
         return CmsApp::get_instance()->GetDb();
     }
