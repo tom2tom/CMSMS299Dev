@@ -1417,12 +1417,12 @@ abstract class CMSModule
      * @param string $name The Name of the action to perform
      * @param string $id Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
-     * @param mixed int|'' $returnid Identifier of the page being displayed, ''|null for admin
+     * @param mixed  $returnid Identifier of the page being displayed, mnumeric(int) for frontend, ''|null for admin
      * @return mixed output from 'controller', or null
      */
     public function DoAction($name, $id, $params, $returnid = null)
     {
-        if( !is_int($returnid) ) {
+        if( !is_numeric($returnid) ) {
             $key = $this->GetName().'::activetab';
             if( isset($_SESSION[$key]) ) {
                 $this->SetCurrentTab($_SESSION[$key]);
@@ -1473,14 +1473,14 @@ abstract class CMSModule
      * @param string $name The action name
      * @param string $id The action identifier
      * @param array  $params The action params
-     * @param mixed  $returnid The current page id. int for frontend, null|'' for admin requests.
+     * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
      * @param mixed  $smartob  The global Smarty object, or a Smarty_Internal_Template-class object.
      * @return mixed The action output, normally a string but maybe null.
      */
     public function DoActionBase($name, $id, $params, $returnid, &$smartob)
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
-        if( is_int($returnid) ) {
+        if( is_numeric($returnid) ) {
             // merge in params from module hints.
             $hints = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
             if( is_array($hints) ) {
@@ -1508,7 +1508,7 @@ abstract class CMSModule
         $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
         $name = filter_var($name, FILTER_SANITIZE_STRING); //alphanum + '_' ?
 
-        if ( is_int($returnid) ) {
+        if ( is_numeric($returnid) ) {
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();

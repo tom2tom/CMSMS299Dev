@@ -88,7 +88,7 @@ function cms_module_create_actionurl(
 	} elseif ($prettyurl && $config['url_rewriting'] == 'internal') {
 		$text = $base_url.'/index.php/'.$prettyurl.$config['page_extension'];
 	} else {
-        $frontend = is_int($returnid);
+		$frontend = is_numeric($returnid);
 		if ($targetcontentonly || ($frontend && !$inline)) {
 			$id = 'cntnt01';
 		}
