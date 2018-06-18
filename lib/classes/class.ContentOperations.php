@@ -255,11 +255,11 @@ class ContentOperations
 	/**
 	 * Given a content alias, load and return the loaded content object.
 	 *
-	 * @param int $alias The alias of the content object to load
+	 * @param mixed $alias null|int|string The alias of the content object to load
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
 	 * @return ContentBase The loaded content object. If nothing is found, returns NULL.
 	 */
-	function &LoadContentFromAlias(string $alias, bool $only_active = false)
+	function &LoadContentFromAlias($alias, bool $only_active = false)
 	{
 		if( content_cache::content_exists($alias) ) return content_cache::get_content($alias);
 

@@ -94,10 +94,10 @@ class cms_content_tree extends cms_tree
 	 * A backwards compatibility method.
 	 *
 	 * @deprecated
-	 * @param string $alias
+	 * @param mixed $alias null|int|string
 	 * @return cms_content_tree
 	 */
-	public function sureGetNodeByAlias(string $alias)
+	public function sureGetNodeByAlias($alias)
 	{
 		if( $alias == '' ) return;
 		if( (int)$alias > 0 && is_numeric($alias) ) return $this->find_by_tag('id',$alias,true);
@@ -110,10 +110,10 @@ class cms_content_tree extends cms_tree
 	 * A backwards compatibility method.
 	 *
 	 * @deprecated
-	 * @param string $alias
+	 * @param mixed? $alias
 	 * @return cms_content_tree
 	 */
-	public function getNodeByAlias(string $alias)
+	public function getNodeByAlias($alias)
 	{
 		return $this->find_by_tag('alias',$alias,true);
 	}
