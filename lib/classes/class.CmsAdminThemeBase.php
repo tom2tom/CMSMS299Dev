@@ -1481,7 +1481,7 @@ $X = 1;
         if( $tmp ) {
             $logintheme = get_site_preference('logintheme');
             if( $logintheme && in_array($logintheme,$tmp) ) return $logintheme;
-            return $tmp[0];
+            return reset($tmp);
         }
         return '';
     }
