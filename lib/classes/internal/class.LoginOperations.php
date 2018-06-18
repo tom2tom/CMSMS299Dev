@@ -19,22 +19,22 @@ namespace CMSMS\internal;
 
 final class LoginOperations
 {
-	/**
+    /**
      * @ignore
      */
     private static $_instance = null;
     private $_loginkey;
     private $_data;
 
-	/**
+    /**
      * @ignore
      */
     private function __construct()
     {
-        $this->_loginkey = sha1( CMS_VERSION.$this->_get_salt() );
+        $this->_loginkey = $this->_get_salt();
     }
 
-	/**
+    /**
      * @ignore
      */
     private function __clone() {}
@@ -56,12 +56,18 @@ final class LoginOperations
      */
     protected function _get_salt()
     {
-        $salt = \cms_siteprefs::get(__CLASS__);
-        if( !$salt ) {
-            $salt = sha1( rand().__FILE__.rand().time() );
-            \cms_siteprefs::set(__CLASS__,$salt);
+        global $CMS_INSTALL_PAGE;
+        if( !isset($CMS_INSTALL_PAGE) ) {
+            $salt = \cms_siteprefs::get(__CLASS__);
+            if( !$salt ) {
+                $salt = sha1( random_bytes(32) );
+                \cms_siteprefs::set(__CLASS__,$salt);
+            }
+            return $salt;
         }
-        return $salt;
+        else {  //must avoid siteprefs circularity
+            return sha1( random_bytes(32) );
+        }
     }
 
     /**
