@@ -1030,7 +1030,7 @@ class CmsLayoutTemplate
 	* @param mixed $a Either an integer template id, or a template name (string)
 	* @return CmsLayoutTemplate
 	*/
-	public static function &load($a)
+	public static function load($a)
 	{
 		static $_nn = 0;
 

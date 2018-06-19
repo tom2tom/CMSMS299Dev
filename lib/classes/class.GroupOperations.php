@@ -79,7 +79,7 @@ final class GroupOperations
 	 * @return mixed The group if found. If it's not found, then false
 	 * @deprecated
 	 */
-	public function &LoadGroupByID($id)
+	public function LoadGroupByID($id)
 	{
 		return Group::load($id);
 	}

@@ -128,8 +128,8 @@ final class news_field
       $num = (int)$db->GetOne($query);
       $this->item_order = $num+1;
     }
-    $query = 'INSERT INTO '.CMS_DB_PREFIX."module_news_fielddefs 
-              (name,type,max_length,create_date,modified_date,item_order,public,extra) 
+    $query = 'INSERT INTO '.CMS_DB_PREFIX."module_news_fielddefs
+              (name,type,max_length,create_date,modified_date,item_order,public,extra)
               VALUES (?,?,?,NOW(),NOW(),?,?,?)";
     $dbr = $db->Execute($query,array($this->name,$this->type,$this->max_length,$this->item_order,$this->public,
 				     serialize($this->extra)));
@@ -158,7 +158,7 @@ final class news_field
     }
   }
 
-  public static function &load_by_id($id)
+  public static function load_by_id($id)
   {
     $id = (int)$id;
     if( $id < 1 ) return;
@@ -172,7 +172,7 @@ final class news_field
     return $obj;
   }
 
-  public static function &load_by_name($name)
+  public static function load_by_name($name)
   {
     $name = trim($name);
     if( !$name ) return;
@@ -185,6 +185,4 @@ final class news_field
     $obj->_data = $row;
     return $obj;
   }
-} // end of class
-
-?>
+} // class

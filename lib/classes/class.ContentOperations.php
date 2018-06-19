@@ -164,7 +164,7 @@ class ContentOperations
 	 * @param  array $data
 	 * @return ContentBase A content object derived from ContentBase
 	 */
-	public function &LoadContentFromSerializedData(&$data)
+	public function LoadContentFromSerializedData(&$data)
 	{
 		if( !isset($data['content_type']) && !isset($data['serialized_content']) ) return FALSE;
 
@@ -229,9 +229,9 @@ class ContentOperations
 	 * @param bool $loadprops Also load the properties of that content object. Defaults to false.
 	 * @return mixed The loaded content object. If nothing is found, returns FALSE.
 	 */
-	function &LoadContentFromId(int $id,bool $loadprops=false)
+	function LoadContentFromId(int $id,bool $loadprops=false)
 	{
-		$result = FALSE;
+		$result = null;
 		$id = (int) $id;
 		if( $id < 1 ) $id = $this->GetDefaultContent();
 		if( content_cache::content_exists($id) ) return content_cache::get_content($id);
@@ -259,7 +259,7 @@ class ContentOperations
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
 	 * @return ContentBase The loaded content object. If nothing is found, returns NULL.
 	 */
-	function &LoadContentFromAlias($alias, bool $only_active = false)
+	function LoadContentFromAlias($alias, bool $only_active = false)
 	{
 		if( content_cache::content_exists($alias) ) return content_cache::get_content($alias);
 

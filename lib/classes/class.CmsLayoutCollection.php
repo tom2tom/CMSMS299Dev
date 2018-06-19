@@ -567,7 +567,7 @@ class CmsLayoutCollection
 	 * @param mixed $x - Accepts either an integer theme id, or a theme name,
 	 * @return CmsLayoutCollection
 	 */
-	public static function &load($x)
+	public static function load($x)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$row = null;
@@ -682,7 +682,7 @@ class CmsLayoutCollection
 	 * @throws CmsInvalidDataException
 	 * @return CmsLayoutCollection
 	 */
-	public static function &load_default()
+	public static function load_default()
 	{
 		$tmp = null;
 		if( self::$_dflt_id == '' ) {
@@ -694,7 +694,7 @@ class CmsLayoutCollection
 
 		if( self::$_dflt_id > 0 ) return self::load(self::$_dflt_id);
 
-		throw new CmsInvalidDataException('There is no default design selected');
+		throw new CmsInvalidDataException('There is no default design');
 	}
 
 	/**

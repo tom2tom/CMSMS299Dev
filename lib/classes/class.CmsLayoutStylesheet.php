@@ -655,7 +655,7 @@ class CmsLayoutStylesheet
 	* @return CmsLayoutStylesheet
 	* @throws CmsInvalidDataException
 	*/
-	public static function &load($a)
+	public static function load($a)
 	{
 		// check the cache first..
 		$db = CmsApp::get_instance()->GetDb();

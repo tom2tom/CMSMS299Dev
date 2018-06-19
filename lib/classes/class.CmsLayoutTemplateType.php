@@ -641,7 +641,7 @@ class CmsLayoutTemplateType
 	 * @param mixed $val An integer template type id, or a string in the form of Originator::Name
 	 * @return CmsLayoutTemplateType
 	 */
-	public static function &load($val)
+	public static function load($val)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$row = null;

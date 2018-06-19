@@ -175,7 +175,7 @@ VALUES (?,?,?,?,'.$time.', '.$time.')';
 	 * @return Group-object
 	 * @throws CmsInvalidDataException
 	 */
-	public static function &load($id)
+	public static function load($id)
 	{
 		$id = (int) $id;
 		if( $id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));

@@ -272,7 +272,7 @@ class CmsLayoutTemplateCategory
 	 * @param int|string $val Either the integer category id, or the category name
 	 * @return self
 	 */
-	public static function &load($val)
+	public static function load($val)
 	{
 		$db = cmsms()->GetDb();
 		$row = null;

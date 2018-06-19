@@ -161,7 +161,7 @@ final class CmsPermission
 	 * @param string $name
 	 * @return CmsPermission
 	 */
-	public static function &load($name)
+	public static function load($name)
 	{
 		if( is_array(self::$_perm_map) ) {
 			if( (int)$name <= 0 ) {
