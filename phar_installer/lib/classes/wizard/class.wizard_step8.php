@@ -44,8 +44,7 @@ class wizard_step8 extends wizard_step
 
     private function connect_to_cmsms($destdir)
     {
-        global $CMS_INSTALL_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
-        $CMS_INSTALL_PAGE = 1;
+        global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
         $DONT_LOAD_DB = 1;
         $DONT_LOAD_SMARTY = 1;
         $CMS_PHAR_INSTALLER = 1;
@@ -134,8 +133,6 @@ class wizard_step8 extends wizard_step
                 $xmlfile = $dir . DIRECTORY_SEPARATOR . installer_base::CONTENTXML;
                 if( is_file($xmlfile) ) {
                     $this->message(lang('install_defaultcontent'));
-                    global $CMS_INSTALL_PAGE;
-                    $CMS_INSTALL_PAGE = 1;
                     $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
                     require_once $fp;
                     if( ($res = import_content($xmlfile)) ) {
@@ -159,8 +156,7 @@ class wizard_step8 extends wizard_step
 
     private function do_upgrade($version_info)
     {
-        global $CMS_INSTALL_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
-        $CMS_INSTALL_PAGE = 1;
+        global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
         $CMS_PHAR_INSTALLER = 1;
         $DONT_LOAD_DB = 1;
         $DONT_LOAD_SMARTY = 1;

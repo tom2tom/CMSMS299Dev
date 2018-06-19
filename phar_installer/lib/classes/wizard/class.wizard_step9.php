@@ -206,8 +206,6 @@ VALUES (?,?,?,NOW(),NOW())');
     }
 
     /**
-     *
-     * @global int $CMS_INSTALL_PAGE
      * @global int $DONT_LOAD_SMARTY
      * @global type $CMS_VERSION
      * @global int $CMS_PHAR_INSTALLER
@@ -217,8 +215,7 @@ VALUES (?,?,?,NOW(),NOW())');
     {
         // this loads the standard CMSMS stuff, except smarty cuz it's already done.
         // we do this here because both upgrade and install stuff needs it.
-        global $CMS_INSTALL_PAGE, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
-        $CMS_INSTALL_PAGE = 1;
+        global $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
         $CMS_PHAR_INSTALLER = 1;
         $DONT_LOAD_SMARTY = 1;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
