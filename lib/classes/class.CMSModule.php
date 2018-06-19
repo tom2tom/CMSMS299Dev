@@ -1391,10 +1391,10 @@ abstract class CMSModule
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
         } else {
-            $namespace = basename( get_class( $this ) );
-            if( !$namespace ) $namespace = $this->GetName();
-            $name .= '_action';
-            $ctrl = $namespace."\\Controllers\\$name";
+            $c = get_called_class();
+            $p = strrpos($c, "\\");
+            $namespace = ($p !== false) ? substr($c, $p+1) : $c;
+			$ctrl = $namespace."\\Controllers\\{$name}_action";
         }
         if( is_string($ctrl) && class_exists( $ctrl ) ) {
             $ctrl = new $ctrl( $this, $id, $returnid );
