@@ -15,8 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\Smarty;
+
+use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
+use CMSMS\internal\Smarty;
+use CMSMS\ScriptManager;
+use CMSMS\UserOperations;
 
 class GhostgumTheme extends CmsAdminThemeBase
 {
@@ -87,7 +91,7 @@ EOS;
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 		list ($jqcore, $jqmigrate) = cms_jquery_local();
 
-		$sm = new \CMSMS\ScriptManager();
+		$sm = new ScriptManager();
 		$sm->queue_file($jqcore, 1);
 		$sm->queue_file($jqmigrate, 1);
 		$sm->queue_file($jqui, 1);
@@ -233,16 +237,17 @@ EOS;
 
 	/**
 	 * Display and process a login form
-	 * @since 2.3, there is no $params argument
+	 * @since 2.3, there is no $params argument, relevant parameters are
+	 *  instead supplied by included code
 	 */
 	public function do_login()
 	{
-		$smarty = \CMSMS\internal\Smarty::get_instance();
+		$smarty = Smarty::get_instance();
+		$config = cms_config::get_instance();
 
-		if (1) {
-			// process the supplied inputs TODO skip if this is 1st-pass
-			require_once __DIR__.DIRECTORY_SEPARATOR.'login.php';
-		}
+		$usecsrf = true; //setting for included code
+		$fn = cms_join_path($config['admin_path'], 'themes', 'assets', 'login.php');
+		require_once $fn;
 
 		if (!empty($params)) $smarty->assign($params);
 
@@ -394,6 +399,6 @@ EOS;
 	/* REDUNDANT ?? */
 	public function get_my_alerts()
 	{
-		return \CMSMS\AdminAlerts\Alert::load_my_alerts();
+		return Alert::load_my_alerts();
 	}
 }
