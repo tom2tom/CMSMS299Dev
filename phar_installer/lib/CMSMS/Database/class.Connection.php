@@ -82,6 +82,12 @@ abstract class Connection
 
     /**
      * @ignore
+     * callable Error-processing method
+     */
+    protected $_errorhandler = null;
+
+    /**
+     * @ignore
      * bool Whether debug mode is enabled
      */
     private $_debug;
@@ -128,14 +134,19 @@ abstract class Connection
 
     /**
      * Construct a new Connection.
+     * @param array $config Unused here, for subclass only
      */
-    public function __construct()
+    public function __construct($config = null)
     {
         $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG != 0;
         if ($this->_debug) {
             $this->_debug_cb = 'debug_buffer';
         }
-        $this->_errorhandler = [$this, 'on_error'];
+
+        global $CMS_INSTALL_PAGE;
+        if (!isset($CMS_INSTALL_PAGE)) {
+            $this->_errorhandler = [$this, 'on_error'];
+        }
     }
 
     /**
@@ -789,7 +800,7 @@ abstract class Connection
      * @param int    $error_number  The error number
      * @param string $error_message The error message
      */
-    public function OnError($errtype, $error_number, $error_message)
+    protected function OnError($errtype, $error_number, $error_message)
     {
         $this->errno = $error_number;
         $this->error = $error_message;
@@ -799,7 +810,7 @@ abstract class Connection
     }
 
     /**
-     * Default error handler
+     * Default error handler (except during installation)
      *
      * @internal
      *
@@ -810,7 +821,7 @@ abstract class Connection
 
     protected function on_error($errtype, $error_number, $error_msg)
     {
-        if (function_exists('\\debug_to_log')) { //N/A during installation
+        if (function_exists('\\debug_to_log')) {
             \debug_to_log("Database error: $errtype($error_number) - $error_msg");
             \debug_bt_to_log();
             if ($this->_debug) {
