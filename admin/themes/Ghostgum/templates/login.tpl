@@ -31,8 +31,7 @@
       {else}{lang('login_sitetitle',{sitename})}{/if}</h1>
       {if isset($smarty.get.forgotpw)}{$usernamefld='forgottenusername'}{else}{$usernamefld='username'}{/if}
       <form action="login.php" method="post">
-        {if isset($csrf)}<input type="hidden" name="{$actionid}csrf" value="{$csrf}" />
-        {/if}
+        <input type="hidden" name="csrf" value="{$csrf}" />
         <input type="text" name="{$actionid}{$usernamefld}"{if !isset($smarty.post.lbusername)} class="focus"{/if} placeholder="{lang('username')}" size="25" value="" autofocus="autofocus" />
         {if !empty($smarty.get.forgotpw)}
         <input type="hidden" name="{$actionid}forgotpwform" value="1" />
