@@ -380,6 +380,7 @@ $lang['error_fromrequired'] = 'A from address is required';
 $lang['error_hostrequired'] = 'A host name is required when using the SMTP mailer';
 $lang['error_internal'] = 'Internal error';
 $lang['error_locknotsaved'] = 'Cannot retrieve this information... lock has not been saved';
+$lang['error_logintoken'] = 'Invalid login-session token';
 $lang['error_mailnotset_notest'] = 'Mail settings have not been saved.  Cannot test';
 $lang['error_mailtest_noaddress'] = 'No address specified for testing';
 $lang['error_mailtest_notemail'] = 'Value specified is not a valid email address';
