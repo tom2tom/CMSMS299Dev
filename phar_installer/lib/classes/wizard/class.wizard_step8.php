@@ -85,7 +85,6 @@ class wizard_step8 extends wizard_step
         include_once dirname(__DIR__,2).'/msg_functions.php';
 /*
         $fn = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
-        require_once $fn.'initial.php';
         require_once $fn.'base.php';
         require_once $fn.'schema.php';
         require_once $fn.'createseq.php';
@@ -130,17 +129,22 @@ class wizard_step8 extends wizard_step
 
             // site content
             if( $destconfig['samplecontent'] ) {
-                $xmlfile = $dir . DIRECTORY_SEPARATOR . installer_base::CONTENTXML;
-                if( is_file($xmlfile) ) {
+                $fn = installer_base::CONTENTXML;
+            } else {
+                $fn = 'initial.xml';
+            }
+            $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
+            if( is_file($xmlfile) ) {
+                if( $destconfig['samplecontent'] ) {
                     $this->message(lang('install_defaultcontent'));
-                    $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
-                    require_once $fp;
-                    if( ($res = import_content($xmlfile)) ) {
-                        $this->message($res);
-                    }
+                }
+                $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
+                require_once $fp;
+                if( ($res = import_content($xmlfile)) ) {
+                    $this->error($res);
                 }
             } else {
-                 include_once $dir.'/initial.php';
+                $this->error(lang('error_nocontent',$fn));
             }
 
             // update pages hierarchy
