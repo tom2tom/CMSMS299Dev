@@ -28,21 +28,21 @@ class ModuleManager extends CMSModule
     const _dflt_request_url = 'https://www.cmsmadesimple.org/ModuleRepository/request/v2/';
     private $_operations;
 
-    public function GetName() { return get_class($this); }
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '2.2'; }
-    public function GetHelp() { return $this->Lang('help'); }
+    public function GetAdminDescription() { return $this->Lang('admindescription'); }
+    public function GetAdminSection() { return 'extensions'; }
     public function GetAuthor() { return 'calguy1000'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
-    public function IsPluginModule() { return FALSE; }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+    public function GetHelp() { return $this->Lang('help'); }
+    public function GetName() { return 'ModuleManager'; }
+    public function GetVersion() { return '2.2'; }
     public function HasAdmin() { return TRUE; }
+    public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
-    public function GetAdminSection() { return 'extensions'; }
-    public function GetAdminDescription() { return $this->Lang('admindescription'); }
+    public function IsPluginModule() { return FALSE; }
     public function LazyLoadAdmin() { return TRUE; }
     public function MinimumCMSVersion() { return '2.2.3'; }
-    public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return ($this->CheckPermission('Modify Site Preferences') || $this->CheckPermission('Modify Modules')); }

@@ -27,20 +27,20 @@ final class Navigator extends CMSModule
 {
     const __DFLT_PAGE = '**DFLT_PAGE**';
 
-    public function GetName() { return get_class($this); }
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function IsPluginModule() { return true; }
-    public function HasAdmin() { return false; }
-    public function GetVersion() { return '1.0.7'; }
-    public function MinimumCMSVersion() { return '2.1.99'; }
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return 'layout'; }
-    public function LazyLoadFrontend() { return TRUE; }
-    public function LazyLoadAdmin() { return TRUE; }
-    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function GetChangeLog() { return file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
+    public function GetName() { return 'Navigator'; }
+    public function GetVersion() { return '1.0.7'; }
+    public function HasAdmin() { return false; }
+    public function IsPluginModule() { return true; }
+    public function LazyLoadAdmin() { return true; }
+    public function LazyLoadFrontend() { return true; }
+    public function MinimumCMSVersion() { return '2.1.99'; }
 
     public function InitializeFrontend()
     {
