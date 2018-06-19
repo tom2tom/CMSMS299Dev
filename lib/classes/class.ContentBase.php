@@ -430,7 +430,7 @@ abstract class ContentBase
 	{
 		$c = get_called_class();
         $p = strrpos($c, "\\");
-        return ($p !== false) ? strtolower(substr($c, ++$p)) : strtolower($c);
+        return ($p !== false) ? strtolower(substr($c, $p+1)) : strtolower($c);
 	}
 
 	/**
@@ -1087,8 +1087,8 @@ abstract class ContentBase
 
 		$now = $db->DbTimeStamp(time());
 		$iquery = 'INSERT INTO '.CMS_DB_PREFIX."content_props
-					(content_id,type,prop_name,content,modified_date)
-					VALUES (?,?,?,?,$now)";
+					(content_id,type,prop_name,content,create_date,modified_date)
+					VALUES (?,?,?,?,$now,$now)";
 		$uquery = 'UPDATE '.CMS_DB_PREFIX."content_props SET content = ?, modified_date = $now WHERE content_id = ? AND prop_name = ?";
 
 		foreach( $this->_props as $key => $value ) {
