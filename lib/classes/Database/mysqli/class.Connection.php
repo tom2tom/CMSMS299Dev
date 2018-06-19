@@ -42,8 +42,9 @@ class Connection extends \CMSMS\Database\Connection
      */
     public function __construct($config = null)  //installer-API
     {
+        parent::__construct();
         if (class_exists('\mysqli')) {
-            if (!$config) $config =  \cms_config::get_instance(); //normal API
+            if (!$config) $config = \cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
                 $this->_mysql = new \mysqli(
@@ -77,15 +78,15 @@ class Connection extends \CMSMS\Database\Connection
                     }
                 } else {
                     $this->_mysql = null;
-                    $this->on_error(parent::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
+                    $this->OnError(parent::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
                 }
             } catch (\Exception $e) {
                 $this->_mysql = null;
-                $this->on_error(parent::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
+                $this->OnError(parent::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
             }
         } else {
             $this->_mysql = null;
-            $this->on_error(parent::ERROR_CONNECT, 98,
+            $this->OnError(parent::ERROR_CONNECT, 98,
                 'Configuration error: mysqli class is not available');
         }
     }
@@ -95,7 +96,6 @@ class Connection extends \CMSMS\Database\Connection
         if ($this->_native === '') {
             $this->_native = function_exists('mysqli_fetch_all');
         }
-
         return $this->_native;
     }
 
@@ -122,7 +122,6 @@ class Connection extends \CMSMS\Database\Connection
         if ($this->_mysql) {
             return $this->_mysql->error;
         }
-
         return mysqli_connect_error();
     }
 
@@ -131,7 +130,6 @@ class Connection extends \CMSMS\Database\Connection
         if ($this->_mysql) {
             return $this->_mysql->errno;
         }
-
         return mysqli_connect_errno();
     }
 
@@ -206,7 +204,6 @@ class Connection extends \CMSMS\Database\Connection
             }
             $this->errno = 0;
             $this->error = '';
-
             return new ResultSet($result);
         }
         $this->failTrans();
@@ -214,7 +211,6 @@ class Connection extends \CMSMS\Database\Connection
         $errno = $this->_mysql->errno;
         $error = $this->_mysql->error;
         $this->OnError(parent::ERROR_EXECUTE, $errno, $error);
-
         return null;
     }
 
@@ -223,10 +219,8 @@ class Connection extends \CMSMS\Database\Connection
         $stmt = new Statement($this, $sql);
         if ($stmt->prepare($sql)) {
             $this->_sql = $sql;
-
             return $stmt;
         }
-
         return false;
     }
 
@@ -246,7 +240,6 @@ class Connection extends \CMSMS\Database\Connection
                 $errno = 4;
                 $error = 'Invalid bind-parameter(s) supplied to execute method';
                 $this->OnError(parent::ERROR_PARAM, $errno, $error);
-
                 return null;
             }
         }
@@ -278,13 +271,11 @@ class Connection extends \CMSMS\Database\Connection
         if ($rs) { // && $rs is not some error-data
             $this->_conn->errno = 0;
             $this->_conn->error = '';
-
             return new ResultSet($rs);
         } else {
             $errno = 98;
             $error = 'No async result available';
             $this->processerror(parent::ERROR_EXECUTE, $errno, $error);
-
             return null;
         }
     }
@@ -298,7 +289,6 @@ class Connection extends \CMSMS\Database\Connection
             $this->_mysql->query('START TRANSACTION');
 //          $this->_mysql->begin_transaction(); PHP5.5+
         }
-
         return true;
     }
 
@@ -306,20 +296,17 @@ class Connection extends \CMSMS\Database\Connection
     {
         if ($this->_in_smart_transaction) {
             ++$this->_in_smart_transaction;
-
             return true;
         }
 
         if ($this->_in_transaction) {
             $this->OnError(parent::ERROR_TRANSACTION, -1, 'Bad Transaction: startTrans called within beginTrans');
-
             return false;
         }
 
         $this->_transaction_status = true;
         ++$this->_in_smart_transaction;
         $this->beginTrans();
-
         return true;
     }
 
@@ -327,13 +314,11 @@ class Connection extends \CMSMS\Database\Connection
     {
         if (!$this->_in_transaction) {
             $this->OnError(parent::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
-
             return false;
         }
 
         if ($this->_mysql->rollback()) {
             --$this->_in_transaction;
-
             return true;
         }
 
@@ -349,13 +334,11 @@ class Connection extends \CMSMS\Database\Connection
 
         if (!$this->_in_transaction) {
             $this->OnError(parent::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
-
             return false;
         }
 
         if ($this->_mysql->commit()) {
             --$this->_in_transaction;
-
             return true;
         }
 
@@ -367,7 +350,6 @@ class Connection extends \CMSMS\Database\Connection
     {
         if ($this->_in_smart_transaction > 0) {
             --$this->_in_smart_transaction;
-
             return true;
         }
 
@@ -393,7 +375,6 @@ class Connection extends \CMSMS\Database\Connection
         if ($this->_in_smart_transaction > 0) {
             return $this->_transaction_status == false;
         }
-
         return false;
     }
 
@@ -419,14 +400,12 @@ class Connection extends \CMSMS\Database\Connection
             $v = (int) $startID;
             $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
         }
-
         return $rs !== false;
     }
 
     public function dropSequence($seqname)
     {
         $rs = $this->do_sql("DROP TABLE $seqname");
-
         return $rs !== false;
     }
 
