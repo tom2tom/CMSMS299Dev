@@ -794,13 +794,12 @@ abstract class Connection
     /**
      * A callback that is called when a database error occurs.
      * This method will by default call the error handler if it has been set.
-     * If no error handler is set, an exception will be thrown.
      *
      * @param string $errtype       The type of error
      * @param int    $error_number  The error number
      * @param string $error_message The error message
      */
-    protected function OnError($errtype, $error_number, $error_message)
+    public function OnError($errtype, $error_number, $error_message)
     {
         $this->errno = $error_number;
         $this->error = $error_message;
@@ -818,7 +817,6 @@ abstract class Connection
      * @param int    $error_number  The error number
      * @param string $error_message The error message
      */
-
     protected function on_error($errtype, $error_number, $error_msg)
     {
         if (function_exists('\\debug_to_log')) {
