@@ -659,46 +659,50 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
 }
 
 /**
- * Get list of files and/or directories in and descendant from a specified directory
- * 
+ * Get sorted list of paths of files and/or directories in, and descendant from, the
+ * specified directory
+ *
  * @since 2.3, reported directories do not have a trailing separator
  * @param  string  $path     start path
  * @param  array   $excludes Optional array of regular expressions indicating files to exclude. Default []
  *  '.' and '..' are automatically excluded.
- * @param  int     $maxdepth Optional max. depth to browse (-1=unlimited) .Default -1
+ * @param  int     $maxdepth Optional max. depth to browse (-1=unlimited). Default -1
  * @param  string  $mode     Optional "FULL"|"DIRS"|"FILES". Default "FULL"
- * @param  int     $d        for internal use only
- * @return mixed bool or array
+ * @return array
 **/
-function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = "FULL", int $d = 0)
+function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = 'FULL') : array
 {
-    $fn = function( $file, $excludes ) {
-        if ( empty($excludes) ) return false;
+    $fn = function( string $name, array $excludes ) : bool
+    {
         foreach( $excludes as $excl ) {
-            if ( @preg_match( "/".$excl."/i", basename($file) ) ) return true;
+            if ( @preg_match( '/'.$excl.'/i', $name ) ) return true;
         }
         return false;
     };
 
-    $dirlist = [];
-    if ( $mode != "FILES" ) { $dirlist[] = $path ; }
-    if ( $handle = opendir ( $path ) ) {
-		$path = rtrim($path, " \\/") . DIRECTORY_SEPARATOR;
-        while ( false !== ( $file = readdir ( $handle ) ) ) {
-            if ( $file == '.' || $file == '..' ) continue;
-            if ( $fn( $file, $excludes ) ) continue;
-
-            $file = $path . $file ;
-            if ( ! @is_dir ( $file ) ) { if ( $mode != "DIRS" ) { $dirlist[] = $file ; } }
-            elseif ( $d >=0 && ($d < $maxdepth || $maxdepth < 0) ) {
-                $result = get_recursive_file_list ( $file, $excludes, $maxdepth , $mode , $d + 1 ) ;
-                $dirlist = array_merge ( $dirlist , $result ) ;
-            }
+	$results = [];
+    if( is_dir($path) ) {
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($path,
+				FilesystemIterator::CURRENT_AS_PATHNAME |
+				FilesystemIterator::KEY_AS_FILENAME |
+				FilesystemIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST);
+		if( $maxdepth >= 0 ) {
+			$iter->setMaxDepth($maxdepth);
+		}
+        foreach( $iter as $name=>$p ) {
+			if( !( $excludes && $fn($name, $excludes) ) ) {
+				if( $iter->getInnerIterator()->isDir() ) {
+					if( $mode != 'FILES' ) $results[] = $p;
+				} elseif( $mode != 'DIRS' ) {
+					$results[] = $p;
+				}
+			}
         }
-        closedir ( $handle ) ;
-    }
-    if ( $d == 0 ) { natcasesort ( $dirlist ) ; }
-    return ( $dirlist ) ;
+		natcasesort($results);
+	}
+    return $results;
 }
 
 /**
