@@ -608,7 +608,7 @@ class CmsLayoutTemplateType
 	 */
 	private static function _load_from_data($row)
 	{
-		$pattern = '/^([as]:\d+:|N;)/';
+		$pattern = '/^([as]:\d+:|[Nn](ull)?;)/';
 		if( !empty($row['lang_cb']) ) {
 			$t = $row['lang_cb'];
 			$row['lang_callback'] = (preg_match($pattern, $t)) ? unserialize($t) : $t;
