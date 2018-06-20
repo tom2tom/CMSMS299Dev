@@ -55,10 +55,14 @@
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
+ <!ELEMENT supportfiles (sourcedir?,file+)>
+ <!ELEMENT file (name,topath,(frompath|embedded),content?)>
+ <!ELEMENT topath (#PCDATA)>
+ <!ELEMENT frompath (#PCDATA)>
+ <!ELEMENT embedded (#PCDATA)>
 ]>
 <cmsmsinstall>
 	<dtdversion>0.6</dtdversion>
-
 	<designs>
 		<design>
 			<id>1</id>
@@ -119,7 +123,7 @@ Theme itself is using jQuery, the function's JavaScript file is minified, in cas
 			<content><![CDATA[/*********************************************
 Sample stylesheet for mobile and small screen handheld devices
 
-Just a simple layout suitable for smaller screens with less 
+Just a simple layout suitable for smaller screens with less
 styling cabapilities and minimal css
 
 Note: If you dont want to support mobile devices you can
@@ -142,7 +146,7 @@ display:none;
 /* dont want to download image for header so just set bg color */
 div#header,
 div#footer {
-background-color: #385C72;  
+background-color: #385C72;
 color: #fff;
 text-align:center;
 }
@@ -192,18 +196,18 @@ border:0 !important; /* no borders thanks */
 border:0 !important; /* again no borders on printouts */
 }
 
-/* 
-no need for accessibility on printout. 
-Mark all your elements in content you 
+/*
+no need for accessibility on printout.
+Mark all your elements in content you
 dont want to get printed with class="noprint"
 */
 .accessibility,
 .noprint
  {
-display:none !important; 
+display:none !important;
 }
 
-/* 
+/*
 remove all width constraints from content area
 */
 div#content,
@@ -1273,7 +1277,7 @@ div#news h2 {
 /* italic to set it off from text */
 	font-style: italic;
 }
-/* more divs, left unstyled, just so you know the IDs of them */ 
+/* more divs, left unstyled, just so you know the IDs of them */
 #NewsPostDetailTitle {
 }
 #NewsPostDetailHorizRule {
@@ -2709,13 +2713,13 @@ ul#primary-nav li ul ul {
   @Licensed under GPL and MIT.
   @Status: Stable
   @Version: 0.1-20090418
-  
+
   @Contributors:
-  
-  --------------------------------------------------------------- 
+
+  ---------------------------------------------------------------
 */
 /*----------- Global Containers ----------- */
-/* 
+/*
 .core-wrap-100   =  width - 100% of Browser Fluid
 .core-wrap-960   =  width - 960px  - fixed
 .core-wrap-780   =  width - 780px  - fixed
@@ -2771,11 +2775,11 @@ ul#primary-nav li ul ul {
   @Licensed under GPL2 and MIT.
   @Status: Stable
   @Version: 0.1-20090418
-  
+
   @Contributors:
-        -  http://meyerweb.com/eric/tools/css/reset/index.html 
-  
-  --------------------------------------------------------------- 
+        -  http://meyerweb.com/eric/tools/css/reset/index.html
+
+  ---------------------------------------------------------------
 */
 /* From: http://meyerweb.com/eric/tools/css/reset/index.html  (Original) */
 /* v1.0 | 20080212 */
@@ -2878,7 +2882,7 @@ html body .util-clearb {
 			<name>Layout NCleanBlue</name>
 			<description>Main layout rules used in NCleanBlue Design</description>
 			<media_type>screen</media_type>
-			<content><![CDATA[/*  
+			<content><![CDATA[/*
 @Nuno Costa [criacaoweb.net]
 @Since [cmsms 1.6]
 @Contributors: Mark and Dev-Team
@@ -4209,7 +4213,7 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
-	
+
 	.container {
 		padding-left: 20px;
 		padding-right: 20px;
@@ -4395,36 +4399,36 @@ body {
 			<content><![CDATA[[[strip]]
 
 [[* APPEARANCE *]]
-[[* 
+[[*
 	/**
 	 * @copyright CMS Made Simple 2014
 	 * @author Goran Ilic (uniqu3e@gmail.com)
 	 * @version 1.1 (CMSMS 2.0 Package)
-	 * 
+	 *
 	 * Simplex Theme comes with 2 predefined Style variations, one is a "boxed" style as seen in
 	 * default installation which is controle with "boxed" ID that is set in Simplex Theme &lt;body&gt; tag.
-	 * If you remove this ID, a grey background on page body will be removed and layout will no longer 
+	 * If you remove this ID, a grey background on page body will be removed and layout will no longer
 	 * be wrapped inside a "box" but appear in a single background color which is by default white.
-	 * 
+	 *
 	 * Besides there are also predefined class names and styles that you can use on &lt;body&gt; tag to
 	 * change alignment of complete layout/page.
-	 * If you rightaligned class to body (example: &lt;body class='rightaligned and other classes'&gt;) 
+	 * If you rightaligned class to body (example: &lt;body class='rightaligned and other classes'&gt;)
 	 * then whole page layout will be positioned to right window side instead of centered position
 	 * and with class leftaligned the page layout will be positioned to left.
-	 * 
-	 * Maximum width of page layout is preset to 1440px in Simplex Core stylesheet, you can change this 
+	 *
+	 * Maximum width of page layout is preset to 1440px in Simplex Core stylesheet, you can change this
 	 * by adding a new rule in this stylesheet with a class .row (Example: .row { max-width: 1080px; }).
-	 * If you prefer a full width layout simply add fullwidth class to body tag of Simplex Template.  
+	 * If you prefer a full width layout simply add fullwidth class to body tag of Simplex Template.
 	 * This class will reset max-width limitation and force the page layout to full window width with
 	 * spacing on left and right of 30px.
-	 * 
-	 * Browser Support: 
+	 *
+	 * Browser Support:
 	 * Simplex Theme was tested in common modern Browser and IE8 (with gracefull fallback).
-	 * 
+	 *
 	 * Grid usage:
 	 * Simplex is using a custom Yetti Framework 12 column grid (https://github.com/Stikki/Yetti/tree/master)
 	 * based on Andy Taylors (http://cssgrid.net) 1140px Grid.
-	 * 
+	 *
 	 * Using the grid system is fairly simple. Make sure that grid columns
 	 * are wrapped inside a element with .row class.
 	 * When grid columns are inside a row element, floats are auto cleared,
@@ -4432,16 +4436,16 @@ body {
 	 * Grid columns have a spacing (margin-left) of 3.8% of the layout, whereby first column after
 	 * .row opening element will have no spacing (margin-left).
 	 * Grid columns are only applied to Browser and Screen size which are greater then 768px;
-	 * 
+	 *
 	 * Example (three column row):
-	 * 
+	 *
 	 * &lt;!-- container has a preset padding to left and right with 20px --&gt;
 	 * &lt;div class="container"&gt;
 	 *     &lt;!-- clears floating row of columns, sets maximum width of 1440px --&gt;
 	 *     &lt;div class="row some-class-to-apply-styles"&gt;
-	 *         &lt;!-- 
+	 *         &lt;!--
 	 *             four-col explanation: a simple math, grid is built out of 12 columns, so we say we want
-	 *             a grid column in size of four columns width therefore the name four- and to fill 
+	 *             a grid column in size of four columns width therefore the name four- and to fill
 	 *             our .row it is three times four-col column makes twelve columns (3 x 4 = 12)
 	 *         --&gt;
 	 *         &lt;div class="four-col my-class"&gt;
@@ -4463,8 +4467,8 @@ body {
 	 *         &lt;/div&gt;
 	 *     &lt;/div&gt;
 	 * &lt;/div&gt;
-	 * 
-	 */ 
+	 *
+	 */
 *]]
 
 [[* /* assign the images path to a variable */ *]]
@@ -4489,7 +4493,7 @@ body {
 	font-family: 'simplex';
 	src: url('[[$font]]/simplex.eot');
 	src: url('[[$font]]/simplex.eot?#iefix') format('embedded-opentype'),
-		url('[[$font]]/simplex.woff') format('woff'), 
+		url('[[$font]]/simplex.woff') format('woff'),
 		url('[[$font]]/simplex.ttf') format('truetype'),
 		url('[[$font]]/simplex.svg#simplex') format('svg');
 	font-weight: normal;
@@ -4558,7 +4562,7 @@ body {
 body {
 	background: [[$white]];
 	font-family: 'Noto Sans', sans-serif;
-	font-size: 1em; [[* /* base browser font size: 16px, now do math "XX / 16 = ??" where XX is desired font size */ *]] 
+	font-size: 1em; [[* /* base browser font size: 16px, now do math "XX / 16 = ??" where XX is desired font size */ *]]
 	color: [[$dark_grey]];
 	line-height: 1.5;
 }
@@ -4573,8 +4577,8 @@ body {
 	margin-right: 0;
 }
 
-[[* /* you can change appearance of the page by adding or removing #boxed id to &lt;body&gt; tag. 
- * By removing #boxed ID, page will no longer be wrapped in a wrapper 
+[[* /* you can change appearance of the page by adding or removing #boxed id to &lt;body&gt; tag.
+ * By removing #boxed ID, page will no longer be wrapped in a wrapper
  */ *]]
 body#boxed {
 	background: #f2f2f2 url([[$path]]/body-background.png) repeat;
@@ -4833,7 +4837,7 @@ blockquote cite a, blockquote cite a:visited, blockquote cite a:visited {
 }
 
 [[* /* webkit browser add icons to input of type search, we dont want it here now */ *]]
-input.search-input::-webkit-search-decoration, input.search-input::-webkit-search-results-button, 
+input.search-input::-webkit-search-decoration, input.search-input::-webkit-search-results-button,
 input.search-input::-webkit-search-results-decoration {
 	-webkit-appearance: none;
 }
@@ -4853,7 +4857,7 @@ input.search-input::-webkit-search-results-decoration {
 
 .search ::-webkit-input-placeholder,
 .search ::-moz-placeholder,
-.search input[placeholder] { 
+.search input[placeholder] {
 	line-height: normal;
 }
 
@@ -5360,7 +5364,7 @@ a.printbutton {
 #footer-menu li.sectionheader &gt; span:hover,
 #footer-menu li.sectionheader &gt; span.current {
 	color: [[$orange]];
-} 
+}
 
 #footer-menu &gt; li &gt; a,
 #footer-menu &gt; li.sectionheader &gt; span {
@@ -5434,7 +5438,7 @@ a.printbutton {
 		float: right;
 		margin-top: 0;
 	}
-	
+
 	[[* /* --- FIRST LEVEL --- */ *]]
 	#main-menu &gt; li {
 		display: inline-block;
@@ -5443,17 +5447,17 @@ a.printbutton {
 		border: none;
 		position: relative;
 	}
-	
+
 	[[* /* PARENT INICATOR */ *]]
 	#main-menu &gt; li i {
 		display: none;
 	}
-	
+
 	.touch-device #main-menu &gt; li i {
 		display: inline-block;
 		float: none;
 	}
-	
+
 	.touch-device #main-menu &gt; li li i {
 		float: left;
 		display: inline-block;
@@ -5461,7 +5465,7 @@ a.printbutton {
 		padding-top: 2px;
 		text-align: left;
 	}
-	
+
 	.touch-device #main-menu &gt; li:first-child li i {
 		float: right;
 	}
@@ -5474,16 +5478,16 @@ a.printbutton {
 		margin-right: 0;
 	}
 
-	#main-menu &gt; li &gt; a, 
+	#main-menu &gt; li &gt; a,
 	#main-menu &gt; li.sectionheader span {
 		padding: 0 6px 0 10px;
 		line-height: 37px;
 		font-size: 1em;
 	}
 
-	#main-menu &gt; li.parent:hover &gt; a, 
+	#main-menu &gt; li.parent:hover &gt; a,
 	#main-menu &gt; li.sectionheader.parent:hover &gt; span,
-	#main-menu &gt; li.parent.active &gt; a, 
+	#main-menu &gt; li.parent.active &gt; a,
 	#main-menu &gt; li.parent.active &gt; span {
 		color: [[$white]];
 		background-color: [[$dark_grey]];
@@ -5510,25 +5514,25 @@ a.printbutton {
 		display: block;
 		border-radius: 3px;
 	}
-	
+
 	#main-menu &gt; li:first-child:hover &gt; ul,
 	#main-menu &gt; li:first-child.active &gt; ul {
 		right: auto;
 		left: 0;
 	}
-	
+
 	#main-menu &gt; li &gt; ul &gt; li {
 		position: relative;
 		line-height: 1;
 		margin: 0;
 		padding-left: 10px;
 	}
-	
+
 	#main-menu &gt; li:first-child &gt; ul &gt; li {
 		padding-right: 10px;
 		padding-left: 0;
 	}
-	
+
 	#main-menu &gt; li &gt; ul &gt; li &gt; a,
 	#main-menu &gt; li &gt; ul &gt; li.sectionheader &gt; span,
 	#main-menu &gt; li &gt; ul &gt; li &gt; ul &gt; li &gt; a,
@@ -5544,10 +5548,10 @@ a.printbutton {
 		font-size: .875em; [[* /* 14px */ *]]
 		text-decoration: none;
 	}
-	
-	#main-menu &gt; li &gt; ul &gt; li.current &gt; a, 
+
+	#main-menu &gt; li &gt; ul &gt; li.current &gt; a,
 	#main-menu &gt; li &gt; ul &gt; li.current.sectionheader &gt; span,
-	#main-menu &gt; li &gt; ul &gt; li &gt; ul &gt; li.current &gt; a, 
+	#main-menu &gt; li &gt; ul &gt; li &gt; ul &gt; li.current &gt; a,
 	#main-menu &gt; li &gt; ul &gt; ul &gt; li &gt; li.current.sectionheader &gt; span {
 		color: [[$orange]];
 	}
@@ -5561,13 +5565,13 @@ a.printbutton {
 		right: auto;
 		left: -250px;
 	}
-	
+
 	#main-menu &gt; li:first-child &gt; ul &gt; li:hover &gt; ul,
 	#main-menu &gt; li:first-child &gt; ul &gt; li.active &gt; ul {
 		left: auto;
 		right: -250px;
 	}
-	
+
 	.lt-ie9 #main-menu &gt; li &gt; ul &gt; li:hover &gt; ul,
 	.lt-ie9 #main-menu &gt; li &gt; ul &gt; li.active &gt; ul {
 		left: -247px;
@@ -5586,20 +5590,20 @@ a.printbutton {
 		right: -6px;
 		top: 12px;
 	}
-	
+
 	.lt-ie9 #main-menu &gt; li:first-child &gt; ul &gt; li:hover &gt; ul,
 	.lt-ie9 #main-menu &gt; li:first-child &gt; ul &gt; li.active &gt; ul {
 		left: auto;
 		right: -247px;
 	}
-	
+
 	#main-menu &gt; li:first-child &gt; ul &gt; li:hover &gt; ul:after,
 	#main-menu &gt; li:first-child &gt; ul &gt; li.active &gt; ul:after {
 		left: -10px;
 		right: auto;
 	}
 
-	#main-menu li ul li a:hover, 
+	#main-menu li ul li a:hover,
 	#main-menu li ul li span.sectionheader:hover {
 		box-shadow: 0 0 5px rgba(85, 85, 85, .9);
 		z-index: 2;
@@ -5617,7 +5621,7 @@ a.printbutton {
 		line-height: 55px;
 		padding: 8px 0;
 	}
-	
+
 	.phrase-text {
 		text-align: left;
 	}
@@ -5628,11 +5632,11 @@ a.printbutton {
 		width: 100%;
 		max-width: 320px;
 	}
-	
+
 	input.search-input:focus {
 		max-width: 90%;
 	}
-	
+
 	[[* /* print button */ *]]
 	a.printbutton {
 		display: block;
@@ -5646,7 +5650,7 @@ a.printbutton {
 		z-index: 1;
 		position: relative;
 	}
-	
+
 	a.printbutton i {
 		display: inline-block;
 		-webkit-transform: rotateY(0deg);
@@ -5659,11 +5663,11 @@ a.printbutton {
 		-o-transition: -o-transform 250ms ease-out 0s;
 		transition: transform 250ms ease-out 0s;
 	}
-	
+
 	a.printbutton:hover {
 		color: [[$orange]];
 	}
-	
+
 	a.printbutton:hover i {
 		-webkit-transform: rotateY(360deg);
 		-moz-transform: rotateY(180deg);
@@ -5671,13 +5675,13 @@ a.printbutton {
 		-o-transform: rotateY(360deg);
 		transform: rotateY(360deg);
 	}
-	
+
 	[[* /* --- FOOTER --- */ *]]
-	
+
 	.footer ul.social {
 		text-align: left;
 	}
-	
+
 	.footer .social li a i {
 		display: inline-block;
 		-webkit-transform: rotateY(0deg);
@@ -5691,7 +5695,7 @@ a.printbutton {
 		-o-transition: -o-transform 250ms ease-out 0s;
 		transition: transform 250ms ease-out 0s;
 	}
-	
+
 	.footer .social li a:hover i {
 		-webkit-transform: rotateY(360deg);
 		-moz-transform: rotateY(180deg);
@@ -5699,13 +5703,13 @@ a.printbutton {
 		-o-transform: rotateY(360deg);
 		transform: rotateY(360deg);
 	}
-	
+
 	[[* /* --- Footer Navigation --- */ *]]
-	
+
 	.footer-navigation {
 		border-bottom: none;
 	}
-	
+
 	#footer-menu &gt; li {
 		float: left;
 		display: block;
@@ -5713,10 +5717,10 @@ a.printbutton {
 		margin-left: 3.8%;
 		width: 30.75%;
 	}
-	
+
 	#footer-menu &gt; li:first-child {
 		margin-left: 0;
-	} 
+	}
 }
 
 [[* /* ================================================
@@ -5727,17 +5731,17 @@ a.printbutton {
 	.search {
 		margin-top: 15px;
 	}
-	
+
 	input.search-input {
 		width: 100%;
 		max-width: 100%;
 		float: left;
 	}
-	
+
 	input.search-input:focus {
 		max-width: none;
 	}
-	
+
 	.header-bottom {
 		padding-top: 20px;
 		text-align: center;
@@ -5745,23 +5749,23 @@ a.printbutton {
 		padding: 20px 0;
 	}
 
-	
+
 }
 
 @media only screen and (min-width: 940px) and (max-width: 1110px) {
-	
+
 	#main-menu &gt; li {
 		margin: 0;
 	}
-	
-	#main-menu &gt; li &gt; a, 
+
+	#main-menu &gt; li &gt; a,
 	#main-menu &gt; li.sectionheader span {
 		padding: 0 6px;
 	}
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1050px) {
-	
+
 	.row nav.main-navigation {
 		height: auto;
 		float: none;
@@ -5770,16 +5774,16 @@ a.printbutton {
 		width: 100%;
 		clear: left;
 	}
-	
+
 	#main-menu {
 		margin-top: 15px;
 		margin-bottom: 15px;
 		border-bottom: 1px solid [[$light_grey]];
 		float: none;
 		display: block;
-		
+
 	}
-	
+
 	#main-menu &gt; li {
 		margin: 0;
 		bottom: -1px;
@@ -5788,28 +5792,28 @@ a.printbutton {
 		border-right: 1px solid [[$light_grey]];
 		border-top: 1px solid [[$light_grey]];
 	}
-	
+
 	#main-menu &gt; li.current {
 		border-bottom-color: [[$white]];
 		border-top-color: [[$orange]];
 	}
-	
+
 	#main-menu &gt; li.current &gt; a {
 		border-top: 1px solid [[$orange]];
 		line-height: 45px;
 	}
-	
+
 	#main-menu &gt; li:first-child {
 		border-left: 1px solid [[$light_grey]];
 	}
-	
+
 	#main-menu &gt; li &gt; a,
 	#main-menu &gt; li &gt; span {
 		line-height: 46px;
 		padding-left: 12px;
 		padding-right: 6px;
 	}
-	
+
 	#main-menu &gt; li:hover &gt; ul,
 	#main-menu &gt; li.active &gt; ul {
 		top: 45px;
@@ -5818,7 +5822,7 @@ a.printbutton {
 	.header-bottom {
 		height: auto;
 	}
-	
+
 	.row .seven-col.phrase-text,
 	.row .five-col.search {
 		display: block;
@@ -5862,14 +5866,14 @@ a.printbutton {
 
 [[* /* ------ BANNER AREA ------ */  *]]
 .banner {
-	background: #fefefe; 
+	background: #fefefe;
 	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZlZmVmZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjQ3JSIgc3RvcC1jb2xvcj0iI2YxZjFmMSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlOWU5ZTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
 	background: -moz-linear-gradient(top,  #fefefe 0%, #f1f1f1 47%, #e9e9e9 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(47%,#f1f1f1), color-stop(100%,#e9e9e9)); 
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(47%,#f1f1f1), color-stop(100%,#e9e9e9));
 	background: -webkit-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
-	background: -o-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%); 
+	background: -o-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
 	background: -ms-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
-	background: linear-gradient(to bottom,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%); 
+	background: linear-gradient(to bottom,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
 }
 
 .lt-ie9 .banner {
@@ -6027,7 +6031,7 @@ a.printbutton {
 }
 
 @media only screen and (min-width: 768px) {
-	
+
 	#sx-slides .title {
 		font-size: 3em;
 	}
@@ -6035,11 +6039,11 @@ a.printbutton {
 	#sx-slides .animate-in .title {
 		left: 3%;
 	}
-	
+
 	#sx-slides .subtitle {
 		font-size: 2.5em;
 	}
-	
+
 	#sx-slides .animate-in .subtitle {
 		left: 8%;
 	}
@@ -6052,13 +6056,13 @@ a.printbutton {
 		height: auto !important;
 		max-height: 300px !important;
 	}
-	
+
 	#sx-slides .animate-in .image {
 		left: auto;
 		right: 5%;
 		bottom: -45%;
 	}
-	
+
 	#sx-slides .animate-out .image {
 		left: auto;
 		bottom: -800px;
@@ -6066,11 +6070,11 @@ a.printbutton {
 }
 
 @media only screen and (min-width: 1050px) {
-	
+
 	#sx-slides {
 		height: 440px;
 	}
-	
+
 	#sx-slides .title {
 		font-size: 3.25em;
 		bottom: 15%;
@@ -6079,12 +6083,12 @@ a.printbutton {
 	#sx-slides .animate-in .title {
 		left: 8%;
 	}
-	
+
 	#sx-slides .subtitle {
 		font-size: 2.875em;
 		top: 78%
 	}
-	
+
 	#sx-slides .animate-in .subtitle {
 		left: 12%;
 	}
@@ -6413,7 +6417,7 @@ a {
 			<has_dflt>1</has_dflt>
 			<dflt_contents><![CDATA[{* simple navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -6921,7 +6925,7 @@ This site is powered by &lt;a class="external" href="http://www.cmsmadesimple.or
       {* Start Content *}
       &lt;div&gt;
          &lt;h2&gt;{title}&lt;/h2&gt;
-         {content} 
+         {content}
       &lt;/div&gt;
       {* End Content *}
 
@@ -6975,7 +6979,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
 
     &lt;!--[if lte IE 6]&gt;
     &lt;script type="text/javascript" src="modules/MenuManager/CSSMenu.js"&gt;&lt;/script&gt;
-    &lt;![endif]--&gt; 
+    &lt;![endif]--&gt;
 {* The above JavaScript is required for CSSMenu to work in IE *}
 
   &lt;/head&gt;
@@ -7000,7 +7004,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
         &lt;h2 class="headright"&gt;{sitename}&lt;/h2&gt;
 
 {* a link back to home page and the header left image/logo, text is hidden using CSS *}
-        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;        
+        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;
         &lt;hr class="accessibility" /&gt;
       &lt;/div&gt;
 {* End Header *}
@@ -7150,7 +7154,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
 
     &lt;!--[if lte IE 6]&gt;
     &lt;script type="text/javascript" src="modules/MenuManager/CSSMenu.js"&gt;&lt;/script&gt;
-    &lt;![endif]--&gt; 
+    &lt;![endif]--&gt;
 {* The above JavaScript is required for CSSMenu to work in IE *}
   &lt;/head&gt;
   &lt;body&gt;
@@ -7173,7 +7177,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
         &lt;h2 class="headright"&gt;{sitename}&lt;/h2&gt;
 
 {* a link back to home page and the header left image/logo, text is hidden using CSS *}
-        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;        
+        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;
         &lt;hr class="accessibility" /&gt;
       &lt;/div&gt;
 {* End Header *}
@@ -7346,8 +7350,8 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
         &lt;h2 class="headright"&gt;{sitename}&lt;/h2&gt;
 
 {* this holds a link back to home page and the header left image/logo, text is hidden using CSS *}
-        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt; 
-       
+        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;
+
         &lt;hr class="accessibility" /&gt;
       &lt;/div&gt;
 {* End Header *}
@@ -7396,7 +7400,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
 
 {* Start Content Area *}
 {* again 2 divs to hold top and bottom images, back is set to go to the right side then the main is set to come off the right side *}
-        &lt;div class="back"&gt;        
+        &lt;div class="back"&gt;
           &lt;div id="main"&gt;
             &lt;h2&gt;{title}&lt;/h2&gt;
             {content}
@@ -7677,7 +7681,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
 
     &lt;!--[if lte IE 6]&gt;
     &lt;script type="text/javascript" src="modules/MenuManager/CSSMenu.js"&gt;&lt;/script&gt;
-    &lt;![endif]--&gt; 
+    &lt;![endif]--&gt;
 {* The above JavaScript is required for CSSMenu to work in IE *}
 
   &lt;/head&gt;
@@ -7701,7 +7705,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
         &lt;h2 class="headright"&gt;{sitename}&lt;/h2&gt;
 
 {* a link back to home page and the header left image/logo, text is hidden using CSS *}
-        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;        
+        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;
         &lt;hr class="accessibility" /&gt;
       &lt;/div&gt;
 {* End Header *}
@@ -7854,7 +7858,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
 
     &lt;!--[if lte IE 6]&gt;
     &lt;script type="text/javascript" src="modules/MenuManager/CSSMenu.js"&gt;&lt;/script&gt;
-    &lt;![endif]--&gt; 
+    &lt;![endif]--&gt;
 {* The above JavaScript is required for CSSMenu to work in IE *}
 
   &lt;/head&gt;
@@ -7878,7 +7882,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
         &lt;h2 class="headright"&gt;{sitename}&lt;/h2&gt;
 
 {* this holds a link back to home page and the header left image/logo, text is hidden using CSS *}
-        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;        
+        &lt;h1&gt;{cms_selflink dir="start" text="$sitename"}&lt;/h1&gt;
         &lt;hr class="accessibility" /&gt;
       &lt;/div&gt;
 {* End Header *}
@@ -8023,7 +8027,7 @@ if(w&gt;=b){nw=b+"px";}if(w&lt;=a){nw=a+"px";}return nw;
 &lt;/script&gt;
 &lt;style type="text/css"&gt;
 /* enable background image caching in IE6 */
-html {filter:expression(document.execCommand("BackgroundImageCache", false, true));} 
+html {filter:expression(document.execCommand("BackgroundImageCache", false, true));}
 &lt;/style&gt;
 &lt;![endif]--&gt;
 {/literal}
@@ -8047,14 +8051,14 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
           &lt;div id="logo" class="core-float-left"&gt;
             {cms_selflink dir="start" text="$sitename"}
           &lt;/div&gt;
-          
+
 {* Start Search, the input "Submit" is using an image, CSS: div#search input.search-button *}
           &lt;div id="search" class="core-float-right"&gt;
             {Search search_method="post"}
           &lt;/div&gt;
 {* End Search *}
           &lt;span class="util-clearb"&gt;&amp;nbsp;&lt;/span&gt;
-          
+
 {* Start Navigation, style sheet  "Layout NCleanBlue", starting at Menu  ROOT *}
           &lt;h2 class="accessibility util-clearb"&gt;Navigation&lt;/h2&gt;
 {* anything class="accessibility" is hidden for visual browsers by CSS *}
@@ -8068,7 +8072,7 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
 {* End Header *}
 
 {* Start Content (Navigation and Content columns) *}
-        &lt;div id="content" class="util-clearfix"&gt; 
+        &lt;div id="content" class="util-clearfix"&gt;
 
 {* Start Optional tag CMS Version Information, also is a good example how smarty works, the big star that holds the version number, you may remove it here and the style sheet where it is marked. *}
           &lt;div title="CMS - {cms_version} - {cms_versionname}" id="version"&gt;
@@ -8099,9 +8103,9 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
               {News number='3' detailpage='news'}
               &lt;/div&gt;
               &lt;img class="screen" src="uploads/NCleanBlue/screen-1.6.jpg" width="139" height="142" title="CMS - {cms_version} - {cms_versionname}" alt="CMS - {cms_version} - {cms_versionname}" /&gt;
-{* End News *} 
+{* End News *}
             &lt;/div&gt;
-            &lt;span class="sbar-bottom"&gt;&amp;nbsp;&lt;/span&gt; 
+            &lt;span class="sbar-bottom"&gt;&amp;nbsp;&lt;/span&gt;
           &lt;/div&gt;
 {* End left side *}
 
@@ -8110,14 +8114,14 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
 
 {* main top, holds top image *}
             &lt;div class="main-top"&gt;
-              &lt;/div&gt; 
-            
+              &lt;/div&gt;
+
 {* main content *}
             &lt;div class="main-main util-clearfix"&gt;
               &lt;h1 class="title"&gt;{title}&lt;/h1&gt;
             {content}
             &lt;/div&gt;
-            
+
 {* Start main bottom and relational links *}
             &lt;div class="main-bottom"&gt;
               &lt;div class="right49 core-float-right"&gt;
@@ -8147,7 +8151,7 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
       &lt;/div&gt;
 {* end pagewrapper *}
       &lt;span class="util-clearb"&gt;&amp;nbsp;&lt;/span&gt;
-      
+
 {* Start Footer *}
       &lt;div id="footer-wrapper"&gt;
         &lt;div id="footer" class="core-wrap-960"&gt;
@@ -8155,17 +8159,17 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
           &lt;div class="block core-float-left"&gt;
             {Navigator loadprops=0 template='minimal_menu'  number_of_levels='1'}
           &lt;/div&gt;
-          
+
 {* second foot menu if active page has children *}
           &lt;div class="block core-float-left"&gt;
             {Navigator loadprops=0 template='minimal_menu'  start_level="2"}
           &lt;/div&gt;
-          
+
 {* edit the footer in the Global Content Block called "footer" *}
           &lt;div class="block cms core-float-left"&gt;
             {global_content name='footer'}
           &lt;/div&gt;
-          
+
           &lt;span class="util-clearb"&gt;&amp;nbsp;&lt;/span&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -8188,7 +8192,7 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
 {* ================
    THEME LOGIC
    ================ *}
-    
+
 {* With cms_lang_info we retrieve current language information, assign gives us $nls variable we can work with *}
 {cms_lang_info assign='nls'}
 {* assigned url to theme related folder so we do not have to type full path each time *}
@@ -8315,13 +8319,13 @@ html {filter:expression(document.execCommand("BackgroundImageCache", false, true
                         &lt;nav class='footer-navigation row'&gt;
                             {Navigator template='Simplex Footer Navigation' excludeprefix='home' number_of_levels='2' loadprops='0'}
                         &lt;/nav&gt;
-                    &lt;/section&gt; 
+                    &lt;/section&gt;
                     &lt;section class='four-col pull-eight copyright'&gt;
                         {global_content|strip name='Simplex Footer'} {* generic Design Manager template *}
                     &lt;/section&gt;
                 &lt;/div&gt;
             &lt;/footer&gt;
-        &lt;!-- #wrapper //--&gt; 
+        &lt;!-- #wrapper //--&gt;
         &lt;/div&gt;
     {*TODO cms_jquery exclude='ui,nestedSortable,json,migrate' append='uploads/simplex/js/jquery.sequence-min.js,uploads/simplex/js/functions.min.js'*}{strip}
     {* if you are using some older jQuery plugin that relies on deprecated and removed functions that are no longer supported
@@ -8400,7 +8404,7 @@ All current Browser come with some kind of Developer Tools (usually F12 key) or 
 			<type_id>3</type_id>
 			<content><![CDATA[{* simple navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -8499,7 +8503,7 @@ All current Browser come with some kind of Developer Tools (usually F12 key) or 
 			<type_id>3</type_id>
 			<content><![CDATA[{* cssmenu *}
 {* this template uses recursion, but not a smarty function. *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -8577,7 +8581,7 @@ All current Browser come with some kind of Developer Tools (usually F12 key) or 
 			<type_id>3</type_id>
 			<content><![CDATA[{* cssmenu_ulshadow navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -8592,11 +8596,11 @@ All current Browser come with some kind of Developer Tools (usually F12 key) or 
     {*{assign var='liclass' value=' depth'|cat:$depth}*}
     {assign var='aclass' value=''}
 
-    {* the first child gets a special class 
+    {* the first child gets a special class
     {if $node@first &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' first_child'}{/if}
     *}
 
-    {* the last child gets a special class 
+    {* the last child gets a special class
     {if $node@last &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' last_child'}{/if}
     *}
 
@@ -8720,19 +8724,19 @@ hr.separator - To style the ruler for the separator *}
             {$href_class = ['cf']}
             {$parent_indicator = ''}
             {$aria_support = ''}
-    
+
             {if $node-&gt;current || $node-&gt;parent}
                 {* this is the current page *}
                 {$list_class[] = 'current'}
                 {$href_class[] = 'current'}
             {/if}
-    
+
             {if $node-&gt;children_exist}
                 {$list_class[] = 'parent'}
                 {$aria_support = ' aria-haspopup=\'true\''}
                 {$parent_indicator = ' &lt;i class=\'icon-arrow-left\' aria-hidden=\'true\'&gt;&lt;/i&gt;'}
             {/if}
-    
+
             {* build the menu item node *}
             {if $node-&gt;type == 'sectionheader'}
                 {$list_class[] = 'sectionheader'}
@@ -8783,17 +8787,17 @@ hr.separator - To style the ruler for the separator *}
             {* setup classes for the anchor and list item *}
             {$list_class = []}
             {$href_class = []}
-    
+
             {if $node-&gt;current || $node-&gt;parent}
                 {* this is the current page *}
                 {$list_class[] = 'current'}
                 {$href_class[] = 'current'}
             {/if}
-    
+
             {if $node-&gt;children_exist}
                 {$list_class[] = 'parent'}
             {/if}
-    
+
             {* build the menu item node *}
             {if $node-&gt;type == 'sectionheader'}
                 {$list_class[] = 'sectionheader'}
