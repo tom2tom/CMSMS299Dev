@@ -30,7 +30,7 @@ $sel = array_merge($seldirs,$selfiles);
 $dirlist = [];
 $filerec = get_recursive_file_list($config['uploads_path'], [], -1, 'DIRS');
 //$dirlist[$this->Lang('selecttargetdir')] = '-';
-foreach ($filerec as $key => $value) {
+foreach ($filerec as $value) {
   $value1 = str_replace(CMS_ROOT_PATH, '', $value);
   //prevent current dir from showing up
   if ($value1 == $path) continue;
