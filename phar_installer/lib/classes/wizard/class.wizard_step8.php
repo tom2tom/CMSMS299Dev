@@ -129,19 +129,23 @@ class wizard_step8 extends wizard_step
 
             // site content
             if( $destconfig['samplecontent'] ) {
-                $fn = installer_base::CONTENTXML;
+				$arr = installer_base::CONTENTXML;
+                $fn = end($arr);
             } else {
                 $fn = 'initial.xml';
             }
             $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
             if( is_file($xmlfile) ) {
-                if( $destconfig['samplecontent'] ) {
-                    $this->message(lang('install_defaultcontent'));
-                }
+				$arr = installer_base::CONTENTFILESDIR;
+				$filesfolder = $dir. DIRECTORY_SEPARATOR. end($arr);
+
                 $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
                 require_once $fp;
-                if( ($res = import_content($xmlfile)) ) {
+
+                if( ($res = import_content($xmlfile, $filesfolder)) ) {
                     $this->error($res);
+                } elseif( $destconfig['samplecontent'] ) {
+                    $this->message(lang('install_samplecontent'));
                 }
             } else {
                 $this->error(lang('error_nocontent',$fn));
