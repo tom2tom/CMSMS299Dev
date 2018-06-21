@@ -155,18 +155,35 @@ if (!empty($_POST['updatehierarchy'])) {
 $flag = !empty($config['developer_mode']);
 if ($flag && isset($_POST['export'])) {
     include __DIR__.DIRECTORY_SEPARATOR.'function.contentoperation.php';
-    $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
-    export_content($xmlfile, $db);
+	// identify folder where 'support' files (if any) will be stored, pending site import
+	$fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
+	if (is_file($fp)) {
+		include $fp;
+		$arr = __installer\installer_base::CONTENTFILESDIR;
+		$filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+		$arr = __installer\installer_base::CONTENTXML;
+		$xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+		$keep = true;
+	} else {
+		// guess, probably still relevant :)
+		$filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer','assets','install','uploadfiles');
+	    $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
+		$keep = false;
+	}
+    export_content($xmlfile, $filesin, $db);
     $handlers = ob_list_handlers();
     for ($c = 0, $n = sizeof($handlers); $c < $n; ++$c) {
         ob_end_clean();
     }
-    $xmlname = 'Exported-CMSMS-Site.xml'; //TODO better name
+    $tmp = get_site_preference('sitename','CMSMS-Site');
+    $xmlname = strtr("Exported-{$tmp}.xml", ' ', '_');
     header('Content-Description: File Transfer');
     header('Content-Type: application/force-download');
     header('Content-Disposition: attachment; filename='.$xmlname);
     echo file_get_contents($xmlfile);
-    @unlink($xmlfile);
+	if (!$keep) {
+	    @unlink($xmlfile);
+	}
 	exit;
 }
 $smarty->assign('devmode', $flag);
