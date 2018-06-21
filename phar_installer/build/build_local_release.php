@@ -16,8 +16,11 @@ if ($cli) {
 	}
 }
 
-if (ini_get('phar.readonly')) {
-	throw new Exception('phar.readonly must be turned OFF in your php.ini');
+// $update_script is defined when this file is included by the 'local update' script
+if (empty($update_script)) {
+	if (ini_get('phar.readonly')) {
+		throw new Exception('phar.readonly must be turned OFF in your php.ini');
+	}
 }
 
 // patterns for sources not copied to tempdir for processing,
@@ -78,67 +81,64 @@ $rename = 1;
 $verbose = 0;
 $zip = 1;
 
-if ($cli) {
-	$options = getopt('ahcks:rvz', [
-	'archive',
-	'help',
-	'clean',
-	'checksums',
-	'src',
-	'rename',
-	'verbose',
-	'zip'
-	]);
+if (empty($update_script)) {
+	if ($cli) {
+		$options = getopt('ahcks:rvz', [
+		'archive',
+		'help',
+		'clean',
+		'checksums',
+		'src',
+		'rename',
+		'verbose',
+		'zip'
+		]);
 
-	if (is_array($options) && count($options)) {
-		foreach ($options as $k => $v) {
-			switch ($k) {
-			  case 'a':
-			  case 'archive':
-				  $archive_only = !$archive_only;
-				  break;
-			  case 'c':
-			  case 'clean':
-				  $clean = !$clean;
-				  break;
-			  case 'k':
-			  case 'checksums':
-				  $checksums = !$checksums;
-				  break;
-			  case 'v':
-			  case 'verbose':
-				  ++$verbose;
-				  break;
-			  case 's':
-			  case 'src':
-				  if (!is_dir($v)) {
-					  throw new Exception("$v is not a valid directory for the src parameter");
-				  }
-				  $srcdir = $v;
-				  break;
-			  case 'h':
-			  case 'help':
-				  output_usage();
-				  exit;
-			  case 'r':
-			  case 'rename':
-				  $rename = !$rename;
-				  break;
-			  case 'z':
-			  case 'zip':
-				  $zip = !$zip;
-				  break;
+		if (is_array($options) && count($options)) {
+			foreach ($options as $k => $v) {
+				switch ($k) {
+				 case 'a':
+				 case 'archive':
+					$archive_only = !$archive_only;
+					break;
+				 case 'c':
+				 case 'clean':
+					$clean = !$clean;
+					break;
+				 case 'k':
+				 case 'checksums':
+					$checksums = !$checksums;
+					break;
+				 case 'v':
+				 case 'verbose':
+					++$verbose;
+					break;
+				 case 's':
+				 case 'src':
+					if (!is_dir($v)) {
+						throw new Exception("$v is not a valid directory for the src parameter");
+					}
+					$srcdir = $v;
+					break;
+				 case 'h':
+				 case 'help':
+					output_usage();
+					exit;
+				 case 'r':
+				 case 'rename':
+					$rename = !$rename;
+					break;
+				 case 'z':
+				 case 'zip':
+					$zip = !$zip;
+					break;
+				}
 			}
 		}
-	}
-} //cli
-
-function current_root($dir)
-{
-	while ($dir !== '.' && !is_dir(joinpath($dir, 'admin')) && !is_dir(joinpath($dir, 'phar_installer'))) {
-		$dir = dirname($dir);
-	}
-	return $dir;
+	} //cli
+} else { // not update
+	$archive_only = 1;
+	$zip = 0;
 }
 
 function output_usage()
@@ -157,13 +157,21 @@ options:
 EOS;
 }
 
-function joinpath(...$segments)
+function current_root(string $dir) : string
+{
+	while ($dir !== '.' && !is_dir(joinpath($dir, 'admin')) && !is_dir(joinpath($dir, 'phar_installer'))) {
+		$dir = dirname($dir);
+	}
+	return $dir;
+}
+
+function joinpath(...$segments) : string
 {
 	$path = implode(DIRECTORY_SEPARATOR, $segments);
 	return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);
 }
 
-function rrmdir($path, $keepdirs = false)
+function rrmdir(string $path, bool $keepdirs = false) : bool
 {
 	if (is_dir($path)) {
 		$res = true;
@@ -191,7 +199,7 @@ function rrmdir($path, $keepdirs = false)
 	return false;
 }
 
-function rchmod($path)
+function rchmod(string $path) : bool
 {
 	$res = true;
 	if (is_dir($path)) {
@@ -220,7 +228,7 @@ function rchmod($path)
 
 function copy_source_files()
 {
-	global $srcdir, $tmpdir, $src_excludes;
+	global $srcdir,$tmpdir,$src_excludes;
 
 	$excludes = $src_excludes;
 
@@ -262,7 +270,7 @@ function copy_source_files()
 	}
 }
 
-function get_version_php($startdir)
+function get_version_php(string $startdir) : string
 {
 	$fp = joinpath($startdir, 'lib', 'version.php');
 	if (is_file($fp)) {
@@ -272,10 +280,11 @@ function get_version_php($startdir)
 	if (is_file($fp)) {
 		return $fp;
 	}
+	return '';
 }
 
 // recursive method
-function create_checksums($dir, $salt)
+function create_checksums(string $dir, string $salt) : array
 {
 	global $tmpdir;
 
@@ -329,7 +338,7 @@ function create_checksum_dat()
 
 function create_source_archive()
 {
-	global $clean,$tmpdir,$owd,$datadir,$srcdir,$version_php;
+	global $clean,$tmpdir,$datadir,$srcdir,$update_script;
 
 	if ($clean && is_dir($tmpdir)) {
 		verbose(1, "INFO: removing old temporary files");
@@ -344,46 +353,48 @@ function create_source_archive()
 	verbose(1, "INFO: Recursively setting permissions");
 	rchmod($tmpdir);
 
-	verbose(1, "INFO: Creating tar.gz sources archive");
-	@mkdir($datadir, 0771, true);
-	$fp = joinpath($datadir, 'data.tar');
-	@unlink($fp.'.gz');
+	if (empty($update_script)) {
+		@mkdir($datadir, 0771, true);
+		$fp = joinpath($datadir, 'data.tar');
+		@unlink($fp.'.gz');
 
-	try {
-		$phar = new PharData($fp);
-		//get all files
-		$phar->buildFromDirectory($tmpdir);
-		//get all empty dirs
-		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($tmpdir,
-				RecursiveIteratorIterator::SELF_FIRST |
-				FilesystemIterator::KEY_AS_PATHNAME |
-				FilesystemIterator::CURRENT_AS_FILEINFO |
-				FilesystemIterator::FOLLOW_SYMLINKS
-			)
-		);
-		$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
-		foreach ($iter as $tp => $inf) {
-			$fn = $inf->getFilename();
-			if ($fn == '.') {
-				$dir = dirname($tp);
-				$iter2 = new FilesystemIterator($dir);
-				if (!$iter2->valid()) {
-					$phar->addEmptyDir(substr($dir, $len));
+		try {
+			verbose(1, "INFO: Creating tar.gz sources archive");
+			$phar = new PharData($fp);
+			//get all files
+			$phar->buildFromDirectory($tmpdir);
+			//get all empty dirs
+			$iter = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($tmpdir,
+					RecursiveIteratorIterator::SELF_FIRST |
+					FilesystemIterator::KEY_AS_PATHNAME |
+					FilesystemIterator::CURRENT_AS_FILEINFO |
+					FilesystemIterator::FOLLOW_SYMLINKS
+				)
+			);
+			$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
+			foreach ($iter as $tp => $inf) {
+				$fn = $inf->getFilename();
+				if ($fn == '.') {
+					$dir = dirname($tp);
+					$iter2 = new FilesystemIterator($dir);
+					if (!$iter2->valid()) {
+						$phar->addEmptyDir(substr($dir, $len));
+					}
+					unset($iter2);
 				}
-				unset($iter2);
 			}
-		}
 
-		$phar->compress(Phar::GZ);
-		unset($phar); //close it
-		unlink($fp);
-	} catch (Exception $e) {
-		die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
-	}
+			$phar->compress(Phar::GZ);
+			unset($phar); //close it
+			unlink($fp);
+		} catch (Exception $e) {
+			die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
+		}
+	} //not update
 }
 
-function verbose($lvl, $msg)
+function verbose(int $lvl, string $msg)
 {
 	global $verbose;
 
@@ -403,7 +414,9 @@ try {
 		rrmdir($outdir);
 	}
 
-	@mkdir($outdir, 0771, true);
+	if (empty($update_script)) {
+		@mkdir($outdir, 0771, true);
+	}
 	@mkdir($datadir, 0771, true);
 	if (!is_dir($datadir) || !is_dir($outdir)) {
 		throw new Exception('Problem creating working directories: '.$datadir.' and '.$outdir);
@@ -420,7 +433,8 @@ try {
 
 	$fp = joinpath($phardir,'lib','classes','class.installer_base.php');
 	require_once $fp;
-	$xmlfile = joinpath($phardir,'assets','install', __installer\installer_base::CONTENTXML);
+	$arr = __installer\installer_base::CONTENTXML;
+	$xmlfile = joinpath($phardir, ...$arr);
 	if (!is_file($xmlfile)) {
 		$fp = joinpath($srcdir,'config.php');
 		if (is_file($fp)) {
@@ -428,16 +442,17 @@ try {
 			$CMS_JOB_TYPE = 2;
 			$fp = joinpath($srcdir,'lib','include.php');
 			include_once $fp;
+			$arr = __installer\installer_base::CONTENTFILESDIR;
+			$filesin = joinpath($phardir, ...$arr);
 			$db = CmsApp::get_instance()->GetDb();
 			require_once joinpath($srcdir,'admin','function.contentoperation.php');
 			verbose(1, "INFO: export site content to $xmlfile");
-			export_content($xmlfile, $db);
+			export_content($xmlfile, $filesin, $db);
 		}
 	}
 
 	create_source_archive();
 
-	@mkdir($outdir, 0771, true);
 	create_checksum_dat();
 
 	if (!$archive_only) {
@@ -616,9 +631,12 @@ EOS;
 			rrmdir($tmpdir); //sources can go now
 		}
 	} // archive only
-	rrmdir($datadir);
 
-	echo "INFO: Done, see files in $outdir\n";
+	if (empty($update_script)) {
+		rrmdir($datadir);
+
+		echo "INFO: Done, see files in $outdir\n";
+	}
 } catch (Exception $e) {
 	echo "ERROR: Problem building phar file ".$outdir.": ".$e->GetMessage()."\n";
 }
