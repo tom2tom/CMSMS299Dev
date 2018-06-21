@@ -18,6 +18,25 @@
 
 namespace CMSMS\internal;
 
+use cms_config;
+use cms_module_smarty_plugin_manager;
+use CmsApp;
+use CMSMS\SimplePluginOperations;
+use Exception;
+use LogicException;
+use SmartyException;
+use const CMS_ADMIN_PATH;
+use const CMS_ASSETS_PATH;
+use const CMS_DEBUG;
+use const CMS_ROOT_PATH;
+use const SMARTY_SYSPLUGINS_DIR;
+use const TMP_TEMPLATES_C_LOCATION;
+use function cms_error;
+use function cms_join_path;
+use function get_userid;
+use function is_sitedown;
+use function startswith;
+
 /**
  * @package CMS
  */
@@ -69,12 +88,13 @@ class Smarty extends smarty_base_template
         $this->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins'); // deprecated
         $this->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins');
 
-        $_gCms = \CmsApp::get_instance();
+        $_gCms = CmsApp::get_instance();
         if( $_gCms->is_frontend_request()) {
+            // just for frontend actions.
             $this->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates');
             $this->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates');
 
-            // Check if we are at install page, don't register anything if so, cause nothing below is needed.
+            // Check if we are at install page, don't register anything if so, as nothing below is needed.
             if(isset($CMS_INSTALL_PAGE)) return;
 
             if (is_sitedown()) {
@@ -97,10 +117,10 @@ class Smarty extends smarty_base_template
             //$this->autoloadFilters();
 
             // Enable security object
-            $config = \cms_config::get_instance();
+            $config = cms_config::get_instance();
             if( !$config['permissive_smarty'] ) $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
         }
-        elseif ($_gCms->test_state(\CmsApp::STATE_ADMIN_PAGE)) {
+        elseif ($_gCms->test_state(CmsApp::STATE_ADMIN_PAGE)) {
             $this->setCaching(false);
             $this->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins');
             $this->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates');
@@ -206,8 +226,8 @@ class Smarty extends smarty_base_template
 
         if( $type != 'function' ) return;
 
-        if( \CmsApp::get_instance()->is_frontend_request() ) {
-            $row = \cms_module_smarty_plugin_manager::load_plugin($name,$type);
+        if( CmsApp::get_instance()->is_frontend_request() ) {
+            $row = cms_module_smarty_plugin_manager::load_plugin($name,$type);
             if( is_array($row) && is_array($row['callback']) && count($row['callback']) == 2 &&
                 is_string($row['callback'][0]) && is_string($row['callback'][1]) ) {
                 $callback = $row['callback'][0].'::'.$row['callback'][1];
@@ -216,9 +236,9 @@ class Smarty extends smarty_base_template
             }
 
             // check if it is a simple plugin
-            $plugin = \CMSMS\SimplePluginOperations::get_instance()->load_plugin( $name );
-            if( $plugin ) {
-                $callback = $plugin;
+            $res = SimplePluginOperations::get_instance()->load_plugin( $name );
+            if( $res ) {
+                $callback = $res;
 //TODO CHECKME                $cachable = FALSE;
                 return TRUE;
             }
@@ -241,8 +261,8 @@ class Smarty extends smarty_base_template
     public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true)
     {
         if( !startswith($template,'eval:') && !startswith($template,'string:') ) {
-            if( ($pos = strpos($template,'*')) > 0 ) throw new \LogicException("$template is an invalid CMSMS resource specification");
-            if( ($pos = strpos($template,'/')) > 0 ) throw new \LogicException("$template is an invalid CMSMS resource specification");
+            if( ($pos = strpos($template,'*')) > 0 ) throw new LogicException("$template is an invalid CMSMS resource specification");
+            if( ($pos = strpos($template,'/')) > 0 ) throw new LogicException("$template is an invalid CMSMS resource specification");
         }
         return parent::createTemplate($template, $cache_id, $compile_id, $parent, $do_clone );
     }
@@ -254,7 +274,7 @@ class Smarty extends smarty_base_template
      * @return html
      * @author Stikki
      */
-    public function errorConsole(\Exception $e, $allow_trace = true)
+    public function errorConsole(Exception $e, $allow_trace = true)
     {
         $this->force_compile = true;
 
@@ -340,4 +360,4 @@ class Smarty extends smarty_base_template
         return false;
     }
 
-} // end of class
+} // class
