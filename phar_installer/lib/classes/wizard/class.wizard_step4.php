@@ -27,7 +27,7 @@ class wizard_step4 extends wizard_step
 			@date_default_timezone_set('UTC');
 		}
         $this->_config = [
-//			'db_type'=>'mysqli',
+			'db_type'=>'mysqli',
 			'db_hostname'=>'localhost',
 			'db_name'=>'',
 			'db_username'=>'',
@@ -50,7 +50,7 @@ class wizard_step4 extends wizard_step
             $destdir = $app->get_destdir();
             $config_file = $destdir.DIRECTORY_SEPARATOR.'config.php';
             include_once $config_file;
-//            $this->_config['db_type'] = $config['dbms'];
+            $this->_config['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
             $this->_config['db_hostname'] = $config['db_hostname'];
             $this->_config['db_username'] = $config['db_username'];
             $this->_config['db_password'] = $config['db_password'];
