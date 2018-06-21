@@ -6867,7 +6867,7 @@ a {
 			<id>1</id>
 			<name>footer</name>
 			<type_id>2</type_id>
-			<content><![CDATA[&lt;p&gt;&amp;copy; Copyright {custom_copyright} - CMS Made Simple&lt;br /&gt;
+			<content><![CDATA[&lt;p&gt;Copyright &amp;copy; {custom_copyright} - CMS Made Simple&lt;br /&gt;
 This site is powered by &lt;a class="external" href="http://www.cmsmadesimple.org"&gt;CMS Made Simple&lt;/a&gt; version {cms_version}&lt;/p&gt;]]></content>
 		</template>
 		<template>
@@ -8377,7 +8377,7 @@ All current Browser come with some kind of Developer Tools (usually F12 key) or 
     &lt;li class='google'&gt;&lt;a title='Google Plus' href='https://plus.google.com/+cmsmadesimple/posts'&gt;&lt;i class='icon-google'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Google Plus&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
     &lt;li class='pinterest'&gt;&lt;a title='Pinterest' href='http://www.pinterest.com/cmsmadesimple/'&gt;&lt;i class='icon-pinterest'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Pinterest&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p class='copyright-info'&gt;&amp;copy; Copyright {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} - CMS Made Simple&lt;br /&gt; This site is powered by &lt;a href='http://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt; version {cms_version}&lt;/p&gt;]]></content>
+&lt;p class='copyright-info'&gt;Copyright &amp;copy; {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} - CMS Made Simple&lt;br /&gt; This site is powered by &lt;a href='http://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt; version {cms_version}&lt;/p&gt;]]></content>
 		</template>
 		<template>
 			<id>13</id>
@@ -10246,33 +10246,33 @@ hr.separator - To style the ruler for the separator *}
 		<property>
 			<content_id>32</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;One of the little known features of CMS Made Simple is the User Defined tag.  Basically, this allows you to write PHP code inside the Admin Panel.  Use the 'Add User Defined Tag' button in Extension &amp;raquo; User Defined Tags in the Admin Panel, write some code, and then insert into a template or page with {literal}{newpluginname}{/literal}.  Simple!&lt;/p&gt;&lt;p&gt;As an example, I've put together a one line plugin/tag that will show your current User Agent information (which browser you're using).  The output is right here: &lt;strong&gt;{user_agent}&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;If you're not looking at the source, all that is in the page is {literal}{user_agent}{/literal}.  To see how this code works, edit the user_agent tag in the Extensions &amp;raquo; User Defined Tags page of the admin.&lt;/p&gt;&lt;p&gt;This is a VERY powerful feature if used right.  Remember, user defined tags do not get cached, therefore, scripts to rotate ad banners and such will work just fine. Note also that tag code has to be written &lt;em&gt;without&lt;/em&gt; opening &amp;lt; ? php  and ending  ? &amp;gt; tags.&lt;/p&gt;]]></content>
+			<content><![CDATA[&lt;p&gt;One of the little-known features of CMS Made Simple is the User Defined tag.  Basically, this allows users to write PHP code inside the Admin Panel.  Use the 'Add User Defined Tag' button in Extension &amp;raquo; User Defined Tags in the Admin Panel, write some code, and then insert into a template or page with {literal}{newpluginname}{/literal}.  Simple!&lt;/p&gt;&lt;p&gt;As an example, I've put together a one line plugin/tag that will show your current User Agent information (which browser you're using).  The output is right here: &lt;strong&gt;{user_agent}&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;If you're not looking at the source, all that is in the page is {literal}{user_agent}{/literal}.  To see how this code works, edit the user_agent tag in the Extensions &amp;raquo; User Defined Tags page of the admin.&lt;/p&gt;&lt;p&gt;This is a VERY powerful feature if used right.  Remember, user defined tags do not get cached, therefore, scripts to rotate ad banners and such will work just fine. Note also that tag code has to be written &lt;em&gt;without&lt;/em&gt; opening &amp;lt; ? php  and ending  ? &amp;gt; tags.&lt;/p&gt;]]></content>
 		</property>
 	</properties>
 	<files>
 		<file>
 			<name>simplex.ttf</name>
-			<frompath>phar_installer/assets/install/uploadfiles/simplex/fonts</frompath>
+			<frompath>simplex/fonts</frompath>
 			<topath>simplex/fonts</topath>
 		</file>
 		<file>
 			<name>simplex.svg</name>
-			<frompath>phar_installer/assets/install/uploadfiles/simplex/fonts</frompath>
+			<frompath>simplex/fonts</frompath>
 			<topath>simplex/fonts</topath>
 		</file>
 		<file>
 			<name>simplex.eot</name>
-			<frompath>phar_installer/assets/install/uploadfiles/simplex/fonts</frompath>
+			<frompath>simplex/fonts</frompath>
 			<topath>simplex/fonts</topath>
 		</file>
 		<file>
 			<name>simplex.woff</name>
-			<frompath>phar_installer/assets/install/uploadfiles/simplex/fonts</frompath>
+			<frompath>simplex/fonts</frompath>
 			<topath>simplex/fonts</topath>
 		</file>
 		<file>
 			<name>simplex.woff2</name>
-			<frompath>phar_installer/assets/install/uploadfiles/simplex/fonts</frompath>
+			<frompath>simplex/fonts</frompath>
 			<topath>simplex/fonts</topath>
 		</file>
 	</files>
