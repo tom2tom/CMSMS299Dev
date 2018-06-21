@@ -13,7 +13,8 @@ use function __installer\CMSMS\startswith;
 abstract class installer_base
 {
     const CONFIG_ROOT_URL = 'root_url';
-    const CONTENTXML = 'democontent.xml';
+    const CONTENTXML = ['assets','install','democontent.xml']; //path segments rel to top phardir
+    const CONTENTFILESDIR = ['assets','install','uploadfiles']; //ditto
 
     private static $_instance;
     private $_config; //array or false
