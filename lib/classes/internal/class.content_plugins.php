@@ -18,17 +18,13 @@
 namespace CMSMS\internal;
 
 /**
- * @package CMS
- */
-
-/**
  * Helper class to deal with fetching content blocks.
  *
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
- * @since		1.11
+ * @since       1.11
  * @ignore
  * @internal
- * @package		CMS
+ * @package     CMS
  */
 final class content_plugins
 {
@@ -55,12 +51,12 @@ final class content_plugins
      * @since 1.11
      * @author calguy1000
      * @internal
-	 * @param array $params
-	 * @param mixed $template
-	 * @return mixed string or null
-	 * @throws CmsError403Exception
-	 */
-    public static function fetch_contentblock(array $params,&$template)
+     * @param array $params
+     * @param mixed $template
+     * @return mixed string or null
+     * @throws CmsError403Exception
+     */
+    public static function fetch_contentblock(array $params, $template)
     {
         $contentobj = \CmsApp::get_instance()->get_content_object();
         $result = null;
@@ -90,13 +86,13 @@ final class content_plugins
         return self::content_return($result, $params, $template);
     }
 
-	/**
-	 *
-	 * @param array $params
-	 * @param mixed $template
-	 * @return mixed string or null
-	 */
-    public static function fetch_pagedata(array $params,&$template)
+    /**
+     *
+     * @param array $params
+     * @param mixed $template
+     * @return mixed string or null
+     */
+    public static function fetch_pagedata(array $params, $template)
     {
         $contentobj = \CmsApp::get_instance()->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) return self::content_return('', $params, $template);
@@ -109,13 +105,13 @@ final class content_plugins
         return $result;
     }
 
-	/**
-	 *
-	 * @param array $params
-	 * @param mixed $template
-	 * @return mixed string or null
-	 */
-    public static function fetch_imageblock(array $params,&$template)
+    /**
+     *
+     * @param array $params
+     * @param mixed $template
+     * @return mixed string or null
+     */
+    public static function fetch_imageblock(array $params, $template)
     {
         $ignored = [ 'block','type','name','label','upload','dir','default','tab','priority','exclude','sort', 'profile', 'urlonly','assign' ];
         $gCms = \CmsApp::get_instance();
@@ -175,13 +171,13 @@ final class content_plugins
         return $out;
     }
 
-	/**
-	 *
-	 * @param array $params
-	 * @param mixed $template
-	 * @return mixed string or null
-	 */
-    public static function fetch_moduleblock(array $params,&$template)
+    /**
+     *
+     * @param array $params
+     * @param mixed $template
+     * @return mixed string or null
+     */
+    public static function fetch_moduleblock(array $params, $template)
     {
         if( !isset($params['block']) ) return;
 
@@ -207,26 +203,26 @@ final class content_plugins
         return $result;
     }
 
-	/**
-	 *
+    /**
+     *
      * never returns content on frontend requests
      *
-	 * @param array $params
-	 * @param mixed $template
-	 * @return null
-	 */
-    public static function fetch_textblock(array $params,&$template)
+     * @param array $params
+     * @param mixed $template
+     * @return null
+     */
+    public static function fetch_textblock(array $params, $template)
     {
         return;
     }
 
-	/**
-	 *
-	 * @param mixed $page_id int or ''/null
-	 * @param mixed $template
-	 * @return mixed string or null
-	 * @throws \CmsError404Exception
-	 */
+    /**
+     *
+     * @param mixed $page_id int or ''/null
+     * @param mixed $template
+     * @return mixed string or null
+     * @throws \CmsError404Exception
+     */
     public static function get_default_content_block_content($page_id,&$template)
     {
         $result = null;
@@ -276,4 +272,4 @@ final class content_plugins
         return $result;
     }
 
-} // end of class
+} // class

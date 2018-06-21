@@ -92,7 +92,7 @@ function cms_module_path(string $modname) : string
  * @param object A Smarty_Internal_Template object
  * @return mixed The module output string or null
  */
-function cms_module_plugin(array $params, &$template)
+function cms_module_plugin(array $params, $template)
 {
     //if( get_class($smarty) == 'Smarty_Parser' ) return; // if we are in the parser, we don't process module calls.
     $modulename = '';
