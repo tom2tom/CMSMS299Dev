@@ -1,7 +1,6 @@
 <?php
-#This file is Copyright (c) 2016 by Robert Campbell <calguy1000@cmsmadesimple.org>
-#CMS - CMS Made Simple (CMSMS)
-#CMSMS is copyright (c) 2004 by Ted Kulp.
+#ajax alerts processing
+#Copyright (C) 2016 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -15,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $CMS_ADMIN_PAGE=1;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -50,8 +47,3 @@ catch( \Exception $e ) {
     echo $e->GetMessage();
 }
 exit;
-
-#
-# EOF
-#
-?>

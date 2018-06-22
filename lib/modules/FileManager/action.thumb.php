@@ -1,9 +1,6 @@
 <?php
-# FileManager. A plugin for CMS - CMS Made Simple
-# Copyright (c) 2006-08 by Morten Poulsen <morten@poulsen.org>
-#
-#CMS - CMS Made Simple
-#(c)2004 by Ted Kulp (wishy@users.sf.net)
+# FileManager module action: thumb
+# Copyright (C) 2006-2008 Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify

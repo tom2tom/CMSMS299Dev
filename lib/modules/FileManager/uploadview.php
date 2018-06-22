@@ -1,6 +1,6 @@
 <?php
-#CMSMS FileManager module action: defaultadmin - included file for uploads setup
-#Copyright (C) 2006-2018 by Morten Poulsen <morten@poulsen.org>
+#FileManager module action: defaultadmin - included file for uploads setup
+#Copyright (C) 2006-2018 Morten Poulsen <morten@poulsen.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
