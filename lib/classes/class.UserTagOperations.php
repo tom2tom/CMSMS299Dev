@@ -1,6 +1,6 @@
 <?php
-#compatibility class to manage simple plugins
-#Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#compatibility class to manage User Defined Tags.
+#Copyright (C) 2017-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,9 +16,9 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A compatibility class to manage simple plugins.
- * Formerly 'UserDefinedTags' were stored in the database.
- * In CMSMS 2.3+ this functionality was replaced with simple plugins.
+ * A compatibility class to manage User Defined Tags.
+ * Before CMSMS 2.3, User Defined Tag data were stored in the database.
+ * Since 2.3 this functionality is provided by corresponding filesystem files.
  * This class provides backwards compatibility.
  *
  * @package CMS
@@ -47,7 +47,7 @@ final class UserTagOperations
 	private function __clone() {}
 
 	/**
-	 * Get a reference to thie only allowed instance of this class
+	 * Get a reference to the only allowed instance of this class
 	 * @return UserTagOperations
 	 */
 	final public static function &get_instance() : self
@@ -66,25 +66,23 @@ final class UserTagOperations
 
 	/**
 	 * Load all the information about user tags.
-	 * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @deprecated
 	 */
 	public function LoadUserTags()
 	{
-		// does not do anything.
 	}
-
 
 	/**
 	 * Retrieve the body of a user defined tag
-	 * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @param string $name User defined tag name
 	 * @deprecated
 	 * @return string|false
 	 */
-	function GetUserTag( $name )
+	public function GetUserTag($name)
 	{
 		return false;
 	}
@@ -103,10 +101,9 @@ final class UserTagOperations
 		return $mgr->plugin_exists($name);
 	}
 
-
 	/**
 	 * Add or update a named user defined tag into the database
-	 * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @param string $name User defined tag name
 	 * @param string $text Body of user defined tag
@@ -114,31 +111,29 @@ final class UserTagOperations
 	 * @param int    $id ID of existing user tag (for updates).
 	 * @return bool
 	 */
-	function SetUserTag( $name, $text, $description, $id = null )
+	function SetUserTag($name, $text, $description, $id = null)
 	{
 		return false;
 	}
 
-
 	/**
 	 * Remove a named user defined tag from the database
-	 * Since 2.3, his function is now an empty stub.
+	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @param string $name User defined tag name
 	 * @return bool
 	 */
-	function RemoveUserTag( $name )
+	public function RemoveUserTag($name)
 	{
 		return false;
 	}
-
 
  	/**
 	 * Return a list (suitable for use in a pulldown) of user tags.
 	 *
 	 * @return array|false
 	 */
-	function ListUserTags()
+	public function ListUserTags()
 	{
 		$gCms = CmsApp::get_instance();
 		$mgr = $gCms->GetSimplePluginOperations();
@@ -153,7 +148,6 @@ final class UserTagOperations
 		return $out;
 	}
 
-
 	/**
 	 * Execute a user defined tag
 	 *
@@ -162,7 +156,7 @@ final class UserTagOperations
 	 * @return string|false
 	 * @deprecated
 	 */
-	function CallUserTag($name, &$params)
+	public function CallUserTag($name, &$params)
 	{
 		$gCms = CmsApp::get_instance();
 		$mgr = $gCms->GetSimplePluginOperations();
@@ -171,14 +165,13 @@ final class UserTagOperations
 
 	/**
 	 * Given a UDT name create an executable function from it
-	 * Since 2.3, his function is now an empty stub.
+	 * Since 2.3 this function is an empty stub.
 	 *
 	 * @internal
 	 * @param string $name The name of the user defined tag to operate with.
 	 */
-	function CreateTagFunction($name)
+	public function CreateTagFunction($name)
 	{
-		return;
 	}
 
 } // class
