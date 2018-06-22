@@ -227,7 +227,7 @@ final class Events
 	 *
 	 * @param string $modulename The name of the module sending the event, or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param string $tag_name The name of a user defined tag. If not passed, no user defined tag is set.
+	 * @param string $tag_name The name of a User Defined Tag. If not passed, no User Defined Tag is set.
 	 * @param string $module_handler The name of the module. If not passed, no module is set.
 	 * @param bool $removable Can this event be removed from the list? Defaults to true.
 	 * @return bool If successful, true.  If it fails, false.
@@ -330,7 +330,7 @@ final class Events
 	 *
 	 * @param string $modulename The name of the module sending the event
 	 * @param string $eventname The name of the event
-	 * @param string $tag_name The name of a user defined tag. If not passed, no user defined tag is set.
+	 * @param string $tag_name The name of a User Defined Tag. If not passed, no User Defined Tag is set.
 	 * @param string $module_handler The name of the module. If not passed, no module is set.
 	 * @return bool If successful, true.  If it fails, false.
 	 */

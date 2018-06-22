@@ -496,7 +496,7 @@ final class CmsApp
 	* @final
 	* @see UserTagOperations
 	* @return UserTagOperations handle to the UserTagOperations object
-	* @deprecated
+	* @deprecated - since 2.3 UserTagOperations has been superseded by GetSimplePluginOperations
 	*/
 	public function GetUserTagOperations()
 	{

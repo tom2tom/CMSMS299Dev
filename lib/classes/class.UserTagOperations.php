@@ -65,7 +65,7 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Load all the information about user tags.
+	 * Load all the information about User Defined Tags.
 	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @deprecated
@@ -75,7 +75,7 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Retrieve the body of a user defined tag
+	 * Retrieve the body of a User Defined Tag
 	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @param string $name User defined tag name
@@ -88,7 +88,7 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Test if a user defined tag with a specific name exists
+	 * Test if a User Defined Tag with a specific name exists
 	 *
 	 * @param string $name User defined tag name
 	 * @return string|false
@@ -102,12 +102,12 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Add or update a named user defined tag into the database
+	 * Add or update a named User Defined Tag into the database
 	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @param string $name User defined tag name
-	 * @param string $text Body of user defined tag
-	 * @param string $description Description for the user defined tag.
+	 * @param string $text Body of User Defined Tag
+	 * @param string $description Description for the User Defined Tag.
 	 * @param int    $id ID of existing user tag (for updates).
 	 * @return bool
 	 */
@@ -117,7 +117,7 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Remove a named user defined tag from the database
+	 * Remove a named User Defined Tag from the database
 	 * Since 2.3, this function is an empty stub.
 	 *
 	 * @param string $name User defined tag name
@@ -149,9 +149,9 @@ final class UserTagOperations
 	}
 
 	/**
-	 * Execute a user defined tag
+	 * Execute a User Defined Tag
 	 *
-	 * @param string $name The name of the user defined tag
+	 * @param string $name The name of the User Defined Tag
 	 * @param array  $params Optional parameters.
 	 * @return string|false
 	 * @deprecated
@@ -168,7 +168,7 @@ final class UserTagOperations
 	 * Since 2.3 this function is an empty stub.
 	 *
 	 * @internal
-	 * @param string $name The name of the user defined tag to operate with.
+	 * @param string $name The name of the User Defined Tag to operate with.
 	 */
 	public function CreateTagFunction($name)
 	{
