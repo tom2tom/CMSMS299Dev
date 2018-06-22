@@ -109,14 +109,14 @@ $lang['general_notice'] = 'This shows the latest XML files in the CMSMS modules-
 // H
 $lang['help'] = '<h3>What Does This Do?</h3>
 <p>A client for the CMS Made Simple Module Repository. This module allows previewing and installing modules from the CMSMS Forge without the need for ftp-ing, or unzipping archives.  Module XML files are downloaded using REST, integrity verified, and then expanded automatically.</p>
-<h3>How Do I Use It</h3>
+<h3>How is it used</h3>
 <p>In order to use this module you will need the \'Modify Modules\' permission.</p>
 <br />
 <p>You can find the interface for this module under the \'Site Admin\' menu.  When you select this module, the \'Module Repository\' installation will automatically be queried for a list of its available XML modules.  This list will be cross referenced with the list of currently installed modules, and a summary page displayed.  From here, you can view the descriptive information, the Help, and the About information for a module without physically installing it.  You can also choose to upgrade or install modules.</p>
 <h3>Support</h3>
 <p>As per the GPL, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2006, calguy1000 <a href="mailto:calguy1000@hotmail.com">&lt;calguy1000@hotmail.com&gt;</a>. All Rights Are Reserved.</p>
+<p>Copyright &copy; 2006 Robert Campbell <a href="mailto:calguy1000@cmsmadesimple.org">&lt;calguy1000@cmsmadesimple.org&gt;</a>. All rights reserved.</p>
 <p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. You must agree to this license before using the module.</p>';
 $lang['helptxt'] = 'Help';
 $lang['help_allowuninstall'] = 'If enabled, then this module can be uninstalled.  This option is provided to prevent the accidental removal of this module which would result in an unrecoverable error';

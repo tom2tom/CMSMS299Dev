@@ -68,7 +68,7 @@ function smarty_function_image($params, &$template)
 function smarty_cms_about_function_image()
 {
 ?>
-	<p>Author: Robert Campbell &lt;calguy1000@hotmail.com&gt;,</p>
+	<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;,</p>
 
 	<p>Change History</p>
 	<ul>

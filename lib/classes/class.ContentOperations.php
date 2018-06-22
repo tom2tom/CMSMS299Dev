@@ -989,7 +989,7 @@ EOS;
 	 * Check if the supplied page id is a parent of the specified base page (or the current page)
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell <calguy1000@hotmail.com>
+	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @param int $test_id Page ID to test
 	 * @param int $base_id (optional) Page ID to act as the base page.  The current page is used if not specified.
 	 * @return bool
@@ -1013,7 +1013,7 @@ EOS;
 	 * Return a list of pages that the user is owner of.
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell <calguy1000@hotmail.com>
+	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @param int $userid The userid
 	 * @return array Array of integer page id's
 	 */
@@ -1052,7 +1052,7 @@ EOS;
 	 * Return a list of pages that the user has edit access to.
 	 *
 	 * @since 2.0
-	 * @author Robert Campbell <calguy1000@hotmail.com>
+	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @param int $userid The userid
 	 * @return int[] Array of page id's
 	 */
