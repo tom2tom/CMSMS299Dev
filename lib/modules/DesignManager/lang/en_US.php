@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: DesignManager - A CMSMS addon module to provide template management.
+# DesignManager module strings-translation data.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 #A
 $lang['additional_editors'] = 'Additional Editors';
 $lang['apply'] = 'Apply';
@@ -381,7 +379,6 @@ $lang['perm_add'] = 'Add Templates';
 $lang['perm_designs'] = 'Manage Designs';
 $lang['perm_styles'] = 'Manage Stylesheets';
 $lang['perm_modify'] = 'Modify Templates';
-$lang['perm_viewhelp'] = 'View Tag Help';
 $lang['postinstall'] = 'Design Manager Module Installed';
 $lang['postuninstall'] = 'Design Manager Module Uninstalled';
 $lang['prompt_add'] = 'Add';
