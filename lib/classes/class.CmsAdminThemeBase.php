@@ -535,7 +535,7 @@ abstract class CmsAdminThemeBase
         $this->_perms['eventPerms'] = check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
-            check_permission($this->userid, 'Modify Simple Tags');
+            check_permission($this->userid, 'Modify Simple Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] | $this->_perms['taghelpPerms'];
 
