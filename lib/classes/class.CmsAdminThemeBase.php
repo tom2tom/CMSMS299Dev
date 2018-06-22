@@ -534,6 +534,8 @@ abstract class CmsAdminThemeBase
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
         $this->_perms['eventPerms'] = check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
+        $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
+            check_permission($this->userid, 'Modify Simple Tags');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] | $this->_perms['taghelpPerms'];
 
@@ -814,6 +816,11 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('tags')),
         'description'=>lang('tagdescription'),
         'show_in_menu'=>$this->HasPerm('taghelpPerms')];
+        $items[] = ['name'=>'usertags','parent'=>'extensions',
+        'url'=>'listsimpletags.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('usertags')),
+        'description'=>lang('usertagdescription'),
+        'show_in_menu'=>$this->HasPerm('usertagPerms')];
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'eventhandlers.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
