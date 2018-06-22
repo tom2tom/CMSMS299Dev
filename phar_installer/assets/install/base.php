@@ -47,12 +47,13 @@ foreach( [
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
+	'Modify Simple Plugins',
 	'Modify Site Code',
 	'Modify Site Preferences',
 //	'Modify Templates', >DM
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
-//	'View Tag Help', >DM
+	'View Tag Help',
 	] as $one_perm ) {
   $permission = new CmsPermission();
   $permission->source = 'Core';
