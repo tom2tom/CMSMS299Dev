@@ -287,6 +287,246 @@ $lang['help_type_name'] = 'The name of this template type';
 $lang['help_type_originator'] = 'The originator <em>(usually the module name)</em> that created this template type';
 $lang['help_type_reqcontentblocks'] = 'This field indicates whether templates of this content type are required to have content blocks within them.';
 
+$lang['help_module'] = <<<EOT
+<h3>What is this?</h3>
+<p>Design Manager is a core module <em>(a module distributed with CMSMS)</em> that unifies functionality for managing the layout of CMSMS web pages. It provides a complete solution for managing and editing any type of smarty template, and for organizing those templates. Also you can create, edit, delete and manage stylesheets. Templates, and stylesheets can then be organized into &quot;Designs&quot;.</p>
+
+<h3>What is a &quot;Design&quot; ?</h3>
+<p>A design is a container of sorts. It contains a loose association of stylesheets and templates. It allows managing all of the stylesheets and templates required to implement a look and feel. Designs can be exported to a single file be shared, and imported from a single file.</p>
+<p>Each content page that renders HTML is associated with a design to determine which stylesheets are to be used, and their order. Additionally, each content page that renders HTML is associated with a template; though the template does not need to be associated with the specified design.</p>
+<p>Templates and stylesheets do not need to be associated with a design, however, only the templates and stylesheets that are associated with a design are exported with the design.</p>
+
+<h3>What are Template Types ?</h3>
+<p>Template types are one way of loosely organizing templates. Some functionality might display lists of templates that are of a certain type to make selection easier. For example, the edit content page displays a list of &quot;Page&quot; templates.</p>
+<p>The core creates a few standard template types on installation. Third party modules will probably create more. Template type definitions normally have two parts, the Originator <em>(the module or functionality that created them)</em>, and the type name itself. i.e: Core::Page indicates a page template type created by the core. News::Summary is the name of the template type for news summary templates. Although site developers cannot create new template types they can specify the type for a template when adding or editing a template.</p>
+<p>Most template types have a &quot;prototype&quot; template that is used to provide a skeleton layout creating a new template of that type.</p>
+<p>Some template types (such as the &quot;Core::Page&quot; template type support the notion of a &quot;default template&quot;. The default template of a type is typically used by modules so that a template of a certain type can be used in the event that a specific template is not named. Additionally, the default template of type &quot;Core::Page&quot; is used as the default template when creating a new content item of type &quot;Content&quot;</p>
+<p>The Design Manager Admin interface allows filtering templates by originator, or their type to easily find templates to edit or manage.</p>
+
+<h4>Generic Templates <em>(formerly Global Content Blocks)</em></h4>
+<p>A standard template type is called &quot;Core::generic&quot;. This is a generic template that could be used for anything. It replaces &quot;Global Content Blocks&quot; <em>(GCB)</em> from prior versions of CMSMS.</p>
+
+<h3>What are &quot;Categories&quot; for ?</h3>
+<p>Categories are a method site developers can use to further organize templates. Site developers can create, rename and delete categories and associate different templates with them. When managing templates site developers can filter templates by their category.</p>
+
+<h3>The Primary Interface</h3>
+<p>The Design Manager Admin panel is located in the CMSMS Admin navigation as &quot;Design Manager&quot; under the &quot;Layout&quot; section.</p>
+<p>The Design Manager Admin panel has numerous tabs. Each tab serves a particular purpose, and might require special privileges. Only a user with one of the required permissions <em>(or ownership/additional editor status on one or more templates)</em> will be able to see the design manager in the CMSMS admin console.</p>
+<ul>
+  <li>The Templates Tab
+    <p>The templates tab provides all of the functionality to conveniently and easily create and manage templates. It is visible to admin users with the &quot;Modify Templates&quot; permission, or who are owners or additional editors of one or more templates.</p>
+    <p>Some of the features of this tab include:</p>
+    <ul>
+      <li>A tabular format which displays summary information about each template, and provides convenient actions for working on templates individually, or en-masse.</li>
+      <li>The ability to steal a locked template</li>
+      <li>Advanced filtering</li>
+      <li>Pagination</li>
+    </ul>
+  </li>
+
+  <li>The Categories Tab
+    <p>The categories tab is visible to all admin users with the &quot;Modify Templates&quot; permission. It provides the ability to add, edit, delete, rename and re-order categories.</p>
+    <p>When adding or editing a category it is possible to provide a description of the use of the category for reference purposes.</p>
+  </li>
+
+  <li>The Template Types Tab
+    <p>This tab is visible to all admin users with the &quot;Modify Templates&quot; permission. It provides the ability to edit information about the template type including the prototype template. And to create a new template of each type.</p>
+  </li>
+
+  <li>The Stylesheets Tab
+    <p>This tab is visible to all admin users with the &quot;Manage Stylesheets&quot; permission. It provides the ability to create, delete, edit, and manage stylesheets.
+      <p>
+  </li>
+
+  <li>The Designs Tab
+    <p>This admin panel tab is visible to all admin users with the &quot;Manage Designs&quot; permission. <em>(Note: users with that permission and no others might not have access to the full functionality of this tab)</em>.
+      <p>This tab provides the ability to import, export, create, edit, and delete designs.</p>
+  </li>
+</ul>
+
+<h3>Managing Templates</h3>
+<p>The templates tab displays a list of templates matching the current filter <em>(if applied)</em> in a tabular format, with pagination. Each row of the table represents a single template. The columns of the table displays summary information about the template, and provides some ability to interact with it.</p>
+<p>A dropdown providing the ability to switch between pages of templates that match the current filter will appear if more than one page of templates match the current filter.</p>
+<p>An options menu exists providing the ability to adjust the current filter, or to create a new template <em>(depending upon permissions)</em>. The filter dialogue allows filtering the displayed templates by a number of criteria, as well as changing the page limit, and sorting of displayed templates.</p>
+<h4>Table Columns:</h4>
+<ul>
+  <li>Id:
+    <p>This displays the unique numeric id for the template. Clicking on the link in this column will bring up the edit template form. Hovering over the link will display a tooltip with further information about the template.</p>
+  </li>
+  <li>Name:
+    <p>This displays a unique textual name for the template. Clicking on the link in this column will bring up the edit template form. Hovering over the link will display a tooltip with further information about the template.</p>
+  </li>
+  <li>Type:
+    <p>This displays the template type. Hovering over the type name will display a tooltip with further information about the template type.</p>
+  </li>
+  <li>Design:
+    <p>This column displays the design(s) that this template is associated with (if any). If the template is associated with multiple designs a tooltip will display a list of the first few designs that this template is associated with.</p>
+  </li>
+  <li>Default:
+    <p>This column displays an icon indicating if the template is the default for its type.</p>
+  </li>
+  <li>Actions:
+    <p>Depending upon user privileges there will be one or more icons displayed in this column to perform various actions on, or with the template:</p>
+    <ul>
+      <li>Edit - Display a form to edit the contents and attributes of the template.</li>
+      <li>Copy - Display a form to allow copying the selected template to a new name. For convenience a default new name will be provided.</li>
+      <li>Delete - Display a form to allow deleting the selected template. Extra confirmation is required for this action as no checks are possible to see if the template is in use by any page, or recursively by any other template.</li>
+    </ul>
+
+  </li>
+  <li>Multiselect:
+    <p>This column (depending upon permissions) will display a checkbox allowing the selection of multiple templates to perform actions on all of them simultaneously.</p>
+  </li>
+</ul>
+<h4>Bulk Actions:</h4>
+<p>This is a dropdown with options <em>(currently only delete)</em> to perform on multiple templates at one time. Use extreme caution when performing bulk actions as doing so could severely affect a working website.</p>
+<h4>Editing Templates</h4>
+<p>The edit template form is a complex form that allows management of all of the attributes of a template. For convenience the form is divided into numerous tabs.</p>
+<p>This form supports the &quot;dirtyform&quot; functionality to reduce the chances of accidentally losing unsaved changes. Users will be notified if attempting to navigate away from this page if the template has not been saved.</p>
+<p>This form locks the selected template so that other authorized editors will not have the ability to edit the template at the same time. This prevents somebody else from accidentally overwriting changes of another editor.</p>
+<ul>
+  <li>Name:
+    <p>This text string uniquely identifies the template. The system will generate an error when saving the template if the name is already used on another template.</p>
+  </li>
+  <li>Template Content:
+    <p>This text area displays the actual smarty template. If a syntax highlighter module is installed, and enabled, and the user has enabled it in his settings, then it will be enabled in this area to provide advanced editing capabilities.</p>
+  </li>
+  <li>Description:
+    <p>This text area provides the ability to describe the purpose of the templates, and notes that might be useful to editors in the future.</p>
+  </li>
+  <li>Designs:
+    <p>Depending upon permission levels, this tab will allow associating the template with zero or more designs.</p>
+  </li>
+  <li>Advanced:
+    <p>This tab displays fields that allow specifying the template category, its type, and whether it is the default template for the type. This tab is only available with the appropriate permissions.</p>
+  </li>
+  <li>Permissions:
+    <p>If the user account is the owner of the template, or has the &quot;Modify Templates&quot; permissions this tab will allow changing the ownership of the template, and/or specifying additional editors.</p>
+  </li>
+  <li>Set All Pages:
+    <p>Users with the &quot;Modify Templates&quot; permission will see a button which will allow setting all content pages to use this template.</p>
+  </li>
+</ul>
+
+<h3>Managing Categories</h3>
+<p>The &quot;Modify Templates&quot; permission is required to see this tab, and its associated actions.</p>
+<p>The categories tab is a simple interface that allows creating, editing, removing and re-ordering categories. Categories can be re-ordered by dragging and dropping them into the desired order.</p>
+<p>Editing a category allows specifying a description for the category. The description is useful for keeping a note as to the purpose of the category.</p>
+<h3>Managing Template Types</h3>
+<p>The &quot;Modify Templates&quot; permission is required to see this tab, and its associated actions.</p>
+<p>Users with sufficient privilege can adjust the prototype template, and description for each template type. The prototype template will be used as the default contents for the template when creating a new template of that type.</p>
+<h3>Managing Stylesheets</h3>
+<p>The stylesheets tab is available to users with the &quot;Manage Stylesheets&quot; permission. It displays a paginated list of all stylesheets matching the current filter <em>(if applied)</em> in a tabular format. Each row of the table represents a single stylesheet. The columns of the table displays summary information about the stylesheet and provides some ability to interact with it.</p>
+<p>A dropdown providing the ability to switch between pages of stylesheets that match the current filter will appear if more than one page of stylesheets match the current filter.</p>
+<p>An options menu exists providing the ability to adjust the current filter, or to create a new stylesheet <em>(depending upon permissions).</em> The filter dialogue allows filtering, sorting, and paginating the displayed stylesheets by a number of criteria.</p>
+<h4>Table Columns:</h4>
+<ul>
+  <li>Id:
+    <p>This displays a link containing unique numeric id for the stylesheet. Clicking on this link will display the edit stylesheet form. Hovering over the link will display a tooltip with further information about the stylesheet.</p>
+  </li>
+  <li>Name:
+    <p>This displays the unique textual name for the stylesheet as a link. Clicking on this link will display the edit stylesheet form. Hovering over the link will display a tooltip with further information about the stylesheet.</p>
+  </li>
+  <li>Design:
+    <p>This column displays the design(s) that this stylesheet is associated with (if any). If the stylesheet is associated with multiple designs a tooltip will display a list of the first few designs.</p>
+  </li>
+  <li>Modified Date:
+    <p>This column displays the date that the stylesheet was last modified.</p>
+  </li>
+  <li>Actions:
+    <ul>
+      <li>Edit - Clicking on this icon will display the edit stylesheet form.</li>
+      <li>Delete - Clicking on this icon will display a form to allow deleting the stylesheet. Extra confirmation is required for this action.</li>
+    </ul>
+  </li>
+  <li>Multiselect:
+    <p>This column displays a checkbox allowing the selection of multiple stylesheets to perform bulk actions on all of them simultaneously.</p>
+  </li>
+</ul>
+<h4>Bulk Actions:</h4>
+<p>This mini form contains a dropdown with options <em>(currently only delete)</em> to perform on the selected stylesheets. Use extreme caution when performing bulk actions as doing so could severely affect a working website.</p>
+<h4>Editing Stylesheets</h4>
+<p>The edit stylesheet form is a complex form that allows management of all of the attributes of a stylesheet. for convenience the form is divided into numerous tabs. It supports the &quot;dirtyform&quot; functionality to reduce the chances of accidentally losing unsaved changes, and supports locking to prevent other authorized editors from accidentally overwriting changes.</p>
+<p>Here are some of the attributes of a stylesheet that can be edited:</p>
+<ul>
+  <li>Name:
+    <p>This text string uniquely identifies the stylesheet. The system will generate an error when saving the stylesheet if the name is already used by another stylesheet.</p>
+  </li>
+  <li>Stylesheet Content:
+    <p>This text area displays the actual CSS code. If a syntax highlighter module is installed, supports hi-lighting CSS code, is enabled, and the user has enabled it in his settings, then it will be enabled in this area to provide advanced editing capabilities.</p>
+  </li>
+  <li>Media Types <em style="color: red;">(deprecated)</em>:
+    <p>This tab provides numerous checkbox allowing you to select media types to associate with the stylesheet. It is preferred to use media queries instead, and this functionality might be removed at a later date.</p>
+  </li>
+  <li>Media Query:
+    <p>This tab provides a text area where a media query can be associated with the stylesheet.</p>
+  </li>
+  <li>Description:
+    <p>The text area in this tab provides the ability to describe the purpose of the stylesheets, and any notes that might be useful to editors in the future.</p>
+  </li>
+  <li>Designs:
+    <p>This tab provides the ability to associate the stylesheet with one or more designs. If any new design associations are detected this stylesheet will be placed at the end of the stylesheet list for that design.</p>
+  </li>
+</ul>
+
+<h3>Managing Designs</h3>
+<p>The designs tab is available to users with the &quot;Manage Designs&quot; permission. It displays a list of all of the known designs in a tabular format. Each row of the table represents a single design. The columns of the table displays summary information about the design and provides some ability to interact with it.</p>
+<p>This tab does not provide filtering, pagination, or bulk actions as it is intended that the number of designs associated with a website should normally be kept small and manageable.</p>
+<p>An options menu exists providing the ability to create a new design, or to import a design from XML format.</p>
+<h4>Table Columns</h4>
+<ul>
+  <li>Id:
+    <p>This column displays a link containing the unique numeric id for the design. Clicking on this link will display the edit design form.</p>
+  </li>
+  <li>Name:
+    <p>This column displays a link containing the name for the design. Clicking on this link will display the edit design form.</p>
+  </li>
+  <li>Default:
+    <p>This column an icon represent whether or not this design is the &quot;default&quot; design. The default design is selected first when creating a new content item of type &quot;Content Page&quot; and might be used for other purposes. Only one design can be the default.</p>
+  </li>
+  <li>Actions:
+    <p>This column displays various links and icons representing actions that can be performed with designs:</p>
+    <ul>
+      <li>Edit - Display a form to allow editing the design.</li>
+      <li>Export - Export the design to an XML file that can be imported into other websites.</li>
+      <li>Delete - Display a form that asks for confirmation about deleting the design.</li>
+    </ul>
+  </li>
+</ul>
+<h4>Editing Designs:</h4>
+<p>The edit design form is a complex form that allows management of all of the attributes of a design. The form is divided into numerous tabs. Unlike editing stylesheets and templates, this form does not support &quot;dirtyform&quot; or locking functionality.</p>
+<p>Some of the attributes of a design that can be edited are:</p>
+<ul>
+  <li>Name:
+  </li>
+  <li>Templates:
+    <p>This tab allows selecting different templates to associate with the design. You can drag and drop templates between the &quot;Available Templates&quot; list and the &quot;Attached Templates&quot; list and to order templates within the attached list. At this time, ordering of templates within the attached template list is not significant.</p>
+  </li>
+  <li>Stylesheets:
+    <p>This tab allows selecting different stylesheets to associate with the design. You can drag and drop stylesheets between the &quot;Available Stylesheets&quot; list and the &quot;Attached Stylesheets&quot; list and to order stylesheets within the attached list. The order of stylesheets within the attached list determines the order that they will be included in the rendered page content for content items of type &quot;Content Page&quot;.</p>
+  </li>
+  <li>Description:
+    <p>This tab provides a free form text area where a description of the design, and additional notes can be entered. the description is also useful to other users when deciding to share a design.</p>
+  </li>
+</ul>
+<h4>Importing Designs</h4>
+<p>The Design Manager module is capable of importing XML themes that were exported from CMSMS Design Manager, or from the older CMSMS theme manager. It expands the uploaded XML file, and extracts templates, stylesheets, and other useful information from the file. It also performs some minor transformation on the extracted data to try to adjust for overlapping names, etc.</p>
+<p>The import process is divided into a few steps:</p>
+<ul>
+  <li>Step 1: Upload the file:
+    <p>This step manages uploading the user selected XML file and validating its contents. This step is vulnerable to PHP limits for file size, memory limits, and time limits for form processing. You might need to increase those limits on overly restricted sites when uploading larger theme files.</p>
+    <p>Once the XML file has passed the validation process, it is copied to a temporary location for processing in step 2.</p>
+  </li>
+  <li>Step 2: Verification:
+    <p>The second step is for verifying and previewing the new design that will be created from the XML file. From here you can display, and edit various aspects of the design or theme.</p>
+</ul>
+<h4>Deleting Designs</h4>
+
+<h3>Using Templates</h3>
+<h3>Options and Preferences</h3>
+<h3>Upgrade Notes</h3>
+EOT;
+
 #I
 $lang['import'] = 'Import';
 $lang['import_design'] = 'Import Design';
@@ -550,5 +790,3 @@ $lang['whats_this'] = 'What\'s this?';
 $lang['yes'] = 'Yes';
 
 #Z
-
-?>
