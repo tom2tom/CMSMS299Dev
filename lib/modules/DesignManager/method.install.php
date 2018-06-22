@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# DesignManager - A CMSMS module to provide template management.
+# DesignManager module installation process
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,7 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------
+
 if (!isset($gCms)) {
     exit;
 }
@@ -27,23 +26,23 @@ $this->CreatePermission('Add Templates', $this->Lang('perm_add'));
 $this->CreatePermission('Manage Designs', $this->Lang('perm_designs'));
 $this->CreatePermission('Manage Stylesheets', $this->Lang('perm_styles'));
 $this->CreatePermission('Modify Templates', $this->Lang('perm_modify'));
-$this->CreatePermission('View Tag Help', $this->Lang('perm_viewhelp'));
 
-$designer_group = new Group();
-$designer_group->name = 'Designer';
-$designer_group->description = $this->Lang('group_desc');
-$designer_group->active = 1;
-CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$designer_group]);
-$designer_group->Save();
-CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$designer_group]);
+$group = new Group();
+$group->name = 'Designer';
+$group->description = $this->Lang('group_desc');
+$group->active = 1;
+CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$group]);
+$group->Save();
+CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$group]);
 
-$designer_group->GrantPermission('Add Templates');
-$designer_group->GrantPermission('Manage All Content'); //CHECKME ContentManager race when 1st installing?
-$designer_group->GrantPermission('Manage Designs');
-$designer_group->GrantPermission('Manage My Account');
-$designer_group->GrantPermission('Manage My Bookmarks');
-$designer_group->GrantPermission('Manage My Settings');
-$designer_group->GrantPermission('Manage Stylesheets');
-$designer_group->GrantPermission('Modify Files');
-$designer_group->GrantPermission('Modify Templates');
+$group->GrantPermission('Add Templates');
+$group->GrantPermission('Manage All Content'); //CHECKME ContentManager race when 1st installing?
+$group->GrantPermission('Manage Designs');
+$group->GrantPermission('Manage My Account');
+$group->GrantPermission('Manage My Bookmarks');
+$group->GrantPermission('Manage My Settings');
+$group->GrantPermission('Manage Stylesheets');
+$group->GrantPermission('Modify Files');
+$group->GrantPermission('Modify Templates');
+$group->GrantPermission('View Tag Help');
 
