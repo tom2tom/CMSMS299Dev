@@ -28,16 +28,16 @@ $this->CreatePermission('Modify Any Page', $this->Lang('perm_modify'));
 $this->CreatePermission('Remove Pages', $this->Lang('perm_remove'));
 $this->CreatePermission('Reorder Content', $this->Lang('perm_reorder'));
 
-$editor_group = new Group();
-$editor_group->name = 'Editor';
-$editor_group->description = $this->Lang('group_desc');
-$editor_group->active = 1;
-CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$editor_group]);
-$editor_group->Save();
-CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$editor_group]);
+$group = new Group();
+$group->name = 'Editor';
+$group->description = $this->Lang('group_desc');
+$group->active = 1;
+CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$group]);
+$group->Save();
+CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$group]);
 
-$editor_group->GrantPermission('Manage All Content');
-$editor_group->GrantPermission('Manage My Account');
-$editor_group->GrantPermission('Manage My Bookmarks');
-$editor_group->GrantPermission('Manage My Settings');
-$editor_group->GrantPermission('View Tag Help');
+$group->GrantPermission('Manage All Content');
+$group->GrantPermission('Manage My Account');
+$group->GrantPermission('Manage My Bookmarks');
+$group->GrantPermission('Manage My Settings');
+$group->GrantPermission('View Tag Help');
