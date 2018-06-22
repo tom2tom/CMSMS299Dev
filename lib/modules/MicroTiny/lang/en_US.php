@@ -71,7 +71,7 @@ $lang['help'] = <<<EOT
   <li>Customizable (somewhat) profiles for Admin behavior and frontend behavior.</li>
   <li>Customizable appearance by specifying a stylesheet to use for the editor.</li>
 </ul>
-<h3>How do I use it</h3>
+<h3>How is it used</h3>
   <ul>
     <li>Install and configure the module</li>
     <li>Set MicroTiny as your WYSIWYG editor of choice in &quot;My Preferences&quot;</li>

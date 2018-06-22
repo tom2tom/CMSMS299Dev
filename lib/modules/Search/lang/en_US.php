@@ -55,7 +55,7 @@ $lang['export_to_csv'] = 'Export to CSV';
 // H
 $lang['help'] = '<h3>What does this do?</h3>
 <p>Search is a module for searching "core" content along with certain registered modules.  You put in a word or two and it gives you back matching, relevant results.</p>
-<h3>How do I use it?</h3>
+<h3>How is it used?</h3>
 <p>The easiest way to use it is with the {search} wrapper tag (wraps the module in a tag, to simplify the syntax). This will insert the module into your template or page anywhere you wish, and display the search form.  The code would look something like: <code>{search}</code></p>
 <h4>How do i prevent certain content from being indexed</h4>
 <p>The search module will not search any "inactive" pages. However on occasion, when you are using the CustomContent module, or other smarty logic to show different content to different groups of users, it might be advisable to prevent the entire page from being indexed even when it is live.  To do this include the following tag anywhere on the page <em>&lt;!-- pageAttribute: NotSearchable --&gt;</em> When the search module sees this tag in the page it will not index any content for that page.</p>

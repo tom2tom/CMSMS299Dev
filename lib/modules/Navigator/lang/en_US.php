@@ -18,7 +18,7 @@ $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
   <p>The &quot;Navigator&quot; module is an engine for generating navigations from the CMSMS content tree and a smarty template.  This module provides flexible filtering capabilities to allow building numerous navigations based on different criteria, and a simple to use hierarchical data format for generating navigations with complete flexibility.</p>
   <p>This module has no admin interface of its own, instead it uses the DesignManager to manage Navigator templates.</p>
-<h3>How do I use it?</h3>
+<h3>How is it used?</h3>
 <p>The simplest way to use this module is to insert the <code>{Navigator}</code> tag into a template.  The module accepts numerous parameters to alter its behavior and filter the data.</p>
 <h3>Why do I care about templates?</h3>
 <p>This is the power of CMSMS.  Navigations can be built automatically using the data from your content hierarchy, and a smarty template.  There is no need to edit a navigation object each time a content page is added or removed from the system.  Additionally, navigation templates can easily include JavaScript or advanced functionality and can be shared between websites.</p>

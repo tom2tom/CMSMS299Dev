@@ -43,7 +43,7 @@ $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This is a CMSMS core module that provides functionality for processing jobs asynchronously (in the background) as the website is handling requests.</p>
 <p>Any module which is suitably constructed can create jobs to perform tasks that do not need direct user intervention or that can take some time to process.  This module provides the processing capability for those jobs.</p>
-<h3>How do I use it?</h3>
+<h3>How is it used?</h3>
 <p>This module has no interaction of its own.  It does provide a simple job report that lists jobs that the manager currently has in its queue.  Jobs might regularly pop on and off this queue, so refreshing the page from time to time might give you an indication as to what is happening in the background of your site.</p>
 <p>This module will process jobs at most every minute, and at least every ten minutes. The default interval is 3 minutes. This infrequent processing is to ensure reasonable performance on most websites.</p>
 <p>You can adjust the frequency in the module settings.</p>

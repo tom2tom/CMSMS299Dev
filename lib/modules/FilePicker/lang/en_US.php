@@ -129,7 +129,7 @@ $lang['help'] = <<<EOT
 </ol>
 </p>
 <p>This module also manages profiles. A profile is a collection of properties (e.g. show hidden files) and permissions (e.g. can create subdirectory) which apply to one or more specified directories.</p>
-<h3>How Do I Use It</h3>
+<h3>How is it used</h3>
 <p>This module is intended to be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
 <p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended.   See the {cms_filepicker} tag for information about the type, and other parameters.</p>
 <p>Profiles can be used by the <code>{cms_filepicker}</code> plugin or by this module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions can override the settings defined in the profile.</p>

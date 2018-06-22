@@ -197,7 +197,7 @@ $lang['help'] = <<<EOF
 	<p>In order to edit the layout templates, the user must belong to a group with the 'Modify Templates' permission.</p>
 	<p>In order to edit the global news preferences, the user must belong to a group with the 'Modify Site Preferences' permission.</p>
 	<p>Additionally, to approve news for frontend display the user must belong to a group with the 'Approve News' permission.</p>
-	<h3>How do I use it?</h3>
+	<h3>How is it used?</h3>
 	<p>The easiest way to use it is with the {news} wrapper tag (wraps the module in a tag, to simplify the syntax).  This will insert the module into your template or page anywhere you wish, and display news items.  The code would look something like: <code>{news number='5'}</code></p>
 <h3>Templates</h3>
 <p>Since version 2.3 News supports multiple database templates, and no longer supports additional file templates.  Users who used the old file template system should follow these steps (for each file template):</p>
