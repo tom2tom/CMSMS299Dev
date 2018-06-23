@@ -33,15 +33,25 @@ if( $udt_list ) {
             return;
         }
 
-        $out = "<?php\n/*\n[insert license here]\n<description>\n";
         if( $row['description'] ) {
-            $out .= trim($row['description']);
-        } else {
-            $out .= '[insert description here]';
-        }
-        $out .= "\n</description>\n*/\n" . $code . "\n";
+			$desc = htmlspecialchars(trim($row['description']),ENT_XML1);
+		}
+		else {
+			$desc = '';
+		}
 
-        file_put_contents($fp, $out);
+		file_put_contents($fp, <<<EOS
+<?php
+/*
+<simpleplugin>
+<license></license>
+<description>$desc</description>
+<parameters></parameters>
+</simpleplugin>
+*/
+$code
+EOS
+		);
         verbose_msg('Converted UDT '.$row['userplugin_name'].' to a simple plugin');
     };
 
