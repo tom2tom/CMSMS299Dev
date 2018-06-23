@@ -514,8 +514,8 @@ abstract class CmsAdminThemeBase
         // file
         $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
 
-        // user-defined plugins (2.3+)
-        $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify UserTags');
+        // UDT/simple-plugin files (2.3+)
+        $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify Simple Plugins');
 
         // user/group
         $this->_perms['userPerms'] = check_permission($this->userid, 'Manage Users');
