@@ -7,6 +7,10 @@
     </span>
    {/if}
   </div>
+ {else}
+  <div class="information">
+   <p>{lang_by_realm('tags','tag_info')}<br />{lang_by_realm('tags','tag_info3')}</p>
+  </div>
 {/if}
 
 {if isset($content)}
@@ -17,9 +21,10 @@
      <tr>
        <th title="{lang_by_realm('tags','tag_name')}">{lang('name')}</th>
        <th title="{lang_by_realm('tags','tag_type')}">{lang('type')}</th>
-       <th class="pagew10" title="{lang_by_realm('tags','tag_adminplugin')}">{lang('adminplugin')}</th>
-       <th class="pagew10" title="{lang_by_realm('tags','tag_help')}">{lang('help')}</th>
-       <th class="pagew10" title="{lang_by_realm('tags','tag_about')}">{lang('about')}</th>
+       <th title="{lang_by_realm('tags','tag_cachable')}">{lang('cachable')}</th>
+       <th title="{lang_by_realm('tags','tag_adminplugin')}">{lang('adminplugin')}</th>
+       <th title="{lang_by_realm('tags','tag_help')}">{lang('help')}</th>
+       <th title="{lang_by_realm('tags','tag_about')}">{lang('about')}</th>
      </tr>
     </thead>
     <tbody>
@@ -27,30 +32,25 @@
       <tr class="{cycle values='row1,row2'}">
        {strip}
        <td>
-         {if isset($one.help_url)}
-           <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{$one.name}</a>
-         {else}
-           {$one.name}
-         {/if}
+        {$one.name}
        </td>
        <td>
           <span title="{lang_by_realm('tags',$one.type)}">{$one.type}</span>
        </td>
-       <td>
-          {if isset($one.admin) && $one.admin}
-            <span title="{lang_by_realm('tags','title_admin')}">{lang('yes')}</span>
-          {else}
-            <span title="{lang_by_realm('tags','title_notadmin')}">{lang('no')}</span>
-          {/if}
+       <td style="text-align:center;">
+         {if empty($one.cachable)}{$iconcno}{else}{$iconcyes}{/if}
        </td>
-       <td>
+       <td style="text-align:center;">
+         {if empty($one.admin)}{$iconno}{else}{$iconyes}{/if}
+       </td>
+       <td style="text-align:center;">
          {if isset($one.help_url)}
-           <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{lang('help')}</a>
+           <a href="{$one.help_url}" title="{lang_by_realm('tags','viewhelp')}">{$iconhelp}</a>
          {/if}
        </td>
-       <td>
+       <td style="text-align:center;">
          {if isset($one.about_url)}
-           <a href="{$one.about_url}" title="{lang_by_realm('tags','viewabout')}">{lang('about')}</a>
+           <a href="{$one.about_url}" title="{lang_by_realm('tags','viewabout')}">{$iconabout}</a>
          {/if}
        </td>
 {/strip}

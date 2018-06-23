@@ -28,7 +28,7 @@ $userid = get_userid();
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
 
 if (!$access) {
-//TODO some immediate popup    ;
+//TODO some immediate popup
     return;
 }
 
@@ -111,17 +111,18 @@ if ($action == 'showpluginhelp') {
             $rec = [];
             $rec['type'] = $parts[0];
             $rec['name'] = $parts[1];
-            $rec['admin'] = 0;
-            if (startswith($onefile,CMS_ADMIN_PATH)) $rec['admin'] = 1;
+            $rec['admin'] = (startswith($onefile,CMS_ADMIN_PATH)) ? 1 : 0;
 
-            include_once $onefile;
+			include_once $onefile;
 
-            // leave smarty_nocache for compatibility for a while
-            if (!function_exists('smarty_'.$rec['type'].'_'.$rec['name']) &&
-	             !function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']) &&
-                !function_exists('smarty_cms_'.$rec['type'].'_'.$rec['name']) ) continue;
+            $rec['cachable'] = !($rec['admin'] || function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name'])); //TODO
 
-            if (function_exists("smarty_cms_help_".$rec['type']."_".$rec['name'])) {
+            // leave smarty_nocache for compatibility for a while ?? TODO
+            if (!(function_exists('smarty_'.$rec['type'].'_'.$rec['name']) ||
+                  function_exists('smarty_cms_'.$rec['type'].'_'.$rec['name']) ||
+                  function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']))) continue;
+
+            if (function_exists('smarty_cms_help_'.$rec['type'].'_'.$rec['name'])) {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
             } elseif (CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'],'tags')) {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
@@ -129,7 +130,7 @@ if ($action == 'showpluginhelp') {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
             }
 
-            if (function_exists("smarty_cms_about_".$rec['type']."_".$rec['name'])) {
+            if (function_exists('smarty_cms_about_'.$rec['type'].'_'.$rec['name'])) {
                 $rec['about_url'] = $selfurl.$urlext.'&amp;action=showpluginabout&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
             }
 
@@ -159,11 +160,18 @@ if ($action == 'showpluginhelp') {
         return strcmp($a['name'],$b['name']);
      });
     $smarty->assign('plugins',$file_array);
+    $themeObject = cms_utils::get_theme_object();
+    $smarty->assign('iconyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_admin'),'','','systemicon'));
+    $smarty->assign('iconno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notadmin'),'','','systemicon'));
+    $smarty->assign('iconcyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_cachable'),'','','systemicon'));
+    $smarty->assign('iconcno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notcachable'),'','','systemicon'));
+    $smarty->assign('iconhelp',$themeObject->DisplayImage('icons/system/help.gif',lang_by_realm('tags','viewhelp'),'','','systemicon'));
+    $smarty->assign('iconabout',$themeObject->DisplayImage('icons/system/info.gif',lang_by_realm('tags','viewabout'),'','','systemicon'));
 }
 
 $smarty->assign([
-	'urlext' => $urlext,
-	'selfurl' => $selfurl,
+    'urlext' => $urlext,
+    'selfurl' => $selfurl,
 ]);
 
 include_once 'header.php';
