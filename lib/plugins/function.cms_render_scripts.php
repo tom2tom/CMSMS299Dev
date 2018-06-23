@@ -39,8 +39,19 @@ function smarty_function_cms_render_scripts( $params, $template )
     }
 }
 
+function smarty_cms_help_function_cms_render_scripts()
+{
+    echo lang_by_realm('tags','help_function_render_scripts');
+}
+
 function smarty_cms_about_function_cms_render_scripts()
 {
 	echo <<<'EOS'
+<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Version: 1.0</p>
+<p>
+Change History:<br />
+None
+</p>
 EOS;
 }
