@@ -2434,6 +2434,13 @@ ul.sortable .placeholder {
 }
 */
 
+/* ace text editor */
+/* @media="screen" */
+#Editor {
+ max-width: 50em;
+ overflow: auto;
+}
+
 /* Changelog, System Maintenance page */
 
 .version {
@@ -3040,4 +3047,3 @@ ul.sortableList > li {
         display: none
     }
 }
-
