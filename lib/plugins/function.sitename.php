@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_sitename($params, &$template)
+function smarty_function_sitename($params, $template)
 {
 	$result = get_site_preference('sitename', 'CMSMS Site');
 

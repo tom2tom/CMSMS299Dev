@@ -1,5 +1,5 @@
 <?php
-function smarty_function_thumbnail_url($params,&$template)
+function smarty_function_thumbnail_url($params, $template)
 {
     $config = \cms_config::get_instance();
     $dir = $config['uploads_path'];

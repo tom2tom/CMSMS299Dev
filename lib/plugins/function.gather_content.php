@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_gather_content($params,&$template)
+function smarty_function_gather_content($params, $template)
 {
     $listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';
     $aout = \CMSMS\HookManager::do_hook($listname, []);
@@ -28,7 +28,8 @@ function smarty_function_gather_content($params,&$template)
     return $out;
 }
 
-function smarty_cms_help_function_gather_content() {
+function smarty_cms_help_function_gather_content()
+{
     echo lang_by_realm('tags','help_function_gather_content');
 }
 

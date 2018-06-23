@@ -27,7 +27,7 @@
 #-------------------------------------------------------------------------
 #END_LICENSE
 
-function smarty_function_cms_selflink($params, &$template)
+function smarty_function_cms_selflink($params, $template)
 {
     $gCms = \CmsApp::get_instance();
 	$manager = $gCms->GetHierarchyManager();
@@ -291,8 +291,7 @@ function smarty_function_cms_selflink($params, &$template)
 	return $result;
 }
 
-function smarty_cms_help_function_cms_selflink() {
+function smarty_cms_help_function_cms_selflink()
+{
     echo lang_by_realm('tags','help_function_cms_selflink');
 }
-
-?>

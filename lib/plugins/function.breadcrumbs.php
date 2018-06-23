@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-function smarty_function_breadcrumbs($params, &$template)
+function smarty_function_breadcrumbs($params, $template)
 {
     // put mention into the admin log
     cms_error('', '&#123breadcrumbs&#125 tag', 'is removed from CMSMS Core. Instead, now use in your HTML template: &#123nav_breadcrumbs&#125 !');

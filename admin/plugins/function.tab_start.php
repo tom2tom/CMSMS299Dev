@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_tab_start($params,&$template)
+function smarty_function_tab_start($params, $template)
 {
 	if( empty($params['name']) ) return '';
 

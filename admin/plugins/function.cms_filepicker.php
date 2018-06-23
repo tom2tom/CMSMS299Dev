@@ -1,5 +1,5 @@
 <?php
-function smarty_function_cms_filepicker($params,&$template)
+function smarty_function_cms_filepicker($params, $template)
 {
     $profile_name = trim(get_parameter_value($params,'profile'));
     $prefix = trim(get_parameter_value($params,'prefix'));

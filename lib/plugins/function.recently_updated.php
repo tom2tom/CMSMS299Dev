@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_recently_updated($params, &$template)
+function smarty_function_recently_updated($params, $template)
 {
     $number = 10;
 	if(!empty($params['number'])) $number = min(100,max(1,(int) $params['number']));

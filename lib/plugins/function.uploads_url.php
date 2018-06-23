@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_uploads_url($params, &$template)
+function smarty_function_uploads_url($params, $template)
 {
     $out = CMS_UPLOADS_URL;
 	if( isset($params['assign']) ) {

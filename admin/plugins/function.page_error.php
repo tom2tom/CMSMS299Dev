@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_page_error($params,&$template)
+function smarty_function_page_error($params, $template)
 {
 	if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 	if( empty($params['msg']) ) return;

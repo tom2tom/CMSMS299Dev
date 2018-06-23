@@ -1,5 +1,5 @@
 <?php
-function smarty_function_file_url($params,&$template)
+function smarty_function_file_url($params, $template)
 {
     $file = trim(get_parameter_value($params,'file'));
     if( !$file ) {

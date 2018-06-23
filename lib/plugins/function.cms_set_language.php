@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_set_language($params, &$template)
+function smarty_function_cms_set_language($params, $template)
 {
   if( isset($params['lang']) ) {
     $lang = trim($params['lang']);

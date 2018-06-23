@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_tab_end($params,&$template)
+function smarty_function_tab_end($params, $template)
 {
 	$out = cms_admin_tabs::end_tab_content();
 	if( isset($params['assign']) ) {

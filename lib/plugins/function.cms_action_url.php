@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-function smarty_function_cms_action_url($params, &$template)
+function smarty_function_cms_action_url($params, $template)
 {
     $module = $template->getTemplateVars('_module');
     $returnid = $template->getTemplateVars('returnid');

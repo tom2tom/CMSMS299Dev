@@ -1,5 +1,5 @@
 <?php
-function smarty_function_theme_root($params,&$template)
+function smarty_function_theme_root($params, $template)
 {
     $theme = \cms_utils::get_theme_object();
     $url = $theme->root_url;

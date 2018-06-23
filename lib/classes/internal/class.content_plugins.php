@@ -33,7 +33,7 @@ final class content_plugins
     private function __construct() {}
 
     // $template is a smarty template, not the global smarty instance
-    private static function content_return($result,&$params,&$template)
+    private static function content_return($result,&$params, $template)
     {
         if ( !empty($params['assign']) ) {
             $template->assign(trim($params['assign']), $result);

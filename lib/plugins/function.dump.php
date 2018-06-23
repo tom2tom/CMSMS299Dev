@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_dump($params, &$template)
+function smarty_function_dump($params, $template)
 {
 	$ignore = array('cms','smarty','db','config','params','param_map','langhash','xml_exclude_files','xmldtd');
 

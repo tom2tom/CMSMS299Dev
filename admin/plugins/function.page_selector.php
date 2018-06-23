@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_page_selector($params,&$template)
+function smarty_function_page_selector($params, $template)
 {
     $value = (isset($params['value']) ) ? (int) $params['value'] : 0;
     $name = (isset($params['name']) ) ? trim($params['name']) : 'parent_id';

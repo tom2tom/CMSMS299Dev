@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_admin_icon($params,&$template)
+function smarty_function_admin_icon($params, $template)
 {
     if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 
