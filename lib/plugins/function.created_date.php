@@ -34,14 +34,13 @@ function smarty_function_created_date($params, &$template)
 	}
 }
 
-function smarty_cms_about_function_created_date() {
-	?>
-	<p>Author: Ted Kulp&lt;tedkulp@users.sf.net&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>None</li>
-	</ul>
-<?php
+function smarty_cms_about_function_created_date()
+{
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>None</li>
+</ul>
+EOS;
 }
-?>

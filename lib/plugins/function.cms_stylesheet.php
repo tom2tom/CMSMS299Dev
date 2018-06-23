@@ -292,14 +292,12 @@ function cms_stylesheet_toString($filename, $media_query = '', $media_type = '',
 
 function smarty_cms_about_function_cms_stylesheet()
 {
-	?>
-	<p>Author: jeff&lt;jeff@ajprogramming.com&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>Rework from {stylesheet}</li>
-		<li>(Stikki and Calguy1000) Code cleanup, Added grouping by media type / media query, Fixed cache issues</li>
-	</ul>
-	<?php
-} // end of about
-?>
+	echo <<<'EOS'
+<p>Author: jeff&lt;jeff@ajprogramming.com&gt;</p>
+<p>Change History:</p>
+<ul>
+ <li>Rework from {stylesheet}</li>
+ <li>(Stikki and Calguy1000) Code cleanup, Added grouping by media type / media query, Fixed cache issues</li>
+</ul>
+EOS;
+}

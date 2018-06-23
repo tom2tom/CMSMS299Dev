@@ -49,15 +49,14 @@ function smarty_function_last_modified_by($params, &$template)
     return $output;
 }
 
-function smarty_cms_about_function_last_modified_by() {
-?>
-	<p>Author: Ted Kulp&lt;tedkulp@users.sf.net&gt;</p>
-
-	<ul>Change History:</p>
-		<ul>
-			<li>Added assign parameter (Calguy)</li>
-        </ul>
-	</p>
-<?php
+function smarty_cms_about_function_last_modified_by()
+{
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
+<ul>Change History:</p>
+<ul>
+<li>Added assign parameter (Calguy)</li>
+</ul>
+</p>
+EOS;
 }
-?>

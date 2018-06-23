@@ -57,14 +57,13 @@ function smarty_function_metadata($params, &$template)
 	return $result;
 }
 
-function smarty_cms_about_function_metadata() {
-?>
-	<p>Author: Ted Kulp&lt;ted@cmsmadesimple.org&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>None</li>
-	</ul>
-<?php
+function smarty_cms_about_function_metadata()
+{
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>None</li>
+</ul>
+EOS;
 }
-?>

@@ -32,14 +32,14 @@ function smarty_cms_function_current_date($params, &$template) {
     return $out;
 }
 
-function smarty_cms_about_function_current_date() {
-	?>
-	<p>Author: Ted Kulp&lt;tedkulp@users.sf.net&gt;</p>
-	<p>Version: 1.0</p>
-	<p>
-	Change History:<br/>
-	None
-	</p>
-	<?php
+function smarty_cms_about_function_current_date()
+{
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
+<p>Version: 1.0</p>
+<p>
+Change History:<br/>
+None
+</p>
+EOS;
 }
-?>

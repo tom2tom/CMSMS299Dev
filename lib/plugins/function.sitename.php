@@ -28,13 +28,11 @@ function smarty_function_sitename($params, &$template)
 
 function smarty_cms_about_function_sitename()
 {
-?>
-        <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
-
-        <p>Change History:</p>
-        <ul>
-			<li>None</li>
-        </ul>
-<?php
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+ <li>None</li>
+</ul>
+EOS;
 }
-?>

@@ -68,15 +68,14 @@ function smarty_function_page_image($params, &$template)
 	return $out;
 }
 
-function smarty_cms_about_function_page_image() {
-?>
-	<p>Author: Ted Kulp&lt;tedkulp@users.sf.net&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>Fix for CMSMS 1.9</li>
-        <li>Jan 2016 <em>(calguy1000)</em> - Adds the full param for CMSMS 2.2</li>
-	</ul>
-<?php
+function smarty_cms_about_function_page_image()
+{
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>Fix for CMSMS 1.9</li>
+<li>Jan 2016 <em>(calguy1000)</em> - Adds the full param for CMSMS 2.2</li>
+</ul>
+EOS;
 }
-?>

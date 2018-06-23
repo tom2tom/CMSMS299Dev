@@ -15,20 +15,20 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_setlist($params, &$template) 
+function smarty_function_setlist($params, &$template)
 {
 	$newlist = array();
-	
+
 	if (!isset($params['var']))
 	{
 		$params['var']='var';
 	}
-	
+
 	if (substr($params['value'],0,1) != '{')
 	{
 		$params['value'] = '{'.$params['value'];
 	}
-	
+
 	$opens = substr_count($params['value'], '{');
 	$closes =  substr_count($params['value'], '}');
 	while ($closes < $opens)
@@ -36,7 +36,7 @@ function smarty_function_setlist($params, &$template)
 		$params['value'] = $params['value'].'}';
 		$closes += 1;
 	}
-	
+
 	$newlist = json_decode($params['value'],true);
 	$template->assign($params['var'],$newlist);
 }
@@ -59,14 +59,13 @@ function smarty_cms_help_function_setlist() {
 <?php
 }
 
-function smarty_cms_about_function_setlist() {
-?>
-	<p>Author: SjG</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>None</li>
-	</ul>
-<?php
+function smarty_cms_about_function_setlist()
+{
+	echo <<<'EOS'
+<p>Author: SjG</p>
+<p>Change History:</p>
+<ul>
+ <li>None</li>
+</ul>
+EOS;
 }
-?>

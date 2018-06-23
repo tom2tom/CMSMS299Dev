@@ -67,15 +67,13 @@ function smarty_function_image($params, &$template)
 
 function smarty_cms_about_function_image()
 {
-?>
-	<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;,</p>
-
-	<p>Change History</p>
-	<ul>
-		<li>Initial release</li>
-		<li>Added alt param and removed the &lt;/img&gt;</li>
-		<li>Added default width, height and alt <small>(contributed by Walter Wlodarski)</small></li>
-	</ul>
-<?php
+	echo <<<'EOS'
+<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;,</p>
+<p>Change History</p>
+<ul>
+<li>Initial release</li>
+<li>Added alt param and removed the &lt;/img&gt;</li>
+<li>Added default width, height and alt <small>(contributed by Walter Wlodarski)</small></li>
+</ul>
+EOS;
 }
-?>

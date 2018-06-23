@@ -75,18 +75,18 @@ function smarty_function_recently_updated($params, &$template)
 	return $output;
 }
 
-function smarty_cms_about_function_recently_updated() {
-?>
-	<p>Author: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt; Olaf Noehring &lt;http://www.team-noehring.de&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>added new parameters:<br />
-		&lt;leadin&gt;. The contents of leadin will be shown left of the modified date. Default is &lt;Modified:&gt;<br />
-		$showtitle='true' - if true, the titleattribute of the page will be shown if it exists (true|false)<br />
-		css_class<br />
-		dateformat - default is d.m.y h:m , use the format you whish (php format)</li>
-	</ul>
-<?php
+function smarty_cms_about_function_recently_updated()
+{
+	echo <<<'EOS'
+<p>Authors: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt; Olaf Noehring &lt;http://www.team-noehring.de&gt;</p>
+<p>Change History:</p>
+<ul>
+ <li>added new parameters:<br />
+  &lt;leadin&gt;. The contents of leadin will be shown left of the modified date. Default is &lt;Modified:&gt;<br />
+  $showtitle='true' - if true, the titleattribute of the page will be shown if it exists (true|false)<br />
+  css_class<br />
+  dateformat - default is d.m.y h:m , use the format you wish (php format)
+ </li>
+</ul>
+EOS;
 }
-?>

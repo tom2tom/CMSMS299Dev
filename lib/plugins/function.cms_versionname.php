@@ -18,23 +18,23 @@
 function smarty_function_cms_versionname($params, $template) {
 
     global $CMS_VERSION_NAME;
-	
+
 	if( isset($params['assign']) ){
 		$template->assign(trim($params['assign']),$CMS_VERSION_NAME);
 		return;
 	}
-	
+
     return $CMS_VERSION_NAME;
 }
 
-function smarty_cms_about_function_cms_versionname() {
-?>
-	<p>Author: Ted Kulp&lt;tedkulp@users.sf.net&gt;</p>
-	<p>Version: 1.0</p>
-	<p>
-	Change History:<br/>
-	None
-	</p>
-<?php
+function smarty_cms_about_function_cms_versionname()
+{
+	echo <<<'EOS'
+<p>Author: Ted Kulp &lt;ted@smsmadesimple.org&gt;</p>
+<p>Version: 1.0</p>
+<p>
+Change History:<br/>
+None
+</p>
+EOS;
 }
-?>

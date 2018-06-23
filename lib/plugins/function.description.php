@@ -36,14 +36,13 @@ function smarty_function_description($params, &$template)
 	return $out;
 }
 
-function smarty_cms_about_function_description() {
-?>
-	<p>Author: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>None</li>
-	</ul>
-<?php
+function smarty_cms_about_function_description()
+{
+	echo <<<'EOS'
+<p>Author: Elijah Lofgren &lt;elijahlofgren@elijahlofgren.com&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>None</li>
+</ul>
+EOS;
 }
-?>

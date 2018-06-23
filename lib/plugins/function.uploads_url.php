@@ -26,14 +26,13 @@ function smarty_function_uploads_url($params, &$template)
 	return $out;
 }
 
-function smarty_cms_about_function_uploads_url() {
-?>
-	<p>Author: Nuno Costa &ltnuno.mfcosta@sapo.pt&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>None</li>
-	</ul>
-<?php
+function smarty_cms_about_function_uploads_url()
+{
+	echo <<<'EOS'
+<p>Author: Nuno Costa &ltnuno.mfcosta@sapo.pt&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>None</li>
+</ul>
+EOS;
 }
-?>

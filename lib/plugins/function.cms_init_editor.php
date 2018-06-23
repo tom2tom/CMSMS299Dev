@@ -49,12 +49,11 @@ function smarty_cms_function_cms_init_editor($params, &$template)
 
 function smarty_cms_about_function_cms_init_editor()
 {
-?>
-  <p>Author: Robert Campbell&lt;calguy1000@cmsmadesimple.org&gt;</p>
-  <p>Change History:</p>
-  <ul>
-    <li>None</li>
-  </ul>
-<?php
+	echo <<<'EOS'
+<p>Author: Robert Campbell&lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>None</li>
+</ul>
+EOS;
 }
-?>

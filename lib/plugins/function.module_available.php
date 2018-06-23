@@ -15,14 +15,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_cms_function_module_available($params, &$template) 
+function smarty_cms_function_module_available($params, &$template)
 {
 	$name = '';
-	if( isset($params['name']) ) 
+	if( isset($params['name']) )
 	{
 		$name = trim($params['name']);
 	}
-	if( isset($params['m']) ) 
+	if( isset($params['m']) )
 	{
 		$name = trim($params['m']);
 	}
@@ -42,14 +42,13 @@ function smarty_cms_function_module_available($params, &$template)
 	return $out;
 }
 
-function smarty_cms_about_function_module_available() {
-?>
-	<p>Author: Robert Campbell&lt;calguy1000@cmsmadesimple.org&gt;</p>
-
-	<p>Change History:</p>
-        <ul>
-			<li>Initial version (for CMSMS 1.11)</li>
-        </ul>
-<?php
+function smarty_cms_about_function_module_available()
+{
+	echo <<<'EOS'
+<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>Initial version (for CMSMS 1.11)</li>
+</ul>
+EOS;
 }
-?>

@@ -27,7 +27,7 @@ function smarty_function_browser_lang($params, &$template)
       $default = strtolower(substr($params['default'],0,2));
     }
 
-  // 
+  //
   // get the accepted languages
   //
   if( !isset($params['accepted']) )
@@ -56,11 +56,11 @@ function smarty_function_browser_lang($params, &$template)
   $accepted = array_merge(array($default),$accepted);
   $accepted = array_unique($accepted);
 
-  // 
+  //
   // now process browser language
   //
   $res = $default;
-  if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"])) 
+  if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
     {
 		$alllang = $_SERVER["HTTP_ACCEPT_LANGUAGE"];
 		if (strpos($alllang, ";") !== FALSE)
@@ -85,19 +85,17 @@ function smarty_function_browser_lang($params, &$template)
 		$template->assign(trim($params['assign']),$res);
 		return;
     }
-  
+
   return $res;
 }
 
 function smarty_cms_about_function_browser_lang()
 {
-?>
-	<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
-
-	<p>Change History:</p>
-	<ul>
-		<li>Written for CMSMS 1.9</li>
-	</ul>
-<?php
+	echo <<<'EOS'
+<p>Author: Robert Campbell &lt;calguy1000@cmsmadesimple.org&gt;</p>
+<p>Change History:</p>
+<ul>
+<li>Written for CMSMS 1.9</li>
+</ul>
+EOS;
 }
-?>
