@@ -31,7 +31,7 @@
 {elseif $ftype == 'audio'}
   <p><audio src="{$file_url}" controls preload="metadata"></audio></p>
 {elseif $ftype == 'text'}
-  <div id="Editor" class="editor">{$content}</div>
+  <div id="Editor">{$content}</div>
   {if isset($edit)}{$reporter}{/if}
 {/if}
 <div class="pregap">
