@@ -87,140 +87,145 @@ function fill_section(XMLWriter $xwm, CMSMS\Database\Connection $db, array $stru
 }
 
 /**
- * Export site content (pages, templates, designs, styles etc) to XML file
+ * Export site content (pages, templates, designs, styles etc) to XML file.
+ * Support' files (in the uploads folder) and UDT's (in the assets/simple_plugins folder)
+ * are recorded as such, and will be copied into the specified $filesfolder if it exists.
+ * Otherwise, that remains a manual task.
+ *
  * @param string $xmlfile filesystem path of file to use
+ * @param string $filesfolder path of installer-tree folder which will contain any 'support' files
  * @param Connection $db database connection
  */
-function export_content(string $xmlfile, CMSMS\Database\Connection $db)
+function export_content(string $xmlfile, string $filesfolder, CMSMS\Database\Connection $db)
 {
 	//data arrangement
 	//mostly table- and field-names, must be manually reconciled with schema
 	$skeleton = [
-	 'designs' => [
-	  'table' => 'layout_designs',
-	  'subtypes' => [
-	   'design' => [
-		'id' => [],
-		'name' => [],
-		'description' => [],
-		'dflt' => ['notempty'=>1],
-	   ]
-	  ]
-	 ],
-	 'stylesheets' => [
-	  'table' => 'layout_stylesheets',
-	  'subtypes' => [
-	   'stylesheet' => [
-		'id' => [],
-		'name' => [],
-		'description' => ['notempty' => 1],
-		'media_type' => ['notempty' => 1],
-		'content' => ['isdata'=>1],
-	   ]
-	  ]
-	 ],
-	 'designstyles' => [
-	  'sql' => 'SELECT * FROM %slayout_design_cssassoc ORDER BY css_id,item_order',
-	  'subtypes' => [
-	   'designcss' => [
-		'design_id' => [],
-		'css_id' => [],
-		'item_order' => ['notempty' => 1],
-	   ]
-	  ]
-	 ],
-	 'tpltypes' => [
-	  'table' => 'layout_tpl_type',
-	  'subtypes' => [
-	   'tpltype' => [
-		'id' => [],
-		'name' => [],
-		'description' => ['notempty' => 1],
-		'originator' => [],
-		'one_only' => ['notempty' => 1],
-		'has_dflt' => ['notempty' => 1],
-		'dflt_contents' => ['isdata' => 1, 'notempty' => 1],
-		'requires_contentblocks' => ['notempty' => 1],
-		'lang_cb' => ['notempty' => 1],
-		'dflt_content_cb' => ['notempty' => 1],
-		'help_content_cb' => ['notempty' => 1],
-	   ]
-	  ]
-	 ],
-	 'categories' => [
-	  'table' => 'layout_tpl_categories',
-	  'subtypes' => [
-	   'category' => [
-		'id' => [],
-		'name' => [],
-		'description' => ['notempty' => 1],
-		'item_order' => ['notempty' => 1],
-	   ]
-	  ]
-	 ],
-	 'templates' => [
-	  'table' => 'layout_templates',
-	  'subtypes' => [
-	   'template' => [
-		'id' => [],
-		'name' => [],
-		'description' => ['notempty' => 1],
-		'type_id' => [],
-		'category_id' => ['notempty' => 1],
-		'type_dflt' => ['notempty' => 1],
-		'content' => ['isdata'=>1],
-	   ]
-	  ]
-	 ],
-	 'designtemplates' => [
-	  'sql' => 'SELECT * FROM %slayout_design_tplassoc ORDER BY tpl_id,tpl_order',
-	  'subtypes' => [
-	   'designtpl' => [
-		'design_id' => [],
-		'tpl_id' => [],
-		'tpl_order' => ['notempty' => 1],
-	   ]
-	  ]
-	 ],
-	 'categorytemplates' => [
-	  'sql' => 'SELECT * FROM %slayout_cat_tplassoc ORDER BY tpl_id,tpl_order',
-	  'subtypes' => [
-	   'cattpl' => [
-		'category_id' => [],
-		'tpl_id' => [],
-		'tpl_order' => ['notempty' => 1],
-	   ]
-	  ]
-	 ],
-	 'pages' => [
-	  'table' => 'content',
-	  'subtypes' => [
-	   'page' => [
-		'content_id' => [],
-		'content_name' => [],
-		'content_alias' => [],
-		'type' => [],
-		'template_id' => [],
-		'parent_id' => [],
-		'active' => ['keeps'=>[1]],
-		'default_content' => ['keeps'=>[1]],
-		'show_in_menu' => ['keeps'=>[1]],
-		'menu_text' => ['isdata'=>1],
-		'cachable' => ['keeps'=>[1]],
-	   ]
-	  ]
-	 ],
-	 'properties' => [
-	  'table' => 'content_props',
-	  'subtypes' => [
-	   'property' => [
-		'content_id' => [],
-		'prop_name' => [],
-		'content' => ['isdata'=>1],
-	   ]
-	  ]
-	 ],
-	];
+     'designs' => [
+      'table' => 'layout_designs',
+      'subtypes' => [
+       'design' => [
+        'id' => [],
+        'name' => [],
+        'description' => [],
+        'dflt' => ['notempty'=>1],
+       ]
+      ]
+     ],
+     'stylesheets' => [
+      'table' => 'layout_stylesheets',
+      'subtypes' => [
+       'stylesheet' => [
+        'id' => [],
+        'name' => [],
+        'description' => ['notempty' => 1],
+        'media_type' => ['notempty' => 1],
+        'content' => ['isdata'=>1],
+       ]
+      ]
+     ],
+     'designstyles' => [
+      'sql' => 'SELECT * FROM %slayout_design_cssassoc ORDER BY css_id,item_order',
+      'subtypes' => [
+       'designcss' => [
+        'design_id' => [],
+        'css_id' => [],
+        'item_order' => ['notempty' => 1],
+       ]
+      ]
+     ],
+     'tpltypes' => [
+      'table' => 'layout_tpl_type',
+      'subtypes' => [
+       'tpltype' => [
+        'id' => [],
+        'name' => [],
+        'description' => ['notempty' => 1],
+        'originator' => [],
+        'one_only' => ['notempty' => 1],
+        'has_dflt' => ['notempty' => 1],
+        'dflt_contents' => ['isdata' => 1, 'notempty' => 1],
+        'requires_contentblocks' => ['notempty' => 1],
+        'lang_cb' => ['notempty' => 1],
+        'dflt_content_cb' => ['notempty' => 1],
+        'help_content_cb' => ['notempty' => 1],
+       ]
+      ]
+     ],
+     'categories' => [
+      'table' => 'layout_tpl_categories',
+      'subtypes' => [
+       'category' => [
+        'id' => [],
+        'name' => [],
+        'description' => ['notempty' => 1],
+        'item_order' => ['notempty' => 1],
+       ]
+      ]
+     ],
+     'templates' => [
+      'table' => 'layout_templates',
+      'subtypes' => [
+       'template' => [
+        'id' => [],
+        'name' => [],
+        'description' => ['notempty' => 1],
+        'type_id' => [],
+        'category_id' => ['notempty' => 1],
+        'type_dflt' => ['notempty' => 1],
+        'content' => ['isdata'=>1],
+       ]
+      ]
+     ],
+     'designtemplates' => [
+      'sql' => 'SELECT * FROM %slayout_design_tplassoc ORDER BY tpl_id,tpl_order',
+      'subtypes' => [
+       'designtpl' => [
+        'design_id' => [],
+        'tpl_id' => [],
+        'tpl_order' => ['notempty' => 1],
+       ]
+      ]
+     ],
+     'categorytemplates' => [
+      'sql' => 'SELECT * FROM %slayout_cat_tplassoc ORDER BY tpl_id,tpl_order',
+      'subtypes' => [
+       'cattpl' => [
+        'category_id' => [],
+        'tpl_id' => [],
+        'tpl_order' => ['notempty' => 1],
+       ]
+      ]
+     ],
+     'pages' => [
+      'table' => 'content',
+      'subtypes' => [
+       'page' => [
+        'content_id' => [],
+        'content_name' => [],
+        'content_alias' => [],
+        'type' => [],
+        'template_id' => [],
+        'parent_id' => [],
+        'active' => ['keeps'=>[1]],
+        'default_content' => ['keeps'=>[1]],
+        'show_in_menu' => ['keeps'=>[1]],
+        'menu_text' => ['isdata'=>1],
+        'cachable' => ['keeps'=>[1]],
+       ]
+      ]
+     ],
+     'properties' => [
+      'table' => 'content_props',
+      'subtypes' => [
+       'property' => [
+        'content_id' => [],
+        'prop_name' => [],
+        'content' => ['isdata'=>1],
+       ]
+      ]
+     ],
+    ];
 
 	@unlink($xmlfile);
 
@@ -292,7 +297,14 @@ function export_content(string $xmlfile, CMSMS\Database\Connection $db)
  <!ELEMENT properties (property+)>
  <!ELEMENT property (content_id,prop_name,content)>
  <!ELEMENT prop_name (#PCDATA)>
-');
+ <!ELEMENT files (sourcedir?,file+)>
+ <!ELEMENT file (name,topath,(frompath|embedded),content?)>
+ <!ELEMENT topath (#PCDATA)>
+ <!ELEMENT frompath (#PCDATA)>
+ <!ELEMENT embedded (#PCDATA)>
+ <!ELEMENT userplugins (sourcedir?,file+)>
+ <!ELEMENT file (name,(frompath|embedded),content?)>
+ ');
 
 	$xw->startElement('cmsmsinstall');
 	$xw->writeElement('dtdversion', CONTENT_DTD_VERSION);
@@ -303,6 +315,84 @@ function export_content(string $xmlfile, CMSMS\Database\Connection $db)
 	}
 
 	$xw->text("\n");
+
+	$copynow = is_dir($filesfolder);
+	$config = cms_config::get_instance();
+	$frombase = $config['uploads_path'];
+	if(is_dir($frombase)) {
+		$skip = strlen($frombase) + 1;
+
+ 		$xw->startElement('files');
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($frombase,
+				FilesystemIterator::KEY_AS_PATHNAME |
+				FilesystemIterator::FOLLOW_SYMLINKS |
+				FilesystemIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::LEAVES_ONLY |
+			RecursiveIteratorIterator::CHILD_FIRST);
+		foreach ($iter as $p=>$info) {
+			if (!$info->isDir()) {
+				$tail = substr($p, $skip);
+				if ($copynow) {
+					$tp = $filesfolder.DIRECTORY_SEPARATOR.$tail;
+					$dir = dirname($tp);
+					@mkdir($dir, 0771, true);
+					@copy($p, $tp);
+				}
+				$xw->startElement('file');
+				$xw->writeElement('name', $info->getBasename());
+				//TODO if !$copynow, consider embedding some files as base64_encoded esp. if only a few
+                $td = dirname($tail);
+                if ($td == '.') $td = '';
+				$xw->writeElement('frompath', $td);
+				$xw->writeElement('topath', $td);
+				$xw->endElement(); // file
+			}
+		}
+		$xw->endElement(); // files
+	}
+
+	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+	$skip = strlen($frombase);
+	if ($copynow) {
+		$dir = $filesfolder.DIRECTORY_SEPARATOR.'simple_plugins';
+		@mkdir($dir, 0771, true);
+		$copycount = 0;
+	}
+
+	$xw->startElement('userplugins');
+	$iter = new RecursiveIteratorIterator(
+		new RecursiveDirectoryIterator($frombase,
+			FilesystemIterator::KEY_AS_PATHNAME |
+			FilesystemIterator::FOLLOW_SYMLINKS |
+			FilesystemIterator::SKIP_DOTS),
+		RecursiveIteratorIterator::LEAVES_ONLY |
+		RecursiveIteratorIterator::CHILD_FIRST);
+	foreach ($iter as $p=>$info) {
+		if (!$info->isDir()) {
+			$name = $info->getBasename();
+			if (!endswith($name, '.php')) continue;
+			if ($copynow) {
+				@copy($p, $dir.DIRECTORY_SEPARATOR.$name);
+				++$copycount;
+			}
+			$xw->startElement('file');
+			$xw->writeElement('name', $name);
+			//TODO if !$copynow, consider embedding some files as htmlspecialchars-encoded esp. if only a few
+/*			$tail = substr($p, $skip);
+            $td = dirname($tail);
+            if ($td == '.') $td = '';
+			$xw->writeElement('frompath', $td);
+*/
+			$xw->writeElement('frompath', '');
+			$xw->endElement(); // file
+		}
+	}
+	$xw->endElement(); // userplugins
+	if ($copynow && $copycount == 0) {
+		@rmdir($dir);
+	}
+
 	$xw->endElement(); // cmsmsinstall
 	$xw->endDocument();
 	$xw->flush(false);
@@ -313,9 +403,11 @@ function export_content(string $xmlfile, CMSMS\Database\Connection $db)
  *
  * @global type $CMS_INSTALL_PAGE
  * @param string $xmlfile filesystem path of file to import
+ * @param string $filesfolder Optional 'non-default' filesystem path of folder
+ *  containing 'support' files e.g. images, iconfonts.
  * @return string status/error message or ''
  */
-function import_content(string $xmlfile) : string
+function import_content(string $xmlfile, string $filesfolder = '') : string
 {
 	// security checks right here, to supplement upstream/external
 	global $CMS_INSTALL_PAGE;
@@ -419,7 +511,7 @@ function import_content(string $xmlfile) : string
 							$val = $styles[$val];
 							$bank[$val][0][] = $designs[$val2];
 							$bank[$val][1][] = intval((string)$node->item_order);
-                        }
+						}
 					}
 					foreach ($bank as $sid=>$arr) {
 						try {
@@ -439,13 +531,14 @@ function import_content(string $xmlfile) : string
 					} else {
 						$val2 = CmsLayoutTemplateType::CORE;
 					}
+					$pattern = '/^([as]:\d+:|[Nn](ull)?;)/';
 					foreach ($typenode->children() as $node) {
 						$val = (string)$node->originator;
 						if (!$val) {
 							$val = $val2;
 						} elseif ($val != $val2) {
 							continue; //core-only: modules' template-data installed by them
-                        }
+						}
 						$ob = new CmsLayoutTemplateType();
 						try {
 							$ob->set_name((string)$node->name);
@@ -467,15 +560,15 @@ function import_content(string $xmlfile) : string
 						$ob->set_content_block_flag((string)$node->requires_contentblocks != false);
 						$val = (string)$node->lang_cb;
 						if ($val) {
-							if (strncmp($val,'s:',2) == 0) $ob->set_lang_callback(unserialize($val, []));  else $ob->set_lang_callback($val);
+							if (preg_match($pattern, $val)) $ob->set_lang_callback(unserialize($val, []));  else $ob->set_lang_callback($val);
 						}
 						$val = (string)$node->help_content_cb;
 						if ($val) {
-							if (strncmp($val,'s:',2) == 0) $ob->set_help_callback(unserialize($val, [])); else $ob->set_help_callback($val);
+							if (preg_match($pattern, $val)) $ob->set_help_callback(unserialize($val, [])); else $ob->set_help_callback($val);
 						}
 						$val = (string)$node->dflt_content_cb;
 						if ($val) {
-							if (strncmp($val,'s:',2) == 0) $ob->set_content_callback(unserialize($val, [])); else $ob->set_content_callback($val);
+							if (preg_match($pattern, $val)) $ob->set_content_callback(unserialize($val, [])); else $ob->set_content_callback($val);
 						}
 						try {
 							$ob->reset_content_to_factory();
@@ -609,6 +702,89 @@ function import_content(string $xmlfile) : string
 					}
 					foreach ($pageobs as $ob) {
 						$ob->Save();
+					}
+					break;
+				case 'files':
+					$config = cms_config::get_instance();
+					$tobase = $config['uploads_path'];
+					if ($tobase) {
+						$tobase .= DIRECTORY_SEPARATOR;
+					} else {
+						continue;
+					}
+					if ($filesfolder) {
+						//TODO validity check e.g. somewhere absolute in installer tree
+						$frombase = $filesfolder.DIRECTORY_SEPARATOR;
+					} else {
+						$frombase = '';
+					}
+
+					foreach ($typenode->children() as $node) {
+						$name = (string)$node->name;
+						$to = $tobase.(string)$node->topath;
+						if (!endswith($to, DIRECTORY_SEPARATOR)) {
+							$to .= DIRECTORY_SEPARATOR;
+						}
+						if ((string)$node->embedded) {
+							@file_put_contents($to.$name, base64_decode((string)$node->content));
+						} else {
+							$from = (string)$node->frompath;
+							if ($from) {
+ 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+									if ($frombase) {
+										$from = $frombase.$from;
+									} else {
+										$from = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$from;
+									}
+								} else {
+									//TODO validity check e.g. somewhere absolute in installer tree
+								}
+								$from .= DIRECTORY_SEPARATOR;
+							} elseif ($frombase) {
+								$from = $frombase;
+							} else {
+								continue;
+							}
+							$dir = dirname($to.$name);
+							@mkdir($dir, 0771, true);
+							// intentional fail if path(s) bad
+							@copy($from.$name, $to.$name);
+						}
+					}
+					break;
+				case 'userplugins':
+					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+					if ($filesfolder) {
+						//TODO validity check e.g. somewhere absolute in installer tree
+						$frombase = $filesfolder.DIRECTORY_SEPARATOR;
+					} else {
+						$frombase = '';
+					}
+
+					foreach ($typenode->children() as $node) {
+						$name = (string)$node->name;
+						if ((string)$node->embedded) {
+							@file_put_contents($tobase.$name, htmlspecialchars_decode((string)$node->content));
+						} else {
+							$from = (string)$node->frompath;
+							if ($from) {
+ 								if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $from)) { //not absolute
+									if ($frombase) {
+										$from = $frombase.$from;
+									} else {
+										$from = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.$from;
+									}
+								} else {
+									//TODO validity check e.g. somewhere absolute in installer tree
+								}
+								$from .= DIRECTORY_SEPARATOR;
+							} elseif ($frombase) {
+								$from = $frombase;
+							} else {
+								continue;
+							}
+							@copy($from.$name, $tobase.$name);
+						}
 					}
 					break;
 			}
