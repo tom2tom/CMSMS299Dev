@@ -2172,7 +2172,6 @@ table.pagetable th.pagepos {
 }
 table.pagetable th.pageicon {
     min-width: 16px;
-    width: 1%;
     border: none
 }
 
