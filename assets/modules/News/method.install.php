@@ -83,10 +83,11 @@ modified_date DT
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fieldvals', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-#Set Permission
+#Set Permissions
 $this->CreatePermission('Modify News', 'Modify News');
 $this->CreatePermission('Approve News', 'Approve News For Frontend Display');
 $this->CreatePermission('Delete News', 'Delete News Articles');
+$this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
 
 # Setup summary template
 try {

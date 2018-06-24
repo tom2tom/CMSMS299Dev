@@ -25,11 +25,12 @@ $db->DropSequence( CMS_DB_PREFIX."module_news_categories_seq" );
 $this->RemovePermission('Modify News');
 $this->RemovePermission('Approve News');
 $this->RemovePermission('Delete News');
+$this->RemovePermission('Modify News Preferences');
 
 // Remove all preferences for this module
 $this->RemovePreference();
 
-// And all Templates
+// And all templates
 $this->DeleteTemplate();
 
 #Setup events

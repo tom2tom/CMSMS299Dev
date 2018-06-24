@@ -1,9 +1,8 @@
 <?php
 
+//PHP 5.4+
 use CMSMS\AdminUtils;
 use CMSMS\CmsException;
-//use \Exception;
-//use function startswith;
 
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
@@ -178,4 +177,13 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
     }
 }
 
-?>
+if( version_compare($oldversion,'2.52') < 0 ) {
+    $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
+    if( version_compare(CMS_VERSION,'2.2.900') >= 0 ) {
+        $modname = $this->GetName();
+        $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname);
+        if( is_dir($fp) ) recursive_delete($fp);
+        $fp = cms_join_path(CMS_ROOT_PATH,'modules',$modname);
+        if( is_dir($fp) ) recursive_delete($fp);
+    }
+}
