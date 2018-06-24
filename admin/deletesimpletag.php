@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SimpleTagOperations;
+use CMSMS\SimplePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -31,19 +31,19 @@ if (!$pmod) exit;
 
 $themeObject = cms_utils::get_theme_object();
 
-$tagname = cleanValue($_GET('name'));
-$ops = SimpleTagOperations::get_instance();
+$tagname = cleanValue($_GET['name']);
+$ops = SimplePluginOperations::get_instance();
 $fp = $ops->file_path($tagname);
 if (is_file($fp)) {
 //? send event :: deleteuserdefinedtagpre
     if ($ops->delete($tagname)) {
-        $themeObject->RecordNotice('success', lang('deleted_udt'));
+        $themeObject->ParkNotice('success', lang('deleted_udt'));
 //? send event :: deleteuserdefinedtagpost
     } else {
-        $themeObject->RecordNotice('error', lang('errordeletag'));
+        $themeObject->ParkNotice('error', lang('errordeletag'));
     }
 } else {
-    $themeObject->RecordNotice('error', lang('error_internal'));
+    $themeObject->ParkNotice('error', lang('error_internal'));
 }
 
 $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
