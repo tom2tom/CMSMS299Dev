@@ -17,7 +17,9 @@
 
 namespace CMSMS;
 
+use CMSMS\internal\Smarty;
 use InvalidArgumentException;
+use ParseError;
 use RuntimeException;
 use const CMS_ASSETS_PATH;
 
@@ -52,94 +54,94 @@ final class SimplePluginOperations
         return self::$_instance;
     }
 
-	/**
-	 * Get specified metadata for simple plugin named $name
-	 * @param string $name Tag name
-	 * @param string $key  Key of wanted data, or '*' for everything
-	 * @return mixed null if the tag's metadata doesn't include $key or there's no metadata at all
-	 */
-	public function get_meta(string $name, string $key)
-    {
-		list($meta,$code) = $this->get($name);
-		if( $key != '*' ) return $meta[$key] ?? null;
-		return ($meta) ? $meta : null;
-	}
-
     /**
-     * Process lines of a tagfile into usable form
-     * @ignore
-     * @param array $lines Tagfile content split into individual lines
-     * @param int   $r     Index of the member of $lines which is the start of actual PHP code
-     * @return array 2-members, [0]=assoc array of metadata, [1]=PHP code multi-line string
+     * Get specified metadata for simple plugin named $name
+     * @param string $name Tag name
+     * @param string $key  Key of wanted data, or '*' for everything
+     * @return mixed null if the tag's metadata doesn't include $key or there's no metadata at all
      */
-    protected function parse_content(array $lines, int $r) : array
+    public function get_meta_data(string $name, string $key)
     {
-        $meta = [
-         'license'=>'',
-         'description'=>'',
-         'parameters'=>[],
-        ];
-        $head = implode('', array_slice($lines, 0, $r-1, true));
-        $ps = strpos($head, '<simpleplugin>');
-        $pe = strpos($head, '</simpleplugin>', $ps);
-        if( $ps !== false && $pe !== false ) {
-            $xmlstr = substr($head,$ps, $pe - $ps + 15);
-            $xml = simplexml_load_string($xmlstr);
-            if( $xml !== false ) {
-                $meta['license'] = htmlspecialchars_decode((string)$xml->license, ENT_XML1);
-                $meta['description'] = htmlspecialchars_decode((string)$xml->description, ENT_XML1);
-                if( ($arr = $xml->xpath('parameters')) ) {
-                    foreach( $arr as $node ) {
-                        $meta['parameters'][] = htmlspecialchars_decode((string)$node->parameter, ENT_XML1);
-                    }
-                }
-            }
+        list($meta) = $this->get($name, false);
+        if( $meta ) {
+            if( $key != '*' ) return $meta[$key] ?? null;
+            return $meta;
         }
-
-        $code = implode('', array_slice($lines, $r, count($lines) - $r, true));
-        return [$meta, $code];
+        return null;
     }
 
     /**
      * Return interpreted contents of the simple plugin named $name.
      *
      * @param string $name plugin name
+     * @param bool   $withcode Optional flag, whether to also retrieve tag code. Default true
      * @return 2-member array:
-     *  [0] = assoc array of metadata,
+     *  [0] = assoc array of metadata, with at least 'name', optionally also
+     *   some/all of 'description','parameters','license'
      *  [1] = multi-line string of the tag's PHP code,
      * or else empty array upon error
      */
-    public function get(string $name) : array
+    public function get(string $name, $withcode = true) : array
     {
-        $fp = $this->plugin_filepath($name);
+        $fp = $this->file_path($name);
         if( is_file($fp) ) {
-            $skips = '~^\s*(<\?php|#|//|</?[\w]+>)~'; //ignore lines starting like this
-            $patn2 = '~/\*~'; //start of multi-line comment
-            $patn3 = '~\*/~'; //end of multi-line comment
-            $d = 0;
-			$p = 0;
-            $lines = file($fp);
-            foreach( $lines as $r=>$l ) {
-                if( preg_match($skips, $l) ) {
-					if( strpos($l, '<parameter') !== false ) ++$p;
-					if( strpos($l, '</parameter') !== false ) --$p; //maybe same line
-                    continue;
-                }
-                elseif( preg_match($patn2, $l) ) {
-                    ++$d;
-                }
-                elseif( preg_match($patn3, $l) ) {
-                    if( --$d == 0 ) {
-                        //too bad if code starts on the same line as the '*/' !
-                        return $this->parse_content($lines, $r+1);
+            $cont = file_get_contents($fp);
+            if( $cont ) {
+                $ps = strpos($cont, '<metadata>');
+                $pe = strpos($cont, '</metadata>', $ps);
+                if( $ps !== false && $pe !== false ) {
+                    $meta = ['name' => $name];
+                    $xmlstr = substr($cont,$ps, $pe - $ps + 11);
+                    $xml = simplexml_load_string($xmlstr);
+                    if( $xml !== false ) {
+                        $val = (string)$xml->description;
+                        if( $val ) $meta['description'] = htmlspecialchars_decode($val, ENT_XML1);
+                        $val = (string)$xml->parameters;
+                        if( $val ) $meta['parameters'] = htmlspecialchars_decode($val, ENT_XML1);
+                        $val = (string)$xml->license;
+                        if( $val ) $meta['license'] = htmlspecialchars_decode($val, ENT_XML1);
                     }
-                    elseif( $d < 0 ) break; //format error
-                }
-                elseif( $p > 0 ) {
-					continue;
-				}
-                else {
-                    return $this->parse_content($lines, $r);
+                    if( $withcode ) {
+                        $ps = strpos($cont, '*/', $pe);
+                        $code = ( $ps !== false ) ? trim(substr($cont, $ps + 2), " \t\n\r") : '';
+                    }
+                    else {
+                        $code = '';
+                    }
+                    return [$meta, $code];
+                } else {
+                    // malformed tag file !
+                    if( $withcode ) {
+                        // skip any introductory comment(s)
+                        $skips = '~^\s*(<\?php|#|//)~'; //ignore lines starting like this
+                        $patn2 = '~/\*~'; //start of multi-line comment
+                        $patn3 = '~\*/~'; //end of multi-line comment
+                        $d = 0;
+                        $lines = preg_split('/$\R?^/m', $cont);
+                        foreach( $lines as $r=>$l ) {
+                            if( preg_match($skips, $l) ) {
+                                continue;
+                            }
+                            elseif( preg_match($patn2, $l) ) {
+                                ++$d;
+                            }
+                            elseif( preg_match($patn3, $l) ) {
+                                if( --$d == 0 ) {
+                                    //too bad if code starts on the same line as the '*/' !
+                                    break;
+                                }
+                                elseif( $d < 0 ) $d = 0; //format error
+                            }
+                            else {
+                                break;
+                            }
+                        }
+                        $code = implode("\n", array_slice($lines, $r, count($lines) - $r, true));
+                    }
+                    else {
+                        $code = '';
+                    }
+                    return [['name'=>$name], $code];
                 }
             }
         }
@@ -147,53 +149,74 @@ final class SimplePluginOperations
     }
 
     /**
-     * Store contents of the simple plugin named $name, creating the file if not already existing.
+     * Save simple plugin named $name. The file will be created or overwitten as appropriate.
      *
-     * @param string $name
-     * @param string $meta Assoc array of tag metadata,
-     * @param string $code The tag's PHP code (assumed no trailing newline)
+     * @param string $name Tag name
+     * @param array  $meta Assoc array of tag metadata with at least 'name',
+     *  optionally also any/all of 'description','parameters','license'
+     * @param string $code The tag's PHP code
      * @return bool indicating success
      */
-    public function save(string $name, string $meta, string $code) : bool
+    public function save(string $name, array $meta, string $code) : bool
     {
         if( !$this->is_valid_plugin_name($name) ) {
             return false;
         }
-        if( !$code ) { //TODO also some sort of validation
+
+        $code = trim($code, " \t\n\r");
+        if( $code ) {
+            $code = filter_var($code, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK);
+            //TODO sensible PHP validation
+            $params = [];
+            $smarty = $template = Smarty::get_instance();
+            ob_start();
+            try {
+                eval($code);
+            } catch (ParseError $e) {
+                ob_end_clean();
+                return false;
+            }
+            ob_end_clean();
+        }
+        else {
             return false;
         }
 
-        $l = ( !empty($meta['license']) ) ? htmlspecialchars(trim($meta['license']), ENT_XML1) : '';
-        $d = ( !empty($meta['description']) ) ? htmlspecialchars(trim($meta['license']), ENT_XML1) : '';
+        $d = ( !empty($meta['description']) ) ?
+            '<description>'."\n".htmlspecialchars(trim($meta['description']), ENT_XML1)."\n".'</description>':
+            '<description></description>';
+        $p = ( !empty($meta['parameters']) ) ?
+            '<parameters>'."\n".htmlspecialchars(trim($meta['parameters']), ENT_XML1)."\n".'</parameters>':
+            '<parameters></parameters>';
+        $l = ( !empty($meta['license']) ) ?
+            '<license>'."\n".htmlspecialchars(trim($meta['license']), ENT_XML1)."\n".'</license>':
+            '<license></license>';
+
         $out = <<<EOS
 <?php
 /*
-<simpleplugin>
-<license>$l</license>
-<description>$d</description>
-<parameters>
-
-EOS;
-        if( isset($meta['parameters']) ) {
-            foreach($meta['parameters'] as $l) {
-                $l = trim($l);
-                if( $l ) {
-                    $d = htmlspecialchars($l, ENT_XML1);
-                    $out .= <<<EOS
-<parameter>$d</parameter>
-EOS;
-                }
-            }
-        }
-
-        $out .= <<<'EOS'
-</parameters>
-</simpleplugin>
+<metadata>
+$l
+$d
+$p
+</metadata>
 */
 
 EOS;
-        $fp = $this->plugin_filepath($name);
+        $fp = $this->file_path($name);
         return @file_put_contents($fp, $out.$code."\n", LOCK_EX);
+    }
+
+    /**
+     * Delete simple plugin named $name.
+     *
+     * @param string $name plugin name
+     * @return bool indicating success
+     */
+    public function delete(string $name) : bool
+    {
+        $fp = $this->file_path($name);
+        return is_file($fp) && @unlink($fp);
     }
 
     /**
@@ -221,7 +244,7 @@ EOS;
      * @param string $name plugin name
      * @return string absolute path for a plugin named $name
      */
-    public function plugin_filepath(string $name) : string
+    public function file_path(string $name) : string
     {
         return CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR.$name.'.php';
     }
@@ -237,8 +260,8 @@ EOS;
     public function plugin_exists(string $name) : bool
     {
         if( !$this->is_valid_plugin_name( $name ) ) throw new InvalidArgumentException("Invalid name passed to ".__METHOD__);
-        $fn = $this->plugin_filepath( $name );
-        return is_file($fn);
+        $fp = $this->file_path( $name );
+        return is_file($fp);
     }
 
     /**
@@ -270,11 +293,11 @@ EOS;
             throw new InvalidArgumentException("Invalid name passed to ".__METHOD__);
         }
         if( !isset($this->_loaded[$name]) ) {
-            $fn = $this->plugin_filepath( $name );
-            if( !is_file($fn) ) {
+            $fp = $this->file_path( $name );
+            if( !is_file($fp) ) {
                 throw new RuntimeException('Could not find simple plugin named '.$name);
             }
-            $code = file_get_contents($fn);
+            $code = file_get_contents($fp);
             if( !preg_match('/^[\s\n]*<\?php/', $code) ) {
                 throw new RuntimeException('Invalid file content for simple plugin named '.$name);
             }
@@ -292,15 +315,15 @@ EOS;
      */
     public static function __callStatic(string $name, array $args)
     {
-        $fn = self::get_instance()->plugin_filepath( $name );
-        if( !is_file($fn) ) throw new \RuntimeException('Could not find simple plugin named '.$name);
+        $fp = self::get_instance()->file_path( $name );
+        if( !is_file($fp) ) throw new \RuntimeException('Could not find simple plugin named '.$name);
 
         // in-scope variables for the file code
         $params = $args[0];
         if( $params ) extract($params);
         $smarty = $template = $args[1];
 
-        include_once $fn;
+        include_once $fp;
     }
 } // class
 
