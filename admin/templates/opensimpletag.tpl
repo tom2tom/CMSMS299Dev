@@ -1,7 +1,7 @@
-<h3 class="pagesubtitle">{if $name!='-1'} {lang('editusertag')}{else}{lang('addusertag')}{/if}</h3>
+<h3 class="pagesubtitle">{if $name!='-1'} {lang('edit_udt')}{else}{lang('add_udt')}{/if}</h3>
 <form id="userplugin" action="{$selfurl}{$urlext}" method="post">
 <div class="hidden">
-  <input type="hidden" name="oldtagname=" value="{$name}" />
+  <input type="hidden" name="oldtagname" value="{$name}" />
   <textarea id="reporter" name="code" style="display:none;"></textarea>
 </div>
   <div class="pageoverflow">
@@ -50,6 +50,6 @@
   <div class="pregap">
     <button type="submit" name="submit" id="submitme" class="adminsubmit icon check">{lang('submit')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-    <button type="submit" name="apply" id="applybtn" title="{lang('title_applyusertag')}" class="adminsubmit icon apply">{lang('apply')}</button>
+    <button type="submit" name="apply" id="applybtn" title="{lang('title_apply_udt')}" class="adminsubmit icon apply">{lang('apply')}</button>
   </div>
 </form>
