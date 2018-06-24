@@ -680,33 +680,33 @@ function get_recursive_file_list(string $path, array $excludes = [], int $maxdep
         return false;
     };
 
-	$results = [];
+    $results = [];
     if( is_dir($path) ) {
-		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($path,
-				FilesystemIterator::CURRENT_AS_PATHNAME |
-				FilesystemIterator::KEY_AS_FILENAME |
-				FilesystemIterator::SKIP_DOTS),
-			RecursiveIteratorIterator::SELF_FIRST);
-		if( $maxdepth >= 0 ) {
-			$iter->setMaxDepth($maxdepth);
-		}
-        foreach( $iter as $name=>$p ) {
-			if( !( $excludes && $fn($name, $excludes) ) ) {
-				if( $iter->getInnerIterator()->isDir() ) {
-					if( $mode != 'FILES' ) $results[] = $p;
-				} elseif( $mode != 'DIRS' ) {
-					$results[] = $p;
-				}
-			}
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path,
+                FilesystemIterator::CURRENT_AS_PATHNAME |
+                FilesystemIterator::KEY_AS_FILENAME |
+                FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST);
+        if( $maxdepth >= 0 ) {
+            $iter->setMaxDepth($maxdepth);
         }
-		natcasesort($results);
-	}
+        foreach( $iter as $name=>$p ) {
+            if( !( $excludes && $fn($name, $excludes) ) ) {
+                if( $iter->getInnerIterator()->isDir() ) {
+                    if( $mode != 'FILES' ) $results[] = $p;
+                } elseif( $mode != 'DIRS' ) {
+                    $results[] = $p;
+                }
+            }
+        }
+        natcasesort($results);
+    }
     return $results;
 }
 
 /**
- * Delete directory $path, and all files and folders in it; synonymous with rm -r.
+ * Delete directory $path, and all files and folders in it. Equivalent to command rm -r.
  *
  * @param string $path The directory filepath
  * @return bool indicating complete success
