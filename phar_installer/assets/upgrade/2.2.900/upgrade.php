@@ -1,7 +1,8 @@
 <?php
 
+use CMSMS\LogicException;
+use CMSMS\SimplePluginOperations;
 use function __installer\get_app;
-
 
 // 1. Convert UDT's to simple plugins, widen users-table columns
 $app = get_app();
@@ -18,8 +19,8 @@ if( $udt_list ) {
     if( !is_dir( $to ) ) @mkdir( $to, 0775, true );
     if( !is_dir( $to ) ) throw new LogicException("Could not create $to directory");
 
-    $create_simple_plugin = function( array $row, string $destdir ) {
-        $fp = $destdir . DIRECTORY_SEPARATOR . $row['userplugin_name'];
+    $create_simple_plugin = function( array $row, SimplePluginOperations $ops ) {
+        $fp = $ops->file_path($row['userplugin_name']);
         if( is_file( $fp ) ) {
             verbose_msg('simple plugin named '.$row['userplugin_name'].' already exists');
             return;
@@ -33,30 +34,24 @@ if( $udt_list ) {
             return;
         }
 
+		$meta = ['name'=>$row['userplugin_name']];
         if( $row['description'] ) {
-			$desc = htmlspecialchars(trim($row['description']),ENT_XML1);
-		}
-		else {
-			$desc = '';
+			$desc = trim($row['description'], " \t\n\r");
+			if( $desc ) {
+				$meta['description'] = $desc;
+			}
 		}
 
-		file_put_contents($fp, <<<EOS
-<?php
-/*
-<simpleplugin>
-<license></license>
-<description>$desc</description>
-<parameters></parameters>
-</simpleplugin>
-*/
-$code
-EOS
-		);
-        verbose_msg('Converted UDT '.$row['userplugin_name'].' to a simple plugin');
+		if( $ops->save($meta, $code) ) {
+	        verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
+		} else {
+            verbose_msg('Error saving UDT named '.$row['userplugin_name']);
+		}
     };
 
+	$ops = SimplePluginOperations::get_instance();
     foreach( $udt_list as $udt ) {
-        $create_simple_plugin( $udt, $to );
+        $create_simple_plugin( $udt, $ops );
     }
 
     $dict = GetDataDictionary($db);
