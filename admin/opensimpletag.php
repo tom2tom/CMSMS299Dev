@@ -15,6 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\internal\Smarty;
+use CMSMS\SimplePluginOperations;
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -25,103 +28,61 @@ $userid = get_userid();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 if (isset($_POST['cancel'])) {
-	redirect('listsimpletags.php'.$urlext);
+    redirect('listsimpletags.php'.$urlext);
 }
 
+$themeObject = cms_utils::get_theme_object();
+
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
-	cleanArray($_POST);
-	$ADBG = $_POST;
-/*
-$_POST[
-'oldtagname',
-'code',
-'tagname',
-'description',
-'parameters',
-'license',
-];
-*/
-/* validation?
-$URI = $_SERVER['REQUEST_URI'];
-$errm = json_encode(lang('noudtcode'));
-$confirm = json_encode(lang('confirm_runusertag'));
-$output = htmlentities(lang('output'));
-$out = <<<EOS
-<script type="text/javascript">
-//<![CDATA[
-$(document).ready(function() {
- $('#runbtn').on('click', function(ev) {
-  // get the data
-  ev.preventDefault();
-  cms_confirm($confirm).done(function() {
-   var code = $('#udtcode').val();
-   if(code.length === 0) {
-    cms_notify('error', $errm);
-    return false;
-   }
-   var data = $('#edit_userplugin')
-    .find('input:not([type=submit]), select, textarea')
-    .serializeArray();
-   data.push({ 'name': 'code', 'value': code });
-   data.push({ 'name': 'run', 'value': 1 });
-   data.push({ 'name': 'apply', 'value': 1 });
-   data.push({ 'name': 'ajax', 'value': 1 });
-   $.post('$URI', data,
-    function(resultdata, textStatus, jqXHR) { //TODO robust API
-     var r, d, e;
-     try {
-     var x = JSON.parse(resultdata); //IE8+
-      if(typeof x.response !== 'undefined') {
-       r = x.response;
-       d = x.details;
-      } else {
-       d = resultdata;
-      }
-     } catch(e) {
-      r = '_error';
-      d = resultdata;
-     }
-     if(r === '_error') {
-      cms_notify('error', d);
-     } else {
-      cms_notify('info', '<h3>$output</h3>' + d);
-     }
-    }
-   );
-   return false;
-  }).fail(function() {
-   return false;
-  });
- });
- $('#applybtn').on('click', function() {
-  var data = $('#edit_userplugin')
-   .find('input:not([type=submit]), select, textarea')
-   .serializeArray();
-  data.push({ 'name': 'ajax', 'value': 1 });
-  data.push({ 'name': 'apply', 'value': 1 });
-  $.post('$URI', data,
-   function(resultdata, textStatus, jqXHR) { //TODO robust API
-    var x = JSON.parse(resultdata); //IE8+
-    if(x.response === 'Success') {
-     cms_notify('success', x.details);
-    } else {
-     cms_notify('error', x.details);
-    }
-   }
-  );
-  return false;
- });
-});
-//]]>
-</script>
-EOS;
-*/
-	if (isset($_POST['submit'])) {
-		redirect('listsimpletags.php'.$urlext);
+	$err = false;
+    $tagname = cleanValue($_POST['tagname']);
+    $oldname = cleanValue($_POST['oldtagname']);
+
+	$ops = SimplePluginOperations::get_instance();
+	if ($oldname == '-1' || $oldname !== $tagname ) {
+		if (!$ops->is_valid_plugin_name($tagname)) {
+			$themeObject->RecordNotice('error', lang('udt_exists'));
+			$err = true;
+		}
 	}
-	$tagname = $_POST['tagname'];
+
+//? send :: adduserdefinedtagpre
+//? send :: edituserdefinedtagpre
+	$meta = ['name' => $tagname];
+	//these are sanitized downstream, before storage ?
+	$val = $_POST['description'];
+	if ($val) $meta['description'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
+	$val = $_POST['parameters'];
+	if ($val) $meta['parameters'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
+	$val = $_POST['license'];
+	if ($val) $meta['license'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
+
+	if ($ops->save($tagname, $meta, $_POST['code'])) {
+//? send :: adduserdefinedtagpost
+//? send :: edituserdefinedtagpost
+	} else {
+		$msg = ($oldname == '-1') ? lang('errorinserting_utd') : lang('errorupdating_udt');
+		$themeObject->RecordNotice('error', $msg);
+		$err = true;
+	}
+
+    if (isset($_POST['submit']) && !$err) {
+		$msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
+		$themeObject->ParkNotice('success', $msg);
+        redirect('listsimpletags.php'.$urlext);
+    }
 } else {
-	$tagname = cleanValue($_GET['tagname']);
+    $tagname = cleanValue($_GET['tagname']);
+}
+
+if ($tagname != '-1') {
+    $ops = SimplePluginOperations::get_instance();
+    $fullpath = $ops->file_path($tagname);
+    list($meta, $code) = $ops->get($tagname);
+} else {
+    $fullpath = __FILE__; //anything .php
+    $meta = [];
+    $code = '';
 }
 
 $edit = check_permission($userid, 'Modify Simple Tags');
@@ -129,29 +90,22 @@ $edit = check_permission($userid, 'Modify Simple Tags');
 
 $fixed = ($edit) ? 'false' : 'true';
 
-$ops = \CMSMS\SimplePluginOperations::get_instance();
-
-if ($tagname != '-1') {
-	$fullpath = $ops->plugin_filepath($tagname);
-	list($meta, $code) = $ops->get($tagname);
-} else {
-	$fullpath = __FILE__; //anything .php
-	$meta = [];
-	$code = '';
+$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
+$style = cms_userprefs::get_for_user(get_userid(false), 'editortheme');
+if (!$style) {
+    $style = get_site_preference('editortheme', 'clouds');
 }
-
-$style = cms_userprefs::get_for_user(get_userid(false), 'editortheme', 'clouds');
 $style = strtolower($style);
 
 $js = <<<EOS
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ext-modelist.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ace.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ext-modelist.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 var editor = ace.edit("Editor");
 (function () {
  var modelist = ace.require("ace/ext/modelist");
- var mode = modelist.getModeForPath("{$fullpath}").mode;
+ var mode = modelist.getModeForPath("$fullpath").mode;
  editor.session.setMode(mode);
 }());
 editor.setOptions({
@@ -165,15 +119,29 @@ editor.renderer.setOptions({
  showGutter: false,
  displayIndentGuides: false,
  showLineNumbers: false,
- theme: "ace/theme/{$style}"
+ theme: "ace/theme/$style"
 });
 
 EOS;
 if ($edit) {
+    $s1 = json_encode(lang('error_udt_name_chars'));
+    $s2 = json_encode(lang('noudtcode'));
     $js .= <<<EOS
 $(document).ready(function() {
- $('form').on('submit', function(ev) {
-  $('#reporter').val(editor.session.getValue());
+ $('#userplugin').on('submit', function(ev) {
+  var v = $('#name').val();
+  if (v === '' || !v.match(/^[a-zA-Z_][0-9a-zA-Z_]*$/)) {
+   ev.preventDefault();
+   cms_notify('error', $s1);
+   return false;
+  }
+  v = editor.session.getValue().trim();
+  if (v === '') {
+   ev.preventDefault();
+   cms_notify('error', $s2);
+   return false;
+  }
+  $('#reporter').val(v);
  });
 });
 
@@ -184,18 +152,15 @@ EOS;
 </script>
 
 EOS;
-
-$themeObject = cms_utils::get_theme_object();
 $themeObject->add_footertext($js);
 
-//TODO
 $selfurl = basename(__FILE__);
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 $smarty->assign([
-	'name' => $tagname,
+    'name' => $tagname,
     'description' => $meta['description'] ?? null,
-    'parameters' => (isset($meta['parameters'])) ? implode("\n", $meta['parameters']) : null,
+    'parameters' => $meta['parameters'] ?? null,
     'license' => $meta['license'] ?? null,
     'code' => $code,
     'urlext' => $urlext,
