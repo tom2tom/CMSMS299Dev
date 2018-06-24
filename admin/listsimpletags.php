@@ -31,16 +31,16 @@ $pmod = check_permission($userid, 'Modify Simple Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
 $ops = SimplePluginOperations::get_instance();
-$patn = $ops->plugin_filepath('*');
-$files = glob($patn, GLOB_NOSORT | GLOB_NOESCAPE);
+$patn = $ops->file_path('*');
+$files = glob($patn, GLOB_NOESCAPE);
 $tags = [];
 
 foreach ($files as $fp) {
     $name = basename($fp, '.php');
-    $meta = $ops->get_meta($name, '*');
+    $meta = $ops->get_meta_data($name, '*');
     $tags[] = [
         'name' => $name,
-        'description' => $meta['description'],
+        'description' => $meta['description'] ?? null,
         'help' => !empty($meta['parameters']),
     ];
 }
@@ -79,29 +79,36 @@ EOS;
     if ($access) {
         $close = lang('close');
         $out .= <<<EOS
-function get_help(tagname) {
- //TODO ajax to get parameters info for tag 'name'
- cms_dialog($('#params_dlg'), {
-  modal: true,
-  buttons: [{
+function getParms(tagname) {
+ var dlg = $('#params_dlg');
+ $.get('simpletagparams.php{$urlext}', {
+  name: tagname
+ }, function(data) {
+  dlg.find('#params').html(data);
+  cms_dialog(dlg, {
+   buttons: [{
    text: '$close',
    icon: 'ui-icon-cancel',
-   click: function() {
-    $(this).dialog('close');
-   }
-  }],
-  width: 'auto'
- });
+    click: function() {
+     $(this).dialog('destroy');
+    }
+   }],
+   modal: true,
+   width: 'auto'
+  });
+ },
+ 'html');
+ dlg.find('#namer').text(tagname);
 }
 
 EOS;
     }
     if ($pmod) {
-        $confirm = json_encode(lang('confirm_deleteusertag'));
+        $confirm = json_encode(lang('confirm_delete_udt'));
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm($confirm).done(function() {
-  var u = 'deletesimpletag.php{$urlext}&amp;udtname=' + tagname;
+  var u = 'deletesimpletag.php{$urlext}&name=' + tagname;
   window.location.replace(u);
  });
 }
