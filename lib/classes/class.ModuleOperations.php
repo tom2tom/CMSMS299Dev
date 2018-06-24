@@ -531,10 +531,12 @@ final class ModuleOperations
 	 */
 	private function _upgrade_module( CMSModule &$module_obj, string $to_version = '' )
 	{
-		// we can't upgrade a module if the schema is not up to date.
+		// upgrade only if the database schema is up-to-date.
 		$gCms = CmsApp::get_instance();
 		$tmp = $gCms->get_installed_schema_version();
-		if( $tmp && $tmp < CMS_SCHEMA_VERSION ) return array(FALSE,lang('error_coreupgradeneeded'));
+		if( $tmp && $tmp < CMS_SCHEMA_VERSION ) {
+			return array(FALSE,lang('error_coreupgradeneeded'));
+		}
 
 		$info = $this->_get_module_info();
 		$module_name = $module_obj->GetName();
