@@ -1265,6 +1265,7 @@ EOT;
 
 $lang['block'] = 'Block tags ...';
 $lang['function'] = 'Function tags might perform a task, or query the database, and typically display output. They can be called like {tagname [attribute=value...]}';
+$lang['license'] = 'License';
 $lang['modifier'] = 'Modifier tags take the output of a smarty variable and modify it. They are called like: {$variable|modifier[:arg:...]}';
 $lang['postfilter'] = 'Postfilter tags are called automatically by smarty after the compilation of every template. They cannot be called manually.';
 $lang['prefilter'] = 'Prefilter tags are called automatically by smarty before the compilation of every template. They canot be called manually.';
@@ -1281,5 +1282,19 @@ $lang['title_admin'] = 'This plugin is only available from the CMSMS admin conso
 $lang['title_notadmin'] = 'This plugin is usable in both the admin console and on the website frontend.';
 $lang['title_cachable'] = 'This plugin is cachable';
 $lang['title_notcachable'] = 'This plugin is not cachable';
+$lang['user_tag'] = 'User Defined Tag';
+$lang['usertag_scope'] = 'User Defined Tags are for frontend use only.';
 $lang['viewabout'] = 'Display history and author information for this tag';
 $lang['viewhelp'] = 'Display help for this tag';
+
+$lang['help_tagcode'] = 'Enter PHP code here. Keep in mind that these tags are actually Smarty function plugins.<br />
+<ul>
+ <li><strong>Note:</strong> the tag code may access the full <a href=\"https://www.cmsmadesimple.org/APIDOC2_0\">CMSMS API</a> to interact with the system and with modules.</li>
+ <li>Tip: parameters passed to the tag e.g. <code>{myudt param1=value1 param2=value2}</code> are in scope as correspondingly-named variables, as well as members of an associative array $params.</li>
+ <li>Tip: it is best to do calculations and processing and return the results to Smarty for formatting via the $smarty->assign() method. The Smarty object is in scope.</li>
+ <li>Tip: it is best to keep tags short, with a single and small piece of functionality.</li>
+</ul>';
+$lang['help_tagdesc'] = 'Enter details and notes about the tag for future reference when debugging or modifying the tag.';
+$lang['help_taglicense'] = 'If this tag is to be distributed, it should probably include a license. That must be compatible with CMSMS licensing i.e. GPL2+ or compatible';
+$lang['help_tagname'] = 'The name must be unique. It may contain only ASCII alphanumeric characters and underscores, and must not start with a digit.';
+$lang['help_tagparams'] = 'Enter a description for each parameter, one per line. Specify at least a name, whether it is optional, default value if any, and brief purpose/nature/usage.';
