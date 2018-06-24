@@ -198,21 +198,25 @@ if ($is_text) {
         $fixed = 'true';
     }
 
-    $style = cms_userprefs::get_for_user(get_userid(false),'editortheme','');
-    if (!$style) {
-        $style = $this->GetPreference('editortheme', 'clouds');
-    }
-    $style = strtolower($style);
+	//TODO consider a site-preference for cdn
+	$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
+	$style = cms_userprefs::get_for_user(get_userid(false), 'editortheme');
+	if (!$style) {
+		$style = get_site_preference('editortheme', 'clouds');
+//TODO      $style = $this->GetPreference('editortheme', 'clouds');
+	}
+	$style = strtolower($style);
+
 
     $js = <<<EOS
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ext-modelist.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ace.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ext-modelist.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 var editor = ace.edit("Editor");
 (function () {
  var modelist = ace.require("ace/ext/modelist");
- var mode = modelist.getModeForPath("{$fullpath}").mode;
+ var mode = modelist.getModeForPath("$fullpath").mode;
  editor.session.setMode(mode);
 }());
 editor.setOptions({
@@ -226,11 +230,12 @@ editor.renderer.setOptions({
  showGutter: false,
  displayIndentGuides: false,
  showLineNumbers: false,
- theme: "ace/theme/{$style}"
+ theme: "ace/theme/$style"
 });
 
 EOS;
     if ($edit) {
+		//CHECKME any content validation relevant?
         $js .= <<<EOS
 $(document).ready(function() {
  $('form').on('submit', function(ev) {
