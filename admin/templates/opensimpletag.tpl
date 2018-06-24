@@ -7,7 +7,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('name')}* <label for="name">{$t}:</label>
-      {cms_help key1=tagname_tip title={$t}}
+      {cms_help realm='tags' key2='help_tagname' title={$t}}
     </p>
     <p class="pageinput">
       <input type="text" id="name" name="tagname" value="{if $name!='-1'}{$name}{/if}" size="50" maxlength="50" />
@@ -16,7 +16,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('description')}<label for="description">{$t}:</label>
-      {cms_help key1=tagdesc_tip title={$t}}
+      {cms_help realm='tags' key2='help_tagdesc' title={$t}}
     </p>
     <p class="pageinput">
       <textarea id="description" name="description" rows="3" cols="80">{$description}</textarea>
@@ -25,25 +25,25 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('parameters')}<label for="parameters">{$t}:</label>
-      {cms_help key1=tagparams_tip title={$t}}
+      {cms_help realm='tags' key2='help_tagparams' title={$t}}
     </p>
     <p class="pageinput">
-      <textarea id="parameters" name="parameters" rows="5" cols="80">{$parameters}</textarea>
+      <textarea id="parameters" name="parameters" rows="3" cols="80">{$parameters}</textarea>
     </p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      {$t=lang('license')}<label for="license">{$t}:</label>
-      {cms_help key1=taglicense_tip title={$t}}
+      {$t=lang_by_realm('tags','license')}<label for="license">{$t}:</label>
+      {cms_help realm='tags' key2='help_taglicense' title={$t}}
     </p>
     <p class="pageinput">
-      <textarea id="license" name="license" rows="3" cols="80">{$license}</textarea>
+      <textarea id="license" name="license" rows="5" cols="80">{$license}</textarea>
     </p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('code')}* <label for="Editor">{$t}:</label>
-      {cms_help key1=tagcode_tip title={$t}}
+      {cms_help realm='tags' key2='help_tagcode' title={$t}}
     </p>
     <div id="Editor" class="pageinput">{$code}</div>
   </div>
