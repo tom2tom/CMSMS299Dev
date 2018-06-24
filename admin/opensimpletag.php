@@ -77,10 +77,8 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 
 if ($tagname != '-1') {
     $ops = SimplePluginOperations::get_instance();
-    $fullpath = $ops->file_path($tagname);
     list($meta, $code) = $ops->get($tagname);
 } else {
-    $fullpath = __FILE__; //anything .php
     $meta = [];
     $code = '';
 }
@@ -90,6 +88,7 @@ $edit = check_permission($userid, 'Modify Simple Tags');
 
 $fixed = ($edit) ? 'false' : 'true';
 
+//TODO consider site-preference for cdn e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
 $version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
 $style = cms_userprefs::get_for_user(get_userid(false), 'editortheme');
 if (!$style) {
@@ -103,11 +102,7 @@ $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 var editor = ace.edit("Editor");
-(function () {
- var modelist = ace.require("ace/ext/modelist");
- var mode = modelist.getModeForPath("$fullpath").mode;
- editor.session.setMode(mode);
-}());
+editor.session.setMode("ace/mode/php");
 editor.setOptions({
  readOnly: $fixed,
  autoScrollEditorIntoView: true,
