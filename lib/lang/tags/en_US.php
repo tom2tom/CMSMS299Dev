@@ -1276,14 +1276,14 @@ $lang['tag_help'] = 'Display the help (if any exists) for this tag';
 $lang['tag_info'] = 'Each tag (also known as plugin) is a vehicle for including some (generally small amount of) PHP functionality in page content and/or template(s).';
 $lang['tag_info2'] = 'Any tag might be designed to generate page content and/or (in a template) set variable(s) for use elsewhere in the template.';
 $lang['tag_info3'] = 'Tag type broadly indicates the role of the tag. See the individual tooltips.<br />System tags may be for admin/backend use only, or also for frontend use.<br />Click the respective tag help icon for specific detail.';
-$lang['tag_name'] = 'This name of the tag';
+$lang['tag_name'] = 'The name of the tag';
 $lang['tag_type'] = 'The tag type (block, function, modifier, or pre- or post-filter)';
 $lang['title_admin'] = 'This plugin is only available from the CMSMS admin console';
 $lang['title_notadmin'] = 'This plugin is usable in both the admin console and on the website frontend.';
 $lang['title_cachable'] = 'This plugin is cachable';
 $lang['title_notcachable'] = 'This plugin is not cachable';
 $lang['user_tag'] = 'User Defined Tag';
-$lang['usertag_scope'] = 'User Defined Tags are for frontend use only.';
+$lang['udt__scope'] = 'User Defined Tags are for frontend use only.';
 $lang['viewabout'] = 'Display history and author information for this tag';
 $lang['viewhelp'] = 'Display help for this tag';
 
