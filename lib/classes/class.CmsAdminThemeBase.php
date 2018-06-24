@@ -819,7 +819,7 @@ abstract class CmsAdminThemeBase
         $items[] = ['name'=>'usertags','parent'=>'extensions',
         'url'=>'listsimpletags.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('usertags')),
-        'description'=>lang('usertagdescription'),
+        'description'=>lang('udt_description'),
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'eventhandlers.php'.$urlext,
@@ -1345,7 +1345,7 @@ $X = 1;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function ParkNotice(string $type, $message, string $title, $get_var = null) : void
+    public function ParkNotice(string $type, $message, string $title = '', $get_var = null) : void
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
