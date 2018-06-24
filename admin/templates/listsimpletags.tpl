@@ -2,7 +2,7 @@
  <p>
  {lang_by_realm('tags','tag_info')}<br />
  {lang_by_realm('tags','tag_info2')}<br />
- {lang('usertag_scope')}
+ {lang_by_realm('tags','usertag_scope')}
  </p>
 </div>
 <br />
