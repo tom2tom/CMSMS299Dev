@@ -2,14 +2,14 @@
  <p>
  {lang_by_realm('tags','tag_info')}<br />
  {lang_by_realm('tags','tag_info2')}<br />
- {lang_by_realm('tags','usertag_scope')}
+ {lang_by_realm('tags','udt__scope')}
  </p>
 </div>
 <br />
 {if $pmod && count($tags) > 20}
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('addusertag')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('addusertag')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_udt')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_udt')}</a>
 </div>
 <br />
 {/if}
@@ -30,11 +30,11 @@
       {strip}{$n=$tag.name}
       <td>
        {if $pmod}
-        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{lang('editusertag', {$n})}">{$n}</a>
+        <a href="{$editurl}{$urlext}&amp;tagname={$n}" title="{lang('edit_udt', {$n})}">{$n}</a>
        {else}
         {$n}
        {/if}
-       {if ($tag.help)}&nbsp;<a href="javascript:get_help({$n})">{$iconinfo}</a>{/if}
+       {if ($tag.help)}&nbsp;<a href="javascript:getParms('{$n}')">{$iconinfo}</a>{/if}
       </td>
       <td>{$tag.description}</td>
       {if $pmod}
@@ -42,7 +42,7 @@
         <a href="{$editurl}{$urlext}&amp;tagname={$n}">{$iconedit}</a>
       </td>
       <td>
-        <a href="javascript::doDelete({$n})">{$icondel}</a>
+        <a href="javascript:doDelete('{$n}')">{$icondel}</a>
       </td>
       {/if}
 {/strip}
@@ -53,11 +53,13 @@
 {if $pmod}
 <br />
 <div class="pageoptions">
-  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('addusertag')}">{$iconadd}</a>
-  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('addusertag')}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1" title="{lang('add_udt')}">{$iconadd}</a>
+  <a href="{$addurl}{$urlext}&amp;tagname=-1">{lang('add_udt')}</a>
 </div>
 {/if}
 
-<div id="params_dlg" style="display:none;">
-
+<div id="params_dlg" title="{lang_by_realm('tags','user_tag')}" style="display:none;">
+<h4 id="namer" style="text-align:center;"></h4>
+<h4>{lang('parameters')}:</h4>
+<p id="params"></p>
 </div>
