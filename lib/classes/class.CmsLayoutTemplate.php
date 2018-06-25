@@ -1256,7 +1256,7 @@ class CmsLayoutTemplate
    /**
 	* Process the default template of a specified type
 	*
-	* @param mixed $t A CmsLayoutTemplateType object, An integer template type id, or a string template type identifier
+	* @param mixed $t A CmsLayoutTemplateType object, an integer template type id, or a string template type identifier
 	* @return string
 	*/
 	public static function process_dflt($t)
