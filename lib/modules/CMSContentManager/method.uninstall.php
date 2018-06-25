@@ -41,8 +41,7 @@ $this->RemovePermission('Modify Any Page');
 $this->RemovePermission('Remove Pages');
 $this->RemovePermission('Reorder Content');
 
-// events are implemented as hooks now
-// these have been migrated from the main installer
+// unregister events
 foreach([
  'ContentDeletePost',
  'ContentDeletePre',

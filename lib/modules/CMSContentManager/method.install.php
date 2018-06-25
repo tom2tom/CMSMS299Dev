@@ -46,7 +46,7 @@ $group->GrantPermission('Manage My Bookmarks');
 $group->GrantPermission('Manage My Settings');
 $group->GrantPermission('View Tag Help');
 
-// events are implemented as hooks now
+// register events for which other parts of the system may listen
 // these have been migrated from the main installer
 foreach([
  'ContentDeletePost',

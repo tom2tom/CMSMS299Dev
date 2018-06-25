@@ -117,8 +117,7 @@ UserOperations::get_instance()->AddMemberGroup($admin_user->id,$admin_group->id)
 cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, and only user preference we need.
 
 //
-// Events
-// Events are deprecated:  hooks are used now.
+// standard events
 // some of these have been exported to CmsContentManager or DesignManager install routines.
 //
 verbose_msg(ilang('install_initevents'));

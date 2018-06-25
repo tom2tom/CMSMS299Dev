@@ -41,8 +41,7 @@ $this->RemovePermission('Manage Designs');
 $this->RemovePermission('Manage Stylesheets');
 $this->RemovePermission('Modify Templates');
 
-// events are implemented as as hooks now
-// these have been migrated from the main installer
+// unregister events
 foreach([
  'AddDesignPost',
  'AddDesignPre',

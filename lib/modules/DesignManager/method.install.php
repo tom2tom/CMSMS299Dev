@@ -50,7 +50,7 @@ $group->GrantPermission('Modify Files');
 $group->GrantPermission('Modify Templates');
 $group->GrantPermission('View Tag Help');
 
-// events are implemented as as hooks now
+// register events for which other parts of the system may listen
 // these have been migrated from the main installer
 foreach([
  'AddDesignPost',
