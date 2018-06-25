@@ -244,7 +244,7 @@ $lang['databaseprefix'] = 'Database Prefix';
 $lang['databasetype'] = 'Database Type';
 $lang['date'] = 'Date';
 $lang['date_format_string'] = 'Date Format String';
-$lang['date_format_string_help'] = "<em>strftime</em> formatted date format string. Try googling 'strftime' for more information";
+$lang['date_format_string_help'] = '<em>strftime</em> formatted date format string. See <a href="http://php.net/manual/en/function.strftime.php">php strftime</a> for more information.';
 $lang['day'] = 'day';
 $lang['days'] = 'days';
 $lang['default'] = 'Default';
