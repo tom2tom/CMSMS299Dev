@@ -23,10 +23,14 @@ if (!$this->CheckPermission('Modify Site Preferences')) {
     exit;
 }
 
+if (isset($params['submit'])) {
+	//TODO record settings
+}
+
 //ACE theme selector https://ace.c9.io/build/kitchen-sink.html
 //hilight.js theme demo  https://highlightjs.org/static/demo
 
-$edittheme = $this->GetPreference('editortheme', 'clouds');
+$edittheme = $this->GetPreference('acetheme', 'clouds');
 //$hilite = $this->GetPreference('highlight', 1);
 //$viewstyle = $this->GetPreference('highlightstyle', 'default'));
 $showhiddenfiles = $this->GetPreference('showhiddenfiles', 0);
