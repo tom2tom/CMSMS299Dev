@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+use CMSMS\Group;
+use CMSMS\HookManager;
+
 if (!isset($gCms)) {
     exit;
 }
@@ -32,12 +36,28 @@ $group = new Group();
 $group->name = 'Editor';
 $group->description = $this->Lang('group_desc');
 $group->active = 1;
-CMSMS\HookManager::do_hook('Core::AddGroupPre', ['group'=>&$group]);
+HookManager::do_hook('Core::AddGroupPre', ['group'=>&$group]);
 $group->Save();
-CMSMS\HookManager::do_hook('Core::AddGroupPost', ['group'=>&$group]);
+HookManager::do_hook('Core::AddGroupPost', ['group'=>&$group]);
 
 $group->GrantPermission('Manage All Content');
 $group->GrantPermission('Manage My Account');
 $group->GrantPermission('Manage My Bookmarks');
 $group->GrantPermission('Manage My Settings');
 $group->GrantPermission('View Tag Help');
+
+// events are implemented as hooks now
+// these have been migrated from the main installer
+foreach([
+ 'ContentDeletePost',
+ 'ContentDeletePre',
+ 'ContentEditPost',
+ 'ContentEditPre',
+ 'ContentPostCompile',
+ 'ContentPostRender',
+ 'ContentPreCompile',
+ 'ContentPreRender', // 2.2
+] as $name) {
+    Events::CreateEvent('Core',$name);
+}
+

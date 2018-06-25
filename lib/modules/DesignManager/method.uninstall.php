@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+use CMSMS\Group;
+use CMSMS\HookManager;
+
 if (!isset($gCms)) {
     exit;
 }
@@ -22,9 +26,9 @@ if (!isset($gCms)) {
 $group = new Group();
 $group->name = 'Designer';
 try {
-    CMSMS\HookManager::do_hook('Core::DeleteGroupPre', ['group'=>&$group]);
+    HookManager::do_hook('Core::DeleteGroupPre', ['group'=>&$group]);
     if ($group->Delete()) {
-        CMSMS\HookManager::do_hook('Core::DeleteGroupPost', ['group'=>&$group]);
+        HookManager::do_hook('Core::DeleteGroupPost', ['group'=>&$group]);
     }
 } catch (Exception $e) {
     return 2;
@@ -36,4 +40,48 @@ $this->RemovePermission('Add Templates');
 $this->RemovePermission('Manage Designs');
 $this->RemovePermission('Manage Stylesheets');
 $this->RemovePermission('Modify Templates');
+
+// events are implemented as as hooks now
+// these have been migrated from the main installer
+foreach([
+ 'AddDesignPost',
+ 'AddDesignPre',
+
+ 'AddStylesheetPost',
+ 'AddStylesheetPre',
+ 'AddTemplatePost',
+ 'AddTemplatePre',
+ 'AddTemplateTypePost',
+ 'AddTemplateTypePre',
+
+ 'DeleteDesignPost',
+ 'DeleteDesignPre',
+
+ 'DeleteStylesheetPost',
+ 'DeleteStylesheetPre',
+ 'DeleteTemplatePost',
+ 'DeleteTemplatePre',
+ 'DeleteTemplateTypePost',
+ 'DeleteTemplateTypePre',
+
+ 'EditDesignPost',
+ 'EditDesignPre',
+
+ 'EditStylesheetPost',
+ 'EditStylesheetPre',
+ 'EditTemplatePost',
+ 'EditTemplatePre',
+ 'EditTemplateTypePost',
+ 'EditTemplateTypePre',
+
+ 'StylesheetPostCompile',
+ 'StylesheetPostRender',
+ 'StylesheetPreCompile',
+
+ 'TemplatePostCompile',
+ 'TemplatePreCompile',
+ 'TemplatePreFetch',
+] as $name) {
+    Events::RemoveEvent('Core',$name);
+}
 
