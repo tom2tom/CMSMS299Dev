@@ -1,1 +1,3 @@
+Drop redundant sequence-tables 'content_props', 'userplugins'
 Add table for associating templates with multiple categories
+Add extra permissions 'Modify Simple Plugins', 'Modify Site Code'
