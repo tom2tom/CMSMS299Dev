@@ -176,7 +176,7 @@ namespace CMSMS {
         /**
          * Remove a handler from a hook
          * @since 2.3
-         * @param string $name The hook name.  If the hook does not already exist, it is added.
+         * @param string $name The hook name.
          * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
          */
         public static function remove_hook($name,$callable)
@@ -189,7 +189,7 @@ namespace CMSMS {
         /**
          * Enable or disable a handler
          * @since 2.3
-         * @param string $name The hook name.  If the hook does not already exist, it is added.
+         * @param string $name The hook name.
          * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
          * @param bool $state Optiopnal flag whether the handler is to be disabled, default true
          */
