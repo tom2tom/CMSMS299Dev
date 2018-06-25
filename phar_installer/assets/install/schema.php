@@ -4,15 +4,12 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     status_msg(ilang('install_dropping_tables'));
     $db->DropSequence(CMS_DB_PREFIX.'additional_users_seq');
     $db->DropSequence(CMS_DB_PREFIX.'admin_bookmarks_seq');
-    $db->DropSequence(CMS_DB_PREFIX.'additional_users_seq');
-    $db->DropSequence(CMS_DB_PREFIX.'content_seq');
     $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
-    $db->DropSequence(CMS_DB_PREFIX.'events_seq');
+    $db->DropSequence(CMS_DB_PREFIX.'content_seq');
     $db->DropSequence(CMS_DB_PREFIX.'event_handler_seq');
+    $db->DropSequence(CMS_DB_PREFIX.'events_seq');
     $db->DropSequence(CMS_DB_PREFIX.'group_perms_seq');
     $db->DropSequence(CMS_DB_PREFIX.'groups_seq');
-    $db->DropSequence(CMS_DB_PREFIX.'module_deps_seq');
-    $db->DropSequence(CMS_DB_PREFIX.'module_templates_seq');
     $db->DropSequence(CMS_DB_PREFIX.'permissions_seq');
     $db->DropSequence(CMS_DB_PREFIX.'users_seq');
 
