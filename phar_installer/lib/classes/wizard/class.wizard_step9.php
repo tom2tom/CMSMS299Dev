@@ -148,7 +148,6 @@ VALUES (?,?,?,NOW(),NOW())');
             }
         }
 */
-        // todo: set initial preferences.
 
         // todo: write history
 
