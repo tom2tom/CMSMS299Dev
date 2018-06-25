@@ -2,15 +2,15 @@
 
 if (isset($CMS_INSTALL_CREATE_TABLES)) {
     $table_ids = [
-        'additional_users'          => ['id' => 'additional_users_id'],
-        'admin_bookmarks'           => ['id' => 'bookmark_id'],
-        'content'                   => ['id' => 'content_id'],
-        'events'                    => ['id' => 'event_id'],
-        'event_handlers'            => ['id' => 'handler_id', 'seq' => 'event_handler_seq'],
-        'group_perms'               => ['id' => 'group_perm_id'],
-        'groups'                    => ['id' => 'group_id'],
-        'users'                     => ['id' => 'user_id'],
-        'permissions'               => ['id' => 'permission_id']
+        'additional_users'   => ['id' => 'additional_users_id'],
+        'admin_bookmarks'    => ['id' => 'bookmark_id'],
+        'content'            => ['id' => 'content_id'],
+        'event_handlers'     => ['id' => 'handler_id', 'seq' => 'event_handler_seq'],
+        'events'             => ['id' => 'event_id'],
+        'group_perms'        => ['id' => 'group_perm_id'],
+        'groups'             => ['id' => 'group_id'],
+        'permissions'        => ['id' => 'permission_id']
+        'users'              => ['id' => 'user_id'],
     ];
 
     status_msg(ilang('install_update_sequences'));
