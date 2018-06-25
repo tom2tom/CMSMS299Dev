@@ -119,28 +119,28 @@ cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, 
 //
 // Events
 // Events are deprecated:  hooks are used now.
-// otherwise, some of these could be exported to CmsContentManager or DesignManager install routines.
+// some of these have been exported to CmsContentManager or DesignManager install routines.
 //
 verbose_msg(ilang('install_initevents'));
-
+/* >DM
 Events::CreateEvent('Core','AddDesignPost');
 Events::CreateEvent('Core','AddDesignPre');
-
+*/
 Events::CreateEvent('Core','AddGroupPost');
 Events::CreateEvent('Core','AddGroupPre');
-
+/* >DM
 Events::CreateEvent('Core','AddStylesheetPost');
 Events::CreateEvent('Core','AddStylesheetPre');
 Events::CreateEvent('Core','AddTemplatePost');
 Events::CreateEvent('Core','AddTemplatePre');
 Events::CreateEvent('Core','AddTemplateTypePost');
 Events::CreateEvent('Core','AddTemplateTypePre');
-
+*/
 Events::CreateEvent('Core','AddUserPost');
 Events::CreateEvent('Core','AddUserPre');
 Events::CreateEvent('Core','ChangeGroupAssignPost');
 Events::CreateEvent('Core','ChangeGroupAssignPre');
-
+/* >CM
 Events::CreateEvent('Core','ContentDeletePost');
 Events::CreateEvent('Core','ContentDeletePre');
 Events::CreateEvent('Core','ContentEditPost');
@@ -150,34 +150,37 @@ Events::CreateEvent('Core','ContentPostCompile');
 Events::CreateEvent('Core','ContentPostRender');
 Events::CreateEvent('Core','ContentPreCompile');
 Events::CreateEvent('Core','ContentPreRender'); // 2.2
-
+*/
+/* >DM
 Events::CreateEvent('Core','DeleteDesignPost');
 Events::CreateEvent('Core','DeleteDesignPre');
-
+*/
 Events::CreateEvent('Core','DeleteGroupPost');
 Events::CreateEvent('Core','DeleteGroupPre');
-
+/* >DM
 Events::CreateEvent('Core','DeleteStylesheetPost');
 Events::CreateEvent('Core','DeleteStylesheetPre');
 Events::CreateEvent('Core','DeleteTemplatePost');
 Events::CreateEvent('Core','DeleteTemplatePre');
 Events::CreateEvent('Core','DeleteTemplateTypePost');
 Events::CreateEvent('Core','DeleteTemplateTypePre');
-
+*/
 Events::CreateEvent('Core','DeleteUserPost');
 Events::CreateEvent('Core','DeleteUserPre');
+/* >DM
 Events::CreateEvent('Core','EditDesignPost');
 Events::CreateEvent('Core','EditDesignPre');
+*/
 Events::CreateEvent('Core','EditGroupPost');
 Events::CreateEvent('Core','EditGroupPre');
-
+/* >DM
 Events::CreateEvent('Core','EditStylesheetPost');
 Events::CreateEvent('Core','EditStylesheetPre');
 Events::CreateEvent('Core','EditTemplatePost');
 Events::CreateEvent('Core','EditTemplatePre');
 Events::CreateEvent('Core','EditTemplateTypePost');
 Events::CreateEvent('Core','EditTemplateTypePre');
-
+*/
 Events::CreateEvent('Core','EditUserPost');
 Events::CreateEvent('Core','EditUserPre');
 Events::CreateEvent('Core','LoginFailed');
@@ -192,14 +195,14 @@ Events::CreateEvent('Core','ModuleUninstalled');
 Events::CreateEvent('Core','ModuleUpgraded');
 Events::CreateEvent('Core','SmartyPostCompile');
 Events::CreateEvent('Core','SmartyPreCompile');
-
+/* >DM
 Events::CreateEvent('Core','StylesheetPostCompile');
 Events::CreateEvent('Core','StylesheetPostRender');
 Events::CreateEvent('Core','StylesheetPreCompile');
 Events::CreateEvent('Core','TemplatePostCompile');
 Events::CreateEvent('Core','TemplatePreCompile');
 Events::CreateEvent('Core','TemplatePreFetch');
-
+*/
 $create_private_dir = function(string $destdir, string $relative_dir) {
 //    $relative_dir = trim($relative_dir);
 //    if( !$relative_dir ) return;
