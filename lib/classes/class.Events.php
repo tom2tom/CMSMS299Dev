@@ -18,7 +18,13 @@
 
 namespace CMSMS;
 
+use cms_utils;
+use CmsApp;
+use CMSModule;
+use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
+use const CMS_DB_PREFIX;
+use function debug_buffer;
 use function lang;
 
 /**
