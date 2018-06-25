@@ -17,7 +17,7 @@
 
 if (!function_exists('cmsms')) exit;
 
-$this->SetPreference('editortheme', 'clouds'); //ACE editor
+$this->SetPreference('acetheme', 'clouds'); //ACE editor
 //$this->SetPreference('highlight', 1);
 //$this->SetPreference('highlightstyle', 'default')); //hilight.js
 $this->SetPreference('showhiddenfiles', 0);

@@ -200,10 +200,10 @@ if ($is_text) {
 
 	//TODO consider a site-preference for cdn
 	$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
-	$style = cms_userprefs::get_for_user(get_userid(false), 'editortheme');
+	$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
 	if (!$style) {
-		$style = get_site_preference('editortheme', 'clouds');
-//TODO      $style = $this->GetPreference('editortheme', 'clouds');
+		$style = get_site_preference('acetheme', 'clouds');
+//TODO      $style = $this->GetPreference('acetheme', 'clouds');
 	}
 	$style = strtolower($style);
 

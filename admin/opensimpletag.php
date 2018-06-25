@@ -90,9 +90,9 @@ $fixed = ($edit) ? 'false' : 'true';
 
 //TODO consider site-preference for cdn e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
 $version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
-$style = cms_userprefs::get_for_user(get_userid(false), 'editortheme');
+$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
 if (!$style) {
-    $style = get_site_preference('editortheme', 'clouds');
+    $style = get_site_preference('acetheme', 'clouds');
 }
 $style = strtolower($style);
 
