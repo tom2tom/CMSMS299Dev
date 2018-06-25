@@ -17,13 +17,12 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
-use cms_utils, CmsApp, CMSModule;
-use CMSMS\internal\global_cachable, CMSMS\internal\global_cache;
-use function debug_buffer, lang;
-use const CMS_DB_PREFIX;
+
+use CMSMS\internal\global_cache;
+use function lang;
 
 /**
- * Class for handling and dispatching system and user defined events.
+ * Class for handling and dispatching system and other defined events.
  *
  * @deprecated since 2.3 events are dispatched via hooks
  * @package CMS
@@ -34,7 +33,7 @@ final class Events
 	/**
 	 * @ignore
 	 */
-	static private $_handlercache;
+	private static $_handlercache;
 
 	/**
 	 * @ignore
@@ -42,42 +41,38 @@ final class Events
 	private function __construct() {}
 
 	/**
-	 * Inform the system about a new event that can be generated.
+	 * Record an event that can be generated.
 	 *
-	 * @param string $modulename The name of the module that is sending the event
+	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 */
-	static public function CreateEvent( $modulename, $eventname )
+	public static function CreateEvent( $originator, $eventname )
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$count = $db->GetOne('SELECT count(*) from '.CMS_DB_PREFIX.'events where originator = ? and event_name = ?', array($modulename, $eventname));
+		$count = $db->GetOne('SELECT count(*) from '.CMS_DB_PREFIX.'events where originator = ? and event_name = ?', [$originator, $eventname]);
 		if ($count < 1) {
 			$id = $db->GenID( CMS_DB_PREFIX."events_seq" );
 			$q = "INSERT INTO ".CMS_DB_PREFIX."events values (?,?,?)";
-			$db->Execute( $q, array( $modulename, $eventname, $id ));
+			$db->Execute( $q, [ $originator, $eventname, $id ]);
 			global_cache::clear(__CLASS__);
 		}
 	}
 
-
 	/**
-	 * Remove an event from the CMS system.
-	 * This function removes all handlers to the event, and completely removes
-	 * all references to this event from the database
+	 * Remove an event from the system.
+	 * This removes the event itself, and all event-handlers
 	 *
-	 * Note, only events created by this module can be removed.
-	 *
-	 * @param string $modulename The name of the module that is sending the event
+	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 */
-	static public function RemoveEvent( $modulename, $eventname )
+	public static function RemoveEvent( $originator, $eventname )
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
 		// get the id
 		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE
 		originator = ? AND event_name = ?";
-		$dbresult = $db->Execute( $q, array( $modulename, $eventname ) );
+		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) {
 			// query failed, event not found
 			return false;
@@ -88,34 +83,32 @@ final class Events
 		// delete all the handlers
 		$q = "DELETE FROM ".CMS_DB_PREFIX."event_handlers WHERE
 		event_id = ?";
-		$db->Execute( $q, array( $id ) );
+		$db->Execute( $q, [ $id ] );
 
 		// then delete the event
 		$q = "DELETE FROM ".CMS_DB_PREFIX."events WHERE
 		event_id = ?";
-		$db->Execute( $q, array( $id ) );
+		$db->Execute( $q, [ $id ] );
 
 		global_cache::clear(__CLASS__);
 	}
 
-
 	/**
-	 * Trigger an event.
-	 * This function will call all registered event handlers for the event
+	 * Call all registered handlers of the given event.
 	 *
-	 * @param string $modulename The name of the module that is sending the event
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param array $params The parameters associated with this event.
+	 * @param array $params Optional parameters associated with the event. Default []
 	 */
-	static public function SendEvent( $modulename, $eventname, $params = array() )
+	public static function SendEvent( $originator, $eventname, $params = [] )
 	{
 		global $CMS_INSTALL_PAGE;
 		if( isset($CMS_INSTALL_PAGE) ) return;
 
-		$results = Events::ListEventHandlers($modulename, $eventname);
+		$results = Events::ListEventHandlers($originator, $eventname);
 
 		if ($results != false) {
-			$params['_modulename'] = $modulename;
+			$params['_modulename'] = $originator;
 			$params['_eventname'] = $eventname;
 			foreach( $results as $row ) {
 				if( !empty( $row['tag_name']) ) {
@@ -127,31 +120,31 @@ final class Events
 				else if( !empty( $row['module_name']) ) {
 					// here's a quick check to make sure that we're not calling the module
 					// DoEvent function for an event originated by the same module.
-					if( $row['module_name'] == $modulename ) continue;
+					if( $row['module_name'] == $originator ) continue;
 
 					// and call the module event handler.
 					$obj = CMSModule::GetModuleInstance($row['module_name']);
 					if( $obj ) {
 						debug_buffer('calling module ' . $row['module_name'] . ' from event ' . $eventname);
-						$obj->DoEvent( $modulename, $eventname, $params );
+						$obj->DoEvent( $originator, $eventname, $params );
 					}
 				}
 			}
 		}
 	}
 
-
 	/**
 	 * @ignore
 	 */
-	static public function setup()
+	public static function setup()
 	{
-		$obj = new global_cachable(__CLASS__,function(){
+		$obj = new global_cachable(__CLASS__,function()
+			{
 				$db = CmsApp::get_instance()->GetDb();
-				$q = "SELECT e.event_id, eh.tag_name, eh.module_name, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
-					  FROM ".CMS_DB_PREFIX."event_handlers eh
-					  INNER JOIN ".CMS_DB_PREFIX."events e ON e.event_id = eh.event_id
-					  ORDER BY eh.handler_order ASC";
+				$q = 'SELECT e.event_id, eh.tag_name, eh.module_name, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
+FROM '.CMS_DB_PREFIX.'event_handlers eh
+INNER JOIN '.CMS_DB_PREFIX.'events e ON e.event_id = eh.event_id
+ORDER BY eh.handler_order';
 				return $db->GetArray($q);
 			});
 		global_cache::add_cachable($obj);
@@ -160,20 +153,20 @@ final class Events
 	/**
 	 * Return the list of event handlers for a particular event.
 	 *
-	 * @param string $modulename The name of the module sending the event
+	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @return mixed If successful, an array of arrays, each element
 	 *               in the array contains two elements 'handler_name', and 'module_handler',
 	 *               any one of these could be null. If it fails, false is returned.
 	 */
-	static public function ListEventHandlers( $modulename, $eventname )
+	public static function ListEventHandlers( $originator, $eventname )
 	{
 		self::$_handlercache = global_cache::get(__CLASS__);
-		$handlers = array();
+		$handlers = [];
 
 		if( is_array(self::$_handlercache) && count(self::$_handlercache) ) {
 			foreach (self::$_handlercache as $row) {
-				if ($row['originator'] == $modulename && $row['event_name'] == $eventname) $handlers[] = $row;
+				if ($row['originator'] == $originator && $row['event_name'] == $eventname) $handlers[] = $row;
 			}
 		}
 
@@ -181,11 +174,10 @@ final class Events
 		return false;
 	}
 
-
 	/**
 	 * @ignore
 	 */
-	static public function GetEventHandler( $handler_id )
+	public static function GetEventHandler( $handler_id )
 	{
 		self::$_handlercache = global_cache::get(__CLASS__);
 
@@ -198,22 +190,22 @@ final class Events
 	}
 
 	/**
-	 * Get a list of all of the known events.
+	 * Get a list of all recorded events.
 	 *
 	 * @return mixed If successful, a list of all the known events.  If it fails, false
 	 */
-	static public function ListEvents()
+	public static function ListEvents()
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
 		$q = 'SELECT e.*, count(eh.event_id) as usage_count FROM '.CMS_DB_PREFIX.
-			'events e left outer join '.CMS_DB_PREFIX.
-			'event_handlers eh on e.event_id=eh.event_id GROUP BY e.event_id ORDER BY originator,event_name';
+'events e left outer join '.CMS_DB_PREFIX.
+'event_handlers eh on e.event_id=eh.event_id GROUP BY e.event_id ORDER BY originator,event_name';
 
 		$dbresult = $db->Execute( $q );
 		if( $dbresult == false ) return false;
 
-		$result = array();
+		$result = [];
 		while( $row = $dbresult->FetchRow() ) {
 			if(!cms_utils::module_available($row['originator']) && $row['originator'] !== 'Core') continue;
 			if(!cms_utils::module_available($row['originator']) && $row['originator'] !== 'Core') continue;
@@ -222,18 +214,17 @@ final class Events
 		return $result;
 	}
 
-
 	/**
-	 * Add an event handler for a module event.
+	 * Record a handler of the specified event.
 	 *
-	 * @param string $modulename The name of the module sending the event, or 'Core'
+	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param string $tag_name The name of a User Defined Tag. If not passed, no User Defined Tag is set.
 	 * @param string $module_handler The name of the module. If not passed, no module is set.
 	 * @param bool $removable Can this event be removed from the list? Defaults to true.
 	 * @return bool If successful, true.  If it fails, false.
 	 */
-	static public function AddEventHandler( $modulename, $eventname, $tag_name = false, $module_handler = false, $removable = true)
+	public static function AddEventHandler( $originator, $eventname, $tag_name = false, $module_handler = false, $removable = true)
 	{
 		if( $tag_name == false && $module_handler == false ) return false;
 		if( $tag_name != false && $module_handler != false ) return false;
@@ -242,15 +233,15 @@ final class Events
 
 		// find the id
 		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE originator = ? AND event_name = ?";
-		$dbresult = $db->Execute( $q, array( $modulename, $eventname ) );
+		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) return false; // query failed, event not found
 		$row = $dbresult->FetchRow();
 		$id = $row['event_id'];
 
 		// now see if there's nothing already existing for this
 		// tag or module and this id
-		$q = "SELECT * FROM ".CMS_DB_PREFIX."event_handlers WHERE	event_id = ? AND ";
-		$params = array();
+		$q = "SELECT * FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ? AND ";
+		$params = [];
 		$params[] = $id;
 		if( $tag_name != '' ) {
 			$q .= "tag_name = ?";
@@ -267,7 +258,7 @@ final class Events
 		$order = 1;
 		$q = "SELECT max(handler_order) AS newid FROM ".CMS_DB_PREFIX."event_handlers
 		WHERE event_id = ?";
-		$dbresult = $db->Execute( $q, array( $id ) );
+		$dbresult = $db->Execute( $q, [ $id ] );
 		if( $dbresult != false && $dbresult->RecordCount() != 0) {
 			$row = $dbresult->FetchRow();
 			$order = $row['newid'] + 1;
@@ -276,7 +267,7 @@ final class Events
 		$handler_id = $db->GenId( CMS_DB_PREFIX."event_handler_seq" );
 
 		// okay, we can insert
-		$params = array();
+		$params = [];
 		$params[] = $id;
 		$q = "INSERT INTO ".CMS_DB_PREFIX."event_handlers ";
 		if( $module_handler != false ) {
@@ -299,7 +290,7 @@ final class Events
 	/**
 	 * @ignore
 	 */
-	static protected function InternalRemoveHandler( array $handler )
+	protected static function InternalRemoveHandler( $handler )
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$id = $handler['event_id'];
@@ -320,22 +311,22 @@ final class Events
 	 *
 	 * @param int $handler_id
 	 */
-	static public function RemoveEventHandlerById( $handler_id )
+	public static function RemoveEventHandlerById( $handler_id )
 	{
 		$handler = self::GetEventHandler( $handler_id );
 		if( $handler ) self::InternalRemoveHandler( $handler );
 	}
 
 	/**
-	 * Remove an event handler for a particular event.
+	 * Remove a handler of the given event.
 	 *
-	 * @param string $modulename The name of the module sending the event
+	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param string $tag_name The name of a User Defined Tag. If not passed, no User Defined Tag is set.
-	 * @param string $module_handler The name of the module. If not passed, no module is set.
-	 * @return bool If successful, true.  If it fails, false.
+	 * @param string $tag_name Optional name of a User Defined Tag. If not passed, no User Defined Tag is set.
+	 * @param string $module_handler Optional name of the module. If not passed, no module is set.
+	 * @return bool indicating success or otherwise.
 	 */
-	static public function RemoveEventHandler( $modulename, $eventname, $tag_name = false, $module_handler = false )
+	public static function RemoveEventHandler( $originator, $eventname, $tag_name = false, $module_handler = false )
 	{
 		if( $tag_name != false && $module_handler != false ) return false;
 		$field = 'handler_name';
@@ -345,7 +336,7 @@ final class Events
 
 		// find the event id
 		$sql = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE originator = ? AND event_name = ?";
-		$id = (int) $db->GetOne( $sql, [ $modulename, $eventname ] );
+		$id = (int) $db->GetOne( $sql, [ $originator, $eventname ] );
 		if( $id < 1 ) {
 			// query failed, event not found
 			return false;
@@ -369,22 +360,21 @@ final class Events
 		return TRUE;
 	}
 
-
 	/**
-	 * Clears all the event handlers for the given event.
+	 * Remove all handlers of the given event.
 	 *
-	 * @param string $modulename The name of the module sending the event
+	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @return bool If successful, true.  If it fails, false.
+	 * @return bool indicating success or otherwise
 	 */
-	static public function RemoveAllEventHandlers( $modulename, $eventname )
+	public static function RemoveAllEventHandlers( $originator, $eventname )
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
 		// find the id
 		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE
 		originator = ? AND event_name = ?";
-		$dbresult = $db->Execute( $q, array( $modulename, $eventname ) );
+		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) {
 			// query failed, event not found
 			return false;
@@ -394,19 +384,17 @@ final class Events
 
 		// and delete the handlers
 		$q = "DELETE FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ?";
-		$dbresult = $db->Execute( $q, array( $id ) );
+		$dbresult = $db->Execute( $q, [ $id ] );
 		global_cache::clear(__CLASS__);
-		if( $dbresult == false ) return true;
-		return false;
+		return ( $dbresult != false );
 	}
 
-
 	/**
-	 * Move an event handler (by id) up in its event...
+	 * Increase an event handler's priority
 	 *
 	 * @param int $handler_id
 	 */
-	static public function OrderHandlerUp( $handler_id )
+	public static function OrderHandlerUp( $handler_id )
 	{
 		$handler = self::GetEventHandler( $handler_id );
 		if( !$handler ) return;
@@ -422,11 +410,11 @@ final class Events
 	}
 
 	/**
-	 * Move an event handler (by id) up in its event...
+	 * Decrease an event handler's priority
 	 *
 	 * @param int $handler_id
 	 */
-	static public function OrderHandlerDown( $handler_id )
+	public static function OrderHandlerDown( $handler_id )
 	{
 		$handler = self::GetEventHandler( $handler_id );
 		if( !$handler ) return;
@@ -442,28 +430,25 @@ final class Events
 	}
 
 	/**
-	 * Place to handle the help messages for core events.  Basically just going to
-	 * call out to the lang() function.
+	 * Get event help message (for a core event).
 	 *
 	 * @param string $eventname The name of the event
-	 * @return string Returns the help string for the event.  Empty string if nothing
+	 * @return string Returns the help string for the event, or empty string if nothing
 	 *                is found.
 	 */
-	static function GetEventHelp($eventname)
+	public static function GetEventHelp( $eventname )
 	{
 		return lang('event_help_'.strtolower($eventname));
 	}
 
-
 	/**
-	 * Place to handle the description strings for core events.  Basically just going to
-	 * call out to the lang() function.
+	 * Get event description (for a core event).
 	 *
 	 * @param string $eventname The name of the event
-	 * @return string Returns the description string for the event.  Empty string if nothing
+	 * @return string Returns the description string for the event, or empty string if nothing
 	 *                is found.
 	 */
-	static public function GetEventDescription($eventname)
+	public static function GetEventDescription( $eventname )
 	{
 		return lang('event_desc_'.strtolower($eventname));
 	}
