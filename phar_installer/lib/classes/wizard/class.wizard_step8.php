@@ -5,6 +5,7 @@ namespace __installer\wizard;
 use __installer\installer_base;
 use cms_config;
 use cms_siteprefs;
+use CmsAdminThemeBase;
 use CmsApp;
 use Exception;
 use const CMS_ADMIN_PATH;
@@ -116,16 +117,39 @@ class wizard_step8 extends wizard_step
             @mkdir($destdir.'/tmp/cache',0771,TRUE);
             @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
 
-            // permisssions
+            // permisssions etc
             include_once $dir.'/base.php';
 
-            $this->verbose(lang('install_setsitename'));
-            cms_siteprefs::set('sitename',$siteinfo['sitename']);
+            // install default preferences
+			verbose_msg(ilang('install_initsiteprefs'));
+			$arr = CmsAdminThemeBase::GetAvailableThemes();
+			foreach ([
+			 'acetheme' => 'clouds',
+			 'aceversion' => '1.3.3', //TODO
+			 'adminlog_lifetime' => 3600*24*31, // admin log entries only live for 60 days.
+			 'allow_browser_cache' => 1, // allow browser to cache cachable pages
+			 'auto_clear_cache_age' => 60, // cache files for only 60 days by default
+			 'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
+			 'cdn_url' => 'https://cdnjs.cloudflare.com', //or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
+			 'content_autocreate_urls' => 0,
+			 'content_imagefield_path' => '',
+			 'contentimage_path' => '',
+			 'content_thumbnailfield_path' => '',
+			 'defaultdateformat' => '%e %B %Y',
+			 'enablesitedownmessage' => 1,
+			 'frontendlang' => 'en_US',
+			 'global_umask' => '022',
+			 'loginmodule' => 'CoreAdminLogin',
+			 'logintheme' => reset($arr),
+			 'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved."'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+			 'sitemask' => '', //what is this?
+			 'sitename' => $siteinfo['sitename'],
+			 'use_smarty_compilecheck' => 0,
+			] as $name=>$val) {
+	            cms_siteprefs::set($name, $val);
+			}
 
             $this->write_config();
-
-            // todo: install default preferences
-            cms_siteprefs::set('global_umask','022');
 
             // site content
             if( $destconfig['samplecontent'] ) {
