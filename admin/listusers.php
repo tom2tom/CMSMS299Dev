@@ -16,7 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \CMSMS\HookManager;
+use CMSMS\HookManager;
+use CMSMS\internal\LoginOperations;
+use CMSMS\internal\Smarty;
+use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -65,7 +68,7 @@ if (isset($_GET['switchuser'])) {
         if (! $to_user->active) {
             $themeObject->RecordNotice('error', lang('userdisabled'));
         } else {
-            CMSMS\internal\LoginOperations::get_instance()->set_effective_user($to_user);
+            LoginOperations::get_instance()->set_effective_user($to_user);
             $urlext = '?' . CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
             redirect('index.php'.$urlext);
         }
@@ -366,7 +369,7 @@ $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '',
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
 $iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('TODO'), '', '', 'systemicon'); //used for switch-user
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 $smarty->assign([
     'addurl' => 'adduser.php',

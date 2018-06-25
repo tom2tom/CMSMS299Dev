@@ -15,6 +15,11 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\GroupOperations;
+use CMSMS\HookManager;
+use CMSMS\internal\Smarty;
+use CMSMS\UserOperations;
+
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -142,9 +147,9 @@ if (isset($_POST['submit'])) {
 
     if( !empty($password) ) {
         try {
-            \CMSMS\HookManager::do_hook('Core::PasswordStrengthTest', $password );
+            HookManager::do_hook('Core::PasswordStrengthTest', $password );
         }
-        catch( \Exception $e ) {
+        catch( Exception $e ) {
             $validinfo = false;
             $error .= '<li>'.$e->GetMessage().'</li>';
         }
@@ -172,7 +177,7 @@ if (isset($_POST['submit'])) {
                 $thisuser->SetPassword($password);
             }
 
-            \CMSMS\HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$thisuser ] );
+            HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$thisuser ] );
 
             $result = $thisuser->save();
             if ($assign_group_perm && isset($_POST['groups'])) {
@@ -213,7 +218,7 @@ if (isset($_POST['submit'])) {
             }
 
             // put mention into the admin log
-            \CMSMS\HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$thisuser ] );
+            HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$thisuser ] );
             $gCms->clear_cached_files();
             $url = 'listusers.php?' . $urlext;
             if ($message) {
@@ -239,7 +244,7 @@ if (isset($_POST['submit'])) {
  * Display view
  ---------------------*/
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 if (!empty($error)) {
     $themeObject->RecordNotice('error', $error);

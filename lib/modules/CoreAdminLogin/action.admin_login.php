@@ -17,9 +17,14 @@
 
 namespace CoreAdminLogin;
 
+use CMSMS\AdminUtils;
+use CMSMS\HookManager;
+use CMSMS\internal\LoginOperations;
+use CoreAdminLogin\LoginUserError;
+
 if( !isset($gCms) ) exit;
 
-class LoginUserError extends \RuntimeException {}
+class LoginUserError extends RuntimeException {}
 
 $csrf_key = md5(__FILE__);
 $username = $password = $pwhash = $error = $warning = $message = null;
@@ -38,7 +43,7 @@ elseif( isset( $_POST['forgotpwchangeform']) ) {
         $expected_csrf_val = $_SESSION[$csrf_key] ?? null;
         $provided_csrf_val = $_POST['csrf'] ?? null; //comparison value, no sanitize needed (unless $_SESSION hacked!)
         if( !$expected_csrf_val || !$provided_csrf_val || $expected_csrf_val != $provided_csrf_val ) {
-            throw new \RuntimeException( $this->Lang('err_csrfinvalid').' (001)' );
+            throw new RuntimeException( $this->Lang('err_csrfinvalid').' (001)' );
         }
         $usercode = cleanValue(trim($_POST['changepwhash']));
         $username = html_entity_decode( cleanValue(trim($_POST['username'] )));
@@ -46,7 +51,7 @@ elseif( isset( $_POST['forgotpwchangeform']) ) {
         $password2 = trim($_POST['passwordagain']);
         if( !$usercode || !$username || !$password || !$password2 ) throw new LoginUserError( $this->Lang('err_missingdata') );
         if( $password != $password2 ) throw new LoginUserError( $this->Lang('err_passwordmismatch') );
-        \CMSMS\HookManager::do_hook('Core::PasswordStrengthTest', $password );
+        HookManager::do_hook('Core::PasswordStrengthTest', $password );
 
         $user = $this->getLoginUtils()->find_recovery_user( $usercode );
         if( !$user || $user->username != $username ) throw new LoginUserError( $this->Lang('err_usernotfound') );
@@ -55,19 +60,19 @@ elseif( isset( $_POST['forgotpwchangeform']) ) {
         $user->Save();
         $this->getLoginUtils()->remove_reset_code( $user );
 
-        $ip_passw_recovery = \cms_utils::get_real_ip();
+        $ip_passw_recovery = cms_utils::get_real_ip();
         audit('','Core','Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
-        \CMSMS\HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ] );
+        HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ] );
         $message = $this->Lang('msg_passwordchanged');
     }
     catch( LoginUserError $e ) {
         $error = $e->GetMessage();
-        \CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
-        $ip_login_failed = \cms_utils::get_real_ip();
+        HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
+        $ip_login_failed = cms_utils::get_real_ip();
         $pwhash = $usercode;
         cms_warning('(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Password reset failed');
     }
-    catch( \Exception $e ) {
+    catch( Exception $e ) {
         $error = $e->GetMessage();
     }
 }
@@ -77,18 +82,18 @@ elseif( isset( $_POST['forgotpwform']) ) {
         $expected_csrf_val = $_SESSION[$csrf_key] ?? null;
         $provided_csrf_val = $_POST['csrf'] ?? null;
         if( !$expected_csrf_val || !$provided_csrf_val || $expected_csrf_val != $provided_csrf_val ) {
-            throw new \RuntimeException( $this->Lang('err_csrfinvalid').' (002)' );
+            throw new RuntimeException( $this->Lang('err_csrfinvalid').' (002)' );
         }
 
         $username = (isset($_POST['username'])) ? html_entity_decode(cleanValue(trim($_POST['username']))) : null;
         if( !$username ) throw new LoginUserError( $this->Lang('err_usernotfound') );
         unset( $_POST['username'] );
 
-        \CMSMS\HookManager::do_hook('Core::LostPassword', [ 'username'=>$username] );
+        HookManager::do_hook('Core::LostPassword', [ 'username'=>$username] );
         $userops = $gCms->GetUserOperations();
         $oneuser = $userops->LoadUserByUsername($username, null, true, true );
         if( !$oneuser ) {
-            \CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
+            HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
             throw new LoginUserError( $this->Lang('err_usernotfound') );
         }
 
@@ -97,11 +102,11 @@ elseif( isset( $_POST['forgotpwform']) ) {
     }
     catch( LoginUserError $e ) {
         $error = $e->GetMessage();
-        \CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
-        $ip_login_failed = \cms_utils::get_real_ip();
+        HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
+        $ip_login_failed = cms_utils::get_real_ip();
         cms_warning('(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Login Failed');
     }
-    catch( \Exception $e ) {
+    catch( Exception $e ) {
         $error = $e->GetMessage();
     }
 }
@@ -111,7 +116,7 @@ elseif( isset( $_POST['submit'] ) ) {
         $expected_csrf_val = $_SESSION[$csrf_key] ?? null;
         $provided_csrf_val = $_POST['csrf'] ?? null;
         if( !$expected_csrf_val || !$provided_csrf_val || $expected_csrf_val != $provided_csrf_val ) {
-            throw new \RuntimeException( $this->Lang('err_csrfinvalid').' (003)' );
+            throw new RuntimeException( $this->Lang('err_csrfinvalid').' (003)' );
         }
         $username = (isset($_POST['username'])) ? html_entity_decode(cleanValue(trim($_POST['username']))) : null;
         $password = $_POST['password'] ?? null;
@@ -127,30 +132,30 @@ elseif( isset( $_POST['submit'] ) ) {
         // but for core... we don't need to.
 
         // user is authenticated
-        \CMSMS\internal\LoginOperations::get_instance()->save_authentication( $oneuser );
+        LoginOperations::get_instance()->save_authentication( $oneuser );
         audit($oneuser->id, "Admin Username: ".$oneuser->username, 'Logged In');
-        \CMSMS\HookManager::do_hook('Core::LoginPost', [ 'user'=>&$oneuser ] );
+        HookManager::do_hook('Core::LoginPost', [ 'user'=>&$oneuser ] );
 
         // now redirect someplace
-        $homepage = \cms_userprefs::get_for_user($oneuser->id,'homepage');
+        $homepage = cms_userprefs::get_for_user($oneuser->id,'homepage');
         if( !$homepage ) $homepage = $config['admin_url'];
         $homepage = html_entity_decode( $homepage );
-        $homepage = \CMSMS\AdminUtils::get_session_url( $homepage );
+        $homepage = AdminUtils::get_session_url( $homepage );
         redirect( $homepage );
     }
     catch( LoginUserError $e ) {
         $error = $e->GetMessage();
-        \CMSMS\HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
-        $ip_login_failed = \cms_utils::get_real_ip();
+        HookManager::do_hook('Core::LoginFailed', [ 'user'=>$username ] );
+        $ip_login_failed = cms_utils::get_real_ip();
         cms_warning('(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Login Failed');
     }
-    catch( \Exception $e ) {
+    catch( Exception $e ) {
         $error = $e->GetMessage();
     }
 }
 elseif( isset( $_POST['cancel'] ) ) {
     debug_buffer("Login cancelled.  Returning to login.");
-    \CMSMS\internal\LoginOperations::get_instance()->deauthenticate(); // just in case
+    LoginOperations::get_instance()->deauthenticate(); // just in case
     redirect( $config['root_url'].'/index.php', true );
 }
 

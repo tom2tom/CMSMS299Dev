@@ -23,7 +23,11 @@
  * @package CMS
  */
 
+use CMSMS\ContentOperations;
+use CMSMS\HookManager;
+use CMSMS\internal\content_cache;
 use CMSMS\internal\content_plugins;
+use CMSMS\internal\TemplateCache;
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -75,14 +79,14 @@ $contentops = ContentOperations::get_instance();
 $contentobj = null;
 $trycount = 0;
 
-CMSMS\internal\content_cache::get_instance();
-$_tpl_cache = new CMSMS\internal\TemplateCache();
+content_cache::get_instance();
+$_tpl_cache = new TemplateCache();
 
 while ($trycount < 2) {
     $trycount++;
     try {
-        if ($trycount < 2 && is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN')) throw new \CmsError503Exception('Site down for maintenance');
-        if ($trycount < 2 && is_sitedown()) throw new \CmsError503Exception('Site down for maintenance');
+        if ($trycount < 2 && is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN')) throw new CmsError503Exception('Site down for maintenance');
+        if ($trycount < 2 && is_sitedown()) throw new CmsError503Exception('Site down for maintenance');
 
         // preview
         if ($page == -100) {
@@ -127,7 +131,7 @@ while ($trycount < 2) {
         $smarty->assignGlobal('lang',CmsNlsOperations::get_current_language());
         $smarty->assignGlobal('encoding',CmsNlsOperations::get_encoding());
 
-        CMSMS\HookManager::do_hook('Core::ContentPreRender', [ 'content' => &$contentobj ]);
+        HookManager::do_hook('Core::ContentPreRender', [ 'content' => &$contentobj ]);
 
         if ($config['content_processing_mode'] == 2) {
             debug_buffer('preprocess module action');
@@ -141,11 +145,11 @@ while ($trycount < 2) {
             $top = $body = $head = null;
 
             debug_buffer('process template top');
-            CMSMS\HookManager::do_hook('Core::PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+            HookManager::do_hook('Core::PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
             $tpl = $smarty->createTemplate('tpl_top:'.$tpl_id);
             $top .= $tpl->fetch();
             unset($tpl);
-            CMSMS\HookManager::do_hook('Core::PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+            HookManager::do_hook('Core::PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
 
             if ($config['content_processing_mode'] == 1) {
                 debug_buffer('preprocess module action');
@@ -154,18 +158,18 @@ while ($trycount < 2) {
 
             // if the request has a mact in it, process and cache the output.
             debug_buffer('process template body');
-            CMSMS\HookManager::do_hook('Core::PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+            HookManager::do_hook('Core::PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
             $tpl = $smarty->createTemplate('tpl_body:'.$tpl_id);
             $body .= $tpl->fetch();
             unset($tpl);
-            CMSMS\HookManager::do_hook('Core::PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+            HookManager::do_hook('Core::PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
 
             debug_buffer('process template head');
-            CMSMS\HookManager::do_hook('Core::PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+            HookManager::do_hook('Core::PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
             $tpl = $smarty->createTemplate('tpl_head:'.$tpl_id);
             $head .= $tpl->fetch();
             unset($tpl);
-            CMSMS\HookManager::do_hook('Core::PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+            HookManager::do_hook('Core::PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
 
             $html = $top.$head.$body;
         } else {
@@ -277,7 +281,7 @@ while ($trycount < 2) {
     }
 } // end while trycount
 
-CMSMS\HookManager::do_hook('Core::ContentPostRender', [ 'content' => &$html ]);
+HookManager::do_hook('Core::ContentPostRender', [ 'content' => &$html ]);
 if (!headers_sent()) {
     $ct = $_app->get_content_type();
     header("Content-Type: $ct; charset=" . CmsNlsOperations::get_encoding());
@@ -317,6 +321,6 @@ if ($debug && !is_sitedown()) {
     }
 }
 
-CMSMS\HookManager::do_hook('PostRequest');
+HookManager::do_hook('PostRequest');
 
 exit;
