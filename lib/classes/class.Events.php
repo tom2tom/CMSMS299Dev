@@ -25,6 +25,7 @@ use const CMS_DB_PREFIX;
 /**
  * Class for handling and dispatching system and user defined events.
  *
+ * @deprecated since 2.3 events are dispatched via hooks
  * @package CMS
  * @license GPL
  */
