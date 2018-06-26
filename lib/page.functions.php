@@ -157,7 +157,7 @@ function author_pages(int $userid)
 
 
 /**
- * Gets the given site prefernce
+ * Gets the given site preference
  *
  * @deprecated
  * @since 0.6
