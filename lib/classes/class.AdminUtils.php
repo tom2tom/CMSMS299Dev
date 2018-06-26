@@ -1,31 +1,41 @@
 <?php
-# A class of convenience functions for admin console requests
-# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#A class of convenience functions for admin console requests
+#Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
 
+use cms_http_request;
+use cms_siteprefs;
+use cms_userprefs;
 use cms_utils;
 use CmsApp;
-//use CmsLogicException;
 use CMSMS\internal\Smarty;
+use LogicException;
+use const CMS_DEFAULT_VERSIONCHECK_URL;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use const CMS_VERSION;
 use function cms_join_path;
 use function cms_module_places;
 use function endswith;
+use function get_site_preference;
+use function get_userid;
+use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
 //if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) )
@@ -79,8 +89,8 @@ final class AdminUtils
 	 */
 	public static function get_generic_url($in_url)
 	{
-		if( !defined('CMS_USER_KEY') ) throw new \LogicException('This method can only be called for admin requests');
-		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
+		if( !defined('CMS_USER_KEY') ) throw new LogicException('This method can only be called for admin requests');
+		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
 
 		$len = strlen($_SESSION[CMS_USER_KEY]);
 		$in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}+';
@@ -98,8 +108,8 @@ final class AdminUtils
 	 */
 	public static function get_session_url($in_url)
 	{
-		if( !defined('CMS_USER_KEY') ) throw new \LogicException('This method can only be called for admin requests');
-		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new \LogicException('This method can only be called for admin requests');
+		if( !defined('CMS_USER_KEY') ) throw new LogicException('This method can only be called for admin requests');
+		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
 
 		$len = strlen($_SESSION[CMS_USER_KEY]);
 		$in_p = '+_CMSKEY_=[X]{'.$len.'}+';
@@ -314,6 +324,123 @@ final class AdminUtils
 		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
 
 		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'">'.$icon.'</span>';
+	}
+
+	/**
+	 * Get javascript for initialization of ace text-editor
+	 * @since 2.3
+	 * @param bool $edit       Optional flag whether content is editable. Default false (i.e. just for display)
+	 * @param string $file     Optional filetype-identifier, an absolute filepath or at least an extension or pseudo (like 'smarty'). Default ''
+	 * @param string $selector Optional page-element id where the content will be placed.  Default 'Editor'
+	 * @param string $style    Optional override for the normal editor theme/style.  Default ''
+	 * @return string
+	 */
+	public static function get_editor_script(bool $edit = false, string $file = '', string $selector = 'Editor', string $style = '') : string
+	{
+		$fixed = ($edit) ? 'false' : 'true';
+
+		if( $file ) {
+			if( is_file($file) ) {
+				$filepath = $file;
+				$filetype = '';
+			} else {
+				$filepath = __DIR__; //default php mode
+				$p = strrpos($file, '.');
+				$filetype = substr($file, ($p !== false) ? $p+1:0);
+				$filetype = strtolower($filetype);
+				if( in_array($filetype, [
+					'htm',
+					'html',
+					'ini',
+					'js',
+					'javascript',
+					'php',
+					'smarty',
+					'tpl',
+					'text',
+					'xml',
+				]) ) {
+					switch( $filetype ) {
+						case 'htm':
+							$filetype = 'html';
+							break;
+						case 'js':
+							$filetype = 'javascript';
+							break;
+						case 'tpl':
+							$filetype = 'smarty';
+							break;
+					}
+				} else {
+					$filetype = '';
+				}
+			}
+		}
+		else {
+			$filepath = __DIR__; //php mode
+			$filetype = '';
+		}
+
+		//TODO consider site-preference for cdn e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
+		$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
+
+		$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
+		if (!$style) {
+			$style = get_site_preference('acetheme', 'clouds');
+		}
+		$style = strtolower($style);
+
+		$js = <<<EOS
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ace.js"></script>
+
+EOS;
+		if( !$filetype ) {
+			$js .= <<<EOS
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ext-modelist.js"></script>
+
+EOS;
+		}
+		$js .= <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+var editor = ace.edit("$selector");
+
+EOS;
+		if( $filetype ) {
+			$js .= <<<EOS
+editor.session.setMode("ace/mode/$filetype");
+
+EOS;
+		}
+		else {
+			$js .= <<<EOS
+(function () {
+ var modelist = ace.require("ace/ext/modelist");
+ var mode = modelist.getModeForPath("$filepath").mode;
+ editor.session.setMode(mode);
+}());
+
+EOS;
+		}
+		$js .= <<<EOS
+editor.setOptions({
+ readOnly: $fixed,
+ autoScrollEditorIntoView: true,
+ showPrintMargin: false,
+ maxLines: Infinity,
+ fontSize: '100%'
+});
+editor.renderer.setOptions({
+ showGutter: false,
+ displayIndentGuides: false,
+ showLineNumbers: false,
+ theme: "ace/theme/$style"
+});
+//]]>
+</script>
+
+EOS;
+		return $js;
 	}
 
 } // class
