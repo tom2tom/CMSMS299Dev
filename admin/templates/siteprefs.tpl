@@ -14,8 +14,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="sitename">{lang('sitename')}:</label>
-      {cms_help key2='siteprefs_sitelogo' title=lang('sitename')}
+      {$t=lang('sitename')}<label for="sitename">{$t}:</label>
+      {cms_help key2='siteprefs_sitelogo' title={$t}}
     </p>
     <p class="pageinput">
       <input type="text" id="sitename" class="pagesmalltextarea" name="sitename" size="30" value="{$sitename}" />
@@ -23,8 +23,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="sitelogo">{lang('sitelogo')}:</label>
-      {cms_help key2='siteprefs_sitelogo' title=lang('sitelogo')}
+      {$t=lang('sitelogo')}<label for="sitelogo">{$t}:</label>
+      {cms_help key2='siteprefs_sitelogo' title={$t}}
     </p>
     <p class="pageinput">
       <input type="text" id="sitelogo" name="sitelogo" size="60" value="{$sitelogo}" />
@@ -32,8 +32,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="frontendlang">{lang('frontendlang')}:</label>
-      {cms_help key2='siteprefs_frontendlang' title=lang('frontendlang')}
+      {$t=lang('frontendlang')}<label for="frontendlang">{$t}:</label>
+      {cms_help key2='siteprefs_frontendlang' title={$t}}
     </p>
     <p class="pageinput">
       <select id="frontendlang" name="frontendlang" style="vertical-align: middle;">
@@ -43,16 +43,16 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="globalmetadata">{lang('globalmetadata')}:</label>
-      {cms_help key2='siteprefs_globalmetadata' title=lang('globalmetadata')}
+      {$t=lang('globalmetadata')}<label for="globalmetadata">{$t}:</label>
+      {cms_help key2='siteprefs_globalmetadata' title={$t}}
     </p>
     <p class="pageinput"><textarea id="globalmetadata" class="pagesmalltextarea" name="metadata" cols="80" rows="20">{$metadata}</textarea></p>
   </div>
   {if isset($themes)}
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="logintheme">{lang('master_admintheme')}:</label>
-      {cms_help key2='siteprefs_logintheme' title=lang('master_admintheme')}
+      {$t=lang('master_admintheme')}<label for="logintheme">{$t}:</label>
+      {cms_help key2='siteprefs_logintheme' title={$t}}
     </p>
     <p class="pageinput">
       <select id="logintheme" name="logintheme">
@@ -77,8 +77,8 @@
   {/if}
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="defaultdateformat">{lang('date_format_string')}:</label>
-      {cms_help key2='siteprefs_dateformat' title=lang('date_format_string')}
+      {$t=lang('date_format_string')}<label for="defaultdateformat">{$t}:</label>
+      {cms_help key2='siteprefs_dateformat' title={$t}}
     </p>
     <p class="pageinput">
       <input class="pagenb" id="defaultdateformat" type="text" name="defaultdateformat" size="20" maxlength="255" value="{$defaultdateformat}" />
@@ -86,8 +86,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-       <label for="thumbnail_width">{lang('thumbnail_width')}:</label>
-       {cms_help key2='siteprefs_thumbwidth' title=lang('thumbnail_width')}
+       {$t=lang('thumbnail_width')}<label for="thumbnail_width">{$t}:</label>
+       {cms_help key2='siteprefs_thumbwidth' title={$t}}
    </p>
     <p class="pageinput">
       <input class="pagenb" id="thumbnail_width" type="text" name="thumbnail_width" size="3" maxlength="3" value="{$thumbnail_width}" />
@@ -95,8 +95,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="thumbnail_height">{lang('thumbnail_height')}:</label>
-      {cms_help key2='siteprefs_thumbheight' title=lang('thumbnail_height')}
+      {$t=lang('thumbnail_height')}<label for="thumbnail_height">{$t}:</label>
+      {cms_help key2='siteprefs_thumbheight' title={$t}}
     </p>
     <p class="pageinput">
       <input id="thumbnail_height" class="pagenb" type="text" name="thumbnail_height" size="3" maxlength="3" value="{$thumbnail_height}" />
@@ -104,8 +104,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="frontendwysiwyg">{lang('frontendwysiwygtouse')}:</label>
-      {cms_help key2='siteprefs_frontendwysiwyg' title=lang('frontendwysiwygtouse')}
+      {$t=lang('frontendwysiwygtouse')}<label for="frontendwysiwyg">{$t}:</label>
+      {cms_help key2='siteprefs_frontendwysiwyg' title={$t}}
     </p>
     <p class="pageinput">
       <select id="frontendwysiwyg" name="frontendwysiwyg">
@@ -115,8 +115,8 @@
   </div>
   {if !empty($search_modules)}
   <p class="pagetext">
-     <label for="search_module">{lang('search_module')}:</label>
-     {cms_help key2='settings_searchmodule' title=lang('search_module')}
+     {$t=lang('search_module')}<label for="search_module">{$t}:</label>
+     {cms_help key2='settings_searchmodule' title={$t}}
   </p>
   <p class="pageinput">
     <select id="search_module" name="search_module">
@@ -165,9 +165,9 @@
 <form id="siteprefform_editcontent" action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="active_tab" value="editcontent" />
   {if !$pretty_urls}
-  <div class="pagewarn">
-    {lang('warn_nosefurl')}
-    {cms_help key2='settings_nosefurl' title=lang('warn_nosefurl')}
+  <div class="pagewarn postgap">
+    {$t=lang('warn_nosefurl')}{$t}
+    {cms_help key2='settings_nosefurl' title={$t}}
   </div>
   {/if}
   <div class="pageinput">
@@ -177,8 +177,8 @@
   {if $pretty_urls}
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="content_autocreate_urls">{lang('content_autocreate_urls')}:</label>
-      {cms_help key2='settings_autocreate_url' title=lang('content_autocreate_urls')}
+      {$t=lang('content_autocreate_urls')}<label for="content_autocreate_urls">{$t}:</label>
+      {cms_help key2='settings_autocreate_url' title={$t}}
     </p>
     <input type="hidden" name="content_autocreate_urls" value="0" />
     <p class="pageinput">
@@ -188,8 +188,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="content_autocreate_flaturls">{lang('content_autocreate_flaturls')}:</label>
-      {cms_help key2='settings_autocreate_flaturls' title=lang('content_autocreate_flaturls')}
+      {$t=lang('content_autocreate_flaturls')}<label for="content_autocreate_flaturls">{$t}:</label>
+      {cms_help key2='settings_autocreate_flaturls' title={$t}}
     </p>
     <input type="hidden" name="content_autocreate_flaturls" value="0" />
     <p class="pageinput">
@@ -199,8 +199,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="content_mandatory_urls">{lang('content_mandatory_urls')}:</label>
-      {cms_help key2='settings_mandatory_urls' title=lang('content_mandatory_urls')}
+      {$t=lang('content_mandatory_urls')}<label for="content_mandatory_urls">{$t}:</label>
+      {cms_help key2='settings_mandatory_urls' title={$t}}
     </p>
     <input type="hidden" name="content_mandatory_urls" value="0" />
     <p class="pageinput">
@@ -210,8 +210,8 @@
   {/if}
   <div class="pageoverflow">
     <p class="pagetext">
-     <label for="disallowed_contenttypes">{lang('disallowed_contenttypes')}:</label>
-     {cms_help key2='settings_badtypes' title=lang('disallowed_contenttypes')}
+     {$t=lang('disallowed_contenttypes')}<label for="disallowed_contenttypes">{$t}:</label>
+     {cms_help key2='settings_badtypes' title={$t}}
     </p>
     <p class="pageinput">
       <select id="disallowed_contenttypes" name="disallowed_contenttypes[]" multiple="multiple" size="5">
@@ -221,8 +221,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="basic_attributes">{lang('basic_attributes')}:</label>
-      {cms_help key2='settings_basicattribs2' title=lang('basic_attributes')}
+      {$t=lang('basic_attributes')}<label for="basic_attributes">{$t}:</label>
+      {cms_help key2='settings_basicattribs2' title={$t}}
     </p>
     <p class="pageinput">
       <select id="basic_attributes" class="multicolumn" name="basic_attributes[]" multiple="multiple" size="5">
@@ -232,8 +232,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-       <label for="imagefield_path">{lang('content_imagefield_path')}:</label>
-      {cms_help key2='settings_imagefield_path' title=lang('content_imagefield_path')}
+      {$t=lang('content_imagefield_path')}<label for="imagefield_path">{$t}:</label>
+      {cms_help key2='settings_imagefield_path' title={$t}}
     </p>
     <p class="pageinput">
       <input id="imagefield_path" type="text" name="content_imagefield_path" size="50" maxlength="255" value="{$content_imagefield_path}" />
@@ -241,8 +241,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="thumbfield_path">{lang('content_thumbnailfield_path')}:</label>
-      {cms_help key2='settings_thumbfield_path' title=lang('content_thumbnailfield_path')}
+      {$t=lang('content_thumbnailfield_path')}<label for="thumbfield_path">{$t}:</label>
+      {cms_help key2='settings_thumbfield_path' title={$t}}
     </p>
     <p class="pageinput">
       <input id="thumbfield_path" type="text" name="content_thumbnailfield_path" size="50" maxlength="255" value="{$content_thumbnailfield_path}" />
@@ -250,8 +250,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="contentimage_path">{lang('contentimage_path')}:</label>
-      {cms_help key2='settings_contentimage_path' title=lang('contentimage_path')}
+      {$t=lang('contentimage_path')}<label for="contentimage_path">{$t}:</label>
+      {cms_help key2='settings_contentimage_path' title={$t}}
     </p>
     <p class="pageinput">
       <input type="text" id="contentimage_path" name="contentimage_path" size="50" maxlength="255" value="{$contentimage_path}" />
@@ -259,8 +259,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="cssnameisblockname">{lang('cssnameisblockname')}:</label>
-      {cms_help key2='settings_cssnameisblockname' title=lang('cssnameisblockname')}
+      {$t=lang('cssnameisblockname')}<label for="cssnameisblockname">{$t}:</label>
+      {cms_help key2='settings_cssnameisblockname' title={$t}}
     </p>
     <input type="hidden" name="content_cssnameisblockname" value="0" />
     <p class="pageinput">
@@ -282,8 +282,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="enablesitedown">{lang('enablesitedown')}:</label>
-      {cms_help key2='settings_enablesitedown' title=lang('enablesitedown')}
+      {$t=lang('enablesitedown')}<label for="enablesitedown">{$t}:</label>
+      {cms_help key2='settings_enablesitedown' title={$t}}
     </p>
     <input type="hidden" name="enablesitedownmessage" value="0" />
     <p class="pageinput">
@@ -292,15 +292,15 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-       {lang('sitedownmessage')}:
-       {cms_help key2='settings_sitedownmessage' title=lang('sitedownmessage')}
+       {$t=lang('sitedownmessage')}<label for="sitedownmessage">{$t}:</label>
+       {cms_help key2='settings_sitedownmessage' title={$t}}
     </p>
     <p class="pageinput">{$textarea_sitedownmessage}</p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="sitedownexcludeadmins">{lang('sitedownexcludeadmins')}:</label>
-      {cms_help key2='settings_sitedownexcludeadmins' title=lang('sitedownexcludeadmins')}
+      {$t=lang('sitedownexcludeadmins')}<label for="sitedownexcludeadmins">{$t}:</label>
+      {cms_help key2='settings_sitedownexcludeadmins' title={$t}}
     </p>
     <input type="hidden" name="sitedownexcludeadmins" value="0" />
     <p class="pageinput">
@@ -309,8 +309,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="sitedownexcludes">{lang('sitedownexcludes')}:</label>
-      {cms_help key2='settings_sitedownexcludes' title=lang('sitedownexcludes')}
+      {$t=lang('sitedownexcludes')}<label for="sitedownexcludes">{$t}:</label>
+      {cms_help key2='settings_sitedownexcludes' title={$t}}
     </p>
     <p class="pageinput">
       <input type="text" name="sitedownexcludes" id="sitedownexcludes" size="50" maxlength="255" value="{$sitedownexcludes}" />
@@ -332,8 +332,8 @@
     <div class="pageinfo">{lang('info_mailtest')}</div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="testaddress">{lang('settings_testaddress')}:</label>
-        {cms_help key2='settings_mailtest_testaddress' title=lang('settings_testaddress')}
+        {$t=lang('settings_testaddress')}<label for="testaddress">{$t}:</label>
+        {cms_help key2='settings_mailtest_testaddress' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="testaddress" name="mailtest_testaddress" size="50" maxlength="255" />
@@ -357,8 +357,8 @@
     <legend>{lang('general_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="mailer">{lang('settings_mailer')}:</label>
-        {cms_help key2='settings_mailprefs_mailer' title=lang('settings_mailer')}
+        {$t=lang('settings_mailer')}<label for="mailer">{$t}:</label>
+        {cms_help key2='settings_mailprefs_mailer' title={$t}}
       </p>
         <p class="pageinput">
           <select id="mailer" name="mailprefs_mailer">
@@ -368,8 +368,8 @@
       </div>
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="from">{lang('settings_mailfrom')}:</label>
-          {cms_help key2='settings_mailprefs_from' title=lang('settings_mailfrom')}
+          {$t=lang('settings_mailfrom')}<label for="from">{$t}:</label>
+          {cms_help key2='settings_mailprefs_from' title={$t}}
         </p>
       <p class="pageinput">
         <input type="text" id="from" name="mailprefs_from" value="{$mailprefs.from}" size="50" maxlength="255" />
@@ -377,8 +377,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="fromuser">{lang('settings_mailfromuser')}:</label>
-        {cms_help key2='settings_mailprefs_fromuser' title=lang('settings_mailfromuser')}
+        {$t=lang('settings_mailfromuser')}<label for="fromuser">{$t}:</label>
+        {cms_help key2='settings_mailprefs_fromuser' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="fromuser" name="mailprefs_fromuser" value="{$mailprefs.fromuser}" size="50" maxlength="255" />
@@ -390,8 +390,8 @@
     <legend>{lang('smtp_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-         <label for="host">{lang('settings_smtphost')}:</label>
-         {cms_help key2='settings_mailprefs_smtphost' title=lang('settings_smtphost')}
+         {$t=lang('settings_smtphost')}<label for="host">{$t}:</label>
+         {cms_help key2='settings_mailprefs_smtphost' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="host" name="mailprefs_host" value="{$mailprefs.host}" size="50" maxlength="255" />
@@ -400,8 +400,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="port">{lang('settings_smtpport')}:</label>
-        {cms_help key2='settings_mailprefs_smtpport' title=lang('settings_smtpport')}
+        {$t=lang('settings_smtpport')}<label for="port">{$t}:</label>
+        {cms_help key2='settings_mailprefs_smtpport' title={$t}}
     </p>
       <p class="pageinput">
         <input type="text" id="port" name="mailprefs_port" value="{$mailprefs.port}" size="6" maxlength="8" />
@@ -410,8 +410,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="timeout">{lang('settings_smtptimeout')}:</label>
-        {cms_help key2='settings_mailprefs_smtptimeout' title=lang('settings_smtptimeout')}
+        {$t=lang('settings_smtptimeout')}<label for="timeout">{$t}:</label>
+        {cms_help key2='settings_mailprefs_smtptimeout' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="timeout" name="mailprefs_timeout" value="{$mailprefs.timeout}" size="6" maxlength="8" />
@@ -422,8 +422,8 @@
       <legend>{lang('settings_authentication')}</legend>
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="smtpauth">{lang('settings_smtpauth')}:</label>
-          {cms_help key2='settings_mailprefs_smtpauth' title=lang('settings_smtpauth')}
+          {$t=lang('settings_smtpauth')}<label for="smtpauth">{$t}:</label>
+          {cms_help key2='settings_mailprefs_smtpauth' title={$t}}
         </p>
         <input type="hidden" name="mailprefs_smtpauth" value="0" />
         <p class="pageinput">
@@ -433,8 +433,8 @@
 
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="secure">{lang('settings_authsecure')}:</label>
-          {cms_help key2='settings_mailprefs_smtpsecure' title=lang('settings_authsecure')}
+          {$t=lang('settings_authsecure')}<label for="secure">{$t}:</label>
+          {cms_help key2='settings_mailprefs_smtpsecure' title={$t}}
         </p>
         <p class="pageinput">
           <select id="secure" name="mailprefs_secure">
@@ -445,8 +445,8 @@
 
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="username">{lang('settings_authusername')}:</label>
-          {cms_help key2='settings_mailprefs_smtpusername' title=lang('settings_authusername')}
+          {$t=lang('settings_authusername')}<label for="username">{$t}:</label>
+          {cms_help key2='settings_mailprefs_smtpusername' title={$t}}
         </p>
         <p class="pageinput">
           <input type="text" id="username" name="mailprefs_username" value="{$mailprefs.username}" size="50" maxlength="255" />
@@ -455,8 +455,8 @@
 
       <div class="pageoverflow">
         <p class="pagetext">
-          <label for="password">{lang('settings_authpassword')}:</label>
-          {cms_help key2='settings_mailprefs_smtppassword' title=lang('settings_authpassword')}
+          {$t=lang('settings_authpassword')}<label for="password">{$t}:</label>
+          {cms_help key2='settings_mailprefs_smtppassword' title={$t}}
         </p>
         <p class="pageinput">
           <input type="password" id="password" name="mailprefs_password" value="{$mailprefs.password}" size="50" maxlength="50" />
@@ -469,8 +469,8 @@
     <legend>{lang('sendmail_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="sendmail">{lang('settings_sendmailpath')}:</label>
-        {cms_help key2='settings_mailprefs_sendmail' title=lang('settings_sendmailpath')}
+        {$t=lang('settings_sendmailpath')}<label for="sendmail">{$t}:</label>
+        {cms_help key2='settings_mailprefs_sendmail' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="sendmail" name="mailprefs_sendmail" value="{$mailprefs.sendmail}" size="50" maxlength="255" />
@@ -488,8 +488,8 @@
   <input type="hidden" name="active_tab" value="smarty" />
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="compilecheck">{lang('prompt_smarty_compilecheck')}:</label>
-      {cms_help key2='settings_smartycompilecheck' title=lang('prompt_smarty_compilecheck')}
+      {$t=lang('prompt_smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
+      {cms_help key2='settings_smartycompilecheck' title={$t}}
     </p>
     <input type="hidden" name="use_smartycompilecheck" value="0" />
     <p class="pageinput">
@@ -513,8 +513,8 @@
     <legend>{lang('browser_cache_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="allow_browser_cache">{lang('allow_browser_cache')}:</label>
-        {cms_help key2='settings_browsercache' title=lang('allow_browser_cache')}
+        {$t=lang('allow_browser_cache')}<label for="allow_browser_cache">{$t}:</label>
+        {cms_help key2='settings_browsercache' title={$t}}
       </p>
       <input type="hidden" name="allow_browser_cache" value="0" />
       <p class="pageinput">
@@ -523,8 +523,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="browser_expiry">{lang('browser_cache_expiry')}:</label>
-        {cms_help key2='settings_browsercache_expiry' title=lang('browser_cache_expiry')}
+        {$t=lang('browser_cache_expiry')}<label for="browser_expiry">{$t}:</label>
+        {cms_help key2='settings_browsercache_expiry' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="browser_expiry" name="browser_cache_expiry" value="{$browser_cache_expiry}" size="6" maxlength="10" />
@@ -536,8 +536,8 @@
     <legend>{lang('server_cache_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="autoclearcache2">{lang('autoclearcache2')}:</label>
-        {cms_help key2='settings_autoclearcache' title=lang('autoclearcache2')}
+        {$t=lang('autoclearcache2')}<label for="autoclearcache2">{$t}:</label>
+        {cms_help key2='settings_autoclearcache' title={$t}}
       </p>
       <p class="pageinput">
         <input id="autoclearcache2" type="text" name="auto_clear_cache_age" size="4" value="{$auto_clear_cache_age}" maxlength="4" />
@@ -545,11 +545,30 @@
     </div>
   </fieldset>
   <fieldset>
+    <legend>{lang('text_editor_settings')}</legend>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('ace_cdnurl')}<label for="editorcdn">{$t}:</label>
+        {cms_help key2='settings_acecdn' title={$t}}
+      </p>
+        <input id="editorcdn" type="text" name="ace_cdn" size="50" value="{$ace_cdn}" maxlength="80" />
+      <p class="pageinput">
+      </p>
+      <p class="pagetext">
+        {$t=lang('ace_theme')}<label for="editortheme">{$t}:</label>
+        {cms_help key2='settings_acetheme' title={$t}}
+      </p>
+      <p class="pageinput">
+        <input id="editortheme" type="text" name="ace_theme" size="30" value="{$ace_theme}" maxlength="40" />
+      </p>
+    </div>
+  </fieldset>
+  <fieldset>
     <legend>{lang('general_operation_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="login_module">{lang('admin_login_module')}:</label>
-        {cms_help key2='settings_login_module' title=lang('admin_login_module')}
+        {$t=lang('admin_login_module')}<label for="login_module">{$t}:</label>
+        {cms_help key2='settings_login_module' title={$t}}
       </p>
       <p class="pageinput">
         <select id="login_module" name="login_module">
@@ -559,8 +578,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-      <label for="umask">{lang('global_umask')}:</label>
-        {cms_help key2='settings_umask' title=lang('global_umask')}
+      {$t=lang('global_umask')}<label for="umask">{$t}:</label>
+        {cms_help key2='settings_umask' title={$t}}
       </p>
       <p class="pageinput">
         <input id="umask" type="text" class="pagesmalltextarea" name="global_umask" size="4" value="{$global_umask}" />
@@ -580,8 +599,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="lock_timeout">{lang('admin_lock_timeout')}:</label>
-        {cms_help key2='settings_lock_timeout' title=lang('admin_lock_timeout')}
+        {$t=lang('admin_lock_timeout')}<label for="lock_timeout">{$t}:</label>
+        {cms_help key2='settings_lock_timeout' title={$t}}
       </p>
       <p class="pageinput">
         <input type="text" id="lock_timeout" name="lock_timeout" size="3" value="{$lock_timeout}" />
@@ -589,8 +608,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="adminlog">{lang('adminlog_lifetime')}:</label>
-        {cms_help key2='settings_adminlog_lifetime' title=lang('adminlog_lifetime')}
+        {$t=lang('adminlog_lifetime')}<label for="adminlog">{$t}:</label>
+        {cms_help key2='settings_adminlog_lifetime' title={$t}}
       </p>
       <p class="pageinput">
         <select id="adminlog" name="adminlog_lifetime">
@@ -600,8 +619,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="checkversion">{lang('checkversion')}:</label>
-        {cms_help key2='settings_checkversion' title=lang('checkversion')}
+        {$t=lang('checkversion')}<label for="checkversion">{$t}:</label>
+        {cms_help key2='settings_checkversion' title={$t}}
       </p>
       <input type="hidden" name="checkversion" value="0" />
       <p class="pageinput">
