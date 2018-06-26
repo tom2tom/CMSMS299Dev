@@ -62,9 +62,9 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
-	$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
+    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
     $dbdict->ExecuteSQLArray($sqlarray);
-	$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
+    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE);
     $dbdict->ExecuteSQLArray($sqlarray);
@@ -344,23 +344,52 @@ modified_date DT
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_created_table', 'module_deps', $msg_ret));
 
-    // deprecated
+    //NOTE this must replicate table CmsLayoutTemplate::TABLENAME, but with extra 'module' field
     $flds = '
-module_name C(160),
-template_name C(160),
-content X,
-create_date DT,
-modified_date DT
+id I KEY AUTO,
+name C(100) NOTNULL,
+content X2,
+description X,
+type_id I NOTNULL,
+owner_id I NOTNULL DEFAULT -1,
+type_dflt I(1) DEFAULT 0,
+listable I(1) DEFAULT 1,
+created I,
+modified I,
+module C(160)
 ';
-    $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'module_templates', $flds, $taboptarray);
+    $sqlarray = $dbdict->CreateTableSQL(
+        CMS_DB_PREFIX.'module_templates',
+        $flds,
+        $taboptarray
+    );
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_created_table', 'module_templates', $msg_ret));
 
     $sqlarray = $dbdict->CreateIndexSQL(
-        CMS_DB_PREFIX.'idx_module_templates_by_module_and_tpl_name',
+        CMS_DB_PREFIX.'idx_module_templates_1',
         CMS_DB_PREFIX.'module_templates',
-        'module_name, template_name'
+        'name',
+        ['UNIQUE']
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
+    verbose_msg(ilang('install_creating_index', 'idx_module_templates_1', $msg_ret));
+
+    $sqlarray = $dbdict->CreateIndexSQL(
+        CMS_DB_PREFIX.'idx_module_templates_2',
+        CMS_DB_PREFIX.'module_templates',
+        'type_id,type_dflt'
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
+    verbose_msg(ilang('install_creating_index', 'idx_module_templates_2', $msg_ret));
+
+    $sqlarray = $dbdict->CreateIndexSQL(
+        CMS_DB_PREFIX.'idx_module_templates_3',
+        CMS_DB_PREFIX.'module_templates',
+        'module_name,template_name'
     );
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
@@ -571,14 +600,14 @@ tpl_order I(4) DEFAULT 0
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
+    //NOTE table CMS_DB_PREFIX.'module_templates' must replicate this (with extra field 'module')
     $flds = '
 id I KEY AUTO,
 name C(100) NOTNULL,
 content X2,
 description X,
 type_id I NOTNULL,
-category_id I,
-owner_id I NOTNULL,
+owner_id I NOTNULL DEFAULT 1,
 type_dflt I(1) DEFAULT 0,
 listable I(1) DEFAULT 1,
 created I,
