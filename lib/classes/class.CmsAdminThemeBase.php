@@ -21,6 +21,7 @@ use cms_admin_tabs;
 use cms_cache_handler;
 use cms_config;
 use cms_url;
+use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
 use CMSMS\App as CmsApp;
@@ -35,7 +36,6 @@ use function cleanValue;
 use function cms_join_path;
 use function cms_module_places;
 use function endswith;
-use function get_site_preference;
 use function get_userid;
 use function lang;
 use function startswith;
@@ -532,12 +532,13 @@ abstract class CmsAdminThemeBase
         // extensions
         $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-        $this->_perms['eventPerms'] = check_permission($this->userid, 'Modify Events');
+//        $this->_perms['eventPerms'] = check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
             check_permission($this->userid, 'Modify Simple Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
-            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] | $this->_perms['taghelpPerms'];
+            $this->_perms['modulePerms'] | //$this->_perms['eventPerms'] |
+            $this->_perms['taghelpPerms'];
 
         // myprefs
         $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
@@ -821,6 +822,7 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
+/* this stuff is for developers only
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'eventhandlers.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
@@ -831,8 +833,8 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('editeventhandler')),
         'description'=>lang('editeventhandlerdescription'),
         'show_in_menu'=>false]; //??
-
-        // ~~~~~~~~~~ admin menu items ~~~~~~~~~~
+*/
+        // ~~~~~~~~~~ site-admin menu items ~~~~~~~~~~
 
         $items[] = ['name'=>'siteprefs','parent'=>'siteadmin',
         'url'=>'siteprefs.php'.$urlext,
@@ -1486,7 +1488,7 @@ $X = 1;
     {
         $tmp = self::GetAvailableThemes();
         if( $tmp ) {
-            $logintheme = get_site_preference('logintheme');
+            $logintheme = cms_siteprefs::get('logintheme');
             if( $logintheme && in_array($logintheme,$tmp) ) return $logintheme;
             return reset($tmp);
         }

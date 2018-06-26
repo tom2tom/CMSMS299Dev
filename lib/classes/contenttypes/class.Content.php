@@ -43,7 +43,6 @@ use function cms_join_path;
 use function cms_to_bool;
 use function create_file_dropdown;
 use function get_parameter_value;
-use function get_site_preference;
 use function get_userid;
 use function lang;
 use function startswith;
@@ -584,7 +583,7 @@ class Content extends \CMSMS\ContentBase
 			if( !$res ) return;
 		}
 		$config = cms_config::get_instance();
-		$adddir = get_site_preference('contentimage_path');
+		$adddir = cms_siteprefs::get('contentimage_path');
 		if( $blockInfo['dir'] != '' ) $adddir = $blockInfo['dir'];
 		$dir = cms_join_path($config['uploads_path'],$adddir);
 		$rp1 = realpath($config['uploads_path']);

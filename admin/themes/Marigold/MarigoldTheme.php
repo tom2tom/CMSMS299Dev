@@ -139,75 +139,75 @@ class MarigoldTheme extends CmsAdminThemeBase
 			$smarty->assign('nodes', $nodes);
 		}
 
-        $config = \cms_config::get_instance();
+		$config = \cms_config::get_instance();
 		$smarty->assign('config', $config );
 		$smarty->assign('theme', $this);
 		$smarty->assign('theme_path',__DIR__);
-        $smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
+		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
 
 		// is the website set down for maintenance?
-		if( get_site_preference('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
+		if( cms_siteprefs::get('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
 
 		$_contents = $smarty->display('topcontent.tpl');
 		$smarty->template_dir = $otd;
 		echo $_contents;
 	}
 
-    public function do_minimal()
-    {
-        $config = \cms_config::get_instance();
-        $smarty->assign('content',$this->get_content());
-        $smarty->assign('title',$this->title);
-        $smarty->assign('subtitle',$this->subtitle);
-        $smarty->assign('admin_root', $config['admin_url']);
-        $smarty->assign('theme_path', __DIR__);
-        $smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
-        $smarty->assign('footer', $this->do_footer() );
-        return $smarty->fetch('minimal.tpl');
-    }
-
-    public function do_loginpage( $pageid = null )
-    {
-	$smarty = Smarty_CMS::get_instance();
-        $old = $smarty->GetTemplateDir();
-        $smarty->SetTemplateDir( __DIR__.'/templates' );
-
-        $config = \cms_config::get_instance();
-        $smarty->assign('content',$this->get_content());
-        $smarty->assign('title',$this->title);
-        $smarty->assign('subtitle',$this->subtitle);
-        $smarty->assign('admin_root', $config['admin_url']);
-        $smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
-        $smarty->assign('theme_path', __DIR__);
-        $smarty->assign('footer', $this->do_footer() );
-        $smarty->assign('lang',get_site_preference('fronendlang'));
-        $smarty->assign('pageid',$pageid);
-        $smarty->assign('dynamic_headtext', $this->get_headtext());
-        $out = $smarty->fetch('login.tpl');
-
-        $smarty->SetTemplateDir( $old );
-        return $out;
-    }
-
-    public function do_authenticated_page()
-    {
-        die(__METHOD__);
-    }
-
-	public function do_login($params)
+	public function do_minimal()
 	{
-	    // by default we're gonna grab the theme name
-        $config = cms_config::get_instance();
-        $smarty = Smarty_CMS::get_instance();
+		$config = \cms_config::get_instance();
+		$smarty->assign('content',$this->get_content());
+		$smarty->assign('title',$this->title);
+		$smarty->assign('subtitle',$this->subtitle);
+		$smarty->assign('admin_root', $config['admin_url']);
+		$smarty->assign('theme_path', __DIR__);
+		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
+		$smarty->assign('footer', $this->do_footer() );
+		return $smarty->fetch('minimal.tpl');
+	}
 
-        $smarty->template_dir = __DIR__ . '/templates';
-        global $error,$warningLogin,$acceptLogin,$changepwhash;
-        $fn = $config['admin_path']."/themes/".$this->themeName."/login.php";
-        include($fn);
+	public function do_loginpage( $pageid = null )
+	{
+		$smarty = Smarty_CMS::get_instance();
+		$old = $smarty->GetTemplateDir();
+		$smarty->SetTemplateDir( __DIR__.'/templates' );
 
-        $smarty->assign('lang', get_site_preference('frontendlang'));
-        $_contents = $smarty->display('login.tpl');
-        return $_contents;
+		$config = \cms_config::get_instance();
+		$smarty->assign('content',$this->get_content());
+		$smarty->assign('title',$this->title);
+		$smarty->assign('subtitle',$this->subtitle);
+		$smarty->assign('admin_root', $config['admin_url']);
+		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
+		$smarty->assign('theme_path', __DIR__);
+		$smarty->assign('footer', $this->do_footer() );
+		$smarty->assign('lang',cms_siteprefs::get('fronendlang'));
+		$smarty->assign('pageid',$pageid);
+		$smarty->assign('dynamic_headtext', $this->get_headtext());
+		$out = $smarty->fetch('login.tpl');
+
+		$smarty->SetTemplateDir( $old );
+		return $out;
+	}
+
+	public function do_authenticated_page()
+	{
+		die(__METHOD__);
+	}
+
+	public function do_login($params = null)
+	{
+		$config = cms_config::get_instance();
+		$smarty = Smarty_CMS::get_instance();
+
+		$usecsrf = true;
+		$fn = cms_join_path($config['admin_path'], 'themes', 'assets', 'login.php');
+		require $fn;
+		
+		//NOTE relevant js & css need to be specified here or in the template
+
+		$smarty->assign('lang', cms_siteprefs::get('frontendlang'));
+		$_contents = $smarty->display('login-old.tpl');
+		return $_contents;
 	}
 
 	public function postprocess($html) {
@@ -227,23 +227,23 @@ class MarigoldTheme extends CmsAdminThemeBase
 				$title = lang($title, $extra);
 			}
 		} else {
-            if( $this->title ) {
-                $title = $this->title;
-            }
-            else {
-                // no title, get one from the breadcrumbs.
-                $bc = $this->get_breadcrumbs();
-                if (is_array($bc) && count($bc)) {
-                    $title = $bc[count($bc) - 1]['title'];
-                }
-            }
-            if( !$title ) $title = '';
+			if( $this->title ) {
+				$title = $this->title;
+			}
+			else {
+				// no title, get one from the breadcrumbs.
+				$bc = $this->get_breadcrumbs();
+				if (is_array($bc) && count($bc)) {
+					$title = $bc[count($bc) - 1]['title'];
+				}
+			}
+			if( !$title ) $title = '';
 		}
 
-        // page title and alias
+		// page title and alias
 		$smarty->assign('pagetitle', $title);
-        $smarty->assign('subtitle',$this->subtitle);
-        $smarty->assign('pagealias', munge_string_to_url($title));
+		$smarty->assign('subtitle',$this->subtitle);
+		$smarty->assign('pagealias', munge_string_to_url($title));
 
 		// module name?
 		if (($module_name = $this->get_value('module_name'))) {
@@ -258,7 +258,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 		// module_help_url
 		if( !cms_userprefs::get_for_user(get_userid(),'hide_help_links',0) ) {
 		  if (($module_help_url = $this->get_value('module_help_url'))) {
-		    $smarty->assign('module_help_url', $module_help_url);
+			$smarty->assign('module_help_url', $module_help_url);
 		  }
 		}
 
@@ -274,10 +274,10 @@ class MarigoldTheme extends CmsAdminThemeBase
 		}
 
 		$smarty->assign('headertext',$this->get_headtext());
-        $smarty->assign('footertext',$this->get_footertext());
+		$smarty->assign('footertext',$this->get_footertext());
 
 		// and some other common variables
-        $config = \cms_config::get_instance();
+		$config = \cms_config::get_instance();
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 		$smarty->assign('config', $config );
 		$smarty->assign('theme', $this);
@@ -290,7 +290,7 @@ class MarigoldTheme extends CmsAdminThemeBase
 		$lang = CmsNlsOperations::get_current_language();
 		$info = CmsNlsOperations::get_language_info($lang);
 		$smarty->assign('theme_path',__DIR__);
-        $smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
+		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
 		$smarty->assign('lang_dir',$info->direction());
 
 
@@ -300,16 +300,16 @@ class MarigoldTheme extends CmsAdminThemeBase
 			$smarty->assign('messages', $this->_messages);
 
 		// is the website set down for maintenance?
-		if( get_site_preference('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
+		if( cms_siteprefs::get('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
 
 		$_contents = $smarty->fetch('pagetemplate.tpl');
 		$smarty->template_dir = $otd;
 		return $_contents;
 	}
 
-    public function get_my_alerts()
-    {
-        return \CMSMS\AdminAlerts\Alert::load_my_alerts();
-    }
+	public function get_my_alerts()
+	{
+		return \CMSMS\AdminAlerts\Alert::load_my_alerts();
+	}
 }
 ?>

@@ -18,10 +18,10 @@
 namespace ModuleManager;
 
 use cms_http_request;
+use cms_siteprefs;
 use cms_utils;
 use const TMP_CACHE_LOCATION;
 use function cmsms;
-use function get_site_preference;
 
 final class cached_request //was modmgr_cached_request
 {
@@ -41,7 +41,7 @@ final class cached_request //was modmgr_cached_request
   {
     $mod = cms_utils::get_module('ModuleManager');
     $config = cmsms()->GetConfig();
-    if( !$age ) $age = get_site_preference('browser_cache_expiry',60);
+    if( !$age ) $age = cms_siteprefs::get('browser_cache_expiry',60);
     if( $age ) $age = max(1,(int)$age);
 
     // build a signature

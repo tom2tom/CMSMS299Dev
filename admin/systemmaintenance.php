@@ -16,6 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use __installer\installer_base;
+use CMSMS\internal\Smarty;
+
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -36,7 +39,7 @@ if (!$access) {
 $CMS_BASE = dirname(__DIR__);
 require_once cms_join_path($CMS_BASE, 'lib', 'test.functions.php');
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 $smarty->force_compile = true;
 $smarty->assign('theme', $themeObject);
@@ -159,9 +162,9 @@ if ($flag && isset($_POST['export'])) {
 	$fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
 	if (is_file($fp)) {
 		include $fp;
-		$arr = __installer\installer_base::CONTENTFILESDIR;
+		$arr = installer_base::CONTENTFILESDIR;
 		$filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
-		$arr = __installer\installer_base::CONTENTXML;
+		$arr = installer_base::CONTENTXML;
 		$xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
 		$keep = true;
 	} else {
@@ -175,7 +178,7 @@ if ($flag && isset($_POST['export'])) {
     for ($c = 0, $n = sizeof($handlers); $c < $n; ++$c) {
         ob_end_clean();
     }
-    $tmp = get_site_preference('sitename','CMSMS-Site');
+    $tmp = cms_siteprefs::get('sitename','CMSMS-Site');
     $xmlname = strtr("Exported-{$tmp}.xml", ' ', '_');
     header('Content-Description: File Transfer');
     header('Content-Type: application/force-download');

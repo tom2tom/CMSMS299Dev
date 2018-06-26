@@ -17,6 +17,19 @@
 
 namespace CMSMS\internal;
 
+use cms_config;
+use cms_siteprefs;
+use cms_utils;
+use CmsApp;
+use CmsError403Exception;
+use CmsError404Exception;
+use const __CMS_PREVIEW_PAGE__;
+use const CMS_UPLOADS_URL;
+use function cms_join_path;
+use function cms_to_bool;
+use function get_parameter_value;
+use function startswith;
+
 /**
  * Helper class to deal with fetching content blocks.
  *
@@ -58,7 +71,7 @@ final class content_plugins
      */
     public static function fetch_contentblock(array $params, $template)
     {
-        $contentobj = \CmsApp::get_instance()->get_content_object();
+        $contentobj = CmsApp::get_instance()->get_content_object();
         $result = null;
         if (is_object($contentobj)) {
             if( !$contentobj->IsPermitted() ) throw new CmsError403Exception();
@@ -94,7 +107,7 @@ final class content_plugins
      */
     public static function fetch_pagedata(array $params, $template)
     {
-        $contentobj = \CmsApp::get_instance()->get_content_object();
+        $contentobj = CmsApp::get_instance()->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) return self::content_return('', $params, $template);
 
         $result = $template->fetch('content:pagedata','',$contentobj->Id());
@@ -114,12 +127,12 @@ final class content_plugins
     public static function fetch_imageblock(array $params, $template)
     {
         $ignored = [ 'block','type','name','label','upload','dir','default','tab','priority','exclude','sort', 'profile', 'urlonly','assign' ];
-        $gCms = \CmsApp::get_instance();
+        $gCms = CmsApp::get_instance();
         $contentobj = $gCms->get_content_object();
         if( !is_object($contentobj) || $contentobj->Id() <= 0 ) return self::content_return('', $params, $template);
 
-        $config = \cms_config::get_instance();
-        $adddir = \cms_siteprefs::get('contentimage_path');
+        $config = cms_config::get_instance();
+        $adddir = cms_siteprefs::get('contentimage_path');
         if( isset($params['dir']) && $params['dir'] != '' ) $adddir = $params['dir'];
         $dir = cms_join_path($config['uploads_path'],$adddir);
         $basename = basename($config['uploads_path']);
@@ -184,14 +197,14 @@ final class content_plugins
         $block = $params['block'];
         $result = '';
 
-        $gCms = \CmsApp::get_instance();
+        $gCms = CmsApp::get_instance();
         $content_obj = $gCms->get_content_object();
         if( is_object($content_obj) ) {
             $result = $content_obj->GetPropertyValue($block);
             if( $result == -1 ) $result = '';
             $module = isset($params['module']) ? trim($params['module']) : null;
             if( $module ) {
-                $mod = \cms_utils::get_module($module);
+                $mod = cms_utils::get_module($module);
                 if( is_object($mod) ) $result = $mod->RenderContentBlockField($block,$result,$params,$content_obj);
             }
         }
@@ -221,7 +234,7 @@ final class content_plugins
      * @param mixed $page_id int or ''/null
      * @param mixed $template
      * @return mixed string or null
-     * @throws \CmsError404Exception
+     * @throws CmsError404Exception
      */
     public static function get_default_content_block_content($page_id,&$template)
     {
@@ -241,11 +254,11 @@ final class content_plugins
             if( !$module_obj ) {
                 // module not found... couldn't even autoload it.
                 @trigger_error('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
-                throw new \CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
+                throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
             if( !$module_obj->IsPluginModule() ) {
                 @trigger_error('Attempt to access module '.$module.' on a frontend request, which is not a plugin module');
-                throw new \CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
+                throw new CmsError404Exception('Attempt to access module '.$module.' which could not be found (is it properly installed and configured?');
             }
 
             $params = $modops->GetModuleParameters($id);

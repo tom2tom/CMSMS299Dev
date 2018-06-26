@@ -16,6 +16,12 @@
 
 namespace CMSMS\internal;
 
+use cms_route_manager;
+use cms_siteprefs;
+use function endswith;
+use function munge_string_to_url;
+use function startswith;
+
 /**
  * @package CMS
  */
@@ -38,12 +44,12 @@ class content_assistant
    */
   public static function auto_create_url()
   {
-    return get_site_preference('content_autocreate_urls',0);
+    return cms_siteprefs::get('content_autocreate_urls',0);
   }
 
 
   /**
-   * A utility function to test if the supplied url path is valid for the supplied content id
+   * A utility function to test if the supplied url is valid for the supplied content id
    *
    * @param string The partial url path to test
    * @return bool
@@ -65,6 +71,4 @@ class content_assistant
 	}
     return FALSE;
   }
-} // end of class
-
-?>
+} // class

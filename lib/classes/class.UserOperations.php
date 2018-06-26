@@ -29,9 +29,9 @@ namespace CMSMS;
 
 use CmsApp;
 use CmsException;
+use cms_siteprefs;
 use const CMS_DB_PREFIX;
 use function check_permission;
-use function get_site_preference;
 use function get_userid;
 
 class UserOperations
@@ -211,7 +211,7 @@ class UserOperations
 					$db->Execute($query, [$oneuser->password, $row['user_id']]);
 				}
 			} else {
-				$tmp = md5(get_site_preference('sitemask', '').$password);
+				$tmp = md5(cms_siteprefs::get('sitemask', '').$password);
 				if (!hash_equals($tmp, $hash)) {
 					sleep(1);
 					return $result;

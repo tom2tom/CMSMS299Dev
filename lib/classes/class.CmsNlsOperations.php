@@ -19,13 +19,13 @@
 namespace CMSMS;
 
 use cms_config;
+use cms_siteprefs;
 use cms_userprefs;
 use CmsApp;
 use CmsNls;
 use CmsLanguageDetector;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
-use function get_site_preference;
 use function get_userid;
 */
 
@@ -239,7 +239,7 @@ final class CmsNlsOperations
 	 */
 	protected static function get_frontend_language() : string
 	{
-		$lang = trim(get_site_preference('frontendlang'));
+		$lang = trim(cms_siteprefs::get('frontendlang'));
 		if( !$lang ) $lang = 'en_US';
 		return $lang;
 	}

@@ -15,10 +15,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\HookManager;
+
 function smarty_function_metadata($params, $template)
 {
     $gCms = CmsApp::get_instance();
-	$config = \cms_config::get_instance();
+	$config = cms_config::get_instance();
 	$content_obj = $gCms->get_content_object();
 
 	$result = '';
@@ -33,7 +35,7 @@ function smarty_function_metadata($params, $template)
 		if ($params['showbase'] == 'false')	$showbase = false;
 	}
 
-    \CMSMS\HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
+    HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
 
 	if ($showbase)	{
         $base = CMS_ROOT_URL;
@@ -41,7 +43,7 @@ function smarty_function_metadata($params, $template)
 		$result .= "\n<base href=\"".$base."/\" />\n";
 	}
 
-	$result .= get_site_preference('metadata', '');
+	$result .= cms_siteprefs::get('metadata', '');
 
 	if (is_object($content_obj) && $content_obj->Metadata() != '') $result .= "\n" . $content_obj->Metadata();
 
@@ -49,7 +51,7 @@ function smarty_function_metadata($params, $template)
         $result = $template->fetch('string:'.$result);
     }
 
-    \CMSMS\HookManager::do_hook('metadata_postrender', [ 'content_id'=>$content_obj->Id(), 'html'=>&$result ]);
+    HookManager::do_hook('metadata_postrender', [ 'content_id'=>$content_obj->Id(), 'html'=>&$result ]);
 	if( isset($params['assign']) )	{
 		$template->assign(trim($params['assign']),$result);
 		return;

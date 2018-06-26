@@ -33,7 +33,6 @@ use const CMS_VERSION;
 use function cms_join_path;
 use function cms_module_places;
 use function endswith;
-use function get_site_preference;
 use function get_userid;
 use function startswith;
 
@@ -56,6 +55,11 @@ final class AdminUtils
 	 * A regular expression to use when testing if an item has a valid name.
 	 */
 	const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x7f-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x7f-\xff]*$>';
+
+	/**
+	 * Default cdn for retrieving ace text-editor
+	 */
+	const ACE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3';
 
 	/**
 	 * @ignore
@@ -330,47 +334,40 @@ final class AdminUtils
 	 * Get javascript for initialization of ace text-editor
 	 * @since 2.3
 	 * @param bool $edit       Optional flag whether content is editable. Default false (i.e. just for display)
-	 * @param string $file     Optional filetype-identifier, an absolute filepath or at least an extension or pseudo (like 'smarty'). Default ''
+	 * @param string $typer    Optional filetype-identifier, an absolute filepath or at least an extension or pseudo (like 'smarty'). Default ''
 	 * @param string $selector Optional page-element id where the content will be placed.  Default 'Editor'
 	 * @param string $style    Optional override for the normal editor theme/style.  Default ''
 	 * @return string
 	 */
-	public static function get_editor_script(bool $edit = false, string $file = '', string $selector = 'Editor', string $style = '') : string
+	public static function get_editor_script(bool $edit = false, string $typer = '', string $selector = 'Editor', string $style = '') : string
 	{
 		$fixed = ($edit) ? 'false' : 'true';
 
-		if( $file ) {
-			if( is_file($file) ) {
-				$filepath = $file;
+		if( $typer ) {
+			if( is_file($typer) ) {
+				$filepath = $typer;
 				$filetype = '';
 			} else {
 				$filepath = __DIR__; //default php mode
-				$p = strrpos($file, '.');
-				$filetype = substr($file, ($p !== false) ? $p+1:0);
+				$p = strrpos($typer, '.');
+				$filetype = substr($typer, ($p !== false) ? $p+1:0);
 				$filetype = strtolower($filetype);
-				if( in_array($filetype, [
-					'htm',
-					'html',
-					'ini',
-					'js',
-					'javascript',
-					'php',
-					'smarty',
-					'tpl',
-					'text',
-					'xml',
-				]) ) {
-					switch( $filetype ) {
-						case 'htm':
-							$filetype = 'html';
-							break;
-						case 'js':
-							$filetype = 'javascript';
-							break;
-						case 'tpl':
-							$filetype = 'smarty';
-							break;
-					}
+				// some of ace's many lexers which are more likely in this context
+				$known = [
+					'htm' => 'html',
+					'html' => 1,
+					'ini' => 1,
+					'js' => 'javascript',
+					'javascript' => 1,
+					'php' => 1,
+					'smarty' => 1,
+					'tpl' => 'smarty',
+					'text' => 1,
+					'txt' => 'text',
+					'xml' => 1,
+				];
+				if( array_key_exists($filetype, $known) ) {
+					if( $known[$filetype] !== 1 ) $filetype = $known[$filetype];
 				} else {
 					$filetype = '';
 				}
@@ -381,22 +378,21 @@ final class AdminUtils
 			$filetype = '';
 		}
 
-		//TODO consider site-preference for cdn e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
-		$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
+		$cdn = cms_siteprefs::get('ace_cdn', self::ACE_CDN);
 
 		$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
 		if (!$style) {
-			$style = get_site_preference('acetheme', 'clouds');
+			$style = cms_siteprefs::get('ace_theme', 'dracula');
 		}
 		$style = strtolower($style);
 
 		$js = <<<EOS
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ace.js"></script>
+<script type="text/javascript" src="$cdn/ace.js"></script>
 
 EOS;
 		if( !$filetype ) {
 			$js .= <<<EOS
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ext-modelist.js"></script>
+<script type="text/javascript" src="$cdn/ext-modelist.js"></script>
 
 EOS;
 		}

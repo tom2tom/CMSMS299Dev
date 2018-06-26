@@ -16,6 +16,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+
 use CMSMS\FilePickerProfile;
 
 if (!isset($gCms)) exit;
@@ -50,7 +51,7 @@ $CFM_EXCLUDE_FOLDERS = []; //TODO per profile etc
 $CFM_FOLDER_URL = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);
 $CFM_FOLDER_TITLE = $this->Lang('goto');
 $CFM_SHOW_HIDDEN = $profile->show_hidden;
-$CFM_DATETIME_FORMAT = get_site_preference('defaultdateformat');
+$CFM_DATETIME_FORMAT = cms_siteprefs::get('defaultdateformat');
 if ($CFM_DATETIME_FORMAT) {
     $strftokens = [
     // Day - no strf eq : S

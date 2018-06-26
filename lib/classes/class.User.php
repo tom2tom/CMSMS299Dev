@@ -33,7 +33,7 @@
  
 namespace CMSMS;
 
-use function get_site_preference;
+use cms_siteprefs;
 
 class User
 {
@@ -135,7 +135,7 @@ class User
 	{
 		if( strlen($this->password) == 32 && strpos( $this->password, '.') === FALSE ) {
 			// old md5 methodology
-			$hash = md5( get_site_preference('sitemask','').$password);
+			$hash = md5( cms_siteprefs::get('sitemask','').$password);
 			return ($hash == $this->password);
 		} else {
 			return password_verify( $password, $this->password );

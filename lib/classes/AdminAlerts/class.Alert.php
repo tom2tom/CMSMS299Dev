@@ -1,5 +1,5 @@
 <?php
-#...
+#abstract class that defines admin alerts for CMSMS.
 #Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2016-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,17 +15,15 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
-/**
- * This file contains the base definition for an admin alert.
- *
- * @package CMS
- * @license GPL
- * @author Robert Campbell (calguy1000@cmsmadesimple.org)
- */
 namespace CMSMS\AdminAlerts;
+
+use cms_siteprefs;
+use cms_utils;
+use InvalidArgumentException;
+use LogicException;
+use function get_userid;
+use function startswith;
 
 /**
  * An abstract class that defines Admin Alerts for CMSMS.
@@ -130,7 +128,7 @@ abstract class Alert
         case 'loaded':
             return (bool) $this->_loaded;
         default:
-            throw new \InvalidArgumentException("$key is not a gettable member of ".get_class($this));
+            throw new InvalidArgumentException("$key is not a gettable member of ".get_class($this));
         }
     }
 
@@ -148,7 +146,7 @@ abstract class Alert
      */
     public function __set($key,$val)
     {
-        if( $this->_loaded ) throw new \LogicException('Alerts cannot be altered once saved');
+        if( $this->_loaded ) throw new LogicException('Alerts cannot be altered once saved');
         switch( $key ) {
         case 'name':
             $this->_name = trim($val);
@@ -166,12 +164,12 @@ abstract class Alert
                 $this->_priority = $val;
                 break;
             default:
-                throw new \InvalidArgumentException("$val is an invalid value for the priority of an alert");
+                throw new InvalidArgumentException("$val is an invalid value for the priority of an alert");
             }
             break;
 
         default:
-            throw new \InvalidArgumentException("$key is not a settable member of ".get_class($this));
+            throw new InvalidArgumentException("$key is not a settable member of ".get_class($this));
         }
     }
 
@@ -238,7 +236,7 @@ abstract class Alert
 
         $obj = null;
         if( !empty($tmp['module']) && strtolower($tmp['module']) != 'core' ) {
-            $mod = \cms_utils::get_module($tmp['module']); // hopefully module is valid.
+            $mod = cms_utils::get_module($tmp['module']); // hopefully module is valid.
             if( $mod ) $obj = unserialize($tmp['data']);
         } else {
             $obj = unserialize($tmp['data']);
@@ -269,14 +267,14 @@ abstract class Alert
     public static function load_by_name($name, $throw = true )
     {
         $name = trim($name);
-        if( !$name ) throw new \InvalidArgumentException('Invalid alert name passed to '.__METHOD__);
+        if( !$name ) throw new InvalidArgumentException('Invalid alert name passed to '.__METHOD__);
         if( !startswith( $name, 'adminalert_') ) $name = self::get_fixed_prefname( $name );
-        $tmp = \cms_siteprefs::get( $name );
-        if( !$tmp && $throw ) throw new \LogicException('Could not find an alert with the name '.$name);
+        $tmp = cms_siteprefs::get( $name );
+        if( !$tmp && $throw ) throw new LogicException('Could not find an alert with the name '.$name);
         if( !$tmp ) return;
 
         $obj = self::decode_object($tmp);
-        if( !is_object($obj) ) throw new \LogicException('Problem loading alert named '.$name);
+        if( !is_object($obj) ) throw new LogicException('Problem loading alert named '.$name);
         return $obj;
     }
 
@@ -287,12 +285,12 @@ abstract class Alert
      */
     public static function load_all()
     {
-        $list = \cms_siteprefs::list_by_prefix('adminalert_');
+        $list = cms_siteprefs::list_by_prefix('adminalert_');
         if( !$list || !count($list) ) return;
 
         $out = [];
         foreach( $list as $prefname ) {
-            $tmp = self::decode_object(\cms_siteprefs::get($prefname));
+            $tmp = self::decode_object(cms_siteprefs::get($prefname));
             if( !is_object($tmp) ) continue;
             $tmp->_loaded = 1;
 
@@ -343,12 +341,12 @@ abstract class Alert
      */
     public function save()
     {
-        if( !$this->name ) throw new \LogicException('A '.__CLASS__.' object must have a name');
+        if( !$this->name ) throw new LogicException('A '.__CLASS__.' object must have a name');
 
         // can only save if preference does not already exist
-        //$tmp = \cms_siteprefs::get($this->get_prefname());
+        //$tmp = cms_siteprefs::get($this->get_prefname());
         //if( $tmp ) throw new \LogicException('Cannot save a class that has already been saved '.$this->get_prefname());
-        \cms_siteprefs::set($this->get_prefname(),self::encode_object($this));
+        cms_siteprefs::set($this->get_prefname(),self::encode_object($this));
     }
 
     /**
@@ -357,7 +355,7 @@ abstract class Alert
      */
     public function delete()
     {
-        \cms_siteprefs::remove($this->get_prefname());
+        cms_siteprefs::remove($this->get_prefname());
         $this->_loaded = false;
     }
 }

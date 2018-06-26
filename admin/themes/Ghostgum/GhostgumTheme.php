@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\internal\Smarty;
@@ -225,7 +224,7 @@ EOS;
 		$smarty->assign('theme', $this);
 
 		// is the website set down for maintenance?
-		if (get_site_preference('enablesitedownmessage'))  {
+		if (cms_siteprefs::get('enablesitedownmessage'))  {
 			$smarty->assign('is_sitedown', 'true');
 		}
 
@@ -385,7 +384,7 @@ EOS;
 		// language direction
 		$smarty->assign('lang_dir', CmsNlsOperations::get_language_direction());
 		// is the website down for maintenance?
-		if (get_site_preference('enablesitedownmessage')) {
+		if (cms_siteprefs::get('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 'true');
 		}
 

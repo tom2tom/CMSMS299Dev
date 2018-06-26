@@ -1,7 +1,11 @@
 <?php
 namespace AdminLog;
 
-class AutoPruneLogTask implements \CmsRegularTask
+use cms_siteprefs;
+use cms_utils;
+use CmsRegularTask;
+
+class AutoPruneLogTask implements CmsRegularTask
 {
     const LASTEXECUTE_SITEPREF = 'AdminLog::Prune_lastexecute';
     const LIFETIME_SITEPREF = 'adminlog_lifetime';
@@ -9,7 +13,7 @@ class AutoPruneLogTask implements \CmsRegularTask
     protected static function &mod()
     {
         static $_mod;
-        if( !$_mod ) $_mod = \cms_utils::get_module('AdminLog');
+        if( !$_mod ) $_mod = cms_utils::get_module('AdminLog');
         return $_mod;
     }
 
@@ -25,7 +29,7 @@ class AutoPruneLogTask implements \CmsRegularTask
         $oneday = 24 * 60 * 60;
         $onemonth = $oneday * 30;
 
-        $lifetime = (int) \cms_siteprefs::get(self::LIFETIME_SITEPREF,$onemonth);
+        $lifetime = (int) cms_siteprefs::get(self::LIFETIME_SITEPREF,$onemonth);
         if( $lifetime < 1 ) return;
         return $lifetime;
     }
@@ -37,15 +41,15 @@ class AutoPruneLogTask implements \CmsRegularTask
         $lifetime = $this->get_lifetime();
         if( $lifetime < 1 ) return FALSE;
 
-        $last_execute = \cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
         IF( $last_execute < $time - $oneday ) return TRUE;
     }
 
     public function execute($time = '')
     {
         if( !$time ) $time = time();
-        $mod = \cms_utils::get_module('AdminLog');
-        $storage = new \AdminLog\storage( $mod );
+        $mod = cms_utils::get_module('AdminLog');
+        $storage = new storage( $mod );
         $lifetime = $this->get_lifetime();
         $lifetime = max($lifetime,$oneday);
         $the_time = $time() - $lifetime;
@@ -56,7 +60,7 @@ class AutoPruneLogTask implements \CmsRegularTask
     public function on_success($time = '')
     {
         if( !$time ) $time = time();
-        \cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+        cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
     public function on_failure($time = '')
@@ -64,4 +68,4 @@ class AutoPruneLogTask implements \CmsRegularTask
         if( !$time ) $time = time();
     }
 
-} // end of class
+} // class
