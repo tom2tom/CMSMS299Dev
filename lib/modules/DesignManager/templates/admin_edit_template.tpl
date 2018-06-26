@@ -81,17 +81,18 @@
 
 {tab_start name='template'}
 <div class="pageoverflow">
-   <p class="pagetext">{$t=$mod->Lang('prompt_template_content')}
+  <p class="pagetext">{$t=$mod->Lang('prompt_template_content')}
     <label for="contents">{$t}:</label>
     {cms_help realm=$_module key2=help_template_contents title=$t}
-   </p>
-   {if $template->has_content_file()}
+  </p>
+  {if $template->has_content_file()}
     <div class="pageinfo">{$mod->Lang('info_template_content_file',$template->get_content_filename())}</div>
-   {else}
-   <p class="pageinput">
-     {cms_textarea id='content' prefix=$actionid name=contents value=$template->get_content() type='smarty' rows=20}
-   </p>
-   {/if}
+  {else}
+    <textarea id="content" name="{$actionid}contents" style="display:none;"></textarea>
+    <p class="pageinput">
+      <div id="Editor">{$template->get_content()}</div>
+    </p>
+  {/if}
 </div>
 
 {tab_start name='description'}

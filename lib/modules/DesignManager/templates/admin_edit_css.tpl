@@ -75,13 +75,14 @@
   <div class="pageinfo">{$mod->Lang('info_css_content_file',$css->get_content_filename())}</div>
 {else}
   <div class="pageoverflow">
-      <p class="pagetext">
+    <p class="pagetext">
       <label for="stylesheet">{$mod->Lang('prompt_stylesheet')}:</label>
       {cms_help realm=$_module key2=help_stylesheet_content title=$mod->Lang('prompt_stylesheet')}
-      </p>
-      <p class="pageinput">
-        {cms_textarea id='stylesheet' prefix=$actionid name=content value=$css->get_content() type=css rows=20 cols=80}
-      </p>
+    </p>
+    <textarea id="stylesheet" name="{$actionid}content" style="display:none;"></textarea>
+    <p class="pageinput">
+      <div id="Editor">{$css->get_content()}</div>
+    </p>
   </div>
 {/if}
 

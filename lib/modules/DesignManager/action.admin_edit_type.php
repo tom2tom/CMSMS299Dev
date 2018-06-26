@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: edit template-type
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Templates') ) return;
 
@@ -49,6 +47,28 @@ try {
     $this->SetMessage($this->Lang('msg_type_saved'));
     $this->RedirectToAdminTab();
   }
+
+  $s = json_encode($this->Lang('confirm_reset_type'));
+  $js = CMSMS\AdminUtils::get_editor_script(true, 'smarty', 'Editor');
+  $js .= <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('[name={$id}reset]').on('click', function(ev) {
+  var self = this;
+  cms_confirm($s).done(function() {
+   $('#type_dflt_contents').val(editor.session.getValue());
+   $(self).closest('form').submit();
+  });
+  return false;
+ });
+});
+//]]>
+</script>
+
+EOS;
+  $this->AdminBottomContent($js);
+
   $smarty->assign('type',$type);
   echo $this->ProcessTemplate('admin_edit_type.tpl');
 }
@@ -56,8 +76,3 @@ catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#
-?>

@@ -83,12 +83,12 @@
     <label for="type_dflt_contents">{$mod->Lang('prompt_proto_template')}:</label>
     {cms_help realm=$_module key2='help_proto_template' title=$mod->Lang('prompt_proto_template')}
   </p>
+  <textarea id="type_dflt_contents" name="{$actionid}dflt_contents" style="display:none;"></textarea>
   <p class="pageinput">
-    {cms_textarea id=type_dflt_contents prefix=$actionid name=dflt_contents value=$type->get_dflt_contents() type='smarty' rows=20 cols=80}
+    <div id="Editor">{$type->get_dflt_contents()}</div>
   </p>
-
   <div class="pagecontainer">
-    <button type="submit" name="{$actionid}reset" class="adminsubmit icon undo" onclick="cms_confirm_btnclick(this,'{$mod->Lang('confirm_reset_type')|escape:'javascript'}');return false;">{$mod->Lang('reset_factory')}</button>
+    <button type="button" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset_factory')}</button>
   </div>
 </div>
 {/if}

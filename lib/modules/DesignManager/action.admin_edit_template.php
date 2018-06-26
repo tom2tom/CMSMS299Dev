@@ -228,11 +228,13 @@ try {
 
 //TODO ensure flexbox css for .hbox, .boxchild
 
+    $js = CMSMS\AdminUtils::get_editor_script(true, 'smarty', 'Editor');
+
     $script_url = CMS_SCRIPTS_URL;
     $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1:0;
     $s1 = json_encode($this->Lang('msg_lostlock'));
 
-    $js = <<<EOS
+    $js .= <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.js"></script>
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.js"></script>
 <script type="text/javascript">
@@ -278,13 +280,13 @@ $(document).ready(function() {
     // if we manually click on one of these buttons, the form is no longer considered dirty for the purposes of warnings.
     $('#form_edittemplate').dirtyForm('option', 'dirty', false);
   });
-/*
   $('#submitbtn,#cancelbtn,#importbtn,#exportbtn').on('click', function(ev) {
    if( ! do_locking ) return;
    ev.preventDefault();
    // unlock the item, and submit the form
    var self = this;
    $('#form_edittemplate').lockManager('unlock').done(function() {
+    $('#content').val(editor.session.getValue());
     var form = $(self).closest('form'),
       el = $('<input type="hidden"/>');
     el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);
@@ -292,9 +294,9 @@ $(document).ready(function() {
    });
    return false;
   });
-*/
   $('#applybtn').on('click', function(ev) {
     ev.preventDefault();
+    $('#content').val(editor.session.getValue());
     var url = $('#form_edittemplate').attr('action') + '?cmsjobtype=1&m1_apply=1',
       data = $('#form_edittemplate').serializeArray();
     $.post(url, data, function(data, textStatus, jqXHR) {
