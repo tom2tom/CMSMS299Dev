@@ -176,7 +176,7 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  *
  * @internal
  * @access private
- * @param boolean $enablewysiwyg Wether or not we are enabling a wysiwyg.  If false, and forcewysiwyg is not empty then a syntax area is used.
+ * @param boolean $enablewysiwyg Whether or not we are enabling a wysiwyg.  If false, and forcewysiwyg is not empty then a syntax area is used.
  * @param string  $text The contents of the text area
  * @param string  $name The name of the text area
  * @param string  $classname An optional class name
