@@ -496,8 +496,8 @@ abstract class DataDictionary
      *
      * @param string       $tabname      table-name
      * @param string       $flds         column-name and type for the changed column
-     * @param string       $tableflds    complete defintion of the new table, eg. for postgres, default ''
-     * @param array/string $tableoptions options for the new table see CreateTableSQL, default ''
+     * @param string       $tableflds    optional complete definition of the new table
+     * @param array/string $tableoptions optional options for the new table see CreateTableSQL, default ''
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      */
@@ -520,7 +520,7 @@ abstract class DataDictionary
      * @param string $tabname   table-name
      * @param string $oldcolumn column-name to be renamed
      * @param string $newcolumn new column-name
-     * @param string $flds      complete column-defintion-string like for AddColumnSQL, only used by mysql atm., default=''
+     * @param string $flds      optional complete column-definition-string like for AddColumnSQL, only used by mysql atm., default=''
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      */
@@ -541,8 +541,8 @@ abstract class DataDictionary
      *
      * @param string       $tabname      table-name
      * @param string       $flds         column-name and type for the changed column
-     * @param string       $tableflds    complete defintion of the new table, eg. for postgres, default ''
-     * @param array/string $tableoptions options for the new table see CreateTableSQL, default ''
+     * @param string       $tableflds    optional complete definition of the new table
+     * @param array/string $tableoptions optional options for the new table see CreateTableSQL, default ''
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      */
@@ -648,9 +648,9 @@ abstract class DataDictionary
      *  <dd>Additional constraints defined at the end of the field definition.</dd>
      *</dl>
      *
-     * @param string $tabname      The table name
-     * @param string $flds         A comma-separated list of field definitions using datadictionary syntax
-     * @param mixed  $tableoptions A string specifying table options (database driver specific) for the table creation command.  Or an associative array of table options, keys being the database type (as available)
+     * @param string $tabname      table name
+     * @param string $flds         comma-separated list of field definitions using datadictionary syntax
+     * @param mixed  $tableoptions optional table options (database driver specific) for the table creation command.  Or an associative array of table options, keys being the database type (as available)
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      */
