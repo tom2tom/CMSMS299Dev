@@ -31,6 +31,14 @@ $lang['help_myaccount_username'] = 'Your username is your unique name for the CM
 $lang['help_myaccount_wysiwyg'] = 'Select which WYSIWYG <em>(What You See Is What You Get)</em> module to use when editing HTML content.  You might also select &quot;None&quot; if you are comfortable with HTML.  The list of available WYSIWYG editors might change depending on what the site administrator has configured.';
 
 /* S */
+$lang['settings_acecdn'] = <<<'EOS'
+An URL which specifies which, and from where, text-editor source files will be downloaded at runtime in preparation for using the editor. The last part of the URL will often be a version-number.
+<br /><br />
+Example: https://somewhere.com/ajax/libs/ace/1.2.3
+<br /><br />
+Arguably the best source is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'ace', omit the trailing '/ace.js')
+EOS;
+$lang['settings_acetheme'] = 'Specify the theme name (lower case, any \' \' replaced by \'_\'). Themes may be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9</a>.';
 $lang['settings_adminlog_lifetime'] = 'This setting indicates the maximum amount of time that entries in the Admin log should be retained.';
 $lang['settings_autoclearcache'] = 'This option allows you to specify the maximum age <em>(in days)</em> before files in the cache directory will be deleted.<br/><br/>This option is useful to ensure that cached files are regenerated periodically, and that the file system does not become polluted with old and unnecessary files.  An ideal value for this field is 14 or 30 days.<br /><br /><strong>Note:</strong> Cached files are cleared at most once per day.';
 $lang['settings_autocreate_flaturls'] = 'If SEF/pretty URLs are enabled, and the option to auto-create URLs is enabled, this option indicates hat those auto-created URLS should be flat <em>(i.e: identical to the page alias)</em>.  <strong>Note:</strong> The two values do not need to remain identical, the URL value can be changed to be different than the page alias in subsequent page edits';
@@ -67,7 +75,7 @@ $lang['settings_pseudocron_granularity'] = 'This setting indicates how often the
 $lang['settings_searchmodule'] = 'Select the module that should be used to index words for searching, and will provide the site search capabilities';
 $lang['settings_sitedownexcludeadmins'] = 'Do show the website to users logged in to the CMSMS admin console. This allows administrators to work on the site without interference';
 $lang['settings_sitedownexcludes'] = 'Do show the website to these IP addresses';
-$lang['settings_sitedownmessage'] = 'The message shown to website visitors when the site is &quote;down for maintenance&quote;';
+$lang['settings_sitedownmessage'] = 'The message shown to website visitors when the site is &quot;down for maintenance&quot;';
 $lang['settings_smartycaching'] = 'When enabled, the output from various plugins will be cached to increase performance. Additionally, most portions of compiled templates will be cached. This only applies to output on content pages marked as cachable, and only for non-admin users.  Note, this functionality might interfere with the behaviour of some modules or plugins, or plugins that use non-inline forms.<br/><br/><strong>Note:</strong> When smarty caching is enabled, global content blocks <em>(GCBs)</em> are always cached by smarty, and User Defined Tags <em>(UDTs)</em> are never cached.  Additionally, content blocks are never cached.';
 $lang['settings_smartycompilecheck'] = 'If disabled, smarty will not check the modification dates of templates to see if they have been modified.  This can significantly improve performance.  However performing any template change (or even some content changes) might require a cache clearing';
 $lang['settings_thumbfield_path'] = 'This setting is used when editing content.  The directory specified here is used to provide a list of images from which to associate a thumbnail with the content page.<br/><br/>Relative to the image uploads path, specify a directory name that contains the paths containing files for the image field.  Usually this will be the same as the path above.';
@@ -87,4 +95,3 @@ $lang['siteprefs_sitelogo'] = 'Optional image file, to be displayed on login pag
 $lang['siteprefs_thumbwidth'] = 'Specify a width <em>(in pixels)</em> to be used by default when generating thumbnails from uploaded image files.  Thumbnails are typically displayed in the Admin panel in the FileManager module or when selecting an image to insert into page content.  However, some modules might use the thumbnails on the website frontend.<br/><br/><strong>Note:</strong> Some modules might have additional preferences for how to generate thumbnails, and ignore this setting.';
 $lang['siteprefs_thumbheight'] = 'Specify a height <em>(in pixels)</em> to be used by default when generating thumbnails from uploaded image files.  Thumbnails are typically displayed in the Admin panel in the FileManager module or when selecting an image to insert into page content.  However, some modules might use the thumbnails on the website frontend.<br/><br/><strong>Note:</strong> Some modules might have additional preferences for how to generate thumbnails, and ignore this setting.';
 
-?>
