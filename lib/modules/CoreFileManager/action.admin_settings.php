@@ -29,10 +29,10 @@ if (isset($params['submit'])) {
 
 //ACE theme selector https://ace.c9.io/build/kitchen-sink.html
 //hilight.js theme demo  https://highlightjs.org/static/demo
-
-$edittheme = $this->GetPreference('acetheme', 'clouds');
+//$edittheme = $this->GetPreference('acetheme', 'clouds');
 //$hilite = $this->GetPreference('highlight', 1);
 //$viewstyle = $this->GetPreference('highlightstyle', 'default'));
+
 $showhiddenfiles = $this->GetPreference('showhiddenfiles', 0);
 $uploadables = $this->GetPreference('uploadable', '%image%,txt,text,pdf');
 
