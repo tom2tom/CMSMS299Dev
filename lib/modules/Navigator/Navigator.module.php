@@ -35,53 +35,53 @@ final class Navigator extends CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Navigator'; }
-    public function GetVersion() { return '1.0.7'; }
+    public function GetVersion() { return '1.1.0'; }
     public function HasAdmin() { return false; }
     public function IsPluginModule() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.1.99'; }
+    public function MinimumCMSVersion() { return '2.2.99'; }
 
     public function InitializeFrontend()
     {
 //2.3 does nothing        $this->RestrictUnknownParams();
+        $this->SetParameterType('childrenof',CLEAN_STRING);
+        $this->SetParameterType('collapse',CLEAN_INT);
+        $this->SetParameterType('excludeprefix',CLEAN_STRING);
+        $this->SetParameterType('includeprefix',CLEAN_STRING);
         $this->SetParameterType('items',CLEAN_STRING);
+        $this->SetParameterType('loadprops',CLEAN_INT);
         $this->SetParameterType('nlevels',CLEAN_INT);
         $this->SetParameterType('number_of_levels',CLEAN_INT);
+        $this->SetParameterType('root',CLEAN_STRING);
         $this->SetParameterType('show_all',CLEAN_INT);
         $this->SetParameterType('show_root_siblings',CLEAN_INT);
         $this->SetParameterType('start_element',CLEAN_STRING); // yeah, it's a string
+        $this->SetParameterType('start_level',CLEAN_INT);
         $this->SetParameterType('start_page',CLEAN_STRING);
         $this->SetParameterType('start_text',CLEAN_STRING);
-        $this->SetParameterType('start_level',CLEAN_INT);
         $this->SetParameterType('template',CLEAN_STRING);
-        $this->SetParameterType('childrenof',CLEAN_STRING);
-        $this->SetParameterType('loadprops',CLEAN_INT);
-        $this->SetParameterType('collapse',CLEAN_INT);
-        $this->SetParameterType('root',CLEAN_STRING);
-        $this->SetParameterType('excludeprefix',CLEAN_STRING);
-        $this->SetParameterType('includeprefix',CLEAN_STRING);
     }
 
     public function InitializeAdmin()
     {
+        $this->CreateParameter('action','',$this->Lang('help_action'));
+        $this->CreateParameter('childrenof','',$this->Lang('help_childrenof'));
+        $this->CreateParameter('collapse','',$this->Lang('help_collapse'));
+        $this->CreateParameter('excludeprefix','',$this->Lang('help_excludeprefix'));
+        $this->CreateParameter('includeprefix','',$this->Lang('help_includeprefix'));
         $this->CreateParameter('items', 'contact,home', $this->lang('help_items'));
+        $this->CreateParameter('loadprops','',$this->Lang('help_loadprops'));
         $this->CreateParameter('nlevels', '1', $this->lang('help_nlevels'));
         $this->CreateParameter('number_of_levels', '1', $this->lang('help_number_of_levels'));
+        $this->CreateParameter('root','',$this->Lang('help_root2'));
         $this->CreateParameter('show_all', '0', $this->lang('help_show_all'));
         $this->CreateParameter('show_root_siblings', '1', $this->lang('help_show_root_siblings'));
         $this->CreateParameter('start_element', '1.2', $this->lang('help_start_element'));
+        $this->CreateParameter('start_level', '', $this->lang('help_start_level'));
         $this->CreateParameter('start_page', '', $this->lang('help_start_page'));
         $this->CreateParameter('start_text', '', $this->lang('help_start_text'));
-        $this->CreateParameter('start_level', '', $this->lang('help_start_level'));
         $this->CreateParameter('template', '', $this->lang('help_template'));
-        $this->CreateParameter('childrenof','',$this->Lang('help_childrenof'));
-        $this->CreateParameter('action','',$this->Lang('help_action'));
-        $this->CreateParameter('loadprops','',$this->Lang('help_loadprops'));
-        $this->CreateParameter('collapse','',$this->Lang('help_collapse'));
-        $this->CreateParameter('root','',$this->Lang('help_root2'));
-        $this->CreateParameter('includeprefix','',$this->Lang('help_includeprefix'));
-        $this->CreateParameter('excludeprefix','',$this->Lang('help_excludeprefix'));
     }
 
     final public static function nav_breadcrumbs($params, $smarty)
