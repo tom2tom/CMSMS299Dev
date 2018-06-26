@@ -198,58 +198,23 @@ if ($is_text) {
         $fixed = 'true';
     }
 
-	//TODO consider a site-preference for cdn
-	$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
-	$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
-	if (!$style) {
-		$style = get_site_preference('acetheme', 'clouds');
-//TODO      $style = $this->GetPreference('acetheme', 'clouds');
-	}
-	$style = strtolower($style);
+	$js = CMSMS\AdminUtils::get_editor_script($edit, '', 'Editor');
 
-
-    $js = <<<EOS
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ace.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ext-modelist.js"></script>
-<script type="text/javascript">
-//<![CDATA[
-var editor = ace.edit("Editor");
-(function () {
- var modelist = ace.require("ace/ext/modelist");
- var mode = modelist.getModeForPath("$fullpath").mode;
- editor.session.setMode(mode);
-}());
-editor.setOptions({
- readOnly: $fixed,
- autoScrollEditorIntoView: true,
- showPrintMargin: false,
- maxLines: Infinity,
- fontSize: '100%'
-});
-editor.renderer.setOptions({
- showGutter: false,
- displayIndentGuides: false,
- showLineNumbers: false,
- theme: "ace/theme/$style"
-});
-
-EOS;
     if ($edit) {
 		//CHECKME any content validation relevant?
         $js .= <<<EOS
+<script type="text/javascript">
+//<![CDATA[
 $(document).ready(function() {
  $('form').on('submit', function(ev) {
   $('#reporter').val(editor.session.getValue());
  });
 });
-
-EOS;
-     }
-     $js .= <<<EOS
 //]]>
 </script>
 
 EOS;
+	}
     $this->AdminBottomContent($js);
 } //is text
 
