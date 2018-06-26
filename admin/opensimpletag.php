@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+
+use CMSMS\AdminUtils;
 use CMSMS\internal\Smarty;
 use CMSMS\SimplePluginOperations;
 
@@ -86,42 +88,14 @@ if ($tagname != '-1') {
 $edit = check_permission($userid, 'Modify Simple Tags');
 //TODO also $_GET['mode'] == 'edit'
 
-$fixed = ($edit) ? 'false' : 'true';
+$js = AdminUtils::get_editor_script($edit, 'php', 'Editor');
 
-//TODO consider site-preference for cdn e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
-$version = get_site_preference('aceversion', '1.3.3'); //TODO const etc
-$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
-if (!$style) {
-    $style = get_site_preference('acetheme', 'clouds');
-}
-$style = strtolower($style);
-
-$js = <<<EOS
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ace.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/$version/ext-modelist.js"></script>
-<script type="text/javascript">
-//<![CDATA[
-var editor = ace.edit("Editor");
-editor.session.setMode("ace/mode/php");
-editor.setOptions({
- readOnly: $fixed,
- autoScrollEditorIntoView: true,
- showPrintMargin: false,
- maxLines: Infinity,
- fontSize: '100%'
-});
-editor.renderer.setOptions({
- showGutter: false,
- displayIndentGuides: false,
- showLineNumbers: false,
- theme: "ace/theme/$style"
-});
-
-EOS;
 if ($edit) {
     $s1 = json_encode(lang('error_udt_name_chars'));
     $s2 = json_encode(lang('noudtcode'));
     $js .= <<<EOS
+<script type="text/javascript">
+//<![CDATA[
 $(document).ready(function() {
  $('#userplugin').on('submit', function(ev) {
   var v = $('#name').val();
@@ -139,14 +113,11 @@ $(document).ready(function() {
   $('#reporter').val(v);
  });
 });
-
-EOS;
- }
- $js .= <<<EOS
 //]]>
 </script>
 
 EOS;
+}
 $themeObject->add_footertext($js);
 
 $selfurl = basename(__FILE__);
