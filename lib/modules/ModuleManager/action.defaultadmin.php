@@ -26,7 +26,7 @@ if( isset($params['modulehelp']) ) {
     // this is done before permissions checks
     $params['mod'] = $params['modulehelp'];
     unset($params['modulehelp']);
-    include(__DIR__.'/action.local_help.php');
+    include(__DIR__.DIRECTORY_SEPARATOR.'action.local_help.php');
     return;
 }
 
@@ -64,32 +64,34 @@ if ($this->CheckPermission('Modify Modules')) {
         echo $this->SetTabHeader('modules',$this->Lang('availmodules'),$seetab=='modules');
     }
 }
-if ($this->CheckPermission('Modify Site Preferences')) echo $this->SetTabHeader('prefs',$this->Lang('prompt_settings'),$seetab=='prefs');
+if ($this->CheckPermission('Modify Site Preferences')) {
+    echo $this->SetTabHeader('prefs',$this->Lang('prompt_settings'),$seetab=='prefs');
+}
 echo $this->EndTabHeaders();
 
 echo $this->StartTabContent();
 if( $this->CheckPermission('Modify Modules') ) {
     echo $this->StartTab('installed',$params);
-    include __DIR__.'/function.admin_installed.php';
+    include __DIR__.DIRECTORY_SEPARATOR.'function.admin_installed.php';
     echo $this->EndTab();
 
     if( $connection_ok ) {
         echo $this->StartTab('newversions',$params);
-        include __DIR__.'/function.newversionstab.php';
+        include __DIR__.DIRECTORY_SEPARATOR.'function.newversionstab.php';
         echo $this->EndTab();
 
         echo $this->StartTab('search',$params);
-        include __DIR__.'/function.search.php';
+        include __DIR__.DIRECTORY_SEPARATOR.'function.search.php';
         echo $this->EndTab();
 
         echo $this->StartTab('modules',$params);
-        include __DIR__.'/function.admin_modules_tab.php';
+        include __DIR__.DIRECTORY_SEPARATOR.'function.admin_modules_tab.php';
         echo $this->EndTab();
     }
 }
 if ($this->CheckPermission('Modify Site Preferences')) {
     echo $this->StartTab('prefs',$params);
-    include __DIR__.'/function.admin_prefs_tab.php';
+    include __DIR__.DIRECTORY_SEPARATOR.'function.admin_prefs_tab.php';
     echo $this->EndTab();
 }
 echo $this->EndTabContent();
