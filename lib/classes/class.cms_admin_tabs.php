@@ -179,7 +179,7 @@ final class cms_admin_tabs
         $out = '';
         if (self::$_in_tab) {
             $out .= self::end_tab();
-        } elseif (self::$_ended_tab) {
+        } elseif (!self::$_ended_tab) {
 			self::$_in_tab = 1;
             $out .= self::end_tab();
         }
