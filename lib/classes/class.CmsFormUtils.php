@@ -17,6 +17,8 @@
 
 //namespace CMSMS;
 
+use CMSMS\ModuleOperations;
+
 /**
  * A static class providing functionality for building forms.
  *
@@ -241,7 +243,7 @@ class CmsFormUtils
                 case 'e': //false/null/empty is also acceptable
                     if ($tmp || (int)($tmp + 0) === 0) {
                         if (is_string($tmp)) {
-                            $parms[$key] = $tmp = \sanitize($tmp);
+                            $parms[$key] = $tmp = sanitize($tmp);
                             if ($tmp) {
                                 break;
                             }
@@ -326,6 +328,9 @@ class CmsFormUtils
             }
         } elseif (!empty($modid)) {
             $tmp = $modid.$name;
+		} elseif (!empty($prefix)) {
+			$modid = $prefix;
+            $tmp = $prefix.$name;
         } elseif (!empty($id)) {
             $modid = $id;
             $tmp = $id.$name;
@@ -337,16 +342,17 @@ class CmsFormUtils
             $tmp = $modid.$name;
         }
         unset($parms['htmlid']);
+        unset($parms['prefix']);
 
-        $parms['modid'] = \sanitize($modid);
-        $parms['name'] = \sanitize($modid.$name);
-        $tmp = \sanitize($tmp);
+        $parms['modid'] = sanitize($modid);
+        $parms['name'] = sanitize($modid.$name);
+        $tmp = sanitize($tmp);
         $parms['id'] = ($tmp) ? $tmp : $parms['name'];
 
         //expectable bools
         foreach (['disabled', 'readonly', 'required'] as $key) {
             if (isset($$key)) {
-                if (\cms_to_bool($$key)) {
+                if (cms_to_bool($$key)) {
                     $parms[$key] = $key;
                 } elseif ($$key !== $key) {
                     unset($parms[$key]);
@@ -595,7 +601,7 @@ class CmsFormUtils
                     if ($multiple) {
                         $parms['multiple'] = 'multiple';
                         // adjust name if element allows multiple-selection
-                        if (!\endswith($name, '[]')) {
+                        if (!endswith($name, '[]')) {
                             $parms['name'] = $name . '[]';
                         }
                     } else {
@@ -665,7 +671,7 @@ class CmsFormUtils
             //custom checks
             $value = $parms['value'] ?? '';
             //TODO tailoring for lots of html5 types
-            $parms['value'] = ($value && $type == 'text') ? \cms_htmlentities($value) : $value;
+            $parms['value'] = ($value && $type == 'text') ? cms_htmlentities($value) : $value;
 
             $out = '<input';
             $out .= self::join_attrs($parms, ['modid']);
@@ -733,8 +739,8 @@ class CmsFormUtils
      *  case only the value is used.
      * Recognized:
      *   name          = (required string) name attribute for the text area element.
-     *   modid         = (optional string) id given to the module on execution.  If not specified, '' will be used.
-     *   id/htmlid     = (optional string) id attribute for the text area element.  If not specified, name is used.
+     *   modid/prefix  = (optional string) id given to the module on execution.  If not specified, '' will be used.
+     *   id/htmlid = (optional string) id attribute for the text area element.  If not specified, name is used.
      *   class/classname = (optional string) class attribute for the text area element.  Some values will be added to this string.
      *                   default is cms_textarea
      *   forcemodule/forcewysiwyg = (optional string) used to specify the module to enable.  If specified, the module name will be added to the
@@ -779,7 +785,7 @@ class CmsFormUtils
         extract($parms);
 
         // do we want a wysiwyg area ?
-        $enablewysiwyg = !empty($enablewysiwyg) && \cms_to_bool($enablewysiwyg);
+        $enablewysiwyg = !empty($enablewysiwyg) && cms_to_bool($enablewysiwyg);
 
         if (empty($cols) || $cols <= 0) {
             $parms['cols'] = ($enablewysiwyg) ? 80 : 20;
@@ -802,8 +808,8 @@ class CmsFormUtils
             } else {
                 $parms['class'] .= ' cmsms_wysiwyg';
             }
-            $module = \ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
-            if ($module && $module->HasCapability(\CmsCoreCapabilities::WYSIWYG_MODULE)) {
+            $module = ModuleOperations::get_instance()->GetWYSIWYGModule($forcemodule);
+            if ($module && $module->HasCapability(CmsCoreCapabilities::WYSIWYG_MODULE)) {
                 // TODO use $config['content_language']
                 $parms['data-cms-lang'] = 'html'; //park badly-named variable
                 $module_name = $module->GetName();
@@ -818,8 +824,8 @@ class CmsFormUtils
         $wantedsyntax = $wantedsyntax ?? '';
         if (!$module && $wantedsyntax) {
             $parms['data-cms-lang'] = $wantedsyntax; //park
-            $module = \ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
-            if ($module && $module->HasCapability(\CmsCoreCapabilities::SYNTAX_MODULE)) {
+            $module = ModuleOperations::get_instance()->GetSyntaxHighlighter($forcemodule);
+            if ($module && $module->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE)) {
                 $module_name = $module->GetName();
                 if (empty($parms['class'])) {
                     $parms['class'] = $module_name; //not for CSS ?!
@@ -878,7 +884,7 @@ class CmsFormUtils
 
         $out = '<label for="'.$parms['name'].'"';
         $out .= self::join_attrs($parms, ['name', 'labeltext']);
-        $contents = \cms_htmlentities($parms['labeltext']);
+        $contents = cms_htmlentities($parms['labeltext']);
         $out .= '>'.$contents.'</label>'."\n";
         return $out;
     }
@@ -911,7 +917,7 @@ class CmsFormUtils
 
         extract($parms);
 
-        $idsuffix = (!empty($idsuffix)) ? \sanitize($idsuffix) : '';
+        $idsuffix = (!empty($idsuffix)) ? sanitize($idsuffix) : '';
         if ($idsuffix === '') {
             $idsuffix = $_formcount++;
         }
@@ -921,13 +927,13 @@ class CmsFormUtils
             unset($parms['classname']);
         }
 
-        $method = (!empty($method)) ? \sanitize($method) : 'POST';
+        $method = (!empty($method)) ? sanitize($method) : 'POST';
 
         if (!empty($returnid) || $returnid === 0) {
             $returnid = (int)$returnid; //OR filter_var() ?
-            $content_obj = \cms_utils::get_current_content(); //CHECKME ever relevant when CREATING a form?
+            $content_obj = cms_utils::get_current_content(); //CHECKME ever relevant when CREATING a form?
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
-            if (strpos($goto, ':') !== false && \CmsApp::get_instance()->is_https_request()) {
+            if (strpos($goto, ':') !== false && CmsApp::get_instance()->is_https_request()) {
                 $goto = str_replace('http:', 'https:', $goto);
             }
         } else {
@@ -951,7 +957,7 @@ class CmsFormUtils
         if ($returnid != '') { //NB not strict - it may be null
             $out .= '<input type="hidden" name="'.$modid.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
-                $config = \cms_config::get_instance();
+                $config = cms_config::get_instance();
                 $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
             }
         } else {
@@ -1010,7 +1016,7 @@ class CmsFormUtils
         if (!empty($legend) || (isset($legend) && is_numeric($legend))) {
             $out .= '<legend';
             //$out .= self::join_attrs($TODO);
-            $contents = \cms_htmlentities($legend);
+            $contents = cms_htmlentities($legend);
             $out .= '>'.$contents.'</legend>'."\n";
         }
         return $out;
@@ -1182,10 +1188,10 @@ class CmsFormUtils
         extract($parms);
 
         $out = '<a href="';
-        $config = \cms_config::get_instance();
+        $config = cms_config::get_instance();
         if ($config['url_rewriting'] == 'mod_rewrite') {
             // mod_rewrite
-            $contentops = \CmsApp::get_instance()->GetContentOperations();
+            $contentops = CmsApp::get_instance()->GetContentOperations();
             $alias = $contentops->GetPageAliasFromID($pageid);
             if ($alias) {
                 $out .= CMS_ROOT_URL.'/'.$alias.($config['page_extension'] ?? '.shtml');
@@ -1253,7 +1259,7 @@ class CmsFormUtils
 
         $out .= self::join_attrs($parms, ['href', 'forcewidth', 'contents', 'helptext',]);
 
-        $helptext = \cms_htmlentities($helptext);
+        $helptext = cms_htmlentities($helptext);
         $out .= ' title="'.$helptext.'"';
 
         if (!empty($forcewidth) && is_numeric($forcewidth)) {
@@ -1261,7 +1267,7 @@ class CmsFormUtils
         }
 
         if (empty($href)) {
-            $contents = \cms_htmlentities($contents);
+            $contents = cms_htmlentities($contents);
         }
         $out .= '>'.$contents;
         if (empty($href)) {
