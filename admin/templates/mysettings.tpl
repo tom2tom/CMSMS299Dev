@@ -9,8 +9,8 @@
     <legend>{lang('lang_settings_legend')}:</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="language">{lang('language')}:</label>
-        {cms_help key2='help_myaccount_language' title=lang('language')}
+        {$t=lang('language')}<label for="language">{$t}:</label>
+        {cms_help key2='help_myaccount_language' title=$t}
       </p>
       <p class="pageinput">
         <select id="language" name="default_cms_language">
@@ -20,8 +20,8 @@
     </div>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="dateformat">{lang('date_format_string')}:</label>
-        {cms_help key2='help_myaccount_dateformat' title=lang('date_format_string')}
+        {$t=lang('date_format_string')}<label for="dateformat">{$t}:</label>
+        {cms_help key2='help_myaccount_dateformat' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" size="20" maxlength="255" type="text" name="date_format_string" value="{$date_format_string}" />
@@ -33,8 +33,8 @@
     <legend>{lang('content_editor_legend')}:</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="wysiwyg">{lang('wysiwygtouse')}:</label>
-        {cms_help key2='help_myaccount_wysiwyg' title=lang('wysiwygtouse')}
+        {$t=lang('wysiwygtouse')}<label for="wysiwyg">{$t}:</label>
+        {cms_help key2='help_myaccount_wysiwyg' title=$t}
       </p>
       <p class="pageinput">
         <select id="wysiwyg" name="wysiwyg">
@@ -45,8 +45,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-         <label for="syntaxh">{lang('syntaxhighlightertouse')}:</label>
-         {cms_help key2='help_myaccount_syntax' title=lang('syntaxhighlightertouse')}
+         {$t=lang('syntaxhighlightertouse')}<label for="syntaxh">{$t}:</label>
+         {cms_help key2='help_myaccount_syntax' title=$t}
       </p>
       <p class="pageinput">
         <select id="syntaxh" name="syntaxhighlighter">
@@ -57,8 +57,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="ce_navdisplay">{lang('ce_navdisplay')}:</label>
-        {cms_help key2='help_myaccount_ce_navdisplay' title=lang('ce_navdisplay')}
+        {$t=lang('ce_navdisplay')}<label for="ce_navdisplay">{$t}:</label>
+        {cms_help key2='help_myaccount_ce_navdisplay' title=$t}
       </p>
       <p class="pageinput">
         {$opts['']=lang('none')} {$opts['menutext']=lang('menutext')} {$opts['title']=lang('title')}
@@ -70,8 +70,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="indent">{lang('adminindent')}:</label>
-        {cms_help key2='help_myaccount_indent' title=lang('adminindent')}
+        {$t=lang('adminindent')}<label for="indent">{$t}:</label>
+        {cms_help key2='help_myaccount_indent' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" type="checkbox" id="indent" name="indent"{if $indent} checked="checked"{/if} />
@@ -80,8 +80,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="parent_id">{lang('defaultparentpage')}:</label>
-        {cms_help key2='help_myaccount_dfltparent' title=lang('defaultparentpage')}
+        {$t=lang('defaultparentpage')}<label for="parent_id">{$t}:</label>
+        {cms_help key2='help_myaccount_dfltparent' title=$t}
       </p>
       <p class="pageinput">{$default_parent}</p>
     </div>
@@ -89,11 +89,11 @@
   </fieldset>
 
   <fieldset class="pregap">
-    <legend>{lang('admin_layout_legend')}:</legend>
+    <legend>{lang('general_operation_settings')}:</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="admintheme">{lang('admintheme')}:</label>
-        {cms_help key2='help_myaccount_admintheme' title=lang('admintheme')}
+        {$t=lang('admintheme')}<label for="admintheme">{$t}:</label>
+        {cms_help key2='help_myaccount_admintheme' title=$t}
       </p>
       <p class="pageinput">
         <select id="admintheme" name="admintheme">
@@ -101,31 +101,37 @@
         </select>
       </p>
     </div>
-
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="homepage">{lang('homepage')}:</label>
-        {cms_help key2='help_myaccount_homepage' title=lang('homepage')}
+        {$t=lang('text_editor_theme')}<label for="editortheme">{$t}:</label>
+        {cms_help key2='settings_acetheme' title=$t}
+      </p>
+      <p class="pageinput">
+        <input id="editortheme" type="text" name="ace_theme" size="30" value="{$acetheme}" maxlength="40" />
+      </p>
+    </div>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('homepage')}<label for="homepage">{$t}:</label>
+        {cms_help key2='help_myaccount_homepage' title=$t}
       </p>
       <p class="pageinput">
         {$homepage}
       </p>
     </div>
-
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="admincallout">{lang('admincallout')}:</label>
-        {cms_help key2='help_myaccount_admincallout' title=lang('admincallout')}
+        {$t=lang('admincallout')}<label for="admincallout">{$t}:</label>
+        {cms_help key2='help_myaccount_admincallout' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked="checked"{/if} />
       </p>
     </div>
-
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="hidehelp">{lang('hide_help_links')}:</label>
-        {cms_help key2='help_myaccount_hidehelp' title=lang('hide_help_links')}
+        {$t=lang('hide_help_links')}<label for="hidehelp">{$t}:</label>
+        {cms_help key2='help_myaccount_hidehelp' title=$t}
       </p>
       <p class="pageinput">
         <input class="pagenb" id="hidehelp" type="checkbox" name="hide_help_links"{if $hide_help_links} checked="checked"{/if} />

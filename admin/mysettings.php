@@ -51,6 +51,7 @@ $db = cmsms()->GetDb();
 if (isset($_POST['submit'])) {
   cleanArray($_POST);
   // Get values from request and drive em to variables
+  $acetheme = $_POST['ace_theme'];
   $admintheme = $_POST['admintheme'];
   $bookmarks = (!empty($_POST['bookmarks'])) ? 1 : 0;
   $ce_navdisplay = $_POST['ce_navdisplay'];
@@ -66,6 +67,7 @@ if (isset($_POST['submit'])) {
   $wysiwyg = $_POST['wysiwyg'];
 
   // Set prefs
+  cms_userprefs::set_for_user($userid, 'ace_theme', $acetheme);
   cms_userprefs::set_for_user($userid, 'admintheme', $admintheme);
   cms_userprefs::set_for_user($userid, 'bookmarks', $bookmarks);
   cms_userprefs::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
@@ -88,6 +90,7 @@ if (isset($_POST['submit'])) {
 /**
  * Get current preferences
  */
+$acetheme = cms_userprefs::get_for_user($userid, 'ace_theme');
 $admintheme = cms_userprefs::get_for_user($userid, 'admintheme', CmsAdminThemeBase::GetDefaultTheme());
 $bookmarks = cms_userprefs::get_for_user($userid, 'bookmarks', 0);
 $ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
@@ -145,6 +148,7 @@ $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 $selfurl = basename(__FILE__);
 
 $smarty->assign([
+  'acetheme'=>$acetheme,
   'admintheme'=>$admintheme,
   'backurl'=>$themeObject->backUrl(),
   'bookmarks'=>$bookmarks,
