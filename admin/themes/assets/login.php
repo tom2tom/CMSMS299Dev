@@ -30,11 +30,11 @@ function send_recovery_email(User $user)
     $obj = new cms_mailer();
     $obj->IsHTML(true);
     $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
-    $obj->SetSubject(lang('lostpwemailsubject',html_entity_decode(get_site_preference('sitename','CMSMS Site'))));
+    $obj->SetSubject(lang('lostpwemailsubject',html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site'))));
 
     $config = cms_config::get_instance();
     $url = $config['admin_url'] . '/login.php?recoverme=' . sha1($user->username . $user->password . CMS_ROOT_PATH);
-    $body = lang('lostpwemail', cms_html_entity_decode(get_site_preference('sitename','CMSMS Site')), $user->username, $url, $url);
+    $body = lang('lostpwemail', cms_html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site')), $user->username, $url, $url);
 
     $obj->SetBody($body);
     return $obj->Send();
