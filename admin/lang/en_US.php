@@ -60,9 +60,8 @@ $lang['adminprefs'] = 'User Preferences';
 $lang['adminprefsdescription'] = 'Set your specific preferences for site administration';
 $lang['adminspecialgroup'] = 'Warning: Members of this group automatically have all permissions';
 $lang['adminsystemtitle'] = 'CMSMS Admin System';
-$lang['admintheme'] = 'Administration Theme';
+$lang['admintheme'] = 'Admin Console Theme';
 $lang['admin_enablenotifications'] = 'Allow users to view notifications<br /><em>(notifications will be displayed on all Admin pages)</em>';
-$lang['admin_layout_legend'] = 'Admin layout settings';
 $lang['admin_lock_timeout'] = 'Locks Timeout';
 $lang['advanced'] = 'Advanced';
 $lang['alert'] = 'Alert';
@@ -1532,7 +1531,7 @@ $lang['subitems'] = 'Subitems';
 $lang['submit'] = 'Submit';
 $lang['submitdescription'] = 'Save changes';
 $lang['success'] = 'Success';
-$lang['syntaxhighlightertouse'] = 'Syntax Highlighter';
+$lang['syntaxhighlightertouse'] = 'WYSIWYG Editor Syntax-Highlighter';
 $lang['sysmaintab_changelog'] = 'Changelog';
 $lang['sysmaintab_content'] = 'Cache and content';
 $lang['sysmaintab_database'] = 'Database';
@@ -1575,7 +1574,6 @@ $lang['system_verification'] = 'System Verification';
 
 ## T
 $lang['tabindex'] = 'Tab Index';
-
 $lang['tagdescription'] = 'System tags/plugins';
 $lang['tags'] = 'Tags';
 //$lang['tagtousegcb'] = 'Tag to Use this Block';
@@ -1615,7 +1613,8 @@ $lang['test_smarty_caching'] = 'Enabling Smarty caching can have serious perform
 $lang['test_smarty_compilecheck'] = 'A Smarty compilation check ... explain';
 $lang['text_changeowner'] = 'Set Selected Pages to a different User';
 $lang['text_editor_settings'] = 'Syntax Hilight Text Editor';
-$lang['text_settemplate'] = 'Set Selected Pages to a different Template';
+$lang['text_editor_theme'] = 'Text Editor Theme';
+$lang['text_settemplate'] = 'Apply a different template to selected pages';
 $lang['theme'] = 'Theme';
 $lang['thumbnail'] = 'Thumbnail';
 $lang['thumbnail_height'] = 'Thumbnail Height';
@@ -1713,7 +1712,7 @@ $lang['wiki'] = 'Wiki';  // backwards compatibility
 //$lang['wikihelp'] = "Community Help";
 $lang['wontdeletetemplateinuse'] = 'These templates are in use and will not be deleted';
 $lang['write'] = 'Write';
-$lang['wysiwygtouse'] = 'WYSIWYG for Editing';
+$lang['wysiwygtouse'] = 'WYSIWYG Content-Editor';
 
 ## X
 $lang['xml'] = 'XML';
