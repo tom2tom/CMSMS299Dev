@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,10 +14,15 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
-class dm_xml_reader extends XMLReader
+namespace DesignManager;
+
+use cms_utils;
+use CmsXMLErrorException;
+use XMLReader;
+use function cms_error;
+
+class xml_reader extends XMLReader
 {
   private $_setup;
   private $_old_err_handler;
@@ -27,7 +31,7 @@ class dm_xml_reader extends XMLReader
   public static function __errhandler($errno,$errstr,$errfile,$errline)
   {
     if( strpos($errstr,'XMLReader') !== FALSE ) {
-      cms_error("DesignManger\\dm_xml_reader: ".$errstr);
+      cms_error("DesignManger\\xml_reader: ".$errstr);
       $mod = cms_utils::get_module('DesignManager');
       throw new CmsXMLErrorException($mod->Lang('error_xmlstructure').':<br />'.$errstr);
       return TRUE;
@@ -54,9 +58,4 @@ class dm_xml_reader extends XMLReader
     $this->__setup();
     return parent::read();
   }
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

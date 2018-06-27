@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,10 +14,14 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
-final class dm_reader_factory
+namespace DesignManager;
+
+use cms_utils;
+use CmsFileSystemException;
+use CMSMS\CmsException;
+
+final class reader_factory
 {
   private function __construct() {}
 
@@ -41,21 +44,16 @@ final class dm_reader_factory
     if( $p === FALSE ) throw new CmsException($this->Lang('error_readxml'));  // highly unlikely.
     $word = substr($str,0,$p);
 
-		$ob = null;
+        $ob = null;
     switch( $word ) {
     case 'theme':
-      $ob = new dm_theme_reader($xmlfile);
+      $ob = new theme_reader($xmlfile);
       break;
 
     case 'design':
-      $ob = new dm_design_reader($xmlfile);
+      $ob = new design_reader($xmlfile);
       break;
     }
-		return $ob;
+        return $ob;
   }
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

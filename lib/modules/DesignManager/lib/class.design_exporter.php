@@ -1,5 +1,38 @@
 <?php
-class dm_design_exporter
+# Module: DesignManager - A CMSMS addon module to provide template management.
+# Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+namespace DesignManager;
+
+use cms_url;
+use cms_utils;
+use CmsLayoutCollection;
+use CmsLayoutStylesheet;
+use CmsLayoutTemplate;
+use CmsLayoutTemplateType;
+use CMSMS\CmsException;
+use const CMS_ROOT_PATH;
+use const CMS_ROOT_URL;
+use const CMS_VERSION;
+use function cms_join_path;
+use function cmsms;
+use function endswith;
+use function startswith;
+
+class design_exporter
 {
     private $_design;
     private $_tpl_list;
@@ -227,10 +260,10 @@ EOT;
         case 'MM':
             // MenuManager file template
             $mod = cms_utils::get_module('MenuManager');
-            if( !$mod ) throw new \CmsException('MenuManager file template specified, but MenuManager could not be loaded.');
+            if( !$mod ) throw new CmsException('MenuManager file template specified, but MenuManager could not be loaded.');
 
             $tpl = $mod->GetTemplateFromFile($name);
-            if( !$tpl ) throw new \CmsException('Could not find MenuMaager template '.$name);
+            if( !$tpl ) throw new CmsException('Could not find MenuMaager template '.$name);
 
             // create a new CmsLayoutTemplate object for this template
             // and add it to the list.
@@ -256,8 +289,8 @@ EOT;
 
         $replace_mm = function($matches) use ($ob) {
             // Menu Manager (optional template param)
-            $mod = \cms_utils::get_module('MenuManager');
-            if( !$mod ) throw new \CmsException('MenuManager tag specified, but MenuManager could not be loaded.');
+            $mod = cms_utils::get_module('MenuManager');
+            if( !$mod ) throw new CmsException('MenuManager tag specified, but MenuManager could not be loaded.');
 
             $have_template = false;
             $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -283,8 +316,8 @@ EOT;
 
         $replace_navigator = function($matches) use ($ob) {
             // Navigator (optional template param)
-            $mod = \cms_utils::get_module('Navigator');
-            if( !$mod ) throw new \CmsException('Navigator tag specified, but Navigator could not be loaded.');
+            $mod = cms_utils::get_module('Navigator');
+            if( !$mod ) throw new CmsException('Navigator tag specified, but Navigator could not be loaded.');
 
             $have_template = false;
             $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -317,7 +350,7 @@ EOT;
             $out = preg_replace_callback("/file\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
                                          function($matches) use ($ob) {
                                              if( !startswith($matches[1],'cms_template:') ) {
-                                                 throw new \CmsException('Only templates that use {include} with cms_template resources can be exported.');
+                                                 throw new CmsException('Only templates that use {include} with cms_template resources can be exported.');
                                              }
                                              $tpl = substr($matches[1],strlen('cms_template:'));
                                              $sig = $ob->_add_template($tpl);
@@ -351,8 +384,8 @@ EOT;
 
             $idlist = $this->_design->get_templates();
             if( is_array($idlist) && count($idlist) ) {
-                $tpllist = \CmsLayoutTemplate::load_bulk($idlist);
-                if( count($idlist) != count($tpllist) ) throw new \CmsException('Internal error... could not directly load all of the templates associated with this design');
+                $tpllist = CmsLayoutTemplate::load_bulk($idlist);
+                if( count($idlist) != count($tpllist) ) throw new CmsException('Internal error... could not directly load all of the templates associated with this design');
                 foreach( $tpllist as $tpl ) {
                     $this->_add_template($tpl);
                 }
@@ -408,7 +441,7 @@ EOT;
         $output .= $this->_output_data('tname',$name,$lvl+1);
         $output .= $this->_output_data('tdesc',$tpl->get_description(),$lvl+1);
         $output .= $this->_output_data('tdata',$tpl->get_content(),$lvl+1);
-        if( !$tpl->get_type_id() ) throw new \CmsException('Cannot get template type for '.$tpl->get_name());
+        if( !$tpl->get_type_id() ) throw new CmsException('Cannot get template type for '.$tpl->get_name());
 
         $type = CmsLayoutTemplateType::load($tpl->get_type_id());
         $output .= $this->_output_data('ttype_originator',$type->get_originator(),$lvl+1);
@@ -531,9 +564,4 @@ EOT;
         $output .= $this->_close_tag('design',0);
         return $output;
     }
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

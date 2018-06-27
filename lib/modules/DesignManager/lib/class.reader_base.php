@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,10 +14,13 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
-abstract class dm_reader_base
+namespace DesignManager;
+
+use CmsLayoutCollection;
+use CMSMS\CmsException;
+
+abstract class reader_base
 {
   private $_suggested_name;
   private $_suggested_description;
@@ -47,7 +49,7 @@ abstract class dm_reader_base
   {
     return $this->_suggested_name;
   }
-  
+
   public function get_suggested_description()
   {
     return $this->_suggested_description;
@@ -132,9 +134,4 @@ abstract class dm_reader_base
     return $name;
   }
 
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class

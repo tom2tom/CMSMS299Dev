@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,10 +14,24 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
 
-class dm_design_reader extends dm_reader_base
+namespace DesignManager;
+
+use CmsLayoutCollection;
+use CmsLayoutStylesheet;
+use CmsLayoutTemplate;
+use CmsLayoutTemplateType;
+use CMSMS\CmsException;
+use DesignManager\reader_base;
+use DesignManager\xml_reader;
+use XMLReader;
+use function cms_join_path;
+use function cmsms;
+use function file_put_contents;
+use function munge_string_to_url;
+use function startswith;
+
+class design_reader extends reader_base
 {
     private $_xml;
     private $_scanned;
@@ -30,7 +43,7 @@ class dm_design_reader extends dm_reader_base
 
     public function __construct($fn)
     {
-        $this->_xml = new dm_xml_reader();
+        $this->_xml = new xml_reader();
         $this->_xml->open($fn);
         $this->_xml->SetParserProperty(XMLReader::VALIDATE,TRUE);
     }
@@ -250,7 +263,7 @@ class dm_design_reader extends dm_reader_base
             $name = $this->_get_name($key);
             $rec = array();
             $rec['name'] = base64_decode($one['name']);
-            $rec['newname'] = \CmsLayoutTemplate::generate_unique_name($rec['name']);
+            $rec['newname'] = CmsLayoutTemplate::generate_unique_name($rec['name']);
             $rec['key'] = $key;
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);
@@ -269,7 +282,7 @@ class dm_design_reader extends dm_reader_base
             $name = $this->_get_name($key);
             $rec = array();
             $rec['name'] = base64_decode($one['name']);
-            $rec['newname'] = \CmsLayoutStylesheet::generate_unique_name($rec['name']);
+            $rec['newname'] = CmsLayoutStylesheet::generate_unique_name($rec['name']);
             $rec['key'] = $key;
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);
@@ -474,10 +487,5 @@ class dm_design_reader extends dm_reader_base
     }
 
     $design->save();
-  } // end of import
-} // end of class
-
-#
-# EOF
-#
-?>
+  } // import
+} // class
