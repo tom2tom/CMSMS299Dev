@@ -25,7 +25,7 @@ use NavigatorNode;
 use function cms_htmlentities;
 use function startswith;
 
-final class Nav_utils
+final class utils
 {
     private static $_excludes;
     private function __construct() {}
