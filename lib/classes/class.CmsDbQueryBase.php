@@ -1,5 +1,5 @@
 <?php
-#An abstract class for building database queries and managing results.
+#An abstract class for building database queries and managing their results.
 #Copyright (C) 2016-2018  Robert Campbell <calguy1000@gmail.com>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,17 +18,17 @@
 //namespace CMSMS;
 
 /**
- * An abstract class for building queries and managing results.
+ * An abstract class for building database queries and managing their results.
  *
- * This class is capable of managing a resultset, and encapsulates conversionof database rows into
- * application objects.
+ * This class is capable of managing a resultset, and encapsulates conversion of
+ * database rows into application objects.
  *
  * @since 2.0
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@gmail.com>
  * @property-read array $fields Associative array of the current row of the resultset (read only)
- * @property-read boolean $EOF  Indicates wether the resultset is past the last element (read only)
+ * @property-read boolean $EOF  Indicates whether the resultset is past the last element (read only)
  * @property-read int $limit The maximum number of rows to return in one resultset (read only)
  * @property-read int $offset The start offset of rows to return when executing the query (read only)
  * @property-read int $totalrows The total number of rows in the database that match the query (read only)
@@ -226,12 +226,21 @@ abstract class CmsDbQueryBase
 	public function __get($key)
 	{
 		$this->execute();
-		if( $key == 'fields' && $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
-		if( $key == 'EOF' ) return $this->_rs->EOF();
-		if( $key == 'limit' ) return $this->_limit;
-		if( $key == 'offset' ) return $this->_offset;
-		if( $key == 'totalrows' ) return $this->_totalmatchingrows;
-		if( $key == 'numpages' ) return ceil($this->_totalmatchingrows / $this->_limit);
+		switch( $key ) {
+		    case 'fields':
+				if( $this->_rs && !$this->_rs->EOF() ) return $this->_rs->fields;
+				return;
+		    case 'EOF':
+				return $this->_rs->EOF();
+		    case 'limit':
+				return $this->_limit;
+			case 'offset':
+				return $this->_offset;
+		    case 'totalrows':
+				return $this->_totalmatchingrows;
+		    case 'numpages':
+				return ceil($this->_totalmatchingrows / $this->_limit);
+		}
 	}
 
 } // class
