@@ -120,12 +120,10 @@ class wizard_step8 extends wizard_step
             // permisssions etc
             include_once $dir.'/base.php';
 
-            // install some default preferences
+            // init some of the system-wide default settings
 			verbose_msg(ilang('install_initsiteprefs'));
 			$arr = CmsAdminThemeBase::GetAvailableThemes();
 			foreach ([
-			 'ace_cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3', //default source for text-editor
-			 'ace_theme' => 'clouds',
 			 'adminlog_lifetime' => 3600*24*31, // admin log entries only live for 60 days.
 			 'allow_browser_cache' => 1, // allow browser to cache cachable pages
 			 'auto_clear_cache_age' => 60, // cache files for only 60 days by default
