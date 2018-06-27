@@ -247,7 +247,7 @@ class CmsLayoutTemplateCategory
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET item_order = item_order - 1 WHERE item_order > ?';
-		$dbr = $db->GetOne($query,array($this->_data['item_order']));
+		$db->Execute($query,array($this->_data['item_order']));
 
 		audit($this->get_id(),'CMSMS','Template Category Deleted');
 		unset($this->_data['item_order']);
