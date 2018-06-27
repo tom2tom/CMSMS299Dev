@@ -137,9 +137,9 @@ $smarty->assign('config_info', $tmp);
 /* Performance Information */
 $tmp = [[],[]];
 
-$res = get_site_preference('allow_browser_cache', 0);
+$res = cms_siteprefs::get('allow_browser_cache', 0);
 $tmp[0]['allow_browser_cache'] = testBoolean(0, lang('allow_browser_cache'), $res, lang('test_allow_browser_cache'), false);
-$res = get_site_preference('browser_cache_expiry', 60);
+$res = cms_siteprefs::get('browser_cache_expiry', 60);
 $tmp[0]['browser_cache_expiry'] = testRange(0, lang('browser_cache_expiry'), $res, lang('test_browser_cache_expiry'), 1, 60, false);
 /* N/A for PHP7
 if (version_compare(phpversion(), '5.5') >= 0) {
@@ -149,9 +149,9 @@ if (version_compare(phpversion(), '5.5') >= 0) {
     $tmp[0]['php_opcache'] = testBoolean(0, lang('php_opcache'), false, '', false, false, 'opcache_notavailable');
 }
 */
-$res = get_site_preference('use_smarty_compilecheck', false);
+$res = cms_siteprefs::get('use_smarty_compilecheck', false);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('prompt_smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
-$res = get_site_preference('auto_clear_cache_age', 0);
+$res = cms_siteprefs::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
 
 $smarty->assign('performance_info', $tmp);
@@ -347,7 +347,7 @@ $tmp[0]['modules'] = testMultiDirWrite(0, 'Module directories', cms_module_place
 $dir = $config['uploads_path'];
 $tmp[0]['uploads'] = testDirWrite(0, $dir, $dir);
 
-$global_umask = get_site_preference('global_umask', '022');
+$global_umask = cms_siteprefs::get('global_umask', '022');
 $tmp[0][lang('global_umask')] = testUmask(0, lang('global_umask'), $global_umask);
 
 $result = is_writable(CONFIG_FILE_LOCATION);
