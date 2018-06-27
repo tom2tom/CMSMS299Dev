@@ -319,17 +319,21 @@ class CmsFormUtils
         //identifiers
         if (!empty($htmlid)) {
             $tmp = $htmlid;
-            if (empty($modid)) {
+            if (empty($modid) && empty($prefix)) {
                 if (!empty($id)) {
                     $modid = $id;
                 } else {
-                    return sprintf(self::ERRTPL, 'id', '%s');
+                    $modid = '';
                 }
+            } elseif ($prefix) {
+                $modid = $prefix;
+            } else {
+                $modid = '';
             }
         } elseif (!empty($modid)) {
             $tmp = $modid.$name;
-		} elseif (!empty($prefix)) {
-			$modid = $prefix;
+        } elseif (!empty($prefix)) {
+            $modid = $prefix;
             $tmp = $prefix.$name;
         } elseif (!empty($id)) {
             $modid = $id;
