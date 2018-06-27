@@ -35,7 +35,7 @@ final class Navigator extends CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Navigator'; }
-    public function GetVersion() { return '1.1.0'; }
+    public function GetVersion() { return '1.2.0'; }
     public function HasAdmin() { return false; }
     public function IsPluginModule() { return true; }
     public function LazyLoadAdmin() { return true; }
