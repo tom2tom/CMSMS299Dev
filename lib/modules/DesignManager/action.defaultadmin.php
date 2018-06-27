@@ -93,27 +93,7 @@ if( !empty($efilter['tpl']) ) {
 	unset($efilter['tpl']);
 }
 
-/*
-$templates = null;
-try {
-    $tpl_query = new CmsLayoutTemplateQuery($efilter);
-    $templates = $tpl_query->GetMatches();
-}
-catch( Exception $e ) {
-    // nothing here
-}
-if( count($templates) ) {
-	$smarty->assign('templates',$templates);
-	$tpl_nav = array();
-	$tpl_nav['pagelimit'] = $tpl_query->limit;
-	$tpl_nav['numpages'] = $tpl_query->numpages;
-	$tpl_nav['numrows'] = $tpl_query->totalrows;
-	$tpl_nav['curpage'] = (int)($tpl_query->offset / $tpl_query->limit) + 1;
-	$smarty->assign('tpl_nav',$tpl_nav);
-}
-*/
-
-// build a list of the types, and categories, and later (designs).
+// build a list of types, categories, and later (designs).
 $opts = ['' => $this->Lang('prompt_none')];
 $types = CmsLayoutTemplateType::get_all();
 $originators = [];
@@ -327,6 +307,7 @@ $(document).ready(function() {
     });
   });
 });
+
 EOS;
 
 //stylesheets script
@@ -383,7 +364,9 @@ $(document).ready(function() {
     });
   });
 });
+
 EOS;
+
 // categories script
 if (isset($list_categories)) {
 	$yes = $this->Lang('yes');
@@ -406,11 +389,13 @@ $(document).ready(function() {
     return false;
   });
 });
+
 EOS;
 }
 $js .= <<<EOS
 //]]>
 </script>
+
 EOS;
 $this->AdminBottomContent($js);
 
