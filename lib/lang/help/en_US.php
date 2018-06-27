@@ -34,7 +34,7 @@ $lang['help_myaccount_wysiwyg'] = 'Select which WYSIWYG <em>(What You See Is Wha
 $lang['settings_acecdn'] = <<<'EOS'
 An URL which specifies which, and from where, text-editor source files will be downloaded at runtime in preparation for using the editor. The last part of the URL will often be a version-number.
 <br /><br />
-Example: https://somewhere.com/ajax/libs/ace/1.2.3
+Example: https://somewhere.com/ace/1.2.3
 <br /><br />
 Arguably the best source is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'ace', omit the trailing '/ace.js')
 EOS;
