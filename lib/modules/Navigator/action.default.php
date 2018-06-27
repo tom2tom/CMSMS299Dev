@@ -15,21 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use Navigator\Nav_utils;
+use Navigator\utils;
 
 if( !defined('CMS_VERSION') ) exit;
 
 debug_buffer('Start Navigator default action');
 $items = null;
 $nlevels = -1;
-$show_all = FALSE;
-$show_root_siblings = FALSE;
+$show_all = false;
+$show_root_siblings = false;
 $start_element = null;
 $start_page = null;
 $start_level = null;
 $childrenof = null;
-$deep = TRUE;
-$collapse = FALSE;
+$deep = true;
+$collapse = false;
 
 $template = null;
 if( isset($params['template']) ) {
@@ -54,7 +54,7 @@ foreach( $params as $key => $value ) {
 
     case 'items':
         // hardcoded list of items (and their children)
-        Nav_utils::clear_excludes();
+        utils::clear_excludes();
         $items = trim($value);
         $nlevels = 1;
         $start_element = null;
@@ -64,7 +64,7 @@ foreach( $params as $key => $value ) {
         break;
 
     case 'includeprefix':
-        Nav_utils::clear_excludes();
+        utils::clear_excludes();
         $list = explode(',',$value);
         if( is_array($list) && count($list) ) {
             foreach( $list as &$one ) {
@@ -93,7 +93,7 @@ foreach( $params as $key => $value ) {
         break;
 
     case 'excludeprefix':
-        Nav_utils::set_excludes($value);
+        utils::set_excludes($value);
         $items = null;
         break;
 
@@ -153,7 +153,7 @@ foreach( $params as $key => $value ) {
     }
 } // params
 
-if( $items ) $collapse = FALSE;
+if( $items ) $collapse = false;
 
 $rootnodes = [];
 if( $start_element ) {
@@ -233,12 +233,12 @@ if( count($rootnodes) == 0 ) return; // nothing to do.
 // ready to fill the nodes
 $outtree = [];
 foreach( $rootnodes as $node ) {
-    if( Nav_utils::is_excluded($node->get_tag('alias')) ) continue;
-    $tmp = Nav_utils::fill_node($node,$deep,$nlevels,$show_all,$collapse);
+    if( utils::is_excluded($node->get_tag('alias')) ) continue;
+    $tmp = utils::fill_node($node,$deep,$nlevels,$show_all,$collapse);
     if( $tmp ) $outtree[] = $tmp;
 }
 
-Nav_utils::clear_excludes();
+utils::clear_excludes();
 $tpl->assign('nodes',$outtree);
 
 $tpl->display();

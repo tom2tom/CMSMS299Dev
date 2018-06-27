@@ -16,7 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentOperations;
-use Navigator\Nav_utils;
+use Navigator\utils;
 
 if( !defined('CMS_VERSION') ) exit;
 
@@ -67,7 +67,7 @@ while( is_object($curNode) && $curNode->get_tag('id') > 0 ) {
     }
 
     if( $content->Active() && ($showall || $content->ShowInMenu()) ) {
-        $pagestack[$content->Id()] = Nav_utils::fill_node($curNode,$deep,-1,$showall);
+        $pagestack[$content->Id()] = utils::fill_node($curNode,$deep,-1,$showall);
     }
     if( $content->Alias() == $stopat || $content->Id() == (int) $stopat ) {
         $have_stopnode = TRUE;
@@ -81,7 +81,7 @@ if( !$have_stopnode && $stopat == $this::__DFLT_PAGE ) {
     // get the 'home' page and push it on the list
     $dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
     $node = $hm->GetNodeById($dflt_content_id);
-    $pagestack[$dflt_content_id] = Nav_utils::fill_node($node,$deep,0,$showall);
+    $pagestack[$dflt_content_id] = utils::fill_node($node,$deep,0,$showall);
 }
 
 $tpl = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null,$smarty);
