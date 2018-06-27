@@ -1067,7 +1067,7 @@ class CmsLayoutTemplate
 		$n = self::_resolve_user($a);
 		if( $n <= 0 ) throw new CmsInvalidDataException('Invalid user specified to get_owned_templates');
 
-		$query = CmsLayoutTemplateQuery(['u'=>$n]);
+		$query = new CmsLayoutTemplateQuery(['u'=>$n]);
 		$tmp = $query->GetMatchedTemplateIds();
 		return self::load_bulk($tmp);
 	}
