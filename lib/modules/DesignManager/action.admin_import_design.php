@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,9 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
+use DesignManager\reader_factory;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
@@ -43,7 +43,7 @@ try {
 				}
 				if( $_FILES[$key]['type'] != 'text/xml' ) throw new CmsException($this->Lang('error_upload_filetype',$_FILES[$key]['type']));
 
-				$reader = dm_reader_factory::get_reader($_FILES[$key]['tmp_name']);
+				$reader = reader_factory::get_reader($_FILES[$key]['tmp_name']);
 				$reader->validate();
 
 				// copy uploaded file to temporary location
@@ -77,7 +77,7 @@ try {
 				$this->RedirectToAdminTab();
 			}
 
-			$reader = dm_reader_factory::get_reader($tmpfile);
+			$reader = reader_factory::get_reader($tmpfile);
 
 			if( isset($params['next2']) ) {
 				$error = null;
@@ -123,7 +123,7 @@ try {
 			throw new CmsException($this->Lang('error_missingparam'));
 		}
 		$tmpfile = trim($params['tmpfile']);
-    $newname = trim($params['newname']);
+		$newname = trim($params['newname']);
 		$newdescription = trim($params['newdescription']);
 
 		if( !file_exists($tmpfile) ) {
@@ -132,9 +132,9 @@ try {
 		}
 
 		$destdir = $config['uploads_path'].'/designmanager_import';
-		$reader = dm_reader_factory::get_reader($tmpfile);
-    $reader->set_suggested_name($newname);
-    $reader->set_suggested_description($newdescription);
+		$reader = reader_factory::get_reader($tmpfile);
+		$reader->set_suggested_name($newname);
+		$reader->set_suggested_description($newdescription);
 		$reader->import();
 		$this->SetMessage($this->Lang('msg_design_imported'));
 		$this->RedirectToAdminTab();
@@ -147,8 +147,3 @@ catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#
-?>

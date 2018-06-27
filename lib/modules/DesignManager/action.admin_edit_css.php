@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
+use DesignManager\utils;
+
 if (!isset($gCms)) exit ;
 if (!$this->CheckPermission('Manage Stylesheets')) return;
 
@@ -59,9 +62,9 @@ try {
             $css_ob->set_name($params['name']);
             $new_export_name = $css_ob->get_content_filename();
             if( $old_export_name && $old_export_name != $new_export_name && is_file( $old_export_name ) ) {
-                if( is_file( $new_export_name ) ) throw new \Exception('Cannot rename exported stylesheet (destination name exists)');
+                if( is_file( $new_export_name ) ) throw new Exception('Cannot rename exported stylesheet (destination name exists)');
                 $res = rename($old_export_name,$new_export_name);
-                if( !$res ) throw new \Exception( "Problem renaming exported stylesheet" );
+                if( !$res ) throw new Exception( "Problem renaming exported stylesheet" );
             }
 
             $css_ob->save();
@@ -75,24 +78,24 @@ try {
             $outfile = $css_ob->get_content_filename();
             $dn = dirname($outfile);
             if( !is_dir($dn) || !is_writable($dn) ) {
-                throw new \RuntimeException($this->Lang('error_assets_writeperm'));
+                throw new RuntimeException($this->Lang('error_assets_writeperm'));
             }
             if( is_file($outfile) && !is_writable($outfile) ) {
-                throw new \RuntimeException($this->Lang('error_assets_writeperm'));
+                throw new RuntimeException($this->Lang('error_assets_writeperm'));
             }
             file_put_contents($outfile,$css_ob->get_content());
         }
         else if( isset($params['import']) ) {
             $infile = $css_ob->get_content_filename();
             if( !is_file($infile) || !is_readable($infile) || !is_writable($infile) ) {
-                throw new \RuntimeException($this->Lang('error_assets_readwriteperm'));
+                throw new RuntimeException($this->Lang('error_assets_readwriteperm'));
             }
             $data = file_get_contents($infile);
             unlink($infile);
             $css_ob->set_content($data);
             $css_ob->save();
         }
-    } catch( \Exception $e ) {
+    } catch( Exception $e ) {
         $message = $e->GetMessage();
         $response = 'error';
     }
@@ -100,7 +103,7 @@ try {
     //
     // prepare to display.
     //
-    if (!$apply && $css_ob && $css_ob->get_id() && dm_utils::locking_enabled()) {
+    if (!$apply && $css_ob && $css_ob->get_id() && utils::locking_enabled()) {
 //        $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
 //        $smarty->assign('lock_refresh', $this->GetPreference('lock_refresh'));
         try {
@@ -140,9 +143,9 @@ try {
     }
 
     if( $css_ob->get_id() > 0 ) {
-        \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_stylesheet').': '.$css_ob->get_name()." ({$css_ob->get_id()})");
+        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_stylesheet').': '.$css_ob->get_name()." ({$css_ob->get_id()})");
     } else {
-        \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_stylesheet'));
+        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_stylesheet'));
     }
 
     $smarty->assign('has_designs_right', $this->CheckPermission('Manage Designs'));
@@ -152,7 +155,7 @@ try {
 
     //TODO ensure flexbox css for .hbox, .boxchild
 
-    $js = CMSMS\AdminUtils::get_editor_script(true, 'css', 'Editor');
+    $js = AdminUtils::get_editor_script(true, 'css', 'Editor');
 
     $script_url = CMS_SCRIPTS_URL;
     $uid = get_userid(false);

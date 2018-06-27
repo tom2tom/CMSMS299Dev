@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# Module: DesignManager - A CMSMS addon module to provide template management.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,9 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
+use DesignManager\design_exporter;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
@@ -141,7 +141,7 @@ function _get_tpl_urls($tpl_content)
 try {
 	// and the work...
     $the_design = CmsLayoutCollection::load($params['design']);
-    $exporter = new dm_design_exporter($the_design);
+    $exporter = new design_exporter($the_design);
 	$xml = $exporter->get_xml();
 
 	// clear any output buffers.
@@ -157,12 +157,7 @@ try {
 	echo $xml;
     exit();
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#
-?>

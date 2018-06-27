@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
+use DesignManager\utils;
+
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Templates')) {
     // no manage templates permission
@@ -81,9 +84,9 @@ try {
             $tpl_obj->set_name($params['name']);
             $new_export_name = $tpl_obj->get_content_filename();
             if( $old_export_name != $new_export_name && is_file( $old_export_name ) ) {
-                if( is_file( $new_export_name ) ) throw new \Exception('Cannot rename exported template (destination name exists)');
+                if( is_file( $new_export_name ) ) throw new Exception('Cannot rename exported template (destination name exists)');
                 $res = rename($old_export_name,$new_export_name);
-                if( !$res ) throw new \Exception( "Problem renaming exported template" );
+                if( !$res ) throw new Exception( "Problem renaming exported template" );
             }
 
             if ($this->CheckPermission('Manage Designs')) {
@@ -107,21 +110,21 @@ try {
         else if( isset($params['export']) ) {
             $outfile = $tpl_obj->get_content_filename();
             $dn = dirname($outfile);
-            if( !is_dir($dn) || !is_writable($dn) ) throw new \RuntimeException($this->Lang('error_assets_writeperm'));
-            if( is_file($outfile) && !is_writable($outfile) ) throw new \RuntimeException($this->Lang('error_assets_writeperm'));
+            if( !is_dir($dn) || !is_writable($dn) ) throw new RuntimeException($this->Lang('error_assets_writeperm'));
+            if( is_file($outfile) && !is_writable($outfile) ) throw new RuntimeException($this->Lang('error_assets_writeperm'));
             file_put_contents($outfile,$tpl_obj->get_content());
         }
         else if( isset($params['import']) ) {
             $infile = $tpl_obj->get_content_filename();
             if( !is_file($infile) || !is_readable($infile) || !is_writable($infile) ) {
-                throw new \RuntimeException($this->Lang('error_assets_readwriteperm'));
+                throw new RuntimeException($this->Lang('error_assets_readwriteperm'));
             }
             $data = file_get_contents($infile);
             unlink($infile);
             $tpl_obj->set_content($data);
             $tpl_obj->save();
         }
-    } catch( \Exception $e ) {
+    } catch( Exception $e ) {
         $message = $e->GetMessage();
         $response = 'error';
     }
@@ -129,7 +132,7 @@ try {
     //
     // BUILD THE DISPLAY
     //
-    if (!$apply && $tpl_obj && $tpl_obj->get_id() && dm_utils::locking_enabled()) {
+    if (!$apply && $tpl_obj && $tpl_obj->get_id() && utils::locking_enabled()) {
         $lock_timeout = $this->GetPreference('lock_timeout', 0);
         $lock_refresh = $this->GetPreference('lock_refresh', 0);
         try {
@@ -159,10 +162,10 @@ try {
     }
 
     if( ($tpl_id = $tpl_obj->get_id()) > 0 ) {
-        \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
+        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
     } else {
         $tpl_id = 0;
-        \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_template'));
+        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_template'));
     }
 
     $smarty->assign('type_obj', $type_obj);
@@ -228,7 +231,7 @@ try {
 
 //TODO ensure flexbox css for .hbox, .boxchild
 
-    $js = CMSMS\AdminUtils::get_editor_script(true, 'smarty', 'Editor');
+    $js = AdminUtils::get_editor_script(true, 'smarty', 'Editor');
 
     $script_url = CMS_SCRIPTS_URL;
     $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1:0;
