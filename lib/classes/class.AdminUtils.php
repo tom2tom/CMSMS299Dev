@@ -57,11 +57,6 @@ final class AdminUtils
 	const ITEMNAME_REGEX = '<^[a-zA-Z0-9_\x7f-\xff][a-zA-Z0-9_\ \/\+\-\,\.\x7f-\xff]*$>';
 
 	/**
-	 * Default cdn for retrieving ace text-editor
-	 */
-	const ACE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3';
-
-	/**
 	 * @ignore
 	 */
 	private function __construct() {}
@@ -332,6 +327,8 @@ final class AdminUtils
 
 	/**
 	 * Get javascript for initialization of ace text-editor
+     * The script includes creation of a var 'editor', which may be used in context e.g. to
+     *  editor.getValue() to retrieve content and park it somewhere submittable.
 	 * @since 2.3
 	 * @param bool $edit       Optional flag whether content is editable. Default false (i.e. just for display)
 	 * @param string $typer    Optional filetype-identifier, an absolute filepath or at least an extension or pseudo (like 'smarty'). Default ''
@@ -346,14 +343,15 @@ final class AdminUtils
 		if( $typer ) {
 			if( is_file($typer) ) {
 				$filepath = $typer;
-				$filetype = '';
+				$mode = '';
 			} else {
-				$filepath = __DIR__; //default php mode
+				$filepath = __FILE__; //default php mode
 				$p = strrpos($typer, '.');
-				$filetype = substr($typer, ($p !== false) ? $p+1:0);
-				$filetype = strtolower($filetype);
+				$mode = substr($typer, ($p !== false) ? $p+1:0);
+				$mode = strtolower($mode);
 				// some of ace's many lexers which are more likely in this context
 				$known = [
+					'css' => 1,
 					'htm' => 'html',
 					'html' => 1,
 					'ini' => 1,
@@ -366,23 +364,22 @@ final class AdminUtils
 					'txt' => 'text',
 					'xml' => 1,
 				];
-				if( array_key_exists($filetype, $known) ) {
-					if( $known[$filetype] !== 1 ) $filetype = $known[$filetype];
+				if( array_key_exists($mode, $known) ) {
+					if( $known[$mode] !== 1 ) $mode = $known[$mode];
 				} else {
-					$filetype = '';
+					$mode = '';
 				}
 			}
 		}
 		else {
-			$filepath = __DIR__; //php mode
-			$filetype = '';
+			$filepath = __FILE__; //php mode
+			$mode = '';
 		}
 
-		$cdn = cms_siteprefs::get('ace_cdn', self::ACE_CDN);
-
-		$style = cms_userprefs::get_for_user(get_userid(false), 'acetheme');
+		$cdn = cms_siteprefs::get('ace_cdn', cms_siteprefs::ACE_CDN);
+		$style = cms_userprefs::get_for_user(get_userid(false), 'ace_theme');
 		if (!$style) {
-			$style = cms_siteprefs::get('ace_theme', 'dracula');
+			$style = cms_siteprefs::get('ace_theme', cms_siteprefs::ACE_THEME);
 		}
 		$style = strtolower($style);
 
@@ -390,7 +387,7 @@ final class AdminUtils
 <script type="text/javascript" src="$cdn/ace.js"></script>
 
 EOS;
-		if( !$filetype ) {
+		if( !$mode ) {
 			$js .= <<<EOS
 <script type="text/javascript" src="$cdn/ext-modelist.js"></script>
 
@@ -402,9 +399,9 @@ EOS;
 var editor = ace.edit("$selector");
 
 EOS;
-		if( $filetype ) {
+		if( $mode ) {
 			$js .= <<<EOS
-editor.session.setMode("ace/mode/$filetype");
+editor.session.setMode("ace/mode/$mode");
 
 EOS;
 		}
@@ -418,19 +415,23 @@ EOS;
 
 EOS;
 		}
+//TODO runtime adjustment of maxLines, to keep hscrollbar at window-bottom
 		$js .= <<<EOS
 editor.setOptions({
  readOnly: $fixed,
  autoScrollEditorIntoView: true,
  showPrintMargin: false,
- maxLines: Infinity,
- fontSize: '100%'
+ maxLines: Infinity
 });
 editor.renderer.setOptions({
- showGutter: false,
- displayIndentGuides: false,
+ showGutter: true,
+ displayIndentGuides: true,
  showLineNumbers: false,
  theme: "ace/theme/$style"
+});
+$(document).ready(function() {
+ var sz=$('#$selector').css('font-size');
+ editor.setOption('fontSize', sz);
 });
 //]]>
 </script>
