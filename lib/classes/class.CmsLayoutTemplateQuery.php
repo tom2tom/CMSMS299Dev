@@ -1,5 +1,5 @@
 <?php
-#Class to represent a template query, and its results.
+#Class to represent a template database query and its results.
 #Copyright (C) 2014-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,24 +18,22 @@
 //namespace CMSMS;
 
 /**
- * A class to represent a template query, and its results.
- * This class accepts in it's constructor an array (or a comma separated string, of filter arguments).
- * Accepted filter arguments are:<br/>
- *  o:string - The originator name<br/>
- *  i:##,##,## - A list of template id's<br/>
- *  t:## - A template type id<br/>
- *  c:## - A template category id.<br/>
- *  d:## - A design id<br/>
- *  u:## - A template owner id<br/>
- *  e:## - An additional editor id.<br/>
- *  l:#  - A boolean (0 or 1) indicating listable, or not listable.
+ * A class to represent a template query and its results.
+ * This class accepts in its constructor an array or comma-separated string of filter arguments.
+ * Accepted filter arguments are:
+ *  o:string - The originator name
+ *  i:##,##,## - A list of template id's
+ *  t:## - A template type id
+ *  c:## - A template category id
+ *  d:## - A design id
+ *  u:## - A template owner id
+ *  e:## - An additional editor id
+ *  l:#  - A boolean (1 or 0) indicating listable or not
  *
- * Example:<br/>
- * <code>
- * $qry = new CmsTemplateQuery(array('o:'.get_userid(false)));<br/>
- * $qry->limit = 50;<br/>
- * $list = $qry->GetMatches();<br/>
- * </code>
+ * Example:
+ * $qry = new CmsTemplateQuery(array('o:'.get_userid(false)));
+ * $qry->limit = 50;
+ * $list = $qry->GetMatches();
  *
  * @package CMS
  * @license GPL
@@ -70,7 +68,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 
 		$query = 'SELECT SQL_CALC_FOUND_ROWS tpl.id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' tpl
 			  LEFT JOIN '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' type ON tpl.type_id = type.id';
-		$where = array('id'=>array(),'type'=>array(),'category'=>array(),'user'=>array(),'design'=>array());
+		$where = ['id'=>[],'type'=>[],'category'=>[],'user'=>[],'design'=>[]];
 
 		$this->_limit = 1000;
 		$this->_offset = 0;
@@ -84,22 +82,22 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 			case 'originator':
 				$second = trim($second);
 				$q2 = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE originator = ?';
-				$typelist = $db->GetCol($q2,array($second));
-				if( !count($typelist) ) $typelist = array(-999);
+				$typelist = $db->GetCol($q2,[$second]);
+				if( !count($typelist) ) $typelist = [-999];
 				$where['type'][] = 'type_id IN ('.implode(',',$typelist).')';
 				break;
 
 			case 'l':
 			case 'listable':
-				$second = (cms_to_bool($second)) ? 0 : 1;
-				$where['listable'] = array('listable = '.$second);
+				$second = (cms_to_bool($second)) ? 1 : 0;
+				$where['listable'] = ['listable = '.$second];
 				break;
 
 			case 'i': // id list
 			case 'idlist':
 				$second = trim($second);
 				$tmp = explode(',',$second);
-				$tmp2 = array();
+				$tmp2 = [];
 				for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 					$tmp3 = (int)$tmp[$i];
 					if( $tmp3 < 1 ) continue;
@@ -125,8 +123,8 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 			case 'design':
 				// find all the templates in design: d
 				$q2 = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE design_id = ?';
-				$tpls = $db->GetCol($q2,array((int)$second));
-				if( !count($tpls) )  $tpls = array(-999); // this won't match anything
+				$tpls = $db->GetCol($q2,[(int)$second]);
+				if( !count($tpls) )  $tpls = [-999]; // this won't match anything
 				$where['design'][] = 'tpl.id IN ('.implode(',',$tpls).')';
 				break;
 
@@ -146,7 +144,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 				 SELECT id AS tpl_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.'
 				   WHERE owner_id = ?)
 				 AS tmp1';
-				$t2 = $db->GetCol($q2,array($second,$second));
+				$t2 = $db->GetCol($q2,[$second,$second]);
 				if( is_array($t2) && count($t2) ) $where['user'][] = 'tpl.id IN ('.implode(',',$t2).')';
 				break;
 
@@ -192,7 +190,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 			}
 		}
 
-		$tmp = array();
+		$tmp = [];
 		foreach( $where as $key => $exprs ) {
 			if( count($exprs) ) $tmp[] = '('.implode(' OR ',$exprs).')';
 		}
@@ -247,7 +245,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 		$this->execute();
 		if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
 
-		$out = array();
+		$out = [];
 		while( !$this->EOF() ) {
 			$out[] = $this->fields['id'];
 			$this->MoveNext();
