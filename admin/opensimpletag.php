@@ -73,8 +73,10 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 		$themeObject->ParkNotice('success', $msg);
         redirect('listsimpletags.php'.$urlext);
     }
-} else {
+} elseif (isset($_GET['tagname'])) {
     $tagname = cleanValue($_GET['tagname']);
+} else {
+    redirect('listsimpletags.php'.$urlext);
 }
 
 if ($tagname != '-1') {
