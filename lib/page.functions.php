@@ -1,5 +1,5 @@
 <?php
-#...
+#Page related functions.
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -14,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
  * Page related functions.  Generally these are functions not necessarily
@@ -25,7 +23,10 @@
  * @license GPL
  */
 
+use CMSMS\ContentOperations;
 use CMSMS\internal\LoginOperations;
+use CMSMS\internal\Smarty;
+use CMSMS\UserOperations;
 
 /**
  * Gets the userid of the currently logged in user.
@@ -176,10 +177,11 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  *
  * @internal
  * @access private
+ * @deprecated since 2.3 instead use CmsFormUtils::create_textarea()
  * @param boolean $enablewysiwyg Whether or not we are enabling a wysiwyg.  If false, and forcewysiwyg is not empty then a syntax area is used.
- * @param string  $text The contents of the text area
+ * @param string  $value The contents of the text area
  * @param string  $name The name of the text area
- * @param string  $classname An optional class name
+ * @param string  $class An optional class name
  * @param string  $id An optional ID (HTML ID) value
  * @param string  $encoding The optional encoding
  * @param string  $stylesheet Optional style information
@@ -189,34 +191,26 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  * @param string  $wantedsyntax Optional name of the language used.  If non empty it indicates that a syntax highlihter will be used.
  * @param string  $addtext Optional additional text to include in the textarea tag
  * @return string
- * @deprecated
- * @see CmsFormUtils::create_textarea
  */
-function create_textarea(bool $enablewysiwyg, string $text, string $name, string $classname = '',
-                         string $id = '', string $encoding = '', string $stylesheet = '',
-                         int $width = 80, int $height = 15,
-                         string $forcewysiwyg = '', string $wantedsyntax = '', string $addtext = '')
-{
-    $parms = array();
-    $parms['enablewysiwyg'] = $enablewysiwyg;
-    $parms['text'] = $text;
-    $parms['name'] = $name;
-    if( $classname ) $parms['class'] = $classname;
-    if( $id ) $parms['id'] = $id;
-    if( $encoding ) $parms['encoding'] = $encoding;
-    if( $width ) $parms['rows'] = $height;
-    if( $height ) $parms['cols'] = $width;
-    if( $forcewysiwyg ) $parms['forcemodule'] = $forcewysiwyg;
-    if( $wantedsyntax ) $parms['wantedsyntax'] = $wantedsyntax;
-    if( $addtext ) $parms['addtext'] = $addtext;
-
-    try {
-        return CmsFormUtils::create_textarea($parms);
-    }
-    catch( CmsException $e ) {
-        // do nothing.
-        return '';
-    }
+function create_textarea(
+    bool $enablewysiwyg,
+    string $value,
+    string $name,
+    string $class = '',
+    string $id = '',
+    string $encoding = '',
+    string $stylesheet = '',
+    int $width = 80,
+    int $height = 15,
+    string $forcewysiwyg = '',
+    string $wantedsyntax = '',
+    string $addtext = ''
+) {
+    $parms = func_get_args() + [
+        'height' => 15,
+	    'width' => 80,
+	];
+    return CmsFormUtils::create_textarea($parms);
 }
 
 /**
@@ -307,7 +301,7 @@ function get_pageid_or_alias_from_url()
     $gCms = CmsApp::get_instance();
     $config = cms_config::get_instance();
     $contentops = ContentOperations::get_instance();
-    $smarty = CMSMS\internal\Smarty::get_instance();
+    $smarty = Smarty::get_instance();
 
     $page = '';
     $query_var = $config['query_var'];
