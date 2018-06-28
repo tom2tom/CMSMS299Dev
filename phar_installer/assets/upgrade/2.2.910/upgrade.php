@@ -81,7 +81,7 @@ if ($data) {
 			' (originator,name,description,owner,created,modified) VALUES (?,?,?,-1,?,?)',
 			[
 				$name,
-				'moduleaction',
+				'Moduleaction',
 				'Action templates for module: '.$name,
 				$now,
 				$now,
