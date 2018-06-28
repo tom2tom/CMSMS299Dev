@@ -237,7 +237,7 @@ modified_date DT
 handler_id I KEY,
 event_id I,
 tag_name C(255),
-module_name C(160),
+module_name C(32),
 removable I,
 handler_order I
 ';
@@ -248,7 +248,7 @@ handler_order I
 
     $flds = '
 event_id I KEY,
-originator C(200) NOTNULL,
+originator C(32) NOTNULL,
 event_name C(200) NOTNULL
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'events', $flds, $taboptarray);
@@ -318,7 +318,7 @@ modified_date DT
     verbose_msg(ilang('install_created_table', 'groups', $msg_ret));
 
     $flds = '
-module_name C(160) KEY,
+module_name C(32) KEY,
 status C(255),
 version C(255),
 admin_only I(1) DEFAULT 0,
@@ -344,19 +344,13 @@ modified_date DT
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_created_table', 'module_deps', $msg_ret));
 
-    //NOTE this must replicate table CmsLayoutTemplate::TABLENAME, but with extra 'module' field
+/* merged with layout_templates
     $flds = '
-id I KEY AUTO,
-name C(100) NOTNULL,
-content X2,
-description X,
-type_id I NOTNULL,
-owner_id I NOTNULL DEFAULT -1,
-type_dflt I(1) DEFAULT 0,
-listable I(1) DEFAULT 1,
-created I,
-modified I,
-module C(160)
+module_name C(160),
+template_name C(160),
+content X,
+create_date DT,
+modified_date DT
 ';
     $sqlarray = $dbdict->CreateTableSQL(
         CMS_DB_PREFIX.'module_templates',
@@ -394,7 +388,7 @@ module C(160)
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_creating_index', 'idx_module_templates_by_module_and_tpl_name', $msg_ret));
-
+*/
     $flds = '
 permission_id I KEY,
 permission_name C(255),
@@ -483,9 +477,9 @@ version I
 
     $flds = '
 sig C(80) KEY NOTNULL,
-name C(80) NOTNULL,
-module C(160) NOTNULL,
-type C(40) NOTNULL,
+name C(48) NOTNULL,
+module C(32) NOTNULL,
+type C(32) NOTNULL,
 callback C(255) NOTNULL,
 available I,
 cachable I(1) DEFAULT 0
@@ -506,9 +500,9 @@ cachable I(1) DEFAULT 0
 
     $flds = '
 term C(255) KEY NOTNULL,
-key1 C(50) KEY NOTNULL,
-key2 C(50),
-key3 C(50),
+key1 C(48) KEY NOTNULL,
+key2 C(48),
+key3 C(48),
 data X,
 created DT
 ';
@@ -520,8 +514,8 @@ created DT
 
     $flds = '
 id I KEY AUTO,
-originator C(50) NOTNULL,
-name C(100) NOTNULL,
+originator C(32) NOTNULL,
+name C(96) NOTNULL,
 dflt_contents X2,
 description X,
 lang_cb C(255),
@@ -555,7 +549,7 @@ modified I
 
     $flds = '
 id I KEY AUTO,
-name C(100) NOTNULL,
+name C(96) NOTNULL,
 description X,
 item_order X,
 modified I
@@ -600,10 +594,10 @@ tpl_order I(4) DEFAULT 0
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
-    //NOTE table CMS_DB_PREFIX.'module_templates' must replicate this (with extra field 'module')
     $flds = '
 id I KEY AUTO,
-name C(100) NOTNULL,
+originator C(32),
+name C(96) NOTNULL,
 content X2,
 description X,
 type_id I NOTNULL,
@@ -625,8 +619,7 @@ modified I
     $sqlarray = $dbdict->CreateIndexSQL(
         CMS_DB_PREFIX.'idx_layout_tpl_1',
         CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,
-        'name',
-        ['UNIQUE']
+        'name'
     );
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
@@ -641,9 +634,19 @@ modified I
     $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
     verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_2', $msg_ret));
 
+    $sqlarray = $dbdict->CreateIndexSQL(
+        CMS_DB_PREFIX.'idx_layout_tpl_3',
+        CMS_DB_PREFIX.'module_templates',
+        'originator,name',
+        ['UNIQUE']
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
+    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_3', $msg_ret));
+
     $flds = '
 id I KEY AUTO,
-name C(100) NOTNULL,
+name C(96) NOTNULL,
 content X2,
 description X,
 media_type C(255),
@@ -684,7 +687,7 @@ user_id I KEY
 
     $flds = '
 id I KEY AUTO,
-name C(100) NOTNULL,
+name C(96) NOTNULL,
 description X,
 dflt I(1) DEFAULT 0,
 created I,
@@ -747,7 +750,7 @@ item_order I NOTNULL
 
     $flds = '
 id I AUTO KEY NOTNULL,
-type C(20) NOTNULL,
+type C(24) NOTNULL,
 oid I NOTNULL,
 uid I NOTNULL,
 created I NOTNULL,
