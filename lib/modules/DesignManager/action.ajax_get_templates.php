@@ -22,8 +22,8 @@ try {
     $tmp = get_parameter_value($_REQUEST,'filter');
     $filter = json_decode($tmp,TRUE);
     $smarty->assign('tpl_filter',$filter);
-    if( !$this->CheckPermission('Modify Templates') ) $filter[] = 'e:'.get_userid();
-
+    if( !$this->CheckPermission('Modify Templates') ) $filter[] = 'e:'.get_userid(false);
+/*
     $tpl_query = new CmsLayoutTemplateQuery($filter);
     $templates = $tpl_query->GetMatches();
     if( count($templates) ) {
@@ -34,6 +34,17 @@ try {
         $tpl_nav['numrows'] = $tpl_query->totalrows;
         $tpl_nav['curpage'] = (int)($tpl_query->offset / $tpl_query->limit) + 1;
         $smarty->assign('tpl_nav',$tpl_nav);
+    }
+*/
+    include __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
+    if( count($templates) ) {
+        $smarty->assign('templates', $templates);
+        $smarty->assign('tpl_nav', [
+            'pagelimit' => $limit,
+            'numpages' => $numpages,
+            'numrows' => $totalrows,
+            'curpage' => (int)($offset / $limit) + 1,
+        ]);
     }
 
     $designs = CmsLayoutCollection::get_all();
