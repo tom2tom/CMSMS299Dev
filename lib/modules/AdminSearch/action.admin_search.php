@@ -60,7 +60,7 @@ $userid = get_userid();
 $searchparams = $params;
 unset($searchparams['submit']);
 unset($searchparams['action']);
-set_preference($userid,$this->GetName().'saved_search',serialize($searchparams));
+cms_userprefs::set_for_user($userid,$this->GetName().'saved_search',serialize($searchparams));
 unset($searchparams['slaves']);
 
 // find search slave classes

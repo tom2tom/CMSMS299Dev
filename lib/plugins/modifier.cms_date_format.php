@@ -35,7 +35,7 @@ function smarty_modifier_cms_date_format($string, $format = '', $default_date = 
 		if($format == '') $format = '%b %e, %Y';
 		if(!CmsApp::get_instance()->is_frontend_request()) {
 			if($uid = get_userid(false)) {
-				$tmp = get_preference($uid, 'date_format_string');
+				$tmp = cms_userprefs::get_for_user($uid, 'date_format_string');
 				if($tmp != '') $format = $tmp;
 			}
 		}

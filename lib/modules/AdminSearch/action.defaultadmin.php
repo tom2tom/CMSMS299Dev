@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide admin side search capbilities.
+# AdminSearch module action: defaultadmin.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
 
@@ -27,13 +25,10 @@ $smarty->assign('ajax_url',$url);
 $smarty->assign('js_url',$this->GetModuleURLPath().'/lib/admin_search_tab.js');
 
 $userid = get_userid();
-$tmp = get_preference($userid,$this->GetName().'saved_search');
+$tmp = cms_userprefs::get_for_user($userid,$this->GetName().'saved_search');
 if( $tmp ) $smarty->assign('saved_search',unserialize($tmp));
 
 $slaves = AdminSearch_tools::get_slave_classes();
 $smarty->assign('slaves',$slaves);
 
 echo $this->ProcessTemplate($template);
-#
-# EOF
-#
