@@ -625,14 +625,13 @@ $smarty->assign('sitelogo', $sitelogo);
 $smarty->assign('sitename', $sitename);
 $smarty->assign('testresults', lang('untested'));
 
-$obj = CmsFormUtils::create_textarea([
-  'enablewysiwyg' => true,
-  'value' => $sitedownmessage,
+$smarty->assign('textarea_sitedownmessage', $obj = CmsFormUtils::create_textarea([
+  'enablewysiwyg' => 1,
   'htmlid' => 'sitedownmessage',
   'name' => 'sitedownmessage',
   'class' => 'pagesmalltextarea',
-]);
-$smarty->assign('textarea_sitedownmessage', $obj);
+  'value' => $sitedownmessage,
+]));
 
 $smarty->assign('thumbnail_height', $thumbnail_height);
 $smarty->assign('thumbnail_width', $thumbnail_width);
