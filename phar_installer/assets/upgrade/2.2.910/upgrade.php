@@ -19,40 +19,7 @@ $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
 $dbdict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
-// modify module-templates table
-$tbl = CMS_DB_PREFIX.'module_templates';
-$flds = '
-id I KEY AUTO,
-description X,
-type_id I NOTNULL,
-owner_id I NOTNULL DEFAULT -1,
-type_dflt I(1) DEFAULT 0,
-listable I(1) DEFAULT 1
-';
-$sqlarray = $dbdict->AddColumnSQL($tbl, $flds);
-$return = $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AlterColumnSQL($tbl, 'content X2');
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL($tbl, 'module_name', 'module');
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL($tbl, 'template_name', 'name', 'C(100)');
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL($tbl, 'create_date', 'created', 'I');
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL($tbl, 'modified_date', 'modified', 'I');
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-
-$sqlarray = $dbdict->CreateIndexSQL('idx_module_templates_2', $tbl, 'name', ['UNIQUE']);
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->CreateIndexSQL('idx_module_templates_3', $tbl, 'type_id,type_dflt');
-$return = $return && $dbdict->ExecuteSQLArray($sqlarray);
-//TODO $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
-//verbose_msg(ilang('install_modify_table', 'module_templates', $msg_ret));
-
-// other tables
-$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'category_id');
-$dbdict->ExecuteSQLArray($sqlarray);
-
+// tables
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
 $dbdict->ExecuteSQLArray($sqlarray);
 
@@ -78,6 +45,70 @@ $sqlarray = $dbdict->CreateIndexSQL(
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
 verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
+
+// migrate existing category_id values to new table
+$sql = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE category_id IS NOT NULL';
+$data = $db->GetArray($sql);
+if ($data) {
+	$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
+	foreach ($data as $row) {
+		$db->Execute($sql, [$row['category_id'], $row['id']]);
+	}
+}
+
+$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'category_id');
+$dbdict->ExecuteSQLArray($sqlarray);
+
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'originator C(32)');
+$dbdict->ExecuteSQLArray($sqlarray);
+
+// layout-templates table indices
+// TODO revisions
+
+// migrate module templates to layout-templates table
+$sql = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
+$data = $db->GetArray($sql);
+if ($data) {
+	$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.
+		' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
+    $dt = new DateTime(null, new DateTimeZone('UTC'));
+	$now = time();
+	$types = [];
+	foreach ($data as $row) {
+		$name = $row['module_name'];
+		if (!isset($types[$name])) {
+			$db->Execute('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.
+			' (originator,name,description,owner,created,modified) VALUES (?,?,?,-1,?,?)',
+			[
+				$name,
+				'moduleaction',
+				'Action templates for module: '.$name,
+				$now,
+				$now,
+			]);
+			$types[$name] = $db->insert_id();
+		}
+		$dt->modify($row['create_date']);
+		$created = $dt->getTimestamp();
+		if (!$created) { $created = $now; }
+		$dt->modify($row['modified_date']);
+		$modified = $dt->getTimestamp();
+		if (!$modified) { $modified = min($now, $created); }
+		$db->Execute($sql, [
+			$name,
+			$row['template_name'],
+			$row['content'],
+			$types[$name],
+			$created,
+			$modified
+		]);
+	}
+    verbose_msg(ilang('upgrade_modifytable', 'module_templates'));
+}
+
+$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
+$dbdict->ExecuteSQLArray($sqlarray);
+verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
 
 //if ($return == 2) {
   $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (205)';
