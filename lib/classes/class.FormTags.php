@@ -27,8 +27,6 @@
 
 namespace CMSMS;
 
-use CreateInputFile as CreateFileUploadInput;
-
 class FormTags
 {
 	/**
@@ -708,14 +706,7 @@ class FormTags
 		$addtext = '',
 		$attrs = []
 	) {
-/*		$parms['name'] = $id.$name;
-
-		try {
-			return CmsFormUtils::create_textarea($parms);
-		} catch (CmsException $e) {
-			return '';
-		}
-*/
+//		return CmsFormUtils::create_textarea(func_get_args());
 	}
 
 	/**
@@ -750,21 +741,12 @@ class FormTags
 		$addtext = '',
 		$attrs = []
 	) {
-/*		return create_textarea(
-			false,
-			$text,
-			$id.$name,
-			$classname,
-			$htmlid,
-			$encoding,
-			$stylesheet,
-			$cols,
-			$rows,
-			'',
-			'html',
-			$addtext,
-			$attrs
-		);
+/*		$parms = func_get_args() + [
+			'rows' => 15,
+			'cols' => 80,
+			'wantedsyntax' => 'html',
+		];
+		return CmsFormUtils::create_textarea($parms);
 */
 	}
 
