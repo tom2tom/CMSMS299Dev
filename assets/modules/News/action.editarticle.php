@@ -138,7 +138,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
                 if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
                     if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
                         $error = true;
-						$this->ShowErrors($this->Lang('error_upload'));
+                        $this->ShowErrors($this->Lang('error_upload'));
                     } else {
                         $error = false;
                         $value = news_admin_ops::handle_upload($articleid, $elem, $error);
@@ -265,7 +265,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
 
     if (!isset($params['apply']) && !$error) {
         // redirect out of here.
-		$this->SetMessage($this->Lang('articlesubmitted'));
+        $this->SetMessage($this->Lang('articlesubmitted'));
         $this->Redirect($id, 'defaultadmin', $returnid);
         return;
     }
@@ -409,7 +409,7 @@ while ($dbr && ($row = $dbr->FetchRow())) {
             $obj->field = $this->CreateInputHidden($id, $name, 0) . $this->CreateInputCheckbox($id, $name, 1, (int)$value);
             break;
         case 'textarea' :
-            $obj->field = $this->CreateTextArea(true, $id, $value, $name);
+            $obj->field = CmsFormUtils::create_textarea(['enablewysiwyg'=>1, 'modid'=>$id, 'name'=>$name, 'value'=>$value]);
             break;
         case 'file' :
             $del = '';
@@ -460,13 +460,25 @@ $smarty->assign('extra', $extra);
 $smarty->assign('urltext', $this->Lang('url'));
 $smarty->assign('news_url', $news_url);
 $smarty->assign('title', $title);
-$smarty->assign('inputcontent', $this->CreateTextArea(true, $id, $content, 'content'));
+$parms = [
+    'modid' => $id,
+    'name' => 'summary',
+    'class' => 'pageextrasmalltextarea',
+    'value' => $summary,
+];
 if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
-    $tmp = $this->CreateTextArea(true, $id, $summary, 'summary', '', '', '', '', '80', '1', '', '', 'style="height:5em;"');
-} else {
-    $tmp = $this->CreateTextArea(false, $id, $summary, 'summary', '', '', '', '', '80', '3');
+    $parms += [
+        'enablewysiwyg' => 1,
+        'addtext' => 'style="height:5em;"', //smaller again ...
+    ];
 }
-$smarty->assign('inputsummary', $tmp);
+$smarty->assign('inputsummary', CmsFormUtils::create_textarea($parms));
+$smarty->assign('inputcontent', CmsFormUtils::create_textarea([
+    'enablewysiwyg' => 1,
+    'modid' => $id,
+    'name' => 'content',
+    'value' => $content,
+]));
 $smarty->assign('useexp', $useexp);
 $smarty->assign('actionid', $id);
 $smarty->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'));
@@ -534,7 +546,7 @@ try {
         $smarty->assign('start_tab_preview', $this->StartTab('preview', $params));
         $smarty->assign('end_tab_preview', $this->EndTab());
     }
-	include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
+    include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
 }

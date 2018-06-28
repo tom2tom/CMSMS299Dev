@@ -55,32 +55,32 @@ if (isset($params['submit'])) {
     $error = false;
     if (empty($title)) {
         $this->ShowErrors($this->Lang('notitlegiven'));
-	    $error = true;
+        $error = true;
     }
     if (empty($content)) {
         $this->ShowErrors($this->Lang('nocontentgiven'));
-	    $error = true;
+        $error = true;
     }
     if ($useexp == 1) {
         if ($startdate >= $enddate) {
             $this->ShowErrors($this->Lang('error_invaliddates'));
-		    $error = true;
-		}
+            $error = true;
+        }
     }
 
     if ($news_url) {
         // check for starting or ending slashes
         if (startswith($news_url, '/') || endswith($news_url, '/')) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
-		    $error = true;
-		}
+            $error = true;
+        }
 
         // check for invalid chars.
         $translated = munge_string_to_url($news_url, false, true);
         if (strtolower($translated) != strtolower($news_url)) {
             $this->ShowErrors($this->Lang('error_invalidurl'));
             $error = true;
-		}
+        }
 
         // make sure this url isn't taken.
         cms_route_manager::load_routes();
@@ -225,7 +225,7 @@ if (isset($params['submit'])) {
                                               'extra' => $extra ]);
             // put mention into the admin log
             audit($articleid, 'News: ' . $title, 'Article added');
-			$this->SetMessage($this->Lang('articleadded'));
+            $this->SetMessage($this->Lang('articleadded'));
             $this->Redirect($id, 'defaultadmin', $returnid);
         } // if !$error
     } // outer if !$error
@@ -335,7 +335,7 @@ while ($dbr && ($row = $dbr->FetchRow())) {
             $obj->field = $this->CreateInputHidden($id, $name, $value != '' ? $value : '0') . $this->CreateInputCheckbox($id, $name, '1', $value != '' ? $value : '0');
             break;
         case 'textarea' :
-            $obj->field = $this->CreateTextArea(true, $id, $value, $name);
+            $obj->field = CmsFormUtils::create_textarea(['enablewysiwyg'=>1, 'modid'=>$id, 'name'=>$name, 'value'=>$value]);
             break;
         case 'file' :
             $name = "customfield_" . $row['id'];
@@ -402,33 +402,30 @@ $smarty->assign('start_tab_article', $this->StartTab('article', $params));
 $smarty->assign('end_tab_article', $this->EndTab());
 $smarty->assign('end_tab_content', $this->EndTabContent());
 $smarty->assign('warning_preview', $this->Lang('warning_preview'));
-
 $parms = [
-    'enablewysiwyg' => 1,
-    'name' => $id . 'content',
-    'text' => $content,
-    'rows' => 10,
-    'cols' => 80
-];
-$smarty->assign('inputcontent', CmsFormUtils::create_textarea($parms));
-
-$parms = [
-    'enablewysiwyg' => 0,
-    'name' => $id . 'summary',
-    'text' => $summary,
-    'rows' => 3,
-    'cols' => 80
+    'modid' => $id,
+    'name' => 'summary',
+    'class' => 'pageextrasmalltextarea',
+    'value' => $summary,
 ];
 if ($this->GetPreference('allow_summary_wysiwyg',1)) {
-	$parms['enablewysiwyg'] = 1;
-	$parms['rows'] = 1;
-	$parms['addtext'] = 'style="height:5em;"';
+    $parms += [
+        'enablewysiwyg' => 1,
+        'addtext' => 'style="height:5em;"', //smaller again ...
+    ];
 }
 $smarty->assign('inputsummary', CmsFormutils::create_textarea($parms));
+$smarty->assign('inputcontent', CmsFormUtils::create_textarea([
+    'enablewysiwyg' => 1,
+    'modid' => $id,
+    'name' => 'content',
+    'class' => 'pagesmalltextarea',
+    'value' => $content,
+]));
 
-if (count($custom_flds) > 0)
+if (count($custom_flds) > 0) {
     $smarty->assign('custom_fields', $custom_flds);
-
+}
 if ($this->CheckPermission('Approve News')) {
     $smarty->assign('statustext', lang('status'));
     $smarty->assign('statuses', array_flip($statusdropdown));
@@ -455,7 +452,7 @@ try {
         $smarty->assign('start_tab_preview', $this->StartTab('preview', $params));
         $smarty->assign('end_tab_preview', $this->EndTab());
     }
-	include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
+    include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
 }

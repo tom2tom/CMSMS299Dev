@@ -76,10 +76,13 @@ $smarty->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid
                                                    array('active_tab'=>'options')));
 $smarty->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>');
 $smarty->assign('prompt_stopwords',$this->Lang('stopwords'));
-$smarty->assign('input_stopwords',
-                $this->CreateTextArea(false, $id, str_replace(array("\r", "\n"), '',
-                                      $this->GetPreference('stopwords', $this->DefaultStopWords())),
-                                      'stopwords', '', '', '', '', '50', '6'));
+$smarty->assign('input_stopwords', CmsFormUtils::create_textarea([
+	'modid' => $id,
+    'name' =>'stopwords',
+	'rows' => 6,
+	'cols' => 50,
+	'value' => str_replace(["\n", "\r"], [' ', ' '], $this->GetPreference('stopwords', $this->DefaultStopWords())),
+]));
 $smarty->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'));
 $smarty->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>');
 

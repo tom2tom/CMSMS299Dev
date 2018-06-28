@@ -436,17 +436,22 @@ class Content extends \CMSMS\ContentBase
 		case 'pagemetadata':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_pagemeta',lang('help_title_content_pagemeta'));
 			return ['<label for="id_pagemetadata">'.lang('page_metadata').':</label>'.$help,
-						 CmsFormUtils::create_textarea(['name'=>'metadata','value'=>$this->MetaData(),
-															 'classname'=>'pagesmalltextarea',
-															 'width'=>80,'height'=>3,
-															 'id'=>'metadata'])];
+					CmsFormUtils::create_textarea([
+						'id'=>'metadata',
+						'name'=>'metadata',
+						'class'=>'pagesmalltextarea',
+						'value'=>$this->MetaData(),
+					])];
 
 		case 'pagedata':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_pagedata',lang('help_title_content_pagedata'));
 			return ['<label for="id_pagedata">'.lang('pagedata_codeblock').':</label>'.$help,
-						 CmsFormUtils::create_textarea(['name'=>'pagedata','value'=>$this->GetPropertyValue('pagedata'),
-															 'width'=>80,'height'=>3,
-															 'classname'=>'pagesmalltextarea','id'=>'id_pagedata'])];
+					CmsFormUtils::create_textarea([
+						'id'=>'id_pagedata',
+						'name'=>'pagedata',
+						'class'=>'pagesmalltextarea',
+						'value'=>$this->GetPropertyValue('pagedata'),
+					])];
 
 		case 'searchable':
 			$searchable = $this->GetPropertyValue('searchable');
