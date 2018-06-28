@@ -161,7 +161,7 @@ function cms_module_SetTemplate(&$modinstance, $tpl_name, $content, $mod_name = 
 	$tbl = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
 
 	$query = <<<EOS
-SELECT id FROM {$pref}layout_tpl_type WHERE originator=? AND name='moduleaction'
+SELECT id FROM {$pref}layout_tpl_type WHERE originator=? AND name='Moduleaction'
 EOS;
 	$tt = (int)$db->GetOne($query, [$mod_name]);
 	if (!$tt) {
@@ -172,7 +172,7 @@ name,
 description,
 owner,
 created,
-modified) VALUES (?,'moduleaction',?,-1,?,?)
+modified) VALUES (?,'Moduleaction',?,-1,?,?)
 EOS;
 		$db->Execute($query, [$mod_name, 'Action templates for module: '.$mod_name, $now, $now]);
 		$tt = $db->insert_id();
