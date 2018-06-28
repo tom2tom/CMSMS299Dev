@@ -63,7 +63,26 @@ $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'or
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // layout-templates table indices
-// TODO revisions
+// replace this 'unique' by non- (_3 below becomes the validator)
+$sqlarray = $dbdict->DropIndexSQL(
+    CMS_DB_PREFIX.'idx_layout_tpl_1',
+    CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,
+    'name'
+);
+$sqlarray = $dbdict->CreateIndexSQL(
+    CMS_DB_PREFIX.'idx_layout_tpl_1',
+    CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,
+    'name'
+);
+$dbdict->ExecuteSQLArray($sqlarray);
+
+$sqlarray = $dbdict->CreateIndexSQL(
+    CMS_DB_PREFIX.'idx_layout_tpl_3',
+    CMS_DB_PREFIX.'module_templates',
+    'originator,name',
+    ['UNIQUE']
+);
+$dbdict->ExecuteSQLArray($sqlarray);
 
 // migrate module templates to layout-templates table
 $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
