@@ -36,7 +36,7 @@ final class CMSContentManager extends CMSModule
     public function UninstallPreMessage() { return $this->Lang('preuninstall'); }
 
     /**
-     * Tests wether the currently logged in user has the ability to edit ANY content page
+     * Tests whether the currently logged in user has the ability to edit ANY content page
      */
     public function CanEditContent($content_id = -1)
     {

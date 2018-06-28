@@ -631,7 +631,7 @@ class CmsLayoutTemplate
 	}
 
    /**
-	* Test wether the user specified has edit ability for this template object
+	* Test whether the user specified has edit ability for this template object
 	*
 	* @param mixed $a Either a username (string) or an integer user id.
 	* @return bool
@@ -645,7 +645,7 @@ class CmsLayoutTemplate
 	}
 
    /**
-	* Get wether this template is listable in public template lists.
+	* Get whether this template is listable in public template lists.
 	*
 	* @return bool
 	* @since 2.1
@@ -656,7 +656,7 @@ class CmsLayoutTemplate
 	}
 
    /**
-	* Get wether this template is listable in public template lists.
+	* Get whether this template is listable in public template lists.
 	*
 	* @return bool
 	* @since 2.1
@@ -667,7 +667,7 @@ class CmsLayoutTemplate
 	}
 
    /**
-	* Get wether this template is listable in public template lists.
+	* Get whether this template is listable in public template lists.
 	*
 	* @param bool $flag The value for the listable attribute.
 	* @return bool

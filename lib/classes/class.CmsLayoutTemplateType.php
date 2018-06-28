@@ -359,7 +359,7 @@ class CmsLayoutTemplateType
 	 * This method throws an exception if an error is found in the integrity of the object.
 	 *
 	 * @throws CmsInvalidDataException
-	 * @param bool $is_insert Wether this is a new insert, or an update.
+	 * @param bool $is_insert Whether this is a new insert, or an update.
 	 */
 	protected function validate($is_insert = TRUE)
 	{
@@ -471,7 +471,7 @@ class CmsLayoutTemplateType
 	/**
 	 * Get a list of templates for the current template type.
 	 *
-	 * @see CmsLayoutTemplate::list_by_type
+	 * @see CmsLayoutTemplate::list_by_type()
 	 * @return Array of CmsLayoutTemplate objects.  or null.
 	 */
 	public function get_template_list()

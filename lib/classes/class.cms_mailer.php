@@ -479,7 +479,7 @@ class cms_mailer
   }
 
   /**
-   * Set a flag indicating wether or not SMTP authentication is to be used when sending
+   * Set a flag indicating whether or not SMTP authentication is to be used when sending
    * mails via the SMTP mailer.
    *
    * @param bool $flag

@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Classes and utilities for working with user preferences.
+#Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,15 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
-
-/**
- * Classes and utilities for working with user preferences.
- * @package CMS
- * @license GPL
- */
-
 
 /**
  * A static class for preferences stored with admin user accounts
@@ -30,7 +21,7 @@
  * @package CMS
  * @license GPL
  * @since 1.10
- * @author Robert Campbell (calguy1000@gmail.com)
+ * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
 final class cms_userprefs
 {
@@ -190,7 +181,7 @@ final class cms_userprefs
 	 *
 	 * @param int $userid The user id
 	 * @param string $key (optional) The preference name.  If not specified, all preferences for this user will be removed.
-	 * @param bool $like (optional) wether or not to use approximation in the preference name
+	 * @param bool $like (optional) whether or not to use approximation in the preference name
 	 */
 	public static function remove_for_user($userid,$key = '',$like = FALSE)
 	{
@@ -218,20 +209,20 @@ final class cms_userprefs
 	 * A method to remove a preference for the current user
 	 *
 	 * @param string $key The preference name.
-	 * @param bool $like (optional) wether or not to use approximation in the preference name
+	 * @param bool $like (optional) whether or not to use approximation in the preference name
 	 */
 	public static function remove($key,$like = FALSE)
 	{
 		return self::remove_for_user(self::_userid(),$key,$like);
 	}
-} // end of class
+} // class
 
 /**
  * Retrieve the value of the named preference for the given userid.
  *
  * @deprecated
  * @since 0.3
- * @see cms_siteprefs::get_for_user
+ * @see cms_siteprefs::get_for_user()
  * @param int $userid The user id
  * @param string  $prefname The preference name
  * @param mixed   $default The default value if the preference is not set for the given user id.
@@ -239,25 +230,20 @@ final class cms_userprefs
  */
 function get_preference($userid, $prefname, $default='')
 {
-  return cms_userprefs::get_for_user($userid,$prefname,$default);
+	return cms_userprefs::get_for_user($userid,$prefname,$default);
 }
 
 /**
- * Sets the given perference for the given userid with the given value.
+ * Sets the given preference for the given userid with the given value.
  *
  * @deprecated
  * @since 0.3
- * @see cms_siteprefs::set_for_user
+ * @see cms_siteprefs::set_for_user()
  * @param int $userid The user id
  * @param string  $prefname The preference name
  * @param mixed   $value The preference value (will be stored as a string)
  */
 function set_preference($userid, $prefname, $value)
 {
-  return cms_userprefs::set_for_user($userid, $prefname,$value);
+	return cms_userprefs::set_for_user($userid, $prefname,$value);
 }
-
-#
-# EOF
-#
-?>

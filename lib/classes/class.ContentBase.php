@@ -866,7 +866,7 @@ abstract class ContentBase
 	}
 
 	/**
-	 * Indicates wether the current user is permitted to view this content page.
+	 * Indicates whether the current user is permitted to view this content page.
 	 *
 	 * @since 1.11.12
 	 * @abstract
@@ -1654,7 +1654,7 @@ abstract class ContentBase
 	 * form input fields (usually $_POST)
 	 *
 	 * @param array $params The input array (usually from $_POST)
-	 * @param bool  $editing Indicates wether this is an edit or add operation.
+	 * @param bool  $editing Indicates whether this is an edit or add operation.
 	 * @abstract
 	 */
 	public function FillParams($params, $editing = false)
@@ -2054,7 +2054,7 @@ abstract class ContentBase
 	 * A utility method to generate a <select> field for selecting additional editors.
 	 * If a positive owner id is specified that user will be excluded from output select element.
 	 *
-	 * @see ContentBase::GetAdditionalEditorOptions
+	 * @see ContentBase::GetAdditionalEditorOptions()
 	 * @param array $addteditors Array of additional editors
 	 * @param int  $owner_id  The current owner of the page.
 	 * @return string HTML output
@@ -2084,7 +2084,7 @@ abstract class ContentBase
 	 *
 	 * @param array $addteditors An optional array of additional editor id's (group ids specified with negative values)
 	 * @return string The input element.
-	 * @see ContentBase::GetAdditionalEditorInput
+	 * @see ContentBase::GetAdditionalEditorInput()
 	 */
 	public function ShowAdditionalEditors($addteditors = null)
 	{

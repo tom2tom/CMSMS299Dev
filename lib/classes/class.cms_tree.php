@@ -67,7 +67,7 @@ class cms_tree
    *
    * @param string $tag_name The tag name to search for
    * @param mixed  $value The tag value to search for
-   * @param bool $case_insensitive Wether the value should be treated as case insensitive.
+   * @param bool $case_insensitive Whether the value should be treated as case insensitive.
    * @return cms_tree or null on failure.
    */
   public function &find_by_tag(string $tag_name,$value,bool $case_insensitive = FALSE)
@@ -153,7 +153,7 @@ class cms_tree
    * and have tree nodes hanging out there with no parents.
    *
    * @param cms_tree $node Reference to the node to be removed.
-   * @param bool  $search_children Wether to recursively search children.
+   * @param bool  $search_children Whether to recursively search children.
    * @return bool
    */
   protected function remove_node(cms_tree &$node, bool $search_children = false)

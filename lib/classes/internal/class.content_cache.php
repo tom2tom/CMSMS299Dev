@@ -295,7 +295,7 @@ final class content_cache
   }
 
   /**
-   * Indicates wether we have preloaded cached data
+   * Indicates whether we have preloaded cached data
    *
    * @return bool
    */

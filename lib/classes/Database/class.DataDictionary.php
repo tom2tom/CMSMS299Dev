@@ -338,7 +338,7 @@ abstract class DataDictionary
      * @internal
      *
      * @param string $name          The input name
-     * @param bool   $allowBrackets wether brackets should be quoted or not
+     * @param bool   $allowBrackets whether brackets should be quoted or not
      *
      * @return string
      */
@@ -476,7 +476,7 @@ abstract class DataDictionary
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      *
-     * @see CreateTableSQL
+     * @see DataDictionary::CreateTableSQL()
      */
     public function AddColumnSQL($tabname, $flds)
     {

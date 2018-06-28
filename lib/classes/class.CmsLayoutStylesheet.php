@@ -687,7 +687,7 @@ class CmsLayoutStylesheet
 	* This method does not throw exceptions if one requested id, or name does not exist.
 	*
 	* @param array $ids Array of integer stylesheet ids or an array of string stylesheet names.
-	* @param bool $deep wether or not to load associated data
+	* @param bool $deep whether or not to load associated data
 	* @return array Array of CmsLayoutStylesheet objects
 	* @throws CmsInvalidDataException
 	*/

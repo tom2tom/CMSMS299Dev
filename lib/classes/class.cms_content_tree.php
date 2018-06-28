@@ -35,7 +35,7 @@ class cms_content_tree extends cms_tree
 	 *
 	 * @param string $tag_name The tag name to search for
 	 * @param mixed  $value The tag value to search for
-	 * @param bool $case_insensitive Wether the value should be treated as case insensitive.
+	 * @param bool $case_insensitive Whether the value should be treated as case insensitive.
      * @param bool $usequick Optionally, when searching by id... uise the quickfind method if possible.
 	 * @return cms_tree
 	 */
@@ -152,7 +152,7 @@ class cms_content_tree extends cms_tree
 	 * A backwards compatibility method
 	 *
 	 * @deprecated
-	 * @see cms_tree::set_tag
+	 * @see cms_tree::set_tag()
 	 * @param string $key The tag name/key
 	 * @param mixed  $value The tag value
 	 */
@@ -167,7 +167,7 @@ class cms_content_tree extends cms_tree
 	 * A backwards compatibility method
 	 *
 	 * @deprecated
-	 * @see cms_tree::get_tag('id')
+	 * @see cms_tree::get_tag()
 	 * @return int The node id.
 	 */
 	public function getId()
@@ -181,7 +181,7 @@ class cms_content_tree extends cms_tree
 	 * A backwards compatibility method
 	 *
 	 * @deprecated
-	 * @see cms_tree::get_tag('id')
+	 * @see cms_tree::get_tag()
 	 * @param  string $key Tag name/key
 	 * @return mixed Node value.
 	 */
@@ -362,7 +362,7 @@ class cms_content_tree extends cms_tree
 	}
 
 	/**
-	 * A method to indicate wether the content object for this node is cached.
+	 * A method to indicate whether the content object for this node is cached.
 	 *
 	 * @return bool
 	 */

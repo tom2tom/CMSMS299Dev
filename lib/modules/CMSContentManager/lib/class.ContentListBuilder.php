@@ -684,7 +684,7 @@ final class ContentListBuilder
   }
 
   /**
-   * Given a content id, and a userid indicate wether the user has access to all peers of the content page.
+   * Given a content id, and a userid indicate whether the user has access to all peers of the content page.
    */
   private function _check_peer_authorship($content_id,$userid = null)
   {

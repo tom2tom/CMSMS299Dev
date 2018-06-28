@@ -192,7 +192,7 @@ try {
     };
 
     // algorithm
-    // given a desired module name, module version, and wether we want latest versions
+    // given a desired module name, module version, and whether we want latest versions
     // get module dependencies for the target module version
     // if we want latest versions of dependants
     //   get latest version info for all dependencies

@@ -124,7 +124,7 @@ if( isset( $params['submit'] ) ) {
         }
 
         // and generate the insert query
-        // note: there's no option for fesubmit wether it's searchable or not.
+        // note: there's no option for fesubmit whether it's searchable or not.
         $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news
               (news_id, news_category_id, news_title, news_data, summary,
                news_extra, status, news_date, start_time, end_time, create_date,

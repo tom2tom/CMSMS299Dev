@@ -41,7 +41,7 @@ class ContentTypePlaceHolder
 	public $friendlyname;
 
 	/**
-	 * @var Wether the type has been loaded
+	 * @var Whether the type has been loaded
 	 */
 	public $loaded;
 } //class

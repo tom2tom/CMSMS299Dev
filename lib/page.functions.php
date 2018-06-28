@@ -249,11 +249,11 @@ function is_sitedown()
  * @param string The name of the file that should be selected
  * @param string A comma separated list of extensions that should be displayed in the list
  * @param string An optional string with which to prefix each value in the output by
- * @param boolean Wether 'none' should be an allowed option
+ * @param boolean Whether 'none' should be an allowed option
  * @param string Text containing additional parameters for the dropdown element
  * @param string A prefix to use when filtering files
- * @param boolean A flag indicating wether the files matching the extension and the prefix should be included or excluded from the result set
- * @param boolean A flag indicating wether the output should be sorted.
+ * @param boolean A flag indicating whether the files matching the extension and the prefix should be included or excluded from the result set
+ * @param boolean A flag indicating whether the output should be sorted.
  * @return string
  */
 function create_file_dropdown(string $name,string $dir,string $value,string $allowed_extensions,string $optprefix='',

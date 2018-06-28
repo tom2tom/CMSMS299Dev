@@ -703,7 +703,7 @@ final class ModuleOperations
 	 * Activate a module
 	 *
 	 * @param string $module_name
-	 * @param bool $activate flag indicating wether to activate or deactivate the module
+	 * @param bool $activate flag indicating whether to activate or deactivate the module
 	 * @return bool
 	 */
 	public function ActivateModule(string $module_name,bool $activate = true)
@@ -856,7 +856,7 @@ final class ModuleOperations
 	 *
 	 * @param string $module_name The module name
 	 * @param string $version an optional version string.
-	 * @param bool $force an optional flag to indicate wether the module should be force loaded if necesary.
+	 * @param bool $force an optional flag to indicate whether the module should be force loaded if necesary.
 	 * @return CMSModule or a subclass of that
 	 */
 	public function &get_module_instance(string $module_name,string $version = '',bool $force = FALSE)
@@ -1029,7 +1029,7 @@ final class ModuleOperations
 	/**
 	 * Alias for the GetSyntaxHiglighter method.
 	 *
-	 * @see ModuleOperations::GetSyntaxHighlighter
+	 * @see ModuleOperations::GetSyntaxHighlighter()
 	 * @deprecated
 	 * @since 1.10
 	 * @param string $module_name
