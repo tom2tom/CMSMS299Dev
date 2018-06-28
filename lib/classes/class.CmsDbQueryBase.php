@@ -40,7 +40,7 @@ abstract class CmsDbQueryBase
 	 * The total number of rows matching the query.
 	 * This value is populated after execute() is called.
 	 *
-	 * @see execute()
+	 * @see CmsDbQueryBase::execute()
 	 */
 	protected $_totalmatchingrows = null;
 
@@ -149,7 +149,7 @@ abstract class CmsDbQueryBase
 	 *
 	 * If execute has not been called yet, this method will call it.
 	 *
-	 * @see MoveFirst()
+	 * @see CmsDbQueryBase::MoveFirst()
 	 */
 	public function Rewind()
 	{
@@ -193,7 +193,7 @@ abstract class CmsDbQueryBase
 	/**
 	 * Get the object for the current matching database row.
 	 *
-	 * @see $this->fields
+	 * @see ResultSet::fields
 	 * @return mixed
 	 */
 	abstract public function &GetObject();
@@ -206,7 +206,7 @@ abstract class CmsDbQueryBase
 	 *
 	 * The output of this method depends on the derived class.
 	 *
-	 * @see GetObject()
+	 * @see CmsDbQueryBase::GetObject()
 	 * @return array|null
 	 */
 	public function GetMatches()

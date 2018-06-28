@@ -1798,7 +1798,7 @@ $X = 1;
     /**
      * Set the HTML for the primary content for the page.
      *
-     * @see do_minimal()
+     * @see CmsAdminThemeBase::do_minimal()
      * /
     public function set_content( string $content )
     {

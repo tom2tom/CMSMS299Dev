@@ -91,7 +91,7 @@ class cms_cache_handler
    * If the group is not specified the current set group will be used.  If that is empty
    * then all cached values will be cleared.   Use with caution.
    *
-   * @see cms_cache_handler::set_group
+   * @see cms_cache_handler::set_group()
    * @param string $group
    * @return bool
    */
@@ -105,7 +105,7 @@ class cms_cache_handler
   /**
    * Get a cached value
    *
-   * @see cms_cache_handler::set_group
+   * @see cms_cache_handler::set_group()
    * @param string $key The primary key for the cached value
    * @param string $group An optional cache group name.
    * @return mixed
@@ -120,7 +120,7 @@ class cms_cache_handler
   /**
    * Test if a cached value exist
    *
-   * @see cms_cache_handler::set_group
+   * @see cms_cache_handler::set_group()
    * @param string $key The primary key for the cached value
    * @param string $group An optional cache group name.
    * @return bool
@@ -135,7 +135,7 @@ class cms_cache_handler
   /**
    * Erase a cached value
    *
-   * @see cms_cache_handler::set_group
+   * @see cms_cache_handler::set_group()
    * @param string $key The primary key for the cached value
    * @param string $group An optional cache group name.
    * @return bool
@@ -150,7 +150,7 @@ class cms_cache_handler
   /**
    * Add or replace a value in the cache
    *
-   * @see cms_cache_handler::set_group
+   * @see cms_cache_handler::set_group()
    * @param string $key The primary key for the cached value
    * @param mixed  $value the value to save
    * @param string $group An optional cache group name.

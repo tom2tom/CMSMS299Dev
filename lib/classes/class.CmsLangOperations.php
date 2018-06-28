@@ -227,7 +227,7 @@ final class CmsLangOperations
 	 * Note, under normal circumstances this will generate an error if called from a frontend action.
 	 * This function accepts variable arguments.
 	 *
-	 * @see lang_from_realm
+	 * @see CmsLangOperations::lang_from_realm()
 	 * @param string Key (required) the language string key
 	 * @param mixed  Optional further arguments.
 	 * @return string

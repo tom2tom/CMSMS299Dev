@@ -160,7 +160,7 @@ class ContentOperations
 	 *   content_type: string A content type name
 	 *   serialized_content: string Serialized form data
 	 *
-	 * @see ContentBase::ListContentTypes
+	 * @see ContentBase::ListContentTypes()
 	 * @param  array $data
 	 * @return ContentBase A content object derived from ContentBase
 	 */

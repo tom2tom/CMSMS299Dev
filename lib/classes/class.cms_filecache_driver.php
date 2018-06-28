@@ -126,7 +126,7 @@ class cms_filecache_driver extends cms_cache_driver
      * Get a cached value
      * if the $group parameter is not specified the current group will be used
      *
-     * @see cms_filecache_driver::set_group
+     * @see cms_filecache_driver::set_group()
      * @param string $key
      * @param string $group
      */
@@ -145,7 +145,7 @@ class cms_filecache_driver extends cms_cache_driver
      * Clear all cached values from a group
      * if the $group parameter is not specified the current group will be used
      *
-     * @see cms_filecache_driver::set_group
+     * @see cms_filecache_driver::set_group()
      * @param string $group
      */
     public function clear($group = '')
@@ -158,7 +158,7 @@ class cms_filecache_driver extends cms_cache_driver
      * Test if a cached value exists.
      * if the $group parameter is not specified the current group will be used
      *
-     * @see cms_filecache_driver::set_group
+     * @see cms_filecache_driver::set_group()
      * @param string $key
      * @param string $group
      */
@@ -178,7 +178,7 @@ class cms_filecache_driver extends cms_cache_driver
      * Erase a cached value
      * if the $group parameter is not specified the current group will be used
      *
-     * @see cms_filecache_driver::set_group
+     * @see cms_filecache_driver::set_group()
      * @param string $key
      * @param string $group
      */
@@ -199,7 +199,7 @@ class cms_filecache_driver extends cms_cache_driver
      * Set a cached value
      * if the $group parameter is not specified the current group will be used
      *
-     * @see cms_filecache_driver::set_group
+     * @see cms_filecache_driver::set_group()
      * @param string $key
      * @param mixed $value
      * @param string $group

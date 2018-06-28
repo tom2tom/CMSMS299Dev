@@ -24,7 +24,7 @@ namespace CMSMS\AdminAlerts;
  * @prop string $titlekey The language key (relative to the module) for the alert title.
  * @prop string $msgkey The language key (relative to the module) for the alert message.
  * @prop mixed  $msgargs Either an array of arguments to pass to the language function or a single string or value.
- * @see \CmsSecurityCheckTask
+ * @see CmsSecurityCheckTask
  */
 class TranslatableAlert extends Alert
 {

@@ -37,7 +37,7 @@ abstract class CmsExtraDataException extends \Exception
    * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
    * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
    *
-   * @see \Exception
+   * @see Exception
    */
   public function __construct(...$args)
   {
@@ -99,7 +99,7 @@ class CmsException extends CmsExtraDataException
      * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
      * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
      *
-   * @see \Exception
+   * @see Exception
      */
     public function __construct(...$args) {
         parent::__construct($args);
