@@ -9,7 +9,7 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
         'events'             => ['id' => 'event_id'],
         'group_perms'        => ['id' => 'group_perm_id'],
         'groups'             => ['id' => 'group_id'],
-        'permissions'        => ['id' => 'permission_id']
+        'permissions'        => ['id' => 'permission_id'],
         'users'              => ['id' => 'user_id'],
     ];
 
