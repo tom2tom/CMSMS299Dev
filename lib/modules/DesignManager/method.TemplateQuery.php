@@ -29,7 +29,7 @@ $where = [
 
 $limit = 1000;
 $offset = 0;
-$sortby = 'id';
+$sortby = 'name';
 $sortorder = 'ASC';
 
 $db = CmsApp::get_instance()->GetDb();
