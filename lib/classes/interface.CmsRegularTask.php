@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#An interface to define how tasks should work.
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#
-
-/**
- * Task class interface definition
- * @license GPL
- * @package CMS
- */
 
 /**
  * An interface to define how tasks should work.
@@ -84,5 +76,3 @@ interface CmsRegularTask
   public function on_failure($time = '');
 
 } // interface
-
-?>
