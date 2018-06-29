@@ -52,13 +52,12 @@ final class FilePicker extends CMSModule implements CMSMS\FilePickerInterface
      * end of private methods
      */
 
-    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
-    public function GetFriendlyName() { return $this->Lang('friendlyname');  }
-    public function GetVersion() { return '1.1'; }
-    public function GetHelp() { return $this->Lang('help'); }
-    public function IsPluginModule() { return FALSE; }
-    public function HasAdmin() { return TRUE; }
     public function GetAdminSection() { return 'files'; }
+    public function GetFriendlyName() { return $this->Lang('friendlyname');  }
+    public function GetHelp() { return $this->Lang('help'); }
+    public function GetVersion() { return '1.1'; }
+    public function HasAdmin() { return TRUE; }
+    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function HasCapability( $capability, $params = [] )
     {

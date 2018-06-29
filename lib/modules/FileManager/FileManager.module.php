@@ -19,30 +19,29 @@ include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
-    public function GetName() { return 'FileManager'; }
-    public function LazyLoadFrontend() { return TRUE; }
-    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
-    public function GetHeaderHTML() { return $this->_output_header_content(); }
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '1.7.0'; }
-    public function GetDependencies() { return ['FilePicker'=>'1.1']; }
-    public function GetHelp() { return $this->Lang('help'); }
-    public function GetAuthor() { return 'Morten Poulsen (Silmarillion)'; }
-    public function GetAuthorEmail() { return 'morten@poulsen.org'; }
-    public function IsPluginModule() { return FALSE; }
-    public function HasAdmin() { return TRUE; }
-    public function IsAdminOnly() { return TRUE; }
-    public function GetAdminSection() { return 'files'; }
-    public function GetAdminDescription() { return $this->Lang('moddescription'); }
-    public function MinimumCMSVersion() { return "2.2.2"; }
-    public function InstallPostMessage() { return $this->Lang('postinstall'); }
-    public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
-    public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
-    public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name);	}
-    public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }
-    public function VisibleToAdminUser() { return $this->AccessAllowed(); }
     public function AccessAllowed() { return $this->CheckPermission("Modify Files"); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
+    public function GetAdminDescription() { return $this->Lang('moddescription'); }
+    public function GetAdminSection() { return 'files'; }
+    public function GetAuthor() { return 'Morten Poulsen (Silmarillion)'; }
+    public function GetAuthorEmail() { return 'morten@poulsen.org'; }
+    public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+    public function GetDependencies() { return ['FilePicker'=>'1.1']; }
+    public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name);	}
+    public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+    public function GetHeaderHTML() { return $this->_output_header_content(); }
+    public function GetHelp() { return $this->Lang('help'); }
+    public function GetName() { return 'FileManager'; }
+    public function GetVersion() { return '1.7.0'; }
+    public function HasAdmin() { return TRUE; }
+    public function InstallPostMessage() { return $this->Lang('postinstall'); }
+    public function IsAdminOnly() { return TRUE; }
+    public function LazyLoadFrontend() { return TRUE; }
+    public function MinimumCMSVersion() { return "2.2.2"; }
+    public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
+    public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
+    public function VisibleToAdminUser() { return $this->AccessAllowed(); }
 
 	/**
 	 * @deprecated since 1.7 use FilePicker\Utils::get_file_icon()
