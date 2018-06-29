@@ -21,8 +21,8 @@ use cms_utils;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\HookManager;
-use CMSMS\ModuleOperations;
 use GetOpt\Operand;
+use ModuleManager\operations;
 use RuntimeException;
 use function audit;
 
@@ -37,16 +37,21 @@ class ModuleImportCommand extends Command
 
     public function handle()
     {
-        $moma = cms_utils::get_module('ModuleManager');
-        $ops = ModuleOperations::get_instance();
         $filename = $this->getOperand('filename')->value();
         if( !is_file( $filename) ) throw new RuntimeException("Could not find $filename to import");
 
+        $moma = cms_utils::get_module('ModuleManager');
+        $ops = new operations($moma);
         HookManager::do_hook('ModuleManager::BeforeModuleImport', [ 'file'=>$filename ] );
-        $moma->get_operations()->expand_xml_package( $filename, true, false );
+		try {
+	        expand_xml_package( $filename, true, false );
+		} catch (Exception $e) {
+	        audit('',$moma->GetName(),'Module import failed: '.$filename,', '.$e->GetMessage());
+			return;
+		}
         HookManager::do_hook('ModuleManager::AfterModuleImport', [ 'file'=>$filename ] );
 
-        audit('',$moma->GetName(),'Imported Module from '.$filename);
+        audit('',$moma->GetName(),'Imported module from '.$filename);
         echo "Imported: $filename\n";
     }
 } // class

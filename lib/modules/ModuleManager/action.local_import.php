@@ -1,4 +1,8 @@
 <?php
+
+use CMSMS\HookManager;
+use ModuleManager\operations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -18,20 +22,19 @@ if( $file['type'] != 'text/xml' ) {
     $this->RedirectToAdminTab();
 }
 
+$ops = new operations($this);
+
 try {
-    \CMSMS\HookManager::do_hook('ModuleManager::BeforeModuleImport', [ 'file'=>$file['name']] );
-    $this->get_operations()->expand_xml_package( $file['tmp_name'], true, false );
-    \CMSMS\HookManager::do_hook('ModuleManager::AfterModuleImport', [ 'file'=>$file['name']] );
+    HookManager::do_hook('ModuleManager::BeforeModuleImport', [ 'file'=>$file['name']] );
+    $ops->expand_xml_package( $file['tmp_name'], true, false );
+    HookManager::do_hook( 'ModuleManager::AfterModuleImport', [ 'file'=>$file['name']] );
 
     audit('',$this->GetName(),'Imported module from '.$file['name']);
     $this->Setmessage($this->Lang('msg_module_imported'));
 }
 catch( Exception $e ) {
+    audit('',$this->GetName(),'Module import failed: '.$file['name'].', '.$e->GetMessage());
     $this->SetError($e->GetMessage());
 }
 
 $this->RedirectToAdminTab();
-
-#
-# EOF
-#

@@ -1,5 +1,5 @@
 <?php
-# ModuleManager action: install module
+# ModuleManager module action: install module
 # Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,6 +18,7 @@
 use CMSMS\ModuleOperations;
 use ModuleManager\module_info;
 use ModuleManager\modulerep_client;
+use ModuleManager\operations;
 use ModuleManager\utils;
 
 if (!isset($gCms)) exit;
@@ -56,12 +57,12 @@ try {
             }
 
             // expand all of the xml files.
-            $ops = cmsms()->GetModuleOperations();
+            $ops = new operations($this);
             foreach( $modlist as $key => &$rec ) {
                 if( $rec['action'] != 'i' && $rec['action'] != 'u' ) continue;
                 $xml_filename = utils::get_module_xml($rec['filename'],$rec['size'],$rec['md5sum']??'');
                 $rec['tmpfile'] = $xml_filename;
-                $res = $ops->ExpandXMLPackage( $xml_filename, 1 );
+				$ops->expand_xml_package( $xml_filename, true ); //may throw ...
             }
 
             // now put this data into the session and redirect for the install part
@@ -81,7 +82,7 @@ try {
         unset($_SESSION[$key]);
 
         // install/upgrade the modules that need to be installed or upgraded.
-        $ops = cmsms()->GetModuleOperations();
+        $ops = ModuleOperations::get_instance();
         foreach( $modlist as $name => $rec ) {
             switch( $rec['action'] ) {
             case 'i': // install
@@ -307,6 +308,4 @@ catch( Exception $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-#
-# EOF
-#
+
