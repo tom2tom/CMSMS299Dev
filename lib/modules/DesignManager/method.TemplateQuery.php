@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//see also: class CmsLayoutTemplateQuery which (for now at least) this replicates
+
 $tbl1 = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
+$tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME;
 $typejoin = false;
 $catjoin = false;
 
@@ -193,23 +196,16 @@ $xprefixes = function($where) {
 };
 
 if ($typejoin) {
-    $tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME;
-    $query = <<<EOS
-SELECT TPL.id FROM {$tbl1} TPL LEFT JOIN {$tbl2} TT ON TPL.type_id = TT.id
-EOS;
+    $query = "SELECT TPL.id FROM $tbl1 TPL LEFT JOIN $tbl2 TT ON TPL.type_id = TT.id";
 	$xprefixes($where);
     if (strncmp($sortby,'CONCAT', 6) != 0) $sortby = 'TPL.'.$sortby;
 } elseif ($catjoin) {
-    $tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME;
-    $query = <<<EOS
-SELECT TPL.id FROM {$tbl1} TPL LEFT JOIN {$tbl2} TC ON TPL.type_id = TC.id
-EOS;
+    $tbl3 = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME;
+    $query = "SELECT TPL.id FROM $tbl1 TPL LEFT JOIN $tbl3 TC ON TPL.type_id = TC.id";
 	$xprefixes($where);
     $sortby = 'TPL.'.$sortby;
 } else {
-    $query = <<<EOS
-SELECT id FROM {$tbl1}
-EOS;
+    $query = "SELECT id FROM $tbl1";
 }
 
 $tmp = [];
