@@ -89,8 +89,12 @@ class operations
      * @param string $xmlfile The filepath of uploaded xml file containing data for the package
      * @param bool $overwrite Should we overwrite files if they exist?
      * @param bool $brief If set to true, less checking is done and no errors are returned
-     * @return array A hash of details about the installed module
-     */
+     * @return array A hash of details about the installed module (if it returns at all)
+	 * @throws CmsInvalidDataException
+	 * @throws CmsFileSystemException
+	 * @throws CmsLogicException
+	 * @throws RuntimeException
+	 */
     public function expand_xml_package( $xmlfile, $overwrite = false, $brief = false )
     {
         libxml_use_internal_errors(true);
