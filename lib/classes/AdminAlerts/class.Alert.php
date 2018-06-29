@@ -33,7 +33,7 @@ use function startswith;
  *
  * Alerts are stored as preferences in the database.  If the name is the name of the class or something else that is not data or time dependant the
  * only one instance of that alert can be stored in the database.
- * This class usses the ArrayAccess interface to behave like a PHP array.
+ * This class uses the ArrayAccess interface to behave like a PHP array.
  *
  * @since 2.2
  * @package CMS
