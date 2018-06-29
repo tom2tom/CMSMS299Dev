@@ -58,11 +58,9 @@ final class AdminLog extends \CMSModule
     public function GetFriendlyName() { return $this->Lang('friendlyname');  }
     public function GetVersion() { return '1.0'; }
     public function GetHelp() { return $this->Lang('help'); }
-    public function IsPluginModule() { return false; }
     public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'siteadmin'; }
     public function IsAdminOnly() { return true; }
-    public function LazyLoadAdmin() { return false; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function HasCapability($capability, $params = array())

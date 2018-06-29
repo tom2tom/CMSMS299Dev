@@ -22,8 +22,7 @@ final class DesignManager extends CMSModule
     public function MinimumCMSVersion()  { return '2.1'; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function IsPluginModule() { return false; }
-    public function GetAuthor() { return 'Calguy1000'; }
+    public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function HasAdmin() { return true; }
     public function GetAdminSection() { return 'layout'; }

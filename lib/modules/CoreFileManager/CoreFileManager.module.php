@@ -30,7 +30,6 @@ final class CoreFileManager extends CMSModule
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return true; }
-    public function IsPluginModule() { return false; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
     public function MinimumCMSVersion() { return '2.2.900'; }
@@ -44,7 +43,7 @@ final class CoreFileManager extends CMSModule
 
     public function GetChangeLog()
 	{
-        return ''.file_get_contents(cms_join_path(__DIR__, 'lib', 'doc', 'changelog.htm'));
+        return ''.@file_get_contents(cms_join_path(__DIR__, 'lib', 'doc', 'changelog.htm'));
     }
 
     public function GetAdminMenuItems()
