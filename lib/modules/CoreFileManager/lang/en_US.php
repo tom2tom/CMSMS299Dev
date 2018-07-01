@@ -109,22 +109,15 @@ $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
 <p>This module provides file management functions for this website.</p>
 <h3>Support</h3>
-<p>This module is provided as-is. Please read the text of the license for the full disclaimer.
-Just to be clear, there's no guarantee of support. However, there are some resources available
-to help you with it:</p>
-<ul>
-<li>for the latest version of this module, or to file a bug report, go to the
-<a href="http://dev.cmsmadesimple.org/projects/TODO">module's Forge page</a></li>
-<li>discussion of this module may be found in the
-<a href="http://forum.cmsmadesimple.org">CMS Made Simple Forums</a></li>
-<li>you may have some success emailing the author directly</li>
-</ul>
-<h3>Copyright and license</h3>
-<p>Copyright &copy; 2018 Tom Phane &lt;tomphan@cmsmadesimple.org&gt;<br />
-All rights reserved.</p>
-<p>Use of this module is licensed under version 2 (or at your discretion a later version) of the
-<a href="https://www.gnu.org/licenses/gpl-2.0.html">GNU General Public License</a>.
-The module must not be used otherwise than in accordance with the applicable license.</p>
+<p>This module is provided as-is. Please read the text of the license for the full disclaimer.</p>
+<p>For help:<ul>
+<li>discussion may be found in the <a href="http://forum.cmsmadesimple.org">CMS Made Simple Forums</a>; or</li>
+<li>you may have some success emailing the author directly.</li>
+</ul></p>
+<p>For the latest version of the module, or to report a bug, visit the module's <a href="http://dev.cmsmadesimple.org/projects/corefilemanager">forge-page</a>.</p>
+<h3>Copyright and License</h3>
+<p>Copyright &copy; 2018 Tom Phane &lt;tomph@cmsmadsimple.org&gt;. All rights reserved.</p>
+<p>This module has been released under version 3 of the <a href="http://www.gnu.org/licenses/agpl.html">GNU Affero General Public License</a>, and must not be used except in accordance with the terms of that license, or any later version of that license which is granted by the module's distributor.</p>
 EOT;
 
 // I
