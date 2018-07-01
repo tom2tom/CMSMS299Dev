@@ -257,7 +257,7 @@ AS tmp1';
 		if (!$this->_rs) {
 			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
-		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
+		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()'); //$this->_rs->RecordCount(); N/A until all processed
 	}
 
 	/**
