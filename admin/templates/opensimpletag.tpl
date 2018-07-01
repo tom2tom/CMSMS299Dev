@@ -2,12 +2,11 @@
 <form id="userplugin" action="{$selfurl}{$urlext}" method="post">
 <div class="hidden">
   <input type="hidden" name="oldtagname" value="{$name}" />
-  <textarea id="reporter" name="code" style="display:none;"></textarea>
 </div>
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('name')}* <label for="name">{$t}:</label>
-      {cms_help realm='tags' key2='help_tagname' title={$t}}
+      {cms_help realm='tags' key2='help_tagname' title=$t}
     </p>
     <p class="pageinput">
       <input type="text" id="name" name="tagname" value="{if $name!='-1'}{$name}{/if}" size="50" maxlength="50" />
@@ -16,7 +15,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('description')}<label for="description">{$t}:</label>
-      {cms_help realm='tags' key2='help_tagdesc' title={$t}}
+      {cms_help realm='tags' key2='help_tagdesc' title=$t}
     </p>
     <p class="pageinput">
       <textarea id="description" name="description" rows="3" cols="80">{$description}</textarea>
@@ -25,7 +24,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang('parameters')}<label for="parameters">{$t}:</label>
-      {cms_help realm='tags' key2='help_tagparams' title={$t}}
+      {cms_help realm='tags' key2='help_tagparams' title=$t}
     </p>
     <p class="pageinput">
       <textarea id="parameters" name="parameters" rows="3" cols="80">{$parameters}</textarea>
@@ -34,7 +33,7 @@
   <div class="pageoverflow">
     <p class="pagetext">
       {$t=lang_by_realm('tags','license')}<label for="license">{$t}:</label>
-      {cms_help realm='tags' key2='help_taglicense' title={$t}}
+      {cms_help realm='tags' key2='help_taglicense' title=$t}
     </p>
     <p class="pageinput">
       <textarea id="license" name="license" rows="5" cols="80">{$license}</textarea>
@@ -42,10 +41,12 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      {$t=lang('code')}* <label for="Editor">{$t}:</label>
-      {cms_help realm='tags' key2='help_tagcode' title={$t}}
+      {$t=lang('code')}* <label for="code">{$t}:</label>
+      {cms_help realm='tags' key2='help_tagcode' title=$t}
     </p>
-    <div id="Editor" class="pageinput">{$code}</div>
+    <p class="pageinput">
+      <textarea id="code" name="code" rows="10" cols="80">{$code}</textarea>
+    </p>
   </div>
   <div class="pregap">
     <button type="submit" name="submit" id="submitme" class="adminsubmit icon check">{lang('submit')}</button>
