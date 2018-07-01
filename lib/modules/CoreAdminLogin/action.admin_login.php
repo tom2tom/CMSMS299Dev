@@ -17,10 +17,21 @@
 
 namespace CoreAdminLogin;
 
+use cms_userprefs;
+use cms_utils;
 use CMSMS\AdminUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\LoginOperations;
+use CmsNlsOperations;
 use CoreAdminLogin\LoginUserError;
+use Exception;
+use RuntimeException;
+use const CMS_ROOT_URL;
+use function audit;
+use function cleanValue;
+use function cms_warning;
+use function debug_buffer;
+use function redirect;
 
 if( !isset($gCms) ) exit;
 
