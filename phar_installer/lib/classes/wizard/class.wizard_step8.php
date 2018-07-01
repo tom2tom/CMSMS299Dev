@@ -137,7 +137,7 @@ class wizard_step8 extends wizard_step
 			 'enablesitedownmessage' => 1,
 			 'frontendlang' => 'en_US',
 			 'global_umask' => '022',
-			 'loginmodule' => 'CoreAdminLogin',
+			 'loginmodule' => '',  // login  processing by current theme 
 			 'logintheme' => reset($arr),
 			 'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved."'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
 			 'sitemask' => '', //what is this?
