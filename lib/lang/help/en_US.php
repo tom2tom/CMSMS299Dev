@@ -31,14 +31,6 @@ $lang['help_myaccount_username'] = 'Your username is your unique name for the CM
 $lang['help_myaccount_wysiwyg'] = 'Select which WYSIWYG <em>(What You See Is What You Get)</em> module to use when editing HTML content.  You might also select &quot;None&quot; if you are comfortable with HTML.  The list of available WYSIWYG editors might change depending on what the site administrator has configured.';
 
 /* S */
-$lang['settings_acecdn'] = <<<'EOS'
-An URL which specifies which, and from where, text-editor source files will be downloaded at runtime in preparation for using the editor. The last part of the URL will often be a version-number.
-<br /><br />
-Example: https://somewhere.com/ace/1.2.3
-<br /><br />
-Arguably the best source is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'ace', omit the trailing '/ace.js')
-EOS;
-$lang['settings_acetheme'] = 'Specify the theme name (lower case, any \' \' replaced by \'_\'). Themes may be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9</a>.';
 $lang['settings_adminlog_lifetime'] = 'This setting indicates the maximum amount of time that entries in the Admin log should be retained.';
 $lang['settings_autoclearcache'] = 'This option allows you to specify the maximum age <em>(in days)</em> before files in the cache directory will be deleted.<br/><br/>This option is useful to ensure that cached files are regenerated periodically, and that the file system does not become polluted with old and unnecessary files.  An ideal value for this field is 14 or 30 days.<br /><br /><strong>Note:</strong> Cached files are cleared at most once per day.';
 $lang['settings_autocreate_flaturls'] = 'If SEF/pretty URLs are enabled, and the option to auto-create URLs is enabled, this option indicates hat those auto-created URLS should be flat <em>(i.e: identical to the page alias)</em>.  <strong>Note:</strong> The two values do not need to remain identical, the URL value can be changed to be different than the page alias in subsequent page edits';
@@ -51,6 +43,8 @@ $lang['settings_checkversion'] = 'If enabled, the system will perform a daily ch
 $lang['settings_contentimage_path'] = 'This setting is used when a page template contains the {content_image} tag.  The directory specified here is used to provide a selection of images to associate with the tag.<br /><br />Relative to the uploads path, specify a directory name that contains the paths containing files for the {content_image} tag.  This value is used as a default for the dir parameter';
 $lang['settings_cssnameisblockname'] = 'If enabled, the content block name <em>(id)</em> will be used as a default value for the cssname parameter for each content block.<br/><br/>This is useful for WYSIWYG editors.  The stylesheet (block name) can be loaded by the WYSIWYG editor and provide an appearance that is closer to that of the front web page.<br/><br/><strong>Note:</strong> WYSIWYG Editors might not read information from the supplied stylesheets (if they exist) depending upon their settings and capabilities.';
 $lang['settings_disablesafemodewarn'] = 'This option will disable a warning notice if CMSMS detects that <a href="http://php.net/manual/en/features.safe-mode.php" class="external" target="_blank">PHP Safe Mode</a> has been detected.<br /><br /><strong>Note:</strong> Safe mode has been deprecated as of PHP 5.3.0 and removed for PHP 5.4.0.  CMSMS Does not support operation under safe mode, and our support team will not render any technical assistance for installs where safe mode is active';
+$lang['settings_editor'] = 'Select one of these, to use for text editing with syntax hightlighting and many other advanced capabilities.<br /><br />Each such editor requires a substantial download at runtime, and if that is a problem, disable this capability.';
+$lang['settings_editortheme'] = 'Specify the theme name (lower case, any \' \' replaced by \'_\').';
 $lang['settings_enablenotifications'] = 'This option will enable notifications being shown at the top of the page in each Admin request.  This is useful for important notifications about the system that might require user action.  It is possible for each Admin user to turn off notifications in their preferences.';
 //$lang['settings_enablesitedown'] = 'This option allow you to toggle the website as "down for maintenance" for website visitor';
 $lang['settings_enablewysiwyg'] = 'Enable WYSIWYG editor in the text area below';
