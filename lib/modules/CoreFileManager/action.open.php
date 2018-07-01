@@ -16,6 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+
+use CMSMS\AdminUtils;
+use CMSMS\FileTypeHelper;
+
 if (!isset($gCms)) exit;
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
 if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
@@ -39,7 +43,7 @@ if (isset($params['close'])) {
 // various globals used downstream
 global $CFM_IS_WIN, $helper;
 $CFM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
-$helper = new \CMSMS\FileTypeHelper($config);
+$helper = new FileTypeHelper($config);
 
 global $bytename, $kbname, $mbname, $gbname; //$tbname
 $bytename = $this->Lang('bb');
@@ -169,10 +173,8 @@ if ($is_arch && $filenames) {
 }
 $smarty->assign('about', $items);
 
-if (!$edit) {
-    $smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
-      ['p'=>$CFM_RELPATH, 'view'=>$params['view']]));
-}
+$smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
+  ['p'=>$CFM_RELPATH, 'view'=>!$edit, 'edit'=>$edit]));
 
 $baseurl = $this->GetModuleURLPath();
 $css = <<<EOS
@@ -182,40 +184,8 @@ EOS;
 $this->AdminHeaderContent($css);
 
 if ($is_text) {
-    if ($edit) {
-        $fixed = 'false';
-        $smarty->assign('edit', 1);
-        $smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
-            ['p'=>$CFM_RELPATH, 'edit'=>$params['edit']]));
-        $smarty->assign('reporter', CmsFormUtils::create_input([
-         'type'=>'textarea',
-         'name'=>'content',
-         'modid'=>$id,
-         'htmlid'=>'reporter',
-         'style'=>'display:none;',
-        ]));
-    } else {
-        $fixed = 'true';
-    }
-
-	$js = CMSMS\AdminUtils::get_editor_script($edit, '', 'Editor');
-
-    if ($edit) {
-		//CHECKME any content validation relevant?
-        $js .= <<<EOS
-<script type="text/javascript">
-//<![CDATA[
-$(document).ready(function() {
- $('form').on('submit', function(ev) {
-  $('#reporter').val(editor.session.getValue());
- });
-});
-//]]>
-</script>
-
-EOS;
-	}
+	$js = AdminUtils::get_editor_script(['edit'=>$edit, 'htmlid'=>'content', 'typer'=>$fullpath]);
     $this->AdminBottomContent($js);
-} //is text
+}
 
 echo $this->ProcessTemplate('open.tpl');
