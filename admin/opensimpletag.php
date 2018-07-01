@@ -90,7 +90,7 @@ if ($tagname != '-1') {
 $edit = check_permission($userid, 'Modify Simple Tags');
 //TODO also $_GET['mode'] == 'edit'
 
-$js = AdminUtils::get_editor_script($edit, 'php', 'Editor');
+$js = AdminUtils::get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
 
 if ($edit) {
     $s1 = json_encode(lang('error_udt_name_chars'));
@@ -106,13 +106,14 @@ $(document).ready(function() {
    cms_notify('error', $s1);
    return false;
   }
-  v = editor.session.getValue().trim();
+  var el = $('#code');
+  v = el.val().trim();
   if (v === '') {
    ev.preventDefault();
    cms_notify('error', $s2);
    return false;
   }
-  $('#reporter').val(v);
+  el.val(v);
  });
 });
 //]]>

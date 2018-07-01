@@ -231,7 +231,7 @@ try {
 
 //TODO ensure flexbox css for .hbox, .boxchild
 
-    $js = AdminUtils::get_editor_script(true, 'smarty', 'Editor');
+    $js = AdminUtils::get_editor_script(['edit'=>true, 'htmlid'=>$id.'contents', 'typer'=>'smarty']);
 
     $script_url = CMS_SCRIPTS_URL;
     $do_locking = ($tpl_id > 0 && isset($lock_timeout) && $lock_timeout > 0) ? 1:0;
@@ -289,7 +289,6 @@ $(document).ready(function() {
    // unlock the item, and submit the form
    var self = this;
    $('#form_edittemplate').lockManager('unlock').done(function() {
-    $('#content').val(editor.session.getValue());
     var form = $(self).closest('form'),
       el = $('<input type="hidden"/>');
     el.attr('name',$(self).attr('name')).val($(self).val()).appendTo(form);

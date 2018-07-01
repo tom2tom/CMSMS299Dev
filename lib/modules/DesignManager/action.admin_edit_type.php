@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Templates') ) return;
 
@@ -48,8 +50,8 @@ try {
     $this->RedirectToAdminTab();
   }
 
+  $js = AdminUtils::get_editor_script(['edit'=>true, 'htmlid'=>$id.'dflt_contents', 'typer'=>'smarty']);
   $s = json_encode($this->Lang('confirm_reset_type'));
-  $js = CMSMS\AdminUtils::get_editor_script(true, 'smarty', 'Editor');
   $js .= <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -57,7 +59,6 @@ $(document).ready(function() {
  $('[name={$id}reset]').on('click', function(ev) {
   var self = this;
   cms_confirm($s).done(function() {
-   $('#type_dflt_contents').val(editor.session.getValue());
    $(self).closest('form').submit();
   });
   return false;

@@ -19,7 +19,6 @@ namespace CMSMS;
 
 use cms_http_request;
 use cms_siteprefs;
-use cms_userprefs;
 use cms_utils;
 use CmsApp;
 use CMSMS\internal\Smarty;
@@ -33,7 +32,7 @@ use const CMS_VERSION;
 use function cms_join_path;
 use function cms_module_places;
 use function endswith;
-use function get_userid;
+use function lang;
 use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
@@ -326,118 +325,48 @@ final class AdminUtils
 	}
 
 	/**
-	 * Get javascript for initialization of ace text-editor
-     * The script includes creation of a var 'editor', which may be used in context e.g. to
-     *  editor.getValue() to retrieve content and park it somewhere submittable.
+	 * Get javascript for initialization of the configured 'advanced'
+	 *  (a.k.a. wysiwyg) text-editor
 	 * @since 2.3
-	 * @param bool $edit       Optional flag whether content is editable. Default false (i.e. just for display)
-	 * @param string $typer    Optional filetype-identifier, an absolute filepath or at least an extension or pseudo (like 'smarty'). Default ''
-	 * @param string $selector Optional page-element id where the content will be placed.  Default 'Editor'
-	 * @param string $style    Optional override for the normal editor theme/style.  Default ''
+	 * @param array $params  Configuration details. Recognized members are:
+	 *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+	 *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
+	 *  string 'htmlid' id of the page-element whose content is to be edited. Mandatory.
+	 *  string 'style'  override for the normal editor theme/style.  Default ''
+	 *  string 'typer'  content-type identifier, an absolute filepath or at least
+	 *    an extension or pseudo (like 'smarty'). Default ''
+	 *  string 'workid' id of a div to be created (by some editors) to process
+	 *    the content of the htmlid-element. Default 'Editor'
+	 *
 	 * @return string
 	 */
-	public static function get_editor_script(bool $edit = false, string $typer = '', string $selector = 'Editor', string $style = '') : string
+	public static function get_editor_script(array $params) : string
 	{
-		$fixed = ($edit) ? 'false' : 'true';
-
-		if( $typer ) {
-			if( is_file($typer) ) {
-				$filepath = $typer;
-				$mode = '';
-			} else {
-				$filepath = __FILE__; //default php mode
-				$p = strrpos($typer, '.');
-				$mode = substr($typer, ($p !== false) ? $p+1:0);
-				$mode = strtolower($mode);
-				// some of ace's many lexers which are more likely in this context
-				$known = [
-					'css' => 1,
-					'htm' => 'html',
-					'html' => 1,
-					'ini' => 1,
-					'js' => 'javascript',
-					'javascript' => 1,
-					'php' => 1,
-					'smarty' => 1,
-					'tpl' => 'smarty',
-					'text' => 1,
-					'txt' => 'text',
-					'xml' => 1,
-				];
-				if( array_key_exists($mode, $known) ) {
-					if( $known[$mode] !== 1 ) $mode = $known[$mode];
-				} else {
-					$mode = '';
+		$handler = cms_siteprefs::get('syntax_editor');
+		if( $handler ) {
+			list($modname, $edname) = explode('::', $handler);
+			if( !$edname ) {
+				$edname = $modname;
+			}
+			$modinst = cms_utils::get_module($modname);
+			if( $modinst && ($modinst instanceof SyntaxEditor) ) {
+				$js = $modinst->GetEditorScript($edname, $params);
+				if( $js ) {
+					return $js;
 				}
 			}
 		}
-		else {
-			$filepath = __FILE__; //php mode
-			$mode = '';
-		}
 
-		$cdn = cms_siteprefs::get('ace_cdn', cms_siteprefs::ACE_CDN);
-		$style = cms_userprefs::get_for_user(get_userid(false), 'ace_theme');
-		if (!$style) {
-			$style = cms_siteprefs::get('ace_theme', cms_siteprefs::ACE_THEME);
-		}
-		$style = strtolower($style);
-
-		$js = <<<EOS
-<script type="text/javascript" src="$cdn/ace.js"></script>
-
-EOS;
-		if( !$mode ) {
-			$js .= <<<EOS
-<script type="text/javascript" src="$cdn/ext-modelist.js"></script>
-
-EOS;
-		}
-		$js .= <<<EOS
+		$s = lang('error_internal');
+        return <<<EOS
 <script type="text/javascript">
 //<![CDATA[
-var editor = ace.edit("$selector");
-
-EOS;
-		if( $mode ) {
-			$js .= <<<EOS
-editor.session.setMode("ace/mode/$mode");
-
-EOS;
-		}
-		else {
-			$js .= <<<EOS
-(function () {
- var modelist = ace.require("ace/ext/modelist");
- var mode = modelist.getModeForPath("$filepath").mode;
- editor.session.setMode(mode);
-}());
-
-EOS;
-		}
-//TODO runtime adjustment of maxLines, to keep hscrollbar at window-bottom
-		$js .= <<<EOS
-editor.setOptions({
- readOnly: $fixed,
- autoScrollEditorIntoView: true,
- showPrintMargin: false,
- maxLines: Infinity
-});
-editor.renderer.setOptions({
- showGutter: true,
- displayIndentGuides: true,
- showLineNumbers: false,
- theme: "ace/theme/$style"
-});
 $(document).ready(function() {
- var sz=$('#$selector').css('font-size');
- editor.setOption('fontSize', sz);
+ cms_notify('error', '$s - cannot find a WYSIWYG editor');
 });
 //]]>
 </script>
 
 EOS;
-		return $js;
 	}
-
 } // class

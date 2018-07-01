@@ -155,7 +155,7 @@ try {
 
     //TODO ensure flexbox css for .hbox, .boxchild
 
-    $js = AdminUtils::get_editor_script(true, 'css', 'Editor');
+    $js = AdminUtils::get_editor_script(['edit'=>true, 'htmlid'=>$id.'content', 'typer'=>'css']);
 
     $script_url = CMS_SCRIPTS_URL;
     $uid = get_userid(false);
@@ -214,7 +214,6 @@ $(document).ready(function() {
     // unlock the item, and submit the form
     var self = this;
     $('#form_editcss').lockManager('unlock').done(function() {
-      $('#stylesheet').val(editor.session.getValue());
       var form = $(self).closest('form'),
         el = $('<input type="hidden" />');
       el.attr('name', $(self).attr('name')).val($(self).val()).appendTo(form);
