@@ -20,7 +20,7 @@ use CMSMS\FileType;
 
 require_once(__DIR__.'/lib/class.ProfileDAO.php');
 
-final class FilePicker extends CMSModule implements CMSMS\FilePickerInterface
+final class FilePicker extends CMSModule implements CMSMS\FilePicker
 {
     protected $_dao;
     protected $_typehelper;
