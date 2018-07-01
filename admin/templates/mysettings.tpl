@@ -1,7 +1,7 @@
 <form action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="old_default_cms_lang" value="{$old_default_cms_lang}" />
   <div class="pageinput postgap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 
@@ -17,8 +17,6 @@
           {html_options options=$language_opts selected=$default_cms_language}
         </select>
       </p>
-    </div>
-    <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('date_format_string')}<label for="dateformat">{$t}:</label>
         {cms_help key2='help_myaccount_dateformat' title=$t}
@@ -41,21 +39,6 @@
           {html_options options=$wysiwyg_opts selected=$wysiwyg}
         </select>
       </p>
-    </div>
-
-    <div class="pageoverflow">
-      <p class="pagetext">
-         {$t=lang('syntaxhighlightertouse')}<label for="syntaxh">{$t}:</label>
-         {cms_help key2='help_myaccount_syntax' title=$t}
-      </p>
-      <p class="pageinput">
-        <select id="syntaxh" name="syntaxhighlighter">
-         {html_options options=$syntax_opts selected=$syntaxhighlighter}
-        </select>
-      </p>
-    </div>
-
-    <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('ce_navdisplay')}<label for="ce_navdisplay">{$t}:</label>
         {cms_help key2='help_myaccount_ce_navdisplay' title=$t}
@@ -66,9 +49,6 @@
           {html_options options=$opts selected=$ce_navdisplay}
         </select>
       </p>
-    </div>
-
-    <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('adminindent')}<label for="indent">{$t}:</label>
         {cms_help key2='help_myaccount_indent' title=$t}
@@ -76,16 +56,12 @@
       <p class="pageinput">
         <input class="pagenb" type="checkbox" id="indent" name="indent"{if $indent} checked="checked"{/if} />
       </p>
-    </div>
-
-    <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('defaultparentpage')}<label for="parent_id">{$t}:</label>
         {cms_help key2='help_myaccount_dfltparent' title=$t}
       </p>
       <p class="pageinput">{$default_parent}</p>
     </div>
-    <!-- content display //-->
   </fieldset>
 
   <fieldset class="pregap">
@@ -100,17 +76,27 @@
          {html_options options=$themes_opts selected=$admintheme}
         </select>
       </p>
-    </div>
-    <div class="pageoverflow">
+     {if !empty($editors)}
+       <p class="pagetext">
+        {$t=lang('text_editor_touse')}<label>{$t}:</label>
+        {cms_help key2='settings_editor' title=$t}
+       </p>
+      {$t=lang('about')}
+      {foreach $editors as $i=>$one}
+       <input type="radio" name="editortype" id="edt{$i}" value="{$one->value}"{if !empty($one->checked)} checked{/if}>
+       <label for="edt{$i}">{$one->label}</label>
+       {if !empty($one->mainkey)}
+       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$infoicon}</span>
+       {/if}<br />
+      {/foreach}
       <p class="pagetext">
-        {$t=lang('text_editor_theme')}<label for="editortheme">{$t}:</label>
-        {cms_help key2='settings_acetheme' title=$t}
+        <label for="editortheme">{lang('text_editor_theme')}:</label>
+        <span id="theme_help">{$infoicon}</span>
       </p>
       <p class="pageinput">
-        <input id="editortheme" type="text" name="ace_theme" size="30" value="{$acetheme}" maxlength="40" />
+        <input id="editortheme" type="text" name="editortheme" size="30" value="{$editortheme}" maxlength="40" />
       </p>
-    </div>
-    <div class="pageoverflow">
+     {/if}
       <p class="pagetext">
         {$t=lang('homepage')}<label for="homepage">{$t}:</label>
         {cms_help key2='help_myaccount_homepage' title=$t}
@@ -118,8 +104,6 @@
       <p class="pageinput">
         {$homepage}
       </p>
-    </div>
-    <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('admincallout')}<label for="admincallout">{$t}:</label>
         {cms_help key2='help_myaccount_admincallout' title=$t}
@@ -127,8 +111,6 @@
       <p class="pageinput">
         <input class="pagenb" id="admincallout" type="checkbox" name="bookmarks"{if $bookmarks} checked="checked"{/if} />
       </p>
-    </div>
-    <div class="pageoverflow">
       <p class="pagetext">
         {$t=lang('hide_help_links')}<label for="hidehelp">{$t}:</label>
         {cms_help key2='help_myaccount_hidehelp' title=$t}
@@ -140,7 +122,7 @@
   </fieldset>
 
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>

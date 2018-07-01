@@ -544,25 +544,32 @@
       </p>
     </div>
   </fieldset>
+  {if $editors}
   <fieldset>
     <legend>{lang('text_editor_settings')}</legend>
     <div class="pageoverflow">
       <p class="pagetext">
-        {$t=lang('ace_cdnurl')}<label for="editorcdn">{$t}:</label>
-        {cms_help key2='settings_acecdn' title=$t}
+        {$t=lang('default_editor')}<label>{$t}:</label>
+        {cms_help key2='settings_editor' title=$t}
       </p>
-        <input id="editorcdn" type="text" name="ace_cdn" size="50" value="{$ace_cdn}" maxlength="80" />
-      <p class="pageinput">
-      </p>
+      {$t=lang('about')}
+      {foreach $editors as $i=>$one}
+       <input type="radio" name="editortype" id="edt{$i}" value="{$one->value}"{if !empty($one->checked)} checked{/if}>
+       <label for="edt{$i}">{$one->label}</label>
+       {if !empty($one->mainkey)}
+       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$infoicon}</span>
+       {/if}<br />
+      {/foreach}
       <p class="pagetext">
-        {$t=lang('ace_theme')}<label for="editortheme">{$t}:</label>
-        {cms_help key2='settings_acetheme' title=$t}
+        <label for="editortheme">{lang('text_editor_deftheme')}:</label>
+        <span id="theme_help">{$infoicon}</span>
       </p>
       <p class="pageinput">
-        <input id="editortheme" type="text" name="ace_theme" size="30" value="{$ace_theme}" maxlength="40" />
+        <input id="editortheme" type="text" name="editortheme" size="30" value="{$editortheme}" maxlength="40" />
       </p>
     </div>
   </fieldset>
+ {/if}
   <fieldset>
     <legend>{lang('general_operation_settings')}</legend>
     <div class="pageoverflow">
