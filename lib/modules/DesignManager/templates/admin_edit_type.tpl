@@ -83,9 +83,8 @@
     <label for="type_dflt_contents">{$mod->Lang('prompt_proto_template')}:</label>
     {cms_help realm=$_module key2='help_proto_template' title=$mod->Lang('prompt_proto_template')}
   </p>
-  <textarea id="type_dflt_contents" name="{$actionid}dflt_contents" style="display:none;"></textarea>
   <p class="pageinput">
-    <div id="Editor">{$type->get_dflt_contents()}</div>
+    {cms_textarea id=type_dflt_contents prefix=$actionid name=dflt_contents value=$type->get_dflt_contents() type='smarty' rows=20 cols=80}
   </p>
   <div class="pagecontainer">
     <button type="button" name="{$actionid}reset" class="adminsubmit icon undo">{$mod->Lang('reset_factory')}</button>

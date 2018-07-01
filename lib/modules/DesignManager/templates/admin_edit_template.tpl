@@ -88,9 +88,8 @@
   {if $template->has_content_file()}
     <div class="pageinfo">{$mod->Lang('info_template_content_file',$template->get_content_filename())}</div>
   {else}
-    <textarea id="content" name="{$actionid}contents" style="display:none;"></textarea>
     <p class="pageinput">
-      <div id="Editor">{$template->get_content()}</div>
+     {cms_textarea id='contents' prefix=$actionid name=contents value=$template->get_content() type='smarty' rows=20}
     </p>
   {/if}
 </div>

@@ -2,7 +2,6 @@
 {capture assign='disable'}
   {if isset($get_lock) && ({get_userid(false)} != $get_lock.uid)}disabled="disabled"{/if}
 {/capture}
-
 {*
 {if !$css->get_id()}
   <h3>{$mod->Lang('create_stylesheet')}</h3>
@@ -10,7 +9,6 @@
   <h3>{$mod->Lang('edit_stylesheet')}: {$css->get_name()} ({$css->get_id()})</h3>
 {/if}
 *}
-
 {if isset($get_lock)}
   <div class="warning lock-warning">{$mod->Lang('lock_warning')}</div>
 {/if}
@@ -41,8 +39,8 @@
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_created">{$mod->Lang('prompt_created')}:</label>
-    {cms_help realm=$_module key2=help_stylesheet_created title=$mod->Lang('prompt_created')}
-      </p>
+      {cms_help realm=$_module key2=help_stylesheet_created title=$mod->Lang('prompt_created')}
+    </p>
     <p class="pageinput">
       {$css->get_created()|date_format:'%x %X'}
     </p>
@@ -50,8 +48,8 @@
   <div class="pageoverflow">
     <p class="pagetext">
       <label for="css_modified">{$mod->Lang('prompt_modified')}:</label>
-    {cms_help realm=$_module key2=help_stylesheet_modified title=$mod->Lang('prompt_modified')}
-      </p>
+      {cms_help realm=$_module key2=help_stylesheet_modified title=$mod->Lang('prompt_modified')}
+    </p>
     <p class="pageinput">
       {$css->get_modified()|date_format:'%x %X'}
     </p>
@@ -79,9 +77,8 @@
       <label for="stylesheet">{$mod->Lang('prompt_stylesheet')}:</label>
       {cms_help realm=$_module key2=help_stylesheet_content title=$mod->Lang('prompt_stylesheet')}
     </p>
-    <textarea id="stylesheet" name="{$actionid}content" style="display:none;"></textarea>
     <p class="pageinput">
-      <div id="Editor">{$css->get_content()}</div>
+      {cms_textarea id='stylesheet' prefix=$actionid name=content value=$css->get_content() type=css rows=20 cols=80}
     </p>
   </div>
 {/if}
