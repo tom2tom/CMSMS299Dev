@@ -351,9 +351,11 @@ pre {
     width: auto
 }
 
-/* Ace text editor */
+/* Ace text editor container */
 /* @media="screen" */
 #Editor {
+/* padding-top: 6px; appears at bottom !? */
+ padding-bottom: 6px;
  max-width: 99%;
  overflow: auto;
  font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
