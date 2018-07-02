@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminUtils;
 use DesignManager\utils;
 
 if (!isset($gCms)) exit ;
@@ -155,7 +154,11 @@ try {
 
     //TODO ensure flexbox css for .hbox, .boxchild
 
-    $js = AdminUtils::get_editor_script(['edit'=>true, 'htmlid'=>$id.'content', 'typer'=>'css']);
+    $content = get_editor_script(['edit'=>true, 'htmlid'=>$id.'content', 'typer'=>'css']);
+    if (!empty($content['head'])) {
+        $this->AdminHeaderContent($content['head']);
+    }
+    $js = $content['foot'] ?? '';
 
     $script_url = CMS_SCRIPTS_URL;
     $uid = get_userid(false);

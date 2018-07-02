@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AdminUtils;
 use CMSMS\FileTypeHelper;
 
 if (!isset($gCms)) exit;
@@ -184,8 +183,13 @@ EOS;
 $this->AdminHeaderContent($css);
 
 if ($is_text) {
-	$js = AdminUtils::get_editor_script(['edit'=>$edit, 'htmlid'=>'content', 'typer'=>$fullpath]);
-    $this->AdminBottomContent($js);
+    $content = get_editor_script(['edit'=>$edit, 'htmlid'=>'content', 'typer'=>$fullpath]);
+    if (!empty($content['head'])) {
+        $this->AdminHeaderContent($content['head']);
+    }
+    if (!empty($content['foot'])) {
+        $this->AdminBottomContent($content['foot']);
+    }
 }
 
 echo $this->ProcessTemplate('open.tpl');

@@ -26,6 +26,7 @@
 use CMSMS\ContentOperations;
 use CMSMS\internal\LoginOperations;
 use CMSMS\internal\Smarty;
+use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
 
 /**
@@ -367,11 +368,11 @@ function get_pageid_or_alias_from_url()
             if( $tmp ) $matches = array_merge( $dflts, $matches );
 
             // Get rid of numeric matches, and put the data into the _REQUEST for later processing.
-            foreach ($matches as $key=>$val) {
-                if ( is_int($key)) {
+            foreach( $matches as $key=>$val ) {
+                if( is_int($key) ) {
                     // do nothing
                 }
-                else if ($key != 'id' && $key != 'returnid' && $key != 'action') {
+                else if( $key != 'id' && $key != 'returnid' && $key != 'action' ) {
                     $_REQUEST[$matches['id'] . $key] = $val;
                 }
             }
@@ -390,4 +391,36 @@ function get_pageid_or_alias_from_url()
     }
 
     return $page;
+}
+
+/**
+ * Get javascript for initialization of the configured 'advanced'
+ *  (a.k.a. wysiwyg) text-editor
+ * @since 2.3
+ * @param array $params  Configuration details. Recognized members are:
+ *  bool   'edit'   whether the content is editable. Default false (i.e. just for display)
+ *  string 'handle' name of the js variable to be used for the created editor. Default 'editor'
+ *  string 'htmlid' id of the page-element whose content is to be edited. Mandatory.
+ *  string 'style'  override for the normal editor theme/style.  Default ''
+ *  string 'typer'  content-type identifier, an absolute filepath or at least
+ *    an extension or pseudo (like 'smarty'). Default ''
+ *  string 'workid' id of a div to be created (by some editors) to process
+ *    the content of the htmlid-element. Default 'Editor'
+ *
+ * @return array up to 2 members, being 'head' and/or 'foot'
+ */
+function get_editor_script(array $params) : array
+{
+	$handler = cms_siteprefs::get('syntax_editor');
+	if( $handler ) {
+		list($modname, $edname) = explode('::', $handler);
+		if( !$edname ) {
+			$edname = $modname;
+		}
+		$modinst = cms_utils::get_module($modname);
+		if( $modinst && ($modinst instanceof SyntaxEditor) ) {
+			return $modinst->GetEditorScript($edname, $params);
+		}
+	}
+	return [];
 }

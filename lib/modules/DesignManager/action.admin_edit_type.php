@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminUtils;
-
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Templates') ) return;
 
@@ -50,7 +48,12 @@ try {
     $this->RedirectToAdminTab();
   }
 
-  $js = AdminUtils::get_editor_script(['edit'=>true, 'htmlid'=>$id.'dflt_contents', 'typer'=>'smarty']);
+  $content = get_editor_script(['edit'=>true, 'htmlid'=>$id.'dflt_contents', 'typer'=>'smarty']);
+  if (!empty($content['head'])) {
+    $this->AdminHeaderContent($content['head']);
+  }
+  $js = $content['foot'] ?? '';
+
   $s = json_encode($this->Lang('confirm_reset_type'));
   $js .= <<<EOS
 <script type="text/javascript">

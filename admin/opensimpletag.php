@@ -15,8 +15,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
-use CMSMS\AdminUtils;
 use CMSMS\internal\Smarty;
 use CMSMS\SimplePluginOperations;
 
@@ -90,7 +88,11 @@ if ($tagname != '-1') {
 $edit = check_permission($userid, 'Modify Simple Tags');
 //TODO also $_GET['mode'] == 'edit'
 
-$js = AdminUtils::get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
+$content = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
+if (!empty($content['head'])) {
+    $themeObject->add_headtext($content['head']);
+}
+$js = $content['foot'] ?? '';
 
 if ($edit) {
     $s1 = json_encode(lang('error_udt_name_chars'));
