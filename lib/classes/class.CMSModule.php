@@ -1419,7 +1419,7 @@ abstract class CMSModule
      */
     public function DoAction($name, $id, $params, $returnid = null)
     {
-        if( !is_numeric($returnid) ) { //if( $returnid == false ) {  //falsy test, is_numeric('') is un-reliable (PHP7.1.x at least)
+        if( !is_numeric($returnid) ) {
             $key = $this->GetName().'::activetab';
             if( isset($_SESSION[$key]) ) {
                 $this->SetCurrentTab($_SESSION[$key]);
@@ -1477,7 +1477,7 @@ abstract class CMSModule
     public function DoActionBase($name, $id, $params, $returnid, &$smartob)
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
-        if( is_numeric($returnid) ) { //if( $returnid != false ) { //falsy text, is_numeric('') is un-reliable (PHP7.1.x at least)
+        if( is_numeric($returnid) ) {
             // merge in params from module hints.
             $hints = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
             if( is_array($hints) ) {
@@ -1505,7 +1505,7 @@ abstract class CMSModule
         $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
         $name = filter_var($name, FILTER_SANITIZE_STRING); //alphanum + '_' ?
 
-        if ( is_numeric($returnid) ) { //if ( $returnid != false ) { //falsy test, again
+        if ( is_numeric($returnid) ) {
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
