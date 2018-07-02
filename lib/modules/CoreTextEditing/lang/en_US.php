@@ -11,7 +11,7 @@ EOS;
 $lang['ace_helptheme'] = <<<'EOS'
 Specify the theme name (lower case, any ' ' replaced by '_').
 <br /><br />
-Themes can be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9</a>.
+Ace themes can be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9</a>.
 EOS;
 
 #C
@@ -25,7 +25,7 @@ EOS;
 $lang['codemirror_helptheme'] = <<<'EOS'
 Specify the theme name (lower case, any ' ' replaced by '_').
 <br /><br />
-Themes can be evaluated <a href="https://codemirror.net/demo/theme.html">here</a>.
+CodeMirror themes can be evaluated at the <a href="https://codemirror.net/demo/theme.html">website</a>.
 EOS;
 
 #D
