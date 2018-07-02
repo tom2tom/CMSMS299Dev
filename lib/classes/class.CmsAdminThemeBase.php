@@ -1645,19 +1645,18 @@ $X = 1;
     }
 
     /**
-     * Return a select list of the pages in the system for use in
-     * various admin pages.
+     * Return a select list of the pages in the system, for use in various admin pages.
      *
      * @internal
      * @param string $name - The html name of the select box
-     * @param string $selected - If a matching id is found in the list, that item
-     *                           is marked as selected.
+     * @param string $selected - If a matching page identifier is found in the list,
+	 *     that option will be marked as selected.
+     * @param mixed  $id -  Optional html id of the select box. Default null
      * @return string The select list of pages
      */
     public function GetAdminPageDropdown($name,$selected,$id = null)
     {
-        $opts = $this->GetAdminPages();
-        $attrs = array('name'=>trim((string)$name));
+        $attrs = ['name'=>trim((string)$name)];
         if( $id ) $attrs['id'] = trim((string)$id);
         $output = '<select ';
         foreach( $attrs as $key => $value ) {
@@ -1665,6 +1664,7 @@ $X = 1;
         }
         $output .= '>';
 
+        $opts = $this->GetAdminPages();
         foreach( $opts as $key => $value ) {
             if( $value == $selected ) {
                 $output .= sprintf("<option selected=\"selected\" value=\"%s\">%s</option>\n",
