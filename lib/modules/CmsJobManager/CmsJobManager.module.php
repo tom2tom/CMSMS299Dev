@@ -441,7 +441,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     protected function get_url_params(string $url) : array
     {
         $urlparts = parse_url($url);
-        if (!$urlparts || !$urlparts['host']) {
+        if (!$urlparts || empty($urlparts['host'])) {
             return [null, null, null, null];
         }
         $host = $urlparts['host'];
