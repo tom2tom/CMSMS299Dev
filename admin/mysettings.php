@@ -76,7 +76,7 @@ if (isset($_POST['submit'])) {
   cms_userprefs::set_for_user($userid, 'default_cms_language', $default_cms_language);
   cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
   if ($editortype !== null) {
-    cms_userprefs::set_for_user($userid, 'editortheme', $editortheme);
+    cms_userprefs::set_for_user($userid, 'editor_theme', $editortheme);
     cms_userprefs::set_for_user($userid, 'editortype', $editortype);
   }
   cms_userprefs::set_for_user($userid, 'hide_help_links', $hide_help_links);
@@ -104,7 +104,7 @@ $ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
 $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
 $default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
 $default_parent = cms_userprefs::get_for_user($userid, 'default_parent', -2);
-$editortheme = cms_userprefs::get_for_user($userid, 'editortheme');
+$editortheme = cms_userprefs::get_for_user($userid, 'editor_theme');
 $editortype = cms_userprefs::get_for_user($userid, 'editortype');
 $hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
 $homepage = cms_userprefs::get_for_user($userid, 'homepage');
@@ -235,13 +235,17 @@ $out = <<<EOS
 //<![CDATA[
 $(document).ready(function() {
  $('#theme_help img.cms_helpicon').on('click', function() {
-  var type = $('input[name=editortype]:checked').val();
-  if(type) {
-   var msg = 'GET RELEVANT HELP for ' + type;
-   var data = {
-    cmshelpTitle: '$editortitle'
-   };
-   cms_help(this, data, msg);
+  var key = $('input[name=editortype]:checked').attr('data-themehelp-key');
+  if(key) {
+   var self = this;
+   $.get(cms_data.ajax_help_url, {
+    key: key
+   }, function(text) {
+    var data = {
+     cmshelpTitle: '$editortitle'
+    };
+    cms_help(self, data, text);
+   });
   }
  });
 });

@@ -506,13 +506,17 @@ $(document).ready(function() {
   });
  }
  $('#theme_help img.cms_helpicon').on('click', function() {
-  var type = $('input[name=editortype]:checked').val();
-  if (type) {
-   var msg = 'GET RELEVANT HELP for ' + type;
-   var data = {
-    cmshelpTitle: '$editortitle'
-   };
-   cms_help(this, data, msg);
+  var key = $('input[name=editortype]:checked').attr('data-themehelp-key');
+  if (key) {
+   var self = this;
+   $.get(cms_data.ajax_help_url, {
+    key: key
+   }, function(text) {
+    var data = {
+     cmshelpTitle: '$editortitle'
+    };
+    cms_help(self, data, text);
+   });
   }
  });
  $('#mailer').change(function() {

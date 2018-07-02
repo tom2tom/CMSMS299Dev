@@ -554,7 +554,7 @@
       </p>
       {$t=lang('about')}
       {foreach $editors as $i=>$one}
-       <input type="radio" name="editortype" id="edt{$i}" value="{$one->value}"{if !empty($one->checked)} checked{/if}>
+       <input type="radio" name="editortype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
        <label for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
        <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$infoicon}</span>
