@@ -13,8 +13,10 @@ Specify the theme name (lower case, any ' ' replaced by '_').
 <br /><br />
 Ace themes can be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9</a>.
 EOS;
+$lang['apply'] = 'Apply';
 
 #C
+$lang['cancel'] = 'Cancel';
 $lang['cm_cdnurl'] = 'CDN URL for CodeMirror Editor';
 $lang['cm_theme'] = 'Default CodeMirror Theme';
 $lang['codemirror_helpmain'] = <<<'EOS'
@@ -29,7 +31,7 @@ CodeMirror themes can be evaluated at the <a href="https://codemirror.net/demo/t
 EOS;
 
 #D
-$lang['description'] = 'Module which enables editing of website textfiles';
+$lang['description'] = 'Settings for editing website textfiles';
 
 #F
 $lang['friendlyname'] = 'Advanced Editing';
