@@ -1,9 +1,8 @@
-{if isset($header)}
-<h3>{$header}</h3>
+{if isset($info)}
+<div class="pageinfo">{$info}</div><br />
 {/if}
-
 {if isset($warning)}
-<div class="pagewarn">{$warning}</div>
+<div class="pagewarn">{$warning}</div><br />
 {/if}
 
 {if !empty($items)}
@@ -14,12 +13,12 @@
 {$form_start}
 
 <label class="pagetext" for="">{$mod->Lang('optionTODO')}:</label>
-{get_editor_help_icon('TODOtype')}
+{*get_editor_help_icon('TODOtype')*}
 <p class="pageinput">
 </p>
 
 <label class="pagetext" for="">{$mod->Lang('selectTODO')}:</label>
-{get_editor_help_icon('TODOtype')}
+{*get_editor_help_icon('TODOtype')*}
 <div class="pageinput">
 {foreach $items as $one}
    <label for="huey">Huey</label>

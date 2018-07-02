@@ -36,19 +36,22 @@ $this->GetPreference('ace_theme', CoreTextEditing::ACE_THEME);
 $this->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
 $this->GetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
 
-$smarty->assign('header', $header);
-//if () $smarty->assign('warning', $warning); //optional
-$smarty->assign('form_start', $this->Create('TODO'));
+$info = 'Page Info For You';
+$smarty->assign('info', $info);
+if (!empty($warning)) {
+    $smarty->assign('warning', $warning); //optional
+}
+$smarty->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));	
 
 //other options
 
 $items = [];
-foreach ($X as $editor) {
+foreach (CoreTextEditing::EDITORS as $editor) {
 	$one = new stdClass();
-	$one->label = '';
-	$one->name = '';
-	$one->active = '';
-	$one->help = '';
+	$one->label = $editor;
+	$one->name = 'NAME';
+	$one->active = 'ACTIVE';
+	$one->help = $editor.' GET HELP';
 	$items[] = $one;
 }
 if ($items) {
