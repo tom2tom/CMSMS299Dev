@@ -20,6 +20,7 @@ use CMSMS\contenttypes\Content;
 use CMSMS\internal\module_meta;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
+use CMSMS\SyntaxEditor;
 
 $CMS_ADMIN_PAGE=1;
 $CMS_TOP_MENU='admin';
@@ -293,21 +294,14 @@ if (isset($_POST['submit'])) {
             case 'advanced':
                 cms_siteprefs::set('loginmodule', trim($_POST['login_module']));
                 cms_siteprefs::set('lock_timeout', (int) $_POST['lock_timeout']);
-                $val = filter_var($_POST['ace_cdn'], FILTER_SANITIZE_URL);
-                if (!val) {
-                    $val = cms_siteprefs::get(cms_siteprefs::ACE_CDN);
-                } elseif (endswith($val, '/')) {
-                    $val = substr($val , 0, -1);
-                }
-                cms_siteprefs::set('ace_cdn', $val);
-                $val = trim($_POST['ace_theme']);
+                $val = trim($_POST['editortype']); //TODO process this
+                cms_siteprefs::set('syntax_editor', $val);
+                $val = trim($_POST['editortheme']);
                 if ($val) {
-                    $val = strtr($val, ' ', '_');
-                } else {
-                    $val = cms_siteprefs::ACE_THEME;
+                    $val = strtolower(strtr($val, ' ', '_'));
                 }
-                cms_siteprefs::set('ace_theme', $val);
-                cms_siteprefs::set('xmlmodulerepository', $_POST['xmlmodulerepository']);
+                cms_siteprefs::set('editor_theme', $val);
+//              cms_siteprefs::set('xmlmodulerepository', $_POST['xmlmodulerepository']);
                 cms_siteprefs::set('checkversion', !empty($_POST['checkversion']));
                 cms_siteprefs::set('global_umask', $_POST['global_umask']);
                 cms_siteprefs::set('allow_browser_cache', (int) $_POST['allow_browser_cache']);
@@ -338,8 +332,6 @@ if (isset($_POST['submit'])) {
 /**
  * Get old/new preferences
  */
-$ace_cdn = cms_siteprefs::get('ace_cdn', cms_siteprefs::ACE_CDN);
-$ace_theme = cms_siteprefs::get('ace_theme', cms_siteprefs::ACE_THEME);
 $adminlog_lifetime = cms_siteprefs::get('adminlog_lifetime', 2592000); //3600*24*30
 $allow_browser_cache = cms_siteprefs::get('allow_browser_cache', 0);
 $auto_clear_cache_age = cms_siteprefs::get('auto_clear_cache_age', 0);
@@ -356,12 +348,14 @@ $content_thumbnailfield_path = cms_siteprefs::get('content_thumbnailfield_path',
 $contentimage_path = cms_siteprefs::get('contentimage_path', '');
 $defaultdateformat = cms_siteprefs::get('defaultdateformat', '');
 $disallowed_contenttypes = cms_siteprefs::get('disallowed_contenttypes', '');
+$editortheme = cms_siteprefs::get('editor_theme', '');
+$editortype = cms_siteprefs::get('syntax_editor', '');
 $enablesitedownmessage = cms_siteprefs::get('enablesitedownmessage', 0);
 $frontendlang = cms_siteprefs::get('frontendlang', '');
 $frontendwysiwyg = cms_siteprefs::get('frontendwysiwyg', '');
 $global_umask = cms_siteprefs::get('global_umask', '022');
 $lock_timeout = (int)cms_siteprefs::get('lock_timeout', 60);
-$login_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin'); //CHECKME
+$login_module = cms_siteprefs::get('loginmodule', '');
 $logintheme = cms_siteprefs::get('logintheme', 'default');
 $mail_is_set = cms_siteprefs::get('mail_is_set', 0);
 $metadata = cms_siteprefs::get('metadata', '');
@@ -374,7 +368,7 @@ $sitename = cms_html_entity_decode(cms_siteprefs::get('sitename', 'CMSMS Website
 $thumbnail_height = cms_siteprefs::get('thumbnail_height', 96);
 $thumbnail_width = cms_siteprefs::get('thumbnail_width', 96);
 $use_smartycompilecheck = cms_siteprefs::get('use_smartycompilecheck', 1);
-$xmlmodulerepository = cms_siteprefs::get('xmlmodulerepository', '');
+//$xmlmodulerepository = cms_siteprefs::get('xmlmodulerepository', '');
 $tmp = cms_siteprefs::get('mailprefs');
 if ($tmp) {
     $mailprefs = unserialize($tmp);
@@ -413,6 +407,7 @@ if ($messages) {
 
 $submit = lang('submit');
 $cancel = lang('cancel');
+$editortitle = lang('text_editor_deftheme');
 $nofile = json_encode(lang('nofiles'));
 $badfile = json_encode(lang('errorwrongfile'));
 $confirm = json_encode(lang('siteprefs_confirm'));
@@ -510,6 +505,16 @@ $(document).ready(function() {
    });
   });
  }
+ $('#theme_help img.cms_helpicon').on('click', function() {
+  var type = $('input[name=editortype]:checked').val();
+  if (type) {
+   var msg = 'GET RELEVANT HELP for ' + type;
+   var data = {
+    cmshelpTitle: '$editortitle'
+   };
+   cms_help(this, data, msg);
+  }
+ });
  $('#mailer').change(function() {
   on_mailer();
  });
@@ -593,8 +598,54 @@ if ($tmp) {
 }
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
-$smarty->assign('ace_cdn', $ace_cdn);
-$smarty->assign('ace_theme', $ace_theme);
+# advanced/WYSIWYG editors
+$editors = [];
+$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
+if( $tmp) {
+    for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
+		$ob = cms_utils::get_module($tmp[$i]);
+		if ($ob instanceof SyntaxEditor) {
+			$all = $ob->ListEditors(true);
+			foreach ($all as $label=>$val) {
+				$one = new stdClass();
+				$one->value = $val;
+				$one->label = $label;
+				list($modname, $edname) = explode('::', $val);
+				list($realm, $key) = $ob->GetMainHelpKey($edname);
+				if (!$realm) $realm = $modname;
+				$one->mainkey = $realm.'__'.$key;
+				list($realm, $key) = $ob->GetThemeHelpKey($edname);
+				if (!$realm) $realm = $modname;
+				$one->themekey = $realm.'__'.$key;
+				if ($one->value == $editortype) $one->checked = true;
+				$editors[] = $one;
+			}
+		} elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
+			$one = new stdClass();
+			$one->value = $tmp[$i].'::'.$tmp[$i];
+			$one->label = $ob->GetName();
+			$one->mainkey = '';
+			$one->themekey = '';
+			if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
+			$editors[] = $one;
+		}
+	}
+	usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+
+	$one = new stdClass();
+	$one->value = '';
+	$one->label = lang('none');
+	$one->mainkey = '';
+	$one->themekey = '';
+	if (!$editortype) $one->checked = true;
+	$editors[] = $one;
+}
+$smarty->assign('editors', $editors);
+
+$theme = cms_utils::get_theme_object();
+$smarty->assign('infoicon', $theme->DisplayImage('icons/system/info.png', 'info','','','cms_helpicon'));
+$smarty->assign('editortheme', $editortheme);
+
 $smarty->assign('adminlog_lifetime', $adminlog_lifetime);
 $smarty->assign('allow_browser_cache', $allow_browser_cache);
 $smarty->assign('auto_clear_cache_age', $auto_clear_cache_age);

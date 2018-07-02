@@ -16,7 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \CMSMS\internal\module_meta;
+use CMSMS\internal\module_meta;
+use CMSMS\SyntaxEditor;
 
 $CMS_ADMIN_PAGE = 1;
 $CMS_TOP_MENU = 'admin';
@@ -51,34 +52,41 @@ $db = cmsms()->GetDb();
 if (isset($_POST['submit'])) {
   cleanArray($_POST);
   // Get values from request and drive em to variables
-  $acetheme = $_POST['ace_theme'];
   $admintheme = $_POST['admintheme'];
   $bookmarks = (!empty($_POST['bookmarks'])) ? 1 : 0;
   $ce_navdisplay = $_POST['ce_navdisplay'];
   $date_format_string = $_POST['date_format_string'];
   $default_cms_language = $_POST['default_cms_language'];
   $default_parent = (int)$_POST['parent_id'];
+  $editortheme = $_POST['editortheme'] ?? null;
+  $editortype = $_POST['editortype'] ?? null;
   $hide_help_links = (!empty($_POST['hide_help_links'])) ? 1 : 0;
   $homepage = $_POST['homepage'];
   $indent = (!empty($_POST['indent'])) ? 1 : 0;
   $old_default_cms_lang = $_POST['old_default_cms_lang'];
   $paging = (!empty($_POST['paging'])) ? 1 : 0;
-  $syntaxhighlighter = $_POST['syntaxhighlighter'];
+//  $syntaxhighlighter = $_POST['syntaxhighlighter'] ?? null;
   $wysiwyg = $_POST['wysiwyg'];
 
   // Set prefs
-  cms_userprefs::set_for_user($userid, 'ace_theme', $acetheme);
   cms_userprefs::set_for_user($userid, 'admintheme', $admintheme);
   cms_userprefs::set_for_user($userid, 'bookmarks', $bookmarks);
   cms_userprefs::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
   cms_userprefs::set_for_user($userid, 'date_format_string', $date_format_string);
   cms_userprefs::set_for_user($userid, 'default_cms_language', $default_cms_language);
   cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
+  if ($editortype !== null) {
+    cms_userprefs::set_for_user($userid, 'editortheme', $editortheme);
+    cms_userprefs::set_for_user($userid, 'editortype', $editortype);
+  }
   cms_userprefs::set_for_user($userid, 'hide_help_links', $hide_help_links);
   cms_userprefs::set_for_user($userid, 'homepage', $homepage);
   cms_userprefs::set_for_user($userid, 'indent', $indent);
   cms_userprefs::set_for_user($userid, 'paging', $paging);
-  cms_userprefs::set_for_user($userid, 'syntaxhighlighter', $syntaxhighlighter);
+/*  if ($syntaxhighlighter !== null) {
+    cms_userprefs::set_for_user($userid, 'syntaxhighlighter', $syntaxhighlighter);
+  }
+*/
   cms_userprefs::set_for_user($userid, 'wysiwyg', $wysiwyg);
 
   // Audit, message, cleanup
@@ -90,19 +98,20 @@ if (isset($_POST['submit'])) {
 /**
  * Get current preferences
  */
-$acetheme = cms_userprefs::get_for_user($userid, 'ace_theme');
 $admintheme = cms_userprefs::get_for_user($userid, 'admintheme', CmsAdminThemeBase::GetDefaultTheme());
 $bookmarks = cms_userprefs::get_for_user($userid, 'bookmarks', 0);
 $ce_navdisplay = cms_userprefs::get_for_user($userid,'ce_navdisplay');
 $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string', '%x %X');
 $default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
 $default_parent = cms_userprefs::get_for_user($userid, 'default_parent', -2);
+$editortheme = cms_userprefs::get_for_user($userid, 'editortheme');
+$editortype = cms_userprefs::get_for_user($userid, 'editortype');
 $hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
 $homepage = cms_userprefs::get_for_user($userid, 'homepage');
 $indent = cms_userprefs::get_for_user($userid, 'indent', true);
 $old_default_cms_lang = $default_cms_language;
 $paging = cms_userprefs::get_for_user($userid, 'paging', 0);
-$syntaxhighlighter = cms_userprefs::get_for_user($userid, 'syntaxhighlighter');
+//$syntaxhighlighter = cms_userprefs::get_for_user($userid, 'syntaxhighlighter'); //probably useless !
 $wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
 
 /**
@@ -123,14 +132,62 @@ for ($i = 0; $i < $n; ++$i) {
 $smarty -> assign('wysiwyg_opts', $tmp2);
 
 # Syntaxhighlighters
+$editors = [];
+$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
+if( $tmp) {
+    for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
+		$ob = cms_utils::get_module($tmp[$i]);
+		if ($ob instanceof SyntaxEditor) {
+			$all = $ob->ListEditors(true);
+			foreach ($all as $label=>$val) {
+				$one = new stdClass();
+				$one->value = $val;
+				$one->label = $label;
+				list($modname, $edname) = explode('::', $val);
+				list($realm, $key) = $ob->GetMainHelpKey($edname);
+				if (!$realm) $realm = $modname;
+				$one->mainkey = $realm.'__'.$key;
+				list($realm, $key) = $ob->GetThemeHelpKey($edname);
+				if (!$realm) $realm = $modname;
+				$one->themekey = $realm.'__'.$key;
+				if ($one->value == $editortype) $one->checked = true;
+				$editors[] = $one;
+			}
+		} elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
+			$one = new stdClass();
+			$one->value = $tmp[$i].'::'.$tmp[$i];
+			$one->label = $ob->GetName();
+			$one->mainkey = '';
+			$one->themekey = '';
+			if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
+			$editors[] = $one;
+		}
+	}
+	usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+
+	$one = new stdClass();
+	$one->value = '';
+	$one->label = lang('default');
+	$one->mainkey = '';
+	$one->themekey = '';
+	if (!$editortype) $one->checked = true;
+	$editors[] = $one;
+}
+$smarty->assign('editors', $editors);
+
+$theme = cms_utils::get_theme_object();
+$smarty->assign('infoicon', $theme->DisplayImage('icons/system/info.png', 'info','','','cms_helpicon'));
+
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
 $n = count($tmp);
-$tmp2 = [-1 => lang('none')];
-for ($i = 0; $i < $n; ++$i) {
-  $tmp2[$tmp[$i]] = $tmp[$i];
-}
+if ($n) {
+  $tmp2 = [-1 => lang('none')];
+  for ($i = 0; $i < $n; ++$i) {
+    $tmp2[$tmp[$i]] = $tmp[$i];
+  }
 
-$smarty->assign('syntax_opts', $tmp2);
+  $smarty->assign('syntax_opts', $tmp2);
+}
 
 # Admin themes
 $smarty->assign('themes_opts',CmsAdminThemeBase::GetAvailableThemes());
@@ -148,7 +205,6 @@ $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 $selfurl = basename(__FILE__);
 
 $smarty->assign([
-  'acetheme'=>$acetheme,
   'admintheme'=>$admintheme,
   'backurl'=>$themeObject->backUrl(),
   'bookmarks'=>$bookmarks,
@@ -156,6 +212,7 @@ $smarty->assign([
   'date_format_string'=>$date_format_string,
   'default_cms_language'=>$default_cms_language,
   'default_parent'=>$contentops->CreateHierarchyDropdown(0, $default_parent, 'parent_id', 0, 1),
+  'editortheme'=>$editortheme,
   'hide_help_links'=>$hide_help_links,
   'homepage'=>$themeObject->GetAdminPageDropdown('homepage', $homepage, 'homepage'),
   'indent'=>$indent,
@@ -166,11 +223,33 @@ $smarty->assign([
   'pagelimit_opts'=>$tmp,
   'paging'=>$paging,
   'selfurl' => $selfurl,
-  'syntaxhighlighter'=>$syntaxhighlighter,
+//  'syntaxhighlighter'=>$syntaxhighlighter,
   'urlext' => $urlext,
   'userobj'=>$userobj,
   'wysiwyg'=>$wysiwyg,
 ]);
+
+$editortitle = lang('text_editor_theme');
+$out = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('#theme_help img.cms_helpicon').on('click', function() {
+  var type = $('input[name=editortype]:checked').val();
+  if(type) {
+   var msg = 'GET RELEVANT HELP for ' + type;
+   var data = {
+    cmshelpTitle: '$editortitle'
+   };
+   cms_help(this, data, msg);
+  }
+ });
+});
+//]]>
+</script>
+
+EOS;
+$themeObject->add_footertext($out);
 
 include_once 'header.php';
 $smarty->display('mysettings.tpl');
