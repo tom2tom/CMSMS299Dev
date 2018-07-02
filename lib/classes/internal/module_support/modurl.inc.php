@@ -35,8 +35,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *   default content block of the destination frontend-page is to be targeted)
  * @param string $action	The module action name
  * Optional parameters
- * @param mixed $returnid Optional integer page-id to return to after the action
- *   is done, or ''|null for admin. Default null.
+ * @param mixed $returnid Optional page-id to return to after the action
+ *   is done, numeric(int) or ''|null for admin. Default null.
  * @param array $params	Optional parameters to include in the URL. Default []
  *   These will be ignored if the prettyurl parameter is present
  * @param string $prettyurl URL segment(s) relative to the root-URL of the
@@ -97,15 +97,15 @@ function cms_module_create_actionurl(
 		'mact' => $modinstance->GetName().','.$id.','.$action.','.($inline ? 1 : 0)
 		];
 
-		if (!$frontend) {
-/*TODO			if (!isset($_SESSION[CMS_USER_KEY])) {
-				return '<!-- '.__METHOD__.' error : "session has expired -->';
-			}
-*/
+		if ($frontend) {
+			$text = $base_url . 'index.php';
+		} elseif (isset($_SESSION[CMS_USER_KEY])) {
 			$text = $config['admin_url'] . '/moduleinterface.php';
 			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
-		} else {
-			$text = $base_url . 'index.php';
+//		} else {
+			//ignore missing data e.g. for async activities
+			//TODO or redirect? or return error e.g.
+			// '<!-- '.__METHOD__.' error : "session has expired -->';
 		}
 
 		if (!empty($params['returnid'])) {
