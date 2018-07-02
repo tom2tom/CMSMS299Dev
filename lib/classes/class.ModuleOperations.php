@@ -1014,7 +1014,7 @@ final class ModuleOperations
 	 *
 	 * This method returns module object for the currently selected filepicker module.
 	 *
-	 * @return FilePickerInterface
+	 * @return FilePicker
 	 * @since 2.2
 	 */
 	public function &GetFilePickerModule()
