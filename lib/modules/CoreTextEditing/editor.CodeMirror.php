@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-//use function cm_GetScript as GetScript;
+//use function codemirror_GetScript as GetScript;
 
 /**
  * Get javascript for initialization of CodeMirror text-editor

@@ -141,6 +141,6 @@ class CoreTextEditing extends CMSModule implements CMSMS\SyntaxEditor
 			include $fp;
 			return GetScript($this, $params);
 		}
-		return ''; //TODO some error indicator
+		return '';
 	}
 } // class

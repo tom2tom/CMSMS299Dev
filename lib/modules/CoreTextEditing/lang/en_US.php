@@ -17,8 +17,8 @@ $lang['apply'] = 'Apply';
 
 #C
 $lang['cancel'] = 'Cancel';
-$lang['cm_cdnurl'] = 'CDN URL for CodeMirror Editor';
-$lang['cm_theme'] = 'Default CodeMirror Theme';
+$lang['codemirror_cdnurl'] = 'CDN URL for CodeMirror Editor';
+$lang['codemirror_theme'] = 'Default CodeMirror Theme';
 $lang['codemirror_helpmain'] = <<<'EOS'
 A feature-rich, versatile, <a href="https://codemirror.net/doc/realworld.html">popular</a> open-source editor. Its support for mobile-device browsers is work-in-progress.
 <br /><br />
@@ -59,6 +59,15 @@ The module implements a CMSMS-standard interface by which other modules and admi
 <p>This module has been released under version 3 of the <a href="http://www.gnu.org/licenses/agpl.html">GNU Affero General Public License</a>, and must not be used except in accordance with the terms of that license, or any later version of that license which is granted by the module's distributor.</p>
 EOS;
 
+#I
+$lang['info_settings'] = <<<'EOS'
+The settings here are only for configuring the editors specified below.
+<br /><br />
+Other similar editors might also be available, if suitable module(s) are installed. If so, such editors' configuration would be handled in the respective modules.
+<br /><br />
+The editor which is <em>actually used</em> is determined by a selection on the System Settings page, perhaps overridden by individual users' choices on the (personal) Settings page.
+EOS;
+
 #S
 $lang['settings_acecdn'] = <<<'EOS'
 An URL which specifies which, and from where, text-editor source files will be downloaded at runtime in preparation for using the editor. The last part of the URL will often be a version-number.
@@ -74,3 +83,7 @@ Example: https://somecdnsite.com/codemirror/5.4.3
 <br /><br />
 One good source, perhaps the best, is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'codemirror', omit the trailing '/codemirror.min.js')
 EOS;
+
+$lang['settings_error'] = 'Settings problem: %s. Settings NOT updated';
+$lang['settings_success'] = 'Settings updated';
+

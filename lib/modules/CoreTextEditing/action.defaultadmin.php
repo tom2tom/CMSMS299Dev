@@ -21,41 +21,30 @@ if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
 if (isset($params['apply'])) {
-	//SAVE STUFF
-/*
-    $this->SetPreference('ace_cdn', CoreTextEditing::ACE_CDN);
-    $this->SetPreference('ace_theme', CoreTextEditing::ACE_THEME);
-    $this->SetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
-    $this->SetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
-*/	
+	$url = filter_var($params['ace_cdn'], FILTER_SANITIZE_URL); //TODO handle error
+    $this->SetPreference('ace_cdn', $url);
+    $this->SetPreference('ace_theme', $params['ace_theme']);
+	$url = filter_var($params['codemirror_cdn'], FILTER_SANITIZE_URL); //TODO handle error
+    $this->SetPreference('codemirror_cdn', $url);
+    $this->SetPreference('codemirror_theme', $params['codemirror_theme']);
+    $this->ShowMessage($this->Lang('settings_success'));
 }
 
-//GET STUFF
-$this->GetPreference('ace_cdn', CoreTextEditing::ACE_CDN);
-$this->GetPreference('ace_theme', CoreTextEditing::ACE_THEME);
-$this->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
-$this->GetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
+$ace_cdn = $this->GetPreference('ace_cdn', CoreTextEditing::ACE_CDN);
+$ace_theme = $this->GetPreference('ace_theme', CoreTextEditing::ACE_THEME);
+$codemirror_cdn = $this->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
+$codemirror_theme = $this->GetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
 
-$info = 'Page Info For You';
-$smarty->assign('info', $info);
+$smarty->assign('info', $this->Lang('info_settings'));
+$smarty->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));
 if (!empty($warning)) {
     $smarty->assign('warning', $warning); //optional
 }
-$smarty->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));	
-
-//other options
-
-$items = [];
-foreach (CoreTextEditing::EDITORS as $editor) {
-	$one = new stdClass();
-	$one->label = $editor;
-	$one->name = 'NAME';
-	$one->active = 'ACTIVE';
-	$one->help = $editor.' GET HELP';
-	$items[] = $one;
-}
-if ($items) {
-	$smarty->assign('items', $items);
-}
+$smarty->assign([
+    'ace_cdn' => $ace_cdn,
+    'ace_theme' => $ace_theme,
+    'codemirror_cdn' => $codemirror_cdn,
+    'codemirror_theme' => $codemirror_theme,
+]);
 
 echo $this->processTemplate('adminpanel.tpl');

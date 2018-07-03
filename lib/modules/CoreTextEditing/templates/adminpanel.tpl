@@ -5,31 +5,45 @@
 <div class="pagewarn">{$warning}</div><br />
 {/if}
 
-{if !empty($items)}
-{function get_editor_help_icon}
-{strip}
-{/strip}
-{/function}
 {$form_start}
+ <fieldset>
+ <p class="pagetext">
+  {$t=$mod->Lang('ace_cdnurl')}<label class="pagetext" for="fld2">* {$t}:</label>
+  {cms_help realm=$_module key=settings_acecdn title=$t}
+ </p>
+ <p class="pageinput">
+  <input type="text" id="fld2" name="{$actionid}ace_cdn" value="{$ace_cdn}" size="50" maxlength="80" required />
+ </p>
+ <p class="pagetext">
+  {$t=$mod->Lang('ace_theme')}<label class="pagetext" for="fld3">{$t}:</label>
+  {cms_help realm=$_module key=ace_helptheme title=$t}
+  </p>
+ <p class="pageinput">
+  <input type="text" id="fld3" name="{$actionid}ace_theme" value="{$ace_theme}" size="20" />
+ </p>
+ </fieldset>
+ <br />
+ <fieldset>
+ <p class="pagetext">
+  {$t=$mod->Lang('codemirror_cdnurl')}<label class="pagetext" for="fld4">* {$t}:</label>
+  {cms_help realm=$_module key=settings_cmcdn title=$t}
+ </p>
+ <p class="pageinput">
+  <input type="text" id="fld4" name="{$actionid}codemirror_cdn" value="{$codemirror_cdn}" size="50" maxlength="80" required />
+ </p>
 
-<label class="pagetext" for="">{$mod->Lang('optionTODO')}:</label>
-{*get_editor_help_icon('TODOtype')*}
-<p class="pageinput">
-</p>
-
-<label class="pagetext" for="">{$mod->Lang('selectTODO')}:</label>
-{*get_editor_help_icon('TODOtype')*}
-<div class="pageinput">
-{foreach $items as $one}
-   <label for="huey">Huey</label>
-   <input type="radio" id="huey" name="{$actionid}drone" checked /> <br />
-{/foreach}
-</div>
-<div class="pregap">
+ <p class="pagetext">
+  {$t=$mod->Lang('codemirror_theme')}<label class="pagetext" for="fld5">{$t}:</label>
+  {cms_help realm=$_module key=codemirror_helptheme title=$t}
+ </p>
+ <p class="pageinput">
+  <input type="text" id="fld5" name="{$actionid}codemirror_theme" value="{$codemirror_theme}" size="20" />
+ </p>
+ </fieldset>
+ 
+ <div class="pregap">
   <button type="submit" name="{$actionid}apply" class="adminsubmit icon apply ">{$mod->Lang('apply')}</button>
   <button  type="submit" name="{$actionid}cancel" class="adminsubmit icon undo">{$mod->Lang('cancel')}</button>
-</div>
+ </div>
+
 </form>
-{else}{*no items*}
-<p class="pageinfo">No WYSIWYG editor is installed</p>
-{/if}
