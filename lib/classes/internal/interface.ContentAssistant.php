@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: CMSContentManager (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
+# Interface for a content assistant
+# Copyright (C) 2016-2018 Rovert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,15 +14,8 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
 
 namespace CMSMS\internal;
-
-/**
- * @package CMS
- */
 
 /**
  * An interface for a content assistant.
@@ -39,22 +24,17 @@ namespace CMSMS\internal;
  * objects.
  *
  * @since		2.0
- * @author              calguy1000
+ * @author		calguy1000
  * @abstract
  * @package		CMS
  */
 interface ContentAssistant {
 
   /**
-   * Construct a Contentassistant object
+   * Construct a ContentAssistant object
    *
    * @abstract
    * @param ContentBase Specify the object that we are building an assistant for.
    */
   public function __construct(ContentBase $content);
-} // end of class
-
-#
-# EOF
-#
-?>
+} // interface
