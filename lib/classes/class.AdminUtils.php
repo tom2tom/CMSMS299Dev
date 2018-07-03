@@ -22,7 +22,6 @@ use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CMSMS\internal\Smarty;
-use LogicException;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
@@ -32,7 +31,6 @@ use const CMS_VERSION;
 use function cms_join_path;
 use function cms_module_places;
 use function endswith;
-use function lang;
 use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
@@ -91,15 +89,17 @@ final class AdminUtils
 		if( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
 
 		$len = strlen($_SESSION[CMS_USER_KEY]);
-		$in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}+';
-		$out_p = '_CMSKEY_='.str_repeat('X',$len);
-		$out = preg_replace($in_p,$out_p,$in_url);
+		$in_p = '+'.CMS_SECURE_PARAM_NAME.'\=[A-Za-z0-9]{'.$len.'}&?(amp;)?+';
+//		$out_p = '_CMSKEY_='.str_repeat('X',$len); totally unused during login !!
+//		$out = preg_replace($in_p,$out_p,$in_url);
+		$out = preg_replace($in_p,'',$in_url);
+		if( endswith($out,'&amp;') ) $out = substr($out, 0, -5);
 		if( startswith($out,CMS_ROOT_URL) ) $out = str_replace(CMS_ROOT_URL,'',$out);
 		return $out;
 	}
 
 	/**
-	 * Convert a generic URL into something that is suitable for this users session.
+	 * Convert a generic URL into something that is suitable for this user's session.
 	 *
 	 * @param string $in_url The generic url.  usually retrieved from a preference or from the database
 	 * @return string A URL that has a session key in it.
