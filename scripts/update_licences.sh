@@ -44,8 +44,8 @@ SEDARG2B="1,5s~$SHORTPATTERN~\1Copyright (C) 20\2-$THISYEAR Ted Kulp <ted@cmsmad
 LONGPATTERN2="^\\(\s*#\?\s*\\)[(][Cc][)].*20\\($PATTERN\\)-20\\($PATTERN\\).*[tT]he\s\+CMSMS\s\+Dev\\(elopment\\)\?\s\+Team.*"
 SHORTPATTERN2="^\\(\s*#\?\s*\\)[(][Cc][)].*20\\($PATTERN\\).*[tT]he\s\+CMSMS\s\+Dev\\(elopment\\)\?\s\+Team.*"
 
-SEDARG3A="1,6s~$LONGPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team <coreteam@cmsmadesimple.org>~"
-SEDARG3B="1,6s~$SHORTPATTERN2~\1Copyright (C) 20\2-$THISYEAR The CMSMS Dev Team <coreteam@cmsmadesimple.org>~"
+SEDARG3A="1,6s~$LONGPATTERN2~\1Copyright (C) 20\2-$THISYEAR CMS Made Simple Foundation <foundation@cmsmadesimple.org>~"
+SEDARG3B="1,6s~$SHORTPATTERN2~\1Copyright (C) 20\2-$THISYEAR CMS Made Simple Foundation <foundation@cmsmadesimple.org>~"
 #echo -e "sed patterns =\n$SEDARG3A\n$SEDARG3B\n"
 
 #PATTERN5="^#\s*Visit our homepage at: http:\/\/www.cmsmadesimple.org"

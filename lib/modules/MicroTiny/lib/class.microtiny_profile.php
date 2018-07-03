@@ -1,6 +1,6 @@
 <?php
 #class microtiny_profile for MicroTiny
-#Copyright (C) 2009-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+#Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of the Microtiny module for CMS Made Simple
 # <http://dev.cmsmadesimple.org/projects/microtiny>
 #

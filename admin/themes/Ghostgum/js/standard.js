@@ -1,6 +1,6 @@
 /*!
 javascript for Ghostgum-theme
-(C) The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+(C) CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 License: GPL2+
 */
 /**

@@ -2,7 +2,7 @@
 /*
 URL-creation methods for CMS Made Simple <http://cmsmadesimple.org>
 Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+Copyright (C) 2011-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This file is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

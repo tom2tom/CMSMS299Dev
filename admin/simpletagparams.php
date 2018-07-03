@@ -2,7 +2,7 @@
 /*
 Procedure to process ajax calls for retrieving parameters-information
 for a named User Defined Tag (aka simple plugin)
-Copyright (C) 2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
