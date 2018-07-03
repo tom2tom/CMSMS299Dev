@@ -72,7 +72,7 @@ if ($access) {
 		if (!empty($_GET['handler'])) $handler = (int)$_GET['handler'];
 		if (!empty($_GET['order'])) $cur_order = (int)$_GET['order'];
 		if ($module == '' || $event == '' || $action == '') {
-			display_error(lang('missingparams'));
+//			$themeObject->RecordNotice('error', lang('missingparams')); //TODO useless before return
 			return;
 		}
 
@@ -81,7 +81,7 @@ if ($access) {
 			// move an item up (decrease its order)
 			// increases the previous order, and decreases the current handler id
 			if(!$handler || $cur_order < 1) {
-				display_error(lang('missingparams'));
+//				$themeObject->RecordNotice('error', lang('someerror')); //TODO useless
 				return;
 			}
 			Events::OrderHandlerUp($handler);
@@ -91,7 +91,7 @@ if ($access) {
 			// move an item down (increase its order)
 			// decreases the next order, and increases the current handler id
 			if(!$handler || $cur_order < 1) {
-				display_error(lang('missingparams'));
+//				$themeObject->RecordNotice('error', lang('someerror')); //TODO useless before return
 				return;
 			}
 			Events::OrderHandlerDown($handler);
@@ -99,7 +99,7 @@ if ($access) {
 
 		case 'delete':
 			if(!$handler) {
-				display_error(lang('missingparams'));
+//				$themeObject->RecordNotice('error', lang('missingparams')); //TODO useless befor return
 				return;
 			}
 			Events::RemoveEventHandlerById($handler);
