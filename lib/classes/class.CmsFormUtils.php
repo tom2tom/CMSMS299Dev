@@ -580,11 +580,11 @@ class CmsFormUtils
                 $count = count($options);
                 $out = '';
                 foreach ($options as $key=>$val) {
-                    $out .= $each . ' id="'.$modid.$name.$i.'" value="'.$val.'"';
+                    $out .= $each . ' id="'.$id.$name.$i.'" value="'.$val.'"';
                     if ($val == $selectedvalue) {
                         $out .= ' checked="checked"';
                     }
-                    $out .= ' /><label for="'.$modid.$name.$i.'">'.$key .'</label>';
+                    $out .= ' /><label for="'.$id.$name.$i.'">'.$key .'</label>';
                     if ($i < $count && $delimiter) {
                         $out .= $delimiter;
                     }
@@ -944,7 +944,7 @@ class CmsFormUtils
             $goto = 'moduleinterface.php';
         }
 
-        $out = '<form id="'.$modid.'moduleform_'.$idsuffix.'" method="'.$method.'" action="'.$goto.'"';
+        $out = '<form id="'.$id.'moduleform_'.$idsuffix.'" method="'.$method.'" action="'.$goto.'"';
         $out .= self::join_attrs($parms, [
          'name',
          'id',
@@ -957,9 +957,9 @@ class CmsFormUtils
         ]);
         $out .= '>'."\n".
         '<div class="hidden">'."\n".
-        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$modid.','.$action.','.($inline?1:0).'" />'."\n";
+        '<input type="hidden" name="mact" value="'.$mod->GetName().','.$id.','.$action.','.($inline?1:0).'" />'."\n";
         if ($returnid != '') { //NB not strict - it may be null
-            $out .= '<input type="hidden" name="'.$modid.'returnid" value="'.$returnid.'" />'."\n";
+            $out .= '<input type="hidden" name="'.$id.'returnid" value="'.$returnid.'" />'."\n";
             if ($inline) {
                 $config = cms_config::get_instance();
                 $out .= '<input type="hidden" name="'.$config['query_var'].'" value="'.$returnid.'" />'."\n";
@@ -972,9 +972,9 @@ class CmsFormUtils
 //          $val = TODOfunc($val); urlencode ? serialize?
             if (!in_array($key, $excludes)) {
                 if(is_array($val)) {
-//TODO e.g. serialize $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.TODO.'" />'."\n";
+//TODO e.g. serialize $out .= '<input type="hidden" name="'.$id.$key.'" value="'.TODO.'" />'."\n";
                 } else {
-                    $out .= '<input type="hidden" name="'.$modid.$key.'" value="'.$val.'" />'."\n";
+                    $out .= '<input type="hidden" name="'.$id.$key.'" value="'.$val.'" />'."\n";
                 }
             }
         }
@@ -1084,7 +1084,7 @@ class CmsFormUtils
         $prettyurl = (!empty($prettyurl)) ? preg_replace('~[^\w/]~', '', $prettyurl) : '';
 
         // create the url
-        $out = $mod->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
+        $out = $mod->create_url($id, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
 
         if (!$onlyhref) {
             $out = '<a href="' . $out . '"';
@@ -1147,7 +1147,7 @@ class CmsFormUtils
             $params = [];
         }
         // create the url
-        $out = $mod->create_pageurl($modid, $returnid, $params, false); //i.e. not $for_display
+        $out = $mod->create_pageurl($id, $returnid, $params, false); //i.e. not $for_display
 
         if ($out) {
             if (!$onlyhref) {
