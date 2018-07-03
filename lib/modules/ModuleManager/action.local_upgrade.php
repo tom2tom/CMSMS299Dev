@@ -5,7 +5,7 @@ $this->SetCurrentTab('installed');
 
 $mod = get_parameter_value($params,'mod');
 if( !$mod ) {
-  $this->SetError($this->Lang('error_missingparams'));
+  $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
 
