@@ -1081,7 +1081,7 @@ class CmsFormUtils
             $params = [];
         }
 
-        $prettyurl = (!empty($prettyurl)) ? filter_var($prettyurl, FILTER_SANITIZE_URL) : '';
+        $prettyurl = (!empty($prettyurl)) ? preg_replace('~[^\w/]~', '', $prettyurl) : '';
 
         // create the url
         $out = $mod->create_url($modid, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
