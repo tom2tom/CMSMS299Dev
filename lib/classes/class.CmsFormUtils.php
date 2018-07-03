@@ -336,8 +336,8 @@ class CmsFormUtils
             $modid = $prefix;
             $tmp = $prefix.$name;
         } elseif (!empty($id)) {
-            $modid = $id;
-            $tmp = $id.$name;
+            $modid = '';
+            $tmp = $id;
         } elseif (CmsApp::get_instance()->is_frontend_request()) {
             $modid = 'cntnt01';
             $tmp = $modid.$name;
@@ -346,9 +346,9 @@ class CmsFormUtils
             $tmp = $modid.$name;
         }
         unset($parms['htmlid']);
+        unset($parms['modid']);
         unset($parms['prefix']);
 
-        $parms['modid'] = sanitize($modid);
         $parms['name'] = sanitize($modid.$name);
         $tmp = sanitize($tmp);
         $parms['id'] = ($tmp) ? $tmp : $parms['name'];
@@ -496,7 +496,7 @@ class CmsFormUtils
         $out = '';
         foreach ($options as $key => $value) {
             if (!is_array($value)) {
-                $out .= self::create_option(['label'=>$value,'value'=>$key], $selected);
+                $out .= self::create_option(['label'=>$key,'value'=>$value], $selected);
             } else {
                 $out .= self::create_option($value, $selected);
             }
