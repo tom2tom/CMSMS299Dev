@@ -289,25 +289,26 @@ $lang['help_type_reqcontentblocks'] = 'This field indicates whether templates of
 
 $lang['help_module'] = <<<EOT
 <h3>What is this?</h3>
-<p>Design Manager is a core module <em>(a module distributed with CMSMS)</em> that unifies functionality for managing the layout of CMSMS web pages. It provides a complete solution for managing and editing any type of smarty template, and for organizing those templates. Also you can create, edit, delete and manage stylesheets. Templates, and stylesheets can then be organized into &quot;Designs&quot;.</p>
+<p>Design Manager is a module that unifies functionality for managing the layout of complete web pages or parts of them. It manages individual smarty templates and stylesheets, as well as their organisation into designs, and for templates, types and categories.</p>
 
-<h3>What is a &quot;Design&quot; ?</h3>
-<p>A design is a container of sorts. It contains a loose association of stylesheets and templates. It allows managing all of the stylesheets and templates required to implement a look and feel. Designs can be exported to a single file be shared, and imported from a single file.</p>
-<p>Each content page that renders HTML is associated with a design to determine which stylesheets are to be used, and their order. Additionally, each content page that renders HTML is associated with a template; though the template does not need to be associated with the specified design.</p>
-<p>Templates and stylesheets do not need to be associated with a design, however, only the templates and stylesheets that are associated with a design are exported with the design.</p>
+<h3>What is a Design ?</h3>
+<p>It is a container of sorts, providing an association between stylesheet(s) and template(s). It allows managing all of the stylesheets and templates required to implement a look and feel. Designs can be exported to a single file for sharing, and imported from such a file.</p>
+<p>Each displayed content page is associated with a design, which determines the stylesheets to be used, and their order. Additionally, each displayed content page is associated with a template, but that template does not need to be included in the specified design.</p>
+<p>Any template or stylesheet may belong to zero or more designs.</p>
 
-<h3>What are Template Types ?</h3>
-<p>Template types are one way of loosely organizing templates. Some functionality might display lists of templates that are of a certain type to make selection easier. For example, the edit content page displays a list of &quot;Page&quot; templates.</p>
-<p>The core creates a few standard template types on installation. Third party modules will probably create more. Template type definitions normally have two parts, the Originator <em>(the module or functionality that created them)</em>, and the type name itself. i.e: Core::Page indicates a page template type created by the core. News::Summary is the name of the template type for news summary templates. Although site developers cannot create new template types they can specify the type for a template when adding or editing a template.</p>
+<h3>What is a Template Type ?</h3>
+<p>It is a way of organizing templates. Any template can belong to zero or one type(s). Some functionality might display lists of templates that are of a certain type to make selection easier. For example, the edit content page displays a list of &quot;Page&quot; templates.</p>
+<p>A few standard template types are created during site installation. Third party modules might create others. Template type definitions normally have two parts, the Originator <em>(the module or functionality that created them)</em>, and the type name itself. i.e: Core::Page indicates a page template type created by the core. News::Summary is the name of the template type for news summary templates. Although site developers cannot create new template types they can specify the type for a template when adding or editing a template.</p>
 <p>Most template types have a &quot;prototype&quot; template that is used to provide a skeleton layout creating a new template of that type.</p>
-<p>Some template types (such as the &quot;Core::Page&quot; template type support the notion of a &quot;default template&quot;. The default template of a type is typically used by modules so that a template of a certain type can be used in the event that a specific template is not named. Additionally, the default template of type &quot;Core::Page&quot; is used as the default template when creating a new content item of type &quot;Content&quot;</p>
-<p>The Design Manager Admin interface allows filtering templates by originator, or their type to easily find templates to edit or manage.</p>
+<p>Some template types (such as &quot;Core::Page&quot;) support a &quot;default template&quot; which is typically used by modules when a specific template is not named. Additionally, the default template of type &quot;Core::Page&quot; is used as the default template when creating a new content item of type &quot;Content&quot;.</p>
+<p>The Design Manager admin interface allows filtering of templates by type, to easily find templates to edit or manage.</p>
 
 <h4>Generic Templates <em>(formerly Global Content Blocks)</em></h4>
-<p>A standard template type is called &quot;Core::generic&quot;. This is a generic template that could be used for anything. It replaces &quot;Global Content Blocks&quot; <em>(GCB)</em> from prior versions of CMSMS.</p>
+<p>One standard template type is &quot;Core::generic&quot;. This is a generic template that could be used for anything. It replaces &quot;Global Content Blocks&quot; <em>(GCB)</em> from prior versions of CMSMS.</p>
 
-<h3>What are &quot;Categories&quot; for ?</h3>
-<p>Categories are a method site developers can use to further organize templates. Site developers can create, rename and delete categories and associate different templates with them. When managing templates site developers can filter templates by their category.</p>
+<h3>What is a Template Category ?</h3>
+<p>It is another way of organizing templates. Any template can belong to zero or more categories, irrespective of its belonging to a type.</p>
+<p>The Design Manager admin interface allows filtering of templates by category, to easily find templates to edit or manage.</p>
 
 <h3>The Primary Interface</h3>
 <p>The Design Manager Admin panel is located in the CMSMS Admin navigation as &quot;Design Manager&quot; under the &quot;Layout&quot; section.</p>
