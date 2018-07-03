@@ -140,8 +140,9 @@ EOS;
 	 *
 	 * @param string $title_name        Displayable content, or a lang key, for the title-text to be displayed
 	 * @param array  $extra_lang_params Optional extra string(s) to be supplied (with $title_key) to lang()
-	 * @param string $link_text         Optional link ... TODO
-	 * @param mixed  $module_help_type  Optional flag, one of true/false/'both'
+     * @param string $link_text         Optional Text to show in the module help link (if $module_help_type is 'both')
+     * @param mixed  $module_help_type  Optional flag for type of module help link(s) display.
+     *  Recognized values are FALSE for no link, TRUE to display an icon-link, and 'both' for icon and text links
 	 */
 	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = false)
 	{
@@ -155,8 +156,7 @@ EOS;
 		$this->set_value('module_help_type', $module_help_type);
 		if ($module_help_type) {
 			// set the module help url TODO supply this TO the theme
-			$module_help_url = $this->get_module_help_url();
-			$this->set_value('module_help_url', $module_help_url);
+			$this->set_value('module_help_url', $this->get_module_help_url());
 		}
 
 		// are we processing a module action?
@@ -199,6 +199,7 @@ EOS;
 //unused			$title_key = $this->find_menuitem_by_title($title);
 				}
 			} // for loop
+			$this->set_value('page_crumbs', $TODO);
 		}
 */
 	}
@@ -335,7 +336,7 @@ EOS;
 		}
 		$smarty->assign('module_name', $module);
 
-		if ($module) {
+		if ($module && $title) {
 			$tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
 			// module_help_url?
 			if (!cms_userprefs::get_for_user(get_userid(),'hide_help_links',0)) {
