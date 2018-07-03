@@ -24,6 +24,7 @@ function smarty_function_admin_icon($params, $template)
     foreach( $params as $key => $value ) {
         switch( $key ) {
         case 'icon':
+        case 'module':
             $icon = trim($value);
             break;
         case 'width':
@@ -45,7 +46,14 @@ function smarty_function_admin_icon($params, $template)
     if( !$icon ) return;
 
     if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
-    $out = CMSMS\AdminUtils::get_icon($icon,$tagparms);
+
+    if( isset($params['module']) ) {
+        $out = CMSMS\AdminUtils::get_module_icon($icon,$tagparms);
+	}
+	else {
+        $out = CMSMS\AdminUtils::get_icon($icon,$tagparms);
+	}
+
     if( !$out ) return;
 
     if( isset($params['assign']) ) {
