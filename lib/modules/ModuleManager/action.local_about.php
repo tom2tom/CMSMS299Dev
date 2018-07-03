@@ -15,6 +15,7 @@ if( !is_object($modinstance) ) {
   $this->RedirectToAdminTab();
 }
 
+$smarty->assign('module_name',$module);
 $smarty->assign('back_url',$this->create_url($id,'defaultadmin',$returnid));
 $smarty->assign('about_page',$modinstance->GetAbout());
 $smarty->assign('about_title',$this->Lang('about_title',$modinstance->GetName()));

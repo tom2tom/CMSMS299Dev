@@ -3,7 +3,8 @@
 {/if}
 
 <div class="pageheader">
-	{if isset($friendly_name) && $friendly_name != ''}
+	{admin_icon module=$module_name}
+	{if !empty($friendly_name)}
 		{$friendly_name} <em>({$module_name})</em>
 	{else}
 		{$module_name}
