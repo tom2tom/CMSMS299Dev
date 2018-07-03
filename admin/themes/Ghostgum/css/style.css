@@ -354,10 +354,10 @@ pre {
 /* Ace text editor container */
 /* @media="screen" */
 #Editor {
-/* padding-top: 6px; appears at bottom !? */
- padding-bottom: 6px;
+/* padding-top: 6px; appears at bottom !? ace renderer setpadding applies to left, right */
+/* padding-bottom: 6px; */
+ line-height: 1.2;
  max-width: 99%;
- overflow: auto;
  font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
 }
 
@@ -2047,6 +2047,12 @@ img.systemicon {
     border: none;
     vertical-align: text-bottom
 }
+
+.pageheader img {
+    max-height: 2em;
+    max-width: 2em;
+}
+
 #copy_paste_in_forum {
     width: 80%;
     margin: 0 10%
