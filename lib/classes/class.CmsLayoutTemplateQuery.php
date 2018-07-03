@@ -72,6 +72,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 			return;
 		}
 
+		$db = CmsApp::get_instance()->GetDb();
 		$tbl1 = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
 		$tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME;
 		$typejoin = false;
@@ -175,11 +176,11 @@ AS tmp1';
 				break;
 
 			  case 'limit':
-				$limit = max(1, min(1000, $val));
+				$this->_limit = max(1, min(1000, $val));
 				break;
 
 			  case 'offset':
-				$offset = max(0, $val);
+				$this->_offset = max(0, $val);
 				break;
 
 			  case 'sortby':
@@ -189,14 +190,14 @@ AS tmp1';
 				  case 'name':
 				  case 'created':
 				  case 'modified':
-					$sortby = $val;
+					$this->_sortby = $val;
 					break;
 				  case 'type':
-					$sortby = 'CONCAT(TT.originator,TT.name)';  //no prefix for this one
+					$this->_sortby = 'CONCAT(TT.originator,TT.name)';  //no prefix for this one
 					$typejoin = true;
 					break;
 				  default:
-					throw new CmsInvalidDataException($val.' is an invalid sortby');
+					throw new CmsInvalidDataException($val.' is an invalid sortfield');
 				}
 				break;
 
@@ -205,7 +206,7 @@ AS tmp1';
 				switch ($val) {
 				  case 'ASC':
 				  case 'DESC':
-					$sortorder = $val;
+					$this->_sortorder = $val;
 					break;
 				  default:
 					throw new CmsInvalidDataException($val.' is an invalid sortorder');
@@ -227,8 +228,8 @@ AS tmp1';
 		if ($typejoin) {
 			$query = "SELECT TPL.id FROM $tbl1 TPL LEFT JOIN $tbl2 TT ON TPL.type_id = TT.id";
 			$xprefixes($where);
-			if (strncmp($sortby, 'CONCAT', 6) != 0) {
-				$sortby = 'TPL.'.$sortby;
+			if (strncmp($this->_sortby, 'CONCAT', 6) != 0) {
+				$this->_sortby = 'TPL.'.$this->_sortby;
 			}
 		} elseif ($catjoin) {
 			$tbl3 = CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME;
@@ -250,10 +251,10 @@ AS tmp1';
 			$query .= ' WHERE ' . implode(' AND ', $tmp);
 		}
 
-		$query .= ' ORDER BY '.$sortby.' '.$sortorder;
+		$query .= ' ORDER BY '.$this->_sortby.' '.$this->_sortorder;
 
 		// execute the query
-		$this->_rs = $db->SelectLimit($query, $limit, $offset);
+		$this->_rs = $db->SelectLimit($query, $this->_limit, $this->_offset);
 		if (!$this->_rs) {
 			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
