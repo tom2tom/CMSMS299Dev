@@ -42,7 +42,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetVersion() { return '0.3'; }
     public function MinimumCMSVersion() { return '2.1.99'; }
-    public function GetAuthor() { return 'Calguy1000'; }
+    public function GetAuthor() { return 'Robert Campbell'; }
     public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
     public function IsPluginModule() { return TRUE; }
     public function HasAdmin() { return TRUE; }
@@ -373,7 +373,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             $joburl = $this->create_url('aj_','process', '', ['cms_jobman'=>1]) . '&cmsjobtype=2';
         }
         $joburl = str_replace('&amp;', '&', $joburl);  //fix needed for direct use
-        
+
 /*        if (defined('ASYNCLOG')) {
             error_log('async job url: '.$joburl."\n", 3, ASYNCLOG);
         }

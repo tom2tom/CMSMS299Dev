@@ -29,7 +29,7 @@ class CMSMailer extends CMSModule
   public function GetVersion() { return '6.2.14'; }
   public function MinimumCMSVersion() { return '1.99-alpha0'; }
   public function GetHelp() { return $this->Lang('help'); }
-  public function GetAuthor() { return 'Calguy1000'; }
+  public function GetAuthor() { return 'Robert Campbell'; }
   public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
   public function GetChangeLog() { return @file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'changelog.inc'); }
   public function IsPluginModule() { return FALSE; }

@@ -1,6 +1,6 @@
 <?php
 #An abstract class for building database queries and managing their results.
-#Copyright (C) 2016-2018  Robert Campbell <calguy1000@gmail.com>
+#Copyright (C) 2016-2018  Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
  * @since 2.0
  * @package CMS
  * @license GPL
- * @author Robert Campbell <calguy1000@gmail.com>
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @property-read array $fields Associative array of the current row of the resultset (read only)
  * @property-read boolean $EOF  Indicates whether the resultset is past the last element (read only)
  * @property-read int $limit The maximum number of rows to return in one resultset (read only)

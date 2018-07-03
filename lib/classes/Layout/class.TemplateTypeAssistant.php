@@ -23,7 +23,7 @@ namespace CMSMS\Layout;
  * @package CMS
  * @license GPL
  * @since 2.2
- * @author Robert Campbell <calguy1000@gmail.com>
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 abstract class TemplateTypeAssistant
 {

@@ -350,7 +350,7 @@ class cms_http_request
     /**
      * Clear all cookies
      *
-     * @author Robert Campbell (calguy1000@gmail.com)
+     * @author Robert Campbell (calguy1000@cmsmadesimple.org)
      */
     function resetCookies()
     {

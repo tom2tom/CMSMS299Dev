@@ -106,7 +106,7 @@ namespace CMSMS {
      * @package CMS
      * @license GPL
      * @since 2.2
-     * @author Robert Campbell <calguy1000@gmail.com>
+     * @author Robert Campbell <calguy1000@cmsmadesimple.org>
      */
     class HookManager
     {

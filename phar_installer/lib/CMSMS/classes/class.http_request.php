@@ -353,7 +353,7 @@ class http_request
      * Clear all cookies
      *
      * @return void
-     * @author Robert Campbell (calguy1000@gmail.com)
+     * @author Robert Campbell (calguy1000@cmsmadesimple.org)
      */
     function resetCookies()
     {

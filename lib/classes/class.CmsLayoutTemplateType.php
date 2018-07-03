@@ -25,7 +25,7 @@ use \CMSMS\internal\TemplateCache;
  * @package CMS
  * @license GPL
  * @since 2.0
- * @author Robert Campbell <calguy1000@gmail.com>
+ * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  */
 class CmsLayoutTemplateType
 {

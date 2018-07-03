@@ -18,7 +18,7 @@
 final class AdminSearch extends CMSModule
 {
   public function GetAdminDescription() { return $this->Lang('moddescription'); }
-  public function GetAuthor() { return 'Calguy1000'; }
+  public function GetAuthor() { return 'Robert Campbell'; }
   public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
   public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
   public function GetFriendlyName()  { return $this->Lang('friendlyname');  }
