@@ -43,7 +43,12 @@ use ArrayTreeIterator;
 use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
 */
-use CMSMS\AdminUtils, CMSMS\ArrayTree, CMSMS\HookManager;
+
+use CMSMS\AdminUtils;
+use CMSMS\ArrayTree;
+use CMSMS\Bookmark;
+use CMSMS\HookManager;
+use CMSMS\ModuleOperations;
 
 /**
  * This is an abstract base class for building CMSMS admin themes.
@@ -532,12 +537,13 @@ abstract class CmsAdminThemeBase
         // extensions
         $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-//        $this->_perms['eventPerms'] = check_permission($this->userid, 'Modify Events');
+        $config = cms_config::get_instance();
+        $this->_perms['eventPerms'] = !empty($config['developer_mode']) && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
             check_permission($this->userid, 'Modify Simple Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
-            $this->_perms['modulePerms'] | //$this->_perms['eventPerms'] |
+            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];
 
         // myprefs
@@ -822,7 +828,7 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
-/* this stuff is for developers only
+         // for developers only ??
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'eventhandlers.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
@@ -832,8 +838,7 @@ abstract class CmsAdminThemeBase
         'url'=>'editevent.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('editeventhandler')),
         'description'=>lang('editeventhandlerdescription'),
-        'show_in_menu'=>false]; //??
-*/
+        'show_in_menu'=>false]; //UDT's N/A event responders
         // ~~~~~~~~~~ site-admin menu items ~~~~~~~~~~
 
         $items[] = ['name'=>'siteprefs','parent'=>'siteadmin',
@@ -902,9 +907,9 @@ abstract class CmsAdminThemeBase
 
         $tree = ArrayTree::load_array($items);
 
-        $iter = new \RecursiveArrayTreeIterator(
-                new \ArrayTreeIterator($tree),
-                \RecursiveIteratorIterator::SELF_FIRST | \RecursiveArrayTreeIterator::NONLEAVES_ONLY
+        $iter = new RecursiveArrayTreeIterator(
+                new ArrayTreeIterator($tree),
+                RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                 );
         foreach ($iter as $key => $value) {
 /* TODO e.g. add/remove properties,
@@ -1325,7 +1330,11 @@ $X = 1;
                 $store[] = lang(cleanValue($_GET[$get_var]));
             }
         } elseif ($title) {
-            $store[$title] = $message;
+            if (isset($store[$title])) {
+				//TODO merge
+            } else {
+	            $store[$title] = $message;
+			}
         } else {
             if (is_array($message)) {
                 $store = array_merge($store, $message);
@@ -1473,11 +1482,11 @@ $X = 1;
      *  passed through lang() if module_help_type is FALSE.
      * @param array  $extra_lang_params Extra parameters to pass to lang() along with $title_name.
      *   Ignored if module_help_type is not FALSE
-     * @param string $link_text Text to show in the module help link (depends on the module_help_type param)
-     * @param mixed  $module_help_type Flag for how to display module help types.
-     *  Recognized values are TRUE to display a simple link, FALSE for no help, and 'both' for both types?? of links
+     * @param string $link_text Text to show in the module help link (if $module_help_type is 'both')
+     * @param mixed  $module_help_type Flag for type of module help link(s) display.
+     *  Recognized values are FALSE for no link, TRUE to display an icon-link, and 'both' for icon- and text-links
      */
-    abstract public function ShowHeader($title_name,$extra_lang_params = [],$link_text = null,$module_help_type = FALSE);
+    abstract public function ShowHeader($title_name,$extra_lang_params = [],$link_text = null,$module_help_type = false);
 
     /**
      * Return the name of the default admin theme.
@@ -1604,43 +1613,55 @@ $X = 1;
      *
      * @internal
      * @since 1.12
-     * @param bool $none A flag indicating whether 'none' should be the first option.
-     * @return array The keys of the array are langified strings to display to the user.  The values are URLS.
+     * @param bool $none Optional flag indicating whether 'none' should be the first option. Default true
+     * @return array Keys are langified page-titles, values are respective URLs.
      */
     public function GetAdminPages($none = true)
     {
         $opts = [];
-        if( $none ) $opts[ucfirst(lang('none'))] = '';
+        if ($none) {
+			$opts[lang('default')] = '';
+		}
 
-        $depth = 0;
-/*
-        $menuItems = $this->get_admin_navigation();
-        foreach( $menuItems as $sectionKey=>$menuItem ) {
-            if( $menuItem['parent'] != -1 ) continue; // only parent pages
-            if( !$menuItem['show_in_menu'] || strlen($menuItem['url']) < 1 ) continue; // only visible stuff
+        $nodes = $this->get_navigation_tree(null, 2);
+/* TODO iterwalk, pages: top-level & direct children? shown, with-url
+        $iter = new RecursiveArrayTreeIterator(
+                new ArrayTreeIterator($nodes),
+                RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
+                );
+        foreach ($iter as $key => $value) {
+		}
+*/
+        foreach ($nodes as $name=>$node) {
+            if (!$node['show_in_menu'] || empty($node['url'])) {
+				continue; // only visible stuff
+			}
+			if ($name == 'main' || $name == 'logout') {
+				continue; // no irrelevant choices
+			}
+			try {
+	            $opts[$node['title']] = AdminUtils::get_generic_url($node['url']);
+			} catch (Exception $e) {
+				continue;
+			}
 
-            $opts[$menuItem['title']] = AdminUtils::get_generic_url($menuItem['url']);
-
-            if( is_array($menuItem['children']) && count($menuItem['children']) ) {
-                foreach( $menuItem['children'] as $one ) {
-                    if( $one == 'home' || $one == 'logout' || $one == 'viewsite') {
+            if (is_array($node['children']) && count($node['children'])) {
+                foreach ($node['children'] as $childname=>$one) {
+                    if ($name == 'home' || $name == 'logout' || $name == 'viewsite') {
                         continue;
                     }
-
-                    $menuChild = $menuItems[$one];
-                    if( !$menuChild['show_in_menu'] || strlen($menuChild['url']) < 1 ) {
+                    if (!$one['show_in_menu'] || empty($one['url'])) {
                         continue;
                     }
-
-                    //$opts['&nbsp;&nbsp;'.$menuChild['title']] = cms_htmlentities($menuChild['url']);
-                    $url = $menuChild['url'];
-                    $url = AdminUtils::get_generic_url($url);
-                    $opts['&nbsp;&nbsp;'.$menuChild['title']] = $url;
+					try {
+		                $opts['&nbsp;&nbsp;'.$one['title']] = AdminUtils::get_generic_url($one['url']);
+					} catch (Exception $e) {
+						continue;
+					}
                 }
             }
         }
-*/
-        //TODO iterwalk, pages: top-level & direct children? shown, with-url
+
         return $opts;
     }
 
@@ -1656,27 +1677,16 @@ $X = 1;
      */
     public function GetAdminPageDropdown($name,$selected,$id = null)
     {
-        $attrs = ['name'=>trim((string)$name)];
-        if( $id ) $attrs['id'] = trim((string)$id);
-        $output = '<select ';
-        foreach( $attrs as $key => $value ) {
-            $output .= ' '.$key.'='.$value;
-        }
-        $output .= '>';
-
         $opts = $this->GetAdminPages();
-        foreach( $opts as $key => $value ) {
-            if( $value == $selected ) {
-                $output .= sprintf("<option selected=\"selected\" value=\"%s\">%s</option>\n",
-                                   $value,$key);
-            }
-            else {
-                $output .= sprintf("<option value=\"%s\">%s</option>\n",
-                                   $value,$key);
-            }
-        }
-        $output .= '</select>'."\n";
-        return $output;
+		if ($opts) {
+			$parms = ['type'=>'drop','name'=>trim((string)$name),
+				'options'=>$opts,'selectedvalue'=>$selected];
+	        if ($id) {
+				$parms['id'] = trim((string)$id);
+			}
+	        return CmsFormUtils::create_select($parms);
+		}
+		return '';
     }
 
     /**
