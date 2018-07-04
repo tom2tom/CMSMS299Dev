@@ -1,7 +1,7 @@
 <?php
 # base class for all CMSMS modules
 # Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-# Copyright (C) 2011-2018 The CMSMS Dev Team <coreteam@cmsmadesimple.org>
+# Copyright (C) 2011-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -1471,7 +1471,7 @@ abstract class CMSModule
      * @param string $id The action identifier
      * @param array  $params The action params
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
-     * @param mixed  $smartob  The global Smarty object, or a Smarty_Internal_Template-class object.
+     * @param mixed  $smartob  A CMSMS\internal\Smarty object.
      * @return mixed The action output, normally a string but maybe null.
      */
     public function DoActionBase($name, $id, $params, $returnid, &$smartob)
