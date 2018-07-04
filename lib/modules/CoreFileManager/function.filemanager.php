@@ -49,7 +49,7 @@ function _cfm_dir_tree(string $path, string $current, int $depth) : string
             // $data includes " chars
             $data = json_encode(['name'=>$name,'open'=>0,'opendown'=>0], JSON_NUMERIC_CHECK); //TODO display-compatible name suited to incremental comparison during searches
             $relpath = substr($onedir, $len);
-            $tree_content .= '<li class="fm-directory tree-closed" data-node=\''.$data.'\'><a href="'.$CFM_FOLDER_URL.rawurlencode($relpath).'"';
+            $tree_content .= '<li class="tree-closed" data-node=\''.$data.'\'><a href="'.$CFM_FOLDER_URL.rawurlencode($relpath).'"';
             if ($CFM_FOLDER_TITLE) {
                 $tree_content .= ' title="'.$CFM_FOLDER_TITLE.'"';
             }

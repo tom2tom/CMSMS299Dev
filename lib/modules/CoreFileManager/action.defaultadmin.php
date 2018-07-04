@@ -104,6 +104,7 @@ $sm = new \CMSMS\ScriptManager();
 $sm->queue_file($p.'jquery.metadata.min.js');
 $sm->queue_file($p.'jquery.SSsort.min.js');
 $sm->queue_file($p.'jquery.treemenu.js'); //OR .min for production
+$sm->queue_file($p.'jquery.treefilter.js'); //OR .min for production
 $sm->queue_file($p.'jquery.easysearch.js'); //OR .min for production
 $sm->queue_file($p.'jquery.dm-uploader.js'); //OR .min for production
 $fn = $sm->render_scripts();

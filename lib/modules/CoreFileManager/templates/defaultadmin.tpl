@@ -27,8 +27,8 @@
   </div>{*/boxchild*}
  </div>{*/hbox*}
  <div class="hbox flow">
-  <div class="boxchild">
-   <p class="fm-tree-title">{$mod->Lang('browse')} <a title="{$mod->Lang('search2')}" href="javascript:doSearch(false)"><i class="if-search"></i></a></p>
+  <div class="boxchild" id="treecontainer">
+   <p class="fm-tree-title"><a title="{$mod->Lang('search2')}" href="javascript:doSearch(false)"><i class="if-search"></i></a></p>
    {$treeview}
   </div>{*/boxchild*}
   <div class="boxchild">

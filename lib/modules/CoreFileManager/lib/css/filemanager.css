@@ -229,15 +229,24 @@ span.actionspacer {
 }
 
 /* folders tree */
+#treecontainer { margin-left: -999em; }  /* don't show it until after init */
+/*.fm-tree-title
+#fm-tree topmost ul for all folders
+.fm-directory */
+/* .treemenu-root {} */
+/* .treemenu {} */
 .treemenu ul { margin-left: 1em; }
 .treemenu li { list-style: none; margin-left: 0; }
 .treemenu li a { font-size: 0.9em; }
 .treemenu .toggler { cursor: pointer; }
-.treemenu .toggler:before { display: inline-block; margin-right: 5px; font-size: 1.1em; }
+/* .treemenu li.active {} */
+.toggler:before { display: inline-block; margin-right: 5px; font-size: 1.1em; }
 li.tree-empty > .toggler { opacity: 0.4; cursor: default; }
 li.tree-empty > .toggler:before { content: '\e810'; color: #eeaf4b; } /* TODO always same as .warn */
 li.tree-closed > .toggler:before { content: '\e810'; color: #eeaf4b; }
 li.tree-opened > .toggler:before { content: '\e811'; color: #0e2a42; }  /* TODO always same as .info */
+.tree-hidden { display: none; }
+.treemenu .search-result { display: block; }
 
 /*
 #searchbox > input {
