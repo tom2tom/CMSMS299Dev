@@ -32,7 +32,7 @@ final class CoreFileManager extends CMSModule
     public function IsAdminOnly() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.2.900'; }
+    public function MinimumCMSVersion() { return '2.2.910'; }
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
 
