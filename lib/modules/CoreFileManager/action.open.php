@@ -169,6 +169,9 @@ if ($is_arch && $filenames) {
         $enc = '?';
     }
     $items[$this->Lang('info_charset')] = $enc;
+    if ($edit) {
+		$smarty->assign('edit', 1);
+	}
 }
 $smarty->assign('about', $items);
 
