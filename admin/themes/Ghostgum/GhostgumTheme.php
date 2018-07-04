@@ -319,22 +319,31 @@ EOS;
 */
 //		$tree =
 			$this->get_navigation_tree(); //TODO if section
-		// page title and alias
-		$title = $this->get_active_title();
-		$smarty->assign('pagetitle', $title);
-		$smarty->assign('subtitle', $this->subtitle);
-//		$alias = $this->get_value(??) else munge CHECKME
-//		$smarty->assign('pagealias', munge_string_to_url($title));
 
 		// module name, if any
-		if (isset($_REQUEST['module'])) {
-			$module = $_REQUEST['module'];
-		} elseif (isset($_REQUEST['mact'])) {
+//		if (isset($_REQUEST['module'])) {
+//			$module = $_REQUEST['module']; //should never happen : admin params sans m1_ prefix get filtered
+//		} else
+		if (isset($_REQUEST['mact'])) {
 			$module = explode(',', $_REQUEST['mact'])[0];
 		} else {
 			$module = '';
 		}
 		$smarty->assign('module_name', $module);
+
+		// page title and alias
+		$title = $this->get_active_title();
+		if ($title) {
+			$smarty->assign('pagetitle', $title);
+			$smarty->assign('subtitle', $this->subtitle);
+		} elseif ($module) {
+			$modinst = cms_utils::get_module($module);
+			$title = $modinst->GetFriendlyName();
+			$smarty->assign('pagetitle', $title);
+			$smarty->assign('subtitle', $modinst->GetAdminDescription());
+		}
+//		$alias = $this->get_value(??) else munge CHECKME
+//		$smarty->assign('pagealias', munge_string_to_url($title));
 
 		if ($module && $title) {
 			$tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
