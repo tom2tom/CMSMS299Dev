@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /* NOTE
-this requires php extensions zlib, zip
+this REQUIRES php extensions zlib, zip
 this benefits from php extension Fileinfo - probably built by default
 */
 
@@ -16,11 +16,8 @@ if ($cli) {
 	}
 }
 
-// $update_script is defined when this file is included by the 'local update' script
-if (empty($update_script)) {
-	if (ini_get('phar.readonly')) {
-		throw new Exception('phar.readonly must be turned OFF in your php.ini');
-	}
+if (ini_get('phar.readonly')) {
+	throw new Exception('phar.readonly must be turned OFF in your php.ini');
 }
 
 // patterns for sources not copied to tempdir for processing,
@@ -69,6 +66,7 @@ $phar_excludes = [
 
 $phardir = dirname(__DIR__); //parent, a.k.a. phar_installer
 $srcdir = current_root(__DIR__); //ancestor of this script's place
+$sourceuri = ''; // alternate source of files
 
 $tmpdir = joinpath($phardir, 'source'); //place for sources to go into data.tar.gz
 $datadir = joinpath($phardir, 'data'); //place for data.tar.gz etc
@@ -81,65 +79,68 @@ $rename = 1;
 $verbose = 0;
 $zip = 1;
 
-if (empty($update_script)) {
-	if ($cli) {
-		$options = getopt('ahcks:rvz', [
-		'archive',
-		'help',
-		'clean',
-		'checksums',
-		'src',
-		'rename',
-		'verbose',
-		'zip'
-		]);
+if ($cli) {
+	$options = getopt('ahcks:ru:vz', [
+	'archive',
+	'help',
+	'clean',
+	'checksums',
+	'src',
+	'rename',
+	'uri',
+	'verbose',
+	'zip'
+	]);
 
-		if (is_array($options) && count($options)) {
-			foreach ($options as $k => $v) {
-				switch ($k) {
-				 case 'a':
-				 case 'archive':
-					$archive_only = !$archive_only;
-					break;
-				 case 'c':
-				 case 'clean':
-					$clean = !$clean;
-					break;
-				 case 'k':
-				 case 'checksums':
-					$checksums = !$checksums;
-					break;
-				 case 'v':
-				 case 'verbose':
-					++$verbose;
-					break;
-				 case 's':
-				 case 'src':
-					if (!is_dir($v)) {
-						throw new Exception("$v is not a valid directory for the src parameter");
-					}
-					$srcdir = $v;
-					break;
-				 case 'h':
-				 case 'help':
-					output_usage();
-					exit;
-				 case 'r':
-				 case 'rename':
-					$rename = !$rename;
-					break;
-				 case 'z':
-				 case 'zip':
-					$zip = !$zip;
-					break;
+	if (is_array($options) && count($options)) {
+		foreach ($options as $k => $v) {
+			switch ($k) {
+			 case 'a':
+			 case 'archive':
+				$archive_only = !$archive_only;
+				break;
+			 case 'c':
+			 case 'clean':
+				$clean = !$clean;
+				break;
+			 case 'k':
+			 case 'checksums':
+				$checksums = !$checksums;
+				break;
+			 case 'v':
+			 case 'verbose':
+				++$verbose;
+				break;
+			 case 's':
+			 case 'src':
+				if (!is_dir($v)) {
+					throw new Exception("$v is not a valid directory for the src parameter");
 				}
+				$srcdir = $v;
+				break;
+			 case 'h':
+			 case 'help':
+				output_usage();
+				exit;
+			 case 'r':
+			 case 'rename':
+				$rename = !$rename;
+				break;
+			 case 'u':
+			 case 'uri':
+				if (!preg_match('~^(file|svn|git)//~', $v) {
+					throw new Exception("$v is not valid for the uri parameter");
+				}
+				$sourceuri = $v;
+				break;
+			 case 'z':
+			 case 'zip':
+				$zip = !$zip;
+				break;
 			}
 		}
-	} //cli
-} else { // not update
-	$archive_only = 1;
-	$zip = 0;
-}
+	}
+} //cli
 
 function output_usage()
 {
@@ -151,7 +152,9 @@ options:
   -c|--clean     toggle cleaning of old output directories (default is on)
   -k|--checksums toggle creation of checksum files (default is on)
   -r|--rename    toggle renaming of .phar file to .php (default is on)
-  -s|--src       specify source-files root directory <path-to-root> (default is the relevant ancestor of this script)
+  -s|--src       specify 'local' source-files root directory <path-to-root> (default is the relevant ancestor of this script)
+  -u|--uri       specify 'non-local' source-files, one of file://<path-to-root> or svn://detail or git://detail
+                 for svn, the detail need only be the branch or tag relative to the CMSMS svn root e.g. trunk
   -v|--verbose   increment verbosity level (can be used multiple times)
   -z|--zip       toggle zipping the output (phar or php) into a .zip file (default is on)
 EOS;
@@ -224,6 +227,56 @@ function rchmod(string $path) : bool
 		return @chmod($path, 0644);
 	}
 	return $res;
+}
+
+function get_alternate_files() : bool
+{
+	global $sourceuri,$tmpdir;
+
+	if (strncmp($sourceuri, 'file://', 7) == 0) {
+		$tmpdir = substr($sourceuri, 7);
+		if (is_dir($tmpdir)) {
+			//use files in that place
+			return true;
+		}
+	} elseif (strncmp($sourceuri, 'svn://', 6) == 0) {
+		$remnant = substr($sourceuri, 6);
+		$url = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+		switch (substr($remnant,0, 4) {
+			case '':
+			case 'trun':
+			case 'Trun':
+				$url .= '/trunk';
+				break;
+			case 'tags':
+			case 'Tags':
+			case 'bran':
+			case 'Bran':
+				$url .= '/'. strtolower($remnant);
+				break;
+			case 'http':
+				$url = $remnant;
+			case 'svn.':
+				$url = 'http://'.$remnant;
+				break;
+			default:
+				return false;
+		}
+
+		$cmd = escapeshellcmd("svn export -q $url $tmpdir");
+
+		verbose(1, "INFO: retrieving files from SVN ($url)");
+		system($cmd, $retval);
+		return true; //$retval == 0?
+	} elseif (strncmp($sourceuri, 'git://', 6) == 0) {
+		$url = 'https://'.substr($sourceuri, 6);
+		$cmd = escapeshellcmd("git clone -q $url $tmpdir");
+
+		verbose(1, "INFO: retrieving files from GIT ($url)");
+		system($cmd, $retval);
+		return true; //$retval == 0?;
+	}
+	return false;
 }
 
 function copy_source_files()
@@ -338,7 +391,7 @@ function create_checksum_dat()
 
 function create_source_archive()
 {
-	global $clean,$tmpdir,$datadir,$srcdir,$update_script;
+	global $clean,$tmpdir,$datadir,$srcdir,$sourceuri;
 
 	if ($clean && is_dir($tmpdir)) {
 		verbose(1, "INFO: removing old temporary files");
@@ -349,49 +402,53 @@ function create_source_archive()
 	$fp = joinpath($srcdir, 'tmp');
 	rrmdir($fp, true);
 
-	copy_source_files();
+	if ($sourceuri) {
+		if (!get_alternate_files()) {
+			die('ERROR: sources not available');
+		}
+	} else {
+		copy_source_files();
+	}
 	verbose(1, "INFO: Recursively setting permissions");
 	rchmod($tmpdir);
 
-	if (empty($update_script)) {
-		@mkdir($datadir, 0771, true);
-		$fp = joinpath($datadir, 'data.tar');
-		@unlink($fp.'.gz');
+	@mkdir($datadir, 0771, true);
+	$fp = joinpath($datadir, 'data.tar');
+	@unlink($fp.'.gz');
 
-		try {
-			verbose(1, "INFO: Creating tar.gz sources archive");
-			$phar = new PharData($fp);
-			//get all files
-			$phar->buildFromDirectory($tmpdir);
-			//get all empty dirs
-			$iter = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($tmpdir,
-					RecursiveIteratorIterator::SELF_FIRST |
-					FilesystemIterator::KEY_AS_PATHNAME |
-					FilesystemIterator::CURRENT_AS_FILEINFO |
-					FilesystemIterator::FOLLOW_SYMLINKS
-				)
-			);
-			$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
-			foreach ($iter as $tp => $inf) {
-				$fn = $inf->getFilename();
-				if ($fn == '.') {
-					$dir = dirname($tp);
-					$iter2 = new FilesystemIterator($dir);
-					if (!$iter2->valid()) {
-						$phar->addEmptyDir(substr($dir, $len));
-					}
-					unset($iter2);
+	try {
+		verbose(1, "INFO: Creating tar.gz sources archive");
+		$phar = new PharData($fp);
+		//get all files
+		$phar->buildFromDirectory($tmpdir);
+		//get all empty dirs
+		$iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($tmpdir,
+				RecursiveIteratorIterator::SELF_FIRST |
+				FilesystemIterator::KEY_AS_PATHNAME |
+				FilesystemIterator::CURRENT_AS_FILEINFO |
+				FilesystemIterator::FOLLOW_SYMLINKS
+			)
+		);
+		$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
+		foreach ($iter as $tp => $inf) {
+			$fn = $inf->getFilename();
+			if ($fn == '.') {
+				$dir = dirname($tp);
+				$iter2 = new FilesystemIterator($dir);
+				if (!$iter2->valid()) {
+					$phar->addEmptyDir(substr($dir, $len));
 				}
+				unset($iter2);
 			}
-
-			$phar->compress(Phar::GZ);
-			unset($phar); //close it
-			unlink($fp);
-		} catch (Exception $e) {
-			die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
 		}
-	} //not update
+
+		$phar->compress(Phar::GZ);
+		unset($phar); //close it
+		unlink($fp);
+	} catch (Exception $e) {
+		die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
+	}
 }
 
 function verbose(int $lvl, string $msg)
@@ -414,9 +471,7 @@ try {
 		rrmdir($outdir);
 	}
 
-	if (empty($update_script)) {
-		@mkdir($outdir, 0771, true);
-	}
+	@mkdir($outdir, 0771, true);
 	@mkdir($datadir, 0771, true);
 	if (!is_dir($datadir) || !is_dir($outdir)) {
 		throw new Exception('Problem creating working directories: '.$datadir.' and '.$outdir);
@@ -632,11 +687,9 @@ EOS;
 		}
 	} // archive only
 
-	if (empty($update_script)) {
-		rrmdir($datadir);
+	rrmdir($datadir);
 
-		echo "INFO: Done, see files in $outdir\n";
-	}
+	echo "INFO: Done, see files in $outdir\n";
 } catch (Exception $e) {
 	echo "ERROR: Problem building phar file ".$outdir.": ".$e->GetMessage()."\n";
 }
