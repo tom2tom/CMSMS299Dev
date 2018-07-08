@@ -53,7 +53,7 @@ class Smarty extends smarty_base_template
 
     /**
      * Constructor
-	 * Although this is a singleton, the contructor must be public to conform with the class ancestors
+	 * Although this is a singleton, the constructor must be public to conform with the class ancestors
      */
     public function __construct()
     {
