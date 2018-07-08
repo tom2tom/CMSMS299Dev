@@ -20,45 +20,44 @@ content_id I,
 extra_attr C(100),
 expires DT
 ';
-
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_items', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 $db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
 
-$sqlarray = $dict->CreateIndexSQL('module_name', CMS_DB_PREFIX.'module_search_items', 'module_name');
+$sqlarray = $dict->CreateIndexSQL('items_search_items',
+			CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
 $dict->ExecuteSQLArray($sqlarray);
-
-$sqlarray = $dict->CreateIndexSQL('content_id', CMS_DB_PREFIX.'module_search_items', 'content_id');
+$sqlarray = $dict->CreateIndexSQL('items_search_module',
+			CMS_DB_PREFIX.'module_search_items', 'module_name');
 $dict->ExecuteSQLArray($sqlarray);
-
-$sqlarray = $dict->CreateIndexSQL('extra_attr', CMS_DB_PREFIX.'module_search_items', 'extra_attr');
+$sqlarray = $dict->CreateIndexSQL('items_search_content',
+			CMS_DB_PREFIX.'module_search_items', 'content_id');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('items_search_attr',
+			CMS_DB_PREFIX.'module_search_items', 'extra_attr');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
 item_id I,
 word C(255),
-count I
+count I(4)
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
-$sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_count', CMS_DB_PREFIX.'module_search_index', 'count');
+$sqlarray = $dict->CreateIndexSQL('index_search_word',
+			CMS_DB_PREFIX.'module_search_index', 'word');
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->CreateIndexSQL('index_search_count',
+			CMS_DB_PREFIX.'module_search_index', 'count');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
 word C(255) KEY,
-count I
+count I(4)
 ';
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_words', $flds, $taboptarray);
-$dict->ExecuteSQLArray($sqlarray);
-
-# Indices
-$sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_items',
-			CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
-$dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL(CMS_DB_PREFIX.'index_search_index',
-			CMS_DB_PREFIX.'module_search_index', 'word');
 $dict->ExecuteSQLArray($sqlarray);
 
 $this->SetPreference('stopwords', $this->DefaultStopWords());
