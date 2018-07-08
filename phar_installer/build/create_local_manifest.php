@@ -1,57 +1,105 @@
 #!/usr/bin/env php
 <?php
-// NOTE this assumes UNIX-style filepaths
+/*
+NOTE interactive mode uses extensions & methods which are *NIX-only
+ i.e. interactive mode is not for Windoze.
 
-if (!function_exists('readline')) {
-    die('Abort '.basename(__FILE__).' : Missing readline extension');
-}
-//
-// some debian based distros don't have gzopen (crappy)
-//
-if (!extension_loaded('zlib')) {
-    die('Abort '.basename(__FILE__).' : Missing zlib extension');
-}
-if (!function_exists('gzopen') && function_exists('gzopen64')) {
-    function gzopen($filename, $mode, $use_include_path = 0)
-    {
-        return gzopen64($filename, $mode, $use_include_path);
-    }
-}
-if (!extension_loaded('pcntl')) {
-    echo(basename(__FILE__).' works better with pcntl extension'."\n");
-}
+Requires:
+ PHP extension zlib. Also readline if in interactive mode
+Prefers:
+ PHP extension pcntl if in interactive mode
+*/
 
-//
-// begin application
-//
+$_scriptname = basename(__FILE__);
 $_cli = php_sapi_name() == 'cli';
+$_interactive = $cli && (DIRECTORY_SEPARATOR !== '/');  //false on windows
 $_debug = false;
 $_compress = true;
-$_scriptname = basename($argv[0]);
-$_config = ['do_md5'=>false, 'repos_root'=>'http://svn.cmsmadesimple.org/svn/cmsmadesimple','repos_from'=>'','repos_to'=>'','mode'=>'f','outfile'=>'MANIFEST.DAT'];
-$_tmpdir = sys_get_temp_dir()."/{$_scriptname}.".getmypid();
-$_tmpfile = "$_tmpdir/tmp.out";
-$_configfile = get_config_filename();
+$_svnroot = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+$_config = [
+    'do_md5'=>false,
+    'mode'=>'f',
+    'outfile'=>'MANIFEST.DAT',
+    'svn_root'=>$_svnroot,
+    'uri_from'=>'',
+    'uri_to'=>'',
+];
+$_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.$_scriptname.'.'.getmypid();
+$_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
+$_configname = str_replace('.php', '.ini', $_scriptname);
+$_configfile = get_config_file();
 $_writecfg = true;
-$_interactive = true;
-$_outfile = STDOUT;
-$_notdeleted = null;
+$_outfile = ($_cli) ? STDOUT : 'MANIFEST.DAT';
+$_notdeleted = [];
 
-if (function_exists('pcntl_signal')) {
-    @pcntl_signal(SIGTERM, 'sighandler');
-    @pcntl_signal(SIGINT, 'sighandler');
-}
+$src_excludes = [
+'/phar_installer\//',
+'/scripts\//',
+'/tests\//',
+'/\.git.*/',
+'/\.md$/i',
+'/\.svn/',
+'/svn-.*/',
+'/\/config\.php$/',
+'/\/index\.html$/',
+'/\.bak$/',
+'/UNUSED/',
+'/~$/',
+'/#.*/',
+'/\.#.*/',
+];
+//TODO root-dir  '/\.htaccess$/',
+
+$compare_excludes = [
+'.git*','*.md','*.MD',
+'.svn','svn-*',
+'*.bak','*~',
+'*.sh','*.pl','*.bat',
+'.#*','#*',
+'config.php',
+'index.html',
+'UNUSED*',
+'tmp',
+'scripts',
+'tests',
+'install',
+'phar_installer',
+];
+//$compare_excludes = [
+//'/\.git.*/',
+//'/\.svn\//',
+//'/build\//',
+//'/out\//',
+//'/source\//',
+//'/ext\//',
+//'/scripts\//',
+//'/README\.TXT/',
+//'/\.bak$/',
+//'/~$/',
+//'/\.#/',
+//'/#/',
+//];
+////'/README.*/',
 
 if ($_cli) {
-    $opts = getopt('mdc:r:f:t:o:h', ['md5','debug','config:','root:','from:','to:','nowrite','quick','mode','outfile','nocompress','dnd:']);
-    // parse arguments for config file.
-    foreach ($opts as $key => $val) {
-        switch ($key) {
-            case 'c':
-            case 'config':
-            $_configfile = $val;
-            break;
-        }
+    $opts = getopt('c:dp:f:hsm:neo:r:t::', [
+    'config',
+    'debug',
+    'dnd',  //-p : preserve
+    'from',
+    'help',
+    'md5',  //-s : sum
+    'mode',
+    'nocompress',
+    'nowrite', //-e : keep current config file
+    'outfile',
+    'root',
+    'to',
+    ]);
+    // parse config-file argument
+    $val = $opts['c'] ?? $opts['config'] ?? null;
+    if ($val !== null) {
+        $_configfile = $val;
     }
 }
 
@@ -68,7 +116,7 @@ if ($_configfile && $_configfile != '-') {
 }
 
 if ($_cli) {
-    // parse arguments again
+    // parse other command arguments
     foreach ($opts as $key => $val) {
         switch ($key) {
             case 'd':
@@ -76,34 +124,22 @@ if ($_cli) {
                 $_debug = true;
                 break;
 
-            case 'm':
-            case 'md5':
-                $_config['md5'] = true;
-                break;
-
-            case 'r':
-            case 'root':
-                $_config['repos_root'] = trim($val);
-                break;
-
-            case 'f':
-            case 'from':
-            $_config['repos_from'] = trim($val);
-            break;
-
-            case 't':
-            case 'to':
-                $_config['repos_to'] = trim($val);
-                break;
-
+            case 'e':
             case 'nowrite':
                 $_writecfg = false;
                 break;
 
-            case 'quick':
-                $_interactive = false;
+            case 'f':
+            case 'from':
+                $_config['uri_from'] = trim($val);
                 break;
 
+            case 'h':
+            case 'help':
+                usage();
+                exit;
+
+            case 'm':
             case 'mode':
                 $val = trim($val);
                 $val = strtolower($val[0]);
@@ -114,7 +150,12 @@ if ($_cli) {
                     case 'a':
                         $_config['mode'] = $val;
                 }
-            break;
+                break;
+
+            case 'n':
+            case 'nocompress':
+                $_compress = false;
+                break;
 
             case 'o':
             case 'outfile':
@@ -122,140 +163,161 @@ if ($_cli) {
                 $_config['outfile'] = $val;
                 break;
 
-            case 'nocompress':
-                $_compress = false;
-                break;
-
+            case 'p':
             case 'dnd':
                 if ($val) {
                     $tmp = explode(',', $val);
                     foreach ($tmp as $one) {
-                        $one = trim($one);
-                        if (!startswith($one, '/')) {
-                            $one = '/'.$one;
-                        }
-                        while (endswith($one, '*') || endswith($one, '/')) {
-                            $one = substr($one, 0, -1);
-                        }
+                        $one = trim($one, ' */\\');
                         if ($one) {
-                            $_notdeleted[] = $one;
+                            $_notdeleted[] = DIRECTORY_SEPARATOR.$one;
                         }
                     }
                 }
                 break;
 
-            case 'h':
-            case 'help':
-                usage();
-                exit;
+            case 'r':
+            case 'root':
+                $_config['svn_root'] = trim($val);
+                break;
+
+            case 's':
+            case 'md5':
+                $_config['do_md5'] = true;
+                break;
+
+            case 't':
+            case 'to':
+                $_config['uri_to'] = trim($val);
+                break;
         }
     }
 }
 
-// if we don't have a repos_to branch, find our current one.
-if (!$_config['repos_to']) {
-    $_config['repos_to'] =	get_svn_branch();
-}
-
-if ($_compress) {
-    if (!endswith($_config['outfile'], '.gz')) {
-        $_config['outfile'] = $_config['outfile'] . '.gz';
-    }
-} elseif (endswith($_config['outfile'], '.gz')) {
-    $_config['outfile'] = substr($_config['outfile'], 0, -3);
+if ($_interactive &&
+    $_config['uri_from'] &&
+    $_config['uri_to'] &&
+    ($_config['svn_root'] || !(startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'], 'svn://'))) &&
+    $_config['outfile'] &&
+    $_config['mode']) {
+    $_interactive = false;
 }
 
 // interactive mode
 if ($_cli && $_interactive) {
-    $_done = false;
-    $_config['repos_root'] = ask_string("Enter repository root", $_config['repos_root']);
-    $_config['repos_from'] = ask_string("Enter from subpath", $_config['repos_from']);
-    $_config['repos_to'] = ask_string("Enter to subpath", $_config['repos_to']);
-    $_config['mode'] = ask_options("Enter manifest mode (d|n|c|f)", ['d','n','c','f'], $_config['mode']);
-    $_config['outfile'] = ask_string("Enter output file", $_config['outfile']);
+    if (!function_exists('readline')) {
+        die('Abort '.$_scriptname.' : Missing readline extension');
+    }
+    if (!extension_loaded('pcntl')) {
+        echo($_scriptname.' works better with pcntl extension'."\n");
+    }
+    if (function_exists('pcntl_signal')) {
+        @pcntl_signal(SIGTERM, 'sighandler');
+        @pcntl_signal(SIGINT, 'sighandler');
+    }
+
+    $_config['uri_from'] = ask_string("Enter 'comparison' fileset uri", $_config['uri_from']);
+    $_config['uri_to'] = ask_string("Enter 'release' fileset uri", $_config['uri_to']);
+    if (startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'], 'svn://')) {
+        $_config['svn_root'] = ask_string('Enter svn repository root url', $_config['svn_root']);
+    }
+    $_config['outfile'] = ask_string('Enter manifest file name', $_config['outfile']);
+    $_config['mode'] = ask_options('Enter manifest mode (d|n|c|f)', ['d','n','c','f'], $_config['mode']);
 }
 
-//
-// begin doing the work
-//
+if ($_compress) {
+    if (!extension_loaded('zlib')) {
+        die('Abort '.$_scriptname.' : Missing zlib extension');
+    }
+    //
+    // some debian based distros don't have gzopen (crappy)
+    //
+    if (!function_exists('gzopen') && function_exists('gzopen64')) {
+        function gzopen($filename, $mode, $use_include_path = 0)
+        {
+            return gzopen64($filename, $mode, $use_include_path);
+        }
+    }
+
+    if (!endswith($_config['outfile'], '.gz')) {
+        $_config['outfile'] = $_config['outfile'] . '.gz';
+    }
+} elseif (endswith($_config['outfile'], '.gz') || endswith($_config['outfile'], '.GZ')) {
+    $_config['outfile'] = substr($_config['outfile'], 0, -3);
+}
 if ($_config['outfile'] != '-' && $_config['outfile']) {
     $_outfile = $_config['outfile'];
 }
 
 // validate the config
-if (empty($_config['repos_root'])) {
-    fatal("No repository root found");
+if (empty($_config['uri_from'])) {
+    fatal("No 'comparison' files uri provided");
 }
-if (empty($_config['repos_from'])) {
-    fatal("No repository from subpath found");
+if (!preg_match('~((file|svn|git)://|local)~', $_config['uri_from'])) {
+    fatal("'comparison' files uri unrecognised - expect local or file://... or svn://... or git://...");
 }
-if (empty($_config['repos_to'])) {
-    fatal("No repository to subpath found");
+if (empty($_config['uri_to'])) {
+    fatal("No 'release' files uri provided");
 }
-if (!endswith($_config['repos_root'], DIRECTORY_SEPARATOR)) {
-    $_config['repos_root'] .= DIRECTORY_SEPARATOR;
+if (!preg_match('~((file|svn|git)://|local)~', $_config['uri_to'])) {
+    fatal("'release' files uri unrecognised - expect local or file://... or svn://... or git://...");
 }
-if (startswith($_config['repos_from'], DIRECTORY_SEPARATOR)) {
-    $_config['repos_from'] = ltrim($_config['repos_from'], DIRECTORY_SEPARATOR);
+if ($_config['uri_from'] == $_config['uri_to']) {
+    fatal('Must process two different file-sets. ' .$_config['uri_from']. ' was specified for both');
 }
-if (startswith($_config['repos_to'], DIRECTORY_SEPARATOR)) {
-    $_config['repos_to'] = ltrim($_config['repos_to'], DIRECTORY_SEPARATOR);
+if (startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'], 'svn://')) {
+    if (empty($_config['svn_root'])) {
+        fatal('No repository root found');
+    }
+    if (!endswith($_config['svn_root'], '/')) {
+        $_config['svn_root'] .= '/';
+    }
+}
+if (startswith($_config['uri_from'], 'file://')) {
+    $file = substr($_config['uri_from'], 7);
+    if (!is_dir($file) || !is_readable($file)) {
+        fatal('Specified files source ' .$file. ' is not available');
+    }
+}
+if (startswith($_config['uri_to'], 'file://')) {
+    $file = substr($_config['uri_to'], 7);
+    if (!is_dir($file) || !is_readable($file)) {
+        fatal('Specified files source ' .$file. ' is not available');
+    }
 }
 
-// create temp directory
+//
+// begin the work
+//
+
+// create temp directories to hold the filesets
 @mkdir($_tmpdir);
-$_fromdir = "{$_tmpdir}/_from";
-$_todir = "{$_tmpdir}/_to";
+$_fromdir = $_tmpdir.DIRECTORY_SEPARATOR.'_from';
+$_todir = $_tmpdir.DIRECTORY_SEPARATOR.'_to';
 
-// export from repository TODO git
-$res = svn_export($_config['repos_root'].$_config['repos_from'], $_fromdir);
-$res = svn_export($_config['repos_root'].$_config['repos_to'], $_todir);
-
-// basic checks
-if (!is_file($_fromdir."/lib/version.php") || !is_readable($_fromdir."/lib/classes/class.CMSModule.php")) {
-    fatal("$_fromdir does not appear to be a CMSMS installation");
+// retrieve sources
+if (!get_sources($_config['uri_from'], $_fromdir)) {
+    fatal('Retrieving files from ' .$_config['uri_from']. ' failed');
 }
-if (!is_file($_todir."/lib/version.php") || !is_readable($_todir."/lib/classes/class.CMSModule.php")) {
-    fatal("$_todir does not appear to be a CMSMS installation");
+if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fromdir, 'lib', 'classes', 'Database'))) {
+    fatal('The files retrieved from ' .$_config['uri_from']. 'do not appear to be for a CMSMS installation');
+}
+if (!get_sources($_config['uri_to'], $_todir)) {
+    fatal('Retrieving files from ' .$_config['uri_to']. ' failed');
+}
+if (!is_file(joinpath($_todir, 'lib', 'version.php')) || !is_dir(joinpath($_todir, 'lib', 'classes', 'Database'))) {
+    fatal('The files retrieved from ' .$_config['uri_to']. 'do not appear to be for a CMSMS installation');
 }
 
-// get our from version and to version
-$_from_ver = null;
-$_from_name = null;
-$_to_ver = null;
-$_to_name = null;
-$_get_ver = function ($basedir) {
-    $_files = ["$basedir/lib/version.php","$basedir/version.php"];
-    foreach ($_files as $_one) {
-        if (is_file($_one)) {
-            @include($_one);
-            $_ver = $CMS_VERSION;
-            $_name = $CMS_VERSION_NAME;
-            return [$_ver,$_name];
-        }
-    }
-};
-list($_from_ver, $_to_name) = $_get_ver($_fromdir);
-list($_to_ver, $_to_name) = $_get_ver($_todir);
-
-// do the comparison
-$obj = new compare_dirs($_fromdir, $_todir);
-$obj->ignore(['.git*','*.md','*.MD']);
-$obj->ignore(['.svn','svn-*']);
-$obj->ignore(['*.bak','*~']);
-$obj->ignore(['*.sh','*.pl','*.bat']);
-$obj->ignore(['.#*','#*']);
-$obj->ignore('tmp');
-$obj->ignore('scripts');
-$obj->ignore('install');
-$obj->ignore('phar_installer');
-$obj->ignore('config.php');
-$obj->ignore('index.html');
-if ($_notdeleted) {
-    foreach ($_notdeleted as $one) {
-        $obj->do_not_delete($one);
-    }
+try {
+    $obj = new compare_dirs($_fromdir, $_todir, $_config['do_md5']);
+} catch (Exception $e) {
+    fatal($e->GetMessage());
 }
+
+// get version data
+list($_from_ver, $_from_name) = get_version($_fromdir);
+list($_to_ver, $_to_name) = get_version($_todir);
 
 // begin output of manifest
 output('MANIFEST GENERATED: '.time());
@@ -263,14 +325,17 @@ output('MANIFEST FROM VERSION: '.$_from_ver);
 output('MANIFEST FROM NAME: '.$_from_name);
 output('MANIFEST TO VERSION: '.$_to_ver);
 output('MANIFEST TO NAME: '.$_to_name);
+
+$obj->ignore($compare_excludes);
 if ($_notdeleted) {
+    $obj->do_not_delete($_notdeleted);
     output('MANIFEST SKIPPED: '.implode(', ', $_notdeleted));
 }
 
 if ($_config['mode'] == 'd' || $_config['mode'] == 'f') {
     $out = $obj->get_deleted_files();
     foreach ($out as $fn) {
-        $file = "${_fromdir}/{$fn}";
+        $file = $_fromdir.DIRECTORY_SEPARATOR.$fn;
         $md5 = md5_file($file);
         $str = "DELETED :: $md5 :: $fn";
         output($str);
@@ -280,7 +345,7 @@ if ($_config['mode'] == 'd' || $_config['mode'] == 'f') {
 if ($_config['mode'] == 'c' || $_config['mode'] == 'f') {
     $out = $obj->get_changed_files();
     foreach ($out as $fn) {
-        $file = "${_todir}/{$fn}";
+        $file = $_todir.DIRECTORY_SEPARATOR.$fn;
         if (is_dir($file)) {
             continue;
         }
@@ -293,18 +358,41 @@ if ($_config['mode'] == 'c' || $_config['mode'] == 'f') {
 if ($_config['mode'] == 'n' || $_config['mode'] == 'f') {
     $out = $obj->get_new_files();
     foreach ($out as $fn) {
-        $file = "${_todir}/{$fn}";
+        $file = $_todir.DIRECTORY_SEPARATOR.$fn;
         $md5 = md5_file($file);
         $str = "ADDED :: $md5 :: $fn";
         output($str);
     }
 }
 
-$_configfile = get_config_filename(true);
-debug('configfile is '.$_configfile);
-if ($_writecfg && $_configfile && (!is_file($_configfile) || is_writable($_configfile))) {
-    info('Writing INI file to '.$_configfile);
-    write_ini_file($_config, $_configfile);
+if ($_writecfg) {
+    if ($_configfile && is_writable($_configfile)) {
+        $file = $_configfile;
+    } else {
+        $file = '';
+        $home = getenv('HOME');
+        if ($home) {
+            $home = realpath($home);
+            if (is_dir($home) && is_writable($home)) {
+                $file = $home.DIRECTORY_SEPARATOR.$_configname;
+                if ($file == $_configfile) {
+                    $file = '';
+                }
+            }
+        }
+        if (!$file && is_writable(__DIR__)) {
+            $file = __DIR_.DIRECTORY_SEPARATOR.$_configname;
+            if ($file == $_configfile) {
+                $file = '';
+            }
+        }
+    }
+    if ($file) {
+        info('Writing config file to '.$file);
+        write_config_file($_config, $file);
+    } else {
+        info('Cannot save config file '.$_configname);
+    }
 }
 
 if ($_compress) {
@@ -320,53 +408,49 @@ if ($_compress) {
 if ($_outfile == STDOUT) {
     readfile($_tmpfile);
 } else {
-    info('Copy manifst to '.$_outfile);
+    info('Copy manifest to '.$_outfile);
     copy($_tmpfile, $_outfile);
 }
 
 cleanup();
-info("DONE");
+info('DONE');
 exit(0);
 
 ///////////////////////////
-// CLASSES AND FUNCTIONS //
+// CLASS AND FUNCTIONS   //
 ///////////////////////////
 
 function usage()
 {
     global $_scriptname;
     echo <<<'EOT'
-This is script compares two sub-paths from the same CMSMS svn repository, and generates a manifest of files which have been added/changed/deleted between the versions, to facilitate cleaning up and verification of files during the upgrade process.
+This is script compares two sets of source-files, and generates a manifest of files which have been added/changed/deleted between the sets, to facilitate cleaning up and verification of files during the upgrade process.
 
 Ideally this script should be executed from the assets/upgrade/<to_version> directory.
 
 The created manifest should be placed in the assets/upgrade/<to_version> directory as MANIFEST.DAT.gz.
 
-
 EOT;
     echo <<<EOT
 Usage: php $_scriptname [options]
 options
-  -c|--config <string> = config file specification (enter a - to skip reading a saved config file)
+  -c|--config <string> = config file name (or just '-' to skip reading a saved config file)
   -d|--debug           = enable debug mode
-  -r|--root <string>   = svn repository root
-  -f|--from <string>   = from repository sub-path
-  -t|--to <string>     = to repository sub-path
-  -m|--md5             = enable md5 file comparison
-  -o|--outfile         = set the output file name
-  -h|--help            = display this message and exit
-  --nocompress         = do not gz compress the output manifest file
-  --nowrite            = do not save the config file with entered values.
-  --quick              = disable interactive mode
-  --mode (d|n|c|f)     = output deleted/new/changed/full manifest
-  --dnd <string>       = specify a comma separated list of paths (relative to the CMSMS root) as DO NOT DELETE
-                         (no delete records will be output into the manifest for matching files)
-                         This is useful if files will be moved manually during the upgrade process
-
+  -f|--from <string>   = a fileset-source identifier, one of local or file://... or svn://... or git://...
+  -s|--md5             = enable file comparison using md5 hashes
+  -o|--outfile <string> = a non-default manifest file (the default is STDOUT or MANIFEST.DAT)
+  -h|--help            = display this message then exit
+  -n|--nocompress      = do not gzip-compress the manifest file
+  -e|--nowrite         = do not save a config file containing the parameters used in this script
+  -r|--root <string>   = a non-default root url for svn-sourced fileset(s)
+  -t|--to <string>     = the other fileset-source identifier, same format as for -f option
+  -m|--mode (d|n|c|f)  = generate a deleted/new/changed/full manifest
+  -p|--dnd <string>    = a comma-separated series of filepaths (relative to the CMSMS root)
+                         This can be useful if files will be moved manually during the upgrade process
 EOT;
 }
 
-function output($str)
+function output(string $str)
 {
     global $_tmpfile;
     static $_mode = 'a';
@@ -379,12 +463,12 @@ function output($str)
     fclose($fh);
 }
 
-function info($str)
+function info(string $str)
 {
     fwrite(STDERR, "INFO: $str\n");
 }
 
-function debug($str)
+function debug(string $str)
 {
     global $_debug;
     if ($_debug) {
@@ -392,19 +476,19 @@ function debug($str)
     }
 }
 
-function fatal($str)
+function fatal(string $str)
 {
     fwrite(STDERR, "FATAL: $str\n");
     cleanup();
     exit(1);
 }
 
-function startswith($haystack, $needle)
+function startswith(string $haystack, string $needle) : bool
 {
     return (strncmp($haystack, $needle, strlen($needle)) == 0);
 }
 
-function endswith($haystack, $needle)
+function endswith(string $haystack, string $needle) : bool
 {
     $o = strlen($needle);
     if ($o > 0 && $o <= strlen($haystack)) {
@@ -422,16 +506,17 @@ function joinpath(...$segs)
     return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);
 }
 
-function rrmdir($dir)
+function rrmdir(string $dir)
 {
     if (is_dir($dir)) {
         $objects = scandir($dir);
         foreach ($objects as $object) {
-            if ($object != "." && $object != "..") {
-                if (filetype($dir."/".$object) == "dir") {
-                    rrmdir($dir."/".$object);
+            if ($object != '.' && $object != '..') {
+                $file = $dir.DIRECTORY_SEPARATOR.$object;
+                if (is_dir($file)) {
+                    rrmdir($file);
                 } else {
-                    unlink($dir."/".$object);
+                    unlink($file);
                 }
             }
         }
@@ -450,11 +535,11 @@ function sighandler($signum)
 function cleanup($signum = null)
 {
     global $_tmpdir;
-    debug("Cleaning up");
+    debug('Cleaning up');
     rrmdir($_tmpdir);
 }
 
-function ask_string($prompt, $dflt = null, $allow_empty = false)
+function ask_string(string $prompt, $dflt = null, bool $allow_empty = false)
 {
     while (1) {
         if ($dflt) {
@@ -474,11 +559,11 @@ function ask_string($prompt, $dflt = null, $allow_empty = false)
         if ($dflt) {
             return $dflt;
         }
-        echo "ERROR: Invalid input.	Please try again\n";
+        echo "ERROR: Invalid input. Please try again\n";
     }
 }
 
-function ask_options($prompt, $options, $dflt)
+function ask_options(string $prompt, array $options, $dflt)
 {
     while (1) {
         if ($dflt) {
@@ -495,14 +580,13 @@ function ask_options($prompt, $options, $dflt)
         if (in_array($tmp, $options)) {
             return $tmp;
         }
-
-        echo "ERROR: Invalid input.	Please enter one of the valid options\n";
+        echo "ERROR: Invalid input. Please enter one of the valid options\n";
     }
 }
 
-function write_ini_file($config_data, $filename)
+function write_config_file(array $config_data, string $filename)
 {
-    @copy($filename, $filename.".bak");
+    @copy($filename, $filename.'.bak');
     $fh = fopen($filename, 'w');
     fwrite($fh, '[config]');
     foreach ($config_data as $key => $val) {
@@ -514,45 +598,140 @@ function write_ini_file($config_data, $filename)
     fclose($fh);
 }
 
-function get_config_filename($skip_exists_check = false)
+function get_config_file() : string
 {
-    // detect users home directory.
-    global $_scriptname;
+    global $_configname;
+    // detect user's home directory
     $home = getenv('HOME');
     if ($home) {
         $home = realpath($home);
     }
-    if (is_dir($home) && is_readable($home)) {
-        $file = "$home/.{$_scriptname}";
-        if ($skip_exists_check) {
-            return $file;
-        }
+    if (is_dir($home)) {
+        $file = $home.DIRECTORY_SEPARATOR.$_configname;
         if (is_readable($file)) {
             return $file;
         }
     }
+    $file = __DIR_.DIRECTORY_SEPARATOR.$_configname;
+    if (is_readable($file)) {
+        return $file;
+    }
+    return '';
 }
 
-//TODO migrate to git
+function rcopy(string $srcdir, string $tmpdir)
+{
+    global $src_excludes;
 
-function get_svn_branch()
+    info("Copying source files from $srcdir to $tmpdir");
+    //NOTE KEY_AS_FILENAME flag does not work as such - always get path here
+    $iter = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(
+            $srcdir,
+            RecursiveIteratorIterator::SELF_FIRST |
+            FilesystemIterator::KEY_AS_PATHNAME |
+            FilesystemIterator::CURRENT_AS_FILEINFO |
+            FilesystemIterator::UNIX_PATHS |
+            FilesystemIterator::FOLLOW_SYMLINKS
+        )
+    );
+
+    $len = strlen($srcdir.DIRECTORY_SEPARATOR);
+    $matches = null;
+
+    foreach ($iter as $fp => $inf) {
+        foreach ($src_excludes as $excl) {
+            if (preg_match($excl, $fp, $matches, 0, $len)) {
+                $relpath = substr($fp, $len);
+//              info("$relpath (matched pattern $excl)");
+                continue 2;
+            }
+        }
+
+        $relpath = substr($fp, $len);
+        $fn = $inf->getFilename();
+        if ($fn == '.') {
+            $tp = joinpath($tmpdir, $relpath);
+            @mkdir(dirname($tp), 0771, true);
+        } elseif ($fn !== '..') {
+            $tp = joinpath($tmpdir, $relpath);
+            @mkdir(dirname($tp), 0771, true);
+            @copy($fp, $tp);
+        }
+    }
+}
+
+function get_version(string $basedir) : array
+{
+    $file = joinpath($basedir, 'lib', 'version.php');
+    if (is_file($file)) {
+        require $file;
+        return [$CMS_VERSION, $CMS_VERSION_NAME];
+    }
+    return ['',''];
+}
+
+function get_sources(string $sourceuri, string $tmpdir) : bool
+{
+    if ($sourceuri == 'local') {
+        //get local root
+        $dir = __DIR__;
+        while ($dir !== '.' && !is_dir(joinpath($dir, 'admin')) && !is_dir(joinpath($dir, 'phar_installer'))) {
+            $dir = dirname($dir);
+        }
+        if ($dir !== '.') {
+            rcopy($dir, $tmpdir);
+            return true;
+        }
+    } elseif (strncmp($sourceuri, 'file://', 7) == 0) {
+        $dir = substr($sourceuri, 7);
+        if (is_dir($dir)) {
+            rcopy($dir, $tmpdir);
+            return true;
+        }
+    } elseif (strncmp($sourceuri, 'svn://', 6) == 0) {
+        $remnant = substr($sourceuri, 6);
+        $url = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+        switch (strtolower(substr($remnant(0, 4)))) {
+            case '':
+            case 'trun':
+                $url .= '/trunk';
+                break;
+            case 'tags':
+            case 'bran':
+                $url .= '/'. strtolower($remnant);
+                break;
+            case 'http':
+                $url = $remnant;
+                // no break
+            case 'svn.':
+                $url = 'http://'.$remnant;
+                break;
+            default:
+                return false;
+        }
+
+        $cmd = escapeshellcmd("svn export -q $url $tmpdir");
+
+        info("Retrieving files from SVN ($url)");
+        system($cmd, $retval);
+        return true; //$retval == 0?
+    } elseif (strncmp($sourceuri, 'git://', 6) == 0) {
+        $url = 'https://'.substr($sourceuri, 6);
+        $cmd = escapeshellcmd("git clone -q $url $tmpdir");
+
+        info("Retrieving files from GIT ($url)");
+        system($cmd, $retval);
+        return true; //$retval == 0?;
+    }
+    return false;
+}
+
+function get_svn_branch() : string
 {
     $cmd = "svn info | grep '^URL:' | egrep -o '(tags|branches)/[^/]+|trunk'";
     $out = exec($cmd);
     return $out;
-}
-
-function svn_export($repos_url, $dest)
-{
-    info("Running SVN export on $repos_url");
-    $_cmd = escapeshellcmd("svn export $repos_url $dest");
-    $_output = null;
-    $_exitcode = null;
-    debug($_cmd);
-    $res = exec($_cmd, $_output, $_exitcode);
-    if ($_exitcode != 0) {
-        fatal($res);
-    }
 }
 
 //
@@ -568,7 +747,7 @@ class compare_dirs
     private $_ignored = [];
     private $_donotdelete;
 
-    public function __construct($dir_a, $dir_b, $do_md5 = false)
+    public function __construct(string $dir_a, string $dir_b, bool $do_md5 = false)
     {
         if (!is_dir($dir_a)) {
             throw new Exception('Invalid directory '.$dir_a);
@@ -590,19 +769,31 @@ class compare_dirs
 
     public function do_not_delete($in)
     {
-        $this->_donotdelete[] = $in;
-    }
-
-    public function ignore($str)
-    {
-        if (!$str) {
+        if (!$in) {
             return;
         }
-        if (is_string($str)) {
-            $str = [$str];
+        if (!is_array($in)) {
+            $in = [$in];
         }
 
-        foreach ($str as $one) {
+        foreach ($in as $one) {
+            $one = trim($one);
+            if ($one) {
+                $this->_donotdelete[] = $one;
+            }
+        }
+    }
+
+    public function ignore($in)
+    {
+        if (!$in) {
+            return;
+        }
+        if (!is_array($in)) {
+            $in = [$in];
+        }
+
+        foreach ($in as $one) {
             $one = trim($one);
             if ($one) {
                 $this->_ignored[] = $one;
@@ -610,7 +801,7 @@ class compare_dirs
         }
     }
 
-    private function _set_base($dir)
+    private function _set_base(string $dir)
     {
         $this->_base_dir = $dir;
     }
@@ -620,7 +811,7 @@ class compare_dirs
         return $this->_base_dir;
     }
 
-    private function _is_ignored($filename)
+    private function _is_ignored(string $filename) : bool
     {
         foreach ($this->_ignored as $pattern) {
             if ($pattern == $filename || fnmatch($pattern, $filename, FNM_CASEFOLD)) {
@@ -649,7 +840,7 @@ class compare_dirs
             if ($file == '.' || $file == '..') {
                 continue;
             }
-            $fn = "$dir/$file";
+            $fn = $dir.DIRECTORY_SEPARATOR.$file;
 
             if ($this->_is_ignored($file)) {
                 continue;
@@ -699,7 +890,7 @@ class compare_dirs
         $this->_list_b = $this->_read_dir($this->_b);
     }
 
-    public function get_new_files()
+    public function get_new_files() : array
     {
         $this->run();
 
@@ -709,7 +900,7 @@ class compare_dirs
         return array_diff($tmp_b, $tmp_a);
     }
 
-    public function get_deleted_files()
+    public function get_deleted_files() : array
     {
         $this->run();
 
@@ -738,7 +929,7 @@ class compare_dirs
         return $out;
     }
 
-    public function get_changed_files()
+    public function get_changed_files() : array
     {
         $this->run();
 
