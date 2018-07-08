@@ -15,7 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+use CMSMS\HookManager;
 use CMSMS\internal\content_cache;
+use CMSMS\ModuleOperations;
 
 function search_StemPhrase(&$module,$phrase)
 {
@@ -55,7 +58,7 @@ function search_StemPhrase(&$module,$phrase)
     $words = $module->RemoveStopWordsFromArray($words);
 
     // stem words
-    $stemmed_words = array();
+    $stemmed_words = [];
     $stemmer = null;
     if( $module->GetPreference('usestemming', 'false') != 'false' ) $stemmer = new PorterStemmer();
 
@@ -85,7 +88,7 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
     $non_indexable = strpos($content, NON_INDEXABLE_CONTENT);
     if( $non_indexable !== FALSE ) return;
 
-    \CMSMS\HookManager::do_hook( 'Search::SearchItemAdded', [ $module, $id, $attr, &$content, $expires ]);
+    HookManager::do_hook( 'Search::SearchItemAdded', [ $module, $id, $attr, &$content, $expires ]);
 
     if ($content != "") {
         //Clean up the content
@@ -99,7 +102,7 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
         }
 
         $q = "SELECT id FROM ".CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
-        $parms = array($module);
+        $parms = [$module];
 
         if( $id != -1 ) {
             $q .= " AND content_id=?";
@@ -117,7 +120,7 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
         }
         else {
             $itemid = (int) $db->GenID(CMS_DB_PREFIX."module_search_items_seq");
-            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', array($itemid, $module, $id, $attr, ($expires != NULL ? trim($db->DBTimeStamp($expires), "'") : NULL) ));
+            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $module, $id, $attr, ($expires != NULL ? trim($db->DBTimeStamp($expires), "'") : NULL) ]);
         }
 
         $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_search_index (item_id, word, count) VALUES ($itemid,?,?)");
@@ -128,11 +131,10 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
     }
 }
 
+
 function search_DeleteWords(&$obj, $module = 'Search', $id = -1, $attr = '')
 {
-    $db = $obj->GetDb();
-    $db->BeginTrans();
-    $parms = array( $module );
+    $parms = [$module];
     $q = "DELETE FROM ".CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
     if( $id != -1 ) {
         $q .= " AND content_id=?";
@@ -142,10 +144,13 @@ function search_DeleteWords(&$obj, $module = 'Search', $id = -1, $attr = '')
         $q .= " AND extra_attr=?";
         $parms[] = $attr;
     }
+    $db = $obj->GetDb();
+    $db->BeginTrans();
     $db->Execute($q, $parms);
+    //Ruud suggestion: migrate this to async task and/or index item_id field
     $db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_search_index WHERE item_id NOT IN (SELECT id FROM '.CMS_DB_PREFIX.'module_search_items)');
     $db->CommitTrans();
-    \CMSMS\HookManager::do_hook('Search::SearchItemDeleted', [ $module, $id, $attr ] );
+    HookManager::do_hook('Search::SearchItemDeleted', [ $module, $id, $attr ] );
 }
 
 
@@ -162,7 +167,7 @@ function search_Reindex(&$module)
 
     while( $offset < count($full_list) ) {
         // figure out the content to load.
-        $idlist = array();
+        $idlist = [];
         for( $i = 0; $i < $nperloop && $offset+$i < count($full_list); $i++ ) {
             $idlist[] = $full_list[$offset+$i];
         }
@@ -175,7 +180,7 @@ function search_Reindex(&$module)
         // index each content page.
         foreach( $idlist as $one ) {
             $content_obj = $contentops->LoadContentFromId($one);
-            $parms = array('content'=>$content_obj);
+            $parms = ['content'=>$content_obj];
             search_DoEvent($module,'Core','ContentEditPost',$parms);
 			content_cache::unload($one);
         }
@@ -202,6 +207,7 @@ function search_DoEvent(&$module, $originator, $eventname, &$params )
         if (!is_object($content)) return;
 
         $db = $module->GetDb();
+        //Ruud suggestion: defer deletion to next search_AddWords() call
         $module->DeleteWords($module->GetName(), $content->Id(), 'content');
         if( $content->Active() && $content->IsSearchable() ) {
 
