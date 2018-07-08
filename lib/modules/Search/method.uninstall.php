@@ -13,7 +13,7 @@ $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.'module_search_words');
 $dict->ExecuteSQLArray($sqlarray);
 
-$db->DropSequence( CMS_DB_PREFIX."module_search_items_seq" );
+$db->DropSequence( CMS_DB_PREFIX.'module_search_items_seq' );
 
 $this->DeleteTemplate();
 $this->RemovePreference();
@@ -41,9 +41,9 @@ try {
     foreach( $types as $type ) {
       $templates = $type->get_template_list();
       if( is_array($templates) && count($templates) ) {
-	foreach( $templates as $template ) {
-	  $template->delete();
-	}
+        foreach( $templates as $template ) {
+          $template->delete();
+        }
       }
       $type->delete();
     }
