@@ -22,6 +22,7 @@ $lang['cancel'] = 'Cancel';
 $lang['changeperms'] = 'Change Permissions';
 $lang['changepermstip'] = 'Change permissions'; //title/tip
 $lang['close'] = 'Close';
+$lang['closeall'] = 'Close all folders';
 $lang['compress'] = 'Compress';
 $lang['compress_sel'] = 'Compress selected item(s)';
 $lang['compress_typed'] = 'Compress into a %s file';
