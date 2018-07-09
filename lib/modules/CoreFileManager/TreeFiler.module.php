@@ -1,21 +1,23 @@
 <?php
-#FileManager module for CMSMS
-#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+TreeFiler module for CMSMS
+Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
-final class CoreFileManager extends CMSModule
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+final class TreeFiler extends CMSModule
 {
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'files'; }
@@ -25,7 +27,7 @@ final class CoreFileManager extends CMSModule
     public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
-    public function GetName() { return 'CoreFileManager'; }
+    public function GetName() { return 'TreeFiler'; }
     public function GetVersion() { return '0.2'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
@@ -42,7 +44,7 @@ final class CoreFileManager extends CMSModule
     }
 
     public function GetChangeLog()
-	{
+    {
         return ''.@file_get_contents(cms_join_path(__DIR__, 'lib', 'doc', 'changelog.htm'));
     }
 
@@ -57,8 +59,8 @@ final class CoreFileManager extends CMSModule
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'files';
-            $obj->title = $this->Lang('title_filemanager_settings');
-            $obj->description = $this->Lang('desc_filemanager_settings');
+            $obj->title = $this->Lang('module_settings_title');
+            $obj->description = $this->Lang('module_settings_desc');
             $obj->action = 'admin_settings';
             $obj->url = $this->create_url('m1_', $obj->action);
             $out[] = $obj;
@@ -67,19 +69,19 @@ final class CoreFileManager extends CMSModule
     }
 
     public function AccessAllowed() {
-		if ($this->CheckPermission('Modify Files')) {
-			return true;
-	    }
+        if ($this->CheckPermission('Modify Files')) {
+            return true;
+        }
         $config = cms_config::get_instance();
-		return !empty($config['developer_mode']);
-	}
+        return !empty($config['developer_mode']);
+    }
 
-	public function AdvancedAccessAllowed() {
-		if ($this->CheckPermission('Modify Files') ||
-	       $this->CheckPermission('Modify Site Code')) {
-			return true;
-	    }
+    public function AdvancedAccessAllowed() {
+        if ($this->CheckPermission('Modify Files') ||
+           $this->CheckPermission('Modify Site Code')) {
+            return true;
+        }
         $config = cms_config::get_instance();
-		return !empty($config['developer_mode']);
-	}
+        return !empty($config['developer_mode']);
+    }
 } // class

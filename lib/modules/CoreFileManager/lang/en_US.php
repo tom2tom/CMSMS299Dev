@@ -34,7 +34,6 @@ $lang['create'] = 'Create';
 $lang['delete'] = 'Delete';
 $lang['del_confirm'] = 'Delete item?';
 $lang['delete_confirm'] = 'Delete selected files and folders?';
-$lang['desc_filemanager_settings'] = 'Adjust settings for the system file manager';
 $lang['download'] = 'Download';
 
 // E
@@ -115,9 +114,9 @@ $lang['help'] = <<<EOT
 <li>discussion may be found in the <a href="http://forum.cmsmadesimple.org">CMS Made Simple Forums</a>; or</li>
 <li>you may have some success emailing the author directly.</li>
 </ul></p>
-<p>For the latest version of the module, or to report a bug, visit the module's <a href="http://dev.cmsmadesimple.org/projects/corefilemanager">forge-page</a>.</p>
+<p>For the latest version of the module, or to report a bug, visit the module's <a href="http://dev.cmsmadesimple.org/projects/treefiler">forge-page</a>.</p>
 <h3>Copyright and License</h3>
-<p>Copyright &copy; 2018 Tom Phane &lt;tomph@cmsmadsimple.org&gt;. All rights reserved.</p>
+<p>Copyright &copy; 2018 CMS Made Simple Foundation &lt;foundation@cmsmadsimple.org&gt;. All rights reserved.</p>
 <p>This module has been released under version 3 of the <a href="http://www.gnu.org/licenses/agpl.html">GNU Affero General Public License</a>, and must not be used except in accordance with the terms of that license, or any later version of that license which is granted by the module's distributor.</p>
 EOT;
 
@@ -149,6 +148,8 @@ $lang['mb'] = 'MB';
 //$lang['mimetype'] = 'Mime Type';
 $lang['moddescription'] = 'Manage website files and directories';
 $lang['modified'] = 'Modified';
+$lang['module_settings_desc'] = 'Adjust settings for the TreeFiler file management module';
+$lang['module_settings_title'] = 'TreeFiler Module Settings';
 $lang['move'] = 'Move';
 
 // N
@@ -173,12 +174,11 @@ $lang['perm_w'] = 'write';
 $lang['perm_x'] = 'exec'; //files
 $lang['perm_xf'] = 'access'; //folders
 $lang['perms'] = 'Permissions';
-
-$lang['postinstall'] = 'The File Manager module has been installed';
+$lang['postinstall'] = 'The TreeFiler module has been installed';
 
 // R
 $lang['read'] = 'Read';
-$lang['really_uninstall'] = 'Are you sure you want to uninstall the File Manager module?';
+$lang['really_uninstall'] = 'Are you sure you want to uninstall the TreeFiler module?';
 $lang['rename'] = 'Rename';
 
 // S
@@ -218,7 +218,6 @@ $lang['text'] = 'File';
 $lang['tip_upload'] = 'Upload file(s) and/or folder(s)';
 $lang['title_dnd'] = 'Drag and drop anywhere here';
 $lang['title_upload'] = 'Upload to this folder';
-$lang['title_filemanager_settings'] = 'File Manager Settings';
 $lang['tofolder'] = 'Destination Folder';
 $lang['top'] = 'Top';
 $lang['typecompressed'] = 'Compression type';
@@ -226,7 +225,7 @@ $lang['typecompressed'] = 'Compression type';
 // U
 $lang['unpack'] = 'Unpack';
 $lang['unzip'] = 'Unzip'; //CHECKME
-$lang['uninstalled'] = 'The File Manager module has been uninstalled';
+$lang['uninstalled'] = 'The TreeFiler module has been uninstalled';
 
 // V
 $lang['video'] = 'Video file';
