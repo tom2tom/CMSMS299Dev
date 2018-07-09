@@ -5,19 +5,20 @@ this REQUIRES php extensions zlib, zip
 this benefits from php extension Fileinfo - probably built by default
 */
 
+if (ini_get('phar.readonly')) {
+	throw new Exception('phar.readonly must be turned OFF in your php.ini');
+}
+
 // setup
-$owd = getcwd();
 $cli = php_sapi_name() == 'cli';
+$owd = getcwd();
+$script_file = basename(__FILE__);
+
 if ($cli) {
-	//  check to make sure we are in the correct directory.
-	$script_file = basename($argv[0]);
+	// check to make sure we are in the correct directory.
 	if (!file_exists(joinpath($owd, $script_file))) {
 		throw new Exception('This script must be executed from the same directory as the '.$script_file.' script');
 	}
-}
-
-if (ini_get('phar.readonly')) {
-	throw new Exception('phar.readonly must be turned OFF in your php.ini');
 }
 
 // patterns for sources not copied to tempdir for processing,
@@ -66,7 +67,6 @@ $phar_excludes = [
 
 $phardir = dirname(__DIR__); //parent, a.k.a. phar_installer
 $srcdir = current_root(__DIR__); //ancestor of this script's place
-$sourceuri = ''; // alternate source of files
 
 $tmpdir = joinpath($phardir, 'source'); //place for sources to go into data.tar.gz
 $datadir = joinpath($phardir, 'data'); //place for data.tar.gz etc
@@ -76,8 +76,21 @@ $archive_only = 0;
 $clean = 1;
 $checksums = 1;
 $rename = 1;
+$sourceuri = ''; // alternate source of files
 $verbose = 0;
 $zip = 1;
+
+$config_file = str_replace('.php', '.ini', $script_file);
+$fp = joinpath($owd, $config_file);
+if (is_readable($fp)) {
+	$config = parse_ini_file($fp);
+	if ($config !== false) {
+		verbose(1, "INFO: read config data from $config_file");
+		extract ($config);
+	} else {
+		verbose(1, "ERROR: Problem processing config file: $config_file");
+	}
+}
 
 if ($cli) {
 	$options = getopt('ahcks:ru:vz', [
@@ -128,16 +141,18 @@ if ($cli) {
 				break;
 			 case 'u':
 			 case 'uri':
-				if (!preg_match('~^(file|svn|git)://~', $v)) {
-					throw new Exception("$v is not valid for the uri parameter");
+				if (!preg_match('~^((file|svn|git)://|local)~', $v)) {
+					throw new Exception("$v is not valid for the source-uri parameter");
 				}
-				if (strncmp($v, 'file://', 7) == 0) {
-					$path = substr($v, 7);
-					if (!is_dir($path) || !is_readable($path)) {
-						throw new Exception("The path specified in the uri parameter ($path) is not a valid directory");
+				if ($v != 'local') {
+					if (strncmp($v, 'file://', 7) == 0) {
+						$fp = substr($v, 7);
+						if (!is_dir($fp) || !is_readable($fp)) {
+							throw new Exception("The path specified in the uri parameter ($fp) is not a valid directory");
+						}
 					}
+					$sourceuri = $v;
 				}
-				$sourceuri = $v;
 				break;
 			 case 'z':
 			 case 'zip':
@@ -177,16 +192,16 @@ function current_root(string $dir) : string
 
 function joinpath(...$segments) : string
 {
-	$path = implode(DIRECTORY_SEPARATOR, $segments);
-	return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);
+	$fp = implode(DIRECTORY_SEPARATOR, $segments);
+	return str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $fp);
 }
 
-function rrmdir(string $path, bool $keepdirs = false) : bool
+function rrmdir(string $fp, bool $keepdirs = false) : bool
 {
-	if (is_dir($path)) {
+	if (is_dir($fp)) {
 		$res = true;
 		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($path,
+			new RecursiveDirectoryIterator($fp,
 				FilesystemIterator::CURRENT_AS_PATHNAME |
 				FilesystemIterator::SKIP_DOTS
 			),
@@ -202,19 +217,19 @@ function rrmdir(string $path, bool $keepdirs = false) : bool
 			}
 		}
 		if ($res && !$keepdirs) {
-			$res = @rmdir($path);
+			$res = @rmdir($fp);
 		}
 		return $res;
 	}
 	return false;
 }
 
-function rchmod(string $path) : bool
+function rchmod(string $fp) : bool
 {
 	$res = true;
-	if (is_dir($path)) {
+	if (is_dir($fp)) {
 		$iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($path,
+			new RecursiveDirectoryIterator($fp,
 				FilesystemIterator::CURRENT_AS_PATHNAME |
 				FilesystemIterator::SKIP_DOTS
 			), RecursiveIteratorIterator::CHILD_FIRST);
@@ -226,12 +241,12 @@ function rchmod(string $path) : bool
 				}
 			}
 		}
-		if (!is_link($path)) {
-			$mode = (is_dir($path)) ? 0751 : 0644;
-			return @chmod($path, $mode) && $res;
+		if (!is_link($fp)) {
+			$mode = (is_dir($fp)) ? 0751 : 0644;
+			return @chmod($fp, $mode) && $res;
 		}
-	} elseif (!is_link($path)) {
-		return @chmod($path, 0644);
+	} elseif (!is_link($fp)) {
+		return @chmod($fp, 0644);
 	}
 	return $res;
 }
@@ -406,7 +421,7 @@ function create_source_archive()
 	$fp = joinpath($srcdir, 'tmp');
 	rrmdir($fp, true);
 
-	if ($sourceuri) {
+	if ($sourceuri && $sourceuri != 'local') {
 		if (!get_alternate_files()) {
 			die('ERROR: sources not available');
 		}
