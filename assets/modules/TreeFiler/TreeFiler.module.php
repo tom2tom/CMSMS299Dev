@@ -55,7 +55,7 @@ final class TreeFiler extends CMSModule
         if ($this->VisibleToAdminUser()) {
             $out[] = CmsAdminMenuItem::from_module($this);
         }
-        if ($this->CheckPermission('Modify Site Preferences')) {
+/*        if ($this->CheckPermission('Modify Site Preferences')) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'files';
@@ -65,6 +65,7 @@ final class TreeFiler extends CMSModule
             $obj->url = $this->create_url('m1_', $obj->action);
             $out[] = $obj;
         }
+*/
         return $out;
     }
 
