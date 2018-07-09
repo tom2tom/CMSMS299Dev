@@ -6,7 +6,7 @@ Creating a CMSMS release involves these steps:
   a: Do all of the required changes to the CMSMS branch in question (change the version.php, update the changelog, make sure those files are committed)
   b: Create the <installer-root>/assets/upgrade/<version> directory and its appropriate files
      MANIFEST.DAT -- this file is created with the 'create_manifest.php' script (see below)
-     (a MANIFEST.DAT.GZ file is acceptable too)
+     (a MANIFEST.DAT.gz file is acceptable too)
      upgrade.php  -- (optional) the script to do any changes to the database or settings
         note: when this script is executed $db is available, the CMSMS api is created, however smarty is not available.
      readme.txt   -- (optional) readme file for display in the upgrade assistant
@@ -28,33 +28,48 @@ Building the files manifest
 1.  Change dir into the <installer-root>/build directory
 
 2.  Execute the create_manifest.php script
-    - this requires the php-cli package (see notes in the build-release section below)
-    - it is assumed to be running on a *NIX operating system
-    - it requires sufficient identification of two sets of source files. One such set (here called 'to')
-      is 'current', the other (called 'from') is the base against which differences will be calculated.
-      Either or both sources may be local (stored on the running system), or in the CMSMS subversion
-      repo, or in a git repo somewhere.
-      By way of example, with both file-sets in svn, the script would require a root directory,
-      a 'from' subpath, and a 'to' subpath e.g:
-       root directory:  http://svn.cmsmadesimple.org/svn/cmsmadesimple
-       from subpath:    branches/2.2.whatever
-       to subpath:      trunk
-    - it expects subversion and/or git to be installed, according to which of the source files are not local
-    - it retrieves non-local sources, and (accounting for files that don't belong in a release)
-      compares the file-sets to identify addions/changes/deletions.
+    ** This script has been tested/used only on linux
+    -- execute create_manifest.php -h for help
 
-3.  Copy the generated MANIFEST.DAT.GZ file into the <installer-root>/assets/upgrade/<version> directory
+    - the script requires the php-cli package (see notes in the build-release
+      section below)
+    - the script will read parameters from a config file if available. That file
+      is named 'create_manifest.ini' and may be located in the same directory as
+      the script, or in the user's 'home' directory if such exists.
+    - the script requires sufficient identification of two sets of source files.
+      One such set (here called 'to') will be considered to be the 'release'
+      set. The other set (called 'from') is the base against which differences
+      will be calculated, normally the prior release. Either or both filesets
+      may be local (stored on the running system), or in the CMSMS subversion
+      repo, or in a git repo somewhere.
+      By way of example, with both file-sets in CMSMS svn, the parameters 
+      supplied to the script would include something like:
+       --from=svn://branches/2.2.whatever --to=svn://trunk
+    - if the script is running on a windows system, all relevant configuration
+      parameters must be provided in the config file or as command arguments.
+      On any *NIX system, there is scope for entering some of the parameters
+      interactively, when prompted.
+    - the script expects subversion and/or git to be installed, as appropriate
+      to retrieve non-local fileset(s)
+    - the script retrieves any non-local files, and (ignoring the files that
+      don't belong in a release) compares the filesets to identify added,
+      changed and deleted files.
+
+3.  If necessary, copy the generated MANIFEST.DAT[.gz] file into the
+     <installer-root>/assets/upgrade/<version> directory.
+    If the script is run from inside the <installer-root> tree (as would normally
+    be the case), the manifest is automatically copied to the right place.
 
 -----------------------------
 Building release packages
 -----------------------------
 
 1.  Change dir into the <installer-root>/build directory
-    Note:  You only need the phar_installer directory to do a build... but be careful that it is from the proper branch of CMSMS.
+    Note:  You only need the phar_installer directory to do a build... but be careful that it is from the intended version of CMSMS.
 
 2.  Execute the build_release.php script
+    ** This script has been tested/used only on linux
     -- execute build_release.php -h for help
-    ** This script is only tested on linux (I'm allergic to windoze)
 
     ** This script has some pre-requisites
 
@@ -64,34 +79,38 @@ Building release packages
     b: the php-cli package must be allowed (in its configuration) to create phar files
        (from ubuntu:  vi /etc/php5/cli/php.ini; set phar.readonly = Off;)
 
-    c: subversion must to be installed and configured, if retrieving source-files from
+    c: subversion must be installed and configured, if retrieving source-files from
        the CMSMS subversion repo
        (from ubuntu:  sudo apt-get install subversion)
 
-    d: git must to be installed and configured, if retrieving source-files from
+    d: git must be installed and configured, if retrieving source-files from
        a specified git repo
        (from ubuntu:  sudo apt-get install git)
 
     e: zip must be installed and configured
        (from ubuntu:  sudo apt-get install zip)
 
-    ** This script executes multiple steps
+    ** This script does the following
 
-    a: Retrieves source files from the specified non-local source (if any)
+    a: Retrieves source files from specified non-local source(s) (if any).
 
-    b: Then filters out all files that do not belong in the release
-       (i.e: scripts, tests, svn and git files, backup files etc)
+    b: Filters out the files that do not belong in a release (i.e: scripts,
+       tests, svn and git files, backup files etc).
 
-    c: Checksum files are created in the 'out' directory.
+    c: Creates checksum files in the 'out' directory.
 
-    d: The files in the release are compressed into data/data.tar.gz
-       The version.php file for the trunk version is also copied here for convenience in knowing what the user will be installing or upgrading to.
+    d: Prepares a release from the 'to' fileset. Specifically, its files are compressed
+       into file data.tar.gz in the 'data' directory, and file version.php is also copied
+       into that directory in uncompressed form.
 
-    e: A self-contained executable .phar file is created and renamed to .php (because most http servers don't accept .phar extensions by default)
+    e: Creates a self-contained executable .phar file, renamed to .php (because
+       most web servers don't accept .phar extensions by default)
 
-    f: That .php file is compressed into a .zip file (this makes the file easy to share on a server, as the http server won't try to execute it)
+    f: Compresses that .php file into a zip file (which makes the file easier to share,
+       as no web server will try to execute it)
 
-    g: The installer and the data.tar.gz are compressed into a zip file (which allows CMSMS to be installed on older systems)
+    g: Compresses the installer and the data.tar.gz into a zip file (which allows
+       installation on older systems)
 
 -----------------------
 Running the .phar file
