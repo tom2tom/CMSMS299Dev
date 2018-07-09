@@ -36,7 +36,7 @@
   </div>{*/boxchild*}
   <div class="boxchild">
   <div id="display">
-  {include file='module_file_tpl:CoreFileManager;getlist.tpl' nocache}
+  {include file='module_file_tpl:TreeFiler;getlist.tpl' nocache}
   </div>
   {if count($items) > 0}
   <div class="pregap path footer-links">

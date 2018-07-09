@@ -1,5 +1,5 @@
 <?php
-namespace CoreFileManager\UnifiedArchive;
+namespace TreeFiler\UnifiedArchive;
 use Archive7z\Archive7z;
 use Exception;
 use ZipArchive;

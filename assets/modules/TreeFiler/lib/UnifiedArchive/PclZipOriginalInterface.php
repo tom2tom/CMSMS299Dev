@@ -1,5 +1,5 @@
 <?php
-namespace CoreFileManager\UnifiedArchive;
+namespace TreeFiler\UnifiedArchive;
 
   // ----- Constants
   if (!defined('PCLZIP_READ_BLOCK_SIZE')) {

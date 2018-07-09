@@ -1,6 +1,6 @@
 <?php
 /*
-CoreFileManager module action: view or edit or display properties of a file
+TreeFiler module action: view or edit or display properties of a file
 Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -19,7 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\FileTypeHelper;
 
-if (!isset($gCms)) exit;
+if (!function_exists('cmsms')) {
+    exit;
+}
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
 if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
 

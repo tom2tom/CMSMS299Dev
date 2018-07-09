@@ -8,8 +8,8 @@ Version 0.1.0
 
 License: MIT
 
-Developer: CoreFileManager <CoreFileManager@gmail.com>
+Developer: TreeFiler <TreeFiler@gmail.com>
 
-URL: https://packagist.org/packages/CoreFileManager/unified-archive
+URL: https://packagist.org/packages/TreeFiler/unified-archive
 
-Source: https://github.com/CoreFileManager/UnifiedArchive
+Source: https://github.com/TreeFiler/UnifiedArchive

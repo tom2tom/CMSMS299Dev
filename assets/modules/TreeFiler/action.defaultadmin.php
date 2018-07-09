@@ -1,6 +1,6 @@
 <?php
 /*
-CoreFileManager module action: defaultadmin
+TreeFiler module action: defaultadmin
 Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -16,6 +16,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
+
+if (!function_exists('cmsms')) {
+    exit;
+}
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'action.getlist.php';
 

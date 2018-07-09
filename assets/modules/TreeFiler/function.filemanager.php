@@ -426,7 +426,7 @@ function cfm_get_file_icon_class(string $path) : string
  * @param module-object $mod
  * @return array
  */
-function cfm_get_arch_picker(\CoreFileManager $mod) : array
+function cfm_get_arch_picker(\TreeFiler $mod) : array
 {
     global $CFM_IS_WIN;
 

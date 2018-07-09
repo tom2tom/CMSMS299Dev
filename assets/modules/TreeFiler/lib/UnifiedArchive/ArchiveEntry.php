@@ -1,5 +1,5 @@
 <?php
-namespace CoreFileManager\UnifiedArchive;
+namespace TreeFiler\UnifiedArchive;
 
 class ArchiveEntry
 {

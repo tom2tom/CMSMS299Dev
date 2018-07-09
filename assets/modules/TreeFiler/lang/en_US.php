@@ -148,8 +148,8 @@ $lang['mb'] = 'MB';
 //$lang['mimetype'] = 'Mime Type';
 $lang['moddescription'] = 'Manage website files and directories';
 $lang['modified'] = 'Modified';
-$lang['module_settings_desc'] = 'Adjust settings for the TreeFiler file management module';
-$lang['module_settings_title'] = 'TreeFiler Module Settings';
+//$lang['module_settings_desc'] = 'Adjust settings for the TreeFiler file management module';
+//$lang['module_settings_title'] = 'File Manager Settings';
 $lang['move'] = 'Move';
 
 // N
