@@ -1,5 +1,5 @@
 <?php
-# ModuleManager class: ..
+# ModuleManager class: ReposListCommand
 # Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -21,6 +21,8 @@ use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\CLI\GetOptExt\Option;
 use GetOpt\Operand;
+use ModuleManager\modulerep_client;
+use ModuleNoDataException;
 use RuntimeException;
 
 class ReposListCommand extends Command
@@ -93,7 +95,7 @@ class ReposListCommand extends Command
             $module = $this->getOperand('module')->value();
             $latest = ($this->getOption('latest')->value()) ? true : false;
             $verbose = $this->getOption('verbose')->value();
-            $list = \modulerep_client::get_repository_modules( $module, $latest, TRUE );
+            $list = modulerep_client::get_repository_modules( $module, $latest, TRUE );
 
             if( !$list || count($list) != 2 || $list[0] != 1 ) throw new RuntimeException('No matches');
             $list = $list[1];
@@ -108,9 +110,9 @@ class ReposListCommand extends Command
                 $this->list_table( $list );
             }
         }
-        catch( \ModuleNoDataException $e ) {
+        catch( ModuleNoDataException $e ) {
             throw new RuntimeException("Module $module not found in repository");
         }
 
     }
-} // end of class.
+} // class

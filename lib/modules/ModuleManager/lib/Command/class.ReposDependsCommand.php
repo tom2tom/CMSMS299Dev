@@ -1,5 +1,5 @@
 <?php
-# ModuleManager class: ...
+# ModuleManager class: ReposDependsCommand
 # Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -20,6 +20,8 @@ namespace ModuleManager\Command;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use GetOpt\Operand;
+use ModuleManager\modulerep_client;
+use ModuleNoDataException;
 use RuntimeException;
 
 class ReposDependsCommand extends Command
@@ -45,7 +47,7 @@ class ReposDependsCommand extends Command
         try {
             $filename = $this->getOperand('filename')->value();
 
-            $data = \modulerep_client::get_module_depends( $filename );
+            $data = modulerep_client::get_module_depends( $filename );
             if( !$data || !is_array($data) || !$data[0] ) throw new RuntimeException('File not found');
 
             $data = $data[1];
@@ -53,7 +55,7 @@ class ReposDependsCommand extends Command
                 printf("%s (%s)\n",$dep['name'],$dep['version']);
             }
         }
-        catch( \ModuleNoDataException $e ) {
+        catch( ModuleNoDataException $e ) {
             throw new RuntimeException("Module $module not found in repository");
         }
     }

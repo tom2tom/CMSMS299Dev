@@ -1,5 +1,5 @@
 <?php
-# ModuleManager class: ...
+# ModuleManager class: ReposGetXMLCommand
 # Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,6 +19,8 @@ namespace ModuleManager\Command;
 
 use cms_utils;
 use CMSMS\CLI\App;
+use ModuleManager\modulerep_client;
+use ModuleNoDataException;
 use RuntimeException;
 
 class ReposGetXMLCommand extends Command
