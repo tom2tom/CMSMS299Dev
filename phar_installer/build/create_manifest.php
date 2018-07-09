@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /*
-NOTE interactive mode uses extensions & methods which are *NIX-only
+NOTE interactive mode uses PHP extensions & methods which are *NIX-only
  i.e. interactive mode is not for Windoze.
 
 Requires:
@@ -12,17 +12,17 @@ Prefers:
 
 $_scriptname = basename(__FILE__);
 $_cli = php_sapi_name() == 'cli';
-$_interactive = $cli && (DIRECTORY_SEPARATOR !== '/');  //false on windows
+$_interactive = $_cli && (DIRECTORY_SEPARATOR !== '/');  //always false on windows
 $_debug = false;
 $_compress = true;
 $_svnroot = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 $_config = [
-    'do_md5'=>false,
-    'mode'=>'f',
-    'outfile'=>'MANIFEST.DAT',
-    'svn_root'=>$_svnroot,
-    'uri_from'=>'',
-    'uri_to'=>'',
+'do_md5'=>false,
+'mode'=>'f',
+'outfile'=>'MANIFEST.DAT',
+'svn_root'=>$_svnroot,
+'uri_from'=>'',
+'uri_to'=>'',
 ];
 $_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.$_scriptname.'.'.getmypid();
 $_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
@@ -65,21 +65,6 @@ $compare_excludes = [
 'install',
 'phar_installer',
 ];
-//$compare_excludes = [
-//'/\.git.*/',
-//'/\.svn\//',
-//'/build\//',
-//'/out\//',
-//'/source\//',
-//'/ext\//',
-//'/scripts\//',
-//'/README\.TXT/',
-//'/\.bak$/',
-//'/~$/',
-//'/\.#/',
-//'/#/',
-//];
-////'/README.*/',
 
 if ($_cli) {
     $opts = getopt('c:dp:f:hsm:neo:r:t::', [
@@ -206,10 +191,10 @@ if ($_interactive &&
 // interactive mode
 if ($_cli && $_interactive) {
     if (!function_exists('readline')) {
-        die('Abort '.$_scriptname.' : Missing readline extension');
+        die('Abort '.$_scriptname.' : PHP readline extension is missing');
     }
     if (!extension_loaded('pcntl')) {
-        echo($_scriptname.' works better with pcntl extension'."\n");
+        info($_scriptname.' works better with pcntl extension');
     }
     if (function_exists('pcntl_signal')) {
         @pcntl_signal(SIGTERM, 'sighandler');
@@ -227,7 +212,7 @@ if ($_cli && $_interactive) {
 
 if ($_compress) {
     if (!extension_loaded('zlib')) {
-        die('Abort '.$_scriptname.' : Missing zlib extension');
+        die('Abort '.$_scriptname.' : PHP zlib extension is missing');
     }
     //
     // some debian based distros don't have gzopen (crappy)
@@ -276,13 +261,13 @@ if (startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'],
 if (startswith($_config['uri_from'], 'file://')) {
     $file = substr($_config['uri_from'], 7);
     if (!is_dir($file) || !is_readable($file)) {
-        fatal('Specified files source ' .$file. ' is not available');
+        fatal('Specified files source ' .$file. ' is not accessable');
     }
 }
 if (startswith($_config['uri_to'], 'file://')) {
     $file = substr($_config['uri_to'], 7);
     if (!is_dir($file) || !is_readable($file)) {
-        fatal('Specified files source ' .$file. ' is not available');
+        fatal('Specified files source ' .$file. ' is not accessable');
     }
 }
 
@@ -291,18 +276,35 @@ if (startswith($_config['uri_to'], 'file://')) {
 //
 
 // create temp directories to hold the filesets
-@mkdir($_tmpdir);
+if (!(is_writable($_tmpdir) || mkdir($_tmpdir, 0771))) {
+    fatal('Temp folder is not writable');
+}
 $_fromdir = $_tmpdir.DIRECTORY_SEPARATOR.'_from';
+mkdir($_fromdir, 0771);
 $_todir = $_tmpdir.DIRECTORY_SEPARATOR.'_to';
+mkdir($_todir, 0771);
 
 // retrieve sources
-if (!get_sources($_config['uri_from'], $_fromdir)) {
+try {
+    $res = get_sources($_config['uri_from'], $_fromdir);
+} catch (Exception $e) {
+	info($e->GetMessage());
+	$res = false;
+}
+if (!$res) {
     fatal('Retrieving files from ' .$_config['uri_from']. ' failed');
 }
 if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fromdir, 'lib', 'classes', 'Database'))) {
     fatal('The files retrieved from ' .$_config['uri_from']. 'do not appear to be for a CMSMS installation');
 }
-if (!get_sources($_config['uri_to'], $_todir)) {
+
+try {
+	$res = get_sources($_config['uri_to'], $_todir);
+} catch (Exception $e) {
+	info($e->GetMessage());
+	$res = false;
+}
+if (!$res) {
     fatal('Retrieving files from ' .$_config['uri_to']. ' failed');
 }
 if (!is_file(joinpath($_todir, 'lib', 'version.php')) || !is_dir(joinpath($_todir, 'lib', 'classes', 'Database'))) {
@@ -365,6 +367,42 @@ if ($_config['mode'] == 'n' || $_config['mode'] == 'f') {
     }
 }
 
+if ($_compress) {
+    info('Compress manifest');
+    $_gzfile = $_tmpfile.'.gz';
+    $_fh = gzopen($_gzfile, 'w9');
+    gzwrite($_fh, file_get_contents($_tmpfile));
+    gzclose($_fh);
+    copy($_gzfile, $_tmpfile);
+    @unlink($_gzfile);
+}
+
+if (defined('STDOUT') && $_outfile == STDOUT) {
+    readfile($_tmpfile);
+} else {
+    $file = '';
+    if ($_to_ver) {
+        $dir = __DIR__;
+        while ($dir != '.' && basename($dir) != 'phar_installer') {
+            $dir = dirname($dir);
+        }
+        if ($dir != '.') {
+            $file = joinpath($dir, 'assets', 'upgrade', $_to_ver);
+            if (is_dir($file)) {
+                $file .= DIRECTORY_SEPARATOR.$_outfile;
+            } elseif (mkdir($file, 0771, true)) {
+                touch($file.DIRECTORY_SEPARATOR.'changelog.txt');
+                $file .= DIRECTORY_SEPARATOR.$_outfile;
+            }
+        }
+    }
+    if (!$file) {
+        $file = __DIR__.DIRECTORY_SEPARATOR.$_outfile;
+    }
+    info('Copy manifest to '.$file);
+    copy($_tmpfile, $file);
+}
+
 if ($_writecfg) {
     if ($_configfile && is_writable($_configfile)) {
         $file = $_configfile;
@@ -388,28 +426,11 @@ if ($_writecfg) {
         }
     }
     if ($file) {
-        info('Writing config file to '.$file);
+        info('Write config file to '.$file);
         write_config_file($_config, $file);
     } else {
         info('Cannot save config file '.$_configname);
     }
-}
-
-if ($_compress) {
-    info('Compressing manifest');
-    $_gzfile = $_tmpfile.'.gz';
-    $_fh = gzopen($_gzfile, 'w9');
-    gzwrite($_fh, file_get_contents($_tmpfile));
-    gzclose($_fh);
-    copy($_gzfile, $_tmpfile);
-    @unlink($_gzfile);
-}
-
-if ($_outfile == STDOUT) {
-    readfile($_tmpfile);
-} else {
-    info('Copy manifest to '.$_outfile);
-    copy($_tmpfile, $_outfile);
 }
 
 cleanup();
@@ -465,20 +486,32 @@ function output(string $str)
 
 function info(string $str)
 {
-    fwrite(STDERR, "INFO: $str\n");
+    if (defined('STDERR')) {
+        fwrite(STDERR, "INFO: $str\n");
+    } else {
+        echo ("INFO: $str<br/>");
+    }
 }
 
 function debug(string $str)
 {
     global $_debug;
     if ($_debug) {
-        fwrite(STDERR, "DEBUG: $str\n");
+        if (defined('STDERR')) {
+            fwrite(STDERR, "DEBUG: $str\n");
+        } else {
+            echo("DEBUG: $str<br/>");
+        }
     }
 }
 
 function fatal(string $str)
 {
-    fwrite(STDERR, "FATAL: $str\n");
+    if (defined('STDERR')) {
+        fwrite(STDERR, "FATAL: $str\n");
+    } else {
+        echo("FATAL: $str<br/>");
+    }
     cleanup();
     exit(1);
 }
@@ -535,7 +568,7 @@ function sighandler($signum)
 function cleanup($signum = null)
 {
     global $_tmpdir;
-    debug('Cleaning up');
+    debug('Clean up');
     rrmdir($_tmpdir);
 }
 
@@ -559,7 +592,7 @@ function ask_string(string $prompt, $dflt = null, bool $allow_empty = false)
         if ($dflt) {
             return $dflt;
         }
-        echo "ERROR: Invalid input. Please try again\n";
+        info("ERROR: Invalid input. Please try again");
     }
 }
 
@@ -580,7 +613,7 @@ function ask_options(string $prompt, array $options, $dflt)
         if (in_array($tmp, $options)) {
             return $tmp;
         }
-        echo "ERROR: Invalid input. Please enter one of the valid options\n";
+        info("ERROR: Invalid input. Please enter one of the valid options");
     }
 }
 
@@ -588,7 +621,7 @@ function write_config_file(array $config_data, string $filename)
 {
     @copy($filename, $filename.'.bak');
     $fh = fopen($filename, 'w');
-    fwrite($fh, '[config]');
+    fwrite($fh, "[config]\n");
     foreach ($config_data as $key => $val) {
         if (!is_numeric($val)) {
             $val = '"'.$val.'"';
@@ -612,7 +645,7 @@ function get_config_file() : string
             return $file;
         }
     }
-    $file = __DIR_.DIRECTORY_SEPARATOR.$_configname;
+    $file = __DIR__.DIRECTORY_SEPARATOR.$_configname;
     if (is_readable($file)) {
         return $file;
     }
@@ -623,7 +656,7 @@ function rcopy(string $srcdir, string $tmpdir)
 {
     global $src_excludes;
 
-    info("Copying source files from $srcdir to $tmpdir");
+    info("Copy source files from $srcdir to $tmpdir");
     //NOTE KEY_AS_FILENAME flag does not work as such - always get path here
     $iter = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator(
@@ -665,7 +698,10 @@ function get_version(string $basedir) : array
 {
     $file = joinpath($basedir, 'lib', 'version.php');
     if (is_file($file)) {
+		$lvl = error_reporting();
+		error_reporting(0);
         require $file;
+        error_reporting($lvl);
         return [$CMS_VERSION, $CMS_VERSION_NAME];
     }
     return ['',''];
@@ -713,14 +749,14 @@ function get_sources(string $sourceuri, string $tmpdir) : bool
 
         $cmd = escapeshellcmd("svn export -q $url $tmpdir");
 
-        info("Retrieving files from SVN ($url)");
+        info("Retrieve files from SVN ($url)");
         system($cmd, $retval);
         return true; //$retval == 0?
     } elseif (strncmp($sourceuri, 'git://', 6) == 0) {
         $url = 'https://'.substr($sourceuri, 6);
         $cmd = escapeshellcmd("git clone -q $url $tmpdir");
 
-        info("Retrieving files from GIT ($url)");
+        info("Retrieve files from GIT ($url)");
         system($cmd, $retval);
         return true; //$retval == 0?;
     }
