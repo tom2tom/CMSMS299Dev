@@ -21,15 +21,15 @@ $_config = [
 'mode'=>'f',
 'outfile'=>'MANIFEST.DAT',
 'svn_root'=>$_svnroot,
-'uri_from'=>'',
-'uri_to'=>'',
+'uri_from'=>'svn://',
+'uri_to'=>'file://',
 ];
 $_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.$_scriptname.'.'.getmypid();
 $_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
 $_configname = str_replace('.php', '.ini', $_scriptname);
 $_configfile = get_config_file();
 $_writecfg = true;
-$_outfile = ($_cli) ? STDOUT : 'MANIFEST.DAT';
+$_outfile = ($_cli) ? STDOUT : 'MANIFEST.DAT.gz';
 $_notdeleted = [];
 
 $src_excludes = [
@@ -191,7 +191,7 @@ if ($_interactive &&
 // interactive mode
 if ($_cli && $_interactive) {
     if (!function_exists('readline')) {
-        die('Abort '.$_scriptname.' : PHP readline extension is missing');
+        fatal('Abort '.$_scriptname.' : PHP readline extension is missing');
     }
     if (!extension_loaded('pcntl')) {
         info($_scriptname.' works better with pcntl extension');
@@ -212,11 +212,9 @@ if ($_cli && $_interactive) {
 
 if ($_compress) {
     if (!extension_loaded('zlib')) {
-        die('Abort '.$_scriptname.' : PHP zlib extension is missing');
+        fatal('Abort '.$_scriptname.' : PHP zlib extension is missing');
     }
-    //
-    // some debian based distros don't have gzopen (crappy)
-    //
+    // some debian-based distros don't have gzopen (crappy)
     if (!function_exists('gzopen') && function_exists('gzopen64')) {
         function gzopen($filename, $mode, $use_include_path = 0)
         {
@@ -236,16 +234,16 @@ if ($_config['outfile'] != '-' && $_config['outfile']) {
 
 // validate the config
 if (empty($_config['uri_from'])) {
-    fatal("No 'comparison' files uri provided");
+    fatal("No 'reference' file-set source provided");
 }
-if (!preg_match('~((file|svn|git)://|local)~', $_config['uri_from'])) {
-    fatal("'comparison' files uri unrecognised - expect local or file://... or svn://... or git://...");
+if (!preg_match('~(file|svn|git)://~', $_config['uri_from'])) {
+    fatal("Unrecognised 'reference' file-set source. Specify file://... or git://... or svn://...");
 }
 if (empty($_config['uri_to'])) {
-    fatal("No 'release' files uri provided");
+    fatal("No 'release' file-set source provided");
 }
-if (!preg_match('~((file|svn|git)://|local)~', $_config['uri_to'])) {
-    fatal("'release' files uri unrecognised - expect local or file://... or svn://... or git://...");
+if (!preg_match('~(file|svn|git)://~', $_config['uri_to'])) {
+    fatal("Unrecognised 'release' file-set source. Specify file://... or git://... or svn://...");
 }
 if ($_config['uri_from'] == $_config['uri_to']) {
     fatal('Must process two different file-sets. ' .$_config['uri_from']. ' was specified for both');
@@ -260,14 +258,18 @@ if (startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'],
 }
 if (startswith($_config['uri_from'], 'file://')) {
     $file = substr($_config['uri_from'], 7);
-    if (!is_dir($file) || !is_readable($file)) {
-        fatal('Specified files source ' .$file. ' is not accessable');
+    if ($file === '' || $file == 'local') {
+        $_config['uri_from'] = 'file://local';
+    } elseif (!is_dir($file) || !is_readable($file)) {
+        fatal('Specified file-set source ' .$file. ' is not accessable');
     }
 }
 if (startswith($_config['uri_to'], 'file://')) {
     $file = substr($_config['uri_to'], 7);
-    if (!is_dir($file) || !is_readable($file)) {
-        fatal('Specified files source ' .$file. ' is not accessable');
+    if ($file === '' || $file == 'local') {
+        $_config['uri_to'] = 'file://local';
+    } elseif (!is_dir($file) || !is_readable($file)) {
+        fatal('Specified file-set source ' .$file. ' is not accessable');
     }
 }
 
@@ -288,8 +290,8 @@ mkdir($_todir, 0771);
 try {
     $res = get_sources($_config['uri_from'], $_fromdir);
 } catch (Exception $e) {
-	info($e->GetMessage());
-	$res = false;
+    info($e->GetMessage());
+    $res = false;
 }
 if (!$res) {
     fatal('Retrieving files from ' .$_config['uri_from']. ' failed');
@@ -299,10 +301,10 @@ if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fr
 }
 
 try {
-	$res = get_sources($_config['uri_to'], $_todir);
+    $res = get_sources($_config['uri_to'], $_todir);
 } catch (Exception $e) {
-	info($e->GetMessage());
-	$res = false;
+    info($e->GetMessage());
+    $res = false;
 }
 if (!$res) {
     fatal('Retrieving files from ' .$_config['uri_to']. ' failed');
@@ -437,19 +439,15 @@ cleanup();
 info('DONE');
 exit(0);
 
-///////////////////////////
-// CLASS AND FUNCTIONS   //
-///////////////////////////
+/////////////////////////
+// CLASS AND FUNCTIONS //
+/////////////////////////
 
 function usage()
 {
     global $_scriptname;
     echo <<<'EOT'
-This is script compares two sets of source-files, and generates a manifest of files which have been added/changed/deleted between the sets, to facilitate cleaning up and verification of files during the upgrade process.
-
-Ideally this script should be executed from the assets/upgrade/<to_version> directory.
-
-The created manifest should be placed in the assets/upgrade/<to_version> directory as MANIFEST.DAT.gz.
+This is script generates a manifest of differences (additions/changes/deletions) between two sets of CMSMS files, to facilitate cleaning up and verification during a CMSMS upgrade.
 
 EOT;
     echo <<<EOT
@@ -466,8 +464,9 @@ options
   -r|--root <string>   = a non-default root url for svn-sourced fileset(s)
   -t|--to <string>     = the other fileset-source identifier, same format as for -f option
   -m|--mode (d|n|c|f)  = generate a deleted/new/changed/full manifest
-  -p|--dnd <string>    = a comma-separated series of filepaths (relative to the CMSMS root)
-                         This can be useful if files will be moved manually during the upgrade process
+  -p|--dnd <string>    = a comma-separated series of filepaths (relative to the CMSMS root).
+                         Files in those places will not be marked as deleted. This can be useful
+                         if files will be moved manually during the upgrade process
 EOT;
 }
 
@@ -489,7 +488,7 @@ function info(string $str)
     if (defined('STDERR')) {
         fwrite(STDERR, "INFO: $str\n");
     } else {
-        echo ("INFO: $str<br/>");
+        echo ("<br/>INFO: $str");
     }
 }
 
@@ -500,7 +499,7 @@ function debug(string $str)
         if (defined('STDERR')) {
             fwrite(STDERR, "DEBUG: $str\n");
         } else {
-            echo("DEBUG: $str<br/>");
+            echo("<br/>DEBUG: $str");
         }
     }
 }
@@ -510,7 +509,7 @@ function fatal(string $str)
     if (defined('STDERR')) {
         fwrite(STDERR, "FATAL: $str\n");
     } else {
-        echo("FATAL: $str<br/>");
+        echo("<br/>FATAL: $str");
     }
     cleanup();
     exit(1);
@@ -698,8 +697,8 @@ function get_version(string $basedir) : array
 {
     $file = joinpath($basedir, 'lib', 'version.php');
     if (is_file($file)) {
-		$lvl = error_reporting();
-		error_reporting(0);
+        $lvl = error_reporting();
+        error_reporting(0);
         require $file;
         error_reporting($lvl);
         return [$CMS_VERSION, $CMS_VERSION_NAME];
@@ -709,19 +708,19 @@ function get_version(string $basedir) : array
 
 function get_sources(string $sourceuri, string $tmpdir) : bool
 {
-    if ($sourceuri == 'local') {
-        //get local root
-        $dir = __DIR__;
-        while ($dir !== '.' && !is_dir(joinpath($dir, 'admin')) && !is_dir(joinpath($dir, 'phar_installer'))) {
-            $dir = dirname($dir);
-        }
-        if ($dir !== '.') {
-            rcopy($dir, $tmpdir);
-            return true;
-        }
-    } elseif (strncmp($sourceuri, 'file://', 7) == 0) {
+    if (strncmp($sourceuri, 'file://', 7) == 0) {
         $dir = substr($sourceuri, 7);
-        if (is_dir($dir)) {
+        if ($dir == 'local' || $dir === '') {
+            //get local root
+            $dir = __DIR__;
+            while ($dir !== '.' && !is_dir(joinpath($dir, 'admin')) && !is_dir(joinpath($dir, 'phar_installer'))) {
+                $dir = dirname($dir);
+            }
+            if ($dir !== '.') {
+                rcopy($dir, $tmpdir);
+                return true;
+            }
+        } elseif (is_dir($dir)) {
             rcopy($dir, $tmpdir);
             return true;
         }
@@ -739,7 +738,7 @@ function get_sources(string $sourceuri, string $tmpdir) : bool
                 break;
             case 'http':
                 $url = $remnant;
-                // no break
+                break;
             case 'svn.':
                 $url = 'http://'.$remnant;
                 break;
