@@ -216,7 +216,7 @@ function create_textarea(
 
 /**
  * A convenience function to test if the site is marked as down according to the config panel.
- * This method includes handling the preference that indicates that site-down behaviour should
+ * This method includes handling the preference that indicates that site-down behavior should
  * be disabled for certain IP address ranges.
  *
  * @return boolean

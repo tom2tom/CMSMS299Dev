@@ -159,7 +159,7 @@ $lang['finished_custom_install_msg'] = 'Done! Please visit the website and login
 $lang['finished_custom_upgrade_msg'] = 'Done!  Please visit the site\'s admin panel, and frontend, to ensure that everything is working properly.<br/><strong>Hint:</strong> Now is a good time to create another backup.';
 $lang['finished_freshen_msg'] = 'The installation has been freshened! The core files have been updated, and a new config file created.  You can now <a href="%s">visit this website</a> or login to the <a href="%s">CMSMS Admin panel</a>.';
 $lang['finished_install_msg'] = 'All done! You can now <a href="%s">visit the website</a> or login to the <a href="%s">CMSMS admin panel</a>.';
-$lang['finished_upgrade_msg'] = 'All done! Please visit the <a href="%s">website frontend</a> and the <a href="%s">Admin panel</a> to verify correct behaviour. You might also need to upgrade some non-core modules.<br/><strong>Hint:</strong> Remember to create another backup after verifying correct behaviour.';
+$lang['finished_upgrade_msg'] = 'All done! Please visit the <a href="%s">website frontend</a> and the <a href="%s">Admin panel</a> to verify correct behavior. You might also need to upgrade some non-core modules.<br/><strong>Hint:</strong> Remember to create another backup after verifying correct behavior.';
 $lang['freshen'] = 'Freshen (repair) installation';
 $lang['func_json'] = 'json functionality is available ?';
 $lang['func_md5'] = 'md5 functionality is available ?';

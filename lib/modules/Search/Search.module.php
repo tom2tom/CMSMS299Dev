@@ -118,7 +118,7 @@ class Search extends CMSModule
   {foreach from=\$results item=entry}
   <li>{\$entry->title} - <a href="{\$entry->url}">{\$entry->urltxt}</a> ({\$entry->weight}%)</li>
   {*
-     You can also instantiate custom behaviour on a module by module basis by looking at
+     You can also instantiate custom behavior on a module by module basis by looking at
      the \$entry->module and \$entry->modulerecord fields in \$entry
       ie: {if \$entry->module == 'News'}{News action='detail' article_id=\$entry->modulerecord detailpage='News'}
   *}

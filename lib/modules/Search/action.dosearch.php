@@ -77,7 +77,7 @@ $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,nul
 
 if ($params['searchinput'] != '') {
 // $_POST/$_GET parameters are filter_var()'d before passing them here
-    // Fix to prevent XSS like behaviour. See: http://www.securityfocus.com/archive/1/455417/30/0/threaded
+    // Fix to prevent XSS like behavior. See: http://www.securityfocus.com/archive/1/455417/30/0/threaded
 //    $params['searchinput'] = cms_html_entity_decode($params['searchinput'],ENT_COMPAT,'UTF-8');
 //    $params['searchinput'] = strip_tags($params['searchinput']);
     \CMSMS\HookManager::do_hook('Search::SearchInitiated', [ trim($params['searchinput'])] );

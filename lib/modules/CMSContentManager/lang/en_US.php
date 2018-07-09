@@ -404,7 +404,7 @@ $lang['help_module'] = <<<EOT
   </li>
 
   <li>Alias
-    <p>The page alias is a string that uniquely identifies this content item, and is usually easier to remember than the integer page id. The alias is used in numerous locations when building CMSMS website. It can be used to create links to content items, to build specialized navigations, or as behavioural hints to other modules indicating on what content item they should display data.</p>
+    <p>The page alias is a string that uniquely identifies this content item, and is usually easier to remember than the integer page id. The alias is used in numerous locations when building CMSMS website. It can be used to create links to content items, to build specialized navigations, or as behavioral hints to other modules indicating on what content item they should display data.</p>
     <p>By default the page alias is uniquely generated from the title when adding a new content item, however users can specify their own page alias when adding or editing the content item so long as it is unique amongst all other content items. Some content item types do not require a page alias.</p>
     <p>Users with restricted permissions might not have the ability to specify the alias when adding or editing a content item.</p>
   </li>
@@ -415,7 +415,7 @@ $lang['help_module'] = <<<EOT
 
   <li>Content
     <p>Each page template is required to include at least the default content property <em>(a.k.a block)</em>. However they can define many more, and different types of content blocks. The default block usually appears in the edit content form as a wWYSIWYG enabled text area allowing the editor to specify some default content for the page.</p>
-    <p>Site developers have significant control over the tab that this is displayed in, the label, maxlength, required, and other attributes to control the behaviour of this property in the edit form, and when it is displayed.</p>
+    <p>Site developers have significant control over the tab that this is displayed in, the label, maxlength, required, and other attributes to control the behavior of this property in the edit form, and when it is displayed.</p>
     <p>If the WYSIWYG editor is enabled for this content block and content item <em>(see below)</em>, and one or more WYSIWYG editor modules are enabled, and the user has selected a WYSIWYG editor in his preferences then a WYSIWYG editor will be displayed. Different WYSIWYG editors have different abilities, but most provide the ability to format text in different ways. Additionally, most WYSIWYG editors allow inserting images and creating links to other content items in this website.</p>
   </li>
 
@@ -516,12 +516,12 @@ $lang['help_module'] = <<<EOT
   </li>
 
   <li>Page Data
-    <p>This property is primarily used for inserting data, or logic into the smarty process for use by the page template. It is an advanced field for usage in flexible layouts that change their behaviour dynamically.</p>
+    <p>This property is primarily used for inserting data, or logic into the smarty process for use by the page template. It is an advanced field for usage in flexible layouts that change their behavior dynamically.</p>
     <p>Users with restricted permissions might not have the ability to adjust or specify this property.</p>
   </li>
 
   <li>extra1, extra2, and extra3</li>
-  <p>Additional properties for use in either displaying data, or influencing the behaviour of the page template.</p>
+  <p>Additional properties for use in either displaying data, or influencing the behavior of the page template.</p>
   </li>
 </ul>
 EOT;
