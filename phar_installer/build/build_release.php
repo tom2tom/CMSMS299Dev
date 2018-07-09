@@ -21,7 +21,7 @@ if (ini_get('phar.readonly')) {
 }
 
 // patterns for sources not copied to tempdir for processing,
-// checked against root-dir-relative filepaths, after converting windoze sep's to unix
+// checked against root-dir-relative filepaths, after converting windoze path-sep's to *NIX
 $src_excludes = [
 '/phar_installer\//',
 '/scripts\//',
