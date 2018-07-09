@@ -136,7 +136,6 @@ $js .= preg_replace_callback('/~%(.+?)%~/', function ($match)
  $name = $match[1];
  if ($name[0] == '$') {
     $name = substr($name, 1);
-    $adbg = $$name;
     return $$name;
  } elseif (strncmp($name,'lang|',5) == 0) {
     $name = substr($name, 5);
