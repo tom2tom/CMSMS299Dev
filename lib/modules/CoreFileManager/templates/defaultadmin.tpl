@@ -28,7 +28,10 @@
  </div>{*/hbox*}
  <div class="hbox flow">
   <div class="boxchild" id="treecontainer">
-   <p class="fm-tree-title"><a title="{$mod->Lang('search2')}" href="javascript:doSearch(false)"><i class="if-search"></i></a></p>
+   <p class="cfm-tree-title">
+     <a title="{$mod->Lang('search2')}" href="javascript:doSearch(false)"><i class="if-search"></i></a>
+     <a title="{$mod->Lang('closeall')}" href="javascript:doClose()"><i class="if-closeall"></i></a>
+   </p>
    {$treeview}
   </div>{*/boxchild*}
   <div class="boxchild">
