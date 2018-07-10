@@ -74,7 +74,13 @@ function treeinit() {
   delay: 300,
   closeOther: true,
   activeSelector: '.active',
-  openActive: true
+  openActive: true,
+  menucls: 'treemenu',
+  iconcls: 'toggler',
+  closedcls: 'tree-closed',
+  emptycls: 'tree-empty',
+  hiddencls: 'tree-hidden',
+  opencls: 'tree-opened'
  });
 }
 function doSearch(files) {
@@ -111,6 +117,7 @@ function doSearch(files) {
   $('.cfm-tree-title').css('display','none').before(ob);
   $('#cfm-tree').treefilter({
    selector: ob.find('input')[0],
+   searchclass: 'search-root',
    matchclass: 'search-result',
    emptyclass: 'tree-empty',
    hideclass: 'tree-hidden',
