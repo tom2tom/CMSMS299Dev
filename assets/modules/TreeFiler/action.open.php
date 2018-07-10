@@ -182,7 +182,7 @@ $smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'po
 
 $baseurl = $this->GetModuleURLPath();
 $css = <<<EOS
-<link rel="stylesheet" href="{$baseurl}/lib/css/filemanager.css">
+<link rel="stylesheet" href="{$baseurl}/lib/css/module.css">
 
 EOS;
 $this->AdminHeaderContent($css);

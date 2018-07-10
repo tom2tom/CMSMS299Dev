@@ -98,7 +98,7 @@ $here = $CFM_RELPATH;
 
 //<link rel="stylesheet" href="{$baseurl}/lib/css/jquery.dm-uploader.css">
 $css = <<<EOS
-<link rel="stylesheet" href="{$baseurl}/lib/css/filemanager.css">
+<link rel="stylesheet" href="{$baseurl}/lib/css/module.css">
 
 EOS;
 $this->AdminHeaderContent($css);
@@ -111,6 +111,8 @@ $sm->queue_file($p.'jquery.treemenu.js'); //OR .min for production
 $sm->queue_file($p.'jquery.treefilter.js'); //OR .min for production
 $sm->queue_file($p.'jquery.easysearch.js'); //OR .min for production
 $sm->queue_file($p.'jquery.dm-uploader.js'); //OR .min for production
+$sm->queue_file($p.'jquery.filedrag.js'); //OR .min for production
+
 $fn = $sm->render_scripts();
 $u =  \CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 $js = <<<EOS
