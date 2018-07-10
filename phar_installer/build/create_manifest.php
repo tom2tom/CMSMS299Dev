@@ -19,7 +19,7 @@ $_svnroot = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 $_config = [
 'do_md5'=>false,
 'mode'=>'f',
-'outfile'=>'MANIFEST.DAT',
+'outfile'=>'MANIFEST.DAT.gz',
 'svn_root'=>$_svnroot,
 'uri_from'=>'svn://',
 'uri_to'=>'file://',
@@ -67,16 +67,16 @@ $compare_excludes = [
 ];
 
 if ($_cli) {
-    $opts = getopt('c:dp:f:hsm:neo:r:t::', [
+    $opts = getopt('c:de:f:hkm:npo:r::t::', [
     'config',
     'debug',
-    'dnd',  //-p : preserve
+    'dnd',  //-e : ??
     'from',
     'help',
-    'md5',  //-s : sum
+    'md5',  //-k : checksum
     'mode',
     'nocompress',
-    'nowrite', //-e : keep current config file
+    'nowrite', //-p : preserve current config file
     'outfile',
     'root',
     'to',
@@ -110,8 +110,16 @@ if ($_cli) {
                 break;
 
             case 'e':
-            case 'nowrite':
-                $_writecfg = false;
+            case 'dnd':
+                if ($val) {
+                    $tmp = explode(',', $val);
+                    foreach ($tmp as $one) {
+                        $one = trim($one, ' */\\');
+                        if ($one) {
+                            $_notdeleted[] = DIRECTORY_SEPARATOR.$one;
+                        }
+                    }
+                }
                 break;
 
             case 'f':
@@ -123,6 +131,11 @@ if ($_cli) {
             case 'help':
                 usage();
                 exit;
+
+            case 'k':
+            case 'md5':
+                $_config['do_md5'] = true;
+                break;
 
             case 'm':
             case 'mode':
@@ -149,26 +162,13 @@ if ($_cli) {
                 break;
 
             case 'p':
-            case 'dnd':
-                if ($val) {
-                    $tmp = explode(',', $val);
-                    foreach ($tmp as $one) {
-                        $one = trim($one, ' */\\');
-                        if ($one) {
-                            $_notdeleted[] = DIRECTORY_SEPARATOR.$one;
-                        }
-                    }
-                }
+            case 'nowrite':
+                $_writecfg = false;
                 break;
 
             case 'r':
             case 'root':
                 $_config['svn_root'] = trim($val);
-                break;
-
-            case 's':
-            case 'md5':
-                $_config['do_md5'] = true;
                 break;
 
             case 't':
