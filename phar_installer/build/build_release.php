@@ -6,7 +6,7 @@ this benefits from php extension Fileinfo - probably built by default
 */
 
 if (ini_get('phar.readonly')) {
-	throw new Exception('phar.readonly must be turned OFF in your php.ini');
+	die('phar.readonly must be turned OFF in your php.ini');
 }
 
 // setup
@@ -17,7 +17,7 @@ $script_file = basename(__FILE__);
 if ($cli) {
 	// check to make sure we are in the correct directory.
 	if (!file_exists(joinpath($owd, $script_file))) {
-		throw new Exception('This script must be executed from the same directory as the '.$script_file.' script');
+		die('This script must be executed from the same directory as the '.$script_file.' script');
 	}
 }
 
@@ -66,7 +66,6 @@ $phar_excludes = [
 //];
 
 $phardir = dirname(__DIR__); //parent, a.k.a. phar_installer
-$srcdir = current_root(__DIR__); //ancestor of this script's place
 
 $tmpdir = joinpath($phardir, 'source'); //place for sources to go into data.tar.gz
 $datadir = joinpath($phardir, 'data'); //place for data.tar.gz etc
@@ -76,7 +75,7 @@ $archive_only = 0;
 $clean = 1;
 $checksums = 1;
 $rename = 1;
-$sourceuri = ''; // alternate source of files
+$sourceuri = 'file://'; // file-set source
 $verbose = 0;
 $zip = 1;
 
@@ -93,12 +92,11 @@ if (is_readable($fp)) {
 }
 
 if ($cli) {
-	$options = getopt('ahcks:ru:vz', [
+	$options = getopt('ahckru:vz', [
 	'archive',
 	'help',
 	'clean',
 	'checksums',
-	'src',
 	'rename',
 	'uri',
 	'verbose',
@@ -124,13 +122,6 @@ if ($cli) {
 			 case 'verbose':
 				++$verbose;
 				break;
-			 case 's':
-			 case 'src':
-				if (!is_dir($v)) {
-					throw new Exception("$v is not a valid directory for the src parameter");
-				}
-				$srcdir = $v;
-				break;
 			 case 'h':
 			 case 'help':
 				output_usage();
@@ -141,18 +132,18 @@ if ($cli) {
 				break;
 			 case 'u':
 			 case 'uri':
-				if (!preg_match('~^((file|svn|git)://|local)~', $v)) {
-					throw new Exception("$v is not valid for the source-uri parameter");
+				if (!preg_match('~^(file|svn|git)://~', $v)) {
+					die("$v is not valid for the source-uri parameter");
 				}
-				if ($v != 'local') {
-					if (strncmp($v, 'file://', 7) == 0) {
-						$fp = substr($v, 7);
-						if (!is_dir($fp) || !is_readable($fp)) {
-							throw new Exception("The path specified in the uri parameter ($fp) is not a valid directory");
-						}
+				if (strncmp($v, 'file://', 7) == 0) {
+					$fp = substr($v, 7);
+					if ($fp === '' || $fp == 'local') {
+						$v = 'file://';
+					} elseif (!is_dir($fp) || !is_readable($fp)) {
+						die("The path specified in the uri parameter ($fp) is not a valid directory");
 					}
-					$sourceuri = $v;
 				}
+				$sourceuri = $v;
 				break;
 			 case 'z':
 			 case 'zip':
@@ -166,17 +157,22 @@ if ($cli) {
 function output_usage()
 {
 	echo <<< 'EOS'
-php build_local_release.php [options]
+php build_release.php [options]
 options:
   -h|--help	     show this message
   -a|--archive   only create the data archive, do not create a phar
   -c|--clean     toggle cleaning of old output directories (default is on)
   -k|--checksums toggle creation of checksum files (default is on)
   -r|--rename    toggle renaming of .phar file to .php (default is on)
-  -s|--src       specify 'local' source-files root directory <path-to-root> (default is the relevant ancestor of this script)
-  -u|--uri       specify 'non-local' source-files, one of file://<path-to-root> or svn://detail or git://detail
-                 For svn, the detail need only be 'trunk' or the branch or tag relative to the CMSMS svn root,
-                 or may be omitted entirely if trunk is to be used.
+  -u|--uri       specify files source, one of
+                   file://detail or svn://detail or git://detail
+                 With 'file', the detail may be 'local' or omitted, in order
+                 to use the files in the local tree, otherwise a filesystem
+                 path of a readable directory
+                 With 'svn', the detail need only be 'trunk' or the branch
+                 or tag relative to the CMSMS svn url root, or may be
+                 omitted entirely if trunk is to be used.
+                 With 'git', the detail is the urlpath of the repo.
   -v|--verbose   increment verbosity level (can be used multiple times)
   -z|--zip       toggle zipping the output (phar or php) into a .zip file (default is on)
 EOS;
@@ -184,6 +180,9 @@ EOS;
 
 function current_root(string $dir) : string
 {
+	if (!$dir) {
+		$dir = __DIR__;
+	}
 	while ($dir !== '.' && !is_dir(joinpath($dir, 'admin')) && !is_dir(joinpath($dir, 'phar_installer'))) {
 		$dir = dirname($dir);
 	}
@@ -298,16 +297,16 @@ function get_alternate_files() : bool
 	return false;
 }
 
-function copy_source_files()
+function copy_local_files()
 {
-	global $srcdir,$tmpdir,$src_excludes;
+	global $tmpdir,$src_excludes;
 
-	$excludes = $src_excludes;
+	$localroot = current_root(__DIR__); //ancestor of this script's place
 
-	verbose(1, "INFO: Copying source files from $srcdir to $tmpdir");
+	verbose(1, "INFO: Copying source files from $localroot to $tmpdir");
 	//NOTE KEY_AS_FILENAME flag does not work as such - always get path here
 	$iter = new RecursiveIteratorIterator(
-		new RecursiveDirectoryIterator($srcdir,
+		new RecursiveDirectoryIterator($localroot,
 			RecursiveIteratorIterator::SELF_FIRST |
 			FilesystemIterator::KEY_AS_PATHNAME |
 			FilesystemIterator::CURRENT_AS_FILEINFO |
@@ -316,8 +315,9 @@ function copy_source_files()
 		)
 	);
 
-	$len = strlen($srcdir.DIRECTORY_SEPARATOR);
+	$len = strlen($localroot.DIRECTORY_SEPARATOR);
 	$matches = null;
+	$excludes = $src_excludes;
 
 	foreach ($iter as $fp => $inf) {
 		foreach ($excludes as $excl) {
@@ -345,10 +345,6 @@ function copy_source_files()
 function get_version_php(string $startdir) : string
 {
 	$fp = joinpath($startdir, 'lib', 'version.php');
-	if (is_file($fp)) {
-		return $fp;
-	}
-	$fp = joinpath($startdir, 'version.php');
 	if (is_file($fp)) {
 		return $fp;
 	}
@@ -385,11 +381,7 @@ function create_checksums(string $dir, string $salt) : array
 
 function create_checksum_dat()
 {
-	global $checksums,$outdir,$tmpdir,$version_php,$version_num;
-
-	if (!$checksums) {
-		return;
-	}
+	global $outdir,$tmpdir,$version_php,$version_num;
 
 	verbose(1, "INFO: Creating checksum file");
 	$salt = md5_file($version_php).md5_file($tmpdir.DIRECTORY_SEPARATOR.'index.php'); //TODO joinpath
@@ -410,26 +402,10 @@ function create_checksum_dat()
 
 function create_source_archive()
 {
-	global $clean,$tmpdir,$datadir,$srcdir,$sourceuri;
+	global $tmpdir,$datadir;
 
-	if ($clean && is_dir($tmpdir)) {
-		verbose(1, "INFO: removing old temporary files");
-		rrmdir($tmpdir);
-	}
-	@mkdir($tmpdir, 0771, true);
-
-	$fp = joinpath($srcdir, 'tmp');
+	$fp = joinpath($tmpdir, 'tmp');
 	rrmdir($fp, true);
-
-	if ($sourceuri && $sourceuri != 'local') {
-		if (!get_alternate_files()) {
-			die('ERROR: sources not available');
-		}
-	} else {
-		copy_source_files();
-	}
-	verbose(1, "INFO: Recursively setting permissions");
-	rchmod($tmpdir);
 
 	@mkdir($datadir, 0771, true);
 	$fp = joinpath($datadir, 'data.tar');
@@ -482,7 +458,7 @@ function verbose(int $lvl, string $msg)
 // our "main function"
 try {
 	if (!is_dir($phardir) || !is_file(joinpath($phardir, 'index.php'))) {
-		throw new Exception('Problem finding source files in '.$phardir);
+		die('Problem finding source files in '.$phardir);
 	}
 
 	if ($clean && is_dir($outdir)) {
@@ -493,41 +469,79 @@ try {
 	@mkdir($outdir, 0771, true);
 	@mkdir($datadir, 0771, true);
 	if (!is_dir($datadir) || !is_dir($outdir)) {
-		throw new Exception('Problem creating working directories: '.$datadir.' and '.$outdir);
+		die('Problem creating working directories: '.$datadir.' and/or '.$outdir);
 	}
-
-	$version_php = get_version_php($srcdir);
-	if (!file_exists($version_php)) {
-		throw new Exception('Could not find file version.php in the source tree.');
-	}
-
-	include_once $version_php;
-	$version_num = $CMS_VERSION;
-	verbose(1, "INFO: found version: $version_num");
 
 	$fp = joinpath($phardir,'lib','classes','class.installer_base.php');
 	require_once $fp;
 	$arr = __installer\installer_base::CONTENTXML;
 	$xmlfile = joinpath($phardir, ...$arr);
 	if (!is_file($xmlfile)) {
-		$fp = joinpath($srcdir,'config.php');
+		$localroot = current_root(__DIR__); //ancestor of this script's place
+		$fp = joinpath($localroot,'config.php');
 		if (is_file($fp)) {
 			// probably an installed site
 			$CMS_JOB_TYPE = 2;
-			$fp = joinpath($srcdir,'lib','include.php');
+			$fp = joinpath($localroot,'lib','include.php');
 			include_once $fp;
 			$arr = __installer\installer_base::CONTENTFILESDIR;
 			$filesin = joinpath($phardir, ...$arr);
 			$db = CmsApp::get_instance()->GetDb();
-			require_once joinpath($srcdir,'admin','function.contentoperation.php');
+			require_once joinpath($localroot,'admin','function.contentoperation.php');
 			verbose(1, "INFO: export site content to $xmlfile");
 			export_content($xmlfile, $filesin, $db);
 		}
 	}
 
-	create_source_archive();
+	if ($clean && is_dir($tmpdir)) {
+		verbose(1, "INFO: removing old temporary files");
+		rrmdir($tmpdir);
+	}
+	@mkdir($tmpdir, 0771, true);
 
-	create_checksum_dat();
+	if (strncmp($sourceuri, 'file://', 7) == 0) {
+		$fp = substr($sourceuri, 7);
+		if ($fp === '' || $fp == 'local') {
+			try {
+				copy_local_files();
+			} catch (Exception $e) {
+				die($e->GetMessage());
+			}
+		} elseif (!get_alternate_files()) {
+			die('ERROR: sources not available');
+		}
+	} elseif (!get_alternate_files()) {
+		die('ERROR: sources not available');
+	}
+
+	$version_php = get_version_php($tmpdir);
+	if (!file_exists($version_php)) {
+		die('Could not find file version.php in the source tree.');
+	}
+
+	include_once $version_php;
+	$version_num = $CMS_VERSION;
+	verbose(1, "INFO: found version: $version_num");
+
+	$fp = joinpath($phardir, 'assets', 'upgrade', $version_num);
+	@mkdir($fp, 0771, true);
+	if (!(is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT.gz') || is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT'))) {
+		verbose(1, "ERROR: no upgrade-files manifest is present");
+		// MAYBE create MANIFEST.DAT.gz using create_manifest.php, but what 'reference' fileset?
+	}
+	if (!is_file($fp.DIRECTORY_SEPARATOR.'changelog.txt')) {
+		verbose(1, "WARNING: no upgrade changelog is present");
+		// MAYBE extract some of doc/CHANGELOG.txt ?
+	}
+
+	verbose(1, "INFO: Recursively setting permissions");
+	rchmod($tmpdir);
+
+	if ($checksums) {
+		create_checksum_dat();
+	}
+
+	create_source_archive();
 
 	if (!$archive_only) {
 		$basename = 'cmsms-'.$version_num.'-install';
@@ -653,14 +667,6 @@ EOS;
 			$arch->setExternalAttributesName('README-PHAR.TXT', ZipArchive::OPSYS_UNIX, 0644 << 16);
 			$arch->close();
 			@unlink($infile);
-
-			$fp = joinpath($phardir, 'assets', 'upgrade', $version_num);
-			@mkdir($fp, 0771, true);
-			//TODO should include at least MANIFEST.DAT.gz changelog.txt
-			// maybe upgrade.php etc
-			//TODO mechanism to create MANIFEST.DAT.gz, interface with
-			// create_local_manifest.php using $outdir/cmsms-{$version_num}-checksum.dat
-			//TODO warn if no changelog.txt, or copy some of doc/CHANGELOG.txt ?
 
 			rrmdir($tmpdir); //sources can go now
 
