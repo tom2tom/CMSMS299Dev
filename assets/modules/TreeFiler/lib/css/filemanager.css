@@ -249,8 +249,8 @@ li.tree-closed > .toggler:before { content: '\e810'; color: #eeaf4b; }
 li.tree-opened > .toggler:before { content: '\e811'; color: #0e2a42; }  /* TODO always same as .info */
 .tree-hidden { display: none; }
 /* .treemenu .search-result {} */
-.tf-search ul { display: none; }
-.tf-search ul.search-result { display: inherit; }
+.search-root ul { display: none; }
+.search-root ul.search-result { display: inherit; }
 
 /*
 #searchbox {
