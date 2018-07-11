@@ -102,8 +102,9 @@ function cms_module_create_actionurl(
 		} elseif (isset($_SESSION[CMS_USER_KEY])) {
 			$text = $config['admin_url'] . '/moduleinterface.php';
 			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
-//		} else {
+		} else {
 			//ignore missing data e.g. for async activities
+			$text = $config['admin_url'] . '/moduleinterface.php';
 			//TODO or redirect? or return error e.g.
 			// '<!-- '.__METHOD__.' error : "session has expired -->';
 		}
