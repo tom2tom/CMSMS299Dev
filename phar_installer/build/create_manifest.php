@@ -9,6 +9,7 @@ Requires:
 Prefers:
  PHP extension pcntl if in interactive mode
 */
+const SVNROOT = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
 
 $_scriptname = basename(__FILE__);
 $_cli = php_sapi_name() == 'cli';
@@ -16,7 +17,7 @@ $_cli = php_sapi_name() == 'cli';
 $do_md5 = false;
 $mode = 'f';
 $outfile = 'MANIFEST.DAT.gz';
-$svn_root = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+$svn_root = SVNROOT;
 $uri_from = 'svn://';
 $uri_to = 'file://';
 // other params
@@ -88,7 +89,7 @@ if ($_cli) {
     }
 }
 
-// attempt to read config file
+// attempt to read config file, if the user wants
 if ($_configfile && $_configfile != '-') {
     if (!is_readable($_configfile)) {
         fatal("No valid config file at: $_configfile");
