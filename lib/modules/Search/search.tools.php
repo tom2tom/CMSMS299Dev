@@ -112,9 +112,9 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
             $q .= " AND extra_attr=?";
             $parms[] = $attr;
         }
+        $db->BeginTrans();
         $dbresult = $db->Execute($q, $parms);
 
-        $db->BeginTrans();
         if ($dbresult && $dbresult->RecordCount() > 0 && $row = $dbresult->FetchRow()) {
             $itemid = (int) $row['id'];
         }
