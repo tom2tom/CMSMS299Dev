@@ -11,7 +11,7 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
 }
 
 $dict = NewDataDictionary($db);
-$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = array('mysqli' => 'ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci');
 
 $flds= '
 id I KEY,
@@ -26,16 +26,16 @@ $dict->ExecuteSQLArray($sqlarray);
 $db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
 
 $sqlarray = $dict->CreateIndexSQL('items_search_items',
-			CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
+            CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('items_search_module',
-			CMS_DB_PREFIX.'module_search_items', 'module_name');
+            CMS_DB_PREFIX.'module_search_items', 'module_name');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('items_search_content',
-			CMS_DB_PREFIX.'module_search_items', 'content_id');
+            CMS_DB_PREFIX.'module_search_items', 'content_id');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('items_search_attr',
-			CMS_DB_PREFIX.'module_search_items', 'extra_attr');
+            CMS_DB_PREFIX.'module_search_items', 'extra_attr');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
@@ -47,10 +47,10 @@ $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds, $t
 $dict->ExecuteSQLArray($sqlarray);
 
 $sqlarray = $dict->CreateIndexSQL('index_search_word',
-			CMS_DB_PREFIX.'module_search_index', 'word');
+            CMS_DB_PREFIX.'module_search_index', 'word');
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('index_search_count',
-			CMS_DB_PREFIX.'module_search_index', 'count');
+            CMS_DB_PREFIX.'module_search_index', 'count');
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
