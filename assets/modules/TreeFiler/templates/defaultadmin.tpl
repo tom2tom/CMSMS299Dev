@@ -26,7 +26,7 @@
 {/if}
   </div>{*/boxchild*}
  </div>{*/hbox*}
- <div class="hbox flow">
+ <div class="hbox flow" id="dragcontainer" >
   <div class="boxchild" id="treecontainer">
    <p class="cfm-tree-title">
      <a title="{$mod->Lang('search2')}" href="javascript:doSearch(false)"><i class="if-search"></i></a>
