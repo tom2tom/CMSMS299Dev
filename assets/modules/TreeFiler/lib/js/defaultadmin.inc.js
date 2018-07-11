@@ -67,8 +67,74 @@ $(document).ready(function() {
    firstClicked = this;
   });
  }
+ var srcel = null, destel = null;
+ $('#dragcontainer').filedrag({
+  canDrag: function(src, ev) {
+   var p = src.parentNode,
+       n = p.tagName;
+   if (n == 'LI') {
+    if ((' ' + p.className).indexOf(' tree') > -1) {
+     srcel = 'tree';
+     return true;
+    }
+   } else if (n == 'TD') {
+    if ((' ' + p.className + ' ').indexOf(' filename ') > -1) {
+     srcel = 'list';
+     return true;
+    }
+   }
+   return false;
+  },
+  canDrop: function(dest, ev) {
+   var p = dest.parentNode,
+       n = p.tagName;
+   if (n == 'LI') {
+    if ((' ' + p.className).indexOf(' tree') > -1) {
+     destel = 'tree';
+     return true;
+    }
+   } else if (n == 'TD') {
+    if ((' ' + p.className + ' ').indexOf(' filename ') > -1) {
+     var at = p.getAttribute('data-sort'); //check for directory
+     if (at && at.charAt(0) === '.') {
+      destel = 'list';
+      return true;
+     }
+    }
+   }
+   return false;
+  },
+  doDrop: function (src, dest, ev) {
+   var s = src.getAttribute('href'),
+       d = dest.getAttribute('href');
+   if (s != d) {
+    var t;
+    if('dataTransfer'in ev) {
+     t = ev.dataTransfer.dropEffect; // 'copy' or 'move'
+    } else {
+     t = 'move'; //TODO get mode from $(dragged-container).data('dndoptions')
+    }
+    var parms = {dnd:t};
+    parms.from = getparm(s);
+    parms.to = getparm(d);
+    doajax(parms); //TODO passfunc(), failfunc() account for srcel, destel
+   }
+   srcel = destel = null;
+  }
+ });
 });
 
+function getparm(s) {
+ var t = s.replace('~%$id%~p', 'dir');
+ t = t.replace('~%$id%~view', 'file');
+ var parts = t.split('&'),
+  ob = {};
+ for (var i = 2, n = parts.length; i < n; ++i) {
+  var v = parts[i].split('=');
+  ob[v[0]] = v[1];
+ }
+ return JSON.stringify(ob);
+}
 function treeinit() {
  $('#cfm-tree').treemenu({
   delay: 300,
@@ -234,7 +300,7 @@ function doajax(parms, passfunc, failfunc) {
     passfunc(data, textStatus, jqXHR);
    } else {
     refreshList();
-    //if it's a folder, refreshTree();
+    //TODO if it's a folder, refreshTree();
     cms_notify(data[0], data[1]);
    }
   },
@@ -319,9 +385,9 @@ function oneChmod(p, f, df, isdir, m) {
    gr: 040,
    gw: 020,
    gx: 010,
-   or: 04,
-   ow: 02,
-   ox: 01
+   or: 4,
+   ow: 2,
+   ox: 1
  };
  e.find(':checkbox').each(function() {
   var flags = modes[this.id] || 0;

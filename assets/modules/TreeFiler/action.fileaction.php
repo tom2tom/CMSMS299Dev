@@ -52,6 +52,7 @@ function cfm_response($type, $msg)
 
 if (isset($params['create'], $params['type'])) {
     // Create folder or file
+	// TODO profile-conformance
     $newitem = cfm_clean_path($params['create']);
     if (!($newitem === '' || $newitem == '..' || $newitem == '.')) {
         $item_path = $path . DIRECTORY_SEPARATOR . $newitem;
@@ -81,6 +82,7 @@ if (isset($params['create'], $params['type'])) {
 }
 
 if (isset($params['del'])) {
+	// TODO profile-conformance
     if (isset($params['sel'])) {
         // Multi delete
         $errors = 0;
@@ -125,6 +127,7 @@ if (isset($params['del'])) {
 
 if (isset($params['todir'], $params['sel'])) {
     // Multi copy/move from $path to
+	// TODO profile-conformance
     $dest = cfm_clean_path($params['todir']);
     if ($dest !== '') {
         $dest_path .= DIRECTORY_SEPARATOR . $dest;
@@ -180,6 +183,7 @@ if (isset($params['todir'], $params['sel'])) {
 
 if (isset($params['oneto'])) {
     // Copy/move one folder/file
+	// TODO profile-conformance
     $msg = [];
     // from
     $file = cfm_clean_path($params['from']);
@@ -241,8 +245,61 @@ if (isset($params['ren'], $params['to'])) {
     exit;
 }
 
+if (isset($params['dnd'])) {
+    // DnD
+	// TODO profile-conformance
+	$from = $path;
+    $srcdata = json_decode($params['from'], true);
+	if (!empty($srcdata['dir'])) {
+		$from .= DIRECTORY_SEPARATOR . $srcdata['dir'];
+	}
+	if (!empty($srcdata['file'])) {
+		$from .= DIRECTORY_SEPARATOR . $srcdata['file'];
+	}
+
+	$dest = $path;
+    $destdata = json_decode($params['to'], true);
+	if (!empty($destdata['dir'])) {
+		$dest .= DIRECTORY_SEPARATOR . $destdata['dir'];
+	}
+	if (!empty($srcdata['dir'])) {
+		$dest .= DIRECTORY_SEPARATOR . $srcdata['dir'];
+	}
+	if (!empty($srcdata['file'])) {
+		$dest .= DIRECTORY_SEPARATOR . $srcdata['file'];
+	}
+
+    if ($dest == $from) {
+        cfm_response('error', $this->Lang('err_samepath'));
+        exit;
+    }
+
+    switch ($params['dnd']) { //'move' or 'copy'
+		case 'copy':
+			if (is_dir($from)) {
+				if (cfm_mkdir($dest, false)) {
+					if (!cfm_rcopy($from, $dest, false, false)) {
+						cfm_response('error', $this->Lang('err_copy2', cfm_enc(basename($dest)), cfm_enc(dirname($dest))));
+					}
+				} else {
+					cfm_response('error', $this->Lang('err_dup3', cfm_enc(basename($dest))));
+				}
+			} elseif (!cfm_copy($from, $dest, false)) {
+				cfm_response('error', $this->Lang('err_copy2', cfm_enc(basename($from)), cfm_enc(dirname($dest))));
+			}
+			break;
+		default:
+            if (!cfm_rename($from, $dest)) {
+	            cfm_response('error', $this->Lang('err_move2', cfm_enc(basename($from)), cfm_enc(dirname($dest))));
+            }
+			break;
+	}
+    exit;
+}
+
 if (isset($params['ul'])) {
     // Upload
+	// TODO profile-conformance
     if (!empty($_FILES)) {
         $f = $_FILES['file'];
         $from = $f['tmp_name'];
