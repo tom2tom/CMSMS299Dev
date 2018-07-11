@@ -38,61 +38,60 @@ class Search extends CMSModule
         }
     }
 
-    public function LazyLoadFrontend() { return TRUE; }
-    public function LazyLoadAdmin() { return TRUE; }
-    public function GetName() { return 'Search'; }
-    public function GetFriendlyName() { return $this->Lang('search'); }
-    public function IsPluginModule() { return true; }
-    public function HasAdmin() { return true; }
-    public function HandlesEvents () { return true; }
-    public function GetVersion() { return '1.51.5'; }
-    public function MinimumCMSVersion() { return '1.12-alpha0'; }
     public function GetAdminDescription() { return $this->Lang('description'); }
-    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
-    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
     public function GetEventDescription( $eventname ) { return $this->lang('eventdesc-' . $eventname); }
     public function GetEventHelp( $eventname ) { return $this->lang('eventhelp-' . $eventname); }
+    public function GetFriendlyName() { return $this->Lang('search'); }
+    public function GetHelp($lang='en_US') { return $this->Lang('help'); }
+    public function GetName() { return 'Search'; }
+    public function GetVersion() { return '1.51.5'; }
+    public function HandlesEvents () { return true; }
+    public function HasAdmin() { return true; }
+    public function IsPluginModule() { return true; }
+    public function LazyLoadAdmin() { return true; }
+    public function LazyLoadFrontend() { return true; }
+    public function MinimumCMSVersion() { return '1.12-alpha0'; }
+    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
     {
-        $this->CreateParameter('inline','false',$this->Lang('param_inline'));
-        $this->CreateParameter('passthru_*','null',$this->Lang('param_passthru'));
-        $this->CreateParameter('modules','null',$this->Lang('param_modules'));
-        $this->CreateParameter('resultpage', 'null', $this->Lang('param_resultpage'));
-        $this->CreateParameter('searchtext','null',$this->Lang('param_searchtext'));
-        $this->CreateParameter('detailpage','null',$this->Lang('param_detailpage'));
-        $this->CreateParameter('submit',$this->Lang('searchsubmit'),$this->Lang('param_submit'));
         $this->CreateParameter('action','default',$this->Lang('param_action'));
-        $this->CreateParameter('pageid','null',$this->Lang('param_pageid'));
         $this->CreateParameter('count','null',$this->Lang('param_count'));
-        $this->CreateParameter('use_or','true',$this->Lang('param_useor'));
-        $this->CreateParameter('search_method','get',$this->Lang('search_method'));
+        $this->CreateParameter('detailpage','null',$this->Lang('param_detailpage'));
         $this->CreateParameter('formtemplate','',$this->Lang('param_formtemplate'));
+        $this->CreateParameter('inline','false',$this->Lang('param_inline'));
+        $this->CreateParameter('modules','null',$this->Lang('param_modules'));
+        $this->CreateParameter('pageid','null',$this->Lang('param_pageid'));
+        $this->CreateParameter('passthru_*','null',$this->Lang('param_passthru'));
+        $this->CreateParameter('resultpage', 'null', $this->Lang('param_resultpage'));
         $this->CreateParameter('resulttemplate','',$this->Lang('param_resulttemplate'));
+        $this->CreateParameter('search_method','get',$this->Lang('search_method'));
+        $this->CreateParameter('searchtext','null',$this->Lang('param_searchtext'));
+        $this->CreateParameter('submit',$this->Lang('searchsubmit'),$this->Lang('param_submit'));
+        $this->CreateParameter('use_or','true',$this->Lang('param_useor'));
     }
 
     public function InitializeFrontend()
     {
 //2.3 does nothing        $this->RestrictUnknownParams();
-
-        $this->SetParameterType('inline',CLEAN_STRING);
-        $this->SetParameterType(CLEAN_REGEXP.'/passthru_.*/',CLEAN_STRING);
-        $this->SetParameterType('modules',CLEAN_STRING);
-        $this->SetParameterType('resultpage',CLEAN_STRING);
+        $this->SetParameterType('count',CLEAN_INT);
         $this->SetParameterType('detailpage',CLEAN_STRING);
-        $this->SetParameterType('searchtext',CLEAN_STRING);
-        $this->SetParameterType('searchinput',CLEAN_STRING);
-        $this->SetParameterType('submit',CLEAN_STRING);
+        $this->SetParameterType('formtemplate',CLEAN_STRING);
+        $this->SetParameterType('inline',CLEAN_STRING);
+        $this->SetParameterType('modules',CLEAN_STRING);
         $this->SetParameterType('origreturnid',CLEAN_INT);
         $this->SetParameterType('pageid',CLEAN_INT);
-        $this->SetParameterType('count',CLEAN_INT);
-        $this->SetParameterType('use_or',CLEAN_INT);
-        $this->SetParameterType('search_method',CLEAN_STRING);
-        $this->SetParameterType('formtemplate',CLEAN_STRING);
+        $this->SetParameterType('resultpage',CLEAN_STRING);
         $this->SetParameterType('resulttemplate',CLEAN_STRING);
+        $this->SetParameterType('search_method',CLEAN_STRING);
+        $this->SetParameterType('searchinput',CLEAN_STRING);
+        $this->SetParameterType('searchtext',CLEAN_STRING);
+        $this->SetParameterType('submit',CLEAN_STRING);
+        $this->SetParameterType('use_or',CLEAN_INT);
+        $this->SetParameterType(CLEAN_REGEXP.'/passthru_.*/',CLEAN_STRING);
     }
 
     protected function GetSearchHtmlTemplate()
