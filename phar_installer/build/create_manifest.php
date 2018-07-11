@@ -12,18 +12,17 @@ Prefers:
 
 $_scriptname = basename(__FILE__);
 $_cli = php_sapi_name() == 'cli';
-$_interactive = $_cli && (DIRECTORY_SEPARATOR !== '/');  //always false on windows
+// default config params
+$do_md5 = false;
+$mode = 'f';
+$outfile = 'MANIFEST.DAT.gz';
+$svn_root = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
+$uri_from = 'svn://';
+$uri_to = 'file://';
+// other params
 $_debug = false;
 $_compress = true;
-$_svnroot = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
-$_config = [
-'do_md5'=>false,
-'mode'=>'f',
-'outfile'=>'MANIFEST.DAT.gz',
-'svn_root'=>$_svnroot,
-'uri_from'=>'svn://',
-'uri_to'=>'file://',
-];
+$_interactive = false; //$_cli && (DIRECTORY_SEPARATOR !== '/');  //always false on windows
 $_tmpdir = sys_get_temp_dir().DIRECTORY_SEPARATOR.$_scriptname.'.'.getmypid();
 $_tmpfile = $_tmpdir.DIRECTORY_SEPARATOR.'tmp.out';
 $_configname = str_replace('.php', '.ini', $_scriptname);
@@ -67,7 +66,8 @@ $compare_excludes = [
 ];
 
 if ($_cli) {
-    $opts = getopt('c:de:f:hkm:npo:r::t::', [
+    $opts = getopt('ic:de:f:hkm:npo:r::t::', [
+    'ask', //-i : interactive
     'config',
     'debug',
     'dnd',  //-e : ??
@@ -97,6 +97,7 @@ if ($_configfile && $_configfile != '-') {
     if ($_config === false) {
         fatal("Problem processing config file: $_configfile");
     }
+    extract($_config);
     info('Read config file from '.$_configfile);
 }
 
@@ -124,7 +125,7 @@ if ($_cli) {
 
             case 'f':
             case 'from':
-                $_config['uri_from'] = trim($val);
+                $uri_from = trim($val);
                 break;
 
             case 'h':
@@ -132,9 +133,18 @@ if ($_cli) {
                 usage();
                 exit;
 
+            case 'i':
+            case 'ask':
+				if (DIRECTORY_SEPARATOR !== '/') {
+	                $_interactive = true;
+				} else {
+			        fatal("Prompted input of parameters is not supported on Windows");
+				}
+                break;
+
             case 'k':
             case 'md5':
-                $_config['do_md5'] = true;
+                $do_md5 = true;
                 break;
 
             case 'm':
@@ -146,7 +156,7 @@ if ($_cli) {
                     case 'd':
                     case 'c':
                     case 'a':
-                        $_config['mode'] = $val;
+                        $mode = $val;
                 }
                 break;
 
@@ -158,7 +168,7 @@ if ($_cli) {
             case 'o':
             case 'outfile':
                 $val = trim($val);
-                $_config['outfile'] = $val;
+                $outfile = $val;
                 break;
 
             case 'p':
@@ -168,24 +178,22 @@ if ($_cli) {
 
             case 'r':
             case 'root':
-                $_config['svn_root'] = trim($val);
+                $svn_root = trim($val);
                 break;
 
             case 't':
             case 'to':
-                $_config['uri_to'] = trim($val);
+                $uri_to = trim($val);
                 break;
         }
     }
 }
 
-if ($_interactive &&
-    $_config['uri_from'] &&
-    $_config['uri_to'] &&
-    ($_config['svn_root'] || !(startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'], 'svn://'))) &&
-    $_config['outfile'] &&
-    $_config['mode']) {
-    $_interactive = false;
+if (!$_interactive && DIRECTORY_SEPARATOR !== '/' &&
+    !($uri_from && $uri_to &&
+    ($svn_root || !(startswith($uri_from, 'svn://') || startswith($uri_to, 'svn://'))) &&
+    $outfile && $mode)) {
+    $_interactive = true;
 }
 
 // interactive mode
@@ -201,13 +209,13 @@ if ($_cli && $_interactive) {
         @pcntl_signal(SIGINT, 'sighandler');
     }
 
-    $_config['uri_from'] = ask_string("Enter 'comparison' fileset uri", $_config['uri_from']);
-    $_config['uri_to'] = ask_string("Enter 'release' fileset uri", $_config['uri_to']);
-    if (startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'], 'svn://')) {
-        $_config['svn_root'] = ask_string('Enter svn repository root url', $_config['svn_root']);
+    $uri_from = ask_string("Enter 'comparison' fileset uri", $uri_from);
+    $uri_to = ask_string("Enter 'release' fileset uri", $uri_to);
+    if (startswith($uri_from, 'svn://') || startswith($uri_to, 'svn://')) {
+        $svn_root = ask_string('Enter svn repository root url', $svn_root);
     }
-    $_config['outfile'] = ask_string('Enter manifest file name', $_config['outfile']);
-    $_config['mode'] = ask_options('Enter manifest mode (d|n|c|f)', ['d','n','c','f'], $_config['mode']);
+    $outfile = ask_string('Enter manifest file name', $outfile);
+    $mode = ask_options('Enter manifest mode (d|n|c|f)', ['d','n','c','f'], $mode);
 }
 
 if ($_compress) {
@@ -222,52 +230,49 @@ if ($_compress) {
         }
     }
 
-    if (!endswith($_config['outfile'], '.gz')) {
-        $_config['outfile'] = $_config['outfile'] . '.gz';
+    if (!endswith($outfile, '.gz')) {
+        $outfile = $outfile . '.gz';
     }
-} elseif (endswith($_config['outfile'], '.gz') || endswith($_config['outfile'], '.GZ')) {
-    $_config['outfile'] = substr($_config['outfile'], 0, -3);
-}
-if ($_config['outfile'] != '-' && $_config['outfile']) {
-    $_outfile = $_config['outfile'];
+} elseif (endswith($outfile, '.gz') || endswith($outfile, '.GZ')) {
+    $outfile = substr($outfile, 0, -3);
 }
 
 // validate the config
-if (empty($_config['uri_from'])) {
+if (empty($uri_from)) {
     fatal("No 'reference' file-set source provided");
 }
-if (!preg_match('~(file|svn|git)://~', $_config['uri_from'])) {
+if (!preg_match('~(file|svn|git)://~', $uri_from)) {
     fatal("Unrecognised 'reference' file-set source. Specify file://... or git://... or svn://...");
 }
-if (empty($_config['uri_to'])) {
+if (empty($uri_to)) {
     fatal("No 'release' file-set source provided");
 }
-if (!preg_match('~(file|svn|git)://~', $_config['uri_to'])) {
+if (!preg_match('~(file|svn|git)://~', $uri_to)) {
     fatal("Unrecognised 'release' file-set source. Specify file://... or git://... or svn://...");
 }
-if ($_config['uri_from'] == $_config['uri_to']) {
-    fatal('Must process two different file-sets. ' .$_config['uri_from']. ' was specified for both');
+if ($uri_from == $uri_to) {
+    fatal('Must process two different file-sets. ' .$uri_from. ' was specified for both');
 }
-if (startswith($_config['uri_from'], 'svn://') || startswith($_config['uri_to'], 'svn://')) {
-    if (empty($_config['svn_root'])) {
+if (startswith($uri_from, 'svn://') || startswith($uri_to, 'svn://')) {
+    if (empty($svn_root)) {
         fatal('No repository root found');
     }
-    if (!endswith($_config['svn_root'], '/')) {
-        $_config['svn_root'] .= '/';
+    if (!endswith($svn_root, '/')) {
+        $svn_root .= '/';
     }
 }
-if (startswith($_config['uri_from'], 'file://')) {
-    $file = substr($_config['uri_from'], 7);
+if (startswith($uri_from, 'file://')) {
+    $file = substr($uri_from, 7);
     if ($file === '' || $file == 'local') {
-        $_config['uri_from'] = 'file://local';
+        $uri_from = 'file://local';
     } elseif (!is_dir($file) || !is_readable($file)) {
         fatal('Specified file-set source ' .$file. ' is not accessable');
     }
 }
-if (startswith($_config['uri_to'], 'file://')) {
-    $file = substr($_config['uri_to'], 7);
+if (startswith($uri_to, 'file://')) {
+    $file = substr($uri_to, 7);
     if ($file === '' || $file == 'local') {
-        $_config['uri_to'] = 'file://local';
+        $uri_to = 'file://local';
     } elseif (!is_dir($file) || !is_readable($file)) {
         fatal('Specified file-set source ' .$file. ' is not accessable');
     }
@@ -288,33 +293,33 @@ mkdir($_todir, 0771);
 
 // retrieve sources
 try {
-    $res = get_sources($_config['uri_from'], $_fromdir);
+    $res = get_sources($uri_from, $_fromdir);
 } catch (Exception $e) {
     info($e->GetMessage());
     $res = false;
 }
 if (!$res) {
-    fatal('Retrieving files from ' .$_config['uri_from']. ' failed');
+    fatal('Retrieving files from ' .$uri_from. ' failed');
 }
 if (!is_file(joinpath($_fromdir, 'lib', 'version.php')) || !is_dir(joinpath($_fromdir, 'lib', 'classes', 'Database'))) {
-    fatal('The files retrieved from ' .$_config['uri_from']. 'do not appear to be for a CMSMS installation');
+    fatal('The files retrieved from ' .$uri_from. 'do not appear to be for a CMSMS installation');
 }
 
 try {
-    $res = get_sources($_config['uri_to'], $_todir);
+    $res = get_sources($uri_to, $_todir);
 } catch (Exception $e) {
     info($e->GetMessage());
     $res = false;
 }
 if (!$res) {
-    fatal('Retrieving files from ' .$_config['uri_to']. ' failed');
+    fatal('Retrieving files from ' .$uri_to. ' failed');
 }
 if (!is_file(joinpath($_todir, 'lib', 'version.php')) || !is_dir(joinpath($_todir, 'lib', 'classes', 'Database'))) {
-    fatal('The files retrieved from ' .$_config['uri_to']. 'do not appear to be for a CMSMS installation');
+    fatal('The files retrieved from ' .$uri_to. 'do not appear to be for a CMSMS installation');
 }
 
 try {
-    $obj = new compare_dirs($_fromdir, $_todir, $_config['do_md5']);
+    $obj = new compare_dirs($_fromdir, $_todir, $do_md5);
 } catch (Exception $e) {
     fatal($e->GetMessage());
 }
@@ -336,7 +341,7 @@ if ($_notdeleted) {
     output('MANIFEST SKIPPED: '.implode(', ', $_notdeleted));
 }
 
-if ($_config['mode'] == 'd' || $_config['mode'] == 'f') {
+if ($mode == 'd' || $mode == 'f') {
     $out = $obj->get_deleted_files();
     foreach ($out as $fn) {
         $file = $_fromdir.DIRECTORY_SEPARATOR.$fn;
@@ -346,7 +351,7 @@ if ($_config['mode'] == 'd' || $_config['mode'] == 'f') {
     }
 }
 
-if ($_config['mode'] == 'c' || $_config['mode'] == 'f') {
+if ($mode == 'c' || $mode == 'f') {
     $out = $obj->get_changed_files();
     foreach ($out as $fn) {
         $file = $_todir.DIRECTORY_SEPARATOR.$fn;
@@ -359,7 +364,7 @@ if ($_config['mode'] == 'c' || $_config['mode'] == 'f') {
     }
 }
 
-if ($_config['mode'] == 'n' || $_config['mode'] == 'f') {
+if ($mode == 'n' || $mode == 'f') {
     $out = $obj->get_new_files();
     foreach ($out as $fn) {
         $file = $_todir.DIRECTORY_SEPARATOR.$fn;
@@ -429,7 +434,14 @@ if ($_writecfg) {
     }
     if ($file) {
         info('Write config file to '.$file);
-        write_config_file($_config, $file);
+        write_config_file([
+        'do_md5'=>$do_md5,
+        'mode'=>$mode,
+        'outfile'=>$outfile,
+        'svn_root'=>$svn_root,
+        'uri_from'=>$uri_from,
+        'uri_to'=>$uri_to,
+        ], $file);
     } else {
         info('Cannot save config file '.$_configname);
     }
@@ -455,18 +467,19 @@ Usage: php $_scriptname [options]
 options
   -c|--config <string> = config file name (or just '-' to skip reading a saved config file)
   -d|--debug           = enable debug mode
+  -e|--dnd <string>    = a comma-separated series of filepaths (relative to the CMSMS root).
+                         Files in those places will not be marked as deleted. This can be
+                         useful if files will be moved manually during the upgrade process
   -f|--from <string>   = a fileset-source identifier, one of local or file://... or svn://... or git://...
-  -s|--md5             = enable file comparison using md5 hashes
-  -o|--outfile <string> = a non-default manifest file (the default is STDOUT or MANIFEST.DAT)
   -h|--help            = display this message then exit
-  -n|--nocompress      = do not gzip-compress the manifest file
-  -e|--nowrite         = do not save a config file containing the parameters used in this script
-  -r|--root <string>   = a non-default root url for svn-sourced fileset(s)
-  -t|--to <string>     = the other fileset-source identifier, same format as for -f option
+  -i|--ask             = interactive input of some parameters (N/A on Windows)
+  -k|--md5             = enable file comparison using md5 hashes
   -m|--mode (d|n|c|f)  = generate a deleted/new/changed/full manifest
-  -p|--dnd <string>    = a comma-separated series of filepaths (relative to the CMSMS root).
-                         Files in those places will not be marked as deleted. This can be useful
-                         if files will be moved manually during the upgrade process
+  -n|--nocompress      = do not gzip-compress the manifest file
+  -o|--outfile <string> = a non-default manifest file (the default is STDOUT or MANIFEST.DAT)
+  -p|--nowrite         = do not save a config file containing the parameters used in this script
+  -r|--root <string>   = a non-default root url for svn-sourced fileset(s)
+  -t|--to <string>     = the 'release' fileset-source identifier, same format as for -f option
 EOT;
 }
 
