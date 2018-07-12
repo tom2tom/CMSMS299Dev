@@ -44,7 +44,7 @@
     <label for="searchtext">{$mod->Lang('search_text')}:</label>
   </p>
   <p class="pageinput">
-    <input id="searchtext" type="text" name="{$actionid}search_text" value="{$saved_search.search_text|default:''}" size="80" maxlength="80" id="searchtext"/>
+    <input type="text" name="{$actionid}search_text" id="searchtext" value="{$saved_search.search_text|default:''}" size="80" maxlength="80" placeholder="{$mod->Lang('placeholder_search_text')}" />
   </p>
 </div>
 <br />
