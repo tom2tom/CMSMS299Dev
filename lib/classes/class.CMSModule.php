@@ -977,17 +977,18 @@ abstract class CMSModule
      */
 
     /**
-     * Function that will get called as module is installed. This function should
-     * do any initialization functions including creating database tables. It
-     * should return a string message if there is a failure. Returning nothing (false)
-     * will allow the install procedure to proceed.
+     * Function called when a module is being installed. This function should
+     * do any initialization functions including creating database tables.
+     * The default behavior of this function is to include the file named
+     * method.install.php located in the module's base directory, if such file
+     * exists.
      *
-     * The default behavior of this method is to include a file named method.install.php
-     * in the module directory, if one can be found.  This provides a way of splitting
-     * secondary functions into other files.
+     * A falsy return value, or 1 (numeric), will be treated as an indication of
+     * successful completion. Otherwise, the method should return an error message
+     * (string), or a different number (e.g. 2).
      *
      * @abstract
-     * @return mixed A value of false indicates no error.  Any other value will probably be an error message string.
+     * @return mixed
      */
     public function Install()
     {
@@ -1019,16 +1020,18 @@ abstract class CMSModule
     }
 
     /**
-     * Function that will get called as module is uninstalled. This function should
+     * Function called when a module is uninstalled. This function should
      * remove any database tables that it uses and perform any other cleanup duties.
-     * It should return a string message if there is a failure. Returning nothing
-     * (false) will allow the uninstall procedure to proceed.
+     * The default behavior of this function is to include the file named
+     * method.uninstall.php located in the module's base directory, if such file
+     * exists.
      *
-     * The default behaviour of this function is to include a file called method.uninstall.php
-     * in your module directory to do uninstall operations.
+     * A falsy return value, or 1 (numeric), will be treated as an indication of
+     * successful completion. Otherwise, the method should return an error message
+     * (string), or a different number (e.g. 2).
      *
      * @abstract
-     * @return string|false A result of false indicates that the module uninstalled correctly, any other value indicates an error message.
+     * @return mixed
      */
     public function Uninstall()
     {
@@ -1053,8 +1056,8 @@ abstract class CMSModule
     }
 
     /**
-     * Function that gets called upon module uninstall, and returns a bool to indicate whether or
-     * not the core should remove all module events, event handlers, module templates, and preferences.
+     * Function called during module uninstall, to get an indicator of whether to
+     * also remove all module events, event handlers, module templates, and preferences.
      * The module must still remove its own database tables and permissions
      * @abstract
      * @return bool Whether the core may remove all module events, event handles, module templates, and preferences on uninstall (defaults to true)
@@ -1088,20 +1091,19 @@ abstract class CMSModule
     }
 
     /**
-     * Perform any upgrade procedures. This is mostly used to for updating
-     * databsae tables, but can do other duties as well. It should return
-     * a string message if there is a failure. Returning nothing (false)
-     * will allow the upgrade procedure to proceed. Upgrades should have
-     * a path so that they can be upgraded from more than one version back.
-     * While not a requirement, it makes life easy for your users.
+     * Function called when a module is upgraded. This method should be capable of
+     * applying changes from versions older than the immediately-prior one, though
+     * that's not mandatory. The default behavior of this method is to include the
+     * file named method.upgrade.php, located in the module's base directory, if
+     * such file exists.
      *
-     * The default behaviour of this method is to include the file named
-     *  method.upgrade.php
-     * located in the module's base directory, if such file exists.
+     * A falsy return value, or 1 (numeric), will be treated as an indication of
+     * successful completion. Otherwise, the method should return an error message
+     * (string), or a different number (e.g. 2).
      *
      * @param string $oldversion The version we are upgrading from
      * @param string $newversion The version we are upgrading to
-     * @return mixed value (other than 1 or '') returned by the included code (e.g. error-message string), or false
+     * @return mixed
      */
     public function Upgrade($oldversion, $newversion)
     {
@@ -1120,8 +1122,8 @@ abstract class CMSModule
 
     /**
      * Returns a list of dependencies and minimum versions that this module
-     * requires. It should return an hash, eg.
-     * return array('somemodule'=>'1.0', 'othermodule'=>'1.1');
+     * requires. It should return a hash of names and versions, e.g.
+     *    return [somemodule'=>'1.0', 'othermodule'=>'1.1'];
      *
      * @abstract
      * @return array
@@ -1408,7 +1410,7 @@ abstract class CMSModule
      * from the list on the admin menu, then 'defaultadmin' will be passed.
      *
      * In order to allow splitting up functionality into multiple PHP files the default
-     * behaviour of this method is to look for a file named action.<action name>.php
+     * behavior of this method is to look for a file named action.<action name>.php
      * in the modules directory, and if it exists include it.
      *
      * @param string $name The Name of the action to perform
