@@ -537,13 +537,13 @@ abstract class CmsAdminThemeBase
         // extensions
         $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-        $config = cms_config::get_instance();
-        $this->_perms['eventPerms'] = !empty($config['developer_mode']) && check_permission($this->userid, 'Modify Events');
+//        $config = cms_config::get_instance();
+//        $this->_perms['eventPerms'] = !empty($config['developer_mode']) && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
             check_permission($this->userid, 'Modify Simple Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
-            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
+            $this->_perms['modulePerms'] | // $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];
 
         // myprefs
@@ -551,7 +551,7 @@ abstract class CmsAdminThemeBase
         $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
         $this->_perms['bookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
         $this->_perms['myprefPerms'] = $this->_perms['myaccount'] |
-                $this->_perms['mysettings'] | $this->_perms['bookmarks'];
+            $this->_perms['mysettings'] | $this->_perms['bookmarks'];
     }
 
     /**
@@ -828,7 +828,7 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
-         // for developers only ??
+/*         // for developers only ??
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'eventhandlers.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
@@ -839,6 +839,7 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('editeventhandler')),
         'description'=>lang('editeventhandlerdescription'),
         'show_in_menu'=>false]; //UDT's N/A event responders
+*/
         // ~~~~~~~~~~ site-admin menu items ~~~~~~~~~~
 
         $items[] = ['name'=>'siteprefs','parent'=>'siteadmin',
