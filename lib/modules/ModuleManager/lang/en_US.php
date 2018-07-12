@@ -3,13 +3,13 @@
 $lang['about_title'] = 'About the %s module';
 $lang['admin_title'] = 'Module Manager Admin Panel';
 $lang['abouttxt'] = 'About';
-$lang['accessdenied'] = 'Access Denied. Please check your permissions';
+$lang['accessdenied'] = 'Access denied. Please check your permissions';
 $lang['action_activated'] = 'Module %s has been activated';
 $lang['action_installed'] = 'Module %s has been installed with the following message(s):<br /><br />%s';
 $lang['action_upgraded'] = 'Module %s has been upgraded';
 $lang['action'] = 'Action';
 $lang['active'] = 'Active';
-$lang['admindescription'] = 'Modules extend CMS Made Simple&trade; to provide custom functionality';
+$lang['admindescription'] = 'Manage the modules which provide custom functionality to the website';
 $lang['advancedsearch_help'] = 'Specify words to include or exclude from the search using a + or -, surround exact phrases with quotes.  i.e:  +red -apple +"some text"';
 $lang['allowuninstall'] = 'Allow Module Manager to be uninstalled? Be careful, the uninstallation is irreversible!';
 $lang['all_modules_up_to_date'] = 'No module newer than the ones installed is available in the repository';
@@ -71,7 +71,7 @@ $lang['error_fileupload'] = 'A problem occurred uploading the file';
 $lang['error_getmodule'] = 'A problem occurred instantiating %s';
 $lang['error_internal'] = 'Internal Error... Please report this to your system administrator';
 $lang['error_invaliduploadtype'] = 'The file uploaded is not valid for this field';
-$lang['error_minimumrepository'] = 'The repository version is not compatible with your Module Manager version';
+$lang['error_minimumrepository'] = 'The repository version is not compatible with your CMSMS version';
 $lang['error_missingparam'] = 'A required parameter was missing or invalid';
 $lang['error_missingmoduleinfo'] = 'Problem retrieving module information for module %s';
 $lang['error_moduleexport'] = 'Module export failed';
@@ -101,7 +101,7 @@ $lang['error_upgrade'] = 'Upgrade of module %s failed!';
 $lang['export'] = 'Export';
 
 // F
-$lang['friendlyname'] = 'Module Manager';
+$lang['friendlyname'] = 'Modules';
 
 // G
 $lang['general_notice'] = 'This shows the latest XML files in the CMSMS modules-repository.  The modules might or might not be the latest available versions. Additionally, the module repository might only contain modules released within the last few months.';
