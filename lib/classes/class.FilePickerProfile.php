@@ -40,17 +40,18 @@ use CmsInvalidDataException;
  * @property-read FileType $type A FileType enumerator representing files which may be used.
  * @property-read string $match_prefix List only files/items that have the specified prefix.
  * @property-read string exclude_prefix  Exclude any files/items that have the specified prefix.
- * @property-read int $can_mkdir  Users of the filepicker can create new directories.
- * @property-read int $can_upload  Users of the filepicker can upload new files (of the specified type)
- * @property-read int $can_delete  Users of the filepicker can remove files.
+ * @property-read int $can_mkdir   Authorized users can create new directories (conforming to other test(s), if any).
+ * @property-read int $can_mkfile Since 2.3 Authorized users can create new files (conforming to other test(s), if any).
+ * @property-read int $can_upload  Authorized users can upload new files (conforming to other test(s), if any).
+ * @property-read int $can_delete  Authorized users can remove files and/or directories (conforming to other test(s), if any).
  * @property-read int $show_thumbs Whether thumbnail images should be shown in place of normal icons for images.
- * @property-read int $show_hidden Indicates that hidden files should be shown in the filepicker.
- * @property-read mixed $sort Indicates whether and how files should be sorted before listing them in the filepicker.
+ * @property-read int $show_hidden Indicates that hidden files should be shown.
+ * @property-read mixed $sort Indicates whether and how files should be sorted before listing them.
  *   FilePickerProfile::FLAG_NO, or one of 'name','size','date' & optionally appended ',a[sc]' or ',d[esc]'
- * @property-read array $match_groups Since 2.3 group-id's which are permitted to perform the suitably-flagged operations defined in the profile default ['*']
- * @property-read array $exclude_groups Since 2.3 group-id's which may not perform the suitably-flagged operations defined in the profile default []
- * @property-read array $match_users  Since 2.3 user-id's which are permitted to perform the suitably-flagged operations defined in the profile default ['*']
- * @property-read array $exclude_groups Since 2.3 user-id's which may not perform the suitably-flagged operations defined in the profile default []
+ * @property-read array $match_groups Since 2.3 group-id's which are permitted to perform the suitably-flagged operations defined in the profile. Default ['*']
+ * @property-read array $exclude_groups Since 2.3 group-id's which may not perform the suitably-flagged operations defined in the profile. Default []
+ * @property-read array $match_users  Since 2.3 user-id's which are permitted to perform the suitably-flagged operations defined in the profile. Default ['*']
+ * @property-read array $exclude_groups Since 2.3 user-id's which may not perform the suitably-flagged operations defined in the profile. Default []
  */
 class FilePickerProfile
 {
@@ -67,6 +68,7 @@ class FilePickerProfile
     protected $_data = [
       'can_delete'=>self::FLAG_YES,
       'can_mkdir'=>self::FLAG_YES,
+      'can_mkfile'=>self::FLAG_YES,
       'can_upload'=>self::FLAG_YES,
       'exclude_groups'=>[],
       'exclude_users'=>[],
@@ -106,6 +108,7 @@ class FilePickerProfile
             return trim($this->_data[$key]);
 
         case 'can_mkdir':
+        case 'can_mkfile':
         case 'can_upload':
         case 'can_delete':
         case 'show_thumbs':
@@ -156,6 +159,7 @@ class FilePickerProfile
             break;
 
         case 'can_mkdir':
+        case 'can_mkfile':
         case 'can_delete':
         case 'can_upload':
         case 'show_thumbs':
@@ -190,7 +194,7 @@ class FilePickerProfile
 
     /**
      * Create a new profile object based on the current one, with
-	 *  property-adjustments per $params.
+     *  property-adjustments per $params.
      *
      * @param array $params Associative array of parameters for the setValue method.
      * @return FilePickerProfile
