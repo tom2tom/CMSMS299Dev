@@ -23,18 +23,18 @@ if (!function_exists('cmsms')) {
     exit;
 }
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
-$pass = $this->CheckPermission('Modify Site Assets');
+$pass = false; //$this->CheckPermission('Modify Site Assets');
 
 // variables used in included file
 global $CFM_ROOTPATH, $CFM_IS_WIN, $CFM_ICONV_INPUT_ENC, $CFM_EXCLUDE_FOLDERS, $CFM_FOLDER_URL, $CFM_FOLDER_TITLE, $helper;
 
 $helper = new \CMSMS\FileTypeHelper($config);
 
-$doass = !empty(($params['astfiles']));
+$doass = false; //!empty(($params['astfiles']));
 if ($pdev && !$doass) {
     $CFM_ROOTPATH = CMS_ROOT_PATH;
-} elseif (($pdev || $pass) && $doass) {
-    $CFM_ROOTPATH = CMS_ASSETS_PATH;
+//} elseif (($pdev || $pass) && $doass) {
+//    $CFM_ROOTPATH = CMS_ASSETS_PATH;
 } else {
     $CFM_ROOTPATH = $config['uploads_path'];
 }

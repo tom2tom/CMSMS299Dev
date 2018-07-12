@@ -41,8 +41,8 @@ final class TreeFiler extends CMSModule
     public function VisibleToAdminUser()
     {
         return $this->AccessAllowed() ||
-		$this->CheckPermission('Modify Site Code') ||
-		$this->CheckPermission('Modify Site Assets');
+		$this->CheckPermission('Modify Site Code'); // ||
+//		$this->CheckPermission('Modify Site Assets');
     }
 
     public function GetChangeLog()
@@ -57,7 +57,8 @@ final class TreeFiler extends CMSModule
         if ($this->VisibleToAdminUser()) {
             $out[] = CmsAdminMenuItem::from_module($this);
         }
-/*        if ($this->CheckPermission('Modify Site Preferences')) {
+/* no settings
+         if ($this->CheckPermission('Modify Site Preferences')) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = 'files';
@@ -68,6 +69,7 @@ final class TreeFiler extends CMSModule
             $out[] = $obj;
         }
 */
+/* assets editing too dangerous
 		if ($this->AssetAccessAllowed()) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
@@ -78,7 +80,7 @@ final class TreeFiler extends CMSModule
             $obj->url = $this->create_url('m1_', $obj->action, null, ['astfiles'=>1]);
             $out[] = $obj;
 		}
-
+*/
         return $out;
     }
 
@@ -98,7 +100,7 @@ final class TreeFiler extends CMSModule
         $config = cms_config::get_instance();
         return !empty($config['developer_mode']);
     }
-
+/*
     public function AssetAccessAllowed() {
         if ($this->CheckPermission('Modify Site Assets')) {
             return true;
@@ -106,4 +108,5 @@ final class TreeFiler extends CMSModule
         $config = cms_config::get_instance();
         return !empty($config['developer_mode']);
     }
+*/
 } // class

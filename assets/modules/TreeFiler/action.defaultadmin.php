@@ -23,10 +23,14 @@ if (!function_exists('cmsms')) {
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'action.getlist.php';
 
+//$xp = (!empty($params['astfiles'])) ? ['astfiles' => 1] : null; //in assets-edit mode
+
 // breadcrumbs
 
 if ($CFM_RELPATH) {
-    $u = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);
+    $urlparms = ['p'=>''];
+//    if ($xp) $urlparms += $xp;
+    $u = $this->create_url($id, 'defaultadmin', $returnid, $urlparms);
     //root
     $oneset = new stdClass();
     $oneset->name = $this->Lang('top');
@@ -86,11 +90,17 @@ $baseurl = $this->GetModuleURLPath();
 
 // page infrastructure
 
-$u = $this->create_url($id, 'fileaction', $returnid, ['p'=>$CFM_RELPATH]);
+$urlparms = ['p'=>$CFM_RELPATH];
+//if ($xp) $urlparms += $xp;
+$u = $this->create_url($id, 'fileaction', $returnid, $urlparms);
 $action_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
-$u = $this->create_url($id, 'getlist', $returnid, ['p'=>$CFM_RELPATH, 'ajax'=>1]);
+$urlparms = ['p'=>$CFM_RELPATH, 'ajax'=>1];
+//if ($xp) $urlparms += $xp;
+$u = $this->create_url($id, 'getlist', $returnid, $urlparms);
 $relist_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
-$u = $this->create_url($id, 'gettree', $returnid, ['ajax'=>1]);
+$urlparms = ['ajax'=>1];
+//if ($xp) $urlparms += $xp;
+$u = $this->create_url($id, 'gettree', $returnid, $urlparms);
 $retree_url = rawurldecode(str_replace('&amp;', '&', $u).'&cmsjobtype=1');
 
 //TODO $CFM_ROOTPATH

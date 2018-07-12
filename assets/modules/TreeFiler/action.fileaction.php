@@ -23,18 +23,18 @@ if (!function_exists('cmsms')) {
     exit;
 }
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
-$pass = $this->CheckPermission('Modify Site Assets');
+$pass = false; //$this->CheckPermission('Modify Site Assets');
 if (!($pdev || $pass || $this->CheckPermission('Modify Files'))) {
     if (!isset($params['dl'])) {  // download doesn't need permission
         exit;
     }
 }
 
-$doass = !empty(($params['astfiles']));
+$doass = false; //!empty(($params['astfiles']));
 if ($pdev && !$doass) {
     $CFM_ROOTPATH = CMS_ROOT_PATH;
-} elseif (($pdev || $pass) && $doass) {
-    $CFM_ROOTPATH = CMS_ASSETS_PATH;
+//} elseif (($pdev || $pass) && $doass) {
+//    $CFM_ROOTPATH = CMS_ASSETS_PATH;
 } else {
     $CFM_ROOTPATH = $config['uploads_path'];
 }
