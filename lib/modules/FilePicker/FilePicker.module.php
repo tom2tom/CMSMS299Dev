@@ -52,7 +52,7 @@ final class FilePicker extends CMSModule implements CMSMS\FilePicker
      * end of private methods
      */
 
-    public function GetAdminSection() { return 'files'; }
+    public function GetAdminSection() { return 'extensions'; }
     public function GetFriendlyName() { return $this->Lang('friendlyname');  }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetVersion() { return '1.1'; }
@@ -81,7 +81,7 @@ final class FilePicker extends CMSModule implements CMSMS\FilePicker
     {
         $url = str_replace('&amp;','&',$this->get_browser_url());
         $url2 = $this->GetModuleURLPath();
-		$msg = $this->Lang('select_file');
+        $msg = $this->Lang('select_file');
         $out = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -153,7 +153,7 @@ EOS;
         $_instance = 'i'.uniqid();
         if( $value === '-1' ) $value = null;
 
-        // store the profile as a 'useonce' and add it's signature to the params on the url
+        // store the profile as a 'useonce' and add its signature to the params on the url
         $sig = FilePicker\TemporaryProfileStorage::set( $profile );
         $smarty = CmsApp::get_instance()->GetSmarty();
         $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
@@ -209,7 +209,7 @@ EOS;
     public function is_acceptable_filename( CMSMS\FilePickerProfile $profile, $filename )
     {
         $filename = trim($filename);
-        $filename = basename($filename);  // incase it's a path
+        $filename = basename($filename);  // in case it's a path
         if( !$filename ) return FALSE;
 
         if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) return FALSE;
