@@ -20,7 +20,7 @@
 {if !empty($pmkdir)}
 <a title="{$mod->Lang('newfolder')}" href="javascript:newFolder()"><i class="if-folder-add"></i></a>
 {/if}
-<a title="{$mod->Lang('search1')}" href="javascript:doSearch(true)"><i class="if-search"></i></a>
+<a id="listsearch" title="{$mod->Lang('search1')}" href="javascript:doSearch(true)"><i class="if-search"></i></a>
 {if !empty($pupload)}
 <a title="{$mod->Lang('title_upload')}" href="javascript:doUpload()"><i class="if-upload" aria-hidden="true"></i></a>
 {/if}
