@@ -23,13 +23,21 @@ if (!function_exists('cmsms')) {
     exit;
 }
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
-if (!($pdev || $this->CheckPermission('Modify Files'))) exit;
+$pass = $this->CheckPermission('Modify Site Assets');
 
 // variables used in included file
 global $CFM_ROOTPATH, $CFM_IS_WIN, $CFM_ICONV_INPUT_ENC, $CFM_EXCLUDE_FOLDERS, $CFM_FOLDER_URL, $CFM_FOLDER_TITLE, $helper;
 
 $helper = new \CMSMS\FileTypeHelper($config);
-$CFM_ROOTPATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
+
+$doass = !empty(($params['astfiles']));
+if ($pdev && !$doass) {
+    $CFM_ROOTPATH = CMS_ROOT_PATH;
+} elseif (($pdev || $pass) && $doass) {
+    $CFM_ROOTPATH = CMS_ASSETS_PATH;
+} else {
+    $CFM_ROOTPATH = $config['uploads_path'];
+}
 $CFM_RELPATH = $params['p'] ?? '';
 
 $pathnow = $CFM_ROOTPATH;
@@ -47,7 +55,7 @@ $profile = $mod->get_default_profile($pathnow, $user_id);
 
 $CFM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 $CFM_ICONV_INPUT_ENC = CmsNlsOperations::get_encoding(); //'UTF-8';
-$CFM_READONLY = !($pdev || $this->CheckPermission('Modify Files'));
+$CFM_READONLY = !($pdev || $pass || $this->CheckPermission('Modify Files'));
 
 $CFM_EXCLUDE_FOLDERS = []; //TODO per profile etc
 $CFM_FOLDER_URL = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);

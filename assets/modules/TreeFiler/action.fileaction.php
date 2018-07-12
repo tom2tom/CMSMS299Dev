@@ -23,11 +23,21 @@ if (!function_exists('cmsms')) {
     exit;
 }
 $pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
-if (!($pdev || $this->CheckPermission('Modify Files'))) {
-    exit;
+$pass = $this->CheckPermission('Modify Site Assets');
+if (!($pdev || $pass || $this->CheckPermission('Modify Files'))) {
+    if (!isset($params['dl'])) {  // download doesn't need permission
+        exit;
+    }
 }
 
-$CFM_ROOTPATH = ($pdev) ? CMS_ROOT_PATH : $config['uploads_path'];
+$doass = !empty(($params['astfiles']));
+if ($pdev && !$doass) {
+    $CFM_ROOTPATH = CMS_ROOT_PATH;
+} elseif (($pdev || $pass) && $doass) {
+    $CFM_ROOTPATH = CMS_ASSETS_PATH;
+} else {
+    $CFM_ROOTPATH = $config['uploads_path'];
+}
 $CFM_RELPATH = $params['p'] ?? '';
 
 $path = $CFM_ROOTPATH;
@@ -73,7 +83,7 @@ if (isset($params['create'], $params['type'])) {
                 cfm_response('error', $this->Lang('err_dup3', cfm_enc($newitem)));
             } elseif (!cfm_validate($this, $item_path, 2, $user_id)) {
                 cfm_response('error', $this->Lang('err_auth'));
-			} elseif (cfm_mkdir($item_path)) {
+            } elseif (cfm_mkdir($item_path)) {
                 cfm_response('success', $this->Lang('stat_create2', $newitem));
             } else {
                 cfm_response('error', $this->Lang('err_nocreate', cfm_enc($newitem)));
