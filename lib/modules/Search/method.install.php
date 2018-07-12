@@ -46,6 +46,9 @@ count I(4)
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_search_index', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
+$sqlarray = $dict->CreateIndexSQL('index_search_item',
+            CMS_DB_PREFIX.'module_search_index', 'item_id'); //non-unique field used in join
+$dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('index_search_word',
             CMS_DB_PREFIX.'module_search_index', 'word');
 $dict->ExecuteSQLArray($sqlarray);
