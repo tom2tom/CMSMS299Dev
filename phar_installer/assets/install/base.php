@@ -48,6 +48,7 @@ foreach( [
 	'Modify Modules',
 	'Modify Permissions',
 	'Modify Simple Plugins',
+	'Modify Site Assets',
 	'Modify Site Code',
 	'Modify Site Preferences',
 //	'Modify Templates', >DM
@@ -67,38 +68,54 @@ foreach( [
 // initial groups
 //
 verbose_msg(ilang('install_initsitegroups'));
-$admin_group = new Group();
-$admin_group->name = 'Admin';
-$admin_group->description = 'Members of this group can manage the entire site.';
-$admin_group->active = 1;
-$admin_group->Save();
+$group = new Group();
+$group->name = 'Admin';
+$group->description = 'Members of this group can manage the entire site.';
+$group->active = 1;
+$group->Save();
+
+$group = new Group();
+$group->name = 'CodeManager';
+$group->description = 'Members of this group can add/edit/delete files which run the website';
+$group->active = 1;
+$group->Save();
+$group->GrantPermission('Modify Site Code');
+$group->GrantPermission('Modify Site Assets');
+$group->GrantPermission('Modify Simple Plugins');
+
+$group = new Group();
+$group->name = 'AssetManager';
+$group->description = 'Members of this group can add/edit/delete website asset-files';
+$group->active = 1;
+$group->Save();
+$group->GrantPermission('Modify Site Assets');
 
 /* migrated to ContentManager install routine
-$editor_group = new Group();
-$editor_group->name = 'Editor';
-$editor_group->description = 'Members of this group can manage content';
-$editor_group->active = 1;
-$editor_group->Save();
-$editor_group->GrantPermission('Manage All Content');
-$editor_group->GrantPermission('Manage My Account');
-$editor_group->GrantPermission('Manage My Bookmarks');
-$editor_group->GrantPermission('Manage My Settings');
+$group = new Group();
+$group->name = 'Editor';
+$group->description = 'Members of this group can manage content';
+$group->active = 1;
+$group->Save();
+$group->GrantPermission('Manage All Content');
+$group->GrantPermission('Manage My Account');
+$group->GrantPermission('Manage My Bookmarks');
+$group->GrantPermission('Manage My Settings');
 */
 /* migrated to DesignManager install routine
-$designer_group = new Group();
-$designer_group->name = 'Designer';
-$designer_group->description = 'Members of this group can manage stylesheets, templates, and content';
-$designer_group->active = 1;
-$designer_group->Save();
-$designer_group->GrantPermission('Add Templates');
-$designer_group->GrantPermission('Manage All Content'); ContentManager >> racy!
-$designer_group->GrantPermission('Manage Designs');
-$designer_group->GrantPermission('Manage My Account');
-$designer_group->GrantPermission('Manage My Bookmarks');
-$designer_group->GrantPermission('Manage My Settings');
-$designer_group->GrantPermission('Manage Stylesheets');
-$designer_group->GrantPermission('Modify Files');
-$designer_group->GrantPermission('Modify Templates');
+$group = new Group();
+$group->name = 'Designer';
+$group->description = 'Members of this group can manage stylesheets, templates, and content';
+$group->active = 1;
+$group->Save();
+$group->GrantPermission('Add Templates');
+$group->GrantPermission('Manage All Content'); ContentManager >> racy!
+$group->GrantPermission('Manage Designs');
+$group->GrantPermission('Manage My Account');
+$group->GrantPermission('Manage My Bookmarks');
+$group->GrantPermission('Manage My Settings');
+$group->GrantPermission('Manage Stylesheets');
+$group->GrantPermission('Modify Files');
+$group->GrantPermission('Modify Templates');
 */
 
 //
@@ -113,7 +130,7 @@ $admin_user->active = 1;
 $admin_user->adminaccess = 1;
 $admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAULT );
 $admin_user->Save();
-UserOperations::get_instance()->AddMemberGroup($admin_user->id,$admin_group->id);
+UserOperations::get_instance()->AddMemberGroup($admin_user->id,$group->id);
 cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, and only user preference we need.
 
 //

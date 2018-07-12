@@ -1,9 +1,12 @@
 <?php
 
+use CMSMS\Group;
+
 //extra permissions
 foreach( [
- 'Modify Simple Plugins',
  'Modify Site Code',
+ 'Modify Site Assets',
+ 'Modify Simple Plugins',
 ] as $one_perm ) {
   $permission = new CmsPermission();
   $permission->source = 'Core';
@@ -11,6 +14,22 @@ foreach( [
   $permission->text = $one_perm;
   $permission->save();
 }
+
+$group = new Group();
+$group->name = 'CodeManager';
+$group->description = 'Members of this group can add/edit/delete files which run the website';
+$group->active = 1;
+$group->Save();
+$group->GrantPermission('Modify Site Code');
+$group->GrantPermission('Modify Site Assets');
+$group->GrantPermission('Modify Simple Plugins');
+
+$group = new Group();
+$group->name = 'AssetManager';
+$group->description = 'Members of this group can add/edit/delete website asset-files';
+$group->active = 1;
+$group->Save();
+$group->GrantPermission('Modify Site Assets');
 
 // redundant sequence-tables
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
