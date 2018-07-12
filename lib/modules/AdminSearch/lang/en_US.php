@@ -16,7 +16,7 @@ $lang['error_select_slave'] = 'You must select at least one filter type';
 // F
 $lang['filter'] = 'Filter';
 $lang['finished'] = 'Finished';
-$lang['friendlyname'] = 'Admin Search';
+$lang['friendlyname'] = 'Database Search';
 
 // H
 $lang['help'] = <<<EOT
@@ -46,12 +46,13 @@ $lang['lbl_search_desc'] = 'Search Descriptions <em>(where applicable)</em>';
 $lang['lbl_template_search'] = 'Search Templates';
 
 // M
-$lang['moddescription'] = 'A utility to search the database tables for rows containing certain text. Useful for finding where certain styles, tags, or modules are used.';
+$lang['moddescription'] = 'Search the website database for specified text';
 
 // P
-$lang['placeholder_search_text'] = 'Enter Search Text';
-$lang['postinstall'] = 'Admin Search module installed';
-$lang['postuninstall'] = 'Admin Search module uninstalled';
+$lang['perm_Use_Admin_Search'] = 'Perform Database Searches';
+$lang['placeholder_search_text'] = 'Enter search text';
+$lang['postinstall'] = 'Database Search module installed';
+$lang['postuninstall'] = 'Database Search module uninstalled';
 
 // S
 $lang['search'] = 'Search';

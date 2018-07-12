@@ -1,12 +1,13 @@
 <?php
 
 // A
-$lang['add_profile'] = 'Add a new profile';
+$lang['add_profile'] = 'Add a new controls-set';
 
 // C
 $lang['can_delete'] = 'Allow file deletion';
 $lang['can_mkdir'] = 'Allow directory creation';
-$lang['can_upload'] = 'Uploads allowed';
+$lang['can_mkfile'] = 'Allow file creation';
+$lang['can_upload'] = 'Allow uploads';
 $lang['cancel'] = 'Cancel';
 $lang['changedir'] = 'Change directory to';
 $lang['clear'] = 'Clear';
@@ -16,11 +17,11 @@ $lang['create_dir'] = 'Create a new folder';
 // D
 $lang['dimension'] = 'Dimensions';
 $lang['delete'] = 'Delete';
-$lang['delete_profile'] = 'Delete Profile';
+$lang['delete_profile'] = 'Delete Controls-Set';
 $lang['dependencies'] = 'Dependencies';
 
 // E
-$lang['edit_profile'] = 'Edit Profile';
+$lang['edit_profile'] = 'Edit Controls-Set';
 $lang['error_ajax_invalidfilename'] = 'Sorry, that filename is invalid';
 $lang['error_ajax_fileexists'] = 'Sorry, a file or directory with that name already exists';
 $lang['error_ajax_mkdir'] = 'A problem occurred creating a the directory %s';
@@ -36,18 +37,32 @@ $lang['err_profile_topdir'] = 'The top directory specified does not exist';
 // F
 $lang['filename'] = 'Filename';
 $lang['filterby'] = 'Filter by';
-$lang['filepickertitle'] = 'CMSMS File Picker';
+//$lang['filepickertitle'] = 'CMSMS File Picker';
 $lang['fileview'] = 'File view';
-$lang['friendlyname'] = 'File Picker';
+$lang['friendlyname'] = 'Folder Controls';
+
+/* TODO UI for the other set properties:
+'exclude_groups'=>[],
+'exclude_users'=>[],
+'exclude_prefix'=>null,
+'match_groups'=>['*'],
+'match_users'=>['*'],
+'match_prefix'=>null,
+'show_hidden'=>self::FLAG_NO,
+'show_thumbs'=>self::FLAG_YES,
+'sort'=>'name',
+'top'=>null,
+'type'=>FileType::TYPE_ANY,
+*/
 
 // H
-$lang['hdr_add_profile'] = 'Add profile';
-$lang['hdr_edit_profile'] = 'Edit profile';
-$lang['HelpPopupTitle_ProfileName'] = 'Profile Name';
-$lang['HelpPopup_ProfileName'] = 'Each profile should have a simple, unique name.  Names should only contain alphanumeric characters, and/or the Underscore character.';
-$lang['HelpPopupTitle_ProfileCan_Delete'] = 'Allow deleting files';
+$lang['hdr_add_profile'] = 'New controls-set';
+$lang['hdr_edit_profile'] = 'Edit controls-set';
+$lang['HelpPopupTitle_ProfileName'] = 'Controls-Set Name';
+$lang['HelpPopup_ProfileName'] = 'Each controls-set should have a simple, unique name.  Names should only contain alphanumeric characters, and/or the Underscore character.';
+$lang['HelpPopupTitle_ProfileCan_Delete'] = 'Allow deleting files and directories';
 $lang['HelpPopup_ProfileCan_Delete'] = 'Optionally allow users to delete files during the selection process';
-$lang['HelpPopupTitle_ProfileCan_Mkdir'] = 'Allow deleting files';
+$lang['HelpPopupTitle_ProfileCan_Mkdir'] = 'Allow new directories';
 $lang['HelpPopup_ProfileCan_Mkdir'] = 'Optionally allow users to create new directories (below the specified top directory) during the selection process.';
 $lang['HelpPopupTitle_ProfileCan_Upload'] = 'Allow uploading';
 $lang['HelpPopup_ProfileCan_Upload'] = 'Optionally allow users to upload files during the selection process';
@@ -59,7 +74,7 @@ $lang['HelpPopup_ProfileShowthumbs'] = 'If enabled, thumbnails will be visible f
 // N
 $lang['na'] = 'Not available';
 $lang['name'] = 'Name';
-$lang['no_profiles'] = 'No profile is recorded. You can add one by clicking the icon above.';
+$lang['no_profiles'] = 'No controls-set is recorded. You can add one by clicking the icon above.';
 
 // O
 $lang['ok'] = 'Ok';
@@ -100,7 +115,7 @@ $lang['th_last_edited'] = 'Last Edited';
 $lang['th_name'] = 'Name';
 $lang['th_reltop'] = 'Top Directory';
 $lang['title_mkdir'] = 'Create Directory';
-$lang['topdir'] = 'Top Directory';
+$lang['topdir'] = 'Top directory';
 $lang['type'] = 'Type';
 
 // U
@@ -128,11 +143,11 @@ $lang['help'] = <<<EOT
 <li>create and remove subdirectories</li>
 </ol>
 </p>
-<p>This module also manages profiles. A profile is a collection of properties (e.g. show hidden files) and permissions (e.g. can create subdirectory) which apply to one or more specified directories.</p>
-<h3>How is it used</h3>
+<p>This module also manages controls-sets. Each of those is a collection of properties (e.g. show hidden files) and permissions (e.g. can create subdirectory) which apply to one or more specified directories.</p>
+<h3>How is it used?</h3>
 <p>This module is intended to be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
-<p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended.   See the {cms_filepicker} tag for information about the type, and other parameters.</p>
-<p>Profiles can be used by the <code>{cms_filepicker}</code> plugin or by this module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions can override the settings defined in the profile.</p>
+<p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [set=string] [type=string] [value=string]}</code> tag, but this is not recommended.   See the {cms_filepicker} tag for information about the type, and other parameters.</p>
+<p>Controls-sets can be used by the <code>{cms_filepicker}</code> plugin or by this module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions, can override the settings defined in the controls-set.</p>
 <h3>Support</h3>
 <p>As per the GPL, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
