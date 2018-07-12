@@ -52,4 +52,17 @@ $(document).ready(function() {
   <button type="submit" name="{$actionid}submit" id="submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   <button type="submit" name="{$actionid}cancel" id="cancel" class="adminsubmit icon cancel" formnovalidate>{$mod->Lang('cancel')}</button>
 </div>
+{* TODO UI for other set properties:
+'exclude_groups'=>[],
+'exclude_users'=>[],
+'exclude_prefix'=>null,
+'match_groups'=>['*'],
+'match_users'=>['*'],
+'match_prefix'=>null,
+'show_hidden'=>self::FLAG_NO,
+'show_thumbs'=>self::FLAG_YES,
+'sort'=>'name',
+'top'=>null,
+'type'=>FileType::TYPE_ANY,
+*}
 </form>
