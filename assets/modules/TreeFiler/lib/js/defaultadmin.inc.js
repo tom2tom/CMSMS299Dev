@@ -129,9 +129,11 @@ function getparm(s) {
  t = t.replace('~%$id%~view', 'file');
  var parts = t.split('&'),
   ob = {};
- for (var i = 2, n = parts.length; i < n; ++i) {
+ for(var i = 2, n = parts.length; i < n; ++i) {
   var v = parts[i].split('=');
-  ob[v[0]] = v[1];
+  if(v[1] !== '') {
+   ob[v[0]] = v[1];
+  }
  }
  return JSON.stringify(ob);
 }
@@ -151,8 +153,10 @@ function treeinit() {
 }
 function doSearch(files) {
  var ob = $('#searchbox').clone(true);
+ ob.val('');
  if(files) {
   var rows = null, rowindx;
+  $('#listsearch').hide();
   $('#main-table').before(ob);
   ob.css('display', 'block').find('input').jSearch({
    selector: '#main-table',
@@ -195,6 +199,7 @@ function doSearch(files) {
  ob.find('i').on('click', function() {
   ob.remove();
   if(files) {
+   $('#listsearch').show();
    rows.show();
   } else {
    $.fn.treefilter.endSession($('#cfm-tree')[0]);
