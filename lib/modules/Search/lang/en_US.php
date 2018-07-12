@@ -7,7 +7,7 @@ $lang['count'] = 'Count';
 
 // D
 $lang['default_stopwords'] = 'i, me, my, myself, we, our, ours, ourselves, you, your, yours, yourself, yourselves, he, him, his, himself, she, her, hers, herself, it, its, itself, they, them, their, theirs, themselves, what, which, who, whom, this, that, these, those, am, is, are, was, were, be, been, being, have, has, had, having, do, does, did, doing, a, an, the, and, but, if, or, because, as, until, while, of, at, by, for, with, about, against, between, into, through, during, before, after, above, below, to, from, up, down, in, out, on, off, over, under, again, further, then, once, here, there, when, where, why, how, all, any, both, each, few, more, most, other, some, such, no, nor, not, only, own, same, so, than, too, very';
-$lang['description'] = 'Module for search site and other module\'s contents.';
+$lang['description'] = 'Search across the website for specific words or phrases';
 
 // E
 $lang['eventdesc-SearchAllItemsDeleted'] = 'Sent when all items are deleted from the index.';
@@ -88,9 +88,9 @@ $lang['param_submit'] = 'Text to place into the submit button';
 $lang['param_useor'] = 'Change the default relationship from an OR relationship to an AND relationship';
 $lang['prompt_alpharesults'] = 'Sort results alphabetically instead of by weight';
 $lang['prompt_resetstopwords'] = 'Load default Stop Words from language';
-$lang['prompt_resultpage'] = 'Page for individual module results <em>(Note modules might optionally override this)</em>';
-$lang['prompt_savephrases'] = 'Track Search Phrases, not Individual Words';
-$lang['prompt_searchtext'] = 'Default Search Text';
+$lang['prompt_resultpage'] = 'Page for individual module results <em>(Note modules might override this)</em>';
+$lang['prompt_savephrases'] = 'Track phrases, not individual words';
+$lang['prompt_searchtext'] = 'Default search text';
 
 // R
 $lang['reindexallcontent'] = 'Re-index All Content';
@@ -100,12 +100,12 @@ $lang['resulttemplate'] = 'Result Template';
 $lang['resulttemplateupdated'] = 'Result Template Updated';
 
 // S
-$lang['search'] = 'Search';
+$lang['search'] = 'Content Search';
 $lang['searchresultsfor'] = 'Search Results For';
 $lang['searchsubmit'] = 'Submit';
 $lang['searchtemplate'] = 'Search Template';
-$lang['searchtemplateupdated'] = 'Search Template Updated';
-$lang['search_method'] = 'Pretty URLs Compatibility via Method POST, default value is always GET, to make this work just put {search search_method="post"} ';
+$lang['searchtemplateupdated'] = 'Search template updated';
+$lang['search_method'] = 'Pretty URLs compatibility via method POST, default value is always GET, to make this work just put {search search_method="post"} ';
 $lang['statistics'] = 'Statistics';
 $lang['stopwords'] = 'Stop Words';
 $lang['submit'] = 'Submit';
@@ -118,7 +118,7 @@ $lang['type_searchform'] = 'Search Form';
 $lang['type_searchresults'] = 'Search Results';
 
 // U
-$lang['usestemming'] = 'Use Word Stemming (English Only)';
+$lang['usestemming'] = 'Use word stemming (English only)';
 $lang['use_or'] = 'Find results that match ANY word';
 
 // W
