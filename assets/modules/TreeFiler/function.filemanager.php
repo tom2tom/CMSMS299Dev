@@ -5,6 +5,8 @@
  * Licence GPL3
  */
 
+use CMSMS\FileTypeHelper;
+
 /**
  * Recursive function called by cfm_dir_tree() to accumulate directories
  * @param string $path path of this directory
@@ -146,7 +148,7 @@ function cfm_rchmod(string $path, int $filemode, int $dirmode) : bool
  * @param bool $force whether to overwrite existing item with new name
  * @return mixed bool|null
  */
-function cfm_rename(string $old, string $new, bool $force = true)
+function cfm_rename(string $old, string $new, bool $force = false)
 {
     return (file_exists($old) && ($force || !file_exists($new))) ? rename($old, $new) : null;
 }
@@ -156,10 +158,10 @@ function cfm_rename(string $old, string $new, bool $force = true)
  * @param string $path
  * @param string $dest
  * @param bool $upd Update files
- * @param bool $force Create folder with same names instead file
+ * @param bool $force whether to overwrite an existing file named $dest, if such exists
  * @return bool
  */
-function cfm_rcopy(string $path, string $dest, bool $upd = true, bool $force = true) : bool
+function cfm_rcopy(string $path, string $dest, bool $upd = true, bool $force = false) : bool
 {
     if (is_dir($path)) {
         if (!cfm_mkdir($dest, $force)) {
@@ -185,21 +187,21 @@ function cfm_rcopy(string $path, string $dest, bool $upd = true, bool $force = t
 
 /**
  * Safely create folder
- * @param string $dir
- * @param bool $force
- * @return bool
+ * @param string $path
+ * @param bool $force whether to overwrite an existing file named $path, if such exists
+ * @return bool indicating folder was created (or already exists)
  */
-function cfm_mkdir(string $dir, bool $force) : bool
+function cfm_mkdir(string $path, bool $force = false) : bool
 {
-    if (file_exists($dir)) {
-        if (is_dir($dir)) {
-            return $dir;
+    if (file_exists($path)) {
+        if (is_dir($path)) {
+            return true;
         } elseif (!$force) {
             return false;
         }
-        unlink($dir);
+        unlink($path);
     }
-    return mkdir($dir, 0771, true);
+    return mkdir($path, 0771, true);
 }
 
 /**
@@ -348,7 +350,7 @@ function cfm_get_mime_type(string $path)
     global $helper;
     if ($helper == null) {
         global $config;
-        $helper = new \CMSMS\FileTypeHelper($config);
+        $helper = new FileTypeHelper($config);
     }
     return $helper->get_mime_type($path);
 }
@@ -363,7 +365,7 @@ function cfm_get_file_icon_class(string $path) : string
     global $helper;
     if ($helper == null) {
         global $config;
-        $helper = new \CMSMS\FileTypeHelper($config);
+        $helper = new FileTypeHelper($config);
     }
 
     if ($helper->is_image($path)) {
@@ -426,7 +428,7 @@ function cfm_get_file_icon_class(string $path) : string
  * @param module-object $mod
  * @return array
  */
-function cfm_get_arch_picker(\TreeFiler $mod) : array
+function cfm_get_arch_picker(TreeFiler $mod) : array
 {
     global $CFM_IS_WIN;
 
@@ -469,7 +471,7 @@ function cfm_get_arch_types(bool $best = false) : array
             $types['tar.bz2'] = [];
             $types['tbz2'] = [];
         }
-	}
+    }
     if (function_exists('xzopen')) {
         $types['xz'] = [];
         $types['lzma'] = [];
@@ -512,3 +514,53 @@ function cfm_tarify(string $ext) : string
     return $ext;
 }
 
+/* profiles cache */
+$profcache = [];
+
+/**
+ * Check the FilePicker profile (if any) for destination $path, to confirm
+ *  whether $operation is allowed there
+ * @param string $path destination filepath (folder or file) whose parent is to be profiled
+ * @param int $operation enum 1=mkfile, 2=mkdir, 3=delete
+ * @param int $uid user identifier
+ * @return bool indicating acceptability
+*/
+function cfm_validate(TreeFiler $mod, string $path, int $operation, int $uid) : bool
+{
+    global $profcache;
+
+    $dir = dirname($path);
+    if (!array_key_exists($dir, $profcache)) {
+        $profcache[$dir] = $mod->get_default_profile($dir, $uid);
+    }
+    $profile = $profcache[$dir];
+    if ($profile) {
+        $name = basename($path);
+        switch ($operation) {
+            case 1: //new file
+                if ($profile->can_mkfile) {
+/* other tests
+$profile->exclude_prefix
+$profile->match_prefix
+$profile->type
+*/
+                    return true;
+                }
+                return false;
+            case 2: //new dir
+                if ($profile->can_mkdir) {
+                    return true;
+                }
+                return false;
+            case 3: //delete
+                if ($profile->can_delete) {
+                    return true;
+                }
+                return false;
+            default:
+                return true;
+        }
+
+    }
+    return true;
+}
