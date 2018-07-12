@@ -46,11 +46,11 @@ $lang['edit_profile'] = 'Edit Profile';
 $lang['error_cantchangesysprofilename'] = 'You cannot change the name of a system profile';
 $lang['error_missingparam'] = 'A required parameter was missing';
 $lang['error_nopage'] = 'No page alias selected';
-$lang['example'] = 'MicroTiny example';
+$lang['example'] = 'Example';
 
 // F
 $lang['filepickertitle'] = 'CMSMS File picker';
-$lang['friendlyname'] = 'MicroTiny WYSIWYG editor';
+$lang['friendlyname'] = 'MicroTiny Editor';
 $lang['fileview'] = 'File View';
 $lang['filename'] = 'File Name';
 $lang['filterby'] = 'Filter by';
