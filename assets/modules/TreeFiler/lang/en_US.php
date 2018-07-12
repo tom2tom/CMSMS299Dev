@@ -59,6 +59,7 @@ $lang['expand'] = 'Expand';
 
 //$lang['err_'] = ';
 $lang['err_arch'] = 'Failed to obtain archive info';
+$lang['err_auth'] = 'The operation is not authorized';
 $lang['err_badname2'] = 'Wrong file or folder name';
 $lang['err_badname'] = 'Wrong folder name';
 $lang['err_copy2'] = 'Failed to copy <strong>%s</strong> to <strong>%s</strong>';
