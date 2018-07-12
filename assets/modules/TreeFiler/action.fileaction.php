@@ -52,12 +52,14 @@ function cfm_response($type, $msg)
 
 if (isset($params['create'], $params['type'])) {
     // Create folder or file
-	// TODO profile-conformance
     $newitem = cfm_clean_path($params['create']);
     if (!($newitem === '' || $newitem == '..' || $newitem == '.')) {
         $item_path = $path . DIRECTORY_SEPARATOR . $newitem;
+        $user_id = get_userid(false);
         if ($params['type'] == 'file') {
-            if (!file_exists($item_path)) {
+            if (!cfm_validate($this, $item_path, 1, $user_id)) {
+                cfm_response('error', $this->Lang('err_auth'));
+            } elseif (!file_exists($item_path)) {
                 if (@fopen($item_path, 'w')) {
                     cfm_response('success', $this->Lang('stat_create', cfm_enc($newitem)));
                 } else {
@@ -67,10 +69,12 @@ if (isset($params['create'], $params['type'])) {
                 cfm_response('error', $this->Lang('err_dup2', cfm_enc($newitem)));
             }
         } elseif ($params['type'] == 'folder') {
-            if (cfm_mkdir($$item_path, false) === true) {
-                cfm_response('success', $this->Lang('stat_create2', $newitem));
-            } elseif (cfm_mkdir($$item_path, false) === $item_path) {
+            if (is_dir($item_path)) {
                 cfm_response('error', $this->Lang('err_dup3', cfm_enc($newitem)));
+            } elseif (!cfm_validate($this, $item_path, 2, $user_id)) {
+                cfm_response('error', $this->Lang('err_auth'));
+			} elseif (cfm_mkdir($item_path)) {
+                cfm_response('success', $this->Lang('stat_create2', $newitem));
             } else {
                 cfm_response('error', $this->Lang('err_nocreate', cfm_enc($newitem)));
             }
@@ -82,8 +86,10 @@ if (isset($params['create'], $params['type'])) {
 }
 
 if (isset($params['del'])) {
-	// TODO profile-conformance
-    if (isset($params['sel'])) {
+    $user_id = get_userid(false);
+    if (!cfm_validate($this, $path, 3, $user_id)) {
+        cfm_response('error', $this->Lang('err_auth'));
+    } elseif (isset($params['sel'])) {
         // Multi delete
         $errors = 0;
         $items = json_decode(rawurldecode($params['sel']));
@@ -127,7 +133,6 @@ if (isset($params['del'])) {
 
 if (isset($params['todir'], $params['sel'])) {
     // Multi copy/move from $path to
-	// TODO profile-conformance
     $dest = cfm_clean_path($params['todir']);
     if ($dest !== '') {
         $dest_path .= DIRECTORY_SEPARATOR . $dest;
@@ -138,8 +143,13 @@ if (isset($params['todir'], $params['sel'])) {
         cfm_response('error', $this->Lang('err_samepath'));
         exit;
     }
+    $user_id = get_userid(false);
     if (!is_dir($dest_path)) {
-        if (!cfm_mkdir($dest_path, true)) {
+        if (!cfm_validate($this, $dest_path, 2, $user_id)) {
+            cfm_response('error', $this->Lang('err_auth'));
+            exit;
+        }
+        if (!cfm_mkdir($dest_path)) {
             cfm_response('error', $this->Lang('err_nocreate2'));
             exit;
         }
@@ -156,15 +166,16 @@ if (isset($params['todir'], $params['sel'])) {
                 $from = $path . DIRECTORY_SEPARATOR . $file;
                 // abs path to
                 $dest = $dest_path . DIRECTORY_SEPARATOR . $file;
+                $op = (is_dir($from)) ? 2 : 1;
+                if (!cfm_validate($this, $dest, $op, $user_id)) {
+                    ++$errors;
+                }
                 if ($move) {
-                    $rename = cfm_rename($from, $dest);
-                    if ($rename === false) {
-                        $errors++;
+                    if (cfm_rename($from, $dest) === false) {
+                        ++$errors;
                     }
-                } else {
-                    if (!cfm_rcopy($from, $dest)) {
-                        $errors++;
-                    }
+                } elseif (!cfm_rcopy($from, $dest)) {
+                    ++$errors;
                 }
             }
         }
@@ -183,7 +194,6 @@ if (isset($params['todir'], $params['sel'])) {
 
 if (isset($params['oneto'])) {
     // Copy/move one folder/file
-	// TODO profile-conformance
     $msg = [];
     // from
     $file = cfm_clean_path($params['from']);
@@ -205,6 +215,12 @@ if (isset($params['oneto'])) {
     $from = $CFM_ROOTPATH . DIRECTORY_SEPARATOR . $file;
     $dest = $CFM_ROOTPATH . DIRECTORY_SEPARATOR . $file2;
     // copy/move
+    $op = (is_dir($from)) ? 2 : 1;
+    $user_id = get_userid(false);
+    if (!cfm_validate($this, $dest, $op, $user_id)) {
+        cfm_response('error', $this->Lang('err_auth'));
+        exit;
+    }
     $msg_from = trim($CFM_RELPATH . DIRECTORY_SEPARATOR . basename($from), DIRECTORY_SEPARATOR);
     if (isset($params['copy'])) {
         if (cfm_rcopy($from, $dest)) {
@@ -247,83 +263,80 @@ if (isset($params['ren'], $params['to'])) {
 
 if (isset($params['dnd'])) {
     // DnD
-	// TODO profile-conformance
-	$from = $path;
+    $from = $path;
     $srcdata = json_decode($params['from'], true);
-	if (!empty($srcdata['dir'])) {
-		$from .= DIRECTORY_SEPARATOR . $srcdata['dir'];
-	}
-	if (!empty($srcdata['file'])) {
-		$from .= DIRECTORY_SEPARATOR . $srcdata['file'];
-	}
+    if (!empty($srcdata['dir'])) {
+        $from .= DIRECTORY_SEPARATOR . $srcdata['dir'];
+    }
+    if (!empty($srcdata['file'])) {
+        $from .= DIRECTORY_SEPARATOR . $srcdata['file'];
+    }
 
-	$dest = $path;
+    $dest = $path;
     $destdata = json_decode($params['to'], true);
-	if (!empty($destdata['dir'])) {
-		$dest .= DIRECTORY_SEPARATOR . $destdata['dir'];
-	}
-	if (!empty($srcdata['dir'])) {
-		$dest .= DIRECTORY_SEPARATOR . $srcdata['dir'];
-	}
-	if (!empty($srcdata['file'])) {
-		$dest .= DIRECTORY_SEPARATOR . $srcdata['file'];
-	}
+    if (!empty($destdata['dir'])) {
+        $dest .= DIRECTORY_SEPARATOR . $destdata['dir'];
+    }
+    if (!empty($srcdata['dir'])) {
+        $dest .= DIRECTORY_SEPARATOR . $srcdata['dir'];
+    }
+    if (!empty($srcdata['file'])) {
+        $dest .= DIRECTORY_SEPARATOR . $srcdata['file'];
+    }
 
-    if ($dest == $from) {
+    if ($from == $dest) {
         cfm_response('error', $this->Lang('err_samepath'));
+        exit;
+    } elseif ($from == $path) {
+        cfm_response('error', $this->Lang('err_nofile3'));
+        exit;
+    }
+
+    $op = (is_dir($from)) ? 2 : 1;
+    $user_id = get_userid(false);
+    if (!cfm_validate($this, $dest, $op, $user_id)) {
+        cfm_response('error', $this->Lang('err_auth'));
         exit;
     }
 
     switch ($params['dnd']) { //'move' or 'copy'
-		case 'copy':
-			if (is_dir($from)) {
-				if (cfm_mkdir($dest, false)) {
-					if (!cfm_rcopy($from, $dest, false, false)) {
-						cfm_response('error', $this->Lang('err_copy2', cfm_enc(basename($dest)), cfm_enc(dirname($dest))));
-					}
-				} else {
-					cfm_response('error', $this->Lang('err_dup3', cfm_enc(basename($dest))));
-				}
-			} elseif (!cfm_copy($from, $dest, false)) {
-				cfm_response('error', $this->Lang('err_copy2', cfm_enc(basename($from)), cfm_enc(dirname($dest))));
-			}
-			break;
-		default:
-            if (!cfm_rename($from, $dest)) {
-	            cfm_response('error', $this->Lang('err_move2', cfm_enc(basename($from)), cfm_enc(dirname($dest))));
+        case 'copy':
+            if (is_dir($from)) {
+                if (cfm_mkdir($dest)) {
+                    if (!cfm_rcopy($from, $dest, false, false)) {
+                        cfm_response('error', $this->Lang('err_copy2', cfm_enc(basename($dest)), cfm_enc(dirname($dest))));
+                    }
+                } else {
+                    cfm_response('error', $this->Lang('err_dup3', cfm_enc(basename($dest))));
+                }
+            } elseif (!cfm_copy($from, $dest, false)) {
+                cfm_response('error', $this->Lang('err_copy2', cfm_enc(basename($from)), cfm_enc(dirname($dest))));
             }
-			break;
-	}
+            break;
+        default:
+            if (!cfm_rename($from, $dest)) {
+                cfm_response('error', $this->Lang('err_move2', cfm_enc(basename($from)), cfm_enc(dirname($dest))));
+            }
+            break;
+    }
     exit;
 }
 
 if (isset($params['ul'])) {
     // Upload
-	// TODO profile-conformance
     if (!empty($_FILES)) {
         $f = $_FILES['file'];
         $from = $f['tmp_name'];
         if (empty($f['error']) && !empty($from) && $from != 'none') {
-            $dest = $f['name'];
-            //TODO validity checks e.g.
-            //$profile->can_mkdir
-            //$profile->exclude_prefix
-            //$profile->match_prefix
-            //$profile->type
-            $allowed = (empty($CFM_EXTENSION)) ? false : explode(',', $CFM_EXTENSION);
-            if ($allowed) {
-                $ext = pathinfo($dest, PATHINFO_EXTENSION);
-                $accept = in_array($ext, $allowed);
+            $dest = $path . DIRECTORY_SEPARATOR . $f['name'];
+            $op = (is_dir($from)) ? 2 : 1;
+            $user_id = get_userid(false);
+            if (!cfm_validate($this, $dest, $op, $user_id)) {
+                cfm_response('error', $this->Lang('err_auth'));
+            } elseif (move_uploaded_file($from, $dest)) {
+                cfm_response('success', $this->Lang('stat_upped'));
             } else {
-                $accept = true;
-            }
-            if ($accept) {
-                $item_path = $path . DIRECTORY_SEPARATOR . $dest;
-                if (move_uploaded_file($from, $item_path)) {
-                    cfm_response('success', $this->Lang('stat_upped'));
-                } else {
-                    cfm_response('error', $this->Lang('err_upload'));
-                }
+                cfm_response('error', $this->Lang('err_upload'));
             }
         }
     } else {
