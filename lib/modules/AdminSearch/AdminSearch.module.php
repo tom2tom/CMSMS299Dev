@@ -1,5 +1,5 @@
 <?php
-# Module: AdminSearch - A CMSMS addon module to provide admin side search capbilities.
+# AdminSearch - A CMSMS addon module to perform database searches.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
