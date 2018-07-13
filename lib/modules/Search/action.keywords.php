@@ -1,24 +1,19 @@
 <?php
 if( !isset($gCms) ) exit;
 
-$wordcount = 500;
-if( isset($params['count']) ) $wordcount = (int)$params['count'];
+$pageid = $params['pageid'] ?? $returnid;
 
-$pageid = $returnid;
-if( isset($params['pageid']) ) $pageid = (int)$params['pageid'];
+$query = 'SELECT idx.word
+  FROM '.CMS_DB_PREFIX.'module_search_index idx INNER JOIN '.CMS_DB_PREFIX.'module_search_items i ON idx.item_id = i.id
+  WHERE i.content_id = \''.$pageid.'\'
+    AND i.module_name = \'Search\'
+    AND i.extra_attr = \'content\'
+  ORDER BY idx.count DESC';
 
-$query = 'SELECT b.word
-            FROM '.CMS_DB_PREFIX.'module_search_items a,
-                 '.CMS_DB_PREFIX.'module_search_index b
-           WHERE a.content_id = \''.$pageid.'\'
-             AND a.module_name = \'search\'
-             AND a.extra_attr = \'content\'
-             AND a.id = b.item_id
-           ORDER BY b.count DESC';
+$wordcount = $params['count'] ?? 500;
+$dbr = $db->SelectLimit( $query, (int)$wordcount, 0 );
 
-$dbr = $db->SelectLimit( $query, $wordcount, 0 );
-
-$wordlist = array();
+$wordlist = [];
 while( $dbr && ($row = $dbr->FetchRow() ) ) {
     $wordlist[] = $row['word'];
 }
