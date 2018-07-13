@@ -131,10 +131,12 @@ if ($params['searchinput'] != '') {
     }
 
     $val = 100 * 100 * 100 * 100 * 25;
-    $query = "SELECT DISTINCT i.module_name, i.content_id, i.extra_attr, COUNT(*) AS nb, SUM(idx.count) AS total_weight FROM ".CMS_DB_PREFIX."module_search_items i INNER JOIN ".CMS_DB_PREFIX."module_search_index idx ON idx.item_id = i.id WHERE (".$searchphrase.") AND (COALESCE(i.expires,NOW()) >= NOW())";
+    $query = "SELECT DISTINCT i.module_name, i.content_id, i.extra_attr, COUNT(*) AS nb, SUM(idx.count) AS total_weight
+FROM ".CMS_DB_PREFIX."module_search_items i INNER JOIN ".CMS_DB_PREFIX."module_search_index idx ON i.id = idx.item_id
+WHERE (".$searchphrase.") AND (i.expires IS NULL OR i.expires >= NOW())";
     if( isset( $params['modules'] ) ) {
         $modules = explode(",",$params['modules']);
-        for( $i = 0; $i < count($modules); $i++ ) {
+        for( $i = 0, $n = count($modules); $i < $n; $i++ ) {
             $modules[$i] = $db->qstr($modules[$i]);
         }
         $query .= ' AND i.module_name IN ('.implode(',',$modules).')';
