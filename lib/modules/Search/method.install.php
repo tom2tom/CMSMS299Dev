@@ -28,9 +28,6 @@ $db->CreateSequence(CMS_DB_PREFIX.'module_search_items_seq');
 $sqlarray = $dict->CreateIndexSQL('items_search_items',
             CMS_DB_PREFIX.'module_search_items', 'module_name,content_id');
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->CreateIndexSQL('items_search_module',
-            CMS_DB_PREFIX.'module_search_items', 'module_name');
-$dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->CreateIndexSQL('items_search_content',
             CMS_DB_PREFIX.'module_search_items', 'content_id');
 $dict->ExecuteSQLArray($sqlarray);
