@@ -1,4 +1,0 @@
-Drop redundant sequence-tables 'content_props', 'userplugins'
-Add table for associating templates with multiple categories
-Migrate module-templates table contents into layout-templates table
-Add extra permissions 'Modify Simple Plugins', 'Modify Site Code'
