@@ -828,7 +828,12 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
-/*         // for developers only ??
+        $items[] = ['name'=>'controlsets','parent'=>'extensions',
+        'url'=>'listcontrols.php'.$urlext,
+        'title'=>$this->_FixSpaces(lang('controlsets')),
+        'description'=>lang('controlsets_description'),
+        'show_in_menu'=>$this->HasPerm('sitePrefPerms')];
+/* UDT-files can't be event-responders, this former functionality is useless
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'eventhandlers.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
