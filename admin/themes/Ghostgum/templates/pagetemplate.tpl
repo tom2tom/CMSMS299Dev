@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <title>{strip}
-  {$thetitle=$pagetitle}
+  {if !empty($pagetitle)}{$thetitle=$pagetitle}{else}{$thetitle=''}{/if}
   {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
   {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   {if $thetitle}{$thetitle}{/if}{sitename}
