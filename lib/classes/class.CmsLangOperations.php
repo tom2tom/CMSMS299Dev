@@ -135,7 +135,8 @@ final class CmsLangOperations
 	}
 
 	/**
-	 * Given a realm name, and a key test if the language string exists in the realm.
+	 * Given a realm name and a key, test if the language string exists in the realm.
+	 * @see also CmsLangOperations::key_exists()
 	 *
 	 * @since 2.2
 	 * @param string $realm The realm name (required)
@@ -223,11 +224,11 @@ final class CmsLangOperations
 	}
 
 	/**
-	 * A simple around the lang_from_realm method that assumes the self::CMSMS_ADMIN_REALM realm.
+	 * A simple wrapper around the lang_from_realm method that assumes the self::CMSMS_ADMIN_REALM realm.
 	 * Note, under normal circumstances this will generate an error if called from a frontend action.
 	 * This function accepts variable arguments.
-	 *
 	 * @see CmsLangOperations::lang_from_realm()
+	 *
 	 * @param string Key (required) the language string key
 	 * @param mixed  Optional further arguments.
 	 * @return string
@@ -242,7 +243,7 @@ final class CmsLangOperations
 
 
 	/**
-	 * Allow nonadmin requests to call lang functions.
+	 * Allow non-admin requests to call lang functions.
 	 * normally, an error would be generated if calling core lang functions from an frontend action.
 	 * this method will disable or enable that check.
 	 *
@@ -258,6 +259,7 @@ final class CmsLangOperations
 	/**
 	 * Test to see if a language key exists in the current lang file.
 	 * This function uses the current language.
+	 * @see also CmsLangOperations::lang_key_exists()
 	 *
 	 * @param string $key The language key
 	 * @param string $realm The language realm
