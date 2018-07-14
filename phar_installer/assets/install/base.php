@@ -48,10 +48,11 @@ foreach( [
 	'Modify Modules',
 	'Modify Permissions',
 	'Modify Simple Plugins',
-	'Modify Site Assets',
+//	'Modify Site Assets', no deal !!
 	'Modify Site Code',
 	'Modify Site Preferences',
 //	'Modify Templates', >DM
+	'Remote Administration',  //for app management, sans admin console
 //	'Remove Pages', >CM
 //	'Reorder Content', >CM
 	'View Tag Help',
@@ -80,16 +81,16 @@ $group->description = 'Members of this group can add/edit/delete files which run
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
-$group->GrantPermission('Modify Site Assets');
+//$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Modify Simple Plugins');
-
+/* too risky
 $group = new Group();
 $group->name = 'AssetManager';
 $group->description = 'Members of this group can add/edit/delete website asset-files';
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Assets');
-
+*/
 /* migrated to ContentManager install routine
 $group = new Group();
 $group->name = 'Editor';

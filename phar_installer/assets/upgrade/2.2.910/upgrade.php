@@ -4,9 +4,10 @@ use CMSMS\Group;
 
 //extra permissions
 foreach( [
- 'Modify Site Code',
- 'Modify Site Assets',
  'Modify Simple Plugins',
+ 'Modify Site Code',
+// 'Modify Site Assets',
+ 'Remote Administration',  //for app management sans admin console
 ] as $one_perm ) {
   $permission = new CmsPermission();
   $permission->source = 'Core';
@@ -21,16 +22,16 @@ $group->description = 'Members of this group can add/edit/delete files which run
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
-$group->GrantPermission('Modify Site Assets');
+//$group->GrantPermission('Modify Site Assets');
 $group->GrantPermission('Modify Simple Plugins');
-
+/*
 $group = new Group();
 $group->name = 'AssetManager';
 $group->description = 'Members of this group can add/edit/delete website asset-files';
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Assets');
-
+*/
 // redundant sequence-tables
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
@@ -134,6 +135,14 @@ if ($data) {
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
+
+// migrate controlsets to core
+$sqlarray = $dbdict->RenameTableSQL(CMS_DB_PREFIX.'mod_filepicker_profiles', CMS_DB_PREFIX.'controlsets');
+$dbdict->ExecuteSQLArray($sqlarray);
+//verbose_msg(ilang('upgrade_renametable', 'controlsets'));
+$sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'controlsets', 'create_date DT, modified_date DT');
+$dbdict->ExecuteSQLArray($sqlarray);
+//verbose_msg(ilang('upgrade_alterfield', 'controlsets'));
 
 //if ($return == 2) {
   $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (205)';
