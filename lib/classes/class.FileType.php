@@ -1,5 +1,5 @@
 <?php
-#Filetype constants class
+#Filetypes enumerator class
 #Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,30 +15,47 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This class defines constants representing file types
- * @package CMS
- * @license GPL
- */
-
 namespace CMSMS;
 
 /**
- * A simple abstract class that defines constants for numerous file types.
+ * An abstract class that enumerates file-types.
  *
  * @package CMS
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  2.2
  */
-abstract class FileType
+final class FileType extends BasicEnum
 {
-    const TYPE_IMAGE = 'image';
-    const TYPE_AUDIO = 'audio';
-    const TYPE_VIDEO = 'video';
-    const TYPE_MEDIA = 'media';
-    const TYPE_XML   = 'xml';
-    const TYPE_DOCUMENT = 'document';
-    const TYPE_ARCHIVE = 'archive';
-    const TYPE_ANY = 'any';
+    const IMAGE     = 1;
+    const AUDIO     = 2;
+    const VIDEO     = 3;
+    const MEDIA     = 4;
+    const DOCUMENT  = 5;
+    const SHOWABLE  = 9; //any of the above
+    const ARCHIVE   = 15;
+    const XML       = 20; //includes [x]html[5]
+    const ML        = 20; //alias
+    const CODE      = 30;
+    const SCRIPT    = 31; //js & the like
+    const TEMPLATE  = 32;
+    const STYLE     = 33; //css, sass, less etc
+    const FONT      = 34;
+    const EXE       = 35; //executable shell script
+    const OPERATION = 39; //any of the 30's
+    const NONE      = 0; //careful! falsy matches
+    const ANY       = 99;
+    const ALL       = 99; //alias
+    //corresponding deprecated names
+    const TYPE_IMAGE    = 1;
+    const TYPE_AUDIO    = 2;
+    const TYPE_VIDEO    = 3;
+    const TYPE_MEDIA    = 4;
+    const TYPE_DOCUMENT = 5;
+    const TYPE_ARCHIVE  = 20;
+    const TYPE_XML      = 30;
+    const TYPE_ANY      = 99;
+
+    private function __construct() {}
+    private function __clone() {}
 } // class
