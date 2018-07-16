@@ -2,8 +2,7 @@
 /*
 Class DataDictionary: represents a data dictionary
 Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-For CMS Made Simple <http:www.cmsmadesimple.org>
-Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,9 +62,17 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
 
         case 'X':
         case 'X2': return 'TEXT';
+        case 'LX':
         case 'XL': return 'LONGTEXT';
+        case 'MX':
+        case 'XM': return 'MEDIUMTEXT';
 
         case 'B': return 'BLOB';
+        case 'LB':
+        case 'BL': return 'LONGBLOB';
+        case 'MB':
+        case 'BM': return 'MEDIUMBLOB';
+
         default: return $meta;
         }
     }
@@ -100,8 +107,8 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
             // php_mysql extension always returns 'blob' even if 'text'
             // so we have to check whether binary...
         case 'IMAGE':
-        case 'LONGBLOB':
         case 'BLOB':
+        case 'LONGBLOB':
         case 'MEDIUMBLOB':
             return !empty($fieldobj->binary) ? 'B' : 'X';
 
@@ -121,7 +128,6 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
             if (!empty($fieldobj->primary_key)) {
                 return 'R';
             }
-
             return 'I';
 
         default:
