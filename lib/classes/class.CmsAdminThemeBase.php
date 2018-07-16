@@ -1337,10 +1337,10 @@ $X = 1;
             }
         } elseif ($title) {
             if (isset($store[$title])) {
-				//TODO merge
+                //TODO merge
             } else {
-	            $store[$title] = $message;
-			}
+                $store[$title] = $message;
+            }
         } else {
             if (is_array($message)) {
                 $store = array_merge($store, $message);
@@ -1479,20 +1479,75 @@ $X = 1;
     }
 
     /**
-     * Abstract method for preparing (not displaying) the header for a page
-     * displaying module action output
+     * Cache page-related data for later use. This might be called by modules,
+     * but (from 2.3) is not used by any admin operation.
      *
-     * @abstract
-     * @deprecated since 2.3 not used
-     * @param string $title_name The text to show in the header.  This will be
-     *  passed through lang() if module_help_type is FALSE.
-     * @param array  $extra_lang_params Extra parameters to pass to lang() along with $title_name.
-     *   Ignored if module_help_type is not FALSE
-     * @param string $link_text Text to show in the module help link (if $module_help_type is 'both')
-     * @param mixed  $module_help_type Flag for type of module help link(s) display.
+     * @param string $title_name        Displayable content, or a lang key, for the page-title to be displayed
+     *     Assumed to be a key, and passed through lang(), if $module_help_type is FALSE.
+     * @param array  $extra_lang_params Optional extra string(s) to be supplied (with $title_name) to lang()
+     *     Ignored if $module_help_type is not FALSE
+     * @param string $link_text         Optional text to show in a module-help link (if $module_help_type is 'both')
+     * @param mixed  $module_help_type  Optional flag for type(s) of module help link display.
      *  Recognized values are FALSE for no link, TRUE to display an icon-link, and 'both' for icon- and text-links
      */
-    abstract public function ShowHeader($title_name,$extra_lang_params = [],$link_text = null,$module_help_type = false);
+    public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = false)
+    {
+        if ($title_name) {
+            $this->set_value('pagetitle', $title_name);
+            if (is_array($extra_lang_params) && count($extra_lang_params)) {
+                $this->set_value('extra_lang_params', $extra_lang_params);
+            }
+        }
+
+        $this->set_value('module_help_type', $module_help_type);
+        if ($module_help_type) {
+            // set the module help url TODO supply this TO the theme
+            $this->set_value('module_help_url', $this->get_module_help_url());
+        }
+
+        // are we processing a module action?
+        // TODO maybe cache this in $this->_modname ??
+        if (isset($_REQUEST['module'])) {
+            $module = $_REQUEST['module'];
+        } elseif (isset($_REQUEST['mact'])) {
+            $module = explode(',', $_REQUEST['mact'])[0];
+        } else {
+            $module = '';
+        }
+
+        if ($module) {
+            $tag = AdminUtils::get_module_icon($module, ['alt'=>$module, 'class'=>'module-icon']);
+        } else {
+            $tag = ''; //TODO get icon for admin operation
+            //$tag = $this->get_active_icon());
+        }
+        $this->set_value('icon_tag', $tag);
+/* TODO figure this out ... are breadcrumbs ever relevant in this context?
+        $bc = $this->get_breadcrumbs();
+        if ($bc) {
+            $n = count($bc);
+            for ($i = 0; $i < $n; ++$i) {
+                $rec = $bc[$i];
+                $title = $rec['title'];
+                if ($module_help_type && $i + 1 == $n) {
+                    $module_name = $module;
+                    $module_name = preg_replace('/([A-Z])/', "_$1", $module_name);
+                    $module_name = preg_replace('/_([A-Z])_/', "$1", $module_name);
+                    if ($module_name[0] == '_') {
+                        $module_name = substr($module_name, 1);
+                    }
+                } else {
+                    if (($p = strrchr($title, ':')) !== false) {
+                        $title = substr($title, 0, $p);
+                    }
+                    // find the key of the item with this title.
+//unused            $title_key = $this->find_menuitem_by_title($title);
+                }
+            } // for loop
+            $this->set_value('page_crumbs', $TODO);
+        }
+*/
+    }
 
     /**
      * Return the name of the default admin theme.
@@ -1626,8 +1681,8 @@ $X = 1;
     {
         $opts = [];
         if ($none) {
-			$opts[lang('default')] = '';
-		}
+            $opts[lang('default')] = '';
+        }
 
         $nodes = $this->get_navigation_tree(null, 2);
 /* TODO iterwalk, pages: top-level & direct children? shown, with-url
@@ -1636,20 +1691,20 @@ $X = 1;
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                 );
         foreach ($iter as $key => $value) {
-		}
+        }
 */
         foreach ($nodes as $name=>$node) {
             if (!$node['show_in_menu'] || empty($node['url'])) {
-				continue; // only visible stuff
-			}
-			if ($name == 'main' || $name == 'logout') {
-				continue; // no irrelevant choices
-			}
-			try {
-	            $opts[$node['title']] = AdminUtils::get_generic_url($node['url']);
-			} catch (Exception $e) {
-				continue;
-			}
+                continue; // only visible stuff
+            }
+            if ($name == 'main' || $name == 'logout') {
+                continue; // no irrelevant choices
+            }
+            try {
+                $opts[$node['title']] = AdminUtils::get_generic_url($node['url']);
+            } catch (Exception $e) {
+                continue;
+            }
 
             if (is_array($node['children']) && count($node['children'])) {
                 foreach ($node['children'] as $childname=>$one) {
@@ -1659,11 +1714,11 @@ $X = 1;
                     if (!$one['show_in_menu'] || empty($one['url'])) {
                         continue;
                     }
-					try {
-		                $opts['&nbsp;&nbsp;'.$one['title']] = AdminUtils::get_generic_url($one['url']);
-					} catch (Exception $e) {
-						continue;
-					}
+                    try {
+                        $opts['&nbsp;&nbsp;'.$one['title']] = AdminUtils::get_generic_url($one['url']);
+                    } catch (Exception $e) {
+                        continue;
+                    }
                 }
             }
         }
@@ -1677,22 +1732,22 @@ $X = 1;
      * @internal
      * @param string $name - The html name of the select box
      * @param string $selected - If a matching page identifier is found in the list,
-	 *     that option will be marked as selected.
+     *     that option will be marked as selected.
      * @param mixed  $id -  Optional html id of the select box. Default null
      * @return string The select list of pages
      */
     public function GetAdminPageDropdown($name,$selected,$id = null)
     {
         $opts = $this->GetAdminPages();
-		if ($opts) {
-			$parms = ['type'=>'drop','name'=>trim((string)$name),
-				'options'=>$opts,'selectedvalue'=>$selected];
-	        if ($id) {
-				$parms['id'] = trim((string)$id);
-			}
-	        return CmsFormUtils::create_select($parms);
-		}
-		return '';
+        if ($opts) {
+            $parms = ['type'=>'drop','name'=>trim((string)$name),
+                'options'=>$opts,'selectedvalue'=>$selected];
+            if ($id) {
+                $parms['id'] = trim((string)$id);
+            }
+            return CmsFormUtils::create_select($parms);
+        }
+        return '';
     }
 
     /**
@@ -1836,10 +1891,13 @@ $X = 1;
 */
     /**
      * Display and process a login form
-     * Since 2.3 this is an optional supplement to the login module
      *
-     * @param  array $params
+     * @param  mixed $params Optional array. Default null.
+     * @since 2.3, relevant parameters are supplied by a login module.
+     * However some themes aspire to backward-compatibility, so $params
+     *  remains as an option.
      */
+    abstract public function do_login($params = null);
 
     /**
      * An abstract function for processing the generated content.
