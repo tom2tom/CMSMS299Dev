@@ -73,10 +73,13 @@ final class cms_siteprefs
 		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs';
 		$dbr = $db->GetArray($query);
 		if( is_array($dbr) ) {
-			$_prefs = array();
+			$_prefs = [];
 			for( $i = 0, $n = count($dbr); $i < $n; $i++ ) {
 				$row = $dbr[$i];
-				$_prefs[$row['sitepref_name']] = $row['sitepref_value'];
+				$key = $row['sitepref_name'];
+				if( strpos($key, '_mapi_pref_') === false ) { //exclude module-preferences
+					$_prefs[$key] = $row['sitepref_value'];
+				}
 			}
             return $_prefs;
 		}
@@ -92,7 +95,7 @@ final class cms_siteprefs
 	public static function get($key,$dflt = '')
 	{
         $prefs = global_cache::get(__CLASS__);
-		if( isset($prefs[$key]) )  return $prefs[$key];
+		if( isset($prefs[$key]) && $prefs[$key] !== '' ) return $prefs[$key];
 		return $dflt;
 	}
 
