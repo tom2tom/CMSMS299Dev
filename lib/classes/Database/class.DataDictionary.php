@@ -907,14 +907,18 @@ abstract class DataDictionary
     {
         if ($fsize) {
             if ($ty == 'B' || $ty == 'X') {
-                if ($fsize <= 2**16) {
-                    $s = '';
-                } elseif ($fsize <= 2**24) {
-                    $s = 'MEDIUM';
+                if ($fsize <= 256) {
+					if ($ty == 'X') {
+                        if (--$fsize < 1) $fsize = 1;
+                        $ftype = 'VARCHAR('.$fsize.')';
+                    } else {
+                        $ftype = 'TINYBLOB';
+                    }
+                } elseif ($fsize > 2**16 && $fsize <= 2**24) {
+                    $ftype = 'MEDIUM'.$ftype;
                 } else {
-                    $s = 'LONG';
+                    $ftype = 'LONG'.$ftype;
                 }
-                $ftype = $s.$ftype;
             } elseif (strpos($ftype, '(') === false) {
                 $ftype .= '('.$fsize;
                 if (strlen($fprec)) {
