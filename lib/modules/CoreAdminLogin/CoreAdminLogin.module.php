@@ -37,17 +37,17 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
 
     public function GetChangeLog()
     {
-        return ''.@file_get_contents(cms_join_path(__DIR__,'lib','doc','changelog.htm'));
+        return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.htm');
     }
 
     public function GetHelp()
     {
-        return ''.@file_get_contents(cms_join_path(__DIR__,'lib','doc','modhelp.htm'));
+        return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'modhelp.htm');
     }
 
-    public function HasCapability($capability, $parts = [])
+    public function HasCapability($capability, $params = [])
     {
-        if ($capability == 'adminlogin') return true;
+        return ($capability == 'adminlogin');
     }
 
     // interface methods
