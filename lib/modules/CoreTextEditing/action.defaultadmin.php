@@ -21,10 +21,10 @@ if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
 if (isset($params['apply'])) {
-	$url = filter_var($params['ace_cdn'], FILTER_SANITIZE_URL); //TODO handle error
+    $url = filter_var($params['ace_cdn'], FILTER_SANITIZE_URL); //TODO handle error
     $this->SetPreference('ace_cdn', $url);
     $this->SetPreference('ace_theme', $params['ace_theme']);
-	$url = filter_var($params['codemirror_cdn'], FILTER_SANITIZE_URL); //TODO handle error
+    $url = filter_var($params['codemirror_cdn'], FILTER_SANITIZE_URL); //TODO handle error
     $this->SetPreference('codemirror_cdn', $url);
     $this->SetPreference('codemirror_theme', $params['codemirror_theme']);
     $this->ShowMessage($this->Lang('settings_success'));
