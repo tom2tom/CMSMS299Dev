@@ -29,29 +29,7 @@
       {elseif !empty($sitelogo)}
        {lang('login_admin')}
       {else}{lang('login_sitetitle',{sitename})}{/if}</h1>
-      {if isset($smarty.get.forgotpw)}{$usernamefld='forgottenusername'}{else}{$usernamefld='username'}{/if}
-      <form action="login.php" method="post">
-        <input type="hidden" name="csrf" value="{$csrf}" />
-        <input type="text" name="{$actionid}{$usernamefld}"{if !isset($smarty.post.lbusername)} class="focus"{/if} placeholder="{lang('username')}" size="25" value="" autofocus="autofocus" />
-        {if !empty($smarty.get.forgotpw)}
-        <input type="hidden" name="{$actionid}forgotpwform" value="1" />
-        {else}
-        <input type="password" name="{$actionid}password"{if !isset($smarty.post.lbpassword) || isset($error)} class="focus"{/if} placeholder="{lang('password')}" size="25" maxlength="100" />
-        {/if} {if !empty($changepwhash)}
-        <input type="password" name="{$actionid}passwordagain" size="25" placeholder="{lang('passwordagain')}" maxlength="100" />
-        <input type="hidden" name="{$actionid}forgotpwchangeform" value="1" />
-        <input type="hidden" name="{$actionid}changepwhash" value="{$changepwhash}" />
-        {/if}
-        <div class="pageinput pregap">
-          <button type="submit" name="{$actionid}submit" class="loginsubmit">{lang('submit')}</button>
-        {if isset($smarty.get.forgotpw)}
-          <button type="submit" name="{$actionid}cancel" class="loginsubmit">{lang('cancel')}</button>
-        {/if}
-        {if !isset($smarty.get.forgotpw)}<span id="forgotpw">
-          <a href="login.php?forgotpw=1" title="{lang('recover_start')}">{lang('lostpw')}</a>
-          </span>{/if}
-        </div>
-      </form>
+      {$form}
       {if !empty($smarty.get.forgotpw)}
        <div class="pageinfo">{lang('forgotpwprompt')}</div>
       {/if}
