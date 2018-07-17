@@ -2,7 +2,7 @@
 <html lang="{$lang_code}" dir="{$lang_dir}">
 <head>
   <meta charset="{$encoding}" />
-  <title>{$mod->Lang('login_sitetitle',{sitename})}</title>
+  <title>{$mod->Lang('title_login_named',{sitename})}</title>
   <base href="{$admin_url}/" />
   <meta name="copyright" content="Ted Kulp, CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
@@ -25,13 +25,13 @@
        </a>
       {/if}
       <h1>{if isset($smarty.get.forgotpw)}
-       {$mod->Lang('recoversitetitle',{sitename})}
+       {$mod->Lang('title_recover',{sitename})}
       {elseif !empty($sitelogo)}
-       {$mod->Lang('login_admin')}
-      {else}{$mod->Lang('login_sitetitle',{sitename})}{/if}</h1>
+       {$mod->Lang('title_login')}
+      {else}{$mod->Lang('title_login_named',{sitename})}{/if}</h1>
       {$form}
       {if !empty($smarty.get.forgotpw)}
-       <div class="pageinfo">{$mod->Lang('forgotpwprompt')}</div>
+       <div class="pageinfo">{$mod->Lang('title_forgotpw')}</div>
       {/if}
       {if !empty($error)}<div class="pageerror">{$error}</div>{/if}
       {if !empty($warning)}<div class="pagewarn">{$warning}</div>{/if}
@@ -41,7 +41,7 @@
        {$mod->Lang('login_info')}
        {$mod->Lang('login_info_params')}
        <p>{$smarty.server.HTTP_HOST}</p>
-       <div class="pagewarn">{$mod->Lang('warn_admin_ipandcookies')}</div>
+       <div class="pagewarn">{$mod->Lang('warn_ipandcookies')}</div>
       </div>
     </div>
     <div id="cmslogo">

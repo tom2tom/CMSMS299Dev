@@ -114,12 +114,12 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
             audit('', 'Core', 'Sent lost-password email for '.$user->username);
             $warnmessage = $this->Lang('recoveryemailsent');
         } else {
-            $errmessage = $this->Lang('errorsendingemail');
+            $errmessage = $this->Lang('error_sendemail');
         }
     } else {
         unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
         HookManager::do_hook('Core::LoginFailed', ['user'=>$forgot_username]);
-        $errmessage = $this->Lang('usernotfound');
+        $errmessage = $this->Lang('error_nouser');
     }
 } elseif (!empty($_REQUEST['recoverme'])) {
     if (!empty($usecsrf)) {
@@ -131,7 +131,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
     }
     $user = find_recovery_user(cleanVariable($_REQUEST['recoverme']));
     if ($user == null) {
-        $errmessage = $this->Lang('usernotfound');
+        $errmessage = $this->Lang('error_nouser');
     } else {
         $changepwtoken = true;
     }
@@ -145,7 +145,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
     }
     $user = find_recovery_user($_REQUEST['changepwtoken']);
     if ($user == null) {
-        $errmessage = $this->Lang('usernotfound');
+        $errmessage = $this->Lang('error_nouser');
     } elseif ($_REQUEST['password'] != '') {
         if ($_REQUEST['password'] == $_REQUEST['passwordagain']) {
             $user->SetPassword($_REQUEST['password']);
@@ -157,11 +157,11 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
             $infomessage = $this->Lang('passwordchangedlogin');
             $changepwtoken = '';
         } else {
-            $errmessage = $this->Lang('nopasswordmatch');
+            $errmessage = $this->Lang('error_nomatch');
             $changepwtoken = $_REQUEST['changepwtoken'];
         }
     } else {
-        $errmessage = $this->Lang('nofieldgiven', $this->Lang('password'));
+        $errmessage = $this->Lang('error_nofield', $this->Lang('password'));
         $changepwtoken = $_REQUEST['changepwtoken'];
     }
 }
@@ -195,14 +195,14 @@ if (isset($_POST['cancel'])) {
             check_secure_param('004', $this);
         }
         if (!$password) {
-            throw new CmsLoginError($this->Lang('usernameincorrect'));
+            throw new CmsLoginError($this->Lang('error_invalid'));
         }
         $oneuser = $userops->LoadUserByUsername($username, $password, true, true);
         if (!$oneuser) {
-            throw new CmsLoginError($this->Lang('usernameincorrect'));
+            throw new CmsLoginError($this->Lang('error_invalid'));
         }
         if (! $oneuser->Authenticate($password)) {
-            throw new CmsLoginError($this->Lang('usernameincorrect'));
+            throw new CmsLoginError($this->Lang('error_invalid'));
         }
         $login_ops->save_authentication($oneuser);
 
