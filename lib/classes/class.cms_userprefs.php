@@ -34,6 +34,7 @@ final class cms_userprefs
 	 * @ignore
 	 */
 	private function __construct() {}
+	private function __clone() {}
 
 	/**
 	 * @ignore
@@ -82,7 +83,7 @@ final class cms_userprefs
 	public static function get_for_user($userid,$key,$dflt = '')
 	{
 		self::_read($userid);
-		if( isset(self::$_prefs[$userid][$key]) ) return self::$_prefs[$userid][$key];
+		if( isset(self::$_prefs[$userid][$key]) && self::$_prefs[$userid][$key] != '' ) return self::$_prefs[$userid][$key];
 		return $dflt;
 	}
 
@@ -123,8 +124,7 @@ final class cms_userprefs
 	{
 		$userid = (int)$userid;
 		self::_read($userid);
-		if( in_array($key,array_keys(self::$_prefs[$userid])) ) return TRUE;
-		return FALSE;
+		return ( isset(self::$_prefs[$userid][$key]) && self::$_prefs[$userid][$key] !== '' ) ;
 	}
 
 
@@ -220,9 +220,8 @@ final class cms_userprefs
 /**
  * Retrieve the value of the named preference for the given userid.
  *
- * @deprecated
  * @since 0.3
- * @see cms_siteprefs::get_for_user()
+ * @deprecated since 1.10 Use cms_userprefs::get_for_user()
  * @param int $userid The user id
  * @param string  $prefname The preference name
  * @param mixed   $default The default value if the preference is not set for the given user id.
@@ -236,14 +235,13 @@ function get_preference($userid, $prefname, $default='')
 /**
  * Sets the given preference for the given userid with the given value.
  *
- * @deprecated
  * @since 0.3
- * @see cms_siteprefs::set_for_user()
+ * @deprecated since 1.10 Use cms_userprefs::set_for_user()
  * @param int $userid The user id
  * @param string  $prefname The preference name
  * @param mixed   $value The preference value (will be stored as a string)
  */
 function set_preference($userid, $prefname, $value)
 {
-	return cms_userprefs::set_for_user($userid, $prefname,$value);
+	return cms_userprefs::set_for_user($userid,$prefname,$value);
 }
