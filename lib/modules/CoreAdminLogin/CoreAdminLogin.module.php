@@ -1,6 +1,6 @@
 <?php
 /*
-Module: CoreAdminLogin - supports themes' login/out processes
+Module: CoreAdminLogin - standalone and theme-support login/out
 Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -53,26 +53,32 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
     // interface methods
 
     /**
+     * Process the current login 'phase', and generate appropriate page-content for
+     *  use upstream
+     * No header / footer inclusions (js, css) are done (i.e. assumes upstream does that)
      * @return stuff usable upstream (but only if further processing is needed)
      */
-    public function ProcessRequest() : array
+    public function StageLogin() : array
     {
-        //parameters for included code
+        //parameters for included function
         $usecsrf = true;
         $config = cms_config::get_instance();
 
         $fp = cms_join_path(__DIR__, 'function.login.php');
         require_once $fp;
 
-        $smarty = Smarty::get_instance();
-
-        $smarty->assign('mod', $this);
         $csrf = bin2hex(random_bytes(16));
+
+        $smarty = Smarty::get_instance();
+        $smarty->assign('mod', $this);
+        $smarty->assign('actionid', '');
+		$smarty->assign('loginurl', 'login.php');
+		$smarty->assign('forgoturl', 'login.php?forgotpw=1');
         $smarty->assign('csrf', $csrf);
         $smarty->assign('changepwhash', $changepwhash ?? '');
 
         $parts = [];
-        //some results from the included function
+        //some results from included function also for upstream
         $parts['infomessage'] = $infomessage ?? '';
         $parts['warnmessage'] = $warnmessage ?? '';
         $parts['errmessage'] = $errmessage ?? '';
@@ -84,8 +90,6 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
         $smarty->template_dir = $saved;
 
         $_SESSION[$csrf_key] = $csrf;
-        //$themeobj = cms_utils::get_theme_object();
-        //TODO setup any specific themeobject header / footer inclusions
 
         $parts['changepwtoken'] = $changepwtoken ?? '';
         $parts['form'] = $form;
@@ -93,7 +97,12 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
         return $parts;
     }
 
-    public function DoLogin() {}
-
-    public function GrantAccess() {}
+	/**
+	 * Perform the entire login process without theme involvement
+	 */
+    public function RunLogin()
+	{
+        $fp = cms_join_path(__DIR__, 'action.login.php');
+        require_once $fp;
+	}
 } // class
