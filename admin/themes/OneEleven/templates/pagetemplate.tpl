@@ -1,36 +1,30 @@
 <!doctype html>
 <html lang="{$lang|truncate:'2':''}" dir="{$lang_dir}">
-  <head>
-    {$thetitle=$pagetitle}
-    {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
-    {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
-		<meta charset="utf-8" />
+	<head>
+{$thetitle=$pagetitle}
+{if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
+{if $thetitle}{$thetitle="{$thetitle} - "}{/if}
 		<title>{$thetitle}{sitename}</title>
-		<base href="{$config.admin_url}/" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-14 Ted Kulp. All rights reserved." />
-		<meta name="robots" content="noindex, nofollow" />
-		<meta name="referrer" content="origin"/>
+		<meta charset="utf-8" />
 		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-		<meta name="HandheldFriendly" content="True"/>
-		<link rel="shortcut icon" href="{$config.admin_url}/themes/OneEleven/images/favicon/cmsms-favicon.ico"/>
-		<link rel='apple-touch-icon' href='{$config.admin_url}/themes/OneEleven/images/favicon/apple-touch-icon-iphone.png' />
-		<link rel='apple-touch-icon' sizes='72x72' href='{$config.admin_url}/themes/OneEleven/images/favicon/apple-touch-icon-ipad.png' />
-		<link rel='apple-touch-icon' sizes='114x114' href='{$config.admin_url}/themes/OneEleven/images/favicon/apple-touch-icon-iphone4.png' />
-		<link rel='apple-touch-icon' sizes='144x144' href='{$config.admin_url}/themes/OneEleven/images/favicon/apple-touch-icon-ipad3.png' />
-		<meta name='msapplication-TileImage' content='{$config.admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png' />
-		<meta name='msapplication-TileColor' content='#f89938'>
-		<!-- learn IE html5 -->
+		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 CMS Made Simple Foundation. All rights reserved." />
+		<meta name="robots" content="noindex, nofollow" />
+		<meta name="referrer" content="origin" />
+		<meta name="HandheldFriendly" content="true" />
+		<meta name="msapplication-TileColor" content="#f89938" />
+		<meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
+		<base href="{$admin_url}/" />
+		<link rel="shortcut icon" href="themes/OneEleven/images/favicon/cmsms-favicon.ico" />
+		<link rel="apple-touch-icon" href="themes/OneEleven/images/favicon/apple-touch-icon-iphone.png" />
+		<link rel="apple-touch-icon" sizes="72x72" href="themes/OneEleven/images/favicon/apple-touch-icon-ipad.png" />
+		<link rel="apple-touch-icon" sizes="114x114" href="themes/OneEleven/images/favicon/apple-touch-icon-iphone4.png" />
+		<link rel="apple-touch-icon" sizes="144x144" href="themes/OneEleven/images/favicon/apple-touch-icon-ipad3.png" />
+		{$header_includes|default:''}
 		<!--[if lt IE 9]>
 		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
-		<!-- custom jQueryUI Theme 1.10.04 see link in UI Stylesheet for color reference //-->
-		<link rel="stylesheet" href="style.php?{$secureparam}" />
-		{cms_jquery append="`$config.admin_url`/themes/OneEleven/includes/standard.js" include_css=0}
-		<link href="{$config.admin_url}/themes/OneEleven/css/default-cmsms/jquery-ui-1.10.4.custom.min.css" rel="stylesheet" />
-		<!-- THIS IS WHERE HEADER STUFF SHOULD GO -->
-	 	{$headertext|default:''}
 	</head>
-	<body lang="{$lang|truncate:'2':''}" id="{$pagetitle|md5}" class="oe_{$pagealias}">
+	<body id="{$pagetitle|md5}" class="oe_{$pagealias}">
 		<!-- start container -->
 		<div id="oe_container" class="sidebar-on">
 			<!-- start header -->
@@ -39,7 +33,7 @@
 				<div class="header-top cf">
 					<!-- logo -->
 					<div class="cms-logo">
-						<a href="http://www.cmsmadesimple.org" rel="external"><img src="{$config.admin_url}/themes/OneEleven/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" /></a>
+						<a href="http://www.cmsmadesimple.org" rel="external"><img src="{$admin_url}/themes/OneEleven/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" /></a>
 					</div>
 					<!-- title -->
 					<span class="admin-title"> {'adminpaneltitle'|lang} - {sitename}</span>
@@ -104,8 +98,8 @@
 			<!-- start footer -->
 			{include file='footer.tpl'}
 			<!-- end footer //-->
-			{$footertext|default:''}
 		</div>
 		<!-- end container //-->
-		</body>
+	{$bottom_includes|default:''}
+	</body>
 </html>
