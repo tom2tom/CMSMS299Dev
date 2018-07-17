@@ -1,6 +1,6 @@
 <?php
-#process user logout
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#CMSMS admin-logout processing
+#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,13 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 $CMS_ADMIN_PAGE=1;
-$CMS_JOB_TYPE=1;
 $_SESSION['logout_user_now'] = "1";
+
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
-redirect("login.php");
+
+$ob = cms_utils::get_theme_object();
+if ($ob) {
+    $ob->do_login();
+} else {
+    die('System error');
+}
