@@ -47,14 +47,18 @@ if ($sitelogo) {
 }
 $params['sitelogo'] = $sitelogo;
 
-//TODO relevant css inclusion
+$baseurl = $this->GetModuleURLPath();
+
+$out = <<<EOS
+<link rel="stylesheet" type="text/css" href="$baseurl/css/module.css" />
+
+EOS;
 
 $tpl = '<script type="text/javascript" src="%s"></script>'."\n";
-
 // the only needed scripts are: jquery, jquery-ui, and our custom login
 list ($jqcore, $jqmigrate) = cms_jquery_local();
 $url = AdminUtils::path_to_url($jqcore);
-$out = sprintf($tpl,$url);
+$out .= sprintf($tpl,$url);
 list ($jqui, $jqcss) = cms_jqueryui_local();
 $url = AdminUtils::path_to_url($jqui);
 $out .= sprintf($tpl,$url);
@@ -65,7 +69,7 @@ $out .= <<<EOS
 <![endif]-->
 
 EOS;
-$url = $this->GetUrlpath().'/lib/js/login.js';
+$url = $baseurl.'/lib/js/login.js';
 $out .= sprintf($tpl,$url);
 
 $params['header_includes'] = $out; //NOT into bottom (to avoid UI-flash)
