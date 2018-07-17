@@ -17,7 +17,4 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-$def = cms_site_prefs::get('loginmodule');
-if ($def == $this->GetName()) {
-    //TODO replacement loginmodule or else abort - logins must not be blocked!
-}
+return 'This module cannot be removed';
