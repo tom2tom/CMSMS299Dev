@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class and utilities for working with site- and module-preferences.
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,11 +14,9 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 /**
- * A class and utilities for working with site preferences.
+ * A class and utilities for working with preferences - site and module-specific.
  * @package CMS
  * @license GPL
  */
@@ -62,6 +60,7 @@ final class cms_siteprefs
     }
 
 	/**
+	 * Cache site- and module-preferences
 	 * @ignore
      * @internal
 	 */
@@ -76,17 +75,14 @@ final class cms_siteprefs
 			$_prefs = [];
 			for( $i = 0, $n = count($dbr); $i < $n; $i++ ) {
 				$row = $dbr[$i];
-				$key = $row['sitepref_name'];
-				if( strpos($key, '_mapi_pref_') === false ) { //exclude module-preferences
-					$_prefs[$key] = $row['sitepref_value'];
-				}
+				$_prefs[$row['sitepref_name']] = $row['sitepref_value'];
 			}
             return $_prefs;
 		}
 	}
 
 	/**
-	 * Retrieve a site preference
+	 * Retrieve a site/module preference
 	 *
 	 * @param string $key The preference name
 	 * @param string $dflt Optional default value
@@ -101,7 +97,7 @@ final class cms_siteprefs
 
 
 	/**
-	 * Test if a site preference exists
+	 * Test if a preference exists and it's value is not ''
 	 *
 	 * @param string $key The preference name
 	 * @return bool
@@ -109,13 +105,12 @@ final class cms_siteprefs
 	public static function exists($key)
 	{
         $prefs = global_cache::get(__CLASS__);
-		if( is_array($prefs) && in_array($key,array_keys($prefs)) ) return TRUE;
-		return FALSE;
+		return ( is_array($prefs) && isset($prefs[$key]) && $prefs[$key] !== '' );
 	}
 
 
 	/**
-	 * Set a site preference
+	 * Set a site/module preference
 	 *
 	 * @param string $key The preference name
 	 * @param string $value The preference value
@@ -136,10 +131,10 @@ final class cms_siteprefs
 
 
 	/**
-	 * Remove a site preference
+	 * Remove a site/module preference
 	 *
 	 * @param string $key The preference name
-	 * @param bool $like Whether to use preference name approximation
+	 * @param bool $like Optional flag whether to use preference name approximation, default false
 	 */
 	public static function remove($key,$like = FALSE)
 	{
@@ -154,10 +149,10 @@ final class cms_siteprefs
 	}
 
 	/**
-	 * List preferences by prefix.
+	 * List preferences by prefix
 	 *
 	 * @param string $prefix
-	 * @return mixed list of preferences name that match the prefix, or null
+	 * @return mixed array of preference names that match the prefix, or null
 	 * @since 2.0
 	 */
 	public static function list_by_prefix($prefix)
@@ -168,7 +163,4 @@ final class cms_siteprefs
 		$dbr = $db->GetCol($query,array($prefix.'%'));
 		if( is_array($dbr) && count($dbr) ) return $dbr;
 	}
-} // end of class
-
-#
-# EOF
+} // class
