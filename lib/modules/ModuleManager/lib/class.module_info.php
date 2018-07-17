@@ -134,7 +134,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
 
             // check for installed modules that are dependent upon this one
             $name = $this['name'];
-            if( $name == 'ModuleManager' ) return FALSE;
+            if( $name == 'ModuleManager' || $name == 'CoreAdminLogin' ) return FALSE;
 
             foreach( self::$_minfo as $mname => $minfo ) {
                 if( is_array($minfo['dependants']) && count($minfo['dependants']) ) {
