@@ -1,23 +1,28 @@
 <!doctype html>
 <html lang="{$lang|truncate:'2':''}" dir="{$lang_dir}">
-
 <head>
-  <meta charset="utf-8" />
   <title>{strip}
   {if !empty($pagetitle)}{$thetitle=$pagetitle}{else}{$thetitle=''}{/if}
   {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
   {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
   {if $thetitle}{$thetitle}{/if}{sitename}
   {/strip}</title>
-  <base href="{$config.admin_url}/" />
-  <meta name="copyright" content="Ted Kulp, CMS Made Simple" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
+  <meta name="copyright" content="CMS Made Simple Foundation" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="referrer" content="origin" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
   <meta name="HandheldFriendly" content="true" />
+  <meta name="msapplication-TileColor" content="#f79838" />
+  <meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
+  <base href="{$admin_url}/" />
+  <link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico" />
+  <link rel="apple-touch-icon" href="{$assets_url}/images/apple-touch-icon-iphone.png" />
+  <link rel="apple-touch-icon" sizes="72x72" href="{$assets_url}/images/apple-touch-icon-ipad.png" />
+  <link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}/images/apple-touch-icon-iphone4.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}/images/apple-touch-icon-ipad3.png" />
   {$header_includes|default:''}
 </head>
-
 <body>
   <!-- start header -->
   <div id="ggp_header">
@@ -78,7 +83,7 @@
     </div>
     <div id="ggp_content">
      <div style="float:none"></div>
-     {$content}
+     <div class="pagecontainer">{$content}</div>
     </div>
    </div>
    <div id="ggp_navwrap" class="sidebar-on">
@@ -96,9 +101,8 @@
   <!-- start footer -->
   <div id="ggp_footer">
     {include file='footer.tpl'}
-    {$footertext|default:''}
   </div>
   <!-- end footer -->
   {$bottom_includes|default:''}
-</body>
+ </body>
 </html>
