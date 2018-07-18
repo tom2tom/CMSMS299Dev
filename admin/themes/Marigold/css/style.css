@@ -569,16 +569,16 @@ ol {
     padding: 0
 }
 
-#oe_mainarea ul,
+#mg_mainarea ul,
 ol {
     margin: 10px 0 10px 25px
 }
 
-#oe_mainarea li {
+#mg_mainarea li {
     line-height: 1.5
 }
 
-#oe_mainarea ol li {
+#mg_mainarea ol li {
     list-style: decimal
 }
 
@@ -591,7 +591,7 @@ h6 {
     color: #585858
 }
 
-#oe_mainarea ul {
+#mg_mainarea ul {
     list-style: square
 }
 
@@ -799,7 +799,7 @@ input {
 
 /*
 input[type='text'] {
-	min-width: 25%
+    min-width: 25%
 }
 */
 
@@ -873,9 +873,9 @@ textarea {
 
 /*
 textarea {
-	width: 48em;
-	height: 30em;
-	overflow: auto
+    width: 48em;
+    height: 30em;
+    overflow: auto
 }
 */
 
@@ -1087,7 +1087,7 @@ aside .no-slide,
 
 /* full height */
 
-#oe_container {
+#mg_container {
     position: relative;
     height: auto !important;
     height: 100%;
@@ -1103,11 +1103,11 @@ aside .no-slide,
     clear: both
 }
 
-#oe_admin-content {
+#mg_admin-content {
     height: 100%
 }
 
-#oe_admin-content .shadow {
+#mg_admin-content .shadow {
     background: transparent url(themes/Marigold/images/layout/sprite_repeatx.png) 831px -148px repeat-x;
     z-index: 50;
     position: absolute;
@@ -1258,7 +1258,7 @@ header .shortcuts li.notifications span.bubble {
 
 /*** sidebar ***/
 
-#oe_sidebar {
+#mg_sidebar {
     width: 249px;
     border-right: 1px solid #fff;
     background: #ddd url(themes/Marigold/images/layout/sidebar-shadow.png) repeat-y right;
@@ -1268,17 +1268,17 @@ header .shortcuts li.notifications span.bubble {
     bottom: 0
 }
 
-#oe_container.sidebar-off #oe_sidebar {
+#mg_container.sidebar-off #mg_sidebar {
     overflow: hidden;
     width: 40px
 }
 
-#oe_sidebar aside {
+#mg_sidebar aside {
     padding-bottom: 30px;
     position: relative
 }
 
-#oe_sidebar nav.navigation {
+#mg_sidebar nav.navigation {
     height: auto;
     margin-top: 45px;
     position: relative
@@ -1287,7 +1287,7 @@ header .shortcuts li.notifications span.bubble {
 
 /* toggle sidebar */
 
-#oe_sidebar .toggle-button {
+#mg_sidebar .toggle-button {
     z-index: 99;
     display: block;
     cursor: pointer;
@@ -1298,27 +1298,27 @@ header .shortcuts li.notifications span.bubble {
     top: 12px
 }
 
-#oe_sidebar .toggle-button.top {
+#mg_sidebar .toggle-button.top {
     top: -33px
 }
 
-#oe_sidebar .toggle-button {
+#mg_sidebar .toggle-button {
     font-family: FontAwesome;
     font-size: 1.2em;
 }
 
-.sidebar-on #oe_sidebar .toggle-button:after {
+.sidebar-on #mg_sidebar .toggle-button:after {
     content: "\f100";
 }
 
-.sidebar-off #oe_sidebar .toggle-button:after {
+.sidebar-off #mg_sidebar .toggle-button:after {
     content: "\f101";
 }
 
 
 /* sidebar notifications */
 
-#oe_sidebar nav.navigation .box-shadow {
+#mg_sidebar nav.navigation .box-shadow {
     width: 11px;
     z-index: 10;
     position: absolute;
@@ -1331,12 +1331,12 @@ header .shortcuts li.notifications span.bubble {
 
 /* main navigation */
 
-nav ul#oe_pagemenu {
+nav ul#mg_pagemenu {
     border-bottom: 1px solid #adadad;
     /*margin-top: 45px*/
 }
 
-nav ul#oe_pagemenu li {
+nav ul#mg_pagemenu li {
     position: relative;
     zoom: 1;
     background: url(themes/Marigold/images/layout/navigation-bg.gif) repeat-x top;
@@ -1347,11 +1347,11 @@ nav ul#oe_pagemenu li {
 
 /* position sticky menu */
 
-.sidebar-on #oe_sidebar nav.navigation {
+.sidebar-on #mg_sidebar nav.navigation {
     width: 249px
 }
 
-.sidebar-off #oe_sidebar nav.navigation {
+.sidebar-off #mg_sidebar nav.navigation {
     width: 40px;
     overflow: hidden;
 }
@@ -1359,7 +1359,7 @@ nav ul#oe_pagemenu li {
 
 /* toggle submenu */
 
-nav ul#oe_pagemenu li span.open-nav {
+nav ul#mg_pagemenu li span.open-nav {
     display: block;
     width: 210px;
     height: 35px;
@@ -1367,36 +1367,36 @@ nav ul#oe_pagemenu li span.open-nav {
     position: absolute;
     right: 5px;
     top: 0;
-    //	text-indent: -9999em
+    //  text-indent: -9999em
 }
 
-nav ul#oe_pagemenu li span.open-nav.open-sub,
-nav ul#oe_pagemenu li.current span.open-nav,
-nav ul#oe_pagemenu li:hover span.open-nav,
-nav ul#oe_pagemenu li.current span.open-nav,
-nav ul#oe_pagemenu li.current:hover span.open-nav,
-nav ul#oe_pagemenu li a span:hover {
+nav ul#mg_pagemenu li span.open-nav.open-sub,
+nav ul#mg_pagemenu li.current span.open-nav,
+nav ul#mg_pagemenu li:hover span.open-nav,
+nav ul#mg_pagemenu li.current span.open-nav,
+nav ul#mg_pagemenu li.current:hover span.open-nav,
+nav ul#mg_pagemenu li a span:hover {
     cursor: pointer;
 }
 
-nav ul#oe_pagemenu li span.open-nav.open-sub:after,
-nav ul#oe_pagemenu li.current span.open-nav:after,
-nav ul#oe_pagemenu li:hover span.open-nav:after,
-nav ul#oe_pagemenu li.current span.open-nav:after,
-nav ul#oe_pagemenu li.current:hover span.open-nav:after,
-nav ul#oe_pagemenu li a span:hover:after {
+nav ul#mg_pagemenu li span.open-nav.open-sub:after,
+nav ul#mg_pagemenu li.current span.open-nav:after,
+nav ul#mg_pagemenu li:hover span.open-nav:after,
+nav ul#mg_pagemenu li.current span.open-nav:after,
+nav ul#mg_pagemenu li.current:hover span.open-nav:after,
+nav ul#mg_pagemenu li a span:hover:after {
     font-family: FontAwesome;
     float: right;
     margin-right: 0.8em;
     content: "\f0d7";
 }
 
-nav ul#oe_pagemenu li span.open-nav.open-sub:after {}
+nav ul#mg_pagemenu li span.open-nav.open-sub:after {}
 
 
 /*** menu style ***/
 
-nav ul#oe_pagemenu li a {
+nav ul#mg_pagemenu li a {
     color: #232323;
     outline: 0;
     margin-left: 9px;
@@ -1408,41 +1408,41 @@ nav ul#oe_pagemenu li a {
     border: 1px solid transparent;
 }
 
-nav ul#oe_pagemenu li.current li a {
+nav ul#mg_pagemenu li.current li a {
     color: #232323
 }
 
-nav ul#oe_pagemenu li ul,
-#oe_container.sidebar-off nav ul#oe_pagemenu li span.open-nav {
+nav ul#mg_pagemenu li ul,
+#mg_container.sidebar-off nav ul#mg_pagemenu li span.open-nav {
     display: none
 }
 
-#oe_container.sidebar-on nav ul#oe_pagemenu li.current ul {
+#mg_container.sidebar-on nav ul#mg_pagemenu li.current ul {
     display: block
 }
 
-#oe_container.sidebar-on nav ul#oe_pagemenu li {
+#mg_container.sidebar-on nav ul#mg_pagemenu li {
     zoom: 1
 }
 
-nav ul#oe_pagemenu li.current a,
-nav ul#oe_pagemenu li a:hover,
-nav ul#oe_pagemenu li:hover a,
-nav ul#oe_pagemenu li a:active,
-nav ul#oe_pagemenu li.current li a:hover,
-nav ul#oe_pagemenu li.current li a:active,
-nav ul#oe_pagemenu li.current li a,
-nav ul#oe_pagemenu li li a:hover {
+nav ul#mg_pagemenu li.current a,
+nav ul#mg_pagemenu li a:hover,
+nav ul#mg_pagemenu li:hover a,
+nav ul#mg_pagemenu li a:active,
+nav ul#mg_pagemenu li.current li a:hover,
+nav ul#mg_pagemenu li.current li a:active,
+nav ul#mg_pagemenu li.current li a,
+nav ul#mg_pagemenu li li a:hover {
     color: #147fdb;
 }
 
-nav ul#oe_pagemenu li a:focus {
+nav ul#mg_pagemenu li a:focus {
     color: #147fdb !important;
     border: 1px solid #147fdb;
     margin-right: 10px;
 }
 
-nav ul#oe_pagemenu li a.main:before,
+nav ul#mg_pagemenu li a.main:before,
 h3.main:before {
     font-family: FontAwesome;
     content: '\f015';
@@ -1452,7 +1452,7 @@ h3.main:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.content:before,
+nav ul#mg_pagemenu li a.content:before,
 h3.content:before {
     font-family: FontAwesome;
     content: '\f0f6';
@@ -1462,7 +1462,7 @@ h3.content:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.layout:before,
+nav ul#mg_pagemenu li a.layout:before,
 h3.layout:before {
     font-family: FontAwesome;
     content: '\f00a';
@@ -1472,7 +1472,7 @@ h3.layout:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.usersgroups:before,
+nav ul#mg_pagemenu li a.usersgroups:before,
 h3.usersgroups:before {
     font-family: FontAwesome;
     content: '\f0c0';
@@ -1482,7 +1482,7 @@ h3.usersgroups:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.extensions:before,
+nav ul#mg_pagemenu li a.extensions:before,
 h3.extensions:before {
     font-family: FontAwesome;
     content: '\f12e';
@@ -1492,7 +1492,7 @@ h3.extensions:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.siteadmin:before,
+nav ul#mg_pagemenu li a.siteadmin:before,
 h3.siteadmin:before {
     font-family: FontAwesome;
     content: '\f013';
@@ -1502,7 +1502,7 @@ h3.siteadmin:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.myprefs:before,
+nav ul#mg_pagemenu li a.myprefs:before,
 h3.myprefs:before {
     font-family: FontAwesome;
     content: '\f007';
@@ -1512,7 +1512,7 @@ h3.myprefs:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.ecommerce:before,
+nav ul#mg_pagemenu li a.ecommerce:before,
 h3.ecommerce:before {
     font-family: FontAwesome;
     content: '\f07a';
@@ -1522,33 +1522,33 @@ h3.ecommerce:before {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li a.parent:before {
-	width: 1em;
-	display: inline-block;
-	text-align: center;
+nav ul#mg_pagemenu li a.parent:before {
+    width: 1em;
+    display: inline-block;
+    text-align: center;
 }
 
 
 /* second level & collapsed sidebar */
 
-nav ul#oe_pagemenu ul {
+nav ul#mg_pagemenu ul {
     padding: 8px 0;
     background: #f0f0f0
 }
 
-nav ul#oe_pagemenu li li {
+nav ul#mg_pagemenu li li {
     background: none;
     line-height: 1;
 }
 
-nav ul#oe_pagemenu li li.module {
+nav ul#mg_pagemenu li li.module {
     background-color: #e5e5e5;
     border-bottom: 1px dotted #f0f0f0
 }
 
-nav ul#oe_pagemenu li.current li a,
-nav ul#oe_pagemenu li li a,
-nav ul#oe_pagemenu li:hover li a {
+nav ul#mg_pagemenu li.current li a,
+nav ul#mg_pagemenu li li a,
+nav ul#mg_pagemenu li:hover li a {
     height: auto;
     line-height: 1.3;
     white-space: pre-line;
@@ -1558,36 +1558,36 @@ nav ul#oe_pagemenu li:hover li a {
     font-weight: normal;
 }
 
-nav ul#oe_pagemenu li li a:hover,
-nav ul#oe_pagemenu li li.current a {
+nav ul#mg_pagemenu li li a:hover,
+nav ul#mg_pagemenu li li.current a {
     color: #147fdb;
 }
 
-nav ul#oe_pagemenu li li a:hover,
-nav ul#oe_pagemenu li li a:active,
-nav ul#oe_pagemenu li.current li a:hover,
-nav ul#oe_pagemenu li.current li a:active {
+nav ul#mg_pagemenu li li a:hover,
+nav ul#mg_pagemenu li li a:active,
+nav ul#mg_pagemenu li.current li a:hover,
+nav ul#mg_pagemenu li.current li a:active {
     padding-left: 30px
 }
 
 
 /*** page content ***/
 
-#oe_mainarea {
+#mg_mainarea {
     margin: 0 0 0 249px
 }
 
-#oe_container.sidebar-off #oe_mainarea {
+#mg_container.sidebar-off #mg_mainarea {
     margin: 0 0 0 40px
 }
 
-#oe_mainarea .content-inner {
+#mg_mainarea .content-inner {
     padding: 0 20px 0 25px;
     position: relative;
     overflow: hidden;
 }
 
-#oe_mainarea header.pageheader {
+#mg_mainarea header.pageheader {
     max-height: 63px;
     margin-bottom: 15px;
     position: relative;
@@ -1601,7 +1601,7 @@ nav ul#oe_pagemenu li.current li a:active {
 
 /*** footer ***/
 
-footer#oe_footer {
+footer#mg_footer {
     width: 100%;
     z-index: 50;
     height: 30px;
@@ -1612,22 +1612,22 @@ footer#oe_footer {
     bottom: 0
 }
 
-footer#oe_footer a {
+footer#mg_footer a {
     text-decoration: none;
     color: #147fdb
 }
 
-footer#oe_footer a:hover,
-footer#oe_footer a:active {
+footer#mg_footer a:hover,
+footer#mg_footer a:active {
     color: #fa8004
 }
 
-#oe_footer small {
+#mg_footer small {
     font-size: 11px;
     color: #fff
 }
 
-#oe_footer .footer-left {
+#mg_footer .footer-left {
     width: 450px;
     padding: 10px;
     line-height: 15px;
@@ -1638,11 +1638,11 @@ footer#oe_footer a:active {
     margin: 0 0 0 260px
 }
 
-#oe_container.sidebar-off .footer-left {
+#mg_container.sidebar-off .footer-left {
     margin: 0 0 0 60px
 }
 
-#oe_footer .footer-right {
+#mg_footer .footer-right {
     float: right;
     padding: 10px;
     line-height: 15px;
@@ -1650,28 +1650,28 @@ footer#oe_footer a:active {
     width: auto
 }
 
-#oe_footer ul.links {
+#mg_footer ul.links {
     display: inline-block;
     margin-right: 20px;
     font-size: 12px;
     width: auto
 }
 
-#oe_footer ul.links li {
+#mg_footer ul.links li {
     display: block;
     padding: 0 8px;
     float: left
 }
 
-#oe_footer ul.links li:last-child,
-#oe_footer ul.links li.last {
+#mg_footer ul.links li:last-child,
+#mg_footer ul.links li.last {
     padding: 0 0 0 8px
 }
 
 
 /* --- CONTENT --- */
 
-#oe_mainarea header.pageheader h1 {
+#mg_mainarea header.pageheader h1 {
     font-size: 18px;
     line-height: 63px;
     font-weight: normal;
@@ -1683,13 +1683,13 @@ footer#oe_footer a:active {
     color: #147fdb
 }
 
-#oe_mainarea header.pageheader .module-icon {
+#mg_mainarea header.pageheader .module-icon {
     vertical-align: middle;
     margin-right: 15px;
     max-height: 32px
 }
 
-#oe_mainarea header.pageheader span.helptext,
+#mg_mainarea header.pageheader span.helptext,
 .pageheader span.helptext {
     display: inline;
     line-height: 63px;
@@ -1699,11 +1699,11 @@ footer#oe_footer a:active {
     font-size: 12px
 }
 
-#oe_mainarea header.pageheader.drop-hidden span.helptext {
+#mg_mainarea header.pageheader.drop-hidden span.helptext {
     margin-right: 0
 }
 
-#oe_mainarea header.subheader h3 {
+#mg_mainarea header.subheader h3 {
     color: #147fdb
 }
 
@@ -1732,7 +1732,7 @@ span.helptext a {
     margin-right: 10px
 }
 
-#oe_mainarea a.helpicon {
+#mg_mainarea a.helpicon {
     display: none;
 }
 
@@ -1998,7 +1998,7 @@ td.icons_wide {
     cursor: pointer;
 }
 
-#oe_mainarea ul.sortable-list {
+#mg_mainarea ul.sortable-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -2007,7 +2007,7 @@ td.icons_wide {
     min-height: 25px;
 }
 
-#oe_mainarea .sortable-list li {
+#mg_mainarea .sortable-list li {
     list-style: none;
     padding: 4px 12px;
     margin-bottom: 1px;
@@ -2016,21 +2016,21 @@ td.icons_wide {
     cursor: move;
 }
 
-#oe_mainarea .sortable-list li .sortable-remove {
+#mg_mainarea .sortable-list li .sortable-remove {
     float: right;
     display: inline-block;
 }
 
-#oe_mainarea .available-templates li .sortable-remove,
-#oe_mainarea .available-stylesheets li .sortable-remove {
+#mg_mainarea .available-templates li .sortable-remove,
+#mg_mainarea .available-stylesheets li .sortable-remove {
     display: none;
 }
 
-#oe_mainarea .sortable-list > li.ui-state-highlight {
+#mg_mainarea .sortable-list > li.ui-state-highlight {
     padding: 14px 0;
 }
 
-#oe_mainarea .sortable-table {
+#mg_mainarea .sortable-table {
     cursor: move;
 }
 
@@ -2179,8 +2179,8 @@ input.pagecheckbox {
 
 /*
 textarea.pagebigtextarea {
-	height: 40em;
-	width: 90%
+    height: 40em;
+    width: 90%
 }
 */
 
@@ -2320,7 +2320,7 @@ textarea.pageextrasmalltextarea {
     color: #232323
 }
 
-#oe_mainarea .dashboard-box ul.subitems {
+#mg_mainarea .dashboard-box ul.subitems {
     margin: 0;
     padding: 0
 }
@@ -2530,7 +2530,7 @@ a.toggle-dropzone:focus {
     text-align: right;
 }
 
-#oe_mainarea .options-menu {
+#mg_mainarea .options-menu {
     margin: 0;
     padding: 0;
     height: 35px;
@@ -2538,7 +2538,7 @@ a.toggle-dropzone:focus {
     list-style-type: none;
 }
 
-#oe_mainarea .options-menu > li {
+#mg_mainarea .options-menu > li {
     line-height: 35px;
     float: left;
     display: block;
@@ -2546,7 +2546,7 @@ a.toggle-dropzone:focus {
     position: relative;
 }
 
-#oe_mainarea .options-menu li ul {
+#mg_mainarea .options-menu li ul {
     position: absolute;
     left: -999em;
     top: 0;
@@ -2554,12 +2554,12 @@ a.toggle-dropzone:focus {
     padding: 15px;
 }
 
-#oe_mainarea .options-menu li.parent:hover {
+#mg_mainarea .options-menu li.parent:hover {
     background: #fafafa;
     cursor: pointer;
 }
 
-#oe_mainarea .options-menu li:hover ul {
+#mg_mainarea .options-menu li:hover ul {
     left: 0;
     top: 32px;
     width: 240px;
@@ -2567,7 +2567,7 @@ a.toggle-dropzone:focus {
     border: 1px solid #d0d0d0;
 }
 
-#oe_mainarea .options-menu li li {
+#mg_mainarea .options-menu li li {
     display: block;
     cursor: pointer;
 }
@@ -2616,23 +2616,23 @@ a.toggle-dropzone:focus {
         background: #147fdb
     }
     /*
-	textarea {
-		width: 43em;
-	}
-	*/
+    textarea {
+        width: 43em;
+    }
+    */
     header .header-top {
         overflow: hidden
     }
     header .admin-title {
         font-size: 12px
     }
-    #oe_sidebar {
+    #mg_sidebar {
         bottom: 30px
     }
-    #oe_sidebar aside {
+    #mg_sidebar aside {
         padding: 0
     }
-    #oe_mainarea header.pageheader span.helptext em {
+    #mg_mainarea header.pageheader span.helptext em {
         display: none
     }
     .dashboard-box {
@@ -2640,13 +2640,13 @@ a.toggle-dropzone:focus {
         width: auto;
         margin: 10px 0
     }
-    footer#oe_footer {
+    footer#mg_footer {
         clear: both;
         overflow: hidden;
         line-height: 20px;
         /*position: static*/
     }
-    #oe_footer .footer-left {
+    #mg_footer .footer-left {
         margin-left: 0
     }
     .move {
@@ -2655,9 +2655,9 @@ a.toggle-dropzone:focus {
         max-width: 16px
     }
     .move,
-    /*	table.pagetable th.pageicon,
-//	table.pagetable th,
-	table.pagetable td,*/
+    /*  table.pagetable th.pageicon,
+//  table.pagetable th,
+    table.pagetable td,*/
     th.pagew10,
     th.pagew25,
     th.pagew50,
@@ -2691,52 +2691,52 @@ a.toggle-dropzone:focus {
     img {
         float: none;
     }
-    #oe_container,
+    #mg_container,
     .header,
-    #oe_mainarea,
-    #oe_sidebar,
-    #oe_admin-content {
+    #mg_mainarea,
+    #mg_sidebar,
+    #mg_admin-content {
         margin: 0;
         float: none;
         display: block;
         height: 100%;
     }
-    #oe_container {
+    #mg_container {
         width: 100%;
         padding: 0;
         position: static;
         height: auto
     }
     .spacer,
-    #oe_sidebar div.notification .box-shadow,
-    #oe_sidebar nav.navigation .box-shadow,
+    #mg_sidebar div.notification .box-shadow,
+    #mg_sidebar nav.navigation .box-shadow,
     header .breadcrumbs,
-    #oe_footer .footer-right,
-    #oe_sidebar .toggle-button,
+    #mg_footer .footer-right,
+    #mg_sidebar .toggle-button,
     header .admin-title,
-    #oe_admin-content .shadow,
+    #mg_admin-content .shadow,
     .drop {
         display: none
     }
-    #oe_admin-content {
+    #mg_admin-content {
         height: auto
     }
     header .welcome {
         width: auto
     }
-    #oe_sidebar {
+    #mg_sidebar {
         border: none;
         width: 100%;
         background: #ddd;
         box-sizing: border-box;
     }
-    #oe_sidebar aside {
+    #mg_sidebar aside {
         padding: 0
     }
-    .sidebar-on #oe_sidebar nav.navigation {
+    .sidebar-on #mg_sidebar nav.navigation {
         width: auto
     }
-    .sidebar-off #oe_sidebar nav.navigation {
+    .sidebar-off #mg_sidebar nav.navigation {
         width: 40px;
         overflow: hidden;
         position: static;
@@ -2745,28 +2745,27 @@ a.toggle-dropzone:focus {
     }
 
 
-
     header.header {
         overflow: hidden
     }
-    #oe_mainarea {
+    #mg_mainarea {
         width: auto;
         /* To prevent overflow out of small device widths because of 40px left margin.*/
         display: block
     }
-    #oe_mainarea header.pageheader {
+    #mg_mainarea header.pageheader {
         max-height: 50px;
         margin-bottom: 15px;
-border-bottom: 0;
+        border-bottom: 0;
     }
-    #oe_mainarea header.pageheader h1,
-    #oe_mainarea header.pageheader span.helptext {
+    #mg_mainarea header.pageheader h1,
+    #mg_mainarea header.pageheader span.helptext {
         line-height: 50px;
     }
-    #oe_mainarea header.pageheader span.helptext {
+    #mg_mainarea header.pageheader span.helptext {
         margin-right: 0
     }
-    #oe_mainarea .content-inner {
+    #mg_mainarea .content-inner {
         padding: 0 5px 20px;
     }
     #content_area .pageoptions.grid_8,
@@ -2809,13 +2808,13 @@ border-bottom: 0;
         padding-bottom: 2rem;
     }
     /* position:fixed doesn't work well with mobile devices */
-    footer#oe_footer {
+    footer#mg_footer {
         clear: both;
         overflow: hidden;
         line-height: 20px;
         /*position: static*/
     }
-    #oe_footer .footer-left {
+    #mg_footer .footer-left {
         float: none;
         margin: 0;
         padding: 0;
@@ -2823,7 +2822,7 @@ border-bottom: 0;
         text-align: center;
         display: block
     }
-    #oe_footer small {
+    #mg_footer small {
         padding: 10px 0 0 0;
         margin: 0;
         display: block;
@@ -2861,17 +2860,17 @@ border-bottom: 0;
 
 @media screen and (max-width: 600px) {
 header .shortcuts ul {
-	margin-right: 8px;
+    margin-right: 8px;
 }
 header .shortcuts li {
-	padding: 0 8px;
+    padding: 0 8px;
 }
 header .shortcuts li i {
-	font-size: 1.25rem;
-	padding-top: 0.235em;
+    font-size: 1.25rem;
+    padding-top: 0.235em;
 }
-nav ul#oe_pagemenu li a:focus {
-	margin-right: 0;
+nav ul#mg_pagemenu li a:focus {
+    margin-right: 0;
 }
     #page_tabs {
         margin-top: 0;
@@ -2883,11 +2882,11 @@ nav ul#oe_pagemenu li a:focus {
         -moz-box-sizing: border-box;
         box-sizing: border-box;
     }
-#oe_mainarea .pageoptions.options-menu.half {
+#mg_mainarea .pageoptions.options-menu.half {
 height: auto;
 width: 100% !important;
 }
-#oe_mainarea .pageoptions.options-menu.half a,
+#mg_mainarea .pageoptions.options-menu.half a,
 #content_area .pageoptions.grid_8 a {
 width: 100%;
 display: block;
@@ -2924,25 +2923,25 @@ display:none;
 display:table-cell;
 width: 100%;
 }
-nav ul#oe_pagemenu {
+nav ul#mg_pagemenu {
 border-bottom: 0;
 }
-nav ul#oe_pagemenu li {
-	background: #d5d5d5;
-	line-height: 45px;
-	padding: 2px;
-	text-align: center;
-	border-bottom: 1px solid #aaa;
+nav ul#mg_pagemenu li {
+    background: #d5d5d5;
+    line-height: 45px;
+    padding: 2px;
+    text-align: center;
+    border-bottom: 1px solid #aaa;
 }
-nav ul#oe_pagemenu li a {
-	margin-left: 0;
-	height: 45px;
-	text-align: center;
+nav ul#mg_pagemenu li a {
+    margin-left: 0;
+    height: 45px;
+    text-align: center;
 }
 
-nav ul#oe_pagemenu li a.parent:before {
-	margin-right: 0;
-	font-size: 1.35rem;
+nav ul#mg_pagemenu li a.parent:before {
+    margin-right: 0;
+    font-size: 1.35rem;
 }
 
 
@@ -2957,7 +2956,7 @@ nav ul#oe_pagemenu li a.parent:before {
         right: 5%;
         width: auto
     }
-    #oe_mainarea header.pageheader span.helptext {
+    #mg_mainarea header.pageheader span.helptext {
         display: none;
     }
     textarea,
