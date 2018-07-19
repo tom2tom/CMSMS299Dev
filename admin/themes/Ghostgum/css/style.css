@@ -15,24 +15,13 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2
  * For demo, see accompanying file grid.html
  */
 
-/* Container - Wrapping all grids inside,
+/* Container - wrapping all grids inside,
  * use .cf class to clear floated elements
  */
 .c_full { width: 100% }
 
-/* Global Grid style, the actual grid */
-.grid_1,
-.grid_2,
-.grid_3,
-.grid_4,
-.grid_5,
-.grid_6,
-.grid_7,
-.grid_8,
-.grid_9,
-.grid_10,
-.grid_11,
-.grid_12 {
+/* Global grid style, the actual grid */
+.grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_9, .grid_10, .grid_11, .grid_12 {
     display: inline;
     float: left;
     position: relative;
@@ -211,19 +200,19 @@ body {
     color: #244323;
     line-height: 1.3;
     font-size: 1.01em;
-    overflow: hidden;
+    overflow: hidden
 }
 ins {
 /*    background-color: #ff9; */
     color: #244323;
-    text-decoration: none;
+    text-decoration: none
 }
 mark {
     font-style: italic;
-    font-weight: bold;
+    font-weight: bold
 }
 del {
-    text-decoration: line-through;
+    text-decoration: line-through
 }
 abbr[title], dfn[title] {
     border-bottom: 1px dotted;
@@ -352,13 +341,10 @@ pre {
 }
 
 /* Ace text editor container */
-/* @media="screen" */
 #Editor {
-/* padding-top: 6px; appears at bottom !? ace renderer setpadding applies to left, right */
-/* padding-bottom: 6px; */
- line-height: 1.2;
- max-width: 99%;
- font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
+    line-height: 1.2;
+    max-width: 99%;
+    font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
 }
 
 table.pagetable,
@@ -378,12 +364,13 @@ textarea,
 }
 
 /* forms */
+
 form {
     margin: 0px;
     display: inline
 }
 
-a.link_button, a.link_button:visited{
+a.link_button, a.link_button:visited {
     margin: 0.1em;
 /*    border: 1px solid #cbd4cb; */
     border-width: 0;
@@ -402,7 +389,7 @@ a.link_button, a.link_button:visited{
     font-weight: 600;
     font-size: 1em
 }
-a.link_button:hover{
+a.link_button:hover {
     background: #3c9b0a url(../images/submit-bg.png) top;
 }
 .adminsubmit, .loginsubmit, button.ui-button {
@@ -435,7 +422,7 @@ button.ui-button:hover, button.ui-button.ui-state-hover, button.ui-button:active
     font-size: 1em;
 }
 
-.iconnone{
+.iconnone {
 }
 .adminsubmit.icon, .ui-button.ui-icon {
     padding-left: 0.8em;
@@ -482,31 +469,31 @@ a.link_button.icon:before, a.link_button.icon.before {
 .icon.check:before, .icon.check.before, .ui-icon-check:before, .ui-icon-check.before {
     background-position: 1em 0;
 }
-.icon.cancel:before, .icon.cancel.before, .ui-icon-cancel:before, .ui-icon-cancel.before{
+.icon.cancel:before, .icon.cancel.before, .ui-icon-cancel:before, .ui-icon-cancel.before {
     background-position: 2em 0;
 }
-.icon.apply:before, .icon.apply.before{
+.icon.apply:before, .icon.apply.before {
     background-position: 3em 0;
 }
-.icon.undo:before, .icon.undo.before{
+.icon.undo:before, .icon.undo.before {
     background-position: 4em 0;
 }
-.icon.do:before, .icon.do.before{
+.icon.do:before, .icon.do.before {
     background-position: 5em 0;
 }
-.icon.go:before, .icon.go.before{
+.icon.go:before, .icon.go.before {
     background-position: 6em 0;
 }
-.icon.back:before, .icon.back.before{
+.icon.back:before, .icon.back.before {
     background-position: 7em 0;
 }
-.icon.delete:before, .icon.delete.before{
+.icon.delete:before, .icon.delete.before {
     background-position: 8em 0;
 }
-.icon.search:before, .icon.search.before{
+.icon.search:before, .icon.search.before {
     background-position: 9em 0;
 }
-.icon.add:before, .icon.add.before{
+.icon.add:before, .icon.add.before {
     background-position: 10em 0;
 }
 
@@ -553,7 +540,7 @@ input[type="text"], input[type="password"] {
     padding: 0.6em 0.6em 0.4em 0.6em;
 /*    line-height: 1; */
 }
-input[type='text']#in_title, input[type='text']#in_menutext {
+input[type="text"]#in_title, input[type="text"]#in_menutext {
     min-width: 30%
 }
 input[type="button"], input[type="submit"] {
@@ -658,7 +645,7 @@ a.tooltip {
 }
 */
 
-.pageerror,.pagewarn,.pagesuccess,.pageinfo,
+.pageerror, .pagewarn, .pagesuccess, .pageinfo,
 .message,
 .pagewarning,
 .pagemcontainer,
@@ -784,7 +771,7 @@ aside .no-slide, .no-slide {
     font-size: 0.9em
 }
 
-/* jQuery toast plugin */
+/* Notifications by jQuery toast plugin */
 
 .jqtoast {
     display: block;
@@ -1195,19 +1182,18 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     overflow: auto
 }
 
-
 body {
     display: flex;
     flex-direction: column;
     min-width: 5em;
-    min-height: 0;
+    min-height: 0
 }
 
 #ggp_container {
     display: flex;
     flex-direction: row;
     flex: 1;
-    min-width: 0;
+    min-width: 0
 }
 
 /*** header ***/
@@ -2715,92 +2701,33 @@ ul.sortableList > li {
     outline: none;
     text-decoration: none;
     cursor: pointer;
-    z-index: 40;
+    z-index: 40
 }
 #login span#forgotpw {
     float: right;
     display: inline-block;
     line-height: 2.8em;
     font-size: 0.9em;
-    bottom: 0;
+    bottom: 0
 }
 #login span#forgotpw a {
     padding: 8px 0;
     text-decoration: none;
-    cursor: pointer;
+    cursor: pointer
 }
 
 /* --- CMS_HELP --- */
 
 .cms_helpicon {
     margin-bottom: -5px;
-    cursor: pointer;
+    cursor: pointer
 }
 .cms_helptext ul {
     padding: 0 10px;
-    list-style: disc;
+    list-style: disc
 }
 .cms_helptext ul li {
-    margin-bottom: 8px;
-}
-
-/*** RESPONSIVE TABLES ***/
-
-/* Responsive Tables plugin 2.0.1 */
-/* change media query width to suit needs */
-@media only screen and (max-width: 800px) {
-    /* force table markup to behave like divs
-       For older IE's add a width to the TD (at least?) and float it.
-       see http://jsfiddle.net/xnKTH
-       td {
-         width: 100%\9;
-         float: left\9;
-       }
-    */
-    .jrt table,
-    .jrt thead,
-    .jrt tbody,
-    .jrt th,
-    .jrt td,
-    .jrt tr {
-        display: block;
-        text-align: left
-    }
-    /* hide table headers (but not display: none;, for accessibility) */
-    .jrt thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-    .jrt tr {
-        border: 1px solid #ccc;
-        width: 100%;
-    }
-    .jrt td {
-        /* behave like a "row" */
-        border: none;
-        border-bottom: 1px solid #eee;
-        position: relative;
-/*      padding-left: 50%;
-        font-weight: normal; */
-        width: 100%\9;
-        float: left\9;
-    }
-    .jrt td:before {
-        /* becomes the table header */
-        position: absolute;
-        /* top/left values mimic padding */
-        top: 8px;
-        /* mimic padding top */
-        left: 6px;
-        /* mimic padding left */
-        width: 45%;
-        text-align: left!important;
-        padding-right: 0;
-/*        font-weight: bold; */
-        white-space: pre;
-        overflow: hidden;
-    }
+    margin-bottom: 8px
 }
 
 /* --- SCREEN UP TO 1024px --- */
@@ -2935,6 +2862,9 @@ ul.sortableList > li {
         padding-top: 2%
     }
 }
+
+/* --- SCREEN UP TO 600px --- */
+
 @media screen and (max-width: 600px) {
 
     #ggp_header .site-text, #ggp_header #cms-text {
@@ -3021,6 +2951,9 @@ ul.sortableList > li {
     }
 */
 }
+
+/* --- SCREEN UP TO 480px --- */
+
 @media screen and (max-width: 480px) {
 
     #ggp_header #cms-logo span {

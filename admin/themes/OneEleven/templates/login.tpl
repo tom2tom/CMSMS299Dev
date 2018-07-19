@@ -1,28 +1,26 @@
 <!doctype html>
-<html lang="{$lang_code}" dir="{$lang_dir}">
+<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 	<head>
 		<title>{'logintitle'|lang} - {sitename}</title>
 		<meta charset="{$encoding}" />
-		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 - All rights reserved" />
+		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 CMS Made Simple Foundation. All rights reserved" />
 		<meta name="robots" content="noindex, nofollow" />
+		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
 		<meta name="HandheldFriendly" content="true" />
 		<meta name="msapplication-TileColor" content="#f89938" />
 		<meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="themes/OneEleven/images/favicon/cmsms-favicon.ico" />
-		<link rel="stylesheet" href="loginstyle.php" />
-		{$header_includes|default:''}
-		<!--[if lt IE 9]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
+		<link rel="stylesheet" href="themes/OneEleven/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
+{$header_includes|default:''}
+		<script type="text/javascript" src="themes/OneEleven/includes/login.js"></script>
 	</head>
 	<body id="login">
 		<div id="wrapper">
 			<div class="login-container">
 				<div class="login-box cf"{if !empty($error)} id="error"{/if}>
 					<div class="logo">
-						<img src="{$admin_url}/themes/OneEleven/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple" />
+						<img src="themes/OneEleven/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple" />
 					</div>
 					<div class="info-wrapper open">
 					<aside class="info">

@@ -1,61 +1,38 @@
 <!doctype html>
-<html lang="{$lang|truncate:'2':''}" dir="{$lang_dir}">
-  <head>
-    {$thetitle=$pagetitle}
-    {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
-    {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
-		<meta charset="utf-8" />
+<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
+	<head>
+{$thetitle=$pagetitle}
+{if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
+{if $thetitle}{$thetitle="{$thetitle} - "}{/if}
 		<title>{$thetitle}{sitename}</title>
-		<base href="{$config.admin_url}/" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-14 Ted Kulp. All rights reserved." />
+		<meta charset="utf-8" />
+		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 CMS Made Simple Foundation. All rights reserved." />
 		<meta name="robots" content="noindex, nofollow" />
-		<meta name="referrer" content="origin"/>
 		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
-		<meta name="HandheldFriendly" content="True"/>
-		<link rel="shortcut icon" href="{$config.admin_url}/themes/Marigold/images/favicon/cmsms-favicon.ico"/>
-		<link rel='apple-touch-icon' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-iphone.png' />
-		<link rel='apple-touch-icon' sizes='72x72' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-ipad.png' />
-		<link rel='apple-touch-icon' sizes='114x114' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-iphone4.png' />
-		<link rel='apple-touch-icon' sizes='144x144' href='{$config.admin_url}/themes/Marigold/images/favicon/apple-touch-icon-ipad3.png' />
-		<meta name='msapplication-TileImage' content='{$config.admin_url}/themes/Marigold/images/favicon/ms-application-icon.png' />
-		<meta name='msapplication-TileColor' content='#f89938'>
-		<!-- learn IE html5 -->
-		<!--[if lt IE 9]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-		<![endif]-->
-		<link rel="stylesheet" href="{root_url}/lib/js/jquery-ui/jquery-ui.min.css" />
-		<link href="{$theme_root}/css/font-awesome.min.css" rel="stylesheet" />
-		<link rel="stylesheet" href="style.php?{$secureparam}" />
-		{cms_queue_script file='lib/jquery/js/jquery-3.3.1.min.js'}
-                {cms_queue_script file='lib/js/jquery-ui/jquery-ui.min.js'}
-		{cms_queue_script file='lib/jquery/js/jquery-mjs.nestedSortable.js'}
-		{cms_queue_script file='lib/jquery/js/jquery-json-2.4.min.js'}
-		{cms_queue_script file='lib/jquery/js/jquery-migrate-1.2.1.min.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.cms_admin.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.cmsms_dirtyform.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.cmsms_lock.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.cmsms_hierselector.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.cmsms_autorefresh.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.cmsms_filepicker.js'}
-		{cms_queue_script file='lib/jquery/js/jquery.ui.touch-punch.min.js'}
-                {cms_queue_script file="{$theme_path}/includes/jquery.cookie.min.js"}
-                {cms_queue_script file="{$theme_path}/includes/standard.js"}
-		{cms_render_scripts defer=0}
-		<script src="{$config.admin_url}/cms_js_setup.php?{$secureparam}"></script>
-
-		<!-- THIS IS WHERE HEADER STUFF SHOULD GO -->
-	 	{$headertext|default:''}
+		<meta name="referrer" content="origin" />
+		<meta name="HandheldFriendly" content="true" />
+		<meta name="msapplication-TileColor" content="#f89938" />
+		<meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
+		<base href="{$admin_url}/" />
+		<link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico" />
+		<link rel="apple-touch-icon" href="{$assets_url}/images/apple-touch-icon-iphone.png" />
+		<link rel="apple-touch-icon" sizes="72x72" href="{$assets_url}/images/apple-touch-icon-ipad.png" />
+		<link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}/images/apple-touch-icon-iphone4.png" />
+		<link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}/images/apple-touch-icon-ipad3.png" />
+		<link rel="stylesheet" href="themes/Marigold/css/font-awesome.min.css" />
+		<link rel="stylesheet" href="themes/Marigold/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
+		{$header_includes|default:''}
 	</head>
-	<body lang="{$lang|truncate:'2':''}" id="{$pagetitle|md5}" class="oe_{$pagealias}">
+	<body id="{$pagetitle|md5}" class="mg_{$pagealias}">
 		<!-- start container -->
-		<div id="oe_container" class="sidebar-on">
+		<div id="mg_container" class="sidebar-on">
 			<!-- start header -->
 			<header role="banner" class="cf header">
 				<!-- start header-top -->
 				<div class="header-top cf">
 					<!-- logo -->
 					<div class="cms-logo">
-						<a href="http://www.cmsmadesimple.org" rel="external"><img src="{$config.admin_url}/themes/Marigold/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" /></a>
+						<a href="http://www.cmsmadesimple.org" rel="external"><img src="{$admin_url}/themes/Marigold/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" /></a>
 					</div>
 					<!-- title -->
 					<span class="admin-title"> {'adminpaneltitle'|lang} - {sitename}</span>
@@ -67,9 +44,9 @@
 					<!-- welcome -->
 					<div class="welcome">
 					{if isset($myaccount)}
-						<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$user->username}</a></span>
+						<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
 					{else}
-						<span><a class="welcome-user"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: {$user->username}</span>
+						<span><a class="welcome-user"><i class="fa fa-user"></i></a> {'welcome_user'|lang}: {$username}</span>
 					{/if}
 					</div>
 					<!-- bookmarks -->
@@ -79,12 +56,12 @@
 			</header>
 			<!-- end header //-->
 			<!-- start content -->
-			<div id="oe_admin-content">
+			<div id="mg_admin-content">
 				<div class="shadow">
 					&nbsp;
 				</div>
 				<!-- start sidebar -->
-				<div id="oe_sidebar">
+				<div id="mg_sidebar">
 				  <aside>
 				    <span title="{'open'|lang}/{'close'|lang}" class="toggle-button close"></span>
  			            {include file='navigation.tpl' nav=$theme->get_navigation_tree()}
@@ -92,17 +69,15 @@
 				</div>
 				<!-- end sidebar //-->
 				<!-- start main -->
-				<div id="oe_mainarea" class="cf">
+				<div id="mg_mainarea" class="cf">
 					{strip}
 					{include file='messages.tpl'}
 					<article role="main" class="content-inner">
 					  <header class="pageheader{if isset($is_ie)} drop-hidden{/if} cf">
-							{if isset($module_icon_url) or isset($pagetitle)}
-							<h1>{if isset($module_icon_url)}<img src="{$module_icon_url}" alt="{$module_name|default:''}" class="module-icon" />{/if}
-							{$pagetitle|default:''}
-							</h1>
-							{/if}
-						  {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
+					   {if !empty($pageicon) || !empty($pagetitle)}
+                          <h1>{if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}</h1>
+					   {/if}
+					   {if isset($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{'module_help'|lang}</a></span>{/if}
 					</header>
 					{if $pagetitle && $subtitle}<header class="subheader"><h3 class="subtitle">{$subtitle}</h3></header>{/if}
 						<section class="cf">
@@ -120,8 +95,8 @@
 			<!-- start footer -->
 			{include file='footer.tpl'}
 			<!-- end footer //-->
-			{$footertext|default:''}
 		</div>
 		<!-- end container //-->
-		</body>
+	{$bottom_includes|default:''}
+	</body>
 </html>

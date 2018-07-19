@@ -16,9 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminAlerts\Alert;
-use CMSMS\internal\Smarty; //TODO ok if if pre-2.3?
-
 class OneElevenTheme extends CmsAdminThemeBase
 {
 	/**
@@ -27,14 +24,111 @@ class OneElevenTheme extends CmsAdminThemeBase
 	 */
 	const THEME_VERSION = '1.1';
 
-	// pre-2.3 only
+	/**
+	 * @ignore
+	 */
+	private $_havetree = null;
+
+	// 2.3+ will access these via parent-class
 	protected $_errors = array();
 	protected $_messages = array();
 
+	/**
+	 * Determine whether this is running on CMSMS 2.3+
+	 */
+	protected function currentversion() : bool
+	{
+		static $flag = null;
+		if ($flag === null) {
+			$flag = method_exists($this, 'RecordNotice');
+		}
+		return $flag;
+	}
+
+	/**
+	 * Hook function to nominate runtime resources, which will be included
+	 * in the header of each displayed admin page
+	 *
+	 * NOTE this must be replicated somehow for pre 2.3 TODO
+	 * @since 2.3
+	 * @param array $vars assoc. array of js-variable names and their values
+	 * @param array $add_list array of strings representing includables
+	 * @return array 2-members, which are the supplied params after any updates
+	 */
+	public function AdminHeaderSetup(array $vars, array $add_list) : array
+	{
+		list($vars, $add_list) = parent::AdminHeaderSetup($vars, $add_list);
+
+		$config = cmsms()->GetConfig();
+		$admin_path = $config['admin_path'];
+		$admin_url = $config['admin_url'];
+		$rel = substr(__DIR__, strlen($admin_path) + 1);
+		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
+//		$base_url = $admin_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
+
+		$lang = CmsNlsOperations::get_current_language();
+		$info = CmsNlsOperations::get_language_info($lang);
+		$fn = 'style';
+		if ($info->direction() == 'rtl') {
+			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+				$fn .= '-rtl';
+			}
+		}
+		list ($jqui, $jqcss) = cms_jqueryui_local();
+		$url = CMSMS\AdminUtils::path_to_url($jqcss);
+		$out = <<<EOS
+<link rel="stylesheet" type="text/css" href="{$url}" />
+<link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
+
+EOS;
+		if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
+			$out .= <<<EOS
+<link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
+
+EOS;
+		}
+		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+
+		list ($jqcore, $jqmigrate) = cms_jquery_local();
+		$sm = new CMSMS\ScriptManager();
+		$sm->queue_file($jqcore, 1);
+		$sm->queue_file($jqmigrate, 1); //in due course, omit this ?
+		$sm->queue_file($jqui, 1);
+		$p = cms_join_path($admin_path, 'js', 'libs', '');
+		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
+		$fn = $sm->render_scripts('', false, false);
+		$url = CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$out .= sprintf($tpl,$url);
+
+		global $CMS_LOGIN_PAGE;
+		if (isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE)) {
+			$sm->reset();
+			require_once $admin_path.DIRECTORY_SEPARATOR.'jsruntime.php';
+			$sm->queue_string($_out_);
+			$fn = $sm->render_scripts('', false, false);
+			$url = CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+			$out .= sprintf($tpl,$url);
+		}
+
+		$sm->reset();
+		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
+		$sm->queue_file($p.'jquery.toast.js', 1); //OR .min for production
+		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
+		$sm->queue_file($p.'standard.js', 3); //OR .min for production
+		$fn = $sm->render_scripts();
+		$url = CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$out .= sprintf($tpl,$url);
+
+		$add_list[] = $out;
+//		$vars[] = anything needed ?;
+
+		return [$vars, $add_list];
+	}
+
 	public function ShowErrors($errors, $get_var = '')
 	{
-		if( method_exists($this, 'populate_tree') ) { //this is CMSMS 2.3+
-			parent::TODO();
+		if ($this->currentversion()) {
+			$this->RecordNotice('error', $errors, '', false, $get_var);
 		} else {
 
 		// cache errors for use in the template.
@@ -60,8 +154,8 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 	public function ShowMessage($message, $get_var = '')
 	{
-		if( method_exists($this, 'populate_tree') ) { //this is CMSMS 2.3+
-			parent::TODO();
+		if ($this->currentversion()) {
+			$this->RecordNotice('success', $message, '', false, $get_var);
 		} else {
 
 		// cache message for use in the template.
@@ -86,8 +180,8 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 	public function ShowHeader($title_name, $extra_lang_params = array(), $link_text = '', $module_help_type = FALSE)
 	{
-		if( method_exists($this, 'populate_tree') ) { //this is CMSMS 2.3+
-			parent::TODO();
+		if ($this->currentversion()) {
+			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
 		} else {
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
@@ -143,7 +237,7 @@ class OneElevenTheme extends CmsAdminThemeBase
 					// find the key of the item with this title.
 					$title_key = $this->find_menuitem_by_title($title);
 				}
-			}// for loop.
+			} // for-loop
 		}
 
 		} // pre-2.3
@@ -159,38 +253,107 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 	public function do_toppage($section_name)
 	{
-		if( method_exists($this, 'populate_tree') ) { //this is CMSMS 2.3+
-			parent::TODO();
-		} else {
+		$flag = $this->currentversion();
 
-		$smarty = Smarty_CMS::get_instance();
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . '/templates';
+		$smarty = cmsms()->GetSmarty();
 		if ($section_name) {
 			$smarty->assign('section_name', $section_name);
-			$smarty->assign('pagetitle', lang($section_name));
-			$smarty->assign('nodes', $this->get_navigation_tree($section_name, -1, FALSE));
+			if ($flag) {
+				$nodes = $this->get_navigation_tree($section_name, 0);
+				$smarty->assign('pagetitle', $this->title);
+			} else {
+				$nodes = $this->get_navigation_tree($section_name, -1, FALSE);
+				$smarty->assign('pagetitle', lang($section_name)); //CHECKME
+			}
 		} else {
-			$nodes = $this->get_navigation_tree(-1, 2, FALSE);
-			$smarty->assign('nodes', $nodes);
+			if ($flag) {
+				$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
+			} else {
+				$nodes = $this->get_navigation_tree(-1, 2, FALSE);
+			}
 		}
+//		$this->_havetree = $nodes; //block further tree-data changes
+		$smarty->assign('nodes', $nodes);
 
-		$smarty->assign('config', cms_config::get_instance());
+		$config = cmsms()->GetConfig();
+		$smarty->assign('admin_url', $config['admin_url']);
 		$smarty->assign('theme', $this);
 
 		// is the website set down for maintenance?
-		if( cms_siteprefs::get('enablesitedownmessage') == '1' )  { $smarty->assign('is_sitedown', 'true'); }
+		if (cms_siteprefs::get('enablesitedownmessage')) {
+			$smarty->assign('is_sitedown', 1);
+		}
 
-		$_contents = $smarty->display('topcontent.tpl');
+		$otd = $smarty->template_dir;
+		$smarty->template_dir = __DIR__.DIRECTORY_SEPARATOR.'templates';
+		$smarty->display('topcontent.tpl');
 		$smarty->template_dir = $otd;
-		echo $_contents;
-
-		} // pre 2.3
 	}
 
+	/**
+	 * Get URL's for installed jquery, jquery-ui & related css
+	 * Only for pre-2.3 operation
+	 * @return 3-member array
+     */
+	protected function find_installed_jq()
+	{
+		$config = cmsms()->GetConfig();
+
+		$fp = cms_join_path(CMS_ROOT_PATH,'lib','jquery','css','*','jquery-ui*.css');
+		$m = glob($fp, GLOB_NOSORT|GLOB_NOESCAPE);
+		//find highest version
+		$best = '0';
+		$use = false;
+		foreach ($m as $fn) {
+			$file = basename($fn);
+			preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+			if (version_compare($best, $matches[1]) < 0) {
+				$best = $matches[1];
+				$use = $file;
+			}
+		}
+		$p = basename(dirname($m[0]));
+		$jqcss = $config['root_url']. '/lib/jquery/ccs/'.$p.'/'.$use;
+
+		$fp = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js');
+		$allfiles = scandir($fp);
+		$m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.js$~', $allfiles);
+		//find highest version
+		$best = '0';
+		$use = reset($m);
+		foreach ($m as $file) {
+			preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+			if (version_compare($best, $matches[1]) < 0) {
+				$best = $matches[1];
+				$use = $file;
+			}
+		}
+		$jqui = $config['root_url']. '/lib/jquery/js/'.$use;
+
+		$m = preg_grep('~^jquery\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
+		//find highest version
+		$best = '0';
+		$use = reset($m);
+		foreach ($m as $file) {
+			preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+			if (version_compare($best, $matches[1]) < 0) {
+				$best = $matches[1];
+				$use = $file;
+			}
+		}
+		$jqcore = $config['root_url']. '/lib/jquery/js/'.$use;
+
+		return array($jqcss, $jqui, $jqcore);
+	}
+
+	/**
+	 * @param  $params Array of variables for smarty (CMSMS pre-2.3 only)
+	 */
 	public function do_login($params = null)
 	{
-		if( method_exists($this, 'populate_tree') ) { //this is CMSMS 2.3+
+		$gCms = cmsms();
+
+		if ($this->currentversion()) {
 			$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
 			$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
 			if ($modinst) {
@@ -198,21 +361,62 @@ class OneElevenTheme extends CmsAdminThemeBase
 			} else {
 				die('System error');
 			}
-		} else {
-			$smarty = Smarty::get_instance();
-			$config = cms_config::get_instance();
 
-			$fn = cms_join_path($config['admin_path'], 'themes', 'assets', 'login.php'); //2.3+
-			if (!is_file($fn)) {
-				$fn = cms_join_path($config['admin_path'], 'themes', $this->themeName, 'login.php');
+			$smarty = $gCms->GetSmarty();
+			$config = $gCms->GetConfig();
+
+			//extra shared parameters for the form
+			$fp = cms_join_path($config['admin_path'], 'themes', 'assets', 'function.extraparms.php');
+			require_once $fp;
+			$smarty->assign($tplvars);
+
+			//extra theme-specific parameters for the form
+			$fp = cms_join_path(__DIR__, 'function.extraparms.php');
+			if (is_file($fp)) {
+				require_once $fp;
+				$smarty->assign($tplvars);
 			}
-			require $fn;
-		
-			//NOTE relevant js & css need to be specified here or in the template
 
-			if (!empty($params)) $smarty->assign($params);
-			$smarty->assign('lang', cms_siteprefs::get('frontendlang'));
+//TODO	ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
 
+			// scripts: jquery, jquery-ui
+			list ($jqui, $jqcss) = cms_jqueryui_local();
+			$url = CMSMS\AdminUtils::path_to_url($jqcss);
+			$dir = ''; //TODO or '-rtl'
+			$out = <<<EOS
+<link rel="stylesheet" href="$url" />
+<link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
+
+EOS;
+			$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
+			list ($jqcore, $jqmigrate) = cms_jquery_local();
+			$url = CMSMS\AdminUtils::path_to_url($jqcore);
+			$out .= sprintf($tpl,$url);
+			$url = CMSMS\AdminUtils::path_to_url($jqui);
+			$out .= sprintf($tpl,$url);
+		} else {
+			$smarty = $gCms->GetSmarty();
+			if (!empty($params)) {
+				$smarty->assign($params);
+			}
+
+			$config = $gCms->GetConfig();
+			//extra setup/parameters for the form
+			$fp = cms_join_path(__DIR__, 'function.login.php');
+			require $fp;
+			if (!empty($tplvars)) {
+				$smarty->assign($tplvars);
+			}
+
+			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
+			$out = <<<EOS
+<link rel="stylesheet" href="$jqcss" />
+<link rel="stylesheet" href="themes/OneEleven/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
+<link rel="stylesheet" href="loginstyle.php" />
+<script type="text/javascript" src="$jqcore"></script>
+<script type="text/javascript" src="$jqui"></script>
+
+EOS;
 		} // pre 2.3
 
 		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
@@ -222,67 +426,92 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 	public function postprocess($html)
 	{
-/*		if( method_exists($this, 'populate_tree') ) { //this is CMSMS 2.3+
-			parent:: ;
-		} else {
-			DO ....
+		$flag = $this->currentversion();
+
+		$smarty = cmsms()->GetSmarty();
+		$uid = get_userid(false);
+
+		// prefer cached parameters, if any
+		// module name
+		$module_name = $this->get_value('module_name');
+		if (!$module_name && isset($_REQUEST['mact'])) {
+			$module_name = explode(',', $_REQUEST['mact'])[0];
 		}
-*/
-		$smarty = Smarty_CMS::get_instance();
-		$otd = $smarty->template_dir;
-		$smarty->template_dir = __DIR__ . '/templates';
+		$smarty->assign('module_name', $module_name);
+
 		$module_help_type = $this->get_value('module_help_type');
-
-		// get a page title
-		$title = $this->get_value('pagetitle');
-		$alias = $this->get_value('pagetitle');
-		if ($title) {
-			if (!$module_help_type) {
-				// if not doing module help, translate the string.
-				$extra = $this->get_value('extra_lang_params');
-				if (!$extra)
-					$extra = array();
-				$title = lang($title, $extra);
-			}
-		} elseif( $this->title ) {
-			$title = $this->title;
-		} else {
-			// no title, get one from the breadcrumbs.
-			$bc = $this->get_breadcrumbs();
-			if (is_array($bc) && count($bc)) {
-				$title = $bc[count($bc) - 1]['title'];
-			}
-		}
-
-		// page title and alias
-		$smarty->assign('pagetitle', $title);
-		$smarty->assign('subtitle',$this->subtitle);
-		$smarty->assign('pagealias', munge_string_to_url($alias));
-
-		// module name?
-		if (($module_name = $this->get_value('module_name'))) {
-			$smarty->assign('module_name', $module_name);
-		}
-
-		// module icon?
-		if (($module_icon_url = $this->get_value('module_icon_url'))) {
-			$smarty->assign('module_icon_url', $module_icon_url);
-		}
-
 		// module_help_url
-		if( !cms_userprefs::get_for_user(get_userid(),'hide_help_links',0) ) {
+		if ($module_name && ($module_help_type || $module_help_type === null) &&
+			!cms_userprefs::get_for_user($uid,'hide_help_links', 0)) {
 			if (($module_help_url = $this->get_value('module_help_url'))) {
 				$smarty->assign('module_help_url', $module_help_url);
 			}
 		}
 
-		// my preferences
-		if (check_permission(get_userid(),'Manage My Settings')) {
+		// page title
+		$alias = $title = $this->get_value('pagetitle');
+		$subtitle = '';
+		if ($title) {
+			if (!$module_help_type) {
+				// if not doing module help, maybe translate the string
+				if (CmsLangOperations::lang_key_exists('admin', $title)) {
+					$extra = $this->get_value('extra_lang_params');
+					if (!$extra) {
+						$extra = array();
+					}
+					$title = lang($title, $extra);
+				}
+			}
+		} elseif ($this->title) {
+			$title = $this->title; // active-menu-item title
+			$subtitle = $this->subtitle;
+		} elseif ($module_name) {
+			$modinst = cms_utils::get_module($module_name);
+			$title = $modinst->GetFriendlyName();
+			$subtitle = $modinst->GetAdminDescription();
+		} else {
+			// no title, get one from the breadcrumbs
+			$bc = $this->get_breadcrumbs();
+			if (is_array($bc) && count($bc)) {
+				$title = $bc[count($bc) - 1]['title'];
+			}
+		}
+		if (!$title) $title = '';
+
+		// page title and alias
+		$smarty->assign('pagetitle', $title);
+		$smarty->assign('subtitle', $subtitle);
+		$smarty->assign('pagealias', munge_string_to_url($alias));
+
+		// icon
+		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
+			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
+		} elseif ($module_name && $title) {
+			$tag = AdminUtils::get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
+		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
+			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
+		} else {
+			$tag = ''; //TODO get icon for admin operation
+			//$tag = $this->get_active_icon());
+		}
+		$smarty->assign('pageicon', $tag);
+
+		// site logo
+		$sitelogo = cms_siteprefs::get('sitelogo');
+		if ($sitelogo) {
+			if (!preg_match('~^\w*:?//~', $sitelogo)) {
+				$sitelogo = CMS_ROOT_URL.'/'.$sitelogo;
+			}
+			$smarty->assign('sitelogo', $sitelogo);
+		}
+
+		// preferences UI
+		if (check_permission($uid,'Manage My Settings')) {
 		  $smarty->assign('myaccount',1);
 		}
 
-		// if bookmarks
-		if (cms_userprefs::get_for_user(get_userid(), 'bookmarks') && check_permission(get_userid(),'Manage My Bookmarks')) {
+		// bookmarks UI
+		if (cms_userprefs::get_for_user($uid, 'bookmarks') && check_permission($uid, 'Manage My Bookmarks')) {
 			$marks = $this->get_bookmarks();
 			$smarty->assign('marks', $marks);
 		}
@@ -290,30 +519,38 @@ class OneElevenTheme extends CmsAdminThemeBase
 		$smarty->assign('headertext',$this->get_headtext());
 		$smarty->assign('footertext',$this->get_footertext());
 
-		// and some other common variables
+		// other variables
+		$config = cmsms()->GetConfig();
+		$smarty->assign('admin_url', $config['admin_url']);
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
-		$smarty->assign('config', cms_config::get_instance());
 		$smarty->assign('theme', $this);
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 		$userops = UserOperations::get_instance();
-		$smarty->assign('user', $userops->LoadUserByID(get_userid()));
-		// get user selected language
-		$smarty->assign('lang',cms_userprefs::get_for_user(get_userid(), 'default_cms_language'));
-		// get language direction
+		$user = $userops->LoadUserByID($uid);
+		$smarty->assign('username', $user->username);
+		// user-selected language
+		$lang = cms_userprefs::get_for_user($uid, 'default_cms_language');
+		if (!$lang) $lang = cms_siteprefs::get('frontendlang');
+		$smarty->assign('lang_code', $lang);
+		// language direction
 		$lang = CmsNlsOperations::get_current_language();
 		$info = CmsNlsOperations::get_language_info($lang);
-		$smarty->assign('lang_dir',$info->direction());
+		$smarty->assign('lang_dir', $info->direction());
 
-		if (is_array($this->_errors) && count($this->_errors))
-			$smarty->assign('errors', $this->_errors);
-		if (is_array($this->_messages) && count($this->_messages))
-			$smarty->assign('messages', $this->_messages);
-
-		// is the website set down for maintenance?
-		if( cms_siteprefs::get('enablesitedownmessage') == '1' ) {
-			$smarty->assign('is_sitedown', 'true');
+		if (!$flag) {
+			if (is_array($this->_errors) && count($this->_errors))
+				$smarty->assign('errors', $this->_errors);
+			if (is_array($this->_messages) && count($this->_messages))
+				$smarty->assign('messages', $this->_messages);
 		}
 
+		// is the website set down for maintenance?
+		if (cms_siteprefs::get('enablesitedownmessage')) {
+			$smarty->assign('is_sitedown', 1);
+		}
+
+		$otd = $smarty->template_dir;
+		$smarty->template_dir = __DIR__ . '/templates';
 		$_contents = $smarty->fetch('pagetemplate.tpl');
 		$smarty->template_dir = $otd;
 		return $_contents;
@@ -321,7 +558,7 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 	public function get_my_alerts()
 	{
-		return Alert::load_my_alerts();
+		//TODO namespace for pre-2.3
+		return CMSMS\AdminAlerts\Alert::load_my_alerts();
 	}
 }
-

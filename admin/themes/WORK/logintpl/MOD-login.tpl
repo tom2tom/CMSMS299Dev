@@ -1,16 +1,19 @@
 <!doctype html>
-<html lang="{$lang_code}" dir="{$lang_dir}">
+<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 <head>
-  <meta charset="{$encoding}" />
-  <title>{$mod->Lang('title_login_named',{sitename})}</title>
-  <base href="{$admin_url}/" />
-  <meta name="copyright" content="Ted Kulp, CMS Made Simple" />
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
-  <meta name="HandheldFriendly" content="true" />
-  <link rel="shortcut icon" href="{$admin_url}/themes/assets/images/cmsms-favicon.ico" />
-  <link rel="stylesheet" type="text/css" href="{$admin_url}/themes/Ghostgum/css/style{if $lang_dir == 'rtl'}-rtl{/if}.css" />
-  {$header_includes|default:''}
+ <meta charset="{$encoding}" />
+ <title>{$mod->Lang('title_login_named',{sitename})}</title>
+ <base href="{$admin_url}/" />
+ <meta name="copyright" content="CMS Made Simple Foundation" />
+ <meta name="robots" content="noindex, nofollow" />
+ <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
+ <meta name="HandheldFriendly" content="true" />
+ <link rel="shortcut icon" href="{$admin_url}/themes/assets/images/cmsms-favicon.ico" />
+ <link rel="stylesheet" type="text/css" href="{$admin_url}/themes/Ghostgum/css/style{if $lang_dir == 'rtl'}-rtl{/if}.css" />
+ {$header_includes|default:''}
+ <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+ <![endif]-->
 </head>
 <body>
  <div id="login">
@@ -50,6 +53,6 @@
     </div>
   </div>
  </div>
+ {$bottom_includes|default:''}
 </body>
-{$bottom_includes|default:''}
 </html>

@@ -1152,7 +1152,7 @@ $X = 1;
             return;
         }
         if( $value ) {
-            if( !is_array($this->_data) ) $this->_data = array();
+            if( !is_array($this->_data) ) $this->_data = [];
             $this->_data[$key] = $value;
         }
     }
@@ -1521,7 +1521,7 @@ $X = 1;
             $tag = ''; //TODO get icon for admin operation
             //$tag = $this->get_active_icon());
         }
-        $this->set_value('icon_tag', $tag);
+        $this->set_value('pageicon', $tag);
 /* TODO figure this out ... are breadcrumbs ever relevant in this context?
         $bc = $this->get_breadcrumbs();
         if ($bc) {
@@ -1637,7 +1637,7 @@ $X = 1;
      */
     public function add_notification(CmsAdminThemeNotification &$notification)
     {
-        if( !is_array($this->_notifications) ) $this->_notifications = array();
+        if( !is_array($this->_notifications) ) $this->_notifications = [];
         $this->_notifications[] = $notification;
     }
 

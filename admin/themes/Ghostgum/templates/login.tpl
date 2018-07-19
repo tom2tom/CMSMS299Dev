@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{$lang_code}" dir="{$lang_dir}">
+<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 <head>
  <title>{lang('login_sitetitle', {sitename})}</title>
  <meta charset="{$encoding}" />
@@ -7,13 +7,13 @@
  <meta name="robots" content="noindex, nofollow" />
  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
  <meta name="HandheldFriendly" content="true" />
+ <meta name="msapplication-TileColor" content="#f89938" />
+ <meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
  <base href="{$admin_url}/" />
- <link rel="shortcut icon" href="{$admin_url}/themes/assets/images/cmsms-favicon.ico" />
- <link rel="stylesheet" type="text/css" href="{$admin_url}/themes/Ghostgum/css/style{if $lang_dir == 'rtl'}-rtl{/if}.css" />
- {$header_includes|default:''}
- <!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
- <![endif]-->
+ <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
+ <link rel="stylesheet" href="themes/Ghostgum/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
+{$header_includes|default:''}
+ <script type="text/javascript" src="themes/Ghostgum/js/login.js"></script>
 </head>
 <body>
  <div id="login">

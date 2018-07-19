@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{$lang|truncate:'2':''}" dir="{$lang_dir}">
+<html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
 <head>
   <title>{strip}
   {if !empty($pagetitle)}{$thetitle=$pagetitle}{else}{$thetitle=''}{/if}
@@ -8,9 +8,9 @@
   {if $thetitle}{$thetitle}{/if}{sitename}
   {/strip}</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="copyright" content="CMS Made Simple Foundation" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="referrer" content="origin" />
   <meta name="HandheldFriendly" content="true" />
   <meta name="msapplication-TileColor" content="#f79838" />
@@ -56,9 +56,9 @@
       <!-- shortcuts -->
       {include file='shortcuts.tpl'}
       {if isset($myaccount)}
-       <span class="user"><a href="myaccount.php?{$secureparam}" title="{lang('myaccount')}">{lang('signed_in',{$user->username})}</a></span>
+       <span class="user"><a href="myaccount.php?{$secureparam}" title="{lang('myaccount')}">{lang('signed_in',{$username})}</a></span>
       {else}
-       <span class="user">{lang('signed_in',{$user->username})}</span>
+       <span class="user">{lang('signed_in',{$username})}</span>
       {/if}
     </div>
     </div>
@@ -69,15 +69,14 @@
    <div id="ggp_contentwrap">
      <div id="ggp_contenthead">
 {*      <div class="{if isset($is_ie)}drop-hidden {/if}"> *}
-      {if !empty($icon_tag) || !empty($pagetitle)}<h1>
-       {if !empty($icon_tag)}<span class="headericon">{$icon_tag}</span>{/if}{$pagetitle|default:''}
-       </h1>{/if}
-
-       {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
+      {if !empty($pageicon) || !empty($pagetitle)}<h1>
+        {if !empty($pageicon)}<span class="headericon">{$pageicon}</span> {/if}{$pagetitle|default:''}
+      </h1>{/if}
+      {if !empty($module_help_url)} <span class="helptext"><a href="{$module_help_url}">{lang('module_help')}</a></span>{/if}
 {*      </div> *}
     {if !empty($pagetitle) && !empty($subtitle)}
       <div class="subheader">
-      <h3 class="subtitle">{$subtitle}</h3>
+       <h3 class="subtitle">{$subtitle}</h3>
       </div>
     {/if}
     </div>
