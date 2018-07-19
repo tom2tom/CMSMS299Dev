@@ -174,6 +174,12 @@ abstract class CmsAdminThemeBase
     private $_foottext;
 
     /**
+     * @ignore
+     * @since 2.3
+     */
+    private $_primary_content;
+
+    /**
      * Use small-size icons (named like *-small.ext) if available
      * @ignore
      */
@@ -183,12 +189,6 @@ abstract class CmsAdminThemeBase
      * @ignore
      */
     private $_valid_sections = ['view','content','layout','files','usersgroups','extensions','services','ecommerce','siteadmin','myprefs'];
-
-    /**
-     * @ignore
-     * @since 2.3
-     */
-//    private $_primary_content;
 
     /**
      * @ignore
@@ -1444,7 +1444,7 @@ $X = 1;
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function RecordNotice(string $type, $message, string $title= '', bool $defer = false, $get_var = null) : void
+    public function RecordNotice(string $type, $message, string $title = '', bool $defer = false, $get_var = null) : void
     {
         if (!$defer) {
             switch ($type) {
@@ -1859,36 +1859,48 @@ $X = 1;
      */
     abstract public function do_toppage($section_name);
 
-/* TODO DISCUSS WITH ROBERT ... BETTER SOME OTHER WAY ?
-    @since 2.3
-
-    abstract public function do_authenticated_page();
-
-    abstract public function do_loginpage( string $pageid = null );
-
     /**
-     * Set the HTML for the primary content for the page.
+     * Record the content of a 'minimal' page.
      *
+     * @since 2.3
+     * @param string $content the entire displayable content  
      * @see CmsAdminThemeBase::do_minimal()
-     * /
-    public function set_content( string $content )
+     */
+    public function set_content(string $content)
     {
         $this->_primary_content = $content;
     }
 
     /**
-     * Get the HTML for the primary content of the page.
-     * /
-    public function get_content()
+     * Retrieve the recorded content of a 'minimal' page
+     *
+     * @since 2.3
+     * @see CmsAdminThemeBase::do_minimal()
+     */
+    public function get_content() : string
     {
         return $this->_primary_content;
     }
 
     /**
-     * An abstract method to output a minimal HTML page (typically for login and other operations that do not require navigations)
-     * /
-    abstract public function do_minimal();
-*/
+     * Output a self-managed admin page i.e. without the usual processing
+     * of header, footer, page-title, menu.
+     *
+     * @since 2.3
+     */
+    public function do_minimal() {}
+
+    /**
+     * @since 2.3
+     */
+    public function do_authenticated_page() {}
+
+    /**
+     * @param string $pageid Optional TODO:describe Default ''
+     * @since 2.3
+     */
+    public function do_loginpage(string $pageid = '') {}
+
     /**
      * Display and process a login form
      *
