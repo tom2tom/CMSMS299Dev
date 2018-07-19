@@ -74,11 +74,11 @@ public static function get_categories($id,$params,$returnid=-1)
         $q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
         $q2 .= implode(',',$cat_ids).')';
         if( !empty($params['showarchive']) ) {
-            $q2 .= " AND (end_time < ".$db->DBTimeStamp(time()).") ";
+            $q2 .= " AND (end_time < ".$db->DbTimeStamp(time()).") ";
         }
         else {
-            $q2 .= " AND (".$db->IfNull('start_time',$db->DBTimeStamp(1))." < $now) ";
-            $q2 .= " AND ((".$db->IfNull('end_time',$db->DBTimeStamp(1))." = ".$db->DBTimeStamp(1).") OR (end_time > $now)) ";
+            $q2 .= " AND (".$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) ";
+            $q2 .= " AND ((".$db->IfNull('end_time',$db->DbTimeStamp(1))." = ".$db->DbTimeStamp(1).") OR (end_time > $now)) ";
         }
         $q2 .= ' AND status = \'published\' GROUP BY news_category_id';
         $tmp = $db->GetArray($q2);
@@ -346,8 +346,8 @@ static public function &get_latest_article($for_display = TRUE)
     $db = CmsApp::get_instance()->GetDb();
     $now = $db->DbTimeStamp(time());
     $query = "SELECT mn.*, mnc.news_category_name FROM ".CMS_DB_PREFIX."module_news mn LEFT OUTER JOIN ".CMS_DB_PREFIX."module_news_categories mnc ON mnc.news_category_id = mn.news_category_id WHERE status = 'published' AND ";
-    $query .= "(".$db->IfNull('start_time',$db->DBTimeStamp(1))." < $now) AND ";
-    $query .= "((".$db->IfNull('end_time',$db->DBTimeStamp(1))." = ".$db->DBTimeStamp(1).") OR (end_time > $now)) ";
+    $query .= "(".$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) AND ";
+    $query .= "((".$db->IfNull('end_time',$db->DbTimeStamp(1))." = ".$db->DbTimeStamp(1).") OR (end_time > $now)) ";
     $query .= 'ORDER BY news_date DESC LIMIT 1';
     $row = $db->GetRow($query);
 

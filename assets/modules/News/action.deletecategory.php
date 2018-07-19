@@ -11,7 +11,7 @@ $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories
 $row = $db->GetRow( $query, array( $catid ) );
 
 //Reset all categories using this parent to have no parent (-1)
-$query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id=?, modified_date='.$db->DBTimeStamp(time()).' WHERE parent_id=?';
+$query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id=?, modified_date='.$db->DbTimeStamp(time()).' WHERE parent_id=?';
 $db->Execute($query, array(-1, $catid));
 
 //Now remove the category

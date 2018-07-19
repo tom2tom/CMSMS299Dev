@@ -1358,7 +1358,7 @@ abstract class ContentBase
 			}
 		}
 
-		$this->mModifiedDate = trim($db->DBTimeStamp(time()), "'");
+		$this->mModifiedDate = trim($db->DbTimeStamp(time()), "'");
 
 		$query = "UPDATE ".CMS_DB_PREFIX."content SET content_name = ?, owner_id = ?, type = ?, template_id = ?, parent_id = ?, active = ?, default_content = ?, show_in_menu = ?, cachable = ?, page_url = ?, menu_text = ?, content_alias = ?, metadata = ?, titleattribute = ?, accesskey = ?, tabindex = ?, modified_date = ?, item_order = ?, last_modified_by = ? WHERE content_id = ?";
 		$dbresult = $db->Execute($query, array(
@@ -1448,7 +1448,7 @@ abstract class ContentBase
 		$newid = $db->GenID(CMS_DB_PREFIX."content_seq");
 		$this->mId = $newid;
 
-		$this->mModifiedDate = $this->mCreationDate = trim($db->DBTimeStamp(time()), "'");
+		$this->mModifiedDate = $this->mCreationDate = trim($db->DbTimeStamp(time()), "'");
 
 		$query = "INSERT INTO ".CMS_DB_PREFIX."content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
@@ -1805,7 +1805,7 @@ abstract class ContentBase
 	public function ChangeItemOrder($direction)
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$time = $db->DBTimeStamp(time());
+		$time = $db->DbTimeStamp(time());
 		$parentid = $this->ParentId();
 		$order = $this->ItemOrder();
 		if( $direction < 0 && $this->ItemOrder() > 1 ) {

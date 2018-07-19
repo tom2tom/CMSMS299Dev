@@ -120,7 +120,7 @@ function search_AddWords(&$obj, $module = 'Search', $id = -1, $attr = '', $conte
         }
         else {
             $itemid = (int) $db->GenID(CMS_DB_PREFIX."module_search_items_seq");
-            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $module, $id, $attr, ($expires != NULL ? trim($db->DBTimeStamp($expires), "'") : NULL) ]);
+            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $module, $id, $attr, ($expires != NULL ? trim($db->DbTimeStamp($expires), "'") : NULL) ]);
         }
 
         $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX."module_search_index (item_id, word, count) VALUES ($itemid,?,?)");

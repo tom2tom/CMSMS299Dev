@@ -292,7 +292,7 @@ class UserOperations
 			return $result;
 		}
 
-		$time = $db->DBTimeStamp(time());
+		$time = $db->DbTimeStamp(time());
 		$new_user_id = $db->GenID(CMS_DB_PREFIX.'users_seq');
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'users (user_id, username, password, active, first_name, last_name, email, admin_access, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,'.$time.','.$time.')';
 		$dbresult = $db->Execute($query, [$new_user_id, $user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1]); //Force admin access on
@@ -325,7 +325,7 @@ class UserOperations
 			return $result;
 		}
 
-		$time = $db->DBTimeStamp(time());
+		$time = $db->DbTimeStamp(time());
 		$query = 'UPDATE '.CMS_DB_PREFIX.'users SET username = ?, password = ?, active = ?, modified_date = '.$time.', first_name = ?, last_name = ?, email = ?, admin_access = ? WHERE user_id = ?';
 		//$dbresult = $db->Execute($query, array($user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, $user->adminaccess, $user->id));
 		$dbresult = $db->Execute($query, [$user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1, $user->id]);

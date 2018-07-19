@@ -106,11 +106,11 @@ if (isset($params['submit'])) {
                 $content,
                 $summary,
                 $status,
-                trim($db->DBTimeStamp($postdate), "'"),
-                trim($db->DBTimeStamp($startdate), "'"),
-                trim($db->DBTimeStamp($enddate), "'"),
-                trim($db->DBTimeStamp(time()), "'"),
-                trim($db->DBTimeStamp(time()), "'"),
+                trim($db->DbTimeStamp($postdate), "'"),
+                trim($db->DbTimeStamp($startdate), "'"),
+                trim($db->DbTimeStamp($enddate), "'"),
+                trim($db->DbTimeStamp(time()), "'"),
+                trim($db->DbTimeStamp(time()), "'"),
                 $userid,
                 $extra,
                 $news_url,
@@ -124,11 +124,11 @@ if (isset($params['submit'])) {
                 $content,
                 $summary,
                 $status,
-                trim($db->DBTimeStamp($postdate), "'"),
+                trim($db->DbTimeStamp($postdate), "'"),
                 NULL,
                 NULL,
-                trim($db->DBTimeStamp(time()), "'"),
-                trim($db->DBTimeStamp(time()), "'"),
+                trim($db->DbTimeStamp(time()), "'"),
+                trim($db->DbTimeStamp(time()), "'"),
                 $userid,
                 $extra,
                 $news_url,
@@ -168,7 +168,7 @@ if (isset($params['submit'])) {
         }
 
         if (isset($params['customfield']) && !$error) {
-            $now = trim($db->DBTimeStamp(time()), "'");
+            $now = trim($db->DbTimeStamp(time()), "'");
             foreach ($params['customfield'] as $fldid => $value) {
                 if ($value == '')
                     continue;

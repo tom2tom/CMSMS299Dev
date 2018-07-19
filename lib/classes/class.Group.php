@@ -117,7 +117,7 @@ class Group
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$this->_data['id'] = $db->GenID(CMS_DB_PREFIX."groups_seq");
-		$time = $db->DBTimeStamp(time());
+		$time = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'groups (group_id, group_name, group_desc, active, create_date, modified_date)
 VALUES (?,?,?,?,'.$time.', '.$time.')';
 		$dbresult = $db->Execute($query, [$this->id, $this->name, $this->description, $this->active]);

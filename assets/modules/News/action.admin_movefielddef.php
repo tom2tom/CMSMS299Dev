@@ -24,7 +24,7 @@ $fdid = $params['fdid'];
 
 #Grab necessary info for fixing the item_order
 $order = $db->GetOne("SELECT item_order FROM ".CMS_DB_PREFIX."module_news_fielddefs WHERE id = ?", array($fdid));
-$time = $db->DBTimeStamp(time());
+$time = $db->DbTimeStamp(time());
 
 if ($params['dir'] == "down")
   {

@@ -133,11 +133,11 @@ if( isset( $params['submit'] ) ) {
         $dbr = $db->Execute($query,
                             array($articleid, $category_id, $title,
                                   $content, $summary, $extra, $status,
-                                  trim($db->DBTimeStamp($startdate), "'"),
-                                  trim($db->DBTimeStamp($startdate), "'"),
-                                  trim($db->DBTimeStamp($enddate), "'"),
-                                  trim($db->DBTimeStamp(time()), "'"),
-                                  trim($db->DBTimeStamp(time()), "'"),
+                                  trim($db->DbTimeStamp($startdate), "'"),
+                                  trim($db->DbTimeStamp($startdate), "'"),
+                                  trim($db->DbTimeStamp($enddate), "'"),
+                                  trim($db->DbTimeStamp(time()), "'"),
+                                  trim($db->DbTimeStamp(time()), "'"),
                                   $userid,1));
 
         if( $dbr ) {

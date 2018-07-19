@@ -67,7 +67,7 @@ if (isset($params['submit'])) {
 
   if( !$error ) {
     $extra = array('options'=>$arr_options);
-    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = '.$db->DBTimeStamp(time()).', public = ?, extra = ? WHERE id = ?';
+    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = '.$db->DbTimeStamp(time()).', public = ?, extra = ? WHERE id = ?';
     $res = $db->Execute($query, array($name, $type, $max_length, $public, serialize($extra), $fdid));
 
     if( !$res ) { //TODO update-command result is never reliable

@@ -45,8 +45,8 @@ if (isset($params['submit'])) {
         $extra = array('options'=>$arr_options);
         $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs (name, type, max_length, item_order, create_date, modified_date, public, extra) VALUES (?,?,?,?,?,?,?,?)';
         $parms = array($name, $type, $max_length, $max,
-                       trim($db->DBTimeStamp(time()), "'"),
-                       trim($db->DBTimeStamp(time()), "'"),
+                       trim($db->DbTimeStamp(time()), "'"),
+                       trim($db->DbTimeStamp(time()), "'"),
                        $public, serialize($extra));
         $db->Execute($query, $parms );
 

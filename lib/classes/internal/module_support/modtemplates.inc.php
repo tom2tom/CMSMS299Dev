@@ -142,7 +142,7 @@ function cms_module_SetTemplate(&$modinstance, $tpl_name, $content, $mod_name = 
 	$query = 'SELECT module_name FROM '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? and template_name = ?';
 	$result = $db->Execute($query, [$mod_name != ''?$mod_name:$modinstance->GetName(), $tpl_name]);
 
-	$time = $db->DBTimeStamp(time());
+	$time = $db->DbTimeStamp(time());
 	if ($result && $result->RecordCount() < 1) {
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_templates (module_name, template_name, content, create_date, modified_date) VALUES (?,?,?,'.$time.','.$time.')';
 		$db->Execute($query, [$mod_name != ''?$mod_name:$modinstance->GetName(), $tpl_name, $content]);
