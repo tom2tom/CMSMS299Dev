@@ -1123,6 +1123,19 @@ $X = 1;
     }
 
     /**
+     * Return a specified property of the active menu-item, if such exists.
+     *
+	 * @param string $key identifier
+     * @return string
+     */
+    public function get_active(string $key)
+    {
+		if ($this->_menuTree && $this->_activePath) {
+	        return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, $key);
+		}
+    }
+
+    /**
      * Return the title of the active item.
      * Used for module actions
      *
@@ -1130,14 +1143,19 @@ $X = 1;
      */
     public function get_active_title()
     {
-        return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'title');
+        return $this->get_active('title');
     }
 
-    public function get_active_icon()
+    /* *
+     * Return the icon of the active item.
+     *
+     * @return string
+     */
+/*    public function get_active_icon()
     {
-        return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, 'icon');
+        return $this->get_active('icon');
     }
-
+*/
     /**
      * Cache some data
      *
@@ -1863,7 +1881,7 @@ $X = 1;
      * Record the content of a 'minimal' page.
      *
      * @since 2.3
-     * @param string $content the entire displayable content  
+     * @param string $content the entire displayable content
      * @see CmsAdminThemeBase::do_minimal()
      */
     public function set_content(string $content)
