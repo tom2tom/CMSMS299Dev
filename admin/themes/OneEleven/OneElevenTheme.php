@@ -489,10 +489,10 @@ EOS;
 		} elseif ($module_name && $title) {
 			$tag = AdminUtils::get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" />';
 		} else {
-			$tag = ''; //TODO get icon for admin operation
-			//$tag = $this->get_active_icon());
+			$name = $this->get_active('name');
+			$tag = ($name) ? $this->DisplayImage("icons/topfiles/$name.png", $name) : '';
 		}
 		$smarty->assign('pageicon', $tag);
 
