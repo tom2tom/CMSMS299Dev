@@ -11,7 +11,6 @@
 		<meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="themes/OneEleven/images/favicon/cmsms-favicon.ico" />
-		<link rel="stylesheet" href="themes/OneEleven/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
 {$header_includes|default:''}
 		<script type="text/javascript" src="themes/OneEleven/includes/login.js"></script>
 	</head>
@@ -20,7 +19,9 @@
 			<div class="login-container">
 				<div class="login-box cf"{if !empty($error)} id="error"{/if}>
 					<div class="logo">
+						<a rel="external" href="http://www.cmsmadesimple.org">
 						<img src="themes/OneEleven/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple" />
+						</a>
 					</div>
 					<div class="info-wrapper open">
 					<aside class="info">
@@ -65,9 +66,6 @@
 						<a href="login.php?forgotpw=1">{'lostpw'|lang}</a>
 					</p>
 				</div>
-				<footer>
-					<small class="copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a></small>
-				</footer>
 			</div>
 		</div>
 		{$bottom_includes|default:''}

@@ -216,6 +216,8 @@ EOS
 		require_once $fp;
 		$smarty->assign($tplvars);
 
+		$smarty->assign('assets_url', $config['admin_url'] . '/themes/assets');
+
 		//extra theme-specific parameters for the form
 		$fp = cms_join_path(__DIR__, 'function.extraparms.php');
 		if (is_file($fp)) {
@@ -228,6 +230,7 @@ EOS
 		// css: jquery-ui and scripts: jquery, jquery-ui
 		list ($jqui, $jqcss) = cms_jqueryui_local();
 		$url = AdminUtils::path_to_url($jqcss);
+// dir="{$lang_dir|default:'ltr'}">
 		$dir = ''; //TODO or '-rtl'
 		$out = <<<EOS
 <link rel="stylesheet" href="$url" />

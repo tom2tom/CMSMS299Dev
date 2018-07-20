@@ -11,7 +11,6 @@
 		<meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico"/>
-		<link rel="stylesheet" href="themes/Marigold/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
 {$header_includes|default:''}
 		<script type="text/javascript" src="themes/Marigold/includes/login.js"></script>
 	</head>
@@ -33,6 +32,7 @@
 					<a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
 					</div>
 					<header>
+						<a style="float:right;" href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="{$admin_url}/themes/Marigold/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
 						<h1>{'logintitle'|lang}</h1>
 					</header>
 					{$form}
@@ -60,10 +60,7 @@
 						<div class="warning message">
 							{'passwordchange'|lang}
 						</div>
-					{/if} <a href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="{$admin_url}/themes/Marigold/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
-					<p class="forgotpw">
-						<a href="login.php?forgotpw=1">{'lostpw'|lang}</a>
-					</p>
+					{/if}
 				</div>
 				<footer>
 					<small class="copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a></small>
