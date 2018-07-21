@@ -23,18 +23,7 @@
 .c_full { width: 100% }
 
 /* Global Grid style, the actual grid */
-.grid_1,
-.grid_2,
-.grid_3,
-.grid_4,
-.grid_5,
-.grid_6,
-.grid_7,
-.grid_8,
-.grid_9,
-.grid_10,
-.grid_11,
-.grid_12 {
+.grid_1, .grid_2, .grid_3,.grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_9, .grid_10, .grid_11, .grid_12 {
 	display: inline;
 	float: left;
 	position: relative;
@@ -306,14 +295,14 @@ a:active {
 	text-decoration: underline
 }
 a.external {
-	background: url(themes/OneEleven/images/icons/system/external-small.png) no-repeat right;
+	background: url(../images/icons/system/external-small.png) no-repeat right;
 	padding-right: 20px
 }
 .alert-dialog a {
 	text-decoration: underline
 }
 .file {
-	background: url(themes/OneEleven/images/icons/system/document-list.png) no-repeat left;
+	background: url(../images/icons/system/document-list.png) no-repeat left;
 	padding-left: 25px
 }
 .important {
@@ -452,7 +441,7 @@ input[type="submit"],
 .adminsubmit, .loginsubmit, .ui-button
  {
 	border: 1px solid #d3d3d3;
-	background: #cecece url(themes/OneEleven/css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+	background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
 	font-weight: normal;
 	color: #555;
 	cursor: pointer;
@@ -470,7 +459,7 @@ input[type="submit"],
 .adminsubmit:hover, .loginsubmit:hover, .adminsubmit:active, .loginsubmit:active,
 button.ui-button.ui-state-active {
 	border: 1px solid #d3d3d3;
-	background: #cecece url(themes/OneEleven/css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+	background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
 	font-weight: normal;
 	color: #147fdb
 }
@@ -546,7 +535,7 @@ table.pagetable a.text-red  {
 }
 .warning,
 .pagewarning {
-	background: #faf6d4 url(themes/OneEleven/images/icons/extra/warning.png) 10px 50% no-repeat;
+	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
 	border: 1px solid #e6c26e
 }
 .yellow {
@@ -557,7 +546,7 @@ table.pagetable a.text-red  {
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-	background: #f2d4ce url(themes/OneEleven/images/icons/extra/block.png) 10px 50% no-repeat;
+	background: #f2d4ce url(../images/icons/extra/block.png) 10px 50% no-repeat;
 	border: 1px solid #ae432e
 }
 .red {
@@ -567,7 +556,7 @@ table.pagetable a.text-red  {
 }
 .success,
 .pagemcontainer {
-	background: #d9e6c3 url(themes/OneEleven/images/icons/extra/accept.png) 10px 50% no-repeat;
+	background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
 	border: 1px solid #77ab13
 }
 .green {
@@ -576,7 +565,7 @@ table.pagetable a.text-red  {
 	border: 1px solid #77ab13
 }
 .information {
-	background: #cee6f2 url(themes/OneEleven/images/icons/extra/info.png) 10px 50% no-repeat;
+	background: #cee6f2 url(../images/icons/extra/info.png) 10px 50% no-repeat;
 	border: 1px solid #058dc7
 }
 .message:hover {
@@ -650,7 +639,7 @@ aside .no-slide,
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparent url(themes/OneEleven/images/icons/extra/spinner.gif) no-repeat;
+    background: transparent url(../images/icons/extra/spinner.gif) no-repeat;
 	background-size: 50px 50px;
     cursor: wait;
 }
@@ -662,7 +651,7 @@ aside .no-slide,
 	width: 16px;
 	height: 16px;
 	text-indent: -9999em;
-	background: transparent url(themes/OneEleven/images/icons/extra/close.png) no-repeat;
+	background: transparent url(../images/icons/extra/close.png) no-repeat;
 	cursor: pointer;
 	margin:5px
 }
@@ -734,7 +723,7 @@ aside .no-slide,
 	height: 100%
 }
 #oe_admin-content .shadow {
-	background: transparent url(themes/OneEleven/images/layout/sprite_repeatx.png) 831px -148px repeat-x;
+	background: transparent url(../images/layout/sprite_repeatx.png) 831px -148px repeat-x;
 	z-index: 50;
 	position: absolute;
 	top: 100px;
@@ -750,13 +739,13 @@ header.header {
 header .header-top {
 	height: 69px;
 	border-bottom: 1px solid #cecece;
-	background: #eee url(themes/OneEleven/images/layout/sprite_repeatx.png) 831px -10px repeat-x
+	background: #eee url(../images/layout/sprite_repeatx.png) 831px -10px repeat-x
 }
 header .cms-logo {
 	width: 240px;
 	height: 70px;
 	padding-left: 10px;
-	background: transparent url(themes/OneEleven/images/layout/cms-logo-bg.gif) no-repeat top right;
+	background: transparent url(../images/layout/cms-logo-bg.gif) no-repeat top right;
 	float: left
 }
 header .admin-title {
@@ -777,14 +766,14 @@ header .header-bottom {
 	border-bottom: 1px solid #0f0f0f;
 	position: relative;
 	width: 100%;
-	background: #232323 url(themes/OneEleven/images/layout/sprite_repeatx.png) 831px -99px repeat-x
+	background: #232323 url(../images/layout/sprite_repeatx.png) 831px -99px repeat-x
 }
 header .welcome {
 	width: 250px;
 	overflow: hidden;
 	float: left;
 	color: #fff;
-	background: transparent url(themes/OneEleven/images/layout/welcome-bg.gif) no-repeat top right
+	background: transparent url(../images/layout/welcome-bg.gif) no-repeat top right
 }
 header .welcome span {
 	display: inline-block;
@@ -802,7 +791,7 @@ header a.welcome-user {
 	display: inline-block;
 	text-indent: -999em;
 	margin-right: 10px;
-	background: url(themes/OneEleven/images/layout/sprite_norepeat.png) -10px -336px no-repeat
+	background: url(../images/layout/sprite_norepeat.png) -10px -336px no-repeat
 }
 /* breadcrumbs nav */
 header .breadcrumbs {
@@ -823,10 +812,10 @@ header .breadcrumbs ul li {
 }
 header .breadcrumbs ul li.home {
 	padding: 0 10px 0 0;
-	background: url(themes/OneEleven/images/layout/breadcrubms-divider.png) no-repeat right;
+	background: url(../images/layout/breadcrubms-divider.png) no-repeat right;
 }
 header .breadcrumbs ul li.home a {
-	background: url(themes/OneEleven/images/layout/sprite_norepeat.png) -10px -367px no-repeat;
+	background: url(../images/layout/sprite_norepeat.png) -10px -367px no-repeat;
 	width: 18px;
 	text-indent: -999em
 }
@@ -837,7 +826,7 @@ header .breadcrumbs ul li a {
 	color: #fff;
 	text-decoration: none;
 	display: inline-block;
-	background: url(themes/OneEleven/images/layout/breadcrubms-divider.png) no-repeat right;
+	background: url(../images/layout/breadcrubms-divider.png) no-repeat right;
 	padding-right: 24px
 }
 header .breadcrumbs ul li a:hover, header .breadcrumbs ul li a:active {
@@ -870,7 +859,7 @@ header .shortcuts li a {
 	width: 18px;
 	height: 25px;
 	text-indent: -9999em;
-	background: url(themes/OneEleven/images/layout/sprite_norepeat.png) no-repeat;
+	background: url(../images/layout/sprite_norepeat.png) no-repeat;
 	overflow: hidden;
 	cursor: pointer;
 }
@@ -917,7 +906,7 @@ header .shortcuts li.favorites a {
 #oe_sidebar {
 	width: 249px;
 	border-right: 1px solid #fff;
-	background: #ddd url(themes/OneEleven/images/layout/sidebar-shadow.png) repeat-y right;
+	background: #ddd url(../images/layout/sidebar-shadow.png) repeat-y right;
 	position: absolute;
 	left: 0;
 	top: 100px;
@@ -952,7 +941,7 @@ header .shortcuts li.favorites a {
 	top: -33px
 }
 #oe_sidebar .toggle-button{
-	background-image: url(themes/OneEleven/images/layout/sprite_norepeat.png);
+	background-image: url(../images/layout/sprite_norepeat.png);
 	background-repeat: no-repeat
 }
 .sidebar-on #oe_sidebar .toggle-button {
@@ -966,7 +955,7 @@ header .shortcuts li.favorites a {
 	text-decoration: none;
 	display: block;
 	height: 35px;
-	background: url(themes/OneEleven/images/layout/sprite_norepeat.png) -10px -446px no-repeat;
+	background: url(../images/layout/sprite_norepeat.png) -10px -446px no-repeat;
 	color: #fff
 }
 #oe_sidebar .notification a span {
@@ -978,7 +967,7 @@ header .shortcuts li.favorites a {
 	line-height: 35px;
 	position: relative;
 	padding: 14px 10px;
-	background: #232323 url(themes/OneEleven/images/layout/sprite_repeatx.png) 122px -175px repeat-x;
+	background: #232323 url(../images/layout/sprite_repeatx.png) 122px -175px repeat-x;
 	color: #fff
 }
 #oe_sidebar div.notification .box-shadow,
@@ -989,7 +978,7 @@ header .shortcuts li.favorites a {
 	right: 0;
 	top: 0;
 	bottom: 0;
-	background: url(themes/OneEleven/images/layout/sidebar-shadow.png) repeat-y right
+	background: url(../images/layout/sidebar-shadow.png) repeat-y right
 }
 #oe_sidebar .notification span {
 	font-size: 11px;
@@ -1004,14 +993,14 @@ header .shortcuts li.favorites a {
 	padding: 4px 0
 }
 /* main navigation */
-nav ul#oe_pagemenu {
+#oe_pagemenu {
 	border-bottom: 1px solid #adadad;
 	/*margin-top: 45px*/
 }
-nav ul#oe_pagemenu li {
+#oe_pagemenu li {
 	position: relative;
 	zoom: 1;
-	background: url(themes/OneEleven/images/layout/navigation-bg.gif) repeat-x top;
+	background: url(../images/layout/navigation-bg.gif) repeat-x top;
 	line-height: 35px;
 	padding: 0
 }
@@ -1024,7 +1013,8 @@ nav ul#oe_pagemenu li {
 	overflow: hidden
 }
 /* toggle submenu */
-nav ul#oe_pagemenu li span.open-nav {
+#oe_pagemenu li span.open-nav,
+#oe_pagemenu li a.no-nav {
 	display: block;
 	width: 210px;
 	height: 35px;
@@ -1035,18 +1025,18 @@ nav ul#oe_pagemenu li span.open-nav {
 	text-indent: -9999em
 }
 
-nav ul#oe_pagemenu li span.open-nav.open-sub,
-nav ul#oe_pagemenu li.current span.open-nav,
-nav ul#oe_pagemenu li:hover span.open-nav,
-nav ul#oe_pagemenu li.current span.open-nav,
-nav ul#oe_pagemenu li.current:hover span.open-nav,
-nav ul#oe_pagemenu li a span:hover {
+#oe_pagemenu li span.open-nav.open-sub,
+#oe_pagemenu li.current span.open-nav,
+#oe_pagemenu li:hover span.open-nav,
+#oe_pagemenu li.current span.open-nav,
+#oe_pagemenu li.current:hover span.open-nav,
+#oe_pagemenu li a span:hover {
 	cursor: pointer;
-	background: url(themes/OneEleven/images/layout/sprite_norepeat.png) 180px -176px no-repeat
+	background: url(../images/layout/sprite_norepeat.png) 180px -176px no-repeat
 }
 /*** menu style ***/
-nav ul#oe_pagemenu li a {
-	background: url(themes/OneEleven/images/layout/sprite_norepeat.png) no-repeat;
+#oe_pagemenu li a {
+	background: url(../images/layout/sprite_norepeat.png) no-repeat;
 	color: #232323;
 	outline: 0;
 	margin-left: 9px;
@@ -1058,123 +1048,123 @@ nav ul#oe_pagemenu li a {
 	text-decoration: none;
 	border: 1px solid transparent;
 }
-nav ul#oe_pagemenu li.current li a {
+#oe_pagemenu li.current li a {
 	color: #232323
 }
-nav ul#oe_pagemenu li ul,
-#oe_container.sidebar-off nav ul#oe_pagemenu li span.open-nav {
+#oe_pagemenu li ul,
+#oe_container.sidebar-off #oe_pagemenu li span.open-nav {
 	display: none
 }
-#oe_container.sidebar-on nav ul#oe_pagemenu li.current ul {
+#oe_container.sidebar-on #oe_pagemenu li.current ul {
 	display: block
 }
-#oe_container.sidebar-on nav ul#oe_pagemenu li {
+#oe_container.sidebar-on #oe_pagemenu li {
 	zoom:1
 }
-nav ul#oe_pagemenu li.current a,
-nav ul#oe_pagemenu li a:hover,
-nav ul#oe_pagemenu li:hover a,
-nav ul#oe_pagemenu li a:active,
-nav ul#oe_pagemenu li.current li a:hover,
-nav ul#oe_pagemenu li.current li a:active,
-nav ul#oe_pagemenu li.current li a,
-nav ul#oe_pagemenu li li a:hover {
+#oe_pagemenu li.current a,
+#oe_pagemenu li a:hover,
+#oe_pagemenu li:hover a,
+#oe_pagemenu li a:active,
+#oe_pagemenu li.current li a:hover,
+#oe_pagemenu li.current li a:active,
+#oe_pagemenu li.current li a,
+#oe_pagemenu li li a:hover {
 	color: #147fdb;
 }
-nav ul#oe_pagemenu li a:focus {
+#oe_pagemenu li a:focus {
         color: #147fdb !important;
         border: 1px solid #147fdb;
         margin-right: 10px;
 }
-nav ul#oe_pagemenu li a.main {
+#oe_pagemenu li a.main {
 	background-position: -10px -484px
 }
-nav ul#oe_pagemenu li a.content {
+#oe_pagemenu li a.content {
 	background-position: -10px -520px
 }
-nav ul#oe_pagemenu li a.layout {
+#oe_pagemenu li a.layout {
 	background-position: -10px -556px
 }
-nav ul#oe_pagemenu li a.files {
+#oe_pagemenu li a.files {
 	background-position: -10px -520px
 }
-nav ul#oe_pagemenu li a.usersgroups {
+#oe_pagemenu li a.usersgroups {
 	background-position: -10px -592px
 }
-nav ul#oe_pagemenu li a.extensions {
+#oe_pagemenu li a.extensions {
 	background-position: -10px -628px
 }
-nav ul#oe_pagemenu li a.siteadmin {
+#oe_pagemenu li a.siteadmin {
 	background-position: -10px -664px
 }
-nav ul#oe_pagemenu li a.myprefs {
+#oe_pagemenu li a.myprefs {
 	background-position: -10px -700px
 }
-nav ul#oe_pagemenu li a.ecommerce {
+#oe_pagemenu li a.ecommerce {
 	background-position: -10px -990px
 }
 /* hover, active */
-nav ul#oe_pagemenu li a.main:hover,
-nav ul#oe_pagemenu li.current a.main,
-nav ul#oe_pagemenu li:hover a.main {
+#oe_pagemenu li a.main:hover,
+#oe_pagemenu li.current a.main,
+#oe_pagemenu li:hover a.main {
 	background-position: -10px -278px
 }
-nav ul#oe_pagemenu li a.content:hover,
-nav ul#oe_pagemenu li.current a.content,
-nav ul#oe_pagemenu li:hover a.content {
+#oe_pagemenu li a.content:hover,
+#oe_pagemenu li.current a.content,
+#oe_pagemenu li:hover a.content {
 	background-position: -10px -758px
 }
-nav ul#oe_pagemenu li a.layout:hover,
-nav ul#oe_pagemenu li.current a.layout,
-nav ul#oe_pagemenu li:hover a.layout {
+#oe_pagemenu li a.layout:hover,
+#oe_pagemenu li.current a.layout,
+#oe_pagemenu li:hover a.layout {
 	background-position: -10px -790px
 }
-nav ul#oe_pagemenu li a.files:hover,
-nav ul#oe_pagemenu li.current a.files,
-nav ul#oe_pagemenu li:hover a.files {
+#oe_pagemenu li a.files:hover,
+#oe_pagemenu li.current a.files,
+#oe_pagemenu li:hover a.files {
 	background-position: -10px -758px
 }
-nav ul#oe_pagemenu li a.usersgroups:hover,
-nav ul#oe_pagemenu li.current a.usersgroups,
-nav ul#oe_pagemenu li:hover a.usersgroups {
+#oe_pagemenu li a.usersgroups:hover,
+#oe_pagemenu li.current a.usersgroups,
+#oe_pagemenu li:hover a.usersgroups {
 	background-position: -10px -823px
 }
-nav ul#oe_pagemenu li a.extensions:hover,
-nav ul#oe_pagemenu li.current a.extensions,
-nav ul#oe_pagemenu li:hover a.extensions {
+#oe_pagemenu li a.extensions:hover,
+#oe_pagemenu li.current a.extensions,
+#oe_pagemenu li:hover a.extensions {
 	background-position: -10px -854px
 }
-nav ul#oe_pagemenu li a.siteadmin:hover,
-nav ul#oe_pagemenu li.current a.siteadmin,
-nav ul#oe_pagemenu li:hover a.siteadmin  {
+#oe_pagemenu li a.siteadmin:hover,
+#oe_pagemenu li.current a.siteadmin,
+#oe_pagemenu li:hover a.siteadmin  {
 	background-position: -10px -921px
 }
-nav ul#oe_pagemenu li a.myprefs:hover,
-nav ul#oe_pagemenu li.current a.myprefs,
-nav ul#oe_pagemenu li:hover a.myprefs {
+#oe_pagemenu li a.myprefs:hover,
+#oe_pagemenu li.current a.myprefs,
+#oe_pagemenu li:hover a.myprefs {
 	background-position: -10px -885px
 }
-nav ul#oe_pagemenu li a.ecommerce:hover,
-nav ul#oe_pagemenu li.current a.ecommerce,
-nav ul#oe_pagemenu li:hover a.ecommerce {
+#oe_pagemenu li a.ecommerce:hover,
+#oe_pagemenu li.current a.ecommerce,
+#oe_pagemenu li:hover a.ecommerce {
 	background-position: -10px -953px
 }
 /* second level & collapsed sidebar */
-nav ul#oe_pagemenu ul {
+#oe_pagemenu ul {
 	padding: 8px 0;
 	background: #f0f0f0
 }
-nav ul#oe_pagemenu li li {
+#oe_pagemenu li li {
 	background: none;
 	line-height: 1;
 }
-nav ul#oe_pagemenu li li.module {
+#oe_pagemenu li li.module {
 	background-color: #e5e5e5;
 	border-bottom: 1px dotted #f0f0f0
 }
-nav ul#oe_pagemenu li.current li a,
-nav ul#oe_pagemenu li li a,
-nav ul#oe_pagemenu li:hover li a {
+#oe_pagemenu li.current li a,
+#oe_pagemenu li li a,
+#oe_pagemenu li:hover li a {
     height: auto;
     line-height: 1.3;
     white-space: pre-line;
@@ -1185,14 +1175,14 @@ nav ul#oe_pagemenu li:hover li a {
 	background-image: none;
 	background: none
 }
-nav ul#oe_pagemenu li li a:hover,
-nav ul#oe_pagemenu li li.current a {
+#oe_pagemenu li li a:hover,
+#oe_pagemenu li li.current a {
 	color: #147fdb;
 }
-nav ul#oe_pagemenu li li a:hover,
-nav ul#oe_pagemenu li li a:active,
-nav ul#oe_pagemenu li.current li a:hover,
-nav ul#oe_pagemenu li.current li a:active  {
+#oe_pagemenu li li a:hover,
+#oe_pagemenu li li a:active,
+#oe_pagemenu li.current li a:hover,
+#oe_pagemenu li.current li a:active  {
 	padding-left: 30px
 }
 /*** page content ***/
@@ -1219,7 +1209,7 @@ footer#oe_footer {
 	width: 100%;
 	z-index: 50;
 	height: 30px;
-	background: transparent url(themes/OneEleven/images/layout/sprite_repeatx.png) 829px -259px repeat-x;
+	background: transparent url(../images/layout/sprite_repeatx.png) 829px -259px repeat-x;
 	padding-top: 5px;
 	clear: both;
 	position: fixed;
@@ -1307,10 +1297,10 @@ span.helptext a {
 	width: auto;
 	padding-right: 20px;
 	margin-left: 8px;
-	background: url(themes/OneEleven/images/icons/system/info-external.gif) no-repeat right
+	background: url(../images/icons/system/info-external.gif) no-repeat right
 }
 span.helptext a {
-	background: url(themes/OneEleven/images/icons/system/info.gif) no-repeat right
+	background: url(../images/icons/system/info.gif) no-repeat right
 }
 .pageheader span.helptext {
 	display: inline-block;
@@ -1400,7 +1390,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
 	padding-left: 20px;
 	line-height: 20px;
-	background: url(themes/OneEleven/images/icons/system/bookmark.png) no-repeat left
+	background: url(../images/icons/system/bookmark.png) no-repeat left
 }
 div.dialog form#chdir_form {
 	display: block
@@ -1439,7 +1429,7 @@ table.pagetable th,
 table.pagetable thead tr {
 	color: #fa8004;
 	text-shadow: -1px -1px 0 #000;
-	background: #232323 url(themes/OneEleven/images/layout/sprite_repeatx.png) 831px -99px repeat-x;
+	background: #232323 url(../images/layout/sprite_repeatx.png) 831px -99px repeat-x;
 	height: 45px;
 	text-align: left;
 	white-space: nowrap;
@@ -1757,7 +1747,7 @@ textarea.pageextrasmalltextarea {
 #page_tabs div.active {
 	color: #fff;
 	text-shadow: -1px -1px 0 #054882;
-	background: #147fdb url(themes/OneEleven/images/layout/tab-active.png) no-repeat center bottom
+	background: #147fdb url(../images/layout/tab-active.png) no-repeat center bottom
 }
 #page_content {
 	background: #fff;
@@ -1778,7 +1768,7 @@ textarea.pageextrasmalltextarea {
 	border-radius: 4px;
 	margin-right: 2.29%;
 	margin-bottom: 10px;
-	background: #d5d5d5 url(themes/OneEleven/images/layout/sprite_repeatx.png) 214px -339px repeat-x;
+	background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
 	border: 1px solid #ddd
 }
 .dashboard-box.last {
@@ -1857,7 +1847,7 @@ ul.sortableList div.label {
 	border-radius: 4px;
 	cursor: move;
 	padding: 3px 10px 3px 35px;
-	background: #eee url(themes/OneEleven/images/icons/extra/reorder.gif) no-repeat  10px 50%;
+	background: #eee url(../images/icons/extra/reorder.gif) no-repeat  10px 50%;
 	text-shadow: 0 1px 0 #fff;
 	font-weight: bold;
 	color: #585858
@@ -1900,7 +1890,7 @@ ul.sortable .placeholder {
 }
 
 .drop-inner + a.toggle-dropzone {
-	background: transparent url(themes/OneEleven/images/layout/toggle-dropzone.png) no-repeat -15px 0;
+	background: transparent url(../images/layout/toggle-dropzone.png) no-repeat -15px 0;
 	border: 1px solid #ccc;
 	border-top: none;
 	text-indent: -9999em;
@@ -1915,7 +1905,7 @@ a.toggle-dropzone:focus {
 	outline: none
 }
 .drop-inner.hidden + a.toggle-dropzone {
-	background: transparent url(themes/OneEleven/images/layout/toggle-dropzone.png) no-repeat 0 0;
+	background: transparent url(../images/layout/toggle-dropzone.png) no-repeat 0 0;
 }
 .drop .drop-inner {
 	float:none;
@@ -1955,7 +1945,7 @@ a.toggle-dropzone:focus {
 	cursor: pointer;
 	height: 30px;
 	text-align: left;
-	background: transparent url(themes/OneEleven/images/layout/folder-horizontal-open.png) no-repeat left
+	background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left
 }
 .drop.hidden .drop-inner {
 	display: none
@@ -1992,7 +1982,7 @@ a.toggle-dropzone:focus {
 	top: -29px
 }
 #login div.login-box {
-  background: #d5d5d5 url(themes/OneEleven/images/layout/sprite_repeatx.png) 214px -339px repeat-x;
+  background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
   position: relative;
   border-radius: 4px 4px 0 4px;
   border: 1px solid #aaa;
@@ -2047,12 +2037,12 @@ a.toggle-dropzone:focus {
 	width: auto;
 	padding: 0 14px;
 	margin-top: 15px;
-	background: #838282 url(themes/OneEleven/images/layout/input-bg.gif) repeat-x top
+	background: #838282 url(../images/layout/input-bg.gif) repeat-x top
 }
 #login input.loginsubmit:hover,
 #login input.loginsubmit:focus {
 	border: 1px solid #e87602;
-	background: #fa8106 url(themes/OneEleven/images/layout/input-hover-bg.gif) repeat-x top
+	background: #fa8106 url(../images/layout/input-hover-bg.gif) repeat-x top
 }
 #login div.info-wrapper {
 	position: absolute;
@@ -2077,7 +2067,7 @@ a.toggle-dropzone:focus {
 	height: 25px;
 	display: block;
 	text-indent: -9999em;
-	background: #ececec url(themes/OneEleven/images/layout/information.png) no-repeat center
+	background: #ececec url(../images/layout/information.png) no-repeat center
 }
 #login aside.info {
 	font-size: 12px;
@@ -2117,7 +2107,7 @@ a.toggle-dropzone:focus {
 }
 #login p.forgotpw a {
 	padding-left: 20px;
-	background: url(themes/OneEleven/images/layout/help.png) left 50% no-repeat;
+	background: url(../images/layout/help.png) left 50% no-repeat;
 	color: #585858;
 	text-shadow: 0 1px 0 #fff;
 	font-size: 12px;
