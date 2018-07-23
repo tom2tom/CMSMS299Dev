@@ -6,7 +6,7 @@
 {if $thetitle}{$thetitle="{$thetitle} - "}{/if}
 		<title>{$thetitle}{sitename}</title>
 		<meta charset="utf-8" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 CMS Made Simple Foundation. All rights reserved." />
+		<meta name="generator" content="CMS Made Simple" />
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
 		<meta name="referrer" content="origin" />
@@ -19,8 +19,7 @@
 		<link rel="apple-touch-icon" sizes="72x72" href="themes/OneEleven/images/favicon/apple-touch-icon-ipad.png" />
 		<link rel="apple-touch-icon" sizes="114x114" href="themes/OneEleven/images/favicon/apple-touch-icon-iphone4.png" />
 		<link rel="apple-touch-icon" sizes="144x144" href="themes/OneEleven/images/favicon/apple-touch-icon-ipad3.png" />
-		<link rel="stylesheet" href="themes/OneEleven/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
-		{$header_includes|default:''}
+{$header_includes|default:''}
 	</head>
 	<body id="{$pagetitle|md5}" class="oe_{$pagealias}">
 		<!-- start container -->

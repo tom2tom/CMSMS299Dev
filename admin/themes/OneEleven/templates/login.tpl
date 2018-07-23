@@ -3,7 +3,7 @@
 	<head>
 		<title>{'logintitle'|lang} - {sitename}</title>
 		<meta charset="{$encoding}" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 CMS Made Simple Foundation. All rights reserved" />
+		<meta name="generator" content="CMS Made Simple" />
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
 		<meta name="HandheldFriendly" content="true" />
@@ -61,7 +61,7 @@
 						<div class="warning message">
 							{'passwordchange'|lang}
 						</div>
-					{/if} <a href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="{$admin_url}/themes/OneEleven/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
+					{/if} <a href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="themes/OneEleven/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
 					<p class="forgotpw">
 						<a href="login.php?forgotpw=1">{'lostpw'|lang}</a>
 					</p>

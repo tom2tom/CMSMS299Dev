@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminAlerts\Alert;
+use CMSMS\AdminUtils;
+use CMSMS\ModuleOperations;
+use CMSMS\ScriptManager;
+use CMSMS\UserOperations;
+
 class OneElevenTheme extends CmsAdminThemeBase
 {
 	/**
@@ -61,10 +67,9 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 		$config = cmsms()->GetConfig();
 		$admin_path = $config['admin_path'];
-		$admin_url = $config['admin_url'];
+//		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen($admin_path) + 1);
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
-//		$base_url = $admin_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 
 		$lang = CmsNlsOperations::get_current_language();
 		$info = CmsNlsOperations::get_language_info($lang);
@@ -74,8 +79,8 @@ class OneElevenTheme extends CmsAdminThemeBase
 				$fn .= '-rtl';
 			}
 		}
-		list ($jqui, $jqcss) = cms_jqueryui_local();
-		$url = CMSMS\AdminUtils::path_to_url($jqcss);
+		$incs = cms_installed_jquery(true, true, true, true);
+		$url = AdminUtils::path_to_url($incs['jquicss']);
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
@@ -89,15 +94,14 @@ EOS;
 		}
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
-		list ($jqcore, $jqmigrate) = cms_jquery_local();
-		$sm = new CMSMS\ScriptManager();
-		$sm->queue_file($jqcore, 1);
-		$sm->queue_file($jqmigrate, 1); //in due course, omit this ?
-		$sm->queue_file($jqui, 1);
-		$p = cms_join_path($admin_path, 'js', 'libs', '');
+		$sm = new ScriptManager();
+		$sm->queue_file($incs['jqcore'], 1);
+		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+		$sm->queue_file($incs['jqui'], 1);
+		$p = cms_join_path($config['root_path'],'lib','js','');
 		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
 		$fn = $sm->render_scripts('', false, false);
-		$url = CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
 		global $CMS_LOGIN_PAGE;
@@ -106,17 +110,17 @@ EOS;
 			require_once $admin_path.DIRECTORY_SEPARATOR.'jsruntime.php';
 			$sm->queue_string($_out_);
 			$fn = $sm->render_scripts('', false, false);
-			$url = CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+			$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 			$out .= sprintf($tpl,$url);
 		}
 
 		$sm->reset();
 		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
 		$sm->queue_file($p.'jquery.toast.js', 1); //OR .min for production
-		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
+		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$fn = $sm->render_scripts();
-		$url = CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
 		$add_list[] = $out;
@@ -363,25 +367,28 @@ EOS;
 			}
 
 			$smarty = $gCms->GetSmarty();
-			$config = $gCms->GetConfig();
+			$smarty->assign($data);
 
 			//extra shared parameters for the form
+			$config = $gCms->GetConfig(); //also need by the inclusion
 			$fp = cms_join_path($config['admin_path'], 'themes', 'assets', 'function.extraparms.php');
 			require_once $fp;
 			$smarty->assign($tplvars);
 
-			//extra theme-specific parameters for the form
+			//extra theme-specific setup
 			$fp = cms_join_path(__DIR__, 'function.extraparms.php');
 			if (is_file($fp)) {
 				require_once $fp;
-				$smarty->assign($tplvars);
+				if (!empty($tplvars)) {
+					$smarty->assign($tplvars);
+				}
 			}
 
 //TODO	ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
 
 			// scripts: jquery, jquery-ui
-			list ($jqui, $jqcss) = cms_jqueryui_local();
-			$url = CMSMS\AdminUtils::path_to_url($jqcss);
+			$incs = cms_installed_jquery();
+			$url = AdminUtils::path_to_url($incs['jquicss']);
 			$dir = ''; //TODO or '-rtl'
 			$out = <<<EOS
 <link rel="stylesheet" href="$url" />
@@ -389,10 +396,9 @@ EOS;
 
 EOS;
 			$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
-			list ($jqcore, $jqmigrate) = cms_jquery_local();
-			$url = CMSMS\AdminUtils::path_to_url($jqcore);
+			$url = AdminUtils::path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
-			$url = CMSMS\AdminUtils::path_to_url($jqui);
+			$url = AdminUtils::path_to_url($incs['jqui']);
 			$out .= sprintf($tpl,$url);
 		} else {
 			$smarty = $gCms->GetSmarty();
@@ -516,9 +522,6 @@ EOS;
 			$smarty->assign('marks', $marks);
 		}
 
-		$smarty->assign('headertext',$this->get_headtext());
-		$smarty->assign('footertext',$this->get_footertext());
-
 		// other variables
 		$config = cmsms()->GetConfig();
 		$smarty->assign('admin_url', $config['admin_url']);
@@ -537,7 +540,10 @@ EOS;
 		$info = CmsNlsOperations::get_language_info($lang);
 		$smarty->assign('lang_dir', $info->direction());
 
-		if (!$flag) {
+		if ($flag) {
+			$smarty->assign('header_includes', $this->get_headtext());
+			$smarty->assign('bottom_includes', $this->get_footertext());
+		} else {
 			if (is_array($this->_errors) && count($this->_errors))
 				$smarty->assign('errors', $this->_errors);
 			if (is_array($this->_messages) && count($this->_messages))
@@ -559,6 +565,6 @@ EOS;
 	public function get_my_alerts()
 	{
 		//TODO namespace for pre-2.3
-		return CMSMS\AdminAlerts\Alert::load_my_alerts();
+		return Alert::load_my_alerts();
 	}
 }

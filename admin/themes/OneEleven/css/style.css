@@ -1,5 +1,5 @@
 /*
- * Theme: OneEleven 2012 (c)
+ * Theme: OneEleven 2012-2018 (c)
  * Author: Goran Ilic (ja@ich-mach-das.at) - http://dev.cmsmadesimple.org/users/uniqu3
  * Version: 1.1
  */
@@ -14,15 +14,15 @@
  * Helper Styles for Module Developer, make aligning modules easier.
  * (To bad Robert didn't request this earlier i could of saved myself
  * from writing a bunch of Styles)
- * For Demo see /admin/themes/OneEleven/doc/grid.html
+ * For demo, see accompanying file grid.html
  */
 
-/* Container - Wrapping all grids inside,
+/* Container - wrapping all grids inside,
  * use .cf class to clear floated elements
  */
 .c_full { width: 100% }
 
-/* Global Grid style, the actual grid */
+/* Global grid style, the actual grid */
 .grid_1, .grid_2, .grid_3,.grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_9, .grid_10, .grid_11, .grid_12 {
 	display: inline;
 	float: left;
@@ -148,13 +148,17 @@
 .p_bottom_90 { padding-bottom: 90px !important }
 .p_bottom_120 { padding-bottom: 120px !important }
 .p_bottom_130 { padding-bottom: 130px !important }
+
 /* CLEARFIX */
+
 * html .cf {
 	height: 1%;
 	overflow: visible
 }
-*+ html .cf { min-height: 1% }
-.cf:after {
+*+ html .cf {
+    min-height: 1%
+}
+.cf::after {
 	clear: both;
 	content: ".";
 	display: block;
@@ -165,7 +169,10 @@
 	clear: both;
 	height: 0
 }
-.clearb { clear: both }
+.clearb {
+    clear: both
+}
+
 /* COMMON STUFF */
 
 /*
@@ -181,38 +188,33 @@
 
 html, body {
 	width: 100%;
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 	min-height: 100%;
 	height: 100%
 }
 body {
 	min-width: 900px;
+	background-color: #f6f6f6;
 	color: #232323;
 	line-height: 1.4;
-	font-size: 14px;
-	background: #f6f6f6
+	font-size: 14px
 }
 ins {
 	background-color: #ff9;
 	color: #232323;
-	text-decoration: none;
+	text-decoration: none
 }
 mark {
 	font-style: italic;
-	font-weight: bold;
+	font-weight: bold
 }
 del {
-	text-decoration: line-through;
+	text-decoration: line-through
 }
-abbr[title],
-dfn[title] {
+abbr[title], dfn[title] {
 	border-bottom: 1px dotted;
 	cursor: help
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
 }
 hr {
 	display: block;
@@ -227,25 +229,26 @@ ul, ol {
 	margin: 0;
 	padding: 0
 }
+/*
+ul ul, ul ol, ol ol, ol ul {
+    margin-left: 30px;
+}
+*/
 #oe_mainarea ul, ol {
 	margin: 10px 0 10px 25px
 }
 #oe_mainarea li {
 	line-height: 1.5
 }
+#oe_mainarea ul {
+	list-style: square
+}
 #oe_mainarea ol li{
 	list-style:decimal
 }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+
+h1, h2, h3, h4, h5, h6 {
 	color: #585858
-}
-#oe_mainarea ul {
-	list-style: square
 }
 h1 {
 	font-size: 20px
@@ -260,7 +263,7 @@ h4 {
 	font-size: 14px
 }
 h5 {
-	font-size: 12px
+	font-size: 13px
 }
 h6 {
 	font-size: 12px
@@ -279,7 +282,7 @@ tr {
 	text-align: left
 }
 form {
-	margin: 0px;
+	margin: 0;
 	display: inline
 }
 a,
@@ -310,8 +313,8 @@ a.external {
 	font-weight: normal
 }
 .smallgrey {
-        font-weight: normal;
-        font-size: 10px;
+		font-weight: normal;
+		font-size: 10px;
 		margin: 10px 0 0 0
 }
 div.pagecontainer .h-inside {
@@ -336,7 +339,7 @@ div.pagecontainer .h-inside {
 }
 
 .hidden {
-    display: none !important;
+	display: none !important;
 }
 
 /* Format code chunks */
@@ -359,7 +362,14 @@ pre {
 	display: inline-block;
 	width: auto
 	}
-/* border radius */
+
+/* Ace text editor container */
+#Editor {
+    line-height: 1.2;
+    max-width: 99%;
+    font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
+}
+
 table.pagetable,
 table.pagetable a.tooltip span,
 div.pagecontainer fieldset,
@@ -374,7 +384,7 @@ menu,
 .information,
 .message,
 .success,
-.pagewarning,
+.pagewarning,.pageerror,.pagewarn,.pagesuccess,.pageinfo,
 .green,
 .red,
 .yellow  {
@@ -382,7 +392,7 @@ menu,
 }
 /* forms */
 form {
-	margin: 0px;
+	margin: 0;
 	display: inline
 }
 input,
@@ -438,7 +448,8 @@ input[type="password"] {
 }
 input[type="button"],
 input[type="submit"],
-.adminsubmit, .loginsubmit, .ui-button
+.adminsubmit, .loginsubmit,
+.ui-button
  {
 	border: 1px solid #d3d3d3;
 	background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
@@ -452,7 +463,7 @@ input[type="submit"],
 	outline: none;
 	margin: 4px 0
 }
-.adminsubmit, .loginsubmit, .ui-button-text {
+.ui-button-text {
 	font-size: 12px;
 	margin-left: 2px;
 }
@@ -499,9 +510,6 @@ a.text-red,
 table.pagetable a.text-red  {
 	color: #ae432e
 }
-.blue {
-	color: #058dc7
-}
 .message,
 .pagewarning,
 .pagemcontainer,
@@ -533,14 +541,29 @@ table.pagetable a.text-red  {
 .orange {
 	padding: 10px;
 }
-.warning,
-.pagewarning {
-	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
-	border: 1px solid #e6c26e
-}
 .yellow {
 	background: #faf6d4;
 	color: #e6c26e;
+	border: 1px solid #e6c26e
+}
+.green {
+	background: #d9e6c3;
+	color: #77ab13;
+	border: 1px solid #77ab13
+}
+.blue {
+	background: #c2dde5;
+	color: #058dc7;
+	border: 1px solid #1384aa
+}
+.red {
+	background: #f2d4ce;
+	color: #ae432e;
+	border: 1px solid #aa1313
+}
+.warning,
+.pagewarning {
+	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
 	border: 1px solid #e6c26e
 }
 .error,
@@ -549,19 +572,9 @@ table.pagetable a.text-red  {
 	background: #f2d4ce url(../images/icons/extra/block.png) 10px 50% no-repeat;
 	border: 1px solid #ae432e
 }
-.red {
-	background: #f2d4ce;
-	color: #ae432e;
-	border: 1px solid #ae432e
-}
 .success,
 .pagemcontainer {
 	background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
-	border: 1px solid #77ab13
-}
-.green {
-	background: #d9e6c3;
-	color: #77ab13;
 	border: 1px solid #77ab13
 }
 .information {
@@ -603,14 +616,13 @@ aside.message,
 	margin:0;
 	left: 35%
 }
-aside .no-slide,
-.no-slide  {
+aside .no-slide, .no-slide  {
 	position: inherit;
 	left: auto;
 	top: auto;
+	border: 1px solid #ae432e;
 	border-radius: 4px;
 	box-shadow: none;
-	border: 1px solid #ae432e;
 	-webkit-box-shadow: none;
 	background-image: none;
 	width: auto;
@@ -628,20 +640,291 @@ aside .no-slide,
   height: 100%;
   line-height: 100%;
 }
-#cms_busy, .busy {
+.dialog-critical {
+    border: 1px solid #f44c4c;
+    margin: 0;
+    background-color: #fcd0d0;
+    color: #490707;
+    font-size: 1em
+}
+.dialog-warning {
+    border: 1px solid #f4ca4c;
+    margin: 0;
+    background-color: #fcf1d0;
+    color: #b08f0e;
+    font-size: 0.9em
+}
+.dialog-information {
+    border: 1px solid #4ca6f4;
+    margin: 0;
+    background-color: #d1e8fc;
+    color: #0e2a42;
+    font-size: 0.9em
+}
+
+/* Notifications by jQuery toast plugin */
+
+.jqtoast {
+    display: block;
     position: fixed;
-    z-index: 999;
-    height: 50px;
-    width: 50px;
-    overflow: show;
-    margin: auto;
-    top: 0;
+    border-width: 1px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    margin: 0;
+    padding: 10px;
+    max-width: 40em;
+    line-height: 1.2;
+    letter-spacing: normal;
+    font-size: 0.9em;
+    /* font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
+    pointer-events: all !important;
+    z-index: 9000 !important;
+}
+.jqtoast.bottom-left {
+    bottom: 20px;
+    left: 2.5em;
+}
+.jqtoast.bottom-right {
+    bottom: 20px;
+    right: 40px;
+}
+.jqtoast.top-left {
+    top: 75px;
+    left: 2.5em;
+}
+.jqtoast.top-right {
+    top: 75px;
+    right: 40px;
+}
+.jqtoast.bottom-center {
+    bottom: 20px;
+}
+.jqtoast.top-center {
+    top: 75px;
+}
+.jqtoast * {
+    margin: 0;
+    padding: 0;
+}
+.jqtoast ul {
+    margin-left: 15px;
+    background: none;
+    padding: 0;
+}
+.jqtoast ul li {
+    list-style-type: disc !important;
+    background: none;
+    padding: 0;
+    letter-spacing: normal;
+}
+.jqt-heading {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+}
+.jqt-close {
+    position: absolute;
+    background-image:url(../images/closesprite.png);
+    background-size: 7.2em 1.2em;
+    width: 1.2em;
+    height: 1.2em;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+.error .jqt-close:hover, .error .jqt-close:active, .warn .jqt-close:hover, .warn .jqt-close:active, .success .jqt-close:hover, .success .jqt-close:active, .info .jqt-close:hover, .info.jqt-close:active {
+    background-position: 0 0;
+}
+.jqt-loader {
+    display: block;
+    position: absolute;
+    top: -2px;
+    height: 5px;
+    width: 0;
     left: 0;
-    bottom: 0;
+    border-radius: 5px;
+    background: #f00;
+}
+.jqt-loaded {
+    width: 100%;
+}
+.jqt-has-icon {
+    padding-left: 40px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+.error.jqtoast {
+    padding: 10px 40px;
+    background-color: #f2d4ce;
+}
+.error .jqt-close {
+    background-position: 1.2em 0;
+}
+.error .jqt-heading {
+    background-color: #e20e0e;
+    color: #fff;
+}
+.jqt-icon-error {
+    padding-left: 50px;
+    background-image: url(../images/icons/extra/error.png);
+}
+.warn.jqtoast {
+    padding: 10px 40px;
+    background-color: #faf6d4;
+}
+.warn .jqt-close {
+    background-position: 2.4em 0;
+}
+.warn .jqt-heading {
+    background-color: #b08f0e;
+    color: #fff;
+}
+.jqt-icon-warning {
+    background-image: url(../images/icons/extra/warn.png);
+}
+.success.jqtoast {
+    padding: 10px 40px;
+    background-color: #d9e6c3;
+}
+.success .jqt-close {
+    background-position: 3.6em 0;
+}
+.success .jqt-heading {
+    background-color: #0bb33a;
+    color: #fff;
+}
+.jqt-icon-success {
+    background-image: url(../images/icons/extra/accept.png);
+}
+.info.jqtoast {
+    padding: 10px 40px;
+    background-color: #c2dde5;
+}
+.info .jqt-close {
+    background-position: 4.8em 0;
+}
+.info .jqt-heading {
+    background-color: #147fdb;
+    color: #fff;
+}
+.jqt-icon-info {
+    background-image: url(../images/icons/extra/info.png);
+}
+
+/*** alertable plugin popups ***/
+
+/* Overlay */
+.alertable-overlay, .ui-widget-overlay.ui-front {
+    position: fixed;
+    top: 0;
     right: 0;
-    background: transparent url(../images/icons/extra/spinner.gif) no-repeat;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, .4);
+    opacity: 1.0;  /* override to ensure the background .5 opacity applies */
+    z-index: 9998;
+}
+
+.alertable, .ui-dialog.ui-widget.ui-widget-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+/*  top: 38vh;
+    left: calc(50% - 10em);
+    width: 20em; /* TODO CENTER WITH AUTO WIDTH */
+    border-radius: 3px;
+    padding: 1em;
+    background: #fffaf0;
+    color: #244323;
+    z-index: 9999;
+}
+/* Message */
+.alertable-message, .ui-dialog-title.alertable-message {
+    margin-bottom: 1.5em;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Prompt */
+.alertable-prompt {
+    margin-bottom: 1.5em;
+}
+
+.alertable-input {
+  width: 18em;
+/*  border-radius: 4px;
+  box-shadow: none;
+  border: solid 1px #ccc;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  padding: 6px 12px;
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+*/
+}
+
+/* Button group */
+.alertable-buttons, .ui-dialog .ui-dialog-buttonset {
+    float: right;
+}
+.alertable-buttons button {
+    margin-right: 1em;
+}
+/* OK button * /
+.alertable-ok {
+  background: #09d;
+  border: solid 1px #09d;
+  font-family: inherit;
+  font-size: inherit;
+  color: white;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.alertable-ok:hover,
+.alertable-ok:focus,
+.alertable-ok:active {
+  background-color: #08c;
+}
+/* Cancel button * /
+.alertable-cancel {
+  border: solid 1px #ddd;
+  background: white;
+  font-family: inherit;
+  font-size: inherit;
+  color: #888;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.alertable-cancel:hover,
+.alertable-cancel:focus,
+.alertable-cancel:active {
+  background-color: #f2f2f2;
+}
+*/
+#cms_busy, .busy {
+	position: fixed;
+	z-index: 999;
+	height: 50px;
+	width: 50px;
+	overflow: show;
+	margin: auto;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background: transparent url(../images/icons/extra/spinner.gif) no-repeat;
 	background-size: 50px 50px;
-    cursor: wait;
+	cursor: wait;
 }
 
 /* close notification */
@@ -655,55 +938,144 @@ aside .no-slide,
 	cursor: pointer;
 	margin:5px
 }
+.image-error{
+    background-image: url(../images/icons/extra/error.png) 10px 8px no-repeat;
+}
+.image-warning{
+    background-image: url(../images/icons/extra/warn.png) 10px 8px no-repeat;
+}
+.image-info {
+    background-image: url(../images/icons/extra/info.png) 10px 8px no-repeat;
+}
+.image-close {
+    background-image: url(../images/icons/extra/close.png) no-repeat;
+}
+.infoclose {
+    background-image: url(../images/closesprite.png);
+    background-position: 1.5em 0;
+    background-size: 9em 1.5em;
+    width: 1.5em;
+    height: 1.5em;
+}
+.infoclose:hover, .infoclose:active {
+    background-position: 7.5em 0;
+}
+
+/* jquery-ui dialog */
+
+/* UNUSED
+.ui-button {
+    margin: 4px 0
+}
+.ui-button-text {
+    font-size: 1em;
+    margin-left: 2px;
+    text-transform: uppercase
+}
+button.ui-button.ui-state-active {
+    border: 1px solid #d3d3d3;
+    background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #147fdb
+}
+*/
+/* revert elements inside jq-ui dialog */
+/*.ui-dialog input, .ui-dialog select, .ui-dialog menu, .ui-dialog textarea, .ui-dialog fieldset {
+    background-color: #fff;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+*/
+
+.ui-dialog .ui-dialog-titlebar.ui-widget-header {
+    background: #fffaf0;
+    border-width: 0;
+    margin: 0;
+    padding: 0;
+}
+button.ui-button.ui-dialog-titlebar-close {
+/*    position: relative; */
+    margin: 0;
+    border: 0;
+    width: 1.5em;
+    height: 1.5em;
+    top: 0;
+    right: 0.1em;
+}
+button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
+    background: #58814c url(../images/closesprite.png) repeat 9em 0 / 9em 1.5em;
+    margin: 0;
+    border-radius: 3px;
+    width: 1.5em;
+    height: 1.5em;
+    left: 0;
+    top: 0;
+}
+button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
+    background-color: #3c9b0a
+}
+
+.ui-dialog-title.alertable-message {
+    width: auto;
+}
+
+.ui-dialog .ui-dialog-buttonpane.alertable-buttons {
+    border: 0 none;
+    margin: 0;
+    padding: 0;
+    background: #fffaf0 none;
+    text-align: left;
+    float: right;
+}
 
 /* --- LAYOUT --- */
 
 .vbox {
-    display: flex;
-    flex-direction: column
+	display: flex;
+	flex-direction: column
 }
 .hbox {
-    display: flex;
-    flex-direction: row
+	display: flex;
+	flex-direction: row
 }
 .vbox.expand, .hbox.expand {
-    justify-content: space-between
+	justify-content: space-between
 }
 .vbox.flow, .hbox.flow {
-    flex-wrap: wrap
+	flex-wrap: wrap
 }
 .boxchild {
-    flex: 0 1 auto
+	flex: 0 1 auto
 }
 .boxchild.fill {
-    flex: 1
+	flex: 1
 }
 .hbox .boxchild {
-    margin-right: 10px;
+	margin-right: 10px;
 }
 .vbox .boxchild {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 .resize-horizontal {
-    resize: horizontal;
+	resize: horizontal;
 }
 .resize-vertical {
-    resize: vertical;
+	resize: vertical;
 }
 .oneliner > * {
-    float: left;
-    margin-right: 20px;
+	float: left;
+	margin-right: 20px;
 }
 .postgap {
-    margin-top: 5px;
-    margin-bottom: 16px;
-    overflow: auto
+	margin-top: 5px;
+	margin-bottom: 16px;
+	overflow: auto
 }
 .pregap {
-    margin-top: 16px;
-    margin-bottom: 5px;
-    overflow: auto
+	margin-top: 16px;
+	margin-bottom: 5px;
+	overflow: auto
 }
 
 /* full height */
@@ -791,7 +1163,7 @@ header a.welcome-user {
 	display: inline-block;
 	text-indent: -999em;
 	margin-right: 10px;
-	background: url(../images/layout/sprite_norepeat.png) -10px -336px no-repeat
+	background: url(../images/layout/sprite_norepeat.png) -6px -336px no-repeat
 }
 /* breadcrumbs nav */
 header .breadcrumbs {
@@ -864,23 +1236,23 @@ header .shortcuts li a {
 	cursor: pointer;
 }
 header .shortcuts li.help a {
-	background-position: -10px -737px
+	background-position: -6px -737px
 }
 header .shortcuts li.settings a {
-	background-position: -10px -10px
+	background-position: -6px -10px
 }
 header .shortcuts li.logout a {
-	background-position: -10px -86px
+	background-position: -6px -86px
 }
 header .shortcuts li.view-site a {
-	background-position: -10px -124px
+	background-position: -6px -124px
 }
 header .shortcuts li.notifications {
-        position: relative;
+		position: relative;
 }
 header .shortcuts li.notifications a {
-        background-position: -10px -1058px;
-        color: #fff !important;
+		background-position: -6px -1058px;
+		color: #fff !important;
 }
 header .shortcuts li.notifications span.bubble {
 	position: absolute;
@@ -900,7 +1272,7 @@ header .shortcuts li.notifications span.bubble {
 	text-indent: initial;
 }
 header .shortcuts li.favorites a {
-	background-position: -10px -48px
+	background-position: -6px -48px
 }
 /*** sidebar ***/
 #oe_sidebar {
@@ -934,7 +1306,7 @@ header .shortcuts li.favorites a {
 	width: 24px;
 	height: 25px;
 	position: absolute;
-	right: -1px;
+	right: 10px;
 	top: 12px
 }
 #oe_sidebar .toggle-button.top {
@@ -945,10 +1317,10 @@ header .shortcuts li.favorites a {
 	background-repeat: no-repeat
 }
 .sidebar-on #oe_sidebar .toggle-button {
-	background-position: -9px -254px
+	background-position: -2px -254px
 }
 .sidebar-off #oe_sidebar .toggle-button {
-	background-position: -9px -216px
+	background-position: -2px -216px
 }
 /* sidebar notifications */
 #oe_sidebar .notification a {
@@ -997,12 +1369,12 @@ header .shortcuts li.favorites a {
 	border-bottom: 1px solid #adadad;
 	/*margin-top: 45px*/
 }
-#oe_pagemenu li {
+#oe_pagemenu li, #oe_pagemenu li a.no-nav {
 	position: relative;
-	zoom: 1;
-	background: url(../images/layout/navigation-bg.gif) repeat-x top;
+/*	background: url(../images/layout/navigation-bg.gif) repeat-x top; */
 	line-height: 35px;
-	padding: 0
+	padding: 0;
+	zoom: 1
 }
 /* position sticky menu */
 .sidebar-on #oe_sidebar nav.navigation {
@@ -1013,16 +1385,15 @@ header .shortcuts li.favorites a {
 	overflow: hidden
 }
 /* toggle submenu */
-#oe_pagemenu li span.open-nav,
-#oe_pagemenu li a.no-nav {
+#oe_pagemenu li span.open-nav, #oe_pagemenu li a.no-nav {
 	display: block;
 	width: 210px;
 	height: 35px;
-	z-index:50;
+	z-index: 50;
 	position: absolute;
 	right: 5px;
 	top: 0;
-	text-indent: -9999em
+/*	text-indent: -9999em */
 }
 
 #oe_pagemenu li span.open-nav.open-sub,
@@ -1034,22 +1405,27 @@ header .shortcuts li.favorites a {
 	cursor: pointer;
 	background: url(../images/layout/sprite_norepeat.png) 180px -176px no-repeat
 }
+
 /*** menu style ***/
+
 #oe_pagemenu li a {
 	background: url(../images/layout/sprite_norepeat.png) no-repeat;
 	color: #232323;
 	outline: 0;
 	margin-left: 9px;
-	height: 33px;
-	font-weight: bold;
+	height: 28px;
+/*	font-weight: bold; */
 	display: block;
-	text-shadow: 1px 1px 0px #fff;
+	text-shadow: 1px 1px 0 #fff;
 	padding-left: 30px;
 	text-decoration: none;
 	border: 1px solid transparent;
 }
 #oe_pagemenu li.current li a {
 	color: #232323
+}
+#oe_pagemenu li a.no-nav {
+	background: none
 }
 #oe_pagemenu li ul,
 #oe_container.sidebar-off #oe_pagemenu li span.open-nav {
@@ -1072,86 +1448,102 @@ header .shortcuts li.favorites a {
 	color: #147fdb;
 }
 #oe_pagemenu li a:focus {
-        color: #147fdb !important;
-        border: 1px solid #147fdb;
-        margin-right: 10px;
+		color: #147fdb !important;
+		border: 1px solid #147fdb;
+		margin-right: 10px;
 }
-#oe_pagemenu li a.main {
-	background-position: -10px -484px
+#oe_pagemenu a.main {
+	background-position: -6px -484px
 }
-#oe_pagemenu li a.content {
-	background-position: -10px -520px
+#oe_pagemenu a.content {
+	background-position: -6px -1228px
 }
 #oe_pagemenu li a.layout {
-	background-position: -10px -556px
+	background-position: -6px -556px
 }
 #oe_pagemenu li a.files {
-	background-position: -10px -520px
+	background-position: -6px -520px
 }
 #oe_pagemenu li a.usersgroups {
-	background-position: -10px -592px
+	background-position: -6px -592px
 }
 #oe_pagemenu li a.extensions {
-	background-position: -10px -628px
+	background-position: -6px -629px
+}
+#oe_pagemenu li a.services {
+	background-position: -6px -1110px
 }
 #oe_pagemenu li a.siteadmin {
-	background-position: -10px -664px
+	background-position: -6px -667px
 }
 #oe_pagemenu li a.myprefs {
-	background-position: -10px -700px
+	background-position: -6px -700px
 }
 #oe_pagemenu li a.ecommerce {
-	background-position: -10px -990px
+	background-position: -6px -990px
 }
+#oe_pagemenu li a.logout {
+	background-position: -6px -1170px
+}
+
 /* hover, active */
 #oe_pagemenu li a.main:hover,
 #oe_pagemenu li.current a.main,
 #oe_pagemenu li:hover a.main {
-	background-position: -10px -278px
+	background-position: -6px -278px
 }
 #oe_pagemenu li a.content:hover,
 #oe_pagemenu li.current a.content,
 #oe_pagemenu li:hover a.content {
-	background-position: -10px -758px
+	background-position: -6px -1201px
 }
 #oe_pagemenu li a.layout:hover,
 #oe_pagemenu li.current a.layout,
 #oe_pagemenu li:hover a.layout {
-	background-position: -10px -790px
+	background-position: -6px -790px
 }
 #oe_pagemenu li a.files:hover,
 #oe_pagemenu li.current a.files,
 #oe_pagemenu li:hover a.files {
-	background-position: -10px -758px
+	background-position: -6px -759px
 }
 #oe_pagemenu li a.usersgroups:hover,
 #oe_pagemenu li.current a.usersgroups,
 #oe_pagemenu li:hover a.usersgroups {
-	background-position: -10px -823px
+	background-position: -6px -823px
 }
 #oe_pagemenu li a.extensions:hover,
 #oe_pagemenu li.current a.extensions,
 #oe_pagemenu li:hover a.extensions {
-	background-position: -10px -854px
+	background-position: -6px -855px
+}
+#oe_pagemenu li a.services:hover,
+#oe_pagemenu li.current a.services,
+#oe_pagemenu li:hover a.services {
+	background-position: -6px -1081px
 }
 #oe_pagemenu li a.siteadmin:hover,
 #oe_pagemenu li.current a.siteadmin,
 #oe_pagemenu li:hover a.siteadmin  {
-	background-position: -10px -921px
+	background-position: -6px -924px
 }
 #oe_pagemenu li a.myprefs:hover,
 #oe_pagemenu li.current a.myprefs,
 #oe_pagemenu li:hover a.myprefs {
-	background-position: -10px -885px
+	background-position: -6px -885px
 }
 #oe_pagemenu li a.ecommerce:hover,
 #oe_pagemenu li.current a.ecommerce,
 #oe_pagemenu li:hover a.ecommerce {
-	background-position: -10px -953px
+	background-position: -6px -953px
 }
+#oe_pagemenu li:hover a.logout {
+	background-position: -6px -1139px
+}
+
 /* second level & collapsed sidebar */
 #oe_pagemenu ul {
-	padding: 8px 0;
+	/* padding: 8px 0; */
 	background: #f0f0f0
 }
 #oe_pagemenu li li {
@@ -1165,11 +1557,11 @@ header .shortcuts li.favorites a {
 #oe_pagemenu li.current li a,
 #oe_pagemenu li li a,
 #oe_pagemenu li:hover li a {
-    height: auto;
-    line-height: 1.3;
-    white-space: pre-line;
-    word-break: normal;
-	padding: 5px 5px 5px 30px;
+	height: auto;
+	line-height: 1.3;
+	white-space: pre-line;
+	word-break: normal;
+	padding: 1px 0 1px 30px;
 	color: #232323;
 	font-weight: normal;
 	background-image: none;
@@ -1267,7 +1659,7 @@ footer#oe_footer a:hover, footer#oe_footer a:active {
 	width: auto;
 	margin:0;
 	padding:0;
-	float: left;
+/*	float: left; */
 	display: inline;
 	color: #147fdb
 }
@@ -1329,15 +1721,12 @@ div.pageoverflow {
 	overflow: hidden
 }
 div.pageoverflow img {
-	border: 0px
+	border: 0
 }
-div.pageoptions,
-p.pageoptions {
+div.pageoptions, p.pageoptions {
 	padding: 2px 0
 }
-div.pageoptions a,
-p.pageoptions a,
-a.pageoptions {
+div.pageoptions a, p.pageoptions a, a.pageoptions {
 	padding: 2px 0;
 	color: #585858;
 	display: inline;
@@ -1347,6 +1736,12 @@ img.systemicon {
 	border: none;
 	vertical-align: top
 }
+
+.pageheader img {
+    max-height: 2em;
+    max-width: 2em;
+}
+
 #copy_paste_in_forum {
 	width: 80%;
 	margin: 0 10%
@@ -1354,10 +1749,10 @@ img.systemicon {
 .pagerows a {
 	display: inline-block;
 	background: #eee;
-	padding: 2px 4px;
-	margin: 2px 1px;
-	color: #585858;
 	border: 1px solid #ccc
+	margin: 2px 1px;
+	padding: 2px 4px;
+	color: #585858;
 }
 .pagerows strong {
 	background: #147fdb;
@@ -1366,19 +1761,21 @@ img.systemicon {
 	color: #fff;
 	border: 1px solid #147fdb
 }
+
 /*** dialogs ***/
+
 div.alert-dialog ul li {
 	margin: 10px 0
 }
 div.alert-dialog .alert-icon {
-    float: left;
-    cursor: pointer;
-    margin-right: 4px;
+	float: left;
+	margin-right: 4px;
+	cursor: pointer;
 }
 div.alert-dialog .alert-remove {
-    float: right;
-    cursor: pointer;
-    margin-left: 4px;
+	float: right;
+	margin-left: 4px;
+	cursor: pointer;
 }
 div.alert-dialog span.ui-icon {
 }
@@ -1398,7 +1795,14 @@ div.dialog form#chdir_form {
 div.dialog form#chdir_form select {
 	width: 200px
 }
+
 /*** tables ***/
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
 table th:first-child {
 	border-top-left-radius: 4px
 }
@@ -1443,7 +1847,7 @@ table.pagetable th.active {
 	color: #147fdb
 }
 table.pagetable th input:focus {
-        outline: 2px solid #fa8004;
+		outline: 2px solid #fa8004;
 }
 table.pagetable th.active a,
 table.pagetable th a:hover {
@@ -1462,7 +1866,7 @@ table.pagetable a {
 	color: #232323
 }
 table.pagetable td a:focus {
-        color: #147fdb;
+		color: #147fdb;
 }
 /*
 table.pagetable a.tooltip {
@@ -1543,7 +1947,7 @@ td.icons_wide {
 
 /*** Design manager ***/
 .pointer {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 #oe_mainarea ul.sortable-list {
@@ -1758,8 +2162,8 @@ textarea.pageextrasmalltextarea {
 }
 /*** topcontent - dashboard ***/
 #topcontent_wrap {
-    display: flex;
-    flex-wrap: wrap;
+	display: flex;
+	flex-wrap: wrap;
 }
 .dashboard-box {
 	min-height: 100px;
@@ -1780,27 +2184,27 @@ textarea.pageextrasmalltextarea {
 .dashboard-box img {
 	max-height: 48px;
 	padding: 20px;
-	box-shadow: inset 0px 1px 15px 1px #ddd;
-	-webkit-box-shadow: inset 0px 1px 15px 1px #ddd;
+	box-shadow: inset 0 1px 15px 1px #ddd;
+	-webkit-box-shadow: inset 0 1px 15px 1px #ddd;
 	margin-right: 10px;
 	float: left;
 	border: 1px solid #ddd;
 	background: #fff
 }
 .dashboard-box:hover img {
-	box-shadow: inset 0px 1px 15px 1px #ffd8b0;
-	-webkit-box-shadow: inset 0px 1px 15px 1px #ffd8b0;
+	box-shadow: inset 0 1px 15px 1px #ffd8b0;
+	-webkit-box-shadow: inset 0 1px 15px 1px #ffd8b0;
 	transition: all 600ms ease-in-out;
 	-webkit-transition: all 600ms ease-in-out;
 	   -moz-transition: all 600ms ease-in-out;
-	     -o-transition: all 600ms ease-in-out
+		 -o-transition: all 600ms ease-in-out
 }
 .dashboard-box h3 {
 	text-shadow: 0 1px 0 #fff;
 	margin:0 0 5px 0
 }
 .dashboard-box h3 a:focus {
-        border: 1px solid #147fdb;
+		border: 1px solid #147fdb;
 }
 .dashboard-box span.description {
 	color: #585858;
@@ -1900,8 +2304,7 @@ ul.sortable .placeholder {
 	bottom: 0;
 	right:0
 }
-a.toggle-dropzone:active,
-a.toggle-dropzone:focus {
+a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	outline: none
 }
 .drop-inner.hidden + a.toggle-dropzone {
@@ -1925,8 +2328,7 @@ a.toggle-dropzone:focus {
 	border: 1px dashed #ccc;
 	text-align: center
 }
-.drop div.zone:hover,
-.drop div.zone:focus {
+.drop div.zone:hover, .drop div.zone:focus {
 	border: 1px dashed #77ab13
 }
 .drop #theme_dropzone {
@@ -1942,10 +2344,10 @@ a.toggle-dropzone:focus {
 	float:left;
 	margin-right: 10px;
 	width: 16px;
+	background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left
 	cursor: pointer;
 	height: 30px;
 	text-align: left;
-	background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left
 }
 .drop.hidden .drop-inner {
 	display: none
@@ -1982,15 +2384,15 @@ a.toggle-dropzone:focus {
 	top: -29px
 }
 #login div.login-box {
-  background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
-  position: relative;
-  border-radius: 4px 4px 0 4px;
-  border: 1px solid #aaa;
-  box-shadow: #999 0 0 6px;
-  -webkit-box-shadow: #999 0 0 6px;
-  margin: 0 auto;
-  padding: 10px 20px;
-  width: 310px
+    background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;  
+    position: relative;
+    border-radius: 4px 4px 0 4px;
+    border: 1px solid #aaa;
+    box-shadow: #999 0 0 6px;
+    -webkit-box-shadow: #999 0 0 6px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    width: 310px
 }
 #login h1 {
 	color: #585858;
@@ -2025,8 +2427,8 @@ a.toggle-dropzone:focus {
 	-webkit-box-shadow:0 0 5px #147fdb;
 	transition: all 0.2s ease-in-out;
 	-webkit-transition: all 200ms ease-in-out;
-	   -moz-transition: all 200ms ease-in-out;
-	     -o-transition: all 200ms ease-in-out
+	-moz-transition: all 200ms ease-in-out;
+	-o-transition: all 200ms ease-in-out
 }
 #login input.loginsubmit {
 	border: 1px solid #838282;
@@ -2132,7 +2534,7 @@ a.toggle-dropzone:focus {
 	display: block
 }
 
-/* 2.0 STYLES, moved from inline .tpl, please do not add inline styles, thank you
+/* 2.0 STYLES, moved from inline .tpl, please do not use inline styles!
  * and this needs more work
  */
 
@@ -2185,8 +2587,8 @@ a.toggle-dropzone:focus {
 }
 
 #oe_mainarea .options-menu li.parent:hover {
-    background: #fafafa;
-    cursor: pointer;
+	background: #fafafa;
+	cursor: pointer;
 }
 
 #oe_mainarea .options-menu li:hover ul {
@@ -2194,7 +2596,7 @@ a.toggle-dropzone:focus {
 	top: 32px;
 	width: 240px;
 	background: #fafafa;
-        border: 1px solid #d0d0d0;
+	border: 1px solid #d0d0d0;
 }
 
 #oe_mainarea .options-menu li li {
@@ -2204,14 +2606,11 @@ a.toggle-dropzone:focus {
 
 /* --- CMS_HELP --- */
 
-.cms_helptext ul{
-
+.cms_helptext ul {
 	padding: 0 10px;
 	list-style: disc;
 }
-
 .cms_helptext ul li{
-
 	margin-bottom: 8px;
 }
 
@@ -2379,7 +2778,7 @@ a.toggle-dropzone:focus {
 		width: auto
 	}
 	.sidebar-off #oe_sidebar nav.navigation {
-	        width: 40px;
+			width: 40px;
 		overflow: hidden
 	}
 	header.header {
@@ -2471,9 +2870,9 @@ a.toggle-dropzone:focus {
 		height: auto
 	}
 	select {
-    	-webkit-appearance: listbox;
-    	-moz-appearance: listbox;
-    }
+		-webkit-appearance: listbox;
+		-moz-appearance: listbox;
+	}
 	#login #wrapper {
 		padding-top: 2%
 	}
@@ -2532,11 +2931,11 @@ a.toggle-dropzone:focus {
 }
 
 .cmsfp_dlg {
-    padding: 0 !important;
+	padding: 0 !important;
 }
 .cmsfp_dlg iframe {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    border: none;
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
+	border: none;
 }

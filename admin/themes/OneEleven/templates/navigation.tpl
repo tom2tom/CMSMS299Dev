@@ -27,9 +27,7 @@
  </li>
 {/foreach}
  </ul>
-{if $depth == 0}
-</nav>
-{/if}
+{if $depth == 0}</nav>{/if}
 {/function}
 {/strip}
 {menu_branch nav=$nav depth=0}
