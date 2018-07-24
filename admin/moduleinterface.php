@@ -78,8 +78,15 @@ if ($CMS_JOB_TYPE == 0) {
     $themeObject = cms_utils::get_theme_object();
     $themeObject->set_action_module($module);
 
-    include_once 'header.php';
+    // retrieve and park the action-output first, in case the action also generates header content
+    ob_start();
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+    $content = ob_get_contents();
+    ob_end_clean();
+
+    include_once 'header.php';
+    // back into the buffer,  now that 'pre-content' things are in place
+    echo $content;
 
     if (!empty($params['module_error'])) $themeObject->RecordNotice('error', $params['module_error']);
     if (!empty($params['module_message'])) $themeObject->RecordNotice('success', $params['module_message']);
