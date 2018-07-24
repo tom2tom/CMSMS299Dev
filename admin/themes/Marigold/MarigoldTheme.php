@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
@@ -48,19 +47,18 @@ class MarigoldTheme extends CmsAdminThemeBase
 	{
 		list($vars, $add_list) = parent::AdminHeaderSetup($vars, $add_list);
 
-		$config = cms_config::get_instance();
-		$admin_url = $config['admin_url'];
+		$config = cms_config::get_instance(); //also used by included file
+//		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
-//		$base_url = $admin_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 		$fn = 'style';
 		if (CmsNlsOperations::get_language_direction() == 'rtl') {
 			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
 		}
-		list ($jqui, $jqcss) = cms_jqueryui_local();
-		$url = AdminUtils::path_to_url($jqcss);
+		$incs = cms_installed_jquery(true, true, true, true);
+		$url = AdminUtils::path_to_url($incs['jquicss']);
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
@@ -74,11 +72,10 @@ EOS;
 		}
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
-		list ($jqcore, $jqmigrate) = cms_jquery_local();
 		$sm = new ScriptManager();
-		$sm->queue_file($jqcore, 1);
-		$sm->queue_file($jqmigrate, 1); //in due course, omit this ?
-		$sm->queue_file($jqui, 1);
+		$sm->queue_file($incs['jqcore'], 1);
+		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+		$sm->queue_file($incs['jqui'], 1);
         $p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
 		$fn = $sm->render_scripts('', false, false);
@@ -98,7 +95,7 @@ EOS;
 		$sm->reset();
 		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
 		$sm->queue_file($p.'jquery.toast.js', 1); //OR .min for production
-        $p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
+		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$fn = $sm->render_scripts();
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
@@ -147,11 +144,10 @@ EOS;
 
 	public function do_minimal()
 	{
+		$incs = cms_installed_jquery(true, false, true, false);
 		$sm = new ScriptManager();
-		list ($jqcore) = cms_jquery_local();
-		$sm->queue_file($jqcore, 1);
-		list ($jqui) = cms_jqueryui_local();
-		$sm->queue_file($jqui, 1);
+		$sm->queue_file($incs['jqcore'], 1);
+		$sm->queue_file($incs['jqui'], 1);
 		$fn = $sm->render_scripts('', false, false);
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION);
 
@@ -172,10 +168,21 @@ EOS
 		return $smarty->fetch('minimal.tpl');
 	}
 
-	public function do_loginpage(string $pageid = '')
+/* ALTERNATE APPROACH TO LOGIN PROCESSING - NOT YET EVALUATED
+	public function do_login($params = null)
 	{
+		$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
+		$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
+		if ($modinst) {
+			$data = $modinst->StageLogin(); //returns only if further processing is needed
+		} else {
+			die('System error');
+		}
+
 		$smarty = Smarty::get_instance();
+		$smarty->assign($data);
 		$config = cms_config::get_instance();
+		// TODO
 		$smarty->assign('content', $this->get_content());
 		$smarty->assign('title', $this->title);
 		$smarty->assign('subtitle', $this->subtitle);
@@ -187,13 +194,10 @@ EOS
 		$smarty->assign('pageid', $pageid);
 		$smarty->assign('dynamic_headtext', $this->get_headtext());
 
-		$otd = $smarty->GetTemplateDir();
-		$smarty->SetTemplateDir(__DIR__.'/templates');
-		$out = $smarty->fetch('login.tpl');
-		$smarty->SetTemplateDir($otd);
-		return $out;
+		$smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
+		$smarty->display('login.tpl');
 	}
-
+*/
 	/**
 	 * @param  mixed $params For parent-compatibility only, unused.
 	 */
@@ -216,21 +220,18 @@ EOS
 		require_once $fp;
 		$smarty->assign($tplvars);
 
-		$smarty->assign('assets_url', $config['admin_url'] . '/themes/assets');
-
-		//extra theme-specific parameters for the form
+		//extra theme-specific setup
 		$fp = cms_join_path(__DIR__, 'function.extraparms.php');
 		if (is_file($fp)) {
 			require_once $fp;
-			$smarty->assign($tplvars);
+			if (!empty($tplvars)) {
+				$smarty->assign($tplvars);
+			}
 		}
 
-//TODO	ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
-
 		// css: jquery-ui and scripts: jquery, jquery-ui
-		list ($jqui, $jqcss) = cms_jqueryui_local();
-		$url = AdminUtils::path_to_url($jqcss);
-// dir="{$lang_dir|default:'ltr'}">
+		$incs = cms_installed_jquery();
+		$url = AdminUtils::path_to_url($incs['jquicss']);
 		$dir = ''; //TODO or '-rtl'
 		$out = <<<EOS
 <link rel="stylesheet" href="$url" />
@@ -238,10 +239,9 @@ EOS
 
 EOS;
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
-		list ($jqcore, $jqmigrate) = cms_jquery_local();
-		$url = AdminUtils::path_to_url($jqcore);
+		$url = AdminUtils::path_to_url($incs['jqcore']);
 		$out .= sprintf($tpl, $url);
-		$url = AdminUtils::path_to_url($jqui);
+		$url = AdminUtils::path_to_url($incs['jqui']);
 		$out .= sprintf($tpl, $url);
 
 		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
@@ -385,11 +385,5 @@ EOS;
 		$_contents = $smarty->fetch('pagetemplate.tpl');
 		$smarty->template_dir = $otd;
 		return $_contents;
-	}
-
-	/* REDUNDANT ?? */
-	public function get_my_alerts()
-	{
-		return Alert::load_my_alerts();
 	}
 }
