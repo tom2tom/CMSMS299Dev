@@ -156,7 +156,7 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2
 *+ html .cf {
     min-height: 1%
 }
-.cf:after {
+.cf::after {
     clear: both;
     content: ".";
     display: block;
@@ -429,9 +429,9 @@ button.ui-button:hover, button.ui-button.ui-state-hover, button.ui-button:active
 }
 /* TODO useless on IE7, need to insert a span into the button,
 or for recent browsers, a double-background */
-/* IE8 recognises .before, not :before */
-.adminsubmit.icon:before, .adminsubmit.icon.before,
-a.link_button.icon:before, a.link_button.icon.before {
+/* IE8 recognises .before, not ::before */
+.adminsubmit.icon::before, .adminsubmit.icon.before,
+a.link_button.icon::before, a.link_button.icon.before {
     background-image:url(../images/buttonssprite.png);
     background-size: 10em 1em;
     display: inline-block;
@@ -455,8 +455,8 @@ a.link_button.icon:before, a.link_button.icon.before {
     width: 1em;
     height: 1em;
 }
-/*.ui-button.ui-icon:before, .ui-button.ui-icon.before, */
-.ui-dialog-buttonset .ui-icon:before {
+/*.ui-button.ui-icon::before, .ui-button.ui-icon.before, */
+.ui-dialog-buttonset .ui-icon::before {
     background-image:url(../images/buttonssprite.png);
     background-size: 10em 1em;
     display: inline-block;
@@ -466,34 +466,34 @@ a.link_button.icon:before, a.link_button.icon.before {
     content: ' ';
 }
 
-.icon.check:before, .icon.check.before, .ui-icon-check:before, .ui-icon-check.before {
+.icon.check::before, .icon.check.before, .ui-icon-check::before, .ui-icon-check.before {
     background-position: 1em 0;
 }
-.icon.cancel:before, .icon.cancel.before, .ui-icon-cancel:before, .ui-icon-cancel.before {
+.icon.cancel::before, .icon.cancel.before, .ui-icon-cancel::before, .ui-icon-cancel.before {
     background-position: 2em 0;
 }
-.icon.apply:before, .icon.apply.before {
+.icon.apply::before, .icon.apply.before {
     background-position: 3em 0;
 }
-.icon.undo:before, .icon.undo.before {
+.icon.undo::before, .icon.undo.before {
     background-position: 4em 0;
 }
-.icon.do:before, .icon.do.before {
+.icon.do::before, .icon.do.before {
     background-position: 5em 0;
 }
-.icon.go:before, .icon.go.before {
+.icon.go::before, .icon.go.before {
     background-position: 6em 0;
 }
-.icon.back:before, .icon.back.before {
+.icon.back::before, .icon.back.before {
     background-position: 7em 0;
 }
-.icon.delete:before, .icon.delete.before {
+.icon.delete::before, .icon.delete.before {
     background-position: 8em 0;
 }
-.icon.search:before, .icon.search.before {
+.icon.search::before, .icon.search.before {
     background-position: 9em 0;
 }
-.icon.add:before, .icon.add.before {
+.icon.add::before, .icon.add.before {
     background-position: 10em 0;
 }
 
@@ -1263,58 +1263,61 @@ body {
     text-decoration: none
 }
 
-#ggp_header .shortcuts {
+#shortcuts {
     float: right;
     margin: -5px 0 0 0;
 }
-#ggp_header .shortcuts ul {
+#shortcuts ul {
     width: auto;
     text-align: left;
     margin-right: 10px
 }
-#ggp_header .shortcuts li {
+#shortcuts li {
     float: left;
     padding: 0 6px
 }
-
-#ggp_header .shortcuts li:last-child {
+#shortcuts li:last-child {
     padding: 0 0 0 6px
 }
-/*
-header .shortcuts li i {
+#shortcuts li i {
     font-size: 1.2em;
-    padding-top: 0.35em;
+/*    padding-top: 0.35em; */
 }
-*/
-#ggp_header .shortcuts li a {
+#shortcuts li.notice > a > i {
+    margin-right: -3px;
+    padding-right: 0
+}
+#shortcuts li a {
     cursor: pointer;
     color: #244323;
 }
-#ggp_header .shortcuts li a span.shortcuticon {
+#shortcuts li a span.shortcuticon {
     margin: 0;
 /*    margin-top: -3px; */
     padding: 3px;
 }
-#ggp_header .shortcuts li a:hover {
+#shortcuts li a:hover {
     color: #3c9b0a
 }
-#ggp_header .shortcuts li.notifications {
+#shortcuts li.notifications {
     position: relative;
 }
-#ggp_header .shortcuts li.notifications span.bubble {
-    position: absolute;
+#shortcuts li.notice span.bubble {
+/*    position: absolute;
     top: 1px;
     right: 0;
     margin-right: 0;
     text-align: center;
     width: 1.2em;
     height: 1.2em;
-    border-radius: 0.8em;
-    background: #990000;
+    */
+    padding: 5px 5px 2px 5px;
+    border-radius: 10px;
+    background-color: #990000;
     font-size: 0.8em;
-    line-height: 1.5;
+    line-height: 1.2;
     font-weight: bold;
-    text-indent: initial;
+/*    text-indent: initial; */
     color: white;
 }
 
@@ -1322,12 +1325,12 @@ header .shortcuts li i {
 
 @font-face {
   font-family: 'ggnav';
-  src: url('../font/ggnav.eot?45039709');
-  src: url('../font/ggnav.eot?45039709#iefix') format('embedded-opentype'),
-       url('../font/ggnav.woff2?45039709') format('woff2'),
-       url('../font/ggnav.woff?45039709') format('woff'),
-       url('../font/ggnav.ttf?45039709') format('truetype'),
-       url('../font/ggnav.svg?45039709#ggnav') format('svg');
+  src: url('../font/ggnav.eot?27860549');
+  src: url('../font/ggnav.eot?27860549#iefix') format('embedded-opentype'),
+       url('../font/ggnav.woff2?27860549') format('woff2'),
+       url('../font/ggnav.woff?27860549') format('woff'),
+       url('../font/ggnav.ttf?27860549') format('truetype'),
+       url('../font/ggnav.svg?27860549#ggnav') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -1337,16 +1340,16 @@ header .shortcuts li i {
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'ggnav';
-    src: url('../font/ggnav.svg?45039709#ggnav') format('svg');
+    src: url('../font/ggnav.svg?27860549#ggnav') format('svg');
   }
 }
 */
-[class^="ggi-"]:before, [class*=" ggi-"]:before,
-#toggle-button:before, #ggp_navhead li a.icon:before,
-#ggp_menu li a.icon:before,
+
+[class^="ggi-"]::before, [class*=" ggi-"]::before,
+#toggle-button::before, #ggp_navhead li a.icon::before,
+#ggp_menu li a.icon::before,
 .dashboard-box h3 a::before,
-.shortcuticon {
-  font-family: "ggnav";
+.shortcuticon {  font-family: "ggnav";
   font-style: normal;
   font-weight: normal;
   speak: none;
@@ -1367,7 +1370,7 @@ header .shortcuts li i {
 
   /* Animation center compensation - margins should be symmetric */
   /* remove if not needed */
-/*  margin-left: .2em; */
+  /* margin-left: .2em; */
 
   /* you can be more comfortable with increased icons size */
   /* font-size: 120%; */
@@ -1415,19 +1418,19 @@ header .shortcuts li i {
 .shortcuticon:hover {
     color: #3c9b0a
 }
-.help .shortcuticon:before {
+.help .shortcuticon::before {
     content: '\e810'
 }
-.mainsite .shortcuticon:before {
-    content: '\e800';
+.mainsite .shortcuticon::before {
+    content: '\e800'
 }
-.favorites .shortcuticon:before {
-    content: '\e808';
+.favorites .shortcuticon::before {
+    content: '\e808'
 }
-.notice .shortcuticon:before {
+.notice i.notice::before {
     content: '\e80d'
 }
-.logout .shortcuticon:before {
+.logout .shortcuticon::before {
     content: '\e804'
 }
 
@@ -1444,13 +1447,13 @@ header .shortcuts li i {
     background-color: #58814c; /* or #157200 */
     color: #fffaf0;
 }
-#ggp_navhead li a.icon:before {
+#ggp_navhead li a.icon::before {
     margin: 0 0 0 5px;
     padding: 0.3em;
     font-size: 1.2em;
     content: '\e80e'
 }
-#ggp_navwrap.sidebar-off #ggp_navhead li a.icon:before {
+#ggp_navwrap.sidebar-off #ggp_navhead li a.icon::before {
     content: '\e80f'
 }
 #ggp_navhead li span {
@@ -1710,8 +1713,8 @@ header .shortcuts li i {
 #ggp_menu li a span:hover {
     cursor: pointer;
 }
-#ggp_menu li.current span.open-nav:after,
-#ggp_menu li span.open-nav:hover:after {
+#ggp_menu li.current span.open-nav::after,
+#ggp_menu li span.open-nav:hover::after {
     display: inline-block;
     background-image: url(../images/navindicators.png);
     float: right;
@@ -1722,13 +1725,13 @@ header .shortcuts li i {
     content: ' ';
     z-index: 20;
 }
-#ggp_menu li.current span.open-nav:after {
+#ggp_menu li.current span.open-nav::after {
     background-position: 24px 0; /*LTR*/
 }
-#ggp_menu li span.open-nav.open-sub:hover:after {
+#ggp_menu li span.open-nav.open-sub:hover::after {
     background-position: 36px 0;
 }
-#ggp_menu li span.open-nav:hover:after {
+#ggp_menu li span.open-nav:hover::after {
     background-position: 48px 0;
 }
 
@@ -1774,54 +1777,54 @@ header .shortcuts li i {
 }
 */
 
-#ggp_navhead li a.icon:before,
-#ggp_menu li a.icon:before  {
+#ggp_navhead li a.icon::before,
+#ggp_menu li a.icon::before  {
     margin: 0 0 0 5px;
     padding: 0.3em;
     font-size: 1.2em;
 }
 
-#ggp_menu > li > a:before {
+#ggp_menu > li > a::before {
 }
-#ggp_menu li a:hover:before {
+#ggp_menu a:hover::before {
     background-color: #3c9b0a
 }
-#ggp_menu li a.icon:before {
+#ggp_menu a.icon::before {
 }
-#ggp_menu li a.icon:hover:before {
+#ggp_menu a.icon:hover::before {
 }
 
-#ggp_menu li a.main:before {
+a.main::before {
     content: '\e803';
 }
-#ggp_menu li a.content:before {
+a.content::before {
     content: '\e80a';
 }
-#ggp_menu li a.layout:before {
+a.layout::before {
     content: '\e80c';
 }
-#ggp_menu li a.files:before {
+a.files::before {
     content: '\e809';
 }
-#ggp_menu li a.usersgroups:before {
+a.usersgroups::before {
     content: '\e805';
 }
-#ggp_menu li a.extensions:before {
+a.extensions::before {
     content: '\e801';
 }
-#ggp_menu li a.services:before {
+a.services::before {
     content: '\e802';
 }
-#ggp_menu li a.siteadmin:before {
+a.siteadmin::before {
     content: '\e80b';
 }
-#ggp_menu li a.myprefs:before {
+a.myprefs::before {
     content: '\e806';
 }
-#ggp_menu li a.ecommerce:before {
+a.ecommerce::before {
     content: '\e807';
 }
-#ggp_menu li a.logout:before {
+a.logout::before {
     content: '\e804';
 }
 
@@ -1915,41 +1918,41 @@ header .shortcuts li i {
 .dashboard-box h3 a:focus {
     border: 1px solid #3c9b0a;
 }
-.dashboard-box h3.dashboard-icon a:before {
+.dashboard-box h3.dashboard-icon a::before {
     padding-right: 5px;
     font-size: 1.5em;
 }
-.dashboard-box h3.main a:before {
+.dashboard-box h3.main a::before {
     content: '\e803';
 }
-.dashboard-box h3.content a:before {
+.dashboard-box h3.content a::before {
     content: '\e80a';
 }
-.dashboard-box h3.layout a:before {
+.dashboard-box h3.layout a::before {
     content: '\e80c';
 }
-.dashboard-box h3.files a:before {
+.dashboard-box h3.files a::before {
     content: '\e809';
 }
-.dashboard-box h3.usersgroups a:before {
+.dashboard-box h3.usersgroups a::before {
     content: '\e805';
 }
-.dashboard-box h3.extensions a:before {
+.dashboard-box h3.extensions a::before {
     content: '\e801';
 }
-.dashboard-box h3.services a:before {
+.dashboard-box h3.services a::before {
     content: '\e802';
 }
-.dashboard-box h3.siteadmin a:before {
+.dashboard-box h3.siteadmin a::before {
     content: '\e80b';
 }
-.dashboard-box h3.myprefs a:before {
+.dashboard-box h3.myprefs a::before {
     content: '\e806';
 }
-.dashboard-box h3.ecommerce a:before {
+.dashboard-box h3.ecommerce a::before {
     content: '\e809';
 }
-.dashboard-box h3.logout a:before {
+.dashboard-box h3.logout a::before {
     content: '\e804';
 }
 .dashboard-box span.description {
@@ -1982,11 +1985,11 @@ header .shortcuts li i {
     margin: 0 auto;
     position: relative;
 }
-.row:before, .row:after {
+.row::before, .row::after {
     content: " ";
     display: table;
 }
-.row:after {
+.row::after {
     clear: both;
 }
 .half {
@@ -2870,13 +2873,13 @@ ul.sortableList > li {
     #ggp_header .site-text, #ggp_header #cms-text {
         display: none
     }
-    header .shortcuts ul {
+    #shortcuts ul {
         margin-right: 8px;
     }
-    header .shortcuts li {
+    #shortcuts li {
         padding: 0 8px;
     }
-    header .shortcuts li i {
+    #shortcuts li i {
         font-size: 1.25rem;
         padding-top: 0.235em;
     }
@@ -2945,7 +2948,7 @@ ul.sortableList > li {
         height: 4em;
         text-align: center;
     }
-    #ggp_menu li a.parent:before {
+    #ggp_menu li a.parent::before {
         margin-right: 0;
         font-size: 1.35rem;
     }
