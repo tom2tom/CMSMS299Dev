@@ -3,12 +3,12 @@
 <head>
  <title>{lang('login_sitetitle', {sitename})}</title>
  <meta charset="{$encoding}" />
- <meta name="copyright" content="CMS Made Simple Foundation" />
+ <meta name="generator" content="CMS Made Simple" />
  <meta name="robots" content="noindex, nofollow" />
  <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
  <meta name="HandheldFriendly" content="true" />
  <meta name="msapplication-TileColor" content="#f89938" />
- <meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
+ <meta name="msapplication-TileImage" content="{$admin_url}/themes/assets/images/favicon/ms-application-icon.png" />
  <base href="{$admin_url}/" />
  <link rel="shortcut icon" href="themes/assets/images/cmsms-favicon.ico" />
  <link rel="stylesheet" href="themes/Ghostgum/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
