@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="loginstyle.php" />
 		{cms_jquery exclude="jquery.ui.nestedSortable-1.3.4.js,jquery.json-2.2.js" append="{admin_url}/themes/OneEleven/includes/login.js"}
 		<!--[if lt IE 9]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 		<![endif]-->
 {/if}
 	</head>

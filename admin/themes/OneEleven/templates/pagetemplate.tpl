@@ -24,7 +24,7 @@
 		<link rel="stylesheet" href="themes/OneEleven/css/default-cmsms/jquery-ui-1.10.4.custom.min.css" />
 		{cms_jquery append="{$admin_url}/themes/OneEleven/includes/standard.js" include_css=0}
 		<!--[if lt IE 9]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
 		<![endif]-->
 {/if}
 	</head>
