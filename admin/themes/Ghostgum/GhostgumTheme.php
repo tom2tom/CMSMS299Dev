@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
@@ -61,8 +60,8 @@ class GhostgumTheme extends CmsAdminThemeBase
 				$fn .= '-rtl';
 			}
 		}
-		list ($jqui, $jqcss) = cms_jqueryui_local();
-		$url = AdminUtils::path_to_url($jqcss);
+		$incs = cms_installed_jquery(true, true, true, true);
+		$url = AdminUtils::path_to_url($incs['jquicss']);
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
@@ -76,11 +75,10 @@ EOS;
 		}
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
-		list ($jqcore, $jqmigrate) = cms_jquery_local();
 		$sm = new ScriptManager();
-		$sm->queue_file($jqcore, 1);
-		$sm->queue_file($jqmigrate, 1); //in due course, omit this ?
-		$sm->queue_file($jqui, 1);
+		$sm->queue_file($incs['jqcore'], 1);
+		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
+		$sm->queue_file($incs['jqui'], 1);
         $p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
 		$fn = $sm->render_scripts('', false, false);
@@ -182,11 +180,10 @@ EOS;
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
 		// scripts: jquery, jquery-ui
-		list ($jqcore, $jqmigrate) = cms_jquery_local();
-		$url = AdminUtils::path_to_url($jqcore);
+		$incs = cms_installed_jquery(true, false, true, false);
+		$url = AdminUtils::path_to_url($incs['jqcore']);
 		$out = sprintf($tpl, $url);
-		list ($jqui, $jqcss) = cms_jqueryui_local();
-		$url = AdminUtils::path_to_url($jqui);
+		$url = AdminUtils::path_to_url($incs['jqui']);
 		$out .= sprintf($tpl, $url);
 
 		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)
@@ -330,11 +327,5 @@ EOS;
 		$_contents = $smarty->fetch('pagetemplate.tpl');
 		$smarty->template_dir = $otd;
 		return $_contents;
-	}
-
-	/* REDUNDANT ?? */
-	public function get_my_alerts()
-	{
-		return Alert::load_my_alerts();
 	}
 }
