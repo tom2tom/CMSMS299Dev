@@ -44,6 +44,7 @@ use RecursiveArrayTreeIterator;
 use RecursiveIteratorIterator;
 */
 
+use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
@@ -1688,6 +1689,15 @@ $X = 1;
     }
 
     /**
+     * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
+     * @since 2.3 (pre-2.3, specific themes handled this individually)
+     */
+	public function get_my_alerts()
+	{
+		return Alert::load_my_alerts();
+	}
+
+    /**
      * Return an array of admin pages, suitable for use in a dropdown.
      *
      * @internal
@@ -1913,12 +1923,12 @@ $X = 1;
      */
     public function do_authenticated_page() {}
 
-    /**
+    /* *
      * @param string $pageid Optional TODO:describe Default ''
      * @since 2.3
      */
-    public function do_loginpage(string $pageid = '') {}
-
+/*    public function do_loginpage(string $pageid = '') {}
+*/
     /**
      * Display and process a login form
      *
