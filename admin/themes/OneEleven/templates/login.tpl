@@ -11,8 +11,15 @@
 		<meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="themes/OneEleven/images/favicon/cmsms-favicon.ico" />
-{$header_includes|default:''}
+{if isset($header_includes)}{$header_includes}
 		<script type="text/javascript" src="themes/OneEleven/includes/login.js"></script>
+{else}
+		<link rel="stylesheet" href="loginstyle.php" />
+		{cms_jquery exclude="jquery.ui.nestedSortable-1.3.4.js,jquery.json-2.2.js" append="{admin_url}/themes/OneEleven/includes/login.js"}
+		<!--[if lt IE 9]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+{/if}
 	</head>
 	<body id="login">
 		<div id="wrapper">
