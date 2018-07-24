@@ -1074,57 +1074,86 @@ function cms_to_bool(string $str) : bool
 /**
  * Identify the, or the highest-versioned, installed jquery scripts
  * @since 2.3
- * @return 2-member array
- *  [0] = filepath of main jquery (min) file or ''
- *  [1] = filepath of jquery-migrate (min) file or ''
+ * @return array of filepaths, keys per params: 'jqcore','jqmigrate','jqui','jquicss'
  */
-function cms_jquery_local() : array
+function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui = true, bool $uicss = true) : array
 {
-    $core = '';
-    $migrate = '';
-    //the 'core' jquery files are named like jquery-*min.js
-    $patn = cms_join_path(__DIR__,'js','jquery','jquery-*min.js');
-    $files = glob($patn);
-    //grab the (or the last-sorted) versions
-    foreach ($files as $path) {
-        if (preg_match('/\-migrate\-?([0-9.]+)?min/',$path)) {
-            $migrate = $path;
-        } elseif (preg_match('/jquery\-?([0-9.]+)?min/',$path)) {
-            $core = $path;
-        }
-    }
-    return [$core, $migrate];
-}
+	$found = [];
+	$allfiles = false;
 
-/**
- * Identify the, or the highest-versioned, installed jquery-ui script
- * and its related css
- * @since 2.3
- * @return 2-member array
- *  [0] = filepath of jquery-ui (min) file or ''
- *  [1] = filepath of related css (min) file or ''
- */
-function cms_jqueryui_local() : array
-{
-    $ui = '';
-    //the 'core' jquery-ui file is named like jquery-ui*min.js
-    $patn = cms_join_path(__DIR__,'js','jquery-ui','jquery-ui*min.js');
-    $files = glob($patn);
-    //grab the (or the last-sorted) version
-    foreach ($files as $path) {
-        if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
-            $ui = $path;
+	if ($core) {
+		$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
+		$allfiles = scandir($fp);
+		//the 'core' jquery files are named like jquery-*min.js
+        $m = preg_grep('~^jquery\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
+        //find highest version
+        $best = '0';
+        $use = reset($m);
+        foreach ($m as $file) {
+            preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+            if (version_compare($best, $matches[1]) < 0) {
+                $best = $matches[1];
+                $use = $file;
+            }
         }
+        $found['jqcore'] = $fp.DIRECTORY_SEPARATOR.$use;
     }
-    $css = '';
-    $patn = cms_join_path(__DIR__,'js','jquery-ui','jquery-ui*min.css');
-    $files = glob($patn);
-    foreach ($files as $path) {
-        if (preg_match('/\-ui\-?([0-9.]+)?min/',$path)) {
-            $css = $path;
+
+	if ($migrate) {
+		if (!$allfiles) {
+			$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
+			$allfiles = scandir($fp);
+		}
+        $m = preg_grep('~^jquery\-migrate\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
+        $best = '0';
+        $use = reset($m);
+        foreach ($m as $file) {
+            preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+            if (version_compare($best, $matches[1]) < 0) {
+                $best = $matches[1];
+                $use = $file;
+            }
         }
-    }
-    return [$ui, $css];
+        $found['jqmigrate'] = $fp.DIRECTORY_SEPARATOR.$use;
+	}
+
+	$allfiles = false;
+
+	if ($ui) {
+		$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
+		$allfiles = scandir($fp);
+		$m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.js$~', $allfiles);
+        $best = '0';
+        $use = reset($m);
+        foreach ($m as $file) {
+            preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+            if (version_compare($best, $matches[1]) < 0) {
+                $best = $matches[1];
+                $use = $file;
+            }
+        }
+        $found['jqui'] = $fp.DIRECTORY_SEPARATOR.$use;
+	}
+
+	if ($uicss) {
+		if (!$allfiles) {
+			$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
+			$allfiles = scandir($fp);
+		}
+		$m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.css$~', $allfiles);
+        $best = '0';
+        $use = reset($m);
+        foreach ($m as $file) {
+            preg_match('~(\d[\d\.]+\d)~', $file, $matches);
+            if (version_compare($best, $matches[1]) < 0) {
+                $best = $matches[1];
+                $use = $file;
+            }
+        }
+        $found['jquicss'] = $fp.DIRECTORY_SEPARATOR.$use;
+	}
+
+    return $found;
 }
 
 /**
