@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//Deprecated since 2.3 - just include the relevant .css in the page header during its construction 
+//Deprecated since 2.3 - just include the relevant .css in the page header during its construction
 
 $CMS_ADMIN_PAGE=1;
 $CMS_LOGIN_PAGE=1;
@@ -43,7 +43,7 @@ if (file_exists(__DIR__."/themes/$theme/css/style.css")) {
     echo file_get_contents(__DIR__."/themes/$theme/css/style.css");
 }
 else {
-    echo file_get_contents(__DIR__."/themes/OneEleven/css/style.css");
+    echo file_get_contents(__DIR__."/themes/Marigold/css/style.css");
 }
 
 if (file_exists(__DIR__."/themes/".$theme."/extcss/style.css")) {
