@@ -350,9 +350,7 @@ pre, code, samp, kbd {
 	height: auto;
 	font-size: 14px
 	}
-pre code {
-
-	}
+pre code {}
 pre {
 	padding: 5px 20px;
 	border-left: 10px solid #cecece;
@@ -390,16 +388,19 @@ menu,
 .yellow  {
 	border-radius: 4px
 }
+
 /* forms */
+
 form {
 	margin: 0;
 	display: inline
 }
+
 input,
 textarea,
 select,
 menu {
-	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;;
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size: 14px;
 	margin: 2px 5px 2px 0;
 	padding: 4px 5px;
@@ -408,26 +409,31 @@ menu {
 	border-right: 1px solid #ddd;
 	background: #f0f0f0
 }
+
 textarea {
 	resize: both;
 }
+
 .resize-horizontal {
 	resize: horizontal;
 }
+
 .resize-vertical {
 	resize: vertical;
 }
+
 input {
 	text-indent: 5px;
 	margin-right: 5px
 }
+
 /*
 input[type='text'] {
 	min-width: 25%
 }
 */
-input[type='text']#in_title,
-input[type='text']#in_menutext {
+input[type="text"]#in_title,
+input[type="text"]#in_menutext {
 	min-width: 30%
 }
 input:hover,
@@ -450,14 +456,14 @@ input[type="button"],
 input[type="submit"],
 .adminsubmit, .loginsubmit,
 .ui-button
- {
+{
 	border: 1px solid #d3d3d3;
-	background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+	background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
 	font-weight: normal;
 	color: #555;
 	cursor: pointer;
 	height: 28px;
-	font-size: 12px
+	font-size: 14px
 }
 .adminsubmit, .loginsubmit, .ui-button {
 	outline: none;
@@ -470,7 +476,7 @@ input[type="submit"],
 .adminsubmit:hover, .loginsubmit:hover, .adminsubmit:active, .loginsubmit:active,
 button.ui-button.ui-state-active {
 	border: 1px solid #d3d3d3;
-	background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+	background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
 	font-weight: normal;
 	color: #147fdb
 }
@@ -683,34 +689,34 @@ aside .no-slide, .no-slide  {
 }
 .jqtoast.bottom-left {
     bottom: 20px;
-    left: 2.5em;
+    left: 2.5em
 }
 .jqtoast.bottom-right {
     bottom: 20px;
-    right: 40px;
+    right: 40px
 }
 .jqtoast.top-left {
     top: 75px;
-    left: 2.5em;
+    left: 2.5em
 }
 .jqtoast.top-right {
     top: 75px;
-    right: 40px;
+    right: 40px
 }
 .jqtoast.bottom-center {
-    bottom: 20px;
+    bottom: 20px
 }
 .jqtoast.top-center {
-    top: 75px;
+    top: 75px
 }
 .jqtoast * {
     margin: 0;
-    padding: 0;
+    padding: 0
 }
 .jqtoast ul {
-    margin-left: 15px;
     background: none;
-    padding: 0;
+    margin-left: 15px;
+    padding: 0
 }
 .jqtoast ul li {
     list-style-type: disc !important;
@@ -723,7 +729,7 @@ aside .no-slide, .no-slide  {
     padding: 10px;
     font-size: 1em;
     font-weight: bold;
-    text-align: center;
+    text-align: center
 }
 .jqt-close {
     position: absolute;
@@ -733,7 +739,7 @@ aside .no-slide, .no-slide  {
     height: 1.2em;
     top: 10px;
     right: 10px;
-    cursor: pointer;
+    cursor: pointer
 }
 .error .jqt-close:hover, .error .jqt-close:active, .warn .jqt-close:hover, .warn .jqt-close:active, .success .jqt-close:hover, .success .jqt-close:active, .info .jqt-close:hover, .info.jqt-close:active {
     background-position: 0 0;
@@ -741,12 +747,12 @@ aside .no-slide, .no-slide  {
 .jqt-loader {
     display: block;
     position: absolute;
+    background: #f00;
     top: -2px;
     height: 5px;
     width: 0;
     left: 0;
-    border-radius: 5px;
-    background: #f00;
+    border-radius: 5px
 }
 .jqt-loaded {
     width: 100%;
@@ -769,7 +775,7 @@ aside .no-slide, .no-slide  {
 }
 .jqt-icon-error {
     padding-left: 50px;
-    background-image: url(../images/icons/extra/error.png);
+    background-image: url(../images/icons/extra/block.png);
 }
 .warn.jqtoast {
     padding: 10px 40px;
@@ -783,7 +789,7 @@ aside .no-slide, .no-slide  {
     color: #fff;
 }
 .jqt-icon-warning {
-    background-image: url(../images/icons/extra/warn.png);
+    background-image: url(../images/icons/extra/warning.png);
 }
 .success.jqtoast {
     padding: 10px 40px;
@@ -814,103 +820,6 @@ aside .no-slide, .no-slide  {
     background-image: url(../images/icons/extra/info.png);
 }
 
-/*** alertable plugin popups ***/
-
-/* Overlay */
-.alertable-overlay, .ui-widget-overlay.ui-front {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, .4);
-    opacity: 1.0;  /* override to ensure the background .5 opacity applies */
-    z-index: 9998;
-}
-
-.alertable, .ui-dialog.ui-widget.ui-widget-content {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-/*  top: 38vh;
-    left: calc(50% - 10em);
-    width: 20em; /* TODO CENTER WITH AUTO WIDTH */
-    border-radius: 3px;
-    padding: 1em;
-    background: #fffaf0;
-    color: #244323;
-    z-index: 9999;
-}
-/* Message */
-.alertable-message, .ui-dialog-title.alertable-message {
-    margin-bottom: 1.5em;
-    font-weight: bold;
-    text-align: center;
-}
-
-/* Prompt */
-.alertable-prompt {
-    margin-bottom: 1.5em;
-}
-
-.alertable-input {
-  width: 18em;
-/*  border-radius: 4px;
-  box-shadow: none;
-  border: solid 1px #ccc;
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-  padding: 6px 12px;
-  display: block;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-*/
-}
-
-/* Button group */
-.alertable-buttons, .ui-dialog .ui-dialog-buttonset {
-    float: right;
-}
-.alertable-buttons button {
-    margin-right: 1em;
-}
-/* OK button * /
-.alertable-ok {
-  background: #09d;
-  border: solid 1px #09d;
-  font-family: inherit;
-  font-size: inherit;
-  color: white;
-  border-radius: 4px;
-  padding: 6px 12px;
-  margin-left: 4px;
-  cursor: pointer;
-}
-.alertable-ok:hover,
-.alertable-ok:focus,
-.alertable-ok:active {
-  background-color: #08c;
-}
-/* Cancel button * /
-.alertable-cancel {
-  border: solid 1px #ddd;
-  background: white;
-  font-family: inherit;
-  font-size: inherit;
-  color: #888;
-  border-radius: 4px;
-  padding: 6px 12px;
-  margin-left: 4px;
-  cursor: pointer;
-}
-.alertable-cancel:hover,
-.alertable-cancel:focus,
-.alertable-cancel:active {
-  background-color: #f2f2f2;
-}
-*/
 #cms_busy, .busy {
 	position: fixed;
 	z-index: 999;
@@ -928,6 +837,7 @@ aside .no-slide, .no-slide  {
 }
 
 /* close notification */
+
 .close-warning {
 	float:right;
 	display: inline-block;
@@ -937,95 +847,6 @@ aside .no-slide, .no-slide  {
 	background: transparent url(../images/icons/extra/close.png) no-repeat;
 	cursor: pointer;
 	margin:5px
-}
-.image-error{
-    background-image: url(../images/icons/extra/error.png) 10px 8px no-repeat;
-}
-.image-warning{
-    background-image: url(../images/icons/extra/warn.png) 10px 8px no-repeat;
-}
-.image-info {
-    background-image: url(../images/icons/extra/info.png) 10px 8px no-repeat;
-}
-.image-close {
-    background-image: url(../images/icons/extra/close.png) no-repeat;
-}
-.infoclose {
-    background-image: url(../images/closesprite.png);
-    background-position: 1.5em 0;
-    background-size: 9em 1.5em;
-    width: 1.5em;
-    height: 1.5em;
-}
-.infoclose:hover, .infoclose:active {
-    background-position: 7.5em 0;
-}
-
-/* jquery-ui dialog */
-
-/* UNUSED
-.ui-button {
-    margin: 4px 0
-}
-.ui-button-text {
-    font-size: 1em;
-    margin-left: 2px;
-    text-transform: uppercase
-}
-button.ui-button.ui-state-active {
-    border: 1px solid #d3d3d3;
-    background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
-    font-weight: normal;
-    color: #147fdb
-}
-*/
-/* revert elements inside jq-ui dialog */
-/*.ui-dialog input, .ui-dialog select, .ui-dialog menu, .ui-dialog textarea, .ui-dialog fieldset {
-    background-color: #fff;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-}
-*/
-
-.ui-dialog .ui-dialog-titlebar.ui-widget-header {
-    background: #fffaf0;
-    border-width: 0;
-    margin: 0;
-    padding: 0;
-}
-button.ui-button.ui-dialog-titlebar-close {
-/*    position: relative; */
-    margin: 0;
-    border: 0;
-    width: 1.5em;
-    height: 1.5em;
-    top: 0;
-    right: 0.1em;
-}
-button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
-    background: #58814c url(../images/closesprite.png) repeat 9em 0 / 9em 1.5em;
-    margin: 0;
-    border-radius: 3px;
-    width: 1.5em;
-    height: 1.5em;
-    left: 0;
-    top: 0;
-}
-button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
-    background-color: #3c9b0a
-}
-
-.ui-dialog-title.alertable-message {
-    width: auto;
-}
-
-.ui-dialog .ui-dialog-buttonpane.alertable-buttons {
-    border: 0 none;
-    margin: 0;
-    padding: 0;
-    background: #fffaf0 none;
-    text-align: left;
-    float: right;
 }
 
 /* --- LAYOUT --- */
@@ -1067,12 +888,12 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 	float: left;
 	margin-right: 20px;
 }
-.postgap {
+.pagecontainer .pageinput.postgap, .postgap {
 	margin-top: 5px;
 	margin-bottom: 16px;
 	overflow: auto
 }
-.pregap {
+.pagecontainer .pageinput.pregap, .pregap {
 	margin-top: 16px;
 	margin-bottom: 5px;
 	overflow: auto
@@ -1086,7 +907,9 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 	margin: 0 0 -30px 0;
 	min-height: 100%
 }
+
 /* realign content */
+
 .spacer {
 	height: 30px;
 	clear: both
@@ -1103,7 +926,9 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 	width: 100%;
 	height: 7px
 }
+
 /*** header ***/
+
 header.header {
 	height: 100px;
 	background: #cecece
@@ -1248,11 +1073,11 @@ header .shortcuts li.view-site a {
 	background-position: -6px -124px
 }
 header .shortcuts li.notifications {
-		position: relative;
+	position: relative;
 }
 header .shortcuts li.notifications a {
-		background-position: -6px -1058px;
-		color: #fff !important;
+	background-position: -6px -1058px;
+	color: #fff !important;
 }
 header .shortcuts li.notifications span.bubble {
 	position: absolute;
@@ -1421,11 +1246,12 @@ header .shortcuts li.favorites a {
 	text-decoration: none;
 	border: 1px solid transparent;
 }
-#oe_pagemenu li.current li a {
-	color: #232323
-}
 #oe_pagemenu li a.no-nav {
 	background: none
+    font-weight: normal;
+}
+#oe_pagemenu li.current li a {
+	color: #232323
 }
 #oe_pagemenu li ul,
 #oe_container.sidebar-off #oe_pagemenu li span.open-nav {
@@ -1577,6 +1403,7 @@ header .shortcuts li.favorites a {
 #oe_pagemenu li.current li a:active  {
 	padding-left: 30px
 }
+
 /*** page content ***/
 #oe_mainarea {
 	margin: 0 0 0 249px
@@ -1593,6 +1420,7 @@ header .shortcuts li.favorites a {
 	position: relative;
 	border-bottom: 1px solid #fa8004
 }
+
 .cms_helpicon {
 	cursor: pointer;
 }
@@ -1811,10 +1639,10 @@ table th:last-child {
 }
 table tr:last-child td:first-child {
 	border-bottom-left-radius:4px
-	}
+}
 table tr:last-child td:last-child {
 	border-bottom-right-radius:4px
-	}
+}
 table.pagetable {
 	border-collapse: inherit;
 	font-size: 14px;
@@ -1955,8 +1783,8 @@ td.icons_wide {
 	padding: 0;
 	margin: 0;
 	max-height: 321px;
-	overflow: auto;
 	min-height: 25px;
+	overflow: auto;
 }
 
 #oe_mainarea .sortable-list li {
@@ -2341,7 +2169,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 }
 .drop span.folder-selection {
 	display: inline-block;
-	float:left;
+	float: left;
 	margin-right: 10px;
 	width: 16px;
 	background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left
