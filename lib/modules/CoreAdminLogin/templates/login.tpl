@@ -4,7 +4,7 @@
   <meta charset="{$encoding}" />
   <title>{$mod->Lang('title_login_named',{sitename})}</title>
   <base href="{$admin_url}/" />
-  <meta name="copyright" content="Ted Kulp, CMS Made Simple" />
+  <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0" />
   <meta name="HandheldFriendly" content="true" />

@@ -3,7 +3,7 @@
 	<head>
 		<title>{'logintitle'|lang} - {sitename}</title>
 		<meta charset="{$encoding}" />
-		<meta name="generator" content="CMS Made Simple - Copyright (C) 2004-2018 - All rights reserved" />
+		<meta name="generator" content="CMS Made Simple" />
 		<meta name="robots" content="noindex, nofollow" />
 		<meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
 		<meta name="HandheldFriendly" content="true"/>
@@ -32,7 +32,7 @@
 					<a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info">{'open'|lang}/{'close'|lang}</a>
 					</div>
 					<header>
-						<a style="float:right;" href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="{$admin_url}/themes/Marigold/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
+						<a style="float:right;" href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="themes/Marigold/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
 						<h1>{'logintitle'|lang}</h1>
 					</header>
 					{$form}

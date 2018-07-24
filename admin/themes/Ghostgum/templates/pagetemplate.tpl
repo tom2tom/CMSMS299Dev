@@ -8,7 +8,7 @@
   {if $thetitle}{$thetitle}{/if}{sitename}
   {/strip}</title>
   <meta charset="utf-8" />
-  <meta name="copyright" content="CMS Made Simple Foundation" />
+  <meta name="generator" content="CMS Made Simple" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="initial-scale=1.0 maximum-scale=1.0 user-scalable=no" />
   <meta name="referrer" content="origin" />
