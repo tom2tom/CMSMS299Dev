@@ -17,6 +17,9 @@
   <p class="pagetext">{lang('upload_plugin_file')}</p>
   <form action="{$selfurl}{$urlext}" method="post" enctype="multipart/form-data">
   <p class="pageinput"><input type="file" name="pluginfile" size="30" maxlength="255" accept="application/x-php" /></p>
+  <div class="pageinput pregap">
+   <button type="submit" name="upload" class="adminsubmit icon do">{lang('submit')}</button>
+  </div>
   </form>
 </div>
 <br />

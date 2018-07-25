@@ -26,7 +26,7 @@ check_login();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
-$pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
+$pdev = check_permission($userid, 'Modify Site Code') || !empty($config['developer_mode']);
 
 $themeObject = cms_utils::get_theme_object();
 
@@ -99,52 +99,55 @@ if ($action == 'showpluginhelp') {
     }
 } else {
 
-	if (isset($_FILES['pluginfile']) && $pdev) {
-		$error = false;
-		if (!empty($_FILES['pluginfile']['name'])) {
-			$checked = false;
-			$file = basename($_FILES['pluginfile']['name']);
-			foreach ([
-			'function.*.php',
-			'modifier.*.php',
-			'postfilter.*.php',
-			'prefilter.*.php',
-			] as $pattern) {
-				if (fnmatch($pattern, $file, FNM_CASEFOLD)) {
-					$checked = true;
-					$fh = fopen($_FILES['pluginfile']['tmp_name'],'rb');
-					if ($fh) {
-						$content = fread($fh, filesize($_FILES['pluginfile']['tmp_name']));
-						fclose($fh);
-						// required content
-						$pattern = '/function\w+smarty_'.str_replace(['.php','.'], ['','_'], $file).'/';
-						if (preg_match($pattern, $content)) {
-							$fn = cms_join_path($dirs[0], $file); // upload goes into assets
-							if (move_uploaded_file($_FILES['pluginfile']['tmp_name'], $fn)) {
-								chmod($fn, 0640);
-								// CHECKME immediately register plugin with smarty?
-							} else {
-								$error = lang('errorcantcreatefile');
-							}
-						} else {
-							$error = lang('errorwrongfile');
-						}
-					} else {
-						$error = lang('error_internal');
-					}
-					break;
-				}
-			}
-			if (!$checked) {
-				$error = lang('errorwrongfile');
-			}
-		} elseif ($_FILES['pluginfile']['error'] > 0 || $_FILES['pluginfile']['size'] == 0) {
-			$error = lang('error_uploadproblem');
-		}
-		if ($error) {
-			$themeObject->RecordNotice('error', $error);
-		}
-	}
+    if (isset($_POST['upload'])) {
+        if (isset($_FILES['pluginfile']) && $pdev) {
+            $error = false;
+            if (!empty($_FILES['pluginfile']['name'])) {
+                $checked = false;
+                $file = basename($_FILES['pluginfile']['name']);
+                foreach ([
+//                'block.*.php',
+                'function.*.php',
+                'modifier.*.php',
+//                'postfilter.*.php',
+//                'prefilter.*.php',
+                ] as $pattern) {
+                    if (fnmatch($pattern, $file, FNM_CASEFOLD)) {
+                        $checked = true;
+                        $fh = fopen($_FILES['pluginfile']['tmp_name'],'rb');
+                        if ($fh) {
+                            $content = fread($fh, filesize($_FILES['pluginfile']['tmp_name']));
+                            fclose($fh);
+                            // required content
+                            $pattern = '/function\w+smarty_'.str_replace(['.php','.'], ['','_'], $file).'/';
+                            if (preg_match($pattern, $content)) {
+                                $fn = cms_join_path($dirs[0], $file); // upload goes into assets
+                                if (move_uploaded_file($_FILES['pluginfile']['tmp_name'], $fn)) {
+                                    chmod($fn, 0640);
+                                    // CHECKME register plugin with smarty?
+                                } else {
+                                    $error = lang('errorcantcreatefile');
+                                }
+                            } else {
+                                $error = lang('errorwrongfile');
+                            }
+                        } else {
+                            $error = lang('error_internal');
+                        }
+                        break;
+                    }
+                }
+                if (!$checked) {
+                    $error = lang('errorwrongfile');
+                }
+            } elseif ($_FILES['pluginfile']['error'] > 0 || $_FILES['pluginfile']['size'] == 0) {
+                $error = lang('error_uploadproblem');
+            }
+            if ($error) {
+                $themeObject->RecordNotice('error', $error);
+            }
+        }
+    }
 
     $files = [];
     foreach ($dirs as $one) {
