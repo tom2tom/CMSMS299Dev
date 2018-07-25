@@ -85,7 +85,7 @@ if ($tagname != '-1') {
     $code = '';
 }
 
-$edit = check_permission($userid, 'Modify Simple Tags');
+$edit = check_permission($userid, 'Modify Simple Plugins');
 //TODO also $_GET['mode'] == 'edit'
 
 $content = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
