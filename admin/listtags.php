@@ -26,6 +26,9 @@ check_login();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = true; //check_permission($userid, 'View Tags'); //TODO relevant permission
+$pdev = $this->CheckPermission('Modify Site Code') || !empty($config['developer_mode']);
+
+$themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
 //TODO some immediate popup
@@ -95,6 +98,54 @@ if ($action == 'showpluginhelp') {
         $smarty->assign('error',lang('nopluginabout'));
     }
 } else {
+
+	if (isset($_FILES['pluginfile']) && $pdev) {
+		$error = false;
+		if (!empty($_FILES['pluginfile']['name'])) {
+			$checked = false;
+			$file = basename($_FILES['pluginfile']['name']);
+			foreach ([
+			'function.*.php',
+			'modifier.*.php',
+			'postfilter.*.php',
+			'prefilter.*.php',
+			] as $pattern) {
+				if (fnmatch($pattern, $file, FNM_CASEFOLD)) {
+					$checked = true;
+					$fh = fopen($_FILES['pluginfile']['tmp_name'],'rb');
+					if ($fh) {
+						$content = fread($fh, filesize($_FILES['pluginfile']['tmp_name']));
+						fclose($fh);
+						// required content
+						$pattern = '/function\w+smarty_'.str_replace(['.php','.'], ['','_'], $file).'/';
+						if (preg_match($pattern, $content)) {
+							$fn = cms_join_path($dirs[0], $file); // upload goes into assets
+							if (move_uploaded_file($_FILES['pluginfile']['tmp_name'], $fn)) {
+								chmod($fn, 0640);
+								// CHECKME immediately register plugin with smarty?
+							} else {
+								$error = lang('errorcantcreatefile');
+							}
+						} else {
+							$error = lang('errorwrongfile');
+						}
+					} else {
+						$error = lang('error_internal');
+					}
+					break;
+				}
+			}
+			if (!$checked) {
+				$error = lang('errorwrongfile');
+			}
+		} elseif ($_FILES['pluginfile']['error'] > 0 || $_FILES['pluginfile']['size'] == 0) {
+			$error = lang('error_uploadproblem');
+		}
+		if ($error) {
+			$themeObject->RecordNotice('error', $error);
+		}
+	}
+
     $files = [];
     foreach ($dirs as $one) {
         $files = array_merge($files,glob($one.'/*.php'));
@@ -113,7 +164,7 @@ if ($action == 'showpluginhelp') {
             $rec['name'] = $parts[1];
             $rec['admin'] = (startswith($onefile,CMS_ADMIN_PATH)) ? 1 : 0;
 
-			include_once $onefile;
+            include_once $onefile;
 
             $rec['cachable'] = !($rec['admin'] || function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name'])); //TODO
 
@@ -160,13 +211,13 @@ if ($action == 'showpluginhelp') {
         return strcmp($a['name'],$b['name']);
      });
     $smarty->assign('plugins',$file_array);
-    $themeObject = cms_utils::get_theme_object();
     $smarty->assign('iconyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_admin'),'','','systemicon'));
     $smarty->assign('iconno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notadmin'),'','','systemicon'));
     $smarty->assign('iconcyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_cachable'),'','','systemicon'));
     $smarty->assign('iconcno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notcachable'),'','','systemicon'));
     $smarty->assign('iconhelp',$themeObject->DisplayImage('icons/system/help.gif',lang_by_realm('tags','viewhelp'),'','','systemicon'));
     $smarty->assign('iconabout',$themeObject->DisplayImage('icons/system/info.gif',lang_by_realm('tags','viewabout'),'','','systemicon'));
+    $smarty->assign('pdev',$pdev);
 }
 
 $smarty->assign([
