@@ -133,7 +133,7 @@
 <div id="importdlg" title="{lang('importtheme')}" style="display:none;">
  <form id="importform" action="themeoperation.php{$urlext}" enctype="multipart/form-data" method="post">
   <p class="pageinput">
-   <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:"javascript"}" name="import" accept="text/xml"/>
+   <input type="file" id="xml_upload" title="{lang('help_themeimport')|escape:"javascript"}" name="import" accept="text/xml" />
   </p>
  </form>
 </div>
