@@ -338,12 +338,14 @@ if (isset($params['ul'])) {
         $f = $_FILES['file'];
         $from = $f['tmp_name'];
         if (empty($f['error']) && !empty($from) && $from != 'none') {
-            $dest = $path . DIRECTORY_SEPARATOR . $f['name'];
+            $dest = $path . DIRECTORY_SEPARATOR . basename($f['name']);
             $op = (is_dir($from)) ? 2 : 1;
             $user_id = get_userid(false);
             if (!cfm_validate($this, $dest, $op, $user_id)) {
                 cfm_response('error', $this->Lang('err_auth'));
             } elseif (move_uploaded_file($from, $dest)) {
+				$p = ($op == 1) ? 0640 : 0750; //TODO if executable file
+				chmod($dest, $p);
                 cfm_response('success', $this->Lang('stat_upped'));
             } else {
                 cfm_response('error', $this->Lang('err_upload'));
