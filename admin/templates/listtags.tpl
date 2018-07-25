@@ -12,16 +12,24 @@
    <p>{lang_by_realm('tags','tag_info')}<br />{lang_by_realm('tags','tag_info3')}</p>
   </div>
 {/if}
-
+{if !empty($pdev)}
+<div class="pageoverflow pregap">
+  <p class="pagetext">{lang('upload_plugin_file')}</p>
+  <form action="{$selfurl}{$urlext}" method="post" enctype="multipart/form-data">
+  <p class="pageinput"><input type="file" name="pluginfile" size="30" maxlength="255" accept="application/x-php" /></p>
+  </form>
+</div>
+<br />
+{/if}
 {if isset($content)}
-  <br />{$content}
+  {$content}
 {elseif isset($plugins)}
   <table class="pagetable">
     <thead>
      <tr>
        <th title="{lang_by_realm('tags','tag_name')}">{lang('name')}</th>
        <th title="{lang_by_realm('tags','tag_type')}">{lang('type')}</th>
-       <th title="{lang_by_realm('tags','tag_cachable')}">{lang('cachable')}</th>
+{*       <th title="{lang_by_realm('tags','tag_cachable')}">{lang('cachable')}</th> *}
        <th title="{lang_by_realm('tags','tag_adminplugin')}">{lang('adminplugin')}</th>
        <th title="{lang_by_realm('tags','tag_help')}">{lang('help')}</th>
        <th title="{lang_by_realm('tags','tag_about')}">{lang('about')}</th>
@@ -37,9 +45,9 @@
        <td>
           <span title="{lang_by_realm('tags',$one.type)}">{$one.type}</span>
        </td>
-       <td style="text-align:center;">
+{*       <td style="text-align:center;">
          {if empty($one.cachable)}{$iconcno}{else}{$iconcyes}{/if}
-       </td>
+       </td> *}
        <td style="text-align:center;">
          {if empty($one.admin)}{$iconno}{else}{$iconyes}{/if}
        </td>
