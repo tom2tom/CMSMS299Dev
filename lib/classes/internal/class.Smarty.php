@@ -202,10 +202,12 @@ class Smarty extends smarty_base_template
     {
         // plugins with the smarty_cms_function
         $cachable = TRUE;
+		$base = $type.'.'.$name.'.php';
         $dirs = [];
-        $dirs[] = cms_join_path(CMS_ROOT_PATH,'assets','plugins',$type.'.'.$name.'.php');
-        $dirs[] = cms_join_path(CMS_ROOT_PATH,'plugins',$type.'.'.$name.'.php');
-        $dirs[] = cms_join_path(CMS_ROOT_PATH,'lib','plugins',$type.'.'.$name.'.php');
+        $dirs[] = cms_join_path(CMS_ASSETS_PATH,'plugins',$base);
+        $dirs[] = cms_join_path(CMS_ROOT_PATH,'plugins',$base);
+        $dirs[] = cms_join_path(CMS_ROOT_PATH,'lib','plugins',$base);
+		$dirs[] = cms_join_path(CMS_ADMIN_PATH,'plugins',$base);
         foreach( $dirs as $fn ) {
             if( !is_file($fn) ) continue;
 
