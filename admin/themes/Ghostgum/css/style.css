@@ -1532,7 +1532,7 @@ body {
     max-width: 2em;
 }
 /*
-#ggp_contenthead img.module-icon {
+#ggp_contenthead .module-icon {
 }
 */
 #ggp_contenthead span.helptext {
@@ -2032,7 +2032,7 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
     display: inline;
     cursor: pointer
 }
-img.systemicon {
+.systemicon {
     border: none;
     vertical-align: text-bottom
 }

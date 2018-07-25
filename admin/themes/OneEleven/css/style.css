@@ -1560,7 +1560,7 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
 	display: inline;
 	cursor: pointer
 }
-img.systemicon {
+.systemicon {
 	border: none;
 	vertical-align: top
 }
@@ -2325,7 +2325,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	font-size: 12px;
 	margin: 5px 0 10px 0
 }
-#login img.goback {
+#login .goback {
 	padding-top: 2px;
 	float:left
 }

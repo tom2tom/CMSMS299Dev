@@ -1603,7 +1603,7 @@ a.pageoptions {
     cursor: pointer
 }
 
-img.systemicon {
+.systemicon {
     border: none;
     vertical-align: top
 }
@@ -2565,7 +2565,7 @@ a.toggle-dropzone:focus {
     margin: 5px 0 10px 0
 }
 
-#login img.goback {
+#login .goback {
     padding-top: 2px;
     float: left
 }

@@ -505,7 +505,7 @@ $(document).ready(function() {
    });
   });
  }
- $('#theme_help img.cms_helpicon').on('click', function() {
+ $('#theme_help .cms_helpicon').on('click', function() {
   var key = $('input[name=editortype]:checked').attr('data-themehelp-key');
   if (key) {
    var self = this;

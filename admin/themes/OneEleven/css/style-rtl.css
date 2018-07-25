@@ -1554,7 +1554,7 @@ a.pageoptions {
 	display: inline;
 	cursor: pointer
 }
-img.systemicon {
+.systemicon {
 	border: none;
 	direction: rtl;
 	vertical-align: top
