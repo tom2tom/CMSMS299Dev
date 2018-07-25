@@ -55,7 +55,6 @@ class OneElevenTheme extends CmsAdminThemeBase
 	 * Hook function to nominate runtime resources, which will be included
 	 * in the header of each displayed admin page
 	 *
-	 * NOTE this must be replicated somehow for pre 2.3 TODO
 	 * @since 2.3
 	 * @param array $vars assoc. array of js-variable names and their values
 	 * @param array $add_list array of strings representing includables
@@ -67,7 +66,7 @@ class OneElevenTheme extends CmsAdminThemeBase
 
 		$config = cmsms()->GetConfig();
 		$admin_path = $config['admin_path'];
-//		$admin_url = $config['admin_url'];
+		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen($admin_path) + 1);
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
 
@@ -386,10 +385,10 @@ EOS;
 
 //TODO	ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
 
+			$dir = ''; //TODO or '-rtl'
 			// scripts: jquery, jquery-ui
 			$incs = cms_installed_jquery();
 			$url = AdminUtils::path_to_url($incs['jquicss']);
-			$dir = ''; //TODO or '-rtl'
 			$out = <<<EOS
 <link rel="stylesheet" href="$url" />
 <link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
@@ -400,6 +399,7 @@ EOS;
 			$out .= sprintf($tpl,$url);
 			$url = AdminUtils::path_to_url($incs['jqui']);
 			$out .= sprintf($tpl,$url);
+			$out .= sprintf($tpl,'themes/OneEleven/includes/login.js');
 		} else {
 			$smarty = $gCms->GetSmarty();
 			if (!empty($params)) {
@@ -414,13 +414,18 @@ EOS;
 				$smarty->assign($tplvars);
 			}
 
+			$dir = ''; //TODO or '-rtl'
 			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
 			$out = <<<EOS
 <link rel="stylesheet" href="$jqcss" />
-<link rel="stylesheet" href="themes/OneEleven/css/style{if $lang_dir=='rtl'}-rtl{/if}.css" />
+<link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
 <link rel="stylesheet" href="loginstyle.php" />
 <script type="text/javascript" src="$jqcore"></script>
 <script type="text/javascript" src="$jqui"></script>
+<script type="text/javascript" src="themes/OneEleven/includes/login.js"></script>
+<!--[if lt IE 9]>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<![endif]-->
 
 EOS;
 		} // pre 2.3
@@ -495,7 +500,7 @@ EOS;
 		} elseif ($module_name && $title) {
 			$tag = AdminUtils::get_module_icon($module_name, ['alt'=>$module_name, 'class'=>'module-icon']);
 		} elseif (($icon_url = $this->get_value('page_icon_url'))) {
-			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" />';
+			$tag = '<img src="'.$icon_url.'" alt="'.basename($icon_url).'" class="TODO" />';
 		} else {
 			$name = $this->get_active('name');
 			$tag = ($name) ? $this->DisplayImage("icons/topfiles/$name.png", $name) : '';
@@ -522,12 +527,13 @@ EOS;
 			$smarty->assign('marks', $marks);
 		}
 
+		$secureparam = CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
 		// other variables
 		$config = cmsms()->GetConfig();
 		$smarty->assign('admin_url', $config['admin_url']);
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 		$smarty->assign('theme', $this);
-		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
+		$smarty->assign('secureparam', $secureparam);
 		$userops = UserOperations::get_instance();
 		$user = $userops->LoadUserByID($uid);
 		$smarty->assign('username', $user->username);
@@ -544,6 +550,23 @@ EOS;
 			$smarty->assign('header_includes', $this->get_headtext());
 			$smarty->assign('bottom_includes', $this->get_footertext());
 		} else {
+			//TODO replicate AdminHeaderSetup(), with different js
+			$dir = ''; //TODO or '-rtl'
+			list($jqcss, $jqui, $jqcore) = $this->find_installed_jq();
+			$smarty->assign('header_includes', <<< EOS
+<link rel="stylesheet" href="$jqcss" />
+<link rel="stylesheet" href="style.php?{$secureparam}" />
+<link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
+<script type="text/javascript" src="$jqcore"></script>
+<script type="text/javascript" src="$jqui"></script>
+//TODO jquery ancillaries
+<script type="text/javascript" src="themes/OneEleven/includes/standard.js"></script>
+<!--[if lt IE 9]>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+<![endif]-->
+
+EOS
+);
 			if (is_array($this->_errors) && count($this->_errors))
 				$smarty->assign('errors', $this->_errors);
 			if (is_array($this->_messages) && count($this->_messages))
@@ -564,7 +587,7 @@ EOS;
 
 	public function get_my_alerts()
 	{
-		//TODO namespace for pre-2.3
+		//TODO check namespace ok for pre-2.3
 		return Alert::load_my_alerts();
 	}
 }
