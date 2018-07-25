@@ -19,14 +19,7 @@
 		<link rel="apple-touch-icon" sizes="72x72" href="themes/OneEleven/images/favicon/apple-touch-icon-ipad.png" />
 		<link rel="apple-touch-icon" sizes="114x114" href="themes/OneEleven/images/favicon/apple-touch-icon-iphone4.png" />
 		<link rel="apple-touch-icon" sizes="144x144" href="themes/OneEleven/images/favicon/apple-touch-icon-ipad3.png" />
-{if isset($header_includes)}{$header_includes}{else}
-		<link rel="stylesheet" href="style.php?{$secureparam}" />
-		<link rel="stylesheet" href="themes/OneEleven/css/default-cmsms/jquery-ui-1.10.4.custom.min.css" />
-		{cms_jquery append="{$admin_url}/themes/OneEleven/includes/standard.js" include_css=0}
-		<!--[if lt IE 9]>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
-		<![endif]-->
-{/if}
+		{$header_includes|default:''}
 	</head>
 	<body id="{$pagetitle|md5}" class="oe_{$pagealias}">
 		<!-- start container -->
