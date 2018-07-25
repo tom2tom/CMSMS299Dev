@@ -1,151 +1,27 @@
 /*
- * Theme: Marigold 2012 (c)
- * Author: Goran Ilic (ja@ich-mach-das.at) - http://dev.cmsmadesimple.org/users/uniqu3
- * Version: 1.0 RTL Language Direction
+ * Theme: Marigold 2018
  */
 
 /* NORMALIZE BROWSER
- * normalize.css 2011-11-04T15:38 UTC - http://github.com/necolas/normalize.css
+ * normalize.css v8.0.0 | MIT License | github.com/necolas/normalize.css
  */
-article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block }
-audio, canvas, video {
-    display: inline-block;
-    *display: inline;
-    *zoom: 1
-}
-audio:not([controls]) { display: none }
-[hidden] { display: none }
-html {
-    font-size: 100%;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%
-}
-body { margin: 0 }
-body, button, input, select, textarea { font-family: tahoma }
-a:focus { outline: thin dotted }
-a:hover, a:active { outline: 0 }
-h1 { font-size: 2em }
-abbr[title] { border-bottom: 1px dotted }
-b, strong { font-weight: bold }
-blockquote { margin: 1em 40px }
-dfn { font-style: italic }
-mark {
-    background: #ff0;
-    color: #000
-}
-pre, code, kbd, samp {
-    font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
-    _font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
-    font-size: 1em
-}
-pre {
-    white-space: pre;
-    white-space: pre-wrap;
-    word-wrap: break-word
-}
-q { quotes: none }
-q:before, q:after {
-    content: '';
-    content: none
-}
-small { font-size: 75% }
-sub, sup {
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline
-}
-sup { top: -0.5em }
-sub { bottom: -0.25em }
-ul, ol {
-    margin-left: 0;
-    padding: 0 0 0 40px
-}
-dd { margin: 0 0 0 40px }
-nav ul, nav ol {
-    list-style: none;
-    list-style-image: none
-}
-img {
-    border: 0;
-    -ms-interpolation-mode: bicubic
-}
-svg:not(:root) { overflow: hidden }
-figure { margin: 0 }
-form { margin: 0 }
-fieldset {
-    border: 1px solid #c0c0c0;
-    margin: 0 2px;
-    padding: 0.35em 0.625em 0.75em
-}
-legend {
-    border: 0;
-    *margin-left: -7px
-}
-button, input, select, textarea {
-    font-size: 100%;
-    margin: 0;
-    vertical-align: baseline;
-    *vertical-align: middle
-}
-button, input { line-height: normal }
-button, input[type="button"], input[type="reset"], input[type="submit"] {
-    cursor: pointer;
-    -webkit-appearance: button;
-    *overflow: visible
-}
-input[type="checkbox"], input[type="radio"] {
-    box-sizing: border-box;
-    padding: 0
-}
-input[type="search"] {
-    -webkit-appearance: textfield;
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    box-sizing: content-box
-}
-input[type="search"]::-webkit-search-decoration {
-    -webkit-appearance: none
-}
-button::-moz-focus-inner, input::-moz-focus-inner {
-    border: 0;
-    padding: 0
-}
-textarea {
-    overflow: auto;
-    vertical-align: top;
-    direction: ltr
-}
-table {
-    border-collapse: collapse;
-    border-spacing: 0
-}
-/* GRID SYSTEM
+html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:0;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}button,[type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}
+
+/* DEPRECATED GRID SYSTEM - INSTEAD USE flexbox etc
  * Fluid Grid based on Based on 960 Grid System - http://www.960.gs
  * Helper Styles for Module Developer, make aligning modules easier.
- * (To bad Robert didn't request this earlier i could of saved myself
+ * (Too bad Robert didn't request this earlier i could of saved myself
  * from writing a bunch of Styles)
- * For Demo see /admin/themes/Marigold/doc/grid.html
+ * For demo, see accompanying file grid.html
  */
 
-/* Container - Wrapping all grids inside,
+/* Container - wrapping all grids inside,
  * use .cf class to clear floated elements
  */
 .c_full { width: 100% }
 
-/* Global Grid style, the actual grid */
-.grid_1,
-.grid_2,
-.grid_3,
-.grid_4,
-.grid_5,
-.grid_6,
-.grid_7,
-.grid_8,
-.grid_9,
-.grid_10,
-.grid_11,
-.grid_12 {
+/* Global grid style, the actual grid */
+.grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_9, .grid_10, .grid_11, .grid_12 {
     display: inline;
     float: left;
     position: relative;
@@ -270,7 +146,9 @@ table {
 .p_bottom_90 { padding-bottom: 90px !important }
 .p_bottom_120 { padding-bottom: 120px !important }
 .p_bottom_130 { padding-bottom: 130px !important }
+
 /* CLEARFIX */
+
 * html .cf {
     height: 1%;
     overflow: visible
@@ -278,7 +156,7 @@ table {
 *+ html .cf {
     min-height: 1%
 }
-.cf:after {
+.cf::after {
     clear: both;
     content: ".";
     display: block;
@@ -290,8 +168,9 @@ table {
     height: 0
 }
 .clearb {
-    clear: both;
+    clear: both
 }
+
 /* COMMON STUFF */
 
 /*
@@ -307,38 +186,33 @@ table {
 
 html, body {
     width: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin:0;
+    padding:0;
     min-height: 100%;
     height: 100%
 }
 body {
     min-width: 900px;
+	background-color: #f6f6f6;
     color: #232323;
     line-height: 1.4;
-    font-size: 14px;
-    background: #f6f6f6
+    font-size: 14px
 }
 ins {
     background-color: #ff9;
     color: #232323;
-    text-decoration: none;
+    text-decoration: none
 }
 mark {
     font-style: italic;
-    font-weight: bold;
+    font-weight: bold
 }
 del {
-    text-decoration: line-through;
+    text-decoration: line-through
 }
-abbr[title],
-dfn[title] {
+abbr[title], dfn[title] {
     border-bottom: 1px dotted;
-    cursor: help;
-}
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
+    cursor: help
 }
 hr {
     display: block;
@@ -346,32 +220,33 @@ hr {
     border: 0;
     border-top: 1px solid #cecece;
     margin: 10px 0;
-    padding: 0;
+    padding: 0
 }
 ul, ol {
     list-style: none;
     margin: 0;
     padding: 0
 }
+/*
+ul ul, ul ol, ol ol, ol ul {
+    margin-right: 2em;
+}
+*/
 #mg_mainarea ul, ol {
     margin: 10px 25px 10px 0
 }
 #mg_mainarea li {
     line-height: 1.5
 }
-#mg_mainarea ol li{
-    list-style:decimal
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    color: #585858
-}
 #mg_mainarea ul {
     list-style: square
+}
+#mg_mainarea ol li {
+    list-style:decimal
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #585858
 }
 h1 {
     font-size: 20px
@@ -395,35 +270,36 @@ p {
     font-size: 14px;
     margin: 2px 0
 }
+a, span {
+    outline: none
+}
 table,
 td,
 tr {
     text-align: right
 }
 form {
-    margin: 0px;
+    margin:0;
     display: inline
 }
-a,
-a:link,
-a:visited {
+a, a:link, a:visited {
     color: #147fdb;
-    text-decoration: none
+    text-decoration: none;
+    cursor: pointer
 }
-a:hover,
-a:active {
+a:hover, a:active {
     color: #fa8004;
     text-decoration: underline
 }
 a.external {
-    background: url(themes/Marigold/images/icons/system/external-small.png) no-repeat left;
+    background: url(../images/icons/system/external-small.png) no-repeat left;
     padding-left: 20px
 }
 .alert-dialog a {
     text-decoration: underline
 }
 .file {
-    background: url(themes/Marigold/images/icons/system/document-list.png) no-repeat right;
+    background: url(../images/icons/system/document-list.png) no-repeat right;
     padding-right: 25px
 }
 .important {
@@ -468,9 +344,7 @@ pre, code, samp, kbd {
     height: auto;
     font-size: 14px
     }
-pre code {
-
-    }
+pre code {}
 pre {
     padding: 5px 20px;
     border-right: 10px solid #cecece;
@@ -480,7 +354,14 @@ pre {
     display: inline-block;
     width: auto
     }
-/* border radius */
+
+/* Ace text editor container */
+#Editor {
+    line-height: 1.2;
+    max-width: 99%;
+    font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
+}
+
 table.pagetable,
 table.pagetable a.tooltip span,
 div.pagecontainer fieldset,
@@ -495,22 +376,25 @@ menu,
 .information,
 .message,
 .success,
-.pagewarning,
+.pagewarning,.pageerror,.pagewarn,.pagesuccess,.pageinfo,
 .green,
 .red,
 .yellow  {
     border-radius: 4px
 }
+
 /* forms */
+
 form {
-    margin: 0px;
+    margin:0;
     display: inline
 }
+
 input,
 textarea,
 select,
 menu {
-    font-family: sans-serif;
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 14px;
     margin: 2px 5px 2px 0;
     padding: 4px 5px;
@@ -537,8 +421,8 @@ input[type='text'] {
     min-width: 25%
 }
 */
-input[type='text']#in_title,
-input[type='text']#in_menutext {
+
+input[type="text"]#in_title, input[type="text"]#in_menutext {
     min-width: 30%
 }
 input:hover,
@@ -553,44 +437,68 @@ checkbox:hover {
     outline: 0;
     background: #fff
 }
+
 input[type="text"],
 input[type="password"] {
     padding: 5px
 }
+
 input[type="button"],
 input[type="submit"],
-.ui-button
- {
+.adminsubmit, .loginsubmit, .ui-button {
+    border: 1px solid #d3d3d3;
+    background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    font-weight: normal;
+    color: #555;
     cursor: pointer;
     height: 28px;
-    font-size: 13px;
-    line-height: 28px
+    font-size: 14px
 }
+
+.adminsubmit, .loginsubmit, .ui-button {
+    margin: 4px 0
+}
+
 .ui-button-text {
-    font-size: 13px;
+    font-size: 12px;
     margin-right: 2px;
     text-transform: uppercase
 }
+
+.adminsubmit:active, .loginsubmit:active,
+.adminsubmit:hover, .loginsubmit:hover,
+.ui-button:hover,
 button.ui-button.ui-state-active {
     border: 1px solid #d3d3d3;
-    background: #cecece url(/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #147fdb
 }
+
 input[type="button"]:hover,
 input[type="submit"]:hover {
     cursor: pointer
 }
+
 input[type="checkbox"] {
     background: #fff;
     border: none
 }
+
+textarea {
+    min-width: 10em;
+    min-height: 3em;
+}
+/*
 textarea {
     width: 48em;
     height: 30em;
     overflow: auto
 }
+*/
+
 /* Notification messages */
+
 .tooltip {
     cursor: help;
 }
@@ -605,9 +513,6 @@ a.tooltip {
 a.text-red,
 table.pagetable a.text-red {
     color: #ae432e
-}
-.blue {
-    color: #058dc7
 }
 .message,
 .pagewarning,
@@ -640,50 +545,57 @@ table.pagetable a.text-red {
 .orange {
     padding: 10px;
 }
-.warning,
-.pagewarning {
-    background: #faf6d4 url(themes/Marigold/images/icons/extra/warning.png) right 50% no-repeat;
-    border: 1px solid #e6c26e
-}
 .yellow {
     background: #faf6d4;
     color: #e6c26e;
     border: 1px solid #e6c26e
 }
-.error,
-.pageerrorcontainer,
-.pageerrorinstalldir {
-    background: #f2d4ce url(themes/Marigold/images/icons/extra/block.png) right 50% no-repeat;
-    border: 1px solid #ae432e
+.green {
+	background: #d9e6c3;
+	color: #77ab13;
+	border: 1px solid #77ab13
+}
+.blue {
+	background: #c2dde5;
+	color: #058dc7;
+	border: 1px solid #1384aa
 }
 .red {
     background: #f2d4ce;
     color: #ae432e;
+	border: 1px solid #aa1313
+}
+.warning,
+.pagewarning {
+    background: #faf6d4 url(../images/icons/extra/warning.png) right 50% no-repeat;
+    border: 1px solid #e6c26e
+}
+.error,
+.pageerrorcontainer,
+.pageerrorinstalldir {
+    background: #f2d4ce url(../images/icons/extra/block.png) right 50% no-repeat;
     border: 1px solid #ae432e
 }
 .success,
 .pagemcontainer {
-    background: #d9e6c3 url(themes/Marigold/images/icons/extra/accept.png) right 50% no-repeat;
-    border: 1px solid #77ab13
-}
-.green {
-    background: #d9e6c3;
-    color: #77ab13;
+    background: #d9e6c3 url(../images/icons/extra/accept.png) right 50% no-repeat;
     border: 1px solid #77ab13
 }
 .information {
-    background: #cee6f2 url(themes/Marigold/images/icons/extra/info.png) right 50% no-repeat;
+    background: #cee6f2 url(../images/icons/extra/info.png) right 50% no-repeat;
     border: 1px solid #058dc7
 }
 .message:hover {
     cursor: help
 }
+.warning p,
 .pagewarning p,
 .message p {
     color: #232323;
     margin: 0;
     font-size: 14px
 }
+.warning h3,
 .pagewarning h3 {
     margin: 2px 0;
     font-size: 14px;
@@ -692,6 +604,7 @@ table.pagetable a.text-red {
 .block {
     display: block;
 }
+
 aside.message,
 .pagemcontainer,
 .pageerrorcontainer,
@@ -708,25 +621,184 @@ aside.message,
     margin:0;
     right: 35%
 }
-aside .no-slide,
-.no-slide  {
+
+aside .no-slide, .no-slide {
     position: inherit;
     left: auto;
     top: auto;
+    border: 1px solid #ae432e;
     border-radius: 4px;
     box-shadow: none;
-    border: 1px solid #ae432e;
     -webkit-box-shadow: none;
     background-image: none;
     width: auto;
     display: block;
     z-index: 0
 }
-.p
+
 .pageerrorcontainer ul {
     border: none;
     margin-right: 25px;
     background: none
+}
+
+.errorDialog {
+    border: 1px solid red;
+    color: red;
+    height: 100%;
+    line-height: 100%;
+}
+
+/* Nofifications by jQuery toast plugin */
+
+.jqtoast {
+    display: block;
+    position: fixed;
+    border-width: 1px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    margin: 0;
+    padding: 10px;
+    max-width: 40em;
+    line-height: 1.2;
+    letter-spacing: normal;
+    font-size: 0.9em;
+    /* font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
+    pointer-events: all !important;
+    z-index: 9000 !important;
+}
+.jqtoast.bottom-left {
+    bottom: 20px;
+    left: 2.5em
+}
+.jqtoast.bottom-right {
+    bottom: 20px;
+    right: 40px
+}
+.jqtoast.top-left {
+    top: 75px;
+    left: 2.5em
+}
+.jqtoast.top-right {
+    top: 75px;
+    right: 40px
+}
+.jqtoast.bottom-center {
+    bottom: 20px
+}
+.jqtoast.top-center {
+    top: 75px
+}
+.jqtoast * {
+    margin: 0;
+    padding: 0
+}
+.jqtoast ul {
+    background: none;
+    margin-left: 15px;
+    padding: 0
+}
+.jqtoast ul li {
+    list-style-type: disc !important;
+    background: none;
+    padding: 0;
+    letter-spacing: normal;
+}
+.jqt-heading {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center
+}
+.jqt-close {
+    position: absolute;
+    background-image:url(../images/layout/closesprite.png);
+    background-size: 7.2em 1.2em;
+    width: 1.2em;
+    height: 1.2em;
+    top: 10px;
+    right: 10px;
+    cursor: pointer
+}
+.error .jqt-close:hover, .error .jqt-close:active, .warn .jqt-close:hover, .warn .jqt-close:active, .success .jqt-close:hover, .success .jqt-close:active, .info .jqt-close:hover, .info.jqt-close:active {
+    background-position: 0 0;
+}
+.jqt-loader {
+    display: block;
+    position: absolute;
+    background: #f00;
+    top: -2px;
+    height: 5px;
+    width: 0;
+    left: 0;
+    border-radius: 5px
+}
+.jqt-loaded {
+    width: 100%;
+}
+.jqt-has-icon {
+    padding-left: 40px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+.error.jqtoast {
+    padding: 10px 40px;
+    background-color: #f2d4ce;
+}
+.error .jqt-close {
+    background-position: 1.2em 0;
+}
+.error .jqt-heading {
+    background-color: #e20e0e;
+    color: #fff;
+}
+.jqt-icon-error {
+    padding-left: 50px;
+    background-image: url(../images/icons/extra/block.png);
+}
+.warn.jqtoast {
+    padding: 10px 40px;
+    background-color: #faf6d4;
+}
+.warn .jqt-close {
+    background-position: 2.4em 0;
+}
+.warn .jqt-heading {
+    background-color: #b08f0e;
+    color: #fff;
+}
+.jqt-icon-warning {
+    background-image: url(../images/icons/extra/warning.png);
+}
+.success.jqtoast {
+    padding: 10px 40px;
+    background-color: #d9e6c3;
+}
+.success .jqt-close {
+    background-position: 3.6em 0;
+}
+.success .jqt-heading {
+    background-color: #0bb33a;
+    color: #fff;
+}
+.jqt-icon-success {
+    background-image: url(../images/icons/extra/accept.png);
+}
+.info.jqtoast {
+    padding: 10px 40px;
+    background-color: #c2dde5;
+}
+.info .jqt-close {
+    background-position: 4.8em 0;
+}
+.info .jqt-heading {
+    background-color: #147fdb;
+    color: #fff;
+}
+.jqt-icon-info {
+    background-image: url(../images/icons/extra/info.png);
 }
 
 #cms_busy, .busy {
@@ -740,183 +812,75 @@ aside .no-slide,
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparent url(themes/Marigold/images/icons/extra/spinner.gif) no-repeat;
+    background: transparent url(../images/icons/extra/spinner.gif) no-repeat;
     background-size: 50px 50px;
     cursor: wait;
 }
 
 /* close notification */
+
 .close-warning {
-    float:left;
+    float: left;
     display: inline-block;
     width: 16px;
     height: 16px;
     overflow: hidden;
     text-indent: -9999em;
-    background: transparent url(themes/Marigold/images/icons/extra/close.gif) no-repeat;
+    background: transparent url(../images/icons/extra/close.png) no-repeat;
     cursor: pointer;
     margin:5px
 }
-/* LAYOUT */
 
-/* Login Page */
-/* TO DO, Rework login page, to much info, simple toggle of messages and other stuff should do it to */
-body.login {
-    background: #f6f6f6;
-    font: normal 14px/1.3 Tahoma, sans-serif;
-}
-.login .top {
-    height: 45px;
-    background: #e5e5e5 url(themes/Marigold/images/layout/login-top-bg.gif) repeat-x;
-    color: #222;
-    border-bottom: 1px solid #fff;
-    padding: 0 20px;
-    line-height: 45px
-}
-.login .top a.logo {
-    display: inline-block;
-    height: 45px;
-    width: 146px;
-    float: left
-}
-.login .top a.home {
-    display: block;
-    height: 45px;
-    width: 32px;
-    float: right;
-    overflow: hidden;
-    text-indent: -9999em;
-    background: url(themes/Marigold/images/layout/home-button.png) no-repeat center
-}
-.login .top h1 {
-    display: inline-block;
-    font-size: 14px;
-    margin: 0 0 0 20px;
-    float: left;
-    height: 45px;
-    color: #8d8d8d
-}
-.login .bottom {
-    width: 690px;
-    margin: 10em auto 20px auto;
-    padding-bottom: 18px;
-    font: normal 11px  /1.3 sans-serif;
-    background: url(themes/Marigold/images/layout/bottom-shadow.png) no-repeat center bottom
-}
-.login .bottom .container {
-    width: 500px;
-    padding: 15px;
-    margin: auto;
-    background: #ededed url(themes/Marigold/images/layout/login-bg.gif) repeat-x top;
-    border: 2px solid #efefef;
-    border-radius: 0 25px 0 0
-}
-.login .bottom h2 {
-    color: #f79838;
-    margin-top: 0
-}
-p.login-info {
-    background: url(themes/Marigold/images/layout/info-icon.png) no-repeat left;
-    padding-left: 38px;
-    font: bold 14px  /30px sans-serif;
-    color: #8d8d8d;
-    text-shadow: 0 1px 1px #fff
-}
-.login .bottom ol {
-    padding: 0;
-    margin-left: 20px
-}
-.login p.forgotpw {
-    text-align: right;
-    margin-bottom: 0
-}
-.login p.forgotpw a {
-    padding-left: 20px;
-    background: url(themes/Marigold/images/layout/help.png) left 50% no-repeat;
-    color: #222;
-    text-decoration: none
-}
-.login .copyright {
-    width: 690px;
-    margin: auto;
-    text-align: center
-}
-.login .copyright .small {
-    background: #feffc8 url(themes/Marigold/images/layout/exclamation.png) no-repeat 10px 50%;
-    border: 1px solid #f1aa2d;
-    color: #8d8d8d;
-    border-radius: 3px;
-    display: inline-block;
-    text-align: center;
-    width: auto;
-    padding: 5px 5px 5px 30px;
-    font-size: 11px
-}
-.login small {
-    text-align: center;
-    font-size: 1px;
-    color: #8d8d8d;
-    display: block
-}
-.login small a {
-    color: #8d8d8d;
-    text-decoration: none;
-    font-weight: bold
-}
-/* login form */
-.login fieldset {
-    border: none;
-    border-bottom: 1px solid #fff
-}
-.login p.left, .login p.right {
-    float: left;
-    width: 50%;
-    display: inline
-}
-.login label {
-    color: #8d8d8d;
-    font-size: 13px;
-    margin-bottom: 5px;
-    display: inline-block;
-    font-weight: bold
-}
-.login input[type="password"], .login input.focus, .login input[type="text"] {
-    border: 1px solid #bbb;
-    border-radius: 3px;
-    line-height: 28px;
-    height: 28px;
-    width: 220px;
-    background: #efefef;
-    outline: 0;
-    text-indent: 10px;
-    font: normal 11px/22px 'Lucida Console', 'Monaco', monospace;
-    margin-bottom: 5px
-}
-.login input[type="password"]:focus, .login input[type="text"]:focus {
-    background: #fff
-}
-.login input[type="submit"] {
-    height: 28px;
-    color: #8d8d8d;
-    font-weight: bold;
-    width: auto;
-    padding: 0 15px;
-    margin-right: 8px;
-    border: 1px solid #bbb;
-    border-top: 1px solid #fff;
-    border-left: 1px solid #fff;
-    border-radius: 3px;
-    outline: 0;
-    background: #dddbdb url(themes/Marigold/images/layout/submit-bg.gif) repeat-x bottom
-}
-.login input[type="submit"]:focus, .login input[type="submit"]:hover {
-    background: #ff9223 url(themes/Marigold/images/layout/submit-hover.gif) repeat-x bottom;
-    border: 1px solid #fd860d;
-    border-top: 1px solid #fdd580;
-    border-left: 1px solid #fdd580;
-    color: #fff
-}
 /* --- LAYOUT --- */
+
+.vbox {
+    display: flex;
+    flex-direction: column
+}
+.hbox {
+    display: flex;
+    flex-direction: row
+}
+.vbox.expand, .hbox.expand {
+    justify-content: space-between
+}
+.vbox.flow, .hbox.flow {
+    flex-wrap: wrap
+}
+.boxchild {
+    flex: 0 1 auto
+}
+.boxchild.fill {
+    flex: 1
+}
+.hbox .boxchild {
+    margin-right: 10px;
+}
+.vbox .boxchild {
+    margin-bottom: 10px;
+}
+
+.resize-horizontal {
+    resize: horizontal;
+}
+.resize-vertical {
+    resize: vertical;
+}
+.oneliner > * {
+    float: left;
+    margin-right: 20px;
+}
+.pagecontainer .pageinput.postgap, .postgap {
+    margin-top: 5px;
+    margin-bottom: 16px;
+    overflow: auto
+}
+.pagecontainer .pageinput.pregap, .pregap {
+    margin-top: 16px;
+    margin-bottom: 5px;
+    overflow: auto
+}
+
 /* full height */
 #mg_container {
     position: relative;
@@ -925,16 +889,19 @@ p.login-info {
     margin: 0 0 -30px 0;
     min-height: 100%
 }
+
 /* realign content */
+
 .spacer {
     height: 30px;
     clear: both
 }
+
 #mg_admin-content {
     height: 100%
 }
 #mg_admin-content .shadow {
-    background: transparent url(themes/Marigold/images/layout/sprite_repeatx.png) 831px -148px repeat-x;
+    background: transparent url(../images/layout/sprite_repeatx.png) 831px -148px repeat-x;
     z-index: 50;
     position: absolute;
     top: 100px;
@@ -942,7 +909,9 @@ p.login-info {
     width: 100%;
     height: 7px
 }
+
 /*** header ***/
+
 header.header {
     height: 100px;
     background: #cecece
@@ -950,20 +919,20 @@ header.header {
 header .header-top {
     height: 69px;
     border-bottom: 1px solid #cecece;
-    background: #eee url(themes/Marigold/images/layout/sprite_repeatx.png) 831px -10px repeat-x
+    background: #eee url(../images/layout/sprite_repeatx.png) 831px -10px repeat-x
 }
 header .cms-logo {
     width: 240px;
     height: 70px;
     padding-right: 10px;
-    background: transparent url(themes/Marigold/images/layout/cms-logo-bg.gif) no-repeat top right;
+    background: transparent url(../images/layout/cms-logo-bg.gif) no-repeat top right;
     float: right
 }
 header .admin-title {
     text-align: right;
-    display: inline-block;
     max-width: 70%;
     overflow: hidden;
+    display: inline-block;
     height: 70px;
     font: bold 14px/70px sans-serif;
     margin-left: 20px;
@@ -977,13 +946,13 @@ header .header-bottom {
     border-bottom: 1px solid #0f0f0f;
     position: relative;
     width: 100%;
-    background: #232323 url(themes/Marigold/images/layout/sprite_repeatx.png) 831px -99px repeat-x
+    background: #232323 url(../images/layout/sprite_repeatx.png) 831px -99px repeat-x
 }
 header .welcome {
     width: 250px;
     float: right;
     color: #fff;
-    background: transparent url(themes/Marigold/images/layout/welcome-bg.gif) no-repeat top left
+    background: transparent url(../images/layout/welcome-bg.gif) no-repeat top left
 }
 header .welcome span {
     display: inline-block;
@@ -995,6 +964,11 @@ header .welcome span {
 header .welcome a {
     color: #fff
 }
+header .welcome a i {
+    color: #fa8004;
+    font-size: 1.2em;
+}
+
 header a.welcome-user {
     height: 18px;
     width: 18px;
@@ -1002,8 +976,9 @@ header a.welcome-user {
     overflow: hidden;
     text-indent: -999em;
     margin-left: 10px;
-    background: url(themes/Marigold/images/layout/sprite_norepeat.png) -10px -336px no-repeat
+    background: url(../images/layout/sprite_norepeat.png) -10px -336px no-repeat
 }
+
 /* breadcrumbs nav */
 header .breadcrumbs {
     float: right;
@@ -1023,10 +998,10 @@ header .breadcrumbs ul li {
 }
 header .breadcrumbs ul li.home {
     padding: 0 0 0 10px;
-    background: url(themes/Marigold/images/layout/breadcrubms-divider-rtl.png) no-repeat left;
+    background: url(../images/layout/breadcrubms-divider-rtl.png) no-repeat left;
 }
 header .breadcrumbs ul li.home a {
-    background: url(themes/Marigold/images/layout/home-icon.png) right no-repeat;
+    background: url(../images/layout/home-icon.png) right no-repeat;
     width: 18px;
     overflow: hidden;
     text-indent: -999em
@@ -1038,7 +1013,7 @@ header .breadcrumbs ul li a {
     color: #fff;
     text-decoration: none;
     display: inline-block;
-    background: url(themes/Marigold/images/layout/breadcrubms-divider-rtl.png) no-repeat left;
+    background: url(../images/layout/breadcrubms-divider-rtl.png) no-repeat left;
     padding-left: 24px
 }
 header .breadcrumbs ul li a:hover, header .breadcrumbs ul li a:active {
@@ -1047,55 +1022,69 @@ header .breadcrumbs ul li a:hover, header .breadcrumbs ul li a:active {
 header .breadcrumbs ul li.current, header .breadcrumbs ul li.current a {
     color: #fa8004
 }
+
 /* shortcut icons */
+
 header .shortcuts {
     float: left
 }
 header .shortcuts ul {
     width: auto;
-    line-height: 25px;
     text-align: right;
     margin-left: 20px
 }
 header .shortcuts li {
     padding: 0 12px;
     display: inline-block;
-    line-height: 29px;
     float: right
 }
 header .shortcuts li:last-child, header .shortcuts li.last {
     padding: 0 12px 0 0
 }
+
+header .shortcuts li i {
+    font-size: 1.2em;
+    padding-top: 0.35em;
+}
+
 header .shortcuts li a {
-    display: block;
-    margin-top: 5px;
-    width: 18px;
-    height: 18px;
-    height: 25px;
-    text-indent: -9999em;
-    background: url(themes/Marigold/images/layout/sprite_norepeat.png) no-repeat;
-    overflow: hidden
+    cursor: pointer;
+    color: #fa8004;
 }
-header .shortcuts li.help a {
-    background-position: -10px -737px
+
+header .shortcuts li a:hover {
+    color: #147fdb
 }
-header .shortcuts li.settings a {
-    background-position: -10px -10px
+
+header .shortcuts li.notifications {
+    position: relative;
 }
-header .shortcuts li.logout a {
-    background-position: -10px -86px
+
+header .shortcuts li.notifications span.bubble {
+    position: absolute;
+    top: 1px;
+    left: 0;
+    margin-left: 0;
+    text-align: center;
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 0.8em;
+    -moz-border-radius: 0.8em;
+    -webkit-border-radius: 0.8em;
+    background: #990000;
+    font-size: .8em;
+    line-height: 1.2em;
+    font-weight: bold;
+    text-indent: initial;
+    color: white;
 }
-header .shortcuts li.view-site a {
-    background-position: -10px -124px
-}
-header .shortcuts li.favorites a {
-    background-position: -10px -48px
-}
+
 /*** sidebar ***/
+
 #mg_sidebar {
     width: 249px;
     border-left: 1px solid #fff;
-    background: #ddd url(themes/Marigold/images/layout/sidebar-shadow-rtl.png) -3px repeat-y;
+    background: #ddd url(../images/layout/sidebar-shadow-rtl.png) -3px repeat-y;
     position: absolute;
     right: 0;
     top: 100px;
@@ -1114,11 +1103,11 @@ header .shortcuts li.favorites a {
     margin-top: 45px;
     position: relative
 }
+
 /* toggle sidebar */
+
 #mg_sidebar .toggle-button {
-    text-indent: -9999em;
-    overflow: hidden;
-    z-index: 60;
+    z-index: 99;
     display: block;
     cursor: pointer;
     width: 24px;
@@ -1130,33 +1119,23 @@ header .shortcuts li.favorites a {
 #mg_sidebar .toggle-button.top {
     top: -33px
 }
-#mg_sidebar .toggle-button.close {
-    background: url(themes/Marigold/images/layout/close-sidebar-rtl.png) no-repeat
+
+#mg_sidebar .toggle-button {
+    font-family: "mgtheme";
+    font-size: 1.2em;
 }
-#mg_sidebar .toggle-button.open-sidebar {
-    background: url(themes/Marigold/images/layout/open-sidebar-rtl.png) no-repeat
+
+.sidebar-on #mg_sidebar .toggle-button::after {
+    content: "\f100";
 }
+
+.sidebar-off #mg_sidebar .toggle-button::after {
+    content: "\f101";
+}
+
+
 /* sidebar notifications */
-#mg_sidebar .notification a {
-    text-decoration: none;
-    display: block;
-    height: 35px;
-    background: url(themes/Marigold/images/layout/email-icon.png) right no-repeat;
-    color: #fff
-}
-#mg_sidebar .notification a span {
-    line-height: 1.3
-}
-#mg_sidebar .notification {
-    overflow: hidden;
-    height: 35px;
-    line-height: 35px;
-    position: relative;
-    padding: 14px 10px;
-    background: #232323 url(themes/Marigold/images/layout/sprite_repeatx.png) 122px -175px repeat-x;
-    color: #fff
-}
-#mg_sidebar div.notification .box-shadow,
+
 #mg_sidebar nav.navigation .box-shadow {
     width: 11px;
     z-index: 10;
@@ -1164,35 +1143,25 @@ header .shortcuts li.favorites a {
     left: 0;
     top: 0;
     bottom: 0;
-    background: url(themes/Marigold/images/layout/sidebar-shadow-rtl.png) -3px repeat-y
+    background: url(../images/layout/sidebar-shadow-rtl.png) -3px repeat-y
 }
-#mg_sidebar .notification span {
-    font-size: 11px;
-    display: inline-block;
-    padding-right: 30px
-}
-#mg_sidebar .alert-dialog {
-    visibility: hidden;
-    display: block;
-    overflow: hidden;
-    text-indent: -9999em
-}
-#mg_sidebar .alert-dialog strong {
-    padding: 4px 0
-}
+
 /* main navigation */
-nav ul#mg_pagemenu {
+
+#mg_pagemenu {
     border-bottom: 1px solid #adadad;
     /*margin-top: 45px*/
 }
-nav ul#mg_pagemenu li {
+#mg_pagemenu li {
     position: relative;
     zoom: 1;
-    background: url(themes/Marigold/images/layout/navigation-bg.gif) repeat-x top;
+    background: url(../images/layout/navigation-bg.gif) repeat-x top;
     line-height: 35px;
     padding: 0
 }
+
 /* position sticky menu */
+
 .sidebar-on #mg_sidebar nav.navigation {
     width: 249px
 }
@@ -1200,170 +1169,243 @@ nav ul#mg_pagemenu li {
     width: 40px;
     overflow: hidden
 }
+
 /* toggle submenu */
-nav ul#mg_pagemenu li span.open-nav {
+
+#mg_pagemenu li span.open-nav,
+#mg_pagemenu li a.no-nav {
     display: block;
     width: 210px;
     height: 35px;
     z-index:50;
     position: absolute;
     left: 5px;
-    top: 0;
-    overflow: hidden;
-    text-indent: -9999em
+    top: 0
+/*    text-indent: -9999em */
 }
-nav ul#mg_pagemenu li span.open-nav.open-sub,
-nav ul#mg_pagemenu li.current span.open-nav,
-nav ul#mg_pagemenu li:hover span.open-nav,
-nav ul#mg_pagemenu li.current span.open-nav,
-nav ul#mg_pagemenu li.current:hover span.open-nav {
+#mg_pagemenu li span.open-nav.open-sub,
+#mg_pagemenu li.current span.open-nav,
+#mg_pagemenu li:hover span.open-nav,
+#mg_pagemenu li.current span.open-nav,
+#mg_pagemenu li.current:hover span.open-nav,
+#mg_pagemenu li a span:hover {
     cursor: pointer;
-    background: url(themes/Marigold/images/layout/sprite_norepeat.png) -5px -176px no-repeat
 }
+
+#mg_pagemenu li span.open-nav.open-sub::after,
+#mg_pagemenu li.current span.open-nav::after,
+#mg_pagemenu li:hover span.open-nav::after,
+#mg_pagemenu li.current span.open-nav::after,
+#mg_pagemenu li.current:hover span.open-nav::after,
+#mg_pagemenu li a span:hover::after {
+    font-family: "mgtheme";
+    float: left;
+    margin-left: 0.8em;
+    content: '\e806';
+}
+
+#mg_pagemenu li span.open-nav.open-sub::after {}
+
 /*** menu style ***/
-nav ul#mg_pagemenu li a {
+
+#mg_pagemenu li a {
     color: #232323;
     outline: 0;
     margin-right: 10px;
-    height: 36px;
-    font-weight: bold;
+    height: 28px;
+/*    font-weight: bold; */
     display: block;
     text-shadow: 1px 1px 0 #fff;
-    padding-right: 30px;
-    text-decoration: none
+    text-decoration: none;
 }
-nav ul#mg_pagemenu li.current li a {
+#mg_pagemenu li a.no-nav {
+	background: none
+    font-weight: normal;
+}
+#mg_pagemenu li.current li a {
     color: #232323
 }
-nav ul#mg_pagemenu li ul,
-#mg_container.sidebar-off nav ul#mg_pagemenu li span.open-nav {
+#mg_pagemenu li ul,
+#mg_container.sidebar-off #mg_pagemenu li span.open-nav {
     display: none
 }
-#mg_container.sidebar-on nav ul#mg_pagemenu li.current ul {
+#mg_container.sidebar-on #mg_pagemenu li.current ul {
     display: block
 }
-#mg_container.sidebar-on nav ul#mg_pagemenu li {
+#mg_container.sidebar-on #mg_pagemenu li {
     zoom:1
 }
-nav ul#mg_pagemenu li.current a,
-nav ul#mg_pagemenu li a:hover,
-nav ul#mg_pagemenu li:hover a,
-nav ul#mg_pagemenu li a:active,
-nav ul#mg_pagemenu li.current li a:hover,
-nav ul#mg_pagemenu li.current li a:active,
-nav ul#mg_pagemenu li.current li a,
-nav ul#mg_pagemenu li li a:hover {
+#mg_pagemenu li.current a,
+#mg_pagemenu li a:hover,
+#mg_pagemenu li:hover a,
+#mg_pagemenu li a:active,
+#mg_pagemenu li.current li a:hover,
+#mg_pagemenu li.current li a:active,
+#mg_pagemenu li.current li a,
+#mg_pagemenu li li a:hover {
     color: #147fdb;
 }
 
-nav ul#mg_pagemenu li a:focus {
+#mg_pagemenu li a:focus {
         color: #147fdb !important;
         border: 1px solid #147fdb;
         margin-right: 10px;
 }
 
-nav ul#mg_pagemenu li a.main {
-    background: url(themes/Marigold/images/layout/home-off.png) right no-repeat;
+a.main::before,
+h3.main::before {
+    font-family: "mgtheme";
+    content: '\e80f';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.content {
-    background: url(themes/Marigold/images/layout/content-off.png) right no-repeat;
+
+a.content::before,
+h3.content::before {
+    font-family: "mgtheme";
+    content: '\e805';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.layout {
-    background: url(themes/Marigold/images/layout/layout-off.png) right no-repeat;
+
+a.layout::before,
+h3.layout::before {
+    font-family: "mgtheme";
+    content: '\e802';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.files {
-    background: url(themes/Marigold/images/layout/content-off.png) right no-repeat;
+
+a.files::before,
+h3.files::before {
+    font-family: "mgtheme";
+    content: '\f0c5';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.usersgroups {
-    background: url(themes/Marigold/images/layout/users-off.png) right no-repeat;
+
+a.services::before,
+h3.services::before {
+    font-family: "mgtheme";
+    content: '\e807';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.extensions {
-    background: url(themes/Marigold/images/layout/extensions-off.png) right no-repeat;
+
+a.usersgroups::before,
+h3.usersgroups::before {
+    font-family: "mgtheme";
+    content: '\e801';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.siteadmin {
-    background: url(themes/Marigold/images/layout/admin-off.png) right no-repeat;
+
+a.extensions::before,
+h3.extensions::before {
+    font-family: "mgtheme";
+    content: '\f12e';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.myprefs {
-    background: url(themes/Marigold/images/layout/preferences-off.png) right no-repeat;
+
+a.siteadmin::before,
+h3.siteadmin::before {
+    font-family: "mgtheme";
+    content: '\e80b';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-/* hover, active */
-nav ul#mg_pagemenu li a.main:hover,
-nav ul#mg_pagemenu li.current a.main,
-nav ul#mg_pagemenu li:hover a.main {
-    background: url(themes/Marigold/images/layout/home-on.png) right no-repeat;
+
+a.myprefs::before,
+h3.myprefs::before {
+    font-family: "mgtheme";
+    content: '\e800';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.content:hover,
-nav ul#mg_pagemenu li.current a.content,
-nav ul#mg_pagemenu li:hover a.content {
-    background: url(themes/Marigold/images/layout/content-on.png) right no-repeat;
+
+a.ecommerce::before,
+h3.ecommerce::before {
+    font-family: "mgtheme";
+    content: '\e809';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.layout:hover,
-nav ul#mg_pagemenu li.current a.layout,
-nav ul#mg_pagemenu li:hover a.layout {
-    background: url(themes/Marigold/images/layout/layout-on.png) right no-repeat;
+
+#mg_pagemenu a.logout::before,
+h3.logout::before {
+    font-family: "mgtheme";
+    content: '\e803';
+    margin-right: 15px;
+    font-size: 1.2em;
+    width: 10px;
+    font-weight: normal;
 }
-nav ul#mg_pagemenu li a.files:hover,
-nav ul#mg_pagemenu li.current a.files,
-nav ul#mg_pagemenu li:hover a.files {
-    background: url(themes/Marigold/images/layout/content-on.png) right no-repeat;
+
+#mg_pagemenu li a::before {
+    width: 1em;
+    display: inline-block;
+    text-align: center;
 }
-nav ul#mg_pagemenu li a.usersgroups:hover,
-nav ul#mg_pagemenu li.current a.usersgroups,
-nav ul#mg_pagemenu li:hover a.usersgroups {
-    background: url(themes/Marigold/images/layout/users-on.png) right no-repeat;
-}
-nav ul#mg_pagemenu li a.extensions:hover,
-nav ul#mg_pagemenu li.current a.extensions,
-nav ul#mg_pagemenu li:hover a.extensions {
-    background: url(themes/Marigold/images/layout/extensions-on.png) right no-repeat;
-}
-nav ul#mg_pagemenu li a.siteadmin:hover,
-nav ul#mg_pagemenu li.current a.siteadmin,
-nav ul#mg_pagemenu li:hover a.siteadmin  {
-    background: url(themes/Marigold/images/layout/admin-on.png) right no-repeat;
-}
-nav ul#mg_pagemenu li a.myprefs:hover,
-nav ul#mg_pagemenu li.current a.myprefs ,
-nav ul#mg_pagemenu li:hover a.myprefs {
-    background: url(themes/Marigold/images/layout/preferences-on.png) right no-repeat;
-}
-/* second level & colapsed sidebar */
-nav ul#mg_pagemenu ul {
+
+/* second level & collapsed sidebar */
+
+#mg_pagemenu ul {
     padding: 8px 0;
     background: #f0f0f0
 }
-nav ul#mg_pagemenu li li {
+#mg_pagemenu li li {
     background: none;
-    line-height: 22px
+    line-height: 1;
 }
-nav ul#mg_pagemenu li li.module {
+#mg_pagemenu li li.module {
     background-color: #e5e5e5;
     border-bottom: 1px dotted #f0f0f0
 }
-nav ul#mg_pagemenu li.current li a,
-nav ul#mg_pagemenu li li a,
-nav ul#mg_pagemenu li:hover li a {
+#mg_pagemenu li.current li a,
+#mg_pagemenu li li a,
+#mg_pagemenu li:hover li a {
     height: auto;
     line-height: 1.3;
     white-space: pre-line;
     word-break: normal;
-    padding: 5px 30px 5px 5px;
+    padding: 1px 30px 1px 0;
     color: #232323;
     font-weight: normal;
-    background-image: none;
-    background: none
 }
-nav ul#mg_pagemenu li li:hover a,
-nav ul#mg_pagemenu li li.current a {
+#mg_pagemenu li li a:hover,
+#mg_pagemenu li li.current a {
     color: #147fdb;
 }
-nav ul#mg_pagemenu li li a:hover,
-nav ul#mg_pagemenu li li a:active,
-nav ul#mg_pagemenu li.current li a:hover,
-nav ul#mg_pagemenu li.current li a:active  {
+#mg_pagemenu li li a:hover,
+#mg_pagemenu li li a:active,
+#mg_pagemenu li.current li a:hover,
+#mg_pagemenu li.current li a:active  {
     padding-right: 30px
 }
+
 /*** page content ***/
+
 #mg_mainarea {
     margin: 0 249px 0 0
 }
@@ -1371,23 +1413,28 @@ nav ul#mg_pagemenu li.current li a:active  {
     margin: 0 40px 0 0
 }
 #mg_mainarea .content-inner {
-    padding: 0 20px 0 25px
+    padding: 0 20px 0 25px;
+    position: relative;
+    overflow: hidden;
 }
 #mg_mainarea header.pageheader {
-    height: 63px;
+    max-height: 63px;
     margin-bottom: 15px;
     position: relative;
     border-bottom: 1px solid #fa8004
 }
+
 .cms_helpicon {
     cursor: pointer;
 }
+
 /*** footer ***/
+
 footer#mg_footer {
     width: 100%;
     z-index: 50;
     height: 30px;
-    background: transparent url(themes/Marigold/images/layout/sprite_repeatx.png) 829px -259px repeat-x;
+    background: transparent url(../images/layout/sprite_repeatx.png) 829px -259px repeat-x;
     padding-top: 5px;
     clear: both;
     position: fixed;
@@ -1437,7 +1484,9 @@ footer#mg_footer a:hover, footer#mg_footer a:active {
 #mg_footer ul.links li:last-child, #mg_footer ul.links li.last {
     padding: 0 0 0 8px
 }
+
 /* --- CONTENT --- */
+
 #mg_mainarea header.pageheader h1 {
     font-size: 18px;
     line-height: 63px;
@@ -1461,7 +1510,7 @@ footer#mg_footer a:hover, footer#mg_footer a:active {
     float:left;
     width: auto;
     color: #232323;
-    font-size: 13px
+    font-size: 12px
 }
 #mg_mainarea header.pageheader span.helptext {
     margin-left: 210px
@@ -1469,20 +1518,27 @@ footer#mg_footer a:hover, footer#mg_footer a:active {
 #mg_mainarea header.pageheader.drop-hidden span.helptext {
     margin-left: 0
 }
+
+#mg_mainarea header.subheader h3 {
+    color: #147fdb
+}
+
 span.helptext a.external,
 span.helptext a {
     display: inline-block;
     width: auto;
     padding-left: 20px;
     margin-right: 8px;
-    background: url(themes/Marigold/images/icons/system/info-external.gif) no-repeat left
+    background: url(../images/icons/system/info-external.gif) no-repeat left
 }
 span.helptext a {
-    background: url(themes/Marigold/images/icons/system/info.gif) no-repeat left
+    background: url(../images/icons/system/info.gif) no-repeat left
 }
 .pageheader span.helptext {
     display: inline-block;
     line-height: 1.3;
+    padding-left: 0;
+    margin-right: 8px;
     background: none
 }
 .pageheader span.helptext a img{
@@ -1498,19 +1554,28 @@ span.helptext a {
     padding:0;
     color: #147fdb
 }
+
+.pageheader img {
+    max-height: 2em;
+    max-width: 2em
+}
+
 div.pageoverflow {
     clear: left;
     padding-top: 1px;
     width: auto;
     overflow: hidden
 }
+
 div.pageoverflow img {
-    border: 0px
+    border:0
 }
+
 div.pageoptions,
 p.pageoptions {
     padding: 2px 0
 }
+
 div.pageoptions a,
 p.pageoptions a,
 a.pageoptions {
@@ -1519,23 +1584,18 @@ a.pageoptions {
     display: inline;
     cursor: pointer
 }
-img.systemicon {
+
+.systemicon {
     border: none;
     direction: rtl;
     vertical-align: top
 }
-.expand {
-    text-indent: -999em;
-    overflow: hidden;
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    background: url(themes/Marigold/images/icons/system/expand-rtl.gif) no-repeat
-}
+
 #copy_paste_in_forum {
     width: 80%;
     margin: 0 10%
 }
+
 .pagerows a {
     display: inline-block;
     background: #eee;
@@ -1544,6 +1604,7 @@ img.systemicon {
     color: #585858;
     border: 1px solid #ccc
 }
+
 .pagerows strong {
     background: #147fdb;
     padding: 2px 4px;
@@ -1551,30 +1612,49 @@ img.systemicon {
     color: #fff;
     border: 1px solid #147fdb
 }
+
 /*** dialogs ***/
+
 div.alert-dialog ul li {
     margin: 10px 0
 }
-div.alert-dialog span.ui-icon {
-    float:right
+
+div.alert-dialog .alert-icon {
+    float: right;
+    cursor: pointer;
+    margin-right: 4px;
 }
+
+div.alert-dialog .alert-remove {
+    float: left;
+    cursor: pointer;
+    margin-left: 4px;
+}
+
+div.alert-dialog span.ui-icon {}
+
 div.dialog h3 {
     margin:5px 0;
     color: #147fdb;
     font-size: 14px
 }
+
 div.dialog a.bookmark {
     padding-right: 20px;
     line-height: 20px;
-    background: url(themes/Marigold/images/icons/system/bookmark.png) no-repeat right
+    background: url(../images/icons/system/bookmark.png) no-repeat right
 }
+
 div.dialog form#chdir_form {
     display: block
 }
+
 div.dialog form#chdir_form select {
     width: 200px
 }
+
 /*** tables ***/
+
 table th:first-child {
     border-top-right-radius: 4px
 }
@@ -1599,15 +1679,17 @@ table.pagetable caption {
     color: #585858;
     text-align: right;
     font-weight: bold;
-    font-size: 13px;
+    font-size: 12px;
     padding: 5px 0
 }
+
 table.pagetable th,
 table.pagetable thead tr {
     color: #fa8004;
     text-shadow: -1px -1px 0 #000;
-    background: #232323 url(themes/Marigold/images/layout/sprite_repeatx.png) 831px -99px repeat-x;
+    background: #232323 url(../images/layout/sprite_repeatx.png) 831px -99px repeat-x;
     height: 45px;
+    text-align: right;
     white-space: nowrap;
     padding-left: 5px;
     padding-right: 5px
@@ -1617,6 +1699,9 @@ table.pagetable th a {
 }
 table.pagetable th.active {
     color: #147fdb
+}
+table.pagetable th input:focus {
+    outline: 2px solid #fa8004;
 }
 table.pagetable th.active a,
 table.pagetable th a:hover {
@@ -1634,35 +1719,11 @@ table.pagetable td {
 table.pagetable a {
     color: #232323
 }
-table.pagetable a.tooltip {
-    position: relative
-}
-table.pagetable a.tooltip span {
-    display: none;
-    text-decoration: none;
-    position: absolute;
-    background: #efefef;
-    right: 110%;
-    bottom: 10px;
-    box-shadow: 1px 1px 3px 1px #222;
-    -webkit-box-shadow: 1px 1px 3px 1px #222;
-    border: 1px solid #ddd;
-    padding: 5px;
-    z-index: 900;
-    min-width: 150px;
-    width: auto;
-    line-height: 1.3
+table.pagetable td a:focus {
+    color: #147fdb;
 }
 table.pagetable th.pagepos {
     text-align: center
-}
-.move {
-    width: 60px;
-    text-align: right;
-    padding-right: 5px
-}
-.checkbox {
-    padding-right: 10px
 }
 table.pagetable th.pageicon {
     min-width: 16px;
@@ -1708,14 +1769,30 @@ td.pageicon {
 td.icons_wide {
     width: 25px
 }
+
+.move {
+    width: 60px;
+    text-align: right;
+    padding-right: 5px
+}
+
+.checkbox {
+    padding-right: 10px
+}
+
 /*** Design manager ***/
+
+.pointer {
+    cursor: pointer;
+}
+
 #mg_mainarea ul.sortable-list {
     list-style: none;
     padding: 0;
     margin: 0;
     max-height: 321px;
     min-height: 25px;
-    overflow: auto;
+    overflow: auto
 }
 
 #mg_mainarea .sortable-list li {
@@ -1729,7 +1806,7 @@ td.icons_wide {
 
 #mg_mainarea .sortable-list li .sortable-remove {
     float: left;
-    display: inline-block;
+    display: inline-block
 }
 
 #mg_mainarea .available-templates li .sortable-remove,
@@ -1746,10 +1823,13 @@ td.icons_wide {
 }
 
 /*** File Manager ***/
+
 #filesarea img {
     max-width: 32px
 }
+
 /*** iframe ***/
+
 iframe.imageframe {
     margin-top: 10px;
     border: none;
@@ -1762,7 +1842,9 @@ iframe.preview {
     width: 95%;
     height: 400px
 }
+
 /*** content text and forms ***/
+
 /* TODO pageback class now redundant? */
 .pageback {
     clear: both;
@@ -1802,17 +1884,21 @@ div.pagecontainer .pageshowrows {
 div.pagecontainer span.helptext {
     display: none
 }
+
 /*** content forms ***/
+
 div.pagecontainer .pageinput {
     padding: 0;
     margin: 0;
     width: auto;
     text-align: right
 }
+
 .pageinput img {
     line-height: 28px;
     vertical-align: middle
 }
+
 div.pagecontainer fieldset {
     border: 1px solid #ddd;
     margin: 10px 0
@@ -1823,17 +1909,20 @@ div.pagecontainer legend {
     padding: 0 5px;
     font-size: 14px
 }
+
 .pageinput input,
 .pageinput textarea,
 .pageinput select,
 .pageinput menu {
     margin-bottom: 4px
 }
+
 .group {
     padding-left: 3px;
     padding-bottom: 3px;
     padding-top: 3px;
 }
+
 .group_memberships {
     margin: 0;
     height: 1%; /*IE*/
@@ -1841,27 +1930,33 @@ div.pagecontainer legend {
     background: #fefefe;
     border: 1px solid #ddd;
 }
+
 div.pagecontainer p.pageinput,
 div.pagecontainer .pageinput label {
     font-size: 14px
 }
+
 p.pageinputwysiwyg {
     padding-top: 5px
 }
+
 p.pagemessage {
     margin-bottom: 0;
     padding: 5px;
     font-weight: bold
 }
+
 input.pagecheckbox {
     border: none
 }
+
 /*
 textarea.pagebigtextarea {
     height: 40em;
     width: 90%
 }
 */
+
 .pageinput textarea {
     width: 90%;
     font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
@@ -1878,6 +1973,7 @@ textarea.pageextrasmalltextarea {
 }
 
 /*** tabs ***/
+
 #page_tabs {
     overflow: hidden;
     margin-top: 20px
@@ -1885,6 +1981,7 @@ textarea.pageextrasmalltextarea {
 #page_tabs div {
     color: #585858;
     border-radius: 4px 4px 0 0;
+    text-shadow: 1px -1px 0 #fff;
     background: #ddd;
     font-weight: bold;
     text-align: center;
@@ -1904,10 +2001,15 @@ textarea.pageextrasmalltextarea {
 #page_tabs div:hover {
     color: #147fdb
 }
+#page_tabs div:focus {
+    color: #147fdb
+}
 #page_tabs div.active {
     color: #fff;
-    background: #147fdb url(themes/Marigold/images/layout/tab-active.png) no-repeat center bottom
+    text-shadow: -1px -1px 0 #054882;
+    background: #147fdb url(../images/layout/tab-active.png) no-repeat center bottom
 }
+
 #page_content {
     background: #fff;
     border-radius: 0 0 4px 4px;
@@ -1915,7 +2017,14 @@ textarea.pageextrasmalltextarea {
     border: 1px solid #ddd;
     border-top: 3px solid #ddd
 }
+
 /*** topcontent - dashboard ***/
+
+#topcontent_wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .dashboard-box {
     min-height: 100px;
     width: 31.513%;
@@ -1923,7 +2032,7 @@ textarea.pageextrasmalltextarea {
     border-radius: 4px;
     margin-left: 2.29%;
     margin-bottom: 10px;
-    background: #d5d5d5 url(themes/Marigold/images/layout/sprite_repeatx.png) 214px -339px repeat-x;
+    background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
     border: 1px solid #ddd
 }
 .dashboard-box.last {
@@ -1935,16 +2044,16 @@ textarea.pageextrasmalltextarea {
 .dashboard-box img {
     max-height: 48px;
     padding: 20px;
-    box-shadow: inset 0px 1px 15px 1px #ddd;
-    -webkit-box-shadow: inset 0px 1px 15px 1px #ddd;
+    box-shadow: inset0 1px 15px 1px #ddd;
+    -webkit-box-shadow: inset0 1px 15px 1px #ddd;
     margin-left: 10px;
     float: right;
     border: 1px solid #ddd;
     background: #fff
 }
 .dashboard-box:hover img {
-    box-shadow: inset 0px 1px 15px 1px #ffd8b0;
-    -webkit-box-shadow: inset 0px 1px 15px 1px #ffd8b0;
+    box-shadow: inset0 1px 15px 1px #ffd8b0;
+    -webkit-box-shadow: inset0 1px 15px 1px #ffd8b0;
     transition: all 600ms ease-in-out;
     -webkit-transition: all 600ms ease-in-out;
     -moz-transition: all 600ms ease-in-out;
@@ -1953,6 +2062,9 @@ textarea.pageextrasmalltextarea {
 .dashboard-box h3 {
     text-shadow: 0 1px 0 #fff;
     margin:0 0 5px 0
+}
+.dashboard-box h3 a:focus {
+    border: 1px solid #147fdb;
 }
 .dashboard-box span.description {
     color: #585858;
@@ -1977,10 +2089,15 @@ textarea.pageextrasmalltextarea {
     font-size: 13px;
     text-decoration: underline
 }
+
+h3.dashboard-icon::before {}
+
 /*** reorder pages ***/
+
 .reorder-pages {
     margin: 20px 0
 }
+
 ul.sortableList,
 .reorder-pages ul {
     list-style-type: none;
@@ -1999,7 +2116,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 35px 3px 10px;
-    background: #eee url(themes/Marigold/images/icons/extra/reorder.gif) no-repeat  430px 50%;
+    background: #eee url(../images/icons/extra/reorder.gif) no-repeat  430px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
@@ -2015,7 +2132,9 @@ ul.sortable .placeholder {
     border: 2px dashed #ddd;
     background: #f2f2f2
 }
+
 /* Changelog, System Maintenance page */
+
 .version {
     background: #f1f1f1;
     border: 1px solid #ddd;
@@ -2024,14 +2143,17 @@ ul.sortable .placeholder {
     font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
     line-height: 1.5
 }
+
 .version h3 {
     text-transform: uppercase;
     color: #147fdb;
     margin: 0;
     padding: 0;
-    font-family: sans-serif;
+    font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+
 /*** theme dropzone ***/
+
 .drop {
     position: absolute;
     width: 262px;
@@ -2040,8 +2162,9 @@ ul.sortable .placeholder {
     left: 0;
     top:0
 }
-.drop a.toggle-dropzone {
-    background: transparent url(themes/Marigold/images/layout/toggle-dropzone.png) no-repeat -15px 0;
+
+.drop-inner + a.toggle-dropzone {
+    background: transparent url(../images/layout/toggle-dropzone.png) no-repeat -15px 0;
     border: 1px solid #ccc;
     border-top: none;
     text-indent: -9999em;
@@ -2051,13 +2174,16 @@ ul.sortable .placeholder {
     bottom: 0;
     left:0
 }
+
 a.toggle-dropzone:active,
 a.toggle-dropzone:focus {
     outline: none
 }
-.drop.hidden a.toggle-dropzone {
-    background: transparent url(themes/Marigold/images/layout/toggle-dropzone.png) no-repeat 0 0;
+
+.drop-inner.hidden + a.toggle-dropzone {
+    background: transparent url(../images/layout/toggle-dropzone.png) no-repeat 0 0;
 }
+
 .drop .drop-inner {
     float:none;
     border: 1px solid #ccc;
@@ -2072,9 +2198,9 @@ a.toggle-dropzone:focus {
 .drop div.zone {
     display: block;
     float:left;
-    width: 200px;
+    width: 210px;
     border: 1px dashed #ccc;
-    text-align: center;
+    text-align: center
 }
 .drop div.zone:hover,
 .drop div.zone:focus {
@@ -2084,8 +2210,9 @@ a.toggle-dropzone:focus {
     width: 200px;
     overflow: visible;
     line-height: 30px;
+    text-align: center;
     height: 30px;
-    background: #ddd;
+    background: #ddd
 }
 .drop span.folder-selection {
     display: inline-block;
@@ -2095,24 +2222,232 @@ a.toggle-dropzone:focus {
     cursor: pointer;
     height: 30px;
     text-align: left;
-    background: transparent url(themes/Marigold/images/layout/folder-horizontal-open.png) no-repeat left
+    background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left
 }
 .drop.hidden .drop-inner {
     display: none
 }
 .drop #theme_dropzone .ui-progressbar-value {
     margin: 10px 5px 5px 0;
-    max-width: 130px;
+    max-width: 190px;
     text-shadow: none;
     height: 12px;
     line-height: 12px;
     font-weight: normal;
-    font-size: 11px;
+    font-size: 12px;
     text-align: center;
     border: 1px solid #aaa;
     border-radius: 4px;
     display: none
     }
+
+/* --- CMS_HELP --- */
+
+.cms_helptext ul {
+    padding: 0 10px;
+    list-style: disc;
+}
+
+.cms_helptext ul li {
+    margin-bottom: 8px;
+}
+
+/* --- LOGIN PAGE --- */
+
+#login #wrapper {
+    padding-top: 10%
+}
+
+#login div.login-container,
+#login div.login-container#error {
+    width: 352px;
+    padding-top: 36px;
+    margin: auto;
+}
+
+#login .logo {
+    width: 180px;
+    height: 36px;
+    position: absolute;
+    left: 10px;
+    top: -29px
+}
+
+#login div.login-box {
+    background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
+    position: relative;
+    border-radius: 4px 4px 0 4px;
+    border: 1px solid #aaa;
+    box-shadow: #999 0 0 6px;
+    -webkit-box-shadow: #999 0 0 6px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    width: 310px
+}
+
+#login h1 {
+    color: #585858;
+    margin-bottom: 20px;
+    font-size: 12px;
+    text-shadow: 0 1px 0 #fff;
+}
+
+#login aside.info {
+    display: none
+}
+
+#login fieldset {
+    margin: 0 0 10px 0;
+    padding: 0;
+    border: none
+}
+
+#login label {
+    color: #585858;
+    font-size: 13px
+}
+
+#login input[type="text"],
+#login input[type="password"] {
+    margin: 5px 0;
+    border-bottom: 1px solid #fff;
+    border-left: 1px solid #fff;
+    width: 300px
+}
+
+#login input[type="text"]:focus,
+#login input[type="password"]:focus {
+    margin: 5px 0;
+    border: 1px solid #147fdb;
+    box-shadow: 0 0 5px #147fdb;
+    -webkit-box-shadow: 0 0 5px #147fdb;
+    transition: all 0.2s ease-in-out;
+    -webkit-transition: all 200ms ease-in-out;
+    -moz-transition: all 200ms ease-in-out;
+    -o-transition: all 200ms ease-in-out
+}
+
+#login input.loginsubmit {
+    border: 1px solid #838282;
+    color: #fff;
+    text-indent: 0;
+    line-height: 28px;
+    height: 28px;
+    width: auto;
+    padding: 0 14px;
+    margin-top: 15px;
+    background: #838282 url(../images/layout/input-bg.gif) repeat-x top
+}
+
+#login input.loginsubmit:hover,
+#login input.loginsubmit:focus {
+    border: 1px solid #e87602;
+    background: #fa8106 url(../images/layout/input-hover-bg.gif) repeat-x top
+}
+
+#login div.info-wrapper {
+    position: absolute;
+    width: 25px;
+    right: -27px;
+    top: 10px
+}
+
+#login div.info-wrapper.open {
+    right: -302px;
+    padding-right: 25px;
+    width: 275px
+}
+
+#login a.toggle-info {
+    width: 25px;
+    outline: none;
+    border-radius: 4px 4px 0 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 1px solid #aaa;
+    border-left: none;
+    height: 25px;
+    display: block;
+    text-indent: -9999em;
+    background: #ececec url(../images/layout/information.png) no-repeat center
+}
+
+#login aside.info {
+    font-size: 12px;
+    color: #585858;
+    background: #ececec;
+    width: 255px;
+    padding: 0 10px 10px 10px;
+    border: 1px solid #aaa;
+    border-left: none;
+    border-radius: 0 4px 0 0
+}
+
+#login aside.info p {
+    font-size: 12px
+}
+
+#login aside.info p.warning {
+    background-image: none;
+    margin-top: 5px;
+    padding: 5px
+}
+
+#login aside.info ol {
+    margin-bottom: 0;
+    list-style: decimal
+}
+
+#login div.info-wrapper h2 {
+    font-size: 12px;
+    margin: 5px 0 10px 0
+}
+
+#login .goback {
+    padding-top: 2px;
+    float: right
+}
+
+#login p.forgotpw {
+    display: inline-block;
+    width: auto;
+    float: left;
+    margin-bottom: 0
+}
+
+#login p.forgotpw a {
+    padding-right: 20px;
+    background: url(../images/layout/help.png) right 50% no-repeat;
+    color: #585858;
+    text-shadow: 0 1px 0 #fff;
+    font-size: 12px;
+    text-decoration: none
+}
+
+#login .copyright {
+    margin: 5px auto;
+    text-align: center
+}
+
+#login small {
+    text-align: center;
+    font-size: 12px;
+    color: #585858;
+    display: block
+}
+
+#login small a {
+    color: #fa8004;
+    text-decoration: none;
+    font-weight: bold
+}
+
+#login .message {
+    display: block
+}
+
+/* --- SCREEN UP TO 1024px --- */
 
 @media screen and (max-width: 1024px) {
     @-ms-viewport {
@@ -2133,13 +2468,13 @@ a.toggle-dropzone:focus {
     /* change tabs to full width on smaller screen size */
     .sidebar-on #page_tabs div {
         text-align: right;
-        float: none;
+        /* float: none; */
         border-radius: 0;
-        margin-right: 0
+        margin-left: 0
     }
     .sidebar-on #page_tabs div.active {
-        color: #147fdb;
-        background: #f2f2f2
+        color: #fff;
+        background: #147fdb
     }
     /*
     textarea {
@@ -2153,10 +2488,13 @@ a.toggle-dropzone:focus {
         font-size: 12px
     }
     #mg_sidebar {
-        bottom: 55px
+        bottom: 30px
     }
     #mg_sidebar aside {
         padding: 0
+    }
+    #mg_mainarea header.pageheader span.helptext em {
+        display: none
     }
     .dashboard-box {
         float: none;
@@ -2167,7 +2505,7 @@ a.toggle-dropzone:focus {
         clear: both;
         overflow: hidden;
         line-height: 20px;
-        position: static
+/*        position: static */
     }
     #mg_footer .footer-left {
         margin-left: 0
@@ -2178,9 +2516,9 @@ a.toggle-dropzone:focus {
         max-width: 16px
     }
     .move,
-    table.pagetable th.pageicon,
+/*    table.pagetable th.pageicon,
     table.pagetable th,
-    table.pagetable td,
+    table.pagetable td, */
     th.pagew10,
     th.pagew25,
     th.pagew50,
@@ -2193,36 +2531,19 @@ a.toggle-dropzone:focus {
         word-wrap: break-word;
         text-overflow: elipsis
     }
-    table.pagetable th {
-        overflow: hidden
-    }
     .checkbox {
         padding-left: 0
     }
 }
-/* --- SCREEN UP TO 768px --- */
-@media screen and (max-width: 768px) {
-    @-ms-viewport {
-        width: device-width;
-    }
-    @-o-viewport {
-        width: device-width;
-    }
-    @-moz-viewport {
-        width: device-width;
-    }
-    @-webkit-viewport {
-        width: device-width;
-    }
-    @viewport {
-        width: device-width;
-    }
+
+/* --- SCREEN UP TO 992px --- */
+
+@media screen and (max-width: 992px) {
     /* override our predefined min-with for smaller screens and full height stuff */
     body {
         margin: 0;
         min-width: 100%;
         padding: 0;
-
     }
     a {
         outline: 0
@@ -2237,7 +2558,8 @@ a.toggle-dropzone:focus {
     #mg_admin-content {
         margin: 0;
         float: none;
-        display: block
+        display: block;
+        height: 100%
     }
     #mg_container {
         width: 100%;
@@ -2270,7 +2592,7 @@ a.toggle-dropzone:focus {
         border: none;
         width: 100%;
         background: #ddd;
-        position: static
+        box-sizing: border-box;
     }
     #mg_sidebar aside {
         padding: 0
@@ -2291,6 +2613,18 @@ a.toggle-dropzone:focus {
     #mg_mainarea {
         width: 100%;
         display: block
+    }
+    #mg_mainarea header.pageheader {
+        max-height: 50px;
+        margin-bottom: 15px;
+        border-bottom: 0;
+    }
+    #mg_mainarea header.pageheader h1,
+    #mg_mainarea header.pageheader span.helptext {
+        line-height: 50px;
+    }
+    #mg_mainarea header.pageheader span.helptext {
+        margin-right: 0
     }
     #mg_mainarea .content-inner {
         padding: 0 5px
@@ -2313,26 +2647,21 @@ a.toggle-dropzone:focus {
     .dashboard-box img {
         display: inline
     }
+    /* Responsive Table -- CSS solution: scroll left/right */
     table.pagetable {
-        max-width: 100%
-    }
-    body.currentpages table.pagetable td:nth-child(4),
-    body.currentpages table.pagetable th:nth-child(4),
-    body.currentpages table.pagetable td:nth-child(5),
-    body.currentpages table.pagetable th:nth-child(5),
-    body.currentpages table.pagetable td:nth-child(6),
-    body.currentpages table.pagetable th:nth-child(6),
-    body.currentpages table.pagetable td:nth-child(7),
-    body.currentpages table.pagetable th:nth-child(7),
-    body.currentpages table.pagetable td:nth-child(8),
-    body.currentpages table.pagetable th:nth-child(8) {
-        display: none
+        border-collapse: collapse;
+        width: 100%;
+        margin: 5px 0 1rem;
+        overflow-x: auto;
+        display: block;
+        padding-bottom: 2rem;
     }
     /* position:fixed doesn't work well with mobile devices */
     footer#mg_footer {
         clear: both;
         overflow: hidden;
-        position: static
+        line-height: 20px;
+        /*position: static*/
     }
     #mg_footer .footer-left {
         float: none;
@@ -2360,6 +2689,9 @@ a.toggle-dropzone:focus {
         min-width: auto;
         max-width: 40em
     }
+    iframe {
+        max-width: 90%
+    }
     input,
     textarea,
     select,
@@ -2374,22 +2706,94 @@ a.toggle-dropzone:focus {
         padding-top: 2%
     }
 }
+
+@media screen and (max-width: 600px) {
+    header .shortcuts ul {
+        margin-right: 8px;
+    }
+    header .shortcuts li {
+        padding: 0 8px;
+    }
+    header .shortcuts li i {
+        font-size: 1.25rem;
+        padding-top: 0.235em;
+    }
+    #page_tabs {
+        margin-top: 0;
+    }
+    #page_tabs div {
+        width: 100%;
+        float: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    #mg_mainarea .pageoptions.options-menu.half {
+        height: auto;
+        width: 100% !important;
+    }
+    #mg_mainarea .pageoptions.options-menu.half a,
+    #content_area .pageoptions.grid_8 a {
+        width: 100%;
+        display: block;
+    }
+    #content_area .pageoptions.grid_8 a {
+        padding: 4px 0
+    }
+
+    /* hide some table columns  for small devices designs_c */
+    #template_area .pagetable,
+    #stylesheet_area .pagetable,
+    #designs_c .pagetable,
+    #types_c .pagetable {
+        display: table;
+    }
+
+    #contenttable tr th:nth-child(2), #contenttable tr td:nth-child(2),
+    #contenttable tr th:nth-child(7), #contenttable tr td:nth-child(7),
+    #contenttable tr th:nth-child(8), #contenttable tr td:nth-child(8),
+    #contenttable tr th:nth-child(9), #contenttable tr td:nth-child(9),
+    #contenttable tr th:nth-child(12), #contenttable tr td:nth-child(12),
+    #contenttable tr th:nth-child(13), #contenttable tr td:nth-child(13),
+    #template_area .pagetable tr th, #template_area .pagetable tr td,
+    #stylesheet_area .pagetable tr th, #stylesheet_area .pagetable tr td,
+    #designs_c .pagetable tr th, #designs_c .pagetable tr td,
+    #types_c .pagetable tr th, #types_c .pagetable tr td  {
+        display:none;
+    }
+
+    #template_area .pagetable tr th:nth-child(3), #template_area .pagetable tr td:nth-child(3),
+    #stylesheet_area .pagetable tr th:nth-child(3), #stylesheet_area .pagetable tr td:nth-child(3),
+    #designs_c .pagetable tr th:nth-child(2), #designs_c .pagetable tr td:nth-child(2),
+    #types_c .pagetable tr th:nth-child(2), #types_c .pagetable tr td:nth-child(2) {
+        display:table-cell;
+        width: 100%;
+    }
+    #mg_pagemenu {
+        border-bottom: 0;
+    }
+    #mg_pagemenu li {
+        background: #d5d5d5;
+        line-height: 45px;
+        padding: 2px;
+        text-align: center;
+        border-bottom: 1px solid #aaa;
+    }
+    #mg_pagemenu li a {
+        margin-right: 0;
+        height: 45px;
+        text-align: center;
+    }
+    #mg_pagemenu li a:focus {
+        margin-left: 0;
+    }
+    #mg_pagemenu li a::before {
+        margin-left: 0;
+        font-size: 1.35rem;
+    }
+}
+
 @media screen and (max-width: 480px) {
-    @-ms-viewport {
-        width: device-width;
-    }
-    @-o-viewport {
-        width: device-width;
-    }
-    @-moz-viewport {
-        width: device-width;
-    }
-    @-webkit-viewport {
-        width: device-width;
-    }
-    @viewport {
-        width: device-width;
-    }
     aside.message,
     .pagemcontainer,
     .pageerrorcontainer,
@@ -2420,4 +2824,21 @@ a.toggle-dropzone:focus {
     #login div.info-wrapper {
         display: none
     }
+}
+
+/* TinyMCE override for filepicker iframe*/
+
+.mce-container-body iframe {
+    max-width: none !important;
+}
+
+.cmsfp_dlg {
+    padding: 0 !important;
+}
+
+.cmsfp_dlg iframe {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    border: none;
 }
