@@ -27,8 +27,8 @@ $id = 'm1_';
 $url = $this->create_url($id, 'login'); //back to self
 
 $params = ['actionid' => $id];
-$params['loginurl'] = $url;
-$params['forgoturl'] = $url.'&amp;'.$id.'forgotpw=1';
+$params['loginurl'] = $url.'&amp;cmsjobtype=1';
+$params['forgoturl'] = $url.'&amp;'.$id.'forgotpw=1&amp;cmsjobtype=1';
 $params['admin_url'] = $config['admin_url'];
 $params['encoding'] = CmsNlsOperations::get_encoding();
 
@@ -55,20 +55,12 @@ $out = <<<EOS
 EOS;
 
 $tpl = '<script type="text/javascript" src="%s"></script>'."\n";
-// the only needed scripts are: jquery, jquery-ui, and our custom login
-list ($jqcore, $jqmigrate) = cms_jquery_local();
-$url = AdminUtils::path_to_url($jqcore);
+// scripts: jquery, jquery-ui
+$scripts = cms_installed_jquery(true, false, true, false);
+$url = AdminUtils::path_to_url($scripts['jqcore']);
 $out .= sprintf($tpl,$url);
-list ($jqui, $jqcss) = cms_jqueryui_local();
-$url = AdminUtils::path_to_url($jqui);
+$url = AdminUtils::path_to_url($$scripts['jqui']);
 $out .= sprintf($tpl,$url);
-$out .= <<<EOS
-<!--[if lt IE 9]>
-<!-- html5 for old IE -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
-<![endif]-->
-
-EOS;
 $url = $baseurl.'/lib/js/login.js';
 $out .= sprintf($tpl,$url);
 
