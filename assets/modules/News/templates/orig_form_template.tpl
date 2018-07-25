@@ -66,15 +66,15 @@
     <label class="boxchild" for="news_fld_{$field->id}">{$field->name}:</label>
     <div class="boxchild">
     {if $field->type == 'file'}
-      <input id="news_fld_{$field->id}" type="file" name="{$actionid}news_customfield_{$field->id}"/>
+      <input id="news_fld_{$field->id}" type="file" name="{$actionid}news_customfield_{$field->id}" />
     {elseif $field->type == 'checkbox'}
-      <input id="news_fld_{$field->id}" type="checkbox" name="{$actionid}news_customfield_{$field->id}" value="1"/>
+      <input id="news_fld_{$field->id}" type="checkbox" name="{$actionid}news_customfield_{$field->id}" value="1" />
     {elseif $field->type == 'textarea'}
       {$tmp1='news_fld_'|cat:$field->id}
       {capture assign='tmp2'}{$actionid}news_customfield_{$field->id}{/capture}
       {cms_textarea id=$tmp1 name=$tmp2 enablewysiwyg=true}
     {elseif $field->type == 'textbox'}
-      <input id="news_fld_{$field->id}" type="text" name="{$actionid}news_customfield_{$field->id}" maxlength="{$field->max_length}"/>
+      <input id="news_fld_{$field->id}" type="text" name="{$actionid}news_customfield_{$field->id}" maxlength="{$field->max_length}" />
     {/if}
     </div>
    </div>
