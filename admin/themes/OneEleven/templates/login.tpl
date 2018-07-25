@@ -11,7 +11,7 @@
 		<meta name="msapplication-TileImage" content="{$admin_url}/themes/OneEleven/images/favicon/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="themes/OneEleven/images/favicon/cmsms-favicon.ico" />
-		{$header_includes|default:''}
+{$header_includes|default:''}
 	</head>
 	<body id="login">
 		<div id="wrapper">
