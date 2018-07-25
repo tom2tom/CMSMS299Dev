@@ -1303,22 +1303,13 @@ body {
     position: relative;
 }
 #shortcuts li.notice span.bubble {
-/*    position: absolute;
-    top: 1px;
-    right: 0;
-    margin-right: 0;
-    text-align: center;
-    width: 1.2em;
-    height: 1.2em;
-    */
-    padding: 5px 5px 2px 5px;
+    padding: 2px 5px;
     border-radius: 10px;
     background-color: #990000;
-    font-size: 0.8em;
-    line-height: 1.2;
-    font-weight: bold;
-/*    text-indent: initial; */
     color: white;
+    font-size: 0.7em;
+    font-weight: bold;
+    vertical-align: top;
 }
 
 /* fontello-generated icon-font for shortcuts & nav */

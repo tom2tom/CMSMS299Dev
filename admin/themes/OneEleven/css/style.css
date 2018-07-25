@@ -1247,7 +1247,7 @@ header .shortcuts li.favorites a {
 	border: 1px solid transparent;
 }
 #oe_pagemenu li a.no-nav {
-	background: none
+	background: none;
     font-weight: normal;
 }
 #oe_pagemenu li.current li a {

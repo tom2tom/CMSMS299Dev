@@ -254,6 +254,10 @@ EOS;
 	{
 	}
 
+	/**
+	 * @param mixed $section_name nav-menu-section name (string), but
+	 *  usually null to use the whole menu
+	 */
 	public function do_toppage($section_name)
 	{
 		$flag = $this->currentversion();
@@ -435,12 +439,20 @@ EOS;
 		$smarty->display('login.tpl');
 	}
 
+	/**
+	 * @param string $html page content to be processed
+	 * @return string (or maybe null if $smarty->fetch() fails?)
+	 */
 	public function postprocess($html)
 	{
 		$flag = $this->currentversion();
 
 		$smarty = cmsms()->GetSmarty();
 		$uid = get_userid(false);
+
+		// setup titles etc
+//		$tree =
+			$this->get_navigation_tree(); //TODO if section
 
 		// prefer cached parameters, if any
 		// module name
@@ -462,36 +474,38 @@ EOS;
 		// page title
 		$alias = $title = $this->get_value('pagetitle');
 		$subtitle = '';
-		if ($title) {
-			if (!$module_help_type) {
-				// if not doing module help, maybe translate the string
-				if (CmsLangOperations::lang_key_exists('admin', $title)) {
-					$extra = $this->get_value('extra_lang_params');
-					if (!$extra) {
-						$extra = array();
-					}
-					$title = lang($title, $extra);
+		if ($title && !$module_help_type) {
+			// if not doing module help, maybe translate the string
+			if (CmsLangOperations::lang_key_exists('admin', $title)) {
+				$extra = $this->get_value('extra_lang_params');
+				if (!$extra) {
+					$extra = array();
 				}
+				$title = lang($title, $extra);
 			}
-		} elseif ($this->title) {
-			$title = $this->title; // active-menu-item title
+//			$subtitle = TODO
+		} else {
+			$title = $this->get_active_title(); // try for the active-menu-item title
+			if ($title) {
 			$subtitle = $this->subtitle;
 		} elseif ($module_name) {
 			$modinst = cms_utils::get_module($module_name);
 			$title = $modinst->GetFriendlyName();
 			$subtitle = $modinst->GetAdminDescription();
-		} else {
-			// no title, get one from the breadcrumbs
+/*			} else {
+				// no title, get one from the breadcrumbs.
 			$bc = $this->get_breadcrumbs();
 			if (is_array($bc) && count($bc)) {
 				$title = $bc[count($bc) - 1]['title'];
 			}
+*/
+			}
 		}
 		if (!$title) $title = '';
-
-		// page title and alias
 		$smarty->assign('pagetitle', $title);
 		$smarty->assign('subtitle', $subtitle);
+
+		// page alias
 		$smarty->assign('pagealias', munge_string_to_url($alias));
 
 		// icon
@@ -518,7 +532,8 @@ EOS;
 
 		// preferences UI
 		if (check_permission($uid,'Manage My Settings')) {
-		  $smarty->assign('myaccount',1);
+			$smarty->assign('mysettings', 1);
+			$smarty->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI

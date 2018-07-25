@@ -174,7 +174,9 @@ EOS;
 		$fp = cms_join_path(__DIR__, 'function.extraparms.php');
 		if (is_file($fp)) {
 			require_once $fp;
-			$smarty->assign($tplvars);
+			if (!empty($tplvars)) {
+				$smarty->assign($tplvars);
+			}
 		}
 
 		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
@@ -200,7 +202,12 @@ EOS;
 		$smarty = Smarty::get_instance();
         $uid = get_userid(false);
 
+		// setup titles etc
+//		$tree =
+			$this->get_navigation_tree(); //TODO if section
+
 		// prefer cached parameters, if any
+		// module name
 		$module_name = $this->get_value('module_name');
 		if (!$module_name && isset($_REQUEST['mact'])) {
 			$module_name = explode(',', $_REQUEST['mact'])[0];
@@ -216,6 +223,7 @@ EOS;
 			}
 		}
 
+		// page title
 		$alias = $title = $this->get_value('pagetitle');
 		$subtitle = '';
 		if ($title && !$module_help_type) {
@@ -252,9 +260,6 @@ EOS;
 		// page alias
 		$smarty->assign('pagealias', munge_string_to_url($alias));
 
-//		$tree =
-			$this->get_navigation_tree(); //TODO if section
-
 		// icon
 		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
 			$tag = '<img src="'.$icon_url.'" alt="'.$module_name.'" class="module-icon" />';
@@ -264,7 +269,6 @@ EOS;
 			$tag = '<img src="'.$icon_url.'" alt="TODO" class="TODO" />';
 		} else {
 			$tag = ''; //TODO get icon for admin operation
-			//$tag = $this->get_active_icon());
 		}
 		$smarty->assign('pageicon', $tag);
 
