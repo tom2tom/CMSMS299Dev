@@ -49,8 +49,12 @@ abstract class BasicEnum
         if ($strict) {
             return $constants[$name] ?? null;
         }
-        $key = array_search($name, array_keys($constants));
-        return ($key !== false) ? $constants[$key] : null;
+        $keys = array_keys($constants);
+        $idx = array_search($name, $keys);
+        if ($idx !== false) {
+            return $constants[$keys[$idx]];
+        }
+        return null;
     }
 
     public static function getNames()
