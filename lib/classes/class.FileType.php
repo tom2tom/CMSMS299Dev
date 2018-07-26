@@ -18,7 +18,7 @@
 namespace CMSMS;
 
 /**
- * An abstract class that enumerates file-types.
+ * A reflectable class that enumerates file-types.
  *
  * @package CMS
  * @license GPL
