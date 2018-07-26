@@ -1,7 +1,7 @@
 <?php
 /*
 Enumerator class
-This is an extension of contributions by by Brian Cline and others.
+This is an extension of contributions by Brian Cline and others.
 See https://stackoverflow.com/questions/254514/php-and-enumerations
 Stackoverflow contributions are CC BY-SA 3.0 licensed
 */
