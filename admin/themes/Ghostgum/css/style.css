@@ -1078,7 +1078,7 @@ aside .no-slide, .no-slide {
 }
 button.ui-button.ui-state-active {
     border: 1px solid #d3d3d3;
-    background: #cecece url(../css/default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #147fdb
 }

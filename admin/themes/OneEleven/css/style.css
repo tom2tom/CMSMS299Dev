@@ -458,7 +458,7 @@ input[type="submit"],
 .ui-button
 {
 	border: 1px solid #d3d3d3;
-	background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+	background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
 	font-weight: normal;
 	color: #555;
 	cursor: pointer;
@@ -476,7 +476,7 @@ input[type="submit"],
 .adminsubmit:hover, .loginsubmit:hover, .adminsubmit:active, .loginsubmit:active,
 button.ui-button.ui-state-active {
 	border: 1px solid #d3d3d3;
-	background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+	background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
 	font-weight: normal;
 	color: #147fdb
 }
@@ -1577,7 +1577,7 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
 .pagerows a {
 	display: inline-block;
 	background: #eee;
-	border: 1px solid #ccc
+	border: 1px solid #ccc;
 	margin: 2px 1px;
 	padding: 2px 4px;
 	color: #585858;
@@ -2172,7 +2172,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	float: left;
 	margin-right: 10px;
 	width: 16px;
-	background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left
+	background: transparent url(../images/layout/folder-horizontal-open.png) no-repeat left;
 	cursor: pointer;
 	height: 30px;
 	text-align: left;
@@ -2212,7 +2212,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	top: -29px
 }
 #login div.login-box {
-    background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;  
+    background: #d5d5d5 url(../images/layout/sprite_repeatx.png) 214px -339px repeat-x;
     position: relative;
     border-radius: 4px 4px 0 4px;
     border: 1px solid #aaa;

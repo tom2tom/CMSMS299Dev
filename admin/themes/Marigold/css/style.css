@@ -445,7 +445,7 @@ input[type="button"],
 input[type="submit"],
 .adminsubmit, .loginsubmit, .ui-button {
     border: 1px solid #d3d3d3;
-    background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #555;
     cursor: pointer;
@@ -468,7 +468,7 @@ input[type="submit"],
 .ui-button:hover,
 button.ui-button.ui-state-active {
     border: 1px solid #d3d3d3;
-    background: #cecece url(default-cmsms/images/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
+    background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #147fdb
 }
@@ -1173,7 +1173,7 @@ header .shortcuts li.notifications span.bubble {
     text-decoration: none;
 }
 #mg_pagemenu li a.no-nav {
-	background: none
+    background: none;
     font-weight: normal;
 }
 #mg_pagemenu li.current li a {
