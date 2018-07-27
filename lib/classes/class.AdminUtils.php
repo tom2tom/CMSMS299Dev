@@ -225,6 +225,7 @@ final class AdminUtils
 				}
 			}
 		}
+		return '';
 	}
 
 	/**
