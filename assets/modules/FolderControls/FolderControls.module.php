@@ -59,6 +59,7 @@ final class FolderControls extends CMSModule
      */
     public function get_controls(string $dirpath) : array
     {
-        return FolderControls\ControlSet::get_for_folder($dirpath);
+        $ob = new FolderControls\ControlSet();
+        return $ob->get_for_folder($dirpath);
     }
 } // class
