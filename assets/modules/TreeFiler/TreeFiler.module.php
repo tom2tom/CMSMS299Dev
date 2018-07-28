@@ -23,6 +23,7 @@ final class TreeFiler extends CMSModule
     public function GetAdminSection() { return 'files'; }
     public function GetAuthor() { return 'tomph'; }
     public function GetAuthorEmail() { return 'tomph@cmsmadesimple.org'; }
+    public function GetDependencies() { return ['FolderControls'=>'0.0']; }
     public function GetEventDescription($name) { return $this->Lang('eventdesc_'.$name); }
     public function GetEventHelp($name) { return $this->Lang('eventhelp_'.$name); }
     public function GetFriendlyName() { return $this->Lang('friendlyname'); }
