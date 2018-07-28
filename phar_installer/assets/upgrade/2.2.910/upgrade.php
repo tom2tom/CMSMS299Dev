@@ -136,14 +136,6 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
 
-// migrate controlsets to core
-$sqlarray = $dbdict->RenameTableSQL(CMS_DB_PREFIX.'mod_filepicker_profiles', CMS_DB_PREFIX.'controlsets');
-$dbdict->ExecuteSQLArray($sqlarray);
-//verbose_msg(ilang('upgrade_renametable', 'controlsets'));
-$sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'controlsets', 'create_date DT, modified_date DT');
-$dbdict->ExecuteSQLArray($sqlarray);
-//verbose_msg(ilang('upgrade_alterfield', 'controlsets'));
-
 //if ($return == 2) {
   $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (205)';
   $db->Execute($query);
