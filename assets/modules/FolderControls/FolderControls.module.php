@@ -54,10 +54,11 @@ final class FolderControls extends CMSModule
     }
 
     /**
-     * @param string $dirpath
+     * Get array of access-control properties for folder $dirpath
+     * @param string $dirpath absolute or otherwise-php-discoverable filepath
      * @return array of parameters
      */
-    public function get_controls(string $dirpath) : array
+    public function GetControls(string $dirpath) : array
     {
         $ob = new FolderControls\ControlSet();
         return $ob->get_for_folder($dirpath);
