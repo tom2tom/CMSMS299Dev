@@ -439,10 +439,10 @@ class FileTypeHelper
     }
 
     /**
-     * Attempt to find a file type for the given filename.
+     * Get a file-type for $filename, if possible.
      *
-     * @param string $filename Fileystem absolute path or include-path-resolvable path
-     * @return mixed A FileType type constant string describing the file type, if found. Otherwise null
+     * @param string $filename Absolute, or include-paths-resolvable, fileystem path
+     * @return mixed A FileType type-enumerator representing the file type, or null if not recognized
      */
     public function get_file_type( $filename )
     {
