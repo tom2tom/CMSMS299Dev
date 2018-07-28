@@ -37,7 +37,7 @@
       <td>{$one->created}</td>
       <td>{$one->modified}</td>
       <td><a href="{$editurl}&amp;setid={$one->id}" class="pageoptions">{$iconedit}</a></td>
-      <td><a href="{$delurl}&amp;setid={$one->id}" class="pageoptions">{$icondel}</a></td>
+      <td><a href="{$delurl}&amp;setid={$one->id}" class="pageoptions deleteset">{$icondel}</a></td>
     </tr>
     {/foreach}
   </tbody>
