@@ -567,22 +567,24 @@ table.pagetable a.text-red {
 }
 .warning,
 .pagewarning {
-    background: #faf6d4 url(../images/icons/extra/warning.png) right 50% no-repeat;
+    background: #faf6d4 url(../images/icons/extra/warning.png) right 34px 50% no-repeat; /* right-align 24X24 image */
     border: 1px solid #e6c26e
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-    background: #f2d4ce url(../images/icons/extra/block.png) right 50% no-repeat;
+    background: #f2d4ce url(../images/icons/extra/block.png) right 34px 50% no-repeat;
     border: 1px solid #ae432e
 }
 .success,
 .pagemcontainer {
-    background: #d9e6c3 url(../images/icons/extra/accept.png) right 50% no-repeat;
+    background: #d9e6c3 url(../images/icons/extra/accept.png) right 34px 50% no-repeat;
     border: 1px solid #77ab13
 }
-.info, .information {
-    background: #cee6f2 url(../images/icons/extra/info.png) right 50% no-repeat;
+.info,
+.pageinfo,
+.information {
+    background: #cee6f2 url(../images/icons/extra/info.png) right 34px 50% no-repeat;
     border: 1px solid #058dc7
 }
 .message:hover {
@@ -1219,7 +1221,7 @@ header .shortcuts li.notifications span.bubble {
     text-decoration: none;
 }
 #mg_pagemenu li a.no-nav {
-	background: none
+    background: none;
     font-weight: normal;
 }
 #mg_pagemenu li.current li a {

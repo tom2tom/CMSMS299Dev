@@ -230,7 +230,7 @@ ul, ol {
     padding: 0
 }
 ul ul, ul ol, ol ol, ol ul {
-    margin-left: 2em;
+    margin-right: 2em;
 }
 h1, h2, h3, h4, h5, h6 {
     margin: 0.5em 0;
@@ -274,15 +274,15 @@ a:hover, a:active {
     text-decoration: underline
 }
 a.external {
-    background: url(../images/icons/system/external-small.png) no-repeat right;
-    padding-right: 20px
+    background: url(../images/icons/system/external-small.png) no-repeat left;
+    padding-left: 20px
 }
 .alert-dialog a {
     text-decoration: underline
 }
 .file {
-    background: url(../images/icons/system/document-list.png) no-repeat left;
-    padding-left: 25px
+    background: url(../images/icons/system/document-list.png) no-repeat right;
+    padding-right: 25px
 }
 .important {
     color: #f00;
@@ -294,20 +294,20 @@ a.external {
     margin: 10px 0 0 0
 }
 div.pagecontainer .h-inside {
-    float: left;
+    float: right;
     padding-top: 8px;
-    padding-left: 10px;
-    margin-right: 10%;
+    padding-right: 10px;
+    margin-left: 10%;
     width: 18em;
     margin-bottom: 0.5em;
-    text-align: right
+    text-align: left
 }
 .visible {
     position: static
 }
 .invisible {
     position: absolute;
-    left: -9999em;
+    right: +9999em;
     top: auto;
     width: 1px;
     height: 1px;
@@ -322,7 +322,7 @@ div.pagecontainer .h-inside {
 /* Format code chunks */
 pre, code, samp, kbd {
     font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
-    text-align: left;
+    text-align: right;
     color: #244323;
     height: auto;
     font-size: 0.9em
@@ -330,7 +330,7 @@ pre, code, samp, kbd {
 pre code {}
 pre {
     padding: 5px 20px;
-    border-left: 10px solid #cecece; /* TODO */
+    border-right: 10px solid #cecece; /* TODO */
     background: #eee;  /* TODO */
     margin: 5px;
     overflow: auto;
@@ -423,7 +423,7 @@ button.ui-button:hover, button.ui-button.ui-state-hover, button.ui-button:active
 .iconnone {
 }
 .adminsubmit.icon, .ui-button.ui-icon {
-    padding-left: 0.8em;
+    padding-right: 0.8em;
 }
 /* TODO useless on IE7, need to insert a span into the button,
 or for recent browsers, a double-background */
@@ -434,7 +434,7 @@ a.link_button.icon::before, a.link_button.icon.before {
     background-size: 10em 1em;
     display: inline-block;
     position: relative;
-    left: -0.3em;
+    right: +0.3em;
     vertical-align: middle;
     z-index: 20;
     width: 1em;
@@ -497,11 +497,11 @@ a.link_button.icon::before, a.link_button.icon.before {
 
 .move {
     width: 60px;
-    padding-left: 5px;
-    text-align: left;
+    padding-right: 5px;
+    text-align: right;
 }
 .checkbox {
-    padding-left: 10px
+    padding-right: 10px
 }
 
 .ui-dialog input, .ui-dialog select, .ui-dialog menu, .ui-dialog textarea,
@@ -532,9 +532,9 @@ input[type='text'] {
 }
 */
 input[type="text"], input[type="password"] {
-    margin-left: 4px;
+    margin-right: 4px;
     border-radius: 3px;
-    border-color: #cbd4cb #d6d6d6 #d6d6d6 #cbd4cb;
+    border-color: #cbd4cb #cbd4cb #d6d6d6 #d6d6d6;
     padding: 0.6em 0.6em 0.4em 0.6em;
 /*    line-height: 1; */
 }
@@ -561,15 +561,15 @@ input[type="checkbox"], input[type="radio"] {
     cursor: pointer;
 }
 input[type="checkbox"] {
-    margin-left: 4px;
+    margin-right: 4px;
 }
 /* select-button custom styling requires fixed select-width, or
    runtime js to process actual width NOT WORTH THE BOTHER ..
 */
 select {
-    margin-left: 4px;
+    margin-right: 4px;
     border-color: #cbd4cb;
-    border-radius: 3px 0 0 3px;
+    border-radius: 3px 3px 0 0;
     padding: 0.5em;
 }
 select:hover, select:focus {
@@ -582,7 +582,7 @@ select:hover, select:focus {
 }
 
 textarea {
-    margin-left: 4px;
+    margin-right: 4px;
 /*    border-radius: 3px; */
     border-color: #cbd4cb;
     resize: both;
@@ -598,7 +598,7 @@ menu {
     padding: 0.5em;
 }
 fieldset {
-    margin-right: 10px;
+    margin-left: 10px;
     border: 1px solid #cbd4cb;
     border-radius: 3px;
 }
@@ -653,7 +653,7 @@ a.tooltip {
 .information {
     display: inline-block;
     width: auto;
-    padding: 10px 10px 10px 40px;
+    padding: 10px 40px 10px 10px;
     margin: 10px 0
 }
 .pageerror, .pageerrorcontainer, .pageerrorinstalldir {
@@ -673,22 +673,22 @@ a.tooltip {
 }
 */
 .warn, .warning, .pagewarn, .pagewarning {
-    background: #fcf1d0 url(../images/icons/extra/warn.png) 10px 50% no-repeat;
+    background: #fcf1d0 url(../images/icons/extra/warn.png) right 34px 50% no-repeat;
     border: 1px solid #f4ca4c;
     color: #b08f0e
 }
 .error, .pageerror, .pageerrorcontainer, .pageerrorinstalldir {
-    background: #fcd0d0 url(../images/icons/extra/error.png) 10px 50% no-repeat;
+    background: #fcd0d0 url(../images/icons/extra/error.png) right 34px 50% no-repeat;
     border: 1px solid #f44c4c;
     color: #490707
 }
 .success, .pagesuccess, .pagemcontainer {
-    background: #d0fcdc url(../images/icons/extra/success.png) 10px 50% no-repeat;
+    background: #d0fcdc url(../images/icons/extra/success.png) right 34px 50% no-repeat;
     border: 1px solid #28e65f;
     color: #0bb33a
 }
 .info, .pageinfo, .information {
-    background: #d1e8fc url(../images/icons/extra/info.png) 10px 50% no-repeat;
+    background: #d1e8fc url(../images/icons/extra/info.png) right 34px 50% no-repeat;
     border: 1px solid #4ca6f4;
     color: #0e2a42
 }
@@ -715,16 +715,16 @@ a.tooltip {
     border-top: none;
     width: 30%;
     font-size: 0.75em;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 1px 1px 3px 1px #444;
-    -webkit-box-shadow: 1px 1px 3px 1px #444;
+    border-radius: 0 4px 4px 0;
+    box-shadow: -1px 1px 3px 1px #444;
+    -webkit-box-shadow: -1px 1px 3px 1px #444;
     margin: 0;
     top: 0;
-    left: 35%
+    right: 35%
 }
 aside .no-slide, .no-slide {
     position: inherit;
-    left: auto;
+    right: auto;
     top: auto;
     border: 1px solid #490707;
     border-radius: 4px;
@@ -737,7 +737,7 @@ aside .no-slide, .no-slide {
 }
 .pageerrorcontainer ul {
     border: none;
-    margin-left: 25px;
+    margin-right: 25px;
     background: none
 }
 .errorDialog {
@@ -815,7 +815,7 @@ aside .no-slide, .no-slide {
     padding: 0;
 }
 .jqtoast ul {
-    margin-left: 15px;
+    margin-right: 15px;
     background: none;
     padding: 0;
 }
@@ -839,7 +839,7 @@ aside .no-slide, .no-slide {
     width: 1.2em;
     height: 1.2em;
     top: 10px;
-    right: 10px;
+    left: 10px;
     cursor: pointer;
 }
 .error .jqt-close:hover, .error .jqt-close:active, .warn .jqt-close:hover, .warn .jqt-close:active, .success .jqt-close:hover, .success .jqt-close:active, .info .jqt-close:hover, .info.jqt-close:active {
@@ -851,7 +851,7 @@ aside .no-slide, .no-slide {
     top: -2px;
     height: 5px;
     width: 0;
-    left: 0;
+    right: 0;
     border-radius: 5px;
     background: #f00;
 }
@@ -859,7 +859,7 @@ aside .no-slide, .no-slide {
     width: 100%;
 }
 .jqt-has-icon {
-    padding-left: 40px;
+    padding-right: 40px;
     background-repeat: no-repeat;
     background-position: 50% 50%;
 }
@@ -874,8 +874,8 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-error {
-    padding-left: 50px;
-    background-image: url(../images/icons/extra/error.png);
+    padding-right: 50px;
+    background-image: url(../images/icons/extra/error.png) right; /* TODO alignment */
 }
 .warn.jqtoast {
     padding: 10px 40px;
@@ -888,7 +888,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-warning {
-    background-image: url(../images/icons/extra/warn.png);
+    background-image: url(../images/icons/extra/warn.png) right;
 }
 .success.jqtoast {
     padding: 10px 40px;
@@ -901,7 +901,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.png);
+    background-image: url(../images/icons/extra/accept.png) right;
 }
 .info.jqtoast {
     padding: 10px 40px;
@@ -914,7 +914,7 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-info {
-    background-image: url(../images/icons/extra/info.png);
+    background-image: url(../images/icons/extra/info.png) right;
 }
 
 /*** alertable plugin popups ***/
@@ -934,10 +934,10 @@ aside .no-slide, .no-slide {
 .alertable, .ui-dialog.ui-widget.ui-widget-content {
     position: fixed;
     top: 50%;
-    left: 50%;
+    right: 50%;
     transform: translate(-50%, -50%);
 /*  top: 38vh;
-    left: calc(50% - 10em);
+    right: calc(50% + 10em);
     width: 20em; /* TODO CENTER WITH AUTO WIDTH */
     border-radius: 3px;
     padding: 1em;
@@ -974,10 +974,10 @@ aside .no-slide, .no-slide {
 
 /* Button group */
 .alertable-buttons, .ui-dialog .ui-dialog-buttonset {
-    float: right;
+    float: left;
 }
 .alertable-buttons button {
-    margin-right: 1em;
+    margin-left: 1em;
 }
 /* OK button * /
 .alertable-ok {
@@ -988,7 +988,7 @@ aside .no-slide, .no-slide {
   color: white;
   border-radius: 4px;
   padding: 6px 12px;
-  margin-left: 4px;
+  margin-right: 4px;
   cursor: pointer;
 }
 .alertable-ok:hover,
@@ -1005,7 +1005,7 @@ aside .no-slide, .no-slide {
   color: #888;
   border-radius: 4px;
   padding: 6px 12px;
-  margin-left: 4px;
+  margin-right: 4px;
   cursor: pointer;
 }
 .alertable-cancel:hover,
@@ -1031,26 +1031,26 @@ aside .no-slide, .no-slide {
 }
 /* close notification */
 .close-warning {
-    float: right;
+    float: left;
     display: inline-block;
     width: 16px;
     height: 16px;
-    text-indent: -9999em;
-    background: transparent url(../images/icons/extra/close.png) 8px no-repeat;
+    text-indent: +9999em;
+    background: transparent url(../images/icons/extra/close.png) right 32px no-repeat;
     cursor: pointer;
     margin: 5px
 }
 .image-error{
-    background-image: url(../images/icons/extra/error.png) 10px 8px no-repeat;
+    background-image: url(../images/icons/extra/error.png) right 34px 8px no-repeat;
 }
 .image-warning{
-    background-image: url(../images/icons/extra/warn.png) 10px 8px no-repeat;
+    background-image: url(../images/icons/extra/warn.png) right 34px 8px no-repeat;
 }
 .image-info {
-    background-image: url(../images/icons/extra/info.png) 10px 8px no-repeat;
+    background-image: url(../images/icons/extra/info.png) right 34px 8px no-repeat;
 }
 .image-close {
-    background-image: url(../images/icons/extra/close.png) no-repeat;
+    background-image: url(../images/icons/extra/close.png) right no-repeat;
 }
 .infoclose {
     background-image: url(../images/closesprite.png);
@@ -1071,7 +1071,7 @@ aside .no-slide, .no-slide {
 }
 .ui-button-text {
     font-size: 1em;
-    margin-left: 2px;
+    margin-right: 2px;
     text-transform: uppercase
 }
 button.ui-button.ui-state-active {
@@ -1102,7 +1102,7 @@ button.ui-button.ui-dialog-titlebar-close {
     width: 1.5em;
     height: 1.5em;
     top: 0;
-    right: 0.1em;
+    left: 0.1em;
 }
 button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
     background: #58814c url(../images/closesprite.png) repeat 9em 0 / 9em 1.5em;
@@ -1110,7 +1110,7 @@ button.ui-button.ui-dialog-titlebar-close .ui-button-icon {
     border-radius: 3px;
     width: 1.5em;
     height: 1.5em;
-    left: 0;
+    right: 0;
     top: 0;
 }
 button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
@@ -1126,8 +1126,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     margin: 0;
     padding: 0;
     background: #fffaf0 none;
-    text-align: left;
-    float: right;
+    text-align: right;
+    float: left;
 }
 
 /* --- LAYOUT --- */
@@ -1153,7 +1153,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     flex: 1
 }
 .hbox .boxchild {
-    margin-right: 10px;
+    margin-left: 10px;
 }
 .vbox .boxchild {
     margin-bottom: 10px;
@@ -1166,8 +1166,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     resize: vertical;
 }
 .oneliner > * {
-    float: left;
-    margin-right: 20px;
+    float: right;
+    margin-left: 20px;
 }
 .postgap {
     margin-top: 5px;
@@ -1199,11 +1199,11 @@ body {
 #ggp_header {
     padding: 2px;
     background-color: #cbd4cb;
-    box-shadow: -2px -2px 8px rgba(0,0,0,0.25) inset, 2px 2px 8px #f5faeb inset;
-    -webkit-box-shadow: -2px -2px 8px rgba(0,0,0,0.25) inset, 2px 2px 8px #f5faeb inset;
+    box-shadow: 2px -2px 8px rgba(0,0,0,0.25) inset, -2px 2px 8px #f5faeb inset;
+    -webkit-box-shadow: 2px -2px 8px rgba(0,0,0,0.25) inset, -2px 2px 8px #f5faeb inset;
 }
 #ggp_header #site-logo, #ggp_header .site-text {
-/*    float: left;  TODO text better without this, but image ?? */
+/*    float: right;  TODO text better without this, but image ?? */
     display: inline-block;
     margin: 0.5em;
 /*    line-height: 55px; */
@@ -1211,7 +1211,7 @@ body {
     font-weight: bold;
     color: #244323;
     vertical-align: center;
-    text-align: left;
+    text-align: right;
 }
 #site-logo img {
     overflow: hidden;
@@ -1223,35 +1223,35 @@ body {
 }
 
 #ggp_header .header-links {
-    float: right;
+    float: left;
 }
 #ggp_header #cms-text {
-    float: right;
+    float: left;
     line-height: 46px;
-    margin-right: 0.5em;
+    margin-left: 0.5em;
     font-weight: bold;
     font-size: 1em;
     color: #244323;
-    text-align: left;
+    text-align: right;
 }
 #ggp_header #cms-logo {
-    float: right;
+    float: left;
     margin: 5px 10px 0 0;
     padding: 0
 }
 #ggp_header #cms-logo span {
     display: inline-block;
-    background: transparent url(../../assets/images/cmsms-logotext-dark.png) no-repeat left;
+    background: transparent url(../../assets/images/cmsms-logotext-dark.png) no-repeat right;
     height: 36px;
     width: 185px
 }
 #ggp_header .user {
-    float: right;
+    float: left;
 }
 #ggp_header span.user {
     display: inline-block;
     font-size: 0.75em;
-    margin-right: 10px
+    margin-left: 10px
 }
 #ggp_header .user a {
     color: #157200
@@ -1262,28 +1262,28 @@ body {
 }
 
 #shortcuts {
-    float: right;
+    float: left;
     margin: -5px 0 0 0;
 }
 #shortcuts ul {
     width: auto;
-    text-align: left;
-    margin-right: 10px
+    text-align: right;
+    margin-left: 10px
 }
 #shortcuts li {
-    float: left;
+    float: right;
     padding: 0 6px
 }
 #shortcuts li:last-child {
-    padding: 0 0 0 6px
+    padding: 0 6px 0 0
 }
 #shortcuts li i {
     font-size: 1.2em;
 /*    padding-top: 0.35em; */
 }
 #shortcuts li.notice > a > i {
-    margin-right: -3px;
-    padding-right: 0
+    margin-left: -3px;
+    padding-left: 0
 }
 #shortcuts li a {
     cursor: pointer;
@@ -1346,7 +1346,7 @@ body {
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
-  margin-right: 0.2em;
+  margin-left: 0.2em;
   text-align: center;
   /* opacity: 0.8; */
 
@@ -1359,7 +1359,7 @@ body {
 
   /* Animation center compensation - margins should be symmetric */
   /* remove if not needed */
-  /* margin-left: 0.2em; */
+  /* margin-right: 0.2em; */
 
   /* you can be more comfortable with increased icons size */
   /* font-size: 120%; */
@@ -1369,15 +1369,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   /* Uncomment for 3D effect */
-  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+  /* text-shadow: -1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
 .ggi-admin:before { content: '\e80b'; } /* '' */
 .ggi-basket:before { content: '\e807'; } /* '' */
 .ggi-bell:before { content: '\e80d'; } /* '' */
 .ggi-content:before { content: '\e80a'; } /* '' */
-.ggi-expand-left:before { content: '\e80e'; } /* '' */
-.ggi-expand-right:before { content: '\e80f'; } /* '' */
+.ggi-expand-left:before { content: '\e80f'; } /* '' */
+.ggi-expand-right:before { content: '\e80e'; } /* '' */
 .ggi-extensions:before { content: '\e801'; } /* '' */
 .ggi-files:before { content: '\e809'; } /* '' */
 .ggi-help:before { content: '\e810'; } /* '' */
@@ -1437,7 +1437,7 @@ body {
     color: #fffaf0;
 }
 #ggp_navhead li a.icon::before {
-    margin: 0 0 0 5px;
+    margin: 0 5px 0 0;
     padding: 0.3em;
     font-size: 1.2em;
     content: '\e80e'
@@ -1447,7 +1447,7 @@ body {
 }
 #ggp_navhead li span {
     display: inline-block;
-    left: 2.6em;
+    right: 2.6em;
     width: 10em;
     height: 1.5em;
     padding-top: 0.4em;
@@ -1464,7 +1464,7 @@ body {
     color: #fffaf0;
 }
 #ggp_nav ul ul {
-    margin-left: 0
+    margin-right: 0
 }
 
 /*** content ***/
@@ -1487,16 +1487,16 @@ body {
 */
 /*
 .sidebar-on #ggp_contentwrap {
-    margin-left: 12.6em;
+    margin-right: 12.6em;
 }
 .sidebar-off #ggp_contentwrap {
-    margin-left: 2.6em;
+    margin-right: 2.6em;
 }
 */
 #ggp_contenthead {
     flex: 0 1 auto;
     overflow: auto;
-    margin: 0 0 5px 10px;
+    margin: 0 10px 5px 0;
     padding: 0;
     font-weight: normal
 }
@@ -1512,7 +1512,7 @@ body {
 #ggp_contenthead .headericon {
     display: inline-block;
     vertical-align: middle;
-    margin: 0 1em 0 0;
+    margin: 0 0 0 1em;
     height: 2em;
     width: 2em;
 }
@@ -1526,13 +1526,13 @@ body {
 */
 #ggp_contenthead span.helptext {
     display: inline;
-    float: right;
-    margin-right: 10px;
+    float: left;
+    margin-left: 10px;
     line-height: 3;
     font-size: 0.75em;
 }
 #ggp_contenthead .drop-hidden span.helptext {
-    margin-right: 0
+    margin-left: 0
 }
 #ggp_contenthead .subheader h3 {
     margin: 2px 0 0 0;
@@ -1541,17 +1541,17 @@ body {
 #ggp_contenthead span.helptext {
     display: inline-block;
     line-height: 2.93;  /* 0.75em fontsize * 2.93 = h1 fontsize * lineheight */
-    padding-right: 0;
+    padding-left: 0;
     background: none
 }
 #ggp_contenthead span.helptext a img {
-    margin-right: 10px
+    margin-left: 10px
 }
 
 #ggp_content {
     flex: 1 1 0;
     overflow: auto;
-    margin: 0 0 0 10px;
+    margin: 0 10px 0 0;
     border: 0;
     padding: 0;
 /*    border: 1px solid #cbd4cb;
@@ -1559,17 +1559,17 @@ body {
 }
 
 #ggp_content .h-inside {
-    float: left;
+    float: right;
     padding-top: 8px;
-    padding-left: 10px;
-    margin-right: 10%;
+    padding-right: 10px;
+    margin-left: 10%;
     width: 18em;
     margin-bottom: 0.5em;
-    text-align: right
+    text-align: left
 }
 
 #ggp_content .pagetext {
-    margin: 10px 0 5px 4px;
+    margin: 10px 4px 5px 0;
     padding: 0;
     width: auto;
     color: #244323;
@@ -1578,7 +1578,7 @@ body {
 #ggp_content .pageshowrows {
     color: #244323;
     font-size: 0.9em;
-    text-align: right;
+    text-align: left;
     margin-bottom: 5px
 }
 #ggp_content span.helptext {
@@ -1595,8 +1595,8 @@ body {
     font-size: 0.75em;
     color: #244323;
     background-color: #cbd4cb;
-    box-shadow: -2px -2px 8px rgba(0,0,0,.25) inset, 2px 2px 8px #f5faeb inset;
-    -webkit-box-shadow: -2px -2px 8px rgba(0,0,0,.25) inset, 2px 2px 8px #f5faeb inset;
+    box-shadow: 2px -2px 8px rgba(0,0,0,.25) inset, -2px 2px 8px #f5faeb inset;
+    -webkit-box-shadow: 2px -2px 8px rgba(0,0,0,.25) inset, -2px 2px 8px #f5faeb inset;
 }
 #ggp_footer a {
     color: #157200; /* TODO relevant green */
@@ -1610,18 +1610,18 @@ body {
     color: #fff
 }
 #ggp_footer .footer-left {
-    float: left;
+    float: right;
 /*    width: 450px;
-//    margin-left: 0;
+//    margin-right: 0;
 //    padding: 10px;
 //    padding-bottom: 50px; */
 }
 /*.footer-left {
-//    margin: 0 0 0 260px
+//    margin: 0 260px 0 0
 }
 */
 #ggp_footer .footer-right {
-    float: right;
+    float: left;
 /*    padding: 10px;
 //    line-height: 1.5; */
     display: inline;
@@ -1629,18 +1629,18 @@ body {
 }
 #ggp_footer ul.links {
     display: inline-block;
-    margin-right: 20px;
+    margin-left: 20px;
 /*    font-size: 0.75em; */
     width: auto
 }
 #ggp_footer ul.links li {
     display: block;
     padding: 0 5px;
-    float: left
+    float: right
 }
 /*
 #ggp_footer ul.links li:last-child, #ggp_footer ul.links li.last {
-//    padding: 0 0 0 8px
+//    padding: 0 8px 0 0
 }
 */
 
@@ -1677,7 +1677,7 @@ body {
 }
 /*
 #ggp_menu li {
-    margin: 1px 2px 3px 4px;
+    margin: 1px 4px 3px 2px;
 }
 */
 #ggp_navhead li > a:hover, #ggp_navhead li > span:hover,
@@ -1688,10 +1688,10 @@ body {
 #ggp_menu li span.open-nav, #ggp_menu li a.no-nav {
     display: inline-block;
     position: absolute;
-    padding-left: 0.5em;
-    width: 11em;  /* seems like right: 13.6em, but shows aligned with 12.6 ?? */
+    padding-right: 0.5em;
+    width: 11em;  /* seems like left: 13.6em, but shows aligned with 12.6 ?? */
     top: 3px;
-    left: 2.6em;
+    right: 2.6em;
     font-size: 0.9em;
 }
 #ggp_menu li span.open-nav.open-sub,
@@ -1706,11 +1706,11 @@ body {
 #ggp_menu li span.open-nav:hover::after {
     display: inline-block;
     background-image: url(../images/navindicators.png);
-    float: right;
+    float: left;
     width: 12px;
     height: 12px;
     margin-top: 8px;
-    margin-right: 0.5em;
+    margin-left: 0.5em;
     content: ' ';
     z-index: 20;
 }
@@ -1768,7 +1768,7 @@ body {
 
 #ggp_navhead li a.icon::before,
 #ggp_menu li a.icon::before  {
-    margin: 0 0 0 5px;
+    margin: 0 5px 0 0;
     padding: 0.3em;
     font-size: 1.2em;
 }
@@ -1829,7 +1829,7 @@ a.logout::before {
 
 /*** IE6 layout-fix LAST ***/
 * html #ggp_navwrap {
-    left: 0;           /* RC width */
+    right: 0;           /* RC width */
 }
 
 /* second level & collapsed sidebar */
@@ -1841,15 +1841,15 @@ a.logout::before {
 /*    background: #f0f0f0 */
 }
 #ggp_menu li li {
-    margin: 4px 0 5px 10px;
+    margin: 4px 10px 5px 0;
     background: none;
     line-height: 1;
 }
 #ggp_menu li li li {
-    margin-left: 20px;
+    margin-right: 20px;
 }
 #ggp_menu li li li li {
-    margin-left: 30px;
+    margin-right: 30px;
 }
 #ggp_menu li li.module {
     background-color: #e5e5e5;
@@ -1859,7 +1859,7 @@ a.logout::before {
 #ggp_menu li li a
 /* ,#ggp_menu li:hover li a */
 {
-    padding: 5px 5px 5px 16px;
+    padding: 5px 16px 5px 5px;
 /*    color: #157200; TODO relevant green */
     font-size: 0.8em;
     font-weight: normal;
@@ -1873,8 +1873,8 @@ a.logout::before {
 */
 /*
 #ggp_menu li li a:hover, #ggp_menu li li a:active, #ggp_menu li.current li a:hover, #ggp_menu li.current li a:active {
-//    padding: 5px 5px 5px 10px
-//    padding-left: 10px
+//    padding: 5px 10px 5px 5px
+//    padding-right: 10px
 }
 */
 
@@ -1908,7 +1908,7 @@ a.logout::before {
     border: 1px solid #3c9b0a;
 }
 .dashboard-box h3.dashboard-icon a::before {
-    padding-right: 5px;
+    padding-left: 5px;
     font-size: 1.5em;
 }
 .dashboard-box h3.main a::before {
@@ -1960,7 +1960,7 @@ a.logout::before {
     list-style: none;
     margin: 0 4px;
     line-height: 1.4;
-    float: left
+    float: right
 }
 .dashboard-box ul.subitems li a {
     font-size: 0.85em;
@@ -1982,29 +1982,29 @@ a.logout::before {
     clear: both;
 }
 .half {
-    float: left;
+    float: right;
     width: 50%;
 }
 .options-form {
-    text-align: right;
+    text-align: left;
 }
 
 span.helptext a.external, span.helptext a {
     display: inline-block;
 /*    width: auto;
-    margin-left: 8px; */
-    padding-right: 24px;
+    margin-right: 8px; */
+    padding-left: 24px;
     vertical-align: middle
 }
 span.helptext a.external {
-    background: url(../images/icons/system/help.png) no-repeat right
+    background: url(../images/icons/system/help.png) no-repeat left
 }
 span.helptext a {
-    background: url(../images/icons/system/info.png) no-repeat right
+    background: url(../images/icons/system/info.png) no-repeat left
 }
 
 div.pageoverflow {
-    clear: left;
+    clear: right;
     padding-top: 1px;
     width: auto;
     overflow: hidden
@@ -2058,13 +2058,13 @@ div.alert-dialog ul li {
     margin: 10px 0
 }
 div.alert-dialog .alert-icon {
-    float: left;
-    margin-right: 4px;
+    float: right;
+    margin-left: 4px;
     cursor: pointer;
 }
 div.alert-dialog .alert-remove {
-    float: right;
-    margin-left: 4px;
+    float: left;
+    margin-right: 4px;
     cursor: pointer;
 }
 /* div.alert-dialog span.ui-icon {
@@ -2076,9 +2076,9 @@ div.dialog h3 {
     font-size: 0.9em
 }
 div.dialog a.bookmark {
-    padding-left: 20px;
+    padding-right: 20px;
     line-height: 1.25;
-    background: url(../images/icons/system/bookmark.png) no-repeat left
+    background: url(../images/icons/system/bookmark.png) no-repeat right
 }
 div.dialog form#chdir_form {
     display: block
@@ -2094,19 +2094,19 @@ table {
     border-spacing: 0;
 }
 table, tr, td {
-    text-align: left
+    text-align: right
 }
 table th:first-child {
-    border-top-left-radius: 3px
-}
-table th:last-child {
     border-top-right-radius: 3px
 }
+table th:last-child {
+    border-top-left-radius: 3px
+}
 table tr:last-child td:first-child {
-    border-bottom-left-radius: 3px
+    border-bottom-right-radius: 3px
 }
 table tr:last-child td:last-child {
-    border-bottom-right-radius: 3px
+    border-bottom-left-radius: 3px
 }
 table.pagetable {
     border-collapse: inherit;
@@ -2121,7 +2121,7 @@ table.pagetable {
 table.pagetable caption {
     padding: 5px 0;
     color: #244323;
-    text-align: left;
+    text-align: right;
     font-weight: bold;
     font-size: 0.75em;
 }
@@ -2131,7 +2131,7 @@ table.pagetable th, table.pagetable thead tr {
     height: 2em;
     background-color: #cbd4cb;
     color: #244323;
-    text-align: left;
+    text-align: right;
     white-space: nowrap;
 }
 table.pagetable th a {
@@ -2228,13 +2228,13 @@ iframe.preview {
 
 .pageback {
     clear: both;
-    text-align: left
+    text-align: right
 }
 /* a.pageback {
     display: inline-block;
     position: relative;
     margin: 10px 0;
-    padding: 0 8px 0 20px;
+    padding: 0 20px 0 8px;
     line-height: 26px;
     color: #244323;
     text-decoration: none
@@ -2242,14 +2242,14 @@ iframe.preview {
 a.pageback .ui-icon {
     position: absolute;
     top: 6px;
-    left: 0
+    right: 0
 }
 a.pageback:hover {
     color: #fff
 }
 */
 div.pagecontainer .pagetext {
-    margin: 10px 0 5px 4px;
+    margin: 10px 4px 5px 0;
     padding: 0;
     width: auto;
     color: #244323;
@@ -2258,7 +2258,7 @@ div.pagecontainer .pagetext {
 div.pagecontainer .pageshowrows {
     color: #244323;
     font-size: 0.9em;
-    text-align: right;
+    text-align: left;
     margin-bottom: 5px
 }
 div.pagecontainer span.helptext {
@@ -2272,7 +2272,7 @@ div.pagecontainer .pageinput {
     padding: 0;
     margin: 0;
     width: auto;
-    text-align: left
+    text-align: right
 }
 .pageinput img {
     line-height: 28px;
@@ -2294,7 +2294,7 @@ div.pagecontainer legend {
 .group {
     padding-top: 3px;
     padding-bottom: 3px;
-    padding-right: 3px;
+    padding-left: 3px;
 }
 .group_memberships {
     margin: 0;
@@ -2345,15 +2345,15 @@ textarea.pageextrasmalltextarea {
 /*    margin-top: 20px */
 }
 #page_tabs div {
-    float: left;
+    float: right;
     margin-top: 1px;
-    margin-right: 1px;
+    margin-left: 1px;
     padding: 0.3em 0.7em;
-/*    border-radius: 4px 4px 0 0; */
-    border-radius: 3px 3px 0 0;
+/*    border-radius: 4px 0 0 4px; */
+    border-radius: 3px 0 0 3px;
     background-color: #cbd4cb;
     color: #244323;
-/*    text-shadow: -1px 1px 0 #fff; */
+/*    text-shadow: 1px 1px 0 #fff; */
     font-size: 0.9em;
     font-weight: bold;
     text-align: center;
@@ -2375,11 +2375,11 @@ textarea.pageextrasmalltextarea {
 #page_tabs div.active {
     background-color: #3c9b0a;
     color: #fff;
-    text-shadow: -1px -1px 0 #054882;
+    text-shadow: 1px -1px 0 #054882;
 }
 #page_content {
 /*    background: #fff;
-    border-radius: 0 0 4px 4px; */
+    border-radius: 0 4px 4px 0; */
     border-radius: 0 3px 3px 3px;
     border: 1px solid #cbd4cb;
 /*    border-top: 3px solid #244323; */
@@ -2407,7 +2407,7 @@ ul.sortableList div.label {
     word-wrap: break-word;
     border-radius: 4px;
     cursor: move;
-    padding: 3px 10px 3px 35px;
+    padding: 3px 35px 3px 10px;
     background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
@@ -2451,19 +2451,19 @@ ul.sortable .placeholder {
     width: 262px;
     padding-top: 1px;
     padding-bottom: 14px;
-    right: 0;
+    left: 0;
     top: 0
 }
 .drop-inner + a.toggle-dropzone {
     background: transparent url(../images/icons/extra/toggle-dropzone.png) no-repeat -15px 0;
     border: 1px solid #ccc;
     border-top: none;
-    text-indent: -9999em;
+    text-indent: +9999em;
     width: 15px;
     height: 14px;
     position: absolute;
     bottom: 0;
-    right: 0
+    left: 0
 }
 a.toggle-dropzone:active, a.toggle-dropzone:focus {
     outline: none
@@ -2480,11 +2480,11 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
     background: #f00; /*TODO*/
     color: #244323;
     font-size: 0.7em;
-    text-shadow: 1px 1px 0 #fff
+    text-shadow: -1px 1px 0 #fff
 }
 .drop div.zone {
     display: block;
-    float: left;
+    float: right;
     width: 210px;
     border: 1px dashed #ccc;
     text-align: center
@@ -2502,19 +2502,19 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 }
 .drop span.folder-selection {
     display: inline-block;
-    float: left;
-    margin-right: 10px;
+    float: right;
+    margin-left: 10px;
     width: 16px;
-    background: transparent url(../images/folder-horizontal-open.png) no-repeat left;
+    background: transparent url(../images/folder-horizontal-open.png) no-repeat right;
     cursor: pointer;
     height: 30px;
-    text-align: left;
+    text-align: right;
 }
 .drop.hidden .drop-inner {
     display: none
 }
 /* .drop #theme_dropzone .ui-progressbar-value {
-    margin: 10px 5px 5px 0;
+    margin: 10px 0 5px 5px;
     max-width: 190px;
     text-shadow: none;
     height: 0.75em;
@@ -2550,19 +2550,19 @@ ul.sortableList div.label {
     font-size: 0.8em;
     color: #244323;
     word-wrap: break-word;
-    border-radius: 3px 3px 3px 3px;
+    border-radius: 3px;
     cursor: move;
 }
 ul.sortableList li div.label em {
     display: block;
-    margin-left: 2.5em;
+    margin-right: 2.5em;
     color: #244323;
     font-size: 0.75em;
     font-weight: bold;
 }
 /*
 ul.sortableList li div.label span {
-    float: left;
+    float: right;
     width: 16px;
     height: 16px;
     display: block;
@@ -2577,11 +2577,11 @@ ul.sortableList span.haschildren.expanded {
 }
 ul.sortableList li {
     margin-top: 15px;
-    margin-left: 2em;
+    margin-right: 2em;
     width: 30em;
 }
 ul.sortableList > li {
-    margin-left: 0;
+    margin-right: 0;
 }
 
 /* --- LOGIN PAGE --- */
@@ -2603,11 +2603,11 @@ ul.sortableList > li {
     margin: 0 auto 10px auto
 }
 #login #cmslogo {
-    float: right;
+    float: left;
     margin-top: 5px
 }
 #login #cmslogo span#logotext {
-    margin-right: 0.5em;
+    margin-left: 0.5em;
     line-height: 30px;
     font-weight: bold;
     font-size: 0.9em;
@@ -2619,8 +2619,8 @@ ul.sortableList > li {
     border-radius: 3px;
     margin: 0 auto;
     padding: 2em 2em 1em 2em;
-    box-shadow: -2px -2px 8px rgba(0,0,0,.25) inset, 2px 2px 8px #f5faeb inset;
-    -webkit-box-shadow: -2px -2px 8px rgba(0,0,0,.25) inset, 2px 2px 8px #f5faeb inset;
+    box-shadow: 2px -2px 8px rgba(0,0,0,.25) inset, -2px 2px 8px #f5faeb inset;
+    -webkit-box-shadow: 2px -2px 8px rgba(0,0,0,.25) inset, -2px 2px 8px #f5faeb inset;
     min-width: 23em
 }
 #login h1 {
@@ -2639,24 +2639,24 @@ ul.sortableList > li {
     width: 23em
 }
 #login .loginsubmit {
-    margin-right: 0.5em;
+    margin-left: 0.5em;
 }
 #login a#toggle-info {
     position: absolute;
     background: transparent url(../images/icons/extra/info.png) no-repeat scroll center center;
     top: 2em;
-    left: 2em;
+    right: 2em;
     height: 24px;
     width: 24px;
     outline: none;
-    text-indent: -9999em;
+    text-indent: +9999em;
     z-index: 40;
 }
 #login #info-wrapper {
     display: none;
     position: absolute;
     top: 30px;
-    left: 1em;
+    right: 1em;
     max-width: 27em;
     margin-top: 2em;
     border: 1px solid #4ca6f4;
@@ -2676,7 +2676,7 @@ ul.sortableList > li {
     padding: 5px
 }
 #login #info-wrapper ol {
-    margin: 0 0 0 2em;
+    margin: 0 2em 0 0;
     list-style: decimal
 }
 #login #info-wrapper h2 {
@@ -2687,7 +2687,7 @@ ul.sortableList > li {
     position: absolute;
     background: transparent url(../images/go-rtl.png) no-repeat scroll center center;
     top: 2em;
-    right: 2em;
+    left: 2em;
     height: 22px;
     width: 22px;
     outline: none;
@@ -2696,7 +2696,7 @@ ul.sortableList > li {
     z-index: 40
 }
 #login span#forgotpw {
-    float: right;
+    float: left;
     display: inline-block;
     line-height: 2.8em;
     font-size: 0.9em;
@@ -2743,17 +2743,17 @@ ul.sortableList > li {
     /* change tabs to full width on smaller screen size */
 /*
     .sidebar-on #page_tabs div {
-        text-align: left;
+        text-align: right;
        /* float: none; * /
-        border-radius: 3px 3px 0 0;
-        margin-right: 0
+        border-radius: 3px 0 0 3px;
+        margin-left: 0
     }
 
     .sidebar-on #page_tabs div.active {
     }
 */
     article.content-inner {
-        margin-left: 2.5em;
+        margin-right: 2.5em;
     }
 /*
     textarea {
@@ -2790,7 +2790,7 @@ ul.sortableList > li {
         text-overflow: elipsis
     }
     .checkbox {
-        padding-left: 0
+        padding-right: 0
     }
 }
 
@@ -2812,9 +2812,9 @@ ul.sortableList > li {
 
     #content_area .pageoptions.grid_8, #content_area .pageoptions.grid_4.options-form {
         width: 100%;
-        float: left !important;
+        float: right !important;
         clear: both;
-        text-align: left
+        text-align: right
     }
     .dashboard-box {
         max-width: 95%;
@@ -2822,7 +2822,7 @@ ul.sortableList > li {
     .dashboard-box img {
         display: inline
     }
-    /* Responsive Table -- CSS solution: scroll left/right */
+    /* Responsive Table -- CSS solution: scroll right/left */
     table.pagetable {
         border-collapse: collapse;
         width: 100%;
@@ -2863,7 +2863,7 @@ ul.sortableList > li {
         display: none
     }
     #shortcuts ul {
-        margin-right: 8px;
+        margin-left: 8px;
     }
     #shortcuts li {
         padding: 0 8px;
@@ -2873,7 +2873,7 @@ ul.sortableList > li {
         padding-top: 0.235em;
     }
     #ggp_menu li a:focus {
-        margin-right: 0;
+        margin-left: 0;
     }
 
     header div.admin-title {
@@ -2933,12 +2933,12 @@ ul.sortableList > li {
         border-bottom: 1px solid #cbd4cb;
     }
     #ggp_menu li a {
-        margin-left: 0;
+        margin-right: 0;
         height: 4em;
         text-align: center;
     }
     #ggp_menu li a.parent::before {
-        margin-right: 0;
+        margin-left: 0;
         font-size: 1.35rem;
     }
 */
@@ -2950,7 +2950,7 @@ ul.sortableList > li {
 
     #ggp_header #cms-logo span {
         display: inline-block;
-        background: transparent url(../../assets/images/cmsms-logo.png) no-repeat left;
+        background: transparent url(../../assets/images/cmsms-logo.png) no-repeat right;
         height: 36px;
         width: 36px;
     }
