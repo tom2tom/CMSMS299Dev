@@ -446,11 +446,12 @@ class FileTypeHelper
      */
     public function get_file_type( $filename )
     {
-        if( $this->is_image( $filename ) ) return FileType::TYPE_IMAGE;
-        if( $this->is_audio( $filename ) ) return FileType::TYPE_AUDIO;
-        if( $this->is_video( $filename ) ) return FileType::TYPE_VIDEO;
-        if( $this->is_xml( $filename ) ) return FileType::TYPE_XML;
-        if( $this->is_document( $filename ) ) return FileType::TYPE_DOCUMENT;
-        if( $this->is_archive( $filename ) ) return FileType::TYPE_ARCHIVE;
+        if( $this->is_image( $filename ) ) return FileType::IMAGE;
+        if( $this->is_audio( $filename ) ) return FileType::AUDIO;
+        if( $this->is_video( $filename ) ) return FileType::VIDEO;
+        if( $this->is_xml( $filename ) ) return FileType::XML;
+        if( $this->is_document( $filename ) ) return FileType::DOCUMENT;
+        if( $this->is_archive( $filename ) ) return FileType::ARCHIVE;
+        //TODO other types
     }
 } // class
