@@ -78,13 +78,13 @@
               <a class="filepicker-file-action js-trigger-insert" href="{$file.relurl}" title="{$file.name}"><img src="{$file.fullurl}" alt="{$file.name}" /></a>
             {else}
               <a class="filepicker-file-action js-trigger-insert icon-no-thumb" title="{$file.name}" href="{$file.relurl}">
-              {if $file.filetype == 'image'}
+              {if $file.filetype == 'IMAGE'}
                 <i class="cmsms-fp-picture"></i>
-              {elseif $file.filetype == 'video'}
+              {elseif $file.filetype == 'VIDEO'}
                 <i class="cmsms-fp-facetime-video"></i>
-              {elseif $file.filetype == 'audio'}
+              {elseif $file.filetype == 'AUDIO'}
                 <i class="cmsms-fp-music"></i>
-              {elseif $file.filetype == 'archive'}
+              {elseif $file.filetype == 'ARCHIVE'}
                 <i class="cmsms-fp-zip"></i>
               {else}
                 <i class="cmsms-fp-file"></i>

@@ -16,10 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use FilePicker\TemporaryInstanceStorage;
-use FilePicker\TemporaryProfileStorage;
-use FilePicker\PathAssistant;
+use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
+use FilePicker\PathAssistant;
+use FilePicker\TemporaryProfileStorage;
+use FilePicker\Utils;
 
 if( !isset($gCms) ) exit;
 if( !check_login() ) exit; // admin only.... but any admin
@@ -65,7 +66,7 @@ try {
         $cwd .= DIRECTORY_SEPARATOR . filter_var($_GET['subdir'], FILTER_SANITIZE_STRING);
         $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
     }
-// failsave, if we don't have a valid working directory, set it to the $topdir;
+// failsafe, if we don't have a valid working directory, set it to the $topdir;
     if( $cwd && !$assistant->is_valid_relative_path( $cwd ) ) {
         $cwd = '';
     }
@@ -76,7 +77,7 @@ try {
     $starturl = $assistant->relative_path_to_url($cwd);
     $startdir = $assistant->to_absolute($cwd);
 
-    function accept_file(CMSMS\FilePickerProfile $profile,$cwd,$path,$name)
+    function accept_file(FilePickerProfile $profile,$cwd,$path,$name)
     {
         global $assistant;
 
@@ -129,16 +130,17 @@ try {
             } else {
                 $t = '';
             }
-            $data['icon'] = FilePicker\Utils::get_file_icon($t,TRUE);
+            $data['icon'] = Utils::get_file_icon($t,TRUE);
         } else {
             $data['isparent'] = false;
             $data['relurl'] = $assistant->to_relative($fullname);
             $data['ext'] = strtolower(substr($name,strrpos($name,".")+1));
             $data['is_image'] = $this->_typehelper->is_image($fullname);
             $data['is_thumb'] = $this->_typehelper->is_thumb($name);
-            $data['icon'] = FilePicker\Utils::get_file_icon($data['ext'],FALSE);
+            $data['icon'] = Utils::get_file_icon($data['ext'],FALSE);
         }
-        $data['filetype'] = $this->_typehelper->get_file_type($fullname);
+		$type = $this->_typehelper->get_file_type($fullname);
+        $data['filetype'] = ($type) ? FileType::getName($val) : '';
         $data['dimensions'] = '';
         if( $data['is_image'] && !$data['is_thumb'] ) {
             $data['thumbnail'] = get_thumbnail_tag($name,$startdir,$starturl);
@@ -236,7 +238,7 @@ EOS;
 
     echo $this->ProcessTemplate('filepicker.tpl');
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     audit('','FilePicker',$e->GetMessage());
     echo $smarty->errorConsole( $e, false );
 }
