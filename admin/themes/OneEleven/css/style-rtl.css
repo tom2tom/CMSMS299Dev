@@ -243,7 +243,6 @@ ul ul, ul ol, ol ol, ol ul {
 #oe_mainarea ul {
 	list-style: square
 }
-
 #oe_mainarea ol li{
 	list-style:decimal
 }
@@ -332,7 +331,7 @@ div.pagecontainer .h-inside {
 }
 .invisible {
 	position:absolute;
-	right:-9999em;
+	right:+9999em;
 	top:auto;
 	width:1px;
 	height:1px;
@@ -351,9 +350,7 @@ pre, code, samp, kbd {
 	height: auto;
 	font-size: 14px
 	}
-pre code {
-
-	}
+pre code {}
 pre {
 	padding: 5px 20px;
 	border-right: 10px solid #cecece;
@@ -391,33 +388,39 @@ menu,
 .yellow  {
 	border-radius: 4px
 }
+
 /* forms */
+
 form {
 	margin: 0;
 	display: inline
 }
+
 input,
 textarea,
 select,
 menu {
-	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;;
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size: 14px;
-	margin: 2px 5px 2px 0;
+	margin: 2px 0 2px 5px;
 	padding: 4px 5px;
 	border: 1px solid #aaa;
 	border-bottom: 1px solid #ddd;
-	border-right: 1px solid #ddd;
+	border-left: 1px solid #ddd;
 	background: #f0f0f0
 }
+
 textarea {
 	resize: both;
 }
+
 .resize-horizontal {
 	resize: horizontal;
 }
 .resize-vertical {
 	resize: vertical;
 }
+
 input {
 	text-indent: 5px;
 	margin-left: 5px
@@ -427,8 +430,8 @@ input[type='text'] {
 	min-width: 25%
 }
 */
-input[type='text']#in_title,
-input[type='text']#in_menutext {
+input[type="text"]#in_title,
+input[type="text"]#in_menutext {
 	min-width: 30%
 }
 input:hover,
@@ -466,7 +469,7 @@ input[type="submit"],
 }
 .ui-button-text {
 	font-size: 12px;
-	margin-right: 2px;
+	margin-right: 2px
 }
 .adminsubmit:hover, .loginsubmit:hover, .adminsubmit:active, .loginsubmit:active,
 button.ui-button.ui-state-active {
@@ -610,9 +613,9 @@ aside.message,
 	border-top: none;
 	width: 30%;
 	font-size: 12px;
-	border-radius: 0 0 4px 4px;
-	box-shadow: 1px 1px 3px 1px #444;
-	-webkit-box-shadow: 1px 1px 3px 1px #444;
+	border-radius: 0 4px 4px 0;
+	box-shadow: -1px 1px 3px 1px #444;
+	-webkit-box-shadow: -1px 1px 3px 1px #444;
 	top:0;
 	margin:0;
 	right: 35%
@@ -678,7 +681,7 @@ aside .no-slide, .no-slide  {
     line-height: 1.2;
     letter-spacing: normal;
     font-size: 0.9em;
-    /* font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
+/*  font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
     pointer-events: all !important;
     z-index: 9000 !important;
 }
@@ -710,7 +713,7 @@ aside .no-slide, .no-slide  {
 }
 .jqtoast ul {
     background: none;
-    margin-left: 15px;
+    margin-right: 15px;
     padding: 0
 }
 .jqtoast ul li {
@@ -838,7 +841,7 @@ aside .no-slide, .no-slide  {
 	display: inline-block;
 	width: 16px;
 	height: 16px;
-	text-indent: -9999em;
+	text-indent: +9999em;
 	background: transparent url(../images/icons/extra/close.png) no-repeat;
 	cursor: pointer;
 	margin:5px
@@ -867,7 +870,7 @@ aside .no-slide, .no-slide  {
 	flex: 1
 }
 .hbox .boxchild {
-	margin-right: 10px;
+	margin-left: 10px;
 }
 .vbox .boxchild {
 	margin-bottom: 10px;
@@ -880,8 +883,8 @@ aside .no-slide, .no-slide  {
 	resize: vertical;
 }
 .oneliner > * {
-	float: left;
-	margin-right: 20px;
+	float: right;
+	margin-left: 20px;
 }
 .pagecontainer .pageinput.postgap, .postgap {
 	margin-top: 5px;
@@ -949,7 +952,7 @@ header .admin-title {
 	font: bold 14px/70px sans-serif;
 	margin-left: 20px;
 	color: #585858;
-	text-shadow: 1px 1px 0 #fff;
+	text-shadow: -1px 1px 0 #fff;
 	float: left
 }
 header .header-bottom {
@@ -1234,7 +1237,7 @@ header .shortcuts li.favorites a {
 	height: 28px;
 /*	font-weight: bold; */
 	display: block;
-	text-shadow: 1px 1px 0 #fff;
+	text-shadow: -1px 1px 0 #fff;
 	padding-right: 30px;
 	text-decoration: none
 }
@@ -1657,7 +1660,7 @@ table.pagetable caption {
 table.pagetable th,
 table.pagetable thead tr {
 	color: #fa8004;
-	text-shadow: -1px -1px 0 #000;
+	text-shadow: 1px -1px 0 #000;
 	background: #232323 url(../images/layout/sprite_repeatx.png) 831px -99px repeat-x;
 	height: 45px;
 	text-align: right;
@@ -1704,8 +1707,8 @@ table.pagetable a.tooltip span {
 	background: #efefef;
 	right: 110%;
 	bottom: 10px;
-	box-shadow: 1px 1px 3px 1px #222;
-	-webkit-box-shadow: 1px 1px 3px 1px #222;
+	box-shadow: -1px 1px 3px 1px #222;
+	-webkit-box-shadow: -1px 1px 3px 1px #222;
 	border: 1px solid #ddd;
 	padding: 5px;
 	z-index: 900;
@@ -1951,7 +1954,7 @@ textarea.pageextrasmalltextarea {
 #page_tabs div {
 	color: #585858;
 	border-radius: 4px 4px 0 0;
-	text-shadow: -1px 1px 0 #fff;
+	text-shadow: 1px 1px 0 #fff;
 	background: #ddd;
 	font-weight: bold;
 	text-align: center;
@@ -1976,7 +1979,7 @@ textarea.pageextrasmalltextarea {
 }
 #page_tabs div.active {
 	color: #fff;
-	text-shadow: -1px -1px 0 #054882;
+	text-shadow: 1px -1px 0 #054882;
 	background: #147fdb url(../images/layout/tab-active.png) no-repeat center bottom
 }
 #page_content {
@@ -2143,7 +2146,7 @@ a.toggle-dropzone:active, a.toggle-dropzone:focus {
 	background: #ddd;
 	font-size: 10px;
 	color: #585858;
-	text-shadow: 1px 1px 0 #fff;
+	text-shadow: -1px 1px 0 #fff;
 	padding: 5px 10px;
 	width: 240px
 }
