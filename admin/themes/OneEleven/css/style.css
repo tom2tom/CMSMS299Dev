@@ -824,7 +824,7 @@ aside .no-slide, .no-slide  {
 	z-index: 999;
 	height: 50px;
 	width: 50px;
-	overflow: show;
+	overflow: visible;
 	margin: auto;
 	top: 0;
 	left: 0;
@@ -838,14 +838,14 @@ aside .no-slide, .no-slide  {
 /* close notification */
 
 .close-warning {
-	float:right;
+	float: right;
 	display: inline-block;
 	width: 16px;
 	height: 16px;
 	text-indent: -9999em;
 	background: transparent url(../images/icons/extra/close.png) no-repeat;
 	cursor: pointer;
-	margin:5px
+	margin: 5px
 }
 
 /* --- LAYOUT --- */
@@ -871,21 +871,21 @@ aside .no-slide, .no-slide  {
 	flex: 1
 }
 .hbox .boxchild {
-	margin-right: 10px;
+	margin-right: 10px
 }
 .vbox .boxchild {
-	margin-bottom: 10px;
+	margin-bottom: 10px
 }
 
 .resize-horizontal {
-	resize: horizontal;
+	resize: horizontal
 }
 .resize-vertical {
-	resize: vertical;
+	resize: vertical
 }
 .oneliner > * {
 	float: left;
-	margin-right: 20px;
+	margin-right: 20px
 }
 .pagecontainer .pageinput.postgap, .postgap {
 	margin-top: 5px;
