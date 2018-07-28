@@ -567,22 +567,23 @@ table.pagetable a.text-red {
 }
 .warning,
 .pagewarning {
-	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
+	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;/* TODO right-align image */
 	border: 1px solid #e6c26e
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-	background: #f2d4ce url(../images/icons/extra/block.png) 10px 50% no-repeat;
+	background: #f2d4ce url(../images/icons/extra/block.png) 10px 50% no-repeat;/* TODO right-align image */
 	border: 1px solid #ae432e
 }
 .success,
 .pagemcontainer {
-	background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
+	background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;/* TODO right-align image */
 	border: 1px solid #77ab13
 }
+.info,
 .information {
-	background: #cee6f2 url(../images/icons/extra/info.png) 10px 50% no-repeat;
+	background: #cee6f2 url(../images/icons/extra/info.png) 10px 50% no-repeat;/* TODO right-align image */
 	border: 1px solid #058dc7
 }
 .message:hover {

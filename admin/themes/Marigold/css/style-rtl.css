@@ -581,7 +581,7 @@ table.pagetable a.text-red {
     background: #d9e6c3 url(../images/icons/extra/accept.png) right 50% no-repeat;
     border: 1px solid #77ab13
 }
-.information {
+.info, .information {
     background: #cee6f2 url(../images/icons/extra/info.png) right 50% no-repeat;
     border: 1px solid #058dc7
 }

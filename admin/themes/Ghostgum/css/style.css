@@ -10,8 +10,6 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2
 /* DEPRECATED GRID SYSTEM - INSTEAD USE flexbox etc
  * Fluid Grid based on Based on 960 Grid System - http://www.960.gs
  * Helper Styles for Module Developer, make aligning modules easier.
- * (To bad Robert didn't request this earlier i could of saved myself
- * from writing a bunch of Styles)
  * For demo, see accompanying file grid.html
  */
 
