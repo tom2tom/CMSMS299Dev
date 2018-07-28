@@ -417,7 +417,6 @@ textarea {
 .resize-horizontal {
 	resize: horizontal;
 }
-
 .resize-vertical {
 	resize: vertical;
 }
@@ -471,7 +470,7 @@ input[type="submit"],
 }
 .ui-button-text {
 	font-size: 12px;
-	margin-left: 2px;
+	margin-left: 2px
 }
 .adminsubmit:hover, .loginsubmit:hover, .adminsubmit:active, .loginsubmit:active,
 button.ui-button.ui-state-active {
@@ -490,7 +489,7 @@ input[type="checkbox"] {
 }
 textarea {
 	min-width: 10em;
-	min-height: 3em;
+	min-height: 3em
 }
 /*
 textarea {
@@ -501,11 +500,11 @@ textarea {
 */
 /* Notification messages */
 .tooltip {
-	cursor: help;
+	cursor: help
 }
 
 a.tooltip {
-	cursor: pointer;
+	cursor: pointer
 }
 .orange {
 	color: #e6c26e
@@ -683,7 +682,7 @@ aside .no-slide, .no-slide  {
     line-height: 1.2;
     letter-spacing: normal;
     font-size: 0.9em;
-    /* font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
+/*  font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
     pointer-events: all !important;
     z-index: 9000 !important;
 }
