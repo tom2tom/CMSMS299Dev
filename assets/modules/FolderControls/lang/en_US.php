@@ -9,6 +9,7 @@ $lang['can_delete'] = 'Allow deleting files and directories';
 $lang['can_mkdir'] = 'Allow directory creation';
 $lang['can_mkfile'] = 'Allow file creation';
 $lang['cancel'] = 'Cancel';
+$lang['confirm_delete_set'] = 'Are you sure you want to delete this controls-set';
 $lang['controlsupdated'] = 'Usage controls have been updated';
 $lang['created'] = 'Created';
 
