@@ -1,19 +1,23 @@
 <?php
-#admin operation: admin theme export/import/delete
-#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#This program is free software; you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation; either version 2 of the License, or
-#(at your option) any later version.
-#
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-#You should have received a copy of the GNU General Public License
-#along with this program. If not, see <https://www.gnu.org/licenses/>.
+/*
+admin operation: admin theme export/import/delete
+Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use CMSMS\FileTypeHelper;
 
 const THEME_DTD_VERSION = '1.0';
 const THEME_DTD_MINVERSION = '1.0';
@@ -155,7 +159,7 @@ function export_theme(string $themename) : bool
 		return false;
 	}
 
-	$helper = new CMSMS\FileTypeHelper($config);
+	$helper = new FileTypeHelper($config);
 	$xw = new XMLWriter();
 /*
 	$outfile = __DIR__.DIRECTORY_SEPARATOR.$xmlfile;
@@ -289,8 +293,8 @@ function delete_theme(string $themename) : bool
 	if (isset($all[$themename]) && count($all) > 1) {
 		if (recursive_delete(dirname($all[$themename]))) {
 			//adjust default theme if needed
-			$deftheme = cms_siteprefs::get('logintheme', 'default');
-			if ($deftheme == $themename) {
+			$deftheme = cms_siteprefs::get('logintheme');
+			if ($deftheme && $deftheme == $themename) {
 				unset($all[$themename]);
 				cms_siteprefs::set('logintheme', key($all));
 			}
