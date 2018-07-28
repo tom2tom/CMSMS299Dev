@@ -538,22 +538,22 @@ function cfm_validate(TreeFiler $mod, string $path, int $operation, int $uid) : 
         $name = basename($path);
         switch ($operation) {
             case 1: //new file
-                if ($profile->can_mkfile) {
+                if ($profile['can_mkfile']) {
 /* other tests
-$profile->exclude_prefix
-$profile->match_prefix
-$profile->type
+$profile['exclude_prefix']
+$profile['match_prefix']
+$profile['type']
 */
                     return true;
                 }
                 return false;
             case 2: //new dir
-                if ($profile->can_mkdir) {
+                if ($profile['can_mkdir']) {
                     return true;
                 }
                 return false;
             case 3: //delete
-                if ($profile->can_delete) {
+                if ($profile['can_delete']) {
                     return true;
                 }
                 return false;

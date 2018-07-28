@@ -1,6 +1,6 @@
 <?php
 /*
-TreeFiler module action: getlist ajax processor and component of defaultadmin action
+TreeFiler module action getlist: ajax processor and component of defaultadmin action
 Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\FilePickerProfile;
+use CMSMS\FileTypeHelper;
 
 if (!function_exists('cmsms')) {
     exit;
@@ -28,7 +28,7 @@ $pass = false; //$this->CheckPermission('Modify Site Assets');
 // variables used in included file
 global $CFM_ROOTPATH, $CFM_IS_WIN, $CFM_ICONV_INPUT_ENC, $CFM_EXCLUDE_FOLDERS, $CFM_FOLDER_URL, $CFM_FOLDER_TITLE, $helper;
 
-$helper = new \CMSMS\FileTypeHelper($config);
+$helper = new FileTypeHelper($config);
 
 $doass = false; //!empty(($params['astfiles']));
 if ($pdev && !$doass) {
@@ -49,18 +49,18 @@ if (!is_dir($pathnow)) { //CHECKME link to a dir ok?
     $CFM_RELPATH = '';
 }
 
+$mod = cms_utils::get_module('FolderControls');
+$profile = $mod->GetControls($pathnow);
 $user_id = get_userid(false);
-$mod = cms_utils::get_module('FilePicker');
-$profile = $mod->get_default_profile($pathnow, $user_id);
 
 $CFM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 $CFM_ICONV_INPUT_ENC = CmsNlsOperations::get_encoding(); //'UTF-8';
 $CFM_READONLY = !($pdev || $pass || $this->CheckPermission('Modify Files'));
 
-$CFM_EXCLUDE_FOLDERS = []; //TODO per profile etc
+$CFM_EXCLUDE_FOLDERS = []; //TODO per $user_id, $profile etc
 $CFM_FOLDER_URL = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);
 $CFM_FOLDER_TITLE = $this->Lang('goto');
-$CFM_SHOW_HIDDEN = $profile->show_hidden;
+$CFM_SHOW_HIDDEN = !empty($profile['show_hidden']);
 $CFM_DATETIME_FORMAT = cms_siteprefs::get('defaultdateformat');
 if ($CFM_DATETIME_FORMAT) {
     $strftokens = [
@@ -149,7 +149,7 @@ $linkopen = '<a href="'. $u .'" alt="'.$t.'" title="'.$t.'">YYY</a>';
 
 $linkchmod = '<a href="javascript:oneChmod(\''.$CFM_RELPATH .'\',\'%s\',\'%s\',%d,%d)" title="'. $this->Lang('changepermstip') .'">%s</a>'."\n";
 
-if ($profile->can_delete) {
+if (!empty($profile['can_delete'])) {
     $t = $this->Lang('delete');
     $icon = '<i class="if-trash-empty red" alt="'.$t.'" title="'.$t.'"></i>';
     $linkdel = '<a href="javascript:oneDelete(\'' . $CFM_RELPATH .'\',\'XXX\')">'.$icon.'</a>'."\n";
@@ -220,7 +220,7 @@ foreach ($folders as $name) {
     if ($CFM_READONLY) {
         $acts = '';
     } else {
-        if ($profile->can_delete) {
+        if (!empty($profile['can_delete'])) {
              $acts = str_replace('XXX', $name, $linkdel);
         } else {
             $acts = '';
@@ -285,7 +285,7 @@ foreach ($files as $name) {
     if ($CFM_READONLY) {
         $acts = '';
     } else {
-        if ($profile->can_delete) {
+        if (!empty($profile['can_delete'])) {
             $acts = str_replace('XXX', $name, $linkdel);
         } else {
             $acts = '';
@@ -311,8 +311,8 @@ foreach ($files as $name) {
 }
 
 if (count($items) > 1) {
-    $sortby = $profile->sort;
-    if ($sortby !== FilePickerProfile::FLAG_NO) {
+    $sortby = $profile['sort'];
+    if ($sortby !== false) {
         if (class_exists('Collator')) {
             $lang = CmsNlsOperations::get_default_language();
             $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
@@ -355,7 +355,7 @@ if (count($items) > 1) {
                         break;
                     }
                     return ($a->rawtime <=> $b->rawtime);
-                case 'date,d':
+                case 'date,d': //TODO created,modified instead
                 case 'date,desc':
                 case 'datedesc':
                     if ($a->rawtime == $b->rawtime) {

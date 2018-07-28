@@ -57,14 +57,15 @@ if ($CFM_RELPATH) {
 $smarty->assign('crumbjoiner', 'if-angle-double-right'); //or 'if-angle-double-left' for 'rtl'
 
 // permitted operations
+//$profile set in 'action.getlist.php'
 
-if ($profile->can_upload) {
+if ($profile['can_mkfile']) {
     $smarty->assign('pupload', 1);
 }
-if ($profile->can_mkdir) {
+if ($profile['can_mkdir']) {
     $smarty->assign('pmkdir', 1);
 }
-if ($profile->can_delete) {
+if ($profile['can_delete']) {
     $smarty->assign('pdel', 1);
 }
 

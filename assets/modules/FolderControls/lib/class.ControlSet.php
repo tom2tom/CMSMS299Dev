@@ -25,49 +25,41 @@ use CMSMS\FileType;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
+use function cms_to_bool;
 use function startswith;
 
 /**
- * A class for working with 'profiles'. A profile is a set of extended
- * permissions for, and properties of, a folder and (unless and until
- * countervailed by a more-folder-specific profile) inherited by the
- * folder's descendants.
+ * A class for working with 'conntrolsets'. A controlset is a collection of
+ * extended permissions for, and properties of, a folder and (unless and until
+ * countervailed by a more-folder-specific profile) inherited by the folder's
+ * descendants.
  *
  * @package CMS
  * @license GPL
  * @since  2.3
- * @property-read string $top Removed since 2.3, in favour of a stand-alone property
  * @property-read FileType $type A FileType enumerator representing files which may be used.
- * @property-read string $match_prefix List only files/items that have the specified prefix.
- * @property-read string exclude_prefix  Exclude any files/items that have the specified prefix.
- * @property-read int $can_mkdir   Authorized users can create new directories (conforming to other test(s), if any).
- * @property-read int $can_mkfile Since 2.3 Authorized users can create new files (conforming to other test(s), if any).
- * @property-read int $can_upload Deprecated 2.3 use $can_mkfile Authorized users can upload new files (conforming to other test(s), if any).
- * @property-read int $can_delete  Authorized users can remove files and/or directories (conforming to other test(s), if any).
- * @property-read int $show_thumbs Whether thumbnail images should be shown in place of normal icons for images.
- * @property-read int $show_hidden Indicates that hidden files should be shown.
+ * @property-read bool $can_mkdir   Authorized users can create new directories (conforming to other test(s), if any).
+ * @property-read bool $can_mkfile  Authorized users can modify and create new files (conforming to other test(s), if any).
+ * @property-read bool $can_delete  Authorized users can remove files and/or directories (conforming to other test(s), if any).
+ * @property-read bool $show_thumbs Whether thumbnail images should be shown in place of normal icons for images.
+ * @property-read bool $show_hidden Indicates that hidden files should be shown.
  * @property-read mixed $sort Indicates whether and how files should be sorted before listing them.
- *   ControlSet::FLAG_NO, or one of 'name','size','date' & optionally appended ',a[sc]' or ',d[esc]'
- * @property-read array $match_groups Since 2.3 group-id's which are permitted to perform the suitably-flagged operations defined in the profile. Default ['*']
- * @property-read array $exclude_groups Since 2.3 group-id's which may not perform the suitably-flagged operations defined in the profile. Default []
- * @property-read array $match_users  Since 2.3 user-id's which are permitted to perform the suitably-flagged operations defined in the profile. Default ['*']
- * @property-read array $exclude_groups Since 2.3 user-id's which may not perform the suitably-flagged operations defined in the profile. Default []
+ *   false, or one of 'name','size','created','modified' & optionally appended ',a[sc]' or ',d[esc]'
+ * @property-read array $match_patterns Process only files/items whose name matches any of these pattern(s).
+ * @property-read array $exclude_patterns Exclude from processing any files/items whose name matches any of these pattern(s).
+ * @property-read array $match_groups  Group-id(s) which are permitted to perform the suitably-flagged operations defined in the profile. Default ['*']
+ * @property-read array $exclude_groups  Group-id(s) which may not perform the suitably-flagged operations defined in the profile. Default []
+ * @property-read array $match_users   User-id(s) which are permitted to perform the suitably-flagged operations defined in the profile. Default ['*']
+ * @property-read array $exclude_groups User-id(s) which may not perform the suitably-flagged operations defined in the profile. Default []
  */
 class ControlSet
 {
-    const FLAG_NONE = 0;
-    const FLAG_NO = 0;
-    const FLAG_YES = 1;
-    const FLAG_BYGROUP = 2;
-    const FLAG_BYUSER = 3;
-    const FLAG_BYGRPANDUSR = 4;
-
     /**
      * @ignore
      */
     protected $_id = null;
     protected $_topdir = null; // CMS_ROOT_PATH-relative filepath
-    protected $_data;
+    protected $_data; // other specific properties array
     private $_allcache = []; // each key=toppath, val=db-row
     private $_cache = []; //key=supplied-path, val=matching _data array
 
@@ -92,19 +84,19 @@ class ControlSet
     private function defaults()
     {
         return [
-            'can_delete'=>self::FLAG_YES,
-            'can_mkdir'=>self::FLAG_YES,
-            'can_mkfile'=>self::FLAG_YES,
+            'can_delete'=>true,
+            'can_mkdir'=>true,
+            'can_mkfile'=>true,
             'exclude_groups'=>[], //array of group-id's
             'exclude_users'=>[],  //array of user-id's
             'exclude_patterns'=>[], //array of regex's - barred item-names
+            'file_types'=>[FileType::ANY], //array of acceptable type-enumerators
             'match_groups'=>[], //array of group-id's
             'match_users'=>[], //array of user-id's
             'match_patterns'=>[], //array of regex's - acceptable item-names
-            'show_hidden'=>self::FLAG_NO,
-            'show_thumbs'=>self::FLAG_YES,
-            'sort_by'=>'name', // item-property - name,size,created,modified + [a[sc]] | d[esc]
-            'file_types'=>[FileType::ANY], //array of acceptable type-enumerators
+            'show_hidden'=>false,
+            'show_thumbs'=>true,
+            'sort_by'=>'name', // item-property - name,size,created,modified perhaps + [,a[sc]] | ,d[esc]
         ];
     }
 
@@ -164,7 +156,7 @@ class ControlSet
             case 'can_delete':
             case 'show_thumbs':
             case 'show_hidden':
-                $this->_data[$key] = ($val) ? self::FLAG_YES : self::FLAG_NO;
+                $this->_data[$key] = cms_to_bool($val);
                 break;
             case 'type':
                 $key = 'file_types';
@@ -178,17 +170,17 @@ class ControlSet
                     $type = trim($type);
                     //TODO FileType::isValidName($type);
                     //TODO FileType::getNames();
-//                    switch ($type) {
-                            $res[] = $type;
-                            break;
-//                    }
+//                  switch ($type) {
+                        $res[] = $type;
+                        break;
+//                  }
                 }
                 break;
             case 'sort':
                 $key = 'sort_by';
                 // no break
             case 'sort_by':
-               //TODO relevant checks name|size|created|modified|date [a[sc] d[esc]]
+                //TODO relevant checks name|size|created|modified|date [a[sc] d[esc]]
                 $this->_data[$key] = $val;
                 break;
             case 'exclude_groups':
@@ -278,7 +270,7 @@ class ControlSet
     }
 
     /**
-     * Populate this object's properties from stored data for the named profile
+     * Populate a ControlSet-object's properties from stored data for the named profile
      *
      * @param mixed $id Set identifier, either numeric id or string name
      * @return bool indicating success
@@ -305,11 +297,11 @@ class ControlSet
     }
 
     /**
-     * Save (upsert) this object's properties
+     * Save (upsert) a ControlSet's properties
      *
      * @param mixed $id Set identifier, null to use the identifier of
      *  previously-loaded data, otherwise a numeric id or string name
-     * @return bool indicating success
+     * @return bool indicating success (well, maybe ... UPDATES are not reported properly)
      */
     public function save($id) : bool
     {
@@ -337,8 +329,31 @@ class ControlSet
 INSERT INTO {$pref}module_excontrols (name,toppath,data,create_date,modified_date) SELECT ?,?,?,?,? FROM (SELECT 1 AS dmy) Z
 WHERE NOT EXISTS (SELECT 1 FROM {$pref}module_excontrols T WHERE T.name=?)
 EOS;
-        $db->Execute($sql,[$name, $this->_topdir, $raw, $now, $now, $name]);
-        return true;
+        $dbr = $db->Execute($sql,[$name, $this->_topdir, $raw, $now, $now, $name]);
+        return $dbr != false;
+    }
+
+    /**
+     * Delete a ControlSet
+     *
+     * @param mixed $id Set identifier, null to use the identifier of
+     *  previously-loaded data, otherwise a numeric id or string name
+     * @return bool indicating success
+     */
+    public function delete($id) : bool
+    {
+        if (is_null($id) && $this->_id !== null) {
+            $id = $this->_id;
+        }
+        if (is_numeric($id)) {
+            $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_excontrols WHERE id=?';
+        } else {
+            $id = filter_var(strtr($id, ' ', '_'), FILTER_SANITIZE_STRING);
+            $sql = 'DELETE FROM '.CMS_DB_PREFIX.'module_excontrols WHERE name=?';
+        }
+        $db = CmsApp::get_instance()->GetDb();
+        $dbr = $db->Execute($sql,[$id]);
+        return $dbr != false;
     }
 
     /**
@@ -366,9 +381,9 @@ EOS;
      * Retrieve properties for $path
      *
      * @param string $path Absolute or site-root-relative filesystem path of directory
-     * @param int $default Optional numeric identifier of the default controls-set
-     *  to be used if no specific profile is found.
-     * @return array [$id=>$data], or empty
+     * @param int $default Optional numeric identifier of the controls-set to use in the
+     *   absence of an explicitly relevant set. Default -1 hence return the module-defaults
+     * @return assoc array (members like 'prop'=>$value), or empty
      */
     public function get_for_folder(string $path, int $default = -1) : array
     {
@@ -422,25 +437,44 @@ EOS;
                     }
                 }
                 unset($row);
+            } else {
+                return $this->defaults();
             }
         }
         return [];
     }
 
     /**
-     * Determine whether $test is acceptable for user $user_id and folder $path
+     * Determine whether $op+$name (i.e. test-identifier) is acceptable for user $user_id and folder $path
      *
      * @param int   $op   enumerator of intended operation - create, delete etc
      * @param string $name of item to be 'operated' per $op
      * @param int $user_id
      * @param string $path Absolute or site-root-relative filesystem path of directory
-     * @param int $default Optional numeric identifier of the default set
-     *  to be used if no specific profile is found.
+     * @param int $default Optional numeric identifier of the controls-set to use in the
+     *   absence of an explicitly relevant set. Default -1 hence return the module-defaults
      * @return bool
      */
-    public function operation_permitted(int $op, string $name, int $user_id, string $path, int $default = -1) : bool
+    public function test_for_folder(int $op, string $name, int $user_id, string $path, int $default = -1) : bool
     {
         $params = $this->get_for_folder($path, $default);
+        if ($params) {
+            return $this->test_for_set($op, $name, $user_id, $params);
+        }
+        return true;
+    }
+
+    /**
+     * Determine whether $op+$name (i.e. test-identifier) is acceptable for user $user_id and data $params
+     *
+     * @param int   $op   enumerator of intended operation - create, delete etc
+     * @param string $name of item to be 'operated' per $op
+     * @param int $user_id
+     * @param array $params data returned by a previous get_for_folder() call
+     * @return bool
+   */
+    public function test_for_set(int $op, string $name, int $user_id, array $params) : bool
+    {
         if ($params) {
 /* TODO checks
 enum for op 'can_delete' => $params[same]
@@ -463,6 +497,6 @@ FileTypeHelper +
 filetype for absolute/$path/$name (how, if not yet exists?) in $params['file_types'] if any
 */
         }
-        return true;
+        return false;
     }
 } // class

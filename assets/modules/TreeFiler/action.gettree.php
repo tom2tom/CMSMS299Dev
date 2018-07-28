@@ -17,8 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\FilePickerProfile;
-
 if (!function_exists('cmsms')) {
     exit;
 }
@@ -40,16 +38,16 @@ if (!is_dir($pathnow)) { //CHECKME link to a dir ok?
     $CFM_RELPATH = '';
 }
 
+$mod = cms_utils::get_module('FolderControls');
+$profile = $mod->GetControls($pathnow);
 $user_id = get_userid(false);
-$mod = cms_utils::get_module('FilePicker');
-$profile = $mod->get_default_profile($pathnow, $user_id);
 
 $CFM_IS_WIN = DIRECTORY_SEPARATOR == '\\';
 
-$CFM_EXCLUDE_FOLDERS = []; //TODO per profile etc
+$CFM_EXCLUDE_FOLDERS = []; //TODO per $user_id, $profile etc
 $CFM_FOLDER_URL = $this->create_url($id, 'defaultadmin', $returnid, ['p'=>'']);
 $CFM_FOLDER_TITLE = $this->Lang('goto');
-$CFM_SHOW_HIDDEN = $profile->show_hidden;
+$CFM_SHOW_HIDDEN = !empty($profile['show_hidden']);
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'function.filemanager.php';
 

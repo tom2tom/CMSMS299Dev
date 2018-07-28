@@ -38,7 +38,7 @@ $ob = new FolderControls\ControlSet();
 
 if (isset($params['submit'])) {
     try {
-//TODO update all $ob params from $params
+//TODO update all $ob params from $params[]
 /*      foreach ([
 'name'
 'top_dir'
@@ -60,7 +60,7 @@ if (isset($params['submit'])) {
 */
         $ob->save();
         $themeObject->ParkNotice('success', $this->Lang('controlsupdated'));
-        redirect('listcontrols.php'.$urlext);
+        $this->Redirect($id, 'defaultadmin', $returnid);
     } catch (ProfileException $e) {
         $themeObject->RecordNotice('error', $e->GetMessage());
         $set = new stdClass();
@@ -212,6 +212,7 @@ $smarty->assign([
 ]);
 
 //TODO this equal-widthing doesn't work
+//TODO js for upstream folder selection
 $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
@@ -221,6 +222,7 @@ $(document).ready(function() {
 //]]>
 </script>
 EOS;
-$themeObject->add_footertext($js);
+//$themeObject->add_footertext($js);
+$this->AdminBottomContent($js);
 
 echo $this->processTemplate('opencontrol.tpl');
