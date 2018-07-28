@@ -103,4 +103,4 @@ $js .= <<<EOS
 </script>
 EOS;
 
-$this->BottomContent($js);
+$this->AdminBottomContent($js);
