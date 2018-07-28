@@ -1,13 +1,6 @@
 <?php
 
-// A
-$lang['add_profile'] = 'Add a new controls-set';
-
 // C
-$lang['can_delete'] = 'Allow file deletion';
-$lang['can_mkdir'] = 'Allow directory creation';
-$lang['can_mkfile'] = 'Allow file creation';
-$lang['can_upload'] = 'Allow uploads';
 $lang['cancel'] = 'Cancel';
 $lang['changedir'] = 'Change directory to';
 $lang['clear'] = 'Clear';
@@ -17,64 +10,30 @@ $lang['create_dir'] = 'Create a new folder';
 // D
 $lang['dimension'] = 'Dimensions';
 $lang['delete'] = 'Delete';
-$lang['delete_profile'] = 'Delete Controls-Set';
 $lang['dependencies'] = 'Dependencies';
 
 // E
-$lang['edit_profile'] = 'Edit Controls-Set';
-$lang['error_ajax_invalidfilename'] = 'Sorry, that filename is invalid';
-$lang['error_ajax_fileexists'] = 'Sorry, a file or directory with that name already exists';
-$lang['error_ajax_mkdir'] = 'A problem occurred creating a the directory %s';
-$lang['error_ajax_writepermission'] = 'Sorry, you do not have permission to write to this directory';
+$lang['error_ajax_invalidfilename'] = 'That filename is invalid';
+$lang['error_ajax_fileexists'] = 'A file or directory with that name already exists';
+$lang['error_ajax_mkdir'] = 'A problem occurred creating the directory %s';
+$lang['error_ajax_writepermission'] = 'You do not have permission to write to this directory';
 $lang['error_failed_ajax'] = 'A problem occurred with an ajax request';
-$lang['error_problem_upload'] = 'Sorry, a problem occurred uploading';
+$lang['error_problem_upload'] = 'A problem occurred uploading';
 $lang['error_upload_acceptFileTypes'] = 'Files of this type are not acceptable in this scope.';
 $lang['error_upload_maxFileSize'] = 'The file is too large';
 $lang['error_upload_minFileSize'] = 'The file is too small';
 $lang['error_upload_maxNumberOfFiles'] = 'You are uploading too many files at once';
-$lang['err_profile_topdir'] = 'The top directory specified does not exist';
 
 // F
 $lang['filename'] = 'Filename';
 $lang['filterby'] = 'Filter by';
 //$lang['filepickertitle'] = 'CMSMS File Picker';
 $lang['fileview'] = 'File view';
-$lang['friendlyname'] = 'Folder Controls';
-
-/* TODO UI for the other set properties:
-'exclude_groups'=>[],
-'exclude_users'=>[],
-'exclude_prefix'=>null,
-'match_groups'=>['*'],
-'match_users'=>['*'],
-'match_prefix'=>null,
-'show_hidden'=>self::FLAG_NO,
-'show_thumbs'=>self::FLAG_YES,
-'sort'=>'name',
-'top'=>null,
-'type'=>FileType::TYPE_ANY,
-*/
-
-// H
-$lang['hdr_add_profile'] = 'New controls-set';
-$lang['hdr_edit_profile'] = 'Edit controls-set';
-$lang['HelpPopupTitle_ProfileName'] = 'Controls-Set Name';
-$lang['HelpPopup_ProfileName'] = 'Each controls-set should have a simple, unique name.  Names should only contain alphanumeric characters, and/or the Underscore character.';
-$lang['HelpPopupTitle_ProfileCan_Delete'] = 'Allow deleting files and directories';
-$lang['HelpPopup_ProfileCan_Delete'] = 'Optionally allow users to delete files during the selection process';
-$lang['HelpPopupTitle_ProfileCan_Mkdir'] = 'Allow new directories';
-$lang['HelpPopup_ProfileCan_Mkdir'] = 'Optionally allow users to create new directories (below the specified top directory) during the selection process.';
-$lang['HelpPopupTitle_ProfileCan_Upload'] = 'Allow uploading';
-$lang['HelpPopup_ProfileCan_Upload'] = 'Optionally allow users to upload files during the selection process';
-$lang['HelpPopupTitle_ProfileDir'] = 'Top Directory';
-$lang['HelpPopup_ProfileDir'] = 'Optionally enter the relative path of a directory (relative to the uploads path) to restrict operations to.';
-$lang['HelpPopupTitle_ProfileShowthumbs'] = 'Show Thumbnails';
-$lang['HelpPopup_ProfileShowthumbs'] = 'If enabled, thumbnails will be visible for image files for which thumbnails are generated.';
+$lang['friendlyname'] = 'File Picker';
 
 // N
 $lang['na'] = 'Not available';
 $lang['name'] = 'Name';
-$lang['no_profiles'] = 'No controls-set is recorded. You can add one by clicking the icon above.';
 
 // O
 $lang['ok'] = 'Ok';
@@ -107,7 +66,43 @@ $lang['switchlist'] = 'Display files as a list';
 $lang['switchreset'] = 'Show all files';
 $lang['switchvideo'] = 'Only show video files';
 
-// T
+// U
+$lang['unknown'] = 'Unknown';
+$lang['upload'] = 'Upload';
+
+// Y
+$lang['youareintext'] = 'The current working directory (relative to the top of the installation)';
+
+// PROFILE-RELATED TEXT
+
+$lang['add_profile'] = 'Add a new profile';
+
+$lang['can_delete'] = 'Allow file deletion';
+$lang['can_mkdir'] = 'Allow directory creation';
+$lang['can_mkfile'] = 'Allow file creation';
+$lang['can_upload'] = 'Allow uploads';
+
+$lang['delete_profile'] = 'Delete Profile';
+
+$lang['edit_profile'] = 'Edit Profile';
+
+$lang['hdr_add_profile'] = 'New profile';
+$lang['hdr_edit_profile'] = 'Edit profile';
+$lang['HelpPopupTitle_ProfileName'] = 'Profile Name';
+$lang['HelpPopup_ProfileName'] = 'Each profile should have a simple, unique name.  Names should only contain alphanumeric characters, and/or underscore(s).';
+$lang['HelpPopupTitle_ProfileCan_Delete'] = 'Allow deleting files and directories';
+$lang['HelpPopup_ProfileCan_Delete'] = 'Optionally allow users to delete files during the selection process';
+$lang['HelpPopupTitle_ProfileCan_Mkdir'] = 'Allow new directories';
+$lang['HelpPopup_ProfileCan_Mkdir'] = 'Optionally allow users to create new directories (below the specified top directory) during the selection process.';
+$lang['HelpPopupTitle_ProfileCan_Upload'] = 'Allow uploading';
+$lang['HelpPopup_ProfileCan_Upload'] = 'Optionally allow users to upload files during the selection process';
+$lang['HelpPopupTitle_ProfileDir'] = 'Top Directory';
+$lang['HelpPopup_ProfileDir'] = 'Optionally enter the relative path of a directory (relative to the uploads path) to restrict operations to.';
+$lang['HelpPopupTitle_ProfileShowthumbs'] = 'Show Thumbnails';
+$lang['HelpPopup_ProfileShowthumbs'] = 'If enabled, thumbnails will be visible for image files for which thumbnails are generated.';
+
+$lang['no_profiles'] = 'No profile is recorded. You can add one by clicking the icon above.';
+
 $lang['th_created'] = 'Created';
 $lang['th_default'] = 'Default';
 $lang['th_id'] = 'ID';
@@ -118,17 +113,10 @@ $lang['title_mkdir'] = 'Create Directory';
 $lang['topdir'] = 'Top directory';
 $lang['type'] = 'Type';
 
-// U
-$lang['unknown'] = 'Unknown';
-$lang['upload'] = 'Upload';
-
-// Y
-$lang['youareintext'] = 'The current working directory (relative to the top of the installation)';
-
 // HELP TEXT
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
-<p>This module provides some file-related capabilities for use by other modules:
+<p>This module doesn't actually &quot;pick&quot; anything :) It does provide some file-related capabilities for use by other modules:
 <ol>
 <li>accumulate properties of file(s) and directories for some purpose e.g.
 <ul>
@@ -143,14 +131,13 @@ $lang['help'] = <<<EOT
 <li>create and remove subdirectories</li>
 </ol>
 </p>
-<p>This module also manages controls-sets. Each of those is a collection of properties (e.g. show hidden files) and permissions (e.g. can create subdirectory) which apply to one or more specified directories.</p>
 <h3>How is it used?</h3>
-<p>This module is intended to be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
-<p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [set=string] [type=string] [value=string]}</code> tag, but this is not recommended.   See the {cms_filepicker} tag for information about the type, and other parameters.</p>
-<p>Controls-sets can be used by the <code>{cms_filepicker}</code> plugin or by this module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions, can override the settings defined in the controls-set.</p>
+<p>This module can be used by other modules via various API's, or via the {cms_filepicker} plugin.</p>
+<p>Additionally, this module can be called directly via the <code>{cms_module module=FilePicker action=select name=string [profile=string] [type=string] [value=string]}</code> tag, but this is not recommended. Refer to the {cms_filepicker} plugin for information about the parameters.</p>
+<p>Profiles can be used by the {cms_filepicker} plugin or by this module's &quot;select&quot; action when definining how the picker should behave.   Other module parameters, or user permissions, can override the settings defined in the profile.</p>
 <h3>Support</h3>
-<p>As per the GPL, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
+<p>As per the license, this software is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <h3>Copyright and License</h3>
 <p>Copyright &copy; 2017-2018, JoMorg and calguy1000. All rights reserved.</p>
-<p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module may not be used otherwise than in accordance with that license.</p>
+<p>This module has been released under the <a href="http://www.gnu.org/licenses/licenses.html#GPL">GNU Public License</a>. The module must not be used otherwise than in accordance with that license, or a later version of that licence granted by the module distributor.</p>
 EOT;
