@@ -1,5 +1,5 @@
 <?php
-# FilePicker - a CMSMS module providing folder-profile management and some file-upload capabilities
+# FilePicker - a CMSMS module which provides file-related services for other modules
 # Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,7 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentBase;
+use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
+use CMSMS\FileTypeHelper;
+use FilePicker\ProfileDAO;
+use FilePicker\TemporaryProfileStorage;
+use FilePicker\Utils;
 
 require_once(__DIR__.'/lib/class.ProfileDAO.php');
 
@@ -28,8 +34,8 @@ final class FilePicker extends CMSModule implements CMSMS\FilePicker
     public function __construct()
     {
         parent::__construct();
-        $this->_dao = new FilePicker\ProfileDAO( $this );
-        $this->_typehelper = new CMSMS\FileTypeHelper( \cms_config::get_instance() );
+        $this->_dao = new ProfileDAO( $this );
+        $this->_typehelper = new FileTypeHelper( cms_config::get_instance() );
     }
 
     private function _encodefilename($filename)
@@ -55,7 +61,7 @@ final class FilePicker extends CMSModule implements CMSMS\FilePicker
     public function GetAdminSection() { return 'extensions'; }
     public function GetFriendlyName() { return $this->Lang('friendlyname');  }
     public function GetHelp() { return $this->Lang('help'); }
-    public function GetVersion() { return '1.1'; }
+    public function GetVersion() { return '2.0'; }
     public function HasAdmin() { return TRUE; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
@@ -121,7 +127,7 @@ EOS;
 */
     public function GetFileList($path = '')
     {
-        return FilePicker\Utils::get_file_list($path);
+        return Utils::get_file_list($path);
     }
 
     public function get_profile_or_default( $profile_name, $dir = null, $uid = null )
@@ -139,7 +145,7 @@ EOS;
         $profile = $this->_dao->loadDefault();
         if( $profile ) return $profile;
 
-        $profile = new CMSMS\FilePickerProfile;
+        $profile = new FilePickerProfile();
         return $profile;
     }
 
@@ -148,13 +154,13 @@ EOS;
         return $this->create_url('m1_','filepicker');
     }
 
-    public function get_html( $name, $value, CMSMS\FilePickerProfile $profile, $required = false )
+    public function get_html( $name, $value, $profile, $required = false )
     {
         $_instance = 'i'.uniqid();
         if( $value === '-1' ) $value = null;
 
         // store the profile as a 'useonce' and add its signature to the params on the url
-        $sig = FilePicker\TemporaryProfileStorage::set( $profile );
+        $sig = TemporaryProfileStorage::set( $profile );
         $smarty = CmsApp::get_instance()->GetSmarty();
         $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
         $tpl_ob->assign('mod',$this);
@@ -165,28 +171,28 @@ EOS;
         $tpl_ob->assign('profile',$profile);
         $tpl_ob->assign('required',$required);
         switch( $profile->type ) {
-        case FileType::TYPE_IMAGE:
+        case FileType::IMAGE:
             $tpl_ob->assign('title',$this->Lang('select_an_image'));
             break;
-        case FileType::TYPE_AUDIO:
+        case FileType::AUDIO:
             $tpl_ob->assign('title',$this->Lang('select_an_audio_file'));
             break;
-        case FileType::TYPE_VIDEO:
+        case FileType::VIDEO:
             $tpl_ob->assign('title',$this->Lang('select_a_video_file'));
             break;
-        case FileType::TYPE_MEDIA:
+        case FileType::MEDIA:
             $tpl_ob->assign('title',$this->Lang('select_a_media_file'));
             break;
-        case FileType::TYPE_XML:
+        case FileType::XML:
             $tpl_ob->assign('title',$this->Lang('select_an_xml_file'));
             break;
-        case FileType::TYPE_DOCUMENT:
+        case FileType::DOCUMENT:
             $tpl_ob->assign('title',$this->Lang('select_a_document'));
             break;
-        case FileType::TYPE_ARCHIVE:
+        case FileType::ARCHIVE:
             $tpl_ob->assign('title',$this->Lang('select_an_archive_file'));
             break;
-//        case FileType::TYPE_ANY:
+//        case FileType::ANY:
         default:
             $tpl_ob->assign('title',$this->Lang('select_a_file'));
             break;
@@ -204,38 +210,36 @@ EOS;
         return $this->_typehelper->is_image( $filespec );
     }
 
-
     // INTERNAL UTILITY FUNCTION
-    public function is_acceptable_filename( CMSMS\FilePickerProfile $profile, $filename )
+    public function is_acceptable_filename( $profile, $filename )
     {
         $filename = trim($filename);
         $filename = basename($filename);  // in case it's a path
         if( !$filename ) return FALSE;
-
         if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) return FALSE;
         if( $profile->match_prefix && !startswith( $filename, $profile->match_prefix) ) return FALSE;
         if( $profile->exclude_prefix && startswith( $filename, $profile->exclude_prefix) ) return FALSE;
 
         switch( $profile->type ) {
-        case CMSMS\FileType::TYPE_IMAGE:
+        case FileType::IMAGE:
             return $this->_typehelper->is_image( $filename );
 
-        case CMSMS\FileType::TYPE_AUDIO:
+        case FileType::AUDIO:
             return $this->_typehelper->is_audio( $filename );
 
-        case CMSMS\FileType::TYPE_VIDEO:
+        case FileType::VIDEO:
             return $this->_typehelper->is_video( $filename );
 
-        case CMSMS\FileType::TYPE_MEDIA:
+        case FileType::MEDIA:
             return $this->_typehelper->is_media( $filename);
 
-        case CMSMS\FileType::TYPE_XML:
+        case FileType::XML:
             return $this->_typehelper->is_xml( $filename);
 
-        case CMSMS\FileType::TYPE_DOCUMENT:
+        case FileType::DOCUMENT:
             return $this->_typehelper->is_document( $filename);
 
-        case CMSMS\FileType::TYPE_ARCHIVE:
+        case FileType::ARCHIVE:
             return $this->_typehelper->is_archive( $filename );
         }
 
