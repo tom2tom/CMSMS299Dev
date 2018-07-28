@@ -27,7 +27,12 @@ abstract class BasicEnum
         return self::$constCacheArray[$calledClass];
     }
 
-    public static function isValidName($name, $strict = false)
+    public static function getAll()
+    {
+        return self::getConstants();
+    }
+
+	public static function isValidName($name, $strict = false)
     {
         $constants = self::getConstants();
         if ($strict) {
@@ -36,6 +41,15 @@ abstract class BasicEnum
         $keys = array_map('strtolower', array_keys($constants));
         return in_array(strtolower($name), $keys);
     }
+
+    public static function getName($value, $strict = false)
+    {
+        $values = array_values(self::getConstants());
+		$key = array_search($value, $values, $strict);
+        if ($key !== false) {
+            return $key;
+		}
+	}
 
     public static function isValidValue($value, $strict = false)
     {
@@ -54,11 +68,5 @@ abstract class BasicEnum
         if ($idx !== false) {
             return $constants[$keys[$idx]];
         }
-        return null;
-    }
-
-    public static function getNames()
-    {
-        return array_keys(self::getConstants());
     }
 } // class
