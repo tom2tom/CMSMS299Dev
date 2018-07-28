@@ -24,22 +24,21 @@ if (!$this->CheckPermission('Modify Site Preferences')) {
     exit;
 }
 
+$ob = new FolderControls\ControlSet();
+
 if (!empty($params['delete'])) {
     try {
         $setid = (int) get_parameter_value($params, 'setid');
         if ($setid < 1) {
-            throw new LogicException('Invalid id provided to delete operation');
+            throw new UnexpectedValueException('Invalid id provided to delete operation');
         }
-
-        if (!$set) {
-            throw new LogicException('Invalid id provided to delete operation');
+        if (!$ob->delete($setid)) {
+            throw new RuntimeException('Failed to delete the specified item');
         }
-
         $default = cms_siteprefs::get('defaultcontrolset', -1);
-        if ($default == $profile->id) {
-            cms_siteprefs::set('defaultcontrolset', -999);
+        if ($default == $setid) {
+            cms_siteprefs::set('defaultcontrolset', -1);
         }
-
     } catch (Exception $e) {
         $this->SetError($e->GetMessage());
     }
@@ -49,7 +48,6 @@ if (!empty($params['delete'])) {
 
 $default = cms_siteprefs::get('defaultcontrolset', -1); //TODO module setting
 $sets = [];
-$ob = new FolderControls\ControlSet();
 $data = $ob->get_all();
 if ($data) {
     $tz = (!empty($config['timezone'])) ? $config['timezone'] : 'UTC';
@@ -67,6 +65,23 @@ if ($data) {
         $sets[] = $oneset;
     }
     unset($row);
+
+    $prompt = json_encode($this->Lang('confirm_delete_set'));
+    $js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('.deleteset').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_linkclick(this, $prompt);
+  return false;
+ });
+});
+//]]>
+</script>
+
+EOS;
+    $this->AdminBottomContent($js);
 }
 
 $addurl = $this->create_url($id,'opencontrol',$returnid, ['setid'=>-1]);
@@ -75,6 +90,7 @@ $delurl = $this->create_url($id,'defaultadmin',$returnid, ['delete'=>1]);
 $defaulturl = $this->create_url($id,'defaultadmin',$returnid, ['default'=>1]);
 
 $themeObject = cms_utils::get_theme_object();
+
 $iconadd = $themeObject->DisplayImage('icons/system/newobject.gif', lang('add'), '', '', 'systemicon');
 $iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'), '', '', 'systemicon');
 $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'), '', '', 'systemicon');
@@ -94,7 +110,5 @@ $smarty->assign([
     'dfltset_id' => $default,
     'sets' => $sets,
 ]);
-
-//TODO js for delete-confirm
 
 echo $this->processTemplate('adminpanel.tpl');
