@@ -64,4 +64,18 @@ final class FolderControls extends CMSModule
     {
         return Operations::get_for_folder($dirpath);
     }
+
+    /**
+     * Determine whether $op+$name (i.e. test-identifier) is valid for user $user_id and folder $dirpath
+     *
+     * @param int   $op   enumerator of intended operation - create, delete etc
+     * @param string $name of item to be 'operated' per $op
+     * @param int $user_id user identifier
+     * @param string $dirpath absolute or otherwise-php-discoverable filepath
+     * @return bool indicating validity
+   */
+    public function CheckControl(int $op, string $name, int $user_id, string $dirpath) : bool
+    {
+        return Operations::test_for_folder($op, $name, $user_id, $dirpath);
+    }
 } // class
