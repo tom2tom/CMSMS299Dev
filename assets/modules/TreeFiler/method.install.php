@@ -6,7 +6,7 @@ This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
+the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -19,11 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if (!function_exists('cmsms')) exit;
 
-//$this->SetPreference('acetheme', 'clouds'); //ACE editor
-//$this->SetPreference('highlight', 1);
-//$this->SetPreference('highlightstyle', 'default')); //hilight.js
-$this->SetPreference('showhiddenfiles', 0);
-$this->SetPreference('uploadable', '%image%,txt,text,pdf');
+$this->CreateEvent('FileUploaded');
+$this->CreateEvent('FileDeleted');
 
-$this->CreateEvent('OnFileUploaded');
-$this->CreateEvent('OnFileDeleted');

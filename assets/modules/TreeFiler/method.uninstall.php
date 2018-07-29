@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if (!function_exists('cmsms')) exit;
 
-$this->RemoveEvent('OnFileUploaded');
-$this->RemoveEvent('OnFileDeleted');
+$this->RemoveEvent('FileUploaded');
+$this->RemoveEvent('FileDeleted');
 
-$this->RemovePreference();
+//$this->RemovePreference();
