@@ -40,7 +40,7 @@ $lang['help_show_thumbs'] = 'If enabled, thumbnails (if they exist) will be disp
 $lang['help_sort_field'] = 'When displaying folder contents, the items may be sorted by name, size, creation datetime or modification datetime';
 $lang['help_topdir'] = 'Enter the website-root-relative filepath of the directory to which this set of properties will apply. It need not be unique. All descendant directories will also inherit the properties, except where another set of properties prevails.';
 
-$lang['info_cset'] = 'Each permission-set is a collection of permissions and properties which apply to a specified directory and (except where countervailed by another such set) all of the directory\'s descendants.
+$lang['info_cset'] = 'Each controls-set is a collection of permissions and properties which apply to a specified directory and (except where countervailed by another such set) all of the directory\'s descendants.
 <br /><br /><strong>NOTE</strong> some independently-developed modules might bypass the permission-set apparatus.';
 
 $lang['match_groups'] = 'Allowed user-groups';
@@ -78,7 +78,24 @@ $lang['uninstalled'] = 'The Folder-Controls module has been uninstalled';
 
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
-<p>This module enables additional permissions and properties for specified website folders.</p>
+<p>This module implements controls-sets, each of which is a collection of permissions and properties which apply to a specified directory and (except where countervailed by another such set) all of the directory's descendants.
+<br /><br />
+Each controls-set records:
+<ul>
+<li>Whether to display hidden files and directories</li>
+<li>Whether to display image thumbnails (if they exist)</li>
+<li>Whether and how to sort displayed lists of items</li>
+<li>Whether new sub-directories may be created</li>
+<li>Whether new files may be created, or existing ones may be modified</li>
+<li>Whether existing files and sub-directories may be deleted</li>
+<li>Acceptable file-type(s)</li>
+<li>Regex pattern(s) representing names of files and directories which may be operated on</li>
+<li>Regex pattern(s) representing names of files and directories which may NOT be operated on</li>
+<li>Users which may perform operations on items in the directory</li>
+<li>Users which may NOT perform such operations</li>
+<li>User-groups which may perform such operations</li>
+<li>User-groups which may NOT perform such operations</li>
+</ul>
 <h3>Support</h3>
 <p>This module is provided as-is. Please read the text of the license for the full disclaimer.</p>
 <p>For help:<ul>
