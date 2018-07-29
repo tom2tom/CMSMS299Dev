@@ -24,7 +24,7 @@ if (!$this->CheckPermission('Modify Site Preferences')) {
     exit;
 }
 
-$ob = new FolderControls\ControlSet();
+$ob = new FolderControls\Operations();
 
 if (!empty($params['delete'])) {
     try {

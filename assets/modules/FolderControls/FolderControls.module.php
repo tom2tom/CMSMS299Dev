@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use FolderControls\Operations;
+
 final class FolderControls extends CMSModule
 {
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
@@ -32,7 +34,7 @@ final class FolderControls extends CMSModule
     public function IsAdminOnly() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.2.910'; }
+    public function MinimumCMSVersion() { return '2.2.900'; }
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
 
@@ -60,7 +62,6 @@ final class FolderControls extends CMSModule
      */
     public function GetControls(string $dirpath) : array
     {
-        $ob = new FolderControls\ControlSet();
-        return $ob->get_for_folder($dirpath);
+        return Operations::get_for_folder($dirpath);
     }
 } // class

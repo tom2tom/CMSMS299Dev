@@ -34,7 +34,7 @@ $themeObject = cms_utils::get_theme_object();
 $setid = $params['setid'] ?? -1;
 $setid = (int)$setid;
 
-$ob = new FolderControls\ControlSet();
+$ob = new FolderControls\Operations();
 
 if (isset($params['submit'])) {
     try {
