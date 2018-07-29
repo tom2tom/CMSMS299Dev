@@ -151,23 +151,19 @@ final class UserTagOperations
 	/**
 	 * Execute a User Defined Tag
 	 *
+	 * @deprecated since 2.3 does nothing - simple-plugins are not callable
 	 * @param string $name The name of the User Defined Tag
 	 * @param array  $params Optional parameters.
-	 * @return string|false
-	 * @deprecated
 	 */
 	public function CallUserTag($name, &$params)
 	{
-		$gCms = CmsApp::get_instance();
-		$mgr = $gCms->GetSimplePluginOperations();
-		return $mgr->call_plugin($name,$params,$gCms->GetSmarty());
 	}
 
 	/**
 	 * Given a UDT name create an executable function from it
-	 * Since 2.3 this function is an empty stub.
 	 *
 	 * @internal
+	 * @deprecated since 2.3 does nothing - simple-plugins are not callable
 	 * @param string $name The name of the User Defined Tag to operate with.
 	 */
 	public function CreateTagFunction($name)
