@@ -1,5 +1,5 @@
 <?php
-# class: ExternalHandlerJob
+# class: ExternalHandlerJob for jobs with external handlers (plugins or static functions)
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,16 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file provides a utility for creating jobs with external handlers (UDT's or static functions)
- *
- * @package CMS
- */
-
 namespace CMSMS\Async;
 
 /**
- * A type of job that calls an external function for processing.  i.e: a UDT or a static function.
+ * A type of job that calls a function (simple-plugin or static function) for processing.
  *
  * If a module is specified for this object, then the module will be loaded before calling the handler.
  *
@@ -32,20 +26,23 @@ namespace CMSMS\Async;
  * @author Robert Campbell
  * @copyright Copyright (c) 2015, Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since 2.2
- * @property string $function The callback function name.
- * @property bool $is_udt Indicates that the function is the name of a simple (aka user-defined) plugin.
+ * @property string $function The callable function name.
+ * @property bool $is_udt Whether $function is the name of a simple-plugin.
  */
 class ExternalHandlerJob extends Job
 {
     /**
      * @ignore
      */
-    const HANDLER_UDT   = '_UDT_';
+    const HANDLER_UDT   = '_UDT_'; //unused ?
 
     /**
      * @ignore
      */
-    private $_data = ['function'=>null,'is_udt'=>FALSE];
+    protected $_data = [
+		'function'=>null,
+		'is_udt'=>FALSE,
+	];
 
     /**
      * @ignore
@@ -54,10 +51,8 @@ class ExternalHandlerJob extends Job
     {
         switch( $key ) {
         case 'function':
-            return trim($this->_data[$key]);
-
-        case 'is_udt':
-            return (bool) $this->_data[$key];
+		case 'is_udt':
+            return $this->_data[$key];
 
         default:
             return parent::__get($key);
@@ -89,17 +84,19 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if( $this->is_udt ) {
-            $mgr = \CmsApp::get_instance()->GetSimplePluginOperations();
+            $mgr = SimplePluginOperations::get_instance();
             $mgr->call_plugin( $this->function );
+//TODO also support regular plugins
         }
         else {
-            // call the function, pass in this.
+            // call the function, pass in $this
             $module_name = $this->module;
             if( $module_name ) {
                 $mod_obj = \CmsApp::get_instance()->GetModule($module_name);
                 if( !is_object($mod_obj) ) throw new \RuntimeException('Job requires '.$module_name.' but the module could not be loaded');
             }
             call_user_func($this->function);
+//TODO also support callables in general
         }
     }
 }
