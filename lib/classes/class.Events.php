@@ -1,7 +1,7 @@
 <?php
 #Class for handling and dispatching events
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2011-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,6 @@ use function lang;
 /**
  * Class for handling and dispatching system and other defined events.
  *
- * @deprecated since 2.3 events are dispatched via hooks
  * @package CMS
  * @license GPL
  */
@@ -51,17 +50,25 @@ final class Events
 	 *
 	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
+	 * @return bool
 	 */
 	public static function CreateEvent( $originator, $eventname )
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$count = $db->GetOne('SELECT count(*) from '.CMS_DB_PREFIX.'events where originator = ? and event_name = ?', [$originator, $eventname]);
-		if ($count < 1) {
-			$id = $db->GenID( CMS_DB_PREFIX."events_seq" );
-			$q = "INSERT INTO ".CMS_DB_PREFIX."events values (?,?,?)";
-			$db->Execute( $q, [ $originator, $eventname, $id ]);
+		$id = $db->GenID( CMS_DB_PREFIX."events_seq" );
+		$originator = trim($originator);
+		$eventname = trim($eventname);
+		$pref = CMS_DB_PREFIX;
+		$q = <<<EOS
+INSERT INTO {$pref}events (event_id,originator,event_name) SELECT ?,?,? FROM (SELECT 1 AS dmy) Z
+WHERE NOT EXISTS (SELECT 1 FROM {$pref}events T WHERE T.originator=? AND T.event_name=?)
+EOS;
+		$dbresult = $db->Execute( $q, [$id, $originator, $eventname, $originator, $eventname] );
+		if ($dbresult != false) {
 			global_cache::clear(__CLASS__);
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -70,14 +77,14 @@ final class Events
 	 *
 	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
+     * @return bool
 	 */
 	public static function RemoveEvent( $originator, $eventname )
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
 		// get the id
-		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE
-		originator = ? AND event_name = ?";
+		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE originator = ? AND event_name = ?";
 		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) {
 			// query failed, event not found
@@ -87,16 +94,15 @@ final class Events
 		$id = $row['event_id'];
 
 		// delete all the handlers
-		$q = "DELETE FROM ".CMS_DB_PREFIX."event_handlers WHERE
-		event_id = ?";
+		$q = "DELETE FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ?";
 		$db->Execute( $q, [ $id ] );
 
 		// then delete the event
-		$q = "DELETE FROM ".CMS_DB_PREFIX."events WHERE
-		event_id = ?";
+		$q = "DELETE FROM ".CMS_DB_PREFIX."events WHERE event_id = ?";
 		$db->Execute( $q, [ $id ] );
 
 		global_cache::clear(__CLASS__);
+		return true;
 	}
 
 	/**
@@ -111,32 +117,44 @@ final class Events
 		global $CMS_INSTALL_PAGE;
 		if( isset($CMS_INSTALL_PAGE) ) return;
 
-		$results = Events::ListEventHandlers($originator, $eventname);
-
+		$results = self::ListEventHandlers($originator, $eventname);
 		if ($results != false) {
-			$params['_modulename'] = $originator;
+			$params['_modulename'] = $originator; //might be 'Core'
 			$params['_eventname'] = $eventname;
+			$mgr = null;
 			foreach( $results as $row ) {
 				if( !empty( $row['tag_name']) ) {
-					debug_buffer('calling simple plugin ' . $row['tag_name'] . ' from event ' . $eventname);
-					$gCms = CmsApp::get_instance();
-					$mgr = $gCms->GetSimplePluginOperations();
-					$mgr->call_plugin( $row['tag_name']);
+					if( $mgr == null ) {
+						$mgr = SimplePluginOperations::get_instance();
+					}
+					debug_buffer($eventname.' event notice to simple plugin ' . $row['tag_name']);
+					$mgr->DoEvent( $row['tag_name'], $originator, $eventname, $params );
 				}
-				else if( !empty( $row['module_name']) ) {
-					// here's a quick check to make sure that we're not calling the module
-					// DoEvent function for an event originated by the same module.
+				elseif( !empty( $row['module_name']) ) {
+					// don't send event to the originating module
 					if( $row['module_name'] == $originator ) continue;
 
-					// and call the module event handler.
+					// call the module event-handler
 					$obj = CMSModule::GetModuleInstance($row['module_name']);
 					if( $obj ) {
 						debug_buffer('calling module ' . $row['module_name'] . ' from event ' . $eventname);
 						$obj->DoEvent( $originator, $eventname, $params );
 					}
+/* TODO support regular plugin handler i.e. find/load plugin, call it
+				}
+				else {
+		            include_once $plugfile;
+		            if (!(function_exists('smarty_'.$rec['type'].'_'.$rec['name']) ||
+				          function_exists('smarty_cms_'.$rec['type'].'_'.$rec['name']) ||
+						  function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']))) continue;
+TODO support non-module event handlers (callables) other than plugins
+*/
 				}
 			}
 		}
+
+		// also notify non-stored handlers, if any
+        HookManager::do_hook_all($eventname, $originator, $eventname, $params);
 	}
 
 	/**
@@ -147,10 +165,13 @@ final class Events
 		$obj = new global_cachable(__CLASS__,function()
 			{
 				$db = CmsApp::get_instance()->GetDb();
-				$q = 'SELECT e.event_id, eh.tag_name, eh.module_name, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
-FROM '.CMS_DB_PREFIX.'event_handlers eh
-INNER JOIN '.CMS_DB_PREFIX.'events e ON e.event_id = eh.event_id
-ORDER BY eh.handler_order';
+				$pref = CMS_DB_PREFIX;
+				$q = <<<EOS
+SELECT e.event_id, eh.tag_name, eh.module_name, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
+FROM {$pref}event_handlers eh
+INNER JOIN {$pref}events e ON e.event_id = eh.event_id
+ORDER BY eh.handler_order
+EOS;
 				return $db->GetArray($q);
 			});
 		global_cache::add_cachable($obj);
@@ -198,23 +219,25 @@ ORDER BY eh.handler_order';
 	/**
 	 * Get a list of all recorded events.
 	 *
-	 * @return mixed If successful, a list of all the known events.  If it fails, false
+	 * @return mixed array or false
 	 */
 	public static function ListEvents()
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
-		$q = 'SELECT e.*, count(eh.event_id) as usage_count FROM '.CMS_DB_PREFIX.
-'events e left outer join '.CMS_DB_PREFIX.
-'event_handlers eh on e.event_id=eh.event_id GROUP BY e.event_id ORDER BY originator,event_name';
-
+		$pref = CMS_DB_PREFIX;
+		$q = <<<EOS
+SELECT e.*, count(eh.event_id) AS usage_count FROM {$pref}events e
+LEFT OUTER JOIN {$pref}event_handlers eh ON e.event_id=eh.event_id
+GROUP BY e.event_id
+ORDER BY originator,event_name
+EOS;
 		$dbresult = $db->Execute( $q );
 		if( $dbresult == false ) return false;
 
 		$result = [];
 		while( $row = $dbresult->FetchRow() ) {
-			if(!cms_utils::module_available($row['originator']) && $row['originator'] !== 'Core') continue;
-			if(!cms_utils::module_available($row['originator']) && $row['originator'] !== 'Core') continue;
+			if( $row['originator'] !== 'Core' && !cms_utils::module_available($row['originator']) ) continue;
 			$result[] = $row;
 		}
 		return $result;
@@ -247,8 +270,7 @@ ORDER BY eh.handler_order';
 		// now see if there's nothing already existing for this
 		// tag or module and this id
 		$q = "SELECT * FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ? AND ";
-		$params = [];
-		$params[] = $id;
+		$params = [ $id ];
 		if( $tag_name != '' ) {
 			$q .= "tag_name = ?";
 			$params[] = $tag_name;
@@ -262,8 +284,7 @@ ORDER BY eh.handler_order';
 
 		// now see if we can get a new id
 		$order = 1;
-		$q = "SELECT max(handler_order) AS newid FROM ".CMS_DB_PREFIX."event_handlers
-		WHERE event_id = ?";
+		$q = "SELECT max(handler_order) AS newid FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ?";
 		$dbresult = $db->Execute( $q, [ $id ] );
 		if( $dbresult != false && $dbresult->RecordCount() != 0) {
 			$row = $dbresult->FetchRow();
@@ -273,14 +294,14 @@ ORDER BY eh.handler_order';
 		$handler_id = $db->GenId( CMS_DB_PREFIX."event_handler_seq" );
 
 		// okay, we can insert
-		$params = [];
-		$params[] = $id;
+		$params = [ $id ];
 		$q = "INSERT INTO ".CMS_DB_PREFIX."event_handlers ";
 		if( $module_handler != false ) {
 			$q .= '(event_id,module_name,removable,handler_order,handler_id)';
 			$params[] = $module_handler;
 		}
 		else {
+			//TODO also support non-module event handlers other than plugins
 			$q .= '(event_id,tag_name,removable,handler_order,handler_id)';
 			$params[] = $tag_name;
 		}
@@ -363,7 +384,7 @@ ORDER BY eh.handler_order';
 		if( !is_array($row) || !count($row) ) return false;
 
 		self::InternalRemoveHandler( $row );
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -439,8 +460,7 @@ ORDER BY eh.handler_order';
 	 * Get event help message (for a core event).
 	 *
 	 * @param string $eventname The name of the event
-	 * @return string Returns the help string for the event, or empty string if nothing
-	 *                is found.
+	 * @return string Help for the event, or empty.
 	 */
 	public static function GetEventHelp( $eventname )
 	{
@@ -451,8 +471,7 @@ ORDER BY eh.handler_order';
 	 * Get event description (for a core event).
 	 *
 	 * @param string $eventname The name of the event
-	 * @return string Returns the description string for the event, or empty string if nothing
-	 *                is found.
+	 * @return string Description of the event, or empty
 	 */
 	public static function GetEventDescription( $eventname )
 	{
