@@ -538,13 +538,13 @@ abstract class CmsAdminThemeBase
         // extensions
         $this->_perms['codeBlockPerms'] = check_permission($this->userid, 'Modify User-defined Tags');
         $this->_perms['modulePerms'] = check_permission($this->userid, 'Modify Modules');
-//        $config = cms_config::get_instance();
-//        $this->_perms['eventPerms'] = !empty($config['developer_mode']) && check_permission($this->userid, 'Modify Events');
+        $config = cms_config::get_instance();
+        $this->_perms['eventPerms'] = !empty($config['developer_mode']) && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
             check_permission($this->userid, 'Modify Simple Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
-            $this->_perms['modulePerms'] | // $this->_perms['eventPerms'] |
+            $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];
 
         // myprefs
@@ -829,17 +829,17 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
-/* UDT-files can't be event-responders, this former functionality is useless
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
-        'url'=>'eventhandlers.php'.$urlext,
+        'url'=>'listevents.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
         'description'=>lang('eventhandlerdescription'),
         'show_in_menu'=>$this->HasPerm('eventPerms')];
+/*
         $items[] = ['name'=>'editeventhandler','parent'=>'eventhandlers',
         'url'=>'editevent.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('editeventhandler')),
         'description'=>lang('editeventhandlerdescription'),
-        'show_in_menu'=>false]; //UDT's N/A event responders
+        'show_in_menu'=>false]; //TODO why have it, if never seen?
 */
         // ~~~~~~~~~~ site-admin menu items ~~~~~~~~~~
 
