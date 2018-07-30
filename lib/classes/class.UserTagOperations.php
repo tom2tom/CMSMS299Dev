@@ -1,7 +1,7 @@
 <?php
 #compatibility class to manage User Defined Tags.
 #Copyright (C) 2017-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#This file is part of CMS Made Simple <http://cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -15,6 +15,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS;
+
+use CMSMS\SimplePluginOperations;
+
 /**
  * A compatibility class to manage User Defined Tags.
  * Before CMSMS 2.3, User Defined Tag data were stored in the database.
@@ -25,10 +29,6 @@
  * @license GPL
  * @deprecated
  */
-namespace CMSMS;
-
-use CmsApp;
-
 final class UserTagOperations
 {
 	/**
@@ -96,8 +96,7 @@ final class UserTagOperations
 	 */
 	function UserTagExists($name)
 	{
-		$gCms = CmsApp::get_instance();
-		$mgr = $gCms->GetSimplePluginOperations();
+		$mgr = SimplePluginOperations::get_instance();
 		return $mgr->plugin_exists($name);
 	}
 
@@ -135,8 +134,7 @@ final class UserTagOperations
 	 */
 	public function ListUserTags()
 	{
-		$gCms = CmsApp::get_instance();
-		$mgr = $gCms->GetSimplePluginOperations();
+		$mgr = SimplePluginOperations::get_instance();
 		$tmp = $mgr->get_list();
 		if( !$tmp ) return;
 
@@ -151,25 +149,25 @@ final class UserTagOperations
 	/**
 	 * Execute a User Defined Tag
 	 *
-	 * @deprecated since 2.3 does nothing - simple-plugins are not callable
+	 * @deprecated since 2.3
 	 * @param string $name The name of the User Defined Tag
 	 * @param array  $params Optional parameters.
 	 */
-	public function CallUserTag($name, &$params)
+	public function CallUserTag($name, &$params = [])
 	{
+		$mgr = SimplePluginOperations::get_instance();
+		return $mgr->call_plugin($name, $params);
 	}
 
 	/**
-	 * Given a UDT name create an executable function from it
+	 * Create an executable function from a given a UDT name
 	 *
-	 * @internal
-	 * @deprecated since 2.3 does nothing - simple-plugins are not callable
+	 * @deprecated since 2.3 does nothing
 	 * @param string $name The name of the User Defined Tag to operate with.
 	 */
 	public function CreateTagFunction($name)
 	{
 	}
-
 } // class
 
 //backward-compatibility shiv
