@@ -72,14 +72,14 @@ if (isset($_POST['submit'])) {
         $userobj->email = $email;
         if ($password) $userobj->SetPassword($password);
 
-        \CMSMS\HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$userobj ]);
+        \CMSMS\Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$userobj ]);
 
         $result = $userobj->Save();
 
         if ($result) {
             // put mention into the admin log
             audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
-            \CMSMS\HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$userobj ]);
+            \CMSMS\Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$userobj ]);
             $themeObject->RecordNotice('success', lang('accountupdated'));
         } else {
             $themeObject->RecordNotice('error', lang('error_internal'));

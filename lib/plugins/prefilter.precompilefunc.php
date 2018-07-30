@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \CMSMS\HookManager;
+use CMSMS\Events;
 
 function smarty_prefilter_precompilefunc($tpl_output, $smarty)
 {
@@ -27,19 +27,19 @@ function smarty_prefilter_precompilefunc($tpl_output, $smarty)
 		switch ($result[0]) {
         case 'cms_stylesheet':
         case 'stylesheet':
-            HookManager::do_hook('Core::StylesheetPreCompile',array('stylesheet'=>&$tpl_output));
+            Events::SendEvent('Core', 'StylesheetPreCompile', ['stylesheet'=>&$tpl_output]);
             break;
 
-        case "content":
-            HookManager::do_hook('Core::ContentPreCompile', array('content' => &$tpl_output));
+        case 'content':
+            Events::SendEvent('Core', 'ContentPreCompile', ['content' => &$tpl_output]);
             break;
 
-        case "cms_template":
+        case 'cms_template':
         case 'tpl_top':
         case 'tpl_body':
         case 'tpl_head':
-        case "template":
-            HookManager::do_hook('Core::TemplatePreCompile', array('template' => &$tpl_output,'type'=>$result[0]));
+        case 'template':
+            Events::SendEvent('Core', 'TemplatePreCompile', ['template' => &$tpl_output, 'type' => $result[0]]);
         break;
 
         default:
@@ -47,7 +47,7 @@ function smarty_prefilter_precompilefunc($tpl_output, $smarty)
 		}
 	}
 
-    HookManager::do_hook('Core::SmartyPreCompile', array('content' => &$tpl_output));
+    Events::SendEvent('Core', 'SmartyPreCompile', ['content' => &$tpl_output]);
 
 	return $tpl_output;
 }

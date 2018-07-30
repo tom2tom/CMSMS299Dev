@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -83,7 +85,7 @@ if (isset($_POST['submit'])) {
             continue;
         }
         // Send the ChangeGroupAssignPre event
-        \CMSMS\HookManager::do_hook('Core::ChangeGroupAssignPre',
+        Events::SendEvent('Core', 'ChangeGroupAssignPre',
              ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
         );
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ? AND user_id != ?';
@@ -101,7 +103,7 @@ if (isset($_POST['submit'])) {
             }
         }
 
-        \CMSMS\HookManager::do_hook('Core::ChangeGroupAssignPost',
+        Events::SendEvent('Core', 'ChangeGroupAssignPost',
             ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
         );
         // put mention into the admin log

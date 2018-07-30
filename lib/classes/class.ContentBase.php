@@ -1303,7 +1303,7 @@ abstract class ContentBase
 	 */
 	public function Save()
 	{
-		HookManager::do_hook('Core::ContentEditPre', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentEditPre', [ 'content' => &$this ] );
 
 		if( !is_array($this->_props) ) {
 			debug_buffer('save is loading properties');
@@ -1320,7 +1320,7 @@ abstract class ContentBase
 		$contentops = ContentOperations::get_instance();
 		$contentops->SetContentModified();
 		$contentops->SetAllHierarchyPositions();
-		HookManager::do_hook('Core::ContentEditPost', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentEditPost', [ 'content' => &$this ] );
 	}
 
 	/**
@@ -1617,7 +1617,7 @@ abstract class ContentBase
 	function Delete()
 	{
 		$gCms = CmsApp::get_instance();
-		HookManager::do_hook('Core::ContentDeletePre', [ 'content' => &$this ] );
+		Events::SendEvent( 'Core', 'ContentDeletePre', [ 'content' => &$this ] );
 		$db = $gCms->GetDb();
 		$result = false;
 
@@ -1643,7 +1643,7 @@ abstract class ContentBase
 			if( $this->mURL != '' ) cms_route_manager::del_static($this->mURL);
 		}
 
-			HookManager::do_hook('Core::ContentDeletePost', [ 'content' => &$this ] );
+			Events::SendEvent( 'Core', 'ContentDeletePost', [ 'content' => &$this ] );
 		$this->mId = -1;
 		$this->mItemOrder = -1;
 	}

@@ -1,6 +1,6 @@
 <?php
 
-use CMSMS\HookManager;
+use CMSMS\Events;
 use ModuleManager\operations;
 
 if( !isset($gCms) ) exit;
@@ -25,9 +25,9 @@ if( $file['type'] != 'text/xml' ) {
 $ops = new operations($this);
 
 try {
-    HookManager::do_hook('ModuleManager::BeforeModuleImport', [ 'file'=>$file['name']] );
+    Events::SendEvent( 'ModuleManager', 'BeforeModuleImport', [ 'file'=>$file['name']] );
     $ops->expand_xml_package( $file['tmp_name'], true, false );
-    HookManager::do_hook( 'ModuleManager::AfterModuleImport', [ 'file'=>$file['name']] );
+    Events::SendEvent( 'ModuleManager', 'AfterModuleImport', [ 'file'=>$file['name']] );
 
     audit('',$this->GetName(),'Imported module from '.$file['name']);
     $this->Setmessage($this->Lang('msg_module_imported'));

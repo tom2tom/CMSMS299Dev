@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\HookManager;
+use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
@@ -84,13 +84,13 @@ if (isset($_GET['switchuser'])) {
 
             $result = false;
             $thisuser->active == 1 ? $thisuser->active = 0 : $thisuser->active = 1;
-            HookManager::do_hook('Core::EditUserPre', [ 'user' => &$thisuser ]);
+            Events::SendEvent('Core', 'EditUserPre', [ 'user' => &$thisuser ]);
             $result = $thisuser->save();
 
             if ($result) {
                 // put mention into the admin log
                 audit($userid, 'Admin Username: ' . $thisuser->username, 'Edited');
-                HookManager::do_hook('Core::EditUserPost', [ 'user' => &$thisuser ]);
+                Events::SendEvent('Core', 'EditUserPost', [ 'user' => &$thisuser ]);
             } else {
                 $themeObject->RecordNotice('error', lang('errorupdatinguser'));
             }
@@ -121,9 +121,9 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 // ready to delete.
-                HookManager::do_hook('Core::DeleteUserPre', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'DeleteUserPre', [ 'user'=>&$oneuser ]);
                 $oneuser->Delete();
-                HookManager::do_hook('Core::DeleteUserPost', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'DeleteUserPost', [ 'user'=>&$oneuser ]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Deleted');
                 $ndeleted++;
             }
@@ -145,9 +145,9 @@ if (isset($_GET['switchuser'])) {
                     continue;
                 } // invalid user
 
-                HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
                 cms_userprefs::remove_for_user($uid);
-                HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
+                Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
                 audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
                 $nusers++;
             }
@@ -177,12 +177,12 @@ if (isset($_GET['switchuser'])) {
                                 continue; // invalid user
                             }
 
-                            HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
+                            Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
                             cms_userprefs::remove_for_user($uid);
                             foreach ($prefs as $k => $v) {
                                 cms_userprefs::set_for_user($uid, $k, $v);
                             }
-                            HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
+                            Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
                             audit($uid, 'Admin Username: ' . $oneuser->username, 'Settings cleared');
                             $nusers++;
                         }
@@ -212,10 +212,10 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 if ($oneuser->active) {
-                    HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
                     $oneuser->active = 0;
                     $oneuser->save();
-                    HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
                     audit($uid, 'Admin Username: ' . $oneuser->username, 'Disabled');
                     $nusers++;
                 }
@@ -243,10 +243,10 @@ if (isset($_GET['switchuser'])) {
                 }
 
                 if (!$oneuser->active) {
-                    HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$oneuser ]);
                     $oneuser->active = 1;
                     $oneuser->save();
-                    HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$oneuser ]);
+                    Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$oneuser ]);
                     audit($uid, 'Admin Username: ' . $oneuser->username, 'Enabled');
                     $nusers++;
                 }

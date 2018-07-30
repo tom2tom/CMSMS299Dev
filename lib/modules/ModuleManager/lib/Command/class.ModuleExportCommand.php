@@ -21,7 +21,7 @@ use cms_utils;
 use CmsLangOperations;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
-use CMSMS\HookManager;
+use CMSMS\Events;
 use CMSMS\ModuleOperations;
 use CmsNlsOperations;
 use RuntimeException;
@@ -47,9 +47,9 @@ class ModuleExportCommand extends Command
         $old_display_errors = ini_set('display_errors',0);
         CmsLangOperations::allow_nonadmin_lang(TRUE);
         CmsNlsOperations::set_language('en_US');
-        HookManager::do_hook('ModuleManager::BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
+        Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
         $xmltext = $moma->get_operations()->create_xml_package($modinstance,$message,$files);
-        HookManager::do_hook('ModuleManager::AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
+        Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
         if( $old_display_errors !== FALSE ) ini_set('display_errors',$old_display_errors);
 
         $xmlname = $modinstance->GetName().'-'.$modinstance->GetVersion().'.xml';

@@ -167,7 +167,7 @@ if( isset( $params['submit'] ) ) {
             $do_redirect = true;
 
             // send an event
-            \CMSMS\HookManager::do_hook('News::NewsArticleAdded',
+            \CMSMS\Events::SendEvent('News', 'NewsArticleAdded',
                               array('news_id' => $articleid,
                                     'category_id' => $category_id,
                                     'title' => $title,

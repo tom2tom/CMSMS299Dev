@@ -23,6 +23,7 @@
  */
 
 use CMSMS\ContentOperations;
+use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\content_cache;
 use CMSMS\internal\content_plugins;
@@ -130,7 +131,7 @@ while ($trycount < 2) {
         $smarty->assignGlobal('lang',CmsNlsOperations::get_current_language());
         $smarty->assignGlobal('encoding',CmsNlsOperations::get_encoding());
 
-        HookManager::do_hook('Core::ContentPreRender', [ 'content' => &$contentobj ]);
+        Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
 
         if ($config['content_processing_mode'] == 2) {
             debug_buffer('preprocess module action');
@@ -144,11 +145,11 @@ while ($trycount < 2) {
             $top = $body = $head = null;
 
             debug_buffer('process template top');
-            HookManager::do_hook('Core::PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+            Events::SendEvent('Core', 'PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
             $tpl = $smarty->createTemplate('tpl_top:'.$tpl_id);
             $top .= $tpl->fetch();
             unset($tpl);
-            HookManager::do_hook('Core::PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+            Events::SendEvent('Core', 'PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
 
             if ($config['content_processing_mode'] == 1) {
                 debug_buffer('preprocess module action');
@@ -157,18 +158,18 @@ while ($trycount < 2) {
 
             // if the request has a mact in it, process and cache the output.
             debug_buffer('process template body');
-            HookManager::do_hook('Core::PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+            Events::SendEvent('Core', 'PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
             $tpl = $smarty->createTemplate('tpl_body:'.$tpl_id);
             $body .= $tpl->fetch();
             unset($tpl);
-            HookManager::do_hook('Core::PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+            Events::SendEvent('Core', 'PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
 
             debug_buffer('process template head');
-            HookManager::do_hook('Core::PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+            Events::SendEvent('Core', 'PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
             $tpl = $smarty->createTemplate('tpl_head:'.$tpl_id);
             $head .= $tpl->fetch();
             unset($tpl);
-            HookManager::do_hook('Core::PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+            Events::SendEvent('Core', 'PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
 
             $html = $top.$head.$body;
         } else {
@@ -280,7 +281,7 @@ while ($trycount < 2) {
     }
 } // end while trycount
 
-HookManager::do_hook('Core::ContentPostRender', [ 'content' => &$html ]);
+Events::SendEvent('Core', 'ContentPostRender', [ 'content' => &$html ]);
 if (!headers_sent()) {
     $ct = $_app->get_content_type();
     header("Content-Type: $ct; charset=" . CmsNlsOperations::get_encoding());

@@ -14,8 +14,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
+use CMSMS\Events;
 
 final class news_admin_ops
 {
@@ -23,7 +23,7 @@ final class news_admin_ops
 
     public static function delete_article($articleid)
     {
-        \CMSMS\HookManager::do_hook('News::NewsArticleDeletedPre', ['news_id'=>$articleid ] );
+        Events::SendEvent( 'News', 'NewsArticleDeletedPre', ['news_id'=>$articleid ] );
 
         $db = cmsms()->GetDb();
 
@@ -47,7 +47,7 @@ final class news_admin_ops
         $module = cms_utils::get_search_module();
         if ($module != FALSE) $module->DeleteWords($mod->GetName(), $articleid, 'article');
 
-        \CMSMS\HookManager::do_hook('News::NewsArticleDeleted', ['news_id'=>$articleid ] );
+        Events::SendEvent( 'News', 'NewsArticleDeleted', ['news_id'=>$articleid ] );
 
         // put mention into the admin log
         audit($articleid, 'News: '.$articleid, 'Article deleted');
@@ -194,8 +194,5 @@ final class news_admin_ops
         }
         return trim($txt);
     }
-} // end of class
+} // class
 
-#
-# EOF
-#

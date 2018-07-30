@@ -57,7 +57,7 @@ if( is_object($search) ) {
 }
 
 $db->Execute($uquery,array($status,$articleid));
-\CMSMS\HookManager::do_hook('News::NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
+\CMSMS\Events::SendEvent( 'News', 'NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
 $this->SetMessage($this->Lang('msg_success'));
 $this->RedirectToAdminTab();
 ?>

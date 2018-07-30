@@ -15,6 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+use Search\ReindexCommand;
+
 include_once __DIR__ . '/PorterStemmer.class.php';
 
 define( "NON_INDEXABLE_CONTENT", "<!-- pageAttribute: NotSearchable -->" );
@@ -167,7 +170,7 @@ EOT;
         $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_index');
         $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
 
-        \CMSMS\HookManager::do_hook('Search::SearchAllItemsDeleted' );
+        Events::SendEvent( 'Search', 'SearchAllItemsDeleted' );
     }
 
     public function RegisterEvents()
@@ -225,11 +228,11 @@ EOT;
 
     public function get_cli_commands( $app )
     {
-        if( ! $app instanceof \CMSMS\CLI\App ) throw new \LogicException(__METHOD__.' Called from outside of cmscli');
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new \LogicException(__METHOD__.' Called from outside of cmscli');
+        if( ! $app instanceof \CMSMS\CLI\App ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
+        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
 
         $out = [];
-        $out[] = new \Search\ReindexCommand( $app );
+        $out[] = new ReindexCommand( $app );
         return $out;
     }
 

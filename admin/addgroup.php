@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -55,10 +57,10 @@ if (!empty($_POST['addgroup'])) {
 		$groupobj->name = $group;
 		$groupobj->description = $description;
 		$groupobj->active = $active;
-		\CMSMS\HookManager::do_hook('Core::AddGroupPre', [ 'group'=>&$groupobj ] );
+		Events::SendEvent( 'Core', 'AddGroupPre', [ 'group'=>&$groupobj ] );
 
 		if($groupobj->save()) {
-			\CMSMS\HookManager::do_hook('Core::AddGroupPost', [ 'group'=>&$groupobj ] );
+			Events::SendEvent( 'Core', 'AddGroupPost', [ 'group'=>&$groupobj ] );
 			// put mention into the admin log
 			audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
 			redirect('listgroups.php'.$urlext);

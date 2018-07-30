@@ -22,7 +22,7 @@ $db->Execute($query, array($catid));
 $query = "UPDATE ".CMS_DB_PREFIX."module_news SET news_category_id = -1 WHERE news_category_id = ?";
 $db->Execute($query, array($catid));
 
-\CMSMS\HookManager::do_hook('News::NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
+\CMSMS\Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
 audit($catid, 'News category: '.$catid, ' Category deleted');
 
 news_admin_ops::UpdateHierarchyPositions();

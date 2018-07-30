@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \CMSMS\HookManager;
+use CMSMS\Events;
 
 function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 {
@@ -25,11 +25,11 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 		switch ($result[0])	{
         case 'cms_stylesheet':
         case 'stylesheet':
-            HookManager::do_hook('Core::StylesheetPostCompile',array('stylesheet'=>&$tpl_output));
+            Events::SendEvent('Core', 'StylesheetPostCompile', ['stylesheet'=>&$tpl_output]);
             break;
 
         case "content":
-            HookManager::do_hook('Core::ContentPostCompile', array('content' => &$tpl_output));
+            Events::SendEvent('Core', 'ContentPostCompile', ['content' => &$tpl_output]);
             break;
 
         case 'cms_template':
@@ -37,7 +37,7 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
         case 'tpl_top':
         case 'tpl_body':
         case 'tpl_head':
-            HookManager::do_hook('Core::TemplatePostCompile',array('template'=>&$tpl_output,'type'=>$result[0]));
+            Events::SendEvent('Core', 'TemplatePostCompile', ['template'=>&$tpl_output,'type'=>$result[0]]);
         break;
 
         default:
@@ -45,8 +45,8 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 		}
 	}
 
-	HookManager::do_hook('Core::SmartyPostCompile', array('content' => &$tpl_output));
+	Events::SendEvent('Core', 'SmartyPostCompile', ['content' => &$tpl_output]);
 
 	return $tpl_output;
 }
-?>
+

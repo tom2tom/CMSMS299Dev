@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+
 if (!isset($_GET['group_id'])) {
     return;
 }
@@ -55,10 +57,10 @@ if ($groupobj) {
 	$group_name = $groupobj->name;
 
 	// now do the work
-	\CMSMS\HookManager::do_hook('Core::DeleteGroupPre', [ 'group'=>&$groupobj ] );
+	Events::SendEvent('Core', 'DeleteGroupPre', [ 'group'=>&$groupobj ] );
 
 	if ($groupobj->Delete()) {
-		\CMSMS\HookManager::do_hook('Core::DeleteGroupPost', [ 'group'=>&$groupobj ] );
+		Events::SendEvent('Core', 'DeleteGroupPost', [ 'group'=>&$groupobj ] );
 		// put mention into the admin log
 		audit($group_id, 'Admin User Group: '.$group_name, 'Deleted');
 	} else {

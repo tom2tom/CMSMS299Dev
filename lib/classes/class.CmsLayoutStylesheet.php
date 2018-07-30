@@ -1,5 +1,5 @@
 <?php
-#Classes and utilities for working with LayoutStylesheet's
+#Classes and utilities for working with LayoutStylesheets
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2013-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,7 +19,7 @@
 //namespace CMSMS;
 
 use CMSMS\AdminUtils;
-use CMSMS\HookManager;
+use CMSMS\Events;
 use CMSMS\internal\TemplateCache;
 //use function \endswith;
 
@@ -535,14 +535,14 @@ class CmsLayoutStylesheet
 	public function save()
 	{
 		if( $this->get_id() ) {
-			HookManager::do_hook('Core::EditStylesheetPre',[get_class($this)=>&$this]);
+			Events::SendEvent('Core', 'EditStylesheetPre',[get_class($this)=>&$this]);
 			$this->_update();
-			HookManager::do_hook('Core::EditStylesheetPost',[get_class($this)=>&$this]);
+			Events::SendEvent('Core', 'EditStylesheetPost',[get_class($this)=>&$this]);
 			return;
 		}
-		HookManager::do_hook('Core::AddStylesheetPre',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'AddStylesheetPre',[get_class($this)=>&$this]);
 		$this->_insert();
-		HookManager::do_hook('Core::AddStylesheetPost',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'AddStylesheetPost',[get_class($this)=>&$this]);
 	}
 
    /**
@@ -556,7 +556,7 @@ class CmsLayoutStylesheet
 	{
 		if( !$this->get_id() ) return;
 
-		HookManager::do_hook('Core::DeleteStylesheetPre',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'DeleteStylesheetPre',[get_class($this)=>&$this]);
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?';
 		$dbr = $db->Execute($query,[$this->get_id()]);
@@ -569,7 +569,7 @@ class CmsLayoutStylesheet
 		TemplateCache::clear_cache();
 		cms_notice('Stylesheet '.$this->get_name().' Deleted');
 		// Events::SendEvent('Core','DeleteStylesheetPost',array(get_class($this)=>&$this));
-		HookManager::do_hook('Core::DeleteStylesheetPost',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class($this)=>&$this]);
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}

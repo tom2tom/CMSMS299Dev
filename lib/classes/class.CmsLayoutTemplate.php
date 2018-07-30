@@ -18,7 +18,7 @@
 //namespace CMSMS;
 
 use CMSMS\AdminUtils;
-use CMSMS\HookManager;
+use CMSMS\Events;
 use CMSMS\internal\Smarty;
 use CMSMS\internal\TemplateCache;
 use CMSMS\User;
@@ -859,14 +859,14 @@ class CmsLayoutTemplate
 	public function save()
 	{
 		if( $this->get_id() ) {
-			HookManager::do_hook('Core::EditTemplatePre', [ get_class($this) => &$this ] );
+			Events::SendEvent( 'Core', 'EditTemplatePre', [ get_class($this) => &$this ] );
 			$this->_update();
-			HookManager::do_hook('Core::EditTemplatePost', [ get_class($this) => &$this ] );
+			Events::SendEvent( 'Core', 'EditTemplatePost', [ get_class($this) => &$this ] );
 			return;
 		}
-		HookManager::do_hook('Core::AddTemplatePre', [ get_class($this) => &$this ] );
+		Events::SendEvent( 'Core', 'AddTemplatePre', [ get_class($this) => &$this ] );
 		$this->_insert();
-		HookManager::do_hook('Core::AddTemplatePost', [ get_class($this) => &$this ] );
+		Events::SendEvent( 'Core', 'AddTemplatePost', [ get_class($this) => &$this ] );
 	}
 
    /**
@@ -876,7 +876,7 @@ class CmsLayoutTemplate
 	{
 		if( !$this->get_id() ) return;
 
-		HookManager::do_hook('Core::DeleteTemplatePre', [ get_class($this) => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteTemplatePre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
 		$db->Execute($query,[$this->get_id()]);
@@ -888,7 +888,7 @@ class CmsLayoutTemplate
 
 		TemplateCache::clear_cache();
 		audit($this->get_id(),'CMSMS','Template '.$this->get_name().' Deleted');
-		HookManager::do_hook('Core::DeleteTemplatePost', [ get_class($this) => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteTemplatePost', [ get_class($this) => &$this ] );
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}

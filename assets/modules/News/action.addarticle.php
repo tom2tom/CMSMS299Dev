@@ -211,7 +211,7 @@ if (isset($params['submit'])) {
         }
 
         if (!$error) {
-            \CMSMS\HookManager::do_hook('News::NewsArticleAdded',
+            \CMSMS\Events::SendEvent('News', 'NewsArticleAdded',
                                         ['news_id' => $articleid,
                                               'category_id' => $usedcategory,
                                               'title' => $title,

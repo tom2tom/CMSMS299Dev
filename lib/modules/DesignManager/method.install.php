@@ -17,7 +17,6 @@
 
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\HookManager;
 
 if (!isset($gCms)) {
     exit;
@@ -35,9 +34,9 @@ $group = new Group();
 $group->name = 'Designer';
 $group->description = $this->Lang('group_desc');
 $group->active = 1;
-HookManager::do_hook('Core::AddGroupPre', ['group'=>&$group]);
+Events::SendEvent('Core', 'AddGroupPre', ['group'=>&$group]);
 $group->Save();
-HookManager::do_hook('Core::AddGroupPost', ['group'=>&$group]);
+Events::SendEvent('Core', 'AddGroupPost', ['group'=>&$group]);
 
 $group->GrantPermission('Add Templates');
 $group->GrantPermission('Manage All Content'); //CHECKME ContentManager race when 1st installing?

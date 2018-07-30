@@ -16,7 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //namespace CMSMS;
-use \CMSMS\HookManager;
+use \CMSMS\Events;
 use \CMSMS\internal\TemplateCache;
 
 /**
@@ -458,14 +458,14 @@ class CmsLayoutTemplateType
 	public function save()
 	{
 		if( !$this->get_id() ) {
-			HookManager::do_hook('Core::AddTemplateTypePre', [ get_class($this) => &$this ]);
+			Events::SendEvent('Core', 'AddTemplateTypePre', [ get_class($this) => &$this ]);
 			$this->_insert();
-			HookManager::do_hook('Core::AddTemplateTypePost', [ get_class($this) => &$this ]);
+			Events::SendEvent('Core', 'AddTemplateTypePost', [ get_class($this) => &$this ]);
 			return;
 		}
-		HookManager::do_hook('Core::EditTemplateTypePre', [ get_class($this) => &$this ]);
+		Events::SendEvent('Core', 'EditTemplateTypePre', [ get_class($this) => &$this ]);
 		$this->_update();
-		HookManager::do_hook('Core::EditTemplateTypePost', [ get_class($this) => &$this ]);
+		Events::SendEvent('Core', 'EditTemplateTypePost', [ get_class($this) => &$this ]);
 	}
 
 	/**
@@ -489,7 +489,7 @@ class CmsLayoutTemplateType
 	{
 		if( !$this->get_id() ) return;
 
-		HookManager::do_hook('Core::DeleteTemplateTypePre', [ get_class($this) => &$this ]);
+		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = CmsLayoutTemplate::template_query(array('t:'.$this->get_id()));
 		if( is_array($tmp) && count($tmp) ) throw new CmsInvalidDataException('Cannot delete a template type with existing templates');
 		$db = CmsApp::get_instance()->GetDb();
@@ -500,7 +500,7 @@ class CmsLayoutTemplateType
 		$this->_dirty = TRUE;
 		TemplateCache::clear_cache();
 		audit($this->get_id(),'CMSMS','Template Type '.$this->get_name().' Deleted');
-		HookManager::do_hook('Core::DeleteTemplateTypePost', [ get_class($this) => &$this ]);
+		Events::SendEvent('Core', 'DeleteTemplateTypePost', [ get_class($this) => &$this ]);
 		unset($this->_data['id']);
 	}
 

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\HookManager;
+use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
 use CMSMS\User;
 
@@ -90,7 +90,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
     $userops = $gCms->GetUserOperations();
     $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_STRING);
     unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
-    HookManager::do_hook('Core::LostPassword', [ 'username'=>$forgot_username]);
+    Events::SendEvent('Core', 'LostPassword', [ 'username'=>$forgot_username]);
     $oneuser = $userops->LoadUserByUsername($forgot_username);
     unset($_REQUEST['loginsubmit'],$_POST['loginsubmit']);
 
@@ -105,7 +105,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
         }
     } else {
         unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
-        HookManager::do_hook('Core::LoginFailed', [ 'user'=>$forgot_username ] );
+        Events::SendEvent('Core', 'LoginFailed', [ 'user'=>$forgot_username ] );
         $error = lang('usernotfound');
     }
 } elseif (!empty($_REQUEST['recoverme'])) {
@@ -140,7 +140,7 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
              // put mention into the admin log
              $ip_passw_recovery = cms_utils::get_real_ip();
              audit('','Core','Completed lost password recovery for: '.$user->username.' (IP: '.$ip_passw_recovery.')');
-             HookManager::do_hook('Core::LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ]);
+             Events::SendEvent('Core', 'LostPasswordReset', [ 'uid'=>$user->id, 'username'=>$user->username, 'ip'=>$ip_passw_recovery ]);
              $message = lang('passwordchangedlogin');
              $changepwhash = '';
          } else {
@@ -161,9 +161,9 @@ if (isset($_SESSION['logout_user_now'])) {
     debug_buffer("Logging out.  Cleaning cookies and session variables.");
     $userid = $login_ops->get_loggedin_uid();
     $username = $login_ops->get_loggedin_username();
-    HookManager::do_hook('Core::LogoutPre', [ 'uid'=>$userid, 'username'=>$username ] );
+    Events::SendEvent('Core', 'LogoutPre', [ 'uid'=>$userid, 'username'=>$username ] );
     $login_ops->deauthenticate(); // unset all the cruft needed to make sure we're logged in.
-    HookManager::do_hook('Core::LogoutPost', [ 'uid'=>$userid, 'username'=>$username ] );
+    Events::SendEvent('Core', 'LogoutPost', [ 'uid'=>$userid, 'username'=>$username ] );
     audit($userid, "Admin Username: ".$username, 'Logged Out');
 }
 
@@ -196,7 +196,7 @@ if (isset($_POST['cancel'])) {
 
         // send the post login event
         unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
-        HookManager::do_hook('Core::LoginPost', [ 'user'=>&$oneuser ]);
+        Events::SendEvent('Core', 'LoginPost', [ 'user'=>&$oneuser ]);
 
         // redirect outa hre somewhere
         if( isset($_SESSION['login_redirect_to']) ) {
@@ -236,7 +236,7 @@ if (isset($_POST['cancel'])) {
         $error = $e->GetMessage();
         debug_buffer("Login failed.  Error is: " . $error);
         unset($_POST['password'],$_REQUEST['password']);
-        HookManager::do_hook('Core::LoginFailed', [ 'user'=>$_POST['username'] ] );
+        Events::SendEvent('Core', 'LoginFailed', [ 'user'=>$_POST['username'] ] );
         // put mention into the admin log
         $ip_login_failed = cms_utils::get_real_ip();
         audit('', '(IP: ' . $ip_login_failed . ') ' . "Admin Username: " . $username, 'Login Failed');

@@ -62,7 +62,7 @@ if( isset($params['delete']) ) {
     $parms = array('file'=>$fn);
     if( $thumb ) $parms['thumb'] = $thumb;
     audit('',"File Manager", "Removed file: ".$fn);
-    \CMSMS\HookManager::do_hook('FileManager::OnFileDeleted', $parms );
+    CMSMS\Events::SendEvent( 'FileManager', 'OnFileDeleted', $parms );
   } // foreach
 
   if( count($errors) == 0 ) {

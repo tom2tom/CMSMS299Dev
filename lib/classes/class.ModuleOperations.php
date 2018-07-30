@@ -274,7 +274,7 @@ final class ModuleOperations
 			$gCms->clear_cached_files();
 
 			cms_notice('Installed module '.$module_obj->GetName().' version '.$module_obj->GetVersion());
-			HookManager::do_hook('Core::ModuleInstalled', [ 'name' => $module_obj->GetName(), 'version' => $module_obj->GetVersion() ] );
+			Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_obj->GetName(), 'version' => $module_obj->GetVersion() ] );
 			return array(TRUE,$module_obj->InstallPostMessage());
 		}
 
@@ -459,7 +459,7 @@ final class ModuleOperations
         }
 
 		// we're all done.
-		HookManager::do_hook('Core::ModuleLoaded', [ 'name' => $module_name ] );
+		Events::SendEvent( 'Core', 'ModuleLoaded', [ 'name' => $module_name ] );
 		return TRUE;
 	}
 
@@ -575,7 +575,7 @@ final class ModuleOperations
 			$this->_moduleinfo = array();
 			$gCms->clear_cached_files();
 			cms_notice('Upgraded module '.$module_obj->GetName().' to version '.$module_obj->GetVersion());
-			HookManager::do_hook('Core::ModuleUpgraded', [ 'name' => $module_obj->GetName(), 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
+			Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_obj->GetName(), 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
 			return array(TRUE);
 		}
 
@@ -674,7 +674,7 @@ final class ModuleOperations
 			$this->_moduleinfo = array();
 
 			cms_notice('Uninstalled module '.$module);
-			HookManager::do_hook('Core::ModuleUninstalled', [ 'name' => $module ] );
+			Events::SendEvent( 'Core', 'ModuleUninstalled', [ 'name' => $module ] );
 			return array(TRUE);
 		}
 
@@ -720,13 +720,13 @@ final class ModuleOperations
 			$info[$module_name]['active'] = 0;
 		}
 		if( $info[$module_name]['active'] != $o_state ) {
-			HookManager::do_hook( 'Core::BeforeModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
+			Events::SendEvent( 'Core', 'BeforeModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
 			$dbr = $db->Execute($query,array($info[$module_name]['active'],$module_name));
 			$this->_moduleinfo = array();
 			cmsms()->clear_cached_files();
-			HookManager::do_hook( 'Core::AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
+			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			if( $activate ) {
 				cms_notice("Module $module_name activated");
 			}

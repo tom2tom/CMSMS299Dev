@@ -1,5 +1,5 @@
 <?php
-#procedure to add a backend user
+#procedure to add an admin user
 #Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,6 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+use CMSMS\Events;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -88,12 +90,12 @@ if (isset($_POST['submit'])) {
         $newuser->adminaccess = $adminaccess;
         $newuser->SetPassword($password);
 
-        \CMSMS\HookManager::do_hook('Core::AddUserPre', [ 'user'=>&$newuser ] );
+        Events::SendEvent( 'Core', 'AddUserPre', [ 'user'=>&$newuser ] );
 
         $result = $newuser->save();
 
         if ($result) {
-            \CMSMS\HookManager::do_hook('Core::AddUserPost', [ 'user'=>&$newuser ] );
+            Events::SendEvent( 'Core', 'AddUserPost', [ 'user'=>&$newuser ] );
 
             // set some default preferences, based on the user creating this user
             $adminid = get_userid();

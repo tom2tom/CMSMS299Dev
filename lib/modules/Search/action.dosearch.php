@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\Events;
+
 if (!isset($gCms)) exit;
 
 class SearchItemCollection
@@ -80,7 +83,7 @@ if ($params['searchinput'] != '') {
     // Fix to prevent XSS like behavior. See: http://www.securityfocus.com/archive/1/455417/30/0/threaded
 //    $params['searchinput'] = cms_html_entity_decode($params['searchinput'],ENT_COMPAT,'UTF-8');
 //    $params['searchinput'] = strip_tags($params['searchinput']);
-    \CMSMS\HookManager::do_hook('Search::SearchInitiated', [ trim($params['searchinput'])] );
+    Events::SendEvent( 'Search', 'SearchInitiated', [ trim($params['searchinput'])] );
 
     $searchstarttime = microtime(true);
 
@@ -239,7 +242,7 @@ WHERE (".$searchphrase.") AND (i.expires IS NULL OR i.expires >= NOW())";
     }
     $col->_ary = $newresults;
 
-    \CMSMS\HookManager::do_hook( 'Search::SearchCompleted', [ &$params['searchinput'], &$col->_ary ] );
+    Events::SendEvent( 'Search', 'SearchCompleted', [ &$params['searchinput'], &$col->_ary ] );
 
     $tpl_ob->assign('searchwords',$words);
     $tpl_ob->assign('results', $col->_ary);

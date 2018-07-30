@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+
 if (!isset($_GET['user_id'])) {
     return;
 }
@@ -42,12 +44,12 @@ if ($user_id != $cur_userid) {
         $oneuser = $userops->LoadUserByID($user_id);
         $user_name = $oneuser->username;
 
-        \CMSMS\HookManager::do_hook('Core::DeleteUserPre', ['user'=>&$oneuser] );
+        Events::SendEvent( 'Core', 'DeleteUserPre', ['user'=>&$oneuser] );
 
 		if ($oneuser->Delete()) {
 	        cms_userprefs::remove_for_user($user_id);
 
-	        \CMSMS\HookManager::do_hook('Core::DeleteUserPost', ['user'=>&$oneuser] );
+	        Events::SendEvent( 'Core', 'DeleteUserPost', ['user'=>&$oneuser] );
 
 	        // put mention into the admin log
 	        audit($user_id, 'Admin User: '.$user_name, 'Deleted');

@@ -17,7 +17,6 @@
 
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\HookManager;
 
 if (!isset($gCms)) {
     exit;
@@ -26,9 +25,9 @@ if (!isset($gCms)) {
 $group = new Group();
 $group->name = 'Editor';
 try {
-    HookManager::do_hook('Core::DeleteGroupPre', ['group' => &$group]);
+    Events::SendEvent('Core', 'DeleteGroupPre', ['group' => &$group]);
     if ($group->Delete()) {
-        HookManager::do_hook('Core::DeleteGroupPost', ['group' => &$group]);
+        Events::SendEvent('Core', 'DeleteGroupPost', ['group' => &$group]);
     }
 } catch (Exception $e) {
 }

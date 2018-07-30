@@ -15,8 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
 use CMSMS\GroupOperations;
-use CMSMS\HookManager;
 use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
 
@@ -147,7 +147,7 @@ if (isset($_POST['submit'])) {
 
     if( !empty($password) ) {
         try {
-            HookManager::do_hook('Core::PasswordStrengthTest', $password );
+            Events::SendEvent('Core', 'PasswordStrengthTest', $password );
         }
         catch( Exception $e ) {
             $validinfo = false;
@@ -177,7 +177,7 @@ if (isset($_POST['submit'])) {
                 $thisuser->SetPassword($password);
             }
 
-            HookManager::do_hook('Core::EditUserPre', [ 'user'=>&$thisuser ] );
+            Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$thisuser ] );
 
             $result = $thisuser->save();
             if ($assign_group_perm && isset($_POST['groups'])) {
@@ -218,7 +218,7 @@ if (isset($_POST['submit'])) {
             }
 
             // put mention into the admin log
-            HookManager::do_hook('Core::EditUserPost', [ 'user'=>&$thisuser ] );
+            Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$thisuser ] );
             $gCms->clear_cached_files();
             $url = 'listusers.php?' . $urlext;
             if ($message) {

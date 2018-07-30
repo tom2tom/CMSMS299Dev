@@ -257,7 +257,7 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template
 		$_contents = preg_replace('/(\w*?background.*?\:\w*?).*?(;.*?)/', '', $_contents);
 	}
 
-    \CMSMS\HookManager::do_hook('Core::StylesheetPostRender', [ 'content' => &$_contents ] );
+    \CMSMS\Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
 
 	// Write file
 	$fh = fopen($filename,'w');

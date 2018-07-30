@@ -20,7 +20,7 @@ namespace ModuleManager\Command;
 use cms_utils;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
-use CMSMS\HookManager;
+use CMSMS\Events;
 use GetOpt\Operand;
 use ModuleManager\operations;
 use RuntimeException;
@@ -42,14 +42,14 @@ class ModuleImportCommand extends Command
 
         $moma = cms_utils::get_module('ModuleManager');
         $ops = new operations($moma);
-        HookManager::do_hook('ModuleManager::BeforeModuleImport', [ 'file'=>$filename ] );
+        Events::SendEvent( 'ModuleManager', 'BeforeModuleImport', [ 'file'=>$filename ] );
 		try {
 	        expand_xml_package( $filename, true, false );
 		} catch (Exception $e) {
 	        audit('',$moma->GetName(),'Module import failed: '.$filename,', '.$e->GetMessage());
 			return;
 		}
-        HookManager::do_hook('ModuleManager::AfterModuleImport', [ 'file'=>$filename ] );
+        Events::SendEvent( 'ModuleManager', 'AfterModuleImport', [ 'file'=>$filename ] );
 
         audit('',$moma->GetName(),'Imported module from '.$filename);
         echo "Imported: $filename\n";

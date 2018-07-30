@@ -17,8 +17,9 @@
 
 namespace CMSMS;
 
-use CMSMS\HookManager;
-use const CMS_SCRIPTS_PATH, TMP_CACHE_LOCATION;
+use const CMS_SCRIPTS_PATH;
+use const TMP_CACHE_LOCATION;
+use function file_put_contents;
 use function startswith;
 
 //TODO a job to clear old consolidations ? how old ?
@@ -106,7 +107,7 @@ class ScriptManager
             'mtime' => filemtime( $filename ),
             'priority' => $priority,
             'index' => count( $this->_scripts )
-            ];
+        ];
     }
 
     /**
@@ -132,7 +133,7 @@ class ScriptManager
             $this->queue_file( $defer_script, 3 );
         }
 
-        $tmp = HookManager::do_hook( 'Core::PreProcessScripts', $this->_scripts );
+        $tmp = Events::SendEvent( 'Core', 'PreProcessScripts', $this->_scripts );
         $scripts = ( $tmp ) ? $tmp : $this->_scripts;
 
 		if( $scripts ) {
@@ -159,7 +160,7 @@ class ScriptManager
 						$content = @file_get_contents( $rec['file'] );
 						if( $content ) $output .= $content."\n\n";
 					}
-					$tmp = HookManager::do_hook( 'Core::PostProcessScripts', $output );
+					$tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $output );
 					if( $tmp ) $output = $tmp;
 					file_put_contents( $output_file, $output, LOCK_EX );
 				}
@@ -171,7 +172,7 @@ class ScriptManager
 				}
 				$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
 			    if( $force || !is_file($output_file) || filemtime($output_file) <  filemtime($rec['file']) ) {
-//					$tmp = HookManager::do_hook( 'Core::PostProcessScripts', $X );
+//					$tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $X );
 //			        if( $tmp ) $X = $tmp;
 					@copy($rec['file'], $output_file); //maybe does nothing
 				}
