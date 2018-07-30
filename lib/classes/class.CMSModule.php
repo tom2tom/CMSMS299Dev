@@ -2808,22 +2808,25 @@ abstract class CMSModule
 
     /**
      * An event that this module is listening to has occurred, and should be handled.
-     * This method must be over-ridden if this module is capable of handling events.
+     * This method must be over-ridden if this module is capable of handling events
      * of any type.
      *
-     * The default behavior of this method is to check for a function called event.<originator>.<eventname>.php
-     * in the module directory, and if this file exists it, include it to handle the event.
-     *
+     * The default behavior of this method is to check for a file named
+	 *  event.<originator>.<eventname>.php
+     * in the module directory, and if such file exists it, include it to handle
+	 * the event. Variables $gCms, $db, $config and (global) $smarty are in-scope
+	 * for the inclusion.
+	 *
      * @abstract
-     * @param string $originator The name of the originating module
+     * @param string $originator The name of the originating module, or 'Core'
      * @param string $eventname The name of the event
      * @param array  $params Parameters to be provided with the event.
      * @return bool
      */
     public function DoEvent($originator, $eventname, &$params)
     {
-        if ($originator != '' && $eventname != '') {
-            $filename = $this->GetModulePath().'/event.' . $originator . "." . $eventname . '.php';
+        if ($originator && $eventname) {
+            $filename = $this->GetModulePath().'/event.' . $originator . '.' . $eventname . '.php';
 
             if (@is_file($filename)) {
                 $gCms = CmsApp::get_instance();
@@ -2835,9 +2838,8 @@ abstract class CMSModule
         }
     }
 
-
     /**
-     * Get a (langified) description for an event this module created.
+     * Get a (translated) description of an event this module created.
      * This method must be over-ridden if this module created any events.
      *
      * @abstract
