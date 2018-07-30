@@ -15,10 +15,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\HookManager;
+
 function smarty_function_gather_content($params, $template)
 {
     $listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';
-    $aout = \CMSMS\HookManager::do_hook($listname, []);
+    $aout = HookManager::do_hook_all($listname, []);
     $out = ($aout) ? implode("\n", $aout) : '';
 
     if (isset($params['assign'])) {

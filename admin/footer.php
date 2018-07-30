@@ -111,7 +111,7 @@ if (is_array($list) && count($list)) {
     }
 }
 
-$add_list = \CMSMS\HookManager::do_hook('AdminBottomSetup', []);
+$add_list = \CMSMS\HookManager::do_hook_all('AdminBottomSetup', []);
 if ($add_list) {
     $themeObject->add_footertext(implode("\n",$add_list));
 }
