@@ -3,17 +3,17 @@
 #Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is part of CMS Made Simple <http://cmsmadesimple.org>
 #
-#This file is free software. You can redistribute it and/or modify
+#This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
-#the Free Software Foundation, either version 2 of the License, or
+#the Free Software Foundation; either version 2 of the License, or
 #(at your option) any later version.
 #
-#This file is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY, without even the implied warranty of
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
 #MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
-#along with this file. If not, write to the Free Software
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
 
@@ -324,6 +324,45 @@ EOS;
         $smarty = $template = $args[1];
 
         include_once $fp;
+    }
+
+    /**
+     * If a simple-plugin corresponding to $name exists, 'call' (i.e. include) it
+     *
+     * @param string $name plugin identifier (as used in tags)
+     * @param array  $args Optional parameters provided by the caller
+     */
+    public function call_plugin(string $name, array $args = [])
+    {
+        $fp = $this->file_path( $name );
+        if( is_file($fp) ) {
+            include_once $fp;
+        }
+    }
+
+    /**
+     * If a simple-plugin corresponding to $name exists, include it to handle an event
+     * identified by $eventname and $originator.
+     * Variables $gCms, $db, $config and (global) $smarty are in-scope for the inclusion.
+	 *
+     * @param string $name plugin identifier (as used in tags)
+     * @param string $originator The name of the event originator, a module-name or 'Core'
+     * @param string $eventname The name of the event
+     * @param array  $params Event parameters provided by the originator
+     * @return bool
+     */
+    public function DoEvent(string $name, string $originator, string $eventname, array &$params)
+    {
+        if ($originator && $eventname) {
+            $fp = $this->file_path( $name );
+            if( is_file($fp) ) {
+                $gCms = CmsApp::get_instance();
+                $db = $gCms->GetDb();
+                $config = $gCms->GetConfig();
+                $smarty = $gCms->GetSmarty();
+                include_once $fp;
+            }
+        }
     }
 } // class
 
