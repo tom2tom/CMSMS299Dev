@@ -169,7 +169,7 @@ if ($action == 'showpluginhelp') {
 
             include_once $onefile;
 
-            $rec['cachable'] = !($rec['admin'] || function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name'])); //TODO
+//TODO            $rec['cachable'] = !($rec['admin'] || function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']));
 
             // leave smarty_nocache for compatibility for a while ?? TODO
             if (!(function_exists('smarty_'.$rec['type'].'_'.$rec['name']) ||
