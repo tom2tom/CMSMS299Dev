@@ -73,7 +73,7 @@ EOS;
 
 	/**
 	 * Remove an event from the system.
-	 * This removes the event itself, and all event-handlers
+	 * This removes the event itself, and all handlers of the event
 	 *
 	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
@@ -217,7 +217,7 @@ EOS;
 	}
 
 	/**
-	 * Get a list of all recorded events.
+	 * Get a list of all recorded events
 	 *
 	 * @return mixed array or false
 	 */
@@ -227,7 +227,7 @@ EOS;
 
 		$pref = CMS_DB_PREFIX;
 		$q = <<<EOS
-SELECT e.*, count(eh.event_id) AS usage_count FROM {$pref}events e
+SELECT e.*, COUNT(eh.event_id) AS usage_count FROM {$pref}events e
 LEFT OUTER JOIN {$pref}event_handlers eh ON e.event_id=eh.event_id
 GROUP BY e.event_id
 ORDER BY originator,event_name
@@ -237,8 +237,9 @@ EOS;
 
 		$result = [];
 		while( $row = $dbresult->FetchRow() ) {
-			if( $row['originator'] !== 'Core' && !cms_utils::module_available($row['originator']) ) continue;
-			$result[] = $row;
+			if( $row['originator'] == 'Core' || cms_utils::module_available($row['originator']) ) {
+				$result[] = $row;
+			}
 		}
 		return $result;
 	}
