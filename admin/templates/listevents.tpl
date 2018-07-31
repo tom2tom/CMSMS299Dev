@@ -2,17 +2,16 @@
 <h4>{lang('filterbymodule')}</h4>
 <form action="{$selfurl}{$urlext}" method="post">
   <div class="oneliner cf">
-  <select name="modulefilter">
+  <select name="senderfilter">
    <option value="{lang('showall')}"</option>
-   {foreach $modlist as $one}
-    <option value="{$one}"{if $one == $modulefilter} selected="selected"{/if}>{$one}</option>
+   {foreach $senders as $one}
+    <option value="{$one}"{if $one == $senderfilter} selected="selected"{/if}>{$one}</option>
    {/foreach}
   </select>
   <button type="submit" name="submit" class="adminsubmit icon do">{lang('submit')}</button>
   </div>
 </form>
 <br />
-{/if}
 <table class="pagetable">
   <thead>
     <tr>
@@ -29,32 +28,34 @@
   <tbody>
     <tr class="{cycle values='row1,row2'}">
       {strip}
-      {foreach $events as $one} {if !$modulefilter || $modulefilter == $one->originator}
+      {foreach $events as $one} {if !$senderfilter || $senderfilter == $one.originator}
+      <td>{$one.originator}</td>
       <td>
        {if $access}
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;module={$one->originator}&amp;event={$one->event_name}" title="{lang('edit')}">{$one->event_name}</a>
+        <a href="{$editurl}{$urlext}&amp;action=edit&amp;module={$one.originator}&amp;event={$one.event_name}" title="{lang('edit')}">{$one.event_name}</a>
        {else}
-        {$one->event_name}
+        {$one.event_name}
        {/if}
       </td>
-      <td>{$one->event_source}</td>
       <td>
-       {if $one->usage_count > 0}
-        <a href="{$helpurl}{$urlext}&amp;module={$one->originator}&amp;event={$one->event_name}" title="{lang('help')}">{$one->usage_count}</a>
+       {if $one.usage_count > 0}
+        <a href="{$helpurl}{$urlext}&amp;module={$one.originator}&amp;event={$one.event_name}" title="{lang('help')}">{$one.usage_count}</a>
        {/if}
       </td>
-      <td>{$one->description}</td>
+      <td>{$one.description}</td>
       <td class="icons_wide">
-        <a href="{$helpurl}{$urlext}&amp;module={$one->originator}&amp;event={$one->event_name}">{$iconinfo}</a>
+        <a href="{$helpurl}{$urlext}&amp;module={$one.originator}&amp;event={$one.event_name}">{$iconinfo}</a>
       </td>
       {if $access}
       <td class="icons_wide">
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;module={$one->originator}&amp;event={$one->event_name}">{$iconedit}</a>
+        <a href="{$editurl}{$urlext}&amp;action=edit&amp;module={$one.originator}&amp;event={$one.event_name}">{$iconedit}</a>
       </td>
       {/if}
-      {/if}
-      {/foreach}
+      {/if} {/foreach}
 {/strip}
     </tr>
   </tbody>
 </table>
+{else}
+{lang('none')}
+{/if}
