@@ -4,7 +4,7 @@
     <input type="hidden" name="event" value="{$event}" />
   </div>
   <div class="pageoverflow">
-    <p class="pagetext">{lang('module_name')}:</p>
+    <p class="pagetext">{lang('originator')}:</p>
     <p class="pageinput">{$modulename}</p>
   </div>
   <div class="pageoverflow">
@@ -16,18 +16,18 @@
     <p class="pageinput">{$description}</p>
   </div>
   <br />
+{if $handlers}
   <table class="pagetable">
   <thead>
     <tr>
       <th>{lang('order')}</th>
-      <th>{lang('user_tag')}</th>
+      <th>{lang('handler')}</th>
       <th>{lang('module')}</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
     </tr>
   </thead>
-{if $handlers}
   <tbody>{foreach $handlers as $one}
     <tr class="{cycle values='row1,row2'}">
       {strip}
@@ -52,8 +52,9 @@
 {/strip}
     </tr>
   {/foreach}</tbody>
-{/if}
   </table>
+{/if}
+  
 {if $allhandlers}
   <br />
   <select name="handler">
@@ -63,7 +64,6 @@
   </select>
 {/if}
   <div class="pageinput pregap">
-    TODO why add when editing
     <button type="submit" name="create" class="adminsubmit icon add">{lang('add')}</button>
   </div>
 </form>
