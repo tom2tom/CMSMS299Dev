@@ -24,7 +24,8 @@ $CMS_MODULE_PAGE=1;
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
-//for async DEBUG define('ASYNCLOG', dirname(__DIR__).DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'async'.DIRECTORY_SEPARATOR.'debug.log');
+//for async DEBUG
+define('ASYNCLOG', dirname(__DIR__).DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.'async'.DIRECTORY_SEPARATOR.'debug.log');
 
 if (isset($_REQUEST['cmsjobtype'])) {
     // for simplicity and compatibility with the frontend
