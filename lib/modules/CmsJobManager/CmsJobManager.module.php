@@ -15,9 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \CMSMS\Async\Job, \CMSMS\Async\CronJobTrait, \CMSMS\HookManager;
+use CmsJobManager\JobQueue;
+use CmsJobManager\utils;
+use CMSMS\Async\Job;
+use CMSMS\Async\JobManagerInterface;
+use CMSMS\Async\RegularTask;
+use CMSMS\HookManager;
+use CMSMS\ModuleOperations;
 
-final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerInterface
+final class CmsJobManager extends CMSModule implements JobManagerInterface
 {
     const LOCKPREF = 'lock';
     const ASYNCFREQ_PREF = 'asyncfreq';
@@ -39,21 +45,21 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     public static function table_name() { return CMS_DB_PREFIX.'mod_cmsjobmgr'; }
 
-    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
-    public function GetVersion() { return '0.3'; }
-    public function MinimumCMSVersion() { return '2.1.99'; }
-    public function GetAuthor() { return 'Robert Campbell'; }
-    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
-    public function IsPluginModule() { return TRUE; }
-    public function HasAdmin() { return TRUE; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'siteadmin'; }
-    public function IsAdminOnly()  { return TRUE; }
-    public function LazyLoadFrontend() { return FALSE; }
-    public function LazyLoadAdmin() { return FALSE; }
-    public function VisibleToAdminUser() { return $this->CheckPermission(self::MANAGE_JOBS); }
+    public function GetAuthor() { return 'Robert Campbell'; }
+    public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
+    public function GetVersion() { return '0.3'; }
     public function HandlesEvents() { return TRUE; }
+    public function HasAdmin() { return TRUE; }
+    public function IsAdminOnly()  { return TRUE; }
+//    public function IsPluginModule() { return TRUE; }
+    public function LazyLoadAdmin() { return TRUE; }
+    public function LazyLoadFrontend() { return TRUE; }
+    public function MinimumCMSVersion() { return '2.1.99'; }
+    public function VisibleToAdminUser() { return $this->CheckPermission(self::MANAGE_JOBS); }
 
     public function DoEvent($originator, $eventname, &$params)
     {
@@ -61,7 +67,8 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             switch ($eventname) {
                 case 'ModuleInstalled':
                 case 'ModuleUninstalled':
-                    $this->refresh_jobs(); // or create_jobs_from_eligible_tasks();
+                case 'ModuleUpgraded':
+                    $this->check_for_jobs_or_tasks(TRUE);
             }
         }
         parent::DoEvent($originator, $eventname, $params);
@@ -100,7 +107,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     protected function set_current_job($job = null)
     {
-        if (!is_null($job) && !$job instanceof \CMSMS\Async\Job) throw new \InvalidArgumentException('Invalid data passed to '.__METHOD__);
+        if (!is_null($job) && !$job instanceof Job) throw new InvalidArgumentException('Invalid data passed to '.__METHOD__);
         $this->_current_job = $job;
     }
 
@@ -113,7 +120,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     protected function lock_expired()
     {
         $this->_lock = (int) $this->GetPreference(self::LOCKPREF);
-        if ($this->_lock && $this->_lock < time() - \CmsJobManager\utils::get_async_freq()) return TRUE;
+        if ($this->_lock && $this->_lock < time() - utils::get_async_freq()) return TRUE;
         return FALSE;
     }
 
@@ -129,12 +136,16 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         $this->RemovePreference(self::LOCKPREF);
     }
 
+    /* 'deep' checks occur upon:
+     * any module change (per $this->DoEvent())
+     * any system uprade - TODO initiated how ?
+     * 12-hourly signature-check of <root>/lib/tasks dir (per WatchTasks task)
+     */
     protected function check_for_jobs_or_tasks($deep)
     {
-        //TODO refine this algorithm
         if (!$deep) {
             // this is cheaper
-            if (\CmsJobManager\JobQueue::get_jobs(TRUE)) {
+            if (JobQueue::get_jobs(TRUE)) {
                 return TRUE;
             }
             $deep = TRUE;
@@ -179,7 +190,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
                 $obj = new $classname;
                 if (!$obj instanceof CmsRegularTask) continue;
                 if (!$obj->test($now)) continue; //OR ALWAYS RECORD THE TASK?
-                $job = new CMSMS\Async\RegularTask($obj);
+                $job = new RegularTask($obj);
                 if ($this->load_job($job)) $res = TRUE;
             }
         }
@@ -189,7 +200,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         $modules = $opts->get_modules_with_capability('tasks');
         if (!$modules) return $res;
         foreach ($modules as $one) {
-            if (!is_object($one)) $one = \cms_utils::get_module($one);
+            if (!is_object($one)) $one = cms_utils::get_module($one);
             if (!method_exists($one,'get_tasks')) continue;
 
             $tasks = $one->get_tasks();
@@ -200,7 +211,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
                 if (!is_object($onetask)) continue;
                 if (!$onetask instanceof CmsRegularTask) continue;
                 if (!$onetask->test()) continue;  //OR ALWAYS RECORD THE TASK?
-                $job = new \CMSMS\Async\RegularTask($onetask);
+                $job = new RegularTask($onetask);
                 $job->module = $one->GetName();
                 if ($this->load_job($job)) $res = TRUE;
             }
@@ -213,7 +224,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     public function load_jobs_by_module($module)
     {
-        if (!is_object($module)) $module = \cms_utils::get_module($module);
+        if (!is_object($module)) $module = cms_utils::get_module($module);
         if (!method_exists($module,'get_tasks')) return;
 
         $tasks = $module->get_tasks();
@@ -223,7 +234,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         foreach ($tasks as $onetask) {
             if (!is_object($onetask)) continue;
             if (!$onetask instanceof CmsRegularTask) continue;
-            $job = new \CMSMS\Async\RegularTask($onetask);
+            $job = new RegularTask($onetask);
             $job->module = $module->GetName();
             $this->load_job($job);
         }
@@ -232,7 +243,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function load_job_by_id($job_id)
     {
         $job_id = (int) $job_id;
-        if ($job_id < 1) throw new \InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
+        if ($job_id < 1) throw new InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
 
         $db = $this->GetDb();
         $sql = 'SELECT * FROM '.self::table_name().' WHERE id = ?';
@@ -247,7 +258,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function load_job(Job &$job)
     {
         $recurs = $until = null;
-        if (\CmsJobManager\utils::job_recurs($job)) {
+        if (utils::job_recurs($job)) {
             $recurs = $job->frequency;
             $until = $job->until;
         }
@@ -266,7 +277,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             try {
                 $job->set_id($new_id);
                 return $new_id;
-            } catch (\LogicException $e) {
+            } catch (LogicException $e) {
                 return 0;
             }
         } else {
@@ -284,7 +295,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
 
     public function unload_job(Job &$job)
     {
-        if (!$job->id) throw new \BadMethodCallException('Cannot delete a job that has no id');
+        if (!$job->id) throw new BadMethodCallException('Cannot delete a job that has no id');
         $db = $this->GetDb();
         $sql = 'DELETE FROM '.self::table_name().' WHERE id = ?';
         $db->Execute($sql,[$job->id]);
@@ -298,7 +309,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function unload_job_by_id($job_id)
     {
         $job_id = (int) $job_id;
-        if ($job_id < 1) throw new \InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
+        if ($job_id < 1) throw new InvalidArgumentException('Invalid job_id passed to '.__METHOD__);
 
         $db = $this->GetDb();
         $sql = 'DELETE FROM '.self::table_name().' WHERE id = ?';
@@ -310,7 +321,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         $db = $this->GetDb();
         $sql = 'SELECT id FROM '.self::table_name().' WHERE X = ? AND X = ?';
         $job_id = $db->GetOne($sql,[$module_name, $job_name]);
-        if (!$job_id) throw new \InvalidArgumentException('Invalid identifier(s) passed to '.__METHOD__);
+        if (!$job_id) throw new InvalidArgumentException('Invalid identifier(s) passed to '.__METHOD__);
 
         $sql = 'DELETE FROM '.self::table_name().' WHERE id = ?';
         $db->Execute($sql,[$job_id]);
@@ -319,7 +330,7 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
     public function unload_jobs_by_module($module_name)
     {
         $module_name = trim($module_name);
-        if (!$module_name) throw new \InvalidArgumentException('Invalid module name passed to '.__METHOD__);
+        if (!$module_name) throw new InvalidArgumentException('Invalid module name passed to '.__METHOD__);
 
         $db = $this->GetDb();
         $sql = 'DELETE FROM '.self::table_name().' WHERE module = ?';
@@ -344,13 +355,18 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
         }
 
         global $params;
-
-/*        if (defined('ASYNCLOG')) {
+/*
+        if (defined('ASYNCLOG')) {
             error_log('trigger_async_processing @1: $params: '.print_r($params, true)."\n", 3, ASYNCLOG);
         }
 */
         // if we're processing a prior job-manager request - do nothing
         if (isset($params['cms_jobman'])) {
+/*
+            if (defined('ASYNCLOG')) {
+                error_log('prior job detected: prevent reentrance'."\n", 3, ASYNCLOG);
+            }
+*/
             return; // no re-entrance
         }
 
@@ -362,17 +378,25 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             return;
         }
 
-        $deep = FALSE; //TODO algorithm for this
-
-        if (!$this->check_for_jobs_or_tasks($deep)) {
+        if (!$this->check_for_jobs_or_tasks(false)) {
+/*
+            if (defined('ASYNCLOG')) {
+                error_log('no current job'."\n", 3, ASYNCLOG);
+            }
+*/
             return; // nothing to do
+/*        } else {
+		    if (defined('ASYNCLOG')) {
+		        error_log('trigger_async_processing @4'."\n", 3, ASYNCLOG);
+		    }
+*/
         }
 
         $joburl = $this->GetPreference('joburl');
         if (!$joburl) {
             $joburl = $this->create_url('aj_','process', '', ['cms_jobman'=>1]) . '&cmsjobtype=2';
         }
-        $joburl = str_replace('&amp;', '&', $joburl);  //fix needed for direct use
+        $joburl = str_replace('&amp;', '&', $joburl);  //fix needed for direct use ??
 
 /*        if (defined('ASYNCLOG')) {
             error_log('async job url: '.$joburl."\n", 3, ASYNCLOG);
@@ -385,13 +409,13 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             }
             return;
         }
-/*        if (defined('ASYNCLOG')) {
+        if (defined('ASYNCLOG')) {
             error_log('host: '.$host."\n", 3, ASYNCLOG);
             error_log('path: '.$path."\n", 3, ASYNCLOG);
             error_log('transport: '.$transport."\n", 3, ASYNCLOG);
             error_log('port: '.$port."\n", 3, ASYNCLOG);
         }
-*/
+
         $remote = $transport.'://'.$host.':'.$port;
         $opts = ['http' => ['method' => 'POST']];
         if ($transport != 'tcp') {
@@ -427,14 +451,14 @@ final class CmsJobManager extends \CMSModule implements \CMSMS\Async\JobManagerI
             }
         }
 
-/*        if (defined('ASYNCLOG')) {
+        if (defined('ASYNCLOG')) {
             if ($errno > 0) {
                 error_log('stream-socket error: '.$errstr."\n", 3, ASYNCLOG);
             } else {
                 error_log('stream-socket error: connection failure'."\n", 3, ASYNCLOG);
             }
         }
-*/
+
     }
 
     //Since 2.3
