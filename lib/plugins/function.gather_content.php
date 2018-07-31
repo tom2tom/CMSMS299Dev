@@ -20,7 +20,7 @@ use CMSMS\HookManager;
 function smarty_function_gather_content($params, $template)
 {
     $listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';
-    $aout = HookManager::do_hook_all($listname, []);
+    $aout = HookManager::do_hook($listname, []);
     $out = ($aout) ? implode("\n", $aout) : '';
 
     if (isset($params['assign'])) {

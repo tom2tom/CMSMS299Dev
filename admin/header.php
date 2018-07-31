@@ -28,7 +28,7 @@ if (!isset($smarty)) {
 }
 $config = cms_config::get_instance();
 
-list($vars,$add_list) = \CMSMS\HookManager::do_hook_all('AdminHeaderSetup', [], []);
+list($vars,$add_list) = \CMSMS\HookManager::do_hook('AdminHeaderSetup', [], []);
 if ($add_list) {
     $themeObject->add_headtext(implode("\n",$add_list));
 }
