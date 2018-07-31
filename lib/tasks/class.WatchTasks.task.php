@@ -1,6 +1,6 @@
 <?php
 
-class WatchTasks implements CmsRegularTask
+class WatchTasksTask implements CmsRegularTask
 {
     const  LASTEXECUTE_SITEPREF   = __CLASS__;
     const  ENABLED_SITEPREF = 'taskschanged';
