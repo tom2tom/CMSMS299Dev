@@ -92,24 +92,22 @@ function redirect(string $to)
 <noscript>
 <meta http-equiv="Refresh" content="0;URL='.$to.'">
 </noscript>';
-        exit;
     }
-    else {
-        if ( $debug ) {
-            echo 'Debug is on. Redirection is disabled... Please click this link to continue.<br />
+    else if ( $debug ) {
+        echo 'Debug is on. Redirection is disabled... Please click this link to continue.<br />
 <a accesskey="r" href="'.$to.'">'.$to.'</a><br />
 <div id="DebugFooter">';
-            foreach (CmsApp::get_instance()->get_errors() as $error) {
-                echo $error;
-            }
-            echo '</div> <!-- end DebugFooter -->';
-            exit;
+        foreach (CmsApp::get_instance()->get_errors() as $error) {
+            echo $error;
         }
-        else {
-            header("Location: $to");
-            exit;
-        }
+        echo '</div> <!-- end DebugFooter -->';
     }
+    else {
+        header("Location: $to");
+    }
+
+    CMSMS\HookManager::do_hook('PostRequest');
+    exit;
 }
 
 /**
