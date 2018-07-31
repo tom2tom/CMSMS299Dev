@@ -15,10 +15,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\HookManager;
-use CMSMS\Hooks\HookDefn;
-use CMSMS\Hooks\HookHandler;
-
 /**
  * Contains classes and utilities for working with CMSMS hooks.
  * @package CMS
@@ -27,6 +23,8 @@ use CMSMS\Hooks\HookHandler;
  */
 
 namespace CMSMS\Hooks {
+
+    use CMSMS\HookManager;
 
     /**
      * An internal class to represent a hook handler.
@@ -93,11 +91,14 @@ namespace CMSMS\Hooks {
 
 namespace CMSMS {
 
+    use CMSMS\Hooks\HookDefn;
+    use CMSMS\Hooks\HookHandler;
+
     /**
      * A class to manage hooks, and to call hook handlers.
      *
      * This class is capable of managing a flexible list of hooks,
-	 * [un]registering handlers for those hooks, and calling the handlers
+     * [un]registering handlers for those hooks, and calling the handlers
      *
      * @package CMS
      * @license GPL
@@ -153,7 +154,7 @@ namespace CMSMS {
          * @ignore
          * @param string $name The hook name.
          */
-        protected function sort_handlers($name)
+        protected static function sort_handlers($name)
         {
             if( !self::$_hooks[$name]->sorted ) {
                 if( count(self::$_hooks[$name]->handlers) > 1 ) {
@@ -248,8 +249,6 @@ namespace CMSMS {
             $value = $args;
             self::$_in_process[] = $name;
 
-            $this->sort_handlers($name);
-
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 $cb = $obj->callable;
                 if( empty($value) || !is_array($value) ) {
@@ -285,7 +284,7 @@ namespace CMSMS {
             $value = $args;
             self::$_in_process[] = $name;
 
-            $this->sort_handlers($name);
+            self::sort_handlers($name);
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 $cb = $obj->callable;
@@ -323,7 +322,7 @@ namespace CMSMS {
             $value = $args;
             self::$_in_process[] = $name;
 
-            $this->sort_handlers($name);
+            self::sort_handlers($name);
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 //TODO if not blocked
@@ -372,7 +371,7 @@ namespace CMSMS {
 
             if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
 
-            $this->sort_handlers($name);
+            self::sort_handlers($name);
 
             $out = [];
             $value = $args;
