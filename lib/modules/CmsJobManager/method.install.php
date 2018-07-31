@@ -20,8 +20,8 @@ $this->refresh_jobs(); //init jobs-data
 $this->CreateEvent(\CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleInstalled',false);
 $this->AddEventHandler('Core','ModuleUninstalled',false);
+$this->AddEventHandler('Core','ModuleUpgraded',false);
 
-//TODO check InnoDB relevant here?
 $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 $dict = NewDataDictionary($db);
 
