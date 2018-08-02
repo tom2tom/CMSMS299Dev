@@ -184,12 +184,16 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         $files = glob($patn);
         foreach ($files as $p) {
             $tmp = explode('.',basename($p));
-            if (count($tmp) == 4) { //this could reasonably be omittted
+            if (count($tmp) == 4) { //this could reasonably be omitted
                 require_once $p;
                 $classname = $tmp[1].'Task';
                 $obj = new $classname;
-                if (!$obj instanceof CmsRegularTask) continue;
-                if (!$obj->test($now)) continue; //OR ALWAYS RECORD THE TASK?
+                if (!$obj instanceof CmsRegularTask) {
+					continue;
+				}
+//                if (!$obj->test($now)) {
+//					continue; //OR ALWAYS RECORD THE TASK?
+//				}
                 $job = new RegularTask($obj);
                 if ($this->load_job($job)) $res = TRUE;
             }
@@ -201,17 +205,22 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         if (!$modules) return $res;
         foreach ($modules as $one) {
             if (!is_object($one)) $one = cms_utils::get_module($one);
-            if (!method_exists($one,'get_tasks')) continue;
-
+            if (!method_exists($one,'get_tasks')) {
+				continue;
+			}
             $tasks = $one->get_tasks();
-            if (!$tasks) continue;
+            if (!$tasks) {
+				continue;
+			}
             if (!is_array($tasks)) $tasks = [$tasks];
 
-            foreach ($tasks as $onetask) {
-                if (!is_object($onetask)) continue;
-                if (!$onetask instanceof CmsRegularTask) continue;
-                if (!$onetask->test()) continue;  //OR ALWAYS RECORD THE TASK?
-                $job = new RegularTask($onetask);
+            foreach ($tasks as $obj) {
+                if (!is_object($obj)) continue;
+                if (!$obj instanceof CmsRegularTask) {
+					continue;
+				}
+//                if (!$obj->test($now)) continue;  //ALWAYS RECORD THE TASK?
+                $job = new RegularTask($obj);
                 $job->module = $one->GetName();
                 if ($this->load_job($job)) $res = TRUE;
             }
@@ -231,10 +240,10 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         if (!$tasks) return;
         if (!is_array($tasks)) $tasks = [$tasks];
 
-        foreach ($tasks as $onetask) {
-            if (!is_object($onetask)) continue;
-            if (!$onetask instanceof CmsRegularTask) continue;
-            $job = new RegularTask($onetask);
+        foreach ($tasks as $obj) {
+            if (!is_object($obj)) continue;
+            if (!$obj instanceof CmsRegularTask) continue;
+            $job = new RegularTask($obj);
             $job->module = $module->GetName();
             $this->load_job($job);
         }
