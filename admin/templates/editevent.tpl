@@ -1,27 +1,27 @@
-<form action="{$selfurl}{$urlext}" method="post">
-  <div class="hidden">
-    <input type="hidden" name="module" value="{$module}" />
-    <input type="hidden" name="event" value="{$event}" />
+<fieldset>
+  <legend><strong>{lang('event')}</strong></legend>
+  <div class="pageoverflow">
+    <p class="pagetext">{lang('name')}:</p>
+    <p class="pageinput">{$event}</p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">{lang('originator')}:</p>
     <p class="pageinput">{$modulename}</p>
   </div>
   <div class="pageoverflow">
-    <p class="pagetext">{lang('event_name')}:</p>
-    <p class="pageinput">{$event}</p>
-  </div>
-  <div class="pageoverflow">
-    <p class="pagetext">{lang('event_description')}</p>
+    <p class="pagetext">{lang('description')}:</p>
     <p class="pageinput">{$description}</p>
   </div>
-  <br />
+</fieldset>
+
+<br />
 {if $handlers}
+  <h3>{lang('eventhandler')}</h3>
   <table class="pagetable">
   <thead>
     <tr>
       <th>{lang('order')}</th>
-      <th>{lang('handler')}</th>
+      <th>{lang('tag')}</th>
       <th>{lang('module')}</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
@@ -31,39 +31,46 @@
   <tbody>{foreach $handlers as $one}
     <tr class="{cycle values='row1,row2'}">
       {strip}
-      <td>{$one->handler_order}</td>
-      <td>{$one->tag_name}</td>
-      <td>{$one->module_name}</td>
+      <td>{$one.handler_order}</td>
+      <td>{$one.tag_name}</td>
+      <td>{$one.module_name}</td>
       <td>
       {if !$one@first}
-      <a href="{$selfurl}{$urlext}&amp;action=up&amp;order={$one->handler_order}&amp;handler={$one->handler_id}">{$iconup}</a>
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;action=up&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$iconup}</a>
       {/if}
       </td>
       <td>
       {if !$one@last}
-      <a href="{$selfurl}{$urlext}&amp;action=down&amp;order={$one->handler_order}&amp;handler={$one->handler_id}">{$icondown}</a>
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;action=down&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$icondown}</a>
       {/if}
       </td>
       <td>
-      {if $one->removable}
-      <a href="{$selfurl}{$urlext}&amp;action=delete&amp;handler={$one->handler_id}" onclick="cms_confirm_linkclick(this,'{cms_html_entity_decode(lang('deleteconfirm', $one->name))}');return false;">{$icondel}</a>
+      {if $one.removable}{if $one.tag_name}{$myname=$one.tag_name}{else}{$myname=$one.module_name}{/if}
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{lang('deleteconfirm', $myname)}');return false;">{$icondel}</a>
       {/if}
       </td>
 {/strip}
     </tr>
   {/foreach}</tbody>
   </table>
+{else}
+{lang('none')}
 {/if}
-  
+
 {if $allhandlers}
+<div class="pageinput pregap">
+ <form action="{$selfurl}{$urlext}" method="post">
+  <div class="hidden">
+    <input type="hidden" name="module" value="{$module}" />
+    <input type="hidden" name="event" value="{$event}" />
+  </div>
   <br />
   <select name="handler">
   {foreach $allhandlers as $key => $value}
   <option value="{$value}">{$key}</option>
   {/foreach}
   </select>
+  <button type="submit" name="add" class="adminsubmit icon add">{lang('addhandler')}</button>
+ </form>
+</div>
 {/if}
-  <div class="pageinput pregap">
-    <button type="submit" name="create" class="adminsubmit icon add">{lang('add')}</button>
-  </div>
-</form>
