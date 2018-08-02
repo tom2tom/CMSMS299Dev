@@ -16,6 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+use CMSMS\internal\Smarty;
+use CMSMS\ModuleOperations;
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -65,6 +69,7 @@ if ($access) {
 		}
 	} else {
 		// we're processing a link-click up/down/delete
+		//TODO clear events cache(s) when relevant
 		$cur_order = -1;
 		if (!empty($_GET['action'])) $action = trim(cleanValue($_GET['action']));
 		if (!empty($_GET['module'])) $module = trim(cleanValue($_GET['module']));
@@ -153,7 +158,7 @@ if ($access) {
 
 $selfurl = basename(__FILE__);
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,
