@@ -16,6 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+use CMSMS\internal\Smarty;
+
 $CMS_ADMIN_PAGE=1;
 $CMS_LOAD_ALL_PLUGINS=1;
 
@@ -27,10 +30,10 @@ $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = check_permission($userid, "Modify Events");
 $senderfilter = (!empty($_POST['senderfilter'])) ? $_POST['senderfilter'] : '';
+if ($senderfilter == lang('all')) $senderfilter = '';
 
 $senders = [];
 $events = Events::ListEvents();
-
 if (is_array($events)) {
 	foreach($events as &$one) {
 		if (!in_array($one['originator'], $senders)) {
@@ -45,12 +48,13 @@ if (is_array($events)) {
 	}
 	unset($one);
 	sort($senders, SORT_NATURAL);
+	$senders = [-1=>lang('all')] + $senders;
 }
 
 $themeObject = cms_utils::get_theme_object();
 
 if ($access) {
-	$iconedit = $themeObject->DisplayImage('icons/system/edit.gif', lang('edit'),'','','systemicon');
+	$iconedit = $themeObject->DisplayImage('icons/system/edit.gif',lang('modifyeventhandlers'),'','','systemicon');
 } else {
 	$iconedit = null;
 }
@@ -58,7 +62,7 @@ $iconinfo = $themeObject->DisplayImage('icons/system/info.png', lang('help'),'',
 
 $selfurl = basename(__FILE__);
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 $smarty->assign([
 	'access' => $access,
