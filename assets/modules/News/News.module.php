@@ -31,7 +31,7 @@ class News extends CMSModule
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
-    public function GetVersion() { return '2.52.0'; }
+    public function GetVersion() { return '3.0.0'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function IsPluginModule() { return true; }
@@ -41,31 +41,31 @@ class News extends CMSModule
 
     public function InitializeFrontend()
     {
-        if( version_compare(CMS_VERSION,'2.2.910') < 0 ) $this->RestrictUnknownParams(); //2.3 does nothing
+        if( version_compare(CMS_VERSION,'2.2.900') < 0 ) $this->RestrictUnknownParams(); //2.3 does nothing
 
-        $this->SetParameterType('pagelimit', CLEAN_INT);
+        $this->SetParameterType('articleid', CLEAN_INT);
+        $this->SetParameterType('assign', CLEAN_STRING);
         $this->SetParameterType('browsecat', CLEAN_INT);
-        $this->SetParameterType('showall', CLEAN_INT);
-        $this->SetParameterType('showarchive', CLEAN_INT);
-        $this->SetParameterType('sortasc', CLEAN_STRING); // should be int, or boolean
-        $this->SetParameterType('sortby', CLEAN_STRING);
+        $this->SetParameterType('browsecattemplate', CLEAN_STRING);
+        $this->SetParameterType('category', CLEAN_STRING);
+        $this->SetParameterType('category_id', CLEAN_STRING);
         $this->SetParameterType('detailpage', CLEAN_STRING);
         $this->SetParameterType('detailtemplate', CLEAN_STRING);
         $this->SetParameterType('formtemplate', CLEAN_STRING);
-        $this->SetParameterType('browsecattemplate', CLEAN_STRING);
-        $this->SetParameterType('summarytemplate', CLEAN_STRING);
-        $this->SetParameterType('moretext', CLEAN_STRING);
-        $this->SetParameterType('category', CLEAN_STRING);
-        $this->SetParameterType('category_id', CLEAN_STRING);
-        $this->SetParameterType('number', CLEAN_INT);
-        $this->SetParameterType('start', CLEAN_INT);
-        $this->SetParameterType('pagenumber', CLEAN_INT);
-        $this->SetParameterType('articleid', CLEAN_INT);
-        $this->SetParameterType('origid', CLEAN_INT);
-        $this->SetParameterType('assign', CLEAN_STRING);
-        $this->SetParameterType('inline', CLEAN_STRING);
-        $this->SetParameterType('preview', CLEAN_STRING);
         $this->SetParameterType('idlist', CLEAN_STRING);
+        $this->SetParameterType('inline', CLEAN_STRING);
+        $this->SetParameterType('moretext', CLEAN_STRING);
+        $this->SetParameterType('number', CLEAN_INT);
+        $this->SetParameterType('origid', CLEAN_INT);
+        $this->SetParameterType('pagelimit', CLEAN_INT);
+        $this->SetParameterType('pagenumber', CLEAN_INT);
+        $this->SetParameterType('preview', CLEAN_STRING);
+        $this->SetParameterType('showall', CLEAN_INT);
+        $this->SetParameterType('showarchive', CLEAN_INT);
+        $this->SetParameterType('sortasc', CLEAN_STRING); // ? int, or boolean
+        $this->SetParameterType('sortby', CLEAN_STRING);
+        $this->SetParameterType('start', CLEAN_INT);
+        $this->SetParameterType('summarytemplate', CLEAN_STRING);
 
         // form parameters
         $this->SetParameterType('cancel', CLEAN_STRING);
