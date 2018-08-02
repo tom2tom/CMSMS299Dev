@@ -1066,6 +1066,7 @@ $lang['info_edituser_passwordagain'] = 'Match this field to the other password e
 $lang['info_estrict_failed'] = 'Some libraries that CMSMS uses do not work well with E_STRICT.  Please disable this before continuing';
 $lang['info_generate_cksum_file'] = 'This will generate a checksum file and save it on your local computer for later validation.  This should be done prior to rolling out the website, and/or after any upgrade or major modification.';
 $lang['info_group_inactive'] = 'This group is inactive.  Members of this group will not realize the permissions associated with the group';
+$lang['info_handlers'] = 'Here you can select from plugins and modules which are potentially able to respond to this event. It is not certain that they can, and will, actually do so. Typically, modules are already configured to process all events which are relevant to them, and if so, that is not reflected here.';
 $lang['info_mailtest'] = 'This form will send a pre formatted email to the address you specify.<br />If you do not receive the mail you might need to re-check your settings.<br /><strong>Note:</strong> you might also want to check your spam folder.';
 $lang['info_mail_notset'] = 'Mail settings have not yet been saved. Please ensure the information in Site Admin >> System Settings >> Mail Settings tab is correct for your server.';
 $lang['info_membergroups'] = 'A user may be a member of zero or more groups.  A user who is not a member of any groups will still be able to login to the admin console';
