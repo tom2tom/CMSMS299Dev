@@ -1,4 +1,7 @@
 <?php
+
+use News\news_ops;
+
 if (!isset($gCms)) exit;
 
 $template = null;
@@ -36,22 +39,22 @@ if (isset($params['browsecat']) && $params['browsecat']==1) {
 
 $entryarray = [];
 $query1 = "
-            SELECT SQL_CALC_FOUND_ROWS
-                mn.*,
-                mnc.news_category_name,
-                mnc.long_name,
-                u.username,
-                u.first_name,
-                u.last_name
-            FROM " .CMS_DB_PREFIX . "module_news mn
-            LEFT OUTER JOIN " . CMS_DB_PREFIX . "module_news_categories mnc
-            ON mnc.news_category_id = mn.news_category_id
-            LEFT OUTER JOIN " . CMS_DB_PREFIX . "users u
-            ON u.user_id = mn.author_id
-            WHERE
-                status = 'published'
-            AND
-        ";
+SELECT SQL_CALC_FOUND_ROWS
+	mn.*,
+	mnc.news_category_name,
+	mnc.long_name,
+	u.username,
+	u.first_name,
+	u.last_name
+FROM " .CMS_DB_PREFIX . "module_news mn
+LEFT OUTER JOIN " . CMS_DB_PREFIX . "module_news_categories mnc
+ON mnc.news_category_id = mn.news_category_id
+LEFT OUTER JOIN " . CMS_DB_PREFIX . "users u
+ON u.user_id = mn.author_id
+WHERE
+	status = 'published'
+AND
+";
 
 if( isset($params['idlist']) ) {
     $idlist = $params['idlist'];

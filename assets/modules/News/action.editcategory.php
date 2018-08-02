@@ -1,4 +1,9 @@
 <?php
+
+use CMSMS\Events;
+use News\news_admin_ops;
+use News\news_ops;
+
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
 
@@ -67,7 +72,7 @@ if( isset($params['submit']) ) {
 
       news_admin_ops::UpdateHierarchyPositions();
 
-      \CMSMS\Events::SendEvent('News', 'NewsCategoryEdited', [ 'category_id'=>$catid, 'name'=>$name, 'origname'=>$origname ] );
+      Events::SendEvent('News', 'NewsCategoryEdited', [ 'category_id'=>$catid, 'name'=>$name, 'origname'=>$origname ] );
       // put mention into the admin log
       audit($catid, 'News category: '.$name, ' Category edited');
 
@@ -97,7 +102,6 @@ $smarty->assign('nametext', $this->Lang('name'));
 $smarty->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
 //see template $smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')));
 //$smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')));
-
 $smarty->assign('mod',$this);
+
 echo $this->ProcessTemplate('editcategory.tpl');
-?>

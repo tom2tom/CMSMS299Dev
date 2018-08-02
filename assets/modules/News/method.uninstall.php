@@ -65,4 +65,3 @@ catch( Exception $e ) {
   // log it
   audit('',$this->GetName(),'Uninstall Error: '.$e->GetMessage());
 }
-?>

@@ -1,4 +1,8 @@
 <?php
+
+use News\news_article;
+use News\news_ops;
+
 if (!isset($gCms)) exit;
 
 //

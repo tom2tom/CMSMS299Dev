@@ -1,4 +1,7 @@
 <?php
+
+use News\news_admin_ops;
+
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
 

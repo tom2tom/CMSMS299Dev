@@ -1,4 +1,7 @@
 <?php
+
+use News\news_admin_ops;
+
 if (!isset($gCms)) exit;
 
 //best to avoid module-specific class autoloading during installation

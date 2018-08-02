@@ -1,4 +1,9 @@
 <?php
+
+use CMSMS\ContentOperations;
+use CMSMS\Events;
+use News\news_admin_ops;
+
 if (!isset($gCms))
     exit ;
 
@@ -211,7 +216,7 @@ if (isset($params['submit'])) {
         }
 
         if (!$error) {
-            \CMSMS\Events::SendEvent('News', 'NewsArticleAdded',
+            Events::SendEvent('News', 'NewsArticleAdded',
                                         ['news_id' => $articleid,
                                               'category_id' => $usedcategory,
                                               'title' => $title,

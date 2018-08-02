@@ -1,8 +1,34 @@
 <?php
+# Class:
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+namespace News;
+
+use AdminSearch_slave;
+use AdminSearch_tools;
+use cms_utils;
+use const CMS_DB_PREFIX;
+use function check_permission;
+use function cms_htmlentities;
+use function cmsms;
+use function get_userid;
 
 final class News_AdminSearch_slave extends AdminSearch_slave
 {
-  public function get_name() 
+  public function get_name()
   {
     $mod = cms_utils::get_module('News');
     return $mod->Lang('lbl_adminsearch');
@@ -34,8 +60,8 @@ final class News_AdminSearch_slave extends AdminSearch_slave
     $where = array('news_title LIKE ?','news_data LIKE ?','summary LIKE ?');
     $str = '%'.$this->get_text().'%';
     $parms = array($str,$str,$str);
-    
-    // add in fields 
+
+    // add in fields
     for( $i = 0; $i < count($fdlist); $i++ ) {
       $tmp = 'FV'.$i;
       $fdid = $fdlist[$i];
@@ -56,31 +82,29 @@ final class News_AdminSearch_slave extends AdminSearch_slave
       // got some results.
       $output = array();
       foreach( $dbr as $row ) {
-	$text = null;
-	foreach( $row as $key => $value ) {
-	  // search for the keyword
-	  $pos = strpos($value,$this->get_text());
-	  if( $pos !== FALSE ) {
-	    // build the text
-	    $start = max(0,$pos - 50);
-	    $end = min(strlen($value),$pos+50);
-	    $text = substr($value,$start,$end-$start);
-	    $text = cms_htmlentities($text);
-	    $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
-	    $text = str_replace("\r",'',$text);
-	    $text = str_replace("\n",'',$text);
-	    break;
-	  }
-	}
-	$url = $mod->create_url('m1_','editarticle','',array('articleid'=>$row['news_id']));
-	$tmp = array('title'=>$row['news_title'],
-		     'description'=>AdminSearch_tools::summarize($row['summary']),
-		     'edit_url'=>$url,'text'=>$text);
-	$output[] = $tmp;
+    $text = null;
+    foreach( $row as $key => $value ) {
+      // search for the keyword
+      $pos = strpos($value,$this->get_text());
+      if( $pos !== FALSE ) {
+        // build the text
+        $start = max(0,$pos - 50);
+        $end = min(strlen($value),$pos+50);
+        $text = substr($value,$start,$end-$start);
+        $text = cms_htmlentities($text);
+        $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
+        $text = str_replace("\r",'',$text);
+        $text = str_replace("\n",'',$text);
+        break;
+      }
+    }
+    $url = $mod->create_url('m1_','editarticle','',array('articleid'=>$row['news_id']));
+    $tmp = array('title'=>$row['news_title'],
+             'description'=>AdminSearch_tools::summarize($row['summary']),
+             'edit_url'=>$url,'text'=>$text);
+    $output[] = $tmp;
       }
       return $output;
     }
   }
-} // end of class
-
-?>
+} // class

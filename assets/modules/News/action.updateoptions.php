@@ -1,4 +1,5 @@
 <?php
+
 if (!isset($gCms)) exit;
 if( !$this->CheckPermission( 'Modify Site Preferences' ) ) return;
 

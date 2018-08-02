@@ -1,4 +1,9 @@
 <?php
+
+use CMSMS\ContentOperations;
+use CMSMS\Events;
+use News\news_admin_ops;
+
 if (!isset($gCms))  exit ;
 
 if (!$this->CheckPermission('Modify News'))  return;
@@ -231,7 +236,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
             }
         }
 
-        \CMSMS\Events::SendEvent('News', 'NewsArticleEdited', [
+        Events::SendEvent('News', 'NewsArticleEdited', [
             'news_id' => $articleid,
             'category_id' => $usedcategory,
             'title' => $title,

@@ -1,9 +1,31 @@
 <?php
+# Class representing a field definition
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// a class representing a field definition
+namespace News;
+
+use CMSMS\CmsException;
+use PHPMailer\PHPMailer\Exception;
+use const CMS_DB_PREFIX;
+use function cmsms;
+use function munge_string_to_url;
+
 final class news_field
 {
-  private $_data = array();
+  private $_data = [];
   private $_displayvalue;
 
   public function _get_data($key)
@@ -34,8 +56,8 @@ final class news_field
 
     case 'extra':
       if( isset($this->_data['extra']) ) {
-	if( !is_array($this->_data['extra']) ) $this->_data['extra'] = unserialize($this->_data['extra']);
-	return $this->_data['extra'];
+    if( !is_array($this->_data['extra']) ) $this->_data['extra'] = unserialize($this->_data['extra']);
+    return $this->_data['extra'];
       }
       break;
 
@@ -46,14 +68,14 @@ final class news_field
 
     case 'displayvalue':
       if( !$this->_displayvalue ) {
-	if( isset($this->_data['value']) ) {
-	  $value = $this->_data['value'];
-	  $this->_displayvalue = $value;
-	  if( $this->type == 'dropdown' ) {
-	    // dropdowns may have a different displayvalue than actual value.
-	    if( is_array($this->options) && isset($this->options[$value]) ) $this->_displayvalue = $this->options[$value];
-	  }
-	}
+    if( isset($this->_data['value']) ) {
+      $value = $this->_data['value'];
+      $this->_displayvalue = $value;
+      if( $this->type == 'dropdown' ) {
+        // dropdowns may have a different displayvalue than actual value.
+        if( is_array($this->options) && isset($this->options[$value]) ) $this->_displayvalue = $this->options[$value];
+      }
+    }
       }
       return $this->_displayvalue;
       break;
@@ -132,7 +154,7 @@ final class news_field
               (name,type,max_length,create_date,modified_date,item_order,public,extra)
               VALUES (?,?,?,NOW(),NOW(),?,?,?)";
     $dbr = $db->Execute($query,array($this->name,$this->type,$this->max_length,$this->item_order,$this->public,
-				     serialize($this->extra)));
+                     serialize($this->extra)));
     $this->_data['id'] = $db->Insert_ID();
     $this->create_date = $this->modified_date = $db->DbTimeStamp(time());
   }
@@ -143,7 +165,7 @@ final class news_field
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = NOW(),
               item_orderr = ?, public = ?, extra = ? WHERE id = ?';
     $dbr = $db->Execute($query,array($this->name,$this->type,$this->max_length,$this->item_order,$this->public,
-				     serialize($this->extra),$this->id));
+                     serialize($this->extra),$this->id));
     $this->modified_date = $db->DbTimeStamp(time());
   }
 

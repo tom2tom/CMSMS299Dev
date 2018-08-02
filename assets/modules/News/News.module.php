@@ -15,6 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use News\CreateDraftAlertTask;
+use News\news_admin_ops;
+
 class News extends CMSModule
 {
     public function AllowSmartyCaching() { return true; }
@@ -38,7 +41,7 @@ class News extends CMSModule
 
     public function InitializeFrontend()
     {
-        if( version_compare(CMS_VERSION,'2.2.910') < 0 ) $this->RestrictUnknownParams(); //2.3 does nothing        
+        if( version_compare(CMS_VERSION,'2.2.910') < 0 ) $this->RestrictUnknownParams(); //2.3 does nothing
 
         $this->SetParameterType('pagelimit', CLEAN_INT);
         $this->SetParameterType('browsecat', CLEAN_INT);
@@ -237,7 +240,7 @@ EOS;
     public function get_tasks()
     {
         if( $this->GetPreference('alert_drafts',1) )
-            return array(new \News\CreateDraftAlertTask());
+            return [new CreateDraftAlertTask()];
     }
 
     public function GetNotificationOutput($priority = 2)
@@ -269,7 +272,7 @@ EOS;
     {
         cms_route_manager::del_static('',$this->GetName());
 
-        $db = \CmsApp::get_instance()->GetDb();
+        $db = CmsApp::get_instance()->GetDb();
         $str = $this->GetName();
         $c = strtoupper($str[0]);
         $x = substr($str,1);

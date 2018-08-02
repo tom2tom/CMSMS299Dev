@@ -1,4 +1,5 @@
 <?php
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
@@ -23,6 +24,3 @@ include __DIR__.'/function.admin_optionstab.php';
 echo $this->EndTab();
 
 echo $this->EndTabContent();
-
-?>
-

@@ -1,6 +1,5 @@
 <?php
 
-//PHP 5.4+
 use CMSMS\AdminUtils;
 use CMSMS\CmsException;
 

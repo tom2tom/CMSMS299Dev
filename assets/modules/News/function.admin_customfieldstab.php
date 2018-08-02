@@ -1,4 +1,5 @@
 <?php
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
@@ -51,6 +52,3 @@ $smarty->assign('typetext', $this->Lang('type'));
 
 #Display template
 echo $this->ProcessTemplate('customfieldstab.tpl');
-
-// EOF
-?>

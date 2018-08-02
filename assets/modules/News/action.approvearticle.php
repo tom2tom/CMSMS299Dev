@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\Events;
+
 if( !isset($gCms) ) exit();
 if( !$this->CheckPermission('Approve News') ) exit();
 
@@ -57,7 +60,7 @@ if( is_object($search) ) {
 }
 
 $db->Execute($uquery,array($status,$articleid));
-\CMSMS\Events::SendEvent( 'News', 'NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
+Events::SendEvent( 'News', 'NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
 $this->SetMessage($this->Lang('msg_success'));
 $this->RedirectToAdminTab();
 ?>

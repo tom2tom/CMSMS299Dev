@@ -1,4 +1,8 @@
 <?php
+
+use News\news_admin_ops;
+use News\news_ops;
+
 if( !isset($gCms) ) exit;
 
 $smarty->assign('formstart',$this->CreateFormStart($id,'defaultadmin'));

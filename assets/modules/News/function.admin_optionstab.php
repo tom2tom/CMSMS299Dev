@@ -1,4 +1,5 @@
 <?php
+
 if( !isset($gCms) ) exit;
 
   // CreateFormStart sets up a proper form tag that will cause the submit to
@@ -79,5 +80,3 @@ $smarty->assign('alert_drafts',$this->GetPreference('alert_drafts',1));
 
 // Display the populated template
 echo $this->ProcessTemplate ('adminprefs.tpl');
-
-?>

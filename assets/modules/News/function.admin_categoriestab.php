@@ -1,15 +1,16 @@
 <?php
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
-	
+
 // Put together a list of current categories...
 $entryarray = array();
-	
+
 $query = "SELECT * FROM ".CMS_DB_PREFIX."module_news_categories ORDER BY hierarchy";
 $dbresult = $db->Execute($query);
 $rowclass = 'row1';
 $admintheme = cms_utils::get_theme_object();
-	
+
 while ($dbresult && $row = $dbresult->FetchRow()) {
   $onerow = new stdClass();
   $depth = count(preg_split('/\./', $row['hierarchy']));
@@ -26,15 +27,12 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
   $entryarray[] = $onerow;
   ($rowclass=="row1"?$rowclass="row2":$rowclass="row1");
 }
-	
+
 $smarty->assign('items', $entryarray);
 $smarty->assign('itemcount', count($entryarray));
-	
+
 // Setup links
 $smarty->assign('categorytext', $this->Lang('category'));
-	
+
 // Display template
 echo $this->ProcessTemplate('categorylist.tpl');
-	
-// EOF
-?>

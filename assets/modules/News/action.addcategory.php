@@ -1,4 +1,9 @@
 <?php
+
+use CMSMS\Events;
+use News\news_admin_ops;
+use News\news_ops;
+
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
 
@@ -29,7 +34,7 @@ if (isset($params['name'])) {
 
             news_admin_ops::UpdateHierarchyPositions();
 
-            \CMSMS\Events::SendEvent( 'News', 'NewsCategoryAdded', [ 'category_id'=>$catid, 'name'=>$name ] );
+            Events::SendEvent( 'News', 'NewsCategoryAdded', [ 'category_id'=>$catid, 'name'=>$name ] );
             // put mention into the admin log
             audit($catid, 'News category: '.$name, ' Category added');
 

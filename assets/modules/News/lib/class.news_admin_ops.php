@@ -1,5 +1,5 @@
 <?php
-#...
+#Class:
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,7 +15,18 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace News;
+
+use cms_route_manager;
+use cms_utils;
 use CMSMS\Events;
+use CmsRoute;
+use const CMS_DB_PREFIX;
+use function audit;
+use function cms_join_path;
+use function cms_move_uploaded_file;
+use function cmsms;
+use function recursive_delete;
 
 final class news_admin_ops
 {

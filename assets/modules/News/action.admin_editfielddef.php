@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use News\news_admin_ops;
+
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) {
     //TODO some immediate error display	>> lang('needpermissionto', '"Modify Site Preferences"'));

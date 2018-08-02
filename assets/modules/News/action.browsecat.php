@@ -1,4 +1,7 @@
 <?php
+
+use News\news_ops;
+
 if (!isset($gCms)) exit;
 
 $template = null;

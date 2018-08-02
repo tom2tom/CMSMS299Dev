@@ -1,4 +1,8 @@
 <?php
+
+use CMSMS\Events;
+use News\news_admin_ops;
+
 // calguy1000: this action is officially deprecated.
 if (!isset($gCms)) exit;
 if( !$this->GetPreference('allow_fesubmit',0) ) return;
@@ -167,7 +171,7 @@ if( isset( $params['submit'] ) ) {
             $do_redirect = true;
 
             // send an event
-            \CMSMS\Events::SendEvent('News', 'NewsArticleAdded',
+            Events::SendEvent('News', 'NewsArticleAdded',
                               array('news_id' => $articleid,
                                     'category_id' => $category_id,
                                     'title' => $title,
@@ -247,7 +251,7 @@ if( $do_send_email == true ) {
         if( $addy != '' ) {
             $tpl_ob2->assign('startdate',$startdate);
             $tpl_ob2->assign('enddate',$enddate);
-            $tpl_ob2->assign('ipaddress',\cms_utils::get_real_ip());
+            $tpl_ob2->assign('ipaddress',cms_utils::get_real_ip());
             $tpl_ob2->assign('status',$status);
             if( $title != '' ) $tpl_ob2->assign('title',$title);
             if( $summary != '' ) $tpl_ob2->assign('summary',$summary);
