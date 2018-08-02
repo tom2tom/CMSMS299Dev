@@ -39,12 +39,12 @@ if (is_array($events)) {
 		if (!in_array($one['originator'], $senders)) {
 			$senders[] = $one['originator'];
 		}
-    	if ($one['originator'] == 'Core') {
-    		$one['description'] = Events::GetEventDescription($one['event_name']);
-    	} else {
-    		$modsend = cms_utils::get_module($one['originator']);
-    		$one['description'] = $modsend->GetEventDescription($one['event_name']);
-    	}
+		if ($one['originator'] == 'Core') {
+			$one['description'] = Events::GetEventDescription($one['event_name']);
+		} else {
+			$modsend = cms_utils::get_module($one['originator']);
+			$one['description'] = $modsend->GetEventDescription($one['event_name']);
+		}
 	}
 	unset($one);
 	sort($senders, SORT_NATURAL);

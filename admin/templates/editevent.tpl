@@ -69,7 +69,7 @@
   <option value="{$value}">{$key}</option>
   {/foreach}
   </select>
-  <button type="submit" name="add" class="adminsubmit icon add">{lang('addhandler')}</button>
+  <button type="submit" name="add" class="adminsubmit icon add" title="{lang('addhandler')}">{lang('add')}</button>
  </form>
 </div>
 {/if}

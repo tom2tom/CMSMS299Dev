@@ -436,10 +436,10 @@ a.link_button.icon::before, a.link_button.icon.before {
     position: relative;
     right: +0.3em;
     vertical-align: middle;
-    z-index: 20;
     width: 1em;
     height: 1em;
     content: ' ';
+    z-index: 20;
 }
 
 .ui-dialog-buttonset .ui-button .ui-icon,
@@ -711,7 +711,6 @@ a.tooltip {
 /*aside.message, */
 .pagemcontainer, .pageerrorcontainer, .pageerrorinstalldir {
     position: fixed;
-    z-index: 999;
     border-top: none;
     width: 30%;
     font-size: 0.75em;
@@ -720,7 +719,8 @@ a.tooltip {
     -webkit-box-shadow: -1px 1px 3px 1px #444;
     margin: 0;
     top: 0;
-    right: 35%
+    right: 35%;
+    z-index: 999
 }
 aside .no-slide, .no-slide {
     position: inherit;
@@ -786,7 +786,7 @@ aside .no-slide, .no-slide {
     font-size: 0.9em;
 /*  font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
     pointer-events: all !important;
-    z-index: 9000 !important;
+    z-index: 1000 !important;
 }
 .jqtoast.bottom-left {
     bottom: 20px;
@@ -928,7 +928,7 @@ aside .no-slide, .no-slide {
     right: 0;
     background: rgba(0, 0, 0, .4);
     opacity: 1.0;  /* override to ensure the background .5 opacity applies */
-    z-index: 9998;
+    z-index: 900;
 }
 
 .alertable, .ui-dialog.ui-widget.ui-widget-content {
