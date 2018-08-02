@@ -1,6 +1,5 @@
 <?php
-# jobqueue-methods for CmsJobManager, a core module for CMS Made Simple
-# to manage asynchronous jobs and cron jobs.
+# job-related utility-methods for CmsJobManager module
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # See license details at the top of file CmsJobManager.module.php
 
@@ -27,6 +26,10 @@ final class JobQueue
         return self::get_jobs(true);
     }
 
+	/**
+	 * @return mixed array | null
+	 * @throws RuntimeException
+	 */
     public static function get_all_jobs()
     {
         $db = CmsApp::get_instance()->GetDb();
@@ -53,6 +56,10 @@ final class JobQueue
         return $out;
     }
 
+	/**
+	 * @param bool $check_only Optional flag whether to merely check for existence of relevant job(s). Default false.
+	 * @return mixed array | true | null
+	 */
     public static function get_jobs($check_only = false)
     {
         $db = CmsApp::get_instance()->GetDb();
