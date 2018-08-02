@@ -1,6 +1,8 @@
 <?php
+
 namespace AdminLog;
 
+use AdminLog\storage;
 use cms_siteprefs;
 use CmsApp;
 use CmsRegularTask;
@@ -114,4 +116,4 @@ final class ReduceLogTask implements CmsRegularTask
     }
 
     public function on_failure($time = '') {}
-} // end of class
+} // class

@@ -1,6 +1,8 @@
 <?php
+
 namespace AdminLog;
 
+use AdminLog\storage;
 use cms_siteprefs;
 use cms_utils;
 use CmsRegularTask;

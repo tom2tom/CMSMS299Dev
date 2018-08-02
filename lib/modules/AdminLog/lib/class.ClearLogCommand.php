@@ -1,10 +1,12 @@
 <?php
+
 namespace AdminLog;
-use \CMSMS\CLI\App;
-use \CMSMS\CLI\GetOptExt\Command;
-use \CMSMS\CLI\GetOptExt\Option;
-use \CMSMS\CLI\GetOptExt\GetOpt;
-use \GetOpt\Operand;
+
+use AdminLog\storage;
+use CMSMS\CLI\App;
+use CMSMS\CLI\GetOptExt\Command;
+use cms_utils;
+use function audit;
 
 class ClearLogCommand extends Command
 {
@@ -16,11 +18,10 @@ class ClearLogCommand extends Command
 
     public function handle()
     {
-        $mod = \cms_utils::get_module('AdminLog');
+        $mod = cms_utils::get_module('AdminLog');
 
-        $storage = new \AdminLog\storage( $mod );
+        $storage = new storage( $mod );
         $storage->clear();
         audit('','Admin log','Cleared');
     }
-
 }

@@ -17,7 +17,12 @@
 
 namespace News;
 
-class CreateDraftAlertTask implements \CmsRegularTask
+use cms_utils;
+use CmsApp;
+use CmsRegularTask;
+use const CMS_DB_PREFIX;
+
+class CreateDraftAlertTask implements CmsRegularTask
 {
   public function get_name()
   {
@@ -35,7 +40,7 @@ class CreateDraftAlertTask implements \CmsRegularTask
   public function test($time = '')
   {
     if( !$time ) $time = time();
-    $mod = \cms_utils::get_module('News');
+    $mod = cms_utils::get_module('News');
     $lastrun = (int) $mod->GetPreference('task1_lastrun');
     if( $lastrun >= ($time - 900) ) return FALSE; // hardcoded to 15 minutes
     return TRUE;
@@ -44,7 +49,7 @@ class CreateDraftAlertTask implements \CmsRegularTask
   public function on_success($time = '')
   {
     IF( !$time ) $time = time();
-    $mod = \cms_utils::get_module('News');
+    $mod = cms_utils::get_module('News');
     $mod->SetPreference('task1_lastrun',$time);
   }
 
@@ -52,7 +57,7 @@ class CreateDraftAlertTask implements \CmsRegularTask
 
   public function execute($time = '')
   {
-    $db = \CmsApp::get_instance()->GetDb();
+    $db = CmsApp::get_instance()->GetDb();
     if( !$time ) $time = time();
 
     $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news n WHERE status != \'published\'
