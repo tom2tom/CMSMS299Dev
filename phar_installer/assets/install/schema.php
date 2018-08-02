@@ -208,12 +208,12 @@ modified_date DT
     verbose_msg(ilang('install_creating_index', 'idx_content_props_by_content', $msg_ret));
 
     $flds = '
-handler_id I KEY,
-event_id I,
+handler_id I(4) KEY,
+event_id I(4),
 tag_name C(255),
-module_name C(32),
-removable I,
-handler_order I
+module_name C(48),
+removable I(1) DEFAULT 1,
+handler_order I(4)
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'event_handlers', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -221,9 +221,9 @@ handler_order I
     verbose_msg(ilang('install_created_table', 'event_handlers', $msg_ret));
 
     $flds = '
-event_id I KEY,
-originator C(32) NOTNULL,
-event_name C(200) NOTNULL
+event_id I(4) KEY,
+originator C(48) NOTNULL,
+event_name C(48) NOTNULL
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'events', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -241,12 +241,6 @@ event_name C(200) NOTNULL
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? $good : $bad;
     verbose_msg(ilang('install_creating_index', 'event_name', $msg_ret));
-
-    $sqlarray = $dbdict->CreateIndexSQL('idx_event_id',
-        CMS_DB_PREFIX.'events', 'event_id');
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? $good : $bad;
-    verbose_msg(ilang('install_creating_index', 'event_id', $msg_ret));
 
     $flds = '
 group_perm_id I KEY,
