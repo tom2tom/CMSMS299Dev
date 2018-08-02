@@ -16,11 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use AdminLog\auditor;
+use AdminLog\AutoPruneLogTask;
+use AdminLog\ClearLogCommand;
+use AdminLog\ReduceLogTask;
+use AdminLog\storage;
+use CMSMS\AuditManager;
+use CMSMS\HookManager;
+
 require_once(__DIR__.'/lib/class.storage.php');
 require_once(__DIR__.'/lib/class.auditor.php');
 require_once(__DIR__.'/lib/class.event.php');
 
-final class AdminLog extends \CMSModule
+final class AdminLog extends CMSModule
 {
     protected $storage;
     protected $auditor;
@@ -30,12 +38,12 @@ final class AdminLog extends \CMSModule
         parent::InitializeAdmin();
 
         //NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
-        \CMSMS\HookManager::add_hook('localizeperm',function($perm_source,$perm_name) {
+        HookManager::add_hook('localizeperm',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
                 $key = 'perm_'.str_replace(' ','_',$perm_name);
                 return $this->Lang($key);
             });
-        \CMSMS\HookManager::add_hook('getperminfo',function($perm_source,$perm_name) {
+        HookManager::add_hook('getperminfo',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
                 $key = 'permdesc_'.str_replace(' ','_',$perm_name);
                 return $this->Lang($key);
@@ -44,13 +52,13 @@ final class AdminLog extends \CMSModule
 
     public function SetParameters()
     {
-        $this->storage = new \AdminLog\storage( $this );
-        $this->auditor = new \AdminLog\auditor( $this, $this->storage );
+        $this->storage = new storage( $this );
+        $this->auditor = new auditor( $this, $this->storage );
 
         try {
-            \CMSMS\AuditManager::set_auditor( $this->auditor );
+            AuditManager::set_auditor( $this->auditor );
         }
-        catch( \Exception $e ) {
+        catch( Exception $e ) {
             // ignore any error.
         }
     }
@@ -63,27 +71,27 @@ final class AdminLog extends \CMSModule
     public function IsAdminOnly() { return true; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
-    public function HasCapability($capability, $params = array())
+    public function HasCapability($capability, $params = [])
     {
-        if( $capability == \CmsCoreCapabilities::TASKS ) return true;
+        if( $capability == CmsCoreCapabilities::TASKS ) return true;
         if( $capability == 'clicommands' ) return true;
     }
 
     public function get_tasks()
     {
         $out = [];
-        $out[] = new \AdminLog\AutoPruneLogTask();
-        $out[] = new \AdminLog\ReduceLogTask();
+        $out[] = new AutoPruneLogTask();
+        $out[] = new ReduceLogTask();
         return $out;
     }
 
     public function get_cli_commands( $app )
     {
-        if( ! $app instanceof \CMSMS\CLI\App ) throw new \LogicException(__METHOD__.' Called from outside of cmscli');
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new \LogicException(__METHOD__.' Called from outside of cmscli');
+        if( ! $app instanceof \CMSMS\CLI\App ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
+        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
 
         $out = [];
-        $out[] = new \AdminLog\ClearLogCommand( $app );
+        $out[] = new ClearLogCommand( $app );
         return $out;
     }
 } // class
