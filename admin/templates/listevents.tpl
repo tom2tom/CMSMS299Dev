@@ -16,7 +16,7 @@
     <tr>
       <th title="{lang('title_event_name')}">{lang('event')}</th>
       <th title="{lang('title_event_originator')}">{lang('originator')}</th>
-      <th title="{lang('title_event_handlers')}">{lang('eventhandler')}</th>
+      <th title="{lang('title_event_handlers')}">{lang('handlers')}</th>
       <th title="{lang('title_event_description')}" style="width:50%;">{lang('description')}</th>
       <th class="pageicon">&nbsp;</th>
       {if $access}
@@ -30,7 +30,7 @@
       {strip}
       <td>
        {if $access}
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;module={$one.originator}&amp;event={$one.event_name}" title="{lang('modifyeventhandlers')}">{$one.event_name}</a>
+        <a href="{$editurl}{$urlext}&amp;action=edit&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{lang('modifyeventhandlers')}">{$one.event_name}</a>
        {else}
         {$one.event_name}
        {/if}
@@ -38,16 +38,16 @@
       <td>{$one.originator}</td>
       <td>
        {if $one.usage_count > 0}
-        <a href="{$helpurl}{$urlext}&amp;module={$one.originator}&amp;event={$one.event_name}" title="{lang('help')}">{$one.usage_count}</a>
+        <a href="{$helpurl}{$urlext}&amp;originator={$one.originator}&amp;event={$one.event_name}" title="{lang('help')}">{$one.usage_count}</a>
        {/if}
       </td>
       <td>{$one.description}</td>
       <td class="icons_wide">
-        <a href="{$helpurl}{$urlext}&amp;module={$one.originator}&amp;event={$one.event_name}">{$iconinfo}</a>
+        <a href="{$helpurl}{$urlext}&amp;originator={$one.originator}&amp;event={$one.event_name}">{$iconinfo}</a>
       </td>
       {if $access}
       <td class="icons_wide">
-        <a href="{$editurl}{$urlext}&amp;action=edit&amp;module={$one.originator}&amp;event={$one.event_name}">{$iconedit}</a>
+        <a href="{$editurl}{$urlext}&amp;action=edit&amp;originator={$one.originator}&amp;event={$one.event_name}">{$iconedit}</a>
       </td>
       {/if}
 {/strip}

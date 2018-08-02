@@ -19,6 +19,7 @@
 use CMSMS\Events;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
+use CMSMS\SimplePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -26,7 +27,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 check_login();
 
-$urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
+$urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
 	redirect('listevents.php'.$urlext);
 	return;
@@ -38,16 +39,16 @@ $access = check_permission($userid, 'Modify Events');
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup	lang('noaccessto', lang('editeventhandler'))
+//TODO some immediate popup	lang('noaccessto', lang('modifyeventhandler'))
     return;
 }
 
 $action = '';
-$module = '';
-$modulename = '';
-$event = '';
 $description = '';
+$event = '';
 $handler = '';
+$sender = '';
+$sendername = '';
 
 if ($access) {
 	$icondown = $themeObject->DisplayImage('icons/system/arrow-d.gif', lang('down'),'','','systemicon');
@@ -56,36 +57,36 @@ if ($access) {
 
 	if (isset($_POST['add'])) {
 		// we're adding some funky event handler
-		$module = trim(cleanValue($_POST['module']));
+		$sender = trim(cleanValue($_POST['originator']));
 		$event = trim(cleanValue($_POST['event']));
 		$handler = trim(cleanValue($_POST['handler']));
-		if ($module && $event && $handler) {
+		if ($sender && $event && $handler) {
 			if (strncmp($handler,'m:',2) == 0) {
 				$handler = substr($handler, 2);
-				Events::AddEventHandler($module, $event, false, $handler);
+				Events::AddEventHandler($sender, $event, false, $handler);
 			} else {
-				Events::AddEventHandler($module, $event, $handler);
+				Events::AddEventHandler($sender, $event, $handler);
 			}
 		}
 	} else {
-		// we're processing a link-click up/down/delete
+		// perhaps we're processing a link-click up/down/delete
 		//TODO clear events cache(s) when relevant
-		$cur_order = -1;
+
 		if (!empty($_GET['action'])) $action = trim(cleanValue($_GET['action']));
-		if (!empty($_GET['module'])) $module = trim(cleanValue($_GET['module']));
+		if (!empty($_GET['originator'])) $sender = trim(cleanValue($_GET['originator']));
 		if (!empty($_GET['event'])) $event = trim(cleanValue($_GET['event']));
 		if (!empty($_GET['handler'])) $handler = (int)$_GET['handler'];
-		if (!empty($_GET['order'])) $cur_order = (int)$_GET['order'];
-		if ($module == '' || $event == '' || $action == '') {
-//			$themeObject->RecordNotice('error', lang('missingparams')); //TODO useless before return
-			return;
+		if (!empty($_GET['order'])) {
+			$cur_order = (int)$_GET['order'];
+		} else {
+			$cur_order = -1;
 		}
 
 		switch ($action) {
 		case 'up':
 			// move an item up (decrease its order)
 			// increases the previous order, and decreases the current handler id
-			if(!$handler || $cur_order < 1) {
+			if (!$handler || $cur_order < 1) {
 //				$themeObject->RecordNotice('error', lang('someerror')); //TODO useless
 				return;
 			}
@@ -95,15 +96,14 @@ if ($access) {
 		case 'down':
 			// move an item down (increase its order)
 			// decreases the next order, and increases the current handler id
-			if(!$handler || $cur_order < 1) {
-//				$themeObject->RecordNotice('error', lang('someerror')); //TODO useless before return
+			if (!$handler || $cur_order < 1) {
 				return;
 			}
 			Events::OrderHandlerDown($handler);
 			break;
 
 		case 'delete':
-			if(!$handler) {
+			if (!$handler) {
 //				$themeObject->RecordNotice('error', lang('missingparams')); //TODO useless befor return
 				return;
 			}
@@ -116,44 +116,43 @@ if ($access) {
 		} // switch
 	} // not adding
 
-	if ($module == 'Core') {
+	if ($sender == 'Core') {
+		$sendername = lang('core');
 		$description = Events::GetEventDescription($event);
-		$modulename = lang('core');
 	} else {
-		$objinstance = cms_utils::get_module($module);
+$ADBG = $_GET;
+		$objinstance = cms_utils::get_module($sender);
+		$sendername  = $objinstance->GetFriendlyName();
 		$description = $objinstance->GetEventDescription($event);
-		$modulename  = $objinstance->GetFriendlyName();
 	}
 
 	// get the handlers for this event
-	$handlers = Events::ListEventHandlers($module, $event);
+	$handlers = Events::ListEventHandlers($sender, $event);
 
 	// get all available handlers
 	$allhandlers = null;
 	// some of them being user-defined tags
-	$mgr = cmsms()->GetSimplePluginOperations();
-	$plugins = $mgr->get_list();
-	if ($plugins) {
-		foreach ($plugins as $plugin_name) {
-			$allhandlers[$plugin_name] = $plugin_name;
-		}
+	$ops = SimplePluginOperations::get_instance();
+	$plugins = $ops->get_list();
+	foreach ($plugins as $plugin_name) {
+		$allhandlers[$plugin_name] = $plugin_name;
 	}
 	// and others being modules
-	$modops = ModuleOperations::get_instance();
-	$allmodules = $modops->GetInstalledModules();
+	$ops = ModuleOperations::get_instance();
+	$allmodules = $ops->GetInstalledModules();
 	foreach ($allmodules as $key) {
-		if ($key == $modulename) continue;
-		$modinstance = $modops->get_module_instance($key);
+		if ($key == $sendername) continue;
+		$modinstance = $ops->get_module_instance($key);
 		if ($modinstance && $modinstance->HandlesEvents()) {
 			$allhandlers[$key] = 'm:'.$key;
 		}
 	}
 } else {
-	$handlers = null;
 	$allhandlers = null;
+	$handlers = null;
+	$icondel = null;
 	$icondown = null;
 	$iconup = null;
-	$icondel = null;
 }
 
 $selfurl = basename(__FILE__);
@@ -168,13 +167,12 @@ $smarty->assign([
 	'icondel' => $icondel,
 	'icondown' => $icondown,
 	'iconup' => $iconup,
-	'module' => $module, //internal name
-	'modulename' => $modulename, //public/friendly name
-	'urlext' => $urlext,
+	'originator' => $sender, //internal name
+	'originname' => $sendername, //public/friendly name
 	'selfurl' => $selfurl,
+	'urlext' => $urlext,
 ]);
 
 include_once 'header.php';
 $smarty->display('editevent.tpl');
 include_once 'footer.php';
-

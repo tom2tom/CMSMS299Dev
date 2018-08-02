@@ -1,3 +1,4 @@
+<h3>{lang('modifyeventhandlers')}</h3>
 <fieldset>
   <legend><strong>{lang('event')}</strong></legend>
   <div class="pageoverflow">
@@ -6,23 +7,22 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">{lang('originator')}:</p>
-    <p class="pageinput">{$modulename}</p>
+    <p class="pageinput">{$originname}</p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">{lang('description')}:</p>
     <p class="pageinput">{$description}</p>
   </div>
 </fieldset>
-
 <br />
+<h4>{lang('eventhandlers')}</h3>
 {if $handlers}
-  <h3>{lang('eventhandler')}</h3>
   <table class="pagetable">
   <thead>
     <tr>
       <th>{lang('order')}</th>
       <th>{lang('tag')}</th>
-      <th>{lang('module')}</th>
+      <th>{lang('originator')}</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
       <th class="pageicon">&nbsp;</th>
@@ -36,17 +36,17 @@
       <td>{$one.module_name}</td>
       <td>
       {if !$one@first}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;action=up&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$iconup}</a>
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=up&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$iconup}</a>
       {/if}
       </td>
       <td>
       {if !$one@last}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;action=down&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$icondown}</a>
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=down&amp;order={$one.handler_order}&amp;handler={$one.handler_id}">{$icondown}</a>
       {/if}
       </td>
       <td>
       {if $one.removable}{if $one.tag_name}{$myname=$one.tag_name}{else}{$myname=$one.module_name}{/if}
-      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{lang('deleteconfirm', $myname)}');return false;">{$icondel}</a>
+      <a href="{$selfurl}{$urlext}&amp;event={$event}&amp;originator={$originator}&amp;action=delete&amp;handler={$one.handler_id}" onclick="cms_confirm_linkclick(this,'{lang('deleteconfirm', $myname)}');return false;">{$icondel}</a>
       {/if}
       </td>
 {/strip}
@@ -54,17 +54,16 @@
   {/foreach}</tbody>
   </table>
 {else}
-{lang('none')}
+{lang('none')}<br />
 {/if}
 
 {if $allhandlers}
 <div class="pageinput pregap">
  <form action="{$selfurl}{$urlext}" method="post">
   <div class="hidden">
-    <input type="hidden" name="module" value="{$module}" />
     <input type="hidden" name="event" value="{$event}" />
+    <input type="hidden" name="originator" value="{$originator}" />
   </div>
-  <br />
   <select name="handler">
   {foreach $allhandlers as $key => $value}
   <option value="{$value}">{$key}</option>
