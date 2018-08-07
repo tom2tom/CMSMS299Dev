@@ -82,29 +82,70 @@ class ArrayTree
 	}
 
 	/**
+	 * Support function remove child-data array from from $array
+	 *
+	 * @param array $keys	  tree-array keys
+	 * @param mixed $array	  tree-array
+	 */
+	private static function dropMember($keys, &$array)
+	{
+		$index = array_shift($keys);
+		if (isset($keys[0])) {
+			self::dropMember($keys, $array[$index]);
+		} else {
+			unset($array[$index]);
+		}
+	}
+
+	/**
+	 *
+	 * @param array $tree	  tree-structured data to process
+	 * @param mixed $path	  array, or ':'-separated string, of keys
+	 */
+	public static function drop_node(array &$tree, $path,
+		string $childkey = self::CHILDKEY) : void
+	{
+		$pathkeys = self::process_path($path);
+		if ($pathkeys) {
+			$key = array_shift($pathkeys);
+			$p = [$key];
+			$node = $tree[$key];
+			foreach ($pathkeys as $key) {
+				if (isset($node[$childkey][$key])) {
+					$p[] = $childkey; $p[] = $key;
+					$node = $node[$childkey][$key];
+				} else {
+					return;
+				}
+			}
+			self::dropMember($p, $tree);
+		}
+	}
+
+	/* *
 	 *
 	 * @param array $tree       Tree-structured data to process
 	 * @param mixed $parentname $tree key-identifier or null for the root.
 	 *   Other than for root node, a node with the specified 'name' property must exist.
 	 * @param string $parentkey $tree key-identifier default self::PARENTKEY
 	 */
-	public static function attach_dangles(array &$tree, $parentname,
+/*	public static function attach_dangles(array &$tree, $parentname,
 		string $parentkey = self::PARENTKEY) : void
 	{
 		//IS THIS POSSIBLE ?
 	}
-
-	/**
+*/
+	/* *
 	 *
 	 * @param array $tree       Tree-structured data to process
 	 * @param string $parentkey $tree key-identifier default self::PARENTKEY
 	 */
-	public static function drop_dangles(array &$tree,
+/*	public static function drop_dangles(array &$tree,
 		string $parentkey = self::PARENTKEY) : void
 	{
 		//IS THIS POSSIBLE ?
 	}
-
+*/
 	/**
 	 *
 	 * @param array $tree    Tree-structured data to process
