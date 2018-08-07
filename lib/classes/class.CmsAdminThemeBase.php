@@ -748,6 +748,7 @@ abstract class CmsAdminThemeBase
         'type'=>'external',
         'description'=>'',
         'priority'=>2,
+        'final'=>true,
         'show_in_menu'=>true,
         'target'=>'_blank'];
 
@@ -766,14 +767,15 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('currentusers')),
         'description'=>lang('usersdescription'),
         'priority'=>1,
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('userPerms')];
-
+/*
         $items[] = ['name'=>'adduser','parent'=>'usersgroups',
         'url'=>'adduser.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('adduser')),
         'description'=>'',
         'priority'=>1,
-        'show_in_menu'=>false]; //??
+        'show_in_menu'=>false]; //?? TODO why include it, if never seen
 
         $items[] = ['name'=>'edituser','parent'=>'usersgroups',
         'url'=>'edituser.php'.$urlext,
@@ -781,14 +783,15 @@ abstract class CmsAdminThemeBase
         'description'=>'',
         'priority'=>1,
         'show_in_menu'=>false]; //??
-
+*/
         $items[] = ['name'=>'listgroups','parent'=>'usersgroups',
         'url'=>'listgroups.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('currentgroups')),
         'description'=>lang('groupsdescription'),
         'priority'=>2,
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('groupPerms')];
-
+/*
         $items[] = ['name'=>'addgroup','parent'=>'usersgroups',
         'url'=>'addgroup.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('addgroup')),
@@ -802,12 +805,13 @@ abstract class CmsAdminThemeBase
         'description'=>'',
         'priority'=>2,
         'show_in_menu'=>false]; //??
-
+*/
         $items[] = ['name'=>'groupmembers','parent'=>'usersgroups',
         'url'=>'changegroupassign.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('groupassignments')),
         'description'=>lang('groupassignmentdescription'),
         'priority'=>3,
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('groupPerms')];
 
         $items[] = ['name'=>'groupperms','parent'=>'usersgroups',
@@ -815,6 +819,7 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('grouppermissions')),
         'description'=>lang('grouppermsdescription'),
         'priority'=>3,
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('groupPerms')];
 
         // ~~~~~~~~~~ extensions menu items ~~~~~~~~~~
@@ -823,23 +828,26 @@ abstract class CmsAdminThemeBase
         'url'=>'listtags.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('tags')),
         'description'=>lang('tagdescription'),
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('taghelpPerms')];
         $items[] = ['name'=>'usertags','parent'=>'extensions',
         'url'=>'listsimpletags.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('usertagPerms')];
         $items[] = ['name'=>'eventhandlers','parent'=>'extensions',
         'url'=>'listevents.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('eventhandlers')),
         'description'=>lang('eventhandlerdescription'),
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('eventPerms')];
 /*
         $items[] = ['name'=>'editeventhandler','parent'=>'eventhandlers',
         'url'=>'editevent.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('editeventhandler')),
         'description'=>lang('editeventhandlerdescription'),
-        'show_in_menu'=>false]; //TODO why have it, if never seen?
+        'show_in_menu'=>false]; //??
 */
         // ~~~~~~~~~~ site-admin menu items ~~~~~~~~~~
 
@@ -848,24 +856,28 @@ abstract class CmsAdminThemeBase
         'title'=>$this->_FixSpaces(lang('globalconfig')),
         'description'=>lang('preferencesdescription'),
         'priority'=>1,
+        'final'=>true,
         'show_in_menu'=>$this->HasPerm('sitePrefPerms')];
         $items[] = ['name'=>'systeminfo','parent'=>'siteadmin',
         'url' => 'systeminfo.php'.$urlext,
         'title' => $this->_FixSpaces(lang('systeminfo')),
         'description' => lang('systeminfodescription'),
         'priority'=>2,
+        'final'=>true,
         'show_in_menu' => $this->HasPerm('adminPerms')];
         $items[] = ['name'=>'systemmaintenance','parent'=>'siteadmin',
         'url' => 'systemmaintenance.php'.$urlext,
         'title' => $this->_FixSpaces(lang('systemmaintenance')),
         'description' => lang('systemmaintenancedescription'),
         'priority'=>3,
+        'final'=>true,
         'show_in_menu' => $this->HasPerm('adminPerms')];
         $items[] = ['name'=>'checksum','parent'=>'siteadmin',
         'url' => 'checksum.php'.$urlext,
         'title' => $this->_FixSpaces(lang('system_verification')),
         'description' => lang('checksumdescription'),
         'priority'=>4,
+        'final'=>true,
         'show_in_menu' => $this->HasPerm('adminPerms')];
 
         // ~~~~~~~~~~ myprefs menu items ~~~~~~~~~~
@@ -874,16 +886,19 @@ abstract class CmsAdminThemeBase
         'url'=>'myaccount.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('myaccount')),
         'description'=>lang('myaccountdescription'),
+        'final'=>true,
         'show_in_menu'=>$this->_perms['myaccount']];
         $items[] = ['name'=>'mysettngs','parent'=>'myprefs',
         'url'=>'mysettings.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('mysettings')),
         'description'=>lang('mysettingsdescription'),
+        'final'=>true,
         'show_in_menu'=>$this->_perms['mysettings']];
         $items[] = ['name'=>'mybookmarks','parent'=>'myprefs',
         'url'=>'listbookmarks.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('mybookmarks')),
         'description'=>lang('mybookmarksdescription'),
+        'final'=>true,
         'show_in_menu'=>$this->_perms['bookmarks']];
 /*      $items[] = ['name'=>'addbookmark','parent'=>'myprefs',
         'url'=>'addbookmark.php'.$urlext,
@@ -903,6 +918,7 @@ abstract class CmsAdminThemeBase
             $item['parent'] = (!empty($item['section'])) ? $item['section'] : 'extensions';
             unset($item['section']);
             $item['title'] = $this->_FixSpaces($item['title']);
+            $item['final'] = true;
             $item['show_in_menu'] = true;
             $items[] = $item;
         }
@@ -914,9 +930,6 @@ abstract class CmsAdminThemeBase
                 RecursiveIteratorIterator::SELF_FIRST | RecursiveArrayTreeIterator::NONLEAVES_ONLY
                 );
         foreach ($iter as $key => $value) {
-/* TODO e.g. add/remove properties,
- remove those without children (unless 'forcekeep' => true)
-*/
             if (!empty($value['children'])) {
                 $node = ArrayTree::node_get_data($tree, $value['path'], '*');
                 uasort($node['children'], function($a,$b) use ($value) {
@@ -929,13 +942,8 @@ abstract class CmsAdminThemeBase
                     return strnatcmp($a['title'],$b['title']); //TODO mb_cmp if available
                 });
                 $ret = ArrayTree::node_set_data($tree, $value['path'], 'children', $node['children']);
-            } else {
-$adbg = $value;
-                $depth = $iter->getDepth();
-                if ($depth < 2 && empty($value['final'])) { //c.f. upstream $maxdepth
-$X = 1;
-//                    $iter->offsetUnset(X); //TODO relevant offset
-                }
+//            } else {
+//              $adbg = $value;
             }
         }
 
@@ -980,9 +988,21 @@ $X = 1;
         } else {
             $alldepth = $maxdepth;
         }
-        if ($maxdepth > 0 || $alldepth > 0) {
-            //get a subset of $tree
-            //TODO $tree = func($tree)
+
+        $iter = new RecursiveArrayTreeIterator(
+                new ArrayTreeIterator($tree),
+                RecursiveIteratorIterator::CHILD_FIRST
+                );
+        foreach ($iter as $value) {
+//            if (empty($value['show_in_menu'])) {
+            if (empty($value['children']) && empty($value['final'])) {
+                 ArrayTree::drop_node($tree, $value['path']);
+            } elseif ($maxdepth > 0 || $alldepth > 0) {
+                $depth = $iter->getDepth();
+                if ($depth > $maxdepth) { //TODO $alldepth processing
+                    ArrayTree::drop_node($tree, $value['path']);
+                }
+            }
         }
 
         if ($usepath) {
@@ -1121,14 +1141,14 @@ $X = 1;
     /**
      * Return a specified property of the active menu-item, if such exists.
      *
-	 * @param string $key identifier
+     * @param string $key identifier
      * @return string
      */
     public function get_active(string $key)
     {
-		if ($this->_menuTree && $this->_activePath) {
-	        return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, $key);
-		}
+        if ($this->_menuTree && $this->_activePath) {
+            return ArrayTree::node_get_data($this->_menuTree, $this->_activePath, $key);
+        }
     }
 
     /**
@@ -1687,10 +1707,10 @@ $X = 1;
      * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
      * @since 2.3 (pre-2.3, specific themes handled this individually)
      */
-	public function get_my_alerts()
-	{
-		return Alert::load_my_alerts();
-	}
+    public function get_my_alerts()
+    {
+        return Alert::load_my_alerts();
+    }
 
     /**
      * Return an array of admin pages, suitable for use in a dropdown.
