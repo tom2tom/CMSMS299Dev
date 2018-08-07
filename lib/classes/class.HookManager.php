@@ -359,11 +359,10 @@ namespace CMSMS {
 
          * Further arguments will be passed to each hook handler.
          *
-         * Each handler's return probably should have the same number and type
-         * of parameters, for sane accumulation in the results array.
+         * Each handler's return is merely 'pushed' into the results array.
          *
          * @param  array $args 1 or more members, 1st is hook-name
-         * @return array Mixed data, as it cannot be ascertained what data is passed back from handler(s).
+         * @return mixed null or array, each member being data returned from a handler.
          */
         public static function do_hook_accumulate(...$args)
         {
