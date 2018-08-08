@@ -1016,13 +1016,14 @@ body {
 
 [[* /* --- COLORS --- */ *]]
 
-[[assign var='light_grey' value='#f1f1f1']]
-[[assign var='grey' value='#e9e9e9']]
-[[assign var='dark_grey' value='#555' scope=global]]
-[[assign var='white' value='#fff']]
-[[assign var='orange' value='#f39c2c' scope=global]]
-[[assign var='dark_orange' value='#e6870e']]
-[[assign var='yellow' value='#fdbd34']]
+[[$light_grey='#f1f1f1']]
+[[$grey='#e9e9e9']]
+[[$dark_grey='#555' scope=global]]
+[[$white='#fff']]
+[[$off_white='#fefefe']]
+[[$orange='#f39c2c' scope=global]]
+[[$dark_orange='#e6870e']]
+[[$yellow='#fdbd34']]
 
 [[* /* =====================================
  ICON FONT
@@ -2410,6 +2411,13 @@ a.printbutton {
 			<media_type>screen</media_type>
 			<content><![CDATA[[[strip]]
 
+[[* /* --- COLORS --- */ *]]
+[[$dark_grey='#555' scope=global]]
+[[$light_grey='#f1f1f1']]
+[[$mid_grey='#e9e9e9']]
+[[$off_white='#fefefe']]
+[[$orange='#f39c2c' scope=global]]
+
 [[* /* ------ BANNER AREA ------ */  *]]
 .banner {
 	background: #fefefe; 
@@ -2769,30 +2777,30 @@ a {
 &lt;ul&gt;
   {foreach $data as $node}
     {* setup classes for the anchor and list item *}
-    {assign var='liclass' value='menudepth'|cat:$depth}
-    {assign var='aclass' value=''}
+    {$liclass='menudepth'|cat:$depth}
+    {$aclass=''}
 
     {* the first child gets a special class *}
-    {if $node@first &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' first_child'}{/if}
+    {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
 
     {* the last child gets a special class *}
-    {if $node@last &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' last_child'}{/if}
+    {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
 
     {if $node-&gt;current}
       {* this is the current page *}
-      {assign var='liclass' value=$liclass|cat:' menuactive'}
-      {assign var='aclass' value=$aclass|cat:' menuactive'}
+      {$liclass=$liclass|cat:' menuactive'}
+      {$aclass=$aclass|cat:' menuactive'}
     {/if}
 
     {if $node-&gt;parent}
       {* this is a parent of the current page *}
-      {assign var='liclass' value=$liclass|cat:' menuactive menuparent'}
-      {assign var='aclass' value=$aclass|cat:' menuactive menuparent'}
+      {$liclass=$liclass|cat:' menuactive menuparent'}
+      {$aclass=$aclass|cat:' menuactive menuparent'}
     {/if}
 
     {if $node-&gt;children_exist}
-      {assign var='liclass' value=$liclass|cat:' parent'}
-      {assign var='aclass' value=$aclass|cat:' parent'}
+      {$liclass=$liclass|cat:' parent'}
+      {$aclass=$aclass|cat:' parent'}
     {/if}
 
     {* build the menu item node *}
@@ -2980,7 +2988,7 @@ a {
 			<dflt_contents><![CDATA[{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
 {if isset($entry-&gt;canonical)}
   {* note this syntax ensures that the canonical variable is set into global scope *}
-  {assign var='canonical' value=$entry-&gt;canonical scope=global}
+  {$canonical=$entry-&gt;canonical scope=global}
 {/if}
 
 {if $entry-&gt;postdate}
@@ -3234,9 +3242,10 @@ li.active0n h3 - n is the depth/level of the node. To style the active page for 
 li.sectionheader h3 - To style section header
 li.separator - To style the ruler for the separator *} 
 
-{assign var='number_of_levels' value=10000}
 {if isset($menuparams.number_of_levels)}
-  {assign var='number_of_levels' value=$menuparams.number_of_levels}
+  {$number_of_levels=$menuparams.number_of_levels}
+{else}
+  {$number_of_levels=10000}
 {/if}
 
 {if $count &gt; 0}
@@ -3251,12 +3260,13 @@ li.separator - To style the ruler for the separator *}
 {/if}
 
 {if $node-&gt;parent == true or $node-&gt;current == true}
-  {assign var='classes' value='menuactive'}
   {if $node-&gt;parent == true}
-    {assign var='classes' value='menuactive menuparent'}
+    {$classes='menuactive menuparent'}
+  {else}
+    {$classes='menuactive'}
   {/if}
   {if $node-&gt;children_exist == true and $node-&gt;depth &lt; $number_of_levels}
-    {assign var='classes' value=$classes|cat:' parent'}
+    {$classes=$classes|cat:' parent'}
   {/if}
   &lt;li class="{$classes}"&gt;&lt;a class="{$classes}" href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
 
@@ -3466,30 +3476,30 @@ li.separator - To style the ruler for the separator *}
 &lt;ul&gt;
   {foreach $data as $node}
     {* setup classes for the anchor and list item *}
-    {assign var='liclass' value='menudepth'|cat:$depth}
-    {assign var='aclass' value=''}
+    {$liclass='menudepth'|cat:$depth}
+    {$aclass=''}
 
     {* the first child gets a special class *}
-    {if $node@first &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' first_child'}{/if}
+    {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
 
     {* the last child gets a special class *}
-    {if $node@last &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' last_child'}{/if}
+    {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
 
     {if $node-&gt;current}
       {* this is the current page *}
-      {assign var='liclass' value=$liclass|cat:' menuactive'}
-      {assign var='aclass' value=$aclass|cat:' menuactive'}
+      {$liclass=$liclass|cat:' menuactive'}
+      {$aclass=$aclass|cat:' menuactive'}
     {/if}
 
     {if $node-&gt;parent}
       {* this is a parent of the current page *}
-      {assign var='liclass' value=$liclass|cat:' menuactive menuparent'}
-      {assign var='aclass' value=$aclass|cat:' menuactive menuparent'}
+      {$liclass=$liclass|cat:' menuactive menuparent'}
+      {$aclass=$aclass|cat:' menuactive menuparent'}
     {/if}
 
     {if $node-&gt;children_exist}
-      {assign var='liclass' value=$liclass|cat:' parent'}
-      {assign var='aclass' value=$aclass|cat:' parent'}
+      {$liclass=$liclass|cat:' parent'}
+      {$aclass=$aclass|cat:' parent'}
     {/if}
 
     {* build the menu item node *}
@@ -3643,30 +3653,30 @@ li.separator - To style the ruler for the separator *}
 &lt;ul{if $depth ==0} id="primary-nav"{else} class="unli"{/if}&gt;
   {foreach $data as $node}
     {* setup classes for the anchor and list item *}
-    {assign var='liclass' value=''}
-    {*{assign var='liclass' value=' depth'|cat:$depth}*}
-    {assign var='aclass' value=''}
+    {$liclass=''}
+    {*{$liclass=' depth'|cat:$depth}*}
+    {$aclass=''}
 
     {* the first child gets a special class 
-    {if $node@first &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' first_child'}{/if}
+    {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
     *}
 
     {* the last child gets a special class 
-    {if $node@last &amp;&amp; $node@total &gt; 1}{assign var='liclass' value=$liclass|cat:' last_child'}{/if}
+    {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
     *}
 
     {if $node-&gt;current}
       {* this is the current page *}
-      {assign var='liclass' value=$liclass|cat:' menuactive'}
-      {assign var='aclass' value=$aclass|cat:' menuactive'}
+      {$liclass=$liclass|cat:' menuactive'}
+      {$aclass=$aclass|cat:' menuactive'}
     {else if $node-&gt;parent}
       {* this is a parent of the current page *}
-      {assign var='liclass' value=$liclass|cat:' parent'}
-      {assign var='aclass' value=$aclass|cat:' parent'}
+      {$liclass=$liclass|cat:' parent'}
+      {$aclass=$aclass|cat:' parent'}
     {/if}
     {if isset($node-&gt;children)}
-      {assign var='liclass' value=$liclass|cat:' menuparent'}
-      {assign var='aclass' value=$aclass|cat:' menuparent'}
+      {$liclass=$liclass|cat:' menuparent'}
+      {$aclass=$aclass|cat:' menuparent'}
     {/if}
 
     {* build the menu item node *}
@@ -4059,7 +4069,7 @@ hr.separator - To style the ruler for the separator *}
 			<content><![CDATA[{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
 {if isset($entry-&gt;canonical)}
   {* note this syntax ensures that the canonical variable is set into global scope *}
-  {assign var='canonical' value=$entry-&gt;canonical scope=global}
+  {$canonical=$entry-&gt;canonical scope=global}
 {/if}
 
 {if $entry-&gt;postdate}
@@ -4133,8 +4143,8 @@ hr.separator - To style the ruler for the separator *}
 			<content><![CDATA[{* this is a sample detail template that works with the Simplex theme *}
 {* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
 {if isset($entry-&gt;canonical)}
-  {assign var='canonical' value=$entry-&gt;canonical scope=global}
-  {assign var='main_title' value=$entry-&gt;title scope=global}
+  {$canonical=$entry-&gt;canonical scope=global}
+  {$main_title=$entry-&gt;title scope=global}
 {/if}
 
 {* &lt;h2&gt;{$entry-&gt;title|cms_escape:htmlall}&lt;/h2&gt; *}
@@ -4430,9 +4440,10 @@ li.active0n h3 - n is the depth/level of the node. To style the active page for 
 li.sectionheader h3 - To style section header
 li.separator - To style the ruler for the separator *} 
 
-{assign var='number_of_levels' value=10000}
 {if isset($menuparams.number_of_levels)}
-  {assign var='number_of_levels' value=$menuparams.number_of_levels}
+  {$number_of_levels=$menuparams.number_of_levels}
+{else}
+  {$number_of_levels=10000}
 {/if}
 
 {if $count &gt; 0}
@@ -4447,12 +4458,13 @@ li.separator - To style the ruler for the separator *}
 {/if}
 
 {if $node-&gt;parent == true or $node-&gt;current == true}
-  {assign var='classes' value='menuactive'}
   {if $node-&gt;parent == true}
-    {assign var='classes' value='menuactive menuparent'}
+    {$classes='menuactive menuparent'}
+  {else}
+    {$classes='menuactive'}
   {/if}
   {if $node-&gt;children_exist == true and $node-&gt;depth &lt; $number_of_levels}
-    {assign var='classes' value=$classes|cat:' parent'}
+    {$classes=$classes|cat:' parent'}
   {/if}
   &lt;li class="{$classes}"&gt;&lt;a class="{$classes}" href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
 
