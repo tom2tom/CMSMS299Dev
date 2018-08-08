@@ -608,6 +608,7 @@ $lang['msg_type_saved'] = 'Template type saved';
 $lang['name'] = 'Name';
 $lang['newname'] =  'New Name';
 $lang['next'] = 'Next';
+$lang['new_design'] = 'New Design';
 $lang['new_stylesheet'] = 'New Stylesheet';
 $lang['new_template'] = 'New Template';
 $lang['no'] = 'No';
