@@ -15,32 +15,35 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Events;
+
 function smarty_function_cms_stylesheet($params, $template)
 {
 	#---------------------------------------------
 	# Initials
 	#---------------------------------------------
 
-    $gCms = CmsApp::get_instance();
-	$config = $gCms->GetConfig();
-
 	global $CMS_LOGIN_PAGE;
 	global $CMS_STYLESHEET;
-	$CMS_STYLESHEET = 1;
-	$name = null;
-	$design_id = -1;
-	$cache_dir = $config['css_path'];
-	$stylesheet = '';
-	$combine_stylesheets = true;
-	$fnsuffix = '';
-	$trimbackground = FALSE;
-	$root_url = $config['css_url'];
 
 	#---------------------------------------------
 	# Trivial Exclusion
 	#---------------------------------------------
 
 	if( isset($CMS_LOGIN_PAGE) ) return;
+
+	$CMS_STYLESHEET = 1;
+    $gCms = CmsApp::get_instance();
+	$config = $gCms->GetConfig();
+
+	$name = null;
+	$design_id = -1;
+	$cache_dir = $config['css_path'];
+	$stylesheet = '';
+	$combine_stylesheets = true;
+	$fnsuffix = '';
+	$trimbackground = false;
+	$root_url = $config['css_url'];
 
 	#---------------------------------------------
 	# Read parameters
@@ -58,7 +61,7 @@ function smarty_function_cms_stylesheet($params, $template)
             if( !is_object($content_obj) ) return;
             $design_id = (int) $content_obj->GetPropertyValue('design_id');
         }
-        if( !$name && $design_id < 1 ) throw new \RuntimeException('Invalid parameters, or there is no design attached to the content page');
+        if( !$name && $design_id < 1 ) throw new RuntimeException('Invalid parameters, or there is no design attached to the content page');
 
         // @todo: change this stuff to just use // instead of protocol specific URL.
 
@@ -79,16 +82,16 @@ function smarty_function_cms_stylesheet($params, $template)
             $query = new CmsLayoutStylesheetQuery(array('name'=>$params['name']) );
         } else if( $design_id > 0 ) {
             // stylesheet by design id
-            $query = new \CmsLayoutStylesheetQuery( [ 'design'=>$design_id ] );
+            $query = new CmsLayoutStylesheetQuery( [ 'design'=>$design_id ] );
         }
-        if( !$query ) throw new \RuntimeException('Problem: Could not build a stylesheet query with the provided data');
+        if( !$query ) throw new RuntimeException('Problem: Could not build a stylesheet query with the provided data');
 
         #---------------------------------------------
         # Execute
         #---------------------------------------------
 
         $nrows = $query->TotalMatches();
-        if( !$nrows ) throw new \RuntimeException('No stylesheets matched the criteria specified');
+        if( !$nrows ) throw new RuntimeException('No stylesheets matched the criteria specified');
         $res = $query->GetMatches();
 
         // we have some output, and the stylesheet objects have already been loaded.
@@ -196,7 +199,7 @@ function smarty_function_cms_stylesheet($params, $template)
                 $stylesheet = substr($stylesheet,0,strlen($stylesheet)-1);
             }
         }
-    } catch( \Exception $e ) {
+    } catch( Exception $e ) {
         cms_error('cms_stylesheet',$e->GetMessage());
         $stylesheet = '<!-- cms_stylesheet error: '.$e->GetMessage().' -->';
     }
@@ -257,7 +260,7 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template
 		$_contents = preg_replace('/(\w*?background.*?\:\w*?).*?(;.*?)/', '', $_contents);
 	}
 
-    \CMSMS\Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
+    Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
 
 	// Write file
 	$fh = fopen($filename,'w');
