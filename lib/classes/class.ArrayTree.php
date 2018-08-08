@@ -82,18 +82,21 @@ class ArrayTree
 	}
 
 	/**
-	 * Support function remove child-data array from from $array
+	 * Support function remove child-data array from $array
 	 *
 	 * @param array $keys	  tree-array keys
 	 * @param mixed $array	  tree-array
 	 */
-	private static function dropMember($keys, &$array)
+	private static function removeChild($keys, &$array)
 	{
-		$index = array_shift($keys);
-		if (isset($keys[0])) {
-			self::dropMember($keys, $array[$index]);
-		} else {
-			unset($array[$index]);
+		while (1) {
+			$index = array_shift($keys);
+			if (isset($keys[0])) {
+				$array = &$array[$index];
+			} else {
+				unset($array[$index]);
+				return;
+			}
 		}
 	}
 
@@ -118,7 +121,7 @@ class ArrayTree
 					return;
 				}
 			}
-			self::dropMember($p, $tree);
+			self::removeChild($p, $tree);
 		}
 	}
 
