@@ -28,7 +28,7 @@ $design = null;
 try {
     if( !isset($params['design']) || $params['design'] == '' ) {
         $design= new CmsLayoutCollection;
-        $design->set_name('New Design');
+        $design->set_name($this->Lang('new_design'));
     }
     else {
         $design = CmsLayoutCollection::load($params['design']);
@@ -84,13 +84,14 @@ try {
 	}
 
     if( $design->get_id() > 0 ) {
-        \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
+        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
     } else {
-        \CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_design'));
+        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_design'));
     }
 
     $manage_stylesheets = $this->CheckPermission('Manage Stylesheets');
     $manage_templates = $this->CheckPermission('Modify Templates');
+    $smarty->assign('manage_templates',$manage_templates);
     $smarty->assign('design',$design);
 
 //TODO ensure flexbox css for .hbox.expand, .boxchild
@@ -180,7 +181,7 @@ $(document).ready(function() {
       $(elements).removeClass('selected ui-state-hover')
         .append($('<a href="#"/>')
         .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$mod->Lang("remove")}'))
+        .text('{$this->Lang("remove")}'))
         .find('input[type="checkbox"]')
         .attr('checked', true);
     }
