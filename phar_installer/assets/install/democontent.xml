@@ -752,7 +752,7 @@ body {
 }
 
 @media only screen and (min-width: 768px) {
-	
+
 	.container {
 		padding-left: 20px;
 		padding-right: 20px;
@@ -938,36 +938,36 @@ body {
 			<content><![CDATA[[[strip]]
 
 [[* APPEARANCE *]]
-[[* 
+[[*
 	/**
 	 * @copyright CMS Made Simple 2014
 	 * @author Goran Ilic (uniqu3e@gmail.com)
 	 * @version 1.1 (CMSMS 2.0 Package)
-	 * 
+	 *
 	 * Simplex Theme comes with 2 predefined Style variations, one is a "boxed" style as seen in
 	 * default installation which is controle with "boxed" ID that is set in Simplex Theme &lt;body&gt; tag.
-	 * If you remove this ID, a grey background on page body will be removed and layout will no longer 
+	 * If you remove this ID, a grey background on page body will be removed and layout will no longer
 	 * be wrapped inside a "box" but appear in a single background color which is by default white.
-	 * 
+	 *
 	 * Besides there are also predefined class names and styles that you can use on &lt;body&gt; tag to
 	 * change alignment of complete layout/page.
-	 * If you rightaligned class to body (example: &lt;body class='rightaligned and other classes'&gt;) 
+	 * If you rightaligned class to body (example: &lt;body class='rightaligned and other classes'&gt;)
 	 * then whole page layout will be positioned to right window side instead of centered position
 	 * and with class leftaligned the page layout will be positioned to left.
-	 * 
-	 * Maximum width of page layout is preset to 1440px in Simplex Core stylesheet, you can change this 
+	 *
+	 * Maximum width of page layout is preset to 1440px in Simplex Core stylesheet, you can change this
 	 * by adding a new rule in this stylesheet with a class .row (Example: .row { max-width: 1080px; }).
-	 * If you prefer a full width layout simply add fullwidth class to body tag of Simplex Template.  
+	 * If you prefer a full width layout simply add fullwidth class to body tag of Simplex Template.
 	 * This class will reset max-width limitation and force the page layout to full window width with
 	 * spacing on left and right of 30px.
-	 * 
-	 * Browser Support: 
+	 *
+	 * Browser Support:
 	 * Simplex Theme was tested in common modern Browser and IE8 (with gracefull fallback).
-	 * 
+	 *
 	 * Grid usage:
 	 * Simplex is using a custom Yetti Framework 12 column grid (https://github.com/Stikki/Yetti/tree/master)
 	 * based on Andy Taylors (http://cssgrid.net) 1140px Grid.
-	 * 
+	 *
 	 * Using the grid system is fairly simple. Make sure that grid columns
 	 * are wrapped inside a element with .row class.
 	 * When grid columns are inside a row element, floats are auto cleared,
@@ -975,16 +975,16 @@ body {
 	 * Grid columns have a spacing (margin-left) of 3.8% of the layout, whereby first column after
 	 * .row opening element will have no spacing (margin-left).
 	 * Grid columns are only applied to Browser and Screen size which are greater then 768px;
-	 * 
+	 *
 	 * Example (three column row):
-	 * 
+	 *
 	 * &lt;!-- container has a preset padding to left and right with 20px --&gt;
 	 * &lt;div class="container"&gt;
 	 *     &lt;!-- clears floating row of columns, sets maximum width of 1440px --&gt;
 	 *     &lt;div class="row some-class-to-apply-styles"&gt;
-	 *         &lt;!-- 
+	 *         &lt;!--
 	 *             four-col explanation: a simple math, grid is built out of 12 columns, so we say we want
-	 *             a grid column in size of four columns width therefore the name four- and to fill 
+	 *             a grid column in size of four columns width therefore the name four- and to fill
 	 *             our .row it is three times four-col column makes twelve columns (3 x 4 = 12)
 	 *         --&gt;
 	 *         &lt;div class="four-col my-class"&gt;
@@ -1006,8 +1006,8 @@ body {
 	 *         &lt;/div&gt;
 	 *     &lt;/div&gt;
 	 * &lt;/div&gt;
-	 * 
-	 */ 
+	 *
+	 */
 *]]
 
 [[* /* assign the images path to a variable */ *]]
@@ -1033,7 +1033,7 @@ body {
 	font-family: 'simplex';
 	src: url('[[$font]]/simplex.eot');
 	src: url('[[$font]]/simplex.eot?#iefix') format('embedded-opentype'),
-		url('[[$font]]/simplex.woff') format('woff'), 
+		url('[[$font]]/simplex.woff') format('woff'),
 		url('[[$font]]/simplex.ttf') format('truetype'),
 		url('[[$font]]/simplex.svg#simplex') format('svg');
 	font-weight: normal;
@@ -1102,7 +1102,7 @@ body {
 body {
 	background: [[$white]];
 	font-family: 'Noto Sans', sans-serif;
-	font-size: 1em; [[* /* base browser font size: 16px, now do math "XX / 16 = ??" where XX is desired font size */ *]] 
+	font-size: 1em; [[* /* base browser font size: 16px, now do math "XX / 16 = ??" where XX is desired font size */ *]]
 	color: [[$dark_grey]];
 	line-height: 1.5;
 }
@@ -1117,8 +1117,8 @@ body {
 	margin-right: 0;
 }
 
-[[* /* you can change appearance of the page by adding or removing #boxed id to &lt;body&gt; tag. 
- * By removing #boxed ID, page will no longer be wrapped in a wrapper 
+[[* /* you can change appearance of the page by adding or removing #boxed id to &lt;body&gt; tag.
+ * By removing #boxed ID, page will no longer be wrapped in a wrapper
  */ *]]
 body#boxed {
 	background: #f2f2f2 url([[$path]]/body-background.png) repeat;
@@ -1381,7 +1381,7 @@ blockquote cite a, blockquote cite a:visited, blockquote cite a:visited {
 }
 
 [[* /* webkit browser add icons to input of type search, we dont want it here now */ *]]
-input.search-input::-webkit-search-decoration, input.search-input::-webkit-search-results-button, 
+input.search-input::-webkit-search-decoration, input.search-input::-webkit-search-results-button,
 input.search-input::-webkit-search-results-decoration {
 	-webkit-appearance: none;
 }
@@ -1401,7 +1401,7 @@ input.search-input::-webkit-search-results-decoration {
 
 .search ::-webkit-input-placeholder,
 .search ::-moz-placeholder,
-.search input[placeholder] { 
+.search input[placeholder] {
 	line-height: normal;
 }
 
@@ -1908,7 +1908,7 @@ a.printbutton {
 #footer-menu li.sectionheader &gt; span:hover,
 #footer-menu li.sectionheader &gt; span.current {
 	color: [[$orange]];
-} 
+}
 
 #footer-menu &gt; li &gt; a,
 #footer-menu &gt; li.sectionheader &gt; span {
@@ -1982,7 +1982,7 @@ a.printbutton {
 		float: right;
 		margin-top: 0;
 	}
-	
+
 	[[* /* --- FIRST LEVEL --- */ *]]
 	#main-menu &gt; li {
 		display: inline-block;
@@ -1991,17 +1991,17 @@ a.printbutton {
 		border: none;
 		position: relative;
 	}
-	
+
 	[[* /* PARENT INICATOR */ *]]
 	#main-menu &gt; li i {
 		display: none;
 	}
-	
+
 	.touch-device #main-menu &gt; li i {
 		display: inline-block;
 		float: none;
 	}
-	
+
 	.touch-device #main-menu &gt; li li i {
 		float: left;
 		display: inline-block;
@@ -2009,7 +2009,7 @@ a.printbutton {
 		padding-top: 2px;
 		text-align: left;
 	}
-	
+
 	.touch-device #main-menu &gt; li:first-child li i {
 		float: right;
 	}
@@ -2022,16 +2022,16 @@ a.printbutton {
 		margin-right: 0;
 	}
 
-	#main-menu &gt; li &gt; a, 
+	#main-menu &gt; li &gt; a,
 	#main-menu &gt; li.sectionheader span {
 		padding: 0 6px 0 10px;
 		line-height: 37px;
 		font-size: 1em;
 	}
 
-	#main-menu &gt; li.parent:hover &gt; a, 
+	#main-menu &gt; li.parent:hover &gt; a,
 	#main-menu &gt; li.sectionheader.parent:hover &gt; span,
-	#main-menu &gt; li.parent.active &gt; a, 
+	#main-menu &gt; li.parent.active &gt; a,
 	#main-menu &gt; li.parent.active &gt; span {
 		color: [[$white]];
 		background-color: [[$dark_grey]];
@@ -2058,25 +2058,25 @@ a.printbutton {
 		display: block;
 		border-radius: 3px;
 	}
-	
+
 	#main-menu &gt; li:first-child:hover &gt; ul,
 	#main-menu &gt; li:first-child.active &gt; ul {
 		right: auto;
 		left: 0;
 	}
-	
+
 	#main-menu &gt; li &gt; ul &gt; li {
 		position: relative;
 		line-height: 1;
 		margin: 0;
 		padding-left: 10px;
 	}
-	
+
 	#main-menu &gt; li:first-child &gt; ul &gt; li {
 		padding-right: 10px;
 		padding-left: 0;
 	}
-	
+
 	#main-menu &gt; li &gt; ul &gt; li &gt; a,
 	#main-menu &gt; li &gt; ul &gt; li.sectionheader &gt; span,
 	#main-menu &gt; li &gt; ul &gt; li &gt; ul &gt; li &gt; a,
@@ -2092,10 +2092,10 @@ a.printbutton {
 		font-size: .875em; [[* /* 14px */ *]]
 		text-decoration: none;
 	}
-	
-	#main-menu &gt; li &gt; ul &gt; li.current &gt; a, 
+
+	#main-menu &gt; li &gt; ul &gt; li.current &gt; a,
 	#main-menu &gt; li &gt; ul &gt; li.current.sectionheader &gt; span,
-	#main-menu &gt; li &gt; ul &gt; li &gt; ul &gt; li.current &gt; a, 
+	#main-menu &gt; li &gt; ul &gt; li &gt; ul &gt; li.current &gt; a,
 	#main-menu &gt; li &gt; ul &gt; ul &gt; li &gt; li.current.sectionheader &gt; span {
 		color: [[$orange]];
 	}
@@ -2109,13 +2109,13 @@ a.printbutton {
 		right: auto;
 		left: -250px;
 	}
-	
+
 	#main-menu &gt; li:first-child &gt; ul &gt; li:hover &gt; ul,
 	#main-menu &gt; li:first-child &gt; ul &gt; li.active &gt; ul {
 		left: auto;
 		right: -250px;
 	}
-	
+
 	.lt-ie9 #main-menu &gt; li &gt; ul &gt; li:hover &gt; ul,
 	.lt-ie9 #main-menu &gt; li &gt; ul &gt; li.active &gt; ul {
 		left: -247px;
@@ -2134,20 +2134,20 @@ a.printbutton {
 		right: -6px;
 		top: 12px;
 	}
-	
+
 	.lt-ie9 #main-menu &gt; li:first-child &gt; ul &gt; li:hover &gt; ul,
 	.lt-ie9 #main-menu &gt; li:first-child &gt; ul &gt; li.active &gt; ul {
 		left: auto;
 		right: -247px;
 	}
-	
+
 	#main-menu &gt; li:first-child &gt; ul &gt; li:hover &gt; ul:after,
 	#main-menu &gt; li:first-child &gt; ul &gt; li.active &gt; ul:after {
 		left: -10px;
 		right: auto;
 	}
 
-	#main-menu li ul li a:hover, 
+	#main-menu li ul li a:hover,
 	#main-menu li ul li span.sectionheader:hover {
 		box-shadow: 0 0 5px rgba(85, 85, 85, .9);
 		z-index: 2;
@@ -2165,7 +2165,7 @@ a.printbutton {
 		line-height: 55px;
 		padding: 8px 0;
 	}
-	
+
 	.phrase-text {
 		text-align: left;
 	}
@@ -2176,11 +2176,11 @@ a.printbutton {
 		width: 100%;
 		max-width: 320px;
 	}
-	
+
 	input.search-input:focus {
 		max-width: 90%;
 	}
-	
+
 	[[* /* print button */ *]]
 	a.printbutton {
 		display: block;
@@ -2194,7 +2194,7 @@ a.printbutton {
 		z-index: 1;
 		position: relative;
 	}
-	
+
 	a.printbutton i {
 		display: inline-block;
 		-webkit-transform: rotateY(0deg);
@@ -2207,11 +2207,11 @@ a.printbutton {
 		-o-transition: -o-transform 250ms ease-out 0s;
 		transition: transform 250ms ease-out 0s;
 	}
-	
+
 	a.printbutton:hover {
 		color: [[$orange]];
 	}
-	
+
 	a.printbutton:hover i {
 		-webkit-transform: rotateY(360deg);
 		-moz-transform: rotateY(180deg);
@@ -2219,13 +2219,13 @@ a.printbutton {
 		-o-transform: rotateY(360deg);
 		transform: rotateY(360deg);
 	}
-	
+
 	[[* /* --- FOOTER --- */ *]]
-	
+
 	.footer ul.social {
 		text-align: left;
 	}
-	
+
 	.footer .social li a i {
 		display: inline-block;
 		-webkit-transform: rotateY(0deg);
@@ -2239,7 +2239,7 @@ a.printbutton {
 		-o-transition: -o-transform 250ms ease-out 0s;
 		transition: transform 250ms ease-out 0s;
 	}
-	
+
 	.footer .social li a:hover i {
 		-webkit-transform: rotateY(360deg);
 		-moz-transform: rotateY(180deg);
@@ -2247,13 +2247,13 @@ a.printbutton {
 		-o-transform: rotateY(360deg);
 		transform: rotateY(360deg);
 	}
-	
+
 	[[* /* --- Footer Navigation --- */ *]]
-	
+
 	.footer-navigation {
 		border-bottom: none;
 	}
-	
+
 	#footer-menu &gt; li {
 		float: left;
 		display: block;
@@ -2261,10 +2261,10 @@ a.printbutton {
 		margin-left: 3.8%;
 		width: 30.75%;
 	}
-	
+
 	#footer-menu &gt; li:first-child {
 		margin-left: 0;
-	} 
+	}
 }
 
 [[* /* ================================================
@@ -2275,17 +2275,17 @@ a.printbutton {
 	.search {
 		margin-top: 15px;
 	}
-	
+
 	input.search-input {
 		width: 100%;
 		max-width: 100%;
 		float: left;
 	}
-	
+
 	input.search-input:focus {
 		max-width: none;
 	}
-	
+
 	.header-bottom {
 		padding-top: 20px;
 		text-align: center;
@@ -2296,23 +2296,23 @@ a.printbutton {
 	.hide-for-small {
 		display: none;
 	}
-	
+
 }
 
 @media only screen and (min-width: 940px) and (max-width: 1110px) {
-	
+
 	#main-menu &gt; li {
 		margin: 0;
 	}
-	
-	#main-menu &gt; li &gt; a, 
+
+	#main-menu &gt; li &gt; a,
 	#main-menu &gt; li.sectionheader span {
 		padding: 0 6px;
 	}
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1050px) {
-	
+
 	.row nav.main-navigation {
 		height: auto;
 		float: none;
@@ -2321,16 +2321,16 @@ a.printbutton {
 		width: 100%;
 		clear: left;
 	}
-	
+
 	#main-menu {
 		margin-top: 15px;
 		margin-bottom: 15px;
 		border-bottom: 1px solid [[$light_grey]];
 		float: none;
 		display: block;
-		
+
 	}
-	
+
 	#main-menu &gt; li {
 		margin: 0;
 		bottom: -1px;
@@ -2339,28 +2339,28 @@ a.printbutton {
 		border-right: 1px solid [[$light_grey]];
 		border-top: 1px solid [[$light_grey]];
 	}
-	
+
 	#main-menu &gt; li.current {
 		border-bottom-color: [[$white]];
 		border-top-color: [[$orange]];
 	}
-	
+
 	#main-menu &gt; li.current &gt; a {
 		border-top: 1px solid [[$orange]];
 		line-height: 45px;
 	}
-	
+
 	#main-menu &gt; li:first-child {
 		border-left: 1px solid [[$light_grey]];
 	}
-	
+
 	#main-menu &gt; li &gt; a,
 	#main-menu &gt; li &gt; span {
 		line-height: 46px;
 		padding-left: 12px;
 		padding-right: 6px;
 	}
-	
+
 	#main-menu &gt; li:hover &gt; ul,
 	#main-menu &gt; li.active &gt; ul {
 		top: 45px;
@@ -2369,7 +2369,7 @@ a.printbutton {
 	.header-bottom {
 		height: auto;
 	}
-	
+
 	.row .seven-col.phrase-text,
 	.row .five-col.search {
 		display: block;
@@ -2420,14 +2420,14 @@ a.printbutton {
 
 [[* /* ------ BANNER AREA ------ */  *]]
 .banner {
-	background: #fefefe; 
+	background: #fefefe;
 	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZlZmVmZSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjQ3JSIgc3RvcC1jb2xvcj0iI2YxZjFmMSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlOWU5ZTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
 	background: -moz-linear-gradient(top,  #fefefe 0%, #f1f1f1 47%, #e9e9e9 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(47%,#f1f1f1), color-stop(100%,#e9e9e9)); 
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fefefe), color-stop(47%,#f1f1f1), color-stop(100%,#e9e9e9));
 	background: -webkit-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
-	background: -o-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%); 
+	background: -o-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
 	background: -ms-linear-gradient(top,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
-	background: linear-gradient(to bottom,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%); 
+	background: linear-gradient(to bottom,  #fefefe 0%,#f1f1f1 47%,#e9e9e9 100%);
 }
 
 .lt-ie9 .banner {
@@ -2585,7 +2585,7 @@ a.printbutton {
 }
 
 @media only screen and (min-width: 768px) {
-	
+
 	#sx-slides .title {
 		font-size: 3em;
 	}
@@ -2593,11 +2593,11 @@ a.printbutton {
 	#sx-slides .animate-in .title {
 		left: 3%;
 	}
-	
+
 	#sx-slides .subtitle {
 		font-size: 2.5em;
 	}
-	
+
 	#sx-slides .animate-in .subtitle {
 		left: 8%;
 	}
@@ -2610,13 +2610,13 @@ a.printbutton {
 		height: auto !important;
 		max-height: 300px !important;
 	}
-	
+
 	#sx-slides .animate-in .image {
 		left: auto;
 		right: 5%;
 		bottom: -45%;
 	}
-	
+
 	#sx-slides .animate-out .image {
 		left: auto;
 		bottom: -800px;
@@ -2624,11 +2624,11 @@ a.printbutton {
 }
 
 @media only screen and (min-width: 1050px) {
-	
+
 	#sx-slides {
 		height: 440px;
 	}
-	
+
 	#sx-slides .title {
 		font-size: 3.25em;
 		bottom: 15%;
@@ -2637,12 +2637,12 @@ a.printbutton {
 	#sx-slides .animate-in .title {
 		left: 8%;
 	}
-	
+
 	#sx-slides .subtitle {
 		font-size: 2.875em;
 		top: 78%
 	}
-	
+
 	#sx-slides .animate-in .subtitle {
 		left: 12%;
 	}
@@ -2766,7 +2766,7 @@ a {
 			<has_dflt>1</has_dflt>
 			<dflt_contents><![CDATA[{* simple navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -3240,7 +3240,7 @@ a {
 li.active0n h3 - n is the depth/level of the node. To style the active page for each level separately. The active page is not clickable.
 .clearfix - Used for the unclickable h3 to use the entire width of the li, just like the anchors. See the Tools stylesheet in the default CMSMS installation.
 li.sectionheader h3 - To style section header
-li.separator - To style the ruler for the separator *} 
+li.separator - To style the ruler for the separator *}
 
 {if isset($menuparams.number_of_levels)}
   {$number_of_levels=$menuparams.number_of_levels}
@@ -3308,7 +3308,7 @@ li.separator - To style the ruler for the separator *}
 {process_pagedata}
 {block name='top'}
   {*=== THEME LOGIC ===*}
-  {* assign variables for ease of use throughout templates *}    
+  {* assign variables for ease of use throughout templates *}
   {cms_lang_info assign='nls'}
   {$nls=$nls scope=global}
   {$theme_path = "{uploads_url}/simplex" scope=global}
@@ -3420,13 +3420,13 @@ li.separator - To style the ruler for the separator *}
                         &lt;nav class='footer-navigation row'&gt;
                             {Navigator template='Simplex Footer Navigation' excludeprefix='home' number_of_levels='2' loadprops='0'}
                         &lt;/nav&gt;
-                    &lt;/section&gt; 
+                    &lt;/section&gt;
                     &lt;section class='four-col pull-eight copyright'&gt;
                         {include file='cms_template:Simplex Footer'} {* generic Design Manager template *}
                     &lt;/section&gt;
                 &lt;/div&gt;
             &lt;/footer&gt;
-        &lt;!-- #wrapper //--&gt; 
+        &lt;!-- #wrapper //--&gt;
         &lt;/div&gt;
     {*cms_jquery exclude='nestedSortable,json,migrate' append='uploads/simplex/js/jquery.sequence-min.js,uploads/simplex/js/functions.js'*}
     &lt;script type="text/javascript" src="uploads/simplex/js/jquery.sequence-min.js"&gt;&lt;/script&gt;
@@ -3465,7 +3465,7 @@ li.separator - To style the ruler for the separator *}
 			<type_dflt>1</type_dflt>
 			<content><![CDATA[{* simple navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -3564,7 +3564,7 @@ li.separator - To style the ruler for the separator *}
 			<type_id>4</type_id>
 			<content><![CDATA[{* cssmenu *}
 {* this template uses recursion, but not a smarty function. *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -3642,7 +3642,7 @@ li.separator - To style the ruler for the separator *}
 			<type_id>4</type_id>
 			<content><![CDATA[{* cssmenu_ulshadow navigation *}
 {* note, function can only be defined once *}
-{* 
+{*
   variables:
   node: contains the current node.
   aclass: is used to build a string containing class names given to the a tag if one is used
@@ -3657,11 +3657,11 @@ li.separator - To style the ruler for the separator *}
     {*{$liclass=' depth'|cat:$depth}*}
     {$aclass=''}
 
-    {* the first child gets a special class 
+    {* the first child gets a special class
     {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
     *}
 
-    {* the last child gets a special class 
+    {* the last child gets a special class
     {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
     *}
 
@@ -3785,19 +3785,19 @@ hr.separator - To style the ruler for the separator *}
             {$href_class = ['cf']}
             {$parent_indicator = ''}
             {$aria_support = ''}
-    
+
             {if $node-&gt;current || $node-&gt;parent}
                 {* this is the current page *}
                 {$list_class[] = 'current'}
                 {$href_class[] = 'current'}
             {/if}
-    
+
             {if $node-&gt;children_exist}
                 {$list_class[] = 'parent'}
                 {$aria_support = ' aria-haspopup=\'true\''}
                 {$parent_indicator = ' &lt;i class=\'icon-arrow-left\' aria-hidden=\'true\'&gt;&lt;/i&gt;'}
             {/if}
-    
+
             {* build the menu item node *}
             {if $node-&gt;type == 'sectionheader'}
                 {$list_class[] = 'sectionheader'}
@@ -3847,17 +3847,17 @@ hr.separator - To style the ruler for the separator *}
             {* setup classes for the anchor and list item *}
             {$list_class = []}
             {$href_class = []}
-    
+
             {if $node-&gt;current || $node-&gt;parent}
                 {* this is the current page *}
                 {$list_class[] = 'current'}
                 {$href_class[] = 'current'}
             {/if}
-    
+
             {if $node-&gt;children_exist}
                 {$list_class[] = 'parent'}
             {/if}
-    
+
             {* build the menu item node *}
             {if $node-&gt;type == 'sectionheader'}
                 {$list_class[] = 'sectionheader'}
@@ -4438,7 +4438,7 @@ hr.separator - To style the ruler for the separator *}
 li.active0n h3 - n is the depth/level of the node. To style the active page for each level separately. The active page is not clickable.
 .clearfix - Used for the unclickable h3 to use the entire width of the li, just like the anchors. See the Tools stylesheet in the default CMSMS installation.
 li.sectionheader h3 - To style section header
-li.separator - To style the ruler for the separator *} 
+li.separator - To style the ruler for the separator *}
 
 {if isset($menuparams.number_of_levels)}
   {$number_of_levels=$menuparams.number_of_levels}
