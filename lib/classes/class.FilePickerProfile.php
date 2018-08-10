@@ -17,7 +17,10 @@
 
 namespace CMSMS;
 
+use CmsInvalidDataException;
+use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
+use function cms_to_bool;
 
 /**
  * A simple class that defines a profile of information used by a filepicker to indicate how it should
