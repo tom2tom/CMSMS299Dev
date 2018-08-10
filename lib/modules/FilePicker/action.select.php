@@ -6,7 +6,7 @@ try {
     $name = get_parameter_value($params,'name');
     $value = get_parameter_value($params,'value');
     $type = get_parameter_value($params,'type');
-    $type = 'image';
+    $type = FileType::IMAGE; //WHY forced ?
 
     $profile = $this->get_default_profile();
     if( $type ) {
