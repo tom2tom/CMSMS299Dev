@@ -29,9 +29,12 @@ use CmsLayoutCollection;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
 use CMSMS\AdminUtils;
+use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
+use CMSMS\FileType;
 use CMSMS\internal\page_template_parser;
 use CMSMS\internal\Smarty;
+use CMSMS\UserOperations;
 use Exception;
 use PHPMailer\PHPMailer\Exception as Exception2;
 use SmartyException;
@@ -56,7 +59,7 @@ use function startswith;
  * @subpackage content_types
  * @license GPL
  */
-class Content extends \CMSMS\ContentBase
+class Content extends ContentBase
 {
 	/**
 	 * @ignore
@@ -609,7 +612,7 @@ class Content extends \CMSMS\ContentBase
 		if( $filepicker ) {
 			$profile_name = get_parameter_value($blockInfo,'profile');
 			$profile = $filepicker->get_profile_or_default($profile_name, $dir, get_userid() );
-			$parms = ['top'=>$dir, 'type'=>'image' ];
+			$parms = ['top'=>$dir, 'type'=>FileType::IMAGE ];
 			if( $sort ) $parms['sort'] = true;
 			if( $prefix ) $parms['exclude_prefix'] = $prefix;
 			$profile = $profile->overrideWith( $parms );

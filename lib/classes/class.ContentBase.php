@@ -31,15 +31,14 @@ use CmsApp;
 use CmsContentException;
 use CmsFormUtils;
 use CmsInvalidDataException;
-use CmsRoute;
 use CMSMS\AdminUtils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 use CMSMS\GroupOperations;
-use CMSMS\HookManager;
 use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
 use CMSMS\UserOperations;
+use CmsRoute;
 use stdClass;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
@@ -2283,7 +2282,7 @@ abstract class ContentBase
 			$filepicker = cms_utils::get_filepicker_module();
 			if( $filepicker ) {
 				$profile = $filepicker->get_default_profile( $dir, get_userid() );
-				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image'] );
+				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>FileType::IMAGE] );
 				$input = $filepicker->get_html( 'image', $data, $profile);
 			}
 			else {
@@ -2299,7 +2298,7 @@ abstract class ContentBase
 			$filepicker = cms_utils::get_filepicker_module();
 			if( $filepicker ) {
 				$profile = $filepicker->get_default_profile( $dir, get_userid() );
-				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>'image', 'match_prefix'=>'thumb_' ] );
+				$profile = $profile->overrideWith( ['top'=>$dir, 'type'=>FileType::IMAGE, 'match_prefix'=>'thumb_' ] );
 				$input = $filepicker->get_html( 'thumbnail', $data, $profile);
 			}
 			else {
