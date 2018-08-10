@@ -15,12 +15,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_function_cms_versionname($params, $template) {
-
+function smarty_function_cms_versionname($params, $template)
+{
     global $CMS_VERSION_NAME;
 
-	if( isset($params['assign']) ){
-		$template->assign(trim($params['assign']),$CMS_VERSION_NAME);
+	if( isset($params['assign']) ) {
+		$template->assign(trim($params['assign']), $CMS_VERSION_NAME);
 		return;
 	}
 
@@ -32,8 +32,7 @@ function smarty_cms_about_function_cms_versionname()
 	echo <<<'EOS'
 <p>Author: Ted Kulp &lt;ted@smsmadesimple.org&gt;</p>
 <p>Version: 1.0</p>
-<p>
-Change History:<br/>
+<p>Change History:<br/>
 None
 </p>
 EOS;
