@@ -23,7 +23,7 @@ if( !$this->CheckPermission('Manage Designs') ) return;
 $this->SetCurrentTab('designs');
 
 if( isset($params['cancel']) ) {
-  if( $params['cancel'] == $this->Lang('cancel') ) $this->SetMessage($this->Lang('msg_cancelled'));
+  if( $params['cancel'] == $this->Lang('cancel') ) $this->SetInfo($this->Lang('msg_cancelled'));
   $this->RedirectToAdminTab();
 }
 

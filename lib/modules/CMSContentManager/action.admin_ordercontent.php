@@ -20,7 +20,7 @@ if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage All Content') ) return;
 
 if( isset($params['cancel']) ) {
-  $this->SetMessage($this->Lang('msg_cancelled'));
+  $this->SetInfo($this->Lang('msg_cancelled'));
   $this->Redirect($id,'defaultadmin');
 }
 if( isset($params['orderlist']) && $params['orderlist'] != '' ) {

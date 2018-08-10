@@ -26,7 +26,7 @@ try {
 
   if( isset($params['cancel']) ) {
     // handle cancel
-    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
   }
 

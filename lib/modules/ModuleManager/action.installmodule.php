@@ -26,7 +26,7 @@ if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('modules');
 
 if( isset($params['cancel']) ) {
-    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 

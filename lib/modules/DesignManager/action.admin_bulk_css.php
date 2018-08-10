@@ -32,7 +32,7 @@ if( !isset($params['css_bulk_action']) || !isset($params['css_select']) ||
     $this->RedirectToAdminTab();
 }
 if( isset($params['cancel']) ) {
-    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 

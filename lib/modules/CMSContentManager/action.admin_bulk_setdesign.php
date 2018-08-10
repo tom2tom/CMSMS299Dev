@@ -38,7 +38,7 @@ if( !isset($params['multicontent']) ) {
 }
 
 if( isset($params['cancel']) ) {
-    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 

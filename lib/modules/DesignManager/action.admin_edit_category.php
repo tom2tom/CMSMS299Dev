@@ -20,7 +20,7 @@ if( !$this->CheckPermission('Modify Templates') ) return;
 
 $this->SetCurrentTab('categories');
 if( isset($params['cancel']) ) {
-  $this->SetMessage($this->Lang('msg_cancelled'));
+  $this->SetInfo($this->Lang('msg_cancelled'));
   $this->RedirectToAdminTab();
 }
 

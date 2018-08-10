@@ -67,7 +67,7 @@ function cmscm_get_deletable_pages($node)
 }
 
 if( isset($params['cancel']) ) {
-    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 if( isset($params['submit']) ) {
