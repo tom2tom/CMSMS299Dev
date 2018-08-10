@@ -29,7 +29,7 @@ try {
     if( $old_display_errors !== FALSE ) ini_set('display_errors',$old_display_errors);
 
     if( !$files ) {
-        $this->SetMessage('error_moduleexport');
+        $this->SetError('error_moduleexport');
         $this->RedirectToAdminTab();
     }
     else {
