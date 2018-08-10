@@ -14,9 +14,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_cms_function_cms_yesno($params, $template)
+function smarty_function_cms_yesno($params, $template)
 {
-    $opts = array(0=>lang('no'),1=>lang('yes'));
+    $opts = [lang('no'),lang('yes')];
 
     $out = '';
     foreach( $opts as $k => $v ) {
@@ -33,7 +33,3 @@ function smarty_cms_function_cms_yesno($params, $template)
     return $out;
 }
 
-#
-# EOF
-#
-?>

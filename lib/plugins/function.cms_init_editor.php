@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_cms_function_cms_init_editor($params, $template)
+function smarty_function_cms_init_editor($params, $template)
 {
   $wysiwyg = get_parameter_value($params,'wysiwyg');
   $force = cms_to_bool(get_parameter_value($params,'force',0));

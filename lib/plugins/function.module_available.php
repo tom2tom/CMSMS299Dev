@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-function smarty_cms_function_module_available($params, $template)
+function smarty_function_module_available($params, $template)
 {
 	$name = '';
 	if( isset($params['name']) )
