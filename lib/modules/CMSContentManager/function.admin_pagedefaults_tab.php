@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell 
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-# 
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
+# CMSAContentManager module action tab
+# Coopyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +14,10 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
+use CMSMS\ContentBase;
+use CMSMS\ContentOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
@@ -37,7 +30,3 @@ $smarty->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
 
 echo $this->ProcessTemplate('admin_pagedefaults_tab.tpl');
 
-#
-# EOF
-#
-?>
