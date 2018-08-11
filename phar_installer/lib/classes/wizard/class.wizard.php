@@ -188,10 +188,11 @@ class wizard
       $url = $request->raw_server('REQUEST_URI');
       $urlmain = explode('?',$url);
 
-      $parts = parse_str($url);
+      $parts = [];
+	  parse_str($url,$parts);
       $parts[$this->_stepvar] = $idx;
 
-      $tmp = array();
+      $tmp = [];
       foreach( $parts as $k => $v ) {
           $tmp[] = $k.'='.$v;
       }
@@ -209,11 +210,12 @@ class wizard
       $url = $request->raw_server('REQUEST_URI');
       $urlmain = explode('?',$url);
 
-      $parts = parse_str($url);
+      $parts = [];
+	  parse_str($url,$parts);
       $parts[$this->_stepvar] = $this->cur_step() + 1;
       if( $parts[$this->_stepvar] > $this->num_steps() ) return '';
 
-      $tmp = array();
+      $tmp = [];
       foreach( $parts as $k => $v ) {
           $tmp[] = $k.'='.$v;
       }
@@ -231,11 +233,12 @@ class wizard
       $url = $request->raw_server('REQUEST_URI');
       $urlmain = explode('?',$url);
 
-      $parts = parse_str($url);
+      $parts = [];
+	  parse_str($url,$parts);
       $parts[$this->_stepvar] = $this->cur_step() - 1;
       if( $parts[$this->_stepvar] <= 0 ) return '';
 
-      $tmp = array();
+      $tmp = [];
       if( count($parts) ) {
           foreach( $parts as $k => $v ) {
               $tmp[] = $k.'='.$v;

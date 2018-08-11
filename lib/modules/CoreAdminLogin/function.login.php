@@ -39,7 +39,7 @@ global $csrf_key;
 function send_recovery_email(User $user, &$mod)
 {
     global $config;
-    
+
     $obj = new cms_mailer();
     $obj->IsHTML(true);
     $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
@@ -233,6 +233,7 @@ if (isset($_POST['cancel'])) {
             // and replace with the correct one.
             $homepage = str_replace('&amp;', '&', $homepage);
             $tmp = explode('?', $homepage);
+			$tmp2 = [];
             @parse_str($tmp[1], $tmp2);
             if (in_array('_s_', array_keys($tmp2))) {
                 unset($tmp2['_s_']);

@@ -218,6 +218,7 @@ if (isset($_POST['cancel'])) {
             // and replace with the correct one.
             $homepage = str_replace('&amp;','&',$homepage);
             $tmp = explode('?',$homepage);
+			$tmp2 = [];
             @parse_str($tmp[1],$tmp2);
             if( in_array('_s_',array_keys($tmp2)) ) unset($tmp2['_s_']);
             if( in_array('sp_',array_keys($tmp2)) ) unset($tmp2['sp_']);
