@@ -143,39 +143,28 @@ class ScriptManager
 					if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
 					return $a['index'] <=> $b['index'];
 				});
+			}
 
-				$t_sig = '';
-				$t_mtime = -1;
+			$t_sig = '';
+			$t_mtime = -1;
+			foreach( $scripts as $sig => $rec ) {
+				$t_sig .= $sig;
+				$t_mtime = max( $rec['mtime'], $t_mtime );
+			}
+			$sig = md5( __FILE__.$t_sig.$t_mtime );
+			$js_filename = "cms_$sig.js";
+			$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+
+			if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
+				$output = '';
 				foreach( $scripts as $sig => $rec ) {
-					$t_sig .= $sig;
-					$t_mtime = max( $rec['mtime'], $t_mtime );
+					$content = @file_get_contents( $rec['file'] );
+					if( $content ) $output .= $content."\n\n";
 				}
-				$sig = md5( __FILE__.$t_sig.$t_mtime );
-				$js_filename = "cms_$sig.js";
-				$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
 
-				if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
-					$output = '';
-					foreach( $scripts as $sig => $rec ) {
-						$content = @file_get_contents( $rec['file'] );
-						if( $content ) $output .= $content."\n\n";
-					}
-					$tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $output );
-					if( $tmp ) $output = $tmp;
-					file_put_contents( $output_file, $output, LOCK_EX );
-				}
-			} else {
-				$rec = reset($scripts);
-				$js_filename = basename($rec['file']);
-				if( !startswith($js_filename, 'cms_') ) {
-                     $js_filename = 'cms_'.$js_filename;
-				}
-				$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
-			    if( $force || !is_file($output_file) || filemtime($output_file) <  filemtime($rec['file']) ) {
-//					$tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $X );
-//			        if( $tmp ) $X = $tmp;
-					@copy($rec['file'], $output_file); //maybe does nothing
-				}
+				$tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $output );
+				if( $tmp ) $output = $tmp;
+				file_put_contents( $output_file, $output, LOCK_EX );
 			}
 			return $js_filename;
 		}
