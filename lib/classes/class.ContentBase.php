@@ -1209,30 +1209,30 @@ abstract class ContentBase
 	public function LoadFromData($data, $loadProperties = false)
 	{
 		$result = true;
-		$this->mId                         = $data["content_id"];
-		$this->mName                       = $data["content_name"];
-		$this->mAlias                      = $data["content_alias"];
-		$this->mOldAlias                   = $data["content_alias"];
-		$this->mOwner                      = $data["owner_id"];
-		$this->mParentId                   = $data["parent_id"];
-		$this->mTemplateId                 = $data["template_id"];
-		$this->mItemOrder                  = $data["item_order"];
+		$this->mId                         = $data['content_id'];
+		$this->mName                       = $data['content_name'];
+		$this->mAlias                      = $data['content_alias'];
+		$this->mOldAlias                   = $data['content_alias'];
+		$this->mOwner                      = $data['owner_id'];
+		$this->mParentId                   = $data['parent_id'];
+		$this->mTemplateId                 = $data['template_id'];
+		$this->mItemOrder                  = $data['item_order'];
 		$this->mMetadata                   = $data['metadata'];
-		$this->mHierarchy                  = $data["hierarchy"];
-		$this->mIdHierarchy                = $data["id_hierarchy"];
-		$this->mHierarchyPath              = $data["hierarchy_path"];
+		$this->mHierarchy                  = $data['hierarchy'];
+		$this->mIdHierarchy                = $data['id_hierarchy'];
+		$this->mHierarchyPath              = $data['hierarchy_path'];
 		$this->mMenuText                   = $data['menu_text'];
 		$this->mTitleAttribute             = $data['titleattribute'];
 		$this->mAccessKey                  = $data['accesskey'];
 		$this->mTabIndex                   = $data['tabindex'];
-		$this->mDefaultContent             = ($data["default_content"] == 1);
-		$this->mActive                     = ($data["active"] == 1);
-		$this->mShowInMenu                 = ($data["show_in_menu"] == 1);
-		$this->mCachable                   = ($data["cachable"] == 1);
-		if( isset($data['page_url']) ) $this->mURL  = $data["page_url"];
-		$this->mLastModifiedBy             = $data["last_modified_by"];
-		$this->mCreationDate               = $data["create_date"];
-		$this->mModifiedDate               = $data["modified_date"];
+		$this->mDefaultContent             = ($data['default_content'] == 1);
+		$this->mActive                     = ($data['active'] == 1);
+		$this->mShowInMenu                 = ($data['show_in_menu'] == 1);
+		$this->mCachable                   = ($data['cachable'] == 1);
+		if( isset($data['page_url']) ) $this->mURL  = $data['page_url'];
+		$this->mLastModifiedBy             = $data['last_modified_by'];
+		$this->mCreationDate               = $data['create_date'];
+		$this->mModifiedDate               = $data['modified_date'];
 
 		if ($loadProperties == true) {
 			$this->_load_properties();
@@ -1256,32 +1256,32 @@ abstract class ContentBase
 	 */
 	public function ToData()
 	{
-		$out = array();
+		$out = [];
+		$out['accesskey'] = $this->mAccessKey;
+		$out['active'] = ($this->mActive)?1:0;
+		$out['cachable'] = ($this->mCachable)?1:0;
+		$out['content_alias'] = $this->mAlias;
 		$out['content_id'] = $this->mId;
 		$out['content_name'] = $this->mName;
-		$out['content_alias'] = $this->mAlias;
-		$out['owner_id'] = $this->mOwner;
-		$out['parent_id'] = $this->mParentId;
-		$out['template_id'] = $this->mTemplateId;
-		$out['item_order'] = $this->mItemOrder;
-		$out['metadata'] = $this->mMetadata;
-		$out['hierarchy'] = $this->mHierarchy;
-		$out['id_hierarchy'] = $this->mIdHierarchy;
-		$out['hierarchy_path'] = $this->mHierarchyPath;
-		$out['menu_text'] = $this->mMenuText;
-		$out['titleattribute'] = $this->mTitleAttribute;
-		$out['accesskey'] = $this->mAccessKey;
-		$out['tabindex'] = $this->mTabIndex;
-		$out['default_content'] = ($this->mActive)?1:0;
-		$out['active'] = ($this->mActive)?1:0;
-		$out['show_in_menu'] = ($this->mShowInMenu)?1:0;
-		$out['cachable'] = ($this->mCachable)?1:0;
-		$out['page_url'] = ($this->mURL)?1:0;
-		$out['last_modified_by'] = $this->mLastModifiedBy;
 		$out['create_date'] = $this->mCreationDate;
-		$out['modified_date'] = $this->mModifiedDate;
-		$out['wants_children'] = $this->WantsChildren();
+		$out['default_content'] = ($this->mActive)?1:0;
 		$out['has_usable_link'] = $this->HasUsableLink();
+		$out['hierarchy'] = $this->mHierarchy;
+		$out['hierarchy_path'] = $this->mHierarchyPath;
+		$out['id_hierarchy'] = $this->mIdHierarchy;
+		$out['item_order'] = $this->mItemOrder;
+		$out['last_modified_by'] = $this->mLastModifiedBy;
+		$out['menu_text'] = $this->mMenuText;
+		$out['metadata'] = $this->mMetadata;
+		$out['modified_date'] = $this->mModifiedDate;
+		$out['owner_id'] = $this->mOwner;
+		$out['page_url'] = ($this->mURL)?1:0;
+		$out['parent_id'] = $this->mParentId;
+		$out['show_in_menu'] = ($this->mShowInMenu)?1:0;
+		$out['tabindex'] = $this->mTabIndex;
+		$out['template_id'] = $this->mTemplateId;
+		$out['titleattribute'] = $this->mTitleAttribute;
+		$out['wants_children'] = $this->WantsChildren();
 		return $out;
 	}
 
@@ -1361,27 +1361,27 @@ abstract class ContentBase
 
 		$query = "UPDATE ".CMS_DB_PREFIX."content SET content_name = ?, owner_id = ?, type = ?, template_id = ?, parent_id = ?, active = ?, default_content = ?, show_in_menu = ?, cachable = ?, page_url = ?, menu_text = ?, content_alias = ?, metadata = ?, titleattribute = ?, accesskey = ?, tabindex = ?, modified_date = ?, item_order = ?, last_modified_by = ? WHERE content_id = ?";
 		$dbresult = $db->Execute($query, array(
-									 $this->mName,
-									 $this->mOwner,
-									 $this->Type(),
-									 $this->mTemplateId,
-									 $this->mParentId,
-									 ($this->mActive == true         ? 1 : 0),
-									 ($this->mDefaultContent == true ? 1 : 0),
-									 ($this->mShowInMenu == true     ? 1 : 0),
-									 ($this->mCachable == true       ? 1 : 0),
-									 $this->mURL,
-									 $this->mMenuText,
-									 $this->mAlias,
-									 $this->mMetadata,
-									 $this->mTitleAttribute,
-									 $this->mAccessKey,
-									 $this->mTabIndex,
-									 $this->mModifiedDate,
-									 $this->mItemOrder,
-									 $this->mLastModifiedBy,
-									 (int) $this->mId
-									 ));
+			 $this->mName,
+			 $this->mOwner,
+			 $this->Type(),
+			 $this->mTemplateId,
+			 $this->mParentId,
+			 ($this->mActive          ? 1 : 0),
+			 ($this->mDefaultContent  ? 1 : 0),
+			 ($this->mShowInMenu      ? 1 : 0),
+			 ($this->mCachable        ? 1 : 0),
+			 $this->mURL,
+			 $this->mMenuText,
+			 $this->mAlias,
+			 $this->mMetadata,
+			 $this->mTitleAttribute,
+			 $this->mAccessKey,
+			 $this->mTabIndex,
+			 $this->mModifiedDate,
+			 $this->mItemOrder,
+			 $this->mLastModifiedBy,
+			 (int) $this->mId
+			 ));
 
 		if (isset($this->mAdditionalEditors)) {
 			$query = "DELETE FROM ".CMS_DB_PREFIX."additional_users WHERE content_id = ?";
@@ -1418,7 +1418,7 @@ abstract class ContentBase
 	protected function Insert()
 	{
 		# :TODO: This function should return something
-		# :TODO: Take care bout hierarchy here, it has no value !
+		# :TODO: Careful about hierarchy here, it has no value !
 		# :TODO: Figure out proper item_order
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
@@ -1452,30 +1452,30 @@ abstract class ContentBase
 		$query = "INSERT INTO ".CMS_DB_PREFIX."content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
 		$dbresult = $db->Execute($query, array(
-									 $newid,
-									 $this->mName,
-									 $this->mAlias,
-									 $this->Type(),
-									 $this->mOwner,
-									 $this->mParentId,
-									 $this->mTemplateId,
-									 $this->mItemOrder,
-									 $this->mHierarchy,
-									 $this->mIdHierarchy,
-									 ($this->mActive == true         ? 1 : 0),
-									 ($this->mDefaultContent == true ? 1 : 0),
-									 ($this->mShowInMenu == true     ? 1 : 0),
-									 ($this->mCachable == true       ? 1 : 0),
-									 $this->mURL,
-									 $this->mMenuText,
-									 $this->mMetadata,
-									 $this->mTitleAttribute,
-									 $this->mAccessKey,
-									 $this->mTabIndex,
-									 $this->mLastModifiedBy,
-									 $this->mModifiedDate,
-									 $this->mCreationDate
-									 ));
+			 $newid,
+			 $this->mName,
+			 $this->mAlias,
+			 $this->Type(),
+			 $this->mOwner,
+			 $this->mParentId,
+			 $this->mTemplateId,
+			 $this->mItemOrder,
+			 $this->mHierarchy,
+			 $this->mIdHierarchy,
+			 ($this->mActive          ? 1 : 0),
+			 ($this->mDefaultContent  ? 1 : 0),
+			 ($this->mShowInMenu      ? 1 : 0),
+			 ($this->mCachable        ? 1 : 0),
+			 $this->mURL,
+			 $this->mMenuText,
+			 $this->mMetadata,
+			 $this->mTitleAttribute,
+			 $this->mAccessKey,
+			 $this->mTabIndex,
+			 $this->mLastModifiedBy,
+			 $this->mModifiedDate,
+			 $this->mCreationDate
+			 ));
 
 		if (! $dbresult) {
 			die($db->sql.'<br />'.$db->ErrorMsg());
@@ -2127,12 +2127,14 @@ abstract class ContentBase
 	protected function RemoveProperty($name, $dflt)
 	{
 		if( !is_array($this->_attributes) ) return;
-		$tmp = array();
-		for( $i = 0, $n = count($this->_attributes); $i < $n; $i++ ) {
-			if( is_object($this->_attributes[$i]) && $this->_attributes[$i]->name == $name ) continue;
-			$tmp[] = $this->_attributes[$i];
+		for( $i = 0, $n = count($this->_attributes); $i < $n; ++$i ) {
+			if( is_object($this->_attributes[$i]) && $this->_attributes[$i]->name == $name ) {
+				unset($this->_attributes[$i]);
+		        for($i = $i+1; $i < $n; ++$i ) {
+					$this->_attributes[$i-1] = $this->_attributes[$i];
+				}
+			}
 		}
-		$this->_attributes = $tmp;
 		$this->_prop_defaults[$name] = $dflt;
 	}
 
@@ -2171,7 +2173,7 @@ abstract class ContentBase
 	}
 
 	/**
-	 * Add a property that is directly associtated with a field in the content table.
+	 * Add a property that is directly associated with a field in the content table.
 	 * @alias for AddProperty
 	 *
 	 * @param string $name The property name
@@ -2235,6 +2237,11 @@ abstract class ContentBase
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_parent',lang('help_title_content_parent'));
 			if( !empty($tmp) ) return array('<label for="parent_id">*'.lang('parent').':</label>'.$help,$tmp);
 			break;
+
+		case 'defaultcontent':
+			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_default',lang('help_title_content_default'));
+			return array('<label for="defaultcontent">'.lang('showinmenu').':</label>'.$help,
+				 '<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />');
 
 		case 'active':
 			if( !$this->DefaultContent() ) {
