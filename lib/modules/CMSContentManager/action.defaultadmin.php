@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\ContentListBuilder;
+use CMSContentManager\ContentListFilter;
+use CMSMS\UserOperations;
+
 global $CMS_JOB_TYPE;
 
 if( !isset($gCms) ) exit;
@@ -22,7 +26,7 @@ if( !isset($gCms) ) exit;
 
 echo '<noscript><h3 style="color:red;text-align:center;">'.$this->Lang('info_javascript_required').'</h3></noscript>'."\n";
 
-$builder = new \CMSContentManager\ContentListBuilder($this);
+$builder = new ContentListBuilder($this);
 $pagelimit = cms_userprefs::get($this->GetName().'_pagelimit',500);
 $filter = cms_userprefs::get($this->GetName().'_userfilter');
 if( $filter ) $filter = unserialize($filter);
@@ -380,7 +384,7 @@ $smarty->assign('locking',CmsContentManagerUtils::locking_enabled());
 // get a list of admin users
 $smarty->assign('user_list',UserOperations::get_instance()->GetList());
 // get a list of designs
-$smarty->assign('design_list',\CmsLayoutCollection::get_list());
+$smarty->assign('design_list',CmsLayoutCollection::get_list());
 // get a list of templates
 $smarty->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]));
 
