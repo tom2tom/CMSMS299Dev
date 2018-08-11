@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
+# CMSContentManaager module action: set bulk design
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +14,9 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
+use CMSMS\ContentOperations;
+
 if( !isset($gCms) ) exit;
 $this->SetCurrentTab('pages');
 if( !$this->CheckPermission('Manage All Content') ) {
@@ -48,7 +40,7 @@ $pagelist = unserialize(base64_decode($params['multicontent']));
 $showmore = 0;
 if( isset($params['showmore']) ) {
     $showmore = (int) $params['showmore'];
-    \cms_userprefs::set('cgcm_bulk_showmore',$showmore);
+    cms_userprefs::set('cgcm_bulk_showmore',$showmore);
 }
 if( isset($params['submit']) ) {
     if( !isset($params['confirm1']) || !isset($params['confirm2']) ) {
@@ -108,7 +100,7 @@ foreach( $pagelist as $pid ) {
     $displaydata[] = $rec;
 }
 
-$smarty->assign('showmore',\cms_userprefs::get('cgcm_bulk_showmore'));
+$smarty->assign('showmore',cms_userprefs::get('cgcm_bulk_showmore'));
 $smarty->assign('multicontent',$params['multicontent']);
 $smarty->assign('displaydata',$displaydata);
 $smarty->assign('alldesigns',CmsLayoutCollection::get_list());
@@ -120,7 +112,7 @@ try {
     $dflt_tpl = CmsLayoutTemplate::load_dflt_by_type(CmsLayoutTemplateType::CORE.'::page');
     $dflt_tpl_id = $dflt_tpl->get_id();
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     // ignore
 }
 $smarty->assign('dflt_tpl_id',$dflt_tpl_id);
@@ -136,7 +128,3 @@ else {
 }
 
 echo $this->ProcessTemplate('admin_bulk_setdesign.tpl');
-
-#
-# EOF
-#
