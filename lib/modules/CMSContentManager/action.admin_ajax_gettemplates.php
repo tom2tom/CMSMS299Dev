@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
+# CMSContentManaager module action: get design-related page content via ajax
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 if( !isset($gCms) ) exit;
 if( !$this->CanEditContent() ) exit;
 
@@ -43,7 +33,7 @@ try {
             $out = array();
             foreach( $templates as $one ) {
                 if( !$one->get_listable() ) continue;
-                $out[$one->get_id()] = $one->get_name();
+                $out[$one->get_id()] = $one->get_name(); //TODO CHECKME switch order?
             }
             break;
 
@@ -83,8 +73,3 @@ catch( Exception $e ) {
 if( !is_array($out) || count($out) == 0 ) $out = null;
 echo json_encode($out);
 exit;
-
-#
-# EOF
-#
-?>
