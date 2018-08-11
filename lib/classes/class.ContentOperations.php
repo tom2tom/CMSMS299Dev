@@ -26,6 +26,7 @@ use CmsApp;
 use CmsCoreCapabilities;
 use CMSMS\ContentBase;
 use CMSMS\ContentTypePlaceHolder;
+use CMSMS\contenttypes\Content;
 use CMSMS\internal\content_cache;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
@@ -667,8 +668,8 @@ class ContentOperations
 		else {
 			if( !$id ) $id = -1;
 			// get the content rows
-			$query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy";
 			if( $all ) $query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? ORDER BY hierarchy";
+			else $query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy";
 			$contentrows = $db->GetArray($query, array($id));
 		}
 
@@ -707,7 +708,7 @@ class ContentOperations
 			$id = $row['content_id'];
 
 			if (!in_array($row['type'], array_keys($this->ListContentTypes()))) continue;
-			$contentobj = new \Content();
+			$contentobj = new Content();
 			$contentobj = $this->CreateNewContent($row['type']);
 
 			if ($contentobj) {
