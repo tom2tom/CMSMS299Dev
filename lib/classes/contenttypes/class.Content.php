@@ -404,7 +404,7 @@ class Content extends ContentBase
 				}
 				$out = '';
 				if( is_array($_designlist) && count($_designlist) ) {
-					$out = CmsFormUtils::create_dropdown('design_id',$_designlist,$this->GetPropertyValue('design_id'),
+					$out = CmsFormUtils::create_dropdown('design_id',array_flip($_designlist),$this->GetPropertyValue('design_id'),
 														 ['id'=>'design_id']);
 					$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_design',lang('help_title_editcontent_design'));
 					return ['<label for="design_id">*'.lang('design').':</label>'.$help,$out];
