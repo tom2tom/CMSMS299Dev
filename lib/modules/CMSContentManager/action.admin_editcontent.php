@@ -24,7 +24,7 @@ $this->SetCurrentTab('pages');
 
 if( isset($params['cancel']) ) {
     unset($_SESSION['__cms_copy_obj__']);
-    $this->SetMessage($this->Lang('msg_cancelled'));
+    $this->SetInfo($this->Lang('msg_cancelled'));
     $this->RedirectToAdminTab();
 }
 
@@ -253,14 +253,11 @@ if( $content_id && CmsContentManagerUtils::locking_enabled() ) {
     }
 }
 
-$tab_names = null;
 $tab_contents_array = [];
 $tab_message_array = [];
 
 try {
     $tab_names = $content_obj->GetTabNames();
-    $tab_contents_array = [];
-    $tab_message_array = [];
 
     // the content object may not have a main tab, but we require one
     if( !in_array($content_obj::TAB_MAIN,$tab_names) ) {
@@ -292,6 +289,7 @@ try {
     }
 }
 catch( Exception $e ) {
+    $tab_names = null;
     $error = $e->GetMessage();
 }
 
