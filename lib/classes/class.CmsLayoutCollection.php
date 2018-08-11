@@ -662,7 +662,7 @@ class CmsLayoutCollection
 	/**
 	 * Get a list of designs
 	 *
-	 * @param array Array of designs
+	 * @return array of designs: key=id, value=name
 	 */
 	public static function get_list()
 	{
