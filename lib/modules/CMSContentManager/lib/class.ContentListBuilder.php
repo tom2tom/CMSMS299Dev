@@ -21,7 +21,7 @@ use cms_config;
 use cms_tree;
 use cms_userprefs;
 use CmsApp;
-use CmsContentManager\Utils;
+use CMSContentManager\Utils;
 use CmsInvalidDataException;
 use CmsLayoutTemplate;
 use CmsLockOperations;

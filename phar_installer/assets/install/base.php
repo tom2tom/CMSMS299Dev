@@ -27,7 +27,7 @@ cms_siteprefs::set('metadata',"<meta name=\"Generator\" content=\"CMS Made Simpl
 
 //
 // permissions
-// note: some of these have been exported to CmsContentManager or DesignManager install routines.
+// note: some of these have been exported to CMSContentManager or DesignManager install routines.
 //
 verbose_msg(ilang('install_initsiteperms'));
 $all_perms = [];
@@ -136,7 +136,7 @@ cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, 
 
 //
 // standard events
-// some of these have been exported to CmsContentManager or DesignManager install routines.
+// some of these have been exported to CMSContentManager or DesignManager install routines.
 //
 verbose_msg(ilang('install_initevents'));
 /* >DM
