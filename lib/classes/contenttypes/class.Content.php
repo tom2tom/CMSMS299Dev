@@ -282,7 +282,7 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * Validate the user's entries in the content add/edit form
+	 * Validate the data in the content add/edit form
 	 *
 	 * This method also calls the parent method to validate the standard properties
 	 *
@@ -347,7 +347,6 @@ class Content extends ContentBase
 			return $this->_contentBlocks;
 		}
 
-		$this->_contentBlocks = [];
 		$smarty = Smarty::get_instance();
 		try {
 			$parser = new page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
@@ -356,6 +355,7 @@ class Content extends ContentBase
 			$this->_contentBlocks = page_template_parser::get_content_blocks();
 		}
 		catch( SmartyException $e ) {
+			$this->_contentBlocks = [];
 			// smarty exceptions here could be a bad template, or missing template, or something else.
 			throw new CmsContentException(lang('error_parsing_content_blocks').': '.$e->GetMessage());
 		}
