@@ -1,5 +1,5 @@
 <?php
-# Class: CmsContentManager module utility methods
+# Class: CMSContentManager module utility methods
 # Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -26,7 +26,7 @@ use CmsLayoutTemplateType;
 use function get_userid;
 
 /**
- * Utility methods for the CmsContentManager module.
+ * Utility methods for the CMSContentManager module.
  *
  * This is an internal class, for the CMSContentManager module only.
  *
