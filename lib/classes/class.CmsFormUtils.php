@@ -510,14 +510,14 @@ class CmsFormUtils
      *
      * @param string $name The name attribute for the select name
      * @param array  $list_options  Options as per the CmsFormUtils::create_options method
-     * @param mixed string|string[] $selected Selected value as per the CmsFormUtils::create_option method
+     * @param mixed  $selected string|string[], selected value(s) as per the CmsFormUtils::create_option method
      * @param array  $params Array of additional options including: multiple,class,title,id,size
      * @deprecated Use create_select() with appropriate parameters instead
      * @return string The HTML content for the <select> element.
      */
     public static function create_dropdown(string $name, array $list_options, $selected, array $params = []) : string
     {
-        $parms = ['type'=>'drop', 'name'=>$name, 'options'=>$list_options, 'selected'=>$selected] + $params;
+        $parms = ['type'=>'drop', 'name'=>$name, 'options'=>$list_options, 'selectedvalue'=>$selected] + $params;
         return self::create_select($parms);
     }
 
