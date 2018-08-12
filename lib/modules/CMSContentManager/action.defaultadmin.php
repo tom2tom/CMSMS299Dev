@@ -17,6 +17,7 @@
 
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
+use CMSContentManager\Utils;
 use CMSMS\UserOperations;
 
 global $CMS_JOB_TYPE;
@@ -380,7 +381,7 @@ $smarty->assign('opts',$opts);
 $smarty->assign('filter',$filter);
 $smarty->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500]);
 $smarty->assign('pagelimit',$pagelimit);
-$smarty->assign('locking',CmsContentManagerUtils::locking_enabled());
+$smarty->assign('locking',Utils::locking_enabled());
 // get a list of admin users
 $smarty->assign('user_list',UserOperations::get_instance()->GetList());
 // get a list of designs

@@ -1,8 +1,7 @@
 <?php
 #CMSContentManager-module action: edit page content
 #Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-#This file is a component of CMS Made Simple module CMSContentManager
-#  <http://dev.cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://dev.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -15,6 +14,10 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+use CMSContentManager\Utils;
+use CMSMS\ContentException;
+use CMSMS\ContentOperations;
 
 global $CMS_JOB_TYPE;
 
@@ -34,7 +37,7 @@ if( isset($params['cancel']) ) {
 try {
     $user_id = get_userid();
     $content_id = $parent_id = $content_obj = $error = $active_tab = null;
-    $pagedefaults = CmsContentManagerUtils::get_pagedefaults();
+    $pagedefaults = Utils::get_pagedefaults();
     $content_type = $pagedefaults['contenttype'];
     $error = null;
 
@@ -55,7 +58,7 @@ try {
     }
 
     // Get a list of content types and pick a default if necessary
-    $contentops = \ContentOperations::get_instance();
+    $contentops = ContentOperations::get_instance();
     $existingtypes = $contentops->ListContentTypes(false,true);
 
     //
@@ -85,7 +88,7 @@ try {
         $content_obj->SetPropertyValue('extra2',$pagedefaults['extra2']);
         $content_obj->SetPropertyValue('extra3',$pagedefaults['extra3']);
         $content_obj->SetAdditionalEditors($pagedefaults['addteditors']);
-        $dflt_parent = (int) \cms_userprefs::get('default_parent');
+        $dflt_parent = (int) cms_userprefs::get('default_parent');
         if( $dflt_parent < 1 ) $dflt_parent = -1;
         if( !$this->CheckPermission('Modify Any Page') || !$this->CheckPermission('Manage All Content') ) {
             // we get the list of pages that this user has access to.
@@ -230,7 +233,7 @@ catch( ContentException $e ) {
 //
 // BUILD THE DISPLAY
 //
-if( $content_id && CmsContentManagerUtils::locking_enabled() ) {
+if( $content_id && Utils::locking_enabled() ) {
     try {
         $lock_id = null;
         for( $i = 0; $i < 3; $i++ ) {

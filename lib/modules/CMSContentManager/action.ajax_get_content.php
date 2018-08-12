@@ -1,15 +1,5 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,17 +12,16 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
 
-use \CMSMS\internal\bulkcontentoperations;
+use CMSContentManager\ContentListBuilder;
+use CMSContentManager\Utils;
+use CMSMS\internal\bulkcontentoperations;
 
 if( !isset($gCms) ) exit;
 // no permissions checks here.
 
 $handlers = ob_list_handlers();
-for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
 try {
     $smarty->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'));
@@ -41,7 +30,7 @@ try {
 
     // load all the content that this user can display...
     // organize it into a tree
-    $builder = new \CMSContentManager\ContentListBuilder($this);
+    $builder = new ContentListBuilder($this);
     $curpage = (isset($_SESSION[$this->GetName().'_curpage']) && !isset($params['seek'])) ? (int) $_SESSION[$this->GetName().'_curpage'] : 1;
     if( isset($params['curpage']) ) $curpage = (int)$params['curpage'];
     $filter = cms_userprefs::get($this->GetName().'_userfilter');
@@ -82,7 +71,7 @@ try {
     $smarty->assign('indent',!$filter && cms_userprefs::get('indent',1));
     $locks = $builder->get_locks();
     $have_locks = (is_array($locks) && count($locks))?1:0;
-    $smarty->assign('locking',CmsContentManagerUtils::locking_enabled());
+    $smarty->assign('locking',Utils::locking_enabled());
     $smarty->assign('have_locks',$have_locks);
     $smarty->assign('pagelimit',$pagelimit);
     $smarty->assign('pagelist',$pagelist);
@@ -93,7 +82,7 @@ try {
     $url = $this->create_url($id,'ajax_get_content',$returnid);
     $smarty->assign('ajax_get_content_url',str_replace('amp;','',$url));
 
-    if( CmsContentManagerUtils::get_pagenav_display() == 'title' ) {
+    if( Utils::get_pagenav_display() == 'title' ) {
         $smarty->assign('colhdr_page',$this->Lang('colhdr_name'));
         $smarty->assign('coltitle_page',$this->Lang('coltitle_name'));
     }
@@ -129,13 +118,8 @@ try {
     $out = $this->ProcessTemplate('ajax_get_content.tpl');
     echo $out;
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     echo '<div class="error">'.$e->GetMessage().'</div>';
     debug_to_log($e);
 }
 exit;
-
-#
-# EOF
-#
-?>

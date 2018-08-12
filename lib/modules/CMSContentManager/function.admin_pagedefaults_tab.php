@@ -1,5 +1,5 @@
 <?php
-# CMSAContentManager module action tab
+# CMSContentManager module action tab
 # Coopyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,13 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\Utils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
-$page_prefs = CmsContentManagerUtils::get_pagedefaults();
+$page_prefs = Utils::get_pagedefaults();
 $smarty->assign('page_prefs',$page_prefs);
 $smarty->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(FALSE,FALSE));
 $smarty->assign('design_list',CmsLayoutCollection::get_list());

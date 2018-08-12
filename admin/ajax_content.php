@@ -1,7 +1,7 @@
 <?php
-#...
-#(c)2013 by Robert Campbell (calguy1000@cmsmadesimple.org)
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+# CMSContentManager module ajax processor action retrieve data
+# Coopyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -14,15 +14,15 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
+use CMSContentManager\Utils;
 
 $CMS_ADMIN_PAGE=1;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 $op = 'pageinfo';
 if( isset($_REQUEST['op']) ) $op = trim($_REQUEST['op']);
-$gCms = \CmsApp::get_instance();
+$gCms = CmsApp::get_instance();
 $hm = $gCms->GetHierarchyManager();
 $contentops = $gCms->GetContentOperations();
 $allow_all = (isset($_REQUEST['allow_all']) && cms_to_bool($_REQUEST['allow_all'])) ? 1 : 0;
@@ -33,11 +33,11 @@ $current = (isset($_REQUEST['current']) ) ? (int) $_REQUEST['current'] : null;
 
 $display = 'title';
 $mod = cms_utils::get_module('CMSContentManager');
-if( $mod ) $display = CmsContentManagerUtils::get_pagenav_display();
+if( $mod ) $display = Utils::get_pagenav_display();
 
 try {
     $ruid = get_userid(FALSE);
-    if( $ruid < 1 ) throw new \Exception('permissiondenied'); // should throw a 403
+    if( $ruid < 1 ) throw new Exception('permissiondenied'); // should throw a 403
     $can_edit_any = check_permission($ruid,'Manage All Content') || check_permission($ruid,'Modify Any Page');
 
     $out = null;
@@ -85,7 +85,7 @@ try {
     case 'here_up':
         // given a page id, get all of the info for all of the parents, and their peers.
         // as well as the info of my current children.
-        if( !isset($_REQUEST['page']) ) throw new \Exception('missingparams');
+        if( !isset($_REQUEST['page']) ) throw new Exception('missingparams');
 
         $children_to_data = function($node) use ($display,$allow_all,$for_child,$ruid,$contentops,$can_edit_any,$allowcurrent,$current) {
             $children = $node->getChildren(false,$allow_all);
@@ -222,10 +222,10 @@ try {
         break;
 
     default:
-        throw new \Exception('missingparam');
+        throw new Exception('missingparam');
     }
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     $error = $e->GetMessage();
 }
 
@@ -244,6 +244,3 @@ header('Content-Type: application/json');
 echo json_encode($out);
 exit;
 
-#
-# EOF
-#

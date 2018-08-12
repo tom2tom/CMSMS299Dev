@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\Utils;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
@@ -22,7 +24,7 @@ if( isset($params['cancel']) ) {
     redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
 }
 
-$page_prefs = CmsContentManagerUtils::get_pagedefaults();
+$page_prefs = Utils::get_pagedefaults();
 $this->SetCurrentTab('pagedefaults');
 
 if( isset($params['pagedefaults']) && isset($params['submit']) ) {
@@ -48,8 +50,3 @@ if( isset($params['pagedefaults']) && isset($params['submit']) ) {
 }
 
 $this->RedirectToAdminTab('','','admin_settings');
-
-#
-# EOF
-#
-?>
