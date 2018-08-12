@@ -1513,7 +1513,7 @@ abstract class ContentBase
 	 */
 	public function ValidateData()
 	{
-		$errors = array();
+		$errors = [];
 
 		if ($this->mParentId < -1) {
 			$errors[] = lang('invalidparent');
@@ -1525,7 +1525,7 @@ abstract class ContentBase
 				$this->mName = $this->mMenuText;
 			}
 			else {
-				$errors[]= lang('nofieldgiven', lang('title'));
+				$errors[] = lang('nofieldgiven', lang('title'));
 				$result = false;
 			}
 		}
@@ -1545,7 +1545,7 @@ abstract class ContentBase
 				$contentops = ContentOperations::get_instance();
 				$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
 				if ($error !== FALSE) {
-					$errors[]= $error;
+					$errors[] = $error;
 					$result = false;
 				}
 			}
