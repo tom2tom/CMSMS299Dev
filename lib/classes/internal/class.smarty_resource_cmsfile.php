@@ -38,15 +38,16 @@ class smarty_resource_cmsfile extends fixed_smarty_custom_resource
 	 */
     protected function fetch(string $name, &$source, &$mtime)
     {
-        $source = null;
+        $source = '';
+		$mtime = 0;
         $parts = explode(';',$name);
         $name = $parts[0];
 
-        // has to be a non-hidden file.
+        // must be a non-hidden file.
         $bn = basename( $name );
         if( startswith($bn, '.') ) return;
 
-        // has to be a file in or below a template directory.
+        // must be a file in or below a template directory.
 		$found = false;
         $_p_dirs = $this->smarty->getTemplateDir();
         foreach( $_p_dirs as $dir ) {
