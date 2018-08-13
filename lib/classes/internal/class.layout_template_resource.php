@@ -1,6 +1,7 @@
 <?php
-#...
+#class for handling layout templates as a resource
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,18 +15,20 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 namespace CMSMS\internal;
-use \CmsLayoutTemplateType;
+
+use cms_utils;
+use CmsLayoutTemplate;
+use Exception;
+use stdClass;
+use function cms_error;
+use function startswith;
 
 /**
- * @package CMS
- */
-
-/**
- * A simple class for handling layout templates as a resource.
+ * A class for handling layout templates as a resource.
+ *
+ * Handles numeric and string template names, suffixes ;top ;head or ;body.
  *
  * @package CMS
  * @author Robert Campbell
@@ -36,28 +39,22 @@ use \CmsLayoutTemplateType;
  */
 class layout_template_resource extends fixed_smarty_custom_resource
 {
-	private $_section;
-
-	public function __construct($section = '')
-	{
-		if( in_array($section,array('top','head','body')) ) $this->_section = $section;
-	}
-
-	public function buildUniqueResourceName(\Smarty $smarty,$resource_name, $is_config = false)
-	{
-		return parent::buildUniqueResourceName($smarty,$resource_name,$is_config).'--'.$this->_section;
-	}
-
 	private function &get_template($name)
 	{
-		$obj = \CmsLayoutTemplate::load($name);
-		$ret = new \StdClass;
+		$obj = CmsLayoutTemplate::load($name);
+		$ret = new stdClass;
 		$ret->modified = $obj->get_modified();
 		$ret->content = $obj->get_content();
 		return $ret;
 	}
 
-	protected function fetch($name,&$source,&$mtime)
+	/**
+	 *
+	 * @param string $name  resource-file path, optionally with trailing ';[section]'
+	 * @param type $source  store for retrieved file content
+	 * @param int $mtime    store for file modification timestamp
+	 */
+	protected function fetch($name, &$source, &$mtime)
 	{
 		if( $name == 'notemplate' ) {
 			$source = '{content}';
@@ -72,20 +69,24 @@ class layout_template_resource extends fixed_smarty_custom_resource
 		}
 
 		$source = '';
-		$mtime = null;
+		$mtime = 0;
+        $parts = explode(';',$name,2);
+        $name = $parts[0];
 
 		try {
 			$tpl = $this->get_template($name);
 			if( !is_object($tpl) ) return;
 		}
 		catch( Exception $e ) {
-			cms_error('Missing Template: '.$name);
+			cms_error('Missing template: '.$name);
 			return;
 		}
 
-		switch( $this->_section ) {
+		$mtime = $tpl->modified;
+
+        $section = $parts[1] ?? : null;
+		switch( trim($section) ) {
 		case 'top':
-			$mtime = $tpl->modified;
 			$pos1 = stripos($tpl->content,'<head');
 			$pos2 = stripos($tpl->content,'<header');
 			if( $pos1 === FALSE || $pos1 == $pos2 ) return;
@@ -93,7 +94,6 @@ class layout_template_resource extends fixed_smarty_custom_resource
 			return;
 
 		case 'head':
-			$mtime = $tpl->modified;
 			$pos1 = stripos($tpl->content,'<head');
 			$pos1a = stripos($tpl->content,'<header');
 			$pos2 = stripos($tpl->content,'</head>');
@@ -102,7 +102,6 @@ class layout_template_resource extends fixed_smarty_custom_resource
 			return;
 
 		case 'body':
-			$mtime = $tpl->modified;
 			$pos = stripos($tpl->content,'</head>');
 			if( $pos !== FALSE ) {
 				$source = trim(substr($tpl->content,$pos+7));
@@ -114,12 +113,7 @@ class layout_template_resource extends fixed_smarty_custom_resource
 
 		default:
 			$source = trim($tpl->content);
-			$mtime = $tpl->modified;
 			return;
 		}
 	}
-
-} // end of class
-
-#
-# EOF
+} // class
