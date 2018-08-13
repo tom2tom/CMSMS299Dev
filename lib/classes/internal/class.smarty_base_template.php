@@ -26,8 +26,12 @@
  * @package   Smarty
  */
 namespace CMSMS\internal;
-require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php');
 
+use Smarty;
+use SmartyException;
+use const CMS_ROOT_PATH;
+
+require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php');
 
 /**
  * Smarty Backward Compatibility Wrapper Class.
@@ -37,21 +41,21 @@ require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php');
  *
  * @package Smarty
  */
-class smarty_base_template extends \Smarty
+class smarty_base_template extends Smarty
 {
     /**
      * Smarty 2 BC
      *
      * @var string
      */
-    public $_version = \Smarty::SMARTY_VERSION;
+    public $_version = Smarty::SMARTY_VERSION;
 
     /**
      * This is an array of directories where trusted php scripts reside.
      *
      * @var array
      */
-    public $trusted_dir = array();
+    public $trusted_dir = [];
 
     /**
      * Initialize new SmartyBC object
@@ -130,8 +134,8 @@ class smarty_base_template extends \Smarty
      * @throws SmartyException
      * @internal param array $block_functs list of methods that are block format
      */
-    public function register_object($object, $object_impl, $allowed = array(), $smarty_args = true,
-                                    $block_methods = array())
+    public function register_object($object, $object_impl, $allowed = [], $smarty_args = true,
+                                    $block_methods = [])
     {
         settype($allowed, 'array');
         settype($smarty_args, 'boolean');
