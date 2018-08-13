@@ -1,6 +1,7 @@
 <?php
-# methods for fetching content blocks
-# Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+# Methods for fetching content blocks
+# Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
+# Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -236,7 +237,7 @@ final class content_plugins
      * @return mixed string or null
      * @throws CmsError404Exception
      */
-    public static function get_default_content_block_content($page_id,&$template)
+    public static function get_default_content_block_content($page_id, &$template)
     {
         $result = null;
         if( self::$_primary_content ) return self::$_primary_content;
@@ -284,5 +285,5 @@ final class content_plugins
         self::$_primary_content = $result;
         return $result;
     }
-
 } // class
+
