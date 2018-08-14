@@ -1,5 +1,5 @@
 <?php
-#class for handling layout templates as a resource
+#Class for handling layout templates as a resource
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -84,7 +84,7 @@ class layout_template_resource extends fixed_smarty_custom_resource
 
 		$mtime = $tpl->modified;
 
-        $section = $parts[1] ?? : null;
+        $section = $parts[1] ?? null;
 		switch( trim($section) ) {
 		case 'top':
 			$pos1 = stripos($tpl->content,'<head');
