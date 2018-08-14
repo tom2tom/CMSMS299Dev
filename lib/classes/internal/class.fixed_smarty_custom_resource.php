@@ -1,5 +1,5 @@
 <?php
-#...
+#Class to resolve an issue with the Smarty_Resource_Custom class
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -14,29 +14,28 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 namespace CMSMS\internal;
 
-/**
- * This file contains a class that fixes a problem with the Smarty_Resource_Custom class
- *
- * @ignore
- */
+use Smarty_Internal_Template;
+use Smarty_Resource_Custom;
+use Smarty_Template_Source;
 
 /**
- * A simple class to resolve an issue with smarty
+ * A simple class to resolve an issue with the Smarty_Resource_Custom class
  *
  * @since 1.11
  * @internal
  * @ignore
  * @package CMS
  */
-abstract class fixed_smarty_custom_resource extends \Smarty_Resource_Custom
+abstract class fixed_smarty_custom_resource extends Smarty_Resource_Custom
 {
-    public function populate(\Smarty_Template_Source $source, \Smarty_Internal_Template $_template = null)
+    protected $smarty;
+
+    public function populate(Smarty_Template_Source $source, Smarty_Internal_Template $_template = null)
     {
+        $this->smarty = $source->smarty;  // hackish.
         $source->filepath = $source->type . ':' . $source->name;
         $source->uid = sha1($source->type . ':' . $source->name);
 
@@ -51,5 +50,3 @@ abstract class fixed_smarty_custom_resource extends \Smarty_Resource_Custom
         $source->exists = !!$source->timestamp;
     }
 }
-
-?>
