@@ -1,16 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: CmsTemplateCache (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A simple class to handle remembering and preloading template data for
-#  frotnend requests.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# TemplateCache class: cache template data for frontend requests.
+# Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,19 +14,20 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
 
 namespace CMSMS\internal;
 
-/**
- * @package CMS
- */
+use cms_cache_handler;
+use CmsApp;
+use CmsLayoutTemplate;
+use CmsLayoutTemplateType;
+use CmsLogicException;
+use const TMP_CACHE_LOCATION;
+use function cms_join_path;
 
 /**
  *  A simple class to handle remembering and preloading template data for
- *  frotnend requests.
+ *  frontend requests.
  *
  * @package CMS
  * @author Robert Campbell
@@ -52,16 +44,16 @@ class TemplateCache
 
   public function __construct()
   {
-	  if( !\CmsApp::get_instance()->is_frontend_request() ) throw new \CmsLogicException('This class can only be instantiated on a frontend request');
-	  if( self::$_instance ) throw new \CmsLogicException('Only one instance of this class is permitted');
+	  if( !CmsApp::get_instance()->is_frontend_request() ) throw new CmsLogicException('This class can only be instantiated on a frontend request');
+	  if( self::$_instance ) throw new CmsLogicException('Only one instance of this class is permitted');
 	  self::$_instance = TRUE;
 
 	  $this->_key = md5($_SERVER['REQUEST_URI'].serialize($_GET));
-	  if( ($tmp = \cms_cache_handler::get_instance()->get('template_cache')) ) {
+	  if( ($tmp = cms_cache_handler::get_instance()->get('template_cache')) ) {
 		  $this->_cache = unserialize($tmp);
 		  if( isset($this->_cache[$this->_key]) ) {
-			  \CmsLayoutTemplate::load_bulk($this->_cache[$this->_key]['templates']);
-			  if( isset($this->_cache[$this->_key]['types']) ) \CmsLayoutTemplateType::load_bulk($this->_cache[$this->_key]['types']);
+			  CmsLayoutTemplate::load_bulk($this->_cache[$this->_key]['templates']);
+			  if( isset($this->_cache[$this->_key]['types']) ) CmsLayoutTemplateType::load_bulk($this->_cache[$this->_key]['types']);
 		  }
 	  }
   }
@@ -69,10 +61,10 @@ class TemplateCache
   public function __destruct()
   {
       // update the cache;
-      if( !\CmsApp::get_instance()->is_frontend_request() ) return;
+      if( !CmsApp::get_instance()->is_frontend_request() ) return;
 
       $dirty = FALSE;
-      $t1 = \CmsLayoutTemplate::get_loaded_templates();
+      $t1 = CmsLayoutTemplate::get_loaded_templates();
       if( is_array($t1) ) {
           $t2 = array();
           if( isset($this->_cache[$this->_key]['templates']) ) $t2 = $this->_cache[$this->_key]['templates'];
@@ -83,7 +75,7 @@ class TemplateCache
           }
       }
 
-      $t1 = \CmsLayoutTemplateType::get_loaded_types();
+      $t1 = CmsLayoutTemplateType::get_loaded_types();
       if( is_array($t1) ) {
           $t2 = array();
           if( isset($this->_cache[$this->_key]['types']) ) $t2 = $this->_cache[$this->_key]['types'];
@@ -94,7 +86,7 @@ class TemplateCache
           }
       }
 
-      if( $dirty ) \cms_cache_handler::get_instance()->set('template_cache',serialize($this->_cache));
+      if( $dirty ) cms_cache_handler::get_instance()->set('template_cache',serialize($this->_cache));
   }
 
   public static function clear_cache()
@@ -103,9 +95,4 @@ class TemplateCache
 	  $fn = cms_join_path(TMP_CACHE_LOCATION,'template_cache');
 	  @unlink($fn);
   }
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class
