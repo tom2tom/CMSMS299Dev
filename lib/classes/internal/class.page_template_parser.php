@@ -17,19 +17,24 @@
 
 namespace CMSMS\internal;
 
-class page_template_parser extends \Smarty_Internal_Template
+use CmsEditContentException;
+use Smarty_Internal_Template;
+use SmartyException;
+use function startswith;
+
+class page_template_parser extends Smarty_Internal_Template
 {
     /**
      * @ignore
      * @var int
      */
-    private static $_priority = 100;
+    protected static $_priority = 100;
 
     /**
      * @ignore
      * @var array, each member like 'blockname' => [blockparms]
      */
-    private static $_contentBlocks = [];
+    protected static $_contentBlocks = [];
 
     /**
      * @ignore
@@ -63,11 +68,11 @@ class page_template_parser extends \Smarty_Internal_Template
         $this->merge_compiled_includes = true;
 
         try {
-            $this->registerPlugin('compiler', 'content', [$this,'compile_contentblock'], false);
-            $this->registerPlugin('compiler', 'content_image', [$this,'compile_imageblock'], false);
-            $this->registerPlugin('compiler', 'content_module', [$this,'compile_moduleblock'], false);
-            $this->registerPlugin('compiler', 'content_text', [$this,'compile_contenttext'], false);
-        } catch (\SmartyException $e) {
+            $this->registerPlugin('compiler', 'content', [$this,'compile_contentblock'], false)
+                 ->registerPlugin('compiler', 'content_image', [$this,'compile_imageblock'], false)
+                 ->registerPlugin('compiler', 'content_module', [$this,'compile_moduleblock'], false)
+                 ->registerPlugin('compiler', 'content_text', [$this,'compile_contenttext'], false);
+        } catch (SmartyException $e) {
             // ignore these... throws an error in Smarty 3.1.16 if plugin is already registered
             // because plugin registration is global.
         }
