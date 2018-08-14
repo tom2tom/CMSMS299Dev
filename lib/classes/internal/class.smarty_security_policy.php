@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Smarty security policy
+#Copyright (C) 2011-2015 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2015-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +15,8 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 namespace CMSMS\internal;
-
-/**
- * @package CMS
- */
 
 /**
  * Generic smarty security policy.
@@ -31,9 +26,9 @@ namespace CMSMS\internal;
  * @internal
  * @ignore
  */
-final class smarty_security_policy extends \Smarty_Security
+final class smarty_security_policy extends Smarty_Security
 {
-    public $php_handling = \Smarty::PHP_REMOVE;
+    public $php_handling = Smarty::PHP_REMOVE;
 
     public $secure_dir = null; // this is the magic that stops stuff from happening outside of the specified directories.
     public $php_modifiers = array();
@@ -46,29 +41,29 @@ final class smarty_security_policy extends \Smarty_Security
     public function __construct($smarty)
     {
         parent::__construct($smarty);
-        $this->allow_php_tag = FALSE;
-        $gCms = \CmsApp::get_instance();
+        $this->allow_php_tag = false;
+        $gCms = CmsApp::get_instance();
         if($gCms->is_frontend_request() ) {
-            $this->static_classes = array(); // allow all static classes
-            $this->php_functions = array(); // allow any php functions
+            $this->static_classes = []; // allow all static classes
+            $this->php_functions = []; // allow any php functions
             $config = $gCms->GetConfig();
             if( !$config['permissive_smarty'] ) {
                 $this->static_classes = null;
                 // this should allow most stuff that does modification to data or formatting.
                 // i.e: string searches, array searches, string comparison, sorting, etc.
-                $this->php_functions = array('isset','implode','explode','empty','count','sizeof','in_array', 'is_array','time','lang',
-                                             'str_replace','is_string','strpos','substr','strtolower','strtoupper','strcmp','strcasecmp','strlen','array_search','sort','ksort','asort',
-                                             'nl2br','file_exists','is_object','is_file','is_dir','print_r','var_dump','array_reverse','array_flip','shuffle','array_rand',
-                                             'debug_display','startswith','endswith','urlencode','json_encode','json_decode',
-                                             'htmlspecialchars','htmlspecialchars_decode','htmlentities','html_entity_decode','cms_html_entity_decode');
+                $this->php_functions = [
+'isset','implode','explode','empty','count','sizeof','in_array', 'is_array','time','lang',
+'str_replace','is_string','strpos','substr','strtolower','strtoupper','strcmp','strcasecmp','strlen','array_search','sort','ksort','asort',
+'nl2br','file_exists','is_object','is_file','is_dir','print_r','var_dump','array_reverse','array_flip','shuffle','array_rand',
+'debug_display','startswith','endswith','urlencode','json_encode','json_decode','mt_jsbool',
+'htmlspecialchars','htmlspecialchars_decode','htmlentities','html_entity_decode','cms_html_entity_decode'
+];
             }
         }
         else {
-            $this->php_functions = array();
-            $this->static_classes = array();
+            $this->php_functions = [];
+            $this->static_classes = [];
             $this->allow_constants = true;
         }
     }
-} // end of class
-
-?>
+} // class
