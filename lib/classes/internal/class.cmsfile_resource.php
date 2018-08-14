@@ -20,15 +20,15 @@ namespace CMSMS\internal;
 use function startswith;
 
 /**
- * A resource like the standard file: resource in smarty but the file must be
- * located in or below one of the template directories (no absolute filenames,
+ * A resource like the standard file: resource but the file must be located
+ * in or below one of the template directories (no absolute filenames,
  * or ../ stuff to get out of it) and the file cannot be hidden (dot-prefix).
  *
- * It also supports the ;top ;head and ;body section suffixes to process
+ * It also supports the ;top ;head and ;body section-suffixes to process
  * only a portion of the template.
  * @since 2.3
  */
-class smarty_resource_cmsfile extends fixed_smarty_custom_resource
+class cmsfile_resource extends fixed_smarty_custom_resource
 {
 	/**
 	 *
@@ -36,7 +36,7 @@ class smarty_resource_cmsfile extends fixed_smarty_custom_resource
 	 * @param type $source  store for retrieved file content
 	 * @param int $mtime    store for file modification timestamp
 	 */
-    protected function fetch(string $name, &$source, &$mtime)
+    protected function fetch($name, &$source, &$mtime)
     {
         $source = '';
 		$mtime = 0;
