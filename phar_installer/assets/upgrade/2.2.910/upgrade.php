@@ -86,9 +86,8 @@ $sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1',
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
     CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'name');
 $dbdict->ExecuteSQLArray($sqlarray);
-
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
-    CMS_DB_PREFIX.'module_templates', 'originator,name', ['UNIQUE']);
+    CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'originator,name', ['UNIQUE']);
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // migrate module templates to layout-templates table

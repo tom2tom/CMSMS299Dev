@@ -35,8 +35,8 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_deps');
     $dbdict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
-    $dbdict->ExecuteSQLArray($sqlarray);
+//    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
+//    $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'permissions');
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'siteprefs');
@@ -560,7 +560,7 @@ modified I
     verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_2', $msg_ret));
 
     $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
-        CMS_DB_PREFIX.'module_templates', 'originator,name', ['UNIQUE']);
+        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'originator,name', ['UNIQUE']);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? $good : $bad;
     verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_3', $msg_ret));
