@@ -1,5 +1,5 @@
 <?php
-#Class for file resources with extra conditions
+#Class for file resources with some extra file-related conditions
 #Copyright (C) 2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,6 +17,7 @@
 
 namespace CMSMS\internal;
 
+use Smarty_Resource_Custom;
 use function startswith;
 
 /**
@@ -28,15 +29,14 @@ use function startswith;
  * only a portion of the template.
  * @since 2.3
  */
-class cmsfile_resource extends fixed_smarty_custom_resource
+class file_template_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
 	/**
-	 *
 	 * @param string $name  resource-file path, optionally with trailing ';[section]'
-	 * @param type $source  store for retrieved file content
-	 * @param int $mtime    store for file modification timestamp
+     * @param string &$source template source
+     * @param int    &$mtime  template modification timestamp
 	 */
-    protected function fetch($name, &$source, &$mtime)
+    protected function fetch($name,&$source,&$mtime)
     {
         $source = '';
 		$mtime = 0;
