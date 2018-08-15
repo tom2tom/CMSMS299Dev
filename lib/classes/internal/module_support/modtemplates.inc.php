@@ -36,26 +36,10 @@
 function cms_module_ListTemplates(&$modinstance, $mod_name = '')
 {
 	$db = CmsApp::get_instance()->GetDb();
-/*
-	$retresult = [];
-
-	$query = 'SELECT * from '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? ORDER BY template_name ASC';
-	$result = $db->Execute($query, [$mod_name != ''?$mod_name:$modinstance->GetName()]);
-
-	while (isset($result) && !$result->EOF) {
-		$retresult[] = $result->fields['template_name'];
-		$result->MoveNext();
-	}
-
-	return $retresult;
-*/
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
-	$tbl = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
-	$query = <<<EOS
-SELECT name FROM {$tbl} WHERE listable!=0 AND originator=? ORDER BY name
-EOS;
+	$query = 'SELECT name FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY name';
 	return $db->GetCol($query, [$mod_name]);
 }
 
@@ -72,26 +56,11 @@ EOS;
 function cms_module_GetTemplate(&$modinstance, $tpl_name, $mod_name = '')
 {
 	$db = CmsApp::get_instance()->GetDb();
-/*
-	$query = 'SELECT * from '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? and template_name = ?';
-	$result = $db->Execute($query, [$mod_name != ''?$mod_name:$modinstance->GetName(), $tpl_name]);
-
-	if ($result && $result->RecordCount() > 0) {
-		$row = $result->FetchRow();
-		return $row['content'];
-	}
-
-	return '';
-*/
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
-	$tbl = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
-	$query = <<<EOS
-SELECT content FROM {$tbl} WHERE name=? AND originator=?
-EOS;
+	$query = 'SELECT content FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE name=? AND originator=?';
 	return $db->GetOne($query, [$tpl_name, $mod_name]);
-
 }
 
 /**
@@ -138,25 +107,10 @@ function cms_module_GetTemplateFromFile(&$modinstance, $tpl_name, $mod_name = ''
 function cms_module_SetTemplate(&$modinstance, $tpl_name, $content, $mod_name = '')
 {
 	$db = CmsApp::get_instance()->GetDb();
-/*
-	$query = 'SELECT module_name FROM '.CMS_DB_PREFIX.'module_templates WHERE module_name = ? and template_name = ?';
-	$result = $db->Execute($query, [$mod_name != ''?$mod_name:$modinstance->GetName(), $tpl_name]);
-
-	$time = $db->DbTimeStamp(time());
-	if ($result && $result->RecordCount() < 1) {
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_templates (module_name, template_name, content, create_date, modified_date) VALUES (?,?,?,'.$time.','.$time.')';
-		$db->Execute($query, [$mod_name != ''?$mod_name:$modinstance->GetName(), $tpl_name, $content]);
-	}
-	else {
-		$query = 'UPDATE '.CMS_DB_PREFIX.'module_templates SET content = ?, modified_date = '.$time.' WHERE module_name = ? AND template_name = ?';
-		$db->Execute($query, [$content, $mod_name != ''?$mod_name:$modinstance->GetName(), $tpl_name]);
-	}
-*/
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
 	$now = time();
-	$insert = false;
 	$pref = CMS_DB_PREFIX;
 	$tbl = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
 
@@ -203,22 +157,10 @@ EOS;
 function cms_module_DeleteTemplate(&$modinstance, $tpl_name = '', $mod_name = '')
 {
 	$db = CmsApp::get_instance()->GetDb();
-/*
-	$parms = [$mod_name != ''?$mod_name:$modinstance->GetName()];
-	$query = "DELETE FROM ".CMS_DB_PREFIX."module_templates WHERE module_name = ?";
-	if( $tpl_name != '' ) {
-		$query .= 'AND template_name = ?';
-	    $parms[] = $tpl_name;
-	}
-	$result = $db->Execute($query, $parms);
-*/
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
-	$tbl = CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME;
-	$query = <<<EOS
-DELETE FROM {$tbl} WHERE originator=?
-EOS;
+	$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator=?';
 	$vars = [$mod_name];
 	if ($tpl_name) {
 		$query .= 'AND name=?';
@@ -228,4 +170,3 @@ EOS;
 
 	return ($result !== false);
 }
-
