@@ -1,5 +1,5 @@
 <?php
-#Microtiny: a module for CMS Made Simple to allow WYSIWYG editing using a TinyMCE-derivative
+#MicroTiny: a module for CMS Made Simple to allow WYSIWYG editing using a TinyMCE-derivative
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,42 +15,42 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use MicroTiny\Utils;
+
 class MicroTiny extends CMSModule
 {
   const PROFILE_FRONTEND = '__frontend__';
   const PROFILE_ADMIN = '__admin__';
 
-  public function __construct() { parent::__construct(); }
-  public function GetName() { return 'MicroTiny'; }
-  public function GetFriendlyName() { return $this->Lang("friendlyname"); }
-  public function GetVersion(){ return '2.3'; }
-  public function HasAdmin() { return TRUE; }
-  public function IsPluginModule() { return TRUE; }
-  public function LazyLoadFrontend() { return TRUE; }
-  public function LazyLoadAdmin() { return TRUE; }
-  public function MinimumCMSVersion() { return "1.99-alpha0"; }
-  public function GetDependencies() { return ['FilePicker'=>'1.1']; }
-  public function GetHelp() { return $this->Lang('help'); }
+  public function GetAdminDescription() { return $this->Lang('admindescription'); }
   public function GetAuthor() { return 'Morten Poulsen'; }
   public function GetAuthorEmail() { return '&lt;morten@poulsen.org&gt;'; }
   public function GetChangeLog() { @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
+  public function GetDependencies() { return ['FilePicker'=>'1.1']; }
+  public function GetFriendlyName() { return $this->Lang('friendlyname'); }
+  public function GetHelp() { return $this->Lang('help'); }
+  public function GetName() { return 'MicroTiny'; }
+  public function GetVersion(){ return '2.3'; }
+  public function HasAdmin() { return true; }
+  public function IsPluginModule() { return true; }
+  public function LazyLoadAdmin() { return true; }
+  public function LazyLoadFrontend() { return true; }
+  public function MinimumCMSVersion() { return '2.2.900'; }
   public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
-  public function GetAdminDescription() { return $this->Lang('admindescription'); }
 
-  public function WYSIWYGGenerateHeader($selector = null,$cssname = null) {
-    return MicroTiny\microtiny_utils::WYSIWYGGenerateHeader($selector, $cssname);
+  public function WYSIWYGGenerateHeader($selector = '',$cssname = '')
+  {
+    return Utils::WYSIWYGGenerateHeader($selector, $cssname);
   }
 
-  public function HasCapability($capability, $params=array()) {
-    if ($capability==CmsCoreCapabilities::WYSIWYG_MODULE) return true;
-    return false;
+  public function HasCapability($capability, $params=[])
+  {
+    return ($capability == CmsCoreCapabilities::WYSIWYG_MODULE);
   }
-
 } // class
 
 function mt_jsbool($val)
 {
-  $val = cms_to_bool($val);
-  if( $val ) return 'true';
+  if( cms_to_bool($val) ) return 'true';
   return 'false';
 }
