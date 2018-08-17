@@ -333,7 +333,7 @@ abstract class CMSModule
 
             // no lazy loading.
             $smarty = CmsApp::get_instance()->GetSmarty();
-            $smarty->register_function($this->GetName(), array($this->GetName(),'function_plugin'), $cachable );
+            $smarty->registerPlugin('function', $this->GetName(), [$this->GetName(),'function_plugin'], $cachable );
             return true;
         }
         else {
@@ -884,7 +884,7 @@ abstract class CMSModule
      * @param string $blockName Content block name
      * @param mixed  $value     Content block value
      * @param array  $params    Associative array containing content block parameters
-     * @param bool   $adding    Flag indicating whether the content editor is in create mode (adding) vs. edit mod.
+     * @param bool   $adding    Flag indicating whether the content editor is in create mode (adding) vs. edit mode.
      * @param ContentBase $content_obj The content object being edited.
      * @return mixed Either an array with two elements (prompt, and xhtml element) or a string containing only the xhtml input element.
      */
@@ -1330,8 +1330,7 @@ abstract class CMSModule
      */
 
     /**
-     * Returns header code specific to this SyntaxHighlighter
-     *
+     * Returns page-header content specific to this SyntaxHighlighter
      *
      * @abstract
      * @return string
@@ -1350,14 +1349,14 @@ abstract class CMSModule
      */
 
     /**
-     * Returns header code specific to this WYSIWYG
+     * Returns page-header content specific to this WYSIWYG
      *
      * @abstract
      * @param string $selector Optional id of the element that is being initialized.
      *  If empty, the WYSIWYG module should assume the selector to be textarea.<ModuleName>.
      * @param string $cssname Optional name of the CMSMS stylesheet to associate with the wysiwyg editor for additional styling.
      *   If $selector is not empty then $cssname is only used for the specific element.
-     *   WYSIWYG modules might not obey the cssname parameter, depending on their settings and capabilities.
+     *   WYSIWYG modules might ignore the $cssname parameter, depending on their settings and capabilities.
      * @return string
      */
     public function WYSIWYGGenerateHeader($selector = '', $cssname = '')
@@ -2151,8 +2150,9 @@ abstract class CMSModule
     /**
      * Return the resource identifier of a module-specific template.
      * If the template specified ends in .tpl then a file template is assumed.
+	 * Otherwise a generic cms_template resource is returned.
      *
-     * Note: Since 2.2.1 This function will throw a logic exception if a string or eval resource is supplied.
+     * Note: Since 2.2.1 This function will throw a logic exception if a string or eval or extends resource is supplied.
      *
      * @since 2.0
      * @author calguy1000
@@ -2203,7 +2203,7 @@ abstract class CMSModule
      *  as it doesn't follow any smarty caching rules.
      *
      * @final
-     * @param string $tpl_name the template name.
+     * @param string $tpl_name    The template name.
      * @param string $modulename  Optional name. If empty the current module name is used.
      * @return mixed string|null
      */
@@ -2217,7 +2217,7 @@ abstract class CMSModule
      * Returns content of the template that resides in  <Modulepath>/templates/{template_name}.tpl
      *
      * @final
-     * @param string $tpl_name
+     * @param string $tpl_name    The template name
      * @param string $modulename  Since 2.3 optional name. If empty the current module is used.
      * @return mixed string|null
      */
