@@ -177,22 +177,22 @@ class page_template_parser extends Smarty_Internal_Template
     public static function compile_contentblock(array $params, $template) : void
     {
         $rec = [
-            'type'=>'text',
+            'adminonly'=>0,
+            'cssname'=>'',
+            'default'=>'',
             'id'=>'',
+            'label'=>'',
+            'maxlength'=>'255',
             'name'=>'',
             'noedit'=>false,
-            'usewysiwyg'=>false, //CHECKME was string 'true'
             'oneline'=>false, //CHECKME was string 'false'
-            'default'=>'',
-            'label'=>'',
-            'size'=>'50',
-            'tab'=>'',
-            'maxlength'=>'255',
-            'required'=>0,
             'placeholder'=>'',
             'priority'=>'',
-            'cssname'=>'',
-            'adminonly'=>0,
+            'required'=>0,
+            'size'=>'50',
+            'tab'=>'',
+            'type'=>'text',
+            'usewysiwyg'=>true, //CHECKME was string 'true'
         ];
         foreach ($params as $key => $value) {
             $value = trim($value, '"\'');
