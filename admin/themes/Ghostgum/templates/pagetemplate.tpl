@@ -99,7 +99,7 @@
   </div>
   <!-- start footer -->
   <div id="ggp_footer">
-    {include file='footer.tpl'}
+   {include file='footer.tpl'}&nbsp;{cms_version} &ldquo;{cms_versionname}&rdquo;
   </div>
   <!-- end footer -->
   {$bottom_includes|default:''}
