@@ -7,7 +7,7 @@ function smarty_function_file_url($params, $template)
         return;
     }
 
-    $config = \cms_config::get_instance();
+    $config = cms_config::get_instance();
     $dir = $config['uploads_path'];
     $add_dir = trim(get_parameter_value($params,'dir'));
 
@@ -30,10 +30,10 @@ function smarty_function_file_url($params, $template)
     $out = CMS_UPLOADS_URL.'/';
     if( $add_dir ) $out .= $add_dir.'/';
     $out .= $file;
-	$out = strtr($out,'\\','/');
+    $out = strtr($out,'\\','/');
 
-	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$out);
+    if( isset($params['assign']) ) {
+        $template->assign(trim($params['assign']),$out);
         return;
     }
     return $out;

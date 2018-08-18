@@ -18,6 +18,9 @@
 
 namespace CMSMS\internal;
 
+use CmsApp;
+use Smarty_Security;
+
 /**
  * Generic smarty security policy.
  *
