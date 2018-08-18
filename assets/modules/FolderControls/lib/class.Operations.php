@@ -180,7 +180,9 @@ EOS;
         if (startswith($path, CMS_ROOT_PATH)) {
             $path = substr($path, strlen(CMS_ROOT_PATH));
         }
-
+        $set = new ControlSet();
+        return $set->defaults();
+/* TODO
         $path = trim($path, ' /\\');
         if ($set->_cache && key($set->_cache) == $path) {
             return $set->_cache; // same $path as last-processed
@@ -231,6 +233,7 @@ EOS;
                 return $set->defaults();
             }
         }
+*/
         return [];
     }
 
@@ -301,7 +304,7 @@ EOS;
                         break;
                     default:
                         $obj = new FileTypeHelper();
-						$path = TODOfunc($name);
+                        $path = TODOfunc($name);
                         $t = $obj->get_file_type($path);
                         if (!in_array($t, $params['file_types'])) {
                             return false;
