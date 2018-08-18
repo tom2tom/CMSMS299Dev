@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\internal\Smarty;
+
 $CMS_ADMIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -32,6 +34,7 @@ if (!$access) {
 //TODO some immediate popup    $themeObject->RecordNotice('error', lang('needpermissionto', '"Modify Site Preferences"'));
     return;
 }
+$selfurl = basename(__FILE__);
 
 require_once cms_join_path(dirname(__DIR__), 'lib', 'test.functions.php');
 
@@ -84,23 +87,23 @@ EOS;
 	$themeObject->add_footertext($out);
 }
 
-$db = cmsms()->GetDb();
-$smarty = CMSMS\internal\Smarty::get_instance();
-$smarty->register_function('si_lang', 'systeminfo_lang');
+$smarty = Smarty::get_instance();
+$smarty->registerPlugin('function', 'si_lang', 'systeminfo_lang');
 $smarty->force_compile = true;
 
 //smartyfier
-$smarty->assign('themename', $themeObject->themeName);
-$smarty->assign('backurl', $themeObject->BackUrl());
-$smarty->assign('sysinfurl', 'systeminfo.php');
+$smarty->assign('themename', $themeObject->themeName)
+	->assign('backurl', $themeObject->BackUrl())
+	->assign('sysinfurl', $selfurl)
 
 /* Default help url */
-$smarty->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings');
+	->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings')
 
 /* CMS Install Information */
 
-$smarty->assign('cms_version', $GLOBALS['CMS_VERSION']);
+	->assign('cms_version', $GLOBALS['CMS_VERSION']);
 
+$db = cmsms()->GetDb();
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
 $modules = $db->GetArray($query);
 asort($modules);
@@ -355,10 +358,10 @@ $result = is_writable(CONFIG_FILE_LOCATION);
 $tmp[0]['config_file'] = testDummy('', substr(sprintf('%o', fileperms(CONFIG_FILE_LOCATION)), -4), (($result) ? 'red' : 'green'), (($result) ? lang('config_writable') : ''));
 
 $smarty->assign('count_permission_info', count($tmp[0]));
-$smarty->assign('permission_info', $tmp);
+$smarty->assign('permission_info', $tmp)
 
-$smarty->assign('selfurl', basename(__FILE__));
-$smarty->assign('urlext', $urlext);
+  ->assign('selfurl', $selfurl)
+  ->assign('urlext', $urlext);
 
 include_once 'header.php';
 

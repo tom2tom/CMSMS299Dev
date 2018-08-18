@@ -100,28 +100,27 @@ else {
 }
 
 #Display template
-$smarty->assign('title',$this->Lang('editfielddef'));
-$smarty->assign('startform', $this->CreateFormStart($id, 'admin_editfielddef', $returnid));
-$smarty->assign('endform', $this->CreateFormEnd());
-$smarty->assign('nametext', $this->Lang('name'));
-$smarty->assign('typetext', $this->Lang('type'));
-$smarty->assign('maxlengthtext', $this->Lang('maxlength'));
-$smarty->assign('showinputtype', false);
-$smarty->assign('inputtype', $this->CreateInputHidden($id, 'type', $type));
-$smarty->assign('info_maxlength', $this->Lang('info_maxlength'));
-$smarty->assign('userviewtext',$this->Lang('public'));
+$smarty->assign('title',$this->Lang('editfielddef'))
+ ->assign('startform', $this->CreateFormStart($id, 'admin_editfielddef', $returnid))
+ ->assign('endform', $this->CreateFormEnd())
+ ->assign('nametext', $this->Lang('name'))
+ ->assign('typetext', $this->Lang('type'))
+ ->assign('maxlengthtext', $this->Lang('maxlength'))
+ ->assign('showinputtype', false)
+ ->assign('inputtype', $this->CreateInputHidden($id, 'type', $type))
+ ->assign('info_maxlength', $this->Lang('info_maxlength'))
+ ->assign('userviewtext',$this->Lang('public'))
 
-$smarty->assign('name',$name);
-$smarty->assign('fieldtypes',$this->GetFieldTypes());
-$smarty->assign('type',$type);
-$smarty->assign('max_length',$max_length);
-$smarty->assign('public',$public);
-$smarty->assign('options',$options);
+ ->assign('name',$name)
+ ->assign('fieldtypes',$this->GetFieldTypes())
+ ->assign('type',$type)
+ ->assign('max_length',$max_length)
+ ->assign('public',$public)
+ ->assign('options',$options)
 
-$smarty->assign('mod',$this);
+ ->assign('mod',$this);
 $smarty->assign('hidden',
 		$this->CreateInputHidden($id, 'fdid', $fdid).
 		$this->CreateInputHidden($id, 'origname', $origname));
 
 echo $this->ProcessTemplate('editfielddef.tpl');
-

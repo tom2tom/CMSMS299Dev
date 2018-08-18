@@ -260,8 +260,8 @@ foreach ($userlist as $one) {
 
 if ($assign_group_perm && !$access_user) {
     $groups = GroupOperations::get_instance()->LoadGroups();
-    $smarty->assign('groups', $groups);
-    $smarty->assign('membergroups', UserOperations::get_instance()->GetMemberGroups($user_id));
+    $smarty->assign('groups', $groups)
+      ->assign('membergroups', UserOperations::get_instance()->GetMemberGroups($user_id));
 }
 
 $selfurl = basename(__FILE__);

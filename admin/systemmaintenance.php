@@ -268,12 +268,12 @@ if (is_object($allcontent)) {
         //print_r($contentpiece);
     }
 }
-$smarty->assign('pagesmissingalias', $withoutalias);
-$smarty->assign('pageswithinvalidtype', $invalidtypes);
+$smarty->assign('pagesmissingalias', $withoutalias)
+  ->assign('pageswithinvalidtype', $invalidtypes)
 
-$smarty->assign('pagecount', count($pages));
-$smarty->assign('invalidtypescount', count($invalidtypes));
-$smarty->assign('withoutaliascount', count($withoutalias));
+  ->assign('pagecount', count($pages))
+  ->assign('invalidtypescount', count($invalidtypes))
+  ->assign('withoutaliascount', count($withoutalias));
 
 /*
  * Changelog
@@ -301,8 +301,8 @@ if (is_readable($ch_filename)) {
     }
     $changelog = implode('<br />', $changelog);
 
-    $smarty->assign('changelog', $changelog);
-    $smarty->assign('changelogfilename', $ch_filename);
+    $smarty->assign('changelog', $changelog)
+      ->assign('changelogfilename', $ch_filename);
 }
 
 /*
@@ -321,9 +321,9 @@ function confirmsubmit(form,msg) {
 EOS;
 $themeObject->add_footertext($out);
 
-$smarty->assign('backurl', $themeObject->BackUrl());
-$smarty->assign('selfurl', basename(__FILE__));
-$smarty->assign('urlext', $urlext);
+$smarty->assign('backurl', $themeObject->BackUrl())
+  ->assign('selfurl', basename(__FILE__))
+  ->assign('urlext', $urlext);
 
 include_once 'header.php';
 $smarty->display('systemmaintenance.tpl');

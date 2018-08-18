@@ -75,9 +75,9 @@ foreach ($group_list as $onegroup) {
         $groups[] = $onegroup;
     }
 }
-$smarty->assign('group_list', $groups);
-$smarty->assign('allgroups', $allgroups);
-$smarty->assign('groupidlist', implode(',', $groupidlist));
+$smarty->assign('group_list', $groups)
+  ->assign('allgroups', $allgroups)
+  ->assign('groupidlist', implode(',', $groupidlist));
 
 if (isset($_POST['submit'])) {
     foreach ($groups as $onegroup) {
@@ -137,19 +137,19 @@ while ($result && $row = $result->FetchRow()) {
         $user_struct[$row['user_id']] = $thisUser;
     }
 }
-$smarty->assign('users', $user_struct);
-$smarty->assign('adminuser', ($adminuser?1:0));
+$smarty->assign('users', $user_struct)
+  ->assign('adminuser', ($adminuser?1:0));
 
 if (!empty($message)) {
     $themeObject->RecordNotice('success', $message);
 }
 
 $selfurl = basename(__FILE__);
-$smarty->assign('selfurl', $selfurl);
-$smarty->assign('urlext', $urlext);
-$smarty->assign('disp_group', $disp_group);
-$smarty->assign('user_id', $userid);
-$smarty->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
+$smarty->assign('selfurl', $selfurl)
+  ->assign('urlext', $urlext)
+  ->assign('disp_group', $disp_group)
+  ->assign('user_id', $userid)
+  ->assign('pagesubtitle', lang('groupassignments', $user_struct[$userid]->name));
 
 include_once 'header.php';
 $smarty->display('changeusergroup.tpl');

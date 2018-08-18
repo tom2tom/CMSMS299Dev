@@ -359,54 +359,54 @@ while ($dbr && ($row = $dbr->FetchRow())) {
  * Pass everything to smarty
  ---------------------*/
 
-$smarty->assign('formid', $id);
-$smarty->assign('hide_summary_field', $this->GetPreference('hide_summary_field', '0'));
-$smarty->assign('authortext', '');
-$smarty->assign('inputauthor', '');
-$smarty->assign('startform', $this->CreateFormStart($id, 'addarticle', $returnid, 'post', 'multipart/form-data'));
-$smarty->assign('endform', $this->CreateFormEnd());
-$smarty->assign('titletext', $this->Lang('title'));
-$smarty->assign('title', $title);
-$smarty->assign('allow_summary_wysiwyg', $this->GetPreference('allow_summary_wysiwyg'));
-$smarty->assign('extratext', $this->Lang('extra'));
-$smarty->assign('extra', $extra);
-$smarty->assign('urltext', $this->Lang('url'));
-$smarty->assign('news_url', $news_url);
-$smarty->assign('postdate', $postdate);
-$smarty->assign('postdateprefix', $id . 'postdate_');
-$smarty->assign('useexp', $useexp);
-$smarty->assign('actionid', $id);
-$smarty->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'));
-$smarty->assign('startdate', $startdate);
-$smarty->assign('startdateprefix', $id . 'startdate_');
-$smarty->assign('enddate', $enddate);
-$smarty->assign('enddateprefix', $id . 'enddate_');
-$smarty->assign('status', $status);
-$smarty->assign('categorylist', array_flip($categorylist));
-$smarty->assign('category', $usedcategory);
-//see template $smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')));
-//$smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')));
-$smarty->assign('delete_field_val', $this->Lang('delete'));
-$smarty->assign('titletext', $this->Lang('title'));
-$smarty->assign('categorytext', $this->Lang('category'));
-$smarty->assign('summarytext', $this->Lang('summary'));
-$smarty->assign('contenttext', $this->Lang('content'));
-$smarty->assign('postdatetext', $this->Lang('postdate'));
-$smarty->assign('useexpirationtext', $this->Lang('useexpiration'));
-$smarty->assign('startdatetext', $this->Lang('startdate'));
-$smarty->assign('enddatetext', $this->Lang('enddate'));
-$smarty->assign('searchable', $searchable);
-$smarty->assign('select_option', $this->Lang('select_option'));
+$smarty->assign('formid', $id)
+  ->assign('hide_summary_field', $this->GetPreference('hide_summary_field', '0'))
+  ->assign('authortext', '')
+  ->assign('inputauthor', '')
+  ->assign('startform', $this->CreateFormStart($id, 'addarticle', $returnid, 'post', 'multipart/form-data'))
+  ->assign('endform', $this->CreateFormEnd())
+  ->assign('titletext', $this->Lang('title'))
+  ->assign('title', $title)
+  ->assign('allow_summary_wysiwyg', $this->GetPreference('allow_summary_wysiwyg'))
+  ->assign('extratext', $this->Lang('extra'))
+  ->assign('extra', $extra)
+  ->assign('urltext', $this->Lang('url'))
+  ->assign('news_url', $news_url)
+  ->assign('postdate', $postdate)
+  ->assign('postdateprefix', $id . 'postdate_')
+  ->assign('useexp', $useexp)
+  ->assign('actionid', $id)
+  ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
+  ->assign('startdate', $startdate)
+  ->assign('startdateprefix', $id . 'startdate_')
+  ->assign('enddate', $enddate)
+  ->assign('enddateprefix', $id . 'enddate_')
+  ->assign('status', $status)
+  ->assign('categorylist', array_flip($categorylist))
+  ->assign('category', $usedcategory)
+//see template   ->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')))
+//  ->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')))
+  ->assign('delete_field_val', $this->Lang('delete'))
+  ->assign('titletext', $this->Lang('title'))
+  ->assign('categorytext', $this->Lang('category'))
+  ->assign('summarytext', $this->Lang('summary'))
+  ->assign('contenttext', $this->Lang('content'))
+  ->assign('postdatetext', $this->Lang('postdate'))
+  ->assign('useexpirationtext', $this->Lang('useexpiration'))
+  ->assign('startdatetext', $this->Lang('startdate'))
+  ->assign('enddatetext', $this->Lang('enddate'))
+  ->assign('searchable', $searchable)
+  ->assign('select_option', $this->Lang('select_option'))
 // tab stuff.
-$smarty->assign('start_tab_headers', $this->StartTabHeaders());
-$smarty->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')));
-$smarty->assign('tabheader_preview', $this->SetTabHeader('preview', $this->Lang('preview')));
-$smarty->assign('end_tab_headers', $this->EndTabHeaders());
-$smarty->assign('start_tab_content', $this->StartTabContent());
-$smarty->assign('start_tab_article', $this->StartTab('article', $params));
-$smarty->assign('end_tab_article', $this->EndTab());
-$smarty->assign('end_tab_content', $this->EndTabContent());
-$smarty->assign('warning_preview', $this->Lang('warning_preview'));
+  ->assign('start_tab_headers', $this->StartTabHeaders())
+  ->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')))
+  ->assign('tabheader_preview', $this->SetTabHeader('preview', $this->Lang('preview')))
+  ->assign('end_tab_headers', $this->EndTabHeaders())
+  ->assign('start_tab_content', $this->StartTabContent())
+  ->assign('start_tab_article', $this->StartTab('article', $params))
+  ->assign('end_tab_article', $this->EndTab())
+  ->assign('end_tab_content', $this->EndTabContent())
+  ->assign('warning_preview', $this->Lang('warning_preview'));
 $parms = [
     'modid' => $id,
     'name' => 'summary',
@@ -432,8 +432,8 @@ if (count($custom_flds) > 0) {
     $smarty->assign('custom_fields', $custom_flds);
 }
 if ($this->CheckPermission('Approve News')) {
-    $smarty->assign('statustext', lang('status'));
-    $smarty->assign('statuses', array_flip($statusdropdown));
+    $smarty->assign('statustext', lang('status'))
+      ->assign('statuses', array_flip($statusdropdown));
 }
 
 $contentops = cmsms()->GetContentOperations();
@@ -450,12 +450,12 @@ try {
         }
     }
     if ($list) {
-        $smarty->assign('prompt_detail_template', $this->Lang('detail_template'));
-        $smarty->assign('prompt_detail_page', $this->Lang('detail_page'));
-        $smarty->assign('detail_templates', $list);
-        $smarty->assign('cur_detail_template', $this->GetPreference('current_detail_template'));
-        $smarty->assign('start_tab_preview', $this->StartTab('preview', $params));
-        $smarty->assign('end_tab_preview', $this->EndTab());
+        $smarty->assign('prompt_detail_template', $this->Lang('detail_template'))
+          ->assign('prompt_detail_page', $this->Lang('detail_page'))
+          ->assign('detail_templates', $list)
+          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
+          ->assign('start_tab_preview', $this->StartTab('preview', $params))
+          ->assign('end_tab_preview', $this->EndTab());
     }
     include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 } catch( Exception $e ) {

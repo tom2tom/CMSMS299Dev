@@ -561,8 +561,8 @@ if (is_array($modules)) {
         }
     }
 }
-$smarty->assign('login_module', $login_module);
-$smarty->assign('login_modules', $tmp);
+$smarty->assign('login_module', $login_module)
+  ->assign('login_modules', $tmp);
 
 $maileritems = [];
 $maileritems['mail'] = 'mail';
@@ -573,13 +573,13 @@ $opts = [];
 $opts[''] = lang('none');
 $opts['ssl'] = 'SSL';
 $opts['tls'] = 'TLS';
-$smarty->assign('secure_opts', $opts);
-$smarty->assign('mail_is_set', $mail_is_set);
-$smarty->assign('mailprefs', $mailprefs);
+$smarty->assign('secure_opts', $opts)
+  ->assign('mail_is_set', $mail_is_set)
+  ->assign('mailprefs', $mailprefs)
 
-$smarty->assign('languages', get_language_list());
-$smarty->assign('tab', $tab);
-$smarty->assign('pretty_urls', $pretty_urls);
+  ->assign('languages', get_language_list())
+  ->assign('tab', $tab)
+  ->assign('pretty_urls', $pretty_urls);
 
 // need a list of wysiwyg modules.
 
@@ -593,12 +593,12 @@ $smarty->assign('wysiwyg', $tmp2);
 
 $tmp = CmsAdminThemeBase::GetAvailableThemes();
 if ($tmp) {
-    $smarty->assign('themes', $tmp);
-    $smarty->assign('logintheme', cms_siteprefs::get('logintheme', reset($tmp)));
-    $smarty->assign('exptheme', !empty($config['developer_mode']));
+    $smarty->assign('themes', $tmp)
+      ->assign('logintheme', cms_siteprefs::get('logintheme', reset($tmp)))
+      ->assign('exptheme', !empty($config['developer_mode']));
 } else {
-    $smarty->assign('themes', null);
-    $smarty->assign('logintheme', null);
+    $smarty->assign('themes', null)
+      ->assign('logintheme', null);
 }
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
@@ -647,50 +647,50 @@ if( $tmp) {
 $smarty->assign('editors', $editors);
 
 $theme = cms_utils::get_theme_object();
-$smarty->assign('infoicon', $theme->DisplayImage('icons/system/info.png', 'info','','','cms_helpicon'));
-$smarty->assign('editortheme', $editortheme);
+$smarty->assign('infoicon', $theme->DisplayImage('icons/system/info.png', 'info','','','cms_helpicon'))
+  ->assign('editortheme', $editortheme)
 
-$smarty->assign('adminlog_lifetime', $adminlog_lifetime);
-$smarty->assign('allow_browser_cache', $allow_browser_cache);
-$smarty->assign('auto_clear_cache_age', $auto_clear_cache_age);
-$smarty->assign('backendwysiwyg', $backendwysiwyg);
-$smarty->assign('basic_attributes', explode(',', $basic_attributes));
-$smarty->assign('browser_cache_expiry', $browser_cache_expiry);
-$smarty->assign('checkversion', $checkversion);
-$smarty->assign('content_autocreate_flaturls', $content_autocreate_flaturls);
-$smarty->assign('content_autocreate_urls', $content_autocreate_urls);
-$smarty->assign('content_cssnameisblockname', $content_cssnameisblockname);
-$smarty->assign('content_imagefield_path', $content_imagefield_path);
-$smarty->assign('content_mandatory_urls', $content_mandatory_urls);
-$smarty->assign('content_thumbnailfield_path', $content_thumbnailfield_path);
-$smarty->assign('contentimage_path', $contentimage_path);
-$smarty->assign('defaultdateformat', $defaultdateformat);
-$smarty->assign('disallowed_contenttypes', explode(',', $disallowed_contenttypes));
-$smarty->assign('enablesitedownmessage', $enablesitedownmessage);
-$smarty->assign('frontendlang', $frontendlang);
-$smarty->assign('frontendwysiwyg', $frontendwysiwyg);
-$smarty->assign('global_umask', $global_umask);
-$smarty->assign('lock_timeout', $lock_timeout);
-$smarty->assign('login_module', $login_module);
-$smarty->assign('metadata', $metadata);
-$smarty->assign('search_module', $search_module);
-$smarty->assign('sitedownexcludeadmins', $sitedownexcludeadmins);
-$smarty->assign('sitedownexcludes', $sitedownexcludes);
-$smarty->assign('sitelogo', $sitelogo);
-$smarty->assign('sitename', $sitename);
-$smarty->assign('testresults', lang('untested'));
+  ->assign('adminlog_lifetime', $adminlog_lifetime)
+  ->assign('allow_browser_cache', $allow_browser_cache)
+  ->assign('auto_clear_cache_age', $auto_clear_cache_age)
+  ->assign('backendwysiwyg', $backendwysiwyg)
+  ->assign('basic_attributes', explode(',', $basic_attributes))
+  ->assign('browser_cache_expiry', $browser_cache_expiry)
+  ->assign('checkversion', $checkversion)
+  ->assign('content_autocreate_flaturls', $content_autocreate_flaturls)
+  ->assign('content_autocreate_urls', $content_autocreate_urls)
+  ->assign('content_cssnameisblockname', $content_cssnameisblockname)
+  ->assign('content_imagefield_path', $content_imagefield_path)
+  ->assign('content_mandatory_urls', $content_mandatory_urls)
+  ->assign('content_thumbnailfield_path', $content_thumbnailfield_path)
+  ->assign('contentimage_path', $contentimage_path)
+  ->assign('defaultdateformat', $defaultdateformat)
+  ->assign('disallowed_contenttypes', explode(',', $disallowed_contenttypes))
+  ->assign('enablesitedownmessage', $enablesitedownmessage)
+  ->assign('frontendlang', $frontendlang)
+  ->assign('frontendwysiwyg', $frontendwysiwyg)
+  ->assign('global_umask', $global_umask)
+  ->assign('lock_timeout', $lock_timeout)
+  ->assign('login_module', $login_module)
+  ->assign('metadata', $metadata)
+  ->assign('search_module', $search_module)
+  ->assign('sitedownexcludeadmins', $sitedownexcludeadmins)
+  ->assign('sitedownexcludes', $sitedownexcludes)
+  ->assign('sitelogo', $sitelogo)
+  ->assign('sitename', $sitename)
+  ->assign('testresults', lang('untested'))
 
-$smarty->assign('textarea_sitedownmessage', $obj = CmsFormUtils::create_textarea([
+  ->assign('textarea_sitedownmessage', $obj = CmsFormUtils::create_textarea([
   'enablewysiwyg' => 1,
   'htmlid' => 'sitedownmessage',
   'name' => 'sitedownmessage',
   'class' => 'pagesmalltextarea',
   'value' => $sitedownmessage,
-]));
+]))
 
-$smarty->assign('thumbnail_height', $thumbnail_height);
-$smarty->assign('thumbnail_width', $thumbnail_width);
-$smarty->assign('use_smartycompilecheck', $use_smartycompilecheck);
+  ->assign('thumbnail_height', $thumbnail_height)
+  ->assign('thumbnail_width', $thumbnail_width)
+  ->assign('use_smartycompilecheck', $use_smartycompilecheck);
 
 $tmp = [
   60*60*24=>lang('adminlog_1day'),
@@ -723,21 +723,21 @@ if (is_array($list) && ($n = count($list))) {
 }
 $txt = CmsFormUtils::create_option($all_attributes);
 
-$smarty->assign('all_attributes', $all_attributes);
-$smarty->assign('smarty_cacheoptions', ['always'=>lang('always'),'never'=>lang('never'),'moduledecides'=>lang('moduledecides')]);
-$smarty->assign('smarty_cacheoptions2', ['always'=>lang('always'),'never'=>lang('never')]);
+$smarty->assign('all_attributes', $all_attributes)
+  ->assign('smarty_cacheoptions', ['always'=>lang('always'),'never'=>lang('never'),'moduledecides'=>lang('moduledecides')])
+  ->assign('smarty_cacheoptions2', ['always'=>lang('always'),'never'=>lang('never')]);
 
 $contentops = cmsms()->GetContentOperations();
 $all_contenttypes = $contentops->ListContentTypes(false, false);
-$smarty->assign('all_contenttypes', $all_contenttypes);
+$smarty->assign('all_contenttypes', $all_contenttypes)
 
-$smarty->assign('yesno', [0=>lang('no'),1=>lang('yes')]);
-$smarty->assign('titlemenu', [lang('menutext'),lang('title')]);
+  ->assign('yesno', [0=>lang('no'),1=>lang('yes')])
+  ->assign('titlemenu', [lang('menutext'),lang('title')])
 
-$smarty->assign('backurl', $themeObject->backUrl());
+  ->assign('backurl', $themeObject->backUrl());
 $selfurl = basename(__FILE__);
-$smarty->assign('selfurl', $selfurl);
-$smarty->assign('urlext', $urlext);
+$smarty->assign('selfurl', $selfurl)
+  ->assign('urlext', $urlext);
 
 include_once 'header.php';
 $smarty->display('siteprefs.tpl');

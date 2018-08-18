@@ -56,7 +56,7 @@ else if (isset($params['submit'])) {
 }
 
 
-#The tabs
+//The tabs
 echo $this->StartTabHeaders();
 $tab = '';
 if (FALSE == empty($params['active_tab'])) $tab = $params['active_tab'];
@@ -64,7 +64,7 @@ echo $this->SetTabHeader('statistics',$this->Lang('statistics'),('statistics' ==
 echo $this->SetTabHeader('options',$this->Lang('options'), ('options' == $tab));
 echo $this->EndTabHeaders();
 
-#The content of the tabs
+//The content of the tabs
 echo $this->StartTabContent();
 
 echo $this->StartTab('statistics',$params);
@@ -73,36 +73,36 @@ echo $this->EndTab();
 
 echo $this->StartTab('options', $params);
 $smarty->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
-                                                   array('active_tab'=>'options')));
-$smarty->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>');
-$smarty->assign('prompt_stopwords',$this->Lang('stopwords'));
-$smarty->assign('input_stopwords', CmsFormUtils::create_textarea([
+                                                   array('active_tab'=>'options')))
+ ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
+ ->assign('prompt_stopwords',$this->Lang('stopwords'))
+ ->assign('input_stopwords', CmsFormUtils::create_textarea([
 	'modid' => $id,
     'name' =>'stopwords',
 	'rows' => 6,
 	'cols' => 50,
 	'value' => str_replace(["\n", "\r"], [' ', ' '], $this->GetPreference('stopwords', $this->DefaultStopWords())),
-]));
-$smarty->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'));
-$smarty->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>');
+]))
+ ->assign('prompt_resetstopwords',$this->Lang('prompt_resetstopwords'))
+ ->assign('input_resetstopwords', '<button type="submit" name="'.$id.'resettodefault" id="'.$id.'resettodefault" class="adminsubmit icon undo">'.$this->Lang('input_resetstopwords').'</button>')
 
-$smarty->assign('prompt_stemming',$this->Lang('usestemming'));
-$smarty->assign('input_stemming',
+ ->assign('prompt_stemming',$this->Lang('usestemming'))
+ ->assign('input_stemming',
                 $this->CreateInputCheckbox($id, 'usestemming', 'true',
-                                           $this->GetPreference('usestemming', 'false')));
+                                           $this->GetPreference('usestemming', 'false')))
 
-$smarty->assign('prompt_searchtext',$this->Lang('prompt_searchtext'));
-$smarty->assign('input_searchtext',
+ ->assign('prompt_searchtext',$this->Lang('prompt_searchtext'))
+ ->assign('input_searchtext',
                 $this->CreateInputText($id,'searchtext',
-                                       $this->GetPreference('searchtext','')));
+                                       $this->GetPreference('searchtext','')))
 
-$smarty->assign('prompt_savephrases',$this->Lang('prompt_savephrases'));
-$smarty->assign('input_savephrases',
+ ->assign('prompt_savephrases',$this->Lang('prompt_savephrases'))
+ ->assign('input_savephrases',
                 $this->CreateInputCheckbox($id,'savephrases','true',
-                                           $this->GetPreference('savephrases','false')));
+                                           $this->GetPreference('savephrases','false')))
 
-$smarty->assign('prompt_alpharesults',$this->Lang('prompt_alpharesults'));
-$smarty->assign('input_alpharesults',
+->assign('prompt_alpharesults',$this->Lang('prompt_alpharesults'))
+->assign('input_alpharesults',
                 $this->CreateInputCheckbox($id,'alpharesults','true',
                                            $this->GetPreference('alpharesults','false')));
 
@@ -116,3 +116,4 @@ $smarty->assign('formend',$this->CreateFormEnd());
 echo $this->ProcessTemplate('options_tab.tpl');
 echo $this->EndTab();
 echo $this->EndTabContent();
+

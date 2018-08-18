@@ -54,13 +54,13 @@ $categories = array(-1=>$this->Lang('none'));
 foreach( $tmp2 as $k => $v ) {
     $categories[$k] = $v;
 }
-$smarty->assign('parent',$parent);
-$smarty->assign('name',$name);
-$smarty->assign('categories',$categories);
-$smarty->assign('startform', $this->CreateFormStart($id, 'addcategory', $returnid));
-$smarty->assign('endform', $this->CreateFormEnd());
-$smarty->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
-//see template $smarty->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')));
-//$smarty->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')));
-$smarty->assign('mod',$this);
+$smarty->assign('parent',$parent)
+  ->assign('name',$name)
+  ->assign('categories',$categories)
+  ->assign('startform', $this->CreateFormStart($id, 'addcategory', $returnid))
+  ->assign('endform', $this->CreateFormEnd())
+  ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255))
+//see template ->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')))
+//  ->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')))
+  ->assign('mod',$this);
 echo $this->ProcessTemplate('editcategory.tpl');

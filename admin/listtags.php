@@ -77,8 +77,8 @@ if ($action == 'showpluginhelp') {
     }
 
     if ($content) {
-        $smarty->assign('subheader',lang('pluginhelp',$plugin));
-        $smarty->assign('content',$content);
+        $smarty->assign('subheader',lang('pluginhelp',$plugin))
+          ->assign('content',$content);
     } else {
         $smarty->assign('error',lang('nopluginhelp'));
     }
@@ -213,14 +213,14 @@ if ($action == 'showpluginhelp') {
      {
         return strcmp($a['name'],$b['name']);
      });
-    $smarty->assign('plugins',$file_array);
-    $smarty->assign('iconyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_admin'),'','','systemicon'));
-    $smarty->assign('iconno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notadmin'),'','','systemicon'));
-    $smarty->assign('iconcyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_cachable'),'','','systemicon'));
-    $smarty->assign('iconcno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notcachable'),'','','systemicon'));
-    $smarty->assign('iconhelp',$themeObject->DisplayImage('icons/system/help.gif',lang_by_realm('tags','viewhelp'),'','','systemicon'));
-    $smarty->assign('iconabout',$themeObject->DisplayImage('icons/system/info.gif',lang_by_realm('tags','viewabout'),'','','systemicon'));
-    $smarty->assign('pdev',$pdev);
+    $smarty->assign('plugins',$file_array)
+      ->assign('iconyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_admin'),'','','systemicon'))
+      ->assign('iconno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notadmin'),'','','systemicon'))
+      ->assign('iconcyes',$themeObject->DisplayImage('icons/system/true.gif',lang_by_realm('tags','title_cachable'),'','','systemicon'))
+      ->assign('iconcno',$themeObject->DisplayImage('icons/system/false.gif',lang_by_realm('tags','title_notcachable'),'','','systemicon'))
+      ->assign('iconhelp',$themeObject->DisplayImage('icons/system/help.gif',lang_by_realm('tags','viewhelp'),'','','systemicon'))
+      ->assign('iconabout',$themeObject->DisplayImage('icons/system/info.gif',lang_by_realm('tags','viewabout'),'','','systemicon'))
+      ->assign('pdev',$pdev);
 }
 
 $smarty->assign([

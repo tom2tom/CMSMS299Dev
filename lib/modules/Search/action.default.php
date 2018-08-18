@@ -38,17 +38,17 @@ $is_method = isset($params['search_method'])?'post':'get';
 // Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html
 $submittext = $params['submit'] ?? $this->Lang('searchsubmit');
 $searchtext = $params['searchtext'] ?? $this->GetPreference('searchtext','');
-$tpl_ob->assign('search_actionid',$id);
-$tpl_ob->assign('searchtext',$searchtext);
-$tpl_ob->assign('destpage',$returnid);
-$tpl_ob->assign('form_method',$is_method);
-$tpl_ob->assign('inline',$inline);
-$tpl_ob->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline ));
-$tpl_ob->assign('label', '<label for="'.$id.'searchinput">'.$this->Lang('search').'</label>');
-$tpl_ob->assign('searchprompt',$this->Lang('search'));
-//$tpl_ob->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, $hogan));
-//$tpl_ob->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$submittext.'</button>');
-$tpl_ob->assign('submittext', $submittext);
+$tpl_ob->assign('search_actionid',$id)
+  ->assign('searchtext',$searchtext)
+  ->assign('destpage',$returnid)
+  ->assign('form_method',$is_method)
+  ->assign('inline',$inline)
+  ->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline ))
+  ->assign('label', '<label for="'.$id.'searchinput">'.$this->Lang('search').'</label>')
+  ->assign('searchprompt',$this->Lang('search'))
+//  ->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, $hogan))
+//  ->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$submittext.'</button>')
+  ->assign('submittext', $submittext);
 
 // only here for backwards compatibility.
 $hogan = "onfocus=\"if(this.value==this.defaultValue) this.value='';\""." onblur=\"if(this.value=='') this.value=this.defaultValue;\"";
