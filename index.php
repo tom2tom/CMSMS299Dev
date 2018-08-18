@@ -104,12 +104,6 @@ while ($trycount < 2) {
             if (!is_object($contentobj)) throw new CmsError404Exception('Page '.$page.' not found');
         }
 
-        // session stuff is needed from here on.
-        $cachable = $contentobj->Cachable();
-        $uid = get_userid(FALSE);
-        if ($page == __CMS_PREVIEW_PAGE__ || $uid || $_SERVER['REQUEST_METHOD'] != 'GET') $cachable = false;
-        setup_session($cachable);
-
         // from here in, we're assured to have a content object of some sort
 
         if (!$contentobj->IsViewable()) {
@@ -121,15 +115,21 @@ while ($trycount < 2) {
 
         if (!$contentobj->IsPermitted()) throw new CmsError403Exception('Permission denied');
 
+        $uid = get_userid(FALSE);
+        if ($page == __CMS_PREVIEW_PAGE__ || $uid || $_SERVER['REQUEST_METHOD'] != 'GET') $cachable = false;
+        else $cachable = $contentobj->Cachable();
+
+        // session stuff is needed from here on.
+        setup_session($cachable);
         $_app->set_content_object($contentobj);
-        $smarty->assignGlobal('content_obj',$contentobj);
-        $smarty->assignGlobal('content_id', $contentobj->Id());
-        $smarty->assignGlobal('page_id', $page);
-        $smarty->assignGlobal('page_alias', $contentobj->Alias());
+        $smarty->assignGlobal('content_obj',$contentobj)
+          ->assignGlobal('content_id', $contentobj->Id())
+          ->assignGlobal('page_id', $page)
+          ->assignGlobal('page_alias', $contentobj->Alias());
 
         CmsNlsOperations::set_language(); // <- NLS detection for frontend
-        $smarty->assignGlobal('lang',CmsNlsOperations::get_current_language());
-        $smarty->assignGlobal('encoding',CmsNlsOperations::get_encoding());
+        $smarty->assignGlobal('lang',CmsNlsOperations::get_current_language())
+          ->assignGlobal('encoding',CmsNlsOperations::get_encoding());
 
         Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
 
@@ -141,41 +141,53 @@ while ($trycount < 2) {
         $html = null;
 //        $showtemplate = $_app->template_processing_allowed();
         if ($showtemplate) {
-            $tpl_id = $contentobj->TemplateId();
-            $top = $body = $head = null;
+            $main_rsrc = $contentobj->TemplateResource();
+            if( startswith( $main_rsrc, 'cms_template:') ||
+                startswith( $main_rsrc, 'cms_file:') ) {
 
-            debug_buffer('process template top');
-            Events::SendEvent('Core', 'PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
-            $tpl = $smarty->createTemplate('tpl_top:'.$tpl_id);
-            $top .= $tpl->fetch();
-            unset($tpl);
-            Events::SendEvent('Core', 'PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+                debug_buffer('process template top');
+                Events::SendEvent('Core', 'PageTopPreRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
+                $tpl = $smarty->createTemplate($main_rsrc.';top');
+                $top = ''.$tpl->fetch();
+                Events::SendEvent('Core', 'PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
 
-            if ($config['content_processing_mode'] == 1) {
-                debug_buffer('preprocess module action');
-                content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
+                if( $config['content_processing_mode'] == 1 ) { //TODO CHECKME
+                    debug_buffer('preprocess module action');
+                    content_plugins::get_default_content_block_content( $contentobj->Id() );
+                }
+
+                debug_buffer('process template body');
+                Events::SendEvent('Core', 'PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+                $tpl = $smarty->createTemplate($main_rsrc.';body');
+                $body = ''.$tpl->fetch();
+                Events::SendEvent('Core', 'PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
+
+                debug_buffer('process template head');
+                Events::SendEvent('Core', 'PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+                $tpl = $smarty->createTemplate($main_rsrc.';head');
+                $head = ''.$tpl->fetch();
+                unset($tpl);
+                Events::SendEvent('Core', 'PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
+
+                $html = $top.$head.$body;
             }
-
-            // if the request has a mact in it, process and cache the output.
-            debug_buffer('process template body');
-            Events::SendEvent('Core', 'PageBodyPreRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
-            $tpl = $smarty->createTemplate('tpl_body:'.$tpl_id);
-            $body .= $tpl->fetch();
-            unset($tpl);
-            Events::SendEvent('Core', 'PageBodyPostRender', [ 'content'=>&$contentobj, 'html'=>&$body ]);
-
-            debug_buffer('process template head');
-            Events::SendEvent('Core', 'PageHeadPreRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
-            $tpl = $smarty->createTemplate('tpl_head:'.$tpl_id);
-            $head .= $tpl->fetch();
-            unset($tpl);
-            Events::SendEvent('Core', 'PageHeadPostRender', [ 'content'=>&$contentobj, 'html'=>&$head ]);
-
-            $html = $top.$head.$body;
+            else {
+                // not a cms_file or cms_template resource, process it as a whole
+                $tpl = $smarty->createTemplate($main_rsrc);
+                $html = $tpl->fetch();
+                unset($tpl);
+            }
         } else {
             $html = content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
         }
         $trycount = 99; // no more iterations
+    }
+
+    catch (CmsStopProcessingContentException $e) {
+        // we do not display an error message.
+        // this can be useful for caching siutations or in certain situations
+        // where we only want to gather limited output
+        break;
     }
 
     catch (CmsError404Exception $e) {
