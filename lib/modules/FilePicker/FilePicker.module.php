@@ -133,9 +133,11 @@ EOS;
     public function get_profile_or_default( $profile_name, $dir = null, $uid = null )
     {
         $profile_name = trim($profile_name);
-        $profile = null;
         if( $profile_name ) $profile = $this->_dao->loadByName( $profile_name );
-        if( !$profile ) $profile = $this->get_default_profile( $dir, $uid );
+		else $profile = null;
+        if( !$profile ) {
+			$profile = $this->get_default_profile( $dir, $uid );
+		}
         return $profile;
     }
 
@@ -143,9 +145,9 @@ EOS;
     {
         /* $dir is absolute */
         $profile = $this->_dao->loadDefault();
-        if( $profile ) return $profile;
-
-        $profile = new FilePickerProfile();
+        if( !$profile ) {
+			$profile = new FilePickerProfile();
+		}
         return $profile;
     }
 
@@ -161,42 +163,45 @@ EOS;
 
         // store the profile as a 'useonce' and add its signature to the params on the url
         $sig = TemporaryProfileStorage::set( $profile );
-        $smarty = CmsApp::get_instance()->GetSmarty();
-        $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
-        $tpl_ob->assign('mod',$this);
-        $tpl_ob->assign('sig',$sig);
-        $tpl_ob->assign('blockName',$name);;
-        $tpl_ob->assign('value',$value);
-        $tpl_ob->assign('instance',$_instance);
-        $tpl_ob->assign('profile',$profile);
-        $tpl_ob->assign('required',$required);
+
         switch( $profile->type ) {
         case FileType::IMAGE:
-            $tpl_ob->assign('title',$this->Lang('select_an_image'));
+            $key = 'select_an_image';
             break;
         case FileType::AUDIO:
-            $tpl_ob->assign('title',$this->Lang('select_an_audio_file'));
+            $key = 'select_an_audio_file';
             break;
         case FileType::VIDEO:
-            $tpl_ob->assign('title',$this->Lang('select_a_video_file'));
+            $key = 'select_a_video_file';
             break;
         case FileType::MEDIA:
-            $tpl_ob->assign('title',$this->Lang('select_a_media_file'));
+            $key = 'select_a_media_file';
             break;
         case FileType::XML:
-            $tpl_ob->assign('title',$this->Lang('select_an_xml_file'));
+            $key = 'select_an_xml_file';
             break;
         case FileType::DOCUMENT:
-            $tpl_ob->assign('title',$this->Lang('select_a_document'));
+            $key = 'select_a_document';
             break;
         case FileType::ARCHIVE:
-            $tpl_ob->assign('title',$this->Lang('select_an_archive_file'));
+            $key = 'select_an_archive_file';
             break;
 //        case FileType::ANY:
         default:
-            $tpl_ob->assign('title',$this->Lang('select_a_file'));
+            $key = 'select_a_file';
             break;
         }
+
+        $smarty = CmsApp::get_instance()->GetSmarty();
+        $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
+        $tpl_ob->assign('mod',$this)
+         ->assign('sig',$sig)
+         ->assign('blockName',$name)
+         ->assign('value',$value)
+         ->assign('instance',$_instance)
+         ->assign('profile',$profile)
+         ->assign('required',$required)
+		 ->assign('title',$this->Lang($key));
         $out = $tpl_ob->fetch();
         return $out;
     }
