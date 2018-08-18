@@ -311,7 +311,7 @@ foreach ($files as $name) {
 }
 
 if (count($items) > 1) {
-    $sortby = $profile['sort'];
+    $sortby = $profile['sort'] ?? false;
     if ($sortby !== false) {
         if (class_exists('Collator')) {
             $lang = CmsNlsOperations::get_default_language();
