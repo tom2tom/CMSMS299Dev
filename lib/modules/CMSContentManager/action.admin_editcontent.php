@@ -166,7 +166,7 @@ try {
         $error = $content_obj->ValidateData();
         if( $error ) {
             if( isset($params['ajax']) ) {
-                $tmp = array('response'=>'Error','details'=>$error);
+                $tmp = ['response'=>'Error','details'=>$error];
                 echo json_encode($tmp);
                 exit;
             }
@@ -186,7 +186,7 @@ try {
             }
 
             if( isset($params['ajax']) ) {
-                $tmp = array('response'=>'Success','details'=>$this->Lang('msg_editpage_success'),'url'=>$content_obj->GetURL());
+                $tmp = ['response'=>'Success','details'=>$this->Lang('msg_editpage_success'),'url'=>$content_obj->GetURL()];
                 echo json_encode($tmp);
                 exit;
             }
@@ -208,7 +208,7 @@ catch( CmsEditContentException $e ) {
     */
     $error = $e->GetMessage();
     if( isset($params['ajax']) ) {
-        $tmp = array('response'=>'Error','details'=>$error);
+        $tmp = ['response'=>'Error','details'=>$error];
         echo json_encode($tmp);
         exit;
     }
@@ -216,7 +216,7 @@ catch( CmsEditContentException $e ) {
 catch( CmsContentException $e ) {
     $error = $e->GetMessage();
     if( isset($params['ajax']) ) {
-        $tmp = array('response'=>'Error','details'=>$error);
+        $tmp = ['response'=>'Error','details'=>$error];
         echo json_encode($tmp);
         exit;
     }
@@ -224,7 +224,7 @@ catch( CmsContentException $e ) {
 catch( ContentException $e ) {
     $error = $e->GetMessage();
     if( isset($params['ajax']) ) {
-        $tmp = array('response'=>'Error','details'=>$error);
+        $tmp = ['response'=>'Error','details'=>$error];
         echo json_encode($tmp);
         exit;
     }
@@ -264,7 +264,7 @@ try {
 
     // the content object may not have a main tab, but we require one
     if( !in_array($content_obj::TAB_MAIN,$tab_names) ) {
-        $tmp = array($content_obj::TAB_MAIN=>lang($content_obj::TAB_MAIN));
+        $tmp = [$content_obj::TAB_MAIN=>lang($content_obj::TAB_MAIN)];
         $tab_names = array_merge($tmp,$tab_names);
     }
 
@@ -277,15 +277,15 @@ try {
             // first tab... add the content type selector.
             if( $this->CheckPermission('Manage All Content') || $content_obj->Owner() == $user_id )  {
                 // if you're only an additional editor on this page... you don't get to change this.
-                $help = '&nbsp;'.cms_admin_utils::get_help_tag(array('key'=>'help_content_type','title'=>$this->Lang('help_title_content_type')));
-                $tmp = array('<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help);
+                $help = '&nbsp;'.cms_admin_utils::get_help_tag(['key'=>'help_content_type','title'=>$this->Lang('help_title_content_type')]);
+                $tmp = ['<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help];
                 $tmp2 = "<select id=\"content_type\" name=\"{$id}content_type\">";
                 foreach( $existingtypes as $type => $label ) {
-                    $tmp2 .= CmsFormUtils::create_option(array('value'=>$type,'label'=>$label),$content_type);
+                    $tmp2 .= CmsFormUtils::create_option(['value'=>$type,'label'=>$label],$content_type);
                 }
                 $tmp2 .= '</select>';
                 $tmp[] = $tmp2;
-                $contentarray = array_merge(array($tmp),$contentarray);
+                $contentarray = array_merge([$tmp],$contentarray);
             }
         }
         $tab_contents_array[$currenttab] = $contentarray;
