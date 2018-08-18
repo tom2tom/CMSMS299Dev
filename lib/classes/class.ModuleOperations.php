@@ -31,6 +31,7 @@ use CMSModule;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\module_meta;
+use LogicException;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use const CMS_SCHEMA_VERSION;
@@ -624,19 +625,16 @@ final class ModuleOperations
 
 		if (!isset($result) || $result === FALSE) {
 			// now delete the record
-			$query = "DELETE FROM ".CMS_DB_PREFIX."modules WHERE module_name = ?";
-			$db->Execute($query, array($module));
+			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."modules WHERE module_name=?",array($module));
 
 			// delete any dependencies
-			$query = "DELETE FROM ".CMS_DB_PREFIX."module_deps WHERE child_module = ?";
-			$db->Execute($query, array($module));
+			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."module_deps WHERE child_module=?",array($module));
 
 			// clean up, if permitted
 			if ($cleanup) {
-				// deprecated
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_templates where module_name=?',array($module));
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers where module_name=?',array($module));
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events where originator=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE module_name=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',array($module));
 
 				$types = CmsLayoutTemplateType::load_all_by_originator($module);
 				if( is_array($types) && count($types) ) {
@@ -658,13 +656,13 @@ final class ModuleOperations
 					}
 				}
 
-				$jobmgr = \ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
+				$jobmgr = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
 				if( $jobmgr ) $jobmgr->delete_jobs_by_module( $module );
 
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins where module=?',array($module));
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qstr($module))."_mapi_pref%'");
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1 = ?',array($module));
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module = ?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',array($module));
 			}
 
 			// clear the cache.
@@ -918,8 +916,8 @@ final class ModuleOperations
 
 	public function RegisterAdminAuthenticationModule( \CMSModule $mod )
 	{
-		if( $this->_auth_module ) throw new \LogicException( 'Sorry, only one non standard auth module is supported' );
-		if( ! $mod instanceof \CMSMS\IAuthModuleInterface ) throw new \LogicException('Sorry. '.$mod->GetName().' is not a valid authentication module');
+		if( $this->_auth_module ) throw new LogicException( 'Sorry, only one non standard auth module is supported' );
+		if( ! $mod instanceof \CMSMS\IAuthModuleInterface ) throw new LogicException('Sorry. '.$mod->GetName().' is not a valid authentication module');
 		$this->_auth_module = $mod;
 	}
 
