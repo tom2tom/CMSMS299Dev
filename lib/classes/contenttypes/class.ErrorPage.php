@@ -48,21 +48,21 @@ class ErrorPage extends Content
 		$this->mType = strtolower(get_class($this)) ;
 	}
 
-	function HandlesAlias()
+	public function HandlesAlias()
 	{
 		return true;
 	}
 
-	function FriendlyName()
+	public function FriendlyName()
 	{
 		return lang('contenttype_errorpage');
 	}
 
-	function SetProperties()
+	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->RemoveProperty('secure',0);
-		//$this->RemoveProperty('searchable',0);
+		$this->RemoveProperty('secure',false);
+		//$this->RemoveProperty('searchable',false);
 		$this->RemoveProperty('parent',-1);
 		$this->RemoveProperty('showinmenu',false);
 		$this->RemoveProperty('menutext','');
@@ -85,32 +85,32 @@ class ErrorPage extends Content
 		$this->mPreview = true;
 	}
 
-	function IsCopyable()
+	public function IsCopyable()
 	{
 		return false;
 	}
 
-	function IsDefaultPossible()
+	public function IsDefaultPossible()
 	{
 		return false;
 	}
 
-	function HasUsableLink()
+	public function HasUsableLink()
 	{
 		return false;
 	}
 
-	function WantsChildren()
+	public function WantsChildren()
 	{
 		return false;
 	}
 
-	function IsSystemPage()
+	public function IsSystemPage()
 	{
 		return true;
 	}
 
-	function FillParams(array $params, bool $editing = false)
+	public function FillParams($params, $editing = false)
 	{
 		parent::FillParams($params,$editing);
 		$this->mParentId = -1;
@@ -119,7 +119,7 @@ class ErrorPage extends Content
 		$this->mActive = true;
 	}
 
-	function display_single_element(string $one,bool $adding)
+	public function display_single_element($one, $adding)
 	{
 		switch($one) {
 		case 'alias':
@@ -140,7 +140,12 @@ class ErrorPage extends Content
 		}
 	}
 
-	function ValidateData()
+	public function TemplateResource() : string
+	{
+		return ''; //TODO
+	}
+
+	public function ValidateData()
 	{
 		// $this->SetPropertyValue('searchable',0);
 		// force not searchable.

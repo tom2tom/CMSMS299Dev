@@ -18,6 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
+use CMSMS\ContentBase;
 use function check_permission;
 use function cms_htmlentities;
 use function get_userid;
@@ -33,17 +34,17 @@ use function lang;
  * @subpackage content_types
  * @license GPL
  */
-class Link extends \CMSMS\ContentBase
+class Link extends ContentBase
 {
+	public function FriendlyName() { return lang('contenttype_redirlink'); }
+	public function HasSearchableContent() { return false; }
 	public function IsCopyable() { return true; }
 	public function IsViewable() { return false; }
-	public function HasSearchableContent() { return false; }
-	public function FriendlyName() { return lang('contenttype_redirlink'); }
 
 	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->RemoveProperty('secure',0);
+		$this->RemoveProperty('secure',false);
 		$this->RemoveProperty('cachable',true);
 		$this->AddProperty('url',3,self::TAB_MAIN,true,true);
 	}
@@ -60,6 +61,11 @@ class Link extends \CMSMS\ContentBase
 
 			if (isset($params['file_url'])) $this->SetPropertyValue('url', $params['file_url']);
 		}
+	}
+
+	public function TemplateResource() : string
+	{
+		return ''; //TODO
 	}
 
 	public function ValidateData()
@@ -111,7 +117,7 @@ class Link extends \CMSMS\ContentBase
 	public function GetURL($rewrite = true)
 	{
 		return $this->GetPropertyValue('url');
-		//return \cms_htmlentities($this->GetPropertyValue('url'));
+		//return cms_htmlentities($this->GetPropertyValue('url'));
 	}
 }
 

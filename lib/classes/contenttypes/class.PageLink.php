@@ -18,6 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
+use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 use function check_permission;
 use function cms_htmlentities;
@@ -34,12 +35,12 @@ use function lang;
  * @subpackage content_types
  * @license GPL
  */
-class PageLink extends \CMSMS\ContentBase
+class PageLink extends ContentBase
 {
+	public function FriendlyName() { return lang('contenttype_pagelink'); }
+	public function HasSearchableContent() { return false; }
 	public function IsCopyable() { return true; }
 	public function IsViewable() { return false; }
-	public function HasSearchableContent() { return false; }
-	public function FriendlyName() { return lang('contenttype_pagelink'); }
 
 // calguy1000: commented this out so that this page can be seen in cms_selflink
 // but not sure what it's gonna mess up.
@@ -48,12 +49,11 @@ class PageLink extends \CMSMS\ContentBase
 //		return false;
 //	}
 
-	function SetProperties()
+	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->RemoveProperty('cachable',1);
-		//$this->RemoveProperty('showinmenu',1);
-		$this->RemoveProperty('secure',0);
+		$this->RemoveProperty('cachable',true);
+		$this->RemoveProperty('secure',false);
 		$this->AddProperty('page',3,self::TAB_MAIN,true,true);
 		$this->AddProperty('params',4,self::TAB_OPTIONS,true,true);
 
@@ -61,7 +61,7 @@ class PageLink extends \CMSMS\ContentBase
 		$this->mCachable = false;
 	}
 
-	function FillParams(array $params, bool $editing = false)
+	public function FillParams($params, $editing = false)
 	{
 		parent::FillParams($params,$editing);
 
@@ -73,7 +73,12 @@ class PageLink extends \CMSMS\ContentBase
 		}
 	}
 
-	function ValidateData()
+	public function TemplateResource() : string
+	{
+		return ''; //TODO
+	}
+
+	public function ValidateData()
 	{
 		$errors = parent::ValidateData();
 		if( $errors === false ) $errors = [];
@@ -104,14 +109,14 @@ class PageLink extends \CMSMS\ContentBase
 		return (count($errors) > 0?$errors:false);
 	}
 
-	function TabNames()
+	public function TabNames()
 	{
 		$res = [lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) $res[] = lang('options');
 		return $res;
 	}
 
-	function display_single_element(string $one,bool $adding)
+	public function display_single_element($one, $adding)
 	{
 		switch($one) {
 		case 'page':
@@ -130,7 +135,7 @@ class PageLink extends \CMSMS\ContentBase
 		}
 	}
 
-	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
 		switch($tab) {
 		case '0':
@@ -142,7 +147,7 @@ class PageLink extends \CMSMS\ContentBase
 		}
 	}
 
-	function GetURL($rewrite = true)
+	public function GetURL($rewrite = true)
 	{
 		$page = $this->GetPropertyValue('page');
 		$params = $this->GetPropertyValue('params');

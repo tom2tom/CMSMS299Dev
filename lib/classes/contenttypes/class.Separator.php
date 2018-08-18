@@ -18,6 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
+use CMSMS\ContentBase;
 use const CMS_CONTENT_HIDDEN_NAME;
 use function check_permission;
 use function get_userid;
@@ -33,12 +34,20 @@ use function lang;
  * @subpackage content_types
  * @license GPL
  */
-class Separator extends \CMSMS\ContentBase
+class Separator extends ContentBase
 {
+	public function FriendlyName() { return lang('contenttype_separator'); }
+	public function GetURL($rewrite = true) { return '#';  }
+	public function HasSearchableContent() { return false; }
+	public function HasUsableLink() { return false; }
+	public function IsViewable() { return false; }
+	public function RequiresAlias() { return false; }
+	public function WantsChildren() { return false; }
+
 	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->RemoveProperty('secure',0);
+		$this->RemoveProperty('secure',false);
 		$this->RemoveProperty('template','-1');
 		$this->RemoveProperty('alias','');
 		$this->RemoveProperty('title','');
@@ -50,14 +59,6 @@ class Separator extends \CMSMS\ContentBase
 		$this->RemoveProperty('page_url','');
 		$this->RemoveProperty('tabindex','');
 	}
-
-	public function GetURL($rewrite = true) { return '#';  }
-	public function IsViewable() { return false; }
-	public function FriendlyName() { return lang('contenttype_separator'); }
-	public function HasUsableLink() { return false; }
-	public function WantsChildren() { return false; }
-	public function RequiresAlias() { return false; }
-	public function HasSearchableContent() { return false; }
 
 	public function TabNames()
 	{
@@ -76,6 +77,11 @@ class Separator extends \CMSMS\ContentBase
 			return $this->display_attributes($adding,1);
 			break;
 		}
+	}
+
+	public function TemplateResource() : string
+	{
+		return ''; //TODO
 	}
 
 	public function ValidateData()
