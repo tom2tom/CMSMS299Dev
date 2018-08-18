@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Class for handling css code as a resource
+#Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,16 +14,15 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
 namespace CMSMS\internal;
 
-/**
- * @package CMS
- */
+use CmsLayoutStylesheet;
+use Smarty_Resource_Custom;
+use function endswith;
 
 /**
- * A simple class for handling css code as a resource.
+ * A class for handling css code as a resource.
  *
  * @package CMS
  * @author Robert Campbell
@@ -32,16 +31,25 @@ namespace CMSMS\internal;
  * @copyright Copyright (c) 2012, Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since 1.12
  */
-class layout_stylesheet_resource extends fixed_smarty_custom_resource
+class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
+	/**
+     * @param string  $name    template name
+     * @param string  &$source template source
+     * @param int     &$mtime  template modification timestamp
+	 */
 	protected function fetch($name,&$source,&$mtime)
 	{
         // clean up the input
         $name = trim($name);
-        if( !$name ) return;
+        if( !$name ) {
+	        $mtime = 0;
+            $source = '';
+			return;
+		}
 
         // if called via function.cms_stylesheet, then this stylesheet should be loaded.
-        $obj = \CmsLayoutStylesheet::load($name);
+        $obj = CmsLayoutStylesheet::load($name);
 
         // by now everything should be in memory in the CmsLayoutStylesheet internal cache's
         // put it all together in the order specified.
@@ -52,10 +60,4 @@ class layout_stylesheet_resource extends fixed_smarty_custom_resource
         $mtime = $obj->get_modified();
         $source = $text;
 	}
-
-} // end of class
-
-#
-# EOF
-#
-?>
+} // class
