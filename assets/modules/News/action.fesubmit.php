@@ -237,11 +237,11 @@ $tpl_ob->display();
 if( $do_send_email == true ) {
 
     $tpl_ob2 = $smarty->CreateTemplate($this->GetDatabaseResource('email_template'));
-    $tmp_vars = $tpl_ob->get_template_vars();
+    $tmp_vars = $tpl_ob->getTemplateVars();
     foreach( $tmp_vars as $key => $val ) {
         $tpl_ob2->assign($key,$val);
     }
-    $tmp_vars2 = $tpl_ob2->get_template_vars();
+    $tmp_vars2 = $tpl_ob2->getTemplateVars();
 
     // this needs to be done after the form is generated
     // because we use some of the same smarty variables

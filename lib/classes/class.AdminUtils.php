@@ -239,7 +239,7 @@ final class AdminUtils
 	public static function get_icon($icon, $attrs = [])
 	{
 		$smarty = Smarty::get_instance();
-		$module = $smarty->get_template_vars('actionmodule');
+		$module = $smarty->getTemplateVars('actionmodule');
 
 		if ($module) {
 			return self::get_module_icon($module, attrs);
@@ -308,7 +308,7 @@ final class AdminUtils
 
 		if( !$key1 ) {
 			$smarty = Smarty::get_instance();
-			$module = $smarty->get_template_vars('actionmodule');
+			$module = $smarty->getTemplateVars('actionmodule');
 			if( $module ) {
 				$key1 = $module;
 			}
