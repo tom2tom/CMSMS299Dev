@@ -127,13 +127,13 @@ EOS;
 			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
 		}
 //		$this->_havetree = $nodes; //block further tree-data changes
-		$smarty->assign('nodes', $nodes);
-		$smarty->assign('pagetitle', $this->title); //not used in current template
-		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
+		$smarty->assign('nodes', $nodes)
+		  ->assign('pagetitle', $this->title) //not used in current template
+		  ->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
 		$config = cms_config::get_instance();
-		$smarty->assign('admin_url', $config['admin_url']);
-		$smarty->assign('theme', $this);
+		$smarty->assign('admin_url', $config['admin_url'])
+		  ->assign('theme', $this);
 
 		// is the website set down for maintenance?
 		if (cms_siteprefs::get('enablesitedownmessage'))  {
@@ -254,11 +254,11 @@ EOS;
 			}
 		}
     	if (!$title) $title = '';
-		$smarty->assign('pagetitle', $title);
-		$smarty->assign('subtitle', $subtitle);
+		$smarty->assign('pagetitle', $title)
+		  ->assign('subtitle', $subtitle)
 
 		// page alias
-		$smarty->assign('pagealias', munge_string_to_url($alias));
+		  ->assign('pagealias', munge_string_to_url($alias));
 
 		// icon
 		if ($module_name && ($icon_url = $this->get_value('module_icon_url'))) {
@@ -283,8 +283,8 @@ EOS;
 
 		// preferences UI
 		if (check_permission($uid,'Manage My Settings')) {
-			$smarty->assign('mysettings', 1);
-			$smarty->assign('myaccount', 1); //TODO maybe a separate check
+			$smarty->assign('mysettings', 1)
+			  ->assign('myaccount', 1); //TODO maybe a separate check
 		}
 
 		// bookmarks UI
@@ -293,18 +293,18 @@ EOS;
 			$smarty->assign('marks', $marks);
 		}
 
-		$smarty->assign('header_includes', $this->get_headtext());
-		$smarty->assign('bottom_includes', $this->get_footertext());
+		$smarty->assign('header_includes', $this->get_headtext())
+		  ->assign('bottom_includes', $this->get_footertext())
 
 		// other variables
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
-		$smarty->assign('content', str_replace('</body></html>', '', $html));
+		  ->assign('content', str_replace('</body></html>', '', $html));
 
         $config = cms_config::get_instance();
-		$smarty->assign('admin_url', $config['admin_url']);
-		$smarty->assign('assets_url', $config['admin_url'] . '/themes/assets');
+		$smarty->assign('admin_url', $config['admin_url'])
+		  ->assign('assets_url', $config['admin_url'] . '/themes/assets')
 
-		$smarty->assign('theme', $this);
+		  ->assign('theme', $this);
 		// navigation menu data
 		if (!$this->_havetree) {
 			$smarty->assign('nav', $this->get_navigation_tree());
@@ -318,9 +318,9 @@ EOS;
 		// selected language
 		$lang = cms_userprefs::get_for_user($uid, 'default_cms_language');
 		if (!$lang) $lang = cms_siteprefs::get('frontendlang');
-		$smarty->assign('lang_code', $lang);
+		$smarty->assign('lang_code', $lang)
 		// language direction
-		$smarty->assign('lang_dir', CmsNlsOperations::get_language_direction());
+		  ->assign('lang_dir', CmsNlsOperations::get_language_direction());
 		// is the website down for maintenance?
 		if (cms_siteprefs::get('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 1);
