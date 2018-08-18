@@ -1,5 +1,5 @@
 <?php
-# A basic exception class that holds on to extended information, plus various extenstions.
+# Definitions of the various CMSMS exception classes.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -162,7 +162,7 @@ class CmsInvalidDataException extends CmsLogicException {}
 class CmsDataNotFoundException extends CmsException {}
 
 /**
- * A special exception indicating that a 404 error should be supplied.
+ * An exception indicating that a 404 error should be supplied.
  *
  * @package CMS
  * @since 2.3
@@ -170,7 +170,7 @@ class CmsDataNotFoundException extends CmsException {}
 class CmsError400Exception extends CmsException {}
 
 /**
- * A special exception indicating that a 404 error should be supplied.
+ * An exception indicating that a 404 error should be supplied.
  *
  * @package CMS
  * @since 1.11
@@ -178,7 +178,7 @@ class CmsError400Exception extends CmsException {}
 class CmsError404Exception extends CmsException {}
 
 /**
- * A special exception indicating that a 403 error should be supplied.
+ * An exception indicating that a 403 error should be supplied.
  *
  * @package CMS
  * @since 1.12
@@ -186,7 +186,8 @@ class CmsError404Exception extends CmsException {}
 class CmsError403Exception extends CmsException {}
 
 /**
- * A special exception indicating that the install is temporarily unavailable (down for maintenance)
+ * An exception indicating that the install is temporarily unavailable
+ * (down for maintenance)
  *
  * @package CMS
  * @since 1.12
@@ -194,7 +195,16 @@ class CmsError403Exception extends CmsException {}
 class CmsError503Exception extends CmsException {}
 
 /**
- * A special exception indicating an error with a content object
+ * An exception indicating that content processing should stop, but
+ * there is no error to display.
+ *
+ * @package CMS
+ * @since 2.3
+ */
+class CmsStopProcessingContentException extends CmsException {}
+
+/**
+ * An exception indicating an error with a content object
  *
  * @package CMS
  * @since 2.0
@@ -202,7 +212,7 @@ class CmsError503Exception extends CmsException {}
 class CmsContentException extends CmsException {}
 
 /**
- * A special exception indicating an error when editing content.
+ * An exception indicating an error when editing content.
  *
  * @package CMS
  * @since 1.11
@@ -210,7 +220,7 @@ class CmsContentException extends CmsException {}
 class CmsEditContentException extends CmsContentException {}
 
 /**
- * A special exception indicating an SQL Error.
+ * An exception indicating an SQL Error.
  *
  * @package CMS
  * @since 2.0
@@ -219,7 +229,7 @@ class CmsSQLErrorException extends CmsException {}
 
 
 /**
- * A special exception indicating an XML Error.
+ * An exception indicating an XML Error.
  *
  * @package CMS
  * @since 2.0
@@ -227,7 +237,7 @@ class CmsSQLErrorException extends CmsException {}
 class CmsXMLErrorException extends CmsException {}
 
 /**
- * A special exception indicating a problem with a file, directory, or filesystem
+ * An exception indicating a problem with a file, directory, or filesystem.
  *
  * @package CMS
  * @since 2.0
@@ -245,6 +255,7 @@ class_alias('CMSMS\Error400Exception', 'CmsError400Exception', false);
 class_alias('CMSMS\Error403Exception', 'CmsError403Exception', false);
 class_alias('CMSMS\Error404Exception', 'CmsError404Exception', false);
 class_alias('CMSMS\Error503Exception', 'CmsError503Exception', false);
+class_alias('CMSMS\StopProcessingContentException', 'CmsStopProcessingContentException', false);
 class_alias('CMSMS\ExtraDataException', 'CmsExtraDataException', false);
 class_alias('CMSMS\FileSystemException', 'CmsFileSystemException', false);
 class_alias('CMSMS\InvalidDataException', 'CmsInvalidDataException', false);
