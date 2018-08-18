@@ -577,7 +577,7 @@ class CmsLayoutStylesheet
    /**
 	* @ignore
 	*/
-	private static function get_locks()
+	private static function get_locks() : array
 	{
 		if( !self::$_lock_cache_loaded ) {
 			$tmp = CmsLockOperations::get_locks('stylesheet');
@@ -631,9 +631,9 @@ class CmsLayoutStylesheet
    /**
 	* @ignore
 	*/
-	private static function _load_from_data($row,$design_list = null)
+	private static function _load_from_data(array $row, $design_list = null) : self
 	{
-		$ob = new CmsLayoutStylesheet();
+		$ob = new self();
 		$row['media_type'] = explode(',',$row['media_type']);;
 		$ob->_data = $row;
 		$fn = $ob->get_content_filename();
