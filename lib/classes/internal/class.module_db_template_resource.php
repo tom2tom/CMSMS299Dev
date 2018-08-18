@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
+#Classes to handle module templates.
+#Copyright (C) 2012-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,45 +15,49 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
+
 namespace CMSMS\internal;
 
+use CmsApp;
+use CmsLayoutTemplate;
+use CMSMS\ModuleOperations;
+use Exception;
+use Smarty_Resource_Custom;
+use const CMS_ASSETS_PATH;
+use const CMS_DB_PREFIX;
+use function cms_join_path;
+use function debug_buffer;
+
 /**
- * File contains a custom resource class for smarty
- *
- * @ignore
- * @package CMS
- */
-
-
-/**o
- * A simple class to handle a module database template.
+ * A class to handle a module database template, with fallback to a generic template of the same name.
  *
  * @ignore
  * @internal
  * @since 1.11
  * @package CMS
  */
-class module_db_template_resource extends fixed_smarty_custom_resource
+class module_db_template_resource extends Smarty_Resource_Custom
 {
+    /**
+     * @param string $name ';'-separated like 'modulename;templatename'
+     * @param string &$source retrieved template content
+     * @param int    &$mtime retrieved template modification timestamp
+     */
     protected function fetch($name,&$source,&$mtime)
     {
         debug_buffer('','CMSModuleDbTemplateResource start'.$name);
-        $db = \CmsApp::get_instance()->GetDb();
-
-        $tmp = explode(';',$name);
-        $query = "SELECT * from ".CMS_DB_PREFIX."module_templates WHERE module_name = ? and template_name = ?";
+        $db = CmsApp::get_instance()->GetDb();
+        $query = "SELECT content,modified FROM ".CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME." WHERE originator=? AND name=?";
         $parts = explode(';',$name);
         $row = $db->GetRow($query, $parts);
-        if ($row) {
+        if( $row ) {
             $source = $row['content'];
-            $mtime = $db->UnixTimeStamp($row['modified_date']);
+            $mtime = (int) $row['modified'];
         }
         else {
             // fallback to the layout stuff.
             try {
-                $obj = \CmsLayoutTemplate::load($parts[1]);
+                $obj = CmsLayoutTemplate::load($parts[1]);
                 $source = $obj->get_content();
                 $mtime = $obj->get_modified();
             }
@@ -62,7 +67,7 @@ class module_db_template_resource extends fixed_smarty_custom_resource
         }
         debug_buffer('','CMSModuleDbTemplateResource end'.$name);
     }
-} // end of class
+} // class
 
 
 /**
@@ -73,18 +78,23 @@ class module_db_template_resource extends fixed_smarty_custom_resource
  * @package CMS
  * @since 1.11
  */
-class module_file_template_resource extends fixed_smarty_custom_resource
+class module_file_template_resource extends Smarty_Resource_Custom
 {
+    /**
+     * @param string $name ';'-separated like 'modulename;filename'
+     * @param mixed  $source store for retrieved template content
+     * @param int    $mtime store for retrieved template modification timestamp
+     */
     protected function fetch($name,&$source,&$mtime)
     {
         $source = null;
-        $mtime = null;
-        $params = explode(';',$name);
-        if( count($params) != 2 ) return;
+        $mtime = 0;
+        $parts = explode(';',$name);
+        if( count($parts) != 2 ) return;
 
-        $module_name = trim($params[0]);
-        $filename = trim($params[1]);
-        $module = \ModuleOperations::get_instance()->get_module_instance($module_name);
+        $module_name = trim($parts[0]);
+        $filename = trim($parts[1]);
+        $module = ModuleOperations::get_instance()->get_module_instance($module_name);
 		$files = [];
         $files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'templates',$filename); //TODO only use of module_custom - what for?
         $files[] = cms_join_path($module->GetModulePath(),'templates',$filename);
@@ -97,9 +107,4 @@ class module_file_template_resource extends fixed_smarty_custom_resource
             }
         }
     }
-} // end of class
-
-
-#
-# EOF
-#
+} // class
