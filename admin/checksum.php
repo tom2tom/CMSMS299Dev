@@ -15,6 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\internal\Smarty;
+
 $CMS_ADMIN_PAGE=1;
 $CMS_ADMIN_TITLE = 'system_verification';
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -193,9 +195,9 @@ function generate_checksum_file(&$report)
   exit;
 }
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 // Get ready
-$smarty->register_function('lang','checksum_lang');
+$smarty->registerPlugin('function','lang','checksum_lang');
 $smarty->force_compile = true;
 
 // Handle output
