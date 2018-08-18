@@ -1,14 +1,13 @@
 <script type="text/javascript">
 {literal}//<![CDATA[
 $(document).ready(function() {
-  var sel = '[data-cmsfp-instance="{$instance}"]';
-  $(sel).filepicker({{/literal}
+  $('[data-cmsfp-instance="{/literal}{$instance}{literal}"]').filepicker({{/literal}
     param_sig: '{$sig}',
     title: '{$title}',
     required: {if $required}1{else}0{/if},
     remove_title: '{$mod->Lang('clear')}',
-    remove_label: '{$mod->Lang('clear')}',{literal}
-  });
+    remove_label: '{$mod->Lang('clear')}'
+  {literal}});
 });
 {/literal}//]]>
 </script>
