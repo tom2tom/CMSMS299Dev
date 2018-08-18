@@ -59,7 +59,7 @@
     </p>
   </div>
   <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon check">{lang('submit')}</button>
+    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
     <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
   </div>
 </form>
