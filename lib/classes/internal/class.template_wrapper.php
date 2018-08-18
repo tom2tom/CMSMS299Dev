@@ -22,20 +22,20 @@ use CMSMS\Events;
 use Smarty_Internal_Template;
 
 /**
- * Default template class in smarty
+ * Default Smarty template class for CMSMS
  */
 class template_wrapper extends Smarty_Internal_Template
 {
 	/**
      * fetch a rendered Smarty template
      *
-     * @param  string $template   the resource handle of the template file or template object
+     * @param  string $template   optional resource handle of the template file or template object
      * @param  mixed  $cache_id   optional cache id to be used with this template
      * @param  mixed  $compile_id optional compile id to be used with this template
      * @param  object $parent     optional next-higher level of Smarty variables
 	 * @return string rendered template output
 	 */
-    public function fetch($template, $cache_id = null, $compile_id = null, $parent = null)
+    public function fetch($template = null, $cache_id = null, $compile_id = null, $parent = null)
     {
         // send an event before fetching...this allows us to change template stuff.
         if( CmsApp::get_instance()->is_frontend_request() ) {
