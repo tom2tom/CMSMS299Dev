@@ -1,6 +1,5 @@
 <?php
 #Class for handling layout templates as a resource
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -21,6 +20,7 @@ namespace CMSMS\internal;
 use cms_utils;
 use CmsLayoutTemplate;
 use Exception;
+use Smarty_Resource_Custom;
 use stdClass;
 use function cms_error;
 use function startswith;
@@ -37,24 +37,14 @@ use function startswith;
  * @copyright Copyright (c) 2012, Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since 1.12
  */
-class layout_template_resource extends fixed_smarty_custom_resource
+class layout_template_resource extends Smarty_Resource_Custom
 {
-	private function &get_template($name)
-	{
-		$obj = CmsLayoutTemplate::load($name);
-		$ret = new stdClass;
-		$ret->modified = $obj->get_modified();
-		$ret->content = $obj->get_content();
-		return $ret;
-	}
-
 	/**
-	 *
 	 * @param string $name  resource-file path, optionally with trailing ';[section]'
 	 * @param type $source  store for retrieved file content
 	 * @param int $mtime    store for file modification timestamp
 	 */
-	protected function fetch($name, &$source, &$mtime)
+	protected function fetch($name,&$source,&$mtime)
 	{
 		if( $name == 'notemplate' ) {
 			$source = '{content}';
@@ -74,45 +64,47 @@ class layout_template_resource extends fixed_smarty_custom_resource
         $name = $parts[0];
 
 		try {
-			$tpl = $this->get_template($name);
-			if( !is_object($tpl) ) return;
+			$obj = CmsLayoutTemplate::load($name);
+		    if( $obj ) {
+		        $content = $obj->get_content();
+				$mtime = $obj->get_modified();
+		    }
+            else return;
 		}
 		catch( Exception $e ) {
 			cms_error('Missing template: '.$name);
 			return;
 		}
 
-		$mtime = $tpl->modified;
-
         $section = $parts[1] ?? null;
 		switch( trim($section) ) {
 		case 'top':
-			$pos1 = stripos($tpl->content,'<head');
-			$pos2 = stripos($tpl->content,'<header');
+			$pos1 = stripos($content,'<head');
+			$pos2 = stripos($content,'<header');
 			if( $pos1 === FALSE || $pos1 == $pos2 ) return;
-			$source = trim(substr($tpl->content,0,$pos1));
+			$source = trim(substr($content,0,$pos1));
 			return;
 
 		case 'head':
-			$pos1 = stripos($tpl->content,'<head');
-			$pos1a = stripos($tpl->content,'<header');
-			$pos2 = stripos($tpl->content,'</head>');
+			$pos1 = stripos($content,'<head');
+			$pos1a = stripos($content,'<header');
+			$pos2 = stripos($content,'</head>');
 			if( $pos1 === FALSE || $pos1 == $pos1a || $pos2 === FALSE ) return;
-			$source = trim(substr($tpl->content,$pos1,$pos2-$pos1+7));
+			$source = trim(substr($content,$pos1,$pos2-$pos1+7));
 			return;
 
 		case 'body':
-			$pos = stripos($tpl->content,'</head>');
+			$pos = stripos($content,'</head>');
 			if( $pos !== FALSE ) {
-				$source = trim(substr($tpl->content,$pos+7));
+				$source = trim(substr($content,$pos+7));
 			}
 			else {
-				$source = $tpl->content;
+				$source = $content;
 			}
 			return;
 
 		default:
-			$source = trim($tpl->content);
+			$source = trim($content);
 			return;
 		}
 	}
