@@ -1,17 +1,17 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 if (isset($params["cancel"])) $this->Redirect($id, "defaultadmin", $returnid, $params);
 
-$path = filemanager_utils::get_cwd();
+$path = Utils::get_cwd();
 
 $newdirname = "";
 if (isset($params["newdirname"])) {
   $newdirname = trim($params["newdirname"]);
 
-  if (!filemanager_utils::is_valid_filename($params['newdirname'])) {
+  if (!Utils::is_valid_filename($params['newdirname'])) {
     // $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"invalidnewdir"));
     $this->ShowErrors($this->Lang("invalidnewdir"));
     //fallthrough

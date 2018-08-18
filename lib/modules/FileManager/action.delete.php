@@ -1,5 +1,5 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
@@ -21,9 +21,9 @@ foreach( $sel as &$one ) {
 // process form
 $errors = array();
 if( isset($params['delete']) ) {
-  $advancedmode = filemanager_utils::check_advanced_mode();
+  $advancedmode = Utils::check_advanced_mode();
   $basedir = CMS_ROOT_PATH; //TODO or $config['uploads_path'] ?
-  $cwd = filemanager_utils::get_cwd();
+  $cwd = Utils::get_cwd();
 
   foreach( $sel as $file ) {
     // build complete path
@@ -45,7 +45,7 @@ if( isset($params['delete']) ) {
     }
 
     $thumb = '';
-    if( filemanager_utils::is_image_file($file) ) {
+    if( Utils::is_image_file($file) ) {
       // check for thumb, make sure it's writable.
       $thumb = cms_join_path($basedir,$cwd,'thumb_'.basename($file));
       if( file_exists($fn) && !is_writable($fn) ) $errors[] = $this->Lang('error_thumbnotwritable',$file);

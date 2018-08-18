@@ -1,6 +1,6 @@
 <?php
 
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) return;
@@ -13,8 +13,8 @@ if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], '
 }
 $smarty->assign('formstart',$this->CreateFormStart($id,'upload',$returnid,'post','multipart/form-data'));
 $smarty->assign('formend',$this->CreateFormEnd());
-$post_max_size = filemanager_utils::str_to_bytes(ini_get('post_max_size'));
-$upload_max_filesize = filemanager_utils::str_to_bytes(ini_get('upload_max_filesize'));
+$post_max_size = Utils::str_to_bytes(ini_get('post_max_size'));
+$upload_max_filesize = Utils::str_to_bytes(ini_get('upload_max_filesize'));
 $smarty->assign('max_chunksize',min($upload_max_filesize,$post_max_size-1024));
 $smarty->assign('action_url',$this->create_url($id,'upload',$returnid));
 $smarty->assign('prompt_dropfiles',$this->Lang('prompt_dropfiles'));
@@ -32,7 +32,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
 
 // get a folder list...
 {
-    $cwd = filemanager_utils::get_cwd();
+    $cwd = Utils::get_cwd();
     $smarty->assign('cwd',$cwd);
 
     $startdir = $config['uploads_path'];

@@ -1,5 +1,5 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 use FileManager\imageEditor;
 
 if (!isset($gCms)) exit;
@@ -23,7 +23,7 @@ if (count($sel)>1) {
 $config = cmsms()->getConfig();
 $basedir = CMS_ROOT_PATH;
 $filename=$this->decodefilename($sel[0]);
-$src = cms_join_path($basedir,filemanager_utils::get_cwd(),$filename);
+$src = cms_join_path($basedir,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
   $params["fmerror"]="filenotfound";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -65,7 +65,7 @@ if(empty($params['reset'])
 
   //Save it
   $res = imageEditor::save($instance, $src, $mimeType);
-  if( $this->GetPreference('create_thumbnails') ) filemanager_utils::create_thumbnail($src);
+  if( $this->GetPreference('create_thumbnails') ) Utils::create_thumbnail($src);
 
   $this->Redirect($id,"defaultadmin",$returnid);
 }
@@ -78,7 +78,7 @@ if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
 $smarty->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post','',false,'',$params));
 $smarty->assign('formend',$this->CreateFormEnd());
 $smarty->assign('filename',$filename);
-$url = filemanager_utils::get_cwd_url()."/$filename";
+$url = Utils::get_cwd_url()."/$filename";
 $smarty->assign('image',$url);
 $smarty->assign('image_width',$imageinfo[0]);
 

@@ -62,7 +62,7 @@ final class FileManager extends CMSModule
     {
         $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
         $statinfo=stat($realpath);
-        return filemanager_util::format_permissions($statinfo["mode"]);
+        return FileManager\Utils::format_permissions($statinfo["mode"]);
     }
 
     public function GetModeWin($path,$file)
@@ -135,7 +135,7 @@ final class FileManager extends CMSModule
 	 */
     public function GetThumbnailLink($id,$file,$path)
     {
-//        $advancedmode = FileManager\filemanager_utils::check_advanced_mode();
+//        $advancedmode = FileManager\Utils::check_advanced_mode();
 
         $imagepath=cms_join_path(CMS_ROOT_PATH, $path, "thumb_".$file["name"]);
         if (file_exists($imagepath)) {

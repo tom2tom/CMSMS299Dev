@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
@@ -37,18 +37,18 @@ if (count($sel)>1) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$advancedmode = filemanager_utils::check_advanced_mode();
+$advancedmode = Utils::check_advanced_mode();
 
 $basedir=CMS_ROOT_PATH;
 $filename=$this->decodefilename($sel[0]);
-$src=cms_join_path($basedir,filemanager_utils::get_cwd(),$filename);
+$src=cms_join_path($basedir,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
   $params["fmerror"]="filenotfound";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
 if( isset($params['thumb']) ) {
-  $thumb = filemanager_utils::create_thumbnail($src);
+  $thumb = Utils::create_thumbnail($src);
 
   if( !$thumb ) {
     $params["fmerror"]="thumberror";
@@ -59,7 +59,7 @@ if( isset($params['thumb']) ) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$thumb = cms_join_path($basedir,filemanager_utils::get_cwd(),'thumb_'.$filename);
+$thumb = cms_join_path($basedir,Utils::get_cwd(),'thumb_'.$filename);
 
 //
 // build the form

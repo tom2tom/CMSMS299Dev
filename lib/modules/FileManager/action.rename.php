@@ -1,5 +1,5 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
@@ -30,19 +30,19 @@ $newname=$oldname; //for initial input box
 
 if (isset($params["newname"])) {
   $newname=$params["newname"];
-  if (!filemanager_utils::is_valid_filename($newname)) {
+  if (!Utils::is_valid_filename($newname)) {
     $this->ShowErrors($this->Lang("invaliddestname"));
   } else {
-    $cwd = filemanager_utils::get_cwd();
-    $fullnewname = cms_join_path(filemanager_utils::get_full_cwd(),trim($params['newname']));
+    $cwd = Utils::get_cwd();
+    $fullnewname = cms_join_path(Utils::get_full_cwd(),trim($params['newname']));
     if (file_exists($fullnewname)) {
       $this->ShowErrors($this->Lang("namealreadyexists"));
       //fallthrough
     } else {
-      $fulloldname = cms_join_path(filemanager_utils::get_full_cwd(),$oldname);
+      $fulloldname = cms_join_path(Utils::get_full_cwd(),$oldname);
       if (@rename($fulloldname,$fullnewname)) {
-	$thumboldname = cms_join_path(filemanager_utils::get_full_cwd(),'thumb_'.$oldname);
-	$thumbnewname = cms_join_path(filemanager_utils::get_full_cwd(),'thumb_'.trim($params['newname']));
+	$thumboldname = cms_join_path(Utils::get_full_cwd(),'thumb_'.$oldname);
+	$thumbnewname = cms_join_path(Utils::get_full_cwd(),'thumb_'.trim($params['newname']));
 	if( file_exists($thumboldname) ) {
 	  @rename($thumboldname,$thumbnewname);
 	}

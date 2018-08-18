@@ -1,5 +1,5 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if( !isset($params['file']) ) {
@@ -8,14 +8,14 @@ if( !isset($params['file']) ) {
 }
 
 $filename=$this->decodefilename($params['file']);
-$src = cms_join_path(CMS_ROOT_PATH,filemanager_utils::get_cwd(),$filename);
+$src = cms_join_path(CMS_ROOT_PATH,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
     $params["fmerror"]="filenotfound";
     $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
 // get its mime type
-$mimetype = filemanager_utils::mime_content_type($src);
+$mimetype = Utils::mime_content_type($src);
 
 $handlers = ob_list_handlers();
 for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }

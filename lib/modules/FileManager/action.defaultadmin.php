@@ -1,5 +1,5 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) exit;
@@ -20,8 +20,8 @@ if (isset($params["fmerror"]) && $params["fmerror"]!="") {
 
 if (isset($params["newsort"])) $this->SetPreference("sortby",$params["newsort"]);
 
-$path = trim(ltrim(filemanager_utils::get_cwd(), DIRECTORY_SEPARATOR));
-if( filemanager_utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {
+$path = trim(ltrim(Utils::get_cwd(), DIRECTORY_SEPARATOR));
+if( Utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {
     $path = '::top::'.DIRECTORY_SEPARATOR.$path;
 }
 $tmp_path_parts = explode(DIRECTORY_SEPARATOR,$path);

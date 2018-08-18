@@ -6,7 +6,7 @@ if(!isset($params["dirname"]) || !isset($params["path"])) {
 	$this->Redirect($id, 'defaultadmin');
 }
 
-if( !FileManager\filemanager_utils::test_valid_path($params['path']) ) {
+if( !FileManager\Utils::test_valid_path($params['path']) ) {
   $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"fileoutsideuploads"));
 }
 

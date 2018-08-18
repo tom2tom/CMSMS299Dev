@@ -5,7 +5,7 @@ if (!($this->CheckPermission('Modify Files') || $this->AdvancedAccessAllowed()))
 if (!isset($params['path'])) {
   $this->Redirect($id,'defaultadmin');
 }
-if (!FileManager\filemanager_utils::test_valid_path($params['path'])) {
+if (!FileManager\Utils::test_valid_path($params['path'])) {
   $this->Redirect($id,'defaultadmin',$returnid,['fmerror'=>'fileoutsideuploads']);
 }
 $path = $params['path'];

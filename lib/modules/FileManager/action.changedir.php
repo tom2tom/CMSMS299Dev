@@ -1,11 +1,11 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
 
 if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['cmsjobtype']) && $_GET['cmsjobtype'] > 0 ) {
-  echo filemanager_utils::get_cwd();
+  echo Utils::get_cwd();
   exit;
 }
 
@@ -15,18 +15,18 @@ $path = null;
 if( isset($params['newdir']) ) {
     // set a relative directory.
     $newdir = trim($params["newdir"]);
-    $path = cms_join_path(filemanager_utils::get_cwd(),$newdir);
+    $path = cms_join_path(Utils::get_cwd(),$newdir);
 }
 else if( isset($params['setdir']) ) {
     // set an explicit directory
     $path = trim($params['setdir']);
-    if( $path == '::top::' ) $path = filemanager_utils::get_default_cwd();
+    if( $path == '::top::' ) $path = Utils::get_default_cwd();
 }
 
 try {
-    filemanager_utils::set_cwd($path);
+    Utils::set_cwd($path);
     if( !isset($params['ajax']) ) {
-        filemanager_utils::set_cwd($path);
+        Utils::set_cwd($path);
         $this->RedirectToAdminTab();
     }
 }

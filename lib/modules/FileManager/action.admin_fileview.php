@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 use FilePicker\Utils;
 
 if (!isset($gCms)) {
@@ -28,7 +28,7 @@ if (!$this->CheckPermission('Modify Files')) {
 $sortby = $this->GetPreference('sortby', 'nameasc'); //TODO per FilePickerProfile
 $permissionstyle = $this->GetPreference('permissionstyle','xxx');
 
-$value = filemanager_utils::get_cwd(); //relative path, but with leading separator
+$value = Utils::get_cwd(); //relative path, but with leading separator
 $path = substr($value, 1);
 $filelist = Utils::get_file_list($path);
 $times = count($filelist);
@@ -111,18 +111,18 @@ for ($i = 0; $i < $times; $i++) {
     $onerow->type[] = 'archive';
   }
 
-  $onerow->fileinfo = filemanager_utils::get_file_details($filelist[$i]);
+  $onerow->fileinfo = Utils::get_file_details($filelist[$i]);
   if ($filelist[$i]['name'] == '..') {
     $onerow->fileaction = '&nbsp;';
     $onerow->filepermissions = '&nbsp;';
   } else {
     $onerow->fileowner = $filelist[$i]['fileowner'];
-    $onerow->filepermissions = filemanager_utils::format_permissions($filelist[$i]['mode'],$permissionstyle);
+    $onerow->filepermissions = Utils::format_permissions($filelist[$i]['mode'],$permissionstyle);
   }
   if ($filelist[$i]['dir']) {
     $onerow->filesize = '&nbsp;';
   } else {
-    $filesize = filemanager_utils::format_filesize($filelist[$i]['size']);
+    $filesize = Utils::format_filesize($filelist[$i]['size']);
     $onerow->filesize = $filesize['size'];
     $onerow->filesizeunit = $filesize['unit'];
   }
@@ -140,7 +140,7 @@ if (!empty($params['viewfile'])) {
   foreach ($files as $file) {
     if ($file->urlname == $params['viewfile']) {
       if (in_array('text', $file->type)) {
-        $fn = cms_join_path(filemanager_utils::get_full_cwd(), $file->name);
+        $fn = cms_join_path(Utils::get_full_cwd(), $file->name);
         if (file_exists($fn)) {
           $data = @file_get_contents($fn);
         }
@@ -201,7 +201,7 @@ $smarty->assign('actionstext', $this->Lang('actions'));
 
 $smarty->assign('files', $files);
 $smarty->assign('itemcount', count($files));
-$totalsize = filemanager_utils::format_filesize($countfilesize);
+$totalsize = Utils::format_filesize($countfilesize);
 $counts = $totalsize['size'] . ' ' . $totalsize['unit'] . ' ' . $this->Lang('in') . ' ' . $countfiles . ' ';
 if ($countfiles == 1) {
   $counts .= $this->Lang('file');

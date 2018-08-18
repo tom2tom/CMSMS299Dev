@@ -30,7 +30,7 @@ use function cmsms;
 use function endswith;
 use function startswith;
 
-final class filemanager_utils
+final class Utils
 {
     static private $_can_do_advanced = -1;
 

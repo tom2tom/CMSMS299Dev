@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
@@ -41,7 +41,7 @@ if (count($sel)>1) {
 $config=cmsms()->GetConfig();
 $basedir = CMS_ROOT_PATH;
 $filename=$this->decodefilename($sel[0]);
-$src = cms_join_path($basedir,filemanager_utils::get_cwd(),$filename);
+$src = cms_join_path($basedir,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
   $params["fmerror"]="filenotfound";
   $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -157,7 +157,7 @@ if( isset($params['save']) ) {
     break;
   }
 
-  if( $createthumb ) $thumb = filemanager_utils::create_thumbnail($src);
+  if( $createthumb ) $thumb = Utils::create_thumbnail($src);
 
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
@@ -169,7 +169,7 @@ $opts = array('none'=>$this->Lang('none'),
 	      'crop'=>$this->Lang('crop'),
 	      'resize'=>$this->Lang('resize'));
 $smarty->assign('opts',$opts);
-$url = filemanager_utils::get_cwd_url()."/$filename";
+$url = Utils::get_cwd_url()."/$filename";
 $smarty->assign('postrotate',$postrotate);
 $smarty->assign('createthumb',$createthumb);
 $smarty->assign('filename',$filename);

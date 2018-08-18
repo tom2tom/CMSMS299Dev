@@ -1,5 +1,5 @@
 <?php
-use FileManager\filemanager_utils;
+use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
@@ -17,8 +17,8 @@ foreach( $sel as &$one ) {
 }
 
 $config=cmsms()->GetConfig();
-$cwd = filemanager_utils::get_cwd();
-$dirlist = filemanager_utils::get_dirlist();
+$cwd = Utils::get_cwd();
+$dirlist = Utils::get_dirlist();
 if( !count($dirlist) ) {
     $params["fmerror"]="nodestinationdirs";
     $this->Redirect($id,"defaultadmin",$returnid,$params);
@@ -30,7 +30,7 @@ if( isset($params['move']) ) {
     $destdir = trim($params['destdir']);
     if( $destdir == $cwd ) $errors[] = $this->Lang('movedestdirsame');
 
-    $advancedmode = filemanager_utils::check_advanced_mode();
+    $advancedmode = Utils::check_advanced_mode();
     $basedir = ( $advancedmode ) ?  CMS_ROOT_PATH : $config['uploads_path'];
 
     if( count($errors) == 0 ) {
@@ -63,7 +63,7 @@ if( isset($params['move']) ) {
             $thumb = '';
             $src_thumb = '';
             $dest_thumb = '';
-            if( filemanager_utils::is_image_file($file) ) {
+            if( Utils::is_image_file($file) ) {
                 $tmp = 'thumb_'.$file;
                 $src_thumb = cms_join_path(CMS_ROOT_PATH,$cwd,$tmp);
                 $dest_thumb = cms_join_path($basedir,$destdir,$tmp);
