@@ -1357,6 +1357,7 @@ abstract class CMSModule
      * @param string $cssname Optional name of the CMSMS stylesheet to associate with the wysiwyg editor for additional styling.
      *   If $selector is not empty then $cssname is only used for the specific element.
      *   WYSIWYG modules might ignore the $cssname parameter, depending on their settings and capabilities.
+	 * @throws Exception, CmsException
      * @return string
      */
     public function WYSIWYGGenerateHeader($selector = '', $cssname = '')
