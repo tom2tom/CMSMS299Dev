@@ -23,15 +23,15 @@ use CmsApp;
 use CmsFileSystemException;
 use CmsLayoutStylesheet;
 use CmsLogicException;
+use CMSMS\AdminUtils;
+use CMSMS\ScriptManager;
 use CmsNlsOperations;
 use MicroTiny;
 use MicroTiny\Profile;
 use PHPMailer\PHPMailer\Exception;
 use const CMS_ROOT_URL;
-use const PUBLIC_CACHE_LOCATION;
+use const TMP_CACHE_LOCATION;
 use function cms_join_path;
-use function cms_to_bool;
-use function file_put_contents;
 
 class Utils
 {
@@ -45,7 +45,7 @@ class Utils
 	 * @param type $selector
 	 * @param string $css_name
 	 * @return string
-	 * @throws CmsLogicException
+	 * @throws Exception, CmsLogicException
 	 */
 	public static function WYSIWYGGenerateHeader($selector='', $css_name='')
 	{
@@ -57,93 +57,65 @@ class Utils
 
 		$frontend = CmsApp::get_instance()->is_frontend_request();
 		$languageid = self::GetLanguageId($frontend);
-		$mtime = time() - 300; // by defaul cache for 5 minutes ??
 
 		// get the cssname that we're going to use (either passed in, or from profile)
-		try {
-			$profile = ( $frontend ) ?
-				Profile::load(MicroTiny::PROFILE_FRONTEND):
-				Profile::load(MicroTiny::PROFILE_ADMIN);
+		$profile = ( $frontend ) ?
+			Profile::load(MicroTiny::PROFILE_FRONTEND):
+			Profile::load(MicroTiny::PROFILE_ADMIN);
 
-			if( !$profile['allowcssoverride'] ) {
-				// not allowwing override
-				$css_name = null;
-				$css_id = (int) $profile['dfltstylesheet'];
-				if( $css_id > 0 ) $css_name = $css_id;
+		if( !$profile['allowcssoverride'] ) {
+			// not allowing override
+			$css_id = (int) $profile['dfltstylesheet'];
+			if( $css_id > 0 ) {
+				$css_name = $css_id;
+			}
+			else {
+				$css_name = '';
 			}
 		}
-		catch( Exception $e ) {
-			// do nothing.
-			$profile = null;
-		}
 
-		// if we have a stylesheet name, use it's modification time as our mtime
+		// if we have a stylesheet name, use it
 		if( $css_name ) {
 			try {
 				$css = CmsLayoutStylesheet::load($css_name);
 				$css_name = $css->get_name();
-				$mtime = $css->get_modified();
 			}
 			catch( Exception $e ) {
 				// couldn't load the stylesheet for some reason.
-				$css_name = null;
+				$css_name = '';
 			}
 		}
 
-		// if this is an action for MicroTiny disable caching.
-		$smarty = CmsApp::get_instance()->GetSmarty();
-		$module = $smarty->getTemplateVars('actionmodule');
-		if( $module == $mod->GetName() ) $mtime = time() + 60;
-
-		// also disable caching if told to by the config.php
-		$config = cms_utils::get_config();
-		if( isset($config['mt_disable_cache']) && cms_to_bool($config['mt_disable_cache']) ) $mtime = time() + 60;
-
-		$fn = cms_join_path(PUBLIC_CACHE_LOCATION,'mt_'.md5(__DIR__.session_id().$frontend.$selector.$css_name.$languageid).'.js');
-		if( !file_exists($fn) || filemtime($fn) < $mtime ) {
-			// we have to generate an mt config js file.
-			self::_save_static_config($fn,$frontend,$selector,$css_name,$languageid);
-		}
-
 		if( $first_time ) {
-			// only once per request.
-			$first_time = FALSE;
+			// only once per request
+			$first_time = false;
+			//this doesn't like relocation into a merged-scripts file
 			$output = '<script type="text/javascript" src="'.$mod->GetModuleURLPath().'/lib/js/tinymce/tinymce.min.js"></script>'."\n";
+			$output .= '<script type="text/javascript" src="'.CMS_ROOT_URL.'/lib/modules/FilePicker/lib/js/jquery.cmsms_filepicker.js"></script>'."\n";
 		} else {
 			$output = '';
 		}
 
-		$configurl = $config['public_cache_url'].'/'.basename($fn);
-//		$output .= '<script type="text/javascript" src="'.$configurl.'" defer="defer"></script>';
-		$output .= '<script type="text/javascript" src="'.$configurl.'"></script>';
+		$sm = new ScriptManager();
+		$configcontent = self::_generate_config($frontend, $selector, $css_name, $languageid);
+		$sm->queue_string($configcontent);
+		$config = cms_utils::get_config();
+		$force = isset($config['mt_disable_cache']) && cms_to_bool($config['mt_disable_cache']);
+
+		$fn = $sm->render_scripts('', $force, false);
+		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$output .= sprintf('<script type="text/javascript" src="%s"></script>'."\n",$url);
 
 		return $output;
 	}
 
 	/**
-	 * @ignore
-	 * @param type $fn
-	 * @param bool $frontend
-	 * @param type $selector
-	 * @param type $css_name
-	 * @param type $languageid
-	 * @throws CmsFileSystemException
-	 */
-	private static function _save_static_config($fn, bool $frontend=false, string $selector='', string $css_name='', string $languageid='')
-	{
-		if( !$fn ) return;
-		$configcontent = self::_generate_config($frontend, $selector, $css_name, $languageid);
-		$res = file_put_contents($fn,$configcontent);
-		if( !$res ) throw new CmsFileSystemException('Problem writing data to '.$fn);
-	}
-
-	/**
 	 * Generate a tinymce initialization file.
 	 *
-	 * @param bool $frontend Optional
-	 * @param mixed$selector Optional
+	 * @param bool  $frontend Optional flag
+	 * @param mixed $selector Optional
 	 * @param mixed $css_name	Optional
-	 * @param string $languageid	Optional
+	 * @param string $languageid Optional
 	 * @return string
 	 */
 	private static function _generate_config(bool $frontend=false, string $selector='', string $css_name='', string $languageid='en') : string
@@ -151,6 +123,17 @@ class Utils
 		$ajax_url = function($url) {
 			return str_replace('&amp;','&',$url).'&cmsjobtype=1';
 		};
+
+		try {
+			$profile = ( $frontend ) ?
+				Profile::load(MicroTiny::PROFILE_FRONTEND):
+				Profile::load(MicroTiny::PROFILE_ADMIN);
+		}
+		catch( Exception $e ) {
+//			$profile = null;
+			// oops, we gots a problem.
+			die($e->Getmessage());
+		}
 
 		$mod = cms_utils::get_module('MicroTiny');
 		$_gCms = CmsApp::get_instance();
@@ -176,21 +159,10 @@ class Utils
 		$url = $mod->create_url('m1_','ajax_getpages',$page_id);
 		$tpl_ob->assign('getpages_url',$ajax_url($url));
 		if( $selector ) $tpl_ob->assign('mt_selector',$selector);
-
-		try {
-			$profile = ( $frontend ) ?
-				Profile::load(MicroTiny::PROFILE_FRONTEND):
-				Profile::load(MicroTiny::PROFILE_ADMIN);
-
-			$tpl_ob->assign('mt_profile',$profile);
-			if( $css_name ) $tpl_ob->assign('mt_cssname',$css_name);
-		}
-		catch( Exception $e ) {
-			$profile = null;
-			// oops, we gots a problem.
-			die($e->Getmessage());
-		}
-
+		else $tpl_ob->assign('mt_selector',null);
+		$tpl_ob->assign('mt_profile',$profile);
+		if( $css_name ) $tpl_ob->assign('mt_cssname',$css_name);
+		else $tpl_ob->assign('mt_cssname',null);
 		return $tpl_ob->fetch();
 	}
 
