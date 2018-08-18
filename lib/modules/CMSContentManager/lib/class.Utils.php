@@ -54,27 +54,32 @@ final class Utils
 			$tpl_id = $tpl->get_id();
 		}
 
-		$page_prefs = [
-			'active'=>1, // boolean
-			'addteditors'=>[], // array of ints.
-			'cachable'=>1, // boolean
-			'content'=>'', // string
-			'contenttype'=>'content', // string
-			'design_id'=>CmsLayoutCollection::load_default()->get_id(), // int
-			'disallowed_types'=>'', // array of strings
-			'extra1'=>'', // string
-			'extra2'=>'', // string
-			'extra3'=>'', // string
-			'metadata'=>'', // string
-			'parent_id'=>-2, // int
-			'searchable'=>1, // boolean
-			'secure'=>0, // boolean
-			'showinmenu'=>1, // boolean
-			'template_id'=>$tpl_id,
-		];
 		$mod = cms_utils::get_module('CMSContentManager');
 		$tmp = $mod->GetPreference('page_prefs');
-		if( $tmp ) $page_prefs = unserialize($tmp);
+		if( $tmp ) {
+			$page_prefs = unserialize($tmp, ['allowed_classes'=>false]);
+		}
+		else {
+			$page_prefs = [
+			'active'=>true,
+			'addteditors'=>[], // array of ints
+			'cachable'=>true,
+			'content'=>'',
+			'contenttype'=>'content',
+			'defaultcontent'=>false,
+			'design_id'=>CmsLayoutCollection::load_default()->get_id(), // int
+			'disallowed_types'=>[], // array of strings
+			'extra1'=>'',
+			'extra2'=>'',
+			'extra3'=>'',
+			'metadata'=>'',
+			'parent_id'=>-2, // int
+			'searchable'=>true,
+			'secure'=>false,
+			'showinmenu'=>true,
+			'template_id'=>$tpl_id,
+			];
+		}
 
 		return $page_prefs;
 	}
@@ -83,13 +88,13 @@ final class Utils
 	{
 		$mod = cms_utils::get_module('CMSContentManager');
 		$timeout = (int) $mod->GetPreference('locktimeout');
-		if( $timeout > 0 ) return TRUE;
+		if( $timeout > 0 ) return true;
 		return FALSE;
 	}
 
 	public static function get_pagenav_display()
 	{
-		$userid = get_userid(FALSE);
+		$userid = get_userid(false);
 		$pref = cms_userprefs::get($userid,'ce_navdisplay');
 		if( !$pref ) {
 			$mod = cms_utils::get_module('CMSContentManager');

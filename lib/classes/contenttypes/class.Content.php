@@ -90,7 +90,14 @@ class Content extends ContentBase
 		return $this->GetPropertyValue('searchable') != 0;
 	}
 
-	public function HasSearchableContent() { return true; }
+	/**
+	 * Indicates whether this page has searchable content.
+	 * @return boolean
+	 */
+	public function HasSearchableContent()
+	{
+		return true;
+	}
 
 	/**
 	 * Indicates whether this page type uses a template.
@@ -118,7 +125,7 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * Indicates whether or not objects of this type may be made the default content object.
+	 * Indicates whether objects of this type may be made the default content object.
 	 * "Content" pages can become default.
 	 *
 	 * @return bool
@@ -137,13 +144,14 @@ class Content extends ContentBase
 	{
 		parent::SetProperties();
 		$this->AddProperty('design_id',0,self::TAB_OPTIONS);
-		$this->AddProperty('template',0,self::TAB_OPTIONS);
+//		$this->AddProperty('template',0,self::TAB_OPTIONS);
+		$this->AddProperty('template_rsrc',0,self::TAB_OPTIONS);
+		$this->AddProperty('defaultcontent',10,self::TAB_OPTIONS);
+		$this->AddProperty('wantschildren',10,self::TAB_OPTIONS);
 		$this->AddProperty('searchable',20,self::TAB_OPTIONS);
 		$this->AddProperty('disable_wysiwyg',60,self::TAB_OPTIONS);
 		$this->AddProperty('pagemetadata',1,self::TAB_LOGIC);
 		$this->AddProperty('pagedata',2,self::TAB_LOGIC);
-		$this->AddProperty('defaultcontent',10,self::TAB_OPTIONS);
-		$this->AddProperty('wantschildren',10,self::TAB_OPTIONS);
 	}
 
 	/**
@@ -157,6 +165,11 @@ class Content extends ContentBase
 		return true;
 	}
 
+	/**
+	 * Indicates whether pages of this type should have child-page(s).
+	 *
+	 * @return bool
+	 */
 	public function WantsChildren()
 	{
 		// an empty/null response defaults to true.
@@ -334,9 +347,7 @@ class Content extends ContentBase
 	}
 
 	/**
-	 * Return content blocks in the current page's templates.
-	 *
-	 * This method can only be called once per request.
+	 * Return content blocks in the current page's template.
 	 *
 	 * @access private
 	 * @internal
@@ -363,6 +374,56 @@ class Content extends ContentBase
 	}
 
 	/**
+	 * @since 2.3
+	 * #return string
+	 */
+	public function TemplateResource() : string
+	{
+		$tmp = $this->GetPropertyValue('template_rsrc');
+		if( !$tmp ) $tmp = $this->mTemplateId;
+		if( $tmp ) {
+			$num = (int) $tmp;
+			if( $num > 0 && trim($num) == $tmp ) {
+				// numeric assume design manager.
+				return "cms_template:$tmp";
+			} else {
+				return $tmp;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * @ignore
+	 * @since 2.3
+	 */
+	protected function get_template_list() : array
+	{
+		static $_list;
+		if( is_array($_list) && count($_list) ) return $_list;
+
+		$_list = null;
+		$config = cms_config::get_instance();
+		if( empty($config['page_template_list']) ) {
+			$_tpl = CmsLayoutTemplate::template_query( ['as_list'=>1] );
+			if( is_array($_tpl) && count($_tpl) > 0 ) {
+				foreach( $_tpl as $tpl_id => $tpl_name ) {
+					$_list[] = [ 'value'=>$tpl_id,'label'=>$tpl_name ];
+				}
+			}
+		}
+		else {
+			$raw = $config['page_template_list'];
+			if( is_string($raw) ) $raw = [ lang('default')=>$raw ];
+
+			foreach( $raw as $label => $rsrc ) {
+				$_list[] = [ 'label'=>$label, 'value'=>$rsrc ];
+			}
+		}
+		return $_list;
+	}
+
+	/**
 	 * Given information about a single property this method returns that property
 	 *
 	 * @param string $one The property name
@@ -375,9 +436,10 @@ class Content extends ContentBase
 		static $_designs;
 		static $_types;
 		static $_designtree;
-		static $_designlist;
+		static $_designlist = null;
 		static $_templates;
 		if( $_designlist == null ) {
+/* see get_template_list()
 			$_tpl = CmsLayoutTemplate::template_query(['as_list'=>1]);
 			if( is_array($_tpl) && count($_tpl) ) {
 				$_templates = [];
@@ -385,6 +447,7 @@ class Content extends ContentBase
 					$_templates[] = ['value'=>$tpl_id,'label'=>$tpl_name];
 				}
 			}
+*/
 			$_designlist = CmsLayoutCollection::get_list();
 		}
 
@@ -414,7 +477,7 @@ class Content extends ContentBase
 				// nothing here yet.
 			}
 			break;
-
+/*
 		case 'template':
 			try {
 				$template_id = $this->TemplateId();
@@ -430,6 +493,21 @@ class Content extends ContentBase
 				$out = CmsFormUtils::create_dropdown('template_id',$_templates,$template_id,['id'=>'template_id']);
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_template',lang('help_title_editcontent_template'));
 				return ['<label for="template_id">*'.lang('template').':</label>'.$help,$out];
+			}
+			catch( CmsException $e ) {
+				// nothing here yet.
+			}
+			break;
+*/
+		case 'template_rsrc': //TODO make this work
+			try {
+				$current = $this->GetPropertyValue('template_rsrc');
+				if( !$current ) $current = $this->TemplateId();
+				$options = $this->get_template_list();
+
+				$out = CmsFormUtils::create_dropdown('template_rsrc',$options,$current,['id'=>'template_rsrc']);
+				$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_template',lang('help_title_editcontent_template'));
+				return ['<label for="template_rsrc">*'.lang('template').':</label>'.$help,$out];
 			}
 			catch( CmsException $e ) {
 				// nothing here yet.
@@ -455,6 +533,11 @@ class Content extends ContentBase
 						'class'=>'pagesmalltextarea',
 						'value'=>$this->GetPropertyValue('pagedata'),
 					])];
+
+		case 'defaultcontent':
+			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_default',lang('help_title_content_default'));
+			return array('<label for="defaultcontent">'.lang('showinmenu').':</label>'.$help,
+				 '<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />');
 
 		case 'searchable':
 			$searchable = $this->GetPropertyValue('searchable');
@@ -510,44 +593,32 @@ class Content extends ContentBase
 	/**
 	 * @ignore
 	 */
-	private function _display_text_block(array $blockInfo, $value/*, bool $adding*/)
+	private function _display_text_block(array $blockInfo, string $value/*, bool $adding*/)
 	{
-		$ret = '';
-		$oneline = cms_to_bool($this->_get_param($blockInfo,'oneline'));
-		$required = cms_to_bool($this->_get_param($blockInfo,'required'));
-		$placeholder = trim($this->_get_param($blockInfo,'placeholder'));
-		$maxlength = (int) $this->_get_param($blockInfo,'maxlength',255);
-		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
-		if( $adminonly ) {
+		if( cms_to_bool($this->_get_param($blockInfo,'adminonly',0)) ) {
 			$uid = get_userid(false);
 			$res = UserOperations::get_instance()->UserInGroup($uid,1);
 			if( !$res ) return;
 		}
-		$adminonly = cms_to_bool(get_parameter_value($blockInfo,'adminonly',0));
-		if( $adminonly ) {
-			$uid = get_userid(false);
-			$res = UserOperations::get_instance()->UserInGroup($uid,1);
-			if( !$res ) return;
-		}
-		if( $this->Id() < 1 && empty($value) ) {
+		if( $this->Id() < 1 && $value === '' ) {
 			$value = trim($this->_get_param($blockInfo,'default'));
 		}
-		if ($oneline) {
+		$required = cms_to_bool($this->_get_param($blockInfo,'required'));
+		$placeholder = trim($this->_get_param($blockInfo,'placeholder'));
+		if( cms_to_bool($this->_get_param($blockInfo,'oneline')) ) {
 			$size = (int) $this->_get_param($blockInfo,'size',50);
+			$maxlength = (int) $this->_get_param($blockInfo,'maxlength',255);
 			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'.cms_htmlentities($value, ENT_NOQUOTES).'"';
 			if( $required ) $ret .= " required=\"required\"";
 			if( $placeholder ) $ret .= " placeholder=\"{$placeholder}\"";
 			$ret .= ' />';
 		}
 		else {
-			$block_wysiwyg = true;
-			$hide_wysiwyg = $this->GetPropertyValue('disable_wysiwyg');
-
-			if ($hide_wysiwyg) {
+			if( $this->GetPropertyValue('disable_wysiwyg') ) {
 				$block_wysiwyg = false;
 			}
 			else {
-				$block_wysiwyg = $blockInfo['usewysiwyg'] == 'false'?false:true;
+				$block_wysiwyg = cms_to_bool($blockInfo['usewysiwyg']);
 			}
 
 			$parms = [ 'name'=>$blockInfo['id'],'enablewysiwyg'=>$block_wysiwyg,'value'=>$value,'id'=>$blockInfo['id'] ];
@@ -581,8 +652,11 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
+	 * @param array $blockInfo
+	 * @param mixed $value string|null
+	 * @return mixed string|null
 	 */
-	private function _display_image_block(array $blockInfo,$value/*, bool $adding*/)
+	private function _display_image_block(array $blockInfo, $value/*, bool $adding*/)
 	{
 		$adminonly = cms_to_bool($this->_get_param($blockInfo,'adminonly',0));
 		if( $adminonly ) {
@@ -627,6 +701,11 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
+	 * @param string $blockName
+	 * @param array $blockInfo
+	 * @param mixed $value string|null
+     * @param bool   $adding    Flag indicating whether the content editor is in create mode (adding) vs. edit mode.
+	 * @return mixed
 	 */
 	private function _display_module_block(string $blockName, array $blockInfo, $value, bool $adding)
 	{
@@ -652,6 +731,11 @@ class Content extends ContentBase
 
 	/**
 	 * @ignore
+	 * @param string $blockName
+	 * @param array $blockInfo
+	 * @param mixed $value string|null
+	 * @param bool $adding Optional flag indicating whether the content editor is in create mode (adding) vs. edit mode. Default false
+	 * @return mixed
 	 */
 	private function display_content_block(string $blockName, array $blockInfo, $value, bool $adding = false)
 	{

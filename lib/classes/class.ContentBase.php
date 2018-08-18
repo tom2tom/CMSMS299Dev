@@ -607,6 +607,18 @@ abstract class ContentBase
 	}
 
 	/**
+     * Return a smarty resource string for the template assigned to this page.
+     *
+     * @since 2.3
+     * @abstract
+     * @return string
+     */
+    public function TemplateResource() : string
+    {
+        die('this method must be overridden for displayable content pages');
+    }
+
+	/**
 	 * Set the id of the template associated with this content page.
 	 *
 	 * @param int $templateid
@@ -723,7 +735,7 @@ abstract class ContentBase
 	 */
 	public function HasPreview()
 	{
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -756,7 +768,7 @@ abstract class ContentBase
 	 */
 	final public function DefaultContent()
 	{
-		if( !$this->IsDefaultPossible() ) return FALSE;
+		if( !$this->IsDefaultPossible() ) return false;
 		return $this->mDefaultContent;
 	}
 
@@ -889,7 +901,7 @@ abstract class ContentBase
 	 */
 	public function IsSearchable()
 	{
-		if( !$this->isPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage() ) return FALSE;
+		if( !$this->isPermitted() || !$this->IsViewable() || !$this->HasTemplate() || $this->IsSystemPage() ) return false;
 		return $this->HasSearchableContent();
 	}
 
@@ -918,7 +930,7 @@ abstract class ContentBase
 	 */
 	public function IsDefaultPossible()
 	{
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -1036,9 +1048,9 @@ abstract class ContentBase
 	 */
 	public function HasProperty($name)
 	{
-		if( !$name ) return FALSE;
+		if( !$name ) return false;
 		if( !is_array($this->_props) ) $this->_load_properties();
-		if( !is_array($this->_props) ) return FALSE;
+		if( !is_array($this->_props) ) return false;
 		return in_array($name,array_keys($this->_props));
 	}
 
@@ -1059,9 +1071,9 @@ abstract class ContentBase
 	 */
 	private function _load_properties() : bool
 	{
-		if( $this->mId <= 0 ) return FALSE;
+		if( $this->mId <= 0 ) return false;
 
-		$this->_props = array();
+		$this->_props = [];
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
 		$dbr = $db->GetArray($query,array((int)$this->mId));
@@ -1077,8 +1089,8 @@ abstract class ContentBase
 	 */
 	private function _save_properties() : bool
 	{
-		if( $this->mId <= 0 ) return FALSE;
-		if( !is_array($this->_props) || count($this->_props) == 0 ) return FALSE;
+		if( $this->mId <= 0 ) return false;
+		if( !is_array($this->_props) || count($this->_props) == 0 ) return false;
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT prop_name FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
@@ -1125,7 +1137,7 @@ abstract class ContentBase
 	 */
 	public function SetPropertyValueNoLoad($name, $value)
 	{
-		if( !is_array($this->_props) ) $this->_props = array();
+		if( !is_array($this->_props) ) $this->_props = [];
 		$this->_props[$name] = $value;
 	}
 
@@ -1157,11 +1169,11 @@ abstract class ContentBase
 	 * An abstract method indicating whether the content type is copyable.
 	 *
 	 * @abstract
-	 * @return bool default FALSE
+	 * @return bool default false
 	 */
 	public function IsCopyable()
 	{
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -1169,11 +1181,11 @@ abstract class ContentBase
 	 * System pages are used to handle things like 404 errors etc.
 	 *
 	 * @abstract
-	 * @return bool default FALSE
+	 * @return bool default false
 	 */
 	public function IsSystemPage()
 	{
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -1182,11 +1194,11 @@ abstract class ContentBase
 	 *
 	 * @since 2.0
 	 * @abstract
-	 * @return bool default FALSE
+	 * @return bool default false
 	 */
 	public function HasTemplate()
 	{
-		return FALSE;
+		return false;
 	}
 
 	/************************************************************************/
@@ -1200,7 +1212,7 @@ abstract class ContentBase
 	 * There is no check on the data provided, because this is the job of
 	 * ValidateData
 	 *
-	 * Upon failure the object comes back to initial values and returns FALSE
+	 * Upon failure the object comes back to initial values and returns false
 	 *
 	 * @param array $data Data as loaded from the database
 	 * @param bool  $loadProperties Optionally load content properties at the same time.
@@ -1264,7 +1276,7 @@ abstract class ContentBase
 		$out['content_id'] = $this->mId;
 		$out['content_name'] = $this->mName;
 		$out['create_date'] = $this->mCreationDate;
-		$out['default_content'] = ($this->mActive)?1:0;
+		$out['default_content'] = ($this->mDefaultContent)?1:0;
 		$out['has_usable_link'] = $this->HasUsableLink();
 		$out['hierarchy'] = $this->mHierarchy;
 		$out['hierarchy_path'] = $this->mHierarchyPath;
@@ -1509,7 +1521,7 @@ abstract class ContentBase
 	 * That's up to Save to check this.
 	 *
 	 * @abstract
-	 * @returns	mixed On error returns an array of strings, otherwise FALSE
+	 * @returns	mixed On error returns an array of strings, otherwise false
 	 */
 	public function ValidateData()
 	{
@@ -1544,7 +1556,7 @@ abstract class ContentBase
 			if ($this->mAlias != $this->mOldAlias || ($this->mAlias == '' && $this->RequiresAlias()) ) {
 				$contentops = ContentOperations::get_instance();
 				$error = $contentops->CheckAliasError($this->mAlias, $this->mId);
-				if ($error !== FALSE) {
+				if ($error !== false) {
 					$errors[] = $error;
 					$result = false;
 				}
@@ -1604,7 +1616,7 @@ abstract class ContentBase
 			}
 		}
 
-		return (count($errors) > 0?$errors:FALSE);
+		return (count($errors) > 0?$errors:false);
 	}
 
 
@@ -1741,7 +1753,7 @@ abstract class ContentBase
 
 		// additional editors
 		if (isset($params["additional_editors"])) {
-			$addtarray = array();
+			$addtarray = [];
 			if( is_array($params['additional_editors']) ) {
 				foreach ($params["additional_editors"] as $addt_user_id) {
 					$addtarray[] = (int) $addt_user_id;
@@ -1919,7 +1931,7 @@ abstract class ContentBase
 	public function GetTabNames()
 	{
 		$props = $this->_GetEditableProperties();
-		$arr = array();
+		$arr = [];
 		foreach( $props as $one ) {
 			if( !isset($one->tab) || $one->tab == '' ) $one->tab = self::TAB_MAIN;
 			$key = $lbl = $one->tab;
@@ -1950,13 +1962,13 @@ abstract class ContentBase
 	 * Get the elements for a specific tab.
 	 *
 	 * @param string $key tab key
-	 * @param bool   $adding  Whether this is an add or edit operation.
+	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
 	 * @return array An array of arrays.  Index 0 of each element should be a prompt field, and index 1 should be the input field for the prompt.
 	 */
-	public function GetTabElements($key, $adding = FALSE)
+	public function GetTabElements($key, $adding = false)
 	{
 		$props = $this->_GetEditableProperties();
-		$out = array();
+		$out = [];
 		foreach( $props as $one ) {
 			if( !isset($one->tab) || $one->tab == '' ) $one->tab = self::TAB_MAIN;
 			if( $key != $one->tab ) continue;
@@ -1968,7 +1980,7 @@ abstract class ContentBase
 	/**
 	 * Method to indicate whether the current page has children.
 	 *
-	 * @param bool $activeonly Should we test only for active children.
+	 * @param bool $activeonly Optional flag whether to test only for active children. Default false.
 	 * @return bool
 	 */
 	public function HasChildren($activeonly = false)
@@ -1998,7 +2010,7 @@ abstract class ContentBase
 	{
 		if (!isset($this->mAdditionalEditors)) {
 			$db = CmsApp::get_instance()->GetDb();
-			$this->mAdditionalEditors = array();
+			$this->mAdditionalEditors = [];
 
 			$query = "SELECT user_id FROM ".CMS_DB_PREFIX."additional_users WHERE content_id = ?";
 			$dbresult = $db->Execute($query,array($this->mId));
@@ -2032,7 +2044,7 @@ abstract class ContentBase
 	 */
 	static public function GetAdditionalEditorOptions()
 	{
-		$opts = array();
+		$opts = [];
 		$userops = UserOperations::get_instance();
 		$groupops = GroupOperations::get_instance();
 		$allusers = $userops->LoadUsers();
@@ -2087,7 +2099,7 @@ abstract class ContentBase
 	 */
 	public function ShowAdditionalEditors($addteditors = null)
 	{
-		$ret = array();
+		$ret = [];
 		if( ! $addteditors ) $addteditors = $this->GetAdditionalEditors();
 		return self::GetAdditionalEditorInput($addteditors,$this->Owner());
 	}
@@ -2100,7 +2112,7 @@ abstract class ContentBase
 	 */
 	private function _handleRemovedBaseProperty(string $name, string $member) : bool
 	{
-		if( !is_array($this->_attributes) ) return FALSE;
+		if( !is_array($this->_attributes) ) return false;
 		$fnd = false;
 		foreach( $this->_attributes as $attr ) {
 			if( $attr->name == $name ) {
@@ -2114,7 +2126,7 @@ abstract class ContentBase
 				return TRUE;
 			}
 		}
-		return FALSE;
+		return false;
 	}
 
 	/**
@@ -2148,7 +2160,7 @@ abstract class ContentBase
 	 * @param bool $required (whether the property is required)
 	 * @param bool $basic Whether or not the property is a basic property (editable by even restricted editors)
 	 */
-	protected function AddProperty($name, $priority, $tab = self::TAB_MAIN, $required = FALSE, $basic = FALSE)
+	protected function AddProperty($name, $priority, $tab = self::TAB_MAIN, $required = false, $basic = false)
 	{
 		$ob = new stdClass;
 		$ob->name = (string) $name;
@@ -2157,7 +2169,7 @@ abstract class ContentBase
 		$ob->required = (bool) $required;
 		$ob->basic = $basic;
 
-		if( !is_array($this->_attributes) ) $this->_attributes = array();
+		if( !is_array($this->_attributes) ) $this->_attributes = [];
 		$this->_attributes[] = $ob;
 	}
 
@@ -2165,7 +2177,7 @@ abstract class ContentBase
 	 * Get all of the properties for this content object.  independent of whether the user is entitled to view them, or not.
 	 *
 	 * @since 2.0
-	 * @return array of stdclass objects
+	 * @return array of stdClass objects
 	 */
 	public function GetProperties()
 	{
@@ -2184,11 +2196,11 @@ abstract class ContentBase
 	 */
 	protected function AddBaseProperty($name, $priority, $is_required = false)
 	{
-		$this->AddProperty($name,$priority,self::TAB_OPTIONS,$is_required);
+		$this->AddProperty($name,$priority,self::TAB_MAIN,$is_required);
 	}
 
 	/**
-	 * Alias for AddBaseProperty.
+	 * Alias for AddBaseProperty, AddProperty.
 	 *
 	 * @param string $name
 	 * @param int    $priority
@@ -2197,7 +2209,7 @@ abstract class ContentBase
 	 */
 	protected function AddContentProperty($name, $priority, $is_required = false)
 	{
-		return $this->AddProperty($name,$priority,self::TAB_OPTIONS,$is_required);
+		return $this->AddProperty($name,$priority,self::TAB_MAIN,$is_required);
 	}
 
 	/**
@@ -2237,11 +2249,6 @@ abstract class ContentBase
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_parent',lang('help_title_content_parent'));
 			if( !empty($tmp) ) return array('<label for="parent_id">*'.lang('parent').':</label>'.$help,$tmp);
 			break;
-
-		case 'defaultcontent':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_default',lang('help_title_content_default'));
-			return array('<label for="defaultcontent">'.lang('showinmenu').':</label>'.$help,
-				 '<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />');
 
 		case 'active':
 			if( !$this->DefaultContent() ) {
@@ -2295,7 +2302,7 @@ abstract class ContentBase
 			else {
 				$input = create_file_dropdown('image',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
 			}
-			if( !$input ) return FALSE;
+			if( !$input ) return false;
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_image',lang('help_title_content_image'));
 			return array('<label for="image">'.lang('image').':</label>'.$help,$input);
 
@@ -2311,7 +2318,7 @@ abstract class ContentBase
 			else {
 				$input = create_file_dropdown('thumbnail',$dir,$data,'jpg,jpeg,png,gif','',true,'','thumb_',0,1);
 			}
-			if( !$input ) return FALSE;
+			if( !$input ) return false;
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_thumbnail',lang('help_title_content_thumbnail'));
 			return array('<label for="thumbnail">'.lang('thumbnail').':</label>'.$help,$input);
 
@@ -2323,7 +2330,7 @@ abstract class ContentBase
 		case 'accesskey':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_accesskey',lang('help_title_content_accesskey'));
 			return array('<label for="accesskey">'.lang('accesskey').':</label>'.$help,
-						 '<input type="text" name=accesskey" id="accesskey" maxlength="5" value="'.cms_htmlentities($this->mAccessKey).'" />');
+						 '<input type="text" name="accesskey" id="accesskey" maxlength="5" value="'.cms_htmlentities($this->mAccessKey).'" />');
 
 		case 'tabindex':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_tabindex',lang('help_title_content_tabindex'));

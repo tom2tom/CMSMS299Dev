@@ -18,6 +18,7 @@
 
 namespace CMSMS\contenttypes;
 
+use CMSMS\ContentBase;
 use function check_permission;
 use function get_userid;
 use function lang;
@@ -31,14 +32,19 @@ use function lang;
  * @subpackage content_types
  * @license GPL
  */
-class SectionHeader extends \CMSMS\ContentBase
+class SectionHeader extends ContentBase
 {
-	function FriendlyName() { return lang('contenttype_sectionheader'); }
+	public function FriendlyName() { return lang('contenttype_sectionheader'); }
+	public function GetURL($rewrite = true) { return '#'; }
+	public function HasSearchableContent() { return false; }
+	public function HasUsableLink() { return false; }
+	public function IsViewable() { return false; }
+	public function RequiresAlias() { return true; }
 
-	function SetProperties()
+	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->RemoveProperty('secure',0);
+		$this->RemoveProperty('secure',false);
 		$this->RemoveProperty('accesskey','');
 		$this->RemoveProperty('cachable',true);
 		$this->RemoveProperty('target','');
@@ -49,13 +55,7 @@ class SectionHeader extends \CMSMS\ContentBase
 		$this->mCachable = false;
 	}
 
-	public function HasUsableLink() { return false; }
-	public function RequiresAlias() { return true; }
-	public function HasSearchableContent() { return false; }
-	public function GetURL($rewrite = true) { return '#'; }
-	public function IsViewable() { return false; }
-
-	function TabNames()
+	public function TabNames()
 	{
 		$res = [lang('main')];
 		if( check_permission(get_userid(),'Manage All Content') ) {
@@ -64,7 +64,7 @@ class SectionHeader extends \CMSMS\ContentBase
 		return $res;
 	}
 
-	function EditAsArray($adding = false, $tab = 0, $showadmin = false)
+	public function EditAsArray($adding = false, $tab = 0, $showadmin = false)
 	{
 		switch($tab) {
 		case '0':
@@ -76,7 +76,12 @@ class SectionHeader extends \CMSMS\ContentBase
 		}
 	}
 
-	function ValidateData()
+	public function TemplateResource() : string
+	{
+		return ''; //TODO
+	}
+
+	public function ValidateData()
 	{
 		$res = parent::ValidateData();
 		if( is_array($res) && $this->mId < 1 ) {
