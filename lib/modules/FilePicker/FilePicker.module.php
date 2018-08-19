@@ -25,8 +25,6 @@ use FilePicker\ProfileDAO;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
-require_once(__DIR__.'/lib/class.ProfileDAO.php');
-
 final class FilePicker extends CMSModule implements FilePickerIFace
 {
     protected $_dao;
@@ -97,6 +95,7 @@ final class FilePicker extends CMSModule implements FilePickerIFace
 //]]>
 </script>
 <script type="text/javascript" src="{$url2}/lib/js/jquery.cmsms_filepicker.js"></script>
+
 EOS;
         return $out;
     }
@@ -152,6 +151,10 @@ EOS;
         return $profile;
     }
 
+    /**
+     * Generate url which initiates this module's filepicker action
+     * @return string
+     */
     public function get_browser_url()
     {
         return $this->create_url('m1_','filepicker');
@@ -214,6 +217,7 @@ $(document).ready(function() {
   title: '$title',
   param_sig: '$sig',
   required: $req,
+  btn_label: '$title',
   remove_label: '$s1',
   remove_title: '$s1'
  });
