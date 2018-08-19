@@ -4419,7 +4419,7 @@ hr.separator - To style the ruler for the separator *}
 {extends file='cms_template:Simplex'}
 
 {block name='top' append}
-  {$sidebar_image="{content_image block='sidebar_image' label='Sidebar image' urlonly=true}" scope=global}
+  {$sidebar_image="{content_image block='sidebar_image' label='Sidebar Image:' urlonly=true}" scope=global}
 {/block}
 
 {block name='sidebar'}
