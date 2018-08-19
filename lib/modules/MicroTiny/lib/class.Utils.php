@@ -91,7 +91,6 @@ class Utils
 			$first_time = false;
 			//this doesn't like relocation into a merged-scripts file
 			$output = '<script type="text/javascript" src="'.$mod->GetModuleURLPath().'/lib/js/tinymce/tinymce.min.js"></script>'."\n";
-			$output .= '<script type="text/javascript" src="'.CMS_ROOT_URL.'/lib/modules/FilePicker/lib/js/jquery.cmsms_filepicker.js"></script>'."\n";
 		} else {
 			$output = '';
 		}
