@@ -18,27 +18,28 @@
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 $data = [];
-$data['lang_title_help'] = lang('help');
+$data['admin_url'] = $config['admin_url'];
+$data['ajax_alerts_url'] = $config['admin_url'].'/ajax_alerts.php'.$urlext;
+$data['ajax_help_url'] = $config['admin_url'].'/ajax_help.php'.$urlext;
 $data['lang_alert'] = lang('alert');
-$data['lang_error'] = lang('error');
-$data['lang_ok'] = lang('ok');
-$data['lang_gotit'] = lang('gotit');
 $data['lang_cancel'] = lang('cancel');
-$data['lang_confirm'] = lang('confirm');
+$data['lang_choose'] = lang('choose'); //filepicker-specific
 $data['lang_close'] = lang('close');
-$data['lang_yes'] = lang('yes');
+$data['lang_confirm'] = lang('confirm');
+$data['lang_disabled'] = lang('disabled');
+$data['lang_error'] = lang('error');
+$data['lang_gotit'] = lang('gotit');
+$data['lang_largeupload'] = lang('upload_largeupload');
 $data['lang_no'] = lang('no');
 $data['lang_none'] = lang('none');
-$data['lang_disabled'] = lang('disabled');
-$data['lang_choose'] = lang('choose');
-$data['lang_largeupload'] = lang('upload_largeupload');
+$data['lang_ok'] = lang('ok');
+$data['lang_select_file'] = lang('select_file'); //filepicker-specific
+$data['lang_title_help'] = lang('help');
+$data['lang_yes'] = lang('yes');
 $data['max_upload_size'] = $config['max_upload_size'];
-$data['admin_url'] = $config['admin_url'];
 $data['root_url'] = $config['root_url'];
-$data['uploads_url'] = $config['uploads_url'];
-$data['ajax_help_url'] = $config['admin_url'].'/ajax_help.php'.$urlext;
-$data['ajax_alerts_url'] = $config['admin_url'].'/ajax_alerts.php'.$urlext;
 $data['secure_param_name'] = CMS_SECURE_PARAM_NAME;
+$data['uploads_url'] = $config['uploads_url'];
 $data['user_key'] = $_SESSION[CMS_USER_KEY];
 
 $c = count($data) - 1; // special-case the last member
