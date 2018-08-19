@@ -49,7 +49,7 @@ $lang['error_nopage'] = 'No page alias selected';
 $lang['example'] = 'Example';
 
 // F
-$lang['filepickertitle'] = 'CMSMS File picker';
+$lang['filepickertitle'] = 'CMSMS File Picker';
 $lang['friendlyname'] = 'MicroTiny Editor';
 $lang['fileview'] = 'File View';
 $lang['filename'] = 'File Name';
@@ -206,31 +206,31 @@ $lang['none'] = 'None';
 $lang['ok'] = 'Ok';
 
 // P
-$lang['prompt_linker'] = 'Enter Page title';
-$lang['prompt_linktext'] = 'Link Text';
-$lang['prompt_profiles'] = 'Profiles';
-$lang['prompt_selectedalias'] = 'Selected Page alias';
-$lang['profiledesc___admin__'] = 'This profile is used by all users who are authorized to use this editor, and have chosen this editor as their WYSIWYG editor';
-$lang['profiledesc___frontend__'] = 'This profile is used for all frontend requests where this WYSIWYG editor is allowed';
 $lang['profile_admin'] = 'Admin Editors';
 $lang['profile_allowcssoverride'] = 'Allow blocks to override the selected stylesheet';
 $lang['profile_allowimages'] = 'Allow images';
 $lang['profile_allowresize'] = 'Allow resize';
 $lang['profile_allowtables'] = 'Allow tables';
 $lang['profile_dfltstylesheet'] = 'Stylesheet for editor';
-$lang['profile_frontend'] = 'Frontend Editors';
+$lang['profile_frontend'] = 'Frontend editors';
 $lang['profile_label'] = 'Label';
-$lang['profile_name'] = 'Profile name';
 $lang['profile_menubar'] = 'Show menubar';
+$lang['profile_name'] = 'Profile name';
 $lang['profile_showstatusbar'] = 'Show statusbar';
+$lang['profiledesc___admin__'] = 'This profile is used by all users who are authorized to use this editor, and have chosen this editor as their WYSIWYG editor';
+$lang['profiledesc___frontend__'] = 'This profile is used for all frontend requests where this WYSIWYG editor is allowed';
+$lang['prompt_anchortext'] = 'Anchor Text';
+$lang['prompt_class'] = 'Class Attribute';
+$lang['prompt_email'] = 'Email Address';
+$lang['prompt_insertmailto'] = 'Insert/edit an Email Link';
+$lang['prompt_linker'] = 'Enter Page title';
+$lang['prompt_linktext'] = 'Link Text';
 $lang['prompt_name'] = 'Name';
+$lang['prompt_profiles'] = 'Profiles';
+$lang['prompt_rel'] = 'Rel Attribute';
+$lang['prompt_selectedalias'] = 'Selected Page Alias';
 $lang['prompt_target'] = 'Target';
-$lang['prompt_class'] = 'Class attribute';
-$lang['prompt_email'] = 'Email address';
-$lang['prompt_insertmailto'] = 'Insert/edit a mail link';
-$lang['prompt_anchortext'] = 'Anchor text';
-$lang['prompt_rel'] = 'Rel attribute';
-$lang['prompt_texttodisplay'] = 'Text to display';
+$lang['prompt_texttodisplay'] = 'Text to Display';
 
 // S
 $lang['savesettings'] = 'Save settings';
@@ -250,7 +250,7 @@ $lang['switchreset'] = 'Show all';
 // T
 $lang['tooltip_selectedalias'] = 'This field is read only';
 $lang['title_cmsms_linker'] = 'Create a link to a CMSMS content page';
-$lang['title_cmsms_filebrowser'] = 'Select a file';
+$lang['title_cmsms_filebrowser'] = 'Select a File';
 $lang['title_edit_profile'] = 'Edit profile';
 $lang['tmpnotwritable'] = 'The configuration could not be written to the tmp directory! Please fix this...';
 $lang['tab_general_title'] = 'General';
@@ -269,5 +269,3 @@ $lang['view_source'] = 'View Source';
 
 // Y
 $lang['youareintext'] = 'Current Directory';
-
-?>
