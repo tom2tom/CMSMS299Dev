@@ -110,12 +110,12 @@ class Utils
 	}
 
 	/**
-	 * Generate a tinymce initialization file.
+	 * Generate tinymce initialization javascript.
 	 *
-	 * @param bool  $frontend Optional flag
-	 * @param mixed $selector Optional
-	 * @param mixed $css_name	Optional
-	 * @param string $languageid Optional
+	 * @param bool  $frontend Optional flag Default false
+	 * @param mixed $selector Optional Default ''
+	 * @param mixed $css_name	Optional Default ''
+	 * @param string $languageid Optional Default 'en'
 	 * @return string
 	 */
 	private static function _generate_config(bool $frontend=false, string $selector='', string $css_name='', string $languageid='en') : string
@@ -135,35 +135,151 @@ class Utils
 			die($e->Getmessage());
 		}
 
+		if( !$selector ) $selector = 'textarea.MicroTiny';
+		$root_url = CMS_ROOT_URL;
+
+		$resize = ($profile['allowresize']) ? 'true' : 'false';
+		$status = ($profile['showstatusbar']) ? 'true' : 'false';
+		$menu = ($profile['menubar']) ? 'true' : 'false';
+		$image1 = ($profile['allowimages']) ? ' | image' : '';
+		$image2 = ($profile['allowimages']) ? ' media image' : '';
+        $table = ($profile['allowtables']) ? ' table' : '';
+
 		$mod = cms_utils::get_module('MicroTiny');
 		$_gCms = CmsApp::get_instance();
 		$smarty = $_gCms->GetSmarty();
 		$page_id = ($_gCms->is_frontend_request()) ? $smarty->getTemplateVars('content_id') : '';
-		$tpl_ob = $smarty->CreateTemplate('module_file_tpl:MicroTiny;tinymce_configjs.tpl',null,null,$smarty); // child of the global smarty
-		$tpl_ob->clearAssign('mt_profile')
-		  ->clearAssign('mt_selector')
-		  ->assign('mod',$mod)
-		  ->assign('mt_actionid','m1_')
-		  ->assign('isfrontend',$frontend)
-		  ->assign('languageid',$languageid)
-		  ->assign('root_url',CMS_ROOT_URL);
+		$url = $mod->create_url('m1_','linker',$page_id);
+		$linker_url = $ajax_url($url);
+		$url = $mod->create_url('m1_','ajax_getpages',$page_id);
+		$getpages_url = $ajax_url($url);
+
+		$js = <<<EOS
+// microtiny data
+var cmsms_tiny = {
+ base_url: '{$root_url}/',
+ filebrowser_title: '{$mod->Lang("title_cmsms_filebrowser")}',
+
+EOS;
 		$fp = cms_utils::get_filepicker_module();
 		if( $fp ) {
 			$url = $fp->get_browser_url();
-			$tpl_ob->assign('filepicker_url',$ajax_url($url));
+			$filepicker_url = $ajax_url($url);
+			$js .= <<<EOS
+ filepicker_title: '{$mod->Lang("filepickertitle")}',
+ filepicker_url: '{$filepicker_url}&field=',
+
+EOS;
 		}
-		else
-			$tpl_ob->assign('filepicker_url',null);
-		$url = $mod->create_url('m1_','linker',$page_id);
-		$tpl_ob->assign('linker_url',$ajax_url($url));
-		$url = $mod->create_url('m1_','ajax_getpages',$page_id);
-		$tpl_ob->assign('getpages_url',$ajax_url($url));
-		if( $selector ) $tpl_ob->assign('mt_selector',$selector);
-		else $tpl_ob->assign('mt_selector',null);
-		$tpl_ob->assign('mt_profile',$profile);
-		if( $css_name ) $tpl_ob->assign('mt_cssname',$css_name);
-		else $tpl_ob->assign('mt_cssname',null);
-		return $tpl_ob->fetch();
+		$js .= <<<EOS
+ linker_autocomplete_url: '{$getpages_url}',
+ linker_image: '{$mod->GetModuleURLPath()}/lib/images/cmsmslink.gif',
+ linker_text: '{$mod->Lang("cmsms_linker")}',
+ linker_title: '{$mod->Lang("title_cmsms_linker")}',
+ linker_url: '{$linker_url}',
+ loading_info: '{$mod->Lang("loading_info")}',
+ mailto_image: '{$mod->GetModuleURLPath()}/lib/images/mailto.gif',
+ mailto_text: '{$mod->Lang("mailto_text")}',
+ mailto_title: '{$mod->Lang("mailto_image")}',
+ menubar: $menu,
+ prompt_alias: '{$mod->Lang("prompt_selectedalias")}',
+ prompt_alias_info : '{$mod->Lang("tooltip_selectedalias")}',
+ prompt_anchortext: '{$mod->Lang("prompt_anchortext")}',
+ prompt_class: '{$mod->Lang("prompt_class")}',
+ prompt_email: '{$mod->Lang("prompt_email")}',
+ prompt_insertmailto: '{$mod->Lang("prompt_insertmailto")}',
+ prompt_linktext: '{$mod->Lang("prompt_linktext")}',
+ prompt_page: '{$mod->Lang("prompt_linker")}',
+ prompt_page_info: '{$mod->Lang("info_linker_autocomplete")}',
+ prompt_rel: '{$mod->Lang("prompt_rel")}',
+ prompt_target: '{$mod->Lang("prompt_target")}',
+ prompt_text: '{$mod->Lang("prompt_texttodisplay")}',
+ resize: $resize,
+ schema: 'html5',
+ statusbar: $status,
+ tab_advanced: '{$mod->Lang("tab_advanced_title")}',
+ tab_general: '{$mod->Lang("tab_general_title")}',
+ target_new_window: '{$mod->Lang("newwindow")}',
+ target_none: '{$mod->Lang("none")}'
+};
+
+// tinymce initialization
+tinymce.init({
+ browser_spellcheck: true,
+ document_base_url: cmsms_tiny.base_url,
+ image_title: true,
+ language: '$languageid',
+ menubar: cmsms_tiny.menubar,
+ mysamplesetting: 'foobar',
+ paste_as_text: true,
+ relative_urls: true,
+ removed_menuitems: 'newdocument',
+ resize: cmsms_tiny.resize,
+ selector: '$selector',
+ statusbar: cmsms_tiny.statusbar,
+ // smarty logic stuff
+
+EOS;
+
+		if ($css_name !== '') {
+			$js .= <<<EOS
+ content_css: '{cms_stylesheet name=$css_name nolinks=1}',
+
+EOS;
+		}
+		if ($frontend) {
+			$js .= <<<EOS
+ toolbar: 'undo | bold italic underline | alignleft aligncenter alignright alignjustify indent outdent | bullist numlist | link mailto{$image1}',
+ plugins: ['tabfocus hr autolink paste link mailto anchor wordcount lists{$image2}{$table}'],
+
+EOS;
+		} else {
+			$js .= <<<EOS
+ image_advtab: true,
+ toolbar: 'undo redo | cut copy paste | styleselect | bold italic underline | alignleft aligncenter alignright alignjustify indent outdent | bullist numlist | anchor link mailto unlink cmsms_linker{$image1}',
+ plugins: ['tabfocus hr paste autolink link lists mailto cmsms_linker charmap anchor searchreplace wordcount code fullscreen insertdatetime{$table}{$image2} cmsms_filepicker'],
+
+EOS;
+		}
+		// callback functions
+		$js .= <<<EOS
+ urlconverter_callback: function(url, elm, onsave, name) {
+  var self = this;
+  var settings = self.settings;
+
+  if (!settings.convert_urls || ( elm && elm.nodeName == 'LINK' ) || url.indexOf('file:') === 0 || url.length === 0) {
+    return url;
+  }
+
+  // fix entities in cms_selflink urls
+  if (url.indexOf('cms_selflink') != -1) {
+    decodeURI(url);
+    url = url.replace('%20', ' ');
+    return url;
+  }
+  // Convert to relative
+  if (settings.relative_urls) {
+    return self.documentBaseURI.toRelative(url);
+  }
+  // Convert to absolute
+  url = self.documentBaseURI.toAbsolute(url, settings.remove_script_host);
+
+  return url;
+ },
+ setup: function(editor) {
+  editor.addMenuItem('mailto', {
+   text: cmsms_tiny.prompt_insertmailto,
+   cmd:  'mailto',
+   context: 'insert'
+  });
+  editor.on('change', function(e) {
+   $(document).trigger('cmsms_formchange');
+  });
+ }
+});
+
+EOS;
+		return $js;
 	}
 
 	/**
