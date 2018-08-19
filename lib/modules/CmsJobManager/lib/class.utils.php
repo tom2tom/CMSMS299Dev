@@ -6,37 +6,51 @@
 
 namespace CmsJobManager;
 
+use cms_utils;
+use CmsJobManager;
+use CMSMS\Async\CronJobInterface;
+use CMSMS\Async\Job;
+use CMSMS\ModuleOperations;
+use const TMP_CACHE_LOCATION;
+use function debug_to_log;
+
 final class utils
 {
 //    public function __construct() {}
 
-    public static function get_async_freq()
+    public static function get_async_freq() : int
     {
-        $mod = \ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
+        $mod = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
         $minutes = (int) $mod->GetPreference('jobinterval');
         $minutes = max(1, $minutes);
         $minutes = min(10, $minutes);
         return $minutes * 60; // seconds
     }
-
-    public static function job_recurs(\CMSMS\Async\Job $job)
+	/**
+	 * @param Job $job
+	 * @return bool
+	 */
+    public static function job_recurs(Job $job) : bool
     {
-        if ($job instanceof \CMSMS\Async\CronJobInterface) {
+        if ($job instanceof CronJobInterface) {
             return $job->frequency != $job::RECUR_NONE;
         }
         return false;
     }
 
-    public static function calculate_next_start_time(\CMSMS\Async\CronJob $job)
+	/**
+	 * @param Job $job
+	 * @return mixed int|null
+	 */
+    public static function calculate_next_start_time(Job $job)
     {
-        $out = null;
-        $now = time();
         if (!self::job_recurs($job)) {
-            return $out;
+            return null;
         }
+        $now = time();
         switch ($job->frequency) {
         case $job::RECUR_NONE:
-            return $out;
+            return null;
         case $job::RECUR_15M:
             $out = $now + 15 * 60;
             break;
@@ -70,8 +84,7 @@ final class utils
 
     public static function process_errors()
     {
-        $fn = md5(__FILE__).'.err';
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.$fn;
+        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.md5(__FILE__).'.err';
         if (!is_file($fn)) {
             return;
         }
@@ -99,23 +112,30 @@ final class utils
         }
 
         // have jobs to increase error count on.
-        $db = \cms_utils::get_db();
+        $db = cms_utils::get_db();
         $sql = 'UPDATE '.CmsJobManager::table_name().' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
         $db->Execute($sql);
         debug_to_log('Increased error count on '.count($job_ids).' jobs ');
     }
 
+	/**
+	 * @param type $job_id
+	 */
     public static function put_error($job_id)
     {
-        $fn = md5(__FILE__).'.err';
-        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.$fn;
+        $fn = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.md5(__FILE__).'.err';
         $fh = fopen($fn, 'a');
         fwrite($fh, $job_id."\n");
         fclose($fh);
     }
 
-    // no access to the database here.
-    public static function joberrorhandler($job, $errmsg, $errfile, $errline)
+	/**
+	 * @param mixed $job
+	 * @param string $errmsg
+	 * @param string $errfile
+	 * @param string $errline
+	 */
+    public static function joberrorhandler($job, string $errmsg, string $errfile, string $errline)
     {
         debug_to_log('Fatal error occurred processing async jobs at: '.$errfile.':'.$errline);
         debug_to_log('Msg: '.$errmsg);
@@ -135,7 +155,7 @@ final class utils
         if ($err['type'] != E_ERROR) {
             return;
         }
-        $mod = \ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
+        $mod = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
         $job = $mod->get_current_job();
         if ($job) {
             self::joberrorhandler($job, $err['message'], $err['file'], $err['line']);
