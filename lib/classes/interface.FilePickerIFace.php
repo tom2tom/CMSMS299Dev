@@ -25,7 +25,7 @@ namespace CMSMS;
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since  2.2
  */
-interface FilePicker
+interface FilePickerIFace
 {
     /**
      * Given a profile name and other data, return a suitable profile by name, or return a default profile
