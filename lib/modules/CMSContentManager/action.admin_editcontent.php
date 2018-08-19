@@ -51,7 +51,7 @@ try {
             $this->RedirectToAdminTab();
         }
     }
-    else if( !$this->CanEditContent($content_id) ) {
+    elseif( !$this->CanEditContent($content_id) ) {
         // nope, can't edit this page anyways.
         $this->SetError($this->Lang('error_editpage_permission'));
         $this->RedirectToAdminTab();
@@ -172,7 +172,7 @@ try {
             }
             // error, but no ajax... fall through
         }
-        else if( isset($params['submit']) || isset($params['apply']) ) {
+        elseif( isset($params['submit']) || isset($params['apply']) ) {
             $content_obj->SetLastModifiedBy(get_userid());
             $content_obj->Save();
             if( ! $was_defaultcontent && $content_obj->DefaultContent() ) {
@@ -191,7 +191,7 @@ try {
                 exit;
             }
         }
-        else if( isset($params['preview']) && $content_obj->HasPreview() ) {
+        elseif( isset($params['preview']) && $content_obj->HasPreview() ) {
             $_SESSION['__cms_preview__'] = serialize($content_obj);
             $_SESSION['__cms_preview_type__'] = $content_type;
             debug_to_log($_SESSION,'before preview');
@@ -200,12 +200,12 @@ try {
     }
 }
 catch( CmsEditContentException $e ) {
-    /*
+/*
     if( isset($params['submit']) ) {
         $this->SetError($e->getMessage());
         $this->RedirectToAdminTab();
     };
-    */
+*/
     $error = $e->GetMessage();
     if( isset($params['ajax']) ) {
         $tmp = ['response'=>'Error','details'=>$error];
@@ -305,7 +305,8 @@ if( $content_obj->HasPreview() ) {
     $preview_url = $config['root_url'].'/index.php?'.$config['query_var'].'='.__CMS_PREVIEW_PAGE__;
     $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
     $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
-} else {
+}
+else {
     $preview_url = '';
     $preview_ajax_url = '';
 }
@@ -313,7 +314,8 @@ if( $content_obj->HasPreview() ) {
 if( $this->GetPreference('template_list_mode','designpage') != 'all')  {
     $tmp = $this->create_url($id,'admin_ajax_gettemplates',$returnid);
     $designchanged_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
-} else {
+}
+else {
     $designchanged_ajax_url = '';
 }
 
@@ -355,7 +357,7 @@ $(document).ready(function() {
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
-        cms_alert({$this->Lang("lockerror")}: ' + err.type + ' -- ' + err.msg);
+        cms_alert('{$this->Lang("lockerror")}: ' + err.type + ' -- ' + err.msg);
       },
       lostlock_handler: function(err) {
       // we lost the lock on this content... make sure we can't save anything.
@@ -503,6 +505,7 @@ if ($designchanged_ajax_url) {
         var fnd = false;
         var first = null;
         for (var key in data) {
+          if (!data.hasOwnProperty(key)) continue;
           if (first === null) first = key;
           if (key == sel) fnd = true;
         }
@@ -513,6 +516,7 @@ if ($designchanged_ajax_url) {
           $('#template_id').val('');
           $('#template_id').empty();
           for (key in data) {
+            if (!data.hasOwnProperty(key)) continue;
             $('#template_id').append('<option value="' + key + '">' + data[key] + '</option>');
           }
           if (fnd) {
@@ -542,12 +546,12 @@ EOS;
 EOS;
 $this->AdminBottomContent($js);
 
-$smarty->assign('active_tab',$active_tab);
-$smarty->assign('content_id',$content_id);
-$smarty->assign('content_obj',$content_obj);
-$smarty->assign('tab_names',$tab_names);
-$smarty->assign('tab_contents_array',$tab_contents_array);
-$smarty->assign('tab_message_array',$tab_message_array);
+$smarty->assign('active_tab',$active_tab)
+ ->assign('content_id',$content_id)
+ ->assign('content_obj',$content_obj)
+ ->assign('tab_names',$tab_names)
+ ->assign('tab_contents_array',$tab_contents_array)
+ ->assign('tab_message_array',$tab_message_array);
 /*$factory = new ContentAssistantFactory($content_obj);
   $assistant = $factory->getEditContentAssistant(); */
 /* if( is_object($assistant) ) $smarty->assign('extra_content',$assistant->getExtraCode()); */
