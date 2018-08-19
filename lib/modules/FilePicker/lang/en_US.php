@@ -45,13 +45,13 @@ $lang['perm_x'] = 'exec';
 $lang['perm_xf'] = 'enter';
 
 // S
-$lang['select_an_audio_file'] = 'Select an audio file';
-$lang['select_a_video_file'] = 'Select a video file';
-$lang['select_a_media_file'] = 'Select a media file';
-$lang['select_a_document'] = 'Select a document';
-$lang['select_an_archive_file'] = 'Select an archive file';
-$lang['select_a_file'] = 'Select a file';
-$lang['select_an_image'] = 'Select an image';
+$lang['select_an_audio_file'] = 'Select an Audio File';
+$lang['select_a_video_file'] = 'Select a Video File';
+$lang['select_a_media_file'] = 'Select a Media File';
+$lang['select_a_document'] = 'Select a Document';
+$lang['select_an_archive_file'] = 'Select an Archive File';
+$lang['select_a_file'] = 'Select a File';
+$lang['select_an_image'] = 'Select an Image';
 $lang['select_file'] = 'Select File'; //popup dialog title
 $lang['select_upload_files'] = 'Select files to upload';
 $lang['show_thumbs'] = 'Show thumbnails';
