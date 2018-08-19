@@ -1,5 +1,5 @@
 <?php
-#module-action-request processing for CMSMS
+#module-action request-processing for CMSMS
 #Copyright (C) 2004-2014 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2015-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,10 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\HookManager;
+use CMSMS\internal\Smarty;
+use CMSMS\ModuleOperations;
+
 //REMINDER: vars defined here might be used as globals by downstream hook functions
 
-$CMS_ADMIN_PAGE=1;
-$CMS_MODULE_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
+$CMS_MODULE_PAGE = 1;
 
 $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
@@ -57,14 +61,14 @@ if (isset($_REQUEST['mact'])) {
     $id = $ary[1] ?? 'm1_';
     $action = $ary[2] ?? '';
 } else {
-    $module = ''; // trigger error
+    redirect('index.php');
 }
 
 $modops = ModuleOperations::get_instance();
 $modinst = $modops->get_module_instance($module);
 if (!$modinst) {
-    trigger_error('Module '.$module.' not found in memory. This could indicate that the module is in need of upgrade or that there are other problems');
-    redirect('index.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY]);
+    trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
+    redirect('index.php');
 }
 if ($modinst->SuppressAdminOutput($_REQUEST)) {
     if ($CMS_JOB_TYPE == 0) {
@@ -73,7 +77,7 @@ if ($modinst->SuppressAdminOutput($_REQUEST)) {
 }
 
 $params = $modops->GetModuleParameters($id);
-$smarty = ($CMS_JOB_TYPE < 2) ? CMSMS\internal\Smarty::get_instance() : null;
+$smarty = ($CMS_JOB_TYPE < 2) ? Smarty::get_instance() : null;
 
 if ($CMS_JOB_TYPE == 0) {
     $themeObject = cms_utils::get_theme_object();
@@ -98,4 +102,4 @@ if ($CMS_JOB_TYPE == 0) {
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
-CMSMS\HookManager::do_hook('PostRequest');
+HookManager::do_hook('PostRequest');
