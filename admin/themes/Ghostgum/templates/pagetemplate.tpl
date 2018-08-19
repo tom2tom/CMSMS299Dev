@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="{$lang_code|truncate:'2':''}" dir="{$lang_dir|default:'ltr'}">
-<head>
+ <head>
   <title>{strip}
   {if !empty($pagetitle)}{$thetitle=$pagetitle}{else}{$thetitle=''}{/if}
   {if $thetitle && $subtitle}{$thetitle="{$thetitle} - {$subtitle}"}{/if}
@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}/images/apple-touch-icon-iphone4.png" />
   <link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}/images/apple-touch-icon-ipad3.png" />
   {$header_includes|default:''}
-</head>
-<body>
+ </head>
+ <body>
   <!-- start header -->
   <div id="ggp_header">
      <div id="site-logo">
@@ -99,7 +99,7 @@
   </div>
   <!-- start footer -->
   <div id="ggp_footer">
-   {include file='footer.tpl'}&nbsp;{cms_version} &ldquo;{cms_versionname}&rdquo;
+   {include file='footer.tpl' nocache}
   </div>
   <!-- end footer -->
   {$bottom_includes|default:''}

@@ -1,6 +1,6 @@
 {strip}
   <div class="footer-left">
-   <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a>{* samrty bug workaround {cms_version} &ldquo;{cms_versionname}&rdquo; *}
+   <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a> {cms_version} &ldquo;{cms_versionname}&rdquo;
   </div>
   <div class="footer-right cf">
     <ul class="links">
