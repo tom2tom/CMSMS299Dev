@@ -1458,6 +1458,7 @@ $lang['search_string_find'] = 'Connection ok';
 $lang['secure'] = 'Secure (HTTPS)';
 $lang['secure_page'] = 'Use HTTPS for this page';
 $lang['security_issue'] = 'Security Issue';
+$lang['select_file'] = 'Select File'; //for filepicker??
 $lang['selectall'] = 'Select All';
 $lang['selecteditems'] = 'With Selected';
 $lang['selectgroup'] = 'Select Group';
