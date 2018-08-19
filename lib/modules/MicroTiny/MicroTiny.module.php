@@ -49,8 +49,12 @@ class MicroTiny extends CMSModule
   }
 } // class
 
-function mt_jsbool($val)
+/**
+ * Return string-form boolean corresponding to $val (for populating js boolean values)
+ * @param mixed $val
+ * @return string
+ */
+function mt_jsbool($val) : string
 {
-  if( cms_to_bool($val) ) return 'true';
-  return 'false';
+  return ( cms_to_bool($val) ) ? 'true' : 'false';
 }
