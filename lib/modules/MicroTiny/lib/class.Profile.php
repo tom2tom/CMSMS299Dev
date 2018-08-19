@@ -27,8 +27,19 @@ use function cms_to_bool;
 
 class Profile implements ArrayAccess
 {
-	private static $_keys = ['menubar','allowimages','showstatusbar','allowresize','formats','name','label','system',
-							 'dfltstylesheet','allowcssoverride','allowtables'];
+	private static $_keys = [
+		'allowcssoverride',
+		'allowimages',
+		'allowresize',
+		'allowtables',
+		'dfltstylesheet',
+		'formats',
+		'label',
+		'menubar',
+		'name',
+		'showstatusbar',
+		'system',
+	];
 	private static $_module = null;
 	private $_data = [];
 
