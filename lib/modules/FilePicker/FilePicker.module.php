@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentBase;
+use CMSMS\FilePickerIFace;
 use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
@@ -26,7 +27,7 @@ use FilePicker\Utils;
 
 require_once(__DIR__.'/lib/class.ProfileDAO.php');
 
-final class FilePicker extends CMSModule implements CMSMS\FilePicker
+final class FilePicker extends CMSModule implements FilePickerIFace
 {
     protected $_dao;
     protected $_typehelper;
@@ -158,6 +159,8 @@ EOS;
 
     public function get_html( $name, $value, $profile, $required = false )
     {
+		static $first_time = true;
+
         $_instance = 'i'.uniqid();
         if( $value === '-1' ) $value = null;
 
@@ -191,17 +194,41 @@ EOS;
             $key = 'select_a_file';
             break;
         }
+		$title = $this->Lang($key);
+		$req = ( $required ) ? 'true':'false';
+		$s1 = $this->Lang('clear');
+
+		if( $first_time ) {
+			$first_time = false;
+			$js = '<script type="text/javascript" src="'.$this->GetModuleURLPath().'/lib/js/jquery.cmsms_filepicker.js"></script>'."\n";
+		}
+		else {
+			$js = '';
+		}
+
+		$js .= <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('input[data-cmsfp-instance="$_instance"]').filepicker({
+  title: '$title',
+  param_sig: '$sig',
+  required: $req,
+  remove_label: '$s1',
+  remove_title: '$s1'
+ });
+});
+//]]>
+</script>
+
+EOS;
+		$this->AdminBottomContent($js); //CHECKME always admin?
 
         $smarty = CmsApp::get_instance()->GetSmarty();
         $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
-        $tpl_ob->assign('mod',$this)
-         ->assign('sig',$sig)
-         ->assign('blockName',$name)
+        $tpl_ob->assign('blockName',$name)
          ->assign('value',$value)
-         ->assign('instance',$_instance)
-         ->assign('profile',$profile)
-         ->assign('required',$required)
-		 ->assign('title',$this->Lang($key));
+         ->assign('instance',$_instance);
         $out = $tpl_ob->fetch();
         return $out;
     }
