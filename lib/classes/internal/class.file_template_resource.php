@@ -25,8 +25,8 @@ use function startswith;
  * in or below one of the template directories (no absolute filenames,
  * or ../ stuff to get out of it) and the file cannot be hidden (dot-prefix).
  *
- * It also supports the ;top ;head and ;body section-suffixes to process
- * only a portion of the template.
+ * It also supports section-suffixes ';top' ';head' and ';body' to process
+ * only that portion of the template.
  * @since 2.3
  */
 class file_template_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
