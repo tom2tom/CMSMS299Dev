@@ -1,11 +1,15 @@
 <?php
+
 namespace AdminLog;
+
+use AdminLog;
+use const CMS_DB_PREFIX;
 
 class storage
 {
     private $_mod;
 
-    public function __construct( \AdminLog $mod )
+    public function __construct( AdminLog $mod )
     {
         $this->_mod = $mod;
     }
@@ -24,7 +28,10 @@ class storage
         $db->Execute( $sql, [ $ev->timestamp, $ev->severity, $ev->uid, $ev->ip_addr, $ev->username, $ev->subject, $ev->msg, $ev->item_id ] );
     }
 
-    public static function table_name() { return CMS_DB_PREFIX.'mod_adminlog'; }
+    public static function table_name()
+    {
+        return CMS_DB_PREFIX.'mod_adminlog';
+    }
 
     public function clear_older_than( $time )
     {

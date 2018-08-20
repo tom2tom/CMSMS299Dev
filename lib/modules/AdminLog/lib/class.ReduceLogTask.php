@@ -15,7 +15,8 @@ final class ReduceLogTask implements CmsRegularTask
     public function get_name() { return get_class($this); }
     public function get_description() { return ''; }
 
-    public function test($time = '') {
+    public function test($time = '')
+	{
         // do we need to do this task.
         // we do it every 3 hours
         if (!$time) $time = time();
@@ -46,7 +47,8 @@ final class ReduceLogTask implements CmsRegularTask
         return TRUE;
     }
 
-    protected function adjust_last() {
+    protected function adjust_last()
+	{
         if( !$this->have_queued() ) return;
 
         $n = count($this->_queue);

@@ -1,12 +1,22 @@
 <?php
+
 namespace AdminLog;
 
-class auditor implements \CMSMS\IAuditManager
+use AdminLog;
+use AdminLog\event;
+use AdminLog\storage;
+use cms_siteprefs;
+use cms_utils;
+use CMSMS\IAuditManager;
+use function get_userid;
+use function get_username;
+
+class auditor implements IAuditManager
 {
     private $_mod;
     private $_storage;
 
-    public function __construct( \AdminLog $mod, storage $store )
+    public function __construct( AdminLog $mod, storage $store )
     {
         $this->_mod = $mod;
         $this->_storage = $store;
@@ -17,7 +27,7 @@ class auditor implements \CMSMS\IAuditManager
         $parms = [];
         $parms['uid']= get_userid(FALSE);
         $parms['username'] = get_username(FALSE);
-        if( $parms['uid'] ) $parms['ip_addr'] = \cms_utils::get_real_ip();
+        if( $parms['uid'] ) $parms['ip_addr'] = cms_utils::get_real_ip();
         return $parms;
     }
 
@@ -32,18 +42,18 @@ class auditor implements \CMSMS\IAuditManager
 
     protected function error_log( $severity, $msg )
     {
-        $sevmsg = null;
         switch( $severity ) {
         case event::TYPE_WARNING:
             $sevmsg = 'WARNING';
+            break;
         case event::TYPE_ERROR:
             $sevmsg = 'ERROR';
-        case event::TYPE_NOTICE:
+            break;
         default:
             $sevmsg = 'NOTICE';
             break;
         }
-        $sitename = \cms_siteprefs::get('sitename','CMSMS');
+        $sitename = cms_siteprefs::get('sitename','CMSMS Site');
         $msg = "$sitename $sevmsg: $msg";
         @error_log( $msg, 0 );
     }
@@ -53,9 +63,8 @@ class auditor implements \CMSMS\IAuditManager
         $parms = $this->get_event_parms();
         $parms = array_merge($parms,[ 'severity'=>event::TYPE_NOTICE, 'msg'=>$msg, 'subject'=>$subject ]);
         $ev = new event( $parms );
-
         $this->_storage->save( $ev );
-        $this->error_log( $ev::TYPE_NOTICE, $msg );
+        $this->error_log( event::TYPE_NOTICE, $msg );
     }
 
     public function warning( string $msg, string $subject = '' )
@@ -63,9 +72,8 @@ class auditor implements \CMSMS\IAuditManager
         $parms = $this->get_event_parms();
         $parms = array_merge($parms,[ 'severity'=>event::TYPE_WARNING, 'msg'=>$msg, 'subject'=>$subject ]);
         $ev = new event( $parms );
-
         $this->_storage->save( $ev );
-        $this->error_log( $ev::TYPE_WARNING, $msg );
+        $this->error_log( event::TYPE_WARNING, $msg );
     }
 
     public function error( string $msg, string $subject = '' )
@@ -73,9 +81,8 @@ class auditor implements \CMSMS\IAuditManager
         $parms = $this->get_event_parms();
         $parms = array_merge($parms,[ 'severity'=>event::TYPE_ERROR, 'msg'=>$msg, 'subject'=>$subject ]);
         $ev = new event( $parms );
-
         $this->_storage->save( $ev );
-        $this->error_log( $ev::TYPE_ERROR, $msg );
+        $this->error_log( event::TYPE_ERROR, $msg );
     }
 
 } // class

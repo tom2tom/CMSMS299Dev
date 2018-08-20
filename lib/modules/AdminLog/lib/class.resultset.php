@@ -1,11 +1,16 @@
 <?php
+
+use AdminLog\filter;
+use AdminLog\storage;
+use CMSMS\Database\mysqli\Connection;
+
 namespace AdminLog;
 
-class resultset extends \CmsDbQueryBase
+class resultset extends CmsDbQueryBase
 {
     private $_db;
 
-    public function __construct( \CMSMS\Database\Connection $db, filter $filter )
+    public function __construct( Connection $db, filter $filter )
     {
         $this->_db = $db;
         $this->_args = $filter;
@@ -55,7 +60,7 @@ class resultset extends \CmsDbQueryBase
     public function GetMatches()
     {
         $this->execute();
-        if( !$this->_rs ) \LogicException('Invalid query generated');
+        if( !$this->_rs ) throw new LogicException('Invalid query generated');
 
         $out = [];
         while( !$this->EOF() ) {

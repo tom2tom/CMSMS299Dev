@@ -1,10 +1,20 @@
 <?php
+
 namespace AdminLog;
+
+use LogicException;
 
 // filter value object.
 class filter
 {
-    private $_data = [ 'severity'=>-1, 'username'=>null, 'subject'=>null, 'msg'=>null, 'limit'=>100, 'offset'=>0 ];
+    private $_data = [
+		'limit'=>100,
+		'msg'=>null,
+		'offset'=>0,
+		'severity'=>-1,
+		'subject'=>null,
+		'username'=>null,
+	];
 
     public function __get( $key ) {
         switch( $key ) {
@@ -19,7 +29,7 @@ class filter
             return (int) $this->_data[$key];
 
         default:
-            throw new \LogicException("$key is not a gettable member of ".__CLASS__);
+            throw new LogicException("$key is not a gettable member of ".__CLASS__);
         }
     }
 
@@ -47,7 +57,7 @@ class filter
             $this->_data[$key] = max(0,(int)$val);
             break;
         default:
-            throw new \LogicException("$key is not a settable member of ".__CLASS__);
+            throw new LogicException("$key is not a settable member of ".__CLASS__);
         }
     }
 }

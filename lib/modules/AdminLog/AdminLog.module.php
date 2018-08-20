@@ -18,20 +18,24 @@
 
 use AdminLog\auditor;
 use AdminLog\AutoPruneLogTask;
-use AdminLog\ClearLogCommand;
+use AdminLog\Command\ClearLogCommand;
 use AdminLog\ReduceLogTask;
 use AdminLog\storage;
 use CMSMS\AuditManager;
 use CMSMS\HookManager;
 
-require_once(__DIR__.'/lib/class.storage.php');
-require_once(__DIR__.'/lib/class.auditor.php');
-require_once(__DIR__.'/lib/class.event.php');
-
 final class AdminLog extends CMSModule
 {
     protected $storage;
     protected $auditor;
+
+    public function GetFriendlyName() { return $this->Lang('friendlyname');  }
+    public function GetVersion() { return '1.1'; }
+    public function GetHelp() { return $this->Lang('help'); }
+    public function HasAdmin() { return true; }
+    public function GetAdminSection() { return 'siteadmin'; }
+    public function IsAdminOnly() { return true; }
+    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
     {
@@ -62,14 +66,6 @@ final class AdminLog extends CMSModule
             // ignore any error.
         }
     }
-
-    public function GetFriendlyName() { return $this->Lang('friendlyname');  }
-    public function GetVersion() { return '1.0'; }
-    public function GetHelp() { return $this->Lang('help'); }
-    public function HasAdmin() { return true; }
-    public function GetAdminSection() { return 'siteadmin'; }
-    public function IsAdminOnly() { return true; }
-    public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function HasCapability($capability, $params = [])
     {

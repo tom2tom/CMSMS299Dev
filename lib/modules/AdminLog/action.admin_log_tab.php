@@ -1,12 +1,32 @@
 <?php
-namespace AdminLog;
+/*
+AdminLog module action: display the log
+Copyright (C) 2017-2018 CMS Made Simple Foundation <foundationcmsmadesimple.org>
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+*/
+
+use AdminLog\filter;
+use AdminLog\resultset;
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
 $page = 1;
 $filter_applied = false;
 $filter = new filter;
-if( isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof \AdminLog\filter ) {
+if( isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof filter ) {
     $filter = $_SESSION['adminlog_filter'];
     $filter_applied = true;
 }
@@ -30,7 +50,7 @@ if( ($page = (int) get_parameter_value($params,'page',1)) > 1 ) {
 
 $resultset = new resultset( $db, $filter );
 
-$pagelist = null;
+$pagelist = [];
 if( $resultset->numpages > 0 ) {
     if( $resultset->numpages < 25 ) {
         for( $i = 1; $i <= $resultset->numpages; $i++ ) {
@@ -59,14 +79,19 @@ if( $resultset->numpages > 0 ) {
 }
 $results = $resultset->GetMatches();
 
-$severity_list = [ 0 => $this->Lang('sev_msg'), 1 => $this->Lang('sev_notice'), $this->Lang('sev_warning'), $this->Lang('sev_error') ];
-$tpl = $smarty->CreateTemplate( $this->GetTemplateResource('admin_log_tab.tpl'), null, null, $smarty);
-$tpl->assign('filter',$filter);
-$tpl->assign('results',$results);
-$tpl->assign('pagelist',$pagelist);
-$tpl->assign('severity_list',$severity_list);
-$tpl->assign('page',$page);
-$tpl->assign('filter_applied',$filter_applied);
-$tpl->assign('mod',$this);
-$tpl->assign('actionid',$id);
+$severity_list = [
+ $this->Lang('sev_msg'),
+ $this->Lang('sev_notice'),
+ $this->Lang('sev_warning'),
+ $this->Lang('sev_error'),
+];
+
+$tpl = $smarty->createTemplate( $this->GetTemplateResource('admin_log_tab.tpl'),null,null,$smarty);
+$tpl->assign('filter',$filter)
+ ->assign('results',$results)
+ ->assign('pagelist',$pagelist)
+ ->assign('severity_list',$severity_list)
+ ->assign('page',$page)
+ ->assign('filter_applied',$filter_applied);
+
 $tpl->display();
