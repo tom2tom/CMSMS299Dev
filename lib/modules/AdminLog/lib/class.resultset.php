@@ -1,10 +1,12 @@
 <?php
 
+namespace AdminLog;
+
 use AdminLog\filter;
 use AdminLog\storage;
+use CmsDbQueryBase;
 use CMSMS\Database\mysqli\Connection;
-
-namespace AdminLog;
+use LogicException;
 
 class resultset extends CmsDbQueryBase
 {

@@ -3,6 +3,7 @@
 namespace AdminLog;
 
 use AdminLog;
+use AdminLog\event;
 use const CMS_DB_PREFIX;
 
 class storage
