@@ -1,14 +1,21 @@
 <?php
 
-abstract class AdminSearch_slave
-{
-    private $_params = array();
+namespace AdminSearch;
 
-    public function set_text($text) {
+use CMSMS\CmsException;
+use function cms_to_bool;
+
+abstract class slave
+{
+    private $_params = [];
+
+    public function set_text($text)
+    {
         $this->set_params(array('search_text'=>$text));
     }
 
-    protected function get_text() {
+    protected function get_text()
+    {
         if( isset($this->_params['search_text']) ) return $this->_params['search_text'];
     }
 
@@ -39,7 +46,6 @@ abstract class AdminSearch_slave
     abstract public function get_name();
     abstract public function get_description();
     abstract public function get_matches();
+
     public function get_section_description() {}
 }
-
-?>

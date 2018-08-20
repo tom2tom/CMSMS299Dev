@@ -1,6 +1,17 @@
 <?php
 
-final class AdminSearch_template_slave extends AdminSearch_slave
+namespace AdminSearch;
+
+use cms_utils;
+use CmsLayoutTemplate;
+use const CMS_DB_PREFIX;
+use const CMS_ROOT_PATH;
+use function check_permission;
+use function cms_relative_path;
+use function cmsms;
+use function get_userid;
+
+final class template_slave extends slave
 {
     public function get_name()
     {
@@ -20,7 +31,7 @@ final class AdminSearch_template_slave extends AdminSearch_slave
         return check_permission($userid,'Modify Templates');
     }
 
-    private function check_tpl_match(\CmsLayoutTemplate $tpl)
+    private function check_tpl_match(CmsLayoutTemplate $tpl)
     {
         if( strpos($tpl->get_name(),$this->get_text()) !== FALSE ) return TRUE;
         if( strpos($tpl->get_content(),$this->get_text()) !== FALSE ) return TRUE;
@@ -31,11 +42,11 @@ final class AdminSearch_template_slave extends AdminSearch_slave
     private function get_mod()
     {
         static $_mod;
-        if( !$_mod ) $_mod = \cms_utils::get_module('DesignManager');
+        if( !$_mod ) $_mod = cms_utils::get_module('DesignManager');
         return $_mod;
     }
 
-    private function get_tpl_match_info(\CmsLayoutTemplate $tpl)
+    private function get_tpl_match_info(CmsLayoutTemplate $tpl)
     {
         $one = $tpl->get_id();
         $intext = $this->get_text();
@@ -59,7 +70,7 @@ final class AdminSearch_template_slave extends AdminSearch_slave
             $title = $tpl->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
         }
         $tmp = [ 'title'=>$title,
-                 'description'=>AdminSearch_tools::summarize($tpl->get_description()),
+                 'description'=>tools::summarize($tpl->get_description()),
                  'edit_url'=>$url,'text'=>$text ];
         return $tmp;
     }
@@ -83,4 +94,4 @@ final class AdminSearch_template_slave extends AdminSearch_slave
         }
         return $output;
     }
-} // end of class
+} // class

@@ -1,6 +1,18 @@
 <?php
 
-final class AdminSearch_oldmodtemplate_slave extends AdminSearch_slave
+namespace AdminSearch;
+
+use cms_utils;
+use CmsLayoutTemplate;
+use const CMS_DB_PREFIX;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function check_permission;
+use function cms_htmlentities;
+use function cmsms;
+use function get_userid;
+
+final class oldmodtemplate_slave extends slave
 {
   public function get_name()
   {

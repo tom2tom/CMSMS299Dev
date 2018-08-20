@@ -1,6 +1,17 @@
 <?php
 
-final class AdminSearch_content_slave extends AdminSearch_slave
+namespace AdminSearch;
+
+use cms_utils;
+use const CMS_DB_PREFIX;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function check_permission;
+use function cms_htmlentities;
+use function cmsms;
+use function get_userid;
+
+final class content_slave extends slave
 {
     public function get_name()
     {
@@ -30,8 +41,8 @@ final class AdminSearch_content_slave extends AdminSearch_slave
         //$query = 'SELECT DISTINCT content_id,prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content LIKE ?';
         $txt = '%'.$this->get_text().'%';
         $dbr = $db->GetArray($query, [ $txt, $txt ] );
-        if( is_array($dbr) && count($dbr) ) {
-            $output = array();
+        if( $dbr ) {
+            $output = [];
             $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
             foreach( $dbr as $row ) {
@@ -59,18 +70,15 @@ final class AdminSearch_content_slave extends AdminSearch_slave
                     $text = str_replace("\n",'',$text);
                 }
 
-                $tmp = array('title'=>$content_obj->Name(),
-                             'description'=>$content_obj->Name(),
-                             'edit_url'=>$content_manager->create_url('m1_','admin_editcontent','',array('content_id'=>$content_id)),
-                             'text'=>$text);
-
+                $tmp = ['title'=>$content_obj->Name(),
+                        'description'=>$content_obj->Name(),
+                        'edit_url'=>$content_manager->create_url('m1_','admin_editcontent','',['content_id'=>$content_id]),
+                        'text'=>$text
+				       ];
                 $output[] = $tmp;
             }
 
             return $output;
         }
-
     }
-} // end of class
-
-?>
+} // class
