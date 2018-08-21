@@ -23,12 +23,12 @@ final class AdminSearch extends CMSModule
   public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
   public function GetFriendlyName()  { return $this->Lang('friendlyname');  }
   public function GetHelp() { return $this->Lang('help'); }
-  public function GetVersion()  { return '1.0.5'; }
+  public function GetVersion()  { return '1.1'; }
   public function HasAdmin() { return true; }
   public function IsAdminOnly() { return true; }
   public function LazyLoadAdmin() { return true; }
   public function LazyLoadFrontend() { return true; }
-  public function MinimumCMSVersion()  { return '1.12-alpha0';  }
+  public function MinimumCMSVersion()  { return '2.2.900'; }
 
   public function VisibleToAdminUser()
   {
@@ -37,7 +37,7 @@ final class AdminSearch extends CMSModule
 
   protected function can_search()
   {
-      return $this->CheckPermission('Use Admin Search');
+    return $this->CheckPermission('Use Admin Search');
   }
 
   public function InstallPostMessage()
@@ -57,26 +57,25 @@ final class AdminSearch extends CMSModule
     return parent::DoAction($name,$id,$params,$returnid);
   }
 
-  public function HasCapability($capability,$params=array())
+  public function HasCapability($capability,$params=[])
   {
-    if( $capability == CmsCoreCapabilities::ADMINSEARCH ) return TRUE;
-    return FALSE;
+    return ($capability == CmsCoreCapabilities::ADMINSEARCH);
   }
 
   public function get_adminsearch_slaves()
   {
-    $dir = __DIR__.'/lib/';
-    $files = glob($dir.'/class.AdminSearch*slave.php');
-    if( count($files) ) {
-      $output = array();
+    $patn = cms_join_path(__DIR__,'lib','class.*slave.php');
+    $files = glob($patn);
+    if( $files ) {
+      $output = [];
       foreach( $files as $onefile ) {
-    $parts = explode('.',basename($onefile));
-    $classname = implode('.',array_slice($parts,1,count($parts)-2));
-    if( $classname == 'AdminSearch_slave' ) continue;
-    $output[] = $classname;
+        $parts = explode('.',basename($onefile));
+        $classname = implode('.',array_slice($parts,1,count($parts)-2));
+        if( $classname == 'slave' ) continue;
+        $output[] = $classname;
       }
       return $output;
     }
+	return [];
   }
-
 } // class
