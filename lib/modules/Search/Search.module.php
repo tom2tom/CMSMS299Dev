@@ -1,5 +1,5 @@
 <?php
-#Search: a module to ...
+#Search: a module to find words/phrases in 'core' site pages and some modules' pages
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,31 +16,13 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
-use Search\ReindexCommand;
-
-include_once __DIR__ . '/PorterStemmer.class.php';
+use Search\Command\ReindexCommand;
+use Search\Utils;
 
 define( "NON_INDEXABLE_CONTENT", "<!-- pageAttribute: NotSearchable -->" );
 
 class Search extends CMSModule
 {
-    private $_tools_loaded;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->_tools_loaded = false;
-    }
-
-    private function load_tools()
-    {
-        if( !$this->_tools_loaded ) {
-            $fn = __DIR__.'/search.tools.php';
-            include_once($fn);
-            $this->_tools_loaded = true;
-        }
-    }
-
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
@@ -50,13 +32,13 @@ class Search extends CMSModule
     public function GetFriendlyName() { return $this->Lang('search'); }
     public function GetHelp($lang='en_US') { return $this->Lang('help'); }
     public function GetName() { return 'Search'; }
-    public function GetVersion() { return '1.51.5'; }
+    public function GetVersion() { return '1.52'; }
     public function HandlesEvents () { return true; }
     public function HasAdmin() { return true; }
     public function IsPluginModule() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '1.12-alpha0'; }
+    public function MinimumCMSVersion() { return '2.2.900'; }
     public function VisibleToAdminUser() { return $this->CheckPermission('Modify Site Preferences'); }
 
     public function InitializeAdmin()
@@ -148,20 +130,17 @@ EOT;
 
     public function StemPhrase($phrase)
     {
-        $this->load_tools();
-        return search_StemPhrase($this,$phrase);
+        return Utils::StemPhrase($this,$phrase);
     }
 
     public function AddWords($module = 'Search', $id = -1, $attr = '', $content = '', $expires = NULL)
     {
-        $this->load_tools();
-        return search_AddWords($this,$module,$id,$attr,$content,$expires);
+        return Utils::AddWords($this,$module,$id,$attr,$content,$expires);
     }
 
     public function DeleteWords($module = 'Search', $id = -1, $attr = '')
     {
-        $this->load_tools();
-        return search_DeleteWords($this,$module,$id,$attr);
+        return Utils::DeleteWords($this,$module,$id,$attr);
     }
 
     public function DeleteAllWords($module = 'Search', $id = -1, $attr = '')
@@ -171,6 +150,11 @@ EOT;
         $db->Execute('TRUNCATE '.CMS_DB_PREFIX.'module_search_items');
 
         Events::SendEvent( 'Search', 'SearchAllItemsDeleted' );
+    }
+
+    public function Reindex()
+    {
+        return Utils::Reindex($this);
     }
 
     public function RegisterEvents()
@@ -183,16 +167,9 @@ EOT;
         $this->AddEventHandler( 'Core', 'ModuleUninstalled', false );
     }
 
-    public function Reindex()
-    {
-        $this->load_tools();
-        return search_Reindex($this);
-    }
-
     function DoEvent($originator,$eventname,&$params)
     {
-        $this->load_tools();
-        return search_DoEvent($this, $originator, $eventname, $params);
+        return Utils::DoEvent($this, $originator, $eventname, $params);
     }
 
     public function HasCapability($capability,$params = array())
@@ -203,7 +180,7 @@ EOT;
         case 'clicommands':
             return true;
         }
-        return FALSE;
+        return false;
     }
 
     public static function page_type_lang_callback($str)
@@ -235,5 +212,4 @@ EOT;
         $out[] = new ReindexCommand( $app );
         return $out;
     }
-
 } // class
