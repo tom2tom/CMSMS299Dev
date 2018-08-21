@@ -237,7 +237,7 @@ abstract class CmsAdminThemeBase
             return $this->_subtitle;
         case 'root_url':
             $config = cms_config::get_instance();
-            return $config['admin_url']."/themes/".$this->themeName;
+            return $config['admin_url'].'/themes/'.$this->themeName;
         }
     }
 
@@ -1639,7 +1639,7 @@ abstract class CmsAdminThemeBase
         }
         else {
             $gCms = CmsApp::get_instance();
-            $themeObjName = $name."Theme";
+            $themeObjName = $name.'Theme';
             $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
             if( file_exists($fn) ) {
                 include_once($fn);
@@ -1648,7 +1648,7 @@ abstract class CmsAdminThemeBase
             else {
                 // theme not found... use default
                 $name = self::GetDefaultTheme();
-                $themeObjName = $name."Theme";
+                $themeObjName = $name.'Theme';
                 $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
                 if( file_exists($fn) ) {
                     include_once($fn);

@@ -40,5 +40,5 @@ if ($result) {
 //TODO use an error-display template perhaps with popup notice
 
 include_once 'header.php';
-echo "<h3>". lang('erroraddingbookmark') . "</h3>";
+echo '<h3>'. lang('erroraddingbookmark') . '</h3>';
 include_once 'footer.php';

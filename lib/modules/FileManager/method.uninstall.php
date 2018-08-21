@@ -1,6 +1,6 @@
 <?php
 
-if (!function_exists("cmsms")) exit;
+if (!function_exists('cmsms')) exit;
 //global $db = $this->GetDb();
 
 // remove the database table

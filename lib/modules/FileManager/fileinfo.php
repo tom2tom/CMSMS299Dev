@@ -101,22 +101,22 @@ function image_info($file = null, $out = null) {
 
 
 function GetFileInfo($filename,$ext,$dir=false) {
-  $result="";
+  $result='';
   if ($dir) {
-    $result="&nbsp;";
+    $result='&nbsp;';
   } else {
 
     switch (strtolower($ext)) {
-      case "png" :
-      case "gif" :
-      case "jpg" : {
+      case 'png' :
+      case 'gif' :
+      case 'jpg' : {
         $imginfo=image_info($filename);
         if ($imginfo) {
-          $result=$imginfo["width"]."x".$imginfo["height"]."x".$imginfo["bits"];
+          $result=$imginfo['width'].'x'.$imginfo['height'].'x'.$imginfo['bits'];
         }
         break;
       }
-      default : $result="&nbsp;";
+      default : $result='&nbsp;';
     }
   }
   return $result;

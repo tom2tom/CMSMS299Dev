@@ -60,12 +60,12 @@ function smarty_function_browser_lang($params, $template)
   // now process browser language
   //
   $res = $default;
-  if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
+  if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
     {
-		$alllang = $_SERVER["HTTP_ACCEPT_LANGUAGE"];
-		if (strpos($alllang, ";") !== FALSE)
-			$alllang = substr($alllang,0,strpos($alllang, ";"));
-		$langs = explode(",", $alllang);
+		$alllang = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+		if (strpos($alllang, ';') !== FALSE)
+			$alllang = substr($alllang,0,strpos($alllang, ';'));
+		$langs = explode(',', $alllang);
 
 		if( is_array($langs) && count($langs) )
 		{

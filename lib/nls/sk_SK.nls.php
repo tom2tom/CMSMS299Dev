@@ -45,7 +45,7 @@ $nls['alias']['sk_SK.ISO8859-2'] = 'sk_SK' ;
 $nls['locale']['sk_SK'] = 'sk_SK.utf8,sk_SK.UTF-8,sk_SK.utf-8,sk_SK,slovak,Slovak_Slovakia.1250';
 
 #Encoding of the language
-$nls['encoding']['sk_SK'] = "UTF-8";
+$nls['encoding']['sk_SK'] = 'UTF-8';
 
 #Location of the file(s)
 $nls['file']['sk_SK'] = array(__DIR__.'/sk_SK/admin.inc.php');

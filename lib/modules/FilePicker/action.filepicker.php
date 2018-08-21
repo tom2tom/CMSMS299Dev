@@ -104,7 +104,7 @@ try {
     // get file list TODO c.f. FilePicker\Utils::get_file_list()
     //
     $files = $thumbs = [];
-    $filesizename = [" Bytes", " KB", " MB"];
+    $filesizename = [' Bytes', ' KB', ' MB'];
     $items = scandir($startdir, SCANDIR_SORT_NONE);
     for( $name = reset($items); $name !== false; $name = next($items) ) {
         if( $name == '.' ) {
@@ -146,7 +146,7 @@ try {
 		else {
             $data['isparent'] = false;
             $data['relurl'] = $assistant->to_relative($fullname);
-            $data['ext'] = strtolower(substr($name,strrpos($name,".")+1));
+            $data['ext'] = strtolower(substr($name,strrpos($name,'.')+1));
             $data['is_image'] = $this->_typehelper->is_image($fullname);
             $data['is_thumb'] = $this->_typehelper->is_thumb($name);
             $data['icon'] = Utils::get_file_icon($data['ext'],false);
@@ -170,7 +170,7 @@ try {
         if( $data['isdir'] ) {
             $parms = [ 'subdir'=>$name, 'inst'=>$inst, 'sig'=>$sig ];
             if( $type ) $parms['type'] = $type;
-            $url = $this->create_url($id,'filepicker',$returnid)."&cmsjobtype=1&_enc=".base64_encode(serialize($parms));
+            $url = $this->create_url($id,'filepicker',$returnid).'&cmsjobtype=1&_enc='.base64_encode(serialize($parms));
             $data['chdir_url'] = $url;
         }
         $files[$name] = $data;

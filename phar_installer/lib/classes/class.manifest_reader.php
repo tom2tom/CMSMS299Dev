@@ -128,7 +128,7 @@ class manifest_reader
             @copy($this->_filename,$tmpname);
             $fh = $fopen($tmpname,'r');
             if( !$fh )  {
-              echo "DEBUG: $fopen on ".$this->_filename."<br/>"; die();
+              echo "DEBUG: $fopen on ".$this->_filename.'<br/>'; die();
               throw new Exception(lang('error_internal','mr102'));
             }
             while( !$feof($fh) ) {

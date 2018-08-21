@@ -38,16 +38,16 @@ $cms_readfile = function($filename) {
 
 $themeObject = cms_utils::get_theme_object();
 $theme = $themeObject->themeName;
-$style="style";
+$style='style';
 cms_admin_sendheaders('text/css');
 
 $dir = CmsNlsOperations::get_language_direction();
-if( $dir == 'rtl' ) $style.="-rtl";
-if (isset($_GET['ie'])) $style.="_ie";
-$style .= ".css";
+if( $dir == 'rtl' ) $style.='-rtl';
+if (isset($_GET['ie'])) $style.='_ie';
+$style .= '.css';
 
-if (file_exists(__DIR__."/themes/".$theme."/css/".$style)) $cms_readfile(__DIR__."/themes/".$theme."/css/".$style);
-if (file_exists(__DIR__."/themes/".$theme."/extcss/".$style)) $cms_readfile(__DIR__."/themes/".$theme."/extcss/".$style);
+if (file_exists(__DIR__.'/themes/'.$theme.'/css/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/css/'.$style);
+if (file_exists(__DIR__.'/themes/'.$theme.'/extcss/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/'.$style);
 
 $allmodules = ModuleOperations::get_instance()->GetLoadedModules();
 if( is_array($allmodules) && count($allmodules) ) {

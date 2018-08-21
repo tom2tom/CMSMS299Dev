@@ -19,7 +19,7 @@ function smarty_function_last_modified_by($params, $template)
 {
     $gCms = CmsApp::get_instance();
     $content_obj = $gCms->get_content_object();
-	$id = "";
+	$id = '';
 
 	if (isset($content_obj) && $content_obj->LastModifiedBy() > -1)	{
 		$id = $content_obj->LastModifiedBy();
@@ -27,19 +27,19 @@ function smarty_function_last_modified_by($params, $template)
 		return;
 	}
 
-    $format = "id";
+    $format = 'id';
 	if(!empty($params['format'])) $format = $params['format'];
     $userops = UserOperations::get_instance();
     $thisuser = $userops->LoadUserByID($id);
     if( !$thisuser ) return; // could not find user record.
 
     $output = '';
-    if($format==="id") {
+    if($format==='id') {
         $output = $id;
-    } else if ($format==="username") {
+    } else if ($format==='username') {
         $output = cms_htmlentities($thisuser->username);
-    } else if ($format==="fullname") {
-        $output = cms_htmlentities($thisuser->firstname ." ". $thisuser->lastname);
+    } else if ($format==='fullname') {
+        $output = cms_htmlentities($thisuser->firstname .' '. $thisuser->lastname);
     }
 
     if( isset($params['assign']) ) {

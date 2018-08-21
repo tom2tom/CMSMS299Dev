@@ -238,7 +238,7 @@ class ContentOperations
 		if( content_cache::content_exists($id) ) return content_cache::get_content($id);
 
 		$db = CmsApp::get_instance()->GetDb();
-		$query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE content_id = ?";
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
 		$row = $db->GetRow($query, [$id]);
 		if ($row) {
 			$classtype = strtolower($row['type']);
@@ -444,7 +444,7 @@ class ContentOperations
 
 		while( $current_parent_id > 0 ) {
 			$item_order = max($row['item_order'],1);
-			$hier = str_pad($item_order, 5, '0', STR_PAD_LEFT) . "." . $hier;
+			$hier = str_pad($item_order, 5, '0', STR_PAD_LEFT) . '.' . $hier;
 			$idhier = $current_parent_id . '.' . $idhier;
 			$pathhier = $row['alias'] . '/' . $pathhier;
 			$current_parent_id = $row['parent_id'];
@@ -495,7 +495,7 @@ class ContentOperations
 
 		// would be nice to use a transaction here.
 				static $_n;
-		$usql = "UPDATE ".CMS_DB_PREFIX."content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?";
+		$usql = 'UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?';
 		foreach( $hash as $content_id => $row ) {
 			$changed = $this->_set_hierarchy_position($content_id,$hash);
 			if( is_array($changed) ) {
@@ -668,8 +668,8 @@ class ContentOperations
 		else {
 			if( !$id ) $id = -1;
 			// get the content rows
-			if( $all ) $query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? ORDER BY hierarchy";
-			else $query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy";
+			if( $all ) $query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? ORDER BY hierarchy';
+			else $query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy';
 			$contentrows = $db->GetArray($query, [$id]);
 		}
 
@@ -741,7 +741,7 @@ class ContentOperations
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
-		$sql = 'UPDATE '.CMS_DB_PREFIX."content SET default_content=0 WHERE default_content=1";
+		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content=1';
 		$db->Execute( $sql );
 		$one = $this->LoadContentFromId($id);
 		$one->SetDefaultContent(true);
@@ -872,7 +872,7 @@ EOS;
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
-		$query = "SELECT content_id FROM ".CMS_DB_PREFIX."content WHERE hierarchy = ?";
+		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE hierarchy = ?';
 		$row = $db->GetRow($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
 
 		if (!$row) return false;
@@ -907,9 +907,9 @@ EOS;
 		$content_id = (int) $content_id;
 
 		$params = [ $alias ];
-		$query = "SELECT content_id FROM ".CMS_DB_PREFIX."content WHERE content_alias = ?";
+		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE content_alias = ?';
 		if ($content_id > 0) {
-			$query .= " AND content_id != ?";
+			$query .= ' AND content_id != ?';
 			$params[] = $content_id;
 		}
 		$db = CmsApp::get_instance()->GetDb();
@@ -1073,8 +1073,8 @@ EOS;
 			}
 
 			$db = CmsApp::get_instance()->GetDb();
-			$query = "SELECT A.content_id FROM ".CMS_DB_PREFIX."additional_users A
-					  LEFT JOIN ".CMS_DB_PREFIX.'content B ON A.content_id = B.content_id
+			$query = 'SELECT A.content_id FROM '.CMS_DB_PREFIX.'additional_users A
+					  LEFT JOIN '.CMS_DB_PREFIX.'content B ON A.content_id = B.content_id
 					  WHERE A.user_id IN ('.implode(',',$list).')
 					  ORDER BY B.hierarchy';
 			$tmp = $db->GetCol($query);

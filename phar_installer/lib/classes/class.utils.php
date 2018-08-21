@@ -52,7 +52,7 @@ final class utils
             $to .= isset($components['fragment']) ? '#' . $components['fragment'] : '';
         }
         else {
-            $to = $schema."://".$host."/".$to;
+            $to = $schema.'://'.$host.'/'.$to;
         }
 
         session_write_close();
@@ -92,9 +92,9 @@ final class utils
     {
         if( !$val ) return $val;
         $val = (string) $val;
-        $val = preg_replace("/\\\$/", "$", $val);
-        $val = preg_replace("/\r/", "", $val);
-        $val = str_replace("!", "!", $val);
+        $val = preg_replace('/\\$/', '$', $val);
+        $val = preg_replace("/\r/", '', $val);
+        $val = str_replace('!', '!', $val);
         $val = str_replace("'", "'", $val);
         return strip_tags($val);
     }
@@ -212,8 +212,8 @@ final class utils
         if (is_dir($dir)) {
             $objects = scandir($dir);
             foreach ($objects as $object) {
-                if ($object != "." && $object != "..") {
-                    if (filetype($dir."/".$object) == "dir") self::rrmdir($dir."/".$object); else unlink($dir."/".$object);
+                if ($object != '.' && $object != '..') {
+                    if (filetype($dir.'/'.$object) == 'dir') self::rrmdir($dir.'/'.$object); else unlink($dir.'/'.$object);
                 }
             }
             reset($objects);

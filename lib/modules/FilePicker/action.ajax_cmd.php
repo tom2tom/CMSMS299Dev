@@ -95,7 +95,7 @@ catch( \Exception $e ) {
     // throw a 500 error
     debug_to_log('Exception: '.$e->GetMessage());
     debug_to_log($e->GetTraceAsString());
-    header("HTTP/1.1 500 ".$e->GetMessage());
+    header('HTTP/1.1 500 '.$e->GetMessage());
 }
 
 exit;

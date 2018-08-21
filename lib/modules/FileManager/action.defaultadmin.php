@@ -4,21 +4,21 @@ use FileManager\Utils;
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) exit;
 
-if (isset($params["fmmessage"]) && $params["fmmessage"]!="") {
+if (isset($params['fmmessage']) && $params['fmmessage']!='') {
     // gotta get rid of this stuff.
-    $count="";
-    if (isset($params["fmmessagecount"]) && $params["fmmessagecount"]!="") $count=$params["fmmessagecount"];
-    $this->ShowMessage($this->Lang($params["fmmessage"],$count));
+    $count='';
+    if (isset($params['fmmessagecount']) && $params['fmmessagecount']!='') $count=$params['fmmessagecount'];
+    $this->ShowMessage($this->Lang($params['fmmessage'],$count));
 }
 
-if (isset($params["fmerror"]) && $params["fmerror"]!="") {
+if (isset($params['fmerror']) && $params['fmerror']!='') {
     // gotta get rid of this stuff
-    $count="";
-    if (isset($params["fmerrorcount"]) && $params["fmerrorcount"]!="") $count=$params["fmerrorcount"];
-    $this->ShowErrors($this->Lang($params["fmerror"],$count));
+    $count='';
+    if (isset($params['fmerrorcount']) && $params['fmerrorcount']!='') $count=$params['fmerrorcount'];
+    $this->ShowErrors($this->Lang($params['fmerror'],$count));
 }
 
-if (isset($params["newsort"])) $this->SetPreference("sortby",$params["newsort"]);
+if (isset($params['newsort'])) $this->SetPreference('sortby',$params['newsort']);
 
 $path = trim(ltrim(Utils::get_cwd(), DIRECTORY_SEPARATOR));
 if( Utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {

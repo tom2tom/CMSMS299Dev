@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if (!$this->VisibleToAdminUser()) $this->Redirect($id,"defaultadmin",$returnid);
+if (!$this->VisibleToAdminUser()) $this->Redirect($id,'defaultadmin',$returnid);
 
 $this->SetPreference('show_statusbar',(isset($params['show_statusbar']))?1:0);
 $this->SetPreference('allow_resize',(isset($params['allow_resize']))?1:0);
@@ -27,7 +27,7 @@ if (isset($params['allowimages'])) $this->SetPreference('allowimages', 1 ); else
 
 if (isset($params['css_styles'])) $this->SetPreference('css_styles',$params['css_styles']);
 
-$this->Redirect($id,"defaultadmin",$returnid,["module_message"=>$this->Lang("settingssaved"),"tab"=>"settings"]);
+$this->Redirect($id,'defaultadmin',$returnid,['module_message'=>$this->Lang('settingssaved'),'tab'=>'settings']);
 
 #
 # EOF

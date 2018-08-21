@@ -192,7 +192,7 @@ function smarty_function_cms_stylesheet($params, $template)
         #---------------------------------------------
 
         if( strlen($stylesheet) ) {
-            $stylesheet = preg_replace("/\{\/?php\}/", "", $stylesheet);
+            $stylesheet = preg_replace("/\{\/?php\}/", '', $stylesheet);
 
             // Remove last comma at the end when $params['nolinks'] is set
             if( isset($params['nolinks']) && cms_to_bool($params['nolinks']) && endswith($stylesheet,',') ) {

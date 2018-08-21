@@ -52,7 +52,7 @@ function _get_css_urls($css_content)
 				     $url = $matches[1];
 				     if( !startswith($url,'http') || startswith($url,$config['root_url']) || startswith($url,'[[root_url]]') ) {
 				       $sig = _ref_map_get_sig($url);
-				       $sig = "url(".$sig.")";
+				       $sig = 'url('.$sig.')';
 				       return $sig;
 				     }
 				     return $matches[0];
@@ -120,10 +120,10 @@ function _get_sub_templates( $template )
 function _get_tpl_urls($tpl_content)
 {
   $content = $tpl_content;
-  $types = ["href", "src", "url"];
+  $types = ['href', 'src', 'url'];
   while(list(,$type) = each($types)) {
     $innerT = '[a-z0-9:?=&@/._-]+?';
-    $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.")\\1|i",
+    $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.')\\1|i',
 				     function($matches) {
 				       $config = cmsms()->GetConfig();
 				       $url = $matches[2];

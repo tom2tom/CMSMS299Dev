@@ -24,7 +24,7 @@ $fn = __DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.'admin_styles.css';
 if( is_file($fn) ) {
     $txt = file_get_contents($fn);
     if( $txt ) {
-        $txt = "<style>\n".$txt."</style>";
+        $txt = "<style>\n".$txt.'</style>';
         $this->AddAdminHeaderText($txt);
     }
 }

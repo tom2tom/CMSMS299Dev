@@ -428,7 +428,7 @@ abstract class ContentBase
 	public function Type()
 	{
 		$c = get_called_class();
-        $p = strrpos($c, "\\");
+        $p = strrpos($c, '\\');
         return ($p !== false) ? strtolower(substr($c, $p+1)) : strtolower($c);
 	}
 
@@ -1356,7 +1356,7 @@ abstract class ContentBase
 
 		// Figure out the item_order (if necessary)
 		if ($this->mItemOrder < 1) {
-			$query = "SELECT ".$db->IfNull('max(item_order)','0')." as new_order FROM ".CMS_DB_PREFIX."content WHERE parent_id = ?";
+			$query = 'SELECT '.$db->IfNull('max(item_order)','0').' as new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
 			$row = $db->GetRow($query,[$this->mParentId]);
 
 			if ($row) {
@@ -1371,7 +1371,7 @@ abstract class ContentBase
 
 		$this->mModifiedDate = trim($db->DbTimeStamp(time()), "'");
 
-		$query = "UPDATE ".CMS_DB_PREFIX."content SET content_name = ?, owner_id = ?, type = ?, template_id = ?, parent_id = ?, active = ?, default_content = ?, show_in_menu = ?, cachable = ?, page_url = ?, menu_text = ?, content_alias = ?, metadata = ?, titleattribute = ?, accesskey = ?, tabindex = ?, modified_date = ?, item_order = ?, last_modified_by = ? WHERE content_id = ?";
+		$query = 'UPDATE '.CMS_DB_PREFIX.'content SET content_name = ?, owner_id = ?, type = ?, template_id = ?, parent_id = ?, active = ?, default_content = ?, show_in_menu = ?, cachable = ?, page_url = ?, menu_text = ?, content_alias = ?, metadata = ?, titleattribute = ?, accesskey = ?, tabindex = ?, modified_date = ?, item_order = ?, last_modified_by = ? WHERE content_id = ?';
 		$dbresult = $db->Execute($query, [
 			 $this->mName,
 			 $this->mOwner,
@@ -1396,12 +1396,12 @@ abstract class ContentBase
 			 ]);
 
 		if (isset($this->mAdditionalEditors)) {
-			$query = "DELETE FROM ".CMS_DB_PREFIX."additional_users WHERE content_id = ?";
+			$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
 			$db->Execute($query, [$this->Id()]);
 
 			foreach ($this->mAdditionalEditors as $oneeditor) {
-				$new_addt_id = $db->GenID(CMS_DB_PREFIX."additional_users_seq");
-				$query = "INSERT INTO ".CMS_DB_PREFIX."additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)";
+				$new_addt_id = $db->GenID(CMS_DB_PREFIX.'additional_users_seq');
+				$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)';
 				$db->Execute($query, [$new_addt_id, $oneeditor, $this->Id()]);
 			}
 		}
@@ -1443,7 +1443,7 @@ abstract class ContentBase
 
 		// Figure out the item_order
 		if ($this->mItemOrder < 1) {
-			$query = "SELECT max(item_order) as new_order FROM ".CMS_DB_PREFIX."content WHERE parent_id = ?";
+			$query = 'SELECT max(item_order) as new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
 			$row = $db->Getrow($query, [$this->mParentId]);
 
 			if ($row) {
@@ -1456,12 +1456,12 @@ abstract class ContentBase
 			}
 		}
 
-		$newid = $db->GenID(CMS_DB_PREFIX."content_seq");
+		$newid = $db->GenID(CMS_DB_PREFIX.'content_seq');
 		$this->mId = $newid;
 
 		$this->mModifiedDate = $this->mCreationDate = trim($db->DbTimeStamp(time()), "'");
 
-		$query = "INSERT INTO ".CMS_DB_PREFIX."content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 		$dbresult = $db->Execute($query, [
 			 $newid,
@@ -1500,8 +1500,8 @@ abstract class ContentBase
 		}
 		if (isset($this->mAdditionalEditors)) {
 			foreach ($this->mAdditionalEditors as $oneeditor) {
-				$new_addt_id = $db->GenID(CMS_DB_PREFIX."additional_users_seq");
-				$query = "INSERT INTO ".CMS_DB_PREFIX."additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)";
+				$new_addt_id = $db->GenID(CMS_DB_PREFIX.'additional_users_seq');
+				$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)';
 				$db->Execute($query, [$new_addt_id, $oneeditor, $this->Id()]);
 			}
 		}
@@ -1633,11 +1633,11 @@ abstract class ContentBase
 		$result = false;
 
 		if ($this->mId > 0) {
-			$query = "DELETE FROM ".CMS_DB_PREFIX."content WHERE content_id = ?";
+			$query = 'DELETE FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
 			$dbresult = $db->Execute($query, [$this->mId]);
 
 			// Fix the item_order if necessary
-			$query = "UPDATE ".CMS_DB_PREFIX."content SET item_order = item_order - 1 WHERE parent_id = ? AND item_order > ?";
+			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = item_order - 1 WHERE parent_id = ? AND item_order > ?';
 			$result = $db->Execute($query,[$this->ParentId(),$this->ItemOrder()]);
 
 			// DELETE properties
@@ -1749,13 +1749,13 @@ abstract class ContentBase
 		}
 
 		// owner
-		if (isset($params["ownerid"])) $this->SetOwner((int) $params["ownerid"]);
+		if (isset($params['ownerid'])) $this->SetOwner((int) $params['ownerid']);
 
 		// additional editors
-		if (isset($params["additional_editors"])) {
+		if (isset($params['additional_editors'])) {
 			$addtarray = [];
 			if( is_array($params['additional_editors']) ) {
-				foreach ($params["additional_editors"] as $addt_user_id) {
+				foreach ($params['additional_editors'] as $addt_user_id) {
 					$addtarray[] = (int) $addt_user_id;
 				}
 			}
@@ -1773,7 +1773,7 @@ abstract class ContentBase
 	public function GetURL($rewrite = true)
 	{
 		$config = cms_config::get_instance();
-		$url = "";
+		$url = '';
 		$alias = ($this->mAlias != ''?$this->mAlias:$this->mId);
 
 		$base_url = CMS_ROOT_URL;
@@ -2012,7 +2012,7 @@ abstract class ContentBase
 			$db = CmsApp::get_instance()->GetDb();
 			$this->mAdditionalEditors = [];
 
-			$query = "SELECT user_id FROM ".CMS_DB_PREFIX."additional_users WHERE content_id = ?";
+			$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
 			$dbresult = $db->Execute($query,[$this->mId]);
 
 			while ($dbresult && !$dbresult->EOF) {

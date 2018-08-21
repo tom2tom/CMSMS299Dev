@@ -19,7 +19,7 @@ function smarty_function_created_date($params, $template)
 {
     $content_obj = CmsApp::get_instance()->get_content_object();
 
-    $format = "%x %X";
+    $format = '%x %X';
 	if(!empty($params['format'])) $format = $params['format'];
 
 	if (is_object($content_obj) && $content_obj->GetCreationDate() > -1) {

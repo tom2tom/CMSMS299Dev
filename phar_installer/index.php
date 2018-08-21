@@ -15,7 +15,7 @@ function _detect_bad_ioncube()
 //
 try {
     // some basic system wide pre-requisites
-    if(php_sapi_name() == "cli") throw new Exception("Sorry:\n\nCLI based execution of this script is not supported.\nPlease browse to this script with a compatible browser");
+    if(php_sapi_name() == 'cli') throw new Exception("Sorry:\n\nCLI based execution of this script is not supported.\nPlease browse to this script with a compatible browser");
     if( version_compare(phpversion(),'7.0.0') < 0 ) throw new \Exception('Sorry, this installer requires PHP7');
     _detect_bad_ioncube();
 

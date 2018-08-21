@@ -53,13 +53,13 @@ EOT;
 
             $data = modulerep_client::get_modulelatest( [ $module ] );
             if( !$data ) throw new RuntimeException("Module $module not found in repository");
-            if( count($data) > 1 ) throw new RuntimeException("Internal error: multiple results returned");
+            if( count($data) > 1 ) throw new RuntimeException('Internal error: multiple results returned');
             $data = $data[0];
 
             $filename = $data['filename'];
             $md5sum = $data['md5sum'];
             $tmpfile = modulerep_client::get_repository_xml( $filename );
-            if( !$tmpfile ) throw new RuntimeException("Problem downloading ".$filename." no data returned");
+            if( !$tmpfile ) throw new RuntimeException('Problem downloading '.$filename.' no data returned');
             $newsum = md5_file( $tmpfile );
             if( $md5sum != $newsum ) throw new RuntimeException("Problem downloading $filename, checksum fail");
 

@@ -55,7 +55,7 @@ final class Events
 	public static function CreateEvent( $originator, $eventname )
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$id = $db->GenID( CMS_DB_PREFIX."events_seq" );
+		$id = $db->GenID( CMS_DB_PREFIX.'events_seq' );
 		$originator = trim($originator);
 		$eventname = trim($eventname);
 		$pref = CMS_DB_PREFIX;
@@ -84,7 +84,7 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 
 		// get the id
-		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE originator = ? AND event_name = ?";
+		$q = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator = ? AND event_name = ?';
 		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) {
 			// query failed, event not found
@@ -94,11 +94,11 @@ EOS;
 		$id = $row['event_id'];
 
 		// delete all the handlers
-		$q = "DELETE FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ?";
+		$q = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id = ?';
 		$db->Execute( $q, [ $id ] );
 
 		// then delete the event
-		$q = "DELETE FROM ".CMS_DB_PREFIX."events WHERE event_id = ?";
+		$q = 'DELETE FROM '.CMS_DB_PREFIX.'events WHERE event_id = ?';
 		$db->Execute( $q, [ $id ] );
 
 		global_cache::clear(__CLASS__);
@@ -262,7 +262,7 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 
 		// find the id
-		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE originator = ? AND event_name = ?";
+		$q = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator = ? AND event_name = ?';
 		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) return false; // query failed, event not found
 		$row = $dbresult->FetchRow();
@@ -270,14 +270,14 @@ EOS;
 
 		// now see if there's nothing already existing for this
 		// tag or module and this id
-		$q = "SELECT * FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ? AND ";
+		$q = 'SELECT * FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id = ? AND ';
 		$params = [ $id ];
 		if( $tag_name != '' ) {
-			$q .= "tag_name = ?";
+			$q .= 'tag_name = ?';
 			$params[] = $tag_name;
 		}
 		else {
-			$q .= "module_name = ?";
+			$q .= 'module_name = ?';
 			$params[] = $module_handler;
 		}
 		$dbresult = $db->Execute( $q, $params );
@@ -285,18 +285,18 @@ EOS;
 
 		// now see if we can get a new id
 		$order = 1;
-		$q = "SELECT max(handler_order) AS newid FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ?";
+		$q = 'SELECT max(handler_order) AS newid FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id = ?';
 		$dbresult = $db->Execute( $q, [ $id ] );
 		if( $dbresult != false && $dbresult->RecordCount() != 0) {
 			$row = $dbresult->FetchRow();
 			$order = $row['newid'] + 1;
 		}
 
-		$handler_id = $db->GenId( CMS_DB_PREFIX."event_handler_seq" );
+		$handler_id = $db->GenId( CMS_DB_PREFIX.'event_handler_seq' );
 
 		// okay, we can insert
 		$params = [ $id ];
-		$q = "INSERT INTO ".CMS_DB_PREFIX."event_handlers ";
+		$q = 'INSERT INTO '.CMS_DB_PREFIX.'event_handlers ';
 		if( $module_handler != false ) {
 			$q .= '(event_id,module_name,removable,handler_order,handler_id)';
 			$params[] = $module_handler;
@@ -306,7 +306,7 @@ EOS;
 			$q .= '(event_id,tag_name,removable,handler_order,handler_id)';
 			$params[] = $tag_name;
 		}
-		$q .= "VALUES (?,?,?,?,?)";
+		$q .= 'VALUES (?,?,?,?,?)';
 		$params[] = ($removable?1:0);
 		$params[] = $order;
 		$params[] = $handler_id;
@@ -363,7 +363,7 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 
 		// find the event id
-		$sql = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE originator = ? AND event_name = ?";
+		$sql = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE originator = ? AND event_name = ?';
 		$id = (int) $db->GetOne( $sql, [ $originator, $eventname ] );
 		if( $id < 1 ) {
 			// query failed, event not found
@@ -400,8 +400,8 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 
 		// find the id
-		$q = "SELECT event_id FROM ".CMS_DB_PREFIX."events WHERE
-		originator = ? AND event_name = ?";
+		$q = 'SELECT event_id FROM '.CMS_DB_PREFIX.'events WHERE
+		originator = ? AND event_name = ?';
 		$dbresult = $db->Execute( $q, [ $originator, $eventname ] );
 		if( $dbresult == false || $dbresult->RecordCount() == 0 ) {
 			// query failed, event not found
@@ -411,7 +411,7 @@ EOS;
 		$id = $row['event_id'];
 
 		// and delete the handlers
-		$q = "DELETE FROM ".CMS_DB_PREFIX."event_handlers WHERE event_id = ?";
+		$q = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id = ?';
 		$dbresult = $db->Execute( $q, [ $id ] );
 		global_cache::clear(__CLASS__);
 		return ( $dbresult != false );

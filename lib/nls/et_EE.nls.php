@@ -42,7 +42,7 @@ $nls['alias']['et_EE.UTF-8'] = 'et_EE' ;
 $nls['locale']['et_EE'] = 'et_EE.utf-8,et_EE.UTF-8,et_EE,et_EE.iso885915,et_EE.utf8,estonian,Estonian_Estonia.1257';
 
 #Encoding of the language
-$nls['encoding']['et_EE'] = "UTF-8";
+$nls['encoding']['et_EE'] = 'UTF-8';
 
 #Location of the file(s)
 $nls['file']['et_EE'] = array(__DIR__.'/et_EE/admin.inc.php');

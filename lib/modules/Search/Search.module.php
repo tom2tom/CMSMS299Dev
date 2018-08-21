@@ -19,7 +19,7 @@ use CMSMS\Events;
 use Search\Command\ReindexCommand;
 use Search\Utils;
 
-define( "NON_INDEXABLE_CONTENT", "<!-- pageAttribute: NotSearchable -->" );
+define( 'NON_INDEXABLE_CONTENT', '<!-- pageAttribute: NotSearchable -->' );
 
 class Search extends CMSModule
 {

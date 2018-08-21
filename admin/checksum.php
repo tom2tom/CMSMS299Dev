@@ -27,7 +27,7 @@ $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 check_login();
 
 $userid = get_userid();
-$access = check_permission($userid, "Modify Site Preferences");
+$access = check_permission($userid, 'Modify Site Preferences');
 
 $themeObject = cms_utils::get_theme_object();
 
@@ -65,7 +65,7 @@ function check_checksum_data(&$report)
     return false;
   }
 
-  $salt = md5_file(CMS_ROOT_PATH."/lib/version.php").md5_file(CMS_ROOT_PATH."/index.php");
+  $salt = md5_file(CMS_ROOT_PATH.'/lib/version.php').md5_file(CMS_ROOT_PATH.'/index.php');
   $filenotfound = [];
   $notreadable = 0;
   $md5failed = 0;
@@ -139,19 +139,19 @@ function check_checksum_data(&$report)
     $tmp2 = [];
     if( $filespassed == 0 )  $tmp2[] = lang('no_files_scanned');
     if( $errorlines ) $tmp2[] = lang('lines_in_error',$errorlines);
-    if( count($filenotfound) ) $tmp2[] = sprintf("%d %s",count($filenotfound),lang('files_not_found'));
-    if( $notreadable ) $tmp2[] = sprintf("%d %s",$notreadable,lang('files_not_readable'));
-    if( $md5failed ) $tmp2[] = sprintf("%d %s",$md5failed,lang('files_checksum_failed'));
-    if( !empty($tmp) ) $tmp .= "<br />";
+    if( count($filenotfound) ) $tmp2[] = sprintf('%d %s',count($filenotfound),lang('files_not_found'));
+    if( $notreadable ) $tmp2[] = sprintf('%d %s',$notreadable,lang('files_not_readable'));
+    if( $md5failed ) $tmp2[] = sprintf('%d %s',$md5failed,lang('files_checksum_failed'));
+    if( !empty($tmp) ) $tmp .= '<br />';
 
-    $tmp = implode( "<br />", $tmp2 );
+    $tmp = implode( '<br />', $tmp2 );
     if( count($filenotfound) ) {
-      $tmp .= "<br />".lang('files_not_found').':';
-      $tmp .= "<br />".implode("<br />",$filenotfound)."<br />";
+      $tmp .= '<br />'.lang('files_not_found').':';
+      $tmp .= '<br />'.implode('<br />',$filenotfound).'<br />';
     }
     if( count($filesfailed) ) {
-      $tmp .= "<br />".count($filesfailed).' '.lang('files_failed').':';
-      $tmp .= "<br />".implode("<br />",$filesfailed)."<br />";
+      $tmp .= '<br />'.count($filesfailed).' '.lang('files_failed').':';
+      $tmp .= '<br />'.implode('<br />',$filesfailed).'<br />';
     }
 
     $report = $tmp;
@@ -165,7 +165,7 @@ function check_checksum_data(&$report)
 function generate_checksum_file(&$report)
 {
   $output = '';
-  $salt = md5_file(CMS_ROOT_PATH."/lib/version.php").md5_file(CMS_ROOT_PATH."/index.php");
+  $salt = md5_file(CMS_ROOT_PATH.'/lib/version.php').md5_file(CMS_ROOT_PATH.'/index.php');
 
   $excludes = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^uploads$', '^tmp$', '^captchas$' ];
   $tmp = get_recursive_file_list( CMS_ROOT_PATH, $excludes, -1, 'FILES');
@@ -188,7 +188,7 @@ function generate_checksum_file(&$report)
   header('Cache-Control: private',false);
   header('Content-Description: File Transfer');
   header('Content-Type: text/plain');
-  header("Content-Disposition: attachment; filename=\"checksum.dat\"" );
+  header('Content-Disposition: attachment; filename="checksum.dat"' );
   header('Content-Transfer-Encoding: binary');
   header('Content-Length: ' . strlen($output));
   echo $output;

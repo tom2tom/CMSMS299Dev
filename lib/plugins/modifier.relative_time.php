@@ -31,8 +31,8 @@ function smarty_modifier_relative_time($timestamp)
         $timestamp = (int) strtotime($timestamp);
     }
     $difference = time() - $timestamp;
-    $periods = ["sec", "min", "hour", "day", "week","month", "year", "decade"];
-    $lengths = ["60","60","24","7","4.35","12","10"];
+    $periods = ['sec', 'min', 'hour', 'day', 'week','month', 'year', 'decade'];
+    $lengths = ['60','60','24','7','4.35','12','10'];
     $total_lengths = count($lengths);
 
     if ($difference > 0) { // this was in the past
@@ -49,7 +49,7 @@ function smarty_modifier_relative_time($timestamp)
     $period = $periods[$j];
     $difference = (int)round($difference);
     if($difference != 1) {
-        $period.= "s";
+        $period.= 's';
     }
 
     $period = lang('period_'.$period);

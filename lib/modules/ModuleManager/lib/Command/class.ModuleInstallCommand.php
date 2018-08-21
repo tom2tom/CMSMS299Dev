@@ -44,13 +44,13 @@ class ModuleInstallCommand extends Command
         CmsLangOperations::allow_nonadmin_lang(TRUE);
         $ops = ModuleOperations::get_instance();
         $result = $ops->InstallModule($module);
-        if( !is_array($result) || !isset($result[0]) ) throw new RuntimeException("Module installation failed");
+        if( !is_array($result) || !isset($result[0]) ) throw new RuntimeException('Module installation failed');
         if( $result[0] == FALSE ) throw new RuntimeException($result[1]);
 
         $modinstance = $ops->get_module_instance($module,'',TRUE);
         if( !is_object($modinstance) ) throw new RuntimeException('Problem instantiating module '.$module);
 
         audit('',$moma->GetName(),'Installed '.$modinstance->GetName().' '.$modinstance->GetVersion());
-        echo "Installed: ".$modinstance->GetName().' '.$modinstance->GetVersion()."\n";
+        echo 'Installed: '.$modinstance->GetName().' '.$modinstance->GetVersion()."\n";
     }
 } // class

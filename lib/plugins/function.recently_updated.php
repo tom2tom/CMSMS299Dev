@@ -20,14 +20,14 @@ function smarty_function_recently_updated($params, $template)
     $number = 10;
 	if(!empty($params['number'])) $number = min(100,max(1,(int) $params['number']));
 
-    $leadin = "Modified: ";
+    $leadin = 'Modified: ';
 	if(!empty($params['leadin'])) $leadin = $params['leadin'];
 
     $showtitle='true';
 	if(!empty($params['showtitle'])) $showtitle = $params['showtitle'];
 
-	$dateformat = $params['dateformat'] ?? "d.m.y h:m" ;
-	$css_class = $params['css_class'] ?? "" ;
+	$dateformat = $params['dateformat'] ?? 'd.m.y h:m' ;
+	$css_class = $params['css_class'] ?? '' ;
 
 	if (isset($params['css_class'])) {
 		$output = '<div class="'.$css_class.'"><ul>';
@@ -41,13 +41,13 @@ function smarty_function_recently_updated($params, $template)
 	$db = $gCms->GetDb();
 
 	// Get list of most recently updated pages excluding the home page
-	$q = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE (type='content' OR type='link')
+	$q = 'SELECT * FROM '.CMS_DB_PREFIX."content WHERE (type='content' OR type='link')
         AND default_content != 1 AND active = 1 AND show_in_menu = 1
         ORDER BY modified_date DESC LIMIT ".((int)$number);
 	$dbresult = $db->Execute( $q );
 	if( !$dbresult ) {
         // @todo: throw an exception here
-		return 'DB error: '. $db->ErrorMsg()."<br />";
+		return 'DB error: '. $db->ErrorMsg().'<br />';
 	}
 	while ($dbresult && $updated_page = $dbresult->FetchRow())
 	{

@@ -22,11 +22,11 @@ function smarty_function_title($params, $template)
 
 	if (!is_object($contentobj)) {
 		// We've a custom error message...  set a current timestamp
-		$result = "404 Error";
+		$result = '404 Error';
 	}
     else {
 		$result = cms_htmlentities($contentobj->Name());
-        $result = preg_replace("/\{\/?php\}/", "", $result);
+        $result = preg_replace("/\{\/?php\}/", '', $result);
 	}
 
 	if( isset($params['assign']) ) {

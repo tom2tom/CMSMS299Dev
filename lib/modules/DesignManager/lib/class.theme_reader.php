@@ -448,12 +448,12 @@ class theme_reader extends reader_base
       $template->set_owner(get_userid(FALSE));
       $template->set_name($tpl_rec['name']);
 
-      $types = ["href", "src", "url"];
+      $types = ['href', 'src', 'url'];
       $content = $tpl_rec['data'];
       foreach( $types as $type ) {
         $tmp_type = $type;
         $innerT = '[a-z0-9:?=&@/._-]+?';
-        $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.")\\1|i", $fn2,$content);
+        $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.')\\1|i', $fn2,$content);
       }
 
       $content = preg_replace('/\{stylesheet/','{cms_stylesheet',$content);

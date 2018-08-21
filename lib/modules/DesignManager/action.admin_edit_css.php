@@ -63,7 +63,7 @@ try {
             if( $old_export_name && $old_export_name != $new_export_name && is_file( $old_export_name ) ) {
                 if( is_file( $new_export_name ) ) throw new Exception('Cannot rename exported stylesheet (destination name exists)');
                 $res = rename($old_export_name,$new_export_name);
-                if( !$res ) throw new Exception( "Problem renaming exported stylesheet" );
+                if( !$res ) throw new Exception( 'Problem renaming exported stylesheet' );
             }
 
             $css_ob->save();
@@ -197,7 +197,7 @@ $(document).ready(function() {
         // we lost the lock on this stylesheet... make sure we can't save anything.
         // and display a nice message.
         console.debug('lost lock handler');
-        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang("cancel")}').fadeIn();
+        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang('cancel')}').fadeIn();
         $('#form_editcss').dirtyForm('option', 'dirty', false);
         $('#submitbtn, #applybtn').attr('disabled', 'disabled');
         $('#submitbtn, #applybtn').button({ 'disabled': true });

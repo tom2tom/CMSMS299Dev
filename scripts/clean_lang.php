@@ -119,7 +119,7 @@ foreach( $slave_strs as $key => $val ) {
     }
     echo "\$lang['{$key}'] = '{$val}';\n";
 }
-echo "?>";
+echo '?>';
 ob_end_flush();
 
 echo "Done: $slave\n";

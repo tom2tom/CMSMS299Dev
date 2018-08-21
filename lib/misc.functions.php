@@ -71,7 +71,7 @@ function redirect(string $to)
         $to .= isset($components['fragment']) ? '#' . $components['fragment'] : '';
     }
     else {
-        $to = $schema."://".$host."/".$to;
+        $to = $schema.'://'.$host.'/'.$to;
     }
 
     session_write_close();
@@ -383,7 +383,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
     ob_start();
 
     if ( $showtitle ) {
-        $titleText = "Debug: ";
+        $titleText = 'Debug: ';
         if ($title) $titleText = "Debug display of '$title':";
         $titleText .= '(' . microtime_diff($starttime,microtime()) . ')';
         if (function_exists('memory_get_usage')) {
@@ -405,7 +405,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
     if (!empty($var)) {
         if ($use_html) echo '<pre>';
         if (is_array($var)) {
-            echo "Number of elements: " . count($var) . "\n";
+            echo 'Number of elements: ' . count($var) . "\n";
             print_r($var);
         }
         elseif (is_object($var)) {
@@ -442,7 +442,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
  * @param mixed $var
  * @param string $title
  */
-function debug_output($var, string $title="")
+function debug_output($var, string $title='')
 {
     $config = \cms_config::get_instance();
     if ( $config['debug'] ) debug_display($var, $title, true);
@@ -478,7 +478,7 @@ function debug_to_log($var, string $title='',string $filename = '')
  * @param mixed $var
  * @param string $title
  */
-function debug_buffer($var, string $title="")
+function debug_buffer($var, string $title='')
 {
     if ( !defined('CMS_DEBUG') || CMS_DEBUG == 0 ) return;
     CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
@@ -976,7 +976,7 @@ function cms_ipmatches(string $ip,array $checklist) : bool
     if (preg_match("/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\/([0-9]+)/",$range,$regs)) {
       // perform a mask match
       $ipl = ip2long($ip);
-      $rangel = ip2long($regs[1] . "." . $regs[2] . "." . $regs[3] . "." . $regs[4]);
+      $rangel = ip2long($regs[1] . '.' . $regs[2] . '.' . $regs[3] . '.' . $regs[4]);
 
       $maskl = 0;
 

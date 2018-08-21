@@ -20,10 +20,10 @@ function smarty_function_anchor($params, $template)
     $content = cms_utils::get_current_content();
     if( !is_object($content) ) return;
 
-    $class="";
-    $title="";
-    $tabindex="";
-    $accesskey="";
+    $class='';
+    $title='';
+    $tabindex='';
+    $accesskey='';
     if (isset($params['class'])) $class = ' class="'.$params['class'].'"';
     if (isset($params['title'])) $title = ' title="'.$params['title'].'"';
     if (isset($params['tabindex'])) $tabindex = ' tabindex="'.$params['tabindex'].'"';

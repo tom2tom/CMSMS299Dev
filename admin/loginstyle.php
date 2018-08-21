@@ -38,14 +38,14 @@ $cms_readfile = function($filename) {
   return FALSE;
 };
 
-header("Content-type: text/css; charset=" . \CmsNlsOperations::get_encoding());
+header('Content-type: text/css; charset=' . \CmsNlsOperations::get_encoding());
 if (file_exists(__DIR__."/themes/$theme/css/style.css")) {
     echo file_get_contents(__DIR__."/themes/$theme/css/style.css");
 }
 else {
-    echo file_get_contents(__DIR__."/themes/Marigold/css/style.css");
+    echo file_get_contents(__DIR__.'/themes/Marigold/css/style.css');
 }
 
-if (file_exists(__DIR__."/themes/".$theme."/extcss/style.css")) {
-    $cms_readfile(__DIR__."/themes/".$theme."/extcss/style.css");
+if (file_exists(__DIR__.'/themes/'.$theme.'/extcss/style.css')) {
+    $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/style.css');
 }

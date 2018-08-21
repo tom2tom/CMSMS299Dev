@@ -237,7 +237,7 @@ function getEmbedPhpInfo( int $info = INFO_ALL ) : string
 	 */
 	function _sysinfo_phpinfo_v_callback($matches)
 	{
-		$matches[2] = preg_replace('%(?<!\s)([;@])(?!\s)%', "$1 ", $matches[2]);
+		$matches[2] = preg_replace('%(?<!\s)([;@])(?!\s)%', '$1 ', $matches[2]);
 		return $matches[1].$matches[2].$matches[3];
 	}
 
@@ -735,11 +735,11 @@ function testUmask( bool $required, string $title, string $umask, string $messag
 
 	if($debug) {
 		umask(octdec($umask));
-		$fp = fopen($test_file, "w");
+		$fp = fopen($test_file, 'w');
 	}
 	else {
 		@umask(octdec($umask));
-		$fp = @fopen($test_file, "w");
+		$fp = @fopen($test_file, 'w');
 	}
 
 	if($fp !== false) {
@@ -964,8 +964,8 @@ function testDirWrite( bool $required, string $title, string $dir, string $messa
 			else      @unlink($test_file);
 		}
 
-		if($debug) $fp = fopen($test_file, "w");
-		else       $fp = @fopen($test_file, "w");
+		if($debug) $fp = fopen($test_file, 'w');
+		else       $fp = @fopen($test_file, 'w');
 		if($fp !== false) {
 //			$_return = '';
 			if($debug) $_return = fwrite($fp, $data);
@@ -1041,8 +1041,8 @@ function testFileWritable( bool $required, string $title, string $file,
 	if($_test) {
 		$_test = file_exists($file);
 
-		if($debug) $fp = fopen($file, "a");
-		else       $fp = @fopen($file, "a");
+		if($debug) $fp = fopen($file, 'a');
+		else       $fp = @fopen($file, 'a');
 		if($fp !== false) {
 			@fclose($fp);
 			if(! $_test) @unlink($file);
@@ -1111,8 +1111,8 @@ function testRemoteFile( bool $required, string $title, string $url = '',
 		if($debug) $handle = fsockopen($scheme . $url_info['host'], $port, $errno, $errstr, $timeout);
 		else       $handle = @fsockopen($scheme . $url_info['host'], $port, $errno, $errstr, $timeout);
 		if($handle) {
-			$out  = "GET " . $complete_url . " HTTP/1.1\r\n";
-			$out .= "Host: " . $url_info['host'] . "\r\n";
+			$out  = 'GET ' . $complete_url . " HTTP/1.1\r\n";
+			$out .= 'Host: ' . $url_info['host'] . "\r\n";
 			$out .= "Connection: Close\r\n\r\n";
 			if($debug) {
 				fwrite($handle, $out);
@@ -1374,8 +1374,8 @@ function testSessionSavePath( string $sess_path ) : string
 			}
 		}
 		else {
-			if (strrpos($sess_path, ";") !== false) { //Can be 5;777;/tmp
-				$sess_path = substr($sess_path, strrpos($sess_path, ";")+1);
+			if (strrpos($sess_path, ';') !== false) { //Can be 5;777;/tmp
+				$sess_path = substr($sess_path, strrpos($sess_path, ';')+1);
 			}
 			return $sess_path;
 		}

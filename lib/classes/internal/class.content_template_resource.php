@@ -46,8 +46,8 @@ class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_cu
         if (!is_object($contentobj)) {
             $mtime = time();
             // We've a custom error message...  return it here
-            header("HTTP/1.0 404 Not Found");
-            header("Status: 404 Not Found");
+            header('HTTP/1.0 404 Not Found');
+            header('Status: 404 Not Found');
             $source = null;
             if ($name == 'content_en') $source = cms_siteprefs::get('custom404');
             $source = trim($source);
@@ -57,7 +57,7 @@ class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_cu
             $mtime = time();
             $contentobj =& $_SESSION['__cms_preview__'];
             $source = $contentobj->Show($name);
-            $source = preg_replace("/\{\/?php\}/", "", $source);
+            $source = preg_replace("/\{\/?php\}/", '', $source);
             $source = trim($source);
             return;
         }

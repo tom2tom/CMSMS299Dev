@@ -25,7 +25,7 @@ $this->AddEventHandler('Core','ModuleUpgraded',false);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 $dict = NewDataDictionary($db);
 
-$flds = "
+$flds = '
 id I KEY AUTO NOTNULL,
 name C(255) NOTNULL,
 created I NOTNULL,
@@ -35,6 +35,6 @@ start I NOTNULL,
 recurs C(255),
 until I,
 data X2
-";
+';
 $sqlarray = $dict->CreateTableSQL( CmsJobManager::table_name(), $flds, $taboptarray );
 $dict->ExecuteSQLArray($sqlarray);

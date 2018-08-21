@@ -157,7 +157,7 @@ class Utils
 // microtiny data
 var cmsms_tiny = {
  base_url: '{$root_url}/',
- filebrowser_title: '{$mod->Lang("title_cmsms_filebrowser")}',
+ filebrowser_title: '{$mod->Lang('title_cmsms_filebrowser')}',
 
 EOS;
 		$fp = cms_utils::get_filepicker_module();
@@ -165,7 +165,7 @@ EOS;
 			$url = $fp->get_browser_url();
 			$filepicker_url = $ajax_url($url);
 			$js .= <<<EOS
- filepicker_title: '{$mod->Lang("filepickertitle")}',
+ filepicker_title: '{$mod->Lang('filepickertitle')}',
  filepicker_url: '{$filepicker_url}&field=',
 
 EOS;
@@ -173,33 +173,33 @@ EOS;
 		$js .= <<<EOS
  linker_autocomplete_url: '{$getpages_url}',
  linker_image: '{$mod->GetModuleURLPath()}/lib/images/cmsmslink.gif',
- linker_text: '{$mod->Lang("cmsms_linker")}',
- linker_title: '{$mod->Lang("title_cmsms_linker")}',
+ linker_text: '{$mod->Lang('cmsms_linker')}',
+ linker_title: '{$mod->Lang('title_cmsms_linker')}',
  linker_url: '{$linker_url}',
- loading_info: '{$mod->Lang("loading_info")}',
+ loading_info: '{$mod->Lang('loading_info')}',
  mailto_image: '{$mod->GetModuleURLPath()}/lib/images/mailto.gif',
- mailto_text: '{$mod->Lang("mailto_text")}',
- mailto_title: '{$mod->Lang("mailto_image")}',
+ mailto_text: '{$mod->Lang('mailto_text')}',
+ mailto_title: '{$mod->Lang('mailto_image')}',
  menubar: $menu,
- prompt_alias: '{$mod->Lang("prompt_selectedalias")}',
- prompt_alias_info : '{$mod->Lang("tooltip_selectedalias")}',
- prompt_anchortext: '{$mod->Lang("prompt_anchortext")}',
- prompt_class: '{$mod->Lang("prompt_class")}',
- prompt_email: '{$mod->Lang("prompt_email")}',
- prompt_insertmailto: '{$mod->Lang("prompt_insertmailto")}',
- prompt_linktext: '{$mod->Lang("prompt_linktext")}',
- prompt_page: '{$mod->Lang("prompt_linker")}',
- prompt_page_info: '{$mod->Lang("info_linker_autocomplete")}',
- prompt_rel: '{$mod->Lang("prompt_rel")}',
- prompt_target: '{$mod->Lang("prompt_target")}',
- prompt_text: '{$mod->Lang("prompt_texttodisplay")}',
+ prompt_alias: '{$mod->Lang('prompt_selectedalias')}',
+ prompt_alias_info : '{$mod->Lang('tooltip_selectedalias')}',
+ prompt_anchortext: '{$mod->Lang('prompt_anchortext')}',
+ prompt_class: '{$mod->Lang('prompt_class')}',
+ prompt_email: '{$mod->Lang('prompt_email')}',
+ prompt_insertmailto: '{$mod->Lang('prompt_insertmailto')}',
+ prompt_linktext: '{$mod->Lang('prompt_linktext')}',
+ prompt_page: '{$mod->Lang('prompt_linker')}',
+ prompt_page_info: '{$mod->Lang('info_linker_autocomplete')}',
+ prompt_rel: '{$mod->Lang('prompt_rel')}',
+ prompt_target: '{$mod->Lang('prompt_target')}',
+ prompt_text: '{$mod->Lang('prompt_texttodisplay')}',
  resize: $resize,
  schema: 'html5',
  statusbar: $status,
- tab_advanced: '{$mod->Lang("tab_advanced_title")}',
- tab_general: '{$mod->Lang("tab_general_title")}',
- target_new_window: '{$mod->Lang("newwindow")}',
- target_none: '{$mod->Lang("none")}'
+ tab_advanced: '{$mod->Lang('tab_advanced_title')}',
+ tab_general: '{$mod->Lang('tab_general_title')}',
+ target_new_window: '{$mod->Lang('newwindow')}',
+ target_none: '{$mod->Lang('none')}'
 };
 
 // tinymce initialization
@@ -290,7 +290,7 @@ EOS;
 	private static function GetLanguageId() : string
 	{
 		$mylang = CmsNlsOperations::get_current_language();
-		if ($mylang=="") return 'en'; //Lang setting "No default selected"
+		if ($mylang=='') return 'en'; //Lang setting "No default selected"
 		$shortlang = substr($mylang,0,2);
 
 		$mod = cms_utils::get_module('MicroTiny');

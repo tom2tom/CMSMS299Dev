@@ -116,7 +116,7 @@ class Group
 	protected function insert()
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$this->_data['id'] = $db->GenID(CMS_DB_PREFIX."groups_seq");
+		$this->_data['id'] = $db->GenID(CMS_DB_PREFIX.'groups_seq');
 		$time = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'groups (group_id, group_name, group_desc, active, create_date, modified_date)
 VALUES (?,?,?,?,'.$time.', '.$time.')';

@@ -760,7 +760,7 @@ class http_request
         {
             if( $queryString )
             {
-                $this->target = $this->target . "?" . $queryString;
+                $this->target = $this->target . '?' . $queryString;
             }
         }
 
@@ -804,7 +804,7 @@ class http_request
             {
                 if( strlen(trim($value)) > 0 )
                 {
-                    $tempString[] = $key . "=" . urlencode($value);
+                    $tempString[] = $key . '=' . urlencode($value);
                 }
             }
 
@@ -927,45 +927,45 @@ class http_request
             }
 
             // Set http headers with host, user-agent and content type
-            $this->addRequestHeader($this->method .' '. $this->path. "  HTTP/1.1",true);
-            $this->addRequestHeader("Host: " . $this->host);
+            $this->addRequestHeader($this->method .' '. $this->path. '  HTTP/1.1',true);
+            $this->addRequestHeader('Host: ' . $this->host);
             $this->addRequestHeader('Accept: */*');
-            $this->addRequestHeader("User-Agent: " . $this->userAgent);
+            $this->addRequestHeader('User-Agent: ' . $this->userAgent);
             if( !$this->requestHeaderExists('Content-Type') )
             {
-                $this->addRequestHeader("Content-Type: application/x-www-form-urlencoded");
+                $this->addRequestHeader('Content-Type: application/x-www-form-urlencoded');
             }
 
             // Specify the custom cookies
             if( $this->useCookie && $cookieString != '' )
             {
-                $this->addRequestHeader("Cookie: " . $cookieString);
+                $this->addRequestHeader('Cookie: ' . $cookieString);
             }
 
             // POST method configuration
-            if( $this->method == "POST" )
+            if( $this->method == 'POST' )
             {
-                $this->addRequestHeader("Content-Length: " . strlen($queryString));
+                $this->addRequestHeader('Content-Length: ' . strlen($queryString));
             }
 
             // Specify the referrer
-            $this->addRequestHeader("Referer: " . $this->referrer);
+            $this->addRequestHeader('Referer: ' . $this->referrer);
             if( $this->referrer != '')
             {
-                $this->addRequestHeader("Referer: " . $this->referrer);
+                $this->addRequestHeader('Referer: ' . $this->referrer);
             }
 
             // Specify http authentication (basic)
             if( $this->username && $this->password )
             {
-                $this->addRequestheader("Authorization: Basic " . base64_encode($this->username . ':' . $this->password));
+                $this->addRequestheader('Authorization: Basic ' . base64_encode($this->username . ':' . $this->password));
             }
 
-            $this->addRequestHeader("Connection: close");
+            $this->addRequestHeader('Connection: close');
 
             // POST method configuration
             $requestHeader = implode("\r\n",$this->headerArray)."\r\n\r\n";
-            if( $this->method == "POST" )
+            if( $this->method == 'POST' )
             {
                 $requestHeader .= $queryString;
             }
@@ -1106,7 +1106,7 @@ class http_request
             // If its already there, then add as an array. Otherwise, just keep there
             if( isset($this->headers[$headerName]) )
             {
-                if( gettype($this->headers[$headerName]) == "string" )
+                if( gettype($this->headers[$headerName]) == 'string' )
                 {
                     $this->headers[$headerName] = [$this->headers[$headerName]];
                 }
@@ -1148,7 +1148,7 @@ class http_request
     function _parseCookie()
     {
         // Get the cookie header as array
-        if( gettype($this->headers['set-cookie']) == "array" )
+        if( gettype($this->headers['set-cookie']) == 'array' )
         {
             $cookieHeaders = $this->headers['set-cookie'];
         }
@@ -1160,26 +1160,26 @@ class http_request
         // Loop through the cookies
         for( $cookie = 0; $cookie < count($cookieHeaders); $cookie++ )
         {
-            $cookieName  = trim($this->_tokenize($cookieHeaders[$cookie], "="));
-            $cookieValue = $this->_tokenize(";");
+            $cookieName  = trim($this->_tokenize($cookieHeaders[$cookie], '='));
+            $cookieValue = $this->_tokenize(';');
 
             $urlParsed   = parse_url($this->target);
 
             $domain      = $urlParsed['host'];
             $secure      = '0';
 
-            $path        = "/";
-            $expires     = "";
+            $path        = '/';
+            $expires     = '';
 
-            while( ($name = trim(urldecode($this->_tokenize("=")))) != "" )
+            while( ($name = trim(urldecode($this->_tokenize('=')))) != '' )
             {
-                $value = urldecode($this->_tokenize(";"));
+                $value = urldecode($this->_tokenize(';'));
 
                 switch($name)
                 {
-                    case "path"     : $path     = $value; break;
-                    case "domain"   : $domain   = $value; break;
-                    case "secure"   : $secure   = ($value != '') ? '1' : '0'; break;
+                    case 'path'     : $path     = $value; break;
+                    case 'domain'   : $domain   = $value; break;
+                    case 'secure'   : $secure   = ($value != '') ? '1' : '0'; break;
                 }
             }
 
@@ -1203,26 +1203,26 @@ class http_request
      * @return void
      * @access private
      */
-    function _setCookie($name, $value, $expires = "" , $path = "/" , $domain = "" , $secure = 0)
+    function _setCookie($name, $value, $expires = '' , $path = '/' , $domain = '' , $secure = 0)
     {
         if( strlen($name) == 0 )
         {
-            return($this->_setError("No valid cookie name was specified."));
+            return($this->_setError('No valid cookie name was specified.'));
         }
 
-        if( strlen($path) == 0 || strcmp($path[0], "/") )
+        if( strlen($path) == 0 || strcmp($path[0], '/') )
         {
             return($this->_setError("$path is not a valid path for setting cookie $name."));
         }
 
-        if( $domain == "" || !strpos($domain, ".", $domain[0] == "." ? 1 : 0) )
+        if( $domain == '' || !strpos($domain, '.', $domain[0] == '.' ? 1 : 0) )
         {
             return($this->_setError("$domain is not a valid domain for setting cookie $name."));
         }
 
         $domain = strtolower($domain);
 
-        if( !strcmp($domain[0], ".") )
+        if( !strcmp($domain[0], '.') )
         {
             $domain = substr($domain, 1);
         }
@@ -1232,12 +1232,12 @@ class http_request
 
         $secure = (int)$secure;
 
-        $this->_cookies[] = [ "name"      =>  $name,
-                                   "value"     =>  $value,
-                                   "domain"    =>  $domain,
-                                   "path"      =>  $path,
-                                   "expires"   =>  $expires,
-                                   "secure"    =>  $secure
+        $this->_cookies[] = [ 'name'      =>  $name,
+                                   'value'     =>  $value,
+                                   'domain'    =>  $domain,
+                                   'path'      =>  $path,
+                                   'expires'   =>  $expires,
+                                   'secure'    =>  $secure
                                  ];
     }
 
@@ -1251,7 +1251,7 @@ class http_request
      */
     function _encodeCookie($value, $name)
     {
-        return($name ? str_replace("=", "%25", $value) : str_replace(";", "%3B", $value));
+        return($name ? str_replace('=', '%25', $value) : str_replace(';', '%3B', $value));
     }
 
     /**
@@ -1340,7 +1340,7 @@ class http_request
 
         for($character = 0; $character < strlen($separator); $character++)
         {
-            if( gettype($position = strpos($string, $separator[$character])) == "integer" )
+            if( gettype($position = strpos($string, $separator[$character])) == 'integer' )
             {
                 $found = (isset($found) ? min($found, $position) : $position);
             }

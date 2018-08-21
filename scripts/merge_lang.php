@@ -22,7 +22,7 @@ function usage()
     echo "\n";
     echo "-f - Output format.  Possible values are: php, ini, csv, json\n";
     echo "-k - Merge strings that only exist in the master file.  This allows overwriting data but not adding new keys\n";
-    echo "-l - lang - specify a realm to read from in language files (such as .ini) files that support multiple languages in one file";
+    echo '-l - lang - specify a realm to read from in language files (such as .ini) files that support multiple languages in one file';
     echo "-h - output this help\n";
     echo "\n";
 }

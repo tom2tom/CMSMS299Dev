@@ -45,7 +45,7 @@ function get_userid(bool $redirect = true)
     $uid = $login_ops->get_effective_uid();
     if( !$uid && $redirect ) {
         $config = cms_config::get_instance();
-        redirect($config['admin_url']."/login.php");
+        redirect($config['admin_url'].'/login.php');
     }
     return $uid;
 }
@@ -67,7 +67,7 @@ function get_username(bool $check = true)
     $uname = $login_ops->get_effective_username();
     if( !$uname && $check ) {
         $config = cms_config::get_instance();
-        redirect($config['admin_url']."/login.php");
+        redirect($config['admin_url'].'/login.php');
     }
     return $uname;
 }
@@ -104,7 +104,7 @@ function check_login(bool $no_redirect = false)
             }
             $login_ops->deauthenticate();
             $config = cms_config::get_instance();
-            redirect($config['admin_url']."/login.php");
+            redirect($config['admin_url'].'/login.php');
         }
     }
     return TRUE;
@@ -279,7 +279,7 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
     if( $opt == $value ) $txt = 'selected="selected"';
     $out .= "  <option value=\"{$opt}\" {$txt}>{$file}</option>\n";
   }
-  $out .= "</select>";
+  $out .= '</select>';
   return $out;
 }
 
@@ -312,7 +312,7 @@ function get_pageid_or_alias_from_url()
     }
     else {
         // either we're using internal pretty urls or this is the default page.
-        if (isset($_SERVER["REQUEST_URI"]) && !endswith($_SERVER['REQUEST_URI'], 'index.php')) {
+        if (isset($_SERVER['REQUEST_URI']) && !endswith($_SERVER['REQUEST_URI'], 'index.php')) {
             $matches = [];
             if (preg_match('/.*index\.php\/(.*?)$/', $_SERVER['REQUEST_URI'], $matches)) {
                 // pretty urls... grab all the stuff after the index.php

@@ -57,8 +57,8 @@ final class ReduceLogTask implements CmsRegularTask
 
         $db = CmsApp::get_instance()->GetDB();
         $table = $this->table();
-        $lastrec['action'] = $lastrec['action'] . sprintf(" (repeated %d times)",$n);
-        $sql = "UPDATE table SET action = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND item_name = ? AND ip_addr = ?";
+        $lastrec['action'] = $lastrec['action'] . sprintf(' (repeated %d times)',$n);
+        $sql = 'UPDATE table SET action = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND item_name = ? AND ip_addr = ?';
         $db->Execute($sql,[$lastrec['action'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
                                 $lastrec['item_id'],$lastrec['item_name'],$lastrec['ip_addr']]);
     }

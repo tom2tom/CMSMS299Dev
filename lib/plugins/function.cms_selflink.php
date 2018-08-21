@@ -210,7 +210,7 @@ function smarty_function_cms_selflink($params, $template)
 	}
 
 	// Now we build the output.
-	$result = "";
+	$result = '';
 	if (isset($params['label'])) {
 		$label = $params['label'];
 		$label = cms_htmlentities($label);
@@ -260,7 +260,7 @@ function smarty_function_cms_selflink($params, $template)
 		$linktext = $name;
 		if (isset($params['text'])) {
 			$linktext = $params['text'];
-		} elseif (isset($params['menu']) && $params['menu'] == "1") {
+		} elseif (isset($params['menu']) && $params['menu'] == '1') {
 			$linktext = $menu_text;
 		}
 
@@ -273,7 +273,7 @@ function smarty_function_cms_selflink($params, $template)
 			if( $width ) $result .= " width=\"$width\"";
 			if( $height ) $height = max(1,$height);
 			if( $height ) $result .= " height=\"$height\"";
-			$result .= " />";
+			$result .= ' />';
 			if( empty($params['imageonly']) ) $result .= " $linktext";
 		} else {
 			$result .= $linktext;

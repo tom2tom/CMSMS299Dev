@@ -43,11 +43,11 @@ class ModuleRemoveCommand extends Command
         $module = $this->getOperand('module')->value();
         $info = new module_info( $module );
 
-        if( !$info['dir'] ) throw new RuntimeException("Nothing is known about module ".$module);
-        if( $info['installed'] ) throw new RuntimeException("Cannot remove module ".$module.' because it is installed');
+        if( !$info['dir'] ) throw new RuntimeException('Nothing is known about module '.$module);
+        if( $info['installed'] ) throw new RuntimeException('Cannot remove module '.$module.' because it is installed');
 
         $result = recursive_delete( $info['dir'] );
-        if( !$result ) throw new RuntimeException("Error removing module ".$module);
+        if( !$result ) throw new RuntimeException('Error removing module '.$module);
 
         audit('',$moma->GetName(),'Removed module '.$module);
         echo "Removed module $module\n";

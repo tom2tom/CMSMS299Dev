@@ -100,7 +100,7 @@ if ($params['searchinput'] != '') {
         foreach ($words as $word) {
             $word = trim($word);
             // $ary[] = "word = " . $db->qstr(cms_htmlentities($word));
-            $ary[] = "word = " . $db->qstr($word);
+            $ary[] = 'word = ' . $db->qstr($word);
         }
         $searchphrase = implode(' OR ', $ary);
     }
@@ -135,22 +135,22 @@ if ($params['searchinput'] != '') {
     }
 
     $val = 100 * 100 * 100 * 100 * 25;
-    $query = "SELECT DISTINCT i.module_name, i.content_id, i.extra_attr, COUNT(*) AS nb, SUM(idx.count) AS total_weight
-FROM ".CMS_DB_PREFIX."module_search_items i INNER JOIN ".CMS_DB_PREFIX."module_search_index idx ON i.id = idx.item_id
-WHERE (".$searchphrase.") AND (i.expires IS NULL OR i.expires >= NOW())";
+    $query = 'SELECT DISTINCT i.module_name, i.content_id, i.extra_attr, COUNT(*) AS nb, SUM(idx.count) AS total_weight
+FROM '.CMS_DB_PREFIX.'module_search_items i INNER JOIN '.CMS_DB_PREFIX.'module_search_index idx ON i.id = idx.item_id
+WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
     if( isset( $params['modules'] ) ) {
-        $modules = explode(",",$params['modules']);
+        $modules = explode(',',$params['modules']);
         for( $i = 0, $n = count($modules); $i < $n; $i++ ) {
             $modules[$i] = $db->qstr($modules[$i]);
         }
         $query .= ' AND i.module_name IN ('.implode(',',$modules).')';
     }
-    $query .= " GROUP BY i.module_name, i.content_id, i.extra_attr";
+    $query .= ' GROUP BY i.module_name, i.content_id, i.extra_attr';
     if( !isset($params['use_or']) || $params['use_or'] == 0 ) {
         //This makes it an AND query
         $query .= " HAVING count(*) >= $nb_words";
     }
-    $query .= " ORDER BY nb DESC, total_weight DESC";
+    $query .= ' ORDER BY nb DESC, total_weight DESC';
 
     $result = $db->Execute($query);
     $hm = $gCms->GetHierarchyManager();

@@ -13,12 +13,12 @@ class Test_cms_siteprefs extends UnitTestCase
     $dbdict = NewDataDictionary(cmsms()->GetDb());
     $taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
 
-    $flds = "
+    $flds = '
 	sitepref_name C(255) KEY,
 	sitepref_value text,
 	create_date DT,
 	modified_date DT
-    ";
+    ';
     $sqlarray = $dbdict->CreateTableSQL($config['db_prefix'].'siteprefs', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
   }

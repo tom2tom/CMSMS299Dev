@@ -19,7 +19,7 @@ include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
 {
-    public function AccessAllowed() { return $this->CheckPermission("Modify Files"); }
+    public function AccessAllowed() { return $this->CheckPermission('Modify Files'); }
     public function AdvancedAccessAllowed() { return $this->CheckPermission('Use FileManager Advanced',0); }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'files'; }
@@ -38,7 +38,7 @@ final class FileManager extends CMSModule
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function IsAdminOnly() { return TRUE; }
     public function LazyLoadFrontend() { return TRUE; }
-    public function MinimumCMSVersion() { return "2.2.2"; }
+    public function MinimumCMSVersion() { return '2.2.2'; }
     public function UninstallPostMessage() { return $this->Lang('uninstalled'); }
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return $this->AccessAllowed(); }
@@ -55,23 +55,23 @@ final class FileManager extends CMSModule
     {
         $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
         $statinfo=stat($realpath);
-        return $statinfo["mode"];
+        return $statinfo['mode'];
     }
 
     public function GetMode($path,$file)
     {
         $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
         $statinfo=stat($realpath);
-        return FileManager\Utils::format_permissions($statinfo["mode"]);
+        return FileManager\Utils::format_permissions($statinfo['mode']);
     }
 
     public function GetModeWin($path,$file)
     {
         $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
         if (is_writable($realpath)) {
-            return "777";
+            return '777';
         } else {
-            return "444";
+            return '444';
         }
     }
 
@@ -80,36 +80,36 @@ final class FileManager extends CMSModule
         $smarty=CmsApp::get_instance()->GetSmarty();
         $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'modetable.tpl' ), null, null, $smarty );
 
-        $tpl->assign('ownertext', $this->Lang("owner"))
-         ->assign('groupstext', $this->Lang("group"))
-         ->assign('otherstext', $this->Lang("others"));
+        $tpl->assign('ownertext', $this->Lang('owner'))
+         ->assign('groupstext', $this->Lang('group'))
+         ->assign('otherstext', $this->Lang('others'));
 
-        $ownerr=($permissions & 0400) ? "1":"0";
-        $tpl->assign('ownerr', $this->CreateInputCheckbox($id,"ownerr","1",$ownerr));
+        $ownerr=($permissions & 0400) ? '1':'0';
+        $tpl->assign('ownerr', $this->CreateInputCheckbox($id,'ownerr','1',$ownerr));
 
-        $ownerw=($permissions & 0200) ? "1":"0";
-        $tpl->assign('ownerw', $this->CreateInputCheckbox($id,"ownerw","1",$ownerw));
+        $ownerw=($permissions & 0200) ? '1':'0';
+        $tpl->assign('ownerw', $this->CreateInputCheckbox($id,'ownerw','1',$ownerw));
 
-        $ownerx=($permissions & 0100) ? "1":"0";
-        $tpl->assign('ownerx', $this->CreateInputCheckbox($id,"ownerx","1",$ownerx));
+        $ownerx=($permissions & 0100) ? '1':'0';
+        $tpl->assign('ownerx', $this->CreateInputCheckbox($id,'ownerx','1',$ownerx));
 
-        $groupr=($permissions & 0040) ? "1":"0";;
-        $tpl->assign('groupr', $this->CreateInputCheckbox($id,"groupr","1",$groupr));
+        $groupr=($permissions & 0040) ? '1':'0';;
+        $tpl->assign('groupr', $this->CreateInputCheckbox($id,'groupr','1',$groupr));
 
-        $groupw=($permissions & 0020) ? "1":"0";;
-        $tpl->assign('groupw', $this->CreateInputCheckbox($id,"groupw","1",$groupw));
+        $groupw=($permissions & 0020) ? '1':'0';;
+        $tpl->assign('groupw', $this->CreateInputCheckbox($id,'groupw','1',$groupw));
 
-        $groupx=($permissions & 0010) ? "1":"0";
-        $tpl->assign('groupx', $this->CreateInputCheckbox($id,"groupx","1",$groupx));
+        $groupx=($permissions & 0010) ? '1':'0';
+        $tpl->assign('groupx', $this->CreateInputCheckbox($id,'groupx','1',$groupx));
 
-        $othersr=($permissions & 0004) ? "1":"0";
-        $tpl->assign('othersr', $this->CreateInputCheckbox($id,"othersr","1",$othersr));
+        $othersr=($permissions & 0004) ? '1':'0';
+        $tpl->assign('othersr', $this->CreateInputCheckbox($id,'othersr','1',$othersr));
 
-        $othersw=($permissions & 0002) ? "1":"0";
-        $tpl->assign('othersw', $this->CreateInputCheckbox($id,"othersw","1",$othersw));
+        $othersw=($permissions & 0002) ? '1':'0';
+        $tpl->assign('othersw', $this->CreateInputCheckbox($id,'othersw','1',$othersw));
 
-        $othersx=($permissions & 0001) ? "1":"0";
-        $tpl->assign('othersx', $this->CreateInputCheckbox($id,"othersx","1",$othersx));
+        $othersx=($permissions & 0001) ? '1':'0';
+        $tpl->assign('othersx', $this->CreateInputCheckbox($id,'othersx','1',$othersx));
 
         return $tpl->fetch();
     }
@@ -117,17 +117,17 @@ final class FileManager extends CMSModule
     public function GetModeFromTable($params)
     {
         $owner=0;
-        if (isset($params["ownerr"])) $owner+=4;
-        if (isset($params["ownerw"])) $owner+=2;
-        if (isset($params["ownerx"])) $owner+=1;
+        if (isset($params['ownerr'])) $owner+=4;
+        if (isset($params['ownerw'])) $owner+=2;
+        if (isset($params['ownerx'])) $owner+=1;
         $group=0;
-        if (isset($params["groupr"])) $group+=4;
-        if (isset($params["groupw"])) $group+=2;
-        if (isset($params["groupx"])) $group+=1;
+        if (isset($params['groupr'])) $group+=4;
+        if (isset($params['groupw'])) $group+=2;
+        if (isset($params['groupx'])) $group+=1;
         $others=0;
-        if (isset($params["othersr"])) $others+=4;
-        if (isset($params["othersw"])) $others+=2;
-        if (isset($params["othersx"])) $others+=1;
+        if (isset($params['othersr'])) $others+=4;
+        if (isset($params['othersw'])) $others+=2;
+        if (isset($params['othersx'])) $others+=1;
         return $owner.$group.$others;
     }
 
@@ -138,15 +138,15 @@ final class FileManager extends CMSModule
     {
 //        $advancedmode = FileManager\Utils::check_advanced_mode();
 
-        $imagepath=cms_join_path(CMS_ROOT_PATH, $path, "thumb_".$file["name"]);
+        $imagepath=cms_join_path(CMS_ROOT_PATH, $path, 'thumb_'.$file['name']);
         if (file_exists($imagepath)) {
-            $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file["name"];
-            $image="<img src=\"".$imageurl."\" class=\"listicon\" alt=\"".$file["name"]."\" title=\"".$file["name"]."\" />";
+            $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file['name'];
+            $image='<img src="'.$imageurl.'" class="listicon" alt="'.$file['name'].'" title="'.$file['name'].'" />';
             $url = $this->create_url($id,'view','',['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
-            $result="<a href=\"".$url."\" target=\"_blank\">";
+            $result='<a href="'.$url.'" target="_blank">';
             $result.=$image;
-            $result.="</a>";
+            $result.='</a>';
             return $result;
         }
     }
@@ -154,7 +154,7 @@ final class FileManager extends CMSModule
 	/**
 	 * @deprecated since 1.7 use cms_join_path()
 	 */
-    protected function Slash($str,$str2="",$str3="")
+    protected function Slash($str,$str2='',$str3='')
     {
 		$parts=[$str];
 		if($str2 !== '') $parts[]=$str2;
@@ -164,12 +164,12 @@ final class FileManager extends CMSModule
 
     public function WinSlashes($url)
     {
-        return str_replace("/","\\",$url);
+        return str_replace('/','\\',$url);
     }
 
     public function Slashes($url)
     {
-        return str_replace(["\\","//"],["/","/"],$url);
+        return str_replace(['\\','//'],['/','/'],$url);
     }
 
     protected function _output_header_content()
@@ -204,12 +204,12 @@ final class FileManager extends CMSModule
 
     protected function encodefilename($filename)
     {
-        return str_replace("==","",base64_encode($filename));
+        return str_replace('==','',base64_encode($filename));
     }
 
     protected function decodefilename($encodedfilename)
     {
-        return base64_decode($encodedfilename."==");
+        return base64_decode($encodedfilename.'==');
     }
 
     public function GetAdminMenuItems()

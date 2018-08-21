@@ -110,7 +110,7 @@ class BookmarkOperations
 		$db = $gCms->GetDb();
 
 		$result = [];
-		$query = "SELECT bookmark_id, user_id, title, url FROM ".CMS_DB_PREFIX."admin_bookmarks WHERE user_id = ? ORDER BY title";
+		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE user_id = ? ORDER BY title';
 		$dbresult = $db->Execute($query, [$user_id]);
 
 		while ($dbresult && $row = $dbresult->FetchRow()) {
@@ -137,7 +137,7 @@ class BookmarkOperations
 		$result = null;
 		$db = CmsApp::get_instance()->GetDb();
 
-		$query = "SELECT bookmark_id, user_id, title, url FROM ".CMS_DB_PREFIX."admin_bookmarks WHERE bookmark_id = ?";
+		$query = 'SELECT bookmark_id, user_id, title, url FROM '.CMS_DB_PREFIX.'admin_bookmarks WHERE bookmark_id = ?';
 		$dbresult = $db->Execute($query, [$id]);
 
 		while ($dbresult && $row = $dbresult->FetchRow()) {
@@ -164,8 +164,8 @@ class BookmarkOperations
 		$db = CmsApp::get_instance()->GetDb();
 
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
-		$new_bookmark_id = $db->GenID(CMS_DB_PREFIX."admin_bookmarks_seq");
-		$query = "INSERT INTO ".CMS_DB_PREFIX."admin_bookmarks (bookmark_id, user_id, url, title) VALUES (?,?,?,?)";
+		$new_bookmark_id = $db->GenID(CMS_DB_PREFIX.'admin_bookmarks_seq');
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'admin_bookmarks (bookmark_id, user_id, url, title) VALUES (?,?,?,?)';
 		$dbresult = $db->Execute($query, [$new_bookmark_id, $bookmark->user_id, $bookmark->url, $bookmark->title]);
 		if ($dbresult !== false) $result = $new_bookmark_id;
 
@@ -184,7 +184,7 @@ class BookmarkOperations
 		$db = CmsApp::get_instance()->GetDb();
 
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
-		$query = "UPDATE ".CMS_DB_PREFIX."admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?";
+		$query = 'UPDATE '.CMS_DB_PREFIX.'admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?';
 		$dbresult = $db->Execute($query, [$bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id]);
 		if ($dbresult !== false) $result = true;
 
@@ -202,7 +202,7 @@ class BookmarkOperations
 		$result = false;
 		$db = CmsApp::get_instance()->GetDb();
 
-		$query = "DELETE FROM ".CMS_DB_PREFIX."admin_bookmarks where bookmark_id = ?";
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'admin_bookmarks where bookmark_id = ?';
 		$dbresult = $db->Execute($query, [$id]);
 		if ($dbresult !== false) $result = true;
 		return $result;

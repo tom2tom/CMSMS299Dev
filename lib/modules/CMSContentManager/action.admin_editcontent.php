@@ -359,12 +359,12 @@ $(document).ready(function() {
       lock_timeout: $lock_timeout,
       lock_refresh: $lock_refresh,
       error_handler: function(err) {
-        cms_alert('{$this->Lang("lockerror")}: ' + err.type + ' -- ' + err.msg);
+        cms_alert('{$this->Lang('lockerror')}: ' + err.type + ' -- ' + err.msg);
       },
       lostlock_handler: function(err) {
       // we lost the lock on this content... make sure we can't save anything.
       // and display a nice message.
-        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang("close")}').fadeIn();
+        $('[name$=cancel]').fadeOut().attr('value', '{$this->Lang('close')}').fadeIn();
         $('#Edit_Content').dirtyForm('option', 'dirty', false);
         cms_alert($msg);
       }
@@ -479,7 +479,7 @@ EOS;
       var event = $.Event('cms_ajax_apply');
       event.response = data.response;
       event.details = data.details;
-      event.close = '{$this->Lang("close")}';
+      event.close = '{$this->Lang('close')}';
       if (typeof data.url !== 'undefined' && data.url !== '') event.url = data.url;
       $('body').trigger(event);
     });

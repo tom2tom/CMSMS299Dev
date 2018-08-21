@@ -47,12 +47,12 @@ if( !function_exists('__cms_function_output_var') ) {
             $o_items = get_object_vars($val);
 
             $out .= str_repeat($depth_str,$depth);
-            $out .= "{$acc} <em>(object of type: ".get_class($val).")</em> = {";
+            $out .= "{$acc} <em>(object of type: ".get_class($val).')</em> = {';
             if( count($o_items) ) $out .= '<br />';
             foreach( $o_items as $o_key => $o_val ) {
                 $out .= __cms_function_output_var($o_key,$o_val,$type,$depth+1);
             }
-            $out .= str_repeat($depth_str,$depth)."}<br />";
+            $out .= str_repeat($depth_str,$depth).'}<br />';
         }
         else if( is_array($val) ) {
             $out .= str_repeat($depth_str,$depth);
@@ -60,7 +60,7 @@ if( !function_exists('__cms_function_output_var') ) {
             foreach( $val as $a_key => $a_val ) {
                 $out .= __cms_function_output_var($a_key,$a_val,$type,$depth+1);
             }
-            $out .= str_repeat($depth_str,$depth)."]<br />";
+            $out .= str_repeat($depth_str,$depth).']<br />';
         }
         else if( is_callable($val) ) {
             $out .= str_repeat($depth_str,$depth)."{$acc} <em>($type)</em> = callable<br />";

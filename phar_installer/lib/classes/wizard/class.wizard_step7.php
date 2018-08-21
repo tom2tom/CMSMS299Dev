@@ -181,7 +181,7 @@ class wizard_step7 extends wizard_step
                     }
                 }
 
-                $this->message($ndeleted.' files/folders deleted for version '.$one_version.": ".$nmissing.' missing, '.$nfailed.' failed');
+                $this->message($ndeleted.' files/folders deleted for version '.$one_version.': '.$nmissing.' missing, '.$nfailed.' failed');
             }
         }
     }

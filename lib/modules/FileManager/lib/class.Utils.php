@@ -405,25 +405,25 @@ final class Utils
 
     public static function format_filesize($_size) {
         $mod = cms_utils::get_module('FileManager');
-        $unit = $mod->Lang("bytes");
+        $unit = $mod->Lang('bytes');
         $size = $_size;
 
         if ($size>10000 && $size<(1024*1024)) {
             $size = round($size/1024);
-            $unit = $mod->Lang("kb");
+            $unit = $mod->Lang('kb');
         }
 
         if ($size>(1024*1024)) {
             $size = round($size/(1024*1024),1);
-            $unit = $mod->Lang("mb");
+            $unit = $mod->Lang('mb');
         }
 
         $lcc = localeconv();
         $size = number_format($size,0,$lcc['decimal_point'],$lcc['thousands_sep']);
 
         $result = [];
-        $result["size"] = $size;
-        $result["unit"] = $unit;
+        $result['size'] = $size;
+        $result['unit'] = $unit;
         return $result;
     }
 
@@ -445,18 +445,18 @@ final class Utils
             return $owner.$group.$others;
 
         case 'xxxxxxxxx':
-            $owner = "";
-            if ($mode & 0400) $owner.="r"; else $owner.="-";
-            if ($mode & 0200) $owner.="w"; else $owner.="-";
-            if ($mode & 0100) $owner.="x"; else $owner.="-";
-            $group = "";
-            if ($mode & 0040) $group.="r"; else $group.="-";
-            if ($mode & 0020) $group.="w"; else $group.="-";
-            if ($mode & 0010) $group.="x"; else $group.="-";
-            $others = "";
-            if ($mode & 0004) $others.="r"; else $others.="-";
-            if ($mode & 0002) $others.="w"; else $others.="-";
-            if ($mode & 0001) $others.="x"; else $others.="-";
+            $owner = '';
+            if ($mode & 0400) $owner.='r'; else $owner.='-';
+            if ($mode & 0200) $owner.='w'; else $owner.='-';
+            if ($mode & 0100) $owner.='x'; else $owner.='-';
+            $group = '';
+            if ($mode & 0040) $group.='r'; else $group.='-';
+            if ($mode & 0020) $group.='w'; else $group.='-';
+            if ($mode & 0010) $group.='x'; else $group.='-';
+            $others = '';
+            if ($mode & 0004) $others.='r'; else $others.='-';
+            if ($mode & 0002) $others.='w'; else $others.='-';
+            if ($mode & 0001) $others.='x'; else $others.='-';
             return $owner.$group.$others;
         }
     }

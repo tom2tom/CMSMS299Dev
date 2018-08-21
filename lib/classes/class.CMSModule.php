@@ -1390,7 +1390,7 @@ abstract class CMSModule
             $ctrl = $params['controller'];
         } else {
             $c = get_called_class();
-            $p = strrpos($c, "\\");
+            $p = strrpos($c, '\\');
             $namespace = ($p !== false) ? substr($c, $p+1) : $c;
             $ctrl = $namespace."\\Controllers\\{$name}_action";
         }
@@ -1459,7 +1459,7 @@ abstract class CMSModule
         }
 
         @trigger_error("$name is an unknown acton of module ".$this->GetName());
-        throw new CmsError404Exception("Module action not found");
+        throw new CmsError404Exception('Module action not found');
     }
 
     /**

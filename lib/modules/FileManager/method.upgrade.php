@@ -1,15 +1,15 @@
 <?php
 
-if (!function_exists("cmsms")) exit;
+if (!function_exists('cmsms')) exit;
 
 $current_version = $oldversion;
-$this->SetPreference("uploadboxes","5");
+$this->SetPreference('uploadboxes','5');
 switch($current_version) {
-	case "0.1.0":
-	case "0.1.1":
-	case "0.1.2":
-	case "0.1.3":
-	case "0.1.4": $this->Install(true);
+	case '0.1.0':
+	case '0.1.1':
+	case '0.1.2':
+	case '0.1.3':
+	case '0.1.4': $this->Install(true);
 }
 
 if( version_compare($oldversion,'1.3.1') < 0 ) {

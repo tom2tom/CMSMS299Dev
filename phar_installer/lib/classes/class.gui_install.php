@@ -89,7 +89,7 @@ class gui_install extends installer_base
         if( !file_exists($src_archive) ) throw new Exception('Could not find installation archive at '.$src_archive);
         $src_md5 = md5_file($src_archive);
         $tmpdir = $this->get_tmpdir().'/m'.md5(__FILE__.session_id());
-        $dest_archive = $tmpdir.DIRECTORY_SEPARATOR."f".md5($src_archive.session_id()).'.tgz';
+        $dest_archive = $tmpdir.DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
 
         for( $i = 0; $i < 2; $i++ ) {
             if( !file_exists($dest_archive) ) {
@@ -321,7 +321,7 @@ class gui_install extends installer_base
         $phardata = new PharData($archive);
         $nls = [];
         $found = false;
-        $pharprefix = "phar://".$archive;
+        $pharprefix = 'phar://'.$archive;
         foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {
             if( ($p = strpos($file,'/lib/nls')) === FALSE ) continue;
             $tmp = substr($file,$p);

@@ -1,12 +1,12 @@
 <?php
-if (!function_exists("cmsms")) exit;
+if (!function_exists('cmsms')) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
-$advancedmode = $this->GetPreference("advancedmode",0);
-$showhiddenfiles = $this->GetPreference("showhiddenfiles",0);
-$showthumbnails = $this->GetPreference("showthumbnails",1);
-$iconsize=$this->GetPreference("iconsize",0);
-$permissionstyle = $this->GetPreference("permissionstyle","xxx");
+$advancedmode = $this->GetPreference('advancedmode',0);
+$showhiddenfiles = $this->GetPreference('showhiddenfiles',0);
+$showthumbnails = $this->GetPreference('showthumbnails',1);
+$iconsize=$this->GetPreference('iconsize',0);
+$permissionstyle = $this->GetPreference('permissionstyle','xxx');
 
 $tpl = $marty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
 
@@ -21,7 +21,7 @@ $iconsizes['16px'] = $this->Lang('smallicons').' (16px)';
 $tpl->assign('iconsizes',$iconsizes)
  ->assign('iconsize',$this->GetPreference('iconsize','16px'));
 
-$permstyles=[$this->Lang("rwxstyle")=>"xxxxxxxxx",$this->Lang("755style")=>"xxx"];
+$permstyles=[$this->Lang('rwxstyle')=>'xxxxxxxxx',$this->Lang('755style')=>'xxx'];
 $tpl->assign('permstyles',array_flip($permstyles))
  ->assign('permissionstyle',$permissionstyle);
 

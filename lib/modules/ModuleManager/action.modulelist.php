@@ -60,7 +60,7 @@ if( count( $data ) ) {
 
   // build the table
   $rowarray = [];
-  $newestdisplayed="";
+  $newestdisplayed='';
   foreach( $data as $row ) {
     $onerow = new stdClass();
     $onerow->date = $row['date'];

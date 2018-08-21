@@ -14,12 +14,12 @@ if( $argc != 2 ) {
 $filename = $argv[1];
 
 if( !file_exists($filename) ) {
-  error("File not found: ".$filename);
+  error('File not found: '.$filename);
 }
 
 require_once($filename);
 if( !isset($lang) ) {
-  error("No lang variable: ".$filename);
+  error('No lang variable: '.$filename);
 }
 
 // check if there is a realm attached.

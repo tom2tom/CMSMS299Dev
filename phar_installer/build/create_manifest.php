@@ -139,7 +139,7 @@ if ($_cli) {
 				if (DIRECTORY_SEPARATOR !== '/') {
 	                $_interactive = true;
 				} else {
-			        fatal("Prompted input of parameters is not supported on Windows");
+			        fatal('Prompted input of parameters is not supported on Windows');
 				}
                 break;
 
@@ -605,7 +605,7 @@ function ask_string(string $prompt, $dflt = null, bool $allow_empty = false)
         if ($dflt) {
             return $dflt;
         }
-        info("ERROR: Invalid input. Please try again");
+        info('ERROR: Invalid input. Please try again');
     }
 }
 
@@ -626,7 +626,7 @@ function ask_options(string $prompt, array $options, $dflt)
         if (in_array($tmp, $options)) {
             return $tmp;
         }
-        info("ERROR: Invalid input. Please enter one of the valid options");
+        info('ERROR: Invalid input. Please enter one of the valid options');
     }
 }
 

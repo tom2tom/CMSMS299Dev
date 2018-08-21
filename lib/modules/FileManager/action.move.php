@@ -2,14 +2,14 @@
 use FileManager\Utils;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
-if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
+if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
+if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) $sel = json_decode(rawurldecode($sel),true);
 if (count($sel)==0) {
-    $params["fmerror"]="nofilesselected";
-    $this->Redirect($id,"defaultadmin",$returnid,$params);
+    $params['fmerror']='nofilesselected';
+    $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 foreach( $sel as &$one ) {
@@ -20,8 +20,8 @@ $config=cmsms()->GetConfig();
 $cwd = Utils::get_cwd();
 $dirlist = Utils::get_dirlist();
 if( !count($dirlist) ) {
-    $params["fmerror"]="nodestinationdirs";
-    $this->Redirect($id,"defaultadmin",$returnid,$params);
+    $params['fmerror']='nodestinationdirs';
+    $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 $errors = [];
@@ -99,8 +99,8 @@ if( isset($params['move']) ) {
     } // no errors
 
     if( count($errors) == 0 ) {
-        $paramsnofiles["fmmessage"]="movesuccess"; //strips the file data
-        $this->Redirect($id,"defaultadmin",$returnid,$paramsnofiles);
+        $paramsnofiles['fmmessage']='movesuccess'; //strips the file data
+        $this->Redirect($id,'defaultadmin',$returnid,$paramsnofiles);
     }
 } // submit
 
@@ -108,7 +108,7 @@ if( count($errors) ) $this->ShowErrors($errors);
 if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('move.tpl'),null,null,$smarty);
-$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params))
+$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, 'post', '', false, '', $params))
  ->assign('formend', $this->CreateFormEnd())
  ->assign('cwd','/'.$cwd)
  ->assign('dirlist',$dirlist)

@@ -23,7 +23,7 @@ cms_siteprefs::set('allow_browser_cache',1); // allow browser to cache cachable 
 cms_siteprefs::set('auto_clear_cache_age',60); // cache files for only 60 days by default
 cms_siteprefs::set('browser_cache_expiry',60); // browser can cache pages for 60 minutes.
 cms_siteprefs::set('global_umask','022');
-cms_siteprefs::set('metadata',"<meta name=\"Generator\" content=\"CMS Made Simple - Copyright (C) 2004-" . date('Y') . ". All rights reserved.\" />\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n");
+cms_siteprefs::set('metadata','<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . ". All rights reserved.\" />\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n");
 
 //
 // permissions

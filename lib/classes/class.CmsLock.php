@@ -246,7 +246,7 @@ final class CmsLock implements \ArrayAccess
         }
 
         if( $uid != $this->_data['uid'] ) {
-            cms_notice(sprintf("Lock %s (%s/%d) owned by uid %s deleted by non owner",
+            cms_notice(sprintf('Lock %s (%s/%d) owned by uid %s deleted by non owner',
                                          $this->_data['id'],$this->_data['type'],$this->_data['oid'],$this->_data['uid']));
         }
 

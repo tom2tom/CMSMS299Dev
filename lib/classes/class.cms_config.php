@@ -584,7 +584,7 @@ final class cms_config implements \ArrayAccess
             $output .= "\$config['{$key}'] = $outvalue;\n";
         }
 
-        $output .= "?>";
+        $output .= '?>';
 
         // and write it.
         $fh = fopen($filename,'w');

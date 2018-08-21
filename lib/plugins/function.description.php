@@ -22,11 +22,11 @@ function smarty_function_description($params, $template)
 
 	if (!is_object($content_obj) || $content_obj->Id() == -1) {
 		// We've a custom error message...  set a message
-		$out="404 Error";
+		$out='404 Error';
 	}
 	else {
 		$result = $content_obj->TitleAttribute();
-        $out = preg_replace("/\{\/?php\}/", "", $result);
+        $out = preg_replace("/\{\/?php\}/", '', $result);
 	}
 
 	if( isset($params['assign']) ) {

@@ -40,7 +40,7 @@ class ModuleUninstallCommand extends Command
         $moma = cms_utils::get_module('ModuleManager');
         $module = $this->getOperand('module')->value();
         $info = new module_info( $module );
-        if( !$info['dir'] ) throw new RuntimeException("Nothing is known about module ".$module);
+        if( !$info['dir'] ) throw new RuntimeException('Nothing is known about module '.$module);
         if( !$info['installed'] ) throw new RuntimeException("module $module is not installed");
 
         $instance = $ops->get_module_instance($module);

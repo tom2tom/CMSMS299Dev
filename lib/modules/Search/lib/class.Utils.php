@@ -50,14 +50,14 @@ class Utils
         $phrase = strip_tags($phrase);
 
         // add spaces between tags
-        $phrase = str_replace("<"," <",$phrase);
-        $phrase = str_replace(">","> ",$phrase);
+        $phrase = str_replace('<',' <',$phrase);
+        $phrase = str_replace('>','> ',$phrase);
 
         // escape meta characters
         $phrase = preg_quote($phrase);
 
         // strtolower isn't friendly to other charsets
-        $phrase = preg_replace_callback("/([A-Z]+?)/",
+        $phrase = preg_replace_callback('/([A-Z]+?)/',
             function($matches)
             {
                 return strtolower($matches[1]);
@@ -120,7 +120,7 @@ class Utils
 
         Events::SendEvent('Search', 'SearchItemAdded', [ $modname, $id, $attr, &$content, $expires ]);
 
-        if ($content != "") {
+        if ($content != '') {
             //Clean up the content
             $content = html_entity_decode($content);
             $stemmed_words = $module->StemPhrase($content);
@@ -131,15 +131,15 @@ class Utils
                 $words[] = [$key, $val];
             }
 
-            $q = "SELECT id FROM ".CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
+            $q = 'SELECT id FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
             $parms = [$modname];
 
             if( $id != -1 ) {
-                $q .= " AND content_id=?";
+                $q .= ' AND content_id=?';
                 $parms[] = $id;
             }
             if( $attr != '' ) {
-                $q .= " AND extra_attr=?";
+                $q .= ' AND extra_attr=?';
                 $parms[] = $attr;
             }
             $db->BeginTrans();
@@ -149,7 +149,7 @@ class Utils
                 $itemid = (int) $row['id'];
             }
             else {
-                $itemid = (int) $db->GenID(CMS_DB_PREFIX."module_search_items_seq");
+                $itemid = (int) $db->GenID(CMS_DB_PREFIX.'module_search_items_seq');
                 $db->Execute('INSERT INTO '.CMS_DB_PREFIX.'module_search_items (id, module_name, content_id, extra_attr, expires) VALUES (?,?,?,?,?)', [$itemid, $modname, $id, $attr, ($expires != NULL ? trim($db->DbTimeStamp($expires), "'") : NULL) ]);
             }
 
@@ -171,13 +171,13 @@ class Utils
     public static function DeleteWords(Search &$module, string $modname = 'Search', $id = -1, string $attr = '')
     {
         $parms = [$modname];
-        $q = "DELETE FROM ".CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
+        $q = 'DELETE FROM '.CMS_DB_PREFIX.'module_search_items WHERE module_name=?';
         if( $id != -1 ) {
-            $q .= " AND content_id=?";
+            $q .= ' AND content_id=?';
             $parms[] = $id;
         }
         if( $attr != '' ) {
-            $q .= " AND extra_attr=?";
+            $q .= ' AND extra_attr=?';
             $parms[] = $attr;
         }
         $db = $module->GetDb();

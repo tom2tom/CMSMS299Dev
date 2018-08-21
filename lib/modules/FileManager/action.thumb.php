@@ -18,9 +18,9 @@
 use FileManager\Utils;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
+if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
-if (isset($params["cancel"])) $this->Redirect($id,"defaultadmin",$returnid,$params);
+if (isset($params['cancel'])) $this->Redirect($id,'defaultadmin',$returnid,$params);
 
 $sel = $params['sel'];
 if( !is_array($sel) ) {
@@ -29,12 +29,12 @@ if( !is_array($sel) ) {
 unset($params['sel']);
 
 if (count($sel)==0) {
-  $params["fmerror"]="nofilesselected";
-  $this->Redirect($id,"defaultadmin",$returnid,$params);
+  $params['fmerror']='nofilesselected';
+  $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 if (count($sel)>1) {
-  $params["fmerror"]="morethanonefiledirselected";
-  $this->Redirect($id,"defaultadmin",$returnid,$params);
+  $params['fmerror']='morethanonefiledirselected';
+  $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 $advancedmode = Utils::check_advanced_mode();
@@ -43,20 +43,20 @@ $basedir=CMS_ROOT_PATH;
 $filename=$this->decodefilename($sel[0]);
 $src=cms_join_path($basedir,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
-  $params["fmerror"]="filenotfound";
-  $this->Redirect($id,"defaultadmin",$returnid,$params);
+  $params['fmerror']='filenotfound';
+  $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 if( isset($params['thumb']) ) {
   $thumb = Utils::create_thumbnail($src);
 
   if( !$thumb ) {
-    $params["fmerror"]="thumberror";
+    $params['fmerror']='thumberror';
   }
   else {
-    $params["fmmessage"]="thumbsuccess";
+    $params['fmmessage']='thumbsuccess';
   }
-  $this->Redirect($id,"defaultadmin",$returnid,$params);
+  $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 $thumb = cms_join_path($basedir,Utils::get_cwd(),'thumb_'.$filename);
@@ -70,7 +70,7 @@ $tpl->assign('filename',$filename)
  ->assign('thumb',$thumb)
  ->assign('thumbexists',file_exists($thumb));
 if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
-$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params))
+$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,'post','',false,'',$params))
 //see DoActionBase() ->assign('mod',$this)
  ->assign('formend', $this->CreateFormEnd());
 

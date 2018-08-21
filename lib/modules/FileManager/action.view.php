@@ -3,15 +3,15 @@ use FileManager\Utils;
 
 if (!isset($gCms)) exit;
 if( !isset($params['file']) ) {
-    $params["fmerror"]="nofilesselected";
-    $this->Redirect($id,"defaultadmin",$returnid,$params);
+    $params['fmerror']='nofilesselected';
+    $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 $filename=$this->decodefilename($params['file']);
 $src = cms_join_path(CMS_ROOT_PATH,Utils::get_cwd(),$filename);
 if( !file_exists($src) ) {
-    $params["fmerror"]="filenotfound";
-    $this->Redirect($id,"defaultadmin",$returnid,$params);
+    $params['fmerror']='filenotfound';
+    $this->Redirect($id,'defaultadmin',$returnid,$params);
 }
 
 // get its mime type
@@ -19,11 +19,11 @@ $mimetype = Utils::mime_content_type($src);
 
 $handlers = ob_list_handlers();
 for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
-header("Expires: Mon, 26 Jul 2027 05:00:00 GMT");
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Cache-Control: no-store, no-cache, must-revalidate");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
+header('Expires: Mon, 26 Jul 2027 05:00:00 GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 header("Content-Type: $mimetype");
 echo file_get_contents($src);
 exit;

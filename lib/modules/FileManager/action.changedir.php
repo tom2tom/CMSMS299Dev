@@ -2,19 +2,19 @@
 use FileManager\Utils;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission("Modify Files") && !$this->AdvancedAccessAllowed()) exit;
+if (!$this->CheckPermission('Modify Files') && !$this->AdvancedAccessAllowed()) exit;
 
 if( $_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['cmsjobtype']) && $_GET['cmsjobtype'] > 0 ) {
   echo Utils::get_cwd();
   exit;
 }
 
-if( !isset($params["newdir"]) && !isset($params['setdir']) ) $this->RedirectToAdminTab();
+if( !isset($params['newdir']) && !isset($params['setdir']) ) $this->RedirectToAdminTab();
 
 $path = null;
 if( isset($params['newdir']) ) {
     // set a relative directory.
-    $newdir = trim($params["newdir"]);
+    $newdir = trim($params['newdir']);
     $path = cms_join_path(Utils::get_cwd(),$newdir);
 }
 else if( isset($params['setdir']) ) {

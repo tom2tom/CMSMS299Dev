@@ -22,10 +22,10 @@ function smarty_function_menu_text($params, $template)
 
 	if (!is_object($content_obj) || $content_obj->Id() == -1) {
 		// We've a custom error message...  set a message
-		$result="404 Error";
+		$result='404 Error';
     } else {
 		$result = $content_obj->MenuText();
-        $result = preg_replace("/\{\/?php\}/", "", $result);
+        $result = preg_replace("/\{\/?php\}/", '', $result);
 	}
 
 	if( isset($params['assign']) ){

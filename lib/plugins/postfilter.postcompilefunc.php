@@ -28,12 +28,12 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
             Events::SendEvent('Core', 'StylesheetPostCompile', ['stylesheet'=>&$tpl_output]);
             break;
 
-        case "content":
+        case 'content':
             Events::SendEvent('Core', 'ContentPostCompile', ['content' => &$tpl_output]);
             break;
 
         case 'cms_template':
-        case "template":
+        case 'template':
         case 'tpl_top':
         case 'tpl_body':
         case 'tpl_head':

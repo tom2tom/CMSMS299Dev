@@ -229,8 +229,8 @@ EOS;
 						$module_name = $tmp[0];
 					}
 					$orig_module_name = $module_name;
-					$module_name = preg_replace('/([A-Z])/', "_$1", $module_name);
-					$module_name = preg_replace('/_([A-Z])_/', "$1", $module_name);
+					$module_name = preg_replace('/([A-Z])/', '_$1', $module_name);
+					$module_name = preg_replace('/_([A-Z])_/', '$1', $module_name);
 					if ($module_name[0] == '_')
 						$module_name = substr($module_name, 1);
 				} else {

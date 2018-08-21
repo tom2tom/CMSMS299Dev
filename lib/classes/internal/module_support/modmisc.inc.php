@@ -32,14 +32,14 @@ function cms_module_GetAbout(&$modinstance)
 {
 	$str = '';
 	if ($modinstance->GetAuthor() != '') {
-		$str .= "<br />".lang('author').": " . $modinstance->GetAuthor();
+		$str .= '<br />'.lang('author').': ' . $modinstance->GetAuthor();
 		if ($modinstance->GetAuthorEmail() != '') $str .= ' &lt;' . $modinstance->GetAuthorEmail() . '&gt;';
-		$str .= "<br />";
+		$str .= '<br />';
 	}
-	$str .= "<br />".lang('version').": " .$modinstance->GetVersion() . "<br />";
+	$str .= '<br />'.lang('version').': ' .$modinstance->GetVersion() . '<br />';
 
 	if ($modinstance->GetChangeLog() != '') {
-		$str .= "<br />".lang('changehistory').":<br />";
+		$str .= '<br />'.lang('changehistory').':<br />';
 		$str .= $modinstance->GetChangeLog() . '<br />';
 	}
 	return $str;

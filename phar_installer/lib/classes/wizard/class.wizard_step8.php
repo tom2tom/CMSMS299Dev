@@ -266,7 +266,7 @@ class wizard_step8 extends wizard_step
         // create new config file.
         // this step has to go here.... as config file has to exist in step9
         // so that CMSMS can connect to the database.
-        $fn = $destdir."/config.php";
+        $fn = $destdir.'/config.php';
         if( is_file($fn) ) {
             $this->verbose(lang('install_backupconfig'));
             $destfn = $destdir.'/bak.config.php';

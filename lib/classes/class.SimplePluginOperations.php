@@ -259,7 +259,7 @@ EOS;
     */
     public function plugin_exists(string $name) : bool
     {
-        if( !$this->is_valid_plugin_name( $name ) ) throw new InvalidArgumentException("Invalid name passed to ".__METHOD__);
+        if( !$this->is_valid_plugin_name( $name ) ) throw new InvalidArgumentException('Invalid name passed to '.__METHOD__);
         $fp = $this->file_path( $name );
         return is_file($fp);
     }
@@ -290,7 +290,7 @@ EOS;
     {
         $name = trim($name);
         if( !$this->is_valid_plugin_name( $name ) ) {
-            throw new InvalidArgumentException("Invalid name passed to ".__METHOD__);
+            throw new InvalidArgumentException('Invalid name passed to '.__METHOD__);
         }
         if( !isset($this->_loaded[$name]) ) {
             $fp = $this->file_path( $name );

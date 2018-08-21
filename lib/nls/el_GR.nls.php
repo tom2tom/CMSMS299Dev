@@ -44,7 +44,7 @@ $nls['alias']['el_GR.ISO8859-7'] = 'el_GR' ;
 $nls['locale']['el_GR'] = 'el_GR.utf8,el_GR.utf-8,el_GR.UTF-8,el_GR,greek,Greek_Greece.1253';
 
 #Encoding of the language
-$nls['encoding']['el_GR'] = "UTF-8";
+$nls['encoding']['el_GR'] = 'UTF-8';
 
 #Location of the file(s)
 $nls['file']['el_GR'] = array(__DIR__.'/el_GR/admin.inc.php');

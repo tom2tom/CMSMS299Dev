@@ -103,7 +103,7 @@ function smarty_modifier_cms_escape($string, $esc_type = 'html', $char_set = 'ut
            return $_res;
 
 		case 'htmltiny':
-			return str_replace("<", "&lt;", $string);
+			return str_replace('<', '&lt;', $string);
 					
         default:
             return $string;

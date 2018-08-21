@@ -383,7 +383,7 @@ function create_checksum_dat()
 {
 	global $outdir,$tmpdir,$version_php,$version_num;
 
-	verbose(1, "INFO: Creating checksum file");
+	verbose(1, 'INFO: Creating checksum file');
 	$salt = md5_file($version_php).md5_file($tmpdir.DIRECTORY_SEPARATOR.'index.php'); //TODO joinpath
 
 	$out = create_checksums($tmpdir, $salt);
@@ -412,7 +412,7 @@ function create_source_archive()
 	@unlink($fp.'.gz');
 
 	try {
-		verbose(1, "INFO: Creating tar.gz sources archive");
+		verbose(1, 'INFO: Creating tar.gz sources archive');
 		$phar = new PharData($fp);
 		//get all files
 		$phar->buildFromDirectory($tmpdir);
@@ -462,7 +462,7 @@ try {
 	}
 
 	if ($clean && is_dir($outdir)) {
-		verbose(1, "INFO: Removing old output file(s)");
+		verbose(1, 'INFO: Removing old output file(s)');
 		rrmdir($outdir);
 	}
 
@@ -494,7 +494,7 @@ try {
 	}
 
 	if ($clean && is_dir($tmpdir)) {
-		verbose(1, "INFO: removing old temporary files");
+		verbose(1, 'INFO: removing old temporary files');
 		rrmdir($tmpdir);
 	}
 	@mkdir($tmpdir, 0771, true);
@@ -526,15 +526,15 @@ try {
 	$fp = joinpath($phardir, 'assets', 'upgrade', $version_num);
 	@mkdir($fp, 0771, true);
 	if (!(is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT.gz') || is_file($fp.DIRECTORY_SEPARATOR.'MANIFEST.DAT'))) {
-		verbose(1, "ERROR: no upgrade-files manifest is present");
+		verbose(1, 'ERROR: no upgrade-files manifest is present');
 		// MAYBE create MANIFEST.DAT.gz using create_manifest.php, but what 'reference' fileset?
 	}
 	if (!is_file($fp.DIRECTORY_SEPARATOR.'changelog.txt')) {
-		verbose(1, "WARNING: no upgrade changelog is present");
+		verbose(1, 'WARNING: no upgrade changelog is present');
 		// MAYBE extract some of doc/CHANGELOG.txt ?
 	}
 
-	verbose(1, "INFO: Recursively setting permissions");
+	verbose(1, 'INFO: Recursively setting permissions');
 	rchmod($tmpdir);
 
 	if ($checksums) {
@@ -649,7 +649,7 @@ EOS;
 		$fp = joinpath($outdir, $destname);
 		if ($rename) {
 			// rename it to a php file so it's executable on pretty much all hosts
-			verbose(1, "INFO: Renaming phar file to php");
+			verbose(1, 'INFO: Renaming phar file to php');
 			$tp = joinpath($outdir, $destname2);
 			rename($fp, $tp);
 		}
@@ -716,5 +716,5 @@ EOS;
 
 	echo "INFO: Done, see files in $outdir\n";
 } catch (Exception $e) {
-	echo "ERROR: Problem building phar file ".$outdir.": ".$e->GetMessage()."\n";
+	echo 'ERROR: Problem building phar file '.$outdir.': '.$e->GetMessage()."\n";
 }

@@ -127,7 +127,7 @@ while( false !== ($filename = $dh->read()) ) {
 	$file['fullpath'] = $fullname;
 	$file['fullurl'] = $starturl.'/'.$filename;
 	$file['isdir'] = is_dir($fullname);
-	$file['ext'] = strtolower(substr($filename,strrpos($filename,".")+1));
+	$file['ext'] = strtolower(substr($filename,strrpos($filename,'.')+1));
 	$file['is_image'] = is_image($filename);
 	$file['icon'] = Utils2::get_file_icon($file['ext'],$file['isdir']);
 	$file['filetype'] = get_filetype($file['ext']);
@@ -152,9 +152,9 @@ while( false !== ($filename = $dh->read()) ) {
 // done the loop, now sort
 usort($files, function (array $file1, array $file2)
 {
-	if ($file1["isdir"] && !$file2["isdir"]) return -1;
-	if (!$file1["isdir"] && $file2["isdir"]) return 1;
-	return strnatcasecmp($file1["name"],$file2["name"]);
+	if ($file1['isdir'] && !$file2['isdir']) return -1;
+	if (!$file1['isdir'] && $file2['isdir']) return 1;
+	return strnatcasecmp($file1['name'],$file2['name']);
 });
 
 /*

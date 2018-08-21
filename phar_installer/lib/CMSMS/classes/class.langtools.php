@@ -333,9 +333,9 @@ class langtools
   {
     // load the realm.
     $fns = [];
-    $fns[] = $this->get_lang_dir($realm)."/en_US.php";
-    $fns[] = $this->get_lang_dir($realm)."/ext/".$this->get_current_language().'.php';
-    $fns[] = $this->get_lang_dir($realm)."/custom/".$this->get_current_language().'.php';
+    $fns[] = $this->get_lang_dir($realm).'/en_US.php';
+    $fns[] = $this->get_lang_dir($realm).'/ext/'.$this->get_current_language().'.php';
+    $fns[] = $this->get_lang_dir($realm).'/custom/'.$this->get_current_language().'.php';
 
     $lang = [];
     foreach( $fns as $fn ) {

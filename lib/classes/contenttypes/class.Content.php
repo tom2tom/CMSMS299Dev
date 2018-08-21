@@ -609,7 +609,7 @@ class Content extends ContentBase
 			$size = (int) $this->_get_param($blockInfo,'size',50);
 			$maxlength = (int) $this->_get_param($blockInfo,'maxlength',255);
 			$ret = '<input type="text" size="'.$size.'" maxlength="'.$maxlength.'" name="'.$blockInfo['id'].'" value="'.cms_htmlentities($value, ENT_NOQUOTES).'"';
-			if( $required ) $ret .= " required=\"required\"";
+			if( $required ) $ret .= ' required="required"';
 			if( $placeholder ) $ret .= " placeholder=\"{$placeholder}\"";
 			$ret .= ' />';
 		}

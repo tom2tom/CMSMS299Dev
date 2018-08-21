@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 $CMS_ADMIN_PAGE=1;
-$_SESSION['logout_user_now'] = "1";
+$_SESSION['logout_user_now'] = '1';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 

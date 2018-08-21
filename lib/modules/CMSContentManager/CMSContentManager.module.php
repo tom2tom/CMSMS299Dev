@@ -29,7 +29,7 @@ final class CMSContentManager extends CMSModule
     public function GetAdminSection() { return 'content'; }
     public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function IsAdminOnly() { return true; }
-    public function MinimumCMSVersion() { return "1.99-alpha0"; }
+    public function MinimumCMSVersion() { return '1.99-alpha0'; }
     public function InstallPostMessage() { return $this->Lang('postinstall'); }
     public function UninstallPostMessage() { return $this->Lang('postuninstall'); }
     public function UninstallPreMessage() { return $this->Lang('preuninstall'); }

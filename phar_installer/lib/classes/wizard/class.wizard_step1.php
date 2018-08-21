@@ -111,7 +111,7 @@ class wizard_step1 extends wizard_step
             }
 
             if( is_dir("$dir/assets") && is_file("$dir/lib/classes/class.installer_base.php") ) {
-                return "CMSMS installation assistant";
+                return 'CMSMS installation assistant';
             }
         };
 

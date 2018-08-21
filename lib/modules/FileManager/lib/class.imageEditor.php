@@ -121,7 +121,7 @@ final class imageEditor
 
 		$mimeType = self::getMime($path);
 		if (!$mimeType){
-			return "INVALID IMAGE TYPE";
+			return 'INVALID IMAGE TYPE';
 		}
 
 		if ($mimeType == image_type_to_mime_type(IMAGETYPE_JPEG)) {

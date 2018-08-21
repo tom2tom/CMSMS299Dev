@@ -46,7 +46,7 @@ function smarty_function_dump($params, $template)
 			$objname = get_class($obj);
 			$str = '';
 			$str .= str_repeat('  ',$level).'Object Name: '.$objname.'<br />';
-			$str .= str_repeat('  ',$level).'Parent: '.get_parent_class($obj)."<br />";
+			$str .= str_repeat('  ',$level).'Parent: '.get_parent_class($obj).'<br />';
 
 			if( !isset($params['nomethods']) ) {
 				$methods = get_class_methods($objname);
@@ -188,7 +188,7 @@ function smarty_function_dump($params, $template)
     }
 
 	$parenttype = gettype($obj);
-	$str .= "/n".'<pre><strong>Dump of: $'.$item;
+	$str .= '/n'.'<pre><strong>Dump of: $'.$item;
 	$str .= '</strong> ('.ucwords($parenttype).')<br />'."\n";
 
 	if( is_object($obj) ) {

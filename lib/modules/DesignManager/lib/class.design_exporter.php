@@ -119,7 +119,7 @@ EOT;
                                              $url = $matches[1];
                                              if( !startswith($url,'http') || startswith($url,$config['root_url']) || startswith($url,'[[root_url]]') ) {
                                                  $sig = $ob->_get_signature($url);
-                                                 $sig = "url(".$sig.")";
+                                                 $sig = 'url('.$sig.')';
                                                  return $sig;
                                              }
                                              return $matches[0];
@@ -170,10 +170,10 @@ EOT;
         };
 
         $ob = &$this;
-        $types = ["href", "src", "url"];
+        $types = ['href', 'src', 'url'];
         foreach( $types as $type ) {
             $innerT = '[a-z0-9:?=&@/._-]+?';
-            $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.")\\1|i",
+            $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.')\\1|i',
                                              function($matches) use ($ob,$type,&$is_same_host) {
                                                  $config = cmsms()->GetConfig();
                                                  $url = $matches[2];

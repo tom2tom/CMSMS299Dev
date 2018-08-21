@@ -184,7 +184,7 @@ $(document).ready(function() {
     $(elements).removeClass('selected ui-state-hover')
       .append($('<a href="#"/>')
       .addClass('ui-icon ui-icon-trash sortable-remove')
-      .text('{$this->Lang("remove")}'))
+      .text('{$this->Lang('remove')}'))
       .find('input[type="checkbox"]')
       .attr('checked', true);
     }
@@ -218,7 +218,7 @@ $(document).ready(function() {
         .attr('href', _url)
         .text(_text)
         .addClass('edit_css unsaved')
-        .attr('title', '{$this->Lang("edit_stylesheet")}');
+        .attr('title', '{$this->Lang('edit_stylesheet')}');
       $('span', _el).remove();
       $(_el).append(_a);
       $(_el).removeClass('selected ui-state-hover')
@@ -226,8 +226,8 @@ $(document).ready(function() {
         .addClass('unsaved no-sort')
         .append($('<a href="#"/>')
         .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang("remove")}')
-        .attr('title', '{$this->Lang("remove")}'))
+        .text('{$this->Lang('remove')}')
+        .attr('title', '{$this->Lang('remove')}'))
         .find('input[type="checkbox"]')
         .attr('checked', true);
       $('#selected-stylesheets > ul').append(_el);
@@ -249,7 +249,7 @@ $(document).ready(function() {
     if(__changed) {
     ev.preventDefault();
     var el = this;
-    cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
+    cms_confirm('{$this->Lang('confirm_save_design')}','{$this->Lang('yes')}').done(function() {
       // save and redirect
       save_design().done(function() {
         window.location = $(el).attr('href');
@@ -323,7 +323,7 @@ $(document).ready(function() {
         _e = $('<a/>').attr('href', _url)
         .text(_text)
         .addClass('edit_tpl unsaved')
-        .attr('title', '{$this->Lang("edit_template")}');
+        .attr('title', '{$this->Lang('edit_template')}');
       } else {
         _e = $('<span/>').text(_text);
       }
@@ -334,7 +334,7 @@ $(document).ready(function() {
         .addClass('unsaved no-sort')
         .append($('<a href="#"/>')
         .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang("remove")}'))
+        .text('{$this->Lang('remove')}'))
         .find('input[type="checkbox"]')
         .attr('checked', true);
     });
@@ -373,7 +373,7 @@ $(document).ready(function() {
         .attr('href', _url)
         .text(_text)
         .addClass('edit_tpl unsaved')
-        .attr('title', '{$this->Lang("edit_template")}');
+        .attr('title', '{$this->Lang('edit_template')}');
       } else {
         _a = $('<span/>').text(_text);
       }
@@ -384,8 +384,8 @@ $(document).ready(function() {
         .addClass('unsaved no-sort')
         .append($('<a href="#"/>')
         .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang("remove")}')
-        .attr('title', '{$this->Lang("remove")}'))
+        .text('{$this->Lang('remove')}')
+        .attr('title', '{$this->Lang('remove')}'))
         .find('input[type="checkbox"]')
         .attr('checked', true);
       $('#selected-templates > ul').append(_el);
@@ -409,7 +409,7 @@ $(document).ready(function() {
     if(__changed) {
     ev.preventDefault();
     var el = this;
-    cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
+    cms_confirm('{$this->Lang('confirm_save_design')}','{$this->Lang('yes')}').done(function() {
       // save and redirect
       save_design().done(function() {
         window.location = $(el).attr('href');

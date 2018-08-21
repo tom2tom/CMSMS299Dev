@@ -242,7 +242,7 @@ $(document).ready(function() {
   });
   $('#clearlocks,#cssclearlocks').on('click', function(e) {
     e.preventDefault();
-    cms_confirm_linkclick(this,$s2,'{$this->Lang("yes")}');
+    cms_confirm_linkclick(this,$s2,'{$this->Lang('yes')}');
     return false;
   });
   $('a.sedit_tpl').on('click', function(e) {
@@ -279,16 +279,16 @@ $(document).ready(function() {
 	  },
       width: 'auto',
       buttons: {
-        '{$this->Lang("submit")}': function() {
+        '{$this->Lang('submit')}': function() {
           $(this).dialog('close');
           $('#filterdialog_form').submit();
         },
-        '{$this->Lang("reset")}': function() {
+        '{$this->Lang('reset')}': function() {
           $(this).dialog('close');
           $('#submit_filter_tpl').val('-1');
           $('#filterdialog_form').submit();
         },
-        '{$this->Lang("cancel")}': function() {
+        '{$this->Lang('cancel')}': function() {
           $(this).dialog('close');
         }
       }
@@ -298,11 +298,11 @@ $(document).ready(function() {
     cms_dialog($('#addtemplatedialog'), {
       width: 'auto',
       buttons: {
-        '{$this->Lang("submit")}': function() {
+        '{$this->Lang('submit')}': function() {
           $(this).dialog('close');
           $('#addtemplate_form').submit();
         },
-        '{$this->Lang("cancel")}': function() {
+        '{$this->Lang('cancel')}': function() {
           $(this).dialog('close');
         }
       }
@@ -350,16 +350,16 @@ $(document).ready(function() {
       },
       width: 'auto',
       buttons: {
-        '{$this->Lang("submit")}': function() {
+        '{$this->Lang('submit')}': function() {
           $(this).dialog('close');
           $('#filtercssdlg_form').submit();
         },
-        '{$this->Lang("reset")}': function() {
+        '{$this->Lang('reset')}': function() {
           $(this).dialog('close');
           $('#submit_filter_css').val('-1');
           $('#filtercssdlg_form').submit();
         },
-        '{$this->Lang("cancel")}': function() {
+        '{$this->Lang('cancel')}': function() {
           $(this).dialog('close');
         }
       }

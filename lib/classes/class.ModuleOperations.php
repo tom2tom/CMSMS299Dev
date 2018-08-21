@@ -211,16 +211,16 @@ final class ModuleOperations
 		$dir = $this->get_module_path( $modinstance->GetName() );
 		if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 
-		$fh = fopen($dir."/moduleinfo.ini",'w');
+		$fh = fopen($dir.'/moduleinfo.ini','w');
 		fputs($fh,"[module]\n");
-		fputs($fh,"name = \"".$modinstance->GetName()."\"\n");
-		fputs($fh,"version = \"".$modinstance->GetVersion()."\"\n");
-		fputs($fh,"description = \"".$modinstance->GetDescription()."\"\n");
-		fputs($fh,"author = \"".$modinstance->GetAuthor()."\"\n");
-		fputs($fh,"authoremail = \"".$modinstance->GetAuthorEmail()."\"\n");
-		fputs($fh,"mincmsversion = \"".$modinstance->MinimumCMSVersion()."\"\n");
-		fputs($fh,"lazyloadadmin = ".($modinstance->LazyLoadAdmin()?'1':'0')."\n");
-		fputs($fh,"lazyloadfrontend = ".($modinstance->LazyLoadFrontend()?'1':'0')."\n");
+		fputs($fh,'name = "'.$modinstance->GetName()."\"\n");
+		fputs($fh,'version = "'.$modinstance->GetVersion()."\"\n");
+		fputs($fh,'description = "'.$modinstance->GetDescription()."\"\n");
+		fputs($fh,'author = "'.$modinstance->GetAuthor()."\"\n");
+		fputs($fh,'authoremail = "'.$modinstance->GetAuthorEmail()."\"\n");
+		fputs($fh,'mincmsversion = "'.$modinstance->MinimumCMSVersion()."\"\n");
+		fputs($fh,'lazyloadadmin = '.($modinstance->LazyLoadAdmin()?'1':'0')."\n");
+		fputs($fh,'lazyloadfrontend = '.($modinstance->LazyLoadFrontend()?'1':'0')."\n");
 		$depends = $modinstance->GetDependencies();
 		if( is_array($depends) && count($depends) ) {
 			fputs($fh,"[depends]\n");
@@ -229,8 +229,8 @@ final class ModuleOperations
 			}
 		}
 		fputs($fh,"[meta]\n");
-		fputs($fh,"generated = ".time()."\n");
-		fputs($fh,"cms_ver = ".CMS_VERSION."\n");
+		fputs($fh,'generated = '.time()."\n");
+		fputs($fh,'cms_ver = '.CMS_VERSION."\n");
 		fclose($fh);
 	}
 
@@ -625,10 +625,10 @@ final class ModuleOperations
 
 		if (!isset($result) || $result === FALSE) {
 			// now delete the record
-			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."modules WHERE module_name=?",[$module]);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name=?',[$module]);
 
 			// delete any dependencies
-			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."module_deps WHERE child_module=?",[$module]);
+			$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module=?',[$module]);
 
 			// clean up, if permitted
 			if ($cleanup) {

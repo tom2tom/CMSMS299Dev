@@ -37,10 +37,10 @@ header('Content-type: text/plain');
 header('Content-Disposition: attachment; filename="adminlog.txt"');
 while( !$result->EOF() ) {
     $row = $result->GetObject();
-    echo strftime($dateformat,$row['timestamp'])."|";
-    echo $row['username'] . "|";
-    echo (((int)$row['item_id']==-1)?'':$row['item_id']) . "|";
-    echo $row['item_name'] . "|";
+    echo strftime($dateformat,$row['timestamp']).'|';
+    echo $row['username'] . '|';
+    echo (((int)$row['item_id']==-1)?'':$row['item_id']) . '|';
+    echo $row['item_name'] . '|';
     echo $row['action'];
     echo "\n";
     $result->MoveNext();
