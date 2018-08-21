@@ -193,7 +193,7 @@
         {/if}
       {/if}
     {elseif $column == 'addchild'}
-	  <a href="{cms_action_url action=admin_editcontent parent_id=$row.id}" accesskey=""a" class="page_edit" title="{$mod->Lang('addchildhere')}">
+	  <a href="{cms_action_url action=admin_editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{$mod->Lang('addchildhere')}">
        {admin_icon icon='newobject.gif' class="page_addchild" title=$mod->Lang('prompt_page_addchild')}
       </a>
     {elseif $column == 'delete'}
