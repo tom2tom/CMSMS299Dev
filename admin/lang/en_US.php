@@ -272,6 +272,7 @@ $lang['deleted_user'] = 'Deleted User';
 $lang['deletepages'] = 'Delete these pages?';
 $lang['deletetheme'] = 'Delete Theme';
 $lang['deleteuser'] = 'Delete User Account';
+$lang['dependencies'] = 'Dependencies';
 //$lang['depsformodule'] = 'Dependencies for %s Module';
 $lang['description'] = 'Description';
 $lang['design'] = 'Page Design';
@@ -1746,7 +1747,6 @@ $lang['addtemplate'] = "Add New Template";
 $lang['deleted_template'] = "Deleted Template";
 $lang['deletetemplate'] = "Delete Template";
 $lang['deletetemplates'] = "Delete Templates";
-$lang['dependencies'] = "Dependencies";
 
 $lang['edittemplate'] = "Edit Template";
 $lang['edittemplatesuccess'] = "Template updated";
