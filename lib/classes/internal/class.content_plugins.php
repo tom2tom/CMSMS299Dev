@@ -24,6 +24,7 @@ use cms_utils;
 use CmsApp;
 use CmsError403Exception;
 use CmsError404Exception;
+use CMSMS\ModuleOperations;
 use const __CMS_PREVIEW_PAGE__;
 use const CMS_UPLOADS_URL;
 use function cms_join_path;
@@ -46,31 +47,35 @@ final class content_plugins
 
     private function __construct() {}
 
-    // $template is a smarty template, not the global smarty instance
-    private static function content_return($result,&$params, $template)
+    /**
+     * @ignore
+     * @param strihg $content the content
+     * @param array $params
+     * @param mixed $smarty Smarty_Internal_SmartyTemplateCompiler or CMSMS\internal\template_wrapper
+     */
+    private static function echo_content(string $content, array &$params, $smarty)
     {
         if ( !empty($params['assign']) ) {
-            $template->assign(trim($params['assign']), $result);
+            $smarty->assign(trim($params['assign']), $content);
+            echo '';
         }
         else {
-            return $result;
+            echo $content;
         }
     }
 
     /**
      * This handles {content} blocks.
-     * After determining which content block to render, $template->fetch() generates the content: resource
-     * to process the value of the content blocks through smarty.
+     * After determining which content block to render, $smarty->fetch()
+     * generates a 'content:' resource to retrieve the value of the block.
      *
      * @since 1.11
      * @author calguy1000
-     * @internal
      * @param array $params
-     * @param mixed $template
-     * @return mixed string or null
+     * @param Smarty_Internal_SmartyTemplateCompiler $smarty
      * @throws CmsError403Exception
      */
-    public static function fetch_contentblock(array $params, $template)
+    public static function fetch_contentblock(array $params, $smarty)
     {
         $contentobj = CmsApp::get_instance()->get_content_object();
         $result = null;
@@ -83,33 +88,35 @@ final class content_plugins
             $output = null;
             if( $block == 'content_en' ) {
                 // was the data prefetched ?
-                $result = self::get_default_content_block_content( $contentobj->Id(), $template );
+                $result = self::get_default_content_block_content( $contentobj->Id(), $smarty );
             }
             if( !$result ) {
                 if( isset($_SESSION['__cms_preview__']) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
                     // note: content precompile/postcompile events will not be triggererd in preview.
-                    //$val = $contentobj->Show($block);
-                    //$result = $template->fetch('eval:'.$val);
-                    $result = $template->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $contentobj->Id().$block);
+//                  $val = $contentobj->Show($block);
+//                  $result = $smarty->fetch('eval:'.$val);
+                    $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $contentobj->Id().$block);
                 }
                 else {
-                    $result = $template->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $contentobj->Id().$block);
+                    $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $contentobj->Id().$block);
                 }
             }
         }
-        return self::content_return($result, $params, $template);
+        self::echo_content($result, $params, $smarty);
     }
 
     /**
-     *
      * @param array $params
-     * @param mixed $template
+     * @param template_wrapper $template
      * @return mixed string or null
      */
     public static function fetch_pagedata(array $params, $template)
     {
         $contentobj = CmsApp::get_instance()->get_content_object();
-        if( !is_object($contentobj) || $contentobj->Id() <= 0 ) return self::content_return('', $params, $template);
+        if( !is_object($contentobj) || $contentobj->Id() <= 0 ) {
+            self::echo_content('', $params, $template);
+            return;
+        }
 
         $result = $template->fetch('content:pagedata','',$contentobj->Id());
         if( isset($params['assign']) ){
@@ -120,17 +127,19 @@ final class content_plugins
     }
 
     /**
-     *
      * @param array $params
      * @param mixed $template
      * @return mixed string or null
      */
     public static function fetch_imageblock(array $params, $template)
     {
-        $ignored = [ 'block','type','name','label','upload','dir','default','tab','priority','exclude','sort', 'profile', 'urlonly','assign' ];
+        $ignored = [ 'block','type','name','label','upload','dir','default','tab','priority','exclude','sort','profile','urlonly','assign' ];
         $gCms = CmsApp::get_instance();
         $contentobj = $gCms->get_content_object();
-        if( !is_object($contentobj) || $contentobj->Id() <= 0 ) return self::content_return('', $params, $template);
+        if( !is_object($contentobj) || $contentobj->Id() <= 0 ) {
+            self::echo_content('', $params, $template);
+            return;
+        }
 
         $config = cms_config::get_instance();
         $adddir = cms_siteprefs::get('contentimage_path');
@@ -231,13 +240,12 @@ final class content_plugins
     }
 
     /**
-     *
-     * @param mixed $page_id int or ''/null
-     * @param mixed $template
+     * @param mixed $page_id int or ''|null
+     * @param mixed $smarty CMSMS\internal\Smarty or CMSMS\internal\template_wrapper
      * @return mixed string or null
      * @throws CmsError404Exception
      */
-    public static function get_default_content_block_content($page_id, &$template)
+    public static function get_default_content_block_content($page_id, &$smarty)
     {
         $result = null;
         if( self::$_primary_content ) return self::$_primary_content;
@@ -250,7 +258,7 @@ final class content_plugins
         }
 
         if( $do_mact ) {
-            $modops = \ModuleOperations::get_instance();
+            $modops = ModuleOperations::get_instance();
             $module_obj = $modops->get_module_instance($module);
             if( !$module_obj ) {
                 // module not found... couldn't even autoload it.
@@ -264,22 +272,22 @@ final class content_plugins
 
             $params = $modops->GetModuleParameters($id);
             @ob_start();
-            $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $template);
+            $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
 
-            if( $result !== FALSE ) echo $result;
+            if( $result !== false ) echo $result;
             $result = @ob_get_contents();
             @ob_end_clean();
         }
         else {
             $block = 'content_en';
             if( isset($_SESSION['__cms_preview__']) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
-                // note: content precompile/postcompile events will not be triggererd in preview.
+                // note: content precompile/postcompile events will not be triggered in preview.
                 //$val = $contentobj->Show($block);
-                //$result = $template->fetch('eval:'.$val);
-                $result = $template->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
+                //$result = $smarty->fetch('eval:'.$val);
+                $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
             }
             else {
-                $result = $template->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
+                $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
             }
         }
         self::$_primary_content = $result;
