@@ -1,5 +1,6 @@
 <?php
-namespace Search;
+namespace Search\Command;
+
 use \CMSMS\CLI\App;
 use \CMSMS\CLI\GetOptExt\Command;
 use \CMSMS\CLI\GetOptExt\Option;
@@ -19,4 +20,4 @@ class ReindexCommand extends Command
         $mod = \cms_utils::get_module('Search');
         $mod->Reindex();
     }
-} // end of class.
+} // class
