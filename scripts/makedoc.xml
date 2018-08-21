@@ -37,7 +37,6 @@
         <ignore>plugins/*</ignore>
         <ignore>lib/include.php</ignore>
         <ignore>lib/version.php</ignore>
-        <ignore>lib/std_hooks.php</ignore>
         <ignore>lib/tasks/*</ignore>
         <ignore>lib/classes/internal/*</ignore>
         <ignore>lib/classes/contenttypes/*</ignore>
