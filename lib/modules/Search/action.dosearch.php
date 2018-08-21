@@ -76,7 +76,8 @@ else {
     }
     $template = $tpl->get_name();
 }
-$tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null);
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
 
 if ($params['searchinput'] != '') {
 // $_POST/$_GET parameters are filter_var()'d before passing them here
@@ -87,7 +88,7 @@ if ($params['searchinput'] != '') {
 
     $searchstarttime = microtime(true);
 
-    $tpl_ob->assign('phrase', $params['searchinput']);
+    $tpl->assign('phrase', $params['searchinput']);
     $words = array_values($this->StemPhrase($params['searchinput']));
     $nb_words = count($words);
     $max_weight = 1;
@@ -244,22 +245,23 @@ WHERE (".$searchphrase.") AND (i.expires IS NULL OR i.expires >= NOW())";
 
     Events::SendEvent( 'Search', 'SearchCompleted', [ &$params['searchinput'], &$col->_ary ] );
 
-    $tpl_ob->assign('searchwords',$words);
-    $tpl_ob->assign('results', $col->_ary);
-    $tpl_ob->assign('itemcount', count($col->_ary));
+    $tpl->assign('searchwords',$words)
+     ->assign('results', $col->_ary)
+     ->assign('itemcount', count($col->_ary));
 
     $searchendtime = microtime(true);
-    $tpl_ob->assign('timetook', ($searchendtime - $searchstarttime));
+    $tpl->assign('timetook', ($searchendtime - $searchstarttime));
 }
 else {
-    $tpl_ob->assign('phrase', '');
-    $tpl_ob->assign('results', 0);
-    $tpl_ob->assign('itemcount', 0);
-    $tpl_ob->assign('timetook', 0);
+    $tpl->assign('phrase', '')
+     ->assign('results', 0)
+     ->assign('itemcount', 0)
+     ->assign('timetook', 0);
 }
 
-$tpl_ob->assign('use_or_text',$this->Lang('use_or'));
-$tpl_ob->assign('searchresultsfor', $this->Lang('searchresultsfor'));
-$tpl_ob->assign('noresultsfound', $this->Lang('noresultsfound'));
-$tpl_ob->assign('timetaken', $this->Lang('timetaken'));
-$tpl_ob->display();
+$tpl->assign('use_or_text', $this->Lang('use_or'))
+ ->assign('searchresultsfor', $this->Lang('searchresultsfor'))
+ ->assign('noresultsfound', $this->Lang('noresultsfound'))
+ ->assign('timetaken', $this->Lang('timetaken'));
+$tpl->display();
+
