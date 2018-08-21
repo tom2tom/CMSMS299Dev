@@ -17,12 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Extend smarty for moduleinterface.php
- *
- * @package CMS
- */
-
-/**
  * Module-directories lister. Checks for directories existence, including $modname if provided.
  *
  * @since 2.3
@@ -146,8 +140,8 @@ function cms_module_plugin(array $params, $template)
             $inline = isset($ary[3]) && $ary[3] === 1;
 
             if ($checkid == $id && $inline == true ) {
-                // the action is for this instance of the module and we're inline (the results are supposed to replace
-                // the tag, not {content}
+                // the action is for this instance of the module and we're inline
+				// (i.e. the results are supposed to replace the tag, not {content}
                 $action = $mactaction;
                 $params = array_merge($params, ModuleOperations::get_instance()->GetModuleParameters($id));
             }
@@ -173,4 +167,4 @@ function cms_module_plugin(array $params, $template)
     else {
         return "<!-- $modulename is not a plugin module -->\n";
     }
-} // module_plugin function
+}
