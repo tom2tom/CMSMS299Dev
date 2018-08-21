@@ -1,5 +1,5 @@
 <?php
-# AdminSearch module action: defaultadmin.
+# AdminSearch module action: defaultadmin
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,20 +15,59 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use AdminSearch\tools;
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
 
-$template = get_parameter_value( $params, 'template', 'defaultadmin.tpl' );
 $url = $this->create_url($id,'admin_search');
-$url = str_replace('&amp;','&',$url).'&cmsjobtype=1';
-$smarty->assign('ajax_url',$url);
-$smarty->assign('js_url',$this->GetModuleURLPath().'/lib/admin_search_tab.js');
+$ajax_url = str_replace('&amp;','&',$url).'&cmsjobtype=1';
+$js_url = $this->GetModuleURLPath().'/lib/js/admin_search_tab.js';
 
-$userid = get_userid();
+$s1 = json_encode($this->Lang('error_select_slave'));
+
+$template = get_parameter_value( $params, 'template', 'defaultadmin.tpl' );
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+
+$userid = get_userid(false);
 $tmp = cms_userprefs::get_for_user($userid,$this->GetName().'saved_search');
-if( $tmp ) $smarty->assign('saved_search',unserialize($tmp));
+if( $tmp ) $tpl->assign('saved_search',unserialize($tmp));
 
-$slaves = AdminSearch_tools::get_slave_classes();
-$smarty->assign('slaves',$slaves);
+$slaves = tools::get_slave_classes();
+$tpl->assign('slaves',$slaves);
 
-echo $this->ProcessTemplate($template);
+$out = <<<EOS
+<style type="text/css" scoped>
+#status_area,#searchresults_cont,#workarea {
+ display: none
+}
+#searchresults {
+ max-height: 25em;
+ overflow: auto;
+ cursor: pointer
+}
+.search_oneresult {
+ color: red
+}
+</style>
+
+<script type="text/javascript">
+//<![CDATA[
+ var ajax_url = '$ajax_url';
+ $('#searchbtn').on('click', function() {
+   var l = $('#filter_box :checkbox.filter_toggle:checked').length;
+   if(l === 0) {
+     cms_alert($s1);
+   } else {
+     $('#searchresults').html('');
+   }
+ });
+//]]>
+</script>
+<script type="text/javascript" src="$js_url"></script>
+
+EOS;
+$this->AdminHeaderContent($out);
+
+$tpl->display();
+
