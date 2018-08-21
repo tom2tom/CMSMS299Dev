@@ -1,5 +1,8 @@
 <?php
+
 namespace FilePicker;
+
+use CMSMS\FilePickerProfile;
 
 // store profiles temporarily in the session... uses uniqueid
 // may pollute the session, but meh... we can clean it up after some time.
@@ -8,7 +11,7 @@ class TemporaryProfileStorage
 {
     private function __construct() {}
 
-    public static function set(\CMSMS\FilePickerProfile $profile)
+    public static function set(FilePickerProfile $profile)
     {
         $key = md5(__FILE__);
         $sig = md5(__FILE__.serialize($profile).microtime(TRUE).'1');
@@ -19,7 +22,7 @@ class TemporaryProfileStorage
     public static function get($sig)
     {
         $key = md5(__FILE__);
-        if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig], ['allowed_classes'=>false]);
+        if( isset($_SESSION[$key][$sig]) ) return unserialize($_SESSION[$key][$sig], ['allowed_classes'=>['CMSMS\\FilePickerProfile']]);
     }
 
     public static function clear($sig)
