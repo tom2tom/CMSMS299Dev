@@ -72,7 +72,10 @@ include __DIR__.'/function.admin_statistics_tab.php';
 echo $this->EndTab();
 
 echo $this->StartTab('options', $params);
-$smarty->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('options_tab.tpl'),null,null,$smarty);
+
+$tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
                                                    array('active_tab'=>'options')))
  ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
@@ -107,13 +110,15 @@ $smarty->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid
                                            $this->GetPreference('alpharesults','false')));
 
 $contentops = $gCms->GetContentOperations();
-$smarty->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
+$tpl->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
 /*
-$smarty->assign('input_resultpage',
+$tpl->assign('input_resultpage',
                 $contentops->CreateHierarchyDropdown('',$this->GetPreference('resultpage',-1),$id.'resultpage',1));
 */
-$smarty->assign('formend',$this->CreateFormEnd());
-echo $this->ProcessTemplate('options_tab.tpl');
+$tpl->assign('formend',$this->CreateFormEnd());
+
+$tpl->display();
+
 echo $this->EndTab();
 echo $this->EndTabContent();
 
