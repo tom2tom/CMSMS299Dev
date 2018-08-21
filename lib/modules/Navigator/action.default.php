@@ -44,7 +44,7 @@ else {
     $template = $tpl->get_name();
 }
 
-$tpl = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
 $hm = $gCms->GetHierarchyManager();
 foreach( $params as $key => $value ) {
     switch( $key ) {
@@ -242,5 +242,7 @@ utils::clear_excludes();
 $tpl->assign('nodes',$outtree);
 
 $tpl->display();
-debug_buffer('End Navigator default action');
+
 unset($tpl);
+debug_buffer('End Navigator default action');
+

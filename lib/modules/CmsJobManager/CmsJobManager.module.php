@@ -92,8 +92,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
     protected function &create_new_template($str)
     {
         $smarty = $this->GetActionTemplateObject();
-        $tpl = $smarty->CreateTemplate($this->GetTemplateResource($str),null,null,$smarty);
-        return $tpl;
+        return $smarty->createTemplate($this->GetTemplateResource($str),null,null,$smarty);
     }
 
     /**
