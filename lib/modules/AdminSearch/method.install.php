@@ -15,12 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\GroupOperations;
+
 $this->CreatePermission('Use Admin Search',$this->Lang('perm_Use_Admin_Search'));
 
 $groupops = GroupOperations::get_instance();
 $groups = $groupops->LoadGroups();
 
-if( is_array($groups) && count($groups) ) {
+if( $groups ) {
   foreach( $groups as $one_group ) {
     $one_group->GrantPermission('Use Admin Search');
   }

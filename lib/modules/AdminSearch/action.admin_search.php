@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide admin side search capbilities.
+# AdminSearch module action: search
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,9 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
+use AdminSearch\tools;
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
@@ -56,7 +56,7 @@ if( !isset($params['search_text']) || $params['search_text'] == '' ) {
 }
 
 // save the search
-$userid = get_userid();
+$userid = get_userid(false);
 $searchparams = $params;
 unset($searchparams['submit']);
 unset($searchparams['action']);
@@ -65,14 +65,14 @@ unset($searchparams['slaves']);
 
 // find search slave classes
 status_msg($this->Lang('starting'));
-$slaves = AdminSearch_tools::get_slave_classes();
+$slaves = tools::get_slave_classes();
 if( is_array($slaves) && count($slaves) ) {
     foreach( $slaves as $one_slave ) {
         if( !in_array($one_slave['class'],$params['slaves']) ) continue;
         $module = cms_utils::get_module($one_slave['module']);
         if( !is_object($module) ) continue;
         if( !class_exists($one_slave['class']) ) continue;
-        if( !is_subclass_of($one_slave['class'],'AdminSearch_slave') ) continue;
+        if( !is_subclass_of($one_slave['class'],'AdminSearch\\slave') ) continue;
 
         $obj = new $one_slave['class'];
         if( !is_object($obj) ) continue;
@@ -98,8 +98,3 @@ if( is_array($slaves) && count($slaves) ) {
 }
 status_msg($this->Lang('finished'));
 exit;
-
-#
-# EOF
-#
-?>
