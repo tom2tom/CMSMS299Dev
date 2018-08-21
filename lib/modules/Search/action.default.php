@@ -14,7 +14,7 @@ else {
     $template = $tpl->get_name();
 }
 
-$tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
 $inline = false;
 if( isset( $params['inline'] ) ) {
     $txt = strtolower(trim($params['inline']));
@@ -38,21 +38,21 @@ $is_method = isset($params['search_method'])?'post':'get';
 // Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html
 $submittext = $params['submit'] ?? $this->Lang('searchsubmit');
 $searchtext = $params['searchtext'] ?? $this->GetPreference('searchtext','');
-$tpl_ob->assign('search_actionid',$id)
-  ->assign('searchtext',$searchtext)
-  ->assign('destpage',$returnid)
-  ->assign('form_method',$is_method)
-  ->assign('inline',$inline)
-  ->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline ))
-  ->assign('label', '<label for="'.$id.'searchinput">'.$this->Lang('search').'</label>')
-  ->assign('searchprompt',$this->Lang('search'))
-//  ->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, $hogan))
-//  ->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$submittext.'</button>')
-  ->assign('submittext', $submittext);
+$tpl->assign('search_actionid',$id)
+ ->assign('searchtext',$searchtext)
+ ->assign('destpage',$returnid)
+ ->assign('form_method',$is_method)
+ ->assign('inline',$inline)
+ ->assign('startform', $this->CreateFormStart($id, 'dosearch', $returnid, $is_method, '', $inline ))
+ ->assign('label', '<label for="'.$id.'searchinput">'.$this->Lang('search').'</label>')
+ ->assign('searchprompt',$this->Lang('search'))
+// ->assign('inputbox', $this->CreateInputText($id, 'searchinput', $searchtext, 20, 50, $hogan))
+// ->assign('submitbutton', '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon check">'.$submittext.'</button>')
+ ->assign('submittext', $submittext);
 
 // only here for backwards compatibility.
 $hogan = "onfocus=\"if(this.value==this.defaultValue) this.value='';\""." onblur=\"if(this.value=='') this.value=this.defaultValue;\"";
-$tpl_ob->assign('hogan',$hogan);
+$tpl->assign('hogan',$hogan);
 
 $hidden = '';
 if( $origreturnid != $returnid ) $hidden .= $this->CreateInputHidden($id, 'origreturnid', $origreturnid);
@@ -62,6 +62,7 @@ foreach( $params as $key => $value ) {
     if( preg_match( '/^passthru_/', $key ) > 0 ) $hidden .= $this->CreateInputHidden($id,$key,$value);
 }
 
-if( $hidden != '' ) $tpl_ob->assign('hidden',$hidden);
-$tpl_ob->assign('endform', $this->CreateFormEnd());
-$tpl_ob->display();
+if( $hidden != '' ) $tpl->assign('hidden',$hidden);
+$tpl->assign('endform', $this->CreateFormEnd());
+$tpl->display();
+
