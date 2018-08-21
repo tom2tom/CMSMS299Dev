@@ -154,7 +154,7 @@ class page_template_parser extends Smarty_Internal_Template
      * Compile a content block tag into PHP code
      *
      * @param array $params
-     * @param mixed $template
+     * @param Smarty_Internal_SmartyTemplateCompiler $template
      * @return string
      */
     public static function compile_fecontentblock(array $params, $template) : string
