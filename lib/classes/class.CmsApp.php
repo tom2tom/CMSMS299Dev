@@ -247,8 +247,9 @@ final class CmsApp
 	 * This function controls whether the page template will be processed at all.
 	 * It must be called early enough in the content generation process.
 	 *
-	 * Ideally this method can be called from within a module action that is called from within the default content block
-	 * when content_processing is set to 2 (the default) in the config.php
+	 * Ideally this method can be called from within a module action that is called
+	 * from within the default content block when content_processing is set to 2
+	 * (the default) in the config.php file
 	 *
 	 * @return void
 	 * @since 2.3
@@ -264,7 +265,7 @@ final class CmsApp
 	 * @return bool
 	 * @since 2.3
 	 */
-	public function template_processing_allowed()
+	public function template_processing_allowed() : bool
 	{
 		return $this->_showtemplate;
 	}
