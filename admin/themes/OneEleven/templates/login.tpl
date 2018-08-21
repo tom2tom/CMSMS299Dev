@@ -35,7 +35,7 @@
 					<header>
 						<h1>{'logintitle'|lang}</h1>
 					</header>
-					{if isset($form)}{$form}{else}{include file='form.tpl'}{/if}
+					{if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
 					{if !empty($smarty.get.forgotpw)}
 						<div class="message warning">
 							{'forgotpwprompt'|lang}

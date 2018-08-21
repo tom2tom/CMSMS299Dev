@@ -1,5 +1,5 @@
+{block name=messages}
 {strip}
-
 {if isset($errors) && $errors[0] != ''}
 <aside class="message pageerrorcontainer" role="alert">
 {foreach from=$errors item='error'}
@@ -18,6 +18,5 @@
 {/foreach}
 </aside>
 {/if}
-
-
 {/strip}
+{/block}

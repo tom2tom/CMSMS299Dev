@@ -1,3 +1,4 @@
+{block name=notifications}
 {strip}
 <div id="admin-alerts" class="notification" role="alert">
 	<div class="box-shadow">
@@ -27,3 +28,4 @@
 	{/if}
 </div>
 {/strip}
+{/block}

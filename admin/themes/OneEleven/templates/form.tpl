@@ -1,3 +1,4 @@
+{block name=form}
 <form method="post" action="login.php">
 	<fieldset>{assign var='usernamefld' value='username'}
 		{if isset($smarty.get.forgotpw)}{assign var='usernamefld' value='forgottenusername'}{/if}
@@ -20,3 +21,4 @@
 		<input class="loginsubmit" name="cancel" type="submit" value="{'cancel'|lang}" />
 	</fieldset>
 </form>
+{/block}

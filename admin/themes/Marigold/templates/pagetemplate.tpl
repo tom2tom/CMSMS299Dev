@@ -49,7 +49,7 @@
 					{/if}
 					</div>
 					<!-- bookmarks -->
-					{include file='shortcuts.tpl'}
+					{include file='shortcuts.tpl'}{block name=shortcuts}{/block}
 				</div>
 				<!-- end header-bottom //-->
 			</header>
@@ -63,14 +63,14 @@
 				<div id="mg_sidebar">
 				  <aside>
 				    <span title="{'open'|lang}/{'close'|lang}" class="toggle-button close"></span>
- 			            {include file='navigation.tpl' nav=$theme->get_navigation_tree()}
+ 			            {include file='navigation.tpl' nav=$theme->get_navigation_tree()}{block name=navigation}{/block}
 				  </aside>
 				</div>
 				<!-- end sidebar //-->
 				<!-- start main -->
 				<div id="mg_mainarea" class="cf">
 					{strip}
-					{include file='messages.tpl'}
+					{include file='messages.tpl'}{block name=messages}{/block}
 					<article role="main" class="content-inner">
 					  <header class="pageheader{if isset($is_ie)} drop-hidden{/if} cf">
 					   {if !empty($pageicon) || !empty($pagetitle)}
@@ -92,7 +92,7 @@
 			</div>
 			<!-- end content //-->
 			<!-- start footer -->
-			{include file='footer.tpl'}
+			{include file='footer.tpl'}{block name=footer}{/block}
 			<!-- end footer //-->
 		</div>
 		<!-- end container //-->

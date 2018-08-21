@@ -27,4 +27,6 @@
  </ul>
 {/function}
 {/strip}
+{block name=navigation}
 {menu_branch nav=$nav depth=0}
+{/block}

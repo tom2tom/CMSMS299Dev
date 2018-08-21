@@ -1,3 +1,4 @@
+{block name=footer}
 {strip}
   <div class="footer-left">
    <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a> {cms_version} &ldquo;{cms_versionname}&rdquo;
@@ -19,3 +20,4 @@
     </ul>
   </div>
 {/strip}
+{/block}

@@ -54,7 +54,7 @@
     </div>
     <div>
       <!-- shortcuts -->
-      {include file='shortcuts.tpl'}
+      {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
       {if isset($myaccount)}
        <span class="user"><a href="myaccount.php?{$secureparam}" title="{lang('myaccount')}">{lang('signed_in',{$username})}</a></span>
       {else}
@@ -93,13 +93,13 @@
      </li></ul>
     </div>
     <div id="ggp_nav">
-     {include file='navigation.tpl'}
+     {include file='navigation.tpl'}{block name=navigation}{/block}
     </div>
    </div>
   </div>
   <!-- start footer -->
   <div id="ggp_footer">
-   {include file='footer.tpl' nocache}
+   {include file='footer.tpl'}{block name=footer}{/block}
   </div>
   <!-- end footer -->
   {$bottom_includes|default:''}

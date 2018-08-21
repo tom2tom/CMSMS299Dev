@@ -29,4 +29,6 @@
 {if $depth == '0'}</nav>{/if}
 {/function}
 {/strip}
+{block name=navigation}
 {menu_branch nav=$nav depth=0}
+{/block}

@@ -1,3 +1,4 @@
+{block name=shortcuts}
 {strip}
 <div class="shortcuts">
 	<ul class="cf">
@@ -78,3 +79,4 @@
 {/if}
 <!-- alerts-end -->
 {/strip}
+{/block}
