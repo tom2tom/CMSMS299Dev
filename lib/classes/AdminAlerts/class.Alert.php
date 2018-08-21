@@ -252,7 +252,7 @@ abstract class Alert
      */
     protected static function encode_object(Alert $obj)
     {
-        $tmp = array('module'=>$obj->module,'data'=>serialize($obj));
+        $tmp = ['module'=>$obj->module,'data'=>serialize($obj)];
         return serialize($tmp);
     }
 

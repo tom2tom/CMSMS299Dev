@@ -16,9 +16,9 @@ class manifest_reader
     private $_to_version;
     private $_to_name;
     private $_has_read = false;
-    private $_added = array();
-    private $_changed = array();
-    private $_deleted = array();
+    private $_added = [];
+    private $_changed = [];
+    private $_deleted = [];
 
     public function __construct($dir)
     {
@@ -69,17 +69,17 @@ class manifest_reader
 
     protected function handle_added($fields)
     {
-        $this->_added[] = array('filename'=>$fields[2],'checksum'=>$fields[1]);
+        $this->_added[] = ['filename'=>$fields[2],'checksum'=>$fields[1]];
     }
 
     protected function handle_changed($fields)
     {
-        $this->_changed[] = array('filename'=>$fields[2],'checksum'=>$fields[1]);
+        $this->_changed[] = ['filename'=>$fields[2],'checksum'=>$fields[1]];
     }
 
     protected function handle_deleted($fields)
     {
-        $this->_deleted[] = array('filename'=>$fields[2],'checksum'=>$fields[1]);
+        $this->_deleted[] = ['filename'=>$fields[2],'checksum'=>$fields[1]];
     }
 
     protected function handle_line($line)

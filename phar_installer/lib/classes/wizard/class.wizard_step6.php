@@ -20,7 +20,7 @@ class wizard_step6 extends wizard_step
         $tz = date_default_timezone_get();
         if( !$tz ) @date_default_timezone_set('UTC');
 
-        $this->_siteinfo = array( 'sitename'=>'','languages'=>[] );
+        $this->_siteinfo = [ 'sitename'=>'','languages'=>[] ];
         $tmp = $this->get_wizard()->get_data('config');
         if( $tmp ) $this->_siteinfo = array_merge($this->_siteinfo,$tmp);
         $lang = translator()->get_selected_language();
@@ -46,7 +46,7 @@ class wizard_step6 extends wizard_step
 
         if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = trim(utils::clean_string($_POST['sitename']));
         if( isset($_POST['languages']) ) {
-            $tmp = array();
+            $tmp = [];
             foreach ( $_POST['languages'] as $lang ) {
                 $tmp[] = utils::clean_string($lang);
             }
@@ -75,7 +75,7 @@ class wizard_step6 extends wizard_step
         $smarty->assign('action',$action);
         $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
         $smarty->assign('siteinfo',$this->_siteinfo);
-        $smarty->assign('yesno',array('0'=>lang('no'),'1'=>lang('yes')));
+        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $languages = get_app()->get_language_list();
         unset($languages['en_US']);
         $smarty->assign('language_list',$languages);

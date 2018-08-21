@@ -40,7 +40,7 @@ function cmscm_admin_bulk_delete_can_delete($node)
 
 function cmscm_get_deletable_pages($node)
 {
-    $out = array();
+    $out = [];
     if( cmscm_admin_bulk_delete_can_delete($node) ) {
         // we can delete the parent node.
         $out[] = $node->get_tag('id');
@@ -110,7 +110,7 @@ if( count($multicontent) == 0 ) {
 }
 
 $contentops = ContentOperations::get_instance();
-$pagelist = array();
+$pagelist = [];
 foreach( $multicontent as $pid ) {
     $node = $contentops->quickfind_node_by_id($pid);
     if( !$node ) continue;
@@ -123,7 +123,7 @@ $pagelist = array_unique($pagelist);
 // build the confirmation display
 //
 $contentops->LoadChildren(-1,FALSE,FALSE,$pagelist);
-$displaydata =  array();
+$displaydata =  [];
 foreach( $pagelist as $pid ) {
   $node = $contentops->quickfind_node_by_id($pid);
   if( !$node ) continue;  // this should not happen, but hey.
@@ -135,7 +135,7 @@ foreach( $pagelist as $pid ) {
     continue;
   }
 
-  $rec = array();
+  $rec = [];
   $rec['id'] = $content->Id();
   $rec['name'] = $content->Name();
   $rec['menutext'] = $content->MenuText();

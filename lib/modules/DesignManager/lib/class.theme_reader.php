@@ -35,10 +35,10 @@ class theme_reader extends reader_base
 {
   private $_xml;
   private $_scanned;
-  private $_design_info = array();
-  private $_tpl_info = array();
-  private $_css_info = array();
-  private $_ref_map = array();
+  private $_design_info = [];
+  private $_tpl_info = [];
+  private $_css_info = [];
+  private $_ref_map = [];
 
   public function __construct($fn)
   {
@@ -49,7 +49,7 @@ class theme_reader extends reader_base
 
   private function _scan()
   {
-    $in = array();
+    $in = [];
     $cur_key = null;
 
     $__get_in = function() use ($in) {
@@ -87,7 +87,7 @@ class theme_reader extends reader_base
             }
             $this->_xml->read();
             $cur_key = $this->_xml->value;
-            if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = array();
+            if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = [];
             if( isset($this->_tpl_info[$cur_key]) ) {
               // error, duplicate template name in XML file
             }
@@ -113,7 +113,7 @@ class theme_reader extends reader_base
             }
             $this->_xml->read();
             $cur_key = $this->_xml->value;
-            if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = array();
+            if( !isset($this->_tpl_info[$cur_key]) ) $this->_tpl_info[$cur_key] = [];
             if( isset($this->_tpl_info[$cur_key]) ) {
               // error, duplicate template name in XML file
             }
@@ -140,7 +140,7 @@ class theme_reader extends reader_base
             }
             $this->_xml->read();
             $cur_key = $this->_xml->value;
-            if( !isset($this->_css_info[$cur_key]) ) $this->_css_info[$cur_key] = array();
+            if( !isset($this->_css_info[$cur_key]) ) $this->_css_info[$cur_key] = [];
             if( isset($this->_css_info[$cur_key]) ) {
               // error, duplicate stylesheet name in XML file
             }
@@ -169,7 +169,7 @@ class theme_reader extends reader_base
             }
             $this->_xml->read();
             $cur_key = $this->_xml->value;
-            if( !isset($this->_ref_map[$cur_key]) ) $this->_ref_map[$cur_key] = array();
+            if( !isset($this->_ref_map[$cur_key]) ) $this->_ref_map[$cur_key] = [];
             if( isset($this->_ref_map[$cur_key]) ) {
               // error, duplicate reference name in XML file
             }
@@ -244,9 +244,9 @@ class theme_reader extends reader_base
   public function get_template_list()
   {
     $this->_scan();
-    $out = array();
+    $out = [];
     foreach( $this->_tpl_info as $key => $one ) {
-      $rec = array();
+      $rec = [];
       $rec['name'] = $one['name'];
       $rec['desc'] = '';
       $rec['data'] = base64_decode($one['data']);
@@ -267,9 +267,9 @@ class theme_reader extends reader_base
   {
     $this->_scan();
 
-    $out = array();
+    $out = [];
     foreach( $this->_css_info as $key => $one ) {
-      $rec = array();
+      $rec = [];
       $rec['name'] = $one['name'];
       $rec['desc'] = '';
       $rec['data'] = base64_decode($one['data']);
@@ -298,7 +298,7 @@ class theme_reader extends reader_base
   {
     $this->_scan();
 
-    $templates = CmsLayoutTemplate::template_query(array('as_list'=>1));
+    $templates = CmsLayoutTemplate::template_query(['as_list'=>1]);
     $tpl_names = array_values($templates);
 
     foreach( $this->_tpl_info as $key => &$rec ) {
@@ -448,7 +448,7 @@ class theme_reader extends reader_base
       $template->set_owner(get_userid(FALSE));
       $template->set_name($tpl_rec['name']);
 
-      $types = array("href", "src", "url");
+      $types = ["href", "src", "url"];
       $content = $tpl_rec['data'];
       foreach( $types as $type ) {
         $tmp_type = $type;

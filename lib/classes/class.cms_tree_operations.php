@@ -46,7 +46,7 @@ class cms_tree_operations
    */
   public static function add_key(string $key)
   {
-    if( !is_array(self::$_keys) ) self::$_keys = array();
+    if( !is_array(self::$_keys) ) self::$_keys = [];
     if( !in_array($key,self::$_keys) ) self::$_keys[] = $key;
   }
 
@@ -67,13 +67,13 @@ class cms_tree_operations
   {
       // create a tree object
       $tree = new cms_content_tree();
-      $sorted = array();
+      $sorted = [];
 
       for( $i = 0, $n = count($data); $i < $n; $i++ ) {
           $row = $data[$i];
 
           // create new node.
-          $node = new cms_content_tree(array('id'=>$row['content_id'],'alias'=>$row['content_alias'],'active'=>$row['active']));
+          $node = new cms_content_tree(['id'=>$row['content_id'],'alias'=>$row['content_alias'],'active'=>$row['active']]);
 
           // find where to insert it.
           $parent_node = null;

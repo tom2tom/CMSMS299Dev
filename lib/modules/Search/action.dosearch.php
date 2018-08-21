@@ -11,7 +11,7 @@ class SearchItemCollection
 
     function __construct()
     {
-        $this->_ary = array();
+        $this->_ary = [];
         $this->maxweight = 1;
     }
 
@@ -96,7 +96,7 @@ if ($params['searchinput'] != '') {
     $searchphrase = '';
     if ($nb_words > 0) {
         #$searchphrase = implode(' OR ', array_fill(0, $nb_words, 'word = ?'));
-        $ary = array();
+        $ary = [];
         foreach ($words as $word) {
             $word = trim($word);
             // $ary[] = "word = " . $db->qstr(cms_htmlentities($word));
@@ -109,28 +109,28 @@ if ($params['searchinput'] != '') {
     if( $this->GetPreference('savephrases','false') == 'false' ) {
         foreach( $words as $word ) {
             $q = 'SELECT count FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
-            $tmp = $db->GetOne($q,array($word));
+            $tmp = $db->GetOne($q,[$word]);
             if( $tmp ) {
                 $q = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET count=count+1 WHERE word = ?';
-                $db->Execute($q,array($word));
+                $db->Execute($q,[$word]);
             }
             else {
                 $q = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,count) VALUES (?,1)';
-                $db->Execute($q,array($word));
+                $db->Execute($q,[$word]);
             }
         }
     }
     else {
         $term = trim($params['searchinput']);
         $q = 'SELECT count FROM '.CMS_DB_PREFIX.'module_search_words WHERE word = ?';
-        $tmp = $db->GetOne($q,array($term));
+        $tmp = $db->GetOne($q,[$term]);
         if( $tmp ) {
             $q = 'UPDATE '.CMS_DB_PREFIX.'module_search_words SET count=count+1 WHERE word = ?';
-            $db->Execute($q,array($term));
+            $db->Execute($q,[$term]);
         }
         else {
             $q = 'INSERT INTO '.CMS_DB_PREFIX.'module_search_words (word,count) VALUES (?,1)';
-            $db->Execute($q,array($term));
+            $db->Execute($q,[$term]);
         }
     }
 
@@ -193,7 +193,7 @@ WHERE (".$searchphrase.") AND (i.expires IS NULL OR i.expires >= NOW())";
                 if (method_exists($moduleobj, 'SearchResultWithParams' )) {
                     // search through the params, for all the passthru ones
                     // and get only the ones matching this module name
-                    $parms = array();
+                    $parms = [];
                     foreach( $params as $key => $value ) {
                         $str = 'passthru_'.$modulename.'_';
                         if( preg_match( "/$str/", $key ) > 0 ) {
@@ -228,7 +228,7 @@ WHERE (".$searchphrase.") AND (i.expires IS NULL OR i.expires >= NOW())";
     // and replace the search terms with <span class="searchhilite">term</span>
 
     $results = $col->_ary;
-    $newresults = array();
+    $newresults = [];
     foreach( $results as $result ) {
         $title = cms_htmlentities($result->title);
         $txt = cms_htmlentities($result->urltxt);

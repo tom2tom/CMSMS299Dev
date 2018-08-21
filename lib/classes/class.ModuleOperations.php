@@ -248,18 +248,18 @@ final class ModuleOperations
 		if( !isset($result) || $result === FALSE) {
 			// install returned nothing, or FALSE, a successful installation
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name = ?';
-			$dbr = $db->Execute($query,array($module_obj->GetName()));
+			$dbr = $db->Execute($query,[$module_obj->GetName()]);
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module = ?';
-			$dbr = $db->Execute($query,array($module_obj->GetName()));
+			$dbr = $db->Execute($query,[$module_obj->GetName()]);
 
 			$lazyload_fe    = (method_exists($module_obj,'LazyLoadFrontend') && $module_obj->LazyLoadFrontend())?1:0;
 			$lazyload_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin())?1:0;
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'modules
 					  (module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
 					  VALUES (?,?,?,?,?,?,?)';
-			$dbr = $db->Execute($query,array($module_obj->GetName(),$module_obj->GetVersion(),'installed',
+			$dbr = $db->Execute($query,[$module_obj->GetName(),$module_obj->GetVersion(),'installed',
 											 ($module_obj->IsAdminOnly())?1:0,
-											 1,$lazyload_fe,$lazyload_admin));
+											 1,$lazyload_fe,$lazyload_admin]);
 
 			$deps = $module_obj->GetDependencies();
 			if( is_array($deps) && count($deps) ) {
@@ -267,20 +267,20 @@ final class ModuleOperations
 						  VALUES (?,?,?,NOW(),NOW())';
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
-					$dbr = $db->Execute($query,array($depname,$module_obj->GetName(),$depversion));
+					$dbr = $db->Execute($query,[$depname,$module_obj->GetName(),$depversion]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
-			$this->_moduleinfo = array();
+			$this->_moduleinfo = [];
 			$gCms->clear_cached_files();
 
 			cms_notice('Installed module '.$module_obj->GetName().' version '.$module_obj->GetVersion());
 			Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_obj->GetName(), 'version' => $module_obj->GetVersion() ] );
-			return array(TRUE,$module_obj->InstallPostMessage());
+			return [TRUE,$module_obj->InstallPostMessage()];
 		}
 
 		// install returned something.
-		return array(FALSE,$result);
+		return [FALSE,$result];
 	}
 
 
@@ -295,7 +295,7 @@ final class ModuleOperations
 	{
 		// get an instance of the object (force it).
 		$modinstance = $this->get_module_instance($module,'',TRUE);
-		if( !$modinstance ) return array(FALSE,lang('errormodulenotloaded'));
+		if( !$modinstance ) return [FALSE,lang('errormodulenotloaded')];
 
 		// check for dependencies
 		$deps = $modinstance->GetDependencies();
@@ -304,7 +304,7 @@ final class ModuleOperations
 				if( $mname == '' || $mversion == '' ) continue; // invalid entry.
 				$newmod = $this->get_module_instance($mname);
 				if( !is_object($newmod) || version_compare($newmod->GetVersion(),$mversion) < 0 ) {
-					return array(FALSE,lang('missingdependency').': '.$mname);
+					return [FALSE,lang('missingdependency').': '.$mname];
 				}
 			}
 		}
@@ -536,7 +536,7 @@ final class ModuleOperations
 		$gCms = CmsApp::get_instance();
 		$tmp = $gCms->get_installed_schema_version();
 		if( $tmp && $tmp < CMS_SCHEMA_VERSION ) {
-			return array(FALSE,lang('error_coreupgradeneeded'));
+			return [FALSE,lang('error_coreupgradeneeded')];
 		}
 
 		$info = $this->_get_module_info();
@@ -545,7 +545,7 @@ final class ModuleOperations
 		if( $to_version == '' ) $to_version = $module_obj->GetVersion();
 		$dbversion = $info[$module_name]['version'];
 		if( version_compare($dbversion, $to_version) != -1 ) {
-			return array(TRUE); // nothing to do.
+			return [TRUE]; // nothing to do.
 		}
 
 		$db = $gCms->GetDb();
@@ -557,11 +557,11 @@ final class ModuleOperations
 
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, active = 1, allow_fe_lazyload = ?, allow_admin_lazyload = ?, admin_only = ?
 					  WHERE module_name = ?';
-			$dbr = $db->Execute($query,array($to_version,$lazyload_fe,$lazyload_admin,$admin_only,$module_obj->GetName()));
+			$dbr = $db->Execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$module_obj->GetName()]);
 
 			// upgrade dependencies
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module = ?';
-			$dbr = $db->Execute($query,array($module_obj->GetName()));
+			$dbr = $db->Execute($query,[$module_obj->GetName()]);
 
 			$deps = $module_obj->GetDependencies();
 			if( is_array($deps) && count($deps) ) {
@@ -569,19 +569,19 @@ final class ModuleOperations
 						  VALUES (?,?,?,NOW(),NOW())';
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
-					$dbr = $db->Execute($query,array($depname,$module_obj->GetName(),$depversion));
+					$dbr = $db->Execute($query,[$depname,$module_obj->GetName(),$depversion]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
-			$this->_moduleinfo = array();
+			$this->_moduleinfo = [];
 			$gCms->clear_cached_files();
 			cms_notice('Upgraded module '.$module_obj->GetName().' to version '.$module_obj->GetVersion());
 			Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_obj->GetName(), 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
-			return array(TRUE);
+			return [TRUE];
 		}
 
 		cms_error('Upgrade failed for module '.$module_obj->GetName());
-		return array(FALSE,$result);
+		return [FALSE,$result];
 	}
 
 
@@ -600,7 +600,7 @@ final class ModuleOperations
 	public function UpgradeModule( string $module_name, string $to_version = '')
 	{
 		$module_obj = $this->get_module_instance($module_name,'',TRUE);
-		if( !is_object($module_obj) ) return array(FALSE,lang('errormodulenotloaded'));
+		if( !is_object($module_obj) ) return [FALSE,lang('errormodulenotloaded')];
 		return $this->_upgrade_module($module_obj,$to_version);
 	}
 
@@ -618,28 +618,28 @@ final class ModuleOperations
 		$db = $gCms->GetDb();
 
 		$modinstance = cms_utils::get_module($module);
-		if( !$modinstance ) return array(FALSE,lang('errormodulenotloaded'));
+		if( !$modinstance ) return [FALSE,lang('errormodulenotloaded')];
 
 		$cleanup = $modinstance->AllowUninstallCleanup();
 		$result = $modinstance->Uninstall();
 
 		if (!isset($result) || $result === FALSE) {
 			// now delete the record
-			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."modules WHERE module_name=?",array($module));
+			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."modules WHERE module_name=?",[$module]);
 
 			// delete any dependencies
-			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."module_deps WHERE child_module=?",array($module));
+			$db->Execute("DELETE FROM ".CMS_DB_PREFIX."module_deps WHERE child_module=?",[$module]);
 
 			// clean up, if permitted
 			if ($cleanup) {
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator=?',array($module));
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE module_name=?',array($module));
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator=?',[$module]);
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE module_name=?',[$module]);
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',[$module]);
 
 				$types = CmsLayoutTemplateType::load_all_by_originator($module);
 				if( is_array($types) && count($types) ) {
 					foreach( $types as $type ) {
-						$tpls = CmsLayoutTemplate::template_query(array('t:'.$type->get_id()));
+						$tpls = CmsLayoutTemplate::template_query(['t:'.$type->get_id()]);
 						if( is_array($tpls) && count($tpls) ) {
 							foreach( $tpls as $tpl ) {
 								$tpl->delete();
@@ -659,25 +659,25 @@ final class ModuleOperations
 				$jobmgr = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
 				if( $jobmgr ) $jobmgr->delete_jobs_by_module( $module );
 
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins where module=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins where module=?',[$module]);
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qstr($module))."_mapi_pref%'");
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',array($module));
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',array($module));
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',[$module]);
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$module]);
 			}
 
 			// clear the cache.
 			$gCms->clear_cached_files();
 
 			// Removing module from info
-			$this->_moduleinfo = array();
+			$this->_moduleinfo = [];
 
 			cms_notice('Uninstalled module '.$module);
 			Events::SendEvent( 'Core', 'ModuleUninstalled', [ 'name' => $module ] );
-			return array(TRUE);
+			return [TRUE];
 		}
 
 		cms_error('Uninstall failed: '.$module);
-		return array(FALSE,$result);
+		return [FALSE,$result];
 	}
 
 
@@ -721,8 +721,8 @@ final class ModuleOperations
 			Events::SendEvent( 'Core', 'BeforeModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
-			$dbr = $db->Execute($query,array($info[$module_name]['active'],$module_name));
-			$this->_moduleinfo = array();
+			$dbr = $db->Execute($query,[$info[$module_name]['active'],$module_name]);
+			$this->_moduleinfo = [];
 			cmsms()->clear_cached_files();
 			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			if( $activate ) {
@@ -785,7 +785,7 @@ final class ModuleOperations
 	 */
 	public function GetInstalledModules(bool $include_all = FALSE)
 	{
-		$result = array();
+		$result = [];
 		$info = $this->_get_module_info();
 		if( is_array($info) ) {
 			foreach( $info as $name => $rec ) {

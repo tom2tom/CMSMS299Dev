@@ -27,7 +27,7 @@ $caninstall = (is_dir($dir) && is_writable($dir));
 $moduledir = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules';
 $writable = is_dir($moduledir) && is_writable( $moduledir );
 
-$results = array();
+$results = [];
 
 if( !empty($newversions) ) {
 	foreach( $newversions as $row ) {
@@ -53,27 +53,27 @@ if( !empty($newversions) ) {
 				$onerow->date = $row['date'];
 				$onerow->age = Utils::get_status($row['date']);
 
-				$onerow->name = $this->CreateLink( $id, 'modulelist', $returnid, $row['name'], array('name'=>$row['name']));
+				$onerow->name = $this->CreateLink( $id, 'modulelist', $returnid, $row['name'], ['name'=>$row['name']]);
 				$onerow->version = $row['version'];
 
 				$onerow->help_url = $this->create_url($id,'modulehelp',$returnid,
-													  array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+													  ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 				$onerow->helplink = $this->CreateLink( $id, 'modulehelp', $returnid, $this->Lang('helptxt'),
-													   array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+													   ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 
 				$onerow->depends_url = $this->create_url( $id, 'moduledepends', $returnid,
-														  array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+														  ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 
 				$onerow->dependslink = $this->CreateLink( $id, 'moduledepends', $returnid,
 														  $this->Lang('dependstxt'),
-														  array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+														  ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 
 				$onerow->about_url = $this->create_url( $id, 'moduleabout', $returnid,
-														array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+														['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 
 				$onerow->aboutlink = $this->CreateLink( $id, 'moduleabout', $returnid,
 														$this->Lang('abouttxt'),
-														array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+														['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 
 				$onerow->size = (int)((float) $row['size'] / 1024.0 + 0.5);
 				if( isset( $row['description'] ) ) $onerow->description=$row['description'];
@@ -87,9 +87,9 @@ if( !empty($newversions) ) {
 					} else {
 						$onerow->status = $this->CreateLink( $id, 'installmodule', $returnid,
 															 $this->Lang('upgrade'),
-															 array('name' => $row['name'],'version' => $row['version'],
+															 ['name' => $row['name'],'version' => $row['version'],
 																   'filename' => $row['filename'],'size' => $row['size'],
-																   'active_tab'=>'newversions','reset_prefs' => 1));
+																   'active_tab'=>'newversions','reset_prefs' => 1]);
 					}
 				}
 				else {

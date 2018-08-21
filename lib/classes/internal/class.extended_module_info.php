@@ -4,10 +4,10 @@ use \ModuleOperations;
 
 class extended_module_info extends module_info
 {
-    private static $_ekeys = array('installed','status','active','system_module','installed_version','admin_only',
+    private static $_ekeys = ['installed','status','active','system_module','installed_version','admin_only',
                                    'active','allow_fe_lazyload','allow_admin_lazyload','dependants','can_deactivate',
-                                   'can_uninstall','missingdeps');
-    private $_edata = array();
+                                   'can_uninstall','missingdeps'];
+    private $_edata = [];
 
     public function __construct($module_name,$can_load = false)
     {

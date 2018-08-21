@@ -59,7 +59,7 @@ try {
 
             if( isset($params['submitandedit']) ) {
 				$this->SetMessage($this->Lang('msg_template_copied_edit'));
-				$this->Redirect($id,'admin_edit_template',$returnid,array('tpl'=>$new_tpl->get_id()));
+				$this->Redirect($id,'admin_edit_template',$returnid,['tpl'=>$new_tpl->get_id()]);
             }
             else {
 				$this->SetMessage($this->Lang('msg_template_copied'));

@@ -141,7 +141,7 @@ try {
             if( $node ) {
                 $children = $node->getChildren(FALSE,$allow_all);
                 if( is_array($children) && count($children) ) {
-                    $out = array();
+                    $out = [];
                     foreach( $children as $child ) {
                         $content = $child->getContent(FALSE);
                         if( !is_object($content) ) continue;
@@ -187,7 +187,7 @@ try {
         }
         else {
             // clean up the data a bit
-            $tmp = array();
+            $tmp = [];
             foreach( $_REQUEST['pages'] as $one ) {
                 $one = (int)$one;
                 // discard negative values
@@ -230,10 +230,10 @@ catch( Exception $e ) {
 }
 
 if( $error ) {
-    $out = array('status'=>'error','message'=>lang($error));
+    $out = ['status'=>'error','message'=>lang($error)];
 }
 else {
-    $out = array('status'=>'success','op'=>$op,'data'=>$out);
+    $out = ['status'=>'success','op'=>$op,'data'=>$out];
 }
 
 header('Pragma: public');

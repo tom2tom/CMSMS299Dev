@@ -146,7 +146,7 @@ final class utils
                 (($collapse && ($obj->parent || $obj->current)) || !$collapse) ) {
 
                 $obj->has_children = TRUE;
-                $child_nodes = array();
+                $child_nodes = [];
                 for( $i = 0; $i < count($children); $i++ ) {
                     if( self::is_excluded($children[$i]->get_tag('alias')) ) continue;
                     $tmp = self::fill_node($children[$i],$deep,$nlevels,$show_all,$collapse,$depth+1);

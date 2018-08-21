@@ -47,7 +47,7 @@ class CmsRoute implements \ArrayAccess
 	/**
 	 * @ignore
 	 */
-	static private $_keys = array('term','key1','key2','key3','defaults','absolute','results');
+	static private $_keys = ['term','key1','key2','key3','defaults','absolute','results'];
 
 	/**
 	 * Construct a new route object.
@@ -224,7 +224,7 @@ class CmsRoute implements \ArrayAccess
 			return FALSE;
 		}
 
-		$tmp = array();
+		$tmp = [];
 		$res = (bool)preg_match($this->_data['term'],$str,$tmp);
 		if( $res && is_array($tmp) ) $this->_results = $tmp;
 		return $res;

@@ -73,7 +73,7 @@ final class CmsLock implements \ArrayAccess
     /**
      * @ignore
      */
-    private $_data = array();
+    private $_data = [];
 
     /**
      * @ignore
@@ -83,7 +83,7 @@ final class CmsLock implements \ArrayAccess
     /**
      * @ignore
      */
-    private static $_keys = array('id','type','oid','uid','created','modified','lifetime','expires');
+    private static $_keys = ['id','type','oid','uid','created','modified','lifetime','expires'];
 
     /**
      * Constructor
@@ -199,16 +199,16 @@ final class CmsLock implements \ArrayAccess
             // insert
             $query = 'INSERT INTO '.CMS_DB_PREFIX.self::LOCK_TABLE.' (type,oid,uid,created,modified,lifetime,expires)
                 VALUES (?,?,?,?,?,?,?)';
-            $dbr = $db->Execute($query,array($this->_data['type'], $this->_data['oid'], $this->_data['uid'],
-                                             time(), time(), $this->_data['lifetime'], $this->_data['expires']));
+            $dbr = $db->Execute($query,[$this->_data['type'], $this->_data['oid'], $this->_data['uid'],
+                                             time(), time(), $this->_data['lifetime'], $this->_data['expires']]);
             $this->_data['id'] = $db->Insert_ID();
         }
         else {
             // update
             $query = 'UPDATE '.CMS_DB_PREFIX.self::LOCK_TABLE.' SET lifetime = ?, expires = ?, modified = ?
                 WHERE type = ? AND oid = ? AND uid = ? AND id = ?';
-            $dbr = $db->Execute($query,array($this->_data['lifetime'],$this->_data['expires'],time(),
-                                             $this->_data['type'],$this->_data['oid'],$this->_data['uid'],$this->_data['id']));
+            $dbr = $db->Execute($query,[$this->_data['lifetime'],$this->_data['expires'],time(),
+                                             $this->_data['type'],$this->_data['oid'],$this->_data['uid'],$this->_data['id']]);
         }
         if( !$dbr ) throw new CmsSqlErrorException('CMSEX_SQL001',null,$db->ErrorMsg());
         $this->_dirty = FALSE;
@@ -252,7 +252,7 @@ final class CmsLock implements \ArrayAccess
 
         $db = CmsApp::get_instance()->GetDb();
         $query = 'DELETE FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ?';
-        $db->Execute($query,array($this->_data['id']));
+        $db->Execute($query,[$this->_data['id']]);
         unset($this->_data['id']);
         $this->_dirty = TRUE;
     }
@@ -270,13 +270,13 @@ final class CmsLock implements \ArrayAccess
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE id = ? AND type = ? AND oid = ?';
         $db = CmsApp::get_instance()->GetDb();
-        $parms = array($lock_id,$type,$oid);
+        $parms = [$lock_id,$type,$oid];
         if( $uid > 0 ) {
             $query .= ' AND uid = ?';
             $parms[] = $uid;
         }
         $row = $db->GetRow($query,$parms);
-        if( !is_array($row) || count($row) == 0 ) throw new CmsNoLockException('CMSEX_L005','',array($lock_id,$type,$oid,$uid));
+        if( !is_array($row) || count($row) == 0 ) throw new CmsNoLockException('CMSEX_L005','',[$lock_id,$type,$oid,$uid]);
 
         return self::from_row($row);
     }
@@ -293,13 +293,13 @@ final class CmsLock implements \ArrayAccess
     {
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.self::LOCK_TABLE.' WHERE type = ? AND oid = ?';
         $db = CmsApp::get_instance()->GetDb();
-        $parms = array($type,$oid);
+        $parms = [$type,$oid];
         if( $uid > 0 ) {
             $query .= ' AND uid = ?';
             $parms[] = $uid;
         }
         $row = $db->GetRow($query,$parms);
-        if( !is_array($row) || count($row) == 0 ) throw new CmsNoLockException('CMSEX_L005','',array($type,$uid,$uid));
+        if( !is_array($row) || count($row) == 0 ) throw new CmsNoLockException('CMSEX_L005','',[$type,$uid,$uid]);
 
         return self::from_row($row);
     }

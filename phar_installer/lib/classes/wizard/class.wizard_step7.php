@@ -63,7 +63,7 @@ class wizard_step7 extends wizard_step
 
     private function do_files($langlist = null)
     {
-        $languages = array('en_US');
+        $languages = ['en_US'];
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( is_array($siteinfo['languages']) && count($siteinfo['languages']) ) $languages = array_merge($languages,$siteinfo['languages']);
         if( is_array($langlist) && count($langlist) ) $languages = array_merge($languages,$langlist);

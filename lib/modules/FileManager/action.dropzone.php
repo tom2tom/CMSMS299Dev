@@ -49,7 +49,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
     // now get a simple list of all of the directories we have 'write' access to.
     $basedir = dirname($startdir);
     function get_dirs($startdir,$prefix = '/') {
-        $res = array();
+        $res = [];
         if( !is_dir($startdir) ) return;
 
         global $showhiddenfiles;

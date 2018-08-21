@@ -11,7 +11,7 @@ if( !$mod ) {
 
 $ops = ModuleOperations::get_instance();
 $result = $ops->UpgradeModule($mod);
-if( !is_array($result) || !isset($result[0]) ) $result = array(FALSE,$this->Lang('error_moduleupgradefailed'));
+if( !is_array($result) || !isset($result[0]) ) $result = [FALSE,$this->Lang('error_moduleupgradefailed')];
 
 if( $result[0] == FALSE ) {
   $this->SetError($result[1]);

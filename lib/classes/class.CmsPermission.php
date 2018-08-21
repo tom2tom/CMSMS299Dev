@@ -30,12 +30,12 @@ final class CmsPermission
 	/**
 	 * @ignore
 	 */
-	private static $_keys = array('id','source','name','text','create_date','modified_date');
+	private static $_keys = ['id','source','name','text','create_date','modified_date'];
 
 	/**
 	 * @ignore
 	 */
-	private $_data = array();
+	private $_data = [];
 
 	/**
 	 * @ignore
@@ -92,7 +92,7 @@ final class CmsPermission
               (permission_id,permission_name,permission_text,permission_source,create_date,
                modified_date) VALUES (?,?,?,?,$now,$now)";
 		$dbr = $db->Execute($query,
-							array($new_id, $this->_data['name'], $this->_data['text'], $this->_data['source']));
+							[$new_id, $this->_data['name'], $this->_data['text'], $this->_data['source']]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$this->_data['id'] = $new_id;
 	}
@@ -117,7 +117,7 @@ final class CmsPermission
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SElECT permission_id FROM '.CMS_DB_PREFIX.'permissions
                 WHERE permission_name = ?';
-			$dbr = $db->GetOne($query,array($this->_data['name']));
+			$dbr = $db->GetOne($query,[$this->_data['name']]);
 			if( $dbr > 0 ) throw new CmsInvalidDataException('Permission with name '.$this->_data['name'].' already exists');
 		}
 	}
@@ -146,11 +146,11 @@ final class CmsPermission
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE permission_id = ?';
-		$dbr = $db->Execute($query,array($this->_data['id']));
+		$dbr = $db->Execute($query,[$this->_data['id']]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'permissions WHERE permission_id = ?';
-		$dbr = $db->Execute($query,array($this->_data['id']));
+		$dbr = $db->Execute($query,[$this->_data['id']]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		unset($this->_data['id']);
 	}
@@ -175,11 +175,11 @@ final class CmsPermission
 		$row = null;
 		if( (int)$name > 0 ) {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE permission_id = ?';
-			$row = $db->GetRow($query,array((int)$name));
+			$row = $db->GetRow($query,[(int)$name]);
 		}
 		else {
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name = ?';
-			$row = $db->GetRow($query,array($name));
+			$row = $db->GetRow($query,[$name]);
 		}
 		if( !is_array($row) || count($row) == 0 ) {
 			throw new CmsInvalidDataException('Could not find permission named '.$name);
@@ -192,7 +192,7 @@ final class CmsPermission
 		$obj->_data['create_date'] = $row['create_date'];
 		$obj->_data['modified_date'] = $row['modified_date'];
 
-		if( !is_array(self::$_perm_map) ) self::$_perm_map = array();
+		if( !is_array(self::$_perm_map) ) self::$_perm_map = [];
 		self::$_perm_map[$obj->id] = $obj;
 		return $obj;
 	}

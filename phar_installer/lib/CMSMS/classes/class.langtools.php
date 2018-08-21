@@ -46,13 +46,13 @@ class langtools
     $langs = $request->accept_language();
     $tmp = explode(',',$langs);
 
-    $out = array();
+    $out = [];
     for( $i = 0; $i < count($tmp); $i++ ) {
       $tmp2 = explode(';q=',$tmp[$i],2);
       if( $tmp2[0] == '' || $tmp2[0] == '*' ) continue;
       $priority = 1;
       if( !empty($tmp2[1]) ) $priority = (float)$tmp2[1];
-      $out[] = array('lang'=>$tmp2[0],'priority'=>$priority);
+      $out[] = ['lang'=>$tmp2[0],'priority'=>$priority];
     }
 
     // todo: sort by priority.
@@ -95,7 +95,7 @@ class langtools
   {
     if( !is_array($data) ) $data = explode(',',$data);
 
-    $out = array();
+    $out = [];
     for( $i = 0; $i < count($data); $i++ ) {
       if( $this->language_available($data[$i]) )  $out[] = $data[$i];
     }
@@ -260,7 +260,7 @@ class langtools
       $tmp = nls()->find($one);
       if( !is_object($tmp) ) continue;
 
-      if( !is_array($outp) ) $outp = array();
+      if( !is_array($outp) ) $outp = [];
       $outp[$one] = $tmp->display();
     }
     return $outp;
@@ -332,12 +332,12 @@ class langtools
   public function load_realm($realm = '')
   {
     // load the realm.
-    $fns = array();
+    $fns = [];
     $fns[] = $this->get_lang_dir($realm)."/en_US.php";
     $fns[] = $this->get_lang_dir($realm)."/ext/".$this->get_current_language().'.php';
     $fns[] = $this->get_lang_dir($realm)."/custom/".$this->get_current_language().'.php';
 
-    $lang = array();
+    $lang = [];
     foreach( $fns as $fn ) {
       if( file_exists($fn) ) include_once($fn);
     }
@@ -368,7 +368,7 @@ class langtools
     if( count($args) == 0 ) return;
     if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 
-    if( !$this->_langdata ) $this->_langdata = array();
+    if( !$this->_langdata ) $this->_langdata = [];
     if( !isset($this->_langdata[$this->_realm]) ) $this->_langdata[$this->_realm] = $this->load_realm($this->_realm);
 
     // check to see if the key is available.

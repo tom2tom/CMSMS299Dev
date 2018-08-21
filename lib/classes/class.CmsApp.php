@@ -100,7 +100,7 @@ final class CmsApp
 	/**
 	 * @ignore
 	 */
-	private static $_statelist = array(self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE,self::STATE_LOGIN_PAGE);
+	private static $_statelist = [self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE,self::STATE_LOGIN_PAGE];
 
 	/**
 	 * Database object - handle/connection to the current database
@@ -154,7 +154,7 @@ final class CmsApp
 	 */
 	private function __construct()
 	{
-		register_shutdown_function(array(&$this, 'dbshutdown'));
+		register_shutdown_function([&$this, 'dbshutdown']);
 	}
 
 	/**
@@ -571,7 +571,7 @@ final class CmsApp
         	HookManager::do_hook_all('clear_cached_files', [ 'older_than' => $age_days ]);
 		$the_time = time() - $age_days * 24*60*60;
 
-		$dirs = array(TMP_CACHE_LOCATION,PUBLIC_CACHE_LOCATION,TMP_TEMPLATES_C_LOCATION);
+		$dirs = [TMP_CACHE_LOCATION,PUBLIC_CACHE_LOCATION,TMP_TEMPLATES_C_LOCATION];
 		foreach( $dirs as $start_dir ) {
 			$dirIterator = new RecursiveDirectoryIterator($start_dir);
 			$dirContents = new RecursiveIteratorIterator($dirIterator);
@@ -598,7 +598,7 @@ final class CmsApp
 			global $CMS_STYLESHEET;
             global $CMS_LOGIN_PAGE;
 
-			$this->_states = array();
+			$this->_states = [];
 
 			if( isset($CMS_LOGIN_PAGE) ) $this->_states[] = self::STATE_LOGIN_PAGE;
 			if( isset($CMS_ADMIN_PAGE) ) $this->_states[] = self::STATE_ADMIN_PAGE;

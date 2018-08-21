@@ -8,7 +8,7 @@ use __installer\utils;
 // just like a boolean test, but uses TEST_WARN instaed of TESt_FAIL
 class warning_test extends test_base
 {
-  private $_data = array();
+  private $_data = [];
 
   public function __construct($name,$value)
   {

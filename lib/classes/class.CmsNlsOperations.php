@@ -82,7 +82,7 @@ final class CmsNlsOperations
 	private static function _load_nls()
 	{
 		if( !is_array(self::$_nls) ) {
-			self::$_nls = array();
+			self::$_nls = [];
 			$config = cms_config::get_instance();
 			$nlsdir = cms_join_path(CMS_ROOT_PATH,'lib','nls');
 			$langdir = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang');

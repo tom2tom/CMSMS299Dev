@@ -142,7 +142,7 @@ final class GroupOperations
 		if( !isset($this->_perm_cache) || !is_array($this->_perm_cache) || !isset($this->_perm_cache[$groupid]) ) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
-			$dbr = $db->GetCol($query,array((int)$groupid));
+			$dbr = $db->GetCol($query,[(int)$groupid]);
 			if( is_array($dbr) && count($dbr) ) $this->_perm_cache[$groupid] = $dbr;
 		}
 
@@ -169,7 +169,7 @@ final class GroupOperations
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms (group_perm_id,group_id,permission_id,create_date,modified_date)
 				  VALUES (?,?,?,$now,$now)";
- 		$dbr = $db->Execute($query,array($new_id,$groupid,$permid));
+ 		$dbr = $db->Execute($query,[$new_id,$groupid,$permid]);
 		unset($this->_perm_cache);
 	}
 
@@ -186,7 +186,7 @@ final class GroupOperations
 		if( $groupid <= 1 ) return;
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND perm_id = ?';
-		$dbr = $db->Execute($query,array($groupid,$permid));
+		$dbr = $db->Execute($query,[$groupid,$permid]);
 		unset($this->_perm_cache);
 	}
 } // class

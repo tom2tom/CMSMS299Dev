@@ -239,7 +239,7 @@ class ContentOperations
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE content_id = ?";
-		$row = $db->GetRow($query, array($id));
+		$row = $db->GetRow($query, [$id]);
 		if ($row) {
 			$classtype = strtolower($row['type']);
 			$contentobj = $this->CreateNewContent($classtype);
@@ -297,7 +297,7 @@ class ContentOperations
 	 */
 	private function _get_std_content_types()
 	{
-		$result = array();
+		$result = [];
 		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class*php';
 		$files = glob($patn);
 		if( is_array($files) ) {
@@ -399,14 +399,14 @@ class ContentOperations
 	 */
 	function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE)
 	{
-		$disallowed_a = array();
+		$disallowed_a = [];
 		$tmp = cms_siteprefs::get('disallowed_contenttypes');
 		if( $tmp ) $disallowed_a = explode(',',$tmp);
 
 		$this->_get_content_types();
 		$types = $this->_content_types;
 		if ( isset($types) ) {
-			$result = array();
+			$result = [];
 			foreach( $types as $obj ) {
 				global $CMS_ADMIN_PAGE;
 				if( !isset($obj->friendlyname) && isset($obj->friendlyname_key) && isset($CMS_ADMIN_PAGE) ) {
@@ -487,7 +487,7 @@ class ContentOperations
 			// nothing to do, get outa here.
 			return;
 		}
-		$hash = array();
+		$hash = [];
 		foreach( $list as $row ) {
 			$hash[$row['content_id']] = $row;
 		}
@@ -499,7 +499,7 @@ class ContentOperations
 		foreach( $hash as $content_id => $row ) {
 			$changed = $this->_set_hierarchy_position($content_id,$hash);
 			if( is_array($changed) ) {
-				$db->Execute($usql, array($changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $changed['content_id']));
+				$db->Execute($usql, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $changed['content_id']]);
 			}
 		}
 
@@ -564,8 +564,8 @@ class ContentOperations
 
 		$db = CmsApp::get_instance()->GetDb();
 
-		$expr = array();
-		$parms = array();
+		$expr = [];
+		$parms = [];
 		if( !$inactive ) {
 			$expr[] = 'active = ?';
 			$parms[] = 1;
@@ -585,7 +585,7 @@ class ContentOperations
 		$dbr = $db->Execute($query,$parms);
 
 		if( $loadprops ) {
-			$child_ids = array();
+			$child_ids = [];
 			while( !$dbr->EOF() ) {
 				$child_ids[] = $dbr->fields['content_id'];
 				$dbr->MoveNext();
@@ -601,11 +601,11 @@ class ContentOperations
 
 			// re-organize the tmp data into a hash of arrays of properties for each content id.
 			if( $tmp ) {
-				$contentprops = array();
+				$contentprops = [];
 				for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 					$content_id = $tmp[$i]['content_id'];
 					if( in_array($content_id,$child_ids) ) {
-						if( !isset($contentprops[$content_id]) ) $contentprops[$content_id] = array();
+						if( !isset($contentprops[$content_id]) ) $contentprops[$content_id] = [];
 						$contentprops[$content_id][] = $tmp[$i];
 					}
 				}
@@ -670,13 +670,13 @@ class ContentOperations
 			// get the content rows
 			if( $all ) $query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? ORDER BY hierarchy";
 			else $query = "SELECT * FROM ".CMS_DB_PREFIX."content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy";
-			$contentrows = $db->GetArray($query, array($id));
+			$contentrows = $db->GetArray($query, [$id]);
 		}
 
 		// get the content ids from the returned data
 		$contentprops = null;
 		if( $loadprops ) {
-			$child_ids = array();
+			$child_ids = [];
 			for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
 				$child_ids[] = $contentrows[$i]['content_id'];
 			}
@@ -690,11 +690,11 @@ class ContentOperations
 
 			// re-organize the tmp data into a hash of arrays of properties for each content id.
 			if( $tmp ) {
-				$contentprops = array();
+				$contentprops = [];
 				for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 					$content_id = $tmp[$i]['content_id'];
 					if( in_array($content_id,$child_ids) ) {
-						if( !isset($contentprops[$content_id]) ) $contentprops[$content_id] = array();
+						if( !isset($contentprops[$content_id]) ) $contentprops[$content_id] = [];
 						$contentprops[$content_id][] = $tmp[$i];
 					}
 				}
@@ -766,7 +766,7 @@ class ContentOperations
 		$list = $tree->getFlatList();
 
 		$this->LoadAllContent($loadprops);
-		$output = array();
+		$output = [];
 		foreach( $list as &$one ) {
 			$tmp = $one->GetContent(false,true,true);
 			if( is_object($tmp) ) $output[] = $tmp;
@@ -873,7 +873,7 @@ EOS;
 		$db = $gCms->GetDb();
 
 		$query = "SELECT content_id FROM ".CMS_DB_PREFIX."content WHERE hierarchy = ?";
-		$row = $db->GetRow($query, array($this->CreateUnfriendlyHierarchyPosition($position)));
+		$row = $db->GetRow($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
 
 		if (!$row) return false;
 		return $row['content_id'];
@@ -1021,12 +1021,12 @@ EOS;
 	public function GetOwnedPages(int $userid)
 	{
 		if( !is_array($this->_ownedpages) ) {
-			$this->_ownedpages = array();
+			$this->_ownedpages = [];
 
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE owner_id = ? ORDER BY hierarchy';
-			$tmp = $db->GetCol($query,array($userid));
-			$data = array();
+			$tmp = $db->GetCol($query,[$userid]);
+			$data = [];
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				if( $tmp[$i] > 0 ) $data[] = $tmp[$i];
 			}
@@ -1060,12 +1060,12 @@ EOS;
 	public function GetPageAccessForUser(int $userid)
 	{
 		if( !is_array($this->_authorpages) ) {
-			$this->_authorpages = array();
+			$this->_authorpages = [];
 			$data = $this->GetOwnedPages($userid);
 
 			// Get all of the pages this user has access to.
 			$groups = UserOperations::get_instance()->GetMemberGroups($userid);
-			$list = array($userid);
+			$list = [$userid];
 			if( is_array($groups) && count($groups) ) {
 				foreach( $groups as $group ) {
 					$list[] = $group * -1;

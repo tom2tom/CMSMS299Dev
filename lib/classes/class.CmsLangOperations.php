@@ -74,8 +74,8 @@ final class CmsLangOperations
 		if( !$realm ) $realm = self::$_curent_realm;
 
 		if( is_array(self::$_langdata) && isset(self::$_langdata[$curlang][$realm]) ) return;
-		if( !is_array(self::$_langdata) ) self::$_langdata = array();
-		if( !isset(self::$_langdata[$curlang]) ) self::$_langdata[$curlang] = array();
+		if( !is_array(self::$_langdata) ) self::$_langdata = [];
+		if( !isset(self::$_langdata[$curlang]) ) self::$_langdata[$curlang] = [];
 		$config = cms_config::get_instance();
 
 		// load the english file first.
@@ -199,7 +199,7 @@ final class CmsLangOperations
 			return '';
 		}
 
-		$params = array();
+		$params = [];
 		if( count($args) > 2 ) $params = array_slice($args,2);
 		if( count($params) == 1 && is_array($params[0]) ) $params = $params[0];
 

@@ -93,7 +93,7 @@ class cms_filecache_driver extends cms_cache_driver
      */
     public function __construct($opts)
     {
-        $_keys = array('lifetime','locking','cache_dir','auto_cleaning','blocking','group');
+        $_keys = ['lifetime','locking','cache_dir','auto_cleaning','blocking','group'];
         if( is_array($opts) ) {
             foreach( $opts as $key => $value ) {
                 if( in_array($key,$_keys) ) {

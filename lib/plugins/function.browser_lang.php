@@ -41,7 +41,7 @@ function smarty_function_browser_lang($params, $template)
     {
       return $default;
     }
-  $accepted = array();
+  $accepted = [];
   for( $i = 0; $i < count($tmp2); $i++ )
     {
       if( strlen($tmp2[$i]) < 2 ) continue;
@@ -53,7 +53,7 @@ function smarty_function_browser_lang($params, $template)
   // makes sure the array is unique, and that the default
   // is listed first
   //
-  $accepted = array_merge(array($default),$accepted);
+  $accepted = array_merge([$default],$accepted);
   $accepted = array_unique($accepted);
 
   //

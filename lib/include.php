@@ -107,8 +107,6 @@ if (isset($CMS_ADMIN_PAGE)) {
     }
 }
 
-require_once $dirname.'std_hooks.php';
-
 // since 2.0 ... mechanism whereby data can be cached automatically (in file-system text files), and fetched (or calculated) via a callback
 // if the cache is too old, or the cached value has been cleared or not yet been saved.
 // some of these caches could be omitted per $CMS_JOB_TYPE, but probably won't be used anyway

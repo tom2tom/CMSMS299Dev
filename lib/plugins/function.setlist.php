@@ -17,7 +17,7 @@
 
 function smarty_function_setlist($params, $template)
 {
-	$newlist = array();
+	$newlist = [];
 
 	if (!isset($params['var']))
 	{

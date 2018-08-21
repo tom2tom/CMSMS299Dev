@@ -7,7 +7,7 @@ if(!isset($params["filename"]) || !isset($params["path"])) {
 }
 
 if( !FileManager\Utils::test_valid_path($params['path']) ) {
-	$this->Redirect($id,'defaultadmin',$returnid,array("fmerror"=>"fileoutsideuploads"));
+	$this->Redirect($id,'defaultadmin',$returnid,["fmerror"=>"fileoutsideuploads"]);
 }
 
 $config = $gCms->GetConfig();
@@ -15,12 +15,12 @@ $fullname = cms_join_path(CMS_ROOT_PATH,$params["path"],$params["filename"]);
 
 if (isset($params["newmode"])) {
 	if (isset($params["cancel"])) {
-		$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmmessage"=>"chmodcancelled"));
+		$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmmessage"=>"chmodcancelled"]);
 	} else {
 		if ($this->SetModeWin($params["newmode"],$fullname)) {
-			$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmmessage"=>"chmodsuccess"));
+			$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmmessage"=>"chmodsuccess"]);
 		} else {
-			$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmerror"=>"chmodfailure"));
+			$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmerror"=>"chmodfailure"]);
 		}
 	}
 } else {
@@ -34,7 +34,7 @@ if (isset($params["newmode"])) {
 	 ->assign('newmodetext', $this->Lang("newpermissions"))
 
 	 ->assign('modeswitch',
-		  $this->CreateInputRadioGroup($id,"newmode",array($this->Lang("writable")=>"777",$this->Lang("writeprotected")=>"444"),$currentmode))
+		  $this->CreateInputRadioGroup($id,"newmode",[$this->Lang("writable")=>"777",$this->Lang("writeprotected")=>"444"],$currentmode))
 	 ->assign('modeswitchof', $this->GetModeTable($id,$this->GetPermissions($params["path"],$params["filename"])));
 
 //see template	->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')))

@@ -19,7 +19,7 @@
 use FilePicker\ProfileDAO;
 
 $db = $this->GetDb();
-$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 $dict = NewDataDictionary($db);
 
 try {

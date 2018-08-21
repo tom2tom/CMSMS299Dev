@@ -39,7 +39,7 @@ try {
 
       if( isset($params['submitandedit']) ) {
         $this->SetMessage($this->Lang('msg_stylesheet_copied_edit'));
-        $this->Redirect($id,'admin_edit_css',$returnid,array('css'=>$new_css->get_id()));
+        $this->Redirect($id,'admin_edit_css',$returnid,['css'=>$new_css->get_id()]);
       }
       else {
         $this->SetMessage($this->Lang('msg_stylesheet_copied'));

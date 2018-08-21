@@ -110,9 +110,9 @@ final class DesignManager extends CMSModule
 			header('Content-type:application/json; charset=utf-8');
 
 			if ($data) {
-				$json = json_encode(array('status' => $status, 'message' => $message, 'data' => $data));
+				$json = json_encode(['status' => $status, 'message' => $message, 'data' => $data]);
 			} else {
-				$json = json_encode(array('status' => $status, 'message' => $message));
+				$json = json_encode(['status' => $status, 'message' => $message]);
 			}
 
 			echo $json;

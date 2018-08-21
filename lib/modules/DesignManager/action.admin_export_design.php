@@ -28,7 +28,7 @@ if( !isset($params['design']) || $params['design'] == '' ) {
 }
 
 
-$ref_map = array();
+$ref_map = [];
 function _ref_map_get_sig($fn,$type = 'URL')
 {
   global $ref_map;
@@ -64,7 +64,7 @@ function _get_css_urls($css_content)
 
 function _get_sub_templates( $template )
 {
-  $t_matches_a = array();
+  $t_matches_a = [];
 
   $replace_fn = function($matches) {
     $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
@@ -89,8 +89,8 @@ function _get_sub_templates( $template )
   $replace_fn3 = function($matches) {
     $out = preg_replace_callback("/file\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
 				 function($matches){
-				   $bad = array('string:','startswith','module_db_tpl','module_file_tpl',
-						'tpl_top','tpl_body','tpl_head','file:http');
+				   $bad = ['string:','startswith','module_db_tpl','module_file_tpl',
+						'tpl_top','tpl_body','tpl_head','file:http'];
 				   foreach( $bad as $badone ) {
 				     if( endswith($matches[1],$badone) ) return $matches[0];
 				   }
@@ -120,7 +120,7 @@ function _get_sub_templates( $template )
 function _get_tpl_urls($tpl_content)
 {
   $content = $tpl_content;
-  $types = array("href", "src", "url");
+  $types = ["href", "src", "url"];
   while(list(,$type) = each($types)) {
     $innerT = '[a-z0-9:?=&@/._-]+?';
     $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.")\\1|i",

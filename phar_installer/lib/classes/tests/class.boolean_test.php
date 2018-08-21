@@ -6,7 +6,7 @@ use __installer\utils;
 
 class boolean_test extends test_base
 {
-  private $_data = array();
+  private $_data = [];
 
   public function __construct($name,$value)
   {

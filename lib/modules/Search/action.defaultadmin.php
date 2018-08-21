@@ -76,7 +76,7 @@ echo $this->StartTab('options', $params);
 $tpl = $smarty->createTemplate($this->GetTemplateResource('options_tab.tpl'),null,null,$smarty);
 
 $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
-                                                   array('active_tab'=>'options')))
+                                                   ['active_tab'=>'options']))
  ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
  ->assign('input_stopwords', CmsFormUtils::create_textarea([

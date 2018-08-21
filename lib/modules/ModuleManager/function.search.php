@@ -61,7 +61,7 @@ if( isset($params['submit']) ) {
         if( !is_array($res[1]) ) throw new Exception($this->Lang('search_noresults'));
 
         $res = $res[1];
-        $data = array();
+        $data = [];
         if( count($res) ) $res = modmgr_utils::build_module_data($res, $instmodules);
 
         $writable = true;
@@ -72,30 +72,30 @@ if( isset($params['submit']) ) {
            }
         }
 
-        $search_data = array();
+        $search_data = [];
         for( $i = 0; $i < count($res); $i++ ) {
             $row =& $res[$i];
             $obj = new stdClass();
             foreach( $row as $k => $v ) {
                 $obj->$k = $v;
             }
-            $obj->name = $this->CreateLink( $id, 'modulelist', $returnid, $row['name'],array('name'=>$row['name']));
+            $obj->name = $this->CreateLink( $id, 'modulelist', $returnid, $row['name'],['name'=>$row['name']]);
             $obj->version = $row['version'];
             $obj->help_url = $this->create_url( $id, 'modulehelp', $returnid,
-                                                array('name'=>$row['name'],'version'=>$row['version'],'filename'=>$row['filename']) );
+                                                ['name'=>$row['name'],'version'=>$row['version'],'filename'=>$row['filename']] );
             $obj->helplink = $this->CreateLink( $id, 'modulehelp', $returnid, $this->Lang('helptxt'),
-                                                array('name'=>$row['name'],'version'=>$row['version'],'filename'=>$row['filename']) );
+                                                ['name'=>$row['name'],'version'=>$row['version'],'filename'=>$row['filename']] );
             $obj->depends_url = $this->create_url( $id, 'moduledepends', $returnid,
-                                                   array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+                                                   ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
             $obj->dependslink = $this->CreateLink( $id, 'moduledepends', $returnid,
                                                    $this->Lang('dependstxt'),
-                                                   array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+                                                   ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
             $obj->about_url = $this->create_url( $id, 'moduleabout', $returnid,
-                                                 array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+                                                 ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
 
             $obj->aboutlink = $this->CreateLink( $id, 'moduleabout', $returnid,
                                                  $this->Lang('abouttxt'),
-                                                 array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']));
+                                                 ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
             $obj->age = modmgr_utils::get_status($row['date']);
             $obj->date = $row['date'];
             $obj->downloads = $row['downloads']??$this->Lang('unknown');
@@ -118,8 +118,8 @@ if( isset($params['submit']) ) {
                     $obj->candownload = TRUE;
                     $obj->status = $this->CreateLink( $id, 'installmodule', $returnid,
                                                       $this->Lang('download'),
-                                                      array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                                                            'size' => $row['size']));
+                                                      ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
+                                                            'size' => $row['size']]);
                 }
                 else {
                     $obj->status = $this->Lang('cantdownload');
@@ -133,8 +133,8 @@ if( isset($params['submit']) ) {
                     $obj->candownload = TRUE;
                     $obj->status = $this->CreateLink( $id, 'installmodule', $returnid,
                                                       $this->Lang('upgrade'),
-                                                      array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                                                            'size' => $row['size']));
+                                                      ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
+                                                            'size' => $row['size']]);
                 }
                 else {
                     $obj->status = $this->Lang('cantdownload');
@@ -161,7 +161,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_search_tab.tpl'
 if( is_array($search_data) ) $tpl->assign('search_data',$search_data);
 $tpl->assign('term',$term)
  ->assign('advanced',$advanced)
- ->assign('formstart',$this->CreateFormStart($id,'defaultadmin','','post','',false,'',array('__activetab'=>'search')))
+ ->assign('formstart',$this->CreateFormStart($id,'defaultadmin','','post','',false,'',['__activetab'=>'search']))
  ->assign('formend',$this->CreateFormEnd());
 //see DoActionBase() ->assign('actionid',$id)
 // ->assign('mod',$this);

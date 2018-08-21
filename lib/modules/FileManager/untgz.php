@@ -19,7 +19,7 @@ class archive
 {
 	function archive($name)
 	{
-		$this->options = array (
+		$this->options =  [
 			'basedir' => ".",
 			'name' => $name,
 			'prepend' => "",
@@ -33,11 +33,11 @@ class archive
 			'sfx' => "",
 			'type' => "",
 			'comment' => ""
-		);
-		$this->files = array ();
-		$this->exclude = array ();
-		$this->storeonly = array ();
-		$this->error = array ();
+		];
+		$this->files =  [];
+		$this->exclude =  [];
+		$this->storeonly =  [];
+		$this->error =  [];
 	}
 
 	function set_options($options)
@@ -188,11 +188,11 @@ class archive
 		if (!is_array ($list))
 		{
 			$temp = $list;
-			$list = array ($temp);
+			$list =  [$temp];
 			unset ($temp);
 		}
 
-		$files = array ();
+		$files =  [];
 
 		$pwd = getcwd();
 		chdir($this->options['basedir']);
@@ -221,18 +221,18 @@ class archive
 				unset ($temp, $file);
 			}
 			else if (@file_exists($current))
-				$files[] = array ('name' => $current, 'name2' => $this->options['prepend'] .
+				$files[] =  ['name' => $current, 'name2' => $this->options['prepend'] .
 					preg_replace("/(\.+\/+)+/", "", ($this->options['storepaths'] == 0 && strstr($current, "/")) ?
 					substr($current, strrpos($current, "/") + 1) : $current),
 					'type' => @is_link($current) && $this->options['followlinks'] == 0 ? 2 : 0,
-					'ext' => substr($current, strrpos($current, ".")), 'stat' => stat($current));
+					'ext' => substr($current, strrpos($current, ".")), 'stat' => stat($current)];
 		}
 
 		chdir($pwd);
 
 		unset ($current, $pwd);
 
-		usort($files, array ("archive", "sort_files"));
+		usort($files,  ["archive", "sort_files"]);
 
 		return $files;
 	}
@@ -240,11 +240,11 @@ class archive
 	function parse_dir($dirname)
 	{
 		if ($this->options['storepaths'] == 1 && !preg_match("/^(\.+\/*)+$/", $dirname))
-			$files = array (array ('name' => $dirname, 'name2' => $this->options['prepend'] .
+			$files =  [ ['name' => $dirname, 'name2' => $this->options['prepend'] .
 				preg_replace("/(\.+\/+)+/", "", ($this->options['storepaths'] == 0 && strstr($dirname, "/")) ?
-				substr($dirname, strrpos($dirname, "/") + 1) : $dirname), 'type' => 5, 'stat' => stat($dirname)));
+				substr($dirname, strrpos($dirname, "/") + 1) : $dirname), 'type' => 5, 'stat' => stat($dirname)]];
 		else
-			$files = array ();
+			$files =  [];
 		$dir = @opendir($dirname);
 
 		while ($file = @readdir($dir))
@@ -261,11 +261,11 @@ class archive
 					$files[] = $file2;
 			}
 			else if (@file_exists($fullname))
-				$files[] = array ('name' => $fullname, 'name2' => $this->options['prepend'] .
+				$files[] =  ['name' => $fullname, 'name2' => $this->options['prepend'] .
 					preg_replace("/(\.+\/+)+/", "", ($this->options['storepaths'] == 0 && strstr($fullname, "/")) ?
 					substr($fullname, strrpos($fullname, "/") + 1) : $fullname),
 					'type' => @is_link($fullname) && $this->options['followlinks'] == 0 ? 2 : 0,
-					'ext' => substr($file, strrpos($file, ".")), 'stat' => stat($fullname));
+					'ext' => substr($file, strrpos($file, ".")), 'stat' => stat($fullname)];
 		}
 
 		@closedir($dir);
@@ -410,24 +410,24 @@ class tar_file extends archive
 		if ($fp = $this->open_archive())
 		{
 			if ($this->options['inmemory'] == 1)
-				$this->files = array ();
+				$this->files =  [];
 
 			while ($block = fread($fp, 512))
 			{
 				$temp = unpack("a100name/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1type/a100symlink/a6magic/a2temp/a32temp/a32temp/a8temp/a8temp/a155prefix/a12temp", $block);
-				$file = array (
+				$file =  [
 					'name' => $temp['prefix'] . $temp['name'],
-					'stat' => array (
+					'stat' =>  [
 						2 => $temp['mode'],
 						4 => octdec($temp['uid']),
 						5 => octdec($temp['gid']),
 						7 => octdec($temp['size']),
 						9 => octdec($temp['mtime']),
-					),
+					],
 					'checksum' => octdec($temp['checksum']),
 					'type' => $temp['type'],
 					'magic' => $temp['magic'],
-				);
+				];
 				if ($file['checksum'] == 0x00000000)
 					break;
 				else if (substr($file['magic'], 0, 5) != "ustar")

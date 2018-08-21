@@ -22,7 +22,7 @@ $this->AddEventHandler('Core','ModuleInstalled',false);
 $this->AddEventHandler('Core','ModuleUninstalled',false);
 $this->AddEventHandler('Core','ModuleUpgraded',false);
 
-$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 $dict = NewDataDictionary($db);
 
 $flds = "

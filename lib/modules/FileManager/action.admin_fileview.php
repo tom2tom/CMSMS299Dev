@@ -44,7 +44,7 @@ for ($i = 0; $i < $times; $i++) {
   }
   $onerow->name = $filelist[$i]['name'];
   $onerow->urlname = $this->encodefilename($filelist[$i]['name']);
-  $onerow->type = array('file');
+  $onerow->type = ['file'];
   $onerow->mime = $filelist[$i]['mime'] ?? null;
   if (isset($params[$onerow->urlname])) {
     $onerow->checked = true;
@@ -87,7 +87,7 @@ for ($i = 0; $i < $times; $i++) {
     $url = $this->create_url($id, 'changedir', '', $parms);
     if ($filelist[$i]['name'] != '..') {
       $countdirs++;
-      $onerow->type = array('dir');
+      $onerow->type = ['dir'];
       $onerow->iconlink = $this->CreateLink($id, 'changedir', '', $this->GetFileIcon('', true), $parms);
       $onerow->txtlink = "<a class=\"dirlink\" href=\"{$url}\" title=\"{$this->Lang('title_changedir')}\">{$link}</a>";
     } else {

@@ -261,7 +261,7 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
                               bool $allownone=false,string $extratext='',
                               string $fileprefix='',bool $excludefiles=true,bool $sortresults = false)
 {
-  $files = array();
+  $files = [];
   $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
   if( $files === false ) return false;
   $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
@@ -313,7 +313,7 @@ function get_pageid_or_alias_from_url()
     else {
         // either we're using internal pretty urls or this is the default page.
         if (isset($_SERVER["REQUEST_URI"]) && !endswith($_SERVER['REQUEST_URI'], 'index.php')) {
-            $matches = array();
+            $matches = [];
             if (preg_match('/.*index\.php\/(.*?)$/', $_SERVER['REQUEST_URI'], $matches)) {
                 // pretty urls... grab all the stuff after the index.php
                 $page = trim($matches[1]);

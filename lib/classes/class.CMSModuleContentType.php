@@ -46,7 +46,7 @@ abstract class CMSModuleContentType extends ContentBase
    * @param string $name The key for the language string
    * @param array  $params Optional parameters for use in vsprintf
    */
-  public function Lang($name, $params=array())
+  public function Lang($name, $params=[])
   {
     $obj = cms_utils::get_module($this->ModuleName());
     if( $obj ) {

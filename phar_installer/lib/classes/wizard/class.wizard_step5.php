@@ -14,7 +14,7 @@ class wizard_step5 extends wizard_step
     public function __construct()
     {
         parent::__construct();
-        $this->_adminacct = array('username'=>'admin','emailaddr'=>'','password'=>'','repeatpw'=>''); //,'emailaccountinfo'=>1);
+        $this->_adminacct = ['username'=>'admin','emailaddr'=>'','password'=>'','repeatpw'=>'']; //,'emailaccountinfo'=>1);
         $tmp = $this->get_wizard()->get_data('adminaccount');
         if( is_array($tmp) && count($tmp) ) $this->_adminacct = $tmp;
     }
@@ -66,7 +66,7 @@ class wizard_step5 extends wizard_step
 
         $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
         $smarty->assign('account',$this->_adminacct);
-        $smarty->assign('yesno',array('0'=>lang('no'),'1'=>lang('yes')));
+        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step5.tpl');
         $this->finish();
     }

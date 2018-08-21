@@ -308,7 +308,7 @@ class cms_content_tree extends cms_tree
 		$children = $this->get_children();
 		if( is_array($children) && count($children) && $loadcontent ) {
 			// check to see if we need to load anything.
-			$ids = array();
+			$ids = [];
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				if( !$children[$i]->isContentCached() ) $ids[] = $children[$i]->get_tag('id');
 			}
@@ -327,7 +327,7 @@ class cms_content_tree extends cms_tree
      */
     private function &_buildFlatList()
     {
-        $result = array();
+        $result = [];
 
         if( $this->get_tag('id') > 0 ) $result[] = $this;
         if( $this->has_children() ) {
@@ -394,7 +394,7 @@ class cms_content_tree extends cms_tree
 	 */
 	private function _getHierarchyArray()
 	{
-		$list = array();
+		$list = [];
 		$list[] = $this->_getPeerIndex();
 		$parent = $this->get_parent();
 		if( $parent ) {

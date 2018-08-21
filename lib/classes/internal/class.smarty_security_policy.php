@@ -34,7 +34,7 @@ final class smarty_security_policy extends Smarty_Security
     public $php_handling = Smarty::PHP_REMOVE;
 
     public $secure_dir = null; // this is the magic that stops stuff from happening outside of the specified directories.
-    public $php_modifiers = array();
+    public $php_modifiers = [];
     //public $php_modifiers = array('escape','count','preg_replace','lang', 'ucwords','print_r','var_dump','trim','htmlspecialchars','explode','htmlspecialchars_decode','strpos','strrpos','startswith','endswith','substr);
     public $streams = null;
     public $allow_constants = false;

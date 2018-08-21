@@ -67,10 +67,10 @@ $instmodules = '';
 }
 
 // build a letters list
-$letters = array();
+$letters = [];
 $tmp = explode(',', 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z');
 foreach ($tmp as $i) {
-    $letters[$i] = $this->create_url($id, 'defaultadmin', $returnid, array('curletter'=>$i,'active_tab'=>'modules'));
+    $letters[$i] = $this->create_url($id, 'defaultadmin', $returnid, ['curletter'=>$i,'active_tab'=>'modules']);
 }
 
 // cross reference them
@@ -93,13 +93,13 @@ if (count($data)) {
         foreach ($row as $key => $value) {
             $onerow->$key = $value;
         }
-        $onerow->name = $this->CreateLink($id, 'modulelist', $returnid, $row['name'], array('name'=>$row['name']));
+        $onerow->name = $this->CreateLink($id, 'modulelist', $returnid, $row['name'], ['name'=>$row['name']]);
         $onerow->version = $row['version'];
         $onerow->help_url = $this->create_url(
             $id,
             'modulehelp',
             $returnid,
-            array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
+            ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
 
         $onerow->helplink = $this->CreateLink(
@@ -107,14 +107,14 @@ if (count($data)) {
             'modulehelp',
             $returnid,
             $this->Lang('helptxt'),
-            array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
+            ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
 
         $onerow->depends_url = $this->create_url(
             $id,
             'moduledepends',
             $returnid,
-            array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
+            ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
 
         $onerow->dependslink = $this->CreateLink(
@@ -122,14 +122,14 @@ if (count($data)) {
             'moduledepends',
             $returnid,
             $this->Lang('dependstxt'),
-            array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
+            ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
 
         $onerow->about_url = $this->create_url(
             $id,
             'moduleabout',
             $returnid,
-            array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
+            ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
 
         $onerow->aboutlink = $this->CreateLink(
@@ -137,7 +137,7 @@ if (count($data)) {
             'moduleabout',
             $returnid,
             $this->Lang('abouttxt'),
-            array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'])
+            ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]
         );
         $onerow->age = utils::get_status($row['date']);
         $onerow->date = $row['date'];
@@ -164,8 +164,8 @@ if (count($data)) {
                     'installmodule',
                     $returnid,
                     $this->Lang('download'),
-                    array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                   'size' => $row['size'])
+                    ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
+                   'size' => $row['size']]
                 );
             } else {
                 $onerow->status = $this->Lang('cantdownload');
@@ -181,8 +181,8 @@ if (count($data)) {
                     'installmodule',
                     $returnid,
                     $this->Lang('upgrade'),
-                    array('name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                           'size' => $row['size'])
+                    ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
+                           'size' => $row['size']]
                 );
             } else {
                 $onerow->status = $this->Lang('cantdownload');

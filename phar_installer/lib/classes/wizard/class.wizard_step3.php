@@ -28,13 +28,13 @@ class wizard_step3 extends wizard_step
         $app = get_app();
         $version_info = $this->get_wizard()->get_data('version_info');
         $action = $this->get_wizard()->get_data('action');
-        $informational = array();
-        $tests = array();
+        $informational = [];
+        $tests = [];
 
         // informational messages...
         $informational[] = new informational_test('server_software',$_SERVER['SERVER_SOFTWARE'],'info_server_software');
         $informational[] = new informational_test('server_api',PHP_SAPI,'info_server_api');
-        $informational[] = new informational_test('server_os',array(PHP_OS,php_uname('r'),php_uname('m')));
+        $informational[] = new informational_test('server_os',[PHP_OS,php_uname('r'),php_uname('m')]);
 
         // required test for php version
         $v = phpversion();
@@ -276,8 +276,8 @@ class wizard_step3 extends wizard_step
 
         // required test... check if most files are writable.
         {
-            $dirs = array('lib','plugins','admin','uploads','doc','scripts','install','tmp','assets');
-            $failed = array();
+            $dirs = ['lib','plugins','admin','uploads','doc','scripts','install','tmp','assets'];
+            $failed = [];
             $list = glob($app->get_destdir().DIRECTORY_SEPARATOR.'*');
             foreach( $list as $one ) {
                 $basename = basename($one);
@@ -362,7 +362,7 @@ class wizard_step3 extends wizard_step
         //   user can continue
         $can_continue = TRUE;
         $tests_failed = FALSE;
-        $results = array();
+        $results = [];
         for( $i = 0; $i < count($tests); $i++ ) {
             $res = $tests[$i]->run();
             if( $res == $tests[$i]::TEST_FAIL ) {
@@ -377,7 +377,7 @@ class wizard_step3 extends wizard_step
             }
         }
         if( !$verbose ) $tests = $results;
-        return array($tests_failed,$can_continue);
+        return [$tests_failed,$can_continue];
     }
 
     protected function display()

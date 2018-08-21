@@ -42,7 +42,7 @@ function image_info($file = null, $out = null) {
   }
 
   // Defines the keys we want instead of 0, 1, 2, 3, 'bits', 'channels', and 'mime'.
-  $redefine_keys = array(
+  $redefine_keys = [
        'width',
        'height',
        'type',
@@ -50,13 +50,13 @@ function image_info($file = null, $out = null) {
        'bits',
        'channels',
        'mime',
-       );
+       ];
 
        // If $out is supplied, but is not a valid key, nullify it.
        if (!is_null($out) && !in_array($out, $redefine_keys)) $out = null;
 
        // Assign useful values for the third index.
-       $types = array(
+       $types = [
        1 => 'GIF',
        2 => 'JPG',
        3 => 'PNG',
@@ -73,9 +73,9 @@ function image_info($file = null, $out = null) {
        14 => 'IFF',
        15 => 'WBMP',
        16 => 'XBM'
-       );
-       $temp = array();
-       $data = array();
+       ];
+       $temp = [];
+       $data = [];
 
        // Get the image info using getimagesize().
        // If $temp fails to populate, warn the user and return false.

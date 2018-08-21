@@ -23,8 +23,8 @@ class wizard_step
     $smarty = smarty();
 
     if( !self::$_registered ) {
-      $smarty->registerPlugin('function','wizard_form_start', array($this,'fn_wizard_form_start'));
-      $smarty->registerPlugin('function','wizard_form_end', array($this,'fn_wizard_form_end'));
+      $smarty->registerPlugin('function','wizard_form_start', [$this,'fn_wizard_form_start']);
+      $smarty->registerPlugin('function','wizard_form_end', [$this,'fn_wizard_form_end']);
       self::$_registered = 1;
     }
 

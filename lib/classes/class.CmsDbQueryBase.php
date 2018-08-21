@@ -63,7 +63,7 @@ abstract class CmsDbQueryBase
 	 * This member stores the original arguments passed to the constructor and used when generating
 	 * the query.
 	 */
-	protected $_args = array();
+	protected $_args = [];
 
 	/**
 	 * Constructor
@@ -212,7 +212,7 @@ abstract class CmsDbQueryBase
 	public function GetMatches()
 	{
 		$this->MoveFirst();
-		$out = array();
+		$out = [];
 		while( !$this->EOF() ) {
 			$out[] = $this->GetObject();
 			$this->MoveNext();

@@ -45,10 +45,10 @@ final class cms_userprefs
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT preference,value FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
-		$dbr = $db->GetArray($query,array($userid));
+		$dbr = $db->GetArray($query,[$userid]);
 		if( is_array($dbr) ) {
-			if( !is_array(self::$_prefs) ) self::$_prefs = array();
-			self::$_prefs[$userid] = array();
+			if( !is_array(self::$_prefs) ) self::$_prefs = [];
+			self::$_prefs[$userid] = [];
 			for( $i = 0, $n = count($dbr); $i < $n; $i++ ) {
 				$row = $dbr[$i];
 				self::$_prefs[$userid][$row['preference']] = $row['value'];
@@ -154,11 +154,11 @@ final class cms_userprefs
 		$db = CmsApp::get_instance()->GetDb();
 		if( !self::exists_for_user($userid,$key) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
-			$dbr = $db->Execute($query,array($userid,$key,$value));
+			$dbr = $db->Execute($query,[$userid,$key,$value]);
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE user_id = ? AND preference = ?';
-			$dbr = $db->Execute($query,array($value,$userid,$key));
+			$dbr = $db->Execute($query,[$value,$userid,$key]);
 		}
 		self::$_prefs[$userid][$key] = $value;
 	}
@@ -187,7 +187,7 @@ final class cms_userprefs
 	{
 		$userid = (int)$userid;
 		self::_read($userid);
-		$parms = array();
+		$parms = [];
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
 		$parms[] = $userid;
 		if( $key ) {

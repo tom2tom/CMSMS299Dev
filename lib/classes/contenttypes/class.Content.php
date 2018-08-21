@@ -536,8 +536,8 @@ class Content extends ContentBase
 
 		case 'defaultcontent':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_default',lang('help_title_content_default'));
-			return array('<label for="defaultcontent">'.lang('showinmenu').':</label>'.$help,
-				 '<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />');
+			return ['<label for="defaultcontent">'.lang('showinmenu').':</label>'.$help,
+				 '<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />'];
 
 		case 'searchable':
 			$searchable = $this->GetPropertyValue('searchable');

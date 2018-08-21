@@ -27,7 +27,7 @@ if( !count($dirlist) ) {
   $this->Redirect($id,"defaultadmin",$returnid,$params);
 }
 
-$errors = array();
+$errors = [];
 $destloc = '';
 if( isset($params['copy']) ) {
   $advancedmode = Utils::check_advanced_mode();

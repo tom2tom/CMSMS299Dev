@@ -59,7 +59,7 @@ if( count( $data ) ) {
   $writable = is_writable( $moduledir );
 
   // build the table
-  $rowarray = array();
+  $rowarray = [];
   $newestdisplayed="";
   foreach( $data as $row ) {
     $onerow = new stdClass();
@@ -70,19 +70,19 @@ if( count( $data ) ) {
     $onerow->version = $row['version'];
     $onerow->helplink = $this->CreateLink( $id, 'modulehelp', $returnid,
 					   $this->Lang('helptxt'),
-					   array('name' => $row['name'],
+					   ['name' => $row['name'],
 						 'version' => $row['version'],
-						 'filename' => $row['filename']));
+						 'filename' => $row['filename']]);
     $onerow->dependslink = $this->CreateLink( $id, 'moduledepends', $returnid,
 					      $this->Lang('dependstxt'),
-					      array('name' => $row['name'],
+					      ['name' => $row['name'],
 						    'version' => $row['version'],
-						    'filename' => $row['filename']));
+						    'filename' => $row['filename']]);
     $onerow->aboutlink = $this->CreateLink( $id, 'moduleabout', $returnid,
 					    $this->Lang('abouttxt'),
-					    array('name' => $row['name'],
+					    ['name' => $row['name'],
 						  'version' => $row['version'],
-						  'filename' => $row['filename']));
+						  'filename' => $row['filename']]);
 
     switch( $row['status'] ) {
     case 'incompatible':
@@ -101,10 +101,10 @@ if( count( $data ) ) {
 	     ($writable && !file_exists( $mod ) )) && $caninstall ) {
 	  $onerow->status = $this->CreateLink( $id, 'installmodule', $returnid,
 					       $this->Lang('download'),
-					       array('name' => $row['name'],
+					       ['name' => $row['name'],
 						     'version' => $row['version'],
 						     'filename' => $row['filename'],
-						     'size' => $row['size']));
+						     'size' => $row['size']]);
 	}
 	else {
 	  $onerow->status = $this->Lang('cantdownload');
@@ -119,10 +119,10 @@ if( count( $data ) ) {
 	     ($writable && !file_exists( $mod ) )) && $caninstall ) {
 	  $onerow->status = $this->CreateLink( $id, 'installmodule', $returnid,
 					       $this->Lang('upgrade'),
-					       array('name' => $row['name'],
+					       ['name' => $row['name'],
 						     'version' => $row['version'],
 						     'filename' => $row['filename'],
-						     'size' => $row['size']));
+						     'size' => $row['size']]);
 	}
 	else {
 	  $onerow->status = $this->Lang('cantdownload');

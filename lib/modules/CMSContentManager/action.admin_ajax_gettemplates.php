@@ -30,7 +30,7 @@ try {
             $template_list = $design->get_templates();
 
             $templates = CmsLayoutTemplate::load_bulk($template_list);
-            $out = array();
+            $out = [];
             foreach( $templates as $one ) {
                 if( !$one->get_listable() ) continue;
                 $out[$one->get_id()] = $one->get_name(); //TODO CHECKME switch order?
@@ -45,7 +45,7 @@ try {
 
             $templates = CmsLayoutTemplate::load_bulk($template_list);
             if( is_array($templates) && count($templates) ) {
-                $out = array();
+                $out = [];
                 foreach( $templates as $one ) {
                     if( $one->get_type_id() != $type_id ) continue;
                     if( !$one->get_listable() ) continue;
@@ -57,7 +57,7 @@ try {
         case 'allpage':
             $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
             $template_list = CmsLayoutTemplate::load_all_by_type($type);
-            $out = array();
+            $out = [];
             foreach( $template_list as $one ) {
                 if( !$one->get_listable() ) continue;
                 $out[$one->get_id()] = $one->get_name();

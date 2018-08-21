@@ -11,7 +11,7 @@ abstract class slave
 
     public function set_text($text)
     {
-        $this->set_params(array('search_text'=>$text));
+        $this->set_params(['search_text'=>$text]);
     }
 
     protected function get_text()

@@ -70,12 +70,12 @@ if( $module != 'core' ) {
         $this->SetError($this->Lang('error_invalidbulkaction'));
         $this->RedirectToAdminTab();
     }
-    $url = $modobj->create_url($id,$bulkaction,$returnid,array('contentlist'=>implode(',',$multicontent)));
+    $url = $modobj->create_url($id,$bulkaction,$returnid,['contentlist'=>implode(',',$multicontent)]);
     $url = str_replace('&amp;','&',$url);
     redirect($url);
 }
 
-$parms = array('multicontent'=>$params['multicontent']);
+$parms = ['multicontent'=>$params['multicontent']];
 switch( $bulkaction ) {
  case 'inactive':
    $parms['active'] = 0;

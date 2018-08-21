@@ -22,7 +22,7 @@ if( !isset($gCms) ) exit;
 if( !$this->CanEditContent() ) exit;
 
 $term = null;
-$out = array();
+$out = [];
 
 if( isset($_REQUEST['term']) ) {
     // find all pages with this text...
@@ -53,7 +53,7 @@ if( $term ) {
             $label = $row['content_name'].' / '.$row['menu_text'];
             if( $row['content_alias'] ) $label .= ' / '.$row['content_alias'];
             if( $row['page_url'] ) $label .= ' / '.$row['page_url'];
-            $out[] = array('label'=>$label,'value'=>$row['content_id']);
+            $out[] = ['label'=>$label,'value'=>$row['content_id']];
         }
     }
 }

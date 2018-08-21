@@ -37,7 +37,7 @@ final class cached_request //was modmgr_cached_request
     }
   }
 
-  public function execute($target = '',$data = array(), $age = '')
+  public function execute($target = '',$data = [], $age = '')
   {
     $mod = cms_utils::get_module('ModuleManager');
     $config = cmsms()->GetConfig();
@@ -45,7 +45,7 @@ final class cached_request //was modmgr_cached_request
     if( $age ) $age = max(1,(int)$age);
 
     // build a signature
-    $this->_signature = md5(serialize(array($target,$data)));
+    $this->_signature = md5(serialize([$target,$data]));
     $fn = $this->_getCacheFile();
     if( !$fn ) return;
 
@@ -64,7 +64,7 @@ final class cached_request //was modmgr_cached_request
       if( $this->_status == 200 ) {
         // create a cache file
         $fh = fopen($fn,'w');
-        fwrite($fh,serialize(array($this->_status,$this->_result)));
+        fwrite($fh,serialize([$this->_status,$this->_result]));
         fclose($fh);
       }
     }

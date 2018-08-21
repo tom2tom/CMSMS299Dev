@@ -27,7 +27,7 @@ if (isset($params['allowimages'])) $this->SetPreference('allowimages', 1 ); else
 
 if (isset($params['css_styles'])) $this->SetPreference('css_styles',$params['css_styles']);
 
-$this->Redirect($id,"defaultadmin",$returnid,array("module_message"=>$this->Lang("settingssaved"),"tab"=>"settings"));
+$this->Redirect($id,"defaultadmin",$returnid,["module_message"=>$this->Lang("settingssaved"),"tab"=>"settings"]);
 
 #
 # EOF

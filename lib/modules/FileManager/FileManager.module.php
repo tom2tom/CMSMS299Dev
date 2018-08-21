@@ -142,7 +142,7 @@ final class FileManager extends CMSModule
         if (file_exists($imagepath)) {
             $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file["name"];
             $image="<img src=\"".$imageurl."\" class=\"listicon\" alt=\"".$file["name"]."\" title=\"".$file["name"]."\" />";
-            $url = $this->create_url($id,'view','',array('file'=>$this->encodefilename($file['name'])));
+            $url = $this->create_url($id,'view','',['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
             $result="<a href=\"".$url."\" target=\"_blank\">";
             $result.=$image;

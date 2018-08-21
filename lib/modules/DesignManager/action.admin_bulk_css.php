@@ -118,7 +118,7 @@ try {
 
     $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_css.tpl'),null,null,$smarty);
     $tpl->assign('bulk_op',$bulk_op);
-    $allparms = base64_encode(serialize(array('css_select'=>$params['css_select'],'css_bulk_action'=>$params['css_bulk_action'])));
+    $allparms = base64_encode(serialize(['css_select'=>$params['css_select'],'css_bulk_action'=>$params['css_bulk_action']]));
     $tpl->assign('allparms',$allparms)
      ->assign('templates',$stylesheets);
 

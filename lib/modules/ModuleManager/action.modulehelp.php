@@ -52,7 +52,7 @@ if( !$xmlfile ) {
 
 
 $req = new cached_request();
-$req->execute($url,array('name'=>$xmlfile));
+$req->execute($url,['name'=>$xmlfile]);
 $status = $req->getStatus();
 $result = $req->getResult();
 if( $status != 200 || $result == '' ) {

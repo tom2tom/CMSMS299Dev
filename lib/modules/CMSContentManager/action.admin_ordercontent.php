@@ -45,14 +45,14 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 
     function ordercontent_create_flatlist($tree,$parent_id = -1)
     {
-        $data = array();
+        $data = [];
         $cur_parent = null;
         $order = 1;
         foreach( $tree as &$node ) {
             if( is_string($node) ) {
                 $pid = (int)substr($node,strlen('page_'));
                 $cur_parent = $pid;
-                $data[] = array('id'=>$pid,'parent_id'=>$parent_id,'order'=>$order++);
+                $data[] = ['id'=>$pid,'parent_id'=>$parent_id,'order'=>$order++];
             }
             else if( is_array($node) ) {
                 $data = array_merge($data,ordercontent_create_flatlist($node,$cur_parent));
@@ -68,7 +68,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 
     // step 2, merge in old orders, and old parents
     $hm = $gCms->GetHierarchyManager();
-    $changelist = array();
+    $changelist = [];
     foreach( $orderlist as &$rec ) {
         $node = $hm->find_by_tag('id',$rec['id']);
         $content = $node->getContent(FALSE,TRUE,TRUE);
@@ -86,7 +86,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
     else {
         $query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = ?, parent_id = ? WHERE content_id = ?';
         foreach( $changelist as $rec ) {
-            $db->Execute($query,array($rec['order'],$rec['parent_id'],$rec['id']));
+            $db->Execute($query,[$rec['order'],$rec['parent_id'],$rec['id']]);
         }
         $contentops = $gCms->GetContentOperations();
         $contentops->SetAllHierarchyPositions();

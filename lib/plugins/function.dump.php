@@ -17,7 +17,7 @@
 
 function smarty_function_dump($params, $template)
 {
-	$ignore = array('cms','smarty','db','config','params','param_map','langhash','xml_exclude_files','xmldtd');
+	$ignore = ['cms','smarty','db','config','params','param_map','langhash','xml_exclude_files','xmldtd'];
 
 	if( !function_exists('build_accessor') ) {
 		function build_accessor($parent_str,$parent_type,$childname) {
@@ -32,7 +32,7 @@ function smarty_function_dump($params, $template)
 			return $str;
 		}
 
-		function dump_object($params,&$obj,$level=1,$ignore=array(),$accessor)
+		function dump_object($params,&$obj,$level=1,$ignore=[],$accessor)
 		{
 			$maxlevel = 3;
 			if( isset($params['maxlevel']) ) {
@@ -87,7 +87,7 @@ function smarty_function_dump($params, $template)
 			return $str;
 		}
 
-		function dump_array($params,&$data,$level=1,$ignore=array(),$accessor)
+		function dump_array($params,&$data,$level=1,$ignore=[],$accessor)
 		{
 			$maxlevel = 3;
 			if( isset($params['maxlevel']) ) {

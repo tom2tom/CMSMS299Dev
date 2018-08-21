@@ -28,7 +28,7 @@ try {
 
     $tpl->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'))
      ->assign('can_reorder_content',$this->CheckPermission('Manage All Content'))
-     ->assign('template_list',CmsLayoutTemplate::template_query(array('as_list'=>1))); // this is just to aide loading.
+     ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1])); // this is just to aide loading.
 
     // load all the content that this user can display...
     // organize it into a tree
@@ -64,7 +64,7 @@ try {
 
     $editinfo = $builder->get_content_list();
     $npages = $builder->get_numpages();
-    $pagelist = array();
+    $pagelist = [];
     for( $i = 0; $i < $npages; $i++ ) {
         $pagelist[$i+1] = $i+1;
     }
@@ -96,7 +96,7 @@ try {
         $tpl->assign('error',$this->Lang('err_nomatchingcontent'));
     }
 
-    $opts = array();
+    $opts = [];
     if( $this->CheckPermission('Remove Pages') && $this->CheckPermission('Modify Any Page') ) {
         bulkcontentoperations::register_function($this->Lang('bulk_delete'),'delete');
     }

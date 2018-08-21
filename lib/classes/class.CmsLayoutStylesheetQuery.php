@@ -64,7 +64,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		$this->_limit = 1000;
 		$this->_offset = 0;
 		$db = cmsms()->GetDb();
-		$where = array();
+		$where = [];
 		foreach( $this->_args as $key => $val ) {
 			if( empty($val) ) continue;
 			if( is_numeric($key) && $val[1] == ':' ) list($key,$val) = explode(':',$val,2);
@@ -168,7 +168,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		$this->execute();
 		if( !$this->_rs ) throw new CmsLogicException('Cannot get template from invalid template query object');
 
-		$tmp = array();
+		$tmp = [];
 		while( !$this->EOF() ) {
 			$tmp[] = $this->fields['id'];
 			$this->MoveNext();

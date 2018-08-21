@@ -281,7 +281,7 @@ class http_request
      * @param array Config values as associative array
      * @return void
      */
-    function initialize($config = array())
+    function initialize($config = [])
     {
         $this->clear();
         foreach ($config as $key => $val)
@@ -320,11 +320,11 @@ class http_request
         $this->target       = '';
         $this->method       = 'GET';
         $this->schema       = 'http';
-        $this->params       = array();
-        $this->headers      = array();
-        $this->cookies      = array();
-        $this->_cookies     = array();
-        $this->headerArray  = array();
+        $this->params       = [];
+        $this->headers      = [];
+        $this->cookies      = [];
+        $this->_cookies     = [];
+        $this->headerArray  = [];
         $this->proxy        = null;
 
         // Set the config details
@@ -630,7 +630,7 @@ class http_request
     {
         if( !is_array($this->headerArray) )
         {
-            $this->headerArray = array();
+            $this->headerArray = [];
         }
         if( strpos($key,':') !== FALSE )
         {
@@ -654,7 +654,7 @@ class http_request
     {
         if( !is_array($this->headerArray) )
         {
-            $this->headerArray = array();
+            $this->headerArray = [];
         }
 
         $f = 0;
@@ -728,7 +728,7 @@ class http_request
      * @param array Parameter array for GET or POST (optional)
      * @return string Response body of the target page
      */
-    public function execute($target = '', $referrer = '', $method = '', $data = array())
+    public function execute($target = '', $referrer = '', $method = '', $data = [])
     {
         // Populate the properties
         $this->target = ($target) ?: $this->target;
@@ -797,7 +797,7 @@ class http_request
         if( is_array($this->cookies) && count($this->cookies) > 0 )
         {
             // Get a blank slate
-            $tempString   = array();
+            $tempString   = [];
 
             // Convert cookiesa array into a query string (ie animal=dog&sport=baseball)
             foreach ($this->cookies as $key => $value)
@@ -1009,7 +1009,7 @@ class http_request
                     // Reset some of the properties
                     $this->port   = 0;
                     $this->status = 0;
-                    $this->params = array();
+                    $this->params = [];
                     $this->method = 'POST';
                     $this->referrer = $this->target;
 
@@ -1108,7 +1108,7 @@ class http_request
             {
                 if( gettype($this->headers[$headerName]) == "string" )
                 {
-                    $this->headers[$headerName] = array($this->headers[$headerName]);
+                    $this->headers[$headerName] = [$this->headers[$headerName]];
                 }
 
                 $this->headers[$headerName][] = $headerValue;
@@ -1134,7 +1134,7 @@ class http_request
      */
     function _clearHeaders()
     {
-        $this->headers = array();
+        $this->headers = [];
     }
 
     /**
@@ -1154,7 +1154,7 @@ class http_request
         }
         else
         {
-            $cookieHeaders = array($this->headers['set-cookie']);
+            $cookieHeaders = [$this->headers['set-cookie']];
         }
 
         // Loop through the cookies
@@ -1232,13 +1232,13 @@ class http_request
 
         $secure = (int)$secure;
 
-        $this->_cookies[] = array( "name"      =>  $name,
+        $this->_cookies[] = [ "name"      =>  $name,
                                    "value"     =>  $value,
                                    "domain"    =>  $domain,
                                    "path"      =>  $path,
                                    "expires"   =>  $expires,
                                    "secure"    =>  $secure
-                                 );
+                                 ];
     }
 
     /**
@@ -1268,7 +1268,7 @@ class http_request
         if( is_array($this->_cookies) && count($this->_cookies) )
         {
             $urlParsed = parse_url($this->target);
-            $tempCookies = array();
+            $tempCookies = [];
 
             foreach($this->_cookies as $cookie)
             {

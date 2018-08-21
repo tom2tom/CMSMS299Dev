@@ -185,12 +185,12 @@ class wizard_step4 extends wizard_step
         $tmp = timezone_identifiers_list();
         if( !is_array($tmp) ) throw new Exception(lang('error_tzlist'));
         $tmp2 = array_combine(array_values($tmp),array_values($tmp));
-        $smarty->assign('timezones',array_merge(array(''=>lang('none')),$tmp2));
+        $smarty->assign('timezones',array_merge([''=>lang('none')],$tmp2));
 //        $smarty->assign('db_types',$this->_dbms_options);
         $smarty->assign('action',$this->get_wizard()->get_data('action'));
         $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
         $smarty->assign('config',$this->_config);
-        $smarty->assign('yesno',array('0'=>lang('no'),'1'=>lang('yes')));
+        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step4.tpl');
         $this->finish();
     }

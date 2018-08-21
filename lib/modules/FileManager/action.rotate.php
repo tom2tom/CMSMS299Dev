@@ -165,9 +165,9 @@ if( isset($params['save']) ) {
 //
 // build the form
 //
-$opts = array('none'=>$this->Lang('none'),
+$opts = ['none'=>$this->Lang('none'),
 	      'crop'=>$this->Lang('crop'),
-	      'resize'=>$this->Lang('resize'));
+	      'resize'=>$this->Lang('resize')];
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('filerotate.tpl'),null,null,$smarty);
 

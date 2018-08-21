@@ -42,12 +42,12 @@ $uid = get_parameter_value($data,'uid');
 $lock_id = get_parameter_value($data,'lock_id');
 $lifetime = (int) get_parameter_value($data,'lifetime',cms_siteprefs::get('lock_timeout',60));
 
-$out = array();
+$out = [];
 $out['status'] = 'success';
 try {
   switch( $opt ) {
   case 'setup':
-    $out['lang'] = array();
+    $out['lang'] = [];
     $out['lang']['error_lock_useridmismatch'] = lang('CMSEX_L006');
     $out['lang']['error_lock_othererror'] = lang('CMSEX_L007');
     $out['lang']['error_lock_cmslockexception'] = lang('CMSEX_L008');
@@ -56,7 +56,7 @@ try {
     $out['lang']['error_lock_cmsnolockexception'] = lang('CMSEX_L005');
     if( $uid != $ruid ) {
       $out['status'] = 'error';
-      $out['error'] = array('type'=>'useridmismatch','msg'=>lang('CMSEX_L006'));
+      $out['error'] = ['type'=>'useridmismatch','msg'=>lang('CMSEX_L006')];
     }
     $out['uid'] = $ruid;
     break;
@@ -109,15 +109,15 @@ try {
 }
 catch( CmsNoLockException $e ) {
   $out['status'] = 'error';
-  $out['error'] = array('type'=>strtolower(get_class($e)),'msg'=>$e->GetMessage());
+  $out['error'] = ['type'=>strtolower(get_class($e)),'msg'=>$e->GetMessage()];
 }
 catch( CmsLockException $e ) {
   $out['status'] = 'error';
-  $out['error'] = array('type'=>strtolower(get_class($e)),'msg'=>$e->GetMessage());
+  $out['error'] = ['type'=>strtolower(get_class($e)),'msg'=>$e->GetMessage()];
 }
 catch( Exception $e ) {
   $out['status'] = 'error';
-  $out['error'] = array('type'=>'othererror','msg'=>$e->GetMessage());
+  $out['error'] = ['type'=>'othererror','msg'=>$e->GetMessage()];
 }
 
 if( $out['status'] != 'error' && isset($out['lock_id']) && $out['lock_id'] != 0 ) $out['locked'] = 1;

@@ -71,14 +71,14 @@ $load_perms = function () use ($db) {
         }
     }, \CMSMS\HookManager::PRIORITY_HIGH);
 
-    $perm_struct = array();
+    $perm_struct = [];
     while ($result && $row = $result->FetchRow()) {
         if (isset($perm_struct[$row['permission_id']])) {
             $str = &$perm_struct[$row['permission_id']];
             $str->group[$row['group_id']]=1;
         } else {
             $thisPerm = new \stdClass();
-            $thisPerm->group = array();
+            $thisPerm->group = [];
             if (!empty($row['group_id'])) {
                 $thisPerm->group[$row['group_id']] = 1;
             }
@@ -170,7 +170,7 @@ if (isset($_POST['submit'])) {
             $selected_groups = (array) unserialize(base64_decode($parts[1]), ['allowed_classes'=>false]);
             if (is_array($selected_groups) && count($selected_groups)) {
                 // clean this array
-                $tmp = array();
+                $tmp = [];
                 foreach ($selected_groups as &$one) {
                     $one = (int)$one;
                     if ($one > 0) {
@@ -192,7 +192,7 @@ if (isset($_POST['submit'])) {
             $keyparts[1] = (int)$keyparts[1];
             if ($keyparts[1] > 0 && $keyparts[2] != '1' && $value == '1') {
                 $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
-                $result = $db->Execute($iquery, array($new_id,$keyparts[2],$keyparts[1]));
+                $result = $db->Execute($iquery, [$new_id,$keyparts[2],$keyparts[1]]);
                 if (!$result) {
                     echo 'FATAL: '.$db->ErrorMsg().'<br />'.$db->sql;
                     exit();

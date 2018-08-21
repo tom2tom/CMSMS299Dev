@@ -20,7 +20,7 @@ function smarty_function_cms_html_options($params, $template)
     $options = null;
     if( !isset($params['options']) ) {
         if( isset($params['value']) && isset($params['label']) ) {
-            $opt = array();
+            $opt = [];
             $opt['label'] = $params['label'];
             $opt['value'] = $params['value'];
             if( isset($params['title']) ) $opt['title'] = $params['title'];

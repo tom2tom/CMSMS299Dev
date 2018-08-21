@@ -2,8 +2,8 @@
 status_msg('Adding missing permissions');
 
 //$gCms = cmsms();
-$perms = array('Manage Stylesheets');
-$all_perms = array();
+$perms = ['Manage Stylesheets'];
+$all_perms = [];
 foreach( $perms as $one_perm ) {
     $permission = new CmsPermission();
     $permission->source = 'Core';

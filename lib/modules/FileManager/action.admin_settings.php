@@ -15,13 +15,13 @@ $tpl->assign('advancedmode',$advancedmode)
  ->assign('showhiddenfiles',$showhiddenfiles)
  ->assign('showthumbnails',$showthumbnails)
  ->assign('create_thumbnails',$this->GetPreference('create_thumbnails',1));
-$iconsizes = array();
+$iconsizes = [];
 $iconsizes['32px'] = $this->Lang('largeicons').' (32px)';
 $iconsizes['16px'] = $this->Lang('smallicons').' (16px)';
 $tpl->assign('iconsizes',$iconsizes)
  ->assign('iconsize',$this->GetPreference('iconsize','16px'));
 
-$permstyles=array($this->Lang("rwxstyle")=>"xxxxxxxxx",$this->Lang("755style")=>"xxx");
+$permstyles=[$this->Lang("rwxstyle")=>"xxxxxxxxx",$this->Lang("755style")=>"xxx"];
 $tpl->assign('permstyles',array_flip($permstyles))
  ->assign('permissionstyle',$permissionstyle);
 

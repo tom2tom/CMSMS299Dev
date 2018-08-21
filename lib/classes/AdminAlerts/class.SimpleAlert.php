@@ -147,7 +147,7 @@ class SimpleAlert extends Alert
         if( !count($this->_perms) ) return FALSE;
         $userops = \UserOperations::get_instance();
         $perms = $this->_perms;
-        if( !is_array($this->_perms) ) $perms = array($this->_perms);
+        if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {
             if( $userops->CheckPermission($admin_uid,$permname) ) return TRUE;
         }

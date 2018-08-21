@@ -36,7 +36,7 @@ if( !isset($params['multicontent']) ) {
 $active = 0;
 if( isset($params['active']) ) $active = (int)$params['active'];
 
-$multicontent = array();
+$multicontent = [];
 if( $this->CheckPermission('Manage All Content') || $this->CheckPermission('Modify Any Page') ) {
     $multicontent = unserialize($params['multicontent']);
 }

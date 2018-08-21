@@ -42,7 +42,7 @@ class xml_reader extends XMLReader
   {
     if( !$this->_setup ) {
       $this->_old_internal_errors = libxml_use_internal_errors(FALSE);
-      $this->_old_err_handler = set_error_handler(array($this,'__errhandler'));
+      $this->_old_err_handler = set_error_handler([$this,'__errhandler']);
       $this->_setup = 1;
     }
   }

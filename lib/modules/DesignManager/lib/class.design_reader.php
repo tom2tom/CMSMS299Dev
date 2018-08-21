@@ -35,10 +35,10 @@ class design_reader extends reader_base
 {
     private $_xml;
     private $_scanned;
-    private $_raw_design_info = array();
-    private $_tpl_info = array();
-    private $_css_info = array();
-    private $_file_map = array();
+    private $_raw_design_info = [];
+    private $_tpl_info = [];
+    private $_css_info = [];
+    private $_file_map = [];
     private $_new_design_description;
 
     public function __construct($fn)
@@ -60,7 +60,7 @@ class design_reader extends reader_base
 
     private function _scan()
     {
-        $in = array();
+        $in = [];
         $cur_key = null;
 
         $__get_in = function() use ($in) {
@@ -109,7 +109,7 @@ class design_reader extends reader_base
                         }
                         $this->_xml->read();
                         $cur_key = $this->_xml->value;
-                        $this->_tpl_info[$cur_key] = array('key'=>$cur_key);
+                        $this->_tpl_info[$cur_key] = ['key'=>$cur_key];
                         break;
 
                     case 'tname':
@@ -152,7 +152,7 @@ class design_reader extends reader_base
                         }
                         $this->_xml->read();
                         $cur_key = $this->_xml->value;
-                        $this->_css_info[$cur_key] = array('key'=>$cur_key);
+                        $this->_css_info[$cur_key] = ['key'=>$cur_key];
                         break;
 
                     case 'cssname':
@@ -201,7 +201,7 @@ class design_reader extends reader_base
                         }
                         $this->_xml->read();
                         $cur_key = $this->_xml->value;
-                        $this->_file_map[$cur_key] = array('key'=>$cur_key);
+                        $this->_file_map[$cur_key] = ['key'=>$cur_key];
                         break;
 
                     case 'fvalue':
@@ -258,10 +258,10 @@ class design_reader extends reader_base
     public function get_template_list()
     {
         $this->_scan();
-        $out = array();
+        $out = [];
         foreach( $this->_tpl_info as $key => $one ) {
             $name = $this->_get_name($key);
-            $rec = array();
+            $rec = [];
             $rec['name'] = base64_decode($one['name']);
             $rec['newname'] = CmsLayoutTemplate::generate_unique_name($rec['name']);
             $rec['key'] = $key;
@@ -277,10 +277,10 @@ class design_reader extends reader_base
     public function get_stylesheet_list()
     {
         $this->_scan();
-        $out = array();
+        $out = [];
         foreach( $this->_css_info as $key => $one ) {
             $name = $this->_get_name($key);
-            $rec = array();
+            $rec = [];
             $rec['name'] = base64_decode($one['name']);
             $rec['newname'] = CmsLayoutStylesheet::generate_unique_name($rec['name']);
             $rec['key'] = $key;
@@ -297,7 +297,7 @@ class design_reader extends reader_base
   {
     $this->_scan();
 
-    $templates = CmsLayoutTemplate::template_query(array('as_list'=>1));
+    $templates = CmsLayoutTemplate::template_query(['as_list'=>1]);
     $tpl_names = array_values($templates);
 
     foreach( $this->_file_map as $key => &$rec ) {

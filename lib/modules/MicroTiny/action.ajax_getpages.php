@@ -29,10 +29,10 @@ $alias = trim(strip_tags(get_parameter_value($_REQUEST,'alias')));
 if( $alias ) {
     $query = 'SELECT content_id,content_name,menu_text,content_alias,id_hierarchy FROM '.CMS_DB_PREFIX.'content
               WHERE content_alias = ? AND active = 1';
-    $dbr = $db->GetRow($query,array($alias));
+    $dbr = $db->GetRow($query,[$alias]);
     if( is_array($dbr) && count($dbr) ) {
         $lbl = "{$dbr['content_name']} ({$dbr['id_hierarchy']})";
-        $out = array('label'=>$lbl, 'value'=>$dbr['content_alias']);
+        $out = ['label'=>$lbl, 'value'=>$dbr['content_alias']];
         echo json_encode($out);
     }
 }
@@ -42,14 +42,14 @@ else if( $term ) {
             WHERE (content_name LIKE ? OR menu_text LIKE ? OR content_alias LIKE ?)
               AND active = 1
             ORDER BY default_content DESC, hierarchy ASC';
-    $dbr = $db->GetArray($query,array($term,$term,$term));
+    $dbr = $db->GetArray($query,[$term,$term,$term]);
     if( is_array($dbr) && count($dbr) ) {
         // found some pages to match
-        $out = array();
+        $out = [];
         // load the content objects
         foreach( $dbr as $row ) {
             $lbl = "{$row['content_name']} ({$row['id_hierarchy']})";
-            $out[] = array('label'=>$lbl, 'value'=>$row['content_alias']);
+            $out[] = ['label'=>$lbl, 'value'=>$row['content_alias']];
         }
         echo json_encode($out);
     }

@@ -79,7 +79,7 @@ function smarty_function_cms_stylesheet($params, $template)
         $query = null;
         if( $name != '' ) {
             // stylesheet by name
-            $query = new CmsLayoutStylesheetQuery(array('name'=>$params['name']) );
+            $query = new CmsLayoutStylesheetQuery(['name'=>$params['name']] );
         } else if( $design_id > 0 ) {
             // stylesheet by design id
             $query = new CmsLayoutStylesheetQuery( [ 'design'=>$design_id ] );
@@ -100,8 +100,8 @@ function smarty_function_cms_stylesheet($params, $template)
         if($combine_stylesheets) {
 
             // Group queries & types
-            $all_media = array();
-            $all_timestamps = array();
+            $all_media = [];
+            $all_timestamps = [];
             foreach( $res as $one ) {
                 $mq = $one->get_media_query();
                 $mt = implode(',',$one->get_media_types());
@@ -129,7 +129,7 @@ function smarty_function_cms_stylesheet($params, $template)
                 $fn = cms_join_path($cache_dir,$filename);
 
                 if( !file_exists($fn) ) {
-                    $list = array();
+                    $list = [];
                     foreach ($res as $one) {
                         if( in_array($params['media'],$one->get_media_types()) ) $list[] = $one->get_name();
                     }
@@ -152,7 +152,7 @@ function smarty_function_cms_stylesheet($params, $template)
                     $media_type = implode(',',$onemedia[0]->get_media_types());
 
                     if( !is_file($fn) ) {
-                        $list = array();
+                        $list = [];
 
                         foreach( $onemedia as $one ) {
                             $list[] = $one->get_name();
@@ -225,7 +225,7 @@ function smarty_function_cms_stylesheet($params, $template)
 function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template)
 {
 	$_contents = '';
-    if( is_string($list) && !is_array($list) ) $list = array($list);
+    if( is_string($list) && !is_array($list) ) $list = [$list];
 
 	// Smarty processing
 	$template->smarty->left_delimiter = '[[';

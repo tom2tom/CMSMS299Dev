@@ -8,7 +8,7 @@ if (!isset($params["filename"]) || !isset($params["path"])) {
 }
 
 if( !FileManager\Utils::test_valid_path($params['path']) ) {
-  $this->Redirect($id, 'defaultadmin', $returnid, array("fmerror" => "fileoutsideuploads"));
+  $this->Redirect($id, 'defaultadmin', $returnid, ["fmerror" => "fileoutsideuploads"]);
 }
 
 $config = & $gCms->GetConfig();
@@ -17,7 +17,7 @@ $fullname = cms_join_path(CMS_ROOT_PATH, $params["path"], $params["filename"]);
 if (isset($params["newmode"])) {
   //echo deleting;die();
   if (isset($params["cancel"])) {
-    $this->Redirect($id, "defaultadmin", $returnid, array("path" => $params["path"], "fmmessage" => "chmodcancelled"));
+    $this->Redirect($id, "defaultadmin", $returnid, ["path" => $params["path"], "fmmessage" => "chmodcancelled"]);
   } else {
     $newmode = $this->GetModeFromTable($params);
     if (isset($params["quickmode"]) && ($params["quickmode"] != "")) {
@@ -25,9 +25,9 @@ if (isset($params["newmode"])) {
     }
     //echo $newmode;die();
     if ($this->SetMode($newmode, $fullname)) {
-      $this->Redirect($id, "defaultadmin", $returnid, array("path" => $params["path"], "fmmessage" => "chmodsuccess"));
+      $this->Redirect($id, "defaultadmin", $returnid, ["path" => $params["path"], "fmmessage" => "chmodsuccess"]);
     } else {
-      $this->Redirect($id, "defaultadmin", $returnid, array("path" => $params["path"], "fmerror" => "chmodfailure"));
+      $this->Redirect($id, "defaultadmin", $returnid, ["path" => $params["path"], "fmerror" => "chmodfailure"]);
     }
   }
 } else {

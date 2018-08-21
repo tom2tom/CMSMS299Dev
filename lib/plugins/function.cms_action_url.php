@@ -25,7 +25,7 @@ function smarty_function_cms_action_url($params, $template)
     $assign = null;
     $forjs  = 0;
 
-    $actionparms = array();
+    $actionparms = [];
     foreach( $params as $key => $value ) {
         switch( $key ) {
         case 'module':

@@ -61,7 +61,7 @@ if( isset($params['delete']) ) {
     }
     if( $thumb != '' ) @unlink($thumb);
 
-    $parms = array('file'=>$fn);
+    $parms = ['file'=>$fn];
     if( $thumb ) $parms['thumb'] = $thumb;
     audit('',"File Manager", "Removed file: ".$fn);
     Events::SendEvent( 'FileManager', 'OnFileDeleted', $parms );

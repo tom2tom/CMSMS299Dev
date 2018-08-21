@@ -52,7 +52,7 @@ try {
         @copy($_FILES[$key]['tmp_name'],$tmpfile);
 
         // redirect to this action, with step2.
-        $this->Redirect($id,'admin_import_design',$returnid,array('step'=>2,'tmpfile'=>$tmpfile));
+        $this->Redirect($id,'admin_import_design',$returnid,['step'=>2,'tmpfile'=>$tmpfile]);
       }
     }
     catch( CmsException $e ) {
@@ -94,7 +94,7 @@ try {
             }
             else {
                 // redirect to this action, with step3.
-                $this->Redirect($id,'admin_import_design',$returnid,array('step'=>3,'tmpfile'=>$tmpfile,'newname'=>$params['newname'], 'newdescription'=>$params['newdescription']));
+                $this->Redirect($id,'admin_import_design',$returnid,['step'=>3,'tmpfile'=>$tmpfile,'newname'=>$params['newname'], 'newdescription'=>$params['newdescription']]);
             }
         }
 

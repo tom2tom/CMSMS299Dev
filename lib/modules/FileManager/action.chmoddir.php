@@ -7,7 +7,7 @@ if(!isset($params["dirname"]) || !isset($params["path"])) {
 }
 
 if( !FileManager\Utils::test_valid_path($params['path']) ) {
-  $this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"fileoutsideuploads"));
+  $this->Redirect($id, 'defaultadmin',$returnid,["fmerror"=>"fileoutsideuploads"]);
 }
 
 $config = $gCms->GetConfig();
@@ -44,7 +44,7 @@ $emptydir=isEmpty($fullname);
 
 if (isset($params["newmode"])) {
 	if (isset($params["cancel"])) {
-		$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"module_message"=>$this->Lang("chmodcancelled")));
+		$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"module_message"=>$this->Lang("chmodcancelled")]);
 	} else {
 		$newmode=$this->GetModeFromTable($params);
 		if (isset($params["quickmode"]) && ($params["quickmode"]!="")) {
@@ -52,16 +52,16 @@ if (isset($params["newmode"])) {
 		}
 		if (isset($params["recurse"]) && $params["recurse"]=="1" && !$emptydir) {
 			if (chmodRecursive($fullname,$newmode,$this)) {
-				$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmmessage"=>"dirchmodsuccessmulti"));
+				$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmmessage"=>"dirchmodsuccessmulti"]);
 			} else {
-				$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmerror"=>"dirchmodfailmulti"));
+				$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmerror"=>"dirchmodfailmulti"]);
 			}
 		} else {
 			//No recursion
 			if ($this->SetMode($newmode,$fullname)) {
-				$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmmessage"=>"dirchmodsuccess"));
+				$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmmessage"=>"dirchmodsuccess"]);
 			} else {
-				$this->Redirect($id,"defaultadmin",$returnid,array("path"=>$params["path"],"fmerror"=>"dirchmodfailure"));
+				$this->Redirect($id,"defaultadmin",$returnid,["path"=>$params["path"],"fmerror"=>"dirchmodfailure"]);
 			}
 		}
 	}

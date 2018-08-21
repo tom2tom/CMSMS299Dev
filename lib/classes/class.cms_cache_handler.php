@@ -38,7 +38,7 @@ class cms_cache_handler
 
       if( $driver_name && $driver_name != '-1' && class_exists($driver_name) ) {
           if( $driver_name == 'cms_filecache_driver' ) {
-              $parms = array();
+              $parms = [];
               $parms['lifetime'] = cms_siteprefs::get('cache_filecache_lifetime',3600);
               $parms['locking'] = cms_siteprefs::get('cache_filecache_locking',0);
               $parms['auto_cleaning'] = cms_siteprefs::get('cache_filecache_autocleaning',0);

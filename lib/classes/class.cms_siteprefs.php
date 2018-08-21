@@ -120,11 +120,11 @@ final class cms_siteprefs
 		$db = CmsApp::get_instance()->GetDb();
 		if( !self::exists($key) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name, sitepref_value) VALUES (?,?)';
-			$dbr = $db->Execute($query,array($key,$value));
+			$dbr = $db->Execute($query,[$key,$value]);
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ? WHERE sitepref_name = ?';
-			$dbr = $db->Execute($query,array($value,$key));
+			$dbr = $db->Execute($query,[$value,$key]);
 		}
         global_cache::clear(__CLASS__);
 	}
@@ -144,7 +144,7 @@ final class cms_siteprefs
 			$key .= '%';
 		};
 		$db = CmsApp::get_instance()->GetDb();
-        	$db->Execute($query,array($key));
+        	$db->Execute($query,[$key]);
         	global_cache::clear(__CLASS__);
 	}
 
@@ -160,7 +160,7 @@ final class cms_siteprefs
 		if( !$prefix ) return;
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
 		$db = CmsApp::get_instance()->GetDb();
-		$dbr = $db->GetCol($query,array($prefix.'%'));
+		$dbr = $db->GetCol($query,[$prefix.'%']);
 		if( is_array($dbr) && count($dbr) ) return $dbr;
 	}
 } // class

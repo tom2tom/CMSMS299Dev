@@ -24,7 +24,7 @@ function smarty_function_cms_module_hint($params, $template)
     if( !is_object($modobj) ) return;
 
     $data = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$module);
-    if( !$data ) $data = array();
+    if( !$data ) $data = [];
 
     // warning, no check here if the module understands the parameter.
     foreach( $params as $key => $value ) {

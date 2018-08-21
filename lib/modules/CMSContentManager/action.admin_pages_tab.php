@@ -44,8 +44,8 @@ if( isset($params['multisubmit']) && isset($params['multiaction']) &&
   }
   // redirect to special action to handle bulk content stuff.
   $this->Redirect($id,'admin_multicontent',$returnid,
-		  array('multicontent'=>base64_encode(serialize($params['multicontent'])),
-			'multiaction'=>$params['multiaction']));
+		  ['multicontent'=>base64_encode(serialize($params['multicontent'])),
+			'multiaction'=>$params['multiaction']]);
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_pages_tab.tpl'),null,null,$smarty);
@@ -120,9 +120,9 @@ $builder->set_pagelimit($pagelimit);
 $builder->set_page($curpage);
 $editinfo = $builder->get_content_list();
 $npages = $builder->get_numpages();
-$pagelimits = array(10=>10,25=>25,100=>100,250=>250,500=>500);
+$pagelimits = [10=>10,25=>25,100=>100,250=>250,500=>500];
 $tpl->assign('pagelimits',$pagelimits);
-$pagelist = array();
+$pagelist = [];
 for( $i = 0; $i < $npages; $i++ ) {
   $pagelist[$i+1] = $i+1;
 }

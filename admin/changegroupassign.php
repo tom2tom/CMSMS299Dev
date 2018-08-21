@@ -89,7 +89,7 @@ if (isset($_POST['submit'])) {
              ['group' => $onegroup, 'users' => $userops->LoadUsersInGroup($onegroup->id)]
         );
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE group_id = ? AND user_id != ?';
-        $result = $db->Execute($query, array($onegroup->id,$userid));
+        $result = $db->Execute($query, [$onegroup->id,$userid]);
         $iquery = 'INSERT INTO '.CMS_DB_PREFIX.
             'user_groups (group_id, user_id, create_date, modified_date) VALUES (?,?,NOW(),NOW())';
 

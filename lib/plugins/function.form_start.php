@@ -59,7 +59,7 @@ function smarty_function_form_start($params, $template)
         }
     }
 
-    $parms = array();
+    $parms = [];
     foreach( $params as $key => $value ) {
         switch( $key ) {
         case 'module':

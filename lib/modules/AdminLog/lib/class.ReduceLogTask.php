@@ -59,8 +59,8 @@ final class ReduceLogTask implements CmsRegularTask
         $table = $this->table();
         $lastrec['action'] = $lastrec['action'] . sprintf(" (repeated %d times)",$n);
         $sql = "UPDATE table SET action = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND item_name = ? AND ip_addr = ?";
-        $db->Execute($sql,array($lastrec['action'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
-                                $lastrec['item_id'],$lastrec['item_name'],$lastrec['ip_addr']));
+        $db->Execute($sql,[$lastrec['action'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
+                                $lastrec['item_id'],$lastrec['item_name'],$lastrec['ip_addr']]);
     }
 
     public function clear_queued()
@@ -73,8 +73,8 @@ final class ReduceLogTask implements CmsRegularTask
         $sql = "DELETE FROM $table WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND item_name = ? AND action = ? AND ip_addr = ?";
         for( $i = 0; $i < $n; $i++ ) {
             $rec = $this->_queue[$i];
-            $db->Execute($sql,array($rec['timestamp'],$rec['user_id'],$rec['username'],
-                                    $rec['item_id'],$rec['item_name'],$rec['action'],$rec['ip_addr']));
+            $db->Execute($sql,[$rec['timestamp'],$rec['user_id'],$rec['username'],
+                                    $rec['item_id'],$rec['item_name'],$rec['action'],$rec['ip_addr']]);
         }
         $this->_queue = [];
     }
@@ -88,7 +88,7 @@ final class ReduceLogTask implements CmsRegularTask
         $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF, 0);
         $mintime = max($last_execute - 60,$time - 24 * 3600);
         $sql = "SELECT * FROM $table WHERE timestamp >= ? ORDER BY timestamp ASC";
-        $dbr = $db->Execute($sql,array($mintime));
+        $dbr = $db->Execute($sql,[$mintime]);
 
         $prev = null;
         while( $dbr && !$dbr->EOF() ) {

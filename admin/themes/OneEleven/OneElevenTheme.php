@@ -36,8 +36,8 @@ class OneElevenTheme extends CmsAdminThemeBase
 	private $_havetree = null;
 
 	// 2.3+ will access these via parent-class
-	protected $_errors = array();
-	protected $_messages = array();
+	protected $_errors = [];
+	protected $_messages = [];
 
 	/**
 	 * Determine whether this is running on CMSMS 2.3+
@@ -181,7 +181,7 @@ EOS;
 		} // pre 2.3
 	}
 
-	public function ShowHeader($title_name, $extra_lang_params = array(), $link_text = '', $module_help_type = FALSE)
+	public function ShowHeader($title_name, $extra_lang_params = [], $link_text = '', $module_help_type = FALSE)
 	{
 		if ($this->currentversion()) {
 			parent::ShowHeader($title_name, $extra_lang_params, $link_text, $module_help_type);
@@ -350,7 +350,7 @@ EOS;
 		}
 		$jqcore = $config['root_url']. '/lib/jquery/js/'.$use;
 
-		return array($jqcss, $jqui, $jqcore);
+		return [$jqcss, $jqui, $jqcore];
 	}
 
 	/**
@@ -479,7 +479,7 @@ EOS;
 			if (CmsLangOperations::lang_key_exists('admin', $title)) {
 				$extra = $this->get_value('extra_lang_params');
 				if (!$extra) {
-					$extra = array();
+					$extra = [];
 				}
 				$title = lang($title, $extra);
 			}

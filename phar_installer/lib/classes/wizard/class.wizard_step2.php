@@ -19,7 +19,7 @@ class wizard_step2 extends wizard_step
         if( !is_file($dir.DIRECTORY_SEPARATOR.'config.php') ) return;
         if( !is_file($dir.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
 
-        $info = array();
+        $info = [];
         if( is_file("$dir/version.php") ) {
             include_once($dir.DIRECTORY_SEPARATOR.'version.php');
             $info['mtime'] = filemtime($dir.DIRECTORY_SEPARATOR.'version.php');
@@ -85,12 +85,12 @@ class wizard_step2 extends wizard_step
             $smarty->assign('cmsms_info',$info);
             if( !isset($info['error_status']) || $info['error_status'] != 'same_ver' ) {
                 $versions = utils::get_upgrade_versions();
-                $out = array();
+                $out = [];
                 foreach( $versions as $version ) {
                     if( version_compare($version,$info['version']) < 1 ) continue;
                     $readme = utils::get_upgrade_readme($version);
                     $changelog = utils::get_upgrade_changelog($version);
-                    if( $readme || $changelog ) $out[$version] = array('readme'=>$readme,'changelog'=>$changelog);
+                    if( $readme || $changelog ) $out[$version] = ['readme'=>$readme,'changelog'=>$changelog];
                 }
                 $smarty->assign('upgrade_info',$out);
             }

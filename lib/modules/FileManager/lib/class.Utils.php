@@ -173,14 +173,14 @@ final class Utils
         $ext = substr(strrchr($file, '.'), 1);
         if( !$ext ) return FALSE;
 
-        $tmp = array('gif','jpg','jpeg','png');
+        $tmp = ['gif','jpg','jpeg','png'];
         if( in_array(strtolower($ext),$tmp) ) return TRUE;
         return FALSE;
     }
 
     public static function is_archive_file($file)
     {
-        $tmp = array('.tar.gz','.tar.bz2','.zip','.tgz');
+        $tmp = ['.tar.gz','.tar.bz2','.zip','.tgz'];
         foreach( $tmp as $t2 ) {
             if( endswith(strtolower($file),$t2) ) return TRUE;
         }

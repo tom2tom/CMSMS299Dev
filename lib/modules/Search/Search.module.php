@@ -172,7 +172,7 @@ EOT;
         return Utils::DoEvent($this, $originator, $eventname, $params);
     }
 
-    public function HasCapability($capability,$params = array())
+    public function HasCapability($capability,$params = [])
     {
         switch( $capability ) {
         case CmsCoreCapabilities::SEARCH_MODULE:

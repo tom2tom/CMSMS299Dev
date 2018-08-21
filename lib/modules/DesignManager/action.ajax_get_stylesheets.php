@@ -30,7 +30,7 @@ try {
     $designs = CmsLayoutCollection::get_all();
     if( count($designs) ) {
         $tpl->assign('list_designs',$designs);
-        $tmp = array();
+        $tmp = [];
         for( $i = 0; $i < count($designs); $i++ ) {
             $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
             $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
@@ -41,7 +41,7 @@ try {
 	$css_query = new CmsLayoutStylesheetQuery($filter);
 	$csslist = $css_query->GetMatches();
 	$tpl->assign('stylesheets',$csslist);
-	$css_nav = array();
+	$css_nav = [];
 	$css_nav['pagelimit'] = $css_query->limit;
 	$css_nav['numpages'] = $css_query->numpages;
 	$css_nav['numrows'] = $css_query->totalrows;

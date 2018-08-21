@@ -33,12 +33,12 @@ final class utils
         $modops = ModuleOperations::get_instance();
         $module_list = $modops->GetInstalledModules($include_inactive);
 
-        $results = array();
+        $results = [];
         foreach( $module_list as $module_name ) {
             $inst = $modops->get_module_instance($module_name);
             if( !$inst ) continue;
 
-            $details = array();
+            $details = [];
             $details['name'] = $inst->GetName();
             $details['description'] = $inst->GetDescription();
             $details['version'] = $inst->GetVersion();
@@ -51,7 +51,7 @@ final class utils
                 $results[] = $details;
             }
         }
-        return array(true,$results);
+        return [true,$results];
     }
 
     private static function uasort_cmp_details( $e1, $e2 )
@@ -100,7 +100,7 @@ final class utils
         // Note: should be redundant with 1.2, but kept in here for
         // a while just in case..
         if( $newest && $mod->GetPreference('onlynewest',1) == 1 ) {
-            $thexmldetails = array();
+            $thexmldetails = [];
             $prev = '';
             foreach( $xmldetails as $det ) {
                 if( is_array($prev) && $prev['name'] == $det['name'] ) continue;
@@ -111,7 +111,7 @@ final class utils
             $xmldetails = $thexmldetails;
         }
 
-        $results = array();
+        $results = [];
         foreach( $xmldetails as $det1 ) {
             $found = 0;
             foreach( $installdetails as $det2 ) {
@@ -146,7 +146,7 @@ final class utils
         // and check min and max cms version
         //
         global $CMS_VERSION;
-        $results2 = array();
+        $results2 = [];
         foreach( $results as $oneresult ) {
             if( (!empty($oneresult['maxcmsversion']) && version_compare($CMS_VERSION,$oneresult['maxcmsversion']) > 0) ||
                 (!empty($oneresult['mincmsversion']) && version_compare($CMS_VERSION,$oneresult['mincmsversion']) < 0) ) {
@@ -173,7 +173,7 @@ final class utils
 
         if( $md5sum != $dl_md5 ) {
             @unlink($xml_filename);
-            throw new CmsInvalidDataException($mod->Lang('error_checksum',array($server_md5,$dl_md5)));
+            throw new CmsInvalidDataException($mod->Lang('error_checksum',[$server_md5,$dl_md5]));
         }
 
         return $xml_filename;

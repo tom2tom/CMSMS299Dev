@@ -119,7 +119,7 @@ class wizard_step1 extends wizard_step
             if( !is_readable( $start ) ) return;
             $dh = opendir($start);
             if( !$dh ) return;
-            $out = array();
+            $out = [];
             while( ($file = readdir($dh)) !== FALSE ) {
                 if( $file == '.' || $file == '..' ) continue;
                 if( startswith($file,'.') || startswith($file,'_') ) continue;
@@ -140,7 +140,7 @@ class wizard_step1 extends wizard_step
             if( count($out) ) return $out;
         };
 
-        $out = array();
+        $out = [];
         if( $_is_valid_dir($parent) ) $out[$parent] = $parent;
         $tmp = $_find_dirs($parent);
         if( count($tmp) ) $out = array_merge($out,$tmp);

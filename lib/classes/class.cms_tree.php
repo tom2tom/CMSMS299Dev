@@ -122,7 +122,7 @@ class cms_tree
    */
   public function set_tag(string $key,$value)
   {
-	  if( !$this->_tags ) $this->_tags = array();
+	  if( !$this->_tags ) $this->_tags = [];
 	  $this->_tags[$key] = $value;
   }
 
@@ -220,7 +220,7 @@ class cms_tree
    */
   public function add_node(cms_tree &$node)
   {
-	  if( !is_array($this->_children) ) $this->_children = array();
+	  if( !is_array($this->_children) ) $this->_children = [];
 
 	  for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
 		  if( $this->_children[$i] == $node ) return FALSE;

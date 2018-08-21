@@ -48,7 +48,7 @@ function redirect(string $to)
         $to .= $components['host'] ?? $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
         if (isset($components['path'])) {
-            if (in_array(substr($components['path'],0,1),array('\\','/'))) {
+            if (in_array(substr($components['path'],0,1),['\\','/'])) {
                 //Path is absolute, just append.
                 $to .= $components['path'];
             }

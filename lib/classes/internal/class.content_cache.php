@@ -123,7 +123,7 @@ final class content_cache
 			}
 
 			if( $dirty ) {
-                $ndeep = array();
+                $ndeep = [];
 				$deep = FALSE;
 				foreach( $list as $one ) {
 					$obj = self::get_content($one);
@@ -136,7 +136,7 @@ final class content_cache
 					}
 				}
                 $deep = ($deep && count($ndeep) > (count($list) / 4)) ? TRUE : FALSE;
-				$tmp = array(time(),$deep,$list);
+				$tmp = [time(),$deep,$list];
 				\cms_cache_handler::get_instance()->set($this->_key,serialize($tmp),__CLASS__);
 			}
 		}
@@ -218,9 +218,9 @@ final class content_cache
   private static function _add_content($id,$alias,\ContentBase& $obj)
   {
     if( !$id) return FALSE;
-    if( !self::$_alias_map ) self::$_alias_map = array();
-    if( !self::$_id_map ) self::$_id_map = array();
-    if( !self::$_content_cache ) self::$_content_cache = array();
+    if( !self::$_alias_map ) self::$_alias_map = [];
+    if( !self::$_id_map ) self::$_id_map = [];
+    if( !self::$_content_cache ) self::$_content_cache = [];
 
     $hash = md5($id.$alias);
     self::$_content_cache[$hash] = $obj;

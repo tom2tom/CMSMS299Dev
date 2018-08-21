@@ -200,7 +200,7 @@ class wizard_step8 extends wizard_step
         if( !$destdir ) throw new Exception(lang('error_internal',711));
 
         $dh = opendir($dir);
-        $versions = array();
+        $versions = [];
         if( !$dh ) throw new Exception(lang('error_internal',712));
         while( ($file = readdir($dh)) !== false ) {
             if( $file == '.' || $file == '..' ) continue;

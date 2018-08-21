@@ -89,7 +89,7 @@ class BookmarkOperations
 	{
 		$urlext = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
-		$map = array('[SECURITYTAG]'=>$urlext,'[ROOT_URL]'=>CMS_ROOT_URL);
+		$map = ['[SECURITYTAG]'=>$urlext,'[ROOT_URL]'=>CMS_ROOT_URL];
 		foreach( $map as $from => $to ) {
 			$url = str_replace($from,$to,$url);
 		}
@@ -109,9 +109,9 @@ class BookmarkOperations
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
 
-		$result = array();
+		$result = [];
 		$query = "SELECT bookmark_id, user_id, title, url FROM ".CMS_DB_PREFIX."admin_bookmarks WHERE user_id = ? ORDER BY title";
-		$dbresult = $db->Execute($query, array($user_id));
+		$dbresult = $db->Execute($query, [$user_id]);
 
 		while ($dbresult && $row = $dbresult->FetchRow()) {
 			$onemark = new Bookmark();
@@ -138,7 +138,7 @@ class BookmarkOperations
 		$db = CmsApp::get_instance()->GetDb();
 
 		$query = "SELECT bookmark_id, user_id, title, url FROM ".CMS_DB_PREFIX."admin_bookmarks WHERE bookmark_id = ?";
-		$dbresult = $db->Execute($query, array($id));
+		$dbresult = $db->Execute($query, [$id]);
 
 		while ($dbresult && $row = $dbresult->FetchRow()) {
 			$onemark = new Bookmark();
@@ -166,7 +166,7 @@ class BookmarkOperations
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$new_bookmark_id = $db->GenID(CMS_DB_PREFIX."admin_bookmarks_seq");
 		$query = "INSERT INTO ".CMS_DB_PREFIX."admin_bookmarks (bookmark_id, user_id, url, title) VALUES (?,?,?,?)";
-		$dbresult = $db->Execute($query, array($new_bookmark_id, $bookmark->user_id, $bookmark->url, $bookmark->title));
+		$dbresult = $db->Execute($query, [$new_bookmark_id, $bookmark->user_id, $bookmark->url, $bookmark->title]);
 		if ($dbresult !== false) $result = $new_bookmark_id;
 
 		return $result;
@@ -185,7 +185,7 @@ class BookmarkOperations
 
 		$bookmark->url = $this->_prep_for_saving($bookmark->url);
 		$query = "UPDATE ".CMS_DB_PREFIX."admin_bookmarks SET user_id = ?, title = ?, url = ? WHERE bookmark_id = ?";
-		$dbresult = $db->Execute($query, array($bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id));
+		$dbresult = $db->Execute($query, [$bookmark->user_id, $bookmark->title, $bookmark->url, $bookmark->bookmark_id]);
 		if ($dbresult !== false) $result = true;
 
 		return $result;
@@ -203,7 +203,7 @@ class BookmarkOperations
 		$db = CmsApp::get_instance()->GetDb();
 
 		$query = "DELETE FROM ".CMS_DB_PREFIX."admin_bookmarks where bookmark_id = ?";
-		$dbresult = $db->Execute($query, array($id));
+		$dbresult = $db->Execute($query, [$id]);
 		if ($dbresult !== false) $result = true;
 		return $result;
 	}

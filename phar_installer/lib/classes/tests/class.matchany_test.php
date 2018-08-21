@@ -14,7 +14,7 @@ class matchany_test extends test_base
   public function add_child(test_base $obj)
   {
     if( !is_array($this->_children) )
-      $this->_children = array();
+      $this->_children = [];
 
     $this->_children[] = $obj;
   }

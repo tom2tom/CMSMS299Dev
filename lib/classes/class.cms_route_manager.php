@@ -68,8 +68,8 @@ final class cms_route_manager
 	static private function _find_match($needle,$haystack,$exact)
 	{
 		// split the haystack into an array of 'absolute' or 'regex' matches
-		$absolute = array();
-		$regex = array();
+		$absolute = [];
+		$regex = [];
         foreach( $haystack as $rec ) {
 			if( $exact || (isset($rec['absolute']) && $rec['absolute']) ) {
 				$absolute[$rec['term']] = $rec;
@@ -188,7 +188,7 @@ final class cms_route_manager
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'routes (term,key1,key2,key3,data,created) VALUES (?,?,?,?,?,NOW())';
 
 		$db = CmsApp::get_instance()->GetDb();
-		$dbr = $db->Execute($query,array($route['term'], $route['key1'], $route['key2'], $route['key3'], serialize($route)));
+		$dbr = $db->Execute($query,[$route['term'], $route['key1'], $route['key2'], $route['key3'], serialize($route)]);
 		if( !$dbr ) {
 			die($db->sql.' -- '.$db->ErrorMsg());
 			return FALSE;
@@ -214,8 +214,8 @@ final class cms_route_manager
 	public static function del_static($term,$key1 = null,$key2 = null,$key3 = null)
 	{
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'routes WHERE ';
-		$where = array();
-		$parms = array();
+		$where = [];
+		$parms = [];
 		if( $term ) {
 			$where[] = 'term = ?';
 			$parms[] = $term;
@@ -263,7 +263,7 @@ final class cms_route_manager
 	public static function add_dynamic(CmsRoute $route)
 	{
 		if( self::route_exists($route) ) return FALSE;
-		if( !is_array(self::$_dynamic_routes) ) self::$_dynamic_routes = array();
+		if( !is_array(self::$_dynamic_routes) ) self::$_dynamic_routes = [];
 		self::$_dynamic_routes[$route->signature()] = $route;
 		return TRUE;
 	}
@@ -356,7 +356,7 @@ final class cms_route_manager
 
 		$data = self::_get_routes_from_cache();
 		if( is_array($data) && count($data) ) {
-			self::$_routes = array();
+			self::$_routes = [];
 			for( $i = 0, $n = count($data); $i < $n; $i++ ) {
 				$obj = unserialize($data[$i]['data']);
 				self::$_routes[$obj->signature()] = $obj;

@@ -16,7 +16,7 @@ abstract class jquery_upload_handler
     private $options;
 
     function __construct($options=null) {
-        $this->options = array(
+        $this->options = [
             'script_url' => $this->getFullUrl().'/'.basename(__FILE__),
             'upload_dir' => dirname(__FILE__).'/files/',
             'upload_url' => $this->getFullUrl().'/files/',
@@ -31,7 +31,7 @@ abstract class jquery_upload_handler
             'discard_aborted_uploads' => false,
             'orient_image'=>false,
             'image_versions'=>[]
-        );
+        ];
         if (is_array($options) && count($options)) {
             foreach( $options as $key => $value ) {
                 $this->options[$key] = $value;
@@ -80,7 +80,7 @@ abstract class jquery_upload_handler
 
     private function get_file_objects() {
         return array_values(array_filter(array_map(
-            array($this, 'get_file_object'),
+            [$this, 'get_file_object'],
             scandir($this->options['upload_dir'])
         )));
     }
@@ -194,7 +194,7 @@ abstract class jquery_upload_handler
     protected function orient_image($file_path) {
           $exif = exif_read_data($file_path);
           $orientation = intval(@$exif['Orientation']);
-          if (!in_array($orientation, array(3, 6, 8))) {
+          if (!in_array($orientation, [3, 6, 8])) {
               return false;
           }
           $image = @imagecreatefromjpeg($file_path);
@@ -300,7 +300,7 @@ abstract class jquery_upload_handler
 
         $upload = isset($_FILES[$this->options['param_name']]) ?
             $_FILES[$this->options['param_name']] : null;
-        $info = array();
+        $info = [];
         if ($upload && is_array($upload['tmp_name'])) {
             foreach ($upload['tmp_name'] as $index => $value) {
                 $res = $this->handle_file_upload(

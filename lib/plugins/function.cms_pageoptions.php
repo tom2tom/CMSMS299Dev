@@ -29,7 +29,7 @@ function smarty_function_cms_pageoptions($params, $template)
   $elipsis = get_parameter_value($params,'elipsis','');
   $bare = cms_to_bool(get_parameter_value($params,'bare',0));
 
-  $list = array();
+  $list = [];
   for( $i = 1; $i <= min($surround,$numpages); $i++ ) {
     $list[] = (int)$i;
   }
@@ -50,7 +50,7 @@ function smarty_function_cms_pageoptions($params, $template)
   if ( $bare ) {
     $out = $list;
     if( $elipsis ) {
-      $out = array();
+      $out = [];
       for( $i = 1; $i < count($list); $i++ ) {
 	if( $list[$i-1] != $list[$i] - 1 ) $out[] = $elipsis;
 	$out[] = $list[$i];

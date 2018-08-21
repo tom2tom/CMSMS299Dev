@@ -280,7 +280,7 @@ class cms_http_request
      *
      * @param array $config Config values as associative array
      */
-    function initialize($config = array())
+    function initialize($config = [])
     {
         $this->clear();
         foreach ($config as $key => $val)
@@ -319,11 +319,11 @@ class cms_http_request
         $this->target       = '';
         $this->method       = 'GET';
         $this->schema       = 'http';
-        $this->params       = array();
-        $this->headers      = array();
-        $this->cookies      = array();
-        $this->_cookies     = array();
-        $this->headerArray  = array();
+        $this->params       = [];
+        $this->headers      = [];
+        $this->cookies      = [];
+        $this->_cookies     = [];
+        $this->headerArray  = [];
         $this->proxy        = null;
 
         // Set the config details
@@ -578,7 +578,7 @@ class cms_http_request
      */
     function requestHeaderExists($key)
     {
-        if( !is_array($this->headerArray) ) $this->headerArray = array();
+        if( !is_array($this->headerArray) ) $this->headerArray = [];
         if( strpos($key,':') !== FALSE ) {
             $tmp = explode(':',$key);
             $key = trim($tmp[0]);
@@ -599,7 +599,7 @@ class cms_http_request
      */
     function addRequestHeader($str,$prepend = false)
     {
-        if( !is_array($this->headerArray) ) $this->headerArray = array();
+        if( !is_array($this->headerArray) ) $this->headerArray = [];
 
         $f = 0;
         if( strpos($str,':') !== FALSE ) {
@@ -663,7 +663,7 @@ class cms_http_request
      * @param array $data Parameter array for GET or POST (optional)
      * @return string Response body of the target page
      */
-    public function execute($target = '', $referrer = '', $method = '', $data = array())
+    public function execute($target = '', $referrer = '', $method = '', $data = [])
     {
         // Populate the properties
         $this->target = ($target) ?: $this->target;
@@ -732,7 +732,7 @@ class cms_http_request
         if(is_array($this->cookies) && count($this->cookies))
         {
             // Get a blank slate
-            $tempString   = array();
+            $tempString   = [];
 
             // Convert cookiesa array into a query string (ie animal=dog&sport=baseball)
             foreach ($this->cookies as $key => $value)
@@ -943,7 +943,7 @@ class cms_http_request
                     // Reset some of the properties
                     $this->port   = 0;
                     $this->status = 0;
-                    $this->params = array();
+                    $this->params = [];
                     $this->method = 'POST';
                     $this->referrer = $this->target;
 
@@ -1042,7 +1042,7 @@ class cms_http_request
             {
                 if(gettype($this->headers[$headerName]) == "string")
                 {
-                    $this->headers[$headerName] = array($this->headers[$headerName]);
+                    $this->headers[$headerName] = [$this->headers[$headerName]];
                 }
 
                 $this->headers[$headerName][] = $headerValue;
@@ -1068,7 +1068,7 @@ class cms_http_request
      */
     function _clearHeaders()
     {
-        $this->headers = array();
+        $this->headers = [];
     }
 
     /**
@@ -1088,7 +1088,7 @@ class cms_http_request
         }
         else
         {
-            $cookieHeaders = array($this->headers['set-cookie']);
+            $cookieHeaders = [$this->headers['set-cookie']];
         }
 
         // Loop through the cookies
@@ -1166,13 +1166,13 @@ class cms_http_request
 
         $secure = (int)$secure;
 
-        $this->_cookies[] = array( "name"      =>  $name,
+        $this->_cookies[] = [ "name"      =>  $name,
                                    "value"     =>  $value,
                                    "domain"    =>  $domain,
                                    "path"      =>  $path,
                                    "expires"   =>  $expires,
                                    "secure"    =>  $secure
-            );
+            ];
     }
 
     /**
@@ -1202,7 +1202,7 @@ class cms_http_request
         if (is_array($this->_cookies) && count($this->_cookies))
         {
             $urlParsed = parse_url($this->target);
-            $tempCookies = array();
+            $tempCookies = [];
 
             foreach($this->_cookies as $cookie)
             {

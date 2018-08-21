@@ -125,7 +125,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
             return 'I';
 
         default:
-            static $typeMap = array(
+            static $typeMap = [
                 'VARCHAR' => 'C',
                 'VARCHAR2' => 'C',
                 'CHAR' => 'C',
@@ -197,7 +197,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
                 'NUM' => 'N',
                 'NUMERIC' => 'N',
                 'MONEY' => 'N',
-                );
+                ];
 
             $t = strtoupper($t);
             $tmap = (isset($typeMap[$t])) ? $typeMap[$t] : 'N';

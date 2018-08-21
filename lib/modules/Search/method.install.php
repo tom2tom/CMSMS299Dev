@@ -11,7 +11,7 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
 }
 
 $dict = NewDataDictionary($db);
-$taboptarray = array('mysqli' => 'ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = ['mysqli' => 'ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 $flds= '
 id I KEY,

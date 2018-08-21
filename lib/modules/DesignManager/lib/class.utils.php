@@ -40,7 +40,7 @@ final class utils
             $_locks_loaded = TRUE;
             $tmp = CmsLockOperations::get_locks('template');
             if( is_array($tmp) && count($tmp) ) {
-                $_locks = array();
+                $_locks = [];
                 foreach( $tmp as $lock_obj ) {
                     $_locks[$lock_obj['oid']] = $lock_obj;
                 }
@@ -57,7 +57,7 @@ final class utils
             $_locks_loaded = TRUE;
             $tmp = CmsLockOperations::get_locks('stylesheet');
             if( is_array($tmp) && count($tmp) ) {
-                $_locks = array();
+                $_locks = [];
                 foreach( $tmp as $lock_obj ) {
                     $_locks[$lock_obj['oid']] = $lock_obj;
                 }

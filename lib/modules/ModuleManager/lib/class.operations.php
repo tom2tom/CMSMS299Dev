@@ -74,7 +74,7 @@ class operations
     /**
      * @ignore
      */
-    private $xml_exclude_files = array('^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^\.git', '^\.tmp$');
+    private $xml_exclude_files = ['^\.svn' , '^CVS$' , '^\#.*\#$' , '~$', '\.bak$', '^\.git', '^\.tmp$'];
 
     public function __construct( ModuleManager $mod )
     {

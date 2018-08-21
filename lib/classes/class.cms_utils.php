@@ -71,7 +71,7 @@ final class cms_utils
 	public static function set_app_data($key,$value)
 	{
 		if( $key == '' ) return;
-		if( !is_array(self::$_vars) ) self::$_vars = array();
+		if( !is_array(self::$_vars) ) self::$_vars = [];
 		self::$_vars[$key] = $value;
 	}
 

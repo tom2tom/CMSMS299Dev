@@ -23,7 +23,7 @@ function smarty_function_share_data($params, $template)
 
     if( is_string($vars) ) {
         $t_list = explode(',',$vars);
-        $t_list_2 = array();
+        $t_list_2 = [];
         foreach( $t_list as $one ) {
             $one = trim($one);
             if( $one ) $t_list_2[] = $one;

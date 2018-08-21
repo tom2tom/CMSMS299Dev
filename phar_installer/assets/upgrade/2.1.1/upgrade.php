@@ -2,8 +2,8 @@
 status_msg('Upgrading schema for CMSMS 2.1.1');
 
 //$gCms = cmsms();
-$perms = array('Manage Designs','Manage My Settings','Manage My Account','Manage My Bookmarks');
-$all_perms = array();
+$perms = ['Manage Designs','Manage My Settings','Manage My Account','Manage My Bookmarks'];
+$all_perms = [];
 foreach( $perms as $one_perm ) {
     $permission = new CmsPermission();
     $permission->source = 'Core';

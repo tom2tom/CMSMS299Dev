@@ -55,7 +55,7 @@ if( isset($params['loadprops']) && $params['loadprops'] = 0 ) $deep = 0;
 if( isset($params['show_all']) && $params['show_all'] ) $showall = 1;
 if( isset($params['root']) ) $stopat = trim($params['root']);
 
-$pagestack = array();
+$pagestack = [];
 $curNode = $endNode;
 $have_stopnode = FALSE;
 

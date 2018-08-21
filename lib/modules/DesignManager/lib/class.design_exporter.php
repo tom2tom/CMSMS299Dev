@@ -104,7 +104,7 @@ EOT;
             }
         }
         $sig = '__'.$type.',,'.md5($fn).'__';
-        if( !is_array($this->_files) ) $this->_files = array();
+        if( !is_array($this->_files) ) $this->_files = [];
         $this->_files[$sig] = $fn;
         return $sig;
     }
@@ -170,7 +170,7 @@ EOT;
         };
 
         $ob = &$this;
-        $types = array("href", "src", "url");
+        $types = ["href", "src", "url"];
         foreach( $types as $type ) {
             $innerT = '[a-z0-9:?=&@/._-]+?';
             $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.")\\1|i",
@@ -199,7 +199,7 @@ EOT;
     public function parse_stylesheets()
     {
         if( is_null($this->_css_list) ) {
-            $this->_css_list = array();
+            $this->_css_list = [];
 
             $csslist = $this->_design->get_stylesheets();
             if( is_array($csslist) && count($csslist) ) {
@@ -212,8 +212,8 @@ EOT;
                     $new_css_ob->set_name($sig);
                     $new_css_ob->set_content($new_content);
 
-                    if( !is_array($this->_css_list) ) $this->_css_list = array();
-                    $this->_css_list[] = array('name'=>$css_ob->get_name(),'obj'=>$new_css_ob);
+                    if( !is_array($this->_css_list) ) $this->_css_list = [];
+                    $this->_css_list[] = ['name'=>$css_ob->get_name(),'obj'=>$new_css_ob];
                 }
             }
         }
@@ -223,7 +223,7 @@ EOT;
     {
         $this->parse_stylesheets();
         if( is_array($this->_css_list) && count($this->_css_list) ) {
-            $out = array();
+            $out = [];
             foreach( $this->_css_list as $rec ) {
                 $out[] = $rec['obj']->get_name();
             }
@@ -253,8 +253,8 @@ EOT;
             $new_tpl_ob->set_name($sig);
             $new_tpl_ob->set_content($new_content);
 
-            if( !is_array($this->_tpl_list) ) $this->_tpl_list = array();
-            $this->_tpl_list[$sig] = array('name'=>$name,'obj'=>$new_tpl_ob);
+            if( !is_array($this->_tpl_list) ) $this->_tpl_list = [];
+            $this->_tpl_list[$sig] = ['name'=>$name,'obj'=>$new_tpl_ob];
             return $sig;
 
         case 'MM':
@@ -278,7 +278,7 @@ EOT;
             // it's a menu manager template
             // we need to get a 'type' for this.
             $new_tpl_ob->set_type(self::$_mm_types[0]);
-            $this->_tpl_list[$sig] = array('name'=>$name,'obj'=>$new_tpl_ob);
+            $this->_tpl_list[$sig] = ['name'=>$name,'obj'=>$new_tpl_ob];
             return $sig;
         } // switch
     }
@@ -380,7 +380,7 @@ EOT;
     public function parse_templates()
     {
         if( is_null($this->_tpl_list) ) {
-            $this->_tpl_list = array();
+            $this->_tpl_list = [];
 
             $idlist = $this->_design->get_templates();
             if( is_array($idlist) && count($idlist) ) {
@@ -397,7 +397,7 @@ EOT;
     {
         $this->parse_templates();
         if( is_array($this->_tpl_list) && count($this->_tpl_list) ) {
-            $out = array();
+            $out = [];
             foreach( $this->_tpl_list as $rec ) {
                 $out[] = $one['obj']->get_name();
             }

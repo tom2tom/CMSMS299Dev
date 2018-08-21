@@ -35,7 +35,7 @@ namespace CMSMS\internal;
 final class bulkcontentoperations
 {
 	private function __construct() {}
-	private static $_list = array();
+	private static $_list = [];
 
 	/**
 	 * Register a function to show in the bulk content operations list
@@ -63,8 +63,8 @@ final class bulkcontentoperations
 	 */
 	static public function get_operation_list($separate_modules = true)
     {
-		$tmpc = array();
-		$tmpm = array();
+		$tmpc = [];
+		$tmpm = [];
 		foreach( self::$_list as $name => $label ) {
 			if( startswith($name,'core::') ) {
 				$tmpc[$name] = $label;

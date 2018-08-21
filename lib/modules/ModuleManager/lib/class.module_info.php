@@ -26,9 +26,9 @@ use function debug_display;
 class module_info extends extended_module_info //was ModuleManagerModuleInfo
 {
     private static $_minfo;
-    private static $_deprecated = array('CMSMailer','MenuManager');
-    private static $_mmkeys = array('e_status','can_install','can_upgrade','can_uninstall','missing_deps','deprecated','needs_upgrade');
-    private $_mmdata = array();
+    private static $_deprecated = ['CMSMailer','MenuManager'];
+    private static $_mmkeys = ['e_status','can_install','can_upgrade','can_uninstall','missing_deps','deprecated','needs_upgrade'];
+    private $_mmdata = [];
 
     public function __construct($module_name,$can_load = TRUE,$can_check_forge = TRUE)
     {
@@ -64,7 +64,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
     {
         $depends = $this['depends'];
         if( is_array($depends) && count($depends) ) {
-            $out = array();
+            $out = [];
             foreach( $depends as $name => $ver ) {
                 $rec = self::get_module_info($name);
                 if( !is_object($rec) ) {
@@ -180,7 +180,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
         $allknownmodules = $ops->FindAllModules();
 
         // first pass...
-        $out = array();
+        $out = [];
         foreach( $allknownmodules as $module_name ) {
             try {
                 $info = new module_info($module_name,TRUE,$can_check_forge);

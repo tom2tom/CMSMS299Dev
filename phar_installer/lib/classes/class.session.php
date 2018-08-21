@@ -38,7 +38,7 @@ final class session implements ArrayAccess
   {
     self::start();
     if( !is_array($this->_data) ) {
-      $this->_data = array();
+      $this->_data = [];
       if( isset($_SESSION[self::$_key]) ) {
           $this->_data = unserialize($_SESSION[self::$_key]);
       }

@@ -4,7 +4,7 @@ namespace CMSMS\internal;
 class global_cache
 {
     const TIMEOUT = 604800;
-    private static $_types = array();
+    private static $_types = [];
     private static $_dirty;
     private static $_cache;
 
@@ -61,7 +61,7 @@ class global_cache
     {
         static $_driver = null;
         if( !$_driver ) {
-            $_driver = new \cms_filecache_driver(array('lifetime'=>self::TIMEOUT,'autocleaning'=>1,'group'=>__CLASS__));
+            $_driver = new \cms_filecache_driver(['lifetime'=>self::TIMEOUT,'autocleaning'=>1,'group'=>__CLASS__]);
         }
         return $_driver;
     }
@@ -70,7 +70,7 @@ class global_cache
     {
         $driver = self::_get_driver();
         $keys = array_keys(self::$_types);
-        self::$_cache = array();
+        self::$_cache = [];
         foreach( $keys as $key ) {
             $tmp = $driver->get($key);
             self::$_cache[$key] = $tmp;
@@ -81,7 +81,7 @@ class global_cache
     public static function clear_all()
     {
         self::_get_driver()->clear();
-        self::$_cache = array();
+        self::$_cache = [];
     }
 
 } // end of class

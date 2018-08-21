@@ -37,7 +37,7 @@ final class oldmodtemplate_slave extends slave
 
     $db = cmsms()->GetDb();
     $query = 'SELECT originator,name,content FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE content LIKE ?';
-    $dbr = $db->GetArray($query,array('%'.$this->get_text().'%'));
+    $dbr = $db->GetArray($query,['%'.$this->get_text().'%']);
     if( is_array($dbr) && count($dbr) ) {
       $output = [];
       $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
@@ -55,7 +55,7 @@ final class oldmodtemplate_slave extends slave
           $text = str_replace("\n",'',$text);
         }
 
-        $tmp = array('title'=>"{$row['originator']} + {$row['name']}",'text'=>$text);
+        $tmp = ['title'=>"{$row['originator']} + {$row['name']}",'text'=>$text];
 
         $output[] = $tmp;
       }

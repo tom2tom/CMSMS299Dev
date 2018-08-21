@@ -115,7 +115,7 @@ class gui_install extends installer_base
             $verfile = dirname($src_archive).'/version.php';
             if( !is_file($verfile) ) throw new Exception('Could not find version file');
             include_once($verfile);
-            $ver = array('version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION);
+            $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
             $sess[__CLASS__.'version'] = $ver;
             $this->_dest_version = $CMS_VERSION;
             $this->_dest_name = $CMS_VERSION_NAME;
@@ -319,7 +319,7 @@ class gui_install extends installer_base
         if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
 
         $phardata = new PharData($archive);
-        $nls = array();
+        $nls = [];
         $found = false;
         $pharprefix = "phar://".$archive;
         foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {

@@ -76,7 +76,7 @@ $to_obj->SetDefaultContent(0);
 $to_obj->SetOwner(get_userid());
 $to_obj->SetLastModifiedBy(get_userid());
 $_SESSION['__cms_copy_obj__'] = serialize($to_obj);
-$this->Redirect($id,'admin_editcontent','',array('content_id'=>'copy'));
+$this->Redirect($id,'admin_editcontent','',['content_id'=>'copy']);
 
 #
 # EOF

@@ -263,7 +263,7 @@ abstract class DataDictionary
     /**
      * @ignore
      */
-    protected $invalidResizeTypes4 = array('CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME'); // for changetablesql
+    protected $invalidResizeTypes4 = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME']; // for changetablesql
 
     /**
      * @ignore
@@ -465,7 +465,7 @@ abstract class DataDictionary
      */
     public function DropIndexSQL($idxname, $tabname = null)
     {
-        return array(sprintf($this->dropIndex, $this->NameQuote($idxname), $this->TableName($tabname)));
+        return [sprintf($this->dropIndex, $this->NameQuote($idxname), $this->TableName($tabname))];
     }
 
     /**
@@ -533,7 +533,7 @@ abstract class DataDictionary
             list(, $column_def) = split("[\t ]+", $first, 2);
         }
 
-        return array(sprintf($this->renameColumn, $tabname, $this->NameQuote($oldcolumn), $this->NameQuote($newcolumn), $column_def));
+        return [sprintf($this->renameColumn, $tabname, $this->NameQuote($oldcolumn), $this->NameQuote($newcolumn), $column_def)];
     }
 
     /**
@@ -570,7 +570,7 @@ abstract class DataDictionary
      */
     public function DropTableSQL($tabname)
     {
-        return array(sprintf($this->dropTable, $this->TableName($tabname)));
+        return [sprintf($this->dropTable, $this->TableName($tabname))];
     }
 
     /**
@@ -583,7 +583,7 @@ abstract class DataDictionary
      */
     public function RenameTableSQL($tabname, $newname)
     {
-        return array(sprintf($this->renameTable, $this->TableName($tabname), $this->TableName($newname)));
+        return [sprintf($this->renameTable, $this->TableName($tabname), $this->TableName($newname))];
     }
 
     /**
@@ -856,7 +856,7 @@ abstract class DataDictionary
                 $this->autoIncrement = true;
             }
         } // foreach $flds
-        return array($lines, $pkey);
+        return [$lines, $pkey];
     }
 
     /**
@@ -955,7 +955,7 @@ abstract class DataDictionary
     protected function get_dbtype_options($opts, $suffix = null)
     {
         $dbtype = $this->_dbType();
-        $list = array($dbtype.$suffix, strtoupper($dbtype).$suffix, strtolower($dbtype).$suffix);
+        $list = [$dbtype.$suffix, strtoupper($dbtype).$suffix, strtolower($dbtype).$suffix];
 
         foreach ($list as $one) {
             if (isset($opts[$one]) && is_string($opts[$one]) && strlen($opts[$one])) {
@@ -1018,7 +1018,7 @@ abstract class DataDictionary
      */
     protected function _Triggers($tabname, $taboptions)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -1040,7 +1040,7 @@ abstract class DataDictionary
     {
         $opts = $this->_ProcessOptions($opts);
         if (!is_array($opts)) {
-            return array();
+            return [];
         }
         $newopts = [];
         foreach ($opts as $k => $v) {

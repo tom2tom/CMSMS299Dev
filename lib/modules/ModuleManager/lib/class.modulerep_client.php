@@ -35,17 +35,17 @@ final class modulerep_client
     {
         $mod = cms_utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
-        if( !$url )	return array(false,$mod->Lang('error_norepositoryurl'));
+        if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
         $url .= '/version';
 
         $req = new cached_request();
         $req->execute($url);
         $status = $req->getStatus();
         $result = $req->getResult();
-        if( $status != 200 || $result == '' ) return array(FALSE,$mod->Lang('error_request_problem'));
+        if( $status != 200 || $result == '' ) return [FALSE,$mod->Lang('error_request_problem')];
 
         $data = json_decode($result,true);
-        return array(true,$data);
+        return [true,$data];
     }
 
 
@@ -58,13 +58,13 @@ final class modulerep_client
         $mod = cms_utils::get_module('ModuleManager');
         if( !is_array($input) || count($input) == 0 ) throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
 
-        $out = array();
+        $out = [];
         foreach( $input as $key => $data ) {
             if( is_array($data) && isset($data['name']) && isset($data['version']) && $data['name'] && $data['version'] ) {
-                $out[] = array('name'=>$data['name'],'version'=>$data['version']);
+                $out[] = ['name'=>$data['name'],'version'=>$data['version']];
             }
             else if( is_string($key) && (int)$key == 0 ) {
-                $out[] = array('name'=>$key,'version'=>$data);
+                $out[] = ['name'=>$key,'version'=>$data];
             }
             else {
                 throw new CmsInvalidDataException($mod->Lang('error_missingparam'));
@@ -73,9 +73,9 @@ final class modulerep_client
         if( count($out) == 0 ) new CmsInvalidDataException($mod->Lang('error_missingparam'));
 
         $url = $mod->GetPreference('module_repository');
-        if( !$url )	return array(false,$mod->Lang('error_norepositoryurl'));
+        if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
         $url .= '/multimoduleinfo';
-        $data = array('data'=>json_encode($out));
+        $data = ['data'=>json_encode($out)];
 
         $req = new cached_request();
         $req->execute($url,$data);
@@ -95,11 +95,11 @@ final class modulerep_client
     {
         $mod = cms_utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
-        if( !$url )	return array(false,$mod->Lang('error_norepositoryurl'));
+        if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
         $url .= '/moduledetailsgetall';
 
         global $CMS_VERSION;
-        $data = array('newest'=>$newest);
+        $data = ['newest'=>$newest];
         if( $prefix ) $data['prefix'] = ltrim($prefix);
         if( $exact ) $data['exact'] = 1;
         $data['clientcmsversion'] = $CMS_VERSION;
@@ -109,14 +109,14 @@ final class modulerep_client
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status == 400 ) {
-            return array(true,array());
+            return [true,[]];
         }
         else if( $status != 200 || $result == '' ) {
-            return array(FALSE,$mod->Lang('error_request_problem'));
+            return [FALSE,$mod->Lang('error_request_problem')];
         }
 
         $data = json_decode($result,true);
-        return array(true,$data);
+        return [true,$data];
     }
 
     public static function get_module_dependencies($module_name,$module_version = '')
@@ -127,7 +127,7 @@ final class modulerep_client
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
         $url .= '/moduledependencies';
 
-        $parms = array('name'=>$module_name);
+        $parms = ['name'=>$module_name];
         if( $module_version ) $parms['version'] = $module_version;
         $req = new cached_request();
         $req->execute($url,$parms);
@@ -155,7 +155,7 @@ final class modulerep_client
         $url .= '/moduledepends';
 
         $req = new cached_request();
-        $req->execute($url,array('name'=>$xmlfile));
+        $req->execute($url,['name'=>$xmlfile]);
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status == 400 ) return;
@@ -186,7 +186,7 @@ final class modulerep_client
                 // downloading the whole file at one shot.
                 $url .= '/modulexml';
                 $req = new cms_http_request();
-                $req->execute($url,'','POST',array('name'=>$xmlfile));
+                $req->execute($url,'','POST',['name'=>$xmlfile]);
                 $status = $req->GetStatus();
                 $result = $req->GetResult();
                 if( $status != 200 || $result == '' ) {
@@ -205,7 +205,7 @@ final class modulerep_client
             $nchunks = (int)ceil($size / $chunksize);
             $req = new cms_http_request();
             for( $i = 0; $i < $nchunks; $i++ ) {
-                $req->execute($url,'','POST', array('name'=>$xmlfile,'partnum'=>$i,'sizekb'=>$orig_chunksize));
+                $req->execute($url,'','POST', ['name'=>$xmlfile,'partnum'=>$i,'sizekb'=>$orig_chunksize]);
                 $status = $req->GetStatus();
                 $result = $req->GetResult();
                 if( $status != 200 || $result == '' ) {
@@ -234,7 +234,7 @@ final class modulerep_client
         $url .= '/modulemd5sum';
 
         $req = new cached_request();
-        $req->execute($url,array('name'=>$xmlfile));
+        $req->execute($url,['name'=>$xmlfile]);
         $status = $req->getStatus();
         $result = $req->getResult();
         if( $status != 200 || $result == '' ) throw new CmsCommunicationException($mod->Lang('error_request_problem'));
@@ -246,8 +246,8 @@ final class modulerep_client
 
     public static function search($term,$advanced)
     {
-        $qparms = array();
-        $filter = array();
+        $qparms = [];
+        $filter = [];
         $filter['term'] = $term;
         $filter['advanced'] = (int)$advanced;
         $filter['newest'] = 1;
@@ -257,18 +257,18 @@ final class modulerep_client
 
         $mod = cms_utils::get_module('ModuleManager');
         $url = $mod->GetPreference('module_repository');
-        if( $url == '' ) return array(FALSE,$mod->Lang('error_norepositoryurl'));
+        if( $url == '' ) return [FALSE,$mod->Lang('error_norepositoryurl')];
         $url .= '/modulesearch';
 
         $req = new cached_request();
-        $req->execute($url,array('json'=>json_encode($qparms)));
+        $req->execute($url,['json'=>json_encode($qparms)]);
         $status = $req->getStatus();
         $result = $req->getResult();
-        if( $status == 200 && $result == ''  ) return array(TRUE,null); // no results.
-        if( $status != 200 || $result == '' ) return array(FALSE,$mod->Lang('error_request_problem'));
+        if( $status == 200 && $result == ''  ) return [TRUE,null]; // no results.
+        if( $status != 200 || $result == '' ) return [FALSE,$mod->Lang('error_request_problem')];
 
         $data = json_decode($result,true);
-        return array(TRUE,$data);
+        return [TRUE,$data];
     }
 
     /**
@@ -286,7 +286,7 @@ final class modulerep_client
 
         $url = $mod->GetPreference('module_repository');
         if( $url == '' ) throw new CmsInvalidDataException($mod->Lang('error_norepositoryurl'));
-        $qparms = array();
+        $qparms = [];
         $qparms['names'] =  implode(',',$modules);
         $qparms['newest'] = '1';
         $qparms['clientcmsversion'] = CMS_VERSION;
@@ -330,11 +330,11 @@ final class modulerep_client
         if( !is_array($versions) ) return FALSE;
         if( count($versions) == 2 && $versions[0] === FALSE ) return FALSE;
 
-        $out = array();
+        $out = [];
         foreach( $versions as $row ) {
             $info = module_info::get_module_info( $row['name'] );
             if( version_compare($row['version'],$info['version']) > 0 ) {
-                $data = array();
+                $data = [];
                 $out[$row['name']] = $row;
             }
         }

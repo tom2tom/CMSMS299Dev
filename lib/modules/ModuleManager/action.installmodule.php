@@ -116,7 +116,7 @@ try {
     $resolve_deps = function($module_name,$module_version,$uselatest,$depth = 0) use (&$resolve_deps,&$mod) {
 
         $array_to_hash = function($in,$key) {
-            $out = array();
+            $out = [];
             $idx = 0;
             foreach( $in as $rec ) {
                 if( isset($rec[$key]) ) {
@@ -129,7 +129,7 @@ try {
         };
 
         $extract_member = function($in,$key) {
-            $out = array();
+            $out = [];
             foreach( $in as $rec ) {
                 if( isset($rec[$key]) ) $out[] = $rec[$key];
             }
@@ -140,7 +140,7 @@ try {
         };
 
         $update_latest_deps = function($indeps,$latest) use (&$mod) {
-            $out = array();
+            $out = [];
             foreach( $indeps as $name => $onedep ) {
                 if( isset($latest[$name]) ) {
                     $out[$name] = $latest[$name];
@@ -204,7 +204,7 @@ try {
     //   get module info for all dependencies
 
     // recursively (depth first) get the dependencies for the module+version we specified.
-    $alldeps = array();
+    $alldeps = [];
     $uselatest = (int) $this->GetPreference('latestdepends',1);
     $alldeps = $resolve_deps($module_name,$module_version,$uselatest);
 
@@ -215,7 +215,7 @@ try {
             if( $this->GetPreference('latestdepends',1) ) {
                 // get the latest version of dependency (but not necessarily of the module we're installing)
                 $res = modulerep_client::get_modulelatest(array_keys($alldeps));
-                $new_deps = array();
+                $new_deps = [];
             }
             else {
                 // get the info for all dependencies
@@ -246,7 +246,7 @@ try {
     }
 
     // add our current item into alldeps.
-    $alldeps[$module_name] = array('name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size);
+    $alldeps[$module_name] = ['name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size];
 
     // remove items that are already installed (where installed version is greater or equal)
     // and create actions as to what we're going to do.
@@ -290,8 +290,8 @@ try {
 
 	$tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl'),null,null,$smarty);
 
-    $tpl->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, array('__activetab'=>'modules')));
-    $parms = array('name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size);
+    $tpl->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, ['__activetab'=>'modules']));
+    $parms = ['name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size];
     $tpl->assign('form_start',$this->CreateFormStart($id, 'installmodule', $returnid, 'post', '', FALSE, '', $parms).
        $this->CreateInputHidden($id,'modlist',base64_encode(serialize($alldeps))))
      ->assign('formend',$this->CreateFormEnd())

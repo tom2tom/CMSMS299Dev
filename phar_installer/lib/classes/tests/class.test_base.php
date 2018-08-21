@@ -56,9 +56,9 @@ abstract class test_base
   const TEST_FAIL = 'test_fail';
   const TEST_WARN = 'test_warn';
 
-  private static $_keys = array('name','name_key','status','value','required','minimum','maximum','recommended','pass_key','pass_msg','fail_msg',
-				'fail_key','warn_key','warn_msg','msg_key','msg');
-  private $_data = array();
+  private static $_keys = ['name','name_key','status','value','required','minimum','maximum','recommended','pass_key','pass_msg','fail_msg',
+				'fail_key','warn_key','warn_msg','msg_key','msg'];
+  private $_data = [];
 
   public function __construct($name,$value,$key = '')
   {

@@ -84,14 +84,14 @@ if( isset($params['submit']) ) {
     }
 }
 
-$displaydata = array();
+$displaydata = [];
 foreach( $pagelist as $pid ) {
     $node = $hm->find_by_tag('id',$pid);
     if( !$node ) continue;  // this should not happen, but hey.
     $content = $node->getContent(FALSE,FALSE,FALSE);
     if( !is_object($content) ) continue; // this should never happen either
 
-    $rec = array();
+    $rec = [];
     $rec['id'] = $content->Id();
     $rec['name'] = $content->Name();
     $rec['menutext'] = $content->MenuText();
@@ -119,13 +119,13 @@ catch( Exception $e ) {
 }
 $tpl->assign('dflt_tpl_id',$dflt_tpl_id);
 if( $showmore ) {
-    $_tpl = CmsLayoutTemplate::template_query(array('as_list'=>1));
+    $_tpl = CmsLayoutTemplate::template_query(['as_list'=>1]);
     $tpl->assign('alltemplates',$_tpl);
 }
 else {
     // gotta get the core page template type
     $_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-    $_tpl = CmsLayoutTemplate::template_query(array('t:'.$_type->get_id(),'as_list'=>1));
+    $_tpl = CmsLayoutTemplate::template_query(['t:'.$_type->get_id(),'as_list'=>1]);
     $tpl->assign('alltemplates',$_tpl);
 }
 

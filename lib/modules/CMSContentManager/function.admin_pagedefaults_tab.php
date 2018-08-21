@@ -27,7 +27,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_pagedefaults_ta
 $tpl->assign('page_prefs',$page_prefs)
  ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(FALSE,FALSE))
  ->assign('design_list',CmsLayoutCollection::get_list())
- ->assign('template_list',CmsLayoutTemplate::template_query(array('as_list'=>1)))
+ ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]))
  ->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
 
 $tpl->display();

@@ -103,7 +103,7 @@ final class cms_module_smarty_plugin_manager
 		// todo: cache this stuff.  does not need to be run on each request
 
 		$this->_loaded = TRUE;
-		$this->_data = array();
+		$this->_data = [];
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins ORDER BY module';
 		$tmp = $db->GetArray($query);
@@ -170,17 +170,17 @@ final class cms_module_smarty_plugin_manager
 			}
 			else if( startswith($row['callback'],'::') ) {
 				// ::method syntax (implies module name)
-				$row['callback'] = array($row['module'],substr($row['callback'],2));
+				$row['callback'] = [$row['module'],substr($row['callback'],2)];
 			}
 			else {
 				// assume it's just a method name
-				$row['callback'] = array($row['module'],$row['callback']);
+				$row['callback'] = [$row['module'],$row['callback']];
 			}
 		}
 		if( !is_callable($row['callback']) ) {
 			// it's in the db... but not callable.
 			cms_error('Cannot load plugin '.$row['name'].' from module '.$row['module'].' because callback not callable (module disabled?)');
-			$row['callback'] = array($row['module'],'function_plugin');
+			$row['callback'] = [$row['module'],'function_plugin'];
 			return $row;
 		}
 		return $row;
@@ -234,7 +234,7 @@ final class cms_module_smarty_plugin_manager
 	public function add($module_name,$name,$type,$callback,$cachable = TRUE,$available = 0)
 	{
 		$this->_load();
-		if( !is_array($this->_data) ) $this->_data = array();
+		if( !is_array($this->_data) ) $this->_data = [];
 
 		// todo... check valid input
 
@@ -242,8 +242,8 @@ final class cms_module_smarty_plugin_manager
 		if( !isset($this->_data[$sig]) ) {
 			if( $available == 0 ) $available = self::AVAIL_FRONTEND;
 			$this->_data[$name] =
-				array('sig'=>$sig, 'module'=>$module_name, 'name'=>$name, 'type'=>$type,
-					  'callback'=>$callback, 'cachable'=>(int)$cachable, 'available'=>$available);
+				['sig'=>$sig, 'module'=>$module_name, 'name'=>$name, 'type'=>$type,
+					  'callback'=>$callback, 'cachable'=>(int)$cachable, 'available'=>$available];
 			$this->_modified = TRUE;
 			return $this->_save();
 		}
@@ -269,7 +269,7 @@ final class cms_module_smarty_plugin_manager
 	{
 		$this->_load();
 		if( is_array($this->_data) && count($this->_data) ) {
-			$new = array();
+			$new = [];
 			foreach( $this->_data as $key => $row ) {
 				if( $row['module'] != $module_name ) $new[$key] = $row;
 			}
@@ -300,7 +300,7 @@ final class cms_module_smarty_plugin_manager
 	{
 		$this->_load();
 		if( is_array($this->_data) && count($this->_data) ) {
-			$new = array();
+			$new = [];
 			foreach( $this->_data as $key => $row ) {
 				if( $name != $row['name'] ) $new[$key] = $row;
 			}
