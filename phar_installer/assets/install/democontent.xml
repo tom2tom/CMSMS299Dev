@@ -3020,7 +3020,7 @@ a {
 {/if}
 
 &lt;div id="NewsPostDetailContent"&gt;
-        {* note, for security purposes we do not pass the content through smarty before displaying it.  This is incase your articles can come from untrusted sources. *}
+	{* note, for security purposes we do not pass the content through smarty before displaying it.  This is incase the articles can come from untrusted sources. *}
 	{$entry-&gt;content}
 &lt;/div&gt;
 
@@ -3336,7 +3336,7 @@ li.separator - To style the ruler for the separator *}
         &lt;link rel='shortcut icon' sizes='196x196' href='{$theme_path}/images/icons/cmsms-196x196.png' /&gt;
         &lt;link rel='shortcut icon' href='{$theme_path}/images/icons/cmsms-60x60.png' /&gt;
         &lt;link rel='icon' href='{$theme_path}/images/icons/favicon_cms.ico' type='image/x-icon' /&gt;
-        {get_jquery}
+        {get_jquery}{*include relevant scripts,styles*}
         {cms_selflink dir='start' rellink='1'} {* Relational links for interconnections between pages, good for accessibility and Search Engine Optimization *}
         {cms_selflink dir='prev' rellink='1'}
         {cms_selflink dir='next' rellink='1'}
@@ -3376,12 +3376,11 @@ li.separator - To style the ruler for the separator *}
                     &lt;/section&gt;
                 &lt;/div&gt;
                 &lt;!-- .header-bottom //--&gt;
-{block name='banner'}
-{/block}
+{block name='banner'}{/block}
             &lt;/header&gt;
             &lt;!-- .top //--&gt;
             &lt;!-- .content-wrapper (wrapping div for content area) --&gt;
-            &lt;main class='content-wrapper inner-section'&gt;
+            &lt;div class='content-wrapper inner-section'&gt;
                 &lt;div class='row'&gt;
 {block name='content'}
                     &lt;!-- .content-inner (display content first) --&gt;
@@ -3403,14 +3402,13 @@ li.separator - To style the ruler for the separator *}
                     &lt;!-- .content-inner //--&gt;
 {/block}
 
-{block name='sidebar'}
-{/block}
+{block name='sidebar'}{/block}
                     &lt;div class='cf eight-col push-four'&gt;
                         {if !empty($prev_page)}&lt;span class='previous'&gt;{$prev_page nocache}&lt;/span&gt;{/if}
                         {if !empty($next_page)}&lt;span class='next'&gt;{$next_page nocache}&lt;/span&gt;{/if}
                     &lt;/div&gt;
                 &lt;/div&gt;
-            &lt;/main&gt;
+            &lt;/div&gt;
             &lt;!-- .content-wrapper //--&gt;
             &lt;!-- .footer (footer area) --&gt;
             &lt;footer class='footer inner-section'&gt;
@@ -3433,7 +3431,7 @@ li.separator - To style the ruler for the separator *}
     &lt;script type="text/javascript" src="uploads/simplex/js/functions.js"&gt;&lt;/script&gt;
 {strip}
 
-    {* if you are using some older jQuery plugin that relies on deprecated and removed functions that are no longer supported in jQuery 1.11.0, try removing "migrate" from exclude list which will include jQuery Migrate 1.2.1 Plugin.
+    {* If you are using some older jQuery plugin that relies on capabilities that are no longer supported in jQuery 2.2.4, try including the jQuery Migrate 1.2.1 script.
        For more information about removed functions see: http://jquery.com/upgrade-guide/1.9/ *}{/strip}
     &lt;/body&gt;
 &lt;/html&gt;]]></content>
@@ -3894,7 +3892,7 @@ hr.separator - To style the ruler for the separator *}
 			<type_id>6</type_id>
 			<type_dflt>1</type_dflt>
 			<content><![CDATA[&lt;!-- Start News Display Template --&gt;
-{* This section shows a clickable list of your News categories. *}
+{* This section shows a clickable list of existing News categories. *}
 &lt;ul class="list1"&gt;
 {foreach from=$cats item=node}
 {if $node.depth &gt; $node.prevdepth}
@@ -3916,7 +3914,7 @@ hr.separator - To style the ruler for the separator *}
 &lt;h1&gt;{$category_name}&lt;/h1&gt;
 {/if}
 
-{* if you don't want category browsing on your summary page, remove this line and everything above it *}
+{* if you don't want category browsing on the site's summary page, remove this line and everything above it *}
 
 {if $pagecount &gt; 1}
   &lt;p&gt;
@@ -4101,7 +4099,7 @@ hr.separator - To style the ruler for the separator *}
 {/if}
 
 &lt;div id="NewsPostDetailContent"&gt;
-        {* note, for security purposes we do not pass the content through smarty before displaying it.  This is incase your articles can come from untrusted sources. *}
+	{* note, for security purposes we do not pass the content through smarty before displaying it.  This is in case the news articles come from untrusted sources. *}
 	{$entry-&gt;content}
 &lt;/div&gt;
 
@@ -4642,12 +4640,12 @@ li.separator - To style the ruler for the separator *}
 		<property>
 			<content_id>1</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;Congratulations! The installation worked. You now have a fully functional installation of CMS Made Simple and you are &lt;em&gt;almost&lt;/em&gt; ready to start building your site.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;Congratulations! The installation worked. You now have a fully functional installation of CMS Made Simple and you are &lt;em&gt;almost&lt;/em&gt; ready to start building the site.&lt;/p&gt;
 &lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title="CMS Made Simple documentation site" href="http://docs.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;.&amp;nbsp;If you're ready to get your hands dirty, log in to the admin console at yoursite.com/[path]/admin&amp;nbsp;(if this is your site, click &lt;a title="CMSMS Demo Admin Panel" href="../admin"&gt;here&lt;/a&gt; to login). Explore the templates provided: this page uses Simplex, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
 &lt;p&gt;If you need further help, there are various support options available at &lt;a href="https://www.cmsmadesimple.org/support/options/" target="_blank" rel="noopener"&gt;CMSMS Support Options&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;License&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple is released under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license and as such you don't have to leave a link back to us in these templates or on your site, as much as we would like it.&lt;/p&gt;
-&lt;p&gt;Some third party add-on modules may include additional license restrictions.&lt;/p&gt;]]></content>
+&lt;p&gt;CMS Made Simple is released under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license and as such you don't have to publish a link back to CMSMS in these templates or on the site, as much as we would like it.&lt;/p&gt;
+&lt;p&gt;Some independently-developed add-on modules may include additional license restrictions.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
@@ -4713,15 +4711,15 @@ li.separator - To style the ruler for the separator *}
 			<content_id>35</content_id>
 			<prop_name>content_en</prop_name>
 			<content><![CDATA[&lt;p&gt;The fastest, most efficient way to create stunning and sophisticated websites.&lt;/p&gt;
-&lt;h3&gt;ADDING YOUR CONTENT IS JUST A FEW CLICKS AWAY&lt;/h3&gt;
-&lt;p&gt;The Content Manager makes content management simple. That's sort of our thing! Reorder your pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you'll recognize from word processors.&lt;/p&gt;
+&lt;h3&gt;ADDING SITE CONTENT IS JUST A FEW CLICKS AWAY&lt;/h3&gt;
+&lt;p&gt;The Content Manager makes content management simple. That's sort of our thing! Reorder site pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you'll recognize from word processors.&lt;/p&gt;
 &lt;h3&gt;ANY DESIGN YOU CAN IMAGINE&lt;/h3&gt;
 &lt;h4&gt;Join the growing number of design professionals who have discovered the foolproof elegance of CMS Made Simple.&lt;/h4&gt;
 &lt;p&gt;A question we often get asked is "where are the templates?" Although there are&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it's even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you're off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href="https://themes.cmsmadesimple.org" target="_blank" rel="noopener"&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
-&lt;h3&gt;EDIT YOUR LAYOUT ON THE FLY.&lt;/h3&gt;
+&lt;h3&gt;EDIT SITE LAYOUT ON THE FLY.&lt;/h3&gt;
 &lt;p&gt;Using file or database templates, and a bit of &lt;a title="Smarty" href="http://www.smarty.net/"&gt;Smarty&lt;/a&gt; knowledge, developers have full control over layouts. Responsive sites, especially with frameworks, are simple (there it is again) to test and maintain.&lt;/p&gt;
-&lt;h3&gt;EXTENDING YOUR WEBSITE HAS NEVER BEEN MORE SIMPLE.&lt;/h3&gt;
-&lt;p&gt;With a wide range of core and third-party&amp;nbsp;&lt;a title="CMSMS Forge" href="http://dev.cmsmadesimple.org/project/list/module" target="_blank" rel="noopener"&gt;modules&lt;/a&gt;, a fully documented&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, the ability to include PHP code via&amp;nbsp;&lt;a title="CMSMS Documentation Site - UDTs" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;, and full&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template inheritance, there's no limit to the complexity you can include in your website. CMSMS is fully extensible, and is a perfect base for your applications.&lt;/p&gt;]]></content>
+&lt;h3&gt;EXTENDING A WEBSITE HAS NEVER BEEN MORE SIMPLE.&lt;/h3&gt;
+&lt;p&gt;With a wide range of core and independently-developed&amp;nbsp;&lt;a title="CMSMS Forge" href="http://dev.cmsmadesimple.org/project/list/module" target="_blank" rel="noopener"&gt;modules&lt;/a&gt;, a fully documented&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, the ability to include PHP code via&amp;nbsp;&lt;a title="CMSMS Documentation Site - UDTs" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;, and full&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template inheritance, there's no limit to the complexity you can include in your website. CMSMS is fully extensible, and is a perfect base for your applications.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>33</content_id>
@@ -4961,13 +4959,13 @@ li.separator - To style the ruler for the separator *}
 		<property>
 			<content_id>38</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;CMS Made Simple is an Open Source Content Management System. It&amp;rsquo;s built using PHP and the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;Engine, which keeps content, functionality, and templates separated.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;CMS Made Simple is an open source Content Management System. It&amp;rsquo;s built using PHP and the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template engine, which keep content, functionality, and display separate.&lt;/p&gt;
 &lt;h3&gt;FOR EDITORS&lt;/h3&gt;
 &lt;p&gt;At its most simple level, CMSMS is a system to help you keep a website updated through a comprehensive&amp;nbsp;&lt;a title="Content Manager" href="https://docs.cmsmadesimple.org/content-2/content-manager" target="_blank" rel="noopener"&gt;Content Manager&lt;/a&gt;, which allows both editing and creation of new pages in real time, and a News module which allows the creation and control of article-based content such as news or blog posts. Supported by a&amp;nbsp;&lt;a title="File Manager" href="https://docs.cmsmadesimple.org/content-2/file-manager"&gt;File Manager&lt;/a&gt;&amp;nbsp;for uploads and images, a&amp;nbsp;&lt;a title="Search Module" href="https://docs.cmsmadesimple.org/tags/search" target="_blank" rel="noopener"&gt;frontend&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a title="Admin Search" href="https://docs.cmsmadesimple.org/tags/admin-search" target="_blank" rel="noopener"&gt;backend&lt;/a&gt;&amp;nbsp;Search Module, and a permissions-based&amp;nbsp;&lt;a title="Backend Users" href="https://docs.cmsmadesimple.org/user-management/backend-users" target="_blank" rel="noopener"&gt;Backend Users&lt;/a&gt;&amp;nbsp;manager, CMSMS is extremely easy to use, making it a delight for non-technical content editors to manage the day-to-day running of a site.&lt;br /&gt;[&lt;a title="For Editors" href="https://www.cmsmadesimple.org/why-cmsms/for-designers" target="_blank" rel="noopener"&gt;More&lt;/a&gt;]&lt;/p&gt;
 &lt;h3&gt;FOR DESIGNERS&lt;/h3&gt;
 &lt;p&gt;Beyond content management, CMSMS is actually a powerful and customisable system that makes the perfect core for markedly more advanced sites and applications. For designers, the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;-based templating engine means that there are virtually no restrictions on how the site can look. Unlike many other systems on the market, you will not be forced to shoehorn your design ideas into a pre-purchased template structure. Although there are commercial and free&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, templating is so simple (with no need to know PHP!) that most designers find themselves adapting an existing design&amp;mdash;or building a new one from scratch&amp;mdash;in no time. The system lends itself to responsive design, and works extremely well with responsive frameworks such as&amp;nbsp;&lt;a title="Get Bootstrap" href="http://getbootstrap.com/" target="_blank" rel="noopener"&gt;Twitter Bootstrap&lt;/a&gt;&amp;nbsp;and&amp;nbsp;&lt;a title="Zurb Foundation" href="http://foundation.zurb.com/" target="_blank" rel="noopener"&gt;Zurb Foundation&lt;/a&gt;.&lt;br /&gt;[&lt;a title="For Designers" href="https://www.cmsmadesimple.org/why-cmsms/for-designers" target="_blank" rel="noopener"&gt;More&lt;/a&gt;]&lt;/p&gt;
 &lt;h3&gt;FOR DEVELOPERS&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple's core provides for powerful expansion through the use of the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;templating engine, a robust module&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, and the ability to include your own PHP functions via&amp;nbsp;&lt;a title="User Defined Tags" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;. Combined, these provide the ability to make your sites into powerful applications while keeping the content and design separate. You have the option to choose between file or database templates (including template inheritance), complete control over caching, and a granular permissions system.&lt;br /&gt;[&lt;a title="For Developers" href="https://www.cmsmadesimple.org/why-cmsms/for-developers"&gt;More&lt;/a&gt;]&lt;/p&gt;
+&lt;p&gt;CMS Made Simple's core provides for powerful expansion through the use of the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;templating engine, a robust module&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, and the ability to include your own PHP functions via&amp;nbsp;&lt;a title="User Defined Tags" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;. Combined, these provide the ability to make sites into powerful applications while keeping the content and design separate. You can choose between file or database templates (including template inheritance), complete control over caching, and a granular permissions system.&lt;br /&gt;[&lt;a title="For Developers" href="https://www.cmsmadesimple.org/why-cmsms/for-developers"&gt;More&lt;/a&gt;]&lt;/p&gt;
 &lt;h3&gt;FOR EVERYONE&lt;/h3&gt;
 &lt;p&gt;In addition to the above sections there is a vast array of powerful&amp;nbsp;&lt;a title="CMSMS Modules" href="http://dev.cmsmadesimple.org/project/list/module"&gt;modules&lt;/a&gt;&amp;nbsp;created by the extended CMSMS community, many of which can be installed and ready to use at the click of a button within the&amp;nbsp;&lt;a title="Module Manager" href="https://docs.cmsmadesimple.org/modules/core/module-manager" target="_blank" rel="noopener"&gt;Module Manager&lt;/a&gt;. Adding a suite of modules, combining them with templates and core or user defined tags, rapidly allows for the creation of sites and applications with complex functionality without ever losing the simplicity of use for the website editor.&lt;/p&gt;
 &lt;p&gt;You can find out more about why CMSMS is ideal for your project&amp;nbsp;&lt;a href="{cms_selflink href='why-use-cms-made-simple'}"&gt;here&lt;/a&gt;.&lt;/p&gt;]]></content>
@@ -5037,7 +5035,7 @@ li.separator - To style the ruler for the separator *}
 &lt;p&gt;CMSMS is developed by an international team of professionals who volunteer their time and efforts to design, develop, maintain, and market the system. In many cases this is in addition to running busy web and software development businesses themselves. Over the past years, many outstanding individuals have contributed their time and helped to shape the system that you can download today. You can find out more about the current Dev Team &lt;a title="CMSMS Dev Team" href="https://www.cmsmadesimple.org/about/team/" target="_blank" rel="noopener"&gt;here&lt;/a&gt;, as well as what they can offer through their own professional services.&lt;/p&gt;
 &lt;p&gt;The Development Team meets officially once a month, but remains in contact daily, collaborating within a defined organisational structure. The Dev Team is always delighted to hear from individuals who feel they have the resources and time to get involved. If you think you may be one such person, click &lt;a title="Join the CMSMS Dev Team" href="https://www.cmsmadesimple.org/community/get-involved/develop/" target="_blank" rel="noopener"&gt;here&lt;/a&gt; to find out more.&lt;/p&gt;
 &lt;h3&gt;You and CMS Made Simple&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple is available for you to &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;download&lt;/a&gt; and use for free under the tenets of the GPL license. You can use it on commercial or personal projects and in many cases will be able to use the third party modules that have been developed (though you should check their individual licenses). If you have not already &lt;a href="http://www.softaculous.com/demos/CMS_Made_Simple" target="_blank" rel="noopener"&gt;tried the demo&lt;/a&gt; or &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;downloaded the core package&lt;/a&gt;, please do so.&lt;/p&gt;]]></content>
+&lt;p&gt;CMS Made Simple is available for &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;download&lt;/a&gt; and use for free under the terms of the GPL license. You can use CMSMS on commercial or personal projects. In most cases will be able to use appropriate modules that have been developed (though you should check their individual licenses). If you have not already &lt;a href="http://www.softaculous.com/demos/CMS_Made_Simple" target="_blank" rel="noopener"&gt;tried the demo&lt;/a&gt; or &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;downloaded the core package&lt;/a&gt;, please do so.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>38</content_id>
