@@ -380,8 +380,8 @@ if ($items) {
 }
 
 $smarty->assign([
-    'mod' => $this,
-    'actionid' => $id,
+//see DoActionBase()    'mod' => $this,
+//    'actionid' => $id,
     'CFM_IS_WIN' => $CFM_IS_WIN,
     'CFM_READONLY' => $CFM_READONLY,
     'pointer' => '&rarr;', //TODO or '&larr;' for 'rtl'
@@ -391,6 +391,7 @@ $smarty->assign([
 ]);
 
 if (!empty($params['ajax'])) {
-    echo $this->ProcessTemplate('getlist.tpl');
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('getlist.tpl'),null,null,$smarty);
+    $tpl->display();
     exit;
 }

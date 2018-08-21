@@ -41,14 +41,16 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
     ($rowclass=="row1"?$rowclass="row2":$rowclass="row1");
 }
 
-$smarty->assign('items', $entryarray);
-$smarty->assign('itemcount', count($entryarray));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('customfieldstab.tpl'),null,null,$smarty);
 
-$smarty->assign('addurl', $this->create_url($id,'admin_addfielddef'));
-$smarty->assign('addlink', $this->CreateLink($id, 'admin_addfielddef', $returnid, $admintheme->DisplayImage('icons/system/newfolder.gif', $this->Lang('addfielddef'),'','','systemicon'), array(), '', false, false, '') .' '. $this->CreateLink($id, 'admin_addfielddef', $returnid, $this->Lang('addfielddef'), array(), '', false, false, 'class="pageoptions"'));
+$tpl->assign('items', $entryarray)
+ ->assign('itemcount', count($entryarray))
 
-$smarty->assign('fielddeftext', $this->Lang('fielddef'));
-$smarty->assign('typetext', $this->Lang('type'));
+ ->assign('addurl', $this->create_url($id,'admin_addfielddef'))
+ ->assign('addlink', $this->CreateLink($id, 'admin_addfielddef', $returnid, $admintheme->DisplayImage('icons/system/newfolder.gif', $this->Lang('addfielddef'),'','','systemicon'), array(), '', false, false, '') .' '. $this->CreateLink($id, 'admin_addfielddef', $returnid, $this->Lang('addfielddef'), array(), '', false, false, 'class="pageoptions"'))
+
+ ->assign('fielddeftext', $this->Lang('fielddef'))
+ ->assign('typetext', $this->Lang('type'));
 
 #Display template
-echo $this->ProcessTemplate('customfieldstab.tpl');
+$tpl->display();

@@ -199,18 +199,6 @@ if ($grps) {
     $outgrpsel = $this->Lang('nogroup');
 }
 
-$smarty->assign([
-    'startform' => $this->CreateFormStart($id, 'opencontrol', $returnid),
-    'types' => $typesel,
-    'sorts' => $sortsel,
-    'sortasc' => $sortasc,
-    'incusers' => $inusersel,
-    'excusers' => $outusersel,
-    'incgroups' => $ingrpsel,
-    'excgroups' => $outgrpsel,
-    'set' => $set,
-]);
-
 //TODO this equal-widthing doesn't work
 //TODO js for upstream folder selection
 $js = <<<EOS
@@ -225,4 +213,19 @@ EOS;
 //$themeObject->add_footertext($js);
 $this->AdminBottomContent($js);
 
-echo $this->processTemplate('opencontrol.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('opencontrol.tpl'),null,null,$smarty);
+
+$tpl->assign([
+    'startform' => $this->CreateFormStart($id, 'opencontrol', $returnid),
+    'types' => $typesel,
+    'sorts' => $sortsel,
+    'sortasc' => $sortasc,
+    'incusers' => $inusersel,
+    'excusers' => $outusersel,
+    'incgroups' => $ingrpsel,
+    'excgroups' => $outgrpsel,
+    'set' => $set,
+]);
+
+$tpl->display();
+

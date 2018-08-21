@@ -118,11 +118,13 @@ if ($helper->is_archive($fullpath)) {
 } else {
     $type = 'file';
 }
-$smarty->assign('ftype', $type);
-$smarty->assign('content', $content);
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('open.tpl'),null,null,$smarty);
+$tpl->assign('ftype', $type)
+ ->assign('content', $content);
 
 $file_url = cms_admin_utils::path_to_url($fullpath);
-$smarty->assign('file_url', $file_url);
+$tpl->assign('file_url', $file_url);
 
 $items = [];
 $items[] = '<a href="?p={urlencode($CFM_RELPATH)}&ampdl={urlencode($file)}"><i class="if-download" title="'.$this->Lang('download').'"></i></a>';
@@ -135,7 +137,7 @@ if (!$CFM_READONLY && $is_arch) {
 if (/*!$CFM_READONLY && */$pdev && $is_text && !$edit) {
     $items[] = '<a href="?p={urlencode(trim($CFM_RELPATH))}&ampedit={urlencode($file)}"><i class="if-edit" title="'.$this->Lang('edit').'"></i></a>';
 }
-$smarty->assign('acts', $items);
+$tpl->assign('acts', $items);
 
 $items = [];
 $items[$this->Lang($type)] = cfm_enc($file);
@@ -160,7 +162,7 @@ if ($is_arch && $filenames) {
     if (!empty($image_size[0]) || !empty($image_size[1])) {
         $items[$this->Lang('info_image')] = ($image_size[0] ?? '0') . ' x ' . ($image_size[1] ?? '0');
     } else {
-        $smarty->assign('setsize', 1); //force svg size
+        $tpl->assign('setsize', 1); //force svg size
     }
 } elseif ($is_text) {
     if (preg_match("//u", $content)) {
@@ -172,12 +174,12 @@ if ($is_arch && $filenames) {
     }
     $items[$this->Lang('info_charset')] = $enc;
     if ($edit) {
-		$smarty->assign('edit', 1);
+		$tpl->assign('edit', 1);
 	}
 }
-$smarty->assign('about', $items);
+$tpl->assign('about', $items)
 
-$smarty->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
+ ->assign('start_form', $this->CreateFormStart($id, 'open', $returnid, 'post', '', false, '',
   ['p'=>$CFM_RELPATH, 'view'=>!$edit, 'edit'=>$edit]));
 
 $baseurl = $this->GetModuleURLPath();
@@ -197,4 +199,5 @@ if ($is_text) {
     }
 }
 
-echo $this->ProcessTemplate('open.tpl');
+$tpl->display();
+

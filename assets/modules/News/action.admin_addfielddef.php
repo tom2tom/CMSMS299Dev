@@ -64,8 +64,10 @@ if (isset($params['submit'])) {
     if( $error ) $this->ShowErrors($error);
 }
 
-#Display template
-$smarty->assign('title',$this->Lang('addfielddef'))
+// Display template
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editfielddef.tpl'),null,null,$smarty);
+
+$tpl->assign('title',$this->Lang('addfielddef'))
  ->assign('startform', $this->CreateFormStart($id, 'admin_addfielddef', $returnid))
  ->assign('endform', $this->CreateFormEnd())
  ->assign('nametext', $this->Lang('name'))
@@ -80,8 +82,7 @@ $smarty->assign('title',$this->Lang('addfielddef'))
  ->assign('type',$type)
  ->assign('max_length',$max_length)
  ->assign('public',$public)
- ->assign('options',$options)
+ ->assign('options',$options);
 
- ->assign('mod',$this);
+$tpl->display();
 
-echo $this->ProcessTemplate('editfielddef.tpl');

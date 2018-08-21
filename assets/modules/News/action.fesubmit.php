@@ -77,9 +77,9 @@ if (isset($params['category'])) {
   if( $tmp ) $category_id = $tmp;
 }
 
-$tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null,$smarty);
-$tpl_ob->assign('mod',$this);
-$tpl_ob->assign('actionid',$id);
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+//see DoActionBase()$tpl->assign('mod',$this)
+// ->assign('actionid',$id);
 if( isset( $params['submit'] ) ) {
     try {
         if( isset($params['title'] ) ) $title = strip_tags(cms_html_entity_decode(trim($params['title'])));
@@ -186,11 +186,11 @@ if( isset( $params['submit'] ) ) {
             audit('', 'News Frontend Submit', 'Article added');
 
             // and we're done
-            $tpl_ob->assign('message',$this->Lang('articleadded'));
+            $tpl->assign('message',$this->Lang('articleadded'));
         }
     }
     catch( Exception $e ) {
-        $tpl_ob->assign('error',$error);
+        $tpl->assign('error',$error);
     }
 }
 
@@ -204,17 +204,17 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
 }
 
 // Display template
-$tpl_ob->assign('category_id',$category_id);
-$tpl_ob->assign('title',$title);
-$tpl_ob->assign('categorylist',$categorylist);
-$tpl_ob->assign('extra',$extra);
-$tpl_ob->assign('content',$content);
-$tpl_ob->assign('summary',$summary);
-$tpl_ob->assign('hide_summary_field',$this->GetPreference('hide_summary_field','0'));
-$tpl_ob->assign('allow_summary_wysiwyg',$this->GetPreference('allow_summary_wysiwyg',1));
-$tpl_ob->assign('startdate', $startdate);
-$tpl_ob->assign('enddate', $enddate);
-$tpl_ob->assign('status',$this->CreateInputHidden($id,'status',$status));
+$tpl->assign('category_id',$category_id)
+->assign('title',$title)
+ ->assign('categorylist',$categorylist)
+ ->assign('extra',$extra)
+ ->assign('content',$content)
+ ->assign('summary',$summary)
+ ->assign('hide_summary_field',$this->GetPreference('hide_summary_field','0'))
+ ->assign('allow_summary_wysiwyg',$this->GetPreference('allow_summary_wysiwyg',1))
+ ->assign('startdate', $startdate)
+ ->assign('enddate', $enddate)
+ ->assign('status',$this->CreateInputHidden($id,'status',$status));
 
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE public = 1 ORDER BY item_order';
 $dbr = $db->Execute($query);
@@ -230,18 +230,18 @@ while( $dbr && ($row = $dbr->FetchRow()) ) {
   $key = str_replace(' ','_',strtolower($row['name']));
   $customfieldsbyname[$key] = $obj;
 }
-if( count($customfieldsbyname) ) $tpl_ob->assign('customfields',$customfieldsbyname);
+if( count($customfieldsbyname) ) $tpl->assign('customfields',$customfieldsbyname);
 
-$tpl_ob->display();
+$tpl->display();
 
-if( $do_send_email == true ) {
+if( $do_send_email ) {
 
-    $tpl_ob2 = $smarty->CreateTemplate($this->GetDatabaseResource('email_template'));
-    $tmp_vars = $tpl_ob->getTemplateVars();
+    $tpl2 = $smarty->createTemplate($this->GetDatabaseResource('email_template'),null,null,$smarty);
+    $tmp_vars = $tpl->getTemplateVars();
     foreach( $tmp_vars as $key => $val ) {
-        $tpl_ob2->assign($key,$val);
+        $tpl2->assign($key,$val);
     }
-    $tmp_vars2 = $tpl_ob2->getTemplateVars();
+    $tmp_vars2 = $tpl2->getTemplateVars();
 
     // this needs to be done after the form is generated
     // because we use some of the same smarty variables
@@ -249,19 +249,19 @@ if( $do_send_email == true ) {
     if( $cmsmailer ) {
         $addy = trim($this->GetPreference('formsubmit_emailaddress'));
         if( $addy != '' ) {
-            $tpl_ob2->assign('startdate',$startdate);
-            $tpl_ob2->assign('enddate',$enddate);
-            $tpl_ob2->assign('ipaddress',cms_utils::get_real_ip());
-            $tpl_ob2->assign('status',$status);
-            if( $title != '' ) $tpl_ob2->assign('title',$title);
-            if( $summary != '' ) $tpl_ob2->assign('summary',$summary);
-            if( $content != '' ) $tpl_ob2->assign('content',$content);
+            $tpl2->assign('startdate',$startdate)
+             ->assign('enddate',$enddate)
+             ->assign('ipaddress',cms_utils::get_real_ip())
+             ->assign('status',$status);
+            if( $title != '' ) $tpl2->assign('title',$title);
+            if( $summary != '' ) $tpl2->assign('summary',$summary);
+            if( $content != '' ) $tpl2->assign('content',$content);
 
             $cmsmailer->AddAddress( $addy );
             $cmsmailer->SetSubject( $this->GetPreference('email_subject',$this->Lang('subject_newnews')));
             $cmsmailer->IsHTML( false );
 
-            $body = $tpl_ob2->fetch();
+            $body = $tpl2->fetch();
             $cmsmailer->SetBody( $body );
             $cmsmailer->Send();
         }
@@ -269,6 +269,3 @@ if( $do_send_email == true ) {
 }
 
 if( $do_redirect ) $this->RedirectContent($dest_page);
-
-// END OF FILE
-?>

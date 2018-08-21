@@ -97,7 +97,9 @@ $icondel = $themeObject->DisplayImage('icons/system/delete.gif', lang('delete'),
 $iconyes = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '', '', 'systemicon');
 $iconno = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
 
-$smarty->assign([
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
+
+$tpl->assign([
     'addurl' => $addurl,
     'editurl' => $editurl,
     'deleteurl' => $delurl,
@@ -111,4 +113,5 @@ $smarty->assign([
     'sets' => $sets,
 ]);
 
-echo $this->processTemplate('adminpanel.tpl');
+$tpl->display();
+

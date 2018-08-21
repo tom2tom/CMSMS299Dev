@@ -43,8 +43,6 @@ if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['pre
     }
 }
 
-$tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null,$smarty);
-
 if( isset($params['articleid']) && $params['articleid'] == -1 ) {
     $article = news_ops::get_latest_article();
 }
@@ -60,20 +58,22 @@ if( !$article ) {
 $article->set_linkdata($id,$params);
 
 $return_url = $this->CreateReturnLink($id, isset($params['origid'])?$params['origid']:$returnid, $this->lang('news_return'));
-$tpl_ob->assign('return_url', $return_url);
-$tpl_ob->assign('entry', $article);
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+$tpl->assign('return_url', $return_url)
+ ->assign('entry', $article);
 
 $catName = '';
 if (isset($params['category_id'])) {
     $catName = $db->GetOne('SELECT news_category_name FROM '.CMS_DB_PREFIX . 'module_news_categories where news_category_id=?',array((int)$params['category_id']));
 }
-$tpl_ob->assign('category_name',$catName);
+$tpl->assign('category_name',$catName);
 unset($params['article_id']);
-$tpl_ob->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catName, $params));
+$tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catName, $params))
 
-$tpl_ob->assign('category_label', $this->Lang('category_label'));
-$tpl_ob->assign('author_label', $this->Lang('author_label'));
-$tpl_ob->assign('extra_label', $this->Lang('extra_label'));
+ ->assign('category_label', $this->Lang('category_label'))
+ ->assign('author_label', $this->Lang('author_label'))
+ ->assign('extra_label', $this->Lang('extra_label'));
 
 //Display template
-$tpl_ob->display();
+$tpl->display();

@@ -28,11 +28,13 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
   ($rowclass=="row1"?$rowclass="row2":$rowclass="row1");
 }
 
-$smarty->assign('items', $entryarray);
-$smarty->assign('itemcount', count($entryarray));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('categorylist.tpl'),null,null,$smarty);
+
+$tpl->assign('items', $entryarray)
+ ->assign('itemcount', count($entryarray))
 
 // Setup links
-$smarty->assign('categorytext', $this->Lang('category'));
+ ->assign('categorytext', $this->Lang('category'));
 
 // Display template
-echo $this->ProcessTemplate('categorylist.tpl');
+$tpl->display();

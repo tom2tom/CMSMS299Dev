@@ -47,20 +47,25 @@ if (isset($params['name'])) {
     }
 }
 
-// Display template
 $tmp = news_ops::get_category_list();
 $tmp2 = array_flip($tmp);
 $categories = array(-1=>$this->Lang('none'));
 foreach( $tmp2 as $k => $v ) {
     $categories[$k] = $v;
 }
-$smarty->assign('parent',$parent)
-  ->assign('name',$name)
-  ->assign('categories',$categories)
-  ->assign('startform', $this->CreateFormStart($id, 'addcategory', $returnid))
-  ->assign('endform', $this->CreateFormEnd())
-  ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255))
+
+// Display template
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editcategory.tpl'),null,null,$smarty);
+
+$tpl->assign('parent',$parent)
+ ->assign('name',$name)
+ ->assign('categories',$categories)
+ ->assign('startform', $this->CreateFormStart($id, 'addcategory', $returnid))
+ ->assign('endform', $this->CreateFormEnd())
+ ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
 //see template ->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')))
-//  ->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')))
-  ->assign('mod',$this);
-echo $this->ProcessTemplate('editcategory.tpl');
+// ->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')))
+//see DoActionBase() ->assign('mod',$this);
+
+$tpl->display();
+

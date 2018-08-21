@@ -17,10 +17,12 @@ else {
   $template = $tpl->get_name();
 }
 
-$tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource($template),null,null,$smarty);
 $items = news_ops::get_categories($id,$params,$returnid);
 
 // Display template
-$tpl_ob->assign('count', count($items));
-$tpl_ob->assign('cats', $items);
-$tpl_ob->display();
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+
+$tpl->assign('count', count($items))
+ ->assign('cats', $items);
+
+$tpl->display();

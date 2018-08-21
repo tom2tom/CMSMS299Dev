@@ -99,8 +99,9 @@ else {
    }
 }
 
-#Display template
-$smarty->assign('title',$this->Lang('editfielddef'))
+//Display template
+$tpl = $smarty->createTemplate($this->GetTemplateResource('editfielddef.tpl'),null,null,$smarty);
+$tpl->assign('title',$this->Lang('editfielddef'))
  ->assign('startform', $this->CreateFormStart($id, 'admin_editfielddef', $returnid))
  ->assign('endform', $this->CreateFormEnd())
  ->assign('nametext', $this->Lang('name'))
@@ -118,9 +119,9 @@ $smarty->assign('title',$this->Lang('editfielddef'))
  ->assign('public',$public)
  ->assign('options',$options)
 
- ->assign('mod',$this);
-$smarty->assign('hidden',
+//see DoActionBase() ->assign('mod',$this)
+ ->assign('hidden',
 		$this->CreateInputHidden($id, 'fdid', $fdid).
 		$this->CreateInputHidden($id, 'origname', $origname));
 
-echo $this->ProcessTemplate('editfielddef.tpl');
+$tpl->display();

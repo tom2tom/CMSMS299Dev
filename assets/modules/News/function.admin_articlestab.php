@@ -5,7 +5,8 @@ use News\news_ops;
 
 if( !isset($gCms) ) exit;
 
-$smarty->assign('formstart',$this->CreateFormStart($id,'defaultadmin'));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('articlelist.tpl'),null,null,$smarty);
+$tpl->assign('formstart',$this->CreateFormStart($id,'defaultadmin'));
 
 if (isset($params['bulk_action']) ) {
     if( !isset($params['sel']) || !is_array($params['sel']) || count($params['sel']) == 0 ) {
@@ -121,21 +122,21 @@ $sortlist[$this->Lang('title_desc')] = 'news_title DESC';
 $sortlist[$this->Lang('status_asc')] = 'status ASC';
 $sortlist[$this->Lang('status_desc')] = 'status DESC';
 
-$smarty->assign('prompt_category',$this->Lang('category'));
-$smarty->assign('categorylist',array_flip($categorylist));
-$smarty->assign('curcategory',$curcategory);
-$smarty->assign('allcategories',$allcategories);
-$smarty->assign('sortlist',array_flip($sortlist));
-$smarty->assign('pagelimits',array(10=>10,25=>25,50=>50,250=>250,500=>500,1000=>1000));
-$smarty->assign('pagelimit',$pagelimit);
-$smarty->assign('sortby',$sortby);
-$smarty->assign('prompt_showchildcategories',$this->Lang('showchildcategories'));
-$smarty->assign('prompt_sorting',$this->Lang('prompt_sorting'));
-//see template $smarty->assign('submitfilter',
-//                $this->CreateInputSubmit($id,'submitfilter',$this->Lang('submit')));
-$smarty->assign('prompt_pagelimit', $this->Lang('prompt_pagelimit'));
+$tpl->assign('prompt_category',$this->Lang('category'))
+ ->assign('categorylist',array_flip($categorylist))
+ ->assign('curcategory',$curcategory)
+ ->assign('allcategories',$allcategories)
+ ->assign('sortlist',array_flip($sortlist))
+ ->assign('pagelimits',array(10=>10,25=>25,50=>50,250=>250,500=>500,1000=>1000))
+ ->assign('pagelimit',$pagelimit)
+ ->assign('sortby',$sortby)
+ ->assign('prompt_showchildcategories',$this->Lang('showchildcategories'))
+ ->assign('prompt_sorting',$this->Lang('prompt_sorting'))
+//see template ->assign('submitfilter',
+//                $this->CreateInputSubmit($id,'submitfilter',$this->Lang('submit')))
+ ->assign('prompt_pagelimit', $this->Lang('prompt_pagelimit'))
 
-$smarty->assign('formend',$this->CreateFormEnd());
+ ->assign('formend',$this->CreateFormEnd());
 
 //Load the current articles
 $entryarray = array();
@@ -161,10 +162,9 @@ $dbresult = $db->SelectLimit( $query1, $pagelimit, $startelement, $parms);
 $numrows = (int) $db->GetOne('SELECT FOUND_ROWS()');
 $pagecount = (int)ceil($numrows/$pagelimit);
 
-$smarty->assign('mod',$this);
-$smarty->assign('pagenumber',$pagenumber);
-$smarty->assign('pagecount',$pagecount);
-$smarty->assign('oftext',$this->Lang('prompt_of'));
+$tpl->assign('pagenumber',$pagenumber)
+ ->assign('pagecount',$pagecount)
+ ->assign('oftext',$this->Lang('prompt_of'));
 
 $rowclass = 'row1';
 
@@ -215,38 +215,38 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
     ($rowclass=="row1"?$rowclass="row2":$rowclass="row1");
 }
 
-$smarty->assign('items', $entryarray);
-$smarty->assign('itemcount', count($entryarray));
+$tpl->assign('items', $entryarray)
+ ->assign('itemcount', count($entryarray));
 
 if( $this->CheckPermission('Modify News') ) {
-    $smarty->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $admintheme->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'),'','','systemicon'), array(), '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), array(), '', false, false, 'class="pageoptions"'));
+    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $admintheme->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'),'','','systemicon'), array(), '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), array(), '', false, false, 'class="pageoptions"'));
 }
 
-$smarty->assign('can_add',$this->CheckPermission('Modify News'));
-$smarty->assign('form2start',$this->CreateFormStart($id,'defaultadmin',$returnid));
-$smarty->assign('form2end',$this->CreateFormEnd());
-//see template $smarty->assign('submit_reassign', $this->CreateInputSubmit($id,'submit_reassign',$this->Lang('submit')));
+$tpl->assign('can_add',$this->CheckPermission('Modify News'))
+ ->assign('form2start',$this->CreateFormStart($id,'defaultadmin',$returnid))
+ ->assign('form2end',$this->CreateFormEnd());
+//see template ->assign('submit_reassign', $this->CreateInputSubmit($id,'submit_reassign',$this->Lang('submit')));
 $categorylist = news_ops::get_category_list();
-$smarty->assign('categoryinput',$this->CreateInputDropdown($id,'category',$categorylist));
+$tpl->assign('categoryinput',$this->CreateInputDropdown($id,'category',$categorylist));
 if( $this->CheckPermission('Delete News') ) {
-//see template    $smarty->assign('submit_massdelete',
+//see template    $tpl->assign('submit_massdelete',
 //                    $this->CreateInputSubmit($id,'submit_massdelete',$this->Lang('delete_selected'),
 //                                             '','',$this->Lang('areyousure_deletemultiple')));
 }
 
-$smarty->assign('reassigntext',$this->Lang('reassign_category'));
-$smarty->assign('selecttext',$this->Lang('select'));
-$smarty->assign('filtertext',$this->Lang('title_filter'));
-$smarty->assign('statustext',$this->Lang('status'));
-$smarty->assign('startdatetext',$this->Lang('startdate'));
-$smarty->assign('enddatetext',$this->Lang('enddate'));
-$smarty->assign('titletext',$this->Lang('title'));
-$smarty->assign('postdatetext',$this->Lang('postdate'));
-$smarty->assign('categorytext',$this->Lang('category'));
+$tpl->assign('reassigntext',$this->Lang('reassign_category'))
+ ->assign('selecttext',$this->Lang('select'))
+ ->assign('filtertext',$this->Lang('title_filter'))
+ ->assign('statustext',$this->Lang('status'))
+ ->assign('startdatetext',$this->Lang('startdate'))
+ ->assign('enddatetext',$this->Lang('enddate'))
+ ->assign('titletext',$this->Lang('title'))
+ ->assign('postdatetext',$this->Lang('postdate'))
+ ->assign('categorytext',$this->Lang('category'));
 
 $config = $this->GetConfig();
 $themedir = $config['admin_url'].'/themes/'.$admintheme->themeName.'/images/icons/system';
-$smarty->assign('iconurl',$themedir);
+$tpl->assign('iconurl',$themedir);
 
 $yes = $this->Lang('yes');
 $s1 = json_encode($this->Lang('areyousure'));
@@ -300,5 +300,5 @@ EOS;
 $this->AdminBottomContent($js);
 //TODO ensure flexbox css for .hbox.expand, .boxchild
 
-#Display template
-echo $this->ProcessTemplate('articlelist.tpl');
+// display template
+$tpl->display();

@@ -49,7 +49,8 @@ else if( isset($params['submit']) ) {
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $allcats = $db->GetArray($query);
 
-$smarty->assign('allcats',$allcats);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_reorder_cats.tpl'),null,null,$smarty);
+$tpl->assign('allcats',$allcats);
 
 $script_url = CMS_SCRIPTS_URL;
 
@@ -94,4 +95,5 @@ $(document).ready(function() {
 EOS;
 $this->AdminBottomContent($js);
 
-echo $this->ProcessTemplate('admin_reorder_cats.tpl');
+$tpl->display();
+

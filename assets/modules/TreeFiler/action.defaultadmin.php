@@ -25,6 +25,8 @@ require_once __DIR__.DIRECTORY_SEPARATOR.'action.getlist.php';
 
 //$xp = (!empty($params['astfiles'])) ? ['astfiles' => 1] : null; //in assets-edit mode
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
+
 // breadcrumbs
 
 if ($CFM_RELPATH) {
@@ -48,45 +50,45 @@ if ($CFM_RELPATH) {
         $oneset->url = $u.rawurlencode($t);
         $items[] = $oneset;
     }
-    $smarty->assign('crumbs', $items);
+    $tpl->assign('crumbs', $items);
     $t = dirname($CFM_RELPATH);
     if ($t == '.') {$t = '';} else {$t = rawurlencode($t);}
-    $smarty->assign('parent_url', $u.$t);
+    $tpl->assign('parent_url', $u.$t);
 }
 
-$smarty->assign('crumbjoiner', 'if-angle-double-right'); //or 'if-angle-double-left' for 'rtl'
+$tpl->assign('crumbjoiner', 'if-angle-double-right'); //or 'if-angle-double-left' for 'rtl'
 
 // permitted operations
 //$profile set in 'action.getlist.php'
 
 if ($profile['can_mkfile']) {
-    $smarty->assign('pupload', 1);
+    $tpl->assign('pupload', 1);
 }
 if ($profile['can_mkdir']) {
-    $smarty->assign('pmkdir', 1);
+    $tpl->assign('pmkdir', 1);
 }
 if ($profile['can_delete']) {
-    $smarty->assign('pdel', 1);
+    $tpl->assign('pdel', 1);
 }
 
 // folders tree
 
-$smarty->assign('browse', $this->Lang('browse'));
+$tpl->assign('browse', $this->Lang('browse'));
 $t = cfm_dir_tree($CFM_ROOTPATH, (($CFM_RELPATH) ? $pathnow : ''));
-$smarty->assign('treeview', $t);
+$tpl->assign('treeview', $t);
 
 // tailor the compression UI
 
 $items = cfm_get_arch_picker($this);
-$smarty->assign('archtypes', $items);
+$tpl->assign('archtypes', $items);
 if (count($items) > 1) {
     $t = $this->Lang('compress_sel');
 }else {
     $t = $this->Lang('compress_typed', reset($items)['label']);
 }
-$smarty->assign('title_compress', $t);
+$tpl->assign('title_compress', $t);
 
-//$smarty->assign('form_start', $this->CreateFormStart($id, 'fileaction', $returnid, 'post', '', false, '', ['p'=> rawurlencode($CFM_RELPATH)]));
+//$tpl->assign('form_start', $this->CreateFormStart($id, 'fileaction', $returnid, 'post', '', false, '', ['p'=> rawurlencode($CFM_RELPATH)]));
 $baseurl = $this->GetModuleURLPath();
 
 // page infrastructure
@@ -174,4 +176,4 @@ $js .= <<<EOS
 EOS;
 $this->AdminBottomContent($js);
 
-echo $this->ProcessTemplate('defaultadmin.tpl');
+$tpl->display();
