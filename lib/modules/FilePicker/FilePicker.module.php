@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ContentBase;
-use CMSMS\FilePickerIFace;
+use CMSMS\FilePicker as IFilePicker;
 use CMSMS\FilePickerProfile;
 use CMSMS\FileType;
 use CMSMS\FileTypeHelper;
@@ -25,7 +25,7 @@ use FilePicker\ProfileDAO;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
-final class FilePicker extends CMSModule implements FilePickerIFace
+final class FilePicker extends CMSModule implements IFilePicker
 {
     protected $_dao;
     protected $_typehelper;
