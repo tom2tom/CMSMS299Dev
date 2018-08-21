@@ -100,11 +100,13 @@ try {
     }
 
     //
-    // prepare to display.
+    // prepare to display
     //
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_css.tpl'),null,null,$smarty);
+
     if (!$apply && $css_ob && $css_ob->get_id() && utils::locking_enabled()) {
-//        $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
-//        $smarty->assign('lock_refresh', $this->GetPreference('lock_refresh'));
+//        $tpl->assign('lock_timeout', $this->GetPreference('lock_timeout'))
+//         ->assign('lock_refresh', $this->GetPreference('lock_refresh'));
         try {
             $lock_id = CmsLockOperations::is_locked('stylesheet', $css_ob->get_id());
             $lock = null;
@@ -138,7 +140,7 @@ try {
         foreach ($designs as $one) {
             $out[$one->get_id()] = $one->get_name();
         }
-        $smarty->assign('design_list', $out);
+        $tpl->assign('design_list', $out);
     }
 
     if( $css_ob->get_id() > 0 ) {
@@ -147,10 +149,10 @@ try {
         CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_stylesheet'));
     }
 
-    $smarty->assign('has_designs_right', $this->CheckPermission('Manage Designs'));
-    $smarty->assign('extraparms', $extraparms);
-    $smarty->assign('css', $css_ob);
-    if ($css_ob && $css_ob->get_id()) $smarty->assign('css_id', $css_ob->get_id());
+    $tpl->assign('has_designs_right', $this->CheckPermission('Manage Designs'))
+     ->assign('extraparms', $extraparms)
+     ->assign('css', $css_ob);
+    if ($css_ob && $css_ob->get_id()) $tpl->assign('css_id', $css_ob->get_id());
 
     //TODO ensure flexbox css for .hbox, .boxchild
 
@@ -261,8 +263,9 @@ $(document).ready(function() {
 EOS;
     $this->AdminBottomContent($js);
 
-    echo $this->ProcessTemplate('admin_edit_css.tpl');
+    $tpl->display();
 } catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
+

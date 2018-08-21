@@ -1,5 +1,5 @@
 <?php
-# ModuleManager action:
+# ModuleManager action: show module 'about' information
 # Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -67,19 +67,18 @@ if( !$about ) {
   return;
 }
 
-$smarty->assign('title',$this->Lang('abouttxt'));
-$smarty->assign('moduletext',$this->Lang('nametext'));
-$smarty->assign('vertext',$this->Lang('vertext'));
-$smarty->assign('xmltext',$this->Lang('xmltext'));
-$smarty->assign('modulename',$name);
-$smarty->assign('moduleversion',$version);
-$smarty->assign('xmlfile',$xmlfile);
-$smarty->assign('content',$about);
-$smarty->assign('back_url',$this->create_url($id,'defaultadmin',$returnid));
-$smarty->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
-echo $this->ProcessTemplate('remotecontent.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);
 
-#
-# EOF
-#
-?>
+$tpl->assign('title',$this->Lang('abouttxt'))
+ ->assign('moduletext',$this->Lang('nametext'))
+ ->assign('vertext',$this->Lang('vertext'))
+ ->assign('xmltext',$this->Lang('xmltext'))
+ ->assign('modulename',$name)
+ ->assign('moduleversion',$version)
+ ->assign('xmlfile',$xmlfile)
+ ->assign('content',$about)
+ ->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
+ ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
+
+$tpl->display();
+

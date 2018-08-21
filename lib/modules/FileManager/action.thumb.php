@@ -64,12 +64,14 @@ $thumb = cms_join_path($basedir,Utils::get_cwd(),'thumb_'.$filename);
 //
 // build the form
 //
-$smarty->assign('filename',$filename);
-$smarty->assign('filespec',$src);
-$smarty->assign('thumb',$thumb);
-$smarty->assign('thumbexists',file_exists($thumb));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('filethumbnail.tpl'),null,null,$smarty);
+$tpl->assign('filename',$filename)
+ ->assign('filespec',$src)
+ ->assign('thumb',$thumb)
+ ->assign('thumbexists',file_exists($thumb));
 if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
-$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
-$smarty->assign('mod',$this);
-$smarty->assign('formend', $this->CreateFormEnd());
-echo $this->ProcessTemplate('filethumbnail.tpl');
+$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params))
+//see DoActionBase() ->assign('mod',$this)
+ ->assign('formend', $this->CreateFormEnd());
+
+$tpl->display();

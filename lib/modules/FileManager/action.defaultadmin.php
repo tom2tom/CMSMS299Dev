@@ -43,10 +43,14 @@ for( $i = 0; $i < count($tmp_path_parts); $i++ ) {
     }
     $path_parts[] = $obj;
 }
-$smarty->assign('path',$path);
-$smarty->assign('path_parts',$path_parts);
-$smarty->assign('sep', '&raquo;'); //TODO or '&laquo;' for rtl context
-echo $this->ProcessTemplate('fmpath.tpl');
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('fmpath.tpl'),null,null,$smarty);
+$tpl->assign('path',$path)
+ ->assign('path_parts',$path_parts)
+ ->assign('sep', '&raquo;'); //TODO or '&laquo;' for rtl context
+
+$tpl->display();
+
 // get the upload elements
 include __DIR__.DIRECTORY_SEPARATOR.'uploadview.php';
 // get the files table

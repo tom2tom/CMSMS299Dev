@@ -161,9 +161,11 @@ if (!empty($params['viewfile'])) {
 
 // build display
 
-$smarty->assign('path', $path);
-$smarty->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path));
-$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('filemanager.tpl'),null,null,$smarty);
+
+$tpl->assign('path', $path)
+ ->assign('hiddenpath', $this->CreateInputHidden($id, 'path', $path))
+ ->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid));
 
 $titlelink = $this->Lang('filename');
 if ($sortby == 'nameasc') {
@@ -177,7 +179,7 @@ if ($sortby == 'nameasc') {
 }
 $params['newsort'] = $newsort;
 $titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
-$smarty->assign('filenametext', $titlelink);
+$tpl->assign('filenametext', $titlelink);
 
 $titlelink = $this->Lang('filesize');
 if ($sortby == 'sizeasc') {
@@ -191,16 +193,16 @@ if ($sortby == 'sizeasc') {
 }
 $params['newsort'] = $newsort;
 $titlelink = $this->CreateLink($id, 'defaultadmin', $returnid, $titlelink, $params);
-$smarty->assign('filesizetext', $titlelink);
+$tpl->assign('filesizetext', $titlelink)
 
-$smarty->assign('fileownertext', $this->Lang('fileowner'));
-$smarty->assign('filepermstext', $this->Lang('fileperms'));
-$smarty->assign('fileinfotext', $this->Lang('fileinfo'));
-$smarty->assign('filedatetext', $this->Lang('filemodified'));
-$smarty->assign('actionstext', $this->Lang('actions'));
+ ->assign('fileownertext', $this->Lang('fileowner'))
+ ->assign('filepermstext', $this->Lang('fileperms'))
+ ->assign('fileinfotext', $this->Lang('fileinfo'))
+ ->assign('filedatetext', $this->Lang('filemodified'))
+ ->assign('actionstext', $this->Lang('actions'))
 
-$smarty->assign('files', $files);
-$smarty->assign('itemcount', count($files));
+ ->assign('files', $files)
+ ->assign('itemcount', count($files));
 $totalsize = Utils::format_filesize($countfilesize);
 $counts = $totalsize['size'] . ' ' . $totalsize['unit'] . ' ' . $this->Lang('in') . ' ' . $countfiles . ' ';
 if ($countfiles == 1) {
@@ -214,13 +216,13 @@ if ($countdirs == 1) {
 } else {
   $counts .= $this->Lang('subdirs');
 }
-$smarty->assign('countstext', $counts);
-$smarty->assign('formend', $this->CreateFormEnd());
-$smarty->assign('mod', $this);
-$smarty->assign('confirm_unpack', $this->Lang('confirm_unpack'));
+$tpl->assign('countstext', $counts)
+ ->assign('formend', $this->CreateFormEnd())
+//see DoActionBase() ->assign('mod', $this)
+ ->assign('confirm_unpack', $this->Lang('confirm_unpack'));
 
 if (isset($params['ajax'])) {
-  $smarty->assign('ajax', 1);
+  $tpl->assign('ajax', 1);
 } else {
   $out = <<<EOS
 <style type="text/css">
@@ -330,4 +332,5 @@ EOS;
   $this->AdminBottomContent($out);
 }
 
-echo $this->ProcessTemplate('filemanager.tpl');
+$tpl->display();
+

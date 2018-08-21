@@ -35,16 +35,17 @@ $ace_theme = $this->GetPreference('ace_theme', CoreTextEditing::ACE_THEME);
 $codemirror_cdn = $this->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
 $codemirror_theme = $this->GetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
 
-$smarty->assign('info', $this->Lang('info_settings'));
-$smarty->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));
+$tpl = $sign('info', $this->Lang('info_settings'))
+ ->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));
 if (!empty($warning)) {
-    $smarty->assign('warning', $warning); //optional
+    $tpl->assign('warning', $warning); //optional
 }
-$smarty->assign([
+$tpl->assign([
     'ace_cdn' => $ace_cdn,
     'ace_theme' => $ace_theme,
     'codemirror_cdn' => $codemirror_cdn,
     'codemirror_theme' => $codemirror_theme,
 ]);
 
-echo $this->processTemplate('adminpanel.tpl');
+$tpl->display();
+

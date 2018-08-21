@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: bulk delete|import|export
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
 if( isset($params['allparms']) ) $params = array_merge($params,unserialize(base64_decode($params['allparms'])));
@@ -25,7 +23,7 @@ $this->SetCurrentTab('templates');
 try {
     if( !isset($params['bulk_action']) || !isset($params['tpl_select']) ||
         !is_array($params['tpl_select']) || count($params['tpl_select']) == 0 ) {
-        throw new \LogicException($this->Lang('error_missingparam'));
+        throw new LogicException($this->Lang('error_missingparam'));
     }
     if( isset($params['cancel']) ) {
         $this->SetInfo($this->Lang('msg_cancelled'));
@@ -36,12 +34,12 @@ try {
         // check if we have ownership/delete permission for these templates
         $my_templates = CmsLayoutTemplate::template_query(array(0=>'u:'.get_userid(),'as_list'=>1));
         if( !is_array($my_templates) || count($my_templates) == 0 ) {
-            throw new \RuntimeException($this->Lang('error_retrieving_mytemplatelist'));
+            throw new RuntimeException($this->Lang('error_retrieving_mytemplatelist'));
         }
         $tpl_ids = array_keys($my_templates);
 
         foreach( $params['tpl_select'] as $one ) {
-            if( !in_array($one,$tpl_ids) ) throw new \RuntimeException($this->Lang('error_permission_bulkoperation'));
+            if( !in_array($one,$tpl_ids) ) throw new RuntimeException($this->Lang('error_permission_bulkoperation'));
         }
     }
 
@@ -74,7 +72,7 @@ try {
         $outfile = $first_tpl->get_content_filename();
         $dn = dirname($outfile);
         if( !is_dir($dn) || !is_writable($dn) ) {
-            throw new \RuntimeException($this->Lang('error_assets_writeperm'));
+            throw new RuntimeException($this->Lang('error_assets_writeperm'));
         }
         if( isset($params['submit']) ) {
             $n = 0;
@@ -87,7 +85,7 @@ try {
                     }
                 }
             }
-            if( $n == 0 ) throw new \RuntimeException($this->Lang('error_bulkexport_noneprocessed'));
+            if( $n == 0 ) throw new RuntimeException($this->Lang('error_bulkexport_noneprocessed'));
 
             audit('',$this->GetName(),'Exported '.count($templates).' templates');
             $this->SetMessage($this->Lang('msg_bulkop_complete'));
@@ -99,7 +97,7 @@ try {
         $bulk_op = 'bulk_action_import';
         $first_tpl = $templates[0];
         if( isset($params['submit']) ) {
-            $n=0;
+            $n = 0;
             foreach( $templates as $one ) {
                 if( in_array($one->get_id(),$params['tpl_select']) ) {
                     $infile = $one->get_content_filename();
@@ -113,7 +111,7 @@ try {
                 }
             }
             if( $n == 0 ) {
-                throw new \RuntimeException($this->Lang('error_bulkimport_noneprocessed'));
+                throw new RuntimeException($this->Lang('error_bulkimport_noneprocessed'));
             }
 
             audit('',$this->GetName(),'imported '.count($templates).' templates');
@@ -123,22 +121,20 @@ try {
         break;
 
     default:
-        throw new \LogicException($this->Lang('error_missingparam'));
+        throw new LogicException($this->Lang('error_missingparam'));
     }
 
-    $smarty->assign('bulk_op',$bulk_op);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_template.tpl'),null,null,$smarty);
+    $tpl->assign('bulk_op',$bulk_op);
     $allparms = base64_encode(serialize(array('tpl_select'=>$params['tpl_select'], 'bulk_action'=>$params['bulk_action'])));
-    $smarty->assign('allparms',$allparms);
-    $smarty->assign('templates',$templates);
+    $tpl->assign('allparms',$allparms)
+     ->assign('templates',$templates);
 
-    echo $this->ProcessTemplate('admin_bulk_template.tpl');
+    $tpl->display();
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     // master exception
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
 
-#
-# EOF
-#

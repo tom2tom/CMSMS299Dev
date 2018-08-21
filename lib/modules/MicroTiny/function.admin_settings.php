@@ -1,8 +1,7 @@
 <?php
-#...
+#MicroTiny module action: settings
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of the Microtiny module for CMS Made Simple
-# <http://dev.cmsmadesimple.org/projects/microtiny>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -16,25 +15,24 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use MicroTiny\Profile;
+
 if( !cmsms() ) exit;
 if (!$this->VisibleToAdminUser()) return;
 
 // some default profiles
 
 try {
-  $list = MicroTiny\microtiny_profile::list_all();
+  $list = Profile::list_all();
   if( !is_array($list) || count($list) == 0 ) throw new CmsInvalidDataException('No profiles found');
-  $profiles = array();
+  $profiles = [];
   foreach( $list as $one ) {
-    $profiles[] = MicroTiny\microtiny_profile::load($one);
+    $profiles[] = Profile::load($one);
   }
-  $smarty->assign('profiles',$profiles);
-  echo $this->ProcessTemplate('settings.tpl');
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
+  $tpl->assign('profiles',$profiles);
+  $tpl->display();
 }
 catch( Exception $e ) {
   $this->SetError($e->GetMessage()); //probably useless
 }
-#
-# EOF
-#
-?>

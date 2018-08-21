@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\ModuleOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -24,29 +27,29 @@ try {
 
     if( isset($params['submit']) ) {
         try {
-            if( !isset($params['confirm']) || $params['confirm'] != 1 ) throw new \RuntimeException($this->Lang('error_notconfirmed'));
+            if( !isset($params['confirm']) || $params['confirm'] != 1 ) throw new RuntimeException($this->Lang('error_notconfirmed'));
             $postmsg = $modinstance->UninstallPostMessage();
             if( $postmsg == '' ) $postmsg = $this->Lang('msg_module_uninstalled',$mod);
             $result = $ops->UninstallModule($mod);
-            if( $result[0] == FALSE ) throw new \RuntimeException($result[1]);
+            if( $result[0] == FALSE ) throw new RuntimeException($result[1]);
             $this->SetMessage($postmsg);
             $this->RedirectToAdminTab();
         }
-        catch( \Exception $e ) {
+        catch( Exception $e ) {
             $this->ShowErrors($e->GetMessage());
         }
     }
 
-    $tpl = $smarty->CreateTemplate($this->GetTemplateResource('local_uninstall.tpl'));
-    $tpl->assign('mod',$this);
-    $tpl->assign('actionid',$id);
-    $tpl->assign('module_name',$modinstance->GetName());
-    $tpl->assign('module_version',$modinstance->GetVersion());
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('local_uninstall.tpl'),null,null,$smarty);
+    $tpl //see DoActionBase()->assign('mod',$this)
+//     ->assign('actionid',$id)
+     ->assign('module_name',$modinstance->GetName())
+     ->assign('module_version',$modinstance->GetVersion());
     $msg = $modinstance->UninstallPreMessage();
     if( !$msg ) $msg = $this->Lang('msg_module_uninstall');
     $tpl->assign('msg',$msg);
     $tpl->display();
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     $this->SetError($e->GetMessage());
 }

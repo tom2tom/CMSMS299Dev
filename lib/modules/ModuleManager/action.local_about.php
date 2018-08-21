@@ -15,10 +15,11 @@ if( !is_object($modinstance) ) {
   $this->RedirectToAdminTab();
 }
 
-$smarty->assign('module_name',$module);
-$smarty->assign('back_url',$this->create_url($id,'defaultadmin',$returnid));
-$smarty->assign('about_page',$modinstance->GetAbout());
-$smarty->assign('about_title',$this->Lang('about_title',$modinstance->GetName()));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('local_about.tpl'),null,null,$smarty);
 
-echo $this->ProcessTemplate('local_about.tpl');
-?>
+$tpl->assign('module_name',$module)
+ ->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
+ ->assign('about_page',$modinstance->GetAbout())
+ ->assign('about_title',$this->Lang('about_title',$modinstance->GetName()));
+
+$tpl->display();

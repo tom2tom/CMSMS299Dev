@@ -1,6 +1,5 @@
 <?php
-#-------------------------------------------------------------------------
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: bulk delete|export|import stylesheets
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,8 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Stylesheets') ) return;
 
@@ -67,7 +65,7 @@ try {
         $outfile = $first_css->get_content_filename();
         $dn = dirname($outfile);
         if( !is_dir($dn) || !is_writable($dn) ) {
-            throw new \RuntimeException($this->Lang('error_assets_writeperm'));
+            throw new RuntimeException($this->Lang('error_assets_writeperm'));
         }
         if( isset($params['submit']) ) {
             $n = 0;
@@ -80,7 +78,7 @@ try {
                     }
                 }
             }
-            if( $n == 0 ) throw new \RuntimeException($this->Lang('error_bulkexport_noneprocessed'));
+            if( $n == 0 ) throw new RuntimeException($this->Lang('error_bulkexport_noneprocessed'));
 
             audit('',$this->GetName(),'Exported '.count($stylesheets).' stylesheets');
             $this->SetMessage($this->Lang('msg_bulkop_complete'));
@@ -104,7 +102,7 @@ try {
                     }
                 }
             }
-            if( $n == 0 ) throw new \RuntimeException($this->Lang('error_bulkimport_noneprocessed'));
+            if( $n == 0 ) throw new RuntimeException($this->Lang('error_bulkimport_noneprocessed'));
 
             audit('',$this->GetName(),'Imported '.count($stylesheets).' stylesheets');
             $this->SetMessage($this->Lang('msg_bulkop_complete'));
@@ -118,19 +116,16 @@ try {
         break;
     }
 
-    $smarty->assign('bulk_op',$bulk_op);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_css.tpl'),null,null,$smarty);
+    $tpl->assign('bulk_op',$bulk_op);
     $allparms = base64_encode(serialize(array('css_select'=>$params['css_select'],'css_bulk_action'=>$params['css_bulk_action'])));
-    $smarty->assign('allparms',$allparms);
-    $smarty->assign('templates',$stylesheets);
+    $tpl->assign('allparms',$allparms)
+     ->assign('templates',$stylesheets);
 
-    echo $this->ProcessTemplate('admin_bulk_css.tpl');
+    $tpl->display();
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     // master exception
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#

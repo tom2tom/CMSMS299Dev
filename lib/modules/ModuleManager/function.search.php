@@ -1,5 +1,5 @@
 <?php
-# ModuleManager module function: search
+# ModuleManager module function: populate search tab
 # Copyright (C) 2011-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -156,13 +156,15 @@ if( isset($params['submit']) ) {
     }
 }
 
-if( is_array($search_data) ) $smarty->assign('search_data',$search_data);
-$smarty->assign('term',$term);
-$smarty->assign('advanced',$advanced);
-$smarty->assign('formstart',$this->CreateFormStart($id,'defaultadmin','','post','',false,'',array('__activetab'=>'search')));
-$smarty->assign('formend',$this->CreateFormEnd());
-$smarty->assign('actionid',$id);
-$smarty->assign('mod',$this);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_search_tab.tpl'),null,null,$smarty);
 
-echo $this->ProcessTemplate('admin_search_tab.tpl');
+if( is_array($search_data) ) $tpl->assign('search_data',$search_data);
+$tpl->assign('term',$term)
+ ->assign('advanced',$advanced)
+ ->assign('formstart',$this->CreateFormStart($id,'defaultadmin','','post','',false,'',array('__activetab'=>'search')))
+ ->assign('formend',$this->CreateFormEnd());
+//see DoActionBase() ->assign('actionid',$id)
+// ->assign('mod',$this);
+
+$tpl->display();
 

@@ -1,5 +1,5 @@
 <?php
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: copy template
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -46,14 +46,14 @@ try {
             $new_tpl = clone($orig_tpl);
             $new_tpl->set_owner(get_userid());
             $new_tpl->set_name(trim($params['new_name']));
-            $new_tpl->set_additional_editors(array());
+            $new_tpl->set_additional_editors([]);
 
             // only if have manage themes right.
             if( $this->CheckPermission('Modify Designs') ) {
 				$new_tpl->set_designs($orig_tpl->get_designs());
             }
             else {
-				$new_tpl->set_designs(array());
+				$new_tpl->set_designs([]);
             }
             $new_tpl->save();
 
@@ -72,42 +72,44 @@ try {
     }
 
     // build a display.
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_copy_template.tpl'),null,null,$smarty);
+
     $cats = CmsLayoutTemplateCategory::get_all();
-    $out = array();
+    $out = [];
     $out[0] = $this->Lang('prompt_none');
     if( is_array($cats) && count($cats) ) {
         foreach( $cats as $one ) {
             $out[$one->get_id()] = $one->get_name();
         }
     }
-    $smarty->assign('category_list',$out);
+    $tpl->assign('category_list',$out);
 
     $types = CmsLayoutTemplateType::get_all();
     if( is_array($types) && count($types) ) {
-        $out = array();
+        $out = [];
         foreach( $types as $one ) {
             $out[$one->get_id()] = $one->get_langified_display_value();
         }
-        $smarty->assign('type_list',$out);
+        $tpl->assign('type_list',$out);
     }
 
     $designs = CmsLayoutCollection::get_all();
     if( is_array($designs) && count($designs) ) {
-        $out = array();
+        $out = [];
         foreach( $designs as $one ) {
             $out[$one->get_id()] = $one->get_name();
         }
-        $smarty->assign('design_list',$out);
+        $tpl->assign('design_list',$out);
     }
 
     $userops = cmsms()->GetUserOperations();
     $allusers = $userops->LoadUsers();
-    $tmp = array();
+    $tmp = [];
     foreach( $allusers as $one ) {
         $tmp[$one->id] = $one->username;
     }
     if( is_array($tmp) && count($tmp) ) {
-        $smarty->assign('user_list',$tmp);
+        $tpl->assign('user_list',$tmp);
     }
 
     $new_name = $orig_tpl->get_name();
@@ -118,16 +120,13 @@ try {
         $new_name = substr($new_name,0,$p);
     }
     $new_name .= ' -- '.$n;
-    $smarty->assign('new_name',$new_name);
+    $tpl->assign('new_name',$new_name);
 
-    $smarty->assign('tpl',$orig_tpl);
-    echo $this->ProcessTemplate('admin_copy_template.tpl');
+    $tpl->assign('tpl',$orig_tpl);
+    $tpl->display();
 }
 catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-#
-# EOF
-#
-?>
+

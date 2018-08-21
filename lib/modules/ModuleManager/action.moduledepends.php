@@ -57,15 +57,17 @@ if( !is_array($depends) || count($depends) != 2 || $depends[0] == false ) {
   return;
 }
 
-$smarty->assign('title',$this->Lang('dependstxt'));
-$smarty->assign('moduletext',$this->Lang('nametext'));
-$smarty->assign('vertext',$this->Lang('vertext'));
-$smarty->assign('xmltext',$this->Lang('xmltext'));
-$smarty->assign('modulename',$name);
-$smarty->assign('moduleversion',$version);
-$smarty->assign('xmlfile',$xmlfile);
-$smarty->assign('back_url',$this->create_url($id,'defaultadmin',$returnid));
-$smarty->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);
+
+$tpl->assign('title',$this->Lang('dependstxt'))
+ ->assign('moduletext',$this->Lang('nametext'))
+ ->assign('vertext',$this->Lang('vertext'))
+ ->assign('xmltext',$this->Lang('xmltext'))
+ ->assign('modulename',$name)
+ ->assign('moduleversion',$version)
+ ->assign('xmlfile',$xmlfile)
+ ->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
+ ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
 
 $depends = $depends[1];
 $txt = '';
@@ -79,6 +81,7 @@ if( is_array($depends) ) {
 else {
   $txt = $this->Lang('msg_nodependencies');
 }
-$smarty->assign('content',$txt);
-echo $this->ProcessTemplate('remotecontent.tpl');
+$tpl->assign('content',$txt);
+
+$tpl->display();
 

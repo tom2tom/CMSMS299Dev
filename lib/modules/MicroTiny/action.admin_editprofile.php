@@ -1,8 +1,7 @@
 <?php
-#...
+#MicroTiny module action: edit profile
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of the Microtiny module for CMS Made Simple
-# <http://dev.cmsmadesimple.org/projects/microtiny>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -55,21 +54,16 @@ try {
   }
 
   // display data, strange formatting but it works...
-  $smarty->assign('profile',$name);
-  $smarty->assign('data',$profile);
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editprofile.tpl'),null,null,$smarty);
+  $tpl->assign('profile',$name)
+   ->assign('data',$profile);
 
-  $stylesheets = CmsLayoutStylesheet::get_all(TRUE);
-  $stylesheets = array('-1'=>$this->Lang('none')) + $stylesheets;
-  $smarty->assign('stylesheets',$stylesheets);
+  $stylesheets = ['-1'=>$this->Lang('none')] + CmsLayoutStylesheet::get_all(TRUE);
+  $tpl->assign('stylesheets',$stylesheets);
 
-  echo $this->ProcessTemplate('admin_editprofile.tpl');
+  $tpl->display();
 }
 catch( Exception $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
-
-#
-# EOF
-#
-?>

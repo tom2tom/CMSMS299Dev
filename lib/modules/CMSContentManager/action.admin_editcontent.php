@@ -300,8 +300,10 @@ if( $error ) {
     $this->ShowErrors($error);
 }
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editcontent.tpl'),null,null,$smarty);
+
 if( $content_obj->HasPreview() ) {
-    $smarty->assign('has_preview',1);
+    $tpl->assign('has_preview',1);
     $preview_url = $config['root_url'].'/index.php?'.$config['query_var'].'='.__CMS_PREVIEW_PAGE__;
     $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
     $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
@@ -546,7 +548,7 @@ EOS;
 EOS;
 $this->AdminBottomContent($js);
 
-$smarty->assign('active_tab',$active_tab)
+$tpl->assign('active_tab',$active_tab)
  ->assign('content_id',$content_id)
  ->assign('content_obj',$content_obj)
  ->assign('tab_names',$tab_names)
@@ -554,6 +556,6 @@ $smarty->assign('active_tab',$active_tab)
  ->assign('tab_message_array',$tab_message_array);
 /*$factory = new ContentAssistantFactory($content_obj);
   $assistant = $factory->getEditContentAssistant(); */
-/* if( is_object($assistant) ) $smarty->assign('extra_content',$assistant->getExtraCode()); */
+/* if( is_object($assistant) ) $tpl->assign('extra_content',$assistant->getExtraCode()); */
 
-echo $this->ProcessTemplate('admin_editcontent.tpl');
+$tpl->display();

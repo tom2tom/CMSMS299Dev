@@ -106,12 +106,14 @@ if( isset($params['move']) ) {
 
 if( count($errors) ) $this->ShowErrors($errors);
 if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
-$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params));
-$smarty->assign('formend', $this->CreateFormEnd());
-$smarty->assign('cwd','/'.$cwd);
-$smarty->assign('dirlist',$dirlist);
-$smarty->assign('sel',$sel);
-$smarty->assign('mod',$this);
-echo $this->ProcessTemplate('move.tpl');
 
-?>
+$tpl = $smarty->createTemplate($this->GetTemplateResource('move.tpl'),null,null,$smarty);
+$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params))
+ ->assign('formend', $this->CreateFormEnd())
+ ->assign('cwd','/'.$cwd)
+ ->assign('dirlist',$dirlist)
+ ->assign('sel',$sel);
+//see DoActionBase() ->assign('mod',$this);
+
+$tpl->display();
+

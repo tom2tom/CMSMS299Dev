@@ -48,6 +48,8 @@ foreach (cms_module_places() as $dir) {
    }
 }
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('showmodule.tpl'),null,null,$smarty);
+
 $data = modmgr_utils::build_module_data($repmodules,$instmodules,false);
 if( count( $data ) ) {
   $size = count($data);
@@ -134,15 +136,15 @@ if( count( $data ) ) {
     $rowarray[] = $onerow;
   } // for
 
-  $smarty->assign('items', $rowarray);
-  $smarty->assign('itemcount', count($rowarray));
+  $tpl->assign('items', $rowarray)
+   ->assign('itemcount', count($rowarray));
 }
 
 modmgr_utils::get_images();
-$smarty->assign('nametext',$this->Lang('nametext'));
-$smarty->assign('vertext',$this->Lang('vertext'));
-$smarty->assign('sizetext',$this->Lang('sizetext'));
-$smarty->assign('statustext',$this->Lang('statustext'));
-$smarty->assign('header',$this->Lang('versionsformodule',$prefix));
-echo $this->ProcessTemplate('showmodule.tpl');
+$tpl->assign('nametext',$this->Lang('nametext'))
+ ->assign('vertext',$this->Lang('vertext'))
+ ->assign('sizetext',$this->Lang('sizetext'))
+ ->assign('statustext',$this->Lang('statustext'))
+ ->assign('header',$this->Lang('versionsformodule',$prefix));
 
+$tpl->display();

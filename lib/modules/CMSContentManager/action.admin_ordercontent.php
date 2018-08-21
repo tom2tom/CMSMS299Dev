@@ -1,8 +1,7 @@
 <?php
-# action: process page-reordering
+# CMSMS ContentManager module action: process page-reordering
 # Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-# This file is a component of the CMSMS ContentManager module
-#     <http://dev.cmsmadesimple.org/projects/cmsmadesimple>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -160,5 +159,8 @@ EOS;
 $this->AdminBottomContent($js);
 
 $tree = $gCms->GetHierarchyManager();
-$smarty->assign('tree',$tree);
-echo $this->ProcessTemplate('admin_ordercontent.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tpl'),null,null,$smarty);
+$tpl->assign('tree',$tree);
+
+$tpl->display();
+

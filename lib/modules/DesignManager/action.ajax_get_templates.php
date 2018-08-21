@@ -19,27 +19,29 @@ $handlers = ob_list_handlers();
 for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
 try {
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('ajax_get_templates.tpl'),null,null,$smarty);
+
     $tmp = get_parameter_value($_REQUEST,'filter');
     $filter = json_decode($tmp,TRUE);
-    $smarty->assign('tpl_filter',$filter);
+    $tpl->assign('tpl_filter',$filter);
     if( !$this->CheckPermission('Modify Templates') ) $filter[] = 'e:'.get_userid(false);
 /*
     $tpl_query = new CmsLayoutTemplateQuery($filter);
     $templates = $tpl_query->GetMatches();
     if( count($templates) ) {
-        $smarty->assign('templates',$templates);
+        $tpl->assign('templates',$templates);
         $tpl_nav = [];
         $tpl_nav['pagelimit'] = $tpl_query->limit;
         $tpl_nav['numpages'] = $tpl_query->numpages;
         $tpl_nav['numrows'] = $tpl_query->totalrows;
         $tpl_nav['curpage'] = (int)($tpl_query->offset / $tpl_query->limit) + 1;
-        $smarty->assign('tpl_nav',$tpl_nav);
+        $tpl->assign('tpl_nav',$tpl_nav);
     }
 */
     include __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
     if( count($templates) ) {
-        $smarty->assign('templates', $templates);
-        $smarty->assign('tpl_nav', [
+        $tpl->assign('templates', $templates)
+         ->assign('tpl_nav', [
             'pagelimit' => $limit,
             'numpages' => $numpages,
             'numrows' => $totalrows,
@@ -49,13 +51,13 @@ try {
 
     $designs = CmsLayoutCollection::get_all();
     if( count($designs) ) {
-        $smarty->assign('list_designs',$designs);
+        $tpl->assign('list_designs',$designs);
         $tmp = [];
         for( $i = 0; $i < count($designs); $i++ ) {
             $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
             $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
         }
-        $smarty->assign('design_names',$tmp2);
+        $tpl->assign('design_names',$tmp2);
     }
 
     $types = CmsLayoutTemplateType::get_all();
@@ -72,24 +74,23 @@ try {
                 $originators['o:'.$types[$i]->get_originator()] = $types[$i]->get_originator(TRUE);
             }
         }
-        $smarty->assign('list_all_types',$tmp3);
-        $smarty->assign('list_types',$tmp2);
+        $tpl->assign('list_all_types',$tmp3)
+         ->assign('list_types',$tmp2);
     }
 
     $locks = CmsLockOperations::get_locks('template');
-    $smarty->assign('have_locks',$locks ? count($locks) : 0);
-    $smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
-    $smarty->assign('coretypename',CmsLayoutTemplateType::CORE);
-    $smarty->assign('manage_templates',$this->CheckPermission('Modify Templates'));
-    $smarty->assign('manage_designs',$this->CheckPermission('Manage Designs'));
-    $smarty->assign('has_add_right',
+    $tpl->assign('have_locks',$locks ? count($locks) : 0)
+     ->assign('lock_timeout', $this->GetPreference('lock_timeout'))
+     ->assign('coretypename',CmsLayoutTemplateType::CORE)
+     ->assign('manage_templates',$this->CheckPermission('Modify Templates'))
+     ->assign('manage_designs',$this->CheckPermission('Manage Designs'))
+     ->assign('has_add_right',
                     $this->CheckPermission('Modify Templates') ||
                     $this->CheckPermission('Add Templates'));
 
-    echo $this->ProcessTemplate('ajax_get_templates.tpl');
+    $tpl->display();
 }
 catch( Exception $e ) {
     echo '<div class="error">'.$e->GetMessage().'</div>';
-    // nothing here
 }
 exit;

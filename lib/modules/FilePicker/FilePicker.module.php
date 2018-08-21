@@ -200,6 +200,7 @@ EOS;
 		$title = $this->Lang($key);
 		$req = ( $required ) ? 'true':'false';
 		$s1 = $this->Lang('clear');
+		$url = str_replace('&amp;','&',$this->get_browser_url()) . '&cmsjobtype=1';
 
 		if( $first_time ) {
 			$first_time = false;
@@ -219,7 +220,8 @@ $(document).ready(function() {
   required: $req,
   btn_label: '$title',
   remove_label: '$s1',
-  remove_title: '$s1'
+  remove_title: '$s1',
+  url: '$url'
  });
 });
 //]]>
@@ -229,12 +231,11 @@ EOS;
 		$this->AdminBottomContent($js); //CHECKME always admin?
 
         $smarty = CmsApp::get_instance()->GetSmarty();
-        $tpl_ob = $smarty->CreateTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
-        $tpl_ob->assign('blockName',$name)
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('contentblock.tpl'),null,null,$smarty);
+        $tpl->assign('blockName',$name)
          ->assign('value',$value)
          ->assign('instance',$_instance);
-        $out = $tpl_ob->fetch();
-        return $out;
+        return $tpl->fetch();
     }
 
     // INTERNAL UTILITY FUNCTION

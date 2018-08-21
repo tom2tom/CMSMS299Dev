@@ -1,5 +1,5 @@
 <?php
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: delete template
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -44,11 +44,13 @@ try {
     }
   }
 
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_template.tpl'),null,null,$smarty);
+
   // find the number of 'pages' that use this template.
   $db = cmsms()->GetDb();
   $query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE template_id = ?';
   $n = $db->GetOne($query,array($tpl_ob->get_id()));
-  $smarty->assign('page_usage',$n);
+  $tpl->assign('page_usage',$n);
 
   $cats = CmsLayoutTemplateCategory::get_all();
   $out = array();
@@ -58,7 +60,7 @@ try {
       $out[$one->get_id()] = $one->get_name();
     }
   }
-  $smarty->assign('category_list',$out);
+  $tpl->assign('category_list',$out);
 
   $types = CmsLayoutTemplateType::get_all();
   if( is_array($types) && count($types) ) {
@@ -66,7 +68,7 @@ try {
     foreach( $types as $one ) {
       $out[$one->get_id()] = $one->get_langified_display_value();
     }
-    $smarty->assign('type_list',$out);
+    $tpl->assign('type_list',$out);
   }
 
   $designs = CmsLayoutCollection::get_all();
@@ -75,7 +77,7 @@ try {
     foreach( $designs as $one ) {
       $out[$one->get_id()] = $one->get_name();
     }
-    $smarty->assign('design_list',$out);
+    $tpl->assign('design_list',$out);
   }
 
   $userops = cmsms()->GetUserOperations();
@@ -85,19 +87,14 @@ try {
     $tmp[$one->id] = $one->username;
   }
   if( is_array($tmp) && count($tmp) ) {
-    $smarty->assign('user_list',$tmp);
+    $tpl->assign('user_list',$tmp);
   }
 
-  $smarty->assign('tpl',$tpl_ob);
-  echo $this->ProcessTemplate('admin_delete_template.tpl');
+  $tpl->assign('tpl',$tpl_ob);
+  $tpl->display();
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
 
-
-#
-# EOF
-#
-?>

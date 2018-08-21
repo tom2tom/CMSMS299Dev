@@ -1,5 +1,5 @@
 <?php
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: delete design
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -80,12 +80,15 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $smarty->assign('tpl_permission',$can_delete_templates);
-    $smarty->assign('css_permission',$can_delete_stylesheets);
-    $smarty->assign('design',$design);
-    echo $this->ProcessTemplate('admin_delete_design.tpl');
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_design.tpl'),null,null,$smarty);
+    $tpl->assign('tpl_permission',$can_delete_templates)
+     ->assign('css_permission',$can_delete_stylesheets)
+     ->assign('design',$design);
+
+    $tpl->display();
 }
 catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
+

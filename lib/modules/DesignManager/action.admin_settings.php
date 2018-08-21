@@ -1,5 +1,5 @@
 <?php
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: settings
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -29,7 +29,9 @@ if( isset($params['submit']) ) {
 
   $this->ShowMessage($this->Lang('msg_options_saved'));
 }
-$smarty->assign('lock_timeout',$this->GetPreference('lock_timeout'));
-$smarty->assign('lock_refresh',$this->GetPreference('lock_refresh'));
-echo $this->ProcessTemplate('admin_settings.tpl');
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_settings.tpl'),null,null,$smarty);
+$tpl->assign('lock_timeout',$this->GetPreference('lock_timeout'))
+ ->assign('lock_refresh',$this->GetPreference('lock_refresh'));
+
+$tpl->display();

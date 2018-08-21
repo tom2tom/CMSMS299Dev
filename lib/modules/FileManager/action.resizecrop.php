@@ -70,16 +70,18 @@ if(empty($params['reset'])
   $this->Redirect($id,"defaultadmin",$returnid);
 }
 
-
+if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
 //
 // build the form
 //
-if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
-$smarty->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post','',false,'',$params));
-$smarty->assign('formend',$this->CreateFormEnd());
-$smarty->assign('filename',$filename);
-$url = Utils::get_cwd_url()."/$filename";
-$smarty->assign('image',$url);
-$smarty->assign('image_width',$imageinfo[0]);
+$tpl = $smarty->createTemplate($this->GetTemplateResource('pie.tpl'),null,null,$smarty);
 
-echo $this->ProcessTemplate('pie.tpl');
+$tpl->assign('formstart',$this->CreateFormStart($id,'resizecrop',$returnid,'post','',false,'',$params))
+ ->assign('formend',$this->CreateFormEnd())
+ ->assign('filename',$filename);
+$url = Utils::get_cwd_url()."/$filename";
+$tpl->assign('image',$url)
+ ->assign('image_width',$imageinfo[0]);
+
+$tpl->display();
+

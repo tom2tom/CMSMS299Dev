@@ -3,15 +3,15 @@ if (!isset($gCms)) exit;
 if (!$this->AccessAllowed() && !$this->AdvancedAccessAllowed()) exit;
 
 if(!isset($params["filename"]) || !isset($params["path"])) {
-	$this->Redirect($id, 'defaultadmin');
+	$this->Redirect($id,'defaultadmin');
 }
 
 if( !FileManager\Utils::test_valid_path($params['path']) ) {
-	$this->Redirect($id, 'defaultadmin',$returnid,array("fmerror"=>"fileoutsideuploads"));
+	$this->Redirect($id,'defaultadmin',$returnid,array("fmerror"=>"fileoutsideuploads"));
 }
 
 $config = $gCms->GetConfig();
-$fullname=cms_join_path(CMS_ROOT_PATH,$params["path"],$params["filename"]);
+$fullname = cms_join_path(CMS_ROOT_PATH,$params["path"],$params["filename"]);
 
 if (isset($params["newmode"])) {
 	if (isset($params["cancel"])) {
@@ -24,22 +24,22 @@ if (isset($params["newmode"])) {
 		}
 	}
 } else {
-  $currentmode=$this->GetModeWin($params["path"],$params["filename"]);
-	$smarty->assign('formstart', $this->CreateFormStart($id, 'chmodfilewin', $returnid));
+	$currentmode = $this->GetModeWin($params["path"],$params["filename"]);
+	$tpl = $smarty->createTemplate($this->GetTemplateResource('chmodfilewin.tpl'),null,null,$smarty);
+	$tpl->assign('formstart', $this->CreateFormStart($id, 'chmodfilewin', $returnid))
 
-	$smarty->assign('filename', $this->CreateInputHidden($id,"filename",$params["filename"]));
-	$smarty->assign('path', $this->CreateInputHidden($id,"path",$params["path"]));
-	$smarty->assign('formend', $this->CreateFormEnd());
-	$smarty->assign('newmodetext', $this->Lang("newpermissions"));
+	 ->assign('filename', $this->CreateInputHidden($id,"filename",$params["filename"]))
+	 ->assign('path', $this->CreateInputHidden($id,"path",$params["path"]))
+	 ->assign('formend', $this->CreateFormEnd())
+	 ->assign('newmodetext', $this->Lang("newpermissions"))
 
-	$smarty->assign('modeswitch',
-		  $this->CreateInputRadioGroup($id,"newmode",array($this->Lang("writable")=>"777",$this->Lang("writeprotected")=>"444"),$currentmode));
-	$smarty->assign('modeswitchof', $this->GetModeTable($id,$this->GetPermissions($params["path"],$params["filename"])));
+	 ->assign('modeswitch',
+		  $this->CreateInputRadioGroup($id,"newmode",array($this->Lang("writable")=>"777",$this->Lang("writeprotected")=>"444"),$currentmode))
+	 ->assign('modeswitchof', $this->GetModeTable($id,$this->GetPermissions($params["path"],$params["filename"])));
 
-//see template	$smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')));
-//	$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
-	echo $this->ProcessTemplate('chmodfilewin.tpl');
+//see template	->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('setpermissions')))
+//	 ->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
 
+	$tpl->display();
 }
 
-?>

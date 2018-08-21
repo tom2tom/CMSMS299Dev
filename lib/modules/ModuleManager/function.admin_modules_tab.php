@@ -1,9 +1,7 @@
 <?php
-# populate a tab for the defaultadmin action
+# CMSModuleManager module function: populate modules tab
 # Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-# This file is a component of ModuleManager, an addon module for
-# CMS Made Simple to allow browsing remotely stored modules, viewing
-# information about them, and downloading or upgrading
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +29,8 @@ if (!utils::is_connection_ok()) {
     $this->SetError($this->Lang('error_request_problem'));
     return;
 }
+
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
 
 $dir = CMS_ASSETS_PATH.'/modules';
 $caninstall = (!is_dir($dir) || is_writable($dir));
@@ -74,7 +74,7 @@ foreach ($tmp as $i) {
 }
 
 // cross reference them
-$data = array();
+$data = [];
 if (count($repmodules)) {
     $data = utils::build_module_data($repmodules, $instmodules);
 }
@@ -86,8 +86,8 @@ if (count($data)) {
     $writable = is_writable($moduledir);
 
     // build the table
-    $rowarray = array();
-    $newestdisplayed='';
+    $rowarray = [];
+    $newestdisplayed = '';
     foreach ($data as $row) {
         $onerow = new stdClass();
         foreach ($row as $key => $value) {
@@ -197,10 +197,10 @@ if (count($data)) {
         $rowarray[] = $onerow;
     } // for
 
-    $smarty->assign('items', $rowarray);
-    $smarty->assign('itemcount', count($rowarray));
+    $tpl->assign('items', $rowarray)
+     ->assign('itemcount', count($rowarray));
 } else {
-    $smarty->assign('message', $this->Lang('error_connectnomodules'));
+    $tpl->assign('message', $this->Lang('error_connectnomodules'));
 }
 
 // Setup search form
@@ -208,14 +208,14 @@ $searchstart = $this->CreateFormStart($id, 'searchmod', $returnid);
 $searchend = $this->CreateFormEnd();
 $searchfield = $this->CreateInputText($id, 'search_input', "Doesn't Work", 30, 100); //TODO lang
 $searchsubmit =  '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon search">'.$this->Lang('search').'</button>';
-$smarty->assign('search', $searchstart.$searchfield.$searchsubmit.$searchend);
+$tpl->assign('search', $searchstart.$searchfield.$searchsubmit.$searchend)
 
 // and display our page
-$smarty->assign('letter_urls', $letters);
-$smarty->assign('curletter', $curletter);
-$smarty->assign('nametext', $this->Lang('nametext'));
-$smarty->assign('vertext', $this->Lang('vertext'));
-$smarty->assign('sizetext', $this->Lang('sizetext'));
-$smarty->assign('statustext', $this->Lang('statustext'));
-echo $this->processTemplate('adminpanel.tpl');
+ ->assign('letter_urls', $letters)
+ ->assign('curletter', $curletter)
+ ->assign('nametext', $this->Lang('nametext'))
+ ->assign('vertext', $this->Lang('vertext'))
+ ->assign('sizetext', $this->Lang('sizetext'))
+ ->assign('statustext', $this->Lang('statustext'));
 
+$tpl->display();

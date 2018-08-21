@@ -168,20 +168,20 @@ if( isset($params['save']) ) {
 $opts = array('none'=>$this->Lang('none'),
 	      'crop'=>$this->Lang('crop'),
 	      'resize'=>$this->Lang('resize'));
-$smarty->assign('opts',$opts);
-$url = Utils::get_cwd_url()."/$filename";
-$smarty->assign('postrotate',$postrotate);
-$smarty->assign('createthumb',$createthumb);
-$smarty->assign('filename',$filename);
-$smarty->assign('width',$width);
-$smarty->assign('height',$height);
-$smarty->assign('image',$url);
-if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
-$smarty->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post','',false,'',$params));
-$smarty->assign('formend',$this->CreateFormEnd());
-echo $this->ProcessTemplate('filerotate.tpl');
 
-#
-# EOF
-#
-?>
+$tpl = $smarty->createTemplate($this->GetTemplateResource('filerotate.tpl'),null,null,$smarty);
+
+$tpl->assign('opts',$opts);
+$url = Utils::get_cwd_url()."/$filename";
+$tpl->assign('postrotate',$postrotate)
+ ->assign('createthumb',$createthumb)
+ ->assign('filename',$filename)
+ ->assign('width',$width)
+ ->assign('height',$height)
+ ->assign('image',$url);
+if( is_array($sel) ) $params['sel'] = rawurlencode(json_encode($sel));
+$tpl->assign('formstart',$this->CreateFormStart($id,'rotate',$returnid,'post','',false,'',$params))
+ ->assign('formend',$this->CreateFormEnd());
+
+$tpl->display();
+

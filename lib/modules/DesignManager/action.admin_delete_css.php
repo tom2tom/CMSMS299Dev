@@ -1,5 +1,5 @@
 <?php
-# Module: AdminSearch - A CMSMS addon module to provide template management.
+# DesignManager module action: delete stylesheet
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -42,15 +42,12 @@ try {
     }
   }
 
-  $smarty->assign('css',$css_ob);
-  echo $this->ProcessTemplate('admin_delete_css.tpl');
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_delete_css.tpl'),null,null,$smarty);
+  $tpl->assign('css',$css_ob);
+  $tpl->display();
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
 
-#
-# EOF
-#
-?>

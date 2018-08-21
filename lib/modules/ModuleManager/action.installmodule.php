@@ -17,6 +17,7 @@
 
 use CMSMS\ModuleOperations;
 use ModuleManager\module_info;
+use ModuleManager\ModuleNoDataException;
 use ModuleManager\modulerep_client;
 use ModuleManager\operations;
 use ModuleManager\utils;
@@ -221,7 +222,7 @@ try {
                 $res = modulerep_client::get_multiple_moduleinfo($alldeps);
             }
         }
-        catch( \ModuleNoDataException $e ) {
+        catch( ModuleNoDataException $e ) {
             // at least one of the dependencies could not be found on the server.
             // may be a system module... if it is not a system module, throw an exception
             audit('',$this->GetVersion(),'At least one requested module was not available on the forge');
@@ -287,25 +288,25 @@ try {
         $this->RedirectToAdminTab();
     }
 
-    $smarty->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, array('__activetab'=>'modules')));
+	$tpl = $smarty->createTemplate($this->GetTemplateResource('installinfo.tpl'),null,null,$smarty);
+
+    $tpl->assign('return_url',$this->create_url($id,'defaultadmin',$returnid, array('__activetab'=>'modules')));
     $parms = array('name'=>$module_name,'version'=>$module_version,'filename'=>$module_filename,'size'=>$module_size);
-    $smarty->assign('form_start',$this->CreateFormStart($id, 'installmodule', $returnid, 'post', '', FALSE, '', $parms).
-                    $this->CreateInputHidden($id,'modlist',base64_encode(serialize($alldeps))));
-    $smarty->assign('formend',$this->CreateFormEnd());
-    $smarty->assign('module_name',$module_name);
-    $smarty->assign('module_version',$module_version);
+    $tpl->assign('form_start',$this->CreateFormStart($id, 'installmodule', $returnid, 'post', '', FALSE, '', $parms).
+       $this->CreateInputHidden($id,'modlist',base64_encode(serialize($alldeps))))
+     ->assign('formend',$this->CreateFormEnd())
+     ->assign('module_name',$module_name)
+     ->assign('module_version',$module_version);
     $tmp = array_keys($alldeps);
     $n = count($tmp) - 1;
     $key = $tmp[$n];
     $action = $alldeps[$key]['action'];
-    $smarty->assign('is_upgrade',($action == 'u')?1:0);
+    $tpl->assign('is_upgrade',($action == 'u')?1:0)
 
-    $smarty->assign('dependencies',$alldeps);
-    echo $this->ProcessTemplate('installinfo.tpl');
-    return;
+     ->assign('dependencies',$alldeps);
+	$tpl->display();
 }
 catch( Exception $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-

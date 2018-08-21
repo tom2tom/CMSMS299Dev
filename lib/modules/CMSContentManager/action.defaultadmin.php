@@ -374,19 +374,22 @@ $opts = ($pmod) ?
     'OWNER_UID' => $this->Lang('prompt_owner'),
     'EDITOR_UID' => $this->Lang('prompt_editor')] : null;
 
-$smarty->assign('ajax',$ajax);
-$smarty->assign('can_add_content',$pmod || $this->CheckPermission('Add Pages'));
-$smarty->assign('can_manage_content',$pmod);
-$smarty->assign('opts',$opts);
-$smarty->assign('filter',$filter);
-$smarty->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500]);
-$smarty->assign('pagelimit',$pagelimit);
-$smarty->assign('locking',Utils::locking_enabled());
-// get a list of admin users
-$smarty->assign('user_list',UserOperations::get_instance()->GetList());
-// get a list of designs
-$smarty->assign('design_list',CmsLayoutCollection::get_list());
-// get a list of templates
-$smarty->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]));
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
 
-echo $this->ProcessTemplate('defaultadmin.tpl');
+$tpl->assign('ajax',$ajax)
+ ->assign('can_add_content',$pmod || $this->CheckPermission('Add Pages'))
+ ->assign('can_manage_content',$pmod)
+ ->assign('opts',$opts)
+ ->assign('filter',$filter)
+ ->assign('pagelimits',[10=>10,25=>25,100=>100,250=>250,500=>500])
+ ->assign('pagelimit',$pagelimit)
+ ->assign('locking',Utils::locking_enabled())
+// get a list of admin users
+ ->assign('user_list',UserOperations::get_instance()->GetList())
+// get a list of designs
+ ->assign('design_list',CmsLayoutCollection::get_list())
+// get a list of templates
+ ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]));
+
+$tpl->display();
+

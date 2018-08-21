@@ -1,5 +1,5 @@
 <?php
-# ModuleManager module action: defaultadmin - preferences-tab populator
+# ModuleManager module function: populate preferences tab
 # Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,15 +17,6 @@
 
 if (!isset($gCms)) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
-
-if( isset($config['developer_mode']) ) {
-  $smarty->assign('developer_mode',1);
-  $smarty->assign('module_repository',$this->GetPreference('module_repository'));
-  $smarty->assign('disable_caching',$this->GetPreference('disable_caching',0));
-}
-$smarty->assign('dl_chunksize',$this->GetPreference('dl_chunksize',256));
-$smarty->assign('latestdepends',$this->GetPreference('latestdepends',1));
-$smarty->assign('allowuninstall',$this->GetPreference('allowuninstall',0));
 
 $s1 = json_encode($this->Lang('confirm_reseturl'));
 $s2 = json_encode($this->Lang('confirm_settings'));
@@ -54,7 +45,20 @@ $(document).ready(function() {
 });
 //]]>
 </script>
+
 EOS;
 $this->AdminBottomContent($js);
 
-echo $this->ProcessTemplate('adminprefs.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminprefs.tpl'),null,null,$smarty);
+
+if( isset($config['developer_mode']) ) {
+  $tpl->assign('developer_mode',1)
+   ->assign('module_repository',$this->GetPreference('module_repository'))
+   ->assign('disable_caching',$this->GetPreference('disable_caching',0));
+}
+$tpl->assign('dl_chunksize',$this->GetPreference('dl_chunksize',256))
+ ->assign('latestdepends',$this->GetPreference('latestdepends',1))
+ ->assign('allowuninstall',$this->GetPreference('allowuninstall',0));
+
+$tpl->display();
+

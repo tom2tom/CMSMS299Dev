@@ -1,15 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: Content (c) 2013 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  A module for managing content in CMSMS.
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2004 by Ted Kulp (wishy@cmsmadesimple.org)
+# CMSContentManager module action: bulk delete
+# Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +14,7 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
+
 if( !isset($gCms) ) exit;
 $this->SetCurrentTab('pages');
 
@@ -159,10 +149,9 @@ if( count($displaydata) == 0 ) {
   $this->RedirectToAdminTab();
 }
 
-$smarty->assign('multicontent',base64_encode(serialize($pagelist)));
-$smarty->assign('displaydata',$displaydata);
-echo $this->ProcessTemplate('admin_bulk_delete.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_bulk_delete.tpl'),null,null,$smarty);
+$tpl->assign('multicontent',base64_encode(serialize($pagelist)))
+ ->assign('displaydata',$displaydata);
 
-#
-# EOF
-#
+$tpl->display();
+

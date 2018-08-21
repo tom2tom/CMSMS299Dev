@@ -34,12 +34,13 @@ if (isset($params["newdirname"])) {
     }
   }
 }
-$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params));
-$smarty->assign('newdirtext', $this->lang("newdir"));
-$smarty->assign('newdirname',$newdirname);
-$smarty->assign('formend', $this->CreateFormEnd());
-// see template $smarty->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('create')));
-//$smarty->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
-echo $this->ProcessTemplate('newdir.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('newdir.tpl'),null,null,$smarty);
 
-?>
+$tpl->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid, "post", "", false, "", $params))
+ ->assign('newdirtext', $this->lang("newdir"))
+ ->assign('newdirname',$newdirname)
+ ->assign('formend', $this->CreateFormEnd());
+// see template ->assign('submit', //$this->CreateInputSubmit($id, 'submit', $this->Lang('create')))
+// ->assign('cancel', //$this->CreateInputSubmit($id, 'cancel', $this->Lang('cancel')));
+
+$tpl->display();

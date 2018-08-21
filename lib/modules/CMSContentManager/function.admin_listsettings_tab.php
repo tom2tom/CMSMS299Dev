@@ -18,12 +18,14 @@
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_listsettings_tab.tpl'),null,null,$smarty);
+
 $opts = [
  'title'=>$this->Lang('prompt_page_title'),
  'menutext'=>$this->Lang('prompt_page_menutext')
 ];
-$smarty->assign('namecolumnopts',$opts);
-$smarty->assign('list_namecolumn',$this->GetPreference('list_namecolumn','title'));
+$tpl->assign('namecolumnopts',$opts)
+ ->assign('list_namecolumn',$this->GetPreference('list_namecolumn','title'));
 
 $allcols = 'expand,icon1,hier,page,alias,url,template,friendlyname,owner,active,default,move,view,copy,addchild,edit,delete,multiselect';
 $dflts = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
@@ -32,8 +34,9 @@ $opts = [];
 foreach( $tmp as $one ) {
   $opts[$one] = $this->Lang('colhdr_'.$one);
 }
-$smarty->assign('visible_column_opts',$opts);
+$tpl->assign('visible_column_opts',$opts);
 $tmp = explode(',',$this->GetPreference('list_visiblecolumns',$dflts));
-$smarty->assign('list_visiblecolumns',$tmp);
+$tpl->assign('list_visiblecolumns',$tmp);
 
-echo $this->ProcessTemplate('admin_listsettings_tab.tpl');
+$tpl->display();
+

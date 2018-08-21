@@ -167,9 +167,11 @@ try {
         CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_template'));
     }
 
-    $smarty->assign('type_obj', $type_obj);
-    $smarty->assign('extraparms', $extraparms);
-    $smarty->assign('template', $tpl_obj);
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_template.tpl'),null,null,$smarty);
+
+    $tpl->assign('type_obj', $type_obj)
+     ->assign('extraparms', $extraparms)
+     ->assign('template', $tpl_obj);
 
     $cats = CmsLayoutTemplateCategory::get_all();
     $out = ['' => $this->Lang('prompt_none')];
@@ -178,7 +180,7 @@ try {
             $out[$one->get_id()] = $one->get_name();
         }
     }
-    $smarty->assign('category_list', $out);
+    $tpl->assign('category_list', $out);
 
     $types = CmsLayoutTemplateType::get_all();
     if (is_array($types) && count($types)) {
@@ -188,8 +190,8 @@ try {
             $out2[] = $one->get_id();
             $out[$one->get_id()] = $one->get_langified_display_value();
         }
-        $smarty->assign('type_list', $out);
-        $smarty->assign('type_is_readonly', $type_is_readonly);
+        $tpl->assign('type_list', $out)
+         ->assign('type_is_readonly', $type_is_readonly);
     }
 
     $designs = CmsLayoutCollection::get_all();
@@ -198,12 +200,12 @@ try {
         foreach ($designs as $one) {
             $out[$one->get_id()] = $one->get_name();
         }
-        $smarty->assign('design_list', $out);
+        $tpl->assign('design_list', $out);
     }
 
     $user_id = get_userid(false);
-    $smarty->assign('has_manage_right', $this->CheckPermission('Modify Templates'));
-    $smarty->assign('has_themes_right', $this->CheckPermission('Manage Designs'));
+    $tpl->assign('has_manage_right', $this->CheckPermission('Modify Templates'))
+     ->assign('has_themes_right', $this->CheckPermission('Manage Designs'));
     if ($this->CheckPermission('Modify Templates') || $tpl_obj->get_owner_id() == $user_id) {
 
         $userops = cmsms()->GetUserOperations();
@@ -215,7 +217,7 @@ try {
             //    continue;
             $tmp[$one->id] = $one->username;
         }
-        if (is_array($tmp) && count($tmp)) $smarty->assign('user_list', $tmp);
+        if (is_array($tmp) && count($tmp)) $tpl->assign('user_list', $tmp);
 
         $groupops = cmsms()->GetGroupOperations();
         $allgroups = $groupops->LoadGroups();
@@ -225,7 +227,7 @@ try {
             $tmp[$one->id * -1] = $this->Lang('prompt_group') . ': ' . $one->name;
             // appends to the tmp array.
         }
-        if (is_array($tmp) && count($tmp)) $smarty->assign('addt_editor_list', $tmp);
+        if (is_array($tmp) && count($tmp)) $tpl->assign('addt_editor_list', $tmp);
     }
 
 //TODO ensure flexbox css for .hbox, .boxchild
@@ -319,8 +321,9 @@ $(document).ready(function() {
 EOS;
     $this->AdminBottomContent($js);
 
-    echo $this->ProcessTemplate('admin_edit_template.tpl');
+    $tpl->display();
 } catch( CmsException $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
+

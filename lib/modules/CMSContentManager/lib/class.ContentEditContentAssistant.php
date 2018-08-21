@@ -19,14 +19,16 @@ namespace CMSContentManager;
 
 use cms_utils;
 use CMSContentManager\EditContentAssistant;
+use CMSMS\internal\Smarty;
 
 class ContentEditContentAssistant extends EditContentAssistant
 {
+	// get javascript for editcontent for the Content object and its derived objects.
 	public function getExtraCode()
 	{
-		// get javascript for editcontent for the Content object, and it's derived objects.
 		$mod = cms_utils::get_module('CMSContentManager');
-		$out = $mod->ProcessTemplate('content_editcontent_extra.tpl');
-		return $out;
+		$smarty = Smarty::get_instance();
+		$tpl = $smarty->createTemplate( $mod->GetTemplateResource( 'content_editcontent_extra.tpl' ),null,null,$smarty );
+		return $tpl->fetch();
 	}
 } // class

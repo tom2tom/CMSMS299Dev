@@ -93,6 +93,8 @@ if( !empty($efilter['tpl']) ) {
 	unset($efilter['tpl']);
 }
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
+
 // build a list of types, categories, and later (designs).
 $opts = ['' => $this->Lang('prompt_none')];
 $types = CmsLayoutTemplateType::get_all();
@@ -120,14 +122,14 @@ if( count($types) ) {
     asort($tmp);
     asort($tmp2);
     asort($originators);
-    $smarty->assign('list_all_types',$tmp3);
-    $smarty->assign('list_types',$tmp2);
+    $tpl->assign('list_all_types',$tmp3)
+     ->assign('list_types',$tmp2);
     $opts[$this->Lang('tpl_types')] = $tmp;
 	$opts[$this->Lang('tpl_originators')] = $originators;
 }
 $cats = CmsLayoutTemplateCategory::get_all();
 if( $cats && count($cats) ) {
-    $smarty->assign('list_categories',$cats);
+    $tpl->assign('list_categories',$cats);
     $tmp = [];
     for( $i = 0; $i < count($cats); $i++ ) {
         $tmp['c:'.$cats[$i]->get_id()] = $cats[$i]->get_name();
@@ -136,7 +138,7 @@ if( $cats && count($cats) ) {
 }
 $designs = CmsLayoutCollection::get_all();
 if( $designs && count($designs) ) {
-    $smarty->assign('list_designs',$designs);
+    $tpl->assign('list_designs',$designs);
     $tmp = [];
     for( $i = 0; $i < count($designs); $i++ ) {
         $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
@@ -144,7 +146,7 @@ if( $designs && count($designs) ) {
     }
     asort($tmp);
     asort($tmp2);
-    $smarty->assign('design_names',$tmp2);
+    $tpl->assign('design_names',$tmp2);
     $opts[$this->Lang('prompt_design')] = $tmp;
 }
 if( $this->CheckPermission('Manage Designs') ) {
@@ -158,7 +160,7 @@ if( $this->CheckPermission('Manage Designs') ) {
     }
     asort($tmp);
     asort($users);
-    $smarty->assign('list_users',$users);
+    $tpl->assign('list_users',$users);
     $opts[$this->Lang('prompt_user')] = $tmp;
 }
 
@@ -176,23 +178,23 @@ if( $this->CheckPermission('Manage Stylesheets') ) {
 	}
 }
 
-// give everything to smarty that we can.
-$smarty->assign('filter_tpl_options',$opts);
-$smarty->assign('tpl_filter',$filter_tpl_rec); // used for filter form
-$smarty->assign('css_filter',$filter_css_rec); // used for filter form
+// give everything to smarty that we can
+$tpl->assign('filter_tpl_options',$opts)
+ ->assign('tpl_filter',$filter_tpl_rec) // used for filter form
+ ->assign('css_filter',$filter_css_rec); // used for filter form
 $jsoncssfilter = json_encode($filter_css_rec); // used for ajaxy stuff
 $jsonfilter = json_encode($efilter); // used for ajaxy stuff
 
-$smarty->assign('has_add_right',
+$tpl->assign('has_add_right',
                 $this->CheckPermission('Modify Templates') ||
-                $this->CheckPermission('Add Templates'));
-$smarty->assign('coretypename',CmsLayoutTemplateType::CORE);
-$smarty->assign('manage_stylesheets',$this->CheckPermission('Manage Stylesheets'));
-$smarty->assign('manage_templates',$this->CheckPermission('Modify Templates'));
-$smarty->assign('manage_designs',$this->CheckPermission('Manage Designs'));
-$smarty->assign('import_url',$this->create_url($id,'admin_import_template'));
+                $this->CheckPermission('Add Templates'))
+ ->assign('coretypename',CmsLayoutTemplateType::CORE)
+ ->assign('manage_stylesheets',$this->CheckPermission('Manage Stylesheets'))
+ ->assign('manage_templates',$this->CheckPermission('Modify Templates'))
+ ->assign('manage_designs',$this->CheckPermission('Manage Designs'))
+ ->assign('import_url',$this->create_url($id,'admin_import_template'));
 $admin_url = $config['admin_url'];
-$smarty->assign('lock_timeout', $this->GetPreference('lock_timeout'));
+$tpl->assign('lock_timeout', $this->GetPreference('lock_timeout'));
 $url = $this->create_url($id,'ajax_get_templates');
 $ajax_templates_url = str_replace('amp;','',$url);
 $url = $this->create_url($id,'ajax_get_stylesheets');
@@ -399,4 +401,5 @@ $js .= <<<EOS
 EOS;
 $this->AdminBottomContent($js);
 
-echo $this->ProcessTemplate('defaultadmin.tpl');
+$tpl->display();
+

@@ -59,12 +59,14 @@ class ModuleManager extends CMSModule
     protected function _DisplayErrorPage($id, &$params, $returnid, $message='')
     {
         $smarty = CmsApp::get_instance()->GetSmarty();
-        $smarty->assign('title_error', $this->Lang('error'));
-        $smarty->assign('message', $message);
-        $smarty->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('error.tpl'),null,null,$smarty);
+
+        $tpl->assign('title_error', $this->Lang('error'))
+         ->assign('message', $message)
+         ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
 
         // Display the populated template
-        echo $this->ProcessTemplate('error.tpl');
+        $tpl->display();
     }
 
     public function Install()
@@ -80,11 +82,11 @@ class ModuleManager extends CMSModule
     public function DoAction($action, $id, $params, $returnid=-1)
     {
         @set_time_limit(9999);
-        /*
-          $smarty = CmsApp::get_instance()->GetSmarty(); OR $smarty = \CMSMS\internal\Smarty::get_instance();
-          $smarty->assign($this->GetName(), $this);
-          $smarty->assign('mod', $this);
-        */
+/*
+        $smarty = CmsApp::get_instance()->GetSmarty(); OR $smarty = \CMSMS\internal\Smarty::get_instance();
+        $smarty->assign($this->GetName(), $this);
+        $smarty->assign('mod', $this);
+*/
         return parent::DoAction( $action, $id, $params, $returnid );
     }
 
@@ -118,4 +120,3 @@ class ModuleManager extends CMSModule
         return $out;
     }
 } // class
-

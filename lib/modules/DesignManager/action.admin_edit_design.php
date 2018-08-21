@@ -26,76 +26,79 @@ if( isset($params['cancel']) ) {
 
 $design = null;
 try {
-    if( !isset($params['design']) || $params['design'] == '' ) {
-        $design= new CmsLayoutCollection;
-        $design->set_name($this->Lang('new_design'));
+  if( !isset($params['design']) || $params['design'] == '' ) {
+    $design= new CmsLayoutCollection;
+    $design->set_name($this->Lang('new_design'));
+  }
+  else {
+    $design = CmsLayoutCollection::load($params['design']);
+  }
+
+  try {
+    if( isset($params['submit']) || isset($params['apply']) || (isset($params['ajax']) && $params['ajax'] == '1') ) {
+      $design->set_name($params['name']);
+      $design->set_description($params['description']);
+      $tpl_assoc = [];
+      if( isset($params['assoc_tpl']) ) $tpl_assoc = $params['assoc_tpl'];
+      $design->set_templates($tpl_assoc);
+
+      $css_assoc = [];
+      if( isset($params['assoc_css']) ) $css_assoc = $params['assoc_css'];
+      $design->set_stylesheets($css_assoc);
+      $design->save();
+
+      if( isset($params['submit']) ) {
+        $this->SetMessage($this->Lang('msg_design_saved'));
+        $this->RedirectToAdminTab();
+      }
+      else {
+        $this->ShowMessage($this->Lang('msg_design_saved'));
+      }
     }
-    else {
-        $design = CmsLayoutCollection::load($params['design']);
+  }
+  catch( Exception $e ) {
+    $this->ShowErrors($e->GetMessage());
+  }
+
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_design.tpl'),null,null,$smarty);
+
+  $templates = CmsLayoutTemplate::get_editable_templates(get_userid());
+  if( count($templates) ) {
+    usort($templates,function($a,$b) {
+      return strcasecmp($a->get_name(),$b->get_name());
+    });
+    $tpl->assign('all_templates',$templates);
+  }
+
+  $stylesheets = CmsLayoutStylesheet::get_all();
+  if( is_array($stylesheets) && count($stylesheets) ) {
+    usort($stylesheets,function($a,$b){
+      return strcasecmp($a->get_name(),$b->get_name());
+    });
+    $out = [];
+    $out2 = [];
+    for( $i = 0, $n = count($stylesheets); $i < $n; $i++ ) {
+      $out[$stylesheets[$i]->get_id()] = $stylesheets[$i]->get_name();
+      $out2[$stylesheets[$i]->get_id()] = $stylesheets[$i];
     }
+    $tpl->assign('list_stylesheets',$out)
+     ->assign('all_stylesheets',$out2);
+  }
 
-	try {
-		if( isset($params['submit']) || isset($params['apply']) || (isset($params['ajax']) && $params['ajax'] == '1') ) {
-			$design->set_name($params['name']);
-			$design->set_description($params['description']);
-			$tpl_assoc = array();
-			if( isset($params['assoc_tpl']) ) $tpl_assoc = $params['assoc_tpl'];
-			$design->set_templates($tpl_assoc);
+  if( $design->get_id() > 0 ) {
+    CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
+  }
+  else {
+    CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_design'));
+  }
 
-			$css_assoc = array();
-			if( isset($params['assoc_css']) ) $css_assoc = $params['assoc_css'];
-			$design->set_stylesheets($css_assoc);
-			$design->save();
-
-			if( isset($params['submit']) ) {
-				$this->SetMessage($this->Lang('msg_design_saved'));
-				$this->RedirectToAdminTab();
-			}
-			else {
-				$this->ShowMessage($this->Lang('msg_design_saved'));
-			}
-		}
-	}
-	catch( Exception $e ) {
-		$this->ShowErrors($e->GetMessage());
-	}
-
-    $templates = CmsLayoutTemplate::get_editable_templates(get_userid());
-    if( count($templates) ) {
-        usort($templates,function($a,$b) {
-                return strcasecmp($a->get_name(),$b->get_name());
-            });
-        $smarty->assign('all_templates',$templates);
-    }
-
-	$stylesheets = CmsLayoutStylesheet::get_all();
-	if( is_array($stylesheets) && count($stylesheets) ) {
-        usort($stylesheets,function($a,$b){
-                return strcasecmp($a->get_name(),$b->get_name());
-            });
-		$out = array();
-		$out2 = array();
-		for( $i = 0; $i < count($stylesheets); $i++ ) {
-			$out[$stylesheets[$i]->get_id()] = $stylesheets[$i]->get_name();
-			$out2[$stylesheets[$i]->get_id()] = $stylesheets[$i];
-		}
-		$smarty->assign('list_stylesheets',$out);
-		$smarty->assign('all_stylesheets',$out2);
-	}
-
-    if( $design->get_id() > 0 ) {
-        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
-    } else {
-        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_design'));
-    }
-
-    $manage_stylesheets = $this->CheckPermission('Manage Stylesheets');
-    $manage_templates = $this->CheckPermission('Modify Templates');
-    $smarty->assign('manage_templates',$manage_templates);
-    $smarty->assign('design',$design);
+  $manage_stylesheets = $this->CheckPermission('Manage Stylesheets');
+  $manage_templates = $this->CheckPermission('Modify Templates');
+  $tpl->assign('manage_templates',$manage_templates)
+   ->assign('design',$design);
 
 //TODO ensure flexbox css for .hbox.expand, .boxchild
-	//designs tab
+  //designs tab
 /*
 function save_design() {
   var form = $('#admin_edit_design');
@@ -130,11 +133,11 @@ $(document).ready(function() {
   });
 });
 EOS;
-	$this->AdminBottomContent($out);
+  $this->AdminBottomContent($out);
 
 // stylesheets tab
 /* TODO conform to theme, if used
-	$out = <<<EOS
+  $out = <<<EOS
 <style type="text/css">
 #available-stylesheets li.selected {
  background-color: #147fdb;
@@ -150,10 +153,10 @@ EOS;
 }
 </style>
 EOS;
-	$this->AdminTopContent($out);
+  $this->AdminHeaderContent($out);
 */
 
-    $out = <<<EOS
+  $out = <<<EOS
 $(document).ready(function() {
   var _edit_url = '{cms_action_url action=admin_edit_css css=xxxx forjs=1}';
   $('ul.sortable-stylesheets').sortable({
@@ -163,27 +166,27 @@ $(document).ready(function() {
     placeholder: 'ui-state-highlight',
     items: 'li:not(.placeholder)',
     helper: function(event, ui) {
-      if(!ui.hasClass('selected')) {
-        ui.addClass('selected').siblings().removeClass('selected');
-      }
-      var elements = ui.parent().children('.selected').clone(),
-        helper = $('<li/>');
-      ui.data('multidrag', elements).siblings('.selected').remove();
-      return helper.append(elements);
+    if(!ui.hasClass('selected')) {
+      ui.addClass('selected').siblings().removeClass('selected');
+    }
+    var elements = ui.parent().children('.selected').clone(),
+      helper = $('<li/>');
+    ui.data('multidrag', elements).siblings('.selected').remove();
+    return helper.append(elements);
     },
     stop: function(event, ui) {
-      var elements = ui.item.data('multidrag');
-      ui.item.after(elements).remove();
+    var elements = ui.item.data('multidrag');
+    ui.item.after(elements).remove();
     },
     receive: function(event, ui) {
-      var elements = ui.item.data('multidrag');
-      $('.sortable-stylesheets .placeholder').hide();
-      $(elements).removeClass('selected ui-state-hover')
-        .append($('<a href="#"/>')
-        .addClass('ui-icon ui-icon-trash sortable-remove')
-        .text('{$this->Lang("remove")}'))
-        .find('input[type="checkbox"]')
-        .attr('checked', true);
+    var elements = ui.item.data('multidrag');
+    $('.sortable-stylesheets .placeholder').hide();
+    $(elements).removeClass('selected ui-state-hover')
+      .append($('<a href="#"/>')
+      .addClass('ui-icon ui-icon-trash sortable-remove')
+      .text('{$this->Lang("remove")}'))
+      .find('input[type="checkbox"]')
+      .attr('checked', true);
     }
   });
   $('#available-stylesheets li').on('click', function(ev) {
@@ -194,45 +197,45 @@ $(document).ready(function() {
   });
   $('#available-stylesheets li').on('keyup', function(ev) {
     if(ev.keyCode === $.ui.keyCode.ESCAPE) {
-      // escape
-      $('#selected-stylesheets li').removeClass('selected');
-      ev.preventDefault();
+    // escape
+    $('#selected-stylesheets li').removeClass('selected');
+    ev.preventDefault();
     } else if(ev.keyCode === $.ui.keyCode.SPACE || ev.keyCode === 107) {
-      // spacebar or plus
-      ev.preventDefault();
-      $(this).toggleClass('selected ui-state-hover');
-      find_sortable_focus(this);
+    // spacebar or plus
+    ev.preventDefault();
+    $(this).toggleClass('selected ui-state-hover');
+    find_sortable_focus(this);
     } else if(ev.keyCode == 39) {
-      // right arrow
-      ev.preventDefault();
-      $('#available-stylesheets li.selected').each(function() {
-        $(this).removeClass('selected ui-state-hover');
-        var _css_id = $(this).data('cmsms-item-id');
-        var _url = _edit_url.replace('xxx', _css_id);
-        var _text = $(this).text().trim();
-        var _el = $(this).clone();
-        var _a = $('<a/>')
-          .attr('href', _url)
-          .text(_text)
-          .addClass('edit_css unsaved')
-          .attr('title', '{$this->Lang("edit_stylesheet")}');
-        $('span', _el).remove();
-        $(_el).append(_a);
-        $(_el).removeClass('selected ui-state-hover')
-          .attr('tabindex', -1)
-          .addClass('unsaved no-sort')
-          .append($('<a href="#"/>')
-          .addClass('ui-icon ui-icon-trash sortable-remove')
-          .text('{$this->Lang("remove")}')
-          .attr('title', '{$this->Lang("remove")}'))
-          .find('input[type="checkbox"]')
-          .attr('checked', true);
-        $('#selected-stylesheets > ul').append(_el);
-        $(this).remove();
-        set_changed();
-        // set focus somewhere
-        find_sortable_focus(this);
-      });
+    // right arrow
+    ev.preventDefault();
+    $('#available-stylesheets li.selected').each(function() {
+      $(this).removeClass('selected ui-state-hover');
+      var _css_id = $(this).data('cmsms-item-id');
+      var _url = _edit_url.replace('xxx', _css_id);
+      var _text = $(this).text().trim();
+      var _el = $(this).clone();
+      var _a = $('<a/>')
+        .attr('href', _url)
+        .text(_text)
+        .addClass('edit_css unsaved')
+        .attr('title', '{$this->Lang("edit_stylesheet")}');
+      $('span', _el).remove();
+      $(_el).append(_a);
+      $(_el).removeClass('selected ui-state-hover')
+        .attr('tabindex', -1)
+        .addClass('unsaved no-sort')
+        .append($('<a href="#"/>')
+        .addClass('ui-icon ui-icon-trash sortable-remove')
+        .text('{$this->Lang("remove")}')
+        .attr('title', '{$this->Lang("remove")}'))
+        .find('input[type="checkbox"]')
+        .attr('checked', true);
+      $('#selected-stylesheets > ul').append(_el);
+      $(this).remove();
+      set_changed();
+      // set focus somewhere
+      find_sortable_focus(this);
+    });
     }
   });
   $('#selected-stylesheets .sortable-remove').on('click', function(e) {
@@ -244,24 +247,24 @@ $(document).ready(function() {
   });
   $('a.edit_css').on('click', function(ev) {
     if(__changed) {
-      ev.preventDefault();
-      var el = this;
-      cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
-        // save and redirect
-        save_design().done(function() {
-          window.location = $(el).attr('href');
-        });
+    ev.preventDefault();
+    var el = this;
+    cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
+      // save and redirect
+      save_design().done(function() {
+        window.location = $(el).attr('href');
       });
-      return false;
+    });
+    return false;
     }
   });
 });
 EOS;
-	$this->AdminBottomContent($out);
+  $this->AdminBottomContent($out);
 
 // templates tab
 /* TODO conform to theme, if used
-	$out = <<<EOS
+  $out = <<<EOS
 <style type="text/css">
 #available-templates li.selected {
  background-color: #147fdb;
@@ -277,7 +280,7 @@ EOS;
 }
 </style>
 EOS;
-	$this->AdminTopContent($out);
+  $this->AdminHeaderContent($out);
 */
     $out = <<<EOS
 function find_sortable_focus(in_e) {
@@ -296,46 +299,46 @@ $(document).ready(function() {
     placeholder: 'ui-state-highlight',
     items: 'li:not(.no-sort)',
     helper: function(event, ui) {
-      if(!ui.hasClass('selected')) {
-        ui.addClass('selected').siblings().removeClass('selected');
-      }
-      var elements = ui.parent().children('.selected').clone(),
-        helper = $('<li/>');
-      ui.data('multidrag', elements).siblings('.selected').remove();
-      return helper.append(elements);
+    if(!ui.hasClass('selected')) {
+      ui.addClass('selected').siblings().removeClass('selected');
+    }
+    var elements = ui.parent().children('.selected').clone(),
+      helper = $('<li/>');
+    ui.data('multidrag', elements).siblings('.selected').remove();
+    return helper.append(elements);
     },
     stop: function(event, ui) {
-      var elements = ui.item.data('multidrag');
-      ui.item.after(elements).remove();
+    var elements = ui.item.data('multidrag');
+    ui.item.after(elements).remove();
     },
     receive: function(event, ui) {
-      var elements = ui.item.data('multidrag');
-      $('.sortable-templates .placeholder').hide();
-      $(elements).each(function() {
-        var _tpl_id = $(this).data('cmsms-item-id');
-        var _url = _edit_url.replace('xxxx', _tpl_id);
-        var _text = $(this).text().trim();
-        var _e;
-        if($manage_templates) {
-          _e = $('<a/>').attr('href', _url)
-            .text(_text)
-            .addClass('edit_tpl unsaved')
-            .attr('title', '{$this->Lang("edit_template")}');
-        } else {
-          _e = $('<span/>').text(_text);
-        }
-        $('span', this).remove();
-        $(this).append(_e);
-        $(this).removeClass('selected ui-state-hover')
-          .attr('tabindex', -1)
-          .addClass('unsaved no-sort')
-          .append($('<a href="#"/>')
-          .addClass('ui-icon ui-icon-trash sortable-remove')
-          .text('{$this->Lang("remove")}'))
-          .find('input[type="checkbox"]')
-          .attr('checked', true);
-      });
-      set_changed();
+    var elements = ui.item.data('multidrag');
+    $('.sortable-templates .placeholder').hide();
+    $(elements).each(function() {
+      var _tpl_id = $(this).data('cmsms-item-id');
+      var _url = _edit_url.replace('xxxx', _tpl_id);
+      var _text = $(this).text().trim();
+      var _e;
+      if($manage_templates) {
+        _e = $('<a/>').attr('href', _url)
+        .text(_text)
+        .addClass('edit_tpl unsaved')
+        .attr('title', '{$this->Lang("edit_template")}');
+      } else {
+        _e = $('<span/>').text(_text);
+      }
+      $('span', this).remove();
+      $(this).append(_e);
+      $(this).removeClass('selected ui-state-hover')
+        .attr('tabindex', -1)
+        .addClass('unsaved no-sort')
+        .append($('<a href="#"/>')
+        .addClass('ui-icon ui-icon-trash sortable-remove')
+        .text('{$this->Lang("remove")}'))
+        .find('input[type="checkbox"]')
+        .attr('checked', true);
+    });
+    set_changed();
     }
   });
   $('#available-templates li').on('click', function(ev) {
@@ -346,52 +349,52 @@ $(document).ready(function() {
   });
   $('#available-templates li').on('keyup', function(ev) {
     if(ev.keyCode === $.ui.keyCode.ESCAPE) {
-      // escape
-      $('#available-templates li').removeClass('selected');
-      ev.preventDefault();
+    // escape
+    $('#available-templates li').removeClass('selected');
+    ev.preventDefault();
     }
     if(ev.keyCode === $.ui.keyCode.SPACE || ev.keyCode === 107) {
-      // spacebar or plus
-      console.debug('selected');
-      ev.preventDefault();
-      $(this).toggleClass('selected ui-state-hover');
-      find_sortable_focus(this);
+    // spacebar or plus
+    console.debug('selected');
+    ev.preventDefault();
+    $(this).toggleClass('selected ui-state-hover');
+    find_sortable_focus(this);
     } else if(ev.keyCode === 39) {
-      // right arrow.
-      $('#available-templates li.selected').each(function() {
-        $(this).removeClass('selected');
-        var _tpl_id = $(this).data('cmsms-item-id');
-        var _url = _edit_url.replace('xxxx', _tpl_id);
-        var _text = $(this).text().trim();
-        var _el = $(this).clone();
-        var _a;
-        if($manage_templates) {
-          _a = $('<a/>')
-            .attr('href', _url)
-            .text(_text)
-            .addClass('edit_tpl unsaved')
-            .attr('title', '{$this->Lang("edit_template")}');
-        } else {
-          _a = $('<span/>').text(_text);
-        }
-        $('span', _el).remove();
-        $(_el).append(_a);
-        $(_el).removeClass('selected ui-state-hover')
-          .attr('tabindex', -1)
-          .addClass('unsaved no-sort')
-          .append($('<a href="#"/>')
-          .addClass('ui-icon ui-icon-trash sortable-remove')
-          .text('{$this->Lang("remove")}')
-          .attr('title', '{$this->Lang("remove")}'))
-          .find('input[type="checkbox"]')
-          .attr('checked', true);
-        $('#selected-templates > ul').append(_el);
-        $(this).remove();
-        set_changed();
-        // set focus somewhere
-        find_sortable_focus(this);
-      });
-      console.debug('got arrow');
+    // right arrow.
+    $('#available-templates li.selected').each(function() {
+      $(this).removeClass('selected');
+      var _tpl_id = $(this).data('cmsms-item-id');
+      var _url = _edit_url.replace('xxxx', _tpl_id);
+      var _text = $(this).text().trim();
+      var _el = $(this).clone();
+      var _a;
+      if($manage_templates) {
+        _a = $('<a/>')
+        .attr('href', _url)
+        .text(_text)
+        .addClass('edit_tpl unsaved')
+        .attr('title', '{$this->Lang("edit_template")}');
+      } else {
+        _a = $('<span/>').text(_text);
+      }
+      $('span', _el).remove();
+      $(_el).append(_a);
+      $(_el).removeClass('selected ui-state-hover')
+        .attr('tabindex', -1)
+        .addClass('unsaved no-sort')
+        .append($('<a href="#"/>')
+        .addClass('ui-icon ui-icon-trash sortable-remove')
+        .text('{$this->Lang("remove")}')
+        .attr('title', '{$this->Lang("remove")}'))
+        .find('input[type="checkbox"]')
+        .attr('checked', true);
+      $('#selected-templates > ul').append(_el);
+      $(this).remove();
+      set_changed();
+      // set focus somewhere
+      find_sortable_focus(this);
+    });
+    console.debug('got arrow');
     }
   });
   $('#selected-templates .sortable-remove').on('click', function(e) {
@@ -404,31 +407,32 @@ $(document).ready(function() {
   });
   $('a.edit_tpl').on('click', function(ev) {
     if(__changed) {
-      ev.preventDefault();
-      var el = this;
-      cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
-        // save and redirect
-        save_design().done(function() {
-          window.location = $(el).attr('href');
-        });
+    ev.preventDefault();
+    var el = this;
+    cms_confirm('{$this->Lang("confirm_save_design")}','{$this->Lang("yes")}').done(function() {
+      // save and redirect
+      save_design().done(function() {
+        window.location = $(el).attr('href');
       });
-      return false;
+    });
+    return false;
     }
     // normal default link behavior.
   });
 });
 EOS;
-	$this->AdminBottomContent($out);
+  $this->AdminBottomContent($out);
 
-    $out = <<<EOS
+  $out = <<<EOS
 //]]>
 </script>
 EOS;
-	$this->AdminBottomContent($out);
+  $this->AdminBottomContent($out);
 
-    echo $this->ProcessTemplate('admin_edit_design.tpl');
+  $tpl->display();
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
+

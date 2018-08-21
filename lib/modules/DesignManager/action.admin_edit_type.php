@@ -73,10 +73,12 @@ $(document).ready(function() {
 EOS;
   $this->AdminBottomContent($js);
 
-  $smarty->assign('type',$type);
-  echo $this->ProcessTemplate('admin_edit_type.tpl');
+  $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_type.tpl'),null,null,$smarty);
+  $tpl->assign('type',$type);
+  $tpl->display();
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
+

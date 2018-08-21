@@ -1,4 +1,6 @@
 <?php
+
+use CMSMS\Events;
 use FileManager\Utils;
 
 if (!isset($gCms)) exit;
@@ -19,7 +21,7 @@ foreach( $sel as &$one ) {
 }
 
 // process form
-$errors = array();
+$errors = [];
 if( isset($params['delete']) ) {
   $advancedmode = Utils::check_advanced_mode();
   $basedir = CMS_ROOT_PATH; //TODO or $config['uploads_path'] ?
@@ -62,7 +64,7 @@ if( isset($params['delete']) ) {
     $parms = array('file'=>$fn);
     if( $thumb ) $parms['thumb'] = $thumb;
     audit('',"File Manager", "Removed file: ".$fn);
-    CMSMS\Events::SendEvent( 'FileManager', 'OnFileDeleted', $parms );
+    Events::SendEvent( 'FileManager', 'OnFileDeleted', $parms );
   } // foreach
 
   if( count($errors) == 0 ) {
@@ -71,15 +73,18 @@ if( isset($params['delete']) ) {
   }
 } // if submit
 
-// give everything to smarty.
+// give everything to smarty
+$tpl = $smarty->createTemplate($this->GetTemplateResource('delete.tpl'),null,null,$smarty);
+
 if( count($errors) ) {
   $this->ShowErrors($errors);
-  $smarty->assign('errors',$errors);
+  $tpl->assign('errors',$errors);
 }
 if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
-$smarty->assign('sel',$sel);
-$smarty->assign('mod',$this);
-$smarty->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params));
-$smarty->assign('formend', $this->CreateFormEnd());
 
-echo $this->ProcessTemplate('delete.tpl');
+$tpl->assign('sel',$sel)
+//see DoActionBase() ->assign('mod',$this)
+ ->assign('formstart', $this->CreateFormStart($id, 'fileaction', $returnid,"post","",false,"",$params))
+ ->assign('formend', $this->CreateFormEnd());
+
+$tpl->display();

@@ -1,16 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: ModuleManager (c) 2008 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#  An addon module for CMS Made Simple to allow browsing remotely stored
-#  modules, viewing information about them, and downloading or upgrading
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
-# Visit our homepage at: http://www.cmsmadesimple.org
-#
-#-------------------------------------------------------------------------
+# ModuleManager module function: populate new-versions tab
+# Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \ModuleManager\utils as modmgr_utils;
+use ModuleManager\utils as Utils;
 
 if( !isset($gCms) ) exit;
 
@@ -57,10 +48,10 @@ if( !empty($newversions) ) {
 				$modinst = cms_utils::get_module($row['name']);
 				if( is_object($modinst) ) $onerow->haveversion = $modinst->GetVersion();
 
-				$onerow->age = modmgr_utils::get_status($row['date']);
+				$onerow->age = Utils::get_status($row['date']);
 				$onerow->downloads = $row['downloads'];
 				$onerow->date = $row['date'];
-				$onerow->age = modmgr_utils::get_status($row['date']);
+				$onerow->age = Utils::get_status($row['date']);
 
 				$onerow->name = $this->CreateLink( $id, 'modulelist', $returnid, $row['name'], array('name'=>$row['name']));
 				$onerow->version = $row['version'];
@@ -111,21 +102,22 @@ if( !empty($newversions) ) {
 	}
 }
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('newversionstab.tpl'),null,null,$smarty);
+
 if( !count($results) ) {
-    $smarty->assign('nvmessage',$this->Lang('all_modules_up_to_date'));
+    $tpl->assign('nvmessage',$this->Lang('all_modules_up_to_date'));
 }
 else {
-    $smarty->assign('updatestxt',$this->Lang('available_updates'));
-    $smarty->assign('items',$results);
-    $smarty->assign('itemcount', count($results));
+    $tpl->assign('updatestxt',$this->Lang('available_updates'))
+     ->assign('items',$results)
+     ->assign('itemcount', count($results));
 }
 
-$smarty->assign('haveversion',$this->Lang('yourversion'));
-$smarty->assign('nametext',$this->Lang('nametext'));
-$smarty->assign('vertext',$this->Lang('vertext'));
-$smarty->assign('sizetext',$this->Lang('sizetext'));
-$smarty->assign('statustext',$this->Lang('statustext'));
+$tpl->assign('haveversion',$this->Lang('yourversion'))
+ ->assign('nametext',$this->Lang('nametext'))
+ ->assign('vertext',$this->Lang('vertext'))
+ ->assign('sizetext',$this->Lang('sizetext'))
+ ->assign('statustext',$this->Lang('statustext'));
 
-echo $this->processTemplate('newversionstab.tpl');
+$tpl->display();
 
-# EOF

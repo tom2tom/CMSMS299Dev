@@ -1,5 +1,5 @@
 <?php
-# Module: FilePicker - A CMSMS addon module to provide file picking capabilities.
+# FilePicker module action: edit profile
 # Copyright (C) 2016 Fernando Morgado <jomorg@cmsmadesimple.org>
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is part of the FilePicker module.
@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use FilePicker\Profile;
+use FilePicker\ProfileException;
 
 if( !defined('CMS_VERSION') ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
@@ -29,7 +30,7 @@ try {
 
     if( $profile_id > 0 ) {
         $profile = $this->_dao->loadById( $profile_id );
-        if( !$profile ) throw new \LogicException('Invalid profile id passed to edit_profile action');
+        if( !$profile ) throw new LogicException('Invalid profile id passed to edit_profile action');
     }
 
     if( isset($params['submit']) ) {
@@ -38,22 +39,22 @@ try {
             $this->_dao->save( $profile );
             $this->RedirectToAdminTab();
         }
-        catch( \FilePicker\ProfileException $e ) {
+        catch( ProfileException $e ) {
             $this->ShowErrors($this->Lang($e->GetMessage()));
         }
     }
 
-    $smarty->assign('profile',$profile);
-
 //TODO ensure flexbox css for multi-row .vbox, .hbox.flow, .boxchild
 
-    echo $this->ProcessTemplate('edit_profile.tpl');
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('edit_profile.tpl'),null,null,$smarty);
+    $tpl->assign('profile',$profile);
+    $tpl->display();
 }
-catch( \CmsInvalidDataException $e ) {
+catch( CmsInvalidDataException $e ) {
     $this->SetError( $this->Lang( $e->GetMessage() ) );
     $this->RedirectToAdminTab();
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     $this->SetError( $e->GetMessage() );
     $this->RedirectToAdminTab();
 }

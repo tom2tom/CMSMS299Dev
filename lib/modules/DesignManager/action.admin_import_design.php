@@ -1,5 +1,5 @@
 <?php
-# Module: DesignManager - A CMSMS addon module to provide template management.
+# DesignManager module action: import design
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -35,113 +35,115 @@ try {
   case 1:
     try {
       if( isset($params['next1']) ) {
-				// check for uploaded file
-				$key = $id.'import_xml_file';
-				if( !isset($_FILES[$key]) || $_FILES[$key]['name'] == '' ) throw new CmsException($this->Lang('error_nofileuploaded'));
-				if( $_FILES[$key]['error'] != 0 || $_FILES[$key]['tmp_name'] == '' || $_FILES[$key]['type'] == '') {
-					throw new CmsException($this->Lang('error_uploading','xml'));
-				}
-				if( $_FILES[$key]['type'] != 'text/xml' ) throw new CmsException($this->Lang('error_upload_filetype',$_FILES[$key]['type']));
+        // check for uploaded file
+        $key = $id.'import_xml_file';
+        if( !isset($_FILES[$key]) || $_FILES[$key]['name'] == '' ) throw new CmsException($this->Lang('error_nofileuploaded'));
+        if( $_FILES[$key]['error'] != 0 || $_FILES[$key]['tmp_name'] == '' || $_FILES[$key]['type'] == '') {
+            throw new CmsException($this->Lang('error_uploading','xml'));
+        }
+        if( $_FILES[$key]['type'] != 'text/xml' ) throw new CmsException($this->Lang('error_upload_filetype',$_FILES[$key]['type']));
 
-				$reader = reader_factory::get_reader($_FILES[$key]['tmp_name']);
-				$reader->validate();
+        $reader = reader_factory::get_reader($_FILES[$key]['tmp_name']);
+        $reader->validate();
 
-				// copy uploaded file to temporary location
-				$tmpfile = tempnam(TMP_CACHE_LOCATION,'dm_');
-				if( $tmpfile === FALSE ) throw new CmsException($this->Lang('error_create_tempfile'));
-				@copy($_FILES[$key]['tmp_name'],$tmpfile);
+        // copy uploaded file to temporary location
+        $tmpfile = tempnam(TMP_CACHE_LOCATION,'dm_');
+        if( $tmpfile === FALSE ) throw new CmsException($this->Lang('error_create_tempfile'));
+        @copy($_FILES[$key]['tmp_name'],$tmpfile);
 
-				// redirect to this action, with step2.
-				$this->Redirect($id,'admin_import_design',$returnid,array('step'=>2,'tmpfile'=>$tmpfile));
+        // redirect to this action, with step2.
+        $this->Redirect($id,'admin_import_design',$returnid,array('step'=>2,'tmpfile'=>$tmpfile));
       }
     }
     catch( CmsException $e ) {
       $this->ShowErrors($e->GetMessage());
     }
 
-    echo $this->ProcessTemplate('admin_import_design.tpl');
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_import_design.tpl'),null,null,$smarty);
+    $tpl->display();
     break;
 
   case 2:
     // preview what's going to be imported
-		try {
-			if( !isset($params['tmpfile']) ) {
-				// bad error, redirect to admin tab.
-				$this->SetError($this->Lang('error_missingparam'));
-				$this->RedirectToAdminTab();
-			}
-			$tmpfile = trim($params['tmpfile']);
-			if( !file_exists($tmpfile) ) {
-				// bad error, redirect to admin tab.
-				$this->SetError($this->Lang('error_filenotfound',$tmpfile));
-				$this->RedirectToAdminTab();
-			}
+    // TODO ensure flexbox css for .hbox.expand, .boxchild
+    $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_import_design2.tpl'),null,null,$smarty);
+    try {
+        if( !isset($params['tmpfile']) ) {
+            // bad error, redirect to admin tab.
+            $this->SetError($this->Lang('error_missingparam'));
+            $this->RedirectToAdminTab();
+        }
+        $tmpfile = trim($params['tmpfile']);
+        if( !file_exists($tmpfile) ) {
+            // bad error, redirect to admin tab.
+            $this->SetError($this->Lang('error_filenotfound',$tmpfile));
+            $this->RedirectToAdminTab();
+        }
 
-			$reader = reader_factory::get_reader($tmpfile);
+        $reader = reader_factory::get_reader($tmpfile);
 
-			if( isset($params['next2']) ) {
-				$error = null;
-				if( !isset($params['check1']) ) {
-					$error = 1;
-					$this->ShowErrors($this->Lang('error_notconfirmed'));
-				}
-				else if( !isset($params['newname']) || $params['newname'] == '' ) {
-					$error = 1;
-					$this->ShowErrors($this->Lang('error_missingparam'));
-				}
-				else {
-					// redirect to this action, with step3.
-					$this->Redirect($id,'admin_import_design',$returnid,array('step'=>3,'tmpfile'=>$tmpfile,'newname'=>$params['newname'], 'newdescription'=>$params['newdescription']));
-				}
-			}
+        if( isset($params['next2']) ) {
+            $error = null;
+            if( !isset($params['check1']) ) {
+                $error = 1;
+                $this->ShowErrors($this->Lang('error_notconfirmed'));
+            }
+            else if( !isset($params['newname']) || $params['newname'] == '' ) {
+                $error = 1;
+                $this->ShowErrors($this->Lang('error_missingparam'));
+            }
+            else {
+                // redirect to this action, with step3.
+                $this->Redirect($id,'admin_import_design',$returnid,array('step'=>3,'tmpfile'=>$tmpfile,'newname'=>$params['newname'], 'newdescription'=>$params['newdescription']));
+            }
+        }
 
-			// suggest a new name for the 'theme'.
-			$smarty = cmsms()->GetSmarty();
-			$smarty->assign('tmpfile',$tmpfile);
-			$smarty->assign('cms_version',CMS_VERSION);
-			$design_info = $reader->get_design_info();
-			$smarty->assign('design_info',$design_info);
-			$smarty->assign('templates',$reader->get_template_list());
-			$smarty->assign('stylesheets',$reader->get_stylesheet_list());
-			$newname = CmsLayoutCollection::suggest_name($design_info['name']);
-            $smarty->assign('new_name',$newname);
-		}
+        // suggest a new name for the 'theme'.
+        $tpl = cmsms()->GetSmarty();
+        $tpl->assign('tmpfile',$tmpfile)
+         ->assign('cms_version',CMS_VERSION);
+        $design_info = $reader->get_design_info();
+        $tpl->assign('design_info',$design_info)
+         ->assign('templates',$reader->get_template_list())
+         ->assign('stylesheets',$reader->get_stylesheet_list());
+        $newname = CmsLayoutCollection::suggest_name($design_info['name']);
+        $tpl->assign('new_name',$newname);
+    }
     catch( CmsException $e ) {
       $this->ShowErrors($e->GetMessage());
     }
 
-//TODO ensure flexbox css for .hbox.expand, .boxchild
-
-    echo $this->ProcessTemplate('admin_import_design2.tpl');
+    $tpl->display();
     break;
 
   case 3:
-		// do the importing.
-		if( !isset($params['tmpfile']) || !isset($params['newname']) ||
-				$params['newname'] == '') {
-			// bad error, redirect to admin tab.
-			throw new CmsException($this->Lang('error_missingparam'));
-		}
-		$tmpfile = trim($params['tmpfile']);
-		$newname = trim($params['newname']);
-		$newdescription = trim($params['newdescription']);
+    // do the importing.
+    if( !isset($params['tmpfile']) || !isset($params['newname']) ||
+        $params['newname'] == '') {
+        // bad error, redirect to admin tab.
+        throw new CmsException($this->Lang('error_missingparam'));
+    }
+    $tmpfile = trim($params['tmpfile']);
+    $newname = trim($params['newname']);
+    $newdescription = trim($params['newdescription']);
 
-		if( !file_exists($tmpfile) ) {
-			// bad error, redirect to admin tab.
-			throw new CmsException($this->Lang('error_filenotfound',$tmpfile));
-		}
+    if( !file_exists($tmpfile) ) {
+        // bad error, redirect to admin tab.
+        throw new CmsException($this->Lang('error_filenotfound',$tmpfile));
+    }
 
-		$destdir = $config['uploads_path'].'/designmanager_import';
-		$reader = reader_factory::get_reader($tmpfile);
-		$reader->set_suggested_name($newname);
-		$reader->set_suggested_description($newdescription);
-		$reader->import();
-		$this->SetMessage($this->Lang('msg_design_imported'));
-		$this->RedirectToAdminTab();
-		break;
+    $destdir = $config['uploads_path'].'/designmanager_import';
+    $reader = reader_factory::get_reader($tmpfile);
+    $reader->set_suggested_name($newname);
+    $reader->set_suggested_description($newdescription);
+    $reader->import();
+    $this->SetMessage($this->Lang('msg_design_imported'));
+    $this->RedirectToAdminTab();
+    break;
 
   default:
-  }
+    break;
+  } // switch
 }
 catch( CmsException $e ) {
   $this->SetError($e->GetMessage());

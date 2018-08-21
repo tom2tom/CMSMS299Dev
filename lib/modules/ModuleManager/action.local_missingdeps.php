@@ -12,7 +12,10 @@ if( !isset($params['mod']) ) {
 $module = get_parameter_value($params,'mod');
 
 $info = module_info::get_module_info($module);
-$smarty->assign('back_url',$this->create_url($id,'defaultadmin',$returnid));
-$smarty->assign('info',$info);
 
-echo $this->ProcessTemplate('local_missingdeps.tpl');
+$tpl = $smarty->createTemplate($this->GetTemplateResource('local_missingdeps.tpl'),null,null,$smarty);
+
+$tpl->assign('back_url',$this->create_url($id,'defaultadmin',$returnid))
+->assign('info',$info);
+
+$tpl->display();

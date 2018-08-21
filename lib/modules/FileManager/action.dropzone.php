@@ -5,27 +5,35 @@ use FileManager\Utils;
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Files')) return;
 
-$smarty->assign('mod',$this);
-$smarty->assign('actionid',$id);
+if( isset($params['template']) ) {
+    $template = trim($params['template']);
+    if( !endswith($template,'.tpl') )  $template .= '.tpl';
+} else {
+    $template = 'dropzone.tpl';
+}
+$tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);
+
+//see DoActionBase()$tpl->assign('mod',$this)
+// ->assign('actionid',$id);
 
 if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
-    $smarty->assign('is_ie',1);
+    $tpl->assign('is_ie',1);
 }
-$smarty->assign('formstart',$this->CreateFormStart($id,'upload',$returnid,'post','multipart/form-data'));
-$smarty->assign('formend',$this->CreateFormEnd());
+$tpl->assign('formstart',$this->CreateFormStart($id,'upload',$returnid,'post','multipart/form-data'))
+ ->assign('formend',$this->CreateFormEnd());
 $post_max_size = Utils::str_to_bytes(ini_get('post_max_size'));
 $upload_max_filesize = Utils::str_to_bytes(ini_get('upload_max_filesize'));
-$smarty->assign('max_chunksize',min($upload_max_filesize,$post_max_size-1024));
-$smarty->assign('action_url',$this->create_url($id,'upload',$returnid));
-$smarty->assign('prompt_dropfiles',$this->Lang('prompt_dropfiles'));
+$tpl->assign('max_chunksize',min($upload_max_filesize,$post_max_size-1024))
+ ->assign('action_url',$this->create_url($id,'upload',$returnid))
+ ->assign('prompt_dropfiles',$this->Lang('prompt_dropfiles'))
 
-$smarty->assign('chdir_formstart',$this->CreateFormStart($id,'changedir',$returnid,'','',[
+ ->assign('chdir_formstart',$this->CreateFormStart($id,'changedir',$returnid,'','',[
   'id'=>'chdir_form',
   'class'=>'cms_form',
   'path'=>$cwd,
   'ajax'=>1
-]));
-$smarty->assign('chdir_url',str_replace('&amp;','&',$this->create_url($id,'changedir',$returnid)).'&cmsjobtype=1');
+]))
+ ->assign('chdir_url',str_replace('&amp;','&',$this->create_url($id,'changedir',$returnid)).'&cmsjobtype=1');
 
 $advancedmode = $this->GetPreference('advancedmode',0);
 if( strlen($advancedmode) > 1 ) $advancedmode = 0;
@@ -33,7 +41,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
 // get a folder list...
 {
     $cwd = Utils::get_cwd();
-    $smarty->assign('cwd',$cwd);
+    $tpl->assign('cwd',$cwd);
 
     $startdir = $config['uploads_path'];
     if( $this->AdvancedAccessAllowed() && $advancedmode ) $startdir = CMS_ROOT_PATH;
@@ -67,14 +75,9 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
     $output['/'.basename($startdir)] = '/'.basename($startdir);
     if( count($output) ) {
         ksort($output);
-        $smarty->assign('dirlist',$output);
+        $tpl->assign('dirlist',$output);
     }
 }
 
-if( isset($params['template']) ) {
-    $template = trim($params['template']);
-    if( !endswith($template,'.tpl') )  $template .= '.tpl';
-} else {
-    $template = 'dropzone.tpl';
-}
-echo $this->ProcessTemplate($template);
+$tpl->display();
+
