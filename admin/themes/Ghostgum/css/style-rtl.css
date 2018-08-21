@@ -2211,6 +2211,11 @@ td.icons_wide {
 
 /*** iframe ***/
 
+iframe {
+/*    display: block; */
+    width: 99%;
+    height: 99%;
+}
 iframe.imageframe {
     margin-top: 10px;
     border: none;
