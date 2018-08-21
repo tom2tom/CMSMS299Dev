@@ -1,5 +1,5 @@
 <?php
-# Class:
+# Class: content searcher for News module
 # Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,8 +17,8 @@
 
 namespace News;
 
-use AdminSearch_slave;
-use AdminSearch_tools;
+use AdminSearch\slave;
+use AdminSearch\tools;
 use cms_utils;
 use const CMS_DB_PREFIX;
 use function check_permission;
@@ -26,7 +26,7 @@ use function cms_htmlentities;
 use function cmsms;
 use function get_userid;
 
-final class News_AdminSearch_slave extends AdminSearch_slave
+final class News_AdminSearch_slave extends slave
 {
   public function get_name()
   {
@@ -56,7 +56,7 @@ final class News_AdminSearch_slave extends AdminSearch_slave
     $fdlist = $db->GetCol($query,array('textbox','textarea'));
 
     $fields = array('N.*');
-    $joins = array();
+    $joins = [];
     $where = array('news_title LIKE ?','news_data LIKE ?','summary LIKE ?');
     $str = '%'.$this->get_text().'%';
     $parms = array($str,$str,$str);
@@ -80,29 +80,31 @@ final class News_AdminSearch_slave extends AdminSearch_slave
     $dbr = $db->GetArray($query,array($parms));
     if( is_array($dbr) && count($dbr) ) {
       // got some results.
-      $output = array();
+      $output = [];
       foreach( $dbr as $row ) {
-    $text = null;
-    foreach( $row as $key => $value ) {
-      // search for the keyword
-      $pos = strpos($value,$this->get_text());
-      if( $pos !== FALSE ) {
-        // build the text
-        $start = max(0,$pos - 50);
-        $end = min(strlen($value),$pos+50);
-        $text = substr($value,$start,$end-$start);
-        $text = cms_htmlentities($text);
-        $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
-        $text = str_replace("\r",'',$text);
-        $text = str_replace("\n",'',$text);
-        break;
-      }
-    }
-    $url = $mod->create_url('m1_','editarticle','',array('articleid'=>$row['news_id']));
-    $tmp = array('title'=>$row['news_title'],
-             'description'=>AdminSearch_tools::summarize($row['summary']),
-             'edit_url'=>$url,'text'=>$text);
-    $output[] = $tmp;
+        $text = null;
+        foreach( $row as $key => $value ) {
+          // search for the keyword
+          $pos = strpos($value,$this->get_text());
+          if( $pos !== FALSE ) {
+            // build the text
+            $start = max(0,$pos - 50);
+            $end = min(strlen($value),$pos+50);
+            $text = substr($value,$start,$end-$start);
+            $text = cms_htmlentities($text);
+            $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
+            $text = str_replace("\r",'',$text);
+            $text = str_replace("\n",'',$text);
+            break;
+          }
+        }
+        $url = $mod->create_url('m1_','editarticle','',['articleid'=>$row['news_id']]);
+        $output[] = [
+        'title'=>$row['news_title'],
+        'description'=>tools::summarize($row['summary']),
+        'edit_url'=>$url,
+        'text'=>$text
+        ];
       }
       return $output;
     }
