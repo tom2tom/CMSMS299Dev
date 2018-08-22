@@ -46,7 +46,11 @@ function smarty_function_cms_action_url($params, $template)
 			$forjs = 1;
 			break;
 		default:
-			$actionparms[$key] = $value;
+			if( startswith($key, '_') ) {
+				$urlparms[substr($key, 1)] = $value;
+			} else {
+				$actionparms[$key] = $value;
+			}
 			break;
 		}
 	}
@@ -54,16 +58,19 @@ function smarty_function_cms_action_url($params, $template)
 	// validate params
 	$gCms = CmsApp::get_instance();
 	if( $module == '' ) return;
-	if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+	if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) && $returnid == '' ) {
 		if( $mid == '' ) $mid = 'm1_';
 		if( $action == '' ) $action = 'defaultadmin';
 	}
-	else if( $gCms->is_frontend_request() ) {
+	elseif( $gCms->is_frontend_request() ) {
 		if( $mid == '' ) $mid = 'cntnt01';
 		if( $action == '' ) $action = 'default';
 		if( $returnid == '' ) {
-			$contentops = $gCms->GetContentOperations();
-			$returnid = $contentops->GetDefaultContent();
+			$returnid = cms_utils::get_current_pageid();
+			if( $returnid < 1 ) {
+				$contentops = $gCms->GetContentOperations();
+				$returnid = $contentops->GetDefaultContent();
+			}
 		}
 	}
 	if( $action == '' ) return;
@@ -74,9 +81,18 @@ function smarty_function_cms_action_url($params, $template)
 	$url = $obj->create_url($mid,$action,$returnid,$actionparms);
 	if( !$url ) return;
 
+	if( !empty($urlparms) ) {
+		$url_ob = new cms_url( $url );
+		foreach( $urlparms as $k => $v ) {
+			$url_ob->set_queryvar( $key, $value );
+		}
+		$url = (string) $url_ob;
+	}
+
 	if( $forjs ) {
 		$url = str_replace('&amp;','&',$url);
 	}
+
 	if( $assign ) {
 		$template->assign($assign,$url);
 		return;
