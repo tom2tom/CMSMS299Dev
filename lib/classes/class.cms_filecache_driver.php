@@ -211,7 +211,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _get_filename($key,$group)
+    private function _get_filename(string $key,string $group) : string
     {
         $fn = $this->_cache_dir . '/cache_'.md5(__DIR__.$group).'_'.md5($key.__DIR__).'.cms';
         return $fn;
@@ -221,10 +221,10 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _flock($res,$flag)
+    private function _flock($res,string $flag)
     {
         if( !$this->_locking ) return TRUE;
-	if( !$res ) return FALSE;
+        if( !$res ) return FALSE;
 
         $mode = '';
         switch( strtolower($flag) ) {
@@ -257,7 +257,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _read_cache_file($fn)
+    private function _read_cache_file(string $fn)
     {
         $this->_cleanup($fn);
         $data = null;
@@ -284,7 +284,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _cleanup($fn)
+    private function _cleanup(string $fn)
     {
         if( is_null($this->_lifetime) ) return;
         clearstatcache();
@@ -296,7 +296,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _write_cache_file($fn,$data)
+    private function _write_cache_file(string $fn,$data) : bool
     {
         @touch($fn);
         $fp = @fopen($fn,'r+');
@@ -341,7 +341,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _clean_dir($dir,$group = '',$old = true)
+    private function _clean_dir(string $dir,$group = '',bool $old = true) : int
     {
         if( !$group ) $group = $this->_group;
 
@@ -355,7 +355,7 @@ class cms_filecache_driver extends cms_cache_driver
         foreach( $files as $file ) {
             if( is_file($file) ) {
                 $del = false;
-                if( $old == true ) {
+                if( $old ) {
                     if( !is_null($this->_lifetime) ) {
                         if( (time() - @filemtime($file)) > $this->_lifetime ) {
                             @unlink($file);
@@ -373,6 +373,4 @@ class cms_filecache_driver extends cms_cache_driver
         return $nremoved;
     }
 
-} // end of class
-
-?>
+} // class

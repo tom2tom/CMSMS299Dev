@@ -949,9 +949,9 @@ class CmsLayoutTemplate
    /**
 	* @ignore
 	*/
-	private static function _load_from_data($row,$design_list = null)
+	private static function _load_from_data($row,$design_list = null) : self
 	{
-		$ob = new CmsLayoutTemplate();
+		$ob = new self();
 		$ob->_data = $row;
 		$fn = $ob->get_content_filename();
 		if( is_file($fn) && is_readable($fn) ) {

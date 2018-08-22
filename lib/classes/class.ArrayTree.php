@@ -85,9 +85,9 @@ class ArrayTree
 	 * Support function remove child-data array from $array
 	 *
 	 * @param array $keys	  tree-array keys
-	 * @param mixed $array	  tree-array
+	 * @param array $array	  tree-array
 	 */
-	private static function removeChild($keys, &$array)
+	private static function removeChild(array $keys, array &$array)
 	{
 		while (1) {
 			$index = array_shift($keys);
@@ -106,7 +106,7 @@ class ArrayTree
 	 * @param mixed $path	  array, or ':'-separated string, of keys
 	 */
 	public static function drop_node(array &$tree, $path,
-		string $childkey = self::CHILDKEY) : void
+		string $childkey = self::CHILDKEY)
 	{
 		$pathkeys = self::process_path($path);
 		if ($pathkeys) {
@@ -133,7 +133,7 @@ class ArrayTree
 	 * @param string $parentkey $tree key-identifier default self::PARENTKEY
 	 */
 /*	public static function attach_dangles(array &$tree, $parentname,
-		string $parentkey = self::PARENTKEY) : void
+		string $parentkey = self::PARENTKEY)
 	{
 		//IS THIS POSSIBLE ?
 	}
@@ -144,7 +144,7 @@ class ArrayTree
 	 * @param string $parentkey $tree key-identifier default self::PARENTKEY
 	 */
 /*	public static function drop_dangles(array &$tree,
-		string $parentkey = self::PARENTKEY) : void
+		string $parentkey = self::PARENTKEY)
 	{
 		//IS THIS POSSIBLE ?
 	}
@@ -413,7 +413,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
 		parent::__construct($iterator, $mode, $flags);
 	}
 
-	public function rewind() : void
+	public function rewind()
 	{
 		parent::rewind();
 		if ($this->noleaves) {
@@ -421,7 +421,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
 		}
 	}
 
-	public function next() : void
+	public function next()
 	{
 		parent::next();
 		if ($this->noleaves) {
@@ -429,7 +429,7 @@ class RecursiveArrayTreeIterator extends RecursiveIteratorIterator implements Ou
 		}
 	}
 
-	protected function nextbranch() : void
+	protected function nextbranch()
 	{
 		while ($this->valid() && !$this->getInnerIterator()->hasChildren()) {
 			parent::next();

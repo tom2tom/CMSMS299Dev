@@ -606,7 +606,7 @@ class CmsLayoutTemplateType
 	 * @internal
 	 * @return CmsLayoutTemplateType
 	 */
-	private static function _load_from_data($row)
+	private static function _load_from_data($row) : self
 	{
 		$pattern = '/^([as]:\d+:|[Nn](ull)?;)/';
 		if( !empty($row['lang_cb']) ) {

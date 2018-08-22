@@ -258,9 +258,9 @@ class CmsLayoutTemplateCategory
 	/**
 	 * @ignore
 	 */
-	private static function _load_from_data($row)
+	private static function _load_from_data($row) : self
 	{
-		$ob = new CmsLayoutTemplateCategory();
+		$ob = new self();
 		$ob->_data = $row;
 		return $ob;
 	}

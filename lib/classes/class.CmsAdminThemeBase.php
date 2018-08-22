@@ -422,7 +422,7 @@ abstract class CmsAdminThemeBase
      * @access private
      * @ignore
      */
-    private function _SetModuleAdminInterfaces() : void
+    private function _SetModuleAdminInterfaces()
     {
         if ($this->_modules) {
             return; //once is enough
@@ -496,7 +496,7 @@ abstract class CmsAdminThemeBase
      * @access private
      * @ignore
      */
-    private function _SetAggregatePermissions(bool $force = false) : void
+    private function _SetAggregatePermissions(bool $force = false)
     {
         if( is_array($this->_perms) && !$force ) return;
 
@@ -1356,7 +1356,7 @@ abstract class CmsAdminThemeBase
      *  or an array of such keys. If non-null, $message is ignored.
      * @since 2.3
      */
-    protected function PrepareStrings(array &$store, $message, string $title, $get_var = null) : void
+    protected function PrepareStrings(array &$store, $message, string $title, $get_var = null)
     {
         if ($get_var && !empty($_GET[$get_var])) {
             if (is_array($_GET[$get_var])) {
@@ -1396,7 +1396,7 @@ abstract class CmsAdminThemeBase
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function ParkNotice(string $type, $message, string $title = '', $get_var = null) : void
+    public function ParkNotice(string $type, $message, string $title = '', $get_var = null)
     {
         $from = 'cmsmsg_'.$type;
         if (isset($_SESSION[$from])) {
@@ -1436,7 +1436,7 @@ abstract class CmsAdminThemeBase
      *
      * @since 2.3
      */
-    protected function UnParkNotices($type = null) : void
+    protected function UnParkNotices($type = null)
     {
 /* TOAST DEBUGGING
         $this->_infos = ['dummy 1st line','This is some cool stuff that you\'ll want to remember'];
@@ -1478,7 +1478,7 @@ abstract class CmsAdminThemeBase
      *  is expected to contain a lang key for an error string, or an
      *  array of such keys. If specified, $message is ignored.
      */
-    public function RecordNotice(string $type, $message, string $title = '', bool $defer = false, $get_var = null) : void
+    public function RecordNotice(string $type, $message, string $title = '', bool $defer = false, $get_var = null)
     {
         if (!$defer) {
             switch ($type) {

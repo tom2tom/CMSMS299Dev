@@ -174,7 +174,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param array $params
      * @param mixed $template
      */
-    public static function compile_contentblock(array $params, $template) : void
+    public static function compile_contentblock(array $params, $template)
     {
         $rec = [
             'adminonly'=>0,
@@ -244,7 +244,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param type $template
      * @throws CmsEditContentException
      */
-    public static function compile_imageblock(array $params, $template) : void
+    public static function compile_imageblock(array $params, $template)
     {
         if (!isset($params['block']) || empty($params['block'])) {
             throw new CmsEditContentException('{content_image} tag requires block parameter');
@@ -303,7 +303,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param type $template
      * @throws CmsEditContentException
      */
-    public static function compile_moduleblock(array $params, $template) : void
+    public static function compile_moduleblock(array $params, $template)
     {
         if (!isset($params['block']) || empty($params['block'])) {
             throw new CmsEditContentException('{content_module} tag requires block parameter');
@@ -365,7 +365,7 @@ class page_template_parser extends Smarty_Internal_Template
      * @param array $params
      * @param mixed $template
      */
-    public static function compile_contenttext(array $params, $template) : void
+    public static function compile_contenttext(array $params, $template)
     {
         //if( !isset($params['block']) || empty($params['block']) ) throw new \CmsEditContentException('{content_text} smarty block tag requires block parameter');
 

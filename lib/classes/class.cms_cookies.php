@@ -68,7 +68,7 @@ final class cms_cookies
   /**
    * @ignore
    */
-  private static function __setcookie($key,$value,$expire)
+  private static function __setcookie(string $key,string $value,int $expire)
   {
     $res = setcookie($key,$value,$expire,
 					 self::__path(),

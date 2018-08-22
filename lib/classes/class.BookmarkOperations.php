@@ -69,7 +69,7 @@ class BookmarkOperations
 	 * @return string The fixed url
 	 * @internal
 	 */
-	private function _prep_for_saving($url)
+	private function _prep_for_saving(string $url) : string
 	{
 		$urlext = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 		if( startswith($url,CMS_ROOT_URL) ) $url = str_replace(CMS_ROOT_URL,'[ROOT_URL]',$url);
@@ -85,7 +85,7 @@ class BookmarkOperations
 	 * @return string The fixed url
 	 * @internal
 	 */
-	private function _prep_for_display($url)
+	private function _prep_for_display(string $url) : string
 	{
 		$urlext = CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 

@@ -237,7 +237,7 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	private function _install_module(CmsModule& $module_obj)
+	private function _install_module(CmsModule &$module_obj)
 	{
 		debug_buffer('install_module '.$module_obj->GetName());
 

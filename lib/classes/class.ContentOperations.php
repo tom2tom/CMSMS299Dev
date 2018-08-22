@@ -151,7 +151,6 @@ class ContentOperations
 		return CmsApp::get_instance()->get_content_object();
 	}
 
-
 	/**
 	 * Given an array of content_type and seralized_content, reconstructs a
 	 * content object.  It will handled loading the content type if it hasn't
@@ -176,7 +175,6 @@ class ContentOperations
 		$contentobj = unserialize($data['serialized_content']);
 		return $contentobj;
 	}
-
 
 	/**
 	 * Load a specific content type
@@ -222,7 +220,6 @@ class ContentOperations
 		return $result;
 	}
 
-
 	/**
 	 * Given a content id, load and return the loaded content object.
 	 *
@@ -230,7 +227,7 @@ class ContentOperations
 	 * @param bool $loadprops Also load the properties of that content object. Defaults to false.
 	 * @return mixed The loaded content object. If nothing is found, returns FALSE.
 	 */
-	function LoadContentFromId(int $id,bool $loadprops=false)
+	public function LoadContentFromId(int $id,bool $loadprops=false)
 	{
 		$result = null;
 		$id = (int) $id;
@@ -252,7 +249,6 @@ class ContentOperations
 		return $result;
 	}
 
-
 	/**
 	 * Given a content alias, load and return the loaded content object.
 	 *
@@ -260,7 +256,7 @@ class ContentOperations
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
 	 * @return ContentBase The loaded content object. If nothing is found, returns NULL.
 	 */
-	function LoadContentFromAlias($alias, bool $only_active = false)
+	public function LoadContentFromAlias($alias, bool $only_active = false)
 	{
 		if( content_cache::content_exists($alias) ) return content_cache::get_content($alias);
 
@@ -273,17 +269,15 @@ class ContentOperations
 		return $out;
 	}
 
-
 	/**
 	 * Returns the id of the content marked as default.
 	 *
 	 * @return int The id of the default content page
 	 */
-	function GetDefaultContent()
+	public function GetDefaultContent()
 	{
 		return global_cache::get('default_content');
 	}
-
 
 	/**
 	 * Load standard CMS content types
@@ -295,7 +289,7 @@ class ContentOperations
 	 * @access private
 	 * @internal
 	 */
-	private function _get_std_content_types()
+	private function _get_std_content_types() : array
 	{
 		$result = [];
 		$patn = __DIR__.DIRECTORY_SEPARATOR.'contenttypes'.DIRECTORY_SEPARATOR.'class*php';
@@ -324,7 +318,6 @@ class ContentOperations
 		return $result;
 	}
 
-
 	/**
 	 * @ignore
 	 */
@@ -348,7 +341,6 @@ class ContentOperations
 		return $this->_content_types;
 	}
 
-
 	/**
 	 * Function to return a content type given it's name
 	 *
@@ -356,19 +348,18 @@ class ContentOperations
 	 * @access private
 	 * @internal
 	 * @param string The content type name
-	 * @return ContentTypePlaceHolder placeholder object.
+	 * @return mixed ContentTypePlaceHolder placeholder object or null
 	 */
 	private function _get_content_type(string $name)
 	{
-		$name = strtolower($name);
 		$this->_get_content_types();
 		if( is_array($this->_content_types) ) {
+			$name = strtolower($name);
 			if( isset($this->_content_types[$name]) && $this->_content_types[$name] instanceof ContentTypePlaceHolder ) {
 				return $this->_content_types[$name];
 			}
 		}
 	}
-
 
 	/**
 	 * Register a new content type
@@ -385,8 +376,6 @@ class ContentOperations
 		return TRUE;
 	}
 
-
-
 	/**
 	 * Returns a hash of valid content types (classes that extend ContentBase)
 	 * The key is the name of the class that would be saved into the database.  The
@@ -397,7 +386,7 @@ class ContentOperations
 	 * @param bool $system return only system content types.
 	 * @return array List of content types registered in the system.
 	 */
-	function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE)
+	public function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE)
 	{
 		$disallowed_a = [];
 		$tmp = cms_siteprefs::get('disallowed_contenttypes');
@@ -433,7 +422,7 @@ class ContentOperations
 	 * @ignore
 	 * @param integer $contentid The content id to update
 	 * @param array $hash A hash of all content objects (only certain fields)
-	 * @return array|null
+	 * @return mixed array|null
 	 */
 	private function _set_hierarchy_position(int $content_id,array $hash)
 	{
@@ -470,14 +459,13 @@ class ContentOperations
 		}
 	}
 
-
 	/**
 	 * Updates the hierarchy position of all content items.
 	 * This is an expensive operation on the database, but must be called once
 	 * each time one or more content pages are updated if positions have changed in
 	 * the page structure.
 	 */
-	function SetAllHierarchyPositions()
+	public function SetAllHierarchyPositions()
 	{
 		// load some data about all pages into memory... and convert into a hash.
 		$db = CmsApp::get_instance()->GetDb();
@@ -506,14 +494,13 @@ class ContentOperations
 		$this->SetContentModified();
 	}
 
-
 	/**
 	 * Get the date of last content modification
 	 *
 	 * @since 2.0
 	 * @return unix timestamp representing the last time a content page was modified.
 	 */
-	function GetLastContentModification()
+	public function GetLastContentModification()
 	{
 		return global_cache::get('latest_content_modification');
 	}
@@ -541,12 +528,11 @@ class ContentOperations
 	 * @return cms_content_tree The cached tree of content
 	 * @deprecated
 	 */
-	function GetAllContentAsHierarchy(bool $loadcontent = false)
+	public function GetAllContentAsHierarchy(bool $loadcontent = false)
 	{
 		$tree = global_cache::get('content_tree');
 		return $tree;
 	}
-
 
 	/**
 	 * Load All content in thedatabase into memory
@@ -648,7 +634,7 @@ class ContentOperations
 	 * @param array   $explicit_ids (optional) array of explicit content ids to load
 	 * @author Ted Kulp
 	 */
-	function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
+	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
@@ -737,7 +723,7 @@ class ContentOperations
 	 * @param int $id The id to set as default
 	 * @author Ted Kulp
 	 */
-	function SetDefaultContent(int $id)
+	public function SetDefaultContent(int $id)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
@@ -748,7 +734,6 @@ class ContentOperations
 		$one->Save();
 	}
 
-
 	/**
 	 * Returns an array of all content objects in the system, active or not.
 	 *
@@ -758,7 +743,7 @@ class ContentOperations
 	 * @param bool $loadprops Not implemented
 	 * @return array The array of content objects
 	 */
-	function &GetAllContent(bool $loadprops=true)
+	public function &GetAllContent(bool $loadprops=true)
 	{
 		debug_buffer('get all content...');
 		$gCms = CmsApp::get_instance();
@@ -775,7 +760,6 @@ class ContentOperations
 		debug_buffer('end get all content...');
 		return $output;
 	}
-
 
 	/**
 	 * Create a hierarchical ordered dropdown of all the content objects in the system for use
@@ -799,7 +783,7 @@ class ContentOperations
 	 * @param bool $for_child If true, assume that we want to add a new child and obey the WantsChildren flag of each content page. (new in 2.2).
 	 * @return string The html dropdown of the hierarchy.
 	 */
-	function CreateHierarchyDropdown($current = '', $value = '', $name = 'parent_id', $allowcurrent = 0,
+	public function CreateHierarchyDropdown($current = '', $value = '', $name = 'parent_id', $allowcurrent = 0,
 									 $use_perms = 0, $ignore_current = 0, $allow_all = false, $for_child = false )
 	{
 		static $count = 0;
@@ -841,11 +825,10 @@ EOS;
 	 *
 	 * @return int The id of the default page. false if not found.
 	 */
-	function GetDefaultPageID()
+	public function GetDefaultPageID()
 	{
 		return $this->GetDefaultContent();
 	}
-
 
 	/**
 	 * Returns the content id given a valid content alias.
@@ -853,13 +836,12 @@ EOS;
 	 * @param string $alias The alias to query
 	 * @return int The resulting id.  null if not found.
 	 */
-	function GetPageIDFromAlias( string $alias )
+	public function GetPageIDFromAlias( string $alias )
 	{
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
 		$node = $hm->sureGetNodeByAlias($alias);
 		if( $node ) return $node->get_tag('id');
 	}
-
 
 	/**
 	 * Returns the content id given a valid hierarchical position.
@@ -867,7 +849,7 @@ EOS;
 	 * @param string $position The position to query
 	 * @return int The resulting id.  false if not found.
 	 */
-	function GetPageIDFromHierarchy( string $position )
+	public function GetPageIDFromHierarchy( string $position )
 	{
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
@@ -879,19 +861,17 @@ EOS;
 		return $row['content_id'];
 	}
 
-
 	/**
 	 * Returns the content alias given a valid content id.
 	 *
 	 * @param int $id The content id to query
 	 * @return string The resulting content alias.  false if not found.
 	 */
-	function GetPageAliasFromID( int $id )
+	public function GetPageAliasFromID( int $id )
 	{
 		$node = $this->quickfind_node_by_id($id);
 		if( $node ) return $node->getTag('alias');
 	}
-
 
 	/**
 	 * Check if a content alias is used
@@ -939,7 +919,7 @@ EOS;
 	 * @param int $content_id The id of the current page, for used alias checks on existing pages
 	 * @return string The error, if any.  If there is no error, returns FALSE.
 	 */
-	function CheckAliasError(string $alias, int $content_id = -1)
+	public function CheckAliasError(string $alias, int $content_id = -1)
 	{
 		if( !$this->CheckAliasValid($alias) ) return lang('invalidalias2');
 		if ($this->CheckAliasUsed($alias,$content_id)) return lang('aliasalreadyused');
@@ -953,7 +933,7 @@ EOS;
 	 * @param string $position The hierarchy position to convert
 	 * @return string The unfriendly version of the hierarchy string
 	 */
-	function CreateFriendlyHierarchyPosition(string $position)
+	public function CreateFriendlyHierarchyPosition(string $position)
 	{
 		#Change padded numbers back into user-friendly values
 		$tmp = '';
@@ -973,7 +953,7 @@ EOS;
 	 * @param string $position The hierarchy position to convert
 	 * @return string The friendly version of the hierarchy string
 	 */
-	function CreateUnfriendlyHierarchyPosition(string $position)
+	public function CreateUnfriendlyHierarchyPosition(string $position)
 	{
 		#Change user-friendly values into padded numbers
 		$tmp = '';

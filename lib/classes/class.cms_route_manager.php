@@ -65,7 +65,7 @@ final class cms_route_manager
 	/**
 	 * @ignore
 	 */
-	static private function _find_match($needle,$haystack,$exact)
+	static private function _find_match($needle,array $haystack,bool $exact)
 	{
 		// split the haystack into an array of 'absolute' or 'regex' matches
 		$absolute = [];
@@ -79,7 +79,7 @@ final class cms_route_manager
 			}
 		}
 
-        if( isset( $absolute[$needle] ) ) return $absolute[$neele];
+        if( isset( $absolute[$needle] ) ) return $absolute[$needle];
 
 		// do the linear regex thing.
 		for( $i = 0, $n = count($regex); $i < $n; $i++ ) {
@@ -99,16 +99,16 @@ final class cms_route_manager
 
 		// credits: temporal dot pl at gmail dot com
 		// reference: http://php.net/manual/en/function.array-search.php
-		$high = Count( $haystack ) -1;
+		$high = Count( $haystack ) - 1;
 		$low = 0;
 		while ( $high >= $low ) {
 			$probe = (int)Floor( ( $high + $low ) / 2 );
 			$comparison = $comparator( $haystack[$probe]['term'], $needle );
 			if ( $comparison < 0 ) {
-				$low = $probe +1;
+				$low = $probe + 1;
 			}
 			elseif ( $comparison > 0 ) {
-				$high = $probe -1;
+				$high = $probe - 1;
 			}
 			else {
 				return $probe;

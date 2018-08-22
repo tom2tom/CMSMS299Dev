@@ -1137,27 +1137,23 @@ class cms_http_request
      * @access private
      * @internal
      */
-    private function _setCookie($name, $value, $expires = '' , $path = '/' , $domain = '' , $secure = 0)
+    private function _setCookie(string $name, string $value, string $expires = '' , string $path = '/' , string $domain = '' , int $secure = 0)
     {
-        if(strlen($name) == 0)
-        {
+        if(strlen($name) == 0) {
             return($this->_setError('No valid cookie name was specified.'));
         }
 
-        if(strlen($path) == 0 || strcmp($path[0], '/'))
-        {
+        if(strlen($path) == 0 || strcmp($path[0], '/')) {
             return($this->_setError("$path is not a valid path for setting cookie $name."));
         }
 
-        if($domain == '' || !strpos($domain, '.', $domain[0] == '.' ? 1 : 0))
-        {
+        if($domain == '' || !strpos($domain, '.', $domain[0] == '.' ? 1 : 0)) {
             return($this->_setError("$domain is not a valid domain for setting cookie $name."));
         }
 
         $domain = strtolower($domain);
 
-        if(!strcmp($domain[0], '.'))
-        {
+        if(!strcmp($domain[0], '.')) {
             $domain = substr($domain, 1);
         }
 
@@ -1166,13 +1162,14 @@ class cms_http_request
 
         $secure = (int)$secure;
 
-        $this->_cookies[] = [ 'name'      =>  $name,
-                                   'value'     =>  $value,
-                                   'domain'    =>  $domain,
-                                   'path'      =>  $path,
-                                   'expires'   =>  $expires,
-                                   'secure'    =>  $secure
-            ];
+        $this->_cookies[] = [
+            'name'      =>  $name,
+            'value'     =>  $value,
+            'domain'    =>  $domain,
+            'path'      =>  $path,
+            'expires'   =>  $expires,
+            'secure'    =>  $secure
+        ];
     }
 
     /**
@@ -1184,7 +1181,7 @@ class cms_http_request
      * @access private
      * @internal
      */
-    private function _encodeCookie($value, $name)
+    private function _encodeCookie(string $value, string $name)
     {
         return($name ? str_replace('=', '%25', $value) : str_replace(';', '%3B', $value));
     }
@@ -1263,9 +1260,9 @@ class cms_http_request
      * @access private
      * @internal
      */
-    private function _tokenize($string, $separator = '')
+    private function _tokenize(string $string, string $separator = '')
     {
-        if(!strcmp($separator, '')) {
+        if(strcmp($separator, '')) {
             $separator = $string;
             $string = $this->nextToken;
         }
@@ -1290,7 +1287,7 @@ class cms_http_request
      * Set error message (internal)
      *
      * @param string $error Error message
-     * @return string Error message
+     * @return mixed string|null
      * @access private
      */
     private function _setError($error)
