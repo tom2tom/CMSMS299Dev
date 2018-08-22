@@ -16,13 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * This file contains the cms_url class.
- *
- * @package CMS
- */
-
-/**
- * A class for interacting with a URL.
+ * A class for interacting with an URL.
  *
  * @package CMS
  * @author  Robert Campbell
@@ -355,4 +349,4 @@ class cms_url
 		if( !empty($parts['fragment']) ) $url .= '#'.$parts['fragment'];
 		return $url;
     }
-} // end of class
+} // class
