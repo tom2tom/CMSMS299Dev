@@ -1,6 +1,6 @@
 <?php
-#...
-#(c)2013 by Robert Campbell (calguy1000@cmsmadesimple.org)
+#ajax lock
+#Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,8 +14,6 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 $handlers = ob_list_handlers();
 for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
@@ -132,5 +130,3 @@ header('Content-Type: application/json');
 echo json_encode($out);
 exit;
 
-#
-# EOF

@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
+#Class for operations dealing with bulk content methods.
+#Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,14 +14,10 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
 
 namespace CMSMS\internal;
 
-/**
- * @package CMS
- */
+use function startswith;
 
 /**
  * Class for operations dealing with bulk content methods.
@@ -34,12 +30,13 @@ namespace CMSMS\internal;
  **/
 final class bulkcontentoperations
 {
-	private function __construct() {}
 	private static $_list = [];
 
+	private function __construct() {}
+
 	/**
-	 * Register a function to show in the bulk content operations list
-	 * in listcontent.php.
+	 * Register a function to show in the bulk content operations list in
+	 *  listcontent.php.
 	 *
 	 * @param string $label Label to show to users
 	 * @param string $name Name of the action to call
@@ -80,6 +77,4 @@ final class bulkcontentoperations
 		$tmpc = array_merge($tmpc,$tmpm);
 		return $tmpc;
     }
-} // end of class
-
-?>
+} // class

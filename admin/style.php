@@ -1,5 +1,5 @@
 <?php
-#...
+#style retriever
 #Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
 #Copyright (C) 2013-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>

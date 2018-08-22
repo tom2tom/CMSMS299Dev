@@ -1,14 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: cms_content_tree (c) 2010 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# Class of functions to manage smarty plugins
+# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,17 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
-
-
-/**
- * Classes and functions to manage static smarty plugins
- * @package CMS
- * @license GPL
- */
-
 
 /**
  * A singleton class to manage static smarty plugins registered by modules.
@@ -251,7 +233,7 @@ final class cms_module_smarty_plugin_manager
 	}
 
 	/**
-	 * Remove all of the plugins for a module
+	 * Remove all plugins for a module
 	 *
 	 * @param string $module_name
 	 */
@@ -261,7 +243,7 @@ final class cms_module_smarty_plugin_manager
 	}
 
 	/**
-	 * Remove all of the plugins for a module
+	 * Remove all plugins for a module
 	 *
 	 * @param string $module_name
 	 */
@@ -280,7 +262,7 @@ final class cms_module_smarty_plugin_manager
 	}
 
 	/**
-	 * Remove the plugin by it's name and type
+	 * Remove a plugin by its name and type
 	 *
 	 * @param string $name
 	 * @param string $type (function,block,modifier)
@@ -291,7 +273,7 @@ final class cms_module_smarty_plugin_manager
 	}
 
 	/**
-	 * Remove the plugin by it's name and type
+	 * Remove a plugin by its name and type
 	 *
 	 * @param string $name
 	 * @param string $type (function,block,modifier)
@@ -309,10 +291,5 @@ final class cms_module_smarty_plugin_manager
 			$this->_save();
 		}
 	}
+} // class
 
-} // end of class
-
-#
-# EOF
-#
-?>

@@ -1,14 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: CronJobTrait (c) 2016 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# Trait: the primary functionality for recurring cron jobs.
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,20 +14,13 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
-
-/**
- * This file defines the primary functionality for a cron job.
- *
- * @package CMS
- */
 
 namespace CMSMS\Async;
 
+use LogicException;
+
 /**
- * A Trait to define functionality for recurring cron jobs.
+ * A trait providing functionality for recurring cron jobs.
  *
  * @package CMS
  * @author Robert Campbell
@@ -90,7 +76,7 @@ trait CronJobTrait
                 $this->_data[$key] = $val;
                 break;
             default:
-                throw new \LogicException("$val is an invalid value for $key");
+                throw new LogicException("$val is an invalid value for $key");
             }
             break;
 
@@ -102,7 +88,7 @@ trait CronJobTrait
         case 'start':
             // this start overrides the one in the base class.
             $val = (int) $val;
-            if( $val < time() - 60 ) throw new \LogicException('Cannot adjust a start value to the past');
+            if( $val < time() - 60 ) throw new LogicException('Cannot adjust a start value to the past');
             // fall through.
 
         case 'until':
@@ -114,3 +100,4 @@ trait CronJobTrait
         }
     }
 }
+

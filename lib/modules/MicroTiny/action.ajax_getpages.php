@@ -1,8 +1,7 @@
 <?php
-#...
+#MicroTiny module action: get pages via ajax
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of the Microtiny module for CMS Made Simple
-# <http://dev.cmsmadesimple.org/projects/microtiny>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@ if( !isset($gCms) ) exit;
 if( !check_login() ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
-for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
 $out = null;
 $term = trim(strip_tags(get_parameter_value($_REQUEST,'term')));
@@ -56,7 +55,4 @@ else if( $term ) {
 }
 
 exit;
-#
-# EOF
-#
-?>
+

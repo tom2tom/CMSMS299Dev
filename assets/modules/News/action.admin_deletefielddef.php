@@ -1,5 +1,5 @@
 <?php
-#...
+#News module action: delete a field definition
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #

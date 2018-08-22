@@ -1,8 +1,7 @@
 <?php
-#...
+#Microtiny module action: save settings
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of the Microtiny module for CMS Made Simple
-# <http://dev.cmsmadesimple.org/projects/microtiny>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -29,7 +28,3 @@ if (isset($params['css_styles'])) $this->SetPreference('css_styles',$params['css
 
 $this->Redirect($id,'defaultadmin',$returnid,['module_message'=>$this->Lang('settingssaved'),'tab'=>'settings']);
 
-#
-# EOF
-#
-?>

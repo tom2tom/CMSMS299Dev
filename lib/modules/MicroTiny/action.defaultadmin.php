@@ -1,8 +1,7 @@
 <?php
-#...
+#MicroTiny module action: defaultadmin
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of the Microtiny module for CMS Made Simple
-# <http://dev.cmsmadesimple.org/projects/microtiny>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -16,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if( !cmsms() ) exit;
+if( !function_exists('cmsms') )exit;
 if(!$this->VisibleToAdminUser() ) return;
 
 echo $this->StartTabHeaders();
@@ -36,7 +35,3 @@ echo $this->EndTab();
 
 echo $this->EndTabContent();
 
-#
-# EOF
-#
-?>

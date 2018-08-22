@@ -1,5 +1,5 @@
 <?php
-#...
+#MicroTiny module uninstallation process
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of the Microtiny module for CMS Made Simple
 # <http://dev.cmsmadesimple.org/projects/microtiny>
@@ -18,7 +18,3 @@
 
 $this->RemovePermission('MicroTiny View HTML Source');
 
-#
-# EOF
-#
-?>

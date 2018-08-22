@@ -1,5 +1,6 @@
 <?php
 #...
+#Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -68,7 +69,3 @@ function smarty_function_share_data($params, $template)
     }
 }
 
-#
-# EOF
-#
-?>

@@ -1,6 +1,5 @@
 <?php
-
-# CMS - CMS Made Simple
+# Abstract class providing a framework for additonal content types
 # Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,14 +14,6 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#$Id$
-
-/**
- * This file contains a class for defining additonal content types
- *
- * @package CMS
- */
 
 /**
  * Class that module defined content types must extend.
@@ -66,9 +57,5 @@ abstract class CMSModuleContentType extends ContentBase
     if( $mod ) return $mod;
     return 'ModuleName() not defined properly';
   }
-} // end of class.
+} // class
 
-#
-# EOF
-#
-?>

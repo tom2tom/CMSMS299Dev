@@ -1,14 +1,7 @@
 <?php
-#BEGIN_LICENSE
-#-------------------------------------------------------------------------
-# Module: CronJobInterface (c) 2016 by Robert Campbell
-#         (calguy1000@cmsmadesimple.org)
-#
-#-------------------------------------------------------------------------
-# CMS - CMS Made Simple is (c) 2005 by Ted Kulp (wishy@cmsmadesimple.org)
+# Interface: defines constants needed for a cron job.
+# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
-#
-#-------------------------------------------------------------------------
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,24 +14,15 @@
 # GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
-#-------------------------------------------------------------------------
-#END_LICENSE
-
-/**
- * This file defines the protocol for a recurring job.
- *
- * @package CMS
- */
 
 namespace CMSMS\Async;
 
 /**
- * A simple interface to define the functions and constants needed for a cron job.
+ * A simple interface to define constants needed for a cron job.
  *
  * @package CMS
  * @author Robert Campbell
- * @copyright Copyright (c) 2015, Robert Campbell <calguy1000@cmsmadesimple.org>
+ * @copyright Copyright (c) 2016, Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since 2.2
  */
 interface CronJobInterface
@@ -88,3 +72,4 @@ interface CronJobInterface
      */
     const RECUR_MONTHLY = '_monthly';
 }
+

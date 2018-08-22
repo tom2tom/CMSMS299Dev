@@ -16,7 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A simple static class providing convenience utilities for working with cookies.
+ * A class providing convenience utilities for working with cookies.
  *
  * @package CMS
  * @license GPL
@@ -128,9 +128,5 @@ final class cms_cookies
     self::__setcookie($key,null,time()-3600);
   }
 
-} // end of class
+} // class
 
-#
-# EOF
-#
-?>

@@ -123,6 +123,3 @@ final class DesignManager extends CMSModule
 	}
 } // class
 
-#
-# EOF
-#
