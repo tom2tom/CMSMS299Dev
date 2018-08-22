@@ -47,16 +47,6 @@ function installerHelpLanguage($lang, $default_null=null)
 }
 */
 
-function systeminfo_lang($params, $smarty)
-{
-    if (count($params)) {
-		$str = array_shift($params);
-		if ($str) {
-	        return lang($str, $params);
-		}
-    }
-}
-
 if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
     $out = <<<EOS
 <script type="text/javascript">
@@ -88,19 +78,27 @@ EOS;
 	$themeObject->add_footertext($out);
 }
 
+// smarty
 $smarty = Smarty::get_instance();
-$smarty->registerPlugin('function', 'si_lang', 'systeminfo_lang');
+$smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
+{
+    if (count($params)) {
+		$str = array_shift($params);
+		if ($str) {
+	        return lang($str, $params);
+		}
+    }
+});
 $smarty->force_compile = true;
 
-//smartyfier
 $smarty->assign('themename', $themeObject->themeName)
  ->assign('backurl', $themeObject->BackUrl())
  ->assign('sysinfurl', $selfurl)
 
-/* Default help url */
+// Default help url
  ->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings')
 
-/* CMSMS install information */
+// CMSMS install information
  ->assign('cms_version', $GLOBALS['CMS_VERSION']);
 
 $db = cmsms()->GetDb();
