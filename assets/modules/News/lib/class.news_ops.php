@@ -25,10 +25,10 @@ final class news_ops
 {
   protected function __construct() {}
 
-  private static $_categories_loaded;
-  private static $_cached_categories;
-  private static $_cached_fielddefs;
-  private static $_cached_fieldvals;
+  private static $_categories_loaded = FALSE;
+  private static $_cached_categories = [];
+  private static $_cached_fielddefs = NULL;
+  private static $_cached_fieldvals= NULL;
 
   public static function get_categories($id,$params,$returnid=-1)
   {
@@ -99,7 +99,7 @@ final class news_ops
     for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {
       $row =& $catinfo[$i];
       $row['index'] = $rowcounter++;
-      $row['count'] = $counts[$row['news_category_id']]??0;
+      $row['count'] = $counts[$row['news_category_id']] ?? 0;
       $row['prevdepth'] = $depth;
       $depth = count(explode('.', $row['hierarchy']));
       $row['depth']=$depth;
@@ -142,7 +142,6 @@ final class news_ops
       $row = self::$_cached_categories[$i];
       $categorylist[$row['long_name']] = $row['news_category_id'];
     }
-
     return $categorylist;
   }
 
