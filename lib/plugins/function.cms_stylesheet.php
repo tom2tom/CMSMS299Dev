@@ -19,10 +19,6 @@ use CMSMS\Events;
 
 function smarty_function_cms_stylesheet($params, $template)
 {
-	#---------------------------------------------
-	# Initials
-	#---------------------------------------------
-
 	global $CMS_LOGIN_PAGE;
 	global $CMS_STYLESHEET;
 
@@ -31,6 +27,10 @@ function smarty_function_cms_stylesheet($params, $template)
 	#---------------------------------------------
 
 	if( isset($CMS_LOGIN_PAGE) ) return;
+
+	#---------------------------------------------
+	# Initials
+	#---------------------------------------------
 
 	$CMS_STYLESHEET = 1;
 	$gCms = CmsApp::get_instance();
@@ -79,7 +79,7 @@ function smarty_function_cms_stylesheet($params, $template)
 		$query = null;
 		if( $name != '' ) {
 			// stylesheet by name
-			$query = new CmsLayoutStylesheetQuery(['name'=>$params['name']] );
+			$query = new CmsLayoutStylesheetQuery( ['name'=>$params['name']] );
 		} else if( $design_id > 0 ) {
 			// stylesheet by design id
 			$query = new CmsLayoutStylesheetQuery( [ 'design'=>$design_id ] );
@@ -304,3 +304,4 @@ function smarty_cms_about_function_cms_stylesheet()
 </ul>
 EOS;
 }
+
