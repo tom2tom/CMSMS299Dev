@@ -114,7 +114,7 @@ final class news_admin_ops
     }
 
 
-    static public function UpdateHierarchyPositions()
+    public static function UpdateHierarchyPositions()
     {
         $db = cmsms()->GetDb();
 
@@ -155,12 +155,12 @@ final class news_admin_ops
     }
 
 
-    static public function delete_static_route($news_article_id)
+    public static function delete_static_route($news_article_id)
     {
         return cms_route_manager::del_static('','News',$news_article_id);
     }
 
-    static public function register_static_route($news_url,$news_article_id,$detailpage = '')
+    public static function register_static_route($news_url,$news_article_id,$detailpage = '')
     {
         if( $detailpage <= 0 ) {
             $gCms = cmsms();

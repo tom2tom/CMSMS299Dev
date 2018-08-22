@@ -280,7 +280,7 @@ class cms_http_request
      *
      * @param array $config Config values as associative array
      */
-    function initialize($config = [])
+    public function initialize($config = [])
     {
         $this->clear();
         foreach ($config as $key => $val)
@@ -308,7 +308,7 @@ class cms_http_request
      * the beginning state. Very handy if you are doing subsequent calls
      * with different data.
      */
-    function clear()
+    public function clear()
     {
         $config = \cms_config::get_instance();
 
@@ -352,7 +352,7 @@ class cms_http_request
      *
      * @author Robert Campbell (calguy1000@cmsmadesimple.org)
      */
-    function resetCookies()
+    public function resetCookies()
     {
         if( $this->cookiePath ) @unlink($this->cookiePath);
     }
@@ -362,7 +362,7 @@ class cms_http_request
      *
      * @param string $url URL of target resource
      */
-    function setTarget($url)
+    public function setTarget($url)
     {
         if ($url) $this->target = $url;
     }
@@ -372,7 +372,7 @@ class cms_http_request
      *
      * @param string $method HTTP method to use (GET or POST)
      */
-    function setMethod($method)
+    public function setMethod($method)
     {
         $method = strtoupper($method);
         if ($method == 'GET' || $method == 'POST') $this->method = $method;
@@ -383,7 +383,7 @@ class cms_http_request
      *
      * @param string $referrer URL of referrer page
      */
-    function setReferrer($referrer)
+    public function setReferrer($referrer)
     {
         if ($referrer)  $this->referrer = $referrer;
     }
@@ -393,7 +393,7 @@ class cms_http_request
      *
      * @param string $agent Full user agent string
      */
-    function setUseragent($agent)
+    public function setUseragent($agent)
     {
         if ($agent) $this->userAgent = $agent;
     }
@@ -403,7 +403,7 @@ class cms_http_request
      *
      * @param int $seconds Timeout delay in seconds
      */
-    function setTimeout($seconds)
+    public function setTimeout($seconds)
     {
         if ($seconds > 0) $this->timeout = $seconds;
     }
@@ -413,7 +413,7 @@ class cms_http_request
      *
      * @param string $path File location of cookiejar
      */
-    function setCookiepath($path)
+    public function setCookiepath($path)
     {
         if ($path) $this->cookiePath = $path;
     }
@@ -423,7 +423,7 @@ class cms_http_request
      *
      * @param string $data
      */
-    function setRawPostData($data)
+    public function setRawPostData($data)
     {
         $this->setMethod('POST');
         $this->rawPostData = $data;
@@ -434,7 +434,7 @@ class cms_http_request
      *
      * @param array $dataArray All the parameters for GET or POST
      */
-    function setParams($dataArray)
+    public function setParams($dataArray)
     {
         if( !is_array($dataArray) ) {
             $this->setRawPostData($dataArray);
@@ -450,7 +450,7 @@ class cms_http_request
      * @param string $username Username for authentication
      * @param string $password Password for authentication
      */
-    function setAuth($username, $password)
+    public function setAuth($username, $password)
     {
         if (!empty($username) && !empty($password)) {
             $this->username = $username;
@@ -463,7 +463,7 @@ class cms_http_request
      *
      * @param int $value Maximum number of redirects
      */
-    function setMaxredirect($value)
+    public function setMaxredirect($value)
     {
         if (!empty($value)) $this->maxRedirect = $value;
     }
@@ -474,7 +474,7 @@ class cms_http_request
      * @param string $name Name of the parameter
      * @param string $value Value of the parameter
      */
-    function addParam($name, $value)
+    public function addParam($name, $value)
     {
         if (!empty($name) && $value !== '') $this->params[$name] = $value;
     }
@@ -485,7 +485,7 @@ class cms_http_request
      * @param string $name Name of cookie
      * @param string $value Value of cookie
      */
-    function addCookie($name, $value)
+    public function addCookie($name, $value)
     {
         if (!empty($name) && !empty($value)) $this->cookies[$name] = $value;
     }
@@ -495,7 +495,7 @@ class cms_http_request
      *
      * @param bool $value Whether to use cURL or not
      */
-    function useCurl($value = TRUE)
+    public function useCurl($value = TRUE)
     {
         if (is_bool($value)) $this->useCurl = $value;
     }
@@ -505,7 +505,7 @@ class cms_http_request
      *
      * @param bool $value Whether to use cookies or not
      */
-    function useCookie($value = TRUE)
+    public function useCookie($value = TRUE)
     {
         if (is_bool($value)) $this->useCookie = $value;
     }
@@ -515,7 +515,7 @@ class cms_http_request
      *
      * @param bool $value Whether to save persistent cookies or not
      */
-    function saveCookie($value = TRUE)
+    public function saveCookie($value = TRUE)
     {
         if (is_bool($value)) $this->saveCookie = $value;
     }
@@ -525,7 +525,7 @@ class cms_http_request
      *
      * @param bool $value Whether to follow HTTP redirects or not
      */
-    function followRedirects($value = TRUE)
+    public function followRedirects($value = TRUE)
     {
         if (is_bool($value)) $this->redirect = $value;
     }
@@ -535,7 +535,7 @@ class cms_http_request
      *
      * @return string output of execution
      */
-    function getResult()
+    public function getResult()
     {
         return $this->result;
     }
@@ -545,7 +545,7 @@ class cms_http_request
      *
      * @return array last headers of execution
      */
-    function getHeaders()
+    public function getHeaders()
     {
         return $this->headers;
     }
@@ -555,7 +555,7 @@ class cms_http_request
      *
      * @return int last http status code
      */
-    function getStatus()
+    public function getStatus()
     {
         return $this->status;
     }
@@ -565,7 +565,7 @@ class cms_http_request
      *
      * @return string last error message (if any)
      */
-    function getError()
+    public function getError()
     {
         return $this->error;
     }
@@ -576,7 +576,7 @@ class cms_http_request
      * @param string $key The header key
      * @return bool
      */
-    function requestHeaderExists($key)
+    public function requestHeaderExists($key)
     {
         if( !is_array($this->headerArray) ) $this->headerArray = [];
         if( strpos($key,':') !== FALSE ) {
@@ -597,7 +597,7 @@ class cms_http_request
      * @param string $str The header string
      * @param bool $prepend push header on top of all other headers.
      */
-    function addRequestHeader($str,$prepend = false)
+    public function addRequestHeader($str,$prepend = false)
     {
         if( !is_array($this->headerArray) ) $this->headerArray = [];
 
@@ -1066,7 +1066,7 @@ class cms_http_request
      * @internal
      * @access private
      */
-    function _clearHeaders()
+    public function _clearHeaders()
     {
         $this->headers = [];
     }
@@ -1079,7 +1079,7 @@ class cms_http_request
      * @access private
      * @internal
      */
-    function _parseCookie()
+    public function _parseCookie()
     {
         // Get the cookie header as array
         if(gettype($this->headers['set-cookie']) == 'array')
@@ -1194,7 +1194,7 @@ class cms_http_request
      *
      * @access private
      */
-    function _passCookies()
+    public function _passCookies()
     {
         if (is_array($this->_cookies) && count($this->_cookies))
         {
@@ -1234,7 +1234,7 @@ class cms_http_request
      * @access private
      * @internal
      */
-    function _domainMatch($requestHost, $cookieDomain)
+    public function _domainMatch($requestHost, $cookieDomain)
     {
         if ('.' != $cookieDomain{0}) {
             return $requestHost == $cookieDomain;

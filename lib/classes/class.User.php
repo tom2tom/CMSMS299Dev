@@ -40,47 +40,47 @@ class User
 	/**
 	 * @var int $id User id
 	 */
-	var $id;
+	public $id;
 
 	/**
 	 * @var string Username
 	 */
-	var $username;
+	public $username;
 
 	/**
 	 * @var string $password Password (md5 encoded)
 	 */
-	var $password;
+	public $password;
 
 	/**
 	 * @var string $firstname Users First Name
 	 */
-	var $firstname;
+	public $firstname;
 
 	/**
 	 * @var string $lastname Last Name
 	 */
-	var $lastname;
+	public $lastname;
 
 	/**
 	 * @var string $email Users Email Address
 	 */
-	var $email;
+	public $email;
 
 	/**
 	 * @var bool $active Active Flag
 	 */
-	var $active;
+	public $active;
 
 	/**
 	 * @var bool $adminaccess Flag to tell whether user can login to admin panel
 	 */
-	var $adminaccess;
+	public $adminaccess;
 
 	/**
 	 * Generic constructor.  Runs the SetInitialValues fuction.
 	 */
-	function __construct()
+	public function __construct()
 	{
 		$this->SetInitialValues();
 	}
@@ -90,7 +90,7 @@ class User
 	 *
 	 * @since 0.6.1
 	 */
-	function SetInitialValues()
+	public function SetInitialValues()
 	{
 		$this->id = -1;
 		$this->username = '';
@@ -119,7 +119,7 @@ class User
 	 * @since 0.6.1
 	 * @param string $password The plaintext password.
 	 */
-	function SetPassword($password)
+	public function SetPassword($password)
 	{
 		$this->password = password_hash( $password, PASSWORD_DEFAULT );
 	}
@@ -150,7 +150,7 @@ class User
 	 * @returns mixed If successful, true.  If it fails, false.
 	 * @since 0.6.1
 	 */
-	function Save()
+	public function Save()
 	{
 		$result = false;
 
@@ -176,7 +176,7 @@ class User
 	 * @returns mixed If successful, true.  If it fails, false.
 	 * @since 0.6.1
 	 */
-	function Delete()
+	public function Delete()
 	{
 		$result = false;
 		if ($this->id > -1) {

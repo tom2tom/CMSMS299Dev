@@ -281,7 +281,7 @@ class http_request
      * @param array Config values as associative array
      * @return void
      */
-    function initialize($config = [])
+    public function initialize($config = [])
     {
         $this->clear();
         foreach ($config as $key => $val)
@@ -311,7 +311,7 @@ class http_request
      *
      * @return void
      */
-    function clear()
+    public function clear()
     {
         // Set the request defaults
         $this->host         = '';
@@ -355,7 +355,7 @@ class http_request
      * @return void
      * @author Robert Campbell (calguy1000@cmsmadesimple.org)
      */
-    function resetCookies()
+    public function resetCookies()
     {
       if( $this->cookiePath ) @unlink($this->cookiePath);
     }
@@ -366,7 +366,7 @@ class http_request
      * @param string URL of target resource
      * @return void
      */
-    function setTarget($url)
+    public function setTarget($url)
     {
         if( $url )
         {
@@ -380,7 +380,7 @@ class http_request
      * @param string HTTP method to use (GET or POST)
      * @return void
      */
-    function setMethod($method)
+    public function setMethod($method)
     {
         if( $method == 'GET' || $method == 'POST' )
         {
@@ -394,7 +394,7 @@ class http_request
      * @param string URL of referrer page
      * @return void
      */
-    function setReferrer($referrer)
+    public function setReferrer($referrer)
     {
         if( $referrer )
         {
@@ -408,7 +408,7 @@ class http_request
      * @param string Full user agent string
      * @return void
      */
-    function setUseragent($agent)
+    public function setUseragent($agent)
     {
         if( $agent )
         {
@@ -422,7 +422,7 @@ class http_request
      * @param integer Timeout delay in seconds
      * @return void
      */
-    function setTimeout($seconds)
+    public function setTimeout($seconds)
     {
         if( $seconds > 0)
         {
@@ -436,7 +436,7 @@ class http_request
      * @param string File location of cookiejar
      * @return void
      */
-    function setCookiepath($path)
+    public function setCookiepath($path)
     {
         if( $path )
         {
@@ -444,7 +444,7 @@ class http_request
         }
     }
 
-    function setRawPostData($data)
+    public function setRawPostData($data)
     {
       $this->rawPostData = $data;
     }
@@ -455,7 +455,7 @@ class http_request
      * @param array All the parameters for GET or POST
      * @return void
      */
-    function setParams($dataArray)
+    public function setParams($dataArray)
     {
         if( !is_array($dataArray) )
         {
@@ -474,7 +474,7 @@ class http_request
      * @param string Password for authentication
      * @return void
      */
-    function setAuth($username, $password)
+    public function setAuth($username, $password)
     {
         if( !empty($username) && !empty($password) )
         {
@@ -489,7 +489,7 @@ class http_request
      * @param integer Maximum number of redirects
      * @return void
      */
-    function setMaxredirect($value)
+    public function setMaxredirect($value)
     {
         if( !empty($value) )
         {
@@ -504,7 +504,7 @@ class http_request
      * @param string Value of the parameter
      * @return void
      */
-    function addParam($name, $value)
+    public function addParam($name, $value)
     {
         if( !empty($name) && $value !== '' )
         {
@@ -519,7 +519,7 @@ class http_request
      * @param string Value of cookie
      * @return void
      */
-    function addCookie($name, $value)
+    public function addCookie($name, $value)
     {
         if( !empty($name) && !empty($value) )
         {
@@ -533,7 +533,7 @@ class http_request
      * @param boolean Whether to use cURL or not
      * @return void
      */
-    function useCurl($value = TRUE)
+    public function useCurl($value = TRUE)
     {
         if( is_bool($value) )
         {
@@ -547,7 +547,7 @@ class http_request
      * @param boolean Whether to use cookies or not
      * @return void
      */
-    function useCookie($value = TRUE)
+    public function useCookie($value = TRUE)
     {
         if( is_bool($value) )
         {
@@ -561,7 +561,7 @@ class http_request
      * @param boolean Whether to save persistent cookies or not
      * @return void
      */
-    function saveCookie($value = TRUE)
+    public function saveCookie($value = TRUE)
     {
         if( is_bool($value) )
         {
@@ -575,7 +575,7 @@ class http_request
      * @param boolean Whether to follow HTTP redirects or not
      * @return void
      */
-    function followRedirects($value = TRUE)
+    public function followRedirects($value = TRUE)
     {
         if( is_bool($value) )
         {
@@ -588,7 +588,7 @@ class http_request
      *
      * @return string output of execution
      */
-    function getResult()
+    public function getResult()
     {
         return $this->result;
     }
@@ -598,7 +598,7 @@ class http_request
      *
      * @return array last headers of execution
      */
-    function getHeaders()
+    public function getHeaders()
     {
         return $this->headers;
     }
@@ -608,7 +608,7 @@ class http_request
      *
      * @return integer last http status code
      */
-    function getStatus()
+    public function getStatus()
     {
         return $this->status;
     }
@@ -618,7 +618,7 @@ class http_request
      *
      * @return string last error message (if any)
      */
-    function getError()
+    public function getError()
     {
         return $this->error;
     }
@@ -626,7 +626,7 @@ class http_request
     /**
      * Request Header Exists?
      */
-    function requestHeaderExists($key)
+    public function requestHeaderExists($key)
     {
         if( !is_array($this->headerArray) )
         {
@@ -650,7 +650,7 @@ class http_request
      * Add a request header
      *
      */
-    function addRequestHeader($str,$prepend = false)
+    public function addRequestHeader($str,$prepend = false)
     {
         if( !is_array($this->headerArray) )
         {
@@ -1073,7 +1073,7 @@ class http_request
      * @return void
      * @access private
      */
-    function _parseHeaders($responseHeader)
+    public function _parseHeaders($responseHeader)
     {
         // Break up the headers
         $headers = explode("\r\n", $responseHeader);
@@ -1132,7 +1132,7 @@ class http_request
      * @return void
      * @access private
      */
-    function _clearHeaders()
+    public function _clearHeaders()
     {
         $this->headers = [];
     }
@@ -1145,7 +1145,7 @@ class http_request
      * @return void
      * @access private
      */
-    function _parseCookie()
+    public function _parseCookie()
     {
         // Get the cookie header as array
         if( gettype($this->headers['set-cookie']) == 'array' )
@@ -1203,7 +1203,7 @@ class http_request
      * @return void
      * @access private
      */
-    function _setCookie($name, $value, $expires = '' , $path = '/' , $domain = '' , $secure = 0)
+    public function _setCookie($name, $value, $expires = '' , $path = '/' , $domain = '' , $secure = 0)
     {
         if( strlen($name) == 0 )
         {
@@ -1249,7 +1249,7 @@ class http_request
      * @return string encoded string
      * @access private
      */
-    function _encodeCookie($value, $name)
+    public function _encodeCookie($value, $name)
     {
         return($name ? str_replace('=', '%25', $value) : str_replace(';', '%3B', $value));
     }
@@ -1263,7 +1263,7 @@ class http_request
      * @return void
      * @access private
      */
-    function _passCookies()
+    public function _passCookies()
     {
         if( is_array($this->_cookies) && count($this->_cookies) )
         {
@@ -1302,7 +1302,7 @@ class http_request
     * @return bool Match success
      * @access private
     */
-    function _domainMatch($requestHost, $cookieDomain)
+    public function _domainMatch($requestHost, $cookieDomain)
     {
         if( '.' != $cookieDomain{0} )
         {
@@ -1330,7 +1330,7 @@ class http_request
      * @return string Tokenized string
      * @access private
      */
-    function _tokenize($string, $separator = '')
+    public function _tokenize($string, $separator = '')
     {
         if( !strcmp($separator, '') )
         {
@@ -1365,7 +1365,7 @@ class http_request
      * @return string Error message
      * @access private
      */
-    function _setError($error)
+    public function _setError($error)
     {
         if( $error != '' )
         {

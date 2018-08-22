@@ -38,7 +38,7 @@ use function cms_join_path;
  */
 class TemplateCache
 {
-  static private $_instance;
+  private static $_instance;
   private $_cache;
   private $_key;
 

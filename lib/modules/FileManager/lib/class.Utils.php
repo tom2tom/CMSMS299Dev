@@ -32,7 +32,7 @@ use function startswith;
 
 final class Utils
 {
-    static private $_can_do_advanced = -1;
+    private static $_can_do_advanced = -1;
 
     protected function __construct() {}
 

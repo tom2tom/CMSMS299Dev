@@ -20,7 +20,7 @@ class cms_cache_handler
   /**
    * @ignore
    */
-  static private $_instance = null;
+  private static $_instance = null;
 
   /**
    * @ignore

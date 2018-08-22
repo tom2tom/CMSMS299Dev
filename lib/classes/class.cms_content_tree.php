@@ -124,7 +124,7 @@ class cms_content_tree extends cms_tree
 	 * @param string $position
 	 * @return cms_content_tree or null.
 	 */
-	function getNodeByHierarchy(string $position)
+	public function getNodeByHierarchy(string $position)
 	{
 		$result = null;
 		$id = ContentOperations::get_instance()->GetPageIDFromHierarchy($position);

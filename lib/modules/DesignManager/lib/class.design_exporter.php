@@ -40,8 +40,8 @@ class design_exporter
     private $_files;
     private $_image = null;
     private $_description;
-    static  $_mm_types;
-    static  $_nav_types;
+    public static $_mm_types;
+    public static $_nav_types;
 
     private static $_dtd = <<<EOT
 <!DOCTYPE design [

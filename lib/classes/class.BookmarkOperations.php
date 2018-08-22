@@ -132,7 +132,7 @@ class BookmarkOperations
 	 * @return Bookmark
 	 * @since 0.6.1
 	 */
-	function LoadBookmarkByID($id)
+	public function LoadBookmarkByID($id)
 	{
 		$result = null;
 		$db = CmsApp::get_instance()->GetDb();
@@ -158,7 +158,7 @@ class BookmarkOperations
 	 * @param Bookmark $bookmark Bookmark object to save
 	 * @return int The new bookmark_id.  If it fails, it returns -1.
 	 */
-	function InsertBookmark(Bookmark $bookmark)
+	public function InsertBookmark(Bookmark $bookmark)
 	{
 		$result = -1;
 		$db = CmsApp::get_instance()->GetDb();
@@ -178,7 +178,7 @@ class BookmarkOperations
 	 * @param Bookmark $bookmark object to save
 	 * @return bool
 	 */
-	function UpdateBookmark(Bookmark $bookmark)
+	public function UpdateBookmark(Bookmark $bookmark)
 	{
 		$result = false;
 		$db = CmsApp::get_instance()->GetDb();
@@ -197,7 +197,7 @@ class BookmarkOperations
 	 * @param int $id Id of the bookmark to delete
 	 * @return bool
 	 */
-	function DeleteBookmarkByID($id)
+	public function DeleteBookmarkByID($id)
 	{
 		$result = false;
 		$db = CmsApp::get_instance()->GetDb();

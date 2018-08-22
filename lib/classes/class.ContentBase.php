@@ -1625,7 +1625,7 @@ abstract class ContentBase
 	 *
 	 * @todo this function should return something, or throw an exception
 	 */
-	function Delete()
+	public function Delete()
 	{
 		$gCms = CmsApp::get_instance();
 		Events::SendEvent( 'Core', 'ContentDeletePre', [ 'content' => &$this ] );
@@ -2042,7 +2042,7 @@ abstract class ContentBase
 	 * Note: group ids are expressed as negative integers in the keys.
 	 * @return array
 	 */
-	static public function GetAdditionalEditorOptions()
+	public static function GetAdditionalEditorOptions()
 	{
 		$opts = [];
 		$userops = UserOperations::get_instance();
@@ -2070,7 +2070,7 @@ abstract class ContentBase
 	 * @param int  $owner_id  The current owner of the page.
 	 * @return string HTML output
 	 */
-	static public function GetAdditionalEditorInput($addteditors, $owner_id = -1)
+	public static function GetAdditionalEditorInput($addteditors, $owner_id = -1)
 	{
 		$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_addteditor',lang('help_title_content_addteditor'));
 		$ret[] = '<label for="addteditors">'.lang('additionaleditors').':</label>'.$help;

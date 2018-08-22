@@ -65,7 +65,7 @@ final class cms_route_manager
 	/**
 	 * @ignore
 	 */
-	static private function _find_match($needle,array $haystack,bool $exact)
+	private static function _find_match($needle,array $haystack,bool $exact)
 	{
 		// split the haystack into an array of 'absolute' or 'regex' matches
 		$absolute = [];
@@ -93,7 +93,7 @@ final class cms_route_manager
 	/**
 	 * @ignore
 	 */
-	static private function route_binarySearch($needle,$haystack,$comparator)
+	private static function route_binarySearch($needle,$haystack,$comparator)
 	{
 		if( count($haystack) == 0 ) return FALSE;
 
@@ -128,7 +128,7 @@ final class cms_route_manager
 	 * @param bool     $static_only A flag indicating that only static routes should be checked.
 	 * @return bool
 	 */
-	static public function route_exists(CmsRoute $route,$static_only = FALSE)
+	public static function route_exists(CmsRoute $route,$static_only = FALSE)
 	{
 		self::_load_static_routes();
 		if( is_array(self::$_routes) ) {
@@ -152,7 +152,7 @@ final class cms_route_manager
 	 * @param bool $static_only A flag indicating that only static routes should be checked.
 	 * @return CmsRoute the matching route, or null.
 	 */
-	static public function find_match($str,$exact = false,$static_only = FALSE)
+	public static function find_match($str,$exact = false,$static_only = FALSE)
 	{
 		self::_load_static_routes();
 
@@ -277,7 +277,7 @@ final class cms_route_manager
 	 * @param CmsRoute $route The route to register
 	 * @return bool
 	 */
-	static public function register(CmsRoute $route)
+	public static function register(CmsRoute $route)
 	{
 		return self::add_dynamic($route);
 	}

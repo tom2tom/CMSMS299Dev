@@ -201,7 +201,7 @@ EOS;
         return $result;
     }
 
-    function SearchReindex(&$module)
+    public function SearchReindex(&$module)
     {
         $db = $this->GetDb();
 

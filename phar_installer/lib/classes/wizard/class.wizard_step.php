@@ -10,7 +10,7 @@ use function __installer\get_app;
 
 class wizard_step
 {
-  static $_registered;
+  public static $_registered;
 
   public function __construct()
   {

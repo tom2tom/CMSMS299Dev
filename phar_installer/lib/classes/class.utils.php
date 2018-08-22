@@ -19,7 +19,7 @@ final class utils
      *
      * @param string $to URL
      */
-    static public function redirect(string $to)
+    public static function redirect(string $to)
     {
         $_SERVER['PHP_SELF'] = null;
         $schema = $_SERVER['SERVER_PORT'] == '443' ? 'https' : 'http';

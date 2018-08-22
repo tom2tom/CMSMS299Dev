@@ -167,7 +167,7 @@ EOT;
         $this->AddEventHandler( 'Core', 'ModuleUninstalled', false );
     }
 
-    function DoEvent($originator,$eventname,&$params)
+    public function DoEvent($originator,$eventname,&$params)
     {
         return Utils::DoEvent($this, $originator, $eventname, $params);
     }

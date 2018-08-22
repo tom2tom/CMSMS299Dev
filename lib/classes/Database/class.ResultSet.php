@@ -181,7 +181,7 @@ abstract class ResultSet
      *
      * @return int
      */
-	abstract  public function fieldCount();
+	abstract public function fieldCount();
 
     /**
      * Return all the fields, or a single field, of the current row of the ResultSet.

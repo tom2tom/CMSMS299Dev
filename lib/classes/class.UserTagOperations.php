@@ -94,7 +94,7 @@ final class UserTagOperations
 	 * @return string|false
 	 * @since 1.10
 	 */
-	function UserTagExists($name)
+	public function UserTagExists($name)
 	{
 		$mgr = SimplePluginOperations::get_instance();
 		return $mgr->plugin_exists($name);
@@ -110,7 +110,7 @@ final class UserTagOperations
 	 * @param int    $id ID of existing user tag (for updates).
 	 * @return bool
 	 */
-	function SetUserTag($name, $text, $description, $id = null)
+	public function SetUserTag($name, $text, $description, $id = null)
 	{
 		return false;
 	}

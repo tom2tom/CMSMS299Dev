@@ -269,7 +269,7 @@ final class news_ops
   }
 
 
-  static private function &get_article_from_row($row,$get_fields = 'PUBLIC')
+  private static function &get_article_from_row($row,$get_fields = 'PUBLIC')
   {
     if( !is_array($row) ) return;
     $article = new news_article;
@@ -345,7 +345,7 @@ final class news_ops
     return $article;
   }
 
-  static public function &get_latest_article($for_display = TRUE)
+  public static function &get_latest_article($for_display = TRUE)
   {
     $db = CmsApp::get_instance()->GetDb();
     $now = $db->DbTimeStamp(time());
@@ -359,7 +359,7 @@ final class news_ops
   }
 
 
-  static public function &get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
+  public static function &get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
   {
     $db = CmsApp::Get_instance()->GetDb();
     $query = 'SELECT mn.*, mnc.news_category_name FROM '.CMS_DB_PREFIX.'module_news mn

@@ -47,7 +47,7 @@ class CmsRoute implements \ArrayAccess
 	/**
 	 * @ignore
 	 */
-	static private $_keys = ['term','key1','key2','key3','defaults','absolute','results'];
+	private static $_keys = ['term','key1','key2','key3','defaults','absolute','results'];
 
 	/**
 	 * Construct a new route object.

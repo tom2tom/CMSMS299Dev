@@ -6,7 +6,7 @@ require_once(CMSMS.'/include.php');
 
 class BasicTests extends TestSuite 
 {
-  function __construct()
+  public function __construct()
   {
     parent::__construct();
     $dir = __DIR__.'/basic_tests';
@@ -17,4 +17,3 @@ class BasicTests extends TestSuite
   }
 }
 
-?>

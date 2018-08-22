@@ -15,7 +15,7 @@ abstract class jquery_upload_handler
 {
     private $options;
 
-    function __construct($options=null) {
+    public function __construct($options=null) {
         $this->options = [
             'script_url' => $this->getFullUrl().'/'.basename(__FILE__),
             'upload_dir' => dirname(__FILE__).'/files/',
@@ -47,7 +47,7 @@ abstract class jquery_upload_handler
         }
     }
 
-    function getFullUrl() {
+    public function getFullUrl() {
           return
                 (isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
                 (isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
