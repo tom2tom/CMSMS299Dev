@@ -20,7 +20,7 @@ $public = 1;
 if( isset($params['public']) ) $public = (int)$params['public'];
 
 
-$arr_options = array();
+$arr_options = [];
 $options = '';
 if( isset($params['options']) ) {
     $options = trim($params['options']);
@@ -37,7 +37,7 @@ if (isset($params['submit'])) {
 
     if( !$error ) {
         $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE name = ?';
-        $exists = $db->GetOne($query,array($name));
+        $exists = $db->GetOne($query,[$name]);
         if( $exists ) $error = $this->Lang('nameexists');
     }
 
@@ -45,12 +45,12 @@ if (isset($params['submit'])) {
         $max = $db->GetOne('SELECT max(item_order) + 1 FROM ' . CMS_DB_PREFIX . 'module_news_fielddefs');
         if( $max == null ) $max = 1;
 
-        $extra = array('options'=>$arr_options);
+        $extra = ['options'=>$arr_options];
         $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs (name, type, max_length, item_order, create_date, modified_date, public, extra) VALUES (?,?,?,?,?,?,?,?)';
-        $parms = array($name, $type, $max_length, $max,
+        $parms = [$name, $type, $max_length, $max,
                        trim($db->DbTimeStamp(time()), "'"),
                        trim($db->DbTimeStamp(time()), "'"),
-                       $public, serialize($extra));
+                       $public, serialize($extra)];
         $db->Execute($query, $parms );
 
         // put mention into the admin log

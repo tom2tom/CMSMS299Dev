@@ -14,7 +14,7 @@ if (isset($params['bulk_action']) ) {
     }
     else {
 
-        $sel = array();
+        $sel = [];
         foreach( $params['sel'] as $one ) {
             $one = (int)$one;
             if( $one < 1 ) continue;
@@ -38,7 +38,7 @@ if (isset($params['bulk_action']) ) {
         case 'setcategory':
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = ?, modified_date = NOW()
                 WHERE news_id IN ('.implode(',',$sel).')';
-            $parms = array((int)$params['category']);
+            $parms = [(int)$params['category']];
             $db7->Execute($query,$parms);
             audit('',$this->GetName(),'category changed on '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
@@ -47,7 +47,7 @@ if (isset($params['bulk_action']) ) {
         case 'setpublished':
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = NOW()
                 WHERE news_id IN ('.implode(',',$sel).')';
-            $db->Execute($query,array('published'));
+            $db->Execute($query,['published']);
             audit('',$this->GetName(),'status changed on '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
@@ -55,7 +55,7 @@ if (isset($params['bulk_action']) ) {
         case 'setdraft':
             $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = NOW()
                 WHERE news_id IN ('.implode(',',$sel).')';
-            $db->Execute($query,array('draft'));
+            $db->Execute($query,['draft']);
             audit('',$this->GetName(),'status changed on '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
@@ -66,9 +66,9 @@ if (isset($params['bulk_action']) ) {
     }
 }
 
-$categorylist = array();
+$categorylist = [];
 $categorylist[$this->Lang('allcategories')] = '';
-$query = "SELECT * FROM ".CMS_DB_PREFIX."module_news_categories ORDER BY hierarchy";
+$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $dbresult = $db->Execute($query);
 while ($dbresult && $row = $dbresult->FetchRow()) {
     $categorylist[$row['long_name']] = $row['long_name'];
@@ -112,7 +112,7 @@ $pagelimit = (int) $this->GetPreference('article_pagelimit',50);
 $allcategories = $this->GetPreference('allcategories','no');
 
 $sortby = $this->GetPreference('article_sortby','news_date DESC');
-$sortlist = array();
+$sortlist = [];
 $sortlist[$this->Lang('post_date_desc')]='news_date DESC';
 $sortlist[$this->Lang('post_date_asc')]='news_date ASC';
 $sortlist[$this->Lang('expiry_date_desc')]='end_time DESC';
@@ -127,7 +127,7 @@ $tpl->assign('prompt_category',$this->Lang('category'))
  ->assign('curcategory',$curcategory)
  ->assign('allcategories',$allcategories)
  ->assign('sortlist',array_flip($sortlist))
- ->assign('pagelimits',array(10=>10,25=>25,50=>50,250=>250,500=>500,1000=>1000))
+ ->assign('pagelimits',[10=>10,25=>25,50=>50,250=>250,500=>500,1000=>1000])
  ->assign('pagelimit',$pagelimit)
  ->assign('sortby',$sortby)
  ->assign('prompt_showchildcategories',$this->Lang('showchildcategories'))
@@ -139,14 +139,14 @@ $tpl->assign('prompt_category',$this->Lang('category'))
  ->assign('formend',$this->CreateFormEnd());
 
 //Load the current articles
-$entryarray = array();
+$entryarray = [];
 
 $dbresult = '';
 
-$query1 = "SELECT SQL_CALC_FOUND_ROWS n.*, nc.long_name FROM ".CMS_DB_PREFIX."module_news n LEFT OUTER JOIN ".CMS_DB_PREFIX."module_news_categories nc ON n.news_category_id = nc.news_category_id ";
-$parms = array();
+$query1 = 'SELECT SQL_CALC_FOUND_ROWS n.*, nc.long_name FROM '.CMS_DB_PREFIX.'module_news n LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories nc ON n.news_category_id = nc.news_category_id ';
+$parms = [];
 if ($curcategory != '') {
-    $query1 .= " WHERE nc.long_name LIKE ?";
+    $query1 .= ' WHERE nc.long_name LIKE ?';
     if( $allcategories == 'yes' ) {
         $parms[] = $curcategory.'%';
     }
@@ -175,7 +175,7 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
 
     $onerow->id = $row['news_id'];
     $onerow->news_title = $row['news_title'];
-    $onerow->title = $this->CreateLink($id, 'editarticle', $returnid, $row['news_title'], array('articleid'=>$row['news_id']));
+    $onerow->title = $this->CreateLink($id, 'editarticle', $returnid, $row['news_title'], ['articleid'=>$row['news_id']]);
     $onerow->data = $row['news_data'];
     $onerow->expired = 0;
     if( ($row['end_time'] != '') && ($db->UnixTimeStamp($row['end_time']) < time()) ) $onerow->expired = 1;
@@ -190,12 +190,12 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
         if( $row['status'] == 'published' ) {
             $onerow->approve_link = $this->CreateLink($id,'approvearticle',
                                                       $returnid,
-                                                      $admintheme->DisplayImage('icons/system/true.gif',$this->Lang('revert'),null,'','systemicon'),array('approve'=>0,'articleid'=>$row['news_id']));
+                                                      $admintheme->DisplayImage('icons/system/true.gif',$this->Lang('revert'),null,'','systemicon'),['approve'=>0,'articleid'=>$row['news_id']]);
         }
         else {
             $onerow->approve_link = $this->CreateLink($id,'approvearticle',
                                                       $returnid,
-                                                      $admintheme->DisplayImage('icons/system/false.gif',$this->Lang('approve'),null,'','systemicon'),array('approve'=>1,'articleid'=>$row['news_id']));
+                                                      $admintheme->DisplayImage('icons/system/false.gif',$this->Lang('approve'),null,'','systemicon'),['approve'=>1,'articleid'=>$row['news_id']]);
         }
     }
     $onerow->category = $row['long_name'];
@@ -204,22 +204,22 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
 
     if( $this->CheckPermission('Modify News') ) {
         $onerow->edit_url = $this->create_url($id,'editarticle',$returnid,
-                                              array('articleid'=>$row['news_id']));
-        $onerow->editlink = $this->CreateLink($id, 'editarticle', $returnid, $admintheme->DisplayImage('icons/system/edit.gif', $this->Lang('edit'),'','','systemicon'), array('articleid'=>$row['news_id']));
+                                              ['articleid'=>$row['news_id']]);
+        $onerow->editlink = $this->CreateLink($id, 'editarticle', $returnid, $admintheme->DisplayImage('icons/system/edit.gif', $this->Lang('edit'),'','','systemicon'), ['articleid'=>$row['news_id']]);
     }
     if( $this->CheckPermission('Delete News') ) {
-        $onerow->delete_url = $this->create_url($id,'deletearticle',$returnid, array('articleid'=>$row['news_id']));
+        $onerow->delete_url = $this->create_url($id,'deletearticle',$returnid, ['articleid'=>$row['news_id']]);
     }
 
     $entryarray[] = $onerow;
-    ($rowclass=="row1"?$rowclass="row2":$rowclass="row1");
+    ($rowclass=='row1'?$rowclass='row2':$rowclass='row1');
 }
 
 $tpl->assign('items', $entryarray)
  ->assign('itemcount', count($entryarray));
 
 if( $this->CheckPermission('Modify News') ) {
-    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $admintheme->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'),'','','systemicon'), array(), '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), array(), '', false, false, 'class="pageoptions"'));
+    $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $admintheme->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'),'','','systemicon'), [], '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), [], '', false, false, 'class="pageoptions"'));
 }
 
 $tpl->assign('can_add',$this->CheckPermission('Modify News'))

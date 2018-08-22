@@ -23,17 +23,17 @@ if (isset($params['fdid']))	$fdid = $params['fdid'];
 
 // Get the category details
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
-$row = $db->GetRow($query, array($fdid));
+$row = $db->GetRow($query, [$fdid]);
 
 //Now remove the category
-$query = "DELETE FROM ".CMS_DB_PREFIX."module_news_fielddefs WHERE id = ?";
-$db->Execute($query, array($fdid));
+$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
+$db->Execute($query, [$fdid]);
 
 //And remove it from any entries
-$query = "DELETE FROM ".CMS_DB_PREFIX."module_news_fieldvals WHERE fielddef_id = ?";
-$db->Execute($query, array($fdid));
+$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE fielddef_id = ?';
+$db->Execute($query, [$fdid]);
 
-$db->Execute('UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order - 1) WHERE item_order > ?', array($row['item_order']));
+$db->Execute('UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order - 1) WHERE item_order > ?', [$row['item_order']]);
 
 // put mention into the admin log
 audit('','News custom: '.$name, 'Field definition deleted');

@@ -63,7 +63,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
       $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news_categories','item_order I');
       $dict->ExecuteSQLArray($sqlarray);
 
-      $query = "SELECT * FROM ".CMS_DB_PREFIX."module_news_categories ORDER BY parent_id";
+      $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY parent_id';
       $categories = $db->GetArray($query);
 
       $uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = ? WHERE news_category_id = ?';
@@ -74,7 +74,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
               $parent = $row['parent_id'];
               if( $parent != $prev_parent ) $item_order = 0;
               $item_order++;
-              $db->Execute($uquery,array($item_order,$row['news_category_id']));
+              $db->Execute($uquery,[$item_order,$row['news_category_id']]);
           }
       }
 

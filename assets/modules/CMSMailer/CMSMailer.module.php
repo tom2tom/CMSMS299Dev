@@ -111,7 +111,7 @@ class CMSMailer extends CMSModule
   public function __call($method,$args)
   {
     if( method_exists($this->the_mailer,$method) ) {
-      return call_user_func_array(array($this->the_mailer,$method),$args);
+      return call_user_func_array([$this->the_mailer,$method],$args);
     }
     throw new CmsException('Call to invalid method '.$method.' on '.get_class($this->the_mailer).' object');
   }

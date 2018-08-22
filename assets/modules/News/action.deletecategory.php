@@ -12,19 +12,19 @@ if (isset($params['catid'])) $catid = $params['catid'];
 // Get the category details
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories
            WHERE news_category_id = ?';
-$row = $db->GetRow( $query, array( $catid ) );
+$row = $db->GetRow( $query, [ $catid ] );
 
 //Reset all categories using this parent to have no parent (-1)
 $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id=?, modified_date='.$db->DbTimeStamp(time()).' WHERE parent_id=?';
-$db->Execute($query, array(-1, $catid));
+$db->Execute($query, [-1, $catid]);
 
 //Now remove the category
-$query = "DELETE FROM ".CMS_DB_PREFIX."module_news_categories WHERE news_category_id = ?";
-$db->Execute($query, array($catid));
+$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
+$db->Execute($query, [$catid]);
 
 //And remove it from any articles
-$query = "UPDATE ".CMS_DB_PREFIX."module_news SET news_category_id = -1 WHERE news_category_id = ?";
-$db->Execute($query, array($catid));
+$query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = -1 WHERE news_category_id = ?';
+$db->Execute($query, [$catid]);
 
 Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
 audit($catid, 'News category: '.$catid, ' Category deleted');

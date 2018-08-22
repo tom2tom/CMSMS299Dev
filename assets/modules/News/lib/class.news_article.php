@@ -26,15 +26,15 @@ use function munge_string_to_url;
 
 class news_article
 {
-    private static $_keys = array('id','author_id','title','content','summary','extra','news_url','postdate','startdate','enddate',
-                                  'category_id','status','author','authorname','category','canonical','fields','fieldsbyname','customfieldsbyname',
-                                  'useexp','returnid','params','file_location');
-    private $_rawdata = array();
-    private $_meta = array();
-    private $_inparams = array();
+    private static $_keys = ['id','author_id','title','content','summary','extra','news_url','postdate','startdate','enddate',
+                             'category_id','status','author','authorname','category','canonical','fields','fieldsbyname','customfieldsbyname',
+                             'useexp','returnid','params','file_location'];
+    private $_rawdata = [];
+    private $_meta = [];
+    private $_inparams = [];
     private $_inid = 'm1_';
 
-    private function _getdata($key)
+    private function _getdata(string $key)
     {
         $res = null;
         if( isset($this->_rawdata[$key]) ) $res = $this->_rawdata[$key];
@@ -42,7 +42,7 @@ class news_article
     }
 
 
-    private function _getauthorinfo($author_id,$authorname = FALSE)
+    private function _getauthorinfo(int $author_id, bool $authorname = FALSE)
     {
         if( !isset($this->_meta['author']) ) {
             $mod = cms_utils::get_module('News');
@@ -116,7 +116,7 @@ class news_article
 
     public function set_field(news_field $field)
     {
-        if( !isset($this->_rawdata['fieldsbyname']) ) $this->_rawdata['fieldsbyname'] = array();
+        if( !isset($this->_rawdata['fieldsbyname']) ) $this->_rawdata['fieldsbyname'] = [];
         $name = $field->name;
         $this->_rawdata['fieldsbyname'][$name] = $field;
     }

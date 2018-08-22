@@ -53,13 +53,13 @@ final class News_AdminSearch_slave extends slave
     $db = cmsms()->GetDb();
     // need to get the fielddefs of type textbox or textarea
     $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE type IN (?,?)';
-    $fdlist = $db->GetCol($query,array('textbox','textarea'));
+    $fdlist = $db->GetCol($query,['textbox','textarea']);
 
-    $fields = array('N.*');
+    $fields = ['N.*'];
     $joins = [];
-    $where = array('news_title LIKE ?','news_data LIKE ?','summary LIKE ?');
+    $where = ['news_title LIKE ?','news_data LIKE ?','summary LIKE ?'];
     $str = '%'.$this->get_text().'%';
-    $parms = array($str,$str,$str);
+    $parms = [$str,$str,$str];
 
     // add in fields
     for( $i = 0; $i < count($fdlist); $i++ ) {
@@ -77,7 +77,7 @@ final class News_AdminSearch_slave extends slave
     if( count($where) ) $query .= ' WHERE '.implode(' OR ',$where);
     $query .= ' ORDER BY N.modified_date DESC';
 
-    $dbr = $db->GetArray($query,array($parms));
+    $dbr = $db->GetArray($query,[$parms]);
     if( is_array($dbr) && count($dbr) ) {
       // got some results.
       $output = [];

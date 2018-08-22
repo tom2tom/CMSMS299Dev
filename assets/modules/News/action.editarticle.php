@@ -133,7 +133,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
         //
 
         // get the field types
-        $qu = "SELECT id,name,type FROM " . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
+        $qu = 'SELECT id,name,type FROM ' . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
         $types = $db->GetArray($qu);
 
         $error = false;
@@ -159,7 +159,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
             $now = $db->DbTimeStamp(time());
             foreach ($params['customfield'] as $fldid => $value) {
                 // first check if it's available
-                $query = "SELECT value FROM " . CMS_DB_PREFIX . "module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?";
+                $query = 'SELECT value FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
                 $tmp = $db->GetOne($query, [
                     $articleid,
                     $fldid
@@ -167,7 +167,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
                 $dbr = true;
                 if ($tmp === false) {
                     if (!empty($value)) {
-                        $query = "INSERT INTO " . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,$now,$now)";
+                        $query = 'INSERT INTO ' . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,$now,$now)";
                         $dbr = $db->Execute($query, [
                             $articleid,
                             $fldid,
@@ -182,7 +182,7 @@ if (isset($params['submit']) || isset($params['apply'])) {
                             $fldid
                         ]);
                     } else {
-                        $query = "UPDATE " . CMS_DB_PREFIX . "module_news_fieldvals
+                        $query = 'UPDATE ' . CMS_DB_PREFIX . "module_news_fieldvals
                       SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
                         $dbr = $db->Execute($query, [
                             $value,
@@ -352,7 +352,7 @@ $statusdropdown[$this->Lang('draft')] = 'draft';
 $statusdropdown[$this->Lang('published')] = 'published';
 
 $categorylist = [];
-$query = "SELECT * FROM " . CMS_DB_PREFIX . "module_news_categories ORDER BY hierarchy";
+$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
 $dbresult = $db->Execute($query);
 
 while ($dbresult && $row = $dbresult->FetchRow()) {
@@ -387,9 +387,9 @@ while ($dbr && ($row = $dbr->FetchRow())) {
     $value = isset($params['customfield'][$row['id']]) && in_array($params['customfield'][$row['id']], $params['customfield']) ? $params['customfield'][$row['id']] : $value;
 
     if ($row['type'] == 'file') {
-        $name = "customfield_" . $row['id'];
+        $name = 'customfield_' . $row['id'];
     } else {
-        $name = "customfield[" . $row['id'] . "]";
+        $name = 'customfield[' . $row['id'] . ']';
     }
 
     $obj = new StdClass();

@@ -17,7 +17,7 @@ $parentid = -1;
 if( isset($params['catid']) ) {
   $catid = (int)$params['catid'];
   $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
-  $row = $db->GetRow($query, array($catid));
+  $row = $db->GetRow($query, [$catid]);
   if( !$row ) {
     $this->SetError($this->Lang('error_categorynotfound'));
     $this->RedirectToAdminTab();
@@ -39,7 +39,7 @@ if( isset($params['submit']) ) {
     // its an update.
     $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories
               WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
-    $tmp = $db->GetOne($query,array($parentid,$name,$catid));
+    $tmp = $db->GetOne($query,[$parentid,$name,$catid]);
     if( $tmp ) {
       $this->ShowErrors($this->Lang('error_duplicatename'));
     }
@@ -53,12 +53,12 @@ if( isset($params['submit']) ) {
 	// gotta figure out a new item order.
 	$query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories
                   WHERE parent_id = ?';
-	$maxn = (int)$db->GetOne($query,array($parentid));
+	$maxn = (int)$db->GetOne($query,[$parentid]);
 	$maxn++;
 
 	$query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = item_order - 1
                   WHERE parent_id = ? AND item_order > ?';
-	$db->Execute($query,array($row['parent_id'],$row['item_order']));
+	$db->Execute($query,[$row['parent_id'],$row['item_order']]);
 
 	$row['item_order'] = $maxn;
       }
@@ -66,7 +66,7 @@ if( isset($params['submit']) ) {
       $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories
                 SET news_category_name = ?, item_order = ?, parent_id = ?, modified_date = NOW()
                 WHERE news_category_id = ?';
-      $parms = array($name,$row['item_order'],$parentid);
+      $parms = [$name,$row['item_order'],$parentid];
       $parms[] = $catid;
       $db->Execute($query, $parms);
 
@@ -84,7 +84,7 @@ if( isset($params['submit']) ) {
 
 $tmp = news_ops::get_category_list();
 $tmp2 = array_flip($tmp);
-$categories = array(-1=>$this->Lang('none'));
+$categories = [-1=>$this->Lang('none')];
 foreach( $tmp2 as $k => $v ) {
   if( $k == $catid ) continue;
   $categories[$k] = $v;

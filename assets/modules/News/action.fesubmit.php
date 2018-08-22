@@ -12,7 +12,7 @@ function __newsCleanHTML($html)
     $i = 0;
     for( $i = 0; $i < 10; $i++ ) {
         $old = $html;
-        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', "", $html);
+        $html = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $html);
         $html = str_replace('script:','___',$html);
         if( strcmp($old,$html) == 0 ) break;
     }
@@ -27,7 +27,7 @@ $status = $this->GetPreference('fesubmit_status','draft');
 $startdate = time();
 $ndays = (int)$this->GetPreference('expiry_interval',180);
 if( $ndays <= 0 ) $ndays = 180;
-$enddate = strtotime(sprintf("+%d days",$ndays), time());
+$enddate = strtotime(sprintf('+%d days',$ndays), time());
 $userid = get_userid(false);
 $category_id = $this->GetPreference('default_category', '');
 $do_send_email = false;
@@ -73,7 +73,7 @@ if( $userid == '' ) {
 
 if (isset($params['category'])) {
   $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_name = ?';
-  $tmp = $db->GetOne($query,array($params['category']));
+  $tmp = $db->GetOne($query,[$params['category']]);
   if( $tmp ) $category_id = $tmp;
 }
 
@@ -104,10 +104,10 @@ if( isset( $params['submit'] ) ) {
         if( $content == '' ) throw new CmsException($this->Lang('nocontentgiven'));
 
         // generate a new article id
-        $articleid = $db->GenID(CMS_DB_PREFIX."module_news_seq");
+        $articleid = $db->GenID(CMS_DB_PREFIX.'module_news_seq');
 
         // test file upload custom fields
-        $qu = "SELECT id,name,type FROM ".CMS_DB_PREFIX."module_news_fielddefs WHERE type='file'";
+        $qu = 'SELECT id,name,type FROM '.CMS_DB_PREFIX."module_news_fielddefs WHERE type='file'";
         $fields = $db->GetArray($qu);
 
         foreach( $fields as $onefield ) {
@@ -135,14 +135,14 @@ if( isset( $params['submit'] ) ) {
                modified_date,author_id,searchable)
                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         $dbr = $db->Execute($query,
-                            array($articleid, $category_id, $title,
+                            [$articleid, $category_id, $title,
                                   $content, $summary, $extra, $status,
                                   trim($db->DbTimeStamp($startdate), "'"),
                                   trim($db->DbTimeStamp($startdate), "'"),
                                   trim($db->DbTimeStamp($enddate), "'"),
                                   trim($db->DbTimeStamp(time()), "'"),
                                   trim($db->DbTimeStamp(time()), "'"),
-                                  $userid,1));
+                                  $userid,1]);
 
         if( $dbr ) {
             // handle the custom fields
@@ -154,7 +154,7 @@ if( isset( $params['submit'] ) ) {
                 if( empty($value) ) continue;
                 if( preg_match('/^news_customfield_/',$key) ) {
                     $field_id = (int)substr($key,17);
-                    $db->Execute($query,array($articleid,$field_id,$value));
+                    $db->Execute($query,[$articleid,$field_id,$value]);
                 }
             }
 
@@ -172,7 +172,7 @@ if( isset( $params['submit'] ) ) {
 
             // send an event
             Events::SendEvent('News', 'NewsArticleAdded',
-                              array('news_id' => $articleid,
+                              ['news_id' => $articleid,
                                     'category_id' => $category_id,
                                     'title' => $title,
                                     'content' => $content,
@@ -180,7 +180,7 @@ if( isset( $params['submit'] ) ) {
                                     'status' => $status,
                                     'start_time' => $startdate,
                                     'end_time' => $enddate,
-                                    'useexp' => 1));
+                                    'useexp' => 1]);
 
             // put mention into the admin log
             audit('', 'News Frontend Submit', 'Article added');
@@ -196,8 +196,8 @@ if( isset( $params['submit'] ) ) {
 
 
 // build the category list
-$categorylist = array();
-$query = "SELECT * FROM ".CMS_DB_PREFIX."module_news_categories ORDER BY hierarchy";
+$categorylist = [];
+$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $dbresult = $db->Execute($query);
 while ($dbresult && $row = $dbresult->FetchRow()) {
     $categorylist[$row['news_category_id']] = $row['long_name'];
@@ -218,8 +218,8 @@ $tpl->assign('category_id',$category_id)
 
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE public = 1 ORDER BY item_order';
 $dbr = $db->Execute($query);
-$customfields = array();
-$customfieldsbyname = array();
+$customfields = [];
+$customfieldsbyname = [];
 while( $dbr && ($row = $dbr->FetchRow()) ) {
   if( $row['type'] == 'linkedfile' ) continue;
   $obj = new StdClass();

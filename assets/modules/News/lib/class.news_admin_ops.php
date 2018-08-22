@@ -39,12 +39,12 @@ final class news_admin_ops
         $db = cmsms()->GetDb();
 
         //Now remove the article
-        $query = "DELETE FROM ".CMS_DB_PREFIX."module_news WHERE news_id = ?";
-        $db->Execute($query, array($articleid));
+        $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
+        $db->Execute($query, [$articleid]);
 
         // Delete it from the custom fields
         $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
-        $db->Execute($query, array($articleid));
+        $db->Execute($query, [$articleid]);
 
         // delete any files...
         $config = cmsms()->GetConfig();
@@ -118,20 +118,20 @@ final class news_admin_ops
     {
         $db = cmsms()->GetDb();
 
-        $query = "SELECT news_category_id, item_order, news_category_name FROM ".CMS_DB_PREFIX."module_news_categories";
+        $query = 'SELECT news_category_id, item_order, news_category_name FROM '.CMS_DB_PREFIX.'module_news_categories';
         $dbresult = $db->Execute($query);
         while ($dbresult && $row = $dbresult->FetchRow()) {
-            $current_hierarchy_position = "";
-            $current_long_name = "";
+            $current_hierarchy_position = '';
+            $current_long_name = '';
             $content_id = $row['news_category_id'];
             $current_parent_id = $row['news_category_id'];
             $count = 0;
 
             while ($current_parent_id > -1) {
-                $query = "SELECT news_category_id, item_order, news_category_name, parent_id FROM ".CMS_DB_PREFIX."module_news_categories WHERE news_category_id = ?";
-                $row2 = $db->GetRow($query, array($current_parent_id));
+                $query = 'SELECT news_category_id, item_order, news_category_name, parent_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE news_category_id = ?';
+                $row2 = $db->GetRow($query, [$current_parent_id]);
                 if ($row2) {
-                    $current_hierarchy_position = str_pad($row2['item_order'], 5, '0', STR_PAD_LEFT) . "." . $current_hierarchy_position;
+                    $current_hierarchy_position = str_pad($row2['item_order'], 5, '0', STR_PAD_LEFT) . '.' . $current_hierarchy_position;
                     $current_long_name = $row2['news_category_name'] . ' | ' . $current_long_name;
                     $current_parent_id = $row2['parent_id'];
                     $count++;
@@ -149,8 +149,8 @@ final class news_admin_ops
                 $current_long_name = substr($current_long_name, 0, strlen($current_long_name) - 3);
             }
 
-            $query = "UPDATE ".CMS_DB_PREFIX."module_news_categories SET hierarchy = ?, long_name = ? WHERE news_category_id = ?";
-            $db->Execute($query, array($current_hierarchy_position, $current_long_name, $content_id));
+            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET hierarchy = ?, long_name = ? WHERE news_category_id = ?';
+            $db->Execute($query, [$current_hierarchy_position, $current_long_name, $content_id]);
         }
     }
 
@@ -170,7 +170,7 @@ final class news_admin_ops
                 $detailpage = $gCms->GetContentOperations()->GetDefaultContent();
             }
         }
-        $parms = array('action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id);
+        $parms = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];
 
         $route = CmsRoute::new_builder($news_url,'News',$news_article_id,$parms,TRUE);
         return cms_route_manager::add_static($route);
@@ -181,7 +181,7 @@ final class news_admin_ops
         $txt = trim($txt);
         if( !$txt ) return;
 
-        $arr_options = array();
+        $arr_options = [];
         $tmp1 = explode("\n",$txt);
         foreach( $tmp1 as $tmp2 ) {
             $tmp2 = trim($tmp2);

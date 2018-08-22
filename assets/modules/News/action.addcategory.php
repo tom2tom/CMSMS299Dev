@@ -17,19 +17,19 @@ if (isset($params['name'])) {
     $name = trim( cleanValue( $params['name'] ));
     if ($name != '') {
         $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ? AND news_category_name = ?';
-        $tmp = $db->GetOne($query,array($parent,$name));
+        $tmp = $db->GetOne($query,[$parent,$name]);
         if( $tmp ) {
             $this->ShowErrors($this->Lang('error_duplicatename'));
         }
         else {
             $query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories WHERE parent_id = ?';
-            $item_order = (int)$db->GetOne($query,array($parent));
+            $item_order = (int)$db->GetOne($query,[$parent]);
             $item_order++;
 
-            $catid = $db->GenID(CMS_DB_PREFIX."module_news_categories_seq");
+            $catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');
 
             $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, item_order, create_date, modified_date) VALUES (?,?,?,?,NOW(),NOW())';
-            $parms = array($catid,$name,$parent,$item_order);
+            $parms = [$catid,$name,$parent,$item_order];
             $db->Execute($query, $parms);
 
             news_admin_ops::UpdateHierarchyPositions();
@@ -49,7 +49,7 @@ if (isset($params['name'])) {
 
 $tmp = news_ops::get_category_list();
 $tmp2 = array_flip($tmp);
-$categories = array(-1=>$this->Lang('none'));
+$categories = [-1=>$this->Lang('none')];
 foreach( $tmp2 as $k => $v ) {
     $categories[$k] = $v;
 }

@@ -22,24 +22,24 @@ $order = 1;
 $fdid = $params['fdid'];
 
 #Grab necessary info for fixing the item_order
-$order = $db->GetOne("SELECT item_order FROM ".CMS_DB_PREFIX."module_news_fielddefs WHERE id = ?", array($fdid));
+$order = $db->GetOne('SELECT item_order FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?', [$fdid]);
 $time = $db->DbTimeStamp(time());
 
-if ($params['dir'] == "down")
+if ($params['dir'] == 'down')
   {
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order - 1), modified_date = '.$time.' WHERE item_order = ?';
-    $db->Execute($query, array($order + 1));
+    $db->Execute($query, [$order + 1]);
 
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order + 1), modified_date = '.$time.' WHERE id = ?';
-    $db->Execute($query, array($fdid));
+    $db->Execute($query, [$fdid]);
 
   }
-else if ($params['dir'] == "up")
+else if ($params['dir'] == 'up')
   {
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order + 1), modified_date = '.$time.' WHERE item_order = ?';
-    $db->Execute($query, array($order - 1));
+    $db->Execute($query, [$order - 1]);
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order - 1), modified_date = '.$time.' WHERE id = ?';
-    $db->Execute($query, array($fdid));
+    $db->Execute($query, [$fdid]);
   }
 
 $this->RedirectToAdminTab('customfields','','admin_settings');

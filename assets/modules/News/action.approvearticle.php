@@ -13,7 +13,7 @@ $this->SetCurrentTab('articles');
 $articleid = (int)$params['articleid'];
 $search = cms_utils::get_search_module();
 $status = '';
-$uquery = "UPDATE ".CMS_DB_PREFIX."module_news SET status = ?,modified_date = NOW() WHERE news_id = ?";
+$uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?,modified_date = NOW() WHERE news_id = ?';
 switch( $params['approve'] ) {
  case 0:
    $status = 'draft';
@@ -33,12 +33,12 @@ if( is_object($search) ) {
   }
   else if( $status == 'published' ) {
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';;
-    $article = $db->GetRow($query,array($articleid));
+    $article = $db->GetRow($query,[$articleid]);
     if( !$article ) return;
 
     $useexp = 0;
     $t_end = time() + 3600; // just for the math
-    if( $article['end_time'] != "" ) {
+    if( $article['end_time'] != '' ) {
       $useexp = 1;
       $t_end = $db->UnixTimeStamp($article['end_time']);
     }
@@ -46,7 +46,7 @@ if( is_object($search) ) {
     if( $t_end > time() || $this->GetPreference('expired_searchble',1) == 1 ) {
       $text = $article['news_data'] . ' ' . $article['summary'] . ' ' . $article['news_title'] . ' ' . $article['news_title'];
       $query = 'SELECT value FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
-      $flds = $db->GetArray($query,array($articleid));
+      $flds = $db->GetArray($query,[$articleid]);
       if( is_array($flds) ) {
 	for( $i = 0; $i < count($flds); $i++ ) {
 	  $text .= ' '.$flds[$i]['value'];
@@ -59,7 +59,7 @@ if( is_object($search) ) {
   }
 }
 
-$db->Execute($uquery,array($status,$articleid));
+$db->Execute($uquery,[$status,$articleid]);
 Events::SendEvent( 'News', 'NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
 $this->SetMessage($this->Lang('msg_success'));
 $this->RedirectToAdminTab();

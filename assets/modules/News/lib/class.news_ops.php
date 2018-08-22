@@ -35,7 +35,7 @@ final class news_ops
     $tmp = self::get_all_categories();
     if( !count($tmp) ) return;
 
-    $catinfo = array();
+    $catinfo = [];
     if( !isset($params['category']) || $params['category'] == '' ) {
       $catinfo = $tmp;
     }
@@ -61,7 +61,7 @@ final class news_ops
     unset($tmp);
     if( !count($catinfo) ) return;
 
-    $cat_ids = array();
+    $cat_ids = [];
     for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {
       $cat_ids[] = $catinfo[$i]['news_category_id'];
     }
@@ -71,18 +71,18 @@ final class news_ops
     // get counts.
     $depth = 1;
     $db = CmsApp::get_instance()->GetDb();
-    $counts = array();
+    $counts = [];
     $now = $db->DbTimeStamp(time());
 
     {
       $q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
       $q2 .= implode(',',$cat_ids).')';
       if( !empty($params['showarchive']) ) {
-        $q2 .= " AND (end_time < ".$db->DbTimeStamp(time()).") ";
+        $q2 .= ' AND (end_time < '.$db->DbTimeStamp(time()).') ';
       }
       else {
-        $q2 .= " AND (".$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) ";
-        $q2 .= " AND ((".$db->IfNull('end_time',$db->DbTimeStamp(1))." = ".$db->DbTimeStamp(1).") OR (end_time > $now)) ";
+        $q2 .= ' AND ('.$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) ";
+        $q2 .= ' AND (('.$db->IfNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).") OR (end_time > $now)) ";
       }
       $q2 .= ' AND status = \'published\' GROUP BY news_category_id';
       $tmp = $db->GetArray($q2);
@@ -94,7 +94,7 @@ final class news_ops
     }
 
     $rowcounter=0;
-    $items = array();
+    $items = [];
     $depth = 1;
     for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {
       $row =& $catinfo[$i];
@@ -125,7 +125,7 @@ final class news_ops
   {
     if( !self::$_categories_loaded ) {
       $db = CmsApp::get_instance()->GetDb();
-      $query = "SELECT * FROM ".CMS_DB_PREFIX."module_news_categories ORDER BY hierarchy";
+      $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
       $dbresult = $db->GetArray($query);
       if( $dbresult ) self::$_cached_categories = $dbresult;
       self::$_categories_loaded = TRUE;
@@ -137,7 +137,7 @@ final class news_ops
   public static function get_category_list()
   {
     self::get_all_categories();
-    $categorylist = array();
+    $categorylist = [];
     for( $i = 0, $n = count(self::$_cached_categories); $i < $n; $i++ ) {
       $row = self::$_cached_categories[$i];
       $categorylist[$row['long_name']] = $row['news_category_id'];
@@ -150,7 +150,7 @@ final class news_ops
   public static function get_category_names_by_id()
   {
     self::get_all_categories();
-    $list = array();
+    $list = [];
     for( $i = 0, $n = count(self::$_cached_categories); $i < $n; $i++ ) {
       $list[self::$_cached_categories[$i]['news_category_id']] = self::$_cached_categories[$i]['news_category_name'];
     }
@@ -179,7 +179,7 @@ final class news_ops
       }
       $tmp = $db->GetArray($query);
 
-      self::$_cached_fielddefs = array();
+      self::$_cached_fielddefs = [];
       if( is_array($tmp) && count($tmp) ) {
         for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
           self::$_cached_fielddefs[$tmp[$i]['id']] = $tmp[$i];
@@ -349,9 +349,9 @@ final class news_ops
   {
     $db = CmsApp::get_instance()->GetDb();
     $now = $db->DbTimeStamp(time());
-    $query = "SELECT mn.*, mnc.news_category_name FROM ".CMS_DB_PREFIX."module_news mn LEFT OUTER JOIN ".CMS_DB_PREFIX."module_news_categories mnc ON mnc.news_category_id = mn.news_category_id WHERE status = 'published' AND ";
-    $query .= "(".$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) AND ";
-    $query .= "((".$db->IfNull('end_time',$db->DbTimeStamp(1))." = ".$db->DbTimeStamp(1).") OR (end_time > $now)) ";
+    $query = 'SELECT mn.*, mnc.news_category_name FROM '.CMS_DB_PREFIX.'module_news mn LEFT OUTER JOIN '.CMS_DB_PREFIX."module_news_categories mnc ON mnc.news_category_id = mn.news_category_id WHERE status = 'published' AND ";
+    $query .= '('.$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) AND ";
+    $query .= '(('.$db->IfNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).") OR (end_time > $now)) ";
     $query .= 'ORDER BY news_date DESC LIMIT 1';
     $row = $db->GetRow($query);
 
@@ -369,7 +369,7 @@ final class news_ops
     if( !$allow_expired ) {
       $query .= 'AND (('.$db->ifNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).') OR (end_time > NOW()))';
     }
-    $row = $db->GetRow($query, array($article_id));
+    $row = $db->GetRow($query, [$article_id]);
 
     $res = null;
     if( !$row ) return $res;
@@ -379,9 +379,9 @@ final class news_ops
 
   public static function preloadFieldData($ids)
   {
-    if( !is_array($ids) && is_numeric($ids) ) $ids = array($ids);
+    if( !is_array($ids) && is_numeric($ids) ) $ids = [$ids];
 
-    $tmp = array();
+    $tmp = [];
     for( $i = 0, $nn = count($ids); $i < $nn; $i++ ) {
       $n = (int)$ids[$i];
       if( $n < 0 ) continue;
@@ -405,11 +405,11 @@ final class news_ops
     if( !$dbr ) return;
 
     // initialization.
-    if( !is_array(self::$_cached_fieldvals) ) self::$_cached_fieldvals = array();
+    if( !is_array(self::$_cached_fieldvals) ) self::$_cached_fieldvals = [];
     foreach( $idlist as $news_id ) {
       if( isset(self::$_cached_fieldvals[$news_id]) ) continue;
 
-      self::$_cached_fieldvals[$news_id] = array();
+      self::$_cached_fieldvals[$news_id] = [];
       foreach( $fielddefs as $field ) {
         $obj = new news_field;
         foreach( $field as $k => $v ) {
@@ -437,7 +437,7 @@ final class news_ops
     $fd = self::get_fielddefs();
     if( !count($fd) ) return;
 
-    $results = array();
+    $results = [];
     foreach( $fd as $field ) {
       $obj = null;
       if( isset(self::$_cached_fieldvals[$news_id][$field['id']]) ) {

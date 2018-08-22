@@ -19,7 +19,7 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
 
 $db = $this->GetDb();
 $dict = NewDataDictionary($db);
-$taboptarray = array('mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci');
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 // icon is no longer used
 $flds = '
@@ -282,19 +282,19 @@ $this->SetPreference('auto_create_thumbnails','gif,png,jpeg,jpg');
 // General category
 $catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, create_date, modified_date) VALUES (?,?,?,'.$db->DbTimeStamp(time()).','.$db->DbTimeStamp(time()).')';
-$db->Execute($query, array($catid, 'General', -1));
+$db->Execute($query, [$catid, 'General', -1]);
 
 // Initial news article
 $articleid = $db->GenID(CMS_DB_PREFIX.'module_news_seq');
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news ( NEWS_ID, NEWS_CATEGORY_ID, AUTHOR_ID, NEWS_TITLE, NEWS_DATA, NEWS_DATE, SUMMARY, START_TIME, END_TIME, STATUS, ICON, SEARCHABLE, CREATE_DATE, MODIFIED_DATE ) VALUES (?,?,?,?,?,'.$db->DbTimeStamp(time()).',?,?,?,?,?,?,'.$db->DbTimeStamp(time()).','.$db->DbTimeStamp(time()).')';
-$db->Execute($query, array($articleid, $catid, 1, 'News Module Installed', 'The news module was installed.  Exciting. This news article is not using the Summary field and therefore there is no link to read more. But you can click on the news heading to read only this article.', null, null, null, 'published', null, 1));
+$db->Execute($query, [$articleid, $catid, 1, 'News Module Installed', 'The news module was installed.  Exciting. This news article is not using the Summary field and therefore there is no link to read more. But you can click on the news heading to read only this article.', null, null, null, 'published', null, 1]);
 news_admin_ops::UpdateHierarchyPositions();
 
 // Permissions
 $perm_id = $db->GetOne('SELECT permission_id FROM '.CMS_DB_PREFIX."permissions WHERE permission_name = 'Modify News'");
 $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Admin'");
 
-$count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', array($group_id, $perm_id));
+$count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if (isset($count) && (int)$count == 0) {
   $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
   $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $db->DbTimeStamp(time()) . ', ' . $db->DbTimeStamp(time()) . ')';
@@ -303,7 +303,7 @@ if (isset($count) && (int)$count == 0) {
 
 $group_id = $db->GetOne('SELECT group_id FROM '.CMS_DB_PREFIX."groups WHERE group_name = 'Editor'");
 
-$count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', array($group_id, $perm_id));
+$count = $db->GetOne('SELECT COUNT(*) FROM ' . CMS_DB_PREFIX . 'group_perms WHERE group_id = ? AND permission_id = ?', [$group_id, $perm_id]);
 if (isset($count) && (int)$count == 0) {
   $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
   $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'group_perms (group_perm_id, group_id, permission_id, create_date, modified_date) VALUES ('.$new_id.', '.$group_id.', '.$perm_id.', '. $db->DbTimeStamp(time()) . ', ' . $db->DbTimeStamp(time()) . ')';

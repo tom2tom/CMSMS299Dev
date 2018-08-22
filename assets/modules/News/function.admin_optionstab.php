@@ -19,7 +19,7 @@ $tpl->assign('startform', $this->CreateFormStart ($id, 'updateoptions', $returni
  ->assign('email_template',$this->GetTemplate('email_template'));
 
 $categorylist = [];
-$query = "SELECT * FROM ".CMS_DB_PREFIX."module_news_categories ORDER BY hierarchy";
+$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_categories ORDER BY hierarchy';
 $dbresult = $db->Execute($query);
 
 while ($dbresult && $row = $dbresult->FetchRow()) {

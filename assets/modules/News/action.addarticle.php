@@ -36,7 +36,7 @@ $ndays        = (int)$this->GetPreference('expiry_interval', 180);
 if ($ndays == 0)
     $ndays = 180;
 
-$enddate      = strtotime(sprintf("+%d days", $ndays), time());
+$enddate      = strtotime(sprintf('+%d days', $ndays), time());
 
 
 if (isset($params['postdate_Month'])) {
@@ -101,7 +101,7 @@ if (isset($params['submit'])) {
     // database work
     //
     if (!$error) {
-        $articleid = $db->GenID(CMS_DB_PREFIX . "module_news_seq");
+        $articleid = $db->GenID(CMS_DB_PREFIX . 'module_news_seq');
         $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news (news_id, news_category_id, news_title, news_data, summary, status, news_date, start_time, end_time, create_date, modified_date,author_id,news_extra,news_url,searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         if ($useexp == 1) {
             $dbr = $db->Execute($query, [
@@ -142,7 +142,7 @@ if (isset($params['submit'])) {
         }
 
         if (!$dbr) {
-            echo "DEBUG: SQL = " . $db->sql . "<br />";
+            echo 'DEBUG: SQL = ' . $db->sql . '<br />';
             die($db->ErrorMsg());
         }
 
@@ -150,7 +150,7 @@ if (isset($params['submit'])) {
         //Handle submitting the 'custom' fields
         //
         // get the field types
-        $qu = "SELECT id,name,type FROM " . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
+        $qu = 'SELECT id,name,type FROM ' . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
         $types = $db->GetArray($qu);
 
         foreach ($types as $onetype) {
@@ -178,7 +178,7 @@ if (isset($params['submit'])) {
                 if ($value == '')
                     continue;
 
-                $query = "INSERT INTO " . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,?,?)";
+                $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news_fieldvals (news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,?,?)';
                 $dbr = $db->Execute($query, [
                     $articleid,
                     $fldid,
@@ -290,7 +290,7 @@ $statusdropdown[$this->Lang('draft')] = 'draft';
 $statusdropdown[$this->Lang('published')] = 'published';
 
 $categorylist = [];
-$query = "SELECT * FROM " . CMS_DB_PREFIX . "module_news_categories ORDER BY hierarchy";
+$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
 $dbresult = $db->Execute($query);
 
 while ($dbresult && $row = $dbresult->FetchRow()) {
@@ -314,9 +314,9 @@ while ($dbr && ($row = $dbr->FetchRow())) {
     $value = isset($params['customfield'][$row['id']]) && in_array($params['customfield'][$row['id']], $params['customfield']) ? $params['customfield'][$row['id']] : '';
 
     if ($row['type'] == 'file') {
-        $name = "customfield_" . $row['id'];
+        $name = 'customfield_' . $row['id'];
     } else {
-        $name = "customfield[" . $row['id'] . "]";
+        $name = 'customfield[' . $row['id'] . ']';
     }
 
     $obj = new StdClass();

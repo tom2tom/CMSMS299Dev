@@ -148,12 +148,12 @@ EOS;
 
     public function SearchResultWithParams($returnid, $articleid, $attr = '', $params = '')
     {
-        $result = array();
+        $result = [];
 
         if ($attr == 'article') {
             $db = $this->GetDb();
-            $q = "SELECT news_title,news_url FROM ".CMS_DB_PREFIX."module_news WHERE news_id = ?";
-            $row = $db->GetRow( $q, array( $articleid ) );
+            $q = 'SELECT news_title,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
+            $row = $db->GetRow( $q, [ $articleid ] );
 
             if ($row) {
                 $gCms = CmsApp::get_instance();
@@ -191,7 +191,7 @@ EOS;
                     $prettyurl = 'news/' . $articleid.'/'.$detailpage."/$aliased_title".$detailtemplate;
                 }
 
-                $parms = array();
+                $parms = [];
                 $parms['articleid'] = $articleid;
                 if( isset($params['detailtemplate']) ) $parms['detailtemplate'] = $params['detailtemplate'];
                 $result[2] = $this->CreateLink('cntnt01', 'detail', $detailpage, '', $parms ,'', true, false, '', true, $prettyurl);
@@ -206,7 +206,7 @@ EOS;
         $db = $this->GetDb();
 
         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = ? ORDER BY news_date';
-        $result = $db->Execute($query,array('published'));
+        $result = $db->Execute($query,['published']);
 
         while ($result && !$result->EOF) {
             if ($result->fields['status'] == 'published') {
@@ -221,14 +221,14 @@ EOS;
 
     public function GetFieldTypes()
     {
-        return array(
+        return [
          'textbox'=>$this->Lang('textbox'),
          'checkbox'=>$this->Lang('checkbox'),
          'textarea'=>$this->Lang('textarea'),
          'dropdown'=>$this->Lang('dropdown'),
          'linkedfile'=>$this->Lang('linkedfile'),
          'file'=>$this->Lang('file'),
-        );
+        ];
     }
 
     public function GetTypesDropdown( $id, $name, $selected = '' )
@@ -250,7 +250,7 @@ EOS;
         // then display a nice message.
         // this is a priority 2 item.
         if( $priority >= 2 ) {
-            $output = array();
+            $output = [];
             if( $this->CheckPermission('Approve News') ) {
                 $db = $this->GetDb();
                 $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news n WHERE status != \'published\'
@@ -286,14 +286,14 @@ EOS;
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$this->GetName());
         cms_route_manager::add_static($route);
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$this->GetName(),
-                              array('returnid'=>$this->GetPreference('detail_returnid',-1)));
+                              ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
         cms_route_manager::add_static($route);
 
         $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != ? AND '
             . '('.$db->ifNull('start_time',$db->DbTimeStamp(1)).' < NOW()) AND '
             . '(('.$db->IfNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).') OR (end_time > NOW()))';
         $query .= ' ORDER BY news_date DESC';
-        $tmp = $db->GetArray($query,array('published',''));
+        $tmp = $db->GetArray($query,['published','']);
 
         if( is_array($tmp) ) {
             foreach( $tmp as $one ) {
@@ -344,7 +344,7 @@ EOS;
         if( file_exists($fn) ) return @file_get_contents($fn);
     }
 
-    public function HasCapability($capability, $params = array())
+    public function HasCapability($capability, $params = [])
     {
         switch( $capability ) {
            case CmsCoreCapabilities::PLUGIN_MODULE:
@@ -357,12 +357,12 @@ EOS;
 
     public function get_adminsearch_slaves()
     {
-        return array('News_AdminSearch_slave');
+        return ['News_AdminSearch_slave'];
     }
 
     public function GetAdminMenuItems()
     {
-        $out = array();
+        $out = [];
         if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
 
         if( $this->CheckPermission('Modify News Preferences')

@@ -165,7 +165,7 @@ if ($is_arch && $filenames) {
         $tpl->assign('setsize', 1); //force svg size
     }
 } elseif ($is_text) {
-    if (preg_match("//u", $content)) {
+    if (preg_match('//u', $content)) {
         $enc = 'UTF-8'; // string includes some UTF-8
     } elseif (function_exists('mb_detect_encoding')) {
         $enc = mb_detect_encoding($content, mb_detect_order(), true);

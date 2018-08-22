@@ -38,7 +38,7 @@ if (isset($params['browsecat']) && $params['browsecat']==1) {
 }
 
 $entryarray = [];
-$query1 = "
+$query1 = '
 SELECT SQL_CALC_FOUND_ROWS
 	mn.*,
 	mnc.news_category_name,
@@ -46,10 +46,10 @@ SELECT SQL_CALC_FOUND_ROWS
 	u.username,
 	u.first_name,
 	u.last_name
-FROM " .CMS_DB_PREFIX . "module_news mn
-LEFT OUTER JOIN " . CMS_DB_PREFIX . "module_news_categories mnc
+FROM ' .CMS_DB_PREFIX . 'module_news mn
+LEFT OUTER JOIN ' . CMS_DB_PREFIX . 'module_news_categories mnc
 ON mnc.news_category_id = mn.news_category_id
-LEFT OUTER JOIN " . CMS_DB_PREFIX . "users u
+LEFT OUTER JOIN ' . CMS_DB_PREFIX . "users u
 ON u.user_id = mn.author_id
 WHERE
 	status = 'published'
@@ -72,10 +72,10 @@ if( isset($params['idlist']) ) {
 if( isset($params['category_id']) ) {
     $query1 .= " ( mnc.news_category_id = '".(int)$params['category_id']."' ) AND ";
 }
-else if (isset($params["category"]) && $params["category"] != '') {
+else if (isset($params['category']) && $params['category'] != '') {
     $category = cms_html_entity_decode(trim($params['category']));
     $categories = explode(',', $category);
-    $query1 .= " (";
+    $query1 .= ' (';
     $count = 0;
     foreach ($categories as $onecat) {
         if ($count > 0) $query1 .= ' OR ';
@@ -89,7 +89,7 @@ else if (isset($params["category"]) && $params["category"] != '') {
         }
         $count++;
     }
-    $query1 .= ") AND ";
+    $query1 .= ') AND ';
 }
 
 if( isset($params['showall']) ) {
@@ -112,14 +112,14 @@ $sortby = trim(get_parameter_value($params,'sortby','news_date'));
 switch( $sortby ) {
 case 'news_category':
     if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
-        $query1 .= "ORDER BY mnc.long_name ASC, mn.news_date ";
+        $query1 .= 'ORDER BY mnc.long_name ASC, mn.news_date ';
     } else {
-        $query1 .= "ORDER BY mnc.long_name DESC, mn.news_date ";
+        $query1 .= 'ORDER BY mnc.long_name DESC, mn.news_date ';
     }
     break;
 
 case 'random':
-    $query1 .= "ORDER BY RAND() ";
+    $query1 .= 'ORDER BY RAND() ';
     $sortrandom = true;
     break;
 
@@ -134,16 +134,16 @@ case 'news_extra':
     break;
 
 default:
-    $query1 .= "ORDER BY mn.news_date ";
+    $query1 .= 'ORDER BY mn.news_date ';
     break;
 }
 
 if( $sortrandom == false ) {
     if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
-        $query1 .= "asc";
+        $query1 .= 'asc';
     }
     else {
-        $query1 .= "desc";
+        $query1 .= 'desc';
     }
 }
 
@@ -214,7 +214,7 @@ $tpl->assign('pagenumber',$pagenumber)
 
 if( is_object($dbresult) ) {
     // build a list of news id's so we can preload stuff from other tables.
-    $result_ids = array();
+    $result_ids = [];
     while( $dbresult && !$dbresult->EOF ) {
         $result_ids[] = $dbresult->fields['news_id'];
         $dbresult->MoveNext();
@@ -262,7 +262,7 @@ if( is_object($dbresult) ) {
         $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
 
         $moretext = $params['moretext']??$this->Lang('more');
-        $sendtodetail = array('articleid'=>$row['news_id']);
+        $sendtodetail = ['articleid'=>$row['news_id']];
         if (isset($params['showall'])) $sendtodetail['showall'] = $params['showall'];
         if (isset($params['detailpage'])) $sendtodetail['origid'] = $returnid;
         if (isset($params['detailtemplate'])) $sendtodetail['detailtemplate'] = $params['detailtemplate'];

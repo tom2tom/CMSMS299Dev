@@ -31,7 +31,7 @@ if (isset($params['fdid'])) $fdid = $params['fdid'];
 $name = '';
 if (isset($params['name'])) $name = trim($params['name']);
 
-$arr_options = array();
+$arr_options = [];
 $options = '';
 if( isset($params['options']) ) {
   $options = trim($params['options']);
@@ -60,7 +60,7 @@ if (isset($params['submit'])) {
 
   if( !$error ) {
     $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE name = ? AND id != ?';
-    $tmp = $db->GetOne($query,array($name,$fdid));
+    $tmp = $db->GetOne($query,[$name,$fdid]);
     if( $tmp ) {
 		$error = true;
 		$this->ShowErrors($this->Lang('nameexists'));
@@ -68,9 +68,9 @@ if (isset($params['submit'])) {
   }
 
   if( !$error ) {
-    $extra = array('options'=>$arr_options);
+    $extra = ['options'=>$arr_options];
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = '.$db->DbTimeStamp(time()).', public = ?, extra = ? WHERE id = ?';
-    $res = $db->Execute($query, array($name, $type, $max_length, $public, serialize($extra), $fdid));
+    $res = $db->Execute($query, [$name, $type, $max_length, $public, serialize($extra), $fdid]);
 
     if( !$res ) { //TODO update-command result is never reliable
 		//TODO some immediate error display >> $db->ErrorMsg()
@@ -84,7 +84,7 @@ if (isset($params['submit'])) {
 }
 else {
    $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
-   $row = $db->GetRow($query, array($fdid));
+   $row = $db->GetRow($query, [$fdid]);
 
    if ($row) {
      $name = $row['name'];

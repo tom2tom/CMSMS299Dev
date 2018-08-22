@@ -27,7 +27,7 @@ class CreateDraftAlertTask implements CmsRegularTask
   public function get_name()
   {
     $c = get_called_class();
-    $p = strrpos($c, "\\");
+    $p = strrpos($c, '\\');
     $n = ($p !== false) ? substr($c, $p+1) : $c;
     return $n;
   }
