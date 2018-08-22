@@ -37,7 +37,7 @@ if (!$access) {
 $selfurl = basename(__FILE__);
 
 require_once cms_join_path(dirname(__DIR__), 'lib', 'test.functions.php');
-
+/*
 function installerHelpLanguage($lang, $default_null=null)
 {
     if ((!is_null($default_null)) && ($default_null == $lang)) {
@@ -45,6 +45,7 @@ function installerHelpLanguage($lang, $default_null=null)
     }
     return substr($lang, 0, 2);
 }
+*/
 
 function systeminfo_lang($params, $smarty)
 {
@@ -93,15 +94,14 @@ $smarty->force_compile = true;
 
 //smartyfier
 $smarty->assign('themename', $themeObject->themeName)
-	->assign('backurl', $themeObject->BackUrl())
-	->assign('sysinfurl', $selfurl)
+ ->assign('backurl', $themeObject->BackUrl())
+ ->assign('sysinfurl', $selfurl)
 
 /* Default help url */
-	->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings')
+ ->assign('cms_install_help_url', 'https://docs.cmsmadesimple.org/installation/installing/permissions-and-php-settings')
 
-/* CMS Install Information */
-
-	->assign('cms_version', $GLOBALS['CMS_VERSION']);
+/* CMSMS install information */
+ ->assign('cms_version', $GLOBALS['CMS_VERSION']);
 
 $db = cmsms()->GetDb();
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
@@ -134,8 +134,8 @@ $tmp[0]['locale'] = testConfig('locale', 'locale');
 $tmp[0]['set_names'] = testConfig('set_names', 'set_names');
 $tmp[0]['timezone'] = testConfig('timezone', 'timezone');
 $tmp[0]['permissive_smarty'] = testConfig('permissive_smarty', 'permissive_smarty');
-$smarty->assign('count_config_info', count($tmp[0]));
-$smarty->assign('config_info', $tmp);
+$smarty->assign('count_config_info', count($tmp[0]))
+ ->assign('config_info', $tmp);
 
 /* Performance Information */
 $tmp = [[],[]];
@@ -158,7 +158,6 @@ $res = cms_siteprefs::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
 
 $smarty->assign('performance_info', $tmp);
-
 
 /* PHP Information */
 $tmp = [[],[]];
@@ -286,8 +285,8 @@ if (!$hascurl) {
         );
     }
 }
-$smarty->assign('count_php_information', count($tmp[0]));
-$smarty->assign('php_information', $tmp);
+$smarty->assign('count_php_information', count($tmp[0]))
+ ->assign('php_information', $tmp);
 
 //$config = cms_config::get_instance();
 
@@ -311,16 +310,13 @@ switch ($config['dbms']) {
    if (!is_array($grants) || count($grants) == 0) {
        $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('os_db_grants'), 'yellow', '', 'error_no_grantall_info');
    } else {
-       $found_grantall = 0;
-       function __check_grant_all($item, $key)
+       $found_grantall = false;
+       array_walk_recursive($grants, function (string $item) use ($found_grantall)
        {
-           $item = strtoupper($item);
-           if (strstr($item, 'GRANT ALL PRIVILEGES') !== false) {
-               global $found_grantall;
-               $found_grantall = 1;
+           if (stripos($item, 'GRANT ALL PRIVILEGES') !== false) {
+               $found_grantall = true;
            }
-       }
-       array_walk_recursive($grants, '__check_grant_all');
+       });
        if (!$found_grantall) {
            $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('error_nograntall_found'), 'yellow');
        } else {
@@ -330,9 +326,8 @@ switch ($config['dbms']) {
    break;
 }
 
-
-$smarty->assign('count_server_info', count($tmp[0]));
-$smarty->assign('server_info', $tmp);
+$smarty->assign('count_server_info', count($tmp[0]))
+ ->assign('server_info', $tmp);
 
 $tmp = [[],[]];
 
@@ -357,11 +352,11 @@ $result = is_writable(CONFIG_FILE_LOCATION);
 #$tmp[1]['config_file'] = testFileWritable(0, lang('config_writable'), CONFIG_FILE_LOCATION, '');
 $tmp[0]['config_file'] = testDummy('', substr(sprintf('%o', fileperms(CONFIG_FILE_LOCATION)), -4), (($result) ? 'red' : 'green'), (($result) ? lang('config_writable') : ''));
 
-$smarty->assign('count_permission_info', count($tmp[0]));
-$smarty->assign('permission_info', $tmp)
+$smarty->assign('count_permission_info', count($tmp[0]))
+ ->assign('permission_info', $tmp)
 
-  ->assign('selfurl', $selfurl)
-  ->assign('urlext', $urlext);
+ ->assign('selfurl', $selfurl)
+ ->assign('urlext', $urlext);
 
 include_once 'header.php';
 
@@ -375,3 +370,4 @@ if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
 }
 
 include_once 'footer.php';
+
