@@ -1,7 +1,7 @@
 <?php
 #Class for handling configuration data
-#Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2014-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2008-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,23 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/* for future use
-namespace CMSMS;
-use cms_siteprefs;
-use CMSMS\App as CmsApp;
-use const CONFIG_FILE_LOCATION;
-use const PUBLIC_CACHE_LOCATION;
-use const PUBLIC_CACHE_URL;
-use const TMP_CACHE_LOCATION;
-use function cms_join_path;
-use function cms_to_bool;
-use function endswith;
-use function stack_trace;
-use function startswith;
-*/
-
 /**
- * A singleton class for interacting with the CMSMS config.php file.
+ * A singleton class for interacting with CMSMS configuration data.
  *
  * This class uses the ArrayAccess interface to behave like a PHP array.
  *
@@ -41,7 +26,7 @@ use function startswith;
  * @license GPL
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
  */
-final class cms_config implements \ArrayAccess
+final class cms_config implements ArrayAccess
 {
     /**
      * @ignore
@@ -64,6 +49,7 @@ final class cms_config implements \ArrayAccess
         'admin_url' => self::TYPE_STRING,
         'assets_dir' => self::TYPE_STRING,
         'assets_path' => self::TYPE_STRING,
+        'assets_url' => self::TYPE_STRING,
         'auto_alias_content' => self::TYPE_BOOL,
         'content_language' => self::TYPE_STRING,
         'content_processing_mode' => self::TYPE_INT,
@@ -420,6 +406,10 @@ final class cms_config implements \ArrayAccess
 
         case 'assets_path':
             $this->_cache[$key] = cms_join_path($this->OffsetGet('root_path'),$this->OffsetGet('assets_dir'));
+            return $this->_cache[$key];
+
+        case 'assets_url':
+            $this->_cache[$key] = $this->offsetGet('root_url').'/'.$this->offsetGet('assets_dir');
             return $this->_cache[$key];
 
         case 'db_port':

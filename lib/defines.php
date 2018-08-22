@@ -68,6 +68,12 @@ define('CMS_SCRIPTS_PATH',$config['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTO
 define('CMS_ROOT_URL',$config['root_url']);
 
 /**
+ * The site assets url.
+ * @since 2.3
+ */
+define('CMS_ASSETS_URL',$config['assets_url']);
+
+/**
  * The 'top' url where javascript files are stored
  * @since 2.3
  */
