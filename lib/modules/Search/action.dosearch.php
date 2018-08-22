@@ -1,68 +1,9 @@
 <?php
 
 use CMSMS\Events;
+use Search\ItemCollection;
 
 if (!isset($gCms)) exit;
-
-class SearchItemCollection
-{
-    var $_ary;
-    var $maxweight;
-
-    function __construct()
-    {
-        $this->_ary = [];
-        $this->maxweight = 1;
-    }
-
-    function AddItem($title, $url, $txt, $weight = 1, $module = '', $modulerecord = 0)
-    {
-        if( $txt == '' ) $txt = $url;
-        $exists = false;
-
-        foreach ($this->_ary as $oneitem) {
-            if ($url == $oneitem->url) {
-                $exists = true;
-                break;
-            }
-        }
-
-        if (!$exists) {
-            $newitem = new StdClass();
-            $newitem->url = $url;
-            $newitem->urltxt = search_CleanupText($txt);
-            $newitem->title = $title;
-            $newitem->intweight = (int)$weight;
-            if ((int)$weight > $this->maxweight) $this->maxweight = (int)$weight;
-            if (!empty($module) ) {
-                $newitem->module = $module;
-                if((int)$modulerecord > 0 )	$newitem->modulerecord = $modulerecord;
-            }
-            $this->_ary[] = $newitem;
-        }
-    }
-
-    function CalculateWeights()
-    {
-        reset($this->_ary);
-        while (list($key) = each($this->_ary)) {
-            $oneitem =& $this->_ary[$key];
-            $oneitem->weight = (int)($oneitem->intweight / $this->maxweight) * 100;
-        }
-    }
-
-    function Sort()
-    {
-        $fn = function($a,$b) {
-            if ($a->urltxt == $b->urltxt) return 0;
-            return ($a->urltxt < $b->urltxt ? -1 : 1);
-        };
-
-        usort($this->_ary, $fn);
-    }
-} // end of class
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 $template = null;
 if( isset($params['resulttemplate']) ) {
@@ -154,7 +95,7 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
 
     $result = $db->Execute($query);
     $hm = $gCms->GetHierarchyManager();
-    $col = new SearchItemCollection();
+    $col = new ItemCollection();
 
     while ($result && !$result->EOF) {
         //Handle internal (templates, content, etc) first...
