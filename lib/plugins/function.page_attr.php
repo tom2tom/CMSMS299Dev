@@ -20,7 +20,7 @@ function smarty_function_page_attr($params, $template)
 	$key = trim(get_parameter_value($params,'key'));
 	$page = trim(get_parameter_value($params,'page'));
 	$assign = trim(get_parameter_value($params,'assign'));
-	$inactive = \cms_to_bool(get_parameter_value($params,'inactive',0));
+	$inactive = cms_to_bool(get_parameter_value($params,'inactive'));
 	$contentobj = null;
 
 	if( $page ) {
@@ -29,7 +29,7 @@ function smarty_function_page_attr($params, $template)
 			// it's an id
 			$hm = CmsApp::get_instance()->GetHierarchyManager();
 			$node = $hm->find_by_tag('id',$page);
-			if( $node ) $contentobj = $node->getContent(TRUE,true,$inactive);
+			if( $node ) $contentobj = $node->getContent(true,true,$inactive);
 		}
 		else {
 			// this is quicker if using an alias
@@ -106,3 +106,4 @@ function smarty_cms_about_function_page_attr()
 </ul>
 EOS;
 }
+
