@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -25,29 +25,29 @@ function smarty_prefilter_precompilefunc($tpl_output, $smarty)
 		if( startswith($result[0],'tmp_') ) $result[0] = 'template';
 
 		switch ($result[0]) {
-        case 'cms_stylesheet':
-        case 'stylesheet':
-            Events::SendEvent('Core', 'StylesheetPreCompile', ['stylesheet'=>&$tpl_output]);
-            break;
+		case 'cms_stylesheet':
+		case 'stylesheet':
+			Events::SendEvent('Core', 'StylesheetPreCompile', ['stylesheet'=>&$tpl_output]);
+			break;
 
-        case 'content':
-            Events::SendEvent('Core', 'ContentPreCompile', ['content' => &$tpl_output]);
-            break;
+		case 'content':
+			Events::SendEvent('Core', 'ContentPreCompile', ['content' => &$tpl_output]);
+			break;
 
-        case 'cms_template':
-        case 'tpl_top':
-        case 'tpl_body':
-        case 'tpl_head':
-        case 'template':
-            Events::SendEvent('Core', 'TemplatePreCompile', ['template' => &$tpl_output, 'type' => $result[0]]);
-        break;
+		case 'cms_template':
+		case 'tpl_top':
+		case 'tpl_body':
+		case 'tpl_head':
+		case 'template':
+			Events::SendEvent('Core', 'TemplatePreCompile', ['template' => &$tpl_output, 'type' => $result[0]]);
+		break;
 
-        default:
-            break;
+		default:
+			break;
 		}
 	}
 
-    Events::SendEvent('Core', 'SmartyPreCompile', ['content' => &$tpl_output]);
+	Events::SendEvent('Core', 'SmartyPreCompile', ['content' => &$tpl_output]);
 
 	return $tpl_output;
 }

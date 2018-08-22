@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -24,16 +24,16 @@ function smarty_function_title($params, $template)
 		// We've a custom error message...  set a current timestamp
 		$result = '404 Error';
 	}
-    else {
+	else {
 		$result = cms_htmlentities($contentobj->Name());
-        $result = preg_replace("/\{\/?php\}/", '', $result);
+		$result = preg_replace("/\{\/?php\}/", '', $result);
 	}
 
 	if( isset($params['assign']) ) {
-	    $template->assign(trim($params['assign']),$result);
-	    return;
-    }
-    return $result;
+		$template->assign(trim($params['assign']),$result);
+		return;
+	}
+	return $result;
 }
 
 function smarty_cms_about_function_title()

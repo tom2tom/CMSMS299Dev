@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,34 +17,34 @@
 
 function smarty_function_cms_init_editor($params, $template)
 {
-  $wysiwyg = get_parameter_value($params,'wysiwyg');
-  $force = cms_to_bool(get_parameter_value($params,'force',0));
+	$wysiwyg = get_parameter_value($params,'wysiwyg');
+	$force = cms_to_bool(get_parameter_value($params,'force',0));
 
-  $selector = null;
-  if( $wysiwyg ) {
-    // we specified a wysiwyg, so we're gonna override every wysiwyg area on this page.
-    $selector = 'textarea.cmsms_wysiwyg';
-  }
-  else {
-    // we're gonna calll the wysiwygs
-    $wysiwygs = CmsFormUtils::get_requested_wysiwyg_modules();
-    if( !is_array($wysiwygs) || count($wysiwygs) == 0 ) return;
-    $tmp = array_keys($wysiwygs);
-    $wysiwyg = $tmp[0]; // first wysiwyg only, for now.
-  }
+	$selector = null;
+	if( $wysiwyg ) {
+		// we specified a wysiwyg, so we're gonna override every wysiwyg area on this page.
+		$selector = 'textarea.cmsms_wysiwyg';
+	}
+	else {
+		// we're gonna calll the wysiwygs
+		$wysiwygs = CmsFormUtils::get_requested_wysiwyg_modules();
+		if( !is_array($wysiwygs) || count($wysiwygs) == 0 ) return;
+		$tmp = array_keys($wysiwygs);
+		$wysiwyg = $tmp[0]; // first wysiwyg only, for now.
+	}
 
-  $mod = ModuleOperations::get_instance()->GetWYSIWYGModule($wysiwyg);
-  if( !is_object($mod) ) return;
+	$mod = ModuleOperations::get_instance()->GetWYSIWYGModule($wysiwyg);
+	if( !is_object($mod) ) return;
 
-  // get the output
-  $output = $mod->WYSIWYGGenerateHeader($selector);
-  if( !$output ) return;
+	// get the output
+	$output = $mod->WYSIWYGGenerateHeader($selector);
+	if( !$output ) return;
 
-  if( isset($params['assign']) ) {
-    $template->assign(trim($params['assign']).$output);
-    return;
-  }
-  return $output;
+	if( isset($params['assign']) ) {
+		$template->assign(trim($params['assign']).$output);
+		return;
+	}
+	return $output;
 }
 
 function smarty_cms_about_function_cms_init_editor()

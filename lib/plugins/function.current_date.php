@@ -1,5 +1,6 @@
 <?php
-#...
+#Plugin to...
+#Deprecated since 2.3
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,21 +16,19 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-  // this method is deprecated and should be removed.
-  // it is redundant.
 function smarty_function_current_date($params, $template) {
-    $format = '%b %c, %Y';
-    if( !empty($params['format']) ) $format = trim($params['format']);
+	$format = '%b %c, %Y';
+	if( !empty($params['format']) ) $format = trim($params['format']);
 
-    $string = strftime($format,time());
-    if( !empty($params['ucwords']) ) $string = ucwords($string);
+	$string = strftime($format,time());
+	if( !empty($params['ucwords']) ) $string = ucwords($string);
 
-    $out = cms_htmlentities($string);
-    if( !empty($params['assign']) ) {
-        $template->assign(trim($params['assign']),$out);
-        return;
-    }
-    return $out;
+	$out = cms_htmlentities($string);
+	if( !empty($params['assign']) ) {
+		$template->assign(trim($params['assign']),$out);
+		return;
+	}
+	return $out;
 }
 
 function smarty_cms_about_function_current_date()

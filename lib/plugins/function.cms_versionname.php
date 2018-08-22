@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,14 +17,14 @@
 
 function smarty_function_cms_versionname($params, $template)
 {
-    global $CMS_VERSION_NAME;
+	global $CMS_VERSION_NAME;
 
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']), $CMS_VERSION_NAME);
 		return;
 	}
 
-    return $CMS_VERSION_NAME;
+	return $CMS_VERSION_NAME;
 }
 
 function smarty_cms_about_function_cms_versionname()

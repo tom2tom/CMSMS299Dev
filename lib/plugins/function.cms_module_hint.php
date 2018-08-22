@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,21 +17,21 @@
 
 function smarty_function_cms_module_hint($params, $template)
 {
-    if( !isset($params['module']) ) return;
+	if( !isset($params['module']) ) return;
 
-    $module = trim($params['module']);
-    $modobj = cms_utils::get_module($module);
-    if( !is_object($modobj) ) return;
+	$module = trim($params['module']);
+	$modobj = cms_utils::get_module($module);
+	if( !is_object($modobj) ) return;
 
-    $data = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$module);
-    if( !$data ) $data = [];
+	$data = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$module);
+	if( !$data ) $data = [];
 
-    // warning, no check here if the module understands the parameter.
-    foreach( $params as $key => $value ) {
-      if( $key == 'module' ) continue;
-      $data[$key] = $value;
-    }
+	// warning, no check here if the module understands the parameter.
+	foreach( $params as $key => $value ) {
+	  if( $key == 'module' ) continue;
+	  $data[$key] = $value;
+	}
 
-    cms_utils::set_app_data('__CMS_MODULE_HINT__'.$module,$data);
+	cms_utils::set_app_data('__CMS_MODULE_HINT__'.$module,$data);
 }
 

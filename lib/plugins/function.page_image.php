@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,54 +17,54 @@
 
 function smarty_function_page_image($params, $template)
 {
-    $get_bool = function(array $params,$key,$dflt) {
-        if( !isset($params[$key]) ) return (bool) $dflt;
-        if( empty($params[$key]) ) return (bool) $dflt;
-        return (bool) cms_to_bool($params[$key]);
-    };
+	$get_bool = function(array $params,$key,$dflt) {
+		if( !isset($params[$key]) ) return (bool) $dflt;
+		if( empty($params[$key]) ) return (bool) $dflt;
+		return (bool) cms_to_bool($params[$key]);
+	};
 
-    $full = $get_bool($params,'full',false);
-    $thumbnail = $get_bool($params,'thumbnail',false);
-    $tag = $get_bool($params,'tag',false);
-    $assign = trim(get_parameter_value($params,'assign'));
-    unset($params['full'], $params['thumbnail'], $params['tag'], $params['assign']);
+	$full = $get_bool($params,'full',false);
+	$thumbnail = $get_bool($params,'thumbnail',false);
+	$tag = $get_bool($params,'tag',false);
+	$assign = trim(get_parameter_value($params,'assign'));
+	unset($params['full'], $params['thumbnail'], $params['tag'], $params['assign']);
 
 	$propname = 'image';
-    if( $thumbnail ) $propname = 'thumbnail';
-    if( $tag ) $full = true;
+	if( $thumbnail ) $propname = 'thumbnail';
+	if( $tag ) $full = true;
 
 	$contentobj = cms_utils::get_current_content();
-    $val = null;
+	$val = null;
 	if( is_object($contentobj) ) {
 		$val = $contentobj->GetPropertyValue($propname);
 		if( $val == -1 ) $val = null;
-    }
+	}
 
-    $out = null;
-    if( $val ) {
-        $orig_val = $val;
-        $config = \cms_config::get_instance();
-        if( $full ) $val = $config['image_uploads_url'].'/'.$val;
-        if( ! $tag ) {
-            $out = $val;
-        } else {
-            if( !isset($params['alt']) ) $params['alt'] = $orig_val;
-            // build a tag.
-            $out = "<img src=\"$val\"";
-            foreach( $params as $key => $val ) {
-                $key = trim($key);
-                $val = trim($val);
-                if( !$key ) continue;
-                $out .= " $key=\"$val\"";
-            }
-            $out .= ' />';
-        }
-    }
+	$out = null;
+	if( $val ) {
+		$orig_val = $val;
+		$config = \cms_config::get_instance();
+		if( $full ) $val = $config['image_uploads_url'].'/'.$val;
+		if( ! $tag ) {
+			$out = $val;
+		} else {
+			if( !isset($params['alt']) ) $params['alt'] = $orig_val;
+			// build a tag.
+			$out = "<img src=\"$val\"";
+			foreach( $params as $key => $val ) {
+				$key = trim($key);
+				$val = trim($val);
+				if( !$key ) continue;
+				$out .= " $key=\"$val\"";
+			}
+			$out .= ' />';
+		}
+	}
 
 	if( $assign ) {
 		$template->assign($assign,$out);
 		return;
-    }
+	}
 	return $out;
 }
 

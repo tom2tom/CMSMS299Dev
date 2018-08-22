@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,7 +17,7 @@
 
 function smarty_function_uploads_url($params, $template)
 {
-    $out = CMS_UPLOADS_URL;
+	$out = CMS_UPLOADS_URL;
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$out);
 		return;

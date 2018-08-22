@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -20,11 +20,9 @@ function smarty_function_site_mapper($params, $template)
 	$params['module'] = 'Navigator';
 	
 	if( !isset($params['template']) )
-    {
+	{
 		$params['template'] = 'minimal_menu.tpl';
-    }
+	}
 	
 	return cms_module_plugin($params,$template);
 }
-
-?>

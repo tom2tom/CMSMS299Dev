@@ -1,5 +1,5 @@
 <?php
-#Plugin to retrieve base-url of location of installed jquery scripts & styles.
+#Plugin to retrieve an url representing to base/top folder containing jquery scripts & styles.
 #Copyright (C) 2018 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -26,3 +26,4 @@ function smarty_function_scripts_url($params, $template)
 
 	return $out;
 }
+

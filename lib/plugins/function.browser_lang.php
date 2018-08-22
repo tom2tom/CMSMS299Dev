@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -10,83 +10,74 @@
 #
 #This program is distributed in the hope that it will be useful,
 #but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 function smarty_function_browser_lang($params, $template)
 {
-  $default = 'en';
+	$default = 'en';
 
-  //
-  // get the default language
-  //
-  if( isset($params['default']) )
-    {
-      $default = strtolower(substr($params['default'],0,2));
-    }
+	//
+	// get the default language
+	//
+	if( isset($params['default']) ) {
+		$default = strtolower(substr($params['default'],0,2));
+	}
 
-  //
-  // get the accepted languages
-  //
-  if( !isset($params['accepted']) )
-    {
-      return $default;
-    }
-  $tmp = trim($params['accepted']);
-  $tmp = trim($tmp,',');
-  $tmp2 = explode(',',$tmp);
-  if( !is_array($tmp2) || count($tmp2) == 0 )
-    {
-      return $default;
-    }
-  $accepted = [];
-  for( $i = 0; $i < count($tmp2); $i++ )
-    {
-      if( strlen($tmp2[$i]) < 2 ) continue;
-      $accepted[] = strtolower(substr($tmp2[$i],0,2));
-    }
+	//
+	// get the accepted languages
+	//
+	if( !isset($params['accepted']) ) {
+		return $default;
+	}
+	$tmp = trim($params['accepted']);
+	$tmp = trim($tmp,',');
+	$tmp2 = explode(',',$tmp);
+	if( !is_array($tmp2) || count($tmp2) == 0 ) {
+		return $default;
+	}
+	$accepted = [];
+	for( $i = 0; $i < count($tmp2); $i++ ) {
+		if( strlen($tmp2[$i]) < 2 ) continue;
+		$accepted[] = strtolower(substr($tmp2[$i],0,2));
+	}
 
-  //
-  // process the accepted languages and the default
-  // makes sure the array is unique, and that the default
-  // is listed first
-  //
-  $accepted = array_merge([$default],$accepted);
-  $accepted = array_unique($accepted);
+	//
+	// process the accepted languages and the default
+	// makes sure the array is unique, and that the default
+	// is listed first
+	//
+	$accepted = array_merge([$default],$accepted);
+	$accepted = array_unique($accepted);
 
-  //
-  // now process browser language
-  //
-  $res = $default;
-  if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
-    {
+	//
+	// now process browser language
+	//
+	$res = $default;
+	if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 		$alllang = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 		if (strpos($alllang, ';') !== FALSE)
 			$alllang = substr($alllang,0,strpos($alllang, ';'));
 		$langs = explode(',', $alllang);
 
-		if( is_array($langs) && count($langs) )
-		{
-			foreach( $langs as $one )
-			{
-				if( in_array($one,$accepted) )
-				{
+		if( is_array($langs) && count($langs) ) {
+			foreach( $langs as $one ) {
+				if( in_array($one,$accepted) ) {
 					$res = $one;
-				break;
+					break;
 				}
 			}
 		}
-    }
+	}
 
-  if( isset($params['assign']) )
-    {
+	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$res);
 		return;
-    }
+	}
 
-  return $res;
+	return $res;
 }
 
 function smarty_cms_about_function_browser_lang()
@@ -99,3 +90,4 @@ function smarty_cms_about_function_browser_lang()
 </ul>
 EOS;
 }
+

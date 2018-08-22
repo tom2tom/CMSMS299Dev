@@ -48,4 +48,3 @@ function smarty_modifier_cms_date_format($string, $format = '', $default_date = 
 
 	return smarty_modifier_date_format($string,$format,$default_date);
 }
-

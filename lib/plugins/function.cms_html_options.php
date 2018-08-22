@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #(c)2013 by Robert Campbell (calguy1000@cmsmadesimple.org)
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,37 +17,37 @@
 
 function smarty_function_cms_html_options($params, $template)
 {
-    $options = null;
-    if( !isset($params['options']) ) {
-        if( isset($params['value']) && isset($params['label']) ) {
-            $opt = [];
-            $opt['label'] = $params['label'];
-            $opt['value'] = $params['value'];
-            if( isset($params['title']) ) $opt['title'] = $params['title'];
-            if( isset($params['class']) ) $opt['class'] = $params['class'];
-            $options = $opt;
-        }
-        else {
-            return;
-        }
-    }
-    else {
-        $options = $params['options'];
-    }
+	$options = null;
+	if( !isset($params['options']) ) {
+		if( isset($params['value']) && isset($params['label']) ) {
+			$opt = [];
+			$opt['label'] = $params['label'];
+			$opt['value'] = $params['value'];
+			if( isset($params['title']) ) $opt['title'] = $params['title'];
+			if( isset($params['class']) ) $opt['class'] = $params['class'];
+			$options = $opt;
+		}
+		else {
+			return;
+		}
+	}
+	else {
+		$options = $params['options'];
+	}
 
-    $out = null;
-    if( is_array($options) && count($options) ) {
-        $selected = null;
-        if( isset($params['selected']) ) {
-            $selected = $params['selected'];
-            if( !is_array($selected) ) $selected = explode(',',$selected);
-        }
-        $out = CmsFormUtils::create_option($params['options'],$selected);
-    }
+	$out = null;
+	if( is_array($options) && count($options) ) {
+		$selected = null;
+		if( isset($params['selected']) ) {
+			$selected = $params['selected'];
+			if( !is_array($selected) ) $selected = explode(',',$selected);
+		}
+		$out = CmsFormUtils::create_option($params['options'],$selected);
+	}
 
-    if( isset($params['assign']) ) {
-        $template->assign(trim($params['assign']),$out);
-        return;
-    }
-    return $out;
+	if( isset($params['assign']) ) {
+		$template->assign(trim($params['assign']),$out);
+		return;
+	}
+	return $out;
 }

@@ -1,7 +1,7 @@
 <?php
-#CMS - CMS Made Simple
-#(c)2004 by Ted Kulp (wishy@users.sf.net)
-#Visit our homepage at: http://www.cmsmadesimple.org
+#Plugin to ...
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 
 function smarty_block_admin_headtext($params, $content, $template, &$repeat)
 {
-    if( is_null($content) ) return;
+	if( is_null($content) ) return;
 
-    $obj = \cms_utils::get_theme_object();
-    if( $obj ) $obj->add_headtext( $content );
+	$obj = cms_utils::get_theme_object();
+	if( $obj ) $obj->add_headtext( $content );
 }

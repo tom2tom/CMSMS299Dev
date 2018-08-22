@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -18,12 +18,11 @@
 function smarty_function_cms_set_language($params, $template)
 {
   if( isset($params['lang']) ) {
-    $lang = trim($params['lang']);
+	$lang = trim($params['lang']);
   }
   else {
-    $lang = null;
+	$lang = null;
   } 
 //$res = 
-  \CmsNlsOperations::set_language($lang);
+  CmsNlsOperations::set_language($lang);
 }
-?>

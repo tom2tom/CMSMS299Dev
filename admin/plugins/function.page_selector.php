@@ -1,6 +1,6 @@
 <?php
-#...
-#(c)2016 by Robert Campbell (calguy1000@cmsmadesimple.org)
+#Plugin to...
+#Copyright (C)2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -17,16 +17,17 @@
 
 function smarty_function_page_selector($params, $template)
 {
-    $value = (isset($params['value']) ) ? (int) $params['value'] : 0;
-    $name = (isset($params['name']) ) ? trim($params['name']) : 'parent_id';
-    $allowcurrent = (isset($params['allowcurrent']) ) ? cms_to_bool($params['allowcurrent']) : 0;
-    $allow_all = (isset($params['allowall']) ) ? cms_to_bool($params['allowall']) : 0;
-    $for_child = (isset($params['for_child']) ) ? cms_to_bool($params['for_child']) : 0;
+	$value = (isset($params['value']) ) ? (int) $params['value'] : 0;
+	$name = (isset($params['name']) ) ? trim($params['name']) : 'parent_id';
+	$allowcurrent = (isset($params['allowcurrent']) ) ? cms_to_bool($params['allowcurrent']) : 0;
+	$allow_all = (isset($params['allowall']) ) ? cms_to_bool($params['allowall']) : 0;
+	$for_child = (isset($params['for_child']) ) ? cms_to_bool($params['for_child']) : 0;
 
-    $out = \ContentOperations::get_instance()->CreateHierarchyDropdown('',$value,$name,$allowcurrent,0,0,$allow_all,$for_child);
+	$out = ContentOperations::get_instance()->CreateHierarchyDropdown('',$value,$name,$allowcurrent,0,0,$allow_all,$for_child);
 	if( isset($params['assign']) )	{
 		$smarty->assign(trim($params['assign']),$out);
 		return;
 	}
 	return $out;
 }
+

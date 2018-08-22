@@ -17,29 +17,29 @@
 
 function smarty_function_cms_queue_script( $params, $template )
 {
-    if( !isset($params['file']) ) return;
-    $combiner = CmsApp::get_instance()->GetScriptManager();
+	if( !isset($params['file']) ) return;
+	$combiner = CmsApp::get_instance()->GetScriptManager();
 
-    $file = trim($params['file']);
+	$file = trim($params['file']);
 	$priority = $params['priority'] ?? 0;
 
-    if( is_file( $file ) ) {
-        $combiner->queue_file( $file, $priority );
-        return;
-    }
+	if( is_file( $file ) ) {
+		$combiner->queue_file( $file, $priority );
+		return;
+	}
 
-    // if it's relative to a CMSMS path
-    if( !startswith( $file, DIRECTORY_SEPARATOR ) ) $file = DIRECTORY_SEPARATOR.$file;
-    $config = \cms_config::get_instance();
-    $paths = [ CMS_ASSETS_PATH.$file, $config['uploads_path'].$file, CMS_ROOT_PATH.$file ];
-    foreach( $paths as $one ) {
-        if( is_file( $one ) ) $combiner->queue_file( $one, $priority );
-    }
+	// if it's relative to a CMSMS path
+	if( !startswith( $file, DIRECTORY_SEPARATOR ) ) $file = DIRECTORY_SEPARATOR.$file;
+	$config = \cms_config::get_instance();
+	$paths = [ CMS_ASSETS_PATH.$file, $config['uploads_path'].$file, CMS_ROOT_PATH.$file ];
+	foreach( $paths as $one ) {
+		if( is_file( $one ) ) $combiner->queue_file( $one, $priority );
+	}
 }
 
 function smarty_cms_help_function_cms_queue_script()
 {
-    echo lang_by_realm('tags','help_function_queue_script');
+	echo lang_by_realm('tags','help_function_queue_script');
 }
 
 function smarty_cms_about_function_cms_queue_script()

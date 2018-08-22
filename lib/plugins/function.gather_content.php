@@ -1,5 +1,5 @@
 <?php
-#function to get page content (of any sort) via a hooklist
+#Plugin to get page content (of any sort) via a hooklist
 #Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,25 +19,25 @@ use CMSMS\HookManager;
 
 function smarty_function_gather_content($params, $template)
 {
-    $listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';
-    $aout = HookManager::do_hook($listname, []);
-    $out = ($aout) ? implode("\n", $aout) : '';
+	$listname = (!empty($params['list'])) ? $params['list'] : 'gatherlist';
+	$aout = HookManager::do_hook($listname, []);
+	$out = ($aout) ? implode("\n", $aout) : '';
 
-    if (isset($params['assign'])) {
-        $template->assign(trim($params['assign']),$out);
-        return;
-    }
-    return $out;
+	if (isset($params['assign'])) {
+		$template->assign(trim($params['assign']),$out);
+		return;
+	}
+	return $out;
 }
 
 function smarty_cms_help_function_gather_content()
 {
-    echo lang_by_realm('tags','help_function_gather_content');
+	echo lang_by_realm('tags','help_function_gather_content');
 }
 
 function smarty_cms_about_function_gather_content()
 {
-    echo <<<'EOS'
+	echo <<<'EOS'
 <p>Author: CMS Made Simple Foundation &lt;foundation@cmsmadesimple.org&gt;</p>
 <p>Version: 1.0</p>
 <p>
@@ -46,4 +46,3 @@ None
 </p>
 EOS;
 }
-

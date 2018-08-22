@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2011 Ted Kulp <ted@cmsmadesimple.org>
+#Plugin to...
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -17,10 +17,10 @@
 
 function smarty_function_root_url($params, $template)
 {
-    $str = CMS_ROOT_URL;
-    if( isset($params['assign']) ) {
+	$str = CMS_ROOT_URL;
+	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$str);
 		return;
-    }
+	}
 	return $str;
 }

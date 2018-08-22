@@ -1,6 +1,6 @@
 <?php
-#...
-#(c)2013 by Robert Campbell (calguy1000@cmsmadesimple.org)
+#Plugin to...
+#Copyright (C)2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -14,75 +14,73 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
-#
 
 function smarty_function_cms_action_url($params, $template)
 {
-    $module = $template->getTemplateVars('_module');
-    $returnid = $template->getTemplateVars('returnid');
-    $mid = $template->getTemplateVars('actionid');
-    $action = null;
-    $assign = null;
-    $forjs  = 0;
+	$module = $template->getTemplateVars('_module');
+	$returnid = $template->getTemplateVars('returnid');
+	$mid = $template->getTemplateVars('actionid');
+	$action = null;
+	$assign = null;
+	$forjs  = 0;
 
-    $actionparms = [];
-    foreach( $params as $key => $value ) {
-        switch( $key ) {
-        case 'module':
-            $module = trim($value);
-            break;
-        case 'action':
-            $action = trim($value);
-            break;
-        case 'returnid':
-            $returnid = (int)trim($value);
-            break;
-        case 'mid':
-            $mid = trim($value);
-            break;
-        case 'assign':
-            $assign = trim($value);
-            break;
-        case 'forjs':
-            $forjs = 1;
-            break;
-        default:
-            $actionparms[$key] = $value;
-            break;
-        }
-    }
+	$actionparms = [];
+	foreach( $params as $key => $value ) {
+		switch( $key ) {
+		case 'module':
+			$module = trim($value);
+			break;
+		case 'action':
+			$action = trim($value);
+			break;
+		case 'returnid':
+			$returnid = (int)trim($value);
+			break;
+		case 'mid':
+			$mid = trim($value);
+			break;
+		case 'assign':
+			$assign = trim($value);
+			break;
+		case 'forjs':
+			$forjs = 1;
+			break;
+		default:
+			$actionparms[$key] = $value;
+			break;
+		}
+	}
 
-    // validate params
-    $gCms = CmsApp::get_instance();
-    if( $module == '' ) return;
-    if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
-        if( $mid == '' ) $mid = 'm1_';
-        if( $action == '' ) $action = 'defaultadmin';
-    }
-    else if( $gCms->is_frontend_request() ) {
-        if( $mid == '' ) $mid = 'cntnt01';
-        if( $action == '' ) $action = 'default';
-        if( $returnid == '' ) {
-            $contentops = $gCms->GetContentOperations();
-            $returnid = $contentops->GetDefaultContent();
-        }
-    }
-    if( $action == '' ) return;
+	// validate params
+	$gCms = CmsApp::get_instance();
+	if( $module == '' ) return;
+	if( $gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+		if( $mid == '' ) $mid = 'm1_';
+		if( $action == '' ) $action = 'defaultadmin';
+	}
+	else if( $gCms->is_frontend_request() ) {
+		if( $mid == '' ) $mid = 'cntnt01';
+		if( $action == '' ) $action = 'default';
+		if( $returnid == '' ) {
+			$contentops = $gCms->GetContentOperations();
+			$returnid = $contentops->GetDefaultContent();
+		}
+	}
+	if( $action == '' ) return;
 
-    $obj = cms_utils::get_module($module);
-    if( !$obj ) return;
+	$obj = cms_utils::get_module($module);
+	if( !$obj ) return;
 
-    $url = $obj->create_url($mid,$action,$returnid,$actionparms);
-    if( !$url ) return;
+	$url = $obj->create_url($mid,$action,$returnid,$actionparms);
+	if( !$url ) return;
 
-    if( $forjs ) {
-        $url = str_replace('&amp;','&',$url);
-    }
-    if( $assign ) {
-        $template->assign($assign,$url);
-        return;
-    }
-    return $url;
+	if( $forjs ) {
+		$url = str_replace('&amp;','&',$url);
+	}
+	if( $assign ) {
+		$template->assign($assign,$url);
+		return;
+	}
+	return $url;
 }
 
-?>

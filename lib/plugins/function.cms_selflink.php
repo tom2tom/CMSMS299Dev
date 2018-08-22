@@ -22,7 +22,7 @@ This is a rewrite of the original cms_selflink plugin by Ted Kulk and various au
 
 function smarty_function_cms_selflink($params, $template)
 {
-    $gCms = \CmsApp::get_instance();
+	$gCms = \CmsApp::get_instance();
 	$manager = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';
@@ -47,14 +47,14 @@ function smarty_function_cms_selflink($params, $template)
 		}
 
 		if( $page ) {
-            if( (int)$page > 0 && is_numeric($page) ) {
-                $pageid = (int)$page;
-            }
-            else {
-                $page = cms_html_entity_decode($page); // decode entities (alias may be encoded if entered in WYSIWYG)
-                $node = $manager->find_by_tag('alias',$page);
-                if( $node ) $pageid = $node->get_tag('id');
-            }
+			if( (int)$page > 0 && is_numeric($page) ) {
+				$pageid = (int)$page;
+			}
+			else {
+				$page = cms_html_entity_decode($page); // decode entities (alias may be encoded if entered in WYSIWYG)
+				$node = $manager->find_by_tag('alias',$page);
+				if( $node ) $pageid = $node->get_tag('id');
+			}
 		}
 	}
 
@@ -150,7 +150,7 @@ function smarty_function_cms_selflink($params, $template)
 
 		case 'start':
 			// default home page
-            $contentops = ContentOperations::get_instance();
+			$contentops = ContentOperations::get_instance();
 			$pageid = $contentops->GetDefaultPageId();
 			break;
 
@@ -286,5 +286,6 @@ function smarty_function_cms_selflink($params, $template)
 
 function smarty_cms_help_function_cms_selflink()
 {
-    echo lang_by_realm('tags','help_function_cms_selflink');
+	echo lang_by_realm('tags','help_function_cms_selflink');
 }
+

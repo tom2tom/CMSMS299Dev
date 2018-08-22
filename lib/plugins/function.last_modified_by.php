@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,8 +17,8 @@
 
 function smarty_function_last_modified_by($params, $template)
 {
-    $gCms = CmsApp::get_instance();
-    $content_obj = $gCms->get_content_object();
+	$gCms = CmsApp::get_instance();
+	$content_obj = $gCms->get_content_object();
 	$id = '';
 
 	if (isset($content_obj) && $content_obj->LastModifiedBy() > -1)	{
@@ -27,26 +27,26 @@ function smarty_function_last_modified_by($params, $template)
 		return;
 	}
 
-    $format = 'id';
+	$format = 'id';
 	if(!empty($params['format'])) $format = $params['format'];
-    $userops = UserOperations::get_instance();
-    $thisuser = $userops->LoadUserByID($id);
-    if( !$thisuser ) return; // could not find user record.
+	$userops = UserOperations::get_instance();
+	$thisuser = $userops->LoadUserByID($id);
+	if( !$thisuser ) return; // could not find user record.
 
-    $output = '';
-    if($format==='id') {
-        $output = $id;
-    } else if ($format==='username') {
-        $output = cms_htmlentities($thisuser->username);
-    } else if ($format==='fullname') {
-        $output = cms_htmlentities($thisuser->firstname .' '. $thisuser->lastname);
-    }
+	$output = '';
+	if($format==='id') {
+		$output = $id;
+	} else if ($format==='username') {
+		$output = cms_htmlentities($thisuser->username);
+	} else if ($format==='fullname') {
+		$output = cms_htmlentities($thisuser->firstname .' '. $thisuser->lastname);
+	}
 
-    if( isset($params['assign']) ) {
-        $template->assign(trim($params['assign']),$output);
-        return;
-    }
-    return $output;
+	if( isset($params['assign']) ) {
+		$template->assign(trim($params['assign']),$output);
+		return;
+	}
+	return $output;
 }
 
 function smarty_cms_about_function_last_modified_by()

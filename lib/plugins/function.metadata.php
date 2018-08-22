@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,7 +19,7 @@ use CMSMS\HookManager;
 
 function smarty_function_metadata($params, $template)
 {
-    $gCms = CmsApp::get_instance();
+	$gCms = CmsApp::get_instance();
 	$config = cms_config::get_instance();
 	$content_obj = $gCms->get_content_object();
 
@@ -27,19 +27,19 @@ function smarty_function_metadata($params, $template)
 	$showbase = true;
 
 	// Show a base tag unless showbase is false in config.php
-    // It really can't hinder, only help
+	// It really can't hinder, only help
 	if( isset($config['showbase']))  $showbase = $config['showbase'];
 
-    // But allow a parameter to override it
+	// But allow a parameter to override it
 	if (isset($params['showbase']))	{
 		if ($params['showbase'] == 'false')	$showbase = false;
 	}
 
-    HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
+	HookManager::do_hook('metadata_prerender', [ 'content_id'=>$content_obj->Id(), 'showbase'=>&$showbase, 'html'=>&$result ]);
 
 	if ($showbase)	{
-        $base = CMS_ROOT_URL;
-        if( $gCms->is_https_request() ) $base = $config['ssl_url'];
+		$base = CMS_ROOT_URL;
+		if( $gCms->is_https_request() ) $base = $config['ssl_url'];
 		$result .= "\n<base href=\"".$base."/\" />\n";
 	}
 
@@ -48,10 +48,10 @@ function smarty_function_metadata($params, $template)
 	if (is_object($content_obj) && $content_obj->Metadata() != '') $result .= "\n" . $content_obj->Metadata();
 
 	if (strpos($result,$template->smarty->left_delimiter) !== false && strpos($result,$template->smarty->right_delimiter) !== false) {
-        $result = $template->fetch('string:'.$result);
-    }
+		$result = $template->fetch('string:'.$result);
+	}
 
-    HookManager::do_hook('metadata_postrender', [ 'content_id'=>$content_obj->Id(), 'html'=>&$result ]);
+	HookManager::do_hook('metadata_postrender', [ 'content_id'=>$content_obj->Id(), 'html'=>&$result ]);
 	if( isset($params['assign']) )	{
 		$template->assign(trim($params['assign']),$result);
 		return;

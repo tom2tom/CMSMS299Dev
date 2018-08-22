@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to ...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -22,44 +22,44 @@ function smarty_function_image($params, $template)
   $imgstart = '<img src=';
   $imgend = ' />';
   if( !empty($params['src'] ) ) {
-      $text = $imgstart .= '"'.$gCms->config['image_uploads_url'].'/'.$params['src'].'"';
-      $size = @getimagesize($gCms->config['image_uploads_path'].'/'.$params['src']);
+	  $text = $imgstart .= '"'.$gCms->config['image_uploads_url'].'/'.$params['src'].'"';
+	  $size = @getimagesize($gCms->config['image_uploads_path'].'/'.$params['src']);
 
-      if( !empty($params['width'] ) ) {
-          $text .= ' width="'.$params['width'].'"';
-      } elseif ($size[0] > 0) {
-          $text .= ' width="'.$size[0].'"';
-      }
+	  if( !empty($params['width'] ) ) {
+		  $text .= ' width="'.$params['width'].'"';
+	  } elseif ($size[0] > 0) {
+		  $text .= ' width="'.$size[0].'"';
+	  }
 
-      if( !empty($params['height'] ) ) {
-          $text .= ' height="'.$params['height'].'"';
-      } elseif ($size[1] > 0) {
-          $text .= ' height="'.$size[1].'"';
-      }
+	  if( !empty($params['height'] ) ) {
+		  $text .= ' height="'.$params['height'].'"';
+	  } elseif ($size[1] > 0) {
+		  $text .= ' height="'.$size[1].'"';
+	  }
 
-      if( !empty($params['alt'] ) ) {
-          $alt = $params['alt'];
-      } else {
-          $alt = '['.$params['src'].']';
-      }
+	  if( !empty($params['alt'] ) ) {
+		  $alt = $params['alt'];
+	  } else {
+		  $alt = '['.$params['src'].']';
+	  }
 
-      $text .= ' alt="'.$alt.'"';
-      if( !empty($params['title'] ) )	{
-          $text .= ' title="'.$params['title'].'"';
-      } else {
-          $text .= ' title="'.$alt.'"';
-      }
+	  $text .= ' alt="'.$alt.'"';
+	  if( !empty($params['title'] ) )	{
+		  $text .= ' title="'.$params['title'].'"';
+	  } else {
+		  $text .= ' title="'.$alt.'"';
+	  }
 
-      if( !empty($params['class'] ) )	$text .= ' class="'.$params['class'].'"';
-      if( !empty($params['addtext'] ) ) $text .= ' ' . $params['addtext'];
-      $text .= $imgend;
+	  if( !empty($params['class'] ) )	$text .= ' class="'.$params['class'].'"';
+	  if( !empty($params['addtext'] ) ) $text .= ' ' . $params['addtext'];
+	  $text .= $imgend;
   } else {
-      $text = '<!-- empty results from image plugin -->';
+	  $text = '<!-- empty results from image plugin -->';
   }
 
   if( isset($params['assign']) )	{
-      $template->assign(trim($params['assign']),$text);
-      return;
+	  $template->assign(trim($params['assign']),$text);
+	  return;
   }
   return $text;
 }

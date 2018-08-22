@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -31,49 +31,49 @@ function smarty_function_cms_pageoptions($params, $template)
 
   $list = [];
   for( $i = 1; $i <= min($surround,$numpages); $i++ ) {
-    $list[] = (int)$i;
+	$list[] = (int)$i;
   }
 
   $x1 = max(1,(int)($curpage - $surround/2));
   $x2 = min($numpages,(int)($curpage + $surround/2));
   for( $i = $x1; $i <= $x2; $i++ ) {
-    $list[] = (int)$i;
+	$list[] = (int)$i;
   }
 
   for( $i = max(1,$numpages - $surround); $i <= $numpages; $i++ ) {
-    $list[] = (int)$i;
+	$list[] = (int)$i;
   }
 
   $list = array_unique($list);
   sort($list);
 
   if ( $bare ) {
-    $out = $list;
-    if( $elipsis ) {
-      $out = [];
-      for( $i = 1; $i < count($list); $i++ ) {
+	$out = $list;
+	if( $elipsis ) {
+	  $out = [];
+	  for( $i = 1; $i < count($list); $i++ ) {
 	if( $list[$i-1] != $list[$i] - 1 ) $out[] = $elipsis;
 	$out[] = $list[$i];
-      }
-    }
+	  }
+	}
   }
   else {
-    $out = '';
-    $fmt = '<option value="%d">%s</option>';
-    $fmt2 = '<option value="%d" selected="selected">%s</option>';
-    foreach( $list as $pagenum ) {
-      if( $pagenum == $curpage ) {
+	$out = '';
+	$fmt = '<option value="%d">%s</option>';
+	$fmt2 = '<option value="%d" selected="selected">%s</option>';
+	foreach( $list as $pagenum ) {
+	  if( $pagenum == $curpage ) {
 	$out .= sprintf($fmt2,$pagenum,$pagenum);
-      }
-      else {
+	  }
+	  else {
 	$out .= sprintf($fmt,$pagenum,$pagenum);
-      }
-    }
+	  }
+	}
   }
 
   if( isset($params['assign']) ) {
-    $template->assign(trim($params['assign']),$out);
-    return;
+	$template->assign(trim($params['assign']),$out);
+	return;
   }
   return $out;
 }

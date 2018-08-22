@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,35 +17,35 @@
 
 function smarty_function_anchor($params, $template)
 {
-    $content = cms_utils::get_current_content();
-    if( !is_object($content) ) return;
+	$content = cms_utils::get_current_content();
+	if( !is_object($content) ) return;
 
-    $class='';
-    $title='';
-    $tabindex='';
-    $accesskey='';
-    if (isset($params['class'])) $class = ' class="'.$params['class'].'"';
-    if (isset($params['title'])) $title = ' title="'.$params['title'].'"';
-    if (isset($params['tabindex'])) $tabindex = ' tabindex="'.$params['tabindex'].'"';
-    if (isset($params['accesskey'])) $accesskey = ' accesskey="'.$params['accesskey'].'"';
+	$class='';
+	$title='';
+	$tabindex='';
+	$accesskey='';
+	if (isset($params['class'])) $class = ' class="'.$params['class'].'"';
+	if (isset($params['title'])) $title = ' title="'.$params['title'].'"';
+	if (isset($params['tabindex'])) $tabindex = ' tabindex="'.$params['tabindex'].'"';
+	if (isset($params['accesskey'])) $accesskey = ' accesskey="'.$params['accesskey'].'"';
 
-    $url = $content->GetURL().'#'.trim($params['anchor']);
-    $url = str_replace('&amp;','***',$url);
-    $url = str_replace('&', '&amp;', $url);
-    $url = str_replace('***','&amp;',$url);
+	$url = $content->GetURL().'#'.trim($params['anchor']);
+	$url = str_replace('&amp;','***',$url);
+	$url = str_replace('&', '&amp;', $url);
+	$url = str_replace('***','&amp;',$url);
 
-    if (isset($params['onlyhref']) && cms_to_bool($params['onlyhref'])) {
-        $tmp =  $url;
-    }
-    else {
-        $text = get_parameter_value( $params, 'text','<!-- anchor tag: no text provided -->anchor');
-        $tmp = '<a href="'.$url.'"'.$class.$title.$tabindex.$accesskey.'>'.$text.'</a>';
-    }
+	if (isset($params['onlyhref']) && cms_to_bool($params['onlyhref'])) {
+		$tmp =  $url;
+	}
+	else {
+		$text = get_parameter_value( $params, 'text','<!-- anchor tag: no text provided -->anchor');
+		$tmp = '<a href="'.$url.'"'.$class.$title.$tabindex.$accesskey.'>'.$text.'</a>';
+	}
 
-    if (isset($params['assign'])){
-        $template->assign(trim($params['assign']),$tmp);
-        return;
-    }
-    return $tmp;
+	if (isset($params['assign'])){
+		$template->assign(trim($params['assign']),$tmp);
+		return;
+	}
+	return $tmp;
 }
-?>
+

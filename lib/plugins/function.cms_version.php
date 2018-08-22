@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -29,7 +29,7 @@ function smarty_function_cms_version($params, $template)
 
 function smarty_cms_about_function_cms_version()
 {
-    echo <<<'EOS'
+	echo <<<'EOS'
 <p>Author: Ted Kulp &lt;ted@cmsmadesimple.org&gt;</p>
 <p>Change History:</p>
 <ul>

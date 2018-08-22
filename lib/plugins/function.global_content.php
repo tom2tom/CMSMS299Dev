@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to ...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,7 +16,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- *
  * @param array $params
  * @param CMSMS\internal\template_wrapper $smarty
  * @return mixed result of template conversion, or null

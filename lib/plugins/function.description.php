@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,8 +17,8 @@
 
 function smarty_function_description($params, $template)
 {
-    $gCms = CmsApp::get_instance();
-    $content_obj = $gCms->get_content_object();
+	$gCms = CmsApp::get_instance();
+	$content_obj = $gCms->get_content_object();
 
 	if (!is_object($content_obj) || $content_obj->Id() == -1) {
 		// We've a custom error message...  set a message
@@ -26,7 +26,7 @@ function smarty_function_description($params, $template)
 	}
 	else {
 		$result = $content_obj->TitleAttribute();
-        $out = preg_replace("/\{\/?php\}/", '', $result);
+		$out = preg_replace("/\{\/?php\}/", '', $result);
 	}
 
 	if( isset($params['assign']) ) {

@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,7 +19,7 @@ function smarty_function_modified_date($params, $template)
 {
 	$content_obj = CmsApp::get_instance()->get_content_object();
 
-    $format = '%x %X';
+	$format = '%x %X';
 	if(!empty($params['format'])) $format = $params['format'];
 	if (is_object($content_obj) && $content_obj->GetModifiedDate() > -1) {
 		$time = $content_obj->GetModifiedDate();
@@ -28,7 +28,7 @@ function smarty_function_modified_date($params, $template)
 		if( isset($params['assign']) ) {
 			$template->assign(trim($params['assign']),$str);
 			return;
-	    }
+		}
 		return $str;
 	}
 }

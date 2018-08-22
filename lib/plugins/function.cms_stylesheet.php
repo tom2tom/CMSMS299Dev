@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -33,7 +33,7 @@ function smarty_function_cms_stylesheet($params, $template)
 	if( isset($CMS_LOGIN_PAGE) ) return;
 
 	$CMS_STYLESHEET = 1;
-    $gCms = CmsApp::get_instance();
+	$gCms = CmsApp::get_instance();
 	$config = $gCms->GetConfig();
 
 	$name = null;
@@ -49,160 +49,160 @@ function smarty_function_cms_stylesheet($params, $template)
 	# Read parameters
 	#---------------------------------------------
 
-    try {
-        if( !empty($params['name']) ) {
-            $name = trim($params['name']);
-        }
-        elseif( !empty($params['designid']) ) {
-            $design_id = (int)$params['designid'];
-        }
+	try {
+		if( !empty($params['name']) ) {
+			$name = trim($params['name']);
+		}
+		elseif( !empty($params['designid']) ) {
+			$design_id = (int)$params['designid'];
+		}
 		else {
-            $content_obj = $gCms->get_content_object();
-            if( !is_object($content_obj) ) return;
-            $design_id = (int) $content_obj->GetPropertyValue('design_id');
-        }
-        if( !$name && $design_id < 1 ) throw new RuntimeException('Invalid parameters, or there is no design attached to the content page');
+			$content_obj = $gCms->get_content_object();
+			if( !is_object($content_obj) ) return;
+			$design_id = (int) $content_obj->GetPropertyValue('design_id');
+		}
+		if( !$name && $design_id < 1 ) throw new RuntimeException('Invalid parameters, or there is no design attached to the content page');
 
-        // @todo: change this stuff to just use // instead of protocol specific URL.
+		// @todo: change this stuff to just use // instead of protocol specific URL.
 
-        if( isset($params['nocombine']) ) $combine_stylesheets = !cms_to_bool($params['nocombine']);
+		if( isset($params['nocombine']) ) $combine_stylesheets = !cms_to_bool($params['nocombine']);
 
-        if( isset($params['stripbackground']) )	{
-            $trimbackground = cms_to_bool($params['stripbackground']);
-            $fnsuffix = '_e_';
-        }
+		if( isset($params['stripbackground']) )	{
+			$trimbackground = cms_to_bool($params['stripbackground']);
+			$fnsuffix = '_e_';
+		}
 
-        #---------------------------------------------
-        # Build query
-        #---------------------------------------------
+		#---------------------------------------------
+		# Build query
+		#---------------------------------------------
 
-        $query = null;
-        if( $name != '' ) {
-            // stylesheet by name
-            $query = new CmsLayoutStylesheetQuery(['name'=>$params['name']] );
-        } else if( $design_id > 0 ) {
-            // stylesheet by design id
-            $query = new CmsLayoutStylesheetQuery( [ 'design'=>$design_id ] );
-        }
-        if( !$query ) throw new RuntimeException('Problem: Could not build a stylesheet query with the provided data');
+		$query = null;
+		if( $name != '' ) {
+			// stylesheet by name
+			$query = new CmsLayoutStylesheetQuery(['name'=>$params['name']] );
+		} else if( $design_id > 0 ) {
+			// stylesheet by design id
+			$query = new CmsLayoutStylesheetQuery( [ 'design'=>$design_id ] );
+		}
+		if( !$query ) throw new RuntimeException('Problem: Could not build a stylesheet query with the provided data');
 
-        #---------------------------------------------
-        # Execute
-        #---------------------------------------------
+		#---------------------------------------------
+		# Execute
+		#---------------------------------------------
 
-        $nrows = $query->TotalMatches();
-        if( !$nrows ) throw new RuntimeException('No stylesheets matched the criteria specified');
-        $res = $query->GetMatches();
+		$nrows = $query->TotalMatches();
+		if( !$nrows ) throw new RuntimeException('No stylesheets matched the criteria specified');
+		$res = $query->GetMatches();
 
-        // we have some output, and the stylesheet objects have already been loaded.
+		// we have some output, and the stylesheet objects have already been loaded.
 
-        // Combine stylesheets
-        if($combine_stylesheets) {
+		// Combine stylesheets
+		if($combine_stylesheets) {
 
-            // Group queries & types
-            $all_media = [];
-            $all_timestamps = [];
-            foreach( $res as $one ) {
-                $mq = $one->get_media_query();
-                $mt = implode(',',$one->get_media_types());
-                if( !empty($mq) ) {
-                    $key = md5($mq);
-                    $all_media[$key][] = $one;
-                    $all_timestamps[$key][] = $one->get_modified();
-                } else if( !$mt ) {
-                    $all_media['all'][] = $one;
-                    $all_timestamps['all'][] = $one->get_modified();
-                } else {
-                    $key = md5($mt);
-                    $all_media[$key][] = $one;
-                    $all_timestamps[$key][] = $one->get_modified();
-                }
+			// Group queries & types
+			$all_media = [];
+			$all_timestamps = [];
+			foreach( $res as $one ) {
+				$mq = $one->get_media_query();
+				$mt = implode(',',$one->get_media_types());
+				if( !empty($mq) ) {
+					$key = md5($mq);
+					$all_media[$key][] = $one;
+					$all_timestamps[$key][] = $one->get_modified();
+				} else if( !$mt ) {
+					$all_media['all'][] = $one;
+					$all_timestamps['all'][] = $one->get_modified();
+				} else {
+					$key = md5($mt);
+					$all_media[$key][] = $one;
+					$all_timestamps[$key][] = $one->get_modified();
+				}
 
-            }
+			}
 
-            // media parameter...
-            if( isset($params['media']) && strtolower($params['media']) != 'all' ) {
-                // media parameter is deprecated.
+			// media parameter...
+			if( isset($params['media']) && strtolower($params['media']) != 'all' ) {
+				// media parameter is deprecated.
 
-                // combine all matches into one stylesheet
-                $filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
-                $fn = cms_join_path($cache_dir,$filename);
+				// combine all matches into one stylesheet
+				$filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
+				$fn = cms_join_path($cache_dir,$filename);
 
-                if( !file_exists($fn) ) {
-                    $list = [];
-                    foreach ($res as $one) {
-                        if( in_array($params['media'],$one->get_media_types()) ) $list[] = $one->get_name();
-                    }
+				if( !file_exists($fn) ) {
+					$list = [];
+					foreach ($res as $one) {
+						if( in_array($params['media'],$one->get_media_types()) ) $list[] = $one->get_name();
+					}
 
-                    cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
-                }
+					cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
+				}
 
-                cms_stylesheet_toString($filename, $params['media'], '', $root_url, $stylesheet, $params);
+				cms_stylesheet_toString($filename, $params['media'], '', $root_url, $stylesheet, $params);
 
-            } else {
+			} else {
 
-                foreach($all_media as $hash=>$onemedia) {
+				foreach($all_media as $hash=>$onemedia) {
 
-                    // combine all matches into one stylesheet.
-                    $filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
-                    $fn = cms_join_path($cache_dir,$filename);
+					// combine all matches into one stylesheet.
+					$filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps[$hash]).$fnsuffix).'.css';
+					$fn = cms_join_path($cache_dir,$filename);
 
-                    // Get media_type and media_query
-                    $media_query = $onemedia[0]->get_media_query();
-                    $media_type = implode(',',$onemedia[0]->get_media_types());
+					// Get media_type and media_query
+					$media_query = $onemedia[0]->get_media_query();
+					$media_type = implode(',',$onemedia[0]->get_media_types());
 
-                    if( !is_file($fn) ) {
-                        $list = [];
+					if( !is_file($fn) ) {
+						$list = [];
 
-                        foreach( $onemedia as $one ) {
-                            $list[] = $one->get_name();
-                        }
+						foreach( $onemedia as $one ) {
+							$list[] = $one->get_name();
+						}
 
-                        cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
-                    }
+						cms_stylesheet_writeCache($fn, $list, $trimbackground, $template);
+					}
 
-                    cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
-                }
-            }
+					cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
+				}
+			}
 
-            // Do not combine stylesheets
-        } else {
-            foreach ($res as $one) {
+			// Do not combine stylesheets
+		} else {
+			foreach ($res as $one) {
 
-                if (isset($params['media'])) {
-                    if( !in_array($params['media'],$one->get_media_types()) ) continue;
-                    $media_query = '';
-                    $media_type = $params['media'];
-                } else {
-                    $media_query = $one->get_media_query();
-                    $media_type  = implode(',',$one->get_media_types());
-                }
+				if (isset($params['media'])) {
+					if( !in_array($params['media'],$one->get_media_types()) ) continue;
+					$media_query = '';
+					$media_type = $params['media'];
+				} else {
+					$media_query = $one->get_media_query();
+					$media_type  = implode(',',$one->get_media_types());
+				}
 
-                $filename = 'stylesheet_'.md5('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
-                $fn = cms_join_path($cache_dir,$filename);
+				$filename = 'stylesheet_'.md5('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
+				$fn = cms_join_path($cache_dir,$filename);
 
-                if (!file_exists($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $template);
+				if (!file_exists($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $template);
 
-                cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
-            }
-        }
+				cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
+			}
+		}
 
-        #---------------------------------------------
-        # Cleanup & output
-        #---------------------------------------------
+		#---------------------------------------------
+		# Cleanup & output
+		#---------------------------------------------
 
-        if( strlen($stylesheet) ) {
-            $stylesheet = preg_replace("/\{\/?php\}/", '', $stylesheet);
+		if( strlen($stylesheet) ) {
+			$stylesheet = preg_replace("/\{\/?php\}/", '', $stylesheet);
 
-            // Remove last comma at the end when $params['nolinks'] is set
-            if( isset($params['nolinks']) && cms_to_bool($params['nolinks']) && endswith($stylesheet,',') ) {
-                $stylesheet = substr($stylesheet,0,strlen($stylesheet)-1);
-            }
-        }
-    } catch( Exception $e ) {
-        cms_error('cms_stylesheet',$e->GetMessage());
-        $stylesheet = '<!-- cms_stylesheet error: '.$e->GetMessage().' -->';
-    }
+			// Remove last comma at the end when $params['nolinks'] is set
+			if( isset($params['nolinks']) && cms_to_bool($params['nolinks']) && endswith($stylesheet,',') ) {
+				$stylesheet = substr($stylesheet,0,strlen($stylesheet)-1);
+			}
+		}
+	} catch( Exception $e ) {
+		cms_error('cms_stylesheet',$e->GetMessage());
+		$stylesheet = '<!-- cms_stylesheet error: '.$e->GetMessage().' -->';
+	}
 
 	// Notify core that we are no longer at stylesheet, pretty ugly way to do this. -Stikki-
 	$CMS_STYLESHEET = 0;
@@ -210,9 +210,9 @@ function smarty_function_cms_stylesheet($params, $template)
 	unset($GLOBALS['CMS_STYLESHEET']);
 
 	if( isset($params['assign']) ){
-	    $template->assign(trim($params['assign']), $stylesheet);
-	    return;
-    }
+		$template->assign(trim($params['assign']), $stylesheet);
+		return;
+	}
 
 	return $stylesheet;
 
@@ -225,25 +225,25 @@ function smarty_function_cms_stylesheet($params, $template)
 function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template)
 {
 	$_contents = '';
-    if( is_string($list) && !is_array($list) ) $list = [$list];
+	if( is_string($list) && !is_array($list) ) $list = [$list];
 
 	// Smarty processing
 	$template->smarty->left_delimiter = '[[';
 	$template->smarty->right_delimiter = ']]';
 
 	try {
-        foreach( $list as $name ) {
-            // force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72
-            $tmp = $template->smarty->force_compile;
-            $template->smarty->force_compile = 1;
-            $_contents .= $template->fetch('cms_stylesheet:'.$name);
-            $template->smarty->force_compile = $tmp;
-        }
+		foreach( $list as $name ) {
+			// force the stylesheet to compile because of smarty bug:  https://github.com/smarty-php/smarty/issues/72
+			$tmp = $template->smarty->force_compile;
+			$template->smarty->force_compile = 1;
+			$_contents .= $template->fetch('cms_stylesheet:'.$name);
+			$template->smarty->force_compile = $tmp;
+		}
 	}
 	catch (SmartyException $e) {
-        // why not just re-throw the exception as it may have a smarty error in it.
-        cms_error('cms_stylesheet: Smarty Compile process failed, an error in the template?');
-        return;
+		// why not just re-throw the exception as it may have a smarty error in it.
+		cms_error('cms_stylesheet: Smarty Compile process failed, an error in the template?');
+		return;
 	}
 
 	$template->smarty->left_delimiter = '{';
@@ -260,7 +260,7 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template
 		$_contents = preg_replace('/(\w*?background.*?\:\w*?).*?(;.*?)/', '', $_contents);
 	}
 
-    Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
+	Events::SendEvent( 'Core', 'StylesheetPostRender', [ 'content' => &$_contents ] );
 
 	// Write file
 	$fh = fopen($filename,'w');

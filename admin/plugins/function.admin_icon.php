@@ -1,5 +1,5 @@
 <?php
-#function to get page-content representing an admin icon
+#Plugin to get page-content representing an admin icon
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,49 +17,50 @@
 
 function smarty_function_admin_icon($params, $template)
 {
-    if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
+	if( !cmsms()->test_state(CmsApp::STATE_ADMIN_PAGE) ) return;
 
-    $icon = null;
-    $tagparms = ['class'=>'systemicon'];
-    foreach( $params as $key => $value ) {
-        switch( $key ) {
-        case 'icon':
-        case 'module':
-            $icon = trim($value);
-            break;
-        case 'width':
-        case 'height':
-        case 'alt':
-        case 'rel':
-        case 'class':
-        case 'id':
-        case 'name':
-        case 'title':
-        case 'accesskey':
-            $tagparms[$key] = trim($value);
-            break;
-        case 'assign':
-            break;
-        }
-    }
+	$icon = null;
+	$tagparms = ['class'=>'systemicon'];
+	foreach( $params as $key => $value ) {
+		switch( $key ) {
+		case 'icon':
+		case 'module':
+			$icon = trim($value);
+			break;
+		case 'width':
+		case 'height':
+		case 'alt':
+		case 'rel':
+		case 'class':
+		case 'id':
+		case 'name':
+		case 'title':
+		case 'accesskey':
+			$tagparms[$key] = trim($value);
+			break;
+		case 'assign':
+			break;
+		}
+	}
 
-    if( !$icon ) return;
+	if( !$icon ) return;
 
-    if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
+	if( !isset($tagparms['alt']) ) $tagparms['alt'] = pathinfo($icon, PATHINFO_FILENAME);
 
-    if( isset($params['module']) ) {
-        $out = CMSMS\AdminUtils::get_module_icon($icon,$tagparms);
+	if( isset($params['module']) ) {
+		$out = CMSMS\AdminUtils::get_module_icon($icon,$tagparms);
 	}
 	else {
-        $out = CMSMS\AdminUtils::get_icon($icon,$tagparms);
+		$out = CMSMS\AdminUtils::get_icon($icon,$tagparms);
 	}
 
-    if( !$out ) return;
+	if( !$out ) return;
 
-    if( isset($params['assign']) ) {
-        //TODO why global smarty instead of template ?
-        $template->smarty->assign(trim($params['assign']),$out);
-        return;
-    }
-    return $out;
+	if( isset($params['assign']) ) {
+		//TODO why global smarty instead of template ?
+		$template->smarty->assign(trim($params['assign']),$out);
+		return;
+	}
+	return $out;
 }
+

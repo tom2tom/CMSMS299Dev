@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -23,7 +23,7 @@ function smarty_function_dump($params, $template)
 		function build_accessor($parent_str,$parent_type,$childname) {
 			$str = $parent_str;
 			if( $parent_type == 'object' ) {
-                $str .= '-&gt;';
+				$str .= '-&gt;';
 			}
 			else if( $parent_type == 'array' ) {
 				$str .= '.';
@@ -36,10 +36,10 @@ function smarty_function_dump($params, $template)
 		{
 			$maxlevel = 3;
 			if( isset($params['maxlevel']) ) {
-                $maxlevel = (int)$params['maxlevel'];
-                $maxlevel = max(1,$maxlevel);
-                $maxlevel = min(10,$maxlevel);
-            }
+				$maxlevel = (int)$params['maxlevel'];
+				$maxlevel = max(1,$maxlevel);
+				$maxlevel = min(10,$maxlevel);
+			}
 
 			if( $level > $maxlevel ) return;
 
@@ -136,7 +136,7 @@ function smarty_function_dump($params, $template)
 	if( $pos2 < $pos1 && $pos2 !== FALSE ) {
 		$pos = $pos2;
 		$len = 1;
-    }
+	}
 
 	$str = substr($item,0,$pos);
 	$work = substr($item,$pos+$len);
@@ -185,7 +185,7 @@ function smarty_function_dump($params, $template)
 		else {
 			$done = true;
 		}
-    }
+	}
 
 	$parenttype = gettype($obj);
 	$str .= '/n'.'<pre><strong>Dump of: $'.$item;
@@ -193,19 +193,19 @@ function smarty_function_dump($params, $template)
 
 	if( is_object($obj) ) {
 		$str .= dump_object($params,$obj,0,$ignore,$item);
-    }
+	}
 	elseif( is_array($obj) ) {
 		$str .= dump_array($params,$obj,0,$ignore,$item);
-    }
+	}
 	else {
 		$str .= $obj.'<br />';
-    }
+	}
 	$str.='</pre>';
 
 	if( isset($params['assign']) ) {
-	    $template->assign(trim($params['assign']),$str);
-	    return;
-    }
+		$template->assign(trim($params['assign']),$str);
+		return;
+	}
 	return $str;
 }
 

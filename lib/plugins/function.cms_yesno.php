@@ -1,5 +1,6 @@
 <?php
-#...
+#Plugin to...
+#Copyright (C) 2018 CMS Made Simnple Foundation <foundatio@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -16,20 +17,20 @@
 
 function smarty_function_cms_yesno($params, $template)
 {
-    $opts = [lang('no'),lang('yes')];
+	$opts = [lang('no'),lang('yes')];
 
-    $out = '';
-    foreach( $opts as $k => $v ) {
-        $out .= '<option value="'.$k.'"';
-        if( isset($params['selected']) && $k == $params['selected'] ) $out .= ' selected="selected"';
-        $out .= '>'.$v.'</option>';
-    }
-    $out .= "\n";
+	$out = '';
+	foreach( $opts as $k => $v ) {
+		$out .= '<option value="'.$k.'"';
+		if( isset($params['selected']) && $k == $params['selected'] ) $out .= ' selected="selected"';
+		$out .= '>'.$v.'</option>';
+	}
+	$out .= "\n";
 
-    if( isset($params['assign']) ) {
-        $template->assign(trim($params['assign']),$out);
-        return;
-    }
-    return $out;
+	if( isset($params['assign']) ) {
+		$template->assign(trim($params['assign']),$out);
+		return;
+	}
+	return $out;
 }
 

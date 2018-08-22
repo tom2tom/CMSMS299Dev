@@ -1,6 +1,7 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#Plugin to ...
+#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -18,17 +19,15 @@
 function smarty_function_cms_lang_info($params, $template)
 {
 	$lang = CmsNlsOperations::get_current_language();
-	if( isset($params['lang']) )
-	{
+	if( isset($params['lang']) ) {
 		$lang = trim($params['lang']);
 	}
 	$info = CmsNlsOperations::get_language_info($lang);
 	if( !$info ) return;
 
-	if( isset($params['assign']) )
-    {
+	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$info);
 		return;
-    }
+	}
 	return $info;
 }

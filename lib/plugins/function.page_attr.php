@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,82 +17,82 @@
 
 function smarty_function_page_attr($params, $template)
 {
-    $key = trim(get_parameter_value($params,'key'));
-    $page = trim(get_parameter_value($params,'page'));
-    $assign = trim(get_parameter_value($params,'assign'));
-    $inactive = \cms_to_bool(get_parameter_value($params,'inactive',0));
-    $contentobj = null;
+	$key = trim(get_parameter_value($params,'key'));
+	$page = trim(get_parameter_value($params,'page'));
+	$assign = trim(get_parameter_value($params,'assign'));
+	$inactive = \cms_to_bool(get_parameter_value($params,'inactive',0));
+	$contentobj = null;
 
-    if( $page ) {
-        // gotta find it by id or alias
-        if( is_numeric($page) && (int) $page > 0 ) {
-            // it's an id
-            $hm = CmsApp::get_instance()->GetHierarchyManager();
-            $node = $hm->find_by_tag('id',$page);
-            if( $node ) $contentobj = $node->getContent(TRUE,true,$inactive);
-        }
-        else {
-            // this is quicker if using an alias
-            $content_ops = ContentOperations::get_instance();
-            $contentobj = $content_ops->LoadContentFromAlias($page,!$inactive);
-        }
-    }
-    else {
-        $contentobj = cms_utils::get_current_content();
-    }
+	if( $page ) {
+		// gotta find it by id or alias
+		if( is_numeric($page) && (int) $page > 0 ) {
+			// it's an id
+			$hm = CmsApp::get_instance()->GetHierarchyManager();
+			$node = $hm->find_by_tag('id',$page);
+			if( $node ) $contentobj = $node->getContent(TRUE,true,$inactive);
+		}
+		else {
+			// this is quicker if using an alias
+			$content_ops = ContentOperations::get_instance();
+			$contentobj = $content_ops->LoadContentFromAlias($page,!$inactive);
+		}
+	}
+	else {
+		$contentobj = cms_utils::get_current_content();
+	}
 
-    $result = null;
-    if( $contentobj && $key ) {
-        switch( $key ) {
-        case '_dflt_':
-            $result = $contentobj->GetPropertyValue('content_en');
-            break;
+	$result = null;
+	if( $contentobj && $key ) {
+		switch( $key ) {
+		case '_dflt_':
+			$result = $contentobj->GetPropertyValue('content_en');
+			break;
 
-        case 'alias':
-            $result = $contentobj->Alias();
-            break;
+		case 'alias':
+			$result = $contentobj->Alias();
+			break;
 
-        case 'id':
-            $result = $contentobj->Id();
-            break;
+		case 'id':
+			$result = $contentobj->Id();
+			break;
 
-        case 'title':
-        case 'name':
-            $result = $contentobj->Name();
-            break;
+		case 'title':
+		case 'name':
+			$result = $contentobj->Name();
+			break;
 
-        case 'titleattribute':
-        case 'description':
-            $result = $contentobj->TitleAttribute();
-            break;
+		case 'titleattribute':
+		case 'description':
+			$result = $contentobj->TitleAttribute();
+			break;
 
-        case 'created_date':
-            $result = $contentobj->GetCreationDate();
-            if( $result < 0 ) $result = null;
-            break;
+		case 'created_date':
+			$result = $contentobj->GetCreationDate();
+			if( $result < 0 ) $result = null;
+			break;
 
-        case 'modified_date':
-            $result = $contentobj->GetModifiedDate();
-            if( $result < 0 ) $result = null;
-            break;
+		case 'modified_date':
+			$result = $contentobj->GetModifiedDate();
+			if( $result < 0 ) $result = null;
+			break;
 
-        case 'last_modified_by':
-            $result = (int) $contentobj->LastModifiedBy();
-            break;
+		case 'last_modified_by':
+			$result = (int) $contentobj->LastModifiedBy();
+			break;
 
-        case 'owner':
-            $result = (int) $contentobj->Owner();
-            break;
+		case 'owner':
+			$result = (int) $contentobj->Owner();
+			break;
 
-        default:
-            $result = $contentobj->GetPropertyValue($key);
-            break;
-        }
-    }
-    if( $assign ) {
-        $template->assign($assign,$result);
-        return;
-    }
+		default:
+			$result = $contentobj->GetPropertyValue($key);
+			break;
+		}
+	}
+	if( $assign ) {
+		$template->assign($assign,$result);
+		return;
+	}
 	return $result;
 }
 

@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -32,13 +32,11 @@ function smarty_modifier_summarize($string,$numwords='5',$etc='...')
 	$tmp = explode(' ',strip_tags($string));
 	$stringarray = [];
 	
-	for( $i = 0; $i < count($tmp); $i++ )
-	{
+	for( $i = 0; $i < count($tmp); $i++ ) {
 		if( $tmp[$i] != '' ) $stringarray[] = $tmp[$i];
 	}
 	
-	if( $numwords >= count($stringarray) )
-    {
+	if( $numwords >= count($stringarray) ) {
 		return $string;
     }
 	
@@ -46,4 +44,3 @@ function smarty_modifier_summarize($string,$numwords='5',$etc='...')
 	$tmp = implode(' ',$tmp).$etc;
 	return $tmp;    
 }
-?>

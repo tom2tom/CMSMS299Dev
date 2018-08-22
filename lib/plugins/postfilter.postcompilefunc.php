@@ -1,5 +1,5 @@
 <?php
-#...
+#Plugin to...
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -23,25 +23,25 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 
 	if (count($result) > 1)	{
 		switch ($result[0])	{
-        case 'cms_stylesheet':
-        case 'stylesheet':
-            Events::SendEvent('Core', 'StylesheetPostCompile', ['stylesheet'=>&$tpl_output]);
-            break;
+		case 'cms_stylesheet':
+		case 'stylesheet':
+			Events::SendEvent('Core', 'StylesheetPostCompile', ['stylesheet'=>&$tpl_output]);
+			break;
 
-        case 'content':
-            Events::SendEvent('Core', 'ContentPostCompile', ['content' => &$tpl_output]);
-            break;
+		case 'content':
+			Events::SendEvent('Core', 'ContentPostCompile', ['content' => &$tpl_output]);
+			break;
 
-        case 'cms_template':
-        case 'template':
-        case 'tpl_top':
-        case 'tpl_body':
-        case 'tpl_head':
-            Events::SendEvent('Core', 'TemplatePostCompile', ['template'=>&$tpl_output,'type'=>$result[0]]);
-        break;
+		case 'cms_template':
+		case 'template':
+		case 'tpl_top':
+		case 'tpl_body':
+		case 'tpl_head':
+			Events::SendEvent('Core', 'TemplatePostCompile', ['template'=>&$tpl_output,'type'=>$result[0]]);
+		break;
 
-        default:
-            break;
+		default:
+			break;
 		}
 	}
 
@@ -49,4 +49,3 @@ function smarty_postfilter_postcompilefunc($tpl_output, $smarty)
 
 	return $tpl_output;
 }
-

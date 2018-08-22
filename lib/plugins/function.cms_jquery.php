@@ -1,5 +1,5 @@
 <?php
-#Function to get includable styles and/or scripts
+#Plugin to get includable styles and/or scripts
 #Deprecated since 2.3, retained only to prevent fatal errors
 #Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
