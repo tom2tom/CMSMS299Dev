@@ -17,8 +17,7 @@
 
 namespace CMSMS {
 
-    use CMSMS\HttpErrorLogAuditor;
-    use CMSMS\IAuditManager;
+    use LogicException;
 
     interface IAuditManager
     {
@@ -61,11 +60,11 @@ namespace CMSMS {
 
     final class AuditManager
     {
-        private static $_instance;
-        private static $_std_mgr;
-        private static $_opt_mgr;
+        private static $_std_mgr = null;
+        private static $_opt_mgr = null;
 
         protected function __construct() {}
+        protected function __clone() {}
 
         public static function init() {} // does nothing... just so we can audoload the thing.
 
