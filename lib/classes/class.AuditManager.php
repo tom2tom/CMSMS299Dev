@@ -17,6 +17,9 @@
 
 namespace CMSMS {
 
+    use CMSMS\HttpErrorLogAuditor;
+    use CMSMS\IAuditManager;
+
     interface IAuditManager
     {
         public function audit( string $subject, string $msg, $item_id = null );
@@ -40,19 +43,19 @@ namespace CMSMS {
         public function notice( string $msg, string $subject = '' )
         {
             $msg = "CMSMS NOTICE: SUBJECT=$subject, $msg";
-            @error_log( $msg, 0, TMP_CACHE_LOCATION.'/audit_log' );
+            @error_log( $msg, 0, TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log' );
         }
 
         public function warning( string $msg, string $subject = '' )
         {
             $msg = "CMSMS WARNING: SUBJECT=$subject, $msg";
-            @error_log( $msg, 0, TMP_CACHE_LOCATION.'/audit_log' );
+            @error_log( $msg, 0, TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log' );
         }
 
         public function error( string $msg, string $subject = '' )
         {
             $msg = "CMSMS ERROR: SUBJECT=$subject, $msg";
-            @error_log( $msg, 0, TMP_CACHE_LOCATION.'/audit_log' );
+            @error_log( $msg, 0, TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'audit_log' );
         }
     }
 
@@ -66,9 +69,13 @@ namespace CMSMS {
 
         public static function init() {} // does nothing... just so we can audoload the thing.
 
-        public static function set_auditor( IAuditManager $mgr )
+        /**
+		 * @param IAuditManager $mgr
+		 * @throws LogicException
+		 */
+		public static function set_auditor( IAuditManager $mgr )
         {
-            if( self::$_opt_mgr  ) throw new \LogicException('Sorry only one audit manager can be set');
+            if( self::$_opt_mgr  ) throw new LogicException('Sorry only one audit manager can be set');
             self::$_opt_mgr = $mgr;
         }
 
@@ -85,17 +92,17 @@ namespace CMSMS {
             self::get_auditor()->audit( $item, $msg, $item_id );
         }
 
-        public static function notice( string $msg, string $subject = null )
+        public static function notice( string $msg, string $subject = '' )
         {
             self::get_auditor()->notice( $msg, $subject );
         }
 
-        public static function warning( string $msg, string $subject = null )
+        public static function warning( string $msg, string $subject = '' )
         {
             self::get_auditor()->warning( $msg, $subject );
         }
 
-        public static function error( $msg, $subject = null )
+        public static function error( string $msg, string $subject = '' )
         {
             self::get_auditor()->error( $msg, $subject );
         }
@@ -105,19 +112,26 @@ namespace CMSMS {
 
 
 namespace  {
-    function audit( $item_id, string $item, string $action ) {
-        \CMSMS\AuditManager::audit( $item, $action, $item_id );
+
+    use CMSMS\AuditManager;
+
+    function audit( $item_id, string $item, string $msg )
+	{
+        AuditManager::audit( $item, $msg, $item_id );
     }
 
-    function cms_notice( string $msg, string $subject = '' ) {
-        \CMSMS\AuditManager::notice( $msg, $subject );
+    function cms_notice( string $msg, string $subject = '' )
+	{
+        AuditManager::notice( $msg, $subject );
     }
 
-    function cms_warning( string $msg, string $subject = '' ) {
-        \CMSMS\AuditManager::warning( $msg, $subject );
+    function cms_warning( string $msg, string $subject = '' )
+	{
+        AuditManager::warning( $msg, $subject );
     }
 
-    function cms_error( string $msg, string $subject = '' ) {
-        \CMSMS\AuditManager::error( $msg, $subject );
+    function cms_error( string $msg, string $subject = '' )
+	{
+        AuditManager::error( $msg, $subject );
     }
 } // namespace
