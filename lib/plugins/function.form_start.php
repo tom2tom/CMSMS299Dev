@@ -1,5 +1,5 @@
 <?php
-#Plugin to create elements for a form start
+#Plugin to create elements for a CMSMS form start
 #Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,7 +17,6 @@
 
 function smarty_function_form_start($params, $template)
 {
-	$gCms = CmsApp::get_instance();
 	$mactparms = [];
 	$mactparms['module'] = $template->getTemplateVars('_module');
 	$mactparms['mid'] = $template->getTemplateVars('actionid');
@@ -28,6 +27,7 @@ function smarty_function_form_start($params, $template)
 	'method' => 'post',
 	'enctype' => 'multipart/form-data',
 	];
+	$gCms = CmsApp::get_instance();
 	if( $gCms->test_state(CmsApp::STATE_LOGIN_PAGE) ) {
 		$tagparms['action'] = 'login.php';
 	}
@@ -153,3 +153,4 @@ function smarty_function_form_start($params, $template)
 	}
 	return $out;
 }
+
