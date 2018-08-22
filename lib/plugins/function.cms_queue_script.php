@@ -28,12 +28,12 @@ function smarty_function_cms_queue_script( $params, $template )
 		return;
 	}
 
-	// if it's relative to a CMSMS path
+	// file not found, but maybe it's relative to a 'suitable' CMSMS path
 	if( !startswith( $file, DIRECTORY_SEPARATOR ) ) $file = DIRECTORY_SEPARATOR.$file;
-	$config = \cms_config::get_instance();
-	$paths = [ CMS_ASSETS_PATH.$file, $config['uploads_path'].$file, CMS_ROOT_PATH.$file ];
-	foreach( $paths as $one ) {
-		if( is_file( $one ) ) $combiner->queue_file( $one, $priority );
+	$config = cms_config::get_instance();
+	foreach([ CMS_ASSETS_PATH, CMS_SCRIPTS_PATH, $config['uploads_path'], CMS_ROOT_PATH ] as $one ) {
+        $fullname = $one.$file;
+		if( is_file( $fullanme) ) $combiner->queue_file( $fullname, $priority );
 	}
 }
 
