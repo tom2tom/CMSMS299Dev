@@ -1070,7 +1070,7 @@ function cms_to_bool(string $str) : bool
 }
 
 /**
- * Identify the, or the highest-versioned, installed jquery scripts
+ * Identify the, or the highest-versioned, installed jquery scripts and/or css
  * @since 2.3
  * @return array of filepaths, keys per params: 'jqcore','jqmigrate','jqui','jquicss'
  */
