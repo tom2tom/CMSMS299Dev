@@ -716,7 +716,6 @@ class Content extends ContentBase
 			if( !$res ) return;
 		}
 
-		$ret = '';
 		if( !isset($blockInfo['module']) ) return false;
 		$module = cms_utils::get_module($blockInfo['module']);
 		if( !is_object($module) ) return false;

@@ -136,8 +136,6 @@ class CmsSmarty extends Smarty //OR SmartyBC? OR replicate some method-aliases f
 
     /* *
      * Load filters from CMSMS plugins folders
-     *
-     * @return void
      */
     private function autoloadFilters()
     {
