@@ -59,11 +59,10 @@ class ItemCollection
 
     public function CalculateWeights()
     {
-        reset($this->_ary);
-        while (list($key) = each($this->_ary)) {
-            $oneitem = &$this->_ary[$key];
+		foreach ($this->_ary as &$oneitem) {
             $oneitem->weight = (int)($oneitem->intweight / $this->maxweight) * 100;
         }
+		unset($oneitem);
     }
 
     public function Sort()

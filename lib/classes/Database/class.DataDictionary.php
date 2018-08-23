@@ -527,9 +527,9 @@ abstract class DataDictionary
     {
         $tabname = $this->TableName($tabname);
         if ($flds) {
-            list($lines, $pkey) = $this->_GenFields($flds);
-            list(, $first) = each($lines);
-            list(, $column_def) = split("[\t ]+", $first, 2);
+            list($lines,) = $this->_GenFields($flds);
+            $first = reset($lines); // list(, $first) = each($lines);
+            list(, $column_def) = preg_split('/[\t ]+/', $first, 2);
         }
 
         return [sprintf($this->renameColumn, $tabname, $this->NameQuote($oldcolumn), $this->NameQuote($newcolumn), $column_def)];
