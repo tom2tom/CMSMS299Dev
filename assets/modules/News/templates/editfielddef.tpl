@@ -1,28 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-function handle_change() {
-  var val = $('#fld_type').val();
-  if(val === 'dropdown') {
-    $('#area_maxlen').hide('slow');
-    $('#area_options').show('slow');
-  } else if(val === 'checkbox' || val === 'file' || val === 'linkedfile') {
-    $('#area_maxlen').hide('slow');
-    $('#area_options').hide('slow');
-  } else {
-    $('#area_maxlen').show('slow');
-    $('#area_options').hide('slow');
-  }
-}
-$(document).ready(function() {
-  handle_change();
-  $('#fld_type').on('change', handle_change);
-  $('#{$actionid}cancel').on('click', function() {
-    $(this).closest('form').attr('novalidate','novalidate');
-  });
-});
-{/literal}//]]>
-</script>
-
 <h3>{$title}</h3>
 {$startform}{$hidden|default:''}
 <div class="pageoverflow">

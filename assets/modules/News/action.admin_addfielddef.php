@@ -64,6 +64,34 @@ if (isset($params['submit'])) {
     if( $error ) $this->ShowErrors($error);
 }
 
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function handle_change() {
+  var val = $('#fld_type').val();
+  if(val === 'dropdown') {
+    $('#area_maxlen').hide('slow');
+    $('#area_options').show('slow');
+  } else if(val === 'checkbox' || val === 'file' || val === 'linkedfile') {
+    $('#area_maxlen').hide('slow');
+    $('#area_options').hide('slow');
+  } else {
+    $('#area_maxlen').show('slow');
+    $('#area_options').hide('slow');
+  }
+}
+$(document).ready(function() {
+  handle_change();
+  $('#fld_type').on('change', handle_change);
+  $('#{$actionid}cancel').on('click', function() {
+    $(this).closest('form').attr('novalidate','novalidate');
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
+
 // Display template
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editfielddef.tpl'),null,null,$smarty);
 
@@ -85,4 +113,3 @@ $tpl->assign('title',$this->Lang('addfielddef'))
  ->assign('options',$options);
 
 $tpl->display();
-
