@@ -1,15 +1,11 @@
 <?php
 
-if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
-
 $entryarray = [];
 $max = $db->GetOne('SELECT max(item_order) as max_item_order FROM '.CMS_DB_PREFIX.'module_news_fielddefs');
 
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs ORDER BY item_order';
 $dbresult = $db->Execute($query);
 $admintheme = cms_utils::get_theme_object();
-$rowclass = 'row1';
 
 while ($dbresult && $row = $dbresult->FetchRow()) {
     $onerow = new stdClass();
@@ -38,19 +34,13 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
     $onerow->delete_url = $this->create_url($id, 'admin_deletefielddef', $returnid, ['fdid'=>$row['id']]);
 
     $entryarray[] = $onerow;
-    ($rowclass=='row1'?$rowclass='row2':$rowclass='row1');
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('customfieldstab.tpl'),null,null,$smarty);
-
-$tpl->assign('items', $entryarray)
- ->assign('itemcount', count($entryarray))
+$tpl->assign('fields', $entryarray)
+ ->assign('fieldcount', count($entryarray))
 
  ->assign('addurl', $this->create_url($id,'admin_addfielddef'))
  ->assign('addlink', $this->CreateLink($id, 'admin_addfielddef', $returnid, $admintheme->DisplayImage('icons/system/newfolder.gif', $this->Lang('addfielddef'),'','','systemicon'), [], '', false, false, '') .' '. $this->CreateLink($id, 'admin_addfielddef', $returnid, $this->Lang('addfielddef'), [], '', false, false, 'class="pageoptions"'))
 
  ->assign('fielddeftext', $this->Lang('fielddef'))
  ->assign('typetext', $this->Lang('type'));
-
-#Display template
-$tpl->display();

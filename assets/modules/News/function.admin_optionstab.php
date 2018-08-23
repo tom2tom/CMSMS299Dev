@@ -1,13 +1,6 @@
 <?php
 
-if( !isset($gCms) ) exit;
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminprefs.tpl'),null,null,$smarty);
-
-  // CreateFormStart sets up a proper form tag that will cause the submit to
-  // return control to this module for processing.
 $tpl->assign('startform', $this->CreateFormStart ($id, 'updateoptions', $returnid))
- ->assign('endform', $this->CreateFormEnd())
 
  ->assign('title_formsubmit_emailaddress',$this->Lang('formsubmit_emailaddress'))
  ->assign('formsubmit_emailaddress',$this->GetPreference('formsubmit_emailaddress',''))
@@ -70,8 +63,7 @@ $tpl->assign('statuses',array_flip($statusdropdown))
 $contentops = $gCms->GetContentOperations();
 $tpl->assign('title_detail_returnid',$this->Lang('title_detail_returnid'))
  ->assign('input_detail_returnid',
-		$contentops->CreateHierarchyDropdown('',$this->GetPreference('detail_returnid',-1),
-						     $id.'detail_returnid'))
+		$contentops->CreateHierarchyDropdown('',$this->GetPreference('detail_returnid',-1),$id.'detail_returnid'))
  ->assign('info_detail_returnid',$this->Lang('info_detail_returnid'))
 
  ->assign('title_submission_settings',$this->Lang('title_submission_settings'))
@@ -79,6 +71,3 @@ $tpl->assign('title_detail_returnid',$this->Lang('title_detail_returnid'))
  ->assign('title_notification_settings',$this->Lang('title_notification_settings'))
  ->assign('title_detail_settings',$this->Lang('title_detail_settings'))
  ->assign('alert_drafts',$this->GetPreference('alert_drafts',1));
-
-// Display the populated template
-$tpl->display();

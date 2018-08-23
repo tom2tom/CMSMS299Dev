@@ -67,8 +67,11 @@ final class cms_cookies
 
   /**
    * @ignore
+   * @param mixed $key string|null
+   * @param mixed $value string|null
+   * @param int $expire
    */
-  private static function __setcookie(string $key,string $value,int $expire)
+  private static function __setcookie($key,$value,int $expire)
   {
     $res = setcookie($key,$value,$expire,
 					 self::__path(),

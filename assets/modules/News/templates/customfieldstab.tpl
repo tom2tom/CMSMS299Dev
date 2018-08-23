@@ -1,16 +1,4 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $('a.del_fielddef').on('click', function(ev) {
-    ev.preventDefault();
-    cms_confirm_linkclick(this,'{/literal}{$mod->Lang("areyousure")}','{$mod->Lang("yes")}{literal}');
-    return false;
-  });
-});
-{/literal}//]]>
-</script>
-
-{if $itemcount > 0}
+{if $fieldcount > 0}
 <table class="pagetable">
   <thead>
     <tr>
@@ -23,8 +11,8 @@ $(document).ready(function() {
     </tr>
   </thead>
   <tbody>
-    {foreach $items as $entry}
-    <tr class="{cycle values='row1,row2'}">
+    {foreach $fields as $entry}
+    <tr class="{cycle values='row1,row2' name='fields'}">
       <td>{$entry->name}</td>
       <td>{$entry->type}</td>
       <td>{$entry->uplink}</td>

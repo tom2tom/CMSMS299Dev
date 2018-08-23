@@ -3,24 +3,34 @@
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
-echo $this->StartTabHeaders();
-echo $this->SetTabHeader('categories',$this->Lang('categories'));
-echo $this->SetTabHeader('customfields',$this->Lang('customfields'));
-echo $this->SetTabHeader('options',$this->Lang('options'));
-echo $this->EndTabHeaders();
+$prompt = json_encode($this->Lang('areyousure'));
+$yes = $this->Lang('yes');
 
-echo $this->StartTabContent();
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+ $('a.del_cat').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_linkclick(this,$prompt,'$yes');
+  return false;
+ });
+ $('a.del_fielddef').on('click', function(ev) {
+  ev.preventDefault();
+  cms_confirm_linkclick(this,$prompt,'$yes');
+  return false;
+ });
+});
+{/literal}//]]>
+</script>
 
-echo $this->StartTab('categories', $params);
-include __DIR__.'/function.admin_categoriestab.php';
-echo $this->EndTab();
+EOS;
+$this->AdminBottomContent($js);
 
-echo $this->StartTab('customfields', $params);
-include __DIR__.'/function.admin_customfieldstab.php';
-echo $this->EndTab();
+$tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
 
-echo $this->StartTab('options', $params);
-include __DIR__.'/function.admin_optionstab.php';
-echo $this->EndTab();
+include __DIR__.DIRECTORY_SEPARATOR.'function.admin_categoriestab.php';
+include __DIR__.DIRECTORY_SEPARATOR.'function.admin_customfieldstab.php';
+include __DIR__.DIRECTORY_SEPARATOR.'function.admin_optionstab.php';
 
-echo $this->EndTabContent();
+$tpl->display();

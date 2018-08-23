@@ -1,5 +1,5 @@
 {$startform}
-<div class="pageoverflow">
+<div class="pageoverflow postgap">
   <p class="pageinput">
     <button type="submit" name="{$actionid}optionssubmitbutton" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </p>
