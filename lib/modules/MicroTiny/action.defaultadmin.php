@@ -18,20 +18,9 @@
 if( !function_exists('cmsms') )exit;
 if(!$this->VisibleToAdminUser() ) return;
 
-echo $this->StartTabHeaders();
-echo $this->SetTabHeader('example',$this->Lang('example'));
-echo $this->SetTabHeader('settings',$this->Lang('settings'));
-echo $this->EndTabHeaders();
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
 
-echo $this->StartTabContent();
+include __DIR__.DIRECTORY_SEPARATOR.'function.admin_example.php';
+include __DIR__.DIRECTORY_SEPARATOR.'function.admin_settings.php';
 
-echo $this->StartTab('example');
-include __DIR__.'/function.admin_example.php';
-echo $this->EndTab();
-
-echo $this->StartTab('settings');
-include __DIR__.'/function.admin_settings.php';
-echo $this->EndTab();
-
-echo $this->EndTabContent();
-
+$tpl->display();

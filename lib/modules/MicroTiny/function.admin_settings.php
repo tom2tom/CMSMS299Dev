@@ -1,5 +1,5 @@
 <?php
-#MicroTiny module action: settings
+#MicroTiny module action: defaultadmin - populate settings tab
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -17,9 +17,6 @@
 
 use MicroTiny\Profile;
 
-if( !cmsms() ) exit;
-if (!$this->VisibleToAdminUser()) return;
-
 // some default profiles
 
 try {
@@ -29,9 +26,7 @@ try {
   foreach( $list as $one ) {
     $profiles[] = Profile::load($one);
   }
-  $tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
   $tpl->assign('profiles',$profiles);
-  $tpl->display();
 }
 catch( Exception $e ) {
   $this->SetError($e->GetMessage()); //probably useless

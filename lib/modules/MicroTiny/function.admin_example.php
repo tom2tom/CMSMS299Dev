@@ -1,5 +1,5 @@
 <?php
-#MicroTiny module function: example
+#MicroTiny module action: defaultadmin - populate example tab
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,7 +15,4 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if (!$this->VisibleToAdminUser()) return;
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_example.tpl'),null,null,$smarty);
-$tpl->display();
+//nothing here
