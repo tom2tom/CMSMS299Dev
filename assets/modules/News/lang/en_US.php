@@ -92,7 +92,8 @@ $lang['error_unknown'] = 'An unknown error occurred';
 $lang['error_upload'] = 'Problem occurred uploading a file';
 
 $lang['eventdesc-NewsArticleAdded'] = 'Sent when an article is added.';
-$lang['eventhelp-NewsArticleAdded'] = '<h4>Parameters</h4>
+$lang['eventhelp-NewsArticleAdded'] = <<<'EOF'
+<h4>Parameters</h4>
 <ul>
 <li>"news_id" - Id of the news article</li>
 <li>"category_id" - Id of the category for this article</li>
@@ -104,7 +105,7 @@ $lang['eventhelp-NewsArticleAdded'] = '<h4>Parameters</h4>
 <li>"end_time" - Date the article should stop being displayed</li>
 <li>"useexp" - Whether the expiration date should be ignored or not</li>
 </ul>
-';
+EOF;
 
 $lang['eventdesc-NewsArticleDeleted'] = 'Sent when an article is deleted.';
 $lang['eventhelp-NewsArticleDeleted'] = '<h4>Parameters</h4>
@@ -114,7 +115,8 @@ $lang['eventhelp-NewsArticleDeleted'] = '<h4>Parameters</h4>
 ';
 
 $lang['eventdesc-NewsArticleEdited'] = 'Sent when an article is edited.';
-$lang['eventhelp-NewsArticleEdited'] = '<h4>Parameters</h4>
+$lang['eventhelp-NewsArticleEdited'] = <<<'EOF'
+<h4>Parameters</h4>
 <ul>
 <li>"news_id" - Id of the news article</li>
 <li>"category_id" - Id of the category for this article</li>
@@ -127,7 +129,7 @@ $lang['eventhelp-NewsArticleEdited'] = '<h4>Parameters</h4>
 <li>"useexp" - Whether the expiration date should be ignored or not</li>
 </ul>
 <p><strong>Note:</strong> Not all parameters might be present when this event is sent.</p>
-';
+EOF;
 
 $lang['eventdesc-NewsCategoryAdded'] = 'Sent when a category is added.';
 $lang['eventhelp-NewsCategoryAdded'] = '<h4>Parameters</h4>
@@ -146,13 +148,14 @@ $lang['eventhelp-NewsCategoryDeleted'] = '<h4>Parameters</h4>
 ';
 
 $lang['eventdesc-NewsCategoryEdited'] = 'Sent when a category is edited.';
-$lang['eventhelp-NewsCategoryEdited'] = '<h4>Parameters</h4>
+$lang['eventhelp-NewsCategoryEdited'] = <<<'EOF'
+<h4>Parameters</h4>
 <ul>
 <li>"category_id" - Id of the news category</li>
 <li>"name" - Name of the news category</li>
 <li>"origname" - The original name of the news category</li>
 </ul>
-';
+EOF;
 
 $lang['expired'] = 'Expired';
 $lang['expired_searchable'] = 'Expired articles can appear in search results';
@@ -178,7 +181,7 @@ $lang['formsubmit_emailaddress'] = 'Email address to receive notification of new
 $lang['formtemplate'] = 'Form Templates';
 
 // H
-$lang['help'] = <<<EOF
+$lang['help'] = <<<'EOF'
 <h3>Important Notes</h3>
 <p>Version 2.9 and greater of News has removed the formatpostdate member from the templates, and has also removed the dateformat parameter.  You should be using the cms_date_format modifier (as indicated in the default templates) to format dates, and should be using entry->postdate instead of entry->formatpostdate in your templates.</p>
 <h3>What does this do?</h3>
@@ -208,7 +211,7 @@ $lang['help'] = <<<EOF
 </ul>
 <p>Following these steps should solve the problem of your news templates not being found and other similar smarty errors when you upgrade to a version of CMS that has News 2.3 or greater.</p>
 EOF;
-$lang['helpaction'] = <<<EOT
+$lang['helpaction'] = <<<'EOF'
 Override the default action.  Possible values are:
 <ul>
 <li>&quot;detail&quot; - to display a specified articleid in detail mode.</li>
@@ -216,7 +219,7 @@ Override the default action.  Possible values are:
 <li>&quot;fesubmit&quot; - <strong>Deprecated</strong> to display the frontend form for allowing users to submit news articles on the front end. Add the <code>{cms_init_editor}</code> tag in the metadata section to initialize the selected WYSIWYG editor. (Site Admin >> Global Settings)</li>
 <li>&quot;browsecat&quot; - to display a browsable category list.</li>
 </ul>
-EOT;
+EOF;
 $lang['helpbrowsecat'] = 'Shows a browsable category list.';
 $lang['helpbrowsecattemplate'] = 'Use a database template for displaying the category browser. This template must exist in the Design Manager, though it does not need to be the default.  If this parameter is not specified, then the current template marked as default will be used.';
 $lang['helpcategory'] = 'Used in the summary view to display only items for the specified categories. <b>Use * after the name to show children.</b>  Multiple categories can be used if separated with a comma. Leaving empty, will show all categories.  This parameter also works for the frontend submit action, however only a single category name is supported.';
@@ -289,9 +292,9 @@ $lang['linkedfile'] = 'Linked file';
 $lang['maxlength'] = 'Maximum Length';
 $lang['msg_cancelled'] = 'Operation Cancelled';
 $lang['msg_categoriesreordered'] = 'Category order updated';
-$lang['msg_contenttype_removed'] = <<<EOT
+$lang['msg_contenttype_removed'] = <<<'EOF'
 The news content type has been removed.  Please place {news} tags with appropriate parameters into your page template or into your page content to replace this functionality.
-EOT;
+EOF;
 $lang['msg_success'] = 'Operation Successful';
 $lang['more'] = 'More';
 $lang['moretext'] = 'More Text';
@@ -429,5 +432,3 @@ $lang['with_selected'] = 'With Selected';
 
 // Y
 $lang['yes'] = 'Yes';
-
-?>
