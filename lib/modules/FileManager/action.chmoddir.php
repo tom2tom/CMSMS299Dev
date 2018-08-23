@@ -13,13 +13,14 @@ if( !FileManager\Utils::test_valid_path($params['path']) ) {
 $config = $gCms->GetConfig();
 $fullname=cms_join_path(CMS_ROOT_PATH,$params['path'],$params['dirname']);
 
-function chmodRecursive($path,$newmode,&$module) {
+function chmodRecursive(string $path,$newmode, FileManager &$module)
+{
 	$dir = opendir($path);
 	while ($entry = readdir($dir)) {
 		if ($entry=='.' || $entry=='..') continue;
 
 		if (is_file( "$path/$entry")) {
-			$module->SetMode($newmode,$path,$entry);
+			$module->SetMode($newmode,$path,$entry); //TODO method doesn't exist
 					//echo "hi";die();
 		} elseif (is_dir("$path/$entry") && $entry!='.' && $entry!='..') {
 			chmodRecursive("$path/$entry",$newmode,$module);
@@ -29,7 +30,8 @@ function chmodRecursive($path,$newmode,&$module) {
 	return $module->SetMode($newmode,$path);
 }
 
-function isEmpty($path) {
+function isEmpty(string $path) : bool
+{
 	$empty=true;
 	$dir = opendir($path) ;
 	while ($entry = readdir($dir)) {
@@ -58,7 +60,7 @@ if (isset($params['newmode'])) {
 			}
 		} else {
 			//No recursion
-			if ($this->SetMode($newmode,$fullname)) {
+			if ($this->SetMode($newmode,$fullname)) { //TODO method doesn't exist
 				$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmmessage'=>'dirchmodsuccess']);
 			} else {
 				$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmerror'=>'dirchmodfailure']);
