@@ -57,8 +57,7 @@ class Utils
         $phrase = preg_quote($phrase);
 
         // strtolower isn't friendly to other charsets
-        $phrase = preg_replace_callback('/([A-Z]+?)/',
-            function($matches)
+        $phrase = preg_replace_callback('/([A-Z]+?)/', function($matches)
             {
                 return strtolower($matches[1]);
             }, $phrase);
@@ -67,8 +66,7 @@ class Utils
         $words = preg_split('/[\s,!.;:\?()+-\/\\\\]+/u', $phrase);
 
         // strip off anything 2 chars or less
-        $words = array_filter($words,
-            function ($a)
+        $words = array_filter($words, function ($a)
             {
                 return (strlen($a) >= 3);
             });
