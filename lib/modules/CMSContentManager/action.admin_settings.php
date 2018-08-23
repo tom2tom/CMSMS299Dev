@@ -15,13 +15,55 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSContentManager\Utils;
+use CMSMS\ContentBase;
+use CMSMS\ContentOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
 
-include(__DIR__.DIRECTORY_SEPARATOR.'function.admin_general_tab.php');
-include(__DIR__.DIRECTORY_SEPARATOR.'function.admin_listsettings_tab.php');
-include(__DIR__.DIRECTORY_SEPARATOR.'function.admin_pagedefaults_tab.php');
+// general tab
+
+$opts = [
+ 'all'=>$this->Lang('opt_alltemplates'),
+ 'alldesign'=>$this->Lang('opt_alldesign'),
+ 'allpage'=>$this->Lang('opt_allpage'),
+ 'designpage'=>$this->Lang('opt_designpage')
+];
+
+$tpl->assign('locktimeout',$this->GetPreference('locktimeout'))
+ ->assign('lockrefresh',$this->GetPreference('lockrefresh'))
+ ->assign('template_list_opts',$opts)
+ ->assign('template_list_mode',$this->GetPreference('template_list_mode','designpage'));
+
+// listsettings tab
+
+$opts = [
+ 'title'=>$this->Lang('prompt_page_title'),
+ 'menutext'=>$this->Lang('prompt_page_menutext')
+];
+$tpl->assign('namecolumnopts',$opts)
+ ->assign('list_namecolumn',$this->GetPreference('list_namecolumn','title'));
+
+$allcols = 'expand,icon1,hier,page,alias,url,template,friendlyname,owner,active,default,move,view,copy,addchild,edit,delete,multiselect';
+$dflts = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
+$tmp = explode(',',$allcols);
+$opts = [];
+foreach( $tmp as $one ) {
+  $opts[$one] = $this->Lang('colhdr_'.$one);
+}
+$tpl->assign('visible_column_opts',$opts);
+$tmp = explode(',',$this->GetPreference('list_visiblecolumns',$dflts));
+$tpl->assign('list_visiblecolumns',$tmp);
+
+// pagedefaults tab
+
+$tpl->assign('page_prefs',Utils::get_pagedefaults())
+ ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(false,false))
+ ->assign('design_list',CmsLayoutCollection::get_list())
+ ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]))
+ ->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
 
 $tpl->display();
