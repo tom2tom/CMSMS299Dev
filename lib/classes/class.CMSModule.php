@@ -1045,7 +1045,7 @@ abstract class CMSModule
             $res = include $filename;
             if( $res == 1 || $res == '') return false;
             if( is_string($res) ) {
-                $this->SetError($res);
+                $this->ShowErrors($res);
             }
             return $res;
         }

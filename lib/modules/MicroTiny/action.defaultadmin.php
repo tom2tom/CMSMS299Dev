@@ -15,12 +15,27 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use MicroTiny\Profile;
+
 if( !function_exists('cmsms') )exit;
 if(!$this->VisibleToAdminUser() ) return;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
 
-include __DIR__.DIRECTORY_SEPARATOR.'function.admin_example.php';
-include __DIR__.DIRECTORY_SEPARATOR.'function.admin_settings.php';
+// some default profiles
+
+try {
+  $list = Profile::list_all();
+  if( !is_array($list) || count($list) == 0 ) throw new CmsInvalidDataException('No profiles found');
+  $profiles = [];
+  foreach( $list as $one ) {
+    $profiles[] = Profile::load($one);
+  }
+  $tpl->assign('profiles',$profiles);
+}
+catch( Exception $e ) {
+  $this->ShowErrors($e->GetMessage());
+  $tpl->assign('profiles',null);
+}
 
 $tpl->display();

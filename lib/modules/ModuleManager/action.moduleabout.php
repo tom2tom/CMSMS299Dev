@@ -25,21 +25,18 @@ $name = get_parameter_value($params,'name');
 if( !$name ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $version = get_parameter_value($params,'version');
 if( !$version ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $url = $this->GetPreference('module_repository');
 if( !$url ) {
   $this->SetError($this->Lang('error_norepositoryurl'));
   $this->RedirectToAdminTab();
-  return;
 }
 $url .= '/moduleabout';
 
@@ -47,7 +44,6 @@ $xmlfile = get_parameter_value($params,'filename');
 if( !$xmlfile ) {
   $this->SetError($this->Lang('error_nofilename'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 //$req = new cms_http_request();
@@ -58,13 +54,11 @@ $result = $req->getResult();
 if( $status != 200 || $result == '' ) {
   $this->SetError($this->Lang('error_request_problem'));
   $this->RedirectToAdminTab();
-  return;
 }
 $about = json_decode($result,true);
 if( !$about ) {
   $this->SetError($this->Lang('error_nodata'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);
@@ -81,4 +75,3 @@ $tpl->assign('title',$this->Lang('abouttxt'))
  ->assign('link_back',$this->CreateLink($id,'defaultadmin',$returnid, $this->Lang('back_to_module_manager')));
 
 $tpl->display();
-

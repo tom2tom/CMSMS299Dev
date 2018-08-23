@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\ModuleOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -20,5 +23,3 @@ if( $result[0] == FALSE ) {
 
 $this->SetMessage($this->Lang('msg_module_upgraded',$mod));
 $this->RedirectToAdminTab();
-
-?>

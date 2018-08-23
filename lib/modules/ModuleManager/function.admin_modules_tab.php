@@ -23,7 +23,7 @@ if (!$this->CheckPermission('Modify Modules')) {
 }
 
 if (!utils::is_connection_ok()) {
-    $this->SetError($this->Lang('error_request_problem'));
+    $this->ShowErrors($this->Lang('error_request_problem'));
 }
 
 $dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules'; //WHAT ??
@@ -50,15 +50,14 @@ $repmodules = '';
 
 // get the modules that are already installed
 $instmodules = '';
-{
-    $result = utils::get_installed_modules();
-    if (! $result[0]) {
-        $this->_DisplayErrorPage($id, $params, $returnid, $result[1]);
-        return;
-    }
 
-    $instmodules = $result[1];
+$result = utils::get_installed_modules();
+if (! $result[0]) {
+    $this->_DisplayErrorPage($id, $params, $returnid, $result[1]);
+    return;
 }
+
+$instmodules = $result[1];
 
 // build a letters list
 $letters = [];

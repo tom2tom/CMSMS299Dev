@@ -25,21 +25,18 @@ $name = get_parameter_value($params,'name');
 if( !$name ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $version = get_parameter_value($params,'version');
 if( !$version ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $url = $this->GetPreference('module_repository');
 if( !$url ) {
   $this->SetError($this->Lang('error_norepositoryurl'));
   $this->RedirectToAdminTab();
-  return;
 }
 $url .= '/modulehelp';
 
@@ -47,7 +44,6 @@ $xmlfile = get_parameter_value($params,'filename');
 if( !$xmlfile ) {
   $this->SetError($this->Lang('error_nofilename'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 
@@ -58,13 +54,11 @@ $result = $req->getResult();
 if( $status != 200 || $result == '' ) {
   $this->SetError($this->Lang('error_request_problem'));
   $this->RedirectToAdminTab();
-  return;
 }
 $help = json_decode($result,true);
 if( !$help ) {
   $this->SetError($this->Lang('error_nodata'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);

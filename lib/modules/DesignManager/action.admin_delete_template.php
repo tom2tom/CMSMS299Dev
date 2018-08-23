@@ -97,4 +97,3 @@ catch( CmsException $e ) {
   $this->SetError($e->GetMessage());
   $this->RedirectToAdminTab();
 }
-

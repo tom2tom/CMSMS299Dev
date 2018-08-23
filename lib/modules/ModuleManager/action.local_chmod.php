@@ -23,4 +23,3 @@ if( $result ) {
 }
 
 $this->RedirectToAdminTab();
-?>

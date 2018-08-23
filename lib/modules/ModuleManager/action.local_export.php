@@ -1,4 +1,8 @@
 <?php
+
+use CMSMS\Events;
+use CMSMS\ModuleOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -22,9 +26,9 @@ try {
     $files = 0;
     $message = '';
 
-    \CMSMS\Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
+    Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
     $xmlfile = $this->get_operations()->create_xml_package($modinstance,$message,$files);
-    \CMSMS\Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
+    Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
     CmsNlsOperations::set_language($orig_lang);
     if( $old_display_errors !== FALSE ) ini_set('display_errors',$old_display_errors);
 
@@ -47,7 +51,7 @@ try {
         exit;
     }
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }

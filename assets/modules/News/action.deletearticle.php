@@ -5,7 +5,7 @@ use News\news_admin_ops;
 if (!isset($gCms)) exit;
 
 if (!$this->CheckPermission('Delete News')) {
-    $this->SetError($this->Lang('needpermission', 'Modify News'));
+    $this->SetError($this->Lang('needpermission', 'Modify News')); //probsaly useless before return
     return;
 }
 

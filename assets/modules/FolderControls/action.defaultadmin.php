@@ -40,7 +40,7 @@ if (!empty($params['delete'])) {
             cms_siteprefs::set('defaultcontrolset', -1);
         }
     } catch (Exception $e) {
-        $this->SetError($e->GetMessage());
+        $this->ShowErrors($e->GetMessage());
     }
 } elseif (!empty($params['default'])) {
     cms_siteprefs::set('defaultcontrolset', (int)$params['setid']); //TODO module setting

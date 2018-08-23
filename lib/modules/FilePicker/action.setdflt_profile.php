@@ -31,4 +31,3 @@ catch( Exception $e ) {
     $this->SetError( $e->GetMessage() );
 }
 $this->RedirectToAdminTab();
-

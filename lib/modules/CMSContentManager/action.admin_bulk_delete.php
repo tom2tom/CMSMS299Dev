@@ -154,4 +154,3 @@ $tpl->assign('multicontent',base64_encode(serialize($pagelist)))
  ->assign('displaydata',$displaydata);
 
 $tpl->display();
-

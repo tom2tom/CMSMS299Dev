@@ -268,4 +268,3 @@ EOS;
     $this->SetError($e->GetMessage());
     $this->RedirectToAdminTab();
 }
-

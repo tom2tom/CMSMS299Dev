@@ -25,21 +25,18 @@ $name = get_parameter_value($params,'name');
 if( !$name ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $version = get_parameter_value($params,'version');
 if( !$version ) {
   $this->SetError($this->Lang('error_insufficientparams'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $url = $this->GetPreference('module_repository');
 if( !$url ) {
   $this->SetError($this->Lang('error_norepositoryurl'));
   $this->RedirectToAdminTab();
-  return;
 }
 $url .= '/modulehelp';
 
@@ -47,14 +44,12 @@ $xmlfile = get_parameter_value($params,'filename');
 if( !$xmlfile ) {
   $this->SetError($this->Lang('error_nofilename'));
   $this->RedirectToAdminTab();
-  return;
 }
 
 $depends = modulerep_client::get_module_depends($xmlfile);
 if( !is_array($depends) || count($depends) != 2 || $depends[0] == false ) {
   $this->SetError($depends[1]);
   $this->RedirectToAdminTab();
-  return;
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('remotecontent.tpl'),null,null,$smarty);
@@ -84,4 +79,3 @@ else {
 $tpl->assign('content',$txt);
 
 $tpl->display();
-

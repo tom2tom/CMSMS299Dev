@@ -84,4 +84,3 @@ $tpl->assign('image',$url)
  ->assign('image_width',$imageinfo[0]);
 
 $tpl->display();
-

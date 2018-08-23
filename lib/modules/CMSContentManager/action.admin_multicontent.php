@@ -27,7 +27,6 @@ $module = null;
 $bulkaction = null;
 $pages = null;
 
-
 //
 // get data
 //
@@ -107,4 +106,3 @@ switch( $bulkaction ) {
 
 $this->SetError($this->Lang('error_nobulkaction'));
 $this->RedirectToAdminTab();
-

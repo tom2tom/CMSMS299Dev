@@ -24,5 +24,3 @@ else {
 }
 
 $this->RedirectToAdminTab();
-
-?>

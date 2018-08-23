@@ -25,7 +25,7 @@ try {
     uksort($allmoduleinfo,'strnatcasecmp');
 }
 catch( Exception $e ) {
-    $this->SetError($e->GetMessage());
+    $this->SetError($e->GetMessage()); //probably useless before a return
     return;
 }
 

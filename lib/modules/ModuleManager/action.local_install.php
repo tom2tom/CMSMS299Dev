@@ -30,5 +30,3 @@ $msg = $modinstance->InstallPostMessage();
 if( !$msg ) $msg = $this->Lang('msg_module_installed',$mod);
 $this->SetMessage($msg);
 $this->RedirectToAdminTab();
-
-?>
