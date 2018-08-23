@@ -1,30 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  $('.template_view').on('click', function() {
-    var row = $(this).closest('tr');
-    cms_dialog($('.template_content',row), {
-      width: 'auto',
-      close: function(ev, ui) {
-        cms_dialog($(this), 'destroy');
-      }
-    });
-    return false;
-  });
-  $('.stylesheet_view').on('click', function() {
-    var row = $(this).closest('tr');
-    cms_dialog($('.stylesheet_content',row), {
-      width: 'auto',
-      close: function(ev, ui) {
-        cms_dialog($(this), 'destroy');
-      }
-    });
-    return false;
-  });
-});
-{/literal}//]]>
-</script>
-
 <h3>{$mod->Lang('import_design_step2')}</h3>
 
 {form_start step=2 tmpfile=$tmpfile}

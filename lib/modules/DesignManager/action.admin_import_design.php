@@ -99,7 +99,7 @@ try {
         }
 
         // suggest a new name for the 'theme'.
-        $tpl = cmsms()->GetSmarty();
+
         $tpl->assign('tmpfile',$tmpfile)
          ->assign('cms_version',CMS_VERSION);
         $design_info = $reader->get_design_info();
@@ -112,6 +112,36 @@ try {
     catch( CmsException $e ) {
       $this->ShowErrors($e->GetMessage());
     }
+
+    $js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  $('.template_view').on('click', function() {
+    var row = $(this).closest('tr');
+    cms_dialog($('.template_content',row), {
+      width: 'auto',
+      close: function(ev, ui) {
+        cms_dialog($(this), 'destroy');
+      }
+    });
+    return false;
+  });
+  $('.stylesheet_view').on('click', function() {
+    var row = $(this).closest('tr');
+    cms_dialog($('.stylesheet_content',row), {
+      width: 'auto',
+      close: function(ev, ui) {
+        cms_dialog($(this), 'destroy');
+      }
+    });
+    return false;
+  });
+});
+//]]>
+</script>
+EOS;
+    $this->AdminBottomContent($js);
 
     $tpl->display();
     break;
