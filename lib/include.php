@@ -1,7 +1,7 @@
 <?php
 #setup classes, includes etc for request processing
-#Copyright (C) 2004-2013 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2011-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ use CMSMS\internal\global_cache;
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 
 if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
-    die ('FATAL ERROR: config.php file not found or invalid');
+    die('FATAL ERROR: config.php file not found or invalid');
 }
 
 if (!isset($CMS_JOB_TYPE)) $CMS_JOB_TYPE = 0;
@@ -68,7 +68,7 @@ require_once $dirname.'defines.php'; //populate relevant defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php';
 require_once $dirname.'module.functions.php'; //some used in autoloader
 require_once $dirname.'autoloader.php';
-//require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); Composer support limited to remote admin mechanism (RISKY)
+//require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); no Composer support on production system
 require_once $dirname.'compat.functions.php';
 require_once $dirname.'page.functions.php';
 if ($CMS_JOB_TYPE < 2) {
