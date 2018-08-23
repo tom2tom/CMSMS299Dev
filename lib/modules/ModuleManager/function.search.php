@@ -16,9 +16,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\modulerep_client;
-use ModuleManager\utils as modmgr_utils;
-
-if( !isset($gCms) ) exit;
+use ModuleManager\utils;
 
 global $CMS_VERSION;
 $dir = CMS_ASSETS_PATH.'/modules';
@@ -39,14 +37,12 @@ $clear_search = function() use (&$search_data) {
 
 // get the modules that are already installed
 $instmodules = '';
-{
-    $result = modmgr_utils::get_installed_modules();
-    if( ! $result[0] ) {
-        $this->_DisplayErrorPage( $id, $params, $returnid, $result[1] );
-        return;
-    }
-    $instmodules = $result[1];
+$result = utils::get_installed_modules();
+if( ! $result[0] ) {
+    $this->_DisplayErrorPage( $id, $params, $returnid, $result[1] );
+    return;
 }
+$instmodules = $result[1];
 
 if( isset($params['submit']) ) {
     try {
@@ -57,12 +53,12 @@ if( isset($params['submit']) ) {
         $advanced = (int)$params['advanced'];
 
         $res = modulerep_client::search($term,$advanced);
-        if( !is_array($res) || $res[0] == FALSE ) throw new Exception($this->Lang('error_search').' '.$res[1]);
+        if( !is_array($res) || $res[0] == false ) throw new Exception($this->Lang('error_search').' '.$res[1]);
         if( !is_array($res[1]) ) throw new Exception($this->Lang('search_noresults'));
 
         $res = $res[1];
         $data = [];
-        if( count($res) ) $res = modmgr_utils::build_module_data($res, $instmodules);
+        if( count($res) ) $res = utils::build_module_data($res, $instmodules);
 
         $writable = true;
         foreach (cms_module_places() as $dir) {
@@ -96,10 +92,10 @@ if( isset($params['submit']) ) {
             $obj->aboutlink = $this->CreateLink( $id, 'moduleabout', $returnid,
                                                  $this->Lang('abouttxt'),
                                                  ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename']]);
-            $obj->age = modmgr_utils::get_status($row['date']);
+            $obj->age = utils::get_status($row['date']);
             $obj->date = $row['date'];
             $obj->downloads = $row['downloads']??$this->Lang('unknown');
-            $obj->candownload = FALSE;
+            $obj->candownload = false;
 
             switch( $row['status'] ) {
             case 'incompatible':
@@ -115,11 +111,11 @@ if( isset($params['submit']) ) {
                 $mod = $moduledir.DIRECTORY_SEPARATOR.$row['name'];
                 if( (($writable && is_dir($mod) && is_directory_writable( $mod )) ||
                      ($writable && !file_exists( $mod ) )) && $caninstall ) {
-                    $obj->candownload = TRUE;
+                    $obj->candownload = true;
                     $obj->status = $this->CreateLink( $id, 'installmodule', $returnid,
                                                       $this->Lang('download'),
                                                       ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                                                            'size' => $row['size']]);
+                                                       'size' => $row['size']]);
                 }
                 else {
                     $obj->status = $this->Lang('cantdownload');
@@ -130,11 +126,11 @@ if( isset($params['submit']) ) {
                 $mod = $moduledir.DIRECTORY_SEPARATOR.$row['name'];
                 if( (($writable && is_dir($mod) && is_directory_writable( $mod )) ||
                      ($writable && !file_exists( $mod ) )) && $caninstall ) {
-                    $obj->candownload = TRUE;
+                    $obj->candownload = true;
                     $obj->status = $this->CreateLink( $id, 'installmodule', $returnid,
                                                       $this->Lang('upgrade'),
                                                       ['name' => $row['name'],'version' => $row['version'],'filename' => $row['filename'],
-                                                            'size' => $row['size']]);
+                                                       'size' => $row['size']]);
                 }
                 else {
                     $obj->status = $this->Lang('cantdownload');
@@ -161,3 +157,4 @@ $tpl->assign('term',$term)
  ->assign('advanced',$advanced)
  ->assign('formstart',$this->CreateFormStart($id,'defaultadmin','','post','',false,'',['__activetab'=>'search']))
  ->assign('formend',$this->CreateFormEnd());
+
