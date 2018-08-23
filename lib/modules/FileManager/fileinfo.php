@@ -1,6 +1,6 @@
 <?php
 
-// These constants are used by image_info(), below.
+// Constants used by image_info(), below.
 define ('IMAGE_WIDTH', 'width');
 define ('IMAGE_HEIGHT', 'height');
 define ('IMAGE_TYPE', 'type');
@@ -33,8 +33,8 @@ define ('IMAGE_MIME', 'mime');
  * Returns false if $file is not a file, no arguments are supplied, $file is not an image, or otherwise fails.
  *
  **/
-function image_info($file = null, $out = null) {
-
+function image_info($file = null, $out = null)
+{
   // If $file is not supplied or is not a file, warn the user and return false.
   if (is_null($file) || !is_file($file)) {
    // echo '<p><b>Warning:</b> image_info() => first argument must be a file.</p>';
@@ -100,7 +100,8 @@ function image_info($file = null, $out = null) {
 }
 
 
-function GetFileInfo($filename,$ext,$dir=false) {
+function GetFileInfo(string $filename, string $ext, bool $dir=false) : string
+{
   $result='';
   if ($dir) {
     $result='&nbsp;';

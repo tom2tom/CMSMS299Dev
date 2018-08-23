@@ -39,45 +39,44 @@ $advancedmode = $this->GetPreference('advancedmode',0);
 if( strlen($advancedmode) > 1 ) $advancedmode = 0;
 
 // get a folder list...
-{
-    $cwd = Utils::get_cwd();
-    $tpl->assign('cwd',$cwd);
+  $cwd = Utils::get_cwd();
+  $tpl->assign('cwd',$cwd);
 
-    $startdir = $config['uploads_path'];
-    if( $this->AdvancedAccessAllowed() && $advancedmode ) $startdir = CMS_ROOT_PATH;
+  $startdir = $config['uploads_path'];
+  if( $this->AdvancedAccessAllowed() && $advancedmode ) $startdir = CMS_ROOT_PATH;
 
     // now get a simple list of all of the directories we have 'write' access to.
-    $basedir = dirname($startdir);
-    function get_dirs($startdir,$prefix = '/') {
-        $res = [];
-        if( !is_dir($startdir) ) return;
+  $basedir = dirname($startdir);
+  function get_dirs($startdir,$prefix = DIRECTORY_SEPARATOR)
+  {
+    $res = [];
+    if( !is_dir($startdir) ) return;
 
-        global $showhiddenfiles;
-        $dh = opendir($startdir);
-        while( false !== ($entry = readdir($dh)) ) {
-            if( $entry == '.' ) continue;
-            if( $entry == '..' ) continue;
-            $full = cms_join_path($startdir,$entry);
-            if( !is_dir($full) ) continue;
-            if( !is_readable($full) ) continue;
-            if( !$showhiddenfiles && ($entry[0] == '.' || $entry[0] == '_') ) continue;
+    global $showhiddenfiles;
+    $dh = opendir($startdir);
+    while( false !== ($entry = readdir($dh)) ) {
+      if( $entry == '.' ) continue;
+      if( $entry == '..' ) continue;
+      $full = cms_join_path($startdir,$entry);
+      if( !is_dir($full) ) continue;
+      if( !is_readable($full) ) continue;
+      if( !$showhiddenfiles && ($entry[0] == '.' || $entry[0] == '_') ) continue;
 
-            if( $entry == '.svn' || $entry == '.git' ) continue;
-            if( is_writable($full) ) $res[$prefix.$entry] = $prefix.$entry;
-            $tmp = get_dirs($full,$prefix.$entry.'/');
-            if( is_array($tmp) && count($tmp) ) $res = array_merge($res,$tmp);
-        }
-        closedir($dh);
-        return $res;
+      if( $entry == '.svn' || $entry == '.git' ) continue;
+      if( is_writable($full) ) $res[$prefix.$entry] = $prefix.$entry;
+      $tmp = get_dirs($full,$prefix.$entry.DIRECTORY_SEPARATOR);
+      if( is_array($tmp) && count($tmp) ) $res = array_merge($res,$tmp);
     }
+    closedir($dh);
+    return $res;
+  }
 
-    $output = get_dirs($startdir,'/'.basename($startdir).'/');
-    $output['/'.basename($startdir)] = '/'.basename($startdir);
-    if( count($output) ) {
-        ksort($output);
-        $tpl->assign('dirlist',$output);
-    }
-}
+  $output = get_dirs($startdir,DIRECTORY_SEPARATOR.basename($startdir).DIRECTORY_SEPARATOR);
+  $output['/'.basename($startdir)] = DIRECTORY_SEPARATOR.basename($startdir);
+  if( count($output) ) {
+    ksort($output);
+    $tpl->assign('dirlist',$output);
+  }
 
 $tpl->display();
 
