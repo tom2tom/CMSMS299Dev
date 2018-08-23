@@ -715,7 +715,7 @@ final class CmsApp
  * @return CmsApp
  * @see CmsApp::get_instance()
  */
-function cmsms()
+function cmsms() : CmsApp
 {
 	return CmsApp::get_instance();
 }
@@ -726,7 +726,8 @@ function cmsms()
  * @since 0.4
  * @return string
  */
-function cms_db_prefix() {
+function cms_db_prefix() : string
+{
 	return CMS_DB_PREFIX;
 }
 
