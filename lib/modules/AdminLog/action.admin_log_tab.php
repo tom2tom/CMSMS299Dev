@@ -79,6 +79,34 @@ if( $resultset->numpages > 0 ) {
 }
 $results = $resultset->GetMatches();
 
+$url = $this->create_url($id,'defaultadmin',$returnid,['page'=>'xxx']);
+$url = str_replace('&amp;','&',$url);
+
+$js = <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+  $('#pagenum').on('change', function() {
+    var v = $(this).val();
+    var t_url = '$url'.replace('xxx', v);
+    window.location = t_url;
+  });
+  $('#filterbtn').on('click', function() {
+    cms_dialog($('#filter_dlg'), {
+      open: function(ev, ui) {
+        cms_equalWidth($('#filter_dlg label.boxchild'));
+      },
+      modal: true,
+      width: 'auto',
+      height: 'auto'
+    });
+  });
+});
+//]]>
+</script>
+EOS;
+$this->AdminBottomContent($js);
+
 $severity_list = [
  $this->Lang('sev_msg'),
  $this->Lang('sev_notice'),

@@ -1,26 +1,3 @@
-<script type="text/javascript">
-{literal}//<![CDATA[
-$(document).ready(function() {
-  var url = '{/literal}{cms_action_url action=defaultadmin page=xxx forjs=1}{literal}';
-  $('#pagenum').on('change', function() {
-    var v = $(this).val();
-    var t_url = url.replace('xxx', v);
-    window.location = t_url;
-  });
-  $('#filterbtn').on('click', function() {
-    cms_dialog($('#filter_dlg'), {
-      open: function(ev, ui) {
-        cms_equalWidth($('#filter_dlg label.boxchild'));
-      },
-      modal: true,
-      width: 'auto',
-      height: 'auto'
-    });
-  });
-});
-{/literal}//]]>
-</script>
-
 <div class="c_full cf">
   <a href="{cms_action_url action=download}&cmsjobtype=1">{admin_icon icon='export.gif'} {$mod->Lang('download')}</a>
   {if $mod->CheckPermission('Clear Admin Log')}
