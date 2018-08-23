@@ -1,5 +1,5 @@
 <?php
-# CMSContentManager action tab
+# CMSContentManager settings action tab
 # Copyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
-
 $opts = [
  'all'=>$this->Lang('opt_alltemplates'),
  'alldesign'=>$this->Lang('opt_alldesign'),
@@ -25,11 +22,7 @@ $opts = [
  'designpage'=>$this->Lang('opt_designpage')
 ];
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_general_tab.tpl'),null,null,$smarty);
 $tpl->assign('locktimeout',$this->GetPreference('locktimeout'))
  ->assign('lockrefresh',$this->GetPreference('lockrefresh'))
  ->assign('template_list_opts',$opts)
  ->assign('template_list_mode',$this->GetPreference('template_list_mode','designpage'));
-
-$tpl->display();
-

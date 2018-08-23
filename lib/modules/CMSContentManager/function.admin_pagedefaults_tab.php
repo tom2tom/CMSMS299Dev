@@ -1,5 +1,5 @@
 <?php
-# CMSContentManager module populate tab for defaultadmin action
+# CMSContentManager settings action tab
 # Coopyright (C) 2013-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -19,16 +19,8 @@ use CMSContentManager\Utils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 
-if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
-
-$page_prefs = Utils::get_pagedefaults();
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_pagedefaults_tab.tpl'),null,null,$smarty);
-$tpl->assign('page_prefs',$page_prefs)
- ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(FALSE,FALSE))
+$tpl->assign('page_prefs',Utils::get_pagedefaults())
+ ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(false,false))
  ->assign('design_list',CmsLayoutCollection::get_list())
  ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]))
  ->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
-
-$tpl->display();
-

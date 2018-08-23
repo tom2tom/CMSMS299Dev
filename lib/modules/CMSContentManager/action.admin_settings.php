@@ -18,25 +18,10 @@
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return;
 
-echo $this->StartTabHeaders();
-echo $this->SetTabHeader('general',$this->Lang('prompt_general'));
-echo $this->SetTabHeader('listsettings',$this->Lang('prompt_listsettings'));
-echo $this->SetTabHeader('pagedefaults',$this->Lang('prompt_pagedefaults'));
-echo $this->EndTabHeaders();
+$tpl = $smarty->createTemplate($this->GetTemplateResource('settings.tpl'),null,null,$smarty);
 
-echo $this->StartTabContent();
+include(__DIR__.DIRECTORY_SEPARATOR.'function.admin_general_tab.php');
+include(__DIR__.DIRECTORY_SEPARATOR.'function.admin_listsettings_tab.php');
+include(__DIR__.DIRECTORY_SEPARATOR.'function.admin_pagedefaults_tab.php');
 
-echo $this->StartTab('general',$params);
-include(__DIR__.'/function.admin_general_tab.php');
-echo $this->EndTab();
-
-echo $this->StartTab('listsettings',$params);
-include(__DIR__.'/function.admin_listsettings_tab.php');
-echo $this->EndTab();
-
-echo $this->StartTab('pagedefaults',$params);
-include(__DIR__.'/function.admin_pagedefaults_tab.php');
-echo $this->EndTab();
-
-echo $this->EndTabHeaders();
-
+$tpl->display();
