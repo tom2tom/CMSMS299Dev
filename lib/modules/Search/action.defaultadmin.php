@@ -55,25 +55,15 @@ else if (isset($params['submit'])) {
     $this->SetPreference('resultpage', (int)$params['resultpage']);
 }
 
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
 
 //The tabs
-echo $this->StartTabHeaders();
-$tab = '';
-if (FALSE == empty($params['active_tab'])) $tab = $params['active_tab'];
-echo $this->SetTabHeader('statistics',$this->Lang('statistics'),('statistics' == $tab));
-echo $this->SetTabHeader('options',$this->Lang('options'), ('options' == $tab));
-echo $this->EndTabHeaders();
+if (!empty($params['active_tab'])) $tab = $params['active_tab'];
+else $tab = '';
 
-//The content of the tabs
-echo $this->StartTabContent();
+$tpl->assign('tab', $tab);
 
-echo $this->StartTab('statistics',$params);
-include __DIR__.'/function.admin_statistics_tab.php';
-echo $this->EndTab();
-
-echo $this->StartTab('options', $params);
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource('options_tab.tpl'),null,null,$smarty);
+include __DIR__.DIRECTORY_SEPARATOR.'function.admin_statistics_tab.php';
 
 $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'post','',false,'',
                                                    ['active_tab'=>'options']))
@@ -115,10 +105,5 @@ $tpl->assign('prompt_resultpage',$this->Lang('prompt_resultpage'));
 $tpl->assign('input_resultpage',
                 $contentops->CreateHierarchyDropdown('',$this->GetPreference('resultpage',-1),$id.'resultpage',1));
 */
-$tpl->assign('formend',$this->CreateFormEnd());
 
 $tpl->display();
-
-echo $this->EndTab();
-echo $this->EndTabContent();
-

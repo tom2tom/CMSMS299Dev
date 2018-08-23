@@ -66,8 +66,8 @@ $lang['help'] = '<h3>What does this do?</h3>
 $lang['input_resetstopwords'] = 'Load';
 
 // N
-$lang['noresultsfound'] = 'No result found!';
-$lang['nostatistics'] = 'No statistics found!';
+$lang['noresultsfound'] = 'No result found';
+$lang['nostatistics'] = 'No statistics found';
 
 // O
 $lang['options'] = 'Options';
