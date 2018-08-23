@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-if (!isset($gCms)) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) exit;
 
 $s1 = json_encode($this->Lang('confirm_reseturl'));
