@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use ModuleManager\modulerep_client;
 use ModuleManager\utils;
 
 if( !isset($gCms) ) exit;
@@ -26,72 +25,43 @@ if( isset($params['modulehelp']) ) {
     // this is done before permissions checks
     $params['mod'] = $params['modulehelp'];
     unset($params['modulehelp']);
-    include(__DIR__.DIRECTORY_SEPARATOR.'action.local_help.php');
+    require __DIR__.DIRECTORY_SEPARATOR.'action.local_help.php';
     return;
 }
 
-if( !$this->VisibleToAdminUser() ) exit;
+if( !$this->VisibleToAdminUser() ) return;
+
+$pmod = $this->CheckPermission('Modify Modules');
+$pset = $this->CheckPermission('Modify Site Preferences');
+if( !($pmod || $pset) ) return;
 
 $connection_ok = utils::is_connection_ok();
-if( !$connection_ok ) $this->ShowErrors($this->Lang('error_request_problem'));
+if( !$connection_ok ) {
+    $this->ShowErrors($this->Lang('error_request_problem'));
+}
 
 // this is a bit ugly.
 utils::get_images();
 
-$newversions = null;
-if( $connection_ok ) {
-    try {
-        $newversions = modulerep_client::get_newmoduleversions();
-    }
-    catch( Exception $e ) {
-        $this->ShowErrors($e->GetMessage());
-    }
-}
+$seetab = $params['active_tab'] ?? 'installed';
 
-if (isset($params['active_tab'])) {
-    $seetab = $params['active_tab'];
-} else {
-    $seetab = 'installed';
-}
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
 
-echo $this->StartTabHeaders();
-if ($this->CheckPermission('Modify Modules')) {
-    echo $this->SetTabHeader('installed',$this->Lang('installed'),$seetab=='installed');
-    if ($connection_ok) {
-        $num = (is_array($newversions)) ? count($newversions) : 0;
-        echo $this->SetTabHeader('newversions',$num.' '.$this->Lang('tab_newversions'),$seetab=='newversions');
-        echo $this->SetTabHeader('search',$this->Lang('search'),$seetab=='search');
-        echo $this->SetTabHeader('modules',$this->Lang('availmodules'),$seetab=='modules');
-    }
-}
-if ($this->CheckPermission('Modify Site Preferences')) {
-    echo $this->SetTabHeader('prefs',$this->Lang('prompt_settings'),$seetab=='prefs');
-}
-echo $this->EndTabHeaders();
+$tpl->assign('tab',$seetab)
+ ->assign('pmod',$pmod)
+ ->assign('pset',$pset)
+ ->assign('connected',$connection_ok);
 
-echo $this->StartTabContent();
-if( $this->CheckPermission('Modify Modules') ) {
-    echo $this->StartTab('installed',$params);
-    include __DIR__.DIRECTORY_SEPARATOR.'function.admin_installed.php';
-    echo $this->EndTab();
-
+if( $pmod ) {
+    require __DIR__.DIRECTORY_SEPARATOR.'function.admin_installed.php';
     if( $connection_ok ) {
-        echo $this->StartTab('newversions',$params);
-        include __DIR__.DIRECTORY_SEPARATOR.'function.newversionstab.php';
-        echo $this->EndTab();
-
-        echo $this->StartTab('search',$params);
-        include __DIR__.DIRECTORY_SEPARATOR.'function.search.php';
-        echo $this->EndTab();
-
-        echo $this->StartTab('modules',$params);
-        include __DIR__.DIRECTORY_SEPARATOR.'function.admin_modules_tab.php';
-        echo $this->EndTab();
+        require __DIR__.DIRECTORY_SEPARATOR.'function.newversionstab.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'function.search.php';
+        require __DIR__.DIRECTORY_SEPARATOR.'function.admin_modules_tab.php';
     }
 }
-if ($this->CheckPermission('Modify Site Preferences')) {
-    echo $this->StartTab('prefs',$params);
-    include __DIR__.DIRECTORY_SEPARATOR.'function.admin_prefs_tab.php';
-    echo $this->EndTab();
+if( $pset ) {
+    require __DIR__.DIRECTORY_SEPARATOR.'function.admin_prefs_tab.php';
 }
-echo $this->EndTabContent();
+
+$tpl->display();

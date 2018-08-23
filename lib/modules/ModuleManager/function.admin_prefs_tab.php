@@ -49,8 +49,6 @@ $(document).ready(function() {
 EOS;
 $this->AdminBottomContent($js);
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminprefs.tpl'),null,null,$smarty);
-
 if( isset($config['developer_mode']) ) {
   $tpl->assign('developer_mode',1)
    ->assign('module_repository',$this->GetPreference('module_repository'))
@@ -59,6 +57,3 @@ if( isset($config['developer_mode']) ) {
 $tpl->assign('dl_chunksize',$this->GetPreference('dl_chunksize',256))
  ->assign('latestdepends',$this->GetPreference('latestdepends',1))
  ->assign('allowuninstall',$this->GetPreference('allowuninstall',0));
-
-$tpl->display();
-

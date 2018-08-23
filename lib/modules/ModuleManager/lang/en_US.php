@@ -215,7 +215,7 @@ $lang['submit'] = 'Submit';
 $lang['success'] = 'Success';
 
 // T
-$lang['tab_newversions'] = 'Upgrades Available';
+$lang['tab_newversions'] = '%s Upgrade(s) Available';
 $lang['time_warning'] = 'Installing modules is a data and memory intensive operation. Depending upon the network bandwidth, server load, and installation tasks that need to be performed this could take several minutes.  Also, installing modules might cause problems with a working installation.  It is recommended that you have a verified backup of your site before proceeding.';
 $lang['title_advancedsearch'] = 'Enable advanced search functionality';
 $lang['title_cantremove'] = 'The file system permissions on this module directory do not permit deleting the files';

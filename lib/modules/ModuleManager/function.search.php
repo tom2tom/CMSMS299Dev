@@ -156,15 +156,8 @@ if( isset($params['submit']) ) {
     }
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_search_tab.tpl'),null,null,$smarty);
-
 if( is_array($search_data) ) $tpl->assign('search_data',$search_data);
 $tpl->assign('term',$term)
  ->assign('advanced',$advanced)
  ->assign('formstart',$this->CreateFormStart($id,'defaultadmin','','post','',false,'',['__activetab'=>'search']))
  ->assign('formend',$this->CreateFormEnd());
-//see DoActionBase() ->assign('actionid',$id)
-// ->assign('mod',$this);
-
-$tpl->display();
-

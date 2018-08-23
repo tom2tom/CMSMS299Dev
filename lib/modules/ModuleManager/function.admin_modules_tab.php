@@ -18,21 +18,15 @@
 use ModuleManager\modulerep_client;
 use ModuleManager\utils;
 
-if (!isset($gCms)) {
-    exit;
-}
 if (!$this->CheckPermission('Modify Modules')) {
     exit;
 }
 
 if (!utils::is_connection_ok()) {
     $this->SetError($this->Lang('error_request_problem'));
-    return;
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
-
-$dir = CMS_ASSETS_PATH.'/modules';
+$dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules'; //WHAT ??
 $caninstall = (!is_dir($dir) || is_writable($dir));
 
 $curletter = 'A';
@@ -210,12 +204,9 @@ $searchfield = $this->CreateInputText($id, 'search_input', "Doesn't Work", 30, 1
 $searchsubmit =  '<button type="submit" name="'.$id.'submit" id="'.$id.'submit" class="adminsubmit icon search">'.$this->Lang('search').'</button>';
 $tpl->assign('search', $searchstart.$searchfield.$searchsubmit.$searchend)
 
-// and display our page
  ->assign('letter_urls', $letters)
  ->assign('curletter', $curletter)
  ->assign('nametext', $this->Lang('nametext'))
  ->assign('vertext', $this->Lang('vertext'))
  ->assign('sizetext', $this->Lang('sizetext'))
  ->assign('statustext', $this->Lang('statustext'));
-
-$tpl->display();

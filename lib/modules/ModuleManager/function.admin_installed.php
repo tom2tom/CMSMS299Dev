@@ -85,8 +85,6 @@ $(document).ready(function() {
 EOS;
 $this->AdminBottomContent($js);
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('admin_installed.tpl'),null,null,$smarty);
-
 $tpl->assign('module_info',$allmoduleinfo);
 $devmode = !empty($config['developer_mode']);
 $tpl->assign('allow_export',($devmode)?1:0);
@@ -94,6 +92,3 @@ if ($devmode) {
     $tpl->assign('iconsurl',$this->GetModuleURLPath().'/images');
 }
 $tpl->assign('allow_modman_uninstall',$this->GetPreference('allowuninstall',0));
-
-$tpl->display();
-

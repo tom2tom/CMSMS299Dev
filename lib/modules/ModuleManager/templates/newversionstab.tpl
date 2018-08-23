@@ -1,4 +1,4 @@
-{if empty($itemcount)}
+{if empty($upcount)}
 <p>{$nvmessage}</p>
 {else}
 <div class="pageinfo">{if !empty($updatestxt)}{$updatestxt}{else}{$mod->Lang('info_searchtab')}{/if}</div>
@@ -19,20 +19,20 @@
   <thead>
     <tr>
       <th></th>
-      <th>{$nametext}</th>
-      <th title="{$mod->Lang('title_newmoduleversion')}">{$vertext}</th>
+      <th>{$mod->Lang('nametext')}</th>
+      <th title="{$mod->Lang('title_newmoduleversion')}">{$mod->Lang('vertext')}</th>
       <th title="{$mod->Lang('title_yourmoduledate')}">{$mod->Lang('releasedate')}</th>
       <th title="{$mod->Lang('title_moduledownloads2')}">{$mod->Lang('downloads')}</th>
-      <th title="{$mod->Lang('title_modulesize2')}">{$sizetext}</th>
-      <th title="{$mod->Lang('title_yourmoduleversion')}">{$haveversion}</th>
-      <th title="{$mod->Lang('title_modulestatus')}">{$statustext}</th>
+      <th title="{$mod->Lang('title_modulesize2')}">{$mod->Lang('sizetext')}</th>
+      <th title="{$mod->Lang('title_yourmoduleversion')}">{$mod->Lang('yourversion')}</th>
+      <th title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('statustext')}</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
     </tr>
   </thead>
   <tbody>
-{foreach $items as $entry}
+{foreach $updates as $entry}
   <tr class="{cycle values='row1,row2'}"{if $entry->age=='new'} style="font-weight:bold;"{/if}>
     <td>{get_module_status_icon status=$entry->age}</td>
     <td>

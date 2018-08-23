@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use ModuleManager\modulerep_client;
 use ModuleManager\utils as Utils;
 
-if( !isset($gCms) ) exit;
-
 global $CMS_VERSION;
+
 //TODO what's expected to go into the alternate dir ?
 $dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
 $caninstall = (is_dir($dir) && is_writable($dir));
@@ -28,8 +28,18 @@ $moduledir = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'module
 $writable = is_dir($moduledir) && is_writable( $moduledir );
 
 $results = [];
+$newversions = null;
 
-if( !empty($newversions) ) {
+if( $connection_ok ) {
+	try {
+		$newversions = modulerep_client::get_newmoduleversions();
+	}
+	catch( Exception $e ) {
+		$this->ShowErrors($e->GetMessage());
+	}
+}
+
+if( $newversions ) {
 	foreach( $newversions as $row ) {
 		$txt = '';
 		$onerow = new stdClass();
@@ -87,9 +97,9 @@ if( !empty($newversions) ) {
 					} else {
 						$onerow->status = $this->CreateLink( $id, 'installmodule', $returnid,
 															 $this->Lang('upgrade'),
-															 ['name' => $row['name'],'version' => $row['version'],
-																   'filename' => $row['filename'],'size' => $row['size'],
-																   'active_tab'=>'newversions','reset_prefs' => 1]);
+															['name' => $row['name'],'version' => $row['version'],
+															'filename' => $row['filename'],'size' => $row['size'],
+															'active_tab'=>'newversions','reset_prefs' => 1]);
 					}
 				}
 				else {
@@ -102,22 +112,13 @@ if( !empty($newversions) ) {
 	}
 }
 
-$tpl = $smarty->createTemplate($this->GetTemplateResource('newversionstab.tpl'),null,null,$smarty);
+$num = ( is_array($newversions) ) ? count($newversions) : 0;
+$tpl->assign('newtext',$this->Lang('tab_newversions', $num));
 
-if( !count($results) ) {
-    $tpl->assign('nvmessage',$this->Lang('all_modules_up_to_date'));
-}
+if( $results)
+	$tpl->assign('updatestxt',$this->Lang('available_updates'))
+	 ->assign('updates',$results)
+	 ->assign('upcount',count($results));
 else {
-    $tpl->assign('updatestxt',$this->Lang('available_updates'))
-     ->assign('items',$results)
-     ->assign('itemcount', count($results));
+	$tpl->assign('nvmessage',$this->Lang('all_modules_up_to_date'));
 }
-
-$tpl->assign('haveversion',$this->Lang('yourversion'))
- ->assign('nametext',$this->Lang('nametext'))
- ->assign('vertext',$this->Lang('vertext'))
- ->assign('sizetext',$this->Lang('sizetext'))
- ->assign('statustext',$this->Lang('statustext'));
-
-$tpl->display();
-
