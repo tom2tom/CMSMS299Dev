@@ -17,10 +17,10 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //best to avoid module-specific class autoloading during installation
-$fp = cms_join_path(__DIR__,'lib','class.microtiny_profile.php');
+$fp = cms_join_path(__DIR__,'lib','class.Profile.php');
 require_once $fp;
 
-$obj = new MicroTiny\microtiny_profile([
+$obj = new MicroTiny\Profile([
 	'name'=>MicroTiny::PROFILE_FRONTEND,
 	'label'=>$this->Lang('profile_frontend'),
 	'menubar'=>false,
@@ -30,7 +30,7 @@ $obj = new MicroTiny\microtiny_profile([
 	'system'=>true]);
 $obj->save();
 
-$obj = new MicroTiny\microtiny_profile([
+$obj = new MicroTiny\Profile([
 	'name'=>MicroTiny::PROFILE_ADMIN,
 	'label'=>$this->Lang('profile_admin'),
 	'menubar'=>true,
