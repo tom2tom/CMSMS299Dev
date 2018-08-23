@@ -112,31 +112,31 @@ class ContentOperations
 	public static function setup_cache()
 	{
 		// two caches, the flat list, and the tree
-		$obj = new global_cachable('content_flatlist',
-				   function(){
-					   $query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy ASC';
-					   $db = CmsApp::get_instance()->GetDb();
-					   return $db->GetArray($query);
-				   });
+		$obj = new global_cachable('content_flatlist', function()
+				{
+					$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy ASC';
+					$db = CmsApp::get_instance()->GetDb();
+					return $db->GetArray($query);
+				});
 		global_cache::add_cachable($obj);
 
 		// two caches, the flat list, and the tree
-		$obj = new global_cachable('content_tree',
-					   function(){
-						   $flatlist = global_cache::get('content_flatlist');
+		$obj = new global_cachable('content_tree', function()
+				{
+					$flatlist = global_cache::get('content_flatlist');
 
-						   // todo, embed this herer
-						   $tree = cms_tree_operations::load_from_list($flatlist);
-						   return $tree;
-					   });
+					// todo, embed this herer
+					$tree = cms_tree_operations::load_from_list($flatlist);
+					return $tree;
+				});
 		global_cache::add_cachable($obj);
 
 		// two caches, the flat list, and the tree
-		$obj = new global_cachable('content_quicklist',
-						   function(){
-							   $tree = global_cache::get('content_tree');
-							   return $tree->getFlatList();
-						   });
+		$obj = new global_cachable('content_quicklist', function()
+				{
+					$tree = global_cache::get('content_tree');
+					return $tree->getFlatList();
+				});
 		global_cache::add_cachable($obj);
 	}
 
