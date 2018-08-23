@@ -37,7 +37,7 @@ use CMSMS\UserOperations;
  *
  * @since 0.1
  * @param  boolean $redirect Redirect to the admin login page if the user is not logged in.
- * @return integer The UID of the logged in administrator, otherwise FALSE
+ * @return integer The UID of the logged in administrator, or NULL
  */
 function get_userid(bool $redirect = true)
 {
@@ -59,7 +59,7 @@ function get_userid(bool $redirect = true)
  *
  * @since 2.0
  * @param  boolean $check Redirect to the admin login page if the user is not logged in.
- * @return string the username of the logged in user.
+ * @return string the username of the logged in user, or NULL.
  */
 function get_username(bool $check = true)
 {
@@ -82,7 +82,7 @@ function get_username(bool $check = true)
  *
  * @since 0.1
  * @param string $no_redirect If true, then don't redirect if not logged in
- * @return boolean
+ * @return boolean or NULL
  */
 function check_login(bool $no_redirect = false)
 {
@@ -221,7 +221,7 @@ function create_textarea(
  *
  * @return boolean
  */
-function is_sitedown()
+function is_sitedown() : bool
 {
     global $CMS_INSTALL_PAGE;
     if( isset($CMS_INSTALL_PAGE) ) return TRUE;

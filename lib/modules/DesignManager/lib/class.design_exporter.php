@@ -113,18 +113,17 @@ EOT;
     {
         $ob = &$this;
         $regex='/url\s*\(\"*(.*)\"*\)/i';
-        $content = preg_replace_callback($regex,
-                                         function($matches) use ($ob) {
-                                             $config = cmsms()->GetConfig();
-                                             $url = $matches[1];
-                                             if( !startswith($url,'http') || startswith($url,$config['root_url']) || startswith($url,'[[root_url]]') ) {
-                                                 $sig = $ob->_get_signature($url);
-                                                 $sig = 'url('.$sig.')';
-                                                 return $sig;
-                                             }
-                                             return $matches[0];
-                                         },
-                                         $content);
+        $content = preg_replace_callback($regex, function($matches) use ($ob)
+            {
+                $config = cmsms()->GetConfig();
+                $url = $matches[1];
+                if( !startswith($url,'http') || startswith($url,$config['root_url']) || startswith($url,'[[root_url]]') ) {
+                    $sig = $ob->_get_signature($url);
+                    $sig = 'url('.$sig.')';
+                    return $sig;
+                }
+                return $matches[0];
+            }, $content);
 
         return $content;
     }
@@ -136,19 +135,21 @@ EOT;
         $temp_fix_cmsselflink = function($matches) use ($ob) {
             // GCB (required name param)
             $out = preg_replace_callback("/href\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                                         function($matches) use ($ob) {
-                                             return str_replace($matches[1],'ignore::'.$matches[1],$matches[0]);
-                                         },$matches[0]);
+                function($matches) use ($ob)
+                {
+                    return str_replace($matches[1],'ignore::'.$matches[1],$matches[0]);
+                },$matches[0]);
             return $out;
         };
 
         $undo_fix_cmsselflink = function($matches) use ($ob) {
             // GCB (required name param)
             $out = preg_replace_callback("/href\s*=[\\\"']{0,1}(ignore\:\:[a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                                         function($matches) use ($ob) {
-                                             $rep = substr($matches[1],8);
-                                             return str_replace($matches[1],$reo,$matches[0]);
-                                         },$matches[0]);
+                function($matches) use ($ob)
+                {
+                    $rep = substr($matches[1],8);
+                    return str_replace($matches[1],$reo,$matches[0]);
+                },$matches[0]);
             return $out;
         };
 
@@ -160,33 +161,33 @@ EOT;
         // handle relative paths
         // and no schema
         $is_same_host = function(cms_url $url1,cms_url $url2) {
-            if( $url1->get_host() != $url2->get_host() && $url2->get_host() != '') return FALSE;
-            if( $url1->get_port() != $url2->get_port() ) return FALSE;
-            if( $url1->get_scheme() != $url2->get_scheme() && $url2->get_scheme() != '') return FALSE;
+            if( $url1->get_host() != $url2->get_host() && $url2->get_host() != '') return false;
+            if( $url1->get_port() != $url2->get_port() ) return false;
+            if( $url1->get_scheme() != $url2->get_scheme() && $url2->get_scheme() != '') return false;
             $p1 = $url1->get_path();
             $p2 = $url2->get_path();
-            if( $p1 != $p2 && !startswith($p2,$p1) ) return FALSE;
-            return TRUE;
+            if( $p1 != $p2 && !startswith($p2,$p1) ) return false;
+            return true;
         };
 
         $ob = &$this;
+        $config = cmsms()->GetConfig();
         $types = ['href', 'src', 'url'];
         foreach( $types as $type ) {
             $innerT = '[a-z0-9:?=&@/._-]+?';
             $content = preg_replace_callback("|$type\=([\"'`])(".$innerT.')\\1|i',
-                                             function($matches) use ($ob,$type,&$is_same_host) {
-                                                 $config = cmsms()->GetConfig();
-                                                 $url = $matches[2];
-                                                 $root_url = new cms_url($config['root_url']);
-                                                 $the_url = new cms_url($url);
-                                                 if( !startswith($url,'ignore::') && $is_same_host($root_url,$the_url) ) {
-                                                     $sig = $ob->_get_signature($url);
-                                                     //return $sig;
-                                                     return " $type=\"$sig\"";
-                                                 }
-                                                 return $matches[0];
-                                             },
-                                             $content);
+                function($matches) use ($ob,$type,&$is_same_host,$config)
+                {
+                    $url = $matches[2];
+                    $root_url = new cms_url($config['root_url']);
+                    $the_url = new cms_url($url);
+                    if( !startswith($url,'ignore::') && $is_same_host($root_url,$the_url) ) {
+                        $sig = $ob->_get_signature($url);
+                        //return $sig;
+                        return " $type=\"$sig\"";
+                    }
+                    return $matches[0];
+                }, $content);
         }
 
         // remove ignore stuff on cms_selflink
@@ -294,16 +295,17 @@ EOT;
 
             $have_template = false;
             $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                                         function($matches) use ($ob,&$have_template) {
-                                             $the_tpl = $matches[1];
-                                             if( ($pos = strpos($matches[1],' ')) !== FALSE )  $the_tpl = substr($matches[1],0,$pos);
-                                             $type = 'TPL';
-                                             if( endswith($the_tpl,'.tpl') ) $type = 'MM';
-                                             $sig = $ob->_add_template($the_tpl,$type);
-                                             $have_template = TRUE;
-                                             $out = str_replace($the_tpl,$sig,$matches[0]);
-                                             return $out;
-                                         },$matches[0]);
+                function($matches) use ($ob,&$have_template)
+                {
+                   $the_tpl = $matches[1];
+                   if( ($pos = strpos($matches[1],' ')) !== false ) $the_tpl = substr($matches[1],0,$pos);
+                   $type = 'TPL';
+                   if( endswith($the_tpl,'.tpl') ) $type = 'MM';
+                   $sig = $ob->_add_template($the_tpl,$type);
+                   $have_template = true;
+                   $out = str_replace($the_tpl,$sig,$matches[0]);
+                   return $out;
+               },$matches[0]);
 
             if( !$have_template ) {
                 // MenuManager default template.
@@ -321,11 +323,12 @@ EOT;
 
             $have_template = false;
             $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                                         function($matches) use ($ob,&$have_template) {
-                                             $have_template = TRUE;
-                                             $sig = $ob->_add_template($matches[1]);
-                                             return str_replace($matches[1],$sig,$matches[0]);
-                                         },$matches[0]);
+                function($matches) use ($ob,&$have_template)
+                {
+                    $have_template = true;
+                    $sig = $ob->_add_template($matches[1]);
+                    return str_replace($matches[1],$sig,$matches[0]);
+                },$matches[0]);
             if( !$have_template ) {
                 // Navigator default template.
                 $tpl = CmsLayoutTemplate::load_dflt_by_type('Navigator::navigation');
@@ -338,24 +341,26 @@ EOT;
         $replace_gcb = function($matches) use ($ob) {
             // GCB (required name param)
             $out = preg_replace_callback("/name\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                                         function($matches) use ($ob) {
-                                             $sig = $ob->_add_template($matches[1]);
-                                             return str_replace($matches[1],$sig,$matches[0]);
-                                         },$matches[0]);
+                function($matches) use ($ob)
+                {
+                    $sig = $ob->_add_template($matches[1]);
+                    return str_replace($matches[1],$sig,$matches[0]);
+                },$matches[0]);
             return $out;
         };
 
         $replace_include = function($matches) use ($ob) {
             // include (required file param)
             $out = preg_replace_callback("/file\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-                                         function($matches) use ($ob) {
-                                             if( !startswith($matches[1],'cms_template:') ) {
-                                                 throw new CmsException('Only templates that use {include} with cms_template resources can be exported.');
-                                             }
-                                             $tpl = substr($matches[1],strlen('cms_template:'));
-                                             $sig = $ob->_add_template($tpl);
-                                             return str_replace($matches[1],'cms_template:'.$sig,$matches[0]);
-                                         },$matches[0]);
+                function($matches) use ($ob)
+                {
+                    if( !startswith($matches[1],'cms_template:') ) {
+                        throw new CmsException('Only templates that use {include} with cms_template resources can be exported.');
+                    }
+                    $tpl = substr($matches[1],strlen('cms_template:'));
+                    $sig = $ob->_add_template($tpl);
+                    return str_replace($matches[1],'cms_template:'.$sig,$matches[0]);
+                },$matches[0]);
             return $out;
         };
 
@@ -480,7 +485,7 @@ EOT;
             // javascript file or image or something.
             // could have smarty syntax.
             $nvalue = $value;
-            if( strpos($value,'[[') !== FALSE ) {
+            if( strpos($value,'[[') !== false ) {
                 // smarty syntax with [[ and ]] as delimiters
                 $smarty->left_delimiter = '[[';
                 $smarty->right_delimiter = ']]';
@@ -488,7 +493,7 @@ EOT;
                 $smarty->left_delimiter = '{';
                 $smarty->right_delimiter = '}';
             }
-            else if( strpos($value,'{') !== FALSE ) {
+            else if( strpos($value,'{') !== false ) {
                 // smarty syntax with { and } as delimiters
                 $nvalue = $smarty->fetch('string:'.$value);
             }
