@@ -304,7 +304,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editcontent.tpl
 
 if( $content_obj->HasPreview() ) {
     $tpl->assign('has_preview',1);
-    $preview_url = $config['root_url'].'/index.php?'.$config['query_var'].'='.__CMS_PREVIEW_PAGE__;
+    $preview_url = CMS_ROOT_URL.'/index.php?'.$config['query_var'].'='.__CMS_PREVIEW_PAGE__;
     $tmp = $this->create_url($id,'admin_editcontent',$returnid,['preview'=>1]);
     $preview_ajax_url = rawurldecode(str_replace('&amp;','&',$tmp)).'&cmsjobtype=1';
 }

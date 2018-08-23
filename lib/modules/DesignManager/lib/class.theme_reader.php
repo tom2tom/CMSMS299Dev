@@ -1,5 +1,5 @@
 <?php
-# Module: DesignManager- A CMSMS addon module to provide template management.
+# DesignManager module class: theme_reader.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -351,7 +351,6 @@ class theme_reader extends reader_base
     $this->validate_template_names();
     $this->validate_stylesheet_names();
 
-    $config = cmsms()->GetConfig();
     $newname = $this->get_new_name();
     $destdir = $this->get_destination_dir();
     $ref_map =& $this->_ref_map;
@@ -371,6 +370,7 @@ class theme_reader extends reader_base
     }
 
     $design->set_description($description);
+    $config = cmsms()->GetConfig();
 
     // part2 .. expand files.
     foreach( $this->_ref_map as $key => &$rec ) {
@@ -390,20 +390,19 @@ class theme_reader extends reader_base
 
       $ob = &$this;
       $regex='/url\s*\(\"*(.*)\"*\)/i';
-      $css_rec['data'] = preg_replace_callback($regex,
-                           function($matches) use ($ob,$ref_map,$destdir) {
-                             $config = cmsms()->GetConfig();
-                             $url = $matches[1];
-                             if( !startswith($url,'http') || startswith($url,$config['root_url']) ||
-                                 startswith($url,'[[root_url]]') ) {
-                               $bn = basename($url);
-                               if( isset($ref_map[$bn]) ) {
-                                 $out = $ref_map[$bn]['css_url'];
-                                 return 'url('.$out.')';
-                               }
-                             }
-                             return $matches[0];
-                           },$css_rec['data']);
+      $css_rec['data'] = preg_replace_callback($regex, function($matches) use ($ob,$ref_map,$destdir)
+          {
+            $url = $matches[1];
+            if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) ||
+                startswith($url,'[[root_url]]') ) {
+              $bn = basename($url);
+              if( isset($ref_map[$bn]) ) {
+                $out = $ref_map[$bn]['css_url'];
+                return 'url('.$out.')';
+              }
+            }
+            return $matches[0];
+          },$css_rec['data']);
       if( isset($css_rec['media_type']) ) $stylesheet->add_media_type($css_rec['mediatype']);
       $stylesheet->set_content($css_rec['data']);
       $stylesheet->save();
@@ -413,7 +412,8 @@ class theme_reader extends reader_base
     // part4 .. process templates
     $fn1 = function($matches) use ($ob,&$tpl_info) {
       $out = preg_replace_callback("/template\s*=[\\\"']{0,1}([a-zA-Z0-9._\ \:\-\/]+)[\\\"']{0,1}/i",
-        function($matches) use ($ob,&$tpl_info) {
+        function($matches) use ($ob,&$tpl_info)
+	    {
            if( isset($tpl_info[$matches[1]]) ) {
             $rec = $tpl_info[$matches[1]];
             $out = str_replace($matches[1],$rec['name'],$matches[0]);
@@ -425,10 +425,10 @@ class theme_reader extends reader_base
       return $out;
     };
 
-    $fn2 = function($matches) use ($ob,&$type,$ref_map,$destdir) {
-      $config = cmsms()->GetConfig();
+    $fn2 = function($matches) use ($ob,&$type,$ref_map,$destdir)
+    {
       $url = $matches[2];
-      if( !startswith($url,'http') || startswith($url,$config['root_url']) || startswith($url,'{root_url}') ) {
+      if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'{root_url}') ) {
         $bn = basename($url);
         if( isset($ref_map[$bn]) ) {
           $out = $ref_map[$bn]['tpl_url'];

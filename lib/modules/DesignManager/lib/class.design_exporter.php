@@ -117,7 +117,7 @@ EOT;
             {
                 $config = cmsms()->GetConfig();
                 $url = $matches[1];
-                if( !startswith($url,'http') || startswith($url,$config['root_url']) || startswith($url,'[[root_url]]') ) {
+                if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'[[root_url]]') ) {
                     $sig = $ob->_get_signature($url);
                     $sig = 'url('.$sig.')';
                     return $sig;
@@ -179,7 +179,7 @@ EOT;
                 function($matches) use ($ob,$type,&$is_same_host,$config)
                 {
                     $url = $matches[2];
-                    $root_url = new cms_url($config['root_url']);
+                    $root_url = new cms_url(CMS_ROOT_URL);
                     $the_url = new cms_url($url);
                     if( !startswith($url,'ignore::') && $is_same_host($root_url,$the_url) ) {
                         $sig = $ob->_get_signature($url);

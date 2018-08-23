@@ -320,7 +320,7 @@ EOS;
 			}
 		}
 		$p = basename(dirname($m[0]));
-		$jqcss = $config['root_url']. '/lib/jquery/ccs/'.$p.'/'.$use;
+		$jqcss = CMS_ROOT_URL. '/lib/jquery/ccs/'.$p.'/'.$use;
 
 		$fp = cms_join_path(CMS_ROOT_PATH,'lib','jquery','js');
 		$allfiles = scandir($fp);
@@ -335,7 +335,7 @@ EOS;
 				$use = $file;
 			}
 		}
-		$jqui = $config['root_url']. '/lib/jquery/js/'.$use;
+		$jqui = CMS_ROOT_URL. '/lib/jquery/js/'.$use;
 
 		$m = preg_grep('~^jquery\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
 		//find highest version
@@ -348,7 +348,7 @@ EOS;
 				$use = $file;
 			}
 		}
-		$jqcore = $config['root_url']. '/lib/jquery/js/'.$use;
+		$jqcore = CMS_ROOT_URL. '/lib/jquery/js/'.$use;
 
 		return [$jqcss, $jqui, $jqcore];
 	}

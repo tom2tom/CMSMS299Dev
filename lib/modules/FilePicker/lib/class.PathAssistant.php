@@ -29,7 +29,7 @@ class PathAssistant
         }
         else if( $this->is_relative_to( $this->_topdir, CMS_ROOT_PATH) ) {
             $rel_url = $this->to_relative_sub( $this->_topdir, CMS_ROOT_PATH );
-            $this->_topurl = $config['root_url'].'/'.$rel_url;
+            $this->_topurl = CMS_ROOT_URL.'/'.$rel_url;
         }
     }
 
