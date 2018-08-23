@@ -15,13 +15,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * A class and utilities for working with preferences - site and module-specific.
- * @package CMS
- * @license GPL
- */
-
-use \CMSMS\internal\global_cache;
+use CMSMS\internal\global_cachable;
+use CMSMS\internal\global_cache;
 
 /**
  * A class for working with site preferences
@@ -53,9 +48,10 @@ final class cms_siteprefs
      */
     public static function setup()
     {
-        $obj = new \CMSMS\internal\global_cachable(__CLASS__,function(){
-                return self::_read();
-            });
+        $obj = new global_cachable(__CLASS__,function()
+        {
+            return self::_read();
+        });
         global_cache::add_cachable($obj);
     }
 

@@ -39,6 +39,10 @@
  * CMS_JOB_TYPE - Since 2.3 Value 0|1|2 indicates the type of request, hence appropriate inclusions
  */
 
+use CMSMS\AuditManager;
+use CMSMS\ContentOperations;
+use CMSMS\Database\DatabaseConnectionException;
+use CMSMS\Events;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 
@@ -83,7 +87,7 @@ cleanArray($_GET);
 // Grab the current configuration & some define's
 $_app = CmsApp::get_instance(); // for use in this file only.
 $config = $_app->GetConfig();
-CMSMS\AuditManager::init();
+AuditManager::init();
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
@@ -111,47 +115,47 @@ if (isset($CMS_ADMIN_PAGE)) {
 // since 2.0 ... mechanism whereby data can be cached automatically (in file-system text files), and fetched (or calculated) via a callback
 // if the cache is too old, or the cached value has been cleared or not yet been saved.
 // some of these caches could be omitted per $CMS_JOB_TYPE, but probably won't be used anyway
-$obj = new global_cachable('schema_version',
-           function(){
-               $db = CmsApp::get_instance()->GetDb();
-               $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
-               return $db->GetOne($query);
-           });
+$obj = new global_cachable('schema_version', function()
+    {
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
+        return $db->GetOne($query);
+    });
 global_cache::add_cachable($obj);
-$obj = new global_cachable('latest_content_modification',
-           function(){
-               $db = CmsApp::get_instance()->GetDb();
-               $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
-               $tmp = $db->GetOne($query);
-               return $db->UnixTimeStamp($tmp);
-           });
+$obj = new global_cachable('latest_content_modification', function()
+    {
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT modified_date FROM '.CMS_DB_PREFIX.'content ORDER BY modified_date DESC';
+        $tmp = $db->GetOne($query);
+        return $db->UnixTimeStamp($tmp);
+    });
 global_cache::add_cachable($obj);
-$obj = new global_cachable('default_content',
-           function(){
-               $db = CmsApp::get_instance()->GetDb();
-               $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
-               return $db->GetOne($query);
-           });
+$obj = new global_cachable('default_content', function()
+    {
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
+        return $db->GetOne($query);
+    });
 global_cache::add_cachable($obj);
-$obj = new global_cachable('modules',
-           function(){
-               $db = CmsApp::get_instance()->GetDb();
-               $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules ORDER BY module_name';
-               return $db->GetArray($query);
-           });
+$obj = new global_cachable('modules', function()
+    {
+         $db = CmsApp::get_instance()->GetDb();
+         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules ORDER BY module_name';
+         return $db->GetArray($query);
+     });
 global_cache::add_cachable($obj);
-$obj = new global_cachable('module_deps',
-           function(){
-               $db = CmsApp::get_instance()->GetDb();
-               $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
-               $tmp = $db->GetArray($query);
-               if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
-               $out = [];
-               foreach( $tmp as $row) {
-                   $out[$row['child_module']][$row['parent_module']] = $row['minimum_version'];
-               }
-               return $out;
-           });
+$obj = new global_cachable('module_deps', function()
+    {
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT parent_module,child_module,minimum_version FROM '.CMS_DB_PREFIX.'module_deps ORDER BY parent_module';
+        $tmp = $db->GetArray($query);
+        if (!is_array($tmp) || !$tmp) return '-';  // special value so that we actually return something to cache.
+        $out = [];
+        foreach( $tmp as $row) {
+            $out[$row['child_module']][$row['parent_module']] = $row['minimum_version'];
+        }
+        return $out;
+    });
 global_cache::add_cachable($obj);
 
 cms_siteprefs::setup();
@@ -169,7 +173,7 @@ if (!isset($DONT_LOAD_DB)) {
         $_app->GetDb();
         debug_buffer('Done Initializing Database');
     }
-    catch( CMSMS\Database\DatabaseConnectionException $e) {
+    catch( DatabaseConnectionException $e) {
         die('Sorry, something has gone wrong.  Please contact a site administrator. <em>('.get_class($e).')</em>');
     }
 }
@@ -184,16 +188,15 @@ if (!isset($CMS_INSTALL_PAGE)) {
     // Set a umask
     $global_umask = cms_siteprefs::get('global_umask','');
     if ($global_umask != '') umask( octdec($global_umask));
-
-    if ($CMS_JOB_TYPE < 2) {
 /*
+    if ($CMS_JOB_TYPE < 2) {
         // Load all eligible modules
         debug_buffer('Loading Modules');
         $modops = ModuleOperations::get_instance();
         $modops->LoadModules(!isset($CMS_ADMIN_PAGE));
         debug_buffer('End of Loading Modules');
-*/
     }
+*/
 }
 
 if ($CMS_JOB_TYPE < 2) {
@@ -212,4 +215,3 @@ if ($CMS_JOB_TYPE < 2) {
 if (!isset($CMS_INSTALL_PAGE)) {
     require_once($dirname.'classes'.DIRECTORY_SEPARATOR.'internal'.DIRECTORY_SEPARATOR.'class_compatibility.php');
 }
-
