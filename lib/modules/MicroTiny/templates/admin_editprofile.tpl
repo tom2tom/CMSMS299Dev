@@ -6,18 +6,12 @@
 
   {if $data.system}<div class="pageinfo">{$tmp='profiledesc_'|cat:$data.name}{$mod->Lang($tmp)}</div>{/if}
   <br />
-  <div class="pageoverflow">
-    <p class="pageinput">
-      <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
-      <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
-    </p>
-  </div>
 
   {if !$data.system}
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="profile_name">*{$mod->Lang('profile_name')}:</label>
-        {cms_help realm=$_module key2='mthelp_profilename' title=$mod->Lang('profile_name')}
+        {$t=$mod->Lang('profile_name')}<label for="profile_name">*{$t}:</label>
+        {cms_help realm=$_module key2='mthelp_profilename' title=$t}
       </p>
       <p class="pageinput">
         <input type="text" size="40" id="profile_name" name="{$actionid}profile_name" value="{$data.name}" />
@@ -26,8 +20,8 @@
 
     <div class="pageoverflow">
       <p class="pagetext">
-        <label for="profile_label">*{$mod->Lang('profile_label')}:</label>
-        {cms_help realm=$_module key2='mthelp_profilelabel' title=$mod->Lang('profile_label')}
+        {$t=$mod->Lang('profile_label')}<label for="profile_label">*{$t}:</label>
+        {cms_help realm=$_module key2='mthelp_profilelabel' title=$t}
       </p>
       <p class="pageinput">
         <input type="text" size="80" id="profile_label" name="{$actionid}profile_label" value="{$data.label}" />
@@ -37,8 +31,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_menubar">{$mod->Lang('profile_menubar')}:</label>
-      {cms_help realm=$_module key2='mthelp_profilemenubar' title=$mod->Lang('profile_menubar')}
+      {$t=$mod->Lang('profile_menubar')}<label for="profile_menubar">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_profilemenubar' title=$t}
     </p>
     <input type="hidden" name="{$actionid}profile_menubar" value="0" />
     <p class="pageinput">
@@ -48,8 +42,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_allowimages">{$mod->Lang('profile_allowimages')}:</label>
-      {cms_help realm=$_module key2='mthelp_profileallowimages' title=$mod->Lang('profile_allowimages')}
+      {$t=$mod->Lang('profile_allowimages')}<label for="profile_allowimages">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_profileallowimages' title=$t}
     </p>
     <input type="hidden" name="{$actionid}profile_allowimages" value="0" />
     <p class="pageinput">
@@ -59,8 +53,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_allowtables">{$mod->Lang('profile_allowtables')}:</label>
-      {cms_help realm=$_module key2='mthelp_profileallowtables' title=$mod->Lang('profile_allowtables')}
+      {$t=$mod->Lang('profile_allowtables')}<label for="profile_allowtables">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_profileallowtables' title=$t}
     </p>
     <input type="hidden" name="{$actionid}profile_allowtables" value="0" />
     <p class="pageinput">
@@ -70,8 +64,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_showstatusbar">{$mod->Lang('profile_showstatusbar')}:</label>
-      {cms_help realm=$_module key2='mthelp_profilestatusbar' title=$mod->Lang('profile_showstatusbar')}
+      {$t=$mod->Lang('profile_showstatusbar')}<label for="profile_showstatusbar">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_profilestatusbar' title=$t}
     </p>
     <input type="hidden" name="{$actionid}profile_showstatusbar" value="0" />
     <p class="pageinput">
@@ -81,8 +75,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_allowresize">{$mod->Lang('profile_allowresize')}:</label>
-      {cms_help realm=$_module key2='mthelp_profileresize' title=$mod->Lang('profile_allowresize')}
+      {$t=$mod->Lang('profile_allowresize')}<label for="profile_allowresize">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_profileresize' title=$t}
     </p>
     <input type="hidden" name="{$actionid}profile_allowresize" value="0" />
     <p class="pageinput">
@@ -92,8 +86,8 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_dfltstylesheet">{$mod->Lang('profile_dfltstylesheet')}:</label>
-      {cms_help realm=$_module key2='mthelp_dfltstylesheet' title=$mod->Lang('profile_dfltstylesheet')}
+      {$t=$mod->Lang('profile_dfltstylesheet')}<label for="profile_dfltstylesheet">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_dfltstylesheet' title=$t}
     </p>
     <p class="pageinput">
       <select id="profile_dfltstylesheet" name="{$actionid}profile_dfltstylesheet">
@@ -104,16 +98,15 @@
 
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="profile_allowcssoverride">{$mod->Lang('profile_allowcssoverride')}:</label>
-      {cms_help realm=$_module key2='mthelp_allowcssoverride' title=$mod->Lang('profile_allowcssoverride')}
+      {$t=$mod->Lang('profile_allowcssoverride')}<label for="profile_allowcssoverride">{$t}:</label>
+      {cms_help realm=$_module key2='mthelp_allowcssoverride' title=$t}
     </p>
     <input type="hidden" name="{$actionid}profile_allowcssoverride" value="0" />
     <p class="pageinput">
       <input type="checkbox" name="{$actionid}profile_allowcssoverride" id="profile_allowcssoverride" value="1"{if $data.allowcssoverride} checked="checked"{/if} />
     </p>
   </div>
-  <br />
-  <div class="pageoverflow">
+  <div class="pageoverflow pregap">
     <p class="pageinput">
       <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
       <button type="submit" name="{$actionid}cancel" class="adminsubmit icon cancel">{$mod->Lang('cancel')}</button>
