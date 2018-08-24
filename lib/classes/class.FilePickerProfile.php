@@ -76,7 +76,7 @@ class FilePickerProfile
     /**
      * Constructor
      *
-     * @param array $params An associative array of params suitable for hte setValue method.
+     * @param array $params An associative array of params suitable for the setValue method.
      */
     public function __construct( array $params = null )
     {
@@ -137,6 +137,8 @@ class FilePickerProfile
             case FileType::ANY:
                 $this->_data[$key] = $val;
                 break;
+			case 'image':
+				$this->_data[$key] = FileType::IMAGE; //TODO fix this hack - upstream use of string value
             case 'file':
                 $this->_data[$key] = FileType::ANY;
                 break;
