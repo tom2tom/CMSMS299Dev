@@ -1,8 +1,7 @@
 <?php
 #UI strings for Microtiny
 #Copyright (C) 2009-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of the Microtiny module for CMS Made Simple
-# <http://dev.cmsmadesimple.org/projects/microtiny>
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -189,9 +188,9 @@ $lang['mailto_text'] = 'Create a mail link';
 $lang['mailto_title'] = 'Create a mail link';
 $lang['msg_cancelled'] = 'Operation canceled';
 $lang['mthelp_allowcssoverride'] = 'If enabled, then any code that initializes a MicroTiny WYSIWYG area will be able to specify the name of a stylesheet to use instead of the default stylesheet specified above.';
-$lang['mthelp_dfltstylesheet'] = 'Associate a stylesheet with editors using this profile.  This allows the WYSIWYG editor to appear similar to the website appearance.';
-$lang['mthelp_profileallowimages'] = 'Allow the editor to embed images and videos into the text area.  For very tightly controlled designs the content editors might only be able to select images, or videos for specific areas of a web page.';
-$lang['mthelp_profileallowtables'] = 'Allow the editor to embed and manipulate tables for tabular data.  Note:  This should not be used for controlling page layout, but only for tabular data.';
+$lang['mthelp_dfltstylesheet'] = 'Associate a stylesheet with MicroTiny.  This allows the editor to appear similar to the website appearance.';
+$lang['mthelp_profileallowimages'] = 'Allow embedding images and videos into the text area.  For very tightly controlled designs the editor might only be able to select images, or videos for specific areas of a web page.';
+$lang['mthelp_profileallowtables'] = 'Allow embedding and manipulating tables for tabular data.  Note:  This should not be used for controlling page layout, but only for tabular data.';
 $lang['mthelp_profilelabel'] = 'A description for this profile.  The description cannot be edited for system profiles.';
 $lang['mthelp_profilename'] = 'The name for this profile.  The name of system profiles cannot be edited.';
 $lang['mthelp_profilemenubar'] = 'Indicates if the menubar should be enabled in the viewable profiles.  The menubar typically has more options than the toolbar';
@@ -206,19 +205,19 @@ $lang['none'] = 'None';
 $lang['ok'] = 'Ok';
 
 // P
-$lang['profile_admin'] = 'Admin Editors';
-$lang['profile_allowcssoverride'] = 'Allow blocks to override the selected stylesheet';
-$lang['profile_allowimages'] = 'Allow images';
-$lang['profile_allowresize'] = 'Allow resize';
-$lang['profile_allowtables'] = 'Allow tables';
-$lang['profile_dfltstylesheet'] = 'Stylesheet for editor';
-$lang['profile_frontend'] = 'Frontend editors';
+$lang['profile_admin'] = 'Admin Editing';
+$lang['profile_allowcssoverride'] = 'Allow Stylesheet Override';
+$lang['profile_allowimages'] = 'Allow Images';
+$lang['profile_allowresize'] = 'Allow Resize';
+$lang['profile_allowtables'] = 'Allow Tables';
+$lang['profile_dfltstylesheet'] = 'Stylesheet for Editor';
+$lang['profile_frontend'] = 'Frontend Editing';
 $lang['profile_label'] = 'Label';
-$lang['profile_menubar'] = 'Show menubar';
-$lang['profile_name'] = 'Profile name';
-$lang['profile_showstatusbar'] = 'Show statusbar';
-$lang['profiledesc___admin__'] = 'This profile is used by all users who are authorized to use this editor, and have chosen this editor as their WYSIWYG editor';
-$lang['profiledesc___frontend__'] = 'This profile is used for all frontend requests where this WYSIWYG editor is allowed';
+$lang['profile_menubar'] = 'Show Menubar';
+$lang['profile_name'] = 'Profile Name';
+$lang['profile_showstatusbar'] = 'Show Statusbar';
+$lang['profiledesc___admin__'] = 'This profile is used by all users who are authorized to use the MicroTiny editor, and have chosen it as their WYSIWYG editor';
+$lang['profiledesc___frontend__'] = 'This profile is used for all frontend requests where the MicroTiny editor is allowed';
 $lang['prompt_anchortext'] = 'Anchor Text';
 $lang['prompt_class'] = 'Class Attribute';
 $lang['prompt_email'] = 'Email Address';
