@@ -15,6 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use FileManager\Utils as Utils2;
+use FilePicker\Utils;
+
 include_once __DIR__.DIRECTORY_SEPARATOR.'fileinfo.php';
 
 final class FileManager extends CMSModule
@@ -43,31 +46,31 @@ final class FileManager extends CMSModule
     public function UninstallPreMessage() { return $this->Lang('really_uninstall'); }
     public function VisibleToAdminUser() { return $this->AccessAllowed(); }
 
-	/**
-	 * @deprecated since 1.7 use FilePicker\Utils::get_file_icon()
-	 */
-    public function GetFileIcon($extension,$isdir=false)
+    /**
+     * @deprecated since 1.7 use FilePicker\Utils::get_file_icon()
+     */
+    public function GetFileIcon($extension, $isdir=false)
     {
-		return FilePicker\Utils::get_file_icon($extension,$isdir);
+        return Utils::get_file_icon($extension, $isdir);
     }
 
-    public function GetPermissions($path,$file)
+    public function GetPermissions($path, $file)
     {
-        $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
+        $realpath=cms_join_path(CMS_ROOT_PATH, $path, $file);
         $statinfo=stat($realpath);
         return $statinfo['mode'];
     }
 
-    public function GetMode($path,$file)
+    public function GetMode($path, $file)
     {
-        $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
+        $realpath=cms_join_path(CMS_ROOT_PATH, $path, $file);
         $statinfo=stat($realpath);
-        return FileManager\Utils::format_permissions($statinfo['mode']);
+        return Utils2::format_permissions($statinfo['mode']);
     }
 
-    public function GetModeWin($path,$file)
+    public function GetModeWin($path, $file)
     {
-        $realpath=cms_join_path(CMS_ROOT_PATH,$path,$file);
+        $realpath=cms_join_path(CMS_ROOT_PATH, $path, $file);
         if (is_writable($realpath)) {
             return '777';
         } else {
@@ -75,41 +78,41 @@ final class FileManager extends CMSModule
         }
     }
 
-    public function GetModeTable($id,$permissions)
+    public function GetModeTable($id, $permissions)
     {
         $smarty=CmsApp::get_instance()->GetSmarty();
-        $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'modetable.tpl' ), null, null, $smarty );
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('modetable.tpl'), null, null, $smarty);
 
         $tpl->assign('ownertext', $this->Lang('owner'))
          ->assign('groupstext', $this->Lang('group'))
          ->assign('otherstext', $this->Lang('others'));
 
         $ownerr=($permissions & 0400) ? '1':'0';
-        $tpl->assign('ownerr', $this->CreateInputCheckbox($id,'ownerr','1',$ownerr));
+        $tpl->assign('ownerr', $this->CreateInputCheckbox($id, 'ownerr', '1', $ownerr));
 
         $ownerw=($permissions & 0200) ? '1':'0';
-        $tpl->assign('ownerw', $this->CreateInputCheckbox($id,'ownerw','1',$ownerw));
+        $tpl->assign('ownerw', $this->CreateInputCheckbox($id, 'ownerw', '1', $ownerw));
 
         $ownerx=($permissions & 0100) ? '1':'0';
-        $tpl->assign('ownerx', $this->CreateInputCheckbox($id,'ownerx','1',$ownerx));
+        $tpl->assign('ownerx', $this->CreateInputCheckbox($id, 'ownerx', '1', $ownerx));
 
-        $groupr=($permissions & 0040) ? '1':'0';;
-        $tpl->assign('groupr', $this->CreateInputCheckbox($id,'groupr','1',$groupr));
+        $groupr=($permissions & 0040) ? '1':'0';
+        $tpl->assign('groupr', $this->CreateInputCheckbox($id, 'groupr', '1', $groupr));
 
-        $groupw=($permissions & 0020) ? '1':'0';;
-        $tpl->assign('groupw', $this->CreateInputCheckbox($id,'groupw','1',$groupw));
+        $groupw=($permissions & 0020) ? '1':'0';
+        $tpl->assign('groupw', $this->CreateInputCheckbox($id, 'groupw', '1', $groupw));
 
         $groupx=($permissions & 0010) ? '1':'0';
-        $tpl->assign('groupx', $this->CreateInputCheckbox($id,'groupx','1',$groupx));
+        $tpl->assign('groupx', $this->CreateInputCheckbox($id, 'groupx', '1', $groupx));
 
         $othersr=($permissions & 0004) ? '1':'0';
-        $tpl->assign('othersr', $this->CreateInputCheckbox($id,'othersr','1',$othersr));
+        $tpl->assign('othersr', $this->CreateInputCheckbox($id, 'othersr', '1', $othersr));
 
         $othersw=($permissions & 0002) ? '1':'0';
-        $tpl->assign('othersw', $this->CreateInputCheckbox($id,'othersw','1',$othersw));
+        $tpl->assign('othersw', $this->CreateInputCheckbox($id, 'othersw', '1', $othersw));
 
         $othersx=($permissions & 0001) ? '1':'0';
-        $tpl->assign('othersx', $this->CreateInputCheckbox($id,'othersx','1',$othersx));
+        $tpl->assign('othersx', $this->CreateInputCheckbox($id, 'othersx', '1', $othersx));
 
         return $tpl->fetch();
     }
@@ -131,18 +134,57 @@ final class FileManager extends CMSModule
         return $owner.$group.$others;
     }
 
-	/**
-	 * @since 1.7 param string $id instead of hardcoded value
-	 */
-    public function GetThumbnailLink($id,$file,$path)
+    public function SetMode($mode, $path, $file='')
+    {
+        $realfile = '';
+        if ($file) {
+//          $realpath = cms_join_path(CMS_ROOT_PATH,$path);
+            $realfile = cms_join_path($path, $file);
+        } else {
+            $realfile = $path;
+        }
+
+//      return chmod($realfile,decoct(octdec(77)));
+        return chmod($realfile, '0'.octdec($mode));
+    }
+
+    public function SetModeWin($mode, $path, $file='')
+    {
+        if ($file) {
+//          $realpath = cms_join_path(CMS_ROOT_PATH,$path);
+            $realfile = cms_join_path($path, $file);
+        } else {
+            $realfile = $path;
+        }
+        $realfile = $this->WinSlashes($realfile);
+//      echo $realfile; echo $mode;die();
+        $returnvar = 0;
+        $output = [];
+        if ($mode == '777') {
+//          return chmod($realfile,'775');
+            exec('attrib -R '.$realfile, $output, $returnvar);
+        } else {
+            exec('attrib +R '.$realfile, $output, $returnvar);
+//          return chmod($realfile,'0666');
+        }
+        /*      echo $realfile;
+                echo $returnvar;
+                print_r($output);
+        */
+        return ($returnvar == 0);
+    }
+
+    /**
+     * @since 1.7 param string $id instead of hardcoded value
+     */
+    public function GetThumbnailLink($id, $file, $path)
     {
 //        $advancedmode = FileManager\Utils::check_advanced_mode();
-
         $imagepath=cms_join_path(CMS_ROOT_PATH, $path, 'thumb_'.$file['name']);
         if (file_exists($imagepath)) {
             $imageurl=CMS_ROOT_URL.'/'.$this->Slashes($path).'/thumb_'.$file['name'];
             $image='<img src="'.$imageurl.'" class="listicon" alt="'.$file['name'].'" title="'.$file['name'].'" />';
-            $url = $this->create_url($id,'view','',['file'=>$this->encodefilename($file['name'])]);
+            $url = $this->create_url($id, 'view', '', ['file'=>$this->encodefilename($file['name'])]);
             //$result="<a href=\"".$file['url']."\" target=\"_blank\">";
             $result='<a href="'.$url.'" target="_blank">';
             $result.=$image;
@@ -151,25 +193,25 @@ final class FileManager extends CMSModule
         }
     }
 
-	/**
-	 * @deprecated since 1.7 use cms_join_path()
-	 */
-    protected function Slash($str,$str2='',$str3='')
+    /**
+     * @deprecated since 1.7 use cms_join_path()
+     */
+    protected function Slash($str, $str2='', $str3='')
     {
-		$parts=[$str];
+        $parts=[$str];
 		if($str2 !== '') $parts[]=$str2;
 		if($str3 !== '') $parts[]=$str3;
-		return cms_join_path(...$parts);
+        return cms_join_path(...$parts);
     }
 
-    public function WinSlashes($url)
+    public function WinSlashes($path)
     {
-        return str_replace('/','\\',$url);
+        return str_replace('/', '\\', $path);
     }
 
     public function Slashes($url)
     {
-        return str_replace(['\\','//'],['/','/'],$url);
+        return str_replace(['\\','//'], ['/','/'], $url);
     }
 
     protected function _output_header_content()
@@ -182,12 +224,12 @@ final class FileManager extends CMSModule
         'css/filemanager.css',
         'js/jrac/style.jrac.min.css'
         ];
-        foreach( $cssfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one)."\n";
+        foreach ($cssfiles as $one) {
+            $out .= sprintf($fmt, $urlpath, $one)."\n";
         }
 
         $fmt = '<script type="text/javascript" src="%s/lib/js/%s"></script>';
-//needed if global jq-ui not loaded	'jquery-file-upload/jquery.ui.widget.min.js',
+        //needed if global jq-ui not loaded 'jquery-file-upload/jquery.ui.widget.min.js',
         $jsfiles = [
         'jquery-file-upload/jquery.iframe-transport.js',
         'jquery-file-upload/jquery.fileupload.js',
@@ -195,8 +237,8 @@ final class FileManager extends CMSModule
         'jrac/jquery.jrac.min.js',
         ];
 
-        foreach( $jsfiles as $one ) {
-            $out .= sprintf($fmt,$urlpath,$one)."\n";
+        foreach ($jsfiles as $one) {
+            $out .= sprintf($fmt, $urlpath, $one)."\n";
         }
 
         return $out;
@@ -204,7 +246,7 @@ final class FileManager extends CMSModule
 
     protected function encodefilename($filename)
     {
-        return str_replace('==','',base64_encode($filename));
+        return str_replace('==', '', base64_encode($filename));
     }
 
     protected function decodefilename($encodedfilename)
@@ -216,18 +258,18 @@ final class FileManager extends CMSModule
     {
         $out=[];
 
-        if( $this->CheckPermission('Modify Files') ) {
+        if ($this->CheckPermission('Modify Files')) {
             $out[]=CmsAdminMenuItem::from_module($this);
         }
 
-        if( $this->CheckPermission('Modify Site Preferences') ) {
+        if ($this->CheckPermission('Modify Site Preferences')) {
             $obj=new CmsAdminMenuItem();
             $obj->module=$this->GetName();
             $obj->section='files';
             $obj->title=$this->Lang('title_filemanager_settings');
             $obj->description=$this->Lang('desc_filemanager_settings');
             $obj->action='admin_settings';
-            $obj->url=$this->create_url('m1_',$obj->action);
+            $obj->url=$this->create_url('m1_', $obj->action);
             $out[]=$obj;
         }
 
