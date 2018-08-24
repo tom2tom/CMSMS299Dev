@@ -17,7 +17,7 @@ if (isset($params['newmode'])) {
 	if (isset($params['cancel'])) {
 		$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmmessage'=>'chmodcancelled']);
 	} else {
-		if ($this->SetModeWin($params['newmode'],$fullname)) { //TODO method doesn't exist
+		if ($this->SetModeWin($params['newmode'],$fullname)) {
 			$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmmessage'=>'chmodsuccess']);
 		} else {
 			$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmerror'=>'chmodfailure']);

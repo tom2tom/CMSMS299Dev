@@ -20,7 +20,7 @@ function chmodRecursive(string $path,$newmode, FileManager &$module)
 		if ($entry=='.' || $entry=='..') continue;
 
 		if (is_file( "$path/$entry")) {
-			$module->SetMode($newmode,$path,$entry); //TODO method doesn't exist
+			$module->SetMode($newmode,$path,$entry);
 					//echo "hi";die();
 		} elseif (is_dir("$path/$entry") && $entry!='.' && $entry!='..') {
 			chmodRecursive("$path/$entry",$newmode,$module);
@@ -60,7 +60,7 @@ if (isset($params['newmode'])) {
 			}
 		} else {
 			//No recursion
-			if ($this->SetMode($newmode,$fullname)) { //TODO method doesn't exist
+			if ($this->SetMode($newmode,$fullname)) {
 				$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmmessage'=>'dirchmodsuccess']);
 			} else {
 				$this->Redirect($id,'defaultadmin',$returnid,['path'=>$params['path'],'fmerror'=>'dirchmodfailure']);

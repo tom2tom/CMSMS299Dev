@@ -24,7 +24,7 @@ if (isset($params['newmode'])) {
       $newmode = $params['quickmode'];
     }
     //echo $newmode;die();
-    if ($this->SetMode($newmode, $fullname)) { //TODO method doesn't exist
+    if ($this->SetMode($newmode, $fullname)) {
       $this->Redirect($id, 'defaultadmin', $returnid, ['path' => $params['path'], 'fmmessage' => 'chmodsuccess']);
     } else {
       $this->Redirect($id, 'defaultadmin', $returnid, ['path' => $params['path'], 'fmerror' => 'chmodfailure']);
