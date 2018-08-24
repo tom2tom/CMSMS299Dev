@@ -530,7 +530,9 @@ abstract class DataDictionary
         if ($flds) {
             list($lines,) = $this->_GenFields($flds);
             $first = reset($lines); // list(, $first) = each($lines);
-            list(, $column_def) = preg_split('/[\t ]+/', $first, 2);
+            list(, $column_def) = preg_split('/\s+/', $first, 2);
+        } else {
+            $column_def = '';
         }
 
         return [sprintf($this->renameColumn, $tabname, $this->NameQuote($oldcolumn), $this->NameQuote($newcolumn), $column_def)];
