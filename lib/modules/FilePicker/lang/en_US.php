@@ -116,8 +116,12 @@ $lang['type'] = 'Type';
 // HELP TEXT
 $lang['help'] = <<<EOT
 <h3>What does this do?</h3>
-<p>This module doesn't actually &quot;pick&quot; anything :) It does provide some file-related capabilities for use by other modules:
+<p>This module provides some file-related capabilities for use by other modules:
 <ol>
+<li>select files</li>
+<li>upload files</li>
+<li>delete files</li>
+<li>create and remove sub-directories</li>
 <li>accumulate properties of file(s) and directories for some purpose e.g.
 <ul>
 <li>for upload</li>
@@ -126,9 +130,6 @@ $lang['help'] = <<<EOT
 <li>to attach to a news article</li>
 </ul>
 </li>
-<li>upload files</li>
-<li>delete files</li>
-<li>create and remove subdirectories</li>
 </ol>
 </p>
 <h3>How is it used?</h3>
