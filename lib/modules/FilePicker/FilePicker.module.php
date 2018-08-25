@@ -84,32 +84,41 @@ final class FilePicker extends CMSModule implements IFilePicker
      */
     protected function HeaderJsContent() : string
     {
+        $baseurl = $this->GetModuleURLPath();
         $url = str_replace('&amp;','&',$this->get_browser_url());
-        $url2 = $this->GetModuleURLPath();
-        $msg = $this->Lang('select_file');
-        $out = <<<EOS
+        $prompt = $this->Lang('select_file');
+
+        return <<<EOS
 <script type="text/javascript">
 //<![CDATA[
- cms_data.lang_select_file = '$msg';
+ cms_data.lang_select_file = '$prompt';
  cms_data.filepicker_url = '{$url}&cmsjobtype=1';
 //]]>
 </script>
-<script type="text/javascript" src="{$url2}/lib/js/jquery.cmsms_filepicker.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/jquery.cmsms_filepicker.js"></script>
 
 EOS;
-        return $out;
     }
 
+	/**
+	 *
+	 * @param type $blockName
+	 * @param type $value
+	 * @param array $params
+	 * @param bool $adding
+	 * @param ContentBase $content_obj
+	 * @return string
+	 */
     public function GetContentBlockFieldInput($blockName, $value, $params, $adding, ContentBase $content_obj)
     {
         if( empty($blockName) ) return FALSE;
-        $uid = get_userid(FALSE);
-        //$adding = (bool)( $adding || ($content_obj->Id() < 1) ); // hack for the core. Have to ask why though (JM)
+//        $uid = get_userid(FALSE);
+//        $adding = (bool)( $adding || ($content_obj->Id() < 1) ); // hack for the core. Have to ask why though (JM)
 
         $profile_name = get_parameter_value($params,'profile');
         $profile = $this->get_profile_or_default($profile_name);
 
-        // todo: optionally allow further overriding the profile
+        // TODO optionally allow further overriding the profile
         $out = $this->get_html($blockName, $value, $profile);
         return $out;
     }
@@ -125,11 +134,23 @@ EOS;
         //die('<br />RIP!<br />');
     }
 */
+	/**
+	 *
+	 * @param string $path Optional
+	 * @return array
+	 */
     public function GetFileList($path = '')
     {
         return Utils::get_file_list($path);
     }
 
+	/**
+	 *
+	 * @param string $profile_name or NULL?
+	 * @param mixed $dir Optional
+	 * @param mixed $uid Optional
+	 * @return FilePickerProfile
+	 */
     public function get_profile_or_default( $profile_name, $dir = null, $uid = null )
     {
         $profile_name = trim($profile_name);
@@ -141,6 +162,12 @@ EOS;
         return $profile;
     }
 
+	/**
+	 *
+	 * @param mixed $dir Optional
+	 * @param mixed $uid Optional
+	 * @return FilePickerProfile
+	 */
     public function get_default_profile( $dir = null, $uid = null )
     {
         /* $dir is absolute */
@@ -152,6 +179,7 @@ EOS;
     }
 
     /**
+	 *
      * Generate url which initiates this module's filepicker action
      * @return string
      */
@@ -160,6 +188,15 @@ EOS;
         return $this->create_url('m1_','filepicker');
     }
 
+	/**
+	 *
+	 * @staticvar boolean $first_time
+	 * @param string $name
+	 * @param type $value
+	 * @param type $profile
+	 * @param bool $required
+	 * @return string content block contents
+	 */
     public function get_html( $name, $value, $profile, $required = false )
     {
 		static $first_time = true;
@@ -238,7 +275,11 @@ EOS;
         return $tpl->fetch();
     }
 
-    // INTERNAL UTILITY FUNCTION
+	/**
+	 * utility function
+	 * @param type $filespec
+	 * @return bool
+	 */
     public function is_image( $filespec )
     {
         $filespec = trim($filespec);
@@ -247,7 +288,12 @@ EOS;
         return $this->_typehelper->is_image( $filespec );
     }
 
-    // INTERNAL UTILITY FUNCTION
+	/**
+	 * utility function
+	 * @param type $profile
+	 * @param type $filename
+	 * @return boolean
+	 */
     public function is_acceptable_filename( $profile, $filename )
     {
         $filename = trim($filename);
