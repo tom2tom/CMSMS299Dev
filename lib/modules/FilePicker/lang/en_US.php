@@ -11,6 +11,7 @@ $lang['create_dir'] = 'Create a new folder';
 $lang['dimension'] = 'Dimensions';
 $lang['delete'] = 'Delete';
 $lang['dependencies'] = 'Dependencies';
+$lang['displayit'] = 'Display %s';
 
 // E
 $lang['error_ajax_invalidfilename'] = 'That filename is invalid';
@@ -27,7 +28,7 @@ $lang['error_upload_maxNumberOfFiles'] = 'You are uploading too many files at on
 // F
 $lang['filename'] = 'Filename';
 $lang['filterby'] = 'Filter by';
-//$lang['filepickertitle'] = 'CMSMS File Picker';
+$lang['filepickertitle'] = 'File Picker';
 $lang['fileview'] = 'File view';
 $lang['friendlyname'] = 'File Picker';
 
