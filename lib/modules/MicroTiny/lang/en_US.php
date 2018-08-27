@@ -48,7 +48,7 @@ $lang['error_nopage'] = 'No page alias selected';
 $lang['example'] = 'Example';
 
 // F
-$lang['filepickertitle'] = 'CMSMS File Picker';
+$lang['filepickertitle'] = 'File Picker'; //lazy, get this from FilePicker-module lang
 $lang['friendlyname'] = 'MicroTiny Editor';
 $lang['fileview'] = 'File View';
 $lang['filename'] = 'File Name';
