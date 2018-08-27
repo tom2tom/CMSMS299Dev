@@ -161,7 +161,6 @@ try {
         $content_obj->FillParams($_POST,($content_id > 0));
     }
 
-    $active_tab = isset($params['active_tab']) ? trim($params['active_tab']) : null;
     if( isset($params['submit']) || isset($params['apply']) || isset($params['preview']) ) {
         $error = $content_obj->ValidateData();
         if( $error ) {
@@ -299,6 +298,8 @@ catch( Exception $e ) {
 if( $error ) {
     $this->ShowErrors($error);
 }
+
+$active_tab = $params['active_tab'] ?? null;
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_editcontent.tpl'),null,null,$smarty);
 
@@ -548,10 +549,10 @@ EOS;
 EOS;
 $this->AdminBottomContent($js);
 
-$tpl->assign('active_tab',$active_tab)
- ->assign('content_id',$content_id)
+$tpl->assign('content_id',$content_id)
  ->assign('content_obj',$content_obj)
  ->assign('tab_names',$tab_names)
+ ->assign('active_tab',trim($active_tab))
  ->assign('tab_contents_array',$tab_contents_array)
  ->assign('tab_message_array',$tab_message_array);
 /*$factory = new ContentAssistantFactory($content_obj);
