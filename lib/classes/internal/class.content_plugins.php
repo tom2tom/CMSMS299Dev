@@ -280,15 +280,7 @@ final class content_plugins
         }
         else {
             $block = 'content_en';
-            if( isset($_SESSION['__cms_preview__']) && $contentobj->Id() == __CMS_PREVIEW_PAGE__ ) {
-                // note: content precompile/postcompile events will not be triggered in preview.
-                //$val = $contentobj->Show($block);
-                //$result = $smarty->fetch('eval:'.$val);
-                $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
-            }
-            else {
-                $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
-            }
+            $result = $smarty->fetch(str_replace(' ', '_', 'content:' . $block), '|'.$block, $page_id.$block);
         }
         self::$_primary_content = $result;
         return $result;
