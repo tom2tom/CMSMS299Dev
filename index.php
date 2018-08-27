@@ -88,20 +88,23 @@ while ($trycount < 2) {
         if ($trycount < 2 && is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN')) throw new CmsError503Exception('Site down for maintenance');
         if ($trycount < 2 && is_sitedown()) throw new CmsError503Exception('Site down for maintenance');
 
-        // preview
-        if ($page == -100) {
-            if (!isset($_SESSION['__cms_preview__'])) throw new CmsException('preview selected, but temp data not found');
+        if ($page == -100) { //a.k.a __CMS_PREVIEW_PAGE__ but that's not always defined here
+            // preview
             setup_session(false);
+            if (!isset($_SESSION['__cms_preview__'])) {
+                throw new CmsException('preview selected, but temp data not found');
+            }
 
-            // todo: get the content type, and load it.
             $contentops->LoadContentType($_SESSION['__cms_preview_type__']);
-            $contentobj = unserialize($_SESSION['__cms_preview__'], ['allowed_classes'=>false]);
-            $contentobj->SetCachable(FALSE);
+            $contentobj = unserialize($_SESSION['__cms_preview__'], ['allowed_classes'=>['CMSMS\\contenttypes\\Content']]);
+            $contentobj->SetCachable(false);
             $contentobj->SetId(__CMS_PREVIEW_PAGE__);
         } else {
             // $page could be an integer ID or a string alias
             $contentobj = $contentops->LoadContentFromAlias($page,true);
-            if (!is_object($contentobj)) throw new CmsError404Exception('Page '.$page.' not found');
+            if (!is_object($contentobj)) {
+                throw new CmsError404Exception('Page '.$page.' not found');
+            }
         }
 
         // from here in, we're assured to have a content object of some sort
@@ -113,7 +116,9 @@ while ($trycount < 2) {
             throw new CmsError404Exception('Cannot view an unviewable page');
         }
 
-        if (!$contentobj->IsPermitted()) throw new CmsError403Exception('Permission denied');
+        if (!$contentobj->IsPermitted()) {
+            throw new CmsError403Exception('Permission denied');
+        }
 
         $uid = get_userid(FALSE);
         if ($page == __CMS_PREVIEW_PAGE__ || $uid || $_SERVER['REQUEST_METHOD'] != 'GET') $cachable = false;
