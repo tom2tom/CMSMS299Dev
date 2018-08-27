@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\HookManager;
+
 /**
  * Miscellaneous support functions
  *
@@ -106,7 +108,7 @@ function redirect(string $to)
         header("Location: $to");
     }
 
-    CMSMS\HookManager::do_hook('PostRequest');
+    HookManager::do_hook('PostRequest');
     exit;
 }
 
@@ -444,7 +446,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
  */
 function debug_output($var, string $title='')
 {
-    $config = \cms_config::get_instance();
+    $config = cms_config::get_instance();
     if ( $config['debug'] ) debug_display($var, $title, true);
 }
 
@@ -458,7 +460,7 @@ function debug_output($var, string $title='')
  */
 function debug_to_log($var, string $title='',string $filename = '')
 {
-    $config = \cms_config::get_instance();
+    $config = cms_config::get_instance();
     if ( $config['debug_to_log'] || (function_exists('get_userid') && get_userid(false)) ) {
         if ( $filename == '' ) {
             $filename = TMP_CACHE_LOCATION . '/debug.log';
@@ -1181,7 +1183,7 @@ function setup_session(bool $cachable = false)
     if ( $_setup_already ) return;
 
     $_f = $_l = null;
-    if ( headers_sent( $_f, $_l) ) throw new \LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
+    if ( headers_sent( $_f, $_l) ) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
 
     if ( $cachable ) {
         if ( $_SERVER['REQUEST_METHOD'] != 'GET' || isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE) ) $cachable = false;
