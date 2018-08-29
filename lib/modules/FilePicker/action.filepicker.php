@@ -16,14 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\FilePickerProfile;
+use CMSMS\AdminUtils;
 use CMSMS\FileType;
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
 use FilePicker\Utils;
 
 if( !isset($gCms) ) exit;
-if( !check_login() ) exit; // admin only.... but any admin
+//BAD in iframe if( !check_login(true) ) exit; // admin only.... but any admin
+
+$handlers = ob_list_handlers();
+for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
 //
 // initialization
@@ -55,27 +58,27 @@ try {
         $sig = TemporaryProfileStorage::set($profile);
     }
     if( !$this->CheckPermission('Modify Files') ) {
-		$profile = $profile->overrideWith( ['can_upload'=>false, 'can_delete'=>false, 'can_mkdir'=>false ] );
+        $profile = $profile->overrideWith( ['can_upload'=>false, 'can_delete'=>false, 'can_mkdir'=>false ] );
     }
 
     // get our absolute top directory, and its matching url
     $topdir = $profile->top;
     if( !$topdir ) {
-        $topdir = $config['uploads_path'];
+        $topdir = $profile->top = $config['uploads_path'];
     }
     $assistant = new PathAssistant($config, $topdir);
 
     // get our current working directory relative to $topdir
     // use cwd stored in session first... then if necessary the profile topdir, then if necessary, the absolute topdir
     if( isset($_SESSION[$sesskey]) ) {
-		$cwd = trim($_SESSION[$sesskey]);
+        $cwd = trim($_SESSION[$sesskey]);
     }
     else {
-       $cwd = '';
+        $cwd = '';
     }
     if( !$cwd && $profile->top ) {
-		$cwd = $assistant->to_relative($profile->top);
-	}
+        $cwd = $assistant->to_relative($profile->top);
+    }
     if( !$nosub && isset($_GET['subdir']) ) {
         $cwd .= DIRECTORY_SEPARATOR . filter_var($_GET['subdir'], FILTER_SANITIZE_STRING);
         $cwd = $assistant->to_relative($assistant->to_absolute($cwd));
@@ -88,14 +91,15 @@ try {
     $_SESSION[$sesskey] = $cwd;
 
     // now we're set to go.
+	$topurl = $assistant->get_top_url();
     $starturl = $assistant->relative_path_to_url($cwd);
     $startdir = $assistant->to_absolute($cwd);
 
-    function get_thumbnail_tag(string $file, string $path, string $url) : string
+    function get_thumbnail_tag(string $file, string $path, string $baseurl) : string
     {
         $imagepath = $path.DIRECTORY_SEPARATOR.'thumb_'.$file;
         if( is_file($imagepath) ) {
-            return "<img src='".$url.'/thumb_'.$file."' alt='".$file."' title='".$file."' />";
+            return "<img src='".$baseurl.'/thumb_'.$file."' alt='".$file."' title='".$file."' />";
         }
         return '';
     }
@@ -108,23 +112,23 @@ try {
     $items = scandir($startdir, SCANDIR_SORT_NONE);
     for( $name = reset($items); $name !== false; $name = next($items) ) {
         if( $name == '.' ) {
-			continue;
-		}
+            continue;
+        }
         $fullname = cms_join_path($startdir,$name);
         if( $name == '..' ) {
             if ($assistant->is_relative($fullname)) {
-				continue;
-			}
+                continue;
+            }
         }
         if( !$profile->show_hidden && ($name[0] == '.' || $name[0] == '_') ) {
-			continue;
-		}
+            continue;
+        }
         if( is_dir($fullname) && !$assistant->is_relative($fullname) ) {
-			continue;
-		}
+            continue;
+        }
         if( !$this->is_acceptable_filename( $profile, $name ) ) {
-			continue;
-		}
+            continue;
+        }
 
         $data = ['name' => $name, 'fullpath' => $fullname];
         $data['fullurl'] = $starturl.'/'.$name;
@@ -138,12 +142,12 @@ try {
             if( $name == '..' ) {
                 $t = 'up'; //TODO or 'home'
             }
-			else {
+            else {
                 $t = '';
             }
             $data['icon'] = Utils::get_file_icon($t,TRUE);
         }
-		else {
+        else {
             $data['isparent'] = false;
             $data['relurl'] = $assistant->to_relative($fullname);
             $data['ext'] = strtolower(substr($name,strrpos($name,'.')+1));
@@ -152,7 +156,7 @@ try {
             $data['icon'] = Utils::get_file_icon($data['ext'],false);
         }
         $type = $this->_typehelper->get_file_type($fullname);
-        $data['filetype'] = ($type) ? FileType::getName($val) : '';
+        $data['filetype'] = ($type) ? FileType::getName($type) : '';
         $data['dimensions'] = '';
         if( $data['is_image'] && !$data['is_thumb'] ) {
             $data['thumbnail'] = get_thumbnail_tag($name,$startdir,$starturl);
@@ -164,7 +168,7 @@ try {
         if( $info && $info['size'] > 0 ) {
             $data['size'] = round($info['size']/pow(1024, ($i = floor(log($info['size'], 1024)))), 2) . $filesizename[$i];
         }
-		else {
+        else {
             $data['size'] = null;
         }
         if( $data['isdir'] ) {
@@ -190,10 +194,11 @@ try {
     });
 
     $assistant2 = new PathAssistant($config,CMS_ROOT_PATH);
-    $cwd_for_display = $assistant2->to_relative( $startdir );
+    $cwd_for_display = $assistant2->to_relative($startdir);
 
     $theme = cms_utils::get_theme_object();
     $baseurl = $this->GetModuleURLPath();
+	// get the latest relevant css TODO just have one
     $css_files = ['filepicker.css', 'filepicker.min.css'];
     $mtime = -1;
     $sel_file = null;
@@ -208,13 +213,20 @@ try {
             }
         }
     }
+
     if( $sel_file ) {
-        $css = <<<EOS
+        $out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$baseurl}/lib/css/{$sel_file}" />
 
 EOS;
-        $theme->add_headtext($css);
     }
+    else {
+        $out = '';
+    }
+
+	$scripts = cms_installed_jquery(true,false,false,false);
+    $url = AdminUtils::path_to_url($scripts['jqcore']);
+    $out .= '<script type="text/javascript" src="'.$url.'"></script>'."\n";
 
     $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);
     $url = str_replace('&amp;','&',$url).'&cmsjobtype=1';
@@ -244,15 +256,18 @@ $(document).ready(function() {
 </script>
 
 EOS;
-    $theme->add_footertext($js);
 
+    // this template generates a full page, for inclusion in an iframe
     $tpl = $smarty->createTemplate($this->GetTemplateResource('filepicker.tpl'),null,null,$smarty);
 
-    $tpl //see DoActionBase()->assign('mod',$this)
-     ->assign('module_url',$baseurl)
+    $tpl->assign('module_url',$baseurl)
+	 ->assign('topurl',$topurl)
      ->assign('cwd_for_display',$cwd_for_display)
      ->assign('files',$files)
-     ->assign('profile',$profile);
+     ->assign('inst',$inst)
+     ->assign('profile',$profile)
+     ->assign('headercontent',$out)
+     ->assign('bottomcontent',$js);
 
     $tpl->display();
 }
