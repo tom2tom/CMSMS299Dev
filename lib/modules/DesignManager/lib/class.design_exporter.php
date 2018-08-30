@@ -1,5 +1,5 @@
 <?php
-# Module: DesignManager - A CMSMS addon module to provide template management.
+# DesignManager module class: handles design exports.
 # Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -263,15 +263,15 @@ EOT;
             $mod = cms_utils::get_module('MenuManager');
             if( !$mod ) throw new CmsException('MenuManager file template specified, but MenuManager could not be loaded.');
 
-            $tpl = $mod->GetTemplateFromFile($name);
-            if( !$tpl ) throw new CmsException('Could not find MenuMaager template '.$name);
+            $content = $mod->GetTemplateFromFile($name);
+            if( !$content ) throw new CmsException('Could not find MenuMaager template '.$name);
+            $content = $this->_parse_tpl_urls($content);
 
             // create a new CmsLayoutTemplate object for this template
             // and add it to the list.
             // notice we don't recurse.
-            $tpl = $this->_parse_tpl_urls($tpl);
             $new_tpl_ob = new CmsLayoutTemplate;
-            $new_tpl_ob->set_content($tpl);
+            $new_tpl_ob->set_content($content);
             $name = substr($name,0,-4);
             $type = 'TPL';
             $sig = $this->_get_signature($name,$type);
