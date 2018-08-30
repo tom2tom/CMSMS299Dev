@@ -431,14 +431,15 @@ class CmsLayoutStylesheet
 		$this->validate();
 
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'
-			  SET name = ?, content = ?, description = ?, media_type = ?, media_query = ?, modified = ?
-			  WHERE id = ?';
+SET name = ?, content = ?, description = ?, media_type = ?, media_query = ?, modified = ?
+WHERE id = ?';
 		$tmp = '';
 		if( isset($this->_data['media_type']) ) $tmp = implode(',',$this->_data['media_type']);
 		$db = CmsApp::get_instance()->GetDb();
-		$dbr = $db->Execute($query,[$this->get_name(),$this->get_content(),$this->get_description(),
+//		$dbr =
+		$db->Execute($query,[$this->get_name(),$this->get_content(),$this->get_description(),
 									$tmp,$this->get_media_query(),time(), $this->get_id()]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+//USELESS		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		// get the designs that have this stylesheet from the database again.
 		$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WhERE css_id = ?';
