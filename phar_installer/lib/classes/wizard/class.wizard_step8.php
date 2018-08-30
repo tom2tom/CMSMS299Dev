@@ -134,7 +134,7 @@ class wizard_step8 extends wizard_step
 			 'contentimage_path' => '',
 			 'content_thumbnailfield_path' => '',
 			 'defaultdateformat' => '%e %B %Y',
-			 'enablesitedownmessage' => 1,
+			 'enablesitedownmessage' => 0,
 			 'frontendlang' => 'en_US',
 			 'global_umask' => '022',
 			 'loginmodule' => '',  // login  processing by current theme
