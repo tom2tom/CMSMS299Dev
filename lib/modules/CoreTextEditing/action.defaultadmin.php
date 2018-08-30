@@ -35,7 +35,9 @@ $ace_theme = $this->GetPreference('ace_theme', CoreTextEditing::ACE_THEME);
 $codemirror_cdn = $this->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
 $codemirror_theme = $this->GetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
 
-$tpl = $sign('info', $this->Lang('info_settings'))
+$tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
+
+$tpl->assign('info', $this->Lang('info_settings'))
  ->assign('form_start', $this->CreateFormStart($id, 'defaultadmin'));
 if (!empty($warning)) {
     $tpl->assign('warning', $warning); //optional
@@ -48,4 +50,3 @@ $tpl->assign([
 ]);
 
 $tpl->display();
-
