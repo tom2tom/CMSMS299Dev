@@ -69,11 +69,11 @@ foreach( [
 // initial groups
 //
 verbose_msg(ilang('install_initsitegroups'));
-$group = new Group();
-$group->name = 'Admin';
-$group->description = 'Members of this group can manage the entire site.';
-$group->active = 1;
-$group->Save();
+$group1 = new Group();
+$group1->name = 'Admin';
+$group1->description = 'Members of this group can manage the entire site.';
+$group1->active = 1;
+$group1->Save();
 
 $group = new Group();
 $group->name = 'CodeManager';
@@ -131,7 +131,7 @@ $admin_user->active = 1;
 $admin_user->adminaccess = 1;
 $admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAULT );
 $admin_user->Save();
-UserOperations::get_instance()->AddMemberGroup($admin_user->id,$group->id);
+UserOperations::get_instance()->AddMemberGroup($admin_user->id,$group1->id);
 cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, and only user preference we need.
 
 //
