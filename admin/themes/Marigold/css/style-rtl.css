@@ -1832,6 +1832,10 @@ td.icons_wide {
 
 /*** iframe ***/
 
+iframe {
+    width: 99%;
+    height: 99%
+}
 iframe.imageframe {
     margin-top: 10px;
     border: none;
