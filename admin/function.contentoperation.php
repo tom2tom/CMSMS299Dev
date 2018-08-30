@@ -608,18 +608,18 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutTemplate();
 						try {
 							$ob->set_name((string)$node->name);
+							$ob->set_type($types[$val]);
+							$ob->set_description((string)$node->description);
+							$ob->set_owner(1);
+							$val = (string)$node->category_id;
+							if ($val !== '') $ob->set_category($val); //name or id
+							$ob->set_type_dflt((string)$node->type_dflt != false);
+							$ob->set_content(htmlspecialchars_decode((string)$node->content));
+							$ob->save();
+							$templates[(string)$node->id] = $ob->get_id();
 						} catch (\Exception $e) {
 							continue;
 						}
-						$ob->set_type($types[$val]);
-						$ob->set_description((string)$node->description);
-						$ob->set_owner(1);
-						$val = (string)$node->category_id;
-						if ($val !== '') $ob->set_category($val); //name or id
-						$ob->set_type_dflt((string)$node->type_dflt != false);
-						$ob->set_content(htmlspecialchars_decode((string)$node->content));
-						$ob->save();
-						$templates[(string)$node->id] = $ob->get_id();
 					}
 					break;
 				case 'designtemplates': //relations between templates and designs
@@ -672,7 +672,13 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					$eid = -99;
 					foreach ($typenode->children() as $node) {
-						$pagetype = '\\CMSMS\\contenttypes\\'.ucfirst((string)$node->type); //CHECKME case
+						$classname = ucfirst((string)$node->type);  //CHECKME original case
+						switch ($classname) {
+							case 'Errorpage': $classname = 'ErrorPage'; break;
+							case 'Pagelink': $classname = 'PageLink'; break;
+							case 'Sectionheader': $classname = 'SectionHeader'; break;
+						}
+						$pagetype = '\\CMSMS\\contenttypes\\'.$classname;
 						$ob = new $pagetype();
 						$ob->SetName((string)$node->content_name);
 						$ob->SetAlias((string)$node->content_alias);
