@@ -65,7 +65,7 @@ try {
     if( file_exists( $fn ) ) {
         $template = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
-        $tpl->set_name(\CmsLayoutTemplate::generate_unique_name('Simple Navigation'));
+        $tpl->set_name(CmsLayoutTemplate::generate_unique_name('Simple Navigation'));
         $tpl->set_owner($uid);
         $tpl->set_content($template);
         $tpl->set_type($menu_template_type);
@@ -77,7 +77,7 @@ try {
     if( file_exists( $fn ) ) {
         $template = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
-        $tpl->set_name(\CmsLayoutTemplate::generate_unique_name('Breadcrumbs'));
+        $tpl->set_name(CmsLayoutTemplate::generate_unique_name('Breadcrumbs'));
         $tpl->set_owner($uid);
         $tpl->set_content($template);
         $tpl->set_type($bc_template_type);
@@ -150,18 +150,18 @@ try {
             $tpl->save();
         }
     }
-    catch( \Exception $e ) {
+    catch( Exception $e ) {
         // if we got here, it's prolly because default content was not installed.
         audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
     }
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
   debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
   audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
   return $e->GetMessage();
 }
 
 // register plugins
-$this->RegisterModulePlugin(true);
+$this->RegisterModulePlugin(TRUE);
 $this->RegisterSmartyPlugin('nav_breadcrumbs','function','nav_breadcrumbs');
 
