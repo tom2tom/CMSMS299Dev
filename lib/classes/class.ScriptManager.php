@@ -20,7 +20,6 @@ namespace CMSMS;
 use const CMS_SCRIPTS_PATH;
 use const TMP_CACHE_LOCATION;
 use function file_put_contents;
-use function startswith;
 
 //TODO a job to clear old consolidations ? how old ?
 
@@ -139,7 +138,7 @@ class ScriptManager
 		if( $scripts ) {
 			if( count($scripts) > 1) {
 				// sort the scripts by priority, then index (to preserve order)
-				usort( $scripts, function( $a, $b ) {
+				uasort( $scripts, function( $a, $b ) {
 					if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
 					return $a['index'] <=> $b['index'];
 				});
