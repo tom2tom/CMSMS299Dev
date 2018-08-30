@@ -137,7 +137,7 @@ class wizard_step8 extends wizard_step
 			 'enablesitedownmessage' => 1,
 			 'frontendlang' => 'en_US',
 			 'global_umask' => '022',
-			 'loginmodule' => '',  // login  processing by current theme 
+			 'loginmodule' => '',  // login  processing by current theme
 			 'logintheme' => reset($arr),
 			 'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved."'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
 			 'sitemask' => '', //what is this?
@@ -164,10 +164,11 @@ class wizard_step8 extends wizard_step
                 $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
                 require_once $fp;
 
+                if( $destconfig['samplecontent'] ) {
+                    $this->message(lang('install_samplecontent'));
+				}
                 if( ($res = import_content($xmlfile, $filesfolder)) ) {
                     $this->error($res);
-                } elseif( $destconfig['samplecontent'] ) {
-                    $this->message(lang('install_samplecontent'));
                 }
             } else {
                 $this->error(lang('error_nocontent',$fn));
