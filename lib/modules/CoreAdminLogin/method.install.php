@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-$def = cms_site_prefs::get('loginmodule');
+$def = cms_siteprefs::get('loginmodule');
 if (!$def) {
-    cms_site_prefs::set('loginmodule', $this->GetName()); 
+    cms_siteprefs::set('loginmodule', $this->GetName()); 
 }
