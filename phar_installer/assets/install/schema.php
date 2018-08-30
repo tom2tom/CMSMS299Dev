@@ -89,7 +89,7 @@ if (isset($CMS_INSTALL_CREATE_TABLES)) {
     $bad = ilang('failed');
 
     $flds = '
-additional_users_id I KEY,
+additional_users_id I KEY NOT NULL,
 user_id I,
 page_id I,
 content_id I
@@ -128,14 +128,14 @@ secure I(1) DEFAULT 0,
 owner_id I,
 parent_id I,
 template_id I,
-item_order I,
+item_order I(4) DEFAULT 0,
 hierarchy C(255),
 menu_text C(255),
 content_alias C(255),
 id_hierarchy C(255),
-hierarchy_path X,
-prop_names X,
-metadata X,
+hierarchy_path X(2048),
+prop_names X(16384),
+metadata X(16384),
 titleattribute C(255),
 page_url C(255),
 tabindex C(10),
@@ -213,7 +213,7 @@ event_id I(4),
 tag_name C(255),
 module_name C(48),
 removable I(1) DEFAULT 1,
-handler_order I(4)
+handler_order I(4) DEFAULT 0
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'event_handlers', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -222,8 +222,8 @@ handler_order I(4)
 
     $flds = '
 event_id I(4) KEY,
-originator C(48) NOTNULL,
-event_name C(48) NOTNULL
+originator C(48) NOT NULL,
+event_name C(48) NOT NULL
 ';
     $sqlarray = $dbdict->CreateTableSQL(CMS_DB_PREFIX.'events', $flds, $taboptarray);
     $return = $dbdict->ExecuteSQLArray($sqlarray);
@@ -304,7 +304,7 @@ modified_date DT
     $flds = '
 module_name C(160),
 template_name C(160),
-content X,
+content X(TODO),
 create_date DT,
 modified_date DT
 ';
@@ -374,7 +374,7 @@ modified_date DT
     $flds = '
 user_id I KEY,
 preference C(50) KEY,
-value X,
+value X(16384),
 type C(25)
 ';
     //CHECKME separate index on preference field ?
@@ -419,11 +419,11 @@ version I
     verbose_msg(ilang('install_created_table', 'version', $msg_ret));
 
     $flds = '
-sig C(80) KEY NOTNULL,
-name C(48) NOTNULL,
-module C(32) NOTNULL,
-type C(32) NOTNULL,
-callback C(255) NOTNULL,
+sig C(80) KEY NOT NULL,
+name C(48) NOT NULL,
+module C(32) NOT NULL,
+type C(32) NOT NULL,
+callback C(255) NOT NULL,
 available I,
 cachable I(1) DEFAULT 0
 ';
@@ -439,11 +439,11 @@ cachable I(1) DEFAULT 0
     verbose_msg(ilang('install_creating_index', 'idx_smp_module', $msg_ret));
 
     $flds = '
-term C(255) KEY NOTNULL,
-key1 C(48) KEY NOTNULL,
+term C(255) KEY NOT NULL,
+key1 C(48) KEY NOT NULL,
 key2 C(48),
 key3 C(48),
-data X,
+data X(16384),
 created DT
 ';
     //CHECKME separate index on key1 field ?
@@ -454,10 +454,10 @@ created DT
 
     $flds = '
 id I KEY AUTO,
-originator C(32) NOTNULL,
-name C(96) NOTNULL,
+originator C(32) NOT NULL,
+name C(96) NOT NULL,
 dflt_contents X2,
-description X,
+description X(1024),
 lang_cb C(255),
 dflt_content_cb C(255),
 help_content_cb C(255),
@@ -485,9 +485,9 @@ modified I
 
     $flds = '
 id I KEY AUTO,
-name C(96) NOTNULL,
-description X,
-item_order X,
+name C(96) NOT NULL,
+description X(1024),
+item_order I(4) DEFAULT 0,
 modified I
 ';
     $sqlarray = $dbdict->CreateTableSQL(
@@ -506,8 +506,8 @@ modified I
     verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_type_1', $msg_ret));
 
     $flds = '
-category_id I NOTNULL,
-tpl_id I NOTNULL,
+category_id I NOT NULL,
+tpl_id I NOT NULL,
 tpl_order I(4) DEFAULT 0
 ';
     $sqlarray = $dbdict->CreateTableSQL(
@@ -528,11 +528,11 @@ tpl_order I(4) DEFAULT 0
     $flds = '
 id I KEY AUTO,
 originator C(32),
-name C(96) NOTNULL,
+name C(96) NOT NULL,
 content X2,
-description X,
-type_id I NOTNULL,
-owner_id I NOTNULL DEFAULT 1,
+description X(1024),
+type_id I NOT NULL,
+owner_id I NOT NULL DEFAULT 1,
 type_dflt I(1) DEFAULT 0,
 listable I(1) DEFAULT 1,
 created I,
@@ -567,11 +567,11 @@ modified I
 
     $flds = '
 id I KEY AUTO,
-name C(96) NOTNULL,
+name C(96) NOT NULL,
 content X2,
-description X,
+description X(1024),
 media_type C(255),
-media_query X,
+media_query X(16384),
 created I,
 modified I
 ';
@@ -605,8 +605,8 @@ user_id I KEY
 
     $flds = '
 id I KEY AUTO,
-name C(96) NOTNULL,
-description X,
+name C(96) NOT NULL,
+description X(1024),
 dflt I(1) DEFAULT 0,
 created I,
 modified I
@@ -626,8 +626,9 @@ modified I
     verbose_msg(ilang('install_created_index', 'idx_layout_dsn_1', $msg_ret));
 
     $flds = '
-design_id I KEY NOTNULL,
-tpl_id I KEY NOTNULL
+design_id I KEY NOT NULL,
+tpl_id I KEY NOT NULL,
+tpl_order I(4) DEFAULT 0
 ';
     //CHECKME separate index on tpl_id field ?
     $sqlarray = $dbdict->CreateTableSQL(
@@ -645,9 +646,9 @@ tpl_id I KEY NOTNULL
     verbose_msg(ilang('install_created_index', 'index_dsnassoc1', $msg_ret));
 
     $flds = '
-design_id I KEY NOTNULL,
-css_id I KEY NOTNULL,
-item_order I NOTNULL
+design_id I KEY NOT NULL,
+css_id I KEY NOT NULL,
+item_order I(4) DEFAULT 0
 ';
     //CHECKME separate index on css_id field ?
     $sqlarray = $dbdict->CreateTableSQL(
@@ -660,14 +661,14 @@ item_order I NOTNULL
     verbose_msg(ilang('install_created_table', CmsLayoutCollection::CSSTABLE, $msg_ret));
 
     $flds = '
-id I AUTO KEY NOTNULL,
-type C(24) NOTNULL,
-oid I NOTNULL,
-uid I NOTNULL,
-created I NOTNULL,
-modified I NOTNULL,
-lifetime I NOTNULL,
-expires I NOTNULL
+id I AUTO KEY NOT NULL,
+type C(24) NOT NULL,
+oid I NOT NULL,
+uid I NOT NULL,
+created I NOT NULL,
+modified I NOT NULL,
+lifetime I NOT NULL,
+expires I NOT NULL
 ';
     $sqlarray = $dbdict->CreateTableSQL(
         CMS_DB_PREFIX.CmsLock::LOCK_TABLE,
