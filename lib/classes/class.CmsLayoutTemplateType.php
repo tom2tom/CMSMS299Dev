@@ -589,11 +589,11 @@ class CmsLayoutTemplateType
 	 */
 	public function reset_content_to_factory()
 	{
-		if( !$this->get_dflt_flag() ) throw new CmsException('This template type does not have default contents');
+		if( !$this->get_dflt_flag() ) {
+			throw new CmsException('This template type does not have default contents');
+		}
 		$cb = $this->get_content_callback();
-		if( !$cb ) throw new CmsDataNotFoundException('No callback information to reset content');
-		if( !is_callable($cb) ) {
-			die('not callable');
+		if( !$cb || !is_callable($cb) ) {
 			throw new CmsDataNotFoundException('No callback information to reset content');
 		}
 		$content = $cb($this);
