@@ -26,7 +26,7 @@ $flds = '
 id I AUTO KEY,
 name C(48) NOTNULL INDEX(UNIQUE),
 toppath C(255),
-data X,
+data X(16384),
 create_date DT,
 modified_date DT
 ';

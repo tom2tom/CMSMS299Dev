@@ -26,7 +26,7 @@ try {
     $flds = '
         id I AUTO PRIMARY KEY,
         name C(100) NOTNULL,
-        data X,
+        data X(16384),
         create_date I,
         modified_date i';
 

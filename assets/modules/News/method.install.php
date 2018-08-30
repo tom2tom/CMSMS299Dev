@@ -26,9 +26,9 @@ $flds = '
 news_id I KEY,
 news_category_id I,
 news_title C(255),
-news_data X,
+news_data X(16384),
 news_date DT,
-summary X,
+summary X(1024),
 start_time DT,
 end_time DT,
 status C(25),
@@ -51,7 +51,7 @@ news_category_name C(255) NOTNULL,
 parent_id I,
 hierarchy C(255),
 item_order I,
-long_name X,
+long_name X(1024),
 create_date T,
 modified_date T
 ';
@@ -78,7 +78,7 @@ $dict->ExecuteSQLArray($sqlarray);
 $flds = '
 news_id I KEY NOT NULL,
 fielddef_id I KEY NOT NULL,
-value X,
+value X(16384),
 create_date DT,
 modified_date DT
 ';
