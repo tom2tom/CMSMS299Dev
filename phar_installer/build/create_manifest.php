@@ -283,13 +283,19 @@ if (startswith($uri_to, 'file://')) {
 // begin the work
 //
 
-// create temp directories to hold the filesets
+// create empty temp directories to hold the filesets
 if (!(is_writable($_tmpdir) || mkdir($_tmpdir, 0771))) {
     fatal('Temp folder is not writable');
 }
 $_fromdir = $_tmpdir.DIRECTORY_SEPARATOR.'_from';
+if (is_dir($_fromdir)) {
+	rrmdir($_fromdir);
+}
 mkdir($_fromdir, 0771);
 $_todir = $_tmpdir.DIRECTORY_SEPARATOR.'_to';
+if (is_dir($_todir)) {
+	rrmdir($_todir);
+}
 mkdir($_todir, 0771);
 
 // retrieve sources
@@ -741,7 +747,7 @@ function get_sources(string $sourceuri, string $tmpdir) : bool
     } elseif (strncmp($sourceuri, 'svn://', 6) == 0) {
         $remnant = substr($sourceuri, 6);
         $url = 'http://svn.cmsmadesimple.org/svn/cmsmadesimple';
-        switch (strtolower(substr($remnant(0, 4)))) {
+        switch (strtolower(substr($remnant, 0, 4))) {
             case '':
             case 'trun':
                 $url .= '/trunk';
@@ -760,18 +766,18 @@ function get_sources(string $sourceuri, string $tmpdir) : bool
                 return false;
         }
 
-        $cmd = escapeshellcmd("svn export -q $url $tmpdir");
+        $cmd = escapeshellcmd("svn export -q --force $url $tmpdir");
 
         info("Retrieve files from SVN ($url)");
         system($cmd, $retval);
-        return true; //$retval == 0?
+        return ($retval == 0);
     } elseif (strncmp($sourceuri, 'git://', 6) == 0) {
         $url = 'https://'.substr($sourceuri, 6);
-        $cmd = escapeshellcmd("git clone -q $url $tmpdir");
+        $cmd = escapeshellcmd("git clone -q --bare $url $tmpdir");
 
         info("Retrieve files from GIT ($url)");
         system($cmd, $retval);
-        return true; //$retval == 0?;
+        return ($retval == 0);
     }
     return false;
 }
