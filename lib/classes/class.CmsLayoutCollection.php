@@ -81,7 +81,7 @@ class CmsLayoutCollection
 	 */
 	public function get_id()
 	{
-		if( isset($this->_data['id']) ) return $this->_data['id'];
+		return $this->_data['id'] ?? 0;
 	}
 
 	/**
@@ -90,7 +90,7 @@ class CmsLayoutCollection
 	 */
 	public function get_name()
 	{
-		if( isset($this->_data['name']) ) return $this->_data['name'];
+		return $this->_data['name'] ?? '';
 	}
 
 	/**
@@ -102,7 +102,9 @@ class CmsLayoutCollection
 	 */
 	public function set_name($str)
 	{
-		if( !AdminUtils::is_valid_itemname($str)) throw new CmsInvalidDataException("Invalid characters in name: $str");
+		if( !AdminUtils::is_valid_itemname($str) ) {
+			throw new CmsInvalidDataException("Invalid characters in name: $str");
+		}
 		$this->_data['name'] = $str;
 		$this->_dirty = TRUE;
 	}
@@ -115,7 +117,7 @@ class CmsLayoutCollection
 	 */
 	public function get_default()
 	{
-		if( isset($this->_data['dflt']) ) return $this->_data['dflt'];
+		return $this->_data['dflt'] ?? FALSE;
 	}
 
 
@@ -140,7 +142,7 @@ class CmsLayoutCollection
 	 */
 	public function get_description()
 	{
-		if( isset($this->_data['description']) ) return $this->_data['description'];
+		return $this->_data['description'] ?? '';
 	}
 
 	/**
@@ -163,7 +165,7 @@ class CmsLayoutCollection
 	 */
 	public function get_created()
 	{
-		if( isset($this->_data['created']) ) return $this->_data['created'];
+		return $this->_data['created'] ?? 0;
 	}
 
 	/**
@@ -173,7 +175,7 @@ class CmsLayoutCollection
 	 */
 	public function get_modified()
 	{
-		if( isset($this->_data['modified']) ) return $this->_data['modified'];
+		return $this->_data['modified'] ?? 0;
 	}
 
 	/**
@@ -392,11 +394,14 @@ class CmsLayoutCollection
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$tmp = $db->GetOne($query,[$this->get_name()]);
 		}
-		if( $tmp ) throw new CmsInvalidDataException('Collection/Design with the same name already exists.');
+		if( $tmp ) {
+			throw new CmsInvalidDataException('Collection/Design with the same name already exists.');
+		}
 	}
 
 	/**
 	 * @ignore
+	 * @throws CmsSQLErrorException
 	 */
 	private function _insert()
 	{
@@ -407,14 +412,17 @@ class CmsLayoutCollection
 		$query = 'INSERT INtO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description,dflt,created,modified) VALUES (?,?,?,?,?)';
 		$now = time();
 		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), ($this->get_default())?1:0, $now, $now]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) {
+			throw new CmsSQLErrorException($db->sql.' --1 '.$db->ErrorMsg());
+		}
 
 		$this->_data['id'] = $db->Insert_ID();
 
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
-			$dbr = $db->Execute($query,[$this->get_id()]);
-			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+//			$dbr =
+			$db->Execute($query,[$this->get_id()]);
+//USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 
 		if( count($this->_css_assoc) ) {
@@ -438,6 +446,7 @@ class CmsLayoutCollection
 
 	/**
 	 * @ignore
+	 * @throws CmsSQLErrorException
 	 */
 	private function _update()
 	{
@@ -447,12 +456,13 @@ class CmsLayoutCollection
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ?, dflt = ?, modified = ? WHERE id = ?';
 		$dbr = $db->Execute($query,[$this->get_name(), $this->get_description(), ($this->get_default())?1:0, time(), $this->get_id()]);
-		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --2 '.$db->ErrorMsg());
 
 		if( $this->get_default() ) {
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET dflt = 0 WHERE id != ?';
-			$dbr = $db->Execute($query,[$this->get_id()]);
-			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+//			$dbr =
+			$db->Execute($query,[$this->get_id()]);
+//USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
@@ -510,7 +520,9 @@ class CmsLayoutCollection
 	{
 		if( !$this->get_id() ) return;
 
-		if( !$force && $this->has_templates() ) throw new CmsLogicException('Cannot Delete a Design that has Templates Attached');
+		if( !$force && $this->has_templates() ) {
+			throw new CmsLogicException('Cannot delete a design that has templates attached');
+		}
 
 		Events::SendEvent( 'Core', 'DeleteDesignPre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
