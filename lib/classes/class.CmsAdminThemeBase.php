@@ -996,11 +996,15 @@ abstract class CmsAdminThemeBase
         foreach ($iter as $value) {
 //            if (empty($value['show_in_menu'])) {
             if (empty($value['children']) && empty($value['final'])) {
-                 ArrayTree::drop_node($tree, $value['path']);
+                if (isset($value['path'])) {
+                    ArrayTree::drop_node($tree, $value['path']);
+                }
             } elseif ($maxdepth > 0 || $alldepth > 0) {
                 $depth = $iter->getDepth();
                 if ($depth > $maxdepth) { //TODO $alldepth processing
-                    ArrayTree::drop_node($tree, $value['path']);
+	                if (isset($value['path'])) {
+                        ArrayTree::drop_node($tree, $value['path']);
+                    }
                 }
             }
         }
