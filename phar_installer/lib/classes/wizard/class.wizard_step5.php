@@ -6,51 +6,58 @@ use __installer\utils;
 use Exception;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
+use function __installer\CMSMS\translator;
+use function __installer\get_app;
 
 class wizard_step5 extends wizard_step
 {
-    private $_adminacct;
+    private $_siteinfo;
 
-    public function __construct()
+    public function run()
     {
-        parent::__construct();
-        $this->_adminacct = ['username'=>'admin','emailaddr'=>'','password'=>'','repeatpw'=>'']; //,'emailaccountinfo'=>1);
-        $tmp = $this->get_wizard()->get_data('adminaccount');
-        if( is_array($tmp) && count($tmp) ) $this->_adminacct = $tmp;
+        $app = get_app();
+
+        $tz = date_default_timezone_get();
+        if( !$tz ) @date_default_timezone_set('UTC');
+
+        $this->_siteinfo = [ 'sitename'=>'','languages'=>[] ];
+        $tmp = $this->get_wizard()->get_data('config');
+        if( $tmp ) $this->_siteinfo = array_merge($this->_siteinfo,$tmp);
+        $lang = translator()->get_selected_language();
+        if( $lang != 'en_US' ) $this->_siteinfo['languages'] = [ $lang ];
+
+        $tmp = $this->get_wizard()->get_data('siteinfo');
+        if( is_array($tmp) && count($tmp) ) $this->_siteinfo = $tmp;
+        return parent::run();
     }
 
-    private function validate($acct)
+    private function validate($siteinfo)
     {
-        if( !isset($acct['username']) || $acct['username'] == '' ) throw new Exception(lang('error_adminacct_username'));
-        if( !isset($acct['password']) || $acct['password'] == '' || strlen($acct['password']) < 6 ) {
-            throw new Exception(lang('error_adminacct_password'));
+        $action = $this->get_wizard()->get_data('action');
+        if( $action !== 'freshen' ) {
+            if( !isset($siteinfo['sitename']) || !$siteinfo['sitename'] ) throw new Exception(lang('error_nositename'));
         }
-        if( !isset($acct['repeatpw']) || $acct['repeatpw'] != $acct['password'] ) {
-            throw new Exception(lang('error_adminacct_repeatpw'));
-        }
-        if( isset($acct['emailaddr']) && $acct['emailaddr'] != '' && !utils::is_email($acct['emailaddr']) ) {
-            throw new Exception(lang('error_adminacct_emailaddr'));
-        }
-/*        if( (!isset($acct['emailaddr']) || $acct['emailaddr'] == '') && $acct['emailaccountinfo'] ) {
-            throw new Exception(lang('error_adminacct_emailaddrrequired'));
-        }
-*/
     }
 
     protected function process()
     {
-        $this->_adminacct['username'] = trim(utils::clean_string($_POST['username']));
-        $this->_adminacct['emailaddr'] = trim(utils::clean_string($_POST['emailaddr']));
-        $this->_adminacct['password'] = trim(utils::clean_string($_POST['password']));
-        $this->_adminacct['repeatpw'] = trim(utils::clean_string($_POST['repeatpw']));
-/*
-        if( isset($_POST['emailaccountinfo']) ) $this->_adminacct['emailaccountinfo'] = (int)$_POST['emailaccountinfo'];
-		else $this->_adminacct['emailaccountinfo'] = 1;
-*/
-        $this->get_wizard()->set_data('adminaccount',$this->_adminacct);
+        $app = get_app();
+        $config = $app->get_config();
+
+        if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = trim(utils::clean_string($_POST['sitename']));
+        if( isset($_POST['languages']) ) {
+            $tmp = [];
+            foreach ( $_POST['languages'] as $lang ) {
+                $tmp[] = utils::clean_string($lang);
+            }
+            $this->_siteinfo['languages'] = $tmp;
+        }
+
+        $this->get_wizard()->set_data('siteinfo',$this->_siteinfo);
         try {
-            $this->validate($this->_adminacct);
+            $this->validate($this->_siteinfo);
             $url = $this->get_wizard()->next_url();
+            if( $config['nofiles'] ) $url = $this->get_wizard()->step_url(8);
             utils::redirect($url);
         }
         catch( Exception $e ) {
@@ -62,13 +69,18 @@ class wizard_step5 extends wizard_step
     protected function display()
     {
         parent::display();
-        $smarty = smarty();
+        $action = $this->get_wizard()->get_data('action');
 
+        $smarty = smarty();
+        $smarty->assign('action',$action);
         $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
-        $smarty->assign('account',$this->_adminacct);
+        $smarty->assign('siteinfo',$this->_siteinfo);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
+        $languages = get_app()->get_language_list();
+        unset($languages['en_US']);
+        $smarty->assign('language_list',$languages);
+
         $smarty->display('wizard_step5.tpl');
         $this->finish();
     }
-
 } // class

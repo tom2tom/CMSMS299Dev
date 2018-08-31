@@ -1,5 +1,4 @@
 {* wizard step 5 *}
-
 {extends file='wizard_step.tpl'}
 
 {block name='logic'}
@@ -11,73 +10,32 @@
 
 <div class="installer-form">
 {wizard_form_start}
-    <p>{'info_adminaccount'|tr}</p>
+    {if $action != 'freshen'}
+        <h3>{'prompt_sitename'|tr}</h3>
+        <p>{'info_sitename'|tr}</p>
 
-    <fieldset>
         <div class="row form-row">
-            <div class="four-col">
-                <label>{'username'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <input class="form-field required full-width" type="text" name="username" required="required" />
+            <div class="twelve-col">
+                <input class="form-field required full-width" type="text" name="sitename" value="{$siteinfo.sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
                 <div class="corner red">
                     <i class="icon-asterisk"></i>
                 </div>
             </div>
         </div>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'password'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <input class="form-field required full-width" type="password" name="password" required="required" autocomplete="off" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-            </div>
-        </div>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'repeatpw'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <input class="form-field required full-width" type="password" name="repeatpw" required="required" autocomplete="off" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-            </div>
-        </div>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'emailaddr'|tr}</label>
-            </div>
-            <div class="eight-col">
-            {if $verbose}
-                <input class="form-field full-width" type="email" name="emailaddr" />
-            {else}
-                <input class="form-field required full-width" type="email" name="emailaddr" required="required" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-	        {/if}
-            </div>
-        </div>
-{*        {if $verbose}
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'emailaccountinfo'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <select id="emailacctinfo" name="emailaccountinfo" class="form-field">
-                    {html_options options=$yesno selected=$account.emailaccountinfo}
-                </select>
-            </div>
-        </div>
-        {/if}*}
+    {/if}
 
-	<div id="bottom_nav">
-        <input class="action-button positive" type="submit" name="next" value="{'next'|tr} &rarr;" />
-	</div>
+    <h3>{'prompt_addlanguages'|tr}</h3>
+    <p>{'info_addlanguages'|tr}</p>
+
+    <div class="row form-row">
+        <select class="form-field" name="languages[]" multiple="multiple" size="8">
+            {html_options options=$language_list selected=$siteinfo.languages}
+        </select>
+    </div>
+
+    <div id="bottom_nav">
+    <input class="action-button positive" type="submit" name="next" value="{'next'|tr} &rarr;" />
+    </div>
 
 {wizard_form_end}
 </div>
