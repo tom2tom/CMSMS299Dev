@@ -23,21 +23,21 @@ class wizard_step4 extends wizard_step
 
         $tz = date_default_timezone_get();
         if( !$tz ) {
-			$tz = 'UTC';
-			@date_default_timezone_set('UTC');
-		}
+            $tz = 'UTC';
+            @date_default_timezone_set('UTC');
+        }
         $this->_config = [
-			'db_type'=>'mysqli',
-			'db_hostname'=>'localhost',
-			'db_name'=>'',
-			'db_username'=>'',
+            'db_type'=>'mysqli',
+            'db_hostname'=>'localhost',
+            'db_name'=>'',
+            'db_username'=>'',
             'db_password'=>'',
-			'db_prefix'=>'cms_',
-			'db_port'=>'',
-			'timezone'=>$tz,
+            'db_prefix'=>'cms_',
+            'db_port'=>'',
+            'timezone'=>$tz,
             'query_var'=>'',
             'samplecontent'=>TRUE,
-		];
+        ];
 
         // get saved data
         $tmp = $this->get_wizard()->get_data('config');
@@ -72,7 +72,7 @@ class wizard_step4 extends wizard_step
         if( empty($config['db_prefix']) ) throw new Exception(lang('error_nodbprefix'));
         if( empty($config['timezone']) ) throw new Exception(lang('error_notimezone'));
 
-		//TODO filter_var($config['query_var'], FILTER_SANITIZE ...);
+        //TODO filter_var($config['query_var'], FILTER_SANITIZE ...);
         $re = '/^[a-zA-Z0-9_\.]*$/';
         if( !empty($config['query_var']) && !preg_match($re,$config['query_var']) ) {
             throw new Exception(lang('error_invalidqueryvar'));
@@ -81,10 +81,10 @@ class wizard_step4 extends wizard_step
         $all_timezones = timezone_identifiers_list();
         if( !in_array($config['timezone'],$all_timezones) ) throw new Exception(lang('error_invalidtimezone'));
 
-		$config['db_password'] = trim($config['db_password']);
+        $config['db_password'] = trim($config['db_password']);
         if( $config['db_password'] ) {
             $tmp = filter_var($config['db_password'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
             if( $tmp != $config['db_password'] ) {
                 throw new Exception(lang('error_invaliddbpassword'));
             }
@@ -92,9 +92,9 @@ class wizard_step4 extends wizard_step
 
         // try a test connection
         require_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'CMSMS'.DIRECTORY_SEPARATOR.'dbaccessor.functions.php';
-		try {
-	        $db = GetDb($config);
-		}
+        try {
+            $db = GetDb($config);
+        }
         catch( Exception $e ) {
             throw new Exception($e->getMessage().' : '.lang('error_createtable'));
         }
@@ -136,22 +136,22 @@ class wizard_step4 extends wizard_step
 
     protected function process()
     {
-		$this->_config['db_type'] = 'mysqli';
+        $this->_config['db_type'] = 'mysqli';
 //        if( isset($_POST['db_type']) ) $this->_config['db_type'] = trim(utils::clean_string($_POST['db_type']));
         $this->_config['db_hostname'] = trim(filter_var($_POST['db_hostname'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
         $this->_config['db_name'] = trim(filter_var($_POST['db_name'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
         $this->_config['db_username'] = trim(filter_var($_POST['db_username'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
         $this->_config['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
         if( isset($_POST['db_port']) ) $this->_config['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
         if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = trim(filter_var($_POST['db_prefix'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
         $this->_config['timezone'] = trim(filter_var($_POST['timezone'], FILTER_SANITIZE_STRING));
         if( isset($_POST['query_var']) ) $this->_config['query_var'] = trim(filter_var($_POST['query_var'], FILTER_SANITIZE_STRING,
-			FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
         if( isset($_POST['samplecontent']) ) $this->_config['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
         $this->get_wizard()->set_data('config',$this->_config);
 

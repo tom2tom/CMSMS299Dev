@@ -121,52 +121,52 @@ class wizard_step8 extends wizard_step
             include_once $dir.'/base.php';
 
             // init some of the system-wide default settings
-			verbose_msg(ilang('install_initsiteprefs'));
-			$arr = CmsAdminThemeBase::GetAvailableThemes();
-			foreach ([
-			 'adminlog_lifetime' => 3600*24*31, // admin log entries only live for 60 days.
-			 'allow_browser_cache' => 1, // allow browser to cache cachable pages
-			 'auto_clear_cache_age' => 60, // cache files for only 60 days by default
-			 'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
-			 'cdn_url' => 'https://cdnjs.cloudflare.com', //or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
-			 'content_autocreate_urls' => 0,
-			 'content_imagefield_path' => '',
-			 'contentimage_path' => '',
-			 'content_thumbnailfield_path' => '',
-			 'defaultdateformat' => '%e %B %Y',
-			 'enablesitedownmessage' => 0,
-			 'frontendlang' => 'en_US',
-			 'global_umask' => '022',
-			 'loginmodule' => '',  // login  processing by current theme
-			 'logintheme' => reset($arr),
-			 'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved."'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
-			 'sitemask' => '', //what is this?
-			 'sitename' => $siteinfo['sitename'],
-			 'use_smarty_compilecheck' => 0,
-			] as $name=>$val) {
-	            cms_siteprefs::set($name, $val);
-			}
+            verbose_msg(ilang('install_initsiteprefs'));
+            $arr = CmsAdminThemeBase::GetAvailableThemes();
+            foreach ([
+             'adminlog_lifetime' => 3600*24*31, // admin log entries only live for 60 days.
+             'allow_browser_cache' => 1, // allow browser to cache cachable pages
+             'auto_clear_cache_age' => 60, // cache files for only 60 days by default
+             'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
+             'cdn_url' => 'https://cdnjs.cloudflare.com', //or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
+             'content_autocreate_urls' => 0,
+             'content_imagefield_path' => '',
+             'contentimage_path' => '',
+             'content_thumbnailfield_path' => '',
+             'defaultdateformat' => '%e %B %Y',
+             'enablesitedownmessage' => 0,
+             'frontendlang' => 'en_US',
+             'global_umask' => '022',
+             'loginmodule' => '',  // login  processing by current theme
+             'logintheme' => reset($arr),
+             'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved."'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+             'sitemask' => '', //what is this?
+             'sitename' => $siteinfo['sitename'],
+             'use_smarty_compilecheck' => 0,
+            ] as $name=>$val) {
+                cms_siteprefs::set($name, $val);
+            }
 
             $this->write_config();
 
             // site content
             if( $destconfig['samplecontent'] ) {
-				$arr = installer_base::CONTENTXML;
+                $arr = installer_base::CONTENTXML;
                 $fn = end($arr);
             } else {
                 $fn = 'initial.xml';
             }
             $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
             if( is_file($xmlfile) ) {
-				$arr = installer_base::CONTENTFILESDIR;
-				$filesfolder = $dir. DIRECTORY_SEPARATOR. end($arr);
+                $arr = installer_base::CONTENTFILESDIR;
+                $filesfolder = $dir. DIRECTORY_SEPARATOR. end($arr);
 
                 $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
                 require_once $fp;
 
                 if( $destconfig['samplecontent'] ) {
                     $this->message(lang('install_samplecontent'));
-				}
+                }
                 if( ($res = import_content($xmlfile, $filesfolder)) ) {
                     $this->error($res);
                 }
