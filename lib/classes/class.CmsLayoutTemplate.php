@@ -153,7 +153,7 @@ class CmsLayoutTemplate
 	* @since 2.3
 	* @param string $str
 	*/
-	public function set_originator()
+	public function set_originator($str)
 	{
 		$str = trim($str);
 		if( $str === '') $str = null;
