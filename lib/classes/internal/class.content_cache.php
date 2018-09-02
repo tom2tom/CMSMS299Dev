@@ -84,7 +84,7 @@ final class content_cache
 		if( is_array($content_ids) && count($content_ids) ) {
 			$this->_preload_cache = $content_ids;
 			$contentops = \ContentOperations::get_instance();
-			$tmp = $contentops->LoadChildren(null,$deep,false,$content_ids);
+			$tmp = $contentops->LoadChildren(null,$deep,FALSE,$content_ids);
 		}
 	}
 
@@ -113,13 +113,12 @@ final class content_cache
 
 		$list = $this->get_loaded_page_ids();
 		if( is_array($list) && count($list) ) {
-			$dirty = false;
 			if( !is_array($this->_preload_cache) || count($this->_preload_cache) == 0 ) {
-				$dirty = true;
+				$dirty = TRUE;
 			}
 			else {
 				$t2 = array_diff($list,$this->_preload_cache);
-				if( is_array($t2) && count($t2) ) $dirty = true;
+				$dirty = ( is_array($t2) && count($t2) );
 			}
 
 			if( $dirty ) {
@@ -158,18 +157,18 @@ final class content_cache
   /**
    * Given a unique identifier, return a content object from the cache.
    *
-   * If the identifier is an integer, an id search is performed.
-   * If the identifier is a string, an alias search is performed.
+   * If the identifier is an integer or numeric string, an id search is performed.
+   * If the identifier is another string, an alias search is performed.
    *
    * @param mixed Unique identifier
-   * @return ContentBase The contentBase object, or null.
+   * @return mixed The ContentBase object, or null.
    */
   public static function &get_content($identifier)
   {
-	  $res = null;
 	  $hash = self::content_exists($identifier);
 	  if( $hash === FALSE ) {
 		  // content doesn't exist...
+          $res = null;
           return $res;
 	  }
 
