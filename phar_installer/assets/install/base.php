@@ -69,15 +69,17 @@ foreach( [
 // initial groups
 //
 verbose_msg(ilang('install_initsitegroups'));
-$group1 = new Group();
-$group1->name = 'Admin';
-$group1->description = 'Members of this group can manage the entire site.';
-$group1->active = 1;
-$group1->Save();
+$group = new Group();
+$group->name = 'Admin';
+$group->description = ilang('grp_admin_desc');
+$group->active = 1;
+$group->Save();
+
+$gid1 = $group->id;
 
 $group = new Group();
 $group->name = 'CodeManager';
-$group->description = 'Members of this group can add/edit/delete files which run the website';
+$group->description = ilang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
@@ -131,8 +133,9 @@ $admin_user->active = 1;
 $admin_user->adminaccess = 1;
 $admin_user->password = password_hash( $adminaccount['password'], PASSWORD_DEFAULT );
 $admin_user->Save();
-UserOperations::get_instance()->AddMemberGroup($admin_user->id,$group1->id);
-cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the one, and only user preference we need.
+
+UserOperations::get_instance()->AddMemberGroup($admin_user->id,$gid1);
+cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the only user-preference we need now
 
 //
 // standard events
