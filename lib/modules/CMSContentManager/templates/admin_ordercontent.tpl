@@ -1,14 +1,14 @@
-{function display_tree depth=0}
+{function display_tree}
   {foreach $list as $node}
-    {$obj=$node->getContent(false,true,false)}
+    {$obj=$node->getContent()}{$desc=$node->has_children()}
     <li id="page_{$obj->Id()}" {if !$obj->WantsChildren()}class="no-nest"{/if}>
       <div class="label{if !$obj->Active()} red{/if}">
         <span>&nbsp;</span>{$obj->Hierarchy()}:&nbsp;{$obj->Name()|cms_escape}{if !$obj->Active()}&nbsp;({$mod->Lang('prompt_inactive')}){/if} <em>({$obj->MenuText()|cms_escape})</em>
-        {if $node->has_children()}
+        {if $desc}
           <span class="haschildren expanded">-</span>
         {/if}
       </div>
-      {if $node->has_children()}
+      {if $desc}
       <ul>
         {$list=$node->getChildren(false,true)}
         {display_tree list=$list depth=$depth+1}
@@ -30,7 +30,7 @@
 <div class="pageoverflow">
   {$list = $tree->getChildren(false,true)}
   <ul id="masterlist" class="sortableList sortable">
-    {display_tree list=$list}
+    {display_tree list=$list depth=0}
   </ul>
 </div>
 {if $list|count > 10}
