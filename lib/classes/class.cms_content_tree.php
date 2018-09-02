@@ -224,7 +224,7 @@ class cms_content_tree extends cms_tree
 	 * This method will return the content object associated with this node, loading it
 	 * if necessary, and placing it in the cache for subsequent requests.
 	 *
-	 * @param bool $deep load all child proeprties for the content object if loading is required.
+	 * @param bool $deep load all child properties for the content object if loading is required.
 	 * @param bool $loadsiblings load all the siblings for the selected content object at the same time (a preformance optimization)
 	 * @param bool $loadall If loading siblings, include inactive/disabled pages.
 	 */
@@ -422,5 +422,4 @@ class cms_content_tree extends cms_tree
 
 		return $out;
 	}
-
 } // class
