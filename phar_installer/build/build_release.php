@@ -31,7 +31,7 @@ $src_excludes = [
 '/\.md$/i',
 '/\.svn/',
 '/svn-.*/',
-'/^config\.php$/',
+'/^config\.php$/', //TODO does not exclude main config file! (must keep class.cms_config.php)
 '/\/index\.html$/',
 '/\.bak$/',
 '/UNUSED/',
@@ -339,6 +339,9 @@ function copy_local_files()
 			verbose(2, "COPIED $relpath to $tp");
 		}
 	}
+	//workaround failed exclusion
+	$tp = joinpath($tmpdir,'config.php');
+	@unlink($tp);
 }
 
 function get_version_php(string $startdir) : string
