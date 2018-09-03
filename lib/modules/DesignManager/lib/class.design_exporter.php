@@ -271,6 +271,7 @@ EOT;
             // and add it to the list.
             // notice we don't recurse.
             $new_tpl_ob = new CmsLayoutTemplate;
+	        $new_tpl_ob->set_originator($mod->GetName());
             $new_tpl_ob->set_content($content);
             $name = substr($name,0,-4);
             $type = 'TPL';
