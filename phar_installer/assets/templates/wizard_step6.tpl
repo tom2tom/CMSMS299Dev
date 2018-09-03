@@ -76,7 +76,7 @@
     {/if}*}
 
   <div id="bottom_nav">
-    <button class="action-button positive" type="submit" name="next">{'next'|tr} <i class='icon-right'></i></button>
+    <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
 
 {wizard_form_end}

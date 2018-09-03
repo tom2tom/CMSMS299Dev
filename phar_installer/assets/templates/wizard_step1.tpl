@@ -58,7 +58,7 @@
   </div>
 
   <div id="bottom_nav">
-    <button type="submit" class="action-button positive" name="next">{'next'|tr} <i class='icon-right'></i></button>
+    <button type="submit" class="action-button positive" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
 {wizard_form_end}
 </div>

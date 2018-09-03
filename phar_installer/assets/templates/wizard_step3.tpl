@@ -75,8 +75,8 @@
 {/if}
 
 <div id="bottom_nav">
-{if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}">{'retry'|tr} <i class="icon-refresh"></i></a>{/if}
-{if $can_continue} <a href="{$next_url}" class="action-button positive" title="{'next'|tr}">{'next'|tr} <i class="icon-right"></i></a>{/if}
+{if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}"><i class="icon-refresh"></i> {'retry'|tr}</a>{/if}
+{if $can_continue} <a href="{$next_url}" class="action-button positive" title="{'next'|tr}"><i class="icon-cog"></i> {'next'|tr}</a>{/if}
 </div>
 
 {/block}

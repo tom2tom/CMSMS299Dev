@@ -56,20 +56,20 @@
 
    <ul class="existing-info no-list no-padding">
     <li class="row">
-      <div class="six-col">{'step2_pwd'|tr}:</div>
-      <div class="six-col"><span class="label blue"><i class="icon-folder"></i> {$pwd}</span></div>
+      <div class="four-col">{'step2_pwd'|tr}:</div>
+      <div class="six-col"><span class="label">{$pwd}</span></div>
     </li>
     <li class="row">
-      <div class="six-col">{'step2_version'|tr}:</div>
-      <div class="six-col"><span class="label blue"><i class="icon-info"></i> {$cmsms_info.version} <em>({$cmsms_info.version_name})</em></span></div>
+      <div class="four-col">{'step2_version'|tr}:</div>
+      <div class="six-col"><span class="label">{$cmsms_info.version}<em>({$cmsms_info.version_name})</em></span></div>
     </li>
     <li class="row">
-      <div class="six-col">{'step2_schemaver'|tr}:</div>
-      <div class="six-col"><span class="label blue"><i class="icon-fork"></i> {$cmsms_info.schema_version}</span></div>
+      <div class="four-col">{'step2_schemaver'|tr}:</div>
+      <div class="six-col"><span class="label">{$cmsms_info.schema_version}</span></div>
     </li>
     <li class="row">
-      <div class="six-col">{'step2_installdate'|tr}:</div>
-      <div class="six-col"><span class="label blue"><i class="icon-when"></i> {$cmsms_info.mtime|date_format:'%x'}</span></div>
+      <div class="four-col">{'step2_installdate'|tr}:</div>
+      <div class="six-col"><span class="label">{$cmsms_info.mtime|date_format:'%x'}</span></div>
     </li>
    </ul>
 
@@ -78,7 +78,6 @@
   {else}
    {$label='upgrade'|tr} {if isset($upgrade_info)}
    <div class="message blue icon">
-    <i class="icon-info message-icon"></i>
     <div class="content"><strong>{'step2_hdr_upgradeinfo'|tr}</strong><br/>{'step2_info_upgradeinfo'|tr}</div>
    </div>
   <ul id="upgrade_info" class="no-list">
@@ -103,14 +102,14 @@
   {/if}{*cms_info*}
 
   <div id="bottom_nav">
-    {if isset($retry_url)}<a class="action-button orange" href="{$retry_url}" title="{'retry'|tr}">{'retry'|tr} <i class="icon-refresh"></i></a>{/if}
+    {if isset($retry_url)}<a class="action-button orange" href="{$retry_url}" title="{'retry'|tr}"><i class="icon-refresh"></i> {'retry'|tr}</a>{/if}
     {if !isset($cmsms_info)}
-    <button class="action-button positive" id="install" type="submit" name="install">{'install'|tr} <i class='icon-right'></i></button>
+    <button class="action-button positive" id="install" type="submit" name="install"><i class="icon-cog"></i> {'install'|tr}</button>
     {else}
      {if !isset($cmsms_info.error_status)}
-      <button class="action-button positive" id="upgrade" type="submit" name="upgrade">{'upgrade'|tr} <i class='icon-right'></i></button>
+      <button class="action-button positive" id="upgrade" type="submit" name="upgrade"><i class="icon-cog"></i> {'upgrade'|tr}</button>
      {elseif $cmsms_info.error_status == 'same_ver'}
-      <button class="action-button positive" id="freshen" type="submit" name="freshen">{'freshen'|tr} <i class='icon-right'></i></button>
+      <button class="action-button positive" id="freshen" type="submit" name="freshen"><i class="icon-cog"></i> {'freshen'|tr}</button>
      {/if}
     {/if}
   </div>
