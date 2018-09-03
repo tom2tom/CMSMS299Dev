@@ -17,30 +17,6 @@
 {/if}
 
 {if $tests_failed || $verbose}
-  <table class="table zebra-table bordered-table installer-test-information">
-    <thead class="tbhead">
-        <tr>
-            <th>{'th_status'|tr}</th>
-            <th>{'th_testname'|tr}</th>
-        </tr>
-    </thead>
-    <tbody>
-    {foreach $tests as $test}
-        <tr class="{cycle values='odd,even'}{if $test->status == 'test_fail'} error{/if}{if $test->status == 'test_warn'} warning{/if}">
-            <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="icon-check green"></i>{/if}</td>
-            <td>
-                {$test->name|tr}
-                {$str = $test->msg()}
-                {if $str != '' && ($verbose || $test->status != 'test_pass')}
-                  <br />
-                  <span class="tests-infotext">{$str}</span>
-                {/if}
-            </td>
-        </tr>
-    {/foreach}
-    </tbody>
-  </table>
-  <br /><br />
   <table class="table bordered-table installer-test-legend small-font">
     <caption>
         {'legend'|tr}
@@ -66,7 +42,30 @@
         </tr>
     </tbody>
   </table>
-
+  <br />
+  <table class="table zebra-table bordered-table installer-test-information">
+    <thead class="tbhead">
+        <tr>
+            <th>{'th_status'|tr}</th>
+            <th>{'th_testname'|tr}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {foreach $tests as $test}
+        <tr class="{cycle values='odd,even'}{if $test->status == 'test_fail'} error{/if}{if $test->status == 'test_warn'} warning{/if}">
+            <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="icon-check green"></i>{/if}</td>
+            <td>
+                {$test->name|tr}
+                {$str = $test->msg()}
+                {if $str != '' && ($verbose || $test->status != 'test_pass')}
+                  <br />
+                  <span class="tests-infotext">{$str}</span>
+                {/if}
+            </td>
+        </tr>
+    {/foreach}
+    </tbody>
+  </table>
 {else}
   <div class="message green">{'step3_passed'|tr}</div>
 {/if}
