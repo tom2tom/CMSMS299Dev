@@ -21,6 +21,8 @@ So API's, classes, methods, globals etc must be valid during installation
 as well as normal operation.
 */
 
+use CMSMS\Database\Connection;
+
 const CONTENT_DTD_VERSION = '0.6';
 const CONTENT_DTD_MINVERSION = '0.6';
 
@@ -32,7 +34,7 @@ const CONTENT_DTD_MINVERSION = '0.6';
  * @param string $thistype
  * @param int $indent
  */
-function fill_section(XMLWriter $xwm, CMSMS\Database\Connection $db, array $structarray, string $thistype, int $indent)
+function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string $thistype, int $indent)
 {
 	$pref = "\n".str_repeat("\t", $indent);
 	$props = $structarray[$thistype];
@@ -96,7 +98,7 @@ function fill_section(XMLWriter $xwm, CMSMS\Database\Connection $db, array $stru
  * @param string $filesfolder path of installer-tree folder which will contain any 'support' files
  * @param Connection $db database connection
  */
-function export_content(string $xmlfile, string $filesfolder, CMSMS\Database\Connection $db)
+function export_content(string $xmlfile, string $filesfolder, Connection $db)
 {
 	//data arrangement
 	//mostly table- and field-names, must be manually reconciled with schema
@@ -170,6 +172,7 @@ function export_content(string $xmlfile, string $filesfolder, CMSMS\Database\Con
         'id' => [],
         'name' => [],
         'description' => ['notempty' => 1],
+        'originator' => [],
         'type_id' => [],
         'category_id' => ['notempty' => 1],
         'type_dflt' => ['notempty' => 1],
@@ -198,7 +201,7 @@ function export_content(string $xmlfile, string $filesfolder, CMSMS\Database\Con
       ]
      ],
      'pages' => [
-      'table' => 'content',
+      'sql' => 'SELECT * FROM %scontent ORDER BY parent_id,content_id',
       'subtypes' => [
        'page' => [
         'content_id' => [],
@@ -271,7 +274,7 @@ function export_content(string $xmlfile, string $filesfolder, CMSMS\Database\Con
  <!ELEMENT categories (category+)>
  <!ELEMENT category (id,name,description?,item_order?)>
  <!ELEMENT templates (template)>
- <!ELEMENT template (id,name,description?,type_id,category_id?,type_dflt?,content)>
+ <!ELEMENT template (id,name,description?,originator?,type_id,category_id?,type_dflt?,content)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT category_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
@@ -282,7 +285,7 @@ function export_content(string $xmlfile, string $filesfolder, CMSMS\Database\Con
  <!ELEMENT categorytemplates (cattpl+)>
  <!ELEMENT cattpl (category_id,tpl_id,tpl_order?)>
  <!ELEMENT pages (page+)>
- <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
+ <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
  <!ELEMENT content_alias (#PCDATA)>
@@ -471,7 +474,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutCollection();
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						$ob->set_description((string)$node->description);
@@ -488,13 +491,13 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutStylesheet;
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						$ob->set_description((string)$node->description);
 						try {
 							$ob->set_content(htmlspecialchars_decode((string)$node->content));
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						$ob->set_media_types((string)$node->media_type);
@@ -542,16 +545,16 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutTemplateType();
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						$ob->set_originator($val);
 						$val = (string)$node->description;
 						if ($val !== '') $ob->set_description($val);
 						$ob->set_owner(1);
-						$val = (string)$node->dflt_contents;
-						if ($val !== '') {
-							$ob->set_dflt_contents(htmlspecialchars_decode($val));
+						$val3 = (string)$node->dflt_contents;
+						if ($val3 !== '') {
+							$ob->set_dflt_contents(htmlspecialchars_decode($val3));
 							$ob->set_dflt_flag(true);
 						} else {
 							$ob->set_dflt_flag(false);
@@ -560,20 +563,31 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob->set_content_block_flag((string)$node->requires_contentblocks != false);
 						$val = (string)$node->lang_cb;
 						if ($val) {
-							if (preg_match($pattern, $val)) $ob->set_lang_callback(unserialize($val, []));  else $ob->set_lang_callback($val);
+							if (preg_match($pattern, $val)) {
+								$val = unserialize($val, []);
+							}
+							$ob->set_lang_callback($val);
 						}
 						$val = (string)$node->help_content_cb;
 						if ($val) {
-							if (preg_match($pattern, $val)) $ob->set_help_callback(unserialize($val, [])); else $ob->set_help_callback($val);
+							if (preg_match($pattern, $val)) {
+								$val = unserialize($val, []);
+							}
+							$ob->set_help_callback($val);
 						}
-						$val = (string)$node->dflt_content_cb;
-						if ($val) {
-							if (preg_match($pattern, $val)) $ob->set_content_callback(unserialize($val, [])); else $ob->set_content_callback($val);
-						}
-						try {
-							$ob->reset_content_to_factory();
-						} catch (\Exception $e) {
-							$dbg = 1;
+						if ($val3 !== '') {
+							$val = (string)$node->dflt_content_cb;
+							if ($val) {
+								if (preg_match($pattern, $val)) {
+									$val = unserialize($val, []);
+								}
+								$ob->set_content_callback($val);
+								try {
+									$ob->reset_content_to_factory();
+								} catch (Exception $e) {
+									$dbg = 1;
+								}
+							}
 						}
 						$ob->save();
 						$types[(string)$node->id] = $ob->get_id();
@@ -587,7 +601,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						$ob = new CmsLayoutTemplateCategory();
 						try {
 							$ob->set_name((string)$node->name);
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						$ob->set_description((string)$node->description);
@@ -605,8 +619,13 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						if (!isset($types[$val])) {
 							continue;
 						}
+						$val2 = (string)$node->originator;
+						if ($val2 && $val2 !== '__CORE__') { //TODO get real value
+							continue; //anonymous && core only: modules' template-data installed by them
+						}
 						$ob = new CmsLayoutTemplate();
 						try {
+							if ($val2) $ob->set_originator($val2);
 							$ob->set_name((string)$node->name);
 							$ob->set_type($types[$val]);
 							$ob->set_description((string)$node->description);
@@ -617,7 +636,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							$ob->set_content(htmlspecialchars_decode((string)$node->content));
 							$ob->save();
 							$templates[(string)$node->id] = $ob->get_id();
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 					}
@@ -636,7 +655,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					foreach ($bank as $tid=>$arr) {
 						try {
 							$ob = CmsLayoutTemplate::load($tid);
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						array_multisort($arr[1], $arr[0]);
@@ -658,7 +677,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					foreach ($bank as $tid=>$arr) {
 						try {
 							$ob = CmsLayoutTemplate::load($tid);
-						} catch (\Exception $e) {
+						} catch (Exception $e) {
 							continue;
 						}
 						array_multisort($arr[1], $arr[0]);
