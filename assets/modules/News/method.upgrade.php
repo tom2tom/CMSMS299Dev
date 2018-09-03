@@ -31,6 +31,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         return $str;
     };
 
+    $me = $this->GetName();
     // create template types.
     $upgrade_template = function($type,$prefix,$tplname,$currentdflt,$prefix2) use (&$mod,&$_fix_name,$uid) {
         if( !startswith($tplname,$prefix) ) return;
@@ -41,6 +42,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
         try {
             $tpl = new CmsLayoutTemplate();
+	        $tpl->set_originator($mod->GetName());
             $tpl->set_name($tpl::generate_unique_name($prototype,$prefix2));
             $tpl->set_owner($uid);
             $tpl->set_content($contents);
@@ -83,7 +85,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
       try {
           $summary_template_type = new CmsLayoutTemplateType();
-          $summary_template_type->set_originator($this->GetName());
+          $summary_template_type->set_originator($me);
           $summary_template_type->set_name('summary');
           $summary_template_type->set_dflt_flag(TRUE);
           $summary_template_type->set_lang_callback('News::page_type_lang_callback');
@@ -100,7 +102,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
       try {
           $detail_template_type = new CmsLayoutTemplateType();
-          $detail_template_type->set_originator($this->GetName());
+          $detail_template_type->set_originator($me);
           $detail_template_type->set_name('detail');
           $detail_template_type->set_dflt_flag(TRUE);
           $detail_template_type->set_lang_callback('News::page_type_lang_callback');
@@ -117,7 +119,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
       try {
           $form_template_type = new CmsLayoutTemplateType();
-          $form_template_type->set_originator($this->GetName());
+          $form_template_type->set_originator($me);
           $form_template_type->set_name('form');
           $form_template_type->set_dflt_flag(TRUE);
           $form_template_type->set_lang_callback('News::page_type_lang_callback');
@@ -134,7 +136,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
       try {
           $browsecat_template_type = new CmsLayoutTemplateType();
-          $browsecat_template_type->set_originator($this->GetName());
+          $browsecat_template_type->set_originator($me);
           $browsecat_template_type->set_name('browsecat');
           $browsecat_template_type->set_dflt_flag(TRUE);
           $browsecat_template_type->set_lang_callback('News::page_type_lang_callback');
@@ -150,7 +152,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
       }
   }
   catch( CmsException $e ) {
-    audit('',$this->GetName(),'Upgrade Error: '.$e->GetMessage());
+    audit('',$me,'Upgrade Error: '.$e->GetMessage());
     return;
   }
 
@@ -161,7 +163,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
 if( version_compare($oldversion,'2.50.8') < 0 ) {
     try {
-        $types = CmsLayoutTemplateType::load_all_by_originator($this->GetName());
+        $types = CmsLayoutTemplateType::load_all_by_originator($me);
         if( is_array($types) && count($types) ) {
             foreach( $types as $type_obj ) {
                 $type_obj->set_help_callback('News::template_help_callback');
@@ -171,7 +173,7 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
     }
     catch( Exception $e ) {
         // log it
-        audit('',$this->GetName(),'Uninstall Error: '.$e->GetMessage());
+        audit('',$me,'Uninstall Error: '.$e->GetMessage());
         return FALSE;
     }
 }
@@ -179,7 +181,7 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
 if( version_compare($oldversion,'2.52') < 0 ) {
     $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
     if( version_compare(CMS_VERSION,'2.2.900') >= 0 ) {
-        $modname = $this->GetName();
+        $modname = $me;
         $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname);
         if( is_dir($fp) ) recursive_delete($fp);
         $fp = cms_join_path(CMS_ROOT_PATH,'modules',$modname);
