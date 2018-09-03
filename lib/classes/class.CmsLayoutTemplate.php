@@ -737,13 +737,34 @@ class CmsLayoutTemplate
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
 			$tmp = $db->GetOne($query,[$this->get_name(),$this->get_id()]);
 		} else {
-			// double check the name.
+			// double-check the name.
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$tmp = $db->GetOne($query,[$this->get_name()]);
 		}
 		if( $tmp ) {
 			throw new CmsInvalidDataException('Template with the same name already exists.');
 		}
+	}
+
+   /**
+	* @ignore
+	*/
+	protected function _get_anyowner()
+	{
+		$tmp = $this->get_originator();
+		if( $tmp ) {
+			return $tmp;
+		}
+		$tid = $this->get_type_id();
+		if( $tid > 0 ) {
+			$db = CmsApp::get_instance()->GetDb();
+			$query = 'SELECT originator FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE id = ?';
+			$dbr = $db->GetOne($query,[$tid]);
+			if( $dbr ) {
+				return $dbr;
+			}
+		}
+		return null;
 	}
 
    /**
@@ -757,12 +778,21 @@ class CmsLayoutTemplate
 		$now = time();
 		$tplid = $this->get_id();
 
-		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.'
-SET originator=?, name=?, content=?, description=?, type_id=?, type_dflt=?, owner_id=?, listable=?, modified=? WHERE id=?';
+		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
+originator=?,
+name=?,
+content=?,
+description=?,
+type_id=?,
+type_dflt=?,
+owner_id=?,
+listable=?,
+modified=?
+WHERE id=?';
 		$db = CmsApp::get_instance()->GetDb();
 //		$dbr =
 		$db->Execute($query,
-		[$this->get_originator(),
+		[$this->_get_anyowner(),
 		 $this->get_name(),
 		 $this->get_content(),
 		 $this->get_description(),
@@ -775,7 +805,7 @@ SET originator=?, name=?, content=?, description=?, type_id=?, type_dflt=?, owne
 //		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		if( $this->get_type_dflt() ) {
-			// if it's default for a type, unset default flag for all other records with this type
+			// if it's default for a type, unset default flag for all other templates of this type
 			$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET type_dflt = 0 WHERE type_id = ? AND type_dflt = 1 AND id != ?';
 //			$dbr =
 			$db->Execute($query,[$this->get_type_id(),$tplid]);
@@ -832,16 +862,15 @@ SET originator=?, name=?, content=?, description=?, type_id=?, type_dflt=?, owne
 		if( !$this->_dirty ) return;
 		$this->validate();
 
-		$tplid = $this->get_id();
 		$now = time();
 
 		// insert the record
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.'
-(originator,name,content,description,type_id,type_dflt,owner_id,listable,created,modified)
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
+' (originator,name,content,description,type_id,type_dflt,owner_id,listable,created,modified)
 VALUES (?,?,?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->Execute($query,
-		[$this->get_originator(),
+		[$this->_get_anyowner(),
 		 $this->get_name(),
 		 $this->get_content(),
 		 $this->get_description(),
@@ -854,7 +883,8 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		if( !$dbr ) {
 			throw new CmsSQLErrorException($db->sql.' --7 '.$db->ErrorMsg());
 		}
-		$this->_data['id'] = $db->Insert_ID();
+
+		$tplid = $this->_data['id'] = $db->Insert_ID();
 
 		if( $this->get_type_dflt() ) {
 			// if it's default for a type, unset default flag for all other records with this type

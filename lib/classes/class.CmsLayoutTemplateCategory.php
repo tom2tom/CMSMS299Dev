@@ -44,7 +44,7 @@ class CmsLayoutTemplateCategory
 	/**
 	 * @ignore
 	 */
-	private $_dirty;
+	private $_dirty = FALSE;
 
 	/**
 	 * @ignore
@@ -54,11 +54,11 @@ class CmsLayoutTemplateCategory
 	/**
 	 * Get the category id
 	 *
-	 * @return int
+	 * @return mixed int | null if this category hasn't been saved
 	 */
 	public function get_id()
 	{
-		if( isset($this->_data['id']) ) return $this->_data['id'];
+		return $this->_data['id'] ?? null;
 	}
 
 	/**
@@ -68,7 +68,7 @@ class CmsLayoutTemplateCategory
 	 */
 	public function get_name()
 	{
-		if( isset($this->_data['name']) ) return $this->_data['name'];
+		return $this->_data['name'] ?? '';
 	}
 
 	/**
@@ -77,7 +77,7 @@ class CmsLayoutTemplateCategory
 	 * The category name must be unique, and can only contain certain characters.
 	 *
 	 * @throws CmsInvalidDataException
-	 * @param sting $str The template type name.
+	 * @param sting $str The template-category name. Valid per AdminUtils::is_valid_itemname()
 	 */
 	public function set_name($str)
 	{
@@ -97,17 +97,16 @@ class CmsLayoutTemplateCategory
 	 */
 	public function get_description()
 	{
-		if( isset($this->_data['description']) ) return $this->_data['description'];
+		return $this->_data['description'] ?? '';
 	}
 
 	/**
 	 * Set the category description
 	 *
-	 * @param string $str The description
+	 * @param string $str The description (maybe empty)
 	 */
 	public function set_description($str)
 	{
-		// description is allowed to be empty.
 		$str = trim($str);
 		$this->_data['description'] = $str;
 		$this->_dirty = TRUE;
@@ -120,14 +119,14 @@ class CmsLayoutTemplateCategory
 	 */
 	public function get_item_order()
 	{
-		if( isset($this->_data['item_order']) ) return $this->_data['item_order'];
+		return $this->_data['item_order'] ?? 0;
 	}
 
 	/**
 	 * Set the item order.
 	 *
-	 * The item order must be >0, unique and incremental
-	 * no validation is done on the item order in this method.
+	 * The item order must be > 0, unique and incremental
+	 * No validation is done on the item order in this method.
 	 *
 	 * @param int $idx
 	 */
@@ -146,7 +145,7 @@ class CmsLayoutTemplateCategory
 	 */
 	public function get_modified()
 	{
-		if( isset($this->_data['modified']) ) return $this->_data['modified'];
+		return $this->_data['modified'] ?? 0;
 	}
 
 	/**
@@ -155,23 +154,23 @@ class CmsLayoutTemplateCategory
 	 */
 	protected function validate()
 	{
-		if( !$this->get_name() ) throw new CmsInvalidDataException('A Template Categoy must have a name');
+		if( !$this->get_name() ) throw new CmsInvalidDataException('A template categoy must have a name');
 		if( !AdminUtils::is_valid_itemname($this->get_name()) ) {
 			throw new CmsInvalidDataException('Name must contain only letters, numbers and underscores.');
 		}
 
 		$db = cmsms()->GetDb();
-		$tmp = null;
-		if( !$this->get_id() ) {
+		$cid = $this->get_id();
+		if( !$cid ) {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$tmp = $db->GetOne($query,[$this->get_name()]);
 		}
 		else {
 			$query = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ? AND id != ?';
-			$tmp = $db->GetOne($query,[$this->get_name(),$this->get_id()]);
+			$tmp = $db->GetOne($query,[$this->get_name(),$cid]);
 		}
 		if( $tmp ) {
-			throw new CmsInvalidDataException('A Template Categoy with the same name already exists');
+			throw new CmsInvalidDataException('A template categoy with the same name already exists');
 		}
 	}
 
@@ -186,17 +185,21 @@ class CmsLayoutTemplateCategory
 		$db = cmsms()->GetDb();
 		$query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.self::TABLENAME;
 		$item_order = $db->GetOne($query);
-		if( !$item_order ) $item_order=0;
+		if( !$item_order ) $item_order = 0;
 		$item_order++;
 		$this->_data['item_order'] = $item_order;
 
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.' (name,description,item_order,modified) VALUES (?,?,?,?)';
-		$dbr = $db->Execute($query,[$this->get_name(),$this->get_description(),
-										 $this->get_item_order(),time()]);
+		$dbr = $db->Execute($query,[
+			$this->get_name(),
+			$this->get_description(),
+			$this->get_item_order(),
+			time()
+		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
-		$this->_data['id'] = $db->Insert_ID();
+		$cid = $this->_data['id'] = $db->Insert_ID();
 		$this->_dirty = FALSE;
-		audit($this->get_id(),'CMSMS','Template Category Created');
+		audit($cid,'CMSMS','Template Category Created');
 	}
 
 	/**
@@ -210,10 +213,13 @@ class CmsLayoutTemplateCategory
 		$db = cmsms()->GetDb();
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET name = ?, description = ?, item_order = ?, modified = ? WHERE id = ?';
 //		$dbr =
-		$db->Execute($query,[$this->get_name(),
-							 $this->get_description(),
-							 $this->get_item_order(),
-							 time(),(int)$this->get_id()]);
+		$db->Execute($query,[
+			$this->get_name(),
+			$this->get_description(),
+			$this->get_item_order(),
+			time(),
+			(int)$this->get_id()
+		]);
 //USELESS		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$this->_dirty = FALSE;
 		audit($this->get_id(),'CMSMS','Template Category Updated');
@@ -240,17 +246,18 @@ class CmsLayoutTemplateCategory
 	 */
 	public function delete()
 	{
-		if( !$this->get_id() ) return;
+		$cid = $this->get_id();
+		if( !$cid ) return;
 
 		$db = cmsms()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-		$dbr = $db->Execute($query,[$this->get_id()]);
+		$dbr = $db->Execute($query,[$cid]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$query = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET item_order = item_order - 1 WHERE item_order > ?';
 		$db->Execute($query,[$this->_data['item_order']]);
 
-		audit($this->get_id(),'CMSMS','Template Category Deleted');
+		audit($cid,'CMSMS','Template Category Deleted');
 		unset($this->_data['item_order']);
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
