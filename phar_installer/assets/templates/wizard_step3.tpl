@@ -70,7 +70,9 @@
   <div class="message green">{'step3_passed'|tr}</div>
 {/if}
 
+{if !$tests_failed}
 <div class="message yellow">{'warn_tests'|tr}</div>
+{/if}
 
 <div id="bottom_nav">
 {if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}">{'retry'|tr} <i class="icon-refresh"></i></a>{/if}
