@@ -43,6 +43,7 @@ foreach ($dirs as $segs) {
     if( !is_dir( $to ) ) throw new LogicException("Could not create $to directory");
     touch($to . DIRECTORY_SEPARATOR . 'index.html');
 }
+touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
 
 // 2. Convert UDT's to simple plugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
