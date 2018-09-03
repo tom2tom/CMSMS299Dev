@@ -40,11 +40,8 @@
     {/foreach}
     </tbody>
   </table>
-{else}
-  <div class="message green">{'step3_passed'|tr}</div>
-{/if}
-
-<table class="table bordered-table installer-test-legend small-font">
+  <br /><br />
+  <table class="table bordered-table installer-test-legend small-font">
     <caption>
         {'legend'|tr}
     </caption>
@@ -68,7 +65,11 @@
             <td>{'test_warning'|tr}</td>
         </tr>
     </tbody>
-</table>
+  </table>
+
+{else}
+  <div class="message green">{'step3_passed'|tr}</div>
+{/if}
 
 <div class="message yellow">{'warn_tests'|tr}</div>
 
