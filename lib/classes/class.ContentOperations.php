@@ -566,7 +566,7 @@ class ContentOperations
 			$expr[] = 'content_id NOT IN ('.implode(',',$loaded_ids).')';
 		}
 
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX ('.CMS_DB_PREFIX.'index_content_by_idhier) WHERE ';
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier) WHERE ';
 		$query .= implode(' AND ',$expr);
 		$dbr = $db->Execute($query,$parms);
 
@@ -648,7 +648,7 @@ class ContentOperations
 			if( !$all ) $expr .= ' AND active = 1';
 
 			// note, this is mysql specific...
-			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX ('.CMS_DB_PREFIX.'index_content_by_idhier) WHERE '.$expr.' ORDER BY hierarchy';
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier) WHERE '.$expr.' ORDER BY hierarchy';
 			$contentrows = $db->GetArray($query);
 		}
 		else {
