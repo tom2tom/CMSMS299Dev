@@ -54,17 +54,17 @@ class wizard_step9 extends wizard_step
 
         // todo: write history
 
-        // set the finished message.
-        $app = get_app();
+        // set the finished message
+        $url = $app->get_root_url();
+        $admin_url = $url;
+        if( !endswith($url,'/') ) $admin_url .= '/';
+        $admin_url .= 'admin';
+
         if( $app->has_custom_destdir() || !$app->in_phar() ) {
-            $this->set_block_html('bottom_nav',lang('finished_custom_upgrade_msg'));
+            $this->set_block_html('bottom_nav',lang('finished_custom_upgrade_msg',$admin_url,$url));
         }
         else {
-            $url = $app->get_root_url();
-            $admin_url = $url;
-            if( !endswith($url,'/') ) $admin_url .= '/';
-            $admin_url .= 'admin';
-            $this->set_block_html('bottom_nav',lang('finished_upgrade_msg', $url, $admin_url));
+            $this->set_block_html('bottom_nav',lang('finished_upgrade_msg',$url,$admin_url));
         }
     }
 
