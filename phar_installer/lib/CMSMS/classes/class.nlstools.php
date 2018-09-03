@@ -43,7 +43,7 @@ class nlstools
       $name = basename($file);
       $name = trim(substr($name,6,strlen($name)-14)).'_nls';
 
-      include($file);
+      include $file;
 
       $tmp = $want.'\\'.$name;
       $obj = new $tmp;

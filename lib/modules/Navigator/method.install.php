@@ -24,9 +24,11 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
     $uid = get_userid();
 }
 
+$me = $this->GetName();
+
 try {
     $menu_template_type = new CmsLayoutTemplateType();
-    $menu_template_type->set_originator($this->GetName());
+    $menu_template_type->set_originator($me);
     $menu_template_type->set_name('navigation');
     $menu_template_type->set_dflt_flag(TRUE);
     $menu_template_type->set_lang_callback('Navigator::page_type_lang_callback');
@@ -38,13 +40,13 @@ try {
 catch( CmsException $e ) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-    audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
     return $e->GetMessage();
 }
 
 try {
     $bc_template_type = new CmsLayoutTemplateType();
-    $bc_template_type->set_originator($this->GetName());
+    $bc_template_type->set_originator($me);
     $bc_template_type->set_name('breadcrumbs');
     $bc_template_type->set_dflt_flag(TRUE);
     $bc_template_type->set_lang_callback('Navigator::page_type_lang_callback');
@@ -56,18 +58,19 @@ try {
 catch( CmsException $e ) {
     // log it
     debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-    audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
     return $e->GetMessage();
 }
 
 try {
     $fn = cms_join_path(__DIR__,'templates','simple_navigation.tpl');
     if( file_exists( $fn ) ) {
-        $template = @file_get_contents($fn);
+        $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
         $tpl->set_name(CmsLayoutTemplate::generate_unique_name('Simple Navigation'));
         $tpl->set_owner($uid);
-        $tpl->set_content($template);
+        $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
         $tpl->set_type_dflt(TRUE);
         $tpl->save();
@@ -75,11 +78,12 @@ try {
 
     $fn = cms_join_path(__DIR__,'templates','dflt_breadcrumbs.tpl');
     if( file_exists( $fn ) ) {
-        $template = @file_get_contents($fn);
+        $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
         $tpl->set_name(CmsLayoutTemplate::generate_unique_name('Breadcrumbs'));
         $tpl->set_owner($uid);
-        $tpl->set_content($template);
+        $tpl->set_content($content);
         $tpl->set_type($bc_template_type);
         $tpl->set_type_dflt(TRUE);
         $tpl->save();
@@ -87,37 +91,37 @@ try {
 
     $fn = cms_join_path(__DIR__,'templates','cssmenu.tpl');
     if( file_exists( $fn ) ) {
-        $template = @file_get_contents($fn);
+        $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
         $tpl->set_name(CmsLayoutTemplate::generate_unique_name('cssmenu'));
         $tpl->set_owner($uid);
-        $tpl->set_content($template);
+        $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
-        $tpl->set_type_dflt(TRUE);
         $tpl->save();
     }
 
     $fn = cms_join_path(__DIR__,'templates','cssmenu_ulshadow.tpl');
     if( file_exists( $fn ) ) {
-        $template = @file_get_contents($fn);
+        $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
         $tpl->set_name(CmsLayoutTemplate::generate_unique_name('cssmenu_ulshadow'));
         $tpl->set_owner($uid);
-        $tpl->set_content($template);
+        $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
-        $tpl->set_type_dflt(TRUE);
         $tpl->save();
     }
 
     $fn = cms_join_path(__DIR__,'templates','minimal_menu.tpl');
     if( file_exists( $fn ) ) {
-        $template = @file_get_contents($fn);
+        $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
+        $tpl->set_originator($me);
         $tpl->set_name(CmsLayoutTemplate::generate_unique_name('minimal_menu'));
         $tpl->set_owner($uid);
-        $tpl->set_content($template);
+        $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
-        $tpl->set_type_dflt(TRUE);
         $tpl->save();
     }
 
@@ -126,42 +130,41 @@ try {
 
         $fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
         if( file_exists( $fn ) ) {
-            $template = @file_get_contents($fn);
+            $content = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
+            $tpl->set_originator($me);
             $tpl->set_name(CmsLayoutTemplate::generate_unique_name('Simplex Main Navigation'));
             $tpl->set_owner($uid);
-            $tpl->set_content($template);
+            $tpl->set_content($content);
             $tpl->set_type($menu_template_type);
-            $tpl->set_type_dflt(TRUE);
             $tpl->add_design($simplex);
             $tpl->save();
         }
 
         $fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
         if( file_exists( $fn ) ) {
-            $template = @file_get_contents($fn);
+            $content = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
+            $tpl->set_originator($me);
             $tpl->set_name(CmsLayoutTemplate::generate_unique_name('Simplex Footer Navigation'));
             $tpl->set_owner($uid);
-            $tpl->set_content($template);
+            $tpl->set_content($content);
             $tpl->set_type($menu_template_type);
-            $tpl->set_type_dflt(TRUE);
             $tpl->add_design($simplex);
             $tpl->save();
         }
     }
     catch( Exception $e ) {
         // if we got here, it's prolly because default content was not installed.
-        audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+        audit('',$me,'Installation Error: '.$e->GetMessage());
     }
 }
 catch( Exception $e ) {
   debug_to_log(__FILE__.':'.__LINE__.' '.$e->GetMessage());
-  audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+  audit('',$me,'Installation Error: '.$e->GetMessage());
   return $e->GetMessage();
 }
 
 // register plugins
 $this->RegisterModulePlugin(TRUE);
 $this->RegisterSmartyPlugin('nav_breadcrumbs','function','nav_breadcrumbs');
-

@@ -64,9 +64,11 @@ $this->SetPreference('stopwords', $this->DefaultStopWords());
 $this->SetPreference('usestemming', 'false');
 $this->SetPreference('searchtext','Enter Search...');
 
+$me = $this->GetName();
+
 try {
     $searchform_type = new CmsLayoutTemplateType();
-    $searchform_type->set_originator($this->GetName());
+    $searchform_type->set_originator($me);
     $searchform_type->set_name('searchform');
     $searchform_type->set_dflt_flag(TRUE);
     $searchform_type->set_lang_callback('Search::page_type_lang_callback');
@@ -75,6 +77,7 @@ try {
     $searchform_type->save();
 
     $tpl = new CmsLayoutTemplate();
+    $tpl->set_originator($me);
     $tpl->set_name('Search Form Sample');
     $tpl->set_owner($uid);
     $tpl->set_content($this->GetSearchHtmlTemplate());
@@ -88,6 +91,7 @@ try {
         if( file_exists( $fn ) ) {
             $template = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
+            $tpl->set_originator($me);
             $tpl->set_name('Simplex Search');
             $tpl->set_owner($uid);
             $tpl->set_content($template);
@@ -96,11 +100,11 @@ try {
             $tpl->save();
         }
     } catch( Exception $e ) {
-        audit('', $this->GetName(), 'Installation Error: '.$e->GetMessage());
+        audit('', $me, 'Installation Error: '.$e->GetMessage());
     }
 
     $searchresults_type = new CmsLayoutTemplateType();
-    $searchresults_type->set_originator($this->GetName());
+    $searchresults_type->set_originator($me);
     $searchresults_type->set_name('searchresults');
     $searchresults_type->set_dflt_flag(TRUE);
     $searchresults_type->set_lang_callback('Search::page_type_lang_callback');
@@ -109,6 +113,7 @@ try {
     $searchresults_type->save();
 
     $tpl = new CmsLayoutTemplate();
+    $tpl->set_originator($me);
     $tpl->set_name('Search Results Sample');
     $tpl->set_owner($uid);
     $tpl->set_content($this->GetResultsHtmlTemplate());
@@ -116,7 +121,7 @@ try {
     $tpl->set_type_dflt(TRUE);
     $tpl->save();
 } catch( CmsException $e ) {
-    audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
 }
 
 $this->CreateEvent('SearchInitiated');

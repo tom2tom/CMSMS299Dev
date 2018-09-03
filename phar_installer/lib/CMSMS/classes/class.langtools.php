@@ -47,7 +47,7 @@ class langtools
     $tmp = explode(',',$langs);
 
     $out = [];
-    for( $i = 0; $i < count($tmp); $i++ ) {
+    for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
       $tmp2 = explode(';q=',$tmp[$i],2);
       if( $tmp2[0] == '' || $tmp2[0] == '*' ) continue;
       $priority = 1;
@@ -69,19 +69,23 @@ class langtools
   final public function language_available($str)
   {
     $tmp = nlstools::get_instance()->find($str);
-    if( is_object($tmp) ) return TRUE;
-    return FALSE;
+    return ( is_object($tmp) );
   }
 
 
   /**
    * Get the list of available languages
    *
-   * @return array of available languages
+   * @return array of available language-codes c.f. en_US
    */
   final public function get_available_languages()
   {
-    die('not implemented');
+    $list = nlstools::get_instance()->get_list();
+    foreach( $list as &$one ) {
+      $one = substr($one,0,-4);
+    }
+    unset($one);
+    return $list;
   }
 
 
@@ -96,7 +100,7 @@ class langtools
     if( !is_array($data) ) $data = explode(',',$data);
 
     $out = [];
-    for( $i = 0; $i < count($data); $i++ ) {
+    for( $i = 0, $n = count($data); $i < $n; $i++ ) {
       if( $this->language_available($data[$i]) )  $out[] = $data[$i];
     }
 
@@ -126,8 +130,7 @@ class langtools
   final public function language_allowed($str)
   {
     if( is_array($this->_allowed_languages) && count($this->_allowed_languages) ) {
-      if( in_array($str,$this->_allowed_languages) ) return TRUE;
-      return FALSE;
+      return ( in_array($str,$this->_allowed_languages) );
     }
     return TRUE;
   }
@@ -141,13 +144,13 @@ class langtools
   final public function match_browser_lang()
   {
     $langs = $this->get_browser_langs();
-    if( is_array($langs) && count($langs) ) {
-      for( $i = 0; $i < count($langs); $i++ ) {
-	$obj = nlstools::get_instance()->find($langs[$i]['lang']); // does alias lookup.
-	if( $obj ) {
-	  // it's available... now check if it's allowed.
-	  if( $this->language_allowed($obj->name()) ) return $obj->name();
-	}
+    if( is_array($langs) && ($n = count($langs)) ) {
+      for( $i = 0; $i < $n; $i++ ) {
+        $obj = nlstools::get_instance()->find($langs[$i]['lang']); // does alias lookup.
+        if( $obj ) {
+          // it's available... now check if it's allowed.
+          if( $this->language_allowed($obj->name()) ) return $obj->name();
+        }
       }
     }
   }
@@ -186,7 +189,7 @@ class langtools
 
   /**
    * Get the users selected language.  May use advanced methods to store the users selected language
-   * or retrieve it from cookies, session variables, or the request.
+   * or retrieve it from cookies, session variables, or the request, or from ini data.
    *
    * @virtual
    * @return string
@@ -199,7 +202,7 @@ class langtools
     // get the users preferred language.
     $lang = null;
     if( isset($request['curlang']) ) $lang = $request['curlang']; // it's stored in the get (or post)
-    if( !$lang && isset($session['current_language']) )	$lang = $session['current_language']; // it's stored in the session
+    if( !$lang && isset($session['current_language']) ) $lang = $session['current_language']; // it's stored in the session
     if( !$lang ) $lang = $this->match_browser_lang(); // not set anywhere. get it from the browser.
 
     // match available languages.
@@ -317,7 +320,7 @@ class langtools
     if( !$realm ) $realm = self::DFLT_REALM;
     if( $realm == self::DFLT_REALM ) $realm = 'app';
     $dir = installer_base::get_assetsdir()."/lang/$realm";
-    if( !is_dir($dir) )	throw new langtools_Exception('Language directory '.$dir.' not found');
+    if( !is_dir($dir) ) throw new langtools_Exception('Language directory '.$dir.' not found');
 
     return $dir;
   }
@@ -339,7 +342,7 @@ class langtools
 
     $lang = [];
     foreach( $fns as $fn ) {
-      if( file_exists($fn) ) include_once($fn);
+      if( file_exists($fn) ) include_once $fn;
     }
 
     return $lang;

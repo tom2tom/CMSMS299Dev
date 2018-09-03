@@ -1,4 +1,5 @@
 <?php
+
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
 
@@ -13,10 +14,12 @@ if( version_compare($oldversion,'1.50') < 1 ) {
   $this->RegisterModulePlugin(true);
   $this->RegisterSmartyPlugin('search','function','function_plugin');
 
+  $me = $this->GetName();
+
   try {
       try {
           $searchform_type = new CmsLayoutTemplateType();
-          $searchform_type->set_originator($this->GetName());
+          $searchform_type->set_originator($me);
           $searchform_type->set_name('searchform');
           $searchform_type->set_dflt_flag(TRUE);
           $searchform_type->set_lang_callback('Search::page_type_lang_callback');
@@ -24,16 +27,17 @@ if( version_compare($oldversion,'1.50') < 1 ) {
           $searchform_type->reset_content_to_factory();
           $searchform_type->save();
       }
-      catch( \CmsInvalidDataException $e ) {
+      catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
 
-      $template = $this->GetTemplate('displaysearch');
-      if( $template ) {
+      $content = $this->GetTemplate('displaysearch');
+      if( $content ) {
           $tpl = new CmsLayoutTemplate();
+          $tpl->set_originator($me);
           $tpl->set_name('Search Form Sample');
           $tpl->set_owner($uid);
-          $tpl->set_content($template);
+          $tpl->set_content($content);
           $tpl->set_type($searchform_type);
           $tpl->set_type_dflt(TRUE);
           $tpl->save();
@@ -42,7 +46,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
 
       try {
           $searchresults_type = new CmsLayoutTemplateType();
-          $searchresults_type->set_originator($this->GetName());
+          $searchresults_type->set_originator($me);
           $searchresults_type->set_name('searchresults');
           $searchresults_type->set_dflt_flag(TRUE);
           $searchresults_type->set_lang_callback('Search::page_type_lang_callback');
@@ -50,16 +54,17 @@ if( version_compare($oldversion,'1.50') < 1 ) {
           $searchresults_type->reset_content_to_factory();
           $searchresults_type->save();
       }
-      catch( \CmsInvalidDataException $e ) {
+      catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
 
-      $template = $this->GetTemplate('displayresult');
-      if( $template ) {
+      $content = $this->GetTemplate('displayresult');
+      if( $content ) {
           $tpl = new CmsLayoutTemplate();
+          $tpl->set_originator($me);
           $tpl->set_name('Search Results Sample');
           $tpl->set_owner($uid);
-          $tpl->set_content($template);
+          $tpl->set_content($content);
           $tpl->set_type($searchresults_type);
           $tpl->set_type_dflt(TRUE);
           $tpl->save();
@@ -67,7 +72,7 @@ if( version_compare($oldversion,'1.50') < 1 ) {
       }
   }
   catch( CmsException $e ) {
-    audit('',$this->GetName(),'Installation Error: '.$e->GetMessage());
+    audit('',$me,'Installation Error: '.$e->GetMessage());
   }
 }
 
