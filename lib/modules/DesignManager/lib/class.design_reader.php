@@ -353,7 +353,7 @@ class design_reader extends reader_base
     $config = cmsms()->GetConfig();
     $dirname = munge_string_to_url($name);
     $dir = cms_join_path($config['uploads_path'],'designs',$dirname);
-    @mkdir($dir,0777,TRUE);
+    @mkdir($dir,0771,TRUE);
     if( !is_dir($dir) || !is_writable($dir) ) {
       throw new CmsException('Could not create directory, or could not write in directory '.$dir);
     }
@@ -431,9 +431,11 @@ class design_reader extends reader_base
     }
 
     // expand templates
+	$me = null; //TODO
     $tpl_recs = $this->get_template_list();
     foreach( $tpl_recs as $tpl ) {
       $template = new CmsLayoutTemplate();
+      $template->set_originator($me);
       $template->set_name($tpl['newname']);
       if( isset($tpl['desc']) && $tpl['desc'] != '' ) $template->set_description($tpl['desc']);
       $content = $tpl['data'];

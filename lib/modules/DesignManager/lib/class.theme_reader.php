@@ -286,7 +286,7 @@ class theme_reader extends reader_base
     $config = cmsms()->GetConfig();
     $dirname = munge_string_to_url($name);
     $dir = cms_join_path($config['uploads_path'],'themes',$dirname);
-    @mkdir($dir,0777,TRUE);
+    @mkdir($dir,0771,TRUE);
     if( !is_dir($dir) || !is_writable($dir) ) {
       throw new CmsException('Could not create directory, or could not write in directory '.$dir);
     }
@@ -441,10 +441,12 @@ class theme_reader extends reader_base
 
     $tpl_info = $this->get_template_list();
     $have_mm_template = FALSE;
+	$me = null; //TODO
     foreach( $tpl_info as $name => &$tpl_rec ) {
       if( $tpl_rec['type_originator'] == 'MenuManager' ) $have_mm_template = TRUE;
 
       $template = new CmsLayoutTemplate();
+      $template->set_originator($me);
       $template->set_owner(get_userid(FALSE));
       $template->set_name($tpl_rec['name']);
 
