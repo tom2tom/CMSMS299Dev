@@ -76,6 +76,9 @@ class wizard_step8 extends wizard_step
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( !$siteinfo ) throw new Exception(lang('error_internal',704));
 
+        // create new config.php file to ebable database connection
+        $this->write_config();
+
         $this->connect_to_cmsms($destdir);
 
         // connect to the database, if possible
@@ -146,8 +149,6 @@ class wizard_step8 extends wizard_step
             ] as $name=>$val) {
                 cms_siteprefs::set($name, $val);
             }
-
-            $this->write_config();
 
             // site content
             if( $destconfig['samplecontent'] ) {
@@ -224,7 +225,7 @@ class wizard_step8 extends wizard_step
         // setup database connection
         $db = $this->db_connect($destconfig);
 
-        include_once __DIR__.'/msg_functions.php';
+        include_once dirname(__DIR__,2).'/msg_functions.php';
 
         try {
             // ready to do the upgrading now (in a loop)
@@ -264,9 +265,6 @@ class wizard_step8 extends wizard_step
         $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',700));
 
-        // create new config file.
-        // this step has to go here.... as config file has to exist in step9
-        // so that CMSMS can connect to the database.
         $fn = $destdir.'/config.php';
         if( is_file($fn) ) {
             $this->verbose(lang('install_backupconfig'));
@@ -274,9 +272,10 @@ class wizard_step8 extends wizard_step
             if( !copy($fn,$destfn) ) throw new Exception(lang('error_backupconfig'));
         }
 
-        $this->connect_to_cmsms($destdir);
-
         $this->message(lang('install_createconfig'));
+        // get a 'real' config object
+		require_once $destdir.'/lib/misc.functions.php';
+		require_once $destdir.'/lib/classes/class.cms_config.php';
         $newconfig = cms_config::get_instance();
         $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']);
         $newconfig['db_hostname'] = trim($destconfig['db_hostname']);
@@ -290,7 +289,7 @@ class wizard_step8 extends wizard_step
             $num = (int)$destconfig['db_port'];
             if( $num > 0 ) $newconfig['db_port'] = $num;
         }
-        $newconfig->save();
+        $newconfig->save(true,$fn);
     }
 
     protected function display()

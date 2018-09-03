@@ -27,15 +27,15 @@ class wizard_step4 extends wizard_step
             @date_default_timezone_set('UTC');
         }
         $this->_config = [
-            'db_type'=>'mysqli',
-            'db_hostname'=>'localhost',
-            'db_name'=>'',
-            'db_username'=>'',
-            'db_password'=>'',
-            'db_prefix'=>'cms_',
-            'db_port'=>'',
+            'dbtype'=>'mysqli',
+            'dbhost'=>'localhost',
+            'dbname'=>'',
+            'dbuser'=>'',
+            'dbpw'=>'',
+            'dbprefix'=>'cms_',
+            'dbport'=>'',
+            'dbqueryvar'=>'',
             'timezone'=>$tz,
-            'query_var'=>'',
             'samplecontent'=>TRUE,
         ];
 
@@ -50,15 +50,15 @@ class wizard_step4 extends wizard_step
             $destdir = $app->get_destdir();
             $config_file = $destdir.DIRECTORY_SEPARATOR.'config.php';
             include_once $config_file;
-            $this->_config['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
-            $this->_config['db_hostname'] = $config['db_hostname'];
-            $this->_config['db_username'] = $config['db_username'];
-            $this->_config['db_password'] = $config['db_password'];
-            $this->_config['db_name'] = $config['db_name'];
-            $this->_config['db_prefix'] = $config['db_prefix'];
-            if( isset($config['db_port']) ) $this->_config['db_port'] = $config['db_port'];
+//            $this->_config['dbtype'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
+            $this->_config['dbhost'] = $config['db_hostname'];
+            $this->_config['dbuser'] = $config['db_username'];
+            $this->_config['dbpw'] = $config['db_password'];
+            $this->_config['dbname'] = $config['db_name'];
+            $this->_config['dbprefix'] = $config['db_prefix'];
+            if( isset($config['db_port']) ) $this->_config['dbport'] = $config['db_port'];
             if( isset($config['timezone']) ) $this->_config['timezone'] = $config['timezone'];
-            if( isset($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
+            if( isset($config['query_var']) ) $this->_config['dbqueryvar'] = $config['query_var'];
         }
     }
 
@@ -72,7 +72,6 @@ class wizard_step4 extends wizard_step
         if( empty($config['db_prefix']) ) throw new Exception(lang('error_nodbprefix'));
         if( empty($config['timezone']) ) throw new Exception(lang('error_notimezone'));
 
-        //TODO filter_var($config['query_var'], FILTER_SANITIZE ...);
         $re = '/^[a-zA-Z0-9_\.]*$/';
         if( !empty($config['query_var']) && !preg_match($re,$config['query_var']) ) {
             throw new Exception(lang('error_invalidqueryvar'));
@@ -84,7 +83,7 @@ class wizard_step4 extends wizard_step
         $config['db_password'] = trim($config['db_password']);
         if( $config['db_password'] ) {
             $tmp = filter_var($config['db_password'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
+                FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES);
             if( $tmp != $config['db_password'] ) {
                 throw new Exception(lang('error_invaliddbpassword'));
             }
@@ -137,21 +136,16 @@ class wizard_step4 extends wizard_step
     protected function process()
     {
         $this->_config['db_type'] = 'mysqli';
-//        if( isset($_POST['db_type']) ) $this->_config['db_type'] = trim(utils::clean_string($_POST['db_type']));
-        $this->_config['db_hostname'] = trim(filter_var($_POST['db_hostname'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
-        $this->_config['db_name'] = trim(filter_var($_POST['db_name'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
-        $this->_config['db_username'] = trim(filter_var($_POST['db_username'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_ENCODE_HIGH));
+//        if( isset($_POST['db_type']) ) $this->_config['db_type'] = utils::clean_string($_POST['db_type']);
+        $this->_config['db_hostname'] = utils::clean_string($_POST['db_hostname']);
+        $this->_config['db_name'] = utils::clean_string($_POST['db_name']);
+        $this->_config['db_username'] = utils::clean_string($_POST['db_username']);
         $this->_config['db_password'] = trim(filter_var($_POST['db_password'], FILTER_SANITIZE_STRING,
             FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
         if( isset($_POST['db_port']) ) $this->_config['db_port'] = filter_var($_POST['db_port'],FILTER_SANITIZE_NUMBER_INT);
-        if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = trim(filter_var($_POST['db_prefix'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
-        $this->_config['timezone'] = trim(filter_var($_POST['timezone'], FILTER_SANITIZE_STRING));
-        if( isset($_POST['query_var']) ) $this->_config['query_var'] = trim(filter_var($_POST['query_var'], FILTER_SANITIZE_STRING,
-            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_STRIP_HIGH));
+        if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = utils::clean_string($_POST['db_prefix']);
+        $this->_config['timezone'] = utils::clean_string($_POST['timezone']);
+        if( isset($_POST['query_var']) ) $this->_config['query_var'] = utils::clean_string($_POST['query_var']);
         if( isset($_POST['samplecontent']) ) $this->_config['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
         $this->get_wizard()->set_data('config',$this->_config);
 
@@ -188,10 +182,14 @@ class wizard_step4 extends wizard_step
         $smarty->assign('timezones',array_merge([''=>lang('none')],$tmp2));
 //        $smarty->assign('db_types',$this->_dbms_options);
         $smarty->assign('action',$this->get_wizard()->get_data('action'));
-        $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
+        $raw = $this->_config['verbose'] ?? null;
+        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+
+        $smarty->assign('verbose',$v);
         $smarty->assign('config',$this->_config);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step4.tpl');
+
         $this->finish();
     }
 

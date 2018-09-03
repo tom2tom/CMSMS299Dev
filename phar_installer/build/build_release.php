@@ -31,7 +31,7 @@ $src_excludes = [
 '/\.md$/i',
 '/\.svn/',
 '/svn-.*/',
-'/\/config\.php$/',
+'/^config\.php$/',
 '/\/index\.html$/',
 '/\.bak$/',
 '/UNUSED/',
@@ -317,10 +317,9 @@ function copy_local_files()
 
 	$len = strlen($localroot.DIRECTORY_SEPARATOR);
 	$matches = null;
-	$excludes = $src_excludes;
 
 	foreach ($iter as $fp => $inf) {
-		foreach ($excludes as $excl) {
+		foreach ($src_excludes as $excl) {
 			if (preg_match($excl, $fp, $matches, 0, $len)) {
 				$relpath = substr($fp, $len);
 				verbose(2, "EXCLUDED: $relpath (matched pattern $excl)");
@@ -465,8 +464,8 @@ try {
 		verbose(1, 'INFO: Removing old output file(s)');
 		rrmdir($outdir);
 	}
-
 	@mkdir($outdir, 0771, true);
+
 	@mkdir($datadir, 0771, true);
 	if (!is_dir($datadir) || !is_dir($outdir)) {
 		die('Problem creating working directories: '.$datadir.' and/or '.$outdir);

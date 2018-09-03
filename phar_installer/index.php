@@ -25,7 +25,7 @@ try {
     @ini_set('xcache.cacher',0); // disable xcache opcode caching
 
     require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
-    $app = new __installer\gui_install();
+    $app = new __installer\gui_install(); //no custom config-file specified
     $app->run();
 }
 catch( Exception $e ) {

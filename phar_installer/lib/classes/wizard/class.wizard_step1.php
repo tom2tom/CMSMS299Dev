@@ -30,8 +30,8 @@ class wizard_step1 extends wizard_step
             $app->set_destdir($_POST['destdir']);
         }
 
-        $verbose = 0;
         if( isset($_POST['verbose']) ) $verbose = (int)$_POST['verbose'];
+        else $verbose = 0;
         $this->get_wizard()->set_data('verbose',$verbose);
 
         if( isset($_POST['next']) ) {
@@ -103,10 +103,10 @@ class wizard_step1 extends wizard_step
             if( !is_dir($dir) || !is_readable($dir) ) return;
             $bn = basename($dir);
             if( $bn != 'lib' && is_file("$dir/version.php" ) ) {
-                @include("$dir/version.php"); // defines in this file can throw notices
+                @include "$dir/version.php"; // defines in this file can throw notices
                 if( isset($CMS_VERSION) ) return "CMSMS $CMS_VERSION";
             } else if( is_file("$dir/lib/version.php") ) {
-                @include("$dir/lib/version.php"); // defines in this file can throw notices
+                @include "$dir/lib/version.php"; // defines in this file can throw notices
                 if( isset($CMS_VERSION) ) return "CMSMS $CMS_VERSION";
             }
 
@@ -155,6 +155,7 @@ class wizard_step1 extends wizard_step
         // get the list of directories we can install to.
         $smarty = smarty();
         $app = get_app();
+        $config = $app->get_config();
         if( !$app->in_phar() ) {
             // get the list of directories we can install to
             $dirlist = $this->get_valid_install_dirs();
@@ -163,11 +164,17 @@ class wizard_step1 extends wizard_step
 
             $custom_destdir = $app->has_custom_destdir();
             $smarty->assign('custom_destdir',$custom_destdir);
-            $smarty->assign('destdir',$app->get_destdir());
+            $raw = $config['hostroot'] ?? null;
+            $v = ($raw === null) ? $app->get_destdir() : trim($raw);
+            $smarty->assign('destdir',$v);
         }
-        $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
+        $raw = $config['verbose'] ?? null;
+        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int) $raw;
+        $smarty->assign('verbose',$v);
         $smarty->assign('languages',translator()->get_language_list(translator()->get_allowed_languages()));
-        $smarty->assign('curlang',translator()->get_current_language());
+        $raw = $config['language'] ?? null;
+        $v = ($raw === null) ? translator()->get_current_language() : trim($raw);
+        $smarty->assign('curlang',$v);
         $smarty->assign('yesno',[0=>lang('no'),1=>lang('yes')]);
         $smarty->display('wizard_step1.tpl');
 

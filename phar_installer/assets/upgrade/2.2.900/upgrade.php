@@ -4,20 +4,49 @@ use CMSMS\LogicException;
 use CMSMS\SimplePluginOperations;
 use function __installer\get_app;
 
-// 1. Convert UDT's to simple plugins, widen users-table columns
 $app = get_app();
 $destdir = $app->get_destdir();
+if( !$destdir || !is_dir($destdir) ) {
+    throw new LogicException('Destination directory does not exist');
+}
 $config = $app->get_config();
+$s = ( !empty( $config['admin_dir'] ) ) ? $config['admin_dir'] : 'admin';
+$admindir = $destdir . DIRECTORY_SEPARATOR . $s;
 $assetsdir = ( !empty( $config['assets_path'] ) ) ? $config['assets_path'] : $destdir . DIRECTORY_SEPARATOR . 'assets';
 
+// 1. Create new folders, if necessary
+$dirs = [
+['admin','configs'],
+['assets','admin_custom'],
+['assets','configs'],
+['assets','css'],
+['assets','images'],
+['assets','module_custom'],
+['assets','modules'],
+['assets','plugins'],
+['assets','simple_plugins'],
+['assets','templates'],
+];
+
+foreach ($dirs as $segs) {
+    switch($segs[0]) {
+        case 'admin':
+            $to = $admindir . DIRECTORY_SEPARATOR . $segs[1];
+            break;
+        case 'assets':
+            $to = $assetsdir . DIRECTORY_SEPARATOR . $segs[1];
+            break;
+        default:
+            break 2;
+    }
+    if( !is_dir( $to ) ) @mkdir( $to, 0771, true );
+    if( !is_dir( $to ) ) throw new LogicException("Could not create $to directory");
+    touch($to . DIRECTORY_SEPARATOR . 'index.html');
+}
+
+// 2. Convert UDT's to simple plugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
 if( $udt_list ) {
-    if( !$destdir || !is_dir($destdir) ) {
-        throw new LogicException('Destination directory does not exist');
-    }
-    $to = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
-    if( !is_dir( $to ) ) @mkdir( $to, 0775, true );
-    if( !is_dir( $to ) ) throw new LogicException("Could not create $to directory");
 
     $create_simple_plugin = function( array $row, SimplePluginOperations $ops ) {
         $fp = $ops->file_path($row['userplugin_name']);
@@ -34,22 +63,22 @@ if( $udt_list ) {
             return;
         }
 
-		$meta = ['name'=>$row['userplugin_name']];
+        $meta = ['name'=>$row['userplugin_name']];
         if( $row['description'] ) {
-			$desc = trim($row['description'], " \t\n\r");
-			if( $desc ) {
-				$meta['description'] = $desc;
-			}
-		}
+            $desc = trim($row['description'], " \t\n\r");
+            if( $desc ) {
+                $meta['description'] = $desc;
+            }
+        }
 
-		if( $ops->save($meta, $code) ) {
-	        verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
-		} else {
+        if( $ops->save($meta, $code) ) {
+            verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
+        } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
-		}
+        }
     };
 
-	$ops = SimplePluginOperations::get_instance();
+    $ops = SimplePluginOperations::get_instance();
     foreach( $udt_list as $udt ) {
         $create_simple_plugin( $udt, $ops );
     }
@@ -69,7 +98,7 @@ if( $udt_list ) {
     $db->Execute($query);
 }
 
-// 2. Move ex-core modules to /assets/modules
+// 3. Move ex-core modules to /assets/modules
 foreach( ['MenuManager', 'CMSMailer'] as $modname ) {
     $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
     if( is_dir( $fp ) ) {
@@ -82,14 +111,14 @@ foreach( ['MenuManager', 'CMSMailer'] as $modname ) {
     }
 }
 
-// 3. Tweak callbacks for page and generic layout template types
-$page_type = \CMSLayoutTemplateType::load('__CORE__::page');
-$page_type_type->set_lang_callback('\\CMSMS\internal\\std_layout_template_callbacks::page_type_lang_callback');
-$page_type_type->set_content_callback('\\CMSMS\internal\\std_layout_template_callbacks::reset_page_type_defaults');
-$page_type_type->set_help_callback('\\CMSMS\internal\\std_layout_template_callbacks::template_help_callback');
+// 4. Tweak callbacks for page and generic layout template types
+$page_type = CmsLayoutTemplateType::load('__CORE__::page');
+$page_type_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
+$page_type_type->set_content_callback('\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
+$page_type_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
 $page_type->save();
 
-$generic_type = \CMSLayoutTemplateType::load('__CORE__::generic');
-$generic_type_type->set_lang_callback('\\CMSMS\internal\\std_layout_template_callbacks::generic_type_lang_callback');
-$generic_type_type->set_help_callback('\\CMSMS\internal\\std_layout_template_callbacks::template_help_callback');
+$generic_type = CmsLayoutTemplateType::load('__CORE__::generic');
+$generic_type_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
+$generic_type_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
 $page_type->save();

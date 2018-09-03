@@ -217,7 +217,7 @@ body {
 
 @media only screen and (min-width: 768px) {
 
-	/* GRID */
+	/* GRID - DEPRECATED */
 
 	.row .one-col {
 		width: 4.85%;
@@ -310,80 +310,74 @@ h1, h2, h3, h4, h5, h6 {
 	color: #EC7A06;
 }
 
-/* --- Icons --- */
 @font-face {
-	font-family: 'cmsms-ui';
-	src: url('../fonts/cmsms-ui.eot');
+  font-family: 'cmsms-ui';
+  src: url('../fonts/cmsms-ui.eot?30171519');
+  src: url('../fonts/cmsms-ui.eot?30171519#iefix') format('embedded-opentype'),
+       url('../fonts/cmsms-ui.woff2?30171519') format('woff2'),
+       url('../fonts/cmsms-ui.woff?30171519') format('woff'),
+       url('../fonts/cmsms-ui.ttf?30171519') format('truetype'),
+       url('../fonts/cmsms-ui.svg?30171519#cmsms-ui') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
-
-@font-face {
-	font-family: 'cmsms-ui';
-	src: url(data:application/x-font-ttf;charset=utf-8;base64,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) format('truetype'),
-		 url(data:application/font-woff;charset=utf-8;base64,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) format('woff');
-	font-weight: normal;
-	font-style: normal;
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'cmsms-ui';
+    src: url('../fonts/cmsms-ui.svg?30171519#cmsms-ui') format('svg');
+  }
 }
-
-[class^="icon-"], [class*=" icon-"] {
-	font-family: 'cmsms-ui';
-	speak: none;
-	font-style: normal;
-	font-weight: normal;
-	font-variant: normal;
-	text-transform: none;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
+*/
+ 
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "cmsms-ui";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+ 
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  /* margin-right: 0.2em; */
+  text-align: center;
+  /* opacity: 0.8; */
+ 
+  /* For safety - reset parent styles that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+ 
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1;
+ 
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  /* margin-left: 0.2em; */
+ 
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+ 
+  /* Font smoothing. That was taken from TWBS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+ 
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
-
-.icon-stack:before {
-	content: "\e607";
-}
-.icon-folder-open:before {
-	content: "\e600";
-}
-.icon-calendar:before {
-	content: "\e608";
-}
-.icon-warning:before {
-	content: "\e601";
-}
-.icon-info:before {
-	content: "\e602";
-}
-.icon-cancel-circle:before {
-	content: "\e603";
-}
-.icon-checkmark-circle:before {
-	content: "\e604";
-}
-.icon-spam:before {
-	content: "\e605";
-}
-.icon-loop:before {
-	content: "\e606";
-}
-.icon-googleplus:before {
-	content: "\e609";
-}
-.icon-facebook:before {
-	content: "\e60a";
-}
-.icon-twitter:before {
-	content: "\e60b";
-}
-.icon-linkedin:before {
-	content: "\e60c";
-}
-
-.icon-asterisk {
-	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-}
-
-.icon-asterisk:before {
-	content: " *";
-}
+ 
+.icon-folder:before { content: '\e600'; } /* '' */
+.icon-check:before { content: '\e601'; } /* '' */
+.icon-warning:before { content: '\e602'; } /* '' */
+.icon-cancel:before { content: '\e603'; } /* '' */
+.icon-info:before { content: '\e604'; } /* '' */
+.icon-refresh:before { content: '\e605'; } /* '' */
+.icon-when:before { content: '\e606'; } /* '' */
+.icon-fork:before { content: '\e607'; } /* '' */
+.icon-asterisk:before { content: '\e608'; } /* '' */
+.icon-right:before { content: '\e609'; } /* '' */
+.icon-left:before { content: '\e60a'; } /* '' */
 
 /* --- Colours --- */
 
@@ -476,7 +470,7 @@ h1, h2, h3, h4, h5, h6 {
 	margin: -.25em .25em 0;
 	background-color: #efefef;
 	padding: .1em .5em;
-	text-transform: uppercase;
+/*	text-transform: uppercase; */
 	font-weight: 400;
 	font-size: .875em;
 	border-radius: 3px;
@@ -901,7 +895,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cmsms-ui .installer-form .corner .icon-asterisk {
-	margin-left: 12px;
+/*	margin-left: 12px; */
 }
 
 .cmsms-ui .installer-content-section h1 {
@@ -921,7 +915,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #bottom_nav {
-    display: none;
+	display: none;
 }
 
 /* FOOTER */

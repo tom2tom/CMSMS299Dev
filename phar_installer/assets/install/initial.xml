@@ -23,7 +23,7 @@
  <!ELEMENT type_dflt (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
  <!ELEMENT pages (page+)>
- <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text,cachable?)>
+ <!ELEMENT page (content_id,content_name,content_alias?,type,template_id,parent_id,active?,default_content?,show_in_menu?,menu_text?,cachable?)>
  <!ELEMENT content_id (#PCDATA)>
  <!ELEMENT content_name (#PCDATA)>
  <!ELEMENT content_alias (#PCDATA)>

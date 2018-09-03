@@ -3,81 +3,81 @@
 {extends file='wizard_step.tpl'}
 
 {block name='logic'}
-    {$subtitle = 'title_step6'|tr}
-    {$current_step = '6'}
+  {$subtitle = 'title_step6'|tr}
+  {$current_step = '6'}
 {/block}
 
 {block name='contents'}
 
 <div class="installer-form">
 {wizard_form_start}
-    <p>{'info_adminaccount'|tr}</p>
+  <p>{'info_adminaccount'|tr}</p>
 
-    <fieldset>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'username'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <input class="form-field required full-width" type="text" name="username" required="required" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-            </div>
+  <fieldset>
+    <div class="row form-row">
+      <div class="four-col">
+        <label for="name">{'username'|tr}</label>
+      </div>
+      <div class="eight-col">
+        <input class="form-field required full-width" type="text" id="name" name="username" value="{$account.username}" required="required" />
+        <div class="corner red">
+          <i class="icon-asterisk"></i>
         </div>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'password'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <input class="form-field required full-width" type="password" name="password" required="required" autocomplete="off" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-            </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="four-col">
+        <label for="pass">{'password'|tr}</label>
+      </div>
+      <div class="eight-col">
+        <input class="form-field required full-width" type="password" id="pass" name="password" value="{$account.password}" required="required" autocomplete="off" />
+        <div class="corner red">
+          <i class="icon-asterisk"></i>
         </div>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'repeatpw'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <input class="form-field required full-width" type="password" name="repeatpw" required="required" autocomplete="off" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-            </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="four-col">
+        <label for="again">{'repeatpw'|tr}</label>
+      </div>
+      <div class="eight-col">
+        <input class="form-field required full-width" type="password" id="again" name="repeatpw" value="{$account.password}" required="required" autocomplete="off" />
+        <div class="corner red">
+          <i class="icon-asterisk"></i>
         </div>
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'emailaddr'|tr}</label>
-            </div>
-            <div class="eight-col">
-            {if $verbose}
-                <input class="form-field full-width" type="email" name="emailaddr" />
-            {else}
-                <input class="form-field required full-width" type="email" name="emailaddr" required="required" />
-                <div class="corner red">
-                    <i class="icon-asterisk"></i>
-                </div>
-	        {/if}
-            </div>
+      </div>
+    </div>
+    <div class="row form-row">
+      <div class="four-col">
+        <label for="email">{'emailaddr'|tr}</label>
+      </div>
+      <div class="eight-col">
+      {if $verbose}
+        <input class="form-field full-width" type="email" id="email" value="{$account.emailaddr}" name="emailaddr" />
+      {else}
+        <input class="form-field required full-width" type="email" id="email" name="emailaddr" value="{$account.emailaddr}" required="required" />
+        <div class="corner red">
+          <i class="icon-asterisk"></i>
         </div>
-{*        {if $verbose}
-        <div class="row form-row">
-            <div class="four-col">
-                <label>{'emailaccountinfo'|tr}</label>
-            </div>
-            <div class="eight-col">
-                <select id="emailacctinfo" name="emailaccountinfo" class="form-field">
-                    {html_options options=$yesno selected=$account.emailaccountinfo}
-                </select>
-            </div>
-        </div>
-        {/if}*}
+      {/if}
+      </div>
+    </div>
+{*    {if $verbose}
+    <div class="row form-row">
+      <div class="four-col">
+        <label for="emailacctinfo">{'emailaccountinfo'|tr}</label>
+      </div>
+      <div class="eight-col">
+        <select id="emailacctinfo" name="emailaccountinfo" class="form-field">
+          {html_options options=$yesno selected=$account.emailaccountinfo}
+        </select>
+      </div>
+    </div>
+    {/if}*}
 
-	<div id="bottom_nav">
-        <input class="action-button positive" type="submit" name="next" value="{'next'|tr} &rarr;" />
-	</div>
+  <div id="bottom_nav">
+    <button class="action-button positive" type="submit" name="next">{'next'|tr} <i class='icon-right'></i></button>
+  </div>
 
 {wizard_form_end}
 </div>

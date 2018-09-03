@@ -315,7 +315,7 @@ class wizard_step3 extends wizard_step
             }
         } else {
             $dest = $app->get_destdir();
-            $config_file = $dest.'/config.php';
+            $config_file = $dest.DIRECTORY_SEPARATOR.'config.php';
             $obj = new boolean_test('config_writable',!is_file($config_file) || is_writable($config_file));
             $obj->required = true;
             $obj->fail_key = 'fail_config_writable';

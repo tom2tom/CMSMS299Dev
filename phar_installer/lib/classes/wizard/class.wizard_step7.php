@@ -107,7 +107,7 @@ class wizard_step7 extends wizard_step
                 if( !is_file( $pre_files ) ) continue;
 
                 $destdir = $destdir; // make sure it's in scope.
-                include( $pre_files );
+                include $pre_files;
             }
         }
     }
@@ -191,7 +191,7 @@ class wizard_step7 extends wizard_step
         // here, we do either the upgrade, or the install stuff.
         parent::display();
         $action = $this->get_wizard()->get_data('action');
-	    $smarty = smarty();
+        $smarty = smarty();
         $smarty->assign('next_url',$this->get_wizard()->next_url());
         if( $action == 'freshen' ) {
             $smarty->assign('next_url',$this->get_wizard()->step_url(9));

@@ -49,7 +49,23 @@ abstract class installer_base
         }
         $this->_assetdir = dirname($configfile);
         $p = $this->_assetdir.DIRECTORY_SEPARATOR.'config.ini';
-        $this->_config = (file_exists($p)) ? parse_ini_file($p) : false;
+		$config = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : [];
+
+        // custom config data
+		$p = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'upinst.ini';
+		$xconfig = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : false;
+		if( $xconfig ) {
+			foreach( $xconfig as $k =>$v) {
+				if( $v ) {
+					$config[$k] = $v;
+				}
+				elseif( is_numeric($v) ) {
+					$config[$k] = $v + 0;
+				}
+			}
+		}
+
+        $this->_config = ($config) ? $config : false;
     }
 
     public static function get_instance() : self

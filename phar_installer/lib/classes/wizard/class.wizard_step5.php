@@ -44,7 +44,7 @@ class wizard_step5 extends wizard_step
         $app = get_app();
         $config = $app->get_config();
 
-        if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = trim(utils::clean_string($_POST['sitename']));
+        if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = utils::clean_string($_POST['sitename']);
         if( isset($_POST['languages']) ) {
             $tmp = [];
             foreach ( $_POST['languages'] as $lang ) {
@@ -73,12 +73,22 @@ class wizard_step5 extends wizard_step
 
         $smarty = smarty();
         $smarty->assign('action',$action);
-        $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
-        $smarty->assign('siteinfo',$this->_siteinfo);
+
+        $app = get_app();
+        $config = $app->get_config();
+        $raw = $config['verbose'] ?? null;
+        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+        $smarty->assign('verbose',$v);
+
+        $raw = $config['sitename'] ?? null;
+        $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
+        $smarty->assign('sitename',$v);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $languages = get_app()->get_language_list();
         unset($languages['en_US']);
         $smarty->assign('language_list',$languages);
+//        $raw = $config['exlang'] ?? null;
+        $smarty->assign('languages', []);
 
         $smarty->display('wizard_step5.tpl');
         $this->finish();

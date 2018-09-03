@@ -27,7 +27,7 @@
     <tbody>
     {foreach $tests as $test}
         <tr class="{cycle values='odd,even'}{if $test->status == 'test_fail'} error{/if}{if $test->status == 'test_warn'} warning{/if}">
-            <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel-circle red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="icon-checkmark-circle green"></i>{/if}</td>
+            <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="icon-check green"></i>{/if}</td>
             <td>
                 {$test->name|tr}
                 {$str = $test->msg()}
@@ -56,11 +56,11 @@
     </thead>
     <tbody>
         <tr>
-            <td class="test_fail red"><i title="{'test_failed'|tr}" class="icon-cancel-circle red"></td>
+            <td class="test_fail red"><i title="{'test_failed'|tr}" class="icon-cancel red"></td>
             <td>{'test_failed'|tr}</td>
         </tr>
         <tr>
-            <td class="test_pass green"><i title="{'test_passed'|tr|strip_tags}" class="icon-checkmark-circle green"></i></td>
+            <td class="test_pass green"><i title="{'test_passed'|tr|strip_tags}" class="icon-check green"></i></td>
             <td>{'test_passed'|tr}</td>
         </tr>
         <tr>
@@ -73,8 +73,8 @@
 <div class="message yellow">{'warn_tests'|tr}</div>
 
 <div id="bottom_nav">
-{if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}">{'retry'|tr} <i class="icon-loop"></i></a>{/if}
-{if $can_continue} <a href="{$next_url}" class="action-button positive" title="{'next'|tr}">{'next'|tr} &rarr;</a>{/if}
+{if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}">{'retry'|tr} <i class="icon-refresh"></i></a>{/if}
+{if $can_continue} <a href="{$next_url}" class="action-button positive" title="{'next'|tr}">{'next'|tr} <i class="icon-right"></i></a>{/if}
 </div>
 
 {/block}

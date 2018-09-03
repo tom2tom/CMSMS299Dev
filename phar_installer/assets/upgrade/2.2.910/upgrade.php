@@ -18,7 +18,7 @@ foreach( [
 
 $group = new Group();
 $group->name = 'CodeManager';
-$group->description = 'Members of this group can add/edit/delete files which run the website';
+$group->description = ilang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');

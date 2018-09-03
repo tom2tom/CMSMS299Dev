@@ -34,10 +34,10 @@ $lang['desc_wizard_step3'] = 'Check whether everything is suitable for installin
 $lang['desc_wizard_step4'] = 'For new installs and upgrades, enter basic configuration info';
 $lang['desc_wizard_step5'] = 'For new installs enter some basic site details';
 $lang['desc_wizard_step6'] = 'For new installs enter account info for the initial administrator';
-$lang['desc_wizard_step7'] = 'Extract files';
+$lang['desc_wizard_step7'] = 'Extract and install files';
 $lang['desc_wizard_step8'] = 'Create or update the database schema, set initial events, permissions, user accounts, content-pages, templates and stylesheets';
 $lang['desc_wizard_step9'] = 'Install and/or upgrade modules, write the config file, and clean up';
-$lang['destination_directory'] = 'Destination Directory';
+$lang['destination_directory'] = 'Destination directory';
 $lang['dest_writable'] = 'Write permission in destination directory';
 $lang['disable_functions'] = 'PHP core functions are enabled ?';
 $lang['done'] = 'Done';
@@ -76,7 +76,7 @@ $lang['error_adminacct_emailaddr'] = 'The email address you specified is invalid
 $lang['error_adminacct_password'] = 'The password you specified is invalid (must be at least six characters long)';
 $lang['error_adminacct_repeatpw'] = 'The passwords you entered did not match.';
 $lang['error_adminacct_username'] = 'The username you specified is invalid. Please try again';
-$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> in order to proceed!<br/><br/>After the admin directory name has been reverted, please reload this page.';
+$lang['error_admindirrenamed'] = 'It appears that the site\'s admin directory has been renamed. That change must be <a href="https://docs.cmsmadesimple.org/general-information/securing-cmsms#renaming-admin-folder" target="_blank" class="external">reversed</a> (on disk and in the config.php file) in order to proceed!<br/><br/>After that directory has been reverted to &quot;admin&quot;, please reload this page.';
 $lang['error_backupconfig'] = 'Unable to properly backup the config file';
 $lang['error_checksum'] = 'Extracted file checksum does not match original';
 $lang['error_cmstablesexist'] = 'It appears that there is already a CMS installation on this database. Please enter different database information. If you would like to use a different table prefix you might need to restart the installation process and enable advanced mode.';
@@ -155,7 +155,7 @@ $lang['file_get_contents'] = 'file_get_contents() method is available ?';
 $lang['file_installed'] = 'Install %s';
 $lang['file_uploads'] = 'File upload functionality is available ?';
 $lang['finished_custom_freshen_msg'] = 'The installation has been freshened! The core files have been updated, and a new config file created. Please visit this website to ensure that everything is functioning correctly';
-$lang['finished_custom_install_msg'] = 'Done! Please visit the website and login to the Admin panel.';
+$lang['finished_custom_install_msg'] = 'Done! Please visit the website and login to the <a href="%s">Admin panel</a>.';
 $lang['finished_custom_upgrade_msg'] = 'Done!  Please visit the site\'s admin panel, and frontend, to ensure that everything is working properly.<br/><strong>Hint:</strong> Now is a good time to create another backup.';
 $lang['finished_freshen_msg'] = 'The installation has been freshened! The core files have been updated, and a new config file created.  You can now <a href="%s">visit this website</a> or login to the <a href="%s">CMSMS Admin panel</a>.';
 $lang['finished_install_msg'] = 'All done! You can now <a href="%s">visit the website</a> or login to the <a href="%s">CMSMS admin panel</a>.';
@@ -170,6 +170,8 @@ $lang['func_ziparchive'] = 'ziparchive() method is available ?';
 # G
 $lang['gd_version'] = 'PHP GD2 extension is available ?';
 $lang['goback'] = 'Back';
+$lang['grp_admin_desc'] = 'Members of this group can manage the entire site';
+$lang['grp_coder_desc'] = 'Members of this group can add/edit/delete files which run the website';
 
 # H
 
@@ -275,10 +277,10 @@ $lang['prompt_createtables'] = 'Create Database Tables';
 $lang['prompt_dbhost'] = 'Database Hostname';
 $lang['prompt_dbinfo'] = 'Database Information';
 $lang['prompt_dbname'] = 'Database Name';
-$lang['prompt_dbpass'] = 'Password';
+$lang['prompt_dbpass'] = 'Database Password';
 $lang['prompt_dbport'] = 'Database Port Number';
 $lang['prompt_dbprefix'] = 'Database Table Name Prefix';
-$lang['prompt_dbuser'] = 'User name';
+$lang['prompt_dbuser'] = 'Database User';
 $lang['prompt_dir'] = 'Installation Directory';
 $lang['prompt_installcontent'] = 'Install Sample Content';
 $lang['prompt_queryvar'] = 'Query Variable';
@@ -293,7 +295,7 @@ $lang['queue_for_upgrade'] = 'Queued non-core module %s for upgrade at the next 
 $lang['readme_uc'] = 'README';
 $lang['register_globals'] = '&quot;register globals&quot; is disabled ?';
 $lang['remote_url'] = 'Outgoing HTTP connections are possible ?';
-$lang['repeatpw'] = 'Repeat password';
+$lang['repeatpw'] = 'Repeat Password';
 $lang['reset_site_preferences'] = 'Reset some site preferences';
 $lang['reset_user_settings'] = 'Reset user preferences';
 $lang['retry'] = 'Retry';
@@ -318,7 +320,7 @@ $lang['step2_confirminstall'] = 'Are you sure you would like to install CMS Made
 $lang['step2_confirmupgrade'] = 'Are you sure you would like to upgrade CMS Made Simple';
 $lang['step2_errorsamever'] = 'The selected directory appears to contain a CMSMS installation with the same version that is included in this script. Continuing will freshen the installation.';
 $lang['step2_errortoonew'] = 'The selected directory appears to contain a CMSMS installation with a newer version that is included in this script. Unable to proceed';
-$lang['step2_info_freshen'] = 'Freshening the installation involves replacing all core files and recreating the configuration. You will be asked basic configuration information, however the database will not be touched.';
+$lang['step2_info_freshen'] = 'Freshening the installation involves replacing all core files and recreating the configuration. Basic configuration information can be changed, but the database will not be touched.';
 $lang['step2_installdate'] = 'Approximate installation date';
 $lang['step2_install_dirnotempty2'] = 'The installation folder already contains some files and/or folders.  Although it is possible to install CMSMS here, doing so might corrupt something else already there.  Please double check the contents of this folder.  For reference some of the files are listed below.  Please ensure that this is correct.';
 $lang['step2_hdr_upgradeinfo'] = 'Version information';
@@ -328,7 +330,7 @@ $lang['step2_nocmsms'] = 'It looks like this is a new installation.';
 $lang['step2_nofiles'] = 'As requested, CMSMS Core files will not be processed during this process';
 $lang['step2_passed'] = 'Passed';
 $lang['step2_pwd'] = 'The current working directory';
-$lang['step2_schemaver'] = 'Database Schema Version';
+$lang['step2_schemaver'] = 'Database schema version';
 $lang['step2_version'] = 'Current version';
 $lang['step3_failed'] = 'The installer has performed numerous tests of the site\'s PHP environment, and one or more of those tests have failed. Those errors will need to be rectified before continuing. After that\'s done, click &quot;Retry&quot; below.';
 $lang['step3_passed'] = 'The installer has performed numerous tests of the site\'s PHP environment, and they have all passed. This is great news!';
@@ -343,13 +345,13 @@ $lang['test_warning'] = 'A setting is above the required value, but below the re
 $lang['th_status'] = 'Status';
 $lang['th_testname'] = 'Test';
 $lang['th_value'] = 'Value';
-$lang['title_error'] = 'Houston, We have a problem!';
+$lang['title_error'] = 'Houston, we have a problem!';
 $lang['title_step2'] = 'Step 2 - Detect pre-existing contents';
 $lang['title_step3'] = 'Step 3 - Tests';
 $lang['title_step4'] = 'Step 4 - Basic Configuration Information';
 $lang['title_step5'] = 'Step 5 - Site Settings';
 $lang['title_step6'] = 'Step 6 - Site Administrator Information';
-$lang['title_step7'] = 'Step 7 - Install Application Files';
+$lang['title_step7'] = 'Step 7 - Install Files';
 $lang['title_step8'] = 'Step 8 - Database Work';
 $lang['title_step9'] = 'Step 9 - Finish';
 $lang['title_welcome'] = 'Welcome';
@@ -368,7 +370,7 @@ $lang['upgrade_deletetable'] = 'Deleted old table %s';
 $lang['upgrade_modifytable'] = 'Modified table %s';
 $lang['upgrading_schema'] = 'Update database schema';
 $lang['upload_max_filesize'] = 'Maximum size of uploaded files is sufficient ?';
-$lang['username'] = 'User name';
+$lang['username'] = 'Login/Account';
 
 # V
 
@@ -389,7 +391,7 @@ $lang['wizard_step4'] = 'Configuration Info';
 $lang['wizard_step5'] = 'Site Settings';
 $lang['wizard_step6'] = 'Site Administrator';
 $lang['wizard_step7'] = 'Files';
-$lang['wizard_step8'] = 'Database work';
+$lang['wizard_step8'] = 'Database Work';
 $lang['wizard_step9'] = 'Finish';
 
 # X

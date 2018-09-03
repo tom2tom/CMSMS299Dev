@@ -6,6 +6,7 @@ use __installer\utils;
 use Exception;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
+use function __installer\get_app;
 
 class wizard_step6 extends wizard_step
 {
@@ -14,7 +15,13 @@ class wizard_step6 extends wizard_step
     public function __construct()
     {
         parent::__construct();
-        $this->_adminacct = ['username'=>'admin','emailaddr'=>'','password'=>'','repeatpw'=>'']; //,'emailaccountinfo'=>1);
+        $this->_adminacct = [
+        'username'=>'admin',
+        'emailaddr'=>'',
+        'password'=>'',
+        'repeatpw'=>'',
+//       'emailaccountinfo'=>1,
+         ];
         $tmp = $this->get_wizard()->get_data('adminaccount');
         if( is_array($tmp) && count($tmp) ) $this->_adminacct = $tmp;
     }
@@ -39,10 +46,12 @@ class wizard_step6 extends wizard_step
 
     protected function process()
     {
-        $this->_adminacct['username'] = trim(utils::clean_string($_POST['username']));
-        $this->_adminacct['emailaddr'] = trim(utils::clean_string($_POST['emailaddr']));
-        $this->_adminacct['password'] = trim(utils::clean_string($_POST['password']));
-        $this->_adminacct['repeatpw'] = trim(utils::clean_string($_POST['repeatpw']));
+        $this->_adminacct['username'] = utils::clean_string($_POST['username']);
+        $this->_adminacct['emailaddr'] = utils::clean_string($_POST['emailaddr']);
+        $this->_adminacct['password'] = trim(filter_var($_POST['password'], FILTER_SANITIZE_STRING,
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
+        $this->_adminacct['repeatpw'] = trim(filter_var($_POST['repeatpw'], FILTER_SANITIZE_STRING,
+            FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK | FILTER_FLAG_NO_ENCODE_QUOTES));
 /*
         if( isset($_POST['emailaccountinfo']) ) $this->_adminacct['emailaccountinfo'] = (int)$_POST['emailaccountinfo'];
         else $this->_adminacct['emailaccountinfo'] = 1;
@@ -64,10 +73,29 @@ class wizard_step6 extends wizard_step
         parent::display();
         $smarty = smarty();
 
-        $smarty->assign('verbose',$this->get_wizard()->get_data('verbose',0));
-        $smarty->assign('account',$this->_adminacct);
+        $app = get_app();
+        $config = $app->get_config();
+        $raw = $config['verbose'] ?? null;
+        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+        $smarty->assign('verbose',$v);
+
+        $tmp = $this->_adminacct;
+        $raw = $config['adminlogin'] ?? null;
+        if ($raw !== null) {
+            $tmp['username'] = trim($raw);
+        }
+        $raw = $config['adminemail'] ?? null;
+        if ($raw !== null) {
+            $tmp['emailaddr'] = trim($raw);
+        }
+        $raw = $config['adminpw'] ?? null;
+        if ($raw !== null) {
+            $tmp['password'] = trim($raw);
+        }
+        $smarty->assign('account',$tmp);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step6.tpl');
+
         $this->finish();
     }
 

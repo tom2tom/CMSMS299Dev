@@ -117,7 +117,7 @@ VALUES (?,?,?,NOW(),NOW())');
         // write-protect config.php
         @chmod("$destdir/config.php",0440);
 
-        $adminacct = $this->get_wizard()->get_data('adminaccount');
+//        $adminacct = $this->get_wizard()->get_data('adminaccount');
         $root_url = $app->get_root_url();
         if( !endswith($root_url,'/') ) $root_url .= '/';
         $admin_url = $root_url.'admin';
@@ -159,7 +159,7 @@ VALUES (?,?,?,NOW(),NOW())');
             // find the common part of the SCRIPT_FILENAME and the destdir
             // /var/www/phar_installer/index.php
             // /var/www/foo
-            $this->set_block_html('bottom_nav',lang('finished_custom_install_msg'));
+            $this->set_block_html('bottom_nav',lang('finished_custom_install_msg',$admin_url));
         }
         else {
             if( endswith($root_url,'/') ) $admin_url = $root_url.'admin';
@@ -219,9 +219,9 @@ VALUES (?,?,?,NOW(),NOW())');
         $DONT_LOAD_SMARTY = 1;
         $CMS_VERSION = $this->get_wizard()->get_data('destversion');
         if( is_file("$destdir/include.php") ) {
-            include_once($destdir.'/include.php');
+            include_once $destdir.'/include.php';
         } else {
-            include_once($destdir.'/lib/include.php');
+            include_once $destdir.'/lib/include.php';
         }
 
         if( !defined('CMS_VERSION') ) {

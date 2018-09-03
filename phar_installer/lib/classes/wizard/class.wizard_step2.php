@@ -13,24 +13,33 @@ class wizard_step2 extends wizard_step
     private function get_cmsms_info($dir)
     {
         if( !$dir ) return;
-        //if( !is_dir($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules') ) return;
+
+        $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
+        if( !is_file($fn) ) return;
+
+        include_once $fn;
+
+        if( isset($config['admin_dir']) ) {
+            if( $config['admin_dir'] != 'admin' ) throw new Exception(lang('error_admindirrenamed'));
+        }
+
+        if( !is_file($dir.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
+//      if( !is_dir($dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'modules') ) return;
         if( !is_file($dir.DIRECTORY_SEPARATOR.'version.php') && !is_file($dir.DIRECTORY_SEPARATOR.'lib/version.php') ) return;
         if( !is_file($dir.DIRECTORY_SEPARATOR.'include.php') && !is_file($dir.DIRECTORY_SEPARATOR.'lib/include.php') ) return;
-        if( !is_file($dir.DIRECTORY_SEPARATOR.'config.php') ) return;
-        if( !is_file($dir.DIRECTORY_SEPARATOR.'moduleinterface.php') ) return;
 
         $info = [];
         if( is_file("$dir/version.php") ) {
-            include_once($dir.DIRECTORY_SEPARATOR.'version.php');
+            include_once $dir.DIRECTORY_SEPARATOR.'version.php';
             $info['mtime'] = filemtime($dir.DIRECTORY_SEPARATOR.'version.php');
         } else {
-            include_once($dir.DIRECTORY_SEPARATOR.'lib/version.php');
+            include_once $dir.DIRECTORY_SEPARATOR.'lib/version.php';
             $info['mtime'] = filemtime($dir.DIRECTORY_SEPARATOR.'lib/version.php');
         }
         $info['version'] = $CMS_VERSION;
         $info['version_name'] = $CMS_VERSION_NAME;
         $info['schema_version'] = $CMS_SCHEMA_VERSION;
-        $info['config_file'] = $dir.DIRECTORY_SEPARATOR.'config.php';
+        $info['config_file'] = $fn;
 
         $app = get_app();
         $app_config = $app->get_config();
@@ -39,12 +48,7 @@ class wizard_step2 extends wizard_step
         if( version_compare($info['version'],$app->get_dest_version()) == 0 ) $info['error_status'] = 'same_ver';
         if( version_compare($info['version'],$app->get_dest_version()) > 0 ) $info['error_status'] = 'too_new';
 
-        $fn = $dir.DIRECTORY_SEPARATOR.'config.php';
-        include_once($fn);
         $info['config'] = $config;
-        if( isset($config['admin_dir']) ) {
-            if( $config['admin_dir'] != 'admin' ) throw new Exception(lang('error_admindirrenamed'));
-        }
         return $info;
     }
 

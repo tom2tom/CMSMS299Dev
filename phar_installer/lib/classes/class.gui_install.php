@@ -9,7 +9,6 @@ use PharData;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use function __installer\CMSMS\endswith;
-use function __installer\CMSMS\joinpath;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\nls;
 use function __installer\CMSMS\smarty;
@@ -48,7 +47,7 @@ class gui_install extends installer_base
 
         // initialize the session.
         $sess = session::get();
-        $junk = $sess[__CLASS__]; // this is junk, but triggers session to start.
+        $p = $sess[__CLASS__]; // trigger session start.
 
         // get the request
         $request = request::get();
@@ -56,7 +55,7 @@ class gui_install extends installer_base
             $sess->reset();
         }
 
-        $config = $this->get_config();
+        $config = $this->get_config(); // generic config data
 
         $this->fixup_tmpdir_environment();
 
@@ -114,7 +113,7 @@ class gui_install extends installer_base
         else {
             $verfile = dirname($src_archive).'/version.php';
             if( !is_file($verfile) ) throw new Exception('Could not find version file');
-            include_once($verfile);
+            include_once $verfile;
             $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
             $sess[__CLASS__.'version'] = $ver;
             $this->_dest_version = $CMS_VERSION;
@@ -148,8 +147,17 @@ class gui_install extends installer_base
 
     protected function set_config_defaults()
     {
-        $tmp = [ 'timezone' => null, 'tmpdir' => null, 'dest' => null, 'debug' => false, 'nofiles' => false, 'nobase' => false, 'lang' => null, 'verbose' => false ];
-        $config = array_merge(parent::get_config(), $tmp);
+        $tmp = [
+			'debug' => false,
+			'dest' => null,
+			'lang' => null,
+			'nobase' => false,
+			'nofiles' => false,
+			'timezone' => null,
+			'tmpdir' => null,
+			'verbose' => false,
+		];
+        $config = array_merge($tmp, parent::get_config());
         $this->_orig_tz = $config['timezone'] = @date_default_timezone_get();
         if( !$this->_orig_tz ) $this->_orig_tz = $config['timezone'] = 'UTC';
         $config['dest'] = realpath(getcwd());
@@ -173,7 +181,18 @@ class gui_install extends installer_base
 
         // override current config with url params
         $request = request::get();
-        $list = [ 'TMPDIR', 'tmpdir', 'timezone', 'tz', 'dest', 'destdir', 'debug', 'nofiles', 'no_files', 'nobase' ];
+        $list = [
+			'debug',
+			'dest',
+			'destdir',
+			'no_files',
+			'nobase',
+			'nofiles',
+			'timezone',
+			'TMPDIR',
+			'tmpdir',
+			'tz',
+		];
         foreach( $list as $key ) {
         if( !isset($request[$key]) ) continue;
             $val = $request[$key];
@@ -189,7 +208,6 @@ class gui_install extends installer_base
             case 'dest':
             case 'destdir':
                 $this->_custom_destdir = $config['dest'] = trim($val);
-
                 break;
             case 'debug':
                 $config['debug'] = utils::to_bool($val);
@@ -331,7 +349,7 @@ class gui_install extends installer_base
                $tmpdir = $this->get_tmpdir();
                $fn = "$tmpdir/tmp_".basename($file);
                @copy($file,$fn);
-               include($fn);
+               include $fn;
                unlink($fn);
             }
         }
@@ -376,14 +394,13 @@ class gui_install extends installer_base
     public function run()
     {
         // set the languages we're going to support.
-        $list = nls()->get_list();
-        foreach( $list as &$one ) $one = substr($one,0,-4);
+        $list = translator()->get_available_languages();
         translator()->set_allowed_languages($list);
 
         // the default language.
         translator()->set_default_language('en_US');
 
-        // get the language preferred by the user (either in the request, in a cookie, or in the session)
+        // get the language preferred by the user (either in the request, in a cookie, or in the session, or in custom config)
         $lang = translator()->get_selected_language();
 
         if( !$lang ) $lang = translator()->get_default_language(); // get a preferred language
