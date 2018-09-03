@@ -20,7 +20,7 @@
         <label for="host">{'prompt_dbhost'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field required full-width" type="text" id="host" name="db_hostname" value="{$config.dbhost}" required="required" />
+        <input class="form-field required full-width" type="text" id="host" name="db_hostname" value="{$config.db_hostname}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
@@ -31,7 +31,7 @@
         <label for="name">{'prompt_dbname'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field required full-width" type="text" id="name" name="db_name" value="{$config.dbname}" required="required" />
+        <input class="form-field required full-width" type="text" id="name" name="db_name" value="{$config.db_name}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
@@ -42,7 +42,7 @@
         <label for="user">{'prompt_dbuser'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field required full-width" type="text" id="user" name="db_username" value="{$config.dbuser}" required="required" autocomplete="off" />
+        <input class="form-field required full-width" type="text" id="user" name="db_username" value="{$config.db_username}" required="required" autocomplete="off" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
@@ -53,7 +53,7 @@
         <label for="pass">{'prompt_dbpass'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field required full-width" type="password" id="pass" name="db_password" value="{$config.dbpw}" autocomplete="false" required="required" />
+        <input class="form-field required full-width" type="password" id="pass" name="db_password" value="{$config.db_password}" autocomplete="false" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
@@ -65,7 +65,7 @@
         <label for="port">{'prompt_dbport'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field full-width" type="text" id="port" name="db_port" value="{$config.dbport}" />
+        <input class="form-field full-width" type="text" id="port" name="db_port" value="{$config.db_port}" />
       </div>
     </div>
     <div class="row form-row">
@@ -73,12 +73,12 @@
         <label for="prefix">{'prompt_dbprefix'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field full-width" type="text" id="prefix" name="db_prefix" value="{$config.dbprefix}" />
+        <input class="form-field full-width" type="text" id="prefix" name="db_prefix" value="{$config.db_prefix}" />
       </div>
     </div>
     {else}
-     <input type="hidden" name="db_port" value="{$config.dbport}" />
-     <input type="hidden" name="db_prefix" value="{$config.dbprefix}" />
+     <input type="hidden" name="db_port" value="{$config.db_port}" />
+     <input type="hidden" name="db_prefix" value="{$config.db_prefix}" />
     {/if}
   </fieldset>
 
@@ -101,11 +101,11 @@
       <label for="qvar">{'prompt_queryvar'|tr}</label>
     </div>
     <div class="eight-col">
-      <input class="form-field" type="text" id="qvar" name="query_var" value="{$config.dbqueryvar}" />
+      <input class="form-field" type="text" id="qvar" name="query_var" value="{$config.query_var}" />
     </div>
   </div>
   {else}
-    <input type="hidden" name="query_var" value="{$config.dbqueryvar}" />
+    <input type="hidden" name="query_var" value="{$config.query_var}" />
   {/if}
 
   {if $verbose and $action == 'install'}

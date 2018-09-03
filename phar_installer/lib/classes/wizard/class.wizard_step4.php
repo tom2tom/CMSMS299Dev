@@ -27,14 +27,14 @@ class wizard_step4 extends wizard_step
             @date_default_timezone_set('UTC');
         }
         $this->_config = [
-            'dbtype'=>'mysqli',
-            'dbhost'=>'localhost',
-            'dbname'=>'',
-            'dbuser'=>'',
-            'dbpw'=>'',
-            'dbprefix'=>'cms_',
-            'dbport'=>'',
-            'dbqueryvar'=>'',
+            'db_type'=>'mysqli',
+            'db_hostname'=>'localhost',
+            'db_name'=>'',
+            'db_username'=>'',
+            'db_password'=>'',
+            'db_prefix'=>'cms_',
+            'db_port'=>'',
+            'query_var'=>'',
             'timezone'=>$tz,
             'samplecontent'=>TRUE,
         ];
@@ -50,15 +50,15 @@ class wizard_step4 extends wizard_step
             $destdir = $app->get_destdir();
             $config_file = $destdir.DIRECTORY_SEPARATOR.'config.php';
             include_once $config_file;
-//            $this->_config['dbtype'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
-            $this->_config['dbhost'] = $config['db_hostname'];
-            $this->_config['dbuser'] = $config['db_username'];
-            $this->_config['dbpw'] = $config['db_password'];
-            $this->_config['dbname'] = $config['db_name'];
-            $this->_config['dbprefix'] = $config['db_prefix'];
-            if( isset($config['db_port']) ) $this->_config['dbport'] = $config['db_port'];
+//            $this->_config['db_type'] = /*$config['db_type'] ?? $config['dbms'] ??*/ 'mysqli';
+            $this->_config['db_hostname'] = $config['db_hostname'];
+            $this->_config['db_username'] = $config['db_username'];
+            $this->_config['db_password'] = $config['db_password'];
+            $this->_config['db_name'] = $config['db_name'];
+            $this->_config['db_prefix'] = $config['db_prefix'];
+            if( isset($config['db_port']) ) $this->_config['db_port'] = $config['db_port'];
             if( isset($config['timezone']) ) $this->_config['timezone'] = $config['timezone'];
-            if( isset($config['query_var']) ) $this->_config['dbqueryvar'] = $config['query_var'];
+            if( isset($config['query_var']) ) $this->_config['query_var'] = $config['query_var'];
         }
     }
 

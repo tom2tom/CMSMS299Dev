@@ -12,13 +12,13 @@ function GetDb(array $config)
   if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.ConnectionSpec.php')) {
     // old Connection class
     $spec = new CMSMS\Database\ConnectionSpec();
-    $spec->type = $config['dbtype'];
-    $spec->host = $config['dbhost'];
-    $spec->username = $config['dbuser'];
-    $spec->password = $config['dbpass'];
-    $spec->dbname = $config['dbname'];
-    $spec->port = $config['dbport'] ?? null;
-    $spec->prefix = $config['dbprefix'];
+    $spec->type = $config['db_type'];
+    $spec->host = $config['db_host'];
+    $spec->username = $config['db_username'];
+    $spec->password = $config['db_password'];
+    $spec->dbname = $config['db_name'];
+    $spec->port = $config['db_port'] ?? null;
+    $spec->prefix = $config['db_prefix'];
     $db = new CMSMS\Database\mysqli\Connection($spec);
     if ($db instanceof CMSMS\Database\Connection) {
 	  try {
