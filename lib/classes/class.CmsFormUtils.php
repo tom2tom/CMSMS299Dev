@@ -121,11 +121,9 @@ class CmsFormUtils
                         $myfunc = 'create_select';
                     case 'datalist':
                     //TODO
-                    $X = $CRASH;
                         break;
                     case 'textwithlabel':
                     //TODO
-                    $X = $CRASH;
                         break;
                     case 'datetimelocal':
                         $detail = 'datetime-local';

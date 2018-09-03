@@ -233,14 +233,14 @@ abstract class ContentBase
 	 *
 	 * @internal
 	 */
-	protected $mShowInMenu = false;
+	protected $mShowInMenu = 0;
 
 	/**
 	 * Is this page the default?
 	 *
 	 * @internal
 	 */
-	protected $mDefaultContent = false;
+	protected $mDefaultContent = 0;
 
 	/**
 	 * Last user to modify this content
@@ -780,7 +780,9 @@ abstract class ContentBase
 	 */
 	public function SetDefaultContent($defaultcontent)
 	{
-		if( $this->IsDefaultPossible() ) $this->mDefaultContent = (bool) $defaultcontent;
+		if( $this->IsDefaultPossible() ) {
+			$this->mDefaultContent = (bool) $defaultcontent;
+		}
 	}
 
 	/**
@@ -1241,7 +1243,7 @@ abstract class ContentBase
 		$this->mActive                     = ($data['active'] == 1);
 		$this->mShowInMenu                 = ($data['show_in_menu'] == 1);
 		$this->mCachable                   = ($data['cachable'] == 1);
-		if( isset($data['page_url']) ) $this->mURL  = $data['page_url'];
+		$this->mURL                        = $data['page_url'] ?? null;
 		$this->mLastModifiedBy             = $data['last_modified_by'];
 		$this->mCreationDate               = $data['create_date'];
 		$this->mModifiedDate               = $data['modified_date'];
@@ -1371,29 +1373,50 @@ abstract class ContentBase
 
 		$this->mModifiedDate = trim($db->DbTimeStamp(time()), "'");
 
-		$query = 'UPDATE '.CMS_DB_PREFIX.'content SET content_name = ?, owner_id = ?, type = ?, template_id = ?, parent_id = ?, active = ?, default_content = ?, show_in_menu = ?, cachable = ?, page_url = ?, menu_text = ?, content_alias = ?, metadata = ?, titleattribute = ?, accesskey = ?, tabindex = ?, modified_date = ?, item_order = ?, last_modified_by = ? WHERE content_id = ?';
-		$dbresult = $db->Execute($query, [
-			 $this->mName,
-			 $this->mOwner,
-			 $this->Type(),
-			 $this->mTemplateId,
-			 $this->mParentId,
-			 ($this->mActive          ? 1 : 0),
-			 ($this->mDefaultContent  ? 1 : 0),
-			 ($this->mShowInMenu      ? 1 : 0),
-			 ($this->mCachable        ? 1 : 0),
-			 $this->mURL,
-			 $this->mMenuText,
-			 $this->mAlias,
-			 $this->mMetadata,
-			 $this->mTitleAttribute,
-			 $this->mAccessKey,
-			 $this->mTabIndex,
-			 $this->mModifiedDate,
-			 $this->mItemOrder,
-			 $this->mLastModifiedBy,
-			 (int) $this->mId
-			 ]);
+		$query = 'UPDATE '.CMS_DB_PREFIX.'content SET
+content_name = ?,
+owner_id = ?,
+type = ?,
+template_id = ?,
+parent_id = ?,
+active = ?,
+default_content = ?,
+show_in_menu = ?,
+cachable = ?,
+page_url = ?,
+menu_text = ?,
+content_alias = ?,
+metadata = ?,
+titleattribute = ?,
+accesskey = ?,
+tabindex = ?,
+modified_date = ?,
+item_order = ?,
+last_modified_by = ?
+WHERE content_id = ?';
+
+		$db->Execute($query, [
+			$this->mName,
+			$this->mOwner,
+			$this->Type(),
+			$this->mTemplateId,
+			$this->mParentId,
+			($this->mActive          ? 1 : 0),
+			($this->mDefaultContent  ? 1 : 0),
+			($this->mShowInMenu      ? 1 : 0),
+			($this->mCachable        ? 1 : 0),
+			$this->mURL,
+			$this->mMenuText,
+			$this->mAlias,
+			$this->mMetadata,
+			$this->mTitleAttribute,
+			$this->mAccessKey,
+			$this->mTabIndex,
+			$this->mModifiedDate,
+			$this->mItemOrder,
+			$this->mLastModifiedBy,
+			(int) $this->mId
+		]);
 
 		if (isset($this->mAdditionalEditors)) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
@@ -1464,30 +1487,30 @@ abstract class ContentBase
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 		$dbresult = $db->Execute($query, [
-			 $newid,
-			 $this->mName,
-			 $this->mAlias,
-			 $this->Type(),
-			 $this->mOwner,
-			 $this->mParentId,
-			 $this->mTemplateId,
-			 $this->mItemOrder,
-			 $this->mHierarchy,
-			 $this->mIdHierarchy,
-			 ($this->mActive          ? 1 : 0),
-			 ($this->mDefaultContent  ? 1 : 0),
-			 ($this->mShowInMenu      ? 1 : 0),
-			 ($this->mCachable        ? 1 : 0),
-			 $this->mURL,
-			 $this->mMenuText,
-			 $this->mMetadata,
-			 $this->mTitleAttribute,
-			 $this->mAccessKey,
-			 $this->mTabIndex,
-			 $this->mLastModifiedBy,
-			 $this->mModifiedDate,
-			 $this->mCreationDate
-			 ]);
+			$newid,
+			$this->mName,
+			$this->mAlias,
+			$this->Type(),
+			$this->mOwner,
+			$this->mParentId,
+			$this->mTemplateId,
+			$this->mItemOrder,
+			$this->mHierarchy,
+			$this->mIdHierarchy,
+			($this->mActive          ? 1 : 0),
+			($this->mDefaultContent  ? 1 : 0),
+			($this->mShowInMenu      ? 1 : 0),
+			($this->mCachable        ? 1 : 0),
+			$this->mURL,
+			$this->mMenuText,
+			$this->mMetadata,
+			$this->mTitleAttribute,
+			$this->mAccessKey,
+			$this->mTabIndex,
+			$this->mLastModifiedBy,
+			$this->mModifiedDate,
+			$this->mCreationDate
+		]);
 
 		if (! $dbresult) {
 			die($db->sql.'<br />'.$db->ErrorMsg());
@@ -1602,8 +1625,8 @@ abstract class ContentBase
 				}
 			}
 		}
-		if( $this->mURL == '' && cms_siteprefs::get('content_mandatory_urls') && !$this->mDefaultContent &&
-			$this->HasUsableLink() ) {
+		if( $this->mURL == '' && cms_siteprefs::get('content_mandatory_urls') &&
+			!$this->mDefaultContent && $this->HasUsableLink() ) {
 			// page url is empty and mandatory
 			$errors[] = lang('content_mandatory_urls');
 		}
