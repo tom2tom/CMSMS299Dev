@@ -759,15 +759,15 @@ abstract class CMSModule
      * @see CMSModule::SetParameters()
      * @see CMSModule::SetParameterType()
      * @final
-     * @param string $param Parameter name;
-     * @param string $defaultval Default parameter value
-     * @param string $helpstring Help String
-     * @param bool   $optional Flag indicating whether this parameter is optional or required.
+     * @param string $param Parameter name
+     * @param mixed  $defaultval Optional default parameter value string | null
+     * @param string $helpstring Optional help string
+     * @param bool   $optional  Optional flag indicating whether this parameter is optional or required. Default true
      */
-    final public function CreateParameter(string $param, string $defaultval = '', string $helpstring = '', bool $optional = true)
+    final public function CreateParameter(string $param, $defaultval = '', string $helpstring = '', bool $optional = true)
     {
         array_push($this->params, ['name' => $param,'default' => $defaultval,'help' => $helpstring,
-                                        'optional' => $optional]);
+                                   'optional' => $optional]);
     }
 
     /**
@@ -2318,19 +2318,17 @@ abstract class CMSModule
      * Used for the various template forms, this method can be used to control the tab that is displayed by default
      * when redirecting to an admin action that displays multiple tabs.
      *
-     * @final
      * @since 1.11
      * @author calguy1000
      * @param string $tab The tab name
      * @see CMSModule::RedirectToAdminTab()
      */
-    final public function SetCurrentTab(string $tab)
+    public function SetCurrentTab($tab)
     {
         $tab = trim($tab);
         $_SESSION[$this->GetName().'::activetab'] = $tab;
         cms_admin_tabs::set_current_tab($tab);
     }
-
 
     /**
      * Return page content representing the start of tab headers.
