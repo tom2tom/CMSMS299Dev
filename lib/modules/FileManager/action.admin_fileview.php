@@ -16,7 +16,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use FileManager\Utils;
-use FilePicker\Utils;
 
 if (!isset($gCms)) {
   exit;

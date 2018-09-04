@@ -21,12 +21,12 @@ use cms_config;
 use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
-use CmsApp;
 use Exception;
+use FilePicker\Utils as Utils2;
 use finfo;
 use const CMS_ROOT_PATH;
+use function cms_join_path;
 use function cms_relative_path;
-use function cmsms;
 use function endswith;
 use function startswith;
 
@@ -192,7 +192,7 @@ final class Utils
      */
     public static function get_file_list($path = '')
     {
-        return FilePicker\Utils::get_file_list($path);
+        return Utils2::get_file_list($path);
     }
 
     /**
