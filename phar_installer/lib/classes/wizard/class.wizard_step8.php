@@ -202,8 +202,8 @@ class wizard_step8 extends wizard_step
         if( !$destdir ) throw new Exception(lang('error_internal',711));
 
         $dh = opendir($dir);
-        $versions = [];
         if( !$dh ) throw new Exception(lang('error_internal',712));
+        $versions = [];
         while( ($file = readdir($dh)) !== false ) {
             if( $file == '.' || $file == '..' ) continue;
             if( is_dir($dir.'/'.$file) && (is_file("$dir/$file/MANIFEST.DAT") || is_file("$dir/$file/MANIFEST.DAT.gz")) ) $versions[] = $file;
@@ -226,6 +226,8 @@ class wizard_step8 extends wizard_step
         $db = $this->db_connect($destconfig);
 
         include_once dirname(__DIR__,2).'/msg_functions.php';
+
+        $smarty = smarty(); //in scope for downsteam use
 
         try {
             // ready to do the upgrading now (in a loop)
