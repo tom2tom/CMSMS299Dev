@@ -33,6 +33,10 @@ use function cms_join_path, cms_module_places;
  */
 final class CmsLangOperations
 {
+	/**
+	 * A constant for the core admin realm.
+	 */
+	const CMSMS_ADMIN_REALM = 'admin';
 
 	/**
 	 * @ignore
@@ -49,11 +53,6 @@ final class CmsLangOperations
 	 * @ignore
 	 */
 	private static $_allow_nonadmin_lang;
-
-	/**
-	 * A constant for the core admin realm.
-	 */
-	const CMSMS_ADMIN_REALM = 'admin';
 
 	/**
 	 * @ignore
@@ -73,12 +72,12 @@ final class CmsLangOperations
 		$curlang = CmsNlsOperations::get_current_language();
 		if( !$realm ) $realm = self::$_curent_realm;
 
-		if( is_array(self::$_langdata) && isset(self::$_langdata[$curlang][$realm]) ) return;
+		if( isset(self::$_langdata[$curlang][$realm]) ) return;
 		if( !is_array(self::$_langdata) ) self::$_langdata = [];
 		if( !isset(self::$_langdata[$curlang]) ) self::$_langdata[$curlang] = [];
-		$config = cms_config::get_instance();
+//		$config = cms_config::get_instance();
 
-		// load the english file first.
+		// load the english translation first
 		$files = [];
 		$is_module = false;
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
@@ -90,10 +89,10 @@ final class CmsLangOperations
 				$is_module = true;
 				$files[] = cms_join_path($dirs[0],'lang','en_US.php');
 			}
-			$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'en_US.php');
+			$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'en_US.php'); //for a module-related plugin?
 		}
 
-		// now handle other lang files.
+		// now handle other lang files
 		if( $curlang != 'en_US' ) {
 			if( $realm == self::CMSMS_ADMIN_REALM ) {
 				$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','ext',$curlang.'.php');
@@ -106,13 +105,15 @@ final class CmsLangOperations
 			}
 		}
 
-		// now load the custom stuff.
+		// now load the custom stuff
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
 			$files[] = cms_join_path(CMS_ASSETS_PATH,'admin_custom','lang',$curlang.'.php');
 		}
 		elseif( $is_module ) {
-			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang',$curlang.'.php');
-			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','ext',$curlang.'.php');
+			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','en_US.php');
+			if( $curlang != 'en_US' ) {
+				$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','ext',$curlang.'.php');
+			}
 		}
 
 		foreach( $files as $fn ) {
@@ -120,7 +121,9 @@ final class CmsLangOperations
 
 			$lang = [];
 			include($fn);
-			if( !isset(self::$_langdata[$curlang][$realm]) ) self::$_langdata[$curlang][$realm] = [];
+			if( !isset(self::$_langdata[$curlang][$realm]) ) {
+				self::$_langdata[$curlang][$realm] = [];
+			}
 			self::$_langdata[$curlang][$realm] = array_merge(self::$_langdata[$curlang][$realm],$lang);
 			unset($lang);
 		}
@@ -178,7 +181,7 @@ final class CmsLangOperations
 	 * @param string The realm name (required)
 	 * @param string The language string key (required)
 	 * @param mixed  Further arguments to this function are passed to vsprintf
-	 * @return string
+	 * @return mixed string | null
 	 */
 	public static function lang_from_realm(...$args)
 	{
@@ -192,8 +195,11 @@ final class CmsLangOperations
 		global $CMS_ADMIN_PAGE;
 		global $CMS_STYLESHEET;
 		global $CMS_INSTALL_PAGE;
-		if (self::CMSMS_ADMIN_REALM == $realm && !isset($CMS_ADMIN_PAGE) &&
-			!isset($CMS_STYLESHEET) && !isset($CMS_INSTALL_PAGE) &&
+
+		if( self::CMSMS_ADMIN_REALM == $realm &&
+			empty($CMS_ADMIN_PAGE) &&
+			empty($CMS_STYLESHEET) &&
+			empty($CMS_INSTALL_PAGE) &&
 			!self::$_allow_nonadmin_lang ) {
 			trigger_error('Attempt to load admin realm from non admin action');
 			return '';
@@ -203,8 +209,8 @@ final class CmsLangOperations
 		if( count($args) > 2 ) $params = array_slice($args,2);
 		if( count($params) == 1 && is_array($params[0]) ) $params = $params[0];
 
-		$curlang = CmsNlsOperations::get_current_language();
 		self::_load_realm($realm);
+		$curlang = CmsNlsOperations::get_current_language();
 		if( !isset(self::$_langdata[$curlang][$realm][$key]) ) {
 			// put mention into the admin log
 			global $CMS_LOGIN_PAGE;
