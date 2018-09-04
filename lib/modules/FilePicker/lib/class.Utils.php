@@ -172,8 +172,8 @@ class Utils
         $profile = $mod->get_default_profile($path, $user_id); //CHECKME
         $showhidden = $profile->show_hidden || $devmode;
         $showthumb = $profile->show_thumbs;
-        $pex = $profile->exclude_prefix;
-        $pin = $profile->match_prefix;
+        $pex = $profile->exclude_prefix ?? '';
+        $pin = $profile->match_prefix ?? '';
 
         $typer = new FileTypeHelper($config);
         $posix = function_exists('posix_getpwuid');
