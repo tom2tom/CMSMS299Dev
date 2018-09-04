@@ -237,6 +237,8 @@ class CmsFormUtils
             }
             $tmp = $parms[$key];
             switch ($val) {
+                case 'v': //any value i.e. the key exists
+                    break;
                 case 'c': //acceptable/sanitized string
                 case 'e': //false/null/empty is also acceptable
                     if ($tmp || (int)($tmp + 0) === 0) {
@@ -550,7 +552,7 @@ class CmsFormUtils
         //custom checks & setup
         switch ($type) {
             case 'check':
-                $err = self::must_attrs($parms, ['value'=>'s']);
+                $err = self::must_attrs($parms, ['value'=>'v']);
                 if ($err) {
                     break;
                 }
@@ -564,7 +566,7 @@ class CmsFormUtils
                 $out .= ' />'."\n";
                 break;
             case 'radio':
-                $err = self::must_attrs($parms, ['options'=>'a', 'selectedvalue'=>'s']);
+                $err = self::must_attrs($parms, ['options'=>'a', 'selectedvalue'=>'v']);
                 if ($err) {
                     break;
                 }
