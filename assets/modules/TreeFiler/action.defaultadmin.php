@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\AdminUtils;
+use CMSMS\ScriptManager;
+
 if (!function_exists('cmsms')) {
     exit;
 }
@@ -117,7 +120,7 @@ EOS;
 $this->AdminHeaderContent($css);
 
 $p = __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
-$sm = new \CMSMS\ScriptManager();
+$sm = new ScriptManager();
 $sm->queue_file($p.'jquery.metadata.min.js');
 $sm->queue_file($p.'jquery.SSsort.min.js');
 $sm->queue_file($p.'jquery.treemenu.js'); //OR .min for production
@@ -127,14 +130,19 @@ $sm->queue_file($p.'jquery.dm-uploader.js'); //OR .min for production
 $sm->queue_file($p.'jquery.filedrag.js'); //OR .min for production
 
 $fn = $sm->render_scripts();
-$u =  \CMSMS\AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+$u = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 $js = <<<EOS
 <script type="text/javascript" src="{$u}"></script>
 <script>
 //<![CDATA[
 
 EOS;
+
 $t = file_get_contents($p.'defaultadmin.inc.js');
+if (!$t) {
+    //TODO handle error
+   	return;
+}
 /* separate files for development/debug
 $js = <<<EOS
 <script type="text/javascript" src="{$baseurl}/lib/js/jquery.SSsort+metadata.min.js"></script>
