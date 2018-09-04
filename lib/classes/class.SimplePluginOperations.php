@@ -17,11 +17,13 @@
 
 namespace CMSMS;
 
+use CmsApp;
 use CMSMS\internal\Smarty;
 use InvalidArgumentException;
 use ParseError;
 use RuntimeException;
 use const CMS_ASSETS_PATH;
+use function file_put_contents;
 
 /**
  * Singleton class to process simple (a.k.a user-defined) plugin files
@@ -155,9 +157,10 @@ final class SimplePluginOperations
      * @param array  $meta Assoc array of tag metadata with at least 'name',
      *  optionally also any/all of 'description','parameters','license'
      * @param string $code The tag's PHP code
+	 * @param Smarty $smarty Optional smarty object Default null (MUST be supplied during install/upgrade)
      * @return bool indicating success
      */
-    public function save(string $name, array $meta, string $code) : bool
+    public function save(string $name, array $meta, string $code, $smarty = null) : bool
     {
         if( !$this->is_valid_plugin_name($name) ) {
             return false;
@@ -165,10 +168,16 @@ final class SimplePluginOperations
 
         $code = trim($code, " \t\n\r");
         if( $code ) {
+	        global $CMS_INSTALL_PAGE;
             $code = filter_var($code, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_BACKTICK);
-            //TODO sensible PHP validation
+/* TODO sensible PHP validation eval() often crashes due to smarty parameters
+			// variables which might be needed during content eval
             $params = [];
-            $smarty = $template = Smarty::get_instance();
+	        if (empty($CMS_INSTALL_PAGE)) {
+				$smarty = Smarty::get_instance();
+			}
+            $template = $smarty;
+
             ob_start();
             try {
                 eval($code);
@@ -177,6 +186,7 @@ final class SimplePluginOperations
                 return false;
             }
             ob_end_clean();
+*/
         }
         else {
             return false;
