@@ -49,7 +49,7 @@ touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
 if( $udt_list ) {
 
-    $create_simple_plugin = function( array $row, SimplePluginOperations $ops ) {
+    $create_simple_plugin = function( array $row, SimplePluginOperations $ops, $smarty ) {
         $fp = $ops->file_path($row['userplugin_name']);
         if( is_file( $fp ) ) {
             verbose_msg('simple plugin named '.$row['userplugin_name'].' already exists');
@@ -72,7 +72,7 @@ if( $udt_list ) {
             }
         }
 
-        if( $ops->save($meta, $code) ) {
+        if( $ops->save($row['userplugin_name'], $meta, $code, $smarty) ) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
@@ -80,8 +80,9 @@ if( $udt_list ) {
     };
 
     $ops = SimplePluginOperations::get_instance();
+	//$smarty defined upstream, used downstream
     foreach( $udt_list as $udt ) {
-        $create_simple_plugin( $udt, $ops );
+        $create_simple_plugin( $udt, $ops, $smarty );
     }
 
     $dict = GetDataDictionary($db);
@@ -114,12 +115,20 @@ foreach( ['MenuManager', 'CMSMailer'] as $modname ) {
 
 // 4. Tweak callbacks for page and generic layout template types
 $page_type = CmsLayoutTemplateType::load('__CORE__::page');
-$page_type_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
-$page_type_type->set_content_callback('\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
-$page_type_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
-$page_type->save();
+if( $page_type ) {
+    $page_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
+    $page_type->set_content_callback('\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
+    $page_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
+    $page_type->save();
+} else {
+    error_msg('__CORE__::page template update '.ilang('failed'));
+}
 
 $generic_type = CmsLayoutTemplateType::load('__CORE__::generic');
-$generic_type_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
-$generic_type_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
-$page_type->save();
+if( $generic_type ) {
+    $generic_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
+    $generic_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
+    $generic_type->save();
+} else {
+    error_msg('__CORE__::generic template update '.ilang('failed'));
+}
