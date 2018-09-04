@@ -46,6 +46,9 @@ function cms_module_places(string $modname = '') : array
     if ($modname) {
         $path .= DIRECTORY_SEPARATOR . $modname;
     }
+    if (is_dir($path)) {
+        $dirlist[] = $path;
+    }
     return $dirlist;
 }
 
