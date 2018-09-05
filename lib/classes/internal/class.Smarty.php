@@ -1,7 +1,7 @@
 <?php
 #Class to tailor Smarty for CMSMS
-#Copyright (C) 2004-2012 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2013-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -24,21 +24,21 @@ use CmsApp;
 use CMSMS\SimplePluginOperations;
 use Exception;
 use LogicException;
-use Smarty;
 use Smarty_Internal_Template;
-use SmartyException;
+//use Smarty;
+use SmartyBC;
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
 use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
-use const SMARTY_SYSPLUGINS_DIR;
 use const TMP_TEMPLATES_C_LOCATION;
 use function cms_error;
 use function get_userid;
 use function is_sitedown;
 use function startswith;
 
-require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'); //or SmartyBC
+//require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'); //when BC not needed
+require_once(CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'); //deprecated - support for smarty2 API
 
 /**
  * Extends the Smarty class for CMSMS.
@@ -46,7 +46,7 @@ require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'); //or SmartyBC
  * @package CMS
  * @since 0.1
  */
-class CmsSmarty extends Smarty //OR SmartyBC? OR replicate some method-aliases from that class?
+class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not needed
 {
     private static $_instance = null;
 
@@ -315,4 +315,5 @@ class CmsSmarty extends Smarty //OR SmartyBC? OR replicate some method-aliases f
     }
 } // class
 
-class_alias('CMSMS\internal\CmsSmarty', 'CMSMS\internal\Smarty', false);
+//when BC not needed
+//class_alias('CMSMS\internal\CmsSmarty', 'CMSMS\internal\Smarty', false);
