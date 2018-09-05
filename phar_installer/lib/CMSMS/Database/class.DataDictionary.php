@@ -1,9 +1,9 @@
 <?php
 /*
 Class DataDictionary: methods of interacting with database tables
-Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-For CMS Made Simple <http:www.cmsmadesimple.org>
-Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+Copyright (C) 2017-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -173,7 +173,6 @@ function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
  * Credits and kudos to the authors of those packages.
  *
  * @author Robert Campbell
- * @copyright Copyright (C) 2017 Robert Campbell <calguy1000@cmsmadesimple.org>
  *
  * @since 2.2
  */

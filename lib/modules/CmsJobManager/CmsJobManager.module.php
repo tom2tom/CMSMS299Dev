@@ -1,7 +1,8 @@
 <?php
 # CmsJobManager: a core module for CMS Made Simple to allow management of
 # asynchronous and cron jobs.
-# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

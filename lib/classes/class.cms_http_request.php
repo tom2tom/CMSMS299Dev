@@ -20,7 +20,7 @@
  * @package     CMS
  * @license     GPL
  * @author      Md Emran Hasan <phpfour@gmail.com>
- * @copyright   2007-2008 Md Emran Hasan
+ *
  * @link        http://www.phpfour.com/lib/http
  * @since       Version 0.1
  */

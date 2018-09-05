@@ -1,7 +1,8 @@
 <?php
 /*
 Class Connection: interaction with a MySQL database
-Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+Copyright (C) 2017-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -33,7 +34,6 @@ namespace CMSMS\Database;
  * </ul>
  *
  * @author Robert Campbell
- * @copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
  *
  * @since 2.2
  */

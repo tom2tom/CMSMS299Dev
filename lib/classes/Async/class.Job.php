@@ -1,6 +1,7 @@
 <?php
 # Abstract class defining an asynchronous job.
-# Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2017-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,7 +23,7 @@ namespace CMSMS\Async;
  *
  * @package CMS
  * @author Robert Campbell
- * @copyright Copyright (c) 2017, Robert Campbell <calguy1000@cmsmadesimple.org>
+ *
  * @since 2.2
  * @property-read int $id A unique integer id for this job (generated on save).
  * @property string $name The name of this job.  If not specified a unique random name will be generated.

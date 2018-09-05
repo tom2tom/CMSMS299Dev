@@ -32,7 +32,7 @@ use function startswith;
  * @package CMS
  * @internal
  * @author Robert Campbell (calguy1000@cmsmadesimple.org)
- * @copyright Copyright (c) 2010, Robert Campbell <calguy1000@cmsmadesimple.org>
+ *
  * @since 1.9
  */
 class content_assistant

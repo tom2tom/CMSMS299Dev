@@ -1,6 +1,7 @@
 <?php
 # class for working with cookies in CMSMS
-# Copyright (C) 2010 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2015-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,7 +22,7 @@
  * @package CMS
  * @license GPL
  * @author Robert Campbell
- * @copyright Copyright (c) 2010 Robert Campbell <calguy1000@cmsmadesimple.org>
+ *
  * @since 1.10
  */
 final class cms_cookies

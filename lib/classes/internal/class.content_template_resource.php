@@ -1,6 +1,7 @@
 <?php
 #Class: smarty resource handler for content pages
-#Copyright (C) 2012-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+#Copyright (C) 2012-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -29,7 +30,7 @@ use const __CMS_PREVIEW_PAGE__;
  * @author Robert Campbell
  * @internal
  * @ignore
- * @copyright Copyright (c) 2012, Robert Campbell <calguy1000@cmsmadesimple.org>
+ *
  * @since 1.11
  */
 class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource

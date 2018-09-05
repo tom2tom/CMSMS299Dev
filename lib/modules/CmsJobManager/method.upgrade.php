@@ -1,7 +1,8 @@
 <?php
 # upgrade-process  for CmsJobManager, a core module for CMS Made Simple
 # to manage asynchronous jobs and cron jobs.
-# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # See license details at the top of file CmsJobManager.module.php
 
 if( !isset($gCms) ) exit;

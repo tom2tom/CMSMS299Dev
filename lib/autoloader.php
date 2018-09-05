@@ -1,7 +1,7 @@
 <?php
 #autoloader for CMS Made Simple <http://www.cmsmadesimple.org>
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2010-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by

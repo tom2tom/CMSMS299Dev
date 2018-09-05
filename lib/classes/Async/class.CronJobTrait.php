@@ -1,6 +1,7 @@
 <?php
 # Trait: the primary functionality for recurring cron jobs.
-# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -24,7 +25,7 @@ use LogicException;
  *
  * @package CMS
  * @author Robert Campbell
- * @copyright Copyright (c) 2015, Robert Campbell <calguy1000@cmsmadesimple.org>
+ *
  * @since 2.2
  * @property string $frequency The frequency of the cron job
  * @property int $start The minimum start time of the cron job.  This property is adjusted after each and every execution of the cron job.

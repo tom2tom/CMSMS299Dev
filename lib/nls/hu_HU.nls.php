@@ -1,6 +1,6 @@
 <?php
-#...
-#Copyright (C) 2004-2018 Ted Kulp <ted@cmsmadesimple.org>
+#Hungarian translation for CMS Made Simple
+#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 
 #Ideas from Gallery's implementation made to CMS by Ted Kulp
 
-#US English
+#Hungarian
 #Created by: Ted Kulp <tedkulp@users.sf.net>
 #Hungarian maintained by: Kozman Bálint <qzy [AT] ultramarin [DOT] hu>
 

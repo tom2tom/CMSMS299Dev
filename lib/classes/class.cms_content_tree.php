@@ -1,6 +1,7 @@
 <?php
 # A caching tree for CMSMS content objects
-# Copyright (C) 2010-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2010-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -25,7 +26,7 @@ use CMSMS\ContentOperations, CMSMS\internal\content_cache, CMSMS\internal\global
  * @package CMS
  * @license GPL
  * @author  Robert Campbell
- * @copyright Copyright (c) 2010, Robert Campbell <calguy1000@cmsmadesimple.org>
+ *
  * @since 1.9
  */
 class cms_content_tree extends cms_tree

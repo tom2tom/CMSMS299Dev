@@ -1,6 +1,7 @@
 <?php
 # job-related utility-methods for CmsJobManager module
-# Copyright (C) 2016-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+# Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # See license details at the top of file CmsJobManager.module.php
 
 namespace CmsJobManager;

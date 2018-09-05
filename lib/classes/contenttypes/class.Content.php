@@ -1,7 +1,7 @@
 <?php
 #The main Content class
-#Copyright (C) 2004-2017 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,6 @@ use CmsException;
 use CmsFormUtils;
 use CmsLayoutCollection;
 use CmsLayoutTemplate;
-use CmsLayoutTemplateType;
 use CMSMS\AdminUtils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
@@ -36,7 +35,6 @@ use CMSMS\internal\page_template_parser;
 use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
 use Exception;
-use PHPMailer\PHPMailer\Exception as Exception2;
 use SmartyException;
 use stdClass;
 use function check_permission;
@@ -486,7 +484,7 @@ class Content extends ContentBase
 						$dflt_tpl = CmsLayoutTemplate::load_dflt_by_type(CmsLayoutTemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
-					catch( Exception2 $e ) {
+					catch( Exception $e ) {
 						cms_error('No default page template found');
 					}
 				}

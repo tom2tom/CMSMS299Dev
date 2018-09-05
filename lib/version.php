@@ -1,8 +1,7 @@
 <?php
 #version data for CMSMS
-#Copyright (C) 2004-2011 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2011-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #
 #This program is free software; you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by

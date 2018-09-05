@@ -1,7 +1,7 @@
 <?php
 #admin-user-class for CMSMS
-#Copyright (C) 2004-2010 Ted Kulp <ted@cmsmadesimple.org>
-#Copyright (C) 2011-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
@@ -17,20 +17,13 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * User class definition
- *
- * @package CMS
- * @license GPL
- */
-
-/**
  * Generic admin user class.  This can be used for any logged in user or user related function.
  *
  * @package CMS
  * @since 0.6.1
  * @license GPL
  */
- 
+
 namespace CMSMS;
 
 use cms_siteprefs;
