@@ -1,6 +1,8 @@
 <?php
 
 use CMSMS\Group;
+use function __installer\CMSMS\endswith;
+use function __installer\CMSMS\joinpath;
 
 //extra permissions
 foreach( [
@@ -32,6 +34,36 @@ $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Assets');
 */
+
+// remove reference from plugins-arugument where necessary
+foreach ([
+ ['lib', 'plugins'],
+ ['admin', 'plugins'],
+ ['assets', 'plugins'],
+ ['plugins'], //deprecated
+] as $segs) {
+    $path = joinpath($destdir, ...$segs);
+    if (is_dir($path)) {
+        $files = scandir($path, SCANDIR_SORT_NONE);
+        if ($files) {
+            foreach ($files as $one) {
+                if (endswith($one, '.php')) {
+                    $fp = $path.DIRECTORY_SEPARATOR.$one;
+                    $content = file_get_contents($fp);
+					if ($content) {
+						$parts = explode('.',$one);
+						$patn = '/function\\s+smarty(_cms)?_'.$parts[0].'_'.$parts[1].'\\s?\\([^,]+,[^,]*(&\\s?)(\\$\\S+)\\s?\\)\\s?[\r\n]/';
+						if (preg_match($patn, $content, $matches)) {
+							$content = str_replace($matches[2].$matches[3], $matches[3], $content);
+							file_put_contents($fp, $content);
+						}
+					}
+               }
+            }
+        }
+    }
+}
+
 // redundant sequence-tables
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
@@ -67,10 +99,10 @@ verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret
 $sql = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE category_id IS NOT NULL';
 $data = $db->GetArray($sql);
 if ($data) {
-	$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
-	foreach ($data as $row) {
-		$db->Execute($sql, [$row['category_id'], $row['id']]);
-	}
+    $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
+    foreach ($data as $row) {
+        $db->Execute($sql, [$row['category_id'], $row['id']]);
+    }
 }
 
 $sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'category_id');
@@ -94,40 +126,40 @@ $dbdict->ExecuteSQLArray($sqlarray);
 $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
 $data = $db->GetArray($sql);
 if ($data) {
-	$sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.
-		' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
+    $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.
+        ' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
     $dt = new DateTime(null, new DateTimeZone('UTC'));
-	$now = time();
-	$types = [];
-	foreach ($data as $row) {
-		$name = $row['module_name'];
-		if (!isset($types[$name])) {
-			$db->Execute('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.
-			' (originator,name,description,owner,created,modified) VALUES (?,?,?,-1,?,?)',
-			[
-				$name,
-				'Moduleaction',
-				'Action templates for module: '.$name,
-				$now,
-				$now,
-			]);
-			$types[$name] = $db->insert_id();
-		}
-		$dt->modify($row['create_date']);
-		$created = $dt->getTimestamp();
-		if (!$created) { $created = $now; }
-		$dt->modify($row['modified_date']);
-		$modified = $dt->getTimestamp();
-		if (!$modified) { $modified = min($now, $created); }
-		$db->Execute($sql, [
-			$name,
-			$row['template_name'],
-			$row['content'],
-			$types[$name],
-			$created,
-			$modified
-		]);
-	}
+    $now = time();
+    $types = [];
+    foreach ($data as $row) {
+        $name = $row['module_name'];
+        if (!isset($types[$name])) {
+            $db->Execute('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.
+            ' (originator,name,description,owner,created,modified) VALUES (?,?,?,-1,?,?)',
+            [
+                $name,
+                'Moduleaction',
+                'Action templates for module: '.$name,
+                $now,
+                $now,
+            ]);
+            $types[$name] = $db->insert_id();
+        }
+        $dt->modify($row['create_date']);
+        $created = $dt->getTimestamp();
+        if (!$created) { $created = $now; }
+        $dt->modify($row['modified_date']);
+        $modified = $dt->getTimestamp();
+        if (!$modified) { $modified = min($now, $created); }
+        $db->Execute($sql, [
+            $name,
+            $row['template_name'],
+            $row['content'],
+            $types[$name],
+            $created,
+            $modified
+        ]);
+    }
     verbose_msg(ilang('upgrade_modifytable', 'module_templates'));
 }
 
