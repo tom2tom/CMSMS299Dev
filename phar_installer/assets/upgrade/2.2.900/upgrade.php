@@ -15,20 +15,18 @@ $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
 $assetsdir = ( !empty( $config['assets_path'] ) ) ? $config['assets_path'] : $destdir . DIRECTORY_SEPARATOR . 'assets';
 
 // 1. Create new folders, if necessary
-$dirs = [
-['admin','configs'],
-['assets','admin_custom'],
-['assets','configs'],
-['assets','css'],
-['assets','images'],
-['assets','module_custom'],
-['assets','modules'],
-['assets','plugins'],
-['assets','simple_plugins'],
-['assets','templates'],
-];
-
-foreach ($dirs as $segs) {
+foreach ([
+ ['admin','configs'],
+ ['assets','admin_custom'],
+ ['assets','configs'],
+ ['assets','css'],
+ ['assets','images'],
+ ['assets','module_custom'],
+ ['assets','modules'],
+ ['assets','plugins'],
+ ['assets','simple_plugins'],
+ ['assets','templates'],
+] as $segs) {
     switch($segs[0]) {
         case 'admin':
             $to = $admindir . DIRECTORY_SEPARATOR . $segs[1];
