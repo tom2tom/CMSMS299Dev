@@ -58,8 +58,9 @@ final class FilePicker extends CMSModule implements IFilePicker
      * end of private methods
      */
 
+    public function GetAdminDescription() { return $this->Lang('moddescription'); }
     public function GetAdminSection() { return 'extensions'; }
-    public function GetFriendlyName() { return $this->Lang('friendlyname');  }
+    public function GetFriendlyName() { return $this->Lang('friendlyname'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetVersion() { return '2.0'; }
     public function HasAdmin() { return TRUE; }

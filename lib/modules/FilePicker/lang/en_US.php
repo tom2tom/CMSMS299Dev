@@ -32,6 +32,9 @@ $lang['filepickertitle'] = 'File Picker';
 $lang['fileview'] = 'File view';
 $lang['friendlyname'] = 'File Picker';
 
+//M
+$lang['moddescription'] = 'Manage custom property-sets for folders';
+
 // N
 $lang['na'] = 'Not available';
 $lang['name'] = 'Name';
@@ -131,6 +134,7 @@ $lang['help'] = <<<EOT
 <li>to attach to a news article</li>
 </ul>
 </li>
+<li>manage folder profiles</li>
 </ol>
 </p>
 <h3>How is it used?</h3>
