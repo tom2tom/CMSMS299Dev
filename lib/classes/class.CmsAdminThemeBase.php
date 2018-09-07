@@ -889,7 +889,7 @@ abstract class CmsAdminThemeBase
         'description'=>lang('myaccountdescription'),
         'final'=>true,
         'show_in_menu'=>$this->_perms['myaccount']];
-        $items[] = ['name'=>'mysettngs','parent'=>'myprefs',
+        $items[] = ['name'=>'mysettings','parent'=>'myprefs',
         'url'=>'mysettings.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('mysettings')),
         'description'=>lang('mysettingsdescription'),
