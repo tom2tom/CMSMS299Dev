@@ -90,7 +90,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         return $this->Lang('evtdesc_'.$name);
     }
 
-    protected function &create_new_template($str)
+    protected function create_new_template($str)
     {
         $smarty = $this->GetActionTemplateObject();
         return $smarty->createTemplate($this->GetTemplateResource($str),null,null,$smarty);
@@ -100,7 +100,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
      * @ignore
      * @internal
      */
-    public function &get_current_job()
+    public function get_current_job()
     {
         return $this->_current_job;
     }
