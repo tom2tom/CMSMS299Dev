@@ -1,5 +1,5 @@
 <?php
-#procedure to change permissions of users in a group
+#Procedure to change permissions of users in a group
 #Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -15,6 +15,9 @@
 #GNU General Public License for more details.
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+use CMSMS\HookManager;
+use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -45,7 +48,7 @@ $group_name = '';
 $message = '';
 
 $db = $gCms->GetDb();
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 $load_perms = function () use ($db) {
     $query = 'SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id FROM '.
@@ -56,20 +59,20 @@ $load_perms = function () use ($db) {
 
     // use hooks to localize permissions.
 	//NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
-    \CMSMS\HookManager::add_hook('localizeperm', function ($perm_source, $perm_name) {
+    HookManager::add_hook('localizeperm', function ($perm_source, $perm_name) {
         $key = 'perm_'.str_replace(' ', '_', $perm_name);
-        if (\CmsLangOperations::lang_key_exists('admin', $key)) {
-            return \CmsLangOperations::lang_from_realm('admin', $key);
+        if (CmsLangOperations::lang_key_exists('admin', $key)) {
+            return CmsLangOperations::lang_from_realm('admin', $key);
         }
         return $perm_name;
-    }, \CMSMS\HookManager::PRIORITY_HIGH);
+    }, HookManager::PRIORITY_HIGH);
 
-    \CMSMS\HookManager::add_hook('getperminfo', function ($perm_source, $perm_name) {
+    HookManager::add_hook('getperminfo', function ($perm_source, $perm_name) {
         $key = 'permdesc_'.str_replace(' ', '_', $perm_name);
-        if (\CmsLangOperations::lang_key_exists('admin', $key)) {
-            return \CmsLangOperations::lang_from_realm('admin', $key);
+        if (CmsLangOperations::lang_key_exists('admin', $key)) {
+            return CmsLangOperations::lang_from_realm('admin', $key);
         }
-    }, \CMSMS\HookManager::PRIORITY_HIGH);
+    }, HookManager::PRIORITY_HIGH);
 
     $perm_struct = [];
     while ($result && $row = $result->FetchRow()) {
@@ -77,7 +80,7 @@ $load_perms = function () use ($db) {
             $str = &$perm_struct[$row['permission_id']];
             $str->group[$row['group_id']]=1;
         } else {
-            $thisPerm = new \stdClass();
+            $thisPerm = new stdClass();
             $thisPerm->group = [];
             if (!empty($row['group_id'])) {
                 $thisPerm->group[$row['group_id']] = 1;
@@ -85,8 +88,8 @@ $load_perms = function () use ($db) {
             $thisPerm->id = $row['permission_id'];
             $thisPerm->name = $thisPerm->label = $row['permission_text'];
             $thisPerm->source = $row['permission_source'];
-            $thisPerm->label = \CMSMS\HookManager::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
-            $thisPerm->description = \CMSMS\HookManager::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
+            $thisPerm->label = HookManager::do_hook_first_result('localizeperm', $thisPerm->source, $thisPerm->name);
+            $thisPerm->description = HookManager::do_hook_first_result('getperminfo', $thisPerm->source, $thisPerm->name);
             $perm_struct[$row['permission_id']] = $thisPerm;
         }
     }
