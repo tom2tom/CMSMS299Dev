@@ -62,7 +62,7 @@
 						</div>
 					{/if} <a href="{root_url}" title="{'goto'|lang} {sitename}"> <img class="goback" width="16" height="16" src="themes/OneEleven/images/layout/goback.png" alt="{'goto'|lang} {sitename}" /> </a>
 					<p class="forgotpw">
-						<a href="login.php?forgotpw=1">{'lostpw'|lang}</a>
+						<a href="login.php?forgotpw=1" title="{'recover_start'|lang}">{'lostpw'|lang}</a>
 					</p>
 				</div>
 			</div>
