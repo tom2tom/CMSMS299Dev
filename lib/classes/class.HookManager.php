@@ -168,6 +168,25 @@ namespace CMSMS {
             }
         }
 
+        /* *
+         * Check whether $in is not a 'pure' non-associative array
+         * @ignore
+         */
+/*
+        private static function is_assoc($in)
+        {
+            if( !is_array($in) ) return false;
+            return array_keys($in) !== range(0, count($in) - 1);
+OR
+            $keys = array_keys($in);
+            $c = count($keys);
+            $n = 0;
+            for( $n = 0; $n < $c; $n++ ) {
+                if( $keys[$n] != $n ) return false;
+            }
+            return true;
+        }
+*/
         /**
          * Add a handler to a hook
          *
@@ -230,143 +249,124 @@ namespace CMSMS {
             return in_array($name,self::$_in_process);
         }
 
-       /**
-        * Run a hook.
-        *
-        * This method accepts variable arguments.  The first argument (required)
-        * is the name of the hook to execute. Further arguments will be passed
-        * to each hook handler.
-        *
-        * @param  array $args 1 or more members, 1st is hook-name
-        * @since 2.3
-        */
-        public static function do_hook_all(...$args)
-        {
-            $name = trim(array_shift($args));
-
-            if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
-
-            // note: $args is an array
-            $value = $args;
-            self::$_in_process[] = $name;
-
-            foreach( self::$_hooks[$name]->handlers as $obj ) {
-                $cb = $obj->callable;
-                if( empty($value) || !is_array($value) ) {
-                    $cb($value);
-                } else {
-                    $cb(...$value);
-                }
-            }
-            array_pop(self::$_in_process);
-        }
-
         /**
-         * Run a hook, progressively altering the value of the input i.e. a filter.
+         * Run a hook, progressively altering the value passed to handlers i.e. a filter.
          *
          * This method accepts variable arguments.  The first argument (required)
-         * is the name of the hook to execute. Further arguments will be passed
-         * to registered handlers.
+         * is the name of the hook to execute. Any further argument(s) will be passed
+         * to the first-sorted registered handler, and, as progressively modified,
+         * to other such handlers.
          *
-         * The hook handlers must each return the same number and type of arguments
-         * as were provided to it, so that they can be passed to the next handler.
-         * Returned argument(s)' values may be different, of course.
+         * The handlers must each return either null (signalling ignore the result),
+         * or else the same number and type of arguments as were provided to it, so
+         * that they can be passed to the next handler. Returned argument(s)' values
+         * may be different, of course.
          *
-         * @param  array $args 1 or more members, 1st is hook-name
-         * @return mixed The output of this method depends on the hook. Null if nothing to do.
+         * @return mixed Depends on the hook handlers. Null if nothing to do.
          */
-        public static function do_hook(...$args)
+        public static function do_hook()
         {
+			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
             if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
 
-            // note: if present, $args is an array
+            // note: if present, $args is an array or empty
             $value = $args;
             self::$_in_process[] = $name;
 
             self::sort_handlers($name);
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
+                //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                if( empty($value) || !is_array($value) ) {
-                    $value = $cb($value);
-                } else {
-                    $value = $cb(...$value);
+                $out = $cb($value);
+                if( !is_null($out) ) {
+                    $value = $out;
                 }
             }
 
-            $out = (is_array($value) && count($value) == 1) ? $value[0] : $value;
+            $out = (is_array($value) && count($value) == 1 && key($value) == 0) ? $value[0] : $value;
             array_pop(self::$_in_process);
             return $out;
         }
 
-        /**
-         * Run a hook, returning the first non-empty value.
-         *
-         * This method accepts variable arguments.  The first argument (required)
-         * is the name of the hook to execute. Further arguments will be passed
-         * to the various handlers.
-         *
-         * This method passes the same input parameter(s) to each hook handler.
-         *
-         * @param  array $args 1 or more members, 1st is hook-name
-         * @return mixed The output of this method depends on the hook.
-         */
-        public static function do_hook_first_result(...$args)
+       /**
+        * Run a hook.
+        *
+        * This method accepts variable arguments. The first argument (required)
+        * is the name of the hook to execute. Any further argument(s) will be
+        * passed to all registered handler(s).
+        *
+        * @since 2.3
+        */
+        public static function do_hook_simple()
         {
+			$args = func_get_args(); //splat operator N/A for assoc. arrays
+            $name = trim(array_shift($args));
+
+            if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
+
+            // note: $args is an array, or empty
+            $value = $args;
+            self::$_in_process[] = $name;
+
+            foreach( self::$_hooks[$name]->handlers as $obj ) {
+                //TODO if blocking is supported, is not blocked
+                $cb = $obj->callable;
+                $cb($value);
+            }
+            array_pop(self::$_in_process);
+        }
+
+        /**
+         * Run a hook, returning the first non-empty value from a handler.
+         *
+         * This method accepts variable arguments. The first argument (required)
+         * is the name of the hook to execute. Any further argument(s) will be
+         * passed to the sorted registered handlers in turn, until one such returns
+         * a non-empty value.
+         *
+         * @return mixed Depends on the hook handlers.
+         */
+        public static function do_hook_first_result()
+        {
+			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
             if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers)  ) return; // nothing to do.
 
-            // note if present, $args is an array
+            // note if present, $args is an array or empty
             $value = $args;
             self::$_in_process[] = $name;
 
             self::sort_handlers($name);
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
-                //TODO if not blocked
+                //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                if( empty($value) || !is_array($value) ) {
-                    $out = $cb($value);
-                } else {
-                    $out = $cb(...$value);
-                }
+                $out = $cb($value);
                 if( !empty( $out ) ) break;
             }
 
-            $out = (is_array($out) && count($out) == 1) ? $out[0] : $out;
+            if( is_array($out) && count($out) == 1 && key($out) == 0) $out = $out[0];
             array_pop(self::$_in_process);
             return $out;
         }
 
- /*      private function is_assoc($in)
-        {
-             $keys = array_keys($in);
-             $c = count($keys);
-             $n = 0;
-             for( $n = 0; $n < $c; $n++ ) {
-                  if( $keys[$n] != $n ) return FALSE;
-             }
-             return true;
-        }
-*/
         /**
-         * Run a hook, accumulating the results from each handler into an array.
+         * Run a hook, to retrieve the results from all handlers.
          *
-         * This method accepts variable arguments.
-         * The first argument (required) is the name of the hook to execute.
-
-         * Further arguments will be passed to each hook handler.
+         * This method accepts variable arguments. The first argument (required)
+         * is the name of the hook to execute. Any further argument(s) will be
+         * passed to the sorted registered handlers in turn. Each handler's non-null
+         * return is 'pushed' into an array, which is eventually returned to the caller.
          *
-         * Each handler's return is merely 'pushed' into the results array.
-         *
-         * @param  array $args 1 or more members, 1st is hook-name
-         * @return mixed null or array, each member being data returned from a handler.
+         * @return mixed null or array, each member of which is a non-null value returned by a handler.
          */
-        public static function do_hook_accumulate(...$args)
+        public static function do_hook_accumulate()
         {
+			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
             if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
@@ -378,14 +378,12 @@ namespace CMSMS {
             self::$_in_process[] = $name;
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
+                //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                if( empty($value) || !is_array($value) ) {
-                    $ret = $cb($value);
+                $ret = $cb($value);
+                if( !is_null($ret) ) {
+                    $out[] = (is_array($ret) && count($ret) == 1 && key($ret) == 0) ? $ret[0] : $ret;
                 }
-                else {
-                    $ret = $cb(...$value);
-                }
-                $out[] = (is_array($ret) && count($ret) == 1) ? $ret[0] : $ret;
             }
             array_pop(self::$_in_process);
             return $out;
