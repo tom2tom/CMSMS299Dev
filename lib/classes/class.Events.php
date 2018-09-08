@@ -154,7 +154,7 @@ TODO support non-module event handlers (callables) other than plugins
 		}
 
 		// also notify non-stored handlers, if any
-        HookManager::do_hook_all($eventname, $originator, $eventname, $params);
+        HookManager::do_hook_simple($eventname, $originator, $eventname, $params);
 	}
 
 	/**

@@ -102,4 +102,4 @@ if ($CMS_JOB_TYPE == 0) {
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
-HookManager::do_hook('PostRequest');
+HookManager::do_hook_simple('PostRequest');

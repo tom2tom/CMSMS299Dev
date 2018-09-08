@@ -118,7 +118,7 @@ final class JobQueue
                 }
                 $obj->set_id($row['id']);
                 $idlist[] = (int) $row['id'];
-                HookManager::do_hook_all(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]);
+                HookManager::do_hook_simple(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]);
             }
             $sql = 'DELETE FROM '.CmsJobManager::table_name().' WHERE id IN ('.implode(',', $idlist).')';
             $db->Execute($sql);

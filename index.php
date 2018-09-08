@@ -338,6 +338,6 @@ if ($debug && !is_sitedown()) {
     }
 }
 
-HookManager::do_hook('PostRequest');
+HookManager::do_hook_simple('PostRequest');
 
 exit;

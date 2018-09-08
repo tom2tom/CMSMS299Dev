@@ -108,7 +108,7 @@ function redirect(string $to)
         header("Location: $to");
     }
 
-    HookManager::do_hook('PostRequest');
+    HookManager::do_hook_simple('PostRequest');
     exit;
 }
 
