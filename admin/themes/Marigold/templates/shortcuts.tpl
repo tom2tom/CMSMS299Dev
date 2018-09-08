@@ -16,7 +16,7 @@
       {/if}
 		{if isset($marks)}
 		<li class="favorites open">
-			<a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa-star"></i></a>
+			<a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa-bookmark"></i></a>
 		</li>
 		{/if}
 		<li class="view-site">
