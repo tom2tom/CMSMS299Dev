@@ -2246,6 +2246,9 @@ a.toggle-dropzone:focus {
 #login .message {
     display: block
 }
+#login span#forgotpw {
+    display: none;
+}
 
 .options-form {
     text-align: left;

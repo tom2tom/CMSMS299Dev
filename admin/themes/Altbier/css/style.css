@@ -2250,6 +2250,9 @@ font-size: 14px;
 #login .message {
     display: block
 }
+#login span#forgotpw {
+    display: none;
+}
 
 .options-form {
     text-align: right;
