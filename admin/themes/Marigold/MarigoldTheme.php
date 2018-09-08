@@ -36,17 +36,17 @@ class MarigoldTheme extends CmsAdminThemeBase
 	private $_havetree = null;
 
 	/**
-	 * Hook function to nominate runtime resources, which will be included
-	 *  in the header of each displayed admin page
+	 * Hook accumulator-function to nominate runtime resources, which will be
+	 * included in the header of each displayed admin page
 	 *
 	 * @since 2.3
-	 * @param array $vars assoc. array of js-variable names and their values
-	 * @param array $add_list array of strings representing includables
-	 * @return array 2-members, which are the supplied params after any updates
+	 * @return 2-member array
+	 * [0] = array of data for js vars, members like varname=>varvalue
+     * [1] = array of string(s) for includables
 	 */
-	public function AdminHeaderSetup(array $vars, array $add_list) : array
+	public function AdminHeaderSetup() : array
 	{
-		list($vars, $add_list) = parent::AdminHeaderSetup($vars, $add_list);
+		list($vars, $add_list) = parent::AdminHeaderSetup();
 
 		$config = cms_config::get_instance(); //also used by included file
 		$admin_url = $config['admin_url'];

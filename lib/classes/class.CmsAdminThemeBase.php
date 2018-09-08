@@ -292,15 +292,15 @@ abstract class CmsAdminThemeBase
     }
 */
     /**
-     * Hook functions to populate page content at runtime
+     * Hook function to populate page content at runtime
      * These will normally be subclassed for specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
      * @since 2.3
-     * @param array $vars to be populated with data for js vars, like varname=>varvalue
-     * @param array $add_list to be populated with string(s) for includables
-     * @return mixed scalar or array, same number and type as the supplied argument(s)
+     * @return 2-member array
+	 * [0] = array of data for js vars, members like varname=>varvalue
+     * [1] = array of string(s) for includables
      */
-    public function AdminHeaderSetup(array $vars, array $add_list) : array
+    public function AdminHeaderSetup() : array
     {
         $msgs = [
             'errornotices' => $this->merger($this->_errors),
@@ -308,13 +308,19 @@ abstract class CmsAdminThemeBase
             'successnotices' => $this->merger($this->_successes),
             'infonotices' => $this->merger($this->_infos),
         ];
-        $vars += array_filter($msgs);
-        return [$vars, $add_list];
+        $vars = array_filter($msgs);
+        return [$vars, []];
     }
 
-    public function AdminBottomSetup(array $add_list) : array
+	/**
+     * Hook function to populate page content at runtime
+     * Normally subclassed
+	 *
+	 * @return array
+	 */
+    public function AdminBottomSetup() : array
     {
-        return $add_list;
+        return [];
     }
 
     /**
