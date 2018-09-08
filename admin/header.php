@@ -31,26 +31,40 @@ if (!isset($smarty)) {
 }
 $config = cms_config::get_instance();
 
-list($vars,$add_list) = HookManager::do_hook('AdminHeaderSetup', [], []);
-if ($add_list) {
-	$themeObject->add_headtext(implode("\n",$add_list));
-}
-//NOTE downstream must ensure var keys and values are formatted for js
-if ($vars) {
-	$out = <<<EOT
+$aout = HookManager::do_hook_accumulate('AdminHeaderSetup');
+if ($aout) {
+	$out = '';
+	foreach($aout as $bundle) {
+		if ($bundle[0]) {
+			//NOTE downstream must ensure var keys and values are formatted for js
+			foreach($bundle[0] as $key => $value) {
+				$out .= "cms_data.{$key} = {$value};\n";
+			}
+		}
+
+		if ($bundle[1]) {
+			foreach($bundle[1] as $list) {
+				$one = is_array($list) ? implode("\n",$list) : $list;
+				$themeObject->add_headtext($one."\n");
+			}
+		}
+	}
+
+	if ($out) {
+		$themeObject->add_headtext(<<<EOT
 <script type="text/javascript">
 //<![CDATA[
 
-EOT;
-   foreach ($vars as $key => $value) {
-	   $out .= "cms_data.{$key} = {$value};\n";
-   }
-   $out .= <<<EOT
+EOT
+		);
+		$themeObject->add_headtext($out);
+		$themeObject->add_headtext(<<<EOT
 //]]>
 </script>
 
-EOT;
-	$themeObject->add_headtext($out);
+EOT
+		);
+	}
 }
 
 if (isset($modinst)) {
