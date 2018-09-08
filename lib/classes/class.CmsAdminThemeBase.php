@@ -296,11 +296,11 @@ abstract class CmsAdminThemeBase
      * These will normally be subclassed for specific themes, and such methods
      * should call here (their parent) as well as their own specific setup
      * @since 2.3
-     * @return 2-member array
+     * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of string(s) for includables
      */
-    public function AdminHeaderSetup() : array
+    public function AdminHeaderSetup()
     {
         $msgs = [
             'errornotices' => $this->merger($this->_errors),
