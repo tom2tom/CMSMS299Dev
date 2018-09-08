@@ -1229,7 +1229,7 @@ h3.content::before {
 a.layout::before,
 h3.layout::before {
     font-family: "mgtheme";
-    content: '\e802';
+    content: '\f0ce';
     margin-right: 15px;
     font-size: 1.2em;
     width: 10px;
