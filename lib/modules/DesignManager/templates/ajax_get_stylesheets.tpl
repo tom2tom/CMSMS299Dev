@@ -5,11 +5,11 @@
 <div class="row">
   <div class="pageoptions options-menu half">
       <a id="addcss" accesskey="a" href="{cms_action_url action='admin_edit_css'}" title="{$mod->Lang('create_stylesheet')}">{admin_icon icon='newobject.gif'} {$mod->Lang('create_stylesheet')}</a>&nbsp;&nbsp;
-      <a id="editcssfilter" accesskey="f" title="{$mod->Lang('prompt_editfilter')}">{admin_icon icon='view.gif' alt=$mod->Lang('prompt_editfilter')} {$mod->Lang('filter')}</a>&nbsp;&nbsp;
+      <a id="editcssfilter" accesskey="f" title="{$mod->Lang('prompt_editcssfilter')}">{admin_icon icon='filter.gif' alt=$mod->Lang('prompt_editcssfilter')} {$mod->Lang('filter')}</a>&nbsp;&nbsp;
       {if $have_css_locks}
         <a id="cssclearlocks" accesskey="l" title="{$mod->Lang('title_clearlocks')}" href="{cms_action_url action=admin_clearlocks type=stylesheet}">{admin_icon icon='run.gif' alt=''}&nbsp;{$mod->Lang('prompt_clearlocks')}</a>&nbsp;&nbsp;
       {/if}
-      {if $css_filter != '' && $css_filter.design != ''}
+      {if !empty($css_filter.design)}
       <span style="color: green;" title="{$mod->Lang('title_filterapplied')}">{$mod->Lang('filterapplied')}</span>
       {/if}
     </ul>
@@ -132,7 +132,6 @@
         <option value="import">{$mod->Lang('import')}</option>
       </select>
      {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_delete')}
-     <br />
      <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
     </div>
   {/capture}
