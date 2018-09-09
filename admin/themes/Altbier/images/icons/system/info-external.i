@@ -1,1 +1,1 @@
-<i class="fas fa-question-circle"></i>
+class="fas fa-question-circle"

@@ -1291,7 +1291,7 @@ abstract class CmsAdminThemeBase
             }
             if (!$path) {
 //                $this->_imageLink[$imageName] = 'themes/'.$this->themeName.'/images/'.$imageName; //DEBUG
-                $this->_imageLink[$imageName] =   'themes/assets/images/space.png';
+                $this->_imageLink[$imageName] = 'themes/assets/images/space.png';
             }
         }
 
@@ -1300,12 +1300,27 @@ abstract class CmsAdminThemeBase
         $type = substr($path,$p+1);
 
         if ($type == 'i') {
-            if ($class) {
-                $class = 'fontimage '.$class;
+			$props = parse_ini_file($path, false, INI_SCANNER_TYPED);
+			if ($props) {
+				foreach ($props as $key => $value) {
+					if (isset($attrs[$key]) ) {
+						if (is_numeric($value) || is_bool($value)) {
+							continue; //supplied attrib prevails
+						} elseif (is_string($value)) {
+							$attrs[$key] = $value.' '.$attrs[$key];
+						}
+					} else {
+						$attrs[$key] = $value;
+					}
+				}
+			}
+            if (isset($attrs['class'])) {
+                $attrs['class'] .= ' '.trim($class.' fontimage');
             } else {
-                $class = 'fontimage';
+                $attrs['class'] = trim($class.' fontimage');
             }
         }
+
         $extras = array_merge(['width'=>$width, 'height'=>$height, 'class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
         if (!$extras['title']) {
             if ($extras['alt']) {
@@ -1326,14 +1341,14 @@ abstract class CmsAdminThemeBase
             $res = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
             break;
           case 'i':
-            $res = '<span';
+            $res = '<i';
             break;
           default:
             $res = '<img src="'.$path.'"';
             break;
         }
 
-        foreach( $extras as $key => $value ) {
+        foreach ($extras as $key => $value) {
             if ($value !== '' || $key == 'title') {
                 $res .= " $key=\"$value\"";
             }
@@ -1341,7 +1356,7 @@ abstract class CmsAdminThemeBase
         if ($type != 'i') {
             $res .= ' />';
         } else {
-            $res .= '>'.file_get_contents($path).'</span>';
+            $res .= '></i>';
         }
         return $res;
     }
@@ -2094,4 +2109,3 @@ abstract class CmsAdminThemeBase
         return cms_admin_tabs::end_tab();
     }
 } // class
-
