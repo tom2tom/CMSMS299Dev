@@ -22,8 +22,8 @@
 				<div class="col-12 mx-auto text-center"><img class="img-fluid" src="{$admin_url}/themes/Altbier/images/layout/cmsms_login_logo.png" width="310" height="85" alt="CMS Made Simple&trade;" /></div>
 			</div>
 			<div class="row">
-				<div class="col-12">
-					<div class="login-box mx-auto p-2 p-sm-4"{if isset($error)} id="error"{/if}>
+				<div class="mx-auto">
+					<div class="login-box p-2 p-sm-4"{if isset($error)} id="error"{/if}>
 						<div class="col-12 info-wrapper open">
 							<aside class="p-4 info">
 								<h2>{'login_info_title'|lang}</h2>
@@ -69,7 +69,7 @@
 						{/if}
 						<div class="col-12 mt-5 px-0">
 							<div class="row alt-actions">
-								<a class="col-12 col-sm-6" href="{root_url}" title="{'goto'|lang} {sitename}"><span aria-hidden="true" class="fas fa-chevron-circle-left"></span> Go Back</a>
+								<a class="col-12 col-sm-6" href="{root_url}" title="{'goto'|lang} {sitename}"><span aria-hidden="true" class="fas fa-chevron-circle-left"></span> {'viewsite'|lang}</a>
 								<a href="login.php?forgotpw=1" title="{'recover_start'|lang}" class="col-12 text-left text-sm-right col-sm-6"><span class="fas fa-question-circle" aria-hidden="true"></span> {'lostpw'|lang}</a>
 							</div>
 						</div>
