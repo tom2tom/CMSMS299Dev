@@ -252,26 +252,25 @@ OR
         /**
          * Run a hook, progressively altering the value passed to handlers i.e. a filter.
          *
-         * This method accepts variable arguments.  The first argument (required)
-         * is the name of the hook to execute. Any further argument(s) will be passed
-         * to the first-sorted registered handler, and, as progressively modified,
-         * to other such handlers.
+         * @param args This method accepts variable arguments.
+         * The first argument (required) is the name of the hook to execute.
+         * Any further argument(s) will be passed to the first-sorted registered
+         * handler, and, as progressively modified, to other such handlers.
          *
          * The handlers must each return either null (signalling ignore the result),
-         * or else the same number and type of arguments as were provided to it, so
-         * that they can be passed to the next handler. Returned argument(s)' values
-         * may be different, of course.
+         * or else the same number, order and types of arguments as were provided to
+         * it, so that they can be passed verbatim (keys ignored) to the next handler.
+         * Returned argument(s)' values may be different, of course.
          *
          * @return mixed Depends on the hook handlers. Null if nothing to do.
          */
-        public static function do_hook()
+        public static function do_hook(...$args)
         {
-			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
-            if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
+            if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
 
-            // note: if present, $args is an array or empty
+            // note: $args is an array, maybe empty
             $value = $args;
             self::$_in_process[] = $name;
 
@@ -280,7 +279,11 @@ OR
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                $out = $cb($value);
+                if( is_array($value) ) {
+                    $out = $cb(...$value);
+                } else {
+                    $out = $cb($value);
+                }
                 if( !is_null($out) ) {
                     $value = $out;
                 }
@@ -294,27 +297,29 @@ OR
        /**
         * Run a hook.
         *
-        * This method accepts variable arguments. The first argument (required)
-        * is the name of the hook to execute. Any further argument(s) will be
-        * passed to all registered handler(s).
+        * @param args This method accepts variable arguments.
+        * The first argument (required) is the name of the hook to execute.
+        * Any further argument(s) will be passed to all registered handler(s).
         *
         * @since 2.3
         */
-        public static function do_hook_simple()
+        public static function do_hook_simple(...$args)
         {
-			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
-            if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
+            if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
 
             // note: $args is an array, or empty
-            $value = $args;
             self::$_in_process[] = $name;
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                $cb($value);
+                if( $args ) {
+                    $cb(...$args);
+                } else {
+                    $cb();
+                }
             }
             array_pop(self::$_in_process);
         }
@@ -322,22 +327,20 @@ OR
         /**
          * Run a hook, returning the first non-empty value from a handler.
          *
-         * This method accepts variable arguments. The first argument (required)
-         * is the name of the hook to execute. Any further argument(s) will be
-         * passed to the sorted registered handlers in turn, until one such returns
-         * a non-empty value.
+         * @param args This method accepts variable arguments.
+         * The first argument (required) is the name of the hook to execute.
+         * Any further argument(s) will be passed to the sorted registered
+         * handlers in turn, until one such returns a non-empty value.
          *
          * @return mixed Depends on the hook handlers.
          */
-        public static function do_hook_first_result()
+        public static function do_hook_first_result(...$args)
         {
-			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
-            if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers)  ) return; // nothing to do.
+            if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers)  ) return; // nothing to do.
 
             // note if present, $args is an array or empty
-            $value = $args;
             self::$_in_process[] = $name;
 
             self::sort_handlers($name);
@@ -345,7 +348,11 @@ OR
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                $out = $cb($value);
+                if( $args ) {
+                    $out = $cb(...$args);
+                } else {
+                    $out = $cb();
+                }
                 if( !empty( $out ) ) break;
             }
 
@@ -357,30 +364,33 @@ OR
         /**
          * Run a hook, to retrieve the results from all handlers.
          *
-         * This method accepts variable arguments. The first argument (required)
-         * is the name of the hook to execute. Any further argument(s) will be
-         * passed to the sorted registered handlers in turn. Each handler's non-null
-         * return is 'pushed' into an array, which is eventually returned to the caller.
+         * @param args  This method accepts variable arguments.
+         * The first argument (required) is the name of the hook to execute.
+         * Any further argument(s) will be passed to the sorted registered handlers
+         * in turn. Each handler's non-null return is 'pushed' into an array,
+         * which is eventually returned to the caller.
          *
          * @return mixed null or array, each member of which is a non-null value returned by a handler.
          */
-        public static function do_hook_accumulate()
+        public static function do_hook_accumulate(...$args)
         {
-			$args = func_get_args(); //splat operator N/A for assoc. arrays
             $name = trim(array_shift($args));
 
-            if( !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
+            if( $name === '' || !isset(self::$_hooks[$name]) || !count(self::$_hooks[$name]->handlers) ) return; // nothing to do.
 
             self::sort_handlers($name);
 
             $out = [];
-            $value = $args;
             self::$_in_process[] = $name;
 
             foreach( self::$_hooks[$name]->handlers as $obj ) {
                 //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
-                $ret = $cb($value);
+                if( $args ) {
+                    $ret = $cb(...$args);
+                } else {
+                    $ret = $cb();
+                }
                 if( !is_null($ret) ) {
                     $out[] = (is_array($ret) && count($ret) == 1 && key($ret) == 0) ? $ret[0] : $ret;
                 }
