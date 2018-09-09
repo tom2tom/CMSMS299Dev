@@ -167,7 +167,9 @@ if( $this->CheckPermission('Manage Designs') ) {
 
 if( $this->CheckPermission('Manage Stylesheets') ) {
 	$tmp = cms_userprefs::get($this->GetName().'css_filter');
-	if( $tmp ) $filter_css_rec = unserialize($tmp);
+	if( $tmp ) {
+		$filter_css_rec = unserialize($tmp);
+	}
 	if( isset($params['css_page']) ) {
 		$this->SetCurrentTab('stylesheets');
 		$page = max(1,(int)$params['css_page']);
@@ -181,19 +183,17 @@ if( $this->CheckPermission('Manage Stylesheets') ) {
 
 // give everything to smarty that we can
 $tpl->assign('filter_tpl_options',$opts)
- ->assign('tpl_filter',$filter_tpl_rec) // used for filter form
- ->assign('css_filter',$filter_css_rec); // used for filter form
-$jsoncssfilter = json_encode($filter_css_rec); // used for ajaxy stuff
-$jsonfilter = json_encode($efilter); // used for ajaxy stuff
-
-$tpl->assign('has_add_right',
-                $this->CheckPermission('Modify Templates') ||
-                $this->CheckPermission('Add Templates'))
+ ->assign('tpl_filter',$filter_tpl_rec) // for filter form
+ ->assign('css_filter',$filter_css_rec) // for other filter form
+ ->assign('has_add_right',
+   $this->CheckPermission('Modify Templates') ||
+   $this->CheckPermission('Add Templates'))
  ->assign('coretypename',CmsLayoutTemplateType::CORE)
  ->assign('manage_stylesheets',$this->CheckPermission('Manage Stylesheets'))
  ->assign('manage_templates',$this->CheckPermission('Modify Templates'))
  ->assign('manage_designs',$this->CheckPermission('Manage Designs'))
  ->assign('import_url',$this->create_url($id,'admin_import_template'));
+
 $admin_url = $config['admin_url'];
 $tpl->assign('lock_timeout', $this->GetPreference('lock_timeout'));
 $url = $this->create_url($id,'ajax_get_templates');
@@ -201,13 +201,14 @@ $ajax_templates_url = str_replace('amp;','',$url);
 $url = $this->create_url($id,'ajax_get_stylesheets');
 $ajax_stylesheets_url = str_replace('amp;','',$url);
 $script_url = CMS_SCRIPTS_URL;
-
-// templates script
+$jsonfilter = json_encode($efilter); // used for ajaxy stuff
+$jsoncssfilter = json_encode($filter_css_rec); // used for ajaxy stuff
 $s1 = json_encode($this->Lang('confirm_steal_lock'));
 $s2 = json_encode($this->Lang('confirm_clearlocks'));
 $s3 = json_encode($this->Lang('error_contentlocked'));
 $s4 = json_encode($this->Lang('error_nothingselected'));
 
+// templates script
 $js = <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.js"></script>
 <script type="text/javascript">
