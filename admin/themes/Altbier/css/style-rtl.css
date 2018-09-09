@@ -287,10 +287,7 @@ menu,
 .information,
 .message,
 .success,
-.pagewarning,
-.green,
-.red,
-.yellow {
+.pagewarning {
     border-radius: 4px
 }
 
@@ -424,9 +421,6 @@ table.pagetable a.text-red {
 /* .pagemcontainer, */
 /* .pageerrorcontainer, */
 .pageerrorinstalldir,
-.green,
-.red,
-.yellow,
 .warning,
 .information {
     /*display: inline-block;
@@ -435,7 +429,6 @@ table.pagetable a.text-red {
     padding: 10px;
     margin: 10px 0
 }
-
 
 .pagewarning.hidden {
     display: none
@@ -448,13 +441,6 @@ table.pagetable a.text-red {
     display: block
 }
 
-.green,
-.red,
-.yellow,
-.orange {
-    padding: 10px;
-}
-
 .warning,
 .pagewarning {
     background: #faf6d4; /*url(../images/icons/extra/warning.png) 10px 50% no-repeat;*/
@@ -462,13 +448,11 @@ table.pagetable a.text-red {
 }
 
 .warning .svg-inline--fa, .warning-message .svg-inline--fa{
-        color: #f8993a;
+    color: #f8993a;
 }
 
 .yellow {
-    background: #faf6d4;
     color: #e6c26e;
-    border: 1px solid #e6c26e
 }
 
 .error,
@@ -478,31 +462,23 @@ table.pagetable a.text-red {
     border: 1px solid #ae432e;
 }
 
-.red {
-    background: #f2d4ce;
-    color: #ae432e;
-    border: 1px solid #ae432e
-}
-
 .success {
     background: #d9e6c3; /*url(../images/icons/extra/accept.png) 10px 50% no-repeat;*/
     border: 1px solid #77ab13
 }
 .pagemcontainer {
     background:rgba(217, 230, 195, 0.4);
-        color: #278a81;
+    color: #278a81;
 
 }
 
 .pageerrorcontainer {
     background: rgba(242, 212, 206, 0.65);
     border: 1px solid #ae432e;
-     color: #ae432e;
+    color: #ae432e;
 }
 .green {
-    background: #d9e6c3;
     color: #77ab13;
-    border: 1px solid #77ab13
 }
 
 .information {
