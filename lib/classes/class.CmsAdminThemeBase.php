@@ -297,7 +297,7 @@ abstract class CmsAdminThemeBase
      * should call here (their parent) as well as their own specific setup
      * @since 2.3
      * @return 2-member array (not typed to support back-compatible themes)
-	 * [0] = array of data for js vars, members like varname=>varvalue
+     * [0] = array of data for js vars, members like varname=>varvalue
      * [1] = array of string(s) for includables
      */
     public function AdminHeaderSetup()
@@ -312,12 +312,12 @@ abstract class CmsAdminThemeBase
         return [$vars, []];
     }
 
-	/**
+    /**
      * Hook function to populate page content at runtime
      * Normally subclassed
-	 *
-	 * @return array
-	 */
+     *
+     * @return array
+     */
     public function AdminBottomSetup() : array
     {
         return [];
@@ -1009,7 +1009,7 @@ abstract class CmsAdminThemeBase
             } elseif ($maxdepth > 0 || $alldepth > 0) {
                 $depth = $iter->getDepth();
                 if ($depth > $maxdepth) { //TODO $alldepth processing
-	                if (isset($value['path'])) {
+                    if (isset($value['path'])) {
                         ArrayTree::drop_node($tree, $value['path']);
                     }
                 }
@@ -1240,15 +1240,16 @@ abstract class CmsAdminThemeBase
 
     /**
      * DisplayImage
-     * Displays the themed version of $imageName (if it exists), preferring type
-     *  (in order): .svg, .png, .gif, .jpg, .jpeg
+     * Displays the themed version of $imageName (if it exists),
+     *  preferring type (in order): .svg, .i, .png, .gif, .jpg, .jpeg
      * @param string $imageName name of image file, may have a 'images' (i.e.
      *  theme-images-dir) relative-path, may omit the extension/type suffix
-     * @param string $alt Optional alternate identifier for the created image element, may also be used for its title
+     * @param string $alt Optional alternate identifier for the created image element,
+     *  may also be used for its title
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
-     * @param string $class Optional class
-     * @param array $attrs Since 2.3 Optional array with any or all attributes for the image tag
+     * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
+     * @param array $attrs Since 2.3 Optional array with any or all attributes for the image/span tag
      * @return string
      */
     public function DisplayImage($imageName, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
@@ -1273,12 +1274,16 @@ abstract class CmsAdminThemeBase
             }
 
             $base = $path = cms_join_path(CMS_ADMIN_PATH,'themes',$this->themeName,'images',$rel); //has trailing separator
-            foreach (['svg','png','gif','jpg','jpeg'] as $type) {
+            foreach (['svg','i','png','gif','jpg','jpeg'] as $type) {
                 $path = $base.$fn.$type;
                 if (file_exists($path)) {
-                    //admin-relative URL will do
-                    $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
-                    $this->_imageLink[$imageName] = AdminUtils::path_to_url($path);
+                    if ($type != 'i') {
+                        //admin-relative URL will do
+                        $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
+                        $this->_imageLink[$imageName] = AdminUtils::path_to_url($path);
+                    } else {
+                        $this->_imageLink[$imageName] = $path;
+                    }
                     break;
                 } else {
                     $path = '';
@@ -1286,11 +1291,21 @@ abstract class CmsAdminThemeBase
             }
             if (!$path) {
 //                $this->_imageLink[$imageName] = 'themes/'.$this->themeName.'/images/'.$imageName; //DEBUG
-                $this->_imageLink[$imageName] = 'themes/assets/images/space.png';
+                $this->_imageLink[$imageName] =   'themes/assets/images/space.png';
             }
         }
-        $path = $this->_imageLink[$imageName];
 
+        $path = $this->_imageLink[$imageName];
+        $p = strrpos($path,'.');
+        $type = substr($path,$p+1);
+
+        if ($type == 'i') {
+            if ($class) {
+                $class = 'fontimage '.$class;
+            } else {
+                $class = 'fontimage';
+            }
+        }
         $extras = array_merge(['width'=>$width, 'height'=>$height, 'class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
         if (!$extras['title']) {
             if ($extras['alt']) {
@@ -1304,14 +1319,18 @@ abstract class CmsAdminThemeBase
             $extras['alt'] = substr($path, $p+1);
         }
 
-        $p = strrpos($path,'.');
-        $type = substr($path,$p+1);
-        if ($type == 'svg') {
+        switch ($type) {
+          case 'svg':
             // see https://css-tricks.com/using-svg
             $alt = str_replace('svg','png',$path);
             $res = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
-        } else {
+            break;
+          case 'i':
+            $res = '<span';
+            break;
+          default:
             $res = '<img src="'.$path.'"';
+            break;
         }
 
         foreach( $extras as $key => $value ) {
@@ -1319,7 +1338,11 @@ abstract class CmsAdminThemeBase
                 $res .= " $key=\"$value\"";
             }
         }
-        $res .= ' />';
+        if ($type != 'i') {
+            $res .= ' />';
+        } else {
+            $res .= '>'.file_get_contents($path).'</span>';
+        }
         return $res;
     }
 
