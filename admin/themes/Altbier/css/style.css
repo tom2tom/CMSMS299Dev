@@ -1340,26 +1340,13 @@ display: block;
     cursor: pointer;
     color: #147fdb
 }
-/* !!! FontAwesome 5.x (free version) Icons */
-/* DISABLED PENDING HELP-MECHANISM UPDATE
-span.helptext a::after,
-.cms_help::after {
-    font-family: "Font Awesome 5 Free";
-    font-size: 1.2em;
-    font-weight: 900;
-    content: '\f059';
-/ *    display: none; * /
-}
-span.helptext a .svg-inline--fa,
-.cms_help .svg-inline--fa {
-    margin-left: 5px;
+.cms_helpicon i {
+    margin-left: 0.3em;
+    vertical-align: middle;
+    font-size: 1.3em;
+    color: #4466cc;
 }
 
-#ac_mainarea .cms_helpicon,
-#ac_mainarea .helpicon {
-/ *    display: none; * /
-}
-*/
 .pageheader {
     font-size: 18px;
     font-weight: normal;
