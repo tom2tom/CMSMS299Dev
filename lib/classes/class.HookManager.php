@@ -253,14 +253,15 @@ OR
          * Run a hook, progressively altering the value passed to handlers i.e. a filter.
          *
          * @param args This method accepts variable arguments.
-         * The first argument (required) is the name of the hook to execute.
+         * The first of them (required) is the name of the hook to execute.
          * Any further argument(s) will be passed to the first-sorted registered
          * handler, and, as progressively modified, to other such handlers.
          *
          * The handlers must each return either null (signalling ignore the result),
-         * or else the same number, order and types of arguments as were provided to
-         * it, so that they can be passed verbatim (keys ignored) to the next handler.
-         * Returned argument(s)' values may be different, of course.
+         * or else variable(s) that can be passed verbatim (keys ignored) to
+         * the next handler. In most cases. the same number, order and types
+         * of parameter(s) as were provided as argument(s) to the handler.
+         * Returned parameter(s)' values may be different, of course.
          *
          * @return mixed Depends on the hook handlers. Null if nothing to do.
          */
@@ -280,7 +281,7 @@ OR
                 //TODO if blocking is supported, is not blocked
                 $cb = $obj->callable;
                 if( is_array($value) ) {
-                    $out = $cb(...$value);
+                    $out = $cb(...array_values($value));
                 } else {
                     $out = $cb($value);
                 }
@@ -298,7 +299,7 @@ OR
         * Run a hook.
         *
         * @param args This method accepts variable arguments.
-        * The first argument (required) is the name of the hook to execute.
+        * The first of them (required) is the name of the hook to execute.
         * Any further argument(s) will be passed to all registered handler(s).
         *
         * @since 2.3
@@ -328,7 +329,7 @@ OR
          * Run a hook, returning the first non-empty value from a handler.
          *
          * @param args This method accepts variable arguments.
-         * The first argument (required) is the name of the hook to execute.
+         * The first of them (required) is the name of the hook to execute.
          * Any further argument(s) will be passed to the sorted registered
          * handlers in turn, until one such returns a non-empty value.
          *
@@ -365,7 +366,7 @@ OR
          * Run a hook, to retrieve the results from all handlers.
          *
          * @param args  This method accepts variable arguments.
-         * The first argument (required) is the name of the hook to execute.
+         * The first of them (required) is the name of the hook to execute.
          * Any further argument(s) will be passed to the sorted registered handlers
          * in turn. Each handler's non-null return is 'pushed' into an array,
          * which is eventually returned to the caller.
