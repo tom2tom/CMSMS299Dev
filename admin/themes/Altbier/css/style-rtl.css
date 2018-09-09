@@ -481,11 +481,7 @@ table.pagetable a.text-red {
     color: #77ab13;
 }
 
-.information {
-    background: #cee6f2;
-    border: 1px solid #058dc7
-}
-.info {
+.info, .pageinfo, .information {
     background: #cee6f2 url(../images/icons/extra/info.png) right 34px 50% no-repeat; /* right-align 24X24 image */
     border: 1px solid #058dc7
 }

@@ -374,10 +374,7 @@ menu,
 .information,
 .message,
 .success,
-.pagewarning,.pageerror,.pagewarn,.pagesuccess,.pageinfo,
-.green,
-.red,
-.yellow {
+.pagewarning,.pageerror,.pagewarn,.pagesuccess,.pageinfo {
     border-radius: 4px
 }
 
@@ -517,9 +514,6 @@ table.pagetable a.text-red {
 .pagemcontainer,
 .pageerrorcontainer,
 .pageerrorinstalldir,
-.green,
-.red,
-.yellow,
 .warning,
 .information {
     display: inline-block;
@@ -537,32 +531,17 @@ table.pagetable a.text-red {
 .dialog .orange {
     display: block
 }
-.green,
-.red,
-.yellow,
-.orange {
-    padding: 10px;
-}
+
 .yellow {
-    background: #faf6d4;
     color: #e6c26e;
-    border: 1px solid #e6c26e
 }
 .green {
-	background: #d9e6c3;
-	color: #77ab13;
-	border: 1px solid #77ab13
+    color: #77ab13;
 }
 .blue {
-	background: #c2dde5;
-	color: #058dc7;
-	border: 1px solid #1384aa
+    color: #058dc7;
 }
-.red {
-	background: #f2d4ce;
-	color: #ae432e;
-	border: 1px solid #aa1313
-}
+
 .warning,
 .pagewarning {
 	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
@@ -579,7 +558,7 @@ table.pagetable a.text-red {
     background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
     border: 1px solid #77ab13
 }
-.info, .information {
+.info, .pageinfo, .information {
     background: #cee6f2 url(../images/icons/extra/info.png) 10px 50% no-repeat;
     border: 1px solid #058dc7
 }
