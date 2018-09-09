@@ -646,7 +646,8 @@ $lang['prompt_dest_template'] = 'Destination Template';
 $lang['prompt_dflt'] = 'Default';
 $lang['prompt_dflt_tpl'] = 'This is the default template for its type';
 $lang['prompt_edit'] = 'Edit';
-$lang['prompt_editfilter'] = 'Edit Template Filter';
+$lang['prompt_editfilter'] = 'Modify templates filter';
+$lang['prompt_editcssfilter'] = 'Modify stylesheets filter';
 $lang['prompt_filename'] = 'Filename';
 $lang['prompt_filetemplate'] = 'Template File';
 $lang['prompt_filter'] = 'Filter';
@@ -725,7 +726,6 @@ $lang['remove'] = 'Remove';
 #S
 $lang['set_all_pages'] = 'Set All Pages To This Template';
 $lang['submit'] = 'Submit';
-$lang['submitandedit'] = 'Submit And Edit';
 
 #T
 $lang['title_cat_id'] = 'This column displays the unique integer id for the category.';

@@ -41,7 +41,7 @@ if( isset($params['cancel']) ) {
 try {
     $orig_tpl = CmsLayoutTemplate::load($params['tpl']);
 
-    if( isset($params['submit']) || isset($params['submitandedit']) ) {
+    if( isset($params['submit']) || isset($params['apply']) ) {
 
         try {
             $new_tpl = clone($orig_tpl);
@@ -58,7 +58,7 @@ try {
             }
             $new_tpl->save();
 
-            if( isset($params['submitandedit']) ) {
+            if( isset($params['apply']) ) {
 				$this->SetMessage($this->Lang('msg_template_copied_edit'));
 				$this->Redirect($id,'admin_edit_template',$returnid,['tpl'=>$new_tpl->get_id()]);
             }
