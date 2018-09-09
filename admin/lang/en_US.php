@@ -295,7 +295,7 @@ $lang['download_cksum_file'] = 'Create a new checksum file';
 
 ## E
 $lang['ecommerce'] = 'E-Commerce';
-$lang['ecommerce_desc'] = 'Modules for providing E-commerce capabilities';
+$lang['ecommerce_desc'] = 'E-commerce services';
 $lang['edit'] = 'Edit';
 //$lang['editbookmark'] = 'Edit Bookmark';
 $lang['editconfiguration'] = 'Edit Configuration';
