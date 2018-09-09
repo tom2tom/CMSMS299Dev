@@ -1333,13 +1333,16 @@ span.helptext a {
     display: block;
 }
 .cms_help {
-    color: #147fdb;
     cursor: pointer
 }
-.cms_helpicon i {
-    margin-right: 0.3em;
+
+/* font icons used for images */
+i.fontimage {
     vertical-align: middle;
     font-size: 1.3em;
+}
+i.cms_helpicon {
+    margin-right: 0.3em;
     color: #4466cc;
 }
 

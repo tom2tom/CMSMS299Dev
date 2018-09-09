@@ -1338,12 +1338,15 @@ display: block;
 }
 .cms_help {
     cursor: pointer;
-    color: #147fdb
 }
-.cms_helpicon i {
-    margin-left: 0.3em;
+
+/* font icons used for images */
+i.fontimage {
     vertical-align: middle;
     font-size: 1.3em;
+}
+i.cms_helpicon {
+    margin-left: 0.3em;
     color: #4466cc;
 }
 
