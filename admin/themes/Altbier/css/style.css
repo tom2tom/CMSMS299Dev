@@ -2126,7 +2126,7 @@ a.toggle-dropzone:focus {
     padding-top: 10%
 }
 #login div.login-box {
-    max-width: 480px;
+    max-width: 30em;
     background: #e6e6e6;
     position: relative;
     border: 1px solid #cacaca;
@@ -2140,7 +2140,7 @@ a.toggle-dropzone:focus {
 }
 
 #login fieldset {
-    max-width: 315px;
+    max-width: 30em;
     margin: 0 auto;
 }
 #login h1 {
