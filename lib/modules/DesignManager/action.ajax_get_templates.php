@@ -24,7 +24,6 @@ try {
 
     $tmp = get_parameter_value($_REQUEST,'filter');
     $filter = json_decode($tmp,TRUE);
-    $tpl->assign('tpl_filter',$filter);
     if( !$this->CheckPermission('Modify Templates') ) $filter[] = 'e:'.get_userid(false);
 /*
     $tpl_query = new CmsLayoutTemplateQuery($filter);
@@ -39,6 +38,9 @@ try {
         $tpl->assign('tpl_nav',$tpl_nav);
     }
 */
+    $tpl->assign('tpl_filter',$filter)
+		->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
+
     include __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
     if( count($templates) ) {
         $tpl->assign('templates', $templates)
