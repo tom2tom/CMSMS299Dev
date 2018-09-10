@@ -73,6 +73,12 @@ abstract class CmsAdminThemeBase
     private static $_instance = null;
 
     /**
+     * Whether this theme uses fontimages (.i files)
+     * @ignore
+     */
+    protected static $_fontimages = null;
+
+    /**
      * @ignore
      */
     private $_perms;
@@ -197,7 +203,7 @@ abstract class CmsAdminThemeBase
      */
     protected function __construct()
     {
-        if( is_object(self::$_instance) ) throw new CmsLogicExceptin('Only one instance of a theme object is permitted');
+        if (is_object(self::$_instance)) throw new CmsLogicExceptin('Only one instance of a theme object is permitted');
 
         $this->_url = $_SERVER['SCRIPT_NAME'];
         $this->_query = $_SERVER['QUERY_STRING']??'';
@@ -212,6 +218,11 @@ abstract class CmsAdminThemeBase
             $toam_tmp = explode('/',$this->_url);
             $toam_tmp2 = array_pop($toam_tmp);
             $this->_script = $toam_tmp2;
+        }
+
+        if (self::$_fontimages === null) {
+            $items = glob(cms_join_path(__DIR__,'images','icons','system','*.i'),GLOB_NOSORT);
+            self::$_fontimages = ($items != false);
         }
 
         $this->UnParkNotices();
@@ -1240,49 +1251,64 @@ abstract class CmsAdminThemeBase
 
     /**
      * DisplayImage
-     * Displays the themed version of $imageName (if it exists),
-     *  preferring type (in order): .svg, .i, .png, .gif, .jpg, .jpeg
-     * @param string $imageName name of image file, may have a 'images' (i.e.
-     *  theme-images-dir) relative-path, may omit the extension/type suffix
-     * @param string $alt Optional alternate identifier for the created image element,
-     *  may also be used for its title
+     * Generate xhtml tag to display the themed version of $image (if it exists),
+	 *  preferring image-file extension/type (in order):
+     *  .svg, .i(if used in this theme), .png, .gif, .jpg, .jpeg
+	 *  As a convenience, this can also process specific images that are not
+	 *  included in the current theme.
+     * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
+	 *  relative-filepath, or an absolute filepath. It may omit extension (type)
+     * @param string $alt Optional alternate identifier for the created.
+     *  image element, may also be used for its title
      * @param int $width Optional image-width (ignored for svg)
      * @param int $height Optional image-height (ignored for svg)
      * @param string $class Optional class. For .i (iconimages), class "fontimage" is always prepended
      * @param array $attrs Since 2.3 Optional array with any or all attributes for the image/span tag
      * @return string
      */
-    public function DisplayImage($imageName, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
+    public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
     {
         if (!is_array($this->_imageLink)) {
             $this->_imageLink = [];
         }
 
-        if (!isset($this->_imageLink[$imageName])) {
-            $detail = preg_split('~\\/~',$imageName);
-            $fn = array_pop($detail);
+        if (!isset($this->_imageLink[$image])) {
+			if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~',$image)) { //not absolute
+                $detail = preg_split('~\\/~',$image);
+                $fn = array_pop($detail);
+                if ($detail) {
+                    $rel = implode(DIRECTORY_SEPARATOR,$detail).DIRECTORY_SEPARATOR;
+                } else {
+                    $rel = '';
+                }
+                $base = cms_join_path(CMS_ADMIN_PATH,'themes',$this->themeName,'images',$rel); //has trailing separator
+            } else {
+                $fn = basename($image);
+                $base = dirname($image).DIRECTORY_SEPARATOR;
+                $rel = false;
+			}
             $p = strrpos($fn,'.');
             if ($p !== false) {
-                $fn = substr($fn, 0, $p+1);
+                $fn = substr($fn,0,$p+1);
             } else {
                 $fn .= '.';
             }
-            if ($detail) {
-                $rel = implode(DIRECTORY_SEPARATOR,$detail).DIRECTORY_SEPARATOR;
-            } else {
-                $rel = '';
-            }
 
-            $base = $path = cms_join_path(CMS_ADMIN_PATH,'themes',$this->themeName,'images',$rel); //has trailing separator
-            foreach (['svg','i','png','gif','jpg','jpeg'] as $type) {
+            $exts = ['svg','i','png','gif','jpg','jpeg'];
+            if (!self::$_fontimages) {
+                unset($exts[1]);
+            }
+            foreach ($exts as $type) {
                 $path = $base.$fn.$type;
                 if (file_exists($path)) {
                     if ($type != 'i') {
-                        //admin-relative URL will do
-                        $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
-                        $this->_imageLink[$imageName] = AdminUtils::path_to_url($path);
+                        if ($rel !== false) {
+                            //admin-relative URL will do
+                            $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
+                        }
+                        $this->_imageLink[$image] = AdminUtils::path_to_url($path);
                     } else {
-                        $this->_imageLink[$imageName] = $path;
+                        $this->_imageLink[$image] = $path;
                     }
                     break;
                 } else {
@@ -1290,30 +1316,29 @@ abstract class CmsAdminThemeBase
                 }
             }
             if (!$path) {
-//                $this->_imageLink[$imageName] = 'themes/'.$this->themeName.'/images/'.$imageName; //DEBUG
-                $this->_imageLink[$imageName] = 'themes/assets/images/space.png';
+                $this->_imageLink[$image] = 'themes/assets/images/space.png';
             }
         }
 
-        $path = $this->_imageLink[$imageName];
+        $path = $this->_imageLink[$image];
         $p = strrpos($path,'.');
         $type = substr($path,$p+1);
 
         if ($type == 'i') {
-			$props = parse_ini_file($path, false, INI_SCANNER_TYPED);
-			if ($props) {
-				foreach ($props as $key => $value) {
-					if (isset($attrs[$key]) ) {
-						if (is_numeric($value) || is_bool($value)) {
-							continue; //supplied attrib prevails
-						} elseif (is_string($value)) {
-							$attrs[$key] = $value.' '.$attrs[$key];
-						}
-					} else {
-						$attrs[$key] = $value;
-					}
-				}
-			}
+            $props = parse_ini_file($path, false, INI_SCANNER_TYPED);
+            if ($props) {
+                foreach ($props as $key => $value) {
+                    if (isset($attrs[$key]) ) {
+                        if (is_numeric($value) || is_bool($value)) {
+                            continue; //supplied attrib prevails
+                        } elseif (is_string($value)) {
+                            $attrs[$key] = $value.' '.$attrs[$key];
+                        }
+                    } else {
+                        $attrs[$key] = $value;
+                    }
+                }
+            }
             if (isset($attrs['class'])) {
                 $attrs['class'] .= ' '.trim($class.' fontimage');
             } else {
