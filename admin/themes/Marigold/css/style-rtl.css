@@ -299,7 +299,7 @@ a.external {
     text-decoration: underline
 }
 .file {
-    background: url(../images/icons/system/document-list.png) no-repeat right;
+    background: url(../images/icons/extra/document-list.png) no-repeat right;
     padding-right: 25px
 }
 .important {
@@ -793,7 +793,7 @@ aside .no-slide, .no-slide {
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparent url(../images/icons/extra/spinner.gif) no-repeat;
+    background: transparent url(../images/spinner.gif) no-repeat;
     background-size: 50px 50px;
     cursor: wait;
 }
@@ -1510,10 +1510,10 @@ span.helptext a {
     width: auto;
     padding-left: 20px;
     margin-right: 8px;
-    background: url(../images/icons/system/info-external.gif) no-repeat left
+    background: url(../images/icons/system/info-external.png) no-repeat left
 }
 span.helptext a {
-    background: url(../images/icons/system/info.gif) no-repeat left
+    background: url(../images/icons/extra/info.png) no-repeat left
 }
 .pageheader span.helptext {
     display: inline-block;
@@ -1623,7 +1623,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-right: 20px;
     line-height: 20px;
-    background: url(../images/icons/system/bookmark.png) no-repeat right
+    background: url(../images/icons/extra/bookmark.png) no-repeat right
 }
 
 div.dialog form#chdir_form {
@@ -2101,7 +2101,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 35px 3px 10px;
-    background: #eee url(../images/icons/extra/reorder.gif) no-repeat  430px 50%;
+    background: #eee url(../images/icons/extra/reorder.png) no-repeat 430px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858

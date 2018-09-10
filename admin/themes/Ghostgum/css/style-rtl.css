@@ -2413,7 +2413,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 35px 3px 10px;
-    background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;
+    background: #eee url(../images/icons/extra/reorder.png) no-repeat 10px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
@@ -2574,7 +2574,7 @@ ul.sortableList li div.label span {
     margin-top: 8px;
     margin-left: 5px;
     margin-right: 5px;
-    background: transparent url(../images/icons/extra/reorder.gif) no-repeat 0 0;
+    background: transparent url(../images/icons/extra/reorder.png) no-repeat 0 0;
 }
 */
 ul.sortableList span.haschildren.expanded {

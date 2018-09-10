@@ -215,7 +215,7 @@ a.external {
     text-decoration: underline
 }
 .file {
-    background: url(../images/icons/extra/document-list.gif) no-repeat left; /* TODO N/A png image */
+    background: url(../images/icons/extra/document-list.gif) no-repeat left;
     padding-left: 25px
 }
 .important, text-danger {
@@ -743,7 +743,7 @@ aside .no-slide,
     height: 16px;
     color: #333;
     /* text-indent: -9999em; */
-    /* background: transparent url(../images/icons/extra/close.gif) no-repeat;  TODO N/A png image */
+    /* background: transparent url(../images/icons/extra/close.gif) no-repeat; */
     cursor: pointer;
     /* margin: 5px */
 }
@@ -1410,7 +1410,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-left: 20px;
     line-height: 20px;
-    background: url(../images/icons/extra/bookmark.gif) no-repeat left /* TODO N/A png image */
+    background: url(../images/icons/extra/bookmark.gif) no-repeat left
 }
 
 div.dialog form#chdir_form {

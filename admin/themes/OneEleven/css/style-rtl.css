@@ -544,24 +544,24 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-	background: #faf6d4 url(../images/icons/extra/warning.png) right 34px 50% no-repeat;/* right-align 24X24 image */
+	background: #faf6d4 url(../images/icons/extra/warning.gif) right 34px 50% no-repeat;/* right-align 24X24 image */
 	border: 1px solid #e6c26e
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-	background: #f2d4ce url(../images/icons/extra/block.png) right 34px 50% no-repeat;
+	background: #f2d4ce url(../images/icons/extra/block.gif) right 34px 50% no-repeat;
 	border: 1px solid #ae432e
 }
 .success,
 .pagemcontainer {
-	background: #d9e6c3 url(../images/icons/extra/accept.png) right 34px 50% no-repeat;
+	background: #d9e6c3 url(../images/icons/extra/accept.gif) right 34px 50% no-repeat;
 	border: 1px solid #77ab13
 }
 .info,
 .pageinfo,
 .information {
-	background: #cee6f2 url(../images/icons/extra/info.png) right 34px 50% no-repeat;
+	background: #cee6f2 url(../images/icons/extra/info.gif) right 34px 50% no-repeat;
 	border: 1px solid #058dc7
 }
 .message:hover {
@@ -752,7 +752,7 @@ aside .no-slide, .no-slide  {
 }
 .jqt-icon-error {
 	padding-right: 50px;
-	background-image: url(../images/icons/extra/error.png);
+	background-image: url(../images/icons/extra/error.gif);
 }
 .warn.jqtoast {
 	padding: 10px 40px;
@@ -766,7 +766,7 @@ aside .no-slide, .no-slide  {
 	color: #fff;
 }
 .jqt-icon-warning {
-	background-image: url(../images/icons/extra/warn.png);
+	background-image: url(../images/icons/extra/warn.gif);
 }
 .success.jqtoast {
 	padding: 10px 40px;
@@ -780,7 +780,7 @@ aside .no-slide, .no-slide  {
 	color: #fff;
 }
 .jqt-icon-success {
-	background-image: url(../images/icons/extra/accept.png);
+	background-image: url(../images/icons/extra/accept.gif);
 }
 .info.jqtoast {
 	padding: 10px 40px;
@@ -794,7 +794,7 @@ aside .no-slide, .no-slide  {
 	color: #fff;
 }
 .jqt-icon-info {
-	background-image: url(../images/icons/extra/info.png);
+	background-image: url(../images/icons/extra/info.gif);
 }
 
 #cms_busy, .busy {
@@ -821,7 +821,7 @@ aside .no-slide, .no-slide  {
 	width: 16px;
 	height: 16px;
 	text-indent: +9999em;
-	background: transparent url(../images/icons/extra/close.png) no-repeat;
+	background: transparent url(../images/icons/extra/close.gif) no-repeat;
 	cursor: pointer;
 	margin:5px
 }
@@ -1593,7 +1593,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
 	padding-right: 20px;
 	line-height: 20px;
-	background: url(../images/icons/system/bookmark.png) no-repeat right
+	background: url(../images/icons/system/bookmark.gif) no-repeat right
 }
 div.dialog form#chdir_form {
 	display: block
