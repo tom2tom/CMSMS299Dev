@@ -1,1 +1,1 @@
-class="fa-square-o"
+class="fa-popup"

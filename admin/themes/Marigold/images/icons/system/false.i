@@ -1,2 +1,2 @@
-class="fa-check"
-style="opacity:0.2"
+class="fa-cancel"
+style="opacity:0.3"

@@ -11,7 +11,7 @@
 		</li>
       {if isset($myaccount)}
 		<li class="settings">
-			<a href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa-user"></i></a>
+			<a href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa-user-o"></i></a>
 		</li>
       {/if}
 		{if isset($marks)}

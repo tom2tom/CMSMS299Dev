@@ -1,1 +1,1 @@
-class="fa-list-alt"
+class="fa-list"

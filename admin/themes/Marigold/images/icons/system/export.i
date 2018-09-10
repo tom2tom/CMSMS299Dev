@@ -1,1 +1,1 @@
-class="fa-external-link"
+class="fa-export"

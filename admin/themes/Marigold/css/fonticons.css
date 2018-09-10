@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'mgtheme';
-  src: url('../fonts/mgtheme.eot?4324451');
-  src: url('../fonts/mgtheme.eot?4324451#iefix') format('embedded-opentype'),
-       url('../fonts/mgtheme.woff2?4324451') format('woff2'),
-       url('../fonts/mgtheme.woff?4324451') format('woff'),
-       url('../fonts/mgtheme.ttf?4324451') format('truetype'),
-       url('../fonts/mgtheme.svg?4324451#mgtheme') format('svg');
+  src: url('../fonts/mgtheme.eot?69502398');
+  src: url('../fonts/mgtheme.eot?69502398#iefix') format('embedded-opentype'),
+       url('../fonts/mgtheme.woff2?69502398') format('woff2'),
+       url('../fonts/mgtheme.woff?69502398') format('woff'),
+       url('../fonts/mgtheme.ttf?69502398') format('truetype'),
+       url('../fonts/mgtheme.svg?69502398#mgtheme') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'mgtheme';
-    src: url('../fonts/mgtheme.svg?4324451#mgtheme') format('svg');
+    src: url('../fonts/mgtheme.svg?69502398#mgtheme') format('svg');
   }
 }
 */
@@ -29,7 +29,7 @@
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
-  /* margin-right: .2em; */
+  /* margin-right: .2em;*/
   text-align: center;
   /* opacity: .8; */
 
@@ -55,22 +55,53 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
-.fa-basket:before { content: '\e80a'; } /* '' */
+.fa-angle-double-down:before { content: '\f103'; } /* '' */
+.fa-angle-double-up:before { content: '\f102'; } /* '' */
+.fa-arrow-down:before { content: '\e809'; } /* '' */
+.fa-arrow-left:before { content: '\e80b'; } /* '' */
+.fa-arrow-right:before { content: '\e80d'; } /* '' */
+.fa-arrow-up:before { content: '\e80a'; } /* '' */
+.fa-attach:before { content: '\e80e'; } /* '' */
+.fa-basket:before { content: '\e602'; } /* '' */
 .fa-bell:before { content: '\e802'; } /* '' */
 .fa-bookmark:before { content: '\f097'; } /* '' */
-.fa-chevron-left:before { content: '\f100'; } /* '' */
-.fa-chevron-right:before { content: '\f101'; } /* '' */
+.fa-cancel:before { content: '\f00d'; } /* '' */
+.fa-check:before { content: '\f00c'; } /* '' */
 .fa-close:before { content: '\e804'; } /* '' */
-.fa-content:before { content: '\e805'; } /* '' */
+.fa-cog:before { content: '\e907'; } /* '' */
+.fa-content:before { content: '\e600'; } /* '' */
+.fa-css3:before { content: '\e91d'; } /* '' */
 .fa-docs:before { content: '\f0c5'; } /* '' */
+.fa-edit:before { content: '\e818'; } /* '' */
+.fa-exclamation-circle:before { content: '\e814'; } /* '' */
+.fa-expand-left:before { content: '\e816'; } /* '' */
+.fa-expand-right:before { content: '\e808'; } /* '' */
+.fa-export:before { content: '\e819'; } /* '' */
+.fa-filter:before { content: '\e805'; } /* '' */
+.fa-folder-add:before { content: '\e603'; } /* '' */
 .fa-help:before { content: '\e810'; } /* '' */
 .fa-home:before { content: '\e80f'; } /* '' */
-.fa-layout:before { content: '\f0ce'; } /* '' */
+.fa-import:before { content: '\e605'; } /* '' */
+.fa-info-circle:before { content: '\e812'; } /* '' */
+.fa-key:before { content: '\e813'; } /* '' */
+.fa-layout:before { content: '\e80c'; } /* '' */
+.fa-list:before { content: '\e817'; } /* '' */
 .fa-logout:before { content: '\e803'; } /* '' */
+.fa-minus-circle:before { content: '\e815'; } /* '' */
 .fa-open:before { content: '\e806'; } /* '' */
+.fa-plus-square:before { content: '\f0fe'; } /* '' */
+.fa-popup:before { content: '\e604'; } /* '' */
 .fa-puzzle:before { content: '\f12e'; } /* '' */
+.fa-question-circle:before { content: '\e811'; } /* '' */
+.fa-reorder:before { content: '\f074'; } /* '' */
 .fa-service:before { content: '\e807'; } /* '' */
+.fa-settings:before { content: '\e606'; } /* '' */
+.fa-sort-amount-asc:before { content: '\f160'; } /* '' */
+.fa-sort-amount-desc:before { content: '\f161'; } /* '' */
+.fa-trash:before { content: '\e901'; } /* '' */
+.fa-user-o:before { content: '\f2c0'; } /* '' */
+.fa-user-plus:before { content: '\f234'; } /* '' */
 .fa-user:before { content: '\e800'; } /* '' */
 .fa-users:before { content: '\e801'; } /* '' */
-.fa-website:before { content: '\e808'; } /* '' */
-.fa-wrench:before { content: '\e80b'; } /* '' */
+.fa-website:before { content: '\e601'; } /* '' */
+.fa-wrench:before { content: '\e90a'; } /* '' */

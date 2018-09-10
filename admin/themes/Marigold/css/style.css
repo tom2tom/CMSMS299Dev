@@ -1031,7 +1031,7 @@ header .shortcuts li.notifications span.bubble {
 }
 #mg_sidebar nav.navigation {
     height: auto;
-    margin-top: 45px;
+    margin-top: 35px;
     position: relative
 }
 
@@ -1042,10 +1042,9 @@ header .shortcuts li.notifications span.bubble {
     display: block;
     cursor: pointer;
     width: 24px;
-    height: 25px;
     position: absolute;
-    right: -1px;
-    top: 12px
+    right: 4px;
+    top: 8px
 }
 
 #mg_sidebar .toggle-button.top {
@@ -1058,11 +1057,11 @@ header .shortcuts li.notifications span.bubble {
 }
 
 .sidebar-on #mg_sidebar .toggle-button::after {
-    content: "\f100";
+    content: "\e816";
 }
 
 .sidebar-off #mg_sidebar .toggle-button::after {
-    content: "\f101";
+    content: "\e808";
 }
 
 
@@ -1198,7 +1197,7 @@ h3.main::before {
 a.content::before,
 h3.content::before {
     font-family: "mgtheme";
-    content: '\e805';
+    content: '\e600';
     margin-right: 15px;
     font-size: 1.2em;
     width: 10px;
@@ -1208,7 +1207,7 @@ h3.content::before {
 a.layout::before,
 h3.layout::before {
     font-family: "mgtheme";
-    content: '\f0ce';
+    content: '\e80c';
     margin-right: 15px;
     font-size: 1.2em;
     width: 10px;
@@ -1258,7 +1257,7 @@ h3.extensions::before {
 a.siteadmin::before,
 h3.siteadmin::before {
     font-family: "mgtheme";
-    content: '\e80b';
+    content: '\e90a';
     margin-right: 15px;
     font-size: 1.2em;
     width: 10px;
@@ -1278,7 +1277,7 @@ h3.myprefs::before {
 a.ecommerce::before,
 h3.ecommerce::before {
     font-family: "mgtheme";
-    content: '\e809';
+    content: '\e602';
     margin-right: 15px;
     font-size: 1.2em;
     width: 10px;
@@ -1357,6 +1356,12 @@ h3.logout::before {
     border-bottom: 1px solid #fa8004
 }
 
+i.cms_helpicon {
+    margin-right: 0.3em;
+    vertical-align: middle;
+    font-size: 1.4em;
+    color: #147fdb;
+}
 .cms_helpicon {
     cursor: pointer;
 }
@@ -1391,11 +1396,9 @@ footer#mg_footer a:hover, footer#mg_footer a:active {
     float: left
 }
 .footer-left {
-    margin: 0 0 0 260px
+    margin: 0 0 0 40px
 }
-#mg_container.sidebar-off .footer-left {
-    margin: 0 0 0 60px
-}
+
 #mg_footer .footer-right {
     float: right;
     padding: 10px;

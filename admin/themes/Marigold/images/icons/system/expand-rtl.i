@@ -1,1 +1,1 @@
-class="fa-chevron-right"
+class="fa-expand-left"

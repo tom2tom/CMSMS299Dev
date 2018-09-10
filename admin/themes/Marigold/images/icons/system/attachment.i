@@ -1,1 +1,1 @@
-class="fa-paperclip"
+class="fa-attach"

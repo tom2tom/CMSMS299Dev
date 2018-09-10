@@ -1,1 +1,1 @@
-class="fa-chevron-up"
+class="fa-close"

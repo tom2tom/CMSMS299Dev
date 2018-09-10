@@ -1,1 +1,1 @@
-class="fa-caret-square-o-left blue"
+class="fa-expand-left blue"
