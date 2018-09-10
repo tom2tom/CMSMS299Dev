@@ -213,7 +213,7 @@ a.external {
     text-decoration: underline
 }
 .file {
-    background: url(../images/icons/system/document-list.png) no-repeat right;
+    background: url(../images/icons/extra/document-list.gif) no-repeat right;  /* TODO N/A png image */
     padding-right: 25px
 }
 .important, text-danger {
@@ -443,7 +443,7 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-    background: #faf6d4; /*url(../images/icons/extra/warning.png) 10px 50% no-repeat;*/
+    background: #faf6d4; /*url(../images/icons/extra/warning.gif) 10px 50% no-repeat;*/
     border: 1px solid #e6c26e
 }
 
@@ -458,12 +458,12 @@ table.pagetable a.text-red {
 .error,
 /* .pageerrorcontainer, */
 .pageerrorinstalldir {
-    background: #f2d4ce; /*url(../images/icons/extra/block.png) 10px 50% no-repeat;*/
+    background: #f2d4ce; /*url(../images/icons/extra/block.gif) 10px 50% no-repeat;*/
     border: 1px solid #ae432e;
 }
 
 .success {
-    background: #d9e6c3; /*url(../images/icons/extra/accept.png) 10px 50% no-repeat;*/
+    background: #d9e6c3; /*url(../images/icons/extra/accept.gif) 10px 50% no-repeat;*/
     border: 1px solid #77ab13
 }
 .pagemcontainer {
@@ -482,7 +482,7 @@ table.pagetable a.text-red {
 }
 
 .info, .pageinfo, .information {
-    background: #cee6f2 url(../images/icons/extra/info.png) right 34px 50% no-repeat; /* right-align 24X24 image */
+    background: #cee6f2 url(../images/icons/extra/info.gif) right 34px 50% no-repeat; /* right-align 24X24 image */
     border: 1px solid #058dc7
 }
 
@@ -672,7 +672,7 @@ aside .no-slide,
 }
 .jqt-icon-error {
     padding-right: 50px;
-    background-image: url(../images/icons/extra/block.png) right;
+    background-image: url(../images/icons/extra/block.gif) right;
 }
 .warn.jqtoast {
     padding: 10px 40px;
@@ -686,7 +686,7 @@ aside .no-slide,
     color: #fff;
 }
 .jqt-icon-warning {
-    background-image: url(../images/icons/extra/warning.png) right;
+    background-image: url(../images/icons/extra/warning.gif) right;
 }
 .success.jqtoast {
     padding: 10px 40px;
@@ -700,7 +700,7 @@ aside .no-slide,
     color: #fff;
 }
 .jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.png) right;
+    background-image: url(../images/icons/extra/accept.gif) right;
 }
 .info.jqtoast {
     padding: 10px 40px;
@@ -714,7 +714,7 @@ aside .no-slide,
     color: #fff;
 }
 .jqt-icon-info {
-    background-image: url(../images/icons/extra/info.png) right;
+    background-image: url(../images/icons/extra/info.gif) right;
 }
 
 #cms_busy,
@@ -729,7 +729,7 @@ aside .no-slide,
     left: 0;
     bottom: 0;
     right: 0;
-    background: transparent url(../images/icons/extra/spinner.gif) no-repeat;
+    background: transparent url(../images/spinner.gif) no-repeat;
     background-size: 50px 50px;
     cursor: wait;
 }
@@ -741,7 +741,7 @@ aside .no-slide,
     height: 16px;
     color: #333;
     /* text-indent: -9999em; */
-    /* background: transparent url(../images/icons/extra/close.png) no-repeat; */
+    /* background: transparent url(../images/icons/extra/close.gif) no-repeat;   TODO N/A png image */
     cursor: pointer;
     /* margin: 5px */
 }
@@ -1408,7 +1408,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-right: 20px;
     line-height: 20px;
-    background: url(../images/icons/system/bookmark.png) no-repeat right
+    background: url(../images/icons/extra/bookmark.gif) no-repeat right /* TODO N/A png image */
 }
 
 div.dialog form#chdir_form {
