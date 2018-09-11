@@ -445,8 +445,9 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-    background: #faf6d4; /*url(../images/icons/extra/warning.gif) 10px 50% no-repeat;*/
-    border: 1px solid #e6c26e
+    background: #faf6d4 url(../images/icons/extra/warning.gif) 10px 50% no-repeat;
+    border: 1px solid #e6c26e;
+    padding-left: 40px
 }
 
 .warning .svg-inline--fa, .warning-message .svg-inline--fa{
@@ -460,18 +461,19 @@ table.pagetable a.text-red {
 .error,
 /* .pageerrorcontainer, */
 .pageerrorinstalldir {
-    background: #f2d4ce; /*url(../images/icons/extra/block.gif) 10px 50% no-repeat;*/
+    background: #f2d4ce url(../images/icons/extra/block.gif) 10px 50% no-repeat;
     border: 1px solid #ae432e;
+    padding-left: 40px
 }
 
 .success {
-    background: #d9e6c3; /*url(../images/icons/extra/accept.gif) 10px 50% no-repeat;*/
-    border: 1px solid #77ab13
+    background: #d9e6c3 url(../images/icons/extra/accept.gif) 10px 50% no-repeat;
+    border: 1px solid #77ab13;
+    padding-left: 40px
 }
 .pagemcontainer {
     background:rgba(217, 230, 195, 0.4);
     color: #278a81;
-
 }
 
 .pageerrorcontainer {
@@ -486,7 +488,8 @@ table.pagetable a.text-red {
 
 .info, .pageinfo, .information {
     background: #cee6f2 url(../images/icons/extra/info.gif) 10px 50% no-repeat;
-    border: 1px solid #058dc7
+    border: 1px solid #058dc7;
+    padding-left: 40px
 }
 
 .message:hover {

@@ -458,13 +458,15 @@ table.pagetable a.text-red {
 .error,
 /* .pageerrorcontainer, */
 .pageerrorinstalldir {
-    background: #f2d4ce; /*url(../images/icons/extra/block.gif) 10px 50% no-repeat;*/
+    background: #f2d4ce url(../images/icons/extra/block.gif) 10px 50% no-repeat;
     border: 1px solid #ae432e;
+    padding-left: 40px
 }
 
 .success {
-    background: #d9e6c3; /*url(../images/icons/extra/accept.gif) 10px 50% no-repeat;*/
-    border: 1px solid #77ab13
+    background: #d9e6c3 url(../images/icons/extra/accept.gif) 10px 50% no-repeat;
+    border: 1px solid #77ab13;
+    padding-left: 40px
 }
 .pagemcontainer {
     background:rgba(217, 230, 195, 0.4);
@@ -483,7 +485,8 @@ table.pagetable a.text-red {
 
 .info, .pageinfo, .information {
     background: #cee6f2 url(../images/icons/extra/info.gif) right 34px 50% no-repeat; /* right-align 24X24 image */
-    border: 1px solid #058dc7
+    border: 1px solid #058dc7;
+    padding-left: 40px
 }
 
 .message:hover {
@@ -510,8 +513,7 @@ table.pagetable a.text-red {
 }
 .pagemcontainer,
 .pageerrorcontainer {
-
-        /* position: fixed; */
+    /* position: fixed; */
     z-index: 9999;
     border-top: none;
     border-radius: 0 4px 4px 0;
