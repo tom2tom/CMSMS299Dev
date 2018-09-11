@@ -457,7 +457,7 @@
                 ev.preventDefault();
                 MG.view.handleAlert(ev.target);
             });
-            $('.alert-icon,.alert-remove').click(function(ev) {
+            $('.alert-remove').click(function(ev) {
                 ev.preventDefault();
                 _this._handleAlert(ev.target);
             });

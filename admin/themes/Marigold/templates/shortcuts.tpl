@@ -59,7 +59,7 @@
 
 {if !empty($my_alerts)}
 <!-- alerts go here -->
-<div id="alert-dialog" class="alert-dialog" role="dialog" title="{lang('alerts')}" style="display: none;">
+<div id="alert-dialog" role="dialog" title="{lang('alerts')}" style="display: none;">
   <ul>
     {foreach $my_alerts as $one}
 	<li class="alert-box" data-alert-name="{$one->get_prefname()}">
