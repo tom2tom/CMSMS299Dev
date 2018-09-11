@@ -2058,14 +2058,11 @@ div#alert-dialog a {
 div#alert-dialog ul li {
     margin: 3px -15px;
 }
-
 div.alert-head {
     padding: 5px
 }
-
 div#alert-dialog .alert-title {
 }
-
 div#alert-dialog .alert-icon {
     float: left;
     margin-right: 5px;
@@ -2077,11 +2074,14 @@ div#alert-dialog .alert-remove {
     float: right;
     margin-left: 5px;
     background: url(../images/closesprite.png);
-    background-size: 96px 16px;
-    background-position: 16px 0;
-    width: 16px;
-    height: 16px;
+    background-size: 120px 20px;
+    background-position: 20px 0;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
+}
+div#alert-dialog .alert-remove:hover, div#alert-dialog .alert-remove:active {
+    background-position: 0 0
 }
 /* div#alert-dialog span.ui-icon {
 }
