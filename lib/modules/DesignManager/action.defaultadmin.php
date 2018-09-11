@@ -213,6 +213,22 @@ $js = <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.js"></script>
 <script type="text/javascript">
 //<![CDATA[
+function gethelp(tgt) {
+  var p = tgt.parentNode,
+    s = $(p).attr('data-cmshelp-key');
+  if (s) {
+   $.get(cms_data.ajax_help_url, {
+    key: s
+   }, function(text) {
+    s = $(p).attr('data-cmshelp-title');
+    var data = {
+     cmshelpTitle: s
+    };
+    cms_help(tgt, data, text);
+   });
+  }
+}
+
 $(document).ready(function() {
   // load the templates area.
   cms_busy();
@@ -220,6 +236,11 @@ $(document).ready(function() {
     url: '$ajax_templates_url',
     data: {
       filter: '$jsonfilter'
+    },
+    done_handler: function() {
+      $('.cms_help .cms_helpicon').on('click', function() {
+        gethelp(this);
+	  });
     }
   });
   $('#tpl_bulk_action,#tpl_bulk_submit').attr('disabled', 'disabled');
@@ -322,6 +343,11 @@ $(document).ready(function() {
     url: '$ajax_stylesheets_url',
     data: {
       filter: '$jsoncssfilter'
+    },
+    done_handler: function() {
+      $('.cms_help .cms_helpicon').on('click', function() {
+        gethelp(this);
+	  });
     }
   });
   $('#css_bulk_action,#css_bulk_submit').attr('disabled', 'disabled');
