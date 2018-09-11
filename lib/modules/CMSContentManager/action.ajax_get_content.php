@@ -81,7 +81,8 @@ try {
      ->assign('multiselect',$builder->supports_multiselect())
      ->assign('columns',$builder->get_display_columns());
     $url = $this->create_url($id,'ajax_get_content',$returnid);
-    $tpl->assign('ajax_get_content_url',str_replace('amp;','',$url));
+    $tpl->assign('ajax_get_content_url',str_replace('amp;','',$url))
+	  ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
 
     if( Utils::get_pagenav_display() == 'title' ) {
         $tpl->assign('colhdr_page',$this->Lang('colhdr_name'))

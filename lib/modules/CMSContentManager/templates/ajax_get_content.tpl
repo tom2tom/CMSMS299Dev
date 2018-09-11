@@ -13,7 +13,7 @@
     <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('title_clearlocks')}">{admin_icon icon='run.gif' alt=''}&nbsp;{$mod->Lang('prompt_clearlocks')}</a>
     {/if}
     {/if}
-    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_settings')}">{admin_icon icon='edit.gif' alt=$mod->Lang('prompt_settings')}&nbsp;{$mod->Lang('prompt_settings')}</a>
+    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_settings')}">{admin_icon icon=$settingsicon alt=$mod->Lang('prompt_settings')}&nbsp;{$mod->Lang('prompt_settings')}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({$mod->Lang('filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 
@@ -254,6 +254,7 @@
   {/if}
   {if $multiselect && isset($bulk_options)}
   <div class="pageoptions boxchild">
+    {cms_help realm=$_module key2='help_bulk' title=$mod->Lang('prompt_bulk')}
     <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>
     &nbsp;&nbsp;
     <select name="{$actionid}multiaction" id="multiaction">
