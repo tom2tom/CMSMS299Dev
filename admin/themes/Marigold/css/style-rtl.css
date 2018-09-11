@@ -295,9 +295,6 @@ a.external {
     background: url(../images/icons/system/external-small.png) no-repeat left;
     padding-left: 20px
 }
-.alert-dialog a {
-    text-decoration: underline
-}
 .file {
     background: url(../images/icons/extra/document-list.png) no-repeat right;
     padding-right: 25px
@@ -547,24 +544,28 @@ table.pagetable a.text-red {
 .warning,
 .pagewarning {
     background: #faf6d4 url(../images/icons/extra/warning.png) right 34px 50% no-repeat; /* right-align 24X24 image */
-    border: 1px solid #e6c26e
+    border: 1px solid #e6c26e;
+    padding-right: 40px
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
     background: #f2d4ce url(../images/icons/extra/block.png) right 34px 50% no-repeat;
-    border: 1px solid #ae432e
+    border: 1px solid #ae432e;
+    padding-right: 40px
 }
 .success,
 .pagemcontainer {
     background: #d9e6c3 url(../images/icons/extra/accept.png) right 34px 50% no-repeat;
-    border: 1px solid #77ab13
+    border: 1px solid #77ab13;
+    padding-right: 40px
 }
 .info,
 .pageinfo,
 .information {
     background: #cee6f2 url(../images/icons/extra/info.png) right 34px 50% no-repeat;
-    border: 1px solid #058dc7
+    border: 1px solid #058dc7;
+    padding-right: 40px
 }
 .message:hover {
     cursor: help
@@ -1598,23 +1599,27 @@ a.pageoptions {
 
 /*** dialogs ***/
 
-div.alert-dialog ul li {
+#alert-dialog a {
+    text-decoration: underline
+}
+
+div#alert-dialog ul li {
     margin: 10px 0
 }
 
-div.alert-dialog .alert-icon {
+div#alert-dialog .alert-icon {
     float: right;
     cursor: pointer;
     margin-right: 4px;
 }
 
-div.alert-dialog .alert-remove {
+div#alert-dialog .alert-remove {
     float: left;
     cursor: pointer;
     margin-left: 4px;
 }
 
-div.alert-dialog span.ui-icon {}
+div#alert-dialog span.ui-icon {}
 
 div.dialog h3 {
     margin:5px 0;

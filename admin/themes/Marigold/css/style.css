@@ -191,7 +191,7 @@ html, body {
 }
 body {
     min-width: 900px;
-	background-color: #f6f6f6;
+    background-color: #f6f6f6;
     color: #232323;
     line-height: 1.4;
     font-size: 14px
@@ -292,9 +292,6 @@ a:hover, a:active {
 a.external {
     background: url(../images/icons/system/external-small.png) no-repeat right;
     padding-right: 20px
-}
-.alert-dialog a {
-    text-decoration: underline
 }
 .file {
     background: url(../images/icons/extra/document-list.png) no-repeat left;
@@ -544,23 +541,27 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-	background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
-	border: 1px solid #e6c26e
+    background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
+    border: 1px solid #e6c26e;
+    padding-left: 40px
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
     background: #f2d4ce url(../images/icons/extra/block.png) 10px 50% no-repeat;
-    border: 1px solid #ae432e
+    border: 1px solid #ae432e;
+    padding-left: 40px
 }
 .success,
 .pagemcontainer {
     background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
-    border: 1px solid #77ab13
+    border: 1px solid #77ab13;
+    padding-left: 40px
 }
 .info, .pageinfo, .information {
     background: #cee6f2 url(../images/icons/extra/info.png) 10px 50% no-repeat;
-    border: 1px solid #058dc7
+    border: 1px solid #058dc7;
+    padding-left: 40px
 }
 .message:hover {
     cursor: help
@@ -1145,7 +1146,7 @@ header .shortcuts li.notifications span.bubble {
     outline: 0;
     margin-left: 9px;
     height: 28px;
-/*	font-weight: bold; */
+/*  font-weight: bold; */
     display: block;
     text-shadow: 1px 1px 0 #fff;
     text-decoration: none;
@@ -1321,7 +1322,7 @@ h3.logout::before {
     line-height: 1.3;
     white-space: pre-line;
     word-break: normal;
-	padding: 1px 0 1px 30px;
+    padding: 1px 0 1px 30px;
     color: #232323;
     font-weight: normal;
 }
@@ -1547,23 +1548,27 @@ a.pageoptions {
 
 /*** dialogs ***/
 
-div.alert-dialog ul li {
+#alert-dialog a {
+    text-decoration: underline
+}
+
+div#alert-dialog ul li {
     margin: 10px 0
 }
 
-div.alert-dialog .alert-icon {
+div#alert-dialog .alert-icon {
     float: left;
     cursor: pointer;
     margin-right: 4px;
 }
 
-div.alert-dialog .alert-remove {
+div#alert-dialog .alert-remove {
     float: right;
     cursor: pointer;
     margin-left: 4px;
 }
 
-div.alert-dialog span.ui-icon {}
+div#alert-dialog span.ui-icon {}
 
 div.dialog h3 {
     margin: 5px 0;
