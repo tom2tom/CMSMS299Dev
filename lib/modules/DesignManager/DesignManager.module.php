@@ -56,9 +56,9 @@ final class DesignManager extends CMSModule
         $out = '';
         $urlpath = $this->GetModuleURLPath();
 
-        $fmt = '<link rel="stylesheet" type="text/css" href="%s/lib/%s" />';
+        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
         $cssfiles = [
-        'css/designmanager.css',
+        'css/module.css',
         ];
         foreach( $cssfiles as $one ) {
             $out .= sprintf($fmt,$urlpath,$one)."\n";
