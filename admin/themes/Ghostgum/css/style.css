@@ -277,9 +277,6 @@ a.external {
     background: url(../images/icons/system/external-small.png) no-repeat right;
     padding-right: 20px
 }
-.alert-dialog a {
-    text-decoration: underline
-}
 .file {
     background: url(../images/icons/system/document-list.png) no-repeat left;
     padding-left: 25px
@@ -749,21 +746,21 @@ aside .no-slide, .no-slide {
 }
 .dialog-critical {
     border: 1px solid #f44c4c;
-    margin: 0;
+    margin: 5px 0;
     background-color: #fcd0d0;
     color: #490707;
-    font-size: 1em
+    font-size: 0.9em
 }
 .dialog-warning {
     border: 1px solid #f4ca4c;
-    margin: 0;
+    margin: 5px 0;
     background-color: #fcf1d0;
     color: #b08f0e;
     font-size: 0.9em
 }
 .dialog-information {
     border: 1px solid #4ca6f4;
-    margin: 0;
+    margin: 5px 0;
     background-color: #d1e8fc;
     color: #0e2a42;
     font-size: 0.9em
@@ -2055,20 +2052,38 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
 
 /*** dialogs ***/
 
-div.alert-dialog ul li {
-    margin: 10px 0
+div#alert-dialog a {
+    text-decoration: underline
 }
-div.alert-dialog .alert-icon {
+div#alert-dialog ul li {
+    margin: 3px -15px;
+}
+
+div.alert-head {
+    padding: 5px
+}
+
+div#alert-dialog .alert-title {
+}
+
+div#alert-dialog .alert-icon {
     float: left;
-    margin-right: 4px;
-    cursor: pointer;
+    margin-right: 5px;
+    width: 20px;
+    height: 20px;
+    background: url(../images/icons/extra/red.png) no-repeat left;
 }
-div.alert-dialog .alert-remove {
+div#alert-dialog .alert-remove {
     float: right;
-    margin-left: 4px;
+    margin-left: 5px;
+    background: url(../images/closesprite.png);
+    background-size: 96px 16px;
+    background-position: 16px 0;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
-/* div.alert-dialog span.ui-icon {
+/* div#alert-dialog span.ui-icon {
 }
 */
 div.dialog h3 {
@@ -2648,7 +2663,7 @@ ul.sortableList > li {
 }
 #login a#toggle-info {
     position: absolute;
-    background: transparent url(../images/icons/extra/info.png) no-repeat scroll center center;
+    background: url(../images/icons/extra/info.png) no-repeat scroll center center;
     top: 2em;
     left: 2em;
     height: 24px;
