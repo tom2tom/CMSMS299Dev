@@ -424,7 +424,7 @@ var ggjs = {
    * @description Handle popping up the notification area
    * @private
    * @function setupAlerts()
-   * @deprecated since 2.3 use showNotifications()
+   * @deprecated since 2.3 use showNotifications() ?
    */
   setupAlerts: function() {
     $('a#alerts').on('click', function(e) {
@@ -434,12 +434,12 @@ var ggjs = {
     });
     $('.alert-msg a').on('click', function(e) {
       e.preventDefault();
-      this.handleAlert(e.target);
+      ggjs.handleAlert(e.target);
       return false;
     });
-    $('.alert-icon,.alert-remove').on('click', function(e) {
+    $('.alert-remove').on('click', function(e) {
       e.preventDefault();
-      this.handleAlert(e.target);
+      ggjs.handleAlert(e.target);
       return false;
     });
   },
