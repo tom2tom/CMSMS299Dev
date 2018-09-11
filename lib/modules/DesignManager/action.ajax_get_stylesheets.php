@@ -26,7 +26,8 @@ try {
 
     $tpl = $smarty->createTemplate($this->GetTemplateResource('ajax_get_stylesheets.tpl'),null,null,$smarty);
     $filter = json_decode($tmp,TRUE);
-    $tpl->assign('css_filter',$filter);
+    $tpl->assign('css_filter',$filter)
+		->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
 
     $designs = CmsLayoutCollection::get_all();
     if( count($designs) ) {
