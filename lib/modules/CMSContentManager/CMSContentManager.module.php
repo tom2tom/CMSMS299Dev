@@ -49,6 +49,21 @@ final class CMSContentManager extends CMSModule
         return $content_id <= 0 || in_array($content_id,$pages);
     }
 
+    public function GetHeaderHTML()
+    {
+        $out = '';
+        $urlpath = $this->GetModuleURLPath();
+
+        $fmt = '<link rel="stylesheet" type="text/css" href="%s/%s" />';
+        $cssfiles = [
+        'css/module.css',
+        ];
+        foreach( $cssfiles as $one ) {
+            $out .= sprintf($fmt,$urlpath,$one)."\n";
+        }
+        return $out;
+    }
+
     public function GetAdminMenuItems()
     {
         $out = [];
