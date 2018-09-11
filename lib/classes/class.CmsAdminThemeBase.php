@@ -215,13 +215,13 @@ abstract class CmsAdminThemeBase
         if (strpos( $this->_url, '/' ) === false) {
             $this->_script = $this->_url;
         } else {
-            $toam_tmp = explode('/',$this->_url);
-            $toam_tmp2 = array_pop($toam_tmp);
-            $this->_script = $toam_tmp2;
+            $tmp = explode('/',$this->_url);
+            $this->_script = end($tmp);
         }
 
         if (self::$_fontimages === null) {
-            $items = glob(cms_join_path(__DIR__,'images','icons','system','*.i'),GLOB_NOSORT);
+            $path = cms_join_path(CMS_ADMIN_PATH,'themes',$this->themeName,'images','icons','system','*.i');
+            $items = glob($path,GLOB_NOSORT);
             self::$_fontimages = ($items != false);
         }
 
@@ -1252,12 +1252,12 @@ abstract class CmsAdminThemeBase
     /**
      * DisplayImage
      * Generate xhtml tag to display the themed version of $image (if it exists),
-	 *  preferring image-file extension/type (in order):
+     *  preferring image-file extension/type (in order):
      *  .svg, .i(if used in this theme), .png, .gif, .jpg, .jpeg
-	 *  As a convenience, this can also process specific images that are not
-	 *  included in the current theme.
+     *  As a convenience, this can also process specific images that are not
+     *  included in the current theme.
      * @param string $image Image file identifier, a theme-images-dir (i.e. 'images')
-	 *  relative-filepath, or an absolute filepath. It may omit extension (type)
+     *  relative-filepath, or an absolute filepath. It may omit extension (type)
      * @param string $alt Optional alternate identifier for the created.
      *  image element, may also be used for its title
      * @param int $width Optional image-width (ignored for svg)
@@ -1273,7 +1273,7 @@ abstract class CmsAdminThemeBase
         }
 
         if (!isset($this->_imageLink[$image])) {
-			if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~',$image)) { //not absolute
+            if (!preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~',$image)) { //not absolute
                 $detail = preg_split('~\\/~',$image);
                 $fn = array_pop($detail);
                 if ($detail) {
@@ -1286,7 +1286,7 @@ abstract class CmsAdminThemeBase
                 $fn = basename($image);
                 $base = dirname($image).DIRECTORY_SEPARATOR;
                 $rel = false;
-			}
+            }
             $p = strrpos($fn,'.');
             if ($p !== false) {
                 $fn = substr($fn,0,$p+1);
