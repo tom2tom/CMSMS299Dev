@@ -197,7 +197,11 @@ if ($n) {
 }
 
 # Admin themes
-$smarty->assign('themes_opts',CmsAdminThemeBase::GetAvailableThemes());
+$tmp = CmsAdminThemeBase::GetAvailableThemes();
+if (count($tmp) < 2) {
+  $tmp = null;
+}
+$smarty->assign('themes_opts',$tmp);
 
 # Modules
 $allmodules = ModuleOperations::get_instance()->GetInstalledModules();

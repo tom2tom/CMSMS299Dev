@@ -67,6 +67,9 @@
   <fieldset class="pregap">
     <legend>{lang('general_operation_settings')}:</legend>
     <div class="pageoverflow">
+     {if empty($themes_opts)}
+     <input type="hidden" name="admintheme" value="{$admintheme}" />
+     {else}
       <p class="pagetext">
         {$t=lang('admintheme')}<label for="admintheme">{$t}:</label>
         {cms_help key2='help_myaccount_admintheme' title=$t}
@@ -76,6 +79,7 @@
          {html_options options=$themes_opts selected=$admintheme}
         </select>
       </p>
+     {/if}
      {if !empty($editors)}
        <p class="pagetext">
         {$t=lang('text_editor_touse')}<label>{$t}:</label>
