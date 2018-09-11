@@ -57,9 +57,9 @@
     <li class="alert-box" data-alert-name="{$one->get_prefname()}">
       <div class="alert-head {if $one->priority == '_high'}dialog-critical{elseif $one->priority != '_low'}dialog-warning{else}dialog-information{/if}">
        {$icon=$one->get_icon()} {if $icon}
-        <img class="alert-icon" alt="" src="{$icon}" title="{lang('remove_alert')}" />
+        <img class="alert-icon" alt="" src="{$icon}" />
        {else}
-        <span class="alert-icon {if $one->priority != '_low'}image-warning{else}image-info{/if}" title="{lang('remove_alert')}"></span>
+        <span class="alert-icon {if $one->priority != '_low'}image-warning{else}image-info{/if}"></span>
        {/if}
         <span class="alert-title">{$one->get_title()|default:lang('alert')}</span>
         <span class="alert-remove image-close" title="{lang('remove_alert')}"></span>
