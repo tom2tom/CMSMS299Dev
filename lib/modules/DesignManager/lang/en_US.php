@@ -227,12 +227,12 @@ body {
 EOT;
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
-$lang['help_bulk_templates'] = 'This option allows performing actions on many templates at one time.  Only the templates selected will be operated upon.';
+$lang['help_bulk_templates'] = 'Perform the selected action on all selected template(s) at one time.';
 $lang['help_category_desc'] = 'A description for a template category is optional, but might help when organizing templates';
 $lang['help_category_name'] = 'A category name is required, and must be unique';
 $lang['help_create'] = 'This option will allow you to create a new template of the selected type';
 $lang['help_create_template'] = 'This function allows creating a new template of the selected template type.  The default contents from the template type will be used';
-$lang['help_css_bulk'] = 'This option allows performing actions on multiple stylesheets at one time.';
+$lang['help_css_bulk'] = 'Perform the selected action on all selected stylesheet(s) at one time.';
 $lang['help_css_description'] = 'You might (optionally) include a description for this stylesheet.  This might be useful to describe the items that are in the stylesheet and aide in organization';
 $lang['help_css_designs'] = 'You might associate one or more designs with a stylesheet.  Stylesheets associated with a design are automatically output by the {cms_stylesheet} tag, and when exporting a design for sharing';
 $lang['help_css_mediaquery'] = <<<'EOT'
@@ -628,6 +628,7 @@ $lang['prompt_add'] = 'Add';
 $lang['prompt_advanced'] = 'Advanced';
 $lang['prompt_any'] = 'Any';
 $lang['prompt_attached_designs'] = 'This stylesheet is attached to these designs';
+$lang['prompt_bulk'] = 'Bulk Operation';
 $lang['prompt_category'] = 'Category';
 $lang['prompt_categories'] = 'Categories';
 $lang['prompt_cmsversion'] = 'CMS Version';
