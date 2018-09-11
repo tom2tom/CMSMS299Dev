@@ -69,7 +69,10 @@ if (isset($_POST['submit'])) {
   $wysiwyg = $_POST['wysiwyg'];
 
   // Set prefs
-  cms_userprefs::set_for_user($userid, 'admintheme', $admintheme);
+  $themenow = cms_userprefs::get_for_user($userid, 'admintheme');
+  if ($themenow != $admintheme) {
+    cms_userprefs::set_for_user($userid, 'admintheme', $admintheme);
+  }
   cms_userprefs::set_for_user($userid, 'bookmarks', $bookmarks);
   cms_userprefs::set_for_user($userid, 'ce_navdisplay', $ce_navdisplay);
   cms_userprefs::set_for_user($userid, 'date_format_string', $date_format_string);
@@ -93,6 +96,10 @@ if (isset($_POST['submit'])) {
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
   $themeObject->RecordNotice('success', lang('prefsupdated'));
   cmsms()->clear_cached_files();
+  
+  if ($themenow != $admintheme) {
+    redirect(basename(__FILE__).$urlext);  
+  }
 } // end of prefs submit
 
 /**
@@ -135,43 +142,43 @@ $smarty -> assign('wysiwyg_opts', $tmp2);
 $editors = [];
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
 if( $tmp) {
-    for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-		$ob = cms_utils::get_module($tmp[$i]);
-		if ($ob instanceof SyntaxEditor) {
-			$all = $ob->ListEditors(true);
-			foreach ($all as $label=>$val) {
-				$one = new stdClass();
-				$one->value = $val;
-				$one->label = $label;
-				list($modname, $edname) = explode('::', $val);
-				list($realm, $key) = $ob->GetMainHelpKey($edname);
-				if (!$realm) $realm = $modname;
-				$one->mainkey = $realm.'__'.$key;
-				list($realm, $key) = $ob->GetThemeHelpKey($edname);
-				if (!$realm) $realm = $modname;
-				$one->themekey = $realm.'__'.$key;
-				if ($one->value == $editortype) $one->checked = true;
-				$editors[] = $one;
-			}
-		} elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
-			$one = new stdClass();
-			$one->value = $tmp[$i].'::'.$tmp[$i];
-			$one->label = $ob->GetName();
-			$one->mainkey = '';
-			$one->themekey = '';
-			if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
-			$editors[] = $one;
-		}
-	}
-	usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+  for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
+    $ob = cms_utils::get_module($tmp[$i]);
+    if ($ob instanceof SyntaxEditor) {
+      $all = $ob->ListEditors(true);
+      foreach ($all as $label=>$val) {
+        $one = new stdClass();
+        $one->value = $val;
+        $one->label = $label;
+        list($modname, $edname) = explode('::', $val);
+        list($realm, $key) = $ob->GetMainHelpKey($edname);
+        if (!$realm) $realm = $modname;
+        $one->mainkey = $realm.'__'.$key;
+        list($realm, $key) = $ob->GetThemeHelpKey($edname);
+        if (!$realm) $realm = $modname;
+        $one->themekey = $realm.'__'.$key;
+        if ($one->value == $editortype) $one->checked = true;
+        $editors[] = $one;
+      }
+    } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
+      $one = new stdClass();
+      $one->value = $tmp[$i].'::'.$tmp[$i];
+      $one->label = $ob->GetName();
+      $one->mainkey = '';
+      $one->themekey = '';
+      if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
+      $editors[] = $one;
+    }
+  }
+  usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
 
-	$one = new stdClass();
-	$one->value = '';
-	$one->label = lang('default');
-	$one->mainkey = '';
-	$one->themekey = '';
-	if (!$editortype) $one->checked = true;
-	$editors[] = $one;
+  $one = new stdClass();
+  $one->value = '';
+  $one->label = lang('default');
+  $one->mainkey = '';
+  $one->themekey = '';
+  if (!$editortype) $one->checked = true;
+  $editors[] = $one;
 }
 $smarty->assign('editors', $editors);
 
