@@ -202,6 +202,40 @@ function cms_CMtoggleState(el) {
   }
  });
 }
+function optsclicker() {
+ $('#myoptions').on('click', function() {
+  cms_dialog($('#useroptions'), {
+   minWidth: '600',
+   minHeight: 225,
+   resizable: false,
+   buttons: {
+    $s6: function() {
+     $(this).dialog('close');
+     $('#myoptions_form').submit();
+    },
+    $s7: function() {
+     $(this).dialog('close');
+    }
+   }
+  });
+ });
+}
+function gethelp(tgt) {
+  var p = tgt.parentNode,
+    s = $(p).attr('data-cmshelp-key');
+  if (s) {
+   $.get(cms_data.ajax_help_url, {
+    key: s
+   }, function(text) {
+    s = $(p).attr('data-cmshelp-title');
+    var data = {
+     cmshelpTitle: s
+    };
+    cms_help(tgt, data, text);
+   });
+  }
+}
+
 $(document).ready(function() {
  cms_equalWidth($('#useroptions label.boxchild'));
  cms_busy();
@@ -233,6 +267,10 @@ $(document).ready(function() {
       });
      });
     }
+   });
+   optsclicker();
+   $('.cms_help .cms_helpicon').on('click', function() {
+    gethelp(this);
    });
   }
  });
@@ -302,22 +340,7 @@ $(document).ready(function() {
   $(map[v]).show();
  });
  $('#filter_type').trigger('change');
- $('#myoptions').on('click', function() {
-  cms_dialog($('#useroptions'), {
-   minWidth: '600',
-   minHeight: 225,
-   resizable: false,
-   buttons: {
-    $s6: function() {
-     $(this).dialog('close');
-     $('#myoptions_form').submit();
-    },
-    $s7: function() {
-     $(this).dialog('close');
-    },
-   }
-  });
- });
+ optsclicker();
  // other events
  $('#selectall,input.multicontent').on('change', function() {
   $('#content_area').autoRefresh('reset');

@@ -113,6 +113,7 @@ $lang['go'] = 'Go';
 $lang['group_desc'] = 'Members of this group can manage content';
 
 #H
+$lang['help_bulk'] = 'Perform the selected action on all selected pages(s) at one time.';
 $lang['help_content_tabindex'] = 'An integer value for the tab order used when surfing the navigation to browse to this page. This is useful when building accessible websites';
 $lang['help_content_target'] = 'A target attribute to use when including this item in the navigation.  A target of _blank will open this page in a new navigator window, or tab.';
 $lang['help_content_thumbnail'] = 'This field allows you to associate a thumbnail image with the content page.  The images must have already been generated on the website <em>(The FileManager module can generate thumbnails on upload)</em> to a directory specified by the website designer.  The image might optionally be displayed on the page, or used when building a navigation';
@@ -577,6 +578,7 @@ $lang['postinstall'] = 'Content Manager module installed';
 $lang['postuninstall'] = 'The Content Manager module has been uninstalled.<br /><br />Note: no content has been removed from CMSMS.  You are free to reinstall this module or install an alternate content management module';
 $lang['preuninstall'] = 'Are you sure you want to uninstall this module?<br />Although uninstalling this module will not destroy any content, it might prevent you from being able to manage the pages of this website.';
 $lang['prompt_alias'] = 'Alias';
+$lang['prompt_bulk'] = 'Bulk Operation';
 $lang['prompt_bulk_changeowner'] = 'Change Page Ownership';
 $lang['prompt_bulk_delete_content'] = 'Bulk Delete Content Pages';
 $lang['prompt_bulk_delete_content2'] = 'These pages are due to be deleted';
