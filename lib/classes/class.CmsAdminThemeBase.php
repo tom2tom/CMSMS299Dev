@@ -1677,8 +1677,8 @@ abstract class CmsAdminThemeBase
      * Retrieve a list of the available admin themes.
      *
      * @param bool $fullpath since 2.3 Optional flag. Default false.
-     *  If true, array values are theme-class filepaths. Othersie theme names.
-     * @return array A theme-name-sorted hash of theme names or themefile-path strings
+     *  If true, array values are theme-class filepaths. Otherwise theme names.
+     * @return array A theme-name-sorted hash of theme names or theme filepath strings
      */
     public static function GetAvailableThemes($fullpath = false)
     {
