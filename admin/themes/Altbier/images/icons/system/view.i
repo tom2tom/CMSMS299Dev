@@ -1,1 +1,1 @@
-class="fas fa-eye"
+class="fas fa-tablet-alt"

@@ -1,2 +1,2 @@
-class="fas fa-check"
-style="opacity:0.2"
+class="fas fa-times red"
+style="opacity:0.4"
