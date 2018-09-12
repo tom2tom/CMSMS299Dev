@@ -445,7 +445,7 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-    background: #faf6d4 url(../images/icons/extra/warning.gif) 10px 50% no-repeat;
+    background: #f9f0d2 url(../images/icons/extra/warning.gif) 10px 50% no-repeat;
     border: 1px solid #e6c26e;
     padding-left: 40px
 }
@@ -461,13 +461,13 @@ table.pagetable a.text-red {
 .error,
 /* .pageerrorcontainer, */
 .pageerrorinstalldir {
-    background: #f2d4ce url(../images/icons/extra/block.gif) 10px 50% no-repeat;
+    background: #f4d7d7 url(../images/icons/extra/block.gif) 10px 50% no-repeat;
     border: 1px solid #ae432e;
     padding-left: 40px
 }
 
 .success {
-    background: #d9e6c3 url(../images/icons/extra/accept.gif) 10px 50% no-repeat;
+    background: #d7f4d7 url(../images/icons/extra/accept.gif) 10px 50% no-repeat;
     border: 1px solid #77ab13;
     padding-left: 40px
 }
@@ -487,7 +487,7 @@ table.pagetable a.text-red {
 }
 
 .info, .pageinfo, .information {
-    background: #cee6f2 url(../images/icons/extra/info.gif) 10px 50% no-repeat;
+    background: #d7def4 url(../images/icons/extra/info.gif) 10px 50% no-repeat;
     border: 1px solid #058dc7;
     padding-left: 40px
 }
@@ -666,13 +666,13 @@ aside .no-slide,
 }
 .error.jqtoast {
     padding: 10px 40px;
-    background-color: #f2d4ce;
+    background-color: #f4d7d7;
 }
 .error .jqt-close {
     background-position: 1.2em 0;
 }
 .error .jqt-heading {
-    background-color: #e20e0e;
+    background-color: #c83737;
     color: #fff;
 }
 .jqt-icon-error {
@@ -681,13 +681,13 @@ aside .no-slide,
 }
 .warn.jqtoast {
     padding: 10px 40px;
-    background-color: #faf6d4;
+    background-color: #f9f0d2;
 }
 .warn .jqt-close {
     background-position: 2.4em 0;
 }
 .warn .jqt-heading {
-    background-color: #b08f0e;
+    background-color: #caa11c;
     color: #fff;
 }
 .jqt-icon-warning {
@@ -695,13 +695,13 @@ aside .no-slide,
 }
 .success.jqtoast {
     padding: 10px 40px;
-    background-color: #d9e6c3;
+    background-color: #d7f4d7;
 }
 .success .jqt-close {
     background-position: 3.6em 0;
 }
 .success .jqt-heading {
-    background-color: #0bb33a;
+    background-color: #268c26;
     color: #fff;
 }
 .jqt-icon-success {
@@ -709,13 +709,13 @@ aside .no-slide,
 }
 .info.jqtoast {
     padding: 10px 40px;
-    background-color: #c2dde5;
+    background-color: #d7def4;
 }
 .info .jqt-close {
     background-position: 4.8em 0;
 }
 .info .jqt-heading {
-    background-color: #147fdb;
+    background-color: #5e7bd4;
     color: #fff;
 }
 .jqt-icon-info {
@@ -1308,9 +1308,6 @@ footer#ac_footer a:active {
 
 span.helptext a {
 display: block;
-}
-.cms_help {
-    cursor: pointer;
 }
 
 /* font icons used for images */
@@ -2112,7 +2109,7 @@ a.toggle-dropzone:focus {
 #login .info-wrapper .warning-message {
     border: 1px solid #e6c26e;
     border-radius: 5px;
-    background: #faf6d4;
+    background: #f9f0d2;
 }
 
 #login fieldset {
@@ -2263,6 +2260,10 @@ font-size: 14px;
 
 
 /* --- CMS_HELP --- */
+
+.cms_help {
+    cursor: pointer;
+}
 
 .cms_helptext ul {
     padding: 0 10px;
