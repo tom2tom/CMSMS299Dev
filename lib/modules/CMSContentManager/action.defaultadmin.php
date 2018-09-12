@@ -204,8 +204,8 @@ function cms_CMtoggleState(el) {
 }
 function optsclicker() {
  $('#myoptions').on('click', function() {
-  cms_dialog($('#useroptions'), {
-   minWidth: '600',
+  cms_dialog($('#filterdialog'), {
+   minWidth: '400',
    minHeight: 225,
    resizable: false,
    buttons: {
@@ -416,4 +416,3 @@ $tpl->assign('ajax',$ajax)
  ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1]));
 
 $tpl->display();
-

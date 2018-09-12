@@ -1,19 +1,19 @@
 <div class="hbox flow">
   <div class="pageoptions boxchild">
     {if $can_add_content}
-    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('addcontent')}" class="pageoptions">{admin_icon icon='newobject.gif' alt=$mod->Lang('addcontent')}&nbsp;{$mod->Lang('addcontent')}</a>
+    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {if !$have_filter && isset($content_list)}
-    <a class="expandall" href="{cms_action_url action='defaultadmin' expandall=1}" accesskey="e" title="{$mod->Lang('prompt_expandall')}">{admin_icon icon='expandall.gif' alt=$mod->Lang('expandall')}&nbsp;{$mod->Lang('expandall')}</a>
-    <a class="collapseall" href="{cms_action_url action='defaultadmin' collapseall=1}" accesskey="c" title="{$mod->Lang('prompt_collapseall')}">{admin_icon icon='contractall.gif' alt=$mod->Lang('contractall')}&nbsp;{$mod->Lang('contractall')}</a>
+    <a class="expandall" href="{cms_action_url action='defaultadmin' expandall=1}" accesskey="e" title="{$mod->Lang('prompt_expandall')}">{$t=$mod->Lang('expandall')}{admin_icon icon='expandall.gif' alt=$t}&nbsp;{$t}</a>
+    <a class="collapseall" href="{cms_action_url action='defaultadmin' collapseall=1}" accesskey="c" title="{$mod->Lang('prompt_collapseall')}">{$t=$mod->Lang('contractall')}{admin_icon icon='contractall.gif' alt=$t}&nbsp;{$t}</a>
     {if $can_reorder_content}
-    <a id="ordercontent" href="{cms_action_url action=admin_ordercontent}" accesskey="r" title="{$mod->Lang('prompt_ordercontent')}">{admin_icon icon='reorder.gif' alt=$mod->Lang('reorderpages')}&nbsp;{$mod->Lang('reorderpages')}</a>
+    <a id="ordercontent" href="{cms_action_url action=admin_ordercontent}" accesskey="r" title="{$mod->Lang('prompt_ordercontent')}">{$t=$mod->Lang('reorderpages')}{admin_icon icon='reorder.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {if $have_locks}
-    <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('title_clearlocks')}">{admin_icon icon='run.gif' alt=''}&nbsp;{$mod->Lang('prompt_clearlocks')}</a>
+    <a id="clearlocks" href="{cms_action_url action=admin_clearlocks}" accesskey="l" title="{$mod->Lang('prompt_clearlocks')}">{$t=$mod->Lang('title_clearlocks')}{admin_icon icon='run.gif' alt=$t}&nbsp;{$t}</a>
     {/if}
     {/if}
-    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_settings')}">{admin_icon icon=$settingsicon alt=$mod->Lang('prompt_settings')}&nbsp;{$mod->Lang('prompt_settings')}</a>
+    <a id="myoptions" accesskey="o" title="{$mod->Lang('prompt_filter')}">{$t=$mod->Lang('filter')}{admin_icon icon=$filterimage alt=$t}&nbsp;{$t}</a>
     {if !empty($have_filter)}<span style="color: red;"><em>({$mod->Lang('filter_applied')})</em></span>{/if}
   </div>{*boxchild*}
 
@@ -47,12 +47,14 @@
   {if !$flag}{continue}{/if}
   <td class="{$column}">
     {if $column == 'expand'}
-      {if $row.expand == 'open'}
-      <a href="{cms_action_url action='defaultadmin' collapse=$row.id}" class="page_collapse" accesskey="C" title="{$mod->Lang('prompt_page_collapse')}">
-        {admin_icon icon='contract.gif' class="hier_contract"}
-      </a>
-      {elseif $row.expand == 'closed'}
-      <a href="{cms_action_url action='defaultadmin' expand=$row.id}" class="page_expand" accesskey="c" title="{$mod->Lang('prompt_page_expand')}">{admin_icon icon='expand.gif' class="hier_expand"}</a>
+      {if $row.expand == 'open'}{$t=$mod->Lang('prompt_page_collapse')}
+       <a href="{cms_action_url action='defaultadmin' collapse=$row.id}" class="page_collapse" accesskey="C" title="{$t}">
+        {admin_icon icon='contract.gif' class="hier_contract" title=$t}
+       </a>
+      {elseif $row.expand == 'closed'}{$t=$mod->Lang('prompt_page_expand')}
+       <a href="{cms_action_url action='defaultadmin' expand=$row.id}" class="page_expand" accesskey="c" title="{$t}">
+        {admin_icon icon='expand.gif' class="hier_expand" title=$t}
+       </a>
       {/if}
     {elseif $column == 'icon1'}
       {if isset($row.lock)} {admin_icon icon='warning.gif' title=$mod->Lang('title_locked')} {/if}
@@ -90,7 +92,7 @@
       <strong>{$mod->Lang('locked_by')}:</strong> {$row.lockuser}<br />
       <strong>{$mod->Lang('locked_since')}:</strong> {$row.lock.created|date_format:'%x %H:%M'}<br />
       {if $row.lock.expires < $smarty.now}
-        <span style="color: red;"><strong>{$mod->Lang('lock_expired')}:</strong> {$row.lock.expires|relative_time}</span>
+       <span style="color:red;"><strong>{$mod->Lang('lock_expired')}:</strong> {$row.lock.expires|relative_time}</span>
       {else}
        <strong>{$mod->Lang('lock_expires')}:</strong> {$row.lock.expires|relative_time}
       {/if}
@@ -122,7 +124,7 @@
           {$row.template}
         {/if}
       {elseif $row.viewable}
-        <span class="text-red" title="{$mod->Lang('error_template_notavailable')}">{$mod->Lang('critical_error')}</span> //TODO pageerror
+        <span class="text-red" title="{$mod->Lang('error_template_notavailable')}">{$mod->Lang('critical_error')}</span> {* TODO pageerror *}
       {/if}
     {elseif $column == 'friendlyname'}
       {$row.friendlyname}
@@ -193,7 +195,7 @@
         {/if}
       {/if}
     {elseif $column == 'addchild'}
-	  <a href="{cms_action_url action=admin_editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{$mod->Lang('addchildhere')}">
+      <a href="{cms_action_url action=admin_editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{$mod->Lang('addchildhere')}">
        {admin_icon icon='newobject.gif' class="page_addchild" title=$mod->Lang('prompt_page_addchild')}
       </a>
     {elseif $column == 'delete'}
@@ -249,7 +251,7 @@
   <div class="hbox expand">
   {if $can_add_content}
   <div class="pageoptions boxchild">
-    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('addcontent')}" class="pageoptions">{admin_icon icon='newobject.gif' alt=$mod->Lang('addcontent')}&nbsp;{$mod->Lang('addcontent')}</a>
+    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
   </div>
   {/if}
   {if $multiselect && isset($bulk_options)}

@@ -2,7 +2,7 @@
 
 #A
 $lang['addchildhere'] = 'Add child here';
-$lang['addcontent'] = 'Add New Content';
+$lang['addcontent'] = 'Add Page';
 $lang['apply'] = 'Apply';
 
 #B
@@ -24,19 +24,19 @@ $lang['close'] = 'Close';
 $lang['colhdr_id'] = 'Id';
 $lang['coltitle_id'] = 'The unique numeric id for the content page';
 $lang['colhdr_active'] = 'Active';
-$lang['coltitle_active'] = 'Active indicates if users can browse to this page at all';
-$lang['colhdr_addchild'] = 'Add Child';
-$lang['coltitle_addchild'] = 'Add a new page whose parent is this page';
+$lang['coltitle_active'] = 'Active indicates whether users can browse to this page';
+$lang['colhdr_addchild'] = ''; //'Add Child'; lazy hack
+$lang['coltitle_addchild'] = 'Click an icon in this column to add a new page whose parent is the corresponding page';
 $lang['colhdr_alias'] = 'Alias';
 $lang['coltitle_alias'] = 'The unique string id for the content page.  Also used in navigating to the page';
 $lang['colhdr_copy'] = 'Copy';
-$lang['coltitle_copy'] = 'The icon in this column allows copying the content page.';
+$lang['coltitle_copy'] = 'Click an icon in this column to copy the corresponing page';
 $lang['colhdr_default'] = 'Default';
 $lang['coltitle_default'] = 'The default page is the homepage for the site.';
 $lang['colhdr_delete'] = 'Delete';
-$lang['coltitle_delete'] = 'The icon in this column allows deleting the content page.';
+$lang['coltitle_delete'] = 'Click an icon in this column to delete the corresponding page';
 $lang['colhdr_edit'] = 'Edit';
-$lang['coltitle_edit'] = 'The icon in this column allows editing the content page.';
+$lang['coltitle_edit'] = 'Click an icon in this column to edit the corresponding page';
 $lang['colhdr_expand'] = 'Expand';
 $lang['coltitle_expand'] = 'Expand or collapse the selected page hierarchy.';
 $lang['colhdr_friendlyname'] = 'Type';
@@ -60,7 +60,7 @@ $lang['coltitle_template'] = 'The name of the template associated with the page'
 $lang['colhdr_url'] = 'URL';
 $lang['coltitle_url'] = 'The unique URL (relative to the root URL) that can be used to browse to the page';
 $lang['colhdr_view'] = 'View';
-$lang['coltitle_view'] = 'The icon in this column allows viewing the page in a new browser tab.';
+$lang['coltitle_view'] = 'Click an icon in this column to view the corresponding page in a new browser tab';
 $lang['confirm_clearlocks'] = 'Clearing locks could interrupt a working edit session.  Are you sure you want to continue?';
 $lang['confirm_delete_page'] = 'Are you sure you want to delete this content item?';
 $lang['confirm_expandall'] = 'Are you sure you want to expand all content?  On large sites this might cause problems.  Please be careful';
@@ -104,6 +104,7 @@ $lang['err_nomatchingcontent'] = 'Sorry... there does not appear to be any conte
 $lang['expandall'] = 'Expand All';
 
 #F
+$lang['filter'] = 'Filter';
 $lang['filter_applied'] = 'Filter Applied';
 $lang['find'] = 'Find';
 $lang['friendlyname'] = 'Content Manager';
@@ -577,6 +578,7 @@ $lang['perm_reorder'] = 'Reorder content';
 $lang['postinstall'] = 'Content Manager module installed';
 $lang['postuninstall'] = 'The Content Manager module has been uninstalled.<br /><br />Note: no content has been removed from CMSMS.  You are free to reinstall this module or install an alternate content management module';
 $lang['preuninstall'] = 'Are you sure you want to uninstall this module?<br />Although uninstalling this module will not destroy any content, it might prevent you from being able to manage the pages of this website.';
+$lang['prompt_addcontent'] = 'Add new page';
 $lang['prompt_alias'] = 'Alias';
 $lang['prompt_bulk'] = 'Bulk Operation';
 $lang['prompt_bulk_changeowner'] = 'Change Page Ownership';
@@ -584,8 +586,8 @@ $lang['prompt_bulk_delete_content'] = 'Bulk Delete Content Pages';
 $lang['prompt_bulk_delete_content2'] = 'These pages are due to be deleted';
 $lang['prompt_bulk_setdesign'] = 'Bulk Change Template and Design';
 $lang['prompt_cachable'] = 'Cachable';
-$lang['prompt_clearlocks'] = 'Remove content locks';
-$lang['prompt_collapseall'] = 'Collapse all pages';
+$lang['prompt_clearlocks'] = 'Remove all content locks';
+$lang['prompt_collapseall'] = 'Collapse all hierarchy branches';
 $lang['prompt_confirm_operation'] = 'Confirm Operation';
 $lang['prompt_confirm1'] = 'Yes, I am sure I want to do this';
 $lang['prompt_confirm2'] = 'Yes, I am really sure I want to do this';
@@ -597,7 +599,7 @@ $lang['prompt_editpage_addcontent']= 'Add Page';
 $lang['prompt_editpage_contenttype'] = 'Content Type';
 $lang['prompt_editpage_editcontent']= 'Edit Page';
 $lang['prompt_editsettings']= 'Edit Settings';
-$lang['prompt_expandall'] = 'Expand all content pages';
+$lang['prompt_expandall'] = 'Expand all hierarchy branches';
 $lang['prompt_filter_type'] = 'Filter Type';
 $lang['prompt_general'] = 'General';
 $lang['prompt_inactive'] = 'Inactive';
@@ -606,7 +608,7 @@ $lang['prompt_lockrefresh'] = 'Locking Refresh Interval (seconds)';
 $lang['prompt_multiselect_toggle'] = 'Select this page for bulk content operations';
 $lang['prompt_name'] = 'Name';
 $lang['prompt_options'] = 'Options';
-$lang['prompt_ordercontent'] = 'Reorder Content';
+$lang['prompt_ordercontent'] = 'Reorder pages via DnD';
 $lang['prompt_owner'] = 'Owner';
 $lang['prompt_lastmodified'] = 'Last Modified';
 $lang['prompt_lastmodifiedby'] = 'Last Modified By';
@@ -629,25 +631,25 @@ $lang['prompt_pagedflt_secure'] = 'Page is secure';
 $lang['prompt_pagedflt_showinmenu'] = 'Page is in the menu';
 $lang['prompt_pagedflt_template_id'] = 'Default Page Template';
 $lang['prompt_pagelimit'] = 'Page Limit';
-$lang['prompt_page_addchild'] = 'Add a new child item here';
-$lang['prompt_page_collapse'] = 'Hide children of this page';
-$lang['prompt_page_expand'] = 'Show children of this page';
+$lang['prompt_page_addchild'] = 'Add a new child-page here';
+$lang['prompt_page_collapse'] = 'Hide descendants of this page';
+$lang['prompt_page_expand'] = 'Show descendants of this page';
 $lang['prompt_page_copy'] = 'Copy this page';
-$lang['prompt_page_default'] = 'This is the default page, the home page for the website';
+$lang['prompt_page_default'] = 'This is the default page, the home page for this website';
 $lang['prompt_page_delete'] = 'Delete this page';
 $lang['prompt_page_edit'] = 'Edit this page';
 $lang['prompt_page_menutext'] = 'Menu Text';
-$lang['prompt_page_setactive'] = 'Set this page active.';
-$lang['prompt_page_setdefault'] = 'Set this page to be the default page for this website.';
-$lang['prompt_page_setinactive'] = 'Set this page inactive.';
-$lang['prompt_page_sortdown'] = 'Move this page down in page order amongst its peers';
-$lang['prompt_page_sortup'] = 'Move this page up in page order amongst its peers';
+$lang['prompt_page_setactive'] = 'Set this page active';
+$lang['prompt_page_setdefault'] = 'Set this page to be the default page for this website';
+$lang['prompt_page_setinactive'] = 'Set this page inactive';
+$lang['prompt_page_sortdown'] = 'Move this page down in page order among its peers';
+$lang['prompt_page_sortup'] = 'Move this page up in page order among its peers';
 $lang['prompt_page_template'] = 'Edit this template';
 $lang['prompt_page_title'] = 'Title';
 $lang['prompt_page_view'] = 'View this page in another window';
 $lang['prompt_preview'] = 'Preview';
 $lang['prompt_secure'] = 'Secure';
-$lang['prompt_settings'] = 'Settings';
+$lang['prompt_filter'] = 'Restrict the number/type of displayed pages';
 $lang['prompt_showinmenu'] = 'Shown in Navigations';
 $lang['prompt_showmore'] = 'Show more';
 $lang['prompt_steal_lock_edit'] = 'Steal this lock and edit the page';
@@ -659,7 +661,7 @@ $lang['prompt_withselected'] = 'With Selected';
 #Q
 
 #R
-$lang['reorderpages'] = 'Reorder Content';
+$lang['reorderpages'] = 'Reorder';
 $lang['revert'] = 'Revert';
 
 #S
@@ -667,15 +669,16 @@ $lang['select_all'] = 'Select All';
 $lang['submit'] = 'Submit';
 
 #T
-$lang['title_clearlocks'] = 'Clear all content locks';
+$lang['title_clearlocks'] = 'Clear Locks';
 $lang['title_contentmanager_settings'] = 'Content Manager Settings';
 $lang['title_editpage_apply'] = 'Save the changes to this content page, and continue editing';
 $lang['title_editpage_cancel'] = 'Abandon all unsaved changes to this page, and return to the content list';
 $lang['title_editpage_submit'] = 'Save the changes to this content page, and return to the content list';
 $lang['title_editpage_view'] = 'View the current content page (saved changes only)';
+$lang['title_filterpages'] = 'Filter Displayed Pages';
 $lang['title_listcontent_find'] = 'Enter a portion of a page title, menu text, alias or url and select a matching page.';
 $lang['title_locked'] = 'This page is currently being edited by another user';
-$lang['title_userpageoptions'] = 'Page List Options';
+//$lang['title_userpageoptions'] = 'Page List Options';
 $lang['toggle'] = 'Toggle Selected';
 
 #U

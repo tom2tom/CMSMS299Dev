@@ -26,9 +26,10 @@ for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 try {
     $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' ),null,null,$smarty );
 
-    $tpl->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'))
+    $tpl->assign('filterimage',cms_join_path(__DIR__,'images','filter'))
+     ->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'))
      ->assign('can_reorder_content',$this->CheckPermission('Manage All Content'))
-     ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1])); // this is just to aide loading.
+     ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1])); // this is just to aid loading.
 
     // load all the content that this user can display...
     // organize it into a tree
