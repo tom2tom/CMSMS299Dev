@@ -510,6 +510,7 @@ table.pagetable a.text-red {
 	color: #ae432e
 }
 .message,
+.pagewarn,
 .pagewarning,
 .pagemcontainer,
 .pageerrorcontainer,
@@ -543,6 +544,7 @@ table.pagetable a.text-red {
 }
 
 .warning,
+.pagewarn,
 .pagewarning {
 	background: #faf6d4 url(../images/icons/extra/warning.gif) right 34px 50% no-repeat;/* right-align 24X24 image */
 	border: 1px solid #e6c26e
@@ -568,6 +570,7 @@ table.pagetable a.text-red {
 	cursor: help
 }
 .warning p,
+.pagewarn p,
 .pagewarning p,
 .message p {
 	color: #232323;
@@ -575,6 +578,7 @@ table.pagetable a.text-red {
 	font-size: 14px
 }
 .warning h3,
+.pagewarn h3,
 .pagewarning h3 {
 	margin: 2px 0;
 	font-size: 14px;
