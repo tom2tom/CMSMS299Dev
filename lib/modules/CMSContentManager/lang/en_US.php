@@ -114,7 +114,7 @@ $lang['go'] = 'Go';
 $lang['group_desc'] = 'Members of this group can manage content';
 
 #H
-$lang['help_bulk'] = 'Perform the selected action on all selected pages(s) at one time.';
+$lang['help_bulk'] = 'Perform the selected action on all selected page(s) at one time.';
 $lang['help_content_tabindex'] = 'An integer value for the tab order used when surfing the navigation to browse to this page. This is useful when building accessible websites';
 $lang['help_content_target'] = 'A target attribute to use when including this item in the navigation.  A target of _blank will open this page in a new navigator window, or tab.';
 $lang['help_content_thumbnail'] = 'This field allows you to associate a thumbnail image with the content page.  The images must have already been generated on the website <em>(The FileManager module can generate thumbnails on upload)</em> to a directory specified by the website designer.  The image might optionally be displayed on the page, or used when building a navigation';
