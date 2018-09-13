@@ -357,8 +357,8 @@ input[type="submit"],
     font-weight: normal;
     color: #555;
     cursor: pointer;
-    height: 28px;
-    font-size: 12px
+    height: 26px;
+    font-size: 16px
 }
 
 .adminsubmit, .loginsubmit, .ui-button {
@@ -366,7 +366,7 @@ input[type="submit"],
 }
 
 .ui-button-text {
-    font-size: 12px;
+    font-size: 16px;
     margin-left: 2px;
     text-transform: uppercase
 }
@@ -447,16 +447,17 @@ table.pagetable a.text-red {
 }
 
 .warning,
+.pagewarn,
 .pagewarning {
     background: #f9f0d2 url(../images/icons/extra/warning.gif) 10px 50% no-repeat;
     border: 1px solid #e6c26e;
     padding-left: 40px
 }
-
+/*
 .warning .svg-inline--fa, .warning-message .svg-inline--fa {
     color: #f8993a;
 }
-
+*/
 .yellow {
     color: #e6c26e;
 }
@@ -500,6 +501,7 @@ table.pagetable a.text-red {
 }
 
 .warning p,
+.pagewarn p,
 .pagewarning p,
 .message p,
 .message li {
@@ -508,6 +510,7 @@ table.pagetable a.text-red {
 }
 
 .warning h3,
+.pagewarn h3,
 .pagewarning h3 {
     margin: 2px 0;
     font-size: 14px;
@@ -976,11 +979,11 @@ header .shortcuts li.notifications span.bubble {
 }
 
 #ac_pagemenu li {
-    position: relative;
-/*    zoom: 1; */
+/*    position: relative;
+    zoom: 1;
     line-height: 40px;
-    padding: 0;
-    border-bottom:1px solid #eee;
+    padding: 0; */
+    border-bottom: 1px solid #eee;
 }
 
 .sidebar-off #ac_sidebar nav.navigation li {
@@ -988,10 +991,11 @@ header .shortcuts li.notifications span.bubble {
 }
 
 .sidebar-off #ac_sidebar nav.navigation li .link-name {
-    display:none;
+    display: none;
 }
 
 /*** menu style ***/
+
 /* toggle submenu */
 #ac_pagemenu li {
     cursor: pointer;
@@ -999,7 +1003,7 @@ header .shortcuts li.notifications span.bubble {
 
 #ac_pagemenu li span.open-nav, #ac_pagemenu li a.no-nav {
     max-width: 150px;
-    height: 35px;
+/*    height: 35px; */
     z-index: 50;
 /*
     position: absolute;
@@ -1012,19 +1016,20 @@ header .shortcuts li.notifications span.bubble {
 /* !!! FontAwesome 5.x (free version) Icons */
 #ac_pagemenu li a::before {
     font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    font-size: 1.1em;
+    font-weight: 600;
+    font-size: 1.2em;
     margin-left: .2em;
-    margin-right: .2em;
+    margin-right: .3em;
     content: "\f22d"; /* default */
 /*    display: none; / * hide code replaced by svg */
 }
 
 #ac_pagemenu li a.no-nav::before {
     font-family: inherit;
-    content: "";
+    content: '';
+    margin: 0
 }
-
+/* for alternate fontawesome mechanism
 #ac_pagemenu li.current .svg-inline--fa,
 #ac_pagemenu li:hover .svg-inline--fa,
 #ac_pagemenu li:focus .svg-inline--fa,
@@ -1033,7 +1038,7 @@ header .shortcuts li.notifications span.bubble {
     display: inline-block;
     z-index: 9999;
 }
-
+*/
 #ac_pagemenu li a {
     color: #232323;
     outline: 0;
@@ -1055,8 +1060,9 @@ header .shortcuts li.notifications span.bubble {
 }
 */
 @media (max-width: 1150px) {
+    #ac_pagemenu li,
     #ac_pagemenu li a {
-        font-size: 12px;
+        font-size: 13px;
     }
 }
 @media (max-width: 900px) {
@@ -1064,8 +1070,9 @@ header .shortcuts li.notifications span.bubble {
         display:none;
     }
 
-    #ac_pagemenu li {
-        font-size: 16px;
+    #ac_pagemenu li,
+    #ac_pagemenu li a {
+        font-size: 12px;
     }
 }
 
@@ -1166,7 +1173,7 @@ nav h3.systemmaintenance a::before, #ac_pagemenu li a.systemmaintenance::before 
 nav h3.tags a::before, #ac_pagemenu li a.tags::before { content: '\f02c' }
 nav h3.usersgroups a::before, #ac_pagemenu li a.usersgroups::before { content: '\f0c0' }
 nav h3.usertags a::before, #ac_pagemenu li a.usertags::before { content: '\f4c4' }
-
+/* for alternate fontawesome mechanism
 #ac_pagemenu li a .svg-inline--fa {
     margin-right: 0.5em;
     text-align:center;
@@ -1180,25 +1187,30 @@ nav h3.usertags a::before, #ac_pagemenu li a.usertags::before { content: '\f4c4'
 nav h3 a .svg-inline--fa {
     margin-right: 0.5em;
     text-align:center;
-/*    width: 1rem; */
+/ *    width: 1rem; * /
     display:inline-block;
     font-size: 1.5rem;
 }
+*/
 
 /* second level & collapsed sidebar */
 #ac_pagemenu ul {
     padding: 8px 0;
     background: #f0f0f0
 }
+#ac_pagemenu ul ul {
+    padding-left: 16px
+}
 
 #ac_pagemenu li li {
-    background: none;
-    line-height: 1;
+/*    background: none; */
+    line-height: 1.4;
+/*    font-size: 14px; */
 }
 
 #ac_pagemenu li li a {
     height: auto;
-    line-height: 1.3;
+/*    line-height: 1.3; */
     word-break: break-word;
     word-wrap: hyphenate;
 /*    padding: 5px 5px 5px 30px; */
@@ -1240,11 +1252,11 @@ nav h3 a .svg-inline--fa {
 /*** footer ***/
 footer#ac_footer {
     z-index: 50;
-    background:#121214;
+    background: #121214;
     clear: both;
     position: fixed;
     bottom: 0;
-    height: 55px;
+/*    height: 55px; */
     font-size: 12px;
 }
 @media (max-width: 1024px) {
@@ -1294,7 +1306,7 @@ footer#ac_footer a:active {
 
 #ac_mainarea header.pageheader span.helptext,
 .pageheader span.helptext {
-    line-height:2;
+    line-height: 2;
     float: right;
     width: auto;
     color: #232323;
@@ -1317,10 +1329,6 @@ display: block;
 i.fontimage {
     vertical-align: middle;
     font-size: 1.3em;
-}
-i.cms_helpicon {
-    margin-left: 0.3em;
-    color: #4466cc;
 }
 
 .pageheader {
@@ -1861,7 +1869,7 @@ textarea.pageextrasmalltextarea {
     border: 1px solid #ddd
 }
 @media (max-width:1200px) {
-     .dashboard-box {
+    .dashboard-box {
         width: 320px;
     }
 }
@@ -2121,7 +2129,7 @@ a.toggle-dropzone:focus {
 }
 #login h1 {
     color: #585858;
-    font-size: 1.2em;
+    font-size: 18px;
     text-shadow: 0 1px 0 #fff;
 }
 /*
@@ -2201,7 +2209,7 @@ font-size: 14px;
 }
 #login small {
     text-align: center;
-    font-size: 0.8em;
+    font-size: 10px;
     color: #585858;
     display: block
 }
@@ -2268,6 +2276,11 @@ font-size: 14px;
     cursor: pointer;
 }
 
+i.cms_helpicon {
+    margin-left: 0.3em;
+    color: #4466cc;
+}
+
 .cms_helptext ul {
     padding: 0 10px;
     list-style: disc;
@@ -2276,7 +2289,6 @@ font-size: 14px;
 .cms_helptext ul li {
     margin-bottom: 8px;
 }
-
 
 
 /* --- SCREEN UP TO 1024px --- */
@@ -2370,15 +2382,11 @@ font-size: 14px;
     header .welcome {
         width: auto
     }
-    #ac_sidebar {
-        border: none;
-    }
-    #ac_sidebar aside {
-        padding: 0
-    }
-
     header.header {
         overflow: hidden
+    }
+    #ac_sidebar {
+        border: none;
     }
     #ac_mainarea {    }
     #ac_mainarea header.pageheader {
@@ -2453,6 +2461,9 @@ font-size: 14px;
 }
 
 @media(max-width: 767px) {
+    #ac_sidebar aside {
+        padding: 0
+    }
     #ac_sidebar .toggle-button {
         display: none;
     }
@@ -2460,10 +2471,11 @@ font-size: 14px;
         overflow: hidden;
         top: 0;
     }
+/*
     #ac_pagemenu li a .svg-inline--fa {
         margin: 0;
     }
-
+*/
 }
 
 @media screen and (max-width: 600px) {
@@ -2473,9 +2485,6 @@ font-size: 14px;
         margin: 10px 0;
     }
 
-    #ac_pagemenu li a:focus {
-        margin-right: 0;
-    }
     #page_tabs {
         margin-top: 0;
     }
@@ -2532,20 +2541,22 @@ font-size: 14px;
     }
     #ac_pagemenu li {
         background: #d5d5d5;
-        line-height: 45px;
-        padding: 2px;
+/*        line-height: 45px; */
+        padding: 8px;
         text-align: center;
         border-bottom: 1px solid #aaa;
     }
     #ac_pagemenu li a {
         margin-left: 0;
-        height: 45px;
+/*        height: 45px; */
         text-align: center;
     }
-
+    #ac_pagemenu li a:focus {
+        margin-right: 0;
+    }
     #ac_pagemenu li a::before {
         margin-right: 0;
-        font-size: 1.35rem;
+/*        font-size: 1.35rem; */
     }
 }
 
@@ -2581,8 +2592,6 @@ ul.social-icons li {
     vertical-align:middle;
     margin: 2px 5px;
 }
-
-
 
 
 /* TinyMCE override for filepicker iframe*/

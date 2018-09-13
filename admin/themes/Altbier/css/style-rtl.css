@@ -351,26 +351,29 @@ input[type="password"] {
 
 input[type="button"],
 input[type="submit"],
-.ui-button {
+.adminsubmit, .loginsubmit, .ui-button {
     border: 1px solid #d3d3d3;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
     color: #555;
     cursor: pointer;
-    height: 28px;
-    font-size: 12px
+    height: 26px;
+    font-size: 16px
 }
 
-.ui-button {
+.adminsubmit, .loginsubmit, .ui-button {
     margin: 4px 0
 }
 
 .ui-button-text {
-    font-size: 12px;
+    font-size: 16px;
     margin-right: 2px;
     text-transform: uppercase
 }
 
+.adminsubmit:active, .loginsubmit:active,
+.adminsubmit:hover, .loginsubmit:hover,
+.ui-button:hover,
 button.ui-button.ui-state-active {
     border: 1px solid #d3d3d3;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
@@ -444,16 +447,17 @@ table.pagetable a.text-red {
 }
 
 .warning,
+.pagewarn,
 .pagewarning {
     background: #f9f0d2 url(../images/icons/extra/warning.gif) right 34px 50% no-repeat;
     border: 1px solid #e6c26e;
     padding-right: 40px
 }
-
+/*
 .warning .svg-inline--fa, .warning-message .svg-inline--fa{
     color: #f8993a;
 }
-
+*/
 .yellow {
     color: #e6c26e;
 }
@@ -497,6 +501,7 @@ table.pagetable a.text-red {
 }
 
 .warning p,
+.pagewarn p,
 .pagewarning p,
 .message p,
 .message li {
@@ -505,6 +510,7 @@ table.pagetable a.text-red {
 }
 
 .warning h3,
+.pagewarn h3,
 .pagewarning h3 {
     margin: 2px 0;
     font-size: 14px;
@@ -973,10 +979,10 @@ header .shortcuts li.notifications span.bubble {
 }
 
 #ac_pagemenu li {
-    position: relative;
-/*    zoom: 1; */
+/*    position: relative;
+    zoom: 1;
     line-height: 40px;
-    padding: 0;
+    padding: 0; */
     border-bottom:1px solid #eee;
 }
 
@@ -989,6 +995,7 @@ header .shortcuts li.notifications span.bubble {
 }
 
 /*** menu style ***/
+
 /* toggle submenu */
 #ac_pagemenu li {
     cursor: pointer;
@@ -996,7 +1003,7 @@ header .shortcuts li.notifications span.bubble {
 
 #ac_pagemenu li span.open-nav, #ac_pagemenu li a.no-nav {
     max-width: 150px;
-    height: 35px;
+/*    height: 35px; */
     z-index: 50;
 /*
     position: absolute;
@@ -1009,9 +1016,9 @@ header .shortcuts li.notifications span.bubble {
 /* !!! FontAwesome 5.x (free version) Icons */
 #ac_pagemenu li a::before {
     font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    font-size: 1.1em;
-    margin-left: .2em;
+    font-weight: 600;
+    font-size: 1.2em;
+    margin-left: .3em;
     margin-right: .2em;
     content: "\f22d"; /* default */
 /*    display: none; / * hide code replaced by svg */
@@ -1019,9 +1026,10 @@ header .shortcuts li.notifications span.bubble {
 
 #ac_pagemenu li a.no-nav::before {
     font-family: inherit;
-    content: "";
+    content: '';
+    margin: 0
 }
-
+/*
 #ac_pagemenu li.current .svg-inline--fa,
 #ac_pagemenu li:hover .svg-inline--fa,
 #ac_pagemenu li:focus .svg-inline--fa,
@@ -1030,7 +1038,7 @@ header .shortcuts li.notifications span.bubble {
     display: inline-block;
     z-index: 9999;
 }
-
+*/
 #ac_pagemenu li a {
     color: #232323;
     outline: 0;
@@ -1052,9 +1060,11 @@ header .shortcuts li.notifications span.bubble {
 }
 */
 @media (max-width: 1150px) {
+/*
     #ac_pagemenu li a {
         font-size: 12px;
     }
+*/
 }
 @media (max-width: 900px) {
     #ac_pagemenu li .link-name {
@@ -1163,7 +1173,7 @@ nav h3.systemmaintenance a::before, #ac_pagemenu li a.systemmaintenance::before 
 nav h3.tags a::before, #ac_pagemenu li a.tags::before { content: '\f02c' }
 nav h3.usersgroups a::before, #ac_pagemenu li a.usersgroups::before { content: '\f0c0' }
 nav h3.usertags a::before, #ac_pagemenu li a.usertags::before { content: '\f4c4' }
-
+/* for alternate fontawesome mechanism
 #ac_pagemenu li a .svg-inline--fa {
     margin-left: 0.5em;
     text-align:center;
@@ -1177,25 +1187,30 @@ nav h3.usertags a::before, #ac_pagemenu li a.usertags::before { content: '\f4c4'
 nav h3 a .svg-inline--fa {
     margin-left: 0.5em;
     text-align:center;
-/*    width: 1rem; */
+/ *    width: 1rem; * /
     display:inline-block;
     font-size: 1.5rem;
 }
+*/
 
 /* second level & collapsed sidebar */
 #ac_pagemenu ul {
     padding: 8px 0;
     background: #f0f0f0
 }
+#ac_pagemenu ul ul {
+    padding-right: 16px
+}
 
 #ac_pagemenu li li {
-    background: none;
-    line-height: 1;
+/*    background: none; */
+    line-height: 1.4;
+/*    font-size: 14px; */
 }
 
 #ac_pagemenu li li a {
     height: auto;
-    line-height: 1.3;
+/*    line-height: 1.3; */
     word-break: break-word;
     word-wrap: hyphenate;
 /*    padding: 5px 30px 5px 5px; */
@@ -1241,7 +1256,7 @@ footer#ac_footer {
     clear: both;
     position: fixed;
     bottom: 0;
-    height: 55px;
+/*    height: 55px; */
     font-size: 12px;
 }
 @media (max-width: 1024px) {
@@ -1314,10 +1329,6 @@ span.helptext a {
 i.fontimage {
     vertical-align: middle;
     font-size: 1.3em;
-}
-i.cms_helpicon {
-    margin-right: 0.3em;
-    color: #4466cc;
 }
 
 .pageheader {
@@ -1452,7 +1463,7 @@ table.pagetable caption {
     color: #585858;
     text-align: right;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 0.9em;
     padding: 5px 0
 }
 
@@ -2085,7 +2096,7 @@ a.toggle-dropzone:focus {
     height: 12px;
     line-height: 12px;
     font-weight: normal;
-    font-size: 12px;
+    font-size: 0.9em;
     text-align: center;
     border: 1px solid #aaa;
     border-radius: 4px;
@@ -2118,7 +2129,7 @@ a.toggle-dropzone:focus {
 }
 #login h1 {
     color: #585858;
-    font-size: 1.2em;
+    font-size: 18px;
     text-shadow: 0 1px 0 #fff;
 }
 /*
@@ -2176,7 +2187,7 @@ a.toggle-dropzone:focus {
     box-shadow: -2px 2px 10px 0 rgba(51, 51, 51, 0.62);
 }
 #login aside.info {
-    font-size: 14px;
+/*    font-size: 14px; */
     color: #585858;
     background: #ececec;
 }
@@ -2198,7 +2209,7 @@ a.toggle-dropzone:focus {
 }
 #login small {
     text-align: center;
-    font-size: 0.8em;
+    font-size: 10px;
     color: #585858;
     display: block
 }
@@ -2265,6 +2276,11 @@ a.toggle-dropzone:focus {
     cursor: pointer;
 }
 
+i.cms_helpicon {
+    margin-right: 0.3em;
+    color: #4466cc;
+}
+
 .cms_helptext ul {
     padding: 0 10px;
     list-style: disc;
@@ -2273,7 +2289,6 @@ a.toggle-dropzone:focus {
 .cms_helptext ul li {
     margin-bottom: 8px;
 }
-
 
 
 /* --- SCREEN UP TO 1024px --- */
@@ -2367,15 +2382,11 @@ a.toggle-dropzone:focus {
     header .welcome {
         width: auto
     }
-    #ac_sidebar {
-        border: none;
-    }
-    #ac_sidebar aside {
-        padding: 0
-    }
-
     header.header {
         overflow: hidden
+    }
+    #ac_sidebar {
+        border: none;
     }
     #ac_mainarea {    }
     #ac_mainarea header.pageheader {
@@ -2450,6 +2461,9 @@ a.toggle-dropzone:focus {
 }
 
 @media(max-width: 767px) {
+    #ac_sidebar aside {
+        padding: 0
+    }
     #ac_sidebar .toggle-button {
         display: none;
     }
@@ -2457,10 +2471,11 @@ a.toggle-dropzone:focus {
         overflow: hidden;
         top: 0;
     }
+/*
     #ac_pagemenu li a .svg-inline--fa {
         margin: 0;
     }
-
+*/
 }
 
 @media screen and (max-width: 600px) {
@@ -2470,9 +2485,6 @@ a.toggle-dropzone:focus {
         margin: 10px 0;
     }
 
-    #ac_pagemenu li a:focus {
-        margin-left: 0;
-    }
     #page_tabs {
         margin-top: 0;
     }
@@ -2529,20 +2541,22 @@ a.toggle-dropzone:focus {
     }
     #ac_pagemenu li {
         background: #d5d5d5;
-        line-height: 45px;
-        padding: 2px;
+/*        line-height: 45px; */
+        padding: 8px;
         text-align: center;
         border-bottom: 1px solid #aaa;
     }
     #ac_pagemenu li a {
         margin-right: 0;
-        height: 45px;
+/*        height: 45px; */
         text-align: center;
     }
-
+    #ac_pagemenu li a:focus {
+        margin-left: 0;
+    }
     #ac_pagemenu li a::before {
         margin-left: 0;
-        font-size: 1.35rem;
+/*        font-size: 1.35rem; */
     }
 }
 
@@ -2578,8 +2592,6 @@ ul.social-icons li {
     vertical-align:middle;
     margin: 2px 5px;
 }
-
-
 
 
 /* TinyMCE override for filepicker iframe*/
