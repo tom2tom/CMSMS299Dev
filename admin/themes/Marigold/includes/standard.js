@@ -257,17 +257,26 @@
          */
         toggleSubMenu: function(obj, duration) {
             var _this = this;
-            obj.find('li.current span').addClass('open-sub');
-            obj.find('> li > span').click(function() {
-                var ul = $(this).next();
-                var _p = [];
+            obj.find('> li > span').click(function(e) {
+                e.preventDefault();
+                var $t = $(this),
+                 cur = $t.hasClass('open-sub'),
+                 ul = $t.next(),
+                 _p = [];
                 if(ul.is(':visible') === false) {
                     _p.push(obj.find('ul').slideUp(duration));
                 }
-                _p.push(ul.slideToggle(duration));
+                obj.find('.nav').removeClass('current').find('span').removeClass('open-sub');
+                $t.parent('.nav').addClass('current');
+                if(cur) {
+                    _p.push(ul.slideToggle(duration));
+                } else {
+                    $t.addClass('open-sub');
+                }
                 $.when.apply($, _p).done(function() {
                     _this.updateDisplay();
                 });
+                return false;
             });
         },
         /**

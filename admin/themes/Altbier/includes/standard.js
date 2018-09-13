@@ -289,15 +289,21 @@
             var _this = this;
             $(obj).find('.nav  > span.open-nav').on('click', function(e) {
                 if(AC.view.init.show_submenus) {
-                    var ul = $(this).parent('.nav').find('ul');
-                    var _p = [];
                     e.preventDefault();
-                    obj.find('.nav').removeClass('current').find('span').removeClass('open-sub');
-                    $(this).parent('.nav').addClass('current').find('span').addClass('open-sub');
+                    var $t = $(this),
+                      cur = $t.hasClass('open-sub'),
+                      ul = $t.next(),
+                      _p = [];
                     if(ul.is(':visible') === false) {
                         _p.push(obj.find('ul').slideUp(duration));
                     }
-                    _p.push(ul.slideDown(duration));
+                    obj.find('.nav').removeClass('current').find('span').removeClass('open-sub');
+                    $t.parent('.nav').addClass('current');
+                    if(cur) {
+                        _p.push(ul.slideToggle(duration));
+                    } else {
+                        $t.addClass('open-sub');
+                    }
                     $.when.apply($, _p).done(function() {
                         _this.updateDisplay();
                     });
