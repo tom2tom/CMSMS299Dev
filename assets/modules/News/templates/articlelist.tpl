@@ -50,8 +50,7 @@
     {if $can_add}
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=$mod->Lang('addarticle')} {$mod->Lang('addarticle')}</a>&nbsp;
     {/if}
-    <a id="toggle_filter"{if $curcategory !='' } style="font-weight:bold;color:green;"{/if}>{admin_icon icon='view.gif' alt=$mod->Lang('viewfilter')} {if $curcategory != ''}*{/if}
-    {$mod->Lang('viewfilter')}</a>
+    <a id="toggle_filter" title="{$mod->Lang('viewfilter')}">{admin_icon icon=$filterimage} {if $curcategory != ''}<span style="font-weight:bold;color:#0f0;">* {$mod->Lang('title_filter')}</span>{else}{$mod->Lang('title_filter')}{/if}</a>
   </div>{*boxchild*}
   {if $itemcount > 0 && $pagecount > 1}
   <div class="pageoptions boxchild">

@@ -424,7 +424,7 @@ $lang['url'] = 'URL (slug)';
 $lang['useexpiration'] = 'Use Expiration Date';
 
 // V
-$lang['viewfilter'] = 'View Filter';
+$lang['viewfilter'] = 'Display filters dialog';
 
 // W
 $lang['warning_preview'] = 'This preview panel allows you to navigate away from the initially previewed page. Be aware that if you do so, you might experience unexpected behavior.  Navigating away from the initial page and returning will not give the expected results.<br /><strong>Note:</strong> The preview does not upload files you might have selected for upload.';
