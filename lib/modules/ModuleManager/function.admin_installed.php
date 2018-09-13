@@ -90,6 +90,9 @@ $tpl->assign('module_info',$allmoduleinfo);
 $devmode = !empty($config['developer_mode']);
 $tpl->assign('allow_export',($devmode)?1:0);
 if ($devmode) {
-    $tpl->assign('iconsurl',$this->GetModuleURLPath().'/images');
+	$themeObject = cms_utils::get_theme_object();
+    $path = cms_join_path($this->GetModulePath(),'images','xml');
+    $tpl->assign('exporticon',
+	   $themeObject->DisplayImage($path, 'export', '', '', 'systemicon', ['title'=>$this->Lang('title_moduleexport')]));
 }
 $tpl->assign('allow_modman_uninstall',$this->GetPreference('allowuninstall',0));

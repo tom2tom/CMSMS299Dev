@@ -14,7 +14,7 @@ $(document).ready(function() {
 {if $status == 'stale'}
  {$stale_img}
 {elseif $status == 'warn'}
- {$warn_img}
+ {$warning_img}
 {elseif $status == 'new'}
  {$new_img}
 {/if}

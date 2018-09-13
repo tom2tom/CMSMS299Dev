@@ -8,13 +8,13 @@
     <tr>
       <th></th>
       <th>{$mod->Lang('nametext')}</th>
-      <th><span title="{$mod->Lang('title_moduleversion')}">{$mod->Lang('vertext')}</span></th>
-      <th><span title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('status')}</span></th>
-      <th><span title="{$mod->Lang('title_moduleaction')}">{$mod->Lang('action')}</span></th>
-      <th class="pageicon"><span title="{$mod->Lang('title_moduleactive')}">{$mod->Lang('active')}</span></th>
-      <th class="pageicon"><span title="{$mod->Lang('title_modulehelp')}">{$mod->Lang('helptxt')}</span></th>
-      <th class="pageicon"><span title="{$mod->Lang('title_moduleabout')}">{$mod->Lang('abouttxt')}</span></th>
-      {if $allow_export}<th class="pageicon"><span title="{$mod->Lang('title_moduleexport')}">{$mod->Lang('export')}</span></th>{/if}
+      <th title="{$mod->Lang('title_moduleversion')}">{$mod->Lang('vertext')}</th>
+      <th title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('status')}</th>
+      <th title="{$mod->Lang('title_moduleaction')}">{$mod->Lang('action')}</th>
+      <th class="pageicon" title="{$mod->Lang('title_moduleactive')}">{$mod->Lang('active')}</th>
+      <th class="pageicon" title="{$mod->Lang('title_modulehelp')}"></th>
+      <th class="pageicon" title="{$mod->Lang('title_moduleabout')}"></th>
+      {if $allow_export}<th class="pageicon" title="{$mod->Lang('title_moduleexport')}">{$mod->Lang('export')}</th>{/if}
     </tr>
   </thead>
   <tbody>
@@ -23,7 +23,7 @@
         <td>
           {if $item.system_module}{$system_img}{/if}
           {if $item.e_status == 'newer_available'} {$star_img}{/if}
-          {if $item.missing_deps || $item.notavailable} {$missingdep_img}{/if}
+          {if $item.missing_deps || $item.notavailable} {$missingdeps_img}{/if}
           {if $item.deprecated} {$deprecated_img}{/if}
         </td>
         <td>
@@ -99,7 +99,7 @@
           {/if}
           {'<br />'|implode:$ops}
         </td>
-        <td>{* active column *}
+        <td style="text-align:center;">{* active column *}
           {if $item.can_uninstall}{if $item.active}
             <a class="modop mod_inactive" href="{cms_action_url action='local_active' mod=$item.name state=0}" title="{$mod->Lang('toggle_inactive')}">{admin_icon icon='true.gif'}</a>
           {else}
@@ -112,10 +112,9 @@
         <td>
           <a class="modop mod_about" href="{cms_action_url action='local_about' mod=$item.name}" title="{$mod->Lang('title_moduleabout')}">{$mod->Lang('abouttxt')}</a>
         </td>
-        {if $allow_export}<td>
+        {if $allow_export}<td style="text-align:center;">
           {if $item.active && $item.root_writable && $item.e_status != 'need_upgrade' && !$item.missing_deps}
-          <a class="modop mod_export" href="{cms_action_url action='local_export' mod=$item.name}">
-            <img src="{$iconsurl}/xml.png" class="systemicon" width="32" height="32" alt="xml" title="{$mod->Lang('title_moduleexport')}" /></a>
+          <a class="modop mod_export" href="{cms_action_url action='local_export' mod=$item.name}">{$exporticon}</a>
           {/if}
         </td>{/if}
       </tr>

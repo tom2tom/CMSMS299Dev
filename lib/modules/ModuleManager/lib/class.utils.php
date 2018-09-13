@@ -23,12 +23,19 @@ use CmsCommunicationException;
 use CmsInvalidDataException;
 use CMSMS\ModuleOperations;
 use const MINIMUM_REPOSITORY_VERSION;
+use function cms_join_path;
 use function cmsms;
 
 final class utils
 {
     protected function __construct() {}
 
+	/**
+	 *
+	 * @param bool $include_inactive Whether to also report inactive modules. Default false
+	 * @param bool $as_hash Whether returned array keys are respective module-names. Default false
+	 * @return array
+	 */
     public static function get_installed_modules($include_inactive = FALSE, $as_hash = FALSE)
     {
         $modops = ModuleOperations::get_instance();
@@ -57,8 +64,6 @@ final class utils
 
     private static function uasort_cmp_details( $e1, $e2 )
     {
-        $n1 = $n2 = '';
-        $v1 = $v2 = '';
         if( is_object($e1) ) {
             $n1 = $e1->name;
             $v1 = $e1->version;
@@ -76,15 +81,24 @@ final class utils
             $v2 = $e2['version'];
         }
 
-        if( strcasecmp($n1,$n2) < 0 ) {
+		$r = strcasecmp($n1,$n2);
+        if( $r < 0 ) {
             return -1;
         }
-        elseif( strcasecmp($n1,$n2) > 0 ) {
+        elseif( $r > 0 ) {
             return 1;
         }
-        return version_compare( $e2['version'], $e1['version'] );
+        return version_compare( $v2, $v1 );
     }
 
+	/**
+	 *
+	 * @global type $CMS_VERSION
+	 * @param type $xmldetails
+	 * @param type $installdetails
+	 * @param type $newest
+	 * @return mixed array|null
+	 */
     public static function build_module_data( &$xmldetails, &$installdetails, $newest = true )
     {
         if( !is_array($xmldetails) ) return;
@@ -163,6 +177,15 @@ final class utils
         return $results;
     }
 
+	/**
+	 *
+	 * @param type $filename
+	 * @param type $size
+	 * @param type $md5sum
+	 * @return string
+	 * @throws CmsCommunicationException
+	 * @throws CmsInvalidDataException
+	 */
     public static function get_module_xml($filename,$size,$md5sum = null)
     {
         $mod = cms_utils::get_module('ModuleManager');
@@ -180,6 +203,11 @@ final class utils
         return $xml_filename;
     }
 
+	/**
+	 *
+	 * @staticvar bool $ok
+	 * @return boolean
+	 */
     public static function is_connection_ok()
     {
         static $ok = -1;
@@ -214,6 +242,11 @@ final class utils
         return FALSE;
     }
 
+	/**
+	 *
+	 * @param string $date
+	 * @return mixed string|null
+	 */
     public static function get_status($date)
     {
         $ts = strtotime($date);
@@ -225,33 +258,30 @@ final class utils
         if( $ts >= $new_ts ) return 'new';
     }
 
+	/**
+	 * set smarty vars for various image tags
+	 */
     public static function get_images()
     {
-        // this is a bit ugly.
         $mod = cms_utils::get_module('ModuleManager');
-		$base = $mod->GetModuleURLPath().'/images/';
+        $base = cms_join_path($mod->GetModulePath(),'images').DIRECTORY_SEPARATOR;
+        $themeObject = cms_utils::get_theme_object();
         $smarty = cmsms()->GetSmarty();
 
-        $img = '<img src="'.$base.'error.png" title="'.$mod->Lang('title_stale').'" alt="stale" height="20" width="20" />';
-        $smarty->assign('stale_img',$img);
-
-        $img = '<img src="'.$base.'puzzle.png" title="'.$mod->Lang('title_missingdeps').'" alt="missingdeps" height="20" width="20" />';
-        $smarty->assign('missingdep_img',$img);
-
-        $img = '<img src="'.$base.'warn.png" title="'.$mod->Lang('title_warning').'" alt="warning" height="20" width="20" />';
-        $smarty->assign('warn_img',$img);
-
-        $img = '<img src="'.$base.'new.png" title="'.$mod->Lang('title_new').'" alt="new" height="20" width="20" />';
-        $smarty->assign('new_img',$img);
-
-        $img = '<img src="'.$base.'star.png" title="'.$mod->Lang('title_star').'" alt="star" height="20" width="20" />';
-        $smarty->assign('star_img',$img);
-
-        $img = '<img src="'.$base.'system.png" title="'.$mod->Lang('title_system').'" alt="system" height="20" width="20" />';
-        $smarty->assign('system_img',$img);
-
-        $deprecated_img = '<img src="'.$base.'deprecate.png" title="'.$mod->Lang('title_deprecated').'" alt="deprecated" height="20" width="20" />';
-        $smarty->assign('deprecated_img',$img);
+        foreach ([
+            ['error','stale'],
+            ['puzzle','missingdeps'],
+            ['warn','warning'],
+            ['new','new'],
+            ['star','star'],
+            ['system','system'],
+            ['deprecated','deprecated'],
+        ] as &$one) {
+            $path = $base.$one[0];
+            $title = $mod->Lang('title_'.$one[1]);
+            $img = $themeObject->DisplayImage($path, $one[1], '20', '20', null, ['title'=>$title]);
+            $smarty->assign($one[1].'_img',$img);
+        }
+        unset ($one);
     }
 } // class
-

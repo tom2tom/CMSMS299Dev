@@ -26,7 +26,7 @@
  {if $status == 'stale'}
   {$stale_img}
  {elseif $status == 'warn'}
-  {$warn_img}
+  {$warning_img}
  {elseif $status == 'new'}
   {$new_img}
  {/if}
@@ -42,7 +42,7 @@
       <th><span title="{$mod->Lang('title_modulelastversion')}">{$vertext}</span></th>
       <th><span title="{$mod->Lang('title_modulelastreleasedate')}">{$mod->Lang('releasedate')}</span></th>
       <th><span title="{$mod->Lang('title_moduletotaldownloads')}">{$mod->Lang('downloads')}</span></th>
-      <th><span title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('statustext')}</span></th>
+      <th>&nbsp;</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
