@@ -1,1 +1,1 @@
-class="fa-check-circle green"
+class="fa fa-check-circle green"

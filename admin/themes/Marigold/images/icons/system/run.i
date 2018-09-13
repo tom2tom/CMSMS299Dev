@@ -1,1 +1,1 @@
-class="fa-cog"
+class="fa fa-cog"

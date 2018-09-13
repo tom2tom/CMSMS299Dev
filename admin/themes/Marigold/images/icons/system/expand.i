@@ -1,1 +1,1 @@
-class="fa-open"
+class="fa fa-caret-down"

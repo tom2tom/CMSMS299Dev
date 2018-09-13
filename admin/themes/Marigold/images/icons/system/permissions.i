@@ -1,1 +1,1 @@
-class="fa-key"
+class="fa fa-key"

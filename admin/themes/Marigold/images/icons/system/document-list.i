@@ -1,1 +1,1 @@
-class="fa-list"
+class="fa fa-list"

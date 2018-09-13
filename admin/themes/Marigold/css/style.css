@@ -541,25 +541,25 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-    background: #faf6d4 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
+    background: #fbf0d0 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
     border: 1px solid #e6c26e;
     padding-left: 40px
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-    background: #f2d4ce url(../images/icons/extra/block.png) 10px 50% no-repeat;
+    background: #fbd0d0 url(../images/icons/extra/block.png) 10px 50% no-repeat;
     border: 1px solid #ae432e;
     padding-left: 40px
 }
 .success,
 .pagemcontainer {
-    background: #d9e6c3 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
+    background: #dbfbd0 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
     border: 1px solid #77ab13;
     padding-left: 40px
 }
 .info, .pageinfo, .information {
-    background: #cee6f2 url(../images/icons/extra/info.png) 10px 50% no-repeat;
+    background: #d0e7fb url(../images/icons/extra/info.png) 10px 50% no-repeat;
     border: 1px solid #058dc7;
     padding-left: 40px
 }
@@ -627,7 +627,7 @@ aside .no-slide, .no-slide {
     line-height: 100%;
 }
 
-/* Nofifications by jQuery toast plugin */
+/* Notifications by jQuery toast plugin */
 
 .jqtoast {
     display: block;
@@ -723,13 +723,13 @@ aside .no-slide, .no-slide {
 }
 .error.jqtoast {
     padding: 10px 40px;
-    background-color: #f2d4ce;
+    background-color: #fbd0d0;
 }
 .error .jqt-close {
     background-position: 1.2em 0;
 }
 .error .jqt-heading {
-    background-color: #e20e0e;
+    background-color: #bc1010;
     color: #fff;
 }
 .jqt-icon-error {
@@ -738,13 +738,13 @@ aside .no-slide, .no-slide {
 }
 .warn.jqtoast {
     padding: 10px 40px;
-    background-color: #faf6d4;
+    background-color: #fbf0d0;
 }
 .warn .jqt-close {
     background-position: 2.4em 0;
 }
 .warn .jqt-heading {
-    background-color: #b08f0e;
+    background-color: #bc9110;
     color: #fff;
 }
 .jqt-icon-warning {
@@ -752,13 +752,13 @@ aside .no-slide, .no-slide {
 }
 .success.jqtoast {
     padding: 10px 40px;
-    background-color: #d9e6c3;
+    background-color: #dbfbd0;
 }
 .success .jqt-close {
     background-position: 3.6em 0;
 }
 .success .jqt-heading {
-    background-color: #0bb33a;
+    background-color: #2c8d0c;
     color: #fff;
 }
 .jqt-icon-success {
@@ -766,13 +766,13 @@ aside .no-slide, .no-slide {
 }
 .info.jqtoast {
     padding: 10px 40px;
-    background-color: #c2dde5;
+    background-color: #d0e7fb;
 }
 .info .jqt-close {
     background-position: 4.8em 0;
 }
 .info .jqt-heading {
-    background-color: #147fdb;
+    background-color: #2d93eb;
     color: #fff;
 }
 .jqt-icon-info {
@@ -831,21 +831,21 @@ aside .no-slide, .no-slide {
     flex: 1
 }
 .hbox .boxchild {
-    margin-right: 10px;
+    margin-right: 10px
 }
 .vbox .boxchild {
-    margin-bottom: 10px;
+    margin-bottom: 10px
 }
 
 .resize-horizontal {
-    resize: horizontal;
+    resize: horizontal
 }
 .resize-vertical {
-    resize: vertical;
+    resize: vertical
 }
 .oneliner > * {
     float: left;
-    margin-right: 20px;
+    margin-right: 20px
 }
 .pagecontainer .pageinput.postgap, .postgap {
     margin-top: 5px;
@@ -1053,18 +1053,17 @@ header .shortcuts li.notifications span.bubble {
 }
 
 #mg_sidebar .toggle-button {
-    font-family: "mgtheme";
+    font-family: FontAwesome;
     font-size: 1.2em;
 }
 
 .sidebar-on #mg_sidebar .toggle-button::after {
-    content: "\e816";
+    content: "\f191"
 }
 
 .sidebar-off #mg_sidebar .toggle-button::after {
-    content: "\e808";
+    content: "\f152"
 }
-
 
 /* sidebar notifications */
 
@@ -1125,19 +1124,21 @@ header .shortcuts li.notifications span.bubble {
     cursor: pointer;
 }
 
-#mg_pagemenu li span.open-nav.open-sub::after,
-#mg_pagemenu li.current span.open-nav::after,
-#mg_pagemenu li:hover span.open-nav::after,
-#mg_pagemenu li.current span.open-nav::after,
-#mg_pagemenu li.current:hover span.open-nav::after,
-#mg_pagemenu li a span:hover::after {
-    font-family: "mgtheme";
+#mg_pagemenu li.current span.open-nav::after {
     float: right;
     margin-right: 0.8em;
-    content: '\e806';
+    font-family: FontAwesome;
+    content: '\f0da' /* right */
 }
-
-#mg_pagemenu li span.open-nav.open-sub::after {}
+#mg_pagemenu li:hover span::after {
+    float: right;
+    margin-right: 0.8em;
+    font-family: FontAwesome;
+    content: '\f0d7' /* down */
+}
+#mg_pagemenu li:hover span.open-sub::after {
+    content: '\f0d8' /* up */
+}
 
 /*** menu style ***/
 
@@ -1179,126 +1180,77 @@ header .shortcuts li.notifications span.bubble {
     color: #147fdb;
 }
 
-#mg_pagemenu li a:focus {
-    color: #147fdb !important;
-    border: 1px solid #147fdb;
-    margin-right: 10px;
-}
-
-a.main::before,
-h3.main::before {
-    font-family: "mgtheme";
-    content: '\e80f';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.content::before,
-h3.content::before {
-    font-family: "mgtheme";
-    content: '\e600';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.layout::before,
-h3.layout::before {
-    font-family: "mgtheme";
-    content: '\e80c';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.files::before,
-h3.files::before {
-    font-family: "mgtheme";
-    content: '\f0c5';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.services::before,
-h3.services::before {
-    font-family: "mgtheme";
-    content: '\e807';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.usersgroups::before,
-h3.usersgroups::before {
-    font-family: "mgtheme";
-    content: '\e801';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.extensions::before,
-h3.extensions::before {
-    font-family: "mgtheme";
-    content: '\f12e';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.siteadmin::before,
-h3.siteadmin::before {
-    font-family: "mgtheme";
-    content: '\e90a';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.myprefs::before,
-h3.myprefs::before {
-    font-family: "mgtheme";
-    content: '\e800';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-a.ecommerce::before,
-h3.ecommerce::before {
-    font-family: "mgtheme";
-    content: '\e602';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
-#mg_pagemenu a.logout::before,
-h3.logout::before {
-    font-family: "mgtheme";
-    content: '\e803';
-    margin-right: 15px;
-    font-size: 1.2em;
-    width: 10px;
-    font-weight: normal;
-}
-
+/*
 #mg_pagemenu li a::before {
     width: 1em;
     display: inline-block;
     text-align: center;
+}
+*/
+
+#mg_pagemenu li a::before {
+/*    margin-left: .1em; */
+    margin-right: .2em;
+    font-family: FontAwesome;
+    font-size: 1.3em;
+    font-weight: normal;
+  /*  content: "\f22d"; / * default */
+}
+
+#mg_pagemenu li a:focus {
+    color: #147fdb !important
+}
+
+nav h3::before {
+    font-family: FontAwesome;
+    margin-right: 0.5em;
+    font-size: 1.5em;
+    font-weight: normal;
+}
+
+
+a.main::before, h3.main::before {
+    content: '\f015'
+}
+
+a.content::before, h3.content::before {
+    content: '\f022'
+}
+
+a.layout::before, h3.layout::before {
+    content: '\f0ce'
+}
+
+a.files::before, h3.files::before {
+    content: '\f0c5'
+}
+
+a.services::before, h3.services::before {
+    content: '\f085'
+}
+
+a.usersgroups::before, h3.usersgroups::before {
+    content: '\f0c0'
+}
+
+a.extensions::before, h3.extensions::before {
+    content: '\f12e'
+}
+
+a.siteadmin::before, h3.siteadmin::before {
+    content: '\f0ad'
+}
+
+a.myprefs::before, h3.myprefs::before {
+    content: '\f007'
+}
+
+a.ecommerce::before, h3.ecommerce::before {
+    content: '\f085'
+}
+
+#mg_pagemenu a.logout::before, h3.logout::before {
+    content: '\f08b'
 }
 
 /* second level & collapsed sidebar */
@@ -2185,7 +2137,7 @@ a.toggle-dropzone:focus {
 /* 2.0 STYLES, moved from inline .tpl, please do not add inline styles, thank you
  * and this needs more work
  */
-
+/*
 .row {
     width: 100%;
     margin: 0 auto;
@@ -2252,7 +2204,7 @@ a.toggle-dropzone:focus {
     display: block;
     cursor: pointer;
 }
-
+*/
 
 /* --- CMS_HELP --- */
 

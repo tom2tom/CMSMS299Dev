@@ -1,1 +1,1 @@
-class="fa-reorder"
+class="fa fa-random"

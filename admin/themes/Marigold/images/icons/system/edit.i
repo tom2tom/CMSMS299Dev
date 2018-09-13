@@ -1,1 +1,1 @@
-class="fa-edit"
+class="fa fa-pencil-square-o"

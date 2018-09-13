@@ -1,1 +1,1 @@
-class="fa-css3"
+class="fa fa-css3"

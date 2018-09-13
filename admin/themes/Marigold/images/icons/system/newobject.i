@@ -1,1 +1,1 @@
-class="fa-plus-square green"
+class="fa fa-plus-square green"

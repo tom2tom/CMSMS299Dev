@@ -1,1 +1,1 @@
-class="fa-angle-double-down"
+class="fa fa-angle-double-down"

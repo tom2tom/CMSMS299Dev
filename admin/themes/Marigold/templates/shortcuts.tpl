@@ -4,23 +4,23 @@
 	<ul class="cf">
 		<li class="help">
 		{if isset($module_help_url)}
-			<a href="{$module_help_url}" title="{'module_help'|lang}"><i class="fa-help"></i></a>
+			<a href="{$module_help_url}" title="{'module_help'|lang}"><i class="fa fa-question-circle"></i></a>
 		{else}
-			<a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}"><i class="fa-help"></i></a>
+			<a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}"><i class="fa fa-question-circle"></i></a>
 		{/if}
 		</li>
       {if isset($myaccount)}
 		<li class="settings">
-			<a href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa-user-o"></i></a>
+			<a href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a>
 		</li>
       {/if}
 		{if isset($marks)}
 		<li class="favorites open">
-			<a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa-bookmark"></i></a>
+			<a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}"><i class="fa fa-bookmark"></i></a>
 		</li>
 		{/if}
 		<li class="view-site">
-			<a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}"><i class="fa-website"></i></a>
+			<a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}"><i class="mgfa-website"></i></a>
 		</li>
 		{$my_alerts=$theme->get_my_alerts()}
 		{if !empty($my_alerts)}
@@ -29,12 +29,12 @@
 		        {if $num_alerts > 10}{$txt='&#2295'}{else}{$txt=$num_alerts}{/if}
  		        <li class="notifications">
 			    <a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}">
-					<i class="fa-bell"></i><span class="bubble">{$txt}</span></a>
+					<i class="fa fa-bell"></i><span class="bubble">{$txt}</span></a>
 		        </li>
 		    {/if}
                 {/if}
 		<li class="logout">
-			<a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}><i class="fa-logout"></i></a>
+			<a href="logout.php?{$secureparam}" title="{'logout'|lang}" {if isset($is_sitedown)}onclick="return confirm('{'maintenance_warning'|lang|escape:'javascript'}')"{/if}><i class="fa fa-sign-out"></i></a>
 		</li>
 	</ul>
 </div>

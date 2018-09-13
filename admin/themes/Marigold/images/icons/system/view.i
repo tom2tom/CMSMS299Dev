@@ -1,1 +1,1 @@
-class="fa-popup"
+class="mgfa-popup"

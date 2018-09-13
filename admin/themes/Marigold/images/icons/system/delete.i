@@ -1,1 +1,1 @@
-class="fa-trash red"
+class="fa fa-trash-o red"

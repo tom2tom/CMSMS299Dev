@@ -1,1 +1,1 @@
-class="fa-minus-circle red"
+class="fa fa-minus-circle red"

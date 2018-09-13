@@ -10,8 +10,6 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2
 /* DEPRECATED GRID SYSTEM - INSTEAD USE flexbox etc
  * Fluid Grid based on Based on 960 Grid System - http://www.960.gs
  * Helper Styles for Module Developer, make aligning modules easier.
- * (Too bad Robert didn't request this earlier i could of saved myself
- * from writing a bunch of Styles)
  * For demo, see accompanying file grid.html
  */
 
@@ -543,27 +541,27 @@ table.pagetable a.text-red {
 
 .warning,
 .pagewarning {
-    background: #faf6d4 url(../images/icons/extra/warning.png) right 34px 50% no-repeat; /* right-align 24X24 image */
+    background: #fbf0d0 url(../images/icons/extra/warning.png) right 34px 50% no-repeat; /* right-align 24X24 image */
     border: 1px solid #e6c26e;
     padding-right: 40px
 }
 .error,
 .pageerrorcontainer,
 .pageerrorinstalldir {
-    background: #f2d4ce url(../images/icons/extra/block.png) right 34px 50% no-repeat;
+    background: #fbd0d0 url(../images/icons/extra/block.png) right 34px 50% no-repeat;
     border: 1px solid #ae432e;
     padding-right: 40px
 }
 .success,
 .pagemcontainer {
-    background: #d9e6c3 url(../images/icons/extra/accept.png) right 34px 50% no-repeat;
+    background: #dbfbd0 url(../images/icons/extra/accept.png) right 34px 50% no-repeat;
     border: 1px solid #77ab13;
     padding-right: 40px
 }
 .info,
 .pageinfo,
 .information {
-    background: #cee6f2 url(../images/icons/extra/info.png) right 34px 50% no-repeat;
+    background: #d0e7fb url(../images/icons/extra/info.png) right 34px 50% no-repeat;
     border: 1px solid #058dc7;
     padding-right: 40px
 }
@@ -727,13 +725,13 @@ aside .no-slide, .no-slide {
 }
 .error.jqtoast {
     padding: 10px 40px;
-    background-color: #f2d4ce;
+    background-color: #fbd0d0;
 }
 .error .jqt-close {
     background-position: 1.2em 0;
 }
 .error .jqt-heading {
-    background-color: #e20e0e;
+    background-color: #bc1010;
     color: #fff;
 }
 .jqt-icon-error {
@@ -742,13 +740,13 @@ aside .no-slide, .no-slide {
 }
 .warn.jqtoast {
     padding: 10px 40px;
-    background-color: #faf6d4;
+    background-color: #fbf0d0;
 }
 .warn .jqt-close {
     background-position: 2.4em 0;
 }
 .warn .jqt-heading {
-    background-color: #b08f0e;
+    background-color: #bc9110;
     color: #fff;
 }
 .jqt-icon-warning {
@@ -756,13 +754,13 @@ aside .no-slide, .no-slide {
 }
 .success.jqtoast {
     padding: 10px 40px;
-    background-color: #d9e6c3;
+    background-color: #dbfbd0;
 }
 .success .jqt-close {
     background-position: 3.6em 0;
 }
 .success .jqt-heading {
-    background-color: #0bb33a;
+    background-color: #2c8d0c;
     color: #fff;
 }
 .jqt-icon-success {
@@ -770,13 +768,13 @@ aside .no-slide, .no-slide {
 }
 .info.jqtoast {
     padding: 10px 40px;
-    background-color: #c2dde5;
+    background-color: #d0e7fb;
 }
 .info .jqt-close {
     background-position: 4.8em 0;
 }
 .info .jqt-heading {
-    background-color: #147fdb;
+    background-color: #2d93eb;
     color: #fff;
 }
 .jqt-icon-info {
@@ -806,7 +804,6 @@ aside .no-slide, .no-slide {
     display: inline-block;
     width: 16px;
     height: 16px;
-    overflow: hidden;
     text-indent: -9999em;
     background: transparent url(../images/icons/extra/close.png) no-repeat;
     cursor: pointer;
@@ -932,6 +929,7 @@ header .header-bottom {
 }
 header .welcome {
     width: 250px;
+    overflow: hidden;
     float: right;
     color: #fff;
     background: transparent url(../images/layout/welcome-bg.gif) no-repeat top left
@@ -955,55 +953,9 @@ header a.welcome-user {
     height: 18px;
     width: 18px;
     display: inline-block;
-    overflow: hidden;
-    text-indent: -999em;
-    margin-left: 10px;
-    background: url(../images/layout/sprite_norepeat.png) -10px -336px no-repeat
+    margin-right: 10px;
 }
 
-/* breadcrumbs nav */
-header .breadcrumbs {
-    float: right;
-    height: 29px
-}
-header .breadcrumbs ul {
-    display: inline-block;
-    list-style: none;
-    line-height: 29px;
-    margin: 0 25px 0 0
-}
-header .breadcrumbs ul li {
-    float: right;
-    color: #fff;
-    font-size: 11px;
-    padding: 0 8px 0 4px
-}
-header .breadcrumbs ul li.home {
-    padding: 0 0 0 10px;
-    background: url(../images/layout/breadcrubms-divider-rtl.png) no-repeat left;
-}
-header .breadcrumbs ul li.home a {
-    background: url(../images/layout/home-icon.png) right no-repeat;
-    width: 18px;
-    overflow: hidden;
-    text-indent: -999em
-}
-header .breadcrumbs ul li.first {
-    padding-right: 14px
-}
-header .breadcrumbs ul li a {
-    color: #fff;
-    text-decoration: none;
-    display: inline-block;
-    background: url(../images/layout/breadcrubms-divider-rtl.png) no-repeat left;
-    padding-left: 24px
-}
-header .breadcrumbs ul li a:hover, header .breadcrumbs ul li a:active {
-    text-decoration: underline
-}
-header .breadcrumbs ul li.current, header .breadcrumbs ul li.current a {
-    color: #fa8004
-}
 
 /* shortcut icons */
 
@@ -1097,6 +1049,7 @@ header .shortcuts li.notifications span.bubble {
     left: 4px;
     top: 8px
 }
+
 #mg_sidebar .toggle-button.top {
     top: -33px
 }
@@ -1163,6 +1116,7 @@ header .shortcuts li.notifications span.bubble {
     top: 0
 /*    text-indent: -9999em */
 }
+
 #mg_pagemenu li span.open-nav.open-sub,
 #mg_pagemenu li.current span.open-nav,
 #mg_pagemenu li:hover span.open-nav,
@@ -1495,9 +1449,6 @@ footer#mg_footer a:hover, footer#mg_footer a:active {
     width: auto;
     color: #232323;
     font-size: 12px
-}
-#mg_mainarea header.pageheader span.helptext {
-    margin-left: 210px
 }
 #mg_mainarea header.pageheader.drop-hidden span.helptext {
     margin-left: 0
@@ -1838,6 +1789,7 @@ iframe.preview {
 /*** content text and forms ***/
 
 /* TODO pageback class now redundant? */
+
 .pageback {
     clear: both;
     text-align: right
@@ -1872,9 +1824,9 @@ div.pagecontainer .pageshowrows {
     text-align: right;
     margin-bottom: 5px
 }
-/* in tags page help is displayed twice, let's hide one*/
+
 div.pagecontainer span.helptext {
-    display: none
+    display: inline-block
 }
 
 /*** content forms ***/
@@ -2575,10 +2527,12 @@ a.toggle-dropzone:focus {
     .drop   {
         display: none
     }
+
     #mg_sidebar,
     #mg_sidebar aside {
         width: 100%
     }
+
     #mg_admin-content {
         height: auto
     }

@@ -1,1 +1,1 @@
-class="fa-folder-add"
+class="mgfa-folder-add"

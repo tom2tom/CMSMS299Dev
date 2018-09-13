@@ -1,1 +1,1 @@
-class="fa-import"
+class="mgfa-import"

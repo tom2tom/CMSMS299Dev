@@ -20,6 +20,7 @@
 		<link rel="apple-touch-icon" sizes="114x114" href="{$assets_url}/images/apple-touch-icon-iphone4.png" />
 		<link rel="apple-touch-icon" sizes="144x144" href="{$assets_url}/images/apple-touch-icon-ipad3.png" />
 		<link rel="stylesheet" href="themes/Marigold/css/fonticons.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 {$header_includes|default:''}
 	</head>
 	<body id="{$pagetitle|md5}" class="mg_{$pagealias}">
@@ -43,9 +44,9 @@
 					<!-- welcome -->
 					<div class="welcome">
 					{if isset($myaccount)}
-						<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa-user-o"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
+						<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
 					{else}
-						<span><a class="welcome-user"><i class="fa-user-o"></i></a> {'welcome_user'|lang}: {$username}</span>
+						<span><a class="welcome-user"><i class="fa fa-user-circle-o"></i></a> {'welcome_user'|lang}: {$username}</span>
 					{/if}
 					</div>
 					<!-- bookmarks -->

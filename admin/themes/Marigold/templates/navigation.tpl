@@ -26,7 +26,7 @@
  </li>
 {/foreach}
  </ul>
-{if $depth == '0'}</nav>{/if}
+{if $depth == 0}</nav>{/if}
 {/function}
 {/strip}
 {block name=navigation}

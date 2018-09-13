@@ -1,1 +1,1 @@
-class="fa-sort-amount-asc"
+class="fa fa-sort-amount-asc"

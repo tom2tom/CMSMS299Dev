@@ -1,1 +1,1 @@
-class="fa-export"
+class="fa fa-share-square-o"

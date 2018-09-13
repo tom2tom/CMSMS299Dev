@@ -1,1 +1,1 @@
-class="fa-docs"
+class="fa fa-files-o"

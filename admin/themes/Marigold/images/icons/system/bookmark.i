@@ -1,1 +1,1 @@
-class="fa-bookmark"
+class="fa fa-bookmark"

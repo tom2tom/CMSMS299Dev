@@ -351,7 +351,7 @@ input[type="password"] {
 
 input[type="button"],
 input[type="submit"],
-.ui-button {
+.adminsubmit, .loginsubmit, .ui-button {
     border: 1px solid #d3d3d3;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
@@ -361,7 +361,7 @@ input[type="submit"],
     font-size: 12px
 }
 
-.ui-button {
+.adminsubmit, .loginsubmit, .ui-button {
     margin: 4px 0
 }
 
@@ -371,6 +371,9 @@ input[type="submit"],
     text-transform: uppercase
 }
 
+.adminsubmit:active, .loginsubmit:active,
+.adminsubmit:hover, .loginsubmit:hover,
+.ui-button:hover,
 button.ui-button.ui-state-active {
     border: 1px solid #d3d3d3;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
@@ -450,7 +453,7 @@ table.pagetable a.text-red {
     padding-left: 40px
 }
 
-.warning .svg-inline--fa, .warning-message .svg-inline--fa{
+.warning .svg-inline--fa, .warning-message .svg-inline--fa {
     color: #f8993a;
 }
 
@@ -881,8 +884,8 @@ header .shortcuts li {
     display: inline-block;
 }
 header .shortcuts li a {
-padding: 0 14px;
-display: block;
+    padding: 0 14px;
+    display: block;
     cursor: pointer;
     color: #fa8004;
 }

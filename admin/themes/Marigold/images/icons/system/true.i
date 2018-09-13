@@ -1,1 +1,1 @@
-class="fa-check green"
+class="fa fa-check green"

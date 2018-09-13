@@ -1,1 +1,1 @@
-class="fa-arrow-down blue"
+class="fa fa-arrow-down blue"

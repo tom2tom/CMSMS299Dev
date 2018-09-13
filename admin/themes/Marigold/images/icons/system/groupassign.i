@@ -1,1 +1,1 @@
-class="fa-user-plus"
+class="fa fa-user-plus"
