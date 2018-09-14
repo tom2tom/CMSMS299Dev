@@ -661,18 +661,18 @@ aside .no-slide, .no-slide {
     right: 40px
 }
 .jqtoast.top-left {
-    top: 75px;
+    top: 80px;
     left: 2.5em
 }
 .jqtoast.top-right {
-    top: 75px;
+    top: 80px;
     right: 40px
 }
 .jqtoast.bottom-center {
     bottom: 20px
 }
 .jqtoast.top-center {
-    top: 75px
+    top: 80px
 }
 .jqtoast * {
     margin: 0;

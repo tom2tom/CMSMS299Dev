@@ -659,18 +659,18 @@ aside .no-slide, .no-slide {
     right: 40px
 }
 .jqtoast.top-left {
-    top: 75px;
+    top: 80px;
     left: 2.5em
 }
 .jqtoast.top-right {
-    top: 75px;
+    top: 80px;
     right: 40px
 }
 .jqtoast.bottom-center {
     bottom: 20px
 }
 .jqtoast.top-center {
-    top: 75px
+    top: 80px
 }
 .jqtoast * {
     margin: 0;
@@ -885,7 +885,7 @@ aside .no-slide, .no-slide {
     background: transparent url(../images/layout/sprite_repeatx.png) 831px -148px repeat-x;
     z-index: 50;
     position: absolute;
-    top: 100px;
+    top: 76px;
     left: 0;
     width: 100%;
     height: 7px
@@ -894,17 +894,17 @@ aside .no-slide, .no-slide {
 /*** header ***/
 
 header.header {
-    height: 100px;
+/*    height: 100px; */
     background: #cecece
 }
 header .header-top {
-    height: 69px;
+/*    height: 69px; */
     border-bottom: 1px solid #cecece;
     background: #eee url(../images/layout/sprite_repeatx.png) 831px -10px repeat-x
 }
 header .cms-logo {
     width: 240px;
-    height: 70px;
+    height: 45px;
     padding-left: 10px;
     background: transparent url(../images/layout/cms-logo-bg.gif) no-repeat top right;
     float: left
@@ -914,8 +914,8 @@ header .admin-title {
     max-width: 70%;
     overflow: hidden;
     display: inline-block;
-    height: 70px;
-    font: bold 14px/70px sans-serif;
+/*    height: 45px; */
+    font: bold 14px/45px sans-serif;
     margin-right: 20px;
     color: #585858;
     text-shadow: 1px 1px 0 #fff;
@@ -1023,7 +1023,7 @@ header .shortcuts li.notifications span.bubble {
     background: #ddd url(../images/layout/sidebar-shadow.png) repeat-y right;
     position: absolute;
     left: 0;
-    top: 100px;
+    top: 76px;
     bottom: 0
 }
 #mg_container.sidebar-off #mg_sidebar {
