@@ -257,7 +257,6 @@ $js = <<<EOS
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
-  $('#bulkactions').hide();
   $('#bulk_category').hide();
   $('#selall').cmsms_checkall();
   $('#toggle_filter').on('click', function() {
@@ -271,14 +270,6 @@ $(document).ready(function() {
     cms_confirm_linkclick(this,$s1,'$yes');
     return false;
   });
-  $('#articlelist [type=checkbox]').on('cms_checkall_toggle', function() {
-    var l = $('#articlelist :checked').length;
-    if(l === 0) {
-      $('#bulkactions').hide(50);
-    } else {
-      $('#bulkactions').show(50);
-    }
-  });
   $('#bulk_action').on('change', function() {
     var v = $(this).val();
     if(v === 'setcategory') {
@@ -288,11 +279,15 @@ $(document).ready(function() {
     }
   });
   $('#bulkactions #submit_bulkaction').on('click', function(ev) {
-    var form = $(this).closest('form');
     ev.preventDefault();
-    cms_confirm($s2,'$yes').done(function() {
-      form.submit();
-    });
+    var l = $('#articlelist :checked').length;
+    if(l > 0) {
+      var form = $(this).closest('form');
+      cms_confirm($s2,'$yes').done(function() {
+        form.submit();
+      });
+    }
+    return false;
   });
 });
 //]]>
