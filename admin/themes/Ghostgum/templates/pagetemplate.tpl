@@ -45,8 +45,8 @@
     <div>
       <!-- logo -->
       <div id="cms-logo">
-        <a href="http://www.cmsmadesimple.org" rel="external">
-          <span title="CMS Made Simple">&nbsp;</span>
+        <a href="http://www.cmsmadesimple.org" rel="external" title="CMS Made Simple">
+          <img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" />
         </a>
       </div>
       <!-- logotext -->
