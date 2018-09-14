@@ -19,7 +19,7 @@
 			<div class="login-container">
 				<div class="login-box cf"{if !empty($error)} id="error"{/if}>
 					<div class="logo">
-						<img src="themes/Marigold/images/layout/cmsms_login_logo.png" width="180" height="36" alt="CMS Made Simple&trade;" />
+						<img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" style="height:36px" alt="CMS Made Simple" />
 					</div>
 					<div class="info-wrapper open">
 					<aside class="info">

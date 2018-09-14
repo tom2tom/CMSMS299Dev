@@ -32,7 +32,9 @@
 				<div class="header-top cf">
 					<!-- logo -->
 					<div class="cms-logo">
-						<a href="http://www.cmsmadesimple.org" rel="external"><img src="{$admin_url}/themes/Marigold/images/layout/cmsms-logo.jpg" width="205" height="69" alt="CMS Made Simple" title="CMS Made Simple" /></a>
+						<a href="http://www.cmsmadesimple.org" rel="external">
+							<img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" height="45" alt="CMS Made Simple" title="CMS Made Simple" />
+						</a>
 					</div>
 					<!-- title -->
 					<span class="admin-title"> {'adminpaneltitle'|lang} - {sitename}</span>
