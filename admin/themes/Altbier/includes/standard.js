@@ -319,6 +319,12 @@
          */
         // TODO Rethink this in next versions, define a object based on type or something (maybe use plugin http://akquinet.github.io/jquery-toastmessage-plugin/demo/demo.html), move messages to global function in cms_admin.js so it can be reused by other themes
         showNotifications: function() {
+//          back-compatibility check might be relevant in some contexts
+            if (typeof cms_notify_all === 'function') {
+                 cms_notify_all();
+//          } else {
+//              do old-style notifications
+            }
             // $('.pagewarning, .message, .pageerrorcontainer, .pagemcontainer').prepend('<span class="close-warning"></span>');
             $(document).on('click', '.close-warning', function() {
                 $(this).parent().hide();

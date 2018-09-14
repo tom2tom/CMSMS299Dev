@@ -604,18 +604,18 @@ aside .no-slide,
     right: 40px
 }
 .jqtoast.top-left {
-    top: 75px;
+    top: 70px;
     left: 2.5em
 }
 .jqtoast.top-right {
-    top: 75px;
+    top: 70px;
     right: 40px
 }
 .jqtoast.bottom-center {
     bottom: 20px
 }
 .jqtoast.top-center {
-    top: 75px
+    top: 70px
 }
 .jqtoast * {
     margin: 0;
@@ -834,8 +834,12 @@ header.header {
     background: #F6F6F6;
     background: -webkit-linear-gradient( #f6f6f6, white);
     background: linear-gradient( #f6f6f6, white);
-    border-top: 5px solid #EDEDED;
+/*    border-top: 5px solid #EDEDED; */
 }
+header .header-top {
+    padding: 5px 0;
+}
+
 header .cms-logo {
     display: block;
 }
@@ -843,6 +847,7 @@ header .admin-title {
     text-align: right;
     display: block;
     color: #585858;
+    height: 40px;
     text-shadow: 1px 1px 0#fff
 }
 
