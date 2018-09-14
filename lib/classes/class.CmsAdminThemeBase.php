@@ -1506,7 +1506,7 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Cache message(s) that were logged during a prior request, to be shown in a notification-dialog
+     * Retrieve message(s) that were logged during a prior request, to be shown in a notification-dialog
      *
      * @since 2.3
      */
