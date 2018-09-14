@@ -46,7 +46,7 @@
     </div>
     <div id="cmslogo">
       <span id="logotext">{$mod->Lang('power_by')}</span>
-      <img src="{root_url}/admin/themes/assets/images/cmsms-logotext-dark-small.png" height="30" width="154" alt="CMS Made Simple" />
+      <img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" height="30" />
     </div>
   </div>
  </div>
