@@ -38,9 +38,9 @@
 					<div class="header-bottom row">
 						<div class="col-6 col-sm-4 col-lg-3 welcome">
 							{if isset($myaccount)}
-							<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i aria-label="username and account" class="fas fa-user"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
+							<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i aria-label="username and account" class="fas fa-user-edit"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
 							{else}
-							<span><a class="welcome-user"><i aria-hidden="true" class="fas fa-user"></i></a> {'welcome_user'|lang}: {$username}</span>
+							<span class="welcome-user"><i aria-hidden="true" class="fas fa-user"></i> {'welcome_user'|lang}: {$username}</span>
 							{/if}
 						</div>
 						{include file='shortcuts.tpl'}{block name=shortcuts}{/block}
