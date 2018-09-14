@@ -31,7 +31,9 @@
 				<div class="col-12">
 					<div class="header-top row">
 						<div class="col-12 col-md-4 col-lg-3">
-							<a class="cms-logo" href="http://www.cmsmadesimple.org" rel="external"><img class="img-fluid" src="{$admin_url}/themes/Altbier/images/layout/cmsms_logo.png" width="310" height="85" alt="CMS Made Simple" title="CMS Made Simple" /></a>
+							<a class="cms-logo" href="http://www.cmsmadesimple.org" rel="external">
+								<img class="img-fluid" src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+							</a>
 						</div>
 						<div class="col-12 col-md-8 col-lg-9 align-self-end"><strong class="admin-title py-2">{'adminpaneltitle'|lang} - {sitename}</strong></div>
 					</div>
