@@ -18,9 +18,6 @@
 	</head>
 	<body id="login">
 		<div class="container py-5">
-			<div class="logo row">
-				<div class="col-12 mx-auto text-center"><img class="img-fluid" src="{$admin_url}/themes/Altbier/images/layout/cmsms_login_logo.png" width="310" height="85" alt="CMS Made Simple&trade;" /></div>
-			</div>
 			<div class="row">
 				<div class="mx-auto">
 					<div class="login-box p-2 p-sm-4"{if isset($error)} id="error"{/if}>
@@ -37,7 +34,7 @@
 							</aside>
 						</div>
 						<header class="col-12 text-center">
-							<h1><a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a> {'logintitle'|lang}</h1>
+							<h1><a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a> {lang('login_sitetitle',{sitename})}</h1>
 						</header>
 						<div class="col-12 mx-auto text-center">
 						{if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
@@ -76,9 +73,11 @@
 					</div>
 				</div>
 			</div>
-			<footer class="row">
-				<small class="col-12 copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade;</a></small>
-			</footer>
+			<div class="col-12 mx-auto text-center">
+				<a rel="external" href="http://www.cmsmadesimple.org">
+					<img class="img-fluid" src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" style="height:30px;margin-top:5px" alt="CMS Made Simple" />
+				</a>
+			</div>
 		</div>
 		{$bottom_includes|default:''}
 	</body>
