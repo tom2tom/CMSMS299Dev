@@ -248,17 +248,15 @@
  {/if}
 </div>{* #contentlist *}
 {if isset($content_list)}
-  <div class="hbox expand">
-  {if $can_add_content}
-  <div class="pageoptions boxchild">
+  <div class="pageoptions hbox{if $can_add_content} expand">
+  <div class="boxchild">
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
   </div>
-  {/if}
+  {else}" style="justify-content:flex-end;">{/if}
   {if $multiselect && isset($bulk_options)}
-  <div class="pageoptions boxchild">
+  <div class="boxchild">
     {cms_help realm=$_module key2='help_bulk' title=$mod->Lang('prompt_bulk')}
-    <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>
-    &nbsp;&nbsp;
+    <label for="multiaction">{$mod->Lang('prompt_withselected')}:</label>&nbsp;
     <select name="{$actionid}multiaction" id="multiaction">
       {html_options options=$bulk_options}
     </select>
@@ -268,4 +266,4 @@
   </div>{*hbox*}
 {/if}
 </form>
-<div class="clearb"></div>
+

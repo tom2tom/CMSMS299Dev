@@ -127,15 +127,15 @@
 <div class="pagewarn">{if $curcategory == ''}{$mod->Lang('noarticles')}{else}{$mod->Lang('noarticlesinfilter')}{/if}</div>
 {/if}
 
-<div class="hbox expand">
-  {if isset($addlink)} {if $itemcount > 10}
-  <div class="pageoptions boxchild">
+<div class="pageoptions hbox{if isset($addlink) && $itemcount > 10} expand">
+  <div class="boxchild">
     <p>{$addlink}</p>
   </div>
-  {/if}{/if}
+  {else}" style="justify-content:flex-end">{/if}
   {if $itemcount > 0}
-  <div class="pageoptions boxchild" id="bulkactions">
-    <label for="bulk_action">{$mod->Lang('with_selected')}:</label>
+  <div class="boxchild" id="bulkactions">
+    {cms_help realm=$_module key2='help_bulk' title=$mod->Lang('title_bulk')}
+    <label for="bulk_action">{$mod->Lang('with_selected')}:</label>&nbsp;
     <select id="bulk_action" name="{$actionid}bulk_action">
       {if isset($submit_massdelete)}
       <option value="delete">{$mod->Lang('bulk_delete')}</option>
@@ -147,10 +147,8 @@
     <div id="bulk_category" style="display:inline-block;">
       {$mod->Lang('category')}: {$categoryinput}
     </div>
-    <div class="pageinput pregap">
-      <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icon do">{$mod->Lang('submit')}</button>
-    </div>
+    <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icon do">{$mod->Lang('submit')}</button>
   </div>{*boxchild*}
-  {/if}
+{/if}{*$itemcount > 0*}
 </div>{*hbox*}
 </form>

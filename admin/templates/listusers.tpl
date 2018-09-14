@@ -65,30 +65,27 @@
   </tbody>
   </table>
 
-{if count($userlist) > 10}
-  <div class="pageoptions" style="float:left;">
+  <div class="pageoptions hbox{if count($userlist) > 10} expand">
+  <div class="boxchild">
     <a href="{$addurl}{$urlext}" title="{lang('info_adduser')}">{$iconadd}</a>
     <a href="{$addurl}{$urlext}">{lang('adduser')}</a>
   </div>
-{/if}
-  <div style="float:right;text-align:right;">
-  <label for="withselected">{lang('selecteditems')}:</label>
-  &nbsp;
-  <select name="bulkaction" id="withselected">
-    <option value="delete">{lang('delete')}</option>
+  {else}" style="justify-content:flex-end;">{/if}
+  <div class="boxchild">
+  <label for="bulkaction">{lang('selecteditems')}:</label>&nbsp;
+  <select name="bulkaction" id="bulkaction">
     <option value="clearoptions">{lang('clearusersettings')}</option>
     <option value="copyoptions">{lang('copyusersettings2')}</option>
     <option value="disable">{lang('disable')}</option>
     <option value="enable">{lang('enable')}</option>
   </select>&nbsp;
   <div id="userlist" style="display: none;">
-    <label for="userlist_sub">{lang('copyfromuser')}:</label>
-    &nbsp;
+    <label for="userlist_sub">{lang('copyfromuser')}:</label>&nbsp;
     <select name="userlist" id="userlist_sub">
     {html_options options=$userlist}
     </select>
   </div>
-  <br />
   <button type="submit" id="bulksubmit" name="bulk" class="adminsubmit icon do">{lang('submit')}</button>
   </div>
+  </div>{*hbox*}
 </form>

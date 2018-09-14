@@ -123,8 +123,8 @@
   </table>
   {/strip}
 
-  {capture assign='stylesheet_dropdown_options'}
-    <div class="pageoptions" id="bulkoptions" style="text-align: right;">
+  <div class="pageoptions hbox" style="justify-content:flex-end;" id="bulkoptions">
+    <div class="boxchild">
       {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_bulk')}
       <label for="css_bulk_action">{$mod->Lang('prompt_with_selected')}:</label>&nbsp;
       <select name="{$actionid}css_bulk_action" id="css_bulk_action" class="cssx_bulk_action">
@@ -134,12 +134,6 @@
       </select>
      <button type="submit" name="{$actionid}submit_bulk_css" id="css_bulk_submit" class="css_bulk_action adminsubmit icon check">{$mod->Lang('submit')}</button>
     </div>
-  {/capture}
-
-  <div class="clearb"></div>
-  <div class="row">
-    <div class="half"></div>
-    {if isset($stylesheet_dropdown_options)}{$stylesheet_dropdown_options}{/if}
   </div>
   {form_end}
 {else}
