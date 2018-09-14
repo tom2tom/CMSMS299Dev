@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use ModuleManager\modulerep_client;
-use ModuleManager\utils as modmgr_utils;
+use ModuleManager\utils;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) exit;
@@ -30,16 +30,14 @@ $repmodules = modulerep_client::get_repository_modules($prefix,FALSE,TRUE);
 if( !is_array($repmodules) || $repmodules[0] === FALSE ) $this->Redirect($id,'defaultadmin'); // for some reason, nothing matched.
 
 $repmodules = $repmodules[1];
-$instmodules = '';
-{
-  $result = modmgr_utils::get_installed_modules();
-  if( ! $result[0] ) {
-    $this->_DisplayErrorPage( $id, $params, $returnid, $result[1] );
-    return;
-  }
 
-  $instmodules = $result[1];
+$result = utils::get_installed_modules();
+if( ! $result[0] ) {
+  $this->_DisplayErrorPage( $id, $params, $returnid, $result[1] );
+  return;
 }
+
+$instmodules = $result[1];
 
 $caninstall = true;
 foreach (cms_module_places() as $dir) {
@@ -51,7 +49,7 @@ foreach (cms_module_places() as $dir) {
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('showmodule.tpl'),null,null,$smarty);
 
-$data = modmgr_utils::build_module_data($repmodules,$instmodules,false);
+$data = utils::build_module_data($repmodules,$instmodules,false);
 if( count( $data ) ) {
   $size = count($data);
 
@@ -65,7 +63,7 @@ if( count( $data ) ) {
   foreach( $data as $row ) {
     $onerow = new stdClass();
     $onerow->date = $row['date'];
-    $onerow->age = modmgr_utils::get_status($row['date']);
+    $onerow->age = utils::get_status($row['date']);
     $onerow->downloads = $row['downloads'];
     $onerow->name = $row['name'];
     $onerow->version = $row['version'];
@@ -141,7 +139,7 @@ if( count( $data ) ) {
    ->assign('itemcount', count($rowarray));
 }
 
-modmgr_utils::get_images();
+utils::get_images();
 $tpl->assign('nametext',$this->Lang('nametext'))
  ->assign('vertext',$this->Lang('vertext'))
  ->assign('sizetext',$this->Lang('sizetext'))
