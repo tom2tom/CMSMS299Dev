@@ -256,6 +256,7 @@ kbd {
     height: auto;
     font-size: 14px
 }
+pre code {}
 pre {
     padding: 5px 20px;
     border-left: 10px solid #cecece;
@@ -264,6 +265,13 @@ pre {
     overflow: auto;
     display: inline-block;
     width: auto
+}
+
+/* Ace text editor container */
+#Editor {
+    line-height: 1.2;
+    max-width: 99%;
+    font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
 }
 
 /* border radius */
@@ -281,12 +289,13 @@ menu,
 .information,
 .message,
 .success,
-.pagewarning {
+.pagewarning,.pageerror,.pagewarn,.pagesuccess,.pageinfo {
     border-radius: 4px
 }
 
 
 /* forms */
+
 input,
 textarea,
 select,
@@ -349,6 +358,7 @@ input[type="submit"],
     padding: 5px 10px;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
     color: #555;
+    cursor: pointer;
     font-weight: normal;
     font-size: 14px
 }
@@ -402,15 +412,19 @@ textarea {
 /* Notification messages */
 
 .tooltip {
-    cursor: help;
+    cursor: help
 }
 
 a.tooltip {
-    cursor: pointer;
+    cursor: pointer
 }
 
 .orange {
-    color: #e6c26e
+    color: #f7c95f
+}
+
+.yellow {
+    color: #dada0b
 }
 
 .red,
@@ -422,6 +436,10 @@ table.pagetable a.text-red {
 
 .blue {
     color: #058dc7
+}
+
+.green {
+    color: #77ab13;
 }
 
 /* .message, */
@@ -452,51 +470,80 @@ table.pagetable a.text-red {
 .warning,
 .pagewarn,
 .pagewarning {
-    background: #f9f0d2 url(../images/icons/extra/warning.gif) 10px 50% no-repeat;
+    background-color: #f9f0d2;
     border: 1px solid #e6c26e;
-    padding-left: 40px
 }
+.warning::before,
+.pagewarn::before,
+.pagewarning::before {
+    content: '\f071';
+    color: #d4a711;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
 /*
 .warning .svg-inline--fa, .warning-message .svg-inline--fa {
     color: #f8993a;
 }
 */
-.yellow {
-    color: #e6c26e;
-}
 
-.error,
-/* .pageerrorcontainer, */
-.pageerrorinstalldir {
-    background: #f4d7d7 url(../images/icons/extra/block.gif) 10px 50% no-repeat;
+.pageerrorcontainer {
+    background-color: #f4d7d7;
     border: 1px solid #ae432e;
-    padding-left: 40px
+    color: #ae432e; /* TODO */
+}
+.error,
+.pageerrorinstalldir {
+    background-color: #f4d7d7;
+    border: 1px solid #ae432e;
+}
+.error::before,
+.pageerrorinstalldir::before {
+    content: '\f05e';
+    color: #ec1313;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
 }
 
 .success {
-    background: #d7f4d7 url(../images/icons/extra/accept.gif) 10px 50% no-repeat;
+    background-color: #d7f4d7;
     border: 1px solid #77ab13;
-    padding-left: 40px
 }
+.success::before {
+    content: '\f058';
+    color: #0da50d;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
 .pagemcontainer {
-    background:rgba(217, 230, 195, 0.4);
-    color: #278a81;
-}
-
-.pageerrorcontainer {
-    background: rgba(242, 212, 206, 0.65);
-    border: 1px solid #ae432e;
-    color: #ae432e;
-}
-
-.green {
-    color: #77ab13;
+    background: #d7def4;
+    border: 1px solid #058dc7;
+    color: #278a81; /* TODO */
 }
 
 .info, .pageinfo, .information {
-    background: #d7def4 url(../images/icons/extra/info.gif) 10px 50% no-repeat;
+    background: #d7def4;
     border: 1px solid #058dc7;
-    padding-left: 40px
+}
+.info::before, .pageinfo::before, .information::before {
+    content: '\f05a';
+    color: #426ef0;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
 }
 
 .message:hover {
@@ -556,9 +603,9 @@ aside .no-slide,
     position: inherit;
     left: auto;
     top: auto;
+    border: 1px solid #ae432e;
     border-radius: 4px;
     box-shadow: none;
-    border: 1px solid #ae432e;
     -webkit-box-shadow: none;
     background-image: none;
     width: auto;
@@ -589,7 +636,7 @@ aside .no-slide,
     border-style: solid;
     border-radius: 4px;
     margin: 0;
-    padding: 10px;
+    padding: 10px 40px;
     max-width: 40em;
     line-height: 1.2;
     letter-spacing: normal;
@@ -668,13 +715,16 @@ aside .no-slide,
 .jqt-loaded {
     width: 100%;
 }
-.jqt-has-icon {
-    padding-left: 40px;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+
+.jqt-has-icon::before {
+    font-size: 1.5em;
+    margin: 0.3em 0.3em 0.3em -1.5em;
+    padding-right: 0.3em;
+    vertical-align: middle;
 }
+
 .error.jqtoast {
-    padding: 10px 40px;
+    padding: 10px 2em;
     background-color: #f4d7d7;
 }
 .error .jqt-close {
@@ -684,12 +734,12 @@ aside .no-slide,
     background-color: #c83737;
     color: #fff;
 }
-.jqt-icon-error {
-    padding-left: 50px;
-    background-image: url(../images/icons/extra/block.gif);
+.jqt-icon-error::before {
+    content: '\f05e';
+    color: #ec1313;
 }
 .warn.jqtoast {
-    padding: 10px 40px;
+    padding: 10px 2em;
     background-color: #f9f0d2;
 }
 .warn .jqt-close {
@@ -699,11 +749,11 @@ aside .no-slide,
     background-color: #caa11c;
     color: #fff;
 }
-.jqt-icon-warning {
-    background-image: url(../images/icons/extra/warning.gif);
+.jqt-icon-warning::before {
+    content: '\f071';
+    color: #d4a711;
 }
 .success.jqtoast {
-    padding: 10px 40px;
     background-color: #d7f4d7;
 }
 .success .jqt-close {
@@ -713,11 +763,12 @@ aside .no-slide,
     background-color: #268c26;
     color: #fff;
 }
-.jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.gif);
+.jqt-icon-success::before {
+    content: '\f058';
+    color: #0da50d;
 }
 .info.jqtoast {
-    padding: 10px 40px;
+    padding: 10px 2em;
     background-color: #d7def4;
 }
 .info .jqt-close {
@@ -727,8 +778,9 @@ aside .no-slide,
     background-color: #5e7bd4;
     color: #fff;
 }
-.jqt-icon-info {
-    background-image: url(../images/icons/extra/info.gif);
+.jqt-icon-info::before {
+    content: '\f05a';
+    color: #426ef0;
 }
 
 #cms_busy,
@@ -747,7 +799,9 @@ aside .no-slide,
     background-size: 50px 50px;
     cursor: wait;
 }
+
 /* close notification */
+
 .close-warning {
     /* float: right; */
     /* display: inline-block; */
@@ -1385,7 +1439,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-left: 20px;
     line-height: 20px;
-    background: url(../images/icons/extra/bookmark.gif) no-repeat left
+    background: url(../images/icons/extra/bookmark.gif) no-repeat left /* TODO fonticon */
 }
 
 div.dialog form#chdir_form {
@@ -2246,7 +2300,7 @@ font-size: 14px;
 
 i.cms_helpicon {
     margin-left: 0.3em;
-    color: #4466cc;
+    color: #426ef0;
 }
 
 .cms_helptext ul {

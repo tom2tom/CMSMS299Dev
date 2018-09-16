@@ -402,15 +402,19 @@ textarea {
 /* Notification messages */
 
 .tooltip {
-    cursor: help;
+    cursor: help
 }
 
 a.tooltip {
-    cursor: pointer;
+    cursor: pointer
 }
 
 .orange {
-    color: #e6c26e
+    color: #f7c95f
+}
+
+.yellow {
+    color: #dada0b
 }
 
 .red,
@@ -422,6 +426,10 @@ table.pagetable a.text-red {
 
 .blue {
     color: #058dc7
+}
+
+.green {
+    color: #77ab13;
 }
 
 /* .message, */
@@ -452,51 +460,80 @@ table.pagetable a.text-red {
 .warning,
 .pagewarn,
 .pagewarning {
-    background: #f9f0d2 url(../images/icons/extra/warning.gif) right 34px 50% no-repeat;
+    background-color: #f9f0d2;
     border: 1px solid #e6c26e;
-    padding-right: 40px
 }
+.warning::after,
+.pagewarn::after,
+.pagewarning::after {
+    content: '\f071';
+    color: #d4a711;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
 /*
 .warning .svg-inline--fa, .warning-message .svg-inline--fa{
     color: #f8993a;
 }
 */
-.yellow {
-    color: #e6c26e;
-}
 
-.error,
-/* .pageerrorcontainer, */
-.pageerrorinstalldir {
-    background: #f4d7d7 url(../images/icons/extra/block.gif) right 34px 50% no-repeat;
+.pageerrorcontainer {
+    background-color: #f4d7d7;
     border: 1px solid #ae432e;
-    padding-right: 40px
+    color: #ae432e; /* TODO */
+}
+.error,
+.pageerrorinstalldir {
+    background-color: #f4d7d7;
+    border: 1px solid #ae432e;
+}
+.error::after,
+.pageerrorinstalldir::after {
+    content: '\f05e';
+    color: #ec1313;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
 }
 
 .success {
-    background: #d7f4d7 url(../images/icons/extra/accept.gif) right 34px 50% no-repeat;
+    background-color: #d7f4d7;
     border: 1px solid #77ab13;
-    padding-right: 40px
 }
+.success::after {
+    content: '\f058';
+    color: #0da50d;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
 .pagemcontainer {
-    background:rgba(217, 230, 195, 0.4);
-    color: #278a81;
-}
-
-.pageerrorcontainer {
-    background: rgba(242, 212, 206, 0.65);
-    border: 1px solid #ae432e;
-    color: #ae432e;
-}
-
-.green {
-    color: #77ab13;
+    background: #d7def4;
+    border: 1px solid #058dc7;
+    color: #278a81; /* TODO */
 }
 
 .info, .pageinfo, .information {
-    background: #d7def4 url(../images/icons/extra/info.gif) right 34px 50% no-repeat; /* right-align 24X24 image */
+    background-color: #d7def4;
     border: 1px solid #058dc7;
-    padding-right: 40px
+}
+.info::after, .pageinfo::after, .information::after {
+    content: '\f05a';
+    color: #426ef0;
+    margin: 0.3em;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.5em;
+    vertical-align: middle;
 }
 
 .message:hover {
@@ -668,13 +705,21 @@ aside .no-slide,
 .jqt-loaded {
     width: 100%;
 }
+/*
 .jqt-has-icon {
-    padding-right: 40px;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+    padding-right: 0;
 }
+*/
+.jqt-has-icon::before {
+/*    font-family: "Font Awesome 5 Free"; */
+    font-size: 1.5em;
+    margin: 0.3em 1.5em 0.3em 0.3em;
+    padding-left: 0.3em;
+    vertical-align: middle;
+}
+
 .error.jqtoast {
-    padding: 10px 40px;
+    padding: 10px 2em;
     background-color: #f4d7d7;
 }
 .error .jqt-close {
@@ -684,12 +729,12 @@ aside .no-slide,
     background-color: #c83737;
     color: #fff;
 }
-.jqt-icon-error {
-    padding-right: 50px;
-    background-image: url(../images/icons/extra/block.gif) right;
+.jqt-icon-error::after {
+    content: '\f05e';
+    color: #ec1313;
 }
 .warn.jqtoast {
-    padding: 10px 40px;
+    padding: 10px 2em;
     background-color: #f9f0d2;
 }
 .warn .jqt-close {
@@ -699,11 +744,11 @@ aside .no-slide,
     background-color: #caa11c;
     color: #fff;
 }
-.jqt-icon-warning {
-    background-image: url(../images/icons/extra/warning.gif) right;
+.jqt-icon-warning::after {
+    content: '\f071';
+    color: #d4a711;
 }
 .success.jqtoast {
-    padding: 10px 40px;
     background-color: #d7f4d7;
 }
 .success .jqt-close {
@@ -713,11 +758,12 @@ aside .no-slide,
     background-color: #268c26;
     color: #fff;
 }
-.jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.gif) right;
+.jqt-icon-success::after {
+    content: '\f058';
+    color: #0da50d;
 }
 .info.jqtoast {
-    padding: 10px 40px;
+    padding: 10px 2em;
     background-color: #d7def4;
 }
 .info .jqt-close {
@@ -727,8 +773,9 @@ aside .no-slide,
     background-color: #5e7bd4;
     color: #fff;
 }
-.jqt-icon-info {
-    background-image: url(../images/icons/extra/info.gif) right;
+.jqt-icon-info::after {
+    content: '\f05a';
+    color: #426ef0;
 }
 
 #cms_busy,
@@ -1021,7 +1068,7 @@ header .shortcuts li.notifications i {
     content: '';
     margin: 0
 }
-/*
+/* for alternate fontawesome mechanism
 #ac_pagemenu li.current .svg-inline--fa,
 #ac_pagemenu li:hover .svg-inline--fa,
 #ac_pagemenu li:focus .svg-inline--fa,
@@ -1125,7 +1172,7 @@ nav h3.FilePicker1 a::before, #ac_pagemenu li a.FilePicker1::before { content: '
 nav h3.files a::before, #ac_pagemenu li a.files::before { content: '\f0c5' }
 nav h3.groupmembers a::before, #ac_pagemenu li a.groupmembers::before { content: '\f500' }
 nav h3.groupperms a::before, #ac_pagemenu li a.groupperms::before { content: '\f09c' }
-nav h3.layout a::before, #ac_pagemenu li a.layout::before { content: '\f0ce' }
+nav h3.layout a::before, #ac_pagemenu li a.layout::before { content: '\f0db' }
 nav h3.listgroups a::before, #ac_pagemenu li a.listgroups::before { content: '\f509' }
 nav h3.listusers a::before, #ac_pagemenu li a.listusers::before { content: '\f4fe' }
 nav h3.logout a::before, #ac_pagemenu li a.logout::before { content: '\f2f5' }
@@ -1385,7 +1432,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-right: 20px;
     line-height: 20px;
-    background: url(../images/icons/extra/bookmark.gif) no-repeat right
+    background: url(../images/icons/extra/bookmark.gif) no-repeat right /* TODO fonticon */
 }
 
 div.dialog form#chdir_form {
@@ -2245,8 +2292,8 @@ a.toggle-dropzone:focus {
 }
 
 i.cms_helpicon {
-    margin-right: 0.3em;
-    color: #4466cc;
+    margin-left: 0.3em;
+    color: #426ef0;
 }
 
 .cms_helptext ul {

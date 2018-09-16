@@ -7,7 +7,7 @@
  */
 html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:0;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}button,[type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}
 
-/* DEPRECATED GRID SYSTEM - INSTEAD USE flexbox etc
+/* DEPRECATED GRID SYSTEM - INSTEAD USE flexbox, cssgrid etc
  * Fluid Grid based on Based on 960 Grid System - http://www.960.gs
  * Helper Styles for Module Developer, make aligning modules easier.
  * For demo, see accompanying file grid.html
@@ -439,12 +439,13 @@ input[type="button"],
 input[type="submit"],
 .adminsubmit, .loginsubmit, .ui-button {
     border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 5px 10px;
     background: #cecece url(../images/layout/ui-bg_highlight-soft_75_cecece_1x100.png) 50% 50% repeat-x;
-    font-weight: normal;
     color: #555;
     cursor: pointer;
-    height: 28px;
-    font-size: 14px
+    font-weight: normal;
+    font-size: 12px
 }
 
 .adminsubmit, .loginsubmit, .ui-button {
@@ -454,7 +455,7 @@ input[type="submit"],
 .ui-button-text {
     font-size: 12px;
     margin-left: 2px;
-    text-transform: uppercase
+/*    text-transform: uppercase */
 }
 
 .adminsubmit:active, .loginsubmit:active,
@@ -498,7 +499,10 @@ a.tooltip {
     cursor: pointer;
 }
 .orange {
-    color: #e6c26e
+    color: #e8b130
+}
+.yellow {
+    color: #cfcf17
 }
 .red,
 .text-red,
@@ -506,6 +510,14 @@ a.text-red,
 table.pagetable a.text-red {
     color: #ae432e
 }
+
+.blue {
+    color: #058dc7
+}
+.green {
+    color: #77ab13
+}
+
 .message,
 .pagewarn,
 .pagewarning,
@@ -517,12 +529,14 @@ table.pagetable a.text-red {
     display: inline-block;
     width: auto;
     font-size: 14px;
-    padding: 10px 10px 10px 40px;
+    padding: 10px;
     margin: 10px 0
 }
+
 .pagewarning.hidden {
     display: none
 }
+
 .dialog .green,
 .dialog .red,
 .dialog .yellow,
@@ -530,41 +544,70 @@ table.pagetable a.text-red {
     display: block
 }
 
-.yellow {
-    color: #e6c26e;
+.error,
+.pageerrorcontainer,
+.pageerrorinstalldir {
+    background-color: #fbd0d0;
+    border: 1px solid #ae432e;
 }
-.green {
-    color: #77ab13;
-}
-.blue {
-    color: #058dc7;
+.error::before,
+.pageerrorinstalldir::before {
+    content: '\f05e';
+    color: #bc1010;
+    margin: 0.3em;
+    font-family: FontAwesome;
+    font-weight: bold;
+    font-size: 1.5em;
+    vertical-align: middle;
 }
 
 .warning,
 .pagewarn,
 .pagewarning {
-    background: #fbf0d0 url(../images/icons/extra/warning.png) 10px 50% no-repeat;
+    background-color: #fbf0d0;
     border: 1px solid #e6c26e;
-    padding-left: 40px
 }
-.error,
-.pageerrorcontainer,
-.pageerrorinstalldir {
-    background: #fbd0d0 url(../images/icons/extra/block.png) 10px 50% no-repeat;
-    border: 1px solid #ae432e;
-    padding-left: 40px
+.warning::before,
+.pagewarn::before,
+.pagewarning::before {
+    content: '\f071';
+    color: #ebb514;
+    margin: 0.3em;
+    font-family: FontAwesome;
+    font-weight: bold;
+    font-size: 1.5em;
+    vertical-align: middle;
 }
+
 .success,
 .pagemcontainer {
-    background: #dbfbd0 url(../images/icons/extra/accept.png) 10px 50% no-repeat;
+    background-color: #dbfbd0;
     border: 1px solid #77ab13;
-    padding-left: 40px
 }
+.success::before {
+    content: '\f058';
+    color: #3bbc10;
+    margin: 0.3em;
+    font-family: FontAwesome;
+    font-weight: bold;
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
 .info, .pageinfo, .information {
-    background: #d0e7fb url(../images/icons/extra/info.png) 10px 50% no-repeat;
+    background-color: #d0e7fb;
     border: 1px solid #058dc7;
-    padding-left: 40px
 }
+.info::before, .pageinfo::before, .information::before {
+    content: '\f05a';
+    color: #449fee;
+    margin: 0.3em;
+    font-family: FontAwesome;
+    font-weight: bold;
+    font-size: 1.5em;
+    vertical-align: middle;
+}
+
 .message:hover {
     cursor: help
 }
@@ -573,7 +616,6 @@ table.pagetable a.text-red {
 .pagewarning p,
 .message p {
     color: #232323;
-    margin: 0;
     font-size: 14px
 }
 .warning h3,
@@ -641,7 +683,7 @@ aside .no-slide, .no-slide {
     border-style: solid;
     border-radius: 4px;
     margin: 0;
-    padding: 10px;
+    padding: 10px 40px;
     max-width: 40em;
     line-height: 1.2;
     letter-spacing: normal;
@@ -720,28 +762,29 @@ aside .no-slide, .no-slide {
 .jqt-loaded {
     width: 100%;
 }
-.jqt-has-icon {
-    padding-left: 40px;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+
+.jqt-has-icon::before {
+    font-size: 1.5em;
+    margin-left: -1.5em;
+    padding: 0.3em;
+    vertical-align: middle;
 }
+
 .error.jqtoast {
-    padding: 10px 40px;
     background-color: #fbd0d0;
 }
 .error .jqt-close {
     background-position: 1.2em 0;
 }
 .error .jqt-heading {
-    background-color: #bc1010;
+    background-color: #eb1414;
     color: #fff;
 }
-.jqt-icon-error {
-    padding-left: 50px;
-    background-image: url(../images/icons/extra/block.png);
+.jqt-icon-error::before {
+    content: '\f05e';
+    color: #bc1010;
 }
 .warn.jqtoast {
-    padding: 10px 40px;
     background-color: #fbf0d0;
 }
 .warn .jqt-close {
@@ -751,11 +794,11 @@ aside .no-slide, .no-slide {
     background-color: #bc9110;
     color: #fff;
 }
-.jqt-icon-warning {
-    background-image: url(../images/icons/extra/warning.png);
+.jqt-icon-warning::before {
+    content: '\f071';
+    color: #ebb514;
 }
 .success.jqtoast {
-    padding: 10px 40px;
     background-color: #dbfbd0;
 }
 .success .jqt-close {
@@ -765,22 +808,23 @@ aside .no-slide, .no-slide {
     background-color: #2c8d0c;
     color: #fff;
 }
-.jqt-icon-success {
-    background-image: url(../images/icons/extra/accept.png);
+.jqt-icon-success::before {
+    content: '\f058';
+    color: #3bbc10;
 }
 .info.jqtoast {
-    padding: 10px 40px;
     background-color: #d0e7fb;
 }
 .info .jqt-close {
     background-position: 4.8em 0;
 }
 .info .jqt-heading {
-    background-color: #2d93eb;
+    background-color: #1687e9;
     color: #fff;
 }
-.jqt-icon-info {
-    background-image: url(../images/icons/extra/info.png);
+.jqt-icon-info::before {
+    content: '\f05a';
+    color: #449fee;
 }
 
 #cms_busy, .busy {
@@ -906,7 +950,7 @@ header .cms-logo {
     width: 240px;
     height: 45px;
     padding-left: 10px;
-    background: transparent url(../images/layout/cms-logo-bg.gif) no-repeat top right;
+    background: transparent url(../images/layout/cms-logo-bg.gif) no-repeat top right; /* TODO svg */
     float: left
 }
 header .admin-title {
@@ -1313,16 +1357,6 @@ a.ecommerce::before, h3.ecommerce::before {
     border-bottom: 1px solid #fa8004
 }
 
-i.cms_helpicon {
-    margin-right: 0.3em;
-    vertical-align: middle;
-    font-size: 1.4em;
-    color: #147fdb;
-}
-.cms_helpicon {
-    cursor: pointer;
-}
-
 /*** footer ***/
 
 footer#mg_footer {
@@ -1535,7 +1569,7 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-left: 20px;
     line-height: 20px;
-    background: url(../images/icons/extra/bookmark.png) no-repeat left
+    background: url(../images/icons/extra/bookmark.png) no-repeat left /* TODO fonticon */
 }
 
 div.dialog form#chdir_form {
@@ -2013,7 +2047,7 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 10px 3px 35px;
-    background: #eee url(../images/icons/extra/reorder.png) no-repeat 10px 50%;
+    background: #eee url(../images/icons/extra/reorder.png) no-repeat 10px 50%; /* TODO fonticon */
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
@@ -2212,11 +2246,20 @@ a.toggle-dropzone:focus {
 
 /* --- CMS_HELP --- */
 
+i.cms_helpicon {
+    margin-right: 0.3em;
+    vertical-align: middle;
+    font-size: 1.4em;
+    color: #449fee;
+}
+.cms_helpicon {
+    cursor: pointer;
+}
+
 .cms_helptext ul {
     padding: 0 10px;
     list-style: disc;
 }
-
 .cms_helptext ul li {
     margin-bottom: 8px;
 }
@@ -2339,7 +2382,7 @@ a.toggle-dropzone:focus {
     height: 25px;
     display: block;
     text-indent: -9999em;
-    background: #ececec url(../images/layout/information.png) no-repeat center
+    background: #ececec url(../images/layout/information.png) no-repeat center /* TODO fonticon */
 }
 
 #login aside.info {
