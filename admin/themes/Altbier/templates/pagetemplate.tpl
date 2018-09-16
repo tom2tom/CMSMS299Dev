@@ -19,8 +19,6 @@
 	<link rel="apple-touch-icon" sizes="72x72" href="themes/Altbier/images/favicon/apple-touch-icon-ipad.png" />
 	<link rel="apple-touch-icon" sizes="114x114" href="themes/Altbier/images/favicon/apple-touch-icon-iphone4.png" />
 	<link rel="apple-touch-icon" sizes="144x144" href="themes/Altbier/images/favicon/apple-touch-icon-ipad3.png" />
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i" />
-	<link rel="stylesheet" href="themes/Altbier/css/bootstrap_reboot-grid.min.css" />
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 	{$header_includes|default:''}
 </head>
@@ -29,16 +27,16 @@
 		<div class="container-fluid">
 			<header role="banner" class="header row">
 				<div class="col-12">
-					<div class="header-top row">
-						<div class="col-12 col-md-4 col-lg-3">
-							<a class="cms-logo" href="http://www.cmsmadesimple.org" rel="external">
-								<img class="img-fluid" src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
+					<div class="header-top row py-1">
+						<div class="cms-logo">
+							<a href="http://www.cmsmadesimple.org" rel="external">
+								<img class="img-fluid" src="themes/Altbier/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='themes/Altbier/images/CMSMS-logotext-dark.png';" alt="CMS Made Simple" title="CMS Made Simple" />
 							</a>
 						</div>
-						<div class="col-12 col-md-8 col-lg-9 align-self-end"><strong class="admin-title py-2">{'adminpaneltitle'|lang} - {sitename}</strong></div>
+						<div class="col admin-title">{sitename} - {'adminpaneltitle'|lang}</div> {*col-12 col-sm-6*}
 					</div>
 					<div class="header-bottom row">
-						<div class="col-6 col-sm-4 col-lg-3 welcome">
+						<div class="col-6 welcome">
 							{if isset($myaccount)}
 							<span><a class="welcome-user" href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}"><i aria-label="username and account" class="fas fa-user-edit"></i></a> {'welcome_user'|lang}: <a href="myaccount.php?{$secureparam}">{$username}</a></span>
 							{else}
@@ -50,14 +48,14 @@
 				</div>
 			</header>
 
-			<div id="ac_admin-content" class="row">
-				<div id="ac_sidebar" class="col p-0">
+			<div id="ac_admin-content" class="row flex-nowrap">
+				<div id="ac_sidebar" class="col flex-grow-0 flex-shrink-0 p-0">
 					<aside>
 						<span title="{'open'|lang}/{'close'|lang}" role="button" tabindex="0" aria-label="{'open'|lang}/{'close'|lang}" class="toggle-button close"></span>
 						{include file='navigation.tpl' nav=$theme->get_navigation_tree()}
 					</aside>
 				</div>
-				<div id="ac_mainarea" class="col-10 col-sm-11 col-md-10">
+				<div id="ac_mainarea" class="col p-0">
 					{strip}
 					{include file='messages.tpl'}{block name=messages}{/block}
 					<article role="main" class="content-inner">

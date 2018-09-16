@@ -1,6 +1,6 @@
 {block name=shortcuts}
 {strip}
-<div class="col-6 col-sm-8 col-lg-9 pr-0 shortcuts">
+<div class="col-6 px-0 shortcuts">
 	<ul>
 		<li class="help">
 		{if isset($module_help_url)}

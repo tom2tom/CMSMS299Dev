@@ -7,16 +7,16 @@
 		<label class="sr-only" for="username">{'username'|lang}</label>
 		<input id="username"{if !isset($smarty.post.username)} class="focus11"{/if} placeholder="{'username'|lang}" name="{$usernamefld}" type="text" value="" autofocus="autofocus" />
 		</div>
-	{if isset($smarty.get.forgotpw) && !empty($smarty.get.forgotpw)}
+	{if !empty($smarty.get.forgotpw)}
 		<input type="hidden" name="forgotpwform" value="1" />
 	{/if}
-	{if !isset($smarty.get.forgotpw) && empty($smarty.get.forgotpw)}
+	{if empty($smarty.get.forgotpw)}
 	<div class="form-group">
 		<label class="sr-only" for="lbpassword">{'password'|lang}</label>
 		<input id="lbpassword"{if !isset($smarty.post.lbpassword) or isset($error)} class="focus11"{/if} placeholder="{'password'|lang}" name="password" type="password" maxlength="100"/>
 	</div>
 	{/if}
-	{if isset($changepwhash) && !empty($changepwhash)}
+	{if !empty($changepwhash)}
 	<div class="form-group">
 		<label class="sr-only" for="lbpasswordagain">{'passwordagain'|lang}</label>
 		<input id="lbpasswordagain"  name="passwordagain" type="password" placeholder="{'passwordagain'|lang}" maxlength="100" />

@@ -1,13 +1,12 @@
 {block name=footer}
 {strip}
 <footer class="w-100 row" id="ac_footer">
-	<div class="container px-0">
-		<div class="row">
-			<div class="py-2 col-12 col-md-5 align-self-center">
+	<div class="container-fluid">
+		<div class="row py-2">
+			<div class="col align-self-start">
 				<small class="copyright">Copyright &copy; <a rel="external" href="http://www.cmsmadesimple.org">CMS Made Simple&trade; {cms_version} &ldquo;{cms_versionname}&rdquo;</a></small>
-
 			</div>
-			<div class="py-2 col-12 col-sm-6 col-md-5 align-self-center">
+			<div class="col-auto align-self-center">
 				<ul class="links ml-auto text-sm-right">
 					<li>
 						<a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}">{'documentation'|lang}</a>
@@ -23,7 +22,7 @@
 					</li>
 				</ul>
 			</div>
-			<div class="py-2 col-12 col-sm-6 col-md-2 align-self-center">
+			<div class="col-auto align-self-end">
 				<ul class="social-icons ml-auto text-sm-right">
 					<li class="facebook"><a href="https://www.facebook.com/cmsmadesimple" target="_blank" title="Facebook"><i aria-hidden="true" class="fab fa-facebook-square fa-lg"></i></a></li>
 					<li class="googleplus"><a href="https://plus.google.com/+cmsmadesimple" target="_blank" title="Google+"><i aria-hidden="true" class="fab fa-google-plus-square fa-lg"></i></a></li>
