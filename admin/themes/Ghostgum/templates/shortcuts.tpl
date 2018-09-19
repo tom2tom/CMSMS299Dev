@@ -2,6 +2,14 @@
 {strip}
 <div id="shortcuts">
   <ul class="cf">
+    <li class="user">
+      {if isset($myaccount)}
+       <a href="myaccount.php?{$secureparam}" title="{lang('myaccount')} - {$username}"><span class="shortcuticon">&nbsp;</span></a></span>
+      {else}
+       {lang('signed_in',{$username})}
+      {/if}
+    </li>
+
     <li class="help">
       {if isset($module_help_url)}
       <a href="{$module_help_url}" title="{lang('module_help')}"><span class="shortcuticon">&nbsp</span></a>
@@ -21,7 +29,7 @@
     {if $num_alerts > 0}
       {if $num_alerts > 10}{$txt='&#2295'}{else}{$txt=$num_alerts}{/if}
       <li class="notice">
-        <a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><i class="ggi-bell"></i><span class="bubble">{$txt}</span></a>
+        <a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><span class="shortcuticon">&nbsp;</span><span class="bubble">{$txt}</span></a>
       </li>
     {/if}
     <li class="logout">
