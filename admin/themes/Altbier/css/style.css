@@ -28,7 +28,7 @@ body {
 body {
     color: #232323;
     line-height: 1.4;
-    font-size: 14px;
+    font-size: 0.9rem;
     background: #f6f6f6
 }
  /* Right to Left */
@@ -153,23 +153,23 @@ h6 {
 }
 
 h1, .h1 {
-    font-size: 20px
+    font-size: 1.2rem
 }
 
 h2, .h2 {
-    font-size: 18px
+    font-size: 1.1rem
 }
 
 h3, .h3 {
-    font-size: 16px
+    font-size: 1rem
 }
 
 h4, .h4, p {
-    font-size: 14px
+    font-size: 0.9rem
 }
 
 h5,h6{
-    font-size: 12px
+    font-size: 0.8rem
 }
 
 p {
@@ -216,7 +216,7 @@ a.external {
 }
 .smallgrey {
     font-weight: normal;
-    font-size: 10px;
+    font-size: 0.7rem;
     margin: 10px 0 0 0
 }
 
@@ -225,7 +225,7 @@ div.pagecontainer .h-inside {
     padding-top: 8px;
     padding-right: 10px;
     margin-left: 10%;
-    width: 18em;
+    width: 18rem;
     margin-bottom: 0.5em;
     text-align: right
 }
@@ -254,7 +254,7 @@ kbd {
     text-align: left;
     color: #232323;
     height: auto;
-    font-size: 14px
+    font-size: 0.9rem
 }
 pre code {}
 pre {
@@ -301,7 +301,7 @@ textarea,
 select,
 menu {
     font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 14px;
+    font-size: 0.9rem;
     margin: 2px 5px 2px 0;
     padding: 4px 5px;
     border: 1px solid #aaa;
@@ -360,7 +360,7 @@ input[type="submit"],
     color: #555;
     cursor: pointer;
     font-weight: normal;
-    font-size: 14px
+    font-size: 0.9rem
 }
 
 .loginsubmit {
@@ -373,7 +373,7 @@ input[type="submit"],
 }
 
 .ui-button-text {
-    font-size: 14px;
+    font-size: 0.9rem;
     margin-left: 2px;
 /*    text-transform: uppercase */
 }
@@ -451,7 +451,7 @@ table.pagetable a.text-red {
 .information {
     /*display: inline-block;
     width: auto;*/
-    font-size: 14px;
+    font-size: 0.9rem;
     padding: 10px;
     margin: 10px 0
 }
@@ -556,14 +556,14 @@ table.pagetable a.text-red {
 .message p,
 .message li {
     color: #232323;
-    font-size: 14px
+    font-size: 0.9rem
 }
 
 .warning h3,
 .pagewarn h3,
 .pagewarning h3 {
     margin: 2px 0;
-    font-size: 14px;
+    font-size: 0.9rem;
     color: #e6c26e
 }
 
@@ -589,7 +589,7 @@ aside.message,*/
     z-index: 9999;
     border-top: none;
     width: 30%;
-    font-size: 12px;
+    font-size: 0.8rem;
     border-radius: 0 0 4px 4px;
     box-shadow: 1px 1px 3px 1px #444;
     -webkit-box-shadow: 1px 1px 3px 1px #444;
@@ -918,7 +918,7 @@ header .header-bottom {
 
 header .welcome {
     color: #fff;
-    font-size: 12px;
+    font-size: 0.8rem;
 }
 
 header .welcome span {
@@ -1027,7 +1027,7 @@ header .shortcuts li.notifications i {
 #ac_pagemenu li {
 /*    position: relative;
     zoom: 1;
-    line-height: 40px;
+    line-height: 2.5rem;
     padding: 0; */
     border-bottom: 1px solid #eee;
 }
@@ -1048,7 +1048,7 @@ header .shortcuts li.notifications i {
 }
 
 #ac_pagemenu li span.open-nav, #ac_pagemenu li a.no-nav {
-    max-width: 150px;
+    max-width: 9.4rem;
 /*    height: 35px; */
     z-index: 50;
 /*
@@ -1056,7 +1056,7 @@ header .shortcuts li.notifications i {
     right: 3px;
 */
     top: 0;
-    line-height: 35px;
+    line-height: 2.2rem;
 }
 
 /* !!! FontAwesome 5.x (free version) Icons */
@@ -1098,7 +1098,7 @@ header .shortcuts li.notifications i {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    max-width: 300px;
+    max-width: 18rem;
 }
 /*
 #ac_pagemenu li a i {
@@ -1114,16 +1114,16 @@ header .shortcuts li.notifications i {
 }
 
 #ac_pagemenu li ul,
-#ac_container.sidebar-off #ac_pagemenu li span.open-nav,
-#ac_container.sidebar-off #ac_pagemenu li a.no-nav {
+.sidebar-off #ac_pagemenu li span.open-nav,
+.sidebar-off #ac_pagemenu li a.no-nav {
     display: none
 }
 
-#ac_container.sidebar-on #ac_pagemenu li.current ul {
+.sidebar-on #ac_pagemenu li.current ul {
     display: block
 }
 
-#ac_container.sidebar-on #ac_pagemenu li {
+.sidebar-on #ac_pagemenu li {
     zoom: 1
 }
 
@@ -1234,7 +1234,7 @@ nav h3 a .svg-inline--fa {
 #ac_pagemenu li li {
 /*    background: none; */
     line-height: 1.4;
-/*    font-size: 14px; */
+/*    font-size: 0.9rem; */
 }
 
 #ac_pagemenu li li a {
@@ -1264,7 +1264,7 @@ footer#ac_footer {
     position: fixed;
     bottom: 0;
 /*    height: 55px; */
-    font-size: 12px;
+    font-size: 0.8rem;
 }
 
 footer#ac_footer a {
@@ -1278,7 +1278,7 @@ footer#ac_footer a {
 }
 
 #ac_footer small {
-    font-size: 11px;
+    font-size: 0.7rem;
     color: #a7a7a7
 }
 
@@ -1306,7 +1306,7 @@ footer#ac_footer a:active {
 }
 
 #ac_mainarea header.pageheader h1 {
-    font-size: 18px;
+    font-size: 1.2rem;
     line-height: 2;
     font-weight: 600;
     width: 100%;
@@ -1328,7 +1328,7 @@ footer#ac_footer a:active {
     float: right;
     width: auto;
     color: #232323;
-    font-size: 12px
+    font-size: 0.8rem
 }
 
 #ac_mainarea header.pageheader.drop-hidden span.helptext {
@@ -1350,7 +1350,7 @@ i.fontimage {
 }
 
 .pageheader {
-    font-size: 18px;
+    font-size: 1.2rem;
     font-weight: normal;
     margin: 0;
     padding: 0;
@@ -1433,12 +1433,12 @@ div.alert-dialog span.ui-icon {}
 div.dialog h3 {
     margin: 5px 0;
     color: #147fdb;
-    font-size: 14px
+    font-size: 0.9rem
 }
 
 div.dialog a.bookmark {
     padding-left: 20px;
-    line-height: 20px;
+    line-height: 1.2rem;
     background: url(../images/icons/extra/bookmark.gif) no-repeat left /* TODO fonticon */
 }
 
@@ -1447,7 +1447,7 @@ div.dialog form#chdir_form {
 }
 
 div.dialog form#chdir_form select {
-    width: 200px
+    width: 12.5rem
 }
 
 
@@ -1471,7 +1471,7 @@ table tr:last-child td:last-child {
 
 table.pagetable {
     border-collapse: inherit;
-    font-size: 14px;
+    font-size: 0.9rem;
     border: 1px solid #ddd;
     width: 100%;
     margin: 5px 0
@@ -1481,7 +1481,7 @@ table.pagetable caption {
     color: #585858;
     text-align: left;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 0.8rem;
     padding: 5px 0
 }
 
@@ -1615,9 +1615,9 @@ td.icons_wide {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 321px;
+    max-height: 20rem;
     overflow: auto;
-    min-height: 25px;
+    min-height: 1.5rem;
 }
 
 #ac_mainarea .sortable-list li {
@@ -1691,7 +1691,7 @@ a.pageback {
     display: inline-block;
     position: relative;
     margin: 10px 0;
-    line-height: 26px;
+    line-height: 1.6rem;
     color: #232323;
     text-decoration: none;
     padding: 0 8px 0 20px
@@ -1717,7 +1717,7 @@ div.pagecontainer .pagetext {
 
 div.pagecontainer .pageshowrows {
     color: #585858;
-    font-size: 14px;
+    font-size: 0.9rem;
     text-align: right;
     margin-bottom: 5px
 }
@@ -1749,7 +1749,7 @@ div.pagecontainer legend {
     font-weight: bold;
     color: #585858;
     padding: 0 5px;
-    font-size: 14px
+    font-size: 0.9rem
 }
 
 .pageinput input,
@@ -1776,7 +1776,7 @@ div.pagecontainer legend {
 
 div.pagecontainer p.pageinput,
 div.pagecontainer .pageinput label {
-    font-size: 14px
+    font-size: 0.9rem
 }
 
 p.pageinputwysiwyg {
@@ -1804,7 +1804,7 @@ textarea.pagebigtextarea {
 .pageinput textarea {
     width: 90%;
     font-family: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'Courier New', monospace;
-    font-size: 13px;
+    font-size: 0.85rem;
     line-height: 1.6
 }
 
@@ -1879,7 +1879,7 @@ textarea.pageextrasmalltextarea {
 }
 
 .dashboard-box {
-    min-height: 100px;
+    min-height: 6rem;
     margin: 10px;
     width: 480px;
     border-radius: 4px;
@@ -1927,7 +1927,7 @@ textarea.pageextrasmalltextarea {
 
 .dashboard-box h4 {
     margin: 5px 0;
-    font-size: 13px;
+    font-size: 0.85rem;
     color: #232323
 }
 
@@ -1948,7 +1948,7 @@ textarea.pageextrasmalltextarea {
 }
 
 .dashboard-box ul.subitems li a {
-    font-size: 13px;
+    font-size: 0.85rem;
     padding: 4px 0;
     text-decoration: underline
 }
@@ -1993,7 +1993,7 @@ ul.sortableList li div.label em {
     text-indent: 10px;
     font-weight: normal;
     color: #147fdb;
-    font-size: 12px
+    font-size: 0.8rem
 }
 
 ul.sortable .placeholder {
@@ -2058,7 +2058,7 @@ a.toggle-dropzone:focus {
     border: 1px solid #ccc;
     border-top: none;
     background: #ddd;
-    font-size: 10px;
+    font-size: 0.7rem;
     color: #585858;
     text-shadow: 1px 1px 0 #fff;
     padding: 5px 10px;
@@ -2109,7 +2109,7 @@ a.toggle-dropzone:focus {
     height: 12px;
     line-height: 12px;
     font-weight: normal;
-    font-size: 12px;
+    font-size: 0.8rem;
     text-align: center;
     border: 1px solid #aaa;
     border-radius: 4px;
@@ -2142,21 +2142,21 @@ a.toggle-dropzone:focus {
 }
 #login h1 {
     color: #585858;
-    font-size: 16px;
+    font-size: 1rem;
     text-shadow: 0 1px 0 #fff;
 }
 #login a {
     color: #757474;
-    font-size: 18px
+    font-size: 1.2rem
 }
 #login .alt-actions, #login .alt-actions a {
     color: #757474;
-    font-size: 13px
+    font-size: 0.85rem
 }
 
 /*
 #login .toggle-info {
-font-size: 14px;
+font-size: 0.9rem;
 }
 */
 #login aside.info {
@@ -2188,7 +2188,7 @@ font-size: 14px;
     height: 30px;
     padding: 0 14px;
     margin: 0;
-/*    font-size: 14px; */
+/*    font-size: 0.9rem; */
     background: #838282
 }
 #login input.loginsubmit:hover,
@@ -2209,7 +2209,7 @@ font-size: 14px;
     box-shadow: 2px 2px 10px 0px rgba(51, 51, 51, 0.62);
 }
 #login aside.info {
-/*    font-size: 14px; */
+/*    font-size: 0.9rem; */
     color: #585858;
     background: #ececec;
 }
@@ -2218,11 +2218,11 @@ font-size: 14px;
     list-style: decimal
 }
 #login div.info-wrapper h2 {
-    font-size: 16px;
+    font-size: 1rem;
 }
 #login .alt-actions a {
 /*    color: #585858; */
-/*    font-size: 12px; */
+/*    font-size: 0.8rem; */
     text-decoration: none
 }
 #login .copyright {
@@ -2231,7 +2231,7 @@ font-size: 14px;
 }
 #login small {
     text-align: center;
-    font-size: 10px;
+    font-size: 0.7rem;
     color: #585858;
     display: block
 }
@@ -2258,10 +2258,10 @@ font-size: 14px;
 }
 
 #ac_mainarea .options-menu > li {
-    line-height: 35px;
+    line-height: 2rem;
     float: left;
     display: block;
-    padding: 0 1em;
+    padding: 0 16px;
     position: relative;
 }
 
@@ -2281,7 +2281,7 @@ font-size: 14px;
 #ac_mainarea .options-menu li:hover ul {
     left: 0;
     top: 32px;
-    width: 240px;
+    width: 15rem;
     background: #fafafa;
     border: 1px solid #d0d0d0;
 }
@@ -2349,7 +2349,7 @@ ul.social-icons li {
 
 /* --- SCREEN UP TO 1200px --- */
 
-@media (max-width: 1200px) {
+@media (max-width: 75rem) {
     @-ms-viewport {
         width: device-width;
     }
@@ -2383,13 +2383,13 @@ ul.social-icons li {
     }
 /*
     header .admin-title {
-        font-size: 14px
+        font-size: 0.9rem
     }
 */
 /*
     #ac_pagemenu li,
     #ac_pagemenu li a {
-        font-size: 13px;
+        font-size: 0.85rem;
     }
 
     footer#ac_footer {
@@ -2405,13 +2405,9 @@ ul.social-icons li {
     #ac_mainarea header.pageheader span.helptext em {
         display: none
     }
-/*
+
     .dashboard-box {
-        width: 320px;
-    }
-*/
-    .dashboard-box {
-        width: 300px;
+        width: 18rem
     }
     .move {
         width: auto;
@@ -2439,7 +2435,7 @@ ul.social-icons li {
 
 /* --- SCREEN UP TO 992px --- */
 
-@media(max-width: 992px) {
+@media(max-width: 62rem) {
 
     /* override our predefined min-with for smaller screens and full height stuff */
     body {
@@ -2481,7 +2477,7 @@ ul.social-icons li {
 /*
     #ac_pagemenu li,
     #ac_pagemenu li a {
-        font-size: 12px;
+        font-size: 0.8rem;
     }
 */
     #ac_mainarea {    }
@@ -2562,12 +2558,13 @@ ul.social-icons li {
 
 }
 
-@media (max-width: 768px) {
-
-    #ac_container.sidebar-off #ac_mainarea {
+@media (max-width: 48rem) {
+/*
+    .sidebar-off #ac_mainarea {
         max-width: 94% !important;
         flex: 94%;
     }
+*/
     #ac_sidebar aside {
         padding: 0
     }
@@ -2586,14 +2583,14 @@ ul.social-icons li {
 }
 
 
-@media (max-width: 476px) {
+@media (max-width: 30rem) {
     header .admin-title {
         line-height: 1;
     }
 }
 
 
-@media (max-width: 376px) {
+@media (max-width: 24rem) {
 
     header .admin-title, header .cms-logo {
         text-align: center;
@@ -2614,7 +2611,7 @@ ul.social-icons li {
     }
 
     header .admin-title {
- /*       font-size: 13px; */
+ /*       font-size: 0.85rem; */
         line-height: 1
     }
     header .welcome,
@@ -2676,7 +2673,7 @@ ul.social-icons li {
 /*
     #ac_pagemenu li {
         background: #d5d5d5;
-/*        line-height: 45px;
+/*        line-height: 2.8rem;
         padding: 8px; * /
         text-align: center;
         border-bottom: 1px solid #aaa;
@@ -2746,11 +2743,4 @@ ul.social-icons li {
 
     .stacktable.large-only { display: none; }
     .stacktable.small-only { display: table; }
-}
-
-@media (max-width: 376px) {
-
-    header .admin-title {
-       font-size: 13px;
-    }
 }
