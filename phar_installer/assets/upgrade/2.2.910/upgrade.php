@@ -50,14 +50,14 @@ foreach ([
                 if (endswith($one, '.php')) {
                     $fp = $path.DIRECTORY_SEPARATOR.$one;
                     $content = file_get_contents($fp);
-					if ($content) {
-						$parts = explode('.',$one);
-						$patn = '/function\\s+smarty(_cms)?_'.$parts[0].'_'.$parts[1].'\\s?\\([^,]+,[^,]*(&\\s?)(\\$\\S+)\\s?\\)\\s?[\r\n]/';
-						if (preg_match($patn, $content, $matches)) {
-							$content = str_replace($matches[2].$matches[3], $matches[3], $content);
-							file_put_contents($fp, $content);
-						}
-					}
+                    if ($content) {
+                        $parts = explode('.',$one);
+                        $patn = '/function\\s+smarty(_cms)?_'.$parts[0].'_'.$parts[1].'\\s?\\([^,]+,[^,]*(&\\s?)(\\$\\S+)\\s?\\)\\s?[\r\n]/';
+                        if (preg_match($patn, $content, $matches)) {
+                            $content = str_replace($matches[2].$matches[3], $matches[3], $content);
+                            file_put_contents($fp, $content);
+                        }
+                    }
                }
             }
         }
@@ -166,6 +166,10 @@ if ($data) {
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
+
+// migrate everyone to new default theme
+$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=\'Altbier\' WHERE preference=\'admintheme\'';
+$db->Execute($query);
 
 //if ($return == 2) {
   $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (205)';
