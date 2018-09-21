@@ -1282,4 +1282,62 @@ class CmsFormUtils
         }
         return $out;
     }
+
+    /**
+     * Get xhtml for a nest of ul(s) and li's suitable for a popup/context menu
+     *
+     * @since 2.3
+     * @param array $items Each member an assoc. array, with member 'content' and optional 'children' sub-array
+     * @param array  $parms Attribute(s)/property(ies) to be included in
+     *  the element, each member like 'name'=>'value'
+     *
+     * @return string
+     */
+    public static function create_menu(array $items, array $parms = [], $level = 0) : string
+    {
+        if ($level == 0) {
+            $out = '<div';
+            if ($parms) {
+                self::clean_attrs($parms, false);
+                $out .= self::join_attrs($parms);
+            }
+            $out .= '>';
+        } else {
+            $out = '';
+        }
+        //ul class ?
+        $out .= <<<'EOS'
+ <ul>
+EOS;
+        foreach ($items as $item) {
+            $c = $item['content'];
+            //li class?
+            if (!$item['children']) {
+                $out .= <<<EOS
+  <li>$c</li>
+EOS;
+            } else {
+               //li class?
+                $out .= <<<EOS
+  <li>$c
+    <div class="sub-level"><ul>
+EOS;
+                $out .= self::create_menu($item['children'], $parms, $level+1);
+                $out .= <<<'EOS'
+    </ul></div>
+  </li>
+EOS;
+            }
+        }
+
+        $out .= <<<'EOS'
+ </ul>
+EOS;
+        if ($level == 0) {
+            $out .= <<<'EOS'
+</div>
+EOS;
+		}
+        return $out;
+    }
 } // class
