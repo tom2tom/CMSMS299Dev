@@ -39,7 +39,7 @@
   </symbol>
 
   <symbol id="ltr" viewBox="0 0 32 32">
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M29.5 16a13.5 13.5 0 0 1-13.486 13.5A13.5 13.5 0 0 1 2.5 16.028 13.5 13.5 0 0 1 15.958 2.5 13.5 13.5 0 0 1 29.5 15.944" stroke="#fff"/><path d="M12.529 8.522L22.5 16l-9.971 7.479" stroke="#fffaf0" stroke-width="5"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M29.5 16a13.5 13.5 0 0 1-13.486 13.5A13.5 13.5 0 0 1 2.5 16.028 13.5 13.5 0 0 1 15.958 2.5 13.5 13.5 0 0 1 29.5 15.944" stroke="#fff"/><path d="M12.529 8.522L22.5 16l-9.971 7.479" stroke="#fcf9f3" stroke-width="5"/></g>
   </symbol>
 
   <linearGradient x1="368.21" y1="476.65" gradientTransform="matrix(.03564 0 0 .05746 2.782 -7.32)" x2="368.21" gradientUnits="userSpaceOnUse" y2="552.1" id="h9"><stop offset="0" stop-color="#fff" stop-opacity=".392"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient gradientTransform="matrix(.75 0 0 .92307 -236.01 -257.414)" gradientUnits="userSpaceOnUse" y2="312.2" x2="335.763" y1="299.388" x1="335.513" id="g9" xlink:href="#a9"/><linearGradient id="a9"><stop offset="0" stop-color="#e9b96e"/><stop offset="1" stop-color="#bb741e"/></linearGradient><linearGradient gradientTransform="matrix(1.01958 0 0 1.01754 -326.556 -286.93)" gradientUnits="userSpaceOnUse" y2="293.883" x2="338.449" y1="285.454" x1="335.602" id="e9" xlink:href="#b9"/><linearGradient id="b9"><stop offset="0" stop-color="#6c6c6c"/><stop offset="1" stop-color="#020202"/></linearGradient><linearGradient gradientTransform="matrix(.80008 0 0 .91128 -251.837 -256.327)" gradientUnits="userSpaceOnUse" y2="281.53" x2="343.138" y1="302.518" x1="343.102" id="d9" xlink:href="#c9"/><linearGradient x1="366.69" y1="640.22" gradientTransform="matrix(.08726 0 0 .07349 303.647 265.409)" x2="366.437" gradientUnits="userSpaceOnUse" y2="338.231" id="c9"><stop offset="0" stop-color="#c9c9c9"/><stop offset="1" stop-color="#fff"/></linearGradient><linearGradient y2="338.231" x2="366.437" y1="640.22" x1="366.69" gradientTransform="matrix(.07999 0 0 .07697 -13.67 -18.267)" gradientUnits="userSpaceOnUse" id="f9" xlink:href="#c9"/>
@@ -66,7 +66,7 @@
   </symbol>
 
   <symbol id="rtl" viewBox="0 0 32 32">
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M29.5 16a13.5 13.5 0 0 1-13.486 13.5A13.5 13.5 0 0 1 2.5 16.028 13.5 13.5 0 0 1 15.958 2.5 13.5 13.5 0 0 1 29.5 15.944" stroke="#fff"/><path d="M19.971 8.522L10 16l9.971 7.479" stroke="#fffaf0" stroke-width="5"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M29.5 16a13.5 13.5 0 0 1-13.486 13.5A13.5 13.5 0 0 1 2.5 16.028 13.5 13.5 0 0 1 15.958 2.5 13.5 13.5 0 0 1 29.5 15.944" stroke="#fff"/><path d="M19.971 8.522L10 16l9.971 7.479" stroke="#fcf9f3" stroke-width="5"/></g>
   </symbol>
 
   <radialGradient gradientUnits="userSpaceOnUse" gradientTransform="matrix(-.54714 .06051 -.12907 -1.17643 13.214 300.365)" r="14" fy="5.691" fx="9.01" cy="5.691" cx="9.01" id="b15" xlink:href="#a15"/><linearGradient id="a15"><stop offset="0" stop-color="#ccbc3e"/><stop offset="1" stop-color="#111211"/></linearGradient>

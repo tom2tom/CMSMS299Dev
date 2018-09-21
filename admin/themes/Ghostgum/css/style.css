@@ -173,7 +173,7 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2
 
 /*
  * Colors:
- * #fffaf0 Body/Content background very pale cream
+ * #fcf9f3 Body/Content background very pale cream
  * #cbd4cb Accent1 titles etc light greenish grey (ex bfc2b8)
  * #58814c Accent2 olivish/leafy green (ex 157200)
  * #3c9b0a Focused/activated/hovered elements Lighter green than Accent2
@@ -181,7 +181,7 @@ html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}h1{font-size:2
  * #f2ecdf Some backgrounds e.g. table-row2, text-input Slighty darker than previous color
  *
  * #1a3225 Text on light & mid background Very dark green
- * #fffaf0 Text on dark background Same as body
+ * #fcf9f3 Text on dark background Same as body
  */
 
 html, body {
@@ -195,7 +195,7 @@ html, body {
 body {
     min-width: 5em;
     min-height: 0;
-    background-color: #fffaf0;
+    background-color: #fcf9f3;
     color: #244323;
     line-height: 1.3;
     font-size: 1.01em;
@@ -381,7 +381,7 @@ a.link_button, a.link_button:visited {
     -webkit-background-size: cover;
     -o-background-size: cover;
     -ms-background-size: cover;
-    color: #fffaf0; /* same as body */
+    color: #fcf9f3; /* same as body */
     height: auto;
     text-indent: 0;
     text-decoration: none;
@@ -401,7 +401,7 @@ a.link_button:hover {
     -webkit-background-size: cover;
     -o-background-size: cover;
     -ms-background-size: cover;
-    color: #fffaf0; /* same as body */
+    color: #fcf9f3; /* same as body */
 /*    line-height: 1; */
     height: auto;
     font-weight: 600;
@@ -414,7 +414,7 @@ a.link_button:hover {
 button.ui-button:hover, button.ui-button.ui-state-hover, button.ui-button:active, button.ui-button.ui-state-active {
     background: #3c9b0a none;
     border: 0 none;
-    color: #fffaf0;
+    color: #fcf9f3;
     height: auto;
     font-weight: 600;
     font-size: 1em;
@@ -941,7 +941,7 @@ aside .no-slide, .no-slide {
     width: 20em; /* TODO CENTER WITH AUTO WIDTH */
     border-radius: 3px;
     padding: 1em;
-    background: #fffaf0;
+    background: #fcf9f3;
     color: #244323;
     z-index: 999;
 }
@@ -1090,7 +1090,7 @@ button.ui-button.ui-state-active {
 */
 
 .ui-dialog .ui-dialog-titlebar.ui-widget-header {
-    background: #fffaf0;
+    background: #fcf9f3;
     border-width: 0;
     margin: 0;
     padding: 0;
@@ -1125,7 +1125,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     border: 0 none;
     margin: 0;
     padding: 0;
-    background: #fffaf0 none;
+    background: #fcf9f3 none;
     text-align: left;
     float: right;
 }
@@ -1523,7 +1523,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     overflow-x: hidden;
     overflow-y: auto;
     background-color: #58814c; /* or #157200 */
-    color: #fffaf0;
+    color: #fcf9f3;
 }
 #ggp_nav ul ul {
     margin-left: 0
@@ -1603,7 +1603,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 
 #ggp_navhead a,
 #ggp_menu a, #ggp_menu a:link, #ggp_menu a:visited {
-    color: #fffaf0
+    color: #fcf9f3
 }
 
 #ggp_menu a:hover, #ggp_menu a:link:hover, #ggp_menu a:visited:hover {
