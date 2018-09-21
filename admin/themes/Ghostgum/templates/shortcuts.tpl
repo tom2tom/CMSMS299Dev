@@ -1,41 +1,39 @@
 {block name=shortcuts}
 {strip}
 <div id="shortcuts">
-  <ul class="cf">
-    <li class="user">
-      {if isset($myaccount)}
-       <a href="myaccount.php?{$secureparam}" title="{lang('myaccount')} - {$username}"><span class="shortcuticon">&nbsp;</span></a></span>
-      {else}
-       {lang('signed_in',{$username})}
-      {/if}
-    </li>
-
-    <li class="help">
-      {if isset($module_help_url)}
-      <a href="{$module_help_url}" title="{lang('module_help')}"><span class="shortcuticon">&nbsp</span></a>
-      {else}
-      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentationtip')}"><span class="shortcuticon">&nbsp;</span></a>
-      {/if}
-    </li>
-    {if isset($marks)}
-    <li class="favorites open">
-      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><span class="shortcuticon">&nbsp;</span></a>
-    </li>
-    {/if}
-    <li class="mainsite">
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><span class="shortcuticon">&nbsp;</span></a>
-    </li>
     {$my_alerts=$theme->get_my_alerts()}{$num_alerts=count($my_alerts)}
     {if $num_alerts > 0}
       {if $num_alerts > 10}{$txt='&#2295'}{else}{$txt=$num_alerts}{/if}
-      <li class="notice">
-        <a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><span class="shortcuticon">&nbsp;</span><span class="bubble">{$txt}</span></a>
-      </li>
+      <span class="icon">
+        <a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#notice"/></svg></a>
+      </span><span class="bubble">{$txt}</span>
     {/if}
-    <li class="logout">
-      <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}><span class="shortcuticon">&nbsp;</span></a>
-    </li>
-  </ul>
+    <span class="icon">
+      {if isset($module_help_url)}
+      <a href="{$module_help_url}" title="{lang('module_help')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#cmsmshelp"/></svg></a>
+      {else}
+      <a href="https://docs.cmsmadesimple.org/" rel="external" title="{lang('documentationtip')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#cmsmshelp"/></svg></a>
+      {/if}
+    </span>
+    {if isset($marks)}
+    <span class="icon">
+      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#favourites"/></svg></a>
+    </span>
+    {/if}
+    <span class="icon">
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#mainsite"/></svg></a>
+    </span>
+    <span class="icon">
+      {if isset($myaccount)}
+       <a href="myaccount.php?{$secureparam}" title="{lang('myaccount')} - {$username}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#myaccount"/></svg></a>
+      {else}
+       {lang('signed_in',{$username})}
+      {/if}
+    </span>
+    <span class="icon">
+      <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#logout"/></svg></a>
+    </span>
+    
 </div>{*shortcuts*}
 {if isset($marks)}
 <div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">

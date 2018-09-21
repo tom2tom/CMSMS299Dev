@@ -26,6 +26,8 @@
  <body>
   <!-- start header -->
   <div id="ggp_header">
+   <div>
+
      <div id="site-logo">
      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}">
      {if isset($sitelogo)}
@@ -34,37 +36,36 @@
       {sitename}
      {/if}
      </a>
-     {if !isset($sitelogo)}
-       <span class="site-text">- {lang('adminpaneltitle')}</span>
+     {if isset($sitelogo)}
+      <div class="site-text">{lang('adminpaneltitle')}</div>
+     {else}
+      <span class="site-text">- {lang('adminpaneltitle')}</span>
      {/if}
      </div>
-   {if isset($sitelogo)}
-     <div class="site-text">{lang('adminpaneltitle')}</div>
-   {/if}
-    <div class="header-links">
-    <div>
-      <!-- logo -->
-      <div id="cms-logo">
+
+{*     <div id="header-links"> *}
+      <div>
+       <!-- logotext -->
+       <span id="cms-text">{lang('power_by')}</span>
+       <!-- logo -->
+       <div id="cms-logo">
         <a href="http://www.cmsmadesimple.org" rel="external" title="CMS Made Simple">
           <img src="{$admin_url}/themes/assets/images/CMSMS-logotext-dark.svg" onerror="this.onerror=null;this.src='{$admin_url}/themes/assets/images/CMSMS-logotext-dark.png';" />
         </a>
+       </div>
       </div>
-      <!-- logotext -->
-      <div id="cms-text">{lang('power_by')}</div>
-    </div>
-    <div>
+
       <!-- shortcuts -->
       {include file='shortcuts.tpl'}{block name=shortcuts}{/block}
-      {if isset($myaccount)}
-       <span class="user"><a href="myaccount.php?{$secureparam}" title="{lang('myaccount')}">{lang('signed_in',{$username})}</a></span>
-      {else}
-       <span class="user">{lang('signed_in',{$username})}</span>
-      {/if}
-    </div>
-    </div>
-    <div class="clear"></div>
-  </div>
-  <!-- end header -->
+
+{*     </div> *}
+
+   </div> {*flex horz*}
+  </div>{* end header *}
+
+  <!-- start body -->
+  <div id="ggp_body">
+
   <div id="ggp_container">
    <div id="ggp_contentwrap">
      <div id="ggp_contenthead">
@@ -88,7 +89,10 @@
    <div id="ggp_navwrap" class="sidebar-on">
     <div id="ggp_navhead">
      <ul><li class="nav">
-      <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}"></a>
+      <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}">
+      <svg class="navshut"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#ltr"/></svg>
+      <svg class="navopen"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#rtl"/></svg>
+      </a>
       <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
      </li></ul>
     </div>
@@ -96,12 +100,15 @@
      {include file='navigation.tpl'}{block name=navigation}{/block}
     </div>
    </div>
-  </div>
+  </div> {* end content container row *}
+
+</div>
+
   <!-- start footer -->
   <div id="ggp_footer">
    {include file='footer.tpl'}{block name=footer}{/block}
-  </div>
-  <!-- end footer -->
+  </div> {*-- end footer --*}
+
   {$bottom_includes|default:''}
  </body>
 </html>
