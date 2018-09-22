@@ -10,6 +10,7 @@
       <select id="filter_category" name="{$actionid}category">
       {html_options options=$categorylist selected=$curcategory}
       </select>
+      <br />
       <label for="filter_allcategories">{$prompt_showchildcategories}:</label>
       <input id="filter_allcategories" type="checkbox" name="{$actionid}allcategories" value="yes"{if $allcategories=="yes" } checked="checked"{/if} />
       {cms_help realm=$_module key='help_articles_filterchildcats' title=$prompt_showchildcategories}
