@@ -206,9 +206,10 @@ a.external {
 .alert-dialog a {
     text-decoration: underline
 }
-.file {
-    background: url(../images/icons/extra/document-list.gif) no-repeat left;
-    padding-left: 25px
+.file::before {
+    padding-left: 25px;
+    font-family: "Font Awesome 5 Free";
+    content: '\f03a';
 }
 .important, text-danger {
     color: red;
@@ -809,9 +810,13 @@ aside .no-slide,
     height: 16px;
     color: #333;
     /* text-indent: -9999em; */
-    /* background: transparent url(../images/icons/extra/close.gif) no-repeat; */
     cursor: pointer;
     /* margin: 5px */
+}
+.close-warning::before {
+    /* background: transparent url(../images/icons/extra/close.gif) no-repeat; */
+    font-family: "TODO";
+    content: '\f00d';
 }
 
 /* --- LAYOUT --- */
@@ -1439,7 +1444,11 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-left: 20px;
     line-height: 1.2rem;
-    background: url(../images/icons/extra/bookmark.gif) no-repeat left /* TODO fonticon */
+}
+div.dialog a.bookmark::before {
+/*    background: url(../images/icons/extra/bookmark.gif) no-repeat right */
+    font-family: "Font Awesome 5 Free";
+    content: '\f02e';
 }
 
 div.dialog form#chdir_form {
@@ -1982,10 +1991,14 @@ ul.sortableList div.label {
     border-radius: 4px;
     cursor: move;
     padding: 3px 10px 3px 35px;
-    background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%;
     text-shadow: 0 1px 0 #fff;
     font-weight: bold;
     color: #585858
+}
+ul.sortableList div.label::before {
+/*  background: #eee url(../images/icons/extra/reorder.gif) no-repeat 10px 50%; */
+    font-family: "Font Awesome 5 Free";
+    content: '\f338';
 }
 
 ul.sortableList li div.label em {
