@@ -1287,7 +1287,7 @@ class CmsFormUtils
      * Get xhtml for a nest of ul(s) and li's suitable for a popup/context menu
      *
      * @since 2.3
-     * @param array $items Each member an assoc. array, with member 'content' and optional 'children' sub-array
+     * @param array $items Each member is an assoc. array, with member 'content' and optional 'children' sub-array
      * @param array  $parms Attribute(s)/property(ies) to be included in
      *  the element, each member like 'name'=>'value'
      *
@@ -1299,27 +1299,26 @@ class CmsFormUtils
             $out = '<div';
             if ($parms) {
                 self::clean_attrs($parms, false);
-                $out .= self::join_attrs($parms);
+                $out .= self::join_attrs($parms, ['submenuclass, itemclass']);
             }
             $out .= '>';
         } else {
             $out = '';
         }
-        //ul class ?
-        $out .= <<<'EOS'
- <ul>
+        $uc = (empty($parms['submenuclass'])) ? '' : $parms['submenuclass'].' '.$parms['submenuclass'].$level;
+        $ic = (empty($parms['itemclass'])) ? "" : $parms['itemclass'].' '.$parms['itemclass'].$level;
+        $out .= <<<EOS
+ <ul{$uc}>
 EOS;
         foreach ($items as $item) {
             $c = $item['content'];
-            //li class?
             if (!$item['children']) {
                 $out .= <<<EOS
-  <li>$c</li>
+  <li{$ic}>$c</li>
 EOS;
             } else {
-               //li class?
                 $out .= <<<EOS
-  <li>$c
+  <li{$ic}>$c
     <div class="sub-level"><ul>
 EOS;
                 $out .= self::create_menu($item['children'], $parms, $level+1);
@@ -1337,7 +1336,7 @@ EOS;
             $out .= <<<'EOS'
 </div>
 EOS;
-		}
+        }
         return $out;
     }
 } // class
