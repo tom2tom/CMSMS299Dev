@@ -1294,9 +1294,9 @@ abstract class CmsAdminThemeBase
                 $fn .= '.';
             }
 
-            $exts = ['svg','i','png','gif','jpg','jpeg'];
+            $exts = ['i','svg','png','gif','jpg','jpeg'];
             if (!self::$_fontimages) {
-                unset($exts[1]);
+                unset($exts[0]);
             }
             foreach ($exts as $type) {
                 $path = $base.$fn.$type;
