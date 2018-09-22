@@ -44,7 +44,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 	 * @since 2.3
 	 * @return 2-member array (not typed to support back-compatible themes)
 	 * [0] = array of data for js vars, members like varname=>varvalue
-     * [1] = array of string(s) for includables
+	 * [1] = array of string(s) for includables
 	 */
 	public function AdminHeaderSetup()
 	{
@@ -54,7 +54,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 		$admin_url = $config['admin_url'];
 		$rel = substr(__DIR__, strlen(CMS_ADMIN_PATH) + 1);
 		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
-//		$base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
+//      $base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
 		$fn = 'style';
 		if (CmsNlsOperations::get_language_direction() == 'rtl') {
 			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
@@ -80,7 +80,7 @@ EOS;
 		$sm->queue_file($incs['jqcore'], 1);
 		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
 		$sm->queue_file($incs['jqui'], 1);
-        $p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
+		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
 		$fn = $sm->render_scripts('', false, false);
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
@@ -90,7 +90,7 @@ EOS;
 		if( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
 			$sm->reset();
 			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
-            $sm->queue_string($_out_);
+			$sm->queue_string($_out_);
 			$fn = $sm->render_scripts('', false, false);
 			$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 			$out .= sprintf($tpl,$url);
@@ -99,17 +99,17 @@ EOS;
 		$sm->reset();
 		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
 		$sm->queue_file($p.'jquery.toast.js', 1); //OR .min for production
-        $p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
+		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$fn = $sm->render_scripts();
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
-//		$assets_url = $admin_url . '/themes/assets/';
+//      $assets_url = $admin_url . '/themes/assets/';
 //<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script> TESTER
 		$add_list[] = $out;
-//		$vars[] = anything needed ?;
+//      $vars[] = anything needed ?;
 
 		return [$vars, $add_list];
 	}
@@ -122,12 +122,12 @@ EOS;
 	{
 		$smarty = Smarty::get_instance();
 		if ($section_name) {
-//			$smarty->assign('section_name', $section_name);
+//          $smarty->assign('section_name', $section_name);
 			$nodes = $this->get_navigation_tree($section_name, 0);
 		} else {
 			$nodes = $this->get_navigation_tree(null, 3, 'root:view:dashboard');
 		}
-//		$this->_havetree = $nodes; //block further tree-data changes
+//      $this->_havetree = $nodes; //block further tree-data changes
 		$smarty->assign('nodes', $nodes)
 		  ->assign('pagetitle', $this->title) //not used in current template
 		  ->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
@@ -169,7 +169,7 @@ EOS;
 		require_once $fp;
 		$smarty->assign($tplvars);
 
-//TODO	ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
+//TODO  ensure $smarty->assign('lang_code', cms_siteprefs::get('frontendlang'));
 
 		//extra theme-specific parameters for the form
 		$fp = cms_join_path(__DIR__, 'function.extraparms.php');
@@ -201,10 +201,10 @@ EOS;
 	public function postprocess($html)
 	{
 		$smarty = Smarty::get_instance();
-        $uid = get_userid(false);
+		$uid = get_userid(false);
 
 		// setup titles etc
-//		$tree =
+//      $tree =
 			$this->get_navigation_tree(); //TODO if section
 
 		// prefer cached parameters, if any
@@ -229,14 +229,14 @@ EOS;
 		$subtitle = '';
 		if ($title && !$module_help_type) {
 			// if not doing module help, maybe translate the string
-            if (CmsLangOperations::lang_key_exists('admin', $title)) {
-    			$extra = $this->get_value('extra_lang_params');
-    			if (!$extra) {
-    				$extra = [];
-    			}
-     			$title = lang($title, $extra);
-     		}
-//			$subtitle = TODO
+			if (CmsLangOperations::lang_key_exists('admin', $title)) {
+				$extra = $this->get_value('extra_lang_params');
+				if (!$extra) {
+					$extra = [];
+				}
+				$title = lang($title, $extra);
+			}
+//          $subtitle = TODO
 		} else {
 			$title = $this->get_active_title(); // try for the active-menu-item title
 			if ($title) {
@@ -245,7 +245,7 @@ EOS;
 				$modinst = cms_utils::get_module($module_name);
 				$title = $modinst->GetFriendlyName();
 				$subtitle = $modinst->GetAdminDescription();
-/*			} else {
+/*          } else {
 				// no title, get one from the breadcrumbs.
 				$bc = $this->get_breadcrumbs();
 				if (is_array($bc) && count($bc)) {
@@ -254,7 +254,7 @@ EOS;
 */
 			}
 		}
-    	if (!$title) $title = '';
+		if (!$title) $title = '';
 		$smarty->assign('pagetitle', $title)
 		  ->assign('subtitle', $subtitle)
 
@@ -301,7 +301,7 @@ EOS;
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
 		  ->assign('content', str_replace('</body></html>', '', $html));
 
-        $config = cms_config::get_instance();
+		$config = cms_config::get_instance();
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('assets_url', $config['admin_url'] . '/themes/assets')
 
@@ -332,5 +332,50 @@ EOS;
 		$_contents = $smarty->fetch('pagetemplate.tpl');
 		$smarty->template_dir = $otd;
 		return $_contents;
+	}
+
+	public function DisplayImage($image, $alt = '', $width = '', $height = '', $class = null, $attrs = [])
+	{
+		if (strpos($image, 'system') === false) {
+			return parent::DisplayImage($image, $alt, $width, $height, $class, $attrs);
+		}
+		$n = basename(dirname($image));
+		if ($n != 'system') {
+			return parent::DisplayImage($image, $alt, $width, $height, $class, $attrs);
+		}
+		if (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~',$image)) { //absolute
+			if (!startwith($image, __DIR__)) {
+				return parent::DisplayImage($image, $alt, $width, $height, $class, $attrs);
+			}
+		}
+		$n = trim(basename($image));
+		$p = strrpos($n, '.');
+		if ($p !== false) {
+			$type = substr($n, 0, $p);
+		} else {
+			$type = $n;
+		}
+
+		unset($attrs['width'], $attrs['height']);
+		$extras = array_merge(['class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
+		if (!$extras['title']) {
+			if ($extras['alt']) {
+				$extras['title'] = $extras['alt'];
+			} else {
+				$extras['title'] = $type;
+			}
+		}
+		if (!$extras['alt']) {
+			$extras['alt'] = $type;
+		}
+
+		$res = '<svg';
+		foreach ($extras as $key => $value) {
+			if ($value !== '' || $key == 'title') {
+				$res .= " $key=\"$value\"";
+			}
+		}
+		$res .= "><use xlink:href=\"themes/Ghostgum/images/icons/system/sprite.svg#{$type}\"/></svg>";
+		return $res;
 	}
 }

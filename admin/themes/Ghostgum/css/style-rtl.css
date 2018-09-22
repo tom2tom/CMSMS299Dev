@@ -283,7 +283,8 @@ a.external {
     padding-left: 20px
 }
 .file {
-    background: url(../images/icons/system/document-list.png) no-repeat right;
+    background: url(../images/icons/system/sprite.svg#document-list) no-repeat right;
+    background-size: 1.5rem 1.5rem;
     padding-right: 25px
 }
 .important {
@@ -1775,10 +1776,12 @@ span.helptext a.external, span.helptext a {
     vertical-align: middle
 }
 span.helptext a.external {
-    background: url(../images/icons/system/help.png) no-repeat left
+    background: url(../images/icons/system/sprite.svg#help) no-repeat left;
+    background-size: 1.5rem 1.5rem
 }
 span.helptext a {
-    background: url(../images/icons/system/info.png) no-repeat left
+    background: url(../images/icons/system/sprite.svg#info) no-repeat left;
+    background-size: 1.5rem 1.5rem
 }
 
 div.pageoverflow {
@@ -1802,6 +1805,10 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
 .systemicon {
     border: none;
     vertical-align: text-bottom
+}
+svg.systemicon {
+    height: 1.1rem;
+    width: 1.1rem
 }
 
 .pageheader img {
@@ -1874,7 +1881,8 @@ div.dialog h3 {
 div.dialog a.bookmark {
     padding-right: 20px;
     line-height: 1.25;
-    background: url(../images/icons/system/bookmark.png) no-repeat right
+    background: url(../images/icons/system/sprite.svg#bookmark) no-repeat right;
+    background-size: 1.5rem 1.5rem
 }
 div.dialog form#chdir_form {
     display: block
@@ -2514,7 +2522,11 @@ ul.sortableList > li {
     margin-bottom: -5px;
     cursor: pointer
 }
-.cms_helptext ul {
+svg.cms_helpicon {
+    height: 1.5rem;
+    width: 1.5rem
+}
+cms_helptext ul {
     padding: 0 10px;
     list-style: disc
 }
