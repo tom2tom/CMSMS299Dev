@@ -14,8 +14,8 @@
 		<link rel="shortcut icon" href="themes/Altbier/images/favicon/cmsms-favicon.ico" />
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 		{$header_includes|default:''}
-	</head>
-	<body id="login">
+	</head>{if 0}{$c=''}{elseif empty($smarty.get.forgotpw)}{$c=' class="login"'}{else}{$c=' class="forgotpw"'}{/if}
+	<body id="login"{$c}>
 		<div class="container py-5">
 			<div class="row">
 				<div class="mx-auto">
