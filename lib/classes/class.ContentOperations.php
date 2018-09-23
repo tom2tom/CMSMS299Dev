@@ -809,7 +809,7 @@ class ContentOperations
 		}
 		$str = substr($str,0,-1);
 		$out = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_hierselector.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_hierselector.min.js"></script>
 <script type="text/javascript">$(document).ready(function() {
  cms_data.lang_hierselect_title = 'lang("title_hierselect_select")';
  $('#$id').hierselector({{$str}});

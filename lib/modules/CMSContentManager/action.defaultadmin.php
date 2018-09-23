@@ -159,7 +159,7 @@ $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
 
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 function cms_CMloadUrl(link, lang) {

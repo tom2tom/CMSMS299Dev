@@ -210,7 +210,7 @@ $s4 = json_encode($this->Lang('error_nothingselected'));
 
 // templates script
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 function gethelp(tgt) {

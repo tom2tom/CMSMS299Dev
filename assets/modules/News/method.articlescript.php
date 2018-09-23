@@ -3,7 +3,7 @@
 $script_url = CMS_SCRIPTS_URL;
 
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 EOS;

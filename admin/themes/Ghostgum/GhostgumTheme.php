@@ -81,7 +81,7 @@ EOS;
 		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
 		$sm->queue_file($incs['jqui'], 1);
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
-		$sm->queue_file($p.'jquery.cms_admin.js', 2); //OR .min for production
+		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 		$fn = $sm->render_scripts('', false, false);
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
@@ -98,7 +98,10 @@ EOS;
 
 		$sm->reset();
 		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
-		$sm->queue_file($p.'jquery.toast.js', 1); //OR .min for production
+		$sm->queue_file($p.'jquery.toast.min.js', 1);
+
+		$sm->queue_file($p.'jquery.jquery.basictable.min.js', 1); //TESTER
+
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
@@ -106,8 +109,6 @@ EOS;
 		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
-//      $assets_url = $admin_url . '/themes/assets/';
-//<script type="text/javascript" src="{$assets_url}js/jquery.responsivetable.js"></script> TESTER
 		$add_list[] = $out;
 //      $vars[] = anything needed ?;
 

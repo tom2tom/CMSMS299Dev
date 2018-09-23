@@ -335,8 +335,8 @@ $msg = json_encode($this->Lang('msg_lostlock'));
 $script_url = CMS_SCRIPTS_URL;
 
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.js"></script>
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
+<script type="text/javascript" src="{$script_url}/jquery.cmsms_lock.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {

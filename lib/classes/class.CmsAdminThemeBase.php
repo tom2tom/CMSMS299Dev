@@ -297,7 +297,7 @@ abstract class CmsAdminThemeBase
         ];
         $vars += array_filter($msgs);
 
-//        $add_list['toast'] = CMS_SCRIPTS_URL.'/jquery.toast.js';
+//        $add_list['toast'] = CMS_SCRIPTS_URL.'/jquery.toast.min.js';
 
         return [$vars, $add_list, $exclude_list];
     }
