@@ -11,11 +11,11 @@ foreach( [
 // 'Modify Site Assets',
  'Remote Administration',  //for app management sans admin console
 ] as $one_perm ) {
-  $permission = new CmsPermission();
-  $permission->source = 'Core';
-  $permission->name = $one_perm;
-  $permission->text = $one_perm;
-  $permission->save();
+    $permission = new CmsPermission();
+    $permission->source = 'Core';
+    $permission->name = $one_perm;
+    $permission->text = $one_perm;
+    $permission->save();
 }
 
 $group = new Group();
@@ -168,10 +168,17 @@ $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
 
 // migrate everyone to new default theme
-$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=\'Altbier\' WHERE preference=\'admintheme\'';
-$db->Execute($query);
+$files = glob(joinpath(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
+foreach ($files as $one) {
+    if (is_readable($one)) {
+        $name = basename($one, 'Theme.php');
+        $query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=? WHERE preference=\'admintheme\'';
+        $db->Execute($query,[$name]);
+        break;
+    }
+}
 
 //if ($return == 2) {
-  $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (205)';
-  $db->Execute($query);
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (205)';
+    $db->Execute($query);
 //}
