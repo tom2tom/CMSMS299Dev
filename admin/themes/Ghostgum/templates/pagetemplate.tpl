@@ -71,8 +71,8 @@
     <div id="ggp_navhead">
      <ul><li class="nav">
       <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}">
-      <svg class="navshut"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#ltr"/></svg>
-      <svg class="navopen"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#rtl"/></svg>
+      <svg class="navshut"><use xlink:href="themes/Ghostgum/images/navsprite.svg#ltr"/></svg>
+      <svg class="navopen"><use xlink:href="themes/Ghostgum/images/navsprite.svg#rtl"/></svg>
       </a>
       <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
      </li></ul>
