@@ -62,7 +62,7 @@ $lang['dirtreedeletefail'] = 'An error occurred when deleting this directory. So
 $lang['dirtreedeletesuccess'] = 'The directory including content was successfully deleted.';
 
 // E
-$lang['enableadvanced'] = 'Enable advanced mode?';
+$lang['enableadvanced'] = 'Enable advanced mode';
 $lang['error_dirnotempty'] = 'Directory %s is not empty';
 $lang['error_notwritable'] = 'No write permission to %s';
 $lang['error_thumbnotwritable'] = '%s has a thumbnail that does not have write permission';
