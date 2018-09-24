@@ -10,7 +10,7 @@ $lang['evthelp_OnJobFailed'] = '<h4>Parameters:</h4>
   <li>"job" - A reference to the \CMSMS\Async\Job job object that has failed</li>
 </ul';
 $lang['frequency'] = 'Frequency';
-$lang['friendlyname'] = 'Background Job Manager';
+$lang['friendlyname'] = 'Background Jobs';
 $lang['info_background_jobs'] = 'This shows all currently known background jobs. Such jobs normally appear and disappear frequently. If a job has a high error count or was never started, then some investigation is needed.';
 $lang['info_no_jobs'] = 'There is currently no job in the queue';
 $lang['jobs'] = 'Jobs';
