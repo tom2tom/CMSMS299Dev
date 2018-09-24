@@ -17,11 +17,11 @@
     </span>
     {if isset($marks)}
     <span class="icon">
-      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#favourites"/></svg></a>
+      <a href="listbookmarks.php?{$secureparam}" title="{lang('bookmarks')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#mybookmarks"/></svg></a>
     </span>
     {/if}
     <span class="icon">
-      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#mainsite"/></svg></a>
+      <a href="{root_url}/index.php" rel="external" target="_blank" title="{lang('viewsite')}"><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#site"/></svg></a>
     </span>
     <span class="icon">
       {if isset($myaccount)}
@@ -33,7 +33,7 @@
     <span class="icon">
       <a href="logout.php?{$secureparam}" title="{lang('logout')}" {if isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{lang('maintenance_warning')|escape:'javascript'}');return false;"{/if}><svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#logout"/></svg></a>
     </span>
-    
+
 </div>{*shortcuts*}
 {if isset($marks)}
 <div class="dialog invisible" role="dialog" title="{lang('bookmarks')}">
