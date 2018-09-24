@@ -270,6 +270,7 @@ final class FileManager extends CMSModule
             $obj->title=$this->Lang('title_filemanager_settings');
             $obj->description=$this->Lang('desc_filemanager_settings');
             $obj->action='admin_settings';
+			$obj->icon = false;
             $obj->url=$this->create_url('m1_', $obj->action);
             $out[]=$obj;
         }

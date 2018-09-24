@@ -373,6 +373,7 @@ EOS;
             $obj->section = (version_compare(CMS_VERSION,'2.2.910') < 0) ? 'content' : 'services';
             $obj->title = $this->Lang('title_news_settings');
             $obj->description = $this->Lang('desc_news_settings');
+			$obj->icon = false;
             $obj->action = 'admin_settings';
             $out[] = $obj;
         }

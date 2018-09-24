@@ -80,6 +80,7 @@ final class CMSContentManager extends CMSModule
             $obj->section = 'content';
             $obj->title = $this->Lang('title_contentmanager_settings');
             $obj->description = $this->Lang('desc_contentmanager_settings');
+			$obj->icon = false;
             $obj->action = 'admin_settings';
             $out[] = $obj;
         }
