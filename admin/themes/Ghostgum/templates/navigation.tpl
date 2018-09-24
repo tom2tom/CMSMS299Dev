@@ -8,7 +8,9 @@
 {foreach $nav as $navitem}{$type=$navitem.name|lower}
   <li class="nav{if !isset($navitem.system) && (isset($navitem.module) || isset($navitem.firstmodule))} module{/if}{if !empty($navitem.selected) || (isset($smarty.get.section) && $smarty.get.section == $navitem.name|lower)} current{/if}">
      <a href="{$navitem.url}" class="{$type} icon"{if isset($navitem.target)} target="_blank"{/if} title="{if !empty($navitem.description)}{$navitem.description|strip_tags}{else}{$navitem.title|strip_tags}{/if}" {if substr($navitem.url,0,6) == 'logout' && isset($is_sitedown)}onclick="cms_confirm_linkclick(this,'{$prompt}');return false;"{/if}>
-    <svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#{$type}"/></svg>{if $depth > 0} {$navitem.title}{/if}
+    {if empty($navitem.icon)}<svg><use xlink:href="themes/Ghostgum/images/ggsprites.svg#{$type}"/></svg>
+    {elseif $navitem.icon}<img src="{$navitem.icon}" />{/if}
+    {if $depth > 0} {$navitem.title}{/if}
     </a>
     {if $depth == 0}
       {if !empty($navitem.children)}
