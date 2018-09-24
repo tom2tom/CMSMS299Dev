@@ -1294,15 +1294,13 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     overflow: auto;
     background-color: #0f0;
 }
-*/
-
 .sidebar-on #ggp_contentwrap {
     margin-right: 12.6em;
 }
 .sidebar-off #ggp_contentwrap {
     margin-right: 2.6em;
 }
-
+*/
 #ggp_contenthead {
     flex: 0 1 auto;
     overflow: auto;
@@ -1468,13 +1466,19 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 /*** sidebar ***/
 
 /*** navigation ***/
-
+/*
 #ggp_navwrap {
-    order: 2;
+/*    display: flex;
+    flex: 0 1 0;
+    flex-direction: column;
+    min-height: 5em;
+/*    order: -1; * /
     width: 12.6em;
+* /
 }
+*/
 #ggp_navwrap.sidebar-off {
-    width: 2.6em;
+    width: 2.4em;
 }
 #ggp_navhead {
     background-color: #58814c;
@@ -1547,6 +1551,10 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 /*    line-height: 2.2; */
     padding: 0 4px;
 }
+#ggp_menu li.current span {
+    color: #cbd4cb;
+}
+
 /*
 #ggp_menu li {
     margin: 1px 4px 3px 2px;
@@ -1559,17 +1567,20 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 
 #ggp_menu li span.open-nav, #ggp_menu li a.no-nav {
     position: absolute;
-    width: 11em;  /* seems like left: 13.6em, but shows aligned with 12.6 ?? */
+    width: 11em;
     right: 2.9em;
     font-size: 0.9em;
     line-height: 2.4;
 }
+/*
 #ggp_menu li span.open-nav.open-sub,
 #ggp_menu li.current span.open-nav,
 #ggp_menu li:hover span.open-nav,
 #ggp_menu li.current span.open-nav,
 #ggp_menu li.current:hover span.open-nav,
-#ggp_menu li a span:hover {
+#ggp_menu li a span:hover
+*/
+#ggp_menu li span {
     cursor: pointer;
 }
 #ggp_menu li.current span.open-nav::after,
@@ -1615,7 +1626,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     text-decoration: none;
 }
 
-#ggp_menu li a svg {
+#ggp_menu li a svg, #ggp_menu li a img {
     width: 1.8em;
     height: 1.8em;
 }
@@ -1630,7 +1641,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 }
 #ggp_menu li li {
     margin: 4px 10px 5px 0;
-    background: none;
+/*    background: none; */
     line-height: 1;
 }
 #ggp_menu li li li {
@@ -1647,18 +1658,21 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 #ggp_menu li li a
 /* ,#ggp_menu li:hover li a */
 {
-    padding: 5px 16px 5px 5px;
-/*    color: #157200; TODO relevant green */
-    font-size: 0.8em;
+    padding: 5px;
+    vertical-align: bottom;
+    font-size: 0.9em;
     font-weight: normal;
     white-space: pre-line;
     word-break: normal
 }
-/*
-#ggp_menu li li a:hover, #ggp_menu li li.current a {
-     color: #3c9b0a;
+#ggp_menu li li a svg, #ggp_menu li li a img {
+    width: 1.3em;
+    height: 1.3em;
+    vertical-align: top;
 }
-*/
+#ggp_menu li li.current span {
+    color: #cbd4cb;
+}
 /*
 #ggp_menu li li a:hover, #ggp_menu li li a:active, #ggp_menu li.current li a:hover, #ggp_menu li.current li a:active {
 //    padding: 5px 10px 5px 5px
@@ -2519,14 +2533,12 @@ ul.sortableList > li {
 /* --- CMS_HELP --- */
 
 .cms_helpicon {
-    margin-bottom: -5px;
+    margin-bottom: -0.3rem;
+    height: 1.5rem;
+    width: 1.5rem;
     cursor: pointer
 }
-svg.cms_helpicon {
-    height: 1.5rem;
-    width: 1.5rem
-}
-cms_helptext ul {
+.cms_helptext ul {
     padding: 0 10px;
     list-style: disc
 }
@@ -2688,9 +2700,6 @@ cms_helptext ul {
     #shortcuts li {
         padding: 0 2px;
     }
-    #ggp_menu li a:focus {
-        margin-left: 0;
-    }
     #shortcuts li a span.shortcuticon {
         padding: 2px;
     }
@@ -2744,6 +2753,9 @@ cms_helptext ul {
         border-bottom: 0;
     }
 /*
+    #ggp_menu li a:focus {
+        margin-left: 0;
+    }
     #ggp_menu li {
         background: #414141; //#d5d5d5;
         line-height: 4em;
@@ -2760,6 +2772,9 @@ cms_helptext ul {
         margin-left: 0;
     }
 */
+    #ggp_menu li li {
+        display: none;
+    }
 }
 
 /* --- SCREEN UP TO 480px --- */

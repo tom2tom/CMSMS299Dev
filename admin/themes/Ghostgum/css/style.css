@@ -1294,15 +1294,13 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     overflow: auto;
     background-color: #0f0;
 }
-*/
-
 .sidebar-on #ggp_contentwrap {
     margin-left: 12.6em;
 }
 .sidebar-off #ggp_contentwrap {
     margin-left: 2.6em;
 }
-
+*/
 #ggp_contenthead {
     flex: 0 1 auto;
     overflow: auto;
@@ -1468,13 +1466,19 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 /*** sidebar ***/
 
 /*** navigation ***/
-
+/*
 #ggp_navwrap {
-    order: -1;
+/*    display: flex;
+    flex: 0 1 0;
+    flex-direction: column;
+    min-height: 5em;
+/*    order: -1; * /
     width: 12.6em;
+* /
 }
+*/
 #ggp_navwrap.sidebar-off {
-    width: 2.6em;
+    width: 2.4em;
 }
 #ggp_navhead {
     background-color: #58814c;
@@ -1547,6 +1551,10 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 /*    line-height: 2.2; */
     padding: 0 4px;
 }
+#ggp_menu li.current span {
+    color: #cbd4cb;
+}
+
 /*
 #ggp_menu li {
     margin: 1px 2px 3px 4px;
@@ -1559,17 +1567,20 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 
 #ggp_menu li span.open-nav, #ggp_menu li a.no-nav {
     position: absolute;
-    width: 11em;  /* seems like right: 13.6em, but shows aligned with 12.6 ?? */
+    width: 11em;
     left: 2.9em;
     font-size: 0.9em;
     line-height: 2.4;
 }
+/*
 #ggp_menu li span.open-nav.open-sub,
 #ggp_menu li.current span.open-nav,
 #ggp_menu li:hover span.open-nav,
 #ggp_menu li.current span.open-nav,
 #ggp_menu li.current:hover span.open-nav,
-#ggp_menu li a span:hover {
+#ggp_menu li a span:hover
+*/
+#ggp_menu li span {
     cursor: pointer;
 }
 #ggp_menu li.current span.open-nav::after,
@@ -1615,7 +1626,7 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     text-decoration: none;
 }
 
-#ggp_menu li a svg {
+#ggp_menu li a svg, #ggp_menu li a img {
     width: 1.8em;
     height: 1.8em;
 }
@@ -1629,9 +1640,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 /*    background: #f0f0f0 */
 }
 #ggp_menu li li {
-/*    margin: 4px 0 5px 10px; */
     margin-left: 10px;
-    background: none;
+/*    background: none; */
     line-height: 1.2;
 }
 #ggp_menu li li li {
@@ -1644,22 +1654,23 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     background-color: #e5e5e5;
     border-bottom: 1px dotted #f0f0f0
 }
-/* #ggp_menu li.current li a, */
 #ggp_menu li li a
-/* ,#ggp_menu li:hover li a */
 {
-    padding: 5px 5px 5px 16px;
-/*    color: #157200; TODO relevant green */
-    font-size: 0.8em;
+    padding: 5px;
+    vertical-align: bottom;
+    font-size: 0.9em;
     font-weight: normal;
     white-space: pre-line;
     word-break: normal
 }
-/*
-#ggp_menu li li a:hover, #ggp_menu li li.current a {
-     color: #3c9b0a;
+#ggp_menu li li a svg, #ggp_menu li li a img {
+    width: 1.3em;
+    height: 1.3em;
+    vertical-align: top;
 }
-*/
+#ggp_menu li li.current span {
+    color: #cbd4cb;
+}
 /*
 #ggp_menu li li a:hover, #ggp_menu li li a:active, #ggp_menu li.current li a:hover, #ggp_menu li.current li a:active {
 //    padding: 5px 5px 5px 10px
@@ -2687,9 +2698,6 @@ ul.sortableList > li {
     #shortcuts li {
         padding: 0 2px;
     }
-    #ggp_menu li a:focus {
-        margin-right: 0;
-    }
     #shortcuts li a span.shortcuticon {
         padding: 2px;
     }
@@ -2729,13 +2737,13 @@ ul.sortableList > li {
 #template_area .pagetable tr th, #template_area .pagetable tr td,
 #stylesheet_area .pagetable tr th, #stylesheet_area .pagetable tr td,
 #designs_c .pagetable tr th, #designs_c .pagetable tr td,
-#types_c .pagetable tr th, #types_c .pagetable tr td  {
+#types_c .pagetable tr th, #types_c .pagetable tr td {
         display:none;
     }
 #template_area .pagetable tr th:nth-child(3), #template_area .pagetable tr td:nth-child(3),
 #stylesheet_area .pagetable tr th:nth-child(3), #stylesheet_area .pagetable tr td:nth-child(3),
 #designs_c .pagetable tr th:nth-child(2), #designs_c .pagetable tr td:nth-child(2),
-#types_c .pagetable tr th:nth-child(2), #types_c .pagetable tr td:nth-child(2){
+#types_c .pagetable tr th:nth-child(2), #types_c .pagetable tr td:nth-child(2) {
         display:table-cell;
         width: 100%;
     }
@@ -2743,6 +2751,9 @@ ul.sortableList > li {
         border-bottom: 0;
     }
 /*
+    #ggp_menu li a:focus {
+        margin-right: 0;
+    }
     #ggp_menu li {
         background: #414141; //#d5d5d5;
         line-height: 4em;
@@ -2759,6 +2770,9 @@ ul.sortableList > li {
         margin-right: 0;
     }
 */
+    #ggp_menu li li {
+        display: none;
+    }
 }
 
 /* --- SCREEN UP TO 480px --- */
@@ -2773,7 +2787,7 @@ ul.sortableList > li {
     }
 */
     #ggp_header span.user, .footer-left {
-        display: none;
+        display: none
     }
 
     aside.message, .pagemcontainer, .pageerrorcontainer, .pageerrorinstalldir {
