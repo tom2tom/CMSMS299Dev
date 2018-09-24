@@ -74,7 +74,7 @@
       <svg class="navshut"><use xlink:href="themes/Ghostgum/images/navsprite.svg#ltr"/></svg>
       <svg class="navopen"><use xlink:href="themes/Ghostgum/images/navsprite.svg#rtl"/></svg>
       </a>
-      <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
+      <span title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
      </li></ul>
     </div>
     <div id="ggp_nav">
