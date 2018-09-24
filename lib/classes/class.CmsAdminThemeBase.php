@@ -468,11 +468,11 @@ abstract class CmsAdminThemeBase
                 ['icons','icon-small.gif'],
             ];
 
-            foreach ($usermoduleinfo as $key => $obj) {
+            foreach ($usermoduleinfo as $obj) {
                 if (empty($obj->section)) $obj->section = 'extensions';
                 // fix up the session key stuff
                 $obj->url = $this->_fix_url_userkey($obj->url);
-                if (empty($obj->icon)) {
+                if (!isset($obj->icon)) {
                     // find the 'best' icon
                     $modname = $obj->module;
                     $dirs = cms_module_places($modname);
@@ -494,7 +494,7 @@ abstract class CmsAdminThemeBase
                             }
                         }
                     }
-                }
+				}
                 $this->_modules[] = $obj;
             }
         } else {
@@ -932,7 +932,7 @@ abstract class CmsAdminThemeBase
         // append the user's module-related items, if any
         $this->_SetModuleAdminInterfaces();
         foreach ($this->_modules as $key => $obj) {
-            $item = ['parent' => null] + $obj->get_all();
+            $item = ['parent' => null] + $obj->get_all(); //may include 'icon' (a file url or false)
             $item['parent'] = (!empty($item['section'])) ? $item['section'] : 'extensions';
             unset($item['section']);
             $item['title'] = $this->_FixSpaces($item['title']);
