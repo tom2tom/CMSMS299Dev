@@ -4,7 +4,7 @@
 <div class="pageinfo">{$mod->Lang('info_import_xml_step2')}</div>
 
 <fieldset>
- <div class="hbox expand">
+ <div class="rowbox expand">
   <div class="boxchild">
     <div class="pageoverflow">
       <p class="pagetext">
@@ -45,7 +45,7 @@
       </p>
     </div>
   </div>{*boxchild*}
- </div>{*hbox*}
+ </div>{*rowbox*}
 </fieldset>
 
 {tab_header name='description' label=$mod->Lang('prompt_description')}

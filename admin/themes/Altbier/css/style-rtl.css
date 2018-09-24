@@ -814,52 +814,52 @@ aside .no-slide,
 
 /* --- LAYOUT --- */
 
-.vbox {
-	display: flex;
-	flex-direction: column
+.colbox {
+    display: flex;
+    flex-direction: column
 }
-.hbox {
-	display: flex;
-	flex-direction: row
+.rowbox {
+    display: flex;
+    flex-direction: row
 }
-.vbox.expand, .hbox.expand {
-	justify-content: space-between
+.colbox.expand, .rowbox.expand {
+    justify-content: space-between
 }
-.vbox.flow, .hbox.flow {
-	flex-wrap: wrap
+.colbox.flow, .rowbox.flow {
+    flex-wrap: wrap
 }
 .boxchild {
-	flex: 0 1 auto
+    flex: 0 1 auto
 }
 .boxchild.fill {
-	flex: 1
+    flex: 1
 }
-.hbox .boxchild {
-	margin-left: 10px
+.rowbox .boxchild {
+    margin-left: 10px
 }
-.vbox .boxchild {
-	margin-bottom: 10px
+.colbox .boxchild {
+    margin-bottom: 10px
 }
 
 .resize-horizontal {
-	resize: horizontal
+    resize: horizontal
 }
 .resize-vertical {
-	resize: vertical
+    resize: vertical
 }
 .oneliner > * {
-	float: right;
-	margin-left: 20px
+    float: right;
+    margin-left: 20px
 }
 .pagecontainer .pageinput.postgap, .postgap {
-	margin-top: 5px;
-	margin-bottom: 16px;
-	overflow: auto
+    margin-top: 5px;
+    margin-bottom: 16px;
+    overflow: auto
 }
 .pagecontainer .pageinput.pregap, .pregap {
-	margin-top: 16px;
-	margin-bottom: 5px;
-	overflow: auto
+    margin-top: 16px;
+    margin-bottom: 5px;
+    overflow: auto
 }
 
 /* full height */

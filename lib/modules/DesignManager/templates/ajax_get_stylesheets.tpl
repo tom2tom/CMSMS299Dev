@@ -123,7 +123,7 @@
   </table>
   {/strip}
 
-  <div class="pageoptions hbox" style="justify-content:flex-end;" id="bulkoptions">
+  <div class="pageoptions rowbox" style="justify-content:flex-end;" id="bulkoptions">
     <div class="boxchild">
       {cms_help realm=$_module key2='help_css_bulk' title=$mod->Lang('prompt_bulk')}
       <label for="css_bulk_action">{$mod->Lang('prompt_with_selected')}:</label>&nbsp;

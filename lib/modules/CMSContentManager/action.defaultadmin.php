@@ -146,7 +146,7 @@ $u3 = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION
 $script_url = CMS_SCRIPTS_URL;
 
 //TODO any other action-specific js
-//TODO flexbox css for multi-row .vbox, .hbox.flow, .boxchild
+//TODO flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
 
 $s1 = json_encode($this->Lang('confirm_setinactive'));
 $s2 = json_encode($this->Lang('confirm_setdefault'));

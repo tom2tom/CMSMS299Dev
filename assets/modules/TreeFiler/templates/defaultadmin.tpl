@@ -1,5 +1,5 @@
-<div class="vbox">
- <div class="hbox expand flow">
+<div class="colbox">
+ <div class="rowbox expand flow">
   <div id="main-nav" class="boxchild">
 {if !empty($crumbs)}{foreach $crumbs as $one}
 {if $one@first}
@@ -25,8 +25,8 @@
 <a title="{$mod->Lang('title_upload')}" href="javascript:doUpload()"><i class="if-upload" aria-hidden="true"></i></a>
 {/if}
   </div>{*/boxchild*}
- </div>{*/hbox*}
- <div class="hbox flow" id="dragcontainer" >
+ </div>{*/rowbox*}
+ <div class="rowbox flow" id="dragcontainer" >
   <div class="boxchild" id="treecontainer">
    <p class="cfm-tree-title">
      <a title="{$mod->Lang('search2')}" href="javascript:doSearch(false)"><i class="if-search"></i></a>
@@ -51,8 +51,8 @@
   </div>
   {/if}
   </div>{*/boxchild*}
- </div>{*/hbox*}
-</div>{*vbox*}
+ </div>{*/rowbox*}
+</div>{*colbox*}
 <div style="display:none;">{*TRANSIENT ELEMENTS*}
 <div id="upload_dlg" title="{$mod->Lang('title_upload')}">
  <div title="{$mod->Lang('tip_upload')}">

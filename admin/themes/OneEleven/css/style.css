@@ -832,18 +832,18 @@ aside .no-slide, .no-slide  {
 
 /* --- LAYOUT --- */
 
-.vbox {
+.colbox {
 	display: flex;
 	flex-direction: column
 }
-.hbox {
+.rowbox {
 	display: flex;
 	flex-direction: row
 }
-.vbox.expand, .hbox.expand {
+.colbox.expand, .rowbox.expand {
 	justify-content: space-between
 }
-.vbox.flow, .hbox.flow {
+.colbox.flow, .rowbox.flow {
 	flex-wrap: wrap
 }
 .boxchild {
@@ -852,10 +852,10 @@ aside .no-slide, .no-slide  {
 .boxchild.fill {
 	flex: 1
 }
-.hbox .boxchild {
+.rowbox .boxchild {
 	margin-right: 10px
 }
-.vbox .boxchild {
+.colbox .boxchild {
 	margin-bottom: 10px
 }
 

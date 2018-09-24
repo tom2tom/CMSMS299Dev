@@ -155,7 +155,7 @@ try {
      ->assign('css', $css_ob);
     if ($css_ob && $css_ob->get_id()) $tpl->assign('css_id', $css_ob->get_id());
 
-    //TODO ensure flexbox css for .hbox, .boxchild
+    //TODO ensure flexbox css for .rowbox, .boxchild
 
     $content = get_editor_script(['edit'=>true, 'htmlid'=>$id.'content', 'typer'=>'css']);
     if (!empty($content['head'])) {

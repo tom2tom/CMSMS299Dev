@@ -5,8 +5,8 @@
 <div class="clearb postgap"></div>
 {/if}
 {if !empty($about)}
-<div class="vbox postgap">
-{foreach $about as $one}<div class="hbox"><div class="boxchild">{$one@key}:&nbsp;</div><div class="boxchild">{$one}</div></div>{/foreach}
+<div class="colbox postgap">
+{foreach $about as $one}<div class="rowbox"><div class="boxchild">{$one@key}:&nbsp;</div><div class="boxchild">{$one}</div></div>{/foreach}
 </div>
 {/if}
 {$start_form}

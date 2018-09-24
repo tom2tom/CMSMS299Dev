@@ -15,7 +15,7 @@
 
 {form_start id='form_editcss' extraparms=$extraparms}
 <fieldset>
-<div class="hbox flow">
+<div class="rowbox flow">
  <div class="boxchild">
   <div class="pageinput postgap">
     <button type="submit" name="{$actionid}submit" id="submitbtn" class="adminsubmit icon check"  {$disable|strip}>{$mod->Lang('submit')}</button>
@@ -56,7 +56,7 @@
   </div>
  </div>{* boxchild *}
 {/if}
-</div>{* hbox *}
+</div>{* rowbox *}
 </fieldset>
 
 {tab_header name='content' label=$mod->Lang('prompt_stylesheet')}

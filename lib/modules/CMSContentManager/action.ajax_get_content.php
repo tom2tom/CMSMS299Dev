@@ -116,7 +116,7 @@ try {
     $opts = bulkcontentoperations::get_operation_list();
     if( is_array($opts) && count($opts) ) $tpl->assign('bulk_options',$opts);
 
-    //TODO ensure flexbox css for .hbox, .boxchild
+    //TODO ensure flexbox css for .rowbox, .boxchild
 
     $tpl->display();
 }

@@ -46,7 +46,7 @@
 </div>
 {/if}
 
-<div class="hbox expand">
+<div class="rowbox expand">
   <div class="pageoptions boxchild">
     {if $can_add}
     <a href="{cms_action_url action=addarticle}">{admin_icon icon='newobject.gif' alt=$mod->Lang('addarticle')} {$mod->Lang('addarticle')}</a>&nbsp;
@@ -64,7 +64,7 @@
     </form>
   </div>{*boxchild*}
   {/if}
-</div>{*hbox*}
+</div>{*rowbox*}
 {if $itemcount > 0}
 {$form2start}
 <table class="pagetable" id="articlelist">
@@ -128,7 +128,7 @@
 <div class="pagewarn">{if $curcategory == ''}{$mod->Lang('noarticles')}{else}{$mod->Lang('noarticlesinfilter')}{/if}</div>
 {/if}
 
-<div class="pageoptions hbox{if isset($addlink) && $itemcount > 10} expand">
+<div class="pageoptions rowbox{if isset($addlink) && $itemcount > 10} expand">
   <div class="boxchild">
     <p>{$addlink}</p>
   </div>
@@ -151,5 +151,5 @@
     <button type="submit" name="{$actionid}submit_bulkaction" id="submit_bulkaction" class="adminsubmit icon do">{$mod->Lang('submit')}</button>
   </div>{*boxchild*}
 {/if}{*$itemcount > 0*}
-</div>{*hbox*}
+</div>{*rowbox*}
 </form>

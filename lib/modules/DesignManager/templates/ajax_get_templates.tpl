@@ -146,7 +146,7 @@ $('#tpl_selall').cmsms_checkall();
   </tbody>
 </table>
 
-  <div class="pageoptions hbox" style="justify-content:flex-end">
+  <div class="pageoptions rowbox" style="justify-content:flex-end">
     <div class="boxchild">
       {cms_help realm=$_module key2='help_bulk_templates' title=$mod->Lang('prompt_bulk')}
       <label for="tpl_bulk_action">{$mod->Lang('prompt_with_selected')}:</label>&nbsp;

@@ -45,7 +45,7 @@ try {
         }
     }
 
-//TODO ensure flexbox css for multi-row .vbox, .hbox.flow, .boxchild
+//TODO ensure flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
 
     $tpl = $smarty->createTemplate($this->GetTemplateResource('edit_profile.tpl'),null,null,$smarty);
     $tpl->assign('profile',$profile);

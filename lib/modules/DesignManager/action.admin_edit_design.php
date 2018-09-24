@@ -98,7 +98,7 @@ try {
   $tpl->assign('manage_templates',$manage_templates)
    ->assign('design',$design);
 
-//TODO ensure flexbox css for .hbox.expand, .boxchild
+//TODO ensure flexbox css for .rowbox.expand, .boxchild
   //designs tab
 /*
 function save_design() {

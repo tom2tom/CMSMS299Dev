@@ -231,7 +231,7 @@ try {
         if (is_array($tmp) && count($tmp)) $tpl->assign('addt_editor_list', $tmp);
     }
 
-//TODO ensure flexbox css for .hbox, .boxchild
+//TODO ensure flexbox css for .rowbox, .boxchild
 
     $content = get_editor_script(['edit'=>true, 'htmlid'=>$id.'contents', 'typer'=>'smarty']);
     if (!empty($content['head'])) {

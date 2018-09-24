@@ -16,22 +16,22 @@
 
 <div id="filter_dlg" title="{$mod->Lang('filter')}" style="display:none;min-width:35em;">
   {form_start}
-  <div class="vbox">
-    <div class="hbox flow">
+  <div class="colbox">
+    <div class="rowbox flow">
       <label class="boxchild" for="f_sev">{$mod->Lang('f_sev')}:</label>
       <select class="boxchild" id="f_sev" name="{$actionid}f_sev">
       {html_options options=$severity_list selected=$filter->severity}
       </select>
     </div>
-    <div class="hbox flow">
+    <div class="rowbox flow">
       <label class="boxchild" for="f_act">{$mod->Lang('f_msg')}:</label>
       <input class="boxchild" id="f_act" name="{$actionid}f_msg" value="{$filter->msg}" />
     </div>
-    <div class="hbox flow">
+    <div class="rowbox flow">
       <label class="boxchild" for="f_item">{$mod->Lang('f_subj')}:</label>
       <input class="boxchild" id="f_item" name="{$actionid}f_subj" value="{$filter->subject}" />
     </div>
-    <div class="hbox flow">
+    <div class="rowbox flow">
       <label class="boxchild" for="f_user">{$mod->Lang('f_user')}:</label>
       <input class="boxchild" id="f_user" name="{$actionid}f_user" value="{$filter->username}" />
     </div>

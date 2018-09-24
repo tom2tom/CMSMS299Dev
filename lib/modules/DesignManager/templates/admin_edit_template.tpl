@@ -10,7 +10,7 @@
 
 {form_start id="form_edittemplate" extraparms=$extraparms}
 <fieldset>
-<div class="hbox">
+<div class="rowbox">
   <div class="boxchild">
     <div class="pageinput postgap">
       <button type="submit" name="{$actionid}submit"id="submitbtn"  class="adminsubmit icon check" {$disable|strip}>{$mod->Lang('submit')}</button>
@@ -64,7 +64,7 @@
     </div>
     {/if}
   </div>{*boxchild*}
-</div>{*hbox*}
+</div>{*rowbox*}
 </fieldset>
 
 {tab_header name='template' label=$mod->Lang('prompt_template')}

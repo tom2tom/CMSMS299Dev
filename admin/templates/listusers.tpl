@@ -65,7 +65,7 @@
   </tbody>
   </table>
 
-  <div class="pageoptions hbox{if count($userlist) > 10} expand">
+  <div class="pageoptions rowbox{if count($userlist) > 10} expand">
   <div class="boxchild">
     <a href="{$addurl}{$urlext}" title="{lang('info_adduser')}">{$iconadd}</a>
     <a href="{$addurl}{$urlext}">{lang('adduser')}</a>
@@ -87,5 +87,5 @@
   </div>
   <button type="submit" id="bulksubmit" name="bulk" class="adminsubmit icon do">{lang('submit')}</button>
   </div>
-  </div>{*hbox*}
+  </div>{*rowbox*}
 </form>

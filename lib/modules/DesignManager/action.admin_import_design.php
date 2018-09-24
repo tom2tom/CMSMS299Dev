@@ -66,7 +66,7 @@ try {
 
   case 2:
     // preview what's going to be imported
-    // TODO ensure flexbox css for .hbox.expand, .boxchild
+    // TODO ensure flexbox css for .rowbox.expand, .boxchild
     $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_import_design2.tpl'),null,null,$smarty);
     try {
         if( !isset($params['tmpfile']) ) {

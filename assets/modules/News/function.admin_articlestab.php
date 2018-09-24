@@ -294,7 +294,7 @@ $(document).ready(function() {
 </script>
 EOS;
 $this->AdminBottomContent($js);
-//TODO ensure flexbox css for .hbox.expand, .boxchild
+//TODO ensure flexbox css for .rowbox.expand, .boxchild
 
 // display template
 $tpl->display();

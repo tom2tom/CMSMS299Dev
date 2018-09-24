@@ -2912,19 +2912,19 @@ a {
 {/if}
 
 {form_start category_id=$category_id}
- &lt;div class="vbox"&gt;
-  &lt;div class="hbox flow"&gt;
+ &lt;div class="colbox"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_title"&gt;*{$mod-&gt;Lang('title')}:&lt;/label&gt;
     &lt;input type="text" class="boxchild" id="news_title" name="{$actionid}title" value="{$title}" size="30" required /&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_category"&gt;{$mod-&gt;Lang('category')}:&lt;/label&gt;
     &lt;select class="boxchild" id="news_category" name="{$actionid}input_category"&gt;
       {html_options options=$categorylist selected=$category_id}
     &lt;/select&gt;
   &lt;/div&gt;
 {if empty($hide_summary_field)}
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_summary"&gt;{$mod-&gt;Lang('summary')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'summary'}
@@ -2932,18 +2932,18 @@ a {
     &lt;/div&gt;
   &lt;/div&gt;
 {/if}
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_content"&gt;*{$mod-&gt;Lang('content')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'content'}
       {cms_textarea enablewysiwyg=true id=news_content name=$tmp value=$content required=true}
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_extra"&gt;{$mod-&gt;Lang('extra')}:&lt;/label&gt;
     &lt;input class="boxchild" id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" /&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild"&gt;{$mod-&gt;Lang('startdate')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'startdate_'}
@@ -2951,7 +2951,7 @@ a {
       {html_select_time prefix=$tmp time=$startdate}
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild"&gt;{$mod-&gt;Lang('enddate')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'enddate_'}
@@ -2960,7 +2960,7 @@ a {
     &lt;/div&gt;
   &lt;/div&gt;
   {if isset($customfields)}{foreach $customfields as $field}
-   &lt;div class="hbox flow"&gt;
+   &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_fld_{$field-&gt;id}"&gt;{$field-&gt;name}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
     {if $field-&gt;type == 'file'}
@@ -2977,7 +2977,7 @@ a {
     &lt;/div&gt;
    &lt;/div&gt;
   {/foreach}{/if}
- &lt;/div&gt;{*.vbox*}
+ &lt;/div&gt;{*.colbox*}
  &lt;div class="pageinput pregap"&gt;
    &lt;button type="submit" name="{$actionid}submit" class="adminsubmit icon check"&gt;{$mod-&gt;Lang('submit')}&lt;/button&gt;
    &lt;a href="{cms_selflink href=$page_alias}"&gt;{$mod-&gt;Lang('prompt_redirecttocontent')}&lt;/a&gt;
@@ -3978,19 +3978,19 @@ End Date:   {$enddate|date_format}]]></content>
 {/if}
 
 {form_start category_id=$category_id}
- &lt;div class="vbox"&gt;
-  &lt;div class="hbox flow"&gt;
+ &lt;div class="colbox"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_title"&gt;*{$mod-&gt;Lang('title')}:&lt;/label&gt;
     &lt;input type="text" class="boxchild" id="news_title" name="{$actionid}title" value="{$title}" size="30" required /&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_category"&gt;{$mod-&gt;Lang('category')}:&lt;/label&gt;
     &lt;select class="boxchild" id="news_category" name="{$actionid}input_category"&gt;
       {html_options options=$categorylist selected=$category_id}
     &lt;/select&gt;
   &lt;/div&gt;
 {if empty($hide_summary_field)}
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_summary"&gt;{$mod-&gt;Lang('summary')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'summary'}
@@ -3998,18 +3998,18 @@ End Date:   {$enddate|date_format}]]></content>
     &lt;/div&gt;
   &lt;/div&gt;
 {/if}
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_content"&gt;*{$mod-&gt;Lang('content')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'content'}
       {cms_textarea enablewysiwyg=true id=news_content name=$tmp value=$content required=true}
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_extra"&gt;{$mod-&gt;Lang('extra')}:&lt;/label&gt;
     &lt;input class="boxchild" id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" /&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild"&gt;{$mod-&gt;Lang('startdate')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'startdate_'}
@@ -4017,7 +4017,7 @@ End Date:   {$enddate|date_format}]]></content>
       {html_select_time prefix=$tmp time=$startdate}
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class="hbox flow"&gt;
+  &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild"&gt;{$mod-&gt;Lang('enddate')}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
       {$tmp=$actionid|cat:'enddate_'}
@@ -4026,7 +4026,7 @@ End Date:   {$enddate|date_format}]]></content>
     &lt;/div&gt;
   &lt;/div&gt;
   {if isset($customfields)}{foreach $customfields as $field}
-   &lt;div class="hbox flow"&gt;
+   &lt;div class="rowbox flow"&gt;
     &lt;label class="boxchild" for="news_fld_{$field-&gt;id}"&gt;{$field-&gt;name}:&lt;/label&gt;
     &lt;div class="boxchild"&gt;
     {if $field-&gt;type == 'file'}
@@ -4043,7 +4043,7 @@ End Date:   {$enddate|date_format}]]></content>
     &lt;/div&gt;
    &lt;/div&gt;
   {/foreach}{/if}
- &lt;/div&gt;{*.vbox*}
+ &lt;/div&gt;{*.colbox*}
  &lt;div class="pageinput pregap"&gt;
    &lt;button type="submit" name="{$actionid}submit" class="adminsubmit icon check"&gt;{$mod-&gt;Lang('submit')}&lt;/button&gt;
    &lt;a href="{cms_selflink href=$page_alias}"&gt;{$mod-&gt;Lang('prompt_redirecttocontent')}&lt;/a&gt;

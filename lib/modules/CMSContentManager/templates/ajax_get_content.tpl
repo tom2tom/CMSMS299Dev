@@ -1,4 +1,4 @@
-<div class="hbox flow">
+<div class="rowbox flow">
   <div class="pageoptions boxchild">
     {if $can_add_content}
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
@@ -33,7 +33,7 @@
       </form>
     {/if}
   </div>{*boxchild*}
-</div>{*hbox*}
+</div>{*rowbox*}
 
 {form_start action='defaultadmin' id='listform'}
 <div id="contentlist">{* everything from here down is part of the ajax stuff *}
@@ -248,7 +248,7 @@
  {/if}
 </div>{* #contentlist *}
 {if isset($content_list)}
-  <div class="pageoptions hbox{if $can_add_content} expand">
+  <div class="pageoptions rowbox{if $can_add_content} expand">
   <div class="boxchild">
     <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
   </div>
@@ -263,7 +263,7 @@
     <button type="submit" name="{$actionid}multisubmit" id="multisubmit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
   </div>
   {/if}
-  </div>{*hbox*}
+  </div>{*rowbox*}
 {/if}
 </form>
 

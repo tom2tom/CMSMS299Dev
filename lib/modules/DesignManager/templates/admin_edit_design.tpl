@@ -3,7 +3,7 @@
 <input type="hidden" name="{$actionid}ajax" id="ajax" />
 
 <fieldset>
- <div class="hbox expand">
+ <div class="rowbox expand">
   <div class="boxchild">
     <div class="pageinput posgap">
       <button type="submit" name="{$actionid}submit" id="submitme" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
@@ -38,7 +38,7 @@
       <p class="pageinput">{$design->get_modified()|date_format:'%x %X'}</p>
     </div>
   </div>{*boxchild*}
- </div>{*hbox*}
+ </div>{*rowbox*}
 </fieldset>
 
 {tab_header name='templates' label=$mod->Lang('prompt_templates')}
