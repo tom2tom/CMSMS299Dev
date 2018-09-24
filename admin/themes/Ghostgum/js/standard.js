@@ -12,7 +12,7 @@ License: GPL2+
 
 var ggjs = {
   cookie_handler: 'themes/assets/js/js-cookie.min.js',
-  small_width: 992, // viewport-width threshold related to sidebar display
+  small_width: 600, // viewport-width threshold related to sidebar display
   $container: null, // outer container
   $menucontainer: null, // nav menu container
   $menu: null, // nav menu
