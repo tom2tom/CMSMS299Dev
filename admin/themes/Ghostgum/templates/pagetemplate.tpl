@@ -67,6 +67,20 @@
   <div id="ggp_body">
 
   <div id="ggp_container">
+   <div id="ggp_navwrap" class="sidebar-on">
+    <div id="ggp_navhead">
+     <ul><li class="nav">
+      <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}">
+      <svg class="navshut"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#ltr"/></svg>
+      <svg class="navopen"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#rtl"/></svg>
+      </a>
+      <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
+     </li></ul>
+    </div>
+    <div id="ggp_nav">
+     {include file='navigation.tpl'}{block name=navigation}{/block}
+    </div>
+   </div>
    <div id="ggp_contentwrap">
      <div id="ggp_contenthead">
 {*      <div class="{if isset($is_ie)}drop-hidden {/if}"> *}
@@ -84,20 +98,6 @@
     <div id="ggp_content">
      <div style="float:none"></div>
      <div class="pagecontainer">{$content}</div>
-    </div>
-   </div>
-   <div id="ggp_navwrap" class="sidebar-on">
-    <div id="ggp_navhead">
-     <ul><li class="nav">
-      <a href="javascript:ggjs.clickSidebar()" class="icon" title="{lang('open')}/{lang('close')}">
-      <svg class="navshut"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#ltr"/></svg>
-      <svg class="navopen"><use xlink:href="themes/Ghostgum/images/ggsprites.svg#rtl"/></svg>
-      </a>
-      <span class="open-nav" title="{lang('close')}" onclick="ggjs.clickSidebar();">&nbsp;</span>
-     </li></ul>
-    </div>
-    <div id="ggp_nav">
-     {include file='navigation.tpl'}{block name=navigation}{/block}
     </div>
    </div>
   </div> {* end content container row *}
