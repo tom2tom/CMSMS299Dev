@@ -3,7 +3,7 @@
   <div id="main-nav" class="boxchild">
 {if !empty($crumbs)}{foreach $crumbs as $one}
 {if $one@first}
- <a href="{$one->url}">
+ <a href="{$one->url}">{*TODO support non-iconfont images too*}
  <i class="if-home" aria-hidden="true" title="{$mod->Lang('goto_named',{$one->name})}"></i>
  </a>
 {elseif $one@last}

@@ -1244,8 +1244,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 }
 
 #shortcuts > .icon svg {
-    height: 1.3em;
-    width: 1.3em;
+    max-height: 1.3em;
+    max-width: 1.3em;
 }
 
 #shortcuts a {
@@ -1504,8 +1504,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     background-color: #3c9b0a
 }
 #ggp_navwrap #ggp_navhead svg.navopen {
-    width: 1.8em;
-    height: 1.8em;
+    max-width: 1.8em;
+    max-height: 1.8em;
 }
 #ggp_navwrap.sidebar-off #ggp_navhead svg.navopen {
     width: 0;
@@ -1516,8 +1516,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     height: 0;
 }
 #ggp_navwrap.sidebar-off #ggp_navhead a svg.navshut {
-    width: 1.8em;
-    height: 1.8em
+    max-width: 1.8em;
+    max-height: 1.8em
 }
 /*
 #ggp_navwrap.sidebar-off svg.navshut {
@@ -1627,8 +1627,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 }
 
 #ggp_menu li a svg, #ggp_menu li a img {
-    width: 1.8em;
-    height: 1.8em;
+    max-width: 1.8em;
+    max-height: 1.8em;
 }
 
 /* second level & collapsed sidebar */
@@ -1664,8 +1664,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     word-break: normal
 }
 #ggp_menu li li a svg, #ggp_menu li li a img {
-    width: 1.3em;
-    height: 1.3em;
+    max-width: 1.3em;
+    max-height: 1.3em;
     vertical-align: top;
 }
 #ggp_menu li li.current span {
@@ -1711,8 +1711,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     padding-right: 5px;
 }
 .dashboard-box h3.dashboard-icon svg {
-    width: 2.1em;
-    height: 2.1em;
+    max-width: 2.1em;
+    max-height: 2.1em;
     margin-bottom: -0.5em;
 }
 .dashboard-box span.description {
@@ -1819,8 +1819,8 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
     vertical-align: text-bottom
 }
 svg.systemicon {
-    height: 1.1rem;
-    width: 1.1rem
+    max-height: 1.1rem;
+    max-width: 1.1rem
 }
 
 .pageheader img {

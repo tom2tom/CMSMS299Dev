@@ -8,7 +8,7 @@
 {if !$CFM_IS_WIN}
    <th class="center">{$mod->Lang('perms')}</th>
 {/if}
-   <th class="center {ldelim}sss:false{rdelim}">{$mod->Lang('actions')}</th>
+   <th class="{ldelim}sss:false{rdelim}"></th>
 {if !$CFM_READONLY}
    <th class="{ldelim}sss:false{rdelim}"><input type="checkbox" id="checkall" onclick="checkall_toggle(this);"></th>
 {/if}
@@ -31,6 +31,9 @@
 {/foreach}
   </tbody>
  </table>
+ <div id="menus">
+  {foreach $menus as $one}{$one}{/foreach}
+ </div>
  <br />
 {/if}{*count $items*} 
  <strong>{$summary}</strong>

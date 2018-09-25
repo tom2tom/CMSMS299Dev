@@ -146,6 +146,7 @@ $lang['linktitle'] = 'Create Link';
 
 // M
 $lang['mb'] = 'MB';
+$lang['menu'] = 'Menu';
 //$lang['mimetype'] = 'Mime Type';
 $lang['moddescription'] = 'Manage website files and directories';
 $lang['modified'] = 'Modified';
@@ -218,6 +219,7 @@ $lang['stat_upped'] = 'Successfully uploaded'; //NEEDED?
 
 // T
 $lang['text'] = 'File';
+$lang['tip_menu'] = 'Display actions menu';
 $lang['tip_upload'] = 'Upload file(s) and/or folder(s)';
 $lang['title_dnd'] = 'Drag and drop anywhere here';
 $lang['title_upload'] = 'Upload to this folder';

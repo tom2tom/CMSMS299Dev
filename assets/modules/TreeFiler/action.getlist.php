@@ -133,6 +133,14 @@ if ($items) {
 
 $total_size = 0;
 
+$themeObject = cms_utils::get_theme_object();
+if (!$CFM_READONLY) {
+    $t = $themeObject->DisplayImage('icons/system/menu', '', '', '', '', ['alt'=>'Menu','class'=>'systemicon']);
+    $menu = '<span context-menu="XXX" title="'.$this->Lang('tip_menu').'" style="cursor:pointer">'.$t.'</span>';
+}
+
+//TODO get icons using DisplayImage i.e. fonticon or otherwise
+
 $u = $this->create_url($id, 'open', $returnid, ['p'=>$CFM_RELPATH, 'view'=>'XXX']);
 $linkview = '<a href="'. $u .'" title="'. $this->Lang('view') .'">YYY</a>';
 
@@ -177,6 +185,7 @@ $tz = (!empty($config['timezone'])) ? $config['timezone'] : 'UTC';
 $dt = new DateTime(null, new DateTimeZone($tz));
 
 $items = [];
+$menus = [];
 $c = 0;
 foreach ($folders as $name) {
     $oneset = new stdClass();
@@ -216,7 +225,7 @@ foreach ($folders as $name) {
             $oneset->perms = $t;
         }
     }
-
+/*
     if ($CFM_READONLY) {
         $acts = '';
     } else {
@@ -235,8 +244,23 @@ foreach ($folders as $name) {
         $oneset->sel = $encf;
     }
     $acts .= str_replace('XXX', $encf, $linkdown);
-    $oneset->acts = $acts;
-
+*/
+    $acts = [];
+    if (!$CFM_READONLY) {
+        if (!empty($profile['can_delete'])) {
+            $acts[] = ['content'=>str_replace('XXX', $name, $linkdel)];
+        }
+        $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linkren)];
+        $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linkcopy)];
+        $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linklink)];
+        $acts[] = ['content'=>str_replace('XXX', $encf, $linkdown)];
+		$t = preg_replace('/\W/', '_', $name);
+        $menus[] = CmsFormUtils::create_menu($acts, ['id'=>$t, 'class'=>'ContextMenu']);
+        $oneset->acts = str_replace('XXX', $t, $menu);
+        $oneset->sel = $encf;
+    } else {
+        $oneset->acts = str_replace('XXX', $encf, $linkdown);
+    }
     $items[] = $oneset;
     ++$c;
 }
@@ -252,7 +276,7 @@ foreach ($files as $name) {
     $is_link = is_link($fp);
     $oneset->is_link = $is_link;
     $oneset->realpath = $is_link ? readlink($fp) : null;
-    $oneset->icon = $is_link ? 'if-doc-text' : cfm_get_file_icon_class($fp);
+    $oneset->icon = $is_link ? 'if-link' : cfm_get_file_icon_class($fp);
 
     $oneset->path = rawurlencode(trim($CFM_RELPATH . DIRECTORY_SEPARATOR . $name, DIRECTORY_SEPARATOR)); //TODO
     if (is_readable($fp)) {
@@ -281,7 +305,7 @@ foreach ($files as $name) {
             $oneset->perms = $t;
         }
     }
-
+/*
     if ($CFM_READONLY) {
         $acts = '';
     } else {
@@ -305,6 +329,28 @@ foreach ($files as $name) {
     }
     $acts .= str_replace('XXX', $encf, $linkdown);
     $oneset->acts = $acts;
+*/
+    $acts = [];
+    if (!$CFM_READONLY) {
+        if (!empty($profile['can_delete'])) {
+            $acts[] = ['content'=>str_replace('XXX', $name, $linkdel)];
+        }
+        $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linkren)];
+        $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linkcopy)];
+        $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linklink)];
+        if ($pdev) {
+            if ($helper->is_text($fp)) {
+                $acts[] = ['content'=>str_replace('XXX', $name, $linkedit)];
+            }
+        }
+        $acts[] = ['content'=>str_replace('XXX', $encf, $linkdown)];
+		$t = preg_replace('/\W/', '_', $name);
+        $menus[] = CmsFormUtils::create_menu($acts, ['id'=>$t, 'class'=>'ContextMenu']);
+        $oneset->acts = str_replace('XXX', $t, $menu);
+        $oneset->sel = $encf;
+    } else {
+        $oneset->acts = str_replace('XXX', $encf, $linkdown);
+    }
 
     $items[] = $oneset;
     ++$c2;
@@ -387,6 +433,7 @@ $smarty->assign([
     'pointer' => '&rarr;', //TODO or '&larr;' for 'rtl'
     'bytename' => $bytename,
     'items' => $items,
+    'menus' => $menus,
     'summary' => $s,
 ]);
 

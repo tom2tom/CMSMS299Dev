@@ -129,6 +129,8 @@ $sm->queue_file($p.'jquery.easysearch.js'); //OR .min for production
 $sm->queue_file($p.'jquery.dm-uploader.js'); //OR .min for production
 $sm->queue_file($p.'jquery.filedrag.js'); //OR .min for production
 
+$sm->queue_file(CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.ContextMenu.min.js');
+
 $fn = $sm->render_scripts();
 $u = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 $js = <<<EOS

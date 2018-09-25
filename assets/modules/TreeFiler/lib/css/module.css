@@ -78,12 +78,12 @@ table.pagetable tbody td.filename {
 
 @font-face {
   font-family: 'cfm';
-  src: url('../font/cfm.eot?77467785');
-  src: url('../font/cfm.eot?77467785#iefix') format('embedded-opentype'),
-       url('../font/cfm.woff2?77467785') format('woff2'),
-       url('../font/cfm.woff?77467785') format('woff'),
-       url('../font/cfm.ttf?77467785') format('truetype'),
-       url('../font/cfm.svg?77467785#cfm') format('svg');
+  src: url('../font/cfm.eot?4172378');
+  src: url('../font/cfm.eot?4172378#iefix') format('embedded-opentype'),
+       url('../font/cfm.woff2?4172378') format('woff2'),
+       url('../font/cfm.woff?4172378') format('woff'),
+       url('../font/cfm.ttf?4172378') format('truetype'),
+       url('../font/cfm.svg?4172378#cfm') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -93,7 +93,7 @@ table.pagetable tbody td.filename {
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'cfm';
-    src: url('../font/cfm.svg?77467785#cfm') format('svg');
+    src: url('../font/cfm.svg?4172378#cfm') format('svg');
   }
 }
 */
@@ -107,9 +107,9 @@ table.pagetable tbody td.filename {
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
-  margin-right: 0.2em;
+  /* margin-right: .2em; */
   text-align: center;
-  /* opacity: 0.8; */
+  /* opacity: .8; */
 
   /* For safety - reset parent styles that can break glyph codes*/
   font-variant: normal;
@@ -120,7 +120,7 @@ table.pagetable tbody td.filename {
 
   /* Animation center compensation - margins should be symmetric */
   /* remove if not needed */
-  /* margin-left: 0.2em; */
+  /* margin-left: .2em; */
 
   /* you can be more comfortable with increased icons size */
   /* font-size: 120%; */
@@ -135,38 +135,35 @@ table.pagetable tbody td.filename {
 
 .if-angle-double-left:before { content: '\e934'; } /* '' */
 .if-angle-double-right:before { content: '\e935'; } /* '' */
+.if-archive:before { content: '\e918'; } /* '' */
+.if-audio:before { content: '\e917'; } /* '' */
 .if-cancel-squared:before { content: '\e932'; } /* '' */
 .if-cancel:before { content: '\e90e'; } /* '' */
 .if-chat:before { content: '\e908'; } /* '' */
 .if-closeall:before { content: '\e90c'; } /* '' */
+.if-code:before { content: '\e919'; } /* '' */
 .if-cog:before { content: '\e907'; } /* '' */
 .if-css3:before { content: '\e91d'; } /* '' */
-.if-doc-text:before { content: '\e91a'; } /* '' */
 .if-doc:before { content: '\e910'; } /* '' */
 .if-docs:before { content: '\e902'; } /* '' */
 .if-download:before { content: '\e930'; } /* '' */
 .if-edit:before { content: '\e939'; } /* '' */
-.if-file-archive:before { content: '\e918'; } /* '' */
-.if-file-audio:before { content: '\e917'; } /* '' */
-.if-file-code:before { content: '\e919'; } /* '' */
 .if-file-excel:before { content: '\e914'; } /* '' */
-.if-file-image:before { content: '\e915'; } /* '' */
-.if-file-pdf:before { content: '\e912'; } /* '' */
 .if-file-powerpoint:before { content: '\e91c'; } /* '' */
-.if-file-video:before { content: '\e916'; } /* '' */
 .if-file-word:before { content: '\e913'; } /* '' */
 .if-folder-add:before { content: '\e90a'; } /* '' */
 .if-folder-open:before { content: '\e90b'; } /* '' */
 .if-folder:before { content: '\e909'; } /* '' */
 .if-font:before { content: '\e920'; } /* '' */
-.if-headphones:before { content: '\e911'; } /* '' */
 .if-history:before { content: '\e906'; } /* '' */
 .if-home:before { content: '\e900'; } /* '' */
 .if-html5:before { content: '\e91b'; } /* '' */
+.if-image:before { content: '\e915'; } /* '' */
 .if-level-up:before { content: '\e933'; } /* '' */
 .if-link:before { content: '\e936'; } /* '' */
 .if-move:before { content: '\e90d'; } /* '' */
 .if-music:before { content: '\e91e'; } /* '' */
+.if-pdf:before { content: '\e912'; } /* '' */
 .if-rename:before { content: '\e905'; } /* '' */
 .if-resize-full:before { content: '\e903'; } /* '' */
 .if-resize-small:before { content: '\e904'; } /* '' */
@@ -176,8 +173,10 @@ table.pagetable tbody td.filename {
 .if-sortable:before { content: '\e93c'; } /* '' */
 .if-switch:before { content: '\e937'; } /* '' */
 .if-terminal:before { content: '\e91f'; } /* '' */
+.if-text:before { content: '\e91a'; } /* '' */
 .if-trash-empty:before { content: '\e901'; } /* '' */
 .if-upload:before { content: '\e931'; } /* '' */
+.if-video:before { content: '\e916'; } /* '' */
 
 /*
 th.[class*=" if-"]:before {
@@ -194,25 +193,25 @@ table.pagetable tbody td i {
 td.icon .if-folder {
  color: #eeaf4b
 }
-td.icon .if-file-image {
+td.icon .if-image {
  color: #26b99a
 }
-td.icon .if-file-audio {
+td.icon .if-audio {
  color: #da7d7d
 }
-td.icon .if-file-archive {
+td.icon .if-archive {
  color: #296ea3
 }
 td.icon .if-css3 {
  color: #f36fa0
 }
-td.icon .if-file-code {
+td.icon .if-code {
  color: #ec6630
 }
-td.icon .if-file-pdf {
+td.icon .if-pdf {
  color: #cc4b4c
 }
-td.icon .if-doc-text {
+td.icon .if-text {
  color: #0096e6
 }
 td.icon .if-html5 {
@@ -224,12 +223,12 @@ td.icon .if-file-excel {
 td.icon .if-file-powerpoint {
  color: #f6712e
 }
-
+/*
 span.actionspacer {
  display: inline-block;
  width: 1.6em;
 }
-
+*/
 /* folders tree */
 #treecontainer { margin-left: -999em; }  /* don't show it until after init */
 /*.cfm-tree-title
@@ -244,9 +243,9 @@ span.actionspacer {
 /* .treemenu li.active {} */
 .toggler:before { display: inline-block; margin-right: 5px; font-size: 1.1em; }
 li.tree-empty > .toggler { opacity: 0.4; cursor: default; }
-li.tree-empty > .toggler:before { content: '\e810'; color: #eeaf4b; } /* TODO always same as .warn */
-li.tree-closed > .toggler:before { content: '\e810'; color: #eeaf4b; }
-li.tree-opened > .toggler:before { content: '\e811'; color: #0e2a42; }  /* TODO always same as .info */
+li.tree-empty > .toggler:before { content: '\e909'; color: #eeaf4b; } /* TODO always same color as .warn */
+li.tree-closed > .toggler:before { content: '\e909'; color: #eeaf4b; }
+li.tree-opened > .toggler:before { content: '\e90b'; color: #0e2a42; }  /* TODO always same color as .info */
 .tree-hidden { display: none; }
 /* .treemenu .search-result {} */
 .search-root ul { display: none; }
@@ -279,3 +278,96 @@ li.tree-opened > .toggler:before { content: '\e811'; color: #0e2a42; }  /* TODO 
  overflow: auto;
 }
 */
+
+.ContextMenu {
+     display: none;
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     position: fixed;
+     padding: 9px;
+     max-width: 250px;
+/* min-width: 200px;   */
+     max-height: 400px;
+     background-color: #f9f9f9;
+     font-size: 14px;
+     -webkit-touch-callout: none;
+     -webkit-user-select: none;
+     -moz-user-select: none;
+     -ms-user-select: none;
+     user-select: none;
+}
+.ContextMenu > label {
+     height: 25px;
+     width: 100%;
+     margin: 0px;
+     text-align: left;
+     color: #337ab7;
+     margin-bottom: 10px;
+}
+.ContextMenu > ul {
+     max-width: 250px;
+     max-height: 360px;
+     overflow: auto;
+}
+.ContextMenu.active {
+     display: block;
+     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12), 0 2px 4px -1px rgba(0, 0, 0, .2);
+}
+.ContextMenu ul {
+     list-style-type:none;
+}
+.ContextMenu ul ul {
+     padding: 0;
+     margin: 0;
+}
+.ContextMenu > ul > ul {
+     margin-bottom: 1px;
+}
+.ContextMenu > ul > ul > li:not(:last-child) {
+     border-bottom: 1px solid #ddd;
+}
+.ContextMenu li {
+     margin-bottom: 10px;
+/* min-width: 100px; */
+}
+.ContextMenu li:last-child {
+     margin-bottom: 0px;
+}
+.ContextMenu li:hover > span {
+     color: #e88d00;
+}
+.ContextMenu li:hover {
+     cursor: pointer;
+     -webkit-transition: all 0.3s ease;
+     -moz-transition: all 0.3s ease;
+     transition: all 0.3s ease;
+}
+.ContextMenu label span.glyphicon {
+     margin-right: 5px;
+     padding-right: 5px;
+     font-size: 18px;
+}
+.ContextMenu li span.glyphicon {
+     margin-right: 5px;
+     padding-right: 5px;
+     font-size: 18px;
+     border-right: 1px solid #ddd;
+}
+.ContextMenu ul li ul.sub-level {
+     display: none;
+     margin-top: 10px;
+}
+.ContextMenu ul li ul.sub-level.active {
+     display: block;
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     padding: 10px 5px;
+}
+.ContextMenu ul > li > ul.sub-level.active {
+     background-color: #fcf8e3;
+}
+.ContextMenu ul > li > ul.sub-level.active > ul li ul.sub-level.active {
+     background-color: #fff;
+     font-style: italic;
+     font-size: 12px;
+}

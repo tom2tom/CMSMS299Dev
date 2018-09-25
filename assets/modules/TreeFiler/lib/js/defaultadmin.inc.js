@@ -1,6 +1,7 @@
 $(document).ready(function() {
  treeinit();
  $('#treecontainer').css('margin-left', 0);
+ $('[context-menu]').ContextMenu();
  var tbl = $('#main-table');
  if(tbl.length > 0) {
   $.fn.SSsort.addParser({

@@ -367,18 +367,18 @@ function cfm_get_file_icon_class(string $path) : string
         global $config;
         $helper = new FileTypeHelper($config);
     }
-
+	// here we ignore whether the actual images are fonticons or otherwise
     if ($helper->is_image($path)) {
-        return 'if-file-image';
+        return 'if-image';
     }
     if ($helper->is_archive($path)) {
-        return 'if-file-archive';
+        return 'if-archive';
     }
     if ($helper->is_audio($path)) {
-        return 'if-file-audio';
+        return 'if-audio';
     }
     if ($helper->is_video($path)) {
-        return 'if-file-video';
+        return 'if-video';
     }
 
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
@@ -387,25 +387,25 @@ function cfm_get_file_icon_class(string $path) : string
         case 'config': case 'twig': case 'tpl':
         case 'c': case 'cpp': case 'cs': case 'py': case 'map': case 'lock': case 'dtd':
         case 'php': case 'php4': case 'php5': case 'phps': case 'phtml':
-            return 'if-file-code';
+            return 'if-code';
         case 'txt': case 'ini': case 'conf': case 'log': case 'htaccess': case 'md': case 'gitignore':
-            return 'if-doc-text';
+            return 'if-text';
         case 'css': case 'less': case 'sass': case 'scss':
             return 'if-css3';
         case 'htm': case 'html': case 'shtml': case 'xhtml':
             return 'if-html5';
         case 'xml': case 'xsl':
-            return 'if-doc-text';
+            return 'if-text';
         case 'pdf':
-            return 'if-file-pdf';
+            return 'if-pdf';
         case 'm3u': case 'm3u8': case 'pls': case 'cue':
-            return 'if-headphones';
+            return 'if-audio';
         case 'eml': case 'msg':
             return 'if-chat';
         case 'xls': case 'xlsx':
             return 'if-file-excel';
         case 'csv':
-            return 'if-doc-text';
+            return 'if-text';
         case 'bak':
             return 'if-history';
         case 'doc': case 'docx':
