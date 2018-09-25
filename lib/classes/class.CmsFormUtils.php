@@ -1313,7 +1313,7 @@ class CmsFormUtils
 EOS;
         foreach ($items as $item) {
             $c = $item['content'];
-            if (!$item['children']) {
+            if (empty($item['children'])) {
                 $out .= <<<EOS
   <li{$ic}>$c</li>
 EOS;
