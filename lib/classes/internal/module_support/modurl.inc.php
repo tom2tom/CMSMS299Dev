@@ -32,8 +32,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  * Get an URL representing a module action
  *
  * @param module-object $modinstance The module to which the action belongs
- * @param string $id		The module action-id (e.g. 'cntnt01' indicates that the
- *   default content block of the destination frontend-page is to be targeted)
+ * @param mixed $id		string|null The module action-id (e.g. 'cntnt01' indicates
+ *   that the default content block of the destination frontend-page is to be targeted)
+ *   NULL value will cause an error-string to be returned.
  * @param string $action	The module action name
  * Optional parameters
  * @param mixed $returnid Optional page-id to return to after the action
@@ -56,7 +57,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 function cms_module_create_actionurl(
 	&$modinstance,
-	string $id,
+	$id,
 	string $action,
 	$returnid = null,
 	array $params = [],
