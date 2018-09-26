@@ -13,9 +13,6 @@ html body {display:none;}
 .fontawesome-i2svg-active body {display: block;}
 */
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i');
-@import 'bootstrap_reboot-grid.min.css';
-
 /* base */
 html,
 body {
@@ -469,7 +466,6 @@ table.pagetable a.text-red {
 .pagewarning::after {
     content: '\f071';
     color: #d4a711;
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
@@ -496,7 +492,6 @@ table.pagetable a.text-red {
 .pageerrorinstalldir::after {
     content: '\f05e';
     color: #ec1313;
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
@@ -510,7 +505,6 @@ table.pagetable a.text-red {
 .success::after {
     content: '\f058';
     color: #0da50d;
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
@@ -530,7 +524,6 @@ table.pagetable a.text-red {
 .info::after, .pageinfo::after, .information::after {
     content: '\f05a';
     color: #426ef0;
-    margin: 0.3em;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
@@ -712,9 +705,8 @@ aside .no-slide,
 }
 */
 .jqt-has-icon::before {
-/*    font-family: "Font Awesome 5 Free"; */
     font-size: 1.5em;
-    margin: 0.3em 1.5em 0.3em 0.3em;
+    margin-right: -0.5em;
     padding-left: 0.3em;
     vertical-align: middle;
 }
@@ -1354,6 +1346,10 @@ i.fontimage {
     padding: 0;
     color: #147fdb
 }
+.pageheader img {
+    max-height: 2rem;
+    max-width: 2rem;
+}
 
 div.pageoverflow {
     clear: right;
@@ -1383,6 +1379,10 @@ a.pageoptions {
 .systemicon {
     border: none;
     vertical-align: top
+}
+svg.systemicon {
+    max-height: 1.1rem;
+    max-width: 1.1rem
 }
 
 #copy_paste_in_forum {
