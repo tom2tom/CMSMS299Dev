@@ -17,14 +17,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-use CMSMS\AdminUtils;
-use CMSMS\CmsException;
 use CMSMS\ContentBase;
 use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\bulkcontentoperations;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
+use CMSMS\ModulePluginManager;
 
 /**
  * Base module class.
@@ -290,8 +289,8 @@ abstract class CMSModule
         if( !$name || !$type || !$callback ) throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
 
         // todo: check name, and type
-        if( $usage == 0 ) $usage = cms_module_smarty_plugin_manager::AVAIL_FRONTEND;
-        cms_module_smarty_plugin_manager::addStatic($this->GetName(),$name,$type,$callback,$cachable,$usage);
+        if( $usage == 0 ) $usage = ModulePluginManager::AVAIL_FRONTEND;
+        ModulePluginManager::addStatic($this->GetName(),$name,$type,$callback,$cachable,$usage);
     }
 
     /**
@@ -305,10 +304,10 @@ abstract class CMSModule
     public function RemoveSmartyPlugin($name = '')
     {
         if( $name == '' ) {
-            cms_module_smarty_plugin_manager::remove_by_module($this->GetName());
-            return;
-        }
-        cms_module_smarty_plugin_manager::remove_by_name($name);
+            ModulePluginManager::remove_by_module($this->GetName());
+        } else {
+            ModulePluginManager::remove_by_name($name);
+		}
     }
 
     /**
@@ -330,16 +329,18 @@ abstract class CMSModule
         // frontend request.
         $admin_req = (isset($CMS_ADMIN_PAGE) && !$this->LazyLoadAdmin())?1:0;
         $fe_req = (!isset($CMS_ADMIN_PAGE) && !$this->LazyLoadFrontend())?1:0;
+		$name = $this->GetName();
         if( ($fe_req || $admin_req) && !$forcedb ) {
             if( isset($CMS_INSTALL_PAGE) ) return true;
 
             // no lazy loading.
-            $smarty = CmsApp::get_instance()->GetSmarty();
-            $smarty->registerPlugin('function', $this->GetName(), [$this->GetName(),'function_plugin'], $cachable );
+			$smarty = Smarty::get_instance();
+			//TODO prevent re-registration if already logged in databace - smarty hates that
+            $smarty->registerPlugin('function', $name, [$name,'function_plugin'], $cachable );
             return true;
         }
         else {
-            return cms_module_smarty_plugin_manager::addStatic($this->GetName(),$this->GetName(), 'function', 'function_plugin',$cachable);
+            return ModulePluginManager::addStatic($name, $name, 'function', 'function_plugin', $cachable);
         }
     }
 
@@ -406,7 +407,7 @@ abstract class CMSModule
      */
     final public function GetModuleURLPath(bool $use_ssl = false) : string
     {
-        return AdminUtils::path_to_url($this->GetModulePath());
+        return cms_path_to_url($this->GetModulePath());
     }
 
     /**

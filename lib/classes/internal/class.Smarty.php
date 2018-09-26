@@ -17,15 +17,15 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\internal;
+//use Smarty;
 
 use cms_config;
-use cms_module_smarty_plugin_manager;
 use CmsApp;
+use CMSMS\ModulePluginManager;
 use CMSMS\SimplePluginOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
-//use Smarty;
 use SmartyBC;
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
@@ -225,7 +225,7 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
         }
 
 //        if( CmsApp::get_instance()->is_frontend_request() ) {
-            $row = cms_module_smarty_plugin_manager::load_plugin($name,$type);
+            $row = ModulePluginManager::load_plugin($name,$type);
             if( is_array($row) && is_array($row['callback']) && count($row['callback']) == 2 &&
                 is_string($row['callback'][0]) && is_string($row['callback'][1]) ) {
                 $callback = $row['callback'][0].'::'.$row['callback'][1];
