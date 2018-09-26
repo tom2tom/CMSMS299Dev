@@ -17,8 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AdminUtils;
-
 //TODO security checks
 
 $this->StageLogin(); //generate core-form for display
@@ -57,9 +55,9 @@ EOS;
 $tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 // scripts: jquery, jquery-ui
 $scripts = cms_installed_jquery(true, false, true, false);
-$url = AdminUtils::path_to_url($scripts['jqcore']);
+$url = cms_path_to_url($scripts['jqcore']);
 $out .= sprintf($tpl,$url);
-$url = AdminUtils::path_to_url($$scripts['jqui']);
+$url = cms_path_to_url($$scripts['jqui']);
 $out .= sprintf($tpl,$url);
 $url = $baseurl.'/lib/js/login.js';
 $out .= sprintf($tpl,$url);

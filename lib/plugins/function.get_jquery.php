@@ -15,7 +15,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminUtils;
 use CMSMS\ScriptManager;
 
 function smarty_function_get_jquery($params, Smarty_Internal_Template $template)
@@ -28,7 +27,7 @@ function smarty_function_get_jquery($params, Smarty_Internal_Template $template)
 	$incs = cms_installed_jquery($core, $migrate, $ui, $uicss);
 
 	if ($uicss) {
-		$url = AdminUtils::path_to_url($incs['jquicss']);
+		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
 
@@ -42,7 +41,7 @@ EOS;
 	if ($migrate) $sm->queue_file($incs['jqmigrate'], 1);
 	if ($ui) $sm->queue_file($incs['jqui'], 1);
 	$fn = $sm->render_scripts('', false, false);
-	$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+	$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 	$out = <<<EOS
 <script type="text/javascript" src="{$url}"></script>
 

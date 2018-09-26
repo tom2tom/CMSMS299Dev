@@ -79,7 +79,7 @@ class OneElevenTheme extends CmsAdminThemeBase
 			}
 		}
 		$incs = cms_installed_jquery(true, true, true, true);
-		$url = AdminUtils::path_to_url($incs['jquicss']);
+		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
@@ -100,7 +100,7 @@ EOS;
 		$p = cms_join_path($config['root_path'],'lib','js','');
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 		$fn = $sm->render_scripts('', false, false);
-		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
 		global $CMS_LOGIN_PAGE;
@@ -109,7 +109,7 @@ EOS;
 			require_once $admin_path.DIRECTORY_SEPARATOR.'jsruntime.php';
 			$sm->queue_string($_out_);
 			$fn = $sm->render_scripts('', false, false);
-			$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+			$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 			$out .= sprintf($tpl,$url);
 		}
 
@@ -119,7 +119,7 @@ EOS;
 		$p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$fn = $sm->render_scripts();
-		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
 		$add_list[] = $out;
@@ -392,16 +392,16 @@ EOS;
 			$dir = ''; //TODO or '-rtl'
 			// scripts: jquery, jquery-ui
 			$incs = cms_installed_jquery();
-			$url = AdminUtils::path_to_url($incs['jquicss']);
+			$url = cms_path_to_url($incs['jquicss']);
 			$out = <<<EOS
 <link rel="stylesheet" href="$url" />
 <link rel="stylesheet" href="themes/OneEleven/css/style{$dir}.css" />
 
 EOS;
 			$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
-			$url = AdminUtils::path_to_url($incs['jqcore']);
+			$url = cms_path_to_url($incs['jqcore']);
 			$out .= sprintf($tpl,$url);
-			$url = AdminUtils::path_to_url($incs['jqui']);
+			$url = cms_path_to_url($incs['jqui']);
 			$out .= sprintf($tpl,$url);
 			$out .= sprintf($tpl,'themes/OneEleven/includes/login.js');
 		} else {

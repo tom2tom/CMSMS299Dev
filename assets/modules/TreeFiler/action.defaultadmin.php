@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\AdminUtils;
 use CMSMS\ScriptManager;
 
 if (!function_exists('cmsms')) {
@@ -132,7 +131,7 @@ $sm->queue_file($p.'jquery.filedrag.js'); //OR .min for production
 $sm->queue_file(CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.ContextMenu.min.js');
 
 $fn = $sm->render_scripts();
-$u = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+$u = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 $js = <<<EOS
 <script type="text/javascript" src="{$u}"></script>
 <script>

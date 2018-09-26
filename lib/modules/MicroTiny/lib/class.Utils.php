@@ -20,10 +20,8 @@ namespace MicroTiny;
 
 use cms_utils;
 use CmsApp;
-use CmsFileSystemException;
 use CmsLayoutStylesheet;
 use CmsLogicException;
-use CMSMS\AdminUtils;
 use CMSMS\ScriptManager;
 use CmsNlsOperations;
 use MicroTiny;
@@ -32,6 +30,8 @@ use PHPMailer\PHPMailer\Exception;
 use const CMS_ROOT_URL;
 use const TMP_CACHE_LOCATION;
 use function cms_join_path;
+use function cms_path_to_url;
+use function cms_to_bool;
 
 class Utils
 {
@@ -102,7 +102,7 @@ class Utils
 		$force = isset($config['mt_disable_cache']) && cms_to_bool($config['mt_disable_cache']);
 
 		$fn = $sm->render_scripts('', $force, false);
-		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$output .= sprintf('<script type="text/javascript" src="%s"></script>'."\n",$url);
 
 		return $output;

@@ -62,7 +62,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 			}
 		}
 		$incs = cms_installed_jquery(true, true, true, true);
-		$url = AdminUtils::path_to_url($incs['jquicss']);
+		$url = cms_path_to_url($incs['jquicss']);
 		$out = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url}" />
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
@@ -83,7 +83,7 @@ EOS;
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
 		$fn = $sm->render_scripts('', false, false);
-		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
 		global $CMS_LOGIN_PAGE;
@@ -92,7 +92,7 @@ EOS;
 			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
 			$sm->queue_string($_out_);
 			$fn = $sm->render_scripts('', false, false);
-			$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+			$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 			$out .= sprintf($tpl,$url);
 		}
 
@@ -106,7 +106,7 @@ EOS;
 		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$fn = $sm->render_scripts();
-		$url = AdminUtils::path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
 		$out .= sprintf($tpl,$url);
 
 		$add_list[] = $out;
@@ -185,9 +185,9 @@ EOS;
 
 		// scripts: jquery, jquery-ui
 		$incs = cms_installed_jquery(true, false, true, false);
-		$url = AdminUtils::path_to_url($incs['jqcore']);
+		$url = cms_path_to_url($incs['jqcore']);
 		$out = sprintf($tpl, $url);
-		$url = AdminUtils::path_to_url($incs['jqui']);
+		$url = cms_path_to_url($incs['jqui']);
 		$out .= sprintf($tpl, $url);
 
 		$smarty->assign('header_includes', $out); //NOT into bottom (to avoid UI-flash)

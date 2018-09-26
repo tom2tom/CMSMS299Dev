@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\AdminUtils;
 use CMSMS\FileType;
 use FilePicker\PathAssistant;
 use FilePicker\TemporaryProfileStorage;
@@ -226,7 +225,7 @@ EOS;
     }
 
 	$scripts = cms_installed_jquery(true,false,false,false);
-    $url = AdminUtils::path_to_url($scripts['jqcore']);
+    $url = cms_path_to_url($scripts['jqcore']);
     $out .= '<script type="text/javascript" src="'.$url.'"></script>'."\n";
 
     $url = $this->create_url($id,'ajax_cmd',$returnid,['forjs'=>1]);

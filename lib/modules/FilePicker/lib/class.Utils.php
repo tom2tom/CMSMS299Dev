@@ -19,13 +19,14 @@ namespace FilePicker;
 
 use cms_config;
 use cms_utils;
-use CMSMS\AdminUtils;
 use CMSMS\FilePickerProfile;
 use CMSMS\FileTypeHelper;
 use CmsNlsOperations;
 use Collator;
+use FilePicker;
 use const CMS_ROOT_PATH;
 use function cms_join_path;
+use function cms_path_to_url;
 use function get_userid;
 use function startswith;
 
@@ -216,7 +217,7 @@ class Utils
                 $info['image'] = $typer->is_image($filepath);
                 $info['archive'] = !$info['text'] && !$info['image'] && $typer->is_archive($filepath);
                 $info['mime'] = $typer->get_mime_type($filepath);
-                $info['url'] = AdminUtils::path_to_url($filepath);
+                $info['url'] = cms_path_to_url($filepath);
             }
 
             $statinfo = stat($filepath);

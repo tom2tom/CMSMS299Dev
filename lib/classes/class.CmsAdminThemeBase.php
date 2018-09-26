@@ -481,7 +481,7 @@ abstract class CmsAdminThemeBase
                             foreach ($smallappends as $one) {
                                 $path = cms_join_path($base, ...$one);
                                 if (is_file($path)) {
-                                    $obj->icon = AdminUtils::path_to_url($path);
+                                    $obj->icon = cms_path_to_url($path);
                                     break 2;
                                 }
                             }
@@ -489,7 +489,7 @@ abstract class CmsAdminThemeBase
                         foreach ($appends as $one) {
                             $path = cms_join_path($base, ...$one);
                             if (is_file($path)) {
-                                $obj->icon = AdminUtils::path_to_url($path);
+                                $obj->icon = cms_path_to_url($path);
                                 break 2;
                             }
                         }
@@ -1306,7 +1306,7 @@ abstract class CmsAdminThemeBase
                             //admin-relative URL will do
                             $path = substr($path, strlen(CMS_ADMIN_PATH) + 1);
                         }
-                        $this->_imageLink[$image] = AdminUtils::path_to_url($path);
+                        $this->_imageLink[$image] = cms_path_to_url($path);
                     } else {
                         $this->_imageLink[$image] = $path;
                     }

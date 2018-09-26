@@ -123,7 +123,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('open.tpl'),null,null,
 $tpl->assign('ftype', $type)
  ->assign('content', $content);
 
-$file_url = cms_admin_utils::path_to_url($fullpath);
+$file_url = cms_path_to_url($fullpath);
 $tpl->assign('file_url', $file_url);
 
 $items = [];
