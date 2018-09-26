@@ -16,6 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS;
+
+use cms_utils;
+use CmsApp;
+use const CMS_DB_PREFIX;
+use function cms_error;
+use function endswith;
+use function startswith;
+
 /**
  * A singleton class to manage static smarty plugins registered by modules.
  *
@@ -26,7 +35,7 @@
  * @access private
  * @since  1.11
  */
-final class cms_module_smarty_plugin_manager
+final class ModulePluginManager
 {
 	/**
 	 * @ignore
