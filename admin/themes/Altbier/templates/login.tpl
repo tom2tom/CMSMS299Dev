@@ -12,7 +12,9 @@
 		<meta name="msapplication-TileImage" content="{$admin_url}/themes/Altbier/images/favicon/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="themes/Altbier/images/favicon/cmsms-favicon.ico" />
-		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i" />
+		<link rel="stylesheet" href="themes/Altbier/css/bootstrap_reboot-grid.min.css" />
 		{$header_includes|default:''}
 	</head>{if 0}{$c=''}{elseif empty($smarty.get.forgotpw)}{$c=' class="login"'}{else}{$c=' class="forgotpw"'}{/if}
 	<body id="login"{$c}>

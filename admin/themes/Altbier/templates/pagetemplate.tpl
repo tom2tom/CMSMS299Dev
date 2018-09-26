@@ -19,7 +19,9 @@
 	<link rel="apple-touch-icon" sizes="72x72" href="themes/Altbier/images/favicon/apple-touch-icon-ipad.png" />
 	<link rel="apple-touch-icon" sizes="114x114" href="themes/Altbier/images/favicon/apple-touch-icon-iphone4.png" />
 	<link rel="apple-touch-icon" sizes="144x144" href="themes/Altbier/images/favicon/apple-touch-icon-ipad3.png" />
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i" />
+	<link rel="stylesheet" href="themes/Altbier/css/bootstrap_reboot-grid.min.css" />
 	{$header_includes|default:''}
 </head>
 <body id="{$pagetitle|md5}" class="ac_{$pagealias}">
