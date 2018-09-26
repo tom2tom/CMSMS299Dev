@@ -99,7 +99,7 @@ class wizard_step7 extends wizard_step
         $version_info = $this->get_wizard()->get_data('version_info');
         $versions = utils::get_upgrade_versions();
         if( is_array($versions) && count($versions) ) {
-            $this->message(lang('preprocessin_files'));
+            $this->message(lang('preprocessing_files'));
             foreach( $versions as $one_version ) {
                 if( version_compare($one_version, $version_info['version']) < 1 ) continue;
 
@@ -147,7 +147,7 @@ class wizard_step7 extends wizard_step
                     foreach( $deleted as $rec ) {
                         $fn = "{$destdir}{$rec['filename']}";
                         if( !file_exists($fn) ) {
-                            $this->verbose("file $fn does not exist... but we planned to delete it anyway");
+                            $this->verbose("File $fn does not exist... but we planned to delete it anyway");
                             $nmissing++;
                         }
                         else if( !is_writable($fn) ) {
@@ -157,23 +157,23 @@ class wizard_step7 extends wizard_step
                         else {
                             if( is_dir($fn) ) {
                                 if( is_file($fn.'/index.html') ) @unlink($fn.'/index.html');
-                                $res = @rmdir($fn);
+                                $res = utils::rrmdir($fn);
                                 if( !$res ) {
-                                    $this->error('problem removing directory: '.$fn);
+                                    $this->error('Problem removing directory: '.$fn);
                                     $nfailed++;
                                 } else {
-                                    $this->verbose('removed directory: '.$fn);
+                                    $this->verbose('Removed directory: '.$fn);
                                     $ndeleted++;
                                 }
                             }
                             else {
                                 $res = @unlink($fn);
                                 if( !$res ) {
-                                    $this->error("problem deleting: $fn");
+                                    $this->error("Problem deleting: $fn");
                                     $nfailed++;
                                 }
                                 else {
-                                    $this->verbose('removed file: '.$fn);
+                                    $this->verbose('Removed file: '.$fn);
                                     $ndeleted++;
                                 }
                             }
