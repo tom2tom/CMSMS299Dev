@@ -61,7 +61,6 @@ function cms_autoloader(string $classname)
 'cms_filecache_driver' => 'CMSMS\FilecacheDriver',
 'cms_http_request' => 'CMSMS\HttpRequest',
 'cms_mailer' => 'CMSMS\Mailer',
-'cms_module_smarty_plugin_manager' => 'CMSMS\ModulePluginManager',
 'cms_route_manager' => 'CMSMS\RouteManager',
 'cms_siteprefs' => 'CMSMS\Siteprefs',
 'cms_tree' => 'CMSMS\Tree',
