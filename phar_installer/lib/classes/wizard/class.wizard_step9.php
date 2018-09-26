@@ -61,7 +61,7 @@ class wizard_step9 extends wizard_step
         $admin_url .= 'admin';
 
         if( $app->has_custom_destdir() || !$app->in_phar() ) {
-            $this->set_block_html('bottom_nav',lang('finished_custom_upgrade_msg',$admin_url,$url));
+            $this->set_block_html('bottom_nav',lang('finished_custom_upgrade_msg',$url,$admin_url));
         }
         else {
             $this->set_block_html('bottom_nav',lang('finished_upgrade_msg',$url,$admin_url));
