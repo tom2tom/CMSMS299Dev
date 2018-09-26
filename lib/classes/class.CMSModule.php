@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+
+use CMSMS\AdminUtils;
 use CMSMS\CmsException;
 use CMSMS\ContentBase;
 use CMSMS\Events;
@@ -399,17 +401,12 @@ abstract class CMSModule
      * Returns the URL path to the module directory.
      *
      * @final
-     * @param bool $use_ssl Optional generate an URL using HTTPS path
+     * @param bool $use_ssl Optional generate an URL using HTTPS path Unused since 2.3
      * @return string The full path to the module directory.
      */
     final public function GetModuleURLPath(bool $use_ssl = false) : string
     {
-        $modops = ModuleOperations::get_instance();
-        if( $modops->IsSystemModule( $this->GetName() ) ) {
-            return CMS_ROOT_URL . '/lib/modules/' . $this->GetName();
-        } else {
-            return CMS_ROOT_URL . '/assets/modules/' . $this->GetName();
-        }
+        return AdminUtils::path_to_url($this->GetModulePath());
     }
 
     /**
@@ -1379,12 +1376,12 @@ abstract class CMSModule
      *
      * @since 2.3
      * @param string $name The name of the action to perform
-     * @param string $id Action identifier e.g. typically 'm1_' for admin
+     * @param mixed $id string|null Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
      * @param mixed int|''|null $returnid Identifier of the page being displayed, ''|null for admin
      * @return mixed callable|null
      */
-    protected function get_controller(string $name, string $id, array $params, $returnid = null)
+    protected function get_controller(string $name, $id, array $params, $returnid = null)
     {
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
@@ -1413,7 +1410,7 @@ abstract class CMSModule
      * in the modules directory, and if it exists include it.
      *
      * @param string $name The Name of the action to perform
-     * @param string $id Action identifier e.g. typically 'm1_' for admin
+     * @param mixed $id string|null Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
      * @param mixed  $returnid The id of the page being displayed, numeric(int) for frontend, ''|null for admin
      * @return mixed output from 'controller', or null
@@ -1469,7 +1466,7 @@ abstract class CMSModule
      * @internal
      * @ignore
      * @param string $name The action name
-     * @param string $id The action identifier
+     * @param mixed $id string|null The action identifier
      * @param array  $params The action params
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
      * @param mixed  $smartob  A CMSMS\internal\Smarty object
@@ -1553,7 +1550,7 @@ abstract class CMSModule
      * Returns xhtml representing the start of a module form, optimized for frontend use
      * @deprecated since 2.3. Instead use CmsFormUtils::create_form_start() with $inline = true
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
      * Optional parameters:
      * @param string $action The name of the action that this form should do when the form is submitted
@@ -1572,7 +1569,7 @@ abstract class CMSModule
      * Returns xhtml representing the start of a module form
      * @deprecated since 2.3. Instead use CmsFormUtils::create_form_start()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $action The action that this form should do when the form is submitted
      * Optional parameters:
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
@@ -1601,7 +1598,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the textbox
      * Optional parameters:
      * @param string $value The predefined value of the textbox, if any
@@ -1618,7 +1615,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_label()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the input field this label is associated to
      * Optional parameters:
      * @param string $labeltext The text in the label (non much help if empty)
@@ -1633,7 +1630,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the textbox
      * Optional parameters:
      * @param string $accept The MIME-type to be accepted, default is all
@@ -1649,7 +1646,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the textbox
      * Optional parameters:
      * @param string $value The predefined value of the textbox, if any
@@ -1666,7 +1663,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the hidden field
      * Optional parameters:
      * @param string $value The predefined value of the field, if any
@@ -1681,7 +1678,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the checkbox
      * Optional parameters:
      * @param string $value The value returned from the input if selected
@@ -1697,7 +1694,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the button
      * Optional parameters:
      * @param string $value The label of the button. Defaults to 'Submit'
@@ -1714,7 +1711,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the button
      * Optional parameters:
      * @param string $value The label of the button. Defaults to 'Reset'
@@ -1729,7 +1726,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it is syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the dropdown list
      * @param string $items An array of items to put into the dropdown list... they should be $key=>$value pairs
      * Optional parameters:
@@ -1746,7 +1743,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it is syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the select list
      * @param array  $items Items to put into the list... they should be $key=>$value pairs
      * Optional parameters:
@@ -1764,7 +1761,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it is syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $name The html name of the radio group
      * @param string $items An array of items to create as radio buttons... they should be $key=>$value pairs
      * Optional parameters:
@@ -1781,7 +1778,7 @@ abstract class CMSModule
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
      * @param bool   $enablewysiwyg Should we try to create a WYSIWYG for this textarea?
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $text The text to display in the textarea
      * @param string $name The html name of the textarea
      * Optional parameters:
@@ -1805,7 +1802,7 @@ abstract class CMSModule
      * admin side.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $text The text to display in the textarea
      * @param string $name The html name of the textarea
      * Optional parameters:
@@ -1826,7 +1823,7 @@ abstract class CMSModule
      * to make sure that id's are placed in names and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_action_link() with adjusted params
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
      * @param string $action The action that this form should do when the link is clicked
      * Optional parameters:
@@ -1849,7 +1846,7 @@ abstract class CMSModule
      * and also that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_action_link()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $action The action that this form should do when the link is clicked
      * Optional parameters:
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
@@ -1886,7 +1883,7 @@ abstract class CMSModule
      * to where we want to and that it's syntax-compliant.
      * @deprecated since 2.3. Instead use CmsFormUtils::create_return_link()
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
      * Optional parameters:
      * @param string $contents The text that will have to be clicked to follow the link
@@ -1907,7 +1904,7 @@ abstract class CMSModule
      *
      * @since 1.10
      *
-     * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
+     * @param mixed $id string|null The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
      * Optional parameters:
      * @param mixed  $returnid The page id (int|''|null) to return to. Default null (i.e. admin)
@@ -1935,7 +1932,7 @@ abstract class CMSModule
      *
      * @since 2.3
      *
-     * @param string $id The module action id.
+     * @param mixed $id string|null The module action id.
      * @param mixed  $returnid Optional return-page identifier (int|''|null). Default null (i.e. admin)
      * @param array  $params Optional array of parameters for the action. Default []
      * @param int    $mode since 2.3 Indicates how to format the url
@@ -1957,7 +1954,7 @@ abstract class CMSModule
      *
      * @abstract
      * @since 1.10
-     * @param string $id The module action id (cntnt01 indicates that the default content block of the destination page should be used).
+     * @param mixed $id string|null The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
      * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null
      * @param array  $params Optional parameters for the URL. These will be ignored if $prettyurl is provided. Default []
@@ -1998,7 +1995,7 @@ abstract class CMSModule
      * Redirects the user to another action of the module.
      * This function is optimized for frontend use.
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
      * @param string $action The action that this form should do when the form is submitted
      * @param string $params Optional array of params to be passed to the action.  These should be in a $key=>$value format.
@@ -2012,7 +2009,7 @@ abstract class CMSModule
     /**
      * Redirects the user to another action of the module.
      *
-     * @param string $id The id given to the module on execution
+     * @param mixed $id string|null The module action id
      * @param string $action The action that this form should do when the form is submitted
      * @param mixed  $returnid Optional page id (int|''|null) to return to when the module is finished its task
      * @param string $params Optional array of params to be included in the URL of the link.  These should be in a $key=>$value format.
