@@ -1078,13 +1078,13 @@ function cms_to_bool(string $str) : bool
  */
 function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui = true, bool $uicss = true) : array
 {
-	$found = [];
-	$allfiles = false;
+    $found = [];
+    $allfiles = false;
 
-	if ($core) {
-		$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
-		$allfiles = scandir($fp);
-		//the 'core' jquery files are named like jquery-*min.js
+    if ($core) {
+        $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
+        $allfiles = scandir($fp);
+        //the 'core' jquery files are named like jquery-*min.js
         $m = preg_grep('~^jquery\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
         //find highest version
         $best = '0';
@@ -1099,11 +1099,11 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
         $found['jqcore'] = $fp.DIRECTORY_SEPARATOR.$use;
     }
 
-	if ($migrate) {
-		if (!$allfiles) {
-			$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
-			$allfiles = scandir($fp);
-		}
+    if ($migrate) {
+        if (!$allfiles) {
+            $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery';
+            $allfiles = scandir($fp);
+        }
         $m = preg_grep('~^jquery\-migrate\-\d[\d\.]+\d(\.min)?\.js$~', $allfiles);
         $best = '0';
         $use = reset($m);
@@ -1115,14 +1115,14 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
             }
         }
         $found['jqmigrate'] = $fp.DIRECTORY_SEPARATOR.$use;
-	}
+    }
 
-	$allfiles = false;
+    $allfiles = false;
 
-	if ($ui) {
-		$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
-		$allfiles = scandir($fp);
-		$m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.js$~', $allfiles);
+    if ($ui) {
+        $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
+        $allfiles = scandir($fp);
+        $m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.js$~', $allfiles);
         $best = '0';
         $use = reset($m);
         foreach ($m as $file) {
@@ -1133,14 +1133,14 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
             }
         }
         $found['jqui'] = $fp.DIRECTORY_SEPARATOR.$use;
-	}
+    }
 
-	if ($uicss) {
-		if (!$allfiles) {
-			$fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
-			$allfiles = scandir($fp);
-		}
-		$m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.css$~', $allfiles);
+    if ($uicss) {
+        if (!$allfiles) {
+            $fp = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui';
+            $allfiles = scandir($fp);
+        }
+        $m = preg_grep('~^jquery\-ui\-\d[\d\.]+\d([\.\-]custom)?(\.min)?\.css$~', $allfiles);
         $best = '0';
         $use = reset($m);
         foreach ($m as $file) {
@@ -1151,7 +1151,7 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
             }
         }
         $found['jquicss'] = $fp.DIRECTORY_SEPARATOR.$use;
-	}
+    }
 
     return $found;
 }
@@ -1160,7 +1160,7 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  * Return content which will include wanted js (jQuery etc) and css in a
  * displayed page.
  * @since 1.10
- * @deprecated since 2.3 Returns only a on-page comment/notice
+ * @deprecated since 2.3
  * Instead, relevant content can be gathered via functions added to hook
  * 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag
  *  e.g. {gather_content list='AdminHeaderSetup'}.
@@ -1169,7 +1169,25 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
-    return '<!-- page inclusions not provided -->';
+	$incs = cms_installed_jquery(true, false, true, $include_css);
+	if ($include_css) {
+		$url1 = AdminUtils::path_to_url($incs['jquicss']);
+		$s1 = <<<EOS
+<link rel="stylesheet" type="text/css" href="{$url1}" />
+
+EOS;
+	} else {
+		$s1 = '';
+	}
+	$url2 = AdminUtils::path_to_url($incs['jqcore']);
+	$url3 = AdminUtils::path_to_url($incs['jqui']);
+	$out = <<<EOS
+<!-- default page inclusions -->{$s1}
+<script type="text/javascript" src="{$url2}"></script>
+<script type="text/javascript" src="{$url3}"></script>
+
+EOS;
+    return $out;
 }
 
 /**
@@ -1241,6 +1259,6 @@ function is_base64(string $s) : bool
  */
 function cms_create_guid() : string
 {
-    if (function_exists('com_create_guid') === true) return trim(com_create_guid(), '{}');
-    return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
+    if (function_exists('com_create_guid')) return trim(com_create_guid(), '{}');
+	return random_bytes(32);
 }
