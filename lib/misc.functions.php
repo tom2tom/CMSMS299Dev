@@ -174,6 +174,29 @@ function cms_join_path(...$args) : string
 }
 
 /**
+ * Return the url corresponding to a provided site-path
+ *
+ * @since 2.3
+ * @param string $in The input path, absolute or relative
+ * @param string $relative_to Optional absolute path which (relative) $in is relative to
+ * @return string
+ */
+function cms_path_to_url(string $in, string $relative_to = '') : string
+{
+    $in = trim($in);
+    if( $relative_to ) {
+        $in = realpath(cms_join_path($relative_to, $in));
+        return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
+    } elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in) ) {
+        // $in is absolute
+        $in = realpath($in);
+        return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
+    } else {
+        return strtr($in, DIRECTORY_SEPARATOR, '/');
+    }
+}
+
+/**
  * Return the relative portion of a path
  *
  * @since 2.2
@@ -332,7 +355,7 @@ function debug_bt_to_log()
             $out[] = $str;
         }
 
-        $filename = TMP_CACHE_LOCATION . '/debug.log';
+        $filename = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'debug.log';
         foreach ($out as $txt) {
             error_log($txt . "\n", 3, $filename);
         }
@@ -1169,19 +1192,19 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)
 {
-	$incs = cms_installed_jquery(true, false, true, $include_css);
-	if ($include_css) {
-		$url1 = AdminUtils::path_to_url($incs['jquicss']);
-		$s1 = <<<EOS
+    $incs = cms_installed_jquery(true, false, true, $include_css);
+    if ($include_css) {
+        $url1 = cms_path_to_url($incs['jquicss']);
+        $s1 = <<<EOS
 <link rel="stylesheet" type="text/css" href="{$url1}" />
 
 EOS;
-	} else {
-		$s1 = '';
-	}
-	$url2 = AdminUtils::path_to_url($incs['jqcore']);
-	$url3 = AdminUtils::path_to_url($incs['jqui']);
-	$out = <<<EOS
+    } else {
+        $s1 = '';
+    }
+    $url2 = cms_path_to_url($incs['jqcore']);
+    $url3 = cms_path_to_url($incs['jqui']);
+    $out = <<<EOS
 <!-- default page inclusions -->{$s1}
 <script type="text/javascript" src="{$url2}"></script>
 <script type="text/javascript" src="{$url3}"></script>
@@ -1260,5 +1283,5 @@ function is_base64(string $s) : bool
 function cms_create_guid() : string
 {
     if (function_exists('com_create_guid')) return trim(com_create_guid(), '{}');
-	return random_bytes(32);
+    return random_bytes(32);
 }

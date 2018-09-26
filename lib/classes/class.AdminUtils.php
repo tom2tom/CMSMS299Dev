@@ -24,7 +24,6 @@ use cms_utils;
 use CmsApp;
 use CMSMS\internal\Smarty;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
-use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
@@ -160,29 +159,6 @@ final class AdminUtils
 	}
 
 	/**
-	 * Return the url corresponding to a provided site-path
-	 *
-	 * @since 2.3
-	 * @param string $in The input path, absolute or relative
-	 * @param string $relative_to Optional absolute path which (relative) $in is relative to
-	 * @return string
-	 */
-	public static function path_to_url(string $in, string $relative_to = '') : string
-	{
-		$in = trim($in);
-		if( $relative_to ) {
-			$in = realpath(cms_join_path($relative_to, $in));
-			return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
-		} elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in) ) {
-			// $in is absolute
-			$in = realpath($in);
-			return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
-		} else {
-			return strtr($in, DIRECTORY_SEPARATOR, '/');
-		}
-	}
-
-	/**
 	 * Get a tag representing a module icon
 	 *
 	 * @since 2.3
@@ -206,7 +182,7 @@ final class AdminUtils
 				foreach ($appends as $one) {
 					$path = cms_join_path($base, ...$one);
 					if (is_file($path)) {
-						$path = self::path_to_url($path);
+						$path = cms_path_to_url($path);
 						if (endswith($path, '.svg')) {
 							// see https://css-tricks.com/using-svg
 							$alt = str_replace('svg','png',$path);
