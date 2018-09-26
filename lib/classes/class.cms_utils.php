@@ -17,15 +17,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A convenience class for CMS Made Simple.
- *
- * The methods in this class provide simple wrappers over other class methods.
- *
- * @package CMS
- * @license GPL
- */
-
-/**
  * A Simple Static class providing various convenience utilities.
  *
  * @package CMS
@@ -255,6 +246,7 @@ final class cms_utils
 		return ModuleOperations::get_instance()->GetFilePickerModule();
 	}
 
+
 	/**
 	 * Attempt to retreive the IP address of the connected user.
 	 * This function attempts to compensate for proxy servers.
@@ -278,6 +270,7 @@ final class cms_utils
 		return null;
 	}
 
+
 	/**
 	 * Get a reference to the current theme object
 	 * only returns a valid value when in an admin request.
@@ -291,4 +284,17 @@ final class cms_utils
 		return CmsAdminThemeBase::GetThemeObject();
 	}
 
-} // end of class
+
+	/**
+	 * Return the url corresponding to the provided site-path
+	 *
+	 * @since 2.3
+	 * @param string $in The input path, absolute or relative
+	 * @param string $relative_to Optional absolute path which (relative) $in is relative to
+	 * @return string
+	 */
+	public static function path_to_url(string $in, string $relative_to = '') : string
+	{
+		return cms_path_to_url($in, $relative_to);
+	}
+} // class
