@@ -29,7 +29,7 @@
 								{'login_info_params'|lang}
 								<p class="pl-4"><strong>({$smarty.server.HTTP_HOST})</strong></p>
 								<div class="warning-message mt-3 py-3 row">
-									<div class="col-2"><i aria-hidden="true" class="fas fa-2x fa-exclamation-circle" style="color:#ec9110"></i> </div>
+									<div class="col-2"><i aria-hidden="true" class="fas fa-2x fa-exclamation-triangle" style="color:#d4a711"></i> </div>
 									<p class="col-10">{'warn_admin_ipandcookies'|lang}</p>
 								</div>
 							</aside>
