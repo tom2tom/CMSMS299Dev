@@ -16,14 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-
 use CMSMS\ContentBase;
 use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\bulkcontentoperations;
+use CMSMS\internal\ModulePluginManager;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
-use CMSMS\ModulePluginManager;
 
 /**
  * Base module class.
@@ -311,32 +310,33 @@ abstract class CMSModule
     }
 
     /**
-     * Register a plugin to smarty with the name of the module.  This method should be called
-     * from the module installation, module constructor or the InitializeFrontend() method.
+     * Register a smarty 'function' plugin. This method should be called during
+	 * module installation/upgrade, or from the module's constructor or
+	 * InitializeFrontend() method.
      *
-     * Note:
      * @final
      * @see CMSModule::SetParameters()
-     * @param bool $forcedb Whether this registration should be forced to be entered in the database. Default value is false (for compatibility)
-     * @param mixed bool|null $cachable Whether this plugin's output should be cachable.  If null, use the site preferences, and the can_cache_output method.  Otherwise a bool is expected.
+     * @param bool $forcedb Optional flag whether this registration should recorded
+	 *   in the database. Default false. If true, this method somewhat mimics
+	 *   RegisterSmartyPlugin(), and does not immediately register the plugin.
+     * @param mixed bool|null $cachable Optional flag whether this plugin's output
+	 *  should be cachable. Default false. If null, use the site preferences,
+	 *  and the can_cache_output() method.
      * @return bool
      */
-    final public function RegisterModulePlugin(bool $forcedb = false, bool $cachable = false) : bool
+    final public function RegisterModulePlugin(bool $forcedb = false, $cachable = false) : bool
     {
         global $CMS_ADMIN_PAGE;
         global $CMS_INSTALL_PAGE;
 
-        // frontend request.
-        $admin_req = (isset($CMS_ADMIN_PAGE) && !$this->LazyLoadAdmin())?1:0;
-        $fe_req = (!isset($CMS_ADMIN_PAGE) && !$this->LazyLoadFrontend())?1:0;
 		$name = $this->GetName();
-        if( ($fe_req || $admin_req) && !$forcedb ) {
-            if( isset($CMS_INSTALL_PAGE) ) return true;
-
-            // no lazy loading.
-			$smarty = Smarty::get_instance();
-			//TODO prevent re-registration if already logged in databace - smarty hates that
-            $smarty->registerPlugin('function', $name, [$name,'function_plugin'], $cachable );
+        $admin_req = (isset($CMS_ADMIN_PAGE) && !$this->LazyLoadAdmin());
+        $fe_req = (!isset($CMS_ADMIN_PAGE) && !$this->LazyLoadFrontend());
+        if( !$forcedb && ($fe_req || $admin_req) ) {
+            // not doing lazy-load
+            if( !isset($CMS_INSTALL_PAGE) ) {
+                Smarty::get_instance()->registerPlugin('function', $name, [$name,'function_plugin'], $cachable );
+            }
             return true;
         }
         else {

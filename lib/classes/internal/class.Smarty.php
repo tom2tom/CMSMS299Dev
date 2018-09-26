@@ -21,7 +21,7 @@ namespace CMSMS\internal;
 
 use cms_config;
 use CmsApp;
-use CMSMS\ModulePluginManager;
+use CMSMS\internal\ModulePluginManager;
 use CMSMS\SimplePluginOperations;
 use Exception;
 use LogicException;

@@ -1,5 +1,5 @@
 <?php
-# Class of functions to manage smarty plugins
+# Class of functions to manage modules' smarty plugins
 # Copyright (C) 2010-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace CMSMS;
+namespace CMSMS\internal;
 
 use cms_utils;
 use CmsApp;
@@ -26,7 +26,7 @@ use function endswith;
 use function startswith;
 
 /**
- * A singleton class to manage static smarty plugins registered by modules.
+ * A singleton class to manage smarty plugins registered by modules.
  *
  * @package CMS
  * @license GPL
