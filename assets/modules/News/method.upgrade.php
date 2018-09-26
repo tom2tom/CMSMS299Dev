@@ -5,6 +5,7 @@ use CMSMS\CmsException;
 
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
+$me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
     $uid = null;
@@ -31,7 +32,6 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         return $str;
     };
 
-    $me = $this->GetName();
     // create template types.
     $upgrade_template = function($type,$prefix,$tplname,$currentdflt,$prefix2) use (&$mod,&$_fix_name,$uid) {
         if( !startswith($tplname,$prefix) ) return;
@@ -42,7 +42,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 
         try {
             $tpl = new CmsLayoutTemplate();
-	        $tpl->set_originator($mod->GetName());
+            $tpl->set_originator($mod->GetName());
             $tpl->set_name($tpl::generate_unique_name($prototype,$prefix2));
             $tpl->set_owner($uid);
             $tpl->set_content($contents);
@@ -55,9 +55,9 @@ if( version_compare($oldversion,'2.50') < 0 ) {
         catch( CmsInvalidDataException $e ) {
         }
 
-  };
+    };
 
-  try {
+    try {
       $dict = NewDataDictionary($db);
       $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news','searchable I1');
       $dict->ExecuteSQLArray($sqlarray);
@@ -150,15 +150,15 @@ if( version_compare($oldversion,'2.50') < 0 ) {
       catch( CmsInvalidDataException $e ) {
           // ignore this error.
       }
-  }
-  catch( CmsException $e ) {
-    audit('',$me,'Upgrade Error: '.$e->GetMessage());
-    return;
-  }
+    }
+    catch( CmsException $e ) {
+      audit('',$me,'Upgrade Error: '.$e->GetMessage());
+      return;
+    }
 
-  $this->RegisterModulePlugin(TRUE);
-  $this->RegisterSmartyPlugin('news','function','function_plugin');
-  $this->CreateStaticRoutes();
+    $this->RegisterModulePlugin(TRUE);
+    $this->RegisterSmartyPlugin('news','function','function_plugin');
+    $this->CreateStaticRoutes();
 }
 
 if( version_compare($oldversion,'2.50.8') < 0 ) {
@@ -181,10 +181,9 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
 if( version_compare($oldversion,'2.52') < 0 ) {
     $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
     if( version_compare(CMS_VERSION,'2.2.900') >= 0 ) {
-        $modname = $me;
-        $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname);
+        $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$me);
         if( is_dir($fp) ) recursive_delete($fp);
-        $fp = cms_join_path(CMS_ROOT_PATH,'modules',$modname);
+        $fp = cms_join_path(CMS_ROOT_PATH,'modules',$me);
         if( is_dir($fp) ) recursive_delete($fp);
     }
 }
