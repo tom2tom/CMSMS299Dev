@@ -202,11 +202,11 @@ final class utils
         return self::$_writable_error;
     }
 
-	/**
-	 * Recursive delete directory
-	 *
-	 * @param string $dir filepath
-	 */
+    /**
+     * Recursive delete directory
+     *
+     * @param string $dir filepath
+     */
     public static function rrmdir($dir)
     {
         if (is_dir($dir)) {
@@ -217,7 +217,12 @@ final class utils
                 }
             }
             reset($objects);
-            rmdir($dir);
+            if (is_link($dir)) {
+                return unlink($dir);
+            } elseif (is_dir($dir)) {
+                return rmdir($dir);
+            }
+            return false;
         }
     }
 
@@ -252,7 +257,7 @@ final class utils
             usort($versions,'version_compare');
             return $versions;
         }
-		return [];
+        return [];
     }
 
     /**
@@ -275,7 +280,7 @@ final class utils
                 return $tmp;
             }
         }
-		return '';
+        return '';
     }
 
     /**
@@ -299,6 +304,6 @@ final class utils
             $tmp = nl2br(wordwrap(htmlspecialchars($tmp),80));
             return $tmp;
         }
-		return '';
+        return '';
     }
 } // class
