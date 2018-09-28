@@ -54,7 +54,7 @@ if (!is_writable(TMP_TEMPLATES_C_LOCATION) || !is_writable(TMP_CACHE_LOCATION)) 
 <html><head><title>Error</title></head><body>
 <p>The following directories must be writable by the web server:<br />
 tmp/cache<br />
-tmp/templates_c<br /></p>
+tmp/templates_c</p><br />
 <p>Please correct by executing:<br /><em>chmod 777 tmp/cache<br />chmod 777 tmp/templates_c</em><br />or the equivalent for your platform before continuing.</p>
 </body></html>';
     exit;
@@ -138,7 +138,7 @@ while ($trycount < 2) {
 
         Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
 
-        if ($config['content_processing_mode'] == 2) {
+        if (!$showtemplate || $config['content_processing_mode'] == 2) { //default mode: process content before template(s)
             debug_buffer('preprocess module action');
             content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
         }
@@ -156,7 +156,7 @@ while ($trycount < 2) {
                 $top = ''.$tpl->fetch();
                 Events::SendEvent('Core', 'PageTopPostRender', [ 'content'=>&$contentobj, 'html'=>&$top ]);
 
-                if( $config['content_processing_mode'] == 1 ) { //TODO CHECKME
+                if( $config['content_processing_mode'] == 1 ) { //process content after template page top
                     debug_buffer('preprocess module action');
                     content_plugins::get_default_content_block_content( $contentobj->Id() );
                 }
