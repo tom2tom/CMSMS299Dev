@@ -74,6 +74,9 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
 
         $this->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
 
+        $config = cms_config::get_instance();
+		$name = $config['assets_dir'];
+
         // common resources
         $this->registerResource('module_db_tpl',new module_db_template_resource())
              ->registerResource('module_file_tpl',new module_file_template_resource())
@@ -82,13 +85,12 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
              ->registerResource('cms_stylesheet',new layout_stylesheet_resource())
              ->registerResource('content',new content_template_resource());
 
-
         $this->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins')
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins') // deprecated
 
-             ->addTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates')
-             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates');
+             ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates')
+             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'templates');
 
         $_gCms = CmsApp::get_instance();
         if( $_gCms->is_frontend_request() ) {
@@ -113,7 +115,6 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
             $this->autoloadFilters();
 
             // Enable security object
-            $config = cms_config::get_instance();
             if( !$config['permissive_smarty'] ) $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
         }
         elseif( $_gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
@@ -182,22 +183,22 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
      * defaultPluginHandler
      * NOTE: Registered in constructor
      *
-     * @param string $name
-     * @param string $type
-     * @param string $template
-     * @param string $callback
-     * @param string $script
-     * @param bool   $cachable (set true by caller)
+     * @param string  $name      name of the tag being sought
+     * @param string  $type      tag type (e.g. Smarty::PLUGIN_FUNCTION, Smarty::PLUGIN_BLOCK,
+     *       Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
+     * @param Smarty_Internal_Template   $template template object UNUSED
+     * @param string  &$callback returned callable
+     * @param string  &$script   optional returned script filepath if function is external
+     * @param bool    &$cachable true by default, set it here to false if the plugin is not cachable
      * @return bool true on success, false on failure
      */
     public function defaultPluginHandler($name, $type, $template, &$callback, &$script, &$cachable)
     {
-        // plugins including a smarty_* function
-//        $cachable = true; //CHECKME & upstream sets this
+        // walk plugin dirs to try to find a match
         $base = $type.'.'.$name.'.php';
         $basef = $type.'_'.$name;
 
-        // walk plugin dirs to try to find a matching plugin
+        //NOTE plugins search probably done within smarty, not here
         foreach ($this->getPluginsDir() as $dir) {
             $file = $dir.$base;
             if( !is_file($file) ) continue;
@@ -206,11 +207,19 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
 
             foreach ([
             'smarty_',
-            'smarty_cms_', // deprecated
-            'smarty_nocache_', // deprecated
+            'smarty_cms_', // deprecated, NOT compatible with smarty 3.1.32
+            'smarty_nocache_', // ditto
             ] as $pref ) {
                 $func = $pref.$basef;
                 if( !function_exists($func) ) continue;
+				if( $pref != 'smarty_' ) {
+					//TODO generate func whose name is recognisable by smarty, some sort of alias
+					$real = 'smarty_'.$basef;
+					$cont = file_get_contents($file);
+					$cont = str_replace($func, $real, $cont);
+					file_put_contents($file, $cont);
+					$func = $real;
+				}
 
                 $callback = $func;
                 $script = $file;
@@ -224,6 +233,7 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
             return;
         }
 
+        // check if it is a recorded module plugin
 //        if( CmsApp::get_instance()->is_frontend_request() ) {
             $row = ModulePluginManager::load_plugin($name,$type);
             if( is_array($row) && is_array($row['callback']) && count($row['callback']) == 2 &&
@@ -234,13 +244,13 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
                 return true;
             }
 
-            // check if it is a simple plugin
-            $res = SimplePluginOperations::get_instance()->load_plugin( $name );
-            if( $res ) {
-                $callback = $res;
-//TODO CHECKME simple-plugins not actually called ?
-//                $cachable = false;
+        // check if it is a simple plugin
+            try {
+                $callback = SimplePluginOperations::get_instance()->load_plugin( $name );
+                $cachable = false;
                 return true;
+            } catch (Exception $e) {
+                $callback = null;
             }
 //        }
 
