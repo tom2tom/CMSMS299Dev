@@ -18,13 +18,10 @@
 
 namespace CMSMS\internal;
 
-/**
- * This file contains a static singleton class to manage caching content objects
- *
- * @ignore
- * @internal
- * @package CMS
- */
+use cms_cache_handler;
+use CmsApp;
+use CMSMS\ContentBase;
+use CMSMS\ContentOperations;
 
 /**
  * A static class to manage caching content objects.
@@ -71,20 +68,20 @@ final class content_cache
 	 */
 	private function __construct()
 	{
-		if( !\CmsApp::get_instance()->is_frontend_request() ) return;
+		if( !CmsApp::get_instance()->is_frontend_request() ) return;
 		$content_ids = null;
 		$deep = FALSE;
 		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET));
-		if( ($data = \cms_cache_handler::get_instance()->get($this->_key,__CLASS__)) ) {
+		if( ($data = cms_cache_handler::get_instance()->get($this->_key,__CLASS__)) ) {
 			list($lastmtime,$deep,$content_ids) = unserialize($data);
-			if( $lastmtime < \ContentOperations::get_instance()->GetLastContentModification() ) {
+			if( $lastmtime < ContentOperations::get_instance()->GetLastContentModification() ) {
 				$deep = null;
 				$content_ids = null;
 			}
 		}
 		if( is_array($content_ids) && count($content_ids) ) {
 			$this->_preload_cache = $content_ids;
-			$contentops = \ContentOperations::get_instance();
+			$contentops = ContentOperations::get_instance();
 			$tmp = $contentops->LoadChildren(null,$deep,FALSE,$content_ids);
 		}
 	}
@@ -108,7 +105,7 @@ final class content_cache
 	 */
 	public function __destruct()
 	{
-		if( !\CmsApp::get_instance()->is_frontend_request() ) return;
+		if( !CmsApp::get_instance()->is_frontend_request() ) return;
 		if( !$this->_key ) return;
         if( $this->_preload_cache ) return;
 
@@ -137,7 +134,7 @@ final class content_cache
 				}
                 $deep = ($deep && count($ndeep) > (count($list) / 4)) ? TRUE : FALSE;
 				$tmp = [time(),$deep,$list];
-				\cms_cache_handler::get_instance()->set($this->_key,serialize($tmp),__CLASS__);
+				cms_cache_handler::get_instance()->set($this->_key,serialize($tmp),__CLASS__);
 			}
 		}
 	}
@@ -154,14 +151,13 @@ final class content_cache
 		return $res;
 	}
 
-
   /**
-   * Given a unique identifier, return a content object from the cache.
+   * Return  from the cache a content object corresponding to $identifier.
    *
-   * If the identifier is an integer or numeric string, an id search is performed.
-   * If the identifier is another string, an alias search is performed.
+   * If $identifier is an integer or numeric string, an id search is performed.
+   * If $identifier is another string, an alias search is performed.
    *
-   * @param mixed Unique identifier
+   * @param mixed $identifier Unique identifier
    * @return mixed The ContentBase object, or null.
    */
   public static function &get_content($identifier)
@@ -176,14 +172,13 @@ final class content_cache
 	  return self::get_content_obj($hash);
   }
 
-
   /**
-   * Test if the specified content exists
+   * Test if content corresponding to $identifier is present in the cache
    *
-   * If the identifier is an integer, an id search is performed.
-   * If the identifier is a string, an alias search is performed.
+   * If $identifier is an integer or numeric string, an id search is performed.
+   * If $identifier is a string, an alias search is performed.
    *
-   * @param mixed Unique identifier
+   * @param mixed $identifier Unique identifier
    * @return bool
    */
   public static function content_exists($identifier)
@@ -203,19 +198,18 @@ final class content_cache
 	  return FALSE;
   }
 
-
   /**
    * Add data to the cache
    *
    * @access private
    * @internal
    * @since 1.10.1
-   * @param int The content Id.
+   * @param int The content Id
    * @param string  The content alias
-   * @param ContentBase The content object.
+   * @param ContentBase The content object
    * @return bool
    */
-  private static function _add_content($id,$alias,\ContentBase& $obj)
+  private static function _add_content($id,$alias,ContentBase &$obj)
   {
     if( !$id) return FALSE;
     if( !self::$_alias_map ) self::$_alias_map = [];
@@ -232,16 +226,15 @@ final class content_cache
   /**
    * Add the content object to the cache
    *
-   * @param int The content Id.
+   * @param int The content Id
    * @param string  The content alias
-   * @param ContentBase The content object.
+   * @param ContentBase The content object
    * @return bool
    */
-  public static function add_content($id,$alias,\ContentBase& $obj)
+  public static function add_content($id,$alias,ContentBase &$obj)
   {
 	  self::_add_content($id,$alias,$obj);
   }
-
 
   /**
    * Clear the contents of the entire cache
@@ -253,7 +246,6 @@ final class content_cache
 	  self::$_id_map = null;
   }
 
-
   /**
    * Return a list of the page ids that are in the cache
    *
@@ -263,7 +255,6 @@ final class content_cache
   {
 	  if( is_array(self::$_id_map) && count(self::$_id_map) )  return array_keys(self::$_id_map);
   }
-
 
   /**
    * Retrieve a pageid given an alias.
@@ -278,7 +269,6 @@ final class content_cache
 	  $hash = self::$_alias_map[$alias];
 	  return array_search($hash,self::$_id_map);
   }
-
 
   /**
    * Retrieve a page alias given an id.
@@ -308,8 +298,8 @@ final class content_cache
    * Unload the specified content id (numeric id or alias) if loaded.
    * Note, this should be used with caution, as the next time this page is requested it will be loaded from the database again.n
    *
-   * If the identifier is an integer, an id search is performed.
-   * If the identifier is a string, an alias search is performed.
+   * If $identifier is an integer or numeric string, an id search is performed.
+   * If $identifier is a string, an alias search is performed.
    *
    * @author Robert Campbell
    * @since  2.0
