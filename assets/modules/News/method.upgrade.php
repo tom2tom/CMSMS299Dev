@@ -157,7 +157,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
     }
 
     $this->RegisterModulePlugin(TRUE);
-    $this->RegisterSmartyPlugin('news','function','function_plugin');
+    $this->RegisterSmartyPlugin('news','function','function_plugin'); //ibid, with lower-case name
     $this->CreateStaticRoutes();
 }
 

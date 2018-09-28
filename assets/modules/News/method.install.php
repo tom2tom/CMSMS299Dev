@@ -345,8 +345,8 @@ $this->CreateEvent('NewsCategoryAdded');
 $this->CreateEvent('NewsCategoryEdited');
 $this->CreateEvent('NewsCategoryDeleted');
 
-$this->RegisterModulePlugin(TRUE); //CHECKME in module i.e. each session?
-$this->RegisterSmartyPlugin('news', 'function', 'function_plugin');
+$this->RegisterModulePlugin(TRUE);
+$this->RegisterSmartyPlugin('news', 'function', 'function_plugin'); //ibid, with lower-case name
 
 // and routes...
 $this->CreateStaticRoutes();
