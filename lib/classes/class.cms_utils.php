@@ -69,7 +69,7 @@ final class cms_utils
 
 
 	/**
-	 * A convenience function to return the object representing an installed module.
+	 * A convenience function to return an object representing an installed module.
 	 *
 	 * If a version string is passed, a matching object will only be returned IF
 	 * the installed version is greater than or equal to the supplied version.
@@ -89,7 +89,7 @@ final class cms_utils
 
 
 	/**
-	 * A convenience function to return an indication if a module is availalbe.
+	 * A convenience function to check whether a module is available.
 	 *
 	 * @see get_module()
 	 * @final
