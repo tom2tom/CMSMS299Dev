@@ -129,15 +129,16 @@ function toggle() {
   <div id="wrapper">
     <h1>Oops!</h1>
     <p class="info">
-      Something went wrong!{if !$loggedin}<br />
-      Please report to the appropriate authorities, including this message from the system:<br />{$e_message}{/if}
+      Something went wrong!{if empty($loggedin)}<br />
+      Please report to the appropriate authorities, including this message from the system:<br />
+      {$e_message}{/if}
     </p>
     <div class="clear"></div>
-    {if $loggedin}
+    {if !empty($loggedin)}
     <div class="pageerror"> TODO
       <h2 class="error-message"><span class="important">Error:</span> at line {$e_line} in file {$e_file}:</h2> TODO
       <p class="information" style="font-weight:bold;">Message:</p> TODO
-      <pre>{$e_message}</pre>
+      {if !empty($e_message)}<pre>{$e_message}</pre>{/if}
       {if !empty($e_trace)}
       <p class="messagecontainer btn">
         <a id="open" href="javascript:toggle();">View Full Trace &darr;</a>
