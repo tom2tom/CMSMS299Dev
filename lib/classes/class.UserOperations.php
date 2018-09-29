@@ -16,15 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Class for doing user related functions. Many User-class functions
- * are just wrappers around these.
- *
- * @package CMS
- * @license GPL
- *
- * @since 0.6.1
- */
 namespace CMSMS;
 
 use CmsApp;
@@ -34,6 +25,15 @@ use const CMS_DB_PREFIX;
 use function check_permission;
 use function get_userid;
 
+/**
+ * Class for doing user related functions. Many User-class functions
+ * are just wrappers around these.
+ *
+ * @package CMS
+ * @license GPL
+ *
+ * @since 0.6.1
+ */
 class UserOperations
 {
 	/**

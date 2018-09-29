@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program. If not, see <https://www.gnu.org/licenses/licenses.html>.
 
+namespace CMSMS;
+
 /**
  * Form-tag creation method-definitions - for reflection
  *
@@ -24,9 +26,6 @@
  *
  * @since 2.3
  */
-
-namespace CMSMS;
-
 interface FormTags
 {
    /**

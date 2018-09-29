@@ -16,6 +16,10 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS;
+
+use cms_siteprefs;
+
 /**
  * Generic admin user class.  This can be used for any logged in user or user related function.
  *
@@ -23,11 +27,6 @@
  * @since 0.6.1
  * @license GPL
  */
-
-namespace CMSMS;
-
-use cms_siteprefs;
-
 class User
 {
 	/**

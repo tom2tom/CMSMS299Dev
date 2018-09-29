@@ -16,11 +16,14 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Classes and functions related to CMSMS admin groups.
- * @package CMS
- * @license GPL
- */
+namespace CMSMS;
+
+use CmsApp;
+use CmsInvalidDataException;
+use LogicException;
+use const CMS_DB_PREFIX;
+use function cms_to_bool;
+use function lang;
 
 /**
  * Generic group class. This can be used for any logged in group or group related function.
@@ -33,15 +36,6 @@
  * @package CMS
  * @license GPL
  */
-namespace CMSMS;
-
-use CmsApp;
-use CmsInvalidDataException;
-use LogicException;
-use const CMS_DB_PREFIX;
-use function cms_to_bool;
-use function lang;
-
 class Group
 {
 	/**
