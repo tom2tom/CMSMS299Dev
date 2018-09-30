@@ -253,11 +253,11 @@ function cms_stylesheet_writeCache($filename, $list, $trimbackground, &$template
 	// Fix background
 	if($trimbackground) {
 
-		$_contents = preg_replace('/(\w*?background-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
-		$_contents = preg_replace('/\w*?(background[-image]*[\s\w]*\:[\#\s\w]*)url\(.*\)/','$1;',$_contents);
-		$_contents = preg_replace('/\w*?(background[-image]*[\s\w]*\:[\s]*\;)/','',$_contents);
-		$_contents = preg_replace('/(\w*?background-color.*?\:\w*?).*?(;.*?)/', '\\1transparent\\2', $_contents);
-		$_contents = preg_replace('/(\w*?background-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
+		$_contents = preg_replace('/(\w*?background\-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
+		$_contents = preg_replace('/\w*?(background[\-image]*[\s\w]*\:[\#\s\w]*)url\(.*\)/','$1;',$_contents);
+		$_contents = preg_replace('/\w*?(background[\-image]*[\s\w]*\:[\s]*\;)/','',$_contents);
+		$_contents = preg_replace('/(\w*?background\-color.*?\:\w*?).*?(;.*?)/', '\\1transparent\\2', $_contents);
+		$_contents = preg_replace('/(\w*?background\-image.*?\:\w*?).*?(;.*?)/', '', $_contents);
 		$_contents = preg_replace('/(\w*?background.*?\:\w*?).*?(;.*?)/', '', $_contents);
 	}
 
