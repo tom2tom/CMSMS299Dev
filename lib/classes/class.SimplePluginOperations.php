@@ -334,7 +334,7 @@ EOS;
         if( $params ) extract($params);
         $smarty = $template = $args[1];
 
-        include_once $fp;
+        return include_once $fp;
     }
 
     /**
