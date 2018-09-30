@@ -171,7 +171,7 @@ if (isset($_POST['submit'])) {
     if (count($parts) == 2) {
         if (md5(__FILE__.$parts[1]) == $parts[0]) {
             $selected_groups = (array) unserialize(base64_decode($parts[1]), ['allowed_classes'=>false]);
-            if (is_array($selected_groups) && count($selected_groups)) {
+            if ($selected_groups) {
                 // clean this array
                 $tmp = [];
                 foreach ($selected_groups as &$one) {

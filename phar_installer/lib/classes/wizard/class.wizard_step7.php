@@ -65,8 +65,8 @@ class wizard_step7 extends wizard_step
     {
         $languages = ['en_US'];
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( is_array($siteinfo['languages']) && count($siteinfo['languages']) ) $languages = array_merge($languages,$siteinfo['languages']);
-        if( is_array($langlist) && count($langlist) ) $languages = array_merge($languages,$langlist);
+        if( $siteinfo['languages'] ) $languages = array_merge($languages,$siteinfo['languages']);
+        if( $langlist ) $languages = array_merge($languages,$langlist);
         $languages = array_unique($languages);
 
         $destdir = get_app()->get_destdir();
@@ -98,7 +98,7 @@ class wizard_step7 extends wizard_step
 
         $version_info = $this->get_wizard()->get_data('version_info');
         $versions = utils::get_upgrade_versions();
-        if( is_array($versions) && count($versions) ) {
+        if( $versions ) {
             $this->message(lang('preprocessing_files'));
             foreach( $versions as $one_version ) {
                 if( version_compare($one_version, $version_info['version']) < 1 ) continue;
@@ -124,7 +124,7 @@ class wizard_step7 extends wizard_step
 
         $version_info = $this->get_wizard()->get_data('version_info');
         $versions = utils::get_upgrade_versions();
-        if( is_array($versions) && count($versions) ) {
+        if( $versions ) {
             $this->message(lang('processing_file_manifests'));
             foreach( $versions as $one_version ) {
                 if( version_compare($one_version, $version_info['version']) < 1 ) continue;
@@ -143,7 +143,7 @@ class wizard_step7 extends wizard_step
                 $ndeleted = 0;
                 $nfailed = 0;
                 $nmissing = 0;
-                if( is_array($deleted) && count($deleted) ) {
+                if( $deleted ) {
                     foreach( $deleted as $rec ) {
                         $fn = "{$destdir}{$rec['filename']}";
                         if( !file_exists($fn) ) {
@@ -203,7 +203,7 @@ class wizard_step7 extends wizard_step
         try {
             include_once dirname(__DIR__,2).'/msg_functions.php';
             $tmp = $this->get_wizard()->get_data('version_info');
-            if( $action == 'upgrade' && is_array($tmp) && count($tmp) ) {
+            if( $action == 'upgrade' && $tmp ) {
                 $languages = $this->detect_languages();
                 $this->preprocess_files();
                 $this->do_manifests();

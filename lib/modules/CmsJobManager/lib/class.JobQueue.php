@@ -106,7 +106,7 @@ final class JobQueue
         $db = $mod->GetDb();
         $sql = 'SELECT * FROM '.CmsJobManager::table_name().' WHERE errors >= ?';
         $list = $db->GetArray($sql, [self::MINERRORS]);
-        if (is_array($list) && count($list)) {
+        if ($list) {
             $idlist = [];
             foreach ($list as $row) {
                 $obj = unserialize($row['data']);

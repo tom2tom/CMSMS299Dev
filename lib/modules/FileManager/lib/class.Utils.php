@@ -326,7 +326,7 @@ final class Utils
                 if( $entry == '.svn' || $entry == '.git' ) continue;
                 $res[$prefix.$entry] = $prefix.$entry;
                 $tmp = self::get_dirs($full,$prefix.$entry.DIRECTORY_SEPARATOR);
-                if( is_array($tmp) && count($tmp) ) $res = array_merge($res,$tmp);
+                if( $tmp ) $res = array_merge($res,$tmp);
             }
             closedir($dh);
         }
@@ -348,7 +348,7 @@ final class Utils
 
         // now get a simple list of all of the directories we have 'write' access to.
         $output = self::get_dirs($startdir, DIRECTORY_SEPARATOR);
-        if( is_array($output) && count($output) ) {
+        if( $output ) {
             ksort($output);
             $tmp = [];
             if( $advancedmode ) {

@@ -23,7 +23,7 @@ class wizard_step6 extends wizard_step
 //       'emailaccountinfo'=>1,
          ];
         $tmp = $this->get_wizard()->get_data('adminaccount');
-        if( is_array($tmp) && count($tmp) ) $this->_adminacct = $tmp;
+        if( $tmp ) $this->_adminacct = $tmp;
     }
 
     private function validate($acct)

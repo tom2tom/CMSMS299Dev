@@ -325,7 +325,7 @@ class ContentOperations
 			// and load them.  content types from modules are
 			// registered in the constructor.
 			$module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::CONTENT_TYPES);
-			if( is_array($module_list) && count($module_list) ) {
+			if( $module_list ) {
 				foreach( $module_list as $module_name ) {
 					cms_utils::get_module($module_name);
 				}
@@ -556,7 +556,7 @@ class ContentOperations
 		}
 
 		$loaded_ids = content_cache::get_loaded_page_ids();
-		if( is_array($loaded_ids) && count($loaded_ids) ) {
+		if( $loaded_ids ) {
 			$expr[] = 'content_id NOT IN ('.implode(',',$loaded_ids).')';
 		}
 
@@ -633,11 +633,11 @@ class ContentOperations
 		$db = CmsApp::get_instance()->GetDb();
 
 		$contentrows = null;
-		if( is_array($explicit_ids) && count($explicit_ids) ) {
+		if( $explicit_ids ) {
 			$loaded_ids = content_cache::get_loaded_page_ids();
-			if( is_array($loaded_ids) && count($loaded_ids) ) $explicit_ids = array_diff($explicit_ids,$loaded_ids);
+			if( $loaded_ids ) $explicit_ids = array_diff($explicit_ids,$loaded_ids);
 		}
-		if( is_array($explicit_ids) && count($explicit_ids) ) {
+		if( $explicit_ids ) {
 			$expr = 'content_id IN ('.implode(',',$explicit_ids).')';
 			if( !$all ) $expr .= ' AND active = 1';
 
@@ -1040,7 +1040,7 @@ EOS;
 			// Get all of the pages this user has access to.
 			$groups = UserOperations::get_instance()->GetMemberGroups($userid);
 			$list = [$userid];
-			if( is_array($groups) && count($groups) ) {
+			if( $groups ) {
 				foreach( $groups as $group ) {
 					$list[] = $group * -1;
 				}
@@ -1095,7 +1095,7 @@ EOS;
 		if( !$parent ) return FALSE;
 
 		$peers = $parent->get_children();
-		if( is_array($peers) && count($peers) ) {
+		if( $peers ) {
 			for( $i = 0, $n = count($peers); $i < $n; $i++ ) {
 				if( !in_array($peers[$i]->get_tag('id'),$access) ) return FALSE;
 			}

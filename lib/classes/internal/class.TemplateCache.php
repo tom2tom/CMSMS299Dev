@@ -70,7 +70,7 @@ class TemplateCache
           $t2 = [];
           if( isset($this->_cache[$this->_key]['templates']) ) $t2 = $this->_cache[$this->_key]['templates'];
           $x = array_diff($t1,$t2);
-          if( is_array($x) && count($x) ) {
+          if( $x ) {
               $this->_cache[$this->_key]['templates'] = $t1;
               $dirty = TRUE;
           }
@@ -81,7 +81,7 @@ class TemplateCache
           $t2 = [];
           if( isset($this->_cache[$this->_key]['types']) ) $t2 = $this->_cache[$this->_key]['types'];
           $x = array_diff($t1,$t2);
-          if( is_array($x) && count($x) ) {
+          if( $x ) {
               $this->_cache[$this->_key]['types'] = $t1;
               $dirty = TRUE;
           }

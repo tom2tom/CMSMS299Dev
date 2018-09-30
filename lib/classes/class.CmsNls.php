@@ -90,7 +90,7 @@ class CmsNls
 		if( $str == $this->fullname() ) return TRUE;
 		$aliases = $this->aliases();
 		if( !is_array($aliases) ) $aliases = explode(',',$aliases);
-		if( is_array($aliases) && count($aliases) ) {
+		if( $aliases ) {
 			foreach( $aliases as $alias ) {
 				if( !strcasecmp($alias,$str) ) return TRUE;
 			}
@@ -226,7 +226,7 @@ class CmsNls
 		}
 		else {
 			$t = explode('_',$obj->_key);
-			if( is_array($t) && count($t) ) $obj->_isocode = $t[0];
+			if( $t ) $obj->_isocode = $t[0];
 		}
 
 		// get the locale

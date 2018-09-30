@@ -193,7 +193,7 @@ final class ModulePluginManager
 	public function find($name,$type)
 	{
 		$this->_load();
-		if( is_array($this->_data) && count($this->_data) ) {
+		if( $this->_data ) {
 			foreach( $this->_data as $key => $row ) {
 				if( $row['name'] == $name && $row['type'] == $type ) return $row;
 			}
@@ -272,7 +272,7 @@ final class ModulePluginManager
 	public function _remove_by_module($module_name)
 	{
 		$this->_load();
-		if( is_array($this->_data) && count($this->_data) ) {
+		if( $this->_data ) {
 			$new = [];
 			foreach( $this->_data as $key => $row ) {
 				if( $row['module'] != $module_name ) $new[$key] = $row;
@@ -301,7 +301,7 @@ final class ModulePluginManager
 	public function _remove_by_name($name)
 	{
 		$this->_load();
-		if( is_array($this->_data) && count($this->_data) ) {
+		if( $this->_data ) {
 			$new = [];
 			foreach( $this->_data as $key => $row ) {
 				if( $name != $row['name'] ) $new[$key] = $row;

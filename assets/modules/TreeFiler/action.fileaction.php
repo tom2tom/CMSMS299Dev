@@ -103,7 +103,7 @@ if (isset($params['del'])) {
         // Multi delete
         $errors = 0;
         $items = json_decode(rawurldecode($params['sel']));
-        if (is_array($items) && count($items)) {
+        if ($items) {
             foreach ($items as $f) {
                 $file = trim($f, ' "\'');
                 if ($file !== '') {
@@ -167,7 +167,7 @@ if (isset($params['todir'], $params['sel'])) {
 
     $errors = 0;
     $items = json_decode(rawurldecode($params['sel']));
-    if (is_array($items) && count($items)) {
+    if ($items) {
         $move = !isset($params['copy']) && isset($params['move']); //move instead of copy
         foreach ($items as $f) {
             $file = trim($f, ' "\'');
@@ -469,7 +469,7 @@ if (isset($params['compress'], $params['sel'])) {
 if (isset($params['decompress'], $params['sel'])) {
     // Unpack selected file(s)
     $items = json_decode(rawurldecode($params['sel']));
-    if (is_array($items) && count($items)) {
+    if ($items) {
         $errors = 0;
         foreach ($items as $f) {
             $file = trim($f, ' "\'');

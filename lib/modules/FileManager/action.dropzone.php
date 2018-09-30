@@ -65,7 +65,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
       if( $entry == '.svn' || $entry == '.git' ) continue;
       if( is_writable($full) ) $res[$prefix.$entry] = $prefix.$entry;
       $tmp = get_dirs($full,$prefix.$entry.DIRECTORY_SEPARATOR);
-      if( is_array($tmp) && count($tmp) ) $res = array_merge($res,$tmp);
+      if( $tmp ) $res = array_merge($res,$tmp);
     }
     closedir($dh);
     return $res;

@@ -134,7 +134,7 @@ class wizard_step1 extends wizard_step
                 $out[$dn] = $str;
                 if( $depth < 3 ) {
                     $tmp = $_find_dirs($dn,$depth + 1); // recursion
-                    if( is_array($tmp) && count($tmp) ) $out = array_merge($out,$tmp);
+                    if( $tmp ) $out = array_merge($out,$tmp);
                 }
             }
             if( count($out) ) return $out;

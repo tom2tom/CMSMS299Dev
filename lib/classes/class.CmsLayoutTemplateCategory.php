@@ -315,7 +315,7 @@ class CmsLayoutTemplateCategory
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY item_order ASC';
 			$res = $db->GetArray($query);
 		}
-		if( is_array($res) && count($res) ) {
+		if( $res ) {
 			$out = [];
 			foreach( $res as $row ) {
 				$out[] = self::_load_from_data($row);

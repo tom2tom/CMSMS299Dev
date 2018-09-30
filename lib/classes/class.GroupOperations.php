@@ -143,7 +143,7 @@ final class GroupOperations
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 			$dbr = $db->GetCol($query,[(int)$groupid]);
-			if( is_array($dbr) && count($dbr) ) $this->_perm_cache[$groupid] = $dbr;
+			if( $dbr ) $this->_perm_cache[$groupid] = $dbr;
 		}
 
 		return isset($this->_perm_cache[$groupid]) && in_array($permid,$this->_perm_cache[$groupid]);

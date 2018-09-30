@@ -69,7 +69,7 @@ try {
       }
       else {
           $tmp = CmsLockOperations::get_locks($type);
-          if( is_array($tmp) && count($tmp) ) $out['lock_id'] = -1;
+          if( $tmp ) $out['lock_id'] = -1;
       }
       break;
 

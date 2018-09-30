@@ -25,7 +25,7 @@ try {
   foreach( $types as $type ) {
       try {
           $templates = $type->get_template_list();
-          if( is_array($templates) && count($templates) ) {
+          if( $templates ) {
               foreach( $templates as $tpl ) {
                   $tpl->delete();
               }

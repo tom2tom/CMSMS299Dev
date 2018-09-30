@@ -96,7 +96,7 @@ if (isset($_GET['switchuser'])) {
             }
         }
     }
-} elseif (isset($_POST['bulk']) && isset($_POST['multiselect']) && is_array($_POST['multiselect']) && count($_POST['multiselect'])) {
+} elseif (isset($_POST['bulk']) && isset($_POST['multiselect']) && $_POST['multiselect']) {
     switch ($_POST['bulkaction']) {
         case 'delete':
             $ndeleted = 0;
@@ -162,7 +162,7 @@ if (isset($_GET['switchuser'])) {
                 $fromuser = (int)$_POST['userlist'];
                 if ($fromuser > 0) {
                     $prefs = cms_userprefs::get_all_for_user($fromuser);
-                    if (is_array($prefs) && count($prefs)) {
+                    if ($prefs) {
                         foreach ($_POST['multiselect'] as $uid) {
                             $uid = (int)$uid;
                             if ($uid <= 1) {

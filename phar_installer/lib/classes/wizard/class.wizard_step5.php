@@ -27,7 +27,7 @@ class wizard_step5 extends wizard_step
         if( $lang != 'en_US' ) $this->_siteinfo['languages'] = [ $lang ];
 
         $tmp = $this->get_wizard()->get_data('siteinfo');
-        if( is_array($tmp) && count($tmp) ) $this->_siteinfo = $tmp;
+        if( $tmp ) $this->_siteinfo = $tmp;
         return parent::run();
     }
 

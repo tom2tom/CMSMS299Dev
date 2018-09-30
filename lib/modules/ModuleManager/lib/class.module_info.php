@@ -64,7 +64,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
     private function _get_missing_dependencies()
     {
         $depends = $this['depends'];
-        if( is_array($depends) && count($depends) ) {
+        if( $depends ) {
             $out = [];
             foreach( $depends as $name => $ver ) {
                 $rec = self::get_module_info($name);
@@ -94,7 +94,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
     {
         // check if all module dependants are installed and are of sufficient version.
         $missing = $this->_get_missing_dependencies();
-        if( is_array($missing) && count($missing) ) return FALSE;
+        if( $missing ) return FALSE;
         return TRUE;
     }
 
@@ -138,7 +138,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
             if( $name == 'ModuleManager' || $name == 'CoreAdminLogin' ) return FALSE;
 
             foreach( self::$_minfo as $mname => $minfo ) {
-                if( is_array($minfo['dependants']) && count($minfo['dependants']) ) {
+                if( $minfo['dependants'] ) {
                     if( in_array($name,$minfo['dependants']) ) return FALSE;
                 }
 

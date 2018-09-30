@@ -262,7 +262,7 @@ VALUES (?,?,\'installed\',?,1,?,?)');
             ]);
 
             $deps = $modinst->GetDependencies();
-            if( is_array($deps) && count($deps) ) {
+            if( $deps ) {
                 foreach( $deps as $depname => $depversion ) {
                     if( $depname && $depversion ) {
 /*
@@ -301,7 +301,7 @@ VALUES (?,?,?,NOW(),NOW())');
         try {
             $action = $this->get_wizard()->get_data('action');
             $tmp = $this->get_wizard()->get_data('version_info');
-            if( $action == 'upgrade' && is_array($tmp) && count($tmp) ) {
+            if( $action == 'upgrade' && $tmp ) {
                 $this->do_upgrade($tmp);
             }
             elseif( $action == 'freshen' ) {

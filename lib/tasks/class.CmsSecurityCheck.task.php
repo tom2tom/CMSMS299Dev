@@ -40,7 +40,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         // check if install file exists
         $pattern = cms_join_path(CMS_ROOT_PATH,'cmsms-*-install.php');
         $files = glob($pattern);
-        if( is_array($files) && count($files) ) {
+        if( $files ) {
             $fn = basename($files[0]);
             $alert = new \CMSMS\AdminAlerts\TranslatableAlert('Modify Site Preferences');
             $alert->name = __CLASS__.'install';

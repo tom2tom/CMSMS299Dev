@@ -88,7 +88,7 @@ final class CmsNlsOperations
 			$nlsdir = cms_join_path(CMS_ROOT_PATH,'lib','nls');
 			$langdir = cms_join_path(CMS_ROOT_PATH,$config['admin_dir'],'lang');
 			$files = glob($nlsdir.DIRECTORY_SEPARATOR.'*nls.php');
-			if( is_array($files) && count($files) ) {
+			if( $files ) {
 				for( $i = 0, $n = count($files); $i < $n; $i++ ) {
 					if( !is_file($files[$i]) ) continue;
 					$fn = basename($files[$i]);

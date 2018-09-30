@@ -78,7 +78,7 @@ try {
     $cats = CmsLayoutTemplateCategory::get_all();
     $out = [];
     $out[0] = $this->Lang('prompt_none');
-    if( is_array($cats) && count($cats) ) {
+    if( $cats ) {
         foreach( $cats as $one ) {
             $out[$one->get_id()] = $one->get_name();
         }
@@ -86,7 +86,7 @@ try {
     $tpl->assign('category_list',$out);
 
     $types = CmsLayoutTemplateType::get_all();
-    if( is_array($types) && count($types) ) {
+    if( $types ) {
         $out = [];
         foreach( $types as $one ) {
             $out[$one->get_id()] = $one->get_langified_display_value();
@@ -95,7 +95,7 @@ try {
     }
 
     $designs = CmsLayoutCollection::get_all();
-    if( is_array($designs) && count($designs) ) {
+    if( $designs ) {
         $out = [];
         foreach( $designs as $one ) {
             $out[$one->get_id()] = $one->get_name();
@@ -109,7 +109,7 @@ try {
     foreach( $allusers as $one ) {
         $tmp[$one->id] = $one->username;
     }
-    if( is_array($tmp) && count($tmp) ) {
+    if( $tmp ) {
         $tpl->assign('user_list',$tmp);
     }
 

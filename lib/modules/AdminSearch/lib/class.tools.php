@@ -22,14 +22,14 @@ final class tools
       // get module results.
       $mod = cms_utils::get_module('AdminSearch');
       $modulelist = $mod->GetModulesWithCapability('AdminSearch');
-      if( is_array($modulelist) && count($modulelist) ) {
+      if( $modulelist ) {
         foreach( $modulelist as $module_name ) {
           $mod = cms_utils::get_module($module_name);
           if( !is_object($mod) ) continue;
           if( !method_exists($mod,'get_adminsearch_slaves') ) continue;
 
           $classlist = $mod->get_adminsearch_slaves();
-          if( is_array($classlist) && count($classlist) ) {
+          if( $classlist ) {
             foreach( $classlist as $class_name ) {
               if( !class_exists($class_name) ) continue;
               if( !is_subclass_of($class_name,'slave') ) continue;

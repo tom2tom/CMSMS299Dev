@@ -120,7 +120,7 @@ if( isset($params['delete']) ) {
 }
 
 if( isset($params['multisubmit']) && isset($params['multiaction']) &&
-    isset($params['multicontent']) && is_array($params['multicontent']) && count($params['multicontent']) ) {
+    isset($params['multicontent']) && $params['multicontent'] ) {
     list($module,$bulkaction) = explode('::',$params['multiaction'],2);
     if( $module == '' || $module == '-1' || $bulkaction == '' || $bulkaction == '-1' ) {
         $this->SetMessage($this->Lang('error_nobulkaction'));
@@ -137,7 +137,7 @@ $modname = $this->GetName();
 if( isset($curpage) ) $_SESSION[$modname.'_curpage'] = $curpage; // for use by ajax_get_content
 
 $locks = $builder->get_locks();
-$have_locks = (is_array($locks) && count($locks)) ? 1 : 0;
+$have_locks = ($locks) ? 1 : 0;
 $url = $this->create_url($id,'admin_ajax_pagelookup','');
 $u1 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
 $url = $this->create_url($id,'ajax_get_content','');

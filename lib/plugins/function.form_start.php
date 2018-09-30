@@ -99,7 +99,7 @@ function smarty_function_form_start($params, $template)
 			break;
 
 		case 'extraparms':
-			if( is_array($value) && count($value) ) {
+			if( $value ) {
 				foreach( $value as $key=>$value2 ) {
 					$parms[$key] = $value2;
 				}

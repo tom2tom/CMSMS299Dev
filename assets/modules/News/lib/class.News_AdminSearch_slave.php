@@ -79,7 +79,7 @@ final class News_AdminSearch_slave extends slave
     $query .= ' ORDER BY N.modified_date DESC';
 
     $dbr = $db->GetArray($query,[$parms]);
-    if( is_array($dbr) && count($dbr) ) {
+    if( $dbr ) {
       // got some results.
       $output = [];
       foreach( $dbr as $row ) {

@@ -305,7 +305,7 @@ class wizard_step8 extends wizard_step
         try {
             $action = $this->get_wizard()->get_data('action');
             $tmp = $this->get_wizard()->get_data('version_info');
-            if( $action == 'upgrade' && is_array($tmp) && count($tmp) ) {
+            if( $action == 'upgrade' && $tmp ) {
                 $this->do_upgrade($tmp);
             }
             elseif( $action == 'freshen' ) {

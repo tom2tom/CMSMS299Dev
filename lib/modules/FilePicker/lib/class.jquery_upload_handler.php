@@ -32,7 +32,7 @@ abstract class jquery_upload_handler
             'orient_image'=>false,
             'image_versions'=>[]
         ];
-        if (is_array($options) && count($options)) {
+        if ($options) {
             foreach( $options as $key => $value ) {
                 $this->options[$key] = $value;
             }

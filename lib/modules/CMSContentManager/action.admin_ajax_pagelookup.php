@@ -44,7 +44,7 @@ if( $term ) {
     }
 
     $list = $db->GetArray($query,$parms);
-    if( is_array($list) && count($list) ) {
+    if( $list ) {
         $builder = new ContentListBuilder($this);
         $builder->expand_all(); // it'd be cool to open all parents to each item.
         $contentops = ContentOperations::get_instance();

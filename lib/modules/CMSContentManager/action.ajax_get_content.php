@@ -72,7 +72,7 @@ try {
 
     $tpl->assign('indent',!$filter && cms_userprefs::get('indent',1));
     $locks = $builder->get_locks();
-    $have_locks = (is_array($locks) && count($locks))?1:0;
+    $have_locks = ($locks)?1:0;
     $tpl->assign('locking',Utils::locking_enabled())
      ->assign('have_locks',$have_locks)
      ->assign('pagelimit',$pagelimit)
@@ -114,7 +114,7 @@ try {
         bulkcontentoperations::register_function($this->Lang('bulk_changeowner'),'changeowner');
     }
     $opts = bulkcontentoperations::get_operation_list();
-    if( is_array($opts) && count($opts) ) $tpl->assign('bulk_options',$opts);
+    if( $opts ) $tpl->assign('bulk_options',$opts);
 
     //TODO ensure flexbox css for .rowbox, .boxchild
 

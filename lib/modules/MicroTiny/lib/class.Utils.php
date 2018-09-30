@@ -297,7 +297,7 @@ EOS;
 		$dir = cms_join_path($mod->GetModulePath(),'lib','js','tinymce','langs');
 		$langs = [];
 		$files = glob($dir.DIRECTORY_SEPARATOR.'*.js');
-		if( is_array($files) && count($files) ) {
+		if( $files ) {
 			 foreach( $files as $one ) {
 				 $one = basename($one);
 				 $one = substr($one,0,-3);

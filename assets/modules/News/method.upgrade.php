@@ -69,7 +69,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
       $categories = $db->GetArray($query);
 
       $uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = ? WHERE news_category_id = ?';
-      if( is_array($categories) && count($categories) ) {
+      if( $categories ) {
           $prev_parent = null;
           $item_order = 0;
           foreach( $categories as $row ) {
@@ -164,7 +164,7 @@ if( version_compare($oldversion,'2.50') < 0 ) {
 if( version_compare($oldversion,'2.50.8') < 0 ) {
     try {
         $types = CmsLayoutTemplateType::load_all_by_originator($me);
-        if( is_array($types) && count($types) ) {
+        if( $types ) {
             foreach( $types as $type_obj ) {
                 $type_obj->set_help_callback('News::template_help_callback');
                 $type_obj->save();

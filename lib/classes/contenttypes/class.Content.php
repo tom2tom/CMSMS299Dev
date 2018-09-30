@@ -199,7 +199,7 @@ class Content extends ContentBase
 
 			// add content blocks
 			$blocks = $this->get_content_blocks();
-			if( is_array($blocks) && count($blocks) ) {
+			if( $blocks ) {
 				foreach($blocks as $blockName => $blockInfo) {
 					$name = $blockInfo['id'];
 					$parameters[] = $name;
@@ -269,7 +269,7 @@ class Content extends ContentBase
 
 		// add in content blocks
 		$blocks = $this->get_content_blocks();
-		if( is_array($blocks) && count($blocks) ) {
+		if( $blocks ) {
 			$priority = 100;
 			foreach( $blocks as $block ) {
 				// todo, skip this block if permissions don't allow.
@@ -316,7 +316,7 @@ class Content extends ContentBase
 		}
 
 		$have_content_en = false;
-		if( is_array($blocks) && count($blocks) ) {
+		if( $blocks ) {
 			foreach($blocks as $blockName => $blockInfo) {
 				if( $blockInfo['id'] == 'content_en' ) $have_content_en = true;
 				if( isset($blockInfo['required']) && $blockInfo['required'] && ($val = $this->GetPropertyValue($blockName)) == '' ) {
@@ -398,7 +398,7 @@ class Content extends ContentBase
 	protected function get_template_list() : array
 	{
 		static $_list;
-		if( is_array($_list) && count($_list) ) return $_list;
+		if( $_list ) return $_list;
 
 		$_list = null;
 		$config = cms_config::get_instance();
@@ -439,7 +439,7 @@ class Content extends ContentBase
 		if( $_designlist == null ) {
 /* see get_template_list()
 			$_tpl = CmsLayoutTemplate::template_query(['as_list'=>1]);
-			if( is_array($_tpl) && count($_tpl) ) {
+			if( $_tpl ) {
 				$_templates = [];
 				foreach( $_tpl as $tpl_id => $tpl_name ) {
 					$_templates[] = ['value'=>$tpl_id,'label'=>$tpl_name];
@@ -464,7 +464,7 @@ class Content extends ContentBase
 					}
 				}
 				$out = '';
-				if( is_array($_designlist) && count($_designlist) ) {
+				if( $_designlist ) {
 					$out = CmsFormUtils::create_dropdown('design_id',array_flip($_designlist),$this->GetPropertyValue('design_id'),
 														 ['id'=>'design_id']);
 					$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_design',lang('help_title_editcontent_design'));

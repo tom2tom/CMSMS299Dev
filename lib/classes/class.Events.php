@@ -191,7 +191,7 @@ EOS;
 		self::$_handlercache = global_cache::get(__CLASS__);
 		$handlers = [];
 
-		if( is_array(self::$_handlercache) && count(self::$_handlercache) ) {
+		if( self::$_handlercache ) {
 			foreach (self::$_handlercache as $row) {
 				if ($row['originator'] == $originator && $row['event_name'] == $eventname) $handlers[] = $row;
 			}
@@ -209,7 +209,7 @@ EOS;
 		self::$_handlercache = global_cache::get(__CLASS__);
 
 		$out = [];
-		if( is_array(self::$_handlercache) && count(self::$_handlercache) ) {
+		if( self::$_handlercache ) {
 			foreach( self::$_handlercache as $row ) {
 				if( $row['handler_id'] == $handler_id ) return $row;
 			}

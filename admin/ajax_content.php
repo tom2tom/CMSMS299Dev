@@ -140,7 +140,7 @@ try {
             }
             if( $node ) {
                 $children = $node->getChildren(FALSE,$allow_all);
-                if( is_array($children) && count($children) ) {
+                if( $children ) {
                     $out = [];
                     foreach( $children as $child ) {
                         $content = $child->getContent(FALSE);

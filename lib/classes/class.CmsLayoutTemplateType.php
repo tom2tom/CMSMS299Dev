@@ -579,7 +579,7 @@ WHERE id = ?';
 
 		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = CmsLayoutTemplate::template_query(['t:'.$this->get_id()]);
-		if( is_array($tmp) && count($tmp) ) throw new CmsInvalidDataException('Cannot delete a template-type with existing templates');
+		if( $tmp ) throw new CmsInvalidDataException('Cannot delete a template-type with existing templates');
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 		$dbr = $db->Execute($query,[$this->_data['id']]);

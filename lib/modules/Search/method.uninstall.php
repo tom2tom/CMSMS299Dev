@@ -37,10 +37,10 @@ $this->RemoveSmartyPlugin();
 // and template types.
 try {
   $types = CmsLayoutTemplateType::load_all_by_originator($this->GetName());
-  if( is_array($types) && count($types) ) {
+  if( $types ) {
     foreach( $types as $type ) {
       $templates = $type->get_template_list();
-      if( is_array($templates) && count($templates) ) {
+      if( $templates ) {
         foreach( $templates as $template ) {
           $template->delete();
         }

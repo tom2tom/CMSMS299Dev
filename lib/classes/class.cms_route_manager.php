@@ -329,7 +329,7 @@ final class cms_route_manager
 		// get content routes
 		$query = 'SELECT content_id,page_url FROM '.CMS_DB_PREFIX."content WHERE active=1 AND COALESCE(page_url,'') != ''";
 		$tmp = $db->GetArray($query);
-		if( is_array($tmp) && count($tmp) ) {
+		if( $tmp ) {
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				$route = CmsRoute::new_builder($tmp[$i]['page_url'],'__CONTENT__',$tmp[$i]['content_id'],'',TRUE);
 				cms_route_manager::add_static($route);
@@ -356,7 +356,7 @@ final class cms_route_manager
 		if( self::$_routes_loaded ) return;
 
 		$data = self::_get_routes_from_cache();
-		if( is_array($data) && count($data) ) {
+		if( $data ) {
 			self::$_routes = [];
 			for( $i = 0, $n = count($data); $i < $n; $i++ ) {
 				$obj = unserialize($data[$i]['data']);
@@ -377,7 +377,7 @@ final class cms_route_manager
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'routes';
 			$tmp = $db->GetArray($query);
 			self::$_routes_loaded = TRUE;
-			if( is_array($tmp) && count($tmp) ) {
+			if( $tmp ) {
 				file_put_contents($fn,serialize($tmp));
 				return $tmp;
 			}

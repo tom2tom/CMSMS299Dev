@@ -173,7 +173,7 @@ class gui_install extends installer_base
         $config_file = realpath(getcwd()).'/custom_config.ini';
         if( is_file($config_file) && is_readable($config_file) ) {
             $tmp = parse_ini_file($config_file);
-            if( is_array($tmp) && count($tmp) ) {
+            if( $tmp ) {
                 $config = array_merge($config,$tmp);
                 if( isset($tmp['dest']) ) $this->_custom_destdir = $tmp['dest'];
             }

@@ -63,7 +63,7 @@ function smarty_function_browser_lang($params, $template)
 			$alllang = substr($alllang,0,strpos($alllang, ';'));
 		$langs = explode(',', $alllang);
 
-		if( is_array($langs) && count($langs) ) {
+		if( $langs ) {
 			foreach( $langs as $one ) {
 				if( in_array($one,$accepted) ) {
 					$res = $one;

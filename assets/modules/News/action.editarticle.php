@@ -540,7 +540,7 @@ try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
     $templates = $type->get_template_list();
     $list = [];
-    if (is_array($templates) && count($templates)) {
+    if ($templates) {
         foreach ($templates as $template) {
             $list[$template->get_id()] = $template->get_name();
         }

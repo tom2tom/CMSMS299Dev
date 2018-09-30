@@ -158,6 +158,6 @@ final class cms_siteprefs
 		$query = 'SELECT sitepref_name FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->GetCol($query,[$prefix.'%']);
-		if( is_array($dbr) && count($dbr) ) return $dbr;
+		if( $dbr ) return $dbr;
 	}
 } // class

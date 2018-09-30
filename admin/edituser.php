@@ -203,7 +203,7 @@ if (isset($_POST['submit'])) {
             if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
                 // copy user preferences from the template user to this user.
                 $prefs = cms_userprefs::get_all_for_user((int)$_POST['copyusersettings']);
-                if (is_array($prefs) && count($prefs)) {
+                if ($prefs) {
                     cms_userprefs::remove_for_user($user_id);
                     foreach ($prefs as $k => $v) {
                         cms_userprefs::set_for_user($user_id, $k, $v);

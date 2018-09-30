@@ -34,7 +34,7 @@ final class utils
     public static function set_excludes($data)
     {
         if( is_string($data) ) $data = explode(',',$data);
-        if( is_array($data) && count($data) ) {
+        if( $data ) {
             foreach( $data as &$one ) {
                 $one = trim($one);
             }
@@ -131,7 +131,7 @@ final class utils
             $children = null;
             if( $node->has_children() ) {
                 $children = $node->getChildren($deep,$show_all);
-                if( is_array($children) && count($children) ) {
+                if( $children ) {
                     foreach( $children as $node ) {
                         $id = $node->get_tag('id');
                         if( content_cache::content_exists($id) ) {

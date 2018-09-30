@@ -72,7 +72,7 @@ try {
   }
 
   $stylesheets = CmsLayoutStylesheet::get_all();
-  if( is_array($stylesheets) && count($stylesheets) ) {
+  if( $stylesheets ) {
     usort($stylesheets,function($a,$b){
       return strcasecmp($a->get_name(),$b->get_name());
     });

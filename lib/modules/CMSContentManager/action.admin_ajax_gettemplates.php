@@ -45,7 +45,7 @@ try {
             $template_list = $design->get_templates();
 
             $templates = CmsLayoutTemplate::load_bulk($template_list);
-            if( is_array($templates) && count($templates) ) {
+            if( $templates ) {
                 $out = [];
                 foreach( $templates as $one ) {
                     if( $one->get_type_id() != $type_id ) continue;

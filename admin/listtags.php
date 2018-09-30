@@ -154,7 +154,7 @@ if ($action == 'showpluginhelp') {
         $files = array_merge($files,glob($one.'/*.php'));
     }
 
-    if (is_array($files) && count($files)) {
+    if ($files) {
         $file_array = [];
         foreach ($files as $onefile) {
             $file = basename($onefile);

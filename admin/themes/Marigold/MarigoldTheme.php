@@ -304,7 +304,7 @@ EOS;
 /*			} else {
 				// no title, get one from the breadcrumbs.
 				$bc = $this->get_breadcrumbs();
-				if (is_array($bc) && count($bc)) {
+				if ($bc) {
 					$title = $bc[count($bc) - 1]['title'];
 				}
 */

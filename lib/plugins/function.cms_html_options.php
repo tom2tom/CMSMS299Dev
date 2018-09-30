@@ -36,7 +36,7 @@ function smarty_function_cms_html_options($params, $template)
 	}
 
 	$out = null;
-	if( is_array($options) && count($options) ) {
+	if( $options ) {
 		$selected = null;
 		if( isset($params['selected']) ) {
 			$selected = $params['selected'];

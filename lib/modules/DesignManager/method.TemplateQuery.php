@@ -135,7 +135,7 @@ UNION
 SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
          AS tmp1';
         $t2 = $db->GetCol($q2, [$second,$second]);
-        if (is_array($t2) && count($t2)) {
+        if ($t2) {
             $where['user'][] = 'id IN ('.implode(',', $t2).')';
         }
         break;

@@ -79,7 +79,7 @@ final class content_cache
 				$content_ids = null;
 			}
 		}
-		if( is_array($content_ids) && count($content_ids) ) {
+		if( $content_ids ) {
 			$this->_preload_cache = $content_ids;
 			$contentops = ContentOperations::get_instance();
 			$tmp = $contentops->LoadChildren(null,$deep,FALSE,$content_ids);
@@ -110,13 +110,13 @@ final class content_cache
         if( $this->_preload_cache ) return;
 
 		$list = $this->get_loaded_page_ids();
-		if( is_array($list) && count($list) ) {
+		if( $list ) {
 			if( !is_array($this->_preload_cache) || count($this->_preload_cache) == 0 ) {
 				$dirty = TRUE;
 			}
 			else {
 				$t2 = array_diff($list,$this->_preload_cache);
-				$dirty = ( is_array($t2) && count($t2) );
+				$dirty = ( $t2 );
 			}
 
 			if( $dirty ) {
@@ -126,7 +126,7 @@ final class content_cache
 					$obj = self::get_content($one);
 					if( !is_object($obj) ) continue;
 					$tmp = $obj->Properties();
-					if( is_array($tmp) && count($tmp) ) {
+					if( $tmp ) {
 						$deep = TRUE;
                         $ndeep[] = $one;
 						break;
@@ -253,7 +253,7 @@ final class content_cache
    */
   public static function get_loaded_page_ids()
   {
-	  if( is_array(self::$_id_map) && count(self::$_id_map) )  return array_keys(self::$_id_map);
+	  if( self::$_id_map )  return array_keys(self::$_id_map);
   }
 
   /**

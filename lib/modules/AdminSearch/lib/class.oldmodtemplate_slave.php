@@ -38,7 +38,7 @@ final class oldmodtemplate_slave extends slave
     $db = cmsms()->GetDb();
     $query = 'SELECT originator,name,content FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE content LIKE ?';
     $dbr = $db->GetArray($query,['%'.$this->get_text().'%']);
-    if( is_array($dbr) && count($dbr) ) {
+    if( $dbr ) {
       $output = [];
       $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 

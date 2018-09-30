@@ -117,7 +117,7 @@ abstract class reader_base
     // now see if it's a duplicate name
     $list = CmsLayoutCollection::get_list();
     $orig_name = $name;
-    if( is_array($list) && count($list) ) {
+    if( $list ) {
       $name_list = array_values($list);
       $n = 1;
       while( $n < 100 ) {

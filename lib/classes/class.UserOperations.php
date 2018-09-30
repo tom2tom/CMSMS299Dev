@@ -476,7 +476,7 @@ class UserOperations
 			return true;
 		}
 		$groups = $this->GetMemberGroups();
-		if (is_array($groups) && count($groups)) {
+		if ($groups) {
 			if (in_array($uid, $groups)) {
 				return true;
 			}

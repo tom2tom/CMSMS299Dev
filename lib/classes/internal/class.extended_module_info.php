@@ -41,7 +41,7 @@ class extended_module_info extends module_info
         if( $key == 'missingdeps' ) {
             $out = null;
             $deps = $this['depends'];
-            if( is_array($deps) && count($deps) ) {
+            if( $deps ) {
                 foreach( $deps as $onedepname => $onedepversion ) {
                     $depinfo = new CmsExtendedModuleInfo($onedepkey);
                     if( !$depinfo['installed'] || version_compare($depinfo['version'],$onedepversion) < 0 ) $out[$onedepname] = $onedepversion;

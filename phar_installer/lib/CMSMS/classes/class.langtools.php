@@ -129,7 +129,7 @@ class langtools
    */
   final public function language_allowed($str)
   {
-    if( is_array($this->_allowed_languages) && count($this->_allowed_languages) ) {
+    if( $this->_allowed_languages ) {
       return ( in_array($str,$this->_allowed_languages) );
     }
     return TRUE;

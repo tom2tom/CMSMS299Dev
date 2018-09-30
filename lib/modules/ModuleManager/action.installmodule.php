@@ -157,7 +157,7 @@ try {
 
         $deps = null;
         list($res,$deps) = modulerep_client::get_module_dependencies($module_name,$module_version);
-        if( is_array($deps) && count($deps) ) {
+        if( $deps ) {
 
             $deps = $array_to_hash($deps,'name');
             $dep_module_names = $extract_member($deps,'name');
@@ -210,7 +210,7 @@ try {
     $alldeps = $resolve_deps($module_name,$module_version,$uselatest);
 
     // get information for all dependencies, and make sure that they are all there.
-    if( is_array($alldeps) && count($alldeps) ) {
+    if( $alldeps ) {
         $res = null;
         try {
             if( $this->GetPreference('latestdepends',1) ) {
@@ -232,7 +232,7 @@ try {
         foreach( $alldeps as $name => $row ) {
             $fnd = FALSE;
             $tmp = null;
-            if( is_array($res) && count($res) ) {
+            if( $res ) {
                 foreach( $res as $rec ) {
                     if( $rec['name'] != $name ) continue;
                     $tmp = version_compare($row['version'],$rec['version']);

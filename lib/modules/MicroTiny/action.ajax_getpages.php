@@ -29,7 +29,7 @@ if( $alias ) {
     $query = 'SELECT content_id,content_name,menu_text,content_alias,id_hierarchy FROM '.CMS_DB_PREFIX.'content
               WHERE content_alias = ? AND active = 1';
     $dbr = $db->GetRow($query,[$alias]);
-    if( is_array($dbr) && count($dbr) ) {
+    if( $dbr ) {
         $lbl = "{$dbr['content_name']} ({$dbr['id_hierarchy']})";
         $out = ['label'=>$lbl, 'value'=>$dbr['content_alias']];
         echo json_encode($out);
@@ -42,7 +42,7 @@ else if( $term ) {
               AND active = 1
             ORDER BY default_content DESC, hierarchy ASC';
     $dbr = $db->GetArray($query,[$term,$term,$term]);
-    if( is_array($dbr) && count($dbr) ) {
+    if( $dbr ) {
         // found some pages to match
         $out = [];
         // load the content objects

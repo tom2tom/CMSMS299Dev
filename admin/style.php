@@ -50,7 +50,7 @@ if (file_exists(__DIR__.'/themes/'.$theme.'/css/'.$style)) $cms_readfile(__DIR__
 if (file_exists(__DIR__.'/themes/'.$theme.'/extcss/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/'.$style);
 
 $allmodules = ModuleOperations::get_instance()->GetLoadedModules();
-if( is_array($allmodules) && count($allmodules) ) {
+if( $allmodules ) {
     foreach( $allmodules as $key => &$object ) {
         if( !is_object($object) ) continue;
         if( $object->HasAdmin() ) echo $object->AdminStyle();

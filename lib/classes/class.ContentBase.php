@@ -1429,7 +1429,7 @@ WHERE content_id = ?';
 			}
 		}
 
-		if( is_array($this->_props) && count($this->_props) ) {
+		if( $this->_props ) {
 			// :TODO: There might be some error checking there
 			$this->_save_properties();
 		}
@@ -1516,7 +1516,7 @@ WHERE content_id = ?';
 			die($db->sql.'<br />'.$db->ErrorMsg());
 		}
 
-		if (is_array($this->_props) && count($this->_props)) {
+		if ($this->_props) {
 			// :TODO: There might be some error checking there
 			debug_buffer('save from ' . __LINE__);
 			$this->_save_properties();

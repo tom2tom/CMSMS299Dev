@@ -223,7 +223,7 @@ final class ModuleOperations
 		fputs($fh,'lazyloadadmin = '.($modinstance->LazyLoadAdmin()?'1':'0')."\n");
 		fputs($fh,'lazyloadfrontend = '.($modinstance->LazyLoadFrontend()?'1':'0')."\n");
 		$depends = $modinstance->GetDependencies();
-		if( is_array($depends) && count($depends) ) {
+		if( $depends ) {
 			fputs($fh,"[depends]\n");
 			foreach( $depends as $key => $val ) {
 				fputs($fh,"$key = \"$val\"\n");
@@ -263,7 +263,7 @@ final class ModuleOperations
 											 1,$lazyload_fe,$lazyload_admin]);
 
 			$deps = $module_obj->GetDependencies();
-			if( is_array($deps) && count($deps) ) {
+			if( $deps ) {
 				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps (parent_module,child_module,minimum_version,create_date,modified_date)
 						  VALUES (?,?,?,NOW(),NOW())';
 				foreach( $deps as $depname => $depversion ) {
@@ -299,7 +299,7 @@ final class ModuleOperations
 
 		// check for dependencies
 		$deps = $modinstance->GetDependencies();
-		if( is_array($deps) && count($deps) ) {
+		if( $deps ) {
 			foreach( $deps as $mname => $mversion ) {
 				if( $mname == '' || $mversion == '' ) continue; // invalid entry.
 				$newmod = $this->get_module_instance($mname);
@@ -367,7 +367,7 @@ final class ModuleOperations
 		// okay, lessee if we can load the dependants
 		if( $dependents ) {
 			$deps = $this->get_module_dependencies($module_name);
-			if( is_array($deps) && count($deps) ) {
+			if( $deps ) {
 				foreach( $deps as $name => $ver ) {
 					if( $name == $module_name ) continue; // a module cannot depend on itself.
 					// this is the start of a recursive routine. get_module_instance() may call _load_module
@@ -563,7 +563,7 @@ final class ModuleOperations
 			$dbr = $db->Execute($query,[$module_obj->GetName()]);
 
 			$deps = $module_obj->GetDependencies();
-			if( is_array($deps) && count($deps) ) {
+			if( $deps ) {
 				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps (parent_module,child_module,minimum_version,create_date,modified_date)
 						  VALUES (?,?,?,NOW(),NOW())';
 				foreach( $deps as $depname => $depversion ) {
@@ -634,10 +634,10 @@ final class ModuleOperations
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',[$module]);
 
 				$types = CmsLayoutTemplateType::load_all_by_originator($module);
-				if( is_array($types) && count($types) ) {
+				if( $types ) {
 					foreach( $types as $type ) {
 						$tpls = CmsLayoutTemplate::template_query(['t:'.$type->get_id()]);
-						if( is_array($tpls) && count($tpls) ) {
+						if( $tpls ) {
 							foreach( $tpls as $tpl ) {
 								$tpl->delete();
 							}

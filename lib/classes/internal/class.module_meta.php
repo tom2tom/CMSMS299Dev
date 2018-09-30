@@ -124,7 +124,7 @@ final class module_meta
         }
 
         $res = null;
-        if( is_array($this->_data['capability'][$sig]) && count($this->_data['capability'][$sig]) ) {
+        if( $this->_data['capability'][$sig] ) {
             $res = [];
             foreach( $this->_data['capability'][$sig] as $key => $value ) {
                 if( $value == $returnvalue ) $res[] = $key;
@@ -179,7 +179,7 @@ final class module_meta
         }
 
         $res = null;
-        if( is_array($this->_data['methods'][$method]) && count($this->_data['methods'][$method]) ) {
+        if( $this->_data['methods'][$method] ) {
             $res = [];
             foreach( $this->_data['methods'][$method] as $key => $value ) {
                 if( $value == $returnvalue ) $res[] = $key;

@@ -186,7 +186,7 @@ class CmsLayoutCollection
 	 */
 	public function has_stylesheets()
 	{
-		if( is_array($this->_css_assoc) && count($this->_css_assoc) ) return TRUE;
+		if( $this->_css_assoc ) return TRUE;
 		return FALSE;
 	}
 
@@ -567,8 +567,8 @@ class CmsLayoutCollection
 			unset($row['templates']);
 		}
 		$ob->_data = $row;
-		if( is_array($css) && count($css) ) $ob->_css_assoc = $css;
-		if( is_array($tpls) && count($tpls) ) $ob->_tpl_assoc = $tpls;
+		if( $css ) $ob->_css_assoc = $css;
+		if( $tpls ) $ob->_tpl_assoc = $tpls;
 
 		return $ob;
 	}
@@ -585,14 +585,14 @@ class CmsLayoutCollection
 		$db = CmsApp::get_instance()->GetDb();
 		$row = null;
 		if( is_numeric($x) && $x > 0 ) {
-			if( is_array(self::$_raw_cache) && count(self::$_raw_cache) ) {
+			if( self::$_raw_cache ) {
 				if( isset(self::$_raw_cache[$x]) ) return self::_load_from_data(self::$_raw_cache[$x]);
 			}
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
 			$row = $db->GetRow($query,[(int)$x]);
 		}
 		else if( is_string($x) && $x !== '' ) {
-			if( is_array(self::$_raw_cache) && count(self::$_raw_cache) ) {
+			if( self::$_raw_cache ) {
 				foreach( self::$_raw_cache as $row ) {
 					if( $row['name'] == $x ) return self::_load_from_data($row);
 				}
@@ -607,12 +607,12 @@ class CmsLayoutCollection
 		// get attached css
 		$query = 'SELECT css_id FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ? ORDER BY item_order';
 		$tmp = $db->GetCol($query,[(int) $row['id']]);
-		if( is_array($tmp) && count($tmp) ) $row['css'] = $tmp;
+		if( $tmp ) $row['css'] = $tmp;
 
 		// get attached templates
 		$query = 'SELECT tpl_id FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id = ?';
 		$tmp = $db->GetCol($query,[(int) $row['id']]);
-		if( is_array($tmp) && count($tmp) ) $row['templates'] = $tmp;
+		if( $tmp ) $row['templates'] = $tmp;
 
 		self::$_raw_cache[$row['id']] = $row;
 		return self::_load_from_data($row);
@@ -630,7 +630,7 @@ class CmsLayoutCollection
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name ASC';
 		$db = CmsApp::get_instance()->GetDb();
 		$dbr = $db->GetArray($query);
-		if( is_array($dbr) && count($dbr) ) {
+		if( $dbr ) {
 			$ids = [];
 			$cache = [];
 			foreach( $dbr as $row ) {
@@ -641,7 +641,7 @@ class CmsLayoutCollection
 			if( !$quick ) {
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id IN ('.implode(',',$ids).') ORDER BY design_id,item_order';
 				$dbr2 = $db->GetArray($query);
-				if( is_array($dbr2) && count($dbr2) ) {
+				if( $dbr2 ) {
 					foreach( $dbr2 as $row ) {
 						if( !isset($cache[$row['design_id']]) ) continue; // orphaned entry, bad.
 						$design = &$cache[$row['design_id']];
@@ -652,7 +652,7 @@ class CmsLayoutCollection
 
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id IN ('.implode(',',$ids).') ORDER BY design_id,tpl_order';
 				$dbr2 = $db->GetArray($query);
-				if( is_array($dbr2) && count($dbr2) ) {
+				if( $dbr2 ) {
 					foreach( $dbr2 as $row ) {
 						if( !isset($cache[$row['design_id']]) ) continue; // orphaned entry, bad.
 						$design = &$cache[$row['design_id']];
@@ -680,7 +680,7 @@ class CmsLayoutCollection
 	public static function get_list()
 	{
 		$designs = self::get_all(TRUE);
-		if( is_array($designs) && count($designs) ) {
+		if( $designs ) {
 			$out = [];
 			foreach( $designs as $one ) {
 				$out[$one->get_id()] = $one->get_name();

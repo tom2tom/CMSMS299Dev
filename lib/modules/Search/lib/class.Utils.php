@@ -260,7 +260,7 @@ class Utils
                 $text .= str_repeat(' '.$content->MenuText(), 2) . ' ';
 
                 $props = $content->Properties();
-                if( is_array($props) && count($props) ) {
+                if( $props ) {
                     foreach( $props as $k => $v ) {
                         $text .= $v.' ';
                     }

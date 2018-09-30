@@ -67,14 +67,14 @@ foreach( $params as $key => $value ) {
     case 'includeprefix':
         utils::clear_excludes();
         $list = explode(',',$value);
-        if( is_array($list) && count($list) ) {
+        if( $list ) {
             foreach( $list as &$one ) {
                 $one = trim($one);
             }
             $list = array_unique($list);
             if( count($list) ) {
                 $flatlist = $hm->getFlatList();
-                if( is_array($flatlist) && count($flatlist) ) {
+                if( $flatlist ) {
                     $tmp = [];
                     foreach( $flatlist as $id => &$node ) {
                         $alias = $node->get_tag('alias');
@@ -82,7 +82,7 @@ foreach( $params as $key => $value ) {
                             if( startswith( $alias, $t1 ) ) $tmp[] = $alias;
                         }
                     }
-                    if( is_array($tmp) && count($tmp) ) $items = implode(',',$tmp);
+                    if( $tmp ) $items = implode(',',$tmp);
                 }
             }
         }

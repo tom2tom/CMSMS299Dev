@@ -333,7 +333,7 @@ class CmsLayoutTemplate
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' WHERE tpl_id = ? ORDER BY tpl_order';
 			$tmp = $db->GetCol($query,[(int)$this->get_id()]);
-			if( is_array($tmp) && count($tmp) ) $this->_cat_assoc = $tmp;
+			if( $tmp ) $this->_cat_assoc = $tmp;
 			else $this->_cat_assoc = [];
 		}
 		return $this->_cat_assoc;
@@ -435,7 +435,7 @@ class CmsLayoutTemplate
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
 			$tmp = $db->GetCol($query,[(int)$this->get_id()]);
-			if( is_array($tmp) && count($tmp) ) $this->_design_assoc = $tmp;
+			if( $tmp ) $this->_design_assoc = $tmp;
 			else $this->_design_assoc = [];
 
 		}
@@ -818,7 +818,7 @@ WHERE id=?';
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --5 '.$db->ErrorMsg());
 
 		$t = $this->get_additional_editors();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' (tpl_id,user_id) VALUES(?,?)';
 			foreach( $t as $one ) {
 				$db->Execute($query,[$tplid,(int)$one]);
@@ -829,7 +829,7 @@ WHERE id=?';
 		$dbr = $db->Execute($query,[$tplid]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' --6 '.$db->ErrorMsg());
 		$t = $this->get_designs();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			$i = 1;
 			foreach( $t as $one ) {
@@ -841,7 +841,7 @@ WHERE id=?';
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' WHERE tpl_id = ?';
 		$db->Execute($query,[$tplid]);
 		$t = $this->get_categories();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			$i = 1;
 			foreach( $t as $one ) {
@@ -896,7 +896,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		$t = $this->get_additional_editors();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' (tpl_id,user_id) VALUES(?,?)';
 			foreach( $t as $one ) {
 				$db->Execute($query,[$tplid,(int)$one]);
@@ -904,7 +904,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		$t = $this->get_designs();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			$i = 1;
 			foreach( $t as $one ) {
@@ -914,7 +914,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		}
 
 		$t = $this->get_categories();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			$i = 1;
 			foreach( $t as $one ) {
@@ -975,7 +975,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	{
 		if( !self::$_lock_cache_loaded ) {
 			$tmp = CmsLockOperations::get_locks('template');
-			if( is_array($tmp) && count($tmp) ) {
+			if( $tmp ) {
 				self::$_lock_cache = [];
 				foreach( $tmp as $one ) {
 					self::$_lock_cache[$one['oid']] = $one;
@@ -1080,7 +1080,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list2).')';
 			$dbr = $db->GetArray($query);
-			if( is_array($dbr) && count($dbr) ) {
+			if( $dbr ) {
 				foreach( $dbr as $row ) {
 					self::_load_from_data($row,($designs_by_tpl[$row['id']] ?? null));
 				}
@@ -1199,9 +1199,9 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 			$tmp = $tmp2;
 		}
 
-		if( is_array($tmp) && count($tmp) ) {
+		if( $tmp ) {
 			$tmp = array_unique($tmp);
-			if( is_array($tmp) && count($tmp) ) return self::load_bulk($tmp);
+			if( $tmp ) return self::load_bulk($tmp);
 		}
 	}
 
@@ -1225,11 +1225,11 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 
 		// get the user groups
 		$addt_users = $obj->get_additional_editors();
-		if( is_array($addt_users) && count($addt_users) ) {
+		if( $addt_users ) {
 			if( in_array($userid,$addt_users) ) return true;
 
 			$grouplist = UserOperations::get_instance()->GetMemberGroups();
-			if( is_array($grouplist) && count($grouplist) ) {
+			if( $grouplist ) {
 				foreach( $addt_users as $one ) {
 					if( $one < 0 && in_array($one*-1,$grouplist) ) return true;
 				}
@@ -1282,7 +1282,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		if( !$t2 ) throw new CmsInvalidDataException('Invalid data passed to CmsLayoutTemplate::;load_dflt_by_type()');
 
 		// search our preloaded template first
-		if( is_array(self::$_obj_cache) && count(self::$_obj_cache) ) {
+		if( self::$_obj_cache ) {
 			foreach( self::$_obj_cache as $tpl ) {
 				if( $tpl->get_type_id() == $t2->get_id() && $tpl->get_type_dflt() ) return $tpl;
 			}

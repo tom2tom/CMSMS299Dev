@@ -1602,7 +1602,7 @@ abstract class CmsAdminThemeBase
     {
         if ($title_name) {
             $this->set_value('pagetitle', $title_name);
-            if (is_array($extra_lang_params) && count($extra_lang_params)) {
+            if ($extra_lang_params) {
                 $this->set_value('extra_lang_params', $extra_lang_params);
             }
         }
@@ -1823,7 +1823,7 @@ abstract class CmsAdminThemeBase
                 continue;
             }
 
-            if (is_array($node['children']) && count($node['children'])) {
+            if ($node['children']) {
                 foreach ($node['children'] as $childname=>$one) {
                     if ($name == 'home' || $name == 'logout' || $name == 'viewsite') {
                         continue;

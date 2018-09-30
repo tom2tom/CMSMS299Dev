@@ -67,7 +67,7 @@ unset($searchparams['slaves']);
 // find search slave classes
 status_msg($this->Lang('starting'));
 $slaves = tools::get_slave_classes();
-if( is_array($slaves) && count($slaves) ) {
+if( $slaves ) {
     foreach( $slaves as $one_slave ) {
         if( !in_array($one_slave['class'],$params['slaves']) ) continue;
         $module = cms_utils::get_module($one_slave['module']);
@@ -81,7 +81,7 @@ if( is_array($slaves) && count($slaves) ) {
 
         $obj->set_params($searchparams);
         $results = $obj->get_matches();
-        if( is_array($results) && count($results) ) {
+        if( $results ) {
             begin_section($one_slave['class'],$obj->get_name(),$obj->get_section_description());
             foreach( $results as $one ) {
           debug_to_log($one);

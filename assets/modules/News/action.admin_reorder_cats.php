@@ -16,7 +16,7 @@ function news_reordercats_create_flatlist($tree,$parent_id = -1)
       $data[] = ['id'=>$pid,'parent_id'=>$parent_id,'order'=>$order];
       if( isset($node[1]) && is_array($node[1]) && count($node[1]) > 0 ) {
 	$tmp = news_reordercats_create_flatlist($node[1],$pid);
-	if( is_array($tmp) && count($tmp) ) $data = array_merge($data,$tmp);
+	if( $tmp ) $data = array_merge($data,$tmp);
       }
     }
     else {
@@ -34,7 +34,7 @@ if( isset($params['cancel']) ) {
 else if( isset($params['submit']) ) {
   $data = json_decode($params['data']);
   $flat = news_reordercats_create_flatlist($data);
-  if( is_array($flat) && count($flat) ) {
+  if( $flat ) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET parent_id = ?, item_order = ?
               WHERE news_category_id = ?';
     foreach( $flat as $rec ) {

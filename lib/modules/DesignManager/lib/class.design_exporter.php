@@ -204,7 +204,7 @@ EOT;
             $this->_css_list = [];
 
             $csslist = $this->_design->get_stylesheets();
-            if( is_array($csslist) && count($csslist) ) {
+            if( $csslist ) {
                 foreach( $csslist as $css_id ) {
                     $css_ob = CmsLayoutStylesheet::load($css_id);
 
@@ -224,7 +224,7 @@ EOT;
     public function list_stylesheets()
     {
         $this->parse_stylesheets();
-        if( is_array($this->_css_list) && count($this->_css_list) ) {
+        if( $this->_css_list ) {
             $out = [];
             foreach( $this->_css_list as $rec ) {
                 $out[] = $rec['obj']->get_name();
@@ -390,7 +390,7 @@ EOT;
             $this->_tpl_list = [];
 
             $idlist = $this->_design->get_templates();
-            if( is_array($idlist) && count($idlist) ) {
+            if( $idlist ) {
                 $tpllist = CmsLayoutTemplate::load_bulk($idlist);
                 if( count($idlist) != count($tpllist) ) throw new CmsException('Internal error... could not directly load all of the templates associated with this design');
                 foreach( $tpllist as $tpl ) {
@@ -403,7 +403,7 @@ EOT;
     public function list_templates()
     {
         $this->parse_templates();
-        if( is_array($this->_tpl_list) && count($this->_tpl_list) ) {
+        if( $this->_tpl_list ) {
             $out = [];
             foreach( $this->_tpl_list as $rec ) {
                 $out[] = $one['obj']->get_name();
@@ -416,7 +416,7 @@ EOT;
     {
         $this->parse_stylesheets();
         $this->parse_templates();
-        if( is_array($this->_files) && count($this->_files) ) return $this->_files;
+        if( $this->_files ) return $this->_files;
     }
 
     private function _open_tag($elem,$lvl = 1)

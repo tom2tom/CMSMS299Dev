@@ -191,7 +191,7 @@ EOS;
 		} else {
 
 		if ($title_name) $this->set_value('pagetitle', $title_name);
-		if (is_array($extra_lang_params) && count($extra_lang_params)) $this->set_value('extra_lang_params', $extra_lang_params);
+		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
 		$this->set_value('module_help_type', $module_help_type);
 
 		$config = cms_config::get_instance();
@@ -494,7 +494,7 @@ EOS;
 /*			} else {
 				// no title, get one from the breadcrumbs.
 				$bc = $this->get_breadcrumbs();
-				if (is_array($bc) && count($bc)) {
+				if ($bc) {
 					$title = $bc[count($bc) - 1]['title'];
 				}
 */
@@ -581,9 +581,9 @@ EOS;
 
 EOS
 );
-			if (is_array($this->_errors) && count($this->_errors))
+			if ($this->_errors)
 				$smarty->assign('errors', $this->_errors);
-			if (is_array($this->_messages) && count($this->_messages))
+			if ($this->_messages)
 				$smarty->assign('messages', $this->_messages);
 		}
 

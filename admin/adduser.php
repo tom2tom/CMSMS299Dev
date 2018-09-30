@@ -102,7 +102,7 @@ if (isset($_POST['submit'])) {
             $userid = $newuser->id;
             if ($copyusersettings > 0) {
                 $prefs = cms_userprefs::get_all_for_user($copyusersettings);
-                if (is_array($prefs) && count($prefs)) {
+                if ($prefs) {
                     foreach ($prefs as $k => $v) {
                         cms_userprefs::set_for_user($userid, $k, $v);
                     }
@@ -115,7 +115,7 @@ if (isset($_POST['submit'])) {
                 cms_userprefs::set_for_user($userid, 'recent', cms_userprefs::get_for_user($adminid, 'recent'));
             }
 
-            if ($assign_group_perm && is_array($sel_groups) && count($sel_groups)) {
+            if ($assign_group_perm && $sel_groups) {
                 $db = $gCms->GetDb();
                 $iquery = 'INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
                 foreach ($sel_groups as $gid) {

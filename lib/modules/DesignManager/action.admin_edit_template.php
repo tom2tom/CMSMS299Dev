@@ -73,7 +73,7 @@ try {
             if (isset($params['type'])) $tpl_obj->set_type($params['type']);
             if (isset($params['default'])) $tpl_obj->set_type_dflt($params['default']);
             if (isset($params['owner_id'])) $tpl_obj->set_owner($params['owner_id']);
-            if (isset($params['addt_editors']) && is_array($params['addt_editors']) && count($params['addt_editors'])) {
+            if (isset($params['addt_editors']) && $params['addt_editors']) {
                 $tpl_obj->set_additional_editors($params['addt_editors']);
             }
             if (isset($params['category_id'])) $tpl_obj->set_category($params['category_id']);
@@ -176,7 +176,7 @@ try {
 
     $cats = CmsLayoutTemplateCategory::get_all();
     $out = ['' => $this->Lang('prompt_none')];
-    if (is_array($cats) && count($cats)) {
+    if ($cats) {
         foreach ($cats as $one) {
             $out[$one->get_id()] = $one->get_name();
         }
@@ -184,7 +184,7 @@ try {
     $tpl->assign('category_list', $out);
 
     $types = CmsLayoutTemplateType::get_all();
-    if (is_array($types) && count($types)) {
+    if ($types) {
         $out = [];
         $out2 = [];
         foreach ($types as $one) {
@@ -196,7 +196,7 @@ try {
     }
 
     $designs = CmsLayoutCollection::get_all();
-    if (is_array($designs) && count($designs)) {
+    if ($designs) {
         $out = [];
         foreach ($designs as $one) {
             $out[$one->get_id()] = $one->get_name();
@@ -218,7 +218,7 @@ try {
             //    continue;
             $tmp[$one->id] = $one->username;
         }
-        if (is_array($tmp) && count($tmp)) $tpl->assign('user_list', $tmp);
+        if ($tmp) $tpl->assign('user_list', $tmp);
 
         $groupops = cmsms()->GetGroupOperations();
         $allgroups = $groupops->LoadGroups();
@@ -228,7 +228,7 @@ try {
             $tmp[$one->id * -1] = $this->Lang('prompt_group') . ': ' . $one->name;
             // appends to the tmp array.
         }
-        if (is_array($tmp) && count($tmp)) $tpl->assign('addt_editor_list', $tmp);
+        if ($tmp) $tpl->assign('addt_editor_list', $tmp);
     }
 
 //TODO ensure flexbox css for .rowbox, .boxchild

@@ -298,7 +298,7 @@ class CmsLayoutStylesheet
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?';
 			$tmp = $db->GetCol($query,[$sid]);
-			if( is_array($tmp) && count($tmp) ) $this->_design_assoc = $tmp;
+			if( $tmp ) $this->_design_assoc = $tmp;
 			else $this->_design_assoc = [];
 		}
 		return $this->_design_assoc;
@@ -469,7 +469,7 @@ WHERE id = ?';
 			if( !in_array($one,$dl) ) $del_dl[] = $one;
 		}
 
-		if( is_array($del_dl) && count($del_dl) ) {
+		if( $del_dl ) {
 			// delete deleted items
 			$query1 = 'SELECT item_order FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ? AND design_id = ?';
 			$query2 = 'UPDATE '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' SET item_order = item_order - 1 WHERE design_id = ? AND item_order > ?';
@@ -484,7 +484,7 @@ WHERE id = ?';
 			}
 		}
 
-		if( is_array($new_dl) && count($new_dl) ) {
+		if( $new_dl ) {
 			// add new items
 			$query1 = 'SELECT MAX(item_order) FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE design_id = ?';
 			$query2 = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id,item_order) VALUES(?,?,?)';
@@ -530,7 +530,7 @@ VALUES (?,?,?,?,?,?,?)';
 		$sid = $this->_data['id'] = $db->Insert_ID();
 
 		$t = $this->get_designs();
-		if( is_array($t) && count($t) ) {
+		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' (css_id,design_id) VALUES(?,?)';
 			foreach( $t as $one ) {
 				$dbr = $db->Execute($query,[$sid,(int)$one]);
@@ -604,7 +604,7 @@ VALUES (?,?,?,?,?,?,?)';
 	{
 		if( !self::$_lock_cache_loaded ) {
 			$tmp = CmsLockOperations::get_locks('stylesheet');
-			if( is_array($tmp) && count($tmp) ) {
+			if( $tmp ) {
 				self::$_lock_cache = [];
 				foreach( $tmp as $one ) {
 					self::$_lock_cache[$one['oid']] = $one;
@@ -745,7 +745,7 @@ VALUES (?,?,?,?,?,?,?)';
 
 		$dbr = $db->GetArray($query);
 		$out = [];
-		if( is_array($dbr) && count($dbr) ) {
+		if( $dbr ) {
 			$designs_by_css = [];
 			if( $deep ) {
 				$ids2 = [];

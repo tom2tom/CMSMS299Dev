@@ -671,7 +671,7 @@ class cms_http_request
         $this->referrer = ($referrer) ?: $this->referrer;
 
         // Add the new params
-        if (is_array($data) && count($data))
+        if ($data)
         {
             $this->params = array_merge($this->params, $data);
         }
@@ -682,7 +682,7 @@ class cms_http_request
         {
             $queryString = $this->rawPostData;
         }
-        elseif(is_array($this->params) && count($this->params))
+        elseif($this->params)
         {
             $queryString = http_build_query($this->params,'','&');
         }
@@ -729,7 +729,7 @@ class cms_http_request
 
         // Process cookies, if requested
         $cookieString = '';
-        if(is_array($this->cookies) && count($this->cookies))
+        if($this->cookies)
         {
             // Get a blank slate
             $tempString   = [];
@@ -1196,7 +1196,7 @@ class cms_http_request
      */
     public function _passCookies()
     {
-        if (is_array($this->_cookies) && count($this->_cookies))
+        if ($this->_cookies)
         {
             $urlParsed = parse_url($this->target);
             $tempCookies = [];

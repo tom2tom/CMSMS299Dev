@@ -103,7 +103,7 @@ if ($cli) {
 	'zip'
 	]);
 
-	if (is_array($options) && count($options)) {
+	if ($options) {
 		foreach ($options as $k => $v) {
 			switch ($k) {
 			 case 'a':
@@ -370,7 +370,7 @@ function create_checksums(string $dir, string $salt) : array
 		$fp = joinpath($dir, $fn);
 		if (is_dir($fp)) {
 			$tmp = create_checksums($fp, $salt); //recurse
-			if (is_array($tmp) && count($tmp)) {
+			if ($tmp) {
 				$out = array_merge($out, $tmp);
 			}
 		} else {

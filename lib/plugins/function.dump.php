@@ -61,7 +61,7 @@ function smarty_function_dump($params, $template)
 
 			if( !isset($params['novars']) )	{
 				$vars = get_object_vars($obj);
-				if( is_array($vars) && count($vars) ) {
+				if( $vars ) {
 					$str .= str_repeat('  ',$level).'Properties: <br />';
 					foreach( $vars as $name => $value )	{
 						if( in_array($name,$ignore) ) continue;

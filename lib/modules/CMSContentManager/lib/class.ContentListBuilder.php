@@ -111,7 +111,7 @@ final class ContentListBuilder
 				$children = $node->get_children();
 				for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 					$tmp = $func($children[$i]);
-					if( is_array($tmp) && count($tmp) ) $out = array_merge($out,$tmp);
+					if( $tmp ) $out = array_merge($out,$tmp);
 				}
 				$out = array_unique($out);
 			}
@@ -431,7 +431,7 @@ final class ContentListBuilder
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				$child = $children[$i];
 				$tmp = $this->_get_all_pages($child);
-				if( is_array($tmp) && count($tmp) ) $out = array_merge($out,$tmp);
+				if( $tmp ) $out = array_merge($out,$tmp);
 			}
 		}
 		return $out;
@@ -594,7 +594,7 @@ final class ContentListBuilder
 		if( is_array($this->_locks) ) return $this->_locks;
 		$this->_locks = [];
 		$tmp = CmsLockOperations::get_locks('content');
-		if( is_array($tmp) && count($tmp) ) {
+		if( $tmp ) {
 			foreach( $tmp as $lock_obj ) {
 				$this->_locks[$lock_obj['oid']] = $lock_obj;
 			}
@@ -875,7 +875,7 @@ final class ContentListBuilder
 	public function get_content_list()
 	{
 		$pagelist = $this->_load_editable_content();
-		if( is_array($pagelist) && count($pagelist) ) return $this->_get_display_data($pagelist);
+		if( $pagelist ) return $this->_get_display_data($pagelist);
 	}
 
 	/**

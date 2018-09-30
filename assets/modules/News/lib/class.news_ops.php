@@ -180,7 +180,7 @@ final class news_ops
       $tmp = $db->GetArray($query);
 
       self::$_cached_fielddefs = [];
-      if( is_array($tmp) && count($tmp) ) {
+      if( $tmp ) {
         for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
           self::$_cached_fielddefs[$tmp[$i]['id']] = $tmp[$i];
         }

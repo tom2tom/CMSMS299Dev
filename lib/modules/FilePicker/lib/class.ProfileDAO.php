@@ -78,7 +78,7 @@ class ProfileDAO
         if( $id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
         $sql = 'SELECT * FROM '.self::table_name().' WHERE id = ?';
         $row = $this->_db->GetRow($sql,[ $id ]);
-        if( is_array($row) && count($row) ) return $this->profile_from_row($row);
+        if( $row ) return $this->profile_from_row($row);
     }
 
     public function loadByName( $name )
@@ -87,7 +87,7 @@ class ProfileDAO
         if( !$name ) throw new LogicException('Invalid name passed to '.__METHOD__);
         $sql = 'SELECT * FROM '.self::table_name().' WHERE name = ?';
         $row = $this->_db->GetRow($sql,[ $name ]);
-        if( is_array($row) && count($row) ) return $this->profile_from_row($row);
+        if( $row ) return $this->profile_from_row($row);
     }
 
     public function delete( Profile $profile )

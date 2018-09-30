@@ -136,7 +136,7 @@ try {
     }
 
     $designs = CmsLayoutCollection::get_all();
-    if (is_array($designs) && count($designs)) {
+    if ($designs) {
         $out = [];
         foreach ($designs as $one) {
             $out[$one->get_id()] = $one->get_name();
