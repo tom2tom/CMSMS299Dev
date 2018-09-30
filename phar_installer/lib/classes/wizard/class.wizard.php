@@ -239,7 +239,7 @@ class wizard
         if( $parts[$this->_stepvar] <= 0 ) return '';
 
         $tmp = [];
-        if( count($parts) ) {
+        if( $parts ) {
             foreach( $parts as $k => $v ) {
                 $tmp[] = $k.'='.$v;
             }

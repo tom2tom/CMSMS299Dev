@@ -81,16 +81,16 @@
                 $v = $this->regex_vowel;
 
                 // ing and ed
-                if (   preg_match("#$v+#", substr($word, 0, -3)) && $this->replace($word, 'ing', '')
+                if(   preg_match("#$v+#", substr($word, 0, -3)) && $this->replace($word, 'ing', '')
                     OR preg_match("#$v+#", substr($word, 0, -2)) && $this->replace($word, 'ed', '')) { // Note use of && and OR, for precedence reasons
 
                     // If one of above two test successful
-                    if (    !$this->replace($word, 'at', 'ate')
+                    if(    !$this->replace($word, 'at', 'ate')
                         AND !$this->replace($word, 'bl', 'ble')
                         AND !$this->replace($word, 'iz', 'ize')) {
 
                         // Double consonant ending
-                        if (    $this->doubleConsonant($word)
+                        if(    $this->doubleConsonant($word)
                             AND substr($word, -2) != 'll'
                             AND substr($word, -2) != 'ss'
                             AND substr($word, -2) != 'zz') {

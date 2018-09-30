@@ -789,7 +789,7 @@ VALUES (?,?,?,?,?,?,?)';
 			}
 		}
 
-		if( count($out) ) return $out;
+		if( $out ) return $out;
 	}
 
    /**

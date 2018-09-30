@@ -203,7 +203,7 @@ class theme_reader extends reader_base
           case 'assoc':
           case 'reference':
           case 'mmtemplate':
-            if( count($in) ) {
+            if( $in ) {
               array_pop($in);
             }
             $cur_key = null;

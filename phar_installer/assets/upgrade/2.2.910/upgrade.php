@@ -101,7 +101,7 @@ if( $udt_list ) {
         $code = preg_replace(
                 ['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/'],
                 ['', ''], $row['code']);
-        if ( !$code ) {
+        if( !$code ) {
             verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
             return;
         }

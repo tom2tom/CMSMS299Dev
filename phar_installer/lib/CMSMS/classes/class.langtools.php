@@ -381,7 +381,7 @@ class langtools
     if( !isset($this->_langdata[$this->_realm][$key]) ) {
       return '-- Missing Languagestring - '.$key.' --';
     }
-    else if( count($args) ) {
+    else if( $args ) {
       return vsprintf($this->_langdata[$this->_realm][$key], $args);
     }
     else {

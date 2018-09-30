@@ -339,7 +339,7 @@ final class modulerep_client
                 $out[$row['name']] = $row;
             }
         }
-        if( count($out) ) return $out;
+        if( $out ) return $out;
     }
 
     public static function get_upgrade_module_info($module_name)

@@ -137,13 +137,13 @@ class wizard_step1 extends wizard_step
                     if( $tmp ) $out = array_merge($out,$tmp);
                 }
             }
-            if( count($out) ) return $out;
+            if( $out ) return $out;
         };
 
         $out = [];
         if( $_is_valid_dir($parent) ) $out[$parent] = $parent;
         $tmp = $_find_dirs($parent);
-        if( count($tmp) ) $out = array_merge($out,$tmp);
+        if( $tmp ) $out = array_merge($out,$tmp);
         asort($out);
         return $out;
     }

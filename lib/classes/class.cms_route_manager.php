@@ -102,13 +102,13 @@ final class cms_route_manager
 		// reference: http://php.net/manual/en/function.array-search.php
 		$high = Count( $haystack ) - 1;
 		$low = 0;
-		while ( $high >= $low ) {
+		while( $high >= $low ) {
 			$probe = (int)Floor( ( $high + $low ) / 2 );
 			$comparison = $comparator( $haystack[$probe]['term'], $needle );
-			if ( $comparison < 0 ) {
+			if( $comparison < 0 ) {
 				$low = $probe + 1;
 			}
-			elseif ( $comparison > 0 ) {
+			elseif( $comparison > 0 ) {
 				$high = $probe - 1;
 			}
 			else {

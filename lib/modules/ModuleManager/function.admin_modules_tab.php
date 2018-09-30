@@ -69,10 +69,10 @@ foreach ($tmp as $i) {
 
 // cross reference them
 $data = [];
-if (count($repmodules)) {
+if ($repmodules) {
     $data = utils::build_module_data($repmodules, $instmodules);
 }
-if (count($data)) {
+if ($data) {
     $size = count($data);
 
     // check for permissions

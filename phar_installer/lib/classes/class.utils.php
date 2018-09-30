@@ -154,7 +154,7 @@ final class utils
      */
     public static function is_directory_writable( string $path, bool $ignore_specialfiles = TRUE ) : bool
     {
-        if ( substr ( $path, strlen ( $path ) - 1 ) != '/' ) $path .= '/' ;
+        if( substr ( $path, strlen ( $path ) - 1 ) != '/' ) $path .= '/' ;
 
         $result = TRUE;
         if( $handle = @opendir( $path ) ) {
@@ -253,7 +253,7 @@ final class utils
             }
         }
         closedir($dh);
-        if( count($versions) ) {
+        if( $versions ) {
             usort($versions,'version_compare');
             return $versions;
         }

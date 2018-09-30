@@ -145,7 +145,7 @@ final class ContentListBuilder
 		}
 		asort($tmp);
 		$this->_opened_array = array_unique($tmp);
-		if( count($this->_opened_array) ) {
+		if( $this->_opened_array ) {
 			cms_userprefs::set('opened_pages',implode(',',$this->_opened_array));
 		}
 		else {
@@ -479,7 +479,7 @@ final class ContentListBuilder
 
 			// add in top level items.
 			$children = $hm->get_children();
-			if( count($children) ) {
+			if( $children ) {
 				foreach( $children as $child ) {
 					$display[] = $child->get_tag('id');
 				}
@@ -607,7 +607,7 @@ final class ContentListBuilder
 	 */
 	public function have_locks()
 	{
-		if( count($this->get_locks()) ) return TRUE;
+		if( $this->get_locks() ) return TRUE;
 		return FALSE;
 	}
 

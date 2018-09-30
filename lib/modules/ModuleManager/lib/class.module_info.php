@@ -86,7 +86,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
                 if( version_compare($rec['version'],$ver) >= 0 ) continue;
                 $out[$name] = $ver;
             } // foreach
-            if( count($out) ) return $out;
+            if( $out ) return $out;
         }
     }
 

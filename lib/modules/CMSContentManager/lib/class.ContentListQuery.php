@@ -96,7 +96,7 @@ final class ContentListQuery extends CmsDbQueryBase
 			break;
 		}
 
-		if( count($where) ) $sql .= ' WHERE '.implode(' AND ',$where);
+		if( $where ) $sql .= ' WHERE '.implode(' AND ',$where);
 		$sql .= ' ORDER BY C.id_hierarchy';
 
 		$db = cms_utils::get_db();

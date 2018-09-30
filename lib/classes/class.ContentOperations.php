@@ -388,7 +388,7 @@ class ContentOperations
 
 		$this->_get_content_types();
 		$types = $this->_content_types;
-		if ( isset($types) ) {
+		if( isset($types) ) {
 			$result = [];
 			foreach( $types as $obj ) {
 				global $CMS_ADMIN_PAGE;
@@ -573,7 +573,7 @@ class ContentOperations
 			$dbr->MoveFirst();
 
 			$tmp = null;
-			if( count($child_ids) ) {
+			if( $child_ids ) {
 				// get all the properties for the child_ids
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id IN ('.implode(',',$child_ids).') ORDER BY content_id';
 				$tmp = $db->GetArray($query);
@@ -662,7 +662,7 @@ class ContentOperations
 			}
 
 			$tmp = null;
-			if( count($child_ids) ) {
+			if( $child_ids ) {
 				// get all the properties for the child_ids
 				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id IN ('.implode(',',$child_ids).') ORDER BY content_id';
 				$tmp = $db->GetArray($query);
@@ -1005,7 +1005,7 @@ EOS;
 				if( $tmp[$i] > 0 ) $data[] = $tmp[$i];
 			}
 
-			if( count($data) ) $this->_ownedpages = $data;
+			if( $data ) $this->_ownedpages = $data;
 		}
 		return $this->_ownedpages;
 	}
@@ -1056,7 +1056,7 @@ EOS;
 				if( $tmp[$i] > 0 && !in_array($tmp[$i],$data) ) $data[] = $tmp[$i];
 			}
 
-			if( count($data) ) asort($data);
+			if( $data ) asort($data);
 			$this->_authorpages = $data;
 		}
 		return $this->_authorpages;

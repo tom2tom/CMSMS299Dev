@@ -91,7 +91,7 @@ if( !isset($CMS_INSTALL_PAGE) ) {
     define('CMS_DB_PREFIX',$config['db_prefix']);
 }
 
-if ( CMS_DEBUG ) {
+if( CMS_DEBUG ) {
     //for async DEBUG
     define('ASYNCLOG', TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'debug.log');
 }

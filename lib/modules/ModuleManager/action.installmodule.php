@@ -134,7 +134,7 @@ try {
             foreach( $in as $rec ) {
                 if( isset($rec[$key]) ) $out[] = $rec[$key];
             }
-            if( count($out) ) {
+            if( $out ) {
                 $out = array_unique($out);
                 return $out;
             }
@@ -251,7 +251,7 @@ try {
 
     // remove items that are already installed (where installed version is greater or equal)
     // and create actions as to what we're going to do.
-    if( count($alldeps) ) {
+    if( $alldeps ) {
         $allmoduleinfo = module_info::get_all_module_info(FALSE);
         foreach( $alldeps as $name => &$rec ) {
             $rec['has_custom'] = FALSE;

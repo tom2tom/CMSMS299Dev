@@ -258,7 +258,7 @@ function smarty_function_cms_selflink($params, $template)
 			$linktext = $menu_text;
 		}
 
-		if ( !empty($params['image']) ) {
+		if( !empty($params['image']) ) {
 			$width = (!empty($params['width'])) ? (int)$params['width'] : '';
 			$height = (!empty($params['height'])) ? (int)$params['height'] : '';
 			$alt = (!empty($params['alt'])) ? $params['alt'] : '';

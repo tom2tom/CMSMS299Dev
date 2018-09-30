@@ -83,7 +83,7 @@ final class css_slave extends slave
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' ORDER BY name ASC';
         $all_ids = $db->GetCol($sql);
         $output = [];
-        if( count($all_ids) ) {
+        if( $all_ids ) {
             $chunks = array_chunk($all_ids,15);
             foreach( $chunks as $chunk ) {
                 $css_list = CmsLayoutStylesheet::load_bulk($chunk);

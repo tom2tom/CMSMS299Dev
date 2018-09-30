@@ -28,7 +28,7 @@ try {
 /*
     $tpl_query = new CmsLayoutTemplateQuery($filter);
     $templates = $tpl_query->GetMatches();
-    if( count($templates) ) {
+    if( $templates ) {
         $tpl->assign('templates',$templates);
         $tpl_nav = [];
         $tpl_nav['pagelimit'] = $tpl_query->limit;
@@ -42,7 +42,7 @@ try {
 		->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
 
     include __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
-    if( count($templates) ) {
+    if( $templates ) {
         $tpl->assign('templates', $templates)
          ->assign('tpl_nav', [
             'pagelimit' => $limit,

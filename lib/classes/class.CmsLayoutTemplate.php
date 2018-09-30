@@ -601,11 +601,10 @@ class CmsLayoutTemplate
 				$db = CmsApp::get_instance()->GetDb();
 				$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id = ?';
 				$col = $db->GetCol($query,[$this->get_id()]);
-				$this->_addt_editors = [];
-				if( count($col) ) $this->_addt_editors = $col;
-			}
+				if( $col ) $this->_addt_editors = $col;
+				else $this->_addt_editors = [];
 		}
-		if( count($this->_addt_editors) ) return $this->_addt_editors;
+		if( $this->_addt_editors ) return $this->_addt_editors;
 	}
 
    /**
@@ -1061,7 +1060,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		}
 		$list2 = array_unique($list2);
 
-		if( count($list2) ) {
+		if( $list2 ) {
 			// get the data and populate the cache.
 			$db = CmsApp::get_instance()->GetDb();
 			$designs_by_tpl = [];

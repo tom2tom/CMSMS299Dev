@@ -44,7 +44,7 @@ class resultset extends CmsDbQueryBase
             $where[] = 'subject LIKE ?';
             $parms[] = '%'.$val.'%';
         }
-        if( count($where) ) {
+        if( $where ) {
             $sql .= ' WHERE '.implode(' AND ',$where);
         }
         $sql .= ' ORDER BY timestamp DESC';

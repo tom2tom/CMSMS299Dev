@@ -40,7 +40,7 @@ $dup_keys = array();
     }
   }
 }
-if( count($dup_keys) ) {
+if( $dup_keys ) {
   echo "DUPLICATE KEYS:\n";
   print_r($dup_keys);
   echo "\n=============\n\n";
@@ -59,7 +59,7 @@ $dup_vals = array();
     }
   }
 }
-if( count($dup_vals) ) {
+if( $dup_vals ) {
   echo "DUPLICATE Values:\n";
   print_r($dup_vals);
   echo "\n=============\n\n";

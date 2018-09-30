@@ -51,7 +51,7 @@ function smarty_function_dump($params, $template)
 
 			if( !isset($params['nomethods']) ) {
 				$methods = get_class_methods($objname);
-				if( count($methods) ) {
+				if( $methods ) {
 					$str .= str_repeat('  ',$level).'Methods: <br />';
 					foreach( $methods as $one )	{
 						$str .= str_repeat('  ',$level).'- '.$one.'<br />';

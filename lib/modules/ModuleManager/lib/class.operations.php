@@ -145,7 +145,7 @@ class operations
                         if( version_compare($val,$version) < 0 ) {
                             throw new RuntimeException($this->_mod->Lang('err_xml_oldermodule'));
                         }
-                        elseif ( version_compare($val,$version) == 0 && !$overwrite ) {
+                        elseif( version_compare($val,$version) == 0 && !$overwrite ) {
                             throw new RuntimeException($this->_mod->Lang('err_xml_sameversion'));
                         }
                     }

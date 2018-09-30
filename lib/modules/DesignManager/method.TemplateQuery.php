@@ -211,12 +211,12 @@ if ($typejoin) {
 
 $tmp = [];
 foreach ($where as $key => $exprs) {
-    if (count($exprs)) {
+    if ($exprs) {
         $tmp[] = '('.implode(' OR ', $exprs).')';
     }
 }
 
-if (count($tmp)) {
+if ($tmp) {
     $query .= ' WHERE ' . implode(' AND ', $tmp);
 }
 

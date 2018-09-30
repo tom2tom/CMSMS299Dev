@@ -435,7 +435,7 @@ class UserOperations
 	{
 		$result = null;
 		$list = $this->GetList();
-		if (count($list)) {
+		if ($list) {
 			$result .= '<select name="'.$name.'">';
 			foreach ($list as $uid => $username) {
 				$result .= '<option value="'.$uid.'"';

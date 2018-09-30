@@ -380,7 +380,7 @@ class CmsLayoutCollection
 			throw new CmsInvalidDataException('There are invalid characters in the design name.');
 		}
 
-		if( count($this->_css_assoc) ) {
+		if( $this->_css_assoc ) {
 			$t1 = array_unique($this->_css_assoc);
 			if( count($t1) != count($this->_css_assoc) ) throw new CmsInvalidDataException('Duplicate CSS Ids exist in design.');
 		}
@@ -426,14 +426,14 @@ class CmsLayoutCollection
 //USELESS			if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 
-		if( count($this->_css_assoc) ) {
+		if( $this->_css_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::CSSTABLE.' (design_id,css_id,item_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_css_assoc); $i < $n; $i++ ) {
 				$css_id = $this->_css_assoc[$i];
 				$dbr = $db->Execute($query,[$this->get_id(),$css_id,$i+1]);
 			}
 		}
-		if( count($this->_tpl_assoc) ) {
+		if( $this->_tpl_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			for( $i = 0, $n = count($this->_tpl_assoc); $i < $n; $i++ ) {
 				$tpl_id = $this->_tpl_assoc[$i];
@@ -469,7 +469,7 @@ class CmsLayoutCollection
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
 		$db->Execute($query,[$this->get_id()]);
 
-		if( count($this->_css_assoc) ) {
+		if( $this->_css_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::CSSTABLE.' (design_id,css_id,item_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_css_assoc); $i < $n; $i++ ) {
 				$css_id = $this->_css_assoc[$i];
@@ -480,7 +480,7 @@ class CmsLayoutCollection
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id = ?';
 		$db->Execute($query,[$this->get_id()]);
 
-		if( count($this->_tpl_assoc) ) {
+		if( $this->_tpl_assoc ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES (?,?,?)';
 			for( $i = 0, $n = count($this->_tpl_assoc); $i < $n; $i++ ) {
 				$tpl_id = $this->_tpl_assoc[$i];
@@ -527,14 +527,14 @@ class CmsLayoutCollection
 
 		Events::SendEvent( 'Core', 'DeleteDesignPre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
-		if( count($this->_css_assoc) ) {
+		if( $this->_css_assoc ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
 			$dbr = $db->Execute($query,[$this->get_id()]);
 			$this->_css_assoc = [];
 			$this->_dirty = TRUE;
 		}
 
-		if( count($this->_tpl_assoc) ) {
+		if( $this->_tpl_assoc ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TPLTABLE.' WHERE design_id = ?';
 			$dbr = $db->Execute($query,[$this->get_id()]);
 			$this->_tpl_assoc = [];

@@ -83,7 +83,7 @@ final class template_slave extends slave
         $sql = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' ORDER BY name ASC';
         $all_ids = $db->GetCol($sql);
         $output = [];
-        if( count($all_ids) ) {
+        if( $all_ids ) {
             $chunks = array_chunk($all_ids,15);
             foreach( $chunks as $chunk ) {
                 $tpl_list = CmsLayoutTemplate::load_bulk($chunk);

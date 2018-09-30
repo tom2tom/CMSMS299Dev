@@ -209,7 +209,7 @@ class wizard_step8 extends wizard_step
             if( is_dir($dir.'/'.$file) && (is_file("$dir/$file/MANIFEST.DAT") || is_file("$dir/$file/MANIFEST.DAT.gz")) ) $versions[] = $file;
         }
         closedir($dh);
-        if( count($versions) ) usort($versions,'version_compare');
+        if( $versions ) usort($versions,'version_compare');
 
         $destconfig = $this->get_wizard()->get_data('config');
         if( !$destconfig ) throw new Exception(lang('error_internal',703));

@@ -231,7 +231,7 @@ class cms_url
      */
     public function get_query()
     {
-        if( count($this->_query) ) return http_build_query($this->_query);
+        if( $this->_query ) return http_build_query($this->_query);
     }
 
     /**
@@ -326,7 +326,7 @@ class cms_url
     public function __toString()
     {
         // build the query array back into a string.
-        if( count($this->_query) ) $this->_parts['query'] = http_build_query($this->_query);
+        if( $this->_query ) $this->_parts['query'] = http_build_query($this->_query);
 
         $parts = $this->_parts;
 

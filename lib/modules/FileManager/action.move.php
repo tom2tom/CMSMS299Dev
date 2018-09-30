@@ -104,7 +104,7 @@ if( isset($params['move']) ) {
     }
 } // submit
 
-if( count($errors) ) $this->ShowErrors($errors);
+if( $errors ) $this->ShowErrors($errors);
 if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('move.tpl'),null,null,$smarty);

@@ -48,7 +48,7 @@ function smarty_function_cms_pageoptions($params, $template)
   $list = array_unique($list);
   sort($list);
 
-  if ( $bare ) {
+  if( $bare ) {
 	$out = $list;
 	if( $elipsis ) {
 	  $out = [];

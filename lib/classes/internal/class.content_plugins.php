@@ -55,7 +55,7 @@ final class content_plugins
      */
     private static function echo_content(string $content, array &$params, $smarty)
     {
-        if ( !empty($params['assign']) ) {
+        if( !empty($params['assign']) ) {
             $smarty->assign(trim($params['assign']), $content);
             echo '';
         }

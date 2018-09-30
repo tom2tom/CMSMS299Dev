@@ -72,7 +72,7 @@ foreach( $params as $key => $value ) {
                 $one = trim($one);
             }
             $list = array_unique($list);
-            if( count($list) ) {
+            if( $list ) {
                 $flatlist = $hm->getFlatList();
                 if( $flatlist ) {
                     $tmp = [];

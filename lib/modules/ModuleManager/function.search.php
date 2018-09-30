@@ -59,11 +59,11 @@ if( isset($params['submit']) ) {
 
         $res = $res[1];
         $data = [];
-        if( count($res) ) $res = utils::build_module_data($res, $instmodules);
+        if( $res ) $res = utils::build_module_data($res, $instmodules);
 
         $writable = true;
-        foreach (cms_module_places() as $dir) {
-           if (!is_dir($dir) || !is_writable($dir)) {
+        foreach( cms_module_places() as $dir ) {
+           if( !is_dir($dir) || !is_writable($dir) ) {
                $writable = false;
                break;
            }

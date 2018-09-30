@@ -31,7 +31,7 @@ function cms_module_RedirectToAdmin(&$modinstance, $page, $params=[])
 {
     $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     $url = $page.$urlext;
-    if (count($params)) {
+    if ($params) {
         foreach ($params as $key=>$value) {
             $url .= '&'.$key.'='.rawurlencode($value);
         }

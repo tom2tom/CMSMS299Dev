@@ -1495,7 +1495,7 @@ abstract class CMSModule
             $params['action'] = $name;
         }
 
-        if ( is_numeric($returnid) ) {
+        if( is_numeric($returnid) ) {
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();

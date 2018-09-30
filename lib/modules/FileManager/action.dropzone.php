@@ -73,7 +73,7 @@ if( strlen($advancedmode) > 1 ) $advancedmode = 0;
 
   $output = get_dirs($startdir,DIRECTORY_SEPARATOR.basename($startdir).DIRECTORY_SEPARATOR);
   $output['/'.basename($startdir)] = DIRECTORY_SEPARATOR.basename($startdir);
-  if( count($output) ) {
+  if( $output ) {
     ksort($output);
     $tpl->assign('dirlist',$output);
   }

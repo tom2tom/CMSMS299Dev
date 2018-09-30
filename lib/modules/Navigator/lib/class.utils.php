@@ -38,8 +38,9 @@ final class utils
             foreach( $data as &$one ) {
                 $one = trim($one);
             }
+            unset($one);
             $data = array_unique($data);
-            if( count($data) ) self::$_excludes = $data;
+            self::$_excludes = $data;
         }
     }
 
@@ -153,7 +154,7 @@ final class utils
                     $tmp = self::fill_node($children[$i],$deep,$nlevels,$show_all,$collapse,$depth+1);
                     if( is_object($tmp) ) $child_nodes[] = $tmp;
                 }
-                if( count($child_nodes) ) $obj->children = $child_nodes;
+                if( $child_nodes ) $obj->children = $child_nodes;
             }
 
             return $obj;

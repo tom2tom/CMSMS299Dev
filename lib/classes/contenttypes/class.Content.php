@@ -555,7 +555,7 @@ class Content extends ContentBase
 
 		case 'wantschildren':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
-			if ( check_permission(get_userid(),'Manage All Content') || $showadmin ) {
+			if( check_permission(get_userid(),'Manage All Content') || $showadmin ) {
 				$wantschildren = $this->WantsChildren();
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_wantschildren',lang('help_title_page_wantschildren'));
 				return ['<label for="id_wantschildren">'.lang('wantschildren').':</label>'.$help,

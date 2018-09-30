@@ -10,7 +10,7 @@ function startswith(string $haystack, string $needle) : bool
 function endswith(string $haystack, string $needle) : bool
 {
     $o = strlen( $needle );
-    if ( $o > 0 && $o <= strlen($haystack) ) {
+    if( $o > 0 && $o <= strlen($haystack) ) {
         return strpos($haystack, $needle, -$o) !== false;
     }
     return false;

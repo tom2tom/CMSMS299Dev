@@ -64,7 +64,7 @@ try {
   $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_design.tpl'),null,null,$smarty);
 
   $templates = CmsLayoutTemplate::get_editable_templates(get_userid());
-  if( count($templates) ) {
+  if( $templates ) {
     usort($templates,function($a,$b) {
       return strcasecmp($a->get_name(),$b->get_name());
     });

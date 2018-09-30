@@ -563,7 +563,7 @@ EOT;
         foreach( $this->_css_list as $rec ) {
             $output .= $this->_xml_output_stylesheet($rec['obj'],$rec['name'],1);
         }
-        if( count($this->_files) ) {
+        if( $this->_files ) {
             foreach( $this->_files as $key => $value ) {
                 $output .= $this->_xml_output_file($key,$value,1);
             }

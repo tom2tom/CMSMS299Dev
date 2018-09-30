@@ -133,7 +133,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 			}
 		}
 
-		if( count($where) ) $query .= ' WHERE '.implode(' AND ',$where);
+		if( $where ) $query .= ' WHERE '.implode(' AND ',$where);
 		$query .= ' ORDER BY '.$sortby.' '.$sortorder;
 
 		$this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);

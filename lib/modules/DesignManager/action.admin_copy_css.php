@@ -56,7 +56,7 @@ try {
   $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_copy_css.tpl'),null,null,$smarty);
 
   $designs = CmsLayoutCollection::get_all();
-  if( count($designs) ) {
+  if( $designs ) {
     $tmp = [];
     for( $i = 0, $n = count($designs); $i < $n; $i++ ) {
       $tmp[$designs[$i]->get_id()] = $designs[$i]->get_name();

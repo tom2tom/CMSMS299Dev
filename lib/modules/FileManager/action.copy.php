@@ -113,7 +113,7 @@ if( isset($params['copy']) ) {
   }
 } // submit
 
-if( count($errors) ) $this->ShowErrors($errors);
+if( $errors ) $this->ShowErrors($errors);
 if( is_array($params['sel']) ) $params['sel'] = rawurlencode(json_encode($params['sel']));
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('copy.tpl'),null,null,$smarty);

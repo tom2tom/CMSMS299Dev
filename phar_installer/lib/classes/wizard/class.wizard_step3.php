@@ -395,7 +395,7 @@ class wizard_step3 extends wizard_step
         $smarty->assign('verbose',$verbose);
         $smarty->assign('retry_url',$_SERVER['REQUEST_URI']);
         if( $verbose ) $smarty->assign('information',$informational);
-        if( count($tests) ) $smarty->assign('tests',$tests);
+        if( $tests ) $smarty->assign('tests',$tests);
 
         $action = $this->get_wizard()->get_data('action');
         if( $action == 'freshen' ) {

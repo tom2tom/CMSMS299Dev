@@ -49,7 +49,7 @@ if( !function_exists('__cms_function_output_var') ) {
 
 			$out .= str_repeat($depth_str,$depth);
 			$out .= "{$acc} <em>(object of type: ".get_class($val).')</em> = {';
-			if( count($o_items) ) $out .= '<br />';
+			if( $o_items ) $out .= '<br />';
 			foreach( $o_items as $o_key => $o_val ) {
 				$out .= __cms_function_output_var($o_key,$o_val,$type,$depth+1);
 			}

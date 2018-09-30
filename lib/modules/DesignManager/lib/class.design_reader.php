@@ -229,7 +229,7 @@ class design_reader extends reader_base
                     case 'template':
                     case 'stylesheet':
                     case 'file':
-                        if( count($in) ) {
+                        if( $in ) {
                             array_pop($in);
                         }
                         $cur_key = null;

@@ -314,7 +314,7 @@ class cms_content_tree extends cms_tree
 				if( !$children[$i]->isContentCached() ) $ids[] = $children[$i]->get_tag('id');
 			}
 
-			if( count($ids) ) {
+			if( $ids ) {
 				// load the children that aren't loaded yet.
                 ContentOperations::get_instance()->LoadChildren($this->get_tag('id'),$deep,$all,$ids);
 			}
