@@ -121,23 +121,29 @@ final class ModulePluginManager
 		$query = 'TRUNCATE TABLE '.CMS_DB_PREFIX.'module_smarty_plugins';
 		$db->Execute($query);
 
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,cachable,available) VALUES';
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,available,cachable) VALUES';
 		$fmt = " ('%s','%s','%s','%s','%s',%d,%d),";
 		foreach( $this->_data as $key => $row ) {
-			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['cachable'],$row['available']);
+			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['available'],$row['cachable']);
 		}
 		if( endswith($query,',') ) $query = substr($query,0,-1);
 		$dbr = $db->Execute($query);
 		if( !$dbr ) return FALSE;
+		global_cache::clear('plugin_modules');
 		$this->_modified = FALSE;
 		return TRUE;
 	}
 
 	/**
-	 * Attempt to load a specific plugin
-	 * This is called by the smarty class when looking for an unknwon plugin.
-	 *
+	 * Attempt to load a specific module-plugin
+	 * This is called by the smarty class when looking for an unknown plugin.
 	 * @internal
+	 *
+     * @param string $name name of the undefined tag
+     * @param string $type tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
+     *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
+	 * @return mixed array|null Array members per database record:
+	 *  sig,name,module,type,callback,cachable,available
 	 */
 	public static function load_plugin($name,$type)
 	{
@@ -149,14 +155,14 @@ final class ModulePluginManager
 		if( $module ) {
 			// fix the callback, incase somebody used 'this' in the string.
 			if( is_array($row['callback']) ) {
-				// its an array
+				// it's an array
 				if( count($row['callback']) == 2 ) {
 					// first element is some kind of string... do some magic to point to the module object
 					if( !is_string($row['callback'][0]) || strtolower($row['callback'][0]) == 'this') $row['callback'][0] = $row['module'];
 				}
 				else {
 					// an array with only one item?
-					cms_errort('Cannot load plugin '.$row['name'].' from module '.$row['module'].' because of errors in the callback');
+					cms_error('Cannot load plugin '.$row['name'].' from module '.$row['module'].' because of errors in the callback');
 					return;
 				}
 			}
@@ -173,7 +179,6 @@ final class ModulePluginManager
 			// it's in the db... but not callable.
 			cms_error('Cannot load plugin '.$row['name'].' from module '.$row['module'].' because callback not callable (module disabled?)');
 			$row['callback'] = [$row['module'],'function_plugin'];
-			return $row;
 		}
 		return $row;
 	}
@@ -197,7 +202,7 @@ final class ModulePluginManager
 
 	/**
 	 * Add information about a plugin to the database
-	 * This method is normally called from within a module's installation directory.
+	 * This method is normally called during a module's installation/upgrade.
 	 *
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
@@ -213,15 +218,16 @@ final class ModulePluginManager
 
 
 	/**
-	 * add information about a plugin to the database.
-	 * This method is normally called from within a module's installation directory.
+	 * Add information about a plugin to the database.
+	 * This method is normally called during a module's installation/upgrade.
 	 *
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
 	 * @param callable $callback A static function to call.
-	 * @param bool $cachable Whether the plugin is cachable
-	 * @param int  $available Flags indicating the availability of the plugin.   See AVAil_ADMIN AND AVAIL_FRONTEND
+	 * @param bool $cachable Whether the plugin is cachable. Default true
+	 * @param int  $available Flag(s) indicating the availability of the plugin. Default 0, hence AVAIL_FRONTEND.
+	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
 	 */
 	public function add($module_name,$name,$type,$callback,$cachable = TRUE,$available = 0)
 	{
@@ -233,9 +239,15 @@ final class ModulePluginManager
 		$sig = md5($name.$module_name.serialize($callback));
 		if( !isset($this->_data[$sig]) ) {
 			if( $available == 0 ) $available = self::AVAIL_FRONTEND;
-			$this->_data[$name] =
-				['sig'=>$sig, 'module'=>$module_name, 'name'=>$name, 'type'=>$type,
-					  'callback'=>$callback, 'cachable'=>(int)$cachable, 'available'=>$available];
+			$this->_data[$name] = [
+				'sig'=>$sig,
+				'module'=>$module_name,
+				'name'=>$name,
+				'type'=>$type,
+				'callback'=>$callback,
+				'available'=>$available,
+				'cachable'=>(int)$cachable,
+			];
 			$this->_modified = TRUE;
 			return $this->_save();
 		}
@@ -272,10 +284,9 @@ final class ModulePluginManager
 	}
 
 	/**
-	 * Remove a plugin by its name and type
+	 * Remove a plugin by its name
 	 *
 	 * @param string $name
-	 * @param string $type (function,block,modifier)
 	 */
 	public static function remove_by_name($name)
 	{
@@ -283,10 +294,9 @@ final class ModulePluginManager
 	}
 
 	/**
-	 * Remove a plugin by its name and type
+	 * Remove a plugin by its name
 	 *
 	 * @param string $name
-	 * @param string $type (function,block,modifier)
 	 */
 	public function _remove_by_name($name)
 	{
@@ -302,4 +312,3 @@ final class ModulePluginManager
 		}
 	}
 } // class
-
