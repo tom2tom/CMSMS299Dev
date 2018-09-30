@@ -171,10 +171,10 @@ if ($action == 'showpluginhelp') {
 
 //TODO            $rec['cachable'] = !($rec['admin'] || function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']));
 
-            // leave smarty_nocache for compatibility for a while ?? TODO
-            if (!(function_exists('smarty_'.$rec['type'].'_'.$rec['name']) ||
+            // leave smarty_nocache for compatibility for a while ?? NOPE smarty 3.3.31+ can't process them
+            if (!(function_exists('smarty_'.$rec['type'].'_'.$rec['name']) /*||
                   function_exists('smarty_cms_'.$rec['type'].'_'.$rec['name']) ||
-                  function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name']))) continue;
+                  function_exists('smarty_nocache_'.$rec['type'].'_'.$rec['name'])*/)) continue;
 
             if (function_exists('smarty_cms_help_'.$rec['type'].'_'.$rec['name'])) {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
