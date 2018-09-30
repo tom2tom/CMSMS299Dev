@@ -40,7 +40,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
         if ($this->GetPreference('enabled')) {
             HookManager::add_hook('PostRequest', [$this, 'trigger_async_processing'], HookManager::PRIORITY_LOW);
         }
-// ?? for event-processing purposes
+// why would this essentially-async module be a plugin ? anyway, ignored with lazy-loading
 //        $this->RegisterModulePlugin();
     }
 
