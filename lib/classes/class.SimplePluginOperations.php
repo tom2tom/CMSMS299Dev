@@ -21,7 +21,6 @@ namespace CMSMS;
 use CmsApp;
 use CMSMS\internal\Smarty;
 use InvalidArgumentException;
-use ParseError;
 use RuntimeException;
 use const CMS_ASSETS_PATH;
 use function file_put_contents;
@@ -306,7 +305,7 @@ EOS;
         if( !isset($this->_loaded[$name]) ) {
             $fp = $this->file_path( $name );
             if( !is_file($fp) ) {
-                throw new RuntimeException('Could not find simple plugin named '.$name);
+                throw new RuntimeException('Could not find plugin file named '.$name);
             }
             $code = file_get_contents($fp);
             if( !preg_match('/^[\s\n]*<\?php/', $code) ) {
@@ -327,8 +326,9 @@ EOS;
     public static function __callStatic(string $name, array $args)
     {
         $fp = self::get_instance()->file_path( $name );
-        if( !is_file($fp) ) throw new \RuntimeException('Could not find simple plugin named '.$name);
-
+        if( !is_file($fp) ) {
+			throw new \RuntimeException('Could not find plugin file named '.$name);
+		}
         // in-scope variables for the file code
         $params = $args[0];
         if( $params ) extract($params);
