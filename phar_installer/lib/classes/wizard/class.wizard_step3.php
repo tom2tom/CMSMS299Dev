@@ -363,7 +363,7 @@ class wizard_step3 extends wizard_step
         $can_continue = TRUE;
         $tests_failed = FALSE;
         $results = [];
-        for( $i = 0; $i < count($tests); $i++ ) {
+        for( $i = 0, $n = count($tests); $i < $n; $i++ ) {
             $res = $tests[$i]->run();
             if( $res == $tests[$i]::TEST_FAIL ) {
                 $tests_failed = TRUE;
@@ -396,7 +396,14 @@ class wizard_step3 extends wizard_step
         $smarty->assign('retry_url',$_SERVER['REQUEST_URI']);
         if( $verbose ) $smarty->assign('information',$informational);
         if( count($tests) ) $smarty->assign('tests',$tests);
-        $url = $this->get_wizard()->next_url();
+
+        $action = $this->get_wizard()->get_data('action');
+        if( $action == 'freshen' ) {
+            $url = $this->get_wizard()->step_url(7);
+        }
+        else {
+            $url = $this->get_wizard()->next_url();
+        }
         $smarty->assign('next_url',$url);
 
         // todo: urls for retry, and enable verbose mode.
