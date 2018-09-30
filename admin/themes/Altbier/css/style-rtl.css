@@ -460,16 +460,19 @@ table.pagetable a.text-red {
 .pagewarning {
     background-color: #f9f0d2;
     border: 1px solid #e6c26e;
+    padding-right: 2.8em;
 }
 .warning::after,
 .pagewarn::after,
 .pagewarning::after {
+    margin-left: 0.1em;
+    margin-right: -1.5em;
     content: '\f071';
     color: #d4a711;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: middle;
+    vertical-align: bottom;
 }
 
 /*
@@ -482,33 +485,40 @@ table.pagetable a.text-red {
     background-color: #f4d7d7;
     border: 1px solid #ae432e;
     color: #ae432e; /* TODO */
+    padding-right: 2.8em;
 }
 .error,
 .pageerrorinstalldir {
     background-color: #f4d7d7;
     border: 1px solid #ae432e;
+    padding-right: 2.8em;
 }
 .error::after,
 .pageerrorinstalldir::after {
+    margin-left: 0.1em;
+    margin-right: -1.5em;
     content: '\f05e';
     color: #ec1313;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: middle;
+    vertical-align: bottom;
 }
 
 .success {
     background-color: #d7f4d7;
     border: 1px solid #77ab13;
+    padding-right: 2.8em;
 }
 .success::after {
+    margin-left: 0.1em;
+    margin-right: -1.5em;
     content: '\f058';
     color: #0da50d;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: middle;
+    vertical-align: bottom;
 }
 
 .pagemcontainer {
@@ -520,14 +530,17 @@ table.pagetable a.text-red {
 .info, .pageinfo, .information {
     background-color: #d7def4;
     border: 1px solid #058dc7;
+    padding-right: 2.8em;
 }
 .info::after, .pageinfo::after, .information::after {
+    margin-left: 0.1em;
+    margin-right: -1.5em;
     content: '\f05a';
     color: #426ef0;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: middle;
+    vertical-align: bottom;
 }
 
 .message:hover {
@@ -625,7 +638,6 @@ aside .no-slide,
     line-height: 1.2;
     letter-spacing: normal;
     font-size: 0.9em;
-/*  font-family: 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif; */
     pointer-events: all !important;
     z-index: 9000 !important;
 }
@@ -667,6 +679,7 @@ aside .no-slide,
     letter-spacing: normal;
 }
 .jqt-heading {
+    margin-top: -1.6em; /*c.f. .jqt-close*/
     margin-bottom: 10px;
     padding: 10px;
     font-size: 1em;
@@ -675,17 +688,19 @@ aside .no-slide,
 }
 .jqt-close {
     position: absolute;
-    background-image:url(../images/icons/extra/closesprite.png);
-    background-size: 7.2em 1.2em;
-    width: 1.2em;
-    height: 1.2em;
+    width: 1.6em;
+    height: 1.6em;
     top: 10px;
     left: 10px;
     cursor: pointer
 }
-.error .jqt-close:hover, .error .jqt-close:active, .warn .jqt-close:hover, .warn .jqt-close:active, .success .jqt-close:hover, .success .jqt-close:active, .info .jqt-close:hover, .info.jqt-close:active {
-    background-position: 0 0;
+.jqt-close::after {
+    content: '\f410';
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 1.6em;
 }
+
 .jqt-loader {
     display: block;
     position: absolute;
@@ -699,24 +714,12 @@ aside .no-slide,
 .jqt-loaded {
     width: 100%;
 }
-/*
-.jqt-has-icon {
-    padding-right: 0;
-}
-*/
-.jqt-has-icon::before {
-    font-size: 1.5em;
-    margin-right: -0.5em;
-    padding-left: 0.3em;
-    vertical-align: middle;
-}
 
 .error.jqtoast {
-    padding: 10px 2em;
     background-color: #f4d7d7;
 }
-.error .jqt-close {
-    background-position: 1.2em 0;
+.error .jqt-close::after {
+    color: #c83737;
 }
 .error .jqt-heading {
     background-color: #c83737;
@@ -727,11 +730,10 @@ aside .no-slide,
     color: #ec1313;
 }
 .warn.jqtoast {
-    padding: 10px 2em;
     background-color: #f9f0d2;
 }
-.warn .jqt-close {
-    background-position: 2.4em 0;
+.warn .jqt-close::after {
+    color: #caa11c;
 }
 .warn .jqt-heading {
     background-color: #caa11c;
@@ -744,8 +746,8 @@ aside .no-slide,
 .success.jqtoast {
     background-color: #d7f4d7;
 }
-.success .jqt-close {
-    background-position: 3.6em 0;
+.success .jqt-close::after {
+    color: #268c26;
 }
 .success .jqt-heading {
     background-color: #268c26;
@@ -756,11 +758,10 @@ aside .no-slide,
     color: #0da50d;
 }
 .info.jqtoast {
-    padding: 10px 2em;
     background-color: #d7def4;
 }
-.info .jqt-close {
-    background-position: 4.8em 0;
+.info .jqt-close::after {
+    color: #5e7bd4;
 }
 .info .jqt-heading {
     background-color: #5e7bd4;
@@ -791,17 +792,18 @@ aside .no-slide,
 .close-warning {
     /* float: left; */
     /* display: inline-block; */
-    width: 16px;
-    height: 16px;
+    width: 1em;
+    height: 1em;
     color: #333;
     /* text-indent: -9999em; */
     cursor: pointer;
     /* margin: 5px */
 }
 .close-warning::after {
-    /* background: transparent url(../images/icons/extra/close.gif) no-repeat; */
     font-family: "Font Awesome 5 Free";
-    content: '\f00d';
+    content: '\f410';
+    font-size: 1em;
+    color: #333;
 }
 
 /* --- LAYOUT --- */
