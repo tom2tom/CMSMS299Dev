@@ -201,11 +201,12 @@ class Utils
         $nperloop = min(200,count($full_list));
         $contentops = ContentOperations::get_instance();
         $offset = 0;
+        $n = count($full_list);
 
-        while( $offset < count($full_list) ) {
+        while( $offset < $n ) {
             // figure out the content to load.
             $idlist = [];
-            for( $i = 0; $i < $nperloop && $offset+$i < count($full_list); $i++ ) {
+            for( $i = 0; $i < $nperloop && $offset+$i < $n; $i++ ) {
                 $idlist[] = $full_list[$offset+$i];
             }
             $offset += $i;

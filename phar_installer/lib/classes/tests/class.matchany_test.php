@@ -40,18 +40,17 @@ class matchany_test extends test_base
 
   public function execute()
   {
-    if( count($this->_children) )
+    if( ($n = count($this->_children)) )
       {
-	for( $i = 0; $i < count($this->_children); $i++ )
-	  {
+      for( $i = 0; $i < $n; $i++ )
+        {
 	    $res = $this->_children[$i]->execute();
 	    if( $res == self::TEST_PASS )
 	      {
-		return self::TEST_PASS;
+            return self::TEST_PASS;
 	      }
-	  }
+        }
       }
     return self::TEST_FAIL;
   }
 } //class
-

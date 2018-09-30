@@ -109,7 +109,7 @@ final class ContentListBuilder
 				$out = [];
 				if( $node->get_tag('id') ) $out[] = $node->get_tag('id');
 				$children = $node->get_children();
-				for( $i = 0; $i < count($children); $i++ ) {
+				for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 					$tmp = $func($children[$i]);
 					if( is_array($tmp) && count($tmp) ) $out = array_merge($out,$tmp);
 				}
@@ -428,7 +428,7 @@ final class ContentListBuilder
 		if( $node->get_tag('id') ) $out[] = $node->get_tag('id');
 		if( $node->has_children() ) {
 			$children = $node->get_children();
-			for( $i = 0; $i < count($children); $i++ ) {
+			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				$child = $children[$i];
 				$tmp = $this->_get_all_pages($child);
 				if( is_array($tmp) && count($tmp) ) $out = array_merge($out,$tmp);
@@ -524,7 +524,7 @@ final class ContentListBuilder
 				// start at root
 				// push items from list on the stack if they are root, or the previous item is in the opened array.
 				$parents = array_reverse($parents);
-				for( $i = 0; $i < count($parents); $i++ ) {
+				for( $i = 0, $n = count($parents); $i < $n; $i++ ) {
 					if( $i == 0 ) {
 						$display[] = $parents[$i];
 						continue;
@@ -650,9 +650,9 @@ final class ContentListBuilder
 		static $_users = null;
 		if( !$_users ) {
 			$tmp = \UserOperations::get_instance()->LoadUsers();
-			if( is_array($tmp) && count($tmp) ) {
+			if( is_array($tmp) && ($n = count($tmp)) ) {
 				$_users = [];
-				for( $i = 0; $i < count($tmp); $i++ ) {
+				for( $i = 0; $i < $n; $i++ ) {
 					$oneuser = $tmp[$i];
 					$_users[$oneuser->id] = $oneuser;
 				}

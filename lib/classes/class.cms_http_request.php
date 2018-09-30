@@ -583,7 +583,7 @@ class cms_http_request
             $tmp = explode(':',$key);
             $key = trim($tmp[0]);
         }
-        for( $i = 0; $i < count($this->headerArray); $i++ ) {
+        for( $i = 0, $n = count($this->headerArray); $i < $n; $i++ ) {
             $tmp = explode(':',$this->headerArray[$i],1);
             $key2 = trim($tmp[0]);
             if( $key2 == $key ) return TRUE;
@@ -605,7 +605,7 @@ class cms_http_request
         if( strpos($str,':') !== FALSE ) {
             $tmp = explode(':',$str,1);
             $key = trim($tmp[0]);
-            for( $i = 0; $i < count($this->headerArray); $i++ ) {
+            for( $i = 0, $n = count($this->headerArray); $i < $n; $i++ ) {
                 $tmp = explode(':',$this->headerArray[$i],1);
                 $key2 = trim($tmp[0]);
                 if( $key2 == $key ) {
@@ -825,7 +825,7 @@ class cms_http_request
             if( !empty($content) )
             {
                 $tmp = explode("\r\n\r\n", $content,2);
-                for( $i = 0; $i < count($tmp); $i++ )
+                for( $i = 0, $n = count($tmp); $i < $n; $i++ )
                 {
                     if( empty($tmp[$i]) ) unset($tmp[$i]);
                 }
@@ -1092,7 +1092,7 @@ class cms_http_request
         }
 
         // Loop through the cookies
-        for ($cookie = 0; $cookie < count($cookieHeaders); $cookie++)
+        for ($cookie = 0, $n = count($cookieHeaders); $cookie < $n; $cookie++)
         {
             $cookieName  = trim($this->_tokenize($cookieHeaders[$cookie], '='));
             $cookieValue = $this->_tokenize(';');

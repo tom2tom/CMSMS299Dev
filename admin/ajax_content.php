@@ -65,7 +65,7 @@ try {
                 // start at root
                 // push items from list on the stack if they are root, or the previous item is in the opened array.
                 $parents = array_reverse($parents);
-                for( $i = 0; $i < count($parents); $i++ ) {
+                for( $i = 0, $n = count($parents); $i < $n; $i++ ) {
                     $content_id = $parents[$i]['content_id'];
                     if( !in_array($content_id,$pagelist) ) {
                         $pagelist[] = $content_id;

@@ -641,7 +641,7 @@ class CmsLayoutTemplate
 		}
 		else {
 			$tmp = [];
-			for( $i = 0; $i < count($a); $i++ ) {
+			for( $i = 0, $n = count($a); $i < $n; $i++ ) {
 				if( !is_numeric($a[$i]) ) continue;
 				$tmp2 = (int)$a[$i];  // intentional cast to int, may have negative values.
 				if( $tmp2 != 0 ) {

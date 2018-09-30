@@ -100,9 +100,9 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),nu
 $opts = ['' => $this->Lang('prompt_none')];
 $types = CmsLayoutTemplateType::get_all();
 $originators = [];
-if( count($types) ) {
+if( ($n = count($types)) ) {
     $tmp = $tmp2 = $tmp3 = [];
-    for( $i = 0; $i < count($types); $i++ ) {
+    for( $i = 0; $i < $n; $i++ ) {
         $tmp['t:'.$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         $tmp3[$types[$i]->get_id()] = $types[$i];
@@ -129,19 +129,19 @@ if( count($types) ) {
 	$opts[$this->Lang('tpl_originators')] = $originators;
 }
 $cats = CmsLayoutTemplateCategory::get_all();
-if( $cats && count($cats) ) {
+if( $cats && ($n = count($cats)) ) {
     $tpl->assign('list_categories',$cats);
     $tmp = [];
-    for( $i = 0; $i < count($cats); $i++ ) {
+    for( $i = 0; $i < $n; $i++ ) {
         $tmp['c:'.$cats[$i]->get_id()] = $cats[$i]->get_name();
     }
     $opts[$this->Lang('prompt_categories')] = $tmp;
 }
 $designs = CmsLayoutCollection::get_all();
-if( $designs && count($designs) ) {
+if( $designs && ($n = count($designs)) ) {
     $tpl->assign('list_designs',$designs);
     $tmp = [];
-    for( $i = 0; $i < count($designs); $i++ ) {
+    for( $i = 0; $i < $n; $i++ ) {
         $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
         $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
     }
@@ -155,7 +155,7 @@ if( $this->CheckPermission('Manage Designs') ) {
     $allusers = $userops->LoadUsers();
     $users = [-1=>$this->Lang('prompt_unknown')];
     $tmp = [];
-    for( $i = 0; $i < count($allusers); $i++ ) {
+    for( $i = 0, $n = count($allusers); $i < $n; $i++ ) {
         $tmp['u:'.$allusers[$i]->id] = $allusers[$i]->username;
         $users[$allusers[$i]->id] = $allusers[$i]->username;
     }

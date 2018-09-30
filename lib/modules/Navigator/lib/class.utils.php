@@ -148,7 +148,7 @@ final class utils
 
                 $obj->has_children = TRUE;
                 $child_nodes = [];
-                for( $i = 0; $i < count($children); $i++ ) {
+                for( $i = 0, $n = count($children); $i < $n; $i++ ) {
                     if( self::is_excluded($children[$i]->get_tag('alias')) ) continue;
                     $tmp = self::fill_node($children[$i],$deep,$nlevels,$show_all,$collapse,$depth+1);
                     if( is_object($tmp) ) $child_nodes[] = $tmp;

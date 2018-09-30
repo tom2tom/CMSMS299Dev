@@ -220,7 +220,7 @@ EOS;
 
 		$bc = $this->get_breadcrumbs();
 		if ($bc) {
-			for ($i = 0; $i < count($bc); $i++) {
+			for ($i = 0, $n = count($bc); $i < $n; $i++) {
 				$rec = $bc[$i];
 				$title = $rec['title'];
 				if ($module_help_type && $i + 1 == count($bc)) {

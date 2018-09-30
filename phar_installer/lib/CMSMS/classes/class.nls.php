@@ -33,8 +33,8 @@ abstract class nls
         if (!is_array($aliases)) {
             $aliases = explode(',', $aliases);
         }
-        if (is_array($aliases) && count($aliases)) {
-            for ($i = 0; $i < count($aliases); $i++) {
+        if (is_array($aliases) && ($n = count($aliases))) {
+            for ($i = 0; $i < $n; $i++) {
                 if ($aliases[$i] == $str) {
                     return true;
                 }

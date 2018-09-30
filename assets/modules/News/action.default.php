@@ -60,7 +60,7 @@ if( isset($params['idlist']) ) {
     $idlist = $params['idlist'];
     if( is_string($idlist) ) {
         $tmp = explode(',',$idlist);
-        for( $i = 0; $i < count($tmp); $i++ ) {
+        for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
             $tmp[$i] = (int)$tmp[$i];
             if( $tmp[$i] < 1 ) unset($tmp[$i]);
         }

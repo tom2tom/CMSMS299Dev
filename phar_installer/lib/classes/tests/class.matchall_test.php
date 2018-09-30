@@ -40,8 +40,8 @@ class matchall_test extends test_base
     public function execute()
     {
         $out = self::TEST_PASS;
-        if( count($this->_children) ) {
-            for( $i = 0; $i < count($this->_children); $i++ ) {
+        if( ($n = count($this->_children)) ) {
+            for( $i = 0; $i < $n; $i++ ) {
                 $res = $this->_children[$i]->run();
                 if( $res == self::TEST_FAIL ) {
                     // test failed.... if this test is not required, we can continue
@@ -57,7 +57,7 @@ class matchall_test extends test_base
     {
         switch( $this->status ) {
         case self::TEST_FAIL:
-            for( $i = 0; $i < count($this->_children); $i++ ) {
+            for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
                 $obj = $this->_children[$i];
                 if( $obj->status == self::TEST_FAIL ) {
                     if( $obj->fail_msg ) return $obj->fail_msg;
@@ -67,7 +67,7 @@ class matchall_test extends test_base
             break;
 
         case self::TEST_WARN:
-            for( $i = 0; $i < count($this->_children); $i++ ) {
+            for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
                 $obj = $this->_children[$i];
                 if( $obj->status == self::TEST_FAIL ) {
                     if( $obj->warn_msg ) return $obj->warn_msg;

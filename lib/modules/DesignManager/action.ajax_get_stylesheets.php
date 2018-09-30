@@ -30,10 +30,10 @@ try {
 		->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
 
     $designs = CmsLayoutCollection::get_all();
-    if( count($designs) ) {
+    if( ($n = count($designs)) ) {
         $tpl->assign('list_designs',$designs);
         $tmp = [];
-        for( $i = 0; $i < count($designs); $i++ ) {
+        for( $i = 0; $i < $n; $i++ ) {
             $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
             $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
         }

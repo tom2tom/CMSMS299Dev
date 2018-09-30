@@ -63,7 +63,7 @@ final class News_AdminSearch_slave extends slave
     $parms = [$str,$str,$str];
 
     // add in fields
-    for( $i = 0; $i < count($fdlist); $i++ ) {
+    for( $i = 0, $n = count($fdlist); $i < $n; $i++ ) {
       $tmp = 'FV'.$i;
       $fdid = $fdlist[$i];
       $fields[] = "$tmp.value";

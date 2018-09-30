@@ -40,7 +40,7 @@ function smarty_function_browser_lang($params, $template)
 		return $default;
 	}
 	$accepted = [];
-	for( $i = 0; $i < count($tmp2); $i++ ) {
+	for( $i = 0, $n = count($tmp2); $i < $n; $i++ ) {
 		if( strlen($tmp2[$i]) < 2 ) continue;
 		$accepted[] = strtolower(substr($tmp2[$i],0,2));
 	}

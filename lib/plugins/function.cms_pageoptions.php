@@ -52,10 +52,10 @@ function smarty_function_cms_pageoptions($params, $template)
 	$out = $list;
 	if( $elipsis ) {
 	  $out = [];
-	  for( $i = 1; $i < count($list); $i++ ) {
-	if( $list[$i-1] != $list[$i] - 1 ) $out[] = $elipsis;
-	$out[] = $list[$i];
-	  }
+	  for( $i = 1, $n = count($list); $i < $n; $i++ ) {
+        if( $list[$i-1] != $list[$i] - 1 ) $out[] = $elipsis;
+        $out[] = $list[$i];
+      }
 	}
   }
   else {

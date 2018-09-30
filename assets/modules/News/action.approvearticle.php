@@ -48,9 +48,9 @@ if( is_object($search) ) {
       $query = 'SELECT value FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
       $flds = $db->GetArray($query,[$articleid]);
       if( is_array($flds) ) {
-	for( $i = 0; $i < count($flds); $i++ ) {
-	  $text .= ' '.$flds[$i]['value'];
-	}
+        for( $i = 0, $n = count($flds); $i < $n; $i++ ) {
+         $text .= ' '.$flds[$i]['value'];
+        }
       }
 
       $search->AddWords($this->GetName(), $articleid, 'article', $text,

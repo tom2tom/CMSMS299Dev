@@ -417,7 +417,7 @@ class design_reader extends reader_base
 
       if( $css['mediatype'] ) {
           $tmp = explode(',',$css['mediatype']);
-          for( $i = 0; $i < count($tmp); $i++ ) {
+          for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
               $str = trim($tmp[$i]);
               if( $str ) $stylesheet->add_media_type($str);
           }

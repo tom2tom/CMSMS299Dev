@@ -70,7 +70,7 @@ if( isset($params['submit']) ) {
         }
 
         $search_data = [];
-        for( $i = 0; $i < count($res); $i++ ) {
+        for( $i = 0, $n = count($res); $i < $n; $i++ ) {
             $row =& $res[$i];
             $obj = new stdClass();
             foreach( $row as $k => $v ) {

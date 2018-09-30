@@ -27,21 +27,21 @@
  *        	http://dev.cmsmadesimple.org/users/marks/
  * ----------------------------------------------------------------
  **/
- 
+
 function smarty_modifier_summarize($string,$numwords='5',$etc='...')
 {
 	$tmp = explode(' ',strip_tags($string));
 	$stringarray = [];
-	
-	for( $i = 0; $i < count($tmp); $i++ ) {
+
+	for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 		if( $tmp[$i] != '' ) $stringarray[] = $tmp[$i];
 	}
-	
+
 	if( $numwords >= count($stringarray) ) {
 		return $string;
     }
-	
+
 	$tmp = array_slice($stringarray,0,$numwords);
 	$tmp = implode(' ',$tmp).$etc;
-	return $tmp;    
+	return $tmp;
 }

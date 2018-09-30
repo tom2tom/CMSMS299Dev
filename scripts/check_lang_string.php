@@ -3,7 +3,7 @@ function usage() {
   echo "todo\n";
 }
 
-function error($str) 
+function error($str)
 {
   echo $str."\n"; exit;
 }
@@ -49,7 +49,7 @@ if( count($dup_keys) ) {
 $dup_vals = array();
 {
   $vals = array_values($lang);
-  for( $i = 0; $i < count($vals); $i++ ) {
+  for( $i = 0, $n = count($vals); $i < $n; $i++ ) {
     $vals[$i] = strtolower($vals[$i]);
   }
   $vals2 = array_count_values($vals);

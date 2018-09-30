@@ -71,8 +71,8 @@ function smarty_function_cms_selflink($params, $template)
 			$flatcontent = $manager->getFlatList();
 			$indexes = array_keys($flatcontent);
 			$i = array_search($startpage,$indexes);
-			if( $i < count($flatcontent) ) {
-				for( $j = $i + 1; $j < count($flatcontent); $j++ ) {
+			if( $i < ($n = count($flatcontent)) ) {
+				for( $j = $i + 1; $j < $n; $j++ ) {
 					$k = $indexes[$j];
 					$content = $flatcontent[$k]->getContent();
 					if( !is_object($content) ) continue;
@@ -92,12 +92,12 @@ function smarty_function_cms_selflink($params, $template)
 			$parent = $node->get_parent();
 			if( !$parent ) $parent = $manager;
 			$children = $parent->get_children();
-			for( $i = 0; $i < count($children); $i++ ) {
+			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				$id = $children[$i]->get_tag('id');
 				if( $id == $startpage ) break;
 			}
-			if( $i < count($children) ) {
-				for( $j = $i + 1; $j < count($children); $j++ ) {
+			if( $i < $n ) {
+				for( $j = $i + 1; $j < $n; $j++ ) {
 					$content = $children[$j]->getContent();
 					if( !is_object($content) ) continue;
 					if( !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;
@@ -134,11 +134,11 @@ function smarty_function_cms_selflink($params, $template)
 			$parent = $node->get_parent();
 			if( !$parent ) $parent = $manager;
 			$children = $parent->get_children();
-			for( $i = 0; $i < count($children); $i++ ) {
+			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				$id = $children[$i]->get_tag('id');
 				if( $id == $startpage ) break;
 			}
-			if( $i < count($children) ) {
+			if( $i < $n ) {
 				for( $j = $i - 1; $j >= 0; $j-- ) {
 					$content = $children[$j]->getContent();
 					if( !is_object($content) || !$content->Active() || !$content->HasUsableLink() || !$content->ShowInMenu() ) continue;

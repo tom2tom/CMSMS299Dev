@@ -20,7 +20,7 @@ else if (isset($params['exportcsv']) ) {
         while(@ob_end_clean());
 
         $output = '';
-        for( $i = 0; $i < count($data); $i++ ) {
+        for( $i = 0, $n = count($data); $i < $n; $i++ ) {
             $output .= "\"{$data[$i]['word']}\",{$data[$i]['count']}\n";
         }
         echo $output;

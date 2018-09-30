@@ -45,7 +45,7 @@ abstract class CmsExtraDataException extends \Exception
       $msg = $prev = NULL;
       $code = 0;
       if( is_array($args) && count($args) == 1 ) $args = $args[0];
-      for( $i = 0; $i < count($args); $i++ ) {
+      for( $i = 0, $n = count($args); $i < $n; $i++ ) {
           switch( $i ) {
           case 0:
               $msg = $args[$i];

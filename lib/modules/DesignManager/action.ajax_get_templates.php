@@ -53,10 +53,10 @@ try {
     }
 
     $designs = CmsLayoutCollection::get_all();
-    if( count($designs) ) {
+    if( ($n = count($designs)) ) {
         $tpl->assign('list_designs',$designs);
         $tmp = [];
-        for( $i = 0; $i < count($designs); $i++ ) {
+        for( $i = 0; $i < $n; $i++ ) {
             $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
             $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
         }
@@ -65,11 +65,11 @@ try {
 
     $types = CmsLayoutTemplateType::get_all();
     $originators = [];
-    if( count($types) ) {
+    if( ($n = count($types)) ) {
         $tmp = [];
         $tmp2 = [];
         $tmp3 = [];
-        for( $i = 0; $i < count($types); $i++ ) {
+        for( $i = 0; $i < $n; $i++ ) {
             $tmp['t:'.$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
             $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
             $tmp3[$types[$i]->get_id()] = $types[$i];

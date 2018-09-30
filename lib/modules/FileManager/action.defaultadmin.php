@@ -26,14 +26,14 @@ if( Utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {
 }
 $tmp_path_parts = explode(DIRECTORY_SEPARATOR,$path);
 $path_parts = [];
-for( $i = 0; $i < count($tmp_path_parts); $i++ ) {
+for( $i = 0, $n = count($tmp_path_parts); $i < $n; $i++ ) {
     $obj = new StdClass;
     if( !$tmp_path_parts[$i] ) continue;
     $obj->name = $tmp_path_parts[$i];
     if( $obj->name == '::top::' ) {
         $obj->name = 'root';
     }
-    if( $i < count($tmp_path_parts) - 1 ) {
+    if( $i < $n - 1 ) {
         // not the last entry
         $fullpath = implode(DIRECTORY_SEPARATOR,array_slice($tmp_path_parts,0,$i+1));
         if( startswith($fullpath,'::top::') ) $fullpath = substr($fullpath,7);
