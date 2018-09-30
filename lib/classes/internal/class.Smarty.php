@@ -249,7 +249,6 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
                 $cachable = false;
                 return true;
             } catch (Exception $e) {
-                $callback = null;
             }
 //        }
 
