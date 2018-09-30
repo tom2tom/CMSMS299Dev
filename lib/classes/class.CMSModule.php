@@ -1464,6 +1464,8 @@ abstract class CMSModule
     public function DoActionBase($name, $id, $params, $returnid, &$smartob)
     {
         $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
+        $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
+
         if( is_numeric($returnid) ) {
             // merge in params from module hints.
             $hints = cms_utils::get_app_data('__CMS_MODULE_HINT__'.$this->GetName());
@@ -1489,14 +1491,14 @@ abstract class CMSModule
             }
         }
 
-        $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
-        $name = filter_var($name, FILTER_SANITIZE_STRING); //alphanum + '_' ?
+        if (!isset($params['action'])) {
+            $params['action'] = $name;
+        }
 
         if ( is_numeric($returnid) ) {
             $returnid = filter_var($returnid, FILTER_SANITIZE_NUMBER_INT);
             $tmp = $params;
             $tmp['module'] = $this->GetName();
-            $tmp['action'] = $name;
             HookManager::do_hook('module_action', $tmp);
         } else {
             $returnid = null;
