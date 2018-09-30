@@ -28,6 +28,7 @@ use CMSMS\HookManager;
 use CMSMS\internal\content_cache;
 use CMSMS\internal\content_plugins;
 use CMSMS\internal\TemplateCache;
+use CMSMS\ModuleOperations;
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -71,6 +72,11 @@ if ($CMS_JOB_TYPE > 0) {
     $_app->disable_template_processing();
 } else {
     $showtemplate = true;
+}
+
+if ($CMS_JOB_TYPE < 2) {
+	//pre-register all module-plugins
+	ModuleOperations::get_instance()->RegisterPluginModules();
 }
 //TODO which of the following should be $CMS_JOB_TYPE-dependant ?
 $smarty = $_app->GetSmarty();
