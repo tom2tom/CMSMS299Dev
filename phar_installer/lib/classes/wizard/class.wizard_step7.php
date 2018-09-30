@@ -202,7 +202,6 @@ class wizard_step7 extends wizard_step
         // create index.html files in directories.
         try {
             include_once dirname(__DIR__,2).'/msg_functions.php';
-            $action = $this->get_wizard()->get_data('action');
             $tmp = $this->get_wizard()->get_data('version_info');
             if( $action == 'upgrade' && is_array($tmp) && count($tmp) ) {
                 $languages = $this->detect_languages();
