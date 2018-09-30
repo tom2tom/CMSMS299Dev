@@ -41,17 +41,6 @@ use function lang;
 use function munge_string_to_url;
 
 /**
- * Content related functions.
- *
- * @package CMS
- * @license GPL
- */
-
-/**
- * Include the content class definition
- */
-
-/**
  * Class for static methods related to content
  *
  * @abstract
@@ -111,7 +100,7 @@ class ContentOperations
 	 */
 	public static function setup_cache()
 	{
-		// two caches, the flat list, and the tree
+		// the flat list
 		$obj = new global_cachable('content_flatlist', function()
 				{
 					$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy ASC';
@@ -120,7 +109,7 @@ class ContentOperations
 				});
 		global_cache::add_cachable($obj);
 
-		// two caches, the flat list, and the tree
+		// the tree
 		$obj = new global_cachable('content_tree', function()
 				{
 					$flatlist = global_cache::get('content_flatlist');
@@ -131,7 +120,6 @@ class ContentOperations
 				});
 		global_cache::add_cachable($obj);
 
-		// two caches, the flat list, and the tree
 		$obj = new global_cachable('content_quicklist', function()
 				{
 					$tree = global_cache::get('content_tree');
@@ -152,26 +140,24 @@ class ContentOperations
 	}
 
 	/**
-	 * Given an array of content_type and seralized_content, reconstructs a
-	 * content object.  It will handled loading the content type if it hasn't
-	 * already been loaded.
+	 * Given an array of content_type and serialized_content, construct a
+	 * content object. Load the content type if that hasn't already been done.
 	 *
-	 * Expects an associative array with 2 elements:
-	 *   content_type: string A content type name
+	 * Expects an associative array with 1 or 2 members (at least):
+	 *   content_type: string Optional content type name, default 'content'
 	 *   serialized_content: string Serialized form data
 	 *
 	 * @see ContentBase::ListContentTypes()
 	 * @param  array $data
-	 * @return ContentBase A content object derived from ContentBase
+	 * @return mixed A content object derived from ContentBase, or false
 	 */
 	public function LoadContentFromSerializedData(&$data)
 	{
-		if( !isset($data['content_type']) && !isset($data['serialized_content']) ) return FALSE;
+		if( !isset($data['serialized_content']) ) return FALSE;
 
-		$contenttype = 'content';
-		if( isset($data['content_type']) ) $contenttype = $data['content_type'];
+		$contenttype = $data['content_type'] ?? 'content';
+		$this->CreateNewContent($contenttype);
 
-		$contentobj = $this->CreateNewContent($contenttype);
 		$contentobj = unserialize($data['serialized_content']);
 		return $contentobj;
 	}
@@ -217,6 +203,7 @@ class ContentOperations
 
 		$ctph = $this->LoadContentType($type);
 		if( is_object($ctph) && class_exists($ctph->class) ) $result = new $ctph->class;
+
 		return $result;
 	}
 
@@ -229,24 +216,26 @@ class ContentOperations
 	 */
 	public function LoadContentFromId(int $id,bool $loadprops=false)
 	{
-		$result = null;
 		$id = (int) $id;
 		if( $id < 1 ) $id = $this->GetDefaultContent();
-		if( content_cache::content_exists($id) ) return content_cache::get_content($id);
-
-		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
-		$row = $db->GetRow($query, [$id]);
-		if ($row) {
-			$classtype = strtolower($row['type']);
-			$contentobj = $this->CreateNewContent($classtype);
-			if ($contentobj) {
-				$contentobj->LoadFromData($row, $loadprops);
-				content_cache::add_content($id,$row['content_alias'],$contentobj);
-				return $contentobj;
+		$contentobj = content_cache::get_content($id);
+		if( $contentobj === null ) {
+			$db = CmsApp::get_instance()->GetDb();
+			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
+			$row = $db->GetRow($query, [$id]);
+			if( $row ) {
+				$classtype = strtolower($row['type']);
+				$contentobj = $this->CreateNewContent($classtype);
+				if( $contentobj ) {
+					$contentobj->LoadFromData($row, $loadprops);
+					content_cache::add_content($id,$row['content_alias'],$contentobj);
+				}
 			}
+		} else {
+			//TODO trigger module-loading etc, so that page tags get registered
 		}
-		return $result;
+
+		return $contentobj;
 	}
 
 	/**
@@ -258,15 +247,20 @@ class ContentOperations
 	 */
 	public function LoadContentFromAlias($alias, bool $only_active = false)
 	{
-		if( content_cache::content_exists($alias) ) return content_cache::get_content($alias);
+		$contentobj = content_cache::get_content($alias);
+		if( $contentobj === null ) {
+			$hm = CmsApp::get_instance()->GetHierarchyManager();
+			$node = $hm->sureGetNodeByAlias($alias);
+			if( $node ) {
+				if( !$only_active || $node->get_tag('active') ) {
+					$contentobj = $this->LoadContentFromId($node->get_tag('id'));
+				}
+			}
+		} else {
+			//TODO trigger module-loading etc, so page tags get registered
+		}
 
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
-		$node = $hm->sureGetNodeByAlias($alias);
-		$out = null;
-		if( !$node ) return $out;
-		if( $only_active && !$node->get_tag('active') ) return $out;
-		$out = $this->LoadContentFromId($node->get_tag('id'));
-		return $out;
+		return $contentobj;
 	}
 
 	/**
