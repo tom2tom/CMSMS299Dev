@@ -122,7 +122,7 @@ if( $udt_list ) {
     };
 
     $ops = SimplePluginOperations::get_instance();
-	//$smarty defined upstream, used downstream
+    //$smarty defined upstream, used downstream
     foreach( $udt_list as $udt ) {
         $create_simple_plugin( $udt, $ops, $smarty );
     }
@@ -193,7 +193,7 @@ $group->Save();
 $group->GrantPermission('Modify Site Assets');
 */
 
-// 6. Remove reference from plugins-argument where necessary
+// 6. Cleanup plugins - remove reference from plugins-argument where necessary
 foreach ([
  ['lib', 'plugins'],
  ['admin', 'plugins'],
@@ -229,7 +229,7 @@ $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
 $dbdict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
-// tables
+// 8. Table revisions
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
 $dbdict->ExecuteSQLArray($sqlarray);
 
@@ -273,11 +273,19 @@ $dbdict->ExecuteSQLArray($sqlarray);
 // replace this 'unique' by non- (_3 below becomes the validator)
 $sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1',
     CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'name');
+$dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
     CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'name');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
     CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'originator,name', ['UNIQUE']);
+$dbdict->ExecuteSQLArray($sqlarray);
+// content table index used by name
+$sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
+    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
+$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',
+    CMS_DB_PREFIX.'content', 'content_id,hierarchy');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // 9. Migrate module templates to layout-templates table
