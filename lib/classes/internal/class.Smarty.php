@@ -75,7 +75,7 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
         $this->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
 
         $config = cms_config::get_instance();
-		$name = $config['assets_dir'];
+        $name = $config['assets_dir'];
 
         // common resources
         $this->registerResource('module_db_tpl',new module_db_template_resource())
@@ -83,9 +83,9 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
              ->registerResource('cms_file',new file_template_resource())
              ->registerResource('cms_template',new layout_template_resource())
              ->registerResource('cms_stylesheet',new layout_stylesheet_resource())
-             ->registerResource('content',new content_template_resource());
+             ->registerResource('content',new content_template_resource())
 
-        $this->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
+             ->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins')
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins') // deprecated
 
@@ -135,7 +135,7 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
         return self::$_instance;
     }
 
-    /* *
+    /**
      * Load filters from CMSMS plugins folders
      */
     private function autoloadFilters()
@@ -189,16 +189,16 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
      * @param Smarty_Internal_Template   $template template object UNUSED
      * @param string  &$callback returned callable
      * @param string  &$script   optional returned script filepath if function is external
-     * @param bool    &$cachable true by default, set it here to false if the plugin is not cachable
+     * @param bool    &$cachable true by default, set it false here if relevant
      * @return bool true on success, false on failure
      */
     public function defaultPluginHandler($name, $type, $template, &$callback, &$script, &$cachable)
     {
+/* NOTE plugin-dirs scan is done within smarty, no benefit in replicating it here
         // walk plugin dirs to try to find a match
         $base = $type.'.'.$name.'.php';
         $basef = $type.'_'.$name;
 
-        //NOTE plugins search probably done within smarty, not here
         foreach ($this->getPluginsDir() as $dir) {
             $file = $dir.$base;
             if( !is_file($file) ) continue;
@@ -212,14 +212,11 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
             ] as $pref ) {
                 $func = $pref.$basef;
                 if( !function_exists($func) ) continue;
-				if( $pref != 'smarty_' ) {
-					//TODO generate func whose name is recognisable by smarty, some sort of alias
-					$real = 'smarty_'.$basef;
-					$cont = file_get_contents($file);
-					$cont = str_replace($func, $real, $cont);
-					file_put_contents($file, $cont);
-					$func = $real;
-				}
+                if( $pref != 'smarty_' ) {
+                    $ADBG = 1;
+                    //TODO generate smarty-compatible func whose name-prefix is just 'smarty_',
+ 				    // some sort of alias
+                }
 
                 $callback = $func;
                 $script = $file;
@@ -228,7 +225,7 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
                 return true;
             }
         }
-
+*/
         if( $type != 'function' ) {
             return;
         }
@@ -243,6 +240,8 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
                 $cachable = false;
                 return true;
             }
+
+        // TODO maybe check for another module-plugin, return $name.'::function_plugin'
 
         // check if it is a simple plugin
             try {
@@ -306,12 +305,12 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
              ->assign('e_file', $e->getFile())
              ->assign('e_message', $e->getMessage())
              ->assign('loggedin', get_userid(false));
-		if( $show_trace ) {
+        if( $show_trace ) {
             $this->assign('e_trace', htmlentities($e->getTraceAsString()));
-		}
-		else {
+        }
+        else {
             $this->assign('e_trace', null);
-		}
+        }
 
         // put mention into the admin log
         cms_error('Smarty Error: '. substr( $e->getMessage(),0 ,200 ) );
