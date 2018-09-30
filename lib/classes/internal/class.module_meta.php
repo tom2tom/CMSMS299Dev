@@ -105,14 +105,11 @@ final class module_meta
             $loaded_modules = $modops->GetLoadedModules();
             $this->_data['capability'][$sig] = [];
             foreach( $installed_modules as $onemodule ) {
-                $loaded_it = FALSE;
-                $object = null;
                 if( isset($loaded_modules[$onemodule]) ) {
                     $object = $loaded_modules[$onemodule];
                 }
                 else {
                     $object = $modops->get_module_instance($onemodule);
-                    $loaded_it = TRUE;
                 }
                 if( !$object ) continue;
 
@@ -141,8 +138,8 @@ final class module_meta
     /**
      * Return a list of modules that have the supplied method.
      *
-     * This method will query all available modules, check if the method name exists for that module, and if so, call the method and trap the
-     * return value.
+     * This method will query all available modules, check if the method name
+	 * exists for each module, and if so, call the method and trap the return value.
      *
      * @param string method name
      * @param mixed  optional return value.
@@ -162,14 +159,11 @@ final class module_meta
             $loaded_modules = $modops->GetLoadedModules();
             $this->_data['methods'][$method] = [];
             foreach( $installed_modules as $onemodule ) {
-                $loaded_it = FALSE;
-                $object = null;
                 if( isset($loaded_modules[$onemodule]) ) {
                     $object = $loaded_modules[$onemodule];
                 }
                 else {
                     $object = $modops->get_module_instance($onemodule);
-                    $loaded_it = TRUE;
                 }
                 if( !$object ) continue;
                 if( !method_exists($object,$method) ) continue;
@@ -194,4 +188,3 @@ final class module_meta
         return $res;
     }
 } // class
-
