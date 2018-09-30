@@ -603,6 +603,7 @@ class CmsLayoutTemplate
 				$col = $db->GetCol($query,[$this->get_id()]);
 				if( $col ) $this->_addt_editors = $col;
 				else $this->_addt_editors = [];
+			}
 		}
 		if( $this->_addt_editors ) return $this->_addt_editors;
 	}
