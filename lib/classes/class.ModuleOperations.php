@@ -29,6 +29,7 @@ use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
 use CMSModule;
 use CMSMS\AdminAlerts\Alert;
+use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\module_meta;
 use LogicException;
@@ -48,13 +49,6 @@ use function debug_buffer;
 use function get_userid;
 use function lang;
 use function startswith;
-
-/**
- * Classes and utilities for operating on and with modules
- *
- * @package CMS
- * @license GPL
- */
 
 /**
  * A singleton utility class to allow for working with modules.
@@ -101,7 +95,7 @@ final class ModuleOperations
 	private $_modules = null;
 
 	/**
-	 * Curently-installed core/system modules list
+	 * Currently-installed core/system modules list
 	 * The population of core modules can change, so this is not hardcoded
 	 * @ignore
 	 */
@@ -115,7 +109,15 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+	private function __construct() {
+		$obj = new global_cachable('plugin_modules', function()
+				{
+					$query = 'SELECT DISTINCT module FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
+					$db = CmsApp::get_instance()->GetDb();
+					return $db->GetCol($query);
+				});
+		global_cache::add_cachable($obj);
+	}
 
 	/**
 	 * @ignore
@@ -159,7 +161,6 @@ final class ModuleOperations
 		if( isset($map[$module]) ) return $map[$module];
 		return $module;
 	}
-
 
 	/**
 	 * @ignore
@@ -283,7 +284,6 @@ final class ModuleOperations
 		return [FALSE,$result];
 	}
 
-
 	/**
 	 * Install a module into the database
 	 *
@@ -319,7 +319,6 @@ final class ModuleOperations
 		return $res;
 	}
 
-
 	/**
 	 * @ignore
 	 */
@@ -352,7 +351,6 @@ final class ModuleOperations
 		return $this->_moduleinfo;
 	}
 
-
 	/**
 	 * @ignore
 	 */
@@ -365,8 +363,6 @@ final class ModuleOperations
 			cms_warning("Nothing is known about $module_name... can't load it");
 			return FALSE;
 		}
-
-		global $CMS_INSTALL_PAGE;
 
 		// okay, lessee if we can load the dependants
 		if( $dependents ) {
@@ -397,8 +393,6 @@ final class ModuleOperations
 			require_once($fname);
 		}
 
-		$obj = null;
-
 		$obj = new $class_name;
 		if( !is_object($obj) || ! $obj instanceof CMSModule ) {
 			// oops, some problem loading.
@@ -406,7 +400,7 @@ final class ModuleOperations
 			return FALSE;
 		}
 
-		if (version_compare($obj->MinimumCMSVersion(),CMS_VERSION) == 1 ) {
+		if( version_compare($obj->MinimumCMSVersion(),CMS_VERSION) == 1 ) {
 			// oops, not compatible.... can't load.
 			cms_error('Cannot load module '.$module_name.' it is not compatible wth this version of CMSMS');
 			unset($obj);
@@ -414,6 +408,8 @@ final class ModuleOperations
 		}
 
 		$this->_modules[$module_name] = $obj;
+
+		global $CMS_INSTALL_PAGE;
 
 		$tmp = $gCms->get_installed_schema_version();
 		if( $tmp == CMS_SCHEMA_VERSION && isset($CMS_INSTALL_PAGE) && $this->IsSystemModule($module_name)) {
@@ -451,11 +447,16 @@ final class ModuleOperations
 			return false;
 		}
 
-		if( !isset($CMS_INSTALL_PAGE) && !isset($CMS_STYLESHEET) ) {
+		global $CMS_STYLESHEET;
+
+		if( !(isset($CMS_STYLESHEET) || isset($CMS_INSTALL_PAGE)) ) {
+			global $CMS_ADMIN_PAGE;
 			if( isset($CMS_ADMIN_PAGE) ) {
 				$obj->InitializeAdmin();
 			} else if( !$force_load ) {
-				if( CmsApp::get_instance()->is_frontend_request() ) $obj->InitializeFrontend();
+				if( $gCms->is_frontend_request() ) {
+					$obj->InitializeFrontend();
+				}
 			}
         }
 
@@ -463,7 +464,6 @@ final class ModuleOperations
 		Events::SendEvent( 'Core', 'ModuleLoaded', [ 'name' => $module_name ] );
 		return TRUE;
 	}
-
 
 	/**
 	 * A function to return a list of all modules that appear to exist properly in the modules directories.
@@ -487,7 +487,6 @@ final class ModuleOperations
 		return $result;
 	}
 
-
 	/**
 	 * Return the information stored in the database about all installed modules.
 	 *
@@ -499,7 +498,6 @@ final class ModuleOperations
 		return $this->_get_module_info();
 	}
 
-
 	/**
 	 * Finds all modules that are available to be loaded...
 	 * this method uses the information in the database to load the modules that are necessary to load.
@@ -510,11 +508,12 @@ final class ModuleOperations
 	 */
 	public function LoadModules($noadmin = false)
 	{
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
 		$config = cms_config::get_instance();
 		$allinfo = $this->_get_module_info();
 		if( !is_array($allinfo) ) return; // no modules installed, probably an empty database... edge case.
+
+		global $CMS_ADMIN_PAGE;
+		global $CMS_STYLESHEET;
 
 		foreach( $allinfo as $module_name => $info ) {
 			if( $info['status'] != 'installed' ) continue;
@@ -584,7 +583,6 @@ final class ModuleOperations
 		return [FALSE,$result];
 	}
 
-
 	/**
 	 * Upgrade a module
 	 *
@@ -603,7 +601,6 @@ final class ModuleOperations
 		if( !is_object($module_obj) ) return [FALSE,lang('errormodulenotloaded')];
 		return $this->_upgrade_module($module_obj,$to_version);
 	}
-
 
 	/**
 	 * Uninstall a module
@@ -659,10 +656,9 @@ final class ModuleOperations
 				$jobmgr = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
 				if( $jobmgr ) $jobmgr->delete_jobs_by_module( $module );
 
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins where module=?',[$module]);
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$module]);
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qstr($module))."_mapi_pref%'");
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',[$module]);
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$module]);
 			}
 
 			// clear the cache.
@@ -680,7 +676,6 @@ final class ModuleOperations
 		return [FALSE,$result];
 	}
 
-
 	/**
 	 * Test if a module is active
 	 *
@@ -695,7 +690,6 @@ final class ModuleOperations
 
 		return (bool)$info[$module_name]['active'];
 	}
-
 
 	/**
 	 * Activate a module
@@ -735,7 +729,6 @@ final class ModuleOperations
 		return TRUE;
 	}
 
-
 	/**
 	 * Returns a hash of all loaded modules.  This will include all
 	 * modules loaded into memory at the current time
@@ -746,7 +739,6 @@ final class ModuleOperations
 	{
 		return $this->_modules;
 	}
-
 
 	/**
 	 * @internal
@@ -797,9 +789,8 @@ final class ModuleOperations
 		return $result;
 	}
 
-
 	/**
-	 * Returns an array of installed modules that have a certain capabilies
+	 * Returns an array of installed modules that have the specified capability
 	 * This method will force the loading of all modules regardless of the module settings.
 	 *
 	 * @param string $capability The capability name
@@ -878,12 +869,11 @@ final class ModuleOperations
 
 		if( is_object($obj) && !empty($version) ) {
 			$res = version_compare($obj->GetVersion(),$version);
-			if( $res < 0 OR $res === FALSE ) $obj = null;
+			if( $res < 0 || $res === FALSE ) $obj = null;
 		}
 
 		return $obj;
 	}
-
 
 	/**
 	 * Test if the specified module name is a system module
@@ -939,13 +929,13 @@ final class ModuleOperations
 	 */
 	public function &GetSyntaxHighlighter(string $module_name = null)
 	{
-		$obj = null;
 		if( !$module_name ) {
 			global $CMS_ADMIN_PAGE;
 			if( isset($CMS_ADMIN_PAGE) ) $module_name = cms_userprefs::get_for_user(get_userid(FALSE),'syntaxhighlighter');
 			if( $module_name ) $module_name = html_entity_decode( $module_name ); // for some reason entities may have gotten in there.
 		}
 
+		$obj = null;
 		if( !$module_name || $module_name == -1 ) return $obj;
 		$obj = $this->get_module_instance($module_name);
 		if( !$obj ) return $obj;
@@ -954,7 +944,6 @@ final class ModuleOperations
 		$obj = null;
 		return $obj;
 	}
-
 
 	/**
 	 * Return the current wysiwyg module object
@@ -969,7 +958,6 @@ final class ModuleOperations
 	 */
 	public function &GetWYSIWYGModule(string $module_name = null)
 	{
-		$obj = null;
 		if( !$module_name ) {
 			if( CmsApp::get_instance()->is_frontend_request() ) {
 				$module_name = cms_siteprefs::get('frontendwysiwyg');
@@ -980,6 +968,7 @@ final class ModuleOperations
 			if( $module_name ) $module_name = html_entity_decode( $module_name );
 		}
 
+		$obj = null;
 		if( !$module_name || $module_name == -1 ) return $obj;
 		$obj = $this->get_module_instance($module_name);
 		if( !$obj ) return $obj;
@@ -988,7 +977,6 @@ final class ModuleOperations
 		$obj = null;
 		return $obj;
 	}
-
 
 	/**
 	 * Return the current search module object
@@ -1000,12 +988,11 @@ final class ModuleOperations
 	 */
 	public function &GetSearchModule()
 	{
-		$obj = null;
 		$module_name = cms_siteprefs::get('searchmodule','Search');
 		if( $module_name && $module_name != 'none' && $module_name != '-1' ) $obj = $this->get_module_instance($module_name);
+		else $obj = null;
 		return $obj;
 	}
-
 
 	/**
 	 * Return the current filepicker module object.
@@ -1017,12 +1004,11 @@ final class ModuleOperations
 	 */
 	public function &GetFilePickerModule()
 	{
-		$obj = null;
 		$module_name = cms_siteprefs::get('filepickermodule','FilePicker');
 		if( $module_name && $module_name != 'none' && $module_name != '-1' ) $obj = $this->get_module_instance($module_name);
+		else $obj = null;
 		return $obj;
 	}
-
 
 	/**
 	 * Alias for the GetSyntaxHiglighter method.
@@ -1037,7 +1023,6 @@ final class ModuleOperations
 	{
 		return $this->GetSyntaxHighlighter($module_name);
 	}
-
 
 	/**
 	 * Unload a module from memory
@@ -1074,6 +1059,27 @@ final class ModuleOperations
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Register all module-plugins which are not cached in the database
+	 * @since 2.3
+	 */
+	public function RegisterPluginModules()
+	{
+		$list = global_cache::get('plugin_modules');
+		if( $list ) {
+			$tmp = module_meta::get_instance()->module_list_by_method('IsPluginModule');
+			if( $tmp ) {
+				$modops = ModuleOperations::get_instance();
+				for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
+					if( !in_array($tmp[$i], $list) ) {
+						$modinst = $modops->get_module_instance($tmp[$i]);
+						$modinst->RegisterModulePlugin();
+					}
+				}
+			}
+		}
 	}
 } // class
 
