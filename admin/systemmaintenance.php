@@ -123,8 +123,9 @@ foreach ($checkarray as $check) {
     }
 }
 
-$smarty->assign('errorcount', count($errortables));
-if (count($errortables) > 0) {
+$n = count($errortables);
+$smarty->assign('errorcount', $n);
+if ($n > 0) {
     $smarty->assign('errortables', implode(',', $errortables));
 }
 

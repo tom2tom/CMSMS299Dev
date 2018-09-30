@@ -14,9 +14,9 @@ function news_reordercats_create_flatlist($tree,$parent_id = -1)
     if( is_array($node) && count($node) == 2 ) {
       $pid = substr($node[0],strlen('cat_'));
       $data[] = ['id'=>$pid,'parent_id'=>$parent_id,'order'=>$order];
-      if( isset($node[1]) && is_array($node[1]) && count($node[1]) > 0 ) {
-	$tmp = news_reordercats_create_flatlist($node[1],$pid);
-	if( $tmp ) $data = array_merge($data,$tmp);
+      if( isset($node[1]) && $node[1] ) {
+        $tmp = news_reordercats_create_flatlist($node[1],$pid);
+        if( $tmp ) $data = array_merge($data,$tmp);
       }
     }
     else {

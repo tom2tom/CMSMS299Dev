@@ -9,6 +9,12 @@
 
 namespace CMSMS\AdminAlerts;
 
+use cms_utils;
+use CMSMS\UserOperations;
+use CmsSecurityCheckTask;
+use InvalidArgumentException;
+use function lang;
+
 /**
  * The TranslatableAlert object is an alert that supports translatable language keys.
  *
@@ -62,7 +68,7 @@ class TranslatableAlert extends Alert
     {
         if( $perms ) {
             if( is_string($perms) ) $perms = [ $perms ];
-            if( !is_array($perms) || !count($perms) ) throw new \InvalidArgumentException('perms must be an array of permission name strings');
+            if( !$perms ) throw new InvalidArgumentException('perms must be an array of permission name strings');
         }
         $this->_perms = $perms;
         parent::__construct();
@@ -120,14 +126,14 @@ class TranslatableAlert extends Alert
             $this->_msgargs = $val; // accept string or array...
             break;
         case 'perms':
-            if( !is_array($val) || !count($val) ) throw new \InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$val ) throw new InvalidArgumentExcecption('perms must be an array of permission name strings');
             $tmp = [];
             foreach( $val as $one ) {
                 $one = trim($one);
                 if( !$one ) continue;
                 if( !in_array($one,$tmp) ) $tmp[] = $one;
             }
-            if( !count($tmp) ) throw new \InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$tmp ) throw new InvalidArgumentExcecption('perms must be an array of permission name strings');
             $this->_perms = $tmp;
             break;
 
@@ -144,9 +150,9 @@ class TranslatableAlert extends Alert
      */
     protected function is_for($admin_uid)
     {
+        if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        if( !count($this->_perms) ) return FALSE;
-        $userops = \UserOperations::get_instance();
+        $userops = UserOperations::get_instance();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {
@@ -166,7 +172,7 @@ class TranslatableAlert extends Alert
         if( !$modname || strtolower($modname) == 'core' ) {
             return lang($this->_titlekey);
         }
-        $mod = \cms_utils::get_module($modname);
+        $mod = cms_utils::get_module($modname);
         if( $mod ) return $mod->Lang($this->_titlekey);
     }
 
@@ -183,7 +189,7 @@ class TranslatableAlert extends Alert
         if( !$modname || strtolower($modname) == 'core' ) {
             return lang(...$args);
         }
-        $mod = \cms_utils::get_module($modname);
+        $mod = cms_utils::get_module($modname);
         if( $mod ) return $mod->Lang(...$args);
     }
 

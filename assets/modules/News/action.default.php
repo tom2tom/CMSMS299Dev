@@ -311,7 +311,7 @@ if (isset($params['category'])) {
     $catName = $params['category'];
 }
 else if (isset($params['category_id'])) {
-    if( count($items) ) {
+    if( $items ) {
         foreach( $items as $item ) {
             if( $item['news_category_id'] == $params['category_id'] ) {
                 $catName = $item['news_category_name'];

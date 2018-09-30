@@ -140,17 +140,17 @@ function check_checksum_data(&$report)
     $tmp2 = [];
     if( $filespassed == 0 )  $tmp2[] = lang('no_files_scanned');
     if( $errorlines ) $tmp2[] = lang('lines_in_error',$errorlines);
-    if( count($filenotfound) ) $tmp2[] = sprintf('%d %s',count($filenotfound),lang('files_not_found'));
+    if( $filenotfound ) $tmp2[] = sprintf('%d %s',count($filenotfound),lang('files_not_found'));
     if( $notreadable ) $tmp2[] = sprintf('%d %s',$notreadable,lang('files_not_readable'));
     if( $md5failed ) $tmp2[] = sprintf('%d %s',$md5failed,lang('files_checksum_failed'));
     if( !empty($tmp) ) $tmp .= '<br />';
 
     $tmp = implode( '<br />', $tmp2 );
-    if( count($filenotfound) ) {
+    if( $filenotfound ) {
       $tmp .= '<br />'.lang('files_not_found').':';
       $tmp .= '<br />'.implode('<br />',$filenotfound).'<br />';
     }
-    if( count($filesfailed) ) {
+    if( $filesfailed ) {
       $tmp .= '<br />'.count($filesfailed).' '.lang('files_failed').':';
       $tmp .= '<br />'.implode('<br />',$filesfailed).'<br />';
     }

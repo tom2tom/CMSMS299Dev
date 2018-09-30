@@ -9,7 +9,7 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('articlelist.tpl'),nul
 $tpl->assign('formstart',$this->CreateFormStart($id,'defaultadmin'));
 
 if (isset($params['bulk_action']) ) {
-    if( !isset($params['sel']) || !is_array($params['sel']) || count($params['sel']) == 0 ) {
+    if( !isset($params['sel']) || !$params['sel'] ) {
         $this->ShowErrors($this->Lang('error_noarticlesselected'));
     }
     else {

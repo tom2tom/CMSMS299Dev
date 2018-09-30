@@ -2065,8 +2065,8 @@ abstract class CMSModule
     {
         $result=[];
         $tmp = ModuleOperations::get_modules_with_capability($capability,$params);
-        if( is_array($tmp) && ($n = count($tmp)) ) {
-            for( $i = 0; $i < $n; $i++ ) {
+        if( $tmp ) {
+            for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
                 if( is_object($tmp[$i]) ) {
                     $result[] = get_class($tmp[$i]);
                 }
@@ -2739,8 +2739,8 @@ abstract class CMSModule
         if( !$prefix ) return;
         $prefix = $this->GetName().'_mapi_pref_'.$prefix;
         $tmp = cms_siteprefs::list_by_prefix($prefix);
-        if( is_array($tmp) && ($n = count($tmp)) ) {
-            for($i = 0; $i < $n; $i++) {
+        if( $tmp ) {
+            for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
                 if( !startswith($tmp[$i],$prefix) ) {
                     throw new CmsInvalidDataException(__CLASS__.'::'.__METHOD__.' invalid prefix for preference');
                 }

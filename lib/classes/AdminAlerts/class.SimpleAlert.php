@@ -18,6 +18,9 @@
 
 namespace CMSMS\AdminAlerts;
 
+use CMSMS\UserOperations;
+use InvalidArgumentException;
+
 /**
  * The SimpleAlert class is a type of alert that allows the developer to create alerts with pre-defined titles, messages, icons, and permissions.
  *
@@ -116,7 +119,7 @@ class SimpleAlert extends Alert
                 if( !$one ) continue;
                 if( !in_array($one,$tmp) ) $tmp[] = $one;
             }
-            if( !count($tmp) ) throw new \InvalidArgumentExcecption('perms must be an array of permission name strings');
+            if( !$tmp ) throw new \InvalidArgumentExcecption('perms must be an array of permission name strings');
             $this->_perms = $tmp;
             break;
 
@@ -133,9 +136,9 @@ class SimpleAlert extends Alert
      */
     protected function is_for($admin_uid)
     {
+        if( !$this->_perms ) return FALSE;
         $admin_uid = (int) $admin_uid;
-        if( !count($this->_perms) ) return FALSE;
-        $userops = \UserOperations::get_instance();
+        $userops = UserOperations::get_instance();
         $perms = $this->_perms;
         if( !is_array($this->_perms) ) $perms = [$this->_perms];
         foreach( $perms as $permname ) {

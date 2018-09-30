@@ -82,7 +82,7 @@ EOS;
 $smarty = Smarty::get_instance();
 $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
 {
-    if (count($params)) {
+    if ($params) {
 		$str = array_shift($params);
 		if ($str) {
 	        return lang($str, $params);
@@ -305,9 +305,7 @@ switch ($config['dbms']) {
    $tmp[0]['server_db_version'] = testVersionRange(0, 'server_db_version', $_server_db, '', $minimum, $recommended, false);
 
    $grants = $db->GetArray('SHOW GRANTS FOR CURRENT_USER');
-   if (!is_array($grants) || count($grants) == 0) {
-       $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('os_db_grants'), 'yellow', '', 'error_no_grantall_info');
-   } else {
+   if ($grants) {
        $found_grantall = false;
        array_walk_recursive($grants, function (string $item) use ($found_grantall)
        {
@@ -320,6 +318,8 @@ switch ($config['dbms']) {
        } else {
            $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('msg_grantall_found'), 'green');
        }
+   } else {
+       $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('os_db_grants'), 'yellow', '', 'error_no_grantall_info');
    }
    break;
 }

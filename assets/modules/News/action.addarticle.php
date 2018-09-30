@@ -430,7 +430,7 @@ $tpl->assign('inputsummary', CmsFormutils::create_textarea($parms))
     'value' => $content,
 ]));
 
-if (count($custom_flds) > 0) {
+if ($custom_flds) {
     $tpl->assign('custom_fields', $custom_flds);
 }
 if ($this->CheckPermission('Approve News')) {

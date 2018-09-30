@@ -219,7 +219,7 @@ final class CmsLangOperations
 			return "-- Missing Languagestring: $key --";
 		}
 
-		if( count($params) ) {
+		if( $params ) {
 			$result = vsprintf(self::$_langdata[$curlang][$realm][$key], $params);
 		}
 		else {

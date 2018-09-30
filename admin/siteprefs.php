@@ -540,8 +540,8 @@ $smarty = Smarty::get_instance();
 
 $tmp = [-1 => lang('none')];
 $modules = $modops->get_modules_with_capability('search');
-if (is_array($modules) && ($n = count($modules))) {
-    for ($i = 0; $i < $n; $i++) {
+if ($modules) {
+    for ($i = 0, $n = count($modules); $i < $n; $i++) {
         $tmp[$modules[$i]] = $modules[$i];
     }
     $smarty->assign('search_module', $search_module);
@@ -552,8 +552,8 @@ $smarty->assign('search_modules', $tmp);
 
 $tmp = ['' => lang('theme')];
 $modules = $modops->get_modules_with_capability('adminlogin');
-if (is_array($modules)) {
-    for ($i = 0; $i < $n; $i++) {
+if ($modules) {
+    for ($i = 0, $n = count($modules); $i < $n; $i++) {
         if ($modules[$i] == 'CoreAdminLogin') {
             $tmp[$modules[$i]] = lang('default');
         } else {
@@ -707,10 +707,10 @@ $all_attributes = null;
 
 $content_obj = new Content(); // should this be the default type?
 $list = $content_obj->GetProperties();
-if (is_array($list) && ($n = count($list))) {
+if ($list) {
     // pre-remove some items.
     $all_attributes = [];
-    for ($i = 0; $i < $n; $i++) {
+    for ($i = 0, $n = count($list); $i < $n; $i++) {
         $obj = $list[$i];
         if ($obj->tab == $content_obj::TAB_PERMS) {
             continue;

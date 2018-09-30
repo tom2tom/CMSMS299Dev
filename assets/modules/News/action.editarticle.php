@@ -529,9 +529,9 @@ if ($this->CheckPermission('Approve News')) {
      ->assign('statuses', array_flip($statusdropdown));
 }
 
-if (count($custom_flds) > 0)
+if ($custom_flds) {
     $tpl->assign('custom_fields', $custom_flds);
-
+}
 $contentops = cmsms()->GetContentOperations();
 $tpl->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
 

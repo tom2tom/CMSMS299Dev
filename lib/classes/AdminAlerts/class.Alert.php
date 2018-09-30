@@ -286,7 +286,7 @@ abstract class Alert
     public static function load_all()
     {
         $list = cms_siteprefs::list_by_prefix('adminalert_');
-        if( !$list || !count($list) ) return;
+        if( !$list ) return;
 
         $out = [];
         foreach( $list as $prefname ) {
@@ -296,7 +296,7 @@ abstract class Alert
 
             $out[] = $tmp;
         }
-        if( count($out) ) return $out;
+        if( $out ) return $out;
     }
 
     /**
@@ -312,7 +312,7 @@ abstract class Alert
         if( !$uid ) return;
 
         $alerts = self::load_all();
-        if( !$alerts || !count($alerts) ) return;
+        if( !$alerts ) return;
 
         $out = [];
         foreach( $alerts as $alert ) {
@@ -320,7 +320,7 @@ abstract class Alert
                 $out[] = $alert;
             }
         }
-        if( !$out || !count($out) ) return;
+        if( !$out ) return;
 
         // now sort these fuggers by priority
         $map = [ Alert::PRIORITY_HIGH => 0, Alert::PRIORITY_NORMAL => 1, Alert::PRIORITY_LOW => 2 ];
@@ -331,7 +331,7 @@ abstract class Alert
                 if( $pa > $pb ) return 1;
                 return strcasecmp($a->module,$b->module);
             });
-        if( count($out) ) return $out;
+        if( $out ) return $out;
     }
 
     /**

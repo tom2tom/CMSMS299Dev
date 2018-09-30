@@ -46,7 +46,7 @@ try {
     case 'userlist':
     case 'userpages':
         $tmplist = $contentops->GetPageAccessForUser($ruid);
-        if( count($tmplist) ) {
+        if( $tmplist ) {
             $display = $pagelist = [];
             foreach( $tmplist as $item ) {
                 // get all the parents

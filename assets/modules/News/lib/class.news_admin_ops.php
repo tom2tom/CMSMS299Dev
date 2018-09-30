@@ -194,8 +194,7 @@ final class news_admin_ops
             if( $tmp2_k == '' || $tmp2_v == '' ) continue;
             $arr_options[$tmp2_k] = $tmp2_v;
         }
-        if( count($arr_options) == 0 ) return;
-        return $arr_options;
+        if( $arr_options ) return $arr_options;
     }
 
     public static function array_to_optionstext($arr)

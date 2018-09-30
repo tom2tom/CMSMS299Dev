@@ -34,7 +34,7 @@ final class news_ops
   public static function get_categories($id,$params,$returnid=-1)
   {
     $tmp = self::get_all_categories();
-    if( !count($tmp) ) return;
+    if( !$tmp ) return;
 
     $catinfo = [];
     if( !isset($params['category']) || $params['category'] == '' ) {
@@ -60,7 +60,7 @@ final class news_ops
       }
     }
     unset($tmp);
-    if( !count($catinfo) ) return;
+    if( !$catinfo ) return;
 
     $cat_ids = [];
     for( $i = 0, $n = count($catinfo); $i < $n; $i++ ) {
@@ -87,7 +87,7 @@ final class news_ops
       }
       $q2 .= ' AND status = \'published\' GROUP BY news_category_id';
       $tmp = $db->GetArray($q2);
-      if( count($tmp) ) {
+      if( $tmp ) {
         for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
           $counts[$tmp[$i]['news_category_id']] = $tmp[$i]['cnt'];
         }
@@ -335,7 +335,7 @@ final class news_ops
     if( $get_fields && $get_fields != 'NONE' && $article->id ) {
       self::preloadFieldData($article->id);
       $fields = self::get_fields($article->id);
-      if( count($fields) ) {
+      if( $fields ) {
         foreach( $fields as $field ) {
           $article->set_field($field);
         }
@@ -388,12 +388,12 @@ final class news_ops
       if( is_array(self::$_cached_fieldvals) && isset(self::$_cached_fieldvals[$n]) ) continue;
       $tmp[] = $n;
     }
-    if( !is_array($tmp) || !count($tmp) ) return;
+    if( !$tmp ) return;
     sort($tmp);
     $idlist = array_unique($tmp);
 
     $fielddefs = self::get_fielddefs();
-    if( !count($fielddefs) ) return;
+    if( !$fielddefs ) return;
 
     $db = CmsApp::get_instance()->GetDb();
     $query = 'SELECT A.news_id,A.fielddef_id,A.value FROM '.CMS_DB_PREFIX.'module_news_fieldvals A
@@ -435,7 +435,7 @@ final class news_ops
   {
     if( $news_id <= 0 ) return;
     $fd = self::get_fielddefs();
-    if( !count($fd) ) return;
+    if( !$fd ) return;
 
     $results = [];
     foreach( $fd as $field ) {
