@@ -103,10 +103,6 @@ abstract class CMSModule
      */
     public function __construct()
     {
-        global $CMS_STYLESHEET;
-        global $CMS_ADMIN_PAGE;
-        global $CMS_INSTALL_PAGE;
-
         if( CmsApp::get_instance()->is_frontend_request() ) {
             $this->SetParameterType('assign',CLEAN_STRING);
             $this->SetParameterType('module',CLEAN_STRING);
@@ -116,11 +112,6 @@ abstract class CMSModule
             $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated, use cmsjobtype
             $this->SetParameterType('cmsjobtype',CLEAN_INT);
             $this->SetParameterType('inline',CLEAN_INT);
-
-            $this->InitializeFrontend();
-        }
-        else if( isset($CMS_ADMIN_PAGE) && !isset($CMS_STYLESHEET) && !isset($CMS_INSTALL_PAGE) ) {
-            if( ModuleOperations::get_instance()->IsModuleActive( $this->GetName() ) ) $this->InitializeAdmin();
         }
     }
 
@@ -270,9 +261,9 @@ abstract class CMSModule
     }
 
     /**
-     * Register a smarty plugin and attach it to this module.
-     * This method registers a static plugin to the plugins database table, and should be used only when a module
-     * is installed or upgraded.
+     * Register a smarty plugin attached to the module.
+     * This method records the plugin in the plugins database table, and should
+     * be used only when a module is installed or upgraded.
      *
      * @see https://www.smarty.net/docs/en/api.register.plugin.tpl
      * @author calguy1000
@@ -281,20 +272,23 @@ abstract class CMSModule
      * @param string  $type The plugin type (function,compiler,block, etc)
      * @param callable $callback The function callback (must be a static function)
      * @param bool    $cachable Whether this function is cachable.
-     * @param int     $usage Indicates frontend (0), or frontend and backend (1) availability.
+     * @param int     $usage flag(s) for frontend and/or backend availability.
+     *   Default 0, hence ModulePluginManager::AVAIL_FRONTEND
+     *   0=front, 1=front, 2=back, 3=both
      */
     public function RegisterSmartyPlugin($name, $type, $callback, $cachable = true, $usage = 0)
     {
-        if( !$name || !$type || !$callback ) throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
-
-        // todo: check name, and type
-        if( $usage == 0 ) $usage = ModulePluginManager::AVAIL_FRONTEND;
-        ModulePluginManager::addStatic($this->GetName(),$name,$type,$callback,$cachable,$usage);
+        if( !$name || !$type || !$callback ) {
+            throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
+        }
+        // TODO: check $type, $callback values
+        ModulePluginManager::get_instance()->add($this->GetName(),$name,$type,$callback,$cachable,$usage);
     }
 
     /**
-     * Unregister a smarty plugin from the system.
-     * This method removes any matching rows from the database, and should only be used in a modules uninstall or upgrade routine.
+     * Unregister smarty plugin(s) by name or current module.
+     * This method removes any matching rows from the database, and should only
+     * be used in a module's uninstall or upgrade routine.
      *
      * @author calguy1000
      * @since 1.11
@@ -306,42 +300,36 @@ abstract class CMSModule
             ModulePluginManager::remove_by_module($this->GetName());
         } else {
             ModulePluginManager::remove_by_name($name);
-		}
+        }
     }
 
     /**
-     * Register a smarty 'function' plugin. This method should be called during
-	 * module installation/upgrade, or from the module's constructor or
-	 * InitializeFrontend() method.
+     * Register the module as a smarty 'function' plugin.
+     * This method should be called during module installation/upgrade, or from
+     * the module's constructor or InitializeFrontend() method.
      *
      * @final
-     * @see CMSModule::SetParameters()
-     * @param bool $forcedb Optional flag whether this registration should recorded
-	 *   in the database. Default false. If true, this method somewhat mimics
-	 *   RegisterSmartyPlugin(), and does not immediately register the plugin.
-     * @param mixed bool|null $cachable Optional flag whether this plugin's output
-	 *  should be cachable. Default false. If null, use the site preferences,
-	 *  and the can_cache_output() method.
+     * @param bool $forcedb Optional flag whether to record this registration in
+     *   the database. Default false. If true, the module is not immediately
+     *   registered with smarty i.e. for use during module installation/upgrade.
+     * @param mixed bool|null $cachable Optional flag whether this plugin's
+     *   output is cachable. Default false.
      * @return bool
      */
     final public function RegisterModulePlugin(bool $forcedb = false, $cachable = false) : bool
     {
-        global $CMS_ADMIN_PAGE;
-        global $CMS_INSTALL_PAGE;
-
-		$name = $this->GetName();
-        $admin_req = (isset($CMS_ADMIN_PAGE) && !$this->LazyLoadAdmin());
-        $fe_req = (!isset($CMS_ADMIN_PAGE) && !$this->LazyLoadFrontend());
-        if( !$forcedb && ($fe_req || $admin_req) ) {
-            // not doing lazy-load
-            if( !isset($CMS_INSTALL_PAGE) ) {
-                Smarty::get_instance()->registerPlugin('function', $name, [$name,'function_plugin'], $cachable );
+        $name = $this->GetName();
+        if( !$forcedb ) {
+            global $CMS_INSTALL_PAGE;
+            if (!isset($CMS_INSTALL_PAGE) ) {
+				try {
+                    Smarty::get_instance()->registerPlugin('function', $name, [$name,'function_plugin'], $cachable);
+				} catch (Exception $e) {/* ignore duplicate registrations */}
             }
             return true;
         }
-        else {
-            return ModulePluginManager::addStatic($name, $name, 'function', 'function_plugin', $cachable);
-        }
+        //forced: make a 'permanent' record
+        return ModulePluginManager::get_instance()->add($name, $name, 'function', 'function_plugin', $cachable);
     }
 
     /**
@@ -1355,7 +1343,7 @@ abstract class CMSModule
      * @param string $cssname Optional name of the CMSMS stylesheet to associate with the wysiwyg editor for additional styling.
      *   If $selector is not empty then $cssname is only used for the specific element.
      *   WYSIWYG modules might ignore the $cssname parameter, depending on their settings and capabilities.
-	 * @throws Exception, CmsException
+     * @throws Exception, CmsException
      * @return string
      */
     public function WYSIWYGGenerateHeader($selector = '', $cssname = '')
@@ -2060,7 +2048,7 @@ abstract class CMSModule
      */
     final public static function GetModuleInstance(string $module)
     {
-        return cms_utils::get_module($module);
+        return ModuleOperations::get_instance()->get_module_instance($module, '');
     }
 
     /**
@@ -2149,7 +2137,7 @@ abstract class CMSModule
     /**
      * Return the resource identifier of a module-specific template.
      * If the template specified ends in .tpl then a file template is assumed.
-	 * Otherwise a generic cms_template resource is returned.
+     * Otherwise a generic cms_template resource is returned.
      *
      * Note: Since 2.2.1 This function will throw a logic exception if a string or eval or extends resource is supplied.
      *
@@ -2243,7 +2231,7 @@ abstract class CMSModule
 
     /**
      * Delete a named module template from the database, or all such templates
-	 *
+     *
      * @final
      * @param string $tpl_name Optional template name. If empty, all templates associated with the module are deleted.
      * @param string $modulename Optional module name. If empty, the current module name is used.
@@ -2809,11 +2797,11 @@ abstract class CMSModule
      * of any type.
      *
      * The default behavior of this method is to check for a file named
-	 *  event.<originator>.<eventname>.php
+     *  event.<originator>.<eventname>.php
      * in the module directory, and if such file exists it, include it to handle
-	 * the event. Variables $gCms, $db, $config and (global) $smarty are in-scope
-	 * for the inclusion.
-	 *
+     * the event. Variables $gCms, $db, $config and (global) $smarty are in-scope
+     * for the inclusion.
+     *
      * @abstract
      * @param string $originator The name of the originating module, or 'Core'
      * @param string $eventname The name of the event
