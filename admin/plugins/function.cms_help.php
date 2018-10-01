@@ -27,4 +27,3 @@ function smarty_function_cms_help($params, $template)
 		return $out;
 	}
 }
-
