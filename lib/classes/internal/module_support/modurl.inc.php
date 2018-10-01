@@ -33,8 +33,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
  * @param module-object $modinstance The module to which the action belongs
  * @param mixed $id		string|null The module action-id (e.g. 'cntnt01' indicates
- *   that the default content block of the destination frontend-page is to be targeted)
- *   NULL value will cause an error-string to be returned.
+ *   that the default content block of the destination frontend-page is to be targeted),
+ *   falsy value will be translated to 'm1_' for an admin request.
  * @param string $action	The module action name
  * Optional parameters
  * @param mixed $returnid Optional page-id to return to after the action
@@ -67,11 +67,16 @@ function cms_module_create_actionurl(
 	int $mode = 0
 	) : string {
 
-	$id = sanitize($id);
-	assert($id != false, __METHOD__.' error : $id parameter is missing');
-	if (!$id) {
-		return '<!-- '.__METHOD__.' error : "id" parameter is missing -->';
+	if ($id) {
+		$id = sanitize($id);
+		assert($id != false, __METHOD__.' error : $id parameter is missing');
+		if (!$id) {
+			return '<!-- '.__METHOD__.' error : "id" parameter is missing -->';
+		}
+	} else {
+		$id = 'm1_';
 	}
+
 	$action = sanitize($action);
 	assert($action != false, __METHOD__.' error : $action parameter is missing');
 	if (!$action) {
@@ -165,8 +170,9 @@ function cms_module_create_actionurl(
  *
  * Get an URL representing a site page
  *
- * @param string $id		  The module action-id (e.g. 'cntnt01' indicates that
- *   the default content block of the destination frontend-page is to be targeted)
+ * @param mixed $id	string|null The module action-id (e.g. 'cntnt01' indicates that
+ *   the default content block of the destination frontend-page is to be targeted),
+ *   falsy value will be translated to 'm1_' for an admin request.
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
@@ -176,7 +182,7 @@ function cms_module_create_actionurl(
  *  2 = page-displayable: all html_entitized, probably not usable as-is
  * @return string
  */
-function cms_module_create_pageurl(string $id, $returnid, array $params = [], int $mode = 0) : string
+function cms_module_create_pageurl($id, $returnid, array $params = [], int $mode = 0) : string
 {
 	$text = '';
 	$gCms = CmsApp::get_instance();
@@ -204,6 +210,17 @@ function cms_module_create_pageurl(string $id, $returnid, array $params = [], in
 
 				$text = $pageurl;
 				$count = 0;
+
+				if ($id) {
+					$id = sanitize($id);
+					assert($id != false, __METHOD__.' error : $id parameter is missing');
+					if (!$id) {
+						return '<!-- '.__METHOD__.' error : "id" parameter is missing -->';
+					}
+				} else {
+					$id = 'm1_';
+				}
+
 				foreach ($params as $key => $value) {
 					if ($count == 0) {
 						$config = $gCms->GetConfig();
