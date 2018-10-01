@@ -18,6 +18,16 @@
 
 namespace CMSMS\internal;
 
+use cms_config;
+use cms_cookies;
+use cms_siteprefs;
+use CmsApp;
+use CMSMS\User;
+use CMSMS\UserOperations;
+use LogicException;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+
 final class LoginOperations
 {
     /**
@@ -48,7 +58,7 @@ final class LoginOperations
 
     public function deauthenticate()
     {
-        \cms_cookies::erase($this->_loginkey);
+        cms_cookies::erase($this->_loginkey);
         unset($_SESSION[$this->_loginkey],$_SESSION[CMS_USER_KEY]);
     }
 
@@ -59,10 +69,10 @@ final class LoginOperations
     {
         global $CMS_INSTALL_PAGE;
         if( !isset($CMS_INSTALL_PAGE) ) {
-            $salt = \cms_siteprefs::get(__CLASS__);
+            $salt = cms_siteprefs::get(__CLASS__);
             if( !$salt ) {
                 $salt = sha1( random_bytes(32) );
-                \cms_siteprefs::set(__CLASS__,$salt);
+                cms_siteprefs::set(__CLASS__,$salt);
             }
             return $salt;
         }
@@ -77,7 +87,7 @@ final class LoginOperations
     protected function _check_passhash($uid,$checksum)
     {
         // we already validated that payload was not corrupt
-        $userops = \UserOperations::get_instance();
+        $userops = UserOperations::get_instance();
         $oneuser = $userops->LoadUserByID((int) $uid);
         if( !$oneuser ) return FALSE;
         if( !$oneuser->active ) return FALSE;
@@ -90,9 +100,9 @@ final class LoginOperations
     /**
      * save session/cookie data
      */
-    public function save_authentication(\User $user,\User $effective_user = null)
+    public function save_authentication(User $user,User $effective_user = null)
     {
-        if( $user->id < 1 || empty($user->password) ) throw new \LogicException('User information invalid for '.__METHOD__);
+        if( $user->id < 1 || empty($user->password) ) throw new LogicException('User information invalid for '.__METHOD__);
 
         $private_data = [
         'uid' => $user->id,
@@ -109,7 +119,7 @@ final class LoginOperations
         $enc = base64_encode( json_encode( $private_data ) );
         $hash = sha1( $this->_get_salt() . $enc );
         $_SESSION[$this->_loginkey] = $hash.'::'.$enc;
-        \cms_cookies::set($this->_loginkey,$_SESSION[$this->_loginkey]);
+        cms_cookies::set($this->_loginkey,$_SESSION[$this->_loginkey]);
 
         // this is for CSRF stuff, doesn't technically belong here.
         $_SESSION[CMS_USER_KEY] = $this->_create_csrf_token( $user->id );
@@ -149,7 +159,7 @@ final class LoginOperations
 
         // now authenticate the passhash
         // requires a database query
-        if( !\CmsApp::get_instance()->is_frontend_request() && !$this->_check_passhash($private_data['uid'],$private_data['hash']) ) return;
+        if( !CmsApp::get_instance()->is_frontend_request() && !$this->_check_passhash($private_data['uid'],$private_data['hash']) ) return;
 
         // if we get here, the user is authenticated.
         // if we don't have a user key.... we generate a new csrf token.
@@ -165,14 +175,14 @@ final class LoginOperations
     {
         // asume we are authenticated
         // now we validate that the request has the user key in it somewhere.
-        if( !isset($_SESSION[CMS_USER_KEY]) ) throw new \LogicException('Internal: User key not found in session.');
+        if( !isset($_SESSION[CMS_USER_KEY]) ) throw new LogicException('Internal: User key not found in session.');
 
         $v = '<no$!tgonna!$happen>';
         if( isset($_REQUEST[CMS_SECURE_PARAM_NAME]) ) $v = $_REQUEST[CMS_SECURE_PARAM_NAME];
 
         // validate the key in the request against what we have in the session.
         if( $v != $_SESSION[CMS_USER_KEY] ) {
-            $config = \cms_config::get_instance();
+            $config = cms_config::get_instance();
             if( !isset($config['stupidly_ignore_xss_vulnerability']) ) return FALSE;
         }
         return TRUE;
@@ -196,7 +206,7 @@ final class LoginOperations
     {
         $uid = $this->get_loggedin_uid();
         if( $uid < 1 ) return;
-        $user = \UserOperations::get_instance()->LoadUserByID($uid);
+        $user = UserOperations::get_instance()->LoadUserByID($uid);
         return $user;
     }
 
@@ -216,7 +226,7 @@ final class LoginOperations
         return $this->get_loggedin_username();
     }
 
-    public function set_effective_user(\User $e_user = null)
+    public function set_effective_user(User $e_user = null)
     {
         $li_user = $this->get_loggedin_user();
         if( $e_user && $e_user->id == $li_user->id ) return;

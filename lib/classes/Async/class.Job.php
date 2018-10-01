@@ -18,6 +18,10 @@
 
 namespace CMSMS\Async;
 
+use CMSMS\ModuleOperations;
+use LogicException;
+use const CMS_VERSION;
+
 /**
  * A class defining an asynchronous job, and mechanisms for saving and retrieving that job.
  *
@@ -97,7 +101,7 @@ abstract class Job
             return trim($this->$tkey);
 
         default:
-            throw new \LogicException("$key is not a gettable member of ".get_class($this));
+            throw new LogicException("$key is not a gettable member of ".get_class($this));
         }
     }
 
@@ -124,7 +128,7 @@ abstract class Job
             break;
 
         default:
-            throw new \LogicException("$key is not a settable member of ".get_class($this));
+            throw new LogicException("$key is not a settable member of ".get_class($this));
         }
     }
 
@@ -135,8 +139,8 @@ abstract class Job
     final public function set_id($id)
     {
         $id = (int) $id;
-        if( $id < 1 ) throw new \LogicException('Invalid id passed to '.__METHOD__);
-        if( $this->_id ) throw new \LogicException('Cannot overwrite an id in a job that has one');
+        if( $id < 1 ) throw new LogicException('Invalid id passed to '.__METHOD__);
+        if( $this->_id ) throw new LogicException('Cannot overwrite an id in a job that has one');
         $this->_id = $id;
     }
 
@@ -149,7 +153,7 @@ abstract class Job
     {
         // get the asyncmanager module
         $module = ModuleOperations::get_instance()->get_module_instance(self::MODULE_NAME);
-        if( !$module ) throw new \LogicException('Cannot delete a job... the CmsJobMgr module is not available');
+        if( !$module ) throw new LogicException('Cannot delete a job... the CmsJobMgr module is not available');
         $module->delete_job($this);
         $this->_id = null;
     }
@@ -163,8 +167,8 @@ abstract class Job
     {
         // get the AsyncManager module
         // call it's save method with this.
-        $module = \ModuleOperations::get_instance()->get_module_instance(self::MODULE_NAME);
-        if( !$module ) throw new \LogicException('Cannot save a job... the CmsJobMgr module is not available');
+        $module = ModuleOperations::get_instance()->get_module_instance(self::MODULE_NAME);
+        if( !$module ) throw new LogicException('Cannot save a job... the CmsJobMgr module is not available');
         $this->_id = (int) $module->save_job($this);
     }
 

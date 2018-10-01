@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentOperations;
+
 /*
 A function for retrieving an url or link to a page of the current website.
 This is a rewrite of the original cms_selflink plugin by Ted Kulk and various authors.
@@ -23,7 +25,7 @@ This is a rewrite of the original cms_selflink plugin by Ted Kulk and various au
 
 function smarty_function_cms_selflink($params, $template)
 {
-	$gCms = \CmsApp::get_instance();
+	$gCms = CmsApp::get_instance();
 	$manager = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';

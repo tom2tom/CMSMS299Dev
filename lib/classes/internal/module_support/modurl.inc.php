@@ -80,7 +80,7 @@ function cms_module_create_actionurl(
 
 	$base_url = CMS_ROOT_URL;
 
-	$config = \cms_config::get_instance();
+	$config = cms_config::get_instance();
 	if (empty($prettyurl) && $config['url_rewriting'] != 'none') {
 		// attempt to get a pretty url from the module
 		$prettyurl = $modinstance->get_pretty_url($id, $action, $returnid, $params, $inline);
@@ -179,7 +179,7 @@ function cms_module_create_actionurl(
 function cms_module_create_pageurl(string $id, $returnid, array $params = [], int $mode = 0) : string
 {
 	$text = '';
-	$gCms = \CmsApp::get_instance();
+	$gCms = CmsApp::get_instance();
 	$manager = $gCms->GetHierarchyManager();
 	$node = $manager->sureGetNodeById($returnid);
 	if ($node) {

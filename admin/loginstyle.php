@@ -39,7 +39,7 @@ $cms_readfile = function($filename) {
   return FALSE;
 };
 
-header('Content-type: text/css; charset=' . \CmsNlsOperations::get_encoding());
+header('Content-type: text/css; charset=' . CmsNlsOperations::get_encoding());
 if (file_exists(__DIR__."/themes/$theme/css/style.css")) {
     echo file_get_contents(__DIR__."/themes/$theme/css/style.css");
 }

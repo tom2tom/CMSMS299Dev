@@ -1,6 +1,8 @@
 <?php
 namespace CMSMS\internal;
 
+use cms_filecache_driver;
+
 class global_cache
 {
     const TIMEOUT = 604800;
@@ -61,7 +63,7 @@ class global_cache
     {
         static $_driver = null;
         if( !$_driver ) {
-            $_driver = new \cms_filecache_driver(['lifetime'=>self::TIMEOUT,'autocleaning'=>1,'group'=>__CLASS__]);
+            $_driver = new cms_filecache_driver(['lifetime'=>self::TIMEOUT,'autocleaning'=>1,'group'=>__CLASS__]);
         }
         return $_driver;
     }

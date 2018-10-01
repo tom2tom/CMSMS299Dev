@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\AdminAlerts\TranslatableAlert;
+
 class CmsSecurityCheckTask implements CmsRegularTask
 {
     const  LASTEXECUTE_SITEPREF   = __CLASS__;
@@ -18,7 +21,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         // do we need to do this task.
         // we only do it daily.
         if( !$time ) $time = time();
-        $last_execute = (int) \cms_siteprefs::get(self::LASTEXECUTE_SITEPREF);
+        $last_execute = (int) cms_siteprefs::get(self::LASTEXECUTE_SITEPREF);
         if( $last_execute > ($time - 24*60*60) ) return FALSE;
         return TRUE;
     }
@@ -29,7 +32,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
 
         // check if config is writable
         if( is_writable(CONFIG_FILE_LOCATION) ) {
-            $alert = new \CMSMS\AdminAlerts\TranslatableAlert('Modify Site Preferences');
+            $alert = new TranslatableAlert('Modify Site Preferences');
             $alert->name = __CLASS__.'config'; // so that there can only ever be one alert of this type at a time.
             $alert->msgkey = 'config_writable';
             $alert->priority = $alert::PRIORITY_HIGH;
@@ -42,7 +45,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         $files = glob($pattern);
         if( $files ) {
             $fn = basename($files[0]);
-            $alert = new \CMSMS\AdminAlerts\TranslatableAlert('Modify Site Preferences');
+            $alert = new TranslatableAlert('Modify Site Preferences');
             $alert->name = __CLASS__.'install';
             $alert->msgkey = 'installfileexists';
             $alert->msgargs = $fn;
@@ -54,7 +57,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
         // check if mail is configured
         // not really a security issue... but meh, it saves another class.
         if(  !cms_siteprefs::get('mail_is_set',0) ) {
-            $alert = new \CMSMS\AdminAlerts\TranslatableAlert('Modify Site Preferences');
+            $alert = new TranslatableAlert('Modify Site Preferences');
             $alert->name = __CLASS__.'mail';
             $alert->msgkey = 'info_mail_notset';
             $alert->priority = $alert::PRIORITY_HIGH;
@@ -67,7 +70,7 @@ class CmsSecurityCheckTask implements CmsRegularTask
     public function on_success($time = '')
     {
         if( !$time ) $time = time();
-        \cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
+        cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
     }
 
     public function on_failure($time = '')

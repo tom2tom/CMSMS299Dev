@@ -17,6 +17,8 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
+use CMSMS\Group;
+use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -50,7 +52,7 @@ if (!empty($_POST['addgroup'])) {
 	$active = !empty($_POST['active']);
 	try {
 		if ($group == '') {
-			 throw new \CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
+			 throw new CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
 		}
 
 		$groupobj = new Group();
@@ -66,16 +68,16 @@ if (!empty($_POST['addgroup'])) {
 			redirect('listgroups.php'.$urlext);
 			return;
 		} else {
-			throw new \RuntimeException(lang('errorinsertinggroup'));
+			throw new RuntimeException(lang('errorinsertinggroup'));
 		}
-	} catch( \Exception $e ) {
+	} catch( Exception $e ) {
 		$themeObject->RecordNotice('error', $e->GetMessage());
 	}
 }
 
 $selfurl = basename(__FILE__);
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 $smarty->assign([
 	'access' => $access,
 	'active' => $active,

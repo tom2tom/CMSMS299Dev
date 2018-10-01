@@ -18,6 +18,11 @@
 
 namespace CMSMS\Async;
 
+use CmsApp;
+use CMSMS\SimplePluginOperations;
+use RuntimeException;
+use function cms_to_bool;
+
 /**
  * A type of job that calls a function (simple-plugin or static function) for processing.
  *
@@ -93,8 +98,8 @@ class ExternalHandlerJob extends Job
             // call the function, pass in $this
             $module_name = $this->module;
             if( $module_name ) {
-                $mod_obj = \CmsApp::get_instance()->GetModule($module_name);
-                if( !is_object($mod_obj) ) throw new \RuntimeException('Job requires '.$module_name.' but the module could not be loaded');
+                $mod_obj = CmsApp::get_instance()->GetModule($module_name);
+                if( !is_object($mod_obj) ) throw new RuntimeException('Job requires '.$module_name.' but the module could not be loaded');
             }
             call_user_func($this->function);
 //TODO also support callables in general

@@ -28,7 +28,7 @@ function smarty_function_cms_filepicker($params, $template)
 	if( !$name ) return;
 
 	$name = $prefix.$name;
-	$filepicker = \cms_utils::get_filepicker_module();
+	$filepicker = cms_utils::get_filepicker_module();
 	if( !$filepicker ) return;
 
 	$profile = $filepicker->get_profile_or_default($profile_name);

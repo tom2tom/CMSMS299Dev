@@ -17,9 +17,20 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\internal;
-use \ModuleOperations;
 
-class module_info implements \ArrayAccess
+use ArrayAccess;
+use CmsLogicException;
+use ModuleOperations;
+use const CMS_ASSETS_PATH;
+use const CMS_VERSION;
+use function cms_join_path;
+use function cms_module_path;
+use function cms_to_bool;
+use function get_parameter_value;
+use function is_directory_writable;
+use function lang;
+
+class module_info implements ArrayAccess
 {
     const PROPNAMES = ['name','version','depends','mincmsversion', 'author', 'authoremail', 'help', 'about',
                        'lazyloadadmin', 'lazyloadfrontend', 'changelog','ver_compatible','dir','writable','root_writable',
@@ -147,7 +158,7 @@ class module_info implements \ArrayAccess
     /* return mixed array or null */
     private function _read_from_module_meta(string $module_name)
     {
-        $dir = \ModuleOperations::get_instance()->get_module_path( $module_name );
+        $dir = ModuleOperations::get_instance()->get_module_path( $module_name );
         $fn = $this->_get_module_meta_file( $module_name );
         if( !is_file($fn) ) return;
         $inidata = @parse_ini_file($fn,TRUE);

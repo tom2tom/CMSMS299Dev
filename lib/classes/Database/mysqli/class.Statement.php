@@ -20,6 +20,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database\mysqli;
 
+use CMSMS\Database\compatibility;
+use CMSMS\Database\Connection;
+use CMSMS\Database\mysqli\ResultSet;
+use function debug_bt_to_log;
+use function debug_to_log;
+
 /**
  * A class defining a prepared database statement.
  *
@@ -108,14 +114,14 @@ class Statement
         if (!$mysql || !$this->_conn->isConnected()) {
             $errno = 5;
             $error = 'Attempt to create prepared statement when database is not connected';
-            $this->processerror(\CMSMS\Database\Connection::ERROR_CONNECT, $errno, $error);
+            $this->processerror(Connection::ERROR_CONNECT, $errno, $error);
             $this->_prep = false;
 
             return false;
         } elseif (!($sql || $this->_sql)) {
             $errno = 1;
             $error = 'No SQL to prepare';
-            $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+            $this->processerror(Connection::ERROR_PARAM, $errno, $error);
             $this->_prep = false;
 
             return false;
@@ -149,7 +155,7 @@ class Statement
             return true;
         }
         $error = $this->_stmt->error;
-        $this->processerror (\CMSMS\Database\Connection::ERROR_PREPARE, $errno, $error);
+        $this->processerror (Connection::ERROR_PREPARE, $errno, $error);
         $this->_stmt = null;
 
         return false;
@@ -202,7 +208,7 @@ class Statement
             } else {
                 $errno = 1;
                 $error = 'No SQL to bind to';
-                $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+                $this->processerror(Connection::ERROR_PARAM, $errno, $error);
                 $this->_bound = false;
 
                 return false;
@@ -219,7 +225,7 @@ class Statement
 
         //deprecated - attempt emulation
         if ($this->_conn->errno == self::NOPARMCMD) {
-            $sql = \CMSMS\Database\compatibility::interpret($this->_conn, $this->sql, $valsarr);
+            $sql = compatibility::interpret($this->_conn, $this->sql, $valsarr);
             if ($sql) {
                 $this->_sql = $sql;
                 $this->_bound = false;
@@ -281,7 +287,7 @@ class Statement
 
         $errno = 6;
         $error = 'Failed to bind paramers to prepared statement';
-        $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+        $this->processerror(Connection::ERROR_PARAM, $errno, $error);
         $this->_bound = false;
 
         return false;
@@ -307,7 +313,7 @@ class Statement
             } else {
                 $errno = 1;
                 $error = 'No SQL to prepare';
-                $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+                $this->processerror(Connection::ERROR_PARAM, $errno, $error);
 
                 return null;
             }
@@ -332,7 +338,7 @@ class Statement
                 //TODO this is in wrong spot : maybe not yet bound
                 //check for deprecated emulation of non-parameterizable command
                 if ($this->_conn->errno == self::NOPARMCMD) {
-                    $sql = \CMSMS\Database\compatibility::interpret($this->_conn, $this->sql, $valsarr);
+                    $sql = compatibility::interpret($this->_conn, $this->sql, $valsarr);
                     if ($sql) {
                         $this->_sql = $sql;
                     }
@@ -347,7 +353,7 @@ class Statement
                     } else {
                         $errno = 6;
                         $error = 'Unbindable SQL - '.$this->_sql;
-                        $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+                        $this->processerror(Connection::ERROR_PARAM, $errno, $error);
 
                         return null;
                     }
@@ -355,14 +361,14 @@ class Statement
 
                 $errno = 2;
                 $error = 'Incorrect number of bound parameters - should be '.$pc;
-                $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+                $this->processerror(Connection::ERROR_PARAM, $errno, $error);
 
                 return null;
             }
         } elseif ($pc > 0 && !$this->_bound) {
             $errno = 3;
             $error = 'No bound parameters, and no arguments passed';
-            $this->processerror(\CMSMS\Database\Connection::ERROR_PARAM, $errno, $error);
+            $this->processerror(Connection::ERROR_PARAM, $errno, $error);
 
             return null;
         }
@@ -370,7 +376,7 @@ class Statement
         if (!$this->_stmt->execute()) {
             $errno = $this->_stmt->errno;
             $error = $this->_stmt->error;
-            $this->processerror(\CMSMS\Database\Connection::ERROR_EXECUTE, $errno, $error);
+            $this->processerror(Connection::ERROR_EXECUTE, $errno, $error);
 
             return null;
         }
@@ -385,13 +391,13 @@ class Statement
                     return new ResultSet($rs);
                 } elseif (($n = $this->_stmt->errno) > 0) {
                     $error = $this->_stmt->error;
-                    $this->processerror(\CMSMS\Database\Connection::ERROR_EXECUTE, $n, $error);
+                    $this->processerror(Connection::ERROR_EXECUTE, $n, $error);
 
                     return null;
                 } else { //should never happen
                     $errno = 99;
                     $error = 'No result (reason unknown)';
-                    $this->processerror(\CMSMS\Database\Connection::ERROR_EXECUTE, $errno, $error);
+                    $this->processerror(Connection::ERROR_EXECUTE, $errno, $error);
 
                     return null;
                 }

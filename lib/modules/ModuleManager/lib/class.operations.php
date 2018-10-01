@@ -23,6 +23,7 @@ use CmsInvalidDataException;
 use CmsLogicException;
 use CMSModule;
 use CMSMS\FileTypeHelper;
+use CMSMS\ModuleOperations;
 use ModuleManager;
 use RuntimeException;
 use XMLWriter;
@@ -120,7 +121,7 @@ class operations
         $dir = ( $val ) ? cms_join_path(CMS_ROOT_PATH,'lib','modules') : CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 
-        $modops = \ModuleOperations::get_instance();
+        $modops = ModuleOperations::get_instance();
         $moduledetails = [];
 		$filedone = false;
 
@@ -230,7 +231,7 @@ class operations
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 
         // generate the moduleinfo.ini file
-        \ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
+        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
 
         $xw = new XMLWriter();
         $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.md5($dir).'.xml');

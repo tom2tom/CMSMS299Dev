@@ -18,6 +18,10 @@
 namespace CMSMS
 {
 
+use ArrayTreeIterator;
+use RecursiveArrayTreeIterator;
+use RecursiveIteratorIterator;
+
 /**
  * A class for creating and modifying tree-structured arrays
  *
@@ -160,9 +164,9 @@ class ArrayTree
 	public static function find(array $tree, string $getkey, $getval,
 		bool $strict = true, string $childkey = self::CHILDKEY)
 	{
-		$iter = new \RecursiveArrayTreeIterator(
-				new \ArrayTreeIterator($tree, 0, $childkey),
-				\RecursiveIteratorIterator::SELF_FIRST
+		$iter = new RecursiveArrayTreeIterator(
+				new ArrayTreeIterator($tree, 0, $childkey),
+				RecursiveIteratorIterator::SELF_FIRST
 				);
 		foreach ($iter as $node) {
 			if (isset($node[$getkey])) {

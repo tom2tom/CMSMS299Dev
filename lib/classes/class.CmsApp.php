@@ -21,6 +21,7 @@ namespace CMSMS {
 */
 
 use CMSMS\BookmarkOperations;
+use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection as Connection2;
@@ -30,6 +31,7 @@ use CMSMS\HookManager;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
+use CMSMS\ScriptManager;
 use CMSMS\SimplePluginOperations;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
@@ -531,7 +533,7 @@ final class CmsApp
      */
     public function GetScriptManager()
     {
-        if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new \CMSMS\ScriptManager;
+        if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager;
         return $this->scriptcombiner;
     }
 

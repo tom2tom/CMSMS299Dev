@@ -23,6 +23,8 @@
  */
 namespace CMSMS\Async;
 
+use CmsApp;
+
 /**
  * A singleton class defining a manager for asynchronous jobs.
  *
@@ -63,7 +65,7 @@ final class JobManager
     /**
      * Get the sole permitted instance of this object
      *
-     * @return \CMSMS\JobManager
+     * @return CMSMS\Async\JobManager
      */
     final public static function get_instance() : self
     {
@@ -79,7 +81,7 @@ final class JobManager
      */
     protected function get_mod()
     {
-        if( !$this->_mod ) $this->_mod = \CmsApp::get_instance()->GetModuleInstance(self::MANAGER_MODULE);
+        if( !$this->_mod ) $this->_mod = CmsApp::get_instance()->GetModuleInstance(self::MANAGER_MODULE);
         return $this->_mod;
     }
 

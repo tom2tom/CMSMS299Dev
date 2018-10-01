@@ -20,7 +20,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database\mysqli;
 
-class Connection extends \CMSMS\Database\Connection
+use cms_config;
+use CMSMS\Database\Connection as ParentConnection;
+use DateTime;
+use DateTimeZone;
+use Exception;
+use mysqli;
+
+class Connection extends ParentConnection
 {
     protected $_mysql;
     protected $_in_transaction = 0;
@@ -45,10 +52,10 @@ class Connection extends \CMSMS\Database\Connection
     {
         parent::__construct();
         if (class_exists('\mysqli')) {
-            if (!$config) $config = \cms_config::get_instance(); //normal API
+            if (!$config) $config = cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
-                $this->_mysql = new \mysqli(
+                $this->_mysql = new mysqli(
                  $config['db_hostname'], $config['db_username'],
                  $config['db_password'], $config['db_name'],
                  (int)$config['db_port']);
@@ -60,8 +67,8 @@ class Connection extends \CMSMS\Database\Connection
                     }
                     if (!empty($config['set_db_timezone'])) { //ditto
                         try {
-                            $dt = new \DateTime(new \DateTimeZone($config['timezone']));
-                        } catch (\Exception $e) {
+                            $dt = new DateTime(new DateTimeZone($config['timezone']));
+                        } catch (Exception $e) {
                             $this->_mysql = null;
                             $this->on_error(parent::ERROR_PARAM, $e->getCode(), $e->getMessage());
                         }
@@ -81,7 +88,7 @@ class Connection extends \CMSMS\Database\Connection
                     $this->_mysql = null;
                     $this->OnError(parent::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->_mysql = null;
                 $this->OnError(parent::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
             }

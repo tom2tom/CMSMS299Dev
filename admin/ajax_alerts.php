@@ -16,13 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminAlerts\Alert;
+
 $CMS_ADMIN_PAGE=1;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 try {
     $out = null;
     $uid = get_userid(FALSE);
-    if( !$uid ) throw new \Exception('Permission Denied'); // should be a 403, but meh.
+    if( !$uid ) throw new Exception('Permission Denied'); // should be a 403, but meh.
 
     $op = cleanValue($_POST['op']);
     if( !$op ) $op = 'delete';
@@ -30,15 +32,15 @@ try {
 
     switch( $op ) {
     case 'delete':
-        $alert = \CMSMS\AdminAlerts\Alert::load_by_name($alert_name);
+        $alert = Alert::load_by_name($alert_name);
         $alert->delete();
         break;
     default:
-        throw new \Exception('Unknown operation '.$op);
+        throw new Exception('Unknown operation '.$op);
     }
     echo $out;
 }
-catch( \Exception $e ) {
+catch( Exception $e ) {
     // do 500 error.
     $handlers = ob_list_handlers();
     for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }

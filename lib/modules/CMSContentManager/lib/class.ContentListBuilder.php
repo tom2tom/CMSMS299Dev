@@ -27,6 +27,8 @@ use CmsInvalidDataException;
 use CmsLayoutTemplate;
 use CmsLockOperations;
 use CMSModule;
+use CMSMS\ContentOperations;
+use CMSMS\UserOperations;
 use PHPMailer\PHPMailer\Exception;
 use const CMS_CONTENT_HIDDEN_NAME;
 use function audit;
@@ -164,7 +166,7 @@ final class ContentListBuilder
 		if( $page_id < 1 ) return FALSE;
 		if( !$this->_module->CheckPermission('Manage All Content') ) return FALSE;
 
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		$node = $contentops->quickfind_node_by_id($page_id);
 		if( !$node ) return FALSE;
 		$content = $node->GetContent(FALSE,FALSE,FALSE);
@@ -280,9 +282,9 @@ final class ContentListBuilder
 
 		if( !$this->_module->CheckPermission('Manage All Content') ) return;
 
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		$content1 = $contentops->LoadContentFromId($page_id);
-		$page_id2 = \ContentOperations::get_instance()->GetDefaultContent();
+		$page_id2 = ContentOperations::get_instance()->GetDefaultContent();
 		$content2 = $contentops->LoadContentFromId($page_id2);
 
 		if( !$content1 ) return FALSE;
@@ -309,7 +311,7 @@ final class ContentListBuilder
 		if( $page_id < 1 ) return FALSE;
 		$direction = (int)$direction;
 		if( $direction == 0 ) return FALSE;
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 
 		$test = FALSE;
 		if( $this->_module->CheckPermission('Manage All Content') ) {
@@ -325,7 +327,7 @@ final class ContentListBuilder
 		if( !$content ) return FALSE;
 
 		$content->ChangeItemOrder($direction);
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		$contentops->SetAllHierarchyPositions();
 		return TRUE;
 	}
@@ -350,7 +352,7 @@ final class ContentListBuilder
 
 		if( !$test ) return $this->_module->Lang('error_delete_permission');
 
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		$node = $contentops->quickfind_node_by_id($page_id);
 		if( !$node ) return $this->_module->Lang('error_invalidpageid');
 		if( $node->has_children() ) return $this->_module->Lang('error_delete_haschildren');
@@ -450,7 +452,7 @@ final class ContentListBuilder
 			 if got to root, add items children
 		3. reduce list by items we are able to view (author pages)
 */
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
 		$display = [];
 
@@ -561,7 +563,7 @@ final class ContentListBuilder
 		$offset = min(count($this->_pagelist),$this->_offset);
 		$display = array_slice($display,$offset,$this->_pagelimit);
 
-		\ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$display);
+		ContentOperations::get_instance()->LoadChildren(-1,FALSE,TRUE,$display);
 		return $display;
 	}
 
@@ -572,7 +574,7 @@ final class ContentListBuilder
 	{
 		if( $content_id < 1 ) return FALSE;
 		if( $userid <= 0 ) $userid = $this->_userid;
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		return $contentops->CheckPeerAuthorship($userid,$content_id);
 	}
 
@@ -582,7 +584,7 @@ final class ContentListBuilder
 	private function _check_authorship($content_id,$userid = null)
 	{
 		if( $userid <= 0 ) $userid = $this->_userid;
-		return \ContentOperations::get_instance()->CheckPageAuthorship($userid,$content_id);
+		return ContentOperations::get_instance()->CheckPageAuthorship($userid,$content_id);
 	}
 
 	/**
@@ -618,14 +620,13 @@ final class ContentListBuilder
 	{
 		//if( $this->_module->GetPreference('locktimeout') < 1 ) return FALSE;
 		$locks = $this->get_locks();
-		if( !is_array($locks) || count($locks) == 0 ) return FALSE;
-		if( in_array($page_id,array_keys($locks)) ) return TRUE;
-		return FALSE;
+		if( !$locks ) return FALSE;
+		return in_array($page_id,array_keys($locks));
 	}
 
 	private function _is_default_locked()
 	{
-		$dflt_content_id = \ContentOperations::get_instance()->GetDefaultContent();
+		$dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
 		$locks = $this->get_locks();
 		if( is_array($locks) && count($locks) && in_array($dflt_content_id,array_keys($locks)) ) return TRUE;
 		return FALSE;
@@ -649,7 +650,7 @@ final class ContentListBuilder
 	{
 		static $_users = null;
 		if( !$_users ) {
-			$tmp = \UserOperations::get_instance()->LoadUsers();
+			$tmp = UserOperations::get_instance()->LoadUsers();
 			if( is_array($tmp) && ($n = count($tmp)) ) {
 				$_users = [];
 				for( $i = 0; $i < $n; $i++ ) {
@@ -667,7 +668,7 @@ final class ContentListBuilder
 	private function _get_display_data($page_list)
 	{
 		$users = $this->_get_users();
-		$contentops = \ContentOperations::get_instance();
+		$contentops = ContentOperations::get_instance();
 		$mod = $this->_module;
 		$columns = $this->get_display_columns();
 		$userid = $this->_userid;

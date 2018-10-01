@@ -16,7 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use \CMSMS\internal\module_meta;
+use CMSMS\Events;
+use CMSMS\internal\Smarty;
+use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
 $CMS_TOP_MENU = 'admin';
@@ -72,14 +74,14 @@ if (isset($_POST['submit'])) {
         $userobj->email = $email;
         if ($password) $userobj->SetPassword($password);
 
-        \CMSMS\Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$userobj ]);
+        Events::SendEvent('Core', 'EditUserPre', [ 'user'=>&$userobj ]);
 
         $result = $userobj->Save();
 
         if ($result) {
             // put mention into the admin log
             audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
-            \CMSMS\Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$userobj ]);
+            Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$userobj ]);
             $themeObject->RecordNotice('success', lang('accountupdated'));
         } else {
             $themeObject->RecordNotice('error', lang('error_internal'));
@@ -92,7 +94,7 @@ if (isset($_POST['submit'])) {
  */
 $userobj->password = '';
 $selfurl = basename(__FILE__);
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 $smarty->assign([
     'selfurl' => $selfurl,

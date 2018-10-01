@@ -20,6 +20,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database;
 
+use CmsApp;
+use CMSMS\Database\DataDictionary;
+use CMSMS\Database\ResultSet;
+use DateTime;
+use const CMS_DEBUG;
+use function debug_bt_to_log;
+use function debug_display;
+use function debug_to_log;
+
 /**
  * A class defining a database connection, and mechanisms for working with a database.
  *
@@ -632,7 +641,7 @@ abstract class Connection
             $lvl = error_reporting(0);
             $time = strtotime($time);
             error_reporting($lvl);
-        } elseif ($time instanceof \DateTime) {
+        } elseif ($time instanceof DateTime) {
             $time = $time->getTimestamp();
         }
 
@@ -685,7 +694,7 @@ abstract class Connection
             $lvl = error_reporting(0);
             $date = strtotime($date);
             error_reporting($lvl);
-        } elseif ($date instanceof \DateTime) {
+        } elseif ($date instanceof DateTime) {
             $date = $date->getTimestamp();
         }
 
@@ -819,10 +828,10 @@ abstract class Connection
     protected function on_error($errtype, $error_number, $error_msg)
     {
         if (function_exists('\\debug_to_log')) {
-            \debug_to_log("Database error: $errtype($error_number) - $error_msg");
-            \debug_bt_to_log();
+            debug_to_log("Database error: $errtype($error_number) - $error_msg");
+            debug_bt_to_log();
             if ($this->_debug) {
-                \CmsApp::get_instance()->add_error(\debug_display($error_msg, '', false, true));
+                CmsApp::get_instance()->add_error(debug_display($error_msg, '', false, true));
             }
         }
     }

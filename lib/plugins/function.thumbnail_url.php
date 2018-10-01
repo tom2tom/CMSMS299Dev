@@ -17,7 +17,7 @@
 
 function smarty_function_thumbnail_url($params, $template)
 {
-	$config = \cms_config::get_instance();
+	$config = cms_config::get_instance();
 	$dir = $config['uploads_path'];
 	$file = trim(get_parameter_value($params,'file'));
 	$add_dir = trim(get_parameter_value($params,'dir'));
