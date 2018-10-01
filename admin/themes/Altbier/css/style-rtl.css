@@ -1058,7 +1058,7 @@ header .shortcuts li.notifications i {
     font-size: 1.2em;
     margin-left: .3em;
     margin-right: .2em;
-    content: "\f22d"; /* default */
+    content: '  '; /* "\f22d" default */
 /*    display: none; / * hide code replaced by svg */
 }
 
@@ -1150,7 +1150,7 @@ nav h3 a::before {
 /*    display: none; / * hide the code replaced by svg */
 }
 
-nav h3.dashboard-icon a::before { content: "\f22d" } /*default icon if no icon is set below*/
+nav h3.dashboard-icon a::before { content: ' ' } /* "\f22d" default icon if no icon is set below*/
 
 nav h3.AdminLog1 a::before, #ac_pagemenu li a.AdminLog1::before { content: '\f518' }
 nav h3.AdminSearch1 a::before, #ac_pagemenu li a.AdminSearch1::before { content: '\f1c0' }
