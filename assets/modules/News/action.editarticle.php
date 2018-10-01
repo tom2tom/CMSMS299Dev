@@ -2,6 +2,7 @@
 
 use CMSMS\ContentOperations;
 use CMSMS\Events;
+use CMSMS\FormUtils;
 use News\news_admin_ops;
 
 if (!isset($gCms))  exit ;
@@ -12,9 +13,10 @@ if (isset($params['cancel'])) $this->Redirect($id, 'defaultadmin', $returnid);
 /*--------------------
  * Variables
  ---------------------*/
-if ($this->CheckPermission('Approve News'))  $status = 'published';
-
 $status       = 'draft';
+if ($this->CheckPermission('Approve News'))  $status = 'published';
+$status       = $params['status'] ?? $status;
+
 $postdate     = time();
 $startdate    = time();
 $enddate      = strtotime('+6 months', time());
@@ -28,7 +30,6 @@ $useexp       = isset($params['useexp']) ? 1: 0;
 $extra        = isset($params['extra']) ? trim($params['extra']) : '';
 $searchable   = isset($params['searchable']) ? (int)$params['searchable'] : 1;
 $title        = $params['title'] ?? '';
-$status       = $params['status'] ?? $status;
 
 if (isset($params['postdate_Month'])) {
     $postdate = mktime($params['postdate_Hour'], $params['postdate_Minute'], $params['postdate_Second'], $params['postdate_Month'], $params['postdate_Day'], $params['postdate_Year']);
@@ -408,24 +409,24 @@ while ($dbr && ($row = $dbr->FetchRow())) {
     switch( $row['type'] ) {
         case 'textbox' :
             $size = min(50, $row['max_length']);
-            $obj->field = $this->CreateInputText($id, $name, $value, $size, $row['max_length']);
+            $obj->field = $this->CreateInputText($id, $name, $value, $size, $row['max_length']);  DEPRECATED API
             break;
         case 'checkbox' :
-            $obj->field = $this->CreateInputHidden($id, $name, 0) . $this->CreateInputCheckbox($id, $name, 1, (int)$value);
+            $obj->field = $this->CreateInputHidden($id, $name, 0) . $this->CreateInputCheckbox($id, $name, 1, (int)$value); DEPRECATED API
             break;
         case 'textarea' :
-            $obj->field = CmsFormUtils::create_textarea(['enablewysiwyg'=>1, 'modid'=>$id, 'name'=>$name, 'value'=>$value]);
+            $obj->field = FormUtils::create_textarea(['enablewysiwyg'=>1, 'modid'=>$id, 'name'=>$name, 'value'=>$value]);
             break;
         case 'file' :
             $del = '';
             if ($value != '') {
                 $deln = 'delete_customfield[' . $row['id'] . ']';
-                $del = '&nbsp;' . $this->Lang('delete') . $this->CreateInputCheckbox($id, $deln, 'delete');
+                $del = '&nbsp;' . $this->Lang('delete') . $this->CreateInputCheckbox($id, $deln, 'delete'); DEPRECATED API
             }
             $obj->field = $value . '&nbsp;' . $this->CreateFileUploadInput($id, $name) . $del;
             break;
         case 'dropdown' :
-            $obj->field = $this->CreateInputDropdown($id, $name, array_flip($options), -1, $value);
+            $obj->field = $this->CreateInputDropdown($id, $name, array_flip($options), -1, $value); DEPRECATED API
             break;
     }
     */
@@ -479,8 +480,8 @@ if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
         'addtext' => 'style="height:5em;"', //smaller again ...
     ];
 }
-$tpl->assign('inputsummary', CmsFormUtils::create_textarea($parms))
- ->assign('inputcontent', CmsFormUtils::create_textarea([
+$tpl->assign('inputsummary', FormUtils::create_textarea($parms))
+ ->assign('inputcontent', FormUtils::create_textarea([
     'enablewysiwyg' => 1,
     'modid' => $id,
     'name' => 'content',

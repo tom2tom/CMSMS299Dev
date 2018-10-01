@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminTabs;
 use CMSMS\ContentBase;
 use CMSMS\Events;
+use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\bulkcontentoperations;
 use CMSMS\internal\ModulePluginManager;
@@ -159,7 +161,7 @@ abstract class CMSModule
                 $val = (array_key_exists($i, $args)) ? $args[$i] : (($one->isOptional()) ? $one->getDefaultValue() : '!oOpS!');
                 $parms[$one->getName()] = $val;
             }
-            return CmsFormUtils::create($this, $name, $parms);
+            return FormUtils::create($this, $name, $parms);
         }
         return false;
     }
@@ -1539,7 +1541,7 @@ abstract class CMSModule
     /**
      * function CreateFrontendFormStart
      * Returns xhtml representing the start of a module form, optimized for frontend use
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_form_start() with $inline = true
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_form_start() with $inline = true
      *
      * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
@@ -1558,7 +1560,7 @@ abstract class CMSModule
     /**
      * function CreateFormStart
      * Returns xhtml representing the start of a module form
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_form_start()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_form_start()
      *
      * @param mixed $id string|null The module action id
      * @param string $action The action that this form should do when the form is submitted
@@ -1578,7 +1580,7 @@ abstract class CMSModule
      * function CreateFormEnd
      * Returns xhtml representing the end of a module form.  This is basically just a wrapper around </form>, but
      * could be extended later on down the road.  It's here mainly for consistency.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_form_end()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_form_end()
      *
      * @return string
      */
@@ -1587,7 +1589,7 @@ abstract class CMSModule
      * function CreateInputText
      * Returns xhtml representing an input textbox.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the textbox
@@ -1604,7 +1606,7 @@ abstract class CMSModule
      * function CreateLabelForInput
      * Returns xhtml representing a label for an input field. This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_label()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_label()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the input field this label is associated to
@@ -1619,7 +1621,7 @@ abstract class CMSModule
      * function CreateInputFile
      * Returns xhtml representing a file-selector field.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the textbox
@@ -1635,7 +1637,7 @@ abstract class CMSModule
      * function CreateInputPassword
      * Returns xhtml representing an input password-box.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the textbox
@@ -1652,7 +1654,7 @@ abstract class CMSModule
      * function CreateInputHidden
      * Returns xhtml representing a hidden field.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the hidden field
@@ -1667,7 +1669,7 @@ abstract class CMSModule
      * function CreateInputCheckbox
      * Returns xhtml representing a checkbox.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_select()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the checkbox
@@ -1683,7 +1685,7 @@ abstract class CMSModule
      * function CreateInputSubmit
      * Returns xhtml representing a submit button.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the button
@@ -1700,7 +1702,7 @@ abstract class CMSModule
      * function CreateInputReset
      * Returns xhtml representing a reset button.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the button
@@ -1715,7 +1717,7 @@ abstract class CMSModule
      * function CreateInputDropdown
      * Returns xhtml representing a dropdown list.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_select()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the dropdown list
@@ -1732,7 +1734,7 @@ abstract class CMSModule
      * function CreateInputSelectList
      * Returns xhtml representing a multi-select list.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_select()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the select list
@@ -1750,7 +1752,7 @@ abstract class CMSModule
      * function CreateInputRadioGroup
      * Returns xhtml representing a set of radio buttons.  This is basically a wrapper
      * to make sure that id's are placed in names and also that it is syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_select()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_select()
      *
      * @param mixed $id string|null The module action id
      * @param string $name The html name of the radio group
@@ -1766,7 +1768,7 @@ abstract class CMSModule
     /**
      * function CreateTextArea
      * Returns xhtml representing a textarea.  Also takes WYSIWYG preference into consideration if it's called from the admin side.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param bool   $enablewysiwyg Should we try to create a WYSIWYG for this textarea?
      * @param mixed $id string|null The module action id
@@ -1791,7 +1793,7 @@ abstract class CMSModule
      * Returns xhtml representing a textarea with syntax hilighting applied.
      * Takes the user's hilighter-preference into consideration, if called from the
      * admin side.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_input()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_input()
      *
      * @param mixed $id string|null The module action id
      * @param string $text The text to display in the textarea
@@ -1812,7 +1814,7 @@ abstract class CMSModule
      * function CreateFrontendLink
      * Returns xhtml representing an href link  This is basically a wrapper
      * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_action_link() with adjusted params
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_action_link() with adjusted params
      *
      * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
@@ -1835,7 +1837,7 @@ abstract class CMSModule
      * Returns xhtml representing an href link to a module action.  This is
      * basically a wrapper to make sure that id's are placed in names
      * and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_action_link()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_action_link()
      *
      * @param mixed $id string|null The module action id
      * @param string $action The action that this form should do when the link is clicked
@@ -1858,7 +1860,7 @@ abstract class CMSModule
      * Returns xhtml representing a link to a site page having the specified id.
      * This is basically a wrapper to make sure that the link gets to
      * where intended and it's syntax-compliant
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_content_link()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_content_link()
      *
      * @param int $pageid the page id of the page we want to direct to
      * Optional parameters:
@@ -1872,7 +1874,7 @@ abstract class CMSModule
      * Returns xhtml representing a link to a site page having the specified returnid.
      * This is basically a wrapper to make sure that we go back
      * to where we want to and that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CmsFormUtils::create_return_link()
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_return_link()
      *
      * @param mixed $id string|null The module action id
      * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
@@ -2315,7 +2317,7 @@ abstract class CMSModule
     {
         $tab = trim($tab);
         $_SESSION[$this->GetName().'::activetab'] = $tab;
-        cms_admin_tabs::set_current_tab($tab);
+        AdminTabs::set_current_tab($tab);
     }
 
     /**
@@ -2323,19 +2325,19 @@ abstract class CMSModule
      * e.g.:  echo $this->StartTabHeaders();
      *
      * @final
-     * @deprecated since 2.3. Instead use cms_admin_tabs::start_tab_headers()
+     * @deprecated since 2.3. Instead use CMSMS\AdminTabs::start_tab_headers()
      * @return string
      */
     final public function StartTabHeaders() : string
     {
-        return cms_admin_tabs::start_tab_headers();
+        return AdminTabs::start_tab_headers();
     }
 
     /**
      * Return page content representing a specific tab header.
      * e.g.:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
 
-     * @deprecated since 2.3 Use cms_admin_tabs::set_tab_header(). Not final
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::set_tab_header(). Not final
      * @param string $tabid The tab id
      * @param string $title The tab title
      * @param bool $active Optional flag indicating whether this tab is active. Default false
@@ -2343,50 +2345,50 @@ abstract class CMSModule
      */
     public function SetTabHeader($tabid, $title, $active = false)
     {
-        return cms_admin_tabs::set_tab_header($tabid,$title,$active);
+        return AdminTabs::set_tab_header($tabid,$title,$active);
     }
 
     /**
      * Return page content representing the end of tab headers.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_headers()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_headers()
      * @return string
      */
     final public function EndTabHeaders() : string
     {
-        return cms_admin_tabs::end_tab_headers();
+        return AdminTabs::end_tab_headers();
     }
 
     /**
      * Return page content representing the start of XHTML areas for tabs.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::start_tab_content()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab_content()
      * @return string
      */
     final public function StartTabContent() : string
     {
-        return cms_admin_tabs::start_tab_content();
+        return AdminTabs::start_tab_content();
     }
 
     /**
      * Return page content representing the end of XHTML areas for tabs.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_content()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_content()
      * @return string
      */
     final public function EndTabContent() : string
     {
-        return cms_admin_tabs::end_tab_content();
+        return AdminTabs::end_tab_content();
     }
 
     /**
      * Return page content representing the start of a specific tab
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::start_tab()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab()
      * @param string $tabid the tab id
      * @param arrray $params Parameters
      * @see CMSModule::SetTabHeaders()
@@ -2394,19 +2396,19 @@ abstract class CMSModule
      */
     final public function StartTab(string $tabid, array $params = []) : string
     {
-        return cms_admin_tabs::start_tab($tabid,$params);
+        return AdminTabs::start_tab($tabid,$params);
     }
 
     /**
      * Return page content representing the end of a specific tab.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::end_tab()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab()
      * @return string
      */
     final public function EndTab() : string
     {
-        return cms_admin_tabs::end_tab();
+        return AdminTabs::end_tab();
     }
 
     /**

@@ -16,39 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/* for future use
-namespace CMSMS;
-use cms_admin_tabs;
-use cms_cache_handler;
-use cms_config;
-use cms_url;
-use cms_siteprefs;
-use cms_userprefs;
-use cms_utils;
-use CMSMS\App as CmsApp;
-use const CMS_ADMIN_PATH;
-use const CMS_ROOT_URL;
-use const CMS_SECURE_PARAM_NAME;
-use const CMS_USER_KEY;
-use function audit;
-use function check_permission;
-use function cleanArray;
-use function cleanValue;
-use function cms_join_path;
-use function cms_module_places;
-use function endswith;
-use function get_userid;
-use function lang;
-use function startswith;
-use ArrayTreeIterator;
-use RecursiveArrayTreeIterator;
-use RecursiveIteratorIterator;
-*/
+//namespace CMSMS;
 
 use CMSMS\AdminAlerts\Alert;
+use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
+use CMSMS\CmsAdminThemeNotification;
+use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\ModuleOperations;
 
@@ -1862,7 +1838,7 @@ abstract class CmsAdminThemeBase
             if ($id) {
                 $parms['id'] = trim((string)$id);
             }
-            return CmsFormUtils::create_select($parms);
+            return FormUtils::create_select($parms);
         }
         return '';
     }
@@ -2049,12 +2025,12 @@ abstract class CmsAdminThemeBase
      * e.g. echo $this->StartTabHeaders();
      *
      * @final
-     * @deprecated since 2.3. Instead use cms_admin_tabs::start_tab_headers()
+     * @deprecated since 2.3. Instead use CMSMS\AdminTabs::start_tab_headers()
      * @return string
      */
     final public function StartTabHeaders() : string
     {
-        return cms_admin_tabs::start_tab_headers();
+        return AdminTabs::start_tab_headers();
     }
 
     /**
@@ -2065,48 +2041,48 @@ abstract class CmsAdminThemeBase
      * @param string $tabid The tab id
      * @param string $title The tab title
      * @param bool $active Optional flag indicating whether this tab is active, default false
-     * @deprecated since 2.3 Use cms_admin_tabs::set_tab_header()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::set_tab_header()
      * @return string
      */
     final public function SetTabHeader(string $tabid, string $title, bool $active = false) : string
     {
-        return cms_admin_tabs::set_tab_header($tabid,$title,$active);
+        return AdminTabs::set_tab_header($tabid,$title,$active);
     }
 
     /**
      * Return page content representing the end of tab headers.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_headers()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_headers()
      * @return string
      */
     final public function EndTabHeaders() : string
     {
-        return cms_admin_tabs::end_tab_headers();
+        return AdminTabs::end_tab_headers();
     }
 
     /**
      * Return page content representing the start of XHTML areas for tabs.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::start_tab_content()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab_content()
      * @return string
      */
     final public function StartTabContent() : string
     {
-        return cms_admin_tabs::start_tab_content();
+        return AdminTabs::start_tab_content();
     }
 
     /**
      * Return page content representing the end of XHTML areas for tabs.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::end_tab_content()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_content()
      * @return string
      */
     final public function EndTabContent() : string
     {
-        return cms_admin_tabs::end_tab_content();
+        return AdminTabs::end_tab_content();
     }
 
     /**
@@ -2114,23 +2090,23 @@ abstract class CmsAdminThemeBase
      *
      * @final
      * @param string $tabid The tabid (see SetTabHeader)
-     * @deprecated since 2.3 Use cms_admin_tabs::start_tab()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab()
      * @return string
      */
     final public function StartTab(string $tabid) : string
     {
-        return cms_admin_tabs::start_tab($tabid);
+        return AdminTabs::start_tab($tabid);
     }
 
     /**
      * Return page content representing the end of a specific tab.
      *
      * @final
-     * @deprecated since 2.3 Use cms_admin_tabs::end_tab()
+     * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab()
      * @return string
      */
     final public function EndTab() : string
     {
-        return cms_admin_tabs::end_tab();
+        return AdminTabs::end_tab();
     }
 } // class

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\FileTypeHelper;
+use CMSMS\FormUtils;
 
 if (!function_exists('cmsms')) {
     exit;
@@ -255,7 +256,7 @@ foreach ($folders as $name) {
         $acts[] = ['content'=>str_replace(['XXX','YYY'], [$name, $df], $linklink)];
         $acts[] = ['content'=>str_replace('XXX', $encf, $linkdown)];
 		$t = preg_replace('/\W/', '_', $name);
-        $menus[] = CmsFormUtils::create_menu($acts, ['id'=>$t, 'class'=>'ContextMenu']);
+        $menus[] = FormUtils::create_menu($acts, ['id'=>$t, 'class'=>'ContextMenu']);
         $oneset->acts = str_replace('XXX', $t, $menu);
         $oneset->sel = $encf;
     } else {
@@ -345,7 +346,7 @@ foreach ($files as $name) {
         }
         $acts[] = ['content'=>str_replace('XXX', $encf, $linkdown)];
 		$t = preg_replace('/\W/', '_', $name);
-        $menus[] = CmsFormUtils::create_menu($acts, ['id'=>$t, 'class'=>'ContextMenu']);
+        $menus[] = FormUtils::create_menu($acts, ['id'=>$t, 'class'=>'ContextMenu']);
         $oneset->acts = str_replace('XXX', $t, $menu);
         $oneset->sel = $encf;
     } else {

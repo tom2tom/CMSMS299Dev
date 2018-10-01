@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\Smarty;
 
@@ -82,7 +83,7 @@ if (isset($modinst)) {
 
 // initialize required WYSIWYG modules
 // (must be after action/content generation, which might create textarea(s))
-$list = CmsFormUtils::get_requested_wysiwyg_modules();
+$list = FormUtils::get_requested_wysiwyg_modules();
 if ($list) {
 	foreach ($list as $module_name => $info) {
 		$obj = cms_utils::get_module($module_name);
@@ -93,7 +94,7 @@ if ($list) {
 
 		$cssnames = [];
 		foreach ($info as $rec) {
-			if (!($rec['stylesheet'] == '' || $rec['stylesheet'] == CmsFormUtils::NONE)) {
+			if (!($rec['stylesheet'] == '' || $rec['stylesheet'] == FormUtils::NONE)) {
 				$cssnames[] = $rec['stylesheet'];
 			}
 		}
@@ -119,8 +120,8 @@ if ($list) {
 			$selector = $rec['id'];
 			$cssname = $rec['stylesheet'];
 
-			if ($cssname == CmsFormUtils::NONE) $cssname = null;
-			if (!$cssname || !is_array($cssnames) || !in_array($cssname,$cssnames) || $selector == CmsFormUtils::NONE) {
+			if ($cssname == FormUtils::NONE) $cssname = null;
+			if (!$cssname || !is_array($cssnames) || !in_array($cssname,$cssnames) || $selector == FormUtils::NONE) {
 				$need_generic = true;
 				continue;
 			}
@@ -142,7 +143,7 @@ if ($list) {
 }
 
 // initialize required syntax hilighter modules
-$list = CmsFormUtils::get_requested_syntax_modules();
+$list = FormUtils::get_requested_syntax_modules();
 if ($list) {
 	foreach ($list as $one) {
 		$obj = cms_utils::get_module($one);

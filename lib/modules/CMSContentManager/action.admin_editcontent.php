@@ -17,8 +17,11 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSContentManager\Utils;
+use CMSMS\AdminUtils;
+use CMSMS\CmsException;
 use CMSMS\ContentException;
 use CMSMS\ContentOperations;
+use CMSMS\FormUtils;
 
 global $CMS_JOB_TYPE;
 
@@ -277,11 +280,11 @@ try {
             // first tab... add the content type selector.
             if( $this->CheckPermission('Manage All Content') || $content_obj->Owner() == $user_id )  {
                 // if you're only an additional editor on this page... you don't get to change this.
-                $help = '&nbsp;'.cms_admin_utils::get_help_tag(['key'=>'help_content_type','title'=>$this->Lang('help_title_content_type')]);
+                $help = '&nbsp;'.AdminUtils::get_help_tag(['key'=>'help_content_type','title'=>$this->Lang('help_title_content_type')]);
                 $tmp = ['<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help];
                 $tmp2 = "<select id=\"content_type\" name=\"{$id}content_type\">";
                 foreach( $existingtypes as $type => $label ) {
-                    $tmp2 .= CmsFormUtils::create_option(['value'=>$type,'label'=>$label],$content_type);
+                    $tmp2 .= FormUtils::create_option(['value'=>$type,'label'=>$label],$content_type);
                 }
                 $tmp2 .= '</select>';
                 $tmp[] = $tmp2;

@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\FormUtils;
+
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
@@ -69,7 +72,7 @@ $tpl->assign('formstart',$this->CreateFormStart($id, 'defaultadmin',$returnid,'p
                                                    ['active_tab'=>'options']))
  ->assign('reindex', '<button type="submit" name="'.$id.'reindex" id="'.$id.'reindex" class="adminsubmit icon do">'.$this->Lang('reindexallcontent').'</button>')
  ->assign('prompt_stopwords',$this->Lang('stopwords'))
- ->assign('input_stopwords', CmsFormUtils::create_textarea([
+ ->assign('input_stopwords', FormUtils::create_textarea([
 	'modid' => $id,
     'name' =>'stopwords',
 	'rows' => 6,

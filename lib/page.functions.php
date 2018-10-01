@@ -25,6 +25,7 @@
  */
 
 use CMSMS\ContentOperations;
+use CMSMS\FormUtils;
 use CMSMS\internal\LoginOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\SyntaxEditor;
@@ -179,7 +180,7 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  *
  * @internal
  * @access private
- * @deprecated since 2.3 instead use CmsFormUtils::create_textarea()
+ * @deprecated since 2.3 instead use CMSMS\FormUtils::create_textarea()
  * @param boolean $enablewysiwyg Whether or not we are enabling a wysiwyg.  If false, and forcewysiwyg is not empty then a syntax area is used.
  * @param string  $value The contents of the text area
  * @param string  $name The name of the text area
@@ -212,7 +213,7 @@ function create_textarea(
         'height' => 15,
 	    'width' => 80,
 	];
-    return CmsFormUtils::create_textarea($parms);
+    return FormUtils::create_textarea($parms);
 }
 
 /**

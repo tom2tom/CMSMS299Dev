@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\FileType;
+use CMSMS\FormUtils;
+use FilePicker\ProfileException;
+use FolderControls\Operations;
 
 if (!function_exists('cmsms')) {
     exit;
@@ -34,7 +37,7 @@ $themeObject = cms_utils::get_theme_object();
 $setid = $params['setid'] ?? -1;
 $setid = (int)$setid;
 
-$ob = new FolderControls\Operations();
+$ob = new Operations();
 
 if (isset($params['submit'])) {
     try {
@@ -102,7 +105,7 @@ foreach (FileType::getNames() as $key) {
 }
 ksort($arr);
 $sel = ($set->file_types) ? $set->file_types : $arr['ALL'];
-$typesel = CmsFormUtils::create_select([
+$typesel = FormUtils::create_select([
     'type' => 'list',
     'name' => 'file_types',
     'id' => 'filetype',
@@ -120,7 +123,7 @@ $arr = [
 ];
 $sel = ($set->sort_by) ? $set->sort_by : 'name'; //TODO parse direction
 $sortasc = 1; //TODO from $set->sort_by if any
-$sortsel = CmsFormUtils::create_select([
+$sortsel = FormUtils::create_select([
     'type' => 'drop',
     'name' => 'sort_by',
     'id' => 'sortby',
@@ -139,7 +142,7 @@ unset($one);
 
 if (count($users) > 1) {
     $sel = ($set->match_users) ? $set->match_users : -1;
-    $inusersel = CmsFormUtils::create_select([
+    $inusersel = FormUtils::create_select([
         'type' => 'list',
         'name' => 'match_users',
         'id' => 'incuser',
@@ -154,7 +157,7 @@ if (count($users) > 1) {
 unset($users[-1]);
 if ($users) {
     $sel = ($set->exclude_users) ? $set->exclude_users : '';
-    $outusersel = CmsFormUtils::create_select([
+    $outusersel = FormUtils::create_select([
         'type' => 'list',
         'name' => 'exclude_users',
         'id' => 'exuser',
@@ -173,7 +176,7 @@ $grps = $db->GetAssoc($sql);
 if ($grps) {
     $D = [-1 => $this->Lang('all_groups')] + $grps;
     $sel = ($set->match_groups) ? $set->match_groups : -1;
-    $ingrpsel = CmsFormUtils::create_select([
+    $ingrpsel = FormUtils::create_select([
         'type' => 'list',
         'name' => 'match_groups',
         'id' => 'incgrp',
@@ -187,7 +190,7 @@ if ($grps) {
 
 if ($grps) {
     $sel = ($set->exclude_groups) ? $set->exclude_groups : '';
-    $outgrpsel = CmsFormUtils::create_select([
+    $outgrpsel = FormUtils::create_select([
         'type' => 'list',
         'name' => 'exclude_groups',
         'id' => 'exgrp',

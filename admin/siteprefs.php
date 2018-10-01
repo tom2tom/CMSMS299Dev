@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\contenttypes\Content;
+use CMSMS\FormUtils;
 use CMSMS\internal\module_meta;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
@@ -680,7 +681,7 @@ $smarty->assign('infoicon', $theme->DisplayImage('icons/system/info.png', 'info'
   ->assign('sitename', $sitename)
   ->assign('testresults', lang('untested'))
 
-  ->assign('textarea_sitedownmessage', $obj = CmsFormUtils::create_textarea([
+  ->assign('textarea_sitedownmessage', $obj = FormUtils::create_textarea([
   'enablewysiwyg' => 1,
   'htmlid' => 'sitedownmessage',
   'name' => 'sitedownmessage',
@@ -721,7 +722,7 @@ if ($list) {
         $all_attributes[$obj->tab]['value'][] = ['value'=>$obj->name,'label'=>lang($obj->name)];
     }
 }
-$txt = CmsFormUtils::create_option($all_attributes);
+$txt = FormUtils::create_option($all_attributes);
 
 $smarty->assign('all_attributes', $all_attributes)
   ->assign('smarty_cacheoptions', ['always'=>lang('always'),'never'=>lang('never'),'moduledecides'=>lang('moduledecides')])

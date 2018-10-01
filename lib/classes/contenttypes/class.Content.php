@@ -24,13 +24,13 @@ use cms_utils;
 use CmsContentException;
 use CmsCoreCapabilities;
 use CmsException;
-use CmsFormUtils;
 use CmsLayoutCollection;
 use CmsLayoutTemplate;
 use CMSMS\AdminUtils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 use CMSMS\FileType;
+use CMSMS\FormUtils;
 use CMSMS\internal\page_template_parser;
 use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
@@ -465,7 +465,7 @@ class Content extends ContentBase
 				}
 				$out = '';
 				if( $_designlist ) {
-					$out = CmsFormUtils::create_dropdown('design_id',array_flip($_designlist),$this->GetPropertyValue('design_id'),
+					$out = FormUtils::create_dropdown('design_id',array_flip($_designlist),$this->GetPropertyValue('design_id'),
 														 ['id'=>'design_id']);
 					$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_design',lang('help_title_editcontent_design'));
 					return ['<label for="design_id">*'.lang('design').':</label>'.$help,$out];
@@ -488,7 +488,7 @@ class Content extends ContentBase
 						cms_error('No default page template found');
 					}
 				}
-				$out = CmsFormUtils::create_dropdown('template_id',$_templates,$template_id,['id'=>'template_id']);
+				$out = FormUtils::create_dropdown('template_id',$_templates,$template_id,['id'=>'template_id']);
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_template',lang('help_title_editcontent_template'));
 				return ['<label for="template_id">*'.lang('template').':</label>'.$help,$out];
 			}
@@ -503,7 +503,7 @@ class Content extends ContentBase
 				if( !$current ) $current = $this->TemplateId();
 				$options = $this->get_template_list();
 
-				$out = CmsFormUtils::create_dropdown('template_rsrc',$options,$current,['id'=>'template_rsrc']);
+				$out = FormUtils::create_dropdown('template_rsrc',$options,$current,['id'=>'template_rsrc']);
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','info_editcontent_template',lang('help_title_editcontent_template'));
 				return ['<label for="template_rsrc">*'.lang('template').':</label>'.$help,$out];
 			}
@@ -515,7 +515,7 @@ class Content extends ContentBase
 		case 'pagemetadata':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_pagemeta',lang('help_title_content_pagemeta'));
 			return ['<label for="id_pagemetadata">'.lang('page_metadata').':</label>'.$help,
-					CmsFormUtils::create_textarea([
+					FormUtils::create_textarea([
 						'id'=>'metadata',
 						'name'=>'metadata',
 						'class'=>'pagesmalltextarea',
@@ -525,7 +525,7 @@ class Content extends ContentBase
 		case 'pagedata':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_pagedata',lang('help_title_content_pagedata'));
 			return ['<label for="id_pagedata">'.lang('pagedata_codeblock').':</label>'.$help,
-					CmsFormUtils::create_textarea([
+					FormUtils::create_textarea([
 						'id'=>'id_pagedata',
 						'name'=>'pagedata',
 						'class'=>'pagesmalltextarea',
@@ -632,7 +632,7 @@ class Content extends ContentBase
 				if( !startswith($key,'data-') ) continue;
 				$parms[$key] = $val;
 			}
-			$ret = CmsFormUtils::create_textarea($parms);
+			$ret = FormUtils::create_textarea($parms);
 		}
 		return $ret;
 	}

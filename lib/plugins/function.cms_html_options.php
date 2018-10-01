@@ -42,7 +42,7 @@ function smarty_function_cms_html_options($params, $template)
 			$selected = $params['selected'];
 			if( !is_array($selected) ) $selected = explode(',',$selected);
 		}
-		$out = CmsFormUtils::create_option($params['options'],$selected);
+		$out = CMSMS\FormUtils::create_option($params['options'],$selected);
 	}
 
 	if( isset($params['assign']) ) {

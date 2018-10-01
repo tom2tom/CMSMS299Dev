@@ -28,7 +28,7 @@ function smarty_function_cms_init_editor($params, $template)
 	}
 	else {
 		// we're gonna calll the wysiwygs
-		$wysiwygs = CmsFormUtils::get_requested_wysiwyg_modules();
+		$wysiwygs = CMSMS\FormUtils::get_requested_wysiwyg_modules();
 		if( !is_array($wysiwygs) || count($wysiwygs) == 0 ) return;
 		$tmp = array_keys($wysiwygs);
 		$wysiwyg = $tmp[0]; // first wysiwyg only, for now.

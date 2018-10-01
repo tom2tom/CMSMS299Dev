@@ -20,7 +20,7 @@ function smarty_function_tab_start($params, $template)
 {
 	if( empty($params['name']) ) return '';
 
-	$out = cms_admin_tabs::start_tab(trim($params['name']));
+	$out = CMSMS\AdminTabs::start_tab(trim($params['name']));
 	if( isset($params['assign']) ) {
 		//TODO why global smarty instead of $template ?
 		$template->smarty->assign(trim($params['assign']),$out);

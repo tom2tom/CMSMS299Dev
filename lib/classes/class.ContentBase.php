@@ -29,11 +29,11 @@ use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CmsContentException;
-use CmsFormUtils;
 use CmsInvalidDataException;
 use CMSMS\AdminUtils;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
+use CMSMS\FormUtils;
 use CMSMS\GroupOperations;
 use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
@@ -2103,9 +2103,8 @@ WHERE content_id = ?';
 		$topts = self::GetAdditionalEditorOptions();
 		foreach( $topts as $k => $v ) {
 			if( $k == $owner_id ) continue;
-			$text .= CmsFormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
+			$text .= FormUtils::create_option(['label'=>$v,'value'=>$k],$addteditors);
 		}
-
 
 		$text .= '</select>';
 		$ret[] = $text;

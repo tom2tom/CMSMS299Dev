@@ -20,7 +20,7 @@ function smarty_function_cms_textarea($params, $template)
 {
 	if( !isset($params['name']) ) throw new CmsInvalidDataException('syntax_area misssing parameter: name');
 
-	$out = CmsFormUtils::create_textarea($params);
+	$out = CMSMS\FormUtils::create_textarea($params);
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$out);
 		return;
