@@ -81,7 +81,7 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
         }
     }
 
-    if( !is_array($changelist) || count($changelist) == 0 ) {
+    if( !$changelist ) {
         $this->ShowErrors($this->Lang('error_ordercontent_nothingtodo'));
     }
     else {

@@ -32,7 +32,7 @@ $active = 0;
 if( isset($params['active']) ) $active = (int)$params['active'];
 
 $multicontent = unserialize(base64_decode($params['multicontent']));
-if( count($multicontent) == 0 ) {
+if( !$multicontent ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }

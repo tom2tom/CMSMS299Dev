@@ -37,7 +37,7 @@ if( $term ) {
 
     if( !$this->CheckPermission('Manage All Content') && !$this->CheckPermission('Modify Any Page') ) {
         $pages = author_pages(get_userid(FALSE));
-        if( count($pages) == 0 ) return;
+        if( !$pages ) return;
 
         // query only these pages.
         $query .= ' AND content_id IN ('.implode(',',$pages).')';

@@ -782,7 +782,7 @@ WHERE id = ?';
 				$row = $db->GetRow($query,[trim($tmp[0]),trim($tmp[1])]);
 			}
 		}
-		if( !is_array($row) || count($row) == 0 ) throw new CmsDataNotFoundException('Could not find template-type identified by '.$val);
+		if( !$row ) throw new CmsDataNotFoundException('Could not find template-type identified by '.$val);
 
 		return self::_load_from_data($row);
 	}
@@ -805,7 +805,7 @@ WHERE id = ?';
 		if( self::$_cache ) $query .= ' AND id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= ' ORDER BY modified DESC';
 		$list = $db->GetArray($query,[$originator]);
-		if( !is_array($list) || count($list) == 0 ) return;
+		if( !$list ) return;
 
 		foreach( $list as $row ) {
 			self::_load_from_data($row);
@@ -821,7 +821,7 @@ WHERE id = ?';
 	/**
 	 * Load all template-types
 	 *
-	 * @return array Array of CmsLayoutTemplateType objects
+	 * @return array Array of CmsLayoutTemplateType objects, or null
 	 */
 	public static function get_all()
 	{
@@ -830,7 +830,7 @@ WHERE id = ?';
 		if( self::$_cache && count(self::$_cache) ) $query .= ' WHERE id NOT IN ('.implode(',',array_keys(self::$_cache)).')';
 		$query .= '	ORDER BY modified ASC';
 		$list = $db->GetArray($query);
-		if( !is_array($list) || count($list) == 0 ) return;
+		if( !$list ) return;
 
 		foreach( $list as $row ) {
 			self::_load_from_data($row);
@@ -843,10 +843,11 @@ WHERE id = ?';
 	 * Load template-type objects by specifying an array of ids
 	 *
 	 * @param int[] $list Array of template-type ids
+	 * @return array Array of CmsLayoutTemplateType objects, or null
 	 */
 	public static function load_bulk($list)
 	{
-		if( !is_array($list) || count($list) == 0 ) return;
+		if( !$list ) return;
 
 		$list2 = [];
 		foreach( $list as $one ) {
@@ -855,11 +856,12 @@ WHERE id = ?';
 			if( isset(self::$_cache[$one]) ) continue;
 			$list2[] = $one;
 		}
+		if( !$list2 ) return;
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list).')';
 		$list = $db->GetArray($query);
-		if( !is_array($list) || count($list2) == 0 ) return;
+		if( !$list ) return;
 
 		$out = [];
 		foreach( $list as $row ) {

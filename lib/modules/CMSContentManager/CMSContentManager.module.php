@@ -44,9 +44,9 @@ final class CMSContentManager extends CMSModule
         if( $this->CheckPermission('Modify Any Page') ) return true;
 
         $pages = author_pages(get_userid(false));
-        if( count($pages) == 0 ) return false;
-
-        return $content_id <= 0 || in_array($content_id,$pages);
+        if( !$pages ) return false;
+		if( $content_id <= 0 ) return true;
+        return in_array($content_id,$pages);
     }
 
     public function GetHeaderHTML()

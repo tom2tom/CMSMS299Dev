@@ -111,7 +111,7 @@ final class content_cache
 
 		$list = $this->get_loaded_page_ids();
 		if( $list ) {
-			if( !is_array($this->_preload_cache) || count($this->_preload_cache) == 0 ) {
+			if( !$this->_preload_cache ) {
 				$dirty = TRUE;
 			}
 			else {

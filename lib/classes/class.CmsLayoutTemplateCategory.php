@@ -293,7 +293,7 @@ class CmsLayoutTemplateCategory
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$row = $db->GetRow($query,[$val]);
 		}
-		if( !is_array($row) || count($row) == 0 ) throw new CmsDataNotFoundException('Could not find template category identified by '.$val);
+		if( !$row ) throw new CmsDataNotFoundException('Could not find template category identified by '.$val);
 
 		return self::_load_from_data($row);
 	}

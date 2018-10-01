@@ -1092,7 +1092,7 @@ abstract class ContentBase
 	private function _save_properties() : bool
 	{
 		if( $this->mId <= 0 ) return false;
-		if( !is_array($this->_props) || count($this->_props) == 0 ) return false;
+		if( !$this->_props ) return false;
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT prop_name FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';

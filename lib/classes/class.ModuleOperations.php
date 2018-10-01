@@ -324,7 +324,7 @@ final class ModuleOperations
 	 */
 	private function _get_module_info()
 	{
-		if( !is_array($this->_moduleinfo) || count($this->_moduleinfo) == 0 ) {
+		if( !$this->_moduleinfo ) {
 			$tmp = global_cache::get('modules');
 			if( is_array($tmp) ) {
 				$this->_moduleinfo = [];

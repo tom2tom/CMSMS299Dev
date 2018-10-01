@@ -22,25 +22,18 @@ if( !isset($gCms) ) exit;
 // init
 //
 $this->SetCurrentTab('pages');
-$multiaction = null;
-$multicontent = null;
-$module = null;
-$bulkaction = null;
 $pages = null;
 
 //
 // get data
 //
 if( isset($params['multicontent']) ) $multicontent = unserialize(base64_decode($params['multicontent']));
-if( isset($params['multiaction']) ) $multiaction = $params['multiaction'];
-
-//
-// validate 1
-//
-if( !is_array($multicontent) || count($multicontent) == 0 ) {
+else $multicontent = null;
+if( !$multicontent ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
+$multiaction = $params['multiaction'] ?? null;
 if( !$multiaction ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();

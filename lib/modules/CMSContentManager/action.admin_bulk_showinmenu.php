@@ -32,7 +32,7 @@ $showinmenu = 1;
 if( isset($params['showinmenu']) ) $showinmenu = (int)$params['showinmenu'];
 
 $multicontent = unserialize(base64_decode($params['multicontent']));
-if( count($multicontent) == 0 ) {
+if( !$multicontent ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }

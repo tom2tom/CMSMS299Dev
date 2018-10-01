@@ -279,8 +279,8 @@ class CmsLayoutCollection
 	 */
 	public function has_templates()
 	{
-		if( count($this->_tpl_assoc) == 0 ) return FALSE;
-		return TRUE;
+		if( $this->_tpl_assoc ) return TRUE;
+		return FALSE;
 	}
 
 	/**
@@ -602,7 +602,7 @@ class CmsLayoutCollection
 			$row = $db->GetRow($query,[trim($x)]);
 		}
 
-		if( !is_array($row) || count($row) == 0 ) throw new CmsDataNotFoundException('Could not find design row identified by '.$x);
+		if( !$row ) throw new CmsDataNotFoundException('Could not find design row identified by '.$x);
 
 		// get attached css
 		$query = 'SELECT css_id FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ? ORDER BY item_order';

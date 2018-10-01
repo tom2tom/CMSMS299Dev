@@ -701,7 +701,7 @@ VALUES (?,?,?,?,?,?,?)';
 			$query = 'SELECT id,name,content,description,media_type,media_query,created,modified FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$row = $db->GetRow($query,[$a]);
 		}
-		if( !is_array($row) || count($row) == 0 ) throw new CmsInvalidDataException('Could not find stylesheet identified by '.$a);
+		if( !$row ) throw new CmsInvalidDataException('Could not find stylesheet identified by '.$a);
 
 		return self::_load_from_data($row);
 	}
@@ -718,7 +718,7 @@ VALUES (?,?,?,?,?,?,?)';
 	*/
 	public static function load_bulk($ids,$deep = true)
 	{
-		if( !is_array($ids) || count($ids) == 0 ) return;
+		if( !$ids ) return;
 
 		// clean up the input data
 		$is_ints = FALSE;

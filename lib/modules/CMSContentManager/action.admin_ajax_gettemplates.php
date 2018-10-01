@@ -71,6 +71,6 @@ catch( Exception $e ) {
     $out = null;
 }
 
-if( !is_array($out) || count($out) == 0 ) $out = null;
+if( !$out ) $out = null;
 echo json_encode($out);
 exit;

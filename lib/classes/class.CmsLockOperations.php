@@ -124,7 +124,7 @@ final class CmsLockOperations
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.CmsLock::LOCK_TABLE.' WHERE type = ?';
 		$tmp = $db->GetArray($query,[$type]);
-		if( !is_array($tmp) || count($tmp) == 0 ) return;
+		if( !$tmp ) return;
 
 		$locks = [];
 		foreach( $tmp as $row ) {

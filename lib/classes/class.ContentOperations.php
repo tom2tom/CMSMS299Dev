@@ -1087,7 +1087,7 @@ EOS;
 		if( check_permission($userid,'Manage All Content') ) return TRUE;
 
 		$access = $this->GetPageAccessForUser($userid);
-		if( !is_array($access) || count($access) == 0 ) return FALSE;
+		if( !$access ) return FALSE;
 
 		$node = $this->quickfind_node_by_id($contentid);
 		if( !$node ) return FALSE;

@@ -114,7 +114,7 @@ final class ModulePluginManager
 	 */
 	private function _save()
 	{
-		if( !is_array($this->_data) || count($this->_data) == 0 || $this->_modified == FALSE )
+		if( !$this->_data || $this->_modified == FALSE )
 			return;
 
 		$db = CmsApp::get_instance()->GetDb();

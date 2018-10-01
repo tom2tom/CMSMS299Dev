@@ -182,7 +182,7 @@ final class CmsPermission
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'permissions WHERE permission_name = ?';
 			$row = $db->GetRow($query,[$name]);
 		}
-		if( !is_array($row) || count($row) == 0 ) {
+		if( !$row ) {
 			throw new CmsInvalidDataException('Could not find permission named '.$name);
 		}
 

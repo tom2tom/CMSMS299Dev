@@ -1049,7 +1049,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	*/
 	public static function load_bulk($list,$deep = true)
 	{
-		if( !is_array($list) || count($list) == 0 ) return;
+		if( !$list ) return;
 
 		$list2 = [];
 		foreach( $list as $one ) {
@@ -1125,7 +1125,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
 			$row = $db->GetRow($query,[$a]);
 		}
-		if( !is_array($row) || count($row) == 0 ) throw new CmsDataNotFoundException('Could not find template identified by '.$a);
+		if( !$row ) throw new CmsDataNotFoundException('Could not find template identified by '.$a);
 
 		return self::_load_from_data($row);
 	}
@@ -1291,7 +1291,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id = ? AND type_dflt = ?';
 		$row = $db->GetRow($query,[$t2->get_id(),1]);
-		if( !is_array($row) || count($row) == 0 ) throw new CmsDataNotFoundException('Could not find default CmsLayoutTemplate row for type '.$t2->get_name());
+		if( !$row ) throw new CmsDataNotFoundException('Could not find default CmsLayoutTemplate row for type '.$t2->get_name());
 
 		return self::_load_from_data($row);
 	}
@@ -1301,14 +1301,14 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	*
 	* @throws CmsDataNotFoundException
 	* @param CmsLayoutTemplateType $type
-	* @return array Array of CmsLayoutTemplate objects
+	* @return array Array of CmsLayoutTemplate objects, or null
 	*/
 	public static function load_all_by_type(CmsLayoutTemplateType $type)
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id = ?';
 		$tmp = $db->GetArray($query,[$type->get_id()]);
-		if( !is_array($tmp) || count($tmp) == 0 ) return;
+		if( !$tmp ) return;
 
 		$out = [];
 		foreach( $tmp as $row ) {

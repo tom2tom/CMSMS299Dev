@@ -105,7 +105,7 @@ if( isset($params['submit']) ) {
 // expand $params['multicontent'] to also include children, place it in $pagelist
 //
 $multicontent = unserialize(base64_decode($params['multicontent']));
-if( count($multicontent) == 0 ) {
+if( !$multicontent ) {
     $this->SetError($this->Lang('error_missingparam'));
     $this->RedirectToAdminTab();
 }
@@ -145,7 +145,7 @@ foreach( $pagelist as $pid ) {
   $displaydata[] = $rec;
 }
 
-if( count($displaydata) == 0 ) {
+if( !$displaydata ) {
   $this->SetError($this->Lang('error_delete_novalidpages'));
   $this->RedirectToAdminTab();
 }

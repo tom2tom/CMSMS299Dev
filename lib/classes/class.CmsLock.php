@@ -277,7 +277,7 @@ final class CmsLock implements \ArrayAccess
             $parms[] = $uid;
         }
         $row = $db->GetRow($query,$parms);
-        if( !is_array($row) || count($row) == 0 ) throw new CmsNoLockException('CMSEX_L005','',[$lock_id,$type,$oid,$uid]);
+        if( !$row ) throw new CmsNoLockException('CMSEX_L005','',[$lock_id,$type,$oid,$uid]);
 
         return self::from_row($row);
     }
@@ -300,7 +300,7 @@ final class CmsLock implements \ArrayAccess
             $parms[] = $uid;
         }
         $row = $db->GetRow($query,$parms);
-        if( !is_array($row) || count($row) == 0 ) throw new CmsNoLockException('CMSEX_L005','',[$type,$uid,$uid]);
+        if( !$row ) throw new CmsNoLockException('CMSEX_L005','',[$type,$uid,$uid]);
 
         return self::from_row($row);
     }
