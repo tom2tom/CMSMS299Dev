@@ -46,7 +46,7 @@ interface FormTags
    /**
 	* Returns a form element representing a tooltip-enabled href link.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $action		The action that this form should do when the link is clicked
 	* @param string $returnid	The id to eventually return to when the module is finished it's task
 	* @param string $contents	The text that will have to be clicked to follow the link
@@ -61,7 +61,7 @@ interface FormTags
    /**
 	* Returns a form element representing a fieldset and legend.
 	*
-	* @param string $id				The id given to the module on execution (not really used yet, but might be later)
+	* @param mixed  $id			    string|null The id given to the module on execution, or falsy for admin hence 'm1_' (not really used yet, but might be later)
 	* @param string $name			The html name of the element
 	* @param string $legend_text	The legend_text for this fieldset, if applicaple
 	* @param string $addtext		Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -84,7 +84,7 @@ interface FormTags
 	* Returns a form element representing the start of a module form,
 	* optimized for frontend use.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $returnid	The page id to eventually return to when the module is finished it's task
 	* @param string $action		The name of the action that this form should do when the form is submitted
 	* @param string $method		Method to use for the form tag.  Defaults to 'post'
@@ -111,7 +111,7 @@ interface FormTags
    /**
 	* Returns a form element representing the start of a module form.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $action		The action that this form should do when the form is submitted
 	* @param string $returnid	The page id to eventually return to when the module is finished it's task
 	* @param string $method		Method to use for the form tag.  Defaults to 'post'
@@ -148,7 +148,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input textbox.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $size		The number of columns wide the textbox should be displayed
@@ -163,7 +163,7 @@ interface FormTags
    /**
 	* Returns a form element representing a label for an input field.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the input element this label is associated with
 	* @param string $labeltext	The text in the label
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -176,7 +176,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input textbox with label.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $size		The number of columns wide the textbox should be displayed
@@ -203,7 +203,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type color.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -216,7 +216,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type date.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -229,7 +229,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type datetime.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -242,7 +242,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type datetime-local.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -255,7 +255,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type month.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -268,7 +268,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type week.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -281,7 +281,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type time.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -294,7 +294,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type number.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -307,7 +307,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type range.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -320,7 +320,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type email.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
@@ -335,7 +335,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input textbox of type tel.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
@@ -350,7 +350,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type search.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
@@ -365,7 +365,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input of type URL.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The initial value of the textbox, if any
 	* @param string $size	The number of columns wide the textbox should be displayed
@@ -380,7 +380,7 @@ interface FormTags
    /**
 	* Returns a form element representing a file-selector field.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $accept The MIME-type to be accepted, default is all
 	* @param string $size	The number of columns wide the textbox should be displayed. Deprecated since 2.3 - use $attrs[] instead
@@ -394,7 +394,7 @@ interface FormTags
 	* Returns a form element representing a file upload input.
 	* @deprecated alias for this method: CreateFileUploadInput()
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
 	* @param int	$size		The size of the text field associated with the file upload field.  Some browsers may not respect this value
@@ -408,7 +408,7 @@ interface FormTags
    /**
 	* Returns a form element representing a password input.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	 	he html name of the element
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $size		The number of columns wide the textbox should be displayed
@@ -423,7 +423,7 @@ interface FormTags
    /**
 	* Returns a form element representing a hidden field.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The initial value of the field, if any
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -436,7 +436,7 @@ interface FormTags
    /**
 	* Returns a form element representing a checkbox.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The value returned from the input if selected
 	* @param string $selectedvalue The current value. If equal to $value the checkbox is selected
@@ -450,7 +450,7 @@ interface FormTags
    /**
 	* Returns a form element representing a submit button.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The button label
 	* @param string $addtext	Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -465,7 +465,7 @@ interface FormTags
    /**
 	* Returns a form element representing a reset button.
 	*
-	* @param string $id		The id given to the module on execution
+	* @param mixed  $id		string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name	The html name of the element
 	* @param string $value	The button label
 	* @param string $addtext Any additional text to be added into the tag. Deprecated since 2.3 - use $attrs[] instead
@@ -478,7 +478,7 @@ interface FormTags
    /**
 	* Returns a form element representing a dropdown list.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $items		An array of items to put into the dropdown list... they should be $key=>$value pairs
 	* @param string $selectedindex The default selected index of the dropdown list.  Setting to -1 will result in the first choice being selected
@@ -493,7 +493,7 @@ interface FormTags
    /**
 	* Returns a form element representing an input field with datalist options.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $value		The initial value of the textbox, if any
 	* @param string $items		An array of items to put into the list... they should be $key=>$value pairs
@@ -509,7 +509,7 @@ interface FormTags
    /**
 	* Returns a form element representing a multi-select list.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $items		An array of items to put into the list... they should be $key=>$value pairs
 	* @param string $selecteditems An array of items in the list that should default to selected
@@ -525,7 +525,7 @@ interface FormTags
    /**
 	* Returns form elements representing a set of radio buttons.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $name		The html name of the element
 	* @param string $items		An array of items to create as radio buttons... they should be $key=>$value pairs
 	* @param string $selectedvalue The default selected index of the radio group.	 Setting to -1 will result in the first choice being selected
@@ -542,7 +542,7 @@ interface FormTags
 	* Takes WYSIWYG preference into consideration if called from the admin side.
 	*
 	* @param bool	$enablewysiwyg Should we try to create a WYSIWYG for this textarea?
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $text		The text to initially display in the element
 	* @param string $name		The html name of the element
 	* @param string $classname	The CSS class to associate this textarea with
@@ -580,7 +580,7 @@ interface FormTags
 	* Takes Syntax hilighter preference into consideration if called
 	* from the admin side.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $text		The text to initially display in the element
 	* @param string $name		The html name of the element
 	* @param string $classname	The CSS class to associate this textarea with
@@ -611,7 +611,7 @@ interface FormTags
    /**
 	* Returns a form element representing a link.
 	*
-	* @param string $id				The id given to the module on execution
+	* @param mixed  $id				string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $returnid		The page-id to eventually return to when the module is finished it's task
 	* @param string $action			The action that this form should do when the link is clicked
 	* @param string $contents		The displayed clickable text for the link
@@ -646,7 +646,7 @@ interface FormTags
    /**
 	* Returns a form element representing a link to a module action.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $action		The action that this form should do when the link is clicked
 	* @param string $returnid	The page-id to eventually return to when the module is finished it's task
 	* @param string $contents	The displayed clickable text for the link
@@ -690,7 +690,7 @@ interface FormTags
    /**
 	* Returns a form element representing a return-to-page link.
 	*
-	* @param string $id			The id given to the module on execution
+	* @param mixed  $id			string|null The id given to the module on execution, or falsy for admin hence 'm1_'
 	* @param string $returnid	The page-id to return to
 	* @param string $contents	The displayed clickable text for the link
 	* @param string $params		An array of parameters to be included in the URL of the link. These should be in a $key=>$value format
