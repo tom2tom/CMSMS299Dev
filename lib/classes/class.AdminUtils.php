@@ -177,6 +177,8 @@ final class AdminUtils
 				['icons','icon.png'],
 				['images','icon.gif'],
 				['icons','icon.gif'],
+				['images','icon.i'],
+				['icons','icon.i'],
 			];
 			foreach ($dirs as $base) {
 				foreach ($appends as $one) {
@@ -187,6 +189,22 @@ final class AdminUtils
 							// see https://css-tricks.com/using-svg
 							$alt = str_replace('svg','png',$path);
 							$out = '<img src="'.$path.'" onerror="this.onerror=null;this.src=\''.$alt.'\';"';
+						} elseif (endswith($path, '.i')) {
+							$props = parse_ini_file($path, false, INI_SCANNER_TYPED);
+							if ($props) {
+								foreach ($props as $key => $value) {
+									if (isset($attrs[$key]) ) {
+										if (is_numeric($value) || is_bool($value)) {
+											continue; //supplied attrib prevails
+										} elseif (is_string($value)) {
+											$attrs[$key] = $value.' '.$attrs[$key];
+										}
+									} else {
+										$attrs[$key] = $value;
+									}
+								}
+							}
+							$out = '<i';
 						} else {
 							$out = '<img src="'.$path.'"';
 						}
@@ -196,7 +214,11 @@ final class AdminUtils
 								$out .= " $key=\"$value\"";
 							}
 						}
-						$out .= ' />';
+						if (!endswith($path, '.i')) {
+							$out .= ' />';
+						} else {
+							$out .= '></i>';
+						}
 						return $out;
 					}
 				}
