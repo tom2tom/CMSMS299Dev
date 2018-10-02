@@ -540,9 +540,12 @@ table.pagetable a.text-red {
 .info, .pageinfo, .information {
     background: #d7def4;
     border: 1px solid #058dc7;
+}
+.info, .pageinfo { 
     padding-left: 2.8em;
 }
-.info::before, .pageinfo::before, .information::before {
+
+.info::before, .pageinfo::before {
     margin-left: -1.5em;
     margin-right: 0.1em;
     content: '\f05a';
