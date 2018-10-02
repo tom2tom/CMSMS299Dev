@@ -3,7 +3,7 @@ Version 2.3 - NO NAME SET
 ADMIN USER-FACING CHANGES
 
 extra admin themes
-'services' section in admin menu (for user-interactive things that aren't page-content per se e.g. news, ecommerce)
+'services' section in admin menu (for site-content administration, as distinct from page-content, i.e. user-interactive things like news, ecommerce, forms data)
 replacement notifications mechanism
 consistent js-initiated dialogs (no more 'native' popups)
 displayed images may also be svg, png or fonticon, with svg preferred if present
@@ -117,14 +117,14 @@ module-related classes & interfaces without suitable namespace
 css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox
 
 DETAILS
-  - New method: AdminUtils::get_module_icon()
   - New content placement methods: CMSModule::AdminHeaderContent(), AdminBottomContent()
   - New notification methods: CMSModule::SetInfo(),SetMessage(),SetWarning(),SetError()
   - New method: CMSModule::get_cli_commands()
   - New method: CMSModule::get_controller()
   - New method: CMSModule::create_pageurl()
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
-  MORE ...
+  - New method: AdminUtils::get_module_icon()
+  MORE TO COME HERE ...
   - REMOVED: MenuManager is no longer distributed with CMSMS core, and is no longer considered a system module.
   - Remove secure option from content pages
   - $config->smart_root_url() is no longer used, and outputs deprecated messages to log.
