@@ -136,10 +136,6 @@ if( $udt_list ) {
 
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)' );
     $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)' );
-
-    verbose_msg(ilang('upgrading_schema',204));
-    $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 204';
-    $db->Execute($query);
 }
 
 // 5. Tweak callbacks for page and generic layout template types
@@ -162,9 +158,15 @@ if( $generic_type ) {
     error_msg('__CORE__::generic template update '.ilang('failed'));
 }
 
-// 6. Extra permissions
+// 6. Revised/extra permissions
+$now = time();
+$longnow = $db->DbTimeStamp($now);
+$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
+$db->Execute($query, ['Modify Simple Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
+$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
+$db->Execute($query);
+
 foreach( [
- 'Modify Simple Plugins',
  'Modify Site Code',
 // 'Modify Site Assets',
  'Remote Administration',  //for app management sans admin console
@@ -295,7 +297,6 @@ if ($data) {
     $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.
         ' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
     $dt = new DateTime(null, new DateTimeZone('UTC'));
-    $now = time();
     $types = [];
     foreach ($data as $row) {
         $name = $row['module_name'];
@@ -334,7 +335,6 @@ $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
 
 // 10. Update preferences
-$now = $db->DbTimeStamp(time());
 // migrate to new default theme
 $files = glob(joinpath(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
 foreach ($files as $one) {
@@ -343,12 +343,12 @@ foreach ($files as $one) {
         $query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=? WHERE preference=\'admintheme\'';
         $db->Execute($query,[$name]);
         $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value=?,modified_date=? WHERE sitepref_name=\'logintheme\'';
-        $db->Execute($query,[$name,$now]);
+        $db->Execute($query,[$name,$longnow]);
         break;
     }
 }
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
-$db->Execute($query,[$now,$now]);
+$db->Execute($query,[$longnow,$longnow]);
 
 //if ($return == 2) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 205';
