@@ -106,7 +106,7 @@ function cms_module_create_actionurl(
 		];
 
 		if ($frontend) {
-			$text = $base_url . 'index.php';
+			$text = $base_url . '/index.php';
 		} elseif (isset($_SESSION[CMS_USER_KEY])) {
 			$text = $config['admin_url'] . '/moduleinterface.php';
 			$parms[CMS_SECURE_PARAM_NAME] = $_SESSION[CMS_USER_KEY];
