@@ -21,7 +21,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 /**
  * Methods for modules to construct URL's.
  *
- * @since	2.3
+ * @since 2.3
  *
  * @license GPL
  */
@@ -34,7 +34,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  * @param module-object $modinstance The module to which the action belongs
  * @param mixed $id		string|null The module action-id (e.g. 'cntnt01' indicates
  *   that the default content block of the destination frontend-page is to be targeted),
- *   falsy value will be translated to 'm1_' for an admin request.
+ *   a falsy value for an admin action will be translated to 'm1_'.
  * @param string $action	The module action name
  * Optional parameters
  * @param mixed $returnid Optional page-id to return to after the action
@@ -49,10 +49,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *   output link targets the content area of the destination page Default false
  * @param string $prettyurl Optional url part(s) Default ''
  * @param int    $mode since 2.3 Optional indicator for how to format the url
- *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
- *  1 = raw: no rawurlencoding, '&' for parameter separators - e.g. for use in js
- *  2 = page-displayable: all html_entitized, probably not usable as-is
- *
+ *  0 = (default, back-compatible) rawurlencoded parameter keys and values
+ *      other than the value for key 'mact', '&amp;' for parameter separators
+ *  1 = proper: as for 0, but also encode the 'mact' value
+ *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
+ *  3 = page-displayable: all html_entitized, probably not usable as-is
  * @return string Ready-to-use or corresponding displayable URL.
  */
 function cms_module_create_actionurl(
@@ -68,16 +69,16 @@ function cms_module_create_actionurl(
 	) : string {
 
 	if ($id) {
-		$id = sanitize($id);
-		assert($id != false, __METHOD__.' error : $id parameter is missing');
+		$id = trim($id); //sanitize not needed, breaks back-compatibility
+		assert($id != false, __METHOD__.' error : $id parameter is invalid');
 		if (!$id) {
-			return '<!-- '.__METHOD__.' error : "id" parameter is missing -->';
+			return '<!-- '.__METHOD__.' error : "id" parameter is invalid -->';
 		}
 	} else {
 		$id = 'm1_';
 	}
 
-	$action = sanitize($action);
+	$action = trim($action); //sanitize not needed, breaks back-compatibility
 	assert($action != false, __METHOD__.' error : $action parameter is missing');
 	if (!$action) {
 		return '<!-- '.__METHOD__.' error : "action" parameter is missing -->';
@@ -134,8 +135,11 @@ function cms_module_create_actionurl(
 		}
 
 		switch ($mode) {
-			case 1:
 			case 2:
+				$sep = '&';
+				$enc = true;
+				break;
+			case 3:
 				$sep = '&';
 				$enc = false;
 				break;
@@ -148,8 +152,10 @@ function cms_module_create_actionurl(
 		$count = 0;
 		foreach ($parms as $key => $value) {
 			if ($enc) {
+				if ($mode != 0 || $key != 'mact') {
+					$value = rawurlencode($value);
+				}
 				$key = rawurlencode($key);
-				$value = rawurlencode($value);
 			}
 			if ($count == 0) {
 				$text .= '?'.$key.'='.$value;
@@ -159,7 +165,7 @@ function cms_module_create_actionurl(
 			}
 		}
 	}
-	if ($mode == 2) {
+	if ($mode == 3) {
 		$text = cms_htmlentities($text);
 	}
 	return $text;
@@ -172,7 +178,7 @@ function cms_module_create_actionurl(
  *
  * @param mixed $id	string|null The module action-id (e.g. 'cntnt01' indicates that
  *   the default content block of the destination frontend-page is to be targeted),
- *   falsy value will be translated to 'm1_' for an admin request.
+ *   a falsy value for an admin page will be translated to 'm1_'.
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
@@ -212,10 +218,10 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $mode
 				$count = 0;
 
 				if ($id) {
-					$id = sanitize($id);
-					assert($id != false, __METHOD__.' error : $id parameter is missing');
+					$id = trim($id);  //sanitize not needed, breaks back-compatibility
+					assert($id != false, __METHOD__.' error : $id parameter is invalid');
 					if (!$id) {
-						return '<!-- '.__METHOD__.' error : "id" parameter is missing -->';
+						return '<!-- '.__METHOD__.' error : "id" parameter is invalid -->';
 					}
 				} else {
 					$id = 'm1_';

@@ -20,6 +20,7 @@ enhanced security - latest PHP-password-cache algorithm, better user-input sanit
 replacement database-interface, more tailored to extract performance from MySQL
 to speed autoloading at least, all php classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice. Eventually, all our classes will be spaced.
 remote administration API (calguy to describe, please!)
+optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions. So e.g. js can be removed from templates, and inserted at page-bottom.
 pre-configuration of site-installation parameters
 also support installation based on sources in a git repo
 
@@ -108,13 +109,22 @@ deprecated
 
 Smarty2 API - e.g. method assign_by_ref() migrates to assignByRef() see https://github.com/smarty-php/smarty/blob/master/libs/SmartyBC.class.php
 adodb-lite database-interface API
-page-content creation via the module-class API (CreateInput...() and the like) - use CmsFormUtils-class API
-page-tab functions via the Admintheme classes - use cms_admin_tabs-class API
+page-element creation via the module-class API (CreateInput...() and the like) - use CMSMS\FormUtils-class (aka CmsFormUtils-class) API
+page-tab functions via the Admintheme classes - use CMSMS\AdminTabs-class (aka cms_admin_tabs-class) API
+most of the page-tab functions in the module-class - same replacement as previous point
 some individual methods scattered across various classes - refer to API documentation
 module-related classes & interfaces without suitable namespace
 css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox
 
 DETAILS
+  - New method: AdminUtils::get_module_icon()
+  - New content placement methods: CMSModule::AdminHeaderContent(), AdminBottomContent()
+  - New notification methods: CMSModule::SetInfo(),SetMessage(),SetWarning(),SetError()
+  - New method: CMSModule::get_cli_commands()
+  - New method: CMSModule::get_controller()
+  - New method: CMSModule::create_pageurl()
+  - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
+  MORE ...
   - REMOVED: MenuManager is no longer distributed with CMSMS core, and is no longer considered a system module.
   - Remove secure option from content pages
   - $config->smart_root_url() is no longer used, and outputs deprecated messages to log.
