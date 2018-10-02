@@ -6,6 +6,7 @@ $js = <<<EOS
 <script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
+
 EOS;
 if ($list) {
     $js .= <<<EOS
@@ -30,16 +31,17 @@ function news_dopreview() {
       $('#previewframe').attr('src', details);
     } else {
       if(details === '') {
-		details = '$this->Lang("error_unknown")';
+        details = '$this->Lang("error_unknown")';
       }
       // preview save did not work
       cms_notify('error', details);
     }
   }, 'xml');
 }
+
 EOS;
-   } //templates present
-    $js .= <<<EOS
+} //templates present
+$js .= <<<EOS
 $(document).ready(function() {
   $('[name$=apply],[name$=submit]').hide();
   $('#edit_news').dirtyForm({
@@ -60,6 +62,7 @@ $(document).ready(function() {
   $('[name$=cancel]').on('click', function() {
     $(this).closest('form').attr('novalidate', 'novalidate');
   });
+
 EOS;
 if ($list) {
     $js .= <<<EOS
@@ -88,19 +91,21 @@ if ($list) {
   $('#preview').on('click', function(ev) {
     ev.preventDefault();
     news_dopreview();
-	return false;
+    return false;
   });
   $("input[name='preview_returnid'],#preview_template").on('change', function(ev) {
     ev.preventDefault();
     news_dopreview();
-	return false;
+    return false;
   });
+
 EOS;
-    } //templates present
+} //templates present
 $js .= <<<EOS
 });
 //]]>
 </script>
+
 EOS;
 
 $this->AdminBottomContent($js);
