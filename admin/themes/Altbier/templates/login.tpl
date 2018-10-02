@@ -22,6 +22,7 @@
 			<div class="row">
 				<div class="mx-auto">
 					<div class="login-box p-2 p-sm-4"{if isset($error)} id="error"{/if}>
+						{if empty($smarty.get.forgotpw)}
 						<div class="col-12 info-wrapper open">
 							<aside class="p-4">
 								<h2>{'login_info_title'|lang}</h2>
@@ -35,6 +36,7 @@
 							</aside>
 						</div>
 						<a href="#" title="{'open'|lang}/{'close'|lang}" class="toggle-info"><span tabindex="0" role="note" aria-label="{'login_info_title'|lang}" class="fas fa-info-circle"></span><span class="sr-only">{'open'|lang}/{'close'|lang}</span></a>
+						{/if}
 						<header class="col-12 text-center">
 							<h1>{lang('login_sitetitle',{sitename})}</h1>
 						</header>
@@ -42,7 +44,7 @@
 						{if isset($form)}{$form}{else}{include file='form.tpl'}{block name=form}{/block}{/if}
 						</div>
 						{if !empty($smarty.get.forgotpw)}
-							<div tabindex="0" role="alertdialog" class="col-12 message warning mt-2 py-2">
+							<div tabindex="0" role="alertdialog" class="col-12 message information mt-2 py-2">
 								{'forgotpwprompt'|lang}
 							</div>
 						{/if}
@@ -62,7 +64,7 @@
 							</div>
 						{/if}
 						{if !empty($changepwhash)}
-							<div tabindex="0" role="alertdialog" class="col-12 message warning mt-2 py-2">
+							<div tabindex="0" role="alertdialog" class="col-12 message information mt-2 py-2">
 								{'passwordchange'|lang}
 							</div>
 						{/if}
