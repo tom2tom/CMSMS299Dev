@@ -280,7 +280,7 @@ $lang['info_fesubmit_notification'] = 'You may optionally send an email to a sin
 $lang['info_maxlength'] = 'The maximum length only applies to text input fields.';
 $lang['info_public'] = 'Only Public fields are available for frontend editing, and/or for display in summary or detail views.';
 $lang['info_reorder_categories'] = 'Drag and drop each item into the correct order to change category relationships';
-$lang['info_searchable'] = 'This field indicates whether this article should be indexed by the search module';
+//$lang['info_searchable'] = 'This field indicates whether this article should be indexed by the search module';
 $lang['info_sysdefault'] = '(the content used by default when a new template is created)';
 $lang['info_sysdefault2'] = '<strong>Note:</strong> This tab contains text areas to allow you to edit a set of templates that are displayed when you create a \'new\' summary, detail, or form template.  Changing content in this tab, and clicking \'submit\' will <strong>not affect any current displays</strong>.';
 

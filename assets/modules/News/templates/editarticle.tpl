@@ -121,8 +121,6 @@
       <input type="hidden" name="{$actionid}searchable" value="0" />
       <p class="pageinput">
         <input type="checkbox" name="{$actionid}searchable" id="searchable" value="1"{if $searchable} checked="checked"{/if} />
-        <br />
-        {$mod->Lang('info_searchable')}
       </p>
     </div>
 
