@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
+use CMSMS\Mailer;
 use CMSMS\User;
 
 /*
@@ -40,7 +41,7 @@ function send_recovery_email(User $user, &$mod)
 {
     global $config;
 
-    $obj = new cms_mailer();
+    $obj = new Mailer();
     $obj->IsHTML(true);
     $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
     $obj->SetSubject($mod->Lang('lostpwemailsubject', html_entity_decode(cms_siteprefs::get('sitename', 'CMSMS Site'))));

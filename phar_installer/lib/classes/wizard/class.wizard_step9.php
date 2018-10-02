@@ -125,7 +125,7 @@ VALUES (?,?,?,NOW(),NOW())');
         if( is_array($adminacct) && isset($adminacct['emailaccountinfo']) && $adminacct['emailaccountinfo'] && isset($adminacct['emailaddr']) && $adminacct['emailaddr'] ) {
             try {
                 $this->message(lang('send_admin_email'));
-                $mailer = new cms_mailer();
+                $mailer = new CMSMS\Mailer();
                 $mailer->AddAddress($adminacct['emailaddr']);
                 $mailer->SetSubject(lang('email_accountinfo_subject'));
                 $body = null;

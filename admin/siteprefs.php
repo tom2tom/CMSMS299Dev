@@ -20,6 +20,7 @@ use CMSMS\contenttypes\Content;
 use CMSMS\FormUtils;
 use CMSMS\internal\module_meta;
 use CMSMS\internal\Smarty;
+use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
 
@@ -134,7 +135,7 @@ if (!empty($_POST['testmail'])) {
         } else {
             // we got an email, and we have settings.
             try {
-                $mailer = new cms_mailer();
+                $mailer = new Mailer();
                 $mailer->AddAddress($addr);
                 $mailer->IsHTML(true);
                 $mailer->SetBody(lang('mail_testbody', 'siteprefs'));

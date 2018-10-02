@@ -17,6 +17,7 @@
 
 use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
+use CMSMS\Mailer;
 use CMSMS\User;
 
 global $csrf_key;
@@ -29,7 +30,7 @@ global $csrf_key;
  */
 function send_recovery_email(User $user)
 {
-    $obj = new cms_mailer();
+    $obj = new Mailer();
     $obj->IsHTML(true);
     $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
     $obj->SetSubject(lang('lostpwemailsubject',html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site'))));

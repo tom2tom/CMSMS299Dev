@@ -1,6 +1,8 @@
 <?php
 
+use CMSMS\CmsException;
 use CMSMS\Events;
+use CMSMS\Mailer;
 use News\news_admin_ops;
 
 // calguy1000: this action is officially deprecated.
@@ -245,7 +247,7 @@ if( $do_send_email ) {
 
     // this needs to be done after the form is generated
     // because we use some of the same smarty variables
-    $cmsmailer = new cms_mailer;
+    $cmsmailer = new Mailer;
     if( $cmsmailer ) {
         $addy = trim($this->GetPreference('formsubmit_emailaddress'));
         if( $addy != '' ) {
