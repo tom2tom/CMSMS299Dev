@@ -18,10 +18,21 @@
 
 namespace CMSMS;
 
+use cms_config;
+use cms_utils;
+use CmsApp;
+use CmsCoreCapabilities;
 use CMSMS\ModuleOperations;
+use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function cms_htmlentities;
+use function cms_to_bool;
+use function endswith;
+use function sanitize;
 
 /**
- * A static class providing functionality for building forms.
+ * A static class providing functionality for generating page elements.
  *
  * @package CMS
  * @license GPL
@@ -436,7 +447,7 @@ class FormUtils
      * @param array $data The option data
      * @param string[]|string $selected  The selected elements
      * @return string The generated <option> element(s).
-     * @see CMSMS\FormUtils::create_options()
+     * @see FormUtils::create_options()
      */
     public static function create_option($data, $selected = null) : string
     {
@@ -486,7 +497,7 @@ class FormUtils
      * @param array $options options data
      * @param mixed $selected string value or array of them
      * @return string
-     * @see CMSMS\FormUtils::create_options()
+     * @see FormUtils::create_options()
      */
     public static function create_options($options, $selected = '') : string
     {
@@ -507,11 +518,11 @@ class FormUtils
 
     /**
      * Get xhtml for a dropdown selector
-     * @see also CMSMS\FormUtils::create_select()
+     * @see also FormUtils::create_select()
      *
      * @param string $name The name attribute for the select name
-     * @param array  $list_options  Options as per the CMSMS\FormUtils::create_options method
-     * @param mixed  $selected string|string[], selected value(s) as per the CMSMS\FormUtils::create_option method
+     * @param array  $list_options  Options as per the FormUtils::create_options method
+     * @param mixed  $selected string|string[], selected value(s) as per the FormUtils::create_option method
      * @param array  $params Array of additional options including: multiple,class,title,id,size
      * @deprecated Use create_select() with appropriate parameters instead
      * @return string The HTML content for the <select> element.
