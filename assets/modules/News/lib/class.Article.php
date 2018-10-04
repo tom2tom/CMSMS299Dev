@@ -25,7 +25,7 @@ use Exception;
 use function cmsms;
 use function munge_string_to_url;
 
-class news_article
+class Article
 {
     private static $_keys = ['id','author_id','title','content','summary','extra','news_url','postdate','startdate','enddate',
                              'category_id','status','author','authorname','category','canonical','fields','fieldsbyname','customfieldsbyname',
@@ -115,7 +115,7 @@ class news_article
     }
 
 
-    public function set_field(news_field $field)
+    public function set_field(Field $field)
     {
         if( !isset($this->_rawdata['fieldsbyname']) ) $this->_rawdata['fieldsbyname'] = [];
         $name = $field->name;
@@ -166,7 +166,7 @@ class news_article
 
         case 'category':
             // metadata.
-            return news_ops::get_category_name_from_id($this->category_id);
+            return Ops::get_category_name_from_id($this->category_id);
 
         case 'useexp':
             if( isset($this->_meta['useexp']) ) return $this->_meta['useexp'];

@@ -27,7 +27,7 @@ use function cms_htmlentities;
 use function cmsms;
 use function get_userid;
 
-final class News_AdminSearch_slave extends slave
+final class AdminSearch_slave extends slave
 {
   public function get_name()
   {

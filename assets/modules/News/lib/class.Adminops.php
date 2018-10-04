@@ -29,7 +29,7 @@ use function cms_move_uploaded_file;
 use function cmsms;
 use function recursive_delete;
 
-final class news_admin_ops
+final class Adminops
 {
     protected function __construct() {}
 
@@ -52,7 +52,7 @@ final class news_admin_ops
         $p = cms_join_path($config['uploads_path'],'news','id'.$articleid);
         if( is_dir($p) ) recursive_delete($p);
 
-        news_admin_ops::delete_static_route($articleid);
+        Adminops::delete_static_route($articleid);
 
         //Update search index
         $mod = cms_utils::get_module('News');

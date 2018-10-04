@@ -19,12 +19,14 @@
 namespace News;
 
 use CMSMS\CmsException;
-use PHPMailer\PHPMailer\Exception;
+use Exception;
+use News\Field;
+use News\Ops;
 use const CMS_DB_PREFIX;
 use function cmsms;
 use function munge_string_to_url;
 
-final class news_field
+final class Field
 {
   private $_data = [];
   private $_displayvalue;
@@ -36,7 +38,7 @@ final class news_field
 
   public function __get($key)
   {
-    $fielddefs = news_ops::get_fielddefs(FALSE);
+    $fielddefs = Ops::get_fielddefs(FALSE);
 
     switch( $key ) {
     case 'alias':
@@ -152,22 +154,24 @@ final class news_field
       $this->item_order = $num+1;
     }
     $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs
-              (name,type,max_length,create_date,modified_date,item_order,public,extra)
-              VALUES (?,?,?,NOW(),NOW(),?,?,?)';
-    $dbr = $db->Execute($query,[$this->name,$this->type,$this->max_length,$this->item_order,$this->public,
+              (name,type,max_length,create_date,item_order,public,extra)
+              VALUES (?,?,?,?,?,?,?)';
+	$now = time();
+    $dbr = $db->Execute($query,[$this->name,$this->type,$this->max_length,$now,$this->item_order,$this->public,
                      serialize($this->extra)]);
     $this->_data['id'] = $db->Insert_ID();
-    $this->create_date = $this->modified_date = $db->DbTimeStamp(time());
+    $this->create_date = $this->modified_date = $now;
   }
 
   private function _update()
   {
     $db = cmsms()->GetDb();
-    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = NOW(),
-              item_orderr = ?, public = ?, extra = ? WHERE id = ?';
-    $dbr = $db->Execute($query,[$this->name,$this->type,$this->max_length,$this->item_order,$this->public,
+    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = ?,
+item_orderr = ?, public = ?, extra = ? WHERE id = ?';
+	$now = time();
+    $dbr = $db->Execute($query,[$this->name,$this->type,$this->max_length, $now, $this->item_order,$this->public,
                      serialize($this->extra),$this->id]);
-    $this->modified_date = $db->DbTimeStamp(time());
+    $this->modified_date = $now;
   }
 
   public function save()
@@ -190,7 +194,7 @@ final class news_field
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
     $row = $db->GetRow($query,[$id]);
     if( $row['extra'] ) $row['extra'] = unserialize($row['extra']);
-    $obj = new news_field;
+    $obj = new Field;
     $obj->_data = $row;
     return $obj;
   }
@@ -204,7 +208,7 @@ final class news_field
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE name = ?';
     $row = $db->GetRow($query,[$name]);
     if( $row['extra'] ) $row['extra'] = unserialize($row['extra']);
-    $obj = new news_field;
+    $obj = new Field;
     $obj->_data = $row;
     return $obj;
   }

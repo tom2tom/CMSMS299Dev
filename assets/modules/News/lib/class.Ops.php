@@ -22,7 +22,7 @@ use cms_utils;
 use CmsApp;
 use const CMS_DB_PREFIX;
 
-final class news_ops
+final class Ops
 {
   protected function __construct() {}
 
@@ -82,8 +82,7 @@ final class news_ops
         $q2 .= ' AND (end_time < '.$db->DbTimeStamp(time()).') ';
       }
       else {
-        $q2 .= ' AND ('.$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) ";
-        $q2 .= ' AND (('.$db->IfNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).") OR (end_time > $now)) ";
+        $q2 .= ' AND ('.$db->IfNull('start_time',1)." < $now) AND (end_time IS NULL OR end_time > $now)";
       }
       $q2 .= ' AND status = \'published\' GROUP BY news_category_id';
       $tmp = $db->GetArray($q2);
@@ -195,7 +194,7 @@ final class news_ops
     $res = null;
     if( !isset($row['id']) ) return $res;
 
-    $res = new news_field;
+    $res = new Field;
     foreach( $row as $key => $value ) {
       switch( $key ) {
       case 'id':
@@ -213,7 +212,7 @@ final class news_ops
   }
 
 
-  public static function fill_article_from_formparams(news_article &$news,$params,$handle_uploads = FALSE,$handle_deletes = FALSE)
+  public static function fill_article_from_formparams(Article &$news,$params,$handle_uploads = FALSE,$handle_deletes = FALSE)
   {
     foreach( $params as $key => $value ) {
       switch( $key ) {
@@ -272,7 +271,7 @@ final class news_ops
   private static function &get_article_from_row($row,$get_fields = 'PUBLIC')
   {
     if( !is_array($row) ) return;
-    $article = new news_article;
+    $article = new Article();
     foreach( $row as $key => $value ) {
       switch( $key ) {
       case 'news_id':
@@ -291,12 +290,9 @@ final class news_ops
         $article->content = $value;
         break;
 
-      case 'news_date':
-        $article->postdate = $value;
-        break;
-
       case 'summary':
         $article->summary = $value;
+        break;
 
       case 'start_time':
         $article->startdate = $value;
@@ -348,11 +344,10 @@ final class news_ops
   public static function &get_latest_article($for_display = TRUE)
   {
     $db = CmsApp::get_instance()->GetDb();
-    $now = $db->DbTimeStamp(time());
+    $now = time();
     $query = 'SELECT mn.*, mnc.news_category_name FROM '.CMS_DB_PREFIX.'module_news mn LEFT OUTER JOIN '.CMS_DB_PREFIX."module_news_categories mnc ON mnc.news_category_id = mn.news_category_id WHERE status = 'published' AND ";
-    $query .= '('.$db->IfNull('start_time',$db->DbTimeStamp(1))." < $now) AND ";
-    $query .= '(('.$db->IfNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).") OR (end_time > $now)) ";
-    $query .= 'ORDER BY news_date DESC LIMIT 1';
+    $query .= '('.$db->IfNull('start_time',1)." < $now) AND end_time IS NULL ORend_time > $now) ";
+    $query .= 'ORDER BY start_time DESC LIMIT 1';
     $row = $db->GetRow($query);
 
     return self::get_article_from_row($row,($for_display)?'PUBLIC':'ALL');
@@ -362,12 +357,12 @@ final class news_ops
   public static function &get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
   {
     $db = CmsApp::Get_instance()->GetDb();
+	$now = time();
     $query = 'SELECT mn.*, mnc.news_category_name FROM '.CMS_DB_PREFIX.'module_news mn
-          LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories mnc ON mnc.news_category_id = mn.news_category_id
-          WHERE status = \'published\' AND news_id = ?
-          AND ('.$db->ifNull('start_time',$db->DbTimeStamp(1)).' < NOW())';
+LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories mnc ON mnc.news_category_id = mn.news_category_id
+WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).' < '.$now.')';
     if( !$allow_expired ) {
-      $query .= 'AND (('.$db->ifNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).') OR (end_time > NOW()))';
+      $query .= 'AND (end_time IS NULL OR end_time > '.$now.')';
     }
     $row = $db->GetRow($query, [$article_id]);
 
@@ -411,7 +406,7 @@ final class news_ops
 
       self::$_cached_fieldvals[$news_id] = [];
       foreach( $fielddefs as $field ) {
-        $obj = new news_field;
+        $obj = new Field;
         foreach( $field as $k => $v ) {
           $obj->$k = $v;
         }
@@ -446,7 +441,7 @@ final class news_ops
       else {
         // data for this field must not have been preloaded.
         // means there is no value, so just build one
-        $obj = new news_field;
+        $obj = new Field;
         foreach( $field as $k => $v ) {
           $obj->$k = $v;
         }
