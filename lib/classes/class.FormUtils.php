@@ -417,7 +417,11 @@ class FormUtils
         foreach ($parms as $key=>$val) {
             if (!(is_array($val) || in_array($key, $excludes))) {
                 if (!is_numeric($key)) {
-                    $out .= ' '.$key.'='.'"'.$val.'"';
+					if ($key != 'addtext') {
+                        $out .= ' '.$key.'='.'"'.$val.'"';
+					} else {
+						$out .= ' '.$val;
+					}
                 } else {
                     $out .= ' '.$val;
                 }
