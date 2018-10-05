@@ -1,7 +1,7 @@
 <?php
 
 use CMSMS\Events;
-use News\news_admin_ops;
+use News\Adminops;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
@@ -29,7 +29,7 @@ $db->Execute($query, [$catid]);
 Events::SendEvent( 'News', 'NewsCategoryDeleted', [ 'category_id'=>$catid, 'name'=>$row['news_category_name'] ] );
 audit($catid, 'News category: '.$catid, ' Category deleted');
 
-news_admin_ops::UpdateHierarchyPositions();
+Adminops::UpdateHierarchyPositions();
 
 $this->SetMessage($this->Lang('categorydeleted'));
 $this->RedirectToAdminTab('categories','','admin_settings');

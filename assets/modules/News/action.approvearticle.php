@@ -13,7 +13,8 @@ $this->SetCurrentTab('articles');
 $articleid = (int)$params['articleid'];
 $search = cms_utils::get_search_module();
 $status = '';
-$uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?,modified_date = NOW() WHERE news_id = ?';
+$now = time();
+$uquery = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?,modified_date = ? WHERE news_id = ?';
 switch( $params['approve'] ) {
  case 0:
    $status = 'draft';
@@ -36,14 +37,16 @@ if( is_object($search) ) {
     $article = $db->GetRow($query,[$articleid]);
     if( !$article ) return;
 
-    $useexp = 0;
-    $t_end = time() + 3600; // just for the math
     if( $article['end_time'] != '' ) {
       $useexp = 1;
-      $t_end = $db->UnixTimeStamp($article['end_time']);
+      $t_end = $article['end_time'];
     }
+	else {
+      $useexp = 0;
+      $t_end = $now + 3600; // just for the math
+	}
 
-    if( $t_end > time() || $this->GetPreference('expired_searchble',1) == 1 ) {
+    if( $t_end > $now || $this->GetPreference('expired_searchble',1) == 1 ) {
       $text = $article['news_data'] . ' ' . $article['summary'] . ' ' . $article['news_title'] . ' ' . $article['news_title'];
       $query = 'SELECT value FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE news_id = ?';
       $flds = $db->GetArray($query,[$articleid]);
@@ -59,8 +62,7 @@ if( is_object($search) ) {
   }
 }
 
-$db->Execute($uquery,[$status,$articleid]);
+$db->Execute($uquery,[$status,$now,$articleid]);
 Events::SendEvent( 'News', 'NewsArticleEdited', [ 'news_id'=>$articleid, 'status'=>$status ] );
 $this->SetMessage($this->Lang('msg_success'));
 $this->RedirectToAdminTab();
-?>

@@ -1,8 +1,8 @@
 <?php
 
 use CMSMS\Events;
-use News\news_admin_ops;
-use News\news_ops;
+use News\Adminops;
+use News\Ops;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
@@ -27,12 +27,12 @@ if (isset($params['name'])) {
             $item_order++;
 
             $catid = $db->GenID(CMS_DB_PREFIX.'module_news_categories_seq');
-
-            $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, item_order, create_date, modified_date) VALUES (?,?,?,?,NOW(),NOW())';
-            $parms = [$catid,$name,$parent,$item_order];
+			$now = time();
+            $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_categories (news_category_id, news_category_name, parent_id, item_order, create_date) VALUES (?,?,?,?,?)';
+            $parms = [$catid,$name,$parent,$item_order,$now];
             $db->Execute($query, $parms);
 
-            news_admin_ops::UpdateHierarchyPositions();
+            Adminops::UpdateHierarchyPositions();
 
             Events::SendEvent( 'News', 'NewsCategoryAdded', [ 'category_id'=>$catid, 'name'=>$name ] );
             // put mention into the admin log
@@ -47,7 +47,7 @@ if (isset($params['name'])) {
     }
 }
 
-$tmp = news_ops::get_category_list();
+$tmp = Ops::get_category_list();
 $tmp2 = array_flip($tmp);
 $categories = [-1=>$this->Lang('none')];
 foreach( $tmp2 as $k => $v ) {

@@ -23,7 +23,6 @@
   <li>summary (text) - The summary text (may be empty or unset).</li>
   <li>extra (string)         = The "extra" data associated with the article (may be empty or unset).</li>
   <li>news_url (string)      = The url segment associated with this article (may be empty or unset).</li>
-  <li>postdate (string)      = A string representing the news article post date.  You may filter this through cms_date_format for different display possibilities.</li>
   <li>startdate (string)     = A string representing the date the article should begin to appear.  (may be empty or unset).</li>
   <li>enddate (string)       = A string representing the date the article should stop appearing on the site (may be empty or unset).</li>
   <li>category_id (integer)  = The unique id of the hierarchy level where this article resides (may be empty or unset)</li>
@@ -42,9 +41,8 @@
 <p>Members can be displayed by the following syntax: {$entry->membername} or assigned to another smarty variable using {assign var='foo' value=$entry->membername}.</p>
 <p>The following members are available in the entry array:<br /></p>
 
-
 <h3>field Object Reference</h3>
-<p>The news_field object contains data about the fields and their values that are associated with a particular news article.</p>
+<p>The News\Field object contains data about the fields and their values that are associated with a particular news article.</p>
 <ul class="helptext">
   <li>id (integer)  = The id of the field definition</li>
   <li>name (string) = The name of the field</li>

@@ -202,9 +202,18 @@
 </li>
 <li>Version 2.14
   <ul>
-    <li>Enhancements to the news_field class.</li>
+    <li>Enhancements to the News\Field class.</li>
     <li>Adds the idlist parameter.</li>
     <li>Security fix.</li>
   </ul>
 </li>
 </ul>
+<li>Version 2.52
+  <ul>
+    <li>All classes namespaced.</li>
+    <li>Sortable articles-list.</li>
+    <li>Merged post-date and start-date.</li>
+    <li>Can select article start, end via js pickers.</li>
+  </ul>
+</li>
+

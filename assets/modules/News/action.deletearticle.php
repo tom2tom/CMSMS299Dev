@@ -1,6 +1,6 @@
 <?php
 
-use News\news_admin_ops;
+use News\Adminops;
 
 if (!isset($gCms)) exit;
 
@@ -14,7 +14,7 @@ if (isset($params['articleid'])) {
     $articleid = $params['articleid'];
 }
 
-news_admin_ops::delete_article($articleid);
+Adminops::delete_article($articleid);
 
 $this->SetMessage($this->Lang('articledeleted'));
 

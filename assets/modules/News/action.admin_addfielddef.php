@@ -1,6 +1,6 @@
 <?php
 
-use News\news_admin_ops;
+use News\Adminops;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
@@ -24,7 +24,7 @@ $arr_options = [];
 $options = '';
 if( isset($params['options']) ) {
     $options = trim($params['options']);
-    $arr_options = news_admin_ops::optionstext_to_array($options);
+    $arr_options = Adminops::optionstext_to_array($options);
 }
 
 $userid = get_userid();

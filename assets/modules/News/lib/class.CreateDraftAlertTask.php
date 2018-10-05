@@ -62,7 +62,7 @@ class CreateDraftAlertTask implements CmsRegularTask
     if( !$time ) $time = time();
 
     $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news n WHERE status != \'published\'
-          AND (end_time IS NULL OR end_time > NOW())';
+          AND (end_time IS NULL OR end_time > '.$now.')';
     $count = $db->GetOne($query);
     if( !$count ) return TRUE;
 

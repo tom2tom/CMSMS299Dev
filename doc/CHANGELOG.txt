@@ -11,7 +11,8 @@ revised UI for UDT processing (those are now files, not database records) see ne
 editing of templates, stylesheets, UDT's, site-operation-files (with respective permission) by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via DesignManager
 extra core modules: CoreAdminLogin, CoreTextEditing
-extra permissions: 'Modify Simple Plugins','Modify Site Code','Remote Administration'
+renamed permission: 'Modify Simple Plugins'
+extra permissions: 'Modify Site Code','Remote Administration'
 extra users-group: CodeManager
 
 BEHIND THE SCENES

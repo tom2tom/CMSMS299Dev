@@ -827,7 +827,7 @@ class cms_http_request
             $content = curl_exec($ch);
             if (!empty($content)) {
                 $tmp = explode("\r\n\r\n", $content, 2);
-                for ($i = 0, $n = count($tmp); $i < $n; $i++) {
+                for ($i = 0; $i < count($tmp); $i++) {
                     if (empty($tmp[$i])) {
                         unset($tmp[$i]);
                     }

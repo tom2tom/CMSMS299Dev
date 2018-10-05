@@ -1,11 +1,53 @@
 <?php
 
-$script_url = CMS_SCRIPTS_URL;
+use CMSMS\ScriptManager;
+
+//js wants quoted period-names
+$t = $this->Lang('selector_days');
+$dnames = "'".str_replace(",","','",$t)."'";
+$t = $this->Lang('selector_shortdays');
+$sdnames = "'".str_replace(",","','",$t)."'";
+$t = $this->Lang('selector_months');
+$mnames = "'".str_replace(",","','",$t)."'";
+$t = $this->Lang('selector_shortmonths');
+$smnames = "'".str_replace(",","','",$t)."'";
+$noday = $this->Lang('selector_badday');
+$t = $this->Lang('selector_times');
+$mdm = explode(',',$t);
+$n = $this->GetPreference('timeblock',News::HOURBLOCK);
+switch($n) {
+    case News::DAYBLOCK:
+        $gapmins = 60*24;
+        break;
+    case News::HALFDAYBLOCK:
+        $gapmins = 60*12;
+        break;
+    default:
+        $gapmins = 60;
+        break;
+}
 
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_dirtyform.min.js"></script>
-<script type="text/javascript">
-//<![CDATA[
+$.datePicker.strings = {
+ monthsFull: [$mnames],
+ monthsShort: [$smnames],
+ daysFull: [$dnames],
+ daysShort: [$sdnames],
+ messageLocked: '$noday'
+};
+$.datePicker.defaults.formatDate = function(date) {
+ var formatted = date.getFullYear() + '-' + $.datePicker.utils.pad(date.getMonth() + 1, 2) + '-' +  $.datePicker.utils.pad(date.getDate(), 2) ;
+ return formatted;
+};
+$.datePicker.defaults.parseDate = function(string) {
+ var date, parts = string.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+ if ( parts && parts.length == 4 ) {
+  date = new Date( parts[1], parts[2] - 1, parts[3] );
+ } else {
+  date = new Date();
+ }
+ return date;
+};
 
 EOS;
 if ($list) {
@@ -43,10 +85,10 @@ EOS;
 } //templates present
 $js .= <<<EOS
 $(document).ready(function() {
-  $('[name$=apply],[name$=submit]').hide();
+  $('[name$=apply],[name$=submit]').attr('disabled','disabled');
   $('#edit_news').dirtyForm({
     onDirty: function() {
-      $('[name$=apply],[name$=submit]').show('slow');
+      $('[name$=apply],[name$=submit]').removeAttr('disabled');
     }
   });
   $(document).on('cmsms_textchange', function() {
@@ -87,7 +129,6 @@ if ($list) {
       }
     }, 'xml');
   });
-
   $('#preview').on('click', function(ev) {
     ev.preventDefault();
     news_dopreview();
@@ -98,14 +139,35 @@ if ($list) {
     news_dopreview();
     return false;
   });
+  $('#pickers .time').timepicker({
+    timeFormat: 'g:ia',
+    step: $gapmins,
+    lang: {
+     am: '$mdm[0]',
+     pm: '$mdm[1]',
+     AM: '$mdm[2]',
+     PM: '$mdm[3]',
+     decimal: '$mdm[4]',
+     mins: '$mdm[5]',
+     hr: '$mdm[6]',
+     hrs: '$mdm[7]'
+    }
+  });
 
 EOS;
 } //templates present
 $js .= <<<EOS
 });
-//]]>
-</script>
 
 EOS;
 
-$this->AdminBottomContent($js);
+$p = cms_join_path($this->GetModulePath(),'lib','js').DIRECTORY_SEPARATOR;
+$sm = new ScriptManager();
+$sm->queue_file(CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.cmsms_dirtyform.min.js', 1);
+$sm->queue_file($p.'jquery.datePicker.min.js', 2);
+$sm->queue_file($p.'jquery.timepicker.min.js', 2);
+$sm->queue_string($js, 3);
+$fn = $sm->render_scripts('', false, false);
+$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
+$out = "<script type=\"text/javascript\" src=\"$url\"></script>\n";
+$this->AdminBottomContent($out);

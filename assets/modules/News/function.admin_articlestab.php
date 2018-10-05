@@ -1,12 +1,9 @@
 <?php
 
-use News\news_admin_ops;
-use News\news_ops;
+use News\Adminops;
+use News\Ops;
 
 if( !isset($gCms) ) exit;
-
-$tpl = $smarty->createTemplate($this->GetTemplateResource('articlelist.tpl'),null,null,$smarty);
-$tpl->assign('formstart',$this->CreateFormStart($id,'defaultadmin'));
 
 if (isset($params['bulk_action']) ) {
     if( !isset($params['sel']) || !$params['sel'] ) {
@@ -29,33 +26,33 @@ if (isset($params['bulk_action']) ) {
             }
             else {
                 foreach( $sel as $news_id ) {
-                    news_admin_ops::delete_article( $news_id );
+                    Adminops::delete_article( $news_id );
                 }
                 $this->ShowMessage($this->Lang('msg_success'));
             }
             break;
 
         case 'setcategory':
-            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = ?, modified_date = NOW()
-                WHERE news_id IN ('.implode(',',$sel).')';
-            $parms = [(int)$params['category']];
-            $db7->Execute($query,$parms);
+            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET news_category_id = ?, modified_date = ?
+WHERE news_id IN ('.implode(',',$sel).')';
+            $parms = [(int)$params['category'], time()];
+            $db->Execute($query,$parms);
             audit('',$this->GetName(),'category changed on '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setpublished':
-            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = NOW()
-                WHERE news_id IN ('.implode(',',$sel).')';
-            $db->Execute($query,['published']);
+            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
+WHERE news_id IN ('.implode(',',$sel).')';
+            $db->Execute($query,['published', time()]);
             audit('',$this->GetName(),'status changed on '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
 
         case 'setdraft':
-            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = NOW()
-                WHERE news_id IN ('.implode(',',$sel).')';
-            $db->Execute($query,['draft']);
+            $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status = ?, modified_date = ?
+WHERE news_id IN ('.implode(',',$sel).')';
+            $db->Execute($query,['draft', time()]);
             audit('',$this->GetName(),'status changed on '.count($sel).' articles');
             $this->ShowMessage($this->Lang('msg_success'));
             break;
@@ -101,7 +98,7 @@ if( isset($params['submitfilter']) ) {
 else if( isset($params['resetfilter']) ) {
     $this->SetPreference('article_category','');
     $this->SetPreference('article_pagelimit',50);
-    $this->SetPreference('article_sortby','news_date DESC');
+    $this->SetPreference('article_sortby','start_time DESC');
     $this->SetPreference('allcategories','no');
     unset($_SESSION['news_pagenumber']);
     $pagenumber = 1;
@@ -111,10 +108,10 @@ $curcategory = $this->GetPreference('article_category');
 $pagelimit = (int) $this->GetPreference('article_pagelimit',50);
 $allcategories = $this->GetPreference('allcategories','no');
 
-$sortby = $this->GetPreference('article_sortby','news_date DESC');
+$sortby = $this->GetPreference('article_sortby','start_time DESC');
 $sortlist = [];
-$sortlist[$this->Lang('post_date_desc')]='news_date DESC';
-$sortlist[$this->Lang('post_date_asc')]='news_date ASC';
+$sortlist[$this->Lang('post_date_desc')]='start_time DESC';
+$sortlist[$this->Lang('post_date_asc')]='start_time ASC';
 $sortlist[$this->Lang('expiry_date_desc')]='end_time DESC';
 $sortlist[$this->Lang('expiry_date_asc')]='end_time ASC';
 $sortlist[$this->Lang('title_asc')] = 'news_title ASC';
@@ -122,7 +119,9 @@ $sortlist[$this->Lang('title_desc')] = 'news_title DESC';
 $sortlist[$this->Lang('status_asc')] = 'status ASC';
 $sortlist[$this->Lang('status_desc')] = 'status DESC';
 
-$tpl->assign('prompt_category',$this->Lang('category'))
+$tpl = $smarty->createTemplate($this->GetTemplateResource('articlelist.tpl'),null,null,$smarty);
+$tpl->assign('formstart',$this->CreateFormStart($id,'defaultadmin'))
+ ->assign('prompt_category',$this->Lang('category'))
  ->assign('categorylist',array_flip($categorylist))
  ->assign('curcategory',$curcategory)
  ->assign('allcategories',$allcategories)
@@ -169,7 +168,14 @@ $tpl->assign('pagenumber',$pagenumber)
 
 $rowclass = 'row1';
 
+$papp = $this->CheckPermission('Approve News');
+$pmod = $this->CheckPermission('Modify News');
+$pdel = $pmod || $this->CheckPermission('Delete News');
 $admintheme = cms_utils::get_theme_object();
+$iconcancel = $admintheme->DisplayImage('icons/system/true.gif',$this->Lang('revert'),null,'','systemicon');
+$iconapprove = $admintheme->DisplayImage('icons/system/false.gif',$this->Lang('approve'),null,'','systemicon');
+$iconedit = $admintheme->DisplayImage('icons/system/edit.gif',$this->Lang('edit'),'','','systemicon');
+$now = time();
 
 while ($dbresult && $row = $dbresult->FetchRow()) {
     $onerow = new stdClass();
@@ -178,37 +184,34 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
     $onerow->news_title = $row['news_title'];
     $onerow->title = $this->CreateLink($id, 'editarticle', $returnid, $row['news_title'], ['articleid'=>$row['news_id']]);
     $onerow->data = $row['news_data'];
-    $onerow->expired = 0;
-    if( ($row['end_time'] != '') && ($db->UnixTimeStamp($row['end_time']) < time()) ) $onerow->expired = 1;
-    $onerow->postdate = $row['news_date'];
+    if( $row['end_time'] && $row['end_time'] < $now ) $onerow->expired = 1;
+    else $onerow->expired = 0;
     $onerow->startdate = $row['start_time'];
     $onerow->enddate = $row['end_time'];
-    $onerow->u_postdate = $db->UnixTimeStamp($row['news_date']);
-    $onerow->u_startdate = $db->UnixTimeStamp($row['start_time']);
-    $onerow->u_enddate = $db->UnixTimeStamp($row['end_time']);
+    $onerow->u_startdate = $row['start_time'] ? date('Y-n-j G:i', $row['start_time']) : null;
+    $onerow->u_enddate = $row['end_time'] ? date('Y-n-j G:i', $row['end_time']) : null;
     $onerow->status = $this->Lang($row['status']);
-    if( $this->CheckPermission('Approve News') ) {
+    if( $papp ) {
         if( $row['status'] == 'published' ) {
-            $onerow->approve_link = $this->CreateLink($id,'approvearticle',
-                                                      $returnid,
-                                                      $admintheme->DisplayImage('icons/system/true.gif',$this->Lang('revert'),null,'','systemicon'),['approve'=>0,'articleid'=>$row['news_id']]);
+            $onerow->approve_link = $this->CreateLink(
+            $id,'approvearticle',$returnid,$iconcancel,['approve'=>0,'articleid'=>$row['news_id']]);
         }
         else {
-            $onerow->approve_link = $this->CreateLink($id,'approvearticle',
-                                                      $returnid,
-                                                      $admintheme->DisplayImage('icons/system/false.gif',$this->Lang('approve'),null,'','systemicon'),['approve'=>1,'articleid'=>$row['news_id']]);
+            $onerow->approve_link = $this->CreateLink(
+            $id,'approvearticle',$returnid,$iconapprove,['approve'=>1,'articleid'=>$row['news_id']]);
         }
     }
     $onerow->category = $row['long_name'];
 
     $onerow->rowclass = $rowclass;
 
-    if( $this->CheckPermission('Modify News') ) {
-        $onerow->edit_url = $this->create_url($id,'editarticle',$returnid,
-                                              ['articleid'=>$row['news_id']]);
-        $onerow->editlink = $this->CreateLink($id, 'editarticle', $returnid, $admintheme->DisplayImage('icons/system/edit.gif', $this->Lang('edit'),'','','systemicon'), ['articleid'=>$row['news_id']]);
+    if( $pmod ) {
+        $onerow->edit_url = $this->create_url(
+        $id,'editarticle',$returnid,['articleid'=>$row['news_id']]);
+        $onerow->editlink = $this->CreateLink(
+        $id,'editarticle',$returnid,$iconedit,['articleid'=>$row['news_id']]);
     }
-    if( $this->CheckPermission('Delete News') ) {
+    if( $pdel ) {
         $onerow->delete_url = $this->create_url($id,'deletearticle',$returnid, ['articleid'=>$row['news_id']]);
     }
 
@@ -219,17 +222,17 @@ while ($dbresult && $row = $dbresult->FetchRow()) {
 $tpl->assign('items', $entryarray)
  ->assign('itemcount', count($entryarray));
 
-if( $this->CheckPermission('Modify News') ) {
+if( $pmod ) {
     $tpl->assign('addlink', $this->CreateLink($id, 'addarticle', $returnid, $admintheme->DisplayImage('icons/system/newobject.gif', $this->Lang('addarticle'),'','','systemicon'), [], '', false, false, '') .' '. $this->CreateLink($id, 'addarticle', $returnid, $this->Lang('addarticle'), [], '', false, false, 'class="pageoptions"'));
 }
 
-$tpl->assign('can_add',$this->CheckPermission('Modify News'))
+$tpl->assign('can_add',$pmod)
  ->assign('form2start',$this->CreateFormStart($id,'defaultadmin',$returnid))
  ->assign('form2end',$this->CreateFormEnd());
-//see template ->assign('submit_reassign', $this->CreateInputSubmit($id,'submit_reassign',$this->Lang('submit')));
-$categorylist = news_ops::get_category_list();
+
+$categorylist = Ops::get_category_list();
 $tpl->assign('categoryinput',$this->CreateInputDropdown($id,'category',$categorylist));
-if( $this->CheckPermission('Delete News') ) {
+if( $pdel ) {
 //see template    $tpl->assign('submit_massdelete',
 //                    $this->CreateInputSubmit($id,'submit_massdelete',$this->Lang('delete_selected'),
 //                                             '','',$this->Lang('areyousure_deletemultiple')));
@@ -245,15 +248,21 @@ $tpl->assign('reassigntext',$this->Lang('reassign_category'))
  ->assign('postdatetext',$this->Lang('postdate'))
  ->assign('categorytext',$this->Lang('category'));
 
-$config = $this->GetConfig();
-$themedir = $config['admin_url'].'/themes/'.$admintheme->themeName.'/images/icons/system';
-$tpl->assign('iconurl',$themedir);
+$baseurl = $this->GetModuleURLPath();
+//TODO ensure flexbox css for .rowbox.expand, .boxchild
+$css = <<<EOS
+ <link rel="stylesheet" href="{$baseurl}/css/sorts.css">
 
-$yes = $this->Lang('yes');
+EOS;
+$this->AdminHeaderContent($css);
+
 $s1 = json_encode($this->Lang('areyousure'));
 $s2 = json_encode($this->Lang('areyousure_multiple'));
+$yes = $this->Lang('yes');
 
 $js = <<<EOS
+<script type="text/javascript" src="{$baseurl}/lib/js/jquery.metadata.min.js"></script>
+<script type="text/javascript" src="{$baseurl}/lib/js/jquery.SSsort.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
@@ -264,6 +273,41 @@ $(document).ready(function() {
       width: 'auto',
       modal: true
     });
+  });
+  $.fn.SSsort.addParser({
+   id: 'icon',
+   is: function(s,node) {
+    var \$i = $(node).find('img');
+    return \$i.length > 0;
+   },
+   format: function(s,node) {
+    var \$i = $(node).find('img');
+    return \$i[0].src;
+   },
+   watch: false,
+   type: 'text'
+  });
+  $.fn.SSsort.addParser({
+   id: 'publishat',
+   is: function(s) {
+    return true;
+   },
+   format: function(s,node) {
+    var o = new Date(s),
+      u = o ? o.valueOf() : 0;
+    return u;
+   },
+   watch: false,
+   type: 'numeric'
+  });
+  $('#articlelist').SSsort({
+   sortClass: 'SortAble',
+   ascClass: 'SortUp',
+   descClass: 'SortDown',
+   oddClass: 'row1',
+   evenClass: 'row2',
+   oddsortClass: 'row1s',
+   evensortClass: 'row2s'
   });
   $('a.delete_article').on('click', function(ev) {
     ev.preventDefault();
@@ -292,9 +336,9 @@ $(document).ready(function() {
 });
 //]]>
 </script>
+
 EOS;
 $this->AdminBottomContent($js);
-//TODO ensure flexbox css for .rowbox.expand, .boxchild
 
 // display template
 $tpl->display();

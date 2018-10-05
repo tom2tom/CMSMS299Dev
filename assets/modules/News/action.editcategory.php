@@ -1,8 +1,8 @@
 <?php
 
 use CMSMS\Events;
-use News\news_admin_ops;
-use News\news_ops;
+use News\Adminops;
+use News\Ops;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) return;
@@ -38,7 +38,7 @@ if( isset($params['submit']) ) {
   else {
     // its an update.
     $query = 'SELECT news_category_id FROM '.CMS_DB_PREFIX.'module_news_categories
-              WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
+WHERE parent_id = ? AND news_category_name = ? AND news_category_id != ?';
     $tmp = $db->GetOne($query,[$parentid,$name,$catid]);
     if( $tmp ) {
       $this->ShowErrors($this->Lang('error_duplicatename'));
@@ -52,25 +52,24 @@ if( isset($params['submit']) ) {
 
 	// gotta figure out a new item order.
 	$query = 'SELECT max(item_order) FROM '.CMS_DB_PREFIX.'module_news_categories
-                  WHERE parent_id = ?';
+WHERE parent_id = ?';
 	$maxn = (int)$db->GetOne($query,[$parentid]);
 	$maxn++;
 
 	$query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories SET item_order = item_order - 1
-                  WHERE parent_id = ? AND item_order > ?';
+WHERE parent_id = ? AND item_order > ?';
 	$db->Execute($query,[$row['parent_id'],$row['item_order']]);
 
 	$row['item_order'] = $maxn;
       }
 
       $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_categories
-                SET news_category_name = ?, item_order = ?, parent_id = ?, modified_date = NOW()
-                WHERE news_category_id = ?';
-      $parms = [$name,$row['item_order'],$parentid];
-      $parms[] = $catid;
+SET news_category_name = ?, item_order = ?, parent_id = ?, modified_date = ?
+WHERE news_category_id = ?';
+      $parms = [$name,$row['item_order'],$parentid,time(),$catid];
       $db->Execute($query, $parms);
 
-      news_admin_ops::UpdateHierarchyPositions();
+      Adminops::UpdateHierarchyPositions();
 
       Events::SendEvent('News', 'NewsCategoryEdited', [ 'category_id'=>$catid, 'name'=>$name, 'origname'=>$origname ] );
       // put mention into the admin log
@@ -82,7 +81,7 @@ if( isset($params['submit']) ) {
   }
 }
 
-$tmp = news_ops::get_category_list();
+$tmp = Ops::get_category_list();
 $tmp2 = array_flip($tmp);
 $categories = [-1=>$this->Lang('none')];
 foreach( $tmp2 as $k => $v ) {

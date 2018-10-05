@@ -16,11 +16,16 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use News\Adminops;
 use News\CreateDraftAlertTask;
-use News\news_admin_ops;
 
 class News extends CMSModule
 {
+    // publication-time-granularity enum
+    const HOURBLOCK = 1;
+    const HALFDAYBLOCK = 2;
+    const DAYBLOCK = 3;
+
     public function AllowSmartyCaching() { return true; }
     public function GetAdminDescription() { return $this->Lang('description'); }
     public function GetAdminSection() { return (version_compare(CMS_VERSION,'2.2.910') < 0) ? 'content' : 'services'; }
@@ -32,18 +37,16 @@ class News extends CMSModule
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
-    public function GetVersion() { return '3.0.0'; }
+    public function GetVersion() { return '3.0'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function IsPluginModule() { return true; }
     public function LazyLoadAdmin() { return true; }
     public function LazyLoadFrontend() { return true; }
-    public function MinimumCMSVersion() { return '2.1.6'; }
+    public function MinimumCMSVersion() { return '2.2.900'; }
 
     public function InitializeFrontend()
     {
-        if( version_compare(CMS_VERSION,'2.2.900') < 0 ) $this->RestrictUnknownParams(); //2.3 does nothing
-
         $this->SetParameterType('articleid', CLEAN_INT);
         $this->SetParameterType('assign', CLEAN_STRING);
         $this->SetParameterType('browsecat', CLEAN_INT);
@@ -122,7 +125,7 @@ class News extends CMSModule
         $this->CreateParameter('showall', 0, $this->lang('helpshowall'));
         $this->CreateParameter('showarchive', 0, $this->lang('helpshowarchive'));
         $this->CreateParameter('sortasc', 'true', $this->lang('helpsortasc'));
-        $this->CreateParameter('sortby', 'news_date', $this->lang('helpsortby'));
+        $this->CreateParameter('sortby', 'start_time', $this->lang('helpsortby'));
         $this->CreateParameter('start', 0, $this->lang('helpstart'));
         $this->CreateParameter('summarytemplate', '', $this->lang('helpsummarytemplate'));
     }
@@ -142,8 +145,8 @@ A new news article has been posted to the website. The details are as follows:
 Title:      {\$title}
 IP Address: {\$ipaddress}
 Summary:    {\$summary|strip_tags}
-Start Date: {\$startdate|date_format}
-End Date:   {\$enddate|date_format}
+Start Date: {\$startdate|cms_date_format}
+End Date:   {\$enddate|cms_date_format}
 EOS;
     }
 
@@ -206,7 +209,7 @@ EOS;
     {
         $db = $this->GetDb();
 
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = ? ORDER BY news_date';
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = ? ORDER BY start_time';
         $result = $db->Execute($query,['published']);
 
         while ($result && !$result->EOF) {
@@ -214,7 +217,7 @@ EOS;
                 $module->AddWords($this->GetName(),
                                   $result->fields['news_id'], 'article',
                                   $result->fields['news_data'] . ' ' . $result->fields['summary'] . ' ' . $result->fields['news_title'] . ' ' . $result->fields['news_title'],
-                                  ($result->fields['end_time'] != NULL && $this->GetPreference('expired_searchable',0) == 0) ?  $db->UnixTimeStamp($result->fields['end_time']) : NULL);
+                                  ($result->fields['end_time'] != NULL && $this->GetPreference('expired_searchable',0) == 0) ?  $result->fields['end_time'] : NULL);
             }
             $result->MoveNext();
         }
@@ -254,8 +257,9 @@ EOS;
             $output = [];
             if( $this->CheckPermission('Approve News') ) {
                 $db = $this->GetDb();
-                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news n WHERE status != \'published\'
-                  AND (end_time IS NULL OR end_time > NOw())';
+				$now = time();
+                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status != \'published\'
+                  AND (end_time IS NULL OR end_time > '.$now.')';
                 $count = $db->GetOne($query);
                 if( $count ) {
                     $obj = new StdClass;
@@ -290,15 +294,15 @@ EOS;
                               ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
         cms_route_manager::add_static($route);
 
+		$now = time();
         $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != ? AND '
-            . '('.$db->ifNull('start_time',$db->DbTimeStamp(1)).' < NOW()) AND '
-            . '(('.$db->IfNull('end_time',$db->DbTimeStamp(1)).' = '.$db->DbTimeStamp(1).') OR (end_time > NOW()))';
-        $query .= ' ORDER BY news_date DESC';
+            . '('.$db->ifNull('start_time',1).' < '.$now.') AND (end_time IS NULL OR end_time > '.$now.')';
+        $query .= ' ORDER BY start_time DESC';
         $tmp = $db->GetArray($query,['published','']);
 
         if( is_array($tmp) ) {
             foreach( $tmp as $one ) {
-                news_admin_ops::register_static_route($one['news_url'],$one['news_id']);
+                Adminops::register_static_route($one['news_url'],$one['news_id']);
             }
         }
     }
@@ -358,7 +362,7 @@ EOS;
 
     public function get_adminsearch_slaves()
     {
-        return ['News_AdminSearch_slave'];
+        return ['News\AdminSearch_slave'];
     }
 
     public function GetAdminMenuItems()

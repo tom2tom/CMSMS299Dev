@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use News\news_admin_ops;
+use News\Adminops;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) {
@@ -36,7 +36,7 @@ $arr_options = [];
 $options = '';
 if( isset($params['options']) ) {
   $options = trim($params['options']);
-  $arr_options = news_admin_ops::optionstext_to_array($options);
+  $arr_options = Adminops::optionstext_to_array($options);
 }
 
 $type = '';
@@ -95,7 +95,7 @@ else {
      $public = $row['public'];
      $extra = unserialize($row['extra']);
      if( isset($extra['options']) ) {
-       $options = news_admin_ops::array_to_optionstext($extra['options']);
+       $options = Adminops::array_to_optionstext($extra['options']);
      }
    }
 }

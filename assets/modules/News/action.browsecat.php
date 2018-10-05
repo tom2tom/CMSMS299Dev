@@ -1,6 +1,6 @@
 <?php
 
-use News\news_ops;
+use News\Ops;
 
 if (!isset($gCms)) exit;
 
@@ -17,7 +17,7 @@ else {
   $template = $tpl->get_name();
 }
 
-$items = news_ops::get_categories($id,$params,$returnid);
+$items = Ops::get_categories($id,$params,$returnid);
 
 // Display template
 $tpl = $smarty->createTemplate($this->GetTemplateResource($template),null,null,$smarty);

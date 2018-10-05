@@ -1,7 +1,7 @@
 <?php
 
-use News\news_article;
-use News\news_ops;
+use News\Article;
+use News\Ops;
 
 if (!isset($gCms)) exit;
 
@@ -34,9 +34,9 @@ if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['pre
             $data = unserialize(file_get_contents($fname), ['allowed_classes'=>false]);
             if( is_array($data) ) {
                 // get passed data into a standard format.
-                $article = new news_article;
+                $article = new Article();
                 $article->set_linkdata($id,$params);
-                news_ops::fill_article_from_formparams($article,$data,FALSE,FALSE);
+                Ops::fill_article_from_formparams($article,$data,FALSE,FALSE);
                 $preview = TRUE;
             }
         }
@@ -44,12 +44,12 @@ if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['pre
 }
 
 if( isset($params['articleid']) && $params['articleid'] == -1 ) {
-    $article = news_ops::get_latest_article();
+    $article = Ops::get_latest_article();
 }
 elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
     $show_expired = $this->GetPreference('expired_viewable',1);
     if( isset($params['showall']) ) $show_expired = 1;
-    $article = news_ops::get_article_by_id((int)$params['articleid'],TRUE,$show_expired);
+    $article = Ops::get_article_by_id((int)$params['articleid'],TRUE,$show_expired);
 }
 if( !$article ) {
     throw new CmsError404Exception('Article '.(int)$params['articleid'].' not found, or otherwise unavailable');

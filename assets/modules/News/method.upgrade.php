@@ -5,6 +5,7 @@ use CMSMS\CmsException;
 
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
+$dict = NewDataDictionary($db);
 $me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
@@ -58,7 +59,6 @@ if( version_compare($oldversion,'2.50') < 0 ) {
     };
 
     try {
-      $dict = NewDataDictionary($db);
       $sqlarray = $dict->AddColumnSQL(CMS_DB_PREFIX.'module_news','searchable I1');
       $dict->ExecuteSQLArray($sqlarray);
 
@@ -186,4 +186,69 @@ if( version_compare($oldversion,'2.52') < 0 ) {
         $fp = cms_join_path(CMS_ROOT_PATH,'modules',$me);
         if( is_dir($fp) ) recursive_delete($fp);
     }
+
+    $this->SetPreference('timeblock',News::HOURBLOCK);
+
+    $dict = NewDataDictionary($db);
+    $tbl = CMS_DB_PREFIX.'module_news';
+    $query = 'UPDATE '.$tbl.' SET start_time=news_date WHERE start_time IS NULL AND status!=\'draft\'';
+    $db->Execute($query);
+    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date=create_date';
+    $db->Execute($query);
+    $query = 'SELECT
+news_id,
+UNIX_TIMESTAMP(news_date) as newsstamp,
+UNIX_TIMESTAMP(start_time) as startstamp,
+UNIX_TIMESTAMP(end_time) as endstamp,
+UNIX_TIMESTAMP(create_date) as createstamp,
+UNIX_TIMESTAMP(modified_date) as modstamp
+FROM '.$tbl;
+    $oldtimes = $db->GetArray($query);
+
+    $sqlarray = $dict->DropColumnSQL($tbl,'icon');
+    $dict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'summary X(1024)');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'searchable I(1) DEFAULT 1');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'news_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'start_time I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'end_time I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+
+    $query = 'UPDATE '.$tbl.' SET
+news_date=?,
+start_time=?,
+end_time=?,
+create_date=?,
+modified_date=?
+WHERE news_id=?';
+    foreach ($oldtimes as $row) {
+        $db->Execute($query,[$row['newsstamp'],$row['startstamp'],$row['endstamp'],$row['createstamp'],$row['modstamp'],$row['news_id']]);
+    }
+
+    $query = 'UPDATE '.$tbl.' SET status=? WHERE status=? AND end_time IS NOT NULL AND end_time<=?';
+    $db->Execute($query,['archived','published',time()]);
+
+    $tbl = CMS_DB_PREFIX.'module_news_categories';
+    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date=create_date';
+    $db->Execute($query);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+
+    $tbl = CMS_DB_PREFIX.'module_news_fielddefs';
+    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date=create_date';
+    $db->Execute($query);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I');
+    $dict->ExecuteSqlArray($sqlarray, FALSE);
 }

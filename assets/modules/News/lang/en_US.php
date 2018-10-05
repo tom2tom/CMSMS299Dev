@@ -11,7 +11,8 @@ $lang['allow_fesubmit'] = 'Allow frontend users to submit news items';
 $lang['allow_summary_wysiwyg'] = 'Allow using a WYSIWYG editor on the summary field';
 $lang['anonymous'] = 'Anonymous';
 $lang['apply'] = 'Apply';
-$lang['approve'] = 'Set Status to \'Published\'';
+$lang['approve'] = 'Set Status to \'Final\'';
+$lang['archived'] = 'Archived';
 $lang['areyousure'] = 'Are you sure you want to delete?';
 $lang['areyousure_deletemultiple'] = 'Are you sure you want to delete multiple articles';
 $lang['areyousure_multiple'] = 'Are you sure you want to perform this action on multiple articles?';
@@ -21,6 +22,7 @@ $lang['articledeleted'] = 'The article was successfully deleted.';
 $lang['articles'] = 'Articles';
 $lang['articlesubmitted'] = 'The article was successfully submitted.';
 $lang['articleupdated'] = 'The article was successfully updated.';
+$lang['at'] = 'at'; //at a time
 $lang['author'] = 'Author';
 $lang['author_label'] = 'Posted by:';
 $lang['auto_create_thumbnails'] = 'Automatically create thumbnail files for files with these extensions';
@@ -29,7 +31,7 @@ $lang['auto_create_thumbnails'] = 'Automatically create thumbnail files for file
 $lang['bulk_delete'] = 'Delete';
 $lang['bulk_setcategory'] = 'Set Category';
 $lang['bulk_setdraft'] = 'Set to Draft';
-$lang['bulk_setpublished'] = 'Set to Published';
+$lang['bulk_setpublished'] = 'Set to Final';
 $lang['browsecattemplate'] = 'Browse Category Templates';
 
 // C
@@ -43,6 +45,7 @@ $lang['category_label'] = 'Category:';
 $lang['checkbox'] = 'Checkbox';
 $lang['close'] = 'Close';
 $lang['content'] = 'Content';
+$lang['created'] = 'Created';
 $lang['customfields'] = 'Field Definitions';
 
 // D
@@ -72,7 +75,7 @@ $lang['editcategory'] = 'Edit Category';
 $lang['editfielddef'] = 'Edit Field Definition';
 $lang['email_subject'] = 'Outgoing emails\' subject ';
 $lang['email_template'] = 'Outgoing emails\' template';
-$lang['enddate'] = 'End Date';
+$lang['enddate'] = 'Expire';
 $lang['endrequiresstart'] = 'Entering an end date requires a start date also';
 $lang['entries'] = '%s Entries';
 $lang['error_categorynotfoun'] = 'The category specified was not found';
@@ -100,7 +103,7 @@ $lang['eventhelp-NewsArticleAdded'] = <<<'EOF'
 <li>"title" - Title of the article</li>
 <li>"content" - Content of the article</li>
 <li>"summary" - Summary of the article</li>
-<li>"status" - Status of the article ("draft" or "publish")</li>
+<li>"status" - Status of the article ("draft" or "final")</li>
 <li>"start_time" - Date the article should start being displayed</li>
 <li>"end_time" - Date the article should stop being displayed</li>
 <li>"useexp" - Whether the expiration date should be ignored or not</li>
@@ -123,7 +126,7 @@ $lang['eventhelp-NewsArticleEdited'] = <<<'EOF'
 <li>"title" - Title of the article</li>
 <li>"content" - Content of the article</li>
 <li>"summary" - Summary of the article</li>
-<li>"status" - Status of the article ("draft" or "publish")</li>
+<li>"status" - Status of the article ("draft" or "final")</li>
 <li>"start_time" - Date the article should start being displayed</li>
 <li>"end_time" - Date the article should stop being displayed</li>
 <li>"useexp" - Whether the expiration date should be ignored or not</li>
@@ -176,6 +179,7 @@ $lang['fielddefdeleted'] = 'Field Definition Deleted';
 $lang['fielddefupdated'] = 'Field Definition Updated';
 $lang['file'] = 'File';
 $lang['filter'] = 'Filter';
+$lang['final'] = 'Final';
 $lang['firstpage'] = '&lt;&lt;';
 $lang['formsubmit_emailaddress'] = 'Email address to receive notification of news submission';
 $lang['formtemplate'] = 'Form Templates';
@@ -231,10 +235,16 @@ $lang['helpnumber'] = 'Maximum number of items to display (per page) -- leaving 
 $lang['helpshowall'] = 'Show all articles, irrespective of end date';
 $lang['helpshowarchive'] = 'Show only expired news articles.';
 $lang['helpsortasc'] = 'Sort news items in ascending date order rather than descending.';
-$lang['helpsortby'] = 'Field to sort by.  Options are: "news_date", "summary", "news_data", "news_category", "news_title", "news_extra", "end_time", "start_time", "random".  Defaults to "news_date". If "random" is specified, the sortasc parameter is ignored.';
+$lang['helpsortby'] = 'Field to sort by.  Options are: "summary", "news_data", "news_category", "news_title", "news_extra", "start_time", "end_time", "random".  Defaults to "start_time". If "random" is specified, the sortasc parameter is ignored.';
 $lang['helpstart'] = 'Start at the nth item -- leaving empty will start at the first item.';
 $lang['helpsummarytemplate'] = 'Use a separate database template for displaying the article summary.  This template must exist in the Design Manager, though it does not need to be the default.  If this parameter is not specified, then the current template marked as default will be used.';
 $lang['help_articleid'] = 'This parameter is only applicable to the detail view.  It allows specifying which news article to display in detail mode.  If the special value -1 is used, the system will display the newest, published, non expired article.';
+$lang['help_article_expire'] = <<<'EOF'
+Enter the date, and if relevant the time on that date, when the news article will cease to be displayed. Or an empty date will be regarded as 'forever' i.e. manual expiry is needed.
+EOF;
+$lang['help_article_publish'] = <<<'EOF'
+Enter the date, and if relevant the time on that date, when the news article will [re]start being displayed. Or an empty date will be regarded as when-final (which may be immediate).
+EOF;
 $lang['help_article_title'] = 'Enter the article title.  It should be a brief, and should not include any html tags.';
 $lang['help_article_category'] = 'For organization purposes, you may select a category';
 $lang['help_article_content'] = 'Enter the main article content here';
@@ -243,8 +253,8 @@ $lang['help_article_extra'] = 'This is extra data to associate with the news art
 $lang['help_article_searchable'] = 'This field indicates whether this article should be indexed by the search module';
 $lang['help_article_postdate'] = 'The postdate <em>(usually the current date, for new articles)</em> is the date that will be used as the publish date for the article.  It is also used in sorting';
 $lang['help_article_summary'] = 'Enter a brief paragraph to describe the article.  This summary might be used when displaying views of a number of articles';
-$lang['help_article_startdate'] = 'When use expiry is enabled, this date specifies the date from which the article will be visible on the website';
-$lang['help_article_status'] = 'If you want the article to be immediately viewable by others then select a status of published.  If you would like to continue working on this article for a while, then select draft.';
+//$lang['help_article_startdate'] = 'When use expiry is enabled, this date specifies the date from which the article will be visible on the website';
+$lang['help_article_status'] = 'If the article is ready to be displayed on the website, then select status final (and the publish-date will come into play). If this article needs more work, select draft. If this article is to be removed from display, select archived.';
 $lang['help_article_url'] = 'The optional article url <em>(some other platforms call this a slug)</em> is a unique url suffix to access this article.  Users can navigate to &lt;site_root&gt;/&lt;your_url&gt; to view this article.';
 $lang['help_article_useexpiry'] = 'This checkbox toggles the expiry date behavior.  Expiry date behavior dictates when an article becomes visible on the website, and when it subsequently becomes invisible.';
 $lang['help_articles_filtercategory'] = 'Optionally filter the list of displayed articles in this list by those that belong to the selected category';
@@ -297,6 +307,7 @@ $lang['msg_contenttype_removed'] = <<<'EOF'
 The news content type has been removed.  Please place {news} tags with appropriate parameters into your page template or into your page content to replace this functionality.
 EOF;
 $lang['msg_success'] = 'Operation Successful';
+$lang['modified'] = 'Modified';
 $lang['more'] = 'More';
 $lang['moretext'] = 'More Text';
 
@@ -369,7 +380,7 @@ $lang['selectall'] = 'Select All';
 $lang['selectcategory'] = 'Select Category';
 $lang['showchildcategories'] = 'Show Child Categories';
 $lang['sortascending'] = 'Sort Ascending';
-$lang['startdate'] = 'Start Date';
+$lang['startdate'] = 'Publish';
 $lang['startdatetoolate'] = 'The Start Date is too late (after end date?)';
 $lang['startoffset'] = 'Start displaying at the nth item';
 $lang['startrequiresend'] = 'Entering a start date requires an end date also';
@@ -382,6 +393,14 @@ $lang['summary'] = 'Summary';
 $lang['summarytemplate'] = 'Summary Templates';
 $lang['summarytemplateupdated'] = 'The News Summary Template was successfully updated.';
 $lang['sysdefaults'] = 'Restore to defaults';
+
+//js selector plugin properties (comma-separated)
+$lang['selector_days'] = 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday';
+$lang['selector_months'] = 'January,February,March,April,May,June,July,August,September,October,November,December';
+$lang['selector_shortdays'] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
+$lang['selector_shortmonths'] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
+$lang['selector_times'] = 'am,pm,AM,PM,.,mins,hr,hrs';
+$lang['selector_badday'] = 'The day you have just selected is not available';
 
 // T
 $lang['template'] = 'Template';
@@ -399,13 +418,16 @@ $lang['title_detail_settings'] = 'Detail View Settings';
 $lang['title_detail_sysdefault'] = 'Default Detail Template';
 $lang['title_detail_template'] = 'Detail Template Editor';
 $lang['title_draft_entries'] = 'Unapproved News articles';
+$lang['title_expire'] = 'Expire article on'; //refers to a date
 $lang['title_fesubmit_form'] = 'Submit news article';
 $lang['title_fesubmit_settings'] = 'Frontend Submit Settings';
 $lang['title_filter'] = 'Filters';
 $lang['title_form_sysdefault'] = 'Default Form Template';
 $lang['title_form_template'] = 'Form Template Editor';
+$lang['title_history'] = 'History';
 $lang['title_news_settings'] = 'News Settings';
 $lang['title_notification_settings'] = 'Notification Settings';
+$lang['title_publish'] = 'Publish article on'; //refers to a date
 $lang['title_submission_settings'] = 'News Submission Settings';
 $lang['title_summary_sysdefault'] = 'Default Summary Template';
 $lang['title_summary_template'] = 'Summary Template Editor';
@@ -422,7 +444,7 @@ $lang['unknown'] = 'Unknown';
 $lang['unlimited'] = 'Unlimited';
 $lang['up'] = 'Up';
 $lang['uploadscategory'] = 'Uploads Category';
-$lang['url'] = 'URL (slug)';
+$lang['url'] = 'Access URL';
 $lang['useexpiration'] = 'Use Expiration Date';
 
 // V

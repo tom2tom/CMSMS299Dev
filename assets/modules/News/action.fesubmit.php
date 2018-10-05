@@ -3,7 +3,7 @@
 use CMSMS\CmsException;
 use CMSMS\Events;
 use CMSMS\Mailer;
-use News\news_admin_ops;
+use News\Adminops;
 
 // calguy1000: this action is officially deprecated.
 if (!isset($gCms)) exit;
@@ -117,7 +117,7 @@ if( isset( $params['submit'] ) ) {
             if( isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
                 if( $_FILES[$elem]['error'] == 0 && $_FILES[$elem]['tmp_name'] != '' ) {
                     $error = false;
-                    $value = news_admin_ops::handle_upload($articleid,$elem,$error);
+                    $value = Adminops::handle_upload($articleid,$elem,$error);
                     if( $value === FALSE ) throw new CmsException($error);
                     $params['news_customfield_'.$onefield['id']] = $value;
                 }
@@ -130,27 +130,40 @@ if( isset( $params['submit'] ) ) {
         }
 
         // and generate the insert query
-        // note: there's no option for fesubmit whether it's searchable or not.
-        $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news
-              (news_id, news_category_id, news_title, news_data, summary,
-               news_extra, status, news_date, start_time, end_time, create_date,
-               modified_date,author_id,searchable)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        $dbr = $db->Execute($query,
-                            [$articleid, $category_id, $title,
-                                  $content, $summary, $extra, $status,
-                                  trim($db->DbTimeStamp($startdate), "'"),
-                                  trim($db->DbTimeStamp($startdate), "'"),
-                                  trim($db->DbTimeStamp($enddate), "'"),
-                                  trim($db->DbTimeStamp(time()), "'"),
-                                  trim($db->DbTimeStamp(time()), "'"),
-                                  $userid,1]);
+        // note: fesubmit will always be searchable
+        $now = $time();
+        $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (
+news_id,
+news_category_id,
+news_title,
+news_data,
+summary,
+news_extra,
+status,
+searchable,
+start_time,
+end_time,
+create_date,
+author_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
+        $dbr = $db->Execute($query, [
+$articleid,
+$category_id,
+$title,
+$content,
+$summary,
+$extra,
+$status,
+1,
+TODOfunc($startdate),
+TODOfunc($enddate),
+$now,
+$userid,
+		]);
 
         if( $dbr ) {
             // handle the custom fields
-            $now = $db->DbTimeStamp(time());
-            $query = 'INSERT INTO '.CMS_DB_PREFIX."module_news_fieldvals (news_id, fielddef_id, value, create_date, modified_date)
-                VALUES (?,?,?,$now,$now)";
+            $query = 'INSERT INTO '.CMS_DB_PREFIX."module_news_fieldvals (
+news_id,fielddef_id,value,create_date,modified_date) VALUES (?,?,?,$now,$now)";
             foreach( $params as $key => $value ) {
                 $value = trim($value);
                 if( empty($value) ) continue;
@@ -175,14 +188,15 @@ if( isset( $params['submit'] ) ) {
             // send an event
             Events::SendEvent('News', 'NewsArticleAdded',
                               ['news_id' => $articleid,
-                                    'category_id' => $category_id,
-                                    'title' => $title,
-                                    'content' => $content,
-                                    'summary' => $summary,
-                                    'status' => $status,
-                                    'start_time' => $startdate,
-                                    'end_time' => $enddate,
-                                    'useexp' => 1]);
+                               'category_id' => $category_id,
+                               'title' => $title,
+                               'content' => $content,
+                               'summary' => $summary,
+                               'status' => $status,
+                               'start_time' => $startdate,
+                               'end_time' => $enddate,
+                               'useexp' => 1
+								]);
 
             // put mention into the admin log
             audit('', 'News Frontend Submit', 'Article added');

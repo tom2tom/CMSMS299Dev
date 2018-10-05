@@ -1,6 +1,6 @@
 <?php
 
-use News\news_admin_ops;
+use News\Adminops;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Site Preferences') ) return; //TODO sensible permission
@@ -40,7 +40,7 @@ else if( isset($params['submit']) ) {
     foreach( $flat as $rec ) {
       $dbr = $db->Execute($query,[$rec['parent_id'],$rec['order'],$rec['id']]);
     }
-    news_admin_ops::UpdateHierarchyPositions();
+    Adminops::UpdateHierarchyPositions();
     $this->SetMessage($this->Lang('msg_categoriesreordered'));
     $this->RedirectToAdminTab('','','admin_settings');
   }

@@ -1,6 +1,6 @@
 <?php
 
-use News\news_ops;
+use News\Ops;
 
 if (!isset($gCms)) exit;
 
@@ -92,29 +92,30 @@ else if (isset($params['category']) && $params['category'] != '') {
     $query1 .= ') AND ';
 }
 
+$now = time();
 if( isset($params['showall']) ) {
-    // show everything irrespective of end date.
-    $query1 .= 'IF(start_time IS NULL,news_date <= NOW(),start_time <= NOW())';
+    // show everything irrespective of end time
+    $query1 .= 'IF(start_time IS NULL,create_date <= '.$now.',start_time <= '.$now.')';
 }
 else {
-    // we're concerned about start time, end time, and news_date
+    // we're concerned about start time, end time, and created_date
     if( isset($params['showarchive']) ) {
         // show only expired entries.
-        $query1 .= 'IF(end_time IS NULL,0,end_time < NOW())';
+        $query1 .= 'IF(end_time IS NULL,0,end_time < '.$now.')';
     }
     else {
-        $query1 .= 'IF(start_time IS NULL AND end_time IS NULL,news_date <= NOW(),NOw() BETWEEN start_time AND end_time)';
+        $query1 .= 'IF(start_time IS NULL AND end_time IS NULL,create_date <= '.$now.','.$now.' BETWEEN start_time AND end_time)';
     }
 }
 
 $sortrandom = false;
-$sortby = trim(get_parameter_value($params,'sortby','news_date'));
+$sortby = trim(get_parameter_value($params,'sortby','start_time'));
 switch( $sortby ) {
 case 'news_category':
     if (isset($params['sortasc']) && (strtolower($params['sortasc']) == 'true')) {
-        $query1 .= 'ORDER BY mnc.long_name ASC, mn.news_date ';
+        $query1 .= 'ORDER BY mnc.long_name ASC, mn.start_time ';
     } else {
-        $query1 .= 'ORDER BY mnc.long_name DESC, mn.news_date ';
+        $query1 .= 'ORDER BY mnc.long_name DESC, mn.start_time ';
     }
     break;
 
@@ -128,13 +129,11 @@ case 'news_data':
 case 'news_category':
 case 'news_title':
 case 'end_time':
-case 'start_time':
 case 'news_extra':
     $query1 .= "ORDER BY mn.$sortby ";
     break;
-
 default:
-    $query1 .= 'ORDER BY mn.news_date ';
+    $query1 .= 'ORDER BY mn.start_time ';
     break;
 }
 
@@ -220,7 +219,7 @@ if( is_object($dbresult) ) {
         $dbresult->MoveNext();
     }
     $dbresult->MoveFirst();
-    news_ops::preloadFieldData($result_ids);
+    Ops::preloadFieldData($result_ids);
 
     while( $dbresult && !$dbresult->EOF ) {
         $row = $dbresult->fields;
@@ -246,8 +245,8 @@ if( is_object($dbresult) ) {
         $onerow->title = $row['news_title'];
         $onerow->content = $row['news_data'];
         $onerow->summary = (trim($row['summary'])!='<br />'?$row['summary']:'');
-        if( FALSE == empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
-        $onerow->postdate = $row['news_date'];
+        if( !empty($row['news_extra']) ) $onerow->extra = $row['news_extra'];
+//        $onerow->postdate = $row['news_date'];
         $onerow->startdate = $row['start_time'];
         $onerow->enddate = $row['end_time'];
         $onerow->create_date = $row['create_date'];
@@ -257,7 +256,7 @@ if( is_object($dbresult) ) {
         //
         // Handle the custom fields
         //
-        $onerow->fields = news_ops::get_fields($row['news_id'],TRUE);
+        $onerow->fields = Ops::get_fields($row['news_id'],TRUE);
         $onerow->fieldsbyname = $onerow->fields; // dumb, I know.
         $onerow->file_location = $gCms->config['uploads_url'].'/news/id'.$row['news_id'];
 
@@ -304,7 +303,7 @@ foreach( $params as $key => $value ) {
 }
 
 unset($params['pagenumber']);
-$items = news_ops::get_categories($id,$params,$returnid);
+$items = Ops::get_categories($id,$params,$returnid);
 
 $catName = '';
 if (isset($params['category'])) {

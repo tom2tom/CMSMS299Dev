@@ -3,23 +3,23 @@
   {$formstart}
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="filter_category">{$prompt_category}:</label>
-      {cms_help realm=$_module key='help_articles_filtercategory' title=$prompt_category}
+      {$t=$prompt_category}<label for="filter_category">{$t}:</label>
+      {cms_help realm=$_module key='help_articles_filtercategory' title=$t}
     </p>
     <p class="pageinput">
       <select id="filter_category" name="{$actionid}category">
       {html_options options=$categorylist selected=$curcategory}
       </select>
       <br />
-      <label for="filter_allcategories">{$prompt_showchildcategories}:</label>
+      {$t=$prompt_showchildcategories}<label for="filter_allcategories">{$t}:</label>
       <input id="filter_allcategories" type="checkbox" name="{$actionid}allcategories" value="yes"{if $allcategories=="yes" } checked="checked"{/if} />
-      {cms_help realm=$_module key='help_articles_filterchildcats' title=$prompt_showchildcategories}
+      {cms_help realm=$_module key='help_articles_filterchildcats' title=$t}
     </p>
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="filter_sortby">{$prompt_sorting}:</label>
-      {cms_help realm=$_module key='help_articles_sortby' title=$prompt_sorting}
+      {$t=$prompt_sorting}<label for="filter_sortby">{$t}:</label>
+      {cms_help realm=$_module key='help_articles_sortby' title=$t}
     </p>
     <p class="pageinput">
       <select id="filter_sorting" name="{$actionid}sortby">
@@ -29,8 +29,8 @@
   </div>
   <div class="pageoverflow">
     <p class="pagetext">
-      <label for="filter_pagelimit">{$prompt_pagelimit}:</label>
-      {cms_help realm=$_module key='help_articles_pagelimit' title=$prompt_pagelimit}
+      {$t=$prompt_pagelimit}<label for="filter_pagelimit">{$t}:</label>
+      {cms_help realm=$_module key='help_articles_pagelimit' title=$t}
       </p>
     <p class="pageinput">
       <select id="filter_pagelimit" name="{$actionid}pagelimit">
@@ -67,19 +67,18 @@
 </div>{*rowbox*}
 {if $itemcount > 0}
 {$form2start}
-<table class="pagetable" id="articlelist">
+<table class="pagetable{if $itemcount > 1} table_sort{/if}" id="articlelist">
   <thead>
     <tr>
-      <th>#</th>
-      <th>{$titletext}</th>
-      <th>{$postdatetext}</th>
-      <th>{$startdatetext}</th>
-      <th>{$enddatetext}</th>
-      <th>{$categorytext}</th>
-      <th class="pageicon">{$statustext}</th>
-      <th class="pageicon">&nbsp;</th>
-      <th class="pageicon">&nbsp;</th>
-      <th class="pageicon"><input type="checkbox" id="selall" value="1" title="{$mod->Lang('selectall')}" /></th>
+      <th{if $itemcount > 1} class="nosort"{/if}>#</th>
+      <th{if $itemcount > 1} class="{ldelim}sss:'text'{rdelim}"{/if}>{$titletext}</th>
+      <th{if $itemcount > 1} class="{ldelim}sss:'publishat'{rdelim}"{/if}>{$startdatetext}</th>
+      <th{if $itemcount > 1} class="{ldelim}sss:'publishat'{rdelim}"{/if}>{$enddatetext}</th>
+      <th{if $itemcount > 1} class="{ldelim}sss:'text'{rdelim}"{/if}>{$categorytext}</th>
+      <th class="pageicon{if $itemcount > 1} {ldelim}sss:'icon'{rdelim}{/if}">{$statustext}</th>
+      <th class="pageicon{if $itemcount > 1} nosort{/if}">&nbsp;</th>
+      <th class="pageicon{if $itemcount > 1} nosort{/if}">&nbsp;</th>
+      <th class="pageicon{if $itemcount > 1} nosort{/if}"><input type="checkbox" id="selall" value="1" title="{$mod->Lang('selectall')}" /></th>
     </tr>
   </thead>
   <tbody>
@@ -94,14 +93,13 @@
         {$entry->news_title|cms_escape}
         {/if}
       </td>
-      <td>{$entry->u_postdate|cms_date_format}</td>
-      <td>{if !empty($entry->u_enddate)}{$entry->u_startdate|cms_date_format}{/if}</td>
+      <td>{if !empty($entry->u_enddate)}{$entry->u_startdate}{/if}</td>
       <td>{if $entry->expired == 1}
         <div class="important">
-          {$entry->u_enddate|cms_date_format}
+          {$entry->u_enddate}
         </div>
         {else}
-          {$entry->u_enddate|cms_date_format}
+          {$entry->u_enddate}
         {/if}
       </td>
       <td>{$entry->category}</td>
@@ -117,7 +115,7 @@
         {/if}
       </td>
       <td>
-          <input type="checkbox" name="{$actionid}sel[]" value="{$entry->id}" title="{$mod->Lang('toggle_bulk')}" />
+        <input type="checkbox" name="{$actionid}sel[]" value="{$entry->id}" title="{$mod->Lang('toggle_bulk')}" />
       </td>
 {/strip}
     </tr>
