@@ -1,9 +1,7 @@
-{if isset($articleid)}{$edit=true}{else}{$edit=false}{/if}
+{if $articleid >= 0}{$edit=true}{else}{$edit=false}{/if}
 <h3>{if $edit}{$mod->Lang('editarticle')}{else}{$mod->Lang('addarticle')}{/if}</h3>
-
 <div id="edit_news">
   {$startform}
-  {$hidden|default:''}
   <div class="postgap">
     <p class="pageinput">
       <button type="submit" name="{$actionid}submit" class="adminsubmit icon check">{$mod->Lang('submit')}</button>
@@ -138,20 +136,22 @@
     {cms_help realm=$_module key='help_article_expire' title=$t}
     </p>
   </div>
+  {$end_tab}{*article*}
 
-  {if isset($end_tab_article)} {$end_tab_article} {/if}
   {if isset($start_tab_preview)} {$start_tab_preview}
-  <div class="pagewarn">{$warning_preview}</div>
+  <div class="pagewarn">{$mod->Lang('warning_preview')}</div>
   <fieldset>
-    <label for="preview_template">{$prompt_detail_template}:</label>
+    <label for="preview_template">{$mod->Lang('detail_template')}:</label>
     <select name="{$actionid}preview_template" id="preview_template">
       {html_options options=$detail_templates selected=$cur_detail_template}
     </select>&nbsp;
-    <label>{$prompt_detail_page}: {$preview_returnid}</label>
+    <label>{$mod->Lang('detail_page')}: {$preview_returnid}</label>
   </fieldset>
   <br />
   <iframe id="previewframe" style="height: 800px; width: 100%; border: 1px solid black; overflow: auto;"></iframe>
-  {$end_tab_preview}
+  {$end_tab}{*preview*}
+  {/if}
+  {if isset($start_tab_headers)}
   {$end_tab_content}
   {/if}
 
