@@ -219,10 +219,15 @@ class FormUtils
             }
 
             if ($myfunc) {
+                if (array_key_exists('id', $parms)) {
+                    $parms['modid'] = $parms['id']; //CHECKME
+                }
                 if (array_key_exists('addtext', $parms)) {
                     $tmp = $parms['addtext'];
                     unset($parms['addtext']);
-                    self::splitaddtext($tmp, $parms);
+                    if ($tmp !== '') {
+                        self::splitaddtext($tmp, $parms);
+                    }
                 }
                 if ($withmod) {
                     return self::$myfunc($mod, $parms);
@@ -322,11 +327,12 @@ class FormUtils
 
         extract($parms, EXTR_SKIP);
 
-        if (empty($name)) {
-            if ($withname) {
+        if ($withname) {
+            if (empty($name)) {
                 return sprintf(self::ERRTPL, 'name', '%s');
             }
-            $name = 'anon'; //TODO sensible fallback for id (never used as 'name' by caller)
+        } else {
+            $name = '';
         }
         //identifiers
         if (!empty($htmlid)) {
@@ -348,6 +354,7 @@ class FormUtils
             $modid = $prefix;
             $tmp = $prefix.$name;
         } elseif (!empty($id)) {
+            //alias for $htmlid or $modid - assume the former
             $modid = '';
             $tmp = $id;
         } elseif (CmsApp::get_instance()->is_frontend_request()) {
@@ -361,9 +368,17 @@ class FormUtils
         unset($parms['modid']);
         unset($parms['prefix']);
 
-        $parms['name'] = sanitize($modid.$name);
+        if ($withname) {
+            $parms['name'] = sanitize($modid.$name);
+        }
         $tmp = sanitize($tmp);
-        $parms['id'] = ($tmp) ? $tmp : $parms['name'];
+        if ($tmp) {
+            $parms['id'] = $tmp;
+        } elseif ($withname) {
+            $parms['id'] = $parms['name'];
+        } else {
+            $parms['id'] = $modid;
+        }
 
         //expectable bools
         foreach (['disabled', 'readonly', 'required'] as $key) {
@@ -417,11 +432,11 @@ class FormUtils
         foreach ($parms as $key=>$val) {
             if (!(is_array($val) || in_array($key, $excludes))) {
                 if (!is_numeric($key)) {
-					if ($key != 'addtext') {
+                    if ($key != 'addtext') {
                         $out .= ' '.$key.'='.'"'.$val.'"';
-					} else {
-						$out .= ' '.$val;
-					}
+                    } else {
+                        $out .= ' '.$val;
+                    }
                 } else {
                     $out .= ' '.$val;
                 }
@@ -951,7 +966,7 @@ class FormUtils
             unset($parms['classname']);
         }
 
-        $method = (!empty($method)) ? sanitize($method) : 'POST';
+        $method = (!empty($method)) ? sanitize($method) : 'post';
 
         if (!empty($returnid) || $returnid === 0) {
             $returnid = (int)$returnid; //OR filter_var() ?
