@@ -15,7 +15,7 @@
   </thead>
   <tbody>
     {foreach $cats as $entry}
-    <tr class="{cycle values='row1,row2' name='cats'}">
+    <tr class="{cycle name='cats' values='row1,row2'}">
       <td>{repeat string='&nbsp;&gt;&nbsp' times=$entry->depth}<a href="{$entry->edit_url}" title="{$mod->Lang('edit')}">{$entry->name}</a></td>
       <td><a href="{$entry->edit_url}" title="{$mod->Lang('edit')}">{admin_icon icon='edit.gif'}</a></td>
       <td>{if $entry->delete_url}<a href="{$entry->delete_url}" title="{$mod->Lang('delete')}" class="del_cat">{admin_icon icon='delete.gif'}</a>{/if}</td>

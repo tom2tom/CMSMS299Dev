@@ -9,7 +9,7 @@
     </tr>
   </thead>
 {foreach $items as $entry}
-   <tr class="{$entry->rowclass}">
+   <tr class="{cycle values='row1,row2'}">
      <td>{$entry->name}</td>
      <td>{$entry->default}</td>
      <td>{$entry->editlink}</td>

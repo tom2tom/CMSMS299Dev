@@ -12,7 +12,7 @@
   </thead>
   <tbody>
     {foreach $fields as $entry}
-    <tr class="{cycle values='row1,row2' name='fields'}">
+    <tr class="{cycle name='fields' values='row1,row2'}">
       <td>{$entry->name}</td>
       <td>{$entry->type}</td>
       <td>{$entry->uplink}</td>
