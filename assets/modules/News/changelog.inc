@@ -208,12 +208,11 @@
   </ul>
 </li>
 </ul>
-<li>Version 2.52
+<li>Version 3.0
   <ul>
-    <li>All classes namespaced.</li>
+    <li>All module classes are namespaced.</li>
     <li>Sortable articles-list.</li>
-    <li>Merged post-date and start-date.</li>
-    <li>Can select article start, end via js pickers.</li>
+    <li>Merged article post-date and start-date.</li>
+    <li>Article publication start/end can be selected via js pickers.</li>
   </ul>
 </li>
-
