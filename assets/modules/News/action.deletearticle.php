@@ -9,14 +9,12 @@ if (!$this->CheckPermission('Delete News')) {
     return;
 }
 
-$articleid = '';
-if (isset($params['articleid'])) {
-    $articleid = $params['articleid'];
+$articleid = $params['articleid'] ?? '';
+if (Adminops::delete_article($articleid)) {
+    $this->SetMessage($this->Lang('articledeleted'));
+}
+else {
+    $this->SetError($this->Lang('error_unknown')); //TODO informative message
 }
 
-Adminops::delete_article($articleid);
-
-$this->SetMessage($this->Lang('articledeleted'));
-
 $this->Redirect($id, 'defaultadmin', $returnid, ['active_tab' => 'articles']);
-
