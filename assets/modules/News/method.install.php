@@ -23,18 +23,18 @@ $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_gener
 // icon C(255), no longer used
 // news_date I, ditto
 $flds = '
-news_id I KEY,
+news_id I(4) KEY,
 news_category_id I(4),
 news_title C(255),
 news_data X(16384),
 summary X(1024),
 status C(25),
 searchable I(1) DEFAULT 1,
-start_time I,
-end_time I,
+start_time I DEFAULT 0,
+end_time I DEFAULT 0,
 create_date I,
-modified_date I,
-author_id I,
+modified_date I DEFAULT 0,
+author_id I DEFAULT 0,
 news_extra C(255),
 news_url C(255)
 ';
@@ -51,7 +51,7 @@ hierarchy C(255),
 item_order I(4),
 long_name X(1024),
 create_date I,
-modified_date I
+modified_date I DEFAULT 0
 ';
 
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_categories', $flds, $taboptarray);
@@ -62,23 +62,23 @@ $flds = '
 id I(4) KEY AUTO,
 name C(255),
 type C(50),
-max_length I,
+max_length I(4),
 create_date I,
-modified_date I,
+modified_date I DEFAULT 0,
 item_order I(4),
 public I(1),
-extra  X
+extra x(1024)
 ';
 
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fielddefs', $flds, $taboptarray);
 $dict->ExecuteSQLArray($sqlarray);
 
 $flds = '
-news_id I KEY NOT NULL,
+news_id I(4) KEY NOT NULL,
 fielddef_id I(4) KEY NOT NULL,
 value X(16384),
 create_date I,
-modified_date I
+modified_date I DEFAULT 0
 ';
 
 $sqlarray = $dict->CreateTableSQL(CMS_DB_PREFIX.'module_news_fieldvals', $flds, $taboptarray);
