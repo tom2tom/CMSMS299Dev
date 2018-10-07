@@ -1,5 +1,5 @@
 <?php
-#News module actions-script generator
+#Page-resources generator for article add/edit actions
 #Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,6 +16,14 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\ScriptManager;
+
+$baseurl = $this->GetModuleURLPath();
+$css = <<<EOS
+ <link rel="stylesheet" href="{$baseurl}/css/jquery.datepicker.css">
+ <link rel="stylesheet" href="{$baseurl}/css/jquery.timepicker.css">
+
+EOS;
+$this->AdminHeaderContent($css);
 
 //js wants quoted period-names
 $t = $this->Lang('selector_days');
