@@ -191,21 +191,23 @@ OR
          * Add a handler to a hook
          *
          * @param string $name The hook name.  If the hook does not already exist, it is added.
-         * @param callable $callable A callable function, or a string representing a callable function.  Closures are also supported.
+         * @param callable $callable A PHP callable: function name | array | closure
          * @param int $priority The priority of the handler.
+         * @return bool indicating success since 2.3
          */
         public static function add_hook($name,$callable,$priority = self::PRIORITY_NORMAL)
         {
+            if( !is_callable($callable) ) return false; //TODO warn the user about failure
             $name = trim($name);
             $hash = self::calc_hash($callable);
             try {
                 self::$_hooks[$name]->handlers[$hash] = new HookHandler($callable,$priority);
             } catch (InvalidArgumentException $e) {
-                //TODO warn the user about failure
-                return;
+                return false; //TODO warn the user about failure
             }
             if( !isset(self::$_hooks[$name]) ) self::$_hooks[$name] = new HookDefn($name);
             self::$_hooks[$name]->sorted = false;
+            return true;
         }
 
         /**
