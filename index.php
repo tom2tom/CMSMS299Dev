@@ -61,7 +61,7 @@ tmp/templates_c</p><br />
     exit;
 }
 
-@ob_start();
+ob_start();
 
 // initial setup
 $_app = CmsApp::get_instance(); // internal use only, subject to change.
@@ -79,20 +79,20 @@ if ($CMS_JOB_TYPE < 2) {
 	ModuleOperations::get_instance()->RegisterPluginModules();
 }
 //TODO which of the following should be $CMS_JOB_TYPE-dependant ?
-$smarty = $_app->GetSmarty();
-$page = get_pageid_or_alias_from_url();
-$contentops = ContentOperations::get_instance();
-$contentobj = null;
-$trycount = 0;
+$smarty = $_app->GetSmarty(); //<2
+$page = get_pageid_or_alias_from_url(); //<2
+$contentops = ContentOperations::get_instance(); //<2
+$contentobj = null; //<2
 
 content_cache::get_instance();
 $_tpl_cache = new TemplateCache();
 
-while ($trycount < 2) {
-    $trycount++;
+for ($trycount = 0; $trycount < 2; ++$trycount) {
     try {
-        if ($trycount < 2 && is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN')) throw new CmsError503Exception('Site down for maintenance');
-        if ($trycount < 2 && is_sitedown()) throw new CmsError503Exception('Site down for maintenance');
+        if ($trycount == 0) {
+            if (is_file(TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'SITEDOWN')) throw new CmsError503Exception('Site down for maintenance');
+            if (is_sitedown()) throw new CmsError503Exception('Site down for maintenance');
+        }
 
         if ($page == -100) { //a.k.a __CMS_PREVIEW_PAGE__ but that's not always defined here
             // preview
@@ -164,7 +164,7 @@ while ($trycount < 2) {
 
                 if( $config['content_processing_mode'] == 1 ) { //process content after template page top
                     debug_buffer('preprocess module action');
-                    content_plugins::get_default_content_block_content( $contentobj->Id() );
+                    content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
                 }
 
                 debug_buffer('process template body');
@@ -191,7 +191,7 @@ while ($trycount < 2) {
         } else {
             $html = content_plugins::get_default_content_block_content($contentobj->Id(), $smarty);
         }
-        $trycount = 99; // no more iterations
+        break; // no more iterations
     }
 
     catch (CmsStopProcessingContentException $e) {
@@ -302,7 +302,7 @@ while ($trycount < 2) {
         }
         exit;
     }
-} // end while trycount
+} // trycount loop
 
 Events::SendEvent('Core', 'ContentPostRender', [ 'content' => &$html ]);
 if (!headers_sent()) {
@@ -311,7 +311,7 @@ if (!headers_sent()) {
 }
 echo $html;
 
-@ob_flush();
+ob_flush();
 
 if ($page == __CMS_PREVIEW_PAGE__ && isset($_SESSION['__cms_preview__'])) unset($_SESSION['__cms_preview__']);
 
