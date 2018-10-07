@@ -372,11 +372,11 @@ class FormUtils
             $parms['name'] = sanitize($modid.$name);
         }
         $tmp = sanitize($tmp);
-        if ($tmp) {
+        if ($tmp && $tmp !== 'm1_') {
             $parms['id'] = $tmp;
         } elseif ($withname) {
             $parms['id'] = $parms['name'];
-        } else {
+        } elseif ($modid && $modid !== 'm1_') {
             $parms['id'] = $modid;
         }
 
