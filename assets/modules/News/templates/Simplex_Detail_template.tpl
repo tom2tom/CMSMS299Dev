@@ -31,8 +31,8 @@
   {/foreach}
 {/if}
     <footer class='news-meta'>
-    {if $entry->postdate}
-        {$entry->postdate|cms_date_format}
+    {if $entry->startdate}
+        {$entry->startdate|cms_date_format}
     {/if}
     {if $entry->category}
         <strong>{$category_label}</strong> {$entry->category}
