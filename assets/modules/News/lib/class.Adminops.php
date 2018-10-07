@@ -1,5 +1,5 @@
 <?php
-#Class:
+#Class: article utilities
 #Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -27,15 +27,80 @@ use function audit;
 use function cms_join_path;
 use function cms_move_uploaded_file;
 use function cmsms;
+use function get_userid;
 use function recursive_delete;
 
 final class Adminops
 {
     protected function __construct() {}
+    protected function __clone() {}
 
+    /**
+     *
+	 * @since 2.90
+     * @param int $articleid Or numeric string
+     * @return boolean
+     */
+    public static function copy_article($articleid)
+    {
+        if (!$articleid) return false;
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE news_id = ?';
+        $row = $db->GetRow($query, [$articleid]);
+        if ($row) {
+            $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news (
+news_id,
+news_category_id,
+news_title,
+news_data,
+summary,
+start_time,
+end_time,
+status,
+create_date,
+modified_date,
+author_id,
+news_extra,
+news_url,
+searchable) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+            $row['news_id'] = $db->GenID(CMS_DB_PREFIX.'module_news_seq');
+            $row['news_title'] .= ' : Copy';
+            $row['start_time'] = 0;
+            $row['end_time'] = 0;
+            $row['status'] = 'draft';
+            $row['create_date'] = time();
+            $row['modified_date'] = 0;
+            $row['author_id'] = get_userid(false);
+            if ($db->Execute($query, [
+                $row['news_id'],
+                $row['news_category_id'],
+                $row['news_title'],
+                $row['news_data'],
+                $row['summary'],
+                $row['start_time'],
+                $row['end_time'],
+                $row['status'],
+                $row['create_date'],
+                $row['modified_date'],
+                $row['author_id'],
+                $row['news_extra'],
+                $row['news_url'],
+                $row['searchable'] ])) {
+                //TODO related stuff c.f. addarticle action
+                Events::SendEvent('News', 'NewsArticleAdded', $row);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @param int $articleid Or numeric string
+     * @return boolean
+     */
     public static function delete_article($articleid)
     {
-        Events::SendEvent( 'News', 'NewsArticleDeletedPre', ['news_id'=>$articleid ] );
+        if (!$articleid) return false;
 
         $db = cmsms()->GetDb();
 
@@ -57,15 +122,22 @@ final class Adminops
         //Update search index
         $mod = cms_utils::get_module('News');
         $module = cms_utils::get_search_module();
-        if ($module != FALSE) $module->DeleteWords($mod->GetName(), $articleid, 'article');
+        if ($module != false) $module->DeleteWords($mod->GetName(), $articleid, 'article');
 
         Events::SendEvent( 'News', 'NewsArticleDeleted', ['news_id'=>$articleid ] );
 
         // put mention into the admin log
         audit($articleid, 'News: '.$articleid, 'Article deleted');
+        return true;
     }
 
-
+    /**
+     *
+     * @param type $itemid
+     * @param type $fieldname
+     * @param string-reference $error
+     * @return mixed string|false
+     */
     public static function handle_upload($itemid,$fieldname,&$error)
     {
         $config = cmsms()->GetConfig();
@@ -73,24 +145,23 @@ final class Adminops
         $mod = cms_utils::get_module('News');
         $p = cms_join_path($config['uploads_path'],'news');
         if (!is_dir($p)) {
-            $res = @mkdir($p);
-            if( $res === FALSE ) {
+            if( @mkdir($p) === false ) {
                 $error = $mod->Lang('error_mkdir',$p);
-                return FALSE;
+                return false;
             }
         }
 
         $p = cms_join_path($config['uploads_path'],'news','id'.$itemid);
         if (!is_dir($p)) {
-            if( @mkdir($p) === FALSE ) {
+            if( @mkdir($p) === false ) {
                 $error = $mod->Lang('error_mkdir',$p);
-                return FALSE;
+                return false;
             }
         }
 
         if( $_FILES[$fieldname]['size'] > $config['max_upload_size'] ) {
             $error = $mod->Lang('error_filesize');
-            return FALSE;
+            return false;
         }
 
         $filename = basename($_FILES[$fieldname]['name']);
@@ -103,18 +174,20 @@ final class Adminops
         $exts = explode(',',$mod->GetPreference('allowed_upload_types',''));
         if( !in_array( $ext, $exts ) )  {
             $error = $mod->Lang('error_invalidfiletype');
-            return FALSE;
+            return false;
         }
 
-        if( @cms_move_uploaded_file($_FILES[$fieldname]['tmp_name'], $dest) === FALSE ) {
+        if( @cms_move_uploaded_file($_FILES[$fieldname]['tmp_name'], $dest) === false ) {
             $error = $mod->Lang('error_movefile',$dest);
-            return FALSE;
+            return false;
         }
 
         return $filename;
     }
 
-
+   /**
+    *
+    */
     public static function UpdateHierarchyPositions()
     {
         $db = cmsms()->GetDb();
@@ -155,20 +228,30 @@ final class Adminops
         }
     }
 
-
+    /**
+     *
+     * @param type $news_article_id
+     * @return type
+     */
     public static function delete_static_route($news_article_id)
     {
         return cms_route_manager::del_static('','News',$news_article_id);
     }
 
+    /**
+     *
+     * @param type $news_url
+     * @param type $news_article_id
+     * @param type $detailpage
+     * @return type
+     */
     public static function register_static_route($news_url,$news_article_id,$detailpage = '')
     {
         if( $detailpage <= 0 ) {
-            $gCms = cmsms();
             $module = cms_utils::get_module('News');
             $detailpage = $module->GetPreference('detail_returnid',-1);
             if( $detailpage == -1 ) {
-                $detailpage = $gCms->GetContentOperations()->GetDefaultContent();
+                $detailpage = cmsms()->GetContentOperations()->GetDefaultContent();
             }
         }
         $parms = ['action'=>'detail','returnid'=>$detailpage,'articleid'=>$news_article_id];
@@ -177,6 +260,11 @@ final class Adminops
         return cms_route_manager::add_static($route);
     }
 
+    /**
+     *
+     * @param string $txt
+     * @return mixed array|null
+     */
     public static function optionstext_to_array($txt)
     {
         $txt = trim($txt);
@@ -188,7 +276,7 @@ final class Adminops
             $tmp2 = trim($tmp2);
             if( $tmp2 == '' ) continue;
             $tmp2_k = $tmp2_v = $tmp2;
-            if( strpos($tmp2,'=') !== FALSE ) {
+            if( strpos($tmp2,'=') !== false ) {
                 list($tmp2_k,$tmp2_v) = explode('=',$tmp2,2);
             }
             if( $tmp2_k == '' || $tmp2_v == '' ) continue;
@@ -197,6 +285,11 @@ final class Adminops
         if( $arr_options ) return $arr_options;
     }
 
+    /**
+     *
+     * @param array $arr
+     * @return string
+     */
     public static function array_to_optionstext($arr)
     {
         $txt = '';
@@ -206,4 +299,3 @@ final class Adminops
         return trim($txt);
     }
 } // class
-

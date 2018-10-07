@@ -10,8 +10,8 @@ if (!isset($gCms)) exit;
 //
 $query = null;
 $article = null;
-$preview = FALSE;
-$articleid = $params['articleid']??-1;
+$preview = false;
+$articleid = $params['articleid'] ?? -1;
 
 $template = null;
 if (isset($params['detailtemplate'])) {
@@ -36,8 +36,8 @@ if( $id == '_preview_' && isset($_SESSION['news_preview']) && isset($params['pre
                 // get passed data into a standard format.
                 $article = new Article();
                 $article->set_linkdata($id,$params);
-                Ops::fill_article_from_formparams($article,$data,FALSE,FALSE);
-                $preview = TRUE;
+                Ops::fill_article_from_formparams($article,$data,false,false);
+                $preview = true;
             }
         }
     }
@@ -49,11 +49,10 @@ if( isset($params['articleid']) && $params['articleid'] == -1 ) {
 elseif( isset($params['articleid']) && (int)$params['articleid'] > 0 ) {
     $show_expired = $this->GetPreference('expired_viewable',1);
     if( isset($params['showall']) ) $show_expired = 1;
-    $article = Ops::get_article_by_id((int)$params['articleid'],TRUE,$show_expired);
+    $article = Ops::get_article_by_id((int)$params['articleid'],true,$show_expired);
 }
 if( !$article ) {
     throw new CmsError404Exception('Article '.(int)$params['articleid'].' not found, or otherwise unavailable');
-    return;
 }
 $article->set_linkdata($id,$params);
 
@@ -75,5 +74,4 @@ $tpl->assign('category_link',$this->CreateLink($id, 'default', $returnid, $catNa
  ->assign('author_label', $this->Lang('author_label'))
  ->assign('extra_label', $this->Lang('extra_label'));
 
-//Display template
 $tpl->display();

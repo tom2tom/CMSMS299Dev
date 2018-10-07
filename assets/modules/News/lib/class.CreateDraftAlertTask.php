@@ -1,5 +1,5 @@
 <?php
-# Class:
+# Task: to ...
 # Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -25,33 +25,33 @@ use const CMS_DB_PREFIX;
 
 class CreateDraftAlertTask implements CmsRegularTask
 {
+  const PREFNAME = 'task1_lastrun';
+
   public function get_name()
   {
-    $c = get_called_class();
-    $p = strrpos($c, '\\');
-    $n = ($p !== false) ? substr($c, $p+1) : $c;
-    return $n;
+     $c = __CLASS__;
+     $p = strrpos($c, '\\');
+     return substr($c, $p+1);
   }
 
   public function get_description()
   {
-    return $this->get_name();
+    return '';
   }
 
   public function test($time = '')
   {
     if( !$time ) $time = time();
     $mod = cms_utils::get_module('News');
-    $lastrun = (int) $mod->GetPreference('task1_lastrun');
-    if( $lastrun >= ($time - 900) ) return FALSE; // hardcoded to 15 minutes
-    return TRUE;
+    $lastrun = (int) $mod->GetPreference(self::PREFNAME);
+    return $lastrun <= ($time - 900); // hardcoded to quarter-hourly
   }
 
   public function on_success($time = '')
   {
-    IF( !$time ) $time = time();
+    if( !$time ) $time = time();
     $mod = cms_utils::get_module('News');
-    $mod->SetPreference('task1_lastrun',$time);
+    $mod->SetPreference(self::PREFNAME,$time);
   }
 
   public function on_failure($time = '') {}

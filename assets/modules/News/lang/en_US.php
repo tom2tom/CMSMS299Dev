@@ -1,4 +1,13 @@
 <?php
+// list-pager strings
+$lang['all'] = 'All';
+$lang['first'] = 'First';
+$lang['last'] = 'Last';
+$lang['next'] = 'Next';
+$lang['pageof'] = 'Page %s of %s';
+$lang['pagerows'] = 'rows per page';
+$lang['previous'] = 'Previous';
+
 // A
 $lang['addarticle'] = 'Add Article';
 $lang['addcategory'] = 'Add Category';
@@ -17,11 +26,12 @@ $lang['areyousure'] = 'Are you sure you want to delete?';
 $lang['areyousure_deletemultiple'] = 'Are you sure you want to delete multiple articles';
 $lang['areyousure_multiple'] = 'Are you sure you want to perform this action on multiple articles?';
 $lang['article'] = 'Article';
-$lang['articleadded'] = 'The article was successfully added.';
-$lang['articledeleted'] = 'The article was successfully deleted.';
+$lang['articleadded'] = 'The article has been added.';
+$lang['articlecopied'] = 'The article has been copied.';
+$lang['articledeleted'] = 'The article has been deleted.';
 $lang['articles'] = 'Articles';
-$lang['articlesubmitted'] = 'The article was successfully submitted.';
-$lang['articleupdated'] = 'The article was successfully updated.';
+$lang['articlesubmitted'] = 'The article has been submitted.';
+$lang['articleupdated'] = 'The article has been updated.';
 $lang['at'] = 'at'; //at a time
 $lang['author'] = 'Author';
 $lang['author_label'] = 'Posted by:';
@@ -30,8 +40,8 @@ $lang['auto_create_thumbnails'] = 'Automatically create thumbnail files for file
 // B
 $lang['bulk_delete'] = 'Delete';
 $lang['bulk_setcategory'] = 'Set Category';
-$lang['bulk_setdraft'] = 'Set to Draft';
-$lang['bulk_setpublished'] = 'Set to Final';
+$lang['bulk_setdraft'] = 'Take down';
+$lang['bulk_setpublished'] = 'Publish now';
 $lang['browsecattemplate'] = 'Browse Category Templates';
 
 // C
@@ -45,6 +55,7 @@ $lang['category_label'] = 'Category:';
 $lang['checkbox'] = 'Checkbox';
 $lang['close'] = 'Close';
 $lang['content'] = 'Content';
+$lang['copy'] = 'Copy';
 $lang['created'] = 'Created';
 $lang['customfields'] = 'Field Definitions';
 
@@ -78,12 +89,12 @@ $lang['email_template'] = 'Outgoing emails\' template';
 $lang['enddate'] = 'Expire';
 $lang['endrequiresstart'] = 'Entering an end date requires a start date also';
 $lang['entries'] = '%s Entries';
-$lang['error_categorynotfoun'] = 'The category specified was not found';
+$lang['error_categorynotfound'] = 'The category specified was not found';
 $lang['error_categoryparent'] = 'Invalid category parent';
 $lang['error_duplicatename'] = 'An item with that name already exists';
 $lang['error_filesize'] = 'An uploaded file exceeded the maximum allowed size';
 $lang['error_insufficientparams'] = 'Insufficient (or empty) parameters';
-$lang['error_invaliddates'] = 'One or more of the dates entered were invalid';
+$lang['error_invaliddates'] = 'One or both of the entered dates were invalid';
 $lang['error_invalidfiletype'] = 'Cannot upload this type of file';
 $lang['error_invalidurl'] = 'Invalid URL <em>(maybe it is already used, or there are invalid characters)</em>';
 $lang['error_mkdir'] = 'Could not create directory: %s';
@@ -164,8 +175,8 @@ $lang['expired'] = 'Expired';
 $lang['expired_searchable'] = 'Expired articles can appear in search results';
 $lang['expired_viewable'] = 'Expired articles can be viewed in the detail view';
 $lang['expiry'] = 'Expiry';
-$lang['expiry_date_asc'] = 'Expiry-date Ascending';
-$lang['expiry_date_desc'] = 'Expiry-date Descending';
+//$lang['expiry_date_asc'] = 'Expiry-date Ascending';
+//$lang['expiry_date_desc'] = 'Expiry-date Descending';
 $lang['expiry_interval'] = 'The default number of days until an article expires (if expiry is enabled)';
 $lang['extra'] = 'Extra';
 $lang['extra_label'] = 'Extra:';
@@ -186,26 +197,24 @@ $lang['formtemplate'] = 'Form Templates';
 
 // H
 $lang['help'] = <<<'EOF'
-<h3>Important Notes</h3>
-<p>Version 2.9 and greater of News has removed the formatpostdate member from the templates, and has also removed the dateformat parameter.  You should be using the cms_date_format modifier (as indicated in the default templates) to format dates, and should be using entry->postdate instead of entry->formatpostdate in your templates.</p>
 <h3>What does this do?</h3>
-<p>News is a module for displaying news events on your page, similar to a blog style, except with more features!.  When the module is installed, a News admin item is added to the administration menu, and that will allow you to select or add a news category.  After a news category is created or selected, a list of news items for that category will be displayed.  From here, you can add, edit or delete news items for that category.</p>
+<p>News is a module for displaying news articles on a website page, similar to a blog style, except with more features!  When the module is installed, a News admin item is added to the administration menu, and that will allow you to select or add a news category. After a news category is created or selected, a list of news items for that category will be displayed.  From here, you can add, edit or delete news items for that category.</p>
 <h4>Numerous display methods</h4>
 <p>The parameters supported by the news module, and support for numerous templates of each time mean that your options for displaying news articles are limitless.</p>
 <h4>Custom Fields</h4>
 <p>The News module allows defining numerous custom fields (including files and images) that will allow you to attach PDF files or numerous images to your articles.</p>
-        <h4>Categories</h4>
-	<p>News supplies a hierarchical category mechanism for organizing your articles.  A news article can only be in one place in the hierarchy.</p>
-	<h4>Expiry and Status</h4>
-	<p>Each news article can have an optional expiry date, after which it will not be shown on your web page.  As well, articles can be marked as <em>draft</em> to remove them permanently from your web page.</p>
-	<h3>Security</h3>
-	<p>The user must belong to a group with the 'Modify News' permission in order to add or edit News entries.</p>
-        <p>As well, In order to delete news entries, the user must belong to a group with the 'Delete News Articles' permission.</p>
-	<p>In order to edit the layout templates, the user must belong to a group with the 'Modify Templates' permission.</p>
-	<p>In order to edit the global news preferences, the user must belong to a group with the 'Modify Site Preferences' permission.</p>
-	<p>Additionally, to approve news for frontend display the user must belong to a group with the 'Approve News' permission.</p>
-	<h3>How is it used?</h3>
-	<p>The easiest way to use it is with the {news} wrapper tag (wraps the module in a tag, to simplify the syntax).  This will insert the module into your template or page anywhere you wish, and display news items.  The code would look something like: <code>{news number='5'}</code></p>
+<h4>Categories</h4>
+<p>News supplies a hierarchical category mechanism for organizing your articles.  A news article can only be in one place in the hierarchy.</p>
+<h4>Expiry and Status</h4>
+<p>Each news article can have an optional expiry date, after which it will not be shown on your web page.  As well, articles can be marked as <em>draft</em> to remove them permanently from your web page.</p>
+<h3>Security</h3>
+<p>The user must belong to a group with the 'Modify News' permission in order to add or edit News entries.</p>
+<p>As well, In order to delete news entries, the user must belong to a group with the 'Delete News Articles' permission.</p>
+<p>In order to edit the layout templates, the user must belong to a group with the 'Modify Templates' permission.</p>
+<p>In order to edit the global news preferences, the user must belong to a group with the 'Modify News Preferences' permission.</p>
+<p>In order to approve news for frontend display, the user must belong to a group with the 'Approve News' permission.</p>
+<h3>How is it used?</h3>
+<p>The easiest way to use it is with the {News} tag (wraps the module in a tag, to simplify the syntax).  This will insert the module into your template or page anywhere you wish, and display news items.  The code would look something like: <code>{news number='5'}</code></p>
 <h3>Templates</h3>
 <p>Since version 2.3 News supports multiple database templates, and no longer supports additional file templates.  Users who used the old file template system should follow these steps (for each file template):</p>
 <ul>
@@ -214,6 +223,9 @@ $lang['help'] = <<<'EOF'
 <li>Hit Submit</li>
 </ul>
 <p>Following these steps should solve the problem of your news templates not being found and other similar smarty errors when you upgrade to a version of CMS that has News 2.3 or greater.</p>
+<h3>Important Notes</h3>
+<p>From version 2.9, there is no formatpostdate member in data provided to templates, nor a dateformat parameter. Templates should use the cms_date_format modifier (as indicated in the default templates) to format dates.</p>
+<p>From version 3.0, datetime data provided to templates are timestamps, and among them the postdate data are deprecated replications of startdate data. Templates should use entry->startdate instead of entry->postdate.</p>
 EOF;
 $lang['helpaction'] = <<<'EOF'
 Override the default action.  Possible values are:
@@ -251,9 +263,9 @@ $lang['help_article_content'] = 'Enter the main article content here';
 $lang['help_article_enddate'] = 'If use expiry is enabled, this date specifies when the article will be hidden from view';
 $lang['help_article_extra'] = 'This is extra data to associate with the news article.  It might be used for a sorting order or for other designer intended behavior.  You should consult your site developer as to how this field is used (if at all)';
 $lang['help_article_searchable'] = 'This field indicates whether this article should be indexed by the search module';
-$lang['help_article_postdate'] = 'The postdate <em>(usually the current date, for new articles)</em> is the date that will be used as the publish date for the article.  It is also used in sorting';
+//$lang['help_article_postdate'] = 'The postdate <em>(usually the current date, for new articles)</em> is the date that will be used as the publish date for the article.  It is also used in sorting';
 $lang['help_article_summary'] = 'Enter a brief paragraph to describe the article.  This summary might be used when displaying views of a number of articles';
-//$lang['help_article_startdate'] = 'When use expiry is enabled, this date specifies the date from which the article will be visible on the website';
+//$lang['help_article_startdate'] = 'This date specifies the date from which the article will be visible on the website';
 $lang['help_article_status'] = 'If the article is ready to be displayed on the website, then select status final (and the publish-date will come into play). If this article needs more work, select draft. If this article is to be removed from display, select archived.';
 $lang['help_article_url'] = 'The optional article url <em>(some other platforms call this a slug)</em> is a unique url suffix to access this article.  Users can navigate to &lt;site_root&gt;/&lt;your_url&gt; to view this article.';
 $lang['help_article_useexpiry'] = 'This checkbox toggles the expiry date behavior.  Expiry date behavior dictates when an article becomes visible on the website, and when it subsequently becomes invisible.';
@@ -326,7 +338,7 @@ $lang['nocontentgiven'] = 'No content given';
 $lang['noitemsfound'] = '<strong>No</strong> items found for category: %s';
 $lang['nonamegiven'] = 'No Name Given';
 $lang['none'] = 'None';
-$lang['nopostdategiven'] = 'No post-date given';
+//$lang['nopostdategiven'] = 'No post-date given';
 $lang['notanumber'] = 'Maximum length is not a number';
 $lang['note'] = '<em>Note:</em> Dates must be in a \'yyyy-mm-dd hh:mm:ss\' format.';
 $lang['notify_n_draft_items'] = 'You have %s that is/are not published';
@@ -340,10 +352,10 @@ $lang['optionsupdated'] = 'The options were successfully updated.';
 
 // P
 $lang['parent'] = 'Parent';
-$lang['postdate'] = 'Post Date';
+//$lang['postdate'] = 'Post Date';
 $lang['postinstall'] = 'Make sure to set the "Modify News" permission on users who will be administering News items.';
-$lang['post_date_asc'] = 'Post-date Ascending';
-$lang['post_date_desc'] = 'Post-date Descending';
+//$lang['post_date_asc'] = 'Publish-date Ascending';
+//$lang['post_date_desc'] = 'Publish-date Descending';
 $lang['preview'] = 'Preview';
 $lang['prevpage'] = '&lt;';
 $lang['print'] = 'Print';
@@ -381,12 +393,12 @@ $lang['selectcategory'] = 'Select Category';
 $lang['showchildcategories'] = 'Show Child Categories';
 $lang['sortascending'] = 'Sort Ascending';
 $lang['startdate'] = 'Publish';
-$lang['startdatetoolate'] = 'The Start Date is too late (after end date?)';
+$lang['startdatetoolate'] = 'The start date is too late (after end date?)';
 $lang['startoffset'] = 'Start displaying at the nth item';
 $lang['startrequiresend'] = 'Entering a start date requires an end date also';
 $lang['status'] = 'Status';
-$lang['status_asc'] = 'Status Ascending';
-$lang['status_desc'] = 'Status Descending';
+//$lang['status_asc'] = 'Status Ascending';
+//$lang['status_desc'] = 'Status Descending';
 $lang['subject_newnews'] = 'A news-item has been submitted';
 $lang['submit'] = 'Submit';
 $lang['summary'] = 'Summary';
@@ -421,7 +433,7 @@ $lang['title_draft_entries'] = 'Unapproved News articles';
 $lang['title_expire'] = 'Expire article on'; //refers to a date
 $lang['title_fesubmit_form'] = 'Submit news article';
 $lang['title_fesubmit_settings'] = 'Frontend Submit Settings';
-$lang['title_filter'] = 'Filters';
+$lang['title_filter'] = 'Filter'; //see also 'filter'
 $lang['title_form_sysdefault'] = 'Default Form Template';
 $lang['title_form_template'] = 'Form Template Editor';
 $lang['title_history'] = 'History';

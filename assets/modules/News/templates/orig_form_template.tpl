@@ -85,4 +85,3 @@
    <a href="{cms_selflink href=$page_alias}">{$mod->Lang('prompt_redirecttocontent')}</a>
  </div>
 </form>
-

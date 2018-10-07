@@ -5,7 +5,7 @@ use News\Adminops;
 use News\Ops;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Site Preferences')) return;
+if (!$this->CheckPermission('Modify News Preferences')) return;
 
 $this->SetCurrentTab('categories');
 if (isset($params['cancel'])) $this->RedirectToAdminTab('','','admin_settings');
@@ -102,9 +102,6 @@ $tpl->assign('catid',$catid)
  ->assign('endform', $this->CreateFormEnd())
  ->assign('nametext', $this->Lang('name'))
  ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
-//see template ->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')))
-//->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')))
-//see DoActionBase() ->assign('mod',$this);
 
 $tpl->display();
 

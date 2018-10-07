@@ -60,9 +60,9 @@ final class AdjustStatusTask implements CmsRegularTask
     {
         $db = CmsApp::get_instance()->GetDb();
         if( !$time ) $time = time();
-        $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'archived\' WHERE (status=\'final\' OR status=\'published\') AND end_time IS NOT NULL AND end_time>0 AND end_time<?';
+        $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'archived\' WHERE (status=\'published\' OR status=\'final\') AND end_time IS NOT NULL AND end_time BETWEEN 1 AND ?';
         $db ->Execute($query,[$time]);
-        $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time>0 AND start_time<?';
+        $query = 'UPDATE '.CMS_DB_PREFIX.'module_news SET status=\'published\' WHERE status=\'final\' AND start_time IS NOT NULL AND start_time BETWEEN 1 AND ?';
         $db ->Execute($query,[$time]);
         return true;
     }

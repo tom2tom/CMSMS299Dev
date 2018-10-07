@@ -6,11 +6,8 @@ use CMSMS\FormUtils;
 use News\Adminops;
 
 if (!isset($gCms))  exit ;
-
 if (!$this->CheckPermission('Modify News'))  return;
 if (isset($params['cancel'])) $this->Redirect($id, 'defaultadmin', $returnid);
-// default status
-$status = ($this->CheckPermission('Approve News')) ? 'published' : 'draft';
 
 $cz = $config['timezone'];
 $tz = new DateTimeZone($cz);
@@ -25,57 +22,67 @@ if (isset($params['submit']) || isset($params['apply'])) {
     $title        = $params['title'];
     $summary      = $params['summary'];
     $content      = $params['content'];
-    $status       = $params['status'] ?? $status;
+    $status       = $params['status'];
     $searchable   = $params['searchable'] ?? 0;
     $news_url     = $params['news_url'];
     $usedcategory = $params['category'];
-    $author_id    = $params['author_id'] ?? '-1';
+    $author_id    = $params['author_id'] ?? 0;
     $extra        = trim($params['extra']);
+
+    $error = false;
 
     $st = strtotime($params['fromdate']);
     if ($st !== false) {
-        if (isset($params['fromtime'])) {
+        if (!empty($params['fromtime'])) {
             $stt = strtotime($params['fromtime'], 0);
             if ($stt !== false) {
                 $st += $stt + $toffs;
             }
         }
         $startdate = $st;
+    } elseif ($params['fromdate'] === '') {
+        $startdate = 0;
     } else {
-        //TODO process non-date input or bad-date error
-        $startdate = NULL;
+        $this->ShowErrors($this->Lang('error_invaliddates'));
+        $error = true;
+        $startdate = 0;
     }
 
-    if ($useexp == 1) {
+    if ($useexp == 0) {
         $enddate = 0;
     } else {
         $st = strtotime($params['todate']);
         if ($st !== false) {
-            if (isset($params['totime'])) {
+            if (!empty($params['totime'])) {
                 $stt = strtotime($params['totime'], 0);
                 if ($stt !== false) {
                     $st += $stt + $toffs;
                 }
             }
             $enddate = $st;
+        } elseif ($params['todate'] === '') {
+            $useexp = 0;
+            $enddate = 0;
         } else {
-            //TODO process non-date input or bad-date error
-            $enddate = NULL;
+            if (!$error) {
+                $this->ShowErrors($this->Lang('error_invaliddates'));
+                $error = true;
+            }
+            $enddate = 0;
         }
     }
 
     // Validation
-    $error = false;
+    if ($startdate && $enddate && $enddate <= $startdate) {
+        $this->ShowErrors($this->Lang('error_invaliddates'));
+        $error = true;
+    }
+
     if (empty($title)) {
         $this->ShowErrors($this->Lang('notitlegiven'));
         $error = true;
     } elseif (empty($content)) {
         $$this->ShowErrors($this->Lang('nocontentgiven'));
-        $error = true;
-    }
-
-    if ($useexp == 1 && $startdate <= $enddate) {
-        $this->ShowErrors($this->Lang('error_invaliddates'));
         $error = true;
     }
 
@@ -109,7 +116,6 @@ if (isset($params['submit']) || isset($params['apply'])) {
         //
         // database work
         //
-        $now = time();
         $query = 'UPDATE ' . CMS_DB_PREFIX . 'module_news SET
 news_title=?,
 news_data=?,
@@ -123,15 +129,17 @@ modified_date=?,
 news_extra=?,
 news_url= ?
 WHERE news_id=?';
+        $now = time();
+        $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
         $args = [
          $title,
          $content,
          $summary,
          $usedcategory,
-         $status,
+         $stsave,
          $searchable,
          $startdate,
-         (($useexp == 1)?$enddate:NULL),
+         (($useexp == 1)?$enddate:0),
          $now,
          $extra,
          $news_url,
@@ -155,79 +163,79 @@ WHERE news_id=?';
                         $error = true;
                     } else {
                         $value = Adminops::handle_upload($articleid, $elem, $error);
-		                if ($value === false) {
-		                    $this->ShowErrors($error);
-		                    $error = true;
-		                } else {
+                        if ($value === false) {
+                            $this->ShowErrors($error);
+                            $error = true;
+                        } else {
                             $params['customfield'][$onetype['id']] = $value;
-		                }
+                        }
                     }
                 }
             }
         }
 
-        if (!$error && isset($params['customfield'])) {
-            foreach ($params['customfield'] as $fldid => $value) {
-                // first check if it's available
-                $query = 'SELECT value FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                $tmp = $db->GetOne($query, [
-                    $articleid,
-                    $fldid
-                ]);
-                $dbr = true;
-                if ($tmp === false) {
-                    if (!empty($value)) {
-                        $query = 'INSERT INTO ' . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,$now)";
-                        $dbr = $db->Execute($query, [
-                            $articleid,
-                            $fldid,
-                            $value
-                        ]);
-                    }
-                } else {
-                    if (empty($value)) {
-                        $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                        $dbr = $db->Execute($query, [
-                            $articleid,
-                            $fldid
-                        ]);
-                    } else {
-                        $query = 'UPDATE ' . CMS_DB_PREFIX . "module_news_fieldvals
-                      SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
-                        $dbr = $db->Execute($query, [
-                            $value,
-                            $articleid,
-                            $fldid
-                        ]);
-                    }
-                }
-                if (!$dbr)
-                    die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
-            }
-        }
-
-        if (!$error && isset($params['delete_customfield']) && is_array($params['delete_customfield'])) {
-            foreach ($params['delete_customfield'] as $k => $v) {
-                if ($v != 'delete')
-                    continue;
-                $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
-                $db->Execute($query, [
-                    $articleid,
-                    $k
-                ]);
-            }
-        }
-
-        if (!$error && $status == 'published' && $news_url != '') {
-            Adminops::delete_static_route($articleid);
-            Adminops::register_static_route($news_url, $articleid);
-        }
-
-        //Update search index
         if (!$error) {
+		    if (isset($params['customfield'])) {
+		        foreach ($params['customfield'] as $fldid => $value) {
+		            // first check if it's available
+		            $query = 'SELECT value FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
+		            $tmp = $db->GetOne($query, [
+		                $articleid,
+		                $fldid
+		            ]);
+		            $dbr = true;
+		            if ($tmp === false) {
+		                if (!empty($value)) {
+		                    $query = 'INSERT INTO ' . CMS_DB_PREFIX . "module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,$now)";
+		                    $dbr = $db->Execute($query, [
+		                        $articleid,
+		                        $fldid,
+		                        $value
+		                    ]);
+		                }
+		            } else {
+		                if (empty($value)) {
+		                    $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
+		                    $dbr = $db->Execute($query, [
+		                        $articleid,
+		                        $fldid
+		                    ]);
+		                } else {
+		                    $query = 'UPDATE ' . CMS_DB_PREFIX . "module_news_fieldvals
+SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
+		                    $dbr = $db->Execute($query, [
+		                        $value,
+		                        $articleid,
+		                        $fldid
+		                    ]);
+		                }
+		            }
+		            if (!$dbr)
+		                die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
+		        }
+		    }
+
+		    if (isset($params['delete_customfield']) && is_array($params['delete_customfield'])) {
+		        foreach ($params['delete_customfield'] as $k => $v) {
+		            if ($v != 'delete')
+		                continue;
+		            $query = 'DELETE FROM ' . CMS_DB_PREFIX . 'module_news_fieldvals WHERE news_id = ? AND fielddef_id = ?';
+		            $db->Execute($query, [
+		                $articleid,
+		                $k
+		            ]);
+		        }
+		    }
+
+		    if (($status == 'published' || $status =='final') && $news_url != '') {
+		        Adminops::delete_static_route($articleid);
+		        Adminops::register_static_route($news_url, $articleid);
+		    }
+
+	        //Update search index
             $module = cms_utils::get_search_module();
             if (is_object($module)) {
-                if ($status == 'draft' || !$searchable) {
+                if ($status == 'draft' || $status == 'archived' || !$searchable) {
                     $module->DeleteWords($this->GetName(), $articleid, 'article');
                 } else {
                     if (!$useexp || ($enddate > time()) || $this->GetPreference('expired_searchable', 1) == 1) {
@@ -252,16 +260,16 @@ WHERE news_id=?';
                 'content' => $content,
                 'summary' => $summary,
                 'status' => $status,
+                'post_time' => $startdate, //deprecated
                 'start_time' => $startdate,
                 'end_time' => $enddate,
-                'post_time' => $startdate,
                 'extra' => $extra,
                 'useexp' => $useexp,
                 'news_url' => $news_url
             ]);
             // put mention into the admin log
             audit($articleid, 'News: ' . $title, 'Article edited');
-        }// if no error
+        } // !error
 
         if (isset($params['apply']) && isset($params['ajax'])) {
             $response = '<EditArticle>';
@@ -286,12 +294,8 @@ WHERE news_id=?';
 
     }
 
-    $row = [
-    'modified_date' => 0, //TODO
-    'create_date' => 0, //TODO
-    'start_time' => $startdate,
-    'end_time' => $enddate,
-    ];
+    $query = 'SELECT create_date,modified_date,start_time,end_time FROM '. CMS_DB_PREFIX . 'module_news WHERE news_id=?';
+    $row = $db->GetRow($query, [$articleid]);
 } elseif (!isset($params['preview'])) {
     //
     // Load data from database
@@ -305,6 +309,7 @@ WHERE news_id=?';
         $content      = $row['news_data'];
         $summary      = $row['summary'];
         $status       = $row['status'];
+        if ($status == 'published') $status = 'final';
         $searchable   = $row['searchable'];
         $startdate    = $row['start_time'];
         $enddate      = $row['end_time'];
@@ -316,7 +321,7 @@ WHERE news_id=?';
         //TODO handle error
     }
 } else {
-    // save data for preview.
+    // save data for preview
     unset($params['apply']);
     unset($params['preview']);
     unset($params['submit']);
@@ -376,7 +381,7 @@ if ($row['modified_date'] > $row['create_date']) {
 } else {
     $modified = NULL;
 }
-if ($status == 'published') {
+if ($status == 'final') {
     if ($row['start_time']) {
         $published = date('Y-n-j G:i', $row['start_time']);
     } else {
@@ -446,9 +451,9 @@ while ($dbr && $row = $dbr->FetchRow()) {
     $categorylist[$row['long_name']] = $row['news_category_id'];
 }
 
-/*--------------------
- * Custom fields logic
- ---------------------*/
+/*-------------------
+ Custom fields logic
+--------------------*/
 
 // Get the field values
 $fieldvals = [];
@@ -465,7 +470,7 @@ $dbr = $db->Execute($query);
 $custom_flds = [];
 while ($dbr && ($row = $dbr->FetchRow())) {
     if (!empty($row['extra']))
-		$row['extra'] = unserialize($row['extra']);
+        $row['extra'] = unserialize($row['extra']);
 
     if (isset($row['extra']['options'])) $options = $row['extra']['options'];
     else $options = null;
@@ -491,45 +496,16 @@ while ($dbr && ($row = $dbr->FetchRow())) {
     $obj->max_len  = max(1, (int)$row['max_length']);
     $obj->delete   = $id . 'delete_customfield[' . $row['id'] . ']';
     $obj->options  = $options;
-/*
-    FIXME - If we create inputs with hmtl markup in smarty template, whats the use of switch and form API here?
-    switch( $row['type'] ) {
-        case 'textbox' :
-            $size = min(50, $row['max_length']);
-            $obj->field = $this->CreateInputText($id, $name, $value, $size, $row['max_length']);  DEPRECATED API
-            break;
-        case 'checkbox' :
-            $obj->field = $this->CreateInputHidden($id, $name, 0) . $this->CreateInputCheckbox($id, $name, 1, (int)$value); DEPRECATED API
-            break;
-        case 'textarea' :
-            $obj->field = FormUtils::create_textarea(['enablewysiwyg'=>1, 'modid'=>$id, 'name'=>$name, 'value'=>$value]);
-            break;
-        case 'file' :
-            $del = '';
-            if ($value != '') {
-                $deln = 'delete_customfield[' . $row['id'] . ']';
-                $del = '&nbsp;' . $this->Lang('delete') . $this->CreateInputCheckbox($id, $deln, 'delete'); DEPRECATED API
-            }
-            $obj->field = $value . '&nbsp;' . $this->CreateFileUploadInput($id, $name) . $del;
-            break;
-        case 'dropdown' :
-            $obj->field = $this->CreateInputDropdown($id, $name, array_flip($options), -1, $value); DEPRECATED API
-            break;
-    }
-*/
     $custom_flds[$row['name']] = $obj;
 }
 
 /*--------------------
- * Pass everything to smarty
- ---------------------*/
+ Pass everything to smarty
+---------------------*/
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl'),null,null,$smarty);
 
-$tpl->assign('formid', $id)
- ->assign('startform', $this->CreateFormStart($id, 'editarticle', $returnid))
- ->assign('hidden', $this->CreateInputHidden($id, 'articleid', $articleid) . $this->CreateInputHidden($id, 'author_id', $author_id))
- ->assign('title', $title);
+$tpl->assign('startform', $this->CreateFormStart($id, 'editarticle', $returnid, 'post', '', false, '', ['articleid'=>$articleid, 'author_id'=>$author_id]));
 
 if ($author_id > 0) {
     $userops = $gCms->GetUserOperations();
@@ -539,26 +515,19 @@ if ($author_id > 0) {
     } else {
         $tpl->assign('inputauthor', $this->Lang('anonymous'));
     }
-} else if ($author_id == 0) {
-    $tpl->assign('inputauthor', $this->Lang('anonymous'));
 } else {
-    $feu = $this->GetModuleInstance('FrontEndUsers');
-    if ($feu) {
-        $uinfo = $feu->GetUserInfo($author_id * -1);
-        if ($uinfo[0])
-            $tpl->assign('inputauthor', $uinfo[1]['username']);
-    }
+    $tpl->assign('inputauthor', $this->Lang('anonymous'));
 }
 
 if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
     $tpl->assign('hide_summary_field', false)
-	 ->assign('inputsummary', FormUtils::create_textarea([
+     ->assign('inputsummary', FormUtils::create_textarea([
         'enablewysiwyg' => 1,
-	    'modid' => $id,
-	    'name' => 'summary',
-	    'class' => 'pageextrasmalltextarea',
-	    'value' => $summary,
-	    'addtext' => 'style="height:3em;"',
+        'modid' => $id,
+        'name' => 'summary',
+        'class' => 'pageextrasmalltextarea',
+        'value' => $summary,
+        'addtext' => 'style="height:3em;"',
     ]));
 } else {
      $tpl->assign('hide_summary_field', true);
@@ -570,8 +539,10 @@ $tpl->assign('inputcontent', FormUtils::create_textarea([
     'value' => $content,
 ]));
 
-$tpl->assign('useexp', $useexp)
- ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
+$tpl->assign('title', $title)
+ ->assign('articleid',$articleid)
+// ->assign('useexp', $useexp)
+// ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
  ->assign('createat', $created)
  ->assign('modat', $modified)
  ->assign('pubat', $published)
@@ -587,9 +558,6 @@ $tpl->assign('useexp', $useexp)
  ->assign('searchable', $searchable)
  ->assign('extra', $extra)
  ->assign('news_url', $news_url)
- ->assign('delete_field_val', $this->Lang('delete'))
- ->assign('warning_preview', $this->Lang('warning_preview'))
- ->assign('select_option', $this->Lang('select_option'))
 // tab stuff
  ->assign('start_tab_headers', $this->StartTabHeaders())
  ->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')))
@@ -597,7 +565,8 @@ $tpl->assign('useexp', $useexp)
  ->assign('end_tab_headers', $this->EndTabHeaders())
  ->assign('start_tab_content', $this->StartTabContent())
  ->assign('start_tab_article', $this->StartTab('article', $params))
- ->assign('end_tab_article', $this->EndTab())
+ ->assign('start_tab_preview', $this->StartTab('preview', $params))
+ ->assign('end_tab', $this->EndTab())
  ->assign('end_tab_content', $this->EndTabContent());
 
 if ($this->CheckPermission('Approve News')) {
@@ -611,7 +580,7 @@ if ($custom_flds) {
 $contentops = cmsms()->GetContentOperations();
 $tpl->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
 
-// get the list of detail templates.
+// get the detail templates, if any
 try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
     $templates = $type->get_template_list();
@@ -622,25 +591,14 @@ try {
         }
     }
     if ($list) {
-        $tpl->assign('prompt_detail_template', $this->Lang('detail_template'))
-         ->assign('prompt_detail_page', $this->Lang('detail_page'))
-         ->assign('detail_templates', $list)
-         ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
-         ->assign('start_tab_preview', $this->StartTab('preview', $params))
-         ->assign('end_tab_preview', $this->EndTab());
+        $tpl->assign('detail_templates', $list)
+         ->assign('cur_detail_template', $this->GetPreference('current_detail_template'));
     }
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
 }
 
 // page resources
-$baseurl = $this->GetModuleURLPath();
-$css = <<<EOS
- <link rel="stylesheet" href="{$baseurl}/css/jquery.datepicker.css">
- <link rel="stylesheet" href="{$baseurl}/css/jquery.timepicker.css">
-
-EOS;
-$this->AdminHeaderContent($css);
 include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();

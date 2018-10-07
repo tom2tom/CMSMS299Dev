@@ -1,7 +1,7 @@
 <?php
 
 if (!isset($gCms)) exit;
-if( !$this->CheckPermission( 'Modify Site Preferences' ) ) return;
+if( !$this->CheckPermission( 'Modify News Preferences' ) ) return;
 
 $this->SetPreference('default_category', $params['default_category']);
 $this->SetPreference('formsubmit_emailaddress', $params['formsubmit_emailaddress']);

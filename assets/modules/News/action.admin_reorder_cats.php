@@ -3,7 +3,7 @@
 use News\Adminops;
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return; //TODO sensible permission
+if( !$this->CheckPermission('Modify News Preferences') ) return;
 $this->SetCurrentTab('categories');
 
 function news_reordercats_create_flatlist($tree,$parent_id = -1)

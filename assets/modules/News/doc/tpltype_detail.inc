@@ -18,7 +18,7 @@
 <h3>$entry Object Reference</h3>
 <ul class="helptext">
   <li>id <em>(integer)</em> - The unique article id.</li>
-  <li>author_id <em>(integer)</em> - The userid of the author who created the article.  This value may be negative to indicate an FEU userid.</li>
+  <li>author_id <em>(integer)</em> - The userid of the article creator.</li>
   <li>title <em>(string)</em> - The title of the article.</li>
   <li>summary (text) - The summary text (may be empty or unset).</li>
   <li>extra (string)         = The "extra" data associated with the article (may be empty or unset).</li>
@@ -27,8 +27,8 @@
   <li>enddate (string)       = A string representing the date the article should stop appearing on the site (may be empty or unset).</li>
   <li>category_id (integer)  = The unique id of the hierarchy level where this article resides (may be empty or unset)</li>
   <li>status (string)        = either 'draft' or 'published' indicating the status of this article.</li>
-  <li>author (string)        = The username of the original author of the article.  If the article was created by frontend submission, this will attempt to retrieve the username from the FEU module.</li>
-  <li>authorname (string)    = The full name of the original author of the website. Only applicable if article was created by an administrator and that information exists in the administrators profile.</li>
+  <li>author (string)        = The username of the article creator.</li>
+  <li>authorname (string)    = The full name of the article creator. Only applicable if that information exists in the admin data.</li>
   <li>category (string)      = The name of the category that this article is associated with.</li>
   <li>canonical (string)     = A full URL (prettified) to this articles detail view using defaults if necessary.</li>
   <li>fields (associative)   = An associative array of field objects, representing the fields, and their values for this article.  See the information below on the field object definition.   In past versions of News this was a simple array, now it is an associative one.</li>

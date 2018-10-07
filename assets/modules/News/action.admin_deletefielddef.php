@@ -17,26 +17,26 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Site Preferences')) return;
+if (!$this->CheckPermission('Modify News Preferences')) return;
 
-$fdid = '';
-if (isset($params['fdid']))	$fdid = $params['fdid'];
+$fdid = $params['fdid'] ?? '';
+if (is_numeric($fdid)) {
+    // Get the category details
+    $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
+    $row = $db->GetRow($query, [$fdid]);
 
-// Get the category details
-$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
-$row = $db->GetRow($query, [$fdid]);
+    //Now remove the category
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
+    $db->Execute($query, [$fdid]);
 
-//Now remove the category
-$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
-$db->Execute($query, [$fdid]);
+    //And remove it from any entries
+    $query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE fielddef_id = ?';
+    $db->Execute($query, [$fdid]);
 
-//And remove it from any entries
-$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_news_fieldvals WHERE fielddef_id = ?';
-$db->Execute($query, [$fdid]);
+    $db->Execute('UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order - 1) WHERE item_order > ?', [$row['item_order']]);
 
-$db->Execute('UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET item_order = (item_order - 1) WHERE item_order > ?', [$row['item_order']]);
-
-// put mention into the admin log
-audit('','News custom: '.$name, 'Field definition deleted');
-$this->Setmessage($this->Lang('fielddefdeleted'));
+    // put mention into the admin log
+    audit('','News custom: '.$name, 'Field definition deleted');
+    $this->Setmessage($this->Lang('fielddefdeleted'));
+}
 $this->RedirectToAdminTab('customfields','','admin_settings');

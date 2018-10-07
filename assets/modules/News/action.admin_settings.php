@@ -1,7 +1,7 @@
 <?php
 
 if( !isset($gCms) ) exit;
-if( !$this->CheckPermission('Modify Site Preferences') ) return;
+if( !$this->CheckPermission('Modify News Preferences') ) return;
 
 $prompt = json_encode($this->Lang('areyousure'));
 $yes = $this->Lang('yes');

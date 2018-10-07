@@ -5,7 +5,7 @@ use News\Adminops;
 use News\Ops;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Site Preferences')) return;
+if (!$this->CheckPermission('Modify News Preferences')) return;
 
 $parent = -1;
 if( isset($params['parent'])) $parent = (int)$params['parent'];
@@ -63,9 +63,6 @@ $tpl->assign('parent',$parent)
  ->assign('startform', $this->CreateFormStart($id, 'addcategory', $returnid))
  ->assign('endform', $this->CreateFormEnd())
  ->assign('inputname', $this->CreateInputText($id, 'name', $name, 20, 255));
-//see template ->assign('submit', $this->CreateInputSubmit($id, 'submit', lang('submit')))
-// ->assign('cancel', $this->CreateInputSubmit($id, 'cancel', lang('cancel')))
-//see DoActionBase() ->assign('mod',$this);
 
 $tpl->display();
 

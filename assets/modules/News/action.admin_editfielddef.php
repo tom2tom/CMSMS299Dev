@@ -19,8 +19,8 @@
 use News\Adminops;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Site Preferences')) {
-    //TODO some immediate error display	>> lang('needpermissionto', '"Modify Site Preferences"'));
+if (!$this->CheckPermission('Modify News Preferences')) {
+    //TODO some immediate error display	>> lang('needpermissionto', '"Modify News Preferences"'));
 	return;
 }
 
@@ -70,8 +70,8 @@ if (isset($params['submit'])) {
 
   if( !$error ) {
     $extra = ['options'=>$arr_options];
-    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = '.$db->DbTimeStamp(time()).', public = ?, extra = ? WHERE id = ?';
-    $res = $db->Execute($query, [$name, $type, $max_length, $public, serialize($extra), $fdid]);
+    $query = 'UPDATE '.CMS_DB_PREFIX.'module_news_fielddefs SET name = ?, type = ?, max_length = ?, modified_date = ?, public = ?, extra = ? WHERE id = ?';
+    $res = $db->Execute($query, [$name, $type, $max_length, time(), $public, serialize($extra), $fdid]);
 
     if( !$res ) { //TODO update-command result is never reliable
 		//TODO some immediate error display >> $db->ErrorMsg()

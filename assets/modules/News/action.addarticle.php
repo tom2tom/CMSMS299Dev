@@ -6,11 +6,8 @@ use CMSMS\FormUtils;
 use News\Adminops;
 
 if (!isset($gCms))  exit ;
-
 if (!$this->CheckPermission('Modify News'))  return;
 if (isset($params['cancel'])) $this->Redirect($id, 'defaultadmin', $returnid);
-// default status
-$status = ($this->CheckPermission('Approve News')) ? 'published' : 'draft';
 
 $cz = $config['timezone'];
 $tz = new DateTimeZone($cz);
@@ -21,15 +18,18 @@ $useexp = $params['inputexp'] ?? 1;
 
 if (isset($params['submit']) || isset($params['apply'])) {
 
+    $articleid    = $params['articleid']; //-1 before save, >0 after 'apply'
     $title        = $params['title'];
     $summary      = $params['summary'];
     $content      = $params['content'];
-    $status       = $params['status'] ?? $status;
+    $status       = $params['status'];
     $searchable   = $params['searchable'] ?? 0;
     $news_url     = $params['news_url'];
     $usedcategory = $params['category'];
-    $author_id    = $params['author_id'] ?? '-1';
+    $author_id    = $params['author_id'] ?? 0;
     $extra        = trim($params['extra']);
+
+    $error = false;
 
     $st = strtotime($params['fromdate']);
     if ($st !== false) {
@@ -40,12 +40,15 @@ if (isset($params['submit']) || isset($params['apply'])) {
             }
         }
         $startdate = $st;
+    } elseif ($params['fromdate'] === '') {
+        $startdate = 0;
     } else {
-        //TODO process non-date input or bad-date error
-        $startdate = NULL;
+        $this->ShowErrors($this->Lang('error_invaliddates'));
+        $error = true;
+        $startdate = 0;
     }
 
-    if ($useexp == 1) {
+    if ($useexp == 0) {
         $enddate = 0;
     } else {
         $st = strtotime($params['todate']);
@@ -57,24 +60,29 @@ if (isset($params['submit']) || isset($params['apply'])) {
                 }
             }
             $enddate = $st;
+        } elseif ($params['todate'] === '') {
+            $useexp = 0;
+            $enddate = 0;
         } else {
-            //TODO process non-date input or bad-date error
-            $enddate = NULL;
+            if (!$error) {
+                $this->ShowErrors($this->Lang('error_invaliddates'));
+                $error = true;
+            }
+            $enddate = 0;
         }
     }
 
     // Validation
-    $error = false;
+    if ($startdate && $enddate && $enddate <= $startdate) {
+        $this->ShowErrors($this->Lang('error_invaliddates'));
+        $error = true;
+    }
+    
     if (empty($title)) {
         $this->ShowErrors($this->Lang('notitlegiven'));
         $error = true;
     } elseif (empty($content)) {
         $$this->ShowErrors($this->Lang('nocontentgiven'));
-        $error = true;
-    }
-
-    if ($useexp == 1 && $startdate <= $enddate) {
-        $this->ShowErrors($this->Lang('error_invaliddates'));
         $error = true;
     }
 
@@ -106,7 +114,8 @@ if (isset($params['submit']) || isset($params['apply'])) {
         //
         // database work
         //
-        $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news (
+        if ($articleid < 0) {
+            $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news (
 news_id,
 news_title,
 news_data,
@@ -120,119 +129,158 @@ create_date,
 author_id,
 news_extra,
 news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        $articleid = $db->GenID(CMS_DB_PREFIX . 'module_news_seq');
-        $now = time();
-        $args = [
-            $articleid,
-            $title,
-            $content,
-            $summary,
-            $usedcategory,
-            $status,
-            $searchable,
-            $startdate,
-            (($useexp == 1)?$enddate:NULL),
-            $now,
-            $author_id,
-            $extra,
-            $news_url,
-        ];
-        $dbr = $db->Execute($query, $args);
-        if (!$dbr) {
-            echo 'DEBUG: SQL = ' . $db->sql . '<br />';
-            die($db->ErrorMsg());
-        }
-
-        //
-        //Handle submitting the 'custom' fields
-        //
-
-        // get the field types
-        $query = 'SELECT id,name,type FROM ' . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
-        $types = $db->GetArray($query);
-        if (is_array($types)) {
-		    foreach ($types as $onetype) {
-		        $elem = $id . 'customfield_' . $onetype['id'];
-		        if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
-		            if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
-		                $this->ShowErrors($this->Lang('error_upload'));
-		                $error = true;
-		            } else {
-		                $value = Adminops::handle_upload($articleid, $elem, $error);
-		                if ($value === false) {
-		                    $this->ShowErrors($error);
-		                    $error = true;
-		                } else {
-		                    $params['customfield'][$onetype['id']] = $value;
-		                }
-		            }
-		        }
-		    }
-        }
-
-        if (!$error && isset($params['customfield'])) {
-            foreach ($params['customfield'] as $fldid => $value) {
-                if ($value == '')
-                    continue;
-
-                $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,?)';
-                $dbr = $db->Execute($query, [
-                    $articleid,
-                    $fldid,
-                    $value,
-                    $now
-                ]);
-                if (!$dbr)
-                    die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
+            $articleid = $db->GenID(CMS_DB_PREFIX . 'module_news_seq');
+            $now = time();
+            $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
+            $args = [
+             $articleid,
+             $title,
+             $content,
+             $summary,
+             $usedcategory,
+             $stsave,
+             $searchable,
+             $startdate,
+             (($useexp == 1)?$enddate:0),
+             $now,
+             $author_id,
+             $extra,
+             $news_url,
+            ];
+            $dbr = $db->Execute($query, $args);
+            if (!$dbr) {
+                echo 'DEBUG: SQL = ' . $db->sql . '<br />';
+                die($db->ErrorMsg());
             }
-        }
 
-        if (!$error) {
-		    if ($status == 'published' && $news_url != '') {
-		        // todo: if not expired
-		        // register the route.
-		        Adminops::delete_static_route($articleid);
-		        Adminops::register_static_route($news_url, $articleid);
-		    }
+            //
+            //Set custom fields
+            //
 
-		    if ($status == 'published' && $searchable) {
-		        //Update search index
-		        $module = cms_utils::get_search_module();
-		        if (is_object($module)) {
-		            $text = '';
-		            if (isset($params['customfield'])) {
-		                foreach ($params['customfield'] as $fldid => $value) {
-		                    if (strlen($value) > 1)
-		                        $text .= $value . ' ';
-		                }
+            // get the field types
+            $query = 'SELECT id,name,type FROM ' . CMS_DB_PREFIX . "module_news_fielddefs WHERE type='file'";
+            $types = $db->GetArray($query);
+            if (is_array($types)) {
+                foreach ($types as $onetype) {
+                    $elem = $id . 'customfield_' . $onetype['id'];
+                    if (isset($_FILES[$elem]) && $_FILES[$elem]['name'] != '') {
+                        if ($_FILES[$elem]['error'] != 0 || $_FILES[$elem]['tmp_name'] == '') {
+                            $this->ShowErrors($this->Lang('error_upload'));
+                            $error = true;
+                        } else {
+                            $value = Adminops::handle_upload($articleid, $elem, $error);
+                            if ($value === false) {
+                                $this->ShowErrors($error);
+                                $error = true;
+                            } else {
+                                $params['customfield'][$onetype['id']] = $value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!$error) {
+		        if (isset($params['customfield'])) {
+		            foreach ($params['customfield'] as $fldid => $value) {
+		                if ($value == '')
+		                    continue;
+
+		                $query = 'INSERT INTO ' . CMS_DB_PREFIX . 'module_news_fieldvals (news_id,fielddef_id,value,create_date) VALUES (?,?,?,?)';
+		                $dbr = $db->Execute($query, [
+		                    $articleid,
+		                    $fldid,
+		                    $value,
+		                    $now
+		                ]);
+		                if (!$dbr)
+		                    die('FATAL SQL ERROR: ' . $db->ErrorMsg() . '<br />QUERY: ' . $db->sql);
 		            }
-		            $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
-		            $module->AddWords($this->GetName(), $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
 		        }
-		    }
 
-            Events::SendEvent('News', 'NewsArticleAdded', [
-		        'news_id' => $articleid,
-		        'category_id' => $usedcategory,
-		        'title' => $title,
-		        'content' => $content,
-		        'summary' => $summary,
-		        'status' => $status,
-		        'start_time' => $startdate,
-		        'end_time' => $enddate,
-                'post_time' => $startdate,
-                'extra' => $extra,
-	            'useexp' => $useexp,
-                'news_url' => $news_url
-        	]);
-		    // put mention into the admin log
-		    audit($articleid, 'News: ' . $title, 'Article added');
-		    $this->SetMessage($this->Lang('articleadded'));
-		    if (!isset($params['apply'])) {
-		    	$this->Redirect($id, 'defaultadmin', $returnid);
-			}
-        } // if !$error
-    } // outer if !$error
+                if (($status == 'publishedfinal' || $status == 'final') && $news_url) {
+                    // TODO: && not expired
+                    // register the route
+                    Adminops::delete_static_route($articleid);
+                    Adminops::register_static_route($news_url, $articleid);
+                }
+
+                if (($status == 'published' || $status == 'final') && $searchable) {
+                    //Update search index
+                    $module = cms_utils::get_search_module();
+                    if (is_object($module)) {
+                        $text = '';
+                        if (isset($params['customfield'])) {
+                            foreach ($params['customfield'] as $fldid => $value) {
+                                if (strlen($value) > 1)
+                                    $text .= $value . ' ';
+                            }
+                        }
+                        $text .= $content . ' ' . $summary . ' ' . $title . ' ' . $title;
+                        $module->AddWords($this->GetName(), $articleid, 'article', $text, ($useexp == 1 && $this->GetPreference('expired_searchable', 0) == 0) ? $enddate : NULL);
+                    }
+                }
+
+                Events::SendEvent('News', 'NewsArticleAdded', [
+                    'news_id' => $articleid,
+                    'category_id' => $usedcategory,
+                    'title' => $title,
+                    'content' => $content,
+                    'summary' => $summary,
+                    'status' => $status,
+                    'post_time' => $startdate, //deprecated
+                    'start_time' => $startdate,
+                    'end_time' => $enddate,
+                    'extra' => $extra,
+                    'useexp' => $useexp,
+                    'news_url' => $news_url
+                ]);
+                // put mention into the admin log
+                audit($articleid, 'News: ' . $title, 'Article added');
+                $this->SetMessage($this->Lang('articleadded'));
+                if (!isset($params['apply'])) {
+                    $this->Redirect($id, 'defaultadmin', $returnid);
+                }
+            } // !$error
+        } else { // articleid >= 0 after apply
+            $query = 'UPDATE ' . CMS_DB_PREFIX . 'module_news SET
+news_title=?,
+news_data=?,
+summary=?,
+news_category_id=?,
+status=?,
+searchable=?,
+start_time=?,
+end_time=?,
+modified_date=?,
+news_extra=?,
+news_url= ?
+WHERE news_id=?';
+            $now = time();
+            $stsave = ($status == 'final' && $startdate > 0 && $startdate < $now && ($enddate == 0 || $enddate > $now)) ? 'published' : $status;
+            $args = [
+             $title,
+             $content,
+             $summary,
+             $usedcategory,
+             $stsave,
+             $searchable,
+             $startdate,
+             (($useexp == 1)?$enddate:0),
+             $now,
+             $extra,
+             $news_url,
+             $articleid
+            ];
+            $db->Execute($query, $args);
+        }
+        //TODO custom fields too??
+    } // outer !$error
+
+    $fromdate = $params['fromdate'];
+    $fromtime = $params['fromtime'] ?? '';
+    $todate = $params['todate'];
+    $totime = $params['totime'] ?? '';
 // end submit
 } elseif (!isset($params['preview'])) {
     $articleid    = -1;
@@ -247,6 +295,11 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
     $author_id    = get_userid(false);
     $extra        = '';
     $news_url     = '';
+
+    $fromdate = '';
+    $fromtime = '';
+    $todate = '';
+    $totime = '';
 } else {
     // save data for preview.
     unset($params['apply']);
@@ -292,7 +345,7 @@ news_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
     }
     header('Content-Type: text/xml');
     echo $response;
-    exit ;
+    exit;
 }
 
 $choices = [
@@ -301,13 +354,8 @@ $choices = [
 ];
 $statusradio = $this->CreateInputRadioGroup($id,'status',$choices,$status,'','  ');
 
-//TODO
 $block = $this->GetPreference('timeblock', News::HOURBLOCK);
 $withtime = ($block == News::DAYBLOCK) ? 0:1;
-$fromdate = '';
-$fromtime = '';
-$todate = '';
-$totime = '';
 
 $categorylist = [];
 $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'module_news_categories ORDER BY hierarchy';
@@ -345,69 +393,37 @@ while ($dbr && ($row = $dbr->FetchRow())) {
     $obj->size     = min(80, (int)$row['max_length']);
     $obj->max_len  = max(1, (int)$row['max_length']);
     $obj->options  = $options;
-/*
-    FIXME - If we create inputs with hmtl markup in smarty template, whats the use of switch and form API here?
-    switch( $row['type'] ) {
-        case 'textbox' :
-            $size = min(50, $row['max_length']);
-            $obj->field = $this->CreateInputText($id, $name, $value, $size, $row['max_length']); DEPRECATED API
-            break;
-        case 'checkbox' :
-            $obj->field = $this->CreateInputHidden($id, $name, $value != '' ? $value : '0') . $this->CreateInputCheckbox($id, $name, '1', $value != '' ? $value : '0');
-            break;
-        case 'textarea' :
-            $obj->field = FormUtils::create_textarea(['enablewysiwyg'=>1, 'modid'=>$id, 'name'=>$name, 'value'=>$value]); DEPRECATED API
-            break;
-        case 'file' :
-            $name = "customfield_" . $row['id'];
-            $obj->field = $this->CreateFileUploadInput($id, $name); DEPRECATED API
-            break;
-        case 'dropdown' :
-            $obj->field = $this->CreateInputDropdown($id, $name, array_flip($options)); DEPRECATED API
-            break;
-    }
-*/
     $custom_flds[$row['name']] = $obj;
 }
 
 /*--------------------
- * Pass everything to smarty
+ Pass everything to smarty
  ---------------------*/
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('editarticle.tpl'),null,null,$smarty);
 
-$tpl->assign('formid', $id)
- ->assign('startform', $this->CreateFormStart($id, 'addarticle', $returnid))
- ->assign('hidden', $this->CreateInputHidden($id, 'articleid', $articleid) . $this->CreateInputHidden($id, 'author_id', $author_id))
- ->assign('title', $title);
+$tpl->assign('startform', $this->CreateFormStart($id, 'addarticle', $returnid, 'post', '', false, '', ['articleid'=>$articleid, 'author_id'=>$author_id]));
 
 if ($author_id > 0) {
     $userops = $gCms->GetUserOperations();
     $theuser = $userops->LoadUserById($author_id);
     if ($theuser) {
-    $tpl->assign('inputauthor', $theuser->username);
+        $tpl->assign('inputauthor', $theuser->username);
     } else {
         $tpl->assign('inputauthor', $this->Lang('anonymous'));
     }
-} else if ($author_id == 0) {
-    $tpl->assign('inputauthor', $this->Lang('anonymous'));
 } else {
-    $feu = $this->GetModuleInstance('FrontEndUsers');
-    if ($feu) {
-        $uinfo = $feu->GetUserInfo($author_id * -1);
-        if ($uinfo[0])
-            $tpl->assign('inputauthor', $uinfo[1]['username']);
-    }
+    $tpl->assign('inputauthor', $this->Lang('anonymous'));
 }
 
-if ($this->GetPreference('allow_summary_wysiwyg',1)) {
+if ($this->GetPreference('allow_summary_wysiwyg', 1)) {
     $tpl->assign('hide_summary_field', false)
-	 ->assign('inputsummary', FormUtils::create_textarea([
+     ->assign('inputsummary', FormUtils::create_textarea([
         'enablewysiwyg' => 1,
-		'modid' => $id,
-		'name' => 'summary',
-		'class' => 'pageextrasmalltextarea',
-		'value' => $summary,
+        'modid' => $id,
+        'name' => 'summary',
+        'class' => 'pageextrasmalltextarea',
+        'value' => $summary,
         'addtext' => 'style="height:3em;"',
     ]));
 } else {
@@ -420,8 +436,10 @@ $tpl->assign('inputcontent', FormUtils::create_textarea([
     'value' => $content,
 ]));
 
-$tpl->assign('useexp', $useexp)
- ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
+$tpl->assign('title', $title)
+ ->assign('articleid',$articleid)
+// ->assign('useexp', $useexp)
+// ->assign('inputexp', $this->CreateInputCheckbox($id, 'useexp', '1', $useexp, 'class="pagecheckbox"'))
  ->assign('fromdate', $fromdate)
  ->assign('todate', $todate)
  ->assign('fromtime', $fromtime)
@@ -432,19 +450,7 @@ $tpl->assign('useexp', $useexp)
  ->assign('category', $usedcategory)
  ->assign('searchable', $searchable)
  ->assign('extra', $extra)
- ->assign('news_url', $news_url)
- ->assign('delete_field_val', $this->Lang('delete'))
- ->assign('warning_preview', $this->Lang('warning_preview'))
- ->assign('select_option', $this->Lang('select_option'))
-// tab stuff
- ->assign('start_tab_headers', $this->StartTabHeaders())
- ->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')))
- ->assign('tabheader_preview', $this->SetTabHeader('preview', $this->Lang('preview'))) //TODO
- ->assign('end_tab_headers', $this->EndTabHeaders())
- ->assign('start_tab_content', $this->StartTabContent())
- ->assign('start_tab_article', $this->StartTab('article', $params))
- ->assign('end_tab_article', $this->EndTab())
- ->assign('end_tab_content', $this->EndTabContent());
+ ->assign('news_url', $news_url);
 
 if ($this->CheckPermission('Approve News')) {
     $tpl->assign('statuses',$statusradio);
@@ -454,10 +460,8 @@ if ($this->CheckPermission('Approve News')) {
 if ($custom_flds) {
     $tpl->assign('custom_fields', $custom_flds);
 }
-$contentops = cmsms()->GetContentOperations();
-$tpl->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
 
-// get the list of detail templates.
+// get the detail templates, if any
 try {
     $type = CmsLayoutTemplateType::load($this->GetName() . '::detail');
     $templates = $type->get_template_list();
@@ -468,25 +472,27 @@ try {
         }
     }
     if ($list) {
-        $tpl->assign('prompt_detail_template', $this->Lang('detail_template'))
-          ->assign('prompt_detail_page', $this->Lang('detail_page'))
-          ->assign('detail_templates', $list)
-          ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
-          ->assign('start_tab_preview', $this->StartTab('preview', $params))
-          ->assign('end_tab_preview', $this->EndTab());
+        $contentops = cmsms()->GetContentOperations();
+        $tpl->assign('preview_returnid', $contentops->CreateHierarchyDropdown('', $this->GetPreference('detail_returnid', -1), 'preview_returnid'));
+
+        $tpl->assign('detail_templates', $list)
+         ->assign('cur_detail_template', $this->GetPreference('current_detail_template'))
+        // tab stuff
+         ->assign('start_tab_headers', $this->StartTabHeaders())
+         ->assign('tabheader_article', $this->SetTabHeader('article', $this->Lang('article')))
+         ->assign('tabheader_preview', $this->SetTabHeader('preview', $this->Lang('preview')))
+         ->assign('end_tab_headers', $this->EndTabHeaders())
+         ->assign('start_tab_content', $this->StartTabContent())
+         ->assign('start_tab_article', $this->StartTab('article', $params))
+         ->assign('start_tab_preview', $this->StartTab('preview', $params))
+         ->assign('end_tab', $this->EndTab())
+         ->assign('end_tab_content', $this->EndTabContent());
     }
 } catch( Exception $e ) {
     audit('', $this->GetName(), 'No detail templates available for preview');
 }
 
 // page resources
-$baseurl = $this->GetModuleURLPath();
-$css = <<<EOS
- <link rel="stylesheet" href="{$baseurl}/css/jquery.datepicker.css">
- <link rel="stylesheet" href="{$baseurl}/css/jquery.timepicker.css">
-
-EOS;
-$this->AdminHeaderContent($css);
 include __DIR__.DIRECTORY_SEPARATOR.'method.articlescript.php';
 
 $tpl->display();

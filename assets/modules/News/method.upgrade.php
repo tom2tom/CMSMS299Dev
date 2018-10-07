@@ -178,7 +178,7 @@ if( version_compare($oldversion,'2.50.8') < 0 ) {
     }
 }
 
-if( version_compare($oldversion,'2.52') < 0 ) {
+if( version_compare($oldversion,'2.90') < 0 ) {
     $this->CreatePermission('Modify News Preferences', 'Modify News Module Settings');
     if( version_compare(CMS_VERSION,'2.2.900') >= 0 ) {
         $fp = cms_join_path(CMS_ROOT_PATH,'lib','modules',$me);
@@ -191,9 +191,9 @@ if( version_compare($oldversion,'2.52') < 0 ) {
 
     $dict = NewDataDictionary($db);
     $tbl = CMS_DB_PREFIX.'module_news';
-    $query = 'UPDATE '.$tbl.' SET start_time=news_date WHERE start_time IS NULL AND status!=\'draft\'';
+    $query = 'UPDATE '.$tbl.' SET start_time=MAX(news_date,modified_date,create_date) WHERE (start_time IS NULL OR start_time=0) AND status!=\'draft\'';
     $db->Execute($query);
-    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date=create_date';
+    $query = 'UPDATE '.$tbl.' SET author_id=0 WHERE author_id<0';
     $db->Execute($query);
     $query = 'SELECT
 news_id,
@@ -213,13 +213,13 @@ FROM '.$tbl;
     $dict->ExecuteSqlArray($sqlarray, FALSE);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'news_date I');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'start_time I');
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'start_time I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'end_time I');
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'end_time I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I');
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
 
     $query = 'UPDATE '.$tbl.' SET
@@ -233,22 +233,24 @@ WHERE news_id=?';
         $db->Execute($query,[$row['newsstamp'],$row['startstamp'],$row['endstamp'],$row['createstamp'],$row['modstamp'],$row['news_id']]);
     }
 
-    $query = 'UPDATE '.$tbl.' SET status=? WHERE status=? AND end_time IS NOT NULL AND end_time<=?';
-    $db->Execute($query,['archived','published',time()]);
+    $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
+    $db->Execute($query);
+    $query = 'UPDATE '.$tbl.' SET status=\'archived\' WHERE status=\'published\' AND end_time IS NOT NULL AND end_time<=?';
+    $db->Execute($query,[time()]);
 
     $tbl = CMS_DB_PREFIX.'module_news_categories';
-    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date=create_date';
-    $db->Execute($query);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I');
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
+    $db->Execute($query);
 
     $tbl = CMS_DB_PREFIX.'module_news_fielddefs';
-    $query = 'UPDATE '.$tbl.' SET modified_date=NULL WHERE modified_date=create_date';
-    $db->Execute($query);
     $sqlarray = $dict->AlterColumnSQL($tbl, 'create_date I');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
-    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I');
+    $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
+    $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
+    $db->Execute($query);   
 }

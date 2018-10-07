@@ -3,7 +3,7 @@
 use News\Adminops;
 
 if (!isset($gCms)) exit;
-if (!$this->CheckPermission('Modify Site Preferences')) return;
+if (!$this->CheckPermission('Modify News Preferences')) return;
 
 if (isset($params['cancel'])) $this->RedirectToAdminTab('customfields','','admin_settings');
 
@@ -46,11 +46,9 @@ if (isset($params['submit'])) {
         if( $max == null ) $max = 1;
 
         $extra = ['options'=>$arr_options];
-        $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs (name, type, max_length, item_order, create_date, modified_date, public, extra) VALUES (?,?,?,?,?,?,?,?)';
-        $parms = [$name, $type, $max_length, $max,
-                       trim($db->DbTimeStamp(time()), "'"),
-                       trim($db->DbTimeStamp(time()), "'"),
-                       $public, serialize($extra)];
+		$now = time();
+        $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs (name, type, max_length, item_order, create_date, public, extra) VALUES (?,?,?,?,?,?,?)';
+        $parms = [$name, $type, $max_length, $max, $now, $public, serialize($extra)];
         $db->Execute($query, $parms );
 
         // put mention into the admin log

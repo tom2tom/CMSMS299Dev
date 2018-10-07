@@ -32,17 +32,16 @@
 <p>The $items array contains an array of news article objects.  Below are the members.</p>
 <p>Because the news article objects, are objects, you address them like: {$entry->id} etc.</li>
 <ul class="helptext">
-  <li>author_id (int) - The uid of the author.  If greater than 0 an admin user account is assumed.  If less than zero an FEU user account is assumed.  A value of 0 indicates an anonymous user.</li>
+  <li>author_id (int) - The uid of the author. A value of 0 indicates an anonymous user.</li>
   <li>author (string) The username of the author... or unknown</li>
-  <li>authorname (string) - For admin user ids, this is a concatenation of the users first and last names, if they exist.  This is undefined for FEU entries.</li>
+  <li>authorname (string) - A concatenation of the users first and last names, if they exist.</li>
   <li>id (int) - The numerical id of the article.</li>
   <li>title (string) - The title of the article.</li>
   <li>content (string) - The HTML content for the article.</li>
   <li>summary (string) - The article summary.</li>
-  <li>postdate (string) - The article post date.</li>
   <li>extra (string) - Optional, extra information.</li>
-  <li>startdate (string) - Optional, the start date of the article.</li>
-  <li>enddate (string) - Optional, the end date of the article.</li>
+  <li>startdate (string) - Optional, the publication date of the article.</li>
+  <li>enddate (string) - Optional, the expiry date of the article.</li>
   <li>create_date (string) - The date the article was first created.</li>
   <li>modified_date (string) - The date the article was last modified.</li>
   <li>category (string) - The article's category name.<li>

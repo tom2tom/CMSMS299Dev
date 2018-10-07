@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use News\AdjustStatusTask;
 use News\Adminops;
 use News\CreateDraftAlertTask;
 
@@ -37,7 +38,7 @@ class News extends CMSModule
     public function GetFriendlyName() { return $this->Lang('news'); }
     public function GetHelp() { return $this->Lang('help'); }
     public function GetName() { return 'News'; }
-    public function GetVersion() { return '3.0'; }
+    public function GetVersion() { return '2.90'; }
     public function HasAdmin() { return true; }
     public function InstallPostMessage() { return $this->Lang('postinstall');  }
     public function IsPluginModule() { return true; }
@@ -76,29 +77,10 @@ class News extends CMSModule
         $this->SetParameterType('category_id', CLEAN_INT);
         $this->SetParameterType('category', CLEAN_STRING);
         $this->SetParameterType('content', CLEAN_STRING);
-        $this->SetParameterType('enddate_Day', CLEAN_STRING);
-        $this->SetParameterType('enddate_Hour', CLEAN_STRING);
-        $this->SetParameterType('enddate_Minute', CLEAN_STRING);
-        $this->SetParameterType('enddate_Month', CLEAN_STRING);
-        $this->SetParameterType('enddate_Second', CLEAN_STRING);
-        $this->SetParameterType('enddate_Year', CLEAN_STRING);
         $this->SetParameterType('enddate', CLEAN_STRING);
         $this->SetParameterType('extra', CLEAN_STRING);
         $this->SetParameterType('input_category', CLEAN_STRING);
         $this->SetParameterType('junk', CLEAN_STRING);
-        $this->SetParameterType('postdate_Day', CLEAN_STRING);
-        $this->SetParameterType('postdate_Hour', CLEAN_STRING);
-        $this->SetParameterType('postdate_Minute', CLEAN_STRING);
-        $this->SetParameterType('postdate_Month', CLEAN_STRING);
-        $this->SetParameterType('postdate_Second', CLEAN_STRING);
-        $this->SetParameterType('postdate_Year', CLEAN_STRING);
-        $this->SetParameterType('postdate', CLEAN_STRING);
-        $this->SetParameterType('startdate_Day', CLEAN_STRING);
-        $this->SetParameterType('startdate_Hour', CLEAN_STRING);
-        $this->SetParameterType('startdate_Minute', CLEAN_STRING);
-        $this->SetParameterType('startdate_Month', CLEAN_STRING);
-        $this->SetParameterType('startdate_Second', CLEAN_STRING);
-        $this->SetParameterType('startdate_Year', CLEAN_STRING);
         $this->SetParameterType('startdate', CLEAN_STRING);
         $this->SetParameterType('submit', CLEAN_STRING);
         $this->SetParameterType('summary', CLEAN_STRING);
@@ -209,16 +191,14 @@ EOS;
     {
         $db = $this->GetDb();
 
-        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = ? ORDER BY start_time';
-        $result = $db->Execute($query,['published']);
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news WHERE searchable = 1 AND status = ? OR status = ? ORDER BY start_time';
+        $result = $db->Execute($query,['published','final']);
 
         while ($result && !$result->EOF) {
-            if ($result->fields['status'] == 'published') {
-                $module->AddWords($this->GetName(),
-                                  $result->fields['news_id'], 'article',
-                                  $result->fields['news_data'] . ' ' . $result->fields['summary'] . ' ' . $result->fields['news_title'] . ' ' . $result->fields['news_title'],
-                                  ($result->fields['end_time'] != NULL && $this->GetPreference('expired_searchable',0) == 0) ?  $result->fields['end_time'] : NULL);
-            }
+            $module->AddWords($this->GetName(),
+                              $result->fields['news_id'], 'article',
+                              $result->fields['news_data'] . ' ' . $result->fields['summary'] . ' ' . $result->fields['news_title'] . ' ' . $result->fields['news_title'],
+                              ($result->fields['end_time'] != NULL && $this->GetPreference('expired_searchable',0) == 0) ?  $result->fields['end_time'] : NULL);
             $result->MoveNext();
         }
     }
@@ -243,22 +223,25 @@ EOS;
 
     public function get_tasks()
     {
-        if( $this->GetPreference('alert_drafts',1) )
-            return [new CreateDraftAlertTask()];
+        $out = [new AdjustStatusTask()];
+        if( $this->GetPreference('alert_drafts',1) ) {
+            $out[] = new CreateDraftAlertTask();
+        }
+        return $out;
     }
 
     public function GetNotificationOutput($priority = 2)
     {
         // if this user has permission to change News articles from
-        // Draft to published, and there are draft news articles
+        // draft to final, and there are draft news articles,
         // then display a nice message.
         // this is a priority 2 item.
         if( $priority >= 2 ) {
             $output = [];
             if( $this->CheckPermission('Approve News') ) {
                 $db = $this->GetDb();
-				$now = time();
-                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status != \'published\'
+                $now = time();
+                $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status != \'published\' AND status != \'final\'
                   AND (end_time IS NULL OR end_time > '.$now.')';
                 $count = $db->GetOne($query);
                 if( $count ) {
@@ -294,11 +277,11 @@ EOS;
                               ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
         cms_route_manager::add_static($route);
 
-		$now = time();
-        $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != ? AND '
+        $now = time();
+        $query = 'SELECT news_id,news_url FROM '.CMS_DB_PREFIX.'module_news WHERE status = ? AND news_url != \'\' AND '
             . '('.$db->ifNull('start_time',1).' < '.$now.') AND (end_time IS NULL OR end_time > '.$now.')';
         $query .= ' ORDER BY start_time DESC';
-        $tmp = $db->GetArray($query,['published','']);
+        $tmp = $db->GetArray($query,['published']);
 
         if( is_array($tmp) ) {
             foreach( $tmp as $one ) {
@@ -362,7 +345,7 @@ EOS;
 
     public function get_adminsearch_slaves()
     {
-        return ['News\AdminSearch_slave'];
+        return ['News\\AdminSearch_slave'];
     }
 
     public function GetAdminMenuItems()
@@ -370,14 +353,13 @@ EOS;
         $out = [];
         if( $this->VisibleToAdminUser() ) $out[] = CmsAdminMenuItem::from_module($this);
 
-        if( $this->CheckPermission('Modify News Preferences')
-         || $this->CheckPermission('Modify Site Preferences')) {
+        if( $this->CheckPermission('Modify News Preferences')) {
             $obj = new CmsAdminMenuItem();
             $obj->module = $this->GetName();
             $obj->section = (version_compare(CMS_VERSION,'2.2.910') < 0) ? 'content' : 'services';
             $obj->title = $this->Lang('title_news_settings');
             $obj->description = $this->Lang('desc_news_settings');
-			$obj->icon = false;
+            $obj->icon = false;
             $obj->action = 'admin_settings';
             $out[] = $obj;
         }

@@ -27,9 +27,32 @@ use function munge_string_to_url;
 
 class Article
 {
-    private static $_keys = ['id','author_id','title','content','summary','extra','news_url','postdate','startdate','enddate',
-                             'category_id','status','author','authorname','category','canonical','fields','fieldsbyname','customfieldsbyname',
-                             'useexp','returnid','params','file_location'];
+/*
+    const KEYS = [
+	'author',
+	'author_id',
+	'authorname',
+	'canonical',
+	'category',
+	'category_id',
+	'content',
+	'customfieldsbyname',
+	'enddate',
+	'extra',
+	'fields',
+	'fieldsbyname',
+	'file_location',
+	'id',
+	'news_url',
+	'params',
+	'returnid',
+	'startdate',
+	'status',
+	'summary',
+	'title',
+	'useexp',
+    ];
+*/
     private $_rawdata = [];
     private $_meta = [];
     private $_inparams = [];
@@ -58,12 +81,7 @@ class Article
                 }
             }
             elseif( $author_id < 0 ) {
-                $author_id *= -1;
-                $feu = cms_utils::get_module('FrontEndUsers');
-                if( $feu ) {
-                    $uinfo = $feu->GetUserInfo($author_id);
-                    if( $uinfo[0] ) $this->_meta['author'] = $uinfo[1]['username'];
-                }
+                $author_id = 0;
             }
         }
         if( $authorname ) return $this->_meta['authorname'];
@@ -142,14 +160,16 @@ class Article
         case 'summary':
         case 'extra':
         case 'news_url':
-        case 'postdate':       // db time format
-        case 'startdate':      // db time format
-        case 'enddate':        // db time format
-        case 'create_date':    // db time format
-        case 'modified_date':  // db time format
         case 'category_id':
         case 'status':
             return $this->_getdata($key);
+
+        case 'startdate':
+        case 'enddate':
+        case 'create_date':
+        case 'modified_date':
+			// timestamp.
+            return date('Y-m-d H:i',$this->_getdata($key));
 
         case 'file_location':
             $config = cms_config::get_instance();
@@ -199,7 +219,8 @@ class Article
                     if( $key == $obj->alias ) return $obj->value;
                 }
             }
-            //throw new Exception('Requesting invalid data from News article object '.$key);
+// assert IF DEBUGGING
+//          throw new Exception('Requesting invalid data from News article object '.$key);
         }
     }
 
@@ -216,9 +237,6 @@ class Article
         case 'extra':
         case 'news_url':
         case 'category_id':
-        case 'postdate':
-        case 'startdate':
-        case 'enddate':
         case 'fieldsbyname':
         case 'status':
             return isset($this->_rawdata[$key]);
@@ -234,15 +252,19 @@ class Article
         case 'returnid':
         case 'params':
         case 'useexp':
-            return true;
+            return TRUE;
+
+        case 'startdate':
+        case 'enddate':
+        case 'modified_date':
+            return !empty($this->_rawdata[$key]);
 
         case 'create_date':
-        case 'modified_date':
             if( $this->id != '' ) return TRUE;
             break;
 
-        default:
-            throw new Exception('Requesting invalid data from News article object '.$key);
+//        default: assert IF DEBUGGING
+//            throw new Exception('Requesting invalid data from News article object '.$key);
         }
 
         return FALSE;
@@ -265,7 +287,7 @@ class Article
 
         case 'status':
             $value = strtolower($value);
-            if( $value != 'published' ) $value = 'draft';
+            if( $value != 'published' &&  $value != 'final' ) $value = 'draft';
             $this->_rawdata[$key] = $value;
             break;
 
@@ -274,21 +296,21 @@ class Article
             $this->_meta['useexp'] = $value;
             break;
 
-        case 'create_date':   // db time format
-        case 'modified_date': // db time format
-        case 'postdate':      // db time format
-        case 'startdate':     // db time format
-        case 'enddate':       // db time format
+        case 'create_date':
+        case 'modified_date':
+        case 'startdate':
+        case 'enddate':
+			// timestamp
             if( is_int($value) ) {
-                $db = cmsms()->GetDb();
-                $value = $db->DbTimeStamp($value);
+	            $this->_rawdata[$key] = $value;
+			}
+			else {
+	            $this->_rawdata[$key] = strtotime($value);
             }
-            $this->_rawdata[$key] = $value;
             break;
 
-        default:
-            throw new Exception('Modifying invalid data in News article object '.$key);
-
+//        default: assert IF DEBUGGING
+//            throw new Exception('Modifying invalid data in News article object '.$key);
         }
     }
 }
