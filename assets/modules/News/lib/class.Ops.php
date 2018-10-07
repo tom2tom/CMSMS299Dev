@@ -1,5 +1,5 @@
 <?php
-#Class:
+#Class: article and category utility methods
 #Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -73,24 +73,22 @@ final class Ops
     $depth = 1;
     $db = CmsApp::get_instance()->GetDb();
     $counts = [];
-    $now = $db->DbTimeStamp(time());
+    $now = time();
 
-    {
-      $q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
-      $q2 .= implode(',',$cat_ids).')';
-      if( !empty($params['showarchive']) ) {
-        $q2 .= ' AND (end_time < '.$db->DbTimeStamp(time()).') ';
-      }
-      else {
+    $q2 = 'SELECT news_category_id,COUNT(news_id) AS cnt FROM '.CMS_DB_PREFIX.'module_news WHERE news_category_id IN (';
+    $q2 .= implode(',',$cat_ids).')';
+    if( !empty($params['showarchive']) ) {
+        $q2 .= ' AND (end_time < '.$now.') ';
+    }
+    else {
         $q2 .= ' AND ('.$db->IfNull('start_time',1)." < $now) AND (end_time IS NULL OR end_time > $now)";
-      }
-      $q2 .= ' AND status = \'published\' GROUP BY news_category_id';
-      $tmp = $db->GetArray($q2);
-      if( $tmp ) {
+    }
+    $q2 .= ' AND status = \'published\' GROUP BY news_category_id';
+    $tmp = $db->GetArray($q2);
+    if( $tmp ) {
         for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
-          $counts[$tmp[$i]['news_category_id']] = $tmp[$i]['cnt'];
+            $counts[$tmp[$i]['news_category_id']] = $tmp[$i]['cnt'];
         }
-      }
     }
 
     $rowcounter=0;
@@ -214,6 +212,11 @@ final class Ops
 
   public static function fill_article_from_formparams(Article &$news,$params,$handle_uploads = FALSE,$handle_deletes = FALSE)
   {
+    $cz = cms_config::get_instance()['timezone'];
+    $tz = new DateTimeZone($cz);
+    $dt = new DateTime(null, $tz);
+    $toffs = $tz->getOffset($dt);
+
     foreach( $params as $key => $value ) {
       switch( $key ) {
       case 'articleid':
@@ -239,16 +242,34 @@ final class Ops
         }
         break;
 
-      case 'postdate_Month':
-        $news->postdate = mktime($params['postdate_Hour'], $params['postdate_Minute'], $params['postdate_Second'], $params['postdate_Month'], $params['postdate_Day'], $params['postdate_Year']);
+      case 'fromdate':
+        $st = strtotime($value);
+        if ($st !== false) {
+            if (!empty($params['fromtime'])) {
+                $stt = strtotime($params['fromtime'], 0);
+                if ($stt !== false) {
+                    $st += $stt + $toffs;
+                }
+            }
+        } else {
+            $st = 0;
+        }
+        $news->startdate = $st;
         break;
 
-      case 'startdate_Month':
-        $news->startdate = mktime($params['startdate_Hour'], $params['startdate_Minute'], $params['startdate_Second'], $params['startdate_Month'], $params['startdate_Day'], $params['startdate_Year']);
-        break;
-
-      case 'startdate_Month':
-        $news->enddate = mktime($params['enddate_Hour'], $params['enddate_Minute'], $params['enddate_Second'], $params['enddate_Month'], $params['enddate_Day'], $params['enddate_Year']);
+      case 'todate':
+        $st = strtotime($value);
+        if ($st !== false) {
+            if (!empty($params['totime'])) {
+                $stt = strtotime($params['totime'], 0);
+                if ($stt !== false) {
+                    $st += $stt + $toffs;
+                }
+            }
+        } else {
+            $st = 0;
+        }
+        $news->enddate = $st;
         break;
       }
     }
@@ -341,6 +362,7 @@ final class Ops
     return $article;
   }
 
+
   public static function &get_latest_article($for_display = TRUE)
   {
     $db = CmsApp::get_instance()->GetDb();
@@ -357,7 +379,7 @@ final class Ops
   public static function &get_article_by_id($article_id,$for_display = TRUE,$allow_expired = FALSE)
   {
     $db = CmsApp::Get_instance()->GetDb();
-	$now = time();
+    $now = time();
     $query = 'SELECT mn.*, mnc.news_category_name FROM '.CMS_DB_PREFIX.'module_news mn
 LEFT OUTER JOIN '.CMS_DB_PREFIX.'module_news_categories mnc ON mnc.news_category_id = mn.news_category_id
 WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).' < '.$now.')';
@@ -371,6 +393,7 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
 
     return self::get_article_from_row($row,($for_display)?'PUBLIC':'ALL');
   }
+
 
   public static function preloadFieldData($ids)
   {
@@ -392,10 +415,8 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
 
     $db = CmsApp::get_instance()->GetDb();
     $query = 'SELECT A.news_id,A.fielddef_id,A.value FROM '.CMS_DB_PREFIX.'module_news_fieldvals A
-          INNER JOIN '.CMS_DB_PREFIX.'module_news_fielddefs B
-          ON A.fielddef_id = B.id
-          WHERE news_id IN ('.implode(',',$idlist).')
-          ORDER BY A.news_id,B.item_order';
+INNER JOIN '.CMS_DB_PREFIX.'module_news_fielddefs B ON A.fielddef_id = B.id
+WHERE news_id IN ('.implode(',',$idlist).') ORDER BY A.news_id,B.item_order';
     $dbr = $db->GetArray($query);
     if( !$dbr ) return;
 
@@ -425,6 +446,7 @@ WHERE status = \'published\' AND news_id = ? AND ('.$db->ifNull('start_time',1).
       self::$_cached_fieldvals[$news_id][$flddef_id]->value = $value;
     }
   }
+
 
   public static function get_fields($news_id,$public_only = true,$filled_only = FALSE)
   {
