@@ -174,7 +174,7 @@ class Connection extends ParentConnection
 
     public function ifNull($field, $ifNull)
     {
-        return " IFNULL($field, $ifNull)";
+        return "IFNULL($field, $ifNull)";
     }
 
     /**
