@@ -8,23 +8,22 @@ class WatchTasksTask implements CmsRegularTask
 
     public function get_name()
     {
-        return __CLASS__;
+        return __CLASS__; //assume no namespace
     }
 
     public function get_description()
     {
-        return __CLASS__;
+        return __CLASS__; //lazy
     }
 
     public function test($time = '')
     {
-        // do we need to do this task now? (half-daily intervals)
-        $enabled = cms_siteprefs::get(self::ENABLED_SITEPREF,1);
-        if( !$enabled ) return FALSE;
+        if( !cms_siteprefs::get(self::ENABLED_SITEPREF,1) ) return FALSE;
 
+        // do we need to do this task now? (half-daily intervals)
         if( !$time ) $time = time();
         $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
-        return ($time - 12*60*60) >= $last_execute;
+        return ($time - 12*3600) >= $last_execute;
     }
 
     public function execute($time = '')
@@ -53,5 +52,6 @@ class WatchTasksTask implements CmsRegularTask
 
     public function on_failure($time = '')
     {
+        // nothing here.
     }
 }

@@ -8,22 +8,20 @@ class CmsSecurityCheckTask implements CmsRegularTask
 
     public function get_name()
     {
-        return __CLASS__;
+        return __CLASS__; //assume no namespace
     }
 
     public function get_description()
     {
-        return __CLASS__;
+        return __CLASS__; //lazy
     }
 
     public function test($time = '')
     {
-        // do we need to do this task.
-        // we only do it daily.
+        // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
-        $last_execute = (int) cms_siteprefs::get(self::LASTEXECUTE_SITEPREF);
-        if( $last_execute > ($time - 24*60*60) ) return FALSE;
-        return TRUE;
+        $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
+        return ($time - 24*3600) >= $last_execute;
     }
 
     public function execute($time = '')
