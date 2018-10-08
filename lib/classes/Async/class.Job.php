@@ -161,7 +161,8 @@ abstract class Job
     /**
      * Save this job to the database.
      *
-     * This method will throw exceptions if the job manager module is not available, or if for some reason the job could not be saved.
+     * This method will throw exceptions if the job manager module is not available,
+	 * or if for some reason the job could not be saved.
      */
     public function save()
     {
@@ -176,8 +177,9 @@ abstract class Job
      * Abstract function to execute the job.
      *
      * <strong>Note:</strong> all jobs should be able to execute properly within one HTTP request.
-     * Jobs cannot count on administrator or data stored in session variables.  Any data that is needed for the job to process
-     * should either be stored with the job object, or stored in the database in a user-independant format.
+     * Jobs cannot count on administrator or data stored in session variables.
+	 * Any data that is needed for the job to process should either be stored with
+	 * the job object, or stored in the database in a user-independent format.
      */
     abstract public function execute();
 }
