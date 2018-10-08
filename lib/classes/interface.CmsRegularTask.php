@@ -1,5 +1,5 @@
 <?php
-#An interface to define how tasks should work.
+#The interface for interacting with deprecated pseudocron tasks
 #Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -17,16 +17,17 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * An interface to define how tasks should work.
+ * An interface for interacting with pseudocron tasks.
  *
  * @package CMS
  * @license GPL
  * @since 1.8
+ * @deprecated since 2.2 See CMSMS\Async\RegularTask and CMSMS\Async\Job
  */
 interface CmsRegularTask
 {
   /**
-   * Get the name for this task
+   * Get the name for this task. Actually, the full classname, namespaced as appropriate.
    *
    * @return string
    */
@@ -42,7 +43,7 @@ interface CmsRegularTask
 
 
   /**
-   * Test if a function should be executed given the supplied time argument
+   * Test if the task should be executed having regard to the supplied time argument
    *
    * @param   int $time The time at which any comparisons for execution should be performed.  If empty the current time is assumed.
    * @returns boolean TRUE IF the task should be executed, FALSE otherwise.
@@ -61,7 +62,7 @@ interface CmsRegularTask
 
   /**
    * Execute steps that should be taken on success of this task.
-   * This method is called after the execute step if the execute step returned TRUE.
+   * This method is called after the execute method if that method returned TRUE.
    *
    * @param  int $time The time at which the task should consider the execution occurred at.  Assume the current time if empty.
    */
@@ -70,7 +71,7 @@ interface CmsRegularTask
 
   /**
    * Execute steps that should be taken on failure of this task.
-   * This method is called after the execute step if the execute step returned FALSE.
+   * This method is called after the execute method if that method returned FALSE.
    *
    * @param  int $time The time at which the task should consider the execution occurred at.  Assume the current time if empty.
    */
