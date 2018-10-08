@@ -271,12 +271,12 @@ final class content_plugins
             }
 
             $params = $modops->GetModuleParameters($id);
-            @ob_start();
+            ob_start();
             $result = $module_obj->DoActionBase($action, $id, $params, $page_id, $smarty);
 
             if( $result !== false ) echo $result;
-            $result = @ob_get_contents();
-            @ob_end_clean();
+            $result = ob_get_contents();
+            ob_end_clean();
         }
         else {
             $block = 'content_en';
@@ -286,4 +286,3 @@ final class content_plugins
         return $result;
     }
 } // class
-
