@@ -40,7 +40,7 @@ final class CmsCoreCapabilities
 	/**
 	 * A constant for a capability indicating the module provides content block types
 	 */
-	const CONTENT_BLOCKS = 'contentblocks'; 
+	const CONTENT_BLOCKS = 'contentblocks';
 
 	/**
 	 * A constant for a capability indicating that the module provides custom content types
@@ -53,22 +53,29 @@ final class CmsCoreCapabilities
 	const EVENTS = 'handles_events';
 
 	/**
+	 * A constant indicating that the module manages async jobs
+	 * @since 2.3
+	 */
+    const JOBS_MODULE = 'jobmanager';
+
+	/**
 	 * A constant indicating that the module is a plugin module
 	 */
 	const PLUGIN_MODULE = 'plugin';
 
 	/**
-	 * A capability indicating that the module provides frontend search functionality.
+	 * A constant indicating that the module provides frontend search functionality.
 	 */
 	const SEARCH_MODULE = 'search';
 
 	/**
-	 * A capability indicating that the module is a syntax editor module.
+	 * A constant indicating that the module is a syntax editor module.
 	 */
 	const SYNTAX_MODULE = 'syntaxhighlighting'; // string used pre-2.0
 
 	/**
-	 * A capability indicating that the module provides pseudocron tasks
+	 * A constant indicating that the module provides pseudocron tasks
+	 * See also JOBS_MODULE
 	 */
 	const TASKS = 'tasks';  // string used pre-2.0
 
