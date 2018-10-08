@@ -1284,7 +1284,9 @@ abstract class CMSModule
      *
      * @since 1.8
      * @abstract
-     * @return mixed array of CmsRegularTask objects, or one such object, or NULL if not handled.
+     * @return mixed array of task objects, or one such object, or NULL if not handled.
+	 * Since 2.3 the object(s) may use the CmsRegularTask interface (deprecated), or
+     * be a descendant of CMSMS\Async\Job
      */
     public function get_tasks()
     {
