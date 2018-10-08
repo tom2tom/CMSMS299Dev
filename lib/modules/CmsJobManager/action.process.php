@@ -8,10 +8,6 @@
 use CmsJobManager\JobQueue;
 use CmsJobManager\utils;
 
-if (defined('ASYNCLOG')) {
-    error_log('async processing @start'."\n", 3, ASYNCLOG);
-}
-
 if (!isset($gCms)) {
     exit;
 }
@@ -19,7 +15,7 @@ if (!isset($gCms)) {
 //TODO more-robust security
 if (!isset($params['cms_jobman'])) {
     if (defined('ASYNCLOG')) {
-        error_log('async processing exit no "cms_jobman" param'."\n", 3, ASYNCLOG);
+        error_log('async action: process - exit no "cms_jobman" param'."\n", 3, ASYNCLOG);
     }
     exit;
 }
@@ -39,23 +35,24 @@ register_shutdown_function('\CmsJobManager\utils::errorhandler');
 
 try {
     $now = time();
+/* interval checked during the trigger process
     $last_run = (int) $this->GetPreference('last_processing');
     if ($last_run >= $now - utils::get_async_freq()) {
         if (defined('ASYNCLOG')) {
-            error_log('Async processing @3'."\n", 3, ASYNCLOG);
+            error_log('async action: process - too soon'."\n", 3, ASYNCLOG);
         }
         return;
     }
-
+*/
     utils::process_errors();
     JobQueue::clear_bad_jobs();
 
     $jobs = JobQueue::get_jobs();
     if (!$jobs) {
         if (defined('ASYNCLOG')) {
-            error_log('Async processing @4 no jobs'."\n", 3, ASYNCLOG);
+            error_log('async action: process - no jobs'."\n", 3, ASYNCLOG);
         }
-        return; // nothing to do.
+        return; // nothing to do
     }
 
     if ($this->is_locked()) {
@@ -78,18 +75,24 @@ try {
     set_time_limit($time_limit);
     $started_at = $now;
 
-    $this->lock(); // get a new lock.
+    $this->lock(); // get a new lock
     if (defined('ASYNCLOG')) {
-        error_log('Async processing @5 - locked'."\n", 3, ASYNCLOG);
+		error_log('async action: process - '.count($jobs).' job(s)'."\n", 3, ASYNCLOG);
     }
 
     foreach ($jobs as $job) {
         // make sure we are not out of time.
         if ($now - $time_limit >= $started_at) {
+			if (defined('ASYNCLOG')) {
+				error_log('async action: process - timed out'."\n", 3, ASYNCLOG);
+			}
             break;
         }
         try {
             $this->set_current_job($job);
+			if (defined('ASYNCLOG')) {
+				error_log('async action: execute job '.$job->name."\n", 3, ASYNCLOG);
+			}
             $job->execute();
             if (utils::job_recurs($job)) {
                 $job->start = utils::calculate_next_start_time($job);
@@ -102,10 +105,10 @@ try {
             } else {
                 $this->delete_job($job);
             }
-            $this->set_current_job(null);
             if (!empty($config['developer_mode'])) {
                 audit('', 'CmsJobManager', 'Processed job '.$job->name);
             }
+            $this->set_current_job(null);
         } catch (Exception $e) {
             $job = $this->get_current_job();
             audit('', 'CmsJobManager', 'An error occurred while processing: '.$job->name);
@@ -115,8 +118,11 @@ try {
 			}
         }
     }
+//    $this->SetPreference('last_processing', $now);
     $this->unlock();
-    $this->GetPreference('last_processing', $now);
+    if (defined('ASYNCLOG')) {
+        error_log('async action: process - now UNlocked'."\n", 3, ASYNCLOG);
+    }
 } catch (Exception $e) {
     // some other error occurred, not processing jobs.
     if (defined('ASYNCLOG')) {
