@@ -101,7 +101,6 @@ if ($CMS_JOB_TYPE == 0) {
 
 $module_list = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
 if ($module_list) {
-    //TODO cache this list
     HookManager::add_hook('PostRequest', [$module_list[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
-    HookManager::do_hook_simple('PostRequest');
 }
+HookManager::do_hook_simple('PostRequest');
