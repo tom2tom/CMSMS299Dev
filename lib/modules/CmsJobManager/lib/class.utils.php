@@ -114,7 +114,7 @@ final class utils
 
         // have jobs to increase error count on.
         $db = cms_utils::get_db();
-        $sql = 'UPDATE '.CmsJobManager::table_name().' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
+        $sql = 'UPDATE '.CmsJobManager::TABLE_NAME.' SET errors = errors + 1 WHERE id IN ('.implode(',', $job_ids).')';
         $db->Execute($sql);
         debug_to_log('Increased error count on '.count($job_ids).' jobs ');
     }
