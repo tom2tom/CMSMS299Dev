@@ -465,14 +465,14 @@ table.pagetable a.text-red {
 .warning::after,
 .pagewarn::after,
 .pagewarning::after {
-    margin-left: 0.1em;
-    margin-right: -1.5em;
+    margin-left: 0.3em;
+    margin-right: -1.6em;
     content: '\f071';
     color: #d4a711;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: bottom;
+    vertical-align: middle;
 }
 
 /*
@@ -495,14 +495,14 @@ table.pagetable a.text-red {
 }
 .error::after,
 .pageerrorinstalldir::after {
-    margin-left: 0.1em;
-    margin-right: -1.5em;
+    margin-left: 0.3em;
+    margin-right: -1.6em;
     content: '\f05e';
     color: #ec1313;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: bottom;
+    vertical-align: middle;
 }
 
 .success {
@@ -511,14 +511,14 @@ table.pagetable a.text-red {
     padding-right: 2.8em;
 }
 .success::after {
-    margin-left: 0.1em;
-    margin-right: -1.5em;
+    margin-left: 0.3em;
+    margin-right: -1.6em;
     content: '\f058';
     color: #0da50d;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: bottom;
+    vertical-align: middle;
 }
 
 .pagemcontainer {
@@ -535,14 +535,14 @@ table.pagetable a.text-red {
     padding-right: 2.8em;
 }
 .info::after, .pageinfo::after {
-    margin-left: 0.1em;
-    margin-right: -1.5em;
+    margin-left: 0.3em;
+    margin-right: -1.6em;
     content: '\f05a';
     color: #426ef0;
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
     font-size: 1.5em;
-    vertical-align: bottom;
+    vertical-align: middle;
 }
 
 .message:hover {
