@@ -87,20 +87,21 @@ class RegularTask extends Job
     }
 
     /**
-	 * Perform the task, without any time-check
+	 * Perform the task
 	 * @throws LogicException
 	 */
     public function execute()
     {
-        // no testing, just execute the damned thing
         if( !$this->_task ) throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
         $task = $this->_task;
         $now = time();
-        $res = $task->execute($now);
-        if( $res ) {
-            $task->on_success($now);
-        } else {
-            $task->on_failure($now);
+        if( $task->test($now) ) {
+            if( $task->execute($now) ) {
+                $task->on_success($now);
+            } else {
+                $task->on_failure($now);
+                ++$this->errors;
+            }
         }
     }
 }
