@@ -30,13 +30,12 @@ final class AdjustStatusTask implements CmsRegularTask
 
     public function get_name()
     {
-       $c = __CLASS__;
-       $p = strrpos($c, '\\');
-       return substr($c, $p+1);
+        return __CLASS__;
     }
 
-    public function get_description() {
-        return '';
+    public function get_description()
+    {
+        return __CLASS__;
     }
 
     public function test($time = '')

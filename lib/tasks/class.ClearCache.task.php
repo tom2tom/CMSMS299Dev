@@ -7,7 +7,7 @@ class ClearCacheTask implements CmsRegularTask
 
     public function get_name()
     {
-        return get_class($this);
+        return __CLASS__; //assume no namespace
     }
 
     public function get_description()
@@ -20,26 +20,21 @@ class ClearCacheTask implements CmsRegularTask
         $this->_age_days = (int)cms_siteprefs::get(self::CACHEDFILEAGE_SITEPREF,0);
         if( $this->_age_days == 0 ) return FALSE;
 
-        // do we need to do this task.
-        // we only do it daily.
+        // do we need to do this task now? (daily intervals)
         if( !$time ) $time = time();
         $last_execute = (int)cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
-        if( ($time - 24*60*60) >= $last_execute ) {
+        if( ($time - 24*3600) >= $last_execute ) {
             // set this preference here... prevents multiple requests at or about the same time from getting here.
             cms_siteprefs::set(self::LASTEXECUTE_SITEPREF,$time);
             return TRUE;
         }
-
         return FALSE;
     }
 
     public function execute($time = '')
     {
-        if( !$time ) $time = time();
-
         // do the task.
-        $gCms = CmsApp::get_instance();
-        $gCms->clear_cached_files($this->_age_days);
+        CmsApp::get_instance()->clear_cached_files($this->_age_days);
         return TRUE;
     }
 
@@ -51,8 +46,7 @@ class ClearCacheTask implements CmsRegularTask
 
     public function on_failure($time = '')
     {
-        // if we failed,  we can do this again at the next request.
-        if( !$time ) $time = time();
+        // we failed, try again at the next request
         cms_siteprefs::remove(self::LASTEXECUTE_SITEPREF);
     }
-} // end of class
+} // class

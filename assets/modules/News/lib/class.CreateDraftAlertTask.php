@@ -1,5 +1,5 @@
 <?php
-# Task: to ...
+# Task: to generate am alert about draft news items
 # Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -29,14 +29,12 @@ class CreateDraftAlertTask implements CmsRegularTask
 
   public function get_name()
   {
-     $c = __CLASS__;
-     $p = strrpos($c, '\\');
-     return substr($c, $p+1);
+    return __CLASS__;
   }
 
   public function get_description()
   {
-    return '';
+    return __CLASS__;
   }
 
   public function test($time = '')
@@ -61,8 +59,8 @@ class CreateDraftAlertTask implements CmsRegularTask
     $db = CmsApp::get_instance()->GetDb();
     if( !$time ) $time = time();
 
-    $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news n WHERE status != \'published\'
-          AND (end_time IS NULL OR end_time > '.$now.')';
+    $query = 'SELECT count(news_id) FROM '.CMS_DB_PREFIX.'module_news WHERE status = \'draft\'
+AND (end_time IS NULL OR end_time > '.$time.')';
     $count = $db->GetOne($query);
     if( !$count ) return TRUE;
 
