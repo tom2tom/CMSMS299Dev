@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\HookManager;
+use CMSMS\ModuleOperations;
 
 /**
  * Miscellaneous support functions
@@ -41,12 +42,12 @@ function redirect(string $to)
     $_SERVER['PHP_SELF'] = null;
 
     $schema = 'http';
-    if( CmsApp::get_instance()->is_https_request() ) $schema = 'https';
+    if (CmsApp::get_instance()->is_https_request()) $schema = 'https';
 
     $host = $_SERVER['HTTP_HOST'];
     $components = parse_url($to);
     if (count($components) > 0) {
-        $to =  (isset($components['scheme']) && startswith($components['scheme'], 'http') ? $components['scheme'] : $schema) . '://';
+        $to = (isset($components['scheme']) && startswith($components['scheme'], 'http') ? $components['scheme'] : $schema) . '://';
         $to .= $components['host'] ?? $host;
         $to .= isset($components['port']) ? ':' . $components['port'] : '';
         if (isset($components['path'])) {
@@ -55,16 +56,16 @@ function redirect(string $to)
                 $to .= $components['path'];
             }
             //Path is relative, append current directory first.
-            else if (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
+            elseif (isset($_SERVER['PHP_SELF']) && !is_null($_SERVER['PHP_SELF'])) { //Apache
                 $to .= (strlen(dirname($_SERVER['PHP_SELF'])) > 1 ?  dirname($_SERVER['PHP_SELF']).'/' : '/') . $components['path'];
             }
-            else if (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
+            elseif (isset($_SERVER['REQUEST_URI']) && !is_null($_SERVER['REQUEST_URI'])) { //Lighttpd
                 if (endswith($_SERVER['REQUEST_URI'], '/')) {
                     $to .= (strlen($_SERVER['REQUEST_URI']) > 1 ? $_SERVER['REQUEST_URI'] : '/') . $components['path'];
                 }
                 else {
                     $dn = dirname($_SERVER['REQUEST_URI']);
-                    if( !endswith($dn,'/') ) $dn .= '/';
+                    if (!endswith($dn,'/')) $dn .= '/';
                     $to .= $dn . $components['path'];
                 }
             }
@@ -78,15 +79,21 @@ function redirect(string $to)
 
     session_write_close();
 
-    // this could be used in install/upgrade routines where config is not set yet
-    // so cannot use constants.
-    $debug = false;
-    if( class_exists('CmsApp') ) {
-        $config = CmsApp::get_instance()->GetConfig();
-        $debug = $config['debug'];
-    }
+	global $CMS_INSTALL_PAGE;
 
-    if (headers_sent() && !$debug) {
+    if (empty($CMS_INSTALL_PAGE)) {
+        $debug = CMS_DEBUG;
+	    $module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+        if ($module_list) {
+            HookManager::add_hook('PostRequest', [$module_list[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
+            HookManager::do_hook_simple('PostRequest'); //hack: we could be going to any admin page
+        }
+	}
+	else {
+        $debug = false;
+	}
+
+    if (!$debug && headers_sent()) {
         // use javascript instead
         echo '<script type="text/javascript">
 <!-- location.replace("'.$to.'"); // -->
@@ -95,7 +102,7 @@ function redirect(string $to)
 <meta http-equiv="Refresh" content="0;URL='.$to.'">
 </noscript>';
     }
-    else if( $debug ) {
+    elseif ($debug) {
         echo 'Debug is on. Redirection is disabled... Please click this link to continue.<br />
 <a accesskey="r" href="'.$to.'">'.$to.'</a><br />
 <div id="DebugFooter">';
@@ -107,8 +114,6 @@ function redirect(string $to)
     else {
         header("Location: $to");
     }
-
-    HookManager::do_hook_simple('PostRequest');
     exit;
 }
 
@@ -122,7 +127,7 @@ function redirect_to_alias(string $alias)
 {
     $manager = CmsApp::get_instance()->GetHierarchyManager();
     $node = $manager->sureGetNodeByAlias($alias);
-    if( !$node ) {
+    if (!$node) {
         // put mention into the admin log
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);
         return;
@@ -184,10 +189,10 @@ function cms_join_path(...$args) : string
 function cms_path_to_url(string $in, string $relative_to = '') : string
 {
     $in = trim($in);
-    if( $relative_to ) {
+    if ($relative_to) {
         $in = realpath(cms_join_path($relative_to, $in));
         return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
-    } elseif( preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in) ) {
+    } elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $in)) {
         // $in is absolute
         $in = realpath($in);
         return str_replace([CMS_ROOT_PATH, DIRECTORY_SEPARATOR], [CMS_ROOT_URL, '/'], $in);
@@ -208,7 +213,7 @@ function cms_path_to_url(string $in, string $relative_to = '') : string
 function cms_relative_path(string $in, string $relative_to = null) : string
 {
     $in = realpath(trim($in));
-    if( !$relative_to ) $relative_to = CMS_ROOT_PATH;
+    if (!$relative_to) $relative_to = CMS_ROOT_PATH;
     $to = realpath(trim($relative_to));
 
     if ($in && $to && startswith($in, $to)) {
@@ -332,7 +337,7 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
  */
 function debug_bt_to_log()
 {
-    if( CmsApp::get_instance()->config['debug_to_log'] || (function_exists('get_userid') && get_userid(false)) ) {
+    if (CmsApp::get_instance()->config['debug_to_log'] || (function_exists('get_userid') && get_userid(false))) {
         $bt=debug_backtrace();
         $file = $bt[0]['file'];
         $line = $bt[0]['line'];
@@ -341,17 +346,17 @@ function debug_bt_to_log()
 
         $bt = array_reverse($bt);
         foreach($bt as $trace) {
-            if( $trace['function'] == 'debug_bt_to_log' ) continue;
+            if ($trace['function'] == 'debug_bt_to_log') continue;
 
             $file = '';
             $line = '';
-            if( isset($trace['file']) ) {
+            if (isset($trace['file'])) {
                 $file = $trace['file'];
                 $line = $trace['line'];
             }
             $function = $trace['function'];
             $str = "$function";
-            if( $file ) $str .= " at $file:$line";
+            if ($file) $str .= " at $file:$line";
             $out[] = $str;
         }
 
@@ -403,11 +408,11 @@ function debug_bt()
 function debug_display($var, string $title='', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
 {
     global $starttime, $orig_memory;
-    if( !$starttime ) $starttime = microtime();
+    if (!$starttime) $starttime = microtime();
 
     ob_start();
 
-    if( $showtitle ) {
+    if ($showtitle) {
         $titleText = 'Debug: ';
         if ($title) $titleText = "Debug display of '$title':";
         $titleText .= '(' . microtime_diff($starttime,microtime()) . ')';
@@ -417,7 +422,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
         }
 
         $memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():'');
-        if( $memory_peak ) $titleText .= ' - (peak: '.$memory_peak.')';
+        if ($memory_peak) $titleText .= ' - (peak: '.$memory_peak.')';
 
         if ($use_html) {
             echo "<div><b>$titleText</b>\n";
@@ -437,7 +442,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
             print_r($var);
         }
         elseif (is_string($var)) {
-            if( $use_html ) {
+            if ($use_html) {
                 print_r(htmlentities(str_replace("\t", '  ', $var)));
             }
             else {
@@ -470,7 +475,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
 function debug_output($var, string $title='')
 {
     $config = cms_config::get_instance();
-    if( $config['debug'] ) debug_display($var, $title, true);
+    if ($config['debug']) debug_display($var, $title, true);
 }
 
 /**
@@ -484,11 +489,11 @@ function debug_output($var, string $title='')
 function debug_to_log($var, string $title='',string $filename = '')
 {
     $config = cms_config::get_instance();
-    if( $config['debug_to_log'] || (function_exists('get_userid') && get_userid(false)) ) {
-        if( $filename == '' ) {
+    if ($config['debug_to_log'] || (function_exists('get_userid') && get_userid(false))) {
+        if ($filename == '') {
             $filename = TMP_CACHE_LOCATION . '/debug.log';
             $x = (is_file($filename)) ? @filemtime($filename) : time();
-            if( $x !== false && $x < (time() - 24 * 3600) ) unlink($filename);
+            if ($x !== false && $x < (time() - 24 * 3600)) unlink($filename);
         }
         $errlines = explode("\n",debug_display($var, $title, false, false, true));
         foreach ($errlines as $txt) {
@@ -505,7 +510,7 @@ function debug_to_log($var, string $title='',string $filename = '')
  */
 function debug_buffer($var, string $title='')
 {
-    if( !defined('CMS_DEBUG') || CMS_DEBUG == 0 ) return;
+    if (!defined('CMS_DEBUG') || CMS_DEBUG == 0) return;
     CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
 }
 
@@ -618,23 +623,23 @@ function get_parameter_value(array $parameters, string $value, $default_value = 
  */
 function is_directory_writable(string $path)
 {
-    if( substr ( $path , strlen ( $path ) - 1 ) != '/' ) $path .= '/' ;
+    if (substr($path, strlen ($path) - 1) != '/') $path .= '/' ;
 
-    if( !is_dir($path) ) return false;
+    if (!is_dir($path)) return false;
     $result = true;
-    if( $handle = opendir( $path ) ) {
-        while( false !== ( $file = readdir( $handle ) ) ) {
-            if( $file == '.' || $file == '..' ) continue;
+    if ($handle = opendir($path)) {
+        while (false !== ($file = readdir($handle))) {
+            if ($file == '.' || $file == '..') continue;
 
             $p = $path.$file;
-            if( !@is_writable( $p ) ) return false;
+            if (!@is_writable($p)) return false;
 
-            if( @is_dir( $p ) ) {
-                $result = is_directory_writable( $p );
-                if( !$result ) return false;
+            if (@is_dir($p)) {
+                $result = is_directory_writable($p);
+                if (!$result) return false;
             }
         }
-        closedir( $handle );
+        closedir($handle);
         return true;
     }
     return false;
@@ -656,28 +661,28 @@ function is_directory_writable(string $path)
  */
 function get_matching_files(string $dir,string $extensions = '',bool $excludedot = true,bool $excludedir = true, string $fileprefix='',bool $excludefiles = true)
 {
-    if( !is_dir($dir) ) return false;
+    if (!is_dir($dir)) return false;
     $dh = opendir($dir);
-    if( !$dh ) return false;
+    if (!$dh) return false;
 
-    if( !empty($extensions) ) $extensions = explode(',',strtolower($extensions));
+    if (!empty($extensions)) $extensions = explode(',',strtolower($extensions));
     $results = [];
-    while( false !== ($file = readdir($dh)) ) {
-        if( $file == '.' || $file == '..' ) continue;
-        if( startswith($file,'.') && $excludedot ) continue;
-        if( is_dir(cms_join_path($dir,$file)) && $excludedir ) continue;
-        if( !empty($fileprefix) ) {
-            if( $excludefiles && startswith($file,$fileprefix) ) continue;
-            if( !$excludefiles && !startswith($file,$fileprefix) ) continue;
+    while (false !== ($file = readdir($dh))) {
+        if ($file == '.' || $file == '..') continue;
+        if (startswith($file,'.') && $excludedot) continue;
+        if (is_dir(cms_join_path($dir,$file)) && $excludedir) continue;
+        if (!empty($fileprefix)) {
+            if ($excludefiles && startswith($file,$fileprefix)) continue;
+            if (!$excludefiles && !startswith($file,$fileprefix)) continue;
         }
 
         $ext = strtolower(substr($file,strrpos($file,'.')+1));
-        if( is_array($extensions) && count($extensions) && !in_array($ext,$extensions) ) continue;
+        if (is_array($extensions) && count($extensions) && !in_array($ext,$extensions)) continue;
 
         $results[] = $file;
     }
     closedir($dh);
-    if( !count($results) ) return false;
+    if (!count($results)) return false;
     return $results;
 }
 
@@ -695,30 +700,30 @@ function get_matching_files(string $dir,string $extensions = '',bool $excludedot
 **/
 function get_recursive_file_list(string $path, array $excludes = [], int $maxdepth = -1, string $mode = 'FULL') : array
 {
-    $fn = function( string $name, array $excludes ) : bool
+    $fn = function (string $name, array $excludes) : bool
     {
-        foreach( $excludes as $excl ) {
-            if( @preg_match( '/'.$excl.'/i', $name ) ) return true;
+        foreach ($excludes as $excl) {
+            if (@preg_match('/'.$excl.'/i', $name)) return true;
         }
         return false;
     };
 
     $results = [];
-    if( is_dir($path) ) {
+    if (is_dir($path)) {
         $iter = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($path,
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::KEY_AS_FILENAME |
                 FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::SELF_FIRST);
-        if( $maxdepth >= 0 ) {
+        if ($maxdepth >= 0) {
             $iter->setMaxDepth($maxdepth);
         }
-        foreach( $iter as $name=>$p ) {
-            if( !( $excludes && $fn($name, $excludes) ) ) {
-                if( $iter->getInnerIterator()->isDir() ) {
-                    if( $mode != 'FILES' ) $results[] = $p;
-                } elseif( $mode != 'DIRS' ) {
+        foreach ($iter as $name=>$p) {
+            if (!($excludes && $fn($name, $excludes))) {
+                if ($iter->getInnerIterator()->isDir()) {
+                    if ($mode != 'FILES') $results[] = $p;
+                } elseif ($mode != 'DIRS') {
                     $results[] = $p;
                 }
             }
@@ -742,7 +747,7 @@ function recursive_delete($path)
             new RecursiveDirectoryIterator($path,
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::SKIP_DOTS
-            ), RecursiveIteratorIterator::CHILD_FIRST);
+           ), RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $p) {
             if (is_dir($p)) {
                 if (!@rmdir($p)) {
@@ -779,7 +784,7 @@ function chmod_r($path, $mode)
             new RecursiveDirectoryIterator($path,
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::SKIP_DOTS
-            ), RecursiveIteratorIterator::CHILD_FIRST);
+           ), RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $p) {
             if (!(is_link($p) || @chmod($p, $mode))) {
                 $res = false;
@@ -801,9 +806,9 @@ function chmod_r($path, $mode)
  * @param string $sub The search string
  * @return bool
  */
-function startswith( string $str, string $sub ) : bool
+function startswith(string $str, string $sub) : bool
 {
-    return strncmp( $str, $sub, strlen($sub) ) === 0;
+    return strncmp($str, $sub, strlen($sub)) === 0;
 }
 
 /**
@@ -815,10 +820,10 @@ function startswith( string $str, string $sub ) : bool
  * @param string $sub The search string
  * @return bool
  */
-function endswith( string $str, string $sub ) : bool
+function endswith(string $str, string $sub) : bool
 {
-    $o = strlen( $sub );
-    if( $o > 0 && $o <= strlen($str) ) {
+    $o = strlen($sub);
+    if ($o > 0 && $o <= strlen($str)) {
         return strpos($str, $sub, -$o) !== false;
     }
     return false;
@@ -834,15 +839,15 @@ function endswith( string $str, string $sub ) : bool
  */
 function munge_string_to_url($alias, bool $tolower = false, bool $withslash = false) : string
 {
-    if( !$alias ) {
+    if (!$alias) {
         return '';
     }
     if ($tolower) $alias = mb_strtolower($alias); //TODO if mb_string N/A?
 
     // remove invalid chars
     $expr = '/[^\p{L}_\-\.\ \d]/u';
-    if( $withslash ) $expr = '/[^\p{L}_\.\-\ \d\/]/u';
-    $tmp = trim( preg_replace($expr,'',$alias) );
+    if ($withslash) $expr = '/[^\p{L}_\.\-\ \d\/]/u';
+    $tmp = trim(preg_replace($expr,'',$alias));
 
     // remove extra dashes and spaces.
     $tmp = str_replace(' ','-',$tmp);
@@ -947,9 +952,9 @@ function ini_get_boolean(string $str) : bool
 function stack_trace()
 {
     $stack = debug_backtrace();
-    foreach( $stack as $elem ) {
-        if( $elem['function'] == 'stack_trace' ) continue;
-        if( isset($elem['file'])  ) {
+    foreach ($stack as $elem) {
+        if ($elem['function'] == 'stack_trace') continue;
+        if (isset($elem['file']) ) {
             echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
         }
         else {
@@ -966,11 +971,11 @@ function stack_trace()
  * @param string $destination The destination file specification
  * @return bool.
  */
-function cms_move_uploaded_file( string $tmpfile, string $destination ) : bool
+function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 {
     $config = CmsApp::get_instance()->GetConfig();
 
-    if( !@move_uploaded_file( $tmpfile, $destination ) ) return false;
+    if (!@move_uploaded_file($tmpfile, $destination)) return false;
     @chmod($destination,octdec($config['default_upload_permission']));
     return true;
 }
@@ -980,12 +985,12 @@ function cms_move_uploaded_file( string $tmpfile, string $destination ) : bool
  * Credits to J.Adams <jna@retins.net>
  *
  * Matches:
- * xxx.xxx.xxx.xxx        (exact)
- * xxx.xxx.xxx.[yyy-zzz]  (range)
- * xxx.xxx.xxx.xxx/nn    (nn = # bits, cisco style -- i.e. /24 = class C)
+ * xxx.xxx.xxx.xxx       (exact)
+ * xxx.xxx.xxx.[yyy-zzz] (range)
+ * xxx.xxx.xxx.xxx/nn   (nn = # bits, cisco style -- i.e. /24 = class C)
  *
  * Does not match:
- * xxx.xxx.xxx.xx[yyy-zzz]  (range, partial octets nnnnnot supported)
+ * xxx.xxx.xxx.xx[yyy-zzz] (range, partial octets nnnnnot supported)
  *
  * @param string $ip IP address to test
  * @param array  $checklist Array of match expressions
@@ -1015,24 +1020,22 @@ function cms_ipmatches(string $ip,array $checklist) : bool
       $maskocts = explode('.',$range);
       $ipocts = explode('.',$ip);
 
-      if( count($maskocts) != count($ipocts) && count($maskocts) != 4 ) return 0;
+      if (count($maskocts) != count($ipocts) && count($maskocts) != 4) return 0;
 
       // perform a range match
       for ($i=0; $i<4; $i++) {
-    if (preg_match("/\[([0-9]+)\-([0-9]+)\]/",$maskocts[$i],$regs)) {
-      if( ($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) $result = 0;
-    }
-    else {
-      if ($maskocts[$i] <> $ipocts[$i]) $result = 0;
-    }
+        if (preg_match("/\[([0-9]+)\-([0-9]+)\]/",$maskocts[$i],$regs)) {
+          if (($ipocts[$i] > $regs[2]) || ($ipocts[$i] < $regs[1])) $result = 0;
+        }
+        elseif ($maskocts[$i] <> $ipocts[$i]) $result = 0;
       }
     }
     return $result;
   }; // _testip
 
-  if( !is_array($checklist) ) $checklist = explode(',',$checklist);
-  foreach( $checklist as $one ) {
-    if( $_testip(trim($one),$ip) ) return true;
+  if (!is_array($checklist)) $checklist = explode(',',$checklist);
+  foreach ($checklist as $one) {
+    if ($_testip(trim($one),$ip)) return true;
   }
   return false;
 }
@@ -1044,13 +1047,13 @@ function cms_ipmatches(string $ip,array $checklist) : bool
  * @param bool $checkDNS
  * @return bool
 */
-function is_email( string $email, bool $checkDNS=false )
+function is_email (string $email, bool $checkDNS=false)
 {
-    if( !filter_var($email,FILTER_VALIDATE_EMAIL) ) return false;
+    if (!filter_var($email,FILTER_VALIDATE_EMAIL)) return false;
     if ($checkDNS && function_exists('checkdnsrr')) {
         list($user,$domain) = explode('@',$email,2);
-        if( !$domain ) return false;
-        if( !(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return false; // Domain doesn't actually exist
+        if (!$domain) return false;
+        if (!(checkdnsrr($domain, 'A') || checkdnsrr($domain, 'MX'))) return false; // Domain doesn't actually exist
     }
 
    return true;
@@ -1068,7 +1071,7 @@ function get_secure_param() : string
 {
     $urlext = '?';
     $str = strtolower(ini_get('session.use_cookies'));
-    if( $str == '0' || $str == 'off' ) $urlext .= htmlspecialchars(SID).'&';
+    if ($str == '0' || $str == 'off') $urlext .= htmlspecialchars(SID).'&';
     $urlext .= CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
     return $urlext;
 }
@@ -1081,7 +1084,7 @@ function get_secure_param() : string
  */
 function cms_to_bool(string $str) : bool
 {
-    if( is_numeric($str) ) return (int)$str !== 0;
+    if (is_numeric($str)) return (int)$str !== 0;
 
     switch (strtolower($str)) {
         case 'y':
@@ -1221,16 +1224,16 @@ function setup_session(bool $cachable = false)
 {
     global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE;
     static $_setup_already = false;
-    if( $_setup_already ) return;
+    if ($_setup_already) return;
 
     $_f = $_l = null;
-    if( headers_sent( $_f, $_l) ) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
+    if (headers_sent($_f, $_l)) throw new LogicException("Attempt to set headers, but headers were already sent at: $_f::$_l");
 
-    if( $cachable ) {
-        if( $_SERVER['REQUEST_METHOD'] != 'GET' || isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE) ) $cachable = false;
+    if ($cachable) {
+        if ($_SERVER['REQUEST_METHOD'] != 'GET' || isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE)) $cachable = false;
     }
-    if( $cachable ) $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
-    if( !$cachable ) {
+    if ($cachable) $cachable = (int) cms_siteprefs::get('allow_browser_cache',0);
+    if (!$cachable) {
         // admin pages can't be cached... period, at all.. never.
         @session_cache_limiter('nocache');
     }
@@ -1244,16 +1247,16 @@ function setup_session(bool $cachable = false)
 
     #Setup session with different id and start it
     $session_name = 'CMSSESSID'.substr(md5(__DIR__.CMS_VERSION), 0, 12);
-    if( !isset($CMS_INSTALL_PAGE) ) {
+    if (!isset($CMS_INSTALL_PAGE)) {
         @session_name($session_name);
         @ini_set('url_rewriter.tags', '');
         @ini_set('session.use_trans_sid', 0);
     }
 
-    if( isset($_COOKIE[$session_name]) ) {
+    if (isset($_COOKIE[$session_name])) {
         // validate the contents of the cookie.
-        if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $_COOKIE[$session_name]) ) {
-            session_id( uniqid() );
+        if (!preg_match('/^[a-zA-Z0-9,\-]{22,40}$/', $_COOKIE[$session_name])) {
+            session_id(uniqid());
             session_start();
             session_regenerate_id();
         }
