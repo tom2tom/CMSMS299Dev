@@ -18,9 +18,9 @@
 
 namespace CMSMS\Async;
 
+use CmsCoreCapabilities;
 use CMSMS\ModuleOperations;
 use LogicException;
-use const CMS_VERSION;
 
 /**
  * A class defining an asynchronous job, and mechanisms for saving and retrieving that job.
@@ -28,6 +28,7 @@ use const CMS_VERSION;
  * @package CMS
  * @author Robert Campbell
  *
+ * @abstract
  * @since 2.2
  * @property-read int $id A unique integer id for this job (generated on save).
  * @property string $name The name of this job.  If not specified a unique random name will be generated.
@@ -38,11 +39,6 @@ use const CMS_VERSION;
  */
 abstract class Job
 {
-    /**
-     * @ignore
-     */
-    const MODULE_NAME = 'CmsJobManager';
-
     /**
      * @ignore
      */
@@ -74,13 +70,13 @@ abstract class Job
     private $_errors;
 
     /**
-     * Constructor.
+     * Constructor
      */
     public function __construct()
     {
         $now = time();
         $this->_created = $this->_start = $now;
-        $this->_name = md5(__FILE__.CMS_VERSION.get_class($this).rand(0,999)); // a pretty random name to this job
+        $this->_name = md5(__CLASS__.random_bytes(24)); // a pretty random name for this job
     }
 
     /**
@@ -101,7 +97,7 @@ abstract class Job
             return trim($this->$tkey);
 
         default:
-            throw new LogicException("$key is not a gettable member of ".get_class($this));
+            throw new LogicException("$key is not a gettable member of ".__CLASS__);
         }
     }
 
@@ -133,9 +129,10 @@ abstract class Job
     }
 
     /**
-     * @ignore
-     * @internal
-     */
+     * @final
+	 * @param type $id
+	 * @throws LogicException
+	 */
     final public function set_id($id)
     {
         $id = (int) $id;
@@ -145,42 +142,56 @@ abstract class Job
     }
 
     /**
-     * Delete this job from the database.
+     * Delete this job.
      *
-     * This method will throw exceptions if the job manager module is not available, or if for some reason the job could not be removed.
+	 * @throws LogicException
+     * This method will throw exception if a job manager module is not available,
+     * or if for some reason the job could not be removed.
      */
     public function delete()
     {
         // get the asyncmanager module
-        $module = ModuleOperations::get_instance()->get_module_instance(self::MODULE_NAME);
-        if( !$module ) throw new LogicException('Cannot delete a job... the CmsJobMgr module is not available');
-        $module->delete_job($this);
-        $this->_id = null;
+        $module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+        if( $module_list ) {
+            $module = ModuleOperations::get_instance()->get_module_instance($module_list[0]);
+            if( $module ) {
+                $module->delete_job($this);
+                $this->_id = null;
+                return;
+            }
+        }
+        throw new LogicException('Cannot delete a job... no Job Manager module is available');
     }
 
     /**
-     * Save this job to the database.
+     * Save this job.
      *
-     * This method will throw exceptions if the job manager module is not available,
-	 * or if for some reason the job could not be saved.
+	 * @throws LogicException
+     * This method will throw exception if a job manager module is not available,
+     * or if for some reason the job could not be saved.
      */
     public function save()
     {
-        // get the AsyncManager module
-        // call it's save method with this.
-        $module = ModuleOperations::get_instance()->get_module_instance(self::MODULE_NAME);
-        if( !$module ) throw new LogicException('Cannot save a job... the CmsJobMgr module is not available');
-        $this->_id = (int) $module->save_job($this);
+        // get the asyncmanager module
+        $module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+        if( $module_list ) {
+            $module = ModuleOperations::get_instance()->get_module_instance($module_list[0]);
+            if( $module ) {
+                $this->_id = (int) $module->save_job($this);
+                return;
+            }
+        }
+        throw new LogicException('Cannot save a job... no Job Manager module is available');
     }
 
     /**
-     * Abstract function to execute the job.
+     * Execute this job.
      *
+     * @abstract
      * <strong>Note:</strong> all jobs should be able to execute properly within one HTTP request.
      * Jobs cannot count on administrator or data stored in session variables.
-	 * Any data that is needed for the job to process should either be stored with
-	 * the job object, or stored in the database in a user-independent format.
+     * Any data that is needed for the job to process should either be stored with
+     * the job object, or stored in the database in a user-independent format.
      */
     abstract public function execute();
 }
-
