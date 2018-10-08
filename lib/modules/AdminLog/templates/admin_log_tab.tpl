@@ -3,7 +3,7 @@
   {if $mod->CheckPermission('Clear Admin Log')}
     <a href="{cms_action_url action=clear}">{admin_icon icon='delete.gif'} {$mod->Lang('clearlog')}</a>
   {/if}
-  <a id="filterbtn" href="javascript:void()">{admin_icon icon='run.gif'} {$mod->Lang('filter')} ...</a>
+  <a id="filterbtn" href="javascript:void()">{admin_icon icon=$filterimage} {$mod->Lang('filter')} ...</a>
   {if count($pagelist) > 1}
     <div style="text-align: right; float: right;">
       {$mod->Lang('page')}:

@@ -116,6 +116,7 @@ $severity_list = [
 
 $tpl = $smarty->createTemplate( $this->GetTemplateResource('admin_log_tab.tpl'),null,null,$smarty);
 $tpl->assign('filter',$filter)
+ ->assign('filterimage',cms_join_path(__DIR__,'images','filter'))
  ->assign('results',$results)
  ->assign('pagelist',$pagelist)
  ->assign('severity_list',$severity_list)
