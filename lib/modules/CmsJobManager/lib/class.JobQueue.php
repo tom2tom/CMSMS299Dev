@@ -34,7 +34,7 @@ final class JobQueue
     public static function get_all_jobs()
     {
         $db = CmsApp::get_instance()->GetDb();
-        $sql = 'SELECT * FROM '.CmsJobManager::table_name().' WHERE created < UNIX_TIMESTAMP() ORDER BY created ASC LIMIT '.self::MAXJOBS;
+        $sql = 'SELECT * FROM '.CmsJobManager::TABLE_NAME.' WHERE created < UNIX_TIMESTAMP() ORDER BY created ASC LIMIT '.self::MAXJOBS;
         $list = $db->GetArray($sql);
         if (!$list) {
             return;
@@ -48,9 +48,9 @@ final class JobQueue
                     throw new RuntimeException('Job '.$row['name'].' requires module '.$row['module'].' That could not be loaded');
                 }
             }
-            $obj = unserialize($row['data']);
+            $obj = unserialize($row['data']); //, ['allowed_classes'=>['CMSMS\\Async\\Job']]);
             $obj->set_id($row['id']);
-            $obj->force_start = $row['start']; // in case this job was modified.
+            $obj->force_start = $row['start']; // in case this job was modified
             $out[] = $obj;
         }
 
@@ -67,7 +67,7 @@ final class JobQueue
 
         $limit = ($check_only) ? 1 : self::MAXJOBS;
 
-        $sql = 'SELECT * FROM '.CmsJobManager::table_name().' WHERE start < UNIX_TIMESTAMP() AND created < UNIX_TIMESTAMP() ORDER BY errors ASC,created ASC LIMIT '.$limit;
+        $sql = 'SELECT * FROM '.CmsJobManager::TABLE_NAME.' WHERE start < UNIX_TIMESTAMP() AND created < UNIX_TIMESTAMP() ORDER BY errors ASC,created ASC LIMIT '.$limit;
         $list = $db->GetArray($sql);
         if (!$list) {
             return;
@@ -85,9 +85,9 @@ final class JobQueue
                     continue;
                 }
             }
-            $obj = unserialize($row['data']);
+            $obj = unserialize($row['data']); //, ['allowed_classes'=>['CMSMS\\Async\\Job']]);
             $obj->set_id($row['id']);
-            $obj->force_start = $row['start']; // in case this job was modified.
+            $obj->force_start = $row['start']; // in case this job was modified
             $out[] = $obj;
         }
 
@@ -104,12 +104,12 @@ final class JobQueue
         }
 
         $db = $mod->GetDb();
-        $sql = 'SELECT * FROM '.CmsJobManager::table_name().' WHERE errors >= ?';
+        $sql = 'SELECT * FROM '.CmsJobManager::TABLE_NAME.' WHERE errors >= ?';
         $list = $db->GetArray($sql, [self::MINERRORS]);
         if ($list) {
             $idlist = [];
             foreach ($list as $row) {
-                $obj = unserialize($row['data']);
+                $obj = unserialize($row['data']); //, ['allowed_classes'=>['CMSMS\\Async\\Job']]);
                 if (!is_object($obj)) {
                     debug_to_log(__METHOD__);
                     debug_to_log('Problem deserializing row');
@@ -120,7 +120,7 @@ final class JobQueue
                 $idlist[] = (int) $row['id'];
                 HookManager::do_hook_simple(CmsJobManager::EVT_ONFAILEDJOB, [ 'job' => $obj ]);
             }
-            $sql = 'DELETE FROM '.CmsJobManager::table_name().' WHERE id IN ('.implode(',', $idlist).')';
+            $sql = 'DELETE FROM '.CmsJobManager::TABLE_NAME.' WHERE id IN ('.implode(',', $idlist).')';
             $db->Execute($sql);
             audit('', $mod->GetName(), 'Cleared '.count($idlist).' bad jobs');
         }
