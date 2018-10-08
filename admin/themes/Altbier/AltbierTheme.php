@@ -194,7 +194,7 @@ EOS;
 		if ($extra_lang_params) $this->set_value('extra_lang_params', $extra_lang_params);
 		$this->set_value('module_help_type', $module_help_type);
 
-		$config = cms_config::get_instance();
+		$config = cmsms()->GetConfig();
 		if ($module_help_type) {
 			// help for a module.
 			$module = '';
