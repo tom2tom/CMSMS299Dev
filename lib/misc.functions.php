@@ -83,11 +83,6 @@ function redirect(string $to)
 
     if (empty($CMS_INSTALL_PAGE)) {
         $debug = CMS_DEBUG;
-	    $module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-        if ($module_list) {
-            HookManager::add_hook('PostRequest', [$module_list[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
-            HookManager::do_hook_simple('PostRequest'); //hack: we could be going to any admin page
-        }
 	}
 	else {
         $debug = false;
