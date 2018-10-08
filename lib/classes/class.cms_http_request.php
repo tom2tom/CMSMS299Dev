@@ -827,19 +827,21 @@ class cms_http_request
             $content = curl_exec($ch);
             if (!empty($content)) {
                 $tmp = explode("\r\n\r\n", $content, 2);
-                for ($i = 0; $i < count($tmp); $i++) {
+                for ($i = 0, $n = count($tmp); $i < $n; $i++) {
                     if (empty($tmp[$i])) {
                         unset($tmp[$i]);
                     }
                 }
 
-                if ($n > 1) {
+                if (isset($tmp[1])) {
                     // Store the contents
                     $this->result = $tmp[1];
                 }
 
-                // Parse the headers
-                $this->_parseHeaders($tmp[0]);
+                if (isset($tmp[0])) {
+	                // Parse the headers
+	                $this->_parseHeaders($tmp[0]);
+				}
             }
 
             // Get the request info
