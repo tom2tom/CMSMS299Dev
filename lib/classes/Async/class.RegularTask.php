@@ -22,7 +22,7 @@ use CmsRegularTask;
 use LogicException;
 
 /**
- * This class allows converting an old CmsRegularTask pseudocron task into an asynchronous background job.
+ * This class allows using CmsRegularTask pseudocron tasks as asynchronous background jobs
  *
  * @package CMS
  * @author Robert Campbell
@@ -38,7 +38,7 @@ class RegularTask extends Job
     private $_task;
 
     /**
-     * Constructor.
+     * Constructor
      *
      * @param CmsRegularTask $task
      */
@@ -51,7 +51,10 @@ class RegularTask extends Job
 
     /**
      * @ignore
-     */
+	 *
+	 * @param type $key
+	 * @return type
+	 */
     public function __get($key)
     {
         switch( $key ) {
@@ -64,7 +67,12 @@ class RegularTask extends Job
 
     /**
      * @ignore
-     */
+	 *
+	 * @param type $key
+	 * @param CmsRegularTask $val
+	 * @return type
+	 * @throws LogicException
+	 */
     public function __set($key,$val)
     {
         switch( $key ) {
@@ -79,8 +87,9 @@ class RegularTask extends Job
     }
 
     /**
-     * @ignore
-     */
+	 * Perform the task, without any time-check
+	 * @throws LogicException
+	 */
     public function execute()
     {
         // no testing, just execute the damned thing
