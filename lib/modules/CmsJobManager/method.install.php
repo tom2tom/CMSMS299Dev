@@ -14,11 +14,11 @@ $this->SetPreference('joburl',''); //custom url for job processing
 $this->SetPreference('last_check',0); //timestamp for internal use only
 $this->SetPreference('last_processing',0); //ditto
 
-$this->CreatePermission(\CmsJobManager::MANAGE_JOBS,\CmsJobManager::MANAGE_JOBS);
+$this->CreatePermission(CmsJobManager::MANAGE_JOBS, CmsJobManager::MANAGE_JOBS);
 
 $this->refresh_jobs(); //init jobs-data
 
-$this->CreateEvent(\CmsJobManager::EVT_ONFAILEDJOB);
+$this->CreateEvent(CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleInstalled',false);
 $this->AddEventHandler('Core','ModuleUninstalled',false);
 $this->AddEventHandler('Core','ModuleUpgraded',false);
@@ -37,5 +37,5 @@ recurs C(255),
 until I,
 data X2
 ';
-$sqlarray = $dict->CreateTableSQL( CmsJobManager::table_name(), $flds, $taboptarray );
+$sqlarray = $dict->CreateTableSQL( CmsJobManager::TABLE_NAME, $flds, $taboptarray );
 $dict->ExecuteSQLArray($sqlarray);
