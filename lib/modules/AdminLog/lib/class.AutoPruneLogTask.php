@@ -36,7 +36,10 @@ class AutoPruneLogTask implements CmsRegularTask
         return $_mod;
     }
 
-    public function get_name() { return get_class($this); }
+    public function get_name()
+    {
+        return __CLASS__;
+    }
 
     public function get_description()
     {
@@ -45,8 +48,7 @@ class AutoPruneLogTask implements CmsRegularTask
 
     protected function get_lifetime()
     {
-        $oneday = 24 * 60 * 60;
-        $onemonth = $oneday * 30;
+        $onemonth = 30 * 24 * 3600;
 
         $lifetime = (int) cms_siteprefs::get(self::LIFETIME_SITEPREF,$onemonth);
         if( $lifetime < 1 ) return;
@@ -55,23 +57,23 @@ class AutoPruneLogTask implements CmsRegularTask
 
     public function test($time = '')
     {
-        if( !$time ) $time = time();
-        $oneday = 24 * 60 * 60;
         $lifetime = $this->get_lifetime();
         if( $lifetime < 1 ) return FALSE;
 
+        if( !$time ) $time = time();
+        $oneday = 24 * 3600;
         $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF,0);
-        IF( $last_execute < $time - $oneday ) return TRUE;
+        return ($last_execute < $time - $oneday );
     }
 
     public function execute($time = '')
     {
         if( !$time ) $time = time();
-        $mod = cms_utils::get_module('AdminLog');
-        $storage = new storage( $mod );
+        $oneday = 24 * 3600;
+        $storage = new storage( self::mod() );
         $lifetime = $this->get_lifetime();
         $lifetime = max($lifetime,$oneday);
-        $the_time = $time() - $lifetime;
+        $the_time = $time - $lifetime;
         $storage->remove_older_than( $the_time );
         return TRUE;
     }
@@ -84,6 +86,5 @@ class AutoPruneLogTask implements CmsRegularTask
 
     public function on_failure($time = '')
     {
-        if( !$time ) $time = time();
     }
 } // class
