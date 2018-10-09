@@ -85,18 +85,19 @@ class operations
 
     /**
      * Unpackage a module from an xml string
-     * does not touch the database
+     * Does not touch the database
      *
      * @internal
      * @param string $xmlfile The filepath of uploaded xml file containing data for the package
      * @param bool $overwrite Should we overwrite files if they exist?
      * @param bool $brief If set to true, less checking is done and no errors are returned
+     *
      * @return array A hash of details about the installed module (if it returns at all)
-	 * @throws CmsInvalidDataException
-	 * @throws CmsFileSystemException
-	 * @throws CmsLogicException
-	 * @throws RuntimeException
-	 */
+     * @throws CmsInvalidDataException
+     * @throws CmsFileSystemException
+     * @throws CmsLogicException
+     * @throws RuntimeException
+     */
     public function expand_xml_package( $xmlfile, $overwrite = false, $brief = false )
     {
         libxml_use_internal_errors(true);
@@ -123,7 +124,7 @@ class operations
 
         $modops = ModuleOperations::get_instance();
         $moduledetails = [];
-		$filedone = false;
+        $filedone = false;
 
         foreach( $xml->children() as $node ) {
             $key = $node->getName();
@@ -174,23 +175,23 @@ class operations
                       htmlspecialchars_decode((string)$node) : base64_decode((string)$node);
                     break;
                 case 'file':
-					if( !$filedone ) {
-	                    $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
-						$arr = cms_module_places($moduledetails['name']);
-						if( !empty($arr) ) {
-							//already installed
-//							TODO always cleanup current files (& database?)
-							if( $arr[0] != $basepath ) {
-								recursive_delete($arr[0]);
-							}
-						}
-						if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
-							throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
-						}
-						$filedone = true;
-					}
+                    if( !$filedone ) {
+                        $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
+                        $arr = cms_module_places($moduledetails['name']);
+                        if( !empty($arr) ) {
+                            //already installed
+//                          TODO always cleanup current files (& database?)
+                            if( $arr[0] != $basepath ) {
+                                recursive_delete($arr[0]);
+                            }
+                        }
+                        if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
+                            throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
+                        }
+                        $filedone = true;
+                    }
                     //'filename' value is actually a relative path
-					$name = strtr((string)$node->filename, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
+                    $name = strtr((string)$node->filename, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
                     $path = $basepath . DIRECTORY_SEPARATOR . $name;
                     if( (string)$node->isdir ) {
                         if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
@@ -200,7 +201,7 @@ class operations
                     elseif( (string)$node->istext ) {
                         if( @file_put_contents($path, htmlspecialchars_decode((string)$node->data), LOCK_EX) === false ) {
                             throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
-						}
+                        }
                     }
                     elseif( @file_put_contents($path, base64_decode((string)$node->data), LOCK_EX) === false) {
                         throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
