@@ -5,12 +5,13 @@ use cms_filecache_driver;
 
 class global_cache
 {
-    const TIMEOUT = 604800;
+    const TIMEOUT = 604800; //1 week
     private static $_types = [];
     private static $_dirty;
     private static $_cache;
 
     private function __construct() {}
+    private function __clone() {}
 
     public static function add_cachable(global_cachable $obj)
     {
@@ -86,4 +87,4 @@ class global_cache
         self::$_cache = [];
     }
 
-} // end of class
+} // class
