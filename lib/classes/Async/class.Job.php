@@ -130,9 +130,9 @@ abstract class Job
 
     /**
      * @final
-	 * @param type $id
-	 * @throws LogicException
-	 */
+     * @param type $id
+     * @throws LogicException
+     */
     final public function set_id($id)
     {
         $id = (int) $id;
@@ -144,7 +144,7 @@ abstract class Job
     /**
      * Delete this job.
      *
-	 * @throws LogicException
+     * @throws LogicException
      * This method will throw exception if a job manager module is not available,
      * or if for some reason the job could not be removed.
      */
@@ -166,7 +166,7 @@ abstract class Job
     /**
      * Save this job.
      *
-	 * @throws LogicException
+     * @throws LogicException
      * This method will throw exception if a job manager module is not available,
      * or if for some reason the job could not be saved.
      */
