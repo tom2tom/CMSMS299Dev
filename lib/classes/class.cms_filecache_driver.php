@@ -17,11 +17,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A cache driver to cache files using the filesystem.
+ * A driver to cache data in the filesystem.
  *
- * This driver stores files in the CMSMS TMP_CACHE location.  Supports read, and write locking
- * a settable cache lifetime, md5 encoded keys and groups so that filenames cannot be easily
- * determined, and automatic cleaning.
+ * This stores files in the CMSMS TMP_CACHE location.
+ * Supports read and write locking, a settable cache lifetime, md5 encoded keys
+ * and groups so that filenames cannot be easily determined, and automatic cleaning.
  *
  * @package CMS
  * @license GPL
@@ -52,8 +52,9 @@ class cms_filecache_driver extends cms_cache_driver
 
     /**
      * @ignore
+	 * NULL for unlimited
      */
-    private $_lifetime = 7200;
+    private $_lifetime = 7200; //2 hours
 
     /**
      * @ignore
@@ -84,12 +85,12 @@ class cms_filecache_driver extends cms_cache_driver
      * Constructor
      *
      * Accepts an associative array of options as follows:
-     *   lifetime  => seconds (default 3600)
+     *   lifetime  => seconds (default 7200, NULL => unlimited)
      *   locking   => boolean (default false)
      *   cache_dir => string (default TMP_CACHE_LOCATION)
      *   auto_cleaning => boolean (default false)
      *   blocking => boolean (default false)
-     *   grouop => string (no default)
+     *   group => string (no default)
      * @param string $opts
      */
     public function __construct($opts)
