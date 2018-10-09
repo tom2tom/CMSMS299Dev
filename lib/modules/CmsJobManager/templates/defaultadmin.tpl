@@ -5,11 +5,7 @@
 {/if}
 <div class="pageinfo">{$mod->Lang('info_background_jobs')}</div>
 
-{if !count($jobs)}
-  <div style="text-align: center;">
-    <div class="pageinfo">{$mod->Lang('info_no_jobs')}</div>
-  </div>
-{else}
+{if count($jobs)}
   <table class="pagetable">
     <thead>
       <tr>
@@ -44,6 +40,8 @@
     {/foreach}
     </tbody>
   </table>
+{else}
+  <div class="information">{$mod->Lang('info_no_jobs')}</div>
 {/if}
 
 {if isset($tabbed)}
