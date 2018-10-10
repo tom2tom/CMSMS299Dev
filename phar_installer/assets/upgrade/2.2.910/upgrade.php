@@ -161,9 +161,9 @@ if( $generic_type ) {
 // 6. Revised/extra permissions
 $now = time();
 $longnow = $db->DbTimeStamp($now);
-$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
+$query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
 $db->Execute($query, ['Modify Simple Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
-$sql = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
+$query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
 foreach( [
@@ -256,12 +256,12 @@ $msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
 verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
 // migrate existing category_id values to new table
-$sql = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE category_id IS NOT NULL';
-$data = $db->GetArray($sql);
+$query = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE category_id IS NOT NULL';
+$data = $db->GetArray($query);
 if ($data) {
-    $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
     foreach ($data as $row) {
-        $db->Execute($sql, [$row['category_id'], $row['id']]);
+        $db->Execute($query, [$row['category_id'], $row['id']]);
     }
 }
 
@@ -291,10 +291,10 @@ $sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // 9. Migrate module templates to layout-templates table
-$sql = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
-$data = $db->GetArray($sql);
+$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
+$data = $db->GetArray($query);
 if ($data) {
-    $sql = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.
         ' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
     $dt = new DateTime(null, new DateTimeZone('UTC'));
     $types = [];
@@ -318,7 +318,7 @@ if ($data) {
         $dt->modify($row['modified_date']);
         $modified = $dt->getTimestamp();
         if (!$modified) { $modified = min($now, $created); }
-        $db->Execute($sql, [
+        $db->Execute($query, [
             $name,
             $row['template_name'],
             $row['content'],
