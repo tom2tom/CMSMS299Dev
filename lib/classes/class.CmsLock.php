@@ -71,6 +71,11 @@ final class CmsLock implements \ArrayAccess
      */
     const LOCK_TABLE = 'locks';
 
+    /* *
+     * @ignore
+     */
+//    const KEYS = ['id','type','oid','uid','created','modified','lifetime','expires'];
+
     /**
      * @ignore
      */
@@ -82,11 +87,6 @@ final class CmsLock implements \ArrayAccess
     private $_dirty = FALSE;
 
     /**
-     * @ignore
-     */
-    private static $_keys = ['id','type','oid','uid','created','modified','lifetime','expires'];
-
-    /**
      * Constructor
      *
      * @param string $type
@@ -96,8 +96,8 @@ final class CmsLock implements \ArrayAccess
     public function __construct($type,$oid,$lifetime = null)
     {
         $type = trim($type);
-        $oid = trim($oid);
         if( $type == '' ) throw new CmsInvalidDataException('CMSEX_L003');
+        $oid = trim($oid);
 
         $this->_data['type'] = $type;
         $this->_data['oid'] = $oid;
