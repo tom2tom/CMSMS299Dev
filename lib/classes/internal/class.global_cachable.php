@@ -24,6 +24,4 @@ class global_cachable
         return $cb();
     }
 
-} // end of class
-
-?>
+} // class
