@@ -1,8 +1,37 @@
 <?php
+# Mechanism for caching data in filessytem files
+# Copyright (C) 2013-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+# This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# BUT withOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 namespace CMSMS\internal;
 
 use cms_filecache_driver;
+use CMSMS\internal\global_cachable;
 
+/**
+ * Class which enables data to be cached automatically (in file-system text files),
+ * and fetched (or calculated) via a callback if the cache is too old, or
+ * the cached value has been cleared or not yet been saved.
+ *
+ * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
+ * @since       2.0
+ * @ignore
+ * @internal
+ * @package     CMS
+ */
 class global_cache
 {
     const TIMEOUT = 604800; //1 week
@@ -21,7 +50,7 @@ class global_cache
 
     public static function get($type)
     {
-        // if( !isset(self::$_types[$type]) ) throw new \LogicException('Unknown type '.$type);
+//      if( !isset(self::$_types[$type]) ) throw new \LogicException('Unknown type '.$type);
         if( !isset(self::$_types[$type]) ) return;
         if( !is_array(self::$_cache) ) self::_load();
 
