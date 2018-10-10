@@ -48,6 +48,8 @@ use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 
+global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY;
+
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 
 if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
@@ -114,8 +116,6 @@ if (isset($CMS_ADMIN_PAGE)) {
     }
 }
 
-// since 2.0 ... mechanism whereby data can be cached automatically (in file-system text files), and fetched (or calculated) via a callback
-// if the cache is too old, or the cached value has been cleared or not yet been saved.
 // some of these caches could be omitted per $CMS_JOB_TYPE, but probably won't be used anyway
 $obj = new global_cachable('schema_version', function()
     {
@@ -164,13 +164,6 @@ cms_siteprefs::setup();
 Events::setup();
 if ($CMS_JOB_TYPE < 2) {
     ContentOperations::setup_cache();
-    if ($CMS_JOB_TYPE == 0) {
-        //TODO cache this too
-        $tmp = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-        if ($tmp) {
-            HookManager::add_hook('PostRequest', [$tmp[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
-        }
-    }
 }
 // Attempt to override the php memory limit
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
@@ -206,6 +199,13 @@ if (!isset($CMS_INSTALL_PAGE)) {
         debug_buffer('End of Loading Modules');
     }
 */
+    if ($CMS_JOB_TYPE == 0) {
+        //TODO cache this too
+        $tmp = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+        if ($tmp) {
+            HookManager::add_hook('PostRequest', [$tmp[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
+        }
+    }
 }
 
 if ($CMS_JOB_TYPE < 2) {
