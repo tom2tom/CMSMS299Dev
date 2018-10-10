@@ -68,10 +68,15 @@ final class CmsApp
 	 */
 	const STATE_PARSE_TEMPLATE = 'parse_page_template';
 
-    /**
-     * A constant indicating that the request is for an admin login
-     */
-    const STATE_LOGIN_PAGE = 'login_request';
+	/**
+	 * A constant indicating that the request is for an admin login
+	 */
+	const STATE_LOGIN_PAGE = 'login_request';
+
+	/**
+	 * @ignore
+	 */
+	const STATELIST = [self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE,self::STATE_LOGIN_PAGE];
 
 	/**
 	 * @ignore
@@ -100,11 +105,6 @@ final class CmsApp
 	private $_states;
 
 	/**
-	 * @ignore
-	 */
-	private static $_statelist = [self::STATE_ADMIN_PAGE,self::STATE_STYLESHEET, self::STATE_INSTALL,self::STATE_PARSE_TEMPLATE,self::STATE_LOGIN_PAGE];
-
-	/**
 	 * Database object - handle/connection to the current database
 	 * @ignore
 	 */
@@ -127,16 +127,16 @@ final class CmsApp
 	 */
 	private $errors = [];
 
-    /**
-     * Get the simple plugin operations class
-     * @ignore
-     */
-    private $simple_plugin_manager;
+	/**
+	 * Get the simple plugin operations class
+	 * @ignore
+	 */
+	private $simple_plugin_manager;
 
-    /**
-     * @ignore
-     */
-    private $scriptcombiner;
+	/**
+	 * @ignore
+	 */
+	private $scriptcombiner;
 
 	/**
 	 * @ignore
@@ -184,7 +184,7 @@ final class CmsApp
 	{
 		if( self::test_state(self::STATE_INSTALL) ) {
 			$db = $this->GetDb();
-			$query = 'SELECT version FROM '.self::get_instance()->GetDbPrefix().'version';
+			$query = 'SELECT version FROM '.CMS_DB_PREFIX.'version';
 			return $db->GetOne($query);
 		}
 		return global_cache::get('schema_version');
@@ -524,18 +524,18 @@ final class CmsApp
 	{
 		/* Check to see if a HierarchyManager has been instantiated yet,
 		  and, if not, go ahead an create the instance. */
-        if( is_null($this->_hrinstance) ) $this->_hrinstance = global_cache::get('content_tree');
+		if( is_null($this->_hrinstance) ) $this->_hrinstance = global_cache::get('content_tree');
 		return $this->_hrinstance;
 	}
 
-    /**
-     * Get a handle to the ScriptCombiner stuff
-     */
-    public function GetScriptManager()
-    {
-        if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager;
-        return $this->scriptcombiner;
-    }
+	/**
+	 * Get a handle to the ScriptCombiner stuff
+	 */
+	public function GetScriptManager()
+	{
+		if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager;
+		return $this->scriptcombiner;
+	}
 
 	/**
 	* Disconnect from the database.
@@ -570,7 +570,7 @@ final class CmsApp
 		global $CMS_LOGIN_PAGE, $CMS_INSTALL_PAGE;
 		if( !defined('TMP_CACHE_LOCATION') ) return;
 			$age_days = max(0,(int)$age_days);
-        	HookManager::do_hook_simple('clear_cached_files', [ 'older_than' => $age_days ]);
+			HookManager::do_hook_simple('clear_cached_files', [ 'older_than' => $age_days ]);
 		$the_time = time() - $age_days * 24*60*60;
 
 		$dirs = [TMP_CACHE_LOCATION,PUBLIC_CACHE_LOCATION,TMP_TEMPLATES_C_LOCATION];
@@ -598,7 +598,7 @@ final class CmsApp
 			global $CMS_ADMIN_PAGE;
 			global $CMS_INSTALL_PAGE;
 			global $CMS_STYLESHEET;
-            global $CMS_LOGIN_PAGE;
+			global $CMS_LOGIN_PAGE;
 
 			$this->_states = [];
 
@@ -620,7 +620,7 @@ final class CmsApp
 	 */
 	public function test_state($state)
 	{
-		if( !in_array($state,self::$_statelist) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
+		if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
 		$this->set_states();
 		if( is_array($this->_states) && in_array($state,$this->_states) ) return TRUE;
 		return FALSE;
@@ -652,7 +652,7 @@ final class CmsApp
 	 */
 	public function add_state($state)
 	{
-		if( !in_array($state,self::$_statelist) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
+		if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
 		$this->set_states();
 		$this->_states[] = $state;
 	}
@@ -670,7 +670,7 @@ final class CmsApp
 	 */
 	public function remove_state(string $state)
 	{
-		if( !in_array($state,self::$_statelist) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
+		if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
 		$this->set_states();
 		if( !is_array($this->_states) || !in_array($state,$this->_states) ) {
 			$key = array_search($state,$this->_states);
