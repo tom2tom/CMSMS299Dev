@@ -207,14 +207,19 @@ foreach ([
         $files = scandir($path, SCANDIR_SORT_NONE);
         if ($files) {
             foreach ($files as $one) {
-                if (endswith($one, '.php')) {
+                if (startswith($one, 'function') && endswith($one, '.php')) {
                     $fp = $path.DIRECTORY_SEPARATOR.$one;
                     $content = file_get_contents($fp);
                     if ($content) {
                         $parts = explode('.',$one);
-                        $patn = '/function\\s+smarty(_cms)?_'.$parts[0].'_'.$parts[1].'\\s?\\([^,]+,[^,]*(&\\s?)(\\$\\S+)\\s?\\)\\s?[\r\n]/';
+                        $patn = '/function\\s+smarty_(cms_)?function_'.$parts[1].'\\s*\\([^,]+,[^,&]*(&\\s*)?(\\$\\S+)\\s*\\)\\s*[\r\n]/';
                         if (preg_match($patn, $content, $matches)) {
-                            $content = str_replace($matches[2].$matches[3], $matches[3], $content);
+                            if (!empty($matches[1])) {
+                                $content = str_replace('smarty_cms_function', 'smarty_function', $content);
+                            }
+                            if (!empty($matches[2])) {
+                                $content = str_replace($matches[2].$matches[3], $matches[3], $content);
+                            }
                             file_put_contents($fp, $content);
                         }
                     }
