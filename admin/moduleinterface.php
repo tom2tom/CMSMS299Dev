@@ -99,8 +99,4 @@ if ($CMS_JOB_TYPE == 0) {
     echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
 }
 
-$module_list = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-if ($module_list) {
-    HookManager::add_hook('PostRequest', [$module_list[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
-}
 HookManager::do_hook_simple('PostRequest');

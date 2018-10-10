@@ -43,8 +43,10 @@ use CMSMS\AuditManager;
 use CMSMS\ContentOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
+use CMSMS\HookManager;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
+use CMSMS\ModuleOperations;
 
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 
@@ -162,6 +164,13 @@ cms_siteprefs::setup();
 Events::setup();
 if ($CMS_JOB_TYPE < 2) {
     ContentOperations::setup_cache();
+    if ($CMS_JOB_TYPE == 0) {
+        //TODO cache this too
+        $tmp = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+        if ($tmp) {
+            HookManager::add_hook('PostRequest', [$tmp[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
+        }
+    }
 }
 // Attempt to override the php memory limit
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
@@ -200,7 +209,7 @@ if (!isset($CMS_INSTALL_PAGE)) {
 }
 
 if ($CMS_JOB_TYPE < 2) {
-    // Setup language stuff.... will auto-detect languages (Launch only to admin at this point)
+    // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
     if (isset($CMS_ADMIN_PAGE)) CmsNlsOperations::set_language();
 
     if (!isset($DONT_LOAD_SMARTY)) {

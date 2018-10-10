@@ -17,7 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\HookManager;
-use CMSMS\ModuleOperations;
 
 // $USE_THEME inherited from parent scope
 if (!isset($USE_THEME) || $USE_THEME) {
@@ -74,8 +73,4 @@ if (!isset($USE_THEME) || $USE_THEME) {
 	}
 }
 
-$module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-if ($module_list) {
-    HookManager::add_hook('PostRequest', [$module_list[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
-}
 HookManager::do_hook_simple('PostRequest');
