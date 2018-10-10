@@ -26,9 +26,17 @@ use function debug_display;
 
 class module_info extends extended_module_info //was ModuleManagerModuleInfo
 {
+    const MMKEYS = [
+     'can_install',
+     'can_uninstall',
+     'can_upgrade',
+     'deprecated',
+     'e_status',
+     'missing_deps',
+     'needs_upgrade',
+    ];
+    const DEPRECATED = ['CMSMailer','MenuManager'];
     private static $_minfo;
-    private static $_deprecated = ['CMSMailer','MenuManager'];
-    private static $_mmkeys = ['e_status','can_install','can_upgrade','can_uninstall','missing_deps','deprecated','needs_upgrade'];
     private $_mmdata = [];
 
     public function __construct($module_name,$can_load = TRUE,$can_check_forge = TRUE)
@@ -100,7 +108,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::$_mmkeys) ) return parent::OffsetGet($key);
+        if( !in_array($key,self::MMKEYS ) return parent::OffsetGet($key);
         if( isset($this->_mmdata[$key]) ) return $this->_mmdata[$key];
 
         if( $key == 'can_install' ) {
@@ -154,21 +162,21 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
 
         if( $key == 'deprecated' ) {
             // test if this module is deprecated
-            if( in_array($this['name'],self::$_deprecated) ) return TRUE;
+            if( in_array($this['name'],self::DEPRECATED) ) return TRUE;
             return FALSE;
         }
     }
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::$_mmkeys) ) parent::OffsetSet($key,$value);
+        if( !in_array($key,self::MMKEYS ) parent::OffsetSet($key,$value);
         if( $key != 'e_status' && $key != 'deprecated' ) return; // dynamic
         $this->_mmdata[$key] = $value;
     }
 
     public function OffsetExists($key)
     {
-        if( !in_array($key,self::$_mmkeys) ) return parent::OffsetExists($key);
+        if( !in_array($key,self::MMKEYS ) return parent::OffsetExists($key);
         if( $key != 'e_status' && $key != 'deprecated' ) return; // dynamic
         return isset($this->_mmdata[$key]);
     }

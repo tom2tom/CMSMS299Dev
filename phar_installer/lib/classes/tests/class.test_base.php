@@ -55,9 +55,24 @@ abstract class test_base
   const TEST_PASS = 'test_pass';
   const TEST_FAIL = 'test_fail';
   const TEST_WARN = 'test_warn';
-
-  private static $_keys = ['name','name_key','status','value','required','minimum','maximum','recommended','pass_key','pass_msg','fail_msg',
-				'fail_key','warn_key','warn_msg','msg_key','msg'];
+  const KEYS = [
+    'fail_key',
+    'fail_msg',
+    'maximum',
+    'minimum',
+    'msg',
+    'msg_key',
+    'name',
+    'name_key',
+    'pass_key',
+    'pass_msg',
+    'recommended',
+    'required',
+    'status',
+    'value',
+    'warn_key',
+    'warn_msg',
+  ];
   private $_data = [];
 
   public function __construct($name,$value,$key = '')
@@ -73,19 +88,19 @@ abstract class test_base
 
   public function __get($key)
   {
-    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     if( isset($this->_data[$key]) ) return $this->_data[$key];
   }
 
   public function __isset($key)
   {
-    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     return isset($this->_data[$key]);
   }
 
   public function __set($key,$value)
   {
-    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     if( is_null($value) || $value === '' ) {
       unset($this->_data[$key]);
       return;
@@ -96,7 +111,7 @@ abstract class test_base
 
   public function __unset($key)
   {
-    if( !in_array($key,self::$_keys) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
+    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     unset($this->_data[$key]);
   }
 

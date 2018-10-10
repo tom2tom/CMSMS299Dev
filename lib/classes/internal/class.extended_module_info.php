@@ -4,9 +4,21 @@ use \ModuleOperations;
 
 class extended_module_info extends module_info
 {
-    private static $_ekeys = ['installed','status','active','system_module','installed_version','admin_only',
-                                   'active','allow_fe_lazyload','allow_admin_lazyload','dependants','can_deactivate',
-                                   'can_uninstall','missingdeps'];
+    const EKEYS = [
+     'active',
+     'admin_only',
+     'allow_admin_lazyload',
+     'allow_fe_lazyload',
+     'can_deactivate',
+     'can_uninstall',
+     'dependants',
+     'installed',
+     'installed_version',
+     'missingdeps',
+     'status',
+     'system_module',
+    ];
+
     private $_edata = [];
 
     public function __construct($module_name,$can_load = false)
@@ -36,7 +48,7 @@ class extended_module_info extends module_info
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::$_ekeys) ) return parent::OffsetGet($key);
+        if( !in_array($key,self::EKEYS) ) return parent::OffsetGet($key);
         if( isset($this->_edata[$key]) ) return $this->_edata[$key];
         if( $key == 'missingdeps' ) {
             $out = null;
@@ -47,13 +59,13 @@ class extended_module_info extends module_info
                     if( !$depinfo['installed'] || version_compare($depinfo['version'],$onedepversion) < 0 ) $out[$onedepname] = $onedepversion;
                 }
             }
-	    return $out;
+        return $out;
         }
     }
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::$_ekeys) ) parent::OffsetSet($key,$value);
+        if( !in_array($key,self::EKEYS) ) parent::OffsetSet($key,$value);
         if( $key == 'can_deactivate' ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         if( $key == 'can_uninstall' ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         if( $key == 'missingdeps' ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
@@ -62,9 +74,8 @@ class extended_module_info extends module_info
 
     public function OffsetExists($key)
     {
-        if( !in_array($key,self::$_ekeys) ) return parent::OffsetExists($key);
+        if( !in_array($key,self::EKEYS) ) return parent::OffsetExists($key);
         return isset($this->_edata[$key]);
     }
-} // end of class
+} // class
 
-?>

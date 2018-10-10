@@ -31,12 +31,12 @@ final class CmsPermission
 	/**
 	 * @ignore
 	 */
-	private static $_keys = ['id','source','name','text','create_date','modified_date'];
+	const KEYS = ['id','source','name','text','create_date','modified_date'];
 
 	/**
 	 * @ignore
 	 */
-	private $_data = [];
+	private $_data;
 
 	/**
 	 * @ignore
@@ -48,11 +48,14 @@ final class CmsPermission
 	 */
 	public function __construct()
 	{
-		$this->_data['source'] = '';
-		$this->_data['name'] = '';
-		$this->_data['text'] = '';
-		$this->_data['create_date'] = '';
-		$this->_data['modified_date'] = '';
+		$this->_data = [
+		'id' => 0,
+		'source' => '',
+		'name' => '',
+		'text' => '',
+		'create_date' => '',
+		'modified_date' => '',
+        ];
 	}
 
 	/**
@@ -60,8 +63,8 @@ final class CmsPermission
 	 */
 	public function __get($key)
 	{
-		if( !in_array($key,self::$_keys) ) throw new CmsInvalidDataException($key.' is not a valid key for a CmsPermission Object');
-		if( isset($this->_data[$key]) ) return $this->_data[$key];
+		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a CmsPermission Object');
+		return $this->_data[$key] ?? null;
 	}
 
 	/**
@@ -69,8 +72,8 @@ final class CmsPermission
 	 */
 	public function __set($key,$value)
 	{
-		if( !in_array($key,self::$_keys) ) throw new CmsInvalidDataException($key.' is not a valid key for a CmsPermission Object');
 		if( $key == 'id' ) throw new CmsInvalidDataException($key.' cannot be set this way in a CmsPermission Object');
+		if( !in_array($key,self::KEYS) ) throw new CmsInvalidDataException($key.' is not a valid key for a CmsPermission Object');
 
 		$this->_data[$key] = $value;
 	}
@@ -90,8 +93,8 @@ final class CmsPermission
 
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."permissions
-              (permission_id,permission_name,permission_text,permission_source,create_date,
-               modified_date) VALUES (?,?,?,?,$now,$now)";
+(permission_id,permission_name,permission_text,permission_source,create_date,modified_date)
+VALUES (?,?,?,?,$now,$now)";
 		$dbr = $db->Execute($query,
 							[$new_id, $this->_data['name'], $this->_data['text'], $this->_data['source']]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());

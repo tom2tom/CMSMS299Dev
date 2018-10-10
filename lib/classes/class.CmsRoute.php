@@ -38,17 +38,25 @@ class CmsRoute implements \ArrayAccess
 	/**
 	 * @ignore
 	 */
+	const KEYS = [
+	 'absolute',
+	 'defaults',
+	 'key1',
+	 'key2',
+	 'key3',
+	 'term',
+	 'results',
+    ];
+
+	/**
+	 * @ignore
+	 */
 	private $_data;
 
 	/**
 	 * @ignore
 	 */
 	private $_results;
-
-	/**
-	 * @ignore
-	 */
-	private static $_keys = ['term','key1','key2','key3','defaults','absolute','results'];
 
 	/**
 	 * Construct a new route object.
@@ -108,7 +116,7 @@ class CmsRoute implements \ArrayAccess
 	 */
 	public function OffsetGet($key)
 	{
-		if( in_array($key,self::$_keys) && isset($this->_data[$key]) ) return $this->_data[$key];
+		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) return $this->_data[$key];
 	}
 
 	/**
@@ -116,7 +124,7 @@ class CmsRoute implements \ArrayAccess
 	 */
 	public function OffsetSet($key,$value)
 	{
-		if( in_array($key,self::$_keys) ) $this->_data[$key] = $value;
+		if( in_array($key,self::KEYS) ) $this->_data[$key] = $value;
 	}
 
 	/**
@@ -124,7 +132,7 @@ class CmsRoute implements \ArrayAccess
 	 */
 	public function OffsetExists($key)
 	{
-		if( in_array($key,self::$_keys) && isset($this->_data[$key]) ) return TRUE;
+		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) return TRUE;
 		return FALSE;
 	}
 
@@ -134,7 +142,7 @@ class CmsRoute implements \ArrayAccess
 	 */
 	public function OffsetUnset($key)
 	{
-		if( in_array($key,self::$_keys) && isset($this->_data[$key]) ) unset($this->_data[$key]);
+		if( in_array($key,self::KEYS) && isset($this->_data[$key]) ) unset($this->_data[$key]);
 	}
 
 	/**
