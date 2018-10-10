@@ -20,12 +20,12 @@
  * @ignore
  */
 
-/**
+/* *
  * @ignore
- * @ since 2.3 spaced and/or renamed 'core' CMSMS classes
+ * @ since 2.4? spaced and/or renamed 'core' CMSMS classes
  * @ deprecated, remove this in a decade or so ...
  */
-static $class_replaces = null;
+//static $class_replaces = null;
 
 /**
  * A function for auto-loading classes.
@@ -37,7 +37,7 @@ static $class_replaces = null;
  */
 function cms_autoloader(string $classname)
 {
-	global $class_replaces;
+//	global $class_replaces;
 
 	$root = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
 
@@ -48,9 +48,10 @@ function cms_autoloader(string $classname)
 		return;
 	}
 
+/* FOR FUTURE USE
 	if ($class_replaces === null) {
 		$class_replaces = [
-/*
+/ *
 'cms_cache_driver' => 'CMSMS\CacheDriver',
 'cms_cache_handler' => 'CMSMS\CacheHandler',
 'cms_config' => 'CMSMS\Config',
@@ -69,16 +70,17 @@ function cms_autoloader(string $classname)
 'CmsApp' => 'CMSMS\App',
 'CMSModule' => 'CMSMS\Module',
 'CMSModuleContentType' => 'CMSMS\ModuleContentType',
-*/
+* /
 		];
 	}
-
+*/
 	$o = ($classname[0] != '\\') ? 0 : 1;
 	$p = strpos($classname, '\\', $o + 1);
 	if ($p !== false) {
 		$space = substr($classname, $o, $p - $o);
 		if ($space == 'CMSMS') {
 			$path = substr($classname, $o); //ignore any leading \
+/* FUTURE
 			$old = array_search($path, $class_replaces);
 			if ($old !== false) {
 				$fp = $root.'class.'.$old.'.php';
@@ -87,6 +89,7 @@ function cms_autoloader(string $classname)
 				unset($class_replaces[$old]); //no repeats
 				return;
 			}
+*/
 			$sroot = $root;
 		} else {
 			if (!class_exists($space, false)) { //CHECKME nested autoload ok here?
@@ -146,12 +149,14 @@ function cms_autoloader(string $classname)
 	// standard classes
 	$fp = $root.'class.'.$classname.'.php';
 	if (is_file($fp)) {
+/* FUTURE
 		if (array_key_exists($classname, $class_replaces)) {
 			require_once $fp;
 			class_alias($classname, $class_replaces[$classname], false);
 			unset($class_replaces[$classname]); //no repeats
 			return;
 		}
+*/
 		require_once $fp;
 		return;
 	}
@@ -207,4 +212,3 @@ function cms_autoloader(string $classname)
 }
 
 spl_autoload_register('cms_autoloader');
-
