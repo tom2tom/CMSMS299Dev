@@ -20,42 +20,42 @@ use News\Adminops;
 
 if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify News Preferences')) {
-    //TODO some immediate error display	>> lang('needpermissionto', '"Modify News Preferences"'));
-	return;
+    //TODO some immediate error display >> lang('needpermissionto', '"Modify News Preferences"'));
+    return;
 }
 
 if (isset($params['cancel'])) $this->RedirectToAdminTab('customfields','','admin_settings');
 
-$fdid = '';
-if (isset($params['fdid'])) $fdid = $params['fdid'];
+$fdid = $params['fdid'] ?? '';
 
-$name = '';
 if (isset($params['name'])) $name = trim($params['name']);
+else $name = '';
 
-$arr_options = [];
-$options = '';
 if( isset($params['options']) ) {
   $options = trim($params['options']);
   $arr_options = Adminops::optionstext_to_array($options);
 }
+else {
+  $options = '';
+  $arr_options = [];
+}
 
-$type = '';
-if (isset($params['type'])) $type = $params['type'];
+$type = $params['type'] ?? '';
 
-$max_length = 255;
 if (isset($params['max_length'])) $max_length = max(0,(int)$params['max_length']);
+else $max_length = 255;
 
-$origname = '';
-if (isset($params['origname'])) $origname = $params['origname'];
+$origname = $params['origname'] ?? '';
 
-$public = 0;
 if( isset($params['public']) ) $public = (int)$params['public'];
+else $public = 0;
 
 if (isset($params['submit'])) {
   if ($name == '') {
     $error = true;
     $this->ShowErrors($this->Lang('nonamegiven'));
-  } else {
+  }
+  else {
     $error = false;
   }
 
@@ -63,9 +63,9 @@ if (isset($params['submit'])) {
     $query = 'SELECT id FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE name = ? AND id != ?';
     $tmp = $db->GetOne($query,[$name,$fdid]);
     if( $tmp ) {
-		$error = true;
-		$this->ShowErrors($this->Lang('nameexists'));
-	}
+        $error = true;
+        $this->ShowErrors($this->Lang('nameexists'));
+    }
   }
 
   if( !$error ) {
@@ -74,9 +74,9 @@ if (isset($params['submit'])) {
     $res = $db->Execute($query, [$name, $type, $max_length, time(), $public, serialize($extra), $fdid]);
 
     if( !$res ) { //TODO update-command result is never reliable
-		//TODO some immediate error display >> $db->ErrorMsg()
-		return;
-	}
+        //TODO some immediate error display >> $db->ErrorMsg()
+        return;
+    }
     // put mention into the admin log
     audit($name, 'News custom: '.$name, 'Field definition edited');
     $this->SetMessage($this->Lang('fielddefupdated'));
@@ -119,7 +119,7 @@ function handle_change() {
 $(document).ready(function() {
   handle_change();
   $('#fld_type').on('change', handle_change);
-  $('#{$actionid}cancel').on('click', function() {
+  $('#{$id}cancel').on('click', function() {
     $(this).closest('form').attr('novalidate','novalidate');
   });
 });
@@ -150,7 +150,7 @@ $tpl->assign('title',$this->Lang('editfielddef'))
 
 //see DoActionBase() ->assign('mod',$this)
  ->assign('hidden',
-		$this->CreateInputHidden($id, 'fdid', $fdid).
-		$this->CreateInputHidden($id, 'origname', $origname));
+    $this->CreateInputHidden($id, 'fdid', $fdid).
+    $this->CreateInputHidden($id, 'origname', $origname));
 
 $tpl->display();

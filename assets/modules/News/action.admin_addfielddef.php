@@ -7,24 +7,24 @@ if (!$this->CheckPermission('Modify News Preferences')) return;
 
 if (isset($params['cancel'])) $this->RedirectToAdminTab('customfields','','admin_settings');
 
-$name = '';
 if (isset($params['name'])) $name = trim($params['name']);
+else $name = '';
 
-$type = '';
-if (isset($params['type'])) $type = $params['type'];
+$type = $params['type'] ?? '';
 
-$max_length = 255;
 if (isset($params['max_length'])) $max_length = max(0,(int)$params['max_length']);
+else $max_length = 255;
 
-$public = 1;
 if( isset($params['public']) ) $public = (int)$params['public'];
+else $public = 1;
 
-
-$arr_options = [];
-$options = '';
 if( isset($params['options']) ) {
     $options = trim($params['options']);
     $arr_options = Adminops::optionstext_to_array($options);
+}
+else {
+    $options = '';
+    $arr_options = [];
 }
 
 $userid = get_userid();
@@ -46,7 +46,7 @@ if (isset($params['submit'])) {
         if( $max == null ) $max = 1;
 
         $extra = ['options'=>$arr_options];
-		$now = time();
+        $now = time();
         $query = 'INSERT INTO '.CMS_DB_PREFIX.'module_news_fielddefs (name, type, max_length, item_order, create_date, public, extra) VALUES (?,?,?,?,?,?,?)';
         $parms = [$name, $type, $max_length, $max, $now, $public, serialize($extra)];
         $db->Execute($query, $parms );
@@ -81,7 +81,7 @@ function handle_change() {
 $(document).ready(function() {
   handle_change();
   $('#fld_type').on('change', handle_change);
-  $('#{$actionid}cancel').on('click', function() {
+  $('#{$id}cancel').on('click', function() {
     $(this).closest('form').attr('novalidate','novalidate');
   });
 });
