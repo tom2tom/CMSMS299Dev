@@ -1,10 +1,12 @@
 <?php
 namespace CMSMS\internal;
-use \ModuleOperations;
+
+use CmsLogicException;
+use ModuleOperations;
 
 class extended_module_info extends module_info
 {
-    const EKEYS = [
+    const KEYS = [
      'active',
      'admin_only',
      'allow_admin_lazyload',
@@ -19,7 +21,7 @@ class extended_module_info extends module_info
      'system_module',
     ];
 
-    private $_edata = [];
+    private $_data = [];
 
     public function __construct($module_name,$can_load = false)
     {
@@ -38,18 +40,18 @@ class extended_module_info extends module_info
             $this['allow_fe_lazyload'] = $minfo[$module_name]['allow_fe_lazyload'];
             $this['allow_admin_lazyload'] = $minfo[$module_name]['allow_admin_lazyload'];
 
-            $this->_edata['can_deactivate'] = $this['name'] != 'ModuleManager';
-            $this->_edata['can_uninstall'] = $this['name'] != 'ModuleManager';
+            $this->_data['can_deactivate'] = $this['name'] != 'ModuleManager';
+            $this->_data['can_uninstall'] = $this['name'] != 'ModuleManager';
 
-            // dependants is the list of modules that use this module (i.e:  CGBlog uses CGExtensions)
+            // dependants is the list of modules that use this module (e.g. CGBlog uses CGExtensions)
             if( isset($minfo[$module_name]['dependants']) ) $this['dependants'] = $minfo[$module_name]['dependants'];
         }
     }
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::EKEYS) ) return parent::OffsetGet($key);
-        if( isset($this->_edata[$key]) ) return $this->_edata[$key];
+        if( !in_array($key,self::KEYS) ) return parent::OffsetGet($key);
+        if( isset($this->_data[$key]) ) return $this->_data[$key];
         if( $key == 'missingdeps' ) {
             $out = null;
             $deps = $this['depends'];
@@ -65,17 +67,16 @@ class extended_module_info extends module_info
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::EKEYS) ) parent::OffsetSet($key,$value);
+        if( !in_array($key,self::KEYS) ) parent::OffsetSet($key,$value);
         if( $key == 'can_deactivate' ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         if( $key == 'can_uninstall' ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
         if( $key == 'missingdeps' ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
-        $this->_edata[$key] = $value;
+        $this->_data[$key] = $value;
     }
 
     public function OffsetExists($key)
     {
-        if( !in_array($key,self::EKEYS) ) return parent::OffsetExists($key);
-        return isset($this->_edata[$key]);
+        if( !in_array($key,self::KEYS) ) return parent::OffsetExists($key);
+        return isset($this->_data[$key]);
     }
 } // class
-
