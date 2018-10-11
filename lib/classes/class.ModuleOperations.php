@@ -393,7 +393,7 @@ final class ModuleOperations
 			require_once($fname);
 		}
 
-		$obj = new $class_name;
+		$obj = new $class_name();
 		if( !is_object($obj) || ! $obj instanceof CMSModule ) {
 			// oops, some problem loading.
 			cms_error("Cannot load module $module_name ... some problem instantiating the class");

@@ -27,7 +27,7 @@ if( Utils::can_do_advanced() && $this->GetPreference('advancedmode',0) ) {
 $tmp_path_parts = explode(DIRECTORY_SEPARATOR,$path);
 $path_parts = [];
 for( $i = 0, $n = count($tmp_path_parts); $i < $n; $i++ ) {
-    $obj = new StdClass;
+    $obj = new stdClass();
     if( !$tmp_path_parts[$i] ) continue;
     $obj->name = $tmp_path_parts[$i];
     if( $obj->name == '::top::' ) {

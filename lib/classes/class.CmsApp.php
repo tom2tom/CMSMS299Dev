@@ -533,7 +533,7 @@ final class CmsApp
 	 */
 	public function GetScriptManager()
 	{
-		if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager;
+		if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager();
 		return $this->scriptcombiner;
 	}
 

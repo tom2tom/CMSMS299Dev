@@ -2184,7 +2184,7 @@ WHERE content_id = ?';
 	 */
 	protected function AddProperty($name, $priority, $tab = self::TAB_MAIN, $required = false, $basic = false)
 	{
-		$ob = new stdClass;
+		$ob = new stdClass();
 		$ob->name = (string) $name;
 		$ob->priority = (int) $priority;
 		$ob->tab = (string) $tab;

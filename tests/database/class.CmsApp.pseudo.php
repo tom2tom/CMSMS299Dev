@@ -22,7 +22,7 @@ final class CmsApp
   public static function &get_instance()
   {
     if( !self::$_instance ) {
-      self::$_instance = new CmsApp;
+      self::$_instance = new CmsApp();
     }
     return self::$_instance;
   }

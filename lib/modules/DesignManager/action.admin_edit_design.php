@@ -28,7 +28,7 @@ if( isset($params['cancel']) ) {
 $design = null;
 try {
   if( !isset($params['design']) || $params['design'] == '' ) {
-    $design= new CmsLayoutCollection;
+    $design= new CmsLayoutCollection();
     $design->set_name($this->Lang('new_design'));
   }
   else {

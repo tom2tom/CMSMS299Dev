@@ -194,7 +194,7 @@ item_orderr = ?, public = ?, extra = ? WHERE id = ?';
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE id = ?';
     $row = $db->GetRow($query,[$id]);
     if( $row['extra'] ) $row['extra'] = unserialize($row['extra']);
-    $obj = new Field;
+    $obj = new self;
     $obj->_data = $row;
     return $obj;
   }
@@ -208,7 +208,7 @@ item_orderr = ?, public = ?, extra = ? WHERE id = ?';
     $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_news_fielddefs WHERE name = ?';
     $row = $db->GetRow($query,[$name]);
     if( $row['extra'] ) $row['extra'] = unserialize($row['extra']);
-    $obj = new Field;
+    $obj = new self;
     $obj->_data = $row;
     return $obj;
   }

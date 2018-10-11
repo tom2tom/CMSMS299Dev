@@ -274,7 +274,7 @@ class Content extends ContentBase
 			foreach( $blocks as $block ) {
 				// todo, skip this block if permissions don't allow.
 
-				$prop = new stdClass;
+				$prop = new stdClass();
 				$prop->name = $block['name'];
 				$prop->extra = $block;
 				if( !isset($block['tab']) || $block['tab'] == '' ) $block['tab'] = self::TAB_MAIN;

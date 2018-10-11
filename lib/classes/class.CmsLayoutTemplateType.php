@@ -895,7 +895,7 @@ WHERE id = ?';
 			$classnames[] = $this->get_originator().'_'.$this->get_name().'_Type_Assistant';
 			foreach( $classnames as $cn ) {
 				if( class_exists($cn) ) {
-					$tmp = new $cn;
+					$tmp = new $cn();
 					if( $tmp instanceof TemplateTypeAssistant ) {
 						$this->_assistant = $tmp;
 						break;

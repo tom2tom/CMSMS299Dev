@@ -50,7 +50,7 @@ if (!$access) {
 	return;
 }
 
-$groupobj = new Group;
+$groupobj = new Group();
 if( $group_id > 0 ) {
 	$groupobj = Group::load($group_id);
 }

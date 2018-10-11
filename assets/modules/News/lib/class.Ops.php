@@ -192,7 +192,7 @@ final class Ops
     $res = null;
     if( !isset($row['id']) ) return $res;
 
-    $res = new Field;
+    $res = new Field();
     foreach( $row as $key => $value ) {
       switch( $key ) {
       case 'id':
@@ -427,7 +427,7 @@ WHERE news_id IN ('.implode(',',$idlist).') ORDER BY A.news_id,B.item_order';
 
       self::$_cached_fieldvals[$news_id] = [];
       foreach( $fielddefs as $field ) {
-        $obj = new Field;
+        $obj = new Field();
         foreach( $field as $k => $v ) {
           $obj->$k = $v;
         }
@@ -463,7 +463,7 @@ WHERE news_id IN ('.implode(',',$idlist).') ORDER BY A.news_id,B.item_order';
       else {
         // data for this field must not have been preloaded.
         // means there is no value, so just build one
-        $obj = new Field;
+        $obj = new Field();
         foreach( $field as $k => $v ) {
           $obj->$k = $v;
         }

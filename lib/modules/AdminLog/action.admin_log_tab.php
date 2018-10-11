@@ -25,14 +25,14 @@ if( !$this->VisibleToAdminUser() ) exit;
 
 $page = 1;
 $filter_applied = false;
-$filter = new filter;
+$filter = new filter();
 if( isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof filter ) {
     $filter = $_SESSION['adminlog_filter'];
     $filter_applied = true;
 }
 
 if( isset($params['filter']) ) {
-    $filter = new filter;
+    $filter = new filter();
     unset($_SESSION['adminlog_filter']);
     $filter_applied = false;
 }

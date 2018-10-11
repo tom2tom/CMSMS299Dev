@@ -30,7 +30,7 @@ if( !file_exists($src) ) {
 }
 
 include_once __DIR__.'/easyarchives/EasyArchive.class.php';
-$archive = new EasyArchive;
+$archive = new EasyArchive();
 $destdir = cms_join_path(CMS_ROOT_PATH,Utils::get_cwd());
 if( !endswith($destdir,'/') ) $destdir .= '/';
 $res = $archive->extract($src,$destdir);

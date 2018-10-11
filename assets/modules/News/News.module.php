@@ -245,7 +245,7 @@ EOS;
                   AND (end_time IS NULL OR end_time > '.$now.')';
                 $count = $db->GetOne($query);
                 if( $count ) {
-                    $obj = new StdClass;
+                    $obj = new stdClass();
                     $obj->priority = 2;
                     $link = $this->CreateLink('m1_','defaultadmin','', $this->Lang('notify_n_draft_items_sub',$count));
                     $obj->html = $this->Lang('notify_n_draft_items',$link);

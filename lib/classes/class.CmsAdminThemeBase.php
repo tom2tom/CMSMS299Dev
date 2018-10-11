@@ -1685,7 +1685,7 @@ abstract class CmsAdminThemeBase
 
         if( !$name ) $name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme',self::GetDefaultTheme());
         if( class_exists($name) ) {
-            self::$_instance = new $name;
+            self::$_instance = new $name();
         }
         else {
             $gCms = CmsApp::get_instance();
@@ -1736,7 +1736,7 @@ abstract class CmsAdminThemeBase
      */
     public function AddNotification($priority,$module,$html)
     {
-      $notification = new CmsAdminThemeNotification;
+      $notification = new CmsAdminThemeNotification();
       $notification->priority = max(1,min(3,$priority));
       $notification->module = $module;
       $notification->html = $html;

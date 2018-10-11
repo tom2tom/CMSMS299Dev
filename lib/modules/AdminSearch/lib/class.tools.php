@@ -33,7 +33,7 @@ final class tools
             foreach( $classlist as $class_name ) {
               if( !class_exists($class_name) ) continue;
               if( !is_subclass_of($class_name,'slave') ) continue;
-              $obj = new $class_name;
+              $obj = new $class_name();
               if( !is_object($obj) ) continue;
 
               $tmp = [];

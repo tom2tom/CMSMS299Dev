@@ -197,7 +197,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
             if (count($tmp) == 4) { //this could reasonably be omitted
                 require_once $p;
                 $classname = $tmp[1].'Task';
-                $obj = new $classname;
+                $obj = new $classname();
                 if ($obj instanceof Job) {
                     if ($this->load_job($obj)) {
                         $res = TRUE;

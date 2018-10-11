@@ -23,7 +23,7 @@ use AdminLog\resultset;
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
-$filter = new filter;
+$filter = new filter();
 if( isset($_SESSION['adminlog_filter']) && $_SESSION['adminlog_filter'] instanceof filter ) {
     $filter = $_SESSION['adminlog_filter'];
 }

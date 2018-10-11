@@ -555,7 +555,7 @@ class CmsLayoutCollection
 	 */
 	protected static function _load_from_data($row)
 	{
-		$ob = new CmsLayoutCollection;
+		$ob = new CmsLayoutCollection();
 		$css = null;
 		$tpls = null;
 		if( isset($row['css']) ) {

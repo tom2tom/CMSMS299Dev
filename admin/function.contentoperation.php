@@ -488,7 +488,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						verbose_msg(ilang('install_stylesheets'));
 					}
 					foreach ($typenode->children() as $node) {
-						$ob = new CmsLayoutStylesheet;
+						$ob = new CmsLayoutStylesheet();
 						try {
 							$ob->set_name((string)$node->name);
 						} catch (Exception $e) {
