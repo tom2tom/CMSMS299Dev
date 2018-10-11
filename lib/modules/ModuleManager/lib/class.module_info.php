@@ -108,7 +108,7 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
 
     public function OffsetGet($key)
     {
-        if( !in_array($key,self::MMKEYS ) return parent::OffsetGet($key);
+        if( !in_array($key,self::MMKEYS) ) return parent::OffsetGet($key);
         if( isset($this->_mmdata[$key]) ) return $this->_mmdata[$key];
 
         if( $key == 'can_install' ) {
@@ -169,14 +169,14 @@ class module_info extends extended_module_info //was ModuleManagerModuleInfo
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::MMKEYS ) parent::OffsetSet($key,$value);
+        if( !in_array($key,self::MMKEYS) ) parent::OffsetSet($key,$value);
         if( $key != 'e_status' && $key != 'deprecated' ) return; // dynamic
         $this->_mmdata[$key] = $value;
     }
 
     public function OffsetExists($key)
     {
-        if( !in_array($key,self::MMKEYS ) return parent::OffsetExists($key);
+        if( !in_array($key,self::MMKEYS) ) return parent::OffsetExists($key);
         if( $key != 'e_status' && $key != 'deprecated' ) return; // dynamic
         return isset($this->_mmdata[$key]);
     }
