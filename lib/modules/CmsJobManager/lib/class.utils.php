@@ -9,10 +9,9 @@ namespace CmsJobManager;
 
 use cms_utils;
 use CmsJobManager;
-use CMSMS\Async\CronJobInterface;
+use CMSMS\Async\CronJob;
 use CMSMS\Async\Job;
 use CMSMS\Async\RecurType;
-use CMSMS\Async\RegularTask;
 use CMSMS\ModuleOperations;
 use const TMP_CACHE_LOCATION;
 use function debug_to_log;
@@ -35,7 +34,7 @@ final class utils
 	 */
     public static function job_recurs(Job $job) : bool
     {
-        if ($job instanceof CronJobInterface) {
+        if ($job instanceof CronJob) {
             return $job->frequency != RecurType::RECUR_NONE;
         }
         return false;
