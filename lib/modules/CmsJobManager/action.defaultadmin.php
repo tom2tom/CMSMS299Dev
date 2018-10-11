@@ -52,37 +52,50 @@ $this->AdminHeaderContent($js);
 $jobs = [];
 $job_objs = JobQueue::get_all_jobs();
 if( $job_objs ) {
+	$list = [
+		RecurType::RECUR_15M => $this->Lang('recur_15m'),
+		RecurType::RECUR_30M => $this->Lang('recur_30m'),
+		RecurType::RECUR_HOURLY => $this->Lang('recur_hourly'),
+		RecurType::RECUR_120M => $this->Lang('recur_120m'),
+		RecurType::RECUR_180M => $this->Lang('recur_180m'),
+		RecurType::RECUR_DAILY => $this->Lang('recur_daily'),
+		RecurType::RECUR_WEEKLY => $this->Lang('recur_weekly'),
+		RecurType::RECUR_MONTHLY => $this->Lang('recur_monthly'),
+		RecurType::RECUR_NONE => '',
+	];
+	$custom = $this->Lang('pollgap', '%s');
+
     foreach( $job_objs as $job ) {
-        $obj = new StdClass;
+        $obj = new stdClass();
 		$name = $job->name;
 		if( ($t = strrpos($name, '\\')) !== false ) {
 			$name = substr($name, $t+1);
 		}
         $obj->name = $name;
         $obj->module = $job->module;
-        $obj->frequency = (utils::job_recurs($job)) ? $job->frequency : null;
+		if (utils::job_recurs($job)) {
+			if (array_key_exists($job->frequency, $list)) {
+				$obj->frequency = $list[$job->frequency];
+			} elseif ($job->frequency == RecurType::RECUR_SELF) {
+				$t = floor($job->interval / 3600) . gmdate(":i", $job->interval % 3600);
+				$obj->frequency = sprintf($custom, $t);
+			} else {
+				$obj->frequency = ''; //unknown parameter
+			}
+	        $obj->until = $job->until;
+		} else {
+			$obj->frequency = null;
+			$obj->until = null;
+		}
         $obj->created = $job->created;
         $obj->start = $job->start;
-        $obj->until = (utils::job_recurs($job)) ? $job->until : null;
         $obj->errors = $job->errors;
         $jobs[] = $obj;
     }
 }
 
-$list = ['' => ''];
-$list[RecurType::RECUR_NONE] = '';
-$list[RecurType::RECUR_15M] = $this->Lang('recur_15m');
-$list[RecurType::RECUR_30M] = $this->Lang('recur_30m');
-$list[RecurType::RECUR_HOURLY] = $this->Lang('recur_hourly');
-$list[RecurType::RECUR_120M] = $this->Lang('recur_120m');
-$list[RecurType::RECUR_180M] = $this->Lang('recur_180m');
-$list[RecurType::RECUR_DAILY] = $this->Lang('recur_daily');
-$list[RecurType::RECUR_WEEKLY] = $this->Lang('recur_weekly');
-$list[RecurType::RECUR_MONTHLY] = $this->Lang('recur_monthly');
-
 $tpl = $this->create_new_template('defaultadmin.tpl');
 $tpl->assign('jobs',$jobs);
-$tpl->assign('recur_list',$list);
 $tpl->assign('jobinterval',(int)$this->GetPreference('jobinterval'));
 $tpl->assign('last_processing',(int)$this->GetPreference('last_processing'));
 

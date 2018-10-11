@@ -17,6 +17,7 @@ $lang['jobs'] = 'Jobs';
 $lang['moddescription'] = 'A module for managing asynchronous processing jobs.';
 $lang['module'] = 'Module';
 $lang['name'] = 'Name';
+$lang['pollgap'] = 'Polled every %s';
 $lang['processing_freq'] = 'Maximum processing frequency (seconds)';
 $lang['recur_120m'] = 'Every 2 hours';
 $lang['recur_15m'] = 'Every 15 minutes';
