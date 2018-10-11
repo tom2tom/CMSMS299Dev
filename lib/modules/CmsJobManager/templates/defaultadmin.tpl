@@ -26,15 +26,15 @@
         <td>{$job->module|default:''}</td>
         <td>{$job->created|relative_time}</td>
         <td>
-           {if $job->start < $smarty.now - $jobinterval*60}<span style="color: red;">
-           {elseif $job->start < $smarty.now + $jobinterval*60}<span style="color: green;">
+           {if $job->start < $smarty.now - $jobinterval*60}<span class="red">
+           {elseif $job->start < $smarty.now + $jobinterval*60}<span class="green">
            {else}<span>
            {/if}
            {$job->start|relative_time}</span>
         </td>
-        <td>{$recur_list[$job->frequency]}</td>
+        <td>{$job->frequency}</td>
         <td>{if $job->until}{$job->until|date_format:'%x %X'}{/if}</td>
-        <td>{if $job->errors > 0}<span style="color: red;">{$job->errors}</span>{/if}</td>
+        <td>{if $job->errors > 0}<span class="red">{$job->errors}</span>{/if}</td>
         <td></td>
       </tr>
     {/foreach}
