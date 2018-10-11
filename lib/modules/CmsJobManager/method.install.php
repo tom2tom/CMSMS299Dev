@@ -7,6 +7,25 @@
 
 if( !isset($gCms) ) exit;
 
+//table is essentially a cache, written as much as read, use InnoDB table
+$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$dict = NewDataDictionary($db);
+
+//data field holds a serialized class, size 1024 is probably enough
+$flds = '
+id I KEY AUTO NOTNULL,
+name C(255) NOTNULL,
+module C(128),
+created I NOTNULL,
+start I NOTNULL,
+until I,
+recurs I(4),
+errors I(4) NOTNULL DEFAULT 0,
+data X(16384)
+';
+$sqlarray = $dict->CreateTableSQL( CmsJobManager::TABLE_NAME, $flds, $taboptarray );
+$dict->ExecuteSQLArray($sqlarray);
+
 $this->SetPreference('enabled',1); //whether async job-processing by this module is currently enabled
 $this->SetPreference('jobinterval',5); //minutes between updates 1 .. 10
 $this->SetPreference('jobtimeout',30); //seconds, max jobs execution-time 30 .. 1800
@@ -23,19 +42,3 @@ $this->AddEventHandler('Core','ModuleInstalled',false);
 $this->AddEventHandler('Core','ModuleUninstalled',false);
 $this->AddEventHandler('Core','ModuleUpgraded',false);
 
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
-$dict = NewDataDictionary($db);
-
-$flds = '
-id I KEY AUTO NOTNULL,
-name C(255) NOTNULL,
-created I NOTNULL,
-module C(255) NOTNULL,
-errors I NOTNULL DEFAULT 0,
-start I NOTNULL,
-recurs C(255),
-until I,
-data X2
-';
-$sqlarray = $dict->CreateTableSQL( CmsJobManager::TABLE_NAME, $flds, $taboptarray );
-$dict->ExecuteSQLArray($sqlarray);
