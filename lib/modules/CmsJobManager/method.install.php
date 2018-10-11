@@ -41,4 +41,3 @@ $this->CreateEvent(CmsJobManager::EVT_ONFAILEDJOB);
 $this->AddEventHandler('Core','ModuleInstalled',false);
 $this->AddEventHandler('Core','ModuleUninstalled',false);
 $this->AddEventHandler('Core','ModuleUpgraded',false);
-
