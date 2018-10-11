@@ -113,7 +113,6 @@ function check_login(bool $no_redirect = false)
 }
 
 
-
 /**
  * Checks to see that the given userid has access to the given permission.
  * Members of the admin group have all permissions.
@@ -162,10 +161,11 @@ function author_pages(int $userid)
 
 /**
  * Gets the given site preference
- *
- * @deprecated
  * @since 0.6
+ *
+ * @deprecated since 1.10
  * @see cms_siteprefs::get
+ *
  * @param string $prefname The preference name
  * @param mixed  $defaultvalue The default value if the preference does not exist
  * @return mixed
@@ -174,6 +174,39 @@ function get_site_preference(string $prefname, $defaultvalue = null)
 {
     return cms_siteprefs::get($prefname,$defaultvalue);
 }
+
+
+/**
+ * Removes the given site preference.
+ * @since 0.6
+ *
+ * @deprecated since 1.10
+ * @see cms_siteprefs::remove
+ *
+ * @param string $prefname Preference name to remove
+ * @param boolean $uselike  Wether or not to remove all preferences that are LIKE the supplied name
+ */
+function remove_site_preference($prefname, $uselike = false)
+{
+    return cms_siteprefs::remove($prefname, $uselike);
+}
+
+
+/**
+ * Sets the given site preference with the given value.
+ * @since 0.6
+ *
+ * @deprecated since 1.10
+ * @see cms_siteprefs::set
+ *
+ * @param string $prefname The preference name
+ * @param mixed  $value	The preference value (will be stored as a string)
+ */
+function set_site_preference($prefname, $value)
+{
+    return cms_siteprefs::set($prefname, $value);
+}
+
 
 /**
  * A method to create a text area control
