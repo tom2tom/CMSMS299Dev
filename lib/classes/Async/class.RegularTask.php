@@ -43,7 +43,7 @@ class RegularTask extends CronJob
      * @ignore
 	 * @type int seconds
      */
-    private $_interval = 600; //default 10-minutes
+    private $_interval; //inter-poll seconds, 10-minutes to 24-hours
 
     /**
      * Constructor
@@ -54,7 +54,23 @@ class RegularTask extends CronJob
     {
         parent::__construct();
         $this->_task = $task;
-        //TODO smart interrogation of $task, set $this->_interval
+        $this->_interval = 86400; //default 1-day
+        $time = time();
+        $task->on_success($time);
+        foreach ([
+            300,
+            900,
+            1800,
+            3600,
+            14400, //4-hrs
+            28800, //8-hrs
+            43200, //12-hrs
+        ] as $gap) {
+            if ($task->test($time + $gap)) {
+                $this->_interval = $gap;
+                break;
+            }
+        }
         $this->name = $task->get_name();
         $this->frequency = RecurType::RECUR_SELF;
     }
