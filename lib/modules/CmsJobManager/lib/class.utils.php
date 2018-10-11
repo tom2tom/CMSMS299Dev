@@ -11,6 +11,8 @@ use cms_utils;
 use CmsJobManager;
 use CMSMS\Async\CronJobInterface;
 use CMSMS\Async\Job;
+use CMSMS\Async\RecurType;
+use CMSMS\Async\RegularTask;
 use CMSMS\ModuleOperations;
 use const TMP_CACHE_LOCATION;
 use function debug_to_log;
@@ -34,7 +36,7 @@ final class utils
     public static function job_recurs(Job $job) : bool
     {
         if ($job instanceof CronJobInterface) {
-            return $job->frequency != $job::RECUR_NONE;
+            return $job->frequency != RecurType::RECUR_NONE;
         }
         return false;
     }
@@ -50,32 +52,38 @@ final class utils
         }
         $now = time();
         switch ($job->frequency) {
-        case $job::RECUR_NONE:
-            return null;
-        case $job::RECUR_15M:
+        case RecurType::RECUR_15M:
             $out = $now + 15 * 60;
             break;
-        case $job::RECUR_30M:
+        case RecurType::RECUR_30M:
             $out = $now + 30 * 60;
             break;
-        case $job::RECUR_HOURLY:
+        case RecurType::RECUR_HOURLY:
             $out = $now + 3600;
             break;
-        case $job::RECUR_2H:
+        case RecurType::RECUR_2H:
             $out = $now + 2 * 3600;
             break;
-        case $job::RECUR_3H:
+        case RecurType::RECUR_3H:
             $out = $now + 3 * 3600;
             break;
-        case $job::RECUR_DAILY:
-            $out = $now + 3600 * 24;
+        case RecurType::RECUR_HALFDAILY:
+            $out = $now + 12 * 3600;
             break;
-        case $job::RECUR_WEEKLY:
+        case RecurType::RECUR_DAILY:
+            $out = $now + 24 * 3600;
+            break;
+        case RecurType::RECUR_WEEKLY:
             $out = strtotime('+1 week', $now);
             break;
-        case $job::RECUR_MONTHLY:
+        case RecurType::RECUR_MONTHLY:
             $out = strtotime('+1 month', $now);
             break;
+        case RecurType::RECUR_SELF:
+			$out = (method_exists($job, 'nexttime')) ? $job->nexttime($now) : $now + 10 * 60;
+            break;
+        case RecurType::RECUR_NONE:
+            return null;
         }
         debug_to_log("adjusted to {$out} -- {$now} // {$job->until}");
         if (!$job->until || $out <= $job->until) {

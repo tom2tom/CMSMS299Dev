@@ -2,7 +2,7 @@
 
 use CmsJobManager\JobQueue;
 use CmsJobManager\utils;
-use CMSMS\Async\CronJob;
+use CMSMS\Async\RecurType;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
@@ -70,15 +70,15 @@ if( $job_objs ) {
 }
 
 $list = ['' => ''];
-$list[CronJob::RECUR_NONE] = '';
-$list[CronJob::RECUR_15M] = $this->Lang('recur_15m');
-$list[CronJob::RECUR_30M] = $this->Lang('recur_30m');
-$list[CronJob::RECUR_HOURLY] = $this->Lang('recur_hourly');
-$list[CronJob::RECUR_120M] = $this->Lang('recur_120m');
-$list[CronJob::RECUR_180M] = $this->Lang('recur_180m');
-$list[CronJob::RECUR_DAILY] = $this->Lang('recur_daily');
-$list[CronJob::RECUR_WEEKLY] = $this->Lang('recur_weekly');
-$list[CronJob::RECUR_MONTHLY] = $this->Lang('recur_monthly');
+$list[RecurType::RECUR_NONE] = '';
+$list[RecurType::RECUR_15M] = $this->Lang('recur_15m');
+$list[RecurType::RECUR_30M] = $this->Lang('recur_30m');
+$list[RecurType::RECUR_HOURLY] = $this->Lang('recur_hourly');
+$list[RecurType::RECUR_120M] = $this->Lang('recur_120m');
+$list[RecurType::RECUR_180M] = $this->Lang('recur_180m');
+$list[RecurType::RECUR_DAILY] = $this->Lang('recur_daily');
+$list[RecurType::RECUR_WEEKLY] = $this->Lang('recur_weekly');
+$list[RecurType::RECUR_MONTHLY] = $this->Lang('recur_monthly');
 
 $tpl = $this->create_new_template('defaultadmin.tpl');
 $tpl->assign('jobs',$jobs);

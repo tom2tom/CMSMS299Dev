@@ -1,5 +1,5 @@
 <?php
-# Interface: defines constants needed for a cron job.
+# Interface: defines the minimum API for a cron job.
 # Copyright (C) 2016-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,8 +19,6 @@
 namespace CMSMS\Async;
 
 /**
- * A simple interface to define constants needed for a cron job.
- *
  * @package CMS
  * @author Robert Campbell
  *
@@ -28,49 +26,5 @@ namespace CMSMS\Async;
  */
 interface CronJobInterface
 {
-    /**
-     * Constant indicating that this job does not recur (empty string is also used).
-     */
-    const RECUR_NONE  = '_none';
-
-    /**
-     * Constant indicating that ths job should recur every 15 minutes.
-     */
-    const RECUR_15M = '_15m';
-
-    /**
-     * Constant indicating that ths job should recur every 30 minutes.
-     */
-    const RECUR_30M = '_30m';
-
-    /**
-     * Constant indicating that ths job should recur every hour.
-     */
-    const RECUR_HOURLY  = '_hourly';
-
-    /**
-     * Constant indicating that ths job should recur every 2 hours.
-     */
-    const RECUR_120M = '_120m';
-
-    /**
-     * Constant indicating that ths job should recur every 3 hours.
-     */
-    const RECUR_180M = '_180m';
-
-    /**
-     * Constant indicating that ths job should recur daily..
-     */
-    const RECUR_DAILY   = '_daily';
-
-    /**
-     * Constant indicating that ths job should recur weekly..
-     */
-    const RECUR_WEEKLY  = '_weekly';
-
-    /**
-     * Constant indicating that ths job should recur monthly..
-     */
-    const RECUR_MONTHLY = '_monthly';
+	//nothing here
 }
-

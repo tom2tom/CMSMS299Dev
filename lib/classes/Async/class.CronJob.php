@@ -21,15 +21,16 @@ namespace CMSMS\Async;
 /**
  * An abstract base class for a cronjob.
  *
- * A Cron job is different from a regular job in that it recurs at a specified frequency
- * and can have an end/until date.
+ * A Cron job is a regular job in that recurs at specified intervals and
+ * can have an end/until date.
  *
  * @package CMS
  * @author Robert Campbell
  *
  * @since 2.2
  */
-abstract class CronJob extends Job implements CronJobInterface {
+abstract class CronJob extends Job
+{
     use CronJobTrait;
 
     /**
@@ -41,4 +42,3 @@ abstract class CronJob extends Job implements CronJobInterface {
         $this->_data['start'] = time();
     }
 }
-

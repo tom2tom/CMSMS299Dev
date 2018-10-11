@@ -30,12 +30,20 @@ use LogicException;
  * @since 2.2
  * @property CmsRegularTask $task The task to convert.
  */
-class RegularTask extends Job
+class RegularTask extends CronJob
 {
     /**
      * @ignore
+	 * @type CmsRegularTask
      */
     private $_task;
+
+    /**
+	 * Interval (seconds) between execution-readiness polls
+     * @ignore
+	 * @type int seconds
+     */
+    private $_interval = 600; //default 10-minutes
 
     /**
      * Constructor
@@ -46,7 +54,9 @@ class RegularTask extends Job
     {
         parent::__construct();
         $this->_task = $task;
+        //TODO smart interrogation of $task, set $this->_interval
         $this->name = $task->get_name();
+        $this->frequency = RecurType::RECUR_SELF;
     }
 
     /**
@@ -60,6 +70,8 @@ class RegularTask extends Job
         switch( $key ) {
         case 'task':
             return $this->_task;
+        case 'interval':
+            return $this->_interval;
         default:
             return parent::__get($key);
         }
@@ -70,7 +82,6 @@ class RegularTask extends Job
 	 *
 	 * @param type $key
 	 * @param CmsRegularTask $val
-	 * @return type
 	 * @throws LogicException
 	 */
     public function __set($key,$val)
@@ -80,28 +91,44 @@ class RegularTask extends Job
             if( !$val instanceof CmsRegularTask ) throw new LogicException('Invalid value for '.$key.' in a '.__CLASS__);
             $this->_task = $val;
             break;
-
+        case 'interval':
+            $this->_interval = min((int)$val, 60);
+            break;
         default:
-            return parent::__set($key,$val);
+            parent::__set($key,$val);
         }
     }
 
+	/**
+	 * Determine when next to poll the task for execution-readiness
+     * Defaults to $time + 10 minutes
+     * @since 2.3
+     *
+     * @param mixed $time Optional timestamp of the 'base' time
+     * @return int timestamp
+     */
+    public function nexttime($time = '')
+	{
+        if( !$time ) $time = time();
+        return $time + $this->_interval;
+	}
+
     /**
-	 * Perform the task
+	 * Perform the task, if its test() affirms
 	 * @throws LogicException
 	 */
     public function execute()
     {
         if( !$this->_task ) throw new LogicException(__CLASS__.' job is being executed, but has no task associated');
-        $task = $this->_task;
-        $now = time();
-        if( $task->test($now) ) {
-            if( $task->execute($now) ) {
-                $task->on_success($now);
+        $time = time();
+        if( $this->_task->test($time) ) {
+            if( $this->_task->execute($time) ) {
+                $this->_task->on_success($time);
             } else {
-                $task->on_failure($now);
+                $this->_task->on_failure($time);
                 ++$this->errors;
             }
         }
+        //else indicate it's not been run this time
     }
 }
