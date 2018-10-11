@@ -23,12 +23,12 @@
   {wizard_form_start}
   {$label='install'|tr}
   {if $nofiles}
-  <div class="message yellow">{'step2_nofiles'|tr}</div>
+  <div class="message blue">{'step2_nofiles'|tr}</div>
   {/if}
   {if !isset($cmsms_info)}
-  <div class="message yellow">{'step2_nocmsms'|tr}</div>
+  <div class="message blue">{'step2_nocmsms'|tr}</div>
   {if !$install_empty_dir}
-  <div class="message red">{'step2_install_dirnotempty2'|tr}
+  <div class="message yellow">{'step2_install_dirnotempty2'|tr}
     {if !empty($existing_files)}
     <ul>
       {foreach $existing_files as $one}
