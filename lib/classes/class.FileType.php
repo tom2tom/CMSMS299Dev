@@ -18,6 +18,8 @@
 
 namespace CMSMS;
 
+use CMSMS\BasicEnum;
+
 /**
  * A reflectable class that enumerates file-types.
  *
