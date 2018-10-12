@@ -29,11 +29,6 @@ use CMSMS\BasicEnum;
 final class CmsCoreCapabilities extends BasicEnum
 {
 	/**
-	 * @ignore
-	 */
-	private function __construct() {}
-
-	/**
 	 * A constant for the admin search capability
 	 */
 	const ADMINSEARCH = 'AdminSearch'; // module supports admin search.
