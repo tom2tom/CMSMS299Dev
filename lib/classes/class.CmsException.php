@@ -1,5 +1,5 @@
 <?php
-# Definitions of the various CMSMS exception classes.
+# Definitions of various CMSMS-specific exception classes.
 # Copyright (C) 2012-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,103 +19,81 @@
 //namespace CMSMS;
 
 /**
- * A basic exception class that holds on to extended information.
+ * The base CMSMS exception class. It preserves extended information, and
+ * interprets error-messages which are an integer 'code' or a lang-key.
+ * A code is assumed to be a reference to a lang-key like 'CMSEX_thatcode'.
+ * If the provided message-string contains space(s) it is not translated.
  *
  * @package CMS
- * @since 2.0
+ * @since 1.10
  */
-abstract class CmsExtraDataException extends \Exception
+class CmsException extends \Exception
 {
-  /**
-   * @ignore
-   */
-  private $_extra;
+    /**
+    * @ignore
+    */
+    private $_extra;
 
-  /**
-   * Constructor
-   * This method accepts variable arguments
-   *
-   * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
-   * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
-   *
-   * @see Exception
-   */
-  public function __construct(...$args)
-  {
-      $msg = $prev = NULL;
-      $code = 0;
-      if( is_array($args) && count($args) == 1 ) $args = $args[0];
-      for( $i = 0, $n = count($args); $i < $n; $i++ ) {
-          switch( $i ) {
-          case 0:
-              $msg = $args[$i];
-              break;
+    /**
+    * Constructor
+    * This method accepts variable arguments
+    *
+    * e.g.throw new CmsException($msg_str,$msg_code,$prev)
+    * e.g.throw new CmsException($msg_str,$msg_code,$extra,$prev)
+    *
+    * @see Exception
+    */
+    public function __construct(...$args)
+    {
+        if( is_array($args) ) {
+            if( count($args) == 1 ) $args = $args[0];
+        }
+        else {
+            $args = [$args];
+        }
 
-          case 1:
-              $code = (int)$args[$i];
-              break;
+        $msg = $args[0] ?? '';
+        $code = $args[1] ?? 0;
+        $prev = $args[2] ?? null; //possible Throwable
+        $tmp = $args[3] ?? null;  //ditto
+        if( is_object($prev) ) {
+            $this->_extra = $tmp;
+        }
+        elseif( is_object($tmp) ) {
+            $this->_extra = $prev;
+            $prev = $tmp;
+        }
 
-          case 2:
-              if( is_object($args[$i]) ) {
-                  $prev = $args[$i];
-              }
-              else {
-                  $this->_extra = $args[$i];
-              }
-              break;
+        parent::__construct($msg,(int)$code,$prev);
 
-          case 3:
-              if( $prev == null && is_object($args[$i]) ) $prev = $args[$i];
-              break;
-          }
-      }
-      parent::__construct($msg,$code,$prev);
-  }
+        if( is_int($this->message) ) {
+            $this->messsage = 'CMSEX_'.$msg;
+            if( !CmsLangOperations::key_exists($this->message) ) {
+                $this->message = 'MISSING TRANSLATION FOR '.$this->message;
+            }
+        }
+        if( strpos($this->message,' ') === FALSE && CmsLangOperations::key_exists($this->message) ) {
+            $this->message = CmsLangOperations::lang($this->message);
+        }
+    }
 
   /**
    * Return extra data associated with the exception
    * @return mixed
    */
-  public function GetExtraData()
-  {
-      return $this->_extra;
-  }
-}
-
-/**
- * A base CMSMS Exception
- *
- * This exception can accept an integer 'code' for an exception or a language key.
- * if the string passed in contains a space it is not translated.
- *
- * @package CMS
- * @since 1.10
- */
-class CmsException extends CmsExtraDataException
-{
-    /**
-     * Constructor
-     * This method accepts variable arguments.
-     *
-     * e.g. throw new CmsExtraDataException($msg_str,$msg_code,$prev)
-     * e.g. throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
-     *
-     * @see Exception
-     */
-    public function __construct(...$args) {
-        parent::__construct($args);
-        if( is_int($this->message) ) $this->messsage = 'CMSEX_'.$msg;
-        if( startswith($this->message,'CMSEX_') && !CmsLangOperations::key_exists($this->message) ) {
-            $this->message = 'MISSING TRANSLATION FOR '.$this->message;
-        }
-        else if( strpos($this->message,' ') === FALSE && CmsLangOperations::key_exists($this->message) ) {
-            $this->message = CmsLangOperations::lang($this->message);
-        }
+    public function GetExtraData()
+    {
+        return $this->_extra;
     }
 }
 
 /**
- * A base CMSMS Logic Exception
+ * Backward compatibility, unlikely to be used
+ */
+class_alias('CmsException','CmsExtraDataException', false);
+
+/**
+ * A CMSMS Logic Exception
  *
  * @package CMS
  * @since 1.10
@@ -123,7 +101,7 @@ class CmsException extends CmsExtraDataException
 class CmsLogicException extends CmsException {}
 
 /**
- * A base CMSMS Communications Exception
+ * A CMSMS Communications Exception
  *
  * @package CMS
  * @since 1.10
@@ -131,7 +109,7 @@ class CmsLogicException extends CmsException {}
 class CmsCommunicationException extends CmsException {}
 
 /**
- * A base CMSMS Privacy Exception
+ * A CMSMS Privacy Exception
  *
  * @package CMS
  * @since 1.10
@@ -139,7 +117,7 @@ class CmsCommunicationException extends CmsException {}
 class CmsPrivacyException extends CmsException {}
 
 /**
- * A base CMSMS Singleton Exception
+ * A CMSMS Singleton Exception
  *
  * @package CMS
  * @since 1.10
@@ -244,25 +222,3 @@ class CmsXMLErrorException extends CmsException {}
  * @since 2.0
  */
 class CmsFileSystemException extends CmsException {}
-
-/* for future use
-// backward compatibility
-class_alias('CMSMS\CmsException', 'CmsCmsException', false);
-class_alias('CMSMS\CommunicationException', 'CmsCommunicationException', false);
-class_alias('CMSMS\ContentException', 'CmsContentException', false);
-class_alias('CMSMS\DataNotFoundException', 'CmsDataNotFoundException', false);
-class_alias('CMSMS\EditContentException', 'CmsEditContentException', false);
-class_alias('CMSMS\Error400Exception', 'CmsError400Exception', false);
-class_alias('CMSMS\Error403Exception', 'CmsError403Exception', false);
-class_alias('CMSMS\Error404Exception', 'CmsError404Exception', false);
-class_alias('CMSMS\Error503Exception', 'CmsError503Exception', false);
-class_alias('CMSMS\StopProcessingContentException', 'CmsStopProcessingContentException', false);
-class_alias('CMSMS\ExtraDataException', 'CmsExtraDataException', false);
-class_alias('CMSMS\FileSystemException', 'CmsFileSystemException', false);
-class_alias('CMSMS\InvalidDataException', 'CmsInvalidDataException', false);
-class_alias('CMSMS\LogicException', 'CmsLogicException', false);
-class_alias('CMSMS\PrivacyException', 'CmsPrivacyException', false);
-class_alias('CMSMS\SingletonException', 'CmsSingletonException', false);
-class_alias('CMSMS\SQLErrorException', 'CmsSQLErrorException', false);
-class_alias('CMSMS\XMLErrorException', 'CmsXMLErrorException', false);
-*/
