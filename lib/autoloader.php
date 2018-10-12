@@ -16,18 +16,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * @package CMS
- * @ignore
- */
-
-/* *
- * @ignore
- * @ since 2.4? spaced and/or renamed 'core' CMSMS classes
- * @ deprecated, remove this in a decade or so ...
- */
-//static $class_replaces = null;
-
-/**
  * A function for auto-loading classes.
  *
  * @since 1.7
@@ -37,41 +25,13 @@
  */
 function cms_autoloader(string $classname)
 {
-//	global $class_replaces;
-
 	$root = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
-
+/*
 	// standard content types (prioritized)
 	$fp = $root.'contenttypes'.DIRECTORY_SEPARATOR.'class.'.$classname.'.php';
 	if (is_file($fp)) {
 		require_once $fp;
 		return;
-	}
-
-/* FOR FUTURE USE
-	if ($class_replaces === null) {
-		$class_replaces = [
-/ *
-'cms_cache_driver' => 'CMSMS\CacheDriver',
-'cms_cache_handler' => 'CMSMS\CacheHandler',
-'cms_config' => 'CMSMS\Config',
-'cms_content_tree' => 'CMSMS\ContentTree',
-'cms_cookies' => 'CMSMS\Cookies',
-'cms_filecache_driver' => 'CMSMS\FilecacheDriver',
-'cms_http_request' => 'CMSMS\HttpRequest',
-'cms_route_manager' => 'CMSMS\RouteManager',
-'cms_siteprefs' => 'CMSMS\Siteprefs',
-'cms_tree' => 'CMSMS\Tree',
-'cms_tree_operations' => 'CMSMS\TreeOperations',
-'cms_url' => 'CMSMS\Url',
-'cms_userprefs' => 'CMSMS\Userprefs',
-'cms_utils' => 'CMSMS\Utils',
-//mebbe not these
-'CmsApp' => 'CMSMS\App',
-'CMSModule' => 'CMSMS\Module',
-'CMSModuleContentType' => 'CMSMS\ModuleContentType',
-* /
-		];
 	}
 */
 	$o = ($classname[0] != '\\') ? 0 : 1;
@@ -79,17 +39,58 @@ function cms_autoloader(string $classname)
 	if ($p !== false) {
 		$space = substr($classname, $o, $p - $o);
 		if ($space == 'CMSMS') {
+			// future re-classes which may be used now
+			static $class_replaces = null;
+			if ($class_replaces === null) {
+				$class_replaces = [
+				'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
+				'CMSMS\AdminThemeBase' => 'CmsAdminThemeBase',
+				'CMSMS\AdminThemeNotification' => 'CmsAdminThemeNotification',
+				'CMSMS\App' => 'CmsApp',
+				'CMSMS\CacheDriver' => 'cms_cache_driver',
+				'CMSMS\CacheHandler' => 'cms_cache_handler',
+				'CMSMS\Config' => 'cms_config',
+				'CMSMS\ContentTree' => 'cms_content_tree',
+				'CMSMS\Cookies' => 'cms_cookies',
+				'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
+				'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
+				'CMSMS\FilecacheDriver' => 'cms_filecache_driver',
+				'CMSMS\HttpRequest' => 'cms_http_request',
+				'CMSMS\LangOperations' => 'CmsLangOperations',
+				'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
+				'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
+				'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',
+				'CMSMS\LayoutStylesheetQuery' => 'CmsLayoutStylesheetQuery',
+				'CMSMS\LayoutTemplate' => 'CmsLayoutTemplate',
+				'CMSMS\LayoutTemplateCategory' => 'CmsLayoutTemplateCategory',
+				'CMSMS\LayoutTemplateQuery' => 'CmsLayoutTemplateQuery',
+				'CMSMS\LayoutTemplateType' => 'CmsLayoutTemplateType',
+				'CMSMS\Lock' => 'CmsLock',
+				'CMSMS\LockOperations' => 'CmsLockOperations',
+				'CMSMS\Module' => 'CMSModule',	//mebbe not this one ?
+				'CMSMS\ModuleContentType' => 'CMSModuleContentType',
+				'CMSMS\Nls' => 'CmsNls',
+				'CMSMS\NlsOperations' => 'CmsNlsOperations',
+				'CMSMS\Permission' => 'CmsPermission',
+				'CMSMS\Route' => 'CmsRoute',
+				'CMSMS\RouteManager' => 'cms_route_manager',
+				'CMSMS\Siteprefs' => 'cms_siteprefs',
+				'CMSMS\Tree' => 'cms_tree',
+				'CMSMS\TreeOperations' => 'cms_tree_operations',
+				'CMSMS\Url' => 'cms_url',
+				'CMSMS\Userprefs' => 'cms_userprefs',
+				'CMSMS\Utils' => 'cms_utils',
+				];
+			}
+
 			$path = substr($classname, $o); //ignore any leading \
-/* FUTURE
-			$old = array_search($path, $class_replaces);
-			if ($old !== false) {
+			$old = $class_replaces[$path] ?? null;
+			if ($old !== null) {
 				$fp = $root.'class.'.$old.'.php';
 				require_once $fp;
-				class_alias($old, $class_replaces[$old], false);
-				unset($class_replaces[$old]); //no repeats
+				class_alias($classname, $old, false);
 				return;
 			}
-*/
 			$sroot = $root;
 		} else {
 			if (!class_exists($space, false)) { //CHECKME nested autoload ok here?
