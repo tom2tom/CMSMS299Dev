@@ -1,5 +1,5 @@
 <?php
-# Class that identifies various standard core capabilities
+# Enum-class that identifies various standard core capabilities
 # Copyright (C) 2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,16 +16,17 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //namespace CMSMS;
-//TODO why is this a class?
+
+use CMSMS\BasicEnum;
 
 /**
- * A class that identifies various standard core capabilities
+ * An enum that identifies various standard core capabilities
  *
  * @package CMS
  * @license GPL
  * @see CMSModule::HasCapability
  */
-final class CmsCoreCapabilities
+final class CmsCoreCapabilities extends BasicEnum
 {
 	/**
 	 * @ignore
