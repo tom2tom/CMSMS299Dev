@@ -97,10 +97,10 @@ class CmsException extends CmsExtraDataException
      * Constructor
      * This method accepts variable arguments.
      *
-     * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$prev)
-     * e.g.  throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
+     * e.g. throw new CmsExtraDataException($msg_str,$msg_code,$prev)
+     * e.g. throw new CmsExtraDataException($msg_str,$msg_code,$extra,$prev)
      *
-   * @see Exception
+     * @see Exception
      */
     public function __construct(...$args) {
         parent::__construct($args);
