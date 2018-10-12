@@ -25,7 +25,7 @@ class resultset extends CmsDbQueryBase
         if( $this->_rs ) return;
         $filter = $this->_args;
 
-        $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM '.storage::table_name();
+        $sql = 'SELECT * FROM '.storage::table_name();
         $where = $parms = [];
         $severity = $filter->severity;
         if( !is_null($severity) && $severity > -1 ) {
@@ -50,7 +50,8 @@ class resultset extends CmsDbQueryBase
         $sql .= ' ORDER BY timestamp DESC';
 
         $this->_rs = $this->_db->SelectLimit( $sql, $this->_limit, $this->_offset, $parms );
-        $this->_totalmatchingrows = $this->_db->GetOne( 'SELECT FOUND_ROWS()' );
+        if( !$this->_rs || $this->_rs->errno !== 0 ) $this->_totalmatchingrows = 0;
+        else $this->_totalmatchingrows = $this->_db->GetOne( 'SELECT FOUND_ROWS()' );
     }
 
     public function &GetObject()

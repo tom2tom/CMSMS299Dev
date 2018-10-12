@@ -40,7 +40,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	public function execute()
 	{
 		if( !is_null($this->_rs) ) return;
-		$query = 'SELECT SQL_CALC_FOUND_ROWS S.id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' S';
+		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' S';
 
 		// if we are using a design id argument
 		// we do join, and sort by item order in the design
@@ -137,7 +137,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		$query .= ' ORDER BY '.$sortby.' '.$sortorder;
 
 		$this->_rs = $db->SelectLimit($query,$this->_limit,$this->_offset);
-		if( $db->ErrorMsg() != '' ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
+		if( !$this->_rs || $this->_rs->errno !== 0 ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()');
 	}
 
@@ -162,7 +162,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	 * Return all of the matches for this query
 	 *
 	 * @throws CmsLogicExceptin
-	 * @return array Array of CmsLayoutStylesheet object
+	 * @return array CmsLayoutStylesheet objects
 	 */
 	public function GetMatches()
 	{
