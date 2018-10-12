@@ -862,7 +862,7 @@ aside .no-slide, .no-slide {
 .jqt-has-icon {
     padding-left: 40px;
     background-repeat: no-repeat;
-    background-position: 50% 50%;
+    background-position: 8px 50%;
 }
 .error.jqtoast {
     padding: 10px 40px;
@@ -875,7 +875,6 @@ aside .no-slide, .no-slide {
     color: #fff;
 }
 .jqt-icon-error {
-    padding-left: 50px;
     background-image: url(../images/icons/extra/error.png);
 }
 .warn.jqtoast {
