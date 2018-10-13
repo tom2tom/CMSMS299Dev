@@ -83,11 +83,6 @@ final class AdminTabs
     /**
      * @ignore
      */
-    private static $_ended_tab = 0;
-
-    /**
-     * @ignore
-     */
     private static $_tab_idx = 0;
 
     /**
@@ -182,9 +177,7 @@ final class AdminTabs
         $out = '';
         if (self::$_in_tab) {
             $out .= self::end_tab();
-        } elseif (!self::$_ended_tab) {
-			self::$_in_tab = 1;
-            $out .= self::end_tab();
+	        self::$_in_tab = 0;
         }
         $out .= '</div> <!-- EndTabContent -->';
         return $out;
@@ -218,11 +211,6 @@ final class AdminTabs
      */
     public static function end_tab()
     {
-        self::$_ended_tab = 1;
-        if (!self::$_in_tab) {
-            return '';
-        }
-        self::$_in_tab = 0;
         return '</div> <!-- EndTab -->';
     }
 } // class
