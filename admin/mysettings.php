@@ -96,9 +96,9 @@ if (isset($_POST['submit'])) {
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
   $themeObject->RecordNotice('success', lang('prefsupdated'));
   cmsms()->clear_cached_files();
-  
+
   if ($themenow != $admintheme) {
-    redirect(basename(__FILE__).$urlext);  
+    redirect(basename(__FILE__).$urlext);
   }
 } // end of prefs submit
 
@@ -183,7 +183,7 @@ if( $tmp) {
 $smarty->assign('editors', $editors);
 
 $theme = cms_utils::get_theme_object();
-$smarty->assign('infoicon', $theme->DisplayImage('icons/system/info.png', 'info','','','cms_helpicon'));
+$smarty->assign('helpicon', $theme->DisplayImage('icons/system/help.png', 'help','','','cms_helpicon'));
 
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
 $n = count($tmp);

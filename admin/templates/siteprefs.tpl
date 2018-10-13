@@ -557,12 +557,12 @@
        <input type="radio" name="editortype" id="edt{$i}"{if !empty($one->themekey)} data-themehelp-key="{$one->themekey}"{/if} value="{$one->value}"{if !empty($one->checked)} checked{/if}>
        <label for="edt{$i}">{$one->label}</label>
        {if !empty($one->mainkey)}
-       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$infoicon}</span>
+       <span class="cms_help" data-cmshelp-key="{$one->mainkey}" data-cmshelp-title="{$t} {$one->label}">{$helpicon}</span>
        {/if}<br />
       {/foreach}
       <p class="pagetext">
         <label for="editortheme">{lang('text_editor_deftheme')}:</label>
-        <span id="theme_help">{$infoicon}</span>
+        <span id="theme_help">{$helpicon}</span>
       </p>
       <p class="pageinput">
         <input id="editortheme" type="text" name="editortheme" size="30" value="{$editortheme}" maxlength="40" />
