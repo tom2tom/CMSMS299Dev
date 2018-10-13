@@ -10,7 +10,7 @@ displayed images may also be svg, png or fonticon, with svg preferred if present
 revised UI for UDT processing (those are now files, not database records) see next item
 editing of templates, stylesheets, UDT's, site-operation-files (with respective permission) by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via DesignManager
-extra core modules: CoreAdminLogin, CoreTextEditing
+extra core modules: CoreAdminLogin, CoreTextEditing, AdminLog
 renamed permission: 'Modify Simple Plugins'
 extra permissions: 'Modify Site Code','Remote Administration'
 extra users-group: CodeManager
@@ -19,9 +19,47 @@ BEHIND THE SCENES
 
 enhanced security - latest PHP-password-cache algorithm, better user-input sanitization, login refactored to a module which can be replaced with different security)
 replacement database-interface, more tailored to extract performance from MySQL
-to speed autoloading at least, all php classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice. Eventually, all our classes will be spaced.
+to speed autoloading at least, all php classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice.
+eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
+'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
+'CMSMS\AdminThemeBase' => 'CmsAdminThemeBase',
+'CMSMS\AdminThemeNotification' => 'CmsAdminThemeNotification',
+'CMSMS\App' => 'CmsApp',
+'CMSMS\CacheDriver' => 'cms_cache_driver',
+'CMSMS\CacheHandler' => 'cms_cache_handler',
+'CMSMS\Config' => 'cms_config',
+'CMSMS\ContentTree' => 'cms_content_tree',
+'CMSMS\Cookies' => 'cms_cookies',
+'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
+'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
+'CMSMS\FilecacheDriver' => 'cms_filecache_driver',
+'CMSMS\HttpRequest' => 'cms_http_request',
+'CMSMS\LangOperations' => 'CmsLangOperations',
+'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
+'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
+'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',
+'CMSMS\LayoutStylesheetQuery' => 'CmsLayoutStylesheetQuery',
+'CMSMS\LayoutTemplate' => 'CmsLayoutTemplate',
+'CMSMS\LayoutTemplateCategory' => 'CmsLayoutTemplateCategory',
+'CMSMS\LayoutTemplateQuery' => 'CmsLayoutTemplateQuery',
+'CMSMS\LayoutTemplateType' => 'CmsLayoutTemplateType',
+'CMSMS\Lock' => 'CmsLock',
+'CMSMS\LockOperations' => 'CmsLockOperations',
+'CMSMS\Module' => 'CMSModule', MAYBE, TO BE CONFIRMED
+'CMSMS\ModuleContentType' => 'CMSModuleContentType',
+'CMSMS\Nls' => 'CmsNls',
+'CMSMS\NlsOperations' => 'CmsNlsOperations',
+'CMSMS\Permission' => 'CmsPermission',
+'CMSMS\Route' => 'CmsRoute',
+'CMSMS\RouteManager' => 'cms_route_manager',
+'CMSMS\Siteprefs' => 'cms_siteprefs',
+'CMSMS\Tree' => 'cms_tree',
+'CMSMS\TreeOperations' => 'cms_tree_operations',
+'CMSMS\Url' => 'cms_url',
+'CMSMS\Userprefs' => 'cms_userprefs',
+'CMSMS\Utils' => 'cms_utils',
 remote administration API (calguy to describe, please!)
-optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions. So e.g. js can be removed from templates, and inserted at page-bottom.
+optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions, to supplement and/or replace template content and CMSModule::GetHeaderHTML(). So e.g. js can be removed from templates, and inserted at page-bottom.
 pre-configuration of site-installation parameters
 also support installation based on sources in a git repo
 
@@ -48,7 +86,7 @@ pr_root_url - protocol-relative root URI
 deprecated
 
 output_compression ignored
-ssl_image_uploads_url  see image_uploads_url
+ssl_image_uploads_url see image_uploads_url
 ssl_uploads_url see uploads_url
 ssl_url see root_url
 startup_mact_processing see content_processing_mode
@@ -78,7 +116,7 @@ get_jquery
 scripts_url
 theme_root
 
-NOTE: The 'main' function in each plugin takes 2 arguments, like
+NOTE: The 'main' function in each function-type plugin takes 2 arguments, like
    smarty_function_my_name($params, $smarty-object)
 That 2nd parameter (whatever named) will be a Smarty Internal Template-class object, and (for smarty 3.1.32+) MUST NOT BE A REFERENCE to such obect.
 
