@@ -343,7 +343,7 @@ class FormUtils
                 } else {
                     $modid = '';
                 }
-            } elseif ($prefix) {
+            } elseif (!empty($prefix)) {
                 $modid = $prefix;
             } else {
                 $modid = '';
@@ -978,6 +978,8 @@ class FormUtils
         } else {
             $goto = 'moduleinterface.php';
         }
+
+        if (empty($enctype)) unset($parms['enctype']);
 
         $out = '<form id="'.$id.'moduleform_'.$idsuffix.'" method="'.$method.'" action="'.$goto.'"';
         $out .= self::join_attrs($parms, [
