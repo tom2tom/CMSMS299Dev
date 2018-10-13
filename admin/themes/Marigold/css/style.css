@@ -1513,6 +1513,10 @@ a.pageoptions {
     border: none;
     vertical-align: top
 }
+svg.systemicon {
+    max-height: 1.2rem;
+    max-width: 1.2rem
+}
 
 #copy_paste_in_forum {
     width: 80%;
