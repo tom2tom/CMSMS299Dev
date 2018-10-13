@@ -741,7 +741,7 @@ aside .no-slide, .no-slide  {
 .jqt-has-icon {
 	padding-left: 40px;
 	background-repeat: no-repeat;
-	background-position: 50% 50%;
+	background-position: 8px 50%;
 }
 .error.jqtoast {
 	padding: 10px 40px;
@@ -755,7 +755,6 @@ aside .no-slide, .no-slide  {
 	color: #fff;
 }
 .jqt-icon-error {
-	padding-left: 50px;
 	background-image: url(../images/icons/extra/block.gif);
 }
 .warn.jqtoast {
@@ -1544,6 +1543,10 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
 .systemicon {
 	border: none;
 	vertical-align: top
+}
+svg.systemicon {
+	max-width: 1.5rem;
+	max-height: 1.5rem;
 }
 
 .pageheader img {
