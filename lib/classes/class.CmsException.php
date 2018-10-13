@@ -45,13 +45,6 @@ class CmsException extends \Exception
     */
     public function __construct(...$args)
     {
-        if( is_array($args) ) {
-            if( count($args) == 1 ) $args = $args[0];
-        }
-        else {
-            $args = [$args];
-        }
-
         $msg = $args[0] ?? '';
         $code = $args[1] ?? 0;
         $prev = $args[2] ?? null; //possible Throwable
