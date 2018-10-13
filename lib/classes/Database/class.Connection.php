@@ -815,7 +815,7 @@ abstract class Connection
     }
 
     /**
-     * Default error handler (except during installation)
+     * Default error handler (except during site-installation)
      *
      * @internal
      *
@@ -839,7 +839,7 @@ abstract class Connection
     /**
      * Create a new database connection object.
      *
-     * @deprecated - use new <namespace>\mysqli\Connection()
+     * @deprecated Does nothing - use new <namespace>\mysqli\Connection()
      *
      */
     public static function Initialize()
