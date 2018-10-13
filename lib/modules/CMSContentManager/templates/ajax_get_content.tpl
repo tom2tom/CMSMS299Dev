@@ -49,15 +49,15 @@
     {if $column == 'expand'}
       {if $row.expand == 'open'}{$t=$mod->Lang('prompt_page_collapse')}
        <a href="{cms_action_url action='defaultadmin' collapse=$row.id}" class="page_collapse" accesskey="C" title="{$t}">
-        {admin_icon icon='contract.gif' class="hier_contract" title=$t}
+        {admin_icon icon='contract.gif' class='systemicon hier_contract' title=$t}
        </a>
       {elseif $row.expand == 'closed'}{$t=$mod->Lang('prompt_page_expand')}
        <a href="{cms_action_url action='defaultadmin' expand=$row.id}" class="page_expand" accesskey="c" title="{$t}">
-        {admin_icon icon='expand.gif' class="hier_expand" title=$t}
+        {admin_icon icon='expand.gif' class='systemicon hier_expand' title=$t}
        </a>
       {/if}
     {elseif $column == 'icon1'}
-      {if isset($row.lock)} {admin_icon icon='warning.gif' title=$mod->Lang('title_locked')} {/if}
+      {if isset($row.lock)} {admin_icon icon='warning.gif' class='systemicon' title=$mod->Lang('title_locked')} {/if}
     {elseif $column == 'hier'}
       {$row.hier}
     {elseif $column == 'page'}
@@ -140,30 +140,30 @@
     {elseif $column == 'active'}
       {if $row.active == 'inactive'}
       <a href="{cms_action_url action='defaultadmin' setactive=$row.id}" class="page_setactive" accesskey="a">
-        {admin_icon icon='false.gif' title=$mod->Lang('prompt_page_setactive')}
+        {admin_icon icon='false.gif' class='systemicon' title=$mod->Lang('prompt_page_setactive')}
       </a>
       {elseif $row.active != 'default' && $row.active != ''}
       <a href="{cms_action_url action='defaultadmin' setinactive=$row.id}" class="page_setinactive" accesskey="a">
-        {admin_icon icon='true.gif' title=$mod->Lang('prompt_page_setinactive')}
+        {admin_icon icon='true.gif' class='systemicon' title=$mod->Lang('prompt_page_setinactive')}
       </a>
       {/if}
     {elseif $column == 'default'}
        {if $row.default == 'yes'}
-        {admin_icon icon='true.gif' class='page_default' title=$mod->Lang('prompt_page_default')}
+        {admin_icon icon='true.gif' class='systemicon page_default' title=$mod->Lang('prompt_page_default')}
        {else if $row.default == 'no' && $row.can_edit}
         <a href="{cms_action_url action='defaultadmin' setdefault=$row.id}" class="page_setdefault" accesskey="d">
-         {admin_icon icon='false.gif' class='page_setdefault' title=$mod->Lang('prompt_page_setdefault')}
+         {admin_icon icon='false.gif' class='systemicon page_setdefault' title=$mod->Lang('prompt_page_setdefault')}
         </a>
       {/if}
     {elseif $column == 'move'}
       {if isset($row.move)}
         {if $row.move == 'up'}
         <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">
-          {admin_icon icon='arrow-u.gif' title=$mod->Lang('prompt_page_sortup')}
+          {admin_icon icon='arrow-u.gif' class='systemicon' title=$mod->Lang('prompt_page_sortup')}
         </a>
         {elseif $row.move == 'down'}
          <a href="{cms_action_url action='defaultadmin' movedown=$row.id}" class="page_sortdown" accesskey="m">
-          {admin_icon icon='arrow-d.gif' title=$mod->Lang('prompt_page_sortdown')}
+          {admin_icon icon='arrow-d.gif' class='systemicon' title=$mod->Lang('prompt_page_sortdown')}
          </a>
         {elseif $row.move == 'both'}
         <a href="{cms_action_url action='defaultadmin' moveup=$row.id}" class="page_sortup" accesskey="m">{admin_icon icon='arrow-u.gif' title=$mod->Lang('prompt_page_sortup')}</a>
@@ -173,35 +173,35 @@
     {elseif $column == 'view'}
       {if $row.view != ''}
       <a class="page_view" target="_blank" href="{$row.view}" accesskey="v">
-       {admin_icon icon='view.gif' title=$mod->Lang('prompt_page_view')}
+       {admin_icon icon='view.gif' class='systemicon' title=$mod->Lang('prompt_page_view')}
       </a>
       {/if}
     {elseif $column == 'copy'}
       {if $row.copy != ''}
       <a href="{cms_action_url action='admin_copycontent' page=$row.id}" accesskey="o">
-       {admin_icon icon='copy.gif' class='page_copy' title=$mod->Lang('prompt_page_copy')}
+       {admin_icon icon='copy.gif' class='systemicon page_copy' title=$mod->Lang('prompt_page_copy')}
       </a>
       {/if}
     {elseif $column == 'edit'}
       {if $row.can_edit}
       <a href="{cms_action_url action=admin_editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{$mod->Lang('addcontent')}" data-cms-content="{$row.id}">
-        {admin_icon icon='edit.gif' class='page_edit' title=$mod->Lang('prompt_page_edit')}
+        {admin_icon icon='edit.gif' class='systemicon page_edit' title=$mod->Lang('prompt_page_edit')}
       </a>
       {else}
         {if isset($row.lock) && $row.can_steal}
         <a href="{cms_action_url action=admin_editcontent content_id=$row.id}" accesskey="e" class="page_edit" title="{$mod->Lang('addcontent')}" data-cms-content="{$row.id}" class="steal_lock">
-          {admin_icon icon='permissions.gif' class='page_edit steal_lock' title=$mod->Lang('prompt_steal_lock_edit')}
+          {admin_icon icon='permissions.gif' class='systemicon page_edit steal_lock' title=$mod->Lang('prompt_steal_lock_edit')}
         </a>
         {/if}
       {/if}
     {elseif $column == 'addchild'}
       <a href="{cms_action_url action=admin_editcontent parent_id=$row.id}" accesskey="a" class="page_edit" title="{$mod->Lang('addchildhere')}">
-       {admin_icon icon='newobject.gif' class="page_addchild" title=$mod->Lang('prompt_page_addchild')}
+       {admin_icon icon='newobject.gif' class='systemicon page_addchild' title=$mod->Lang('prompt_page_addchild')}
       </a>
     {elseif $column == 'delete'}
       {if $row.can_delete && $row.delete != ''}
       <a href="{cms_action_url action='defaultadmin' delete=$row.id}" class="page_delete" accesskey="r">
-        {admin_icon icon='delete.gif' class='page_delete' title=$mod->Lang('prompt_page_delete')}
+        {admin_icon icon='delete.gif' class='systemicon page_delete' title=$mod->Lang('prompt_page_delete')}
       </a>
       {/if}
     {elseif $column == 'multiselect'}
@@ -250,7 +250,7 @@
 {if isset($content_list)}
   <div class="pageoptions rowbox{if $can_add_content} expand">
   <div class="boxchild">
-    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' alt=$t}&nbsp;{$t}</a>
+    <a href="{cms_action_url action=admin_editcontent}" accesskey="n" title="{$mod->Lang('prompt_addcontent')}" class="pageoptions">{$t=$mod->Lang('addcontent')}{admin_icon icon='newobject.gif' class='systemicon' alt=$t}&nbsp;{$t}</a>
   </div>
   {else}" style="justify-content:flex-end;">{/if}
   {if $multiselect && isset($bulk_options)}
