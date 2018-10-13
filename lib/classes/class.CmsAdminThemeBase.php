@@ -663,7 +663,7 @@ abstract class CmsAdminThemeBase
 
         ['name'=>'content','parent'=>'root',
         'url'=>'index.php'.$urlext.'&section=content',
-        'title'=>$this->_FixSpaces(lang('content')),
+        'title'=>$this->_FixSpaces(lang('pages')),
         'description'=>lang('contentdescription'),
         'priority'=>2,
         'show_in_menu'=>$this->HasPerm('contentPerms')],
