@@ -256,7 +256,7 @@ AS tmp1';
 
 		// execute the query
 		$this->_rs = $db->SelectLimit($query, $this->_limit, $this->_offset);
-		if (!$this->_rs || !$this->_rs->errno !== 0) {
+		if (!$this->_rs || $this->_rs->errno !== 0) {
 			throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 		}
 		$this->_totalmatchingrows = $db->GetOne('SELECT FOUND_ROWS()'); //$this->_rs->RecordCount(); N/A until all processed
