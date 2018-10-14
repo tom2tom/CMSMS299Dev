@@ -65,14 +65,14 @@ also support installation based on sources in a git repo
 
 INFRASTRUCTURE
 
-Coded for PHP 7+
-jQuery 2.2.4 (3.x breakages to be evaluated before further upgrade)
+Coded for PHP 7+, compatible with 7.0.x to 7.3.0 (at least).
+jQuery 2.2.4 (effective upgrades from 1.x to the current 3.x need to be in two stages, with an intermediate 2.x)
 jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
 Smarty 3.1.33
 phpmailer 6.0.5
-TinyMCE(MicroTiny module) 4.8.2
+TinyMCE (MicroTiny module) 4.8.3
 
 CONFIG PARAMETERS
 
