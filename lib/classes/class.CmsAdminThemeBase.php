@@ -517,11 +517,18 @@ abstract class CmsAdminThemeBase
         // UDT/simple-plugin files (2.3+)
         $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify Simple Plugins');
 
+        // myprefs
+        $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
+        $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
+        $this->_perms['bookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
+        $this->_perms['myprefPerms'] = $this->_perms['myaccount'] |
+            $this->_perms['mysettings'] | $this->_perms['bookmarks'];
+
         // user/group
         $this->_perms['userPerms'] = check_permission($this->userid, 'Manage Users');
         $this->_perms['groupPerms'] = check_permission($this->userid, 'Manage Groups');
         $this->_perms['usersGroupsPerms'] = $this->_perms['userPerms'] |
-            $this->_perms['groupPerms'];
+            $this->_perms['groupPerms'] | $this->_perms['myprefPerms'];
 
         // admin
         $this->_perms['sitePrefPerms'] = check_permission($this->userid, 'Modify Site Preferences');
@@ -540,13 +547,6 @@ abstract class CmsAdminThemeBase
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];
-
-        // myprefs
-        $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
-        $this->_perms['mysettings'] = check_permission($this->userid,'Manage My Settings');
-        $this->_perms['bookmarks'] = check_permission($this->userid,'Manage My Bookmarks');
-        $this->_perms['myprefPerms'] = $this->_perms['myaccount'] |
-            $this->_perms['mysettings'] | $this->_perms['bookmarks'];
     }
 
     /**
