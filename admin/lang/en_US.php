@@ -1380,7 +1380,6 @@ $lang['perm_Manage_All_Content'] = 'Manage All Content';
 $lang['permdesc_Manage_All_Content'] = 'A user with this permission can perform all tasks on any and all content pages';
 //$lang['perm_Manage_Designs'] = 'Manage Designs';
 $lang['perm_Manage_Groups'] = 'Manage Groups';
-$lang['perm_Manage_Jobs'] = 'Manage Asynchronous Jobs'; // should be in CmsJobManager
 $lang['perm_Manage_My_Account'] = 'Manage My Account';
 $lang['perm_Manage_My_Bookmarks'] = 'Manage My Bookmarks';
 $lang['perm_Manage_My_Settings'] = 'Manage My Settings';

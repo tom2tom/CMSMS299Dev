@@ -33,7 +33,7 @@ $this->SetPreference('joburl',''); //custom url for job processing
 $this->SetPreference('last_check',0); //timestamp for internal use only
 $this->SetPreference('last_processing',0); //ditto
 
-$this->CreatePermission(CmsJobManager::MANAGE_JOBS, CmsJobManager::MANAGE_JOBS);
+$this->CreatePermission(CmsJobManager::MANAGE_JOBS, $this->Lang('perm_Manage_Jobs'));
 
 $this->refresh_jobs(); //init jobs-data
 

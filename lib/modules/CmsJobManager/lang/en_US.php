@@ -17,6 +17,7 @@ $lang['jobs'] = 'Jobs';
 $lang['moddescription'] = 'A module for managing asynchronous processing jobs.';
 $lang['module'] = 'Module';
 $lang['name'] = 'Name';
+$lang['perm_Manage_Jobs'] = 'Manage Asynchronous Jobs';
 $lang['pollgap'] = 'Polled every %s';
 $lang['processing_freq'] = 'Maximum processing frequency (seconds)';
 $lang['recur_120m'] = 'Every 2 hours';
@@ -52,5 +53,3 @@ $lang['help'] = <<<EOT
 <h3>What about problem jobs?</h3>
 <p>From time to time some applications might create jobs that fail, exiting with some sort of error.  CmsJobManager will remove the job after the job has failed a number of times.  At which time the originating code can re-create the job.  If you encounter a problematic job that continues to fail this is a bug that should be diagnosed, and reported in detail to the appropriate developers.</p>
 EOT;
-
-?>
