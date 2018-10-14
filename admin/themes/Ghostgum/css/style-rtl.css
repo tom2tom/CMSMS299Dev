@@ -1823,6 +1823,10 @@ svg.systemicon {
     max-height: 1.2rem;
     max-width: 1.2rem
 }
+img.systemicon {
+    height: 1.2rem;
+    width: 1.2rem
+}
 
 .pageheader img {
     max-height: 2em;
