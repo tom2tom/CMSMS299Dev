@@ -32,10 +32,10 @@
      <tr>
        <th title="{lang_by_realm('tags','tag_name')}">{lang('name')}</th>
        <th title="{lang_by_realm('tags','tag_type')}">{lang('type')}</th>
-{*       <th title="{lang_by_realm('tags','tag_cachable')}">{lang('cachable')}</th> *}
-       <th title="{lang_by_realm('tags','tag_adminplugin')}">{lang('adminplugin')}</th>
-       <th title="{lang_by_realm('tags','tag_help')}">{lang('help')}</th>
-       <th title="{lang_by_realm('tags','tag_about')}">{lang('about')}</th>
+{*       <th title="{lang_by_realm('tags','tag_cachable')}" style="text-align:center">{lang('cachable')}</th> *}
+       <th title="{lang_by_realm('tags','tag_adminplugin')}" style="text-align:center">{lang('adminplugin')}</th>
+       <th title="{lang_by_realm('tags','tag_help')}" style="text-align:center">{lang('help')}</th>
+       <th title="{lang_by_realm('tags','tag_about')}" style="text-align:center">{lang('about')}</th>
      </tr>
     </thead>
     <tbody>
