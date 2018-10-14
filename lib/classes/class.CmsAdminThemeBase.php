@@ -470,7 +470,7 @@ abstract class CmsAdminThemeBase
                             }
                         }
                     }
-				}
+                }
                 $this->_modules[] = $obj;
             }
         } else {
@@ -709,14 +709,14 @@ abstract class CmsAdminThemeBase
         'description'=>lang('usersgroupsdescription'),
         'priority'=>8,
         'show_in_menu'=>$this->HasPerm('usersGroupsPerms')],
-
+/* moved to submenu
         ['name'=>'myprefs','parent'=>'root',
         'url'=>'index.php'.$urlext.'&section=myprefs',
         'title'=>$this->_FixSpaces(lang('myprefs')),
         'description'=>lang('myprefsdescription'),
         'priority'=>9,
         'show_in_menu'=>$this->HasPerm('myprefPerms')],
-
+*/
         ['name'=>'logout','parent'=>'root',
         'url'=>'logout.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('logout')),
@@ -815,6 +815,13 @@ abstract class CmsAdminThemeBase
         'priority'=>3,
         'final'=>true,
         'show_in_menu'=>$this->HasPerm('groupPerms')];
+
+        $items[] = ['name'=>'myprefs','parent'=>'usersgroups',
+        'url'=>'index.php'.$urlext.'&section=myprefs',
+        'title'=>$this->_FixSpaces(lang('myprefs')),
+        'description'=>lang('myprefsdescription'),
+        'priority'=>4,
+        'show_in_menu'=>$this->HasPerm('myprefPerms')];
 
         // ~~~~~~~~~~ extensions menu items ~~~~~~~~~~
 
