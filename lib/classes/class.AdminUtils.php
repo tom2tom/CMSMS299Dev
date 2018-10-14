@@ -270,7 +270,7 @@ final class AdminUtils
 		$theme = cms_utils::get_theme_object();
 		if( !is_object($theme) ) return;
 
-		$icon = self::get_icon('help', ['class'=>'cms_helpicon']);
+		$icon = self::get_icon('info', ['class'=>'cms_helpicon']);
 		if( !$icon ) return;
 
 		$params = [];

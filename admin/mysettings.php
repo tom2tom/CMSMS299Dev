@@ -183,7 +183,7 @@ if( $tmp) {
 $smarty->assign('editors', $editors);
 
 $theme = cms_utils::get_theme_object();
-$smarty->assign('helpicon', $theme->DisplayImage('icons/system/help.png', 'help','','','cms_helpicon'));
+$smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
 
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
 $n = count($tmp);

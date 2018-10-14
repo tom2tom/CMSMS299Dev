@@ -649,7 +649,7 @@ if( $tmp) {
 $smarty->assign('editors', $editors);
 
 $theme = cms_utils::get_theme_object();
-$smarty->assign('helpicon', $theme->DisplayImage('icons/system/help.png', 'help','','','cms_helpicon'))
+$smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'))
   ->assign('editortheme', $editortheme)
 
   ->assign('adminlog_lifetime', $adminlog_lifetime)

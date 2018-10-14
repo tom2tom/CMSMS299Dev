@@ -218,8 +218,8 @@ if ($action == 'showpluginhelp') {
       ->assign('iconno',$themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notadmin'),'','','systemicon'))
       ->assign('iconcyes',$themeObject->DisplayImage('icons/system/true.png',lang_by_realm('tags','title_cachable'),'','','systemicon'))
       ->assign('iconcno',$themeObject->DisplayImage('icons/system/false.png',lang_by_realm('tags','title_notcachable'),'','','systemicon'))
-      ->assign('iconhelp',$themeObject->DisplayImage('icons/system/help.png',lang_by_realm('tags','viewhelp'),'','','systemicon'))
-      ->assign('iconabout',$themeObject->DisplayImage('icons/system/info.png',lang_by_realm('tags','viewabout'),'','','systemicon'))
+      ->assign('iconhelp',$themeObject->DisplayImage('icons/system/info.png',lang_by_realm('tags','viewhelp'),'','','systemicon'))
+      ->assign('iconabout',$themeObject->DisplayImage('icons/extra/info.png',lang_by_realm('tags','viewabout'),'','','systemicon'))
       ->assign('pdev',$pdev);
 }
 
