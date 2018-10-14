@@ -27,7 +27,7 @@
  * @package CMS
  * @since 1.10
  */
-class CmsException extends \Exception
+class CmsException extends Exception
 {
     /**
     * @ignore
@@ -47,14 +47,19 @@ class CmsException extends \Exception
     {
         $msg = $args[0] ?? '';
         $code = $args[1] ?? 0;
-        $prev = $args[2] ?? null; //possible Throwable
-        $tmp = $args[3] ?? null;  //ditto
-        if( is_object($prev) ) {
+        $prev = $args[2] ?? null; //Throwable | null, or maybe something else for $this->_extra
+        $tmp = $args[3] ?? null;  //ditto, if present
+        if( $prev instanceof Throwable ) {
             $this->_extra = $tmp;
         }
-        elseif( is_object($tmp) ) {
+        else {
             $this->_extra = $prev;
-            $prev = $tmp;
+            if( $tmp instanceof Throwable ) {
+                $prev = $tmp;
+            }
+            else {
+                $prev = null;
+            }
         }
 
         parent::__construct($msg,(int)$code,$prev);
