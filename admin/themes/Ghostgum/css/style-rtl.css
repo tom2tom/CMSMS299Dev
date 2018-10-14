@@ -1243,8 +1243,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 }
 
 #shortcuts > .icon svg {
-    height: 1.3em;
-    width: 1.3em;
+    max-height: 1.3em;
+    max-width: 1.3em;
 }
 
 #shortcuts a {
@@ -1503,8 +1503,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     background-color: #3c9b0a
 }
 #ggp_navwrap #ggp_navhead svg.navopen {
-    width: 1.8em;
-    height: 1.8em;
+    max-width: 1.8em;
+    max-height: 1.8em;
 }
 #ggp_navwrap.sidebar-off #ggp_navhead svg.navopen {
     width: 0;
@@ -1514,9 +1514,11 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     width: 0;
     height: 0;
 }
-#ggp_navwrap.sidebar-off #ggp_navhead a svg.navshut {
-    width: 1.8em;
-    height: 1.8em
+#ggp_navwrap.sidebar-off #ggp_navhead svg.navshut {
+    width: initial;
+    height: initial;
+    max-width: 1.8em;
+    max-height: 1.8em
 }
 /*
 #ggp_navwrap.sidebar-off svg.navshut {
@@ -1712,8 +1714,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     padding-left: 5px;
 }
 .dashboard-box h3.dashboard-icon svg {
-    width: 2.1em;
-    height: 2.1em;
+    max-width: 2.1em;
+    max-height: 2.1em;
     margin-bottom: -0.5em;
 }
 .dashboard-box span.description {

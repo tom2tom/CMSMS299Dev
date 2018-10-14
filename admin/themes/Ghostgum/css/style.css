@@ -1514,7 +1514,9 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     width: 0;
     height: 0;
 }
-#ggp_navwrap.sidebar-off #ggp_navhead a svg.navshut {
+#ggp_navwrap.sidebar-off #ggp_navhead svg.navshut {
+    width: initial;
+    height: initial;
     max-width: 1.8em;
     max-height: 1.8em
 }
@@ -1626,8 +1628,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
 }
 
 #ggp_menu li a svg, #ggp_menu li a img {
-    max-width: 1.8em;
-    max-height: 1.8em;
+    width: 1.8em;
+    height: 1.8em;
 }
 
 /* second level & collapsed sidebar */
@@ -1663,8 +1665,8 @@ button.ui-button.ui-dialog-titlebar-close:hover .ui-button-icon {
     word-break: normal
 }
 #ggp_menu li li a svg, #ggp_menu li li a img {
-    max-width: 1.3em;
-    max-height: 1.3em;
+    width: 1.3em;
+    height: 1.3em;
     vertical-align: top;
 }
 #ggp_menu li li.current span {
