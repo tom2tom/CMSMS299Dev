@@ -93,13 +93,9 @@ function cms_autoloader(string $classname)
 			}
 			$sroot = $root;
 		} else {
-			if (!class_exists($space, false)) { //CHECKME nested autoload ok here?
-				return;
-			}
-            //do not require module to be loaded & current (we might be installing, upgrading)
-			$path = cms_module_path($space);
-			if ($path) {
-				$sroot = dirname($path).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
+			$mpath = cms_module_path($space);
+			if ($mpath) {
+				$sroot = dirname($mpath).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
 			} else {
 				return;
 			}
@@ -113,6 +109,11 @@ function cms_autoloader(string $classname)
 		foreach (['class.', 'trait.', 'interface.', ''] as $test) {
 			$fp = $sroot.$test.$classname.'.php';
 			if (is_file($fp)) {
+				if (!($space == 'CMSMS' || class_exists($space, false))) {
+					//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
+					$gCms = CmsApp::get_instance();
+					require_once $mpath;
+				}
 				require_once $fp;
 				return;
 			}
@@ -191,10 +192,9 @@ function cms_autoloader(string $classname)
 	}
 
 	// module classes
-	$modops = ModuleOperations::get_instance();
-	$fp = $modops->get_module_filename($classname);
-	if ($fp && is_file($fp)) {
-		//deprecated - some modules require existence of this, or assume, and actually use it
+	$fp = cms_module_path($classname);
+	if ($fp) {
+		//deprecated since 2.3 - some modules require existence of this, or assume, and actually use it
 		$gCms = CmsApp::get_instance();
 		require_once $fp;
 		return;
