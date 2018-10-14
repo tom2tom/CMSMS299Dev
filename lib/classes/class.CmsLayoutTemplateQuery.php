@@ -322,7 +322,7 @@ AS tmp1';
 	 *
 	 * This method calls the execute method
 	 *
-	 * @return array Array of CmsLayoutTemplate objects
+	 * @return array of CmsLayoutTemplate objects
 	 */
 	public function GetMatches()
 	{

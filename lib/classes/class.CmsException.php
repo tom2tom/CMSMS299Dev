@@ -47,7 +47,7 @@ class CmsException extends Exception
     {
         $msg = $args[0] ?? '';
         $code = $args[1] ?? 0;
-        $prev = $args[2] ?? null; //Throwable | null, or maybe something else for $this->_extra
+        $prev = $args[2] ?? null; //Throwable | null, or something else for $this->_extra
         $tmp = $args[3] ?? null;  //ditto, if present
         if( $prev instanceof Throwable ) {
             $this->_extra = $tmp;
@@ -75,10 +75,10 @@ class CmsException extends Exception
         }
     }
 
-  /**
-   * Return extra data associated with the exception
-   * @return mixed
-   */
+    /**
+     * Return extra data associated with the exception
+     * @return mixed
+     */
     public function GetExtraData()
     {
         return $this->_extra;
