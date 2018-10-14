@@ -184,7 +184,7 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  * @see cms_siteprefs::remove
  *
  * @param string $prefname Preference name to remove
- * @param boolean $uselike  Wether or not to remove all preferences that are LIKE the supplied name
+ * @param boolean $uselike  Whether or not to remove all preferences that are LIKE the supplied name
  */
 function remove_site_preference($prefname, $uselike = false)
 {

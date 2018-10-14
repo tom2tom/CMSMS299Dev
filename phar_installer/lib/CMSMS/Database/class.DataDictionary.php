@@ -337,7 +337,7 @@ abstract class DataDictionary
      * @internal
      *
      * @param string $name          The input name
-     * @param bool   $allowBrackets wether brackets should be quoted or not
+     * @param bool   $allowBrackets whether brackets should be quoted or not
      *
      * @return string
      */
