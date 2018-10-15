@@ -1262,11 +1262,11 @@ a.main::before, h3.main::before {
 }
 
 a.content::before, h3.content::before {
-    content: '\f022'
+    content: '\f0db'
 }
 
 a.layout::before, h3.layout::before {
-    content: '\f0ce'
+    content: '\f009'
 }
 
 a.files::before, h3.files::before {

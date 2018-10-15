@@ -1177,7 +1177,7 @@ nav h3.CMSContentManager1 a::before, #ac_pagemenu li a.CMSContentManager1::befor
 nav h3.CMSContentManager2 a::before, #ac_pagemenu li a.CMSContentManager2::before { content: '\f61f' }
 nav h3.CmsJobManager1 a::before, #ac_pagemenu li a.CmsJobManager1::before { content: '\f013' }
 nav h3.CoreTextEditing1 a::before, #ac_pagemenu li a.CoreTextEditing1::before { content: '\f121' }
-nav h3.content a::before, #ac_pagemenu li a.content::before { content: '\f0ac' }
+nav h3.content a::before, #ac_pagemenu li a.content::before { content: '\f0db' }
 nav h3.DesignManager1 a::before, #ac_pagemenu li a.DesignManager1::before { content: '\f1fc' }
 nav h3.DesignManager2 a::before, #ac_pagemenu li a.DesignManager2::before { content: '\f61f' }
 nav h3.ecommerce a::before, #ac_pagemenu li a.ecommerce::before { content: '\f07a' }
@@ -1189,7 +1189,7 @@ nav h3.FilePicker1 a::before, #ac_pagemenu li a.FilePicker1::before { content: '
 nav h3.files a::before, #ac_pagemenu li a.files::before { content: '\f0c5' }
 nav h3.groupmembers a::before, #ac_pagemenu li a.groupmembers::before { content: '\f500' }
 nav h3.groupperms a::before, #ac_pagemenu li a.groupperms::before { content: '\f09c' }
-nav h3.layout a::before, #ac_pagemenu li a.layout::before { content: '\f0db' }
+nav h3.layout a::before, #ac_pagemenu li a.layout::before { content: '\f00a' }
 nav h3.listgroups a::before, #ac_pagemenu li a.listgroups::before { content: '\f509' }
 nav h3.listusers a::before, #ac_pagemenu li a.listusers::before { content: '\f4fe' }
 nav h3.logout a::before, #ac_pagemenu li a.logout::before { content: '\f2f5' }
