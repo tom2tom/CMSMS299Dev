@@ -184,7 +184,9 @@ final class ModuleOperations
 	}
 
 	/**
-	 * Allow setting the classname for a module... useful when the module class file itself is within a namespace.
+	 * Set the classname of a module.
+	 * Useful when the module class is in a namespace.
+     * This caches to alias permanently, as distinct from class_alias()
 	 *
 	 * @param string $module The module name
 	 * @param string $classname The class name.
@@ -240,43 +242,50 @@ final class ModuleOperations
 	 */
 	private function _install_module(CmsModule &$module_obj)
 	{
-		debug_buffer('install_module '.$module_obj->GetName());
+		$module_name = $module_obj->GetName();
+		debug_buffer('install_module '.$module_name);
 
-		$gCms = CmsApp::get_instance(); // preserve the global.
+		$gCms = CmsApp::get_instance(); // vars in scope for Install()
 		$db = $gCms->GetDb();
 
 		$result = $module_obj->Install();
 		if( !isset($result) || $result === FALSE) {
 			// install returned nothing, or FALSE, a successful installation
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'modules WHERE module_name = ?';
-			$dbr = $db->Execute($query,[$module_obj->GetName()]);
+//			$dbr = if result-check done
+			$db->Execute($query,[$module_name]);
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module = ?';
-			$dbr = $db->Execute($query,[$module_obj->GetName()]);
+//			$dbr =
+			$db->Execute($query,[$module_name]);
 
 			$lazyload_fe    = (method_exists($module_obj,'LazyLoadFrontend') && $module_obj->LazyLoadFrontend())?1:0;
 			$lazyload_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin())?1:0;
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'modules
-					  (module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
-					  VALUES (?,?,?,?,?,?,?)';
-			$dbr = $db->Execute($query,[$module_obj->GetName(),$module_obj->GetVersion(),'installed',
-											 ($module_obj->IsAdminOnly())?1:0,
-											 1,$lazyload_fe,$lazyload_admin]);
+(module_name,version,status,admin_only,active,allow_fe_lazyload,allow_admin_lazyload)
+VALUES (?,?,?,?,?,?,?)';
+//			$dbr =
+			$db->Execute($query,[
+			$module_name,$module_obj->GetVersion(),'installed',
+			($module_obj->IsAdminOnly())?1:0,1,$lazyload_fe,$lazyload_admin
+			]);
 
 			$deps = $module_obj->GetDependencies();
 			if( $deps ) {
-				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps (parent_module,child_module,minimum_version,create_date,modified_date)
-						  VALUES (?,?,?,NOW(),NOW())';
+				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
+(parent_module,child_module,minimum_version,create_date,modified_date)
+VALUES (?,?,?,NOW(),NULL)';
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
-					$dbr = $db->Execute($query,[$depname,$module_obj->GetName(),$depversion]);
+//					$dbr =
+					$db->Execute($query,[$depname,$module_name,$depversion]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
 			$this->_moduleinfo = [];
 			$gCms->clear_cached_files();
 
-			cms_notice('Installed module '.$module_obj->GetName().' version '.$module_obj->GetVersion());
-			Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_obj->GetName(), 'version' => $module_obj->GetVersion() ] );
+			cms_notice('Installed module '.$module_name.' version '.$module_obj->GetVersion());
+			Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_name, 'version' => $module_obj->GetVersion() ] );
 			return [TRUE,$module_obj->InstallPostMessage()];
 		}
 
@@ -555,32 +564,36 @@ final class ModuleOperations
 			$lazyload_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin())?1:0;
 			$admin_only = ($module_obj->IsAdminOnly())?1:0;
 
-			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, active = 1, allow_fe_lazyload = ?, allow_admin_lazyload = ?, admin_only = ?
-WHERE module_name = ?';
-			$dbr = $db->Execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$module_obj->GetName()]);
+			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, active = 1, allow_fe_lazyload = ?, allow_admin_lazyload = ?, admin_only = ? WHERE module_name = ?';
+//			$dbr =
+			$db->Execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$module_name]);
 
 			// upgrade dependencies
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'module_deps WHERE child_module = ?';
-			$dbr = $db->Execute($query,[$module_obj->GetName()]);
+//			$dbr =
+			$db->Execute($query,[$module_name]);
 
 			$deps = $module_obj->GetDependencies();
 			if( $deps ) {
-				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps (parent_module,child_module,minimum_version,create_date,modified_date)
-						  VALUES (?,?,?,NOW(),NOW())';
+				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
+(parent_module,child_module,minimum_version,create_date,modified_date)
+VALUES (?,?,?,?,?)';
+                $now = $db->dbTimeStamp(time());
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
-					$dbr = $db->Execute($query,[$depname,$module_obj->GetName(),$depversion]);
+//					$dbr =
+					$db->Execute($query,[$depname,$module_name,$depversion,$now,$now]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
 			$this->_moduleinfo = [];
 			$gCms->clear_cached_files();
-			cms_notice('Upgraded module '.$module_obj->GetName().' to version '.$module_obj->GetVersion());
-			Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_obj->GetName(), 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
+			cms_notice('Upgraded module '.$module_name.' to version '.$module_obj->GetVersion());
+			Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_name, 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
 			return [TRUE];
 		}
 
-		cms_error('Upgrade failed for module '.$module_obj->GetName());
+		cms_error('Upgrade failed for module '.$module_name);
 		return [FALSE,$result];
 	}
 
@@ -716,7 +729,8 @@ WHERE module_name = ?';
 			Events::SendEvent( 'Core', 'BeforeModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
-			$dbr = $db->Execute($query,[$info[$module_name]['active'],$module_name]);
+//			$dbr =
+			$db->Execute($query,[$info[$module_name]['active'],$module_name]);
 			$this->_moduleinfo = [];
 			cmsms()->clear_cached_files();
 			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
@@ -905,10 +919,10 @@ WHERE module_name = ?';
 		return in_array($module_name,$this->_coremodules);
 	}
 
-	public function RegisterAdminAuthenticationModule( \CMSModule $mod )
+	public function RegisterAdminAuthenticationModule(CMSModule $mod)
 	{
 		if( $this->_auth_module ) throw new LogicException( 'Sorry, only one non standard auth module is supported' );
-		if( ! $mod instanceof \CMSMS\IAuthModuleInterface ) throw new LogicException('Sorry. '.$mod->GetName().' is not a valid authentication module');
+		if( ! $mod instanceof CMSMS\IAuthModuleInterface ) throw new LogicException('Sorry. '.$mod->GetName().' is not a valid authentication module');
 		$this->_auth_module = $mod;
 	}
 
