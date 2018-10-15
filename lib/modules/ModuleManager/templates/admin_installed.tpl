@@ -11,7 +11,7 @@
       <th title="{$mod->Lang('title_moduleversion')}">{$mod->Lang('vertext')}</th>
       <th title="{$mod->Lang('title_modulestatus')}">{$mod->Lang('status')}</th>
       <th title="{$mod->Lang('title_moduleaction')}">{$mod->Lang('action')}</th>
-      <th class="pageicon" title="{$mod->Lang('title_moduleactive')}">{$mod->Lang('active')}</th>
+      <th class="pageicon" title="{$mod->Lang('title_moduleactive')}" style="text-align:center;">{$mod->Lang('active')}</th>
       <th class="pageicon" title="{$mod->Lang('title_modulehelp')}"></th>
       <th class="pageicon" title="{$mod->Lang('title_moduleabout')}"></th>
       {if $allow_export}<th class="pageicon" title="{$mod->Lang('title_moduleexport')}">{$mod->Lang('export')}</th>{/if}
@@ -107,10 +107,10 @@
           {/if}{/if}
         </td>
         <td>
-          <a class="modop mod_help" href="{cms_action_url action='local_help' mod=$item.name}" title="{$mod->Lang('title_modulehelp')}">{$mod->Lang('helptxt')}</a>
+          <a class="modop mod_help" href="{cms_action_url action='local_help' mod=$item.name}">{admin_icon icon='info.gif' alt='help' title="{$mod->Lang('title_modulehelp')}"}</a>
         </td>
         <td>
-          <a class="modop mod_about" href="{cms_action_url action='local_about' mod=$item.name}" title="{$mod->Lang('title_moduleabout')}">{$mod->Lang('abouttxt')}</a>
+          <a class="modop mod_about" href="{cms_action_url action='local_about' mod=$item.name}">{admin_icon icon='icons/extra/info.gif' alt='about' title="{$mod->Lang('title_moduleabout')}"}</a>
         </td>
         {if $allow_export}<td style="text-align:center;">
           {if $item.active && $item.root_writable && $item.e_status != 'need_upgrade' && !$item.missing_deps}
