@@ -116,12 +116,7 @@ class operations
             throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
         }
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
-
-        $val = (string)$xml->core;
-        // make sure that we can actually write to the module directory
-        $dir = ( $val ) ? cms_join_path(CMS_ROOT_PATH,'lib','modules') : CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
-        if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
-
+        $coremodule = (string)$xml->core; //'1', '0' or ''
         $modops = ModuleOperations::get_instance();
         $moduledetails = [];
         $filedone = false;
@@ -162,7 +157,7 @@ class operations
                     break;
                 case 'requires':
                     $reqs = [];
-                    foreach ($node->children() as $one) {
+                    foreach( $node->children() as $one ) {
                         $reqs['name'][] = (string)$one->requiredname;
                         $reqs['version'][] = (string)$one->requiredversion;
                     }
@@ -176,18 +171,43 @@ class operations
                     break;
                 case 'file':
                     if( !$filedone ) {
-                        $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
                         $arr = cms_module_places($moduledetails['name']);
-                        if( !empty($arr) ) {
-                            //already installed
-//                          TODO always cleanup current files (& database?)
-                            if( $arr[0] != $basepath ) {
-                                recursive_delete($arr[0]);
-                            }
-                        }
-                        if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
-                            throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
-                        }
+                        if( empty($arr) ) {
+							// confirm we can write to the module directory
+	                        $arr = cms_module_places();
+							if( $coremodule ) {
+								$dir = $arr[0];
+							}
+							elseif( $coremodule === '0') {
+								$dir = $arr[1];
+							}
+							else {
+								$dir = $arr[2];
+							}
+							if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+                            $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
+							if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
+								throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
+							}
+						}
+						else {
+                            //already installed somewhere(s) - use same place
+							if( count($arr) == 1 ) {
+								$basepath = dirname($arr[0]);
+							} else {
+								$t0 = filemtime($arr[0]);
+								$t1 = filemtime($arr[1]);
+								if( $t0 >= $t1 ) {
+									$basepath = dirname($arr[0]);
+									recursive_delete(dirname($arr[1]));
+								}
+								else {
+									$basepath = dirname($arr[1]);
+									recursive_delete(dirname($arr[0]));
+								}
+							}
+							if( !is_writable( $basepath ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+						}
                         $filedone = true;
                     }
                     //'filename' value is actually a relative path
@@ -268,8 +288,12 @@ class operations
             $xw-> writeCdata(htmlspecialchars($text, ENT_XML1, '', false));
             $xw->endElement();
         }
-        if( startswith($dir, CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib') ) {
+        $arr = cms_module_places();
+        if( startswith($dir, $arr[0]) ) {
             $xw->writeElement('core', 1);
+        }
+        elseif( startswith($dir, $arr[1]) ) {
+            $xw->writeElement('core', 0);
         }
 
         $depends = $modinstance->GetDependencies();
