@@ -67,12 +67,12 @@ $dirname = __DIR__.DIRECTORY_SEPARATOR;
 require_once $dirname.'version.php'; // some defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.cms_config.php';
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsException.php';
-require_once $dirname.'misc.functions.php'; //some used in config setup
+require_once $dirname.'misc.functions.php'; //some used in defines setup
 require_once $dirname.'defines.php'; //populate relevant defines
-require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php';
+require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
 require_once $dirname.'module.functions.php'; //some used in autoloader
 require_once $dirname.'autoloader.php';
-//require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); no Composer support on production system
+//require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); CHECKME Composer support on production system ?
 require_once $dirname.'compat.functions.php';
 require_once $dirname.'page.functions.php';
 if ($CMS_JOB_TYPE < 2) {
@@ -199,10 +199,13 @@ if (!isset($CMS_INSTALL_PAGE)) {
         debug_buffer('End of Loading Modules');
     }
 */
-    if ($CMS_JOB_TYPE == 0) {
-        //TODO cache this too
-        $tmp = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-        if ($tmp) {
+    // after autoloader & modules
+    $modops = ModuleOperations::get_instance();
+    $tmp = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
+    if( $tmp ) {
+        $modinst = $modops->get_module_instance($tmp[0]);
+        $_app->jobmgrinstance = $modinst; //cache it
+        if ($CMS_JOB_TYPE == 0) {
             HookManager::add_hook('PostRequest', [$tmp[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
         }
     }
