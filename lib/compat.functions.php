@@ -41,3 +41,14 @@ if( !function_exists('gzopen') ) {
  */
 //include_once __DIR__.DIRECTORY_SEPARATOR.'smarty'.DIRECTORY_SEPARATOR.'SmartyBC.class.php';
 //class_alias('SmartyBC', $TODOalias, false); some sort of 'merge' needed
+
+/**
+ * Return the currently configured database prefix.
+ *
+ * @since 0.4
+ * @return string
+ */
+function cms_db_prefix() : string
+{
+    return CMS_DB_PREFIX;
+}
