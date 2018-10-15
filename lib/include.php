@@ -203,8 +203,8 @@ if (!isset($CMS_INSTALL_PAGE)) {
     $modops = ModuleOperations::get_instance();
     $tmp = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
     if( $tmp ) {
-        $modinst = $modops->get_module_instance($tmp[0]);
-        $_app->jobmgrinstance = $modinst; //cache it
+        $mod_obj = $modops->get_module_instance($tmp[0]); //NOTE not $modinst !
+        $_app->jobmgrinstance = $mod_obj; //cache it
         if ($CMS_JOB_TYPE == 0) {
             HookManager::add_hook('PostRequest', [$tmp[0], 'trigger_async_hook'], HookManager::PRIORITY_LOW);
         }
