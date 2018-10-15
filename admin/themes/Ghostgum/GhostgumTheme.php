@@ -359,24 +359,26 @@ EOS;
 
 		unset($attrs['width'], $attrs['height']);
 		$extras = array_merge(['class'=>$class, 'alt'=>$alt, 'title'=>''], $attrs);
-		if (!$extras['title']) {
-			if ($extras['alt']) {
-				$extras['title'] = $extras['alt'];
-			} else {
-				$extras['title'] = $type;
-			}
+		if ($extras['title']) {
+			$title = $extras['title'];
+		} elseif ($extras['alt']) {
+			$title = $extras['alt'];
+		} else {
+			$title = $type;
 		}
+		unset($extras['title']);
+
 		if (!$extras['alt']) {
 			$extras['alt'] = $type;
 		}
 
 		$res = '<svg';
 		foreach ($extras as $key => $value) {
-			if ($value !== '' || $key == 'title') {
+			if ($value !== '') {
 				$res .= " $key=\"$value\"";
 			}
 		}
-		$res .= "><use xlink:href=\"themes/Ghostgum/images/icons/system/sprite.svg#{$type}\"/></svg>";
+		$res .= ">\n<title>$title</title>\n<use xlink:href=\"themes/Ghostgum/images/icons/system/sprite.svg#{$type}\"/>\n</svg>";
 		return $res;
 	}
 }
