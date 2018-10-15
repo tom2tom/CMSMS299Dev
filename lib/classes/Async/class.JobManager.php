@@ -16,19 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file defines the job manager for asynchronous jobs.
- *
- * @package CMS
- */
 namespace CMSMS\Async;
 
 use CmsApp;
 
 /**
- * A singleton class defining a manager for asynchronous jobs.
- *
- * In reality, this is a simple proxy for methods in the CmsJobManager module.
+ * A singleton class for asynchronous jobs.
+ * This is a wrapper for methods in the relevant async-jobs module.
  *
  * @package CMS
  * @author Robert Campbell
@@ -37,11 +31,6 @@ use CmsApp;
  */
 final class JobManager
 {
-    /**
-     * @ignore
-     */
-    const MANAGER_MODULE = 'CmsJobManager';
-
     /**
      * @ignore
      */
@@ -77,11 +66,11 @@ final class JobManager
      * Get the module that handles job requests.
      *
      * @internal
-     * @return CmsModule
+     * @return mixed CMSModule | null
      */
     protected function get_mod()
     {
-        if( !$this->_mod ) $this->_mod = CmsApp::get_instance()->GetModuleInstance(self::MANAGER_MODULE);
+        if( !isset($this->_mod) ) $this->_mod = CmsApp::get_instance()->GetJobManager();
         return $this->_mod;
     }
 
@@ -100,7 +89,7 @@ final class JobManager
      * Given an integer job id, load the job.
      *
      * @param int $job_id
-     * @return Job
+     * @return mixed Job | null
      */
     public function load_job( $job_id )
     {
@@ -112,7 +101,7 @@ final class JobManager
      * Save a job to the queue.
      *
      * @param Job $job
-     * @return int The id of the job.
+     * @return mixed int | null The id of the job.
      */
     public function save_job( Job &$job )
     {
@@ -126,6 +115,7 @@ final class JobManager
      * Note: After calling this method, the job object itself is invalid and cannot be saved.
      *
      * @param Job $job
+	 * @return mixed
      */
     public function delete_job( Job &$job )
     {
@@ -134,9 +124,10 @@ final class JobManager
     }
 
     /**
-     * Remove all of the jbos originating from a specific module
+     * Remove all jbos originating from a specific module
      *
-     * @param string $module_name
+     * @param mixed string $module_name | null
+	 * @return mixed
      */
     public function delete_jobs_by_module( $module_name )
     {

@@ -28,20 +28,23 @@ class WatchTasksTask implements CmsRegularTask
 
     public function execute($time = '')
     {
-        $sig = '';
-        $files = scandir(__DIR__);
-        foreach ($files as $file) {
-            $fp = __DIR__.DIRECTORY_SEPARATOR.$file;
-            $sig .= filesize($fp).filemtime($fp);
-        }
-        $sig = md5($sig);
-        $saved = cms_siteprefs::get(self::STATUS_SITEPREF,'');
-        if( $saved != $sig ) {
-            cms_siteprefs::set(self::STATUS_SITEPREF,$sig);
-            $mod = cms_utils::get_module('CmsJobManager');
-            $mod->check_for_jobs_or_tasks(TRUE);
-        }
-        return TRUE;
+        $mod = CmsApp::get_instance()->GetJobManager();
+		if( $mod ) {
+			$sig = '';
+			$files = scandir(__DIR__);
+			foreach( $files as $file ) {
+				$fp = __DIR__.DIRECTORY_SEPARATOR.$file;
+				$sig .= filesize($fp).filemtime($fp);
+			}
+			$sig = md5($sig);
+			$saved = cms_siteprefs::get(self::STATUS_SITEPREF,'');
+			if( $saved != $sig ) {
+				cms_siteprefs::set(self::STATUS_SITEPREF,$sig);
+				$mod->check_for_jobs_or_tasks(TRUE);
+			}
+			return TRUE;
+		}
+		return FALSE;
     }
 
     public function on_success($time = '')

@@ -18,6 +18,7 @@
 
 namespace CMSMS\Async;
 
+use CmsApp;
 use CmsCoreCapabilities;
 use CMSMS\ModuleOperations;
 use LogicException;
@@ -151,14 +152,11 @@ abstract class Job
     public function delete()
     {
         // get the asyncmanager module
-        $module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-        if( $module_list ) {
-            $module = ModuleOperations::get_instance()->get_module_instance($module_list[0]);
-            if( $module ) {
-                $module->delete_job($this);
-                $this->_id = null;
-                return;
-            }
+        $module = CmsApp::get_instance()->GetJobManager();
+        if( $module ) {
+            $module->delete_job($this);
+            $this->_id = null;
+            return;
         }
         throw new LogicException('Cannot delete a job... no Job Manager module is available');
     }
@@ -173,13 +171,10 @@ abstract class Job
     public function save()
     {
         // get the asyncmanager module
-        $module_list = ModuleOperations::get_instance()->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
-        if( $module_list ) {
-            $module = ModuleOperations::get_instance()->get_module_instance($module_list[0]);
-            if( $module ) {
-                $this->_id = (int) $module->save_job($this);
-                return;
-            }
+        $module = CmsApp::get_instance()->GetJobManager();
+        if( $module ) {
+            $this->_id = (int) $module->save_job($this);
+            return;
         }
         throw new LogicException('Cannot save a job... no Job Manager module is available');
     }
