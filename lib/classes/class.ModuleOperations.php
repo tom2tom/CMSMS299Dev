@@ -550,12 +550,13 @@ final class ModuleOperations
 		$db = $gCms->GetDb();
 		$result = $module_obj->Upgrade($dbversion,$to_version);
 		if( !isset($result) || $result === FALSE ) {
+			//TODO handle module re-location, if any
 			$lazyload_fe    = (method_exists($module_obj,'LazyLoadFrontend') && $module_obj->LazyLoadFrontend())?1:0;
 			$lazyload_admin = (method_exists($module_obj,'LazyLoadAdmin') && $module_obj->LazyLoadAdmin())?1:0;
 			$admin_only = ($module_obj->IsAdminOnly())?1:0;
 
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET version = ?, active = 1, allow_fe_lazyload = ?, allow_admin_lazyload = ?, admin_only = ?
-					  WHERE module_name = ?';
+WHERE module_name = ?';
 			$dbr = $db->Execute($query,[$to_version,$lazyload_fe,$lazyload_admin,$admin_only,$module_obj->GetName()]);
 
 			// upgrade dependencies
@@ -653,8 +654,8 @@ final class ModuleOperations
 					}
 				}
 
-				$jobmgr = ModuleOperations::get_instance()->get_module_instance('CmsJobManager');
-				if( $jobmgr ) $jobmgr->delete_jobs_by_module( $module );
+				$jobmgr = CmsApp::get_instance()->GetJobManager();
+				if( $jobmgr ) $jobmgr->delete_jobs_by_module($module);
 
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'module_smarty_plugins WHERE module=?',[$module]);
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX."siteprefs WHERE sitepref_name LIKE '". str_replace("'",'',$db->qstr($module))."_mapi_pref%'");
