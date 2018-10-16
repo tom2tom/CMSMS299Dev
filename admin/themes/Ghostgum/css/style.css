@@ -1820,12 +1820,12 @@ div.pageoptions a, p.pageoptions a, a.pageoptions {
     vertical-align: text-bottom
 }
 svg.systemicon {
-    max-height: 1.2rem;
-    max-width: 1.2rem
+    max-height: 1.3em;
+    max-width: 1.3em
 }
 img.systemicon {
-    height: 1.2rem;
-    width: 1.2rem
+    height: 1.3em;
+    width: 1.3em
 }
 
 .pageheader img {
