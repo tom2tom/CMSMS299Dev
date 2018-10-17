@@ -20,9 +20,10 @@ namespace CMSMS;
 
 use const CMS_SCRIPTS_PATH;
 use const TMP_CACHE_LOCATION;
+use function cms_path_to_url;
 use function file_put_contents;
 
-//TODO a job to clear old consolidations ? how old ?
+//TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
 /**
  * A class for consolidating specified javascript's into a single file.
@@ -111,6 +112,62 @@ class ScriptManager
     }
 
     /**
+     * Find (in any of the various js-file locations for the site) and
+     * record a script-file to be merged if necessary
+     *
+     * @param string $filename (base)name of the wanted script file,
+     *  optionally including [.-]min before the .js extension
+     *  If the name includes a version, that will be taken into account.
+     *  Otherwise, any found version will be used. Min in preferece to non-min.
+     * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
+     */
+    public function queue_matchedfile( string $filename, int $priority = 0 )
+    {
+        static $places = null;
+
+        if( $places === null ) {
+            $places = [
+            CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
+            CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
+            CMS_SCRIPTS_PATH,
+            CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
+            CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
+            ];
+        }
+
+        $target = basename($filename, '.js');
+        if( ($p = stripos($target, 'min')) !== false ) {
+            $target = substr($target, 0, $p-1); //also omit preceeding separator, assumed '.' or '-'
+        }
+
+        $patn = '~^'.$target.'([\d\.\-]*)?(min)?\.js$~i';
+        foreach ($places as $base_path) {
+            $allfiles = scandir($base_path);
+            if( $allfiles ) {
+                $scripts = preg_grep($patn, $allfiles);
+                if( $scripts ) {
+                    if( count($scripts) > 1) {
+                        foreach( $scripts as $target ) {
+                            preg_match($patn, $target, $matches);
+                            if( !empty($matches[2]) ) {
+                                break; //use the min
+                            }/* elseif( !empty($matches[1] ) {
+                                //TODO check versions
+                            }
+*/
+                        }
+                    } else {
+                        $target = reset($scripts);
+                    } 
+                    $this->queue_file($base_path.DIRECTORY_SEPARATOR.$target, $priority);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Construct a merged file from previously-queued scripts, if such file
      * doesn't exist or is out-of-date.
      * Hooks 'Core::PreProcessScripts' and 'Core::PostProcessScripts' are
@@ -136,37 +193,59 @@ class ScriptManager
         $tmp = Events::SendEvent( 'Core', 'PreProcessScripts', $this->_scripts );
         $scripts = ( $tmp ) ? $tmp : $this->_scripts;
 
-		if( $scripts ) {
-			if( count($scripts) > 1) {
-				// sort the scripts by priority, then index (to preserve order)
-				uasort( $scripts, function( $a, $b ) {
-					if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
-					return $a['index'] <=> $b['index'];
-				});
-			}
+        if( $scripts ) {
+            if( count($scripts) > 1) {
+                // sort the scripts by priority, then index (to preserve order)
+                uasort( $scripts, function( $a, $b ) {
+                    if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
+                    return $a['index'] <=> $b['index'];
+                });
+            }
 
-			$t_sig = '';
-			$t_mtime = -1;
-			foreach( $scripts as $sig => $rec ) {
-				$t_sig .= $sig;
-				$t_mtime = max( $rec['mtime'], $t_mtime );
-			}
-			$sig = md5( __FILE__.$t_sig.$t_mtime );
-			$js_filename = "cms_$sig.js";
-			$output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+            $t_sig = '';
+            $t_mtime = -1;
+            foreach( $scripts as $sig => $rec ) {
+                $t_sig .= $sig;
+                $t_mtime = max( $rec['mtime'], $t_mtime );
+            }
+            $sig = md5( __FILE__.$t_sig.$t_mtime );
+            $js_filename = "cms_$sig.js";
+            $output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
 
-			if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
-				$output = '';
-				foreach( $scripts as $sig => $rec ) {
-					$content = @file_get_contents( $rec['file'] );
-					if( $content ) $output .= $content."\n\n";
-				}
+            if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
+                $output = '';
+                foreach( $scripts as $sig => $rec ) {
+                    $content = @file_get_contents( $rec['file'] );
+                    if( $content ) $output .= $content."\n\n";
+                }
 
-				$tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $output );
-				if( $tmp ) $output = $tmp;
-				file_put_contents( $output_file, $output, LOCK_EX );
-			}
-			return $js_filename;
-		}
+                $tmp = Events::SendEvent( 'Core', 'PostProcessScripts', $output );
+                if( $tmp ) $output = $tmp;
+                file_put_contents( $output_file, $output, LOCK_EX );
+            }
+            return $js_filename;
+        }
+    }
+
+    /**
+     * Construct a merged file from previously-queued scripts, if such file
+     * doesn't exist or is out-of-date, then generate the corresponding
+     * html for direct use.
+     * @see also ScriptManager::render_scripts()
+     *
+     * @param string $output_path Optional Filesystem path of folder to hold the script file. Default '' (use TMP_CACHE_LOCATION)
+     * @param bool   $force       Optional flag whether to force recreation of the merged file. Default false
+     * @param bool   $allow_defer Optional flag whether to force-include jquery.cmsms_defer.js. Default true
+     * @return mixed html string <script ... </script> | null
+     */
+    public function render_inclusion(string $output_path = '', bool $force = false, bool $allow_defer = true )
+    {
+        $js_filename = $this->render_scripts($output_path, $force, $allow_defer);
+        if( $js_filename ) {
+            $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
+            $output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+            $url = cms_path_to_url($output_file);
+            return "<script type=\"text/javascript\" src=\"$url\"></script>\n";
+        }
     }
 } // class
