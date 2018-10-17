@@ -2649,15 +2649,6 @@ ul.sortableList > li {
     .dashboard-box img {
         display: inline
     }
-    /* Responsive Table -- CSS solution: scroll left/right */
-    table.pagetable {
-        border-collapse: collapse;
-        width: 100%;
-        margin: 5px 0 1rem;
-        overflow-x: auto;
-        display: block;
-/*        padding-bottom: 2rem; */
-    }
 
     fieldset, form, input, select, menu {
         max-width: 95%
@@ -2685,6 +2676,16 @@ ul.sortableList > li {
 /* --- SCREEN UP TO 600px --- */
 
 @media screen and (max-width: 600px) {
+
+    /* Responsive Table -- CSS solution: scroll left/right */
+    table.pagetable {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 5px 0 1rem;
+        overflow-x: auto;
+        display: block;
+/*      padding-bottom: 2rem; */
+    }
 
     #ggp_header #cms-logo img {
         max-width: 100%;
@@ -2730,6 +2731,7 @@ ul.sortableList > li {
         box-sizing: border-box;
     }
     /* hide some table columns for small devices designs_c */
+    /* some of these are module-specific */
     #template_area .pagetable, #stylesheet_area .pagetable, #designs_c .pagetable, #types_c .pagetable {
         display: table;
     }
