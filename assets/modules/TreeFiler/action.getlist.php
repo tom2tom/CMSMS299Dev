@@ -331,8 +331,8 @@ foreach ($files as $name) {
     $acts .= str_replace('XXX', $encf, $linkdown);
     $oneset->acts = $acts;
 */
-    $acts = [];
     if (!$CFM_READONLY) {
+        $acts = [];
         if (!empty($profile['can_delete'])) {
             $acts[] = ['content'=>str_replace('XXX', $name, $linkdel)];
         }
