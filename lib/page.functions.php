@@ -44,6 +44,7 @@ use CMSMS\UserOperations;
  */
 function get_userid(bool $redirect = true)
 {
+    if( cmsms()->is_cli() ) return 1;
     $uid = LoginOperations::get_instance()->get_effective_uid();
     if( !$uid && $redirect ) {
         $config = cms_config::get_instance();
@@ -66,6 +67,7 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $redirect = true)
 {
+    if( cmsms()->is_cli() ) return '';
     $uname = LoginOperations::get_instance()->get_effective_username();
     if( !$uname && $redirect ) {
         $config = cms_config::get_instance();
