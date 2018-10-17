@@ -40,12 +40,7 @@ EOS;
 	if ($core) $sm->queue_file($incs['jqcore'], 1);
 	if ($migrate) $sm->queue_file($incs['jqmigrate'], 1);
 	if ($ui) $sm->queue_file($incs['jqui'], 1);
-	$fn = $sm->render_scripts('', false, false);
-	$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-	$out = <<<EOS
-<script type="text/javascript" src="{$url}"></script>
-
-EOS;
+    $out .= $sm->render_inclusion('', false, false);
 
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']), $out);

@@ -20,6 +20,7 @@ use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
 use CMSContentManager\Utils;
 use CMSMS\UserOperations;
+use CMSMS\ScriptManager;
 
 global $CMS_JOB_TYPE;
 
@@ -158,10 +159,11 @@ $s9 = json_encode($this->Lang('error_action_contentlocked'));
 $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
 
+$sm = new ScriptManager();
+$sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
+$sm->queue_matchedfile('jquery.ContextMenu.js', 2);
+
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.min.js"></script>
-<script type="text/javascript">
-//<![CDATA[
 function cms_CMloadUrl(link, lang) {
  $(link).on('click', function(e) {
   var url = $(this).attr('href') + '&{$id}ajax=1&cmsjobtype=1';
@@ -269,6 +271,7 @@ $(document).ready(function() {
     }
    });
    optsclicker();
+   $('[context-menu]').ContextMenu();
    $('.cms_help .cms_helpicon').on('click', function() {
     gethelp(this);
    });
@@ -385,10 +388,13 @@ $(document).ready(function() {
   }
  });
 });
-//]]>
-</script>
 EOS;
-$this->AdminBottomContent($js);
+
+$sm->queue_string($js, 3);
+$out = $sm->render_inclusion('', false, false);
+if ($out) {
+    $this->AdminBottomContent($out);
+}
 
 $pmod = $this->CheckPermission('Manage All Content');
 $opts = ($pmod) ?

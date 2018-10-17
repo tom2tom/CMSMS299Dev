@@ -74,7 +74,6 @@ EOS;
 
 EOS;
 		}
-		$tpl = '<script type="text/javascript" src="%s"></script>'."\n";
 
 		$sm = new ScriptManager();
 		$sm->queue_file($incs['jqcore'], 1);
@@ -82,18 +81,14 @@ EOS;
 		$sm->queue_file($incs['jqui'], 1);
 		$p = CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.cms_admin.min.js', 2);
-		$fn = $sm->render_scripts('', false, false);
-		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-		$out .= sprintf($tpl,$url);
+	    $out .= $sm->render_inclusion('', false, false);
 
 		global $CMS_LOGIN_PAGE;
 		if( isset($_SESSION[CMS_USER_KEY]) && !isset($CMS_LOGIN_PAGE) ) {
 			$sm->reset();
 			require_once CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'jsruntime.php';
 			$sm->queue_string($_out_);
-			$fn = $sm->render_scripts('', false, false);
-			$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-			$out .= sprintf($tpl,$url);
+		    $out .= $sm->render_inclusion('', false, false);
 		}
 
 		$sm->reset();
@@ -105,9 +100,7 @@ EOS;
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
-		$fn = $sm->render_scripts();
-		$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-		$out .= sprintf($tpl,$url);
+	    $out .= $sm->render_inclusion();
 
 		$add_list[] = $out;
 //      $vars[] = anything needed ?;

@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ScriptManager;
+
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
 
@@ -40,20 +42,20 @@ else if( isset($params['submit_filter_css']) ) {
         $filter_css_rec['limit'] = max(2,min(100,(int)$params['filter_limit_css']));
     }
     $this->SetCurrentTab('stylesheets');
-	unset($_SESSION[$this->GetName().'tpl_page']);
+    unset($_SESSION[$this->GetName().'tpl_page']);
     cms_userprefs::set($this->GetName().'css_filter',serialize($filter_css_rec));
 }
 else if( isset($params['submit_create']) ) {
-	$this->Redirect($id,'admin_edit_template',$returnid,['import_type'=>$params['import_type']]);
-	return;
+    $this->Redirect($id,'admin_edit_template',$returnid,['import_type'=>$params['import_type']]);
+    return;
 }
 else if( isset($params['submit_bulk']) ) {
-	$tmp = ['allparms'=>base64_encode(serialize($params))];
-	$this->Redirect($id,'admin_bulk_template',$returnid,$tmp);
+    $tmp = ['allparms'=>base64_encode(serialize($params))];
+    $this->Redirect($id,'admin_bulk_template',$returnid,$tmp);
 }
 else if( isset($params['submit_bulk_css']) ) {
-	$tmp = ['allparms'=>base64_encode(serialize($params))];
-	$this->Redirect($id,'admin_bulk_css',$returnid,$tmp);
+    $tmp = ['allparms'=>base64_encode(serialize($params))];
+    $this->Redirect($id,'admin_bulk_css',$returnid,$tmp);
 }
 else if( isset($params['design_setdflt']) && $this->CheckPermission('Manage Designs') ) {
     $design_id = (int)$params['design_setdflt'];
@@ -64,7 +66,7 @@ else if( isset($params['design_setdflt']) && $this->CheckPermission('Manage Desi
             $cur_dflt->save();
         }
     }
-    catch( \Exception $e ) {
+    catch( Exception $e ) {
         // do nothing
     }
 
@@ -79,19 +81,19 @@ else if( isset($params['design_setdflt']) && $this->CheckPermission('Manage Desi
 $tmp = cms_userprefs::get($this->GetName().'template_filter');
 if( $tmp ) $filter_tpl_rec = unserialize($tmp);
 if( isset($params['tpl_page']) ) {
-	$this->SetCurrentTab('templates');
-	$page = max(1,(int)$params['tpl_page']);
-	$_SESSION[$this->GetName().'tpl_page'] = $page;
-	$filter_tpl_rec['offset'] = ($page - 1) * $filter_tpl_rec['limit'];
+    $this->SetCurrentTab('templates');
+    $page = max(1,(int)$params['tpl_page']);
+    $_SESSION[$this->GetName().'tpl_page'] = $page;
+    $filter_tpl_rec['offset'] = ($page - 1) * $filter_tpl_rec['limit'];
 } else if( isset($_SESSION[$this->GetName().'tpl_page']) ) {
-	$page = max(1,(int)$_SESSION[$this->GetName().'tpl_page']);
-	$filter_tpl_rec['offset'] = ($page - 1) * $filter_tpl_rec['limit'];
+    $page = max(1,(int)$_SESSION[$this->GetName().'tpl_page']);
+    $filter_tpl_rec['offset'] = ($page - 1) * $filter_tpl_rec['limit'];
 }
 
 $efilter = $filter_tpl_rec;
 if( !empty($efilter['tpl']) ) {
-	$efilter[] = $efilter['tpl'];
-	unset($efilter['tpl']);
+    $efilter[] = $efilter['tpl'];
+    unset($efilter['tpl']);
 }
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('defaultadmin.tpl'),null,null,$smarty);
@@ -106,9 +108,9 @@ if( ($n = count($types)) ) {
         $tmp['t:'.$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
         $tmp3[$types[$i]->get_id()] = $types[$i];
-		if( !isset($originators[$types[$i]->get_originator()]) ) {
-			$originators['o:'.$types[$i]->get_originator()] = $types[$i]->get_originator(TRUE);
-		}
+        if( !isset($originators[$types[$i]->get_originator()]) ) {
+            $originators['o:'.$types[$i]->get_originator()] = $types[$i]->get_originator(TRUE);
+        }
     }
     usort($tmp3,function($a,$b){
             // core always beets alphabetic type
@@ -126,7 +128,7 @@ if( ($n = count($types)) ) {
     $tpl->assign('list_all_types',$tmp3)
      ->assign('list_types',$tmp2);
     $opts[$this->Lang('tpl_types')] = $tmp;
-	$opts[$this->Lang('tpl_originators')] = $originators;
+    $opts[$this->Lang('tpl_originators')] = $originators;
 }
 $cats = CmsLayoutTemplateCategory::get_all();
 if( $cats && ($n = count($cats)) ) {
@@ -166,19 +168,19 @@ if( $this->CheckPermission('Manage Designs') ) {
 }
 
 if( $this->CheckPermission('Manage Stylesheets') ) {
-	$tmp = cms_userprefs::get($this->GetName().'css_filter');
-	if( $tmp ) {
-		$filter_css_rec = unserialize($tmp);
-	}
-	if( isset($params['css_page']) ) {
-		$this->SetCurrentTab('stylesheets');
-		$page = max(1,(int)$params['css_page']);
-		$_SESSION[$this->GetName().'css_page'] = $page;
-		$filter_css_rec['offset'] = ($page - 1) * $filter_css_rec['limit'];
-	} else if( isset($_SESSION[$this->GetName().'css_page']) ) {
-		$page = max(1,(int)$_SESSION[$this->GetName().'css_page']);
-		$filter_css_rec['offset'] = ($page - 1) * $filter_css_rec['limit'];
-	}
+    $tmp = cms_userprefs::get($this->GetName().'css_filter');
+    if( $tmp ) {
+        $filter_css_rec = unserialize($tmp);
+    }
+    if( isset($params['css_page']) ) {
+        $this->SetCurrentTab('stylesheets');
+        $page = max(1,(int)$params['css_page']);
+        $_SESSION[$this->GetName().'css_page'] = $page;
+        $filter_css_rec['offset'] = ($page - 1) * $filter_css_rec['limit'];
+    } else if( isset($_SESSION[$this->GetName().'css_page']) ) {
+        $page = max(1,(int)$_SESSION[$this->GetName().'css_page']);
+        $filter_css_rec['offset'] = ($page - 1) * $filter_css_rec['limit'];
+    }
 }
 
 // give everything to smarty that we can
@@ -208,11 +210,12 @@ $s2 = json_encode($this->Lang('confirm_clearlocks'));
 $s3 = json_encode($this->Lang('error_contentlocked'));
 $s4 = json_encode($this->Lang('error_nothingselected'));
 
+$sm = new ScriptManager();
+$sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
+$sm->queue_matchedfile('jquery.ContextMenu.js', 2);
+
 // templates script
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.cmsms_autorefresh.min.js"></script>
-<script type="text/javascript">
-//<![CDATA[
 function gethelp(tgt) {
   var p = tgt.parentNode,
     s = $(p).attr('data-cmshelp-key');
@@ -240,7 +243,8 @@ $(document).ready(function() {
     done_handler: function() {
       $('.cms_help .cms_helpicon').on('click', function() {
         gethelp(this);
-	  });
+      });
+      $('#template_area [context-menu]').ContextMenu();
     }
   });
   $('#tpl_bulk_action,#tpl_bulk_submit').attr('disabled', 'disabled');
@@ -299,7 +303,7 @@ $(document).ready(function() {
     cms_dialog($('#filterdialog'), {
       open: function(ev, ui) {
         cms_equalWidth($('#filterdialog label.boxchild'));
-	  },
+      },
       width: 'auto',
       buttons: {
         '{$this->Lang('submit')}': function() {
@@ -345,9 +349,11 @@ $(document).ready(function() {
       filter: '$jsoncssfilter'
     },
     done_handler: function() {
+      $('#css_selall').cmsms_checkall();
+      $('#stylesheet_area [context-menu]').ContextMenu();
       $('.cms_help .cms_helpicon').on('click', function() {
         gethelp(this);
-	  });
+      });
     }
   });
   $('#css_bulk_action,#css_bulk_submit').attr('disabled', 'disabled');
@@ -399,9 +405,9 @@ EOS;
 
 // categories script
 if (isset($list_categories)) {
-	$yes = $this->Lang('yes');
-	$s1 = json_encode($this->Lang('confirm_delete_category'));
-	$js .= <<<EOS
+    $yes = $this->Lang('yes');
+    $s1 = json_encode($this->Lang('confirm_delete_category'));
+    $js .= <<<EOS
 $(document).ready(function() {
   $('#categorylist tbody').cmsms_sortable_table({
     actionurl: '{cms_action_url action="ajax_order_cats" forjs=1}&cmsjobtype=1',
@@ -422,12 +428,11 @@ $(document).ready(function() {
 
 EOS;
 }
-$js .= <<<EOS
-//]]>
-</script>
 
-EOS;
-$this->AdminBottomContent($js);
+$sm->queue_string($js, 3);
+$out = $sm->render_inclusion('', false, false);
+if ($out) {
+    $this->AdminBottomContent($out);
+}
 
 $tpl->display();
-

@@ -190,7 +190,7 @@ $sm->queue_file(CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.cmsms_dirtyform.min
 $sm->queue_file($p.'jquery.datePicker.min.js', 2);
 $sm->queue_file($p.'jquery.timepicker.min.js', 2);
 $sm->queue_string($js, 3);
-$fn = $sm->render_scripts('', false, false);
-$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-$out = "<script type=\"text/javascript\" src=\"$url\"></script>\n";
-$this->AdminBottomContent($out);
+$out = $sm->render_inclusion('', false, false);
+if ($out) {
+    $this->AdminBottomContent($out);
+}

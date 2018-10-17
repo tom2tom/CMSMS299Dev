@@ -378,10 +378,10 @@ $p = cms_join_path($this->GetModulePath(),'lib','js').DIRECTORY_SEPARATOR;
 $sm->queue_file($p.'jquery.metadata.min.js',2);
 $sm->queue_file($p.'jquery.SSsort.min.js',2);
 $sm->queue_string($js,3);
-$fn = $sm->render_scripts('', false, false);
-$url = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-$js = "<script type=\"text/javascript\" src=\"$url\"></script>\n";
-$this->AdminBottomContent($js);
+$out = $sm->render_inclusion('', false, false);
+if ($out) {
+    $this->AdminBottomContent($out);
+}
 
 // display template
 $tpl->display();
