@@ -985,11 +985,11 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
  * xxx.xxx.xxx.xx[yyy-zzz] (range, partial octets nnnnnot supported)
  *
  * @param string $ip IP address to test
- * @param array  $checklist Array of match expressions
+ * @param mixed $checklist Array or comma-separated string of match expressions
  * @return bool
  * Rolf: only used in lib/content.functions.php
  */
-function cms_ipmatches(string $ip,array $checklist) : bool
+function cms_ipmatches(string $ip, $checklist) : bool
 {
     $_testip = function($range,$ip) {
     $result = 1;
