@@ -16,14 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * Page related functions.  Generally these are functions not necessarily
- * related to content, but more to the underlying mechanisms of the system.
- *
- * @package CMS
- * @license GPL
- */
-
 use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 use CMSMS\internal\LoginOperations;
@@ -32,19 +24,27 @@ use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
 
 /**
+ * Page related functions.  Generally these are functions not necessarily
+ * related to content, but more to the underlying mechanisms of the system.
+ *
+ * @package CMS
+ * @license GPL
+ */
+
+/**
  * Gets the userid of the currently logged in user.
  *
- * If an effective uid has been set in the session, AND the primary user is a member of the admin group
- * then allow emulating that effective uid.
+ * If an effective uid has been set in the session, AND the primary user is
+ * a member of the admin group, then allow emulating that effective uid.
  *
  * @since 0.1
- * @param  boolean $redirect Redirect to the admin login page if the user is not logged in.
+ * @param  boolean $redirect Optional flag, default true. Whether to redirect to
+ *  the admin login page if the user is not logged in.
  * @return integer The UID of the logged in administrator, or NULL
  */
 function get_userid(bool $redirect = true)
 {
-    $login_ops = LoginOperations::get_instance();
-    $uid = $login_ops->get_effective_uid();
+    $uid = LoginOperations::get_instance()->get_effective_uid();
     if( !$uid && $redirect ) {
         $config = cms_config::get_instance();
         redirect($config['admin_url'].'/login.php');
@@ -56,18 +56,18 @@ function get_userid(bool $redirect = true)
 /**
  * Gets the username of the currently logged in user.
  *
- * If an effective username has been set in the session, AND the primary user is a member of the admin group
- * then return the effective username.
+ * If an effective username has been set in the session, AND the primary user is
+ * a member of the admin group, then return the effective username.
  *
  * @since 2.0
- * @param  boolean $check Redirect to the admin login page if the user is not logged in.
+ * @param  boolean $redirect Optional flag, default true. Whether to redirect to
+ *  the admin login page if the user is not logged in.
  * @return string the username of the logged in user, or NULL.
  */
-function get_username(bool $check = true)
+function get_username(bool $redirect = true)
 {
-    $login_ops = LoginOperations::get_instance();
-    $uname = $login_ops->get_effective_username();
-    if( !$uname && $check ) {
+    $uname = LoginOperations::get_instance()->get_effective_username();
+    if( !$uname && $redirect ) {
         $config = cms_config::get_instance();
         redirect($config['admin_url'].'/login.php');
     }
@@ -76,40 +76,39 @@ function get_username(bool $check = true)
 
 
 /**
- * Checks to see if the user is logged in and the request has the proper key.  If not, redirects the browser
- * to the admin login.
+ * Checks to see if the user is logged in and the request has the proper key.
+ * If not, redirects the browser to the admin login.
  *
- * Note: Because this method validates that the secret key is in the URL and matches the one that is in the session
- * this method should only be called from admin actions.
+ * Note: this method should only be called from admin operations.
  *
  * @since 0.1
- * @param string $no_redirect If true, then don't redirect if not logged in
+ * @param boolean $no_redirect Optional flag, default false. If true, then do NOT redirect if not logged in
  * @return boolean or NULL
  */
 function check_login(bool $no_redirect = false)
 {
-    $do_redirect = !$no_redirect;
-    $uid = get_userid(!$no_redirect);
-    $res = false;
+    $redirect = !$no_redirect;
+    $uid = get_userid($redirect);
     if( $uid > 0 ) {
-        $res = true;
-        $login_ops = LoginOperations::get_instance();
-        $res = $login_ops->validate_requestkey();
+        $res = LoginOperations::get_instance()->validate_requestkey();
     }
+	else {
+	    $res = false;
+	}
     if( !$res ) {
         // logged in, but no url key on the request
-        if( $do_redirect ) {
+        if( $redirect ) {
             // redirect to the admin login.php
             // use SCRIPT_FILENAME and make sure it validates with the root_path
             if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
                 $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
             }
-            $login_ops->deauthenticate();
+	        LoginOperations::get_instance()->deauthenticate();
             $config = cms_config::get_instance();
             redirect($config['admin_url'].'/login.php');
         }
     }
-    return TRUE;
+    return true;
 }
 
 
@@ -259,21 +258,17 @@ function create_textarea(
 function is_sitedown() : bool
 {
     global $CMS_INSTALL_PAGE;
-    if( isset($CMS_INSTALL_PAGE) ) return TRUE;
+    if( isset($CMS_INSTALL_PAGE) ) return true;
 
-    if( cms_siteprefs::get('enablesitedownmessage') !== '1' ) return FALSE;
+    if( cms_siteprefs::get('enablesitedownmessage') !== '1' ) return false;
 
-    $uid = get_userid(FALSE);
-    if( $uid && cms_siteprefs::get('sitedownexcludeadmins') ) return FALSE;
+    $uid = get_userid(false);
+    if( $uid && cms_siteprefs::get('sitedownexcludeadmins') ) return false;
 
-    if( !isset($_SERVER['REMOTE_ADDR']) ) return TRUE;
-    $excludes = cms_siteprefs::get('sitedownexcludes','');
-    if( empty($excludes) ) return TRUE;
-
-    $tmp = explode(',',$excludes);
-    $ret = cms_ipmatches($_SERVER['REMOTE_ADDR'],$excludes);
-    if( $ret ) return FALSE;
-    return TRUE;
+    if( !isset($_SERVER['REMOTE_ADDR']) ) return true;
+    $excludes = cms_siteprefs::get('sitedownexcludes');
+    if( !$excludes ) return true;
+    return !cms_ipmatches($_SERVER['REMOTE_ADDR'],$excludes);
 }
 
 /**
@@ -369,7 +364,7 @@ function get_pageid_or_alias_from_url()
 
     // some kind of a pretty url.
     // strip off GET params.
-    if( ($tmp = strpos($page,'?')) !== FALSE ) $page = substr($page,0,$tmp);
+    if( ($tmp = strpos($page,'?')) !== false ) $page = substr($page,0,$tmp);
 
     // strip off page extension
     if ($config['page_extension'] != '' && endswith($page, $config['page_extension'])) {
@@ -386,7 +381,7 @@ function get_pageid_or_alias_from_url()
     $route = cms_route_manager::find_match($page);
     if( ! $route ) {
         // if no route matched... assume it is an alias and that the alias begins after the last /
-        if( ($pos = strrpos($page,'/')) !== FALSE ) $page = substr($page, $pos + 1);
+        if( ($pos = strrpos($page,'/')) !== false ) $page = substr($page, $pos + 1);
     }
     else {
         if( $route['key1'] == '__CONTENT__' ) {
