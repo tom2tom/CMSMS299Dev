@@ -381,14 +381,15 @@ final class ContentListBuilder
 	}
 
 	/**
-	 * Get the columns that are visible to display in the content list
+	 * Get the columns and context-menu items that are visible to display in the content list
 	 *
 	 * @return array associative array.	Column key is the key, and a string (either, 'icon','normal' to indicate
 	 * how the column header is intended.	or empty/null to indicate if the column should be hidden.
 	 */
 	public function get_display_columns()
 	{
-		$dflt = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,multiselect';
+//		$dflt = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,view,copy,addchild,edit,delete,actions,multiselect';
+		$dflt = 'expand,icon1,hier,page,alias,template,friendlyname,active,default,actions,multiselect';
 		$mod = $this->_module;
 		$cols = explode(',',$mod->GetPreference('list_visiblecolumns',$dflt));
 
@@ -404,13 +405,15 @@ final class ContentListBuilder
 		$columnstodisplay['owner'] = in_array('owner',$cols) ? 'normal' : null;
 		$columnstodisplay['active'] = (in_array('active',$cols) && $mod->CheckPermission('Manage All Content')) ? 'icon' : null;
 		$columnstodisplay['default'] = (in_array('default',$cols) && $mod->CheckPermission('Manage All Content')) ? 'icon' : null;
+		$columnstodisplay['actions'] = 'icon';
+		$columnstodisplay['multiselect'] = (in_array('multiselect',$cols) && ($mod->CheckPermission('Remove Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
+		// the rest are for menu items, not displayed columns
 		$columnstodisplay['move'] = (in_array('move',$cols) && ($mod->CheckPermission('Manage All Content') || $mod->CheckPermission('Reorder Content'))) ? 'icon' : null;
 		$columnstodisplay['view'] = in_array('view',$cols) ? 'icon' : null;
 		$columnstodisplay['copy'] = (in_array('copy',$cols) && ($mod->CheckPermission('Add Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
 		$columnstodisplay['addchild'] = (in_array('addchild',$cols) && ($mod->CheckPermission('Add Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
 		$columnstodisplay['edit'] = in_array('edit',$cols) ? 'icon' : null;
 		$columnstodisplay['delete'] = (in_array('delete',$cols) && ($mod->CheckPermission('Remove Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
-		$columnstodisplay['multiselect'] = (in_array('multiselect',$cols) && ($mod->CheckPermission('Remove Pages') || $mod->CheckPermission('Manage All Content'))) ? 'icon' : null;
 
 		foreach( $columnstodisplay as $key => $val ) {
 			if( isset($this->_display_columns[$key]) ) {

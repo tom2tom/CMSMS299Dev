@@ -16,12 +16,13 @@
 use CMSContentManager\ContentListBuilder;
 use CMSContentManager\Utils;
 use CMSMS\internal\bulkcontentoperations;
+use CMSMS\FormUtils;
 
 if( !isset($gCms) ) exit;
 // no permissions checks here.
 
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
 try {
     $tpl = $smarty->createTemplate( $this->GetTemplateResource( 'ajax_get_content.tpl' ),null,null,$smarty );
@@ -83,7 +84,7 @@ try {
      ->assign('columns',$builder->get_display_columns());
     $url = $this->create_url($id,'ajax_get_content',$returnid);
     $tpl->assign('ajax_get_content_url',str_replace('amp;','',$url))
-	  ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
+      ->assign('settingsicon',cms_join_path(__DIR__,'images','settings'));
 
     if( Utils::get_pagenav_display() == 'title' ) {
         $tpl->assign('colhdr_page',$this->Lang('colhdr_name'))
@@ -93,7 +94,89 @@ try {
         $tpl->assign('colhdr_page',$this->Lang('colhdr_menutext'))
          ->assign('coltitle_page',$this->Lang('coltitle_menutext'));
     }
-    if( $editinfo ) $tpl->assign('content_list',$editinfo);
+
+    if( $editinfo ) {
+        $theme = cms_utils::get_theme_object();
+        $u = $this->create_url($id, 'defaultadmin', $returnid, ['moveup'=>'XXX']);
+        $t = $this->Lang('prompt_page_sortup');
+        $icon = $theme->DisplayImage('icons/system/arrow-u', $t, '', '', 'systemicon');
+        $linkup = '<a href="'.$u.'" class="page_sortup" accesskey="m">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'defaultadmin', $returnid, ['movedown'=>'XXX']);
+        $t = $this->Lang('prompt_page_sortdown');
+        $icon = $theme->DisplayImage('icons/system/arrow-d', $t, '', '', 'systemicon');
+        $linkdown = '<a href="'.$u.'" class="page_sortdown" accesskey="m">'.$icon.'</a>'."\n";
+
+        $t = $this->Lang('prompt_page_view');
+        $icon = $theme->DisplayImage('icons/system/view', $t, '', '', 'systemicon');
+        $linkview = '<a target="_blank" href="XXX" class="page_view" accesskey="v">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'admin_copycontent', $returnid, ['page'=>'XXX']);
+        $t = $this->Lang('prompt_page_copy');
+        $icon = $theme->DisplayImage('icons/system/copy', $t, '', '', 'systemicon page_copy');
+        $linkcopy = '<a href="'.$u.'" accesskey="o">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'admin_editcontent', $returnid, ['content_id'=>'XXX']);
+        $t = $this->Lang('prompt_page_edit');
+        $icon = $theme->DisplayImage('icons/system/edit', $t, '', '', 'systemicon page_edit');
+        $linkedit = '<a href="'.$u.'" class="page_edit" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'admin_editcontent', $returnid, ['content_id'=>'XXX']);
+        $t = $this->Lang('prompt_steal_lock_edit');
+        $icon = $theme->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon page_edit steal_lock');
+        $linksteal = '<a href="'.$u.'" class="page_edit steal_lock" accesskey="e" data-cms-content="XXX">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'admin_editcontent', $returnid, ['parent_id'=>'XXX']);
+        $t = $this->Lang('prompt_page_addchild');
+        $icon = $theme->DisplayImage('icons/system/newobject', $t, '', '', 'systemicon page_addchild');
+        $linkchild = '<a href="'.$u.'" class="page_edit" accesskey="a">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'defaultadmin', $returnid, ['delete'=>'XXX']);
+        $t = $this->Lang('prompt_page_delete');
+        $icon = $theme->DisplayImage('icons/system/delete', $t, '', '', 'systemicon page_delete');
+        $linkdel = '<a href="'.$u.'" class="page_delete" accesskey="r">'.$icon.'</a>'."\n";
+
+        $menus = [];
+        foreach( $editinfo as $row ) {
+            $acts = [];
+            $rid = $row['id'];
+            if( isset($row['move']) ) {
+                if( $row['move'] == 'up' ) {
+                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkup)];
+                }
+                elseif( $row['move'] == 'down' ) {
+                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkdown)];
+                }
+                elseif( $row['move'] == 'both' ) {
+                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkup)];
+                    $acts[] = ['content'=>str_replace('XXX', $rid, $linkdown)];
+                }
+            }
+            if( $row['viewable'] ) {
+                $acts[] = ['content'=>str_replace('XXX', $row['view'], $linkview)];
+            }
+            if( $row['copy'] ) {
+                $acts[] = ['content'=>str_replace('XXX', $rid, $linkcopy)];
+            }
+            if( $row['can_edit'] ) {
+                $acts[] = ['content'=>str_replace('XXX', $rid, $linkedit)];
+            }
+            elseif( isset($row['lock']) && $row['can_steal'] ) {
+                $acts[] = ['content'=>str_replace('XXX', $rid, $linksteal)];
+            }
+            //always add child
+            $acts[] = ['content'=>str_replace('XXX', $rid, $linkchild)];
+
+            if( $row['can_delete'] && $row['delete'] ) {
+                $acts[] = ['content'=>str_replace('XXX', $rid, $linkdel)];
+            }
+            $menus[] = FormUtils::create_menu($acts, ['id'=>'Page'.$rid, 'class'=>'ContextMenu']);
+        }
+
+        $tpl->assign('content_list',$editinfo)
+         ->assign('menus',$menus);
+    }
+
     if( $filter && !$editinfo ) {
         $tpl->assign('error',$this->Lang('err_nomatchingcontent'));
     }
