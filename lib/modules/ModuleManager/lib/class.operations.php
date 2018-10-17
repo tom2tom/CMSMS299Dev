@@ -27,8 +27,6 @@ use CMSMS\ModuleOperations;
 use ModuleManager;
 use RuntimeException;
 use XMLWriter;
-use const CMS_ASSETS_PATH;
-use const CMS_ROOT_PATH;
 use const CMS_VERSION;
 use const TMP_CACHE_LOCATION;
 use function audit;

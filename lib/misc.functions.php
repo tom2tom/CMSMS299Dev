@@ -16,9 +16,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\HookManager;
-use CMSMS\ModuleOperations;
-
 /**
  * Miscellaneous support functions
  *
@@ -27,7 +24,7 @@ use CMSMS\ModuleOperations;
  */
 
 /**
- * Redirects to relative URL on the current site.
+ * Redirects to a relative URL on the current site.
  *
  * If headers have not been sent this method will use header based redirection.
  * Otherwise javascript redirection will be used.
