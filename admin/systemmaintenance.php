@@ -176,7 +176,7 @@ if ($flag && isset($_POST['export'])) {
 	}
     export_content($xmlfile, $filesin, $db);
     $handlers = ob_list_handlers();
-    for ($c = 0, $n = sizeof($handlers); $c < $n; ++$c) {
+    for ($c = 0, $n = count($handlers); $c < $n; ++$c) {
         ob_end_clean();
     }
     $tmp = cms_siteprefs::get('sitename','CMSMS-Site');

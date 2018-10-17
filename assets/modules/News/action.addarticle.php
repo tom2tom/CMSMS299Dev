@@ -340,7 +340,7 @@ WHERE news_id=?';
     $response .= '</EditArticle>';
 
     $handlers = ob_list_handlers();
-    for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) {
+    for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) {
         ob_end_clean();
     }
     header('Content-Type: text/xml');

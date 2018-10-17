@@ -275,7 +275,7 @@ function export_theme(string $themename) : bool
 
 	// send the file
 	$handlers = ob_list_handlers();
-	for ($cnt = 0, $val = sizeof($handlers); $cnt < $val; ++$cnt) {
+	for ($cnt = 0, $val = count($handlers); $cnt < $val; ++$cnt) {
 		ob_end_clean();
 	}
 

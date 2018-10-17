@@ -36,7 +36,7 @@ try {
 
   // clear any output buffers.
   $handlers = ob_list_handlers();
-  for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+  for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
 
   // headers
   header('Content-Description: File Transfer');

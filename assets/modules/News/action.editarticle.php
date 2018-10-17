@@ -360,7 +360,7 @@ SET value = ?, modified_date = $now WHERE news_id = ? AND fielddef_id = ?";
     $response .= '</EditArticle>';
 
     $handlers = ob_list_handlers();
-    for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) {
+    for ($cnt = 0; $cnt < count($handlers); $cnt++) {
         ob_end_clean();
     }
     header('Content-Type: text/xml');

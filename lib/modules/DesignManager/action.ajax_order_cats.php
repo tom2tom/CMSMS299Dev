@@ -20,7 +20,7 @@ if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Templates') ) return;
 
 $handlers = ob_list_handlers();
-for ($cnt = 0; $cnt < sizeof($handlers); $cnt++) { ob_end_clean(); }
+for ($cnt = 0; $cnt < count($handlers); $cnt++) { ob_end_clean(); }
 
 $out = null;
 try {

@@ -42,7 +42,7 @@ try {
 
         // send the file.
         $handlers = ob_list_handlers();
-        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+        for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
         header('Content-Description: File Transfer');
         header('Content-Type: application/force-download');
         header('Content-Disposition: attachment; filename='.$xmlname);

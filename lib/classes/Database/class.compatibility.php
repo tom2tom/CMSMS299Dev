@@ -97,7 +97,7 @@ namespace CMSMS\Database {
                     }
                     ++$i;
                 }
-                if (sizeof($sqlarr) != $i+1) {
+                if (count($sqlarr) != $i+1) {
                     return null;
                 }
                 $sql .= $sqlarr[$i];

@@ -209,7 +209,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
         unset($_REQUEST['module']);
         unset($_REQUEST['action']);
         $handlers = ob_list_handlers();
-        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+        for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
         // specified page not found, load the 404 error page
         $contentobj = $contentops->LoadContentFromAlias('error404',true);
@@ -237,7 +237,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
         unset($_REQUEST['module']);
         unset($_REQUEST['action']);
         $handlers = ob_list_handlers();
-        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+        for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
         // specified page not found, load the 404 error page.
         $contentobj = $contentops->LoadContentFromAlias('error403',true);
@@ -265,7 +265,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
         unset($_REQUEST['module']);
         unset($_REQUEST['action']);
         $handlers = ob_list_handlers();
-        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+        for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
         // specified page not found, load the 404 error page.
         $contentobj = $contentops->LoadContentFromAlias('error503',true);
@@ -291,7 +291,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
     catch (Exception $e) {
         // catch rest of exceptions
         $handlers = ob_list_handlers();
-        for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
+        for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
         $code = $e->GetCode();
         if (!$showtemplate && $code >= 400) {
             @ob_end_clean();

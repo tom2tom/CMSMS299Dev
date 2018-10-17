@@ -988,7 +988,7 @@ abstract class DataDictionary
         }
         $s = "CREATE TABLE $tabname (\n";
         $s .= implode(",\n", $lines);
-        if (sizeof($pkey) > 0) {
+        if (count($pkey) > 0) {
             $s .= ",\n                 PRIMARY KEY (";
             $s .= implode(', ', $pkey).')';
         }
