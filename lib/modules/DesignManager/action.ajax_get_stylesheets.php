@@ -16,8 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\FormUtils;
+
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
 
 try {
     if( !$this->CheckPermission('Manage Stylesheets') ) throw new Exception($this->Lang('error_permission'));
@@ -27,28 +29,72 @@ try {
     $tpl = $smarty->createTemplate($this->GetTemplateResource('ajax_get_stylesheets.tpl'),null,null,$smarty);
     $filter = json_decode($tmp,TRUE);
     $tpl->assign('css_filter',$filter)
-		->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
+        ->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
 
     $designs = CmsLayoutCollection::get_all();
-    if( ($n = count($designs)) ) {
+    if( $designs ) {
         $tpl->assign('list_designs',$designs);
-        $tmp = [];
-        for( $i = 0; $i < $n; $i++ ) {
-            $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
-            $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
+        for( $i = 0, $n = count($designs); $i < $n; ++$i ) {
+            $did = $designs[$i]->get_id();
+            $tmp2[$did] = $designs[$i]->get_name();
         }
         $tpl->assign('design_names',$tmp2);
     }
 
-	$css_query = new CmsLayoutStylesheetQuery($filter);
-	$csslist = $css_query->GetMatches();
-	$tpl->assign('stylesheets',$csslist);
-	$css_nav = [];
-	$css_nav['pagelimit'] = $css_query->limit;
-	$css_nav['numpages'] = $css_query->numpages;
-	$css_nav['numrows'] = $css_query->totalrows;
-	$css_nav['curpage'] = (int)($css_query->offset / $css_query->limit) + 1;
-	$tpl->assign('css_nav',$css_nav)
+    $css_query = new CmsLayoutStylesheetQuery($filter);
+    $csslist = $css_query->GetMatches();
+    $tpl->assign('stylesheets',$csslist);
+    if( $csslist ) {
+        $theme = cms_utils::get_theme_object();
+        $u = $this->create_url($id, 'admin_edit_css', $returnid, ['css'=>'XXX']);
+        $t = $this->Lang('edit_stylesheet');
+        $icon = $theme->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
+        $linkedit = '<a href="'.$u.'" data-css-id="XXX" class="edit_css">'.$icon.'</a>'."\n";
+
+        $t = $this->Lang('prompt_steal_lock');
+        $icon = $theme->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon edit_css steal_css_lock');
+        $linksteal = '<a href="'.$u.'" data-css-id="XXX" accesskey="e" class="steal_css_lock">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'admin_copy_css', $returnid, ['css'=>'XXX']);
+        $t = $this->Lang('copy_stylesheet');
+        $icon = $theme->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
+        $linkcopy = '<a href="'.$u.'">'.$icon.'</a>'."\n";
+
+        $u = $this->create_url($id, 'admin_delete_css', $returnid, ['css'=>'XXX']);
+        $t = $this->Lang('delete_stylesheet');
+        $icon = $theme->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
+        $linkdel = '<a href="'.$u.'">'.$icon.'</a>'."\n";
+
+        $now = time();
+        $menus = [];
+        for( $i = 0, $n = count($csslist); $i < $n; ++$i ) {
+            $acts = [];
+            $css = $csslist[$i];
+            $cid = $css->get_id();
+            if( !$css->locked() ) {
+                $acts[] = ['content'=>str_replace('XXX', $cid, $linkedit)];
+                $acts[] = ['content'=>str_replace('XXX', $cid, $linkcopy)];
+                $acts[] = ['content'=>str_replace('XXX', $cid, $linkdel)];
+            }
+            else {
+               $lock = $css->get_lock();
+               if( $lock['expires'] < $now ) {
+                   $acts[] = ['content'=>str_replace('XXX', $cid, $linksteal)];
+               }
+            }
+            if( $acts ) {
+                $menus[] = FormUtils::create_menu($acts, ['id'=>'Style'.$cid, 'class'=>'ContextMenu']);
+            }
+        }
+        $tpl->assign('menus1',$menus);
+    }
+
+    $css_nav = [];
+    $css_nav['pagelimit'] = $css_query->limit;
+    $css_nav['numpages'] = $css_query->numpages;
+    $css_nav['numrows'] = $css_query->totalrows;
+    $css_nav['curpage'] = (int)($css_query->offset / $css_query->limit) + 1;
+    $tpl->assign('css_nav',$css_nav)
      ->assign('manage_designs',$this->CheckPermission('Manage Designs'));
     $locks = CmsLockOperations::get_locks('stylesheet');
     $tpl->assign('have_css_locks',($locks) ? count($locks) : 0)

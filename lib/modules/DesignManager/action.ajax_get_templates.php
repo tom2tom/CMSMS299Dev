@@ -16,8 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\FormUtils;
+
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = sizeof($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
+
+$pmod = $this->CheckPermission('Modify Templates');
+$padd = $pmod || $this->CheckPermission('Add Templates');
+$lock_timeout = $this->GetPreference('lock_timeout');
 
 try {
     $tpl = $smarty->createTemplate($this->GetTemplateResource('ajax_get_templates.tpl'),null,null,$smarty);
@@ -39,11 +45,70 @@ try {
     }
 */
     $tpl->assign('tpl_filter',$filter)
-		->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
+        ->assign('filterimage',cms_join_path(__DIR__,'images','filter'));
 
     include __DIR__.DIRECTORY_SEPARATOR.'method.TemplateQuery.php';
     if( $templates ) {
+        $theme = cms_utils::get_theme_object();
+
+        $u = $this->create_url($id, 'admin_edit_template', $returnid, ['tpl'=>'XXX']);
+        $t = $this->Lang('prompt_edit');
+        $icon = $theme->DisplayImage('icons/system/edit', $t, '', '', 'systemicon');
+        $linkedit = '<a href="'.$u.'" data-tpl-id="XXX" class="edit_tpl">'.$icon.'</a>'."\n";
+
+        $t = $this->Lang('prompt_steal_lock');
+        $icon = $theme->DisplayImage('icons/system/permissions', $t, '', '', 'systemicon edit_tpl steal_tpl_lock');
+        $linksteal = '<a href="'.$u.'" data-tpl-id="XXX" accesskey="e" class="steal_tpl_lock">'.$icon.'</a>'."\n";
+
+        if( $padd ) {
+            $u = $this->create_url($id, 'admin_copy_template', $returnid, ['tpl'=>'XXX']);
+            $t = $this->Lang('prompt_copy_template');
+            $icon = $theme->DisplayImage('icons/system/copy', $t, '', '', 'systemicon');
+            $linkcopy = '<a href="'.$u.'">'.$icon.'</a>'."\n";
+        }
+
+        $u = $this->create_url($id, 'admin_delete_template', $returnid, ['tpl'=>'XXX']);
+        $t = $this->Lang('delete_template');
+        $icon = $theme->DisplayImage('icons/system/delete', $t, '', '', 'systemicon');
+        $linkdel = '<a href="'.$u.'">'.$icon.'</a>'."\n";
+/*
+//<a href="{$edit_tpl}" data-tpl-id="{$template->get_id()}" class="edit_tpl" title="{$mod->Lang('edit_template')}">{admin_icon icon='edit.gif' title=$mod->Lang('prompt_edit')}</a></td>
+//<a href="{$copy_tpl}" title="{$mod->Lang('copy_template')}">{admin_icon icon='copy.gif' title=$mod->Lang('prompt_copy_template')}</a></td>
+//<a href="{$edit_tpl}" data-tpl-id="{$template->get_id()}" accesskey="e" class="steal_tpl_lock">{admin_icon icon='permissions.gif' class='edit_tpl steal_tpl_lock' title=$mod->Lang('prompt_steal_lock')}</a>
+//<a href="{$delete_tpl}" title="{$mod->Lang('delete_template')}">{admin_icon icon='delete.gif' title=$mod->Lang('delete_template')}</a>
+*/
+        $now = time();
+        $menus = [];
+        for( $i = 0, $n = count($templates); $i < $n; ++$i ) {
+            $acts = [];
+            $template = $templates[$i];
+            $tid = $template->get_id();
+
+            if( !$lock_timeout || !$template->locked() ) {
+                $acts[] = ['content'=>str_replace('XXX', $tid, $linkedit)];
+                if( $padd ) {
+                    $acts[] = ['content'=>str_replace('XXX', $tid, $linkcopy)];
+                }
+            } else {
+                $lock = $template->get_lock();
+                if( $lock['expires'] < $now ) {
+                    $acts[] = ['content'=>str_replace('XXX', $tid, $linksteal)];
+                }
+            }
+
+            if( !$template->get_type_dflt() && !$template->locked() ) {
+                if( $pmod || $template->get_owner_id() == get_userid() ) {
+                    $acts[] = ['content'=>str_replace('XXX', $tid, $linkdel)];
+                }
+            }
+
+            if( $acts ) {
+                $menus[] = FormUtils::create_menu($acts, ['id'=>'Template'.$tid, 'class'=>'ContextMenu']);
+            }
+        }
+
         $tpl->assign('templates', $templates)
+         ->assign('menus2', $menus)
          ->assign('tpl_nav', [
             'pagelimit' => $limit,
             'numpages' => $numpages,
@@ -53,23 +118,22 @@ try {
     }
 
     $designs = CmsLayoutCollection::get_all();
-    if( ($n = count($designs)) ) {
+    if( $designs ) {
         $tpl->assign('list_designs',$designs);
-        $tmp = [];
-        for( $i = 0; $i < $n; $i++ ) {
-            $tmp['d:'.$designs[$i]->get_id()] = $designs[$i]->get_name();
+        $tmp2 = [];
+        for( $i = 0, $n = count($designs); $i < $n; ++$i ) {
             $tmp2[$designs[$i]->get_id()] = $designs[$i]->get_name();
         }
         $tpl->assign('design_names',$tmp2);
     }
 
     $types = CmsLayoutTemplateType::get_all();
-    $originators = [];
-    if( ($n = count($types)) ) {
+    if( $types ) {
+        $originators = [];
         $tmp = [];
         $tmp2 = [];
         $tmp3 = [];
-        for( $i = 0; $i < $n; $i++ ) {
+        for( $i = 0, $n = count($types); $i < $n; ++$i ) {
             $tmp['t:'.$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
             $tmp2[$types[$i]->get_id()] = $types[$i]->get_langified_display_value();
             $tmp3[$types[$i]->get_id()] = $types[$i];
@@ -83,13 +147,11 @@ try {
 
     $locks = CmsLockOperations::get_locks('template');
     $tpl->assign('have_locks',$locks ? count($locks) : 0)
-     ->assign('lock_timeout', $this->GetPreference('lock_timeout'))
+     ->assign('lock_timeout',$lock_timeout)
      ->assign('coretypename',CmsLayoutTemplateType::CORE)
-     ->assign('manage_templates',$this->CheckPermission('Modify Templates'))
-     ->assign('manage_designs',$this->CheckPermission('Manage Designs'))
-     ->assign('has_add_right',
-                    $this->CheckPermission('Modify Templates') ||
-                    $this->CheckPermission('Add Templates'));
+     ->assign('manage_templates',$pmod)
+     ->assign('has_add_right',$padd)
+     ->assign('manage_designs',$this->CheckPermission('Manage Designs'));
 
     $tpl->display();
 }

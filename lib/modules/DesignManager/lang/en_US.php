@@ -748,6 +748,7 @@ $lang['title_filterapplied'] = 'A filter has been selected which limits the numb
 $lang['title_filterlimit'] = 'Select the number of items to view on each page';
 $lang['title_import_design'] = 'Import a design from XML';
 $lang['title_locked'] = 'This item is already being edited by another user (or maybe even by you)';
+$lang['title_menu'] = 'Display actions menu';
 $lang['title_sortby'] = 'Select a way to sort the matching templates';
 $lang['title_sortorder'] = 'Modify the way the matching templates are ordered';
 $lang['title_template_setallpages'] = 'Set all pages to use this template';
@@ -765,6 +766,7 @@ $lang['tpl_originators'] = 'Originators';
 $lang['tpl_type'] = 'Template Type';
 $lang['tpl_types'] = 'Template Types';
 $lang['type'] = 'Type';
+
 
 #U
 $lang['unknown'] = 'Unknown';

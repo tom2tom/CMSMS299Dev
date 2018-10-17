@@ -43,9 +43,12 @@ $('#tpl_selall').cmsms_checkall();
       <th title="{$mod->Lang('title_tpl_filename')}">{$mod->Lang('prompt_filename')}</th>
       <th title="{$mod->Lang('title_tpl_design')}">{$mod->Lang('prompt_design')}</th>
       <th title="{$mod->Lang('title_tpl_dflt')}" class="pageicon">{$mod->Lang('prompt_dflt')}</th>{* dflt *}
-      <th class="pageicon"></th>{* edit *}
-      {if $has_add_right}<th class="pageicon"></th>{/if}{* copy *}
-      <th class="pageicon"></th>{* delete *}
+{*
+      <th class="pageicon"></th>{ * edit * }
+      {if $has_add_right}<th class="pageicon"></th>{/if}{ * copy * }
+      <th class="pageicon"></th>{ * delete * }
+*}
+      <th class="pageicon" title="{$mod->Lang('title_menu')}"></th>{* actions-menu *}
       <th class="pageicon"><input type="checkbox" value="1" id="tpl_selall" title="{$mod->Lang('prompt_select_all')}" /></th>{* checkbox *}
     </tr>
   </thead>
@@ -53,19 +56,16 @@ $('#tpl_selall').cmsms_checkall();
     {foreach $templates as $template}{strip}
     {include file='module_file_tpl:DesignManager;admin_defaultadmin_tpltooltip.tpl' assign='tpl_tooltip'}
     <tr class="{cycle values='row1,row2'}">
-      {cms_action_url action='admin_edit_template' tpl=$template->get_id() assign='edit_tpl'}
-      {if $has_add_right}
-      {cms_action_url action='admin_copy_template' tpl=$template->get_id() assign='copy_tpl'}
-      {/if}
-      {cms_action_url action='admin_delete_template' tpl=$template->get_id() assign='delete_tpl'}
+      {$tid=$template->get_id()}
+      {cms_action_url action='admin_edit_template' tpl=$tid assign='edit_tpl'}
 
      {* template id, and template name columns *}
      {if !$template->locked()}
-      <td><a href="{$edit_tpl}" data-tpl-id="{$template->get_id()}" class="edit_tpl tooltip" title="{$mod->Lang('edit_template')}" data-cms-description='{$tpl_tooltip}'>{$template->get_id()}</a></td>
+      <td><a href="{$edit_tpl}" data-tpl-id="{$tid}" class="edit_tpl tooltip" title="{$mod->Lang('edit_template')}" data-cms-description='{$tpl_tooltip}'>{$tid}</a></td>
       <td></td>
       <td><a href="{$edit_tpl}" data-tpl-id="{$template->get_type_id()}" class="edit_tpl tooltip" title="{$mod->Lang('edit_template')}" data-cms-description='{$tpl_tooltip}'>{$template->get_name()}</a></td>
       {else}
-      <td>{$template->get_id()}</td>
+      <td>{$tid}</td>
       <td>{admin_icon icon='warning.gif' title=$mod->Lang('title_locked')}</td>
       <td><span class="tooltip" data-cms-description='{$tpl_tooltip}'>{$template->get_name()}</span></td>
       {/if}
@@ -108,36 +108,40 @@ $('#tpl_selall').cmsms_checkall();
         <span title="{$mod->Lang('prompt_title_na')}">{$mod->Lang('prompt_na')}</span>
         {/if}
       </td>
-
-      {* edit/copy/steal icons *}
+{*
+      { * edit/copy/steal icons * }
       {if !$lock_timeout || !$template->locked()}
-      <td><a href="{$edit_tpl}" data-tpl-id="{$template->get_id()}" class="edit_tpl" title="{$mod->Lang('edit_template')}">{admin_icon icon='edit.gif' title=$mod->Lang('prompt_edit')}</a></td>
+      <td><a href="{$edit_tpl}" data-tpl-id="{$tid}" class="edit_tpl" title="{$mod->Lang('edit_template')}">{admin_icon icon='edit.gif' title=$mod->Lang('prompt_edit')}</a></td>
       {if $has_add_right}
-        <td><a href="{$copy_tpl}" title="{$mod->Lang('copy_template')}">{admin_icon icon='copy.gif' title=$mod->Lang('prompt_copy_template')}</a></td>
+        <td><a href="{cms_action_url action='admin_copy_template' tpl=$tid}" title="{$mod->Lang('copy_template')}">{admin_icon icon='copy.gif' title=$mod->Lang('prompt_copy_template')}</a></td>
       {/if}
       {else}
       <td>
         {$lock=$template->get_lock()}
         {if $lock.expires < $smarty.now}
-          <a href="{$edit_tpl}" data-tpl-id="{$template->get_id()}" accesskey="e" class="steal_tpl_lock">{admin_icon icon='permissions.gif' class='edit_tpl steal_tpl_lock' title=$mod->Lang('prompt_steal_lock')}</a>
+          <a href="{$edit_tpl}" data-tpl-id="{$tid}" accesskey="e" class="steal_tpl_lock">{admin_icon icon='permissions.gif' class='edit_tpl steal_tpl_lock' title=$mod->Lang('prompt_steal_lock')}</a>
         {/if}
       </td>
       {if $has_add_right}<td></td>{/if}
       {/if}
 
-      {* delete column *}
+      { * delete column * }
       <td>
         {if !$template->get_type_dflt() && !$template->locked()}
         {if $template->get_owner_id() == get_userid() || $manage_templates}
-        <a href="{$delete_tpl}" title="{$mod->Lang('delete_template')}">{admin_icon icon='delete.gif' title=$mod->Lang('delete_template')}</a>
+        <a href="{cms_action_url action='admin_delete_template' tpl=$tid}" title="{$mod->Lang('delete_template')}">{admin_icon icon='delete.gif' title=$mod->Lang('delete_template')}</a>
         {/if}
         {/if}
       </td>
-
+*}
+      {* actions column *}
+      <td>
+        <span context-menu="Template{$tid}" style="cursor:pointer;">{admin_icon icon='menu.gif' alt='menu' title=$mod->Lang('title_menu') class='systemicon'}</span>
+      </td>
       {* checkbox column *}
       <td>
         {if !$template->locked() && ($template->get_owner_id() == get_userid() || $manage_templates) }
-        <input type="checkbox" class="tpl_select" name="{$actionid}tpl_select[]" value="{$template->get_id()}" title="{$mod->Lang('title_tpl_bulk')}" />
+        <input type="checkbox" class="tpl_select" name="{$actionid}tpl_select[]" value="{$tid}" title="{$mod->Lang('title_tpl_bulk')}" />
        {/if}
       </td>
 
@@ -145,7 +149,9 @@ $('#tpl_selall').cmsms_checkall();
     {/strip}{/foreach}
   </tbody>
 </table>
-
+<div id="menus2">
+ {foreach $menus2 as $menu}{$menu}{/foreach}
+</div>
   <div class="pageoptions rowbox" style="justify-content:flex-end">
     <div class="boxchild">
       {cms_help realm=$_module key2='help_bulk_templates' title=$mod->Lang('prompt_bulk')}

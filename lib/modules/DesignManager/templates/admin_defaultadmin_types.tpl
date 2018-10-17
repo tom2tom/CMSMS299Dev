@@ -2,11 +2,8 @@
 <table class="pagetable">
   <thead>
     <tr>
-      <th style="width:5%;">{$mod->Lang('prompt_id')}</th>
+      <th>{$mod->Lang('prompt_id')}</th>
       <th>{$mod->Lang('prompt_name')}</th>
-      {if $has_add_right}
-      <th class="pageicon"></th>
-      {/if}
       <th class="pageicon"></th>
     </tr>
   </thead>
@@ -23,12 +20,12 @@
       <td>
         <a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{$type->get_langified_display_value()}</a>
       </td>
+      <td>
+      <a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{admin_icon icon='edit.gif'}</a>
       {if $has_add_right}
-      <td>{cms_action_url action=admin_edit_template import_type=$type->get_id() assign='create_url'}
-        <a href="{$create_url}" title="{$mod->Lang('prompt_import')}">{admin_icon icon='import.gif'}</a>
-      </td>
+        <a href="{cms_action_url action=admin_edit_template import_type=$type->get_id()}" title="{$mod->Lang('prompt_import')}">{admin_icon icon='import.gif'}</a>
       {/if}
-      <td><a href="{$edit_url}" title="{$mod->Lang('prompt_edit')}">{admin_icon icon='edit.gif'}</a></td>
+      </td>
     </tr>
   {/foreach}
   </tbody>
