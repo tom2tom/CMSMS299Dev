@@ -2460,7 +2460,7 @@ ul.sortableList > li {
 }
 #login input[type="text"], #login input[type="password"] {
     margin: 1em 0 0 0;
-    width: 23em
+    width: 17em
 }
 #login .loginsubmit {
     margin-right: 0.5em;
