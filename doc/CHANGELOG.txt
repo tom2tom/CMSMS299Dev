@@ -136,6 +136,9 @@ deprecated
 
 non-core modules in <siterootpath>/modules
   migrate to <siterootpath>/assets/modules (or whatever the 'assets' folder is named)
+javascript files in <siterootpath>/lib/jquery
+  jQuery & cmsms core scripts migrated to <siterootpath>/lib/js, other scripts to <siterootpath>/assets/js (or whatever the 'assets' folder is named)
+  links to relocated non-jquery files remain in <siterootpath>/lib/jquery
 
 gone
 
