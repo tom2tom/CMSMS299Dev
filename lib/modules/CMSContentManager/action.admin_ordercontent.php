@@ -97,11 +97,11 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
 }
 
 //custom requirements TODO
-$script_url = CMS_SCRIPTS_URL;
+$base_url = cms_path_to_url(CMS_ASSETS_PATH);
 $msg = json_encode($this->Lang('confirm_reorder'));
 
 $js = <<<EOS
-<script type="text/javascript" src="{$script_url}/jquery.mjs.nestedSortable.min.js"></script>
+<script type="text/javascript" src="{$base_url}/js/jquery.mjs.nestedSortable.min.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 function parseTree(ul) {
@@ -164,4 +164,3 @@ $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tp
 $tpl->assign('tree',$tree);
 
 $tpl->display();
-
