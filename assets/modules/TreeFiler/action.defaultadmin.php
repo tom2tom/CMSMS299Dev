@@ -127,13 +127,10 @@ $sm->queue_file($p.'jquery.treefilter.js'); //OR .min for production
 $sm->queue_file($p.'jquery.easysearch.js'); //OR .min for production
 $sm->queue_file($p.'jquery.dm-uploader.js'); //OR .min for production
 $sm->queue_file($p.'jquery.filedrag.js'); //OR .min for production
+$sm->queue_matchedfile('jquery.ContextMenu.min.js');
+$js = $sm->render_inclusion();
 
-$sm->queue_file(CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.ContextMenu.min.js');
-
-$fn = $sm->render_scripts();
-$u = cms_path_to_url(TMP_CACHE_LOCATION).'/'.$fn;
-$js = <<<EOS
-<script type="text/javascript" src="{$u}"></script>
+$js .= <<<EOS
 <script>
 //<![CDATA[
 
@@ -183,6 +180,7 @@ $js .= <<<EOS
 </script>
 
 EOS;
+//TODO include this in the merge
 $this->AdminBottomContent($js);
 
 $tpl->display();

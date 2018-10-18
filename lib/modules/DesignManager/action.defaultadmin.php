@@ -202,7 +202,7 @@ $url = $this->create_url($id,'ajax_get_templates');
 $ajax_templates_url = str_replace('amp;','',$url);
 $url = $this->create_url($id,'ajax_get_stylesheets');
 $ajax_stylesheets_url = str_replace('amp;','',$url);
-$script_url = CMS_SCRIPTS_URL;
+
 $jsonfilter = json_encode($efilter); // used for ajaxy stuff
 $jsoncssfilter = json_encode($filter_css_rec); // used for ajaxy stuff
 $s1 = json_encode($this->Lang('confirm_steal_lock'));

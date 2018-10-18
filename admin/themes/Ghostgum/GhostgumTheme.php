@@ -92,10 +92,9 @@ EOS;
 		}
 
 		$sm->reset();
-		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
-		$sm->queue_file($p.'jquery.toast.min.js', 1);
-
-		$sm->queue_file($p.'jquery.jquery.basictable.min.js', 1); //TESTER
+		$sm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
+		$sm->queue_matchedfile('jquery.toast.min.js', 1);
+		$sm->queue_matchedfile('jquery.basictable.min.js', 1); //TESTER
 
 		$p = __DIR__.DIRECTORY_SEPARATOR.'js'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'jquery.alertable.js', 2); //OR .min for production

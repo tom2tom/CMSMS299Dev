@@ -112,8 +112,8 @@ EOS;
 		}
 
 		$sm->reset();
-		$sm->queue_file($p.'jquery.ui.touch-punch.min.js', 1);
-		$sm->queue_file($p.'jquery.toast.min.js', 1);
+		$sm->queue_matchedfile('jquery.ui.touch-punch.min.js', 1);
+		$sm->queue_matchedfile('jquery.toast.min.js', 1);
         $p = __DIR__.DIRECTORY_SEPARATOR.'includes'.DIRECTORY_SEPARATOR;
 		$sm->queue_file($p.'standard.js', 3); //OR .min for production
 		$out .= $sm->render_inclusion();

@@ -144,7 +144,6 @@ $u1 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
 $url = $this->create_url($id,'ajax_get_content','');
 $u2 = str_replace('&amp;','&',rawurldecode($url)) . '&cmsjobtype=1';
 $u3 = $config['admin_url'].'/ajax_lock.php?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY].'&cmsjobtype=1';
-$script_url = CMS_SCRIPTS_URL;
 
 //TODO any other action-specific js
 //TODO flexbox css for multi-row .colbox, .rowbox.flow, .boxchild
