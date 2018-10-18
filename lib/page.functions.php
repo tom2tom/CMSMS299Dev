@@ -44,7 +44,8 @@ use CMSMS\UserOperations;
  */
 function get_userid(bool $redirect = true)
 {
-    if( cmsms()->is_cli() ) return 1;
+//    if( cmsms()->is_cli() ) return 1; NO WAY, JOSE, DOES A DODGY COMMAND-RUNNER GET TO BE THE MAIN MAN ...
+//  TODO alias etc during 'remote admin'
     $uid = LoginOperations::get_instance()->get_effective_uid();
     if( !$uid && $redirect ) {
         $config = cms_config::get_instance();
@@ -67,7 +68,7 @@ function get_userid(bool $redirect = true)
  */
 function get_username(bool $redirect = true)
 {
-    if( cmsms()->is_cli() ) return '';
+//    if( cmsms()->is_cli() ) return '';  TODO alias etc during 'remote admin'
     $uname = LoginOperations::get_instance()->get_effective_username();
     if( !$uname && $redirect ) {
         $config = cms_config::get_instance();
@@ -94,9 +95,9 @@ function check_login(bool $no_redirect = false)
     if( $uid > 0 ) {
         $res = LoginOperations::get_instance()->validate_requestkey();
     }
-	else {
-	    $res = false;
-	}
+    else {
+        $res = false;
+    }
     if( !$res ) {
         // logged in, but no url key on the request
         if( $redirect ) {
@@ -105,7 +106,7 @@ function check_login(bool $no_redirect = false)
             if( startswith($_SERVER['SCRIPT_FILENAME'],CMS_ROOT_PATH) ) {
                 $_SESSION['login_redirect_to'] = $_SERVER['REQUEST_URI'];
             }
-	        LoginOperations::get_instance()->deauthenticate();
+            LoginOperations::get_instance()->deauthenticate();
             $config = cms_config::get_instance();
             redirect($config['admin_url'].'/login.php');
         }
@@ -201,7 +202,7 @@ function remove_site_preference($prefname, $uselike = false)
  * @see cms_siteprefs::set
  *
  * @param string $prefname The preference name
- * @param mixed  $value	The preference value (will be stored as a string)
+ * @param mixed  $value The preference value (will be stored as a string)
  */
 function set_site_preference($prefname, $value)
 {
@@ -245,8 +246,8 @@ function create_textarea(
 ) {
     $parms = func_get_args() + [
         'height' => 15,
-	    'width' => 80,
-	];
+        'width' => 80,
+    ];
     return FormUtils::create_textarea($parms);
 }
 
@@ -293,26 +294,26 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
                               bool $allownone=false,string $extratext='',
                               string $fileprefix='',bool $excludefiles=true,bool $sortresults = false)
 {
-  $files = [];
-  $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
-  if( $files === false ) return false;
-  $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
-  if( $allownone ) {
-    $txt = '';
-    if( empty($value) ) $txt = 'selected="selected"';
-    $out .= "  <option value=\"-1\" $txt>--- ".lang('none')." ---</option>\n";
-  }
+    $files = [];
+    $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
+    if( $files === false ) return false;
+    $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
+    if( $allownone ) {
+        $txt = '';
+        if( empty($value) ) $txt = 'selected="selected"';
+        $out .= "<option value=\"-1\" $txt>--- ".lang('none')." ---</option>\n";
+    }
 
-  if( $sortresults ) natcasesort($files);
-  foreach( $files as $file ) {
-    $txt = '';
-    $opt = $file;
-    if( !empty($optprefix) ) $opt = $optprefix.'/'.$file;
-    if( $opt == $value ) $txt = 'selected="selected"';
-    $out .= "  <option value=\"{$opt}\" {$txt}>{$file}</option>\n";
-  }
-  $out .= '</select>';
-  return $out;
+    if( $sortresults ) natcasesort($files);
+    foreach( $files as $file ) {
+        $txt = '';
+        $opt = $file;
+        if( !empty($optprefix) ) $opt = $optprefix.'/'.$file;
+        if( $opt == $value ) $txt = 'selected="selected"';
+        $out .= "<option value=\"{$opt}\" {$txt}>{$file}</option>\n";
+    }
+    $out .= '</select>';
+    return $out;
 }
 
 
@@ -443,16 +444,16 @@ function get_pageid_or_alias_from_url()
  */
 function get_editor_script(array $params) : array
 {
-	$handler = cms_siteprefs::get('syntax_editor');
-	if( $handler ) {
-		list($modname, $edname) = explode('::', $handler);
-		if( !$edname ) {
-			$edname = $modname;
-		}
-		$modinst = cms_utils::get_module($modname);
-		if( $modinst && ($modinst instanceof SyntaxEditor) ) {
-			return $modinst->GetEditorScript($edname, $params);
-		}
-	}
-	return [];
+    $handler = cms_siteprefs::get('syntax_editor');
+    if( $handler ) {
+        list($modname, $edname) = explode('::', $handler);
+        if( !$edname ) {
+            $edname = $modname;
+        }
+        $modinst = cms_utils::get_module($modname);
+        if( $modinst && ($modinst instanceof SyntaxEditor) ) {
+            return $modinst->GetEditorScript($edname, $params);
+        }
+    }
+    return [];
 }
