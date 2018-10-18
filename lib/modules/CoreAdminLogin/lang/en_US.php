@@ -37,7 +37,7 @@ $lang['submit'] = 'Submit';
 $lang['title_login'] = 'Log in to<br />website Admin&nbsp;Console';
 $lang['title_login_named'] = 'Log in to<br />%s Admin&nbsp;Console';
 $lang['title_forgotpw'] = 'Enter your admin username.  After submitting, an email containing new login information will be sent to the address associated with the entered username.';
-$lang['title_recover'] = 'Recover login credentials for %s';
+$lang['title_recover'] = 'Recover login credentials for<br />%s';
 $lang['username'] = 'Username';
 $lang['warn_ipandcookies'] = '<strong>Warning:</strong> some admin operations use cookies and/or track your IP address';
 

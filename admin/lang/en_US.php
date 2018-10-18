@@ -1426,7 +1426,7 @@ $lang['pseudocron_granularity'] = 'Pseudocron Granularity';
 ## R
 $lang['read'] = 'Read';
 $lang['recentpages'] = 'Recent Pages';
-$lang['recoversitetitle'] = 'Recover login credentials for %s';
+$lang['recoversitetitle'] = 'Recover login credentials for<br />%s';
 $lang['recover_start'] = 'Start recovery';
 $lang['recoveryemailsent'] = 'Email sent to recorded address.  Please check your inbox for further instructions.';
 $lang['register_globals'] = 'PHP register_globals';
