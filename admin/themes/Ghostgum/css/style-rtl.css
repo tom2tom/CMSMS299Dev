@@ -2417,8 +2417,7 @@ ul.sortableList > li {
     padding-top: 15%
 }
 #login #login-container, #login #login-container.error {
-    width: 28em;
-    padding-top: 36px;
+    width: 22em;
     margin: auto;
     line-height: 1.5;
     font-size: 0.9em
@@ -2448,7 +2447,7 @@ ul.sortableList > li {
     padding: 2em 2em 1em 2em;
     box-shadow: 2px -2px 8px rgba(0,0,0,.25) inset, -2px 2px 8px #f5faeb inset;
     -webkit-box-shadow: 2px -2px 8px rgba(0,0,0,.25) inset, -2px 2px 8px #f5faeb inset;
-    min-width: 23em
+    min-width: 17em
 }
 #login h1 {
     margin: 0 auto;
@@ -2468,6 +2467,14 @@ ul.sortableList > li {
 #login .loginsubmit {
     margin-left: 0.5em;
 }
+#login .login-info {
+    border: 1px solid #4ca6f4;
+    border-radius: 3px;
+    padding: 6px 10px;
+    background-color: #d1e8fc;
+    color: #0e2a42;
+    font-size: 0.9em;
+}
 #login a#toggle-info {
     position: absolute;
     background: url(../images/icons/extra/info.png) no-repeat scroll center center;
@@ -2476,22 +2483,16 @@ ul.sortableList > li {
     height: 24px;
     width: 24px;
     outline: none;
-    text-indent: +9999em;
+    text-indent: 9999em;
     z-index: 40;
 }
 #login #info-wrapper {
     display: none;
     position: absolute;
     top: 30px;
-    right: 1em;
-    max-width: 27em;
+    right: 0.5em;
+    max-width: 21.5em;
     margin-top: 2em;
-    border: 1px solid #4ca6f4;
-    border-radius: 3px;
-    padding: 1em;
-    background-color: #d1e8fc;
-    color: #0e2a42;
-    font-size: 0.9em;
     z-index: 20;
 }
 #login #info-wrapper.open {
@@ -2503,7 +2504,7 @@ ul.sortableList > li {
     padding: 5px
 }
 #login #info-wrapper ol {
-    margin: 0 2em 0 0;
+    margin: 0 1.5em 0 0;
     list-style: decimal
 }
 #login #info-wrapper h2 {
