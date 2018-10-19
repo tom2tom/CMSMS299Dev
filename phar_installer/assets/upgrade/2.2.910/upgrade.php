@@ -62,6 +62,7 @@ foreach( ['MenuManager', 'CMSMailer', 'News'] as $modname ) {
 foreach ([
  ['admin','configs'],
  ['assets','admin_custom'],
+ ['assets','classes'],
  ['assets','configs'],
  ['assets','css'],
  ['assets','images'],

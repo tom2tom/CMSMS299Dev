@@ -239,6 +239,7 @@ verbose_msg(ilang('install_createassets'));
 $app = get_app();
 $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
 $create_private_dir($destdir,'admin_custom');
+$create_private_dir($destdir,'classes');
 $create_private_dir($destdir,'configs');
 $create_private_dir($destdir,'css');
 $create_private_dir($destdir,'images');
