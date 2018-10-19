@@ -112,57 +112,21 @@ class ScriptManager
     }
 
     /**
-     * Find (in any of the various js-file locations for the site) and
-     * record a script-file to be merged if necessary
+     * Find and record a script-file to be merged if necessary
      *
      * @param string $filename (base)name of the wanted script file,
      *  optionally including [.-]min before the .js extension
      *  If the name includes a version, that will be taken into account.
-     *  Otherwise, any found version will be used. Min in preferece to non-min.
+     *  Otherwise, any found version will be used. Min-format preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
+     * @return bool indicating success
      */
     public function queue_matchedfile( string $filename, int $priority = 0 )
     {
-        static $places = null;
-
-        if( $places === null ) {
-            $places = [
-            CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
-            CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
-            CMS_SCRIPTS_PATH,
-            CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
-            CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
-            ];
-        }
-
-        $target = basename($filename, '.js');
-        if( ($p = stripos($target, 'min')) !== false ) {
-            $target = substr($target, 0, $p-1); //also omit preceeding separator, assumed '.' or '-'
-        }
-
-        $patn = '~^'.$target.'([\d\.\-]*)?(min)?\.js$~i';
-        foreach ($places as $base_path) {
-            $allfiles = scandir($base_path);
-            if( $allfiles ) {
-                $scripts = preg_grep($patn, $allfiles);
-                if( $scripts ) {
-                    if( count($scripts) > 1) {
-                        foreach( $scripts as $target ) {
-                            preg_match($patn, $target, $matches);
-                            if( !empty($matches[2]) ) {
-                                break; //use the min
-                            }/* elseif( !empty($matches[1] ) {
-                                //TODO check versions
-                            }
-*/
-                        }
-                    } else {
-                        $target = reset($scripts);
-                    } 
-                    $this->queue_file($base_path.DIRECTORY_SEPARATOR.$target, $priority);
-                    return true;
-                }
-            }
+        $js_filename = cms_get_script($filename, false);
+        if( $js_filename ) {
+            $this->queue_file( $js_filename, $priority );
+            return true;
         }
         return false;
     }
@@ -240,9 +204,9 @@ class ScriptManager
      */
     public function render_inclusion(string $output_path = '', bool $force = false, bool $allow_defer = true )
     {
-        $js_filename = $this->render_scripts($output_path, $force, $allow_defer);
+        $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
+        $js_filename = $this->render_scripts($base_path, $force, $allow_defer);
         if( $js_filename ) {
-            $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
             $output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
             $url = cms_path_to_url($output_file);
             return "<script type=\"text/javascript\" src=\"$url\"></script>\n";

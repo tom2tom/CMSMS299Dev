@@ -76,14 +76,14 @@ function redirect(string $to)
 
     session_write_close();
 
-	global $CMS_INSTALL_PAGE;
+    global $CMS_INSTALL_PAGE;
 
     if (empty($CMS_INSTALL_PAGE)) {
         $debug = CMS_DEBUG;
-	}
-	else {
+    }
+    else {
         $debug = false;
-	}
+    }
 
     if (!$debug && headers_sent()) {
         // use javascript instead
@@ -1209,6 +1209,74 @@ EOS;
 }
 
 /**
+ * Return the filepath or URL of a wanted script file, if found in any of the
+ * various standard locations for js-files (or any other provided location).
+ * Intended mainly for non-jQuery scripts, but it will try to find those those too.
+ * @since 2.3
+ *
+ * @param string $filename (base)name of the wanted script file,
+ *  optionally including [.-]min before the .js extension
+ *  If the name includes a version, that will be taken into account.
+ *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
+ * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
+ * @param xplaces optional array of 'non-standard' directory-paths to include (last) in the search
+ * @return mixed string absolute filepath | URL | null
+ */
+function cms_get_script(string $filename, bool $as_url = true, array $xplaces = [])
+{
+    static $jsdirs = null;
+
+    if( $jsdirs === null ) {
+        $jsdirs = [
+        CMS_SCRIPTS_PATH,
+        CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
+        CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
+        CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
+        CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
+        ];
+    }
+
+    $target = basename($filename, '.js');
+    if( ($p = stripos($target, 'min')) !== false ) {
+        $target = substr($target, 0, $p-1); //also omit preceeding separator, assumed '.' or '-'
+    }
+
+    if( $xplaces ) {
+        $places = aray_merge($jsdirs, $xplaces);
+    } else {
+        $places = $jsdirs;
+    }
+
+    $patn = '~^'.$target.'([\d\.\-]*)?(min)?\.js$~i';
+    foreach ($places as $base_path) {
+        $allfiles = scandir($base_path);
+        if( $allfiles ) {
+            $scripts = preg_grep($patn, $allfiles);
+            if( $scripts ) {
+                if( count($scripts) > 1) {
+                    foreach( $scripts as $target ) {
+                        preg_match($patn, $target, $matches);
+                        if( !empty($matches[2]) ) {
+                            break; //use the min
+                        }/* elseif( !empty($matches[1] ) {
+                            //TODO check versions
+                        }
+*/
+                    }
+                } else {
+                    $target = reset($scripts);
+                }
+                $tmp = $base_path.DIRECTORY_SEPARATOR.$target;
+                if( $as_url ) {
+                    return cms_path_to_url($tmp);
+                }
+                return $tmp;
+            }
+        }
+    }
+}
+
+/**
  * @ignore
  * @since 2.0.2
  */
@@ -1270,13 +1338,13 @@ function is_base64(string $s) : bool
 }
 
 /**
- * Create a unique GUID.
+ * Create an almost-certainly-unique identifier.
  *
  * @since 2.3
  * @return string
  */
 function cms_create_guid() : string
 {
-    if (function_exists('com_create_guid')) return trim(com_create_guid(), '{}');
+    if (function_exists('com_create_guid')) return trim(com_create_guid(), '{}'); //windows
     return random_bytes(32);
 }
