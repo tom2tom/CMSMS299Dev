@@ -57,7 +57,8 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\TreeOperations' => 'cms_tree_operations',
 'CMSMS\Url' => 'cms_url',
 'CMSMS\Userprefs' => 'cms_userprefs',
-'CMSMS\Utils' => 'cms_utils',
+'CMSMS\Utils' => 'cms_utils'
+support namespace 'CMSASSETS' for non-core classes added into <siterootpath>/assets/classes and descendants 
 remote administration API (calguy to describe, please!)
 optional per-page inclusions (e.g. css, js urls/verbatim) for admin-pages and module-actions, to supplement and/or replace template content and CMSModule::GetHeaderHTML(). So e.g. js can be removed from templates, and inserted at page-bottom.
 pre-configuration of site-installation parameters
@@ -208,8 +209,8 @@ DETAILS
     - Deprecate undocumented request-parameter [{$actionid}]showtemplate, which has been used to suppress output.
       Instead use cmsjobtype parameter with value
       0 - default, normal page creation & display
-      1 - process request with smarty support, but don't display anything, intended for ajax-requests & the like
-      2 - process request with minimal overhead (e.g. no smarty), for requests which 'do' something rather than display e.g. webhooks, async jobs
+      1 - process request with smarty support, but don't display anything, intended for ajax-requests & the like (no page headers sent)
+      2 - process request with minimal overhead (e.g. no smarty reduces request by 50%), for requests which 'do' something rather than display e.g. webhooks, async jobs
     - No longer send id, returnid, action parameters in the action $params array.
     - Only modules that are not marked as lazy load (the default) will be loaded automatically.
     - The long deprecated $module->smarty property is now removed.
