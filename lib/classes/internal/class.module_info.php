@@ -32,18 +32,38 @@ use function lang;
 
 class module_info implements ArrayAccess
 {
-    const PROPNAMES = ['name','version','depends','mincmsversion', 'author', 'authoremail', 'help', 'about',
-                       'lazyloadadmin', 'lazyloadfrontend', 'changelog','ver_compatible','dir','writable','root_writable',
-                       'description','has_meta','has_custom','notavailable','is_system_module'];
+    const PROPNAMES = [
+    'about',
+    'author',
+    'authoremail',
+    'changelog',
+    'depends',
+    'description',
+    'dir',
+    'has_custom',
+    'has_meta',
+    'help',
+    'is_system_module',
+    'lazyloadadmin',
+    'lazyloadfrontend',
+    'mincmsversion',
+    'name',
+    'notavailable',
+    'root_writable',
+    'ver_compatible',
+    'version',
+    'writable',
+    ];
+
     private $_data = [];
 
     public function __construct($module_name,$can_load = true)
     {
         $fn1 = $this->_get_module_meta_file( $module_name );
-		$if1 = is_file($fn1);
+        $if1 = is_file($fn1);
         $ft1 = ( $if1 ) ? filemtime($fn1) : 0 ;
         $fn2 = $this->_get_module_file( $module_name );
-		$if2 = is_file($fn2);
+        $if2 = is_file($fn2);
         $ft2 = ( $if2) ? filemtime($fn2) : 0;
         if( ($ft2 > $ft1 && $can_load) || ($if2 && !$if1) ) {
             // module file is newer or the only choice
@@ -53,11 +73,11 @@ class module_info implements ArrayAccess
             $arr = $this->_read_from_module_meta($module_name);
         } else {
             $arr = null;
-		}
+        }
         if( $arr ) {
             $arr2 = $this->_check_modulecustom($module_name);
             $this->_setData( array_merge($arr2, $arr ));
-		} else {
+        } else {
             $arr['name'] = $module_name;
             $this->_setData( $arr );
             $this->_data['notavailable'] = true;
@@ -78,26 +98,25 @@ class module_info implements ArrayAccess
             return ModuleOperations::get_instance()->get_module_path( $this->_data['name'] );
 
         case 'writable':
-	    $dir = $this['dir'];
-	    if( !$dir || !is_dir( $dir ) ) return false;
+            $dir = $this['dir'];
+            if( !$dir || !is_dir( $dir ) ) return false;
             return is_directory_writable($this['dir']);
 
         case 'root_writable':
-            // move this into ModuleManager\module_info
+            // TODO move this into ModuleManager\module_info
             return is_writable($this['dir']);
 
         case 'is_system_module':
             return ModuleOperations::get_instance()->IsSystemModule( $this->_data['name'] );
 
         default:
-            if( isset($this->_data[$key]) ) return $this->_data[$key];
-            break;
+            return $this->_data[$key] ?? null;
         }
     }
 
     public function OffsetSet($key,$value)
     {
-        if( !in_array($key,self::PROPNAMES) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',null,$key);
+        if( !in_array($key,self::PROPNAMES) ) throw new CmsLogicException('CMSEX_INVALIDMEMBER',$key);
         if( $key == 'about' ) throw new CmsLogicException('CMSEX_INVALIDMEMBERSET',$key);
         if( $key == 'ver_compatible' ) throw new CmsLogicException('CMSEX_INVALIDMEMBERSET',$key);
         if( $key == 'dir' ) throw new CmsLogicException('CMSEX_INVALIDMEMBERSET',$key);
@@ -120,15 +139,15 @@ class module_info implements ArrayAccess
     private function _get_module_meta_file( string $module_name ) : string
     {
         $path = cms_module_path($module_name);
-		if ($path) {
-		    return str_replace($module_name.'.module.php','moduleinfo.ini',$path);
-		}
-		return '';
+        if ($path) {
+            return str_replace($module_name.'.module.php','moduleinfo.ini',$path);
+        }
+        return '';
     }
 
     private function _get_module_file( string $module_name ) : string
     {
-		return cms_module_path($module_name);
+        return cms_module_path($module_name);
     }
 
     private function _setData( array $in )
@@ -142,9 +161,9 @@ class module_info implements ArrayAccess
     {
         $path = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'');
         $files = glob($path.'templates/*.tpl'); //TODO lazy separator!
-		if (!$files) {
-	        $files = glob($path.'lang/??_??.php');
-		}
+        if (!$files) {
+            $files = glob($path.'lang/??_??.php');
+        }
         $has = count($files) > 0;
         return ['has_custom' => $has];
     }
@@ -197,30 +216,30 @@ class module_info implements ArrayAccess
     {
         $mod = ModuleOperations::get_instance()->get_module_instance($module_name,'',TRUE);
         if( !is_object($mod) ) {
-		    // if the module is not installed, try to interrogate it anyway
-			$path = cms_module_path($module_name);
-			if ($path) {
-				include $path;
-				$module_name = '\\'.$module_name; //modules in global namespace
-				$mod = new $module_name();
-			}
-		}
+            // if the module is not installed, try to interrogate it anyway
+            $path = cms_module_path($module_name);
+            if ($path) {
+                include $path;
+                $module_name = '\\'.$module_name; //modules in global namespace
+                $mod = new $module_name();
+            }
+        }
         if( is_object($mod) ) {
-			$arr = [];
-			$arr['name'] = $mod->GetName();
-			$arr['description'] = $mod->GetDescription();
-			if( $arr['description'] == '' ) $arr['description'] = $mod->GetAdminDescription();
-			$arr['version'] = $mod->GetVersion();
-			$arr['depends'] = $mod->GetDependencies();
-			$arr['mincmsversion'] = $mod->MinimumCMSVersion();
-			$arr['author'] = $mod->GetAuthor();
-			$arr['authoremail'] = $mod->GetAuthor();
-			$arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
-			$arr['lazyloadfrontend'] = $mod->LazyLoadAdmin();
-			$arr['help'] = $mod->GetHelp();
-			$arr['changelog'] = $mod->GetChangelog();
-			return $arr;
-		}
+            $arr = [];
+            $arr['name'] = $mod->GetName();
+            $arr['description'] = $mod->GetDescription();
+            if( $arr['description'] == '' ) $arr['description'] = $mod->GetAdminDescription();
+            $arr['version'] = $mod->GetVersion();
+            $arr['depends'] = $mod->GetDependencies();
+            $arr['mincmsversion'] = $mod->MinimumCMSVersion();
+            $arr['author'] = $mod->GetAuthor();
+            $arr['authoremail'] = $mod->GetAuthor();
+            $arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
+            $arr['lazyloadfrontend'] = $mod->LazyLoadAdmin();
+            $arr['help'] = $mod->GetHelp();
+            $arr['changelog'] = $mod->GetChangelog();
+            return $arr;
+        }
     }
 
-} // end of class
+} // class
