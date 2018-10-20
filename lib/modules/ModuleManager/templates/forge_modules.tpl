@@ -34,6 +34,8 @@
 {/function}
 
 {if isset($itemcount) && $itemcount > 0}
+{$ih={admin_icon icon='info.gif' alt='help' title="{$mod->Lang('title_modulehelp')}"}}
+{$ia={admin_icon icon='icons/extra/info.gif' alt='about' title="{$mod->Lang('title_moduleabout')}"}}
 <table class="pagetable scrollable">
   <thead>
     <tr>
@@ -44,8 +46,8 @@
       <th><span title="{$mod->Lang('title_moduletotaldownloads')}">{$mod->Lang('downloads')}</span></th>
       <th>&nbsp;</th>
       <th>&nbsp;</th>
-      <th>&nbsp;</th>
-      <th>&nbsp;</th>
+      <th class="pageicon" title="{$mod->Lang('title_modulehelp')}"></th>
+      <th class="pageicon" title="{$mod->Lang('title_moduleabout')}"></th>
     </tr>
   </thead>
   <tbody>
@@ -63,8 +65,8 @@
         {/if}
       </td>
       <td><a href="{$entry->depends_url}" title="{$mod->Lang('title_moduledepends')}">{$mod->Lang('dependstxt')}</a></td>
-      <td><a href="{$entry->help_url}" title="{$mod->Lang('title_modulehelp')}">{$mod->Lang('helptxt')}</a></td>
-      <td><a href="{$entry->about_url}" title="{$mod->Lang('title_moduleabout')}">{$mod->Lang('abouttxt')}</a></td>
+      <td><a href="{$entry->help_url}">{$ih}</a></td>
+      <td><a href="{$entry->about_url}"></a>{$ia}</td>
     </tr>
   {/foreach}
   </tbody>
