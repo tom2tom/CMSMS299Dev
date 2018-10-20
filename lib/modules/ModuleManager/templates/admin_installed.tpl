@@ -3,6 +3,8 @@
   <a id="importbtn">{admin_icon icon='import.gif'} {$mod->Lang('importxml')}</a>
 </div>
 
+{$ih={admin_icon icon='info.gif' alt='help' title="{$mod->Lang('title_modulehelp')}"}}
+{$ia={admin_icon icon='icons/extra/info.gif' alt='about' title="{$mod->Lang('title_moduleabout')}"}}
 <table class="pagetable">
   <thead>
     <tr>
@@ -107,10 +109,10 @@
           {/if}{/if}
         </td>
         <td>
-          <a class="modop mod_help" href="{cms_action_url action='local_help' mod=$item.name}">{admin_icon icon='info.gif' alt='help' title="{$mod->Lang('title_modulehelp')}"}</a>
+          <a class="modop mod_help" href="{cms_action_url action='local_help' mod=$item.name}">{$ih}</a>
         </td>
         <td>
-          <a class="modop mod_about" href="{cms_action_url action='local_about' mod=$item.name}">{admin_icon icon='icons/extra/info.gif' alt='about' title="{$mod->Lang('title_moduleabout')}"}</a>
+          <a class="modop mod_about" href="{cms_action_url action='local_about' mod=$item.name}">{$ia}</a>
         </td>
         {if $allow_export}<td style="text-align:center;">
           {if $item.active && $item.root_writable && $item.e_status != 'need_upgrade' && !$item.missing_deps}
