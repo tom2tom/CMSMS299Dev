@@ -103,7 +103,7 @@ final class AdminTabs
     public static function start_tab_headers()
     {
         self::$_start_headers_sent = 1;
-        return '<div id="page_tabs">';
+        return "\n".'<div id="page_tabs">';
     }
 
     /**
@@ -162,7 +162,7 @@ final class AdminTabs
         if (!self::$_end_headers_sent) {
             $out .= self::end_tab_headers();
         }
-        $out .= '<div class="clearb"></div><div id="page_content">';
+        $out .= "\n".'<div class="clearb"></div><div id="page_content">';
         self::$_start_content_sent = 1;
         return $out;
     }
@@ -187,7 +187,6 @@ final class AdminTabs
      * Start the content portion of a specific tab
      *
      * @param string $tabid The tab key
-     * @param array  $params Unused, deprecated
      * @return string
      */
     public static function start_tab($tabid)
@@ -200,7 +199,7 @@ final class AdminTabs
             $out .= self::end_tab();
         }
         self::$_in_tab = 1;
-        $out .= '<div id="' . strtolower(str_replace(' ', '_', $tabid)) . '_c">';
+        $out .= "\n".'<div id="' . strtolower(str_replace(' ', '_', $tabid)) . '_c">';
         return $out;
     }
 
