@@ -233,9 +233,9 @@ class module_info implements ArrayAccess
             $arr['depends'] = $mod->GetDependencies();
             $arr['mincmsversion'] = $mod->MinimumCMSVersion();
             $arr['author'] = $mod->GetAuthor();
-            $arr['authoremail'] = $mod->GetAuthor();
+            $arr['authoremail'] = $mod->GetAuthorEmail();
             $arr['lazyloadadmin'] = $mod->LazyLoadAdmin();
-            $arr['lazyloadfrontend'] = $mod->LazyLoadAdmin();
+            $arr['lazyloadfrontend'] = $mod->LazyLoadFrontend();
             $arr['help'] = $mod->GetHelp();
             $arr['changelog'] = $mod->GetChangelog();
             return $arr;
