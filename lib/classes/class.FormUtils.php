@@ -589,7 +589,7 @@ class FormUtils
                 }
 
                 if (isset($selectedvalue) && $selectedvalue == $value) {
-                    $parms['selected'] = 'selected';
+                    $parms['checked'] = 'checked';
                 }
 
                 $out = '<input type="checkbox"';
