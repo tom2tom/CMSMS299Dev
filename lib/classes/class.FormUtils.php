@@ -345,8 +345,6 @@ class FormUtils
                 }
             } elseif (!empty($prefix)) {
                 $modid = $prefix;
-            } else {
-                $modid = '';
             }
         } elseif (!empty($modid)) {
             $tmp = $modid.$name;
