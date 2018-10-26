@@ -1362,10 +1362,10 @@ abstract class CMSModule
      */
 
     /**
-     * Return an action's 'controller', which if it exists, is a function to be called to
-     * 'do' the action (instead of including the action file). The callable is expected to
-     * be returned by the constructor of a class named "$name_action" placed in, and
-     * namespaced for, folder <path-to-module>/Controllers
+     * Return an action's 'controller', which if it exists, is a function to be
+	 * called to 'do' the action (instead of including the action file). The
+	 * callable is expected to be returned by the constructor of a class named
+	 * "$name_action" placed in, and namespaced for, folder <path-to-module>/Controllers
      *
      * @since 2.3
      * @param string $name The name of the action to perform
@@ -1406,7 +1406,8 @@ abstract class CMSModule
      * @param mixed $id string|null Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
      * @param mixed  $returnid The id of the page being displayed, numeric(int) for frontend, ''|null for admin
-     * @return mixed output from 'controller', or null
+     * @return mixed output from 'controller' if relevant, or anything returned
+	 *  by the included action file, or (typically) null
      */
     public function DoAction($name, $id, $params, $returnid = null)
     {
@@ -1439,11 +1440,8 @@ abstract class CMSModule
                     $gCms = CmsApp::get_instance();
                     $db = $gCms->GetDb();
                     $config = $gCms->GetConfig();
-                    $smarty = ( !empty($this->_action_tpl) ) ?
-                        $this->_action_tpl :
-                        Smarty::get_instance();
-                    include $filename;
-                    return;
+                    $smarty = $this->_action_tpl ?? Smarty::get_instance();
+                    return include $filename;
                 }
             }
         }
@@ -1462,7 +1460,7 @@ abstract class CMSModule
      * @param mixed $id string|null The action identifier
      * @param array  $params The action params
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
-     * @param mixed  $smartob  A CMSMS\internal\Smarty object
+     * @param mixed  $smartob  A CMSMS\internal\Smarty object, or null
      * @return mixed The action output, normally a string but maybe null.
      */
     public function DoActionBase($name, $id, $params, $returnid, &$smartob)
