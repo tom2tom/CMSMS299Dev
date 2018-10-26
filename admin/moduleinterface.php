@@ -76,27 +76,42 @@ if ($modinst->SuppressAdminOutput($_REQUEST)) {
 $params = $modops->GetModuleParameters($id);
 $smarty = ($CMS_JOB_TYPE < 2) ? Smarty::get_instance() : null;
 
-if ($CMS_JOB_TYPE == 0) {
-    $themeObject = cms_utils::get_theme_object();
-    $themeObject->set_action_module($module);
+switch ($CMS_JOB_TYPE) {
+	case 0:
+		$themeObject = cms_utils::get_theme_object();
+		$themeObject->set_action_module($module);
 
-    // retrieve and park the action-output first, in case the action also generates header content
-    ob_start();
-    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
-    $content = ob_get_contents();
-    ob_end_clean();
+		// retrieve and park the action-output first, in case the action also generates header content
+		ob_start();
+		echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+		$content = ob_get_contents();
+		ob_end_clean();
 
-    include_once 'header.php';
-    // back into the buffer,  now that 'pre-content' things are in place
-    echo $content;
+		include_once 'header.php';
+		// back into the buffer,  now that 'pre-content' things are in place
+		echo $content;
 
-    if (!empty($params['module_error'])) $themeObject->RecordNotice('error', $params['module_error']);
-    if (!empty($params['module_message'])) $themeObject->RecordNotice('success', $params['module_message']);
+		if (!empty($params['module_error'])) $themeObject->RecordNotice('error', $params['module_error']);
+		if (!empty($params['module_message'])) $themeObject->RecordNotice('success', $params['module_message']);
 
-    include_once 'footer.php';
-} else {
-    // 1 or 2 i.e. not full-page output
-    echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+		include_once 'footer.php';
+		break;
+	case 1: // not full-page output
+		echo $modinst->DoActionBase($action, $id, $params, null, $smarty);
+		break;
+	case 2:	//minimal
+		$fp = $modinst->GetModulePath().DIRECTORY_SEPARATOR.'action.'.$action.'.php';
+		if (is_file($fp)) {
+			$dojob = Closure::bind(function($filepath, $id, $params)
+			{
+				// variables in scope for convenience
+				$gCms = CmsApp::get_instance();
+				$db = $gCms->GetDb();
+				$config = $gCms->GetConfig();
+				include $filepath;
+			}, $modinst, $modinst);
+			$dojob($fp, $id, $params);
+		}
 }
 
 HookManager::do_hook_simple('PostRequest');
