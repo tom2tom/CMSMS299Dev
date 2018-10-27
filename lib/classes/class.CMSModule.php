@@ -1406,8 +1406,7 @@ abstract class CMSModule
      * @param mixed $id string|null Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters targeted for this module
      * @param mixed  $returnid The id of the page being displayed, numeric(int) for frontend, ''|null for admin
-     * @return mixed output from 'controller' if relevant, or anything returned
-	 *  by the included action file, or (typically) null
+     * @return mixed output from 'controller' if relevant, or null
      */
     public function DoAction($name, $id, $params, $returnid = null)
     {
@@ -1441,7 +1440,8 @@ abstract class CMSModule
                     $db = $gCms->GetDb();
                     $config = $gCms->GetConfig();
                     $smarty = $this->_action_tpl ?? Smarty::get_instance();
-                    return include $filename;
+                    include $filename;
+                    return;
                 }
             }
         }
