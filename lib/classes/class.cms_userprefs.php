@@ -155,11 +155,13 @@ final class cms_userprefs
 		$db = CmsApp::get_instance()->GetDb();
 		if( !self::exists_for_user($userid,$key) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'userprefs (user_id,preference,value) VALUES (?,?,?)';
-			$dbr = $db->Execute($query,[$userid,$key,$value]);
+//			$dbr =
+			$db->Execute($query,[$userid,$key,$value]);
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value = ? WHERE user_id = ? AND preference = ?';
-			$dbr = $db->Execute($query,[$value,$userid,$key]);
+//			$dbr =
+			$db->Execute($query,[$value,$userid,$key]);
 		}
 		self::$_prefs[$userid][$key] = $value;
 	}

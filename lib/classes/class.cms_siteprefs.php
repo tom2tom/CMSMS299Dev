@@ -20,7 +20,7 @@ use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 
 /**
- * A class for working with site preferences
+ * A class for working with site- and module-preferences
  *
  * @package CMS
  * @license GPL
@@ -117,11 +117,13 @@ final class cms_siteprefs
 		$db = CmsApp::get_instance()->GetDb();
 		if( !self::exists($key) ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name, sitepref_value) VALUES (?,?)';
-			$dbr = $db->Execute($query,[$key,$value]);
+//			$dbr = 
+			$db->Execute($query,[$key,$value]);
 		}
 		else {
 			$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ? WHERE sitepref_name = ?';
-			$dbr = $db->Execute($query,[$value,$key]);
+//			$dbr =
+			$db->Execute($query,[$value,$key]);
 		}
         global_cache::clear(__CLASS__);
 	}
@@ -139,10 +141,10 @@ final class cms_siteprefs
 		if( $like ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name LIKE ?';
 			$key .= '%';
-		};
+		}
 		$db = CmsApp::get_instance()->GetDb();
-        	$db->Execute($query,[$key]);
-        	global_cache::clear(__CLASS__);
+		$db->Execute($query,[$key]);
+		global_cache::clear(__CLASS__);
 	}
 
 	/**

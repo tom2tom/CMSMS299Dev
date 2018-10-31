@@ -168,13 +168,14 @@ final class GroupOperations
 
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."group_perms (group_perm_id,group_id,permission_id,create_date,modified_date)
-				  VALUES (?,?,?,$now,$now)";
- 		$dbr = $db->Execute($query,[$new_id,$groupid,$permid]);
+VALUES (?,?,?,$now,NULL)";
+// 		$dbr =
+		$db->Execute($query,[$new_id,$groupid,$permid]);
 		unset($this->_perm_cache);
 	}
 
 	/**
-	 * De-associate the specified permission with the group
+	 * Disassociate the specified permission with the group
 	 *
 	 * @param int $groupid The group id
 	 * @param string $perm The permission name
@@ -185,8 +186,11 @@ final class GroupOperations
 		if( $permid < 1 ) return;
 		if( $groupid <= 1 ) return;
 
+		$db = CmsApp::get_instance()->GetDb();
+
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND perm_id = ?';
-		$dbr = $db->Execute($query,[$groupid,$permid]);
+//		$dbr =
+		$db->Execute($query,[$groupid,$permid]);
 		unset($this->_perm_cache);
 	}
 } // class
