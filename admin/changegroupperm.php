@@ -162,11 +162,6 @@ $smarty->assign('allgroups', $allgroups);
 
 if (isset($_POST['submit'])) {
     // we have group permissions
-    $now = $db->DbTimeStamp(time());
-    $iquery = 'INSERT INTO '.CMS_DB_PREFIX.
-        "group_perms (group_perm_id, group_id, permission_id, create_date, modified_date)
-       VALUES (?,?,?,$now,$now)";
-
     $parts = explode('::', $_POST['sel_groups']);
     if (count($parts) == 2) {
         if (md5(__FILE__.$parts[1]) == $parts[0]) {
@@ -188,6 +183,11 @@ if (isset($_POST['submit'])) {
     }
     unset($parts);
 
+    $now = $db->DbTimeStamp(time());
+    $stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.
+        "group_perms (group_perm_id, group_id, permission_id, create_date, modified_date)
+VALUES (?,?,?,$now,$now)");
+
     cleanArray($_POST);
     foreach ($_POST as $key=>$value) {
         if (strncmp($key, 'pg', 2) == 0) {
@@ -195,10 +195,10 @@ if (isset($_POST['submit'])) {
             $keyparts[1] = (int)$keyparts[1];
             if ($keyparts[1] > 0 && $keyparts[2] != '1' && $value == '1') {
                 $new_id = $db->GenID(CMS_DB_PREFIX.'group_perms_seq');
-                $result = $db->Execute($iquery, [$new_id,$keyparts[2],$keyparts[1]]);
+                $result = $db->Execute($stmt, [$new_id,$keyparts[2],$keyparts[1]]);
                 if (!$result) {
                     echo 'FATAL: '.$db->ErrorMsg().'<br />'.$db->sql;
-                    exit();
+                    exit;
                 }
             }
         }

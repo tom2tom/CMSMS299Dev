@@ -476,12 +476,12 @@ class ContentOperations
 		unset($list);
 
 		// would be nice to use a transaction here.
-				static $_n;
-		$usql = 'UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?';
+		static $_n;
+		$stmt = $db->Prepare('UPDATE '.CMS_DB_PREFIX.'content SET hierarchy = ?, id_hierarchy = ?, hierarchy_path = ? WHERE content_id = ?');
 		foreach( $hash as $content_id => $row ) {
 			$changed = $this->_set_hierarchy_position($content_id,$hash);
 			if( is_array($changed) ) {
-				$db->Execute($usql, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $changed['content_id']]);
+				$db->Execute($stmt, [$changed['hierarchy'], $changed['id_hierarchy'], $changed['hierarchy_path'], $changed['content_id']]);
 			}
 		}
 

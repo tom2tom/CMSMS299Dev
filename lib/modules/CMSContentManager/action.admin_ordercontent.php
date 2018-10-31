@@ -85,9 +85,9 @@ if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
         $this->ShowErrors($this->Lang('error_ordercontent_nothingtodo'));
     }
     else {
-        $query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = ?, parent_id = ? WHERE content_id = ?';
+        $stmt = $db->Prepare('UPDATE '.CMS_DB_PREFIX.'content SET item_order = ?, parent_id = ? WHERE content_id = ?');
         foreach( $changelist as $rec ) {
-            $db->Execute($query,[$rec['order'],$rec['parent_id'],$rec['id']]);
+            $db->Execute($stmt,[$rec['order'],$rec['parent_id'],$rec['id']]);
         }
         $contentops = $gCms->GetContentOperations();
         $contentops->SetAllHierarchyPositions();

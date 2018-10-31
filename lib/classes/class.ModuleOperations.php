@@ -271,13 +271,14 @@ VALUES (?,?,?,?,?,?,?)';
 
 			$deps = $module_obj->GetDependencies();
 			if( $deps ) {
-				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
+			    $now = $db->DbTimeStamp(time());
+				$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
 (parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,NOW(),NULL)';
+VALUES (?,?,?,'.$now.',NULL)');
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
 //					$dbr =
-					$db->Execute($query,[$depname,$module_name,$depversion]);
+					$db->Execute($stmt,[$depname,$module_name,$depversion]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
@@ -575,14 +576,14 @@ VALUES (?,?,?,NOW(),NULL)';
 
 			$deps = $module_obj->GetDependencies();
 			if( $deps ) {
-				$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_deps
-(parent_module,child_module,minimum_version,create_date,modified_date)
-VALUES (?,?,?,?,?)';
                 $now = $db->dbTimeStamp(time());
+				$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'module_deps
+(parent_module,child_module,minimum_version,create_date,modified_date)
+VALUES (?,?,?,?,?)');
 				foreach( $deps as $depname => $depversion ) {
 					if( !$depname || !$depversion ) continue;
 //					$dbr =
-					$db->Execute($query,[$depname,$module_name,$depversion,$now,$now]);
+					$db->Execute($stmt,[$depname,$module_name,$depversion,$now,$now]);
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );

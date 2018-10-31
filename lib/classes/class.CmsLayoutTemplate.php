@@ -833,6 +833,7 @@ WHERE id=?';
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' (design_id,tpl_id,tpl_order) VALUES(?,?,?)';
 			$i = 1;
 			foreach( $t as $one ) {
+				//TODO use statement
 				$db->Execute($query,[(int)$one,$tplid,$i]);
 				++$i;
 			}
@@ -842,10 +843,10 @@ WHERE id=?';
 		$db->Execute($query,[$tplid]);
 		$t = $this->get_categories();
 		if( $t ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES(?,?,?)';
+			$stmt = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES(?,?,?)');
 			$i = 1;
 			foreach( $t as $one ) {
-				$db->Execute($query,[(int)$one,$tplid,$i]);
+				$db->Execute($stmt,[(int)$one,$tplid,$i]);
 				++$i;
 			}
 		}
@@ -899,6 +900,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 		if( $t ) {
 			$query = 'INSERT INTO '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' (tpl_id,user_id) VALUES(?,?)';
 			foreach( $t as $one ) {
+				//TODO use statement
 				$db->Execute($query,[$tplid,(int)$one]);
 			}
 		}

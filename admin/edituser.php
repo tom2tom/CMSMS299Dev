@@ -182,12 +182,12 @@ if (isset($_POST['submit'])) {
 
             $result = $thisuser->save();
             if ($assign_group_perm && isset($_POST['groups'])) {
-                $dquery = 'delete from ' . CMS_DB_PREFIX . 'user_groups where user_id=?';
-                $iquery = 'insert into ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)';
+                $dquery = 'DELETE FROM ' . CMS_DB_PREFIX . 'user_groups WHERE user_id=?';
+                $stmt = $db->Prepare('INSERT INTO ' . CMS_DB_PREFIX . 'user_groups (user_id,group_id) VALUES (?,?)');
                 $result = $db->Execute($dquery, [$thisuser->id]);
                 foreach ($group_list as $thisGroup) {
                     if (isset($_POST['g' . $thisGroup->id]) && $_POST['g' . $thisGroup->id] == 1) {
-                        $result = $db->Execute($iquery, [
+                        $result = $db->Execute($stmt, [
                             $thisuser->id,
                             $thisGroup->id
                         ]);

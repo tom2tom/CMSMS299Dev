@@ -204,7 +204,7 @@ if (!empty($_POST['addaliases'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
-    $query2 = 'UPDATE ' . CMS_DB_PREFIX . 'content SET content_alias=? WHERE content_id=?';
+    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . 'content SET content_alias=? WHERE content_id=?');
     $allcontent = $db->Execute($query);
     while ($contentpiece = $allcontent->FetchRow()) {
         $content_id = $contentpiece['content_id'];
@@ -225,7 +225,7 @@ if (!empty($_POST['addaliases'])) {
                 }
                 $alias .= '-' . $alias_num_add;
             }
-            $db->Execute($query2, [$alias, $content_id]);
+            $db->Execute($stmt, [$alias, $content_id]);
             $count++;
         }
     }
@@ -238,11 +238,11 @@ if (!empty($_POST['fixtypes'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
-    $query2 = 'UPDATE ' . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?";
+    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?");
     $allcontent = $db->Execute($query);
     while ($contentpiece = $allcontent->FetchRow()) {
         if (!in_array($contentpiece['type'], $simpletypes)) {
-            $db->Execute($query2, [$contentpiece['content_id']]);
+            $db->Execute($stmt, [$contentpiece['content_id']]);
             $count++;
         }
     }
