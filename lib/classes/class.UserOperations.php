@@ -342,7 +342,7 @@ class UserOperations
 	 * @since 0.6.1
 	 *
 	 * @param mixed $id Id of the user to delete
-	 * @returns mixed If successful, true.	If it fails, false.
+	 * @return bool indicating success
 	 */
 	public function DeleteUserByID($id)
 	{
@@ -353,25 +353,20 @@ class UserOperations
 			return false;
 		}
 
-		$result = false;
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where user_id = ?';
-		$db->Execute($query, [$id]);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups WHERE user_id = ?';
+		$result = $db->Execute($query, [$id]);
 
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users where user_id = ?';
-		$db->Execute($query, [$id]);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'additional_users WHERE user_id = ?';
+		$result = $result && $db->Execute($query, [$id]);
 
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'users where user_id = ?';
-		$dbresult = $db->Execute($query, [$id]);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'users WHERE user_id = ?';
+		$result = $result && $db->Execute($query, [$id]);
 
-		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs where user_id = ?';
-		$dbresult = $db->Execute($query, [$id]);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'userprefs WHERE user_id = ?';
+		$result = $result && $db->Execute($query, [$id]);
 
-		if ($dbresult !== false) {
-			$result = true;
-		}
 		return $result;
 	}
 
@@ -522,9 +517,9 @@ class UserOperations
 		$db = CmsApp::get_instance()->GetDb();
 		$now = $db->DbTimeStamp(time());
 		$query = 'INSERT INTO '.CMS_DB_PREFIX."user_groups
-				  (group_id,user_id,create_date,modified_date)
-				  VALUES (?,?,$now,$now)";
-		$dbr = $db->Execute($query, [$gid, $uid]);
+(group_id,user_id,create_date,modified_date) VALUES (?,?,$now,$now)";
+//		$dbresult =
+		$db->Execute($query, [$gid, $uid]);
 		if (isset(self::$_user_groups[$uid])) {
 			unset(self::$_user_groups[$uid]);
 		}

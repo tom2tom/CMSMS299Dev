@@ -179,7 +179,7 @@ final class cms_route_manager
 	 * @author Robert Campbell <calguy1000@cmsmadesimple.org>
 	 * @since 1.11
 	 * @param CmsRoute $route The route to add.
-	 * @return bool
+	 * @return bool, or not at all
 	 */
 	public static function add_static(CmsRoute& $route)
 	{
@@ -192,7 +192,6 @@ final class cms_route_manager
 		$dbr = $db->Execute($query,[$route['term'], $route['key1'], $route['key2'], $route['key3'], serialize($route)]);
 		if( !$dbr ) {
 			die($db->sql.' -- '.$db->ErrorMsg());
-			return FALSE;
 		}
 
 		self::_clear_cache();
