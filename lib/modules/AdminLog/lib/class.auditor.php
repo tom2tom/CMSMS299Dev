@@ -40,7 +40,7 @@ class auditor implements IAuditManager
         $this->_storage->save( $ev );
     }
 
-    protected function error_log( $severity, $msg )
+    protected function error_log( int $severity, string $msg )
     {
         switch( $severity ) {
         case event::TYPE_WARNING:
