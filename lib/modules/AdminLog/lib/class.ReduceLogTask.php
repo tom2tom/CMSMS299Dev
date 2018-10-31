@@ -21,8 +21,7 @@ final class ReduceLogTask implements CmsRegularTask
         // we do it every 3 hours
         if (!$time) $time = time();
         $last_execute = cms_siteprefs::get(self::LASTEXECUTE_SITEPREF, 0);
-        if ($last_execute >= ($time - 3 * 3600) ) return FALSE; // hardcoded
-        return TRUE;
+        return ($last_execute < ($time - 3 * 3600)); // hardcoded
     }
 
     protected function table() { return storage::table_name(); }
@@ -58,7 +57,7 @@ final class ReduceLogTask implements CmsRegularTask
         $db = CmsApp::get_instance()->GetDB();
         $table = $this->table();
         $lastrec['action'] = $lastrec['action'] . sprintf(' (repeated %d times)',$n);
-        $sql = 'UPDATE table SET action = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND item_name = ? AND ip_addr = ?';
+        $sql = "UPDATE $table SET action = ? WHERE timestamp = ? AND user_id = ? AND username = ? AND item_id = ? AND item_name = ? AND ip_addr = ?";
         $db->Execute($sql,[$lastrec['action'],$lastrec['timestamp'],$lastrec['user_id'],$lastrec['username'],
                                 $lastrec['item_id'],$lastrec['item_name'],$lastrec['ip_addr']]);
     }
