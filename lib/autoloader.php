@@ -88,7 +88,7 @@ function cms_autoloader(string $classname)
 			if ($old !== null) {
 				$fp = $root.'class.'.$old.'.php';
 				require_once $fp;
-				class_alias($classname, $old, false);
+				class_alias($old, $classname, false);
 				return;
 			}
 			$sroot = $root;
