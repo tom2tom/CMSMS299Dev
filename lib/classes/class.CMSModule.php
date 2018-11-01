@@ -105,6 +105,11 @@ abstract class CMSModule
      */
     public function __construct()
     {
+        global $CMS_FORCELOAD;
+
+        if( !empty($CMS_FORCELOAD)) return;
+        if( CmsApp::get_instance()->is_cli() ) return;
+        
         if( CmsApp::get_instance()->is_frontend_request() ) {
             $this->SetParameterType('assign',CLEAN_STRING);
             $this->SetParameterType('module',CLEAN_STRING);
@@ -648,26 +653,18 @@ abstract class CMSModule
     }
 
     /*
-     * Called from within the constructor. This method should be overridden to call the CreaeteParameter
-     * method for each parameter that the module understands.
-     *
-     * Note: In past versions of CMSMS This method was used for both admin and frontend requests to
-     * register routes, and create parameters, and register a module plugin, etc.  As of version 1.10
-     * this method is deprecated, and the appropriate functions are InitializeFrontend() and InitializeAdmin()
-     * This method is scheduled for removal in version 1.11
-     *
-     * @see CMSModule::CreateParameter()
-     * @see CMSModule::InitializeFrontend()
-     * @see CMSModule::InitializeAdmin()
-     * @deprecated
+     * Note: In past versions of CMSMS, SetParameters() was used for both admin and
+     * frontend requests to register routes, create parameters, register a module plugin, etc.
+     * As of version 1.10 this method was deprecated, replaced by InitializeFrontend()
+     * and InitializeAdmin(). This method was scheduled for removal in version 1.11,
+     * and as of 2.3, is gone.
      */
-     // removed per deprecation notice above
 
     /**
-     * Called from within the constructor, ONLY for frontend module
-     * actions.  This method should be overridden to create routes, and
-     * set handled parameters, and perform other initialization tasks
-     * that need to be setup for all frontend actions.
+     * Called from ModuleOperations::_load_module(), for module frontend actions
+     * ONLY .  This method should be overridden to create routes, set handled
+     * parameters, and perform other initialization tasks that need to be done
+     * for any frontend action.
      *
      * @abstract
      * @see CMSModule::SetParameterType()
@@ -676,21 +673,19 @@ abstract class CMSModule
      */
     protected function InitializeFrontend()
     {
-        $this->SetParameters(); // for backwards compatibility purposes. may be removed.
     }
 
     /**
-     * Called from within the constructor, ONLY for admin module
-     * actions.  This method should be overridden to create routes, and
-     * set handled parameters, and perform other initialization tasks
-     * that need to be setup for all frontend actions.
+     * Called from ModuleOperations::_load_module(), for module admin actions
+     * ONLY.  This method should be overridden to create routes, set handled
+     * parameters, and perform other initialization tasks that need to be done
+     * for any backend action.
      *
      * @abstract
      * @see CMSModule::CreateParameter()
      */
     protected function InitializeAdmin()
     {
-        $this->SetParameters(); // for backwards compatibility purposes. may be removed.
     }
 
     /*
