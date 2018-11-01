@@ -29,12 +29,12 @@ class cms_url
     /**
      * @ignore
      */
-    private $_orig;
+    private $_orig = '';
 
     /**
      * @ignore
      */
-    private $_parts;
+    private $_parts = [];
 
     /**
      * @ignore
@@ -44,15 +44,22 @@ class cms_url
     /**
      * Constructor
      *
-     * @param string $url the url to work with
+     * @param string $url the URL to work with
      */
     public function __construct($url = '')
     {
         $url = trim((string) $url);
         if( $url ) {
-            $this->_orig = $url;
-            $this->_parts = parse_url($url);
-			if( isset($this->_parts['query']) ) parse_str($this->_parts['query'],$this->_query);
+            $this->_orig = filter_var($url,FILTER_SANITIZE_URL);
+            $this->_parts = parse_url($this->_orig);
+            if( isset($this->_parts['query']) ) {
+                parse_str($this->_parts['query'],$this->_query);
+                if( $this->_query ) {
+                    foreach( $this->_query as $key => $value ) {
+                        //TODO sanitize array members e.g. remove / encode # < > * % & : \ ?
+                    }
+                }
+            }
         }
     }
 
@@ -80,7 +87,7 @@ class cms_url
     }
 
     /**
-     * Return the original url
+     * Return the original URL
      *
      * @return string
      */
@@ -103,7 +110,7 @@ class cms_url
     /**
      * Set the URL scheme
      *
-     * @param string $val The url scheme.
+     * @param string $val The URL scheme.
      */
     public function set_scheme($val)
     {
@@ -258,7 +265,7 @@ class cms_url
 
 
     /**
-     * Set the fragment portion of the url.
+     * Set the fragment portion of the URL.
      *
      * @param string $val
      */
@@ -289,9 +296,9 @@ class cms_url
     {
         $key = trim((string)$key);
         if( $this->queryvar_exists($key) ) {
-			unset($this->_parts['query']);
-			unset($this->_query[$key]);
-		}
+            unset($this->_parts['query']);
+            unset($this->_query[$key]);
+        }
     }
 
     /**
@@ -306,18 +313,19 @@ class cms_url
     }
 
     /**
-     * Set a query var into the url
+     * Set a query var into the URL
      *
      * @param string $key
      * @param string $value
      */
     public function set_queryvar($key,$value)
     {
-		$key = trim((string)$key);
-		if( $key ) {
-			unset($this->_parts['query']);
-			$this->_query[$key] = (string) $value;
-		}
+        $key = trim((string)$key);
+        if( $key ) {
+            unset($this->_parts['query']);
+            //TODO sanitize
+            $this->_query[$key] = (string) $value;
+        }
     }
 
     /**
@@ -333,21 +341,21 @@ class cms_url
         $path = $parts['path'] ?? '';
         if( $path && $path[0] != '/' ) $path = '/'.$path;
 
-		$parts = $this->_parts;
-		$url = ((!empty($parts['scheme'])) ? $parts['scheme'] . '://' : '');
-		if( !empty($parts['user']) ) {
-			$url .= $parts['user'];
-			if( !empty($parts['pass']) ) $url .= ':'.$parts['pass'];
-			$url .= '@';
-		}
-		if( !empty($parts['host']) ) $url .= $parts['host'];
-		if( !empty($params['port']) && $parts['port'] > 0 ) $url .= ':'.$parts['post'];
-		if( !empty($parts['path']) ) {
-			if( !startswith($parts['path'],'/') ) $url .= '/';
-			$url .= $parts['path'];
-		}
-		if( !empty($parts['query']) ) $url .= '?'.$parts['query'];
-		if( !empty($parts['fragment']) ) $url .= '#'.$parts['fragment'];
-		return $url;
+        $parts = $this->_parts;
+        $url = ((!empty($parts['scheme'])) ? $parts['scheme'] . '://' : '');
+        if( !empty($parts['user']) ) {
+            $url .= $parts['user'];
+            if( !empty($parts['pass']) ) $url .= ':'.$parts['pass'];
+            $url .= '@';
+        }
+        if( !empty($parts['host']) ) $url .= $parts['host'];
+        if( !empty($params['port']) && $parts['port'] > 0 ) $url .= ':'.$parts['post'];
+        if( !empty($parts['path']) ) {
+            if( !startswith($parts['path'],'/') ) $url .= '/';
+            $url .= $parts['path'];
+        }
+        if( !empty($parts['query']) ) $url .= '?'.$parts['query'];
+        if( !empty($parts['fragment']) ) $url .= '#'.$parts['fragment'];
+        return $url;
     }
 } // class
