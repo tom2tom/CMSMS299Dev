@@ -151,15 +151,15 @@ class UserOperations
 	}
 
 	/**
-	 * Loads a user by username.
-	 * Does not use a cache, so use sparingly.
+	 * Loads a user by login/account/name.
+	 * Does not use the cache, so use sparingly.
 	 *
-	 * @param mixed $username		 Username to load
-	 * @param mixed $password		 Password to check against (ignored)
-	 * @param mixed $activeonly		 Only load the user if they are active
-	 * @param mixed $adminaccessonly Only load the user if they have admin access
+	 * @param string $username		 Username to load
+	 * @param string $password		 Optional (but not really) Password to check against
+	 * @param mixed $activeonly		 Only load the user if [s]he is active
+	 * @param mixed $adminaccessonly Only load the user if [s]he has admin access
 	 *
-	 * @return mixed If successful, the filled User object.	 If it fails, it returns false
+	 * @return mixed a User-class object or false
 	 *
 	 * @since 0.6.1
 	 */
@@ -167,32 +167,21 @@ class UserOperations
 	{
 		// note: does not use cache
 		$result = null;
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 
-		$params = [];
-		$where = [];
-		$joins = [];
-
-		$query = 'SELECT u.user_id,u.password FROM '.CMS_DB_PREFIX.'users u';
-		$where[] = 'username = ?';
-		$params[] = $username;
+		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users';
+		$where = ['username = ?'];
+		$params = [$username];
 
 		if ($activeonly) {
-			$joins[] = CMS_DB_PREFIX.'user_groups ug ON u.user_id = ug.user_id';
-			$where[] = 'u.active = 1';
+			$where[] = 'active = 1';
 		}
 
 		if ($adminaccessonly) {
 			$where[] = 'admin_access = 1';
 		}
 
-		if (!empty($joins)) {
-			$query .= ' LEFT JOIN '.implode(' LEFT JOIN ', $joins);
-		}
-		if (!empty($where)) {
-			$query .= ' WHERE '.implode(' AND ', $where);
-		}
+		$query .= ' WHERE '.implode(' AND ', $where);
 
 		$row = $db->GetRow($query,$params);
 		if ($row) {
@@ -282,9 +271,7 @@ class UserOperations
 	{
 		$result = -1;
 
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
-
+		$db = CmsApp::get_instance()->GetDb();
 		// check for conflict in username
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ?';
 		$tmp = $db->GetOne($query, [$user->username]);
@@ -315,8 +302,7 @@ class UserOperations
 	public function UpdateUser($user)
 	{
 		$result = false;
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 
 		// check for username conflict
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ? and user_id != ?';
@@ -559,6 +545,36 @@ class UserOperations
 		}
 		return false;
 	}
+
+	/**
+	 * Get recorded data about the specified user, without password check.
+	 * Does not use the cache, so use sparingly.
+     * At least one of $username or $userid must be provided.
+ 	 *
+	 * @since 2.3
+	 * @param string $username Optional login/account name, used if provided
+	 * @param int	 $userid Optional user id, used if $username not provided
+	 *
+	 * @return mixed User-class Object | null if the user is not recognised.
+	 */
+	public function GetRecoveryData(string $username='', int $userid=-1)
+	{
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE ';
+		if ($username) {
+			$query .= 'username=?';
+			$parms = [$username];
+		} elseif ($userid > 0) {
+			$query .= 'user_id=?';
+			$parms = [$userid];
+		}
+		$dbresult = $db->GetOne($query, $parms);
+		if ($dbresult) {
+			return $this->LoadUserByID($dbresult);
+		}
+		return null;
+	}
+
 } //class
 
 //backward-compatibility shiv
