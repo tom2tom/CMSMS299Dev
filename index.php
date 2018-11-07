@@ -126,7 +126,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
             throw new CmsError403Exception('Permission denied');
         }
 
-        $uid = get_userid(FALSE);
+        $uid = get_userid(false);
         if ($page == __CMS_PREVIEW_PAGE__ || $uid || $_SERVER['REQUEST_METHOD'] != 'GET') $cachable = false;
         else $cachable = $contentobj->Cachable();
 
