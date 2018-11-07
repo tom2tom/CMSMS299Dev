@@ -23,7 +23,7 @@ if (!isset($gCms)) exit;
 $db = $this->GetDb();
 $dict = NewDataDictionary($db);
 
-$sqlarr = $dict->DropTableSQL( storage::table_name() );
+$sqlarr = $dict->DropTableSQL( storage::TABLENAME );
 $dict->ExecuteSQLArray( $sqlarr );
 
 $this->RemovePermission('View Admin Log');

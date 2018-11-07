@@ -24,7 +24,7 @@ final class ReduceLogTask implements CmsRegularTask
         return ($last_execute < ($time - 3 * 3600)); // hardcoded
     }
 
-    protected function table() { return storage::table_name(); }
+    protected function table() { return storage::TABLENAME; }
     protected function queue_for_deletion($row) { $this->_queue[] = $row; }
     protected function have_queued() { return (count($this->_queue) > 1); }
 
