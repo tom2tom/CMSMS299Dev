@@ -103,16 +103,15 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
 } elseif (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     $userops = $gCms->GetUserOperations();
     $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_STRING);
-    unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
     Events::SendEvent('Core', 'LostPassword', ['username'=>$forgot_username]);
-    $oneuser = $userops->LoadUserByUsername($forgot_username);
+    $oneuser = $userops->GetRecoveryData($forgot_username);
     unset($_REQUEST['loginsubmit'],$_POST['loginsubmit']);
 
     if ($oneuser != null) {
         if ($oneuser->email == '') {
             $errmessage = $this->Lang('nopasswordforrecovery');
         } elseif (send_recovery_email($oneuser, $this)) {
-            audit('', 'Core', 'Sent lost-password email for '.$user->username);
+            audit('', 'Core', 'Sent lost-password email for '.$forgot_username);
             $warnmessage = $this->Lang('recoveryemailsent');
         } else {
             $errmessage = $this->Lang('error_sendemail');
@@ -211,7 +210,6 @@ if (isset($_POST['cancel'])) {
         audit($oneuser->id, 'Admin Username: '.$oneuser->username, 'Logged In');
 
         // send the post login event
-        unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
         Events::SendEvent('Core', 'LoginPost', ['user'=>&$oneuser]);
 
         // redirect outa hre somewhere
@@ -234,7 +232,7 @@ if (isset($_POST['cancel'])) {
             // and replace with the correct one.
             $homepage = str_replace('&amp;', '&', $homepage);
             $tmp = explode('?', $homepage);
-			$tmp2 = [];
+            $tmp2 = [];
             @parse_str($tmp[1], $tmp2);
             if (in_array('_s_', array_keys($tmp2))) {
                 unset($tmp2['_s_']);
@@ -258,10 +256,12 @@ if (isset($_POST['cancel'])) {
     } catch (Exception $e) {
         $errmessage = $e->GetMessage();
         debug_buffer('Login failed.  Error is: ' . $errmessage);
-        unset($_POST['password'],$_REQUEST['password']);
-        Events::SendEvent('Core', 'LoginFailed', ['user'=>$_POST['username']]);
+		$username = $_REQUEST['username'] ?? $_REQUEST['forgottenusername'] ?? 'Missing';
+        Events::SendEvent('Core', 'LoginFailed', ['user'=>$username]);
         // put mention into the admin log
         $ip_login_failed = cms_utils::get_real_ip();
         audit('', '(IP: ' . $ip_login_failed . ') ' . 'Admin Username: ' . $username, 'Login Failed');
     }
+    unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
+    unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
 }
