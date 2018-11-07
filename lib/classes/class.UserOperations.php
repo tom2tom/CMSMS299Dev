@@ -555,11 +555,10 @@ class UserOperations
 	 * @param string $username Optional login/account name, used if provided
 	 * @param int	 $userid Optional user id, used if $username not provided
 	 *
-	 * @return mixed User-class Object | null if the user is not recognised.
+	 * @return mixed User-class object | null if the user is not recognised.
 	 */
 	public function GetRecoveryData(string $username='', int $userid=-1)
 	{
-		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE ';
 		if ($username) {
 			$query .= 'username=?';
@@ -567,10 +566,14 @@ class UserOperations
 		} elseif ($userid > 0) {
 			$query .= 'user_id=?';
 			$parms = [$userid];
+		} else {
+			return null;
 		}
-		$dbresult = $db->GetOne($query, $parms);
-		if ($dbresult) {
-			return $this->LoadUserByID($dbresult);
+
+		$db = CmsApp::get_instance()->GetDb();
+		$uid = $db->GetOne($query, $parms);
+		if ($uid) {
+			return $this->LoadUserByID((int)$uid);
 		}
 		return null;
 	}
