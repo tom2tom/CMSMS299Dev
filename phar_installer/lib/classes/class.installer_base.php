@@ -52,7 +52,7 @@ abstract class installer_base
 		$config = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : [];
 
         // custom config data
-		$p = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'upinst.ini';
+		$p = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'xconfig.ini';
 		$xconfig = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : false;
 		if( $xconfig ) {
 			foreach( $xconfig as $k =>$v) {
