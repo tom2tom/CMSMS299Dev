@@ -445,7 +445,14 @@ abstract class CmsAdminThemeBase
             ];
 
             foreach ($usermoduleinfo as $obj) {
-                if (empty($obj->section)) $obj->section = 'extensions';
+                if (empty($obj->section)) {
+                     $obj->section = 'extensions';
+                } elseif ($obj->section == 'content') {
+                    //hack pending non-core module updates by developers
+                    if ($obj->module != 'CMSContentManager') {
+                        $obj->section = 'services';
+                    }
+                }
                 // fix up the session key stuff
                 $obj->url = $this->_fix_url_userkey($obj->url);
                 if (!isset($obj->icon)) {
