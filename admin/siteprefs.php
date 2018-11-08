@@ -123,7 +123,7 @@ cleanArray($_POST);
 
 $tab = (isset($_POST['active_tab'])) ? trim($_POST['active_tab']) : '';
 
-if (!empty($_POST['testmail'])) {
+if (isset($_POST['testmail'])) {
     if (!cms_siteprefs::get('mail_is_set', 0)) {
         $errors[] = lang('error_mailnotset_notest');
     } elseif ($_POST['mailtest_testaddress'] == '') {
@@ -143,8 +143,9 @@ if (!empty($_POST['testmail'])) {
                 $mailer->Send();
                 if ($mailer->IsError()) {
                     $errors[] = $mailer->GetErrorInfo();
+                } else {
+                    $messages[] = lang('testmsg_success');
                 }
-                $message .= lang('testmsg_success');
             } catch (Exception $e) {
                 $errors[] = $e->GetMessage();
             }
@@ -371,24 +372,24 @@ $thumbnail_height = cms_siteprefs::get('thumbnail_height', 96);
 $thumbnail_width = cms_siteprefs::get('thumbnail_width', 96);
 $use_smartycompilecheck = cms_siteprefs::get('use_smartycompilecheck', 1);
 //$xmlmodulerepository = cms_siteprefs::get('xmlmodulerepository', '');
+
+$mailprefs = [
+ 'mailer'=>'mail',
+ 'host'=>'localhost',
+ 'port'=>25,
+ 'from'=>'root@localhost.localdomain',
+ 'fromuser'=>'CMS Administrator',
+ 'sendmail'=>'/usr/sbin/sendmail',
+ 'smtpauth'=>0,
+ 'username'=>'',
+ 'password'=>'',
+ 'secure'=>'',
+ 'timeout'=>60,
+ 'charset'=>'utf-8',
+];
 $tmp = cms_siteprefs::get('mailprefs');
 if ($tmp) {
-    $mailprefs = unserialize($tmp);
-} else {
-    $mailprefs = [
-     'mailer'=>'mail',
-     'host'=>'localhost',
-     'port'=>25,
-     'from'=>'root@localhost.localdomain',
-     'fromuser'=>'CMS Administrator',
-     'sendmail'=>'/usr/sbin/sendmail',
-     'smtpauth'=>0,
-     'username'=>'',
-     'password'=>'',
-     'secure'=>'',
-     'timeout'=>60,
-     'charset'=>'utf-8',
-    ];
+    $mailprefs = array_merge($mailprefs, unserialize($tmp));
 }
 
 /**
