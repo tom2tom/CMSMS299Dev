@@ -294,7 +294,7 @@ abstract class ContentBase
 	/************************************************************************/
 
 	/**
-	 * Generic constructor. Runs the SetInitialValues fuction.
+	 * Generic constructor. Runs the SetInitialValues function.
 	 */
 	public function __construct()
 	{
@@ -863,7 +863,7 @@ abstract class ContentBase
 	 */
 	public function RequiresAlias()
 	{
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -875,7 +875,7 @@ abstract class ContentBase
 	 */
 	public function IsViewable()
 	{
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -887,7 +887,7 @@ abstract class ContentBase
 	 */
 	public function IsPermitted()
 	{
-	  return TRUE;
+	  return true;
 	}
 
 	/**
@@ -919,7 +919,7 @@ abstract class ContentBase
 	 */
 	protected function HasSearchableContent()
 	{
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -1083,7 +1083,7 @@ abstract class ContentBase
 		foreach( $dbr as $row ) {
 			$this->_props[$row['prop_name']] = $row['content'];
 		}
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -1114,7 +1114,7 @@ abstract class ContentBase
 				$dbr = $db->Execute($iquery,[$this->mId,'string',$key,$value]);
 			}
 		}
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -1149,7 +1149,7 @@ abstract class ContentBase
 	 *
 	 * @since 0.11
 	 * @abstract
-	 * @return bool Default TRUE
+	 * @return bool Default true
 	 */
 	public function WantsChildren()
 	{
@@ -1160,7 +1160,7 @@ abstract class ContentBase
 	 * An abstract method that indicates that this content type is navigable and generates a useful URL.
 	 *
 	 * @abstract
-	 * @return bool Default TRUE
+	 * @return bool Default true
 	 */
 	public function HasUsableLink()
 	{
@@ -1436,7 +1436,7 @@ WHERE content_id = ?';
 
 		cms_route_manager::del_static('','__CONTENT__',$this->mId);
 		if( $this->mURL != '' ) {
-			$route = CmsRoute::new_builder($this->mURL,'__CONTENT__',$this->mId,null,TRUE);;
+			$route = CmsRoute::new_builder($this->mURL,'__CONTENT__',$this->mId,null,true);
 			cms_route_manager::add_static($route);
 		}
 	}
@@ -1462,7 +1462,7 @@ WHERE content_id = ?';
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
 		$dflt_pageid = (int) $db->GetOne($query);
-		if( $dflt_pageid < 1 ) $this->SetDefaultContent(TRUE);
+		if( $dflt_pageid < 1 ) $this->SetDefaultContent(true);
 
 		// Figure out the item_order
 		if ($this->mItemOrder < 1) {
@@ -1530,7 +1530,7 @@ WHERE content_id = ?';
 		}
 
 		if( $this->mURL != '' ) {
-			$route = CmsRoute::new_builder($this->mURL,'__CONTENT__',$this->mId,'',TRUE);
+			$route = CmsRoute::new_builder($this->mURL,'__CONTENT__',$this->mId,'',true);
 			cms_route_manager::add_static($route);
 		}
 	}
@@ -2145,7 +2145,7 @@ WHERE content_id = ?';
 		if( !$fnd ) {
 			if( isset($this->_prop_defaults[$name]) ) {
 				$this->$member = $this->_prop_defaults[$name];
-				return TRUE;
+				return true;
 			}
 		}
 		return false;
@@ -2163,13 +2163,13 @@ WHERE content_id = ?';
 		if( !is_array($this->_attributes) ) return;
 		for( $i = 0, $n = count($this->_attributes); $i < $n; ++$i ) {
 			if( is_object($this->_attributes[$i]) && $this->_attributes[$i]->name == $name ) {
-				unset($this->_attributes[$i]);
-		        for($i = $i+1; $i < $n; ++$i ) {
-					$this->_attributes[$i-1] = $this->_attributes[$i];
+		        for( $i = $i+1; $i < $n; ++$i ) {
+					$this->_attributes[$i - 1] = $this->_attributes[$i];
 				}
+				unset($this->_attributes[$n - 1]);
+				$this->_prop_defaults[$name] = $dflt;
 			}
 		}
-		$this->_prop_defaults[$name] = $dflt;
 	}
 
 	/**
