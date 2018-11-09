@@ -194,16 +194,19 @@ class ContentOperations
 	 * instantiated.
 	 *
 	 * @param mixed $type The type.  Either a string, or an instance of ContentTypePlaceHolder
-	 * @return ContentBase (A valid object derived from ContentBase)
+	 * @return mixed  object derived from ContentBase | null
 	 */
 	public function &CreateNewContent($type)
 	{
 		if( $type instanceof ContentTypePlaceHolder ) $type = $type->type;
-		$result = NULL;
 
 		$ctph = $this->LoadContentType($type);
-		if( is_object($ctph) && class_exists($ctph->class) ) $result = new $ctph->class;
-
+		if( is_object($ctph) && class_exists($ctph->class) ) {
+			$result = new $ctph->class;
+		}
+		else {
+			$result = null;
+		}
 		return $result;
 	}
 
@@ -243,7 +246,7 @@ class ContentOperations
 	 *
 	 * @param mixed $alias null|int|string The alias of the content object to load
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
-	 * @return ContentBase The loaded content object. If nothing is found, returns NULL.
+	 * @return mixed The matched ContentBase object, or null.
 	 */
 	public function LoadContentFromAlias($alias, bool $only_active = false)
 	{
