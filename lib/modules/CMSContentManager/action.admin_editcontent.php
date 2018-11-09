@@ -23,8 +23,6 @@ use CMSMS\ContentException;
 use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 
-global $CMS_JOB_TYPE;
-
 if( !isset($gCms) ) exit;
 
 $this->SetCurrentTab('pages');
@@ -35,17 +33,13 @@ if( isset($params['cancel']) ) {
     $this->RedirectToAdminTab();
 }
 
+$user_id = get_userid();
+
 //
 // init
 //
 try {
-    $user_id = get_userid();
-    $content_id = $parent_id = $content_obj = $error = $active_tab = null;
-    $pagedefaults = Utils::get_pagedefaults();
-    $content_type = $pagedefaults['contenttype'];
-    $error = null;
-
-    if( isset($params['content_id']) ) $content_id = (int)$params['content_id'];
+    $content_id = intval($params['content_id'] ?? 0);
 
     if( $content_id < 1 ) {
         // adding.
@@ -61,6 +55,8 @@ try {
         $this->RedirectToAdminTab();
     }
 
+    $parent_id = $error = null;
+    $pagedefaults = Utils::get_pagedefaults();
     // get a list of content types and pick a default if necessary
     $contentops = ContentOperations::get_instance();
     $existingtypes = $contentops->ListContentTypes(false,true);
@@ -68,15 +64,25 @@ try {
     //
     // load or create the initial content object
     //
-    if( $content_id == 'copy' && isset($_SESSION['__cms_copy_obj__']) ) {
+    if( $content_id === 0 && isset($_SESSION['__cms_copy_obj__']) ) {
         // we're copying a content object.
         $content_obj = unserialize($_SESSION['__cms_copy_obj__']);
-        $content_type = $content_obj->Type();
+        if( isset($params['content_type']) ) {
+            $content_type = trim($params['content_type']);
+        }
+        else {
+            $content_type = $content_obj->Type();
+        }
     }
     elseif( $content_id < 1 ) {
         // creating a new content object
         if( isset($params['parent_id']) ) $parent_id = (int) $params['parent_id'];
-        if( isset($params['content_type']) ) $content_type = trim($params['content_type']);
+        if( isset($params['content_type']) ) {
+            $content_type = trim($params['content_type']);
+        }
+        else {
+            $content_type = $pagedefaults['contenttype'];
+        }
         $content_obj = $contentops->CreateNewContent($content_type);
         $content_obj->SetOwner($user_id);
         $content_obj->SetLastModifiedBy($user_id);
@@ -197,7 +203,6 @@ try {
         elseif( isset($params['preview']) && $content_obj->HasPreview() ) {
             $_SESSION['__cms_preview__'] = serialize($content_obj);
             $_SESSION['__cms_preview_type__'] = $content_type;
-            debug_to_log($_SESSION,'before preview');
             exit;
         }
     }
