@@ -34,41 +34,41 @@ if (isset($_POST['cancel'])) {
 $themeObject = cms_utils::get_theme_object();
 
 if (isset($_POST['submit']) || isset($_POST['apply']) ) {
-	$err = false;
+    $err = false;
     $tagname = cleanValue($_POST['tagname']);
     $oldname = cleanValue($_POST['oldtagname']);
 
-	$ops = SimplePluginOperations::get_instance();
-	if ($oldname == '-1' || $oldname !== $tagname ) {
-		if (!$ops->is_valid_plugin_name($tagname)) {
-			$themeObject->RecordNotice('error', lang('udt_exists'));
-			$err = true;
-		}
-	}
+    $ops = SimplePluginOperations::get_instance();
+    if ($oldname == '-1' || $oldname !== $tagname ) {
+        if (!$ops->is_valid_plugin_name($tagname)) {
+            $themeObject->RecordNotice('error', lang('udt_exists'));
+            $err = true;
+        }
+    }
 
 //? send :: adduserdefinedtagpre
 //? send :: edituserdefinedtagpre
-	$meta = ['name' => $tagname];
-	//these are sanitized downstream, before storage ?
-	$val = $_POST['description'];
-	if ($val) $meta['description'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
-	$val = $_POST['parameters'];
-	if ($val) $meta['parameters'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
-	$val = $_POST['license'];
-	if ($val) $meta['license'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
+    $meta = ['name' => $tagname];
+    //these are sanitized downstream, before storage ?
+    $val = $_POST['description'];
+    if ($val) $meta['description'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
+    $val = $_POST['parameters'];
+    if ($val) $meta['parameters'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
+    $val = $_POST['license'];
+    if ($val) $meta['license'] = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_BACKTICK);
 
-	if ($ops->save($tagname, $meta, $_POST['code'])) {
+    if ($ops->save($tagname, $meta, $_POST['code'])) {
 //? send :: adduserdefinedtagpost
 //? send :: edituserdefinedtagpost
-	} else {
-		$msg = ($oldname == '-1') ? lang('errorinserting_utd') : lang('errorupdating_udt');
-		$themeObject->RecordNotice('error', $msg);
-		$err = true;
-	}
+    } else {
+        $msg = ($oldname == '-1') ? lang('errorinserting_utd') : lang('errorupdating_udt');
+        $themeObject->RecordNotice('error', $msg);
+        $err = true;
+    }
 
     if (isset($_POST['submit']) && !$err) {
-		$msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
-		$themeObject->ParkNotice('success', $msg);
+        $msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
+        $themeObject->ParkNotice('success', $msg);
         redirect('listsimpletags.php'.$urlext);
     }
 } elseif (isset($_GET['tagname'])) {
@@ -101,7 +101,7 @@ if ($edit) {
 <script type="text/javascript">
 //<![CDATA[
 $(document).ready(function() {
- $('#userplugin').on('submit', function(ev) {
+ $('#userplugin button[name="submit"], #userplugin button[name="apply"]').on('click', function(ev) {
   var v = $('#name').val();
   if (v === '' || !v.match(/^[a-zA-Z_][0-9a-zA-Z_]*$/)) {
    ev.preventDefault();
