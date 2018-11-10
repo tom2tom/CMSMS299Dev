@@ -18,7 +18,6 @@
 
 namespace CMSMS\internal;
 
-use cms_config;
 use cms_cookies;
 use cms_siteprefs;
 use CmsApp;
@@ -99,9 +98,12 @@ final class LoginOperations
         if( !$checksum ) {
             return FALSE;
         }
+
         $data = get_object_vars($user);
-        $data['password'] = __FILE__;
-        return password_verify( json_encode($data), $checksum );
+        unset($data['password']);
+        $data[] = __FILE__;
+
+        return password_verify(json_encode($data), $checksum);
     }
 
     /**
@@ -120,12 +122,15 @@ final class LoginOperations
         if( $effective_user && $effective_user->id > 0 && $effective_user->id != $user->id ) {
             $private_data['eff_uid'] = $effective_user->id;
             $private_data['eff_username'] = $effective_user->username;
-            }
+        }
+
         $data = get_object_vars($user);
-        $data['password'] = __FILE__; //cannot use actual (non-constant) P/W hash
-        $private_data['hash'] = password_hash( json_encode($data), PASSWORD_DEFAULT );
-        $enc = base64_encode( json_encode( $private_data ) );
-        $hash = sha1( $this->_get_salt() . $enc );
+        unset($data['password']); //actual (maybe-changed) P/W hash not useful here
+        $data[] = __FILE__;
+
+        $private_data['hash'] = password_hash(json_encode($data), PASSWORD_DEFAULT);
+        $enc = base64_encode(json_encode($private_data));
+        $hash = sha1($this->_get_salt() . $enc);
         $_SESSION[$this->_loginkey] = $hash.'::'.$enc;
         cms_cookies::set($this->_loginkey,$_SESSION[$this->_loginkey]);
 
@@ -149,8 +154,7 @@ final class LoginOperations
             $private_data = $_SESSION[$this->_loginkey];
         }
         elseif( isset($_COOKIE[$this->_loginkey]) ) {
-            //TODO sanitize $_COOKLIE[]
-            $private_data = $_SESSION[$this->_loginkey] = $_COOKIE[$this->_loginkey];
+            $private_data = $_SESSION[$this->_loginkey] = cleanValue($_COOKIE[$this->_loginkey]);
         }
         else {
             $private_data = null;
@@ -160,8 +164,8 @@ final class LoginOperations
         $parts = explode('::',$private_data,2);
         if( count($parts) != 2 ) return;
 
-        if( $parts[0] != sha1( $this->_get_salt() . $parts[1] ) ) return; // payload corrupted.
-        $private_data = json_decode( base64_decode( $parts[1]), TRUE );
+        if( $parts[0] != sha1($this->_get_salt() . $parts[1]) ) return; // payload corrupted
+        $private_data = json_decode(base64_decode( $parts[1]), TRUE);
 
         if( !is_array($private_data) ) return;
         if( empty($private_data['uid']) ) return;
