@@ -33,11 +33,12 @@ function send_recovery_email(User $user)
     $obj = new Mailer();
     $obj->IsHTML(true);
     $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
-    $obj->SetSubject(lang('lostpwemailsubject',html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site'))));
+    $name = html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site'))
+    $obj->SetSubject(lang('lostpwemailsubject', $name));
 
     $config = cms_config::get_instance();
     $url = $config['admin_url'] . '/login.php?recoverme=' . sha1($user->username . $user->password . CMS_ROOT_PATH);
-    $body = lang('lostpwemail', cms_html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site')), $user->username, $url, $url);
+    $body = lang('lostpwemail', $name, $user->username, $url, $url);
 
     $obj->SetBody($body);
     return $obj->Send();
@@ -51,9 +52,9 @@ function send_recovery_email(User $user)
  */
 function find_recovery_user(string $hash)
 {
-    $userops = CmsApp::get_instance()->GetUserOperations();
+    $user_ops = CmsApp::get_instance()->GetUserOperations();
 
-    foreach ($userops->LoadUsers() as $user) {
+    foreach ($user_ops->LoadUsers() as $user) {
         if ($hash == sha1($user->username . $user->password . CMS_ROOT_PATH)) return $user;
     }
     return null;
@@ -76,6 +77,11 @@ function check_secure_param(string $id)
     }
 }
 
+//Redirect to the normal login screen if we hit cancel on the forgot pw one
+if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform'])) && isset($_REQUEST['logincancel'])) {
+    redirect('login.php');
+}
+
 if (!empty($usecsrf)) {
     $csrf_key = md5(__FILE__);
 }
@@ -83,24 +89,21 @@ if (!empty($usecsrf)) {
 $gCms = CmsApp::get_instance();
 $login_ops = LoginOperations::get_instance();
 
-//Redirect to the normal login screen if we hit cancel on the forgot pw one
-//Otherwise, see if we have a forgotpw hit
-if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform'])) && isset($_REQUEST['logincancel'])) {
-    redirect('login.php');
-} elseif (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
-    $userops = $gCms->GetUserOperations();
+//Check for a forgot-pw job
+if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
+    $user_ops = $gCms->GetUserOperations();
     $forgot_username = filter_var($_REQUEST['forgottenusername'], FILTER_SANITIZE_STRING);
-    unset($_REQUEST['forgottenusername'],$_POST['forgottenusername']);
-    Events::SendEvent('Core', 'LostPassword', [ 'username'=>$forgot_username]);
-    $oneuser = $userops->LoadUserByUsername($forgot_username);
-    unset($_REQUEST['loginsubmit'],$_POST['loginsubmit']);
+    unset($_REQUEST['forgottenusername'], $_POST['forgottenusername']);
+    Events::SendEvent('Core', 'LostPassword', ['username'=>$forgot_username]);
+    $user = $user_ops->GetRecoveryData($forgot_username);
+    unset($_REQUEST['loginsubmit'], $_POST['loginsubmit']);
 
-    if ($oneuser != null) {
-        if ($oneuser->email == '') {
+    if ($user != null) {
+        if ($user->email == '') {
             $error = lang('nopasswordforrecovery');
-        } elseif (send_recovery_email($oneuser)) {
+        } elseif (send_recovery_email($user)) {
             audit('','Core','Sent lost-password email for '.$user->username);
-            $warning = lang('recoveryemailsent');
+            $message = lang('recoveryemailsent');
         } else {
             $error = lang('errorsendingemail');
         }
@@ -109,24 +112,21 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
         Events::SendEvent('Core', 'LoginFailed', [ 'user'=>$forgot_username ] );
         $error = lang('usernotfound');
     }
+    return;
 } elseif (!empty($_REQUEST['recoverme'])) {
-    if (!empty($usecsrf)) {
-        try {
-            check_secure_param('002');
-        } catch (Exception $e) {
-            die('Invalid recovery request - 002');
-        }
-    }
-    $user = find_recovery_user(cleanVariable($_REQUEST['recoverme']));
-    if ($user == null) {
-        $error = lang('usernotfound');
+    $user = find_recovery_user(cleanValue($_REQUEST['recoverme']));
+    if ($user != null) {
+        $changepwtoken = true;
+		$changepwhash = $_REQUEST['recoverme'];
     } else {
-        $changepwhash = true;
+        $error = lang('usernotfound');
     }
+    return;
 } elseif (!empty($_REQUEST['forgotpwchangeform'])) {
     if (!empty($usecsrf)) {
         try {
             check_secure_param('003');
+			$usecsrf = false; //another check not necessary or possible
         } catch (Exception $e) {
             die('Invalid recovery request - 003');
         }
@@ -147,10 +147,12 @@ if ((isset($_REQUEST['forgotpwform']) || isset($_REQUEST['forgotpwchangeform']))
          } else {
              $error = lang('nopasswordmatch');
              $changepwhash = $_REQUEST['changepwhash'];
+		     return;
          }
     } else {
         $error = lang('nofieldgiven', lang('password'));
-            $changepwhash = $_REQUEST['changepwhash'];
+        $changepwhash = $_REQUEST['changepwhash'];
+        return;
     }
 }
 
@@ -176,7 +178,7 @@ if (isset($_POST['cancel'])) {
     $login_ops->deauthenticate();
     $username = (isset($_POST['username'])) ? cleanValue($_POST['username']) : null;
     $password = $_POST['password'] ?? null; //no cleanup: any char is valid, & hashed before storage
-    $userops = $gCms->GetUserOperations();
+    $user_ops = $gCms->GetUserOperations();
 
     class CmsLoginError extends CmsException {}
 
@@ -185,21 +187,21 @@ if (isset($_POST['cancel'])) {
             check_secure_param('004');
         }
         if( !$password ) throw new CmsLoginError(lang('usernameincorrect'));
-        $oneuser = $userops->LoadUserByUsername($username, $password, TRUE, TRUE);
-        if( !$oneuser ) throw new CmsLoginError(lang('usernameincorrect'));
-        if( ! $oneuser->Authenticate( $password ) ) {
+        $user = $user_ops->LoadUserByUsername($username, $password, TRUE, TRUE);
+        if( !$user ) throw new CmsLoginError(lang('usernameincorrect'));
+        if( ! $user->Authenticate( $password ) ) {
             throw new CmsLoginError( lang('usernameincorrect') );
         }
-        $login_ops->save_authentication($oneuser);
+        $login_ops->save_authentication($user);
 
         // put mention into the admin log
-        audit($oneuser->id, 'Admin Username: '.$oneuser->username, 'Logged In');
+        audit($user->id, 'Admin Username: '.$user->username, 'Logged In');
 
         // send the post login event
         unset($_POST['username'],$_POST['password'],$_REQUEST['username'],$_REQUEST['password']);
-        Events::SendEvent('Core', 'LoginPost', [ 'user'=>&$oneuser ]);
+        Events::SendEvent('Core', 'LoginPost', [ 'user'=>&$user ]);
 
-        // redirect outa hre somewhere
+        // redirect outa here somewhere
         if( isset($_SESSION['login_redirect_to']) ) {
             // we previously attempted a URL but didn't have the user key in the request.
             $url_ob = new cms_url($_SESSION['login_redirect_to']);
@@ -210,8 +212,8 @@ if (isset($_POST['cancel'])) {
             $url = (string) $url_ob;
             redirect($url);
         } else {
-            // find the users homepage, if any, and redirect there.
-            $homepage = cms_userprefs::get_for_user($oneuser->id,'homepage');
+            // find the user's homepage, if any, and redirect there.
+            $homepage = cms_userprefs::get_for_user($user->id,'homepage');
             if( !$homepage ) {
                 $homepage = $config['admin_url'];
             }

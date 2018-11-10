@@ -56,7 +56,7 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
      * Process the current login 'phase', and generate appropriate page-content for
      *  use upstream
      * No header / footer inclusions (js, css) are done (i.e. assumes upstream does that)
-     * @return stuff usable upstream (but only if further processing is needed)
+     * @return array including login-form content and related parameters
      */
     public function StageLogin() : array
     {
@@ -70,39 +70,37 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
         $csrf = bin2hex(random_bytes(16));
 
         $smarty = Smarty::get_instance();
-        $smarty->assign('mod', $this);
-        $smarty->assign('actionid', '');
-		$smarty->assign('loginurl', 'login.php');
-		$smarty->assign('forgoturl', 'login.php?forgotpw=1');
-        $smarty->assign('csrf', $csrf);
-        $smarty->assign('changepwhash', $changepwhash ?? '');
-
-        $parts = [];
-        //some results from included function also for upstream
-        $parts['infomessage'] = $infomessage ?? '';
-        $parts['warnmessage'] = $warnmessage ?? '';
-        $parts['errmessage'] = $errmessage ?? '';
-        $smarty->assign($parts);
+        $smarty->assign('mod', $this)
+         ->assign('actionid', '')
+         ->assign('loginurl', 'login.php')
+         ->assign('forgoturl', 'login.php?forgotpw=1')
+         ->assign('csrf', $csrf)
+         ->assign('changepwhash', $changepwhash ?? '')
+         ->assign('iserr', !empty($errmessage));
 
         $saved = $smarty->template_dir;
         $smarty->template_dir = __DIR__ . DIRECTORY_SEPARATOR . 'templates';
-        $form = $smarty->fetch('core.tpl');
+        $data = ['form' => $smarty->fetch('core.tpl')];
         $smarty->template_dir = $saved;
 
         $_SESSION[$csrf_key] = $csrf;
 
-        $parts['changepwtoken'] = $changepwtoken ?? '';
-        $parts['form'] = $form;
+        //some results from included function also for upstream
+        if (!empty($infomessage)) $data['infomessage'] = $infomessage;
+        if (!empty($warnmessage)) $data['warnmessage'] = $warnmessage;
+        if (!empty($errmessage)) $data['errmessage'] = $errmessage;
+        if (!empty($changepwhash)) $data['changepwhash'] = $changepwhash;
+        if (!empty($changepwtoken)) $data['changepwtoken'] = $changepwtoken;
 
-        return $parts;
+        return $data;
     }
 
-	/**
-	 * Perform the entire login process without theme involvement
-	 */
+    /**
+     * Perform the entire login process without theme involvement
+     */
     public function RunLogin()
-	{
+    {
         $fp = cms_join_path(__DIR__, 'action.login.php');
         require_once $fp;
-	}
+    }
 } // class

@@ -11,6 +11,8 @@
 		<meta name="msapplication-TileImage" content="{$assets_url}/images/ms-application-icon.png" />
 		<base href="{$admin_url}/" />
 		<link rel="shortcut icon" href="{$assets_url}/images/cmsms-favicon.ico"/>
+        <link rel="stylesheet" href="themes/Marigold/css/fonticons.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 {$header_includes|default:''}
 		<script type="text/javascript" src="themes/Marigold/includes/login.js"></script>
 	</head>
@@ -41,23 +43,23 @@
 							{'forgotpwprompt'|lang}
 						</div>
 					{/if}
-					{if !empty($error)}
+					{if !empty($errmessage)}
 						<div class="message error">
-							{$error}
+							{$errmessage}
 						</div>
 					{/if}
-					{if !empty($warning)}
+					{if !empty($warnmessage)}
 						<div class="message warning">
-							{$warning}
+							{$warnmessage}
 						</div>
 					{/if}
-					{if !empty($message)}
+					{if !empty($infomessage)}
 						<div class="message success">
-							{$message}
+							{$infomessage}
 						</div>
 					{/if}
 					{if !empty($changepwhash)}
-						<div class="warning message">
+						<div class="message warning">
 							{'passwordchange'|lang}
 						</div>
 					{/if}

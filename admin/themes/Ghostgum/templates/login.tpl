@@ -36,9 +36,9 @@
       {if !empty($smarty.get.forgotpw)}
        <div class="login-info">{lang('forgotpwprompt')}</div>
       {/if}
-      {if !empty($error)}<div class="pageerror">{$error}</div>{/if}
-      {if !empty($warning)}<div class="pagewarn">{$warning}</div>{/if}
-      {if !empty($message)}<div class="pagesuccess">{$message}</div>{/if}
+      {if !empty($errmessage)}<div class="pageerror">{$errmessage}</div>{/if}
+      {if !empty($warnmessage)}<div class="pagewarn">{$warnmessage}</div>{/if}
+      {if !empty($infomessage)}<div class="pagesuccess">{$infomessage}</div>{/if}
       {if !empty($changepwhash)}<div class="pageinfo">{lang('passwordchange')}</div>{/if}
       <div id="info-wrapper" class="login-info">
        {lang('login_info')}

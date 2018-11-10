@@ -88,13 +88,20 @@ final class LoginOperations
     {
         // we already validated that payload was not corrupt
         $userops = UserOperations::get_instance();
-        $oneuser = $userops->LoadUserByID((int) $uid);
-        if( !$oneuser ) return FALSE;
-        if( !$oneuser->active ) return FALSE;
+        $user = $userops->LoadUserByID((int) $uid);
+        if( !$user ) {
+            return FALSE;
+        }
+        if( !$user->active ) {
+            return FALSE;
+        }
         $checksum = (string) $checksum;
-        if( !$checksum ) return FALSE;
-
-        return password_verify( $oneuser->id.$oneuser->password.__FILE__, $checksum );
+        if( !$checksum ) {
+            return FALSE;
+        }
+        $data = get_object_vars($user);
+        $data['password'] = __FILE__;
+        return password_verify( json_encode($data), $checksum );
     }
 
     /**
@@ -110,12 +117,13 @@ final class LoginOperations
         'eff_uid' => null,
         'eff_username' => null,
         ];
-        //CHECKME does this need to be crypto-secure (& slow) ?
-        $private_data['hash'] = password_hash( $user->id.$user->password.__FILE__, PASSWORD_DEFAULT );
         if( $effective_user && $effective_user->id > 0 && $effective_user->id != $user->id ) {
             $private_data['eff_uid'] = $effective_user->id;
             $private_data['eff_username'] = $effective_user->username;
-        }
+            }
+        $data = get_object_vars($user);
+        $data['password'] = __FILE__; //cannot use actual (non-constant) P/W hash
+        $private_data['hash'] = password_hash( json_encode($data), PASSWORD_DEFAULT );
         $enc = base64_encode( json_encode( $private_data ) );
         $hash = sha1( $this->_get_salt() . $enc );
         $_SESSION[$this->_loginkey] = $hash.'::'.$enc;
@@ -136,13 +144,16 @@ final class LoginOperations
     {
         if( !empty($this->_data) ) return $this->_data;
 
-        // using session, and-or cookie data see if we are authenticated
-        $private_data = null;
+        // use session- and/or cookie-data to check whether user is authenticated
         if( isset($_SESSION[$this->_loginkey]) ) {
             $private_data = $_SESSION[$this->_loginkey];
         }
+        elseif( isset($_COOKIE[$this->_loginkey]) ) {
+            //TODO sanitize $_COOKLIE[]
+            $private_data = $_SESSION[$this->_loginkey] = $_COOKIE[$this->_loginkey];
+        }
         else {
-            if( isset($_COOKIE[$this->_loginkey]) ) $private_data = $_SESSION[$this->_loginkey] = $_COOKIE[$this->_loginkey];
+            $private_data = null;
         }
 
         if( !$private_data ) return;
@@ -158,7 +169,6 @@ final class LoginOperations
         if( empty($private_data['hash']) ) return;
 
         // now authenticate the passhash
-        // requires a database query
         if( !CmsApp::get_instance()->is_frontend_request() && !$this->_check_passhash($private_data['uid'],$private_data['hash']) ) return;
 
         // if we get here, the user is authenticated.
@@ -177,13 +187,13 @@ final class LoginOperations
         // now we validate that the request has the user key in it somewhere.
         if( !isset($_SESSION[CMS_USER_KEY]) ) throw new LogicException('Internal: User key not found in session.');
 
-        $v = '<no$!tgonna!$happen>';
-        if( isset($_REQUEST[CMS_SECURE_PARAM_NAME]) ) $v = $_REQUEST[CMS_SECURE_PARAM_NAME];
+        $v = $_REQUEST[CMS_SECURE_PARAM_NAME] ?? '<no$!tgonna!$happen>';
 
         // validate the key in the request against what we have in the session.
         if( $v != $_SESSION[CMS_USER_KEY] ) {
-            $config = cms_config::get_instance();
-            if( !isset($config['stupidly_ignore_xss_vulnerability']) ) return FALSE;
+//            $config = cms_config::get_instance();
+//            if( !isset($config['stupidly_ignore_xss_vulnerability']) )
+            return FALSE;
         }
         return TRUE;
     }
@@ -214,7 +224,7 @@ final class LoginOperations
     {
         $data = $this->_get_data();
         if( !$data ) return;
-        if( isset($data['eff_uid']) && $data['eff_uid'] ) return $data['eff_uid'];
+        if( !empty($data['eff_uid']) ) return $data['eff_uid'];
         return $this->get_loggedin_uid();
     }
 
@@ -222,7 +232,7 @@ final class LoginOperations
     {
         $data = $this->_get_data();
         if( !$data ) return;
-        if( isset($data['eff_username']) && $data['eff_username'] ) return $data['eff_username'];
+        if( !empty($data['eff_username']) ) return $data['eff_username'];
         return $this->get_loggedin_username();
     }
 
