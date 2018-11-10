@@ -2163,11 +2163,12 @@ WHERE content_id = ?';
 		if( !is_array($this->_attributes) ) return;
 		for( $i = 0, $n = count($this->_attributes); $i < $n; ++$i ) {
 			if( is_object($this->_attributes[$i]) && $this->_attributes[$i]->name == $name ) {
-		        for( $i = $i+1; $i < $n; ++$i ) {
-					$this->_attributes[$i - 1] = $this->_attributes[$i];
+				unset($this->_attributes[$i]);
+				if ($i < $n - 1) {
+					$this->_attributes = array_values($this->_attributes);
 				}
-				unset($this->_attributes[$n - 1]);
 				$this->_prop_defaults[$name] = $dflt;
+				return;
 			}
 		}
 	}
