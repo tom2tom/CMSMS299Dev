@@ -517,11 +517,12 @@ EOS;
 		}
 		$smarty->assign('pageicon', $tag);
 
+		$config = cmsms()->GetConfig();
 		// site logo
 		$sitelogo = cms_siteprefs::get('sitelogo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
-				$sitelogo = CMS_ROOT_URL.'/'.$sitelogo;
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
 			}
 			$smarty->assign('sitelogo', $sitelogo);
 		}
@@ -540,7 +541,6 @@ EOS;
 
 		$secureparam = CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY];
 		// other variables
-		$config = cmsms()->GetConfig();
 		$smarty->assign('admin_url', $config['admin_url']);
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 		$smarty->assign('theme', $this);

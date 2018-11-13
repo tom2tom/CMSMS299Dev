@@ -322,11 +322,12 @@ EOS;
 		}
 		$smarty->assign('pageicon', $tag);
 
+        $config = cms_config::get_instance();
 		// site logo
 		$sitelogo = cms_siteprefs::get('sitelogo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
-				$sitelogo = CMS_ROOT_URL.'/'.$sitelogo;
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
 			}
 			$smarty->assign('sitelogo', $sitelogo);
 		}
@@ -350,7 +351,6 @@ EOS;
 		//strip inappropriate closers cuz we're putting it in the middle somewhere
 		$smarty->assign('content', str_replace('</body></html>', '', $html));
 
-        $config = cms_config::get_instance();
 		$smarty->assign('admin_url', $config['admin_url']);
 		$smarty->assign('assets_url', $config['admin_url'] . '/themes/assets');
 

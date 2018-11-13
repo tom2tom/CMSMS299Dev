@@ -33,7 +33,7 @@ function send_recovery_email(User $user)
     $obj = new Mailer();
     $obj->IsHTML(true);
     $obj->AddAddress($user->email, cms_html_entity_decode($user->firstname . ' ' . $user->lastname));
-    $name = html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site'))
+    $name = html_entity_decode(cms_siteprefs::get('sitename','CMSMS Site'));
     $obj->SetSubject(lang('lostpwemailsubject', $name));
 
     $config = cms_config::get_instance();
@@ -263,7 +263,8 @@ $tplvars['lang_dir'] = CmsNlsOperations::get_language_direction();
 $sitelogo = cms_siteprefs::get('sitelogo');
 if ($sitelogo) {
     if (!preg_match('~^\w*:?//~',$sitelogo)) {
-        $sitelogo = CMS_ROOT_URL.'/'.trim($sitelogo, ' /');
+        $config = cms_config::get_instance();
+        $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
     }
 }
 $tplvars['sitelogo'] = $sitelogo;
