@@ -194,9 +194,9 @@ EOS;
 	 *
 	 * @staticvar boolean $first_time
 	 * @param string $name
-	 * @param type $value
-	 * @param type $profile
-	 * @param bool $required
+	 * @param string $value
+	 * @param CMSMS\FilePickerProfile $profile
+	 * @param bool $required Optional flag, default false
 	 * @return string content block contents
 	 */
     public function get_html( $name, $value, $profile, $required = false )

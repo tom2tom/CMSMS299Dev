@@ -16,11 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-/**
- * This file provides the basic abstract content class
- * @package CMS
- */
-
 namespace CMSMS {
 
 use cms_config;
@@ -56,7 +51,7 @@ use function munge_string_to_url;
  * Base level content object.
  *
  * This is the base level content class.  It is an abstract object and cannot be instantiated directly.
- * All content pages in the database are required to be drived from this class.
+ * All content pages in the database must be derived from this class.
  *
  * @since		0.8
  * @package		CMS
