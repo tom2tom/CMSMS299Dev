@@ -115,15 +115,16 @@ final class cms_siteprefs
 	public static function set($key,$value)
 	{
 		$db = CmsApp::get_instance()->GetDb();
+        $now = $db->DbTimeStamp(time());
 		if( !self::exists($key) ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name, sitepref_value) VALUES (?,?)';
-//			$dbr = 
-			$db->Execute($query,[$key,$value]);
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name, sitepref_value, create_date) VALUES (?,?,?)';
+//			$dbr =
+			$db->Execute($query,[$key,$value,$now]);
 		}
 		else {
-			$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ? WHERE sitepref_name = ?';
+			$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ?, modified_date = ? WHERE sitepref_name = ?';
 //			$dbr =
-			$db->Execute($query,[$value,$key]);
+			$db->Execute($query,[$value,$now,$key]);
 		}
         global_cache::clear(__CLASS__);
 	}
