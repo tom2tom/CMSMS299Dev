@@ -110,6 +110,14 @@ class FilePickerProfile
     }
 
     /**
+     * @ignore
+     */
+    public function __set( string $key, $val )
+    {
+		$this->setValue($key, $val);
+	}
+
+    /**
      * Set a value into this profile
      *
      * @param string $key The key to set
