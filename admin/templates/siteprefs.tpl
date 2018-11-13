@@ -27,7 +27,7 @@
       {cms_help key2='siteprefs_sitelogo' title=$t}
     </p>
     <p class="pageinput">
-      <input type="text" id="sitelogo" name="sitelogo" size="60" value="{$sitelogo}" />
+      {$logoselect}
     </p>
   </div>
   <div class="pageoverflow">

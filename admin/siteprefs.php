@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\contenttypes\Content;
+use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\module_meta;
 use CMSMS\internal\Smarty;
@@ -396,6 +397,18 @@ if ($tmp) {
  * Build page
  */
 
+$dir = $config['image_uploads_path'];
+$filepicker = cms_utils::get_filepicker_module();
+if ($filepicker) {
+	$tmp = $filepicker->get_default_profile($dir, $userid);
+	$profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
+	$logoselector = $filepicker->get_html('image', $sitelogo, $profile);
+	$logoselector = str_replace(['name="image"', 'size="50"', 'readonly="readonly"'], ['id="sitelogo" name="sitelogo"', 'size="60"', ''], $logoselector);
+}
+else {
+	$logoselector = create_file_dropdown('image', $dir, $sitelogo, 'jpg,jpeg,png,gif', '', true, '', 'thumb_', 0, 1);
+}
+
 // Error if cache folders are not writable
 if (!is_writable(TMP_CACHE_LOCATION) || !is_writable(TMP_TEMPLATES_C_LOCATION)) {
     $errors[] = lang('cachenotwritable');
@@ -675,6 +688,7 @@ $smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help'
   ->assign('global_umask', $global_umask)
   ->assign('lock_timeout', $lock_timeout)
   ->assign('login_module', $login_module)
+  ->assign('logoselect', $logoselector)
   ->assign('metadata', $metadata)
   ->assign('search_module', $search_module)
   ->assign('sitedownexcludeadmins', $sitedownexcludeadmins)

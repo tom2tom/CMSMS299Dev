@@ -264,7 +264,7 @@ $sitelogo = cms_siteprefs::get('sitelogo');
 if ($sitelogo) {
     if (!preg_match('~^\w*:?//~',$sitelogo)) {
         $config = cms_config::get_instance();
-        $sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
+        $sitelogo = $config['uploads_url'].'/'.trim($sitelogo, ' /');
     }
 }
 $tplvars['sitelogo'] = $sitelogo;
