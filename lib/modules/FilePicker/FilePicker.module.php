@@ -292,14 +292,14 @@ EOS;
 
 	/**
 	 * utility function
-	 * @param type $profile
-	 * @param type $filename
+	 * @param Profile $profile
+	 * @param string $filepath
 	 * @return boolean
 	 */
-    public function is_acceptable_filename( $profile, $filename )
+    public function is_acceptable_filename( $profile, $filepath )
     {
-        $filename = trim($filename);
-        $filename = basename($filename);  // in case it's a path
+        $filepath = trim($filepath);
+        $filename = basename($filepath);
         if( !$filename ) return FALSE;
         if( !$profile->show_hidden && (startswith($filename,'.') || startswith($filename,'_') || $filename == 'index.html') ) return FALSE;
         if( $profile->match_prefix && !startswith( $filename, $profile->match_prefix) ) return FALSE;
@@ -307,25 +307,25 @@ EOS;
 
         switch( $profile->type ) {
         case FileType::IMAGE:
-            return $this->_typehelper->is_image( $filename );
+            return $this->_typehelper->is_image( $filepath );
 
         case FileType::AUDIO:
-            return $this->_typehelper->is_audio( $filename );
+            return $this->_typehelper->is_audio( $filepath );
 
         case FileType::VIDEO:
-            return $this->_typehelper->is_video( $filename );
+            return $this->_typehelper->is_video( $filepath );
 
         case FileType::MEDIA:
-            return $this->_typehelper->is_media( $filename);
+            return $this->_typehelper->is_media( $filepath );
 
         case FileType::XML:
-            return $this->_typehelper->is_xml( $filename);
+            return $this->_typehelper->is_xml( $filepath );
 
         case FileType::DOCUMENT:
-            return $this->_typehelper->is_document( $filename);
+            return $this->_typehelper->is_document( $filepath );
 
         case FileType::ARCHIVE:
-            return $this->_typehelper->is_archive( $filename );
+            return $this->_typehelper->is_archive( $filepath );
         }
 
         // passed

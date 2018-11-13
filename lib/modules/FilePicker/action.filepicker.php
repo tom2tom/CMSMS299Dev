@@ -41,7 +41,7 @@ if( isset($_GET['_enc']) ) {
 try {
     $inst = trim(cleanValue(get_parameter_value($_GET,'inst')));
     $sig = trim(cleanValue(get_parameter_value($_GET,'sig')));
-    $type = trim(cleanValue(get_parameter_value($_GET,'type')));
+    $type = trim(cleanValue(get_parameter_value($_GET,'type'))); //TODO CHECKME Filetype enum value int
     $nosub = (int) get_parameter_value($_GET,'nosub');
 
     if( $sig ) {
@@ -126,7 +126,7 @@ try {
         if( is_dir($fullname) && !$assistant->is_relative($fullname) ) {
             continue;
         }
-        if( !$this->is_acceptable_filename( $profile, $name ) ) {
+        if( !$this->is_acceptable_filename( $profile, $fullname ) ) {
             continue;
         }
 
