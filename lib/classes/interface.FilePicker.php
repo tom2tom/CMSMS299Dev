@@ -57,7 +57,7 @@ interface FilePicker
      * Generate HTML to display an input field that is initialized with the filepicker plugin.
      *
      * @param string $name The name for the input field.
-     * @param string $value the current value for the input filed
+     * @param string $value the current value for the input field
      * @param CMSMS\FilePickerProfile $profile The profile to use when building the filepicker interface.
 	 * @param bool   $required Optional property ... (see FilePicker::get_html()) default false
      */
