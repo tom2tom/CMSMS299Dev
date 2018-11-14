@@ -115,17 +115,21 @@ final class cms_siteprefs
 	public static function set($key,$value)
 	{
 		$db = CmsApp::get_instance()->GetDb();
+		$tbl = CMS_DB_PREFIX.'siteprefs';
         $now = $db->DbTimeStamp(time());
-		if( !self::exists($key) ) {
-			$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name, sitepref_value, create_date) VALUES (?,?,?)';
-//			$dbr =
-			$db->Execute($query,[$key,$value,$now]);
-		}
-		else {
-			$query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value = ?, modified_date = ? WHERE sitepref_name = ?';
-//			$dbr =
-			$db->Execute($query,[$value,$now,$key]);
-		}
+		//self::exists() is uselsss here, it ignores null (hence '') values
+		//upsert TODO MySQL ON DUPLICATE KEY UPDATE useful here?
+		$query = "UPDATE $tbl SET sitepref_value=?,modified_date=? WHERE sitepref_name=?";
+//		$dbr =
+		$db->Execute($query,[$value,$now,$key]);
+		$query = <<<EOS
+INSERT INTO $tbl (sitepref_name,sitepref_value,create_date)
+SELECT ?,?,{$now} FROM (SELECT 1 AS dmy) Z
+WHERE NOT EXISTS (SELECT 1 FROM $tbl T WHERE T.sitepref_name=?)
+EOS;
+//		$dbr =
+		$db->Execute($query,[$key,$value,$key]);
+
         global_cache::clear(__CLASS__);
 	}
 
