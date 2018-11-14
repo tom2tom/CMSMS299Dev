@@ -522,7 +522,7 @@ EOS;
 		$sitelogo = cms_siteprefs::get('sitelogo');
 		if ($sitelogo) {
 			if (!preg_match('~^\w*:?//~', $sitelogo)) {
-				$sitelogo = $config['uploads_url'].'/'.trim($sitelogo, ' /');
+				$sitelogo = $config['image_uploads_url'].'/'.trim($sitelogo, ' /');
 			}
 			$smarty->assign('sitelogo', $sitelogo);
 		}
