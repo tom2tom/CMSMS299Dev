@@ -14,12 +14,12 @@ The PHAR based installation assistant is a binary file and must be transferred i
 ---------------------------
 Requirements
 ---------------------------
-1.  The installation assistant requires a PHP environment with a minimum version of PHP 5.4.0 with the Phar library enabled.
+1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.0 with the Phar library enabled.
 2.  For new installations of CMS Made Simple you should create a new mysql database and database user.
     - The database user must have ALL PRIVILEGES to all tables within the new database.
     - Your database user account must have a password.
 3.  CMS Made Simple itself requires at least PHP 7.0 with numerous libraries enabled (the install assistant will check for these) including json, tokenizer, xml, and gd.
-4.  Your PHP environment must include the PHAR extension
+4.  The website's PHP environment must include the PHAR extension
 
 ---------------------------
 Instructions
@@ -31,7 +31,7 @@ Instructions
     For Example: http://www.mywebsite.site/cmsms-2.0-install.php
 
 You should now be presented with a welcome screen.  If, instead, you see a white screen it probably means that your
-server is running old, or incompatible software and that you may be forced to use the traditional installer.  It is a good
+server is running old, or incompatible, software and that you may be forced to use the traditional installer.  It is a good
 hint that if the Phar installer will not run you may have further problems with CMS Made Simple on that server.
 
 The installation assistant can then be used to guide you through the process of installing a new version of CMSMS,
@@ -75,8 +75,7 @@ Step 5:
   for additional site managers or editors.
 
   Unless you have enabled "Advanced mode" in step 1, you must also provide an email address. The email address will be
-  used to send you your login credentials in the event of a lost or forgotten password.  An email will also be sent to you
-  with your initial login credentials.
+  used to send you your login credentials in the event of a lost or forgotten password.
 
 Step 6:
   This step asks you for a human readable name for your website, and allows you to select additional language packs to install.
@@ -122,29 +121,69 @@ Additional Features
 The single installation assistant package provides these features:
 1.  Installing a new version of CMSMS into an empty directory.
 2.  Upgrading an existing version of CMSMS to a new version
-3.  Freshening (or Repairing) an existing installation of CMSMS
+3.  Freshening (or repairing) an existing installation of CMSMS
     This option may be useful for fixing a corrupted installation of CMSMS.  Only available when the current version of CMSMS and the new version are identical, it will replace all of the core files with those distributed by the system and re-generate a new config.php file.
 4.  Installing additional language packages
     As part of the "Freshen" functionality, when repairing an installation you have the option to install additional language packs.
 5.  Advanced vs. Simple mode
 
 ---------------------------
-Available Options
+Configuration
 ---------------------------
-The installation assistant supports the following URL based options:
-1.  TMPDIR=/absolute/path
+Some operation-parameters can be specified in configuration file(s). Such files must be PHP .ini files, as follows:
+
+1. <site-root-folder>/phar_installer/assets/config.ini
+This file is part of the installation, always present during the operation.
+2. <site-root-folder>/xconfig.ini
+Optional custom/manual override. If present, any parameters in this file will prevail over corresponding parameters in the file identified in 1.
+
+Missing parameters are ok, empty parameter-values are ignored (and sought via the installer UI)
+Example content:
+
+adminemail="someemailaddress"
+adminlogin="someaccountbame"
+adminpw="somep/w"
+;database parameters
+db_hostname="localhostorwhatever"
+db_name="whatever"
+db_port=""
+db_prefix="cms_"
+db_password="whatever"
+db_username="whatever"
+;others
+dest=""
+tmpdir=""
+timezone=""
+;installer language
+lang="en_US"
+;extra site translation(s)
+;exlangs[]="en_CY"
+;exlangs[]="it_IT"
+query_var=""
+samplecontent=false
+sitename=""
+;aka expert-mode
+verbose=false
+debug=false
+nobase=false
+nofiles=false
+
+---------------------------
+Parameter Details
+---------------------------
+
+1.  tmpdir=/absolute/path
     Specify the absolute path to the directory to be used for temporary files.  This directory must be writable by the PHP process.  This option should not be needed on most hosts.
-2.  debug=1
-    Attempt Turn on error reporting, and to display some meaningful help information.
-3.  nobase=1
+2.  debug=true
+    Attempt turn on error reporting, and to display some meaningful help information.
+3.  nobase=true
     Do not output a base href tag in the generated HTML.
 4.  dest=/absolute/path
     Allow specifying a custom destination directory (must be an absolute path).
-5.  nofiles=1
+5.  nofiles=true
     Do not overwrite files.  This is useful when needing to setup the database when the files have been manually extracted from the source code repository.
-6.  clear=1
+6.  clear=true
     Usable only on the first step, this will ensure that all preset config information is cleared from the session (for development purposes only).
-
 
 ---------------------------
 Frequently Asked Questions

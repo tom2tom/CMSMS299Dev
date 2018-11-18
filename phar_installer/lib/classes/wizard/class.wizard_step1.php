@@ -164,16 +164,16 @@ class wizard_step1 extends wizard_step
 
             $custom_destdir = $app->has_custom_destdir();
             $smarty->assign('custom_destdir',$custom_destdir);
-            $raw = $config['hostroot'] ?? null;
-            $v = ($raw === null) ? $app->get_destdir() : trim($raw);
+            $raw = $config['dest'] ?? null;
+            $v = ($raw) ? trim($raw) : $app->get_destdir();
             $smarty->assign('destdir',$v);
         }
-        $raw = $config['verbose'] ?? null;
-        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int) $raw;
+        $raw = $config['verbose'] ?? false;
+        $v = ($raw) ? (int)$raw : $this->get_wizard()->get_data('verbose',0);
         $smarty->assign('verbose',$v);
         $smarty->assign('languages',translator()->get_language_list(translator()->get_allowed_languages()));
-        $raw = $config['language'] ?? null;
-        $v = ($raw === null) ? translator()->get_current_language() : trim($raw);
+        $raw = $config['lang'] ?? null;
+        $v = ($raw) ? trim($raw) : translator()->get_current_language() ;
         $smarty->assign('curlang',$v);
         $smarty->assign('yesno',[0=>lang('no'),1=>lang('yes')]);
         $smarty->display('wizard_step1.tpl');
