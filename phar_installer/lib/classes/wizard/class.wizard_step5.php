@@ -83,12 +83,28 @@ class wizard_step5 extends wizard_step
         $raw = $config['sitename'] ?? null;
         $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
         $smarty->assign('sitename',$v);
-        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
+
         $languages = get_app()->get_language_list();
         unset($languages['en_US']);
         $smarty->assign('language_list',$languages);
-//        $raw = $config['exlang'] ?? null;
-        $smarty->assign('languages', []);
+        $raw = $config['exlangs'] ?? null;
+		if( $raw ) {
+			if( is_array($raw) ) {
+				array_walk($raw,function(&$v) {
+					$v = trim($v);
+				});
+				$v = $raw;
+			}
+			else {
+				$v = [trim($raw)];
+			}
+
+		}
+		else {
+			$v = [];
+		}
+        $smarty->assign('languages',$v);
+        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
 
         $smarty->display('wizard_step5.tpl');
         $this->finish();
