@@ -121,8 +121,8 @@ VALUES (?,?,?,NOW(),NOW())');
         $root_url = $app->get_root_url();
         if( !endswith($root_url,'/') ) $root_url .= '/';
         $admin_url = $root_url.'admin';
-/*
-        if( is_array($adminacct) && isset($adminacct['emailaccountinfo']) && $adminacct['emailaccountinfo'] && isset($adminacct['emailaddr']) && $adminacct['emailaddr'] ) {
+
+/*      if( is_array($adminacct) && !empty($adminacct['emailaccountinfo']) && !empty($adminacct['emailaddr']) ) {
             try {
                 $this->message(lang('send_admin_email'));
                 $mailer = new CMSMS\Mailer();
