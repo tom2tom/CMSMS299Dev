@@ -52,14 +52,14 @@
         <label for="email">{'emailaddr'|tr}</label>
       </div>
       <div class="eight-col">
-      {if $verbose}
-        <input class="form-field full-width" type="email" id="email" value="{$account.emailaddr}" name="emailaddr" />
-      {else}
+{*      {if $verbose} *}
+        <input class="form-field full-width" type="email" id="email" name="emailaddr" value="{$account.emailaddr}" />
+{*      {else}
         <input class="form-field required full-width" type="email" id="email" name="emailaddr" value="{$account.emailaddr}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
-      {/if}
+      {/if} *}
       </div>
     </div>
 {*    {if $verbose}
