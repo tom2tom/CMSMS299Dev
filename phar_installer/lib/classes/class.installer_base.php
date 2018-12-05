@@ -45,25 +45,25 @@ abstract class installer_base
         require_once $p.'accessor.functions.php';
 
         if (!$configfile) {
-            $configfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'X';
+            $configfile = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'config.ini';
         }
         $this->_assetdir = dirname($configfile);
         $p = $this->_assetdir.DIRECTORY_SEPARATOR.'config.ini';
-		$config = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : [];
+        $config = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : [];
 
         // custom config data
-		$p = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'xconfig.ini';
-		$xconfig = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : false;
-		if( $xconfig ) {
-			foreach( $xconfig as $k =>$v) {
-				if( $v ) {
-					$config[$k] = $v;
-				}
-				elseif( is_numeric($v) ) {
-					$config[$k] = $v + 0;
-				}
-			}
-		}
+        $p = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'config.ini';
+        $xconfig = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : false;
+        if( $xconfig ) {
+            foreach( $xconfig as $k =>$v) {
+                if( $v ) {
+                    $config[$k] = $v;
+                }
+                elseif( is_numeric($v) ) {
+                    $config[$k] = $v + 0;
+                }
+            }
+        }
 
         $this->_config = ($config) ? $config : false;
     }
