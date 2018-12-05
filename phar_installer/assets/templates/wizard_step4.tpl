@@ -42,7 +42,7 @@
         <label for="user">{'prompt_dbuser'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field required full-width" type="text" id="user" name="db_username" value="{$config.db_username}" required="required" autocomplete="off" />
+        <input class="form-field required full-width" type="text" id="user" name="db_username" value="{$config.db_username}" required="required" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
@@ -53,7 +53,7 @@
         <label for="pass">{'prompt_dbpass'|tr}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field required full-width" type="password" id="pass" name="db_password" value="{$config.db_password}" autocomplete="false" required="required" />
+        <input class="form-field required full-width" type="password" id="pass" name="db_password" value="{$config.db_password}" required="required" autocomplete="off" />
         <div class="corner red">
           <i class="icon-asterisk"></i>
         </div>
@@ -108,7 +108,7 @@
     <input type="hidden" name="query_var" value="{$config.query_var}" />
   {/if}
 
-  {if $verbose and $action == 'install'}
+  {if $action == 'install'}
   <h3>{'prompt_installcontent'|tr}</h3>
   <p class="info">{'info_installcontent'|tr}</p>
 
