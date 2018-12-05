@@ -168,12 +168,12 @@ class wizard_step1 extends wizard_step
             $v = ($raw) ? trim($raw) : $app->get_destdir();
             $smarty->assign('destdir',$v);
         }
-        $raw = $config['verbose'] ?? false;
-        $v = ($raw) ? (int)$raw : $this->get_wizard()->get_data('verbose',0);
+        $raw = $config['verbose'] ?? null;
+        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',$v);
         $smarty->assign('languages',translator()->get_language_list(translator()->get_allowed_languages()));
         $raw = $config['lang'] ?? null;
-        $v = ($raw) ? trim($raw) : translator()->get_current_language() ;
+        $v = ($raw) ? trim($raw) : translator()->get_current_language();
         $smarty->assign('curlang',$v);
         $smarty->assign('yesno',[0=>lang('no'),1=>lang('yes')]);
         $smarty->display('wizard_step1.tpl');

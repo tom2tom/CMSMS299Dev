@@ -184,7 +184,6 @@ class wizard_step4 extends wizard_step
         $smarty->assign('action',$this->get_wizard()->get_data('action'));
         $raw = $this->_config['verbose'] ?? null;
         $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
-
         $smarty->assign('verbose',$v);
         $smarty->assign('config',$this->_config);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
