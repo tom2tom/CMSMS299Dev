@@ -682,13 +682,6 @@ abstract class CmsAdminThemeBase
         'priority'=>3,
         'show_in_menu'=>$this->HasPerm('layoutPerms')],
 
-        ['name'=>'files','parent'=>'root',
-        'url'=>'index.php'.$urlext.'&section=files',
-        'title'=>$this->_FixSpaces(lang('files')),
-        'description'=>lang('filesdescription'),
-        'priority'=>4,
-        'show_in_menu'=>$this->HasPerm('filePerms')],
-
         ['name'=>'extensions','parent'=>'root',
         'url'=>'index.php'.$urlext.'&section=extensions',
         'title'=>$this->_FixSpaces(lang('extensions')),
@@ -887,6 +880,12 @@ abstract class CmsAdminThemeBase
         'priority'=>4,
         'final'=>true,
         'show_in_menu' => $this->HasPerm('adminPerms')];
+        $items[] = ['name'=>'files','parent'=>'siteadmin',
+        'url'=>'index.php'.$urlext.'&section=files',
+        'title'=>$this->_FixSpaces(lang('files')),
+        'description'=>lang('filesdescription'),
+        'priority'=>5,
+        'show_in_menu'=>$this->HasPerm('filePerms')];
 
         // ~~~~~~~~~~ myprefs menu items ~~~~~~~~~~
 
