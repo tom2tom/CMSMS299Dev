@@ -154,8 +154,7 @@ class cms_filecache_driver extends cms_cache_driver
         $this->_auto_clean_files();
         $fn = $this->_get_filename($key,$group);
         clearstatcache(false,$fn);
-        if( is_file($fn) ) return TRUE;
-        return FALSE;
+        return is_file($fn);
     }
 
 
