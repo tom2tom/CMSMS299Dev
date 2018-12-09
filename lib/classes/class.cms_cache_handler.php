@@ -97,8 +97,9 @@ class cms_cache_handler
    */
   final public function clear(string $group = '') : bool
   {
-    if( !$this->can_cache() ) return FALSE;
-    if( is_object($this->_driver) ) return $this->_driver->clear($group);
+    if( $this->can_cache() ) {
+        if( is_object($this->_driver) ) return $this->_driver->clear($group);
+    }
     return FALSE;
   }
 
@@ -112,8 +113,9 @@ class cms_cache_handler
    */
   final public function get(string $key, string $group = '')
   {
-    if( !$this->can_cache() ) return FALSE;
-    if( is_object($this->_driver) ) return $this->_driver->get($key,$group);
+    if( $this->can_cache() ) {
+        if( is_object($this->_driver) ) return $this->_driver->get($key,$group);
+    }
     return FALSE;
   }
 
@@ -127,8 +129,9 @@ class cms_cache_handler
    */
   final public function exists(string $key, string $group = '') : bool
   {
-    if( !$this->can_cache() ) return FALSE;
-    if( is_object($this->_driver) ) return $this->_driver->exists($key,$group);
+    if( $this->can_cache() ) {
+        if( is_object($this->_driver) ) return $this->_driver->exists($key,$group);
+    }
     return FALSE;
   }
 
@@ -142,8 +145,9 @@ class cms_cache_handler
    */
   final public function erase(string $key, string $group = '') : bool
   {
-    if( !$this->can_cache() ) return FALSE;
-    if( is_object($this->_driver) ) return $this->_driver->erase($key,$group);
+    if( $this->can_cache() ) {
+        if( is_object($this->_driver) ) return $this->_driver->erase($key,$group);
+    }
     return FALSE;
   }
 
@@ -158,8 +162,9 @@ class cms_cache_handler
    */
   final public function set(string $key,$value, string $group = '') : bool
   {
-    if( !$this->can_cache() ) return FALSE;
-    if( is_object($this->_driver) ) return $this->_driver->set($key,$value,$group);
+    if( $this->can_cache() ) {
+        if( is_object($this->_driver) ) return $this->_driver->set($key,$value,$group);
+    }
     return FALSE;
   }
 
@@ -188,7 +193,6 @@ class cms_cache_handler
     if( !is_object($this->_driver) ) return FALSE;
     if( isset($CMS_INSTALL_PAGE) ) return FALSE;
 
-    return TRuE;
+    return TRUE;
   }
 }
-
