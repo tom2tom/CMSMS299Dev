@@ -66,15 +66,15 @@ final class content_slave extends slave
                     $text = substr($row['content'],$start,$end-$start);
                     $text = cms_htmlentities($text);
                     $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
-                    $text = str_replace("\r",'',$text);
-                    $text = str_replace("\n",'',$text);
+                    $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
                 }
 
-                $tmp = ['title'=>$content_obj->Name(),
-                        'description'=>$content_obj->Name(),
-                        'edit_url'=>$content_manager->create_url('m1_','admin_editcontent','',['content_id'=>$content_id]),
-                        'text'=>$text
-				       ];
+                $tmp = [
+				 'title'=>$content_obj->Name(),
+                 'description'=>$content_obj->Name(),
+                 'edit_url'=>$content_manager->create_url('m1_','admin_editcontent','',['content_id'=>$content_id]),
+                 'text'=>$text
+				];
                 $output[] = $tmp;
             }
 

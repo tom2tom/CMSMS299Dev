@@ -5,8 +5,6 @@ namespace AdminSearch;
 use cms_utils;
 use CmsLayoutTemplate;
 use const CMS_DB_PREFIX;
-use const CMS_SECURE_PARAM_NAME;
-use const CMS_USER_KEY;
 use function check_permission;
 use function cms_htmlentities;
 use function cmsms;
@@ -28,19 +26,17 @@ final class oldmodtemplate_slave extends slave
 
   public function check_permission()
   {
-    return check_permission(get_userid(),'Modify Templates');
+    return check_permission(get_userid(),'Modify Templates'); //tho' no redirect to edit templates from returned match-data
   }
 
+  //returns array or null
   public function get_matches()
   {
-    $userid = get_userid();
-
     $db = cmsms()->GetDb();
-    $query = 'SELECT originator,name,content FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE content LIKE ?';
+    $query = 'SELECT originator,name,content FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator IS NOT NULL AND originator != \'\' AND content LIKE ?';
     $dbr = $db->GetArray($query,['%'.$this->get_text().'%']);
     if( $dbr ) {
       $output = [];
-      $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
       foreach( $dbr as $row ) {
         // here we could actually have a smarty template to build the description.
@@ -51,13 +47,14 @@ final class oldmodtemplate_slave extends slave
           $text = substr($row['content'],$start,$end-$start);
           $text = cms_htmlentities($text);
           $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
-          $text = str_replace("\r",'',$text);
-          $text = str_replace("\n",'',$text);
+          $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
+
+          //unlike other slaves, no 'description' or 'edit_url' reported
+          $output[] = [
+		   'title'=>$row['originator'].' + '.$row['name'],
+		   'text'=>$text
+		  ];
         }
-
-        $tmp = ['title'=>"{$row['originator']} + {$row['name']}",'text'=>$text];
-
-        $output[] = $tmp;
       }
 
       return $output;
@@ -71,4 +68,3 @@ final class oldmodtemplate_slave extends slave
     return $mod->Lang('sectiondesc_oldmodtemplates');
   }
 } // class
-

@@ -1,6 +1,6 @@
 <?php
 
-namespace AdminSearch;
+namespace AdminSearch; //OR DesignManager ?
 
 use cms_utils;
 use CmsLayoutTemplate;
@@ -59,8 +59,7 @@ final class template_slave extends slave
             $text = substr($content,$start,$end-$start);
             $text = htmlentities($text);
             $text = str_replace($intext,'<span class="search_oneresult">'.$intext.'</span>',$text);
-            $text = str_replace("\r",'',$text);
-            $text = str_replace("\n",'',$text);
+            $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
         }
         $url = $this->get_mod()->create_url( 'm1_','admin_edit_template','', [ 'tpl'=>$one ] );
         $url = str_replace('&amp;','&',$url);
@@ -69,9 +68,12 @@ final class template_slave extends slave
             $file = $tpl->get_content_filename();
             $title = $tpl->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
         }
-        $tmp = [ 'title'=>$title,
-                 'description'=>tools::summarize($tpl->get_description()),
-                 'edit_url'=>$url,'text'=>$text ];
+        $tmp = [
+		 'title'=>$title,
+         'description'=>tools::summarize($tpl->get_description()),
+         'edit_url'=>$url,
+		 'text'=>$text
+		];
         return $tmp;
     }
 

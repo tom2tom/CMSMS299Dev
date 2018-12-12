@@ -59,8 +59,7 @@ final class css_slave extends slave
             $text = substr($content,$start,$end-$start);
             $text = htmlentities($text);
             $text = str_replace($intext,'<span class="search_oneresult">'.$intext.'</span>',$text);
-            $text = str_replace("\r",'',$text);
-            $text = str_replace("\n",'',$text);
+            $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
         }
         $url = $this->get_mod()->create_url( 'm1_','admin_edit_css','', [ 'css'=>$one ] );
         $url = str_replace('&amp;','&',$url);
@@ -69,9 +68,12 @@ final class css_slave extends slave
             $file = $css->get_content_filename();
             $title = $css->get_name().' ('.cms_relative_path($file,CMS_ROOT_PATH).')';
         }
-        $tmp = [ 'title'=>$title,
-                 'description'=>tools::summarize($css->get_description()),
-                 'edit_url'=>$url,'text'=>$text ];
+        $tmp = [
+		 'title'=>$title,
+         'description'=>tools::summarize($css->get_description()),
+         'edit_url'=>$url,
+         'text'=>$text
+        ];
         return $tmp;
     }
 
@@ -80,7 +82,7 @@ final class css_slave extends slave
         $db = cmsms()->GetDb();
 //        $mod = $this->get_mod();
         // get all of the stylesheet ids
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' ORDER BY name ASC';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' ORDER BY name';
         $all_ids = $db->GetCol($sql);
         $output = [];
         if( $all_ids ) {
