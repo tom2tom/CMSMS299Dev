@@ -8,54 +8,72 @@ use function get_userid;
 
 final class tools
 {
-  private function __construct() {}
+//  private function __construct() {}
 
   public static function get_slave_classes()
   {
+    $ob = cms_cache_handler::get_instance();
     $key = __CLASS__.'slaves'.get_userid(FALSE);
-    $results = null;
-    $data =  cms_cache_handler::get_instance()->get($key);
-    if( !$data ) {
-      // cache needs refreshing.
+    $data = $ob->get($key);
+    if( $data ) {
+      $results = unserialize($data, []);
+    }
+    else {
+      // cache needs populating
+      //TODO force upon module installation
       $results = [];
 
-      // get module results.
+      // get module search-slaves
       $mod = cms_utils::get_module('AdminSearch');
       $modulelist = $mod->GetModulesWithCapability('AdminSearch');
       if( $modulelist ) {
         foreach( $modulelist as $module_name ) {
           $mod = cms_utils::get_module($module_name);
-          if( !is_object($mod) ) continue;
-          if( !method_exists($mod,'get_adminsearch_slaves') ) continue;
-
+          if( !is_object($mod) ) {
+              continue;
+          }
+          if( !method_exists($mod,'get_adminsearch_slaves') ) {
+              continue;
+          }
           $classlist = $mod->get_adminsearch_slaves();
           if( $classlist ) {
             foreach( $classlist as $class_name ) {
-              if( !class_exists($class_name) ) continue;
-              if( !is_subclass_of($class_name,'slave') ) continue;
+              if( strpos($class_name,'\\') === FALSE ) {
+                  $class_name = $module_name.'\\'.$class_name;
+              }
               $obj = new $class_name();
-              if( !is_object($obj) ) continue;
-
-              $tmp = [];
-              $tmp['module'] = $module_name;
-              $tmp['class'] = $class_name;
-              $name = $tmp['name'] = $obj->get_name();
+              if( !is_object($obj) ) {
+                  continue;
+              }
+              if( !is_subclass_of($class_name,'AdminSearch\\slave') ) {
+                  continue;
+              }
+              $name = $obj->get_name();
+              if( !$name ) {
+                  continue;
+              }
+              if( isset($results[$name]) ) {
+                  continue;
+              }
+              $tmp = [
+               'module'=>$module_name,
+               'class'=>$class_name,
+               'name'=>$name,
+              ];
               $tmp['description'] = $obj->get_description();
               $tmp['section_description'] = $obj->get_section_description();
-              if( !$name ) continue;
-              if( isset($results[$name]) ) continue;
-
               $results[$name] = $tmp;
             }
           }
         }
+        if( $results ) {
+          //TODO proper UTF-8 sort
+          ksort($results, SORT_LOCALE_STRING | SORT_FLAG_CASE);
+        }
       }
 
-      // store the results into the cache.
-      cms_cache_handler::get_instance()->set($key,serialize($results));
-    }
-    else {
-      $results = unserialize($data);
+      // cache the results
+      $ob->set($key,serialize($results));
     }
 
     return $results;
