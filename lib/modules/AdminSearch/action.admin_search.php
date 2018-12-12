@@ -1,5 +1,5 @@
 <?php
-# AdminSearch module action: search
+# AdminSearch module action: ajax-processor to search database tables
 # Copyright (C) 2012-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -21,81 +21,99 @@ use AdminSearch\tools;
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) exit;
 
-function status_error($msg)
+function utf8_urldecode($str)
 {
-  echo '<script type="text/javascript">parent.status_error(\''.$msg.'\')</script>';
+    $str = preg_replace("/%u([0-9a-f]{3,4})/i","&#x\\1;",urldecode($str));
+    return html_entity_decode($str,null,'UTF-8');
 }
 
-function status_msg($msg)
-{
-  echo '<script type="text/javascript">parent.status_msg(\''.$msg.'\')</script>';
+// end/disable buffering
+$handlers = ob_list_handlers();
+for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) {
+    ob_end_clean();
 }
 
-function begin_section($id,$txt,$desc = '')
-{
-  $desc = addslashes($desc);
-  echo "<script type=\"text/javascript\">parent.begin_section('{$id}','{$txt}','{$desc}')</script>";
+if( !isset($params['search_text']) || $params['search_text'] === '' ) {
+    echo '<p class="red">'.$this->Lang('error_nosearchtext').'</p>';
+    exit;
+}
+if( empty($params['slaves']) ) {
+    echo '<p class="red">'.$this->Lang('error_noscopes').'</p>';
+    exit;
 }
 
-function add_result($listid,$content,$title,$url,$text = '')
-{
-  $title = addslashes($title);
-  $title = preg_replace( "/\r/", '', $title);
-  $title = preg_replace( "/\n/", '\\n', $title);
-  $content = addslashes($content);
-  $tmp = "parent.add_result('{$listid}','{$content}','{$title}','{$url}','{$text}');";
-  echo '<script type="text/javascript">'.$tmp.'</script>';
-}
-
-function end_section()
-{
-  echo '<script type="text/javascript">parent.end_section()</script>';
-}
-
-if( !isset($params['search_text']) || $params['search_text'] == '' ) {
-  status_error($this->Lang('error_nosearchtext')); return;
-}
-
-// save the search
-$userid = get_userid(false);
-$searchparams = $params;
-unset($searchparams['submit']);
-unset($searchparams['action']);
-cms_userprefs::set_for_user($userid,$this->GetName().'saved_search',serialize($searchparams));
-unset($searchparams['slaves']);
-
-// find search slave classes
-status_msg($this->Lang('starting'));
+// find search-slave classes
 $slaves = tools::get_slave_classes();
 if( $slaves ) {
-    foreach( $slaves as $one_slave ) {
-        if( !in_array($one_slave['class'],$params['slaves']) ) continue;
-        $module = cms_utils::get_module($one_slave['module']);
-        if( !is_object($module) ) continue;
-        if( !class_exists($one_slave['class']) ) continue;
-        if( !is_subclass_of($one_slave['class'],'AdminSearch\\slave') ) continue;
+     // cache this search
+    $searchparams = [
+     'search_text' => utf8_urldecode($params['search_text']),
+     'slaves' => explode(',',$params['slaves']),
+     'search_descriptions' => !empty($params['search_descriptions']),
+	];
+    $userid = get_userid(false);
+    cms_userprefs::set_for_user($userid,$this->GetName().'saved_search',serialize($searchparams));
 
+	$types = $searchparams['slaves'];
+	unset($searchparams['slaves']);
+
+    $sections = [];
+    foreach( $slaves as $one_slave ) {
+        if( !in_array($one_slave['class'],$types) ) {
+            continue;
+        }
+        //assume a module must be present for its associated classes to function ...
+        $module = cms_utils::get_module($one_slave['module']);
+        if( !is_object($module) ) {
+            continue;
+        }
         $obj = new $one_slave['class'];
-        if( !is_object($obj) ) continue;
-        if( !$obj->check_permission() ) continue;
+        if( !is_object($obj) ) {
+            continue;
+        }
+        if( !is_subclass_of($obj,'AdminSearch\\slave') ) {
+            continue;
+        }
+        if( !$obj->check_permission() ) {
+            continue;
+        }
 
         $obj->set_params($searchparams);
         $results = $obj->get_matches();
         if( $results ) {
-            begin_section($one_slave['class'],$obj->get_name(),$obj->get_section_description());
+            $oneset = new stdClass();
+            $oneset->id = $one_slave['class'];
+            $oneset->lbl = $obj->get_name();
+            $oneset->desc = $obj->get_section_description();
+            $oneset->count = count($results);
+            $tmp = [];
             foreach( $results as $one ) {
-          debug_to_log($one);
                 $text = $one['text'] ?? '';
                 if( $text ) $text = addslashes($text);
                 $url = $one['edit_url'] ?? '';
                 if( $url ) $url = str_replace('&amp;','&',$url);
-                add_result($one_slave['class'],$one['title'],
-                           $one['description']??'',
-                           $url,$text);
+                $tmp[] = [
+                 'description'=>$one['description'] ?? '',
+                 'text'=>$text,
+                 'title'=>addslashes(str_replace(["\r\n","\r","\n"],[' ',' ',' '],$one['title'])),
+                 'url'=>$url,
+                ];
             }
-        }
-        end_section();
+            $oneset->matches = $tmp;
+            $sections[] = $oneset;
+         }
     }
+    if( $sections ) {
+        $tpl = $smarty->createTemplate($this->GetTemplateResource('adminsearch.tpl'),null,null,$smarty);
+        $tpl->assign('sections',$sections);
+        $tpl->display();
+    }
+	else {
+		echo '<p class="pageinput">'.$this->Lang('nomatch').'</p>';
+	}
 }
-status_msg($this->Lang('finished'));
+else {
+	echo '<p class="red">'.$this->Lang('error_noslaves').'</p>';
+}
+
 exit;
