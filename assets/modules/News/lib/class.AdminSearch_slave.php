@@ -64,11 +64,11 @@ final class AdminSearch_slave extends slave
 
     // add in fields
     for( $i = 0, $n = count($fdlist); $i < $n; $i++ ) {
-      $tmp = 'FV'.$i;
+      $text = 'FV'.$i;
       $fdid = $fdlist[$i];
-      $fields[] = "$tmp.value";
-      $joins[] = 'LEFT JOIN '.CMS_DB_PREFIX."module_news_fieldvals $tmp ON N.news_id = $tmp.news_id AND $tmp.fielddef_id = $fdid";
-      $where[] = "$tmp.value LIKE ?";
+      $fields[] = "$text.value";
+      $joins[] = 'LEFT JOIN '.CMS_DB_PREFIX."module_news_fieldvals $text ON N.news_id = $text.news_id AND $text.fielddef_id = $fdid";
+      $where[] = "$text.value LIKE ?";
       $parms[] = $str;
     }
 
@@ -94,18 +94,18 @@ final class AdminSearch_slave extends slave
             $text = substr($value,$start,$end-$start);
             $text = cms_htmlentities($text);
             $text = str_replace($this->get_text(),'<span class="search_oneresult">'.$this->get_text().'</span>',$text);
-            $text = str_replace("\r",'',$text);
-            $text = str_replace("\n",'',$text);
+            $text = str_replace(["\r\n","\r","\n"],[' ',' ',' '],$text);
             break;
           }
         }
         $url = $mod->create_url('m1_','editarticle','',['articleid'=>$row['news_id']]);
-        $output[] = [
-        'title'=>$row['news_title'],
-        'description'=>tools::summarize($row['summary']),
-        'edit_url'=>$url,
-        'text'=>$text
+        $tmp = [
+         'title'=>$row['news_title'],
+         'description'=>tools::summarize($row['summary']),
+         'edit_url'=>$url,
+         'text'=>$text
         ];
+		$output[] = $tmp;
       }
       return $output;
     }
