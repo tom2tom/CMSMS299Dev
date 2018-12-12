@@ -19,7 +19,7 @@ if( !isset($gCms) ) exit;
 if( !check_login() ) exit; // admin only.... but any admin
 
 $handlers = ob_list_handlers();
-for ($cnt = 0, $n = count($handlers); $cnt < $n; $cnt++) { ob_end_clean(); }
+for ($cnt = 0, $n = count($handlers); $cnt < $n; ++$cnt) { ob_end_clean(); }
 
 $out = null;
 $term = trim(strip_tags(get_parameter_value($_REQUEST,'term')));
@@ -27,7 +27,7 @@ $alias = trim(strip_tags(get_parameter_value($_REQUEST,'alias')));
 
 if( $alias ) {
     $query = 'SELECT content_id,content_name,menu_text,content_alias,id_hierarchy FROM '.CMS_DB_PREFIX.'content
-              WHERE content_alias = ? AND active = 1';
+WHERE content_alias = ? AND active = 1';
     $dbr = $db->GetRow($query,[$alias]);
     if( $dbr ) {
         $lbl = "{$dbr['content_name']} ({$dbr['id_hierarchy']})";
@@ -38,9 +38,8 @@ if( $alias ) {
 else if( $term ) {
     $term = "%{$term}%";
     $query = 'SELECT content_id,content_name,menu_text,content_alias,id_hierarchy FROM '.CMS_DB_PREFIX.'content
-            WHERE (content_name LIKE ? OR menu_text LIKE ? OR content_alias LIKE ?)
-              AND active = 1
-            ORDER BY default_content DESC, hierarchy ASC';
+WHERE (content_name LIKE ? OR menu_text LIKE ? OR content_alias LIKE ?) AND active = 1
+ORDER BY default_content DESC, hierarchy';
     $dbr = $db->GetArray($query,[$term,$term,$term]);
     if( $dbr ) {
         // found some pages to match
@@ -55,4 +54,3 @@ else if( $term ) {
 }
 
 exit;
-
