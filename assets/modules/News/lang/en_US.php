@@ -308,7 +308,7 @@ $lang['info_sysdefault2'] = '<strong>Note:</strong> This tab contains text areas
 
 // L
 $lang['lastpage'] = '&gt;&gt;';
-$lang['lbl_adminsearch'] = 'Search News Articles';
+$lang['lbl_adminsearch'] = 'News Articles'; //no preceeding 'Search'
 $lang['linkedfile'] = 'Linked file';
 
 // M
