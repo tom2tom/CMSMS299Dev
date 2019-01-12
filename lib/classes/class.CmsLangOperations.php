@@ -76,19 +76,19 @@ final class CmsLangOperations
 		if( isset(self::$_langdata[$curlang][$realm]) ) return;
 		if( !is_array(self::$_langdata) ) self::$_langdata = [];
 		if( !isset(self::$_langdata[$curlang]) ) self::$_langdata[$curlang] = [];
-//		$config = cms_config::get_instance();
 
-		// load the english translation first
+		// load relevant english translations first
 		$files = [];
 		$is_module = false;
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
 			$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','en_US.php');
 		}
 		else {
-			$dirs = cms_module_places($realm);
-			if( $dirs ) {
+			$fn = cms_module_path($realm);
+			if( $fn ) {
 				$is_module = true;
-				$files[] = cms_join_path($dirs[0],'lang','en_US.php');
+                $dir = dirname($fn);
+				$files[] = cms_join_path($dir,'lang','en_US.php');
 			}
 			$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'en_US.php'); //for a module-related plugin?
 		}
@@ -99,7 +99,7 @@ final class CmsLangOperations
 				$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','ext',$curlang.'.php');
 			}
 			elseif( $is_module ) {
-				$files[] = cms_join_path($dirs[0],'lang','ext',$curlang.'.php');
+				$files[] = cms_join_path($dir,'lang','ext',$curlang.'.php');
 			}
 			else {
 				$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'ext',$curlang.'.php');
@@ -112,8 +112,10 @@ final class CmsLangOperations
 		}
 		elseif( $is_module ) {
 			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','en_US.php');
+			$files[] = cms_join_path($dir,'custom','lang','en_US.php');
 			if( $curlang != 'en_US' ) {
 				$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','ext',$curlang.'.php');
+				$files[] = cms_join_path($dir,'custom','lang','ext',$curlang.'.php');
 			}
 		}
 

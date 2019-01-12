@@ -159,10 +159,24 @@ class module_info implements ArrayAccess
 
     private function _check_modulecustom(string $module_name) : array
     {
+        $fn = cms_module_path($module_name); //don't care about installation status
+        if ($fn) {
+            $path = dirname($fn).DIRECTORY_SEPARATOR;
+            $files = glob($path.'custom/templates/*.tpl',GLOB_NOSORT); //TODO lazy separator!
+            if (!$files) {
+                $files = glob($path.'custom/lang/??_??.php',GLOB_NOSORT);
+            }
+            if ($files) {
+                return ['has_custom' => true];
+            }
+//        } else {
+			//TODO exception?
+        }
+
         $path = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'');
-        $files = glob($path.'templates/*.tpl'); //TODO lazy separator!
+        $files = glob($path.'templates'.DIRECTORY_SEPARATOR.'*.tpl',GLOB_NOSORT);
         if (!$files) {
-            $files = glob($path.'lang/??_??.php');
+            $files = glob($path.'lang'.DIRECTORY_SEPARATOR.'??_??.php',GLOB_NOSORT);
         }
         $has = count($files) > 0;
         return ['has_custom' => $has];
