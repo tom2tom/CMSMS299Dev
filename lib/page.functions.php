@@ -1,5 +1,5 @@
 <?php
-#Page related functions.
+#System operation functions.
 #Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -24,39 +24,77 @@ use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
 
 /**
- * Page related functions.  Generally these are functions not necessarily
- * related to content, but more to the underlying mechanisms of the system.
+ * Functions related to the underlying mechanisms of the CMSMS system.
  *
  * @package CMS
  * @license GPL
  */
 
 /**
- * Gets the userid of the currently logged in user.
+ * Gets the username the current cli-user
+ * NOT cached/static (to support concurrent-use)
+ * @since 2.3
+ * @return mixed string|null
+ */
+function get_cliuser()
+{
+    $uname = exec('whoami');
+    if( !$uname ) {
+        $file  = tempnam(sys_get_temp_dir(), 'WHOMADE_');
+        file_put_contents($file , 'test');
+        $uid = fileowner($file ); //maybe false
+        unlink($file );
+        if( $uid ) {
+            if( function_exists('posix_getpwuid') ) {
+                $uname = posix_getpwuid($uid)['name']; //approximate, hack
+            }
+            else {
+                $uname = getenv('USERNAME');
+            }
+        }
+    }
+    return $uname;
+}
+
+
+/**
+ * Gets the userid of the current user (logged-in or otherwise).
  *
  * If an effective uid has been set in the session, AND the primary user is
  * a member of the admin group, then allow emulating that effective uid.
  *
  * @since 0.1
  * @param  boolean $redirect Optional flag, default true. Whether to redirect to
- *  the admin login page if the user is not logged in.
+ *  the admin login page if the user is not logged in (and operating in 'normal' mode).
  * @return integer The UID of the logged in administrator, or NULL
  */
 function get_userid(bool $redirect = true)
 {
-//    if( cmsms()->is_cli() ) return 1; NO WAY, JOSE, DOES A DODGY COMMAND-RUNNER GET TO BE THE MAIN MAN ...
-//  TODO alias etc during 'remote admin'
-    $uid = LoginOperations::get_instance()->get_effective_uid();
-    if( !$uid && $redirect ) {
-        $config = cms_config::get_instance();
-        redirect($config['admin_url'].'/login.php');
+    $config = cms_config::get_instance();
+    if( empty($config['app_mode']) ) {
+        if( cmsms()->is_cli() ) {
+            $uname = get_cliuser();
+            if( $uname ) {
+                $user = LoginOperations::get_instance()->LoadUserByUsername($uname);
+                if( $user ) {
+                    return $user->id;
+                }
+            }
+            return false;
+        }
+        //  TODO alias etc during other 'remote admin'
+        $uid = LoginOperations::get_instance()->get_effective_uid();
+        if( !$uid && $redirect ) {
+            redirect($config['admin_url'].'/login.php');
+        }
+        return $uid;
     }
-    return $uid;
+    return 1; //CHECKME super-admin sensible for app mode ?
 }
 
 
 /**
- * Gets the username of the currently logged in user.
+ * Gets the username of the current user (logged-in or otherwise).
  *
  * If an effective username has been set in the session, AND the primary user is
  * a member of the admin group, then return the effective username.
@@ -64,29 +102,35 @@ function get_userid(bool $redirect = true)
  * @since 2.0
  * @param  boolean $redirect Optional flag, default true. Whether to redirect to
  *  the admin login page if the user is not logged in.
- * @return string the username of the logged in user, or NULL.
+ * @return string the username of the user, or '', or no return at all.
  */
 function get_username(bool $redirect = true)
 {
-//    if( cmsms()->is_cli() ) return '';  TODO alias etc during 'remote admin'
-    $uname = LoginOperations::get_instance()->get_effective_username();
-    if( !$uname && $redirect ) {
-        $config = cms_config::get_instance();
-        redirect($config['admin_url'].'/login.php');
+    $config = cms_config::get_instance();
+    if( empty($config['app_mode']) ) {
+        if( cmsms()->is_cli() ) {
+            return get_cliuser();
+        }
+        //TODO alias etc during 'remote admin'
+        $uname = LoginOperations::get_instance()->get_effective_username();
+        if( !$uname && $redirect ) {
+            redirect($config['admin_url'].'/login.php');
+        }
+        return $uname;
     }
-    return $uname;
+    return ''; //no username in app mode
 }
 
 
 /**
  * Checks to see if the user is logged in and the request has the proper key.
- * If not, redirects the browser to the admin login.
+ * If not, normally redirects the browser to the admin login.
  *
  * Note: this method should only be called from admin operations.
  *
  * @since 0.1
  * @param boolean $no_redirect Optional flag, default false. If true, then do NOT redirect if not logged in
- * @return boolean or NULL
+ * @return boolean or no return at all
  */
 function check_login(bool $no_redirect = false)
 {
@@ -110,6 +154,7 @@ function check_login(bool $no_redirect = false)
             $config = cms_config::get_instance();
             redirect($config['admin_url'].'/login.php');
         }
+        return false;
     }
     return true;
 }
