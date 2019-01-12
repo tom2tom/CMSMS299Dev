@@ -38,9 +38,11 @@ final class tools
           $classlist = $mod->get_adminsearch_slaves();
           if( $classlist ) {
             foreach( $classlist as $class_name ) {
+/* don't assume all slave-classes can be namespaced (if not supplied as such)
               if( strpos($class_name,'\\') === FALSE ) {
                   $class_name = $module_name.'\\'.$class_name;
               }
+*/
               $obj = new $class_name();
               if( !is_object($obj) ) {
                   continue;
@@ -85,4 +87,3 @@ final class tools
     return substr($text,0,$len);
   }
 }
-
