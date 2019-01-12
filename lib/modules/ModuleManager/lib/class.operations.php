@@ -109,10 +109,11 @@ class operations
             throw new CmsInvalidDataException($val);
         }
 
-        $val = (string)$xml->dtdversion;
+        $val = trim((string)$xml->dtdversion);
         if( !$val || version_compare($val,self::MODULE_DTD_MINVERSION) < 0 ) {
             throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
         }
+		$dtdversion = $val;
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
         $coremodule = (string)$xml->core; //'1', '0' or ''
         $modops = ModuleOperations::get_instance();
@@ -171,45 +172,58 @@ class operations
                     if( !$filedone ) {
                         $arr = cms_module_places($moduledetails['name']);
                         if( empty($arr) ) {
-							// confirm we can write to the module directory
-	                        $arr = cms_module_places();
-							if( $coremodule ) {
-								$dir = $arr[0];
+                            // confirm we can write to the module directory
+                            $arr = cms_module_places(); //at least 2 folders
+                            if( $coremodule ) {
+                                $dir = $arr[0];
+                            }
+                            elseif( $coremodule === '0' || ($coremodule === '' && $dtdversion == '1.3' || !isset($arr[2])) ) {
+                                $dir = $arr[1]; //non-core place
+                            }
+                            else {
+                                $dir = $arr[2]; //deprecated place
+                            }
+                            if( !is_writable( $dir ) ) {
+								throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 							}
-							elseif( $coremodule === '0') {
-								$dir = $arr[1];
-							}
-							else {
-								$dir = $arr[2];
-							}
-							if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
                             $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
-							if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
-								throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
-							}
-						}
-						else {
+                            if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
+                                throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
+                            }
+                        }
+                        else {
                             //already installed somewhere(s) - use same place
-							if( count($arr) == 1 ) {
-								$basepath = dirname($arr[0]);
-							} else {
-								$t0 = filemtime($arr[0]);
-								$t1 = filemtime($arr[1]);
-								if( $t0 >= $t1 ) {
-									$basepath = dirname($arr[0]);
-									recursive_delete(dirname($arr[1]));
-								}
-								else {
-									$basepath = dirname($arr[1]);
-									recursive_delete(dirname($arr[0]));
-								}
+                            if( count($arr) == 1 ) {
+                                $basepath = dirname($arr[0]);
+                            } else {
+                                $t0 = filemtime($arr[0]);
+                                $t1 = filemtime($arr[1]);
+                                if( $t0 >= $t1 ) {
+                                    $basepath = dirname($arr[0]);
+                                    recursive_delete(dirname($arr[1]));
+                                }
+                                else {
+                                    $basepath = dirname($arr[1]);
+                                    recursive_delete(dirname($arr[0]));
+                                }
+                            }
+                            if( !is_writable( $basepath ) ) {
+								throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 							}
-							if( !is_writable( $basepath ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
-						}
+                        }
                         $filedone = true;
                     }
-                    //'filename' value is actually a relative path
-                    $name = strtr((string)$node->filename, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
+                    //'filename' value is a relative path (DTD_VERSION 1.4+) or absolute (DTD_VERSION 1.3)
+                    $val = (string)$node->filename;
+                    if( $dtdversion == '1.3') {
+                        if( $val[0] == '/' || $val[0] == '\\' ) {
+                            $val = substr($val, 1); //relativize old-format
+                            if( !$val) {
+								break; //no need to handle module-root-dir here
+							}
+                        }
+                    }
+                    $name = strtr($val, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
                     $path = $basepath . DIRECTORY_SEPARATOR . $name;
                     if( (string)$node->isdir ) {
                         if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
@@ -224,7 +238,7 @@ class operations
                     elseif( @file_put_contents($path, base64_decode((string)$node->data), LOCK_EX) === false) {
                         throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$path);
                   }
-                    break;
+                  break;
             }
         }
 
