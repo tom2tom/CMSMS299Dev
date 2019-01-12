@@ -24,7 +24,7 @@
  */
 
 /**
- * Redirects to a relative URL on the current site.
+ * Redirect to a relative URL on the current site.
  *
  * If headers have not been sent this method will use header based redirection.
  * Otherwise javascript redirection will be used.
@@ -36,10 +36,11 @@
  */
 function redirect(string $to)
 {
-    $_SERVER['PHP_SELF'] = null;
+    $app = CmsApp::get_instance();
+    if ($app->is_cli()) die("ERROR: no redirect on cli based scripts ---\n");
 
-    $schema = 'http';
-    if (CmsApp::get_instance()->is_https_request()) $schema = 'https';
+    $_SERVER['PHP_SELF'] = null;
+    $schema = ($app->is_https_request()) ? 'https' : 'http';
 
     $host = $_SERVER['HTTP_HOST'];
     $components = parse_url($to);
@@ -98,7 +99,7 @@ function redirect(string $to)
         echo 'Debug is on. Redirection is disabled... Please click this link to continue.<br />
 <a accesskey="r" href="'.$to.'">'.$to.'</a><br />
 <div id="DebugFooter">';
-        foreach (CmsApp::get_instance()->get_errors() as $error) {
+        foreach ($app->get_errors() as $error) {
             echo $error;
         }
         echo '</div> <!-- end DebugFooter -->';
@@ -148,7 +149,7 @@ function microtime_diff(string $a, string $b) : int
 }
 
 /**
- * Joins path-segments together using the platform-specific directory separator.
+ * Join path-segments together using the platform-specific directory separator.
  *
  * This method should NOT be used for building URLS.
  *
@@ -322,6 +323,25 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
 }
 
 /**
+ * Display (echo) stack trace as human-readable lines
+ *
+ * This method uses echo.
+ */
+function stack_trace()
+{
+    $bt = debug_backtrace();
+    foreach ($bt as $elem) {
+        if ($elem['function'] == 'stack_trace') continue;
+        if (isset($elem['file']) ) {
+            echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
+        }
+        else {
+            echo ' - '.$elem['function'].'<br />';
+        }
+    }
+}
+
+/**
  * Output a backtrace into the generated log file.
  *
  * @see debug_to_log, debug_bt
@@ -330,7 +350,7 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
 function debug_bt_to_log()
 {
     if (CmsApp::get_instance()->config['debug_to_log'] || (function_exists('get_userid') && get_userid(false))) {
-        $bt=debug_backtrace();
+        $bt = debug_backtrace();
         $file = $bt[0]['file'];
         $line = $bt[0]['line'];
 
@@ -360,13 +380,13 @@ function debug_bt_to_log()
 }
 
 /**
- * A function to generate a backtrace in a readable format.
+ * Generate a backtrace in a readable format.
  *
  * This function does not return but echoes output.
  */
 function debug_bt()
 {
-    $bt=debug_backtrace();
+    $bt = debug_backtrace();
     $file = $bt[0]['file'];
     $line = $bt[0]['line'];
 
@@ -551,54 +571,45 @@ function _get_value_with_default($value, $default_value = '', $session_key = '')
 }
 
 /**
- * Retrieve the $value from the $parameters array checking for $parameters[$value] and
- * $params[$id.$value].
- * Returns $default if $value is not in $params array.
- * Note: This function will also trim() string values.
+ * Retrieve a (scalar or array) value from the $parameters array.
+ * Returns $default_value or $_SESSION['parameter_values'][$session_key] if $key is not in $parameters.
+ * Note: This function trims string values.
  *
  * @param array $parameters
- * @param string $value
+ * @param string $key
  * @param mixed $default_value
  * @param string $session_key
  * @return mixed
  */
-function get_parameter_value(array $parameters, string $value, $default_value = '', string $session_key = '')
+function get_parameter_value(array $parameters, string $key, $default_value = '', string $session_key = '')
 {
     if ($session_key != '') {
         if (isset($_SESSION['parameter_values'][$session_key])) $default_value = $_SESSION['parameter_values'][$session_key];
     }
 
-    // set our return value to the default initially and overwrite with $value if we like it.
+    // set our return value to the default initially and overwrite with $parameters value if we like it.
     $return_value = $default_value;
-    if (isset($parameters[$value])) {
+    if (isset($parameters[$key])) {
         if (is_bool($default_value)) {
             // want a bool return_value
-            if (isset($parameters[$value])) $return_value = (bool)$parameters[$value];
+            if (isset($parameters[$key])) $return_value = cms_to_bool((string)$parameters[$key]);
+        }
+        elseif (is_numeric($default_value)) {
+            // default value is a number, we only like $parameters[$key] if it's a number too.
+            if (is_numeric($parameters[$key])) $return_value = $parameters[$key] + 0;
+        }
+        elseif (is_string($default_value)) {
+            $return_value = trim($parameters[$key]);
+        }
+        elseif (is_array($parameters[$key])) {
+            // $parameters[$key] is an array - validate each element.
+            $return_value = [];
+            foreach ($parameters[$key] as $element) {
+                $return_value[] = _get_value_with_default($element, $default_value);
+            }
         }
         else {
-            // is $default_value a number?
-            $is_number = false;
-            if (is_numeric($default_value)) $is_number = true;
-
-            if (is_array($parameters[$value])) {
-                // $parameters[$value] is an array - validate each element.
-                $return_value = [];
-                foreach($parameters[$value] as $element) {
-                    $return_value[] = _get_value_with_default($element, $default_value);
-                }
-            }
-            else {
-                if (is_numeric($default_value)) {
-                    // default value is a number, we only like $parameters[$value] if it's a number too.
-                    if (is_numeric($parameters[$value])) $return_value = $parameters[$value];
-                }
-                elseif (is_string($default_value)) {
-                    $return_value = trim($parameters[$value]);
-                }
-                else {
-                    $return_value = $parameters[$value];
-                }
-            }
+             $return_value = $parameters[$key];
         }
     }
 
@@ -926,7 +937,7 @@ function cleanArray(array &$array)
 }
 
 /**
- * A convenience function to return a bool variable given a php ini key that represents a bool.
+ * Return a bool value corresponding to a given php ini bool key.
  *
  * @param string $str The php ini key
  * @return bool
@@ -934,25 +945,6 @@ function cleanArray(array &$array)
 function ini_get_boolean(string $str) : bool
 {
     return cms_to_bool(ini_get($str));
-}
-
-/**
- * Another convenience function to output a human readable function stack trace.
- *
- * This method uses echo.
- */
-function stack_trace()
-{
-    $stack = debug_backtrace();
-    foreach ($stack as $elem) {
-        if ($elem['function'] == 'stack_trace') continue;
-        if (isset($elem['file']) ) {
-            echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
-        }
-        else {
-            echo ' - '.$elem['function'].'<br />';
-        }
-    }
 }
 
 /**
@@ -973,7 +965,7 @@ function cms_move_uploaded_file(string $tmpfile, string $destination) : bool
 }
 
 /**
- * A function to test whether an IP address matches a list of expressions.
+ * Test whether an IP address matches a list of expressions.
  * Credits to J.Adams <jna@retins.net>
  *
  * Matches:
@@ -1033,7 +1025,7 @@ function cms_ipmatches(string $ip, $checklist) : bool
 }
 
 /**
- * Test if the string provided is a valid email address.
+ * Test whether the string provided is a valid email address.
  *
  * @param string  $email
  * @param bool $checkDNS
@@ -1052,7 +1044,7 @@ function is_email (string $email, bool $checkDNS=false)
 }
 
 /**
- * A convenience method to output the secure param tag that is used on all admin links.
+ * Output the secure param tag that is used on all admin links.
  *
  * @internal
  * @access private
@@ -1069,7 +1061,7 @@ function get_secure_param() : string
 }
 
 /**
- * A simple function to convert a string to a bool.
+ * Convert a string to a corresponding bool.
  * Accepts number != 0, 'y','yes','true','on' as true (case insensitive) all other values represent false.
  *
  * @param string $str Input to test.
@@ -1347,4 +1339,23 @@ function cms_create_guid() : string
 {
     if (function_exists('com_create_guid')) return trim(com_create_guid(), '{}'); //windows
     return random_bytes(32);
+}
+
+/**
+ * Sort array of strings which include, or may do so, UTF-8 encoded char(s)
+ * @param array $arr data to be sorted
+ * @param bool $preserve Optional flag whether to preserve key-value associations during the sort Default false
+ * @since 2.3
+ * @return sorted array
+*/
+function cms_utf8_sort(array $arr, bool $preserve = false) : array
+{
+	$enc = null; //TODO relevant to site lang e.g. 'en_US'
+	$collator = new Collator($enc);
+	if( $preserve ) {
+	    $collator->asort($arr);
+	} else {
+	    $collator->sort($arr);
+	}
+	return $arr;
 }
