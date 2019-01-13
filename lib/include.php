@@ -72,7 +72,7 @@ require_once $dirname.'defines.php'; //populate relevant defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
 require_once $dirname.'module.functions.php'; //some used in autoloader
 require_once $dirname.'autoloader.php';
-//require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); CHECKME Composer support on production system ?
+require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); //CHECKME Composer support on production system ?
 require_once $dirname.'compat.functions.php';
 require_once $dirname.'page.functions.php';
 if ($CMS_JOB_TYPE < 2) {
@@ -109,7 +109,8 @@ if (isset($CMS_ADMIN_PAGE)) {
     setup_session();
 
 // TODO is this $CMS_JOB_TYPE-dependant ?
-    function cms_admin_sendheaders($content_type = 'text/html',$charset = '') {
+    function cms_admin_sendheaders($content_type = 'text/html',$charset = '')
+    {
         // Language shizzle
         if (!$charset) $charset = CmsNlsOperations::get_encoding();
         header("Content-Type: $content_type; charset=$charset");
