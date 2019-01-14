@@ -538,6 +538,16 @@ h1, h2, h3, h4, h5, h6 {
 	transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
+.cmsms-ui .installer-form .form-field.disabled {
+	color: #d9d9d9;
+	border-color: #f2f2f2;
+	box-shadow: none
+}
+
+.cmsms-ui .installer-form label.disabled {
+	color: #d9d9d9;
+}
+
 .cmsms-ui .installer-form select.form-field {
 	height: auto;
 }
@@ -604,10 +614,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cmsms-ui .bigtext {
-    max-height: 20em;
-    max-width: 60em;
-    overflow-y: none;
-    overflow-x: none;
+	max-height: 20em;
+	max-width: 60em;
+	overflow-y: none;
+	overflow-x: none;
+}
+
+.cmsms-ui .installer-form input.disbled {
+	border-color: #FEE1CD;
+	box-shadow: none;
 }
 
 /* --- Buttons --- */
