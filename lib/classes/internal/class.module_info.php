@@ -139,7 +139,7 @@ class module_info implements ArrayAccess
     private function _get_module_meta_file( string $module_name ) : string
     {
         $path = cms_module_path($module_name);
-        if ($path) {
+        if( $path ) {
             return str_replace($module_name.'.module.php','moduleinfo.ini',$path);
         }
         return '';
@@ -159,14 +159,15 @@ class module_info implements ArrayAccess
 
     private function _check_modulecustom(string $module_name) : array
     {
-        $fn = cms_module_path($module_name); //don't care about installation status
-        if ($fn) {
-            $path = dirname($fn).DIRECTORY_SEPARATOR;
-            $files = glob($path.'custom/templates/*.tpl',GLOB_NOSORT); //TODO lazy separator!
-            if (!$files) {
-                $files = glob($path.'custom/lang/??_??.php',GLOB_NOSORT);
+        $fn = cms_module_path($module_name,true); //don't care about installation status
+        if( $fn ) {
+            $path = cms_join_path($fn,'custom','templates','*.tpl');
+            $files = glob($path,GLOB_NOSORT);
+            if( !$files ) {
+                $path = cms_join_path($fn,'custom','lang','??_??.php');
+                $files = glob($path,GLOB_NOSORT);
             }
-            if ($files) {
+            if( $files ) {
                 return ['has_custom' => true];
             }
 //        } else {
@@ -175,7 +176,7 @@ class module_info implements ArrayAccess
 
         $path = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'');
         $files = glob($path.'templates'.DIRECTORY_SEPARATOR.'*.tpl',GLOB_NOSORT);
-        if (!$files) {
+        if( !$files ) {
             $files = glob($path.'lang'.DIRECTORY_SEPARATOR.'??_??.php',GLOB_NOSORT);
         }
         $has = count($files) > 0;

@@ -84,10 +84,9 @@ final class CmsLangOperations
 			$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','en_US.php');
 		}
 		else {
-			$fn = cms_module_path($realm);
-			if( $fn ) {
+			$dir = cms_module_path($realm,true);
+			if( $dir ) {
 				$is_module = true;
-                $dir = dirname($fn);
 				$files[] = cms_join_path($dir,'lang','en_US.php');
 			}
 			$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'en_US.php'); //for a module-related plugin?

@@ -57,24 +57,25 @@ function cms_module_places(string $modname = '') : array
  *
  * @since 2.3
  * @param string $modname name of the module.
- * @return string (maybe empty)
+ * @param bool $folder Optional flag whether to return filepath of folder containing the module Default false
+ * @return string filepath of module class, or its parent folder (maybe empty)
  */
-function cms_module_path(string $modname) : string
+function cms_module_path(string $modname, bool $folder = false) : string
 {
     // core-modules place
     $path = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname,$modname.'.module.php');
     if (is_file($path)) {
-        return $path;
+        return ($folder) ? dirname($path) : $path;
     }
     // other-modules place
     $path = cms_join_path(CMS_ASSETS_PATH,'modules',$modname,$modname.'.module.php');
     if (is_file($path)) {
-        return $path;
+        return ($folder) ? dirname($path) : $path;
     }
     // pre-2.3, deprecated
     $path = cms_join_path(CMS_ROOT_PATH,'modules',$modname,$modname.'.module.php');
     if (is_file($path)) {
-        return $path;
+        return ($folder) ? dirname($path) : $path;
     }
     return '';
 }
