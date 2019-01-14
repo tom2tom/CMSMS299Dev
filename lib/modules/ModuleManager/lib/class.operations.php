@@ -113,7 +113,7 @@ class operations
         if( !$val || version_compare($val,self::MODULE_DTD_MINVERSION) < 0 ) {
             throw new CmsInvalidDataException($this->_mod->Lang('err_xml_dtdmismatch'));
         }
-		$dtdversion = $val;
+        $dtdversion = $val;
         $current = (version_compare($val,self::MODULE_DTD_VERSION) == 0);
         $coremodule = (string)$xml->core; //'1', '0' or ''
         $modops = ModuleOperations::get_instance();
@@ -178,14 +178,18 @@ class operations
                                 $dir = $arr[0];
                             }
                             elseif( $coremodule === '0' || ($coremodule === '' && $dtdversion == '1.3' || !isset($arr[2])) ) {
-                                $dir = $arr[1]; //non-core place
+                                if( strpos((string)$node->filename, 'assets') === false ) {
+                                    $dir = $arr[0]; //core place
+                                } else {
+                                    $dir = $arr[1]; //non-core place
+                                }
                             }
                             else {
                                 $dir = $arr[2]; //deprecated place
                             }
                             if( !is_writable( $dir ) ) {
-								throw new CmsFileSystemException(lang('errordirectorynotwritable'));
-							}
+                                throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+                            }
                             $basepath = $dir . DIRECTORY_SEPARATOR . $moduledetails['name'];
                             if( !( is_dir( $basepath ) || @mkdir( $basepath, 0771, true ) ) ) {
                                 throw new CmsFileSystemException(lang('errorcantcreatefile').': '.$basepath);
@@ -208,8 +212,15 @@ class operations
                                 }
                             }
                             if( !is_writable( $basepath ) ) {
-								throw new CmsFileSystemException(lang('errordirectorynotwritable'));
-							}
+                                throw new CmsFileSystemException(lang('errordirectorynotwritable'));
+                            }
+                        }
+                        $from = ['\\','/'];
+                        $to = [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR];
+                        $aname = cms_config::get_instance()['assets_dir'];
+                        if( $aname != 'assets' ) {
+                            $from[] = 'assets';
+                            $to[] = $aname;
                         }
                         $filedone = true;
                     }
@@ -219,11 +230,11 @@ class operations
                         if( $val[0] == '/' || $val[0] == '\\' ) {
                             $val = substr($val, 1); //relativize old-format
                             if( !$val) {
-								break; //no need to handle module-root-dir here
-							}
+                                break; //no need to handle module-root-dir here
+                            }
                         }
                     }
-                    $name = strtr($val, [ '/' => DIRECTORY_SEPARATOR, '\\' => DIRECTORY_SEPARATOR]);
+                    $name = str_replace($from, $to, $val);
                     $path = $basepath . DIRECTORY_SEPARATOR . $name;
                     if( (string)$node->isdir ) {
                         if( !( is_dir( $path ) || @mkdir( $path, 0771, true ) ) ) {
@@ -320,6 +331,14 @@ class operations
         $config = cmsms()->GetConfig();
         $helper = new FileTypeHelper($config);
         $filecount = 0;
+        $from = [DIRECTORY_SEPARATOR];
+        $to = ['/'];
+        $aname = $config['assets_dir'];
+        if( $aname != 'assets' ) {
+            $from[] = $aname;
+            $to[] = 'assets';
+        }
+
         // get a file list
         $items = get_recursive_file_list( $dir, $this->xml_exclude_files );
         foreach( $items as $file ) {
@@ -328,7 +347,7 @@ class operations
             if( $rel === false || $rel === '' ) continue;
 
             $xw->startElement('file');
-            $xw->writeElement('filename', $rel);
+            $xw->writeElement('filename', str_replace($from, $to, $rel));
             if( @is_dir( $file ) ) {
                  $xw->writeElement('isdir', 1);
             }
