@@ -6,7 +6,6 @@ $lang['action_upgrade'] = 'Upgrading a CMSMS website to version %s';
 $lang['advanced_mode'] = 'Enable advanced mode';
 $lang['apptitle'] = 'Installation and upgrade assistant';
 $lang['assets_dir_exists'] = 'Assets directory exists ?';
-$lang['available_languages'] = 'Available languages';
 
 # B
 $lang['build_date'] = 'Build Date';
@@ -17,7 +16,7 @@ $lang['cleaning_files'] = 'Clean files that are no longer applicable to the rele
 $lang['config_writable'] = 'Config file can be saved ?';
 $lang['confirm_freshen'] = 'Are you sure you want to freshen (repair) the existing installation of CMSMS? Use with extreme caution!';
 $lang['confirm_upgrade'] = 'Are you sure you want to begin the upgrade process';
-$lang['curl_extension'] = 'PHP Curl extension is available ?';
+$lang['curl_extension'] = 'PHP cURL extension is available ?';
 $lang['create_assets_structure'] = 'Create a location for file resources';
 
 # CLI
@@ -177,12 +176,13 @@ $lang['grp_coder_desc'] = 'Members of this group can add/edit/delete files which
 
 # I
 $lang['info_addlanguages'] = 'Select languages (in addition to English) to install. <strong>Note:</strong> not all translations are complete.';
+$lang['info_addmodules'] = 'Select modules to be installed.';
 $lang['info_adminaccount'] = 'Please provide credentials for the initial administrator account. This account will have access to all of the functionality of the CMSMS admin console.';
-$lang['info_advanced'] = 'Advanced mode enables more options in the installation procedure.';
+$lang['info_advanced'] = 'Advanced mode enables several more options (database tables prefix, database-server port, key used for page-alias in requests) during site installation, and provides extra feedback.';
 $lang['info_dbinfo'] = 'CMS Made Simple stores most of its data in a database. A MySQL 4.1+ or compatible database is mandatory. The user specified here must have ALL PRIVILEGES on the specified database to allow creating, dropping and modifying tables, indexes and views.';
 $lang['info_errorlevel_edeprecated'] = 'E_DEPRECATED is a flag for PHP&quot;s error reporting that indicates that warnings should be displayed about code that is using deprecated techniques.  Although the CMSMS core attempts to ensure that we no longer use deprecated techniques, some modules might not.  This setting should be disabled in the PHP configuration';
 $lang['info_errorlevel_estrict'] = 'E_STRICT is a flag for PHP&#39;s error reporting which indicates that strict coding standards should be respected. Although the CMSMS core attempts to conform to E_STRICT standards, some modules might not. It is recommended that this setting be disabled in the PHP configuration';
-$lang['info_installcontent'] = 'You can choose to install a series of sample pages, stylesheets and templates. That sample content provides extensive information and tips to aid in building websites with CMSMS and is useful to read. However, if you are already familiar with CMS Made Simple, skipping this installation will still result in a minimal set of templates, stylesheets and content pages.';
+$lang['info_installcontent'] = 'You can install a series of sample pages, stylesheets and templates. Those provide information and tips to aid in building websites with CMSMS and is useful to read. However, if you are already familiar with CMS Made Simple, skipping this installation will still result in a minimal set of templates, stylesheets and content pages.';
 $lang['info_open_basedir_session_save_path'] = 'open_basedir is enabled in the site PHP configuration. Session capabilities could not be properly tested. However, getting to this point in the installation process probably indicates that sessions are working okay.';
 $lang['info_pwd_writable'] = 'This application needs write permission to the current working directory';
 $lang['info_queryvar'] = 'The query variable is used internally by CMSMS to identify the page requested. In most circumstances you should not need to adjust this.';
@@ -227,6 +227,7 @@ $lang['install_templatetypes'] = 'Create standard template types';
 $lang['install_update_sequences'] = 'Update sequence tables';
 $lang['install_updatehierarchy'] = 'Update content hierarchy positions';
 $lang['install_updateseq'] = 'Update sequence for %s';
+$lang['installer_language'] = 'Use this language';
 $lang['installer_ver'] = 'Installer Version';
 
 # J
@@ -273,6 +274,7 @@ $lang['post_max_size'] = 'Maximum size of request-data is sufficient ?';
 $lang['preprocessing_files'] = 'Adjust file organization as required';
 $lang['processing_file_manifests'] = 'Remove unused files according to manifests';
 $lang['prompt_addlanguages'] = 'Additional Languages';
+$lang['prompt_addmodules'] = 'Additional (Non-Core) Modules';
 $lang['prompt_createtables'] = 'Create Database Tables';
 $lang['prompt_dbhost'] = 'Database Hostname';
 $lang['prompt_dbinfo'] = 'Database Information';
@@ -282,7 +284,7 @@ $lang['prompt_dbport'] = 'Database Port Number';
 $lang['prompt_dbprefix'] = 'Database Table Name Prefix';
 $lang['prompt_dbuser'] = 'Database User';
 $lang['prompt_dir'] = 'Installation Directory';
-$lang['prompt_installcontent'] = 'Install Sample Content';
+$lang['prompt_installcontent'] = 'Sample Content';
 $lang['prompt_queryvar'] = 'Query Variable';
 $lang['prompt_sitename'] = 'Web Site Name';
 $lang['prompt_timezone'] = 'Server Timezone';
@@ -302,8 +304,8 @@ $lang['retry'] = 'Retry';
 
 # S
 $lang['safe_mode'] = '&quot;safe mode&quot; is disabled ?';
-$lang['select_language'] = 'The first thing we will ask you to do is to select your preferred language from the list below. This will be used to enhance your experience during this installation sequence, but will not affect your CMSMS installation.';
-$lang['send_admin_email'] = 'Send Admin login credentials email';
+$lang['select_language'] = 'Select your preferred language from the list below. The selection will be used during this installation/upgrade, but will not affect the site\'s CMSMS installation.';
+//$lang['send_admin_email'] = 'Send Admin login credentials email';
 $lang['session_capabilities'] = 'Testing for proper session capabilities (sessions are using cookies and session save path is writeable, etc)';
 $lang['session_save_path_exists'] = 'Session_save_path exists ?';
 $lang['session_save_path_writable'] = 'Session_save_path is writeable ?';
