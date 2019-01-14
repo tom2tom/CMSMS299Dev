@@ -59,32 +59,32 @@
         </div>
       </div>
     </div>
-    {if $verbose}
+{*    {if $verbose} *}
     <div class="row form-row">
       <div class="four-col">
-        <label for="port">{'prompt_dbport'|tr}</label>
+        <label for="port">{'prompt_dbport'|tr}{if !$verbose} class="disabled"{/if}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field full-width" type="text" id="port" name="db_port" value="{$config.db_port}" />
+        <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="port" name="db_port" value="{$config.db_port}"{if !$verbose} disabled="disabled"{/if} />
       </div>
     </div>
     <div class="row form-row">
       <div class="four-col">
-        <label for="prefix">{'prompt_dbprefix'|tr}</label>
+        <label for="prefix">{'prompt_dbprefix'|tr}{if !$verbose} class="disabled"{/if}</label>
       </div>
       <div class="eight-col">
-        <input class="form-field full-width" type="text" id="prefix" name="db_prefix" value="{$config.db_prefix}" />
+        <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="prefix" name="db_prefix" value="{$config.db_prefix}"{if !$verbose} disabled="disabled"{/if} />
       </div>
     </div>
-    {else}
+{*    {else}
      <input type="hidden" name="db_port" value="{$config.db_port}" />
      <input type="hidden" name="db_prefix" value="{$config.db_prefix}" />
     {/if}
+*}
   </fieldset>
 
   <h3>{'prompt_timezone'|tr}</h3>
-  <p class="info">{'info_timezone'|tr}</p>
-
+  <p>{'info_timezone'|tr}</p>
   <div class="row form-row">
     <label for="zone" class="visuallyhidden">{'prompt_timezone'|tr}</label>
     <select id="zone" class="form-field" name="timezone">
@@ -92,34 +92,21 @@
     </select>
   </div>
 
-  {if $verbose}
+{*  {if $verbose} *}
   <h3>{'prompt_queryvar'|tr}</h3>
-  <p class="info">{'info_queryvar'|tr}</p>
-
+  <p>{'info_queryvar'|tr}</p>
   <div class="row form-row">
     <div class="four-col">
-      <label for="qvar">{'prompt_queryvar'|tr}</label>
+      <label for="qvar">{'prompt_queryvar'|tr}{if !$verbose} class="disabled"{/if}</label>
     </div>
     <div class="eight-col">
-      <input class="form-field" type="text" id="qvar" name="query_var" value="{$config.query_var}" />
+      <input class="form-field{if !$verbose} disabled{/if}" type="text" id="qvar" name="query_var" value="{$config.query_var}"{if !$verbose} disabled="disabled"{/if} />
     </div>
   </div>
-  {else}
+{*  {else}
     <input type="hidden" name="query_var" value="{$config.query_var}" />
   {/if}
-
-  {if $action == 'install'}
-  <h3>{'prompt_installcontent'|tr}</h3>
-  <p class="info">{'info_installcontent'|tr}</p>
-
-  <div class="row form-row">
-    <label for="demo">{'prompt_installcontent'|tr}</label>
-    <select id="demo" class="form-field" name="samplecontent">
-      {html_options options=$yesno selected=$config.samplecontent}
-    </select>
-  </div>
-  {/if}
-
+*}
   <div id="bottom_nav">
     <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
