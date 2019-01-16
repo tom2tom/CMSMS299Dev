@@ -72,7 +72,7 @@ require_once $dirname.'defines.php'; //populate relevant defines
 require_once $dirname.'classes'.DIRECTORY_SEPARATOR.'class.CmsApp.php'; //used in autoloader
 require_once $dirname.'module.functions.php'; //some used in autoloader
 require_once $dirname.'autoloader.php';
-require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'); //CHECKME Composer support on production system ?
+require_once $dirname.'vendor'.DIRECTORY_SEPARATOR.'autoload.php'; //CHECKME Composer support on production system ?
 require_once $dirname.'compat.functions.php';
 require_once $dirname.'page.functions.php';
 if ($CMS_JOB_TYPE < 2) {
