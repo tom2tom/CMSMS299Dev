@@ -43,7 +43,7 @@ class wizard_step3 extends wizard_step
         $obj->recommended = '7.2';
         $obj->fail_msg = lang('fail_php_version',$v,$obj->minimum);
         if (version_compare($obj->minimum, $obj->recommended) < 0) {
-            $obj->warn_msg = lang('fail_php_version2',$v,$obj->minimum,$obj->recommended);
+            $obj->warn_msg = lang('fail_php_version2',$v,$obj->recommended);
         } else {
             $obj->warn_msg = lang('msg_yourvalue',$v);
         }
@@ -295,7 +295,7 @@ class wizard_step3 extends wizard_step
             }
         }
 
-        // its an upgrade
+        // it's an upgrade
         if( $version_info ) {
             // config file must be writable.
             $obj = new boolean_test('config_writable',is_writable($version_info['config_file']));
