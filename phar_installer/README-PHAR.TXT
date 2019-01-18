@@ -39,7 +39,7 @@ Upgrading an existing installation of CMSMS, or freshening an existing version o
 for each path through the installation assistant and 9 steps
 
 Step 1:
-  Step 1 asks you to select a language and optionally allows you to enable "Advanced Mode". Advanced mode enables various
+  Step 1 asks you to select a language and optionally allows you to enable "Advanced Mode". Advanced mode enables several
   additional options throughout the assistant and increases the verbosity of the status output.
 
 Step 2:
@@ -100,10 +100,10 @@ Step 8:
 Step 9:
   This step finishes the installation and performs a clean-up.
 
-  During the installation process all core modules are installed, necessary temporary directories created, and the configuration file
+  During the installation process all core modules and selected non-core modules (if any) are installed, necessary temporary directories created, and the configuration file
   is written.
 
-  During the upgrade process core modules are upgraded if necessary, and a new version of the configuration file is written.
+  During the upgrade process core modules and selected non-core modules (if any) are upgraded if necessary, and a new version of the configuration file is written.
   Any existing configuration file is backed up for safety.  Additionally, the CMSMS cache is cleared.
 
   Once everything is complete you will be presented with links to either visit your CMSMS website, or to login to its admin console.
