@@ -75,7 +75,7 @@ function get_userid(bool $redirect = true)
         if( cmsms()->is_cli() ) {
             $uname = get_cliuser();
             if( $uname ) {
-                $user = LoginOperations::get_instance()->LoadUserByUsername($uname);
+                $user = UserOperations::get_instance()->LoadUserByUsername($uname);
                 if( $user ) {
                     return $user->id;
                 }
