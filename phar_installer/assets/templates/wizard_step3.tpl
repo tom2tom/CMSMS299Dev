@@ -71,7 +71,7 @@
 {/if}
 
 {if !$tests_failed}
-<div class="message yellow">{'warn_tests'|tr}</div>
+<div class="message blue">{'warn_tests'|tr}</div>
 {/if}
 
 <div id="bottom_nav">
