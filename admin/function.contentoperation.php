@@ -66,16 +66,18 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 				$xwm->text($pref."\t");
 				$xwm->startElement($name);
 				foreach ($row as $key=>$val) {
-					$A = $props['subtypes'][$name][$key];
-					if ((empty($A['keeps']) || in_array($val, $A['keeps'])) &&
-						($val || !isset($A['notempty']))) {
-						$xwm->text($pref."\t\t");
-						if (isset($A['isdata'])) {
-							$xwm->startElement($key);
-							$xwm->writeCdata(htmlspecialchars($val, ENT_XML1));
-							$xwm->endElement();
-						} else {
-							$xwm->writeElement($key, (string)$val);
+					if (isset($props['subtypes'][$name][$key])) {
+						$A = $props['subtypes'][$name][$key];
+						if ((empty($A['keeps']) || in_array($val, $A['keeps'])) &&
+							($val || !isset($A['notempty']))) {
+							$xwm->text($pref."\t\t");
+							if (isset($A['isdata'])) {
+								$xwm->startElement($key);
+								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1));
+								$xwm->endElement();
+							} else {
+								$xwm->writeElement($key, (string)$val);
+							}
 						}
 					}
 				}
@@ -90,7 +92,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 
 /**
  * Export site content (pages, templates, designs, styles etc) to XML file.
- * Support' files (in the uploads folder) and UDT's (in the assets/simple_plugins folder)
+ * Support files (in the uploads folder) and UDT's (in the assets/simple_plugins folder)
  * are recorded as such, and will be copied into the specified $filesfolder if it exists.
  * Otherwise, that remains a manual task.
  *
