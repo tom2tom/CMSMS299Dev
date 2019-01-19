@@ -23,6 +23,22 @@ if (!isset($gCms)) {
     exit;
 }
 
+$dict = NewDataDictionary($db);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME);
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME);
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME);
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE);
+$dict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE);
+$dict->ExecuteSQLArray($sqlarray);
+
 $group = new Group();
 $group->name = 'Designer';
 try {
@@ -83,4 +99,3 @@ foreach([
 ] as $name) {
     Events::RemoveEvent('Core',$name);
 }
-
