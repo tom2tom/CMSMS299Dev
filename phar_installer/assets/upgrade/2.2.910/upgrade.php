@@ -1,6 +1,7 @@
 <?php
 
 use __installer\utils;
+use __installer\wizard\wizard;
 use CMSMS\Group;
 use CMSMS\LogicException;
 use CMSMS\SimplePluginOperations;
@@ -10,13 +11,13 @@ use function __installer\get_app;
 
 $app = get_app();
 $destdir = $app->get_destdir();
-if( !$destdir || !is_dir($destdir) ) {
+if (!$destdir || !is_dir($destdir)) {
     throw new LogicException('Destination directory does not exist');
 }
 $config = $app->get_config();
-$s = ( !empty($config['admindir']) ) ? $config['admindir'] : 'admin';
+$s = (!empty($config['admindir'])) ? $config['admindir'] : 'admin';
 $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
-$s = ( !empty($config['assetsdir']) ) ? $config['assetsdir'] : 'assets';
+$s = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
 $assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
 
 // 1. Move core modules to /lib/modules
@@ -34,44 +35,49 @@ foreach([
 'ModuleManager',
 'Navigator',
 'Search',
-] as $modname ) {
+] as $modname) {
     $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-    if( is_dir( $fp ) ) {
+    if (is_dir ($fp)) {
         $to = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-        if( !is_dir( $to ) ) {
-            rename( $fp, $to );
+        if (!is_dir ($to)) {
+            rename ($fp, $to);
         } else {
-            utils::rrmdir( $fp );
+            utils::rrmdir ($fp);
         }
     }
 }
 
 // 2. Move ex-core modules to /assets/modules
-foreach( ['MenuManager', 'CMSMailer', 'News'] as $modname ) {
+foreach (['MenuManager', 'CMSMailer', 'News'] as $modname) {
     $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-    if( is_dir( $fp ) ) {
+    if (is_dir ($fp)) {
         $to = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-        if( !is_dir( $to ) ) {
-            rename( $fp, $to );
+        if (!is_dir ($to)) {
+            rename ($fp, $to);
         } else {
-            utils::rrmdir( $fp );
+            utils::rrmdir ($fp);
         }
     }
 }
 
-// 2A. Revert 'independent' modules in assets/modules (force-moved by 2.2.90x upgrade) to deprecated /modules
-$fp = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . '*' ;
-$dirs = glob($fp, GLOB_ONLYDIR);
-$d = '';
-foreach( $dirs as $fp ) {
-	$modname = basename($fp);
-    if( !in_array($modname, ['MenuManager', 'CMSMailer', 'News']) ) { //TODO exclude all in files tarball
-		if( !$d ) {
-			$d = $destdir . DIRECTORY_SEPARATOR . 'modules';
-			@mkdir($d , 0771, true);
-		}
-        $to = $d . DIRECTORY_SEPARATOR . $modname;
-        rename($fp, $to);
+// 2A. Revert force-moved (by 2.2.90x upgrade) 'independent' modules from assets/modules to deprecated /modules
+$wizard = wizard::get_instance();
+$data = $wizard->get_data('version_info'); //version-datum from session
+$fromvers = $data['version'];
+if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.2.910') < 0) {
+    $fp = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . '*';
+    $dirs = glob($fp, GLOB_ONLYDIR);
+    $d = '';
+    foreach ($dirs as $fp) {
+        $modname = basename($fp);
+        if (!in_array($modname, ['MenuManager', 'CMSMailer', 'News'])) { //TODO exclude all in files tarball
+            if (!$d) {
+                $d = $destdir . DIRECTORY_SEPARATOR . 'modules';
+                @mkdir($d, 0771, true);
+            }
+            $to = $d . DIRECTORY_SEPARATOR . $modname;
+            rename($fp, $to);
+        }
     }
 }
 
@@ -99,19 +105,19 @@ foreach ([
         default:
             break 2;
     }
-    if( !is_dir( $to ) ) @mkdir( $to, 0771, true );
-    if( !is_dir( $to ) ) throw new LogicException("Could not create $to directory");
+    if (!is_dir ($to)) @mkdir ($to, 0771, true);
+    if (!is_dir ($to)) throw new LogicException("Could not create $to directory");
     touch($to . DIRECTORY_SEPARATOR . 'index.html');
 }
 touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
 
 // 4. Convert UDT's to simple plugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
-if( $udt_list ) {
+if ($udt_list) {
 
-    $create_simple_plugin = function( array $row, SimplePluginOperations $ops, $smarty ) {
+    $create_simple_plugin = function (array $row, SimplePluginOperations $ops, $smarty) {
         $fp = $ops->file_path($row['userplugin_name']);
-        if( is_file( $fp ) ) {
+        if (is_file($fp)) {
             verbose_msg('simple plugin named '.$row['userplugin_name'].' already exists');
             return;
         }
@@ -119,20 +125,20 @@ if( $udt_list ) {
         $code = preg_replace(
                 ['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/'],
                 ['', ''], $row['code']);
-        if( !$code ) {
+        if (!$code) {
             verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
             return;
         }
 
         $meta = ['name'=>$row['userplugin_name']];
-        if( $row['description'] ) {
+        if ($row['description']) {
             $desc = trim($row['description'], " \t\n\r");
-            if( $desc ) {
+            if ($desc) {
                 $meta['description'] = $desc;
             }
         }
 
-        if( $ops->save($row['userplugin_name'], $meta, $code, $smarty) ) {
+        if ($ops->save($row['userplugin_name'], $meta, $code, $smarty)) {
             verbose_msg('Converted UDT '.$row['userplugin_name'].' to a plugin file');
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
@@ -141,8 +147,8 @@ if( $udt_list ) {
 
     $ops = SimplePluginOperations::get_instance();
     //$smarty defined upstream, used downstream
-    foreach( $udt_list as $udt ) {
-        $create_simple_plugin( $udt, $ops, $smarty );
+    foreach ($udt_list as $udt) {
+        $create_simple_plugin ($udt, $ops, $smarty);
     }
 
     $dict = GetDataDictionary($db);
@@ -152,13 +158,13 @@ if( $udt_list ) {
     $dict->ExecuteSQLArray($sqlarr);
     status_msg('Converted User Defined Tags to simple-plugin files');
 
-    $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)' );
-    $db->Execute( 'ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)' );
+    $db->Execute ('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)');
+    $db->Execute ('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)');
 }
 
 // 5. Tweak callbacks for page and generic layout template types
 $page_type = CmsLayoutTemplateType::load('__CORE__::page');
-if( $page_type ) {
+if ($page_type) {
     $page_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
     $page_type->set_content_callback('\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults');
     $page_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
@@ -168,7 +174,7 @@ if( $page_type ) {
 }
 
 $generic_type = CmsLayoutTemplateType::load('__CORE__::generic');
-if( $generic_type ) {
+if ($generic_type) {
     $generic_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback');
     $generic_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $generic_type->save();
@@ -184,11 +190,11 @@ $db->Execute($query, ['Modify Simple Plugins','Modify User-Defined Tag Files',$l
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
-foreach( [
+foreach ([
  'Modify Site Code',
 // 'Modify Site Assets',
  'Remote Administration',  //for app management sans admin console
-] as $one_perm ) {
+] as $one_perm) {
     $permission = new CmsPermission();
     $permission->source = 'Core';
     $permission->name = $one_perm;
