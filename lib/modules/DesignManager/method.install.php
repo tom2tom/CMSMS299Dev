@@ -23,6 +23,7 @@ if (!isset($gCms)) {
     exit;
 }
 
+/* these tables are mainly, but not exclusively, used by this module, so processed with core
 $dict = NewDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
@@ -169,6 +170,7 @@ $sqlarray = $dict->CreateTableSQL(
 );
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
+*/
 
 $this->SetPreference('lock_timeout', 60);
 $this->SetPreference('lock_refresh', 120);
