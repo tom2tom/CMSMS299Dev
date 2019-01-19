@@ -1,11 +1,10 @@
 <?php
 
 if (!function_exists('cmsms')) exit;
-//global $db = $this->GetDb();
 
 // remove the database table
-/*$dict = NewDataDictionary( $db );
- $sqlarray = $dict->DropTableSQL( CMS_DB_PREFIX."module_filemanager_thumbs" );
+/*$dict = NewDataDictionary($db);
+ $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX."module_filemanager_thumbs");
  $dict->ExecuteSQLArray($sqlarray);
  */
 // remove the sequence
@@ -18,5 +17,3 @@ $this->RemoveEvent('OnFileUploaded');
 $this->RemoveEvent('OnFileDeleted');
 $this->RemovePreference();
 $this->RemoveSmartyPlugin();
-
-?>

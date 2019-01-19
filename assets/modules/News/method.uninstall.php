@@ -1,11 +1,7 @@
 <?php
 if (!isset($gCms)) exit;
 
-$db = $this->GetDb();
-$this->DeleteTemplate('displaysummary');
-$this->DeleteTemplate('displaydetail');
-
-$dict = NewDataDictionary( $db );
+$dict = NewDataDictionary($db);
 
 $sqlarray = $dict->DropTableSQL( CMS_DB_PREFIX.'module_news' );
 $dict->ExecuteSQLArray($sqlarray);
@@ -30,10 +26,7 @@ $this->RemovePermission('Modify News Preferences');
 // Remove all preferences for this module
 $this->RemovePreference();
 
-// And all templates
-$this->DeleteTemplate();
-
-#Setup events
+// And events
 $this->RemoveEvent('NewsArticleAdded');
 $this->RemoveEvent('NewsArticleEdited');
 $this->RemoveEvent('NewsArticleDeleted');
@@ -45,8 +38,11 @@ $this->RemoveSmartyPlugin();
 
 cms_route_manager::del_static('',$this->GetName());
 
-// remove templates
-// and template types.
+// Remove templates and template types
+$this->DeleteTemplate();
+//$this->DeleteTemplate('displaysummary');
+//$this->DeleteTemplate('displaydetail');
+
 try {
   $types = CmsLayoutTemplateType::load_all_by_originator($this->GetName());
   if( $types ) {

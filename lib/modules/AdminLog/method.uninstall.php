@@ -20,7 +20,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 use AdminLog\storage;
 
 if (!isset($gCms)) exit;
-$db = $this->GetDb();
 $dict = NewDataDictionary($db);
 
 $sqlarr = $dict->DropTableSQL( storage::TABLENAME );
@@ -28,3 +27,5 @@ $dict->ExecuteSQLArray( $sqlarr );
 
 $this->RemovePermission('View Admin Log');
 $this->RemovePermission('Clear Admin Log');
+
+$this->RemovePreference();
