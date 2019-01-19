@@ -23,6 +23,153 @@ if (!isset($gCms)) {
     exit;
 }
 
+$dict = NewDataDictionary($db);
+$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
+
+$flds = '
+id I KEY AUTO,
+originator C(32) NOT NULL,
+name C(96) NOT NULL,
+dflt_contents X2,
+description X(1024),
+lang_cb C(255),
+dflt_content_cb C(255),
+help_content_cb C(255),
+has_dflt I(1) DEFAULT 0,
+requires_contentblocks I(1),
+one_only I(1),
+owner I,
+created I,
+modified I
+';
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_type_1',
+	CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME, 'originator,name', ['UNIQUE']);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$flds = '
+id I KEY AUTO,
+name C(96) NOT NULL,
+description X(1024),
+item_order I(4) DEFAULT 0,
+modified I
+';
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$sqlarray = $dict->CreateIndexSQL('idx_layout_tpl_cat_1',
+	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME, 'name', ['UNIQUE']);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$flds = '
+category_id I NOT NULL,
+tpl_id I NOT NULL,
+tpl_order I(4) DEFAULT 0
+';
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$sqlarray = $dict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
+	CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE, 'tpl_id');
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$flds = '
+id I KEY AUTO,
+name C(96) NOT NULL,
+content X2,
+description X(1024),
+media_type C(255),
+media_query X(16384),
+created I,
+modified I
+';
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$sqlarray = $dict->CreateIndexSQL('idx_layout_css_1',
+	CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME, 'name', ['UNIQUE']);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$flds = '
+id I KEY AUTO,
+name C(96) NOT NULL,
+description X(1024),
+dflt I(1) DEFAULT 0,
+created I,
+modified I
+';
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$sqlarray = $dict->CreateIndexSQL('idx_layout_dsn_1',
+	CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME, 'name', ['UNIQUE']);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$flds = '
+design_id I KEY NOT NULL,
+tpl_id I KEY NOT NULL,
+tpl_order I(4) DEFAULT 0
+';
+//CHECKME separate index on tpl_id field ?
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$sqlarray = $dict->CreateIndexSQL('idx_dsnassoc1',
+	CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE, 'tpl_id');
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
+$flds = '
+design_id I KEY NOT NULL,
+css_id I KEY NOT NULL,
+item_order I(4) DEFAULT 0
+';
+//CHECKME separate index on css_id field ?
+$sqlarray = $dict->CreateTableSQL(
+	CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE,
+	$flds,
+	$taboptarray
+);
+$res = $dict->ExecuteSQLArray($sqlarray);
+if ($res != 2) return false;
+
 $this->SetPreference('lock_timeout', 60);
 $this->SetPreference('lock_refresh', 120);
 
@@ -93,4 +240,3 @@ foreach([
 ] as $name) {
     Events::CreateEvent('Core',$name);
 }
-
