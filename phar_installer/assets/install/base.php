@@ -15,17 +15,6 @@ $db->Execute($query);
 verbose_msg(ilang('install_setschemaver'));
 
 //
-// site preferences
-//
-verbose_msg(ilang('install_initsiteprefs'));
-cms_siteprefs::set('adminlog_lifetime',3600*24*31); // admin log entries only live for 60 days.
-cms_siteprefs::set('allow_browser_cache',1); // allow browser to cache cachable pages
-cms_siteprefs::set('auto_clear_cache_age',60); // cache files for only 60 days by default
-cms_siteprefs::set('browser_cache_expiry',60); // browser can cache pages for 60 minutes.
-cms_siteprefs::set('global_umask','022');
-cms_siteprefs::set('metadata','<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . ". All rights reserved.\" />\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n");
-
-//
 // permissions
 // note: some of these have been exported to CMSContentManager or DesignManager install routines.
 //
@@ -224,27 +213,29 @@ Events::CreateEvent('Core','TemplatePostCompile');
 Events::CreateEvent('Core','TemplatePreCompile');
 Events::CreateEvent('Core','TemplatePreFetch');
 */
-$create_private_dir = function(string $destdir, string $relative_dir) {
+
+function create_private_dir(string $destdir, string $relative_dir)
+{
 //    $relative_dir = trim($relative_dir);
 //    if( !$relative_dir ) return;
-
     $dir = $destdir.DIRECTORY_SEPARATOR.$relative_dir;
     if( !is_dir($dir) ) {
         @mkdir($dir,0771,true);
     }
     @touch($dir.DIRECTORY_SEPARATOR.'index.html');
-};
+}
 
 // create the assets directory structure
 verbose_msg(ilang('install_createassets'));
 $app = get_app();
 $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
-$create_private_dir($destdir,'admin_custom');
-$create_private_dir($destdir,'configs');
-$create_private_dir($destdir,'css');
-$create_private_dir($destdir,'images');
-$create_private_dir($destdir,'module_custom');
-$create_private_dir($destdir,'modules');
-$create_private_dir($destdir,'plugins');
-$create_private_dir($destdir,'simple_plugins');
-$create_private_dir($destdir,'templates');
+create_private_dir($destdir,'admin_custom');
+create_private_dir($destdir,'configs');
+create_private_dir($destdir,'css');
+create_private_dir($destdir,'images');
+create_private_dir($destdir,'module_custom');
+create_private_dir($destdir,'modules');
+create_private_dir($destdir,'plugins');
+create_private_dir($destdir,'simple_plugins');
+create_private_dir($destdir,'templates');
+
