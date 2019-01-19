@@ -33,6 +33,28 @@
     </select>
   </div>
 
+  {if !empty($modules_list)}
+  <h3>{'prompt_addmodules'|tr}</h3>
+  <p>{'info_addmodules'|tr}</p>
+
+  <div class="row form-row">
+    <select class="form-field" name="xmodules[]" multiple="multiple" size="4">
+      {html_options options=$modules_list selected=$modules_sel}
+    </select>
+  </div>
+  {/if}
+
+  {if $action == 'install'}
+  <h3>{'prompt_installcontent'|tr}</h3>
+  <p>{'info_installcontent'|tr}</p>
+  <div class="row form-row">
+    <label for="demo">{'prompt_installcontent'|tr}</label>
+    <select id="demo" class="form-field" name="samplecontent">
+      {html_options options=$yesno selected=$config.samplecontent}
+    </select>
+  </div>
+  {/if}
+
   <div id="bottom_nav">
    <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
   </div>
