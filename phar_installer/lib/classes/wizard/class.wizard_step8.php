@@ -107,9 +107,6 @@ class wizard_step8 extends wizard_step
             $fn = $dir.'/schema.php';
             if( !file_exists($fn) ) throw new Exception(lang('error_internal',705));
 
-            global $CMS_INSTALL_DROP_TABLES, $CMS_INSTALL_CREATE_TABLES;
-            $CMS_INSTALL_DROP_TABLES=1;
-            $CMS_INSTALL_CREATE_TABLES=1;
             include_once $fn;
 
             $this->verbose(lang('install_setsequence'));
@@ -120,14 +117,11 @@ class wizard_step8 extends wizard_step
             @mkdir($destdir.'/tmp/cache',0771,TRUE);
             @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
 
-            // permisssions etc
-            include_once $dir.'/base.php';
-
             // init some of the system-wide default settings
             verbose_msg(ilang('install_initsiteprefs'));
             $arr = CmsAdminThemeBase::GetAvailableThemes();
             foreach ([
-             'adminlog_lifetime' => 3600*24*31, // admin log entries only live for 60 days.
+             'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
              'allow_browser_cache' => 1, // allow browser to cache cachable pages
              'auto_clear_cache_age' => 60, // cache files for only 60 days by default
              'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
@@ -142,7 +136,7 @@ class wizard_step8 extends wizard_step
              'global_umask' => '022',
              'loginmodule' => '',  // login  processing by current theme
              'logintheme' => reset($arr),
-             'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved."'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+             'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
              'sitemask' => '', //what is this?
              'sitename' => $siteinfo['sitename'],
              'use_smarty_compilecheck' => 0,
@@ -150,8 +144,11 @@ class wizard_step8 extends wizard_step
                 cms_siteprefs::set($name, $val);
             }
 
-            // site content
-            if( $destconfig['samplecontent'] ) {
+            // permisssions etc
+            include_once $dir.'/base.php';
+
+			// site content
+            if( !empty($siteinfo['samplecontent']) ) {
                 $arr = installer_base::CONTENTXML;
                 $fn = end($arr);
             } else {
@@ -160,12 +157,12 @@ class wizard_step8 extends wizard_step
             $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
             if( is_file($xmlfile) ) {
                 $arr = installer_base::CONTENTFILESDIR;
-                $filesfolder = $dir. DIRECTORY_SEPARATOR. end($arr);
+                $filesfolder = $dir. DIRECTORY_SEPARATOR . end($arr);
 
                 $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
                 require_once $fp;
 
-                if( $destconfig['samplecontent'] ) {
+                if( $fn != 'initial.xml' ) {
                     $this->message(lang('install_samplecontent'));
                 }
                 if( ($res = import_content($xmlfile, $filesfolder)) ) {
