@@ -7,7 +7,7 @@
   {$current_step = '1'}
 {/block}
 
-{block name='contents'}
+{block name='javascript' append}
 <script type="text/javascript">
 {literal}function redirect_langchange() {
  var e = document.getElementById('lang_selector');
@@ -17,7 +17,9 @@
  return false;
 }{/literal}
 </script>
+{/block}
 
+{block name='contents'}
 <p>{'welcome_message'|tr}</p>
 
 <div class="installer-form">
@@ -27,7 +29,7 @@
 
     <p class="message yellow">{'step1_info_destdir'|tr}</p>
 
-    <div class="row message yellow">
+    <div class="row">
     <label>{'destination_directory'|tr}:</label>
     <select class="form-field" name="destdir">
       {html_options options=$dirlist selected=$destdir|default:''}
@@ -37,9 +39,9 @@
   {/if}
 
   <h3>{'step1_language'|tr}</h3>
-  <p class="info">{'select_language'|tr}</p>
+  <p>{'select_language'|tr}</p>
   <div class="row">
-    <label>{'available_languages'|tr}:</label>
+    <label>{'installer_language'|tr}:</label>
     <select id="lang_selector" class="form-field" name="lang" onchange="redirect_langchange()">
       {html_options options=$languages selected=$curlang}
     </select>
@@ -48,8 +50,7 @@
   <hr />
 
   <h3>{'step1_advanced'|tr}</h3>
-  <p class="info">{'info_advanced'|tr}</p>
-
+  <p>{'info_advanced'|tr}</p>
   <div class="row">
     <label>{'advanced_mode'|tr}:</label>
     <select class="form-field" name="verbose">
