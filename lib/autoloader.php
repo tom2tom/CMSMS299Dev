@@ -95,9 +95,9 @@ function cms_autoloader(string $classname)
 		} elseif ($space == 'CMSASSETS') {
 			$sroot = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR;
 		} else {
-			$mpath = cms_module_path($space, true);
+			$mpath = cms_module_path($space);
 			if ($mpath) {
-				$sroot = $mpath.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
+				$sroot = dirname($mpath).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR;
 			} else {
 				return;
 			}
