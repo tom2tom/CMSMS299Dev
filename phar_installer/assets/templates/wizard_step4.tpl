@@ -62,7 +62,7 @@
 {*    {if $verbose} *}
     <div class="row form-row">
       <div class="four-col">
-        <label for="port">{'prompt_dbport'|tr}{if !$verbose} class="disabled"{/if}</label>
+        <label{if !$verbose} class="disabled"{/if} for="port">{'prompt_dbport'|tr}</label>
       </div>
       <div class="eight-col">
         <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="port" name="db_port" value="{$config.db_port}"{if !$verbose} disabled="disabled"{/if} />
@@ -70,7 +70,7 @@
     </div>
     <div class="row form-row">
       <div class="four-col">
-        <label for="prefix">{'prompt_dbprefix'|tr}{if !$verbose} class="disabled"{/if}</label>
+        <label{if !$verbose} class="disabled"{/if} for="prefix">{'prompt_dbprefix'|tr}</label>
       </div>
       <div class="eight-col">
         <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" id="prefix" name="db_prefix" value="{$config.db_prefix}"{if !$verbose} disabled="disabled"{/if} />
@@ -93,11 +93,11 @@
   </div>
 
 {*  {if $verbose} *}
-  <h3>{'prompt_queryvar'|tr}</h3>
-  <p>{'info_queryvar'|tr}</p>
+  <h3{if !$verbose} class="disabled"{/if}>{'prompt_queryvar'|tr}</h3>
+  <p{if !$verbose} class="disabled"{/if}>{'info_queryvar'|tr}</p>
   <div class="row form-row">
     <div class="four-col">
-      <label for="qvar">{'prompt_queryvar'|tr}{if !$verbose} class="disabled"{/if}</label>
+      <label{if !$verbose} class="disabled"{/if} for="qvar">{'prompt_queryvar'|tr}</label>
     </div>
     <div class="eight-col">
       <input class="form-field{if !$verbose} disabled{/if}" type="text" id="qvar" name="query_var" value="{$config.query_var}"{if !$verbose} disabled="disabled"{/if} />
