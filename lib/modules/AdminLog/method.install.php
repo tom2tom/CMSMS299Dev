@@ -23,9 +23,8 @@ if (!isset($gCms)) {
     exit;
 }
 
-$db = $this->GetDb();
 $dict = NewDataDictionary($db);
-$taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
+$taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 $flds = '
 timestamp I NOTNULL,
@@ -42,3 +41,5 @@ $dict->ExecuteSQLArray($sqlarr);
 
 $this->CreatePermission('View Admin Log', 'View Admin Log');
 $this->CreatePermission('Clear Admin Log', 'Clear Admin Log');
+
+$this->SetPreference('lifetime', 3600*24*31); //log entries only live for 60 days
