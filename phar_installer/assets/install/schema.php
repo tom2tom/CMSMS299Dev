@@ -1,7 +1,7 @@
 <?php
 
-if (isset($CMS_INSTALL_DROP_TABLES)) {
-    status_msg(ilang('install_dropping_tables'));
+//force-drop tables which will be created (not really needed during install)
+//  status_msg(ilang('install_dropping_tables'));
     $db->DropSequence(CMS_DB_PREFIX.'additional_users_seq');
     $db->DropSequence(CMS_DB_PREFIX.'admin_bookmarks_seq');
     $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
@@ -35,7 +35,7 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_deps');
     $dbdict->ExecuteSQLArray($sqlarray);
-//    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
+//    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates'); now in layout_templates
 //    $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'permissions');
     $dbdict->ExecuteSQLArray($sqlarray);
@@ -53,15 +53,18 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'routes');
     $dbdict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLock::LOCK_TABLE);
+    $dbdict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
+    $dbdict->ExecuteSQLArray($sqlarray);
+    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE);
+    $dbdict->ExecuteSQLArray($sqlarray);
+    // these are used mainly by DesignManager module (but some other modules too)
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
-    $dbdict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
-    $dbdict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE);
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME);
     $dbdict->ExecuteSQLArray($sqlarray);
@@ -71,11 +74,7 @@ if (isset($CMS_INSTALL_DROP_TABLES)) {
     $dbdict->ExecuteSQLArray($sqlarray);
     $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE);
     $dbdict->ExecuteSQLArray($sqlarray);
-    $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLock::LOCK_TABLE);
-    $dbdict->ExecuteSQLArray($sqlarray);
-}
 
-if (isset($CMS_INSTALL_CREATE_TABLES)) {
     status_msg(ilang('install_createtablesindexes'));
     if ($db->dbtype == 'mysqli') {
         @$db->Execute('ALTER DATABASE `' . $db->database . '` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
@@ -454,6 +453,61 @@ created DT
 
     $flds = '
 id I KEY AUTO,
+originator C(32),
+name C(96) NOT NULL,
+content X2,
+description X(1024),
+type_id I NOT NULL,
+owner_id I NOT NULL DEFAULT 1,
+type_dflt I(1) DEFAULT 0,
+listable I(1) DEFAULT 1,
+created I,
+modified I
+';
+    $sqlarray = $dbdict->CreateTableSQL(
+        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,
+        $flds,
+        $taboptarray
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? $good : $bad;
+    verbose_msg(ilang('install_created_table', CmsLayoutTemplate::TABLENAME, $msg_ret));
+
+    $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
+        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'name');
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? $good : $bad;
+    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_1', $msg_ret));
+
+    $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_2',
+	    CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'type_id,type_dflt');
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? $good : $bad;
+    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_2', $msg_ret));
+
+    $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
+        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'originator,name', ['UNIQUE']);
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? $good : $bad;
+    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_3', $msg_ret));
+
+    $flds = '
+tpl_id I KEY,
+user_id I KEY
+';
+    //CHECKME separate index on user_id field ?
+    $sqlarray = $dbdict->CreateTableSQL(
+        CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE,
+        $flds,
+        $taboptarray
+    );
+    $return = $dbdict->ExecuteSQLArray($sqlarray);
+    $msg_ret = ($return == 2) ? $good : $bad;
+    verbose_msg(ilang('install_created_table', CmsLayoutTemplate::ADDUSERSTABLE, $msg_ret));
+
+    // these are used mainly by DesignManager module (but some other modules too, must be present before modules installation)
+    $flds = '
+id I KEY AUTO,
 originator C(32) NOT NULL,
 name C(96) NOT NULL,
 dflt_contents X2,
@@ -527,46 +581,6 @@ tpl_order I(4) DEFAULT 0
 
     $flds = '
 id I KEY AUTO,
-originator C(32),
-name C(96) NOT NULL,
-content X2,
-description X(1024),
-type_id I NOT NULL,
-owner_id I NOT NULL DEFAULT 1,
-type_dflt I(1) DEFAULT 0,
-listable I(1) DEFAULT 1,
-created I,
-modified I
-';
-    $sqlarray = $dbdict->CreateTableSQL(
-        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,
-        $flds,
-        $taboptarray
-    );
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? $good : $bad;
-    verbose_msg(ilang('install_created_table', CmsLayoutTemplate::TABLENAME, $msg_ret));
-
-    $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
-        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'name');
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? $good : $bad;
-    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_1', $msg_ret));
-
-    $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_2',
-	    CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'type_id,type_dflt');
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? $good : $bad;
-    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_2', $msg_ret));
-
-    $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
-        CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME, 'originator,name', ['UNIQUE']);
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? $good : $bad;
-    verbose_msg(ilang('install_creating_index', 'idx_layout_tpl_3', $msg_ret));
-
-    $flds = '
-id I KEY AUTO,
 name C(96) NOT NULL,
 content X2,
 description X(1024),
@@ -588,20 +602,6 @@ modified I
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? $good : $bad;
     verbose_msg(ilang('install_created_index', 'idx_layout_css_1', $msg_ret));
-
-    $flds = '
-tpl_id I KEY,
-user_id I KEY
-';
-    //CHECKME separate index on user_id field ?
-    $sqlarray = $dbdict->CreateTableSQL(
-        CMS_DB_PREFIX.CmsLayoutTemplate::ADDUSERSTABLE,
-        $flds,
-        $taboptarray
-    );
-    $return = $dbdict->ExecuteSQLArray($sqlarray);
-    $msg_ret = ($return == 2) ? $good : $bad;
-    verbose_msg(ilang('install_created_table', CmsLayoutTemplate::ADDUSERSTABLE, $msg_ret));
 
     $flds = '
 id I KEY AUTO,
@@ -696,4 +696,4 @@ expires I NOT NULL
     $return = $dbdict->ExecuteSQLArray($sqlarray);
     $msg_ret = ($return == 2) ? $good : $bad;
     verbose_msg(ilang('install_created_index', 'index_locks3', $msg_ret));
-}
+
