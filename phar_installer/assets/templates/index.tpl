@@ -60,13 +60,13 @@
           <h1>{if isset($title)}{$title}{else}{'install_upgrade'|tr}{/if}</h1>
       {if isset($subtitle)}<h3>{$subtitle}</h3>{/if}
 
-          {if isset($dir) && ($in_phar || $cur_step > 1)}
+{*          {if isset($dir) && ($in_phar || $cur_step > 1)}
           <div class="message blue icon">
             <i class="icon-folder message-icon"></i>
             <div class="content"><strong>{'prompt_dir'|tr}:</strong> <br />{$dir}</div>
           </div>
           {/if}
-
+*}
           {if isset($error)}
           <div class="message red">
             {$error}
@@ -74,7 +74,7 @@
           {/if}
           <article>
             {block name='contents'}WIZARD CONTENTS GO HERE{/block}
-      {block name='content-footer'}{/block}
+            {block name='content-footer'}{/block}
           </article>
 
         </div>
