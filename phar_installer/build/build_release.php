@@ -483,13 +483,15 @@ try {
 		$fp = joinpath($localroot,'config.php');
 		if (is_file($fp)) {
 			// probably an installed site
+			require_once $fp;
+            $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
 			$CMS_JOB_TYPE = 2;
 			$fp = joinpath($localroot,'lib','include.php');
 			include_once $fp;
 			$arr = __installer\installer_base::CONTENTFILESDIR;
 			$filesin = joinpath($phardir, ...$arr);
 			$db = CmsApp::get_instance()->GetDb();
-			require_once joinpath($localroot,'admin','function.contentoperation.php');
+			require_once joinpath($localroot,$aname,'function.contentoperation.php');
 			verbose(1, "INFO: export site content to $xmlfile");
 			export_content($xmlfile, $filesin, $db);
 		}
