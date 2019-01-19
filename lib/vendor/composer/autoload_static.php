@@ -6,23 +6,11 @@ namespace Composer\Autoload;
 
 class ComposerStaticInita781aa22c39a2bd61bd0eac8e4232662
 {
-    public static $files = array (
-        'f084d01b0a599f67676cffef638aa95b' => __DIR__ . '/..' . '/smarty/smarty/libs/bootstrap.php',
-    );
+    public static $files = array();
 
-    public static $prefixLengthsPsr4 = array (
-        'P' => 
-        array (
-            'PHPMailer\\PHPMailer\\' => 20,
-        ),
-    );
+    public static $prefixLengthsPsr4 = array();
 
-    public static $prefixDirsPsr4 = array (
-        'PHPMailer\\PHPMailer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
-        ),
-    );
+    public static $prefixDirsPsr4 = array();
 
     public static function getInitializer(ClassLoader $loader)
     {
