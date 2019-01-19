@@ -46,11 +46,12 @@ class wizard_step9 extends wizard_step
         }
 
         // clear the cache
+        $this->message(lang('msg_clearcache'));
         cmsms()->clear_cached_files();
-        $this->message(lang('msg_clearedcache'));
 
+        $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
         // write protect config.php
-        @chmod("$destdir/config.php",0440);
+        @chmod($cfgfile,0440);
 
         // todo: write history
 
@@ -58,7 +59,9 @@ class wizard_step9 extends wizard_step
         $url = $app->get_root_url();
         $admin_url = $url;
         if( !endswith($url,'/') ) $admin_url .= '/';
-        $admin_url .= 'admin';
+        include_once $cfgfile;
+        $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
+        $admin_url .= $aname;
 
         if( $app->has_custom_destdir() || !$app->in_phar() ) {
             $this->set_block_html('bottom_nav',lang('finished_custom_upgrade_msg',$admin_url,$url));
@@ -151,8 +154,8 @@ VALUES (?,?,?,NOW(),NOW())');
 
         // todo: write history
 
+        $this->message(lang('msg_clearcache'));
         cmsms()->clear_cached_files();
-        $this->message(lang('msg_clearedcache'));
 
         // set the finished message.
         if( !$root_url || !$app->in_phar() ) {
@@ -175,7 +178,7 @@ VALUES (?,?,?,NOW(),NOW())');
     {
         // create tmp directories
         $app = get_app();
-        $destdir = get_app()->get_destdir();
+        $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',901));
         $this->message(lang('install_createtmpdirs'));
         @mkdir($destdir.'/tmp/cache',0771,TRUE);
@@ -186,8 +189,8 @@ VALUES (?,?,?,NOW(),NOW())');
 
         // clear the cache
         $this->connect_to_cmsms($destdir);
+        $this->message(lang('msg_clearcache'));
         cmsms()->clear_cached_files();
-        $this->message(lang('msg_clearedcache'));
 
         // todo: write history
 
@@ -199,7 +202,10 @@ VALUES (?,?,?,NOW(),NOW())');
             $url = $app->get_root_url();
             $admin_url = $url;
             if( !endswith($url,'/') ) $admin_url .= '/';
-            $admin_url .= 'admin';
+            $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
+            include_once $cfgfile;
+            $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
+            $admin_url .= $aname;
             $this->set_block_html('bottom_nav',lang('finished_freshen_msg', $url, $admin_url ));
         }
     }
