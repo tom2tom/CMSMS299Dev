@@ -8,7 +8,9 @@ status_msg('Performing directory changes for CMSMS 2.2.1');
 $destdir = get_app()->get_destdir();
 $plugins_from = $destdir.'/plugins';
 if( !is_dir($plugins_from) ) return;
-$plugins_to = $destdir.'/assets/plugins';
+$config = get_app()->get_config();
+$s = ( !empty($config['assetsdir']) ) ? $config['assetsdir'] : 'assets';
+$plugins_to = $destdir.'/'.$s.'/plugins';
 $files = glob($plugins_from.'/*');
 if( !count($files) ) return;
 

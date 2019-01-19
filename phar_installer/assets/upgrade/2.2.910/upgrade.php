@@ -14,9 +14,10 @@ if( !$destdir || !is_dir($destdir) ) {
     throw new LogicException('Destination directory does not exist');
 }
 $config = $app->get_config();
-$s = ( !empty( $config['admin_dir'] ) ) ? $config['admin_dir'] : 'admin';
+$s = ( !empty($config['admindir']) ) ? $config['admindir'] : 'admin';
 $admindir = $destdir . DIRECTORY_SEPARATOR . $s;
-$assetsdir = ( !empty( $config['assets_path'] ) ) ? $config['assets_path'] : $destdir . DIRECTORY_SEPARATOR . 'assets';
+$s = ( !empty($config['assetsdir']) ) ? $config['assetsdir'] : 'assets';
+$assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
 
 // 1. Move core modules to /lib/modules
 foreach([
@@ -55,6 +56,22 @@ foreach( ['MenuManager', 'CMSMailer', 'News'] as $modname ) {
         } else {
             utils::rrmdir( $fp );
         }
+    }
+}
+
+// 2A. Revert 'independent' modules in assets/modules (force-moved by 2.2.90x upgrade) to deprecated /modules
+$fp = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . '*' ;
+$dirs = glob($fp, GLOB_ONLYDIR);
+$d = '';
+foreach( $dirs as $fp ) {
+	$modname = basename($fp);
+    if( !in_array($modname, ['MenuManager', 'CMSMailer', 'News']) ) { //TODO exclude all in files tarball
+		if( !$d ) {
+			$d = $destdir . DIRECTORY_SEPARATOR . 'modules';
+			@mkdir($d , 0771, true);
+		}
+        $to = $d . DIRECTORY_SEPARATOR . $modname;
+        rename($fp, $to);
     }
 }
 
