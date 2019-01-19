@@ -16,7 +16,6 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
   $uid = get_userid();
 }
 
-$db = $this->GetDb();
 $dict = NewDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 

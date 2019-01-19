@@ -1,8 +1,6 @@
 <?php
 if (!isset($gCms)) exit;
 
-$db = $this->GetDb();
-
 $uid = null;
 if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
     $uid = 1; // hardcode to first user
@@ -13,7 +11,7 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
 $dict = NewDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
-$flds= '
+$flds = '
 id I KEY,
 module_name C(100),
 content_id I,
