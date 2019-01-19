@@ -5,8 +5,8 @@
   {$title = 'title_step2'|tr}
   {$current_step = '2'}
 {/block}
-{block name='contents'}
 
+{block name='javascript' append}
 <script type="text/javascript">
 {literal}$(document).ready(function() {
   $('#upgrade_info .link').css('cursor','pointer').click(function() {
@@ -18,6 +18,13 @@
   });
 });{/literal}
 </script>
+{/block}
+
+{block name='contents'}
+<div class="message blue icon">
+  <i class="icon-folder message-icon"></i>
+  <div class="content"><strong>{'prompt_dir'|tr}:</strong><br />{$dir}</div>
+</div>
 
 <div class="installer-form">
   {wizard_form_start}
