@@ -93,18 +93,18 @@ class ModuleManager extends CMSModule
 
     public function HasCapability($capability,$params = [])
     {
-        if( $capability == 'clicommands' ) return class_exists('CMSMS\\CLI\\App');
+        if( $capability == 'clicommands' ) return class_exists('CMSMS\\CLI\\App'); // TODO better namespace
     }
 
     /**
      * @since 2.3
      * @throws LogicException
-     * @param \CMSMS\CLI\App $app (exists only in App mode)
+     * @param CMSMS\CLI\App $app (exists only in App mode) TODO better namespace
      * @return array
      */
     public function get_cli_commands( $app ) : array
     {
-       if( parent::get_cli_commands($app) === null ) return [];
+        if( parent::get_cli_commands($app) === null ) return [];
 
         $out = [];
         $out[] = new Command\PingModuleServerCommand( $app );
