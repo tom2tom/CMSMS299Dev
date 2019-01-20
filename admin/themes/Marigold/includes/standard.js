@@ -467,7 +467,7 @@
             var _this = this;
             $('a#alerts').click(function(ev) {
                 ev.preventDefault();
-                $('#alert-dialog').dialog();
+                cms_dialog($('#alert-dialog'));
             });
             $('.alert-msg a').click(function(ev) {
                 ev.preventDefault();
