@@ -9,8 +9,8 @@ use PharData;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use function __installer\CMSMS\endswith;
+use function __installer\CMSMS\joinpath;
 use function __installer\CMSMS\lang;
-use function __installer\CMSMS\nls;
 use function __installer\CMSMS\smarty;
 use function __installer\CMSMS\startswith;
 use function __installer\CMSMS\translator;
@@ -83,11 +83,11 @@ class gui_install extends installer_base
         // find our archive, copy it... and rename it securely.
         // we do this because phar data cannot read from a .tar.gz file that is already embedded within a phar
         // (some environments)
-        $src_archive = $config['archive']??'data/data.tar.gz';
-        $src_archive = dirname(__DIR__,2).DIRECTORY_SEPARATOR.$src_archive;
+        $p = $config['archive'] ?? 'data/data.tar.gz';
+        $src_archive = dirname(__DIR__,2).DIRECTORY_SEPARATOR.$p;
         if( !file_exists($src_archive) ) throw new Exception('Could not find installation archive at '.$src_archive);
         $src_md5 = md5_file($src_archive);
-        $tmpdir = $this->get_tmpdir().'/m'.md5(__FILE__.session_id());
+        $tmpdir = $this->get_tmpdir().DIRECTORY_SEPARATOR.'m'.md5(__FILE__.session_id());
         $dest_archive = $tmpdir.DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
 
         for( $i = 0; $i < 2; $i++ ) {
@@ -111,7 +111,8 @@ class gui_install extends installer_base
             $this->_dest_schema = $ver['schema_version'];
         }
         else {
-            $verfile = dirname($src_archive).'/version.php';
+            global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
+            $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
             if( !is_file($verfile) ) throw new Exception('Could not find version file');
             include_once $verfile;
             $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
@@ -145,54 +146,77 @@ class gui_install extends installer_base
         }
     }
 
-    protected function set_config_defaults()
+    protected function set_config_defaults() : array
     {
-        $tmp = [
-			'debug' => false,
-			'dest' => null,
-			'lang' => null,
-			'nobase' => false,
-			'nofiles' => false,
-			'timezone' => null,
-			'tmpdir' => null,
-			'verbose' => false,
-		];
-        $config = array_merge($tmp, parent::get_config());
-        $this->_orig_tz = $config['timezone'] = @date_default_timezone_get();
-        if( !$this->_orig_tz ) $this->_orig_tz = $config['timezone'] = 'UTC';
-        $config['dest'] = realpath(getcwd());
+        $list = [
+            'debug' => false,
+            'dest' => null,
+            'lang' => null,
+            'nobase' => false,
+            'nofiles' => false,
+            'timezone' => null,
+            'tmpdir' => null,
+            'verbose' => false,
+        ];
+        $config = array_merge($list, parent::get_config());
+
+        $tmp = @date_default_timezone_get();
+        if( !$tmp) $tmp = 'UTC';
+        $this->_orig_tz = $config['timezone'] = $tmp;
+        $tmp = realpath(getcwd());
+
+        $adbg = $tmp.'/assets/install/initial.xml';
+        $msg = (is_file($adbg)) ? 'XML EXISTS' : 'NO XML at '.$adbg;
+        file_put_contents('/tmp/guiinstaller-cwd.txt', $msg); //DEBUG
+
+        if( endswith($tmp, 'phar_installer') ) {
+            $tmp = dirname($tmp);
+        }
+        $config['dest'] = $tmp;
         return $config;
     }
 
-    protected function load_config()
+    protected function load_config() : array
     {
         // setup some defaults
         $config = $this->set_config_defaults();
 
-        // override default config with config file
-        $config_file = realpath(getcwd()).'/custom_config.ini';
+        // override default config with config file(s)
+        $tmp = realpath(getcwd());
+        $config_file = joinpath($tmp,'assets','config.ini');
         if( is_file($config_file) && is_readable($config_file) ) {
-            $tmp = parse_ini_file($config_file);
-            if( $tmp ) {
-                $config = array_merge($config,$tmp);
-                if( isset($tmp['dest']) ) $this->_custom_destdir = $tmp['dest'];
+            $list = parse_ini_file($config_file);
+            if( $list ) {
+                $config = array_merge($config,$list);
+                if( isset($list['dest']) ) $this->_custom_destdir = $list['dest'];
+            }
+        }
+        if( endswith($tmp, 'phar_installer') ) {
+            $tmp = dirname($tmp);
+        }
+        $config_file = joinpath($tmp,'config.ini');
+        if( is_file($config_file) && is_readable($config_file) ) {
+            $list = parse_ini_file($config_file);
+            if( $list ) {
+                $config = array_merge($config,$list);
+                if( isset($list['dest']) ) $this->_custom_destdir = $list['dest'];
             }
         }
 
         // override current config with url params
         $request = request::get();
         $list = [
-			'debug',
-			'dest',
-			'destdir',
-			'no_files',
-			'nobase',
-			'nofiles',
-			'timezone',
-			'TMPDIR',
-			'tmpdir',
-			'tz',
-		];
+            'debug',
+            'dest',
+            'destdir',
+            'no_files',
+            'nobase',
+            'nofiles',
+            'timezone',
+            'TMPDIR',
+            'tmpdir',
+            'tz',
+        ];
         foreach( $list as $key ) {
         if( !isset($request[$key]) ) continue;
             $val = $request[$key];
@@ -224,7 +248,7 @@ class gui_install extends installer_base
         return $config;
     }
 
-    protected function check_config($config)
+    protected function check_config(array $config) : array
     {
         foreach( $config as $key => $val ) {
             switch( $key ) {
@@ -275,16 +299,16 @@ class gui_install extends installer_base
         $config = $this->load_config();
         $config = $this->check_config($config);
 
-		$buildconfig = parent::get_config();
-		if( $buildconfig ) {
-	        $config += $buildconfig;
-		}
+        $buildconfig = parent::get_config();
+        if( $buildconfig ) {
+            $config += $buildconfig;
+        }
 
         $sess['config'] = $config;
         return $config;
     }
 
-    private function set_config_val($key,$val)
+    public function set_config_val($key,$val)
     {
         $config = $this->get_config();
         $config[trim($key)] = $val;
@@ -302,55 +326,55 @@ class gui_install extends installer_base
         return $config['dest'];
     }
 
-    public function set_destdir($destdir) {
+    public function set_destdir(string $destdir)
+	{
         $this->set_config_val('dest',$destdir);
     }
 
-    public function has_custom_destdir() {
+    public function has_custom_destdir() : bool
+	{
         $p1 = realpath(getcwd());
         $p2 = realpath($this->_custom_destdir);
         return ($p1 != $p2);
     }
 
-    public function get_archive() { return $this->_archive; }
+    public function get_archive() : string { return $this->_archive; }
 
-    public function get_dest_version() { return $this->_dest_version; }
+    public function get_dest_version() : string { return $this->_dest_version; }
 
-    public function get_dest_name() { return $this->_dest_name; }
+    public function get_dest_name() : string { return $this->_dest_name; }
 
-    public function get_dest_schema() { return $this->_dest_schema; }
+    public function get_dest_schema() : string { return $this->_dest_schema; }
 
-    public function get_phar() { return Phar::running(); }
+    public function get_phar() : string { return Phar::running(); }
 
-    public function in_phar() {
-        $x = $this->get_phar();
-        if( !$x ) return FALSE;
-        return TRUE;
-    }
+    public function in_phar() : bool { return Phar::running() != ''; }
 
-    public function get_nls()
+    public function get_nls() : array
     {
         if( is_array($this->_nls) ) return $this->_nls;
 
         $archive = $this->get_archive();
-        $archive = str_replace('\\','/',$archive); // stupid windoze
-        if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+        if( !file_exists($archive) ) {
+            $archive = strtr($archive,'\\','/'); // stupid windoze
+            if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+        }
 
         $phardata = new PharData($archive);
+        $tmppath = $this->get_tmpdir().DIRECTORY_SEPARATOR.'tmp_';
         $nls = [];
-        $found = false;
-        $pharprefix = 'phar://'.$archive;
-        foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {
-            if( ($p = strpos($file,'/lib/nls')) === FALSE ) continue;
-            $tmp = substr($file,$p);
-            if( !endswith($tmp,'.php') ) continue;
-            $found = true;
-            if( preg_match('/\.nls\.php$/',$tmp) ) {
-               $tmpdir = $this->get_tmpdir();
-               $fn = "$tmpdir/tmp_".basename($file);
-               @copy($file,$fn);
-               include $fn;
-               unlink($fn);
+        $found = FALSE;
+//        $pharprefix = 'phar://'.$archive;
+        foreach( new RecursiveIteratorIterator($phardata) as $file => $info ) {
+            if( endswith($file,'.nls.php') ) {
+                $file = strtr($file,'\\','/'); //avoid preg_match()
+                if( strpos($file,'/lib/nls/') !== FALSE ) {
+                    $found = TRUE;
+                    $fn = $tmppath.basename($file);
+                    @copy($file,$fn); //extract the file
+                    include $fn;
+                    unlink($fn);
+                }
             }
         }
         if( !$found ) throw new Exception(lang('error_nlsnotfound'));
@@ -364,7 +388,35 @@ class gui_install extends installer_base
         return $this->_nls['language'];
     }
 
-    public function get_root_url()
+    public function get_noncore_modules() : array
+    {
+        $archive = $this->get_archive();
+        if( !file_exists($archive) ) {
+            $archive = str_replace('\\','/',$archive);
+            if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+        }
+
+        $phardata = new PharData($archive);
+        $o = strlen($archive) + 7; //'phar://' prefix in supplied paths
+        $names = [];
+        foreach( new RecursiveIteratorIterator($phardata,RecursiveIteratorIterator::SELF_FIRST) as $info ) {
+            if( $info->isDir() ) {
+                $fp = strtr($info->getPathname(),'\\','/');
+                if( ($p = strpos($fp, '/assets/modules/',$o)) !== FALSE ) {
+                    $parts = explode('/', substr($fp, $p+1)); //OR $p+16 .. $parts[0]
+                    $names[] = $parts[2];
+                }
+            }
+        }
+
+        if( $names ) {
+            $names = array_unique($names);
+            natsort($names);
+        }
+        return $names;
+    }
+
+    public function get_root_url() : string
     {
         $prefix = null;
         //if( isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' ) $prefix = 'https';
