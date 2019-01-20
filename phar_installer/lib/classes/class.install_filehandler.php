@@ -10,8 +10,8 @@ use function __installer\CMSMS\lang;
 class install_filehandler extends filehandler
 {
  /**
-  * @param string $filespec
-  * @param string $srcspec
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @param string $srcspec phar-URI corresponding to $filespec (= $fi->pathName)
   * @param PharFileInfo $fi
   * @throws Exception
   */
