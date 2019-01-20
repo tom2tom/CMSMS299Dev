@@ -71,7 +71,7 @@ final class AdminLog extends CMSModule
     public function HasCapability($capability, $params = [])
     {
         if( $capability == CmsCoreCapabilities::TASKS ) return true;
-        if( $capability == 'clicommands' ) return true;
+        if( $capability == 'clicommands' ) return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
     }
 
     public function get_tasks()
@@ -82,13 +82,18 @@ final class AdminLog extends CMSModule
         return $out;
     }
 
-    public function get_cli_commands( $app )
+    /**
+     * @since 2.3
+     * @throws LogicException
+     * @param CMSMS\CLI\App $app (exists only in App mode) TODO better namespace
+     * @return array
+     */
+    public function get_cli_commands( $app ) : array
     {
-        if( ! $app instanceof \CMSMS\CLI\App ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
-
         $out = [];
-        $out[] = new ClearLogCommand( $app );
+        if( parent::get_cli_commands($app) !== null ) {
+            $out[] = new ClearLogCommand( $app );
+        }
         return $out;
     }
 } // class
