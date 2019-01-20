@@ -25,6 +25,7 @@ define( 'NON_INDEXABLE_CONTENT', '<!-- pageAttribute: NotSearchable -->' );
 class Search extends CMSModule
 {
     public function GetAdminDescription() { return $this->Lang('description'); }
+    public function GetAdminSection() { return 'siteadmin'; }
     public function GetAuthor() { return 'Ted Kulp'; }
     public function GetAuthorEmail() { return 'ted@cmsmadesimple.org'; }
     public function GetChangeLog() { return @file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'changelog.inc'); }
@@ -82,40 +83,12 @@ class Search extends CMSModule
 
     protected function GetSearchHtmlTemplate()
     {
-        return '
-{$startform}
-<label for="{$search_actionid}searchinput">{$searchprompt}:&nbsp;</label><input type="text" class="search-input" id="{$search_actionid}searchinput" name="{$search_actionid}searchinput" size="20" maxlength="50" placeholder="{$searchtext}"/>
-{*
-<br/>
-<input type="checkbox" name="{$search_actionid}use_or" value="1"/>
-*}
-<button type="submit" name="submit" class="adminsubmit icon do search-button">{$submittext}</button>
-{if isset($hidden)}{$hidden}{/if}
-{$endform}';
+        return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'search.tpl');
     }
 
     protected function GetResultsHtmlTemplate()
     {
-        $text = <<<EOT
-<h3>{\$searchresultsfor} &quot;{\$phrase}&quot;</h3>
-{if \$itemcount > 0}
-<ul>
-  {foreach from=\$results item=entry}
-  <li>{\$entry->title} - <a href="{\$entry->url}">{\$entry->urltxt}</a> ({\$entry->weight}%)</li>
-  {*
-     You can also instantiate custom behavior on a module by module basis by looking at
-     the \$entry->module and \$entry->modulerecord fields in \$entry
-      ie: {if \$entry->module == 'News'}{News action='detail' article_id=\$entry->modulerecord detailpage='News'}
-  *}
-  {/foreach}
-</ul>
-
-<p>{\$timetaken}: {\$timetook}</p>
-{else}
-  <p><strong>{\$noresultsfound}</strong></p>
-{/if}
-EOT;
-        return $text;
+        return ''.@file_get_contents(__DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'results.tpl');
     }
 
     protected function DefaultStopWords()
@@ -178,8 +151,9 @@ EOT;
         switch( $capability ) {
         case CmsCoreCapabilities::SEARCH_MODULE:
         case CmsCoreCapabilities::PLUGIN_MODULE:
-        case 'clicommands':
             return true;
+        case 'clicommands':
+            return class_exists('CMSMS\\CLI\\App'); //TODO better namespace
         }
         return false;
     }
@@ -204,13 +178,18 @@ EOT;
         }
     }
 
-    public function get_cli_commands( $app )
+    /**
+     * @since 2.3
+     * @throws LogicException
+     * @param CMSMS\CLI\App $app (exists only in App mode) TODO better namespace
+     * @return array
+     */
+    public function get_cli_commands( $app ) : array
     {
-        if( ! $app instanceof \CMSMS\CLI\App ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) throw new LogicException(__METHOD__.' Called from outside of cmscli');
-
         $out = [];
-        $out[] = new ReindexCommand( $app );
+        if( parent::get_cli_commands($app) !== null ) {
+            $out[] = new ReindexCommand( $app );
+        }
         return $out;
     }
 } // class
