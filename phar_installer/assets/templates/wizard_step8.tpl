@@ -1,4 +1,4 @@
-{* wizard step 8 -- database work *}
+{* wizard step 8 -- CMSMS infrastructure *}
 {extends file='wizard_step.tpl'}
 
 {block name='logic'}
