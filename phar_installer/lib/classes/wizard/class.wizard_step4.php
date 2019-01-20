@@ -36,7 +36,7 @@ class wizard_step4 extends wizard_step
             'db_port'=>'',
             'query_var'=>'',
             'timezone'=>$tz,
-            'samplecontent'=>TRUE,
+            'samplecontent'=>FALSE,
         ];
 
         // get saved data
@@ -146,7 +146,6 @@ class wizard_step4 extends wizard_step
         if( isset($_POST['db_prefix']) ) $this->_config['db_prefix'] = utils::clean_string($_POST['db_prefix']);
         $this->_config['timezone'] = utils::clean_string($_POST['timezone']);
         if( isset($_POST['query_var']) ) $this->_config['query_var'] = utils::clean_string($_POST['query_var']);
-        if( isset($_POST['samplecontent']) ) $this->_config['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
         $this->get_wizard()->set_data('config',$this->_config);
 
         try {
@@ -182,9 +181,9 @@ class wizard_step4 extends wizard_step
         $smarty->assign('timezones',array_merge([''=>lang('none')],$tmp2));
 //        $smarty->assign('db_types',$this->_dbms_options);
         $smarty->assign('action',$this->get_wizard()->get_data('action'));
-        $raw = $this->_config['verbose'] ?? null;
-        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
-        $smarty->assign('verbose',$v);
+        $raw = $this->_config['verbose'] ?? 0;
+//        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+        $smarty->assign('verbose',(int)$raw);
         $smarty->assign('config',$this->_config);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step4.tpl');

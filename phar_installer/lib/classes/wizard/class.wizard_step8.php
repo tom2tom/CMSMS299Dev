@@ -210,8 +210,7 @@ class wizard_step8 extends wizard_step
 
         $destconfig = $this->get_wizard()->get_data('config');
         if( !$destconfig ) throw new Exception(lang('error_internal',703));
-
-        // setup and initialize the cmsms API's
+        // setup and initialize the CMSMS API's
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.'/include.php';
         }
@@ -228,7 +227,7 @@ class wizard_step8 extends wizard_step
 
         try {
             // ready to do the upgrading now (in a loop)
-            // only perform upgrades for the versions known by the installer that are greater than what is instaled.
+            // only perform upgrades for the versions known by the installer that are greater than what is installed.
             $current_version = $version_info['version'];
             foreach( $versions as $ver ) {
                 $fn = "$dir/$ver/upgrade.php";
@@ -238,8 +237,6 @@ class wizard_step8 extends wizard_step
             }
 
             $this->write_config();
-
-            $this->message(lang('done'));
         }
         catch( Exception $e ) {
             $this->error($e->GetMessage());

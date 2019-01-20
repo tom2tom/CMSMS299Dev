@@ -8,6 +8,7 @@ use __installer\tests\matchany_test;
 use __installer\tests\range_test;
 use __installer\tests\version_range_test;
 use __installer\utils;
+use __installer\wizard\wizard_step;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
 use function __installer\get_app;
@@ -383,12 +384,12 @@ class wizard_step3 extends wizard_step
     protected function display()
     {
         parent::display();
-        $verbose = $this->get_wizard()->get_data('verbose',0);
+        $config = get_app()->get_config();
+        $verbose = $config['verbose'] ?? 0;
         $informational = '';
         $tests = '';
         list($tests_failed,$can_continue) = $this->perform_tests($verbose,$informational,$tests);
 
-        $app = get_app();
         $smarty = smarty();
         $smarty->assign('tests_failed',$tests_failed);
         $smarty->assign('can_continue',$can_continue);

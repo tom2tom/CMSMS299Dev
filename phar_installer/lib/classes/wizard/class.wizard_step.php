@@ -17,7 +17,8 @@ class wizard_step
         global $CMS_INSTALL_PAGE;
         $CMS_INSTALL_PAGE = 1;
 
-        $dd = get_app()->get_destdir();
+        $app = get_app();
+        $dd = $app->get_destdir();
         if( !$dd ) throw new Exception('Session Failure');
 
         $smarty = smarty();
@@ -28,10 +29,10 @@ class wizard_step
             self::$_registered = 1;
         }
 
-        $smarty->assign('version',get_app()->get_dest_version());
-        $smarty->assign('version_name',get_app()->get_dest_name());
-        $smarty->assign('dir',get_app()->get_destdir());
-        $smarty->assign('in_phar',get_app()->in_phar());
+        $smarty->assign('version',$app->get_dest_version());
+        $smarty->assign('version_name',$app->get_dest_name());
+        $smarty->assign('dir',$app->get_destdir());
+        $smarty->assign('in_phar',$app->in_phar());
         $smarty->assign('cur_step',$this->cur_step());
     }
 
@@ -117,7 +118,9 @@ class wizard_step
 
     public static function verbose($msg)
     {
-        $verbose = wizard::get_instance()->get_data('verbose');
+
+        $config = get_app()->get_config();
+        $verbose = $config['verbose'] ?? false;
         if( $verbose ) {
             $msg = addslashes($msg);
             echo '<script type="text/javascript">add_verbose(\''.$msg.'\');</script>'."\n";

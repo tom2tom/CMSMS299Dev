@@ -47,17 +47,21 @@ class wizard_step7 extends wizard_step
 
         $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',751));
+        $d2 = $destdir . '/'; //phar tarball uses / for filepath separator
         $archive = get_app()->get_archive();
-        $phardata = new PharData($archive);
-        $archive = basename($archive);
+        $phardata = new PharData($archive); // TODO ?? support fallback to e.g. TarArchive class
+        $aname = basename($archive);
+        $len = strlen($aname);
         foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {
-            if( ($p = strpos($file,$archive)) === FALSE ) continue;
-            $fn = substr($file,$p+strlen($archive));
+            if( ($p = strpos($file,$aname)) === FALSE ) continue;
+            $fn = substr($file,$p + $len);
             $dn = $destdir.dirname($fn);
-            if( $dn == $destdir || $dn == $destdir.'/' ) continue;
+            if( $dn == $destdir || $dn == $d2 ) continue; //has index.php
             if( $dn == "$destdir/admin" ) continue;
-            $idxfile = $dn.'/index.html';
-            if( is_dir($dn) && !is_file($idxfile) )  $this->_createIndexHTML($idxfile);
+            if( is_dir($dn) ) {
+                $idxfile = $dn.'/index.html';
+                if( !is_file($idxfile) )  $this->_createIndexHTML($idxfile);
+            }
         }
     }
 
@@ -65,33 +69,79 @@ class wizard_step7 extends wizard_step
     {
         $languages = ['en_US'];
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( $siteinfo['languages'] ) $languages = array_merge($languages,$siteinfo['languages']);
-        if( $langlist ) $languages = array_merge($languages,$langlist);
-        $languages = array_unique($languages);
+		if( $siteinfo !== NULL ) {
+			//we're installing
+            if( $siteinfo['languages'] ) $languages = array_merge($languages,$siteinfo['languages']);
+            if( $langlist ) $languages = array_merge($languages,$langlist);
+            $languages = array_unique($languages);
+		}
 
-        $destdir = get_app()->get_destdir();
+        $app = get_app();
+        $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',601));
-        $archive = get_app()->get_archive();
+
+        $from = $to = [];
+        $app_config = $app->get_config();
+        if( isset($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
+            $from[] = '/admin/';//hardcoded '/' filepath-separators in phar tarball
+            $to[] = '/'.$aname.'/'; //these separators may be migrated, downstream
+        }
+        if( isset($app_config['assetsdir']) && ($aname = $app_config['assetsdir']) != 'assets' ) {
+            $from[] = '/assets/';
+            $to[] = '/'.$aname.'/';
+        }
+
+		if( $siteinfo !== NULL ) {
+            $xmodules = $siteinfo['xmodules'] ?? []; //TODO relevant non-core modules are needed for upgrade as well as install
+            if( !is_array($xmodules) ) $xmodules = [$xmodules];
+		}
+		else {
+			$xmodules = NULL;
+		}
+        $allmodules = [];
 
         $this->message(lang('install_extractfiles'));
-        $phardata = new PharData($archive);
-        $archive = basename($archive);
+        $archive = $app->get_archive();
+        $phardata = new PharData($archive); //TODO ?? support fallback to e.g. TarArchive class
+        $aname = basename($archive);
+        $len = strlen($aname);
         $filehandler = new install_filehandler();
         $filehandler->set_languages($languages);
         $filehandler->set_destdir($destdir);
         $filehandler->set_output_fn('__installer\wizard\wizard_step6::verbose');
-        foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {
-            if( ($p = strpos($file,$archive)) === FALSE ) continue;
-            $fn = substr($file,$p+strlen($archive));
-            $filehandler->handle_file($fn,$file,$it);
+
+        foreach( new RecursiveIteratorIterator($phardata) as $file => $info ) {
+            if( ($p = strpos($file,$aname)) === FALSE ) continue;
+            $ufile = strtr($file,'\\','/');
+            if( ($up = strpos($ufile,'/assets/modules/',$p)) !== FALSE ) {
+                if( $xmodules !== NULL && !$xmodules ) continue;
+                $parts = explode('/',substr($ufile,$up + 16));
+                if( !$parts[0] || ($xmodules !== NULL && !in_array($parts[0],$xmodules)) ) continue;
+				if( count($parts) == 2 && $parts[1] == $parts[0].'.module.php' ) {
+					$allmodules[] = $parts[0];
+				}
+            } elseif( ($up = strpos($ufile,'/lib/modules/',$p)) !== FALSE ) {
+                $parts = explode('/',substr($ufile,$up + 13));
+                if( $parts[0] && count($parts) == 2 && $parts[1] == $parts[0].'.module.php' ) {
+					$allmodules[] = $parts[0];
+				}
+            }
+            $fn = substr($file,$p + $len);
+            if( $from ) {
+                $fn = str_replace($from,$to,$fn);
+            }
+            $filehandler->handle_file($fn,$file,$info);
+        }
+        if( $allmodules ) {
+            $siteinfo['havemodules'] = array_unique($allmodules);
+            $this->get_wizard()->set_data('siteinfo',$siteinfo);
         }
     }
 
     private function preprocess_files()
     {
         $app = get_app();
-        $app_config = $app->get_config();
-        $upgrade_dir =  $app->get_assetsdir().'/upgrade';
+        $upgrade_dir = $app->get_assetsdir().'/upgrade';
         if( !is_dir($upgrade_dir) ) throw new Exception(lang('error_internal',710));
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',711));
@@ -100,6 +150,7 @@ class wizard_step7 extends wizard_step
         $versions = utils::get_upgrade_versions();
         if( $versions ) {
             $this->message(lang('preprocessing_files'));
+            $smarty = smarty(); // in scope for inclusions
             foreach( $versions as $one_version ) {
                 if( version_compare($one_version, $version_info['version']) < 1 ) continue;
 
@@ -116,7 +167,6 @@ class wizard_step7 extends wizard_step
     {
         // get the list of all available versions that this upgrader knows about
         $app = get_app();
-        $app_config = $app->get_config();
         $upgrade_dir =  $app->get_assetsdir().'/upgrade';
         if( !is_dir($upgrade_dir) ) throw new Exception(lang('error_internal',710));
         $destdir = $app->get_destdir();
@@ -228,5 +278,4 @@ class wizard_step7 extends wizard_step
 
         $this->finish();
     }
-
 } // class

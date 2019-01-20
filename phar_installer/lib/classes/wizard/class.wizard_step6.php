@@ -75,9 +75,9 @@ class wizard_step6 extends wizard_step
 
         $app = get_app();
         $config = $app->get_config();
-        $raw = $config['verbose'] ?? null;
-        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
-        $smarty->assign('verbose',$v);
+        $raw = $config['verbose'] ?? 0;
+//        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+        $smarty->assign('verbose',(int)$raw);
 
         $tmp = $this->_adminacct;
         $raw = $config['adminlogin'] ?? null;

@@ -31,16 +31,42 @@ class wizard_step9 extends wizard_step
 
         // upgrade modules
         $this->message(lang('msg_upgrademodules'));
+
+        $siteinfo = $this->get_wizard()->get_data('siteinfo');
+        $allmodules = $siteinfo['havemodules'] ?? [];
         $modops = ModuleOperations::get_instance();
-        $allmodules = $modops->FindAllModules();
         foreach( $allmodules as $name ) {
-            // we force all system modules to be loaded, if it's a system module
-            // and needs upgrade, then it should automagically upgrade.
             if( $modops->IsSystemModule($name) ) {
                 $this->verbose(lang('msg_upgrade_module',$name));
+                // force all system modules to be loaded
+                // any such module which needs upgrade should automagically do so
                 $module = $modops->get_module_instance($name,'',TRUE);
                 if( !is_object($module) ) {
                     $this->error("FATAL ERROR: could not load module {$name} for upgrade");
+                }
+            }
+            else {
+                $module = $modops->get_module_instance($name,'',FALSE);
+                if( is_object($module) ) {
+                    $res = $modops->UpgradeModule($name);
+                    if( $res[0] ) {
+                        $this->verbose(lang('msg_upgrade_module',$name));
+                    } else {
+                        $msg = lang('error_modulebad',$name);
+                        $msg .= ': '.$res[1];
+                        $this->error($msg);
+                    }
+                }
+                else {
+                    // not-yet-installed non-system module
+                    $res = $modops->InstallModule($name);
+                    if( $res[0] ) {
+                        $this->verbose(lang('install_module',$name));
+                    } else {
+                        $msg = lang('error_modulebad',$name);
+                        $msg .= ': '.$res[1];
+                        $this->error($msg);
+                    }
                 }
             }
         }

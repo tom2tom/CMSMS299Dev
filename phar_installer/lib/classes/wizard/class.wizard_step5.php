@@ -44,6 +44,18 @@ class wizard_step5 extends wizard_step
         $app = get_app();
         $config = $app->get_config();
 
+        if( isset($_POST['xmodules']) ) {
+            $tmp = [];
+            foreach ( $_POST['xmodules'] as $name ) {
+                $tmp[] = utils::clean_string($name);
+            }
+            $this->_siteinfo['xmodules'] = $tmp;
+        }
+
+        if( isset($_POST['samplecontent']) ) {
+            $this->_siteinfo['samplecontent'] = filter_var($_POST['samplecontent'], FILTER_VALIDATE_BOOLEAN);
+        }
+
         if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = utils::clean_string($_POST['sitename']);
         if( isset($_POST['languages']) ) {
             $tmp = [];
@@ -76,35 +88,45 @@ class wizard_step5 extends wizard_step
 
         $app = get_app();
         $config = $app->get_config();
-        $raw = $config['verbose'] ?? null;
-        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
-        $smarty->assign('verbose',$v);
+        $raw = $config['verbose'] ?? 0;
+//        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
+        $smarty->assign('verbose',(int)$raw);
 
         $raw = $config['sitename'] ?? null;
         $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
         $smarty->assign('sitename',$v);
 
-        $languages = get_app()->get_language_list();
+        $languages = $app->get_language_list();
         unset($languages['en_US']);
         $smarty->assign('language_list',$languages);
         $raw = $config['exlangs'] ?? null;
-		if( $raw ) {
-			if( is_array($raw) ) {
-				array_walk($raw,function(&$v) {
-					$v = trim($v);
-				});
-				$v = $raw;
-			}
-			else {
-				$v = [trim($raw)];
-			}
+        if( $raw ) {
+            if( is_array($raw) ) {
+                array_walk($raw,function(&$v) {
+                    $v = trim($v);
+                });
+                $v = $raw;
+            }
+            else {
+                $v = [trim($raw)];
+            }
 
-		}
-		else {
-			$v = [];
-		}
+        }
+        else {
+            $v = [];
+        }
         $smarty->assign('languages',$v);
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
+
+        $raw = $app->get_noncore_modules();
+		if( $raw ) {
+			$modules = array_combine($raw, $raw);
+		}
+		else {
+			$modules = null;
+		}
+        $smarty->assign('modules_list',$modules);
+        $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null));
 
         $smarty->display('wizard_step5.tpl');
         $this->finish();
