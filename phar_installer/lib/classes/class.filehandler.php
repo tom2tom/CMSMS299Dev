@@ -8,23 +8,24 @@ use function __installer\CMSMS\lang;
 
 abstract class filehandler
 {
-  private $_destdir;
-  private $_output_fn;
-  private $_languages;
+  private $_destdir = '';
+  private $_excludes = null;
+  private $_languages = [];
+  private $_output_fn = null;
 
   protected function get_config()
   {
     return get_app()->get_config();
   }
 
-  public function set_destdir($destdir)
+  public function set_destdir(string $destdir)
   {
     if( !is_dir($destdir) ) throw new Exception(lang('error_dirnotvalid',$destdir));
     if( !is_writable($destdir) ) throw new Exception(lang('error_dirnotvalid',$destdir));
     $this->_destdir = $destdir;
   }
 
-  public function get_destdir()
+  public function get_destdir() : string
   {
     if( !$this->_destdir ) throw new Exception(lang('error_nodestdir'));
     return $this->_destdir;
@@ -36,7 +37,7 @@ abstract class filehandler
     $this->_languages = $lang;
   }
 
-  public function get_languages()
+  public function get_languages() : array
   {
     return $this->_languages;
   }
@@ -52,40 +53,69 @@ abstract class filehandler
     if( $this->_output_fn ) call_user_func($this->_output_fn,$txt);
   }
 
-  protected function is_excluded($filespec)
+ /**
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @return boolean
+  * @throws Exception
+  */
+  protected function is_excluded(string $filespec) : bool
   {
     $filespec = trim($filespec);
     if( !$filespec ) throw new Exception(lang('error_internal',1101));
-    $config = $this->get_config();
-    if( !isset($config['install_excludes']) ) return FALSE;
-
-    $excludes = explode('||',$config['install_excludes']);
-    foreach( $excludes as $excl ) {
-      if( preg_match($excl,$filespec) ) return TRUE;
+    if( $this->_excludes === null ) {
+        $config = $this->get_config();
+        if( empty($config['install_excludes']) ) {
+            $this->_excludes = [];
+        }
+        else {
+            $this->_excludes = explode('||',$config['install_excludes']);
+        }
     }
+    if( $this->_excludes ) {
+        foreach( $this->_excludes as $excl ) {
+            if( preg_match($excl,$filespec) ) {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
   }
 
-  protected function dir_exists($filespec)
+ /**
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @return boolean
+  * @throws Exception
+  */
+  protected function dir_exists(string $filespec) : bool
   {
     $filespec = trim($filespec);
     if( !$filespec ) throw new Exception(lang('error_invalidparam','filespec'));
 
     $dn = dirname($filespec);
-    $tmp = $this->get_destdir()."/$dn";
+    $tmp = $this->get_destdir().$dn;
     return is_dir($tmp);
   }
 
-  protected function create_directory($filespec)
+ /**
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @return boolean
+  * @throws Exception
+  */
+  protected function create_directory(string $filespec) : bool
   {
     $filespec = trim($filespec);
     if( !$filespec ) throw new Exception(lang('error_invalidparam','filespec'));
 
     $dn = dirname($filespec);
-    $tmp = $this->get_destdir()."/$dn";
+    $tmp = $this->get_destdir().$dn;
     return @mkdir($tmp,0771,TRUE);
   }
 
-  protected function is_imagefile($filespec)
+ /**
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @return boolean
+  */
+  protected function is_imagefile(string $filespec) : bool
   {
       // this method uses (ugly) extensions because we cannot rely on finfo_open being available.
       $image_exts = ['bmp','jpg','jpeg','gif','png','svg','webp','ico'];
@@ -93,35 +123,42 @@ abstract class filehandler
       return in_array($ext,$image_exts);
   }
 
-  protected function is_langfile($filespec)
+ /**
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @return boolean
+  * @throws Exception
+  */
+  protected function is_langfile(string $filespec) : bool
   {
     $filespec = trim($filespec);
     if( !$filespec ) throw new Exception(lang('error_invalidparam','filespec'));
 
     if( $this->is_imagefile($filespec) ) return FALSE;
     $bn = basename($filespec);
-    $dn = dirname($filespec);
-    $fnmatch = 0;
-    $fnmatch = $fnmatch || preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.php$/',$bn);
+    $fnmatch = preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.php$/',$bn);
     $fnmatch = $fnmatch || preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.nls\.php$/',$bn);
-    if( $fnmatch ) return substr($bn,0,strpos($bn,'.'));
+    if( $fnmatch ) return TRUE; //substr($bn,0,strpos($bn,'.'));
 
     $nls = get_app()->get_nls();
     if( !is_array($nls) ) return FALSE; // problem
 
     $bn = substr($bn,0,strpos($bn,'.'));
-    $last_dn = basename($dn);
     foreach( $nls['alias'] as $alias => $code ) {
-      if( $bn == $alias ) return $code;
+      if( $bn == $alias ) return (bool)$code;
     }
     foreach( $nls['htmlarea'] as $code => $short ) {
-      if( $bn == $short ) return $code;
+      if( $bn == $short ) return (bool)$code;
     }
 
     return FALSE;
   }
 
-  protected function is_accepted_lang($filespec)
+ /**
+  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @return boolean
+  * @throws Exception
+  */
+  protected function is_accepted_lang($filespec) : bool
   {
     $res = $this->is_langfile($filespec);
     if( !$res ) return FALSE;
@@ -132,5 +169,10 @@ abstract class filehandler
     return in_array($res,$langs);
   }
 
+ /**
+  * @param string $filespec site-root-relative filepath, with leading separator
+  * @param string $srcspec phar-URI corresponding to $filespec (= $fi->pathName)
+  * @param PharFileInfo $fi
+  */
   abstract public function handle_file(string $filespec, string $srcspec, PharFileInfo $fi);
 }
