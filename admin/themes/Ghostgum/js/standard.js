@@ -485,10 +485,12 @@ var ggjs = {
       cancelButton: '<button type="button" class="adminsubmit icon cancel">' + cms_lang('cancel') + '</button>'
     });
   },
-  /** @description Display a modal dialog with caller-defined content, and related settings in opts
+  /**
+   * @description Display a modal dialog with caller-defined content, and related settings in opts
    * @function
    * @param (String) content The entire dialog markup, often wrapped in a div styled 'hidden'
    * @param (object) opts Optional parameters
+   * @return the dialog's outer div
    */
   popup_dialog: function(content, opts) {
    opts = opts || {};
@@ -498,7 +500,7 @@ var ggjs = {
     'ui-dialog-buttonpane': 'alertable-buttons',
     'ui-dialog-buttonset': 'alertable-buttons'
    });
-   content.dialog(opts);
+   return content.dialog(opts); //JQueryUI dialog
 /* TODO alertable only :: process opts, if any
     $.alertable.prompt('', {
       modal: content
@@ -507,6 +509,7 @@ var ggjs = {
     }, function() {
       console.log('Dialog cancelled');
     });
+    return TODO;
 */
   }
 };
