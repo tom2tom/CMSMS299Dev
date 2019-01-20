@@ -1,121 +1,17 @@
 <?php
 
-use __installer\utils;
-use __installer\wizard\wizard;
 use CMSMS\Group;
-use CMSMS\LogicException;
 use CMSMS\SimplePluginOperations;
 use function __installer\CMSMS\endswith;
 use function __installer\CMSMS\joinpath;
-use function __installer\get_app;
+use function __installer\CMSMS\startswith;
 
-$app = get_app();
-$destdir = $app->get_destdir();
-if (!$destdir || !is_dir($destdir)) {
-    throw new LogicException('Destination directory does not exist');
-}
-$config = $app->get_config();
-$s = (!empty($config['admindir'])) ? $config['admindir'] : 'admin';
-$admindir = $destdir . DIRECTORY_SEPARATOR . $s;
-$s = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
-$assetsdir = $destdir . DIRECTORY_SEPARATOR . $s;
-
-// 1. Move core modules to /lib/modules
-foreach([
-'AdminLog',
-'AdminSearch',
-'CMSContentManager',
-'CmsJobManager',
-'CoreAdminLogin',
-'CoreTextEditing',
-'DesignManager',
-'FileManager',
-'FilePicker',
-'MicroTiny',
-'ModuleManager',
-'Navigator',
-'Search',
-] as $modname) {
-    $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-    if (is_dir ($fp)) {
-        $to = $destdir . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-        if (!is_dir ($to)) {
-            rename ($fp, $to);
-        } else {
-            utils::rrmdir ($fp);
-        }
-    }
-}
-
-// 2. Move ex-core modules to /assets/modules
-foreach (['MenuManager', 'CMSMailer', 'News'] as $modname) {
-    $fp = $destdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-    if (is_dir ($fp)) {
-        $to = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $modname;
-        if (!is_dir ($to)) {
-            rename ($fp, $to);
-        } else {
-            utils::rrmdir ($fp);
-        }
-    }
-}
-
-// 2A. Revert force-moved (by 2.2.90x upgrade) 'independent' modules from assets/modules to deprecated /modules
-$wizard = wizard::get_instance();
-$data = $wizard->get_data('version_info'); //version-datum from session
-$fromvers = $data['version'];
-if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.2.910') < 0) {
-    $fp = $assetsdir . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . '*';
-    $dirs = glob($fp, GLOB_ONLYDIR);
-    $d = '';
-    foreach ($dirs as $fp) {
-        $modname = basename($fp);
-        if (!in_array($modname, ['MenuManager', 'CMSMailer', 'News'])) { //TODO exclude all in files tarball
-            if (!$d) {
-                $d = $destdir . DIRECTORY_SEPARATOR . 'modules';
-                @mkdir($d, 0771, true);
-            }
-            $to = $d . DIRECTORY_SEPARATOR . $modname;
-            rename($fp, $to);
-        }
-    }
-}
-
-// 3. Create new folders, if necessary
-foreach ([
- ['admin','configs'],
- ['assets','admin_custom'],
- ['assets','classes'],
- ['assets','configs'],
- ['assets','css'],
- ['assets','images'],
- ['assets','module_custom'],
- ['assets','modules'],
- ['assets','plugins'],
- ['assets','simple_plugins'],
- ['assets','templates'],
-] as $segs) {
-    switch($segs[0]) {
-        case 'admin':
-            $to = $admindir . DIRECTORY_SEPARATOR . $segs[1];
-            break;
-        case 'assets':
-            $to = $assetsdir . DIRECTORY_SEPARATOR . $segs[1];
-            break;
-        default:
-            break 2;
-    }
-    if (!is_dir ($to)) @mkdir ($to, 0771, true);
-    if (!is_dir ($to)) throw new LogicException("Could not create $to directory");
-    touch($to . DIRECTORY_SEPARATOR . 'index.html');
-}
-touch($assetsdir . DIRECTORY_SEPARATOR . 'index.html');
-
-// 4. Convert UDT's to simple plugins, widen users-table columns
+// 1. Convert UDT's to simple plugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
 
-    $create_simple_plugin = function (array $row, SimplePluginOperations $ops, $smarty) {
+    function create_simple_plugin(array $row, SimplePluginOperations $ops, $smarty)
+    {
         $fp = $ops->file_path($row['userplugin_name']);
         if (is_file($fp)) {
             verbose_msg('simple plugin named '.$row['userplugin_name'].' already exists');
@@ -143,12 +39,12 @@ if ($udt_list) {
         } else {
             verbose_msg('Error saving UDT named '.$row['userplugin_name']);
         }
-    };
+    }
 
     $ops = SimplePluginOperations::get_instance();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
-        $create_simple_plugin ($udt, $ops, $smarty);
+        create_simple_plugin($udt, $ops, $smarty);
     }
 
     $dict = GetDataDictionary($db);
@@ -158,11 +54,11 @@ if ($udt_list) {
     $dict->ExecuteSQLArray($sqlarr);
     status_msg('Converted User Defined Tags to simple-plugin files');
 
-    $db->Execute ('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)');
-    $db->Execute ('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)');
+    $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)');
+    $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)');
 }
 
-// 5. Tweak callbacks for page and generic layout template types
+// 2. Tweak callbacks for page and generic layout template types
 $page_type = CmsLayoutTemplateType::load('__CORE__::page');
 if ($page_type) {
     $page_type->set_lang_callback('\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback');
