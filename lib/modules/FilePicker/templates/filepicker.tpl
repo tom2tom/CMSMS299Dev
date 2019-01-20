@@ -19,7 +19,7 @@
           <span class="js-trigger view-list filepicker-button" title="{$mod->Lang('switchlist')}"><i class="cmsms-fp-th-list"></i></span>
           <span class="js-trigger view-grid filepicker-button active" title="{$mod->Lang('switchgrid')}"><i class="cmsms-fp-th"></i></span>
           {if $profile->can_mkdir}
-          <span class="filepicker-button make-dir filepicker-cmd" data-cmd="mkdir" title="{$mod->Lang('create_dir')}">
+          <span class="make-dir filepicker-button filepicker-cmd" data-cmd="mkdir" title="{$mod->Lang('create_dir')}">
             <i class="cmsms-fp-folder-add"></i>
           </span>
           {/if}
