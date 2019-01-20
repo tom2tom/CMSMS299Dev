@@ -68,7 +68,7 @@
     </li>
     <li class="row">
       <div class="four-col">{'step2_version'|tr}:</div>
-      <div class="six-col"><span class="label">{$cmsms_info.version}<em>({$cmsms_info.version_name})</em></span></div>
+      <div class="six-col"><span class="label">{$cmsms_info.version}<em> ({$cmsms_info.version_name})</em></span></div>
     </li>
     <li class="row">
       <div class="four-col">{'step2_schemaver'|tr}:</div>
@@ -76,7 +76,7 @@
     </li>
     <li class="row">
       <div class="four-col">{'step2_installdate'|tr}:</div>
-      <div class="six-col"><span class="label">{$cmsms_info.mtime|date_format:'%x'}</span></div>
+      <div class="six-col"><span class="label">{$cmsms_info.mdate}</span></div>
     </li>
    </ul>
 
