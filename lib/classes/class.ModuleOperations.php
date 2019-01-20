@@ -608,7 +608,9 @@ VALUES (?,?,?,?,?)');
 	 * @internal
 	 * @param string $module_name The name of the module to upgrade
 	 * @param string $to_version The destination version
-	 * @return bool Whether or not the upgrade was successful
+	 * @return array, 1 or 2 members
+	 *  [0] : bool whether or not the upgrade was successful
+	 *  [1] if member[0] == false : string error message
 	 */
 	public function UpgradeModule( string $module_name, string $to_version = '')
 	{
@@ -861,7 +863,7 @@ VALUES (?,?,?,?,?)');
 	 *
 	 * @param string $module_name The module name
 	 * @param string $version an optional version string.
-	 * @param bool $force an optional flag to indicate whether the module should be force loaded if necesary.
+	 * @param bool $force an optional flag to indicate whether the module should be force-loaded if necessary
 	 * @return CMSModule or a subclass of that
 	 */
 	public function &get_module_instance(string $module_name,string $version = '',bool $force = FALSE)
