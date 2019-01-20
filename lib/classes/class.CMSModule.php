@@ -109,7 +109,7 @@ abstract class CMSModule
 
         if( !empty($CMS_FORCELOAD)) return;
         if( CmsApp::get_instance()->is_cli() ) return;
-        
+
         if( CmsApp::get_instance()->is_frontend_request() ) {
             $this->SetParameterType('assign',CLEAN_STRING);
             $this->SetParameterType('module',CLEAN_STRING);
@@ -1294,15 +1294,16 @@ abstract class CMSModule
      * here for a security-check before returning commands data
      *
      * @since 2.3
-     * @param \CMSMS\CLI\App $app (this class may not exist)
-     * @return mixed array of \CMSMS\CLI\GetOptExt\Command objects, or one such object, or NULL if not handled.
+     * @param CMSMS\CLI\App $app (this class may not exist) TODO better namespace
+     * @return mixed array of CMSMS\CLI\GetOptExt\Command objects, or one such object, or NULL if not handled.
      */
     public function get_cli_commands($app)
     {
         $config = CmsApp::get_instance()->GetConfig();
+        //TODO discuss with calguy: better approach for this stuff
         if( empty($config['app_mode']) ) return null;
-        if( ! $app instanceof \CMSMS\CLI\App ) return null;
-        if( !class_exists('\\CMSMS\\CLI\\GetOptExt\\Command') ) return null;
+        if( ! $app instanceof CMSMS\CLI\App ) return null;
+        if( !class_exists('CMSMS\\CLI\\GetOptExt\\Command') ) return null;
         return [];
     }
 
@@ -2060,7 +2061,7 @@ abstract class CMSModule
      */
     final public function GetModulesWithCapability(string $capability, array $params = []) : array
     {
-        $result=[];
+        $result = [];
         $tmp = ModuleOperations::get_modules_with_capability($capability,$params);
         if( $tmp ) {
             for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
