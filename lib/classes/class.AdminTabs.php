@@ -20,9 +20,10 @@ namespace CMSMS;
 
 /**
  * A convenience class for creating a tabbed interface in the CMSMS admin console
- * Includes some automation, which can be a problem if the order of method-calls
- * is non-standard.
- * Typical in-template use (via corresponding plugins):
+ * May include some automation, which can be helpful, or a problem if the order
+ * of method-calls is non-standard.
+ * Typical in-template use (via corresponding plugins, with respective
+ *  $autoflow argument true):
  * 1. set_tab_header() - n times, then
  * 2. start_tab() - n times each where appropriate, then
  * 3. end_tab_content() where appropriate
@@ -31,8 +32,8 @@ namespace CMSMS;
  * 1. optional start_tab_headers(), then
  * 2. set_tab_header() - n times, then
  * 3. optional end_tab_headers() + start_tab_content(), then
- * 4. optional end_tab() BEFORE ANY start_tab()
- * 5. start_tab() - n times
+ * 4. start_tab() - n times
+ * 5. optional end_tab() AFTER ANY start_tab() IF $autoflow is TRUE
  * 6. end_tab_content()
  *
  * @package CMS
@@ -42,19 +43,6 @@ namespace CMSMS;
  */
 final class AdminTabs
 {
-
-  /**
-   * @ignore
-   * Treat as singleton
-   */
-    private function __construct()
-    {
-    }
-
-    private function __clone()
-    {
-    }
-
     /**
      * @ignore
      */
@@ -77,13 +65,31 @@ final class AdminTabs
 
     /**
      * @ignore
+     * Whether start_tab() has been called, without a subsequent end_tab()
      */
     private static $_in_tab = 0;
 
     /**
      * @ignore
+     * Whether end_tab() has been called (at least once)
+     */
+    private static $_ended_tab = 0; 
+    /**
+     * @ignore
      */
     private static $_tab_idx = 0;
+
+    /**
+     * @ignore
+     * Treat as singleton
+     */
+    private function __construct()
+    {
+    }
+
+    private function __clone()
+    {
+    }
 
     /**
      * Set the current active tab
@@ -98,11 +104,14 @@ final class AdminTabs
     /**
      * Begin output of tab headers
      *
+     * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function start_tab_headers()
+    public static function start_tab_headers($autoflow = true)
     {
-        self::$_start_headers_sent = 1;
+        if ($autoflow) {
+            self::$_start_headers_sent = 1;
+        }
         return "\n".'<div id="page_tabs">';
     }
 
@@ -111,10 +120,12 @@ final class AdminTabs
      *
      * @param string $tabid The tab key
      * @param string $title The title to display in the tab
-     * @param bool   $active Whether the tab is active or not.  If the current active tag matches the $tabid then the tab will be marked as active.
+     * @param bool   $active Whether the tab is active or not.  Default false.
+     *  If the current active tag matches the $tabid then the tab will be marked as active.
+     * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function set_tab_header($tabid, $title, $active = false)
+    public static function set_tab_header($tabid, $title, $active = false, $autoflow =  true)
     {
         if (!$active) {
             if ((self::$_tab_idx == 0 && self::$_current_tab == '') || $tabid == self::$_current_tab) {
@@ -133,8 +144,10 @@ final class AdminTabs
         $tabid = strtolower(str_replace(' ', '_', $tabid));
 
         $out = '';
-        if (!self::$_start_headers_sent) {
-            $out .= self::start_tab_headers();
+        if ($autoflow) {
+            if (!self::$_start_headers_sent) {
+                $out .= self::start_tab_headers();
+            }
         }
         $out .= '<div id="'.$tabid.'"'.$a.'>'.$title.'</div>';
         return $out;
@@ -143,27 +156,33 @@ final class AdminTabs
     /**
      * Finish outputting tab headers
      *
+     * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function end_tab_headers()
+    public static function end_tab_headers($autoflow =  true)
     {
-        self::$_end_headers_sent = 1;
+        if ($autoflow) {
+            self::$_end_headers_sent = 1;
+        }
         return '</div> <!-- EndTabHeaders -->';
     }
 
     /**
      * Start the content portion of the tabbed layout
      *
+     * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function start_tab_content()
+    public static function start_tab_content($autoflow =  true)
     {
         $out = '';
-        if (!self::$_end_headers_sent) {
-            $out .= self::end_tab_headers();
+        if ($autoflow) {
+            if (!self::$_end_headers_sent) {
+                $out .= self::end_tab_headers();
+            }
+            self::$_start_content_sent = 1;
         }
         $out .= "\n".'<div class="clearb"></div><div id="page_content">';
-        self::$_start_content_sent = 1;
         return $out;
     }
 
@@ -172,14 +191,18 @@ final class AdminTabs
      *
      * @return string
      */
-    public static function end_tab_content()
+    public static function end_tab_content($autoflow =  true)
     {
         $out = '';
-        if (self::$_in_tab) {
-            $out .= self::end_tab();
-	        self::$_in_tab = 0;
+        if ($autoflow) {
+            if (self::$_in_tab) {
+                $out .= self::end_tab();
+            } elseif (!self::$_ended_tab) {
+                self::$_in_tab = 1;
+                $out .= self::end_tab();
+            }
         }
-        $out .= '</div> <!-- EndTabContent -->';
+        $out .= "\n".'</div> <!-- EndTabContent -->';
         return $out;
     }
 
@@ -187,18 +210,21 @@ final class AdminTabs
      * Start the content portion of a specific tab
      *
      * @param string $tabid The tab key
+     * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function start_tab($tabid)
+    public static function start_tab($tabid, $autoflow =  true)
     {
         $out = '';
-        if (!self::$_start_content_sent) {
-            $out .= self::start_tab_content();
+        if ($autoflow) {
+            if (!self::$_start_content_sent) {
+                $out .= self::start_tab_content();
+            }
+            if (self::$_in_tab) {
+                $out .= self::end_tab();
+            }
+            self::$_in_tab = 1;
         }
-        if (self::$_in_tab) {
-            $out .= self::end_tab();
-        }
-        self::$_in_tab = 1;
         $out .= "\n".'<div id="' . strtolower(str_replace(' ', '_', $tabid)) . '_c">';
         return $out;
     }
@@ -206,10 +232,15 @@ final class AdminTabs
     /**
      * End the content portion of a single tab
      *
+     * @param bool   $autoflow Since 2.3 Whether to process 'glue' element(s) to determine the returned value. Default true.
      * @return string
      */
-    public static function end_tab()
+    public static function end_tab($autoflow =  true)
     {
-        return '</div> <!-- EndTab -->';
+        if ($autoflow) {
+            self::$_in_tab = 0;
+            self::$_ended_tab = 1;
+        }
+        return "\n".'</div> <!-- EndTab -->';
     }
 } // class
