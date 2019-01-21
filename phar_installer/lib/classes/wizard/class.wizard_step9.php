@@ -57,6 +57,7 @@ class wizard_step9 extends wizard_step
                         $this->error($msg);
                     }
                 }
+/* no extra installs during an upgrade
                 else {
                     // not-yet-installed non-system module
                     $res = $modops->InstallModule($name);
@@ -68,6 +69,7 @@ class wizard_step9 extends wizard_step
                         $this->error($msg);
                     }
                 }
+*/
             }
         }
 
