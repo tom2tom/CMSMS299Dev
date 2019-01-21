@@ -2301,8 +2301,9 @@ abstract class CMSModule
     /**
      * Set the current tab for the action.
      *
-     * Used for the various template forms, this method can be used to control the tab that is displayed by default
-     * when redirecting to an admin action that displays multiple tabs.
+     * Used for the various template forms, this method can be used to control
+	 * the tab that is displayed by default when redirecting to an admin action
+	 * that displays multiple tabs.
      *
      * @since 1.11
      * @author calguy1000
@@ -2318,30 +2319,36 @@ abstract class CMSModule
 
     /**
      * Return page content representing the start of tab headers.
-     * e.g.:  echo $this->StartTabHeaders();
+     * e.g. echo $this->StartTabHeaders();
      *
      * @final
      * @deprecated since 2.3. Instead use CMSMS\AdminTabs::start_tab_headers()
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function StartTabHeaders() : string
+    final public function StartTabHeaders(bool $auto = true) : string
     {
-        return AdminTabs::start_tab_headers();
+        return AdminTabs::start_tab_headers($auto);
     }
 
     /**
      * Return page content representing a specific tab header.
-     * e.g.:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
-
+     * e.g.  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
+	 *
      * @deprecated since 2.3 Use CMSMS\AdminTabs::set_tab_header(). Not final
      * @param string $tabid The tab id
      * @param string $title The tab title
      * @param bool $active Optional flag indicating whether this tab is active. Default false
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    public function SetTabHeader($tabid, $title, $active = false)
+    public function SetTabHeader($tabid, $title, $active = false, $auto = true)
     {
-        return AdminTabs::set_tab_header($tabid,$title,$active);
+        return AdminTabs::set_tab_header($tabid,$title,$active,$auto);
     }
 
     /**
@@ -2349,11 +2356,14 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_headers()
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function EndTabHeaders() : string
+    final public function EndTabHeaders(bool $auto = true) : string
     {
-        return AdminTabs::end_tab_headers();
+        return AdminTabs::end_tab_headers($auto);
     }
 
     /**
@@ -2361,11 +2371,14 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab_content()
-     * @return string
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
+    * @return string
      */
-    final public function StartTabContent() : string
+    final public function StartTabContent(bool $auto = true) : string
     {
-        return AdminTabs::start_tab_content();
+        return AdminTabs::start_tab_content($auto);
     }
 
     /**
@@ -2373,11 +2386,14 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_content()
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function EndTabContent() : string
+    final public function EndTabContent(bool $auto = true) : string
     {
-        return AdminTabs::end_tab_content();
+        return AdminTabs::end_tab_content($auto);
     }
 
     /**
@@ -2387,12 +2403,15 @@ abstract class CMSModule
      * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab()
      * @param string $tabid the tab id
      * @param arrray $params Parameters
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
      * @see CMSModule::SetTabHeaders()
      * @return string
      */
-    final public function StartTab(string $tabid, array $params = []) : string
+    final public function StartTab(string $tabid, array $params = [], bool $auto = true) : string
     {
-        return AdminTabs::start_tab($tabid,$params);
+        return AdminTabs::start_tab($tabid,$params,$auto);
     }
 
     /**
@@ -2400,11 +2419,14 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab()
+	 * @param bool $auto Since 2.3 Whether to automatically generate
+	 *  continuity-related elements instead of explicit creation of those.
+	 *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    final public function EndTab() : string
+    final public function EndTab(bool $auto = true) : string
     {
-        return AdminTabs::end_tab();
+        return AdminTabs::end_tab($auto);
     }
 
     /**
