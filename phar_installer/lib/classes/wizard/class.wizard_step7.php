@@ -8,6 +8,7 @@ use __installer\utils;
 use Exception;
 use PharData;
 use RecursiveIteratorIterator;
+use function __installer\CMSMS\endswith;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
 use function __installer\get_app;
@@ -67,6 +68,10 @@ class wizard_step7 extends wizard_step
 
     private function do_files($langlist = null)
     {
+        $app = get_app();
+        $destdir = $app->get_destdir();
+        if( !$destdir ) throw new Exception(lang('error_internal',601));
+
         $languages = ['en_US'];
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
 		if( $siteinfo !== NULL ) {
@@ -76,9 +81,10 @@ class wizard_step7 extends wizard_step
             $languages = array_unique($languages);
 		}
 
-        $app = get_app();
-        $destdir = $app->get_destdir();
-        if( !$destdir ) throw new Exception(lang('error_internal',601));
+        $filehandler = new install_filehandler();
+        $filehandler->set_destdir($destdir);
+        $filehandler->set_languages($languages);
+        $filehandler->set_output_fn('__installer\wizard\wizard_step6::verbose');
 
         $from = $to = [];
         $app_config = $app->get_config();
@@ -101,36 +107,36 @@ class wizard_step7 extends wizard_step
         $allmodules = [];
 
         $this->message(lang('install_extractfiles'));
+
         $archive = $app->get_archive();
         $phardata = new PharData($archive); //TODO ?? support fallback to e.g. TarArchive class
         $aname = basename($archive);
         $len = strlen($aname);
-        $filehandler = new install_filehandler();
-        $filehandler->set_languages($languages);
-        $filehandler->set_destdir($destdir);
-        $filehandler->set_output_fn('__installer\wizard\wizard_step6::verbose');
 
-        foreach( new RecursiveIteratorIterator($phardata) as $file => $info ) {
-            if( ($p = strpos($file,$aname)) === FALSE ) continue;
-            $ufile = strtr($file,'\\','/');
-            if( ($up = strpos($ufile,'/assets/modules/',$p)) !== FALSE ) {
-                if( $xmodules !== NULL && !$xmodules ) continue;
-                $parts = explode('/',substr($ufile,$up + 16));
-                if( !$parts[0] || ($xmodules !== NULL && !in_array($parts[0],$xmodules)) ) continue;
-				if( count($parts) == 2 && $parts[1] == $parts[0].'.module.php' ) {
-					$allmodules[] = $parts[0];
+        foreach( new RecursiveIteratorIterator($phardata) as $pharfile=>$info ) {
+           if( ($p = strpos($pharfile,$aname)) === FALSE ) continue;
+			if( strpos($pharfile,'modules',$p) !== FALSE ) {
+				$ufile = strtr($pharfile,'\\','/');
+				if( ($up = strpos($ufile,'/lib/modules/',$p)) !== FALSE ) {
+					if( endswith($pharfile,'.module.php') ) {
+						$parts = explode('/',substr($ufile,$up + 13));
+						$allmodules[] = $parts[0];
+					}
 				}
-            } elseif( ($up = strpos($ufile,'/lib/modules/',$p)) !== FALSE ) {
-                $parts = explode('/',substr($ufile,$up + 13));
-                if( $parts[0] && count($parts) == 2 && $parts[1] == $parts[0].'.module.php' ) {
-					$allmodules[] = $parts[0];
+				elseif( ($up = strpos($ufile,'/assets/modules/',$p)) !== FALSE ) {
+					if( !($xmodules === NULL || $xmodules) ) continue; //no non-core modules used
+					$parts = explode('/',substr($ufile,$up + 16));
+					if( !$parts[0] || ($xmodules !== NULL && !in_array($parts[0],$xmodules)) ) continue; //this one not used
+					if( endswith($pharfile,'.module.php') ) {
+						$allmodules[] = $parts[0];
+					}
 				}
-            }
-            $fn = substr($file,$p + $len);
+			}
+            $spec = substr($pharfile,$p + $len); //retains leading separator
             if( $from ) {
-                $fn = str_replace($from,$to,$fn);
+                $spec = str_replace($from,$to,$spec);
             }
-            $filehandler->handle_file($fn,$file,$info);
+            $filehandler->handle_file($spec,$pharfile);
         }
         if( $allmodules ) {
             $siteinfo['havemodules'] = array_unique($allmodules);
