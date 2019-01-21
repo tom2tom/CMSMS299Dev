@@ -2036,6 +2036,7 @@ abstract class CmsAdminThemeBase
     /**
      * Return page content representing the start of tab headers
      * e.g. echo $this->StartTabHeaders();
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @deprecated since 2.3. Instead use CMSMS\AdminTabs::start_tab_headers()
@@ -2047,8 +2048,9 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Return page content representing a specific tab header.
-     * e.g.:  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
+     * Return page content representing a specific tab header
+     * e.g.  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @param string $tabid The tab id
@@ -2064,6 +2066,7 @@ abstract class CmsAdminThemeBase
 
     /**
      * Return page content representing the end of tab headers.
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_headers()
@@ -2076,6 +2079,7 @@ abstract class CmsAdminThemeBase
 
     /**
      * Return page content representing the start of XHTML areas for tabs.
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab_content()
@@ -2088,6 +2092,7 @@ abstract class CmsAdminThemeBase
 
     /**
      * Return page content representing the end of XHTML areas for tabs.
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_content()
@@ -2100,6 +2105,7 @@ abstract class CmsAdminThemeBase
 
     /**
      * Return page content representing the start of a specific tab.
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @param string $tabid The tabid (see SetTabHeader)
@@ -2113,6 +2119,7 @@ abstract class CmsAdminThemeBase
 
     /**
      * Return page content representing the end of a specific tab.
+     * This infills related page-elements which are not explicitly created.
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab()
