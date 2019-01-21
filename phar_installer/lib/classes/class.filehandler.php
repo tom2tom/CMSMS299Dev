@@ -133,11 +133,11 @@ abstract class filehandler
     $filespec = trim($filespec);
     if( !$filespec ) throw new Exception(lang('error_invalidparam','filespec'));
 
-    if( $this->is_imagefile($filespec) ) return FALSE;
+//    if( $this->is_imagefile($filespec) ) return FALSE;
     $bn = basename($filespec);
     $fnmatch = preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.php$/',$bn);
     $fnmatch = $fnmatch || preg_match('/^[a-zA-Z]{2}_[a-zA-Z]{2}\.nls\.php$/',$bn);
-    if( $fnmatch ) return TRUE; //substr($bn,0,strpos($bn,'.'));
+    if( $fnmatch ) return TRUE;
 
     $nls = get_app()->get_nls();
     if( !is_array($nls) ) return FALSE; // problem
@@ -171,8 +171,7 @@ abstract class filehandler
 
  /**
   * @param string $filespec site-root-relative filepath, with leading separator
-  * @param string $srcspec phar-URI corresponding to $filespec (= $fi->pathName)
-  * @param PharFileInfo $fi
+  * @param string $srcspec phar-URI corresponding to $filespec (i.e. phar://....)
   */
-  abstract public function handle_file(string $filespec, string $srcspec, PharFileInfo $fi);
+  abstract public function handle_file(string $filespec, string $srcspec);
 }
