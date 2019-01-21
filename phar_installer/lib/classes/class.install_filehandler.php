@@ -11,11 +11,10 @@ class install_filehandler extends filehandler
 {
  /**
   * @param string $filespec site-root-relative filepath, but with leading separator
-  * @param string $srcspec phar-URI corresponding to $filespec (= $fi->pathName)
-  * @param PharFileInfo $fi
+  * @param string $srcspec phar-URI corresponding to $filespec (i.e. phar://...)
   * @throws Exception
   */
-  public function handle_file(string $filespec, string $srcspec, PharFileInfo $fi)
+  public function handle_file(string $filespec, string $srcspec)
   {
     if( $this->is_excluded($filespec) ) return;
     if( $this->is_langfile($filespec) ) {
