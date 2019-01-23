@@ -13,7 +13,7 @@
    var e = '#'+$(this).data('content');
    $(e).dialog({
      minWidth: 500,
-     modal: 'true'
+     modal: true
    });
   });
 });{/literal}
