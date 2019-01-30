@@ -1,12 +1,20 @@
 #!/usr/bin/env php
 <?php
+
+use __installer\installer_base;
+use splitbrain\PHPArchive\Archive;
+use splitbrain\PHPArchive\FileInfo;
+use splitbrain\PHPArchive\Tar;
+
 /* NOTE
 this REQUIRES php extensions zlib, zip
 this benefits from php extension Fileinfo - probably built by default
 */
-
-if (ini_get('phar.readonly')) {
-	die('phar.readonly must be turned OFF in your php.ini');
+if (!extension_loaded('zlib')) {
+	die('PHP\'s zlib extension is required for this process');
+}
+if (!extension_loaded('zip')) {
+	die('PHP\'s zip extension is required for this process');
 }
 
 // setup
@@ -21,7 +29,7 @@ if ($cli) {
 	}
 }
 
-// patterns for sources not copied to tempdir for processing,
+// regex patterns for sources not copied to tempdir for processing,
 // checked against root-dir-relative filepaths, after converting windoze path-sep's to *NIX
 $src_excludes = [
 '/phar_installer\//',
@@ -41,6 +49,7 @@ $src_excludes = [
 ];
 //TODO root-dir  '/\.htaccess$/',
 
+// regex patterns for sources in the phar_intaller folder, but not included in the created phar file
 $phar_excludes = [
 '/\.git.*/',
 '/\.svn\//',
@@ -402,6 +411,23 @@ function create_checksum_dat()
 	}
 }
 
+function build_autoload($classname)
+{
+	$o = ($classname[0] != '\\') ? 0 : 1;
+	$p = strpos($classname, '\\', $o + 1);
+	if ($p !== false) {
+		$space = substr($classname, $o, $p - $o);
+		if ($space == 'splitbrain') { //files-archive classes
+			$path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
+			$fp = joinpath(dirname(__DIR__), 'lib', $path.'.php');
+			if (is_file($fp)) {
+				require_once $fp;
+				return;
+			}
+		}
+	}
+}
+
 function create_source_archive()
 {
 	global $tmpdir,$datadir;
@@ -410,39 +436,43 @@ function create_source_archive()
 	rrmdir($fp, true);
 
 	@mkdir($datadir, 0771, true);
-	$fp = joinpath($datadir, 'data.tar');
-	@unlink($fp.'.gz');
+	$fp = joinpath($datadir, 'data.tar.gz');
+	@unlink($fp);
 
 	try {
 		verbose(1, 'INFO: Creating tar.gz sources archive');
-		$phar = new PharData($fp);
-		//get all files
-		$phar->buildFromDirectory($tmpdir);
-		//get all empty dirs
+		$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
+		$fi = new FileInfo();
+		$arch = new Tar();
+		$arch->setCompression(9, Archive::COMPRESS_GZIP);
+		$arch->create($fp);
+
 		$iter = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($tmpdir,
 				RecursiveIteratorIterator::SELF_FIRST |
 				FilesystemIterator::KEY_AS_PATHNAME |
 				FilesystemIterator::CURRENT_AS_FILEINFO |
-				FilesystemIterator::FOLLOW_SYMLINKS
+				FilesystemIterator::UNIX_PATHS
 			)
 		);
-		$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
-		foreach ($iter as $tp => $inf) {
+		foreach ($iter as $fp => $inf) { //$inf is SplFileInfo object
 			$fn = $inf->getFilename();
-			if ($fn == '.') {
-				$dir = dirname($tp);
-				$iter2 = new FilesystemIterator($dir);
-				if (!$iter2->valid()) {
-					$phar->addEmptyDir(substr($dir, $len));
-				}
-				unset($iter2);
+			if ($fn == '.') { //CHECKME ok on windows?
+				$fp = dirname($fp);
+				$d = true;
+			} elseif ($fn == '..') {
+				continue;
+			} else {
+				$d = $inf->isDir();
 			}
+			$fi->setIsdir($d);
+			$fi->setPath(substr($fp,$len)); //relative path
+			$fi->setMode( ($d) ? 0771 : $inf->getPerms());
+			$fi->setSize($inf->getSize());
+			$fi->setMtime($inf->getMTime());
+			$arch->addFile($fp, $fi);
 		}
-
-		$phar->compress(Phar::GZ);
-		unset($phar); //close it
-		unlink($fp);
+		$arch->close();
 	} catch (Exception $e) {
 		die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
 	}
@@ -458,6 +488,18 @@ function verbose(int $lvl, string $msg)
 }
 
 // our "main function"
+if (!$archive_only) {
+	if (!extension_loaded('phar')) {
+		die('PHP\'s phar extension is required for this process');
+	}
+	if (ini_get('phar.readonly')) {
+		die('phar.readonly must be turned OFF in your php.ini');
+	}
+}
+
+// setup autoloading
+spl_autoload_register('build_autoload');
+
 try {
 	if (!is_dir($phardir) || !is_file(joinpath($phardir, 'index.php'))) {
 		die('Problem finding source files in '.$phardir);
@@ -476,7 +518,7 @@ try {
 
 	$fp = joinpath($phardir,'lib','classes','class.installer_base.php');
 	require_once $fp;
-	$arr = __installer\installer_base::CONTENTXML;
+	$arr = installer_base::CONTENTXML;
 	$xmlfile = joinpath($phardir, ...$arr);
 	if (!is_file($xmlfile)) {
 		$localroot = current_root(__DIR__); //ancestor of this script's place
@@ -488,7 +530,7 @@ try {
 			$CMS_JOB_TYPE = 2;
 			$fp = joinpath($localroot,'lib','include.php');
 			include_once $fp;
-			$arr = __installer\installer_base::CONTENTFILESDIR;
+			$arr = installer_base::CONTENTFILESDIR;
 			$filesin = joinpath($phardir, ...$arr);
 			$db = CmsApp::get_instance()->GetDb();
 			require_once joinpath($localroot,$aname,'function.contentoperation.php');
