@@ -150,7 +150,8 @@ lib/CMSMS/classes/nls/class.nl_NL.nls.php __installer\CMSMS\nls (not autoloaded)
 lib/classes/class.utils.php               __installer          >> prepend 'classes'
 lib/classes/wizard/class.wizard_step1.php __installer\wizard   >> prepend 'classes'
 lib/classes/tests/class.boolean_test.php  __installer\tests    >> prepend 'classes'
-lib/Smarty/*           no namespace
+lib/Smarty/*                              no namespace
+lib/PHPArchive/*                          splitbrain\PHPArchive >> omit 'splitbrain'
 */
                 $sroot = dirname(__DIR__).DIRECTORY_SEPARATOR; //top 'lib' dir
                 $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
@@ -175,7 +176,14 @@ lib/Smarty/*           no namespace
                         return;
                     }
                 }
-            }
+            } elseif ($space == 'splitbrain') { //files-archive classes
+                $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
+                $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.$path.'.php';
+                if (is_file($fp)) {
+                    require_once $fp;
+                    return;
+				}
+			}
         }
     }
 
