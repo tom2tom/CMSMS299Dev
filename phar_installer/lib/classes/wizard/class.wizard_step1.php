@@ -12,15 +12,15 @@ use function __installer\get_app;
 
 class wizard_step1 extends wizard_step
 {
-    public function __construct()
+/*  public function __construct()
     {
         parent::__construct();
+Now [de]compression uses self-sourced Tar class
         if( !class_exists('PharData') ) {
             throw new Exception('It appears that the phar extension is not available in this installation of php.  Please correct this.');
         }
-        //TODO ?? support fallback to fallback decompression e.g. TarArchive class when using 'expanded' installer
     }
-
+*/
     protected function process()
     {
         if( isset($_POST['lang']) ) {
