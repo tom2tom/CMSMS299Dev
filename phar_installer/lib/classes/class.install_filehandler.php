@@ -4,31 +4,37 @@ namespace __installer;
 
 use __installer\filehandler;
 use Exception;
-use PharFileInfo;
 use function __installer\CMSMS\lang;
 
 class install_filehandler extends filehandler
 {
  /**
-  * @param string $filespec site-root-relative filepath, but with leading separator
-  * @param string $srcspec phar-URI corresponding to $filespec (i.e. phar://...)
+  * @param string $filespec site-root-relative file- or folder-path, but with leading separator
+  * @param string $srcspec absolute identifier corresponding to $filespec (copyable, if that's a file)
+  *  e.g. filepath or URI like file://... or phar://...
   * @throws Exception
   */
   public function handle_file(string $filespec, string $srcspec)
   {
     if( $this->is_excluded($filespec) ) return;
+    if( is_dir($srcspec) ) {
+      $destpath = $this->get_destdir().$filespec;
+      @mkdir($destpath, 0771, true);
+      return;
+    }
+
     if( $this->is_langfile($filespec) ) {
       if( !$this->is_accepted_lang($filespec) ) return;
     }
 
     if( !$this->dir_exists($filespec) ) $this->create_directory($filespec);
 
-    $destname = $this->get_destdir().$filespec;
-    if( file_exists($destname) && !is_writable($destname) ) throw new Exception(lang('error_overwrite',$filespec));
+    $destpath = $this->get_destdir().$filespec;
+    if( file_exists($destpath) && !is_writable($destpath) ) throw new Exception(lang('error_overwrite',$filespec));
 
-    $cksum = md5_file($srcspec);
-    @copy($srcspec,$destname);
-    $cksum2 = md5_file($destname);
+    if( !@copy($srcspec,$destpath) ) throw new Exception(lang('error_extract',$filespec));
+    $cksum = md5_file($srcspec,true);
+    $cksum2 = md5_file($destpath,true);
     if( $cksum != $cksum2 ) throw new Exception(lang('error_checksum',$filespec));
 
     $this->output_string(lang('file_installed',$filespec));
