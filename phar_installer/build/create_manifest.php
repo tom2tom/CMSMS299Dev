@@ -678,20 +678,18 @@ function rcopy(string $srcdir, string $tmpdir)
     info("Copy source files from $srcdir to $tmpdir");
     //NOTE KEY_AS_FILENAME flag does not work as such - always get path here
     $iter = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator(
-            $srcdir,
-            RecursiveIteratorIterator::SELF_FIRST |
-            FilesystemIterator::KEY_AS_PATHNAME |
-            FilesystemIterator::CURRENT_AS_FILEINFO |
+        new RecursiveDirectoryIterator($srcdir,
+            FilesystemIterator::KEY_AS_FILENAME |
+            FilesystemIterator::CURRENT_AS_PATHNAME |
             FilesystemIterator::UNIX_PATHS |
             FilesystemIterator::FOLLOW_SYMLINKS
-        )
-    );
+        ),
+        RecursiveIteratorIterator::SELF_FIRST);
 
     $len = strlen($srcdir.DIRECTORY_SEPARATOR);
     $matches = null;
 
-    foreach ($iter as $fp => $inf) {
+    foreach ($iter as $fn => $fp) {
         foreach ($src_excludes as $excl) {
             if (preg_match($excl, $fp, $matches, 0, $len)) {
                 $relpath = substr($fp, $len);
@@ -701,7 +699,6 @@ function rcopy(string $srcdir, string $tmpdir)
         }
 
         $relpath = substr($fp, $len);
-        $fn = $inf->getFilename();
         if ($fn == '.') {
             $tp = joinpath($tmpdir, $relpath);
             @mkdir(dirname($tp), 0771, true);
