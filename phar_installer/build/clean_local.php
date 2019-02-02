@@ -16,8 +16,7 @@ function rrmdir($path, $keepdirs = false)
 				FilesystemIterator::CURRENT_AS_PATHNAME |
 				FilesystemIterator::SKIP_DOTS
 			),
-			RecursiveIteratorIterator::CHILD_FIRST
-		);
+			RecursiveIteratorIterator::CHILD_FIRST);
 		foreach ($iter as $p) {
 			if (is_dir($p)) {
 				if ($keepdirs || !@rmdir($p)) {
