@@ -2,19 +2,19 @@
 <?php
 
 use __installer\installer_base;
-use splitbrain\PHPArchive\Archive;
-use splitbrain\PHPArchive\FileInfo;
-use splitbrain\PHPArchive\Tar;
 
 /* NOTE
-this REQUIRES php extensions zlib, zip
+this REQUIRES php extensions phar, zlib, and usually, zip
 this benefits from php extension Fileinfo - probably built by default
 */
+if (!extension_loaded('phar')) {
+	die('PHP\'s phar extension is required for this process');
+}
+if (ini_get('phar.readonly')) {
+	die('phar.readonly must be turned OFF in your php.ini');
+}
 if (!extension_loaded('zlib')) {
 	die('PHP\'s zlib extension is required for this process');
-}
-if (!extension_loaded('zip')) {
-	die('PHP\'s zip extension is required for this process');
 }
 
 // setup
@@ -32,9 +32,10 @@ if ($cli) {
 // regex patterns for sources not copied to tempdir for processing,
 // checked against root-dir-relative filepaths, after converting windoze path-sep's to *NIX
 $src_excludes = [
-'/phar_installer\//',
-'/scripts\//',
-'/tests\//',
+'/phar_installer\/|phar_installer$/',
+'/scripts\/|scripts$/',
+'/tests\/|tests$/',
+'/uploads\/.+/',
 '/\.git.*/',
 '/\.md$/i',
 '/\.svn/',
@@ -53,11 +54,11 @@ $src_excludes = [
 $phar_excludes = [
 '/\.git.*/',
 '/\.svn\//',
-'/build\//',
-'/out\//',
-'/source\//',
+'/build\/|build$/',
+'/out\/|out$/',
+'/source\/|source$/',
 '/ext\//',
-'/scripts\//',
+'/scripts\/|scripts$/',
 '/README\.TXT/',
 '/\.bak$/',
 '/~$/',
@@ -213,8 +214,7 @@ function rrmdir(string $fp, bool $keepdirs = false) : bool
 				FilesystemIterator::CURRENT_AS_PATHNAME |
 				FilesystemIterator::SKIP_DOTS
 			),
-			RecursiveIteratorIterator::CHILD_FIRST
-		);
+			RecursiveIteratorIterator::CHILD_FIRST);
 		foreach ($iter as $p) {
 			if (is_dir($p)) {
 				if ($keepdirs || !@rmdir($p)) {
@@ -240,7 +240,8 @@ function rchmod(string $fp) : bool
 			new RecursiveDirectoryIterator($fp,
 				FilesystemIterator::CURRENT_AS_PATHNAME |
 				FilesystemIterator::SKIP_DOTS
-			), RecursiveIteratorIterator::CHILD_FIRST);
+			),
+			RecursiveIteratorIterator::CHILD_FIRST);
 		foreach ($iter as $fp) {
 			if (!is_link($fp)) {
 				$mode = (is_dir($fp)) ? 0751 : 0644;
@@ -313,21 +314,20 @@ function copy_local_files()
 	$localroot = current_root(__DIR__); //ancestor of this script's place
 
 	verbose(1, "INFO: Copying source files from $localroot to $tmpdir");
-	//NOTE KEY_AS_FILENAME flag does not work as such - always get path here
+
 	$iter = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator($localroot,
-			RecursiveIteratorIterator::SELF_FIRST |
-			FilesystemIterator::KEY_AS_PATHNAME |
-			FilesystemIterator::CURRENT_AS_FILEINFO |
-			FilesystemIterator::UNIX_PATHS |
-			FilesystemIterator::FOLLOW_SYMLINKS
-		)
-	);
+			FilesystemIterator::KEY_AS_FILENAME |
+			FilesystemIterator::CURRENT_AS_PATHNAME |
+			FilesystemIterator::SKIP_DOTS |
+			FilesystemIterator::UNIX_PATHS //|
+//			FilesystemIterator::FOLLOW_SYMLINKS too bad if links not relative !!
+		),
+		RecursiveIteratorIterator::SELF_FIRST);
 
 	$len = strlen($localroot.DIRECTORY_SEPARATOR);
-	$matches = null;
 
-	foreach ($iter as $fp => $inf) {
+	foreach ($iter as $fn=>$fp) {
 		foreach ($src_excludes as $excl) {
 			if (preg_match($excl, $fp, $matches, 0, $len)) {
 				$relpath = substr($fp, $len);
@@ -337,19 +337,19 @@ function copy_local_files()
 		}
 
 		$relpath = substr($fp, $len);
-		$fn = $inf->getFilename();
-		if ($fn == '.') {
-			$tp = joinpath($tmpdir, $relpath);
-			@mkdir(dirname($tp), 0771, true);
-		}  elseif ($fn !== '..') {
-			$tp = joinpath($tmpdir, $relpath);
-			@mkdir(dirname($tp), 0771, true);
-			@copy($fp, $tp);
-			verbose(2, "COPIED $relpath to $tp");
+		$tp = joinpath($tmpdir, $relpath);
+		if (!is_dir($fp)) {
+			copy($fp, $tp);
+			verbose(2, "COPIED $fn to $tp");
+		} else {
+			mkdir($tp, 0771, true);
 		}
 	}
+	//clear all tmp/*/* files
+	$tp = joinpath($tmpdir, 'tmp');
+	rrmdir($tp, true);
 	//workaround failed exclusion
-	$tp = joinpath($tmpdir,'config.php');
+	$tp = joinpath($tmpdir, 'config.php');
 	@unlink($tp);
 }
 
@@ -411,68 +411,47 @@ function create_checksum_dat()
 	}
 }
 
-function build_autoload($classname)
-{
-	$o = ($classname[0] != '\\') ? 0 : 1;
-	$p = strpos($classname, '\\', $o + 1);
-	if ($p !== false) {
-		$space = substr($classname, $o, $p - $o);
-		if ($space == 'splitbrain') { //files-archive classes
-			$path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
-			$fp = joinpath(dirname(__DIR__), 'lib', $path.'.php');
-			if (is_file($fp)) {
-				require_once $fp;
-				return;
-			}
-		}
-	}
-}
-
 function create_source_archive()
 {
-	global $tmpdir,$datadir;
-
-	$fp = joinpath($tmpdir, 'tmp');
-	rrmdir($fp, true);
+	global $tmpdir,$datadir,$phardir;
 
 	@mkdir($datadir, 0771, true);
-	$fp = joinpath($datadir, 'data.tar.gz');
-	@unlink($fp);
+	$fp = joinpath($datadir, 'data.tar');
+	@unlink($fp.'.gz');
 
 	try {
 		verbose(1, 'INFO: Creating tar.gz sources archive');
-		$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
-		$fi = new FileInfo();
-		$arch = new Tar();
-		$arch->setCompression(9, Archive::COMPRESS_GZIP);
-		$arch->create($fp);
-
+		$phar = new PharData($fp);
+		//get files
+		$phar->buildFromDirectory($tmpdir);
+		//get empty dirs
 		$iter = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($tmpdir,
-				RecursiveIteratorIterator::SELF_FIRST |
-				FilesystemIterator::KEY_AS_PATHNAME |
-				FilesystemIterator::CURRENT_AS_FILEINFO |
-				FilesystemIterator::UNIX_PATHS
-			)
-		);
-		foreach ($iter as $fp => $inf) { //$inf is SplFileInfo object
-			$fn = $inf->getFilename();
-			if ($fn == '.') { //CHECKME ok on windows?
-				$fp = dirname($fp);
-				$d = true;
-			} elseif ($fn == '..') {
-				continue;
-			} else {
-				$d = $inf->isDir();
+				FilesystemIterator::KEY_AS_FILENAME |
+				FilesystemIterator::CURRENT_AS_PATHNAME |
+				FilesystemIterator::UNIX_PATHS |
+				FilesystemIterator::FOLLOW_SYMLINKS
+			),
+			RecursiveIteratorIterator::SELF_FIRST);
+		$len = strlen($tmpdir.DIRECTORY_SEPARATOR);
+		foreach ($iter as $tp) {
+//			$fn = basename($tp);
+//			if ($fn == '.') {
+			if (is_dir($tp)) {
+				$dir = dirname($tp);
+				$iter2 = new FilesystemIterator($dir);
+				if (!$iter2->valid()) {
+					$phar->addEmptyDir(substr($dir, $len));
+				}
+				unset($iter2);
+//			} else {
+//				$phar->addFile($tp,substr($tp, $len));
 			}
-			$fi->setIsdir($d);
-			$fi->setPath(substr($fp,$len)); //relative path
-			$fi->setMode( ($d) ? 0771 : $inf->getPerms());
-			$fi->setSize($inf->getSize());
-			$fi->setMtime($inf->getMTime());
-			$arch->addFile($fp, $fi);
 		}
-		$arch->close();
+
+		$phar->compress(Phar::GZ);
+		unset($phar); //close it
+		unlink($fp);
 	} catch (Exception $e) {
 		die('ERROR: tarball creation failed : '.$e->GetMessage()."\n");
 	}
@@ -489,16 +468,10 @@ function verbose(int $lvl, string $msg)
 
 // our "main function"
 if (!$archive_only) {
-	if (!extension_loaded('phar')) {
-		die('PHP\'s phar extension is required for this process');
-	}
-	if (ini_get('phar.readonly')) {
-		die('phar.readonly must be turned OFF in your php.ini');
+	if (!extension_loaded('zip')) {
+		die('PHP\'s zip extension is required for this process');
 	}
 }
-
-// setup autoloading
-spl_autoload_register('build_autoload');
 
 try {
 	if (!is_dir($phardir) || !is_file(joinpath($phardir, 'index.php'))) {
@@ -528,7 +501,7 @@ try {
 			require_once $fp;
             $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
 			$CMS_JOB_TYPE = 2;
-			$fp = joinpath($localroot,'lib','include.php');
+			$fp = joinpath($localroot, 'lib', 'include.php');
 			include_once $fp;
 			$arr = installer_base::CONTENTFILESDIR;
 			$filesin = joinpath($phardir, ...$arr);
@@ -628,6 +601,7 @@ EOS;
 				FilesystemIterator::FOLLOW_SYMLINKS |
 				FilesystemIterator::SKIP_DOTS
 			)
+			// NB default RecursiveIteratorIterator::LEAVES_ONLY means no folders
 		);
 		foreach ($iter as $fp) {
 			$relpath = substr($fp, $len);
@@ -732,11 +706,11 @@ EOS;
 			$len = strlen($phardir.DIRECTORY_SEPARATOR);
 			$iter = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator($phardir,
-					RecursiveIteratorIterator::LEAVES_ONLY |
 					FilesystemIterator::FOLLOW_SYMLINKS |
 					FilesystemIterator::SKIP_DOTS |
 					FilesystemIterator::CURRENT_AS_PATHNAME
 				)
+				//NB default RecursiveIteratorIterator::LEAVES_ONLY
 			);
 			foreach ($iter as $fp) {
 				$relpath = substr($fp, $len);
