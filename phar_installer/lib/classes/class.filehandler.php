@@ -54,14 +54,14 @@ abstract class filehandler
   }
 
  /**
-  * @param string $filespec site-root-relative filepath, but with leading separator
+  * @param string $filespec site-root-relative filepath, but with leading separator (or empty string)
   * @return boolean
   * @throws Exception
   */
   protected function is_excluded(string $filespec) : bool
   {
     $filespec = trim($filespec);
-    if( !$filespec ) throw new Exception(lang('error_internal',1101));
+//    if( !$filespec ) throw new Exception(lang('error_internal',1101));
     if( $this->_excludes === null ) {
         $config = $this->get_config();
         if( empty($config['install_excludes']) ) {
