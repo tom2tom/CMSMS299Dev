@@ -6,8 +6,7 @@ use __installer\install_filehandler;
 use __installer\manifest_reader;
 use __installer\utils;
 use Exception;
-use PharData;
-use RecursiveIteratorIterator;
+use PHPArchive\Tar;
 use function __installer\CMSMS\endswith;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
@@ -48,11 +47,12 @@ class wizard_step7 extends wizard_step
 
         $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',751));
-        $d2 = $destdir . '/'; //phar tarball uses / for filepath separator
         $archive = get_app()->get_archive();
+/* TODO if PharData is available
         $phardata = new PharData($archive); // TODO ?? support fallback to e.g. TarArchive class
         $aname = basename($archive);
         $len = strlen($aname);
+        $d2 = $destdir . '/'; //phar tarball uses / for filepath separator
         foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {
             if( ($p = strpos($file,$aname)) === FALSE ) continue;
             $fn = substr($file,$p + $len);
@@ -62,6 +62,23 @@ class wizard_step7 extends wizard_step
             if( is_dir($dn) ) {
                 $idxfile = $dn.'/index.html';
                 if( !is_file($idxfile) )  $this->_createIndexHTML($idxfile);
+            }
+        }
+*/
+        $destdir .= DIRECTORY_SEPARATOR;
+        $adata = new Tar();
+        $adata->open($archive);
+        $files = $adata->folder_contents();
+        foreach ($files as $fp) {
+            if( $fp == '.' || $fp == 'admin' ) {
+                continue; //places having index.php
+            }
+            $idxfile = $destdir.$fp.DIRECTORY_SEPARATOR.'index.html';
+            if( !is_file($idxfile) )  {
+                $this->_createIndexHTML($idxfile);
+            }
+            else {
+                touch($idxfile);
             }
         }
     }
@@ -74,12 +91,12 @@ class wizard_step7 extends wizard_step
 
         $languages = ['en_US'];
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
-		if( $siteinfo !== NULL ) {
-			//we're installing
+        if( $siteinfo !== NULL ) {
+            //we're installing
             if( $siteinfo['languages'] ) $languages = array_merge($languages,$siteinfo['languages']);
             if( $langlist ) $languages = array_merge($languages,$langlist);
             $languages = array_unique($languages);
-		}
+        }
 
         $filehandler = new install_filehandler();
         $filehandler->set_destdir($destdir);
@@ -88,6 +105,7 @@ class wizard_step7 extends wizard_step
 
         $from = $to = [];
         $app_config = $app->get_config();
+        //we rename filepaths, not the actual folders followed by rename-back
         if( isset($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
             $from[] = '/admin/';//hardcoded '/' filepath-separators in phar tarball
             $to[] = '/'.$aname.'/'; //these separators may be migrated, downstream
@@ -97,47 +115,46 @@ class wizard_step7 extends wizard_step
             $to[] = '/'.$aname.'/';
         }
 
-		if( $siteinfo !== NULL ) {
+        if( $siteinfo !== NULL ) {
             $xmodules = $siteinfo['xmodules'] ?? []; //TODO relevant non-core modules are needed for upgrade as well as install
             if( !is_array($xmodules) ) $xmodules = [$xmodules];
-		}
-		else {
-			$xmodules = NULL;
-		}
+        }
+        else {
+            $xmodules = NULL;
+        }
         $allmodules = [];
 
         $this->message(lang('install_extractfiles'));
 
-        $archive = $app->get_archive();
-        $phardata = new PharData($archive); //TODO ?? support fallback to e.g. TarArchive class
-        $aname = basename($archive);
-        $len = strlen($aname);
+//TODO if PharData is available
+        list($iter,$archdir) = $app->unpack_archive();
+        $len = strlen($archdir);
 
-        foreach( new RecursiveIteratorIterator($phardata) as $pharfile=>$info ) {
-           if( ($p = strpos($pharfile,$aname)) === FALSE ) continue;
-			if( strpos($pharfile,'modules',$p) !== FALSE ) {
-				$ufile = strtr($pharfile,'\\','/');
-				if( ($up = strpos($ufile,'/lib/modules/',$p)) !== FALSE ) {
-					if( endswith($pharfile,'.module.php') ) {
-						$parts = explode('/',substr($ufile,$up + 13));
-						$allmodules[] = $parts[0];
-					}
-				}
-				elseif( ($up = strpos($ufile,'/assets/modules/',$p)) !== FALSE ) {
-					if( !($xmodules === NULL || $xmodules) ) continue; //no non-core modules used
-					$parts = explode('/',substr($ufile,$up + 16));
-					if( !$parts[0] || ($xmodules !== NULL && !in_array($parts[0],$xmodules)) ) continue; //this one not used
-					if( endswith($pharfile,'.module.php') ) {
-						$allmodules[] = $parts[0];
-					}
-				}
-			}
-            $spec = substr($pharfile,$p + $len); //retains leading separator
+        foreach ($iter as $fn=>$fp) {
+            if( strpos($fp,'modules') !== FALSE ) {
+                if( ($up = strpos($fp,'/lib/modules/')) !== FALSE ) {
+                    if( endswith($fn,'.module.php') ) {
+                        $parts = explode('/',substr($fp,$up + 13));
+                        $allmodules[] = $parts[0];
+                    }
+                }
+                elseif( ($up = strpos($fp,'/assets/modules/')) !== FALSE ) {
+                    if( !($xmodules === NULL || $xmodules) ) continue; //no non-core modules used
+                    $parts = explode('/',substr($fp,$up + 16));
+                    if( !$parts[0] || ($xmodules !== NULL && !in_array($parts[0],$xmodules)) ) continue; //this one not used
+                    if( endswith($fn,'.module.php') ) {
+                        $allmodules[] = $parts[0];
+                    }
+                }
+            }
+
+            $spec = substr($fp,$len); //retains leading separator
             if( $from ) {
                 $spec = str_replace($from,$to,$spec);
             }
-            $filehandler->handle_file($spec,$pharfile);
+            $filehandler->handle_file($spec,$fp);
         }
+
         if( $allmodules ) {
             $siteinfo['havemodules'] = array_unique($allmodules);
             $this->get_wizard()->set_data('siteinfo',$siteinfo);
