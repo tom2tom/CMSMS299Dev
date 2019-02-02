@@ -116,19 +116,20 @@ abstract class installer_base
 
     public static function clear_cache(bool $do_index_html = true)
     {
-        $rdi = new RecursiveDirectoryIterator($this->get_tmpdir());
-        $rii = new RecursiveIteratorIterator($rdi);
-        foreach ($rii as $file => $info) {
+		$dir = $this->get_tmpdir();
+        $iter = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir)); //LEAVES_ONLY
+        foreach ($iter as $file => $info) {
             if ($info->isFile()) {
                 @unlink($info->getPathInfo());
             }
         }
 
         if ($do_index_html) {
-            $rdi = new RecursiveDirectoryIterator($this->get_tmpdir());
-            $rii = new RecursiveIteratorIterator($rdi);
-            foreach ($rii as $file => $info) {
-                if ($info->isFile()) {
+            $iter = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($dir)); //LEAVES_ONLY
+            foreach ($iter as $file => $info) {
+                if ($info->isFile()) { //WHAT??
                     @touch($info->getPathInfo().'/index.html');
                 }
             }
@@ -151,7 +152,7 @@ lib/classes/class.utils.php               __installer          >> prepend 'class
 lib/classes/wizard/class.wizard_step1.php __installer\wizard   >> prepend 'classes'
 lib/classes/tests/class.boolean_test.php  __installer\tests    >> prepend 'classes'
 lib/Smarty/*                              no namespace
-lib/PHPArchive/*                          splitbrain\PHPArchive >> omit 'splitbrain'
+lib/PHPArchive/*                          PHPArchive
 */
                 $sroot = dirname(__DIR__).DIRECTORY_SEPARATOR; //top 'lib' dir
                 $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
@@ -176,14 +177,14 @@ lib/PHPArchive/*                          splitbrain\PHPArchive >> omit 'splitbr
                         return;
                     }
                 }
-            } elseif ($space == 'splitbrain') { //files-archive classes
-                $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $p + 1));
+            } elseif ($space == 'PHPArchive') { //files-archive classes
+                $path = str_replace('\\', DIRECTORY_SEPARATOR, substr($classname, $o));
                 $fp = dirname(__DIR__).DIRECTORY_SEPARATOR.$path.'.php';
                 if (is_file($fp)) {
                     require_once $fp;
                     return;
-				}
-			}
+                }
+            }
         }
     }
 
