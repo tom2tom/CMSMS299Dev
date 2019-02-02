@@ -4,8 +4,12 @@ namespace __installer;
 
 use __installer\wizard\wizard;
 use Exception;
+use FilesystemIterator;
+use FilterIterator;
+use Iterator;
 use Phar;
-use PharData;
+use PHPArchive\Tar;
+use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use function __installer\CMSMS\endswith;
@@ -14,22 +18,40 @@ use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
 use function __installer\CMSMS\startswith;
 use function __installer\CMSMS\translator;
+use function file_put_contents;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
 
+class FilePatternFilter extends FilterIterator
+{
+    private $pattern;
+
+    public function __construct(Iterator $iterator, $pattern)
+    {
+        parent::__construct($iterator);
+        $this->pattern = $pattern;
+    }
+
+    public function accept()
+    {
+        $file = $this->getInnerIterator()->current();
+        return preg_match($this->pattern, $file);
+    }
+}
+
 class gui_install extends installer_base
 {
-    private static $_instance;
     private $_archive;
     private $_dest_version;
     private $_dest_name;
     private $_dest_schema;
     private $_destdir;
     private $_custom_destdir;
+    private $_custom_tmpdir;
     private $_nls;
     private $_orig_tz;
     private $_orig_error_level;
-    private $_custom_tmpdir;
+    private $_have_phar;
 
     /**
      * @param string $configfile Optional filepath of a non-default 'config.ini'
@@ -54,6 +76,8 @@ class gui_install extends installer_base
         if( isset($request['clear']) ) {
             $sess->reset();
         }
+
+        $this->_have_phar = extension_loaded('phar');
 
         $config = $this->get_config(); // generic config data
 
@@ -121,14 +145,6 @@ class gui_install extends installer_base
             $this->_dest_name = $CMS_VERSION_NAME;
             $this->_dest_schema = $CMS_SCHEMA_VERSION;
         }
-    }
-
-    public function get_tmpdir() : string
-    {
-        // because phar uses tmpfile() we need to set the TMPDIR environment variable
-        // with whatever directory we find.
-        $config = $this->get_config();
-        return $config['tmpdir'];
     }
 
     private function fixup_tmpdir_environment()
@@ -287,7 +303,7 @@ class gui_install extends installer_base
         return $config;
     }
 
-    public function get_config()
+    public function get_config() : array
     {
         $sess = session::get();
         if( isset($sess['config']) ) {
@@ -308,7 +324,7 @@ class gui_install extends installer_base
         return $config;
     }
 
-    public function set_config_val($key,$val)
+    public function set_config_val(string $key,$val)
     {
         $config = $this->get_config();
         $config[trim($key)] = $val;
@@ -317,28 +333,93 @@ class gui_install extends installer_base
         $sess['config'] = $config;
     }
 
-    public function get_orig_error_level() { return $this->_orig_error_level; }
+    public function get_orig_error_level() : int
+	{
+		return $this->_orig_error_level ?? 0;
+	}
 
-    public function get_orig_tz() { return $this->_orig_tz; }
+    public function get_orig_tz() : string
+	{
+		return $this->_orig_tz ?? '';
+	}
 
-    public function get_destdir() {
+    public function get_destdir() : string
+	{
         $config = $this->get_config();
-        return $config['dest'];
+        return $config['dest'] ?? '';
     }
 
     public function set_destdir(string $destdir)
-	{
+    {
         $this->set_config_val('dest',$destdir);
     }
 
     public function has_custom_destdir() : bool
-	{
+    {
         $p1 = realpath(getcwd());
         $p2 = realpath($this->_custom_destdir);
         return ($p1 != $p2);
     }
 
-    public function get_archive() : string { return $this->_archive; }
+    public function get_tmpdir() : string
+    {
+        // because phar uses tmpfile() we need to set the TMPDIR environment variable
+        // with whatever directory we find.
+        $config = $this->get_config();
+        return $config['tmpdir'];
+    }
+
+    public function get_archive() : string
+	{
+		return $this->_archive ?? '';
+	}
+
+    /**
+     * Extract content from the source-files archive, with or without PHP's Phar extension
+     * @param string $pattern Optional regex to be matched for returned item-paths
+	 * @return 2-member array: [0] = files iterator [1] = root path of each file
+     */
+    public function unpack_archive(string $pattern = '') : array
+    {
+		if ($this->_have_phar) {
+		//TODO if PharData is available
+		}
+        $config = parent::get_instance()->get_config();
+		if (empty($config['archdir'])) {
+			$path = tempnam($this->get_tmpdir(),'CMSfiles');
+            unlink($path); //we will use this as a dir, not file
+			$config['archdir'] = $path;
+	        $sess = session::get();
+	        $sess['config'] = $config;
+		} else {
+			$path = $config['archdir'];
+		}
+        if (!is_dir($path)) {
+            //onetime unpack (it's slow)
+            $archive = $this->get_archive();
+            if( !file_exists($archive) ) {
+                $archive = str_replace('\\','/',$archive);
+                if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+            }
+
+            $adata = new Tar();
+            $adata->open($archive);
+            $adata->extract($path);
+        }
+
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path,
+              FilesystemIterator::KEY_AS_FILENAME |
+              FilesystemIterator::CURRENT_AS_PATHNAME |
+              FilesystemIterator::SKIP_DOTS |
+              FilesystemIterator::UNIX_PATHS),
+            RecursiveIteratorIterator::SELF_FIRST);
+        if ($pattern) {
+            $iter = new FilePatternFilter($iter,$pattern);
+        }
+
+        return [$iter, $path];
+    }
 
     public function get_dest_version() : string { return $this->_dest_version; }
 
@@ -346,43 +427,28 @@ class gui_install extends installer_base
 
     public function get_dest_schema() : string { return $this->_dest_schema; }
 
-    public function get_phar() : string { return Phar::running(); }
+    public function get_phar() : string { return $this->_have_phar ? Phar::running() : ''; }
 
-    public function in_phar() : bool { return Phar::running() != ''; }
+    public function in_phar() : bool { return $this->_have_phar && Phar::running() != ''; }
 
     public function get_nls() : array
     {
         if( is_array($this->_nls) ) return $this->_nls;
 
-        $archive = $this->get_archive();
-        if( !file_exists($archive) ) {
-            $archive = strtr($archive,'\\','/'); // stupid windoze
-            if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+        list($iter,$tmpdir) = $this->unpack_archive('~[\\/]lib[\\/]nls[\\/].*\.nls\.php$~');
+
+        $nls = [];
+        foreach( $iter as $fn => $file ) {
+            include $file; //populates $nls[]
         }
 
-        $phardata = new PharData($archive);
-        $tmppath = $this->get_tmpdir().DIRECTORY_SEPARATOR.'tmp_';
-        $nls = [];
-        $found = FALSE;
-//        $pharprefix = 'phar://'.$archive;
-        foreach( new RecursiveIteratorIterator($phardata) as $file => $info ) {
-            if( endswith($file,'.nls.php') ) {
-                $file = strtr($file,'\\','/'); //avoid preg_match()
-                if( strpos($file,'/lib/nls/') !== FALSE ) {
-                    $found = TRUE;
-                    $fn = $tmppath.basename($file);
-                    @copy($file,$fn); //extract the file
-                    include $fn;
-                    unlink($fn);
-                }
-            }
-        }
-        if( !$found ) throw new Exception(lang('error_nlsnotfound'));
+        if( !$nls ) throw new Exception(lang('error_nlsnotfound'));
+        if( !asort($nls['language'],SORT_LOCALE_STRING) ) throw new Exception(lang('error_internal'));
         $this->_nls = $nls;
         return $nls;
     }
 
-    public function get_language_list()
+    public function get_language_list() : array
     {
         $this->get_nls();
         return $this->_nls['language'];
@@ -390,23 +456,11 @@ class gui_install extends installer_base
 
     public function get_noncore_modules() : array
     {
-        $archive = $this->get_archive();
-        if( !file_exists($archive) ) {
-            $archive = str_replace('\\','/',$archive);
-            if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
-        }
+        list($iter,$tmpdir) = $this->unpack_archive('~[\\/]assets[\\/]modules[\\/][^\\/]+$~');
 
-        $phardata = new PharData($archive);
-        $o = strlen($archive) + 7; //'phar://' prefix in supplied paths
         $names = [];
-        foreach( new RecursiveIteratorIterator($phardata,RecursiveIteratorIterator::SELF_FIRST) as $info ) {
-            if( $info->isDir() ) {
-                $fp = strtr($info->getPathname(),'\\','/');
-                if( ($p = strpos($fp, '/assets/modules/',$o)) !== FALSE ) {
-                    $parts = explode('/', substr($fp, $p+1)); //OR $p+16 .. $parts[0]
-                    $names[] = $parts[2];
-                }
-            }
+        foreach( $iter as $fn => $file ) {
+            $names[] = $fn;
         }
 
         if( $names ) {
@@ -483,6 +537,12 @@ class gui_install extends installer_base
     {
         if( $this->_custom_tmpdir ) {
             utils::rrmdir($this->_custom_tmpdir);
+        }
+
+        $config = parent::get_instance()->get_config();
+        $tmp = $config['archdir'] ?? null;
+        if( $tmp && is_dir($tmp) ) {
+            utils::rrmdir($tmp);
         }
     }
 } // class
