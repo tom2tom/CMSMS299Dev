@@ -148,6 +148,9 @@ UDT's stored in database
 
 MISC
 
+'expanded' installer works without PHP phar extension
+system upgrade supports renamed admin and/or assets folders
+
 deprecated
 
 Smarty2 API - e.g. method assign_by_ref() migrates to assignByRef() see https://github.com/smarty-php/smarty/blob/master/libs/SmartyBC.class.php
