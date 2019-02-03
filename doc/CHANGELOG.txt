@@ -148,8 +148,9 @@ UDT's stored in database
 
 MISC
 
-'expanded' installer works without PHP phar extension
 system upgrade supports renamed admin and/or assets folders
+installer supports optional non-core modules
+'expanded' installer also works without the PHP phar extension
 
 deprecated
 
