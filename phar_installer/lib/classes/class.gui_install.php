@@ -8,6 +8,7 @@ use FilesystemIterator;
 use FilterIterator;
 use Iterator;
 use Phar;
+use PharData;
 use PHPArchive\Tar;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -381,39 +382,51 @@ class gui_install extends installer_base
      */
     public function unpack_archive(string $pattern = '') : array
     {
-		if ($this->_have_phar) {
-		//TODO if PharData is available
-		}
-        $config = parent::get_instance()->get_config();
-		if (empty($config['archdir'])) {
-			$path = tempnam($this->get_tmpdir(),'CMSfiles');
-            unlink($path); //we will use this as a dir, not file
-			$config['archdir'] = $path;
-	        $sess = session::get();
-	        $sess['config'] = $config;
-		} else {
-			$path = $config['archdir'];
-		}
-        if (!is_dir($path)) {
-            //onetime unpack (it's slow)
+		if( $this->_have_phar ) {
             $archive = $this->get_archive();
             if( !file_exists($archive) ) {
                 $archive = str_replace('\\','/',$archive);
                 if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
             }
 
-            $adata = new Tar();
-            $adata->open($archive);
-            $adata->extract($path);
+            $path = 'phar://'.$archive;  //contents are unpacked as descendants of the arhive
+            $iter = new PharData($archive,
+                  FilesystemIterator::KEY_AS_FILENAME |
+                  FilesystemIterator::CURRENT_AS_PATHNAME |
+                  FilesystemIterator::SKIP_DOTS |
+                  FilesystemIterator::UNIX_PATHS);
+        }
+        else {
+            $config = parent::get_instance()->get_config();
+    		if (empty($config['archdir'])) {
+    			$path = tempnam($this->get_tmpdir(),'CMSfiles');
+                unlink($path); //we will use this as a dir, not file
+    			$config['archdir'] = $path;
+    	        $sess = session::get();
+    	        $sess['config'] = $config;
+    		} else {
+    			$path = $config['archdir'];
+    		}
+            if (!is_dir($path)) {
+                //onetime unpack (it's slow)
+                $archive = $this->get_archive();
+                if( !file_exists($archive) ) {
+                    $archive = str_replace('\\','/',$archive);
+                    if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+                }
+
+                $adata = new Tar();
+                $adata->open($archive);
+                $adata->extract($path);
+            }
+            $iter = new RecursiveDirectoryIterator($path,
+                  FilesystemIterator::KEY_AS_FILENAME |
+                  FilesystemIterator::CURRENT_AS_PATHNAME |
+                  FilesystemIterator::SKIP_DOTS |
+                  FilesystemIterator::UNIX_PATHS);
         }
 
-        $iter = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($path,
-              FilesystemIterator::KEY_AS_FILENAME |
-              FilesystemIterator::CURRENT_AS_PATHNAME |
-              FilesystemIterator::SKIP_DOTS |
-              FilesystemIterator::UNIX_PATHS),
-            RecursiveIteratorIterator::SELF_FIRST);
+        $iter = new RecursiveIteratorIterator($iter,RecursiveIteratorIterator::SELF_FIRST);
         if ($pattern) {
             $iter = new FilePatternFilter($iter,$pattern);
         }
@@ -539,10 +552,14 @@ class gui_install extends installer_base
             utils::rrmdir($this->_custom_tmpdir);
         }
 
-        $config = parent::get_instance()->get_config();
-        $tmp = $config['archdir'] ?? null;
-        if( $tmp && is_dir($tmp) ) {
-            utils::rrmdir($tmp);
+        if ($this->_have_phar) {
+            //TOD
+        } else {
+            $config = parent::get_instance()->get_config();
+            $tmp = $config['archdir'] ?? null;
+            if( $tmp && is_dir($tmp) ) {
+                utils::rrmdir($tmp);
+            }
         }
     }
 } // class

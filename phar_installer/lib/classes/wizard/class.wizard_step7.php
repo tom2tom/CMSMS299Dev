@@ -6,7 +6,10 @@ use __installer\install_filehandler;
 use __installer\manifest_reader;
 use __installer\utils;
 use Exception;
+use FilesystemIterator;
+use PharData;
 use PHPArchive\Tar;
+use RecursiveIteratorIterator;
 use function __installer\CMSMS\endswith;
 use function __installer\CMSMS\lang;
 use function __installer\CMSMS\smarty;
@@ -47,38 +50,52 @@ class wizard_step7 extends wizard_step
 
         $destdir = get_app()->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',751));
+
         $archive = get_app()->get_archive();
-/* TODO if PharData is available
-        $phardata = new PharData($archive); // TODO ?? support fallback to e.g. TarArchive class
-        $aname = basename($archive);
-        $len = strlen($aname);
-        $d2 = $destdir . '/'; //phar tarball uses / for filepath separator
-        foreach( new RecursiveIteratorIterator($phardata) as $file => $it ) {
-            if( ($p = strpos($file,$aname)) === FALSE ) continue;
-            $fn = substr($file,$p + $len);
-            $dn = $destdir.dirname($fn);
-            if( $dn == $destdir || $dn == $d2 ) continue; //has index.php
-            if( $dn == "$destdir/admin" ) continue;
-            if( is_dir($dn) ) {
-                $idxfile = $dn.'/index.html';
-                if( !is_file($idxfile) )  $this->_createIndexHTML($idxfile);
+        if( class_exists('PharData') ) {
+            $aname = basename($archive);
+            $len = strlen($aname);
+            $d2 = $destdir . '/';
+            $iter = new RecursiveIteratorIterator(
+                new PharData($archive,
+                  FilesystemIterator::KEY_AS_FILENAME |
+                  FilesystemIterator::CURRENT_AS_PATHNAME |
+                  FilesystemIterator::SKIP_DOTS |
+                  FilesystemIterator::UNIX_PATHS),
+                RecursiveIteratorIterator::SELF_FIRST);
+            foreach( $iter as $fn=>$file ) {
+                if( ($p = strpos($file,$aname)) === FALSE ) continue;
+                $fp = substr($file,$p + $len);
+                $dn = $destdir.dirname($fp);
+                if( $dn == $destdir || $dn == $d2 ) continue; //has index.php
+                if( $dn == "$destdir/admin" ) continue;
+                if( is_dir($dn) ) {
+                    $idxfile = $dn.'/index.html';
+                    if( !is_file($idxfile) ) {
+                        $this->_createIndexHTML($idxfile);
+                    }
+                    else {
+                        touch($idxfile);
+                    }
+                }
             }
         }
-*/
-        $destdir .= DIRECTORY_SEPARATOR;
-        $adata = new Tar();
-        $adata->open($archive);
-        $files = $adata->folder_contents();
-        foreach ($files as $fp) {
-            if( $fp == '.' || $fp == 'admin' ) {
-                continue; //places having index.php
-            }
-            $idxfile = $destdir.$fp.DIRECTORY_SEPARATOR.'index.html';
-            if( !is_file($idxfile) )  {
-                $this->_createIndexHTML($idxfile);
-            }
-            else {
-                touch($idxfile);
+        else {
+            $destdir .= DIRECTORY_SEPARATOR;
+            $adata = new Tar();
+            $adata->open($archive);
+            $files = $adata->folder_contents();
+            foreach ($files as $fp) {
+                if( $fp == '.' || $fp == 'admin' ) {
+                    continue; //places having index.php
+                }
+                $idxfile = $destdir.$fp.DIRECTORY_SEPARATOR.'index.html';
+                if( !is_file($idxfile) )  {
+                    $this->_createIndexHTML($idxfile);
+                }
+                else {
+                    touch($idxfile);
+                }
             }
         }
     }
@@ -126,16 +143,14 @@ class wizard_step7 extends wizard_step
 
         $this->message(lang('install_extractfiles'));
 
-//TODO if PharData is available
         list($iter,$archdir) = $app->unpack_archive();
         $len = strlen($archdir);
 
         foreach ($iter as $fn=>$fp) {
             if( strpos($fp,'modules') !== FALSE ) {
-                if( ($up = strpos($fp,'/lib/modules/')) !== FALSE ) {
+                if( strpos($fp,'/lib/modules/') !== FALSE ) {
                     if( endswith($fn,'.module.php') ) {
-                        $parts = explode('/',substr($fp,$up + 13));
-                        $allmodules[] = $parts[0];
+                        $allmodules[] = substr($fn,0,strlen($fn) - 11);
                     }
                 }
                 elseif( ($up = strpos($fp,'/assets/modules/')) !== FALSE ) {
