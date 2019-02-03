@@ -38,7 +38,7 @@
   <p>{'info_addmodules'|tr}</p>
 
   <div class="row form-row">
-    <select class="form-field" name="xmodules[]" multiple="multiple" size="4">
+    <select class="form-field" name="xmodules[]" multiple="multiple" size="3">
       {html_options options=$modules_list selected=$modules_sel}
     </select>
   </div>
