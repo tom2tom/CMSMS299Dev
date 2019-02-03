@@ -335,17 +335,17 @@ class gui_install extends installer_base
     }
 
     public function get_orig_error_level() : int
-	{
-		return $this->_orig_error_level ?? 0;
-	}
+    {
+        return $this->_orig_error_level ?? 0;
+    }
 
     public function get_orig_tz() : string
-	{
-		return $this->_orig_tz ?? '';
-	}
+    {
+        return $this->_orig_tz ?? '';
+    }
 
     public function get_destdir() : string
-	{
+    {
         $config = $this->get_config();
         return $config['dest'] ?? '';
     }
@@ -371,18 +371,18 @@ class gui_install extends installer_base
     }
 
     public function get_archive() : string
-	{
-		return $this->_archive ?? '';
-	}
+    {
+        return $this->_archive ?? '';
+    }
 
     /**
      * Extract content from the source-files archive, with or without PHP's Phar extension
      * @param string $pattern Optional regex to be matched for returned item-paths
-	 * @return 2-member array: [0] = files iterator [1] = root path of each file
+     * @return 2-member array: [0] = files iterator [1] = root path of each file
      */
     public function unpack_archive(string $pattern = '') : array
     {
-		if( $this->_have_phar ) {
+        if( $this->_have_phar ) {
             $archive = $this->get_archive();
             if( !file_exists($archive) ) {
                 $archive = str_replace('\\','/',$archive);
@@ -398,15 +398,15 @@ class gui_install extends installer_base
         }
         else {
             $config = parent::get_instance()->get_config();
-    		if (empty($config['archdir'])) {
-    			$path = tempnam($this->get_tmpdir(),'CMSfiles');
+            if (empty($config['archdir'])) {
+                $path = tempnam($this->get_tmpdir(),'CMSfiles');
                 unlink($path); //we will use this as a dir, not file
-    			$config['archdir'] = $path;
-    	        $sess = session::get();
-    	        $sess['config'] = $config;
-    		} else {
-    			$path = $config['archdir'];
-    		}
+                $config['archdir'] = $path;
+                $sess = session::get();
+                $sess['config'] = $config;
+            } else {
+                $path = $config['archdir'];
+            }
             if (!is_dir($path)) {
                 //onetime unpack (it's slow)
                 $archive = $this->get_archive();
