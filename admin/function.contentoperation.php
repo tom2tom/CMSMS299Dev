@@ -778,6 +778,17 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							@copy($from.$name, $to.$name);
 						}
 					}
+
+					$iter = new RecursiveIteratorIterator(
+						new RecursiveDirectoryIterator($config['uploads_path'],
+						  FilesystemIterator::CURRENT_AS_PATHNAME |
+						  FilesystemIterator::SKIP_DOTS),
+						RecursiveIteratorIterator::SELF_FIRST);
+						foreach ($iter as $to) {
+							if (is_dir($to)) {
+								@touch($to.DIRECTORY_SEPARATOR.'index.html');
+							}
+						}
 					break;
 				case 'userplugins':
 					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
@@ -817,5 +828,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 			}
 		}
 	}
+
+
 	return '';
 }
