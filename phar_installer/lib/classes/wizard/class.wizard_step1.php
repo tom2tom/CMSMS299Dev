@@ -174,9 +174,12 @@ class wizard_step1 extends wizard_step
         $raw = $config['verbose'] ?? 0;
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
-        $smarty->assign('languages',translator()->get_language_list(translator()->get_allowed_languages()));
+		$tr = translator();
+        $arr = $tr->get_language_list($tr->get_allowed_languages());
+		asort($arr,SORT_LOCALE_STRING);
+        $smarty->assign('languages',$arr);
         $raw = $config['lang'] ?? null;
-        $v = ($raw) ? trim($raw) : translator()->get_current_language();
+        $v = ($raw) ? trim($raw) : $tr->get_current_language();
         $smarty->assign('curlang',$v);
         $smarty->assign('yesno',[0=>lang('no'),1=>lang('yes')]);
         $smarty->display('wizard_step1.tpl');
