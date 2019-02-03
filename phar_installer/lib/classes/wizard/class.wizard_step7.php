@@ -53,8 +53,7 @@ class wizard_step7 extends wizard_step
 
         $archive = get_app()->get_archive();
         if( class_exists('PharData') ) {
-            $aname = basename($archive);
-            $len = strlen($aname);
+            $len = strlen('phar://'.$archive); //each file's prefix-length
             $d2 = $destdir . '/';
             $iter = new RecursiveIteratorIterator(
                 new PharData($archive,
@@ -64,21 +63,19 @@ class wizard_step7 extends wizard_step
                   FilesystemIterator::UNIX_PATHS),
                 RecursiveIteratorIterator::SELF_FIRST);
             foreach( $iter as $fn=>$file ) {
-                if( ($p = strpos($file,$aname)) === FALSE ) continue;
-                $fp = substr($file,$p + $len);
-                $dn = $destdir.dirname($fp);
-                if( $dn == $destdir || $dn == $d2 ) continue; //has index.php
-                if( $dn == "$destdir/admin" ) continue;
+                $fp = substr($file,$len);
+                $dn = $destdir.$fp;
                 if( is_dir($dn) ) {
-                    $idxfile = $dn.'/index.html';
-                    if( !is_file($idxfile) ) {
-                        $this->_createIndexHTML($idxfile);
-                    }
-                    else {
-                        touch($idxfile);
-                    }
+                    $idxfile = $dn.DIRECTORY_SEPARATOR.'index.html';
+                } else {
+                    $idxfile = dirname($dn).DIRECTORY_SEPARATOR.'index.html';
+                }
+                if( !is_file($idxfile) ) {
+                    $this->_createIndexHTML($idxfile);
                 }
             }
+			unlink($destdir.DIRECTORY_SEPARATOR.'index.html');
+			unlink($destdir.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'index.html');
         }
         else {
             $destdir .= DIRECTORY_SEPARATOR;
