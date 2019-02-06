@@ -22,11 +22,6 @@ class wizard_step7 extends wizard_step
         // nothing here
     }
 
-    private function _createIndexHTML($filename)
-    {
-        touch($filename);
-    }
-
     private function detect_languages()
     {
         $this->message(lang('install_detectlanguages'));
@@ -70,12 +65,10 @@ class wizard_step7 extends wizard_step
                 } else {
                     $idxfile = dirname($dn).DIRECTORY_SEPARATOR.'index.html';
                 }
-                if( !is_file($idxfile) ) {
-                    $this->_createIndexHTML($idxfile);
-                }
+		        @touch($idxfile); //ignore failure
             }
-			unlink($destdir.DIRECTORY_SEPARATOR.'index.html');
-			unlink($destdir.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'index.html');
+            unlink($destdir.DIRECTORY_SEPARATOR.'index.html');
+            @unlink($destdir.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'index.html'); //ok if dir is renamed
         }
         else {
             $destdir .= DIRECTORY_SEPARATOR;
@@ -87,12 +80,7 @@ class wizard_step7 extends wizard_step
                     continue; //places having index.php
                 }
                 $idxfile = $destdir.$fp.DIRECTORY_SEPARATOR.'index.html';
-                if( !is_file($idxfile) )  {
-                    $this->_createIndexHTML($idxfile);
-                }
-                else {
-                    touch($idxfile);
-                }
+                @touch($idxfile);
             }
         }
     }
@@ -106,8 +94,7 @@ class wizard_step7 extends wizard_step
         $languages = ['en_US'];
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( $siteinfo !== NULL ) {
-            //we're installing
-            if( $siteinfo['languages'] ) $languages = array_merge($languages,$siteinfo['languages']);
+            if( isset($siteinfo['languages']) ) $languages = array_merge($languages,$siteinfo['languages']);
             if( $langlist ) $languages = array_merge($languages,$langlist);
             $languages = array_unique($languages);
         }
@@ -117,16 +104,18 @@ class wizard_step7 extends wizard_step
         $filehandler->set_languages($languages);
         $filehandler->set_output_fn('__installer\wizard\wizard_step6::verbose');
 
-        $from = $to = [];
+        $from = $to = $lens = [];
         $app_config = $app->get_config();
         //we rename filepaths, not the actual folders followed by rename-back
         if( isset($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
-            $from[] = '/admin/';//hardcoded '/' filepath-separators in phar tarball
-            $to[] = '/'.$aname.'/'; //these separators may be migrated, downstream
+            $from[] = '/admin';//hardcoded '/' filepath-separators in phar tarball
+			$lens[] = strlen('/admin');
+            $to[] = '/'.$aname; //the separator may be migrated, downstream
         }
         if( isset($app_config['assetsdir']) && ($aname = $app_config['assetsdir']) != 'assets' ) {
-            $from[] = '/assets/';
-            $to[] = '/'.$aname.'/';
+            $from[] = '/assets';
+			$lens[] = strlen('/assets');
+            $to[] = '/'.$aname;
         }
 
         if( $siteinfo !== NULL ) {
@@ -162,7 +151,14 @@ class wizard_step7 extends wizard_step
 
             $spec = substr($fp,$len); //retains leading separator
             if( $from ) {
-                $spec = str_replace($from,$to,$spec);
+                //replace prefix-only, where relevant
+                foreach( $from as $i => $s ) {
+                    $l = $lens[$i];
+                    if( strncmp($spec,$s,$l) == 0 ) {
+                       $spec = $to[$i] . substr($spec,$l) ;
+                       break;
+                    }
+                }
             }
             $filehandler->handle_file($spec,$fp);
         }

@@ -277,7 +277,17 @@ class wizard_step3 extends wizard_step
 
         // required test... check if most files are writable.
         {
-            $dirs = ['lib','plugins','admin','uploads','doc','scripts','install','tmp','assets'];
+            $dirs = ['lib','admin','uploads','doc','tmp','assets'];
+            if( $version_info ) {
+                // it's an upgrade
+                if( !empty($version_info['config']['admin_dir']) ) {
+                    $dirs[1] = $version_info['config']['admin_dir'];
+                }
+                if( !empty($version_info['config']['assets_dir']) ) {
+                    $dirs[5] = $version_info['config']['assets_dir'];
+                }
+            }
+
             $failed = [];
             $list = glob($app->get_destdir().DIRECTORY_SEPARATOR.'*');
             foreach( $list as $one ) {
@@ -296,9 +306,8 @@ class wizard_step3 extends wizard_step
             }
         }
 
-        // it's an upgrade
         if( $version_info ) {
-            // config file must be writable.
+            // it's an upgrade, config file must be writable.
             $obj = new boolean_test('config_writable',is_writable($version_info['config_file']));
             $obj->required = true;
             $obj->fail_key = 'fail_config_writable';
