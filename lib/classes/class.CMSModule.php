@@ -2341,14 +2341,11 @@ abstract class CMSModule
      * @param string $tabid The tab id
      * @param string $title The tab title
      * @param bool $active Optional flag indicating whether this tab is active. Default false
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
-    public function SetTabHeader($tabid, $title, $active = false, $auto = true)
+    public function SetTabHeader($tabid, $title, $active = false)
     {
-        return AdminTabs::set_tab_header($tabid,$title,$active,$auto);
+        return AdminTabs::set_tab_header($tabid,$title,$active);
     }
 
     /**
@@ -2406,7 +2403,7 @@ abstract class CMSModule
 	 * @param bool $auto Since 2.3 Whether to automatically generate
 	 *  continuity-related elements instead of explicit creation of those.
 	 *  Default true, or false for pre-2.0 behavior.
-     * @see CMSModule::SetTabHeaders()
+     * @see CMSModule::SetTabHeader()
      * @return string
      */
     final public function StartTab(string $tabid, array $params = [], bool $auto = true) : string
