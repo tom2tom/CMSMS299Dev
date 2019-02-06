@@ -1,6 +1,6 @@
 <?php
 #compatibility class to manage User Defined Tags.
-#Copyright (C) 2017-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is part of CMS Made Simple <http://cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify

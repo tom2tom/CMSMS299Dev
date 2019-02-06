@@ -1,6 +1,6 @@
 <?php
 #Plugin to...
-#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This projects homepage is: http://www.cmsmadesimple.org
 #

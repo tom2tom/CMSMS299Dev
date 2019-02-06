@@ -3,7 +3,7 @@
 Class ResultSet: represents a SQL-command result
 Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
 For CMS Made Simple <http:www.cmsmadesimple.org>
-Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

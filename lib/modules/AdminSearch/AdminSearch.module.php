@@ -1,6 +1,6 @@
 <?php
 # AdminSearch - A CMSMS addon module to perform database searches.
-# Copyright (C) 2012-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# Copyright (C) 2012-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #

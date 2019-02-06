@@ -1,7 +1,7 @@
 <?php
 #Plugin to get includable styles and/or scripts
 #Deprecated since 2.3, retained only to prevent fatal errors
-#Copyright (C) 2004-2018 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
 #This program is free software; you can redistribute it and/or modify
