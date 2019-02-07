@@ -65,7 +65,7 @@ class wizard_step7 extends wizard_step
                 } else {
                     $idxfile = dirname($dn).DIRECTORY_SEPARATOR.'index.html';
                 }
-		        @touch($idxfile); //ignore failure
+                @touch($idxfile); //ignore failure
             }
             unlink($destdir.DIRECTORY_SEPARATOR.'index.html');
             @unlink($destdir.DIRECTORY_SEPARATOR.'admin'.DIRECTORY_SEPARATOR.'index.html'); //ok if dir is renamed
@@ -108,14 +108,16 @@ class wizard_step7 extends wizard_step
         $app_config = $app->get_config();
         //we rename filepaths, not the actual folders followed by rename-back
         if( isset($app_config['admindir']) && ($aname = $app_config['admindir']) != 'admin' ) {
-            $from[] = '/admin';//hardcoded '/' filepath-separators in phar tarball
-			$lens[] = strlen('/admin');
+            $s = '/admin'; //hardcoded '/' filepath-separators in phar tarball
+            $from[] = $s;
             $to[] = '/'.$aname; //the separator may be migrated, downstream
+            $lens[] = strlen($s);
         }
         if( isset($app_config['assetsdir']) && ($aname = $app_config['assetsdir']) != 'assets' ) {
-            $from[] = '/assets';
-			$lens[] = strlen('/assets');
+            $s = '/assets';
+            $from[] = $s;
             $to[] = '/'.$aname;
+            $lens[] = strlen($s);
         }
 
         if( $siteinfo !== NULL ) {
@@ -152,11 +154,11 @@ class wizard_step7 extends wizard_step
             $spec = substr($fp,$len); //retains leading separator
             if( $from ) {
                 //replace prefix-only, where relevant
-                foreach( $from as $i => $s ) {
+                foreach( $from as $i=>$s ) {
                     $l = $lens[$i];
                     if( strncmp($spec,$s,$l) == 0 ) {
-                       $spec = $to[$i] . substr($spec,$l) ;
-                       break;
+                        $spec = $to[$i].substr($spec,$l);
+                        break;
                     }
                 }
             }
