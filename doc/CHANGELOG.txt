@@ -327,7 +327,6 @@ Installation Assistant - v1.4
   - Now test the default character set
   - Now require at least PHP 7.0 and recommend 7.2
   - Upgrade to smarty v3.1.33
-  - ZipArchive is now a requirement (at least for the installer)
   - no longer change the config file on upgrade.  Though we will for install and freshen.
   - Now install default site-content from an XML file
 
