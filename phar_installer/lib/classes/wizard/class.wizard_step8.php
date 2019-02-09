@@ -147,6 +147,10 @@ class wizard_step8 extends wizard_step
             // permisssions etc
             include_once $dir.'/base.php';
 
+/* See xml files
+            $this->message(lang('install_core_template_types'));
+            include_once $dir.'/core_tpl_types.php';
+*/
 			// site content
             if( !empty($siteinfo['samplecontent']) ) {
                 $arr = installer_base::CONTENTXML;
