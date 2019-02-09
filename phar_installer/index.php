@@ -1,5 +1,8 @@
 <?php
 
+use cms_installer\cli_install;
+use cms_installer\gui_install;
+
 function _detect_bad_ioncube()
 {
     if( extension_loaded('ionCube Loader') ) {
@@ -15,8 +18,7 @@ function _detect_bad_ioncube()
 //
 try {
     // some basic system wide pre-requisites
-    if(php_sapi_name() == 'cli') throw new Exception("Sorry:\n\nCLI based execution of this script is not supported.\nPlease browse to this script with a compatible browser");
-    if( version_compare(phpversion(),'7.0.0') < 0 ) throw new \Exception('Sorry, this installer requires PHP7');
+    if( version_compare(phpversion(),'7.0.0') < 0 ) throw new Exception('Sorry, this installer requires PHP7');
     _detect_bad_ioncube();
 
     // disable some stuff.
@@ -24,8 +26,14 @@ try {
     @ini_set('apc.enabled',0); // disable apc opcode caching (for later versions of APC)
     @ini_set('xcache.cacher',0); // disable xcache opcode caching
 
-    require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
-    $app = new __installer\gui_install(); //no custom config-file specified
+    if( php_sapi_name() == 'cli' ) {
+        require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.cli_install.php';
+        $app = new cli_install();
+    }
+    else {
+        require_once __DIR__.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'classes'.DIRECTORY_SEPARATOR.'class.gui_install.php';
+        $app = new gui_install(); //no custom config-file specified
+    }
     $app->run();
 }
 catch( Exception $e ) {
