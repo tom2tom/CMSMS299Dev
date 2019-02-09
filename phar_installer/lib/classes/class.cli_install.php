@@ -3,6 +3,7 @@
 namespace cms_installer;
 
 use Exception;
+use user_aborted; //TODO
 use function cms_installer\CMSMS\translator;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
@@ -109,16 +110,18 @@ class cli_install extends installer_base
     {
         $patn = __DIR__.DIRECTORY_SEPARATOR.'cli'.DIRECTORY_SEPARATOR.'class.step_*.php';
         $files = glob($patn, GLOB_NOSORT);
-        if( !$files ) return [];
 
         $out = [];
         foreach( $files as $one ) {
             $bn = basename($one, '.php');
-            $class = substr( $bn, 6 );
-            $classname = '\\cms_installer\\cli_step\\'.$class;
+            $class = substr($bn, 6);
+            $classname = '\\cms_installer\\cli\\'.$class;
             $out[] = [ $one, $classname ];
         }
-        asort($out, SORT_NATURAL);
+        if( $out ) {
+            $tmp = array_column($out, 1);
+            array_multisort($tmp, SORT_ASC, SORT_NATURAL, $out);
+        }
         return $out;
     }
 
