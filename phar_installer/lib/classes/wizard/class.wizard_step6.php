@@ -93,7 +93,6 @@ class wizard_step6 extends wizard_step
             $tmp['password'] = trim($raw);
         }
         $smarty->assign('account',$tmp);
-        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step6.tpl');
 
         $this->finish();
