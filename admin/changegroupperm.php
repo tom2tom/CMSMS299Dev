@@ -65,14 +65,14 @@ $load_perms = function () use ($db) {
             return CmsLangOperations::lang_from_realm('admin', $key);
         }
         return $perm_name;
-    }, HookManager::PRIORITY_HIGH);
+    }, HookManager::PRIORITY_LOW);
 
     HookManager::add_hook('getperminfo', function ($perm_source, $perm_name) {
         $key = 'permdesc_'.str_replace(' ', '_', $perm_name);
         if (CmsLangOperations::lang_key_exists('admin', $key)) {
             return CmsLangOperations::lang_from_realm('admin', $key);
         }
-    }, HookManager::PRIORITY_HIGH);
+    }, HookManager::PRIORITY_LOW);
 
     $perm_struct = [];
     while ($result && $row = $result->FetchRow()) {
@@ -121,7 +121,7 @@ $group_perms = function ($in_struct) {
             return 1;
         }
         if (empty($a)) {
-            return 1;
+            return -1;
         }
         if (empty($b)) {
             return 1;
