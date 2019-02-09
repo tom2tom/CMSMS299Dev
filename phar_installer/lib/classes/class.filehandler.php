@@ -1,10 +1,10 @@
 <?php
 
-namespace __installer;
+namespace cms_installer;
 
 use Exception;
 use PharFileInfo;
-use function __installer\CMSMS\lang;
+use function cms_installer\CMSMS\lang;
 
 abstract class filehandler
 {

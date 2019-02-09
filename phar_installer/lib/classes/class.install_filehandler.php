@@ -1,10 +1,10 @@
 <?php
 
-namespace __installer;
+namespace cms_installer;
 
-use __installer\filehandler;
+use cms_installer\filehandler;
 use Exception;
-use function __installer\CMSMS\lang;
+use function cms_installer\CMSMS\lang;
 
 class install_filehandler extends filehandler
 {

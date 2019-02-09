@@ -1,8 +1,8 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\installer_base;
+use cms_installer\installer_base;
 use cms_config;
 use cms_siteprefs;
 use CmsAdminThemeBase;
@@ -10,9 +10,9 @@ use CmsApp;
 use Exception;
 use const CMS_ADMIN_PATH;
 use const CMS_DB_PREFIX;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\smarty;
-use function __installer\get_app;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\smarty;
+use function cms_installer\get_app;
 use function cmsms;
 use function GetDb;
 use function import_content;

@@ -1,8 +1,8 @@
 <?php
 
-namespace __installer\tests;
+namespace cms_installer\tests;
 
-use function __installer\CMSMS\lang;
+use function cms_installer\CMSMS\lang;
 
 class matchall_test extends test_base
 {

@@ -4,7 +4,7 @@ use CMSMS\Events;
 use CMSMS\Group;
 use CMSMS\User;
 use CMSMS\UserOperations;
-use function __installer\get_app;
+use function cms_installer\get_app;
 
 global $admin_user;
 

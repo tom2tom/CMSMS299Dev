@@ -1,16 +1,16 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\session;
+use cms_installer\session;
 use cms_config;
 use CMSMS\ModuleOperations;
 use Exception;
 use const CMS_DB_PREFIX;
-use function __installer\CMSMS\endswith;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\smarty;
-use function __installer\get_app;
+use function cms_installer\CMSMS\endswith;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\smarty;
+use function cms_installer\get_app;
 use function cms_module_places;
 use function cmsms;
 

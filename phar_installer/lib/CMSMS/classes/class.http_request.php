@@ -1,8 +1,8 @@
 <?php
 
-namespace __installer\CMSMS;
+namespace cms_installer\CMSMS;
 
-use function __installer\get_app;
+use function cms_installer\get_app;
 
 /**
  * HTTP Class

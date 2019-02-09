@@ -1,12 +1,12 @@
 <?php
 
-namespace __installer\CMSMS;
+namespace cms_installer\CMSMS;
 
-use __installer\installer_base;
-use __installer\request;
-use __installer\session;
+use cms_installer\installer_base;
+use cms_installer\request;
+use cms_installer\session;
 use Exception;
-use function __installer\CMSMS\nls;
+use function cms_installer\CMSMS\nls;
 
 class langtools_Exception extends Exception {}
 

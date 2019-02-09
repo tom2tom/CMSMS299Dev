@@ -1,6 +1,6 @@
 <?php
 
-namespace __installer\tests;
+namespace cms_installer\tests;
 
 class matchany_test extends test_base
 {

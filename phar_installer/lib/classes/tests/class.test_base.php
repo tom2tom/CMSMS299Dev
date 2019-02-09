@@ -1,11 +1,11 @@
 <?php
 
-namespace __installer\tests;
+namespace cms_installer\tests;
 
-use __installer\CMSMS\http_request;
-use __installer\utils;
+use cms_installer\CMSMS\http_request;
+use cms_installer\utils;
 use Exception;
-use function __installer\CMSMS\lang;
+use function cms_installer\CMSMS\lang;
 
 function test_extension_loaded($name)
 {

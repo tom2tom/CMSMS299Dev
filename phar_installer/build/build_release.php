@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use __installer\installer_base;
+use cms_installer\installer_base;
 
 /* NOTE
 this REQUIRES php extensions phar, zlib, and usually, zip

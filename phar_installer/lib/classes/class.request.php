@@ -1,6 +1,6 @@
 <?php
 
-namespace __installer;
+namespace cms_installer;
 
 use ArrayAccess;
 use Exception;

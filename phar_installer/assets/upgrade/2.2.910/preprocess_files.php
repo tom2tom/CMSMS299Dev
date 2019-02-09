@@ -1,9 +1,9 @@
 <?php
 
-use __installer\utils;
-use __installer\wizard\wizard;
+use cms_installer\utils;
+use cms_installer\wizard\wizard;
 use CMSMS\LogicException;
-use function __installer\get_app;
+use function cms_installer\get_app;
 
 $app = get_app();
 $destdir = $app->get_destdir();

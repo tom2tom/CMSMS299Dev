@@ -1,6 +1,6 @@
 <?php
 
-namespace __installer\CMSMS;
+namespace cms_installer\CMSMS;
 
 function startswith(string $haystack, string $needle) : bool
 {

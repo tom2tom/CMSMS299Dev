@@ -2,9 +2,9 @@
 
 use CMSMS\Group;
 use CMSMS\SimplePluginOperations;
-use function __installer\CMSMS\endswith;
-use function __installer\CMSMS\joinpath;
-use function __installer\CMSMS\startswith;
+use function cms_installer\CMSMS\endswith;
+use function cms_installer\CMSMS\joinpath;
+use function cms_installer\CMSMS\startswith;
 
 // 1. Convert UDT's to simple plugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');

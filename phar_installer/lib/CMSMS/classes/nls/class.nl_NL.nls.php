@@ -1,8 +1,8 @@
 <?php
 
-namespace __installer\CMSMS\nls;
+namespace cms_installer\CMSMS\nls;
 
-use __installer\CMSMS\nls;
+use cms_installer\CMSMS\nls;
 
 final class nl_NL_nls extends nls
 {

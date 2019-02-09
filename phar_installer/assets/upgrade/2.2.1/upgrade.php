@@ -1,7 +1,7 @@
 <?php
 
-use __installer\utils;
-use function __installer\get_app;
+use cms_installer\utils;
+use function cms_installer\get_app;
 
 status_msg('Performing directory changes for CMSMS 2.2.1');
 

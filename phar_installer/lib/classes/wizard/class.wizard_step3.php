@@ -1,21 +1,21 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\tests\boolean_test;
-use __installer\tests\informational_test;
-use __installer\tests\matchany_test;
-use __installer\tests\range_test;
-use __installer\tests\version_range_test;
-use __installer\utils;
-use __installer\wizard\wizard_step;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\smarty;
-use function __installer\get_app;
-use function __installer\tests\test_extension_loaded;
-use function __installer\tests\test_is_false;
-use function __installer\tests\test_is_true;
-use function __installer\tests\test_remote_file;
+use cms_installer\tests\boolean_test;
+use cms_installer\tests\informational_test;
+use cms_installer\tests\matchany_test;
+use cms_installer\tests\range_test;
+use cms_installer\tests\version_range_test;
+use cms_installer\utils;
+use cms_installer\wizard\wizard_step;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\smarty;
+use function cms_installer\get_app;
+use function cms_installer\tests\test_extension_loaded;
+use function cms_installer\tests\test_is_false;
+use function cms_installer\tests\test_is_true;
+use function cms_installer\tests\test_remote_file;
 
 class wizard_step3 extends wizard_step
 {

@@ -1,19 +1,19 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\install_filehandler;
-use __installer\manifest_reader;
-use __installer\utils;
+use cms_installer\install_filehandler;
+use cms_installer\manifest_reader;
+use cms_installer\utils;
 use Exception;
 use FilesystemIterator;
 use PharData;
 use PHPArchive\Tar;
 use RecursiveIteratorIterator;
-use function __installer\CMSMS\endswith;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\smarty;
-use function __installer\get_app;
+use function cms_installer\CMSMS\endswith;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\smarty;
+use function cms_installer\get_app;
 
 class wizard_step7 extends wizard_step
 {
@@ -102,7 +102,7 @@ class wizard_step7 extends wizard_step
         $filehandler = new install_filehandler();
         $filehandler->set_destdir($destdir);
         $filehandler->set_languages($languages);
-        $filehandler->set_output_fn('__installer\wizard\wizard_step6::verbose');
+        $filehandler->set_output_fn('cms_installer\wizard\wizard_step6::verbose');
 
         $from = $to = $lens = [];
         $app_config = $app->get_config();

@@ -1,7 +1,7 @@
 <?php
 
-use function __installer\get_app;
-use function __installer\CMSMS\joinpath;
+use function cms_installer\get_app;
+use function cms_installer\CMSMS\joinpath;
 
 function create_private_dir(string $relative_dir)
 {

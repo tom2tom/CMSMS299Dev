@@ -1,13 +1,13 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\utils;
+use cms_installer\utils;
 use Exception;
 use LogicException;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\smarty;
-use function __installer\get_app;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\smarty;
+use function cms_installer\get_app;
 use function GetDb;
 
 class wizard_step4 extends wizard_step

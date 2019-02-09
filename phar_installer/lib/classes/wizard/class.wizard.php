@@ -1,9 +1,9 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\request;
-use __installer\session;
+use cms_installer\request;
+use cms_installer\session;
 use DirectoryIterator;
 use Exception;
 use RegexIterator;

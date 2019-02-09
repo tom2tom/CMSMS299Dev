@@ -1,10 +1,10 @@
 <?php
 
-namespace __installer;
+namespace cms_installer;
 
-use __installer\CMSMS\lang;
+use cms_installer\CMSMS\lang;
 use Exception;
-use function __installer\CMSMS\startswith;
+use function cms_installer\CMSMS\startswith;
 
 class manifest_reader
 {

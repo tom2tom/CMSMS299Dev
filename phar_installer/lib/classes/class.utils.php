@@ -1,12 +1,12 @@
 <?php
 
-namespace __installer;
+namespace cms_installer;
 
 use Exception;
-use function __installer\CMSMS\endswith;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\startswith;
-use function __installer\get_app;
+use function cms_installer\CMSMS\endswith;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\startswith;
+use function cms_installer\get_app;
 
 final class utils
 {

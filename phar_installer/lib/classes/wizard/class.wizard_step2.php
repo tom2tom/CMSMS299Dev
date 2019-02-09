@@ -1,14 +1,14 @@
 <?php
 
-namespace __installer\wizard;
+namespace cms_installer\wizard;
 
-use __installer\utils;
+use cms_installer\utils;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use function __installer\CMSMS\lang;
-use function __installer\CMSMS\smarty;
-use function __installer\get_app;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\smarty;
+use function cms_installer\get_app;
 
 class wizard_step2 extends wizard_step
 {

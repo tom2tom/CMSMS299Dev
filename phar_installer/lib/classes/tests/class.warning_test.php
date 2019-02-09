@@ -1,8 +1,8 @@
 <?php
 
-namespace __installer\tests;
+namespace cms_installer\tests;
 
-use __installer\utils;
+use cms_installer\utils;
 
 
 // just like a boolean test, but uses TEST_WARN instaed of TESt_FAIL

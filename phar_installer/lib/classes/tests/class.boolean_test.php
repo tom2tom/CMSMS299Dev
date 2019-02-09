@@ -1,8 +1,8 @@
 <?php
 
-namespace __installer\tests;
+namespace cms_installer\tests;
 
-use __installer\utils;
+use cms_installer\utils;
 
 class boolean_test extends test_base
 {

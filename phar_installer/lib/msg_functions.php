@@ -1,7 +1,7 @@
 <?php
 
-use __installer\CMSMS\langtools;
-use __installer\wizard\wizard;
+use cms_installer\CMSMS\langtools;
+use cms_installer\wizard\wizard;
 
 function ilang(...$args)
 {

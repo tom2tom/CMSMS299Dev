@@ -1,11 +1,11 @@
 <?php
 
-namespace __installer\CMSMS;
+namespace cms_installer\CMSMS;
 
-use __installer\CMSMS\langtools;
+use cms_installer\CMSMS\langtools;
 use Exception;
 use Smarty;
-use function __installer\get_app;
+use function cms_installer\get_app;
 
 require_once dirname(__DIR__, 2).'/Smarty/Smarty.class.php';
 
