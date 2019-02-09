@@ -1,14 +1,42 @@
 <?php
 
-namespace __installer;
+namespace cms_installer;
 
-use __installer\request;
-use __installer\utils;
+use cms_installer\request;
+use cms_installer\utils;
 use Exception;
+use FilesystemIterator;
+use FilterIterator;
+use Iterator;
+use Phar;
+use PharData;
+use PHPArchive\Tar;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use RuntimeException;
 use Smarty_Autoloader;
-use function __installer\CMSMS\startswith;
+use function cms_installer\CMSMS\endswith;
+use function cms_installer\CMSMS\joinpath;
+use function cms_installer\CMSMS\lang;
+use function cms_installer\CMSMS\startswith;
+use function file_put_contents;
+
+class FilePatternFilter extends FilterIterator
+{
+    private $pattern;
+
+    public function __construct(Iterator $iterator, $pattern)
+    {
+        parent::__construct($iterator);
+        $this->pattern = $pattern;
+    }
+
+    public function accept()
+    {
+        $file = $this->getInnerIterator()->current();
+        return preg_match($this->pattern, $file);
+    }
+}
 
 abstract class installer_base
 {
@@ -17,8 +45,19 @@ abstract class installer_base
     const CONTENTFILESDIR = ['assets','install','uploadfiles']; //ditto
 
     private static $_instance;
-    private $_config; //array or false
+    private $_archive;
     private $_assetdir;
+    private $_config; //array or false
+    private $_custom_destdir;
+    private $_custom_tmpdir;
+    private $_dest_name;
+    private $_dest_schema;
+    private $_dest_version;
+    private $_destdir;
+    private $_have_phar;
+    private $_nls;
+    private $_orig_error_level;
+    private $_orig_tz;
 
     /**
      * @param string $configfile Optional filepath of a non-default 'config.ini'
@@ -37,6 +76,7 @@ abstract class installer_base
         $p = dirname(__DIR__).DIRECTORY_SEPARATOR;
         require_once $p.'Smarty'.DIRECTORY_SEPARATOR.'Autoloader.php';
         Smarty_Autoloader::register();
+//      require_once $p.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
 
         require_once $p.'compat.functions.php';
         require_once $p.'msg_functions.php';
@@ -66,6 +106,8 @@ abstract class installer_base
         }
 
         $this->_config = ($config) ? $config : false;
+
+        $this->_have_phar = extension_loaded('phar');
     }
 
     public static function get_instance() : self
@@ -83,8 +125,8 @@ abstract class installer_base
 
     public function get_tmpdir() : string
     {
-        // not modifiable, yet
-        return utils::get_sys_tmpdir();
+        $config = self::$_instance->config();
+        return $config['tmpdir'];
     }
 
     public static function get_assetsdir() : string
@@ -107,11 +149,6 @@ abstract class installer_base
         $request = request::get();
         $dir = dirname($request['SCRIPT_FILENAME']);
         return $dir;
-    }
-
-    public function get_config()
-    {
-        return $this->_config;
     }
 
     public static function clear_cache(bool $do_index_html = true)
@@ -146,11 +183,11 @@ abstract class installer_base
 /*
 lib/CMSMS/Database/class.Connection.php    CMSMS\Database\Connection
 lib/CMSMS/Database/mysqli/class.ResultSet.php  CMSMS\Database\mysqli\Resultset
-lib/CMSMS/classes/class.http_request.php  __installer\CMSMS   >> 'CMSMS 'then 'classes'
-lib/CMSMS/classes/nls/class.nl_NL.nls.php __installer\CMSMS\nls (not autoloaded) >> 'CMSMS 'then 'classes'
-lib/classes/class.utils.php               __installer          >> prepend 'classes'
-lib/classes/wizard/class.wizard_step1.php __installer\wizard   >> prepend 'classes'
-lib/classes/tests/class.boolean_test.php  __installer\tests    >> prepend 'classes'
+lib/CMSMS/classes/class.http_request.php  cms_installer\CMSMS   >> 'CMSMS 'then 'classes'
+lib/CMSMS/classes/nls/class.nl_NL.nls.php cms_installer\CMSMS\nls (not autoloaded) >> 'CMSMS 'then 'classes'
+lib/classes/class.utils.php               cms_installer          >> prepend 'classes'
+lib/classes/wizard/class.wizard_step1.php cms_installer\wizard   >> prepend 'classes'
+lib/classes/tests/class.boolean_test.php  cms_installer\tests    >> prepend 'classes'
 lib/Smarty/*                              no namespace
 lib/PHPArchive/*                          PHPArchive
 */
@@ -184,6 +221,336 @@ lib/PHPArchive/*                          PHPArchive
                     require_once $fp;
                     return;
                 }
+            }
+        }
+    }
+
+    protected function set_config_defaults() : array
+    {
+		$tmp = utils::get_sys_tmpdir();
+        $config = array_merge(
+        [
+            'debug' => false,
+            'dest' => null,
+            'lang' => null,
+            'nobase' => false,
+            'nofiles' => false,
+            'timezone' => null,
+            'tmpdir' => $tmp,
+            'verbose' => false,
+        ], $this->_config);
+
+        $tmp = @date_default_timezone_get();
+        if( !$tmp) $tmp = 'UTC';
+        $this->_orig_tz = $config['timezone'] = $tmp;
+        $tmp = realpath(getcwd());
+
+        $adbg = $tmp.'/assets/install/initial.xml';
+        $msg = (is_file($adbg)) ? 'XML EXISTS' : 'NO XML at '.$adbg;
+        file_put_contents('/tmp/guiinstaller-cwd.txt', $msg); //DEBUG
+
+        if( endswith($tmp, 'phar_installer') ) {
+            $tmp = dirname($tmp);
+        }
+        $config['dest'] = $tmp;
+        return $config;
+    }
+
+    protected function load_config() : array
+    {
+        // setup some defaults
+        $config = $this->set_config_defaults();
+
+        // override default config with config file(s)
+        $tmp = realpath(getcwd());
+        $config_file = joinpath($tmp,'assets','config.ini');
+        if( is_file($config_file) && is_readable($config_file) ) {
+            $list = parse_ini_file($config_file);
+            if( $list ) {
+                $config = array_merge($config,$list);
+                if( isset($list['dest']) ) $this->_custom_destdir = $list['dest'];
+            }
+        }
+        if( endswith($tmp, 'phar_installer') ) {
+            $tmp = dirname($tmp);
+        }
+        $config_file = joinpath($tmp,'config.ini');
+        if( is_file($config_file) && is_readable($config_file) ) {
+            $list = parse_ini_file($config_file);
+            if( $list ) {
+                $config = array_merge($config,$list);
+                if( isset($list['dest']) ) $this->_custom_destdir = $list['dest'];
+            }
+        }
+
+        // override current config with url params
+        $request = request::get();
+        $list = [
+            'debug',
+            'dest',
+            'destdir',
+            'no_files',
+            'nobase',
+            'nofiles',
+            'timezone',
+            'TMPDIR',
+            'tmpdir',
+            'tz',
+        ];
+        foreach( $list as $key ) {
+        if( !isset($request[$key]) ) continue;
+            $val = $request[$key];
+            switch( $key ) {
+            case 'TMPDIR':
+            case 'tmpdir':
+                $config['tmpdir'] = trim($val);
+                break;
+            case 'timezone':
+            case 'tz':
+                $config['timezone'] = trim($val);
+                break;
+            case 'dest':
+            case 'destdir':
+                $this->_custom_destdir = $config['dest'] = trim($val);
+                break;
+            case 'debug':
+                $config['debug'] = utils::to_bool($val);
+                break;
+            case 'nobase':
+                $config['nobase'] = utils::to_bool($val);
+                break;
+            case 'nofiles':
+            case 'no_files':
+                $config['nofiles'] = utils::to_bool($val);
+                break;
+            }
+        }
+        return $config;
+    }
+
+    protected function check_config(array $config) : array
+    {
+        foreach( $config as $key => $val ) {
+            switch( $key ) {
+            case 'timezone':
+                // do nothing
+                break;
+            case 'tmpdir':
+                if( !$val ) {
+                    // no tmpdir set... gotta find or create one.
+                    $val = $this->get_tmpdir();
+                }
+                if( !is_dir($val) || !is_writable($val) ) {
+                    // could not find a valid system temporary directory, or none specified. gotta make one
+                    $dir = realpath(getcwd()).'/__m'.md5(session_id());
+                    if( !@is_dir($dir) && !@mkdir($dir) ) throw new RuntimeException('Sorry, problem determining a temporary directory, non specified, and we could not create one.');
+                    $txt = 'This is temporary directory created for installing CMSMS in punitively restrictive environments.  You may delete this directory and its files once installation is complete.';
+                    if( !@file_put_contents($dir.'/__cmsms',$txt) ) throw new RuntimeException('We could not create a file in the temporary directory we just created (is safe mode on?).');
+                    $this->set_config_val('tmpdir',$dir);
+                    $this->_custom_tmpdir = $dir;
+                    $val = $dir;
+                }
+                $config[$key] = $val;
+                break;
+            case 'dest':
+                if( !is_dir($val) || !is_writable($val) ) {
+                    throw new RuntimeException('Invalid config value for '.$key.' - not a directory, or not writable');
+                }
+                break;
+            case 'debug':
+            case 'nofiles':
+            case 'nobase':
+                // do nothing
+                break;
+            }
+        }
+        return $config;
+    }
+
+    public function get_config() : array
+    {
+        $sess = session::get();
+        if( isset($sess['config']) ) {
+            // already set once... so you must close and re-open the browser to reset it.
+            return $sess['config'];
+        }
+
+        // gotta load the config, then cache it in the session
+        $config = $this->load_config();
+        $config = $this->check_config($config);
+
+        $buildconfig = $this->_config ?? false;
+        if( $buildconfig ) {
+            $config += $buildconfig;
+        }
+
+        $sess['config'] = $config;
+        return $config;
+    }
+
+    public function set_config_val(string $key,$val)
+    {
+        $config = $this->get_config();
+        $config[trim($key)] = $val;
+
+        $sess = session::get();
+        $sess['config'] = $config;
+    }
+
+    public function get_orig_error_level() : int
+    {
+        return $this->_orig_error_level ?? 0;
+    }
+
+    public function get_orig_tz() : string
+    {
+        return $this->_orig_tz ?? '';
+    }
+
+    public function get_destdir() : string
+    {
+        $config = $this->get_config();
+        return $config['dest'] ?? '';
+    }
+
+    public function set_destdir(string $destdir)
+    {
+        $this->set_config_val('dest',$destdir);
+    }
+
+    public function has_custom_destdir() : bool
+    {
+        $p1 = realpath(getcwd());
+        $p2 = realpath($this->_custom_destdir);
+        return ($p1 != $p2);
+    }
+
+    public function get_dest_version() : string { return $this->_dest_version; }
+
+    public function get_dest_name() : string { return $this->_dest_name; }
+
+    public function get_dest_schema() : string { return $this->_dest_schema; }
+
+    public function get_archive() : string
+    {
+        return $this->_archive ?? '';
+    }
+
+    public function get_phar() : string { return $this->_have_phar ? Phar::running() : ''; }
+
+    public function in_phar() : bool { return $this->_have_phar && Phar::running() != ''; }
+
+    /**
+     * Extract content from the source-files archive, with or without PHP's Phar extension
+     * @param string $pattern Optional regex to be matched for returned item-paths
+     * @return 2-member array: [0] = files iterator [1] = root path of each file
+     */
+    public function unpack_archive(string $pattern = '') : array
+    {
+        if( $this->_have_phar ) {
+            $archive = $this->get_archive();
+            if( !file_exists($archive) ) {
+                $archive = str_replace('\\','/',$archive);
+                if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+            }
+
+            $path = 'phar://'.$archive;  //contents are unpacked as descendants of the arhive
+            $iter = new PharData($archive,
+                  FilesystemIterator::KEY_AS_FILENAME |
+                  FilesystemIterator::CURRENT_AS_PATHNAME |
+                  FilesystemIterator::SKIP_DOTS |
+                  FilesystemIterator::UNIX_PATHS);
+        }
+        else {
+            $config = self::get_instance()->get_config();
+            if (empty($config['archdir'])) {
+                $path = tempnam($this->get_tmpdir(),'CMSfiles');
+                unlink($path); //we will use this as a dir, not file
+                $config['archdir'] = $path;
+                $sess = session::get();
+                $sess['config'] = $config;
+            } else {
+                $path = $config['archdir'];
+            }
+            if (!is_dir($path)) {
+                //onetime unpack (it's slow)
+                $archive = $this->get_archive();
+                if( !file_exists($archive) ) {
+                    $archive = str_replace('\\','/',$archive);
+                    if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+                }
+
+                $adata = new Tar();
+                $adata->open($archive);
+                $adata->extract($path);
+            }
+            $iter = new RecursiveDirectoryIterator($path,
+                  FilesystemIterator::KEY_AS_FILENAME |
+                  FilesystemIterator::CURRENT_AS_PATHNAME |
+                  FilesystemIterator::SKIP_DOTS |
+                  FilesystemIterator::UNIX_PATHS);
+        }
+
+        $iter = new RecursiveIteratorIterator($iter,RecursiveIteratorIterator::SELF_FIRST);
+        if ($pattern) {
+            $iter = new FilePatternFilter($iter,$pattern);
+        }
+
+        return [$iter, $path];
+    }
+
+    public function get_nls() : array
+    {
+        if( is_array($this->_nls) ) return $this->_nls;
+
+        list($iter,$tmpdir) = $this->unpack_archive('~[\\/]lib[\\/]nls[\\/].*\.nls\.php$~');
+
+        $nls = [];
+        foreach( $iter as $fn => $file ) {
+            include $file; //populates $nls[]
+        }
+
+        if( !$nls ) throw new Exception(lang('error_nlsnotfound'));
+        if( !asort($nls['language'],SORT_LOCALE_STRING) ) throw new Exception(lang('error_internal'));
+        $this->_nls = $nls;
+        return $nls;
+    }
+
+    public function get_language_list() : array
+    {
+        $this->get_nls();
+        return $this->_nls['language'];
+    }
+
+    public function get_noncore_modules() : array
+    {
+        list($iter,$tmpdir) = $this->unpack_archive('~[\\/]assets[\\/]modules[\\/][^\\/]+$~');
+
+        $names = [];
+        foreach( $iter as $fn => $file ) {
+            $names[] = $fn;
+        }
+
+        if( $names ) {
+            $names = array_unique($names);
+            natsort($names);
+        }
+        return $names;
+    }
+
+    public function cleanup()
+    {
+        if( $this->_custom_tmpdir ) {
+            utils::rrmdir($this->_custom_tmpdir);
+        }
+
+        if ($this->_have_phar) {
+            //TOD
+        } else {
+            $config = self::get_instance()->get_config();
+            $tmp = $config['archdir'] ?? null;
+            if( $tmp && is_dir($tmp) ) {
+                utils::rrmdir($tmp);
             }
         }
     }
