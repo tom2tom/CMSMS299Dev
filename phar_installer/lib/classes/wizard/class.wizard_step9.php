@@ -153,33 +153,6 @@ VALUES (?,?,?,NOW(),NOW())');
         if( !endswith($root_url,'/') ) $root_url .= '/';
         $admin_url = $root_url.'admin';
 
-/*      if( is_array($adminacct) && !empty($adminacct['emailaccountinfo']) && !empty($adminacct['emailaddr']) ) {
-            try {
-                $this->message(lang('send_admin_email'));
-                $mailer = new CMSMS\Mailer();
-                $mailer->AddAddress($adminacct['emailaddr']);
-                $mailer->SetSubject(lang('email_accountinfo_subject'));
-                $body = null;
-                if( $app->in_phar() ) {
-                    $body = lang('email_accountinfo_message',
-                                            $adminacct['username'],$adminacct['password'],
-                                            $destdir, $root_url);
-                }
-                else {
-                    $body = lang('email_accountinfo_message_exp',
-                                            $adminacct['username'],$adminacct['password'],
-                                            $destdir);
-                }
-                $body = html_entity_decode($body, ENT_QUOTES);
-                $mailer->SetBody($body);
-                $mailer->Send();
-            }
-            catch( \Exception $e ) {
-                $this->error(lang('error_sendingmail').': '.$e->GetMessage());
-            }
-        }
-*/
-
         // todo: write history
 
         $this->message(lang('msg_clearcache'));
