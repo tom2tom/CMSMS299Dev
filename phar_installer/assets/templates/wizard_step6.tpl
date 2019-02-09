@@ -62,18 +62,6 @@
       {/if} *}
       </div>
     </div>
-{*    {if $verbose}
-    <div class="row form-row">
-      <div class="four-col">
-        <label for="emailacctinfo">{'emailaccountinfo'|tr}</label>
-      </div>
-      <div class="eight-col">
-        <select id="emailacctinfo" name="emailaccountinfo" class="form-field">
-          {html_options options=$yesno selected=$account.emailaccountinfo}
-        </select>
-      </div>
-    </div>
-    {/if}*}
 
   <div id="bottom_nav">
     <button class="action-button positive" type="submit" name="next"><i class='icon-cog'></i> {'next'|tr}</button>
