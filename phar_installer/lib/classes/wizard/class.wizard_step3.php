@@ -129,19 +129,19 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_file_get_contents';
         $tests[] = $obj;
 
-        // required test...  magic_quotes_runtime
+        // required test ... magic_quotes_runtime
         $obj = new boolean_test('magic_quotes_runtime',!get_magic_quotes_runtime());
         $obj->required = 1;
         $obj->fail_key = 'fail_magic_quotes_runtime';
         $tests[] = $obj;
 
-        // open basedir is recommended
+        // recommended test ... open basedir
         $obj = new boolean_test('open_basedir',ini_get('open_basedir') == '');
         $obj->warn_key = 'warn_open_basedir';
         $obj->fail_key = 'fail_open_basedir';
         $tests[] = $obj;
 
-        // required test... sessions must use cookies
+        // required test ... sessions must use cookies
         $t0 = new boolean_test('session_use_cookies',ini_get('session.use_cookies'));
         $t0->required = 1;
         $t0->fail_key = 'fail_session_use_cookies';
