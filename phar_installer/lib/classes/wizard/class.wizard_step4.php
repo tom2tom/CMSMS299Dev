@@ -64,12 +64,13 @@ class wizard_step4 extends wizard_step
 
     private function validate($config)
     {
+        $action = $this->get_wizard()->get_data('action');
 //        if( empty($config['db_type']) ) throw new Exception(lang('error_nodbtype'));
         if( empty($config['db_hostname']) ) throw new Exception(lang('error_nodbhost'));
         if( empty($config['db_name']) ) throw new Exception(lang('error_nodbname'));
         if( empty($config['db_username']) ) throw new Exception(lang('error_nodbuser'));
         if( empty($config['db_password']) ) throw new Exception(lang('error_nodbpass'));
-        if( empty($config['db_prefix']) ) throw new Exception(lang('error_nodbprefix'));
+        if( empty($config['db_prefix']) && $action == 'install' ) throw new Exception(lang('error_nodbprefix'));
         if( empty($config['timezone']) ) throw new Exception(lang('error_notimezone'));
 
         $re = '/^[a-zA-Z0-9_\.]*$/';
@@ -98,7 +99,6 @@ class wizard_step4 extends wizard_step
             throw new Exception($e->getMessage().' : '.lang('error_createtable'));
         }
         // see if we can create and drop a table.
-        $action = $this->get_wizard()->get_data('action');
         try {
             $db->Execute('CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)');
         }
@@ -155,7 +155,7 @@ class wizard_step4 extends wizard_step
             $url = $this->get_wizard()->next_url();
             $action = $this->get_wizard()->get_data('action');
             if( $action == 'freshen' ) $url = $this->get_wizard()->step_url(6);
-            if( $action == 'upgrade' ) {
+            elseif( $action == 'upgrade' ) {
                 if( $config['nofiles'] ) {
                     $url = $this->get_wizard()->step_url(8);
                 } else {
@@ -185,7 +185,6 @@ class wizard_step4 extends wizard_step
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
         $smarty->assign('config',$this->_config);
-        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         $smarty->display('wizard_step4.tpl');
 
         $this->finish();
