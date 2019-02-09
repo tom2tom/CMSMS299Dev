@@ -1,8 +1,8 @@
 <?php
 
-namespace cms_installer\cli; //TODO
+namespace cms_installer\cli;
 
-use cli_step;
+use cms_installer\cli\cli_step;
 use CMSMS\Database\Connection;
 use CMSMS\Database\ConnectionSpec;
 use CMSMS\Database\DatabaseException;
@@ -15,7 +15,7 @@ class step_4 extends cli_step
         // try a test connection
         $action = $this->app()->get_op();
 
-        $spec = new ConnectionSpec;
+        $spec = new ConnectionSpec(); //TODO deprecated
         $spec->type = $options['db_type'];
         $spec->host = $options['db_hostname'];
         $spec->username = $options['db_username'];
@@ -66,9 +66,9 @@ class step_4 extends cli_step
         // ask db credentials and php environment stuff
         $console = new console();
         $console->clear();
-        $console->show_centered( lang('cli_welcome', 'bold+underlind()') )->lf();;
-        $console->show_centered( lang('cli_cmsver', $this->app()->get_dest_version() ), 'bold' )->lf();
-        $console->show_centered( lang('cli_hdr_op', $this->app()->get_op(), $this->app()->get_destdir() ) )->lf();
+        $console->show_centered(lang('cli_welcome', 'bold+underlind()'))->lf();;
+        $console->show_centered(lang('cli_cmsver', $this->app()->get_dest_version()), 'bold' )->lf();
+        $console->show_centered(lang('cli_hdr_op', $this->app()->get_op(), $this->app()->get_destdir()))->lf();
         $console->show_centered('----')->lf();
 
         $param_get = function( $arr, $key, $dflt = null ) {

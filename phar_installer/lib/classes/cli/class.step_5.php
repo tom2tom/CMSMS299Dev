@@ -1,8 +1,8 @@
 <?php
 
-namespace cms_installer\cli; //TODO
+namespace cms_installer\cli;
 
-use cli_step; //TODO
+use cms_installer\cli\cli_step;
 use cms_installer\utils;
 use console; //TODO
 use Exception;

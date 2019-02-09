@@ -2,7 +2,7 @@
 
 namespace cms_installer\cli;
 
-use cli_step; //TODO
+use cms_installer\cli\cli_step;
 use console; //TODO
 use function cms_installer\CMSMS\lang;
 
