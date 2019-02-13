@@ -69,7 +69,7 @@ class module_info implements ArrayAccess
             // module file is newer or the only choice
             $arr = $this->_read_from_module($module_name);
         } elseif( $if1 && $if2 ) {
-            // moduleinfo file is newer
+            // moduleinfo.ini file is newer
             $arr = $this->_read_from_module_meta($module_name);
         } else {
             $arr = null;
