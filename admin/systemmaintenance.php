@@ -142,7 +142,7 @@ if (!empty($_POST['updateurls'])) {
 }
 
 if (!empty($_POST['clearcache'])) {
-    cmsms()->clear_cached_files(-1);
+    cmsms()->clear_cached_files();
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
     $themeObject->RecordNotice('success', lang('cachecleared'));
