@@ -579,6 +579,7 @@ final class CmsApp
      * @internal
      * @ignore
      * @access private
+	 * @param $age_days Optional File-modification threshold (days), -1(==0) to whatever. Default 0 hence 'now'.
      */
     final public function clear_cached_files($age_days = 0)
     {
