@@ -142,9 +142,9 @@ $obj = new global_cachable('default_content', function()
 global_cache::add_cachable($obj);
 $obj = new global_cachable('modules', function()
     {
-         $db = CmsApp::get_instance()->GetDb();
-         $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules ORDER BY module_name';
-         return $db->GetArray($query);
+        $db = CmsApp::get_instance()->GetDb();
+        $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules ORDER BY module_name';
+        return $db->GetArray($query);
      });
 global_cache::add_cachable($obj);
 $obj = new global_cachable('module_deps', function()
