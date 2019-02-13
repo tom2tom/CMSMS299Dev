@@ -2,7 +2,6 @@
 {tab_header name='editcontent' label=lang('editcontent_settings') active=$tab}
 {tab_header name='sitedown' label=lang('sitedown_settings') active=$tab}
 {tab_header name='mail' label=lang('mail_settings') active=$tab}
-{tab_header name='smarty' label=lang('smarty_settings') active=$tab}
 {tab_header name='advanced' label=lang('advanced') active=$tab}
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='general'}
@@ -483,25 +482,6 @@
   </div>
 </form>
 {* +++++++++++++++++++++++++++++++++++++++++++ *}
-{tab_start name='smarty'}
-<form id="siteprefform_smarty" action="{$selfurl}{$urlext}" method="post">
-  <input type="hidden" name="active_tab" value="smarty" />
-  <div class="pageoverflow">
-    <p class="pagetext">
-      {$t=lang('prompt_smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
-      {cms_help key2='settings_smartycompilecheck' title=$t}
-    </p>
-    <input type="hidden" name="use_smartycompilecheck" value="0" />
-    <p class="pageinput">
-      <input type="checkbox" name="use_smartycompilecheck" id="compilecheck" value="1"{if $use_smartycompilecheck} checked="checked"{/if} />
-    </p>
-  </div>
-  <div class="pageinput pregap">
-    <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
-    <button type="submit" name="cancel" class="adminsubmit icon cancel">{lang('cancel')}</button>
-  </div>
-</form>
-{* +++++++++++++++++++++++++++++++++++++++++++ *}
 {tab_start name='advanced'}
 <form id="siteprefform_advanced" action="{$selfurl}{$urlext}" method="post">
   <input type="hidden" name="active_tab" value="advanced" />
@@ -544,6 +524,19 @@
       </p>
     </div>
   </fieldset>
+
+  <fieldset>
+    <legend>{lang('smarty_settings')}</legend>
+    <p class="pagetext">
+      {$t=lang('prompt_smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
+      {cms_help key2='settings_smartycompilecheck' title=$t}
+    </p>
+    <input type="hidden" name="use_smartycompilecheck" value="0" />
+    <p class="pageinput">
+      <input type="checkbox" name="use_smartycompilecheck" id="compilecheck" value="1"{if $use_smartycompilecheck} checked="checked"{/if} />
+    </p>
+  </fieldset>
+
   {if $editors}
   <fieldset>
     <legend>{lang('text_editor_settings')}</legend>
@@ -634,6 +627,17 @@
         <input type="checkbox" name="checkversion" id="checkversion" value="1"{if $checkversion} checked="checked"{/if} />
       </p>
     </div>
+{if isset($help_url)}
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('adminhelpurl')}<label for="help_url">{$t}:</label>
+        {cms_help key2='settings_help_url' title=$t}
+      </p>
+      <p class="pageinput">
+        <input id="help_url" type="text" name="help_url" size="50" value="{$help_url}" maxlength="80" />
+      </p>
+    </div>
+{/if}    
   </fieldset>
   <div class="pageinput pregap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>
