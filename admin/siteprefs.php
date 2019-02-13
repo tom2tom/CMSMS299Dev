@@ -119,6 +119,7 @@ $messages = [];
 
 $config = cms_config::get_instance();
 $pretty_urls = $config['url_rewriting'] == 'none' ? 0 : 1;
+$devmode = !empty($config['developer_mode']);
 
 cleanArray($_POST);
 
@@ -305,6 +306,19 @@ if (isset($_POST['submit'])) {
                     $val = strtolower(strtr($val, ' ', '_'));
                 }
                 cms_siteprefs::set('editor_theme', $val);
+                if ($devmode) {
+                    $val = trim($_POST['help_url']);
+                    if ($val) {
+                        $tmp = filter_var($val, FILTER_SANITIZE_URL);
+                        if ($tmp == $val) {
+                            cms_siteprefs::set('site_help_url', $tmp);
+                        } else {
+                            $errors[] = lang('error_invalidurl', $val);
+                        }
+                    } else {
+                        cms_siteprefs::set('site_help_url', '');
+                    }
+                }
 //              cms_siteprefs::set('xmlmodulerepository', $_POST['xmlmodulerepository']);
                 cms_siteprefs::set('checkversion', !empty($_POST['checkversion']));
                 cms_siteprefs::set('global_umask', $_POST['global_umask']);
@@ -364,6 +378,9 @@ $logintheme = cms_siteprefs::get('logintheme', 'default');
 $mail_is_set = cms_siteprefs::get('mail_is_set', 0);
 $metadata = cms_siteprefs::get('metadata', '');
 $search_module = cms_siteprefs::get('searchmodule', 'Search');
+if ($devmode) {
+    $help_url = cms_siteprefs::get('site_help_url', '');
+}
 $sitedownexcludeadmins = cms_siteprefs::get('sitedownexcludeadmins', '');
 $sitedownexcludes = cms_siteprefs::get('sitedownexcludes', '');
 $sitedownmessage = cms_siteprefs::get('sitedownmessage', '<p>Site is currently down.  Check back later.</p>');
@@ -400,13 +417,13 @@ if ($tmp) {
 $dir = $config['image_uploads_path'];
 $filepicker = cms_utils::get_filepicker_module();
 if ($filepicker) {
-	$tmp = $filepicker->get_default_profile($dir, $userid);
-	$profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
-	$logoselector = $filepicker->get_html('image', $sitelogo, $profile);
-	$logoselector = str_replace(['name="image"', 'size="50"', 'readonly="readonly"'], ['id="sitelogo" name="sitelogo"', 'size="60"', ''], $logoselector);
+    $tmp = $filepicker->get_default_profile($dir, $userid);
+    $profile = $tmp->overrideWith(['top'=>$dir, 'type'=>FileType::IMAGE]);
+    $logoselector = $filepicker->get_html('image', $sitelogo, $profile);
+    $logoselector = str_replace(['name="image"', 'size="50"', 'readonly="readonly"'], ['id="sitelogo" name="sitelogo"', 'size="60"', ''], $logoselector);
 }
 else {
-	$logoselector = create_file_dropdown('image', $dir, $sitelogo, 'jpg,jpeg,png,gif', '', true, '', 'thumb_', 0, 1);
+    $logoselector = create_file_dropdown('image', $dir, $sitelogo, 'jpg,jpeg,png,gif', '', true, '', 'thumb_', 0, 1);
 }
 
 // Error if cache folders are not writable
@@ -566,6 +583,10 @@ if ($modules) {
 }
 $smarty->assign('search_modules', $tmp);
 
+if ($devmode) {
+    $smarty->assign('help_url', $help_url);
+}
+
 $tmp = ['' => lang('theme')];
 $modules = $modops->get_modules_with_capability('adminlogin');
 if ($modules) {
@@ -623,42 +644,42 @@ $editors = [];
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
 if( $tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
-		$ob = cms_utils::get_module($tmp[$i]);
-		if ($ob instanceof SyntaxEditor) {
-			$all = $ob->ListEditors(true);
-			foreach ($all as $label=>$val) {
-				$one = new stdClass();
-				$one->value = $val;
-				$one->label = $label;
-				list($modname, $edname) = explode('::', $val);
-				list($realm, $key) = $ob->GetMainHelpKey($edname);
-				if (!$realm) $realm = $modname;
-				$one->mainkey = $realm.'__'.$key;
-				list($realm, $key) = $ob->GetThemeHelpKey($edname);
-				if (!$realm) $realm = $modname;
-				$one->themekey = $realm.'__'.$key;
-				if ($one->value == $editortype) $one->checked = true;
-				$editors[] = $one;
-			}
-		} elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
-			$one = new stdClass();
-			$one->value = $tmp[$i].'::'.$tmp[$i];
-			$one->label = $ob->GetName();
-			$one->mainkey = '';
-			$one->themekey = '';
-			if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
-			$editors[] = $one;
-		}
-	}
-	usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
+        $ob = cms_utils::get_module($tmp[$i]);
+        if ($ob instanceof SyntaxEditor) {
+            $all = $ob->ListEditors(true);
+            foreach ($all as $label=>$val) {
+                $one = new stdClass();
+                $one->value = $val;
+                $one->label = $label;
+                list($modname, $edname) = explode('::', $val);
+                list($realm, $key) = $ob->GetMainHelpKey($edname);
+                if (!$realm) $realm = $modname;
+                $one->mainkey = $realm.'__'.$key;
+                list($realm, $key) = $ob->GetThemeHelpKey($edname);
+                if (!$realm) $realm = $modname;
+                $one->themekey = $realm.'__'.$key;
+                if ($one->value == $editortype) $one->checked = true;
+                $editors[] = $one;
+            }
+        } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
+            $one = new stdClass();
+            $one->value = $tmp[$i].'::'.$tmp[$i];
+            $one->label = $ob->GetName();
+            $one->mainkey = '';
+            $one->themekey = '';
+            if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
+            $editors[] = $one;
+        }
+    }
+    usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
 
-	$one = new stdClass();
-	$one->value = '';
-	$one->label = lang('none');
-	$one->mainkey = '';
-	$one->themekey = '';
-	if (!$editortype) $one->checked = true;
-	$editors[] = $one;
+    $one = new stdClass();
+    $one->value = '';
+    $one->label = lang('none');
+    $one->mainkey = '';
+    $one->themekey = '';
+    if (!$editortype) $one->checked = true;
+    $editors[] = $one;
 }
 $smarty->assign('editors', $editors);
 
