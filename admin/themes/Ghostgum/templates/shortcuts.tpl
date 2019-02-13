@@ -9,6 +9,13 @@
       </span><span class="bubble">{$txt}</span>
     {/if}
     <span class="icon">
+      {if isset($site_help_url)}
+      <a href="{$site_help_url}" title="{'site_support'|lang}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#support"/></svg></a>
+      {else}
+      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#support"/></svg></a>
+      {/if}
+    </span>
+    <span class="icon">
       {if isset($module_help_url)}
       <a href="{$module_help_url}" title="{lang('module_help')}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#cmsmshelp"/></svg></a>
       {else}

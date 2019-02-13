@@ -48,6 +48,7 @@ $lang['settings_editortheme'] = 'Specify the theme name (lower case, any \' \' r
 $lang['settings_enablenotifications'] = 'This option will enable notifications being shown at the top of the page in each Admin request.  This is useful for important notifications about the system that might require user action.  It is possible for each Admin user to turn off notifications in their preferences.';
 //$lang['settings_enablesitedown'] = 'This option allow you to toggle the website as "down for maintenance" for website visitor';
 $lang['settings_enablewysiwyg'] = 'Enable WYSIWYG editor in the text area below';
+$lang['settings_help_url'] = 'Specify an URL (e.g. email or website) to open when a site-help link is activated. Leave blank to use the CMSMS website support-page.';
 $lang['settings_imagefield_path'] = 'This setting is used when editing content.  The directory specified here is used to provide a list of images from which to associate an image with the content page.<br/></br/>Relative to the image uploads path, specify a directory name that contains the paths containing files for the image field';
 $lang['settings_lock_timeout'] = 'Enter a default value (in minutes) for locks to timeout.  This is used if a piece of functionality does not provide a custom lock timeout value';
 $lang['settings_login_module'] = 'This allows you to customise the way admin console logins are handled. The current theme\'s login mechanism, or a suitable module (if any), may be used.';

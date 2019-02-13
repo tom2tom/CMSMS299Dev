@@ -3,6 +3,13 @@
 <div class="shortcuts">
 	<ul class="cf">
 		<li class="help">
+		{if isset($site_help_url)}
+			<a href="{$site_help_url}" title="{'site_support'|lang}">{'site_support'|lang}</a>
+		{else}
+			<a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}">{'site_support'|lang}</a>
+		{/if}
+		</li>
+		<li class="help">
 		{if isset($module_help_url)}
 			<a href="{$module_help_url}" title="{'module_help'|lang}">{'module_help'|lang}</a>
 		{else}

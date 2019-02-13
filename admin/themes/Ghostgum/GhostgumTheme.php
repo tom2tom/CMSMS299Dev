@@ -129,6 +129,11 @@ EOS;
 		$smarty->assign('admin_url', $config['admin_url'])
 		  ->assign('theme', $this);
 
+		//custom support-URL?
+		$url = cms_siteprefs::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
+		}
 		// is the website set down for maintenance?
 		if (cms_siteprefs::get('enablesitedownmessage'))  {
 			$smarty->assign('is_sitedown', 1);

@@ -125,6 +125,11 @@ EOS;
 		$smarty->assign('theme_path',__DIR__);
 		$smarty->assign('theme_root', $config['admin_url'].'/themes/Marigold');
 
+		//custom support-URL?
+		$url = cms_siteprefs::get('site_help_url');
+		if ($url) {
+			$smarty->assign('site_help_url', $url);
+		}
 		// is the website set down for maintenance?
 		if (cms_siteprefs::get('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 1);
