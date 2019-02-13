@@ -347,6 +347,7 @@ $lang['errordeletingfile'] = 'Could not delete file. Permissions problem?';
 $lang['error_deletespecialgroup'] = 'Cannot delete the special Admin group';
 $lang['errordeletag'] = 'Error deleting tagfile. Permissions problem?';
 $lang['errordirectorynotwritable'] = 'No permission to write in directory.  This could be caused by file permissions and ownership.  Safe mode might also be in effect.';
+$lang['errorfilenotwritable'] = 'No permission to write to file \'%s\'.';
 $lang['errorgettingcontent'] = 'Could not retrieve information for the specified content object';
 $lang['errorgroupexists'] = 'A group named \'%s\' already exists';
 //$lang['errorgettingcssname'] = 'Error getting stylesheet name';
