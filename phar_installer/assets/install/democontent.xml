@@ -4675,7 +4675,7 @@ li.separator - To style the ruler for the separator *}
 &lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title="CMS Made Simple documentation site" href="http://docs.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;.&amp;nbsp;If you're ready to get your hands dirty, log in to the admin console at yoursite.com/[path]/admin&amp;nbsp;(if this is your site, click &lt;a title="CMSMS Demo Admin Panel" href="../admin"&gt;here&lt;/a&gt; to login). Explore the templates provided: this page uses Simplex, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
 &lt;p&gt;If you need further help, there are various support options available at &lt;a href="https://www.cmsmadesimple.org/support/options/" target="_blank" rel="noopener"&gt;CMSMS Support Options&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;License&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple is released under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license and as such you don't have to publish a link back to CMSMS in these templates or on the site, as much as we would like it.&lt;/p&gt;
+&lt;p&gt;CMS Made Simple is released under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license and as such you don't have to publish a link back to CMSMS in these templates or on the site, as much as we would like such acknowledgement.&lt;/p&gt;
 &lt;p&gt;Some independently-developed add-on modules may include additional license restrictions.&lt;/p&gt;]]></content>
 		</property>
 		<property>
