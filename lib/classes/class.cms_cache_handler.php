@@ -1,16 +1,33 @@
 <?php
-
-/**
- * Contains a generic cache handler wrapper.
- * @package CMS
- * @license GPL
- */
+#generic cache handler wrapper class
+#Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+#Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+#This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
+#
+#This program is free software; you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation; either version 2 of the License, or
+#(at your option) any later version.
+#
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * This singleton class provides a convenient caching capbility.
  *
- * By default this uses the cms_filecache_driver to cache data in the TMP_CACHE_LOCATION
- * for one hour.
+ * By default this uses the cms_filecache_driver to cache data in the
+ * folder defined by TMP_CACHE_LOCATION, for one hour.
+ *
+ * Site-preferences which affect operation:
+ * 'cache_driver' string [namespaced] class name
+ * 'cache_filecache_autocleaning' bool
+ * 'cache_filecache_blocking' bool
+ * 'cache_filecache_lifetime' int seconds
+ * 'cache_filecache_locking' bool
  *
  * @package CMS
  * @license GPL
@@ -32,21 +49,21 @@ class cms_cache_handler
    */
   private function __construct()
   {
-      // todo... set a default cache handler or something.
-      $driver_name = cms_siteprefs::get('cache_driver');
-      if( !$driver_name ) $driver_name = 'cms_filecache_driver';
+    // TODO set a default cache handler or something.
+    $driver_name = cms_siteprefs::get('cache_driver','cms_filecache_driver');
+    if( $driver_name != '-1' && class_exists($driver_name) ) {
+      // TODO support multi-cache types setup
+      if( $driver_name == 'cms_filecache_driver' ) {
+        $parms = [];
+        $parms['auto_cleaning'] = cms_siteprefs::get('cache_filecache_autocleaning',0);
+        $parms['blocking'] = cms_siteprefs::get('cache_filecache_blocking',0);
+        $parms['lifetime'] = cms_siteprefs::get('cache_filecache_lifetime',3600);
+        $parms['locking'] = cms_siteprefs::get('cache_filecache_locking',0);
 
-      if( $driver_name && $driver_name != '-1' && class_exists($driver_name) ) {
-          if( $driver_name == 'cms_filecache_driver' ) {
-              $parms = [];
-              $parms['lifetime'] = cms_siteprefs::get('cache_filecache_lifetime',3600);
-              $parms['locking'] = cms_siteprefs::get('cache_filecache_locking',0);
-              $parms['auto_cleaning'] = cms_siteprefs::get('cache_filecache_autocleaning',0);
-              $parms['blocking'] = cms_siteprefs::get('cache_filecache_blocking',0);
-              $driver_obj = new $driver_name($parms);
-              $this->_driver = $driver_obj;
-          }
+        $driver_obj = new $driver_name($parms);
+        $this->_driver = $driver_obj;
       }
+    }
   }
 
   /**
@@ -98,7 +115,7 @@ class cms_cache_handler
   final public function clear(string $group = '') : bool
   {
     if( $this->can_cache() ) {
-        return $this->_driver->clear($group);
+      return $this->_driver->clear($group);
     }
     return FALSE;
   }
@@ -114,7 +131,7 @@ class cms_cache_handler
   final public function get(string $key, string $group = '')
   {
     if( $this->can_cache() ) {
-        return $this->_driver->get($key,$group);
+      return $this->_driver->get($key,$group);
     }
     return FALSE;
   }
@@ -130,7 +147,7 @@ class cms_cache_handler
   final public function exists(string $key, string $group = '') : bool
   {
     if( $this->can_cache() ) {
-        return $this->_driver->exists($key,$group);
+      return $this->_driver->exists($key,$group);
     }
     return FALSE;
   }
@@ -146,7 +163,7 @@ class cms_cache_handler
   final public function erase(string $key, string $group = '') : bool
   {
     if( $this->can_cache() ) {
-        return $this->_driver->erase($key,$group);
+      return $this->_driver->erase($key,$group);
     }
     return FALSE;
   }
@@ -163,7 +180,7 @@ class cms_cache_handler
   final public function set(string $key,$value, string $group = '') : bool
   {
     if( $this->can_cache() ) {
-        return $this->_driver->set($key,$value,$group);
+      return $this->_driver->set($key,$value,$group);
     }
     return FALSE;
   }
@@ -177,7 +194,9 @@ class cms_cache_handler
    */
   final public function set_group(string $group) : bool
   {
-    if( is_object($this->_driver) ) return $this->_driver->set_group($group);
+    if( is_object($this->_driver) ) {
+      return $this->_driver->set_group($group);
+    }
     return FALSE;
   }
 
