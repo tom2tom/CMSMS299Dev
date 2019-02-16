@@ -245,5 +245,5 @@ $tpl->assign('nodes',$outtree);
 $tpl->display();
 
 unset($tpl);
-debug_buffer('End Navigator default action');
+debug_buffer('Finished Navigator default action');
 
