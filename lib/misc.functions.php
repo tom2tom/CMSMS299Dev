@@ -427,7 +427,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
     if ($showtitle) {
         $titleText = 'Debug: ';
         if ($title) $titleText = "Debug display of '$title':";
-        $titleText .= microtime_diff($starttime,microtime()) . 's since request-start';
+        $titleText .= microtime_diff($starttime,microtime()) . ' S since request-start';
         if (function_exists('memory_get_usage')) {
             $net = memory_get_usage() - $orig_memory;
             $titleText .= ', memory usage: net '.$net;
