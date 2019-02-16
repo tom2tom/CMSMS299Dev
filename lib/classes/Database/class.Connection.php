@@ -96,7 +96,7 @@ abstract class Connection
      * @ignore
      * bool Whether debug mode is enabled
      */
-    private $_debug;
+    protected $_debug = false;
 
     /**
      * @ignore
@@ -106,7 +106,7 @@ abstract class Connection
     /**
      * @ignore
      */
-    private $_query_count = 0;
+    protected $_query_count = 0;
 
     /**
      * Accumulated sql query time.
@@ -144,7 +144,7 @@ abstract class Connection
      */
     public function __construct($config = null)
     {
-        $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG != 0;
+        $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG;
         if ($this->_debug) {
             $this->_debug_cb = 'debug_buffer';
         }
