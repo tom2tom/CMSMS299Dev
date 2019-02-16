@@ -80,7 +80,7 @@ function redirect(string $to)
     global $CMS_INSTALL_PAGE;
 
     if (empty($CMS_INSTALL_PAGE)) {
-        $debug = CMS_DEBUG;
+        $debug = constant('CMS_DEBUG');
     }
     else {
         $debug = false;
@@ -137,11 +137,11 @@ function redirect_to_alias(string $alias)
  * Calculate the difference in seconds between two microtime() values.
  *
  * @since 0.3
- * @param string $a Earlier microtime value
+ * @param string $a Earlier microtime value (i.e. like 'sec-fraction sec-whole')
  * @param string $b Later microtime value
- * @return int The difference.
+ * @return float The difference, in seconds.
  */
-function microtime_diff(string $a, string $b) : int
+function microtime_diff(string $a, string $b) : float
 {
     list($a_dec, $a_sec) = explode(' ', $a);
     list($b_dec, $b_sec) = explode(' ', $b);
@@ -427,14 +427,24 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
     if ($showtitle) {
         $titleText = 'Debug: ';
         if ($title) $titleText = "Debug display of '$title':";
-        $titleText .= '(' . microtime_diff($starttime,microtime()) . ')';
+        $titleText .= microtime_diff($starttime,microtime()) . 's since request-start';
         if (function_exists('memory_get_usage')) {
             $net = memory_get_usage() - $orig_memory;
-            $titleText .= ' - (net usage: '.$net.')';
+            $titleText .= ', memory usage: net '.$net;
         }
+		else {
+			$net = false;
+		}
 
         $memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():'');
-        if ($memory_peak) $titleText .= ' - (peak: '.$memory_peak.')';
+        if ($memory_peak) {
+			if ($net === false) {
+	            $titleText .= ', memory usage: peak '.$memory_peak;
+			}
+			else {
+				$titleText .= ', peak '.$memory_peak;
+			}
+		}
 
         if ($use_html) {
             echo "<div><b>$titleText</b>\n";
@@ -522,8 +532,9 @@ function debug_to_log($var, string $title='',string $filename = '')
  */
 function debug_buffer($var, string $title='')
 {
-    if (!defined('CMS_DEBUG') || CMS_DEBUG == 0) return;
-    CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
+    if (constant('CMS_DEBUG')) {
+	    CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
+	}
 }
 
 /**
