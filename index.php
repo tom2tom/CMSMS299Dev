@@ -326,7 +326,7 @@ if ($debug || isset($config['log_performance_info']) || (isset($config['show_per
         $filename = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'performance.log';
         error_log(implode('|',$out)."\n", 3, $filename);
     } else {
-        $txt = "Request duration: {$time}s | Database: {$sql_time}s for $sql_queries queries | Memory: net {$memory}, peak {$memory_peak}";
+        $txt = "Request duration: $time S | Database: $sql_time S for $sql_queries queries | Memory: net $memory, peak $memory_peak";
         echo '<div style="clear:both;"><pre><code>'.$txt.'</code></pre></div>';
     }
 }
