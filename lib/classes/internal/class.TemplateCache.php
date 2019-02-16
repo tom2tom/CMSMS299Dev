@@ -50,8 +50,9 @@ class TemplateCache
 	  self::$_instance = TRUE;
 
 	  $this->_key = md5($_SERVER['REQUEST_URI'].serialize($_GET));
-	  if( ($tmp = cms_cache_handler::get_instance()->get('template_cache')) ) {
-		  $this->_cache = unserialize($tmp);
+	  $data = cms_cache_handler::get_instance()->get('template_cache');
+	  if( $data ) {
+		  $this->_cache = $data;
 		  if( isset($this->_cache[$this->_key]) ) {
 			  CmsLayoutTemplate::load_bulk($this->_cache[$this->_key]['templates']);
 			  if( isset($this->_cache[$this->_key]['types']) ) CmsLayoutTemplateType::load_bulk($this->_cache[$this->_key]['types']);
@@ -87,7 +88,7 @@ class TemplateCache
           }
       }
 
-      if( $dirty ) cms_cache_handler::get_instance()->set('template_cache',serialize($this->_cache));
+      if( $dirty ) cms_cache_handler::get_instance()->set('template_cache',$this->_cache);
   }
 
   public static function clear_cache()

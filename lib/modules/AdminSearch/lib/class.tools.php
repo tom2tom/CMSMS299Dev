@@ -14,11 +14,8 @@ final class tools
   {
     $ob = cms_cache_handler::get_instance();
     $key = __CLASS__.'slaves'.get_userid(FALSE);
-    $data = $ob->get($key);
-    if( $data ) {
-      $results = unserialize($data, []);
-    }
-    else {
+    $results = $ob->get($key);
+    if( !$results ) {
       // cache needs populating
       //TODO force upon module installation
       $results = [];
@@ -75,7 +72,7 @@ final class tools
       }
 
       // cache the results
-      $ob->set($key,serialize($results));
+      $ob->set($key,$results);
     }
 
     return $results;

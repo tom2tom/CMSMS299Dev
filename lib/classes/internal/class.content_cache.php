@@ -72,8 +72,9 @@ final class content_cache
 		$content_ids = null;
 		$deep = FALSE;
 		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET));
-		if( ($data = cms_cache_handler::get_instance()->get($this->_key,__CLASS__)) ) {
-			list($lastmtime,$deep,$content_ids) = unserialize($data);
+		$data = cms_cache_handler::get_instance()->get($this->_key,__CLASS__);
+		if( $data) {
+			list($lastmtime,$deep,$content_ids) = $data;
 			if( $lastmtime < ContentOperations::get_instance()->GetLastContentModification() ) {
 				$deep = null;
 				$content_ids = null;
@@ -132,9 +133,9 @@ final class content_cache
 						break;
 					}
 				}
-                $deep = ($deep && count($ndeep) > (count($list) / 4)) ? TRUE : FALSE;
+                $deep = ($deep && count($ndeep) > (count($list) / 4));
 				$tmp = [time(),$deep,$list];
-				cms_cache_handler::get_instance()->set($this->_key,serialize($tmp),__CLASS__);
+				cms_cache_handler::get_instance()->set($this->_key,$tmp,__CLASS__);
 			}
 		}
 	}
