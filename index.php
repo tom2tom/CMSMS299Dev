@@ -28,7 +28,6 @@ use CMSMS\HookManager;
 use CMSMS\internal\content_cache;
 use CMSMS\internal\content_plugins;
 use CMSMS\internal\TemplateCache;
-use CMSMS\ModuleOperations;
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -74,10 +73,6 @@ if ($CMS_JOB_TYPE > 0) {
     $showtemplate = true;
 }
 
-if ($CMS_JOB_TYPE < 2) {
-	//pre-register all module-plugins
-	ModuleOperations::get_instance()->RegisterPluginModules();
-}
 //TODO which of the following should be $CMS_JOB_TYPE-dependant ?
 $smarty = $_app->GetSmarty(); //<2
 $page = get_pageid_or_alias_from_url(); //<2
@@ -315,23 +310,23 @@ ob_flush();
 
 if ($page == __CMS_PREVIEW_PAGE__ && isset($_SESSION['__cms_preview__'])) unset($_SESSION['__cms_preview__']);
 
-$debug = defined('CMS_DEBUG') && CMS_DEBUG;
-if ($debug || isset($config['log_performance_info']) || (isset($config['show_performance_info']) && ($showtemplate))) {
+$debug = constant('CMS_DEBUG');
+if ($debug || isset($config['log_performance_info']) || (isset($config['show_performance_info']) && $showtemplate)) {
     $endtime = microtime();
+    $time = microtime_diff($starttime,$endtime);
     $memory = (function_exists('memory_get_usage')?memory_get_usage():0);
     $memory = $memory - $orig_memory;
+    $memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():'n/a');
     $db = $_app->GetDb();
     $sql_time = round($db->query_time_total,5);
     $sql_queries = $db->query_count;
-    $memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():'n/a');
-    $time = microtime_diff($starttime,$endtime);
 
     if (isset($config['log_performance_info'])) {
-        $out = [ time(), $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $time, $sql_time, $queries, $memory, $memory_peak ];
+        $out = [ time(), $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'], $time, $sql_time, $sql_queries, $memory, $memory_peak ];
         $filename = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.'performance.log';
         error_log(implode('|',$out)."\n", 3, $filename);
     } else {
-        $txt = "Time: $time / SQL: {$sql_time}s for $sql_queries queries / Net Memory: {$memory} / Peak: {$memory_peak}";
+        $txt = "Request duration: {$time}s | Database: {$sql_time}s for $sql_queries queries | Memory: net {$memory}, peak {$memory_peak}";
         echo '<div style="clear:both;"><pre><code>'.$txt.'</code></pre></div>';
     }
 }
