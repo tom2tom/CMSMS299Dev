@@ -42,6 +42,16 @@ final class AdminLog extends CMSModule
     {
         parent::InitializeAdmin();
 
+        $this->storage = new storage( $this );
+        $this->auditor = new auditor( $this, $this->storage );
+
+        try {
+            AuditManager::set_auditor( $this->auditor );
+        }
+        catch( Exception $e ) {
+            // ignore any error.
+        }
+
         //NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
         HookManager::add_hook('localizeperm',function($perm_source,$perm_name) {
                 if( $perm_source != 'AdminLog' ) return;
@@ -53,19 +63,6 @@ final class AdminLog extends CMSModule
                 $key = 'permdesc_'.str_replace(' ','_',$perm_name);
                 return $this->Lang($key);
             });
-    }
-
-    public function SetParameters()
-    {
-        $this->storage = new storage( $this );
-        $this->auditor = new auditor( $this, $this->storage );
-
-        try {
-            AuditManager::set_auditor( $this->auditor );
-        }
-        catch( Exception $e ) {
-            // ignore any error.
-        }
     }
 
     public function HasCapability($capability, $params = [])
