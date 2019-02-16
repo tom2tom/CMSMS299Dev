@@ -67,8 +67,13 @@ final class module_meta
         if( isset($CMS_INSTALL_PAGE) ) return;
 
         if( count($this->_data) == 0 ) {
-            $this->_data = [];
-            if( ($data = cms_cache_handler::get_instance()->get(__CLASS__)) ) $this->_data = unserialize($data);
+			$data = cms_cache_handler::get_instance()->get(__CLASS__);
+            if( $data ) {
+				$this->_data = $data;
+			}
+			else {
+				$this->_data = [];
+			}
         }
     }
 
@@ -78,7 +83,7 @@ final class module_meta
         global $CMS_INSTALL_PAGE;
         if( isset($CMS_INSTALL_PAGE) ) return;
 
-        cms_cache_handler::get_instance()->set(__CLASS__,serialize($this->_data));
+        cms_cache_handler::get_instance()->set(__CLASS__,$this->_data);
     }
 
 
@@ -118,7 +123,7 @@ final class module_meta
                 $this->_data['capability'][$sig][$onemodule] = $res;
             }
 
-            debug_buffer('done building module capability list');
+            debug_buffer('Finished building module capability list');
             // store it.
             $this->_save_cache();
         }
@@ -174,7 +179,7 @@ final class module_meta
             }
 
             // store it.
-            debug_buffer('done building module method cache');
+            debug_buffer('Finished building module method cache');
             $this->_save_cache();
         }
 
