@@ -46,6 +46,7 @@ use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
+use CMSMS\internal\ModulePluginManager;
 use CMSMS\ModuleOperations;
 
 global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY;
@@ -79,7 +80,7 @@ if ($CMS_JOB_TYPE < 2) {
     require_once $dirname.'translation.functions.php';
 }
 
-debug_buffer('done loading basic files');
+debug_buffer('Finished loading basic files');
 
 if (!isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
     $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'] . '?' . $_SERVER['QUERY_STRING'];
@@ -174,7 +175,7 @@ if (!isset($DONT_LOAD_DB)) {
     try {
         debug_buffer('Initialize Database');
         $_app->GetDb();
-        debug_buffer('Done Initializing Database');
+        debug_buffer('Finished Initializing Database');
     }
     catch( DatabaseConnectionException $e) {
         die('Sorry, something has gone wrong.  Please contact a site administrator. <em>('.get_class($e).')</em>');
@@ -191,17 +192,12 @@ if (!isset($CMS_INSTALL_PAGE)) {
     // Set a umask
     $global_umask = cms_siteprefs::get('global_umask','');
     if ($global_umask != '') umask( octdec($global_umask));
-/*
-    if ($CMS_JOB_TYPE < 2) {
-        // Load all eligible modules
-        debug_buffer('Loading Modules');
-        $modops = ModuleOperations::get_instance();
-        $modops->LoadModules(!isset($CMS_ADMIN_PAGE));
-        debug_buffer('End of Loading Modules');
-    }
-*/
-    // after autoloader & modules
+
     $modops = ModuleOperations::get_instance();
+    // Load all non-lazy modules
+//    $modops->LoadImmediateModules();
+    $modops->InitModules(); //DEBUG
+    // After autoloader & modules
     $tmp = $modops->get_modules_with_capability(CmsCoreCapabilities::JOBS_MODULE);
     if( $tmp ) {
         $mod_obj = $modops->get_module_instance($tmp[0]); //NOTE not $modinst !
@@ -213,13 +209,16 @@ if (!isset($CMS_INSTALL_PAGE)) {
 }
 
 if ($CMS_JOB_TYPE < 2) {
+    // In case module lazy-loading is malformed, pre-register all module-plugins which are not recorded in the database
+//    ModulePluginManager::get_instance()->RegisterSessionPlugins();
+
     // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
     if (isset($CMS_ADMIN_PAGE)) CmsNlsOperations::set_language();
 
     if (!isset($DONT_LOAD_SMARTY)) {
         debug_buffer('Initialize Smarty');
         $smarty = $_app->GetSmarty();
-        debug_buffer('Done Initializing Smarty');
+        debug_buffer('Finished Initializing Smarty');
         if (defined('CMS_DEBUG') && CMS_DEBUG) $smarty->error_reporting = 'E_ALL';
         $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
     }
