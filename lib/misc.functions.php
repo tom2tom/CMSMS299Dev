@@ -432,19 +432,19 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
             $net = memory_get_usage() - $orig_memory;
             $titleText .= ', memory usage: net '.$net;
         }
-		else {
-			$net = false;
-		}
+        else {
+            $net = false;
+        }
 
         $memory_peak = (function_exists('memory_get_peak_usage')?memory_get_peak_usage():'');
         if ($memory_peak) {
-			if ($net === false) {
-	            $titleText .= ', memory usage: peak '.$memory_peak;
-			}
-			else {
-				$titleText .= ', peak '.$memory_peak;
-			}
-		}
+            if ($net === false) {
+                $titleText .= ', memory usage: peak '.$memory_peak;
+            }
+            else {
+                $titleText .= ', peak '.$memory_peak;
+            }
+        }
 
         if ($use_html) {
             echo "<div><b>$titleText</b>\n";
@@ -533,8 +533,8 @@ function debug_to_log($var, string $title='',string $filename = '')
 function debug_buffer($var, string $title='')
 {
     if (constant('CMS_DEBUG')) {
-	    CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
-	}
+        CmsApp::get_instance()->add_error(debug_display($var, $title, false, true));
+    }
 }
 
 /**
@@ -1361,12 +1361,12 @@ function cms_create_guid() : string
 */
 function cms_utf8_sort(array $arr, bool $preserve = false) : array
 {
-	$enc = null; //TODO relevant to site lang e.g. 'en_US'
-	$collator = new Collator($enc);
-	if( $preserve ) {
-	    $collator->asort($arr);
-	} else {
-	    $collator->sort($arr);
-	}
-	return $arr;
+    $enc = null; //TODO relevant to site lang e.g. 'en_US'
+    $collator = new Collator($enc);
+    if( $preserve ) {
+        $collator->asort($arr);
+    } else {
+        $collator->sort($arr);
+    }
+    return $arr;
 }
