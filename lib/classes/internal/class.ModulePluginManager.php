@@ -20,6 +20,8 @@ namespace CMSMS\internal;
 
 use cms_utils;
 use CmsApp;
+use CMSMS\internal\global_cachable;
+use CMSMS\internal\global_cache;
 use const CMS_DB_PREFIX;
 use function cms_error;
 use function endswith;
@@ -65,12 +67,34 @@ final class ModulePluginManager
 	/**
 	 * A flag indicating that the plugin is intended to be available for admin templates
 	 */
-	const AVAIL_ADMIN    = 2;
+	const AVAIL_ADMIN = 2;
 
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+	private function __construct() {
+/*
+		$obj = new global_cachable('session_plugin_modules', function()
+				{
+					$names = [];
+					$tmp = module_meta::get_instance()->module_list_by_method('IsPluginModule');
+					if( $tmp ) {
+						// module-names cached in the database, maybe without per-request RegisterModulePlugin()
+						$query = 'SELECT DISTINCT module FROM '.CMS_DB_PREFIX.'module_smarty_plugins';
+						$db = CmsApp::get_instance()->GetDb();
+						$list = $db->GetCol($query);
+						for( $i = 0, $n = count($tmp); $i < $n; ++$i ) {
+							$module = $tmp[$i];
+							if( !$list || !in_array($module, $list) ) {
+								$names[] = $module;
+							}
+						}
+					}
+					return $names;
+				});
+		global_cache::add_cachable($obj);
+*/
+	}
 
 	/**
      * @ignore
@@ -86,14 +110,39 @@ final class ModulePluginManager
 		return self::$_instance;
 	}
 
+	/* *
+	 * Inform smarty about all module-plugins which are not recorded in the
+	 * module_smarty_plugins database table.
+     * In effect, this is insurance against malformed module lazy-loading
+	 * and/or plugin registration outside a module's constructor.
+	 * @since 2.3
+	 */
+/* EXPERIMENTAL ALTERNATIVE
+	public function RegisterSessionPlugins()
+	{
+		$tmp = global_cache::get('session_plugin_modules'); //module-names NOT cached in the database
+		if( $tmp ) {
+			$smarty = Smarty::get_instance();
+			foreach( $tmp as $module_name ) {
+				//c.f. some-module-object->RegisterModulePlugin();
+				try {
+					$smarty->registerPlugin('function', $module_name, [$module_name,'function_plugin'], false);
+				} catch (Exception $e) {
+					//ignore duplicate registrations
+				}
+			}
+		}
+	}
+*/
 	/**
+	 * Get data recorded in the module_smarty_plugins database table
 	 * @ignore
 	 */
 	private function _load()
 	{
-		if( $this->_loaded == true ) return;
+		if( $this->_loaded ) return;
 		// todo: cache this stuff.  does not need to be run on each request
-
+		// global_cache 'session_plugin_modules' has only module names for plugin-modules not cached in this table
 		$this->_loaded = TRUE;
 		$this->_data = [];
 		$db = CmsApp::get_instance()->GetDb();
@@ -102,47 +151,52 @@ final class ModulePluginManager
 		if( is_array($tmp) ) {
 			for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 				$row = $tmp[$i];
-				$row['callback'] = unserialize($row['callback']);
-				// todo, verify signature
-				$this->_data[$row['sig']] = $row;
+				// verify signature
+				$sig = md5($row['name'].$row['module'].$row['callback']);
+				if( $sig == $row['sig'] ) {
+					$row['callback'] = unserialize($row['callback']);
+					$this->_data[$row['sig']] = $row;
+				}
 			}
 		}
 	}
 
 	/**
+	 * Record cached data ($this->_data) in the module_smarty_plugins database table
 	 * @ignore
+	 * @return mixed true | null
 	 */
 	private function _save()
 	{
-		if( !$this->_data || $this->_modified == FALSE )
+		if( !$this->_data || !$this->_modified )
 			return;
 
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'TRUNCATE TABLE '.CMS_DB_PREFIX.'module_smarty_plugins';
 		$db->Execute($query);
-
+		// TODO use prepared statement
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,available,cachable) VALUES';
 		$fmt = " ('%s','%s','%s','%s','%s',%d,%d),";
-		foreach( $this->_data as $key => $row ) {
+		foreach( $this->_data as $row ) {
 			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['available'],$row['cachable']);
 		}
 		if( endswith($query,',') ) $query = substr($query,0,-1);
 		$dbr = $db->Execute($query);
 		if( !$dbr ) return FALSE;
-		global_cache::clear('plugin_modules');
+//DEBUG		global_cache::clear('session_plugin_modules');
 		$this->_modified = FALSE;
 		return TRUE;
 	}
 
 	/**
 	 * Attempt to load a specific module-plugin
-	 * This is called by the smarty class when looking for an unknown plugin.
+	 * This may be called by the smarty class when looking for an unknown plugin.
 	 * @internal
 	 *
      * @param string $name name of the undefined tag
      * @param string $type tag type (commonly Smarty::PLUGIN_FUNCTION, maybe Smarty::PLUGIN_BLOCK,
      *  Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
-	 * @return mixed array|null Array members per database record:
+	 * @return mixed array | null Array members per database record:
 	 *  sig,name,module,type,callback,cachable,available
 	 */
 	public static function load_plugin($name,$type)
@@ -153,7 +207,7 @@ final class ModulePluginManager
 		// load the module
 		$module = cms_utils::get_module($row['module']);
 		if( $module ) {
-			// fix the callback, incase somebody used 'this' in the string.
+			// fix the callback, in case somebody used 'this' in the string.
 			if( is_array($row['callback']) ) {
 				// it's an array
 				if( count($row['callback']) == 2 ) {
@@ -188,22 +242,23 @@ final class ModulePluginManager
 	 *
 	 * @param string $name
 	 * @param string $type
-	 * @return array
+	 * @return mixed array | null
 	 */
 	public function find($name,$type)
 	{
 		$this->_load();
 		if( $this->_data ) {
-			foreach( $this->_data as $key => $row ) {
+			foreach( $this->_data as $row ) {
 				if( $row['name'] == $name && $row['type'] == $type ) return $row;
 			}
 		}
 	}
 
 	/**
-	 * Add information about a plugin to the database
+	 * Add information about a plugin to the local datacache and to the database
 	 * This method is normally called during a module's installation/upgrade.
 	 *
+	 * @deprecated since 2.3 Instead use ModulePluginManager::get_instance()->add()
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
@@ -216,25 +271,25 @@ final class ModulePluginManager
 		return self::get_instance()->add($module_name,$name,$type,$callback,$cachable,$available);
 	}
 
-
 	/**
-	 * Add information about a plugin to the database.
+	 * Add information about a plugin to the local datacache and to the database.
 	 * This method is normally called during a module's installation/upgrade.
 	 *
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
-	 * @param callable $callback A static function to call.
+	 * @param callable $callback A static function to call e.g. 'function_plugin' or [$module_name,'function_plugin']
 	 * @param bool $cachable Whether the plugin is cachable. Default true
 	 * @param int  $available Flag(s) indicating the availability of the plugin. Default 0, hence AVAIL_FRONTEND.
 	 *   See AVAIL_ADMIN and AVAIL_FRONTEND
+	 * @return mixed boolean | null
 	 */
-	public function add($module_name,$name,$type,$callback,$cachable = TRUE,$available = 0)
+	public function add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 0)
 	{
 		$this->_load();
 		if( !is_array($this->_data) ) $this->_data = [];
 
-		// todo... check valid input
+		// todo... validate params
 
 		$sig = md5($name.$module_name.serialize($callback));
 		if( !isset($this->_data[$sig]) ) {
@@ -255,60 +310,66 @@ final class ModulePluginManager
 	}
 
 	/**
-	 * Remove all plugins for a module
+	 * Remove all plugins for a module from the local datacache and the database
 	 *
 	 * @param string $module_name
 	 */
-	public static function remove_by_module($module_name)
+	public static function remove_by_module(string $module_name)
 	{
 		self::get_instance()->_remove_by_module($module_name);
 	}
 
 	/**
-	 * Remove all plugins for a module
+	 * Remove all plugins for a module from the local datacache and the database
 	 *
 	 * @param string $module_name
 	 */
-	public function _remove_by_module($module_name)
+	public function _remove_by_module(string $module_name)
 	{
 		$this->_load();
 		if( $this->_data ) {
-			$new = [];
 			foreach( $this->_data as $key => $row ) {
-				if( $row['module'] != $module_name ) $new[$key] = $row;
+				if( $module_name == $row['module'] ) {
+					$this->_data[$key] = null;
+					$this->_modified = true;
+				}
 			}
-			$this->_data = $new;
-			$this->_modified = true;
-			$this->_save();
+			if( $this->_modified ) {
+				$this->_data = array_filter($this->_data);
+				$this->_save();
+			}
 		}
 	}
 
 	/**
-	 * Remove a plugin by its name
+	 * Remove a named plugin from the local datacache and the database
 	 *
 	 * @param string $name
 	 */
-	public static function remove_by_name($name)
+	public static function remove_by_name(string $name)
 	{
 		self::get_instance()->_remove_by_name($name);
 	}
 
 	/**
-	 * Remove a plugin by its name
+	 * Remove a named plugin from the local datacache and the database
 	 *
 	 * @param string $name
 	 */
-	public function _remove_by_name($name)
+	public function _remove_by_name(string $name)
 	{
 		$this->_load();
 		if( $this->_data ) {
-			$new = [];
 			foreach( $this->_data as $key => $row ) {
-				if( $name != $row['name'] ) $new[$key] = $row;
+				if( $name == $row['name'] ) {
+					$this->_data[$key] = null;
+					$this->_modified = true;
+				}
 			}
-			$this->_data = $new;
-			$this->_modified = true;
-			$this->_save();
+			if( $this->_modified ) {
+				$this->_data = array_filter($this->_data);
+				$this->_save();
+			}
 		}
 	}
 } // class
