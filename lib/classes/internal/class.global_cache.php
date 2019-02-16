@@ -1,5 +1,5 @@
 <?php
-# Mechanism for caching data in filessytem files
+# Mechanism for caching data in filesystem files
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -20,6 +20,7 @@ namespace CMSMS\internal;
 
 use cms_filecache_driver;
 use CMSMS\internal\global_cachable;
+use LogicException;
 
 /**
  * Class which enables data to be cached automatically (in file-system text files),
@@ -42,16 +43,26 @@ class global_cache
     private function __construct() {}
     private function __clone() {}
 
+	/**
+	 *
+	 * @param global_cachable $obj
+	 */
     public static function add_cachable(global_cachable $obj)
     {
         $name = $obj->get_name();
         self::$_types[$name] = $obj;
     }
 
+	/**
+	 *
+	 * @param string $type
+	 * @return mixed
+	 * @throws LogicException if $type is not a recorded/cachable type
+	 */
     public static function get($type)
     {
-//      if( !isset(self::$_types[$type]) ) throw new \LogicException('Unknown type '.$type);
-        if( !isset(self::$_types[$type]) ) return;
+//        if( !isset(self::$_types[$type]) ) return;
+        if( !isset(self::$_types[$type]) ) throw new LogicException('Unknown type '.$type);
         if( !is_array(self::$_cache) ) self::_load();
 
         if( !isset(self::$_cache[$type]) ) {
@@ -62,11 +73,19 @@ class global_cache
         return self::$_cache[$type];
     }
 
+	/**
+	 *
+	 * @param string $type
+	 */
     public static function release($type)
     {
         if( isset(self::$_cache[$type]) ) unset(self::$_cache[$type]);
     }
 
+	/**
+	 *
+	 * @param string $type
+	 */
     public static function clear($type)
     {
         // clear it from the cache
@@ -75,6 +94,19 @@ class global_cache
         unset(self::$_cache[$type]);
     }
 
+	/**
+	 *
+	 */
+    public static function clear_all()
+    {
+        self::_get_driver()->clear();
+        self::$_cache = [];
+    }
+
+	/**
+	 *
+	 * @global int $CMS_INSTALL_PAGE
+	 */
     public static function save()
     {
         global $CMS_INSTALL_PAGE;
@@ -89,6 +121,11 @@ class global_cache
         }
     }
 
+	/**
+	 *
+	 * @staticvar type $_driver
+	 * @return cms_filecache_driver
+	 */
     private static function _get_driver()
     {
         static $_driver = null;
@@ -109,11 +146,4 @@ class global_cache
             unset($tmp);
         }
     }
-
-    public static function clear_all()
-    {
-        self::_get_driver()->clear();
-        self::$_cache = [];
-    }
-
 } // class
