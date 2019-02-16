@@ -1,6 +1,6 @@
 <?php
-# A class to cache data into files in the TMP_CACHE directory.
-# Copyright (C) 2015-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+# A class to work with cache data in files in the TMP_CACHE directory.
+# Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,19 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CacheDriver;
+
 /**
  * A driver to cache data in the filesystem.
  *
- * This stores files in the CMSMS TMP_CACHE location.
- * Supports read and write locking, a settable cache lifetime, md5 encoded keys
- * and groups so that filenames cannot be easily determined, and automatic cleaning.
+ * This uses files in the defined TMP_CACHE location.
+ * Supports read and write locking, a settable cache lifetime, automatic cleaning,
+ * hashed keys and groups so that filenames cannot be easily determined.
  *
  * @package CMS
  * @license GPL
  * @since 2.0
  * @author Robert Campbell
  */
-class cms_filecache_driver extends cms_cache_driver
+class cms_filecache_driver implements CacheDriver
 {
     /**
      * @ignore
@@ -95,8 +97,8 @@ class cms_filecache_driver extends cms_cache_driver
      */
     public function __construct($opts)
     {
-        $_keys = ['lifetime','locking','cache_dir','auto_cleaning','blocking','group'];
         if( is_array($opts) ) {
+            $_keys = ['lifetime','locking','cache_dir','auto_cleaning','blocking','group'];
             foreach( $opts as $key => $value ) {
                 if( in_array($key,$_keys) ) {
                     $tmp = '_'.$key;
@@ -222,7 +224,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _flock($res,string $flag)
+    private function _flock($res,string $flag) : bool
     {
         if( !$this->_locking ) return TRUE;
         if( !$res ) return FALSE;
@@ -299,23 +301,21 @@ class cms_filecache_driver extends cms_cache_driver
      */
     private function _write_cache_file(string $fn,$data) : bool
     {
-        @touch($fn);
-        $fp = @fopen($fn,'r+');
+        $fp = @fopen($fn,'wb');
         if( $fp ) {
             if( !$this->_flock($fp,self::LOCK_WRITE) ) {
                 @fclose($fp);
                 @unlink($fn);
                 return FALSE;
             }
-            else {
-                if( is_array($data) || is_object($data) ) {
-                    $data = self::KEY_SERIALIZED.serialize($data);
-                }
-                @fwrite($fp,$data);
-                $this->_flock($fp,self::LOCK_UNLOCK);
-            }
+
+			if( !is_scalar($data) ) {
+				$data = self::KEY_SERIALIZED.serialize($data);
+			}
+			$res = @fwrite($fp,$data);
+			$this->_flock($fp,self::LOCK_UNLOCK);
             @fclose($fp);
-            return TRUE;
+            return ($res !== FALSE);
         }
         return FALSE;
     }
@@ -324,7 +324,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _auto_clean_files()
+    private function _auto_clean_files() : int
     {
         if( $this->_auto_cleaning > 0 ) {
             // only clean files once per request.
@@ -342,7 +342,7 @@ class cms_filecache_driver extends cms_cache_driver
     /**
      * @ignore
      */
-    private function _clean_dir(string $dir,$group = '',bool $old = true) : int
+    private function _clean_dir(string $dir,$group = '',bool $old = TRUE) : int
     {
         if( !$group ) $group = $this->_group;
 
