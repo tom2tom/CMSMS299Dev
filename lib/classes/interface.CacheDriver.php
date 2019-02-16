@@ -1,5 +1,5 @@
 <?php
-# An abstract class for caching data for CMSMS.
+# The interface for interacting with cache drivers
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,15 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+namespace CMSMS;
+
 /**
- * An abstract class for various cache drivers
+ * An interface for interacting with cache drivers
  *
  * @since 2.0
  * @author Robert Campbell
  * @package CMS
  * @license GPL
  */
-abstract class cms_cache_driver
+interface CacheDriver
 {
   /**
    * Clear all cached values in a group.
@@ -32,7 +34,7 @@ abstract class cms_cache_driver
    *
    * @param string $group
    */
-  abstract public function clear($group = '');
+  public function clear($group = '');
 
   /**
    * Retrieve a cached value
@@ -42,7 +44,7 @@ abstract class cms_cache_driver
    * @param string $group
    * @return mixed
    */
-  abstract public function get($key,$group = '');
+  public function get($key,$group = '');
 
   /**
    * Test if a cached value exists
@@ -52,7 +54,7 @@ abstract class cms_cache_driver
    * @param string $group
    * @return bool
    */
-  abstract public function exists($key,$group = '');
+  public function exists($key,$group = '');
 
   /**
    * Erase a cached value.
@@ -61,7 +63,7 @@ abstract class cms_cache_driver
    * @param string $key
    * @param string $group
    */
-  abstract public function erase($key,$group = '');
+  public function erase($key,$group = '');
 
   /**
    * Add a cached value
@@ -71,14 +73,12 @@ abstract class cms_cache_driver
    * @param mixed  $value
    * @param string $group
    */
-  abstract public function set($key,$value,$group = '');
+  public function set($key,$value,$group = '');
 
   /**
    * Set A current group
    *
    * @param string $group
    */
-  abstract public function set_group($group);
-}
-
-?>
+  public function set_group($group);
+} // interface
