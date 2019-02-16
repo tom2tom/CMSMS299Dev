@@ -258,22 +258,22 @@ EOS;
 
     public function CreateStaticRoutes()
     {
-        cms_route_manager::del_static('',$this->GetName());
+        $str = $this->GetName();
+        cms_route_manager::del_static('',$str);
 
         $db = CmsApp::get_instance()->GetDb();
-        $str = $this->GetName();
         $c = strtoupper($str[0]);
         $x = substr($str,1);
         $x1 = '['.$c.strtolower($c).']'.$x;
 
         $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)\/d,(?P<detailtemplate>.*?)$/',
-                              $this->GetName());
+                              $str);
         cms_route_manager::add_static($route);
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)$/',$this->GetName());
+        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)\/(?P<junk>.*?)$/',$str);
         cms_route_manager::add_static($route);
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$this->GetName());
+        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)\/(?P<returnid>[0-9]+)$/',$str);
         cms_route_manager::add_static($route);
-        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$this->GetName(),
+        $route = new CmsRoute('/'.$x1.'\/(?P<articleid>[0-9]+)$/',$str,
                               ['returnid'=>$this->GetPreference('detail_returnid',-1)]);
         cms_route_manager::add_static($route);
 
