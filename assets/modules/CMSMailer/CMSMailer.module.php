@@ -33,7 +33,7 @@ class CMSMailer extends CMSModule
   public function GetAuthor() { return 'Robert Campbell'; }
   public function GetAuthorEmail() { return 'calguy1000@cmsmadesimple.org'; }
   public function GetChangeLog() { return @file_get_contents(dirname(__FILE__).DIRECTORY_SEPARATOR.'changelog.inc'); }
-  public function IsPluginModule() { return FALSE; }
+//  public function IsPluginModule() { return FALSE; } default
   public function HasAdmin() { return FALSE; }
   public function GetAdminSection() { return 'extensions'; }
   public function GetAdminDescription() { return $this->Lang('moddescription'); }
