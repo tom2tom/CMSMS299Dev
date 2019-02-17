@@ -22,13 +22,17 @@ class langtools
 
   protected function __construct() {}
 
-  public static function &get_instance()
+  public static function &get_instance() : self
   {
     if( !is_object(self::$_instance) ) self::$_instance = new self();
     return self::$_instance;
   }
 
 
+  /**
+   *
+   * @param \cms_installer\CMSMS\langtools $obj
+   */
   public static function set_translator(langtools &$obj)
   {
     self::$_instance = $obj;
@@ -40,7 +44,7 @@ class langtools
    *
    * @return array of hashes.  Each element of the array will have members lang, and priority, where priority is between 0 and 1
    */
-  final public static function get_browser_langs()
+  final public static function get_browser_langs() : array
   {
     $request = request::get();
     $langs = $request->accept_language();
@@ -50,12 +54,13 @@ class langtools
     for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
       $tmp2 = explode(';q=',$tmp[$i],2);
       if( $tmp2[0] == '' || $tmp2[0] == '*' ) continue;
-      $priority = 1;
-      if( !empty($tmp2[1]) ) $priority = (float)$tmp2[1];
+      $priority = ( !empty($tmp2[1]) ) ? (float)$tmp2[1] : 1.0;
       $out[] = ['lang'=>$tmp2[0],'priority'=>$priority];
     }
 
-    // todo: sort by priority.
+    if( $out ) {
+        array_multisort(array_column($out,'priority'),SORT_ASC,SORT_NUMERIC,array_column($out,'lang'),SORT_ASC,SORT_LOCALE_STRING,$out);
+    }
     return $out;
   }
 
@@ -66,7 +71,7 @@ class langtools
    * @param string The language naem
    * @return boolean
    */
-  final public function language_available($str)
+  final public function language_available(string $str) : bool
   {
     $tmp = nlstools::get_instance()->find($str);
     return ( is_object($tmp) );
@@ -78,7 +83,7 @@ class langtools
    *
    * @return array of available language-codes c.f. en_US
    */
-  final public function get_available_languages()
+  final public function get_available_languages() : array
   {
     $list = nlstools::get_instance()->get_list();
     foreach( $list as &$one ) {
@@ -101,10 +106,10 @@ class langtools
 
     $out = [];
     for( $i = 0, $n = count($data); $i < $n; $i++ ) {
-      if( $this->language_available($data[$i]) )  $out[] = $data[$i];
+      if( $this->language_available($data[$i]) ) $out[] = $data[$i];
     }
 
-    if( count($out) == 0 ) throw new langtools_Exception('set_allowed_languages no matches with available languages');
+    if( !$out ) throw new langtools_Exception('set_allowed_languages no matches with available languages');
 
     $this->_allowed_languages = $out;
   }
@@ -115,7 +120,7 @@ class langtools
    *
    * @return array of language strings
    */
-  final public function get_allowed_languages()
+  final public function get_allowed_languages() : array
   {
     return $this->_allowed_languages;
   }
@@ -127,7 +132,7 @@ class langtools
    * @param string language string
    * @return boolean TRUE if no allowed languages are set, TRUE if the specified language is allowed, false if not in the allowed list.
    */
-  final public function language_allowed($str)
+  final public function language_allowed(string $str) : bool
   {
     if( $this->_allowed_languages ) {
       return ( in_array($str,$this->_allowed_languages) );
@@ -161,9 +166,8 @@ class langtools
    * Throws an exception if the specified language is not available, or not allowed.
    *
    * @param string language name.
-   * @return void
    */
-  final public function set_default_language($str)
+  final public function set_default_language(string $str)
   {
     if( !$this->language_available($str) || !$this->language_allowed($str) ) {
       throw new langtools_Exception('default language is not in list of allowed langages');
@@ -179,7 +183,7 @@ class langtools
    *
    * @return string
    */
-  final public function get_default_language()
+  final public function get_default_language() : string
   {
     if( !$this->_dflt_language ) throw new langtools_Exception('cannot get the default language, if it is not set');
 
@@ -244,7 +248,7 @@ class langtools
   public function get_current_language()
   {
     if( !$this->_cur_language ) {
-      if( !$this->_dflt_language ) throw new langtools_Exception('cannot get language, no default set');
+      if( !$this->_dflt_language ) throw new langtools_Exception('Cannot get language, no default set');
       return $this->_dflt_language;
     }
     return $this->_cur_language;
@@ -319,7 +323,7 @@ class langtools
   {
     if( !$realm ) $realm = self::DFLT_REALM;
     if( $realm == self::DFLT_REALM ) $realm = 'app';
-    $dir = installer_base::get_assetsdir()."/lang/$realm";
+    $dir = installer_base::get_assetsdir().'/lang/'.$realm;
     if( !is_dir($dir) ) throw new langtools_Exception('Language directory '.$dir.' not found');
 
     return $dir;
@@ -335,14 +339,16 @@ class langtools
   public function load_realm($realm = '')
   {
     // load the realm.
+    $dir = $this->get_lang_dir($realm);
+    $cur = $this->get_current_language();
     $fns = [];
-    $fns[] = $this->get_lang_dir($realm).'/en_US.php';
-    $fns[] = $this->get_lang_dir($realm).'/ext/'.$this->get_current_language().'.php';
-    $fns[] = $this->get_lang_dir($realm).'/custom/'.$this->get_current_language().'.php';
+    $fns[] = $dir.'/en_US.php';
+    $fns[] = $dir.'/ext/'.$cur.'.php';
+    $fns[] = $dir.'/custom/'.$cur.'.php';
 
     $lang = [];
     foreach( $fns as $fn ) {
-      if( file_exists($fn) ) include_once $fn;
+      if( is_file($fn) ) include_once $fn;
     }
 
     return $lang;
