@@ -4,13 +4,12 @@ namespace cms_installer\tests;
 
 class informational_test extends test_base
 {
-  public function __construct($name,$value,$message = '',$key = '')
+  public function __construct(string $name,$value,string $message = '',string $key = '')
   {
     parent::__construct($name,$value,$key);
-    if( $message )
-      {
-	$this->msg_key = $message;
-      }
+    if( $message ) {
+	  $this->msg_key = $message;
+    }
   }
 
   /**

@@ -7,37 +7,39 @@ use cms_installer\utils;
 use Exception;
 use function cms_installer\CMSMS\lang;
 
-function test_extension_loaded($name)
+/*
+This method is useless, extension_loaded() is caseless
+*/
+function test_extension_loaded(string $name) : bool
 {
-  $a = extension_loaded(strtoupper($name));
-  $b = extension_loaded(strtoupper($name));
-  return $a || $b;
+  $a = extension_loaded($name);
+//  if( !$a ) $a = extension_loaded(strtoupper($name));
+  return $a;
 }
 
 
-function test_apache_module($name)
+function test_apache_module($name) : bool
 {
   if( !$name ) return FALSE;
   if( !function_exists('apache_get_modules') ) return FALSE;
   $modules = apache_get_modules();
-  if( in_array($name,$modules) ) return TRUE;
-  return FALSE;
+  return in_array($name,$modules);
 }
 
 
-function test_is_false($val)
+function test_is_false($val) : bool
 {
   return (utils::to_bool($val) == FALSE);
 }
 
 
-function test_is_true($val)
+function test_is_true($val) : bool
 {
   return (utils::to_bool($val) == TRUE);
 }
 
 
-function test_remote_file($url,$timeout = 3,$searchString = '')
+function test_remote_file(string $url, int $timeout = 3,string $searchString = '') : bool
 {
   $timeout = max(1,min(360,$timeout));
   $req = new http_request();
@@ -75,13 +77,12 @@ abstract class test_base
   ];
   private $_data = [];
 
-  public function __construct($name,$value,$key = '')
+  public function __construct(string $name,$value,string $key = '')
   {
     if( !$name ) throw new Exception(lang('error_test_name'));
     $this->name = $name;
-    $this->name_key = $name;
+    $this->name_key = $key; //possibly empty
     $this->value = $value;
-    if( $key ) $this->name_key = $key;
     $this->status = self::TEST_UNTESTED;
     $this->required = 0;
   }
@@ -169,9 +170,9 @@ abstract class test_base
           $val = (float) substr($val,0,-1);
           switch($last) {
           case 'g':
-              $val *= 1024.0;
+              $val *= 1024000000.0;
           case 'm':
-              $val *= 1024.0;
+              $val *= 1024000.0;
           case 'k':
               $val *= 1024.0;
           }
