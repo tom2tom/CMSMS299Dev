@@ -89,11 +89,11 @@ abstract class installer_base
         }
         $this->_assetdir = dirname($configfile);
         $p = $this->_assetdir.DIRECTORY_SEPARATOR.'config.ini';
-        $config = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : [];
+        $config = (is_file($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : [];
 
         // custom config data
         $p = dirname(__DIR__, 3).DIRECTORY_SEPARATOR.'config.ini';
-        $xconfig = (file_exists($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : false;
+        $xconfig = (is_file($p)) ? parse_ini_file($p,false,INI_SCANNER_TYPED) : false;
         if( $xconfig ) {
             foreach( $xconfig as $k =>$v) {
                 if( $v ) {
@@ -449,9 +449,9 @@ lib/PHPArchive/*                          PHPArchive
     {
         if( $this->_have_phar ) {
             $archive = $this->get_archive();
-            if( !file_exists($archive) ) {
+            if( !is_file($archive) ) {
                 $archive = str_replace('\\','/',$archive);
-                if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+                if( !is_file($archive) ) throw new Exception(lang('error_noarchive'));
             }
 
             $path = 'phar://'.$archive;  //contents are unpacked as descendants of the arhive
@@ -475,9 +475,9 @@ lib/PHPArchive/*                          PHPArchive
             if (!is_dir($path)) {
                 //onetime unpack (it's slow)
                 $archive = $this->get_archive();
-                if( !file_exists($archive) ) {
+                if( !is_file($archive) ) {
                     $archive = str_replace('\\','/',$archive);
-                    if( !file_exists($archive) ) throw new Exception(lang('error_noarchive'));
+                    if( !is_file($archive) ) throw new Exception(lang('error_noarchive'));
                 }
 
                 $adata = new Tar();

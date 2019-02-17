@@ -24,7 +24,7 @@ $script_file = basename(__FILE__);
 
 if ($cli) {
 	// check to make sure we are in the correct directory.
-	if (!file_exists(joinpath($owd, $script_file))) {
+	if (!is_file(joinpath($owd, $script_file))) {
 		die('This script must be executed from the same directory as the '.$script_file.' script');
 	}
 }
@@ -534,7 +534,7 @@ try {
 	}
 
 	$version_php = get_version_php($tmpdir);
-	if (!file_exists($version_php)) {
+	if (!is_file($version_php)) {
 		die('Could not find file version.php in the source tree.');
 	}
 

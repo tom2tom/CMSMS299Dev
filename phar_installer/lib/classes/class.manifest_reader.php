@@ -24,13 +24,13 @@ class manifest_reader
     {
         if( !is_dir($dir) ) throw new Exception(lang('error_internal','mr100'));
         $fn = "$dir/MANIFEST.DAT.gz";
-        if( file_exists($fn) ) {
+        if( is_file($fn) ) {
             $this->_filename = $fn;
             $this->_compressed = true;
         }
         else {
             $fn = "$dir/MANIFEST.DAT";
-            if( file_exists($fn) ) {
+            if( is_file($fn) ) {
                 $this->_filename = $fn;
                 $this->_compressed = false;
             }

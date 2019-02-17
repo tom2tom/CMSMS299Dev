@@ -9,7 +9,7 @@
  */
 function GetDb(array $config)
 {
-  if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.ConnectionSpec.php')) {
+  if (is_file(__DIR__.DIRECTORY_SEPARATOR.'Database'.DIRECTORY_SEPARATOR.'class.ConnectionSpec.php')) {
     // old Connection class
     $spec = new CMSMS\Database\ConnectionSpec();
     $spec->type = $config['db_type'];

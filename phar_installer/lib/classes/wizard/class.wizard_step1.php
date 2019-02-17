@@ -45,15 +45,15 @@ class wizard_step1 extends wizard_step
         $bn = basename($dir);
         switch( $bn ) {
         case 'lang':
-            if( file_exists($dir.DIRECTORY_SEPARATOR.'en_US.php') ) return FALSE;
+            if( is_file($dir.DIRECTORY_SEPARATOR.'en_US.php') ) return FALSE;
             break;
 
         case 'ext':
-            if( file_exists($dir.DIRECTORY_SEPARATOR.'fr_FR.php') || basename(dirname($dir)) == 'lang' ) return FALSE;
+            if( is_file($dir.DIRECTORY_SEPARATOR.'fr_FR.php') || basename(dirname($dir)) == 'lang' ) return FALSE;
             break;
 
         case 'plugins':
-            if( file_exists($dir.DIRECTORY_SEPARATOR.'function.cms_selflink.php') ) return FALSE;
+            if( is_file($dir.DIRECTORY_SEPARATOR.'function.cms_selflink.php') ) return FALSE;
             break;
 
         case 'install':
@@ -77,7 +77,7 @@ class wizard_step1 extends wizard_step
             break;
 
         case 'assets':
-            if( file_exists($dir.DIRECTORY_SEPARATOR.'config.ini') ) return FALSE;
+            if( is_file($dir.DIRECTORY_SEPARATOR.'config.ini') ) return FALSE;
             break;
 
         case 'modules':
@@ -85,7 +85,7 @@ class wizard_step1 extends wizard_step
             break;
 
         case 'data':
-            if( file_exists($dir.DIRECTORY_SEPARATOR.'data.tar.gz') ) return FALSE;
+            if( is_file($dir.DIRECTORY_SEPARATOR.'data.tar.gz') ) return FALSE;
             break;
         }
         return TRUE;

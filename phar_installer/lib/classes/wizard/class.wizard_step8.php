@@ -105,7 +105,7 @@ class wizard_step8 extends wizard_step
             // install the schema
             $this->message(lang('install_schema'));
             $fn = $dir.'/schema.php';
-            if( !file_exists($fn) ) throw new Exception(lang('error_internal',705));
+            if( !is_file($fn) ) throw new Exception(lang('error_internal',705));
 
             include_once $fn;
 
@@ -137,6 +137,7 @@ class wizard_step8 extends wizard_step
              'loginmodule' => '',  // login  processing by current theme
              'logintheme' => reset($arr),
              'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
+             'site_help_url' => $siteinfo['helpurl'],
              'sitemask' => '', //what is this?
              'sitename' => $siteinfo['sitename'],
              'use_smarty_compilecheck' => 0,
@@ -151,7 +152,7 @@ class wizard_step8 extends wizard_step
             $this->message(lang('install_core_template_types'));
             include_once $dir.'/core_tpl_types.php';
 */
-			// site content
+            // site content
             if( !empty($siteinfo['samplecontent']) ) {
                 $arr = installer_base::CONTENTXML;
                 $fn = end($arr);
@@ -214,6 +215,10 @@ class wizard_step8 extends wizard_step
 
         $destconfig = $this->get_wizard()->get_data('config');
         if( !$destconfig ) throw new Exception(lang('error_internal',703));
+
+        $siteinfo = $this->get_wizard()->get_data('siteinfo');
+        if( !$siteinfo ) throw new Exception(lang('error_internal',704));
+
         // setup and initialize the CMSMS API's
         if( is_file("$destdir/include.php") ) {
             include_once $destdir.'/include.php';
@@ -245,6 +250,13 @@ class wizard_step8 extends wizard_step
         catch( Exception $e ) {
             $this->error($e->GetMessage());
         }
+
+        foreach ([
+//         'site_help_url' => $siteinfo['helpurl'], //TODO only if verbose
+         'sitename' => $siteinfo['sitename'],
+        ] as $name=>$val) {
+            cms_siteprefs::set($name, $val);
+        }
     }
 
     private function do_freshen()
@@ -274,8 +286,8 @@ class wizard_step8 extends wizard_step
 
         $this->message(lang('install_createconfig'));
         // get a 'real' config object
-		require_once $destdir.'/lib/misc.functions.php';
-		require_once $destdir.'/lib/classes/class.cms_config.php';
+        require_once $destdir.'/lib/misc.functions.php';
+        require_once $destdir.'/lib/classes/class.cms_config.php';
         $newconfig = cms_config::get_instance();
         $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']);
         $newconfig['db_hostname'] = trim($destconfig['db_hostname']);

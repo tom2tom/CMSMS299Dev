@@ -123,7 +123,7 @@ VALUES (?,?,?,NOW(),NOW())');
             foreach( $contents as $modname ) {
                 if( $modname == '.' || $modname == '..' || $modname == 'index.html' ) continue;
                 $fp = $bp.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
-                if( file_exists($fp) ) {
+                if( is_file($fp) ) {
                     require_once $fp;
                     $name = '\\'.$modname;
                     $modinst = new $name();

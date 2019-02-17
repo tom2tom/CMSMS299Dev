@@ -229,7 +229,7 @@ class wizard_step7 extends wizard_step
                 if( $deleted ) {
                     foreach( $deleted as $rec ) {
                         $fn = "{$destdir}{$rec['filename']}";
-                        if( !file_exists($fn) ) {
+                        if( !is_file($fn) ) {
                             $this->verbose("File $fn does not exist... but we planned to delete it anyway");
                             $nmissing++;
                         }

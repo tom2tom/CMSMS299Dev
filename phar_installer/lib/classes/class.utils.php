@@ -125,7 +125,7 @@ final class utils
         if( ini_get('safe_mode') != '1' ) {
             // last ditch effort to find a place to write to.
             $tmp = @tempnam('','xxx');
-            if( $tmp && file_exists($tmp) ) {
+            if( $tmp && is_file($tmp) ) {
                 @unlink($tmp);
                 return realpath(dirname($tmp));
             }

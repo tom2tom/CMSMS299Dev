@@ -67,13 +67,13 @@ class gui_install extends installer_base
         // (some environments)
         $p = $config['archive'] ?? 'data/data.tar.gz';
         $src_archive = dirname(__DIR__,2).DIRECTORY_SEPARATOR.$p;
-        if( !file_exists($src_archive) ) throw new Exception('Could not find installation archive at '.$src_archive);
+        if( !is_file($src_archive) ) throw new Exception('Could not find installation archive at '.$src_archive);
         $src_md5 = md5_file($src_archive);
         $tmpdir = $this->get_tmpdir().DIRECTORY_SEPARATOR.'m'.md5(__FILE__.session_id());
         $dest_archive = $tmpdir.DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
 
         for( $i = 0; $i < 2; $i++ ) {
-            if( !file_exists($dest_archive) ) {
+            if( !is_file($dest_archive) ) {
                 @mkdir($tmpdir,0771,TRUE);
                 @copy($src_archive,$dest_archive);
             }

@@ -30,7 +30,7 @@ class install_filehandler extends filehandler
     if( !$this->dir_exists($filespec) ) $this->create_directory($filespec);
 
     $destpath = $this->get_destdir().$filespec;
-    if( file_exists($destpath) && !is_writable($destpath) ) throw new Exception(lang('error_overwrite',$filespec));
+    if( is_file($destpath) && !is_writable($destpath) ) throw new Exception(lang('error_overwrite',$filespec));
 
     if( !@copy($srcspec,$destpath) ) throw new Exception(lang('error_extract',$filespec));
     $cksum = md5_file($srcspec,true);
