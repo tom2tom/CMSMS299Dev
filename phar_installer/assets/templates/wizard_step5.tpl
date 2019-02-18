@@ -13,7 +13,6 @@
   {if $action != 'freshen'}
     <h3>{'prompt_sitename'|tr}</h3>
     <p>{'info_sitename'|tr}</p>
-
     <div class="row form-row">
       <div class="twelve-col">
         <input class="form-field required full-width" type="text" name="sitename" value="{$sitename}" placeholder="{'ph_sitename'|tr}" required="required" />
@@ -22,11 +21,18 @@
         </div>
       </div>
     </div>
+
+    <h3{if !$verbose} class="disabled"{/if}>{'prompt_helpurl'|tr}</h3>
+    <p{if !$verbose} class="disabled"{/if}>{'info_helpurl'|tr}</p>
+    <div class="row form-row">
+      <div class="twelve-col">
+        <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" name="helpurl" value="{$helpurl}"{if $verbose} placeholder="{'ph_helpurl'|tr}"{else} disabled="disabled"{/if} />
+      </div>
+    </div>
   {/if}
 
   <h3>{'prompt_addlanguages'|tr}</h3>
   <p>{'info_addlanguages'|tr}</p>
-
   <div class="row form-row">
     <select class="form-field" name="languages[]" multiple="multiple" size="8">
       {html_options options=$language_list selected=$languages}
@@ -36,7 +42,6 @@
   {if !empty($modules_list)}
   <h3>{'prompt_addmodules'|tr}</h3>
   <p>{'info_addmodules'|tr}</p>
-
   <div class="row form-row">
     <select class="form-field" name="xmodules[]" multiple="multiple" size="3">
       {html_options options=$modules_list selected=$modules_sel}
