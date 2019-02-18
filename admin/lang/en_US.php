@@ -1591,6 +1591,7 @@ $lang['tags'] = 'Tags';
 $lang['target'] = 'Target';
 $lang['team'] = 'Team';
 $lang['template'] = 'Page Template';
+$lang['template_rsrc'] = 'TODO';
 //$lang['templatecopied'] = "Template Copied";
 //$lang['templatecss'] = "Assign Templates to stylesheet";
 //$lang['templatemanagement'] = "Template Management";
