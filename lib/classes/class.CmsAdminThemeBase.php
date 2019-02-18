@@ -311,8 +311,22 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * FixSpaces
-     * This method converts spaces into a non-breaking space HTML entity.
+     * Event handler - erase all users' menu-caches
+TODO respond to events without a hooklist/function c.f. 
+ Events::AddEventHandler('Core', 'ModuleInstalled', false, false, false);
+ Events::AddEventHandler('Core', 'ModuleUpgraded', false, false, false);
+ Events::AddEventHandler('Core', 'ModuleUninstalled', false, false, false);
+ALSO
+ change of any module's 'active' status
+ change of any group membership or permission
+     */
+    public static function ThemeHandler()
+    {
+        cms_cache_handler::get_instance()->erase('themeinfo');
+    }
+
+    /**
+     * Convert spaces into a non-breaking space HTML entity.
      * It's used for making menus that work nicely
      *
      * @param str string to have its spaces converted
@@ -362,11 +376,8 @@ abstract class CmsAdminThemeBase
     private function _get_user_module_info() : array
     {
         $uid = get_userid(false);
-/*DEBUG        if (($data = cms_cache_handler::get_instance()->get('themeinfo'.$uid))) {
-            $data = base64_decode($data);
-            $data = @unserialize($data);
-        }
-*/$data = false;
+        $data = cms_cache_handler::get_instance()->get('themeinfo'.$uid, 'themeinfo');
+//DEBUG   $data = false;
         if (!$data) {
             // data doesn't exist, gotta build it
             $usermoduleinfo = [];
@@ -399,8 +410,7 @@ abstract class CmsAdminThemeBase
             }
             // cache the array, even if empty
             $data = $usermoduleinfo;
-            $tmp = serialize($usermoduleinfo);
-            cms_cache_handler::get_instance()->set('themeinfo'.$uid,base64_encode($tmp));
+            cms_cache_handler::get_instance()->set('themeinfo'.$uid, $usermoduleinfo, 'themeinfo');
         }
 
         return $data;
