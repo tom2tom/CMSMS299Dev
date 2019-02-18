@@ -11,6 +11,15 @@ $lang['assets_dir_exists'] = 'Assets directory exists ?';
 $lang['build_date'] = 'Build Date';
 
 # C
+$lang['cache_extension'] = 'Suitable PHP cache extension is available ?';
+$lang['cache_apc'] = 'APC will be used';
+$lang['cache_apcu'] = 'APCu will be used';
+$lang['cache_memcached'] = 'Memcached will be used';
+$lang['cache_memcache'] = 'Memcache will be used';
+$lang['cache_predis'] = 'Predis will be used';
+$lang['cache_redis'] = 'PHPredis will be used';
+$lang['cache_xcache'] = 'Xcache will be used';
+$lang['cache_yac'] = 'YAC will be used';
 $lang['changelog_uc'] = 'CHANGELOG';
 $lang['cleaning_files'] = 'Clean files that are no longer applicable to the release';
 $lang['config_writable'] = 'Config file can be saved ?';
@@ -111,6 +120,7 @@ $lang['error_nositename'] = 'Sitename is a required parameter. Please enter a su
 $lang['error_notimezone'] = 'Please enter a valid timezone for this server';
 $lang['error_overwrite'] = 'Permissions problem: cannot overwrite %s';
 //$lang['error_sendingmail'] = 'Error sending mail';
+$lang['error_test_name'] = 'A test is missing both a name and a lang key for such name';
 $lang['error_tzlist'] = 'A problem occurred retrieving the timezone identifiers list';
 $lang['errorlevel_estrict'] = 'E_STRICT is disabled ?';
 $lang['errorlevel_edeprecated'] = 'E_DEPRECATED is disabled ?';
@@ -120,6 +130,18 @@ $lang['estrict_enabled'] = 'E_STRICT is enabled in the PHPs error_reporting. Alt
 # F
 $lang['fail_assets_dir'] = 'An assets directory already exists.  This application might write to this directory to rationalize the location of files.  Please ensure that you have a backup';
 $lang['fail_assets_msg'] = 'An assets directory already exists.  This application might write to this directory to rationalize the location of files.  Please ensure that you have a backup';
+$lang['fail_cache_extension'] = 'No such cache extension was found. If possible, enable the operation of any of
+<ul>
+<li>APCu</li>
+<li>APC</li>
+<li>Memcached</li>
+<li>Memcache</li>
+<li>Predis</li>
+<li>PHPredis (aka Redis)</li>
+<li>Xcache</li>
+<li>YAC</li>
+</ul>
+on the website';
 $lang['fail_config_writable'] = 'The HTTP process cannot write to the config.php file. Please try to change the permissions on this file to 777 until the installation assistant is complete';
 $lang['fail_curl_extension'] = 'The curl extension was not found. Though not a critical issue, this might cause problems with some non-core modules';
 $lang['fail_database_support'] = 'No compatible database driver found';
@@ -165,7 +187,7 @@ $lang['func_json'] = 'json functionality is available ?';
 $lang['func_md5'] = 'md5 functionality is available ?';
 $lang['func_tempnam'] = 'tempnam() method is available ?';
 $lang['func_gzopen'] = 'gzopen() method is available ?';
-$lang['func_ziparchive'] = 'ziparchive() method is available ?';
+$lang['func_ziparchive'] = 'ZipArchive class is available ?';
 
 # G
 $lang['gd_version'] = 'PHP GD2 extension is available ?';
@@ -183,10 +205,13 @@ $lang['info_advanced'] = 'Advanced mode enables several more options (database t
 $lang['info_dbinfo'] = 'CMS Made Simple stores most of its data in a database. A MySQL 4.1+ or compatible database is mandatory. The user specified here must have ALL PRIVILEGES on the specified database to allow creating, dropping and modifying tables, indexes and views.';
 $lang['info_errorlevel_edeprecated'] = 'E_DEPRECATED is a flag for PHP&quot;s error reporting that indicates that warnings should be displayed about code that is using deprecated techniques.  Although the CMSMS core attempts to ensure that we no longer use deprecated techniques, some modules might not.  This setting should be disabled in the PHP configuration';
 $lang['info_errorlevel_estrict'] = 'E_STRICT is a flag for PHP&#39;s error reporting which indicates that strict coding standards should be respected. Although the CMSMS core attempts to conform to E_STRICT standards, some modules might not. It is recommended that this setting be disabled in the PHP configuration';
+$lang['info_helpurl'] = 'An optional URL (e.g. email or website) to open when a site-help link is activated. If none is specified, the CMSMS website support-page will be used.';
 $lang['info_installcontent'] = 'You can install a series of sample pages, stylesheets and templates. Those provide information and tips to aid in building websites with CMSMS and is useful to read. However, if you are already familiar with CMS Made Simple, skipping this installation will still result in a minimal set of templates, stylesheets and content pages.';
 $lang['info_open_basedir_session_save_path'] = 'open_basedir is enabled in the site PHP configuration. Session capabilities could not be properly tested. However, getting to this point in the installation process probably indicates that sessions are working okay.';
 $lang['info_pwd_writable'] = 'This application needs write permission to the current working directory';
 $lang['info_queryvar'] = 'The name used internally by CMSMS to identify the page requested. In most circumstances you should not need to adjust this.';
+$lang['info_server_api'] = 'The type of interface that PHP is using';
+//$lang['info_server_software'] = '';
 $lang['info_sitename'] = 'The website name used in default templates as part of the title. Please enter a human-readable name for the website.';
 $lang['info_timezone'] = 'The time zone used in date/time calculations and displays. Please select the appropriate zone.';
 $lang['ini_set'] = 'PHP INI settings can be changed ?';
@@ -262,6 +287,7 @@ $lang['open_basedir_session_save_path'] = 'open_basedir is in enabled. Cannot te
 $lang['output_buffering'] = 'Output buffering is enabled ?';
 
 # P
+$lang['pass_cache_extension'] = 'Extension %s was found';
 $lang['pass_config_writable'] = 'The HTTP process has write permission to the config.php file';
 $lang['pass_database_support'] = 'At least one compatible database driver found';
 $lang['pass_func_json'] = 'json functionality detected';
@@ -271,6 +297,7 @@ $lang['pass_multibyte_support'] = 'Multibyte support appears to be enabled';
 $lang['pass_pwd_writable'] = 'The HTTP process can write into the destination directory. This is necessary for extracting files';
 $lang['password'] = 'Password';
 $lang['ph_sitename'] = 'Enter the name';
+$lang['ph_helpurl'] = 'Enter the URL';
 $lang['php_version'] = 'Appropriate PHP version ?';
 $lang['post_max_size'] = 'Maximum size of request-data is sufficient ?';
 $lang['preprocessing_files'] = 'Adjust file organization as required';
@@ -286,6 +313,7 @@ $lang['prompt_dbport'] = 'Database Port Number';
 $lang['prompt_dbprefix'] = 'Database Table Name Prefix';
 $lang['prompt_dbuser'] = 'Database User';
 $lang['prompt_dir'] = 'Installation Directory';
+$lang['prompt_helpurl'] = 'Custom Support-URL';
 $lang['prompt_installcontent'] = 'Sample Content';
 $lang['prompt_queryvar'] = 'Page-Query Variable';
 $lang['prompt_sitename'] = 'Web Site Name';
@@ -308,6 +336,10 @@ $lang['retry'] = 'Retry';
 $lang['safe_mode'] = '&quot;safe mode&quot; is disabled ?';
 $lang['select_language'] = 'Select your preferred language from the list below. The selection will be used during this installation/upgrade, but will not affect the site\'s CMSMS installation.';
 //$lang['send_admin_email'] = 'Send Admin login credentials email';
+$lang['server_api'] = 'API';
+$lang['server_info'] = 'Server';
+$lang['server_os'] = 'Operating system';
+$lang['server_software'] = 'Software';
 $lang['session_capabilities'] = 'Testing for proper session capabilities (sessions are using cookies and session save path is writeable, etc)';
 $lang['session_save_path_exists'] = 'Session_save_path exists ?';
 $lang['session_save_path_writable'] = 'Session_save_path is writeable ?';
