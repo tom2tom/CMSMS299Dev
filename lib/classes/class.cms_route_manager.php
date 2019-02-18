@@ -103,7 +103,6 @@ final class cms_route_manager
 		return FALSE;
 	}
 
-
 	/**
 	 * UNUSED
 	 * credits: temporal dot pl at gmail dot com
@@ -136,7 +135,6 @@ final class cms_route_manager
 		return FALSE;
 	}
 
-
 	/**
 	 * Test whether the specified route exists.
 	 *
@@ -158,7 +156,6 @@ final class cms_route_manager
 		}
 		return FALSE;
 	}
-
 
 	/**
 	 * Find a route that matches the specified string
@@ -185,7 +182,6 @@ final class cms_route_manager
 		}
 	}
 
-
 	/**
 	 * Add a static route.
 	 * This method will return TRUE, and do nothing, if the route already exists.
@@ -210,7 +206,6 @@ final class cms_route_manager
 		}
 		die($db->sql.' -- '.$db->ErrorMsg());
 	}
-
 
 	/**
 	 * Delete a static route.
@@ -262,7 +257,6 @@ final class cms_route_manager
 		return FALSE;
 	}
 
-
 	/**
 	 * Add a dynamic route.
 	 * Dynamic routes are not stored to the database, and are checked after static routes when searching for a match.
@@ -281,7 +275,6 @@ final class cms_route_manager
 		return TRUE;
 	}
 
-
 	/**
 	 * Register a new route.
 	 * This is an alias of the add_dynamic() method.
@@ -295,16 +288,16 @@ final class cms_route_manager
 		return self::add_dynamic($route);
 	}
 
-
 	/**
 	 * Load all modules and call relevant Initialize method to ensure
 	 * that their dynamic routes are created.
 	 *
-	 * @deprecated since ?
+	 * @deprecated since 2.3 - this method does nothing because its 
+	 * functionality happens elsewhere, for each request,
 	 */
 	public static function load_routes()
 	{
-		global $CMS_ADMIN_PAGE;
+/*		global $CMS_ADMIN_PAGE;
 		$flag = false;
 		if( isset($CMS_ADMIN_PAGE) ) {
 			// hack to force modules to register their routes.
@@ -323,6 +316,7 @@ final class cms_route_manager
 			}
 		}
 		if( $flag ) $CMS_ADMIN_PAGE = $flag;
+*/
 	}
 
 	/**
