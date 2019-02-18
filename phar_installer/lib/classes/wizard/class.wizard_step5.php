@@ -35,7 +35,7 @@ class wizard_step5 extends wizard_step
     {
         $action = $this->get_wizard()->get_data('action');
         if( $action !== 'freshen' ) {
-            if( !isset($siteinfo['sitename']) || !$siteinfo['sitename'] ) throw new Exception(lang('error_nositename'));
+            if( empty($siteinfo['sitename']) ) throw new Exception(lang('error_nositename'));
         }
     }
 
@@ -57,6 +57,12 @@ class wizard_step5 extends wizard_step
         }
 
         if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = utils::clean_string($_POST['sitename']);
+
+        if( isset($_POST['helpurl']) ) {
+            $url = utils::clean_string(trim($_POST['helpurl']));
+            $this->_siteinfo['helpurl'] = filter_var($url, FILTER_SANITIZE_URL);
+        }
+
         if( isset($_POST['languages']) ) {
             $tmp = [];
             foreach ( $_POST['languages'] as $lang ) {
@@ -96,6 +102,10 @@ class wizard_step5 extends wizard_step
         $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
         $smarty->assign('sitename',$v);
 
+        $raw = $config['helpurl'] ?? null;
+        $v = ($raw === null) ? /*$this->_siteinfo['helpurl']*/'' : trim($raw);
+        $smarty->assign('helpurl',$v);
+
         $languages = $app->get_language_list();
         unset($languages['en_US']);
         $smarty->assign('language_list',$languages);
@@ -119,12 +129,12 @@ class wizard_step5 extends wizard_step
         $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
 
         $raw = $app->get_noncore_modules();
-		if( $raw ) {
-			$modules = array_combine($raw, $raw);
-		}
-		else {
-			$modules = null;
-		}
+        if( $raw ) {
+            $modules = array_combine($raw, $raw);
+        }
+        else {
+            $modules = null;
+        }
         $smarty->assign('modules_list',$modules);
         $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null));
 
