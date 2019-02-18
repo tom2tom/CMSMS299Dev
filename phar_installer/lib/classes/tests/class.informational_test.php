@@ -8,14 +8,14 @@ class informational_test extends test_base
   {
     parent::__construct($name,$value,$key);
     if( $message ) {
-	  $this->msg_key = $message;
+      $this->msg_key = $message;
     }
   }
 
   /**
-   * Execute the test
+   * Mandatory but irrelevant method
    *
    * @return integer -1 for fail
    */
-  public function execute() {}
+  public function execute() : string { return -1; }
 } // class

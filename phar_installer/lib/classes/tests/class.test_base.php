@@ -77,46 +77,48 @@ abstract class test_base
   ];
   private $_data = [];
 
+  /**
+   * @param string $name (if provided) is assumed to be a lang key, and processed immediately
+   */
   public function __construct(string $name,$value,string $key = '')
   {
-    if( !$name ) throw new Exception(lang('error_test_name'));
-    $this->name = $name;
+    if( !($name || $key) ) throw new Exception(lang('error_test_name'));
+    $this->name = ($name) ? lang($name) : '';
     $this->name_key = $key; //possibly empty
     $this->value = $value;
     $this->status = self::TEST_UNTESTED;
     $this->required = 0;
   }
 
-  public function __get($key)
+  public function __get(string $key)
   {
     if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     if( isset($this->_data[$key]) ) return $this->_data[$key];
   }
 
-  public function __isset($key)
+  public function __isset(string $key)
   {
     if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     return isset($this->_data[$key]);
   }
 
-  public function __set($key,$value)
+  public function __set(string $key,$value)
   {
     if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     if( is_null($value) || $value === '' ) {
       unset($this->_data[$key]);
-      return;
     }
-
-    $this->_data[$key] = $value;
+    else {
+      $this->_data[$key] = $value;
+    }
   }
 
   public function __unset($key)
   {
-    if( !in_array($key,self::KEYS) ) throw new Exception(lang('error_invalidkey',$key,__CLASS__));
     unset($this->_data[$key]);
   }
 
-  abstract public function execute();
+  abstract public function execute() : string;
 
   public function run()
   {
@@ -128,7 +130,7 @@ abstract class test_base
       $this->status = $res;
       break;
 
-    case self::TEST_UNTESTED:
+//    case self::TEST_UNTESTED:
     default:
       throw new Exception(lang('error_test_invalidresult').' '.$res);
     }
@@ -138,23 +140,23 @@ abstract class test_base
 
   public function msg()
   {
+    if( $this->msg_key ) return lang($this->msg_key);
     if( $this->msg ) return $this->msg;
-    if( $this->msg_key ) return $this->msg_key;
 
     switch( $this->status ) {
     case self::TEST_PASS:
-      if( $this->pass_msg ) return $this->pass_msg;
       if( $this->pass_key ) return lang($this->pass_key);
+      if( $this->pass_msg ) return $this->pass_msg;
       break;
 
     case self::TEST_FAIL:
-      if( $this->fail_msg ) return $this->fail_msg;
       if( $this->fail_key ) return lang($this->fail_key);
+      if( $this->fail_msg ) return $this->fail_msg;
       break;
 
     case self::TEST_WARN:
-      if( $this->warn_msg ) return $this->warn_msg;
       if( $this->warn_key ) return lang($this->warn_key);
+      if( $this->warn_msg ) return $this->warn_msg;
       break;
 
     default:
@@ -164,20 +166,31 @@ abstract class test_base
 
   protected function returnBytes($val)
   {
-      if(is_string($val) && $val != '') {
-          $val = trim($val);
-          $last = strtolower(substr($val,-1));
+    if( is_string($val) ) {
+      $val = trim($val);
+      if( $val === '') return 0.0;
+      $last = strtolower(substr($val,-1));
+      switch($last) {
+        case 'g':
+        case 'm':
+        case 'k':
           $val = (float) substr($val,0,-1);
-          switch($last) {
-          case 'g':
-              $val *= 1024000000.0;
-          case 'm':
-              $val *= 1024000.0;
-          case 'k':
-              $val *= 1024.0;
-          }
+          break;
+        default:
+          return (float) $val;
       }
+      switch($last) {
+        case 'g':
+          $val *= 1024.0;
+          //no break here
+        case 'm':
+          $val *= 1024.0;
+          //no break here
+        case 'k':
+          $val *= 1024.0;
+      }
+    }
 
-      return $val;
+    return $val;
   }
 } // class

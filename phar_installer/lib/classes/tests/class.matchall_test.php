@@ -8,68 +8,64 @@ class matchall_test extends test_base
 {
     private $_children;
 
-    public function __construct($name)
+    public function __construct(...$args)
     {
-        parent::__construct($name,'');
+        $args[1] = '';
+        parent::__construct(...$args);
     }
 
-    public function add_child(test_base $obj)
-    {
-        if( !is_array($this->_children) ) $this->_children = [];
-        $this->_children[] = $obj;
-    }
-
-
-    public function __set($key,$value)
+    public function __set(string $key,$value)
     {
         switch( $key ){
-        case 'minimum':
-        case 'maximum':
-        case 'recommended':
-        case 'success_key':
-        case 'pass_key':
-        case 'fail_key':
+          case 'recommended': // useless in this context ?
             $this->$key = $value;
             break;
-
-        default:
+          default:
             parent::__set($key,$value);
         }
     }
 
-    public function execute()
+    public function execute() : string
     {
-        $out = self::TEST_PASS;
+        $out = parent::TEST_PASS;
         if( ($n = count($this->_children)) ) {
             for( $i = 0; $i < $n; $i++ ) {
                 $res = $this->_children[$i]->run();
-                if( $res == self::TEST_FAIL ) {
+                if( $res == parent::TEST_FAIL ) {
                     // test failed.... if this test is not required, we can continue
                     if( $this->required ) return $res;
-                    $out = self::TEST_WARN;
+                    $out = parent::TEST_WARN;
                 }
             }
         }
         return $out;
     }
 
+    public function add_child(test_base $obj)
+    {
+        if( !is_array($this->_children) ) {
+          $this->_children = [];
+        }
+        $this->_children[] = $obj;
+    }
+
     public function msg()
     {
         switch( $this->status ) {
-        case self::TEST_FAIL:
+        case parent::TEST_FAIL:
             for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
                 $obj = $this->_children[$i];
-                if( $obj->status == self::TEST_FAIL ) {
+                if( $obj->status == parent::TEST_FAIL ) {
                     if( $obj->fail_msg ) return $obj->fail_msg;
                     if( $obj->fail_key ) return lang($obj->fail_key);
                 }
             }
             break;
 
-        case self::TEST_WARN:
+        case parent::TEST_WARN:
             for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
                 $obj = $this->_children[$i];
-                if( $obj->status == self::TEST_FAIL ) {
+                if( $obj->status == parent::TEST_FAIL ) {
                     if( $obj->warn_msg ) return $obj->warn_msg;
                     if( $obj->warn_key ) return lang($obj->warn_key);
                 }

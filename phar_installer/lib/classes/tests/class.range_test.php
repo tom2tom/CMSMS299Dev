@@ -4,47 +4,32 @@ namespace cms_installer\tests;
 
 class range_test extends test_base
 {
-  public function __construct($name,$value)
+  public function __set(string $key,$value)
   {
-      parent::__construct($name,$value);
-  }
-
-
-  public function __set($key,$value)
-  {
-      switch( $key )
-      {
-      case 'minimum':
-      case 'maximum':
-          $this->$key = $value;
-          break;
-
+    switch( $key ) {
+      case 'success_key':
+        $this->$key = $value;
+        break;
       default:
-          parent::__set($key,$value);
-      }
+        parent::__set($key,$value);
+    }
   }
 
-
-  public function execute()
+  public function execute() : string
   {
-      if( $this->minimum )
-      {
-          $min = $this->returnBytes($this->minimum);
-          $val = $this->returnBytes($this->value);
-          if( $val < $min ) return self::TEST_FAIL;
+      $val = $this->returnBytes($this->value);
+      if( $this->minimum ) {
+          $tmp = $this->returnBytes($this->minimum);
+          if( $val < $tmp ) return parent::TEST_FAIL;
       }
-      if( $this->recommended )
-      {
-          $rec = $this->returnBytes($this->recommended);
-          $val = $this->returnBytes($this->value);
-          if( $val < $rec ) return self::TEST_WARN;
+      if( $this->maximum ) {
+          $tmp = $this->returnBytes($this->maximum);
+          if( $val > $tmp ) return parent::TEST_FAIL;
       }
-      if( $this->maximum )
-      {
-          $max = $this->returnBytes($this->maximum);
-          $val = $this->returnBytes($this->value);
-          if( $val > $max ) return self::TEST_FAIL;
+      if( $this->recommended ) {
+          $tmp = $this->returnBytes($this->recommended);
+          if( $val < $tmp ) return parent::TEST_WARN;
       }
-      return self::TEST_PASS;
+      return parent::TEST_PASS;
   }
 }
