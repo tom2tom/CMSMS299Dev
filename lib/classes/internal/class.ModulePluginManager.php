@@ -262,9 +262,9 @@ final class ModulePluginManager
 	 * @param string $module_name The module name
 	 * @param string $name  The plugin name
 	 * @param string $type  The plugin type (function,block,modifier)
-	 * @param callable $callback A static function to call.
-	 * @param bool $cachable Whether the plugin is cachable
-	 * @param int  $available Flags indicating the availability of the plugin.   See AVAil_ADMIN AND AVAIL_FRONTEND
+	 * @param callable $callback  The callable (static function) which runs the plugin.
+	 * @param bool $cachable Optional flag whether the plugin is cachable, default true
+	 * @param int  $available Optional bit-flag(s) indicating the availability of the plugin. default 0.  See AVAIL_ADMIN AND AVAIL_FRONTEND
 	 */
 	public static function addStatic($module_name,$name,$type,$callback,$cachable = TRUE,$available = 0)
 	{
