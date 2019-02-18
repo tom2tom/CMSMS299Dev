@@ -18,11 +18,13 @@
 
 namespace ModuleManager;
 
+use cms_config;
 use CmsFileSystemException;
 use CmsInvalidDataException;
 use CmsLogicException;
 use CMSModule;
 use CMSMS\FileTypeHelper;
+use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
 use ModuleManager;
 use RuntimeException;
@@ -266,7 +268,7 @@ class operations
      * @param CMSModule $modinstance
      * @param string $message for returning
      * @param int $filecount for returning
-     * @return string filepath
+     * @return string output filepath
      * @throws CmsFileSystemException
      */
     public function create_xml_package( CMSModule $modinstance, &$message, &$filecount )
@@ -274,8 +276,14 @@ class operations
         $dir = $modinstance->GetModulePath();
         if( !is_writable( $dir ) ) throw new CmsFileSystemException(lang('errordirectorynotwritable'));
 
-        // generate the moduleinfo.ini file
-        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
+        // generate a moduleinfo.ini file, if N/A now
+		$fn = $dir.'/moduleinfo.ini';
+		if( !is_file($fn) ) {
+	        ModuleOperations::get_instance()->generate_moduleinfo($modinstance);
+			global_cache::clear('modules');
+			global_cache::clear('module_deps');
+//			global_cache::clear('module_plugins');
+		}
 
         $xw = new XMLWriter();
         $outfile = cms_join_path(TMP_CACHE_LOCATION,'module'.md5($dir).'.xml');
