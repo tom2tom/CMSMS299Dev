@@ -107,6 +107,67 @@ abstract class installer_base
 
         $this->_config = ($config) ? $config : false;
 
+		// handle debug mode
+        if( !empty($config['debug']) ) {
+            @ini_set('display_errors',1);
+            @error_reporting(E_ALL);
+        }
+
+        // find our archive, copy it... and rename it securely.
+        // we do this because phar data cannot read from a .tar.gz file that is already embedded within a phar
+        // (some environments)
+        $p = $config['archive'] ?? 'data/data.tar.gz';
+        $src_archive = dirname(__DIR__,2).DIRECTORY_SEPARATOR.$p;
+        if( !is_file($src_archive) ) throw new Exception('Could not find installation archive at '.$src_archive);
+        $src_md5 = md5_file($src_archive);
+        $tmpdir = $this->get_tmpdir().DIRECTORY_SEPARATOR.'m'.md5(__FILE__.session_id());
+        $dest_archive = $tmpdir.DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
+
+        for( $i = 0; $i < 2; $i++ ) {
+            if( !is_file($dest_archive) ) {
+                @mkdir($tmpdir,0771,TRUE);
+                @copy($src_archive,$dest_archive);
+            }
+            $dest_md5 = md5_file($dest_archive);
+            if( is_readable($dest_archive) && $src_md5 == $dest_md5 ) break;
+            @unlink($dest_archive);
+        }
+        if( $i == 2 ) throw new Exception('Checksum of temporary archive does not match... copying/permissions problem');
+        $this->_archive = $dest_archive;
+
+        // for every request we're gonna make sure it's not cached.
+        session_cache_limiter('private');
+
+        // initialize the session
+        $sess = session::get();
+        $p = $sess[__CLASS__]; // trigger session start.
+
+        // get the request
+        $request = request::get();
+        if( isset($request['clear']) ) {
+            $sess->reset();
+        }
+
+        // get version details (version we are installing)
+        // if not in the session, save them there.
+        if( isset($sess[__CLASS__.'version']) ) {
+            $ver = $sess[__CLASS__.'version'];
+            $this->_dest_version = $ver['version'];
+            $this->_dest_name = $ver['version_name'];
+            $this->_dest_schema = $ver['schema_version'];
+        }
+        else {
+            global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
+            $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
+            if( !is_file($verfile) ) throw new Exception('Could not find version file');
+            include_once $verfile;
+            $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
+            $sess[__CLASS__.'version'] = $ver;
+            $this->_dest_version = $CMS_VERSION;
+            $this->_dest_name = $CMS_VERSION_NAME;
+            $this->_dest_schema = $CMS_SCHEMA_VERSION;
+        }
+
         $this->_have_phar = extension_loaded('phar');
     }
 
@@ -125,7 +186,7 @@ abstract class installer_base
 
     public function get_tmpdir() : string
     {
-        $config = self::$_instance->config();
+        $config = self::$_instance->get_config();
         return $config['tmpdir'];
     }
 
@@ -141,7 +202,7 @@ abstract class installer_base
 
     public static function get_rooturl() : string
     {
-        $config = self::$_instance->config();
+        $config = self::$_instance->get_config();
         if ($config && isset($config[self::CONFIG_ROOT_URL])) {
             return $config[self::CONFIG_ROOT_URL];
         }
@@ -425,16 +486,13 @@ lib/PHPArchive/*                          PHPArchive
         return ($p1 != $p2);
     }
 
-    public function get_dest_version() : string { return $this->_dest_version; }
+    public function get_dest_version() : string { return $this->_dest_version ?? ''; }
 
-    public function get_dest_name() : string { return $this->_dest_name; }
+    public function get_dest_name() : string { return $this->_dest_name ?? ''; }
 
-    public function get_dest_schema() : string { return $this->_dest_schema; }
+    public function get_dest_schema() : string { return $this->_dest_schema ?? ''; }
 
-    public function get_archive() : string
-    {
-        return $this->_archive ?? '';
-    }
+    public function get_archive() : string { return $this->_archive ?? ''; }
 
     public function get_phar() : string { return $this->_have_phar ? Phar::running() : ''; }
 

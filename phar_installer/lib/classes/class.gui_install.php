@@ -3,10 +3,12 @@
 namespace cms_installer;
 
 use cms_installer\installer_base;
-use cms_installer\request;
-use cms_installer\session;
 use cms_installer\wizard\wizard;
+use Exception;
+use RuntimeException;
+use function cms_installer\CMSMS\endswith;
 use function cms_installer\CMSMS\smarty;
+use function cms_installer\CMSMS\startswith;
 use function cms_installer\CMSMS\translator;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
@@ -22,20 +24,8 @@ class gui_install extends installer_base
     {
         parent::__construct($configfile);
 
-        // for every request we're gonna make sure it's not cached.
-        session_cache_limiter('private');
-        // and make sure we are in UTF-8
+        // make sure we are in UTF-8
         header('Content-Type:text/html; charset=UTF-8');
-
-        // initialize the session.
-        $sess = session::get();
-        $p = $sess[__CLASS__]; // trigger session start.
-
-        // get the request
-        $request = request::get();
-        if( isset($request['clear']) ) {
-            $sess->reset();
-        }
 
         $config = $this->get_config(); // generic config data
 
@@ -43,16 +33,10 @@ class gui_install extends installer_base
 
         // setup smarty
         $smarty = smarty();
-        $smarty->assign('APPNAME','cms_installer');
-        $smarty->assign('config',$config);
-        $smarty->assign('installer_version',$config['installer_version']);
+        $smarty->assign('APPNAME','cms_installer')
+          ->assign('config',$config)
+          ->assign('installer_version',$config['installer_version']);
         if( isset($config['build_time']) ) $smarty->assign('build_time',$config['build_time']);
-
-        // handle debug mode
-        if( $config['debug'] ) {
-            @ini_set('display_errors',1);
-            @error_reporting(E_ALL);
-        }
 
         if( $this->in_phar() && !$config['nobase'] ) {
             $base_href = $_SERVER['SCRIPT_NAME'];
@@ -60,48 +44,6 @@ class gui_install extends installer_base
                 $base_href = $base_href . '/';
                 $smarty->assign('BASE_HREF',$base_href);
             }
-        }
-
-        // find our archive, copy it... and rename it securely.
-        // we do this because phar data cannot read from a .tar.gz file that is already embedded within a phar
-        // (some environments)
-        $p = $config['archive'] ?? 'data/data.tar.gz';
-        $src_archive = dirname(__DIR__,2).DIRECTORY_SEPARATOR.$p;
-        if( !is_file($src_archive) ) throw new Exception('Could not find installation archive at '.$src_archive);
-        $src_md5 = md5_file($src_archive);
-        $tmpdir = $this->get_tmpdir().DIRECTORY_SEPARATOR.'m'.md5(__FILE__.session_id());
-        $dest_archive = $tmpdir.DIRECTORY_SEPARATOR.'f'.md5($src_archive.session_id()).'.tgz';
-
-        for( $i = 0; $i < 2; $i++ ) {
-            if( !is_file($dest_archive) ) {
-                @mkdir($tmpdir,0771,TRUE);
-                @copy($src_archive,$dest_archive);
-            }
-            $dest_md5 = md5_file($dest_archive);
-            if( is_readable($dest_archive) && $src_md5 == $dest_md5 ) break;
-            @unlink($dest_archive);
-        }
-        if( $i == 2 ) throw new Exception('Checksum of temporary archive does not match... copying/permissions problem');
-        $this->_archive = $dest_archive;
-
-        // get version details (version we are installing)
-        // if not in the session, save them there.
-        if( isset($sess[__CLASS__.'version']) ) {
-            $ver = $sess[__CLASS__.'version'];
-            $this->_dest_version = $ver['version'];
-            $this->_dest_name = $ver['version_name'];
-            $this->_dest_schema = $ver['schema_version'];
-        }
-        else {
-            global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
-            $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
-            if( !is_file($verfile) ) throw new Exception('Could not find version file');
-            include_once $verfile;
-            $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
-            $sess[__CLASS__.'version'] = $ver;
-            $this->_dest_version = $CMS_VERSION;
-            $this->_dest_name = $CMS_VERSION_NAME;
-            $this->_dest_schema = $CMS_SCHEMA_VERSION;
         }
     }
 
