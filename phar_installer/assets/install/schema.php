@@ -206,11 +206,14 @@ modified_date DT
     $msg_ret = ($return == 2) ? $good : $bad;
     verbose_msg(ilang('install_creating_index', 'idx_content_props_by_content', $msg_ret));
 
+    // type = C (callable,default) M (module) P (plugin) or U (UDT)
+    //ex module_name >> (handler)[namespaced]class, tag_name >> (func)method or plugin/UDT name
     $flds = '
 handler_id I(4) KEY,
 event_id I(4),
-tag_name C(255),
-module_name C(48),
+class C(96),
+func C(64),
+type C(1) NOT NULL DEFAULT "C",
 removable I(1) DEFAULT 1,
 handler_order I(4) DEFAULT 0
 ';

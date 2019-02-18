@@ -215,6 +215,20 @@ $sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',
     CMS_DB_PREFIX.'content', 'content_id,hierarchy');
 $dbdict->ExecuteSQLArray($sqlarray);
 
+//event-handlers table columns
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.'event_handlers', 'type C(1) NOT NULL DEFAULT "C"');
+$dbdict->ExecuteSQLArray($sqlarray);
+$query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="M" WHERE module_name IS NOT NULL';
+$query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="U" WHERE tag_name IS NOT NULL';
+$sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name C(96)');
+$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name', 'class');
+$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name C(64)');
+$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func');
+$dbdict->ExecuteSQLArray($sqlarray);
+
 // 9. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
 $data = $db->GetArray($query);
@@ -276,6 +290,6 @@ $query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modi
 $db->Execute($query,[$longnow,$longnow]);
 
 //if ($return == 2) {
-    $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 205';
+    $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 206';
     $db->Execute($query);
 //}
