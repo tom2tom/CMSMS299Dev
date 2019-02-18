@@ -17,11 +17,26 @@
 {/if}
 
 {if $tests_failed || $verbose}
+  {if isset($information)}
+  <table class="table bordered-table small-font">
+    <caption>
+        {'server_info'|tr}
+    </caption>
+    <tbody>
+  {foreach $information as $test}
+        <tr>
+            <td{if $test->msg_key} title="{$test->msg_key|tr}"{/if}>{if $test->name_key}{$test->name_key|tr}{else}{$test->name}{/if}</td>
+            <td>{$test->value}</td>
+        </tr>
+  {/foreach}
+    </tbody>
+  </table>
+  {/if}
   <table class="table bordered-table installer-test-legend small-font">
     <caption>
         {'legend'|tr}
     </caption>
-    <thead>
+    <thead class="tbhead">
         <tr>
             <th>{'symbol'|tr}</th>
             <th>{'meaning'|tr}</th>
@@ -55,9 +70,9 @@
         <tr class="{cycle values='odd,even'}{if $test->status == 'test_fail'} error{/if}{if $test->status == 'test_warn'} warning{/if}">
             <td class="{$test->status}">{if $test->status == 'test_fail'}<i title="{'test_failed'|tr}" class="icon-cancel red"></i>{elseif $test->status == 'test_warn'}<i title="{'test_warning'|tr}" class="icon-warning yellow"></i>{else}<i title="{'test_passed'|tr|strip_tags}" class="icon-check green"></i>{/if}</td>
             <td>
-                {$test->name|tr}
+                {if $test->name_key}{$test->name_key|tr}{else}{$test->name}{/if}
                 {$str = $test->msg()}
-                {if $str != '' && ($verbose || $test->status != 'test_pass')}
+                {if $str && ($verbose || $test->status != 'test_pass')}
                   <br />
                   <span class="tests-infotext">{$str}</span>
                 {/if}
