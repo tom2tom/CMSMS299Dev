@@ -268,38 +268,71 @@ abstract class CMSModule
     }
 
     /**
-     * Register a smarty plugin attached to the module.
-     * This method records the plugin in the plugins database table, and should
-     * be used only when a module is installed or upgraded.
-     *
+     * Register a smarty plugin associated with the module.
+     * This method records the plugin in the plugins database table,
+     *  and should be used only when a module is installed or upgraded.
      * @see https://www.smarty.net/docs/en/api.register.plugin.tpl
      * @author calguy1000
      * @since 1.11
+     *
      * @param string  $name The plugin name
      * @param string  $type The plugin type (function,compiler,block, etc)
-     * @param callable $callback The function callback (must be a static function)
-     * @param bool    $cachable Whether this function is cachable.
-     * @param int     $usage flag(s) for frontend and/or backend availability.
+     * @param callable $callback The plugin processor,
+     *  (since 2.3) an actual callable or
+     *  a string identifying a static function, like 'class::name' or just 'name' (if the module-class is implied)
+     * @param bool    $cachable Optionsl flag whether this function is cachable. Default true.
+     * @param int     $usage Optional bit-flag(s) for frontend and/or backend availability.
      *   Default 0, hence ModulePluginManager::AVAIL_FRONTEND
      *   0=front, 1=front, 2=back, 3=both
+     * @throws CmsException
+     * @return bool, or not at all
      */
     public function RegisterSmartyPlugin($name, $type, $callback, $cachable = true, $usage = 0)
     {
-        if( !$name || !$type || !$callback ) {
+        if (!$name || !$type || !$callback) {
             throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
         }
-        // TODO: check $type, $callback values
-        ModulePluginManager::get_instance()->add($this->GetName(),$name,$type,$callback,$cachable,$usage);
+        // validate $type
+        switch ($type) {
+            case 'function':
+            case 'modifier':
+            case 'block':
+            case 'prefilter':
+            case 'postfilter':
+            case 'outputfilter':
+            case 'compiler':
+            case 'resource':
+            case 'insert':
+            break;
+            default:
+            throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
+        }
+        // validate $callable (a bit!) 
+        $modname = $this->GetName();
+        if (is_callable($callback)) {
+            $callable = $callback;
+        } elseif (is_string($callback)) {
+            // funky - support handlers which are not (yet?) reqcognised
+            if (strpos($callback,'::') !== false) {
+                $callable = explode('::',$callback,2);
+            } else {
+                $callable = [$modname,$callback];
+            }
+        } else {
+            throw new CmsException('Invalid callable passed to RegisterSmartyPlugin');
+        }
+        return ModulePluginManager::get_instance()->add($modname, $name, $type, $callable, $cachable, $usage);
     }
 
     /**
      * Unregister smarty plugin(s) by name or current module.
-     * This method removes any matching rows from the database, and should only
-     * be used in a module's uninstall or upgrade routine.
+     * This method removes any matching rows from the database, and
+     *  should only be used during module uninstallation or upgrade.
      *
      * @author calguy1000
      * @since 1.11
-     * @param string $name The smarty plugin name.  If no name is specified all smarty plugins registered to this module will be removed.
+     * @param string $name Optional plugin name. Defaule '', which implies
+     *  all plugins registered for this module.
      */
     public function RemoveSmartyPlugin($name = '')
     {
@@ -312,31 +345,31 @@ abstract class CMSModule
 
     /**
      * Register the module as a smarty 'function' plugin.
-     * This method should be called during module installation/upgrade, or from
-     * the module's constructor or InitializeFrontend() method.
+     * This method should be called during module installation or upgrade,
+     *  or from the module's constructor or Initialize*() method.
      *
      * @final
-     * @param bool $forcedb Optional flag whether to record this registration in
-     *   the database. Default false. If true, the module is not immediately
-     *   registered with smarty i.e. for use during module installation/upgrade.
+     * @param bool $static Optional flag whether to record this registration
+     *  in the database. Default false. If true, the module is not immediately
+     *  registered with smarty i.e. for use during module installation/upgrade.
      * @param mixed bool|null $cachable Optional flag whether this plugin's
      *   output is cachable. Default false.
      * @return bool
      */
-    final public function RegisterModulePlugin(bool $forcedb = false, $cachable = false) : bool
+    final public function RegisterModulePlugin(bool $static = false, $cachable = false) : bool
     {
         $name = $this->GetName();
-        if( !$forcedb ) {
+        if( !$static ) {
             global $CMS_INSTALL_PAGE;
-            if (!isset($CMS_INSTALL_PAGE) ) {
-				try {
+            if( !isset($CMS_INSTALL_PAGE) ) {
+                try {
                     Smarty::get_instance()->registerPlugin('function', $name, [$name,'function_plugin'], $cachable);
-				} catch (Exception $e) {/* ignore duplicate registrations */}
+                } catch (Exception $e) {/* ignore duplicate registrations */}
             }
             return true;
         }
-        //forced: make a 'permanent' record
-        return ModulePluginManager::get_instance()->add($name, $name, 'function', 'function_plugin', $cachable);
+        //static: make a 'permanent' record
+        return ModulePluginManager::get_instance()->add($name, $name, 'function', [$name,'function_plugin'], $cachable);
     }
 
     /**
@@ -461,7 +494,8 @@ abstract class CMSModule
     }
 
     /**
-     * Provide extra/custom content which is to be inserted verbatim between the <head> tags on an admin page.
+     * Provide extra/custom content which is to be inserted verbatim
+     *  between the <head> tags on an admin page.
      * This is a convenient way of providing action-specific css or javascript.
      *
      * @since 2.3
@@ -481,7 +515,8 @@ abstract class CMSModule
     }
 
     /**
-     * Provide extra/custom content which is to be inserted verbatim at the bottom of an admin page (not displayed)
+     * Provide extra/custom content which is to be inserted verbatim
+     *  at the bottom of an admin page (not displayed)
      * This is one way to defer inclusion of action-specific javascript.
      *
      * @since 2.3
@@ -505,7 +540,8 @@ abstract class CMSModule
      * theme, etc, so your module can output files directly to the administrator.
      * Do this by returning true.
      *
-     * @param  array $request The input $_REQUEST[]. This can be used to test whether or not admin output should be suppressed.
+     * @param  array $request The input $_REQUEST[].
+     *  This can be used to test whether or not admin output should be suppressed.
      * @return bool
      */
     public function SuppressAdminOutput(&$request)
@@ -514,18 +550,19 @@ abstract class CMSModule
     }
 
     /**
-     * Register a dynamic route to use for pretty url parsing
+     * Register a dynamic route to use for pretty-url parsing
      *
-     * Note: This method is not compatible wih lazy loading in the front end.
+     * Note: This method may not have the expected effects in lazy-loaded modules.
      *
      * @final
      * @param string $routeregex Regular Expression Route to register
-     * @param array $defaults Associative array containing defaults for parameters that might not be included in the url
+     * @param array $defaults Associative array containing defaults
+     *  for parameters that might not be included in the url
      */
     final public function RegisterRoute(string $routeregex, array $defaults = [])
     {
         $route = new CmsRoute($routeregex,$this->GetName(),$defaults);
-        cms_route_manager::register($route);
+        cms_route_manager::add_dynamic($route);
     }
 
     /**
@@ -538,8 +575,8 @@ abstract class CMSModule
     public function CreateStaticRoutes() {}
 
     /**
-     * Returns a list of parameters and their help strings in a hash.  This is generally
-     * used internally.
+     * Returns a list of parameters and their help strings in a hash.
+     * This is generally used internally.
      *
      * @final
      * @internal
@@ -939,10 +976,7 @@ abstract class CMSModule
     }
 
     /**
-     * Register a bulk content action
-     *
-     * For use in the CMSMS content list this method allows a module to
-     * register a bulk content action.
+     * Register a bulk content action, for use in a content list
      *
      * @final
      * @param string $label A label for the action
@@ -1160,8 +1194,8 @@ abstract class CMSModule
     }
 
     /**
-     * Returns which admin section this module belongs to.
-     * this is used to place the module in the appropriate admin navigation
+     * Returns the name of the admin-menu section this module belongs to.
+     * This is used to place the module in the appropriate admin navigation
      * section. Valid options are currently:
      *
      * main, content, layout, files, usersgroups, extensions, preferences, siteadmin, myprefs, ecommerce
@@ -1191,13 +1225,11 @@ abstract class CMSModule
     }
 
     /**
-     * Returns true or false, depending on whether the user has the
-     * right permissions to see the module in their Admin menus.
+     * Returns true/false indicating whether the user has appropriate
+     * permission(s) to see the module in her/his admin menus. Defaults to true.
      *
-     * Typically permission checks are done in the overriden version of
-     * this method.
-     *
-     * Defaults to true.
+     * Typically permission checks are done in the overridden version of this
+     * method.
      *
      * @abstract
      * @return bool
@@ -1208,8 +1240,9 @@ abstract class CMSModule
     }
 
     /**
-     * Returns true if the module should be treated as a plugin module (like
-     * {cms_module module='name'}.  Returns false by default.
+     * Returns true/false indicating whether the module should be treated as a
+     * plugin module (like {cms_module module='name'}.  Defaults to false.
+     * @see CMSModule::RegisterModulePlugin()
      *
      * @abstract
      * @return bool
@@ -1220,13 +1253,16 @@ abstract class CMSModule
     }
 
     /**
-     * Returns true if the module may support lazy loading in the front end
+     * Returns true/false indicating whether the module may be lazy loaded during
+     *  a front-end request. Default false.
      *
-     * Note: The results of this function are not read on each request, only during install and upgrade
-     * therefore if the return value of this function changes the version number of the module should be
-     * increased to force a re-load
+     * Some properties (e.g. routes) are registered during each request, in which
+     * case a lazy load may cause such things to not work as expected.
      *
-     * In CMSMS 1.10 routes are loaded upon each request, if a module registers routes it cannot be lazy loaded.
+     * Note: This function is not called during each request, but only during
+     * install and upgrade and after caches are cleared. So if the return value
+     * of this function changes, clear the cache or increase the version number
+     * of the module to force a re-cache.
      *
      * @since 1.10
      * @abstract
@@ -1238,13 +1274,16 @@ abstract class CMSModule
     }
 
     /**
-     * Returns true if the module may support lazy loading in the admin interface.
+     * Returns true/false indicating whether the module may be lazy-loaded during
+     *  an admin/backend request. Default false.
      *
-     * Note: The results of this function are not read on each request, only during install and upgrade
-     * therefore if the return value of this function changes the version number of the module should be
-     * increased to force a re-load
+     * Some properties (e.g. routes) are registered during each request, in which
+     * case a lazy load may cause such things to not work as expected.
      *
-     * In CMSMS 1.10 routes are loaded upon each request, if a module registers routes it cannot be lazy loaded.
+     * Note: This function is not called during each request, but only during
+     * install and upgrade and after caches are cleared. So if the return value
+     * of this function changes, clear the cache or increase the version number
+     * of the module to force a re-cache.
      *
      * @since 1.10
      * @abstract
@@ -1266,7 +1305,7 @@ abstract class CMSModule
      *
      * @abstract
      * @param string $capability an id specifying which capability to check for, could be "wysiwyg" etc.
-     * @param array  $params An associative array further params to get more detailed info about the capabilities. Should be syncronized with other modules of same type
+     * @param array  $params An associative array further params to get more detailed info about the capabilities. Should be synchronized with other modules of same type
      * @return bool
      */
     public function HasCapability($capability, $params = [])
@@ -1280,7 +1319,7 @@ abstract class CMSModule
      * @since 1.8
      * @abstract
      * @return mixed array of task objects, or one such object, or NULL if not handled.
-	 * Since 2.3 the object(s) may use the CmsRegularTask interface (deprecated), or
+     * Since 2.3 the object(s) may use the CmsRegularTask interface (deprecated), or
      * be a descendant of CMSMS\Async\Job
      */
     public function get_tasks()
@@ -1359,9 +1398,9 @@ abstract class CMSModule
 
     /**
      * Return an action's 'controller', which if it exists, is a function to be
-	 * called to 'do' the action (instead of including the action file). The
-	 * callable is expected to be returned by the constructor of a class named
-	 * "$name_action" placed in, and namespaced for, folder <path-to-module>/Controllers
+     * called to 'do' the action (instead of including the action file). The
+     * callable is expected to be returned by the constructor of a class named
+     * like "$name_action" placed in, and namespaced for, folder <path-to-module>/Controllers
      *
      * @since 2.3
      * @param string $name The name of the action to perform
@@ -1447,8 +1486,7 @@ abstract class CMSModule
     }
 
     /**
-     * This method prepares the data and does appropriate checks before
-     * calling a module action.
+     * Prepare data and do appropriate checks before performing a module action.
      *
      * @internal
      * @ignore
@@ -2302,8 +2340,8 @@ abstract class CMSModule
      * Set the current tab for the action.
      *
      * Used for the various template forms, this method can be used to control
-	 * the tab that is displayed by default when redirecting to an admin action
-	 * that displays multiple tabs.
+     * the tab that is displayed by default when redirecting to an admin action
+     * that displays multiple tabs.
      *
      * @since 1.11
      * @author calguy1000
@@ -2323,9 +2361,9 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3. Instead use CMSMS\AdminTabs::start_tab_headers()
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
+     * @param bool $auto Since 2.3 Whether to automatically generate
+     *  continuity-related elements instead of explicit creation of those.
+     *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
     final public function StartTabHeaders(bool $auto = true) : string
@@ -2336,7 +2374,7 @@ abstract class CMSModule
     /**
      * Return page content representing a specific tab header.
      * e.g.  echo $this->SetTabHeader('preferences',$this->Lang('preferences'));
-	 *
+     *
      * @deprecated since 2.3 Use CMSMS\AdminTabs::set_tab_header(). Not final
      * @param string $tabid The tab id
      * @param string $title The tab title
@@ -2353,9 +2391,9 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_headers()
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
+     * @param bool $auto Since 2.3 Whether to automatically generate
+     *  continuity-related elements instead of explicit creation of those.
+     *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
     final public function EndTabHeaders(bool $auto = true) : string
@@ -2368,9 +2406,9 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab_content()
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
+     * @param bool $auto Since 2.3 Whether to automatically generate
+     *  continuity-related elements instead of explicit creation of those.
+     *  Default true, or false for pre-2.0 behavior.
     * @return string
      */
     final public function StartTabContent(bool $auto = true) : string
@@ -2383,9 +2421,9 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab_content()
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
+     * @param bool $auto Since 2.3 Whether to automatically generate
+     *  continuity-related elements instead of explicit creation of those.
+     *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
     final public function EndTabContent(bool $auto = true) : string
@@ -2400,9 +2438,9 @@ abstract class CMSModule
      * @deprecated since 2.3 Use CMSMS\AdminTabs::start_tab()
      * @param string $tabid the tab id
      * @param arrray $params Parameters
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
+     * @param bool $auto Since 2.3 Whether to automatically generate
+     *  continuity-related elements instead of explicit creation of those.
+     *  Default true, or false for pre-2.0 behavior.
      * @see CMSModule::SetTabHeader()
      * @return string
      */
@@ -2416,9 +2454,9 @@ abstract class CMSModule
      *
      * @final
      * @deprecated since 2.3 Use CMSMS\AdminTabs::end_tab()
-	 * @param bool $auto Since 2.3 Whether to automatically generate
-	 *  continuity-related elements instead of explicit creation of those.
-	 *  Default true, or false for pre-2.0 behavior.
+     * @param bool $auto Since 2.3 Whether to automatically generate
+     *  continuity-related elements instead of explicit creation of those.
+     *  Default true, or false for pre-2.0 behavior.
      * @return string
      */
     final public function EndTab(bool $auto = true) : string
