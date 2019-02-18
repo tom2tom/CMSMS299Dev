@@ -495,8 +495,8 @@ abstract class DataDictionary
      *
      * @param string       $tabname      table-name
      * @param string       $flds         column-name and type for the changed column
-     * @param string       $tableflds    optional complete definition of the new table
-     * @param array/string $tableoptions optional options for the new table see CreateTableSQL, default ''
+     * @param string       $tableflds    optional complete columns-definition of the revised table
+     * @param array/string $tableoptions optional options for the revised table see CreateTableSQL, default ''
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      */
@@ -517,17 +517,17 @@ abstract class DataDictionary
      * Rename one column in a table.
      *
      * @param string $tabname   table-name
-     * @param string $oldcolumn column-name to be renamed
+     * @param string $oldcolumn current column-name
      * @param string $newcolumn new column-name
-     * @param string $flds      optional complete column-definition-string like for AddColumnSQL, only used by mysql atm., default=''
+     * @param string $tableflds optional complete columns-definition of the revised table
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
      */
-    public function RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds = '')
+    public function RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $tableflds = '')
     {
         $tabname = $this->TableName($tabname);
-        if ($flds) {
-            list($lines,) = $this->_GenFields($flds);
+        if ($tableflds) {
+            list($lines,) = $this->_GenFields($tableflds);
             $first = reset($lines); // list(, $first) = each($lines);
             list(, $column_def) = preg_split('/\s+/', $first, 2);
         } else {
@@ -542,7 +542,7 @@ abstract class DataDictionary
      *
      * @param string       $tabname      table-name
      * @param string       $flds         column-name and type for the changed column
-     * @param string       $tableflds    optional complete definition of the new table
+     * @param string       $tableflds    optional complete columns-definition of the revised table
      * @param array/string $tableoptions optional options for the new table see CreateTableSQL, default ''
      *
      * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
