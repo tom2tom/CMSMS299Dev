@@ -320,7 +320,7 @@ ALSO
  change of any module's 'active' status
  change of any group membership or permission
      */
-    public static function ThemeHandler()
+    public static function ThemeHandler(string $originator, string $eventname, $params)
     {
         cms_cache_handler::get_instance()->erase('themeinfo');
     }
