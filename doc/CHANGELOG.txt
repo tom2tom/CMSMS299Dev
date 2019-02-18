@@ -229,9 +229,9 @@ DETAILS
       1 - process request with smarty support, but don't display anything, intended for ajax-requests & the like (no page-headers sent)
       2 - process request with minimal overhead (e.g. no smarty reduces request by 50%), for requests which 'do' something rather than display e.g. webhooks, async jobs (no page-headers sent)
   - BREAKING: No longer send id, returnid, action parameters in the action $params array.
-  - CHANGE: Only modules that are not marked as lazy load (the default) will be loaded automatically.
+  - CHANGE: Only modules that are not marked as lazy load (the default) will be loaded automatically during each request.
   - BREAKING: The long deprecated $module->smarty property is now removed.
-  - BREAKING: Smarty recognises plugin functions named like smarty_xxxxx, not smarty_cms_xxx
+  - BREAKING: Recent Smarty recognizes plugin functions named like smarty_xxxxx, but not smarty_cms_xxx. Cleanup existing plugins during upgrade.
   - Optimize the cms_route_manager for performance
   - FEATURE: Adds ModuleOperations::is_module_loaded() method
   - FEATURE: Allow loading action controller classes with the name Module/Controllers/<action>_action
@@ -300,8 +300,7 @@ DETAILS
   - IMPROVE: {cms_action_url} will now use the default content page for frontend links IF a returnid is not specified or cannot be inferred
   - IMPROVE: get_page_id_or_alias_from_url() can now throw an exception and improve the way that parameters are merged and cleaned.
   - CHANGE:  RestrictUnknownParams is now OFF by default, AND cleaning is only done if RestrictUnknownParams() is enabled
-  - BREAKING: Modules that register content types cannot be lazy loaded.
-  - CHANGE: LazyLoadAdmin() and LazyLoadFrontend() methods.  Modules should not be lazy loaded anymore, however class files should be kept small
+  - CHANGE: Experiment - all active modules' Initialize*() method is called during each request, regardless of modules' 'load-laziness'
   - FEATURE: You can now pass :NOPRETTY: as a value for the prettyurl parameter in create_url (and CreateLink and CreateFrontendLink) to disable
       pretty url determiniation.
   - FEATURE: cms_action_url plugin now supports the 'alias' parameter.
