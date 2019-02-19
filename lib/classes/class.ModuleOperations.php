@@ -700,7 +700,7 @@ VALUES (?,?,?,?,?)');
 			// clean up, if permitted
 			if ($cleanup) {
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator=?',[$module]);
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE module_name=?',[$module]);
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE class=? AND type="M"',[$module]);
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',[$module]);
 
 				$types = CmsLayoutTemplateType::load_all_by_originator($module);
