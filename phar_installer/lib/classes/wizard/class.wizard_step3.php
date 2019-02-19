@@ -12,7 +12,6 @@ use cms_installer\wizard\wizard_step;
 use function cms_installer\CMSMS\lang;
 use function cms_installer\CMSMS\smarty;
 use function cms_installer\get_app;
-use function cms_installer\tests\test_extension_loaded;
 use function cms_installer\tests\test_is_false;
 use function cms_installer\tests\test_is_true;
 use function cms_installer\tests\test_remote_file;
@@ -61,7 +60,7 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // required test ... mysqli extension
-        $obj = new boolean_test('database_support',test_extension_loaded('mysqli'));
+        $obj = new boolean_test('database_support',extension_loaded('mysqli'));
         $obj->required = 1;
         $obj->fail_key = 'fail_database_support';
         $tests[] = $obj;
@@ -74,38 +73,38 @@ class wizard_step3 extends wizard_step
         $tests[] = $obj;
 
         // required test ... multibyte extension
-        $obj = new boolean_test('multibyte_support',test_extension_loaded('mbstring') && function_exists('mb_get_info'));
+        $obj = new boolean_test('multibyte_support',extension_loaded('mbstring') && function_exists('mb_get_info'));
         $obj->required = 1;
         $obj->fail_key = 'fail_multibyte_support';
         $tests[] = $obj;
 
         // required test ... xml extension
-        $obj = new boolean_test('xml_functions',test_extension_loaded('xml'));
+        $obj = new boolean_test('xml_functions',extension_loaded('xml'));
         $obj->required = 1;
         $obj->fail_key = 'fail_xml_functions';
         $tests[] = $obj;
 
         // recommended test ... curl extension
-        $obj = new boolean_test('curl_extension',test_extension_loaded('curl'));
+        $obj = new boolean_test('curl_extension',extension_loaded('curl'));
         $obj->fail_key = 'fail_curl_extension';
         $tests[] = $obj;
 
         // recommended test ... some cache extension
         // preference order: apcu,apc,yac,wincache,xcache,[php]redis,predis,memcached,memcache
         $obj = new matchany_test('cache_extension');
-        $t1 = new boolean_test('APCu',test_extension_loaded('apcu') && ini_get('apc.enabled'),'cache_apcu');
+        $t1 = new boolean_test('APCu',extension_loaded('apcu') && ini_get('apc.enabled'),'cache_apcu');
         $obj->add_child($t1);
-        $t1 = new boolean_test('APC',test_extension_loaded('apc') && ini_get('apc.enabled'),'cache_apc');
+        $t1 = new boolean_test('APC',extension_loaded('apc') && ini_get('apc.enabled'),'cache_apc');
         $obj->add_child($t1);
-        $t1 = new boolean_test('YAC',test_extension_loaded('yac'),'cache_yac');
+        $t1 = new boolean_test('YAC',extension_loaded('yac'),'cache_yac');
         $obj->add_child($t1);
-        $t1 = new boolean_test('Wincache',test_extension_loaded('wincache') && function_exists('cache_wincache_ucache_set'),'wincache');
+        $t1 = new boolean_test('Wincache',extension_loaded('wincache') && function_exists('cache_wincache_ucache_set'),'wincache');
         $obj->add_child($t1);
-        $t1 = new boolean_test('Xcache',test_extension_loaded('xcache') && function_exists('xcache_get'),'cache_xcache');
+        $t1 = new boolean_test('Xcache',extension_loaded('xcache') && function_exists('xcache_get'),'cache_xcache');
         $obj->add_child($t1);
         $t1 = new boolean_test('PHPredis',class_exists('Redis'),'cache_redis');
         $obj->add_child($t1);
-        $t1 = new boolean_test('Predis',test_extension_loaded('Redis') && class_exists('Predis\Client'),'cache_predis');
+        $t1 = new boolean_test('Predis',extension_loaded('Redis') && class_exists('Predis\Client'),'cache_predis');
         $obj->add_child($t1);
         $t1 = new boolean_test('Memcached',class_exists('Memcached'),'cache_memcached');
         $obj->add_child($t1);
