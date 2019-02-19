@@ -280,6 +280,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
 			global_cache::clear('session_plugin_modules');
+			global_cache::clear('module_menus');
 
 			cms_notice('Installed module '.$module_name.' version '.$module_obj->GetVersion());
 			Events::SendEvent( 'Core', 'ModuleInstalled', [ 'name' => $module_name, 'version' => $module_obj->GetVersion() ] );
@@ -639,6 +640,7 @@ VALUES (?,?,?,?,?)');
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
 			global_cache::clear('session_plugin_modules');
+			global_cache::clear('module_menus');
 
 			cms_notice('Upgraded module '.$module_name.' to version '.$module_obj->GetVersion());
 			Events::SendEvent( 'Core', 'ModuleUpgraded', [ 'name' => $module_name, 'oldversion' => $dbversion, 'newversion' => $module_obj->GetVersion() ] );
@@ -731,10 +733,11 @@ VALUES (?,?,?,?,?)');
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'routes WHERE key1=?',[$module]);
 			}
 
-			// clear the cache
+			// clear related caches
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
 			global_cache::clear('session_plugin_modules');
+			global_cache::clear('module_menus');
 
 			// Removing module from info
 			$this->_moduleinfo = [];
@@ -793,6 +796,7 @@ VALUES (?,?,?,?,?)');
 			$db->Execute($query,[$info[$module_name]['active'],$module_name]);
 			$this->_moduleinfo = [];
 			global_cache::clear('modules'); //force refresh of the cached active property
+			global_cache::clear('module_menus');
 			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
 			if( $activate ) {
 				cms_notice("Module $module_name activated"); //TODO lang
