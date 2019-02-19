@@ -207,8 +207,8 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
 
             foreach ([
             'smarty_',
-            'smarty_cms_', // deprecated, NOT compatible with smarty 3.1.32
-            'smarty_nocache_', // ditto
+//            'smarty_cms_', // deprecated, NOT compatible with smarty 3.1.32+
+//            'smarty_nocache_', // ditto
             ] as $pref ) {
                 $func = $pref.$basef;
                 if( !function_exists($func) ) continue;
@@ -256,7 +256,38 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
     }
 
     /**
-     * Test if a smarty plugin with the specified name already exists.
+     * Test if a smarty plugin with the specified name exists.
+	 * @since 2.3
+     *
+     * @param string the plugin name
+	 * @param string Optional plugin-type, default 'function'
+     * @return bool
+     */
+    public function is_plugin(string $name, string $type = 'function') : bool
+	{
+		if( isset($this->registered_plugins[$type][$name]) ) return true;
+        // walk plugin dirs to try to find a match
+        $base = $type.'.'.$name.'.php';
+        $basef = $type.'_'.$name;
+
+        foreach ($this->getPluginsDir() as $dir) {
+            $file = $dir.$base;
+            if( !is_file($file) ) continue;
+
+            require_once $file;
+
+            foreach ([
+            'smarty_',
+//            'smarty_nocache_', // deprecated ??
+            ] as $pref ) {
+                if( function_exists($pref.$basef) ) return true;
+            }
+        }
+		return false;
+	}
+
+	/**
+     * Test if a smarty plugin with the specified name has been registered.
      *
      * @param string the plugin name
      * @return bool
