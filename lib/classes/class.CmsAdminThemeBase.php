@@ -311,21 +311,6 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Event handler - erase all users' menu-caches
-TODO respond to events without a hooklist/function c.f. 
- Events::AddEventHandler('Core', 'ModuleInstalled', false, false, false);
- Events::AddEventHandler('Core', 'ModuleUpgraded', false, false, false);
- Events::AddEventHandler('Core', 'ModuleUninstalled', false, false, false);
-ALSO
- change of any module's 'active' status
- change of any group membership or permission
-     */
-    public static function ThemeHandler(string $originator, string $eventname, $params)
-    {
-        cms_cache_handler::get_instance()->erase('themeinfo');
-    }
-
-    /**
      * Convert spaces into a non-breaking space HTML entity.
      * It's used for making menus that work nicely
      *
@@ -376,7 +361,8 @@ ALSO
     private function _get_user_module_info() : array
     {
         $uid = get_userid(false);
-        $data = cms_cache_handler::get_instance()->get('themeinfo'.$uid, 'themeinfo');
+// TODO also clear cache group 'module_menus' after change of group membership or permission
+        $data = cms_cache_handler::get_instance()->get('themeinfo'.$uid, 'module_menus');
 //DEBUG   $data = false;
         if (!$data) {
             // data doesn't exist, gotta build it
@@ -409,8 +395,8 @@ ALSO
                 }
             }
             // cache the array, even if empty
+            cms_cache_handler::get_instance()->set('themeinfo'.$uid, $usermoduleinfo, 'module_menus');
             $data = $usermoduleinfo;
-            cms_cache_handler::get_instance()->set('themeinfo'.$uid, $usermoduleinfo, 'themeinfo');
         }
 
         return $data;
