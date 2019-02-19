@@ -19,11 +19,11 @@
 use CMSMS\CacheDriver;
 
 /**
- * A driver to cache data in the filesystem.
+ * A driver to cache data in filesystem files.
  *
- * This uses files in the defined TMP_CACHE location.
- * Supports read and write locking, a settable cache lifetime, automatic cleaning,
- * hashed keys and groups so that filenames cannot be easily determined.
+ * Supports settable read and write locking, cache location and lifetime,
+ * automatic cleaning, hashed keys and groups so that filenames cannot
+ * be easily determined.
  *
  * @package CMS
  * @license GPL
@@ -50,23 +50,23 @@ class cms_filecache_driver implements CacheDriver
     /**
      * @ignore
      */
-    const KEY_SERIALIZED = '__SERIALIZED__';
+    const SERIALIZED = '|~SE6ED^|';
 
     /**
      * @ignore
-	 * NULL for unlimited
+     * NULL for unlimited
      */
-    private $_lifetime = 7200; //2 hours
-
-    /**
-     * @ignore
-     */
-    private $_locking = true;
+    private $_lifetime = 3600; //1 hour
 
     /**
      * @ignore
      */
-    private $_blocking = false;
+    private $_locking = TRUE;
+
+    /**
+     * @ignore
+     */
+    private $_blocking = FALSE;
 
     /**
      * @ignore
@@ -76,7 +76,7 @@ class cms_filecache_driver implements CacheDriver
     /**
      * @ignore
      */
-    private $_auto_cleaning = 0;
+    private $_auto_cleaning = FALSE;
 
     /**
      * @ignore
@@ -86,14 +86,14 @@ class cms_filecache_driver implements CacheDriver
     /**
      * Constructor
      *
-     * Accepts an associative array of options as follows:
-     *   lifetime  => seconds (default 7200, NULL => unlimited)
-     *   locking   => boolean (default false)
-     *   cache_dir => string (default TMP_CACHE_LOCATION)
-     *   auto_cleaning => boolean (default false)
-     *   blocking => boolean (default false)
-     *   group => string (no default)
-     * @param string $opts
+     * @param array $opts
+     * Associative array of some/all options as follows:
+     *  lifetime  => seconds (default 3600, NULL => unlimited)
+     *  locking   => boolean (default true)
+     *  cache_dir => string (default TMP_CACHE_LOCATION)
+     *  auto_cleaning => boolean (default FALSE)
+     *  blocking => boolean (default FALSE)
+     *  group => string (no default)
      */
     public function __construct($opts)
     {
@@ -122,22 +122,9 @@ class cms_filecache_driver implements CacheDriver
         if( !$group ) $group = $this->_group;
 
         $this->_auto_clean_files();
-        $fn = $this->_get_filename($key,$group);
+        $fn = $this->_get_filename($key, $group);
         $data = $this->_read_cache_file($fn);
         return $data;
-    }
-
-
-    /**
-     * Clear all cached values from a group
-     * if the $group parameter is not specified the current group will be used
-     *
-     * @see cms_filecache_driver::set_group()
-     * @param string $group
-     */
-    public function clear($group = '')
-    {
-        return $this->_clean_dir($this->_cache_dir,$group,false);
     }
 
 
@@ -154,30 +141,9 @@ class cms_filecache_driver implements CacheDriver
         if( !$group ) $group = $this->_group;
 
         $this->_auto_clean_files();
-        $fn = $this->_get_filename($key,$group);
-        clearstatcache(false,$fn);
+        $fn = $this->_get_filename($key, $group);
+        clearstatcache(FALSE, $fn);
         return is_file($fn);
-    }
-
-
-    /**
-     * Erase a cached value
-     * if the $group parameter is not specified the current group will be used
-     *
-     * @see cms_filecache_driver::set_group()
-     * @param string $key
-     * @param string $group
-     */
-    public function erase($key,$group = '')
-    {
-        if( !$group ) $group = $this->_group;
-
-        $fn = $this->_get_filename($key,$group);
-        if( is_file($fn) ) {
-            @unlink($fn);
-            return TRUE;
-        }
-        return FALSE;
     }
 
 
@@ -210,6 +176,40 @@ class cms_filecache_driver implements CacheDriver
         if( $group ) $this->_group = trim($group);
     }
 
+
+    /**
+     * Erase a cached value
+     * if the $group parameter is not specified the current group will be used
+     *
+     * @see cms_filecache_driver::set_group()
+     * @param string $key
+     * @param string $group
+     */
+    public function erase($key,$group = '')
+    {
+        if( !$group ) $group = $this->_group;
+
+        $fn = $this->_get_filename($key, $group);
+        if( is_file($fn) ) {
+            @unlink($fn);
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+
+    /**
+     * Clear all cached values from a group
+     * if the $group parameter is not specified the current group will be used
+     *
+     * @see cms_filecache_driver::set_group()
+     * @param string $group
+     */
+    public function clear($group = '')
+    {
+        if( !$group ) $group = $this->_group;
+        return $this->_clean_dir($this->_cache_dir,$group,FALSE);
+    }
 
     /**
      * @ignore
@@ -250,7 +250,7 @@ class cms_filecache_driver implements CacheDriver
         for( $n = 0; $n < 5; $n++ ) {
             $res2 = flock($res,$mode);
             if( $res2 ) return TRUE;
-            $tl = rand(5,300);
+            $tl = rand(5, 300);
             usleep($tl);
         }
         return FALSE;
@@ -275,8 +275,8 @@ class cms_filecache_driver implements CacheDriver
                 }
                 @fclose($fp);
 
-                if( startswith($data,self::KEY_SERIALIZED) ) {
-                    $data = unserialize(substr($data,strlen(self::KEY_SERIALIZED)));
+                if( startswith($data,self::SERIALIZED) ) {
+                    $data = unserialize(substr($data,strlen(self::SERIALIZED)));
                 }
                 return $data;
             }
@@ -309,11 +309,11 @@ class cms_filecache_driver implements CacheDriver
                 return FALSE;
             }
 
-			if( !is_scalar($data) ) {
-				$data = self::KEY_SERIALIZED.serialize($data);
-			}
-			$res = @fwrite($fp,$data);
-			$this->_flock($fp,self::LOCK_UNLOCK);
+            if( !is_scalar($data) ) {
+                $data = self::SERIALIZED.serialize($data);
+            }
+            $res = @fwrite($fp,$data);
+            $this->_flock($fp,self::LOCK_UNLOCK);
             @fclose($fp);
             return ($res !== FALSE);
         }
@@ -342,23 +342,23 @@ class cms_filecache_driver implements CacheDriver
     /**
      * @ignore
      */
-    private function _clean_dir(string $dir,$group = '',bool $old = TRUE) : int
+    private function _clean_dir(string $dir,$group = '',bool $aged = TRUE) : int
     {
         if( !$group ) $group = $this->_group;
 
-        $mask = $dir.'/cache_*_*.cg';
-        if( $group ) $mask = $dir.'/cache_'.md5(__DIR__.$group).'_*.cg';
+        if( $group ) $mask = $dir.'/cache_'.md5(__DIR__.$group).'_*.cms';
+        else $mask = $dir.'/cache_*_*.cms';
 
-        $files = glob($mask);
+        $files = glob($mask, GLOB_NOSORT);
         if( !is_array($files) ) return 0;
 
         $nremoved = 0;
+        $now = time();
         foreach( $files as $file ) {
             if( is_file($file) ) {
-                $del = false;
-                if( $old ) {
+                if( $aged ) {
                     if( !is_null($this->_lifetime) ) {
-                        if( (time() - @filemtime($file)) > $this->_lifetime ) {
+                        if( ($now - @filemtime($file)) > $this->_lifetime ) {
                             @unlink($file);
                             $nremoved++;
                         }
