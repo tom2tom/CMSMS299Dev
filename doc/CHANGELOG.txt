@@ -175,6 +175,8 @@ DETAILS
   - CHANGE: Add more functions to the smarty security policy, and fix incorrect initialization of members.
   - REMOVED: MenuManager is no longer distributed with CMSMS Core.  and it is no longer considered a system module.
     (note: as of 2.3 it is still operational, just no longer distributed.)
+  - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
+  - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - BREAKING: Remove secure option from content pages
   - CHANGE: $config['ssl_url'] is deprecated, and now just an alias for root url
   - CHANGE: $config['ssl_uploads_url'] is now just an alias for uploads_url and is deprecated
