@@ -48,7 +48,7 @@ function cms_autoloader(string $classname)
 				'CMSMS\AdminThemeNotification' => 'CmsAdminThemeNotification',
 				'CMSMS\App' => 'CmsApp',
 //				'CMSMS\CacheDriver' => 'cms_cache_driver',
-				'CMSMS\CacheFile' => 'cms_filecache_driver',
+//				'CMSMS\CacheFile' => 'cms_filecache_driver',
 				'CMSMS\CacheHandler' => 'cms_cache_handler',
 				'CMSMS\Config' => 'cms_config',
 				'CMSMS\ContentTree' => 'cms_content_tree',
