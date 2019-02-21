@@ -244,7 +244,7 @@ class ContentOperations
 	/**
 	 * Given a content alias, load and return the loaded content object.
 	 *
-	 * @param mixed $alias null|int|string The alias of the content object to load
+	 * @param mixed $alias null|bool|int|string The alias of the content object to load
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
 	 * @return mixed The matched ContentBase object, or null.
 	 */

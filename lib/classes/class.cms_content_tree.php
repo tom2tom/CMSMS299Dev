@@ -81,7 +81,7 @@ class cms_content_tree extends cms_tree
 	 * Method imported from ContentOperations class
 	 *
 	 * @param int $id The page id
-	 * @return cms_content_tree
+	 * @return mixed cms_content_tree | null
 	 */
 	public function quickfind_node_by_id(int $id)
 	{
@@ -95,7 +95,7 @@ class cms_content_tree extends cms_tree
 	 * A backwards compatibility method.
 	 *
 	 * @deprecated
-	 * @param mixed $alias null|int|string
+	 * @param mixed $alias null|bool|int|string
 	 * @return cms_content_tree
 	 */
 	public function sureGetNodeByAlias($alias)
