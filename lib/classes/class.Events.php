@@ -312,11 +312,13 @@ EOS;
 
 	/**
 	 * @ignore
-	 * @param mixed  $callback a callable or an equivalent string
+	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
+	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
+	 *  a UDT name or regular-plugin identifier or ''
 	 * @param string $type Default 'auto'
-	 * @return array, 3 members or empty upon error
+	 * @return mixed 3-member array | false upon error
 	 */
-	private static function InterpretCallback($callback, string $type = 'auto') : array
+	private static function InterpretCallback($callback, string $type = 'auto')
 	{
 		$func = '';
 		if( is_callable($callback,true,$func) ) {
@@ -326,7 +328,7 @@ EOS;
 			list($class,$method) = explode('::',$callback,2);
 		}
 		else {
-			return [];
+			return false;
 		}
 
 		switch( $type ) {
@@ -346,24 +348,28 @@ EOS;
 
 		switch( $type ) {
 		 case 'M';
+			if( $method && !$class ) { $class = $method; $method = null; }
+			if( !$class ) return false;
+			elseif( $method ) { $type = 'C'; }
+			break;
 		 case 'U';
 		 case 'P';
 			if( $class && !$method ) { $method = $class; $class = null; }
-			if( !$method ) return [];
+			if( !$method ) return false;
 			elseif( $class ) { $type = 'C'; }
 			else { $class = null; }
 			break;
 		 case 'C';
-			if( !$class || !$method ) return [];
+			if( !$class || !$method ) return false;
 			break;
 		 case 'auto':
 			if( $class && $method ) { $type = 'C'; }
 			elseif( $class ) { $method = null; $type = 'M'; /*TODO $class is module name type=M | UDT name  method=class type=U | plugin name method=class type=P */ }
 			elseif( $method ) { $class = null; $type = 'U'; /*TODO $method is module name class=method type=M | UDT name type=U | plugin name type=P */ }
-			else return [];
+			else return false;
 			break;
 		 default:
-			return [];
+			return false;
 		}
 
 		return [$class,$method,$type];
@@ -377,7 +383,9 @@ EOS;
 	 *
 	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed  $callback a callable or an equivalent string
+	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
+	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
+	 *  a UDT name or regular-plugin identifier or ''
 	 * @param string $type Optional indicator of $callback type
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
 	 * @param bool   $removable Optional flag whether this event may be removed from the list. Default true.
@@ -385,8 +393,8 @@ EOS;
 	 */
 	public static function AddStaticHandler(string $originator, string $eventname, $callback, string $type = 'C', bool $removable = true) : bool
 	{
-		list($class, $method, $type) = self::InterpretCallback($callback, $type);
-		if( empty($class) && empty($method) ) return false;
+		$params = self::InterpretCallback($callback, $type);
+		if( !$params || (empty($params[0] && empty($params[1]))) ) return false;
 
 		$db = CmsApp::get_instance()->GetDb();
 		// find the event, if any
@@ -397,6 +405,7 @@ EOS;
 			return false;
 		}
 
+		list($class, $method, $type) = $params;
 		// check nothing is already recorded for the event and handler
 		$sql = 'SELECT 1 FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=? AND ';
 		$params = [$id];
@@ -451,14 +460,16 @@ EOS;
 	 * @param bool $removable Optional flag whether this event may be removed from the list. Default true.
 	 * @return bool indicating success
 	 */
-	public static function AddEventHandler(string $originator, string $eventname, $tag_name = false, $module_handler = false, bool $removable = true) : bool
+	public static function AddEventHandler(string $originator, string $eventname, $tag_name = '', $module_handler = '', bool $removable = true) : bool
 	{
+		if( !($tag_name || $module_handler) ) return false;
 		if( $tag_name && $module_handler ) return false;
-		if( !$tag_name && !$module_handler ) return false;
 		if( $tag_name ) {
+			$module_handler = ''; //force string
 			$type = 'U';
 		}
 		else {
+			$tag_name = '';
 			$type = 'M';
 		}
 		return self::AddStaticHandler($originator, $eventname, [$module_handler, $tag_name], $type, $removable);
@@ -468,15 +479,18 @@ EOS;
 	 * @since 2.3
 	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed $callback a callable or an equivalent string
+	 * @param mixed $callback an actual or pseudo callable or an equivalent string
+	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
+	 *  a UDT name or regular-plugin identifier or ''
 	 * @param string $type Optional indicator of $callback type
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
 	 * @return bool indicating success
 	 */
 	public static function AddDynamicHandler(string $originator, string $eventname, $callback, string $type='C') : bool
 	{
-		list($class, $method, $type) = self::InterpretCallback($callback, $type);
-		if( empty($class) && empty($method) ) return false;
+		$params = self::InterpretCallback($callback, $type);
+		if( !$params || (empty($params[0] && empty($params[1]))) ) return false;
+		list($class, $method, $type) = $params;
 
 		if( !is_array(self::$_dynamic) ) {
 			self::$_dynamic = [];
@@ -527,15 +541,17 @@ EOS;
 	 *
 	 * @param string $originator The event 'owner' - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @param mixed  $callback a callable or an equivalent string
+	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
+	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
+	 *  a UDT name or regular-plugin identifier or ''
 	 * @param string $type Optional indicator of $callback type
 	 *  ('M' module 'U' UDT 'P' regular plugin 'C' callable). Default 'C'.
 	 * @return bool indicating success
 	 */
 	public static function RemoveStaticHandler(string $originator, string $eventname, $callback, string $type='C')
 	{
-		list($class, $method, $type) = self::InterpretCallback($callback, $type);
-		if( empty($class) && empty($method) ) return false;
+		$params = self::InterpretCallback($callback, $type);
+		if( !$params || (empty($params[0] && empty($params[1]))) ) return false;
 
 		$db = CmsApp::get_instance()->GetDb();
 		// find the event id
@@ -546,6 +562,7 @@ EOS;
 			return false;
 		}
 
+		list($class, $method, $type) = $params;
 		// find the handler
 		$sql = 'SELECT * FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=? AND ';
 		$params = [$id];
@@ -579,14 +596,16 @@ EOS;
 	 * @param mixed  $module_handler Optional name of a module which handles the specified event
 	 * @return bool indicating success or otherwise.
 	 */
-	public static function RemoveEventHandler(string $originator, string $eventname, $tag_name = false, $module_handler = false)
+	public static function RemoveEventHandler(string $originator, string $eventname, $tag_name = '', $module_handler = '')
 	{
+		if( !($tag_name || $module_handler) ) return false;
 		if( $tag_name && $module_handler ) return false;
-		if( !$tag_name && !$module_handler ) return false;
 		if( $tag_name ) {
+			$module_handler = ''; //enforce string
 			$type = 'U';
 		}
 		else {
+			$tag_name = '';
 			$type = 'M';
 		}
 		return self::RemoveStaticHandler($originator, $eventname, [$module_handler, $tag_name], $type);
