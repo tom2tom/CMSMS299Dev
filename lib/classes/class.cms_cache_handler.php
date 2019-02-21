@@ -16,18 +16,17 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CacheDriver;
+
 /**
- * This singleton class provides a convenient caching capbility.
+ * Singleton class providing caching capability.
  *
- * By default this uses the cms_filecache_driver to cache data in the
- * folder defined by TMP_CACHE_LOCATION, for one hour.
- *
- * Site-preferences which affect operation:
- * 'cache_driver' string [namespaced] class name
- * 'cache_filecache_autocleaning' bool
- * 'cache_filecache_blocking' bool
- * 'cache_filecache_lifetime' int seconds
- * 'cache_filecache_locking' bool
+ * Site-preferences which affect cache operation (unless overridden by supplied params):
+ * 'cache_driver' string 'predis','memcached','apcu','yac','file' or 'auto'
+ * 'cache_autocleaning' bool
+ * 'cache_lifetime' int seconds (maybe 0)
+ * 'cache_file_blocking' bool
+ * 'cache_file_locking' bool
  *
  * @package CMS
  * @license GPL
@@ -47,24 +46,7 @@ class cms_cache_handler
   /**
    * @ignore
    */
-  private function __construct()
-  {
-    // TODO set a default cache handler or something.
-    $driver_name = cms_siteprefs::get('cache_driver','cms_filecache_driver');
-    if( $driver_name != '-1' && class_exists($driver_name) ) {
-      // TODO support multi-cache types setup
-      if( $driver_name == 'cms_filecache_driver' ) {
-        $parms = [];
-        $parms['auto_cleaning'] = cms_siteprefs::get('cache_filecache_autocleaning',0);
-        $parms['blocking'] = cms_siteprefs::get('cache_filecache_blocking',0);
-        $parms['lifetime'] = cms_siteprefs::get('cache_filecache_lifetime',3600);
-        $parms['locking'] = cms_siteprefs::get('cache_filecache_locking',0);
-
-        $driver_obj = new $driver_name($parms);
-        $this->_driver = $driver_obj;
-      }
-    }
-  }
+  private function __construct() {}
 
   /**
    * @ignore
@@ -72,7 +54,7 @@ class cms_cache_handler
   private function __clone() {}
 
   /**
-   * Return a reference to the only allowed instance of this object.
+   * Return the only allowed instance of this class.
    *
    * @return cms_cache_handler
    */
@@ -82,12 +64,98 @@ class cms_cache_handler
     return self::$_instance;
   }
 
+  //TODO admin developer-mode UI for related preferences
+  /**
+   * @since 2.3
+   * @param $opts Optional connection-parameters. Default []
+   * @throws CmsException
+   * @return CacheDriver object | not at all
+   */
+  public function connect(array $opts = []) : CacheDriver
+  {
+    $parms = $opts;
+    // preferences cache N/A now, so get pref data directly
+    $driver_name = $opts['driver'] ?? cms_siteprefs::getraw('cache_driver', 'auto');
+    unset($parms['driver']);
+    $ttl = $opts['lifetime'] ?? cms_siteprefs::getraw('cache_lifetime', 3600);
+    $ttl = (int)$ttl;
+    if( $ttl < 1 ) $ttl = 0;
+    if( $ttl < 1 ) {
+      $parms['lifetime'] = null; // unlimited
+      $parms['auto_cleaning'] = false;
+    }
+    else {
+      $parms['lifetime'] = $ttl;
+      if( !isset($parms['auto_cleaning']) ) {
+        $parms['auto_cleaning'] = cms_siteprefs::getraw('cache_autocleaning', true);
+      }
+    }
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+    $tmp = cms_siteprefs::getraw(['cache_file_blocking', 'cache_file_locking'],[0, 1]);
+    $settings = [
+       'predis' => [
+       'host' => $host,
+       'port' => 6379,
+       'read_write_timeout' => 10.0, // connection timeout, not data lifetime
+       'password' => '',
+       'database' => 0,
+       ],
+       'memcached' => [
+       'host' => $host,
+       'port' => 11211,
+       ],
+       'file' => [
+       'blocking' => reset($tmp),
+       'locking' => end($tmp),
+       ],
+    ];
+    // ordered by preference during auto-selection
+    $drivers = [
+       'predis' => 'CMSMS\\CachePredis',
+       'apcu' => 'CMSMS\\CacheApcu',
+       'memcached' => 'CMSMS\\CacheMemcached', //slowest !?
+       'yac' => 'CMSMS\\CacheYac',  // bit intersection risky 
+       'file' => 'CMSMS\\CacheFile',
+    ];
+
+    $type = strtolower($driver_name);
+    switch( $type ) {
+      case 'predis':
+      case 'apcu':
+      case 'memcached':
+      case 'yac':
+      case 'file':
+        $classname = $drivers[$type];
+        if( isset($settings[$type]) ) $parms += $settings[$type];
+        try {
+          $this->_driver = new $classname($parms);
+          return $this->_driver;
+        } catch (Exception $e) {}
+        break;
+      case 'auto':
+        foreach( $drivers as $type => $classname ) {
+        $tmp = $parms;
+        if( isset($settings[$type]) ) $tmp += $settings[$type];
+        try {
+          $this->_driver = new $classname($tmp);
+          return $this->_driver;
+        }
+        catch (Exception $e) {}
+        }
+        break;
+      default:
+        break;
+    }
+    $this->_driver = null;
+    throw new CmsException('Cache ('.$driver_name.') setup failed');
+  }
+
   /**
    * Set the driver to use for caching
    *
-   * @param cms_cache_driver $driver
+   * @param CacheDriver $driver
    */
-  final public function set_driver(cms_cache_driver& $driver)
+  final public function set_driver(CacheDriver &$driver)
   {
     $this->_driver = $driver;
   }
@@ -95,7 +163,7 @@ class cms_cache_handler
   /**
    * Get the driver to use for caching, to adjust its parameters
    *
-   * @return cms_cache_driver
+   * @return CacheDriver object | null
    */
   final public function get_driver()
   {
@@ -131,7 +199,7 @@ class cms_cache_handler
   final public function get(string $key, string $group = '')
   {
     if( $this->can_cache() ) {
-      return $this->_driver->get($key,$group);
+      return $this->_driver->get($key, $group);
     }
     return FALSE;
   }
@@ -147,7 +215,7 @@ class cms_cache_handler
   final public function exists(string $key, string $group = '') : bool
   {
     if( $this->can_cache() ) {
-      return $this->_driver->exists($key,$group);
+      return $this->_driver->exists($key, $group);
     }
     return FALSE;
   }
@@ -163,7 +231,7 @@ class cms_cache_handler
   final public function erase(string $key, string $group = '') : bool
   {
     if( $this->can_cache() ) {
-      return $this->_driver->erase($key,$group);
+      return $this->_driver->erase($key, $group);
     }
     return FALSE;
   }
@@ -177,10 +245,10 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function set(string $key,$value, string $group = '') : bool
+  final public function set(string $key, $value, string $group = '') : bool
   {
     if( $this->can_cache() ) {
-      return $this->_driver->set($key,$value,$group);
+      return $this->_driver->set($key, $value, $group);
     }
     return FALSE;
   }
@@ -188,7 +256,7 @@ class cms_cache_handler
   /**
    * Set a current cache group
    *
-   * This method allows specifying a scope to all cache methods
+   * Specify a scope for all cache methods
    * @param string $group
    * @return bool
    */
@@ -202,7 +270,7 @@ class cms_cache_handler
 
   /**
    * Test if caching is possible
-   * Caching is not possible if there is no driver, or in an install request.
+   * Caching is not possible if there is no driver, or during an install-request.
    * @return bool
    */
   final public function can_cache() : bool
@@ -210,8 +278,6 @@ class cms_cache_handler
     global $CMS_INSTALL_PAGE;
 
     if( !is_object($this->_driver) ) return FALSE;
-    if( isset($CMS_INSTALL_PAGE) ) return FALSE;
-
-    return TRUE;
+    return empty($CMS_INSTALL_PAGE);
   }
 }

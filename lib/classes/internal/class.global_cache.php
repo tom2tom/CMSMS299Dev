@@ -1,5 +1,5 @@
 <?php
-# Mechanism for caching data in filesystem files
+# Mechanism for automatic data-caching
 # Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,14 +18,14 @@
 
 namespace CMSMS\internal;
 
-use cms_filecache_driver;
+use cms_cache_handler;
 use CMSMS\internal\global_cachable;
 use LogicException;
 
 /**
- * Class which enables data to be cached automatically (in file-system text files),
- * and fetched (or calculated) via a callback if the cache is too old, or
- * the cached value has been cleared or not yet been saved.
+ * Class which enables data to be cached automatically, and fetched
+ * (or calculated) via a callback if the cache is too old, or the cached
+ * data have been cleared or not yet saved.
  *
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since       2.0
@@ -36,113 +36,122 @@ use LogicException;
 class global_cache
 {
     const TIMEOUT = 604800; //1 week
+
     private static $_types = [];
     private static $_dirty;
-    private static $_cache;
+    private static $_data;
 
     private function __construct() {}
     private function __clone() {}
 
-	/**
-	 *
-	 * @param global_cachable $obj
-	 */
+    /**
+     *
+     * @param global_cachable $obj
+     */
     public static function add_cachable(global_cachable $obj)
     {
         $name = $obj->get_name();
         self::$_types[$name] = $obj;
     }
 
-	/**
-	 *
-	 * @param string $type
-	 * @return mixed
-	 * @throws LogicException if $type is not a recorded/cachable type
-	 */
+    /**
+     *
+     * @param string $type
+     * @return mixed
+     * @throws LogicException if $type is not a recorded/cachable type
+     */
     public static function get($type)
     {
 //        if( !isset(self::$_types[$type]) ) return;
         if( !isset(self::$_types[$type]) ) throw new LogicException('Unknown type '.$type);
-        if( !is_array(self::$_cache) ) self::_load();
-
-        if( !isset(self::$_cache[$type]) ) {
-            self::$_cache[$type] = self::$_types[$type]->fetch();
+        if( !is_array(self::$_data) ) {
+            self::_load();
+        }
+        if( !isset(self::$_data[$type]) ) {
+            self::$_data[$type] = self::$_types[$type]->fetch();
             self::$_dirty[$type] = 1;
             self::save();
         }
-        return self::$_cache[$type];
+        return self::$_data[$type];
     }
 
-	/**
-	 *
-	 * @param string $type
-	 */
+    /**
+     *
+     * @param string $type
+     */
     public static function release($type)
     {
-        if( isset(self::$_cache[$type]) ) unset(self::$_cache[$type]);
+        if( isset(self::$_data[$type]) ) unset(self::$_data[$type]);
     }
 
-	/**
-	 *
-	 * @param string $type
-	 */
+    /**
+     *
+     * @param string $type
+     */
     public static function clear($type)
     {
         // clear it from the cache
-        $driver = self::_get_driver();
-        $driver->erase($type);
-        unset(self::$_cache[$type]);
+        $cache = self::_get_cache();
+        $cache->erase($type);
+        unset(self::$_data[$type]);
     }
 
-	/**
-	 *
-	 */
+    /**
+     *
+     */
     public static function clear_all()
     {
-        self::_get_driver()->clear();
-        self::$_cache = [];
+        self::_get_cache()->clear();
+        self::$_data = [];
     }
 
-	/**
-	 *
-	 * @global int $CMS_INSTALL_PAGE
-	 */
+    /**
+     *
+     * @global int $CMS_INSTALL_PAGE
+     */
     public static function save()
     {
         global $CMS_INSTALL_PAGE;
         if( !empty($CMS_INSTALL_PAGE) ) return;
-        $driver = self::_get_driver();
+        $cache = self::_get_cache();
         $keys = array_keys(self::$_types);
         foreach( $keys as $key ) {
-            if( !empty(self::$_dirty[$key]) && isset(self::$_cache[$key]) ) {
-                $driver->set($key,self::$_cache[$key]);
+            if( !empty(self::$_dirty[$key]) && isset(self::$_data[$key]) ) {
+                $cache->set($key,self::$_data[$key]);
                 unset(self::$_dirty[$key]);
             }
         }
     }
 
-	/**
-	 *
-	 * @staticvar type $_driver
-	 * @return cms_filecache_driver
-	 */
-    private static function _get_driver()
+    /**
+     *
+     * @staticvar cms_cache_handler $_handler
+     * @return cms_cache_handler object
+     * @throws CmsException
+     */
+    private static function _get_cache()
     {
-        static $_driver = null;
-        if( !$_driver ) {
-            $_driver = new cms_filecache_driver(['lifetime'=>self::TIMEOUT,'autocleaning'=>1,'group'=>__CLASS__]);
+        static $_handler = null;
+        if( !$_handler ) {
+            $obj = cms_cache_handler::get_instance();
+            $obj->connect([
+             'auto_cleaning'=>1,
+             'lifetime'=>self::TIMEOUT,
+             'group'=>__CLASS__,
+            ]);
+            $_handler = $obj; //now we're connected
         }
-        return $_driver;
+        return $_handler;
     }
 
     private static function _load()
     {
-        $driver = self::_get_driver();
+        $cache = self::_get_cache();
         $keys = array_keys(self::$_types);
-        self::$_cache = [];
+        self::$_data = [];
         foreach( $keys as $key ) {
-            $tmp = $driver->get($key);
-            self::$_cache[$key] = $tmp;
+            $tmp = $cache->get($key);
+            self::$_data[$key] = $tmp;
             unset($tmp);
         }
     }
