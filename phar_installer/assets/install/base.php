@@ -114,7 +114,6 @@ $group->GrantPermission('Modify Templates');
 // initial user account
 //
 verbose_msg(ilang('install_initsiteusers'));
-$sitemask = cms_siteprefs::get('sitemask');
 $admin_user = new User();
 $admin_user->username = $adminaccount['username'];
 if( !empty($adminaccount['emailaddr']) ) $admin_user->email = $adminaccount['emailaddr'];
@@ -238,4 +237,3 @@ create_private_dir($destdir,'modules');
 create_private_dir($destdir,'plugins');
 create_private_dir($destdir,'simple_plugins');
 create_private_dir($destdir,'templates');
-
