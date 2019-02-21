@@ -377,12 +377,8 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
  */
 function get_pageid_or_alias_from_url()
 {
-    $gCms = CmsApp::get_instance();
     $config = cms_config::get_instance();
-    $contentops = ContentOperations::get_instance();
-    $smarty = Smarty::get_instance();
 
-    $page = '';
     $query_var = $config['query_var'];
     if( isset($_GET[$query_var]) ) {
         // using non friendly urls... get the page alias/id from the query var.
@@ -390,6 +386,7 @@ function get_pageid_or_alias_from_url()
     }
     else {
         // either we're using internal pretty urls or this is the default page.
+        $page = '';
         if (isset($_SERVER['REQUEST_URI']) && !endswith($_SERVER['REQUEST_URI'], 'index.php')) {
             $matches = [];
             if (preg_match('/.*index\.php\/(.*?)$/', $_SERVER['REQUEST_URI'], $matches)) {
@@ -400,7 +397,7 @@ function get_pageid_or_alias_from_url()
     }
     unset($_GET['query_var']);
 
-    $dflt_content = $contentops->GetDefaultContent();
+    $dflt_content = ContentOperations::get_instance()->GetDefaultContent();
     if( !$page ) {
         // by here, if page is empty, use the default page id
         return $dflt_content;
