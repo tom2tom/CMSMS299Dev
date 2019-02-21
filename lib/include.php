@@ -46,7 +46,7 @@ use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
-use CMSMS\internal\ModulePluginManager;
+//use CMSMS\internal\ModulePluginManager;
 use CMSMS\ModuleOperations;
 
 global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY;
