@@ -136,7 +136,7 @@ class User
 
 	/**
 	 * Saves the user to the database.  If no user_id is set, then a new record
-	 * is created.  If the uset_id is set, then the record is updated to all values
+	 * is created.  If the user_id is set, then the record is updated to all values
 	 * in the User object.
 	 *
 	 * @returns mixed If successful, true.  If it fails, false.
