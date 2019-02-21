@@ -12,13 +12,9 @@ $lang['build_date'] = 'Build Date';
 
 # C
 $lang['cache_extension'] = 'Suitable PHP cache extension is available ?';
-$lang['cache_apc'] = 'APC will be used';
 $lang['cache_apcu'] = 'APCu will be used';
 $lang['cache_memcached'] = 'Memcached will be used';
-$lang['cache_memcache'] = 'Memcache will be used';
 $lang['cache_predis'] = 'Predis will be used';
-$lang['cache_redis'] = 'PHPredis will be used';
-$lang['cache_xcache'] = 'Xcache will be used';
 $lang['cache_yac'] = 'YAC will be used';
 $lang['changelog_uc'] = 'CHANGELOG';
 $lang['cleaning_files'] = 'Clean files that are no longer applicable to the release';
@@ -133,12 +129,8 @@ $lang['fail_assets_msg'] = 'An assets directory already exists.  This applicatio
 $lang['fail_cache_extension'] = 'No such cache extension was found. If possible, enable the operation of any of
 <ul>
 <li>APCu</li>
-<li>APC</li>
 <li>Memcached</li>
-<li>Memcache</li>
-<li>Predis</li>
 <li>PHPredis (aka Redis)</li>
-<li>Xcache</li>
 <li>YAC</li>
 </ul>
 on the website';

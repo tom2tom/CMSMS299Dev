@@ -89,26 +89,16 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_curl_extension';
         $tests[] = $obj;
 
-        // recommended test ... some cache extension
-        // preference order: apcu,apc,yac,wincache,xcache,[php]redis,predis,memcached,memcache
+        // recommended test ... supported cache extension
+        // preference order: [php]redis,apcu,yac,memcached(slowest)
         $obj = new matchany_test('cache_extension');
-        $t1 = new boolean_test('APCu',extension_loaded('apcu') && ini_get('apc.enabled'),'cache_apcu');
+        $t1 = new boolean_test('PHPredis',class_exists('Redis'),'cache_redis'); //too bad if server not running!
         $obj->add_child($t1);
-        $t1 = new boolean_test('APC',extension_loaded('apc') && ini_get('apc.enabled'),'cache_apc');
+        $t1 = new boolean_test('APCu',extension_loaded('apcu') && ini_get('apc.enabled'),'cache_apcu');
         $obj->add_child($t1);
         $t1 = new boolean_test('YAC',extension_loaded('yac'),'cache_yac');
         $obj->add_child($t1);
-        $t1 = new boolean_test('Wincache',extension_loaded('wincache') && function_exists('cache_wincache_ucache_set'),'wincache');
-        $obj->add_child($t1);
-        $t1 = new boolean_test('Xcache',extension_loaded('xcache') && function_exists('xcache_get'),'cache_xcache');
-        $obj->add_child($t1);
-        $t1 = new boolean_test('PHPredis',class_exists('Redis'),'cache_redis');
-        $obj->add_child($t1);
-        $t1 = new boolean_test('Predis',extension_loaded('Redis') && class_exists('Predis\Client'),'cache_predis');
-        $obj->add_child($t1);
-        $t1 = new boolean_test('Memcached',class_exists('Memcached'),'cache_memcached');
-        $obj->add_child($t1);
-        $t1 = new boolean_test('Memcache',class_exists('Memcache') && function_exists('memcache_connect'),'cache_memcache');
+        $t1 = new boolean_test('Memcached',class_exists('Memcached'),'cache_memcached'); //too bad if server not running!
         $obj->add_child($t1);
         $obj->fail_key = 'fail_cache_extension';
         $obj->pass_key = 'pass_cache_extension';
