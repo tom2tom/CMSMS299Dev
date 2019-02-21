@@ -101,7 +101,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
             $contentobj->SetCachable(false);
             $contentobj->SetId(__CMS_PREVIEW_PAGE__);
         } else {
-            // $page could be an integer ID or a string alias
+            // $page could be an integer ID or a string alias (or false if some error occurred)
             $contentobj = $contentops->LoadContentFromAlias($page,true);
             if (!is_object($contentobj)) {
                 throw new CmsError404Exception('Page '.$page.' not found');
