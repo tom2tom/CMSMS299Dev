@@ -79,6 +79,38 @@ final class cms_siteprefs
 	}
 
 	/**
+	 * Retrieve specified preference(s) without using the cache.
+	 * This is mostly for getting parameter(s) needed to init the cache.
+	 *
+	 * @since 2.3
+	 * @param mixed string | array $key Preference name(s)
+	 * @param mixed string | array $dflt Optional default value(s)
+	 * @return mixed value | array
+	 */
+	public static function getraw($key, $dflt = '')
+	{
+		$db = CmsApp::get_instance()->GetDb();
+
+		if( !$db ) return $dflt;
+		$query = 'SELECT sitepref_name,sitepref_value FROM '.CMS_DB_PREFIX.'siteprefs WHERE sitepref_name';
+		if( is_array($key) ) {
+			$query .= ' IN ('.str_repeat('?,', count($key) - 1).'?)';
+			$dbr = $db->GetAssoc($query, $key);
+			foreach( $key as $i => $one ) {
+				if( !isset($dbr[$one]) ) {
+					$dbr[$one] = $dflt[$i] ?? end($dflt);
+				}
+			}
+			return $dbr;
+		}
+		else {
+			$query .= '=?';
+			$dbr = $db->GetRow($query, [$key]);
+			return ( $dbr ) ? end($dbr) : $dflt;
+		}
+	}
+
+	/**
 	 * Retrieve a site/module preference
 	 *
 	 * @param string $key The preference name
