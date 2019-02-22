@@ -37,9 +37,7 @@ class wizard_step1 extends wizard_step
         return TRUE;
     }
 
-   /*
-   Exclude most CMSMS directories from the dropdown for directory-chooser
-   */
+   // Exclude most CMSMS directories from the dropdown for directory-choosing
     private function _is_valid_dir(string $dir) : bool
     {
         $bn = basename($dir);
@@ -174,9 +172,9 @@ class wizard_step1 extends wizard_step
         $raw = $config['verbose'] ?? 0;
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
-		$tr = translator();
+        $tr = translator();
         $arr = $tr->get_language_list($tr->get_allowed_languages());
-		asort($arr,SORT_LOCALE_STRING);
+        asort($arr,SORT_LOCALE_STRING);
         $smarty->assign('languages',$arr);
         $raw = $config['lang'] ?? null;
         $v = ($raw) ? trim($raw) : $tr->get_current_language();
