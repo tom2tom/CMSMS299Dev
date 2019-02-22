@@ -153,15 +153,6 @@ class wizard_step4 extends wizard_step
             $config = $app->get_config();
             $this->validate($this->_config);
             $url = $this->get_wizard()->next_url();
-            $action = $this->get_wizard()->get_data('action');
-            if( $action == 'freshen' ) $url = $this->get_wizard()->step_url(6);
-            elseif( $action == 'upgrade' ) {
-                if( $config['nofiles'] ) {
-                    $url = $this->get_wizard()->step_url(8);
-                } else {
-                    $url = $this->get_wizard()->step_url(7);
-                }
-            }
             utils::redirect($url);
         }
         catch( Exception $e ) {
