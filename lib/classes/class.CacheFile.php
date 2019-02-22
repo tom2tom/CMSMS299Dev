@@ -278,7 +278,7 @@ class CacheFile extends CacheDriver
     {
         $mask = ($group) ?
          $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(__CLASS__, $group).'*.cache':
-         $dir.DIRECTORY_SEPARATOR.self::MYSPACE.'*:*.cache';
+         $dir.DIRECTORY_SEPARATOR.$this->_myspace.'*:*.cache';
 
         $files = glob($mask, GLOB_NOSORT);
         if (!is_array($files)) return 0;
