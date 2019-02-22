@@ -17,8 +17,9 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\internal;
-use \cms_cache_handler;
-use \ModuleOperations;
+
+use cms_cache_handler;
+use ModuleOperations;
 
 /**
  * A singleton class for managing meta data acquired from modules.
