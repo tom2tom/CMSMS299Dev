@@ -15,19 +15,25 @@ class wizard_step5 extends wizard_step
 
     public function run()
     {
-        $app = get_app();
+        $wiz = $this->get_wizard();
 
         $tz = date_default_timezone_get();
         if( !$tz ) @date_default_timezone_set('UTC');
 
-        $this->_siteinfo = [ 'sitename'=>'','languages'=>[] ];
-        $tmp = $this->get_wizard()->get_data('config');
+        $this->_siteinfo = ['languages'=>[]];
+
+        $action = $wiz->get_data('action');
+        if( $action == 'install' ) {
+            $this->_siteinfo += ['sitename'=>'','supporturl'=>''];
+        }
+
+        $tmp = $wiz->get_data('config');
         if( $tmp ) $this->_siteinfo = array_merge($this->_siteinfo,$tmp);
         $lang = translator()->get_selected_language();
-        if( $lang != 'en_US' ) $this->_siteinfo['languages'] = [ $lang ];
+        if( $lang != 'en_US' ) $this->_siteinfo['languages'] = [$lang];
 
-        $tmp = $this->get_wizard()->get_data('siteinfo');
-        if( $tmp ) $this->_siteinfo = $tmp;
+        $tmp = $wiz->get_data('siteinfo');
+        if( $tmp ) $this->_siteinfo = array_merge($this->_siteinfo,$tmp);
         return parent::run();
     }
 
@@ -58,9 +64,9 @@ class wizard_step5 extends wizard_step
 
         if( isset($_POST['sitename']) ) $this->_siteinfo['sitename'] = utils::clean_string($_POST['sitename']);
 
-        if( isset($_POST['helpurl']) ) {
-            $url = utils::clean_string(trim($_POST['helpurl']));
-            $this->_siteinfo['helpurl'] = filter_var($url, FILTER_SANITIZE_URL);
+        if( isset($_POST['supporturl']) ) {
+            $url = utils::clean_string(trim($_POST['supporturl']));
+            $this->_siteinfo['supporturl'] = filter_var($url, FILTER_SANITIZE_URL);
         }
 
         if( isset($_POST['languages']) ) {
@@ -74,8 +80,14 @@ class wizard_step5 extends wizard_step
         $this->get_wizard()->set_data('siteinfo',$this->_siteinfo);
         try {
             $this->validate($this->_siteinfo);
-            $url = $this->get_wizard()->next_url();
-            if( $config['nofiles'] ) $url = $this->get_wizard()->step_url(8);
+
+            if( $config['nofiles'] ) {
+                $url = $this->get_wizard()->step_url(8);
+            } elseif( ($action = $this->get_wizard()->get_data('action')) == 'upgrade' ) {
+                $url = $this->get_wizard()->step_url(7);
+            } else {
+                $url = $this->get_wizard()->next_url();
+            }
             utils::redirect($url);
         }
         catch( Exception $e ) {
@@ -97,14 +109,29 @@ class wizard_step5 extends wizard_step
         $raw = $config['verbose'] ?? 0;
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
+        if( $action == 'install' ) {
+            $raw = $config['sitename'] ?? null;
+            $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
+            $smarty->assign('sitename',$v);
 
-        $raw = $config['sitename'] ?? null;
-        $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
-        $smarty->assign('sitename',$v);
-
-        $raw = $config['helpurl'] ?? null;
-        $v = ($raw === null) ? /*$this->_siteinfo['helpurl']*/'' : trim($raw);
-        $smarty->assign('helpurl',$v);
+            $raw = $config['supporturl'] ?? null;
+            $v = ($raw === null) ? '' : trim($raw);
+            $smarty->assign('supporturl',$v);
+        }
+        elseif( $action == 'upgrade' ) {
+            // if pertinent upgrade
+            $version_info = $this->get_wizard()->get_data('version_info');
+            if( version_compare($version_info['version'],'2.2.91') < 0 ) {
+                $dir = dirname($app->get_archive());
+                require $dir.DIRECTORY_SEPARATOR.'version.php'; // defines in this file can throw notices
+                $raw = $CMS_VERSION ?? '0.0';
+                if( version_compare($raw,'2.2.91') >= 0 ) {
+                    $raw = $config['supporturl'] ?? null;
+                    $v = ($raw === null) ? '' : trim($raw);
+                    $smarty->assign('supporturl',$v);
+                }
+            }
+        }
 
         $languages = $app->get_language_list();
         unset($languages['en_US']);
