@@ -89,9 +89,11 @@
 <div class="message blue">{'warn_tests'|tr}</div>
 {/if}
 
+{if $can_continue}{wizard_form_start}{/if}
 <div id="bottom_nav">
 {if $tests_failed}<a href="{$retry_url}" class="action-button orange" title="{'retry'|tr}"><i class="icon-refresh"></i> {'retry'|tr}</a>{/if}
-{if $can_continue} <a href="{$next_url}" class="action-button positive" title="{'next'|tr}"><i class="icon-cog"></i> {'next'|tr}</a>{/if}
+{if $can_continue} <button class="action-button positive" type="submit" name="next"><i class="icon-cog"></i> {'next'|tr}</button>{/if}
 </div>
+{if $can_continue}{wizard_form_end}{/if}
 
 {/block}
