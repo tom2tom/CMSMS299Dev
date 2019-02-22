@@ -61,8 +61,9 @@ class wizard_step3 extends wizard_step
     protected function perform_tests(bool $verbose, array &$informational, array &$tests) : array
     {
         $app = get_app();
-        $version_info = $this->get_wizard()->get_data('version_info');
-        $action = $this->get_wizard()->get_data('action');
+		$wiz = $this->get_wizard();
+        $version_info = $wiz->get_data('version_info');
+        $action = $wiz->get_data('action');
         $informational = [];
         $tests = [];
 
@@ -409,12 +410,12 @@ class wizard_step3 extends wizard_step
 */
         $can_continue = TRUE;
         $tests_failed = FALSE;
-        $results = [];
+        $fails = [];
         for( $i = 0, $n = count($tests); $i < $n; $i++ ) {
             $res = $tests[$i]->run();
             if( $res == test_base::TEST_FAIL ) {
                 $tests_failed = TRUE;
-                $results[] = $tests[$i];
+                $fails[] = $tests[$i];
                 if( $tests[$i]->required ) {
                     $can_continue = FALSE;
                 }
@@ -424,12 +425,10 @@ class wizard_step3 extends wizard_step
             }
         }
 
-		if( in_array($tests[$ctest], $results) ) {
-			//TODO flag to set site pref 'cache_driver' to 'file' or 'auto' into siteinfo
-$adbg = 1;
-		}
+		$cachable = ( !in_array($tests[$ctest],$fails) ) ? 'auto' : 'file';
+        $wiz->set_data('cachemode',$cachable);
 
-        if( !$verbose ) $tests = $results;
+        if( !$verbose ) $tests = $fails;
         return [$tests_failed,$can_continue];
     }
 

@@ -76,6 +76,8 @@ class wizard_step8 extends wizard_step
         $siteinfo = $this->get_wizard()->get_data('siteinfo');
         if( !$siteinfo ) throw new Exception(lang('error_internal',704));
 
+        $cachtype = $this->get_wizard()->get_data('cachemode');
+
         // create new config.php file to ebable database connection
         $this->write_config();
 
@@ -126,7 +128,7 @@ class wizard_step8 extends wizard_step
              'auto_clear_cache_age' => 60, // tasks-parameter: cache files for 60 days by default (see also cache_lifetime)
              'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
              'cache_autocleaning' => 1,
-             'cache_driver' => 'auto', //TODO 'file' if no supported cache-extension was detected
+             'cache_driver' => $cachtype, //'auto', or 'file' if no supported cache-extension was detected
              'cache_file_blocking' => 0,
              'cache_file_locking' => 1,
              'cache_lifetime' => 3600, // cache entries live for 1 hr
