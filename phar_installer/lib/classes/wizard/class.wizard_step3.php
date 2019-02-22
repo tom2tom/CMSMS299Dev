@@ -6,6 +6,7 @@ use cms_installer\tests\boolean_test;
 use cms_installer\tests\informational_test;
 use cms_installer\tests\matchany_test;
 use cms_installer\tests\range_test;
+use cms_installer\tests\test_base;
 use cms_installer\tests\version_range_test;
 use cms_installer\utils;
 use cms_installer\wizard\wizard_step;
@@ -18,9 +19,37 @@ use function cms_installer\tests\test_remote_file;
 
 class wizard_step3 extends wizard_step
 {
-    protected function process()
+    private function _get_session_save_path()
     {
-        die('foo');
+        $path = ini_get('session.save_path');
+        if( ($pos = strpos($path,';')) !== FALSE) $path = substr($path,$pos+1);
+
+        if( $path ) return $path;
+    }
+
+    private function _GDVersion()
+    {
+        static $gd_version_number = null;
+
+        if( is_null($gd_version_number) ) {
+            if( extension_loaded('gd') ) {
+                if( defined('GD_MAJOR_VERSION') ) {
+                    $gd_version_number = GD_MAJOR_VERSION;
+                    return $gd_version_number;
+                }
+                $gdinfo = @gd_info();
+                if( preg_match('/\d+/', $gdinfo['GD Version'], $gdinfo) ) {
+                    $gd_version_number = (int) $gdinfo[0];
+                }
+                else {
+                    $gd_version_number = 1;
+                }
+                return $gd_version_number;
+            }
+            $gd_version_number = 0;
+        }
+
+        return $gd_version_number;
     }
 
     /**
@@ -29,7 +58,7 @@ class wizard_step3 extends wizard_step
      * @param array $tests
      * @return array
      */
-    protected function perform_tests(bool $verbose,array &$informational,array &$tests) : array
+    protected function perform_tests(bool $verbose, array &$informational, array &$tests) : array
     {
         $app = get_app();
         $version_info = $this->get_wizard()->get_data('version_info');
@@ -92,7 +121,7 @@ class wizard_step3 extends wizard_step
         // recommended test ... supported cache extension
         // preference order: [php]redis,apcu,yac,memcached(slowest)
         $obj = new matchany_test('cache_extension');
-        $t1 = new boolean_test('PHPredis',class_exists('Redis'),'cache_redis'); //too bad if server not running!
+        $t1 = new boolean_test('PHPredis',class_exists('Redis'),'cache_predis'); //too bad if server not running!
         $obj->add_child($t1);
         $t1 = new boolean_test('APCu',extension_loaded('apcu') && ini_get('apc.enabled'),'cache_apcu');
         $obj->add_child($t1);
@@ -103,6 +132,7 @@ class wizard_step3 extends wizard_step
         $obj->fail_key = 'fail_cache_extension';
         $obj->pass_key = 'pass_cache_extension';
         $tests[] = $obj;
+        $ctest = count($tests) - 1; //process this one specially
 
         // recommended test ... ziparchive class (zip extension)
         $obj = new boolean_test('func_ziparchive',class_exists('ZipArchive'));
@@ -366,35 +396,54 @@ class wizard_step3 extends wizard_step
         $obj->warn_key = 'fail_remote_url';
         $tests[] = $obj;
 
-        //
-        // now run the tests
-        // if all tests pass
-        //   display warm fuzzy message
-        //   user can continue
-        // else if a required test fails
-        //   display failed tests (or all tests for verbose mode)
-        //   user cant continue
-        // otherwise
-        //   display failed tests (or all tests for verbose mode)
-        //   user can continue
+/*      now run the tests
+        if all tests pass
+           display warm fuzzy message
+           user can continue
+        else if a required test fails
+           display failed tests (or all tests for verbose mode)
+           user can't continue
+        otherwise
+           display failed tests (or all tests for verbose mode)
+           user can continue
+*/
         $can_continue = TRUE;
         $tests_failed = FALSE;
         $results = [];
         for( $i = 0, $n = count($tests); $i < $n; $i++ ) {
             $res = $tests[$i]->run();
-            if( $res == $tests[$i]::TEST_FAIL ) {
+            if( $res == test_base::TEST_FAIL ) {
                 $tests_failed = TRUE;
                 $results[] = $tests[$i];
                 if( $tests[$i]->required ) {
                     $can_continue = FALSE;
                 }
                 else {
-                    $tests[$i]->status = $tests[$i]::TEST_WARN;
+                    $tests[$i]->status = test_base::TEST_WARN;
                 }
             }
         }
+
+		if( in_array($tests[$ctest], $results) ) {
+			//TODO flag to set site pref 'cache_driver' to 'file' or 'auto' into siteinfo
+$adbg = 1;
+		}
+
         if( !$verbose ) $tests = $results;
         return [$tests_failed,$can_continue];
+    }
+
+    protected function process()
+    {
+        $action = $this->get_wizard()->get_data('action');
+        if( $action == 'freshen' ) {
+            $url = $this->get_wizard()->step_url(7);
+        }
+        else {
+            $url = $this->get_wizard()->next_url();
+        }
+        // TODO button(s) and processing for enable verbose mode etc.
+        utils::redirect($url);
     }
 
     protected function display()
@@ -414,50 +463,8 @@ class wizard_step3 extends wizard_step
          ->assign('retry_url',$_SERVER['REQUEST_URI']);
         if( $verbose ) $smarty->assign('information',$informational);
 
-        $action = $this->get_wizard()->get_data('action');
-        if( $action == 'freshen' ) {
-            $url = $this->get_wizard()->step_url(7);
-        }
-        else {
-            $url = $this->get_wizard()->next_url();
-        }
-        $smarty->assign('next_url',$url);
-
-        // todo: urls for retry, and enable verbose mode.
         $smarty->display('wizard_step3.tpl');
         $this->finish();
-    }
-
-    private function _get_session_save_path()
-    {
-        $path = ini_get('session.save_path');
-        if( ($pos = strpos($path,';')) !== FALSE) $path = substr($path,$pos+1);
-
-        if( $path ) return $path;
-    }
-
-    private function _GDVersion()
-    {
-        static $gd_version_number = null;
-
-        if(is_null($gd_version_number)) {
-            if(extension_loaded('gd')) {
-                if(defined('GD_MAJOR_VERSION')) {
-                    $gd_version_number = GD_MAJOR_VERSION;
-                    return $gd_version_number;
-                }
-                $gdinfo = @gd_info();
-                if(preg_match('/\d+/', $gdinfo['GD Version'], $gdinfo)) {
-                    $gd_version_number = (int) $gdinfo[0];
-                } else {
-                    $gd_version_number = 1;
-                }
-                return $gd_version_number;
-            }
-            $gd_version_number = 0;
-        }
-
-        return $gd_version_number;
     }
 
 } // class
