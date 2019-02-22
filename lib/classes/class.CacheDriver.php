@@ -37,7 +37,13 @@ abstract class CacheDriver
      * @ignore
      * Identifier for key-segregation in shared public data caches
      */
-    const MYSPACE = 'cms_'; //CHECKME something more unique c.f. UUID ?
+    const CORESPACE = 'cms_'; //CHECKME something more unique c.f. UUID ?
+
+    /**
+     * @ignore
+     * Per-cache namespace, defaults to core
+     */
+    protected $_myspace = self::CORESPACE;
 
     /**
      * @ignore
@@ -142,7 +148,7 @@ abstract class CacheDriver
      */
     protected function get_cachekey(string $key, string $class, string $group) : string
     {
-        return self::MYSPACE.$this->hash(__DIR__.$class.$group).':'.$this->hash($key.$class.__DIR__);
+        return $this->_myspace.$this->hash(__DIR__.$class.$group).':'.$this->hash($key.$class.__DIR__);
     }
 
     /**
@@ -153,6 +159,6 @@ abstract class CacheDriver
      */
     protected function get_cacheprefix(string $class, string $group) : string
     {
-        return self::MYSPACE.$this->hash(__DIR__.$class.$group).':';
+        return $this->_myspace.$this->hash(__DIR__.$class.$group).':';
     }
 } // class

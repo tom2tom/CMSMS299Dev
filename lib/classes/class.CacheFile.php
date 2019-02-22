@@ -76,12 +76,13 @@ class CacheFile extends CacheDriver
      *  auto_cleaning => boolean (default false)
      *  blocking => boolean (default false)
      *  group => string (no default)
+     *  myspace => string cache differentiator (default cms_)
      */
     public function __construct($opts)
     {
         $this->_auto_cleaning = false; //change default value
         if (is_array($opts)) {
-            $_keys = ['lifetime','locking','cache_dir','auto_cleaning','blocking','group'];
+            $_keys = ['lifetime','locking','cache_dir','auto_cleaning','blocking','group', 'myspace'];
             foreach ($opts as $key => $value) {
                 if (in_array($key,$_keys)) {
                     $tmp = '_'.$key;

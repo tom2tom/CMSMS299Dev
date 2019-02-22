@@ -37,12 +37,13 @@ class CacheApcu extends CacheDriver
      * Associative array of some/all options as follows:
      *  lifetime  => seconds (default 3600, min 600)
      *  group => string (default 'default')
+     *  myspace => string cache differentiator (default cms_)
      */
     public function __construct($opts)
     {
         if ($this->use_driver()) {
             if (is_array($opts)) {
-                $_keys = ['lifetime', 'group'];
+                $_keys = ['lifetime', 'group', 'myspace'];
                 foreach ($opts as $key => $value) {
                     if (in_array($key,$_keys)) {
                         $tmp = '_'.$key;
