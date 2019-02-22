@@ -10,7 +10,7 @@
 
 <div class="installer-form">
 {wizard_form_start}
-  {if $action != 'freshen'}
+  {if $action == 'install'}
     <h3>{'prompt_sitename'|tr}</h3>
     <p>{'info_sitename'|tr}</p>
     <div class="row form-row">
@@ -21,12 +21,14 @@
         </div>
       </div>
     </div>
+  {/if}
 
-    <h3{if !$verbose} class="disabled"{/if}>{'prompt_helpurl'|tr}</h3>
-    <p{if !$verbose} class="disabled"{/if}>{'info_helpurl'|tr}</p>
+  {if isset($supporturl)}
+    <h3{if !$verbose} class="disabled"{/if}>{'prompt_supporturl'|tr}</h3>
+    <p{if !$verbose} class="disabled"{/if}>{'info_supporturl'|tr}</p>
     <div class="row form-row">
       <div class="twelve-col">
-        <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" name="helpurl" value="{$helpurl}"{if $verbose} placeholder="{'ph_helpurl'|tr}"{else} disabled="disabled"{/if} />
+        <input class="form-field full-width{if !$verbose} disabled{/if}" type="text" name="supporturl" value="{$supporturl}"{if $verbose} placeholder="{'ph_supporturl'|tr}"{else} disabled="disabled"{/if} />
       </div>
     </div>
   {/if}
