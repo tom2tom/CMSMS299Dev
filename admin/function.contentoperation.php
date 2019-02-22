@@ -418,7 +418,8 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 	global $CMS_INSTALL_PAGE;
 	if (isset($CMS_INSTALL_PAGE)) {
 		$runtime = false;
-		$valid = class_exists('__installer\wizard\wizard'); //TODO some other check too
+		//NOTE must conform this class with installer
+		$valid = class_exists('cms_installer\wizard\wizard'); //TODO some other check too
 	} else {
 		$runtime = true;
 		$uid = get_userid(false);
