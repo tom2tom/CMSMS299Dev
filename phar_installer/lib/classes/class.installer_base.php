@@ -107,7 +107,7 @@ abstract class installer_base
 
         $this->_config = ($config) ? $config : false;
 
-		// handle debug mode
+        // handle debug mode
         if( !empty($config['debug']) ) {
             @ini_set('display_errors',1);
             @error_reporting(E_ALL);
@@ -214,9 +214,9 @@ abstract class installer_base
 
     public static function clear_cache(bool $do_index_html = true)
     {
-		$dir = $this->get_tmpdir();
+        $dir = $this->get_tmpdir();
         $iter = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($dir)); //LEAVES_ONLY
+            new RecursiveDirectoryIterator($dir)); //LEAVES_ONLY
         foreach ($iter as $file => $info) {
             if ($info->isFile()) {
                 @unlink($info->getPathInfo());
@@ -225,7 +225,7 @@ abstract class installer_base
 
         if ($do_index_html) {
             $iter = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($dir)); //LEAVES_ONLY
+                new RecursiveDirectoryIterator($dir)); //LEAVES_ONLY
             foreach ($iter as $file => $info) {
                 if ($info->isFile()) { //WHAT??
                     @touch($info->getPathInfo().'/index.html');
@@ -288,7 +288,7 @@ lib/PHPArchive/*                          PHPArchive
 
     protected function set_config_defaults() : array
     {
-		$tmp = utils::get_sys_tmpdir();
+        $tmp = utils::get_sys_tmpdir();
         $config = array_merge(
         [
             'debug' => false,
