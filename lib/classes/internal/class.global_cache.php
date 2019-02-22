@@ -133,7 +133,7 @@ class global_cache
     {
         static $_handler = null;
         if( !$_handler ) {
-            $obj = cms_cache_handler::get_instance();
+            $obj = new cms_cache_handler();
             $obj->connect([
              'auto_cleaning'=>1,
              'lifetime'=>self::TIMEOUT,
