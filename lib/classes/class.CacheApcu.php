@@ -123,10 +123,9 @@ class CacheApcu extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        if (!$group) return 0; //no global interrogation in shared key-space with aged data
-
-//        $prefix = ($group) ? $this->get_cacheprefix(__CLASS__, $group) : parent::MYSPACE;
         $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        if ($prefix === '') return 0; //no global interrogation in shared key-space
+
         if ($aged) {
             $ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;
             $limit = time() - $ttl;

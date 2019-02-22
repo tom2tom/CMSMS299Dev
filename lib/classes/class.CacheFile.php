@@ -276,12 +276,10 @@ class CacheFile extends CacheDriver
      */
     private function _clean_dir(string $dir, string $group, bool $aged = true) : int
     {
-        $mask = ($group) ?
-         $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(__CLASS__, $group).'*.cache':
-         $dir.DIRECTORY_SEPARATOR.$this->_myspace.'*:*.cache';
-
+        $fn = $dir.DIRECTORY_SEPARATOR.$this->get_cacheprefix(__CLASS__, $group);
+        $mask = ($group) ? $fn.'*.cache':$fn.'*:*.cache';
         $files = glob($mask, GLOB_NOSORT);
-        if (!is_array($files)) return 0;
+        if (!$files) return 0;
 
         if ($aged) {
             if ($this->_lifetime) {

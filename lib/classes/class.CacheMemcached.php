@@ -168,13 +168,12 @@ class CacheMemcached extends CacheDriver
      */
     private function _clean(string $group, bool $aged = true) : int
     {
-        if (!$group) return 0; //no global interrogation in shared key-space with aged data
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        if ($prefix === '') return 0; //no global interrogation in shared key-space
 
         $nremoved = 0;
         $info = $this->instance->getAllKeys(); //NOT RELIABLE
         if ($info) {
-//          $prefix = ($group) ? $this->get_cacheprefix(__CLASS__, $group) : parent::MYSPACE;
-            $prefix = $this->get_cacheprefix(__CLASS__, $group);
             $len = strlen($prefix);
             if ($aged) {
                 $ttl = ($this->_auto_cleaning) ? 0 : $this->_lifetime;

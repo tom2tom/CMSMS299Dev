@@ -140,7 +140,8 @@ class CacheYac extends CacheDriver
      */
     private function _clean(string $group) : int
     {
-        if (!$group) return 0; //no global interrogation in shared key-space with aged data
+        $prefix = $this->get_cacheprefix(__CLASS__, $group);
+        if ($prefix === '') return 0; //no global interrogation in shared key-space
 
         $nremoved = 0;
         $info = $this->instance->info();
@@ -148,8 +149,6 @@ class CacheYac extends CacheDriver
         if ($c) {
             $info = $this->instance->dump($c);
             if ($info) {
-//              $prefix = ($group) ? $this->get_cacheprefix(__CLASS__, $group) : parent::MYSPACE;
-                $prefix = $this->get_cacheprefix(__CLASS__, $group);
                 $len = strlen($prefix);
 
                 foreach ($info as $item) {
