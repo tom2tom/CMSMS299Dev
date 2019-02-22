@@ -19,6 +19,8 @@ BEHIND THE SCENES
 
 enhanced security - latest PHP-password-cache algorithm, better user-input sanitization, login refactored to a module which can be replaced with different security)
 replacement database-interface, more tailored to extract performance from MySQL
+cache API revised to support caching by anything
+multi-mode caching, auto-selectable if suitable PHP capability is present (Predis|Memcached|APCu|YAC|roll-your-own) as alternates to the existing filesystem files
 to speed autoloading at least, all php classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice.
 eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
 'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
@@ -26,13 +28,13 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\AdminThemeNotification' => 'CmsAdminThemeNotification',
 'CMSMS\App' => 'CmsApp',
 'CMSMS\CacheDriver' => 'cms_cache_driver',
+'CMSMS\CacheFile' => 'cms_filecache_driver',
 'CMSMS\CacheHandler' => 'cms_cache_handler',
 'CMSMS\Config' => 'cms_config',
 'CMSMS\ContentTree' => 'cms_content_tree',
 'CMSMS\Cookies' => 'cms_cookies',
 'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
-'CMSMS\FilecacheDriver' => 'cms_filecache_driver',
 'CMSMS\HttpRequest' => 'cms_http_request',
 'CMSMS\LangOperations' => 'CmsLangOperations',
 'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
@@ -72,8 +74,8 @@ jQuery migrate 1.4.1
 jQuery-UI & jQuery-UI-css 1.12.1
 support-js (cookies, sortable, uploads etc) latest releases as of 1/9/2018
 Smarty 3.1.33
-phpmailer 6.0.6
-TinyMCE (MicroTiny module) 4.8.3
+phpmailer 6.0.7
+TinyMCE (MicroTiny module) 4.9.3
 
 CONFIG PARAMETERS
 
@@ -177,6 +179,7 @@ DETAILS
     (note: as of 2.3 it is still operational, just no longer distributed.)
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
+  - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
   - BREAKING: Remove secure option from content pages
   - CHANGE: $config['ssl_url'] is deprecated, and now just an alias for root url
   - CHANGE: $config['ssl_uploads_url'] is now just an alias for uploads_url and is deprecated
@@ -188,11 +191,9 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
-  - CHANGE: Impement new simple_plugin API. Simple plugins are stored in /assets/plugins and must contain the <?php tag.
-    (we will try to auto add it on upgrade)
-  - REMOVED: GUI functionality for managing UDT's (udt's are replaced by simple_plugins)
+  - CHANGE: new 'simple plugin' API effectivly replaces UDT's. Simple plugins are files stored in /assets/simple_plugins and must contain the <?php tag.
+     (Existing UDT's are migrated during upgrade)
   - UserTagOperations class is now merely a compatibility stub
-  - Replace OneEleven admin theme with the Marigold fork that uses fontawesome.
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
   - BREAKING: Removed many previously deprecated and seldom used methods from the module API
