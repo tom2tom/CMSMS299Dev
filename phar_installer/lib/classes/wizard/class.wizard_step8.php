@@ -123,8 +123,13 @@ class wizard_step8 extends wizard_step
             foreach ([
              'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
              'allow_browser_cache' => 1, // allow browser to cache cachable pages
-             'auto_clear_cache_age' => 60, // cache files for only 60 days by default
+             'auto_clear_cache_age' => 60, // tasks-parameter: cache files for 60 days by default (see also cache_lifetime)
              'browser_cache_expiry' => 60, // browser can cache pages for 60 minutes
+             'cache_autocleaning' => 1,
+             'cache_driver' => 'auto', //TODO 'file' if no supported cache-extension was detected
+             'cache_file_blocking' => 0,
+             'cache_file_locking' => 1,
+             'cache_lifetime' => 3600, // cache entries live for 1 hr
              'cdn_url' => 'https://cdnjs.cloudflare.com', //or e.g. https://cdn.jsdelivr.net, https://cdnjs.com/libraries
              'content_autocreate_urls' => 0,
              'content_imagefield_path' => '',
@@ -137,8 +142,8 @@ class wizard_step8 extends wizard_step
              'loginmodule' => '',  // login  processing by current theme
              'logintheme' => reset($arr),
              'metadata' => '<meta name="Generator" content="CMS Made Simple - Copyright (C) 2004-' . date('Y') . '. All rights reserved." />'."\n".'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'."\n",
-             'site_help_url' => $siteinfo['helpurl'],
-             'sitemask' => '', //what is this?
+             'site_supporturl' => $siteinfo['supporturl'],
+//           'sitemask' => '', // salt for old (md5-hashed) admin-user passwords - useless in new installs
              'sitename' => $siteinfo['sitename'],
              'use_smarty_compilecheck' => 0,
             ] as $name=>$val) {
@@ -251,11 +256,12 @@ class wizard_step8 extends wizard_step
             $this->error($e->GetMessage());
         }
 
-        foreach ([
-//         'site_help_url' => $siteinfo['helpurl'], //TODO only if verbose
-         'sitename' => $siteinfo['sitename'],
-        ] as $name=>$val) {
-            cms_siteprefs::set($name, $val);
+        if( 0 ) {
+            foreach ([
+             'site_support' => $siteinfo['supporturl'], //TODO only if verbose
+            ] as $name=>$val) {
+                cms_siteprefs::set($name, $val);
+            }
         }
     }
 
