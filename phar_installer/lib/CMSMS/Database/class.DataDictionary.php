@@ -1,6 +1,6 @@
 <?php
 /*
-Class DataDictionary: methods of interacting with database tables
+Class DataDictionary: represents a data dictionary
 Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -49,21 +49,26 @@ function _array_change_key_case($an_array)
 }
 
 /**
+ * Parse $args into an array
  * @ignore
+ * @param string $args
+ * @param string $endstmtchar optional separator character. Default ','
+ * @param string $tokenchars  optional series of ? characters. default '_.-'
+ * @return array
  */
 function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
 {
     $pos = 0;
-    $intoken = false;
     $stmtno = 0;
+    $intoken = false;
     $endquote = false;
-    $tokens = [];
-    $tokens[$stmtno] = [];
-    $max = strlen($args);
     $quoted = false;
+    $tokens = [];
+    $tokens[] = []; //for $stmtno=0
+    $max = strlen($args);
 
     while ($pos < $max) {
-        $ch = substr($args, $pos, 1);
+        $ch = $args[$pos];
         switch ($ch) {
         case ' ':
         case "\t":
@@ -97,10 +102,10 @@ function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
                     $quoted = true;
                     $intoken = true;
                     $tokarr = [];
-                } elseif ($endquote == $ch) {
-                    $ch2 = substr($args, $pos + 1, 1);
+                } elseif ($ch == $endquote) {
+                    $ch2 = $args[$pos + 1];
                     if ($ch2 == $endquote) {
-                        $pos += 1;
+                        ++$pos;
                         $tokarr[] = $ch2;
                     } else {
                         $quoted = false;
@@ -128,7 +133,7 @@ function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
         default:
             if (!$intoken) {
                 if ($ch == $endstmtchar) {
-                    $stmtno += 1;
+                    ++$stmtno;
                     $tokens[$stmtno] = [];
                     break;
                 }
@@ -144,7 +149,7 @@ function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
             } else {
                 if ($ch == $endstmtchar) {
                     $tokens[$stmtno][] = implode('', $tokarr);
-                    $stmtno += 1;
+                    ++$stmtno;
                     $tokens[$stmtno] = [];
                     $intoken = false;
                     $tokarr = [];
@@ -155,7 +160,7 @@ function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
                 $intoken = false;
             }
         }
-        $pos += 1;
+        ++$pos;
     }
     if ($intoken) {
         $tokens[$stmtno][] = implode('', $tokarr);
@@ -186,53 +191,54 @@ abstract class DataDictionary
     protected $connection;
 
     /**
-     * The SQL prefix to use when creating a drop table command.
+     * SQL command template for creating a drop table command.
      *
      * @internal
      */
-    protected $dropTable = 'DROP TABLE %s';
+    protected $dropTable = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
 
     /**
-     * The SQL prefix to use when renaming a table.
+     * SQL command template for renaming a table.
      *
      * @internal
      */
     protected $renameTable = 'RENAME TABLE %s TO %s';
 
     /**
-     * The SQL prefix to use when dropping an index.
+     * SQL command template for dropping an index.
      *
      * @internal
      */
-    protected $dropIndex = 'DROP INDEX %s';
+    protected $dropIndex = 'DROP INDEX %s ON %s';
 
     /**
-     * The SQL string to use (in the alter table command) when adding a column.
+     * SQL sub-string to use (in the alter table command) when adding a column.
      *
      * @internal
      */
-    protected $addCol = ' ADD';
+    protected $addCol = ' ADD COLUMN';
 
     /**
-     * The SQL string to use (in the alter table command) when altering a column.
+     * SQL sub-string to use (in the alter table command) when altering a column.
      *
      * @internal
      */
-    protected $alterCol = ' ALTER COLUMN';
+    protected $alterCol = ' MODIFY COLUMN';
 
     /**
-     * The SQL string to use (in the alter table command) when dropping a column.
+     * SQL sub-string to use (in the alter table command) when dropping a column.
      *
      * @internal
      */
     protected $dropCol = ' DROP COLUMN';
 
     /**
-     * The SQL command template for renaming a column.
+     * SQL command template for renaming a column.
+     * NOTE such commands fail if the 3rd parameter (column-definition) is empty
      *
      * @internal
      */
-    protected $renameColumn = 'ALTER TABLE %s RENAME COLUMN %s TO %s';    // table, old-column, new-column, column-definitions (not used by default)
+    protected $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';
 
     /**
      * @ignore
@@ -274,7 +280,7 @@ abstract class DataDictionary
      *
      * @param \CMSMS\Database\Connection $conn
      */
-    protected function __construct(Connection $conn)
+    public function __construct(Connection $conn)
     {
         $this->connection = $conn;
     }
@@ -296,18 +302,17 @@ abstract class DataDictionary
      *
      * @internal
      *
-     * @param string $t        The database column type
-     * @param int    $len      The length of the field (some database types may ignore this)
-     * @param mixed  $fieldobj An optional reference to a field object (advanced)
-     *
+     * @param string $t        Database column type
+     * @param int    $len      Optional length of the field. Default -1.
+     * @param mixed  $fieldobj Optional field object. Default false.
      * @return string
      */
     abstract protected function MetaType($t, $len = -1, $fieldobj = false);
 
     /**
-     * Return list of tables in the currently connected database.
+     * Return array of tables in the currently connected database.
      *
-     * @return string[]
+     * @return array
      */
     abstract public function MetaTables();
 
@@ -315,7 +320,6 @@ abstract class DataDictionary
      * Return list of columns in a table in the currently connected database.
      *
      * @param string $table The table name
-     *
      * @return string[]
      */
     abstract public function MetaColumns($table);
@@ -326,7 +330,6 @@ abstract class DataDictionary
      * @internal
      *
      * @param string $meta The datadictionary column type
-     *
      * @return string
      */
     abstract protected function ActualType($meta);
@@ -337,8 +340,7 @@ abstract class DataDictionary
      * @internal
      *
      * @param string $name          The input name
-     * @param bool   $allowBrackets whether brackets should be quoted or not
-     *
+     * @param bool   $allowBrackets Optional flag whether brackets should be quoted. Default false
      * @return string
      */
     protected function NameQuote($name = null, $allowBrackets = false)
@@ -371,12 +373,11 @@ abstract class DataDictionary
     }
 
     /**
-     * Given a table name, optionally quote it.
+     * Quote a table name if appropriate.
      *
      * @internal
      *
      * @param string $name
-     *
      * @return string
      */
     protected function TableName($name)
@@ -389,7 +390,6 @@ abstract class DataDictionary
      *
      * @param string[] $sql             An array of sql commands
      * @param bool     $continueOnError Whether to continue on errors
-     *
      * @return int 2 for no errors, 1 if continued after an error, 0 immediately after error
      */
     public function ExecuteSQLArray($sql, $continueOnError = true)
@@ -409,42 +409,43 @@ abstract class DataDictionary
     }
 
     /**
-     * Create the SQL commands that will result in a database being created.
+     * Generate the SQL to create a database.
      *
      * @param string $dbname
      * @param array  An associative array of database options
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function CreateDatabase($dbname, $options = false)
     {
         $options = $this->_Options($options);
-        $sql = [];
 
         $s = 'CREATE DATABASE '.$this->NameQuote($dbname);
         if (isset($options[$this->upperName])) {
             $s .= ' '.$options[$this->upperName];
         }
 
-        $sql[] = $s;
-
-        return $sql;
+        return [$s];
     }
 
     /**
      * Generate the SQL to create an index.
      *
-     * @param string          $idxname The index name
-     * @param string          $tabname The table name
-     * @param string|string[] $flds    A list of the table fields to create the index with.  Either an array of strings or a comma separated list
-     * @param array An associative array of options
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param string $idxname Index name
+     * @param string $tabname Table name
+     * @param mixed  $flds    Table field(s) to be indexed. Array of strings or
+     *  a comma-separated series in one string
+     * @param mixed  $idxoptions Optional associative array of options. Default false.
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function CreateIndexSQL($idxname, $tabname, $flds, $idxoptions = false)
     {
         if (!is_array($flds)) {
             $flds = explode(',', $flds);
+            array_walk($flds, function(&$s)
+            {
+                $s = trim($s);
+            });
+            unset($s);
         }
         foreach ($flds as $key => $fld) {
             // some indices can use partial fields, eg. index first 32 chars of "name" with NAME(32)
@@ -457,10 +458,9 @@ abstract class DataDictionary
     /**
      * Generate the SQL to drop an index.
      *
-     * @param string $idxname The index name
-     * @param string $tabname The table name
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param string $idxname Index name
+     * @param string $tabname Optional table name. Default null
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function DropIndexSQL($idxname, $tabname = null)
     {
@@ -468,21 +468,19 @@ abstract class DataDictionary
     }
 
     /**
-     * Generate the SQL to add columns to a table.
+     * Generate the SQL to add column(s) to a table.
      *
-     * @param string $tabname The Table name
-     * @param string $flds    The column definitions (using DataDictionary meta types)
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param string $tabname The table name
+     * @param string $defn    The column definitions (using DataDictionary meta types)
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      *
      * @see DataDictionary::CreateTableSQL()
      */
-    public function AddColumnSQL($tabname, $flds)
+    public function AddColumnSQL($tabname, $defn)
     {
-        $tabname = $this->TableName($tabname);
+        $alter = 'ALTER TABLE '.$this->TableName($tabname).$this->addCol.' ';
         $sql = [];
-        list($lines, $pkey) = $this->_GenFields($flds);
-        $alter = 'ALTER TABLE '.$tabname.$this->addCol.' ';
+        list($lines, $pkey) = $this->_GenFields($defn);
         foreach ($lines as $v) {
             $sql[] = $alter.$v;
         }
@@ -491,21 +489,19 @@ abstract class DataDictionary
     }
 
     /**
-     * Change the definition of one column.
+     * Generate the SQL to change the definition of one column.
      *
      * @param string       $tabname      table-name
-     * @param string       $flds         column-name and type for the changed column
-     * @param string       $tableflds    optional complete columns-definition of the revised table
-     * @param array/string $tableoptions optional options for the revised table see CreateTableSQL, default ''
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param string       $defn         column-name and type for the changed column
+     * @param string       $tableflds    UNUSED optional complete columns-definition of the revised table
+     * @param array/string $tableoptions UNUSED optional options for the revised table see CreateTableSQL, default ''
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function AlterColumnSQL($tabname, $flds, $tableflds = '', $tableoptions = '')
+    public function AlterColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
     {
-        $tabname = $this->TableName($tabname);
+        $alter = 'ALTER TABLE '.$this->TableName($tabname).$this->alterCol.' ';
         $sql = [];
-        list($lines, $pkey) = $this->_GenFields($flds);
-        $alter = 'ALTER TABLE '.$tabname.$this->alterCol.' ';
+        list($lines, $pkey) = $this->_GenFields($defn);
         foreach ($lines as $v) {
             $sql[] = $alter.$v;
         }
@@ -514,60 +510,67 @@ abstract class DataDictionary
     }
 
     /**
-     * Rename one column in a table.
+     * Generate the SQL to rename one column.
      *
      * @param string $tabname   table-name
      * @param string $oldcolumn current column-name
      * @param string $newcolumn new column-name
-     * @param string $tableflds optional complete columns-definition of the revised table
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param string $defn      optional column definition (using DataDictionary meta types) Default ''
+     * NOTE the resultant command will silently fail unless a non-empty $defn value
+     * is provided, but to preserve back-compatibility, it remains an optional parameter.
+	 * $newcolumn will be prepended to $defn if it's not already there.
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $tableflds = '')
+    public function RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $defn = '')
     {
-        $tabname = $this->TableName($tabname);
-        if ($tableflds) {
-            list($lines,) = $this->_GenFields($tableflds);
-            $first = reset($lines); // list(, $first) = each($lines);
+        if ($defn) {
+			$defn = trim($defn);
+			if (strpos($defn, $newcolumn) !== 0) {
+				$defn = $newcolumn.' '.$defn;
+			}
+            list($lines,) = $this->_GenFields($defn);
+            $first = reset($lines);
             list(, $column_def) = preg_split('/\s+/', $first, 2);
         } else {
-            $column_def = '';
+            $column_def = '';  //BAD, causes command to fail
         }
 
-        return [sprintf($this->renameColumn, $tabname, $this->NameQuote($oldcolumn), $this->NameQuote($newcolumn), $column_def)];
+        return [sprintf($this->renameColumn,
+            $this->TableName($tabname),
+            $this->NameQuote($oldcolumn),
+            $this->NameQuote($newcolumn),
+            $column_def)];
     }
 
     /**
-     * Drop one column from a table.
+     * Generate the SQL to drop one column.
      *
      * @param string       $tabname      table-name
-     * @param string       $flds         column-name and type for the changed column
+     * @param mixed        $defn         definition for the changed column, array of strings or comma-separated series in one string
      * @param string       $tableflds    optional complete columns-definition of the revised table
      * @param array/string $tableoptions optional options for the new table see CreateTableSQL, default ''
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function DropColumnSQL($tabname, $flds, $tableflds = '', $tableoptions = '')
+    public function DropColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
     {
-        $tabname = $this->TableName($tabname);
         if (!is_array($flds)) {
             $flds = explode(',', $flds);
         }
+
+        $alter = 'ALTER TABLE '.$this->TableName($tabname).$this->dropCol.' ';
         $sql = [];
-        $alter = 'ALTER TABLE '.$tabname.$this->dropCol.' ';
         foreach ($flds as $v) {
-            $sql[] = $alter.$this->NameQuote($v);
+            $sql[] = $alter.$this->NameQuote(trim($v));
         }
 
         return $sql;
     }
 
     /**
-     * Drop one table, and all of it's indexes.
+     * Generate the SQL to drop one table, and all of its indices.
      *
      * @param string $tabname The table name to drop
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function DropTableSQL($tabname)
     {
@@ -575,12 +578,11 @@ abstract class DataDictionary
     }
 
     /**
-     * Rename a table.
+     * Generate the SQL to rename a table.
      *
-     * @param string $tabname The table name
-     * @param string $newname The new table name
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param string $tabname Table name
+     * @param string $newname New table name
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function RenameTableSQL($tabname, $newname)
     {
@@ -588,12 +590,81 @@ abstract class DataDictionary
     }
 
     /**
-     * Generate the SQL to create a new table.
+     * Generate the SQL to add, drop or change columns.
      *
-     * The flds string is a comma separated of field definitions, where each definition is of the form
-     *    fieldname type columnsize otheroptions
+     * This function changes/adds new fields to your table. You don't
+     * have to know if the col is new or not. It will check on its own.
      *
-     * The type fields are codes that map to real database types as follows:
+     * @param string $tablename    Table name
+     * @param mixed  $defn         Table field definitions strings array or
+     *  comma-separated series of in one string
+     * @param mixed  $tableoptions Table options. Default false.
+     * @return array Strings suitable for use with the ExecuteSQLArray method
+     */
+    public function ChangeTableSQL($tablename, $defn, $tableoptions = false)
+    {
+        // check table exists
+        $cols = $this->MetaColumns($tablename);
+
+        if (empty($cols)) {
+            return $this->CreateTableSQL($tablename, $defn, $tableoptions);
+        }
+
+        if (is_array($defn)) {
+            // walk through the update fields, comparing existing fields to fields to update.
+            // if the Metatype and size are exactly the same, ignore - by Mark Newham
+            $holdflds = [];
+            foreach ($defn as $k => $v) {
+                if (isset($cols[$k]) && is_object($cols[$k])) {
+                    $c = $cols[$k];
+                    $ml = $c->max_length;
+                    $mt = &$this->MetaType($c->type, $ml);
+                    if ($ml == -1) {
+                        $ml = '';
+                    }
+                    if ($mt == 'X') {
+                        $ml = $v['SIZE'];
+                    }
+                    if (($mt != $v['TYPE']) || $ml != $v['SIZE']) {
+                        $holdflds[$k] = $v;
+                    }
+                } else {
+                    $holdflds[$k] = $v;
+                }
+            }
+            $defn = $holdflds;
+        }
+
+        // already exists, alter table instead
+        list($lines, $pkey) = $this->_GenFields($defn);
+        $alter = 'ALTER TABLE '.$this->TableName($tablename);
+        $sql = [];
+
+        foreach ($lines as $id => $v) {
+            if (isset($cols[$id]) && is_object($cols[$id])) {
+                $flds = Lens_ParseArgs($v);
+                //  We are trying to change the size of the field, if not allowed, simply ignore the request.
+                if ($flds && in_array(strtoupper(substr($flds[0][1], 0, 4)), $this->invalidResizeTypes4)) {
+                    continue;
+                }
+
+                $sql[] = $alter.$this->alterCol.' '.$v;
+            } else {
+                $sql[] = $alter.$this->addCol.' '.$v;
+            }
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Generate the SQL to create a table.
+     *
+     * @param string $tabname Table name
+     * @param string $defn    Comma-separated series of field definitions using datadictionary syntax
+     * i.e. each definition is of the form: fieldname type columnsize otheroptions
+     *
+     * The type values are codes that map to real database types as follows:
      * <dl>
      *  <dt>C or C2</dt>
      *  <dd>Varchar, capped to 255 characters.</dd>
@@ -637,7 +708,7 @@ abstract class DataDictionary
      *  <dd>Numeric</dd>
      *</dl>
      *
-     * The otheroptions field includes the following options:
+     * The otheroptions values may include the following:
      *<dl>
      *  <dt>AUTO</dt>
      *  <dd>Auto increment. Also sets NOTNULL.</dd>
@@ -659,20 +730,18 @@ abstract class DataDictionary
      *  <dd>Create a foreign key on this field. Specify reference-table parameters as FOREIGN(tblname,tblfield).</dd>
      *</dl>
      *
-     * @param string $tabname      table name
-     * @param string $flds         comma-separated list of field definitions using datadictionary syntax
-     * @param mixed  $tableoptions optional table options (database driver specific) for the table creation command.  Or an associative array of table options, keys being the database type (as available)
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
+     * @param mixed  $tableoptions optional table options for the table creation command.
+     *  Or an associative array of table options, keys being the database type (as available)
+     * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function CreateTableSQL($tabname, $flds, $tableoptions = false)
+    public function CreateTableSQL($tabname, $defn, $tableoptions = false)
     {
         if ($tableoptions && is_string($tableoptions)) {
             $dbtype = $this->_dbType();
             $tableoptions = [$dbtype => $tableoptions];
         }
 
-        list($lines, $pkey) = $this->_GenFields($flds, true);
+        list($lines, $pkey) = $this->_GenFields($defn, true);
         $taboptions = $this->_Options($tableoptions);
         $tabname = $this->TableName($tabname);
         $sql = $this->_TableSQL($tabname, $lines, $pkey, $taboptions);
@@ -688,14 +757,15 @@ abstract class DataDictionary
      * Part of the process of parsing the datadictionary format into MySQL commands.
      *
      * @internal
+     * @param mixed $defn array of strings or comma-separated series in one string
+     * @param bool  $widespacing optional flag whether to pad the field-name, default false
+     * @return 2-member array
      */
-    protected function _GenFields($flds, $widespacing = false)
+    protected function _GenFields($defn, $widespacing = false)
     {
-        if (is_string($flds)) {
-            $padding = '     ';
-            $txt = $flds.$padding;
+        if (is_string($defn)) {
             $flds = [];
-            $flds0 = Lens_ParseArgs($txt, ',');
+            $flds0 = Lens_ParseArgs($defn.' '); //trailing pad enables check of 'next' char
             $hasparam = false;
             foreach ($flds0 as $f0) {
                 if (!count($f0)) {
@@ -720,6 +790,8 @@ abstract class DataDictionary
                 }
                 $flds[] = $f1;
             }
+        } else {
+            $flds = $defn;
         }
 
         $this->autoIncrement = false;
@@ -738,6 +810,7 @@ abstract class DataDictionary
             $fdefts = false;
             $fdefdate = false;
             $fconstraint = false;
+            $fnot = false;
             $fnotnull = false;
             $funsigned = false;
             $findex = false;
@@ -745,12 +818,14 @@ abstract class DataDictionary
 
             //-----------------
             // PARSE ATTRIBUTES
-            foreach ($fld as $attr => $v) {
-                if ($attr == 2 && is_numeric($v)) {
+            foreach ($fld as $i => $v) {
+                if ($i == 2 && is_numeric($v)) {
                     $attr = 'SIZE';
-                } elseif (is_numeric($attr) && $attr > 1 && !is_numeric($v)) {
+                } elseif (is_numeric($i) && $i > 1 && !is_numeric($v)) {
                     $attr = strtoupper($v);
-                }
+                } else {
+					$attr = $i;
+				}
                 switch ($attr) {
                     case '0':
                     case 'NAME':
@@ -760,7 +835,7 @@ abstract class DataDictionary
                     case 'TYPE':
                         $ty = $v;
                         $ftype = $this->ActualType(strtoupper($v));
-                        break;
+						break;
                     case 'SIZE':
                         $at = strpos($v, '.');
                         if ($at === false) {
@@ -790,7 +865,19 @@ abstract class DataDictionary
                     case 'DEFAULT':
                         $fdefault = $v;
                         break;
+                    case 'NOT':
+                        $fnot = true;
+                        break;
+                    case 'NULL':
+                        if ($fnot) {
+                             $fnot = false ;
+                             $fnotnull = true;
+                        } else {
+                             $fnotnull = false; //probably useless
+                        }
+                        break;
                     case 'NOTNULL':
+                    case 'NOT NULL':
                         $fnotnull = $v;
                         break;
                     case 'NOQUOTE':
@@ -955,23 +1042,23 @@ abstract class DataDictionary
     }
 
     /**
-     * build SQL commands for indexes.
-     *
+     * Generate SQL to create an index.
+     * @param mixed $flds array of strings or comma-separated series in one string, or falsy
      * @internal
      */
     protected function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
     {
+        if (!$flds) {
+            return [];
+        }
+
         $sql = [];
 
         if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
-            $sql[] = sprintf($this->dropIndex, $idxname);
             if (isset($idxoptions['DROP'])) {
-                return $sql;
+                return [];
             }
-        }
-
-        if (empty($flds)) {
-            return $sql;
+            $sql[] = sprintf($this->dropIndex, $idxname);
         }
 
         $unique = isset($idxoptions['UNIQUE']) ? ' UNIQUE' : '';
@@ -992,7 +1079,7 @@ abstract class DataDictionary
     }
 
     /**
-     * A method to drop the auto increment column on a table.
+     * Drop the auto increment column on a table.
      *
      * @internal
      */
@@ -1002,7 +1089,7 @@ abstract class DataDictionary
     }
 
     /**
-     * An internal method to get a list of database type specific options for a command.
+     * Get a list of database type-specific options for a command.
      *
      * @internal
      */
@@ -1106,75 +1193,5 @@ abstract class DataDictionary
         }
 
         return $newopts;
-    }
-
-    /**
-     * Add, drop or change columns within a table.
-     *
-     * This function changes/adds new fields to your table. You don't
-     * have to know if the col is new or not. It will check on its own.
-     *
-     * @param string $tablename    The table name
-     * @param string $flds         The field definitions
-     * @param array  $tableoptions Table options
-     *
-     * @return string[] An array of strings suitable for use with the ExecuteSQLArray method
-     */
-    public function ChangeTableSQL($tablename, $flds, $tableoptions = false)
-    {
-        // check table exists
-        $cols = $this->MetaColumns($tablename);
-
-        if (empty($cols)) {
-            return $this->CreateTableSQL($tablename, $flds, $tableoptions);
-        }
-
-        if (is_array($flds)) {
-            // Cycle through the update fields, comparing
-            // existing fields to fields to update.
-            // if the Metatype and size is exactly the
-            // same, ignore - by Mark Newham
-            $holdflds = [];
-            foreach ($flds as $k => $v) {
-                if (isset($cols[$k]) && is_object($cols[$k])) {
-                    $c = $cols[$k];
-                    $ml = $c->max_length;
-                    $mt = &$this->MetaType($c->type, $ml);
-                    if ($ml == -1) {
-                        $ml = '';
-                    }
-                    if ($mt == 'X') {
-                        $ml = $v['SIZE'];
-                    }
-                    if (($mt != $v['TYPE']) || $ml != $v['SIZE']) {
-                        $holdflds[$k] = $v;
-                    }
-                } else {
-                    $holdflds[$k] = $v;
-                }
-            }
-            $flds = $holdflds;
-        }
-
-        // already exists, alter table instead
-        list($lines, $pkey) = $this->_GenFields($flds);
-        $alter = 'ALTER TABLE '.$this->TableName($tablename);
-        $sql = [];
-
-        foreach ($lines as $id => $v) {
-            if (isset($cols[$id]) && is_object($cols[$id])) {
-                $flds = Lens_ParseArgs($v, ',');
-                //  We are trying to change the size of the field, if not allowed, simply ignore the request.
-                if ($flds && in_array(strtoupper(substr($flds[0][1], 0, 4)), $this->invalidResizeTypes4)) {
-                    continue;
-                }
-
-                $sql[] = $alter.$this->alterCol.' '.$v;
-            } else {
-                $sql[] = $alter.$this->addCol.' '.$v;
-            }
-        }
-
-        return $sql;
     }
 }

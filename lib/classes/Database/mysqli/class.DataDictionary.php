@@ -22,23 +22,6 @@ namespace CMSMS\Database\mysqli;
 
 class DataDictionary extends \CMSMS\Database\DataDictionary
 {
-    public function __construct(Connection $conn)
-    {
-        parent::__construct($conn);
-        $this->addCol = ' ADD COLUMN';
-        $this->alterCol = ' MODIFY COLUMN';
-        $this->alterTableAddIndex = true;
-        $this->dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
-
-        $this->dropIndex = 'DROP INDEX %s ON %s';
-        $this->renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';    // needs column-definition!
-
-        $this->sysTimeStamp = 'TIMESTAMP';
-        $this->sysDate = 'DATE';
-
-        $this->nameQuote = '`';
-    }
-
     protected function ActualType($meta)
     {
         switch ($meta) {
@@ -281,11 +264,11 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
         $sql = [];
 
         if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
-            if ($this->alterTableAddIndex) {
+//            if (1) { //this->alterTableAddIndex was always true
                 $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
-            } else {
-                $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
-            }
+//            } else {
+//                $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+//            }
 
             if (isset($idxoptions['DROP'])) {
                 return $sql;
