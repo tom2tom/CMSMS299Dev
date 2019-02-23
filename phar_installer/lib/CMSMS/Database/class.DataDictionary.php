@@ -514,23 +514,26 @@ abstract class DataDictionary
      *
      * @param string $tabname   table-name
      * @param string $oldcolumn current column-name
-     * @param string $newcolumn new column-name
+     * @param string $newcolumn new column-name, may be empty if the new name is at the start of $defn
      * @param string $defn      optional column definition (using DataDictionary meta types) Default ''
      * NOTE the resultant command will silently fail unless a non-empty $defn value
      * is provided, but to preserve back-compatibility, it remains an optional parameter.
-	 * $newcolumn will be prepended to $defn if it's not already there.
+     * $newcolumn will be prepended to $defn if it's not already there.
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
     public function RenameColumnSQL($tabname, $oldcolumn, $newcolumn, $defn = '')
     {
         if ($defn) {
-			$defn = trim($defn);
-			if (strpos($defn, $newcolumn) !== 0) {
-				$defn = $newcolumn.' '.$defn;
-			}
+            $defn = trim($defn);
+            if ($newcolumn && strpos($defn, $newcolumn) !== 0) {
+                $defn = $newcolumn.' '.$defn;
+            }
             list($lines,) = $this->_GenFields($defn);
             $first = reset($lines);
-            list(, $column_def) = preg_split('/\s+/', $first, 2);
+            list($name, $column_def) = preg_split('/\s+/', $first, 2);
+               if (!$newcolumn) {
+                    $newcolumn = $name;
+               }
         } else {
             $column_def = '';  //BAD, causes command to fail
         }
