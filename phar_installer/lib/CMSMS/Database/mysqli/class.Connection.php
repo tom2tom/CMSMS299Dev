@@ -1,7 +1,8 @@
 <?php
 /*
 Class Connection: represents a MySQL database connection
-Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http:www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -21,9 +22,6 @@ namespace CMSMS\Database\mysqli;
 
 use cms_config;
 use CMSMS\Database\Connection as ParentConnection;
-use CMSMS\Database\mysqli\DataDictionary;
-use CMSMS\Database\mysqli\ResultSet;
-use CMSMS\Database\mysqli\Statement;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -54,7 +52,7 @@ class Connection extends ParentConnection
     {
         parent::__construct();
         if (class_exists('\mysqli')) {
-            if (!$config) $config =  cms_config::get_instance(); //normal API
+            if (!$config) $config = cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
                 $this->_mysql = new mysqli(
@@ -176,7 +174,7 @@ class Connection extends ParentConnection
 
     public function ifNull($field, $ifNull)
     {
-        return " IFNULL($field, $ifNull)";
+        return "IFNULL($field, $ifNull)";
     }
 
     /**

@@ -21,8 +21,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 namespace CMSMS\Database;
 
 use CmsApp;
-use CMSMS\Database\DataDictionary;
-use CMSMS\Database\ResultSet;
 use DateTime;
 use const CMS_DEBUG;
 use function debug_bt_to_log;
@@ -98,7 +96,7 @@ abstract class Connection
      * @ignore
      * bool Whether debug mode is enabled
      */
-    private $_debug;
+    protected $_debug = false;
 
     /**
      * @ignore
@@ -108,7 +106,7 @@ abstract class Connection
     /**
      * @ignore
      */
-    private $_query_count = 0;
+    protected $_query_count = 0;
 
     /**
      * Accumulated sql query time.
@@ -142,11 +140,11 @@ abstract class Connection
 
     /**
      * Construct a new Connection.
-     * @param array $config Unused here, for subclass only
+     * @param array $config unused here, for subclass only
      */
     public function __construct($config = null)
     {
-        $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG != 0;
+        $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG;
         if ($this->_debug) {
             $this->_debug_cb = 'debug_buffer';
         }
@@ -817,7 +815,7 @@ abstract class Connection
     }
 
     /**
-     * Default error handler (except during installation)
+     * Default error handler (except during site-installation)
      *
      * @internal
      *
@@ -841,7 +839,7 @@ abstract class Connection
     /**
      * Create a new database connection object.
      *
-     * @deprecated - use new <namespace>\mysqli\Connection()
+     * @deprecated Does nothing - use new <namespace>\mysqli\Connection()
      *
      */
     public static function Initialize()

@@ -910,7 +910,7 @@ abstract class DataDictionary
         if ($fsize) {
             if ($ty == 'B' || $ty == 'X') {
                 if ($fsize <= 256) {
-					if ($ty == 'X') {
+                    if ($ty == 'X') {
                         if (--$fsize < 1) $fsize = 1;
                         $ftype = 'VARCHAR('.$fsize.')';
                     } else {

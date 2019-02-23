@@ -1,9 +1,9 @@
 <?php
 /*
 Class Statement: represents a prepared SQL statement
-Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
-For CMS Made Simple <http:www.cmsmadesimple.org>
-Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
+Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ namespace CMSMS\Database\mysqli;
 
 use CMSMS\Database\compatibility;
 use CMSMS\Database\Connection;
+use CMSMS\Database\mysqli\ResultSet;
 use function debug_bt_to_log;
 use function debug_to_log;
 

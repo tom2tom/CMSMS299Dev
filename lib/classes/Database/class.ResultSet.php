@@ -100,7 +100,7 @@ abstract class ResultSet
      *
      * @see ResultSet::getArray()
      * @deprecated
-	 *
+     *
      * @return array
      */
     public function getRows()
@@ -113,7 +113,7 @@ abstract class ResultSet
      *
      * @see ResultSet::getArray()
      * @deprecated
-	 *
+     *
      * @return array
      */
     public function getAll()

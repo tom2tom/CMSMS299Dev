@@ -98,11 +98,10 @@ abstract class ResultSet
     /**
      * An alias for the getArray method.
      *
-     * @see getArray()
+     * @see ResultSet::getArray()
+     * @deprecated
      *
      * @return array
-     *
-     * @deprecated
      */
     public function getRows()
     {
@@ -112,11 +111,10 @@ abstract class ResultSet
     /**
      * An alias for the getArray method.
      *
-     * @see getArray()
+     * @see ResultSet::getArray()
+     * @deprecated
      *
      * @return array
-     *
-     * @deprecated
      */
     public function getAll()
     {
@@ -169,7 +167,7 @@ abstract class ResultSet
     /**
      * Alias for the recordCount() method.
      *
-     * @see recordCount();
+     * @see ResultSet::recordCount()
      *
      * @return int
      */
