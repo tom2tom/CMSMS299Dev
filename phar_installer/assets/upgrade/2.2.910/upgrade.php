@@ -219,15 +219,14 @@ $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.'event_handlers', 'type C(1) NOT NULL DEFAULT "C"');
 $dbdict->ExecuteSQLArray($sqlarray);
 $query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="M" WHERE module_name IS NOT NULL';
+$db->Execute($query);
 $query = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET type="U" WHERE tag_name IS NOT NULL';
-$sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name C(96)');
+$db->Execute($query);
+$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name', 'class', 'C(96)');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_name', 'class');
+$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AlterColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name C(64)');
-$dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func');
-$dbdict->ExecuteSQLArray($sqlarray);
+verbose_msg(ilang('upgrade_modifytable', 'event_handlers'));
 
 // 9. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
