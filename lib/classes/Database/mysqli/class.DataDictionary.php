@@ -1,6 +1,6 @@
 <?php
 /*
-Class DataDictionary: represents a data dictionary
+Methods for creating or modifying a MySQL database or its components
 Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
