@@ -3,9 +3,8 @@
 namespace cms_installer\cli;
 
 use cms_installer\cli\cli_step;
-use CMSMS\Database\Connection;
-use CMSMS\Database\ConnectionSpec;
-use CMSMS\Database\DatabaseException;
+use Exception;
+use mysqli;
 use function cms_installer\CMSMS\lang;
 
 class step_4 extends cli_step
@@ -13,50 +12,41 @@ class step_4 extends cli_step
     protected function test_db_connection( $options )
     {
         // try a test connection
-        $spec = new ConnectionSpec(); //TODO deprecated
-        $spec->type = $options['db_type'];
-        $spec->host = $options['db_hostname'];
-        $spec->username = $options['db_username'];
-        $spec->password = $options['db_password'];
-        $spec->dbname = $options['db_name'];
-        $spec->port = isset($options['db_port']) ? $options['db_port'] : null;
-        $spec->prefix = $options['db_prefix'];
-        $db = Connection::initialize($spec);
-        $db->Execute("SET NAMES 'utf8'");
-
-        // see if we can create and drop a table.
-        try {
-            $db->Execute('CREATE TABLE '.$options['db_prefix'].'_dummyinstall (i int)');
-        }
-        catch( Exception $e ) {
+		if( empty($config['db_port']) ) {
+			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+				$config['db_password'], $config['db_name']);
+		}
+		else {
+			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+				$config['db_password'], $config['db_name'], (int)$config['db_port']);
+		}
+		if( !$mysqli ) {
             throw new Exception(lang('error_createtable'));
-        }
-
-        try {
-            $db->Execute('DROP TABLE '.$options['db_prefix'].'_dummyinstall');
-        }
-        catch( Exception $e ) {
+		}
+		if( $mysqli->connect_errno ) {
+            throw new Exception($mysqli->connect_error.' : '.lang('error_createtable'));
+		}
+        // see if we can create and drop a table.
+		$sql = 'CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)';
+		if( !$mysqli->query($sql) ) {
+            throw new Exception(lang('error_createtable'));
+		}
+        $sql = 'DROP TABLE '.$config['db_prefix'].'_dummyinstall';
+		if( !$mysqli->query($sql) ) {
             throw new Exception(lang('error_droptable'));
         }
 
         $action = $this->app()->get_op();
         if( $action == 'install' ) {
-            // see if a smattering of core tables exist
-            try {
-                $res = $db->GetOne('SELECT content_id FROM '.$options['db_prefix'].'content');
-                if( $res > 0 ) throw new Exception(lang('error_cli_cmstablesexist'));
-            }
-            catch( DatabaseException $e ) {
-                // if this fails it's not a problem
-            }
-
-            try {
-                $db->GetOne('SELECT module_name FROM '.$options['db_prefix'].'modules');
-                if( $res > 0 ) throw new Exception(lang('error_cli_cmstablesexist'));
-            }
-            catch( DatabaseException $e ) {
-                // if this fails it's not a problem.
-            }
+	        // check whether some typical core tables exist
+            $sql = 'SELECT content_id FROM '.$config['db_prefix'].'content LIMIT 1';
+			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+                throw new Exception(lang('error_cmstablesexist'));
+			}
+            $sql = 'SELECT module_name FROM '.$config['db_prefix'].'modules LIMIT 1';
+			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+                throw new Exception(lang('error_cmstablesexist'));
+			}
         }
     }
 

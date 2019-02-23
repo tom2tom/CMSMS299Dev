@@ -4,11 +4,10 @@ namespace cms_installer\wizard;
 
 use cms_installer\utils;
 use Exception;
-use LogicException;
+use mysqli;
 use function cms_installer\CMSMS\lang;
 use function cms_installer\CMSMS\smarty;
 use function cms_installer\get_app;
-use function GetDb;
 
 class wizard_step4 extends wizard_step
 {
@@ -73,13 +72,15 @@ class wizard_step4 extends wizard_step
         if( empty($config['db_prefix']) && $action == 'install' ) throw new Exception(lang('error_nodbprefix'));
         if( empty($config['timezone']) ) throw new Exception(lang('error_notimezone'));
 
-        $re = '/^[a-zA-Z0-9_\.]*$/';
-        if( !empty($config['query_var']) && !preg_match($re,$config['query_var']) ) {
+        $regex = '/^[a-zA-Z0-9_\.]*$/';
+        if( !empty($config['query_var']) && !preg_match($regex,$config['query_var']) ) {
             throw new Exception(lang('error_invalidqueryvar'));
         }
 
         $all_timezones = timezone_identifiers_list();
-        if( !in_array($config['timezone'],$all_timezones) ) throw new Exception(lang('error_invalidtimezone'));
+        if( !in_array($config['timezone'],$all_timezones) ) {
+			throw new Exception(lang('error_invalidtimezone'));
+		}
 
         $config['db_password'] = trim($config['db_password']);
         if( $config['db_password'] ) {
@@ -91,46 +92,40 @@ class wizard_step4 extends wizard_step
         }
 
         // try a test connection
-        require_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'CMSMS'.DIRECTORY_SEPARATOR.'dbaccessor.functions.php';
-        try {
-            $db = GetDb($config);
-        }
-        catch( Exception $e ) {
-            throw new Exception($e->getMessage().' : '.lang('error_createtable'));
-        }
-        // see if we can create and drop a table.
-        try {
-            $db->Execute('CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)');
-        }
-        catch( Exception $e ) {
+		if( empty($config['db_port']) ) {
+			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+				$config['db_password'], $config['db_name']);
+		}
+		else {
+			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+				$config['db_password'], $config['db_name'], (int)$config['db_port']);
+		}
+		if( !$mysqli ) {
             throw new Exception(lang('error_createtable'));
-        }
-
-        try {
-            $db->Execute('DROP TABLE '.$config['db_prefix'].'_dummyinstall');
-        }
-        catch( Exception $e ) {
+		}
+		if( $mysqli->connect_errno ) {
+            throw new Exception($mysqli->connect_error.' : '.lang('error_createtable'));
+		}
+		$sql = 'CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)';
+		if( !$mysqli->query($sql) ) {
+            throw new Exception(lang('error_createtable'));
+		}
+        $sql = 'DROP TABLE '.$config['db_prefix'].'_dummyinstall';
+		if( !$mysqli->query($sql) ) {
             throw new Exception(lang('error_droptable'));
         }
 
-        // see if a smattering of core tables exist
         if( $action == 'install' ) {
-            try {
-                $res = $db->GetOne('SELECT content_id FROM '.$config['db_prefix'].'content');
-                if( $res > 0 ) throw new Exception(lang('error_cmstablesexist'));
-            }
-            catch( LogicException $e ) {
-                // if this fails it's not a problem
-            }
-
-            try {
-                $db->GetOne('SELECT module_name FROM '.$config['db_prefix'].'modules');
-                if( $res > 0 ) throw new Exception(lang('error_cmstablesexist'));
-            }
-            catch( LogicException $e ) {
-                // if this fails it's not a problem.
-            }
-        }
+	        // check whether some typical core tables exist
+            $sql = 'SELECT content_id FROM '.$config['db_prefix'].'content LIMIT 1';
+			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+                throw new Exception(lang('error_cmstablesexist'));
+			}
+            $sql = 'SELECT module_name FROM '.$config['db_prefix'].'modules LIMIT 1';
+			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+                throw new Exception(lang('error_cmstablesexist'));
+			}
+		}
     }
 
     protected function process()
