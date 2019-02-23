@@ -291,11 +291,11 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
             $flds = implode(', ', $flds);
         }
 
-        if ($this->alterTableAddIndex) {
+//        if (1) { //$this->alterTableAddIndex was always true
             $s = "ALTER TABLE $tabname ADD{$unique} INDEX $idxname";
-        } else {
-            $s = "CREATE{$unique} INDEX $idxname ON $tabname";
-        }
+//        } else {
+//            $s = "CREATE{$unique} INDEX $idxname ON $tabname";
+//        }
 
         $s .= ' ('.$flds.')';
 
