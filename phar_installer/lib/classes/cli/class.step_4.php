@@ -13,8 +13,6 @@ class step_4 extends cli_step
     protected function test_db_connection( $options )
     {
         // try a test connection
-        $action = $this->app()->get_op();
-
         $spec = new ConnectionSpec(); //TODO deprecated
         $spec->type = $options['db_type'];
         $spec->host = $options['db_hostname'];
@@ -41,8 +39,9 @@ class step_4 extends cli_step
             throw new Exception(lang('error_droptable'));
         }
 
-        // see if a smatering of core tables exist
+        $action = $this->app()->get_op();
         if( $action == 'install' ) {
+            // see if a smattering of core tables exist
             try {
                 $res = $db->GetOne('SELECT content_id FROM '.$options['db_prefix'].'content');
                 if( $res > 0 ) throw new Exception(lang('error_cli_cmstablesexist'));
