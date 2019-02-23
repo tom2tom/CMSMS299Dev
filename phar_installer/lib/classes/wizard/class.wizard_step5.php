@@ -4,6 +4,7 @@ namespace cms_installer\wizard;
 
 use cms_installer\utils;
 use Exception;
+use function cms_installer\CMSMS\joinpath;
 use function cms_installer\CMSMS\lang;
 use function cms_installer\CMSMS\smarty;
 use function cms_installer\CMSMS\translator;
@@ -40,7 +41,7 @@ class wizard_step5 extends wizard_step
     private function validate($siteinfo)
     {
         $action = $this->get_wizard()->get_data('action');
-        if( $action !== 'freshen' ) {
+        if( $action == 'install' ) {
             if( empty($siteinfo['sitename']) ) throw new Exception(lang('error_nositename'));
         }
     }
@@ -121,11 +122,9 @@ class wizard_step5 extends wizard_step
         elseif( $action == 'upgrade' ) {
             // if pertinent upgrade
             $version_info = $this->get_wizard()->get_data('version_info');
-            if( version_compare($version_info['version'],'2.2.91') < 0 ) {
-                $dir = dirname($app->get_archive());
-                require $dir.DIRECTORY_SEPARATOR.'version.php'; // defines in this file can throw notices
-                $raw = $CMS_VERSION ?? '0.0';
-                if( version_compare($raw,'2.2.91') >= 0 ) {
+            if( version_compare($version_info['version'],'2.2.910') < 0 ) {
+                $raw = $app->get_dest_version();
+                if( version_compare($raw,'2.2.910') >= 0 ) { //should always be true, here
                     $raw = $config['supporturl'] ?? null;
                     $v = ($raw === null) ? '' : trim($raw);
                     $smarty->assign('supporturl',$v);
@@ -135,6 +134,20 @@ class wizard_step5 extends wizard_step
 
         $languages = $app->get_language_list();
         unset($languages['en_US']);
+        if( $languages && $action == 'upgrade' ) {
+            // exclude installed languages
+            $v = (!empty($config['admindir'])) ? $config['admindir'] : 'admin';
+            $fp = joinpath($app->get_destdir(),$v,'lang','ext','');
+            $raw = glob($fp.'*.php',GLOB_NOSORT);
+            if( $raw ) {
+                foreach( $languages as $key=>$v ) {
+                    $tmp = $fp.$key.'.php';
+                    if( in_array($tmp, $raw) ) {
+                        unset($languages[$key]);
+                    }
+                }
+            }
+        }
         $smarty->assign('language_list',$languages);
         $raw = $config['exlangs'] ?? null;
         if( $raw ) {
@@ -147,15 +160,31 @@ class wizard_step5 extends wizard_step
             else {
                 $v = [trim($raw)];
             }
-
         }
         else {
             $v = [];
         }
         $smarty->assign('languages',$v);
-        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
 
         $raw = $app->get_noncore_modules();
+        if( $raw && $action == 'upgrade' ) {
+            // exclude installed modules
+            $fp = $app->get_destdir();
+            $v = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
+            $dirs = [
+                $fp.DIRECTORY_SEPARATOR.$v.DIRECTORY_SEPARATOR.'modules',
+                $fp.DIRECTORY_SEPARATOR.'modules',
+                ];
+            foreach( $raw as $key=>$v ) {
+                foreach( $dirs as $dir) {
+                    $fp = $dir.DIRECTORY_SEPARATOR.$v;
+                    if( is_dir($fp) && is_file($fp.DIRECTORY_SEPARATOR.$v.'.module.php') ) {
+                        unset($raw[$key]);
+                        break;
+                    }
+                }
+            }
+        }
         if( $raw ) {
             $modules = array_combine($raw, $raw);
         }
@@ -164,6 +193,7 @@ class wizard_step5 extends wizard_step
         }
         $smarty->assign('modules_list',$modules);
         $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null));
+        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
 
         $smarty->display('wizard_step5.tpl');
         $this->finish();
