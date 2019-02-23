@@ -161,9 +161,10 @@ $obj = new global_cachable('module_deps', function()
         return $out;
     });
 global_cache::add_cachable($obj);
-
+// other global caches
 cms_siteprefs::setup();
 Events::setup();
+
 if ($CMS_JOB_TYPE < 2) {
     ContentOperations::setup_cache();
 }
