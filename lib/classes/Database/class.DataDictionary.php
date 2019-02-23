@@ -1,6 +1,6 @@
 <?php
 /*
-Class DataDictionary: represents a data dictionary
+Methods for creating, modifying a database or its components
 Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -234,7 +234,6 @@ abstract class DataDictionary
 
     /**
      * SQL command template for renaming a column.
-     * NOTE such commands fail if the 3rd parameter (column-definition) is empty
      *
      * @internal
      */
@@ -278,7 +277,7 @@ abstract class DataDictionary
     /**
      * Constructor.
      *
-     * @param \CMSMS\Database\Connection $conn
+     * @param CMSMS\Database\Connection $conn
      */
     public function __construct(Connection $conn)
     {
@@ -320,7 +319,7 @@ abstract class DataDictionary
      * Return list of columns in a table in the currently connected database.
      *
      * @param string $table The table name
-     * @return string[]
+     * @return array of strings
      */
     abstract public function MetaColumns($table);
 
@@ -388,24 +387,24 @@ abstract class DataDictionary
     /**
      * Given an array of SQL commands execute them in sequence.
      *
-     * @param string[] $sql             An array of sql commands
-     * @param bool     $continueOnError Whether to continue on errors
-     * @return int 2 for no errors, 1 if continued after an error, 0 immediately after error
+     * @param array $sql             Array of sql command string(s)
+     * @param bool  $continueOnError Whether to continue on errors
+     * @return int 0 immediately after error, 1 if continued after an error, 2 for no errors
      */
     public function ExecuteSQLArray($sql, $continueOnError = true)
     {
-        $rez = 2;
+        $res = 2;
         foreach ($sql as $line) {
             $this->connection->execute($line);
             if ($this->connection->errno > 0) {
                 if (!$continueOnError) {
                     return 0;
                 }
-                $rez = 1;
+                $res = 1;
             }
         }
 
-        return $rez;
+        return $res;
     }
 
     /**
@@ -413,7 +412,7 @@ abstract class DataDictionary
      *
      * @param string $dbname
      * @param array  An associative array of database options
-     * @return array Strings suitable for use with the ExecuteSQLArray method
+     * @return array String suitable for use with the ExecuteSQLArray method
      */
     public function CreateDatabase($dbname, $options = false)
     {
@@ -441,13 +440,12 @@ abstract class DataDictionary
     {
         if (!is_array($flds)) {
             $flds = explode(',', $flds);
-            array_walk($flds, function(&$s)
-            {
-                $s = trim($s);
-            });
-            unset($s);
+            $s = true;
+        } else {
+            $s = false;
         }
         foreach ($flds as $key => $fld) {
+            if ($s) $fld = trim($fld);
             // some indices can use partial fields, eg. index first 32 chars of "name" with NAME(32)
             $flds[$key] = $this->NameQuote($fld, true);
         }
@@ -472,6 +470,7 @@ abstract class DataDictionary
      *
      * @param string $tabname The table name
      * @param string $defn    The column definitions (using DataDictionary meta types)
+     *  May include FIRST or 'AFTER colname' to position the field.
      * @return array Strings suitable for use with the ExecuteSQLArray method
      *
      * @see DataDictionary::CreateTableSQL()
@@ -493,6 +492,7 @@ abstract class DataDictionary
      *
      * @param string       $tabname      table-name
      * @param string       $defn         column-name and type for the changed column
+     *  May include FIRST or 'AFTER other-colname' to re-order the field.
      * @param string       $tableflds    UNUSED optional complete columns-definition of the revised table
      * @param array/string $tableoptions UNUSED optional options for the revised table see CreateTableSQL, default ''
      * @return array Strings suitable for use with the ExecuteSQLArray method
@@ -515,9 +515,10 @@ abstract class DataDictionary
      * @param string $tabname   table-name
      * @param string $oldcolumn current column-name
      * @param string $newcolumn new column-name, may be empty if the new name is at the start of $defn
-     * @param string $defn      optional column definition (using DataDictionary meta types) Default ''
+     * @param string $defn      optional column definition (using DataDictionary meta types). Default ''
      * NOTE the resultant command will silently fail unless a non-empty $defn value
      * is provided, but to preserve back-compatibility, it remains an optional parameter.
+     * May include FIRST or 'AFTER other-colname' to re-order the field.
      * $newcolumn will be prepended to $defn if it's not already there.
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
@@ -531,9 +532,9 @@ abstract class DataDictionary
             list($lines,) = $this->_GenFields($defn);
             $first = reset($lines);
             list($name, $column_def) = preg_split('/\s+/', $first, 2);
-               if (!$newcolumn) {
-                    $newcolumn = $name;
-               }
+            if (!$newcolumn) {
+                $newcolumn = $name;
+            }
         } else {
             $column_def = '';  //BAD, causes command to fail
         }
@@ -645,9 +646,9 @@ abstract class DataDictionary
 
         foreach ($lines as $id => $v) {
             if (isset($cols[$id]) && is_object($cols[$id])) {
-                $flds = Lens_ParseArgs($v);
+                $parts = Lens_ParseArgs($v.' '); //trailing pad needed
                 //  We are trying to change the size of the field, if not allowed, simply ignore the request.
-                if ($flds && in_array(strtoupper(substr($flds[0][1], 0, 4)), $this->invalidResizeTypes4)) {
+                if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), $this->invalidResizeTypes4)) {
                     continue;
                 }
 
@@ -763,14 +764,16 @@ abstract class DataDictionary
      * @param mixed $defn array of strings or comma-separated series in one string
      * @param bool  $widespacing optional flag whether to pad the field-name, default false
      * @return 2-member array
+	 *  [0] = array of ? or empty
+	 *  [1] = 1-member array with primary key, or empty
      */
     protected function _GenFields($defn, $widespacing = false)
     {
         if (is_string($defn)) {
             $flds = [];
-            $flds0 = Lens_ParseArgs($defn.' '); //trailing pad enables check of 'next' char
+            $parts = Lens_ParseArgs($defn.' '); //trailing pad supports checking all 'next' chars
             $hasparam = false;
-            foreach ($flds0 as $f0) {
+            foreach ($parts as $f0) {
                 if (!count($f0)) {
                     break;
                 }
@@ -818,6 +821,7 @@ abstract class DataDictionary
             $funsigned = false;
             $findex = false;
             $fforeign = false;
+            $flast = false;
 
             //-----------------
             // PARSE ATTRIBUTES
@@ -827,8 +831,8 @@ abstract class DataDictionary
                 } elseif (is_numeric($i) && $i > 1 && !is_numeric($v)) {
                     $attr = strtoupper($v);
                 } else {
-                         $attr = $i;
-                    }
+                    $attr = $i;
+                }
                 switch ($attr) {
                     case '0':
                     case 'NAME':
@@ -838,7 +842,7 @@ abstract class DataDictionary
                     case 'TYPE':
                         $ty = $v;
                         $ftype = $this->ActualType(strtoupper($v));
-                              break;
+                        break;
                     case 'SIZE':
                         $at = strpos($v, '.');
                         if ($at === false) {
@@ -900,6 +904,10 @@ abstract class DataDictionary
                     case 'FULLTEXT':
                         $findex = $attr;  //last-used prevails
                         break;
+                    case 'AFTER':
+                    case 'FIRST':
+                        $flast = $i;
+                        break;
                     case 'FOREIGN':
                         $fforeign = $v;
                         break;
@@ -910,12 +918,10 @@ abstract class DataDictionary
             // VALIDATE FIELD INFO
             if (!$fname) {
                 die('failed');
-
-                return false;
             }
 
             if (!$ftype) {
-                return false;
+                return [[], []];
             }
 
             $ftype = $this->_GetSize(strtoupper($ftype), $ty, $fsize, $fprec);
@@ -943,6 +949,13 @@ abstract class DataDictionary
                 $pkey[] = $fname;
             }
 
+            if ($flast !== false) {
+                $v = $fld[$flast];
+                if (strcasecmp($v, 'AFTER') == 0) {
+                    if (empty($fld[$flast + 1])) return [[], []]; //TODO
+                }
+            }
+
             //--------------------
             // CONSTRUCT FIELD SQL
             if ($fdefts) {
@@ -964,6 +977,13 @@ abstract class DataDictionary
 
             $s = ($widespacing) ? str_pad($fname, 24) : $fname;
             $s .= ' '.$ftype.$suffix;
+
+            if ($flast !== false) {
+                $s .= ' '.strtoupper($v);
+                if (strcasecmp($v, 'AFTER') == 0) {
+                    $s .= ' '.$this->nameQuote($fld[$flast + 1]); //TODO
+                }
+            }
 
             if ($findex) {
                 $s .= ", $findex idx_{$fname}($fname)";
