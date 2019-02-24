@@ -109,7 +109,7 @@ try {
 
 try {
   $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_summary_template.tpl';
-  if( file_exists( $fn ) ) {
+  if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -129,7 +129,7 @@ try {
 try {
   // Setup Simplex Theme HTML5 sample summary template
   $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Summary_Simplex_template.tpl';
-  if( file_exists( $fn ) ) {
+  if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -165,7 +165,7 @@ try {
 
 try {
   $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_detail_template.tpl';
-  if( file_exists( $fn ) ) {
+  if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -185,7 +185,7 @@ try {
 try {
   // Setup Simplex Theme HTML5 sample detail template
   $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Detail_template.tpl';
-  if( file_exists( $fn ) ) {
+  if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -221,7 +221,7 @@ try {
 
 try {
   $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'orig_form_template.tpl';
-  if( file_exists( $fn ) ) {
+  if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);
@@ -257,7 +257,7 @@ try {
 
 try {
   $fn = __DIR__.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'browsecat.tpl';
-  if( file_exists( $fn ) ) {
+  if( is_file( $fn ) ) {
     $content = @file_get_contents($fn);
     $tpl = new CmsLayoutTemplate();
     $tpl->set_originator($me);

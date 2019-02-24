@@ -86,7 +86,7 @@ try {
     // Setup Simplex Theme search form template
     try {
         $fn = (__DIR__).DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.'Simplex_Search_template.tpl';
-        if( file_exists( $fn ) ) {
+        if( is_file( $fn ) ) {
             $template = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
             $tpl->set_originator($me);

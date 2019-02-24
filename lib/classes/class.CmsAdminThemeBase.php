@@ -1287,7 +1287,7 @@ abstract class CmsAdminThemeBase
             }
             foreach ($exts as $type) {
                 $path = $base.$fn.$type;
-                if (file_exists($path)) {
+                if (is_file($path)) {
                     if ($type != 'i') {
                         if ($rel !== false) {
                             //admin-relative URL will do
@@ -1702,7 +1702,7 @@ abstract class CmsAdminThemeBase
             $gCms = CmsApp::get_instance();
             $themeObjName = $name.'Theme';
             $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
-            if( file_exists($fn) ) {
+            if( is_file($fn) ) {
                 include_once($fn);
                 self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
             }
@@ -1711,7 +1711,7 @@ abstract class CmsAdminThemeBase
                 $name = self::GetDefaultTheme();
                 $themeObjName = $name.'Theme';
                 $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
-                if( file_exists($fn) ) {
+                if( is_file($fn) ) {
                     include_once($fn);
                     self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
                 }

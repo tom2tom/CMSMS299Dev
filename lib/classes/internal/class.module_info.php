@@ -213,14 +213,14 @@ class module_info implements ArrayAccess
         if( isset($inidata['depends']) ) $arr['depends'] = $inidata['depends'];
 
         $fn = cms_join_path($dir,'changelog.inc');
-        if( file_exists($fn) ) $arr['changelog'] = file_get_contents($fn);
+        if( is_file($fn) ) $arr['changelog'] = file_get_contents($fn);
         $fn = cms_join_path($dir,'doc/changelog.inc');
-        if( file_exists($fn) ) $arr['changelog'] = file_get_contents($fn);
+        if( is_file($fn) ) $arr['changelog'] = file_get_contents($fn);
 
         $fn = cms_join_path($dir,'help.inc');
-        if( file_exists($fn) ) $arr['help'] = file_get_contents($fn);
+        if( is_file($fn) ) $arr['help'] = file_get_contents($fn);
         $fn = cms_join_path($dir,'doc/help.inc');
-        if( file_exists($fn) ) $arr['help'] = file_get_contents($fn);
+        if( is_file($fn) ) $arr['help'] = file_get_contents($fn);
 
         $arr['has_meta'] = TRUE;
         return $arr;

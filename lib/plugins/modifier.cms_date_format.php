@@ -42,7 +42,7 @@ function smarty_modifier_cms_date_format($string, $format = '', $default_date = 
 	}
 
 	$fn = cms_join_path(SMARTY_PLUGINS_DIR, 'modifier.date_format.php');
-	if(!file_exists($fn)) die();
+	if(!is_file($fn)) die();
 
 	require_once( $fn );
 

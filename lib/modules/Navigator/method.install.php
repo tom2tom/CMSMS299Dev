@@ -65,7 +65,7 @@ catch( CmsException $e ) {
 
 try {
     $fn = cms_join_path(__DIR__,'templates','simple_navigation.tpl');
-    if( file_exists( $fn ) ) {
+    if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
@@ -78,7 +78,7 @@ try {
     }
 
     $fn = cms_join_path(__DIR__,'templates','dflt_breadcrumbs.tpl');
-    if( file_exists( $fn ) ) {
+    if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
@@ -91,7 +91,7 @@ try {
     }
 
     $fn = cms_join_path(__DIR__,'templates','cssmenu.tpl');
-    if( file_exists( $fn ) ) {
+    if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
@@ -103,7 +103,7 @@ try {
     }
 
     $fn = cms_join_path(__DIR__,'templates','cssmenu_ulshadow.tpl');
-    if( file_exists( $fn ) ) {
+    if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
@@ -115,7 +115,7 @@ try {
     }
 
     $fn = cms_join_path(__DIR__,'templates','minimal_menu.tpl');
-    if( file_exists( $fn ) ) {
+    if( is_file( $fn ) ) {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
@@ -130,7 +130,7 @@ try {
         $simplex = CmsLayoutCollection::load('Simplex');
 
         $fn = cms_join_path(__DIR__,'templates','Simplex_Main_Navigation.tpl');
-        if( file_exists( $fn ) ) {
+        if( is_file( $fn ) ) {
             $content = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
             $tpl->set_originator($me);
@@ -143,7 +143,7 @@ try {
         }
 
         $fn = cms_join_path(__DIR__,'templates','Simplex_Footer_Navigation.tpl');
-        if( file_exists( $fn ) ) {
+        if( is_file( $fn ) ) {
             $content = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
             $tpl->set_originator($me);

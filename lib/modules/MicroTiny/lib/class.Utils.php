@@ -322,7 +322,7 @@ EOS;
 	public static function GetThumbnailFile($file, $path, $url)
 	{
 		$imagepath = str_replace(['\\','/'],[DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR], $path.'/thumb_'.$file);
-		if( file_exists($imagepath) ) {
+		if( is_file($imagepath) ) {
 			$imageurl = self::Slashes($url.'/thumb_'.$file);
 			//TODO omit extension from alt, title
 			$image = "<img src='".$imageurl."' alt='".$file."' title='".$file."' />";

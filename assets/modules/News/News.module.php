@@ -329,7 +329,7 @@ EOS;
         }
 
         $fn = cms_join_path(__DIR__,'templates',$fn);
-        if( file_exists($fn) ) return @file_get_contents($fn);
+        if( is_file($fn) ) return @file_get_contents($fn);
     }
 
     public function HasCapability($capability, $params = [])

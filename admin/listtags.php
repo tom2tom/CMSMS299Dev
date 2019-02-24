@@ -84,7 +84,7 @@ if ($action == 'showpluginhelp') {
     }
 } elseif ($action == 'showpluginabout') {
     $file = $find_file("$type.$plugin.php");
-    if (file_exists($file)) require_once $file;
+    if (is_file($file)) require_once $file;
 
     $smarty->assign('subheader',lang('pluginabout',$plugin));
     $func_name = 'smarty_cms_about_'.$type.'_'.$plugin;

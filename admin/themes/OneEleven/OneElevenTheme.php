@@ -74,7 +74,7 @@ class OneElevenTheme extends CmsAdminThemeBase
 		$info = CmsNlsOperations::get_language_info($lang);
 		$fn = 'style';
 		if ($info->direction() == 'rtl') {
-			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
 		}
@@ -85,7 +85,7 @@ class OneElevenTheme extends CmsAdminThemeBase
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
 
 EOS;
-		if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
+		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
 			$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
 
@@ -198,7 +198,7 @@ EOS;
 			// get the image url.
 			$icon = "modules/{$module}/images/icon.gif";
 			$path = cms_join_path($config['root_path'], $icon);
-			if (file_exists($path)) {
+			if (is_file($path)) {
 				$url = $config->smart_root_url() . '/' . $icon;
 				$this->set_value('module_icon_url', $url);
 			}

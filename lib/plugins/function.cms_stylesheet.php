@@ -129,7 +129,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				$filename = 'stylesheet_combined_'.md5($design_id.serialize($params).serialize($all_timestamps).$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
-				if( !file_exists($fn) ) {
+				if( !is_file($fn) ) {
 					$list = [];
 					foreach ($res as $one) {
 						if( in_array($params['media'],$one->get_media_types()) ) $list[] = $one->get_name();
@@ -182,7 +182,7 @@ function smarty_function_cms_stylesheet($params, $template)
 				$filename = 'stylesheet_'.md5('single'.$one->get_id().$one->get_modified().$fnsuffix).'.css';
 				$fn = cms_join_path($cache_dir,$filename);
 
-				if (!file_exists($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $template);
+				if (!is_file($fn) ) cms_stylesheet_writeCache($fn, $one->get_name(), $trimbackground, $template);
 
 				cms_stylesheet_toString($filename, $media_query, $media_type, $root_url, $stylesheet, $params);
 			}

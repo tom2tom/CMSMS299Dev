@@ -175,8 +175,10 @@ if (!isset($USE_THEME) || $USE_THEME) {
 		if( cms_siteprefs::get('enablenotifications',1) && cms_userprefs::get_for_user($userid,'enablenotifications',1) ) {
 			// Display a warning sitedownwarning
 			$sitedown_file = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'SITEDOWN';
-			$sitedown_message = lang('sitedownwarning', $sitedown_file);
-			if (file_exists($sitedown_file)) $themeObject->AddNotification(1,'Core',$sitedown_message);
+			if (is_file($sitedown_file)) {
+				$sitedown_message = lang('sitedownwarning', $sitedown_file);
+				$themeObject->AddNotification(1,'Core',$sitedown_message);
+			}
 		}
 	}
 

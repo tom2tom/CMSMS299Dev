@@ -113,7 +113,7 @@ final class Navigator extends CMSModule
         }
 
         $fn = cms_join_path(__DIR__,'templates',$fn);
-        if( file_exists($fn) ) return @file_get_contents($fn);
+        if( is_file($fn) ) return @file_get_contents($fn);
     }
 
     public static function template_help_callback($str)

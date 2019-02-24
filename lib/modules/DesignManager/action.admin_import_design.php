@@ -75,7 +75,7 @@ try {
             $this->RedirectToAdminTab();
         }
         $tmpfile = trim($params['tmpfile']);
-        if( !file_exists($tmpfile) ) {
+        if( !is_file($tmpfile) ) {
             // bad error, redirect to admin tab.
             $this->SetError($this->Lang('error_filenotfound',$tmpfile));
             $this->RedirectToAdminTab();
@@ -158,7 +158,7 @@ EOS;
     $newname = trim($params['newname']);
     $newdescription = trim($params['newdescription']);
 
-    if( !file_exists($tmpfile) ) {
+    if( !is_file($tmpfile) ) {
         // bad error, redirect to admin tab.
         throw new CmsException($this->Lang('error_filenotfound',$tmpfile));
     }

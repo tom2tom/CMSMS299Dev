@@ -57,7 +57,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 //      $base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
 		$fn = 'style';
 		if (CmsNlsOperations::get_language_direction() == 'rtl') {
-			if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
+			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
 		}
@@ -68,7 +68,7 @@ class GhostgumTheme extends CmsAdminThemeBase
 <link rel="stylesheet" type="text/css" href="{$rel_url}/css/{$fn}.css" />
 
 EOS;
-		if (file_exists(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
+		if (is_file(__DIR__.DIRECTORY_SEPARATOR.'extcss'.DIRECTORY_SEPARATOR.$fn.'.css')) {
 			$out .= <<<EOS
 <link rel="stylesheet" type="text/css" href="{$rel_url}/extcss/{$fn}.css" />
 

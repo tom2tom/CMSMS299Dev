@@ -53,7 +53,7 @@ global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY;
 
 define('CONFIG_FILE_LOCATION', dirname(__DIR__).DIRECTORY_SEPARATOR.'config.php');
 
-if (!isset($CMS_INSTALL_PAGE) && (!file_exists(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
+if (!isset($CMS_INSTALL_PAGE) && (!is_file(CONFIG_FILE_LOCATION) || filesize(CONFIG_FILE_LOCATION) < 100)) {
     die('FATAL ERROR: config.php file not found or invalid');
 }
 

@@ -46,8 +46,8 @@ if( $dir == 'rtl' ) $style.='-rtl';
 if (isset($_GET['ie'])) $style.='_ie';
 $style .= '.css';
 
-if (file_exists(__DIR__.'/themes/'.$theme.'/css/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/css/'.$style);
-if (file_exists(__DIR__.'/themes/'.$theme.'/extcss/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/'.$style);
+if (is_file(__DIR__.'/themes/'.$theme.'/css/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/css/'.$style);
+if (is_file(__DIR__.'/themes/'.$theme.'/extcss/'.$style)) $cms_readfile(__DIR__.'/themes/'.$theme.'/extcss/'.$style);
 
 $allmodules = ModuleOperations::get_instance()->GetLoadedModules();
 if( $allmodules ) {

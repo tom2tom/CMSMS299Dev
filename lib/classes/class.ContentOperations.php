@@ -179,7 +179,7 @@ class ContentOperations
 
 		$ctph = $this->_get_content_type($type);
 		if( is_object($ctph) ) {
-			if( !class_exists( $ctph->class ) && file_exists( $ctph->filename ) ) include_once( $ctph->filename );
+			if( !class_exists( $ctph->class ) && is_file( $ctph->filename ) ) include_once( $ctph->filename );
 		}
 
 		return $ctph;
