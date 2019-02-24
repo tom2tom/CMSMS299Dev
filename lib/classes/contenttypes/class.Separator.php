@@ -25,7 +25,7 @@ use function get_userid;
 use function lang;
 
 /**
- * Implements the CMS Made Simple Separator content type
+ * Implements the Separator content type
  *
  * A separator is used simply for navigations to provide a visual separation between menu items.  Typically
  * as a horizontal or vertical bar.
@@ -46,18 +46,19 @@ class Separator extends ContentBase
 
 	public function SetProperties()
 	{
-		parent::SetProperties();
-		$this->RemoveProperty('secure',false);
-		$this->RemoveProperty('template','-1');
-		$this->RemoveProperty('alias','');
-		$this->RemoveProperty('title','');
-		$this->RemoveProperty('menutext','');
-		$this->RemoveProperty('target','');
-		$this->RemoveProperty('accesskey','');
-		$this->RemoveProperty('titleattribute','');
-		$this->RemoveProperty('cachable',true);
-		$this->RemoveProperty('page_url','');
-		$this->RemoveProperty('tabindex','');
+		parent::SetProperties([
+			['accesskey',''],
+			['alias',''],
+			['cachable',true],
+			['menutext',''],
+			['page_url',''],
+			['secure',false],
+			['tabindex',''],
+			['target',''],
+			['template','-1'],
+			['title',''],
+			['titleattribute',''],
+		]);
 	}
 
 	public function TabNames()
@@ -72,10 +73,8 @@ class Separator extends ContentBase
 		switch($tab) {
 		case '0':
 			return $this->display_attributes($adding);
-			break;
 		case '1':
 			return $this->display_attributes($adding,1);
-			break;
 		}
 	}
 

@@ -24,7 +24,7 @@ use function get_userid;
 use function lang;
 
 /**
- * Implements the CMS Made Simple Section Header content type
+ * Implements the Section Header content type
  *
  * Section headers are logical ways to organize content.  They usually appear in navigations, but are not navigable.
  *
@@ -43,14 +43,15 @@ class SectionHeader extends ContentBase
 
 	public function SetProperties()
 	{
-		parent::SetProperties();
-		$this->RemoveProperty('secure',false);
-		$this->RemoveProperty('accesskey','');
-		$this->RemoveProperty('cachable',true);
-		$this->RemoveProperty('target','');
-		$this->RemoveProperty('page_url','');
-		$this->SetURL(''); // url will be lost when going back to a content page.
+		parent::SetProperties([
+			['accesskey',''],
+			['cachable',true],
+			['page_url',''],
+			['secure',false],
+			['target',''],
+		]);
 
+		$this->SetURL(''); // url will be lost when going back to a content page.
 		// Turn off caching
 		$this->mCachable = false;
 	}

@@ -158,7 +158,7 @@ abstract class ContentBase
 
 	/**
 	 * The full hierarchy of the content
-	 * String of the form : 1.4.3
+	 * String of the form : '1.4.3'
 	 *
 	 * @internal
 	 */
@@ -166,7 +166,7 @@ abstract class ContentBase
 
 	/**
 	 * The full hierarchy of the content ids
-	 * String of the form : 1.4.3
+	 * String of the form : '1.4.3'
 	 *
 	 * @internal
 	 */
@@ -228,14 +228,14 @@ abstract class ContentBase
 	 *
 	 * @internal
 	 */
-	protected $mShowInMenu = 0;
+	protected $mShowInMenu = false;
 
 	/**
 	 * Is this page the default?
 	 *
 	 * @internal
 	 */
-	protected $mDefaultContent = 0;
+	protected $mDefaultContent = false;
 
 	/**
 	 * Last user to modify this content
@@ -246,7 +246,6 @@ abstract class ContentBase
 
 	/**
 	 * Creation date
-	 * Date
 	 *
 	 * @internal
 	 */
@@ -254,30 +253,29 @@ abstract class ContentBase
 
 	/**
 	 * Modification date
-	 * Date
 	 *
 	 * @internal
 	 */
 	protected $mModifiedDate = '';
 
 	/**
-	 * Additional Editors Array
+	 * Additional editors array
 	 *
 	 * @internal
 	 */
 	protected $mAdditionalEditors;
 
 	/**
+	 * @internal
+	 */
+	private $_prop_defaults;
+
+	/**
 	 * state or meta information
 	 *
 	 * @internal
 	 */
-	private $_attributes = []; //init to avoid repeated checks
-
-	/**
-	 * @internal
-	 */
-	private $_prop_defaults;
+	private $_properties = [];
 
 	/**
 	 * @internal
@@ -308,38 +306,71 @@ abstract class ContentBase
 	}
 
 	/**
-	 * Subclasses should override this to set their property types using a lot
-	 * of mProperties.Add statements
+	 * Subclasses should override this to set their property types after calling back here.
 	 * NOTE this method is a significant contributor to the duration of each frontend request
+	 * @see comment for BaseContent::AddProperty() re data format
 	 *
 	 * @abstract
+	 * @internal
+	 * @param array undeclared since 2.3 optional array of properties to be
+	 * excluded from the initial properties. If present, each member an array
+	 * [0] = name, [1] = value to return if the property is sought
 	 */
 	protected function SetProperties()
 	{
-		$this->AddProperty('title',1,self::TAB_MAIN,1);
+		$defaults = [
+			'title'=>[1,self::TAB_MAIN,1],
 
-		$this->AddProperty('parent',2,self::TAB_NAV,1);
-		$this->AddProperty('menutext',1,self::TAB_NAV,1);
-		$this->AddProperty('page_url',3,self::TAB_NAV);
-		$this->AddProperty('showinmenu',4,self::TAB_NAV);
-		$this->AddProperty('titleattribute',5,self::TAB_NAV);
-		$this->AddProperty('accesskey',6,self::TAB_NAV);
-		$this->AddProperty('tabindex',7,self::TAB_NAV);
-		$this->AddProperty('target',8,self::TAB_NAV);
+			'menutext'=>[1,self::TAB_NAV,1],
+			'parent'=>[2,self::TAB_NAV,1],
+			'page_url'=>[3,self::TAB_NAV],
+			'showinmenu'=>[4,self::TAB_NAV],
+			'titleattribute'=>[5,self::TAB_NAV],
+			'accesskey'=>[6,self::TAB_NAV],
+			'tabindex'=>[7,self::TAB_NAV],
+			'target'=>[8,self::TAB_NAV],
 
-		$this->AddProperty('alias',1,self::TAB_OPTIONS);
-		$this->AddProperty('active',2,self::TAB_OPTIONS);
-		$this->AddProperty('cachable',4,self::TAB_OPTIONS);
-		$this->AddProperty('image',5,self::TAB_OPTIONS);
-		$this->AddProperty('thumbnail',6,self::TAB_OPTIONS);
-		$this->AddProperty('extra1',7,self::TAB_OPTIONS);
-		$this->AddProperty('extra2',8,self::TAB_OPTIONS);
-		$this->AddProperty('extra3',9,self::TAB_OPTIONS);
+			'alias'=>[1,self::TAB_OPTIONS],
+			'active'=>[2,self::TAB_OPTIONS],
+			// 3 often used by subclasses
+			'cachable'=>[4,self::TAB_OPTIONS],
+			'image'=>[5,self::TAB_OPTIONS],
+			'thumbnail'=>[6,self::TAB_OPTIONS],
+			'extra1'=>[7,self::TAB_OPTIONS],
+			'extra2'=>[8,self::TAB_OPTIONS],
+			'extra3'=>[9,self::TAB_OPTIONS],
 
-		$this->AddProperty('owner',1,self::TAB_PERMS);
-		$this->AddProperty('additionaleditors',2,self::TAB_PERMS);
+			'owner'=>[1,self::TAB_PERMS],
+			'additionaleditors'=>[2,self::TAB_PERMS],
+		];
+
+		$except = func_get_args(); //prevent subclass API incompatibility
+		if( $except ) {
+			$except = $except[0];
+			$tmp = array_column($except, 0);
+			$nonames = array_flip($tmp);
+		    $defaults = array_diff_key($defaults, $nonames);
+		}
+
+		foreach( $defaults as $name => &$one ) {
+			$ob = new stdClass();
+			$ob->tab = $one[1];
+			$ob->priority = $one[0];
+			$ob->name = $name;
+			$ob->required = !empty($one[2]);
+			$ob->basic = false;
+			$this->_properties[] = $ob;
+		}
+		unset($one);
+
+		if( $except ) {
+		    $this->_prop_defaults = [];
+			foreach( $nonames as $name => &$one ) {
+				$this->_prop_defaults[$name] = $except[$one][1] ?? '';
+			}
+			unset($one);
+		}
 	}
-
 
 	/************************************************************************/
 	/* Functions giving access to needed elements of the content			*/
@@ -495,7 +526,7 @@ abstract class ContentBase
 	/**
 	 * Set the page tabindex value
 	 *
-	 * @param int $tabindex tabindex
+	 * @param int $tabindex tab index
 	 */
 	public function SetTabIndex($tabindex)
 	{
@@ -1049,7 +1080,7 @@ abstract class ContentBase
 		if( !$name ) return false;
 		if( !is_array($this->_props) ) $this->_load_properties();
 		if( !is_array($this->_props) ) return false;
-		return in_array($name,array_keys($this->_props));
+		return isset($this->_props[$name]);
 	}
 
 	/**
@@ -1073,13 +1104,13 @@ abstract class ContentBase
 
 		$this->_props = [];
 		$db = CmsApp::get_instance()->GetDb();
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
-		$dbr = $db->GetArray($query,[(int)$this->mId]);
-
-		foreach( $dbr as $row ) {
-			$this->_props[$row['prop_name']] = $row['content'];
+		$query = 'SELECT prop_name,content FROM '.CMS_DB_PREFIX.'content_props WHERE content_id = ?';
+		$dbr = $db->GetAssoc($query,[(int)$this->mId]);
+		if( $dbr !== false) {
+			$this->_props = $dbr;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -1219,32 +1250,32 @@ abstract class ContentBase
 	public function LoadFromData($data, $loadProperties = false)
 	{
 		$result = true;
+		$this->mAccessKey                  = $data['accesskey'];
+		$this->mActive                     = ($data['active'] == 1);
+		$this->mCachable                   = ($data['cachable'] == 1);
 		$this->mId                         = $data['content_id'];
 		$this->mName                       = $data['content_name'];
 		$this->mAlias                      = $data['content_alias'];
 		$this->mOldAlias                   = $data['content_alias'];
-		$this->mOwner                      = $data['owner_id'];
-		$this->mParentId                   = $data['parent_id'];
-		$this->mTemplateId                 = $data['template_id'];
-		$this->mItemOrder                  = $data['item_order'];
-		$this->mMetadata                   = $data['metadata'];
-		$this->mHierarchy                  = $data['hierarchy'];
-		$this->mIdHierarchy                = $data['id_hierarchy'];
-		$this->mHierarchyPath              = $data['hierarchy_path'];
-		$this->mMenuText                   = $data['menu_text'];
-		$this->mTitleAttribute             = $data['titleattribute'];
-		$this->mAccessKey                  = $data['accesskey'];
-		$this->mTabIndex                   = $data['tabindex'];
-		$this->mDefaultContent             = ($data['default_content'] == 1);
-		$this->mActive                     = ($data['active'] == 1);
-		$this->mShowInMenu                 = ($data['show_in_menu'] == 1);
-		$this->mCachable                   = ($data['cachable'] == 1);
-		$this->mURL                        = $data['page_url'] ?? null;
-		$this->mLastModifiedBy             = $data['last_modified_by'];
 		$this->mCreationDate               = $data['create_date'];
+		$this->mDefaultContent             = ($data['default_content'] == 1);
+		$this->mHierarchy                  = $data['hierarchy'];
+		$this->mHierarchyPath              = $data['hierarchy_path'];
+		$this->mIdHierarchy                = $data['id_hierarchy'];
+		$this->mItemOrder                  = $data['item_order'];
+		$this->mLastModifiedBy             = $data['last_modified_by'];
+		$this->mMenuText                   = $data['menu_text'];
+		$this->mMetadata                   = $data['metadata'];
 		$this->mModifiedDate               = $data['modified_date'];
+		$this->mOwner                      = $data['owner_id'];
+		$this->mURL                        = $data['page_url'] ?? null;
+		$this->mParentId                   = $data['parent_id'];
+		$this->mShowInMenu                 = ($data['show_in_menu'] == 1);
+		$this->mTabIndex                   = $data['tabindex'];
+		$this->mTemplateId                 = $data['template_id'];
+		$this->mTitleAttribute             = $data['titleattribute'];
 
-		if ($loadProperties == true) {
+		if ($loadProperties) {
 			$this->_load_properties();
 			if (!is_array($this->_props) ) $result = false;
 		}
@@ -1354,16 +1385,14 @@ abstract class ContentBase
 
 		// Figure out the item_order (if necessary)
 		if ($this->mItemOrder < 1) {
-			$query = 'SELECT '.$db->IfNull('max(item_order)','0').' as new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
-			$row = $db->GetRow($query,[$this->mParentId]);
+			$query = 'SELECT '.$db->IfNull('MAX(item_order)','0').' AS new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
+			$dbr = (int)$db->GetOne($query,[$this->mParentId]);
 
-			if ($row) {
-				if ($row['new_order'] < 1) {
-					$this->mItemOrder = 1;
-				}
-				else {
-					$this->mItemOrder = $row['new_order'] + 1;
-				}
+			if ($dbr < 1) {
+				$this->mItemOrder = 1;
+			}
+			else {
+				$this->mItemOrder = $dbr + 1;
 			}
 		}
 
@@ -1426,7 +1455,7 @@ WHERE content_id = ?';
 		}
 
 		if( $this->_props ) {
-			// :TODO: There might be some error checking there
+			// :TODO: maybe some error checking there
 			$this->_save_properties();
 		}
 
@@ -1457,21 +1486,19 @@ WHERE content_id = ?';
 		$result = false;
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE default_content = 1';
-		$dflt_pageid = (int) $db->GetOne($query);
+		$dflt_pageid = (int)$db->GetOne($query);
 		if( $dflt_pageid < 1 ) $this->SetDefaultContent(true);
 
 		// Figure out the item_order
 		if ($this->mItemOrder < 1) {
-			$query = 'SELECT max(item_order) as new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
-			$row = $db->Getrow($query, [$this->mParentId]);
+			$query = 'SELECT MAX(item_order) AS new_order FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ?';
+			$dbr = (int)$db->GetOne($query, [$this->mParentId]);
 
-			if ($row) {
-				if ($row['new_order'] < 1) {
-					$this->mItemOrder = 1;
-				}
-				else {
-					$this->mItemOrder = $row['new_order'] + 1;
-				}
+			if ($dbr < 1) {
+				$this->mItemOrder = 1;
+			}
+			else {
+				$this->mItemOrder = $dbr + 1;
 			}
 		}
 
@@ -1482,7 +1509,7 @@ WHERE content_id = ?';
 
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
-		$dbresult = $db->Execute($query, [
+		$dbr = $db->Execute($query, [
 			$newid,
 			$this->mName,
 			$this->mAlias,
@@ -1508,7 +1535,7 @@ WHERE content_id = ?';
 			$this->mCreationDate
 		]);
 
-		if (! $dbresult) {
+		if (!$dbr) {
 			die($db->sql.'<br />'.$db->ErrorMsg());
 		}
 
@@ -1862,7 +1889,7 @@ WHERE content_id = ?';
 
 	/**
 	 * Return the raw value for a content property.
-	 * If no proeprty name is specified 'content_en' is assumed
+	 * If no property name is specified 'content_en' is assumed
 	 *
 	 * @abstract
 	 * @param string $propname An optional property name to display.  If none specified, the system should assume content_en.
@@ -1879,49 +1906,45 @@ WHERE content_id = ?';
 	 * Other content types may override this method, but should call the base method at the start.
 	 *
 	 * @abstract
-	 * @return array Array of stdclass objects containing name (string), tab (string), priority (integer), required (bool) members
+	 * @return array Array of stdClass objects, each of those having properties
+	 *  name (string), tab (string), priority (int), required (bool), basic (bool)
 	 */
 	public function GetEditableProperties()
 	{
 		if( !check_permission(get_userid(),'Manage All Content') ) {
-			$basic_attributes = ['title','parent'];
-			$tmp_basic_attributes = cms_siteprefs::get('basic_attributes');
-			if( $tmp_basic_attributes ) {
-				$tmp_basic_attributes = explode(',',$tmp_basic_attributes);
-				$basic_attributes = array_merge($tmp_basic_attributes,$basic_attributes);
+			$basic_properties = ['title','parent'];
+			$tmp_basic_properties = cms_siteprefs::get('basic_attributes');
+			if( $tmp_basic_properties ) {
+				$tmp = explode(',',$tmp_basic_properties);
+				$tmp_basic_properties = array_walk($tmp,function(&$one) { return trim($one); });
+				$basic_properties = array_merge($tmp_basic_properties,$basic_properties);
 			}
-			// todo: filter out the elements that this user isn't allowed to see
 			$out = [];
-			foreach( $this->_attributes as $attr ) {
-				if( $attr->basic || in_array($attr->name,$basic_attributes) ) $out[] = $attr;
+			foreach( $this->_properties as &$one ) {
+				// todo: filter out the elements that this user isn't allowed to see
+				if( $one->basic || in_array($one->name,$basic_properties) ) $out[] = $one;
 			}
+			unset($one);
 			return $out;
 		}
-		return $this->_attributes;
+		return $this->_properties;
 	}
 
 	/**
+	 * Sort properties by their attributes - tab, priority, name
 	 * @ignore
 	 */
 	private function _SortProperties(array $props) : array
 	{
-		// sort the properties.
-		// sort the attributes by tab, priority, name...
-		usort($props,function($a,$b) {
-				if( !isset($a->tab) || $a->tab == '' ) $a->tab = ContentBase::TAB_MAIN;
-				if( !isset($b->tab) || $b->tab == '' ) $b->tab = ContentBase::TAB_MAIN;
-
-				// sort elements by tabname, and then priority
-				$atab = $a->tab;
-				$btab = $b->tab;
-
-				$res = null;
-				if( ($r = strcmp($atab,$btab)) != 0 ) $res = $r;
-				elseif( $a->priority < $b->priority ) $res = -1;
-				elseif( $a->priority > $b->priority ) $res = 1;
-				else $res = strcmp($a->name,$b->name);
-				return $res;
-			});
+		if( count($props) > 1 ) {
+		  usort($props,function($a,$b)
+		  {
+			$res = strcmp($a->tab,$b->tab);
+			if( $res == 0 ) $res = $a->priority <=> $b->priority;
+			if( $res == 0 ) $res = strcmp($a->name,$b->name);
+			return $res;
+		  });
+		}
 
 		return $props;
 	}
@@ -1944,18 +1967,20 @@ WHERE content_id = ?';
 	 * that this content type supports for editing.
 	 *
 	 * @abstract
-	 * @return Array associative array list of tab keys and labels.
+	 * @return array Associative array of tab keys and labels.
 	 */
 	public function GetTabNames()
 	{
 		$props = $this->_GetEditableProperties();
 		$arr = [];
-		foreach( $props as $one ) {
+		foreach( $props as &$one ) {
 			if( !isset($one->tab) || $one->tab == '' ) $one->tab = self::TAB_MAIN;
-			$key = $lbl = $one->tab;
-			if( endswith($key,'_tab__') ) $lbl = lang($key);
+			$key = $one->tab;
+			if( endswith($key,'_tab__') ) { $lbl = lang($key); }
+			else { $lbl = $key; }
 			$arr[$key] = $lbl;
 		}
+		unset($one);
 		return $arr;
 	}
 
@@ -1981,17 +2006,21 @@ WHERE content_id = ?';
 	 *
 	 * @param string $key tab key
 	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
-	 * @return array An array of arrays.  Index 0 of each element should be a prompt field, and index 1 should be the input field for the prompt.
+	 * @return array Each member an array:
+     *  [0] = prompt field
+	 *  [1] = input field for the prompt
 	 */
 	public function GetTabElements($key, $adding = false)
 	{
 		$props = $this->_GetEditableProperties();
 		$out = [];
-		foreach( $props as $one ) {
+		foreach( $props as &$one ) {
 			if( !isset($one->tab) || $one->tab == '' ) $one->tab = self::TAB_MAIN;
-			if( $key != $one->tab ) continue;
-			$out[] = $this->display_single_element($one->name,$adding);
+			if( $one->tab == $key ) {
+				$out[] = $this->display_single_element($one->name,$adding);
+			}
 		}
+		unset($one);
 		return $out;
 	}
 
@@ -2022,23 +2051,22 @@ WHERE content_id = ?';
 	 * Return a list of additional editors.
 	 * Note: in the returned array, group id's are specified as negative integers.
 	 *
-	 * @return mixed Array of uids and group ids, or null
+	 * @return array of uids and group ids, or empty
 	 */
 	public function GetAdditionalEditors()
 	{
 		if (!isset($this->mAdditionalEditors)) {
 			$db = CmsApp::get_instance()->GetDb();
-			$this->mAdditionalEditors = [];
 
 			$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'additional_users WHERE content_id = ?';
-			$dbresult = $db->Execute($query,[$this->mId]);
-
-			while ($dbresult && !$dbresult->EOF) {
-				$this->mAdditionalEditors[] = $dbresult->fields['user_id'];
-				$dbresult->MoveNext();
+			$dbr = $db->GetCol($query,[$this->mId]);
+			if( $dbr ) {
+				$this->mAdditionalEditors = $dbr;
+			}
+			else {
+				$this->mAdditionalEditors = [];
 			}
 
-			if ($dbresult) $dbresult->Close();
 		}
 		return $this->mAdditionalEditors;
 	}
@@ -2129,15 +2157,15 @@ WHERE content_id = ?';
 	 */
 	private function _handleRemovedBaseProperty(string $name, string $member) : bool
 	{
-		if( !$this->_attributes ) return false;
+		if( !$this->_properties ) return false;
 		$fnd = false;
-		foreach( $this->_attributes as &$attr ) {
-			if( $attr->name == $name ) {
+		foreach( $this->_properties as &$one ) {
+			if( $one->name == $name ) {
 				$fnd = true;
 				break;
 			}
 		}
-		unset($attr);
+		unset($one);
 
 		if( !$fnd ) {
 			if( isset($this->_prop_defaults[$name]) ) {
@@ -2149,20 +2177,20 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * Remove a property from the known property list.
-	 * Specify a default value to use if the property is called.
+	 * Remove a property from the known-properties list, and specify a default
+	 * value to use if the property is called.
 	 *
 	 * @param string $name The property name
 	 * @param string $dflt The default value.
 	 */
 	protected function RemoveProperty($name, $dflt)
 	{
-		if( !$this->_attributes ) return;
-		for( $i = 0, $n = count($this->_attributes); $i < $n; ++$i ) {
-			if( is_object($this->_attributes[$i]) && $this->_attributes[$i]->name == $name ) {
-				unset($this->_attributes[$i]);
+		if( !$this->_properties ) return;
+		for( $i = 0, $n = count($this->_properties); $i < $n; ++$i ) {
+			if( $this->_properties[$i] && $this->_properties[$i]->name == $name ) {
+				unset($this->_properties[$i]);
 				if ($i < $n - 1) {
-					$this->_attributes = array_values($this->_attributes);
+					$this->_properties = array_values($this->_properties);
 				}
 				$this->_prop_defaults[$name] = $dflt;
 				return;
@@ -2173,46 +2201,49 @@ WHERE content_id = ?';
 	/**
 	 * Add a property definition.
 	 * NOTE this method is a significant contributor to the duration of each frontend request
+	 * Benchmark reported at https://steemit.com/php/@crell/php-use-associative-arrays-basically-never
+	 * recommends (in spite of the URL) against stdClass data-storage in this sort of context
+	 * But to preserve compatibility here ....
 	 *
 	 * @since 1.11
-	 * @param string $name The property name
-	 * @param int $priority The property priority, for sorting.
-	 * @param string $tab The tab for the property (see tab constants)
-	 * @param bool $required (whether the property is required)
-	 * @param bool $basic Whether or not the property is a basic property (editable by even restricted editors)
+	 * @param string $name Property name
+	 * @param int $priority Sort order
+	 * @param string $tab Optional tab for the property (see tab constants) Default TAB_MAIN
+	 * @param bool $required Optional flag whether the property is required Default false
+	 * @param bool $basic Optional flag whether the property is basic (i.e. editable even by restricted editors) Default false
 	 */
 	protected function AddProperty($name, $priority, $tab = self::TAB_MAIN, $required = false, $basic = false)
 	{
 		$ob = new stdClass();
-		$ob->name = (string) $name;
-		$ob->priority = (int) $priority;
-		$ob->tab = (string) $tab;
-		$ob->required = (bool) $required;
-		$ob->basic = $basic;
+		if( !$tab ) $tab = self::TAB_MAIN;
+		$ob->tab = (string)$tab;
+		$ob->priority = (int)$priority;
+		$ob->name = (string)$name;
+		$ob->required = (bool)$required;
+		$ob->basic = (bool)$basic;
 
-		$this->_attributes[] = $ob;
+		$this->_properties[] = $ob;
 	}
 
 	/**
-	 * Get all of the properties for this content object.  independent of whether the user is entitled to view them, or not.
+	 * Get all of the properties for this content object regardless whether the user is entitled to view them, or not.
 	 *
 	 * @since 2.0
 	 * @return array of stdClass objects
 	 */
 	public function GetProperties()
 	{
-		return $this->_SortProperties($this->_attributes);
+		return $this->_SortProperties($this->_properties);
 	}
 
 	/**
 	 * Add a property that is directly associated with a field in the content table.
 	 * @alias for AddProperty
+	 * @deprecated since 2.3 (at most?)
 	 *
 	 * @param string $name The property name
 	 * @param int    $priority The priority
 	 * @param bool   $is_required Whether this field is required for this content type
-	 * @param string  (optional) unused.
-	 * @deprecated
 	 */
 	protected function AddBaseProperty($name, $priority, $is_required = false)
 	{
@@ -2220,12 +2251,13 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * Alias for AddBaseProperty, AddProperty.
+	 * Alias for AddProperty.
+	 * @deprecated  since 2.3 (at most?)
 	 *
 	 * @param string $name
 	 * @param int    $priority
 	 * @param bool   $is_required
-	 * @deprecated
+	 * @return null
 	 */
 	protected function AddContentProperty($name, $priority, $is_required = false)
 	{
@@ -2248,17 +2280,17 @@ WHERE content_id = ?';
 		case 'cachable':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_cachable',lang('help_title_content_cachable'));
 			return ['<label for="in_cachable">'.lang('cachable').':</label>'.$help,
-						 '<input type="hidden" name="cachable" value="0" /><input id="in_cachable" class="pagecheckbox" type="checkbox" value="1" name="cachable"'.($this->mCachable?' checked="checked"':'').' />'];
+					'<input type="hidden" name="cachable" value="0" /><input id="in_cachable" class="pagecheckbox" type="checkbox" value="1" name="cachable"'.($this->mCachable?' checked="checked"':'').' />'];
 
 		case 'title':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_title',lang('help_title_content_title'));
 			return ['<label for="in_title">*'.lang('title').':</label>'.$help,
-						 '<input type="text" id="in_title" name="title" required="required" value="'.cms_htmlentities($this->mName).'" />'];
+					'<input type="text" id="in_title" name="title" required="required" value="'.cms_htmlentities($this->mName).'" />'];
 
 		case 'menutext':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_menutext',lang('help_title_content_menutext'));
 			return ['<label for="in_menutext">*'.lang('menutext').':</label>'.$help,
-						 '<input type="text" name="menutext" id="in_menutext" value="'.cms_htmlentities($this->mMenuText).'" />'];
+					'<input type="text" name="menutext" id="in_menutext" value="'.cms_htmlentities($this->mMenuText).'" />'];
 
 		case 'parent':
 			$contentops = ContentOperations::get_instance();
@@ -2280,7 +2312,7 @@ WHERE content_id = ?';
 		case 'showinmenu':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_showinmenu',lang('help_title_content_showinmenu'));
 			return ['<label for="showinmenu">'.lang('showinmenu').':</label>'.$help,
-						 '<input type="hidden" name="showinmenu" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="showinmenu" id="showinmenu"'.($this->mShowInMenu?' checked="checked"':'').' />'];
+					'<input type="hidden" name="showinmenu" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="showinmenu" id="showinmenu"'.($this->mShowInMenu?' checked="checked"':'').' />'];
 
 		case 'target':
 			$text = '<option value="---">'.lang('none').'</option>';
@@ -2290,12 +2322,12 @@ WHERE content_id = ?';
 			$text .= '<option value="_top"'.($this->GetPropertyValue('target')=='_top'?' selected="selected"':'').'>_top</option>';
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_target',lang('help_title_content_target'));
 			return ['<label for="target">'.lang('target').':</label>'.$help,
-						 '<select name="target" id="target">'.$text.'</select>'];
+					'<select name="target" id="target">'.$text.'</select>'];
 
 		case 'alias':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_alias',lang('help_title_page_alias'));
 			return ['<label for="alias">'.lang('pagealias').':</label>'.$help,
-						 '<input type="text" name="alias" id="alias" value="'.$this->mAlias.'" />'];
+					'<input type="text" name="alias" id="alias" value="'.$this->mAlias.'" />'];
 
 		case 'page_url':
 			if( !$this->DefaultContent() ) {
@@ -2345,32 +2377,32 @@ WHERE content_id = ?';
 		case 'titleattribute':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_titleattribute',lang('help_title_content_ta'));
 			return ['<label for="titleattribute">'.lang('titleattribute').':</label>'.$help,
-						 '<input type="text" name="titleattribute" id="titleattribute" maxlength="255" size="80" value="'.cms_htmlentities($this->mTitleAttribute).'" />'];
+					'<input type="text" name="titleattribute" id="titleattribute" maxlength="255" size="80" value="'.cms_htmlentities($this->mTitleAttribute).'" />'];
 
 		case 'accesskey':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_accesskey',lang('help_title_content_accesskey'));
 			return ['<label for="accesskey">'.lang('accesskey').':</label>'.$help,
-						 '<input type="text" name="accesskey" id="accesskey" maxlength="5" value="'.cms_htmlentities($this->mAccessKey).'" />'];
+					'<input type="text" name="accesskey" id="accesskey" maxlength="5" value="'.cms_htmlentities($this->mAccessKey).'" />'];
 
 		case 'tabindex':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_tabindex',lang('help_title_content_tabindex'));
 			return ['<label for="tabindex">'.lang('tabindex').':</label>'.$help,
-						 '<input type="text" name="tabindex" id="tabindex" maxlength="5" value="'.cms_htmlentities($this->mTabIndex).'" />'];
+					'<input type="text" name="tabindex" id="tabindex" maxlength="5" value="'.cms_htmlentities($this->mTabIndex).'" />'];
 
 		case 'extra1':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_extra1',lang('help_title_content_extra1'));
 			return ['<label for="extra1">'.lang('extra1').':</label>'.$help,
-						 '<input type="text" name="extra1" id="extra1" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra1')).'" />'];
+					'<input type="text" name="extra1" id="extra1" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra1')).'" />'];
 
 		case 'extra2':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_extra2',lang('help_title_content_extra2'));
 			return ['<label for="extra2">'.lang('extra2').':</label>'.$help,
-						 '<input type="text" name="extra2" id="extra2" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra2')).'" />'];
+					'<input type="text" name="extra2" id="extra2" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra2')).'" />'];
 
 		case 'extra3':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_extra3',lang('help_title_content_extra3'));
 			return ['<label for="extra3">'.lang('extra3').':</label>'.$help,
-						 '<input type="text" name="extra3" id="extra3" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra3')).'" />'];
+					'<input type="text" name="extra3" id="extra3" maxlength="255" size="80" value="'.cms_htmlentities($this->GetPropertyValue('extra3')).'" />'];
 
 		case 'owner':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
@@ -2405,6 +2437,6 @@ namespace {
 	 /**
 	 * @ignore
 	 */
-	define('CMS_CONTENT_HIDDEN_NAME','--------');
-	define('__CMS_PREVIEW_PAGE__',-100);
+	const CMS_CONTENT_HIDDEN_NAME = '--------';
+	const __CMS_PREVIEW_PAGE__ = -100;
 }

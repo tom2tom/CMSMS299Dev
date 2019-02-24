@@ -22,7 +22,7 @@ use function cmsms;
 use function lang;
 
 /**
- * Main class for CMS Made Simple ErrorPage content type
+ * Implements the ErrorPage content type
  *
  * @package CMS
  * @version $Revision$
@@ -60,26 +60,26 @@ class ErrorPage extends Content
 
 	public function SetProperties()
 	{
-		parent::SetProperties();
-		$this->RemoveProperty('secure',false);
-		//$this->RemoveProperty('searchable',false);
-		$this->RemoveProperty('parent',-1);
-		$this->RemoveProperty('showinmenu',false);
-		$this->RemoveProperty('menutext','');
-		$this->RemoveProperty('target','');
-		$this->RemoveProperty('extra1','');
-		$this->RemoveProperty('extra2','');
-		$this->RemoveProperty('extra3','');
-		$this->RemoveProperty('image','');
-		$this->RemoveProperty('thumbnail','');
-		$this->RemoveProperty('accesskey','');
-		$this->RemoveProperty('titleattribute','');
-		$this->RemoveProperty('active',true);
-		$this->RemoveProperty('cachable',false);
-		$this->RemoveProperty('page_url','');
-
-		$this->RemoveProperty('alias','');
-		$this->AddBaseProperty('alias',10,1);
+		parent::SetProperties([
+			['accesskey',''],
+			['active',true],
+			['alias',''], //this one is a replacement
+			['cachable',false],
+			['extra1',''],
+			['extra2',''],
+			['extra3',''],
+			['image',''],
+			['menutext',''],
+			['page_url',''],
+			['parent',-1],
+//			['searchable',false],
+			['secure',false],
+			['showinmenu',false],
+			['target',''],
+			['thumbnail',''],
+			['titleattribute',''],
+		]);
+		$this->AddProperty('alias',10,parent::TAB_MAIN,true);
 
 		#Turn on preview
 		$this->mPreview = true;

@@ -141,15 +141,16 @@ class Content extends ContentBase
 	public function SetProperties()
 	{
 		parent::SetProperties();
-		$this->AddProperty('design_id',0,self::TAB_OPTIONS);
-//		$this->AddProperty('template',0,self::TAB_OPTIONS);
-		$this->AddProperty('template_rsrc',0,self::TAB_OPTIONS);
-		$this->AddProperty('defaultcontent',10,self::TAB_OPTIONS);
-		$this->AddProperty('wantschildren',10,self::TAB_OPTIONS);
-		$this->AddProperty('searchable',20,self::TAB_OPTIONS);
-		$this->AddProperty('disable_wysiwyg',60,self::TAB_OPTIONS);
-		$this->AddProperty('pagemetadata',1,self::TAB_LOGIC);
-		$this->AddProperty('pagedata',2,self::TAB_LOGIC);
+		$this->AddProperty('design_id',0,parent::TAB_OPTIONS);
+//		$this->AddProperty('template',0,parent::TAB_OPTIONS);
+		$this->AddProperty('template_rsrc',0,parent::TAB_OPTIONS);
+		$this->AddProperty('defaultcontent',10,parent::TAB_OPTIONS);
+		$this->AddProperty('wantschildren',10,parent::TAB_OPTIONS);
+		$this->AddProperty('searchable',20,parent::TAB_OPTIONS);
+		$this->AddProperty('disable_wysiwyg',60,parent::TAB_OPTIONS);
+
+		$this->AddProperty('pagemetadata',1,parent::TAB_LOGIC);
+		$this->AddProperty('pagedata',2,parent::TAB_LOGIC);
 	}
 
 	/**
@@ -261,7 +262,8 @@ class Content extends ContentBase
 	 * the appropriate information for all detected content blocks.
 	 *
 	 * @see ContentBase::GetEditableProperties()
-	 * @return array Array of stdclass objects containing name (string), tab (string), priority (integer), required (boolean) members
+	 * @return array Array of stdClass objects, each having properties
+	 *  name (string), tab (string), priority (int), required (bool), basic (bool), extra (some smarty data, maybe)
 	 */
 	public function GetEditableProperties()
 	{
@@ -271,22 +273,22 @@ class Content extends ContentBase
 		$blocks = $this->get_content_blocks();
 		if( $blocks ) {
 			$priority = 100;
-			foreach( $blocks as $block ) {
+			foreach( $blocks as &$block ) {
 				// todo, skip this block if permissions don't allow.
-
 				$prop = new stdClass();
 				$prop->name = $block['name'];
-				$prop->extra = $block;
-				if( !isset($block['tab']) || $block['tab'] == '' ) $block['tab'] = self::TAB_MAIN;
-				$prop->tab = $block['tab'];
-				if( isset($block['priority']) ) {
-					$prop->priority = $block['priority'];
+				if( !isset($block->tab) || $block->tab == '' ) $block->tab = parent::TAB_MAIN;
+				$prop->tab = $block->tab;
+				if( isset($block->priority) ) {
+					$prop->priority = $block->priority;
 				}
 				else {
 					$prop->priority = $priority++;
 				}
+				$prop->extra = $block;
 				$props[] = $prop;
 			}
+			unset($block);
 		}
 
 		return $props;

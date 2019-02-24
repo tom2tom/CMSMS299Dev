@@ -25,7 +25,7 @@ use function get_userid;
 use function lang;
 
 /**
- * Implementation of the CMS Made Simple link content type
+ * Implements the Link content type
  *
  * Links are content objects that appear in navigations and implement a link to an externl
  * page or site.
@@ -43,9 +43,10 @@ class Link extends ContentBase
 
 	public function SetProperties()
 	{
-		parent::SetProperties();
-		$this->RemoveProperty('secure',false);
-		$this->RemoveProperty('cachable',true);
+		parent::SetProperties([
+			['cachable',true],
+			['secure',false],
+	    ]);
 		$this->AddProperty('url',3,self::TAB_MAIN,true,true);
 	}
 
