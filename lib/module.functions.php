@@ -62,18 +62,19 @@ function cms_module_places(string $modname = '') : array
  */
 function cms_module_path(string $modname, bool $folder = false) : string
 {
+	$p = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
     // core-modules place
-    $path = cms_join_path(CMS_ROOT_PATH,'lib','modules',$modname,$modname.'.module.php');
+    $path = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.$p;
     if (is_file($path)) {
         return ($folder) ? dirname($path) : $path;
     }
     // other-modules place
-    $path = cms_join_path(CMS_ASSETS_PATH,'modules',$modname,$modname.'.module.php');
+    $path = CMS_ASSETS_PATH.$p;
     if (is_file($path)) {
         return ($folder) ? dirname($path) : $path;
     }
     // pre-2.3, deprecated
-    $path = cms_join_path(CMS_ROOT_PATH,'modules',$modname,$modname.'.module.php');
+    $path = CMS_ROOT_PATH.$p;
     if (is_file($path)) {
         return ($folder) ? dirname($path) : $path;
     }

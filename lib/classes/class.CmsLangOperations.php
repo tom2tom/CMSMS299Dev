@@ -21,7 +21,7 @@ namespace CMSMS;
 use cms_config;
 use CmsNlsOperations;
 use const CMS_ASSETS_PATH, CMS_ROOT_PATH;
-use function cms_join_path, cms_module_places;
+use function  cms_module_places;
 */
 /**
  * A singleton class to provide simple, generic mechanism for dealing with languages
@@ -66,11 +66,12 @@ final class CmsLangOperations
 	private function __construct() {}
 
 	/**
+	 * NOTE this is a non-trivial contributor to request-duration, hence optimized for speed
 	 * @ignore
 	 */
 	private static function _load_realm($realm)
 	{
-		$curlang = CmsNlsOperations::get_current_language();
+		$curlang = CmsNlsOperations::get_current_language(); //CHECKME cached?
 		if( !$realm ) $realm = self::$_curent_realm;
 
 		if( isset(self::$_langdata[$curlang][$realm]) ) return;
@@ -81,40 +82,40 @@ final class CmsLangOperations
 		$files = [];
 		$is_module = false;
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
-			$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','en_US.php');
+			$files[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 		}
 		else {
 			$dir = cms_module_path($realm,true);
 			if( $dir ) {
 				$is_module = true;
-				$files[] = cms_join_path($dir,'lang','en_US.php');
+				$files[] = $dir.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 			}
-			$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'en_US.php'); //for a module-related plugin?
+			$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'en_US.php'; //for a module-related plugin?
 		}
 
 		// now handle other lang files
 		if( $curlang != 'en_US' ) {
 			if( $realm == self::CMSMS_ADMIN_REALM ) {
-				$files[] = cms_join_path(CMS_ADMIN_PATH,'lang','ext',$curlang.'.php');
+				$files[] = CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$curlang.'.php';
 			}
 			elseif( $is_module ) {
-				$files[] = cms_join_path($dir,'lang','ext',$curlang.'.php');
+				$files[] = $dir.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$curlang.'.php';
 			}
 			else {
-				$files[] = cms_join_path(CMS_ROOT_PATH,'lib','lang',$realm,'ext',$curlang.'.php');
+				$files[] = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$curlang.'.php';
 			}
 		}
 
 		// now load the custom stuff
 		if( $realm == self::CMSMS_ADMIN_REALM ) {
-			$files[] = cms_join_path(CMS_ASSETS_PATH,'admin_custom','lang',$curlang.'.php');
+			$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'admin_custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.$curlang.'.php';
 		}
 		elseif( $is_module ) {
-			$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','en_US.php');
-			$files[] = cms_join_path($dir,'custom','lang','en_US.php');
+			$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'module_custom'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
+			$files[] = $dir.DIRECTORY_SEPARATOR.'custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'en_US.php';
 			if( $curlang != 'en_US' ) {
-				$files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$realm,'lang','ext',$curlang.'.php');
-				$files[] = cms_join_path($dir,'custom','lang','ext',$curlang.'.php');
+				$files[] = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'module_custom'.DIRECTORY_SEPARATOR.$realm.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$curlang.'.php';
+				$files[] = $dir.DIRECTORY_SEPARATOR.'custom'.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'ext'.DIRECTORY_SEPARATOR.$curlang.'.php';
 			}
 		}
 
@@ -187,16 +188,16 @@ final class CmsLangOperations
 	 */
 	public static function lang_from_realm(...$args)
 	{
+		global $CMS_ADMIN_PAGE;
+		global $CMS_STYLESHEET;
+		global $CMS_INSTALL_PAGE;
+
 		if( count($args) == 1 && is_array($args[0]) ) $args = $args[0];
 		if( count($args) < 2 ) return;
 
 		$realm  = $args[0];
 		$key    = $args[1];
 		if( !$realm || !$key ) return;
-
-		global $CMS_ADMIN_PAGE;
-		global $CMS_STYLESHEET;
-		global $CMS_INSTALL_PAGE;
 
 		if( self::CMSMS_ADMIN_REALM == $realm &&
 			empty($CMS_ADMIN_PAGE) &&
@@ -207,10 +208,6 @@ final class CmsLangOperations
 			return '';
 		}
 
-		$params = [];
-		if( count($args) > 2 ) $params = array_slice($args,2);
-		if( count($params) == 1 && is_array($params[0]) ) $params = $params[0];
-
 		self::_load_realm($realm);
 		$curlang = CmsNlsOperations::get_current_language();
 		if( !isset(self::$_langdata[$curlang][$realm][$key]) ) {
@@ -220,6 +217,15 @@ final class CmsLangOperations
 			return "-- Missing Languagestring: $key --";
 		}
 
+		if( count($args) > 2 ) {
+			$params = array_slice($args,2);
+		    if( count($params) == 1 && is_array($params[0]) ) {
+				$params = $params[0];
+			}
+		}
+		else {
+			$params = [];
+		}
 		if( $params ) {
 			$result = vsprintf(self::$_langdata[$curlang][$realm][$key], $params);
 		}
