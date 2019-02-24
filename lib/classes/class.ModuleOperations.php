@@ -566,7 +566,8 @@ VALUES (?,?,?,'.$now.',NULL)');
 				foreach( $dirs as $one) {
 					$fp = $one . DIRECTORY_SEPARATOR . $module_name . DIRECTORY_SEPARATOR . $module_name . '.module.php';
 					if( is_file($fp) ) {
-						include $fp;
+						$gCms = CmsApp::get_instance(); // deprecated since 2.3 - some modules check (un-necessarily) for this in scope
+						include_once $fp;
 						$obj = new $module_name();
 						if( $obj instanceof CMSModule ) {
 							if( isset($CMS_ADMIN_PAGE) ) { // admin request
