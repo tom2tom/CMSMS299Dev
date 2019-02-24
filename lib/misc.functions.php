@@ -417,7 +417,7 @@ function debug_bt()
 * @param bool $showtitle (optional) flag indicating whether the title field should be displayed in the output.
 * @return string
 */
-function debug_display($var, string $title='', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
+function debug_display($var, string $title = '', bool $echo_to_screen = true, bool $use_html = true, bool $showtitle = true) : string
 {
     global $starttime, $orig_memory;
     if (!$starttime) $starttime = microtime();
@@ -425,9 +425,7 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
     ob_start();
 
     if ($showtitle) {
-        $titleText = 'Debug: ';
-        if ($title) $titleText = "Debug display of '$title':";
-        $titleText .= microtime_diff($starttime,microtime()) . ' S since request-start';
+        $titleText = microtime_diff($starttime,microtime()) . ' S since request-start';
         if (function_exists('memory_get_usage')) {
             $net = memory_get_usage() - $orig_memory;
             $titleText .= ', memory usage: net '.$net;
@@ -454,8 +452,9 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
         }
     }
 
-    if (!empty($var)) {
+    if ($title || $var || is_numeric($var)) {
         if ($use_html) echo '<pre>';
+        if ($title) echo $title . "\n";
         if (is_array($var)) {
             echo 'Number of elements: ' . count($var) . "\n";
             print_r($var);
@@ -472,9 +471,9 @@ function debug_display($var, string $title='', bool $echo_to_screen = true, bool
             }
         }
         elseif (is_bool($var)) {
-            echo $var === true ? 'true' : 'false';
+            echo ($var) ? 'true' : 'false';
         }
-        else {
+        elseif ($var || is_numeric($var)) {
             print_r($var);
         }
         if ($use_html) echo '</pre>';
