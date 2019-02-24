@@ -272,7 +272,7 @@ abstract class ContentBase
 	 *
 	 * @internal
 	 */
-	private $_attributes;
+	private $_attributes = []; //init to avoid repeated checks
 
 	/**
 	 * @internal
@@ -310,6 +310,7 @@ abstract class ContentBase
 	/**
 	 * Subclasses should override this to set their property types using a lot
 	 * of mProperties.Add statements
+	 * NOTE this method is a significant contributor to the duration of each frontend request
 	 *
 	 * @abstract
 	 */
@@ -1889,15 +1890,14 @@ WHERE content_id = ?';
 				$tmp_basic_attributes = explode(',',$tmp_basic_attributes);
 				$basic_attributes = array_merge($tmp_basic_attributes,$basic_attributes);
 			}
-
+			// todo: filter out the elements that this user isn't allowed to see
 			$out = [];
-			foreach( $this->_attributes as $one ) {
-				if( $one->basic || in_array($one->name,$basic_attributes) ) $out[] = $one;
+			foreach( $this->_attributes as $attr ) {
+				if( $attr->basic || in_array($attr->name,$basic_attributes) ) $out[] = $attr;
 			}
 			return $out;
 		}
 		return $this->_attributes;
-		// todo: filter out the elements that this user isn't allowed to see.
 	}
 
 	/**
@@ -2129,14 +2129,16 @@ WHERE content_id = ?';
 	 */
 	private function _handleRemovedBaseProperty(string $name, string $member) : bool
 	{
-		if( !is_array($this->_attributes) ) return false;
+		if( !$this->_attributes ) return false;
 		$fnd = false;
-		foreach( $this->_attributes as $attr ) {
+		foreach( $this->_attributes as &$attr ) {
 			if( $attr->name == $name ) {
 				$fnd = true;
 				break;
 			}
 		}
+		unset($attr);
+
 		if( !$fnd ) {
 			if( isset($this->_prop_defaults[$name]) ) {
 				$this->$member = $this->_prop_defaults[$name];
@@ -2155,7 +2157,7 @@ WHERE content_id = ?';
 	 */
 	protected function RemoveProperty($name, $dflt)
 	{
-		if( !is_array($this->_attributes) ) return;
+		if( !$this->_attributes ) return;
 		for( $i = 0, $n = count($this->_attributes); $i < $n; ++$i ) {
 			if( is_object($this->_attributes[$i]) && $this->_attributes[$i]->name == $name ) {
 				unset($this->_attributes[$i]);
@@ -2170,6 +2172,7 @@ WHERE content_id = ?';
 
 	/**
 	 * Add a property definition.
+	 * NOTE this method is a significant contributor to the duration of each frontend request
 	 *
 	 * @since 1.11
 	 * @param string $name The property name
@@ -2187,7 +2190,6 @@ WHERE content_id = ?';
 		$ob->required = (bool) $required;
 		$ob->basic = $basic;
 
-		if( !is_array($this->_attributes) ) $this->_attributes = [];
 		$this->_attributes[] = $ob;
 	}
 
