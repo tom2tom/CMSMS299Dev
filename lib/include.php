@@ -59,9 +59,9 @@ if (!isset($CMS_INSTALL_PAGE) && (!is_file(CONFIG_FILE_LOCATION) || filesize(CON
 
 if (!isset($CMS_JOB_TYPE)) $CMS_JOB_TYPE = 0;
 
-define('CMS_DEFAULT_VERSIONCHECK_URL','https://www.cmsmadesimple.org/latest_version.php');
-define('CMS_SECURE_PARAM_NAME','_sk_');
-define('CMS_USER_KEY','_userkey_');
+const CMS_DEFAULT_VERSIONCHECK_URL = 'https://www.cmsmadesimple.org/latest_version.php';
+const CMS_SECURE_PARAM_NAME = '_sk_';
+const CMS_USER_KEY = '_userkey_';
 
 $dirname = __DIR__.DIRECTORY_SEPARATOR;
 // include some stuff

@@ -1,13 +1,13 @@
 <?php
 
 // Constants used by image_info(), below.
-define ('IMAGE_WIDTH', 'width');
-define ('IMAGE_HEIGHT', 'height');
-define ('IMAGE_TYPE', 'type');
-define ('IMAGE_ATTR', 'attr');
-define ('IMAGE_BITS', 'bits');
-define ('IMAGE_CHANNELS', 'channels');
-define ('IMAGE_MIME', 'mime');
+const IMAGE_WIDTH ='width';
+const MAGE_HEIGHT = 'height';
+const IMAGE_TYPE = 'type';
+const IMAGE_ATTR = 'attr';
+const IMAGE_BITS = 'bits';
+const IMAGE_CHANNELS = 'channels';
+const IMAGE_MIME = 'mime';
 
 /**
  * mixed image_info( file $file [, string $out] )

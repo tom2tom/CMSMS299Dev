@@ -22,7 +22,7 @@ use CMSMS\LogicException;
 use ModuleManager\Command;
 use ModuleManager\operations;
 
-define('MINIMUM_REPOSITORY_VERSION','1.5');
+const MINIMUM_REPOSITORY_VERSION = '1.5';
 
 class ModuleManager extends CMSModule
 {

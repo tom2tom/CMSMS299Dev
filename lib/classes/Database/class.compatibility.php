@@ -115,7 +115,7 @@ namespace {
      *
      * @name CMS_ADODB_DT
      */
-    define('CMS_ADODB_DT', 'DT'); // backwards compatibility.
+    const CMS_ADODB_DT = 'DT'; // backwards compatibility.
 
     /**
      * A method to create a new data dictionary object.

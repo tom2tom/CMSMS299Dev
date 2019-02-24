@@ -2969,39 +2969,39 @@ abstract class CMSModule
  * Indicates that the incoming parameter is expected to be an integer.
  * This is used when cleaning input parameters for a module action or module call.
  */
-define('CLEAN_INT','CLEAN_INT');
+const CLEAN_INT = 'CLEAN_INT';
 
 /**
  * Indicates that the incoming parameter is expected to be a float
  * This is used when cleaning input parameters for a module action or module call.
  */
-define('CLEAN_FLOAT','CLEAN_FLOAT');
+const CLEAN_FLOAT = 'CLEAN_FLOAT';
 
 /**
  * Indicates that the incoming parameter is not to be cleaned.
  * This is used when cleaning input parameters for a module action or module call.
  */
-define('CLEAN_NONE','CLEAN_NONE');
+const CLEAN_NONE = 'CLEAN_NONE';
 
 /**
  * Indicates that the incoming parameter is a string.
  * This is used when cleaning input parameters for a module action or module call.
  */
-define('CLEAN_STRING','CLEAN_STRING');
+const CLEAN_STRING = 'CLEAN_STRING';
 
 /**
  * Indicates that the incoming parameter is a regular expression.
  * This is used when cleaning input parameters for a module action or module call.
  */
-define('CLEAN_REGEXP','regexp:');
+const CLEAN_REGEXP = 'regexp:';
 
 /**
  * Indicates that the incoming parameter is an uploaded file.
  * This is used when cleaning input parameters for a module action or module call.
  */
-define('CLEAN_FILE','CLEAN_FILE');
+const CLEAN_FILE = 'CLEAN_FILE';
 
 /**
  * @ignore
  */
-define('CLEANED_FILENAME','BAD_FILE');
+const CLEANED_FILENAME = 'BAD_FILE';
