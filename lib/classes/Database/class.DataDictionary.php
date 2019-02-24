@@ -536,7 +536,7 @@ abstract class DataDictionary
                 $newcolumn = $name;
             }
         } else {
-            $column_def = '';  //BAD, causes command to fail
+            $column_def = '';  //BAD causes command to fail TODO find something
         }
 
         return [sprintf($this->renameColumn,
