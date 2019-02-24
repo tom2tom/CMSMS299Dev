@@ -746,17 +746,18 @@ $all_attributes = null;
 $content_obj = new Content(); // should this be the default type?
 $list = $content_obj->GetProperties();
 if ($list) {
-    // pre-remove some items.
     $all_attributes = [];
-    for ($i = 0, $n = count($list); $i < $n; $i++) {
+    for ($i = 0, $n = count($list); $i < $n; ++$i) {
         $obj = $list[$i];
-        if ($obj->tab == $content_obj::TAB_PERMS) {
+		$tmp = $obj->tab;
+        // exclude some items
+        if ($tmp == $content_obj::TAB_PERMS) { //aka ContentBase::TAB_PERMS
             continue;
         }
-        if (!isset($all_attributes[$obj->tab])) {
-            $all_attributes[$obj->tab] = ['label'=>lang($obj->tab),'value'=>[]];
+        if (!isset($all_attributes[$tmp])) {
+            $all_attributes[$tmp] = ['label'=>lang($tmp),'value'=>[]];
         }
-        $all_attributes[$obj->tab]['value'][] = ['value'=>$obj->name,'label'=>lang($obj->name)];
+        $all_attributes[$tmp]['value'][] = ['value'=>$obj->name,'label'=>lang($obj->name)];
     }
 }
 $txt = FormUtils::create_option($all_attributes);
@@ -773,6 +774,7 @@ $smarty->assign('all_contenttypes', $all_contenttypes)
   ->assign('titlemenu', [lang('menutext'),lang('title')])
 
   ->assign('backurl', $themeObject->backUrl());
+
 $selfurl = basename(__FILE__);
 $smarty->assign('selfurl', $selfurl)
   ->assign('urlext', $urlext);
