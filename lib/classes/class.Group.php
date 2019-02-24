@@ -48,8 +48,8 @@ class Group
 	 */
 	public function __get($key)
 	{
-		if( !array_key_exists($key,$this->_data) ) throw new LogicException($key.' is not a member of '.__CLASS__);
-		return $this->_data[$key];
+		if( isset($this->_data[$key]) ) return $this->_data[$key];
+		throw new LogicException($key.' is not a member of '.__CLASS__);
 	}
 
 	/**

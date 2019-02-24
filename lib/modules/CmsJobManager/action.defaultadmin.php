@@ -74,7 +74,7 @@ if( $job_objs ) {
         $obj->name = $name;
         $obj->module = $job->module;
 		if (utils::job_recurs($job)) {
-			if (array_key_exists($job->frequency, $list)) {
+			if (isset($list[$job->frequency])) {
 				$obj->frequency = $list[$job->frequency];
 			} elseif ($job->frequency == RecurType::RECUR_SELF) {
 				$t = floor($job->interval / 3600) . gmdate(":i", $job->interval % 3600);

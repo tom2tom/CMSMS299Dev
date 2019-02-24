@@ -79,8 +79,10 @@ function getTestValues( string $property ) : array
 		'sqlite_version'		=> ['minimum'=>'', 'recommended'=>''],
 	];
 
-	if(array_key_exists($property, $range)) {
-		if(empty($range[$property]['recommended']))	$range[$property]['recommended'] = $range[$property]['minimum'];
+	if( isset($range[$property]) ) {
+		if( empty($range[$property]['recommended']) ) {
+			$range[$property]['recommended'] = $range[$property]['minimum'];
+		}
 		return [$range[$property]['minimum'], $range[$property]['recommended']];
 	}
 

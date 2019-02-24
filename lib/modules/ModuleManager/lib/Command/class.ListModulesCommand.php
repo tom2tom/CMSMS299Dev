@@ -119,10 +119,8 @@ class ListModulesCommand extends Command
                         $len = max($len,strlen($val));
                     }
                     $column_widths[$key] = $len;
-                } else {
-                    if( array_key_exists($key,$column_widths) ) {
-                        $column_widths[$key] = max($column_widths[$key],strlen($val));
-                    }
+                } elseif( isset($column_widths[$key]) ) {
+                    $column_widths[$key] = max($column_widths[$key],strlen($val));
                 }
             }
         }

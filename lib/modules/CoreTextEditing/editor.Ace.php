@@ -84,7 +84,7 @@ function GetScript(&$mod, array $params) : array
 				'txt' => 'text',
 				'xml' => 1,
 			];
-			if (array_key_exists($mode, $known)) {
+			if (isset($known[$mode])) {
 				if ($known[$mode] !== 1) {
 					$mode = $known[$mode];
 				}

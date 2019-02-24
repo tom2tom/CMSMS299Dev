@@ -68,7 +68,7 @@ class ResultSet extends \CMSMS\Database\ResultSet
                 return $this->_row;
             }
             $key = (string) $key;
-            if (array_key_exists($key, $this->_row)) {
+            if (isset($this->_row[$key])) {
                 return $this->_row[$key];
             }
         }

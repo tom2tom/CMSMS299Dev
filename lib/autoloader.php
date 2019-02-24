@@ -154,7 +154,7 @@ function cms_autoloader(string $classname)
 	$fp = $root.'class.'.$classname.'.php';
 	if (is_file($fp)) {
 /* FUTURE
-		if (array_key_exists($classname, $class_replaces)) {
+		if (isset($class_replaces[$classname])) {
 			require_once $fp;
 			class_alias($classname, $class_replaces[$classname], false);
 			unset($class_replaces[$classname]); //no repeats

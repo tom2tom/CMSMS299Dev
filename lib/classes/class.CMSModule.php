@@ -163,7 +163,7 @@ abstract class CMSModule
 
             $parms = [];
             foreach ($md->getParameters() as $i => $one) {
-                $val = (array_key_exists($i, $args)) ? $args[$i] : (($one->isOptional()) ? $one->getDefaultValue() : '!oOpS!');
+                $val = $args[$i] ?? (($one->isOptional()) ? $one->getDefaultValue() : '!oOpS!');
                 $parms[$one->getName()] = $val;
             }
             return FormUtils::create($this, $name, $parms);
@@ -307,7 +307,7 @@ abstract class CMSModule
             default:
             throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
         }
-        // validate $callable (a bit!) 
+        // validate $callable (a bit!)
         $modname = $this->GetName();
         if (is_callable($callback)) {
             $callable = $callback;

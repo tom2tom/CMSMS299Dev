@@ -90,7 +90,7 @@ class PrepResultSet extends \CMSMS\Database\ResultSet
                 return $row;
             }
             $key = (string) $key;
-            if (array_key_exists($key, $this->_row)) {
+            if (isset($this->_row[$key])) {
                 return $this->_row[$key];
             }
         }

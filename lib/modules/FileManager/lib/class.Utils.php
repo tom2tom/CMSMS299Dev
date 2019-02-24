@@ -280,12 +280,8 @@ final class Utils
         ];
 
         $ext = explode('.',$filename);
-        $ext = strtolower(array_pop($ext));
-        if (array_key_exists($ext, $mime_types)) {
-             return $mime_types[$ext];
-        }
-        //Nothing instead of "application/octet-stream"
-        return '';
+        $ext = strtolower(end($ext));
+        return $mime_types[$ext] ?? ''; // empty instead of "application/octet-stream"
     }
 
     // get post max size and give a portion of it to smarty for max chunk size.

@@ -219,10 +219,10 @@ class FormUtils
             }
 
             if ($myfunc) {
-                if (array_key_exists('id', $parms)) {
+                if (isset($parms['id'])) {
                     $parms['modid'] = $parms['id']; //CHECKME
                 }
-                if (array_key_exists('addtext', $parms)) {
+                if (isset($parms['addtext'])) {
                     $tmp = $parms['addtext'];
                     unset($parms['addtext']);
                     if ($tmp !== '') {
@@ -646,8 +646,7 @@ class FormUtils
                 if (!empty($selectedvalue)) {
                     $selected = $selectedvalue; //maybe array
                 } elseif (isset($selectedindex)) {
-                    $keys = array_keys($options);
-                    if (array_key_exists($selectedindex, $keys)) {
+                    if (isset($options[$keys[$selectedindex]])) {
                         $selected = $options[$keys[$selectedindex]];
                     }
                 }
