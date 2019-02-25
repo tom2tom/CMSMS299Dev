@@ -51,9 +51,9 @@ class SectionHeader extends ContentBase
 			['target',''],
 		]);
 
-		$this->SetURL(''); // url will be lost when going back to a content page.
 		// Turn off caching
 		$this->mCachable = false;
+		$this->SetURL(''); // url will be lost when going back to a content page.
 	}
 
 	public function TabNames()
@@ -70,10 +70,8 @@ class SectionHeader extends ContentBase
 		switch($tab) {
 		case '0':
 			return $this->display_attributes($adding);
-			break;
 		case '1':
 			return $this->display_attributes($adding,1);
-			break;
 		}
 	}
 

@@ -129,7 +129,6 @@ class PageLink extends ContentBase
 		case 'params':
 			$val = cms_htmlentities($this->GetPropertyValue('params'));
 			return [lang('additional_params').':','<input type="text" name="params" value="'.$val.'" />'];
-			break;
 
 		default:
 			return parent::display_single_element($one,$adding);
@@ -141,10 +140,8 @@ class PageLink extends ContentBase
 		switch($tab) {
 		case '0':
 			return $this->display_attributes($adding);
-			break;
 		case '1':
 			return $this->display_attributes($adding,1);
-			break;
 		}
 	}
 

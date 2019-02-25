@@ -171,10 +171,9 @@ class Content extends ContentBase
 	 */
 	public function WantsChildren()
 	{
-		// an empty/null response defaults to true.
 		$tmp = $this->GetPropertyValue('wantschildren');
-		if( $tmp === '0' ) return false;
-		return true;
+		// an empty/null response defaults to true
+		return $tmp !== '0';
 	}
 
 	/**
