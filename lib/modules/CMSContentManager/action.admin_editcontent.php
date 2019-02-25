@@ -1,5 +1,5 @@
 <?php
-#CMSContentManager-module action: edit page content
+# CMSContentManager-module action: edit page content
 #Copyright (C) 2013-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://dev.cmsmadesimple.org>
@@ -100,7 +100,7 @@ try {
         $content_obj->SetAdditionalEditors($pagedefaults['addteditors']);
         $dflt_parent = (int) cms_userprefs::get('default_parent');
         if( $dflt_parent < 1 ) $dflt_parent = -1;
-        if( !$this->CheckPermission('Modify Any Page') || !$this->CheckPermission('Manage All Content') ) {
+        if( !($this->CheckPermission('Modify Any Page') || $this->CheckPermission('Manage All Content')) ) {
             // we get the list of pages that this user has access to.
             // if he is not an editor of the default page, then we use the first page the user has access to, or -1
             $list = $contentops->GetPageAccessForUser($user_id);
@@ -282,10 +282,11 @@ try {
 
         $contentarray = $content_obj->GetTabElements($currenttab, $content_obj->Id() == 0 );
         if( $currenttab == $content_obj::TAB_MAIN ) {
-            // first tab... add the content type selector.
-            if( $this->CheckPermission('Manage All Content') || $content_obj->Owner() == $user_id )  {
-                // if you're only an additional editor on this page... you don't get to change this.
-				// TODO other relevant permission(s) e.g. 'Modify Any Page'
+            // main tab... prepend a content-type selector
+            // unless the user is only an additional editor for this page
+            if( $this->CheckPermission('Manage All Content')
+             || $this->CheckPermission('Modify Any Page')
+             || $content_obj->Owner() == $user_id )  {
                 $help = '&nbsp;'.AdminUtils::get_help_tag(['key'=>'help_content_type','title'=>$this->Lang('help_title_content_type')]);
                 $tmp = ['<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help];
                 $tmp2 = "<select id=\"content_type\" name=\"{$id}content_type\">";
