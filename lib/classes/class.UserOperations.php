@@ -512,7 +512,7 @@ class UserOperations
 	}
 
 	/**
-	 * Test if the user has the specified permission.
+	 * Test if the user has the specified permission, by reason of group membership
 	 *
 	 * Given the users member groups, test if any of those groups have the specified permission.
 	 *
@@ -526,17 +526,21 @@ class UserOperations
 		if ($userid <= 0) {
 			return false;
 		}
+		if ($userid == 1) {
+			return true; // super user
+		}
 		$groups = $this->GetMemberGroups($userid);
 		if (!is_array($groups)) {
 			return false;
 		}
 		if (in_array(1, $groups)) {
-			return true;
-		} // member of admin group
+			return true; // member of admin group
+		}
 
 		try {
+			$ops = GroupOperations::get_instance();
 			foreach ($groups as $gid) {
-				if (GroupOperations::get_instance()->CheckPermission($gid, $permname)) {
+				if ($ops->CheckPermission($gid, $permname)) {
 					return true;
 				}
 			}
