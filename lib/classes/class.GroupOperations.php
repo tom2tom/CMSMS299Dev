@@ -135,9 +135,9 @@ final class GroupOperations
 	 */
 	public function CheckPermission($groupid,$perm)
 	{
+		if( $groupid == 1 ) return TRUE;
 		$permid = CmsPermission::get_perm_id($perm);
 		if( $permid < 1 ) return FALSE;
-		if( $groupid == 1 ) return TRUE;
 
 		if( !isset($this->_perm_cache) || !is_array($this->_perm_cache) || !isset($this->_perm_cache[$groupid]) ) {
 			$db = CmsApp::get_instance()->GetDb();
