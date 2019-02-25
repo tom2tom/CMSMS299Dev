@@ -16,8 +16,9 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 $config = cms_config::get_instance();
+
 /**
- * Where private cacheable files can be written.
+ * Where private cachable files can be written.
  */
 define('TMP_CACHE_LOCATION',$config['tmp_cache_location']);
 
@@ -27,12 +28,12 @@ define('TMP_CACHE_LOCATION',$config['tmp_cache_location']);
 define('TMP_TEMPLATES_C_LOCATION',$config['tmp_templates_c_location']);
 
 /**
- * Where public (browsable) cacheable files can be written.
+ * Where public (browsable) cachable files can be written.
  */
 define('PUBLIC_CACHE_LOCATION',$config['public_cache_location']);
 
 /**
- * The public address for cacheable files.
+ * The URL for public cachable files.
  */
 define('PUBLIC_CACHE_URL',$config['public_cache_url']);
 
@@ -63,24 +64,24 @@ define('CMS_ASSETS_PATH',$config['assets_path']);
 define('CMS_SCRIPTS_PATH',$config['root_path'].DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'js');
 
 /**
- * The site root url.
+ * The site root URL.
  */
 define('CMS_ROOT_URL',$config['root_url']);
 
 /**
- * The site assets url.
+ * The site assets URL.
  * @since 2.3
  */
 define('CMS_ASSETS_URL',$config['assets_url']);
 
 /**
- * The 'top' url where javascript files are stored
+ * The 'top' URL where javascript files are stored
  * @since 2.3
  */
 define('CMS_SCRIPTS_URL',$config['root_url'].'/lib/js');
 
 /**
- * The site uploads url.
+ * The site uploads URL.
  */
 define('CMS_UPLOADS_URL',$config['uploads_url']);
 
