@@ -214,7 +214,7 @@ abstract class CmsAdminThemeBase
     {
         switch( $key ) {
         case 'themeName':
-            $class = get_class($this);
+            $class = get_class();
             if( endswith($class,'Theme') ) $class = substr($class,0,strlen($class)-5);
             return $class;
         case 'userid':

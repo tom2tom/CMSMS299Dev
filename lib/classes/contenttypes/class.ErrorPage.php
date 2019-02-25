@@ -45,7 +45,7 @@ class ErrorPage extends Content
 		}
 		$this->doAliasCheck = false;
 		$this->doAutoAliasIfEnabled = false;
-		$this->mType = strtolower(get_class($this)) ;
+		$this->mType = strtolower(get_class()) ;
 	}
 
 	public function HandlesAlias()

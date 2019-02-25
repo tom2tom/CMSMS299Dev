@@ -557,14 +557,14 @@ VALUES (?,?,?,?,?,?,?)';
 	public function save()
 	{
 		if( $this->get_id() ) {
-			Events::SendEvent('Core', 'EditStylesheetPre',[get_class($this)=>&$this]);
+			Events::SendEvent('Core', 'EditStylesheetPre',[get_class()=>&$this]);
 			$this->_update();
-			Events::SendEvent('Core', 'EditStylesheetPost',[get_class($this)=>&$this]);
+			Events::SendEvent('Core', 'EditStylesheetPost',[get_class()=>&$this]);
 			return;
 		}
-		Events::SendEvent('Core', 'AddStylesheetPre',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'AddStylesheetPre',[get_class()=>&$this]);
 		$this->_insert();
-		Events::SendEvent('Core', 'AddStylesheetPost',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'AddStylesheetPost',[get_class()=>&$this]);
 	}
 
    /**
@@ -579,7 +579,7 @@ VALUES (?,?,?,?,?,?,?)';
 		$sid = $this->get_id();
 		if( !$sid ) return;
 
-		Events::SendEvent('Core', 'DeleteStylesheetPre',[get_class($this)=>&$this]);
+		Events::SendEvent('Core', 'DeleteStylesheetPre',[get_class()=>&$this]);
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::CSSTABLE.' WHERE css_id = ?';
 		$dbr = $db->Execute($query,[$sid]);
@@ -591,8 +591,8 @@ VALUES (?,?,?,?,?,?,?)';
 
 		TemplateCache::clear_cache();
 		cms_notice('Stylesheet '.$this->get_name().' Deleted');
-		// Events::SendEvent('Core','DeleteStylesheetPost',array(get_class($this)=>&$this));
-		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class($this)=>&$this]);
+		// Events::SendEvent('Core','DeleteStylesheetPost',array(get_class()=>&$this));
+		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class()=>&$this]);
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}

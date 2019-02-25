@@ -38,7 +38,7 @@ class wizard_step
 
     public function get_name()
     {
-        return get_class($this);
+        return get_class();
     }
 
     public function get_description() {
