@@ -34,7 +34,6 @@ use CMSMS\internal\content_assistant;
 use CMSMS\internal\global_cache;
 use CMSMS\UserOperations;
 use CmsRoute;
-use stdClass;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_URL;
 use function check_permission;
@@ -353,13 +352,13 @@ abstract class ContentBase
 		}
 
 		foreach( $defaults as $name => &$one ) {
-			$ob = new stdClass();
-			$ob->tab = $one[1];
-			$ob->priority = $one[0];
-			$ob->name = $name;
-			$ob->required = !empty($one[2]);
-			$ob->basic = false;
-			$this->_properties[] = $ob;
+			$this->_properties[] = [
+				'tab' => $one[1],
+				'priority' => $one[0],
+				'name' => $name,
+				'required' => !empty($one[2]),
+				'basic' => false,
+			];
 		}
 		unset($one);
 
@@ -1922,7 +1921,7 @@ WHERE content_id = ?';
 			$out = [];
 			foreach( $this->_properties as &$one ) {
 				// todo: filter out the elements that this user isn't allowed to see
-				if( $one->basic || in_array($one->name,$basic_properties) ) $out[] = $one;
+				if( $one['basic'] || in_array($one['name'],$basic_properties) ) $out[] = $one;
 			}
 			unset($one);
 			return $out;
@@ -1939,9 +1938,9 @@ WHERE content_id = ?';
 		if( count($props) > 1 ) {
 		  usort($props,function($a,$b)
 		  {
-			$res = strcmp($a->tab,$b->tab);
-			if( $res == 0 ) $res = $a->priority <=> $b->priority;
-			if( $res == 0 ) $res = strcmp($a->name,$b->name);
+			$res = strcmp($a['tab'],$b['tab']);
+			if( $res == 0 ) $res = $a['priority'] <=> $b['priority'];
+			if( $res == 0 ) $res = strcmp($a['name'],$b['name']);
 			return $res;
 		  });
 		}
@@ -1974,8 +1973,8 @@ WHERE content_id = ?';
 		$props = $this->_GetEditableProperties();
 		$arr = [];
 		foreach( $props as &$one ) {
-			if( !isset($one->tab) || $one->tab == '' ) $one->tab = self::TAB_MAIN;
-			$key = $one->tab;
+			if( !isset($one['tab']) || $one['tab'] == '' ) $one['tab'] = self::TAB_MAIN;
+			$key = $one['tab'];
 			if( endswith($key,'_tab__') ) { $lbl = lang($key); }
 			else { $lbl = $key; }
 			$arr[$key] = $lbl;
@@ -2015,9 +2014,9 @@ WHERE content_id = ?';
 		$props = $this->_GetEditableProperties();
 		$out = [];
 		foreach( $props as &$one ) {
-			if( !isset($one->tab) || $one->tab == '' ) $one->tab = self::TAB_MAIN;
-			if( $one->tab == $key ) {
-				$out[] = $this->display_single_element($one->name,$adding);
+			if( !isset($one['tab']) || $one['tab'] == '' ) $one['tab'] = self::TAB_MAIN;
+			if( $one['tab'] == $key ) {
+				$out[] = $this->display_single_element($one['name'],$adding);
 			}
 		}
 		unset($one);
@@ -2051,7 +2050,7 @@ WHERE content_id = ?';
 	 * Return a list of additional editors.
 	 * Note: in the returned array, group id's are specified as negative integers.
 	 *
-	 * @return array of uids and group ids, or empty
+	 * @return array of user ids and group ids, or empty
 	 */
 	public function GetAdditionalEditors()
 	{
@@ -2075,7 +2074,7 @@ WHERE content_id = ?';
 	 * Set the list of additional editors.
 	 * Note: in the provided array, group id's are specified as negative integers.
 	 *
-	 * @param mixed $editorarray Array of uids and group ids, or null
+	 * @param mixed $editorarray Array of user ids and group ids, or null
 	 */
 	public function SetAdditionalEditors($editorarray)
 	{
@@ -2100,8 +2099,8 @@ WHERE content_id = ?';
 		}
 		foreach ($allgroups as $onegroup) {
 			if( $onegroup->id == 1 ) continue; // exclude admin group (they have all privileges anyways)
-			$val = $onegroup->id*-1;
-			$opts[$val] = lang('group').': '.$onegroup->name;
+			$val = - (int)$onegroup->id;
+			$opts[$val] = lang('group').': '.$onegroup['name'];
 		}
 
 		return $opts;
@@ -2160,7 +2159,7 @@ WHERE content_id = ?';
 		if( !$this->_properties ) return false;
 		$fnd = false;
 		foreach( $this->_properties as &$one ) {
-			if( $one->name == $name ) {
+			if( $one['name'] == $name ) {
 				$fnd = true;
 				break;
 			}
@@ -2187,7 +2186,7 @@ WHERE content_id = ?';
 	{
 		if( !$this->_properties ) return;
 		for( $i = 0, $n = count($this->_properties); $i < $n; ++$i ) {
-			if( $this->_properties[$i] && $this->_properties[$i]->name == $name ) {
+			if( $this->_properties[$i] && $this->_properties[$i]['name'] == $name ) {
 				unset($this->_properties[$i]);
 				if ($i < $n - 1) {
 					$this->_properties = array_values($this->_properties);
@@ -2203,7 +2202,6 @@ WHERE content_id = ?';
 	 * NOTE this method is a significant contributor to the duration of each frontend request
 	 * Benchmark reported at https://steemit.com/php/@crell/php-use-associative-arrays-basically-never
 	 * recommends (in spite of the URL) against stdClass data-storage in this sort of context
-	 * But to preserve compatibility here ....
 	 *
 	 * @since 1.11
 	 * @param string $name Property name
@@ -2214,26 +2212,14 @@ WHERE content_id = ?';
 	 */
 	protected function AddProperty($name, $priority, $tab = self::TAB_MAIN, $required = false, $basic = false)
 	{
-		$ob = new stdClass();
 		if( !$tab ) $tab = self::TAB_MAIN;
-		$ob->tab = (string)$tab;
-		$ob->priority = (int)$priority;
-		$ob->name = (string)$name;
-		$ob->required = (bool)$required;
-		$ob->basic = (bool)$basic;
-
-		$this->_properties[] = $ob;
-	}
-
-	/**
-	 * Get all of the properties for this content object regardless whether the user is entitled to view them, or not.
-	 *
-	 * @since 2.0
-	 * @return array of stdClass objects
-	 */
-	public function GetProperties()
-	{
-		return $this->_SortProperties($this->_properties);
+		$this->_properties[] = [
+			'tab' => (string)$tab,
+			'priority' => (int)$priority,
+			'name' => (string)$name,
+			'required' => (bool)$required,
+			'basic' => (bool)$basic,
+		];
 	}
 
 	/**
@@ -2265,7 +2251,36 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * A method to display a single input element for an object basic, or extended property.
+	 * Get all of the properties of this content object (whether or not the user is entitled to view them)
+	 *
+	 * @since 2.0
+	 * @return array of stdClass objects
+	 */
+	public function GetProperties()
+	{
+		$ret = $this->_SortProperties($this->_properties);
+		if( $ret ) {
+			foreach( $ret as &$one ) {
+				$one = (object)$one;
+			}
+			unset($one);
+		}
+		return $ret;
+	}
+
+	/**
+	 * Get all of the properties of this content object (whether or not the user is entitled to view them)
+	 *
+	 * @since 2.3
+	 * @return array of assoc. arrays
+	 */
+	public function GetPropertiesArray() : array
+	{
+		return $this->_SortProperties($this->_properties);
+	}
+
+	/**
+	 * Get html to display a single input element for an object basic or extended property.
 	 *
 	 * @abstract
 	 * @param string $one The property name
