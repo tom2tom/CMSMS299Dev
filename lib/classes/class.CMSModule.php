@@ -262,8 +262,12 @@ abstract class CMSModule
      */
     final public static function function_plugin(array $params, $template)
     {
-        $class = get_called_class();
-        if( $class != 'CMSModule' && !isset($params['module']) ) $params['module'] = $class;
+        if( empty($params['module']) ) {
+            $class = get_called_class();
+            if( $class != CMSModule::class ) {
+                $params['module'] = $class;
+            }
+        }
         return cms_module_plugin($params,$template);
     }
 
@@ -410,8 +414,8 @@ abstract class CMSModule
      */
     public function GetName()
     {
-        $tmp = get_class($this);
-        return basename(str_replace('\\','/',$tmp));
+        $tmp = get_class();
+        return basename(str_replace(['\\','/'],[DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR],$tmp));
     }
 
     /**
@@ -1414,7 +1418,7 @@ abstract class CMSModule
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
         } else {
-            $c = get_called_class();
+            $c = get_class();
             $p = strrpos($c, '\\');
             $namespace = ($p !== false) ? substr($c, $p+1) : $c;
             $ctrl = $namespace."\\Controllers\\{$name}_action";
