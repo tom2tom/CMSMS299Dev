@@ -152,7 +152,7 @@ $lang['help_title_content_type'] = 'Content Type Selector';
 
 $lang['help_module'] = <<<EOT
 <h3>Introduction</h3>
-<p>This document describes the CMS Content Manager module. It is aimed primarily at website designers and developers, and describes in broad terms how content items work in CMS Made Simple.</p>
+<p>This document describes the CMSMS Content Manager module. It is aimed primarily at website designers and developers, and describes in broad terms how content items work in CMS Made Simple.</p>
 <p>The primary interface of this module is the content list. It displays content items in a tabular format and provides the ability to quickly search, navigate, and manage multiple content items. This is a dynamic list. The display is adjusted depending on some site configuration items, some global settings, user permissions and the individual content items. The following text describes what content items are, and how the content list behaves with them.</p>
 <h3>Content Hierarchy and Navigations</h3>
 <p>CMS Made Simple builds frontend navigations dynamically from the content list, the individual types of content items, the content in those content items, and the navigation template. The organization of navigations is primarily controlled by the parent-child/hierarchy relationship of your content items. Starting from the top <em>(root)</em> level, downwards.</p>
@@ -210,7 +210,7 @@ $lang['help_module'] = <<<EOT
 
       <li>Hierarchy Column
         <p>The hierarchy column displays the location of each content item in the hierarchy in a numeric fashion. The hierarchy of the first root level page begins with 1 and increases incrementally for each peer. Each child begins with the 1, and its peers increment incrementally. Therefore, the second grandchild of the third child of the first item in the content list would have a hierarchy of 1.3.2.</p>
-        <p>The hierarchy mechanism is a significant portion of what provides the ability of CMS Content Manager to organize content items, and then build navigations from them.</p>
+        <p>The hierarchy mechanism is a significant portion of what provides the ability of CMSMS Content Manager to organize content items, and then build navigations from them.</p>
       </li>
 
       <li>Page Title / Menu Text Column

@@ -34,7 +34,7 @@ $lang['confirm_reseturl'] = 'Are you sure you want to reset the repository URL?'
 $lang['confirm_settings'] = 'Are you sure you want to save these settings?';
 $lang['confirm_remove'] = 'Are you sure you want to remove this modules files from the file system';
 $lang['confirm_upgrade'] = 'Are you sure you want to upgrade this module?';
-$lang['compatibility_disclaimer'] = 'Some of the modules have been created by the CMSMS team, and others are by independent developers. The modules might be incompatible with your system, or not tested, or perhaps not even functional.  Please read the information presented via the "help" and "about" links for a module, before attempting its installation.';
+$lang['compatibility_disclaimer'] = 'Some of the modules have been created by the CMSMS team, and others are by independent developers. The modules might be incompatible with this system, or not tested, or perhaps not even functional.  Please read the information presented via the "help" and "about" links for a module, before attempting its installation.';
 
 // D
 $lang['db_newer'] = 'Database Version Newer';
@@ -69,7 +69,7 @@ $lang['error_dependencynotfound'] = 'One or more dependencies could not be found
 $lang['error_dependencynotfound2'] = 'The module %s (%s) could not be found in the repository, but it is a dependency.<br/>This module might no longer be available in the module repository, or might require manual installation.<br />Please ensure that it is installed correctly, then retry this operation.';
 $lang['error_fileupload'] = 'A problem occurred uploading the file';
 $lang['error_getmodule'] = 'A problem occurred instantiating %s';
-$lang['error_internal'] = 'Internal Error... Please report this to your system administrator';
+$lang['error_internal'] = 'Internal Error... Please report this to the system administrator';
 $lang['error_invaliduploadtype'] = 'The file uploaded is not valid for this field';
 $lang['error_minimumrepository'] = 'The repository version is not compatible with your CMSMS version';
 $lang['error_missingparam'] = 'A required parameter was missing or invalid';

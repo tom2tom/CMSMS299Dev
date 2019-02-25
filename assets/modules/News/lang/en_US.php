@@ -222,7 +222,7 @@ $lang['help'] = <<<'EOF'
 <li>Create a new database template <em>(either summary or detailed as required)</em>.  Give the new template the same name as the old file template, and paste the contents.</li>
 <li>Hit Submit</li>
 </ul>
-<p>Following these steps should solve the problem of your news templates not being found and other similar smarty errors when you upgrade to a version of CMS that has News 2.3 or greater.</p>
+<p>Following these steps should solve the problem of your news templates not being found and other similar smarty errors when you upgrade to a version of CMSMS that has News 2.3 or greater.</p>
 <h3>Important Notes</h3>
 <p>From version 2.9, there is no formatpostdate member in data provided to templates, nor a dateformat parameter. Templates should use the cms_date_format modifier (as indicated in the default templates) to format dates.</p>
 <p>From version 3.0, datetime data provided to templates are timestamps, and among them the postdate data are deprecated replications of startdate data. Templates should use entry->startdate instead of entry->postdate.</p>
