@@ -35,7 +35,7 @@ if( $term ) {
     $str ='%'.$term.'%';
     $parms = [ $str, $str, $str, $str ];
 
-    if( !$this->CheckPermission('Manage All Content') && !$this->CheckPermission('Modify Any Page') ) {
+    if( !($this->CheckPermission('Manage All Content') || $this->CheckPermission('Modify Any Page')) ) {
         $pages = author_pages(get_userid(FALSE));
         if( !$pages ) return;
 
