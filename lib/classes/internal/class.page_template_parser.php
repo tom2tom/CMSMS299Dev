@@ -36,7 +36,7 @@ class page_template_parser extends Smarty_Internal_Template
      */
     protected static $_contentBlocks = [];
 
-    /**
+    /* *
      * @ignore
      * @var strings array
      */
@@ -46,20 +46,20 @@ class page_template_parser extends Smarty_Internal_Template
      * Class constructor
      * @param string $template_resource template identifier
      * @param mixed $smarty
-     * @param type $_parent
-     * @param type $_cache_id
-     * @param mixed $_compile_id string|null - always overridden
-     * @param boolean $_caching
-     * @param int $_cache_lifetime
+     * @param mixed $_parent optional, default null
+     * @param mixed $_cache_id  optional, default null
+     * @param mixed $_compile_id string|null optional, default null UNUSED
+     * @param boolean $_caching  optional, default false
+     * @param int $_cache_lifetime  optional, default 0
      */
     public function __construct(
-        $template_resource,
+        string $template_resource,
         $smarty,
         $_parent = null,
         $_cache_id = null,
         $_compile_id = null,
-        $_caching = false,
-        $_cache_lifetime = 0
+        bool $_caching = false,
+        int $_cache_lifetime = 0
     ) {
         $_compile_id = 'cmsms_parser_'.microtime();
         parent::__construct($template_resource, $smarty, $_parent, $_cache_id, $_compile_id, $_caching, $_cache_lifetime);
@@ -84,22 +84,22 @@ class page_template_parser extends Smarty_Internal_Template
      * @param mixed $template
      * @return string (empty)
      */
-    public static function _dflt_plugin($params, $template)
+    public static function _dflt_plugin(array $params, $template) : string
     {
         return '';
     }
 
     /**
      * Setup a default smarty-plugin handler
-     * @param type $name
+     * @param string $name UNUSED
      * @param string $type
-     * @param mixed $template
+     * @param mixed $template UNUSED
      * @param callable $callback
-     * @param type $script
+     * @param type $script UNUSED
      * @param boolean $cachable
      * @return boolean
      */
-    public function defaultPluginHandler($name, $type, $template, &$callback, &$script, &$cachable)
+    public function defaultPluginHandler(string $name, string $type, $template, &$callback, &$script, &$cachable) : bool
     {
         if ($type == 'compiler') {
             $callback = [__CLASS__,'_dflt_plugin'];
@@ -111,14 +111,14 @@ class page_template_parser extends Smarty_Internal_Template
     }
 
     /**
-     * Default fetcher - should never be called
-     * @param type $template
-     * @param type $cache_id
-     * @param type $compile_id
-     * @param type $parent
-     * @param type $display
-     * @param type $merge_tpl_vars
-     * @param type $no_output_filter
+     * Default fetcher - should never be called. None of any supplied params is used.
+     * @param mixed $template
+     * @param mixed $cache_id
+     * @param mixed $compile_id
+     * @param mixed $parent
+     * @param bool  $display
+     * @param bool  $merge_tpl_vars
+     * @param bool  $no_output_filter
      */
     public function fetch(
         $template = null,
@@ -154,7 +154,7 @@ class page_template_parser extends Smarty_Internal_Template
      * Compile a content block tag into PHP code
      *
      * @param array $params
-     * @param Smarty_Internal_SmartyTemplateCompiler $template
+     * @param Smarty_Internal_SmartyTemplateCompiler $template UNUSED
      * @return string
      */
     public static function compile_fecontentblock(array $params, $template) : string
@@ -172,7 +172,7 @@ class page_template_parser extends Smarty_Internal_Template
      * Process a {content} tag
      *
      * @param array $params
-     * @param mixed $template
+     * @param mixed $template UNUSED
      */
     public static function compile_contentblock(array $params, $template)
     {
@@ -240,8 +240,8 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Process a {content_image} tag
-     * @param type $params
-     * @param type $template
+     * @param array $params
+     * @param mixed $template UNUSED
      * @throws CmsEditContentException
      */
     public static function compile_imageblock(array $params, $template)
@@ -299,8 +299,8 @@ class page_template_parser extends Smarty_Internal_Template
 
     /**
      * Process {content_module} tag
-     * @param type $params
-     * @param type $template
+     * @param array $params
+     * @param mixed $template UNUSED
      * @throws CmsEditContentException
      */
     public static function compile_moduleblock(array $params, $template)
@@ -363,7 +363,7 @@ class page_template_parser extends Smarty_Internal_Template
      * Process {content_text} tag
      *
      * @param array $params
-     * @param mixed $template
+     * @param mixed $template UNUSED
      */
     public static function compile_contenttext(array $params, $template)
     {
@@ -395,6 +395,10 @@ class page_template_parser extends Smarty_Internal_Template
             }
         }
 
+        if (!$rec['name'] || !$rec['text']) {
+            return; // ignore it
+        }
+
         if (!$rec['name']) {
             $n = count(self::$_contentBlocks)+1;
             $rec['name'] = 'static_'.$n;
@@ -414,9 +418,6 @@ class page_template_parser extends Smarty_Internal_Template
             $rec['priority'] = self::$_priority++;
         }
 
-        if (!$rec['text']) {
-            return; // do nothing.
-        }
         $rec['static_content'] = trim(strip_tags($rec['text']));
 
         self::$_contentBlocks[$rec['name']] = $rec;
