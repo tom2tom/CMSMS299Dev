@@ -285,6 +285,7 @@ try {
             // first tab... add the content type selector.
             if( $this->CheckPermission('Manage All Content') || $content_obj->Owner() == $user_id )  {
                 // if you're only an additional editor on this page... you don't get to change this.
+				// TODO other relevant permission(s) e.g. 'Modify Any Page'
                 $help = '&nbsp;'.AdminUtils::get_help_tag(['key'=>'help_content_type','title'=>$this->Lang('help_title_content_type')]);
                 $tmp = ['<label for="content_type">*'.$this->Lang('prompt_editpage_contenttype').':</label>'.$help];
                 $tmp2 = "<select id=\"content_type\" name=\"{$id}content_type\">";
