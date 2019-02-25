@@ -89,8 +89,7 @@ final class Utils
 	{
 		$mod = cms_utils::get_module('CMSContentManager');
 		$timeout = (int) $mod->GetPreference('locktimeout');
-		if( $timeout > 0 ) return true;
-		return FALSE;
+		return $timeout > 0;
 	}
 
 	public static function get_pagenav_display()
