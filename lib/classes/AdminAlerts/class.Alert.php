@@ -99,7 +99,7 @@ abstract class Alert
      */
     public function __construct()
     {
-        $this->_name = md5(get_class().microtime().rand(0,9999));
+        $this->_name = md5(get_class($this).microtime().rand(0,9999));
         $this->_priority = self::PRIORITY_NORMAL;
         $this->_created = time();
     }
@@ -128,7 +128,7 @@ abstract class Alert
         case 'loaded':
             return (bool) $this->_loaded;
         default:
-            throw new InvalidArgumentException("$key is not a gettable member of ".get_class());
+            throw new InvalidArgumentException("$key is not a gettable member of ".get_class($this));
         }
     }
 
@@ -169,7 +169,7 @@ abstract class Alert
             break;
 
         default:
-            throw new InvalidArgumentException("$key is not a settable member of ".get_class());
+            throw new InvalidArgumentException("$key is not a settable member of ".get_class($this));
         }
     }
 

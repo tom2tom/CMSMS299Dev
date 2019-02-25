@@ -546,14 +546,14 @@ WHERE id = ?';
 	public function save()
 	{
 		if( !$this->get_id() ) {
-			Events::SendEvent('Core', 'AddTemplateTypePre', [ get_class() => &$this ]);
+			Events::SendEvent('Core', 'AddTemplateTypePre', [ get_class($this) => &$this ]);
 			$this->_insert();
-			Events::SendEvent('Core', 'AddTemplateTypePost', [ get_class() => &$this ]);
+			Events::SendEvent('Core', 'AddTemplateTypePost', [ get_class($this) => &$this ]);
 			return;
 		}
-		Events::SendEvent('Core', 'EditTemplateTypePre', [ get_class() => &$this ]);
+		Events::SendEvent('Core', 'EditTemplateTypePre', [ get_class($this) => &$this ]);
 		$this->_update();
-		Events::SendEvent('Core', 'EditTemplateTypePost', [ get_class() => &$this ]);
+		Events::SendEvent('Core', 'EditTemplateTypePost', [ get_class($this) => &$this ]);
 	}
 
 	/**
@@ -577,7 +577,7 @@ WHERE id = ?';
 	{
 		if( !$this->get_id() ) return;
 
-		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class() => &$this ]);
+		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
 		$tmp = CmsLayoutTemplate::template_query(['t:'.$this->get_id()]);
 		if( $tmp ) throw new CmsInvalidDataException('Cannot delete a template-type with existing templates');
 		$db = CmsApp::get_instance()->GetDb();
@@ -588,7 +588,7 @@ WHERE id = ?';
 		$this->_dirty = TRUE;
 		TemplateCache::clear_cache();
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
-		Events::SendEvent('Core', 'DeleteTemplateTypePost', [ get_class() => &$this ]);
+		Events::SendEvent('Core', 'DeleteTemplateTypePost', [ get_class($this) => &$this ]);
 		unset($this->_data['id']);
 	}
 

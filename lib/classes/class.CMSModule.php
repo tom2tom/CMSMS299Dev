@@ -414,7 +414,7 @@ abstract class CMSModule
      */
     public function GetName()
     {
-        $tmp = get_class();
+        $tmp = get_class($this);
         return basename(str_replace(['\\','/'],[DIRECTORY_SEPARATOR,DIRECTORY_SEPARATOR],$tmp));
     }
 
@@ -1418,7 +1418,7 @@ abstract class CMSModule
         if( isset( $params['controller']) ) {
             $ctrl = $params['controller'];
         } else {
-            $c = get_class();
+            $c = get_class($this);
             $p = strrpos($c, '\\');
             $namespace = ($p !== false) ? substr($c, $p+1) : $c;
             $ctrl = $namespace."\\Controllers\\{$name}_action";

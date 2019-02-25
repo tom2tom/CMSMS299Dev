@@ -45,7 +45,7 @@ class ErrorPage extends Content
 		}
 		$this->doAliasCheck = false;
 		$this->doAutoAliasIfEnabled = false;
-		$this->mType = strtolower(get_class()) ;
+		$this->mType = strtolower(get_class($this)) ;
 	}
 
 	public function HandlesAlias()
@@ -73,7 +73,7 @@ class ErrorPage extends Content
 			['page_url',''],
 			['parent',-1],
 //			['searchable',false],
-			['secure',false],
+			['secure',false], //deprecated property since 2.3
 			['showinmenu',false],
 			['target',''],
 			['thumbnail',''],

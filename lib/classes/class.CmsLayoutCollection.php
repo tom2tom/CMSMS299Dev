@@ -500,14 +500,14 @@ class CmsLayoutCollection
 	public function save()
 	{
 		if( $this->get_id() ) {
-			Events::SendEvent( 'Core', 'EditDesignPre', [ get_class() => &$this ] );
+			Events::SendEvent( 'Core', 'EditDesignPre', [ get_class($this) => &$this ] );
 			$this->_update();
-			Events::SendEvent( 'Core', 'EditDesignPost', [ get_class() => &$this ] );
+			Events::SendEvent( 'Core', 'EditDesignPost', [ get_class($this) => &$this ] );
 			return;
 		}
-		Events::SendEvent( 'Core', 'AddDesignPre', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'AddDesignPre', [ get_class($this) => &$this ] );
 		$this->_insert();
-		Events::SendEvent( 'Core', 'AddDesignPost', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'AddDesignPost', [ get_class($this) => &$this ] );
 	}
 
 	/**
@@ -525,7 +525,7 @@ class CmsLayoutCollection
 			throw new CmsLogicException('Cannot delete a design that has templates attached');
 		}
 
-		Events::SendEvent( 'Core', 'DeleteDesignPre', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteDesignPre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
 		if( $this->_css_assoc ) {
 			$query = 'DELETE FROM '.CMS_DB_PREFIX.self::CSSTABLE.' WHERE design_id = ?';
@@ -545,7 +545,7 @@ class CmsLayoutCollection
 		$dbr = $db->Execute($query,[$this->get_id()]);
 
 		cms_notice('Design '.$this->get_name().' deleted');
-		Events::SendEvent( 'Core', 'DeleteDesignPost', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteDesignPost', [ get_class($this) => &$this ] );
 		unset($this->_data['id']);
 		$this->_dirty = TRUE;
 	}

@@ -936,14 +936,14 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	public function save()
 	{
 		if( $this->get_id() ) {
-			Events::SendEvent( 'Core', 'EditTemplatePre', [ get_class() => &$this ] );
+			Events::SendEvent( 'Core', 'EditTemplatePre', [ get_class($this) => &$this ] );
 			$this->_update();
-			Events::SendEvent( 'Core', 'EditTemplatePost', [ get_class() => &$this ] );
+			Events::SendEvent( 'Core', 'EditTemplatePost', [ get_class($this) => &$this ] );
 			return;
 		}
-		Events::SendEvent( 'Core', 'AddTemplatePre', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'AddTemplatePre', [ get_class($this) => &$this ] );
 		$this->_insert();
-		Events::SendEvent( 'Core', 'AddTemplatePost', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'AddTemplatePost', [ get_class($this) => &$this ] );
 	}
 
    /**
@@ -953,7 +953,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	{
 		if( !$this->get_id() ) return;
 
-		Events::SendEvent( 'Core', 'DeleteTemplatePre', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteTemplatePre', [ get_class($this) => &$this ] );
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.' WHERE tpl_id = ?';
 		$db->Execute($query,[$this->get_id()]);
@@ -965,7 +965,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 
 		TemplateCache::clear_cache();
 		audit($this->get_id(),'CMSMS','Template '.$this->get_name().' Deleted');
-		Events::SendEvent( 'Core', 'DeleteTemplatePost', [ get_class() => &$this ] );
+		Events::SendEvent( 'Core', 'DeleteTemplatePost', [ get_class($this) => &$this ] );
 		unset($this->_data['id']);
 		$this->_dirty = true;
 	}

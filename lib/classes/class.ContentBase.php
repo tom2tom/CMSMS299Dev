@@ -213,7 +213,14 @@ abstract class ContentBase
 	 *
 	 * @internal
 	 */
-	protected $mCachable;
+	protected $mCachable = false;
+
+	/**
+	 * Secure access to this page?
+	 *
+	 * @internal
+	 */
+	protected $mSecure = false;
 
 	/**
 	 * URL
@@ -344,7 +351,8 @@ abstract class ContentBase
 
 			'alias'=>[1,self::TAB_OPTIONS],
 			'active'=>[2,self::TAB_OPTIONS],
-			// 3 often used by subclasses
+			// priority 3 is used by some subclasses
+			'secure'=>[3,self::TAB_OPTIONS], //deprecated property since 2.3
 			'cachable'=>[4,self::TAB_OPTIONS],
 			'image'=>[5,self::TAB_OPTIONS],
 			'thumbnail'=>[6,self::TAB_OPTIONS],
@@ -455,7 +463,7 @@ abstract class ContentBase
 	 */
 	public function Type()
 	{
-		$c = get_class();
+		$c = get_class($this);
 		$p = strrpos($c, '\\');
 		return ($p !== false) ? strtolower(substr($c, $p+1)) : strtolower($c);
 	}
@@ -833,6 +841,31 @@ abstract class ContentBase
 	{
 		$this->mCachable = (bool) $cachable;
 	}
+
+	/**
+	 * Return whether this page should be accessed via a secure protocol.
+	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
+	 * @deprecated since 2.3
+	 *
+	 * @return bool
+	 */
+	public function Secure()
+	{
+		return $this->mSecure;
+	}
+
+	/**
+	 * Set whether this page should be accessed via a secure protocol.
+	 * The secure flag affects whether the ssl protocol and appropriate config entries are used when generating urls to this page.
+	 * @deprecated since 2.3
+	 *
+	 * @param bool $secure
+	 */
+	public function SetSecure($secure)
+	{
+		$this->mSecure = (bool)$secure;
+	}
+
 
 	/**
 	 * Return the page URL (if any) associated with this content page.
@@ -1268,8 +1301,9 @@ VALUES (?,?,?,?,$now,$now)";
 		$this->mMetadata       = $data['metadata'];
 		$this->mModifiedDate   = $data['modified_date'];
 		$this->mOwner          = $data['owner_id'];
-		$this->mURL            = $data['page_url'] ?? null;
+		$this->mURL            = $data['page_url'] ?? '';
 		$this->mParentId       = $data['parent_id'];
+		$this->mSecure         = $data['secure'] ?? false; //deprecated since 2.3
 		$this->mShowInMenu     = ($data['show_in_menu'] == 1);
 		$this->mTabIndex       = $data['tabindex'];
 		$this->mTemplateId     = $data['template_id'];
@@ -1321,6 +1355,7 @@ VALUES (?,?,?,?,$now,$now)";
 		$ret['owner_id'] = $this->mOwner;
 		$ret['page_url'] = ($this->mURL)?1:0;
 		$ret['parent_id'] = $this->mParentId;
+		$ret['secure'] = $this->mSecure; //deprecated since 2.3
 		$ret['show_in_menu'] = ($this->mShowInMenu)?1:0;
 		$ret['tabindex'] = $this->mTabIndex;
 		$ret['template_id'] = $this->mTemplateId;
@@ -1409,6 +1444,7 @@ active = ?,
 default_content = ?,
 show_in_menu = ?,
 cachable = ?,
+secure = ?,
 page_url = ?,
 menu_text = ?,
 content_alias = ?,
@@ -1427,10 +1463,11 @@ WHERE content_id = ?';
 			$this->Type(),
 			$this->mTemplateId,
 			$this->mParentId,
-			($this->mActive          ? 1 : 0),
-			($this->mDefaultContent  ? 1 : 0),
-			($this->mShowInMenu      ? 1 : 0),
-			($this->mCachable        ? 1 : 0),
+			($this->mActive         ? 1 : 0),
+			($this->mDefaultContent ? 1 : 0),
+			($this->mShowInMenu     ? 1 : 0),
+			($this->mCachable       ? 1 : 0),
+			($this->mSecure         ? 1 : 0),
 			$this->mURL,
 			$this->mMenuText,
 			$this->mAlias,
@@ -1505,7 +1542,7 @@ WHERE content_id = ?';
 
 		$this->mModifiedDate = $this->mCreationDate = trim($db->DbTimeStamp(time()), "'");
 
-		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+		$query = 'INSERT INTO '.CMS_DB_PREFIX.'content (content_id, content_name, content_alias, type, owner_id, parent_id, template_id, item_order, hierarchy, id_hierarchy, active, default_content, show_in_menu, cachable, secure, page_url, menu_text, metadata, titleattribute, accesskey, tabindex, last_modified_by, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
 		$dbr = $db->Execute($query, [
 			$newid,
@@ -1518,10 +1555,11 @@ WHERE content_id = ?';
 			$this->mItemOrder,
 			$this->mHierarchy,
 			$this->mIdHierarchy,
-			($this->mActive          ? 1 : 0),
-			($this->mDefaultContent  ? 1 : 0),
-			($this->mShowInMenu      ? 1 : 0),
-			($this->mCachable        ? 1 : 0),
+			($this->mActive         ? 1 : 0),
+			($this->mDefaultContent ? 1 : 0),
+			($this->mShowInMenu     ? 1 : 0),
+			($this->mCachable       ? 1 : 0),
+			($this->mSecure         ? 1 : 0),
 			$this->mURL,
 			$this->mMenuText,
 			$this->mMetadata,
@@ -1774,6 +1812,14 @@ WHERE content_id = ?';
 		}
 		else {
 			$this->_handleRemovedBaseProperty('cachable','mCachable');
+		}
+
+		// secure
+		if (isset($params['secure'])) {
+			$this->mSecure = (int) $params['secure'];
+		}
+		else {
+			$this->_handleRemovedBaseProperty('secure','mSecure');
 		}
 
 		// url
@@ -2319,11 +2365,6 @@ WHERE content_id = ?';
 		$config = cms_config::get_instance();
 
 		switch( $one ) {
-		case 'cachable':
-			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_cachable',lang('help_title_content_cachable'));
-			return ['<label for="in_cachable">'.lang('cachable').':</label>'.$help,
-					'<input type="hidden" name="cachable" value="0" /><input id="in_cachable" class="pagecheckbox" type="checkbox" value="1" name="cachable"'.($this->mCachable?' checked="checked"':'').' />'];
-
 		case 'title':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_title',lang('help_title_content_title'));
 			return ['<label for="in_title">*'.lang('title').':</label>'.$help,
@@ -2370,6 +2411,16 @@ WHERE content_id = ?';
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_alias',lang('help_title_page_alias'));
 			return ['<label for="alias">'.lang('pagealias').':</label>'.$help,
 					'<input type="text" name="alias" id="alias" value="'.$this->mAlias.'" />'];
+
+		case 'cachable':
+			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_cachable',lang('help_title_content_cachable'));
+			return ['<label for="in_cachable">'.lang('cachable').':</label>'.$help,
+					'<input type="hidden" name="cachable" value="0" /><input id="in_cachable" class="pagecheckbox" type="checkbox" value="1" name="cachable"'.($this->mCachable?' checked="checked"':'').' />'];
+
+		case 'secure':
+			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_secure',lang('help_title_content_secure'));
+			return ['<label for="secure">'.lang('secure_page').':</label>'.$help,
+					'<input type="hidden" name="secure" value="0"/><input id="secure" class="pagecheckbox" type="checkbox" value="1" name="secure"'.($this->mSecure?' checked="checked"':'').' />'];
 
 		case 'page_url':
 			if( !$this->DefaultContent() ) {
