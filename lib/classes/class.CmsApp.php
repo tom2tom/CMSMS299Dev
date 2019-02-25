@@ -579,12 +579,10 @@ final class CmsApp
      * @internal
      * @ignore
      * @access private
-	 * @param $age_days Optional File-modification threshold (days), -1(==0) to whatever. Default 0 hence 'now'.
+	 * @param $age_days Optional File-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
      */
     final public function clear_cached_files($age_days = 0)
     {
-        $age_days = max(-1,(int) $age_days);
-        global $CMS_LOGIN_PAGE, $CMS_INSTALL_PAGE;
         if( !defined('TMP_CACHE_LOCATION') ) return;
         $age_days = max(0,(int)$age_days);
         HookManager::do_hook_simple('clear_cached_files', [ 'older_than' => $age_days ]);
@@ -639,8 +637,7 @@ final class CmsApp
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
-        if( is_array($this->_states) && in_array($state,$this->_states) ) return TRUE;
-        return FALSE;
+        return ( in_array($state,$this->_states) );
     }
 
     /**
@@ -648,12 +645,12 @@ final class CmsApp
      *
      * @since 1.11.2
      * @author Robert Campbell
-     * @return stringp[] Array of state strings, or null.
+     * @return mixed  Array of state strings, or null.
      */
     public function get_states()
     {
         $this->set_states();
-        if( isset($this->_states) ) return $this->_states;
+        return $this->_states ?? null;
     }
 
     /**
@@ -718,8 +715,7 @@ final class CmsApp
      */
     public function is_frontend_request()
     {
-        if( $this->get_states() ) return FALSE;
-        return TRUE;
+        return !$this->get_states();
     }
 
     /** A convenience method to test if the current request was over HTTPS.
