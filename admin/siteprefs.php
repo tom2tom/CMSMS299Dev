@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ContentBase;
 use CMSMS\contenttypes\Content;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
@@ -743,21 +744,21 @@ $smarty->assign('adminlog_options', $tmp);
 
 $all_attributes = null;
 
-$content_obj = new Content(); // should this be the default type?
-$list = $content_obj->GetProperties();
+$content_obj = new Content(); // i.e. the default content-type
+$list = $content_obj->GetPropertiesArray();
 if ($list) {
     $all_attributes = [];
     for ($i = 0, $n = count($list); $i < $n; ++$i) {
-        $obj = $list[$i];
-		$tmp = $obj->tab;
+        $arr = $list[$i];
+		$tmp = $arr['tab'];
         // exclude some items
-        if ($tmp == $content_obj::TAB_PERMS) { //aka ContentBase::TAB_PERMS
+        if ($tmp == ContentBase::TAB_PERMS) {
             continue;
         }
         if (!isset($all_attributes[$tmp])) {
             $all_attributes[$tmp] = ['label'=>lang($tmp),'value'=>[]];
         }
-        $all_attributes[$tmp]['value'][] = ['value'=>$obj->name,'label'=>lang($obj->name)];
+        $all_attributes[$tmp]['value'][] = ['value'=>$arr['name'],'label'=>lang($arr['name'])];
     }
 }
 $txt = FormUtils::create_option($all_attributes);
