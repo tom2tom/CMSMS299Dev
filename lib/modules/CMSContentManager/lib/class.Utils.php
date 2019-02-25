@@ -76,7 +76,7 @@ final class Utils
 			'metadata'=>'',
 			'parent_id'=>-2, // int
 			'searchable'=>true,
-			'secure'=>false,
+			'secure'=>false, // deprecated from 2.3
 			'showinmenu'=>true,
 			'template_id'=>$tpl_id,
 			];
