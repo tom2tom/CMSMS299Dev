@@ -1441,10 +1441,10 @@ abstract class CMSModule
      * behavior of this method is to look for a file named action.<action name>.php
      * in the modules directory, and if it exists include it.
      *
-     * @param string $name The Name of the action to perform
-     * @param mixed $id string|null Action identifier e.g. typically 'm1_' for admin
-     * @param array  $params The parameters targeted for this module
-     * @param mixed  $returnid The id of the page being displayed, numeric(int) for frontend, ''|null for admin
+     * @param mixed  $name string|falsy The name of the action to perform
+     * @param mixed  $id string|null Action identifier e.g. typically 'm1_' for admin
+     * @param array  $params The parameters specified for the action
+     * @param mixed  $returnid Optional id of the page being displayed, numeric(int) for frontend, ''|null for admin. Default null.
      * @return mixed output from 'controller' if relevant, or null
      */
     public function DoAction($name, $id, $params, $returnid = null)
@@ -1463,13 +1463,17 @@ abstract class CMSModule
             }
         }
 
-        if ($name !== '') {
-            //Just in case DoAction is called directly and it's not overridden.
+        if( $name !== '' ) {
+            //In case this method was called directly and is not overridden.
             //See: http://0x6a616d6573.blogspot.com/2010/02/cms-made-simple-166-file-inclusion.html
             $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
 
-            if( ($controller = $this->get_controller( $name, $id, $params, $returnid )) ) {
-                if( is_callable( $controller ) ) return $controller( $params );
+            if( ($controller = $this->get_controller($name, $id, $params, $returnid)) ) {
+                if( is_callable($controller ) ) {
+                    return $controller($params);
+                }
+                @trigger_error($name.' action-controller in module '.$this->GetName().' is invalid');
+                throw new CmsError404Exception('Invalid module action-controller');
             }
             else {
                 $filename = $this->GetModulePath() . DIRECTORY_SEPARATOR . 'action.'.$name.'.php';
@@ -1482,11 +1486,13 @@ abstract class CMSModule
                     include $filename;
                     return;
                 }
+                @trigger_error($name.' is not a recognized action of module '.$this->GetName());
+                throw new CmsError404Exception('Module action not found');
             }
         }
 
-        @trigger_error("$name is an unknown acton of module ".$this->GetName());
-        throw new CmsError404Exception('Module action not found');
+        @trigger_error('No name provided for '.$this->GetName()).' module action';
+        throw new CmsError404Exception('Module action not named');
     }
 
     /**
@@ -1494,16 +1500,16 @@ abstract class CMSModule
      *
      * @internal
      * @ignore
-     * @param string $name The action name
+     * @param mixed $name The action name, string|falsy (in which case an exception will be thrown)
      * @param mixed $id string|null The action identifier
-     * @param array  $params The action params
+     * @param array  $params The action parameters
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
      * @param mixed  $smartob  A CMSMS\internal\Smarty object, or null
      * @return mixed The action output, normally a string but maybe null.
      */
     public function DoActionBase($name, $id, $params, $returnid, &$smartob)
     {
-        $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
+        $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name); //simple sanitize
         $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
 
         if( is_numeric($returnid) ) {
@@ -1517,10 +1523,9 @@ abstract class CMSModule
                 unset($hints);
             }
 
-            // used to try to avert XSS flaws, this will
-            // clean as many parameters as possible according
-            // to a map specified with the SetParameterType metods.
-            $params = $this->_cleanParamHash( $this->GetName(),$params,$this->param_map );
+            // to try to avert XSS flaws, clean as many parameters as possible
+            // according to a map specified by SetParameterType methods.
+            $params = $this->_cleanParamHash($this->GetName(),$params,$this->param_map);
         }
 
         // handle the stupid input type='image' problem.
@@ -1532,7 +1537,7 @@ abstract class CMSModule
         }
 
         if (!isset($params['action'])) {
-            $params['action'] = $name;
+            $params['action'] = $name; // deprecated since 2.3 (the $name variable should be enough)
         }
 
         if( is_numeric($returnid) ) {
