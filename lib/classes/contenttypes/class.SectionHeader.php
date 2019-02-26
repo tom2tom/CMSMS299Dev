@@ -47,7 +47,7 @@ class SectionHeader extends ContentBase
 			['accesskey',''],
 			['cachable',true],
 			['page_url',''],
-			['secure',false],
+			['secure',false], //deprecated property since 2.3
 			['target',''],
 		]);
 

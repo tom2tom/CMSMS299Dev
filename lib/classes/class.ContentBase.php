@@ -928,7 +928,7 @@ abstract class ContentBase
 
 	/**
 	 * Return whether this content type is viewable (i.e: can be rendered).
-	 * some content types (like redirection links) are not viewable.
+	 * Some content types (like redirection links) are not viewable.
 	 *
 	 * @abstract
 	 * @return bool Default is True
@@ -947,7 +947,7 @@ abstract class ContentBase
 	 */
 	public function IsPermitted()
 	{
-	  return true;
+		return true;
 	}
 
 	/**
@@ -955,8 +955,8 @@ abstract class ContentBase
 	 *
 	 * Searchable pages can be indexed by the search module.
 	 *
-	 * This function by default uses a combination of other abstract methods to determine if the page is searchable
-	 * but extended content types can override this.
+	 * This function by default uses a combination of other abstract methods to
+	 * determine whether the page is searchable but extended content types can override this.
 	 *
 	 * @since 2.0
 	 * @return bool
@@ -970,8 +970,9 @@ abstract class ContentBase
 	/**
 	 * Return whether this content type may have content that can be used by a search module.
 	 *
-	 * Content types should override this method if they are special purpose content types and they cannot support searchable content
-	 * in any way.  Content types such as ErrorPage, Section Header, and Separator are examples.
+	 * Content types should override this method if they are special purpose
+	 * content types which cannot support searchable content in any way.
+	 * Example content types are ErrorPage, Section Header and Separator.
 	 *
 	 * @since 2.0
 	 * @abstract
@@ -1854,10 +1855,9 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * Return the internally generated URL for this content type.
-	 * This method may be overridden by content types.
+	 * Return the internally-generated URL for this content.
 	 *
-	 * @param bool $rewrite if true, and mod_rewrite is enabled, build a URL suitable for mod_rewrite.
+	 * @param bool $rewrite optional flag, default true. If true, and mod_rewrite is enabled, build an URL suitable for mod_rewrite.
 	 * @return string
 	 */
 	public function GetURL($rewrite = true)
@@ -1912,19 +1912,19 @@ WHERE content_id = ?';
 		if( $direction < 0 && $this->ItemOrder() > 1 ) {
 			// up
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order + 1), modified_date = '.$time.'
-				  WHERE item_order = ? AND parent_id = ?';
+ WHERE item_order = ? AND parent_id = ?';
 			$db->Execute($query,[$order-1,$parentid]);
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order - 1), modified_date = '.$time.'
-				  WHERE content_id = ?';
+ WHERE content_id = ?';
 			$db->Execute($query,[$this->Id()]);
 		}
 		else if( $direction > 0 ) {
 			// down.
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order - 1), modified_date = '.$time.'
-				  WHERE item_order = ? AND parent_id = ?';
+ WHERE item_order = ? AND parent_id = ?';
 			$db->Execute($query,[$order+1,$parentid]);
 			$query = 'UPDATE '.CMS_DB_PREFIX.'content SET item_order = (item_order + 1), modified_date = '.$time.'
-				  WHERE content_id = ?';
+ WHERE content_id = ?';
 			$db->Execute($query,[$this->Id()]);
 		}
 		global_cache::clear('content_tree');
@@ -1947,41 +1947,16 @@ WHERE content_id = ?';
 	 * Return a list of all of the properties that may be edited by the current user when editing this content item
 	 * in a content editor form.
 	 *
-	 * Other content types may override this method, but should call the base method at the start.
+	 * Content-type classes may override this method, but should call this base method.
 	 *
 	 * @abstract
 	 * @return array Array of assoc. arrays, each of those having members
-	 *  'name' (string), 'tab' (string), 'priority' (int), 'required' (bool), 'basic' (bool)
-	 *  plus any other(s) added by a subclass
+	 *  'name' (string), 'tab' (string), 'priority' (int), maybe 'required' (bool), maybe 'basic' (bool)
+	 *  Other(s) may be added by a subclass
 	 */
 	public function GetEditableProperties()
 	{
-		$uid = get_userid();
-		$ops = UserOperations::get_instance();
-		if( $ops->CheckPermission($uid,'Manage All Content')
-		 || $ops->CheckPermission($uid,'Modify Any Page')
-		 || $ops->CheckPermission($uid,'Add Pages') ) {
-			$all = true;
-		}
-		else {
-			$all = false;
-			$eds = $this->GetAdditionalEditors();
-			if( $eds ) {
-				if( in_array($uid,$eds) ) {
-	   				$all = true;
-				}
-				else {
-					foreach( $eds as $one ) {
-						if( $one < 0 ) {
-							if( $ops->UserInGroup($uid,- (int)$one) ) {
-								$all = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
+		$all = $this->IsEditable(true,false);
 		if( !$all ) {
 			$basic_properties = ['title','parent'];
 			$tmp_basic_properties = cms_siteprefs::get('basic_attributes');
@@ -1994,12 +1969,53 @@ WHERE content_id = ?';
 
 		$ret = [];
 		foreach( $this->_properties as &$one ) {
-			if( $all || $one['basic'] || in_array($one['name'],$basic_properties) ) {
+			if( $all || !empty($one['basic']) || in_array($one['name'],$basic_properties) ) {
 				$ret[] = $one;
 			}
 		}
 		unset($one);
 		return $ret;
+	}
+
+	/**
+	 * Check the current user's edit-authority
+	 * @since 2.3
+	 *
+	 * @param $main optional flag whether to check for main-property editability. Default true
+	 * @param $extra optional flag whether to check for membership of additional-editors. Default true
+	 * @return bool
+	 */
+	protected function IsEditable(bool $main = true, bool $extra = true) : bool
+	{
+		$uid = get_userid();
+		$ops = UserOperations::get_instance();
+		if( $main ) {
+			if( $ops->CheckPermission($uid,'Manage All Content')
+			 || $ops->CheckPermission($uid,'Modify Any Page')
+			 || $ops->CheckPermission($uid,'Add Pages') ) {
+				if( !$extra ) {
+					return true;
+				}
+			}
+		}
+		if( $extra ) {
+			$eds = $this->GetAdditionalEditors();
+			if( $eds ) {
+				if( in_array($uid,$eds) ) {
+	   				return true;
+				}
+				else {
+					foreach( $eds as $one ) {
+						if( $one < 0 ) {
+							if( $ops->UserInGroup($uid,- (int)$one) ) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -2080,7 +2096,7 @@ WHERE content_id = ?';
 	 * @param bool   $adding  Optional flag whether this is an add operation. Default false (i.e. edit).
 	 * @return array Each member an array:
      *  [0] = prompt field
-	 *  [1] = input field for the prompt
+	 *  [1] = input field for the prompt with its js if needed
 	 */
 	public function GetTabElements($key, $adding = false)
 	{
@@ -2154,10 +2170,11 @@ WHERE content_id = ?';
 	}
 
 	/**
-	 * Return all of the user ids and group ids in a format that is
-	 * suitable to be used in a select field.
+	 * Return all recorded user ids and group ids in a format that is suitable for
+	 * use in a select field.
+	 *
+	 * @return array each member like id => name
 	 * Note: group ids are expressed as negative integers in the keys.
-	 * @return array
 	 */
 	public static function GetAdditionalEditorOptions()
 	{
@@ -2388,7 +2405,8 @@ WHERE content_id = ?';
 		case 'active':
 			if( !$this->DefaultContent() ) {
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_active',lang('help_title_content_active'));
-				return ['<label for="id_active">'.lang('active').':</label>'.$help,'<input type="hidden" name="active" value="0" /><input class="pagecheckbox" type="checkbox" name="active" id="id_active" value="1"'.($this->mActive?' checked="checked"':'').' />'];
+				return ['<label for="id_active">'.lang('active').':</label>'.$help,
+						'<input type="hidden" name="active" value="0" /><input class="pagecheckbox" type="checkbox" name="active" id="id_active" value="1"'.($this->mActive?' checked="checked"':'').' />'];
 			}
 			break;
 

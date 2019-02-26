@@ -60,7 +60,9 @@ tmp/templates_c</p><br />
     exit;
 }
 
-ob_start();
+if ($CMS_JOB_TYPE == 0) {
+    ob_start();
+}
 
 // initial setup
 $_app = CmsApp::get_instance(); // internal use only, subject to change.
@@ -112,9 +114,24 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 
         if (!$contentobj->IsViewable()) {
             $url = $contentobj->GetURL();
-            if ($url != '' && $url != '#') redirect($url);
+            if ($url != '' && $url != '#') {
+                redirect($url);
+            }
             // not viewable, throw a 404.
             throw new CmsError404Exception('Cannot view an unviewable page');
+        }
+
+        // deprecated (since 2.3) secure-page processing
+        if ($contentobj->Secure() && !$_app->is_https_request()) {
+            // redirect to the secure page
+            $url = $contentobj->GetURL(); // CMS_ROOT_URL... i.e. absolute
+            if (startswith($url, 'http://')) {
+                str_replace('http://', 'https://', $url);
+            } elseif (startswith($url, 'ws://')) {
+                //TODO generally support the websocket protocol
+                str_replace('ws://', 'wss://', $url);
+            }
+            redirect($url);
         }
 
         if (!$contentobj->IsPermitted()) {
@@ -306,7 +323,9 @@ if (!headers_sent()) {
 }
 echo $html;
 
-ob_flush();
+if ($CMS_JOB_TYPE == 0) {
+    ob_flush();
+}
 
 if ($page == __CMS_PREVIEW_PAGE__ && isset($_SESSION['__cms_preview__'])) unset($_SESSION['__cms_preview__']);
 

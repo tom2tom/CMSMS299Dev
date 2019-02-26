@@ -52,7 +52,7 @@ class Separator extends ContentBase
 			['cachable',true],
 			['menutext',''],
 			['page_url',''],
-			['secure',false],
+			['secure',false], //deprecated property since 2.3
 			['tabindex',''],
 			['target',''],
 			['template','-1'],

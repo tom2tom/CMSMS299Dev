@@ -53,7 +53,7 @@ class PageLink extends ContentBase
 	{
 		parent::SetProperties([
 			['cachable',true],
-			['secure',false],
+			['secure',false], //deprecated property since 2.3
 		]);
 		$this->AddProperty('page',3,self::TAB_MAIN,true,true);
 		$this->AddProperty('params',4,self::TAB_OPTIONS,true,true);

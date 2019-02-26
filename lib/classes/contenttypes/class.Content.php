@@ -144,9 +144,9 @@ class Content extends ContentBase
 		$this->AddProperty('design_id',0,parent::TAB_OPTIONS);
 //		$this->AddProperty('template',0,parent::TAB_OPTIONS);
 		$this->AddProperty('template_rsrc',0,parent::TAB_OPTIONS);
-		$this->AddProperty('defaultcontent',10,parent::TAB_OPTIONS);
-		$this->AddProperty('wantschildren',10,parent::TAB_OPTIONS);
-		$this->AddProperty('searchable',20,parent::TAB_OPTIONS);
+		$this->AddProperty('defaultcontent',3,parent::TAB_OPTIONS); //co-locate with 'main' checkboxes
+		$this->AddProperty('wantschildren',3,parent::TAB_OPTIONS);
+		$this->AddProperty('searchable',3,parent::TAB_OPTIONS);
 		$this->AddProperty('disable_wysiwyg',60,parent::TAB_OPTIONS);
 
 		$this->AddProperty('pagemetadata',1,parent::TAB_LOGIC);
@@ -172,7 +172,7 @@ class Content extends ContentBase
 	public function WantsChildren()
 	{
 		$tmp = $this->GetPropertyValue('wantschildren');
-		// an empty/null response defaults to true
+		// an empty/null value is considered true
 		return $tmp !== '0';
 	}
 
@@ -261,33 +261,37 @@ class Content extends ContentBase
 	 * the appropriate information for all detected content blocks.
 	 *
 	 * @see ContentBase::GetEditableProperties()
-	 * @return array Array of stdClass objects, each having properties
-	 *  name (string), tab (string), priority (int), required (bool), basic (bool), extra (some smarty data, maybe)
+	 * @return array Array of assoc arrays, each having members
+	 *  'name' (string), 'tab' (string), 'priority' (int), maybe:'required' (bool), maybe:'basic' (bool), maybe:'extra' (array)
 	 */
 	public function GetEditableProperties()
 	{
 		$props = parent::GetEditableProperties();
 
-		// add in content blocks
-		$blocks = $this->get_content_blocks();
-		if( $blocks ) {
-			$priority = 100;
-			foreach( $blocks as &$block ) {
-				// todo, skip this block if permissions don't allow.
-				$prop = new stdClass();
-				$prop->name = $block['name'];
-				if( !isset($block->tab) || $block->tab == '' ) $block->tab = parent::TAB_MAIN;
-				$prop->tab = $block->tab;
-				if( isset($block->priority) ) {
-					$prop->priority = $block->priority;
+		if( $this->IsEditable(true, true) ) {
+			// add in content blocks
+			$blocks = $this->get_content_blocks();
+			if( $blocks ) {
+				$priority = 100; // == page_template_parser::$_priority
+				foreach( $blocks as &$block ) {
+					$prop = ['name' => $block['name']];
+					if( isset($block['tab']) && $block['tab'] !== '' ) {
+						$prop['tab'] = $block['tab'];
+					}
+					else {
+						$prop['tab'] = parent::TAB_MAIN;
+					}
+					if( isset($block['priority']) ) {
+						$prop['priority'] = $block['priority'];
+					}
+					else {
+						$prop['priority'] = $priority++;
+					}
+					$prop['extra'] = $block;
+					$props[] = $prop;
 				}
-				else {
-					$prop->priority = $priority++;
-				}
-				$prop->extra = $block;
-				$props[] = $prop;
+				unset($block);
 			}
-			unset($block);
 		}
 
 		return $props;
@@ -535,24 +539,24 @@ class Content extends ContentBase
 
 		case 'defaultcontent':
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_content_default',lang('help_title_content_default'));
-			return ['<label for="defaultcontent">'.lang('showinmenu').':</label>'.$help,
-				 '<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />'];
+			return ['<label for="defaultcontent">'.lang('defaultcontent').':</label>'.$help,
+					'<input type="hidden" name="defaultcontent" value="0" /><input class="pagecheckbox" type="checkbox" value="1" name="defaultcontent" id="defaultcontent"'.($this->mDefaultContent?' checked="checked"':'').' />'];
 
 		case 'searchable':
 			$searchable = $this->GetPropertyValue('searchable');
 			if( $searchable == '' ) $searchable = 1;
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_searchable',lang('help_title_page_searchable'));
 			return ['<label for="id_searchable">'.lang('searchable').':</label>'.$help,
-						 '<input type="hidden" name="searchable" value="0"/>
-						  <input id="id_searchable" type="checkbox" name="searchable" value="1" '.($searchable==1?'checked="checked"':'').' />'];
+					'<input type="hidden" name="searchable" value="0"/>
+					<input id="id_searchable" type="checkbox" name="searchable" value="1" '.($searchable==1?'checked="checked"':'').' />'];
 
 		case 'disable_wysiwyg':
 			$disable_wysiwyg = $this->GetPropertyValue('disable_wysiwyg');
 			if( $disable_wysiwyg == '' ) $disable_wysiwyg = 0;
 			$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_disablewysiwyg',lang('help_title_page_disablewysiwyg'));
 			return ['<label for="id_disablewysiwyg">'.lang('disable_wysiwyg').':</label>'.$help,
-						 '<input type="hidden" name="disable_wysiwyg" value="0" />
-						  <input id="id_disablewysiwyg" type="checkbox" name="disable_wysiwyg" value="1"  '.($disable_wysiwyg==1?'checked="checked"':'').' />'];
+					'<input type="hidden" name="disable_wysiwyg" value="0" />
+					<input id="id_disablewysiwyg" type="checkbox" name="disable_wysiwyg" value="1"'.($disable_wysiwyg==1?' checked="checked"':'').' />'];
 
 		case 'wantschildren':
 			$showadmin = ContentOperations::get_instance()->CheckPageOwnership(get_userid(), $this->Id());
@@ -560,8 +564,8 @@ class Content extends ContentBase
 				$wantschildren = $this->WantsChildren();
 				$help = '&nbsp;'.AdminUtils::get_help_tag('core','help_page_wantschildren',lang('help_title_page_wantschildren'));
 				return ['<label for="id_wantschildren">'.lang('wantschildren').':</label>'.$help,
-							 '<input type="hidden" name="wantschildren" value="0"/>
-							  <input id="id_wantschildren" type="checkbox" name="wantschildren" value="1" '.($wantschildren?'checked="checked"':'').' />'];
+						'<input type="hidden" name="wantschildren" value="0"/>
+						<input id="id_wantschildren" type="checkbox" name="wantschildren" value="1" '.($wantschildren?'checked="checked"':'').' />'];
 			}
 			break;
 
