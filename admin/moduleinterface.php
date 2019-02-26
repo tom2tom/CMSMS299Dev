@@ -29,48 +29,48 @@ $orig_memory = (function_exists('memory_get_usage') ? memory_get_usage() : 0);
 $starttime = microtime();
 
 if (isset($_REQUEST['cmsjobtype'])) {
-    // for simplicity and compatibility with the frontend
-    $type = (int)$_REQUEST['cmsjobtype'];
-    $CMS_JOB_TYPE = min(max($type, 0), 2);
+	// for simplicity and compatibility with the frontend
+	$type = (int)$_REQUEST['cmsjobtype'];
+	$CMS_JOB_TYPE = min(max($type, 0), 2);
 } elseif (
-    // undocumented, deprecated, output-suppressor
-    (isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
-    || isset($_REQUEST['suppressoutput'])) {
-    $CMS_JOB_TYPE = 1;
+	// undocumented, deprecated, output-suppressor
+	(isset($_REQUEST['showtemplate']) && $_REQUEST['showtemplate'] == 'false')
+	|| isset($_REQUEST['suppressoutput'])) {
+	$CMS_JOB_TYPE = 1;
 } else {
-    //normal output
-    $CMS_JOB_TYPE = 0;
+	//normal output
+	$CMS_JOB_TYPE = 0;
 }
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
 if ($CMS_JOB_TYPE < 2) {
-    check_login();
+	check_login();
 //  $userid = get_userid();
 } else {
-    //TODO security for async ? $params[CMS_SECURE_PARAM_NAME] == $_SESSION[CMS_USER_KEY] etc
+	//TODO security for async ? $params[CMS_SECURE_PARAM_NAME] == $_SESSION[CMS_USER_KEY] etc
 }
 
 if (isset($_REQUEST['mact'])) {
-    $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
-    $ary = explode(',', $mact, 4);
-    $module = $ary[0] ?? '';
-    $id = $ary[1] ?? 'm1_';
-    $action = $ary[2] ?? '';
+	$mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
+	$ary = explode(',', $mact, 4);
+	$module = $ary[0] ?? '';
+	$id = $ary[1] ?? 'm1_';
+	$action = $ary[2] ?? '';
 } else {
-    redirect('index.php');
+	redirect('index.php');
 }
 
 $modops = ModuleOperations::get_instance();
 $modinst = $modops->get_module_instance($module);
 if (!$modinst) {
-    trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
-    redirect('index.php');
+	trigger_error('Module '.$module.' not found. This could indicate that the module is awaiting upgrade, or that there are other problems');
+	redirect('index.php');
 }
 if ($modinst->SuppressAdminOutput($_REQUEST)) {
-    if ($CMS_JOB_TYPE == 0) {
-        $CMS_JOB_TYPE = 1; //too bad about irelevant includes
-    }
+	if ($CMS_JOB_TYPE == 0) {
+		$CMS_JOB_TYPE = 1; //too bad about irelevant includes
+	}
 }
 
 $params = $modops->GetModuleParameters($id);
