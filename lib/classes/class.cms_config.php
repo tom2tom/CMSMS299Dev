@@ -175,12 +175,31 @@ final class cms_config implements ArrayAccess
             foreach( $config as $key => &$value ) {
                 if( isset(self::KNOWN[$key]) ) {
                     switch( self::KNOWN[$key] ) {
+                    case self::TYPE_STRING:
+						switch( $key ) {
+						case 'assets_path':
+						case 'image_uploads_path':
+						case 'public_cache_location':
+						case 'root_path':
+						case 'tmp_cache_location':
+						case 'tmp_templates_c_location':
+						case 'uploads_path':
+							$value = rtrim($value,' /\\');
+							break;
+						case 'admin_url':
+						case 'assets_url':
+						case 'image_uploads_url':
+						case 'public_cache_url':
+						case 'root_url':
+						case 'uploads_url':
+							$value = rtrim($value,' /');
+							break;
+						}
+                        $value = trim($value);
+	                    break;
+
                     case self::TYPE_BOOL:
                         $value = cms_to_bool($value);
-                        break;
-
-                    case self::TYPE_STRING:
-                        $value = trim($value);
                         break;
 
                     case self::TYPE_INT:
@@ -340,6 +359,7 @@ final class cms_config implements ArrayAccess
                 }
                 if( ($pos = strpos($path,DIRECTORY_SEPARATOR.'index.php')) !== false ) $path = substr($path,0,$pos);
             }
+            //TODO generally support the websocket protocol
             if(!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off') { //c.f. CmsApp::get_instance()->is_https_request() but CmsApp N/A at this stage
                 $prefix = 'https://';
             }
@@ -352,6 +372,7 @@ final class cms_config implements ArrayAccess
 
         case 'pr_root_url':
             $str = $this->offsetGet('root_url');
+            //TODO generally support the websocket protocol
             if( startswith($str,'http:') ) {
                 $str = substr($str,5);
             }
