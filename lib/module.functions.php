@@ -128,8 +128,10 @@ function cms_module_plugin(array $params, $template)
     if (!empty($params['action'])) {
         // action was set in the module tag
         $action = $params['action'];
-        unset( $params['action']);
-    }
+//        unset($params['action']);  2.3 deprecation
+    } else {
+		$params['action'] = $action; //2.3 deprecation
+	}
 
     if (isset($_REQUEST['mact'])) {
         // we're handling an action.  check if it is for this call.
@@ -139,15 +141,14 @@ function cms_module_plugin(array $params, $template)
         $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
         $ary = explode(',', $mact, 4);
         $mactmodulename = $ary[0] ?? '';
-        if( 0 == strcasecmp($mactmodulename, $modulename) ) {
+        if( strcasecmp($mactmodulename, $modulename) == 0 ) {
             $checkid = $ary[1] ?? '';
-            $mactaction = $ary[2] ?? '';
             $inline = isset($ary[3]) && $ary[3] === 1;
-
-            if ($checkid == $id && $inline == true ) {
+            if ($inline && $checkid == $id) {
                 // the action is for this instance of the module and we're inline
-				// (i.e. the results are supposed to replace the tag, not {content}
-                $action = $mactaction;
+				// i.e. the results are supposed to replace the tag, not {content}
+				$action = $ary[2] ?? 'default';
+                $params['action'] = $action; //deprecated since 2.3
                 $params = array_merge($params, ModuleOperations::get_instance()->GetModuleParameters($id));
             }
         }

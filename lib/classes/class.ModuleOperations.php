@@ -1130,10 +1130,11 @@ VALUES (?,?,?,?,?)');
 		$params = [];
 
 		if( $id ) {
+			$len = strlen($id);
 			foreach ($_REQUEST as $key=>$value) {
-				if( startswith($key,$id) ) {
-					$key = substr($key,strlen($id));
-					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue;
+				if( strncmp($key,$id,$len) == 0 ) {
+					$key = substr($key,$len);
+//					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.3 deprecation
 					$params[$key] = $value;
 				}
 			}
