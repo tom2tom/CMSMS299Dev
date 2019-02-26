@@ -110,7 +110,7 @@ class cms_http_request
     private $timeout;
 
     /**
-     * Whether to use cURL or not
+     * Whether to try to use cURL (it must be available and suitable)
      *
      * @var boolean
      */
@@ -654,22 +654,22 @@ class cms_http_request
     }
 
     /**
-     * Test if the installed curl version is suitable
+     * Test if the installed curl version (if any) is suitable
      *
      * @return bool
      */
     public static function is_curl_suitable()
     {
-        static $_curlgood = -1;
+        static $_curlgood = null;
 
-        if ($_curlgood == -1) {
-            $_curlgood = 0;
-            if (in_array('curl', get_loaded_extensions())) {
+        if ($_curlgood === null) {
+            $_curlgood = false;
+            if (extension_loaded('curl')) {
                 if (function_exists('curl_version')) {
                     $tmp = curl_version();
                     if (isset($tmp['version'])) {
                         if (version_compare($tmp['version'], '7.19.7') >= 0) {
-                            $_curlgood = 1;
+                            $_curlgood = true;
                         }
                     }
                 }
@@ -711,9 +711,6 @@ class cms_http_request
         } elseif ($this->params) {
             $queryString = http_build_query($this->params, '', '&');
         }
-
-        // If cURL is not installed, we'll force fscokopen
-        $this->useCurl = $this->useCurl && self::is_curl_suitable();
 
         // GET method configuration
         if ($this->method == 'GET') {
@@ -762,8 +759,8 @@ class cms_http_request
             $cookieString = join('&', $tempString);
         }
 
-        // Do we need to use cURL
-        if ($this->useCurl) {
+        // Do we want to use cURL ? If not, we'll use fsockopen
+        if ($this->useCurl && self::is_curl_suitable()) {
             // Initialize PHP cURL handle
             $ch = curl_init();
 
