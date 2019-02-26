@@ -40,6 +40,7 @@ function redirect(string $to)
     if ($app->is_cli()) die("ERROR: no redirect on cli based scripts ---\n");
 
     $_SERVER['PHP_SELF'] = null;
+    //TODO generally support the websocket protocol
     $schema = ($app->is_https_request()) ? 'https' : 'http';
 
     $host = $_SERVER['HTTP_HOST'];

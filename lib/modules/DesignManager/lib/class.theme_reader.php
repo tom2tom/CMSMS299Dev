@@ -394,6 +394,7 @@ class theme_reader extends reader_base
       $css_rec['data'] = preg_replace_callback($regex, function($matches) use ($ob,$ref_map,$destdir)
           {
             $url = $matches[1];
+	        //TODO generally support the websocket protocol
             if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) ||
                 startswith($url,'[[root_url]]') ) {
               $bn = basename($url);
@@ -429,6 +430,7 @@ class theme_reader extends reader_base
     $fn2 = function($matches) use ($ob,&$type,$ref_map,$destdir)
     {
       $url = $matches[2];
+      //TODO generally support the websocket protocol
       if( !startswith($url,'http') || startswith($url,CMS_ROOT_URL) || startswith($url,'{root_url}') ) {
         $bn = basename($url);
         if( isset($ref_map[$bn]) ) {

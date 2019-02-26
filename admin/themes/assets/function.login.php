@@ -233,6 +233,7 @@ if (isset($_POST['cancel'])) {
 
             // and redirect.
             $homepage = cms_html_entity_decode($homepage);
+            //TODO generally support the websocket protocol
             if( !startswith($homepage,'http') && !startswith($homepage,'//') && startswith($homepage,'/') ) $homepage = CMS_ROOT_URL.$homepage;
             redirect($homepage);
         }

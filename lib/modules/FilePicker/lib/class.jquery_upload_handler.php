@@ -48,6 +48,7 @@ abstract class jquery_upload_handler
     }
 
     public function getFullUrl() {
+          //TODO generally support the websocket protocol
           return
                 (isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
                 (isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').

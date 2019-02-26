@@ -249,6 +249,7 @@ if (isset($_POST['cancel'])) {
 
             // and redirect.
             $url = cms_html_entity_decode($url); //???
+            //TODO generally support the websocket protocol
             if (!startswith($url, 'http') && !startswith($url, '//') && startswith($url, '/')) {
                 $url = CMS_ROOT_URL.$url;
             }

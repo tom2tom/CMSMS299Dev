@@ -340,6 +340,7 @@ abstract class CmsAdminThemeBase
             return preg_replace($from,$to,$url);
         }
         elseif( startswith($url,CMS_ROOT_URL) || !startswith($url,'http') ) {
+            //TODO generally support the websocket protocol
             $prefix = ( strpos($url,'?') !== FALSE ) ? '&amp;' : '?';
             return $url.$prefix.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
         }

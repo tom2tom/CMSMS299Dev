@@ -1096,6 +1096,7 @@ function testRemoteFile( bool $required, string $title, string $url = '',
 		return $test;
 	}
 	else {
+		//TODO generally support the websocket protocol
 		switch($url_info['scheme']) {
 		case 'https':
 			$scheme = 'ssl://';
