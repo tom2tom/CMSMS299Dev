@@ -95,7 +95,7 @@ class module_file_template_resource extends Smarty_Resource_Custom
         $module_name = trim($parts[0]);
         $filename = trim($parts[1]);
         $module = ModuleOperations::get_instance()->get_module_instance($module_name); //loaded modules only
-		$module_path = $module->GetModulePath();
+        $module_path = $module->GetModulePath();
         $files = [];
         $files[] = cms_join_path($module_path,'custom','templates',$filename);
         $files[] = cms_join_path(CMS_ASSETS_PATH,'module_custom',$module_name,'templates',$filename);

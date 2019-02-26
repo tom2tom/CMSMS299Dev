@@ -34,20 +34,20 @@ use function endswith;
  */
 class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
-	/**
+    /**
      * @param string  $name    template name
      * @param string  &$source template source
      * @param int     &$mtime  template modification timestamp
-	 */
-	protected function fetch($name,&$source,&$mtime)
-	{
+     */
+    protected function fetch($name,&$source,&$mtime)
+    {
         // clean up the input
         $name = trim($name);
         if( !$name ) {
-	        $mtime = 0;
+            $mtime = 0;
             $source = '';
-			return;
-		}
+            return;
+        }
 
         // if called via function.cms_stylesheet, then this stylesheet should be loaded.
         $obj = CmsLayoutStylesheet::load($name);
@@ -60,5 +60,5 @@ class layout_stylesheet_resource extends Smarty_Resource_Custom //fixed_smarty_c
 
         $mtime = $obj->get_modified();
         $source = $text;
-	}
+    }
 } // class

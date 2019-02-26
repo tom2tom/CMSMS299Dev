@@ -35,11 +35,11 @@ use const __CMS_PREVIEW_PAGE__;
  */
 class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_custom_resource
 {
-	/**
+    /**
      * @param string  $name    template name
      * @param string  &$source template source
      * @param int     &$mtime  template modification timestamp
-	 */
+     */
     protected function fetch($name,&$source,&$mtime)
     {
         $contentobj = CmsApp::get_instance()->get_content_object();
@@ -64,7 +64,7 @@ class content_template_resource extends Smarty_Resource_Custom //fixed_smarty_cu
         }
         else if (isset($contentobj) && $contentobj !== FALSE) {
             if( !$contentobj->Cachable() ) $mtime = time();
-			else $mtime = $contentobj->GetModifiedDate();
+            else $mtime = $contentobj->GetModifiedDate();
             $source = $contentobj->Show($name);
             $source = preg_replace('/\{\/?php\}/', '', $source);
             $source = trim($source);

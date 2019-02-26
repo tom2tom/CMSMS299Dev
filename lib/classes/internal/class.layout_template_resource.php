@@ -61,23 +61,23 @@ class layout_template_resource extends Smarty_Resource_Custom
 
 		$source = '';
 		$mtime = 0;
-        $parts = explode(';',$name,2);
-        $name = $parts[0];
+		$parts = explode(';',$name,2);
+		$name = $parts[0];
 
 		try {
 			$obj = CmsLayoutTemplate::load($name);
-		    if( $obj ) {
-		        $content = $obj->get_content();
+			if( $obj ) {
+				$content = $obj->get_content();
 				$mtime = $obj->get_modified();
-		    }
-            else return;
+			}
+			else return;
 		}
 		catch( Exception $e ) {
 			cms_error('Missing template: '.$name);
 			return;
 		}
 
-        $section = $parts[1] ?? null;
+		$section = $parts[1] ?? null;
 		switch( trim($section) ) {
 		case 'top':
 			$pos1 = stripos($content,'<head');
