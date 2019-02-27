@@ -2603,55 +2603,6 @@ abstract class CMSModule
         audit($itemid, $itemname, $detail);
     }
 
-    /* * USELESS no corresponding storage
-     * @internal
-     * @ignore
-     * @since 2.3
-     * @return mixed string | null
-     */
-/*    protected function GetErrors()
-    {
-        $key = $this->GetName().'::errors';
-        if( !isset( $_SESSION[$key] ) ) return;
-        //TODO
-        $data = $_SESSION[$key];
-        unset($_SESSION[$key]);
-        return $data;
-    }
-*/
-    /* * USELESS
-     * @internal
-     * @ignore
-     * @since 2.3
-     * @return mixed string | null
-     */
-/*    protected function GetInfo()
-    {
-        $key = $this->GetName().'::warning';
-        if( !isset( $_SESSION[$key] ) ) return;
-        //TODO
-        $data = $_SESSION[$key];
-        unset($_SESSION[$key]);
-        return $data;
-    }
-*/
-    /* * USELESS
-     * @internal
-     * @ignore
-     * @since 2.3
-     * @return mixed string | null
-     */
-/*    protected function GetMessage()
-    {
-        $key = $this->GetName().'::message';
-        if( !isset( $_SESSION[$key] ) ) return;
-        //TODO
-        $msg = $_SESSION[$key];
-        if( !$msg ) $msg = null;
-        unset($_SESSION[$key]);
-        return $msg;
-    }
-*/
     /**
      * Append $str to the accumulated 'information' strings to be displayed
      * in a theme-specific dialog during the next request e.g. after redirection
