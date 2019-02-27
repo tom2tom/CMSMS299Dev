@@ -151,7 +151,7 @@ if (version_compare(phpversion(), '5.5') >= 0) {
 }
 */
 $res = cms_siteprefs::get('use_smarty_compilecheck', false);
-$tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('prompt_smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
+$tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
 $res = cms_siteprefs::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
 
