@@ -175,12 +175,11 @@ DETAILS
   - New method: AdminUtils::get_module_icon()
   MORE TO COME HERE ...
   - CHANGE: Add more functions to the smarty security policy, and fix incorrect initialization of members.
-  - REMOVED: MenuManager is no longer distributed with CMSMS Core.  and it is no longer considered a system module.
-    (note: as of 2.3 it is still operational, just no longer distributed.)
+  - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
   - FEATURE: get-support URL (for display in admin pages) may be specified in 'developer mode'
-  - BREAKING: Remove secure option from content pages
+  - DEPRECATED: Content pages' secure option
   - CHANGE: $config['ssl_url'] is deprecated, and now just an alias for root url
   - CHANGE: $config['ssl_uploads_url'] is now just an alias for uploads_url and is deprecated
   - CHANGE: $config['ssl_image_uploads_url'] is now just an alias for image_uploads_url and is deprecated
@@ -196,8 +195,8 @@ DETAILS
   - UserTagOperations class is now merely a compatibility stub
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
-  - BREAKING: Removed many previously deprecated and seldom used methods from the module API
-  - BREAKING: Removed many deprecated and seldom used methods from the core API
+  - BREAKING: Removed some previously deprecated and seldom-used methods from the module API
+  - BREAKING: Removed some deprecated and seldom-used methods from the core API
   - CHANGE: Adds the new pr_root_url config entry.  to return the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
   - Improved error message if there was an error parsing the template (or a duplicate content block).
@@ -231,9 +230,9 @@ DETAILS
       0 - default, normal page creation & display
       1 - process request with smarty support, but don't display anything, intended for ajax-requests & the like (no page-headers sent)
       2 - process request with minimal overhead (e.g. no smarty reduces request by 50%), for requests which 'do' something rather than display e.g. webhooks, async jobs (no page-headers sent)
-  - BREAKING: No longer send id, returnid, action parameters in the action $params array.
+  - DEPRECATED: Members 'id','returnid','action' in the $params array defined for module actions (corresponding variables incl. $name are defined).
   - CHANGE: Only modules that are not marked as lazy load (the default) will be loaded automatically during each request.
-  - BREAKING: The long deprecated $module->smarty property is now removed.
+  - BREAKING: The long-deprecated $module->smarty property is removed.
   - BREAKING: Recent Smarty recognizes plugin functions named like smarty_xxxxx, but not smarty_cms_xxx. Cleanup existing plugins during upgrade.
   - Optimize the cms_route_manager for performance
   - FEATURE: Adds ModuleOperations::is_module_loaded() method
@@ -241,7 +240,7 @@ DETAILS
     The constructor is sent the module, the actionid and returnid parameters
     The invoke method is sent an array of parameters.
   - Adds CMSModule::get_controller() protected method to allow specifying custom controller mechanisms.
-  - REMOVE: content.functions.php (last remaining function moved to page.functions.php)
+  - REMOVE: file content.functions.php (last remaining function moved to page.functions.php)
   - Refactor the cms_module_plugin function for performance).
   - Refactor the route-lookup functionality for performance.
   - FEATURE: The database connection class now accepts a single scalar for an argument when only one parameter is required in functions like GetOne()
@@ -252,12 +251,12 @@ DETAILS
     2 - do content preprocessing BEFORE any template processing.  (default)
     This config entry controls only when in the rendering, the default content block will be processed.
   - FEATURE: Adds the {disable_template} plugin.  Only really useful when content_processing_mode == 2
-  - REMOVED: all options for smarty caching.  HTML caching should now be done with external tools like varnish or cloudfare
   - All module actions (except for showtemplate=false or other similar requests) create a new smarty template object
     and destroy it when the action is complete.   This allowes ProcessTemplateFromDatabase and ProcessTemplate and other related methods to be un-deprecated.
   - CHANGE: Convert admin passwords to use PHP's builtin password_hash and password_verify methods.
     - Still backwards compatible with older style for upgrades and resetting lost passwords.
     - Users upgrading from very old versions may have to reset passwords
+  - FEATURE: Adds site-setting for smarty (frontend) cache lifetime.
   - CHANGE: smarty template directories for admin requests include /assets/templates.
   - Allow svg files to be cached and deflated in the sample htaccess.txt file
   - CHANGE: Now call InitializeFrontend() and InitializeAdmin() from within ModuleOperations::_load_module() on success.  instead of the module constructor.
