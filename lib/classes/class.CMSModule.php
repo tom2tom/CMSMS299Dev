@@ -250,7 +250,7 @@ abstract class CMSModule
 
     /**
      * Callback function for module plugins.
-     * This method is used to call the module from within template co.
+     * This is used to run a module-action initiated in a page or template.
      *
      * This function cannot be overridden
      *
@@ -2843,7 +2843,8 @@ abstract class CMSModule
      */
     final public function AddEventHandler(string $realm, string $eventname, bool $removable = true)
     {
-        Events::AddEventHandler( $realm, $eventname, false, $this->GetName(), $removable );
+//       return Events::AddEventHandler( $realm, $eventname, false, $this->GetName(), $removable );
+		return Events::AddStaticHandler($realm, $eventname, [$this->GetName(),false], 'M', $removable);
     }
 
     /**
