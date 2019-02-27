@@ -62,7 +62,7 @@ function cms_module_places(string $modname = '') : array
  */
 function cms_module_path(string $modname, bool $folder = false) : string
 {
-	$p = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
+    $p = DIRECTORY_SEPARATOR.'modules'.DIRECTORY_SEPARATOR.$modname.DIRECTORY_SEPARATOR.$modname.'.module.php';
     // core-modules place
     $path = CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.$p;
     if (is_file($path)) {
@@ -93,12 +93,7 @@ function cms_module_path(string $modname, bool $folder = false) : string
  */
 function cms_module_plugin(array $params, $template)
 {
-    //if( get_class($smarty) == 'Smarty_Parser' ) return; // if we are in the parser, we don't process module calls.
-    $modulename = '';
-    $action = 'default';
-    $inline = false;
-    $returnid = CmsApp::get_instance()->get_content_id();
-    $id = null;
+//  if (get_class($smarty) == 'Smarty_Parser') return; // if we are in the parser, we don't process module calls.
     if (isset($params['module'])) {
         $modulename = $params['module'];
         unset($params['module']);
@@ -107,31 +102,33 @@ function cms_module_plugin(array $params, $template)
         return '<!-- ERROR: module name not specified -->';
     }
 
-    // get a unique id/prefix for this modle call.
-    if( isset( $params['idprefix']) ) {
-        $id = $params['idprefix'];
-        unset($params['idprefix']);
+    if (!empty($params['action'])) {
+        // action was set in the module tag
+        $action = $params['action'];
+//       unset($params['action']);  unfortunate 2.3 deprecation
     } else {
+        $params['action'] = $action = 'default'; //2.3 deprecation
+    }
+    // get a unique id/prefix for this module operation
+    if (!empty($params['idprefix'])) {
+        $id = $params['idprefix'];
+    } else {
+		//CHECKME what relevance here for the per-request cache? Same tag repeated ?
         $mid_cache = cms_utils::get_app_data('mid_cache');
-        if( empty($mid_cache) ) $mid_cache = [];
-        $tmp = serialize( $params );
-        for( $i = 0; $i < 10; $i++ ) {
-            $id = 'm'.substr(md5($tmp.$i),0,5);
-            if( !isset($mid_cache[$id]) ) {
+        if (!is_array($mid_cache)) $mid_cache = [];
+        while (1) {
+            $id = 'm'.chr(mt_rand(48,57));
+            for ($i=0; $i<4; ++$i) {
+                $id .= chr(mt_rand(97,122));
+            }
+            if (!isset($mid_cache[$id])) {
                 $mid_cache[$id] = $id;
                 break;
             }
         }
         cms_utils::set_app_data('mid_cache',$mid_cache);
     }
-
-    if (!empty($params['action'])) {
-        // action was set in the module tag
-        $action = $params['action'];
-//        unset($params['action']);  2.3 deprecation
-    } else {
-		$params['action'] = $action; //2.3 deprecation
-	}
+    $inline = false;
 
     if (isset($_REQUEST['mact'])) {
         // we're handling an action.  check if it is for this call.
@@ -141,36 +138,43 @@ function cms_module_plugin(array $params, $template)
         $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
         $ary = explode(',', $mact, 4);
         $mactmodulename = $ary[0] ?? '';
-        if( strcasecmp($mactmodulename, $modulename) == 0 ) {
+        if (strcasecmp($mactmodulename, $modulename) == 0) {
             $checkid = $ary[1] ?? '';
             $inline = isset($ary[3]) && $ary[3] === 1;
             if ($inline && $checkid == $id) {
                 // the action is for this instance of the module and we're inline
-				// i.e. the results are supposed to replace the tag, not {content}
-				$action = $ary[2] ?? 'default';
+                // i.e. the results are supposed to replace the tag, not {content}
+                $action = $ary[2] ?? 'default';
                 $params['action'] = $action; //deprecated since 2.3
                 $params = array_merge($params, ModuleOperations::get_instance()->GetModuleParameters($id));
             }
         }
     }
 
-    class_exists($modulename); // autoload? why
+//    class_exists($modulename); // autoload? why
     $module = cms_utils::get_module($modulename);
     global $CMS_ADMIN_PAGE, $CMS_LOGIN_PAGE, $CMS_INSTALL;
-    if( $module && ($module->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE))) ) {
+	// WHAAAT ? admin-request accepts ALL modules as plugins (lazy/bad module init?)
+    if ($module && ($module->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE)))) {
+		$params['id'] = $id;
+        $params['idprefix'] = $id;
+        $returnid = CmsApp::get_instance()->get_content_id();
+		$params['returnid'] = $returnid;
         @ob_start();
         $result = $module->DoActionBase($action, $id, $params, $returnid, $template);
-        if ($result !== FALSE) echo $result;
+        if ($result !== FALSE) {
+            echo $result;
+        }
         $modresult = @ob_get_contents();
         @ob_end_clean();
 
-        if( isset($params['assign']) ) {
+        if (isset($params['assign'])) {
             $template->assign(trim($params['assign']),$modresult);
             return '';
         }
         return $modresult;
     }
-    else {
+    elseif (!$module || !$module->isPluginModule()) {
         return "<!-- $modulename is not a plugin module -->\n";
     }
 }
