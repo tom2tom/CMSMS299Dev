@@ -527,14 +527,23 @@
 
   <fieldset>
     <legend>{lang('smarty_settings')}</legend>
-    <p class="pagetext">
-      {$t=lang('prompt_smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
-      {cms_help key2='settings_smartycompilecheck' title=$t}
-    </p>
-    <input type="hidden" name="use_smartycompilecheck" value="0" />
-    <p class="pageinput">
-      <input type="checkbox" name="use_smartycompilecheck" id="compilecheck" value="1"{if $use_smartycompilecheck} checked="checked"{/if} />
-    </p>
+    <div class="pageoverflow">
+      <p class="pagetext">
+        {$t=lang('smarty_cachelife')}<label for="cache_life">{$t}:</label>
+        {cms_help key2='settings_smartycachelife' title=$t}
+      </p>
+      <p class="pageinput">
+        <input type="text" id="cache_life" name="smarty_cachelife" value="{$smarty_cachelife}" size="6" maxlength="6" />
+      </p>
+      <p class="pagetext">
+        {$t=lang('smarty_compilecheck')}<label for="compilecheck">{$t}:</label>
+        {cms_help key2='settings_smartycompilecheck' title=$t}
+      </p>
+      <input type="hidden" name="use_smartycompilecheck" value="0" />
+      <p class="pageinput">
+        <input type="checkbox" name="use_smartycompilecheck" id="compilecheck" value="1"{if $use_smartycompilecheck} checked="checked"{/if} />
+      </p>
+    </div>
   </fieldset>
 
   {if $editors}
@@ -637,7 +646,7 @@
         <input id="help_url" type="text" name="help_url" size="50" value="{$help_url}" maxlength="80" />
       </p>
     </div>
-{/if}    
+{/if}
   </fieldset>
   <div class="pageinput pregap">
     <button type="submit" name="submit" class="adminsubmit icon apply">{lang('apply')}</button>

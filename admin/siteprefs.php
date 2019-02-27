@@ -300,6 +300,18 @@ if (isset($_POST['submit'])) {
             case 'advanced':
                 cms_siteprefs::set('loginmodule', trim($_POST['login_module']));
                 cms_siteprefs::set('lock_timeout', (int) $_POST['lock_timeout']);
+
+				$val = trim($_POST['smarty_cachelife']);
+				if ($val !== '') {
+					$val = (int)$val;
+				} else {
+					$val = -1;
+				}
+                cms_siteprefs::set('smarty_cachelife', $val);
+                $val = (!empty($_POST['use_smartycompilecheck'])) ? 1:0;
+                cms_siteprefs::set('use_smartycompilecheck', $val);
+                $gCms->clear_cached_files();
+
                 $val = trim($_POST['editortype']); //TODO process this
                 cms_siteprefs::set('syntax_editor', $val);
                 $val = trim($_POST['editortheme']);
@@ -327,11 +339,6 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('browser_cache_expiry', (int) $_POST['browser_cache_expiry']);
                 cms_siteprefs::set('auto_clear_cache_age', (int) $_POST['auto_clear_cache_age']);
                 cms_siteprefs::set('adminlog_lifetime', (int) $_POST['adminlog_lifetime']);
-                break;
-            case 'smarty':
-                $val = (!empty($_POST['use_smartycompilecheck'])) ? 1:0;
-                cms_siteprefs::set('use_smartycompilecheck', $val);
-                $gCms->clear_cached_files();
                 break;
         } //switch tab
 
@@ -387,6 +394,10 @@ $sitedownexcludes = cms_siteprefs::get('sitedownexcludes', '');
 $sitedownmessage = cms_siteprefs::get('sitedownmessage', '<p>Site is currently down.  Check back later.</p>');
 $sitelogo = cms_siteprefs::get('sitelogo', '');
 $sitename = cms_html_entity_decode(cms_siteprefs::get('sitename', 'CMSMS Website'));
+$smarty_cachelife = cms_siteprefs::get('smarty_cachelife', -1);
+if ($smarty_cachelife < 0) {
+    $smarty_cachelife = '';
+}
 $thumbnail_height = cms_siteprefs::get('thumbnail_height', 96);
 $thumbnail_width = cms_siteprefs::get('thumbnail_width', 96);
 $use_smartycompilecheck = cms_siteprefs::get('use_smartycompilecheck', 1);
@@ -717,6 +728,7 @@ $smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help'
   ->assign('sitedownexcludes', $sitedownexcludes)
   ->assign('sitelogo', $sitelogo)
   ->assign('sitename', $sitename)
+  ->assign('smarty_cachelife', $smarty_cachelife)
   ->assign('testresults', lang('untested'))
 
   ->assign('textarea_sitedownmessage', $obj = FormUtils::create_textarea([
