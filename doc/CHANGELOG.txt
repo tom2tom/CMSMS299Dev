@@ -195,7 +195,9 @@ DETAILS
   - UserTagOperations class is now merely a compatibility stub
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
-  - BREAKING: Removed some previously deprecated and seldom-used methods from the module API
+  - DEPRECATED: Some seldom-used methods in the module API
+  - BREAKING: Removed the long-deprecated SetParameters method from the module API
+  - BREAKING: Removed the long-deprecated $module->smarty property.
   - BREAKING: Removed some deprecated and seldom-used methods from the core API
   - CHANGE: Adds the new pr_root_url config entry.  to return the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
@@ -232,8 +234,7 @@ DETAILS
       2 - process request with minimal overhead (e.g. no smarty reduces request by 50%), for requests which 'do' something rather than display e.g. webhooks, async jobs (no page-headers sent)
   - DEPRECATED: Members 'id','returnid','action' in the $params array defined for module actions (corresponding variables incl. $name are defined).
   - CHANGE: Only modules that are not marked as lazy load (the default) will be loaded automatically during each request.
-  - BREAKING: The long-deprecated $module->smarty property is removed.
-  - BREAKING: Recent Smarty recognizes plugin functions named like smarty_xxxxx, but not smarty_cms_xxx. Cleanup existing plugins during upgrade.
+  - BREAKING: Smarty now recognizes plugin functions named like smarty_xxx, but not smarty_cms_xxx. Existing plugins are cleaned up during upgrade.
   - Optimize the cms_route_manager for performance
   - FEATURE: Adds ModuleOperations::is_module_loaded() method
   - FEATURE: Allow loading action controller classes with the name Module/Controllers/<action>_action
@@ -271,7 +272,7 @@ DETAILS
   - FEATURE: Adds {cms_queue_script} and {cms_render_scripts} plugins to allow combining javascripts and rendering them in fewer requests.
   - FEATURE: new Core::PreProcessScripts and Core::PostProcessScripts hooks
   - FEATURE: new Core::OnCacheClear hook when CMSMS clears the cache
-  - BREAKING: Upgrade the embedded jquery and jquery-ui scripts.
+  - BREAKING (possibly, pending 'migration'): Upgrade the system jquery and jquery-ui scripts.
     - some admin side javascript that relies on very old jquery may need changing
   - FEATURE: When using {cms_render_scripts} adds the ability to put inline javascript into <script type="text/cms_javascript">...</script>
     - javascript in these tags will be deferred loaded.
