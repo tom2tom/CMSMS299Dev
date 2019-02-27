@@ -1134,7 +1134,7 @@ VALUES (?,?,?,?,?)');
 			foreach ($_REQUEST as $key=>$value) {
 				if( strncmp($key,$id,$len) == 0 ) {
 					$key = substr($key,$len);
-//					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.3 deprecation
+//					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.3 deprecation, breaks lots of stuff
 					$params[$key] = $value;
 				}
 			}
