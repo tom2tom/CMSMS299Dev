@@ -533,7 +533,27 @@ abstract class CMSModule
     }
 
     /**
-     * Provide extra/custom content which is to be inserted verbatim
+     * Record the entire content of an admin page. This is intended for
+     * 'minimal' pages which can bypass normal page-content generation.
+     *
+     * @since 2.3
+     * @param string $text the complete [X]HTML
+     */
+    public function AdminPageContent(string $text)
+    {
+        global $CMS_ADMIN_PAGE, $CMS_JOB_TYPE;
+
+        if (!empty($CMS_JOB_TYPE)) {
+            echo $text;
+        } elseif (!empty($CMS_ADMIN_PAGE)) {
+            $text = trim($text);
+            $obj = cms_utils::get_theme_object();
+            if( $text && $obj ) $obj->set_content($text);
+        }
+    }
+
+    /**
+     * Record extra/custom content which is to be inserted verbatim
      *  between the <head> tags on an admin page.
      * This is a convenient way of providing action-specific css or javascript.
      *
