@@ -342,12 +342,13 @@ EOS;
      *
      * @param string $name plugin identifier (as used in tags)
      * @param array  $args Optional parameters provided by the caller
+	 * @return mixed Whatever is returned by the included file, or null
      */
     public function call_plugin(string $name, array $args = [])
     {
         $fp = $this->file_path( $name );
         if( is_file($fp) ) {
-            include_once $fp;
+            return include_once $fp;
         }
     }
 
