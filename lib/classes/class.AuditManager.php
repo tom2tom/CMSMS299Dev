@@ -22,7 +22,7 @@ namespace CMSMS {
 
     interface IAuditManager
     {
-        public function audit( string $subject, string $msg, $item_id = null );
+        public function audit( string $msg, string $subject, $item_id = null );
         public function notice( string $msg, string $subject = '' );
         public function warning( string $msg, string $subject = '' );
         public function error( string $msg, string $subject = '' );
@@ -30,13 +30,14 @@ namespace CMSMS {
 
     class HttpErrorLogAuditor implements IAuditManager
     {
-        public function audit( string $subject, string $msg, $itemid = null )
+        public function audit( string $msg, string $subject, $itemid = null )
         {
             $userid = get_userid(FALSE);
+            if( $userid < 1 ) $userid = '';
+			else $userid = " ($userid)";
             $username = get_username(FALSE);
-            if( $userid < 1 ) $userid = null;
 
-            $out = "CMSMS MSG: ADMINUSER=$username ($userid), ITEMID=$itemid: SUBJECT=$subject, MSG=$msg";
+			$out = "CMSMS MSG: ADMINUSER=$username{$userid}, ITEMID=$itemid: SUBJECT=$subject, MSG=$msg";
             $this->notice( $out );
         }
 
@@ -86,10 +87,10 @@ namespace CMSMS {
             return self::$_std_mgr;
         }
 
-        public static function audit( string $item, string $msg, $item_id )
+        public static function audit( string $msg, string $subject, $itemid )
         {
-            if( !empty($item_id) ) $item_id = (int) $item_id;
-            self::get_auditor()->audit( $item, $msg, $item_id );
+            if( !$itemid ) $itemid = '0';
+            self::get_auditor()->audit( $msg, $subject, $itemid );
         }
 
         public static function notice( string $msg, string $subject = '' )
@@ -115,9 +116,9 @@ namespace  {
 
     use CMSMS\AuditManager;
 
-    function audit( $item_id, string $item, string $msg )
+    function audit( $itemid, string $subject, string $msg = '' )
 	{
-        AuditManager::audit( $item, $msg, $item_id );
+        AuditManager::audit( $msg, $subject, $itemid );
     }
 
     function cms_notice( string $msg, string $subject = '' )
