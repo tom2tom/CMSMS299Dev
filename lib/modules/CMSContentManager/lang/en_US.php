@@ -689,7 +689,7 @@ $lang['toggle'] = 'Toggle Selected';
 #V
 
 #W
-$lang['wantschildren'] = 'Wants Children';
+$lang['wantschildren'] = 'Accepts Children';
 $lang['warn_destructive'] = 'This operation can have undesired side effects, please exercise extreme caution';
 $lang['warn_notemplates_for_design'] = 'It appears that there is no usable page template for the selected design';
 
