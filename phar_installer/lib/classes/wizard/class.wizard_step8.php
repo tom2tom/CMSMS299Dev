@@ -147,7 +147,8 @@ class wizard_step8 extends wizard_step
              'site_supporturl' => $siteinfo['supporturl'],
 //           'sitemask' => '', // salt for old (md5-hashed) admin-user passwords - useless in new installs
              'sitename' => $siteinfo['sitename'],
-             'use_smarty_compilecheck' => 0,
+             'smarty_cachelife' => -1, // smarty default
+             'use_smarty_compilecheck' => 1,
             ] as $name=>$val) {
                 cms_siteprefs::set($name, $val);
             }
@@ -260,7 +261,7 @@ class wizard_step8 extends wizard_step
 
         if( 0 ) {
             foreach ([
-             'site_support' => $siteinfo['supporturl'], //TODO only if verbose
+             'site_support' => $siteinfo['supporturl'], //TODO only if verbose etc
             ] as $name=>$val) {
                 cms_siteprefs::set($name, $val);
             }
