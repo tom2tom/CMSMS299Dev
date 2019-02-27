@@ -23,6 +23,7 @@ use Smarty_Security;
 
 /**
  * Generic smarty security policy.
+ * @final
  *
  * @since		1.11
  * @package		CMS
@@ -55,7 +56,7 @@ final class smarty_security_policy extends Smarty_Security
                 'asort',
                 'cms_html_entity_decode',
                 'count',
-+                'date',
+                'date',
                 'debug_display',
                 'empty',
                 'endswith',
@@ -86,11 +87,11 @@ final class smarty_security_policy extends Smarty_Security
                 'str_replace',
                 'strcasecmp',
                 'strcmp',
-+                'strftime',
+                'strftime',
                 'strlen',
                 'strpos',
                 'strtolower',
-+                'strtotime',
+                'strtotime',
                 'strtoupper',
                 'substr',
                 'time',
