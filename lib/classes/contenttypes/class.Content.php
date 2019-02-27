@@ -136,7 +136,7 @@ class Content extends ContentBase
 	/**
 	 * Set up base property attributes for this content type
 	 *
-	 * This property type adds these properties: design_id, template, searchable, disable_wysiwyg, pagemetadata, pagedata
+	 * This property type adds properties: design_id, template_rsrc, defaultcontent, wantschildren, searchable, disable_wysiwyg, pagemetadata, pagedata
 	 */
 	public function SetProperties()
 	{
@@ -146,7 +146,7 @@ class Content extends ContentBase
 		$this->AddProperty('template_rsrc',0,parent::TAB_OPTIONS);
 		$this->AddProperty('defaultcontent',3,parent::TAB_OPTIONS); //co-locate with 'main' checkboxes
 		$this->AddProperty('wantschildren',3,parent::TAB_OPTIONS);
-		$this->AddProperty('searchable',3,parent::TAB_OPTIONS);
+		$this->AddProperty('searchable',4,parent::TAB_OPTIONS);
 		$this->AddProperty('disable_wysiwyg',60,parent::TAB_OPTIONS);
 
 		$this->AddProperty('pagemetadata',1,parent::TAB_LOGIC);
