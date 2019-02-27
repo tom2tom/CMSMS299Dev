@@ -61,11 +61,11 @@ if ($access) {
 		$event = trim(cleanValue($_POST['event']));
 		$handler = trim(cleanValue($_POST['handler']));
 		if ($sender && $event && $handler) {
-			if (strncmp($handler,'m:',2) == 0) {
+			if (strncmp($handler, 'm:', 2) == 0) {
 				$handler = substr($handler, 2);
-				Events::AddEventHandler($sender, $event, false, $handler);
+				Events::AddStaticHandler($sender, $event, [$handler, ''], 'M');
 			} else {
-				Events::AddEventHandler($sender, $event, $handler);
+				Events::AddStaticHandler($sender, $event, ['', $handler], 'U');
 			}
 		}
 	} else {
