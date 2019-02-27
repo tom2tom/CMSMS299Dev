@@ -158,6 +158,7 @@ abstract class CmsAdminThemeBase
     private $_foottext;
 
     /**
+     * Cache for the entire content of a page
      * @ignore
      * @since 2.3
      */
@@ -1966,6 +1967,8 @@ abstract class CmsAdminThemeBase
 
     /**
      * Record the content of a 'minimal' page.
+     * CHECKME can the subsequent processing of such content be a security risk?
+	 * Hence maybe some sanitize here?
      *
      * @since 2.3
      * @param string $content the entire displayable content
