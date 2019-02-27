@@ -75,7 +75,7 @@ abstract class CmsAdminThemeBase
     private $_notifications;
 
     /**
-     * Feedback-message-string accumulators
+     * Notice-string accumulators
      * @ignore
      */
     protected $_errors = [];
