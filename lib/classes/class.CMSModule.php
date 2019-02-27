@@ -1441,13 +1441,13 @@ abstract class CMSModule
      * behavior of this method is to look for a file named action.<action name>.php
      * in the modules directory, and if it exists include it.
      *
-     * @param mixed  $name string|falsy The name of the action to perform
+     * @param mixed  $action string|falsy The name of the action to perform
      * @param mixed  $id string|null Action identifier e.g. typically 'm1_' for admin
      * @param array  $params The parameters specified for the action
      * @param mixed  $returnid Optional id of the page being displayed, numeric(int) for frontend, ''|null for admin. Default null.
      * @return mixed output from 'controller' if relevant, or null
      */
-    public function DoAction($name, $id, $params, $returnid = null)
+    public function DoAction($action, $id, $params, $returnid = null)
     {
         if( !is_numeric($returnid) ) {
             $key = $this->GetName().'::activetab';
@@ -1463,21 +1463,22 @@ abstract class CMSModule
             }
         }
 
-        if( $name !== '' ) {
+        if( $action ) {
             //In case this method was called directly and is not overridden.
             //See: http://0x6a616d6573.blogspot.com/2010/02/cms-made-simple-166-file-inclusion.html
-            $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name);
+            $action = preg_replace('/[^A-Za-z0-9\-_+]/', '', $action);
 
             if( ($controller = $this->get_controller($name, $id, $params, $returnid)) ) {
                 if( is_callable($controller ) ) {
                     return $controller($params);
                 }
-                @trigger_error($name.' action-controller in module '.$this->GetName().' is invalid');
+                @trigger_error($action.' action-controller in module '.$this->GetName().' is invalid');
                 throw new CmsError404Exception('Invalid module action-controller');
             }
             else {
-                $filename = $this->GetModulePath() . DIRECTORY_SEPARATOR . 'action.'.$name.'.php';
+                $filename = $this->GetModulePath() . DIRECTORY_SEPARATOR . 'action.'.$action.'.php';
                 if( is_file($filename) ) {
+                    $name = $action; // old var, might be expected by an action
                     // these are included in scope in the included file for convenience.
                     $gCms = CmsApp::get_instance();
                     $db = $gCms->GetDb();
@@ -1486,7 +1487,7 @@ abstract class CMSModule
                     include $filename;
                     return;
                 }
-                @trigger_error($name.' is not a recognized action of module '.$this->GetName());
+                @trigger_error($action.' is not a recognized action of module '.$this->GetName());
                 throw new CmsError404Exception('Module action not found');
             }
         }
@@ -1500,16 +1501,16 @@ abstract class CMSModule
      *
      * @internal
      * @ignore
-     * @param mixed $name The action name, string|falsy (in which case an exception will be thrown)
+     * @param mixed $action The action name, string|falsy (in which case an exception will be thrown)
      * @param mixed $id string|null The action identifier
      * @param array  $params The action parameters
      * @param mixed  $returnid The current page id. numeric(int) for frontend, null|'' for admin requests.
      * @param mixed  $smartob  A CMSMS\internal\Smarty object, or null
      * @return mixed The action output, normally a string but maybe null.
      */
-    public function DoActionBase($name, $id, $params, $returnid, &$smartob)
+    public function DoActionBase($action, $id, $params, $returnid, &$smartob)
     {
-        $name = preg_replace('/[^A-Za-z0-9\-_+]/', '', $name); //simple sanitize
+        $action = preg_replace('/[^A-Za-z0-9\-_+]/', '', $action); //simple sanitize
         $id = filter_var($id, FILTER_SANITIZE_STRING); //only alphanum
 
         if( is_numeric($returnid) ) {
@@ -1537,7 +1538,7 @@ abstract class CMSModule
         }
 
         if (!isset($params['action'])) {
-            $params['action'] = $name; // deprecated since 2.3 (the $name variable should be enough)
+            $params['action'] = $action; // deprecated since 2.3 (the supplied $action variable should be enough)
         }
 
         if( is_numeric($returnid) ) {
@@ -1553,7 +1554,7 @@ abstract class CMSModule
         if( ($cando = $gCms->template_processing_allowed()) ) {
             $tpl = $gCms->GetSmarty()->createTemplate('string:EMPTY MODULE ACTION TEMPLATE', null, null, $smartob);
             $tpl->assign([
-            '_action' => $name,
+            '_action' => $action,
             '_module' => $this->GetName(),
             'actionid' => $id,
             'actionparams' => $params,
@@ -1563,7 +1564,7 @@ abstract class CMSModule
 
             $this->_action_tpl = $tpl; // 'parent' smarty template, which is the global smarty object if this is called directly from a template
         }
-        $output = $this->DoAction($name, $id, $params, $returnid);
+        $output = $this->DoAction($action, $id, $params, $returnid);
         if( $cando ) {
             $this->_action_tpl = null;
         }
