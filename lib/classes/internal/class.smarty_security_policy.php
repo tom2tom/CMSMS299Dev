@@ -31,42 +31,79 @@ use Smarty_Security;
  */
 final class smarty_security_policy extends Smarty_Security
 {
-    public $php_handling = Smarty::PHP_REMOVE;
-
-    public $secure_dir = null; // this is the magic that stops stuff from happening outside of the specified directories.
-    public $php_modifiers = [];
-    //public $php_modifiers = array('escape','count','preg_replace','lang', 'ucwords','print_r','var_dump','trim','htmlspecialchars','explode','htmlspecialchars_decode','strpos','strrpos','startswith','endswith','substr);
-    public $streams = null;
-    public $allow_constants = false;
-    //public $allow_super_globals = false;
-    public $allow_php_tag = false;
-
     public function __construct($smarty)
     {
         parent::__construct($smarty);
-        $this->allow_php_tag = false;
+        $this->php_handling = Smarty::PHP_REMOVE; // remove literal php (like <? php stuff ? >) from templates
+        $this->php_modifiers = []; // allow all
+        $this->secure_dir = null; // block stuff happening outside the specified directories
+        $this->streams = null; // no streams allowed
+//        $this->allow_super_globals = false;
         $gCms = CmsApp::get_instance();
-        if($gCms->is_frontend_request() ) {
-            $this->static_classes = []; // allow all static classes
-            $this->php_functions = []; // allow any php functions
-            $config = $gCms->GetConfig();
-            if( !$config['permissive_smarty'] ) {
+        if( $gCms->is_frontend_request() ) {
+            $this->allow_constants = false;
+            if( !$gCms->GetConfig()['permissive_smarty'] ) {
                 $this->static_classes = null;
-                // this should allow most stuff that does modification to data or formatting.
-                // i.e: string searches, array searches, string comparison, sorting, etc.
+                // allow most methods that do data interpretation, modification or formatting
+                // e.g. string searches, array searches, string comparison, sorting, etc.
                 $this->php_functions = [
-'isset','implode','explode','empty','count','sizeof','in_array', 'is_array','time','lang',
-'str_replace','is_string','strpos','substr','strtolower','strtoupper','strcmp','strcasecmp','strlen','array_search','sort','ksort','asort',
-'nl2br','file_exists','is_object','is_file','is_dir','print_r','var_dump','array_reverse','array_flip','shuffle','array_rand',
-'debug_display','startswith','endswith','urlencode','json_encode','json_decode','mt_jsbool',
-'htmlspecialchars','htmlspecialchars_decode','htmlentities','html_entity_decode','cms_html_entity_decode'
-];
+                'is_array',
+                'array_flip',
+                'array_rand',
+                'array_reverse',
+                'array_search',
+                'asort',
+                'cms_html_entity_decode',
+                'count',
++                'date',
+                'debug_display',
+                'empty',
+                'endswith',
+                'explode',
+                'file_exists',
+                'html_entity_decode',
+                'htmlentities',
+                'htmlspecialchars_decode',
+                'htmlspecialchars',
+                'implode',
+                'in_array',
+                'is_dir',
+                'is_file',
+                'is_object',
+                'is_string',
+                'isset',
+                'json_decode',
+                'json_encode',
+                'ksort',
+                'lang',
+                'mt_jsbool', //Microtiny module method
+                'nl2br',
+                'print_r',
+                'shuffle',
+                'sizeof',
+                'sort',
+                'startswith',
+                'str_replace',
+                'strcasecmp',
+                'strcmp',
++                'strftime',
+                'strlen',
+                'strpos',
+                'strtolower',
++                'strtotime',
+                'strtoupper',
+                'substr',
+                'time',
+                'urlencode',
+                'var_dump',
+                ];
+            }
+            else {
+                $this->php_functions = []; // allow any php method
             }
         }
         else {
             $this->php_functions = [];
-            $this->static_classes = [];
-            $this->allow_constants = true;
         }
     }
 } // class
