@@ -83,7 +83,7 @@ function cms_module_path(string $modname, bool $folder = false) : string
 
 /**
  * Call a module as a smarty plugin
- * This method is used by the {cms_module} plugin, and internally when {ModuleName} is called
+ * This method is used by the {cms_module} plugin and to process {ModuleName} tags
  *
  * @internal
  * @access private
@@ -120,7 +120,7 @@ function cms_module_plugin(array $params, $template)
             $id = 'm    ';
             for ($i=1; $i<5; ++$i) {
                 $n = mt_rand(48, 122); // 0 .. z
-                if (!($n > 57 && $n < 66) || ($n > 90 && $n < 97) ) {
+                if (!(($n > 57 && $n < 66) || ($n > 90 && $n < 97))) {
                     $id[$i] = chr($n); // ASCII alphanum
                 } else {
                     --$i; // try again
