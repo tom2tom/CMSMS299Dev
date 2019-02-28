@@ -502,7 +502,7 @@ final class CmsJobManager extends CMSModule implements JobManagerInterface
             error_log('async job url: '.$joburl."\n", 3, ASYNCLOG);
         }
 
-        list ($host, $path, $transport, $port) = $this->get_url_params($joburl);
+        list($host, $path, $transport, $port) = $this->get_url_params($joburl);
         if (!$host) {
             if (defined('ASYNCLOG')) {
                 error_log('bad async-job url: '.$joburl."\n", 3, ASYNCLOG);
