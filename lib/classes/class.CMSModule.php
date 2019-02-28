@@ -311,7 +311,7 @@ abstract class CMSModule
             default:
             throw new CmsException('Invalid data passed to RegisterSmartyPlugin');
         }
-        // validate $callable (a bit!) 
+        // validate $callable (a bit!)
         $modname = $this->GetName();
         if (is_callable($callback)) {
             $callable = $callback;
@@ -1923,28 +1923,6 @@ abstract class CMSModule
      */
 
     /**
-     * function CreateFrontendLink
-     * Returns xhtml representing an href link  This is basically a wrapper
-     * to make sure that id's are placed in names and also that it's syntax-compliant.
-     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_action_link() with adjusted params
-     *
-     * @param mixed $id string|null The module action id
-     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
-     * @param string $action The action that this form should do when the link is clicked
-     * Optional parameters:
-     * @param string $contents The displayed clickable text or markup. Defaults to 'Click here'
-     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
-     * @param string $warn_message Text to display in a javascript warning box.  If they click no, the link is not followed by the browser.
-     * @param bool   $onlyhref A flag to determine if only the href section should be returned
-     * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
-     * @param string $addtext Any additional text that should be added into the tag when rendered
-     * @param bool   $targetcontentonly A flag indicating that the output of this link should target the content area of the destination page.
-     * @param string $prettyurl A pretty url segment (relative to the root of the site) to use when generating the link.
-     *
-     * @return string
-     */
-
-    /**
      * function CreateLink
      * Returns xhtml representing an href link to a module action.  This is
      * basically a wrapper to make sure that id's are placed in names
@@ -1963,6 +1941,28 @@ abstract class CMSModule
      * @param string $addtext Any additional text that should be added into the tag when rendered
      * @param bool   $targetcontentonly A flag to determine if the link should target the default content are of the destination page.
      * @param string $prettyurl A pretty url segment (related to the root of the website) for a pretty url.
+     *
+     * @return string
+     */
+
+    /**
+     * function CreateFrontendLink
+     * Returns xhtml representing an href link  This is basically a wrapper
+     * to make sure that id's are placed in names and also that it's syntax-compliant.
+     * @deprecated since 2.3. Instead use CMSMS\FormUtils::create_action_link() with adjusted params
+     *
+     * @param mixed $id string|null The module action id
+     * @param mixed  $returnid The page id (int|''|null) to return to when the module is finished its task
+     * @param string $action The action that this form should do when the link is clicked
+     * Optional parameters:
+     * @param string $contents The displayed clickable text or markup. Defaults to 'Click here'
+     * @param string $params An array of params that should be included in the URL of the link.  These should be in a $key=>$value format.
+     * @param string $warn_message Text to display in a javascript warning box.  If they click no, the link is not followed by the browser.
+     * @param bool   $onlyhref A flag to determine if only the href section should be returned
+     * @param bool   $inline A flag to determine if actions should be handled inline (no moduleinterface.php -- only works for frontend)
+     * @param string $addtext Any additional text that should be added into the tag when rendered
+     * @param bool   $targetcontentonly A flag indicating that the output of this link should target the content area of the destination page.
+     * @param string $prettyurl A pretty url segment (relative to the root of the site) to use when generating the link.
      *
      * @return string
      */
@@ -2012,23 +2012,29 @@ abstract class CMSModule
      * @param mixed $id string|null The module action id (cntnt01 indicates that the default content block of the destination page should be used).
      * @param string $action The module action name
      * Optional parameters:
-     * @param mixed  $returnid The page id (int|''|null) to return to. Default null (i.e. admin)
-     * @param array  $params Parameters for the URL.  These will be ignored if the prettyurl argument is specified.
-     * @param bool   $inline Whether the target of the output link is the same tag on the same page.
-     * @param bool   $targetcontentonly Whether the target of the output link targets the content area of the destination page.
-     * @param string $prettyurl An url segment related to the root of the page, for pretty url creation. Used verbatim.
-     * @param int    $mode since 2.3 Indicates how to format the url
-     *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
-     *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
-     *  2 = page-displayable: all html_entitized, probably not usable as-is
+     * @param mixed  $returnid Optional page id (int|''|null) to return to. Default null (i.e. admin)
+     * @param array  $params Optional parameters for the URL. Default []. These
+     * will be ignored if the prettyurl argument is specified.
+     * @param bool   $inline Option flag whether the target of the output link
+     *  is the same tag on the same page. Default false.
+     * @param bool   $targetcontentonly Optional flag whether the target of the
+     * generated link targets the content area of the destination page. Default false.
+     * @param string $prettyurl Optional URL segment related to the root of the page,
+     * for pretty url creation. Used verbatim. May be ':NOPRETTY:' to omit this part. Default ''.
+     * @param int    $format since 2.3 URL-format indicator
+     *  0 = default: (back-compatible) rawurlencoded parameter keys and values
+     *    other than the value for key 'mact', '&amp;' for parameter separators
+     *  1 = proper: as for 0, but also encode the 'mact' value
+     *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
+     *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
     public function create_url($id, $action, $returnid = null, $params = [],
-                       $inline = false, $targetcontentonly = false, $prettyurl = '', $mode = 0)
+         $inline = false, $targetcontentonly = false, $prettyurl = '', $format = 0)
     {
         $this->_loadUrlMethods();
         return cms_module_create_actionurl($this, $id, $action, $returnid,
-            $params, $inline, $targetcontentonly, $prettyurl, $mode);
+            $params, $inline, $targetcontentonly, $prettyurl, $format);
     }
 
     /**
@@ -2041,16 +2047,16 @@ abstract class CMSModule
      * Optional parameters:
      * @param mixed  $returnid Return-page identifier (int|''|null). Default null (i.e. admin)
      * @param array  $params Parameters for the action. Default []
-     * @param int    $mode URL-format indentifier
-     *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+     * @param int    $format URL-format indicator
+     *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
      *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
-     *  2 = page-displayable: all html_entitized, probably not usable as-is
+     *  2 = displayable: no encoding, all html_entitized, probably not usable as-is
      * @return string
      */
-    public function create_pageurl($id, $returnid = null, array $params = [], int $mode = 0)
+    public function create_pageurl($id, $returnid = null, array $params = [], int $format = 0) : string
     {
         $this->_loadUrlMethods();
-        return cms_module_create_pageurl($id, $returnid, $params, $mode);
+        return cms_module_create_pageurl($id, $returnid, $params, $format);
     }
 
     /**
@@ -2630,7 +2636,7 @@ abstract class CMSModule
      *
      * @since 2.3
      * @author Robert Campbell
-     * @param mixed string|string[] $str The message.  Accepts either an array of messages or a single string.
+     * @param mixed $str string|string[] Information message(s).
      */
     public function SetInfo($str)
     {
@@ -2640,12 +2646,13 @@ abstract class CMSModule
 
     /**
      * Append $str to the accumulated 'success' strings to be displayed
-     * in a theme-specific dialog during the next request e.g. after redirection
+     * in a theme-specific dialog during the next request e.g. after
+     * redirection
      * For admin-side use only
      *
      * @since 1.11
      * @author Robert Campbell
-     * @param string|string[] $str The message.  Accepts either an array of messages or a single string.
+     * @param mixed $str string|string[] Success message(s)
      */
     public function SetMessage($str)
     {
@@ -2654,13 +2661,14 @@ abstract class CMSModule
     }
 
     /**
-     * Append $str to the accumulated 'warning' strings to be displayed
-     * in a theme-specific dialog during the next request e.g. after redirection
+     * Append $str to the accumulated warning strings to be displayed in
+     * a theme-specific dialog during the next request e.g. after
+     * redirection
      * For admin-side use only
      *
      * @since 2.3
      * @author Robert Campbell
-     * @param mixed string|string[] $str The message.  Accepts either an array of messages or a single string.
+     * @param mixed $str string|string[] Warning message(s)
      */
     public function SetWarning($str)
     {
@@ -2669,14 +2677,14 @@ abstract class CMSModule
     }
 
     /**
-     * Append $str to the accumulated error-strings to be displayed
-     * in a theme-specific error dialog during the next request
-     * e.g. after redirection
+     * Append $str to the accumulated error strings to be displayed in
+     * a theme-specific error dialog during the next request e.g. after
+     * redirection
      * For admin-side use only
      *
      * @since 1.11
      * @author Robert Campbell
-     * @param string|string[] $str The message.  Accepts either an array of messages or a single string.
+     * @param mixed $str string|string[] Error message(s)
      */
     public function SetError($str)
     {
@@ -2690,7 +2698,7 @@ abstract class CMSModule
      * For admin-side use only
      *
      * @since 2.3
-     * @param mixed $message Message to be shown string or array of them
+     * @param mixed $message string|string[] Information message(s)
      * @return empty string (something might like to echo)
      */
     public function ShowInfo($message)
@@ -2709,7 +2717,7 @@ abstract class CMSModule
      * theme-specific popup dialog during the current request
      * For admin-side use only
      *
-     * @param mixed $message Message to be shown string or array of them
+     * @param mixed $message string|string[] Message(s)
      * @return empty string (something might like to echo)
      */
     public function ShowMessage($message)
@@ -2729,7 +2737,7 @@ abstract class CMSModule
      * For admin-side use only
      *
      * @since 2.3
-     * @param mixed $message Message to be shown string or array of them
+     * @param mixed $message string|string[] Warning message(s)
      * @return empty string (something might like to echo)
      */
     public function ShowWarning($message)
@@ -2749,7 +2757,7 @@ abstract class CMSModule
      * For admin-side use only
      *
      * @since 2.3 not final
-     * @param mixed $message Message to be shown string or array of them
+     * @param mixed $message string|string[] Error message(s)
      * @return empty string (something might like to echo)
      */
     public function ShowErrors($message)
@@ -2768,7 +2776,6 @@ abstract class CMSModule
      * Permission Functions
      * ------------------------------------------------------------------
      */
-
 
     /**
      * Creates a new permission for use by the module.
