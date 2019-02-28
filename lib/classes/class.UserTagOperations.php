@@ -17,7 +17,7 @@
 
 namespace CMSMS;
 
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 
 /**
  * A compatibility class to manage User Defined Tags.
@@ -96,7 +96,7 @@ final class UserTagOperations
 	 */
 	public function UserTagExists($name)
 	{
-		$mgr = SimplePluginOperations::get_instance();
+		$mgr = FilePluginOperations::get_instance();
 		return $mgr->plugin_exists($name);
 	}
 
@@ -134,7 +134,7 @@ final class UserTagOperations
 	 */
 	public function ListUserTags()
 	{
-		$mgr = SimplePluginOperations::get_instance();
+		$mgr = FilePluginOperations::get_instance();
 		$tmp = $mgr->get_list();
 		if( !$tmp ) return;
 
@@ -155,7 +155,7 @@ final class UserTagOperations
 	 */
 	public function CallUserTag($name, &$params = [])
 	{
-		$mgr = SimplePluginOperations::get_instance();
+		$mgr = FilePluginOperations::get_instance();
 		return $mgr->call_plugin($name, $params);
 	}
 

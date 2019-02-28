@@ -26,8 +26,8 @@ foreach ([
  ['assets','images'],
  ['assets','module_custom'],
  ['assets','modules'],
+ ['assets','file_plugins'],
  ['assets','plugins'],
- ['assets','simple_plugins'],
  ['assets','templates'],
  ['lib','modules'],
 ] as $segs) {

@@ -92,7 +92,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 
 /**
  * Export site content (pages, templates, designs, styles etc) to XML file.
- * Support files (in the uploads folder) and UDT's (in the assets/simple_plugins folder)
+ * Support files (in the uploads folder) and UDT's (in the assets/file_plugins folder)
  * are recorded as such, and will be copied into the specified $filesfolder if it exists.
  * Otherwise, that remains a manual task.
  *
@@ -357,10 +357,10 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 		$xw->endElement(); // files
 	}
 
-	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR;
 	$skip = strlen($frombase);
 	if ($copynow) {
-		$dir = $filesfolder.DIRECTORY_SEPARATOR.'simple_plugins';
+		$dir = $filesfolder.DIRECTORY_SEPARATOR.'file_plugins';
 		@mkdir($dir, 0771, true);
 		$copycount = 0;
 	}
@@ -792,7 +792,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 						}
 					break;
 				case 'userplugins':
-					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR;
+					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR;
 					if ($filesfolder) {
 						//TODO validity check e.g. somewhere absolute in installer tree
 						$frombase = $filesfolder.DIRECTORY_SEPARATOR;

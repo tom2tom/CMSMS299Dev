@@ -19,12 +19,12 @@
 namespace CMSMS\Async;
 
 use CmsApp;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 use RuntimeException;
 use function cms_to_bool;
 
 /**
- * A type of job that calls a function (simple-plugin or static function) for processing.
+ * A type of job that calls a function (file-plugin or static function) for processing.
  *
  * If a module is specified for this object, then the module will be loaded before calling the handler.
  *
@@ -33,7 +33,7 @@ use function cms_to_bool;
  *
  * @since 2.2
  * @property string $function The callable function name.
- * @property bool $is_udt Whether $function is the name of a simple-plugin.
+ * @property bool $is_udt Whether $function is the name of a file-plugin.
  */
 class ExternalHandlerJob extends Job
 {
@@ -90,7 +90,7 @@ class ExternalHandlerJob extends Job
     public function execute()
     {
         if( $this->is_udt ) {
-            $mgr = SimplePluginOperations::get_instance();
+            $mgr = FilePluginOperations::get_instance();
             $mgr->call_plugin( $this->function );
 //TODO also support regular plugins
         }

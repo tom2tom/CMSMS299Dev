@@ -521,8 +521,8 @@ abstract class CmsAdminThemeBase
         // file
         $this->_perms['filePerms'] = check_permission($this->userid, 'Modify Files');
 
-        // UDT/simple-plugin files (2.3+)
-        $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify Simple Plugins');
+        // UDT/file-plugin files (2.3+)
+        $this->_perms['plugPerms'] = check_permission($this->userid, 'Modify File Plugins');
 
         // myprefs
         $this->_perms['myaccount'] = check_permission($this->userid,'Manage My Account');
@@ -550,7 +550,7 @@ abstract class CmsAdminThemeBase
         $this->_perms['eventPerms'] = !empty($config['developer_mode']) && check_permission($this->userid, 'Modify Events');
         $this->_perms['taghelpPerms'] = check_permission($this->userid, 'View Tag Help');
         $this->_perms['usertagPerms'] = $this->_perms['taghelpPerms'] |
-            check_permission($this->userid, 'Modify Simple Plugins');
+            check_permission($this->userid, 'Modify File Plugins');
         $this->_perms['extensionsPerms'] = $this->_perms['codeBlockPerms'] |
             $this->_perms['modulePerms'] | $this->_perms['eventPerms'] |
             $this->_perms['taghelpPerms'];
@@ -832,7 +832,7 @@ abstract class CmsAdminThemeBase
         'final'=>true,
         'show_in_menu'=>$this->HasPerm('taghelpPerms')];
         $items[] = ['name'=>'usertags','parent'=>'extensions',
-        'url'=>'listsimpletags.php'.$urlext,
+        'url'=>'listfiletags.php'.$urlext,
         'title'=>$this->_FixSpaces(lang('usertags')),
         'description'=>lang('udt_description'),
         'final'=>true,

@@ -19,7 +19,7 @@
 use CMSMS\Events;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -132,7 +132,7 @@ $ADBG = $_GET;
 	// get all available handlers
 	$allhandlers = null;
 	// some of them being user-defined tags
-	$ops = SimplePluginOperations::get_instance();
+	$ops = FilePluginOperations::get_instance();
 	$plugins = $ops->get_list();
 	foreach ($plugins as $plugin_name) {
 		$allhandlers[$plugin_name] = $plugin_name;

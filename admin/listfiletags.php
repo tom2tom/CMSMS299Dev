@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\internal\Smarty;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 $CMS_LOAD_ALL_PLUGINS=1;
@@ -27,10 +27,10 @@ check_login();
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
-$pmod = check_permission($userid, 'Modify Simple Plugins');
+$pmod = check_permission($userid, 'Modify File Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
-$ops = SimplePluginOperations::get_instance();
+$ops = FilePluginOperations::get_instance();
 $patn = $ops->file_path('*');
 $files = glob($patn, GLOB_NOESCAPE);
 $tags = [];
@@ -58,8 +58,8 @@ $smarty = Smarty::get_instance();
 
 $smarty->assign([
     'access' => $access,
-    'addurl' => 'opensimpletag.php',
-    'editurl' => 'opensimpletag.php',
+    'addurl' => 'openfiletag.php',
+    'editurl' => 'openfiletag.php',
     'iconadd' => $iconadd,
     'iconedit' => $iconedit,
     'icondel' => $icondel,
@@ -81,7 +81,7 @@ EOS;
         $out .= <<<EOS
 function getParms(tagname) {
  var dlg = $('#params_dlg');
- $.get('simpletagparams.php{$urlext}', {
+ $.get('filetagparams.php{$urlext}', {
   name: tagname
  }, function(data) {
   dlg.find('#params').html(data);
@@ -108,7 +108,7 @@ EOS;
         $out .= <<<EOS
 function doDelete(tagname) {
  cms_confirm($confirm).done(function() {
-  var u = 'deletesimpletag.php{$urlext}&name=' + tagname;
+  var u = 'deletefiletag.php{$urlext}&name=' + tagname;
   window.location.replace(u);
  });
 }
@@ -123,5 +123,5 @@ EOS;
 $themeObject->add_footertext($out);
 
 include_once 'header.php';
-$smarty->display('listsimpletags.tpl');
+$smarty->display('listfiletags.tpl');
 include_once 'footer.php';

@@ -1,5 +1,5 @@
 <?php
-#class to process simple-plugin (aka User Defined Tag) files
+#class to process file-plugin (aka user-defined plugin) files
 #Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is part of CMS Made Simple <http://cmsmadesimple.org>
@@ -26,13 +26,13 @@ use const CMS_ASSETS_PATH;
 use function file_put_contents;
 
 /**
- * Singleton class to process simple (a.k.a user-defined) plugin files
+ * Singleton class to process file- (a.k.a user-defined) plugin files
  *
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since       2.3
  * @package     CMS
  */
-final class SimplePluginOperations
+final class FilePluginOperations
 {
     /**
      * @ignore
@@ -57,7 +57,7 @@ final class SimplePluginOperations
     }
 
     /**
-     * Get specified metadata for simple plugin named $name
+     * Get specified metadata for file-plugin named $name
      * @param string $name Tag name
      * @param string $key  Key of wanted data, or '*' for everything
      * @return mixed null if the tag's metadata doesn't include $key or there's no metadata at all
@@ -73,7 +73,7 @@ final class SimplePluginOperations
     }
 
     /**
-     * Return interpreted contents of the simple plugin named $name.
+     * Return interpreted contents of the file-plugin named $name.
      *
      * @param string $name plugin name
      * @param bool   $withcode Optional flag, whether to also retrieve tag code. Default true
@@ -151,7 +151,7 @@ final class SimplePluginOperations
     }
 
     /**
-     * Save simple plugin named $name. The file will be created or overwitten as appropriate.
+     * Save file-plugin named $name. The file will be created or overwitten as appropriate.
      *
      * @param string $name Tag name
      * @param array  $meta Assoc array of tag metadata with at least 'name',
@@ -218,7 +218,7 @@ EOS;
     }
 
     /**
-     * Delete simple plugin named $name.
+     * Delete file-plugin named $name.
      *
      * @param string $name plugin name
      * @return bool indicating success
@@ -230,13 +230,13 @@ EOS;
     }
 
     /**
-     * List all simple-plugin (aka UDT) files in the assets/simple_plugins directory.
+     * List all file-plugin (aka UDT) files in the assets/file_plugins directory.
      *
      * @return array
      */
     public function get_list() : array
     {
-        $patn = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR.'*.php';
+        $patn = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR.'*.php';
         $files = glob($patn, GLOB_NOESCAPE);
 
         $out = [];
@@ -256,11 +256,11 @@ EOS;
      */
     public function file_path(string $name) : string
     {
-        return CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'simple_plugins'.DIRECTORY_SEPARATOR.$name.'.php';
+        return CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR.$name.'.php';
     }
 
     /**
-     * Check whether $name is acceptable for a simple plugin, and if so,
+     * Check whether $name is acceptable for a file-plugin, and if so,
      * whether the corresponding file exists.
      *
      * @param $name plugin identifier (as used in tags)
@@ -275,7 +275,7 @@ EOS;
     }
 
     /**
-     * Check whether $name is acceptable for a simple plugin.
+     * Check whether $name is acceptable for a file-plugin.
      *
      * @param $name plugin identifier (as used in tags)
      * @return bool
@@ -290,7 +290,7 @@ EOS;
     }
 
     /**
-     * Check whether a simple plugin corresponding to $name exists.
+     * Check whether a file-plugin corresponding to $name exists.
      *
      * @param $name plugin identifier (as used in tags)
      * @return callable (array) by which smarty will process the plugin
@@ -309,7 +309,7 @@ EOS;
             }
             $code = file_get_contents($fp);
             if( !preg_match('/^[\s\n]*<\?php/', $code) ) {
-                throw new RuntimeException('Invalid file content for simple plugin named '.$name);
+                throw new RuntimeException('Invalid file content for file-plugin named '.$name);
             }
             $this->_loaded[$name] = [__CLASS__, $name]; //fake callable to trigger __callStatic()
         }
@@ -317,7 +317,7 @@ EOS;
     }
 
     /**
-     * Get the appropriate simple plugin file for $name, and include it.
+     * Get the appropriate file-plugin file for $name, and include it.
      *
      * @param string $name plugin identifier (as used in tags)
      * @param array $args [0]=parameters for plugin [1]=smarty object (Smarty_Internal_Template or wrapper)
@@ -338,7 +338,7 @@ EOS;
     }
 
     /**
-     * If a simple-plugin corresponding to $name exists, 'call' (i.e. include) it
+     * If a file-plugin corresponding to $name exists, 'call' (i.e. include) it
      *
      * @param string $name plugin identifier (as used in tags)
      * @param array  $args Optional parameters provided by the caller
@@ -353,7 +353,7 @@ EOS;
     }
 
     /**
-     * If a simple-plugin corresponding to $name exists, include it to handle an event
+     * If a file-plugin corresponding to $name exists, include it to handle an event
      * identified by $eventname and $originator.
      * Variables $gCms, $db, $config and (global) $smarty are in-scope for the inclusion.
 	 *

@@ -1,5 +1,5 @@
 <?php
-#procedure to add or edit a user-defined-tag / simple-plugin
+#procedure to add or edit a user-defined-tag / file-plugin
 #Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -16,7 +16,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\internal\Smarty;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -28,7 +28,7 @@ $userid = get_userid();
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
 if (isset($_POST['cancel'])) {
-    redirect('listsimpletags.php'.$urlext);
+    redirect('listfiletags.php'.$urlext);
 }
 
 $themeObject = cms_utils::get_theme_object();
@@ -38,7 +38,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     $tagname = cleanValue($_POST['tagname']);
     $oldname = cleanValue($_POST['oldtagname']);
 
-    $ops = SimplePluginOperations::get_instance();
+    $ops = FilePluginOperations::get_instance();
     if ($oldname == '-1' || $oldname !== $tagname ) {
         if (!$ops->is_valid_plugin_name($tagname)) {
             $themeObject->RecordNotice('error', lang('udt_exists'));
@@ -69,23 +69,23 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     if (isset($_POST['submit']) && !$err) {
         $msg = ($oldname == '-1') ? lang('added_udt') : lang('udt_updated');
         $themeObject->ParkNotice('success', $msg);
-        redirect('listsimpletags.php'.$urlext);
+        redirect('listfiletags.php'.$urlext);
     }
 } elseif (isset($_GET['tagname'])) {
     $tagname = cleanValue($_GET['tagname']);
 } else {
-    redirect('listsimpletags.php'.$urlext);
+    redirect('listfiletags.php'.$urlext);
 }
 
 if ($tagname != '-1') {
-    $ops = SimplePluginOperations::get_instance();
+    $ops = FilePluginOperations::get_instance();
     list($meta, $code) = $ops->get($tagname);
 } else {
     $meta = [];
     $code = '';
 }
 
-$edit = check_permission($userid, 'Modify Simple Plugins');
+$edit = check_permission($userid, 'Modify File Plugins');
 //TODO also $_GET['mode'] == 'edit'
 
 $content = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);
@@ -139,5 +139,5 @@ $smarty->assign([
 ]);
 
 include_once 'header.php';
-$smarty->display('opensimpletag.tpl');
+$smarty->display('openfiletag.tpl');
 include_once 'footer.php';

@@ -1,6 +1,6 @@
 <?php
 /*
-Procedure to delete a named User Defined Tag (aka simple plugin) file
+Procedure to delete a named User Defined Tag (aka file-plugin) file
 Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -26,13 +26,13 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 check_login();
 
 $userid = get_userid();
-$pmod = check_permission($userid, 'Modify Simple Plugins');
+$pmod = check_permission($userid, 'Modify File Plugins');
 if (!$pmod) exit;
 
 $themeObject = cms_utils::get_theme_object();
 
 $tagname = cleanValue($_GET['name']);
-$ops = SimplePluginOperations::get_instance();
+$ops = FilePluginOperations::get_instance();
 $fp = $ops->file_path($tagname);
 if (is_file($fp)) {
 //? send event :: deleteuserdefinedtagpre
@@ -47,4 +47,4 @@ if (is_file($fp)) {
 }
 
 $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
-redirect('listsimpletags.php'.$urlext);
+redirect('listfiletags.php'.$urlext);
