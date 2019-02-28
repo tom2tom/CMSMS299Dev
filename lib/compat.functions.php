@@ -44,6 +44,7 @@ if( !function_exists('gzopen') ) {
 
 /**
  * Return the currently configured database prefix.
+ * @deprecated since 2.3 Use constant CMS_DB_PREFIX instead
  *
  * @since 0.4
  * @return string
