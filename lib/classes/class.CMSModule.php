@@ -111,14 +111,17 @@ abstract class CMSModule
         if( CmsApp::get_instance()->is_cli() ) return;
 
         if( CmsApp::get_instance()->is_frontend_request() ) {
-            $this->SetParameterType('assign',CLEAN_STRING);
-            $this->SetParameterType('module',CLEAN_STRING);
-            $this->SetParameterType('lang',CLEAN_STRING); // this will be ignored.
-            $this->SetParameterType('returnid',CLEAN_INT);
+            //generic parameters always accepted
             $this->SetParameterType('action',CLEAN_STRING);
-            $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated, use cmsjobtype
+            $this->SetParameterType('assign',CLEAN_STRING);
             $this->SetParameterType('cmsjobtype',CLEAN_INT);
+            $this->SetParameterType('id',CLEAN_STRING);
+            $this->SetParameterType('idprefix',CLEAN_STRING);
             $this->SetParameterType('inline',CLEAN_INT);
+            $this->SetParameterType('lang',CLEAN_STRING); // this will be ignored.
+            $this->SetParameterType('module',CLEAN_STRING);
+            $this->SetParameterType('returnid',CLEAN_INT);
+            $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated, use cmsjobtype
         }
     }
 
