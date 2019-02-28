@@ -113,13 +113,18 @@ function cms_module_plugin(array $params, $template)
     if (!empty($params['idprefix'])) {
         $id = $params['idprefix'];
     } else {
-		//CHECKME what relevance here for the per-request cache? Same tag repeated ?
+        //CHECKME what relevance here for the per-request cache? Same tag repeated ?
         $mid_cache = cms_utils::get_app_data('mid_cache');
         if (!is_array($mid_cache)) $mid_cache = [];
         while (1) {
-            $id = 'm'.chr(mt_rand(48,57));
-            for ($i=0; $i<4; ++$i) {
-                $id .= chr(mt_rand(97,122));
+            $id = 'm    ';
+            for ($i=1; $i<5; ++$i) {
+                $n = mt_rand(48, 122); // 0 .. z
+                if (!($n > 57 && $n < 66) || ($n > 90 && $n < 97) ) {
+                    $id[$i] = chr($n); // ASCII alphanum
+                } else {
+                    --$i; // try again
+                }
             }
             if (!isset($mid_cache[$id])) {
                 $mid_cache[$id] = $id;
@@ -154,12 +159,12 @@ function cms_module_plugin(array $params, $template)
 //    class_exists($modulename); // autoload? why
     $module = cms_utils::get_module($modulename);
     global $CMS_ADMIN_PAGE, $CMS_LOGIN_PAGE, $CMS_INSTALL;
-	// WHAAAT ? admin-request accepts ALL modules as plugins (lazy/bad module init?)
+    // WHAAAT ? admin-request accepts ALL modules as plugins (lazy/bad module init?)
     if ($module && ($module->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE)))) {
-		$params['id'] = $id;
+        $params['id'] = $id;
         $params['idprefix'] = $id;
         $returnid = CmsApp::get_instance()->get_content_id();
-		$params['returnid'] = $returnid;
+        $params['returnid'] = $returnid;
         @ob_start();
         $result = $module->DoActionBase($action, $id, $params, $returnid, $template);
         if ($result !== FALSE) {
