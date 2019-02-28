@@ -210,6 +210,7 @@ class FormUtils
                         break;
                     case 'tooltiplink':
                         extract($parms);
+                        //default format/mode parameter
                         $parms['href'] = $mod->create_url($id, $action, ($returnid ?? ''), ($params ?? []), !empty($inline), !empty($targetcontentonly), ($prettyurl ?? ''));
                         //no break here
                     case 'tooltip':
@@ -1116,10 +1117,9 @@ class FormUtils
             $params = [];
         }
 
-        $prettyurl = (!empty($prettyurl)) ? preg_replace('~[^\w/]~', '', $prettyurl) : '';
+        $prettyurl = (!(empty($prettyurl) || $prettyurl == ':NOPRETTY:')) ? preg_replace('~[^\w/]~', '', $prettyurl) : '';
 
-        // create the url
-        $out = $mod->create_url($id, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl);
+        $out = $mod->create_url($id, $action, $returnid, $params, !empty($inline), !empty($targetcontentonly), $prettyurl, $format ?? 0);
 
         if (!$onlyhref) {
             $out = '<a href="' . $out . '"';

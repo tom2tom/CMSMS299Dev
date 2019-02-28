@@ -47,13 +47,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
  *   is the same tag on the same page Default false
  * @param bool	$targetcontentonly Optional flag whether the target of the
  *   output link targets the content area of the destination page Default false
- * @param string $prettyurl Optional url part(s) Default ''
- * @param int    $mode since 2.3 Optional indicator for how to format the url
+ * @param string $prettyurl Optional url part(s), or ':NOPRETTY:' Default ''
+ * @param int    $format since 2.3 Optional indicator for how to format the URL
  *  0 = (default, back-compatible) rawurlencoded parameter keys and values
  *      other than the value for key 'mact', '&amp;' for parameter separators
  *  1 = proper: as for 0, but also encode the 'mact' value
  *  2 = raw: as for 1, except '&' for parameter separators - e.g. for use in js
- *  3 = page-displayable: all html_entitized, probably not usable as-is
+ *  3 = displayable: no encoding, all html_entitized, probably not usable as-is
  * @return string Ready-to-use or corresponding displayable URL.
  */
 function cms_module_create_actionurl(
@@ -65,7 +65,7 @@ function cms_module_create_actionurl(
 	bool $inline = false,
 	bool $targetcontentonly = false,
 	string $prettyurl = '',
-	int $mode = 0
+	int $format = 0
 	) : string {
 
 	if ($id) {
@@ -85,15 +85,15 @@ function cms_module_create_actionurl(
 	}
 
 	$base_url = CMS_ROOT_URL;
-
 	$config = cms_config::get_instance();
-	if (empty($prettyurl) && $config['url_rewriting'] != 'none') {
+
+	if (!$prettyurl && $config['url_rewriting'] != 'none') {
 		// attempt to get a pretty url from the module
 		$prettyurl = $modinstance->get_pretty_url($id, $action, $returnid, $params, $inline);
 	}
-	if ($prettyurl && $config['url_rewriting'] == 'mod_rewrite') {
+	if ($prettyurl && $prettyurl != ':NOPRETTY:' && $config['url_rewriting'] == 'mod_rewrite') {
 		$text = $base_url.'/'.$prettyurl.$config['page_extension'];
-	} elseif ($prettyurl && $config['url_rewriting'] == 'internal') {
+	} elseif ($prettyurl && $prettyurl != ':NOPRETTY:' && $config['url_rewriting'] == 'internal') {
 		$text = $base_url.'/index.php/'.$prettyurl.$config['page_extension'];
 	} else {
 		$frontend = is_numeric($returnid);
@@ -134,7 +134,7 @@ function cms_module_create_actionurl(
 			}
 		}
 
-		switch ($mode) {
+		switch ($format) {
 			case 2:
 				$sep = '&';
 				$enc = true;
@@ -152,7 +152,7 @@ function cms_module_create_actionurl(
 		$count = 0;
 		foreach ($parms as $key => $value) {
 			if ($enc) {
-				if ($mode != 0 || $key != 'mact') {
+				if ($format != 0 || $key != 'mact') {
 					$value = rawurlencode($value);
 				}
 				$key = rawurlencode($key);
@@ -165,7 +165,7 @@ function cms_module_create_actionurl(
 			}
 		}
 	}
-	if ($mode == 3) {
+	if ($format == 3) {
 		$text = cms_htmlentities($text);
 	}
 	return $text;
@@ -182,13 +182,13 @@ function cms_module_create_actionurl(
  * @param mixed $returnid The integer page-id to return to after the action
  *   is done, or ''|null for admin
  * @param array $params	  Optional array of parameters to include in the URL.
- * @param int   $mode since 2.3 Optional indicator for how to format the url
- *  0 = (default) rawurlencoded parameter keys and values, '&amp;' for parameter separators
+ * @param int   $format since 2.3 Optional indicator for how to format the url
+ *  0 = default: rawurlencoded parameter keys and values, '&amp;' for parameter separators
  *  1 = raw: as for 0, except '&' for parameter separators - e.g. for use in js
  *  2 = page-displayable: all html_entitized, probably not usable as-is
  * @return string
  */
-function cms_module_create_pageurl($id, $returnid, array $params = [], int $mode = 0) : string
+function cms_module_create_pageurl($id, $returnid, array $params = [], int $format = 0) : string
 {
 	$text = '';
 	$gCms = CmsApp::get_instance();
@@ -199,7 +199,7 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $mode
 		if ($content) { //CHECKME
 			$pageurl = $content->GetURL();
 			if ($pageurl) {
-				switch ($mode) {
+				switch ($format) {
 					case 1:
 						$sep = '&';
 						$enc = true;
@@ -247,7 +247,7 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $mode
 					}
 					$text .= $key.'='.$value;
 				}
-				if ($mode == 2) {
+				if ($format == 2) {
 					$text = cms_htmlentities($text);
 				}
 			}
