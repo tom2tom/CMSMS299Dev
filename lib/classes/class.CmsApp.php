@@ -32,15 +32,13 @@ use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 
 /**
  * Singleton class that contains various functions and states
  * representing the application.
- *
- * Note: This class was named CmsObject before version 1.10
  *
  * @package CMS
  * @license GPL
@@ -91,7 +89,7 @@ final class CmsApp
     /**
      * @ignore
      */
-    private $_content_type;
+    private $_content_type = '';
 
     /**
      * @ignore
@@ -111,12 +109,6 @@ final class CmsApp
     private $db;
 
     /**
-     * An override for the database prefix.  If specified, this will be used instead of config value.
-     * @ignore
-     */
-    private $dbprefix;
-
-    /**
      * @ignore
      */
     private $hrinstance;
@@ -128,12 +120,6 @@ final class CmsApp
     private $errors = [];
 
     /**
-     * Get the simple plugin operations class
-     * @ignore
-     */
-    private $simple_plugin_manager;
-
-    /**
      * @ignore
      */
     private $scriptcombiner;
@@ -143,6 +129,20 @@ final class CmsApp
      * This cache must be set externally, after autoloading is available
      */
     public $jobmgrinstance = null;
+
+    /**
+     * Constructor
+     * @ignore
+     */
+    private function __construct()
+    {
+        register_shutdown_function([$this, 'dbshutdown']);
+    }
+
+    /**
+     * @ignore
+     */
+    private function __clone() {}
 
     /**
      * @ignore
@@ -157,25 +157,11 @@ final class CmsApp
     }
 
     /**
-     * Constructor
-     * @ignore
-     */
-    private function __construct()
-    {
-        register_shutdown_function([&$this, 'dbshutdown']);
-    }
-
-    /**
-     * @ignore
-     */
-    private function __clone() {}
-
-    /**
      * Retrieve the single app instance.
      *
      * @since 1.10
      */
-    final public static function get_instance() : self
+    public static function get_instance() : self
     {
         if( !self::$_instance  ) self::$_instance = new self();
         return self::$_instance;
@@ -186,7 +172,7 @@ final class CmsApp
      *
      * @since 2.0
      */
-    public function get_installed_schema_version()
+    public function get_installed_schema_version() : string
     {
         if( self::test_state(self::STATE_INSTALL) ) {
             $db = $this->GetDb();
@@ -205,7 +191,7 @@ final class CmsApp
      * @access private.
      * return array
      */
-    public function get_errors()
+    public function get_errors() : array
     {
         return $this->errors;
     }
@@ -232,7 +218,7 @@ final class CmsApp
      *
      * @since 2.0
      */
-    public function get_content_type()
+    public function get_content_type() : string
     {
         if( $this->_content_type ) return $this->_content_type;
         return 'text/html';
@@ -246,8 +232,8 @@ final class CmsApp
      */
     public function set_content_type(string $mime_type = null)
     {
-        $this->_content_type = null;
         if( $mime_type ) $this->_content_type = $mime_type;
+        else $this->_content_type = '';
     }
 
     /**
@@ -336,11 +322,11 @@ final class CmsApp
      *
      * @since 1.9
      * @param string $module_name The module name.
-     * @param string $version (optional) version number for a check.
-     * @return CMSModule Reference to the module object, or null.
+     * @param mixed  $version (optional) string|float version number for a check. Default ''
+     * @return mixed CMSModule Reference to the module object, or null.
      * @deprecated
      */
-    public function GetModuleInstance($module_name,$version = '')
+    public function GetModuleInstance(string $module_name,$version = '')
     {
         return ModuleOperations::get_instance()->get_module_instance($module_name,$version);
     }
@@ -348,12 +334,11 @@ final class CmsApp
     /**
      * Set the database connection object.
      *
-     * @final
      * @internal
      * @ignore
      * @param Connection2 $conn
      */
-    final public function _setDb(Connection2 $conn)
+    public function _setDb(Connection2 $conn)
     {
         $this->db = $conn;
     }
@@ -362,10 +347,9 @@ final class CmsApp
     * Get a handle to the database. You can then use it
     * to perform all kinds of database operations.
     *
-    * @final
-    * @return mixed \CMSMS\Database\Connection object or NULL
+    * @return mixed \CMSMS\Database\Connection object or null
     */
-    final public function GetDb()
+    public function GetDb()
     {
         /* Check to see if we have a valid instance.
          * If not, build the connection
@@ -384,128 +368,120 @@ final class CmsApp
 
     /**
      * Get the database prefix.
+     * @deprecated since 2.3 Instead, use const CMS_DB_PREFIX
      *
      * @return string
      */
-    public function GetDbPrefix()
+    public function GetDbPrefix() : string
     {
         return CMS_DB_PREFIX;
     }
 
     /**
     * Get a handle to the global CMS config.
+    * That object contains global paths and settings that do not belong in the database.
+    * @see cms_config
+    * @deprecated get the obbject directly
     *
-    * This object contains global paths and settings that do not belong in the database.
-    *
-    * @final
     * @return cms_config The configuration object.
     */
-    public function GetConfig()
+    public function GetConfig() : cms_config
     {
         return cms_config::get_instance();
     }
 
     /**
-    * Get a handle to the CMS ModuleOperations object.
+    * Get a handle to the module operations object.
     * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
     * @see ModuleOperations
+    * @deprecated get the obbject directly
+    *
     * @return ModuleOperations handle to the ModuleOperations object
     */
-    public function GetModuleOperations()
+    public function GetModuleOperations() : ModuleOperations
     {
         return ModuleOperations::get_instance();
     }
 
     /**
-     * Get the simple plugin operations object.
+     * Get a handle to the file-plugin operations object.
+     * @since 2.3
+     * @see FilePluginOperations
+     * @deprecated since 2.3 get the obbject directly
      *
-     * @return SimplePluginOperations
+     * @return FilePluginOperations
      */
-    public function GetSimplePluginOperations()
+    public function GetFilePluginOperations() : FilePluginOperations
     {
-        return SimplePluginOperations::get_instance();
+        return FilePluginOperations::get_instance();
     }
 
     /**
-    * Get a handle to the CMS UserOperations singleton object.
-    * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
+    * Get a handle to the user operations object.
     * @see UserOperations
+    * @deprecated get the obbject directly
+    *
     * @return UserOperations handle to the UserOperations object
-    * @deprecated
     */
-    public function GetUserOperations()
+    public function GetUserOperations() : UserOperations
     {
         return UserOperations::get_instance();
     }
 
     /**
-    * Get a handle to the CMS ContentOperations singleton object.
-    * If it does not yet exist, this method will instantiate it.
+    * Get a handle to the content operations object.
+    * @see ContentOperations
+    * @deprecated get the obbject directly
     *
-    * @final
-    * @see ContentOperations::get_instance()
     * @return ContentOperations handle to the ContentOperations object
-    * @deprecated
     */
-    public function GetContentOperations()
+    public function GetContentOperations() : ContentOperations
     {
         return ContentOperations::get_instance();
     }
 
     /**
-    * Get a handle to the CMS Admin BookmarkOperations singleton object.
-    * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
+    * Get a handle to the bookmark operations object.
     * @see BookmarkOperations
+    * @deprecated get the obbject directly
+    *
     * @return BookmarkOperations handle to the BookmarkOperations object, useful only in the admin
-    * @deprecated
     */
-    public function GetBookmarkOperations()
+    public function GetBookmarkOperations() : BookmarkOperations
     {
         return BookmarkOperations::get_instance();
     }
 
     /**
-    * Get a handle to the CMS GroupOperations object.
-    * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
+    * Get a handle to the group operations object.
     * @see GroupOperations
+    * @deprecated ?
+    *
     * @return GroupOperations handle to the GroupOperations object
-    * @deprecated
     */
-    public function GetGroupOperations()
+    public function GetGroupOperations() : GroupOperations
     {
         return GroupOperations::get_instance();
     }
 
     /**
-    * Get a handle to the CMS UserTagOperations object.
-    * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
+    * Get a handle to the UDT operations object (which is for back-compatibility only).
     * @see UserTagOperations
+    * @deprecated - since 2.3 UserTagOperations has been superseded by FilePluginOperations
+    *
     * @return UserTagOperations handle to the UserTagOperations object
-    * @deprecated - since 2.3 UserTagOperations has been superseded by GetSimplePluginOperations
     */
-    public function GetUserTagOperations()
+    public function GetUserTagOperations() : UserTagOperations
     {
         return UserTagOperations::get_instance();
     }
 
     /**
     * Get a handle to the CMS Smarty object.
-    * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
     * @see Smarty
     * @link http://www.smarty.net/manual/en/
-    * @return Smarty handle to the Smarty object
+    *
+    * @return mixed Smarty handle to the CMSMS Smarty object, or null
     */
     public function GetSmarty()
     {
@@ -519,12 +495,10 @@ final class CmsApp
     }
 
     /**
-    * Get a handle to the CMS HierarchyManager object.
-    * If it does not yet exist, this method will instantiate it.
-    *
-    * @final
+    * Get a handle to the hierarchy manager object.
     * @see HierarchyManager
-    * @return HierarchyManager handle to the HierarchyManager object
+    *
+    * @return mixed? HierarchyManager handle to the HierarchyManager object
     */
     public function GetHierarchyManager()
     {
@@ -537,7 +511,7 @@ final class CmsApp
     /**
      * Get a handle to the scripts combiner
      */
-    public function GetScriptManager()
+    public function GetScriptManager() : ScriptManager
     {
         if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager();
         return $this->scriptcombiner;
@@ -556,16 +530,14 @@ final class CmsApp
     /**
     * Disconnect from the database.
     *
-    * @final
     * @internal
     * @ignore
     * @access private
     */
     public function dbshutdown()
     {
-        if (isset($this->db)) {
-            $db = $this->db;
-            if ($db->IsConnected()) $db->Close();
+        if (isset($this->db) && $this->db->IsConnected()) {
+            $this->db->Close();
         }
     }
 
@@ -575,13 +547,12 @@ final class CmsApp
      * NOTE: This function is for use by CMSMS only.  No third party application, UDT or code
      *   can use this method and still exist in the CMSMS forge or be supported in any way.
      *
-     * @final
      * @internal
      * @ignore
      * @access private
 	 * @param $age_days Optional File-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
      */
-    final public function clear_cached_files($age_days = 0)
+    public function clear_cached_files(int $age_days = 0)
     {
         if( !defined('TMP_CACHE_LOCATION') ) return;
         $age_days = max(0,(int)$age_days);
@@ -625,15 +596,15 @@ final class CmsApp
     }
 
     /**
-     * Test if the current application state matches the requested value.
-     * This method will throw an exception if invalid data is passed in.
-     *
+     * Report whether the specified state matches the current application state.
      * @since 1.11.2
      * @author Robert Campbell
+     *
      * @param string $state A valid state name (see the state list above).  It is recommended that the class constants be used.
      * @return bool
+     * @throws CmsInvalidDataException if invalid data is passed in
      */
-    public function test_state($state)
+    public function test_state(string $state) : bool
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
@@ -645,44 +616,43 @@ final class CmsApp
      *
      * @since 1.11.2
      * @author Robert Campbell
-     * @return mixed  Array of state strings, or null.
+     * @return array  state strings
      */
-    public function get_states()
+    public function get_states() : array
     {
         $this->set_states();
-        return $this->_states ?? null;
+        return $this->_states;
     }
 
     /**
-     * Add a state to the list of states.
-     *
-     * This method will throw an exception if an invalid state is passed in.
+     * Add a state to the list of current states.
      *
      * @ignore
      * @internal
      * @since 1.11.2
      * @author Robert Campbell
      * @param string The state.  We recommend you use the class constants for this.
+     * @throws CmsInvalidDataException if an invalid state is passed in.
      */
-    public function add_state($state)
+    public function add_state(string $state)
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
-        $this->_states[] = $state;
+        if( !in_array($state,$this->_states) ) $this->_states[] = $state;
     }
 
     /**
-     * Remove a state to the list of states.
-     *
-     * This method will throw an exception if an invalid state is passed in.
+     * Remove a state from the list of current states.
      *
      * @ignore
      * @internal
      * @since 1.11.2
      * @author Robert Campbell
+     *
      * @param string The state.  We recommend you use the class constants for this.
+     * @throws CmsInvalidDataException if an invalid state is passed in.
      */
-    public function remove_state(string $state)
+    public function remove_state(string $state) : bool
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
@@ -695,36 +665,36 @@ final class CmsApp
     }
 
     /**
-     * A convenience method to test if the current request was executed via the CLI.
+     * Report whether the current request was executed via the CLI.
      *
      * @since 2.2.9
      * @author Robert Campbell
      * @return bool
      */
-    public function is_cli()
+    public function is_cli() : bool
     {
-        return (php_sapi_name() == 'cli');
+        return PHP_SAPI == 'cli';
     }
 
     /**
-     * A convenience method to test if the current request is a frontend request.
+     * Report whether the current request is a frontend request.
      *
      * @since 1.11.2
      * @author Robert Campbell
      * @return bool
      */
-    public function is_frontend_request()
+    public function is_frontend_request() : bool
     {
         return !$this->get_states();
     }
 
-    /** A convenience method to test if the current request was over HTTPS.
+    /** Report whether the current request was over HTTPS.
      *
      * @since 1.11.12
      * @author Robert Campbell
      * @return bool
      */
-    public function is_https_request()
+    public function is_https_request() : bool
     {
         return !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
     }
