@@ -17,12 +17,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A Simple Static class providing various convenience utilities.
+ * A class of static utility/convenience methods.
  *
  * @package CMS
  * @license GPL
  * @author  Robert Campbell
  *
+ * @final
  * @since 1.9
  */
 final class cms_utils
@@ -35,7 +36,11 @@ final class cms_utils
 	/**
 	 * @ignore
 	 */
-	final private function __construct() {}
+	private function __construct() {}
+	/**
+	 * @ignore
+	 */
+	private function __clone() {}
 
 	/**
 	 * Get data that was stored elsewhere in the application.
@@ -44,7 +49,7 @@ final class cms_utils
 	 * @param string $key The key to get.
 	 * @return mixed The stored data, or null
 	 */
-	public static function get_app_data($key)
+	public static function get_app_data(string $key)
 	{
 		if( is_array( self::$_vars ) && isset(self::$_vars[$key]) ) return self::$_vars[$key];
 	}
@@ -60,7 +65,7 @@ final class cms_utils
 	 * @param string $key The name of this data.
 	 * @param mixed  $value The data to store.
 	 */
-	public static function set_app_data($key,$value)
+	public static function set_app_data(string $key,$value)
 	{
 		if( $key == '' ) return;
 		if( !is_array(self::$_vars) ) self::$_vars = [];
@@ -69,107 +74,100 @@ final class cms_utils
 
 
 	/**
-	 * A convenience function to return an object representing an installed module.
+	 * Return an installed module object.
 	 *
 	 * If a version string is passed, a matching object will only be returned IF
 	 * the installed version is greater than or equal to the supplied version.
 	 *
 	 * @see version_compare()
 	 * @see ModuleOperations::get_module_instance
-	 * @final
 	 * @since 1.9
 	 * @param string $name The module name
 	 * @param string $version An optional version string
-	 * @return CmsModule The matching module object or null
+	 * @return mixed CmsModule The matching module object or null
 	 */
-	final public static function get_module(string $name,string $version = '')
+	public static function get_module(string $name,string $version = '')
 	{
 		return ModuleOperations::get_instance()->get_module_instance($name,$version);
 	}
 
 
 	/**
-	 * A convenience function to check whether a module is available.
+	 * Report whether a module is available.
 	 *
 	 * @see get_module()
-	 * @final
 	 * @author calguy1000
 	 * @since 1.11
 	 * @param string $name The module name
 	 * @return bool
 	 */
-	final public static function module_available(string $name)
+	public static function module_available(string $name)
 	{
 		return ModuleOperations::get_instance()->IsModuleActive($name);
 	}
 
 
 	/**
-	 * A convenience function to return the current database instance.
+	 * Return the current database instance.
 	 *
 	 * @link http://phplens.com/lens/adodb/docs-adodb.htm
-	 * @final
 	 * @since 1.9
-	 * @return ADOConnection a handle to the ADODB database object
+	 * @return mixed \CMSMS\Database\Connection object or null
 	 */
-	final public static function get_db()
+	public static function get_db()
 	{
-		return \CmsApp::get_instance()->GetDb();
+		return CmsApp::get_instance()->GetDb();
 	}
 
 
 	/**
-	 * A convenience function to return a handle to the global CMSMS config.
+	 * Return the global CMSMS config.
 	 *
-	 * @final
 	 * @since 1.9
 	 * @return cms_config The global configuration object.
 	 */
-	final public static function get_config()
+	public static function get_config() : cms_config
 	{
-		return \cms_config::get_instance();
+		return cms_config::get_instance();
 	}
 
 
 	/**
-	 * A convenience function to return a handle to the CMSMS Smarty object.
+	 * Return the CMSMS Smarty object.
 	 *
 	 * @see CmsApp::GetSmarty()
 	 * @since 1.9
-	 * @final
 	 * @return CMSMS\internal\Smarty handle to the Smarty object
 	 */
-	final public static function get_smarty()
+	public static function get_smarty() : CMSMS\internal\Smarty
 	{
 		return \CMSMS\internal\Smarty::get_instance();
 	}
 
 
 	/**
-	 * A convenience functon to return a reference to the current content object.
+	 * Return the current content object.
 	 *
-	 * This function will always return NULL if called from an admin action
+	 * This function will return NULL if called from an admin action
 	 *
 	 * @since 1.9
-	 * @final
-	 * @return Content The current content object, or null
+	 * @return mixed Content The current content object, or null
 	 */
-	final public static function get_current_content()
+	public static function get_current_content()
 	{
 		return CmsApp::get_instance()->get_content_object();
 	}
 
 
 	/**
-	 * A convenience function to return the alias of the current page.
+	 * Return the alias of the current page.
 	 *
-	 * This function will always return NULL if called from an admin action
+	 * This function will return NULL if called from an admin action
 	 *
 	 * @since 1.9
-	 * @final
-	 * @return string
+	 * @return mixed string|null
 	 */
-	final public static function get_current_alias()
+	public static function get_current_alias()
 	{
 		$obj = CmsApp::get_instance()->get_content_object();
 		if( $obj ) return $obj->Alias();
@@ -177,30 +175,30 @@ final class cms_utils
 
 
 	/**
-	 * A convenience function to return the page id of the current page
+	 * Return the id of the current page
 	 *
-	 * This function will always return NULL if called from an admin action
+	 * This function will return NULL if called from an admin action
 	 *
 	 * @since 1.9
-	 * @final
-	 * @return int
+	 * @return mixed int|null
 	 */
-	final public static function get_current_pageid()
+	public static function get_current_pageid()
 	{
 		return CmsApp::get_instance()->get_content_id();
 	}
 
 
 	/**
-	 * A convenient method to get the object pointer to the appropriate wysiwyg module.
-	 * This is a wrapper around a similar function in the ModuleOperations class.
+	 * Return the appropriate WYSIWYG module.
 	 *
-	 * This method will return the currently selected frontend wysiwyg for frontend requests (or null if none is selected)
-	 * For admin requests this method will return the users currently selected wysiwyg module, or null.
+	 * For frontend requests this method will return the currently selected
+	 * frontend WYSIWYG or null if none is selected.
+	 * For admin requests this method will return the user's selected
+	 * WYSIWYG module, or null.
 	 *
 	 * @since 1.10
-	 * @param string $module_name The module name.
-	 * @return CMSModule
+	 * @param mixed $module_name Optional module name | null Default null
+	 * @return mixed CMSModule | null
 	 */
 	public static function get_wysiwyg_module($module_name = null)
 	{
@@ -209,12 +207,11 @@ final class cms_utils
 
 
 	/**
-	 * A convenient method to get the currently selected syntax highlighter.
-	 * This is a wrapper around a similar function in the ModuleOperations class.
+	 * Return the currently selected syntax highlighter.
 	 *
 	 * @since 1.10
 	 * @author calguy1000
-	 * @return CMSModule
+	 * @return mixed CMSModule | null
 	 */
 	public static function get_syntax_highlighter_module()
 	{
@@ -223,11 +220,11 @@ final class cms_utils
 
 
 	/**
-	 * A convenience method to get the currently selected search module.
+	 * Return the currently selected search module.
 	 *
 	 * @since 1.10
 	 * @author calguy1000
-	 * @return CMSModule
+	 * @return mixed CMSModule | null
 	 */
 	public static function get_search_module()
 	{
@@ -235,11 +232,11 @@ final class cms_utils
 	}
 
 	/**
-	 * A convenience method to get the currently selected filepicker module.
+	 * Return the currently selected filepicker module.
 	 *
 	 * @since 2.2
 	 * @author calguy1000
-	 * @return CMSModule
+	 * @return mixed CMSModule | null
 	 */
 	public static function get_filepicker_module()
 	{
@@ -253,7 +250,7 @@ final class cms_utils
 	 *
 	 * @author calguy1000
 	 * @since 1.10
-	 * @returns string IP address in dotted notation, or null
+	 * @return string IP address in dotted notation, or null
 	 */
 	public static function get_real_ip()
 	{
@@ -272,12 +269,12 @@ final class cms_utils
 
 
 	/**
-	 * Get a reference to the current theme object
-	 * only returns a valid value when in an admin request.
+	 * Return the current theme object.
+	 * Only valid during an admin request.
 	 *
 	 * @author calguy1000
 	 * @since 1.11
-	 * @returns CmsAdminThemeBase derived object, or null
+	 * @return mixed CmsAdminThemeBase derived object, or null
 	 */
 	public static function get_theme_object()
 	{
