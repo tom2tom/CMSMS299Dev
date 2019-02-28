@@ -753,7 +753,7 @@ function get_recursive_file_list(string $path, array $excludes = [], int $maxdep
  * @param string $path The directory filepath
  * @return bool indicating complete success
  */
-function recursive_delete($path)
+function recursive_delete(string $path) : bool
 {
     if (is_dir($path)) {
         $res = true;
@@ -790,7 +790,7 @@ function recursive_delete($path)
  * @param int   $mode The octal mode
  * @return bool indicating complete success
  */
-function chmod_r($path, $mode)
+function chmod_r(string $path, $mode) : bool
 {
     $res = true;
     if (is_dir($path)) {
@@ -812,7 +812,7 @@ function chmod_r($path, $mode)
 }
 
 /**
- * A convenience function to test whether one string starts with another.
+ * Test whether one string starts with another.
  *
  * e.g. startswith('The Quick Brown Fox','The');
  *
@@ -826,7 +826,7 @@ function startswith(string $str, string $sub) : bool
 }
 
 /**
- * Similar to the startswith method, this function tests whether string A ends with string B.
+ * Similar to the startswith method, test whether string A ends with string B.
  *
  * e.g. endswith('The Quick Brown Fox','Fox');
  *
