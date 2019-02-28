@@ -445,9 +445,10 @@ function get_pageid_or_alias_from_url()
                 if( is_int($key) ) {
                     // do nothing
                 }
-                else if( $key != 'id' && $key != 'returnid' && $key != 'action' ) {
+                elseif( $key != 'id'/*&& $key != 'returnid' && $key != 'action' 2.3 deprecation, breaks lot of stuff*/ ) {
                     $_REQUEST[$matches['id'] . $key] = $val;
                 }
+
             }
 
             // Put the resulting mact into the request for later processing.
