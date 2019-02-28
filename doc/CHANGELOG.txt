@@ -166,15 +166,14 @@ module-related classes & interfaces without suitable namespace
 css styling using the '960 Grid System' - migrate to cssgrid with fallback to flexbox
 
 DETAILS
-  - New content placement methods: CMSModule::AdminHeaderContent(), AdminBottomContent()
-  - New notification methods: CMSModule::SetInfo(),SetMessage(),SetWarning(),SetError()
+  - New admin-page-content direct-placement methods: CMSModule::AdminPageContent(),AdminHeaderContent(),AdminBottomContent()
+  - New notification methods: CMSModule::ShowInfo(),ShowWarning(),SetInfo(),SetWarning()
   - New method: CMSModule::get_cli_commands()
-  - New method: CMSModule::get_controller()
   - New method: CMSModule::create_pageurl()
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
   - New method: AdminUtils::get_module_icon()
   MORE TO COME HERE ...
-  - CHANGE: Add more functions to the smarty security policy, and fix incorrect initialization of members.
+  - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
   - FEATURE: Event handlers may be registered intra-session, instead of using a hooklist (which 'send' events regardless of the event originator)
@@ -196,10 +195,14 @@ DETAILS
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
   - DEPRECATED: Some seldom-used methods in the module API
+  - DEPRECATED: method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
   - BREAKING: Removed the long-deprecated SetParameters method from the module API
   - BREAKING: Removed the long-deprecated $module->smarty property.
-  - BREAKING: Removed some deprecated and seldom-used methods from the core API
-  - CHANGE: Adds the new pr_root_url config entry.  to return the protocol relative root URI. root_url will always include the protocol.
+  - BREAKING: Removed some deprecated and/or seldom-used methods from the core API
+      can_admin_upload(), check_ownership(), cms_current_language()
+      cms_set_frontend_language(), get_encoding(), pagination()
+  - CHANGE: Adds convenience methods get_cliuser(), get_editor_script()
+  - CHANGE: Adds the new pr_root_url config entry.  Returns the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
   - Improved error message if there was an error parsing the template (or a duplicate content block).
   - Fixes content blocks, image blocks, module blocks containing whitespace in the name.
@@ -237,10 +240,11 @@ DETAILS
   - BREAKING: Smarty now recognizes plugin functions named like smarty_xxx, but not smarty_cms_xxx. Existing plugins are cleaned up during upgrade.
   - Optimize the cms_route_manager for performance
   - FEATURE: Adds ModuleOperations::is_module_loaded() method
-  - FEATURE: Allow loading action controller classes with the name Module/Controllers/<action>_action
     The constructor is sent the module, the actionid and returnid parameters
     The invoke method is sent an array of parameters.
-  - Adds CMSModule::get_controller() protected method to allow specifying custom controller mechanisms.
+  - FEATURE: Adds mechanism to spoof module actions instead of creating new ones, by calling a method instead of running the action per se.
+     Protected method CMSModule::get_controller() identifies such callable (if any) for an action.
+  - FEATURE: Allow loading action controller classes with the name Module/Controllers/<action>_action
   - REMOVE: file content.functions.php (last remaining function moved to page.functions.php)
   - Refactor the cms_module_plugin function for performance).
   - Refactor the route-lookup functionality for performance.
