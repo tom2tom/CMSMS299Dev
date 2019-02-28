@@ -19,7 +19,6 @@
 use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
 use CMSMS\internal\LoginOperations;
-use CMSMS\internal\Smarty;
 use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
 
