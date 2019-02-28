@@ -231,9 +231,9 @@ function get_site_preference(string $prefname, $defaultvalue = null)
  * @see cms_siteprefs::remove
  *
  * @param string $prefname Preference name to remove
- * @param boolean $uselike  Whether or not to remove all preferences that are LIKE the supplied name
+ * @param boolean $uselike  Optional flag, default false. Whether to remove all preferences that are LIKE the supplied name.
  */
-function remove_site_preference($prefname, $uselike = false)
+function remove_site_preference(string $prefname, bool $uselike = false)
 {
     return cms_siteprefs::remove($prefname, $uselike);
 }
@@ -249,7 +249,7 @@ function remove_site_preference($prefname, $uselike = false)
  * @param string $prefname The preference name
  * @param mixed  $value The preference value (will be stored as a string)
  */
-function set_site_preference($prefname, $value)
+function set_site_preference(string $prefname, $value)
 {
     return cms_siteprefs::set($prefname, $value);
 }
@@ -333,15 +333,15 @@ function is_sitedown() : bool
  * @param string A prefix to use when filtering files
  * @param boolean A flag indicating whether the files matching the extension and the prefix should be included or excluded from the result set
  * @param boolean A flag indicating whether the output should be sorted.
- * @return string
+ * @return string maybe empty
  */
 function create_file_dropdown(string $name,string $dir,string $value,string $allowed_extensions,string $optprefix='',
                               bool $allownone=false,string $extratext='',
-                              string $fileprefix='',bool $excludefiles=true,bool $sortresults = false)
+                              string $fileprefix='',bool $excludefiles=true,bool $sortresults = false) : string
 {
     $files = [];
     $files = get_matching_files($dir,$allowed_extensions,true,true,$fileprefix,$excludefiles);
-    if( $files === false ) return false;
+    if( $files === false ) return '';
     $out = "<select name=\"{$name}\" id=\"{$name}\" {$extratext}>\n";
     if( $allownone ) {
         $txt = '';
@@ -361,7 +361,6 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
     return $out;
 }
 
-
 /**
  * A function that, given the current request information will return
  * a pageid or an alias that should be used for the display
@@ -373,7 +372,7 @@ function create_file_dropdown(string $name,string $dir,string $value,string $all
  * @internal
  * @ignore
  * @access private
- * @return string
+ * @return string (or null?)
  */
 function get_pageid_or_alias_from_url()
 {
