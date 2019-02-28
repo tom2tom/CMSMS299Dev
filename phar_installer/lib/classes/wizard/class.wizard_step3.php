@@ -77,7 +77,7 @@ class wizard_step3 extends wizard_step
         // required test ... php version
         $v = phpversion();
         $obj = new version_range_test('php_version',$v);
-        $obj->minimum = '7.0';
+        $obj->minimum = '7.1';
         $obj->recommended = '7.2';
         $obj->fail_msg = lang('fail_php_version',$v,$obj->minimum);
         if (version_compare($obj->minimum, $obj->recommended) < 0) {
