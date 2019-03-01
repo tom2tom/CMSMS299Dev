@@ -16,8 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
 use CMSMS\internal\module_meta;
+use CMSMS\internal\Smarty;
+use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
+use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
 $CMS_TOP_MENU = 'admin';
@@ -95,7 +99,7 @@ if (isset($_POST['submit'])) {
   // Audit, message, cleanup
   audit($userid, 'Admin Username: '.$userobj->username, 'Edited');
   $themeObject->RecordNotice('success', lang('prefsupdated'));
-  cmsms()->clear_cached_files();
+  AdminUtils::clear_cache();
 
   if ($themenow != $admintheme) {
     redirect(basename(__FILE__).$urlext);
@@ -126,7 +130,7 @@ $wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
  */
 
 $contentops = cmsms()->GetContentOperations();
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 # WYSIWYG editors
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);

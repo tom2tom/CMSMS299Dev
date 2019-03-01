@@ -1,4 +1,5 @@
 <?php
+
 class ClearCacheTask implements CmsRegularTask
 {
     const  LASTEXECUTE_SITEPREF   = 'ClearCache_lastexecute';
@@ -34,7 +35,7 @@ class ClearCacheTask implements CmsRegularTask
     public function execute($time = '')
     {
         // do the task.
-        CmsApp::get_instance()->clear_cached_files($this->_age_days);
+        CMSMS\AdminUtils::clear_cache($this->_age_days);
         return TRUE;
     }
 

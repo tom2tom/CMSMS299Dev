@@ -23,13 +23,21 @@ use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CMSMS\internal\Smarty;
+use FilesystemIterator;
+use LogicException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use const CMS_DEFAULT_VERSIONCHECK_URL;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
 use const CMS_USER_KEY;
 use const CMS_VERSION;
+use const PUBLIC_CACHE_LOCATION;
+use const TMP_CACHE_LOCATION;
+use const TMP_TEMPLATES_C_LOCATION;
 use function cms_join_path;
 use function cms_module_places;
+use function cms_path_to_url;
 use function endswith;
 use function startswith;
 
@@ -38,8 +46,9 @@ use function startswith;
 //    throw new CmsLogicException('Attempt to use CMSMS\AdminUtils class from an invalid request');
 
 /**
- * A Simple static class providing various convenience utilities for admin requests.
+ * A class of static utility methods for admin requests.
  *
+ * @final
  * @package CMS
  * @license GPL
  * @author  Robert Campbell
@@ -57,6 +66,10 @@ final class AdminUtils
 	 * @ignore
 	 */
 	private function __construct() {}
+	/**
+	 * @ignore
+	 */
+	private function __clone() {}
 
 	/**
 	 * Test if a string is suitable for use as a name of an item in CMSMS.
@@ -67,7 +80,7 @@ final class AdminUtils
 	 * @param string $str The string to test
 	 * @return bool|string FALSE on error or the validated string.
 	 */
-	public static function is_valid_itemname($str)
+	public static function is_valid_itemname(string $str)
 	{
 		if( !is_string($str) ) return FALSE;
 		$t_str = trim($str);
@@ -83,7 +96,7 @@ final class AdminUtils
 	 * @param string $in_url The input URL that has the session key in it.
 	 * @return string A URL that is converted to a generic form.
 	 */
-	public static function get_generic_url($in_url)
+	public static function get_generic_url(string $in_url) : string
 	{
 		if( !defined('CMS_USER_KEY') ) throw new LogicException('This method can only be called for admin requests');
 		if( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
@@ -101,10 +114,10 @@ final class AdminUtils
 	/**
 	 * Convert a generic URL into something that is suitable for this user's session.
 	 *
-	 * @param string $in_url The generic url.  usually retrieved from a preference or from the database
+	 * @param string $in_url The generic url. Usually retrieved from a preference or from the database
 	 * @return string A URL that has a session key in it.
 	 */
-	public static function get_session_url($in_url)
+	public static function get_session_url(string $in_url) : string
 	{
 		if( !defined('CMS_USER_KEY') ) throw new LogicException('This method can only be called for admin requests');
 		IF( !isset($_SESSION[CMS_USER_KEY]) || !$_SESSION[CMS_USER_KEY] ) throw new LogicException('This method can only be called for admin requests');
@@ -121,7 +134,7 @@ final class AdminUtils
 	 *
 	 * @return string
 	 */
-	public static function fetch_latest_cmsms_ver()
+	public static function fetch_latest_cmsms_ver() : string
 	{
 		$last_fetch = (int) cms_siteprefs::get('last_remotever_check');
 		$remote_ver = cms_siteprefs::get('last_remotever');
@@ -143,19 +156,14 @@ final class AdminUtils
 	}
 
 	/**
-	 * Test if the current site is in need of upgrading (a new version of CMSMS is available)
+	 * Report whether a newer version of CMSMS than presently running is available
 	 *
 	 * @return bool
 	 */
-	public static function site_needs_updating()
+	public static function site_needs_updating() : bool
 	{
 		$remote_ver = self::fetch_latest_cmsms_ver();
-		if( version_compare(CMS_VERSION,$remote_ver) < 0 ) {
-			return TRUE;
-		}
-		else {
-			return FALSE;
-		}
+		return version_compare(CMS_VERSION,$remote_ver) < 0;
 	}
 
 	/**
@@ -235,7 +243,7 @@ final class AdminUtils
 	 * @param array $attrs Since 2.3 Optional assoc array of attributes for the created img tag
 	 * @return string
 	 */
-	public static function get_icon($icon, $attrs = [])
+	public static function get_icon(string $icon, array $attrs = []) : string
 	{
 		$smarty = Smarty::get_instance();
 		$module = $smarty->getTemplateVars('actionmodule');
@@ -260,8 +268,8 @@ final class AdminUtils
 	 * name, or else 'help'
 	 * If neither 'title'/'titlekey' is provided, the fallback will be 'key'/'key2'
 	 *
-	 * @param strings array
-	 * @return string HTML content of the help tag, or null
+	 * @param $args string(s) varargs
+	 * @return mixed string HTML content of the help tag, or null
 	 */
 	public static function get_help_tag(...$args)
 	{
@@ -322,5 +330,45 @@ final class AdminUtils
 		if( $title === '' ) { $title = ($key2) ? $key2 : 'for this'; } //TODO lang
 
 		return '<span class="cms_help" data-cmshelp-key="'.$key1.'" data-cmshelp-title="'.$title.'">'.$icon.'</span>';
+	}
+
+	/**
+	 * Remove files from the website directories defined as
+	 * TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION
+	 * @since 2.3
+	 *
+	 * @param $age_days Optional file-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
+	 */
+	public static function clear_cache(int $age_days = 0)
+	{
+		//TODO also clear non-file caches, if used
+		global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE;
+
+		if( !(isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE))) return;
+		if( !defined('TMP_CACHE_LOCATION') ) return;
+		$age_days = max(0,(int)$age_days);
+		HookManager::do_hook_simple('clear_cached_files', [ 'older_than' => $age_days ]);
+		$the_time = time() - $age_days * 24 * 3600;
+
+		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
+		foreach( $dirs as $start_dir ) {
+			$iter = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($start_dir,
+					FilesystemIterator::KEY_AS_FILENAME |
+					FilesystemIterator::SKIP_DOTS
+				),
+				RecursiveIteratorIterator::LEAVES_ONLY |
+				RecursiveIteratorIterator::SELF_FIRST);
+			foreach( $iter as $fn => $inf ) {
+				if( $inf->isFile() && $inf->getMTime() <= $the_time ) {
+					if( !fnmatch('index.htm?', $fn) ) {
+						unlink($inf->getPathname());
+					}
+					else {
+						touch($inf->getPathname());
+					}
+				}
+			}
+		}
 	}
 } // class

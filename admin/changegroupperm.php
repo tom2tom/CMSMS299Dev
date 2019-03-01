@@ -16,10 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\Smarty;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
+//$CMS_ADMIN_TITLE = 'whatever';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -207,7 +209,7 @@ VALUES (?,?,?,$now,$now)");
     // put mention into the admin log
     audit($userid, 'Permission Group ID: '.$userid, 'Changed');
     $message = lang('permissionschanged');
-    $gCms->clear_cached_files();
+    AdminUtils::clear_cache();
 }
 
 if (!empty($message)) {

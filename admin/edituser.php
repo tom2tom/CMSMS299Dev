@@ -16,12 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\GroupOperations;
 use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
+use Exception;
 
 $CMS_ADMIN_PAGE = 1;
+//$CMS_ADMIN_TITLE = 'whatever';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -196,6 +199,7 @@ if (isset($_POST['submit'])) {
             }
         }
 
+        // put mention into the admin log
         audit($userid, 'Admin Username: ' . $thisuser->username, ' Edited');
         $message = lang('edited_user');
 
@@ -218,9 +222,8 @@ if (isset($_POST['submit'])) {
                 $message = lang('msg_usersettingscleared');
             }
 
-            // put mention into the admin log
             Events::SendEvent('Core', 'EditUserPost', [ 'user'=>&$thisuser ] );
-            $gCms->clear_cached_files();
+            AdminUtils::clear_cache();
             $url = 'listusers.php?' . $urlext;
             if ($message) {
                 $message = urlencode($message);

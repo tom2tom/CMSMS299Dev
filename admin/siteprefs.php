@@ -16,6 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
 use CMSMS\ContentBase;
 use CMSMS\contenttypes\Content;
 use CMSMS\FileType;
@@ -26,9 +27,9 @@ use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
 
-$CMS_ADMIN_PAGE=1;
-$CMS_TOP_MENU='admin';
-$CMS_ADMIN_TITLE='preferences';
+$CMS_ADMIN_PAGE = 1;
+$CMS_TOP_MENU = 'admin';
+$CMS_ADMIN_TITLE = 'preferences';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -310,7 +311,7 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('smarty_cachelife', $val);
                 $val = (isset($_POST['use_smartycompilecheck'])) ? 1:0;
                 cms_siteprefs::set('use_smartycompilecheck', $val);
-                $gCms->clear_cached_files();
+                AdminUtils::clear_cache();
 
                 $val = trim($_POST['editortype']); //TODO process this
                 cms_siteprefs::set('syntax_editor', $val);

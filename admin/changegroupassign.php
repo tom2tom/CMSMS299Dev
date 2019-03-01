@@ -16,9 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\AdminUtils;
 use CMSMS\Events;
+use CMSMS\internal\Smarty;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
+//$CMS_ADMIN_TITLE = 'whatever';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -48,7 +51,7 @@ $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $message = '';
 
 $db = $gCms->GetDb();
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = Smarty::get_instance();
 
 if (isset($_POST['filter'])) {
     $disp_group = cleanValue($_POST['groupsel']);
@@ -114,7 +117,7 @@ if (isset($_POST['submit'])) {
     // put mention into the admin log
     audit($userid, 'Assignment User ID: '.$userid, 'Changed');
     $message = lang('assignmentchanged');
-    $gCms->clear_cached_files();
+    AdminUtils::clear_cache();
 }
 
 $query = 'SELECT u.user_id, u.username, ug.group_id FROM '.

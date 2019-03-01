@@ -4,6 +4,7 @@ namespace cms_installer\wizard;
 
 use cms_installer\session;
 use cms_config;
+use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use Exception;
 use const CMS_DB_PREFIX;
@@ -75,7 +76,7 @@ class wizard_step9 extends wizard_step
 
         // clear the cache
         $this->message(lang('msg_clearcache'));
-        cmsms()->clear_cached_files();
+        AdminUtils::clear_cache();
 
         $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
         // write protect config.php
@@ -156,7 +157,7 @@ VALUES (?,?,?,NOW(),NOW())');
         // todo: write history
 
         $this->message(lang('msg_clearcache'));
-        cmsms()->clear_cached_files();
+        AdminUtils::clear_cache();
 
         // set the finished message.
         if( !$root_url || !$app->in_phar() ) {
@@ -191,7 +192,7 @@ VALUES (?,?,?,NOW(),NOW())');
         // clear the cache
         $this->connect_to_cmsms($destdir);
         $this->message(lang('msg_clearcache'));
-        cmsms()->clear_cached_files();
+        AdminUtils::clear_cache();
 
         // todo: write history
 

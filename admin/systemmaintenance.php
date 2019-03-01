@@ -17,9 +17,12 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use __installer\installer_base;
+use CMSMS\AdminUtils;
+use CMSMS\FilePickerProfile;
 use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE = 1;
+//$CMS_ADMIN_TITLE = 'whatever';
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -142,7 +145,8 @@ if (isset($_POST['updateurls'])) {
 }
 
 if (isset($_POST['clearcache'])) {
-    cmsms()->clear_cached_files(); //TODO also clear any non-file caches
+    //TODO also clear non-file caches, if used
+    AdminUtils::clear_cache();
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
     $themeObject->RecordNotice('success', lang('cachecleared'));
