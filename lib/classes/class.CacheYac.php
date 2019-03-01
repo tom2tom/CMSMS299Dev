@@ -97,7 +97,7 @@ class CacheYac extends CacheDriver
 
         $key = $this->get_cachekey($key, __CLASS__, $group);
         $res = $this->instance->get($key);
-		return $res || !is_bool($res);
+        return $res || !is_bool($res);
     }
 
     public function set($key, $value, $group = '')
