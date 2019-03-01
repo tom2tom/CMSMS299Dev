@@ -35,7 +35,7 @@ final class smarty_security_policy extends Smarty_Security
     public function __construct($smarty)
     {
         parent::__construct($smarty);
-        $this->php_handling = Smarty::PHP_REMOVE; // remove literal php (like <? php stuff ? >) from templates
+        $this->php_handling = Smarty::PHP_REMOVE; // escape literal <?php ... ? > tags in templates
         $this->php_modifiers = []; // allow all
         $this->secure_dir = null; // block stuff happening outside the specified directories
         $this->streams = null; // no streams allowed
