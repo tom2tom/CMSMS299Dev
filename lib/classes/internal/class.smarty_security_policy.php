@@ -48,7 +48,6 @@ final class smarty_security_policy extends Smarty_Security
                 // allow most methods that do data interpretation, modification or formatting
                 // e.g. string searches, array searches, string comparison, sorting, etc.
                 $this->php_functions = [
-                'is_array',
                 'array_flip',
                 'array_rand',
                 'array_reverse',
@@ -68,6 +67,7 @@ final class smarty_security_policy extends Smarty_Security
                 'htmlspecialchars',
                 'implode',
                 'in_array',
+                'is_array',
                 'is_dir',
                 'is_file',
                 'is_object',
