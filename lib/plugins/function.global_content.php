@@ -18,7 +18,7 @@
 
 /**
  * @param array $params
- * @param CMSMS\internal\template_wrapper $smarty
+ * @param CMSMS\internal\template_wrapper $template
  * @return mixed result of template conversion, or null
  */
 function smarty_function_global_content($params, $template)
