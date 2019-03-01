@@ -137,7 +137,7 @@ if ($n > 0) {
  */
 $contentops = cmsms()->GetContentOperations();
 
-if (isset($_POST['updateurls'])) {
+if (isset($_POST['updatroutes'])) {
     cms_route_manager::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
     $themeObject->RecordNotice('success', lang('routesrebuilt'));
