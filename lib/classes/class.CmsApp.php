@@ -543,18 +543,17 @@ final class CmsApp
     }
 
     /**
-     * Remove files from the website directories defined as
-	 * TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION
-     * NOTE: This function is for admin-side use by CMSMS only.
-	 * @deprecated since 2.3 when valid, instead use AdminUtils::clear_cached_files
-	 *
+     * Remove files from the website file-cache directories.
+     * @deprecated since 2.3 Now does nothing.
+     * This functionality has been relocated, and surrounded with
+     * appropriate security. 
+     *
      * @internal
      * @ignore
      * @param $age_days Optional file-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
      */
     public function clear_cached_files(int $age_days = 0)
     {
-        AdminUtils::clear_cached_files($age_days);
     }
 
     /**
@@ -595,7 +594,7 @@ final class CmsApp
     {
         if( !in_array($state,self::STATELIST) ) throw new CmsInvalidDataException($state.' is an invalid CMSMS state');
         $this->set_states();
-        return ( in_array($state,$this->_states) );
+        return in_array($state,$this->_states);
     }
 
     /**
