@@ -1,5 +1,5 @@
 <?php
-#make relevant css available for an admin page
+#make relevant css available for a login page
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -16,9 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//Deprecated since 2.3 - just include the relevant .css in the page header during its construction
+//Deprecated since 2.3 - just include the relevant .css file(s) in the page header during its construction
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE=1; //lazy ?
 $CMS_LOGIN_PAGE=1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
