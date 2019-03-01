@@ -20,26 +20,27 @@
 namespace CMSMS {
 */
 
+use CMSMS\AdminUtils;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection as Connection2;
 use CMSMS\Database\mysqli\Connection;
+use CMSMS\FilePluginOperations;
 use CMSMS\GroupOperations;
-use CMSMS\HookManager;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
-use CMSMS\FilePluginOperations;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 
 /**
- * Singleton class that contains various functions and states
- * representing the application.
+ * Singleton class that contains various functions and properties representing
+ * the application.
  *
+ * @final
  * @package CMS
  * @license GPL
  * @since 0.5
@@ -524,7 +525,7 @@ final class CmsApp
      */
     public function GetJobManager()
     {
-		return $this->jobmgrinstance;
+        return $this->jobmgrinstance;
     }
 
     /**
@@ -542,32 +543,18 @@ final class CmsApp
     }
 
     /**
-     * Clear out cached files from the CMS tmp/cache and tmp/templates_c directories.
-     *
-     * NOTE: This function is for use by CMSMS only.  No third party application, UDT or code
-     *   can use this method and still exist in the CMSMS forge or be supported in any way.
-     *
+     * Remove files from the website directories defined as
+	 * TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION
+     * NOTE: This function is for admin-side use by CMSMS only.
+	 * @deprecated since 2.3 when valid, instead use AdminUtils::clear_cached_files
+	 *
      * @internal
      * @ignore
-     * @access private
-	 * @param $age_days Optional File-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
+     * @param $age_days Optional file-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
      */
     public function clear_cached_files(int $age_days = 0)
     {
-        if( !defined('TMP_CACHE_LOCATION') ) return;
-        $age_days = max(0,(int)$age_days);
-        HookManager::do_hook_simple('clear_cached_files', [ 'older_than' => $age_days ]);
-        $the_time = time() - $age_days * 24 * 3600;
-
-        $dirs = [TMP_CACHE_LOCATION,PUBLIC_CACHE_LOCATION,TMP_TEMPLATES_C_LOCATION];
-        foreach( $dirs as $start_dir ) {
-            $dirIterator = new RecursiveDirectoryIterator($start_dir);
-            $dirContents = new RecursiveIteratorIterator($dirIterator);
-            foreach( $dirContents as $one ) {
-                if( $one->isFile() && $one->getMTime() <= $the_time ) @unlink($one->getPathname());
-            }
-            @touch(cms_join_path($start_dir,'index.html'));
-        }
+        AdminUtils::clear_cached_files($age_days);
     }
 
     /**
