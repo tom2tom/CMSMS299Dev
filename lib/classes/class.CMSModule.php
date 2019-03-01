@@ -116,9 +116,8 @@ abstract class CMSModule
             $this->SetParameterType('assign',CLEAN_STRING);
             $this->SetParameterType('cmsjobtype',CLEAN_INT);
             $this->SetParameterType('id',CLEAN_STRING);
-            $this->SetParameterType('idprefix',CLEAN_STRING);
             $this->SetParameterType('inline',CLEAN_INT);
-            $this->SetParameterType('lang',CLEAN_STRING); // this will be ignored.
+            $this->SetParameterType('lang',CLEAN_STRING);
             $this->SetParameterType('module',CLEAN_STRING);
             $this->SetParameterType('returnid',CLEAN_INT);
             $this->SetParameterType('showtemplate',CLEAN_STRING); //deprecated, use cmsjobtype
