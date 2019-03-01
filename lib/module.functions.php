@@ -89,13 +89,13 @@ function cms_module_path(string $modname, bool $folder = false) : string
  * @access private
  * @param array A hash of parameters
  * @param object A Smarty_Internal_Template object
- * @return mixed The module output string or null
+ * @return mixed The module output string or an error message string or null
  */
 function cms_module_plugin(array $params, $template)
 {
 //  if (get_class($smarty) == 'Smarty_Parser') return; // if we are in the parser, we don't process module calls.
     if (isset($params['module'])) {
-        $modulename = $params['module'];
+        $module = $params['module'];
         unset($params['module']);
     }
     else {
@@ -106,13 +106,18 @@ function cms_module_plugin(array $params, $template)
         // action was set in the module tag
         $action = $params['action'];
 //       unset($params['action']);  unfortunate 2.3 deprecation
-    } else {
+    }
+    else {
         $params['action'] = $action = 'default'; //2.3 deprecation
     }
-    // get a unique id/prefix for this module operation
     if (!empty($params['idprefix'])) {
+        // idprefix was set in the module tag
         $id = $params['idprefix'];
-    } else {
+        $setid = true;
+    }
+    else {
+        $setid = false;
+        // get a random(ish) id for this module operation
         //CHECKME what relevance here for the per-request cache? Same tag repeated ?
         $mid_cache = cms_utils::get_app_data('mid_cache');
         if (!is_array($mid_cache)) $mid_cache = [];
@@ -127,59 +132,65 @@ function cms_module_plugin(array $params, $template)
                 }
             }
             if (!isset($mid_cache[$id])) {
-                $mid_cache[$id] = $id;
-                break;
+                $mid_cache[$id] = $id; // seems useless
             }
+            break;
         }
         cms_utils::set_app_data('mid_cache',$mid_cache);
     }
-    $inline = false;
 
     if (isset($_REQUEST['mact'])) {
-        // we're handling an action.  check if it is for this call.
-        // we may be calling module plugins multiple times in the template,
+        // We're handling an action.  Check if it is for this call.
+        // We may be calling module plugins multiple times in the template,
         // but a POST or GET mact can only be for one of them.
-        $checkid = null;
         $mact = filter_var($_REQUEST['mact'], FILTER_SANITIZE_STRING);
         $ary = explode(',', $mact, 4);
         $mactmodulename = $ary[0] ?? '';
-        if (strcasecmp($mactmodulename, $modulename) == 0) {
+        if (strcasecmp($mactmodulename, $module) == 0) {
             $checkid = $ary[1] ?? '';
             $inline = isset($ary[3]) && $ary[3] === 1;
-            if ($inline && $checkid == $id) {
+            if ($inline && $checkid == $id) { // presumbly $setid true i.e. not a random id
                 // the action is for this instance of the module and we're inline
                 // i.e. the results are supposed to replace the tag, not {content}
                 $action = $ary[2] ?? 'default';
-                $params['action'] = $action; //deprecated since 2.3
+                $params['action'] = $action; // deprecated since 2.3
                 $params = array_merge($params, ModuleOperations::get_instance()->GetModuleParameters($id));
             }
         }
     }
 
-//    class_exists($modulename); // autoload? why
-    $module = cms_utils::get_module($modulename);
+//    class_exists($module); // autoload? why
+    $modinst = cms_utils::get_module($module);
+    if (!$modinst) {
+        return "<!-- ERROR: $module is not a recognized module -->\n";
+    }
+
     global $CMS_ADMIN_PAGE, $CMS_LOGIN_PAGE, $CMS_INSTALL;
     // WHAAAT ? admin-request accepts ALL modules as plugins (lazy/bad module init?)
-    if ($module && ($module->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE)))) {
-        $params['id'] = $id;
-        $params['idprefix'] = $id;
+    if ($modinst->isPluginModule() || (isset($CMS_ADMIN_PAGE) && !isset($CMS_INSTALL) && !isset($CMS_LOGIN_PAGE))) {
+        $params['id'] = $id; // deprecated since 2.3
+        if ($setid) {
+            $params['idprefix'] = $id; // might be needed per se, probably not
+            $modinst->SetParameterType('idprefix',CLEAN_STRING); // in case it's a frontend request
+        }
         $returnid = CmsApp::get_instance()->get_content_id();
         $params['returnid'] = $returnid;
-        @ob_start();
-        $result = $module->DoActionBase($action, $id, $params, $returnid, $template);
-        if ($result !== FALSE) {
+
+        @ob_start(); // probably redundant
+        $result = $modinst->DoActionBase($action, $id, $params, $returnid, $template);
+        if ($result !== false) {
             echo $result;
         }
-        $modresult = @ob_get_contents();
+        $out = @ob_get_contents();
         @ob_end_clean();
 
         if (isset($params['assign'])) {
-            $template->assign(trim($params['assign']),$modresult);
+            $template->assign(trim($params['assign']),$out);
             return '';
         }
-        return $modresult;
+        return $out;
     }
-    elseif (!$module || !$module->isPluginModule()) {
-        return "<!-- $modulename is not a plugin module -->\n";
+    elseif (!$modinst->isPluginModule()) {
+        return "<!-- ERROR: $module is not a plugin module -->\n";
     }
 }
