@@ -21,7 +21,7 @@ use CMSMS\HookManager;
 use CMSMS\internal\Smarty;
 
 // variables for general use
-if (empty($CMS_LOGIN_PAGE)) {
+if (!isset($CMS_LOGIN_PAGE)) {
 	$userid = get_userid(); //also checks login status
 }
 if (!isset($themeObject)) {
@@ -166,7 +166,7 @@ if (!isset($USE_OUTPUT_BUFFERING) || $USE_OUTPUT_BUFFERING) {
 }
 
 if (!isset($USE_THEME) || $USE_THEME) {
-	if (empty($CMS_LOGIN_PAGE)) {
+	if (!isset($CMS_LOGIN_PAGE)) {
 		$smarty->assign('secureparam', CMS_SECURE_PARAM_NAME . '=' . $_SESSION[CMS_USER_KEY]);
 
 		// Display notification stuff from modules
