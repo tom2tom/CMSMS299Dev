@@ -8,6 +8,7 @@ use AdminLog\storage;
 use cms_siteprefs;
 use cms_utils;
 use CMSMS\IAuditManager;
+use Exception;
 use function get_userid;
 use function get_username;
 
@@ -33,11 +34,14 @@ class auditor implements IAuditManager
 
     public function audit( string $subject, string $msg, $item_id = null )
     {
-        $parms = $this->get_event_parms();
-        $parms = array_merge($parms,[ 'severity'=>event::TYPE_MSG, 'subject'=>$subject, 'msg'=>$msg, 'item_id'=>$item_id ] );
+        $parms = array_merge($this->get_event_parms(),
+        [ 'severity'=>event::TYPE_MSG, 'subject'=>$subject, 'msg'=>$msg, 'item_id'=>$item_id ]
+        );
 
-        $ev = new event( $parms );
-        $this->_storage->save( $ev );
+        try {
+            $ev = new event($parms);
+            $this->_storage->save($ev);
+        } catch (Exception $e) { /* oops ! but don't except-out */ }
     }
 
     protected function error_log( int $severity, string $msg )
