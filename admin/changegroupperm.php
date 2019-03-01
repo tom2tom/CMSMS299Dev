@@ -38,7 +38,7 @@ $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
 //TODO some immediate popup  lang('needpermissionto', '"Manage Groups"'));
-	return;
+    return;
 }
 
 $gCms = cmsms();
@@ -58,7 +58,7 @@ $load_perms = function () use ($db) {
     $result = $db->Execute($query);
 
     // use hooks to localize permissions.
-	//NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
+    //NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
     HookManager::add_hook('localizeperm', function ($perm_source, $perm_name) {
         $key = 'perm_'.str_replace(' ', '_', $perm_name);
         if (CmsLangOperations::lang_key_exists('admin', $key)) {
@@ -131,7 +131,7 @@ $group_perms = function ($in_struct) {
     return $out;
 };
 
-if (!empty($_POST['filter'])) {
+if (isset($_POST['filter'])) {
     $disp_group = filter_var($_POST['groupsel'], FILTER_SANITIZE_NUMBER_INT);
     cms_userprefs::set_for_user($userid, 'changegroupassign_group', $disp_group);
 }

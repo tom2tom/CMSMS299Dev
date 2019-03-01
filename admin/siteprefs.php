@@ -156,7 +156,7 @@ if (isset($_POST['testmail'])) {
     }
 }
 
-if (!empty($_POST['testumask'])) {
+if (isset($_POST['testumask'])) {
     $testdir = TMP_CACHE_LOCATION;
     $testfile = $testdir.DIRECTORY_SEPARATOR.'dummy.tst';
     if (!is_writable($testdir)) {
@@ -194,12 +194,12 @@ if (isset($_POST['submit'])) {
             case 'general':
                 cms_siteprefs::set('sitename', trim($_POST['sitename']));
                 cms_siteprefs::set('sitelogo', trim(filter_var($_POST['sitelogo'], FILTER_SANITIZE_URL)));
-                $val = (!empty($_POST['frontendlang'])) ? trim($_POST['frontendlang']) : '';
+                $val = (isset($_POST['frontendlang'])) ? trim($_POST['frontendlang']) : '';
                 cms_siteprefs::set('frontendlang', $val);
                 cms_siteprefs::set('metadata', $_POST['metadata']);
-                $val = (!empty($_POST['logintheme'])) ? trim($_POST['logintheme']) : '';
+                $val = (isset($_POST['logintheme'])) ? trim($_POST['logintheme']) : '';
                 cms_siteprefs::set('logintheme', $val);
-/*              $val = (!empty($_POST['backendwysiwyg'])) ? trim($_POST['backendwysiwyg']) : '';
+/*              $val = (isset($_POST['backendwysiwyg'])) ? trim($_POST['backendwysiwyg']) : '';
                 cms_siteprefs::set('backendwysiwyg', $val);
 */
                 // undo some cleaning ?
@@ -207,9 +207,9 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('defaultdateformat', $val);
                 cms_siteprefs::set('thumbnail_width', filter_var($_POST['thumbnail_width'], FILTER_SANITIZE_NUMBER_INT));
                 cms_siteprefs::set('thumbnail_height', filter_var($_POST['thumbnail_height'], FILTER_SANITIZE_NUMBER_INT));
-                $val = (!empty($_POST['frontendwysiwyg'])) ? trim($_POST['frontendwysiwyg']) : '';
+                $val = (isset($_POST['frontendwysiwyg'])) ? trim($_POST['frontendwysiwyg']) : '';
                 cms_siteprefs::set('frontendwysiwyg', $val);
-                $val = (!empty($_POST['search_module'])) ? trim($_POST['search_module']) : '';
+                $val = (isset($_POST['search_module'])) ? trim($_POST['search_module']) : '';
                 cms_siteprefs::set('searchmodule', $val);
                 break;
             case 'editcontent':
@@ -222,21 +222,21 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('content_thumbnailfield_path', $content_thumbnailfield_path = trim($_POST['content_thumbnailfield_path']));
                 cms_siteprefs::set('contentimage_path', trim($_POST['contentimage_path']));
                 cms_siteprefs::set('content_cssnameisblockname', (int) $_POST['content_cssnameisblockname']);
-                $val = (!empty($_POST['basic_attributes'])) ?
+                $val = (isset($_POST['basic_attributes'])) ?
                     implode(',', ($_POST['basic_attributes'])) : '';
                 cms_siteprefs::set('basic_attributes', $val);
-                $val = (!empty($_POST['disallowed_contenttypes'])) ?
+                $val = (isset($_POST['disallowed_contenttypes'])) ?
                     implode(',', $_POST['disallowed_contenttypes']) : '';
                 cms_siteprefs::set('disallowed_contenttypes', $val);
                 break;
             case 'sitedown':
-                $val = (!empty($_POST['sitedownexcludes'])) ? trim($_POST['sitedownexcludes']) : '';
+                $val = (isset($_POST['sitedownexcludes'])) ? trim($_POST['sitedownexcludes']) : '';
                 cms_siteprefs::set('sitedownexcludes', $val);
-                $val= (!empty($_POST['sitedownexcludeadmins'])) ? 1:0;
+                $val= (isset($_POST['sitedownexcludeadmins'])) ? 1:0;
                 cms_siteprefs::set('sitedownexcludeadmins', $val);
 
-                $enablesitedownmessage = !empty($_POST['enablesitedownmessage']);
-                $val = (!empty($_POST['sitedownmessage'])) ? trim(strip_tags($_POST['sitedownmessage'])) : '';
+                $enablesitedownmessage = isset($_POST['enablesitedownmessage']);
+                $val = (isset($_POST['sitedownmessage'])) ? trim(strip_tags($_POST['sitedownmessage'])) : '';
                 if ($val || !$enablesitedownmessage) {
                     $prevsitedown = cms_siteprefs::get('enablesitedownmessage');
                     if (!$prevsitedown && $enablesitedownmessage) {
@@ -301,14 +301,14 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('loginmodule', trim($_POST['login_module']));
                 cms_siteprefs::set('lock_timeout', (int) $_POST['lock_timeout']);
 
-				$val = trim($_POST['smarty_cachelife']);
-				if ($val !== '') {
-					$val = (int)$val;
-				} else {
-					$val = -1;
-				}
+                $val = trim($_POST['smarty_cachelife']);
+                if ($val !== '') {
+                    $val = (int)$val;
+                } else {
+                    $val = -1;
+                }
                 cms_siteprefs::set('smarty_cachelife', $val);
-                $val = (!empty($_POST['use_smartycompilecheck'])) ? 1:0;
+                $val = (isset($_POST['use_smartycompilecheck'])) ? 1:0;
                 cms_siteprefs::set('use_smartycompilecheck', $val);
                 $gCms->clear_cached_files();
 
@@ -333,7 +333,7 @@ if (isset($_POST['submit'])) {
                     }
                 }
 //              cms_siteprefs::set('xmlmodulerepository', $_POST['xmlmodulerepository']);
-                cms_siteprefs::set('checkversion', !empty($_POST['checkversion']));
+                cms_siteprefs::set('checkversion', isset($_POST['checkversion']));
                 cms_siteprefs::set('global_umask', $_POST['global_umask']);
                 cms_siteprefs::set('allow_browser_cache', (int) $_POST['allow_browser_cache']);
                 cms_siteprefs::set('browser_cache_expiry', (int) $_POST['browser_cache_expiry']);
@@ -762,7 +762,7 @@ if ($list) {
     $all_attributes = [];
     for ($i = 0, $n = count($list); $i < $n; ++$i) {
         $arr = $list[$i];
-		$tmp = $arr['tab'];
+        $tmp = $arr['tab'];
         // exclude some items
         if ($tmp == ContentBase::TAB_PERMS) {
             continue;

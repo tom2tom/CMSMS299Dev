@@ -28,8 +28,8 @@ check_login();
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
-	redirect('listgroups.php'.$urlext);
-//	return;
+    redirect('listgroups.php'.$urlext);
+//  return;
 }
 
 $group= '';
@@ -42,49 +42,49 @@ $access = check_permission($userid, 'Manage Groups');
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup	lang('needpermissionto', '"Manage Groups"'));
-	return;
+//TODO some immediate popup lang('needpermissionto', '"Manage Groups"'));
+    return;
 }
 
-if (!empty($_POST['addgroup'])) {
-	$group = cleanValue($_POST['group']);
-	$description = cleanValue($_POST['description']);
-	$active = !empty($_POST['active']);
-	try {
-		if ($group == '') {
-			 throw new CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
-		}
+if (isset($_POST['addgroup'])) {
+    $group = cleanValue($_POST['group']);
+    $description = cleanValue($_POST['description']);
+    $active = isset($_POST['active']);
+    try {
+        if ($group == '') {
+             throw new CmsInvalidDataException(lang('nofieldgiven', lang('groupname')));
+        }
 
-		$groupobj = new Group();
-		$groupobj->name = $group;
-		$groupobj->description = $description;
-		$groupobj->active = $active;
-		Events::SendEvent( 'Core', 'AddGroupPre', [ 'group'=>&$groupobj ] );
+        $groupobj = new Group();
+        $groupobj->name = $group;
+        $groupobj->description = $description;
+        $groupobj->active = $active;
+        Events::SendEvent( 'Core', 'AddGroupPre', [ 'group'=>&$groupobj ] );
 
-		if($groupobj->save()) {
-			Events::SendEvent( 'Core', 'AddGroupPost', [ 'group'=>&$groupobj ] );
-			// put mention into the admin log
-			audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
-			redirect('listgroups.php'.$urlext);
-			return;
-		} else {
-			throw new RuntimeException(lang('errorinsertinggroup'));
-		}
-	} catch( Exception $e ) {
-		$themeObject->RecordNotice('error', $e->GetMessage());
-	}
+        if($groupobj->save()) {
+            Events::SendEvent( 'Core', 'AddGroupPost', [ 'group'=>&$groupobj ] );
+            // put mention into the admin log
+            audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Added');
+            redirect('listgroups.php'.$urlext);
+            return;
+        } else {
+            throw new RuntimeException(lang('errorinsertinggroup'));
+        }
+    } catch( Exception $e ) {
+        $themeObject->RecordNotice('error', $e->GetMessage());
+    }
 }
 
 $selfurl = basename(__FILE__);
 
 $smarty = Smarty::get_instance();
 $smarty->assign([
-	'access' => $access,
-	'active' => $active,
-	'description' => $description,
-	'group' => $group,
-	'selfurl' => $selfurl,
-	'urlext' => $urlext,
+    'access' => $access,
+    'active' => $active,
+    'description' => $description,
+    'group' => $group,
+    'selfurl' => $selfurl,
+    'urlext' => $urlext,
 ]);
 
 include_once 'header.php';

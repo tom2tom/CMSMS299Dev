@@ -53,18 +53,18 @@ if (isset($_POST['submit'])) {
   cleanArray($_POST);
   // Get values from request and drive em to variables
   $admintheme = $_POST['admintheme'];
-  $bookmarks = (!empty($_POST['bookmarks'])) ? 1 : 0;
+  $bookmarks = (isset($_POST['bookmarks'])) ? 1 : 0;
   $ce_navdisplay = $_POST['ce_navdisplay'];
   $date_format_string = $_POST['date_format_string'];
   $default_cms_language = $_POST['default_cms_language'];
   $default_parent = (int)$_POST['parent_id'];
   $editortheme = $_POST['editortheme'] ?? null;
   $editortype = $_POST['editortype'] ?? null;
-  $hide_help_links = (!empty($_POST['hide_help_links'])) ? 1 : 0;
+  $hide_help_links = (isset($_POST['hide_help_links'])) ? 1 : 0;
   $homepage = $_POST['homepage'];
-  $indent = (!empty($_POST['indent'])) ? 1 : 0;
+  $indent = (isset($_POST['indent'])) ? 1 : 0;
   $old_default_cms_lang = $_POST['old_default_cms_lang'];
-  $paging = (!empty($_POST['paging'])) ? 1 : 0;
+  $paging = (isset($_POST['paging'])) ? 1 : 0;
 //  $syntaxhighlighter = $_POST['syntaxhighlighter'] ?? null;
   $wysiwyg = $_POST['wysiwyg'];
 

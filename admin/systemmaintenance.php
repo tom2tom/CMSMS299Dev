@@ -76,7 +76,7 @@ function MakeCommaList($tables)
     return $out;
 }
 
-if (!empty($_POST['optimizeall'])) {
+if (isset($_POST['optimizeall'])) {
     $query = 'OPTIMIZE TABLE ' . MakeCommaList($nonseqtables);
     $optimizearray = $db->GetArray($query);
     //print_r($optimizearray);
@@ -94,7 +94,7 @@ if (!empty($_POST['optimizeall'])) {
     $themeObject->RecordNotice('success', lang('sysmain_tablesoptimized'));
 }
 
-if (!empty($_POST['repairall'])) {
+if (isset($_POST['repairall'])) {
     $query = 'REPAIR TABLE ' . MakeCommaList($tables);
     $repairarray = $db->GetArray($query);
     $errorsfound = 0;
@@ -134,22 +134,22 @@ if ($n > 0) {
  */
 $contentops = cmsms()->GetContentOperations();
 
-if (!empty($_POST['updateurls'])) {
+if (isset($_POST['updateurls'])) {
     cms_route_manager::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
     $themeObject->RecordNotice('success', lang('routesrebuilt'));
     $smarty->assign('active_content', 'true');
 }
 
-if (!empty($_POST['clearcache'])) {
-    cmsms()->clear_cached_files();
+if (isset($_POST['clearcache'])) {
+    cmsms()->clear_cached_files(); //TODO also clear any non-file caches
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
     $themeObject->RecordNotice('success', lang('cachecleared'));
     $smarty->assign('active_content', 'true');
 }
 
-if (!empty($_POST['updatehierarchy'])) {
+if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
     $themeObject->RecordNotice('success', lang('sysmain_hierarchyupdated'));
@@ -159,21 +159,21 @@ if (!empty($_POST['updatehierarchy'])) {
 $flag = !empty($config['developer_mode']);
 if ($flag && isset($_POST['export'])) {
     include __DIR__.DIRECTORY_SEPARATOR.'function.contentoperation.php';
-	// identify folder where 'support' files (if any) will be stored, pending site import
-	$fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
-	if (is_file($fp)) {
-		include $fp;
-		$arr = installer_base::CONTENTFILESDIR;
-		$filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
-		$arr = installer_base::CONTENTXML;
-		$xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
-		$keep = true;
-	} else {
-		// guess, probably still relevant :)
-		$filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer','assets','install','uploadfiles');
-	    $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
-		$keep = false;
-	}
+    // identify folder where 'support' files (if any) will be stored, pending site import
+    $fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
+    if (is_file($fp)) {
+        include $fp;
+        $arr = installer_base::CONTENTFILESDIR;
+        $filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+        $arr = installer_base::CONTENTXML;
+        $xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+        $keep = true;
+    } else {
+        // guess, probably still relevant :)
+        $filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer','assets','install','uploadfiles');
+        $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
+        $keep = false;
+    }
     export_content($xmlfile, $filesin, $db);
     $handlers = ob_list_handlers();
     for ($c = 0, $n = count($handlers); $c < $n; ++$c) {
@@ -185,10 +185,10 @@ if ($flag && isset($_POST['export'])) {
     header('Content-Type: application/force-download');
     header('Content-Disposition: attachment; filename='.$xmlname);
     echo file_get_contents($xmlfile);
-	if (!$keep) {
-	    @unlink($xmlfile);
-	}
-	exit;
+    if (!$keep) {
+        @unlink($xmlfile);
+    }
+    exit;
 }
 $smarty->assign('devmode', $flag);
 
@@ -200,7 +200,7 @@ foreach ($contenttypes as $typeid => $typename) {
     $simpletypes[] = $typeid;
 }
 
-if (!empty($_POST['addaliases'])) {
+if (isset($_POST['addaliases'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
@@ -234,7 +234,7 @@ if (!empty($_POST['addaliases'])) {
     $smarty->assign('active_content', 'true');
 }
 
-if (!empty($_POST['fixtypes'])) {
+if (isset($_POST['fixtypes'])) {
     //$contentops->SetAllHierarchyPositions();
     $count = 0;
     $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';

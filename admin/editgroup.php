@@ -27,17 +27,17 @@ check_login();
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
-	redirect('listgroups.php'.$urlext);
-	return;
+    redirect('listgroups.php'.$urlext);
+    return;
 }
 
 $group = '';
 $description = '';
 $active = 1;
 if (isset($_GET['group_id'])) {
-	$group_id = (int) $_GET['group_id'];
+    $group_id = (int) $_GET['group_id'];
 } else {
-	$group_id = -1;
+    $group_id = -1;
 }
 
 $userid = get_userid();
@@ -46,48 +46,48 @@ $access = check_permission($userid, 'Manage Groups');
 $themeObject = cms_utils::get_theme_object();
 
 if (!$access) {
-//TODO some immediate popup	lang('needpermissionto', '"Manage Groups"')
-	return;
+//TODO some immediate popup lang('needpermissionto', '"Manage Groups"')
+    return;
 }
 
 $groupobj = new Group();
 if( $group_id > 0 ) {
-	$groupobj = Group::load($group_id);
+    $groupobj = Group::load($group_id);
 }
 
 if (isset($_POST['editgroup'])) {
-	$group_id = (int)$_POST['group_id'];
-	$description = trim(cleanValue($_POST['description']));
-	if ($group_id != 1) {
-		$active = (!empty($_POST['active'])) ? 1 : 0;
-	}
+    $group_id = (int)$_POST['group_id'];
+    $description = trim(cleanValue($_POST['description']));
+    if ($group_id != 1) {
+        $active = (isset($_POST['active'])) ? 1 : 0;
+    }
 
-	$validinfo = true;
-	$group = trim(cleanValue($_POST['group']));
-	if ($group == '') {
-		$validinfo = false;
-		$themeObject->RecordNotice('error', lang('nofieldgiven', lang('groupname')));
-	}
+    $validinfo = true;
+    $group = trim(cleanValue($_POST['group']));
+    if ($group == '') {
+        $validinfo = false;
+        $themeObject->RecordNotice('error', lang('nofieldgiven', lang('groupname')));
+    }
 
-	if ($validinfo) {
-		$groupobj->name = $group;
-		$groupobj->description = $description;
-		$groupobj->active = $active;
-		Events::SendEvent( 'Core', 'EditGroupPre', [ 'group'=>&$groupobj ] );
-		if ($groupobj->save()) {
-			Events::SendEvent( 'Core', 'EditGroupPost', [ 'group'=>&$groupobj ] );
-			// put mention into the admin log
-			audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Edited');
-			redirect('listgroups.php'.$urlext);
-			return;
-		} else {
-			$themeObject->RecordNotice('error', lang('errorupdatinggroup'));
-		}
-	}
+    if ($validinfo) {
+        $groupobj->name = $group;
+        $groupobj->description = $description;
+        $groupobj->active = $active;
+        Events::SendEvent( 'Core', 'EditGroupPre', [ 'group'=>&$groupobj ] );
+        if ($groupobj->save()) {
+            Events::SendEvent( 'Core', 'EditGroupPost', [ 'group'=>&$groupobj ] );
+            // put mention into the admin log
+            audit($groupobj->id, 'Admin User Group: '.$groupobj->name, 'Edited');
+            redirect('listgroups.php'.$urlext);
+            return;
+        } else {
+            $themeObject->RecordNotice('error', lang('errorupdatinggroup'));
+        }
+    }
 } elseif ($group_id != -1) {
-	$group = $groupobj->name;
-	$description = $groupobj->description;
-	$active = $groupobj->active;
+    $group = $groupobj->name;
+    $description = $groupobj->description;
+    $active = $groupobj->active;
 }
 
 $selfurl = basename(__FILE__);
@@ -96,13 +96,13 @@ $useringroup = $userops->UserInGroup($userid, $group_id);
 
 $smarty = Smarty::get_instance();
 $smarty->assign([
-	'active' => $active,
-	'description' => $description,
-	'group' => $group,
-	'group_id' => $group_id,
-	'selfurl' => $selfurl,
-	'urlext' => $urlext,
-	'useringroup' => $useringroup,
+    'active' => $active,
+    'description' => $description,
+    'group' => $group,
+    'group_id' => $group_id,
+    'selfurl' => $selfurl,
+    'urlext' => $urlext,
+    'useringroup' => $useringroup,
 ]);
 
 include_once 'header.php';

@@ -29,34 +29,34 @@ check_login();
 $urlext = '?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
 $access = check_permission($userid, "Modify Events");
-$senderfilter = (!empty($_POST['senderfilter'])) ? $_POST['senderfilter'] : '';
+$senderfilter = (isset($_POST['senderfilter'])) ? $_POST['senderfilter'] : '';
 if ($senderfilter == lang('all')) $senderfilter = '';
 
 $senders = [];
 $events = Events::ListEvents();
 if (is_array($events)) {
-	foreach($events as &$one) {
-		if (!in_array($one['originator'], $senders)) {
-			$senders[] = $one['originator'];
-		}
-		if ($one['originator'] == 'Core') {
-			$one['description'] = Events::GetEventDescription($one['event_name']);
-		} else {
-			$modsend = cms_utils::get_module($one['originator']);
-			$one['description'] = $modsend->GetEventDescription($one['event_name']);
-		}
-	}
-	unset($one);
-	sort($senders, SORT_NATURAL);
-	$senders = [-1=>lang('all')] + $senders;
+    foreach($events as &$one) {
+        if (!in_array($one['originator'], $senders)) {
+            $senders[] = $one['originator'];
+        }
+        if ($one['originator'] == 'Core') {
+            $one['description'] = Events::GetEventDescription($one['event_name']);
+        } else {
+            $modsend = cms_utils::get_module($one['originator']);
+            $one['description'] = $modsend->GetEventDescription($one['event_name']);
+        }
+    }
+    unset($one);
+    sort($senders, SORT_NATURAL);
+    $senders = [-1=>lang('all')] + $senders;
 }
 
 $themeObject = cms_utils::get_theme_object();
 
 if ($access) {
-	$iconedit = $themeObject->DisplayImage('icons/system/edit.gif',lang('modifyeventhandlers'),'','','systemicon');
+    $iconedit = $themeObject->DisplayImage('icons/system/edit.gif',lang('modifyeventhandlers'),'','','systemicon');
 } else {
-	$iconedit = null;
+    $iconedit = null;
 }
 $iconinfo = $themeObject->DisplayImage('icons/system/info.png', lang('help'),'','','systemicon');
 
@@ -65,16 +65,16 @@ $selfurl = basename(__FILE__);
 $smarty = Smarty::get_instance();
 
 $smarty->assign([
-	'access' => $access,
-	'editurl' => 'editevent.php',
-	'events' => $events,
-	'helpurl' => 'eventhelp.php',
-	'iconedit' => $iconedit,
-	'iconinfo' => $iconinfo,
-	'senders' => $senders,
-	'senderfilter' => $senderfilter,
-	'selfurl' => $selfurl,
-	'urlext' => $urlext,
+    'access' => $access,
+    'editurl' => 'editevent.php',
+    'events' => $events,
+    'helpurl' => 'eventhelp.php',
+    'iconedit' => $iconedit,
+    'iconinfo' => $iconinfo,
+    'senders' => $senders,
+    'senderfilter' => $senderfilter,
+    'selfurl' => $selfurl,
+    'urlext' => $urlext,
 ]);
 
 include_once 'header.php';

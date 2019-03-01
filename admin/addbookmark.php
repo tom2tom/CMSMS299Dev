@@ -24,8 +24,8 @@ check_login();
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 if (isset($_POST['cancel'])) {
-	redirect('listbookmarks.php'.$urlext);
-	return;
+    redirect('listbookmarks.php'.$urlext);
+    return;
 }
 
 $themeObject = cms_utils::get_theme_object();
@@ -33,43 +33,43 @@ $themeObject = cms_utils::get_theme_object();
 $title= '';
 $url = '';
 
-if (!empty($_POST['addbookmark'])) {
-	$title = trim(cleanValue($_POST['title']));
-	$url = filter_var($_POST['url'], FILTER_SANITIZE_URL);
+if (isset($_POST['addbookmark'])) {
+    $title = trim(cleanValue($_POST['title']));
+    $url = filter_var($_POST['url'], FILTER_SANITIZE_URL);
 
-	$validinfo = true;
-	if ($title === '') {
-		$validinfo = false;
-		$themeObject->RecordNotice('error', lang('nofieldgiven', lang('title')));
-	}
-	if ($url === '') {
-		$validinfo = false;
-		$themeObject->RecordNotice('error', 'nofieldgiven', lang('url'));
-	}
+    $validinfo = true;
+    if ($title === '') {
+        $validinfo = false;
+        $themeObject->RecordNotice('error', lang('nofieldgiven', lang('title')));
+    }
+    if ($url === '') {
+        $validinfo = false;
+        $themeObject->RecordNotice('error', 'nofieldgiven', lang('url'));
+    }
 
-	if ($validinfo) {
-		$markobj = new Bookmark();
-		$markobj->title = $title;
-		$markobj->url = $url;
-		$markobj->user_id = get_userid();
+    if ($validinfo) {
+        $markobj = new Bookmark();
+        $markobj->title = $title;
+        $markobj->url = $url;
+        $markobj->user_id = get_userid();
 
-		if ($markobj->save()) {
-			redirect('listbookmarks.php'.$urlext);
-			return;
-		} else {
-			$themeObject->RecordNotice('error', lang('errorinsertingbookmark'));
-		}
-	}
+        if ($markobj->save()) {
+            redirect('listbookmarks.php'.$urlext);
+            return;
+        } else {
+            $themeObject->RecordNotice('error', lang('errorinsertingbookmark'));
+        }
+    }
 }
 
 $selfurl = basename(__FILE__);
 
 $smarty = CMSMS\internal\Smarty::get_instance();
 $smarty->assign([
-	'title' => $title,
-	'url' => $url,
-	'urlext' => $urlext,
-	'selfurl' => $selfurl,
+    'title' => $title,
+    'url' => $url,
+    'urlext' => $urlext,
+    'selfurl' => $selfurl,
 ]);
 
 include_once 'header.php';

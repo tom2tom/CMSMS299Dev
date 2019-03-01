@@ -120,9 +120,9 @@ $thisuser          = $userops->LoadUserByID($user_id);
 
 if (isset($_POST['submit'])) {
 
-    if( !$access_user ) $active = !empty($_POST['active']);
+    if( !$access_user ) $active = isset($_POST['active']);
 
-    $adminaccess = !empty($_POST['adminaccess']) ? 1 : 0;
+    $adminaccess = isset($_POST['adminaccess']) ? 1 : 0;
     $error = false;
 
     // check for errors
@@ -157,7 +157,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (isset($_POST['copyusersettings']) && $_POST['copyusersettings'] > 0) {
-        if (!empty($_POST['clearusersettings'])) {
+        if (isset($_POST['clearusersettings'])) {
             // error: both can't be set
             $error = true;
             $themeObject->RecordNotice('error', lang('error_multiusersettings'));
@@ -211,7 +211,7 @@ if (isset($_POST['submit'])) {
                     audit($user_id, 'Admin Username: ' . $thisuser->username, 'settings copied from template user');
                     $message = lang('msg_usersettingscopied');
                 }
-            } else if (!empty($_POST['clearusersettings'])) {
+            } else if (isset($_POST['clearusersettings'])) {
                 // clear all preferences for this user.
                 audit($user_id, 'Admin Username: ' . $thisuser->username, ' settings cleared');
                 cms_userprefs::remove_for_user($user_id);

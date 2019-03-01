@@ -50,7 +50,7 @@ $message = '';
 $db = $gCms->GetDb();
 $smarty = CMSMS\internal\Smarty::get_instance();
 
-if (!empty($_POST['filter'])) {
+if (isset($_POST['filter'])) {
     $disp_group = cleanValue($_POST['groupsel']);
     cms_userprefs::set_for_user($userid, 'changegroupassign_group', $disp_group);
 }

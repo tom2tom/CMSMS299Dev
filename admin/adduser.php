@@ -58,8 +58,8 @@ if (isset($_POST['submit'])) {
     $email            = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $copyusersettings = (int)$_POST['copyusersettings'];
     $sel_groups       = cleanArray($_POST['sel_groups']);
-    $active           = (!empty($_POST['active'])) ? 1 : 0;
-    $adminaccess      = (!empty($_POST['adminaccess'])) ? 1 : 0;
+    $active           = (isset($_POST['active'])) ? 1 : 0;
+    $adminaccess      = (isset($_POST['adminaccess'])) ? 1 : 0;
 
     if ($user == '') {
         $error = true;
