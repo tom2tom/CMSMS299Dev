@@ -28,34 +28,45 @@
 </form>
 {tab_start name='content'}
 <fieldset>
-    <legend>{lang('sysmain_cache_status')}&nbsp;</legend>
-    <form action="{$selfurl}{$urlext}" method="post">
+  <legend>{lang('sysmain_cache_status')}&nbsp;</legend>
+  {if isset($cachetype)}{lang('sysmain_cache_type',{$cachetype})}{/if}
+  <form action="{$selfurl}{$urlext}" method="post">
     <div class="pageoverflow">
       <p class="pageinput">
         <button type="submit" name="clearcache" class="adminsubmit icon do">{lang('clearcache')}</button>
       </p>
     </div>
-    </form>
+  </form>
 </fieldset>
 
 <fieldset>
   <legend>{lang('sysmain_content_status')}&nbsp;</legend>
   {lang('sysmain_pagesfound', {$pagecount})}
 
-  {if $invalidtypescount!="0"}
+  {if $invalidtypescount == 0 && $withoutaliascount == 0}
+  <p class='green'><strong>{lang('sysmain_nocontenterrors')}</strong></p>
+  {/if}
+  {if $invalidtypescount > 0}
   <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixtypes")|escape:"javascript"}');return false;">
     <div class="pageoverflow">
       <p class="pagetext">{lang('sysmain_pagesinvalidtypes',{$invalidtypescount})}:</p>
       <p class="pageinput">
         {foreach $pageswithinvalidtype as $page} {$page.content_name} <em>({$page.content_alias}) - {$page.type}</em><br />{/foreach}
-        <br />
-        <button type="submit" name="fixtypes" class="adminsubmit icon do">{lang('sysmain_fixtypes')}</button>
+        <button type="submit" name="fixtypes" class="pregap adminsubmit icon do">{lang('sysmain_fixtypes')}</button>
       </p>
     </div>
   </form>
   {/if}
-  {if $invalidtypescount=="0" && $withoutaliascount==""}
-  <p class='green'><strong>{lang('sysmain_nocontenterrors')}</strong></p>
+  {if $withoutaliascount > 0}
+  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixaliases")|escape:"javascript"}');return false;">
+    <div class="pageoverflow">
+      <p class="pagetext">{lang('sysmain_pagesmissinalias',{$withoutaliascount})}:</p>
+      <p class="pageinput">
+        {foreach $pagesmissingalias as $page} {$page}<br /> {/foreach}
+        <button type="submit" name="addaliases" class="pregap adminsubmit icon do">{lang('sysmain_fixaliases')}</button>
+      </p>
+    </div>
+  </form>
   {/if}
 
   <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmupdatehierarchy")|escape:"javascript"}');return false;">
@@ -73,28 +84,14 @@
     </div>
   </form>
 
-  {if $withoutaliascount!="0"}
-  <form action="{$selfurl}{$urlext}" method="post" onsubmit="confirmsubmit(this,'{lang("sysmain_confirmfixaliases")|escape:"javascript"}');return false;">
-    <div class="pageoverflow">
-      <p class="pagetext">{lang('sysmain_pagesmissinalias',{$withoutaliascount})}:</p>
-      <p class="pageinput">
-        {foreach $pagesmissingalias as $page} {*{$page.count}.*} {$page.content_name}<br /> {/foreach}
-        <br />
-        <button type="submit" name="addaliases" class="adminsubmit icon do">{lang('sysmain_fixaliases')}</button>
-      </p>
-    </div>
-  </form>
-  {/if}
 </fieldset>
+
 {if !empty($devmode)}
-<fieldset>
-  <legend>{lang('exportsite')}&nbsp;</legend>
   <form action="{$selfurl}{$urlext}" method="post">
-  <p class="pageinput">
-    <button type="submit" name="export" class="adminsubmit icon do">{lang('export')}</button>
+  <p class="pageinput pregap">
+    <button type="submit" name="export" class="adminsubmit icon do" title="{lang('exportsite_tip')}">{lang('exportsite')}</button>
   </p>
   </form>
-</fieldset>
 {/if}
 
 {if isset($changelog)}

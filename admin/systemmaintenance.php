@@ -18,7 +18,6 @@
 
 use __installer\installer_base;
 use CMSMS\AdminUtils;
-use CMSMS\FilePickerProfile;
 use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE = 1;
@@ -135,9 +134,7 @@ if ($n > 0) {
 /*
  * Cache and content
  */
-$contentops = cmsms()->GetContentOperations();
-
-if (isset($_POST['updatroutes'])) {
+if (isset($_POST['updateroutes'])) {
     cms_route_manager::rebuild_static_routes();
     audit('', 'System maintenance', 'Static routes rebuilt');
     $themeObject->RecordNotice('success', lang('routesrebuilt'));
@@ -153,6 +150,7 @@ if (isset($_POST['clearcache'])) {
     $smarty->assign('active_content', 'true');
 }
 
+$contentops = cmsms()->GetContentOperations();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
@@ -160,6 +158,100 @@ if (isset($_POST['updatehierarchy'])) {
     $smarty->assign('active_content', 'true');
 }
 
+// Setup types
+$contenttypes = $contentops->ListContentTypes(false, true);
+//print_r($contenttypes);
+$simpletypes = [];
+foreach ($contenttypes as $typeid => $typename) {
+    $simpletypes[] = $typeid;
+}
+
+if (isset($_POST['addaliases'])) {
+    //$contentops->SetAllHierarchyPositions();
+    $count = 0;
+    $query = 'SELECT content_id,content_name,type,content_alias,menu_text FROM ' . CMS_DB_PREFIX . 'content';
+    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . 'content SET content_alias=? WHERE content_id=?');
+    $allcontent = $db->Execute($query);
+    while ($row = $allcontent->FetchRow()) {
+        $content_id = $row['content_id'];
+        if (trim($row['content_alias']) == '' && $row['type'] != 'separator') {
+            $alias = trim($row['menu_text']);
+            if ($alias == '') {
+                $alias = trim($row['content_name']);
+            }
+
+            $tolower = true;
+            $alias = munge_string_to_url($alias, $tolower);
+            if ($contentops->CheckAliasError($alias, $content_id)) {
+                $alias_num_add = 2;
+                // If a '-2' version of the alias already exists
+                // Check the '-3' version etc.
+                while ($contentops->CheckAliasError($alias . '-' . $alias_num_add) !== false) {
+                    $alias_num_add++;
+                }
+                $alias .= '-' . $alias_num_add;
+            }
+            $db->Execute($stmt, [$alias, $content_id]);
+            $count++;
+        }
+    }
+    audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
+    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
+    $smarty->assign('active_content', 'true');
+}
+
+if (isset($_POST['fixtypes'])) {
+    //$contentops->SetAllHierarchyPositions();
+    $count = 0;
+    $query = 'SELECT content_id,type FROM ' . CMS_DB_PREFIX . 'content';
+    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?");
+    $allcontent = $db->Execute($query);
+    while ($row = $allcontent->FetchRow()) {
+        if (!in_array($row['type'], $simpletypes)) {
+            $db->Execute($stmt, [$row['content_id']]);
+            $count++;
+        }
+    }
+
+    audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
+    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_typesfixed'));
+    $smarty->assign('active_content', 'true');
+}
+
+$query = 'SELECT content_name,type,content_alias FROM ' . CMS_DB_PREFIX . 'content ORDER BY content_name';
+$allcontent = $db->Execute($query);
+$count = 0;
+$withoutalias = [];
+$invalidtypes = [];
+if (is_object($allcontent)) {
+    while ($row = $allcontent->FetchRow()) {
+        $count++;
+        if (trim($row['content_alias']) == '' && $row['type'] != 'separator') {
+            $withoutalias[] = $row['content_name'];
+        }
+        if (!in_array($row['type'], $simpletypes)) {
+            $invalidtypes[] = $row;
+        }
+        //print_r($row);
+    }
+}
+$smarty->assign('pagecount', $count)
+  ->assign('pagesmissingalias', $withoutalias)
+  ->assign('withoutaliascount', count($withoutalias))
+  ->assign('pageswithinvalidtype', $invalidtypes)
+  ->assign('invalidtypescount', count($invalidtypes));
+
+$obj = cms_cache_handler::get_instance();
+$type = get_class($obj->get_driver());
+if (!endswith($type, 'File')) {
+    $c = stripos($type, 'Cache');
+	$type = ucfirst(substr($type, $c+5));
+    $smarty->assign('cachetype', $type);
+}
+
+/*
+ * Site-content export
+ */
 $flag = !empty($config['developer_mode']);
 if ($flag && isset($_POST['export'])) {
     include __DIR__.DIRECTORY_SEPARATOR.'function.contentoperation.php';
@@ -195,90 +287,6 @@ if ($flag && isset($_POST['export'])) {
     exit;
 }
 $smarty->assign('devmode', $flag);
-
-//Setting up types
-$contenttypes = $contentops->ListContentTypes(false, true);
-//print_r($contenttypes);
-$simpletypes = [];
-foreach ($contenttypes as $typeid => $typename) {
-    $simpletypes[] = $typeid;
-}
-
-if (isset($_POST['addaliases'])) {
-    //$contentops->SetAllHierarchyPositions();
-    $count = 0;
-    $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
-    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . 'content SET content_alias=? WHERE content_id=?');
-    $allcontent = $db->Execute($query);
-    while ($contentpiece = $allcontent->FetchRow()) {
-        $content_id = $contentpiece['content_id'];
-        if (trim($contentpiece['content_alias']) == '' && $contentpiece['type'] != 'separator') {
-            $alias = trim($contentpiece['menu_text']);
-            if ($alias == '') {
-                $alias = trim($contentpiece['content_name']);
-            }
-
-            $tolower = true;
-            $alias = munge_string_to_url($alias, $tolower);
-            if ($contentops->CheckAliasError($alias, $content_id)) {
-                $alias_num_add = 2;
-                // If a '-2' version of the alias already exists
-                // Check the '-3' version etc.
-                while ($contentops->CheckAliasError($alias . '-' . $alias_num_add) !== false) {
-                    $alias_num_add++;
-                }
-                $alias .= '-' . $alias_num_add;
-            }
-            $db->Execute($stmt, [$alias, $content_id]);
-            $count++;
-        }
-    }
-    audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
-    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
-    $smarty->assign('active_content', 'true');
-}
-
-if (isset($_POST['fixtypes'])) {
-    //$contentops->SetAllHierarchyPositions();
-    $count = 0;
-    $query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
-    $stmt = $db->Prepare('UPDATE ' . CMS_DB_PREFIX . "content SET type='content' WHERE content_id=?");
-    $allcontent = $db->Execute($query);
-    while ($contentpiece = $allcontent->FetchRow()) {
-        if (!in_array($contentpiece['type'], $simpletypes)) {
-            $db->Execute($stmt, [$contentpiece['content_id']]);
-            $count++;
-        }
-    }
-
-    audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
-    $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_typesfixed'));
-    $smarty->assign('active_content', 'true');
-}
-
-$query = 'SELECT * FROM ' . CMS_DB_PREFIX . 'content';
-$allcontent = $db->Execute($query);
-$pages = [];
-$withoutalias = [];
-$invalidtypes = [];
-if (is_object($allcontent)) {
-    while ($contentpiece = $allcontent->FetchRow()) {
-        $pages[] = $contentpiece['content_name'];
-        if (trim($contentpiece['content_alias']) == '' && $contentpiece['type'] != 'separator') {
-            $withoutalias[] = $contentpiece;
-        }
-        if (!in_array($contentpiece['type'], $simpletypes)) {
-            $invalidtypes[] = $contentpiece;
-        }
-        //print_r($contentpiece);
-    }
-}
-$smarty->assign('pagesmissingalias', $withoutalias)
-  ->assign('pageswithinvalidtype', $invalidtypes)
-
-  ->assign('pagecount', count($pages))
-  ->assign('invalidtypescount', count($invalidtypes))
-  ->assign('withoutaliascount', count($withoutalias));
 
 /*
  * Changelog
