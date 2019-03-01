@@ -17,7 +17,10 @@
 
 namespace CMSMS;
 
+use APCUIterator;
 use Exception;
+use const APC_ITER_KEY;
+use const APC_ITER_MTIME;
 
 /**
  * A driver to cache data using PHP's APCu extension
