@@ -18,11 +18,13 @@
 
 namespace CMSMS;
 
+use cms_cache_handler;
 use cms_http_request;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
 use CMSMS\internal\Smarty;
+use ErrorException;
 use FilesystemIterator;
 use LogicException;
 use RecursiveDirectoryIterator;
@@ -42,8 +44,11 @@ use function endswith;
 use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
-//if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) )
-//    throw new CmsLogicException('Attempt to use CMSMS\AdminUtils class from an invalid request');
+/*if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
+    $name = __CLASS__; 
+    throw new ErrorException("Attempt to use $name class from an invalid request");
+}
+*/
 
 /**
  * A class of static utility methods for admin requests.
@@ -337,19 +342,33 @@ final class AdminUtils
 	 * TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION
 	 * @since 2.3
 	 *
-	 * @param $age_days Optional file-modification threshold (days), 0 to whatever. Default 0 hence 'now'.
+	 * @param $age_days Optional cache-item-modification threshold (days), 0 to whatever.
+	 *  Default 0 hence 'now'.
 	 */
 	public static function clear_cache(int $age_days = 0)
 	{
-		//TODO also clear non-file caches, if used
 		global $CMS_ADMIN_PAGE, $CMS_INSTALL_PAGE;
 
-		if( !(isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE))) return;
-		if( !defined('TMP_CACHE_LOCATION') ) return;
-		$age_days = max(0,(int)$age_days);
-		HookManager::do_hook_simple('clear_cached_files', [ 'older_than' => $age_days ]);
-		$the_time = time() - $age_days * 24 * 3600;
+		if( !(isset($CMS_ADMIN_PAGE) || isset($CMS_INSTALL_PAGE))
+		 || !defined('TMP_CACHE_LOCATION') ) { // relevant permission(s) check too ?
+			$name = __METHOD__;
+			throw new ErrorException("Method $name may not be used");
+		}
 
+		$age_days = max(0, $age_days);
+		HookManager::do_hook_simple('clear_cached_files', ['older_than' => $age_days]);
+		$ttl = $age_days * 24 * 3600;
+
+		// no need for clear-files repetition
+		$obj = cms_cache_handler::get_instance();
+		$type = get_class($obj->get_driver());
+		if( !endswith($type, 'File') ) {
+			$obj = new cms_cache_handler();
+			$obj->connect();
+			$obj->clear();
+		}
+
+		$the_time = time() - $ttl;
 		$dirs = array_unique([TMP_CACHE_LOCATION, TMP_TEMPLATES_C_LOCATION, PUBLIC_CACHE_LOCATION]);
 		foreach( $dirs as $start_dir ) {
 			$iter = new RecursiveIteratorIterator(
