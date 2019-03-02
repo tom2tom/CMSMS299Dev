@@ -64,12 +64,12 @@ class gui_install extends installer_base
 
     public function get_root_url() : string
     {
-        $prefix = null;
-        //if( isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' ) $prefix = 'https';
-        $prefix .= '//'.$_SERVER['HTTP_HOST'];
+        if( isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off' ) $prefix = 'https';
+        else $prefix = 'http';
+        $prefix .= '://'.$_SERVER['HTTP_HOST'];
 
-        // if we are putting files somewhere else, we cannot determine the root url of the site
-        // via the $_SERVER variables.
+        // if we are putting files somewhere else, we cannot determine
+        // the root url of the site via $_SERVER variables.
         $b = $this->get_destdir();
         if( $b != getcwd() ) {
             if( startswith($b,$_SERVER['DOCUMENT_ROOT']) ) $b = substr($b,strlen($_SERVER['DOCUMENT_ROOT']));
