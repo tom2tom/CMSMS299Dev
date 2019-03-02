@@ -178,38 +178,39 @@ VALUES (?,?,?,NOW(),NOW())');
      */
     private function do_freshen()
     {
-        // create tmp directories
         $app = get_app();
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',901));
-        $this->message(lang('install_createtmpdirs'));
-        @mkdir($destdir.'/tmp/cache',0771,TRUE);
-        @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
 
-        // write protect config.php
-        @chmod("$destdir/config.php",0440);
+        $this->connect_to_cmsms($destdir);
+        // in case they're gone, try to create tmp directories
+        @mkdir(TMP_CACHE_LOCATION,0771,TRUE);
+        @mkdir(TMP_TEMPLATES_C_LOCATION,0771,TRUE);
+        // another failsafe - write protect the config file
+        @chmod(CONFIG_FILE_LOCATION,0440);
+
+        // write history
+        audit('', 'System Freshened', 'All core files renewwed');
 
         // clear the cache
-        $this->connect_to_cmsms($destdir);
         $this->message(lang('msg_clearcache'));
         AdminUtils::clear_cache();
 
-        // todo: write history
-
-        // set the finished message.
+        // set the finished message
         if( $app->has_custom_destdir() ) {
-            $this->set_block_html('bottom_nav',lang('finished_custom_freshen_msg'));
+            $msg = lang('finished_custom_freshen_msg');
         }
         else {
+            include_once CONFIG_FILE_LOCATION;
+            $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
+
             $url = $app->get_root_url();
             $admin_url = $url;
             if( !endswith($url,'/') ) $admin_url .= '/';
-            $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
-            include_once $cfgfile;
-            $aname = (!empty($config['admin_dir'])) ? $config['admin_dir'] : 'admin';
             $admin_url .= $aname;
-            $this->set_block_html('bottom_nav',lang('finished_freshen_msg', $url, $admin_url ));
+            $msg = lang('finished_freshen_msg',$url,$admin_url);
         }
+        $this->set_block_html('bottom_nav',$msg);
     }
 
     /**
