@@ -16,7 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use __installer\installer_base;
+use cms_installer\installer_base;
 use CMSMS\AdminUtils;
 use CMSMS\internal\Smarty;
 
