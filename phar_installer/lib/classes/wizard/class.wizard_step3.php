@@ -61,9 +61,9 @@ class wizard_step3 extends wizard_step
     protected function perform_tests(bool $verbose, array &$informational, array &$tests) : array
     {
         $app = get_app();
-		$wiz = $this->get_wizard();
-        $version_info = $wiz->get_data('version_info');
+        $wiz = $this->get_wizard();
         $action = $wiz->get_data('action');
+        $version_info = $wiz->get_data('version_info');
         $informational = [];
         $tests = [];
 
@@ -346,19 +346,21 @@ class wizard_step3 extends wizard_step
             }
 
         if( $version_info ) {
-            // it's an upgrade, config file must be writable.
-            $obj = new boolean_test('config_writable',is_writable($version_info['config_file']));
-            $obj->required = 1;
-            $obj->fail_key = 'fail_config_writable';
-            $tests[] = $obj;
+            // if it's an upgrade (not a freshen), config file must be writable
+            if( $action == 'upgrade' ) {
+                $obj = new boolean_test('config_writable',is_writable($version_info['config_file']));
+                $obj->required = 1;
+                $obj->fail_key = 'fail_config_writable';
+                $tests[] = $obj;
 
-            if( $action == 'upgrade' && version_compare($version_info['version'],'2.2') < 0 ) {
-                $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
-                if( is_dir($dir) ) {
-                    $obj = new boolean_test('assets_dir_exists',FALSE);
-                    $obj->fail_key = 'fail_assets_dir';
-                    $obj->warn_key = 'fail_assets_dir';
-                    $tests[] = $obj;
+                if( version_compare($version_info['version'],'2.2') < 0 ) {
+                    $dir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
+                    if( is_dir($dir) ) {
+                        $obj = new boolean_test('assets_dir_exists',FALSE);
+                        $obj->fail_key = 'fail_assets_dir';
+                        $obj->warn_key = 'fail_assets_dir';
+                        $tests[] = $obj;
+                    }
                 }
             }
         } else {
@@ -425,7 +427,7 @@ class wizard_step3 extends wizard_step
             }
         }
 
-		$cachable = ( !in_array($tests[$ctest],$fails) ) ? 'auto' : 'file';
+        $cachable = ( !in_array($tests[$ctest],$fails) ) ? 'auto' : 'file';
         $wiz->set_data('cachemode',$cachable);
 
         if( !$verbose ) $tests = $fails;
