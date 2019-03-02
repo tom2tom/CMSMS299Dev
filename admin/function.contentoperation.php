@@ -23,8 +23,8 @@ as well as normal operation.
 
 use CMSMS\Database\Connection;
 
-const CONTENT_DTD_VERSION = '0.6';
-const CONTENT_DTD_MINVERSION = '0.6';
+const CONTENT_DTD_VERSION = '0.7';
+const CONTENT_DTD_MINVERSION = '0.7';
 
 /**
  *
@@ -102,8 +102,13 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
  */
 function export_content(string $xmlfile, string $filesfolder, Connection $db)
 {
-	//data arrangement
-	//mostly table- and field-names, must be manually reconciled with schema
+/*	data arrangement
+	mostly, table- and field-names must be manually reconciled with database schema
+	optional sub-key parameters:
+	 isdata >> process field value via htmlspecialchars($val, ENT_XML1) to prevent parser confusion
+	 optional >> ignore/omit a field whose value is falsy i.e. optional item in the dtd
+     keeps >> array of field-value(s) which will be included (subject to optional)
+*/
 	$skeleton = [
      'designs' => [
       'table' => 'layout_designs',
@@ -111,8 +116,8 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        'design' => [
         'id' => [],
         'name' => [],
-        'description' => [],
-        'dflt' => ['notempty'=>1],
+        'description' => ['optional' => 1],
+        'dflt' => ['optional'=>1],
        ]
       ]
      ],
@@ -122,8 +127,8 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        'stylesheet' => [
         'id' => [],
         'name' => [],
-        'description' => ['notempty' => 1],
-        'media_type' => ['notempty' => 1],
+        'description' => ['optional' => 1],
+        'media_type' => ['optional' => 1],
         'content' => ['isdata'=>1],
        ]
       ]
@@ -134,25 +139,26 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        'designcss' => [
         'design_id' => [],
         'css_id' => [],
-        'item_order' => ['notempty' => 1],
+        'item_order' => ['optional' => 1],
        ]
       ]
      ],
      'tpltypes' => [
-      'table' => 'layout_tpl_type',
+      'sql' => 'SELECT * FROM %slayout_tpl_type WHERE originator=\'__CORE__\' ORDER BY name',
       'subtypes' => [
        'tpltype' => [
         'id' => [],
-        'name' => [],
-        'description' => ['notempty' => 1],
         'originator' => [],
-        'one_only' => ['notempty' => 1],
-        'has_dflt' => ['notempty' => 1],
-        'dflt_contents' => ['isdata' => 1, 'notempty' => 1],
-        'requires_contentblocks' => ['notempty' => 1],
-        'lang_cb' => ['notempty' => 1],
-        'dflt_content_cb' => ['notempty' => 1],
-        'help_content_cb' => ['notempty' => 1],
+        'name' => [],
+        'dflt_contents' => ['isdata' => 1, 'optional' => 1],
+        'description' => ['optional' => 1],
+        'lang_cb' => ['optional' => 1],
+        'dflt_content_cb' => ['optional' => 1],
+        'help_content_cb' => ['optional' => 1],
+        'has_dflt' => ['optional' => 1],
+        'requires_contentblocks' => ['optional' => 1],
+        'one_only' => ['optional' => 1],
+        'owner' => [],
        ]
       ]
      ],
@@ -162,23 +168,24 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        'category' => [
         'id' => [],
         'name' => [],
-        'description' => ['notempty' => 1],
-        'item_order' => ['notempty' => 1],
+        'description' => ['optional' => 1],
+        'item_order' => ['optional' => 1],
        ]
       ]
      ],
      'templates' => [
-      'table' => 'layout_templates',
+      'sql' => 'SELECT * FROM %slayout_templates WHERE originator=\'__CORE__\' ORDER BY name',
       'subtypes' => [
        'template' => [
         'id' => [],
-        'name' => [],
-        'description' => ['notempty' => 1],
         'originator' => [],
-        'type_id' => [],
-        'category_id' => ['notempty' => 1],
-        'type_dflt' => ['notempty' => 1],
+        'name' => [],
         'content' => ['isdata'=>1],
+        'description' => ['optional' => 1],
+        'type_id' => [],
+        'owner_id' => [],
+        'type_dflt' => ['optional' => 1],
+        'listable' => ['optional' => 1],
        ]
       ]
      ],
@@ -188,7 +195,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        'designtpl' => [
         'design_id' => [],
         'tpl_id' => [],
-        'tpl_order' => ['notempty' => 1],
+        'tpl_order' => ['optional' => 1],
        ]
       ]
      ],
@@ -198,7 +205,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
        'cattpl' => [
         'category_id' => [],
         'tpl_id' => [],
-        'tpl_order' => ['notempty' => 1],
+        'tpl_order' => ['optional' => 1],
        ]
       ]
      ],
@@ -246,7 +253,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	$xw->startDocument('1.0', 'UTF-8');
 
 	//these data must be manually reconciled with $skeleton[] above
-	$xw->writeDtd('cmsmsinstall', null, null, '
+	$xw->writeDtd('cmsmssitedata', null, null, '
  <!ELEMENT dtdversion (#PCDATA)>
  <!ELEMENT designs (design+)>
  <!ELEMENT design (id,name,description?,dflt?)>
@@ -264,22 +271,24 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
  <!ELEMENT tpltypes (tpltype+)>
- <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
+ <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner)>
  <!ELEMENT originator (#PCDATA)>
- <!ELEMENT one_only (#PCDATA)>
- <!ELEMENT has_dflt (#PCDATA)>
  <!ELEMENT dflt_contents (#PCDATA)>
- <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT lang_cb (#PCDATA)>
  <!ELEMENT dflt_content_cb (#PCDATA)>
  <!ELEMENT help_content_cb (#PCDATA)>
+ <!ELEMENT has_dflt (#PCDATA)>
+ <!ELEMENT requires_contentblocks (#PCDATA)>
+ <!ELEMENT one_only (#PCDATA)>
+ <!ELEMENT owner (#PCDATA)>
  <!ELEMENT categories (category+)>
  <!ELEMENT category (id,name,description?,item_order?)>
  <!ELEMENT templates (template)>
- <!ELEMENT template (id,name,description?,originator?,type_id,category_id?,type_dflt?,content)>
+ <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?)>
  <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT listable (#PCDATA)>
  <!ELEMENT designtemplates (designtpl+)>
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
@@ -309,9 +318,9 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT embedded (#PCDATA)>
  <!ELEMENT userplugins (sourcedir?,file+)>
  <!ELEMENT file (name,(frompath|embedded),content?)>
- ');
+');
 
-	$xw->startElement('cmsmsinstall');
+	$xw->startElement('cmsmssitedata');
 	$xw->writeElement('dtdversion', CONTENT_DTD_VERSION);
 
 	foreach ($skeleton as $one=>$props) {
@@ -829,7 +838,6 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 			}
 		}
 	}
-
 
 	return '';
 }
