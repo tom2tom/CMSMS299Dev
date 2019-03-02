@@ -80,6 +80,8 @@
         @$db->Execute('ALTER DATABASE `' . $db->database . '` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci');
     }
 
+    // NOTE site-content-related changes here must be replicated in the data 'skeleton' and DTD in file function.contentoperation.php
+
     $dbdict = GetDataDictionary($db);
     $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 //  $innotaboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
