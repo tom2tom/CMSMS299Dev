@@ -28,7 +28,7 @@ class wizard_step8 extends wizard_step
      * @param array $destconfig parameters for db connection
      * @return mixed Connection-class object or error message string
      */
-    private function db_connect($destconfig)
+    private function db_connect(array $destconfig)
     {
         require_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'CMSMS'.DIRECTORY_SEPARATOR.'dbaccessor.functions.php';
         try {
@@ -43,7 +43,7 @@ class wizard_step8 extends wizard_step
         return $db;
     }
 
-    private function connect_to_cmsms($destdir)
+    private function connect_to_cmsms(string $destdir)
     {
         global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
         $DONT_LOAD_DB = 1;
@@ -196,7 +196,7 @@ class wizard_step8 extends wizard_step
         }
     }
 
-    private function do_upgrade($version_info)
+    private function do_upgrade(array $version_info)
     {
         global $DONT_LOAD_DB, $DONT_LOAD_SMARTY, $CMS_VERSION, $CMS_PHAR_INSTALLER;
         $CMS_PHAR_INSTALLER = 1;
@@ -270,12 +270,7 @@ class wizard_step8 extends wizard_step
 
     private function do_freshen()
     {
-        try {
-            $this->write_config();
-        }
-        catch( Exception $e ) {
-            $this->error($e->GetMessage());
-        }
+        // nothing here
     }
 
     private function write_config()
