@@ -98,7 +98,7 @@ class wizard_step7 extends wizard_step
         if( !$destdir ) throw new Exception(lang('error_internal',601));
 
         $languages = ['en_US'];
-        if( $checklangs ) // upgrade or refresh
+        if( $checklangs ) { // upgrade or refresh
             try {
                 $languages = array_merge($languages, $this->detect_languages());
             }
