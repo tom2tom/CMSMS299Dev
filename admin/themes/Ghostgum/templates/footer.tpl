@@ -12,6 +12,11 @@
         <a href="https://forum.cmsmadesimple.org/" rel="external" title="{lang('forums')}">{lang('forums')}</a>
       </li>
       <li>
+      {if isset($site_help_url)}
+        <a href="{$site_help_url}" title="{lang('site_support')}">{lang('site_support')}</a>
+      {else}
+        <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{lang('site_support')}">{lang('site_support')}</a>
+      {/if}
         <a href="http://www.cmsmadesimple.org/about-link/" rel="external" title="{lang('about')}">{lang('about')}</a>
       </li>
       <li>
