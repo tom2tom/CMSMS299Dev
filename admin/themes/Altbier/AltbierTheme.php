@@ -600,6 +600,7 @@ EOS
 		return $_contents;
 	}
 
+	// for pre-2.3 compatibility
 	public function get_my_alerts()
 	{
 		//TODO check namespace ok for pre-2.3
