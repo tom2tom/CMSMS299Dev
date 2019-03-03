@@ -72,7 +72,7 @@ class wizard_step5 extends wizard_step
 
         if( isset($_POST['languages']) ) {
             $tmp = [];
-            foreach ( $_POST['languages'] as $lang ) {
+            foreach( $_POST['languages'] as $lang ) {
                 $tmp[] = utils::clean_string($lang);
             }
             $this->_siteinfo['languages'] = $tmp;
@@ -84,10 +84,12 @@ class wizard_step5 extends wizard_step
 
             if( $config['nofiles'] ) {
                 $url = $this->get_wizard()->step_url(8);
-            } elseif( ($action = $this->get_wizard()->get_data('action')) == 'upgrade' ) {
-                $url = $this->get_wizard()->step_url(7);
-            } else {
+            }
+            elseif( ($action = $this->get_wizard()->get_data('action')) == 'install' ) {
                 $url = $this->get_wizard()->next_url();
+            }
+            else {  // upgrade or freshen
+                $url = $this->get_wizard()->step_url(7);
             }
             utils::redirect($url);
         }
@@ -110,6 +112,7 @@ class wizard_step5 extends wizard_step
         $raw = $config['verbose'] ?? 0;
 //        $v = ($raw === null) ? $this->get_wizard()->get_data('verbose',0) : (int)$raw;
         $smarty->assign('verbose',(int)$raw);
+
         if( $action == 'install' ) {
             $raw = $config['sitename'] ?? null;
             $v = ($raw === null) ? $this->_siteinfo['sitename'] : trim($raw);
@@ -118,6 +121,8 @@ class wizard_step5 extends wizard_step
             $raw = $config['supporturl'] ?? null;
             $v = ($raw === null) ? '' : trim($raw);
             $smarty->assign('supporturl',$v);
+
+            $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
         }
         elseif( $action == 'upgrade' ) {
             // if pertinent upgrade
@@ -166,34 +171,35 @@ class wizard_step5 extends wizard_step
         }
         $smarty->assign('languages',$v);
 
-        $raw = $app->get_noncore_modules();
-        if( $raw && $action == 'upgrade' ) {
-            // exclude installed modules
-            $fp = $app->get_destdir();
-            $v = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
-            $dirs = [
-                $fp.DIRECTORY_SEPARATOR.$v.DIRECTORY_SEPARATOR.'modules',
-                $fp.DIRECTORY_SEPARATOR.'modules',
-                ];
-            foreach( $raw as $key=>$v ) {
-                foreach( $dirs as $dir) {
-                    $fp = $dir.DIRECTORY_SEPARATOR.$v;
-                    if( is_dir($fp) && is_file($fp.DIRECTORY_SEPARATOR.$v.'.module.php') ) {
-                        unset($raw[$key]);
-                        break;
+        if( $action != 'freshen' ) {
+            $raw = $app->get_noncore_modules();
+            if( $raw && $action == 'upgrade' ) {
+                // exclude installed modules
+                $fp = $app->get_destdir();
+                $v = (!empty($config['assetsdir'])) ? $config['assetsdir'] : 'assets';
+                $dirs = [
+                    $fp.DIRECTORY_SEPARATOR.$v.DIRECTORY_SEPARATOR.'modules',
+                    $fp.DIRECTORY_SEPARATOR.'modules',
+                    ];
+                foreach( $raw as $key=>$v ) {
+                    foreach( $dirs as $dir) {
+                        $fp = $dir.DIRECTORY_SEPARATOR.$v;
+                        if( is_dir($fp) && is_file($fp.DIRECTORY_SEPARATOR.$v.'.module.php') ) {
+                            unset($raw[$key]);
+                            break;
+                        }
                     }
                 }
             }
+            if( $raw ) {
+                $modules = array_combine($raw, $raw);
+            }
+            else {
+                $modules = null;
+            }
+            $smarty->assign('modules_list',$modules);
+            $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null));
         }
-        if( $raw ) {
-            $modules = array_combine($raw, $raw);
-        }
-        else {
-            $modules = null;
-        }
-        $smarty->assign('modules_list',$modules);
-        $smarty->assign('modules_sel', (($modules) ? $config['modules'] ?? null : null));
-        $smarty->assign('yesno',['0'=>lang('no'),'1'=>lang('yes')]);
 
         $smarty->display('wizard_step5.tpl');
         $this->finish();
