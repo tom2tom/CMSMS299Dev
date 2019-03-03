@@ -51,7 +51,7 @@ class Connection extends ParentConnection
     public function __construct($config = null)  //installer-API
     {
         parent::__construct();
-        if (class_exists('\mysqli')) {
+        if (class_exists('mysqli')) {
             if (!$config) $config = cms_config::get_instance(); //normal API
             mysqli_report(MYSQLI_REPORT_STRICT);
             try {
