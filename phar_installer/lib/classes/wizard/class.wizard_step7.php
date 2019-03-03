@@ -25,7 +25,8 @@ class wizard_step7 extends wizard_step
 
     /**
      * Return sorted array of 'idenfifiers' of installed translation files, each like 'en_US'
-     * @throws Exception if there is no such language
+     * @return array
+     * @throws Exception if there is no such file
      */ 
     private function detect_languages() : array
     {
@@ -34,7 +35,7 @@ class wizard_step7 extends wizard_step
         $pattern = joinpath($destdir, 'lib', 'nls', '*nls.php');
 
         $files = glob($pattern);
-        if( !is_array($files) || count($files) == 0 ) throw new Exception(lang('error_internal',750));
+        if( !$files ) throw new Exception(lang('error_internal',750));
 
         foreach( $files as &$one ) {
             $one = basename($one, '.nls.php');
@@ -289,7 +290,7 @@ class wizard_step7 extends wizard_step
         flush();
 
         try {
-            include_once dirname(__DIR__,2).'/msg_functions.php';
+            include_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'msg_functions.php';
             $tmp = $this->get_wizard()->get_data('version_info'); // extra validation
             if( $action == 'upgrade' && $tmp ) {
                 $this->preprocess_files();
