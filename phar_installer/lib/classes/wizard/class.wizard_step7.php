@@ -11,6 +11,7 @@ use PharData;
 use PHPArchive\Tar;
 use RecursiveIteratorIterator;
 use function cms_installer\CMSMS\endswith;
+use function cms_installer\CMSMS\joinpath;
 use function cms_installer\CMSMS\lang;
 use function cms_installer\CMSMS\smarty;
 use function cms_installer\get_app;
@@ -22,20 +23,24 @@ class wizard_step7 extends wizard_step
         // nothing here
     }
 
-    private function detect_languages()
+    /**
+     * Return sorted array of 'idenfifiers' of installed translation files, each like 'en_US'
+     * @throws Exception if there is no such language
+     */ 
+    private function detect_languages() : array
     {
         $this->message(lang('install_detectlanguages'));
         $destdir = get_app()->get_destdir();
+        $pattern = joinpath($destdir, 'lib', 'nls', '*nls.php');
 
-        $nlsdir = "$destdir/lib/nls";
-        $pattern = "$nlsdir/*nls.php";
         $files = glob($pattern);
         if( !is_array($files) || count($files) == 0 ) throw new Exception(lang('error_internal',750));
 
         foreach( $files as &$one ) {
-            $fn = basename($one);
-            $one = substr($fn,0,strlen($fn)-strlen('.nls.php'));
+            $one = basename($one, '.nls.php');
         }
+        unset($one);
+
         return $files;
     }
 
@@ -85,19 +90,24 @@ class wizard_step7 extends wizard_step
         }
     }
 
-    private function do_files($langlist = null)
+    private function do_files(bool $checklangs = false)
     {
         $app = get_app();
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',601));
 
         $languages = ['en_US'];
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
-        if( $siteinfo !== NULL ) {
-            if( isset($siteinfo['languages']) ) $languages = array_merge($languages,$siteinfo['languages']);
-            if( $langlist ) $languages = array_merge($languages,$langlist);
-            $languages = array_unique($languages);
+        if( $checklangs ) // upgrade or refresh
+            try {
+                $languages = array_merge($languages, $this->detect_languages());
+            }
+            catch (Exception $e) {/* nothing here */}
         }
+        $siteinfo = $this->get_wizard()->get_data('siteinfo');
+        if( $siteinfo && isset($siteinfo['languages']) ) {
+            $languages = array_merge($languages, $siteinfo['languages']);
+        }
+        $languages = array_unique($languages);
 
         $filehandler = new install_filehandler();
         $filehandler->set_destdir($destdir);
@@ -278,27 +288,25 @@ class wizard_step7 extends wizard_step
         $smarty->display('wizard_step7.tpl');
         flush();
 
-        // create index.html files in directories.
         try {
             include_once dirname(__DIR__,2).'/msg_functions.php';
-            $tmp = $this->get_wizard()->get_data('version_info');
+            $tmp = $this->get_wizard()->get_data('version_info'); // extra validation
             if( $action == 'upgrade' && $tmp ) {
-                $languages = $this->detect_languages();
                 $this->preprocess_files();
                 $this->do_manifests();
-                $this->do_files($languages);
+                $this->do_files(true);
             }
-            else if( $action == 'freshen' ) {
-                $inst_languages = $this->detect_languages();
-                $this->do_files($inst_languages);
+            elseif( $action == 'freshen' ) {
+                $this->do_files(true);
             }
-            else if( $action == 'install' ) {
+            elseif( $action == 'install' ) {
                 $this->do_files();
             }
             else {
                 throw new Exception(lang('error_internal',705));
             }
 
+            // create index.html files in directories.
             $this->do_index_html();
         }
         catch( Exception $e ) {
