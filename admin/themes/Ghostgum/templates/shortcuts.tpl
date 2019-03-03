@@ -10,9 +10,9 @@
     {/if}
     <span class="icon">
       {if isset($site_help_url)}
-      <a href="{$site_help_url}" title="{'site_support'|lang}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#support"/></svg></a>
+      <a href="{$site_help_url}" title="{lang('site_support')}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#support"/></svg></a>
       {else}
-      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#support"/></svg></a>
+      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{lang('site_support')}"><svg><use xlink:href="themes/Ghostgum/images/navsprite.svg#support"/></svg></a>
       {/if}
     </span>
     <span class="icon">
