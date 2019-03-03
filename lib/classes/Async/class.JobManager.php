@@ -124,7 +124,7 @@ final class JobManager
     }
 
     /**
-     * Remove all jbos originating from a specific module
+     * Remove all jobs originating from a specific module
      *
      * @param mixed string $module_name | null
 	 * @return mixed
