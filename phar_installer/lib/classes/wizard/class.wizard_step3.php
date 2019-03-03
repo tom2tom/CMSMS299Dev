@@ -346,7 +346,7 @@ class wizard_step3 extends wizard_step
             }
 
         if( $version_info ) {
-            // if it's an upgrade (not a freshen), config file must be writable
+            // during an upgrade (not a freshen), config file must be writable
             if( $action == 'upgrade' ) {
                 $obj = new boolean_test('config_writable',is_writable($version_info['config_file']));
                 $obj->required = 1;
@@ -438,7 +438,7 @@ class wizard_step3 extends wizard_step
     {
         $action = $this->get_wizard()->get_data('action');
         if( $action == 'freshen' ) {
-            $url = $this->get_wizard()->step_url(7);
+            $url = $this->get_wizard()->step_url(5);
         }
         else {
             $url = $this->get_wizard()->next_url();
