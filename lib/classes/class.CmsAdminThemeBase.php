@@ -23,7 +23,7 @@ use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
-use CMSMS\CmsAdminThemeNotification;
+//use CMSMS\internal\AdminThemeNotification;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\ModuleOperations;
@@ -1377,12 +1377,12 @@ abstract class CmsAdminThemeBase
 
     /**
      * Cache error-message(s) to be shown in a dialog during the current request.
+     * @deprecated since 2.3 Use RecordNotice() instead
      *
      * @param mixed $errors The error message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
      *  contains a lang key for an error string, or an array of such keys.
      *  If specified, $errors is ignored.
-     * @deprecated since 2.3 Use RecordNotice instead
      * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowErrors($errors, $get_var = null)
@@ -1393,12 +1393,12 @@ abstract class CmsAdminThemeBase
 
     /**
      * Cache success-message(s) to be shown in a dialog during the current request.
+     * @deprecated since 2.3 Use RecordNotice() instead
      *
      * @param mixed $message The message(s), string|strings array
      * @param string $get_var An optional $_GET variable name. Such variable
      *  contains a lang key for an error string, or an array of such keys.
      *  If specified, $message is ignored.
-     * @deprecated since 2.3 Use RecordNotice instead
      * @return empty string (in case something thinks it's worth echoing)
      */
     public function ShowMessage($message, $get_var = null)
@@ -1409,15 +1409,15 @@ abstract class CmsAdminThemeBase
 
     /**
      * Cache message string(s) to be shown in a dialog during the current request.
-     *
+     * @since 2.3
      * @internal
+     *
      * @param array store The relevant string-accumulator
      * @param mixed $message The error message(s), string|strings array
      * @param string $title  Title for the message(s), may be empty
      * @param mixed $get_var A $_GET variable name, or null. If specified,
      *  such variable is expected to contain a lang key for an error string,
      *  or an array of such keys. If non-null, $message is ignored.
-     * @since 2.3
      */
     protected function PrepareStrings(array &$store, $message, string $title, $get_var = null)
     {
@@ -1449,8 +1449,8 @@ abstract class CmsAdminThemeBase
 
     /**
      * Cache message(s) to be shown in a notification-dialog DURING THE NEXT REQUEST
-     *
      * @since 2.3
+     *
      * @param string $type Message-type indicator 'error','warn','success' or 'info'
      * @param mixed $message The error message(s), string|strings array
      * @param string $title Optional title for the message(s)
@@ -1728,47 +1728,53 @@ abstract class CmsAdminThemeBase
     }
 
     /**
-     * Add a notification for display in the theme.
+     * Record a notification for display in the theme.
+     * @deprecated since 2.3 instead use RecordNotice()
      *
-     * @param CmsAdminThemeNotification $notification A reference to the new notification
+     * @param AdminThemeNotification $notification A reference to the new notification
      */
-    public function add_notification(CmsAdminThemeNotification &$notification)
+    public function add_notification(AdminThemeNotification &$notification)
     {
-        if( !is_array($this->_notifications) ) $this->_notifications = [];
+/*      if( !is_array($this->_notifications) ) $this->_notifications = [];
         $this->_notifications[] = $notification;
+*/
     }
 
     /**
-     * Add a notification for display in the theme.
-     * This is simply a compatibility wrapper around the add_notification method.
-     *
-     * @deprecated
+     * Record a notification for display in the theme.
+     * This is a wrapper around the add_notification method.
+     * @deprecated since 2.3 instead use RecordNotice()
+	 *
      * @param int $priority priority level between 1 and 3
      * @param string $module The module name.
      * @param string $html The contents of the notification
      */
     public function AddNotification($priority,$module,$html)
     {
-      $notification = new CmsAdminThemeNotification();
+/*    $notification = new AdminThemeNotification();
       $notification->priority = max(1,min(3,$priority));
       $notification->module = $module;
       $notification->html = $html;
       $this->add_notification($notification);
+*/
     }
 
     /**
      * Retrieve the current list of notifications.
+     * @deprecated since 2.3 instead use PrepareStrings()
      *
-     * @return Array Array of CmsAdminThemeNotification objects
+     * @return array of AdminThemeNotification objects
      */
     public function get_notifications()
     {
-        return $this->_notifications;
+//        return $this->_notifications;
     }
 
     /**
      * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
-     * @since 2.3 (pre-2.3, specific themes handled this individually)
+     * @since 2.3 (pre-2.3, themes handled this individually)
+	 *
+	 * @return mixed array | null
      */
     public function get_my_alerts()
     {
