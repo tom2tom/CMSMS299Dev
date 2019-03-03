@@ -29,45 +29,45 @@ if ($cli) {
 	}
 }
 
-// regex patterns for sources not copied to tempdir for processing,
+// regex patterns for sources not copied to tempdir for inclusion in the sources tarball,
 // checked against root-dir-relative filepaths, after converting windoze path-sep's to *NIX
 $src_excludes = [
-'/phar_installer\/|phar_installer$/',
-'/scripts\/|scripts$/',
-'/tests\/|tests$/',
-'/uploads\/.+/',
+'/\.#.*/',
+'/\.bak$/',
 '/\.git.*/',
 '/\.md$/i',
 '/\.svn/',
-'/svn-.*/',
-'/^config\.php$/', //TODO does not exclude main config file! (must keep class.cms_config.php)
-'/\/index\.html$/',
-'/\.bak$/',
-'/UNUSED/',
-'/~$/',
+'/\/index\.html?$/',
 '/#.*/',
-'/\.#.*/',
+'/^config\.php$/', //TODO does not exclude main config file! (must keep class.cms_config.php)
+'/~$/',
+'/phar_installer\/|phar_installer$/',
+'/scripts\/|scripts$/',
+'/svn-.*/',
+'/tests\/|tests$/',
+'/UNUSED.+/',
+'/uploads\/.+/',
 ];
 //TODO root-dir  '/\.htaccess$/',
 
-// regex patterns for sources in the phar_intaller folder, but not included in the created phar file
+// regex patterns for sources in the phar_intaller folder, but not included in the created phar file, expanded-zip
+// NOTE README*.TXT will need to be independently processed into the respective files
 $phar_excludes = [
+'/\.#/',
+'/\.bak$/',
 '/\.git.*/',
 '/\.svn\//',
+'/#/',
+'/~$/',
 '/build\/|build$/',
 '/out\/|out$/',
-'/source\/|source$/',
-'/ext\//',
 '/scripts\/|scripts$/',
-'/README\.TXT/',
-'/\.bak$/',
-'/~$/',
-'/\.#/',
-'/#/',
+'/source\/|source$/',
+'/UNUSED.+/',
 ];
 //'/README.*/',
 
-//$exclude_from_zip = [
+//$zip_excludes = [ same as $phar_excludes
 //'*/',
 //'tmp/',
 //'.#*',
@@ -612,6 +612,10 @@ EOS;
 					continue 2;
 				}
 			}
+			if (strcasecmp($relpath, 'README.TXT') == 0) {
+				verbose(2, "EXCLUDED: $relpath");
+				continue; //zip-specific file not covered by a regex
+			}
 
 			verbose(2, "ADDING: $relpath to the phar");
 
@@ -696,7 +700,7 @@ EOS;
 			$arch = new ZipArchive();
 			$arch->open($outfile, ZipArchive::OVERWRITE | ZipArchive::CREATE);
 /*			$fp = joinpath($tmpdir, 'zip_excludes.dat');
-			$str = implode("\n", $exclude_from_zip);
+			$str = implode("\n", $zip_excludes);
 			file_put_contents($fp, $str);
 			$arch->addFile($fp, basename($fp));
 */
@@ -716,9 +720,15 @@ EOS;
 				$relpath = substr($fp, $len);
 				if (strncmp($relpath, 'build', 5) == 0 ||
 					strncmp($relpath, 'out', 3) == 0 ||
-					strncasecmp($relpath, 'README-PHAR', 11) == 0) {
+					strncasecmp($relpath, 'README-PHAR', 11) == 0) { //phar-specific file not covered by a regex
 					verbose(2, "EXCLUDED: $relpath from the zip");
 				} else {
+					foreach ($phar_excludes as $excl) {
+						if (preg_match($excl, $fp, $matches, 0, $len)) {
+							verbose(2, "EXCLUDED: $relpath from the zip");
+							continue 2;
+						}
+					}
 					verbose(2, "ADDING: $relpath to the zip");
 					$arch->addFile($fp, $pharname.$relpath);
 				}
