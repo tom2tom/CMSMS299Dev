@@ -120,7 +120,6 @@ $tmp[0]['query_var'] = testConfig('query_var', 'query_var');
 
 $tmp[1]['root_url'] = testConfig('root_url', 'root_url');
 $tmp[1]['root_path'] = testConfig('root_path', 'root_path', 'testDirWrite');
-$tmp[1]['scripts_url'] = testConfig('scripts_url', 'scripts_url');
 $tmp[1]['uploads_path'] = testConfig('uploads_path', 'uploads_path', 'testDirWrite');
 $tmp[1]['uploads_url'] = testConfig('uploads_url', 'uploads_url');
 $tmp[1]['image_uploads_path'] = testConfig('image_uploads_path', 'image_uploads_path', 'testDirWrite');
@@ -154,6 +153,14 @@ $res = cms_siteprefs::get('use_smarty_compilecheck', false);
 $tmp[0]['smarty_compilecheck'] = testBoolean(0, lang('smarty_compilecheck'), $res, lang('test_smarty_compilecheck'), false, true);
 $res = cms_siteprefs::get('auto_clear_cache_age', 0);
 $tmp[0]['auto_clear_cache_age'] = testRange(0, lang('autoclearcache2'), $res, lang('test_auto_clear_cache_age'), 0, 30, false);
+$obj = cms_cache_handler::get_instance();
+$type = get_class($obj->get_driver());
+$c = stripos($type, 'Cache');
+$res = ucfirst(substr($type, $c+5));
+if( $res != 'File' ) { $res .= ' (auto)'; } else { $res = 'Saved files'; } //TODO lang
+$tmp[0]['cache_driver'] = testDummy(lang('system_cachetype'),$res,'');
+$res = cms_siteprefs::get('cache_lifetime', 0);
+$tmp[0]['cache_lifetime'] = testDummy(lang('system_cachelife'),$res,'');
 
 $smarty->assign('performance_info', $tmp);
 
@@ -295,11 +302,10 @@ $tmp[0]['server_software'] = testDummy('', $_SERVER['SERVER_SOFTWARE'], '');
 $tmp[0]['server_api'] = testDummy('', PHP_SAPI, '');
 $tmp[0]['server_os'] = testDummy('', PHP_OS . ' ' . php_uname('r') .' '. lang('on') .' '. php_uname('m'), '');
 
-switch ($config['dbms']) {
- case 'mysqli':
- case 'mysql':
+//switch ($config['dbms']) {
+// case 'mysqli':
    $v = $db->GetOne('SELECT version()');
-   $tmp[0]['server_db_type'] = testDummy('', 'MySQL ('.$config['dbms'].')', '');
+   $tmp[0]['server_db_type'] = testDummy('', 'MySQL ('./*$config['dbms']*/'mysqli)', '');
    $_server_db = (false === strpos($v, '-')) ? $v : substr($v, 0, strpos($v, '-'));
    list($minimum, $recommended) = getTestValues('mysql_version');
    $tmp[0]['server_db_version'] = testVersionRange(0, 'server_db_version', $_server_db, '', $minimum, $recommended, false);
@@ -321,8 +327,8 @@ switch ($config['dbms']) {
    } else {
        $tmp[0]['server_db_grants'] = testDummy('db_grants', lang('os_db_grants'), 'yellow', '', 'error_no_grantall_info');
    }
-   break;
-}
+//   break;
+//}
 
 $smarty->assign('count_server_info', count($tmp[0]))
  ->assign('server_info', $tmp);
