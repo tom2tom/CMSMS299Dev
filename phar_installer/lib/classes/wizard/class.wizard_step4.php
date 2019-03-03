@@ -43,7 +43,7 @@ class wizard_step4 extends wizard_step
         if( $tmp ) $this->_config = array_merge($this->_config,$tmp);
 
         $action = $this->get_wizard()->get_data('action');
-        if( $action == 'freshen' || $action == 'upgrade' ) {
+        if( $action == 'upgrade' ) {  //freshen skips this step
             // read config data from config.php for these actions
             $app = get_app();
             $destdir = $app->get_destdir();
@@ -79,8 +79,8 @@ class wizard_step4 extends wizard_step
 
         $all_timezones = timezone_identifiers_list();
         if( !in_array($config['timezone'],$all_timezones) ) {
-			throw new Exception(lang('error_invalidtimezone'));
-		}
+            throw new Exception(lang('error_invalidtimezone'));
+        }
 
         $config['db_password'] = trim($config['db_password']);
         if( $config['db_password'] ) {
@@ -92,40 +92,40 @@ class wizard_step4 extends wizard_step
         }
 
         // try a test connection
-		if( empty($config['db_port']) ) {
-			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
-				$config['db_password'], $config['db_name']);
-		}
-		else {
-			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
-				$config['db_password'], $config['db_name'], (int)$config['db_port']);
-		}
-		if( !$mysqli ) {
+        if( empty($config['db_port']) ) {
+            $mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+                $config['db_password'], $config['db_name']);
+        }
+        else {
+            $mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+                $config['db_password'], $config['db_name'], (int)$config['db_port']);
+        }
+        if( !$mysqli ) {
             throw new Exception(lang('error_createtable'));
-		}
-		if( $mysqli->connect_errno ) {
+        }
+        if( $mysqli->connect_errno ) {
             throw new Exception($mysqli->connect_error.' : '.lang('error_createtable'));
-		}
-		$sql = 'CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)';
-		if( !$mysqli->query($sql) ) {
+        }
+        $sql = 'CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)';
+        if( !$mysqli->query($sql) ) {
             throw new Exception(lang('error_createtable'));
-		}
+        }
         $sql = 'DROP TABLE '.$config['db_prefix'].'_dummyinstall';
-		if( !$mysqli->query($sql) ) {
+        if( !$mysqli->query($sql) ) {
             throw new Exception(lang('error_droptable'));
         }
 
         if( $action == 'install' ) {
-	        // check whether some typical core tables exist
+            // check whether some typical core tables exist
             $sql = 'SELECT content_id FROM '.$config['db_prefix'].'content LIMIT 1';
-			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+            if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
                 throw new Exception(lang('error_cmstablesexist'));
-			}
+            }
             $sql = 'SELECT module_name FROM '.$config['db_prefix'].'modules LIMIT 1';
-			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+            if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
                 throw new Exception(lang('error_cmstablesexist'));
-			}
-		}
+            }
+        }
     }
 
     protected function process()
