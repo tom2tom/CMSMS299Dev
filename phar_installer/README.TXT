@@ -3,57 +3,54 @@ CMS Made Simple Expanded Installation Assistant
 ---------------------------------------
 This document describes using the expanded CMS Made Simple installation assistant.
 
-As opposed to the PHAR based installation assistant, this version is not compressed into a single archive file
-and contains numerous files and directories.  It is useful for installing, upgrading and freshening CMSMS installs
-on servers which are not necessarily running up-to-date software or those with special configurations that do not support
-using the simpler phar installer.
+As opposed to the PHAR based installation assistant, this version is not
+compressed into a single archive file.
 
+It is useful for installing, upgrading and freshening CMSMS on servers
+which are not necessarily running up-to-date software or those with special
+configurations that do not support using the simpler phar installer.
+
+Notably it may be used where PHP's phar extension is not available. 
 
 -------------------
 WARNINGS:
 -------------------
-1.  We DO NOT recommend the use of this version of the installation assistant.  Please use the PHAR version of the installer
-    whenever possible.   When using this installer, please execute extreme caution.
-
-2.  DO NOT INSTALL THIS PACKAGE IN A POPULATED DIRECTORY.
-    At all times you MUST use a clean directory for the expanded version of the installation assistant.  This clean directory
-    can be located below an existing CMSMS install,  or parallel to it.
-
+1.  We recommend AGAINST the use of this version of the installation assistant.
+    Please use the PHAR version of the installer whenever possible.
 
 -------------------
 Requirements:
 -------------------
-1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.0.
+1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.1.
 2.  For new installations of CMS Made Simple you should create a new mysql database and database user.
     - The database user must have ALL PRIVILEGES to all tables within the new database.
     - Your database user account must have a password.
-3.  CMS Made Simple itself requires at least PHP 7.0 with numerous libraries enabled (the install assistant will
-    check for these) including json, tokenizer, xml, and gd.
-4.  Your PHP environment must include the PHAR extension (yes, even for the expanded installer).  This is for expanding the archive(s) included within the installation assistant.
-
+3.  CMS Made Simple itself requires at least PHP 7.1 with numerous libraries enabled
+    (the install assistant will check for these) including json, tokenizer, xml, and gd.
 
 -------------------
 Instructions:
 -------------------
-1.  Using your web host's file manager (usually accessible within the control panel), create a new directory below
-    the location where you want to install CMSMS.  Typically, you could name this directory cmsms_install
-    For example:  /home/<myusername>/public_html/cmsms_install
+1.  For a new installation, use the site host's file manager (usually accessible
+    within the control panel), to create a new directory for the site root.
+    For example:  /home/<myusername>/public_html/cmsms
 
-2.  Upload the cmsms-<version>-install.expanded.zip file to this subdirectory.
+2.  Upload the cmsms-<version>-install.expanded.zip file to the site root directory.
 
-3.  Extract the files from the .zip archive into this subdirectory.
-    This will create numerous files and directories.  So be careful to extract the files into the proper directory.
+3.  Extract the files from that uploaded archive into that same directory.
+    This will create a folder named phar_installer, which includes numerous
+    sub-directories and files.
 
-3.  Using your browser, navigate to the directory created in step 1.
-    For Example:   http://www.mywebsite.site/cmsms_install
+4.  In your web browser, navigate to the phar_installer directory created in step 3.
+    For example:  http://www.mywebsite.site/cmsms/phar_installer
 
 You should now be presented with a welcome screen.  If instead you see a white screen it probably means that your
 server is running outdated software versions (e.g. PHP, plugins such as ion-cube or zend-guard). It is a good hint that
 if the installer will not run you may have further problems with CMS Made Simple on that server.
 
 The installation assistant can then be used to guide you through the process of installing a new version of CMSMS,
-Upgrading an existing installation of CMSMS, or freshening an existing version of CMSMS.   There are various options
-for each path through the installation assistant and 9 steps
+upgrading an existing installation of CMSMS, or freshening an existing version of CMSMS.   There are various options
+for each path through the installation assistant and 9 steps.
 
 Step 1:
   The first step asks you to select an installation directory (the default value is your current directory's parent),
@@ -134,8 +131,7 @@ Step 9:
 -----------
 Afterwards
 -----------
-After successful completion of the installation assistant, you should, using either the command line or your web hosts file manager,
-It is important for security purposes that you delete the installation assistant .php file and this text file from your server after verifying that the operation has succeeded.
+After successful completion of the installation assistant, you should, using either the command line or your web hosts file manager, delete the created phar_installer folder (with all its contents).
 
 ---------------------------
 Additional Features
@@ -143,7 +139,7 @@ Additional Features
 The single installation assistant package provides these features:
 1.  Installing a new version of CMSMS into an empty directory.
 2.  Upgrading an existing version of CMSMS to a new version
-3.  Freshening (or Repairing) an existing installation of CMSMS
+3.  Freshening (or repairing) an existing installation of CMSMS
     This option may be useful for fixing a corrupted installation of CMSMS.  Only available when the current version of CMSMS and the new version are identical, it will replace all of the core files with those distributed by the system and re-generate a new config.php file.
 4.  Installing additional language packages
     As part of the "Freshen" functionality, when repairing an installation you have the option to install additional language packs.

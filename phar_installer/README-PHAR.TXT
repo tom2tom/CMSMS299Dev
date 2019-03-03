@@ -14,12 +14,13 @@ The PHAR based installation assistant is a binary file and must be transferred i
 ---------------------------
 Requirements
 ---------------------------
-1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.0 with the Phar library enabled.
-2.  For new installations of CMS Made Simple you should create a new mysql database and database user.
+1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.1.
+2.  The website's PHP environment must include the PHAR extension.
+3.  For new installations of CMS Made Simple you should create a new mysql database and database user.
     - The database user must have ALL PRIVILEGES to all tables within the new database.
     - Your database user account must have a password.
-3.  CMS Made Simple itself requires at least PHP 7.0 with numerous libraries enabled (the install assistant will check for these) including json, tokenizer, xml, and gd.
-4.  The website's PHP environment must include the PHAR extension
+4.  CMS Made Simple itself requires at least PHP 7.1 with numerous libraries enabled
+    (the install assistant will check for these) including json, tokenizer, xml, and gd.
 
 ---------------------------
 Instructions
@@ -27,7 +28,7 @@ Instructions
 1.  Upload the cmsms-<version>-install.zip file to your web directory.
 2.  Extract the files from the .zip file
     This will create a cmsms-<version>-install.php file, and another copy of this README file.
-3.  Using your browser, navigate to <your web directory>/cmsms-<version>-install.php
+3.  In your web browser, navigate to <your web directory>/cmsms-<version>-install.php
     For Example: http://www.mywebsite.site/cmsms-2.0-install.php
 
 You should now be presented with a welcome screen.  If, instead, you see a white screen it probably means that your
