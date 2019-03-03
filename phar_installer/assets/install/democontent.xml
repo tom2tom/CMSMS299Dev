@@ -62,7 +62,7 @@
  <!ELEMENT topath (#PCDATA)>
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
- <!ELEMENT userplugins (sourcedir?,file+)>
+ <!ELEMENT fileplugins (sourcedir?,file+)>
  <!ELEMENT file (name,(frompath|embedded),content?)>
 ]>
 <cmsmssitedata>
@@ -3795,5 +3795,14 @@ a {
 			<topath>simplex/teaser</topath>
 		</file>
 	</files>
-	<userplugins/>
+	<fileplugins>
+		<file>
+			<name>custom_copyright.php</name>
+			<frompath></frompath>
+		</file>
+		<file>
+			<name>user_agent.php</name>
+			<frompath></frompath>
+		</file>
+	</fileplugins>
 </cmsmssitedata>
