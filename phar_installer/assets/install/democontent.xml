@@ -3311,8 +3311,8 @@ li.separator - To style the ruler for the separator *}
   {cms_lang_info assign='nls'}
   {$nls=$nls scope=global}
   {$theme_path = "{uploads_url}/simplex" scope=global}
-  {$main_title="{title}" scope=global}
-  {$main_content="{content}" scope=global}
+  {$main_title="{title nocache}" scope=global}
+  {$main_content="{content nocache}" scope=global}
 {/block}
 {/strip}&lt;!doctype html&gt;
 &lt;html lang='{$nls-&gt;htmlarea()}' dir='{$nls-&gt;direction()}'&gt;
@@ -3369,7 +3369,7 @@ li.separator - To style the ruler for the separator *}
                 &lt;!-- .header-bottom (bottom part of header containing catchphrase and search field) --&gt;
                 &lt;div class='row header-bottom'&gt;
                     &lt;section class='phrase cf'&gt;
-                        &lt;span class='seven-col phrase-text'&gt;Power for professionals&lt;br class='lt-768' /&gt; Simplicity for End Users&lt;/span&gt;
+                        &lt;span class='seven-col phrase-text'&gt;Power for professionals&lt;br class='lt-768' /&gt; Simplicity for end users&lt;/span&gt;
                         {Search|strip formtemplate='Simplex Search'} {* Search module using custom template in Design Manager, you should use resultpage parameter for search results (see module help) *}
                     &lt;/section&gt;
                 &lt;/div&gt;
@@ -4389,7 +4389,7 @@ End Date:   {$enddate|cms_date_format}]]></content>
 {$slides = []}
 
 {$slides.0.heading = 'Power for professionals'}
-{$slides.0.subheading = 'Simplicity for end Users'}
+{$slides.0.subheading = 'Simplicity for end users'}
 {$slides.0.image = 'palm-logo.png'}
 
 {$slides.1.heading = 'Faster &amp; Easier'}
