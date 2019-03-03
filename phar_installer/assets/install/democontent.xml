@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE cmsmsinstall [
+<!DOCTYPE cmsmssitedata [
  <!ELEMENT dtdversion (#PCDATA)>
  <!ELEMENT designs (design+)>
  <!ELEMENT design (id,name,description?,dflt?)>
@@ -17,22 +17,24 @@
  <!ELEMENT css_id (#PCDATA)>
  <!ELEMENT item_order (#PCDATA)>
  <!ELEMENT tpltypes (tpltype+)>
- <!ELEMENT tpltype (id,name,description?,originator,one_only?,has_dflt?,dflt_contents?,requires_contentblocks?,lang_cb?,dflt_content_cb?,help_content_cb?)>
+ <!ELEMENT tpltype (id,originator,name,dflt_contents?,description?,lang_cb?,dflt_content_cb?,help_content_cb?,has_dflt?,requires_contentblocks?,one_only?,owner)>
  <!ELEMENT originator (#PCDATA)>
- <!ELEMENT one_only (#PCDATA)>
- <!ELEMENT has_dflt (#PCDATA)>
  <!ELEMENT dflt_contents (#PCDATA)>
- <!ELEMENT requires_contentblocks (#PCDATA)>
  <!ELEMENT lang_cb (#PCDATA)>
  <!ELEMENT dflt_content_cb (#PCDATA)>
  <!ELEMENT help_content_cb (#PCDATA)>
+ <!ELEMENT has_dflt (#PCDATA)>
+ <!ELEMENT requires_contentblocks (#PCDATA)>
+ <!ELEMENT one_only (#PCDATA)>
+ <!ELEMENT owner (#PCDATA)>
  <!ELEMENT categories (category+)>
  <!ELEMENT category (id,name,description?,item_order?)>
  <!ELEMENT templates (template)>
- <!ELEMENT template (id,name,description?,originator?,type_id,category_id?,type_dflt?,content)>
+ <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?)>
  <!ELEMENT type_id (#PCDATA)>
- <!ELEMENT category_id (#PCDATA)>
+ <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
+ <!ELEMENT listable (#PCDATA)>
  <!ELEMENT designtemplates (designtpl+)>
  <!ELEMENT designtpl (design_id,tpl_id,tpl_order?)>
  <!ELEMENT tpl_id (#PCDATA)>
@@ -62,9 +64,9 @@
  <!ELEMENT embedded (#PCDATA)>
  <!ELEMENT userplugins (sourcedir?,file+)>
  <!ELEMENT file (name,(frompath|embedded),content?)>
- ]>
-<cmsmsinstall>
-	<dtdversion>0.6</dtdversion>
+]>
+<cmsmssitedata>
+	<dtdversion>0.7</dtdversion>
 
 	<designs>
 		<design>
@@ -2695,12 +2697,12 @@ a {
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>1</css_id>
-			<item_order>2</item_order>
+			<item_order>1</item_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>2</css_id>
-			<item_order>4</item_order>
+			<item_order>2</item_order>
 		</designcss>
 		<designcss>
 			<design_id>1</design_id>
@@ -2710,15 +2712,28 @@ a {
 		<designcss>
 			<design_id>1</design_id>
 			<css_id>4</css_id>
-			<item_order>1</item_order>
+			<item_order>4</item_order>
 		</designcss>
 	</designstyles>
 	<tpltypes>
 		<tpltype>
-			<id>1</id>
-			<name>page</name>
+			<id>2</id>
 			<originator>__CORE__</originator>
-			<has_dflt>1</has_dflt>
+			<name>generic</name>
+			<dflt_contents></dflt_contents>
+			<description></description>
+			<lang_cb>\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
+			<dflt_content_cb></dflt_content_cb>
+			<help_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
+			<has_dflt>0</has_dflt>
+			<requires_contentblocks>0</requires_contentblocks>
+			<one_only>0</one_only>
+			<owner>1</owner>
+		</tpltype>
+		<tpltype>
+			<id>1</id>
+			<originator>__CORE__</originator>
+			<name>page</name>
 			<dflt_contents><![CDATA[{strip}
 	{process_pagedata}
 {/strip}&lt;!doctype html&gt;
@@ -2746,562 +2761,21 @@ a {
 &lt;/body&gt;
 
 &lt;/html&gt;]]></dflt_contents>
-			<requires_contentblocks>1</requires_contentblocks>
+			<description></description>
 			<lang_cb>\\CMSMS\\internal\\std_layout_template_callbacks::page_type_lang_callback</lang_cb>
 			<dflt_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::reset_page_type_defaults</dflt_content_cb>
 			<help_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>2</id>
-			<name>generic</name>
-			<originator>__CORE__</originator>
-			<lang_cb>\\CMSMS\\internal\\std_layout_template_callbacks::generic_type_lang_callback</lang_cb>
-			<help_content_cb>\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>18</id>
-			<name>breadcrumbs</name>
-			<originator>Navigator</originator>
 			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[{* default breadcrumbs template *}
-{strip}
-&lt;div class="breadcrumb"&gt;
-  {if isset($starttext)}{$starttext}:&amp;nbsp;{/if}
-  {foreach $nodelist as $node}
-    {$spanclass='breadcrumb'}
-    {if $node-&gt;current}
-      {$spanclass=$spanclass|cat:' current'}
-    {/if}
-
-    &lt;span class="{$spanclass}"&gt;
-      {if $node@last}
-        {$node-&gt;menutext}
-      {elseif $node-&gt;type == 'sectionheader'}
-        {$node-&gt;menutext}&amp;nbsp;
-      {else}
-        &lt;a href="{$node-&gt;url}" title="{$node-&gt;menutext}"&gt;{$node-&gt;menutext}&lt;/a&gt;
-      {/if}
-    &lt;/span&gt;
-
-    {if !$node@last}&amp;raquo;&amp;nbsp;{/if}
-  {/foreach}
-&lt;/div&gt;
-{/strip}]]></dflt_contents>
-			<lang_cb>Navigator::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>Navigator::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>Navigator::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>17</id>
-			<name>navigation</name>
-			<originator>Navigator</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[{* simple navigation *}
-{* note, function can only be defined once *}
-{*
-  variables:
-  node: contains the current node.
-  aclass: is used to build a string containing class names given to the a tag if one is used
-  liclass: is used to build a string containing class names given to the li tag.
-*}
-
-{function name=Nav_menu depth=1}{strip}
-&lt;ul&gt;
-  {foreach $data as $node}
-    {* setup classes for the anchor and list item *}
-    {$liclass='menudepth'|cat:$depth}
-    {$aclass=''}
-
-    {* the first child gets a special class *}
-    {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
-
-    {* the last child gets a special class *}
-    {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
-
-    {if $node-&gt;current}
-      {* this is the current page *}
-      {$liclass=$liclass|cat:' menuactive'}
-      {$aclass=$aclass|cat:' menuactive'}
-    {/if}
-
-    {if $node-&gt;parent}
-      {* this is a parent of the current page *}
-      {$liclass=$liclass|cat:' menuactive menuparent'}
-      {$aclass=$aclass|cat:' menuactive menuparent'}
-    {/if}
-
-    {if $node-&gt;children_exist}
-      {$liclass=$liclass|cat:' parent'}
-      {$aclass=$aclass|cat:' parent'}
-    {/if}
-
-    {* build the menu item node *}
-    {if $node-&gt;type == 'sectionheader'}
-      &lt;li class='sectionheader {$liclass}'&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
-        {if isset($node-&gt;children)}
-          {Nav_menu data=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {else if $node-&gt;type == 'separator'}
-      &lt;li class='separator {$liclass}'&gt;&lt;hr class='separator' /&gt;&lt;/li&gt;
-    {else}
-      {* regular item *}
-      &lt;li class="{$liclass}"&gt;
-        &lt;a class="{$aclass}" href="{$node-&gt;url}"{if $node-&gt;target ne ""} target="{$node-&gt;target}"{/if}&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-        {if isset($node-&gt;children)}
-          {Nav_menu data=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {/if}
-  {/foreach}
-&lt;/ul&gt;
-{/strip}{/function}
-
-{if isset($nodes)}
-{Nav_menu data=$nodes depth=0}
-{/if}
-]]></dflt_contents>
-			<lang_cb>Navigator::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>Navigator::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>Navigator::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>27</id>
-			<name>browsecat</name>
-			<originator>News</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[{if $count &gt; 0}
-&lt;ul class="list1"&gt;
-{foreach $cats as $node}
-{if $node.depth &gt; $node.prevdepth}
-{repeat string="&lt;ul&gt;" times=$node.depth-$node.prevdepth}
-{elseif $node.depth &lt; $node.prevdepth}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.prevdepth-$node.depth}
-&lt;/li&gt;
-{elseif $node.index &gt; 0}&lt;/li&gt;
-{/if}
-&lt;li class="newscategory"&gt;
-{if $node.count &gt; 0}
-	&lt;a href="{$node.url}"&gt;{$node.news_category_name}&lt;/a&gt; ({$node.count}){else}&lt;span&gt;{$node.news_category_name} (0)&lt;/span&gt;{/if}
-{/foreach}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.depth-1}&lt;/li&gt;
-&lt;/ul&gt;
-{/if}]]></dflt_contents>
-			<lang_cb>News::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>News::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>News::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>26</id>
-			<name>form</name>
-			<originator>News</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[&lt;script type="text/javascript"&gt;
-{literal}//&lt;![CDATA[
- cms_equalWidth($('label.boxchild'));
-{/literal}//]]&gt;
-&lt;/script&gt;
-
-{* original form template *}
-&lt;h3&gt;{$mod-&gt;Lang('title_fesubmit_form')}&lt;/h3&gt;
-
-{if !empty($error)}
-  &lt;div class="error"&gt;{$error}&lt;/div&gt;
-{elseif !empty($message)}
-  &lt;div class="message"&gt;{$message}&lt;/div&gt;
-{/if}
-
-{form_start category_id=$category_id}
- &lt;div class="colbox"&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_title"&gt;*{$mod-&gt;Lang('title')}:&lt;/label&gt;
-    &lt;input type="text" class="boxchild" id="news_title" name="{$actionid}title" value="{$title}" size="30" required /&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_category"&gt;{$mod-&gt;Lang('category')}:&lt;/label&gt;
-    &lt;select class="boxchild" id="news_category" name="{$actionid}input_category"&gt;
-      {html_options options=$categorylist selected=$category_id}
-    &lt;/select&gt;
-  &lt;/div&gt;
-{if empty($hide_summary_field)}
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_summary"&gt;{$mod-&gt;Lang('summary')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'summary'}
-      {cms_textarea enablewysiwyg=true id=news_summary name=$tmp value=$summary required=true}
-    &lt;/div&gt;
-  &lt;/div&gt;
-{/if}
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_content"&gt;*{$mod-&gt;Lang('content')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'content'}
-      {cms_textarea enablewysiwyg=true id=news_content name=$tmp value=$content required=true}
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_extra"&gt;{$mod-&gt;Lang('extra')}:&lt;/label&gt;
-    &lt;input class="boxchild" id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" /&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild"&gt;{$mod-&gt;Lang('startdate')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'startdate_'}
-      {html_select_date prefix=$tmp time=$startdate end_year="+15"}
-      {html_select_time prefix=$tmp time=$startdate}
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild"&gt;{$mod-&gt;Lang('enddate')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'enddate_'}
-      {html_select_date prefix=$tmp time=$enddate end_year="+15"}
-      {html_select_time prefix=$tmp time=$enddate}
-    &lt;/div&gt;
-  &lt;/div&gt;
-  {if isset($customfields)}{foreach $customfields as $field}
-   &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_fld_{$field-&gt;id}"&gt;{$field-&gt;name}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-    {if $field-&gt;type == 'file'}
-      &lt;input id="news_fld_{$field-&gt;id}" type="file" name="{$actionid}news_customfield_{$field-&gt;id}" /&gt;
-    {elseif $field-&gt;type == 'checkbox'}
-      &lt;input id="news_fld_{$field-&gt;id}" type="checkbox" name="{$actionid}news_customfield_{$field-&gt;id}" value="1" /&gt;
-    {elseif $field-&gt;type == 'textarea'}
-      {$tmp1='news_fld_'|cat:$field-&gt;id}
-      {capture assign='tmp2'}{$actionid}news_customfield_{$field-&gt;id}{/capture}
-      {cms_textarea id=$tmp1 name=$tmp2 enablewysiwyg=true}
-    {elseif $field-&gt;type == 'textbox'}
-      &lt;input id="news_fld_{$field-&gt;id}" type="text" name="{$actionid}news_customfield_{$field-&gt;id}" maxlength="{$field-&gt;max_length}" /&gt;
-    {/if}
-    &lt;/div&gt;
-   &lt;/div&gt;
-  {/foreach}{/if}
- &lt;/div&gt;{*.colbox*}
- &lt;div class="pageinput pregap"&gt;
-   &lt;button type="submit" name="{$actionid}submit" class="adminsubmit icon check"&gt;{$mod-&gt;Lang('submit')}&lt;/button&gt;
-   &lt;a href="{cms_selflink href=$page_alias}"&gt;{$mod-&gt;Lang('prompt_redirecttocontent')}&lt;/a&gt;
- &lt;/div&gt;
-&lt;/form&gt;
-
-]]></dflt_contents>
-			<lang_cb>News::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>News::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>News::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>25</id>
-			<name>detail</name>
-			<originator>News</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
-{if isset($entry-&gt;canonical)}
-  {* note this syntax ensures that the canonical variable is set into global scope *}
-  {$canonical=$entry-&gt;canonical scope=global}
-{/if}
-
-{if $entry-&gt;postdate}
-	&lt;div id="NewsPostDetailDate"&gt;
-		{$entry-&gt;postdate|cms_date_format}
-	&lt;/div&gt;
-{/if}
-&lt;h3 id="NewsPostDetailTitle"&gt;{$entry-&gt;title|cms_escape:htmlall}&lt;/h3&gt;
-
-&lt;hr id="NewsPostDetailHorizRule" /&gt;
-
-{if $entry-&gt;summary}
-	&lt;div id="NewsPostDetailSummary"&gt;
-		&lt;strong&gt;
-			{$entry-&gt;summary}
-		&lt;/strong&gt;
-	&lt;/div&gt;
-{/if}
-
-{if $entry-&gt;category}
-	&lt;div id="NewsPostDetailCategory"&gt;
-		{$category_label} {$entry-&gt;category}
-	&lt;/div&gt;
-{/if}
-{if $entry-&gt;author}
-	&lt;div id="NewsPostDetailAuthor"&gt;
-		{$author_label} {$entry-&gt;author}
-	&lt;/div&gt;
-{/if}
-
-&lt;div id="NewsPostDetailContent"&gt;
-        {* note, for security purposes we do not pass the content through smarty before displaying it.  This is in case the articles can come from untrusted sources. *}
-	{$entry-&gt;content}
-&lt;/div&gt;
-
-{if $entry-&gt;extra}
-	&lt;div id="NewsPostDetailExtra"&gt;
-		{$extra_label} {$entry-&gt;extra}
-	&lt;/div&gt;
-{/if}
-
-{if $return_url != ""}
-&lt;div id="NewsPostDetailReturnLink"&gt;{$return_url}{if $category_name != ''} - {$category_link}{/if}&lt;/div&gt;
-{/if}
-
-{if isset($entry-&gt;fields)}
-  {foreach $entry-&gt;fields as $fieldname =&gt; $field}
-     &lt;div class="NewsDetailField"&gt;
-        {if $field-&gt;type == 'file'}
-	  {* this template assumes that every file uploaded is an image of some sort, because News doesn't distinguish *}
-          {if isset($field-&gt;value) &amp;&amp; $field-&gt;value}
-            &lt;img src="{$entry-&gt;file_location}/{$field-&gt;value}" alt="{$field-&gt;value}"/&gt;
-          {/if}
-        {elseif $field-&gt;type == 'linkedfile'}
-          {* also assume it's an image... *}
-          {if !empty($field-&gt;value)}
-            &lt;img src="{file_url file=$field-&gt;value}" alt="{$field-&gt;value}"/&gt;
-          {/if}
-        {else}
-          {$field-&gt;name}:&amp;nbsp;{$field-&gt;value}
-        {/if}
-     &lt;/div&gt;
-  {/foreach}
-{/if}
-]]></dflt_contents>
-			<lang_cb>News::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>News::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>News::template_help_callback</help_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>10</id>
-			<name>searchform</name>
-			<originator>Search</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[{$startform}
-&lt;label for="{$search_actionid}searchinput"&gt;{$searchprompt}:&amp;nbsp;&lt;/label&gt;&lt;input type="text" class="search-input" id="{$search_actionid}searchinput" name="{$search_actionid}searchinput" size="20" maxlength="50" placeholder="{$searchtext}"/&gt;
-{*
-&lt;br/&gt;
-&lt;input type="checkbox" name="{$search_actionid}use_or" value="1"/&gt;
-*}
-&lt;input class="search-button" name="submit" value="{$submittext}" type="submit" /&gt;
-{if isset($hidden)}{$hidden}{/if}
-{$endform}]]></dflt_contents>
-			<lang_cb>Search::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>Search::reset_page_type_defaults</dflt_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>11</id>
-			<name>searchresults</name>
-			<originator>Search</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[&lt;h3&gt;{$searchresultsfor} &amp;quot;{$phrase}&amp;quot;&lt;/h3&gt;
-{if $itemcount &gt; 0}
-&lt;ul&gt;
-  {foreach from=$results item=entry}
-  &lt;li&gt;{$entry-&gt;title} - &lt;a href="{$entry-&gt;url}"&gt;{$entry-&gt;urltxt}&lt;/a&gt; ({$entry-&gt;weight}%)&lt;/li&gt;
-  {*
-     You can also instantiate custom behaviour on a module by module basis by looking at
-     the $entry-&gt;module and $entry-&gt;modulerecord fields in $entry
-      ie: {if $entry-&gt;module == 'News'}{News action='detail' article_id=$entry-&gt;modulerecord detailpage='News'}
-  *}
-  {/foreach}
-&lt;/ul&gt;
-
-&lt;p&gt;{$timetaken}: {$timetook}&lt;/p&gt;
-{else}
-  &lt;p&gt;&lt;strong&gt;{$noresultsfound}&lt;/strong&gt;&lt;/p&gt;
-{/if}]]></dflt_contents>
-			<lang_cb>Search::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>Search::reset_page_type_defaults</dflt_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>12</id>
-			<name>navigation</name>
-			<originator>MenuManager</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[{* CSS classes used in this template:
-.activeparent - The top level parent when a child is the active/current page
-li.active0n h3 - n is the depth/level of the node. To style the active page for each level separately. The active page is not clickable.
-.clearfix - Used for the unclickable h3 to use the entire width of the li, just like the anchors. See the Tools stylesheet in the default CMSMS installation.
-li.sectionheader h3 - To style section header
-li.separator - To style the ruler for the separator *}
-
-{if isset($menuparams.number_of_levels)}
-  {$number_of_levels=$menuparams.number_of_levels}
-{else}
-  {$number_of_levels=10000}
-{/if}
-
-{if $count &gt; 0}
-&lt;ul&gt;
-{foreach from=$nodelist item=node}
-{if $node-&gt;depth &gt; $node-&gt;prevdepth}
-{repeat string="&lt;ul&gt;" times=$node-&gt;depth-$node-&gt;prevdepth}
-{elseif $node-&gt;depth &lt; $node-&gt;prevdepth}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node-&gt;prevdepth-$node-&gt;depth}
-&lt;/li&gt;
-{elseif $node-&gt;index &gt; 0}&lt;/li&gt;
-{/if}
-
-{if $node-&gt;parent == true or $node-&gt;current == true}
-  {if $node-&gt;parent == true}
-    {$classes='menuactive menuparent'}
-  {else}
-    {$classes='menuactive'}
-  {/if}
-  {if $node-&gt;children_exist == true and $node-&gt;depth &lt; $number_of_levels}
-    {$classes=$classes|cat:' parent'}
-  {/if}
-  &lt;li class="{$classes}"&gt;&lt;a class="{$classes}" href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-
-{elseif $node-&gt;children_exist == true and $node-&gt;depth &lt; $number_of_levels and $node-&gt;type != 'sectionheader' and $node-&gt;type != 'separator'}
-&lt;li class="parent"&gt;&lt;a class="parent" href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-
-{elseif $node-&gt;current == true}
-&lt;li class="currentpage"&gt;&lt;h3&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/h3&gt;
-
-{elseif $node-&gt;type == 'sectionheader'}
-&lt;li class="sectionheader"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
-
-{elseif $node-&gt;type == 'separator'}
-&lt;li class="separator" style="list-style-type: none;"&gt; &lt;hr /&gt;
-
-{else}
-&lt;li&gt;&lt;a href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-
-{/if}
-
-{/foreach}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node-&gt;depth-1}&lt;/li&gt;
-&lt;/ul&gt;
-{/if}
-]]></dflt_contents>
-			<lang_cb>MenuManager::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>MenuManager::reset_page_type_defaults</dflt_content_cb>
-		</tpltype>
-		<tpltype>
-			<id>28</id>
-			<name>Moduleaction</name>
-			<description>Action templates for module: News</description>
-			<originator>News</originator>
-		</tpltype>
-		<tpltype>
-			<id>24</id>
-			<name>summary</name>
-			<originator>News</originator>
-			<has_dflt>1</has_dflt>
-			<dflt_contents><![CDATA[&lt;!-- Start News Display Template --&gt;
-{* This section shows a clickable list of current News categories. *}
-&lt;ul class="list1"&gt;
-{foreach $cats as $node}
-{if $node.depth &gt; $node.prevdepth}
-{repeat string="&lt;ul&gt;" times=$node.depth-$node.prevdepth}
-{elseif $node.depth &lt; $node.prevdepth}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.prevdepth-$node.depth}
-&lt;/li&gt;
-{elseif $node.index &gt; 0}&lt;/li&gt;
-{/if}
-&lt;li{if $node.index == 0} class="firstnewscat"{/if}&gt;
-{if $node.count &gt; 0}
-	&lt;a href="{$node.url}"&gt;{$node.news_category_name}&lt;/a&gt;{else}&lt;span&gt;{$node.news_category_name} &lt;/span&gt;{/if}
-{/foreach}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.depth-1}&lt;/li&gt;
-&lt;/ul&gt;
-
-{* this displays the category name if you're browsing by category *}
-{if $category_name}
-&lt;h1&gt;{$category_name}&lt;/h1&gt;
-{/if}
-
-{* if you don't want category browsing on your summary page, remove this line and everything above it *}
-
-{if $pagecount &gt; 1}
-  &lt;p&gt;
-{if $pagenumber &gt; 1}
-{$firstpage}&amp;nbsp;{$prevpage}&amp;nbsp;
-{/if}
-{$pagetext}&amp;nbsp;{$pagenumber}&amp;nbsp;{$oftext}&amp;nbsp;{$pagecount}
-{if $pagenumber &lt; $pagecount}
-&amp;nbsp;{$nextpage}&amp;nbsp;{$lastpage}
-{/if}
-&lt;/p&gt;
-{/if}
-{foreach $items as $entry}
-&lt;div class="NewsSummary"&gt;
-
-{if $entry-&gt;postdate}
-	&lt;div class="NewsSummaryPostdate"&gt;
-		{$entry-&gt;postdate|cms_date_format}
-	&lt;/div&gt;
-{/if}
-
-&lt;div class="NewsSummaryLink"&gt;
-&lt;a href="{$entry-&gt;moreurl}" title="{$entry-&gt;title|cms_escape:htmlall}"&gt;{$entry-&gt;title|cms_escape}&lt;/a&gt;
-&lt;/div&gt;
-
-&lt;div class="NewsSummaryCategory"&gt;
-	{$category_label} {$entry-&gt;category}
-&lt;/div&gt;
-
-{if $entry-&gt;author}
-	&lt;div class="NewsSummaryAuthor"&gt;
-		{$author_label} {$entry-&gt;author}
-	&lt;/div&gt;
-{/if}
-
-{if $entry-&gt;summary}
-        {* note, for security purposes, incase News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
-	&lt;div class="NewsSummarySummary"&gt;
-		{$entry-&gt;summary}
-	&lt;/div&gt;
-
-	&lt;div class="NewsSummaryMorelink"&gt;
-		[{$entry-&gt;morelink}]
-	&lt;/div&gt;
-
-{else if $entry-&gt;content}
-        {* note, for security purposes, incase News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
-	&lt;div class="NewsSummaryContent"&gt;
-		{$entry-&gt;content}
-	&lt;/div&gt;
-{/if}
-
-{if isset($entry-&gt;extra)}
-    &lt;div class="NewsSummaryExtra"&gt;
-        {$entry-&gt;extra}
-	{* {cms_module module='Uploads' mode='simpleurl' upload_id=$entry-&gt;extravalue} *}
-    &lt;/div&gt;
-{/if}
-{if isset($entry-&gt;fields)}
-  {foreach $entry-&gt;fields as $field}
-     &lt;div class="NewsSummaryField"&gt;
-        {if $field-&gt;type == 'file'}
-          {if isset($field-&gt;value) &amp;&amp; $field-&gt;value}
-            &lt;img src="{$entry-&gt;file_location}/{$field-&gt;value}"/&gt;
-          {/if}
-        {elseif $field-&gt;type == 'linkedfile'}
-          {* also assume it's an image... *}
-          {if !empty($field-&gt;value)}
-            &lt;img src="{file_url file=$field-&gt;value}" alt="{$field-&gt;value}"/&gt;
-          {/if}
-        {else}
-          {$field-&gt;name}:&amp;nbsp;{$field-&gt;value}
-        {/if}
-     &lt;/div&gt;
-  {/foreach}
-{/if}
-
-&lt;/div&gt;
-{/foreach}
-&lt;!-- End News Display Template --&gt;
-]]></dflt_contents>
-			<lang_cb>News::page_type_lang_callback</lang_cb>
-			<dflt_content_cb>News::reset_page_type_defaults</dflt_content_cb>
-			<help_content_cb>News::template_help_callback</help_content_cb>
+			<requires_contentblocks>1</requires_contentblocks>
+			<one_only>0</one_only>
+			<owner>1</owner>
 		</tpltype>
 	</tpltypes>
 	<templates>
 		<template>
 			<id>1</id>
+			<originator>__CORE__</originator>
 			<name>Simplex</name>
-			<description>A HTML5 based responsive template</description>
-			<originator></originator>
-			<type_id>1</type_id>
 			<content><![CDATA[{strip}{* using strip as we don't want useless whitespace, especially not before doctype *}
 {* used for page specific data or logic in Edit Content -&gt; Logic *}
 {process_pagedata}
@@ -3310,15 +2784,15 @@ li.separator - To style the ruler for the separator *}
   {* assign variables for ease of use throughout templates *}
   {cms_lang_info assign='nls'}
   {$nls=$nls scope=global}
-  {$theme_path = "{uploads_url}/simplex" scope=global}
-  {$main_title="{title nocache}" scope=global}
+  {$theme_path="{uploads_url}/simplex" scope=global}
+  {$main_title="{title nocache}" scope=global} {* the 'source' plugin must be nocache, to prevent crashes *}
   {$main_content="{content nocache}" scope=global}
 {/block}
 {/strip}&lt;!doctype html&gt;
 &lt;html lang='{$nls-&gt;htmlarea()}' dir='{$nls-&gt;direction()}'&gt;
     &lt;head&gt;
         {metadata} {* Don't remove this! Metadata is entered in Site Admin/Global settings. *}
-        &lt;title&gt;{$main_title nocache} - {sitename}&lt;/title&gt;
+        &lt;title&gt;{$main_title} - {sitename}&lt;/title&gt;
         &lt;meta name='HandheldFriendly' content='True' /&gt;
         &lt;meta name='MobileOptimized' content='320' /&gt;
         &lt;meta name='viewport' content='width=device-width, initial-scale=1' /&gt;
@@ -3391,8 +2865,8 @@ li.separator - To style the ruler for the separator *}
                         &lt;!-- .content-top //--&gt;
                         &lt;!-- .content (actual content with title and content tags) --&gt;
                         &lt;article class='content' id='main'&gt;
-                            &lt;h1&gt;{$main_title nocache} &lt;/h1&gt; {* title tag *}
-                                {$main_content nocache} {* content entered in page editor area, variable is assigned on top in template logic, using nocache as variables are cached with Smarty cache on *}
+                            &lt;h1&gt;{$main_title} &lt;/h1&gt; {* title tag *}
+                                {$main_content} {* content entered in page editor area, variable is assigned on top in template logic, using nocache as variables are cached with Smarty cache on *}
                         &lt;/article&gt;
                         &lt;!-- .content //--&gt;
                     &lt;/div&gt;
@@ -3427,18 +2901,20 @@ li.separator - To style the ruler for the separator *}
     &lt;script type="text/javascript" src="uploads/simplex/js/jquery.sequence-min.js"&gt;&lt;/script&gt;
     &lt;script type="text/javascript" src="uploads/simplex/js/functions.js"&gt;&lt;/script&gt;
 {strip}
-
     {* If you are using some older jQuery plugin that relies on capabilities that are no longer supported in jQuery 2.2.4, try including the jQuery Migrate 1.2.1 script.
        For more information about removed functions see: http://jquery.com/upgrade-guide/1.9/ *}{/strip}
     &lt;/body&gt;
 &lt;/html&gt;]]></content>
+			<description>A HTML5 based responsive template</description>
+			<type_id>1</type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
 		</template>
 		<template>
 			<id>2</id>
+			<originator>__CORE__</originator>
 			<name>Simplex Footer</name>
-			<description>Custom footer section template for Simplex Theme</description>
-			<originator></originator>
-			<type_id>2</type_id>
 			<content><![CDATA[{* Logic *}
 {$start_year = '2004'}
 {$current_year = $smarty.now|date_format:'%Y'}
@@ -3453,933 +2929,16 @@ li.separator - To style the ruler for the separator *}
     &lt;li class='pinterest'&gt;&lt;a title='Pinterest' href='http://www.pinterest.com/cmsmadesimple/'&gt;&lt;i class='icon-pinterest'&gt;&lt;/i&gt;&lt;span class='visuallyhidden'&gt;Pinterest&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p class='copyright-info'&gt;Copyright &amp;copy; {$start_year}{if $start_year !== $current_year} - {$current_year}{/if} - CMS Made Simple&lt;br /&gt; This site is powered by &lt;a href='https://www.cmsmadesimple.org'&gt;CMS Made Simple&lt;/a&gt; version {cms_version}&lt;/p&gt;]]></content>
+			<description>Custom footer section template for Simplex Theme</description>
+			<type_id>2</type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
 		</template>
 		<template>
-			<id>40</id>
-			<name>minimal_menu</name>
-			<originator></originator>
-			<type_id>17</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* minimal navigation *}
-{*
-  variables:
-  node: contains the current node.
-  aclass: is used to build a string containing class names given to the a tag if one is used
-  liclass: is used to build a string containing class names given to the li tag.
-*}
-{* CSS classes used in this template:
-.currentpage - The active/current page
-.bullet_sectionheader - To style section header
-hr.separator - To style the ruler for the separator *}
-
-{if !isset($depth)}{$depth=0}{/if}
-
-{if isset($nodes)}{strip}
-&lt;ul&gt;
-  {foreach $nodes as $node}
-    {if $node-&gt;type == 'sectionheader'}
-      {* section header *}
-      &lt;li class="sectionheader{if $node-&gt;parent} activeparent{/if}"&gt;
-        {$node-&gt;menutext}
-        {if isset($node-&gt;children)}
-          {include file=$smarty.template nodes=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {else if $node-&gt;type == 'separator'}
-      &lt;li style="list-style-type: none;"&gt;&lt;hr class="separator" /&gt;&lt;/li&gt;
-    {else}
-      {* regular item *}
-      {$liclass=''}
-      {$aclass=''}
-      {if $node-&gt;current}
-        {$liclass='currentpage'}
-        {$aclass='currentpage'}
-      {elseif $node-&gt;parent}
-        {$liclass='activeparent'}
-        {$aclass='activeparent'}
-      {/if}
-      &lt;li{if $liclass != ''} class="{$liclass}"{/if}&gt;
-        &lt;a{if $aclass !=''} class="{$aclass}"{/if} href="{$node-&gt;url}"{if $node-&gt;target ne ""} target="{$node-&gt;target}"{/if}&gt;{$node-&gt;menutext}&lt;/a&gt;
-        {if isset($node-&gt;children)}
-          {include file=$smarty.template nodes=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {/if}
-  {/foreach}
-&lt;/ul&gt;
-{/strip}{/if}]]></content>
-		</template>
-		<template>
-			<id>41</id>
-			<name>Simplex Main Navigation</name>
-			<originator></originator>
-			<type_id>17</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{strip}
-
-{$main_id = ' id=\'main-menu\''}
-{function do_class}
-    {if count($classes) &gt; 0} class='{implode(' ',$classes)}'{/if}
-{/function}
-
-{function name='Simplex_menu' depth='1'}
-    &lt;ul{$main_id}{if isset($ul_class) &amp;&amp; $ul_class != ''} class="{$ul_class}"{/if}&gt;
-        {$main_id = ''}
-        {$ul_class = ''}
-        {foreach $data as $node}
-            {* setup classes for the anchor and list item *}
-            {$list_class = []}
-            {$href_class = ['cf']}
-            {$parent_indicator = ''}
-            {$aria_support = ''}
-
-            {if $node-&gt;current || $node-&gt;parent}
-                {* this is the current page *}
-                {$list_class[] = 'current'}
-                {$href_class[] = 'current'}
-            {/if}
-
-            {if $node-&gt;children_exist}
-                {$list_class[] = 'parent'}
-                {$aria_support = ' aria-haspopup=\'true\''}
-                {$parent_indicator = ' &lt;i class=\'icon-arrow-left\' aria-hidden=\'true\'&gt;&lt;/i&gt;'}
-            {/if}
-
-            {* build the menu item node *}
-            {if $node-&gt;type == 'sectionheader'}
-                {$list_class[] = 'sectionheader'}
-                &lt;li{do_class classes=$list_class}{$aria_support}&gt;&lt;span&gt;{$node-&gt;menutext}{$parent_indicator}&lt;/span&gt;
-                {if isset($node-&gt;children)}
-                    {Simplex_menu data=$node-&gt;children depth=$depth+1}
-                {/if}
-                &lt;/li&gt;
-            {else if $node-&gt;type == 'separator'}
-                {$list_class[] = 'separator'}
-                &lt;li{do_class classes=$list_class}'&gt;&lt;hr class='separator' /&gt;&lt;/li&gt;
-            {else}
-                {* regular item *}
-                &lt;li{do_class classes=$list_class}{$aria_support}&gt;
-                    &lt;a{do_class classes=$href_class} href='{$node-&gt;url}'{if $node-&gt;target != ''} target='{$node-&gt;target}'{/if}&gt;{$node-&gt;menutext}{$parent_indicator}&lt;/a&gt;
-                    {if isset($node-&gt;children)}
-                        {Simplex_menu data=$node-&gt;children depth=$depth+1}
-                    {/if}
-                &lt;/li&gt;
-            {/if}
-        {/foreach}
-    &lt;/ul&gt;
-{/function}
-
-{if isset($nodes)}
-    {Simplex_menu data=$nodes depth='0' ul_class='cf'}
-{/if}
-
-{/strip}]]></content>
-		</template>
-		<template>
-			<id>42</id>
-			<name>Simplex Footer Navigation</name>
-			<originator></originator>
-			<type_id>17</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{strip}
-
-{$main_id = ' id=\'footer-menu\''}
-{function do_footer_class}
-    {if count($classes) &gt; 0} class='{implode(' ',$classes)}'{/if}
-{/function}
-
-{function name='Simplex_footer_menu' depth='1'}
-    &lt;ul{$main_id}{if isset($ul_class) &amp;&amp; $ul_class != ''} class="{$ul_class}"{/if}&gt;
-        {$main_id = ''}
-        {$ul_class = ''}
-        {foreach $data as $node}
-            {* setup classes for the anchor and list item *}
-            {$list_class = []}
-            {$href_class = []}
-
-            {if $node-&gt;current || $node-&gt;parent}
-                {* this is the current page *}
-                {$list_class[] = 'current'}
-                {$href_class[] = 'current'}
-            {/if}
-
-            {if $node-&gt;children_exist}
-                {$list_class[] = 'parent'}
-            {/if}
-
-            {* build the menu item node *}
-            {if $node-&gt;type == 'sectionheader'}
-                {$list_class[] = 'sectionheader'}
-                &lt;li{do_footer_class classes=$list_class}&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
-                {if isset($node-&gt;children)}
-                    {Simplex_footer_menu data=$node-&gt;children depth=$depth+1}
-                {/if}
-                &lt;/li&gt;
-            {else if $node-&gt;type == 'separator'}
-                {$list_class[] = 'separator'}
-                &lt;li{do_footer_class classes=$list_class}'&gt;&lt;hr class='separator' /&gt;&lt;/li&gt;
-            {else}
-                {* regular item *}
-                &lt;li{do_footer_class classes=$list_class}&gt;
-                    &lt;a{do_footer_class classes=$href_class} href='{$node-&gt;url}'{if $node-&gt;target != ''} target='{$node-&gt;target}'{/if}&gt;{$node-&gt;menutext}&lt;/a&gt;
-                    {if isset($node-&gt;children)}
-                        {Simplex_footer_menu data=$node-&gt;children depth=$depth+1}
-                    {/if}
-                &lt;/li&gt;
-            {/if}
-        {/foreach}
-    &lt;/ul&gt;
-{/function}
-
-{if isset($nodes)}
-    {Simplex_footer_menu data=$nodes depth='0' ul_class='cf'}
-{/if}
-
-{/strip}]]></content>
-		</template>
-		<template>
-			<id>56</id>
-			<name>email_template</name>
-			<originator>News</originator>
-			<type_id>28</type_id>
-			<content><![CDATA[A new news article has been posted to the website. The details are as follows:
-Title:      {$title}
-IP Address: {$ipaddress}
-Summary:    {$summary|strip_tags}
-Start Date: {$startdate|cms_date_format}
-End Date:   {$enddate|cms_date_format}]]></content>
-		</template>
-		<template>
-			<id>38</id>
-			<name>cssmenu</name>
-			<originator></originator>
-			<type_id>17</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* cssmenu *}
-{* this template uses recursion, but not a smarty function. *}
-{*
-  variables:
-  node: contains the current node.
-  aclass: is used to build a string containing class names given to the a tag if one is used
-  liclass: is used to build a string containing class names given to the li tag.
-*}
-{if !isset($depth)}{$depth=0}{/if}
-{strip}
-
-{if $depth == 0}
-&lt;div id="menuwrapper"&gt;
-&lt;ul id="primary-nav"&gt;
-{else}
-&lt;ul class="unli"&gt;
-{/if}
-
-{$depth=$depth+1}
-{foreach $nodes as $node}
-  {* setup classes for the anchor and list item *}
-  {$liclass=[]}
-  {$aclass=[]}
-
-  {* the first child gets a special class *}
-  {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass[]='first_child'}{/if}
-
-  {* the last child gets a special class *}
-  {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass[]='last_child'}{/if}
-
-  {if $node-&gt;current}
-    {* this is the current page *}
-    {$liclass[]='menuactive'}
-    {$aclass[]='menuactive'}
-  {/if}
-  {if $node-&gt;has_children}
-    {* this is a parent page *}
-    {$liclass[]='menuparent'}
-    {$aclass[]='menuparent'}
-  {/if}
-  {if $node-&gt;parent}
-    {* this is a parent of the current page *}
-    {$liclass[]='menuactive'}
-    {$aclass[]='menuactive'}
-  {/if}
-
-  {* build the menu item from the node *}
-  {if $node-&gt;type == 'sectionheader'}
-    &lt;li class='{implode(' ',$liclass)}'&gt;&lt;a{if count($aclass) &gt; 0} class="{implode(' ',$aclass)}"{/if}&gt;&lt;span class="sectionheader"&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-      {if isset($node-&gt;children)}
-        {include file=$smarty.template nodes=$node-&gt;children}
-      {/if}
-    &lt;/li&gt;
-  {else if $node-&gt;type == 'separator'}
-    &lt;li style="list-style-type: none;"&gt;&lt;hr class="menu_separator" /&gt;&lt;/li&gt;
-  {else}
-    {* regular item *}
-    &lt;li class="{implode(' ',$liclass)}"&gt;
-      &lt;a{if count($aclass) &gt; 0} class="{implode(' ',$aclass)}"{/if} href="{$node-&gt;url}"{if $node-&gt;target ne ""} target="{$node-&gt;target}"{/if}&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-      {if isset($node-&gt;children)}
-        {include file=$smarty.template nodes=$node-&gt;children}
-      {/if}
-    &lt;/li&gt;
-  {/if}
-{/foreach}
-{$depth=$depth-1}
-&lt;/ul&gt;
-
-{if $depth == 0}
-&lt;div class="clearb"&gt;&lt;/div&gt;
-&lt;/div&gt;{* menuwrapper *}
-{/if}
-{/strip}]]></content>
-		</template>
-		<template>
-			<id>39</id>
-			<name>cssmenu_ulshadow</name>
-			<originator></originator>
-			<type_id>17</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* cssmenu_ulshadow navigation *}
-{* note, function can only be defined once *}
-{*
-  variables:
-  node: contains the current node.
-  aclass: is used to build a string containing class names given to the a tag if one is used
-  liclass: is used to build a string containing class names given to the li tag.
-*}
-
-{function name=cssmenu_ulshadow depth=1}
-&lt;ul{if $depth ==0} id="primary-nav"{else} class="unli"{/if}&gt;
-  {foreach $data as $node}
-    {* setup classes for the anchor and list item *}
-    {$liclass=''}
-    {*{$liclass=' depth'|cat:$depth}*}
-    {$aclass=''}
-
-    {* the first child gets a special class
-    {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
-    *}
-
-    {* the last child gets a special class
-    {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
-    *}
-
-    {if $node-&gt;current}
-      {* this is the current page *}
-      {$liclass=$liclass|cat:' menuactive'}
-      {$aclass=$aclass|cat:' menuactive'}
-    {elseif $node-&gt;parent}
-      {* this is a parent of the current page *}
-      {$liclass=$liclass|cat:' parent'}
-      {$aclass=$aclass|cat:' parent'}
-    {/if}
-    {if isset($node-&gt;children)}
-      {$liclass=$liclass|cat:' menuparent'}
-      {$aclass=$aclass|cat:' menuparent'}
-    {/if}
-
-    {* build the menu item node *}
-    {if $node-&gt;type == 'sectionheader'}
-      &lt;li class='sectionheader {$liclass}'&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
-        {if isset($node-&gt;children)}
-          {cssmenu_ulshadow data=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {elseif $node-&gt;type == 'separator'}
-      &lt;li class='separator {$liclass}'&gt;&lt;hr class='separator' /&gt;&lt;/li&gt;
-    {else}
-      {* regular item *}
-      &lt;li class="{$liclass}"&gt;
-        &lt;a class="{$aclass}" href="{$node-&gt;url}"{if $node-&gt;target ne ""} target="{$node-&gt;target}"{/if}&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-        {if isset($node-&gt;children)}
-          {cssmenu_ulshadow data=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {/if}
-  {/foreach}
-  {if $depth &gt; 0}
-    &lt;li class="separator once" style="list-style-type: none;"&gt;&amp;nbsp;&lt;/li&gt;
-  {/if}
-&lt;/ul&gt;
-{/function}
-
-{if isset($nodes)}
-&lt;div id="menuwrapper"&gt;
-  {cssmenu_ulshadow data=$nodes depth=0}
-  &lt;div class="clearb"&gt;&lt;/div&gt;
-&lt;/div&gt;
-{/if}]]></content>
-		</template>
-		<template>
-			<id>36</id>
-			<name>Simple Navigation</name>
-			<originator></originator>
-			<type_id>17</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* simple navigation *}
-{* note, function can only be defined once *}
-{*
-  variables:
-  node: contains the current node.
-  aclass: is used to build a string containing class names given to the a tag if one is used
-  liclass: is used to build a string containing class names given to the li tag.
-*}
-
-{function name=Nav_menu depth=1}{strip}
-&lt;ul&gt;
-  {foreach $data as $node}
-    {* setup classes for the anchor and list item *}
-    {$liclass='menudepth'|cat:$depth}
-    {$aclass=''}
-
-    {* the first child gets a special class *}
-    {if $node@first &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' first_child'}{/if}
-
-    {* the last child gets a special class *}
-    {if $node@last &amp;&amp; $node@total &gt; 1}{$liclass=$liclass|cat:' last_child'}{/if}
-
-    {if $node-&gt;current}
-      {* this is the current page *}
-      {$liclass=$liclass|cat:' menuactive'}
-      {$aclass=$aclass|cat:' menuactive'}
-    {/if}
-
-    {if $node-&gt;parent}
-      {* this is a parent of the current page *}
-      {$liclass=$liclass|cat:' menuactive menuparent'}
-      {$aclass=$aclass|cat:' menuactive menuparent'}
-    {/if}
-
-    {if $node-&gt;children_exist}
-      {$liclass=$liclass|cat:' parent'}
-      {$aclass=$aclass|cat:' parent'}
-    {/if}
-
-    {* build the menu item node *}
-    {if $node-&gt;type == 'sectionheader'}
-      &lt;li class='sectionheader {$liclass}'&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
-        {if isset($node-&gt;children)}
-          {Nav_menu data=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {else if $node-&gt;type == 'separator'}
-      &lt;li class='separator {$liclass}'&gt;&lt;hr class='separator' /&gt;&lt;/li&gt;
-    {else}
-      {* regular item *}
-      &lt;li class="{$liclass}"&gt;
-        &lt;a class="{$aclass}" href="{$node-&gt;url}"{if $node-&gt;target ne ""} target="{$node-&gt;target}"{/if}&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-        {if isset($node-&gt;children)}
-          {Nav_menu data=$node-&gt;children depth=$depth+1}
-        {/if}
-      &lt;/li&gt;
-    {/if}
-  {/foreach}
-&lt;/ul&gt;
-{/strip}{/function}
-
-{if isset($nodes)}
-{Nav_menu data=$nodes depth=0}
-{/if}]]></content>
-		</template>
-		<template>
-			<id>37</id>
-			<name>Breadcrumbs</name>
-			<originator></originator>
-			<type_id>18</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* default breadcrumbs template *}
-{strip}
-&lt;div class="breadcrumb"&gt;
-  {if isset($starttext)}{$starttext}:&amp;nbsp;{/if}
-  {foreach $nodelist as $node}
-    {$spanclass='breadcrumb'}
-    {if $node-&gt;current}
-      {$spanclass=$spanclass|cat:' current'}
-    {/if}
-
-    &lt;span class="{$spanclass}"&gt;
-      {if $node@last}
-        {$node-&gt;menutext}
-      {elseif $node-&gt;type == 'sectionheader'}
-        {$node-&gt;menutext}&amp;nbsp;
-      {else}
-        &lt;a href="{$node-&gt;url}" title="{$node-&gt;menutext}"&gt;{$node-&gt;menutext}&lt;/a&gt;
-      {/if}
-    &lt;/span&gt;
-
-    {if !$node@last}&amp;raquo;&amp;nbsp;{/if}
-  {/foreach}
-&lt;/div&gt;
-{/strip}]]></content>
-		</template>
-		<template>
-			<id>53</id>
-			<name>Simplex News Detail</name>
-			<originator>News</originator>
-			<type_id>25</type_id>
-			<content><![CDATA[{* this is a sample detail template that works with the Simplex theme *}
-{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
-{if isset($entry-&gt;canonical)}
-  {$canonical=$entry-&gt;canonical scope=global}
-  {$main_title=$entry-&gt;title scope=global}
-{/if}
-
-{* &lt;h2&gt;{$entry-&gt;title|cms_escape:htmlall}&lt;/h2&gt; *}
-{if $entry-&gt;summary}
-    {$entry-&gt;summary}
-{/if}
-    {$entry-&gt;content}
-{if $entry-&gt;extra}
-        {$extra_label} {$entry-&gt;extra}
-{/if}
-{if $return_url != ""}
-    &lt;br /&gt;
-        &lt;span class='back'&gt;&amp;#8592; {$return_url}{if $category_name != ''} - {$category_link}{/if}&lt;/span&gt;
-{/if}
-
-{if isset($entry-&gt;fields)}
-  {foreach $entry-&gt;fields as $field}
-     &lt;div&gt;
-        {if $field-&gt;type == 'file'}
-      {* this template assumes that every file uploaded is an image of some sort, because News doesn't distinguish *}
-          &lt;img src='{$entry-&gt;file_location}/{$field-&gt;value}' alt='' /&gt;
-        {else}
-          {$field-&gt;name}: {$field-&gt;value}
-        {/if}
-     &lt;/div&gt;
-  {/foreach}
-{/if}
-    &lt;footer class='news-meta'&gt;
-    {if $entry-&gt;postdate}
-        {$entry-&gt;postdate|cms_date_format}
-    {/if}
-    {if $entry-&gt;category}
-        &lt;strong&gt;{$category_label}&lt;/strong&gt; {$entry-&gt;category}
-    {/if}
-    {if $entry-&gt;author}
-        &lt;strong&gt;{$author_label}&lt;/strong&gt; {$entry-&gt;author}
-    {/if}
-    &lt;/footer&gt;]]></content>
-		</template>
-		<template>
-			<id>54</id>
-			<name>News Fesubmit Form Sample</name>
-			<originator>News</originator>
-			<type_id>26</type_id>
-			<content><![CDATA[&lt;script type="text/javascript"&gt;
-{literal}//&lt;![CDATA[
- cms_equalWidth($('label.boxchild'));
-{/literal}//]]&gt;
-&lt;/script&gt;
-
-{* original form template *}
-&lt;h3&gt;{$mod-&gt;Lang('title_fesubmit_form')}&lt;/h3&gt;
-
-{if !empty($error)}
-  &lt;div class="error"&gt;{$error}&lt;/div&gt;
-{elseif !empty($message)}
-  &lt;div class="message"&gt;{$message}&lt;/div&gt;
-{/if}
-
-{form_start category_id=$category_id}
- &lt;div class="colbox"&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_title"&gt;*{$mod-&gt;Lang('title')}:&lt;/label&gt;
-    &lt;input type="text" class="boxchild" id="news_title" name="{$actionid}title" value="{$title}" size="30" required /&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_category"&gt;{$mod-&gt;Lang('category')}:&lt;/label&gt;
-    &lt;select class="boxchild" id="news_category" name="{$actionid}input_category"&gt;
-      {html_options options=$categorylist selected=$category_id}
-    &lt;/select&gt;
-  &lt;/div&gt;
-{if empty($hide_summary_field)}
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_summary"&gt;{$mod-&gt;Lang('summary')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'summary'}
-      {cms_textarea enablewysiwyg=true id=news_summary name=$tmp value=$summary required=true}
-    &lt;/div&gt;
-  &lt;/div&gt;
-{/if}
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_content"&gt;*{$mod-&gt;Lang('content')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'content'}
-      {cms_textarea enablewysiwyg=true id=news_content name=$tmp value=$content required=true}
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_extra"&gt;{$mod-&gt;Lang('extra')}:&lt;/label&gt;
-    &lt;input class="boxchild" id="news_extra" type="text" name="{$actionid}extra" value="{$extra}" size="30" /&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild"&gt;{$mod-&gt;Lang('startdate')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'startdate_'}
-      {html_select_date prefix=$tmp time=$startdate end_year="+15"}
-      {html_select_time prefix=$tmp time=$startdate}
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild"&gt;{$mod-&gt;Lang('enddate')}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-      {$tmp=$actionid|cat:'enddate_'}
-      {html_select_date prefix=$tmp time=$enddate end_year="+15"}
-      {html_select_time prefix=$tmp time=$enddate}
-    &lt;/div&gt;
-  &lt;/div&gt;
-  {if isset($customfields)}{foreach $customfields as $field}
-   &lt;div class="rowbox flow"&gt;
-    &lt;label class="boxchild" for="news_fld_{$field-&gt;id}"&gt;{$field-&gt;name}:&lt;/label&gt;
-    &lt;div class="boxchild"&gt;
-    {if $field-&gt;type == 'file'}
-      &lt;input id="news_fld_{$field-&gt;id}" type="file" name="{$actionid}news_customfield_{$field-&gt;id}" /&gt;
-    {elseif $field-&gt;type == 'checkbox'}
-      &lt;input id="news_fld_{$field-&gt;id}" type="checkbox" name="{$actionid}news_customfield_{$field-&gt;id}" value="1" /&gt;
-    {elseif $field-&gt;type == 'textarea'}
-      {$tmp1='news_fld_'|cat:$field-&gt;id}
-      {capture assign='tmp2'}{$actionid}news_customfield_{$field-&gt;id}{/capture}
-      {cms_textarea id=$tmp1 name=$tmp2 enablewysiwyg=true}
-    {elseif $field-&gt;type == 'textbox'}
-      &lt;input id="news_fld_{$field-&gt;id}" type="text" name="{$actionid}news_customfield_{$field-&gt;id}" maxlength="{$field-&gt;max_length}" /&gt;
-    {/if}
-    &lt;/div&gt;
-   &lt;/div&gt;
-  {/foreach}{/if}
- &lt;/div&gt;{*.colbox*}
- &lt;div class="pageinput pregap"&gt;
-   &lt;button type="submit" name="{$actionid}submit" class="adminsubmit icon check"&gt;{$mod-&gt;Lang('submit')}&lt;/button&gt;
-   &lt;a href="{cms_selflink href=$page_alias}"&gt;{$mod-&gt;Lang('prompt_redirecttocontent')}&lt;/a&gt;
- &lt;/div&gt;
-&lt;/form&gt;]]></content>
-		</template>
-		<template>
-			<id>55</id>
-			<name>News Browse Category Sample</name>
-			<originator>News</originator>
-			<type_id>27</type_id>
-			<content><![CDATA[{if $count &gt; 0}
-&lt;ul class="list1"&gt;
-{foreach $cats as $node}
-{if $node.depth &gt; $node.prevdepth}
-{repeat string="&lt;ul&gt;" times=$node.depth-$node.prevdepth}
-{elseif $node.depth &lt; $node.prevdepth}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.prevdepth-$node.depth}
-&lt;/li&gt;
-{elseif $node.index &gt; 0}&lt;/li&gt;
-{/if}
-&lt;li class="newscategory"&gt;
-{if $node.count &gt; 0}
-	&lt;a href="{$node.url}"&gt;{$node.news_category_name}&lt;/a&gt; ({$node.count}){else}&lt;span&gt;{$node.news_category_name} (0)&lt;/span&gt;{/if}
-{/foreach}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.depth-1}&lt;/li&gt;
-&lt;/ul&gt;
-{/if}]]></content>
-		</template>
-		<template>
-			<id>52</id>
-			<name>News Detail Sample</name>
-			<originator>News</originator>
-			<type_id>25</type_id>
-			<content><![CDATA[{* set a canonical variable that can be used in the head section if process_whole_template is false in the config.php *}
-{if isset($entry-&gt;canonical)}
-  {* note this syntax ensures that the canonical variable is set into global scope *}
-  {$canonical=$entry-&gt;canonical scope=global}
-{/if}
-
-{if $entry-&gt;postdate}
-	&lt;div id="NewsPostDetailDate"&gt;
-		{$entry-&gt;postdate|cms_date_format}
-	&lt;/div&gt;
-{/if}
-&lt;h3 id="NewsPostDetailTitle"&gt;{$entry-&gt;title|cms_escape:htmlall}&lt;/h3&gt;
-
-&lt;hr id="NewsPostDetailHorizRule" /&gt;
-
-{if $entry-&gt;summary}
-	&lt;div id="NewsPostDetailSummary"&gt;
-		&lt;strong&gt;
-			{$entry-&gt;summary}
-		&lt;/strong&gt;
-	&lt;/div&gt;
-{/if}
-
-{if $entry-&gt;category}
-	&lt;div id="NewsPostDetailCategory"&gt;
-		{$category_label} {$entry-&gt;category}
-	&lt;/div&gt;
-{/if}
-{if $entry-&gt;author}
-	&lt;div id="NewsPostDetailAuthor"&gt;
-		{$author_label} {$entry-&gt;author}
-	&lt;/div&gt;
-{/if}
-
-&lt;div id="NewsPostDetailContent"&gt;
-        {* note, for security purposes we do not pass the content through smarty before displaying it.  This is in case articles can come from untrusted sources. *}
-	{$entry-&gt;content}
-&lt;/div&gt;
-
-{if $entry-&gt;extra}
-	&lt;div id="NewsPostDetailExtra"&gt;
-		{$extra_label} {$entry-&gt;extra}
-	&lt;/div&gt;
-{/if}
-
-{if $return_url != ""}
-&lt;div id="NewsPostDetailReturnLink"&gt;{$return_url}{if $category_name != ''} - {$category_link}{/if}&lt;/div&gt;
-{/if}
-
-{if isset($entry-&gt;fields)}
-  {foreach $entry-&gt;fields as $fieldname =&gt; $field}
-     &lt;div class="NewsDetailField"&gt;
-        {if $field-&gt;type == 'file'}
-	  {* this template assumes that every file uploaded is an image of some sort, because News doesn't distinguish *}
-          {if isset($field-&gt;value) &amp;&amp; $field-&gt;value}
-            &lt;img src="{$entry-&gt;file_location}/{$field-&gt;value}" alt="{$field-&gt;value}"/&gt;
-          {/if}
-        {elseif $field-&gt;type == 'linkedfile'}
-          {* also assume it's an image... *}
-          {if !empty($field-&gt;value)}
-            &lt;img src="{file_url file=$field-&gt;value}" alt="{$field-&gt;value}"/&gt;
-          {/if}
-        {else}
-          {$field-&gt;name}:&amp;nbsp;{$field-&gt;value}
-        {/if}
-     &lt;/div&gt;
-  {/foreach}
-{/if}]]></content>
-		</template>
-		<template>
-			<id>50</id>
-			<name>News Summary Sample</name>
-			<originator>News</originator>
-			<type_id>24</type_id>
-			<content><![CDATA[&lt;!-- Start News Display Template --&gt;
-{* This section shows a clickable list of existing News categories. *}
-&lt;ul class="list1"&gt;
-{foreach $cats as $node}
-{if $node.depth &gt; $node.prevdepth}
-{repeat string="&lt;ul&gt;" times=$node.depth-$node.prevdepth}
-{elseif $node.depth &lt; $node.prevdepth}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.prevdepth-$node.depth}
-&lt;/li&gt;
-{elseif $node.index &gt; 0}&lt;/li&gt;
-{/if}
-&lt;li{if $node.index == 0} class="firstnewscat"{/if}&gt;
-{if $node.count &gt; 0}
-	&lt;a href="{$node.url}"&gt;{$node.news_category_name}&lt;/a&gt;{else}&lt;span&gt;{$node.news_category_name} &lt;/span&gt;{/if}
-{/foreach}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node.depth-1}&lt;/li&gt;
-&lt;/ul&gt;
-
-{* this displays the category name if you're browsing by category *}
-{if $category_name}
-&lt;h1&gt;{$category_name}&lt;/h1&gt;
-{/if}
-
-{* if you don't want category browsing on the site's summary page, remove this line and everything above it *}
-
-{if $pagecount &gt; 1}
-  &lt;p&gt;
-{if $pagenumber &gt; 1}
-{$firstpage}&amp;nbsp;{$prevpage}&amp;nbsp;
-{/if}
-{$pagetext}&amp;nbsp;{$pagenumber}&amp;nbsp;{$oftext}&amp;nbsp;{$pagecount}
-{if $pagenumber &lt; $pagecount}
-&amp;nbsp;{$nextpage}&amp;nbsp;{$lastpage}
-{/if}
-&lt;/p&gt;
-{/if}
-{foreach $items as $entry}
-&lt;div class="NewsSummary"&gt;
-
-{if $entry-&gt;postdate}
-	&lt;div class="NewsSummaryPostdate"&gt;
-		{$entry-&gt;postdate|cms_date_format}
-	&lt;/div&gt;
-{/if}
-
-&lt;div class="NewsSummaryLink"&gt;
-&lt;a href="{$entry-&gt;moreurl}" title="{$entry-&gt;title|cms_escape:htmlall}"&gt;{$entry-&gt;title|cms_escape}&lt;/a&gt;
-&lt;/div&gt;
-
-&lt;div class="NewsSummaryCategory"&gt;
-	{$category_label} {$entry-&gt;category}
-&lt;/div&gt;
-
-{if $entry-&gt;author}
-	&lt;div class="NewsSummaryAuthor"&gt;
-		{$author_label} {$entry-&gt;author}
-	&lt;/div&gt;
-{/if}
-
-{if $entry-&gt;summary}
-        {* note, for security purposes, incase News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
-	&lt;div class="NewsSummarySummary"&gt;
-		{$entry-&gt;summary}
-	&lt;/div&gt;
-
-	&lt;div class="NewsSummaryMorelink"&gt;
-		[{$entry-&gt;morelink}]
-	&lt;/div&gt;
-
-{else if $entry-&gt;content}
-        {* note, for security purposes, incase News articles can come from untrused sources, we do not pass the summary or content through smarty in the default templates *}
-	&lt;div class="NewsSummaryContent"&gt;
-		{$entry-&gt;content}
-	&lt;/div&gt;
-{/if}
-
-{if isset($entry-&gt;extra)}
-    &lt;div class="NewsSummaryExtra"&gt;
-        {$entry-&gt;extra}
-	{* {cms_module module='Uploads' mode='simpleurl' upload_id=$entry-&gt;extravalue} *}
-    &lt;/div&gt;
-{/if}
-{if isset($entry-&gt;fields)}
-  {foreach $entry-&gt;fields as $field}
-     &lt;div class="NewsSummaryField"&gt;
-        {if $field-&gt;type == 'file'}
-          {if isset($field-&gt;value) &amp;&amp; $field-&gt;value}
-            &lt;img src="{$entry-&gt;file_location}/{$field-&gt;value}"/&gt;
-          {/if}
-        {elseif $field-&gt;type == 'linkedfile'}
-          {* also assume it's an image... *}
-          {if !empty($field-&gt;value)}
-            &lt;img src="{file_url file=$field-&gt;value}" alt="{$field-&gt;value}"/&gt;
-          {/if}
-        {else}
-          {$field-&gt;name}:&amp;nbsp;{$field-&gt;value}
-        {/if}
-     &lt;/div&gt;
-  {/foreach}
-{/if}
-
-&lt;/div&gt;
-{/foreach}
-&lt;!-- End News Display Template --&gt;]]></content>
-		</template>
-		<template>
-			<id>51</id>
-			<name>Simplex News Summary</name>
-			<originator>News</originator>
-			<type_id>24</type_id>
-			<content><![CDATA[{strip}
-
-&lt;!-- .news-summary wrapper --&gt;
-&lt;article class='news-summary'&gt;
-&lt;span class='heading'&gt;&lt;span&gt;News&lt;/span&gt;&lt;/span&gt;
-        &lt;ul class='category-list cf'&gt;
-        {foreach $cats as $node}
-        {if $node.depth &gt; $node.prevdepth}
-            {repeat string='&lt;ul&gt;' times=$node.depth-$node.prevdepth}
-        {elseif $node.depth &lt; $node.prevdepth}
-            {repeat string='&lt;/li&gt;&lt;/ul&gt;' times=$node.prevdepth-$node.depth}
-            &lt;/li&gt;
-            {elseif $node.index &gt; 0}&lt;/li&gt;
-            {/if}
-            &lt;li{if $node.index == 0} class='first'{/if}&gt;
-        {if $node.count &gt; 0}
-                &lt;a href='{$node.url}'&gt;{$node.news_category_name}&lt;/a&gt;{else}&lt;span&gt;{$node.news_category_name} &lt;/span&gt;{/if}
-        {/foreach}
-        {repeat string='&lt;/li&gt;&lt;/ul&gt;' times=$node.depth-1}&lt;/li&gt;
-        &lt;/ul&gt;
-    {foreach $items as $entry}
-    &lt;!-- .news-article (wrapping each article) --&gt;
-    &lt;section class='news-article'&gt;
-        &lt;header&gt;
-            &lt;h2&gt;&lt;a href='{$entry-&gt;moreurl}' title='{$entry-&gt;title|cms_escape:htmlall}'&gt;{$entry-&gt;title|cms_escape}&lt;/a&gt;&lt;/h2&gt;
-            &lt;div class='meta cf'&gt;
-                &lt;time class='date' datetime='{$entry-&gt;postdate|date_format:'%Y-%m-%d'}'&gt;
-                    &lt;span class='day'&gt; {$entry-&gt;postdate|date_format:'%d'} &lt;/span&gt;
-                    &lt;span class='month'&gt; {$entry-&gt;postdate|date_format:'%b'} &lt;/span&gt;
-                &lt;/time&gt;
-                &lt;span class='author'&gt; {$author_label} {$entry-&gt;author} &lt;/span&gt;
-                &lt;span class='category'&gt; {$category_label} {$entry-&gt;category}&lt;/span&gt;
-            &lt;/div&gt;
-        &lt;/header&gt;
-        {if $entry-&gt;summary}
-            &lt;p&gt;{$entry-&gt;summary|strip_tags}&lt;/p&gt;
-            &lt;span class='more'&gt;{$entry-&gt;morelink} &amp;#8594;&lt;/span&gt;
-        {else if $entry-&gt;content}
-            &lt;p&gt;{$entry-&gt;content|strip_tags}&lt;/p&gt;
-        {/if}
-    &lt;/section&gt;
-    &lt;!-- .news-article //--&gt;
-    {/foreach}
-        &lt;!-- news pagination --&gt;
-        {if $pagecount &gt; 1}
-        &lt;span class='paginate'&gt;
-            {if $pagenumber &gt; 1}
-                {$firstpage}&amp;nbsp;{$prevpage}
-            {/if}
-                {$pagetext}&amp;nbsp;{$pagenumber}&amp;nbsp;{$oftext}&amp;nbsp;{$pagecount}
-            {if $pagenumber &lt; $pagecount}
-                {$nextpage}&amp;nbsp;{$lastpage}
-            {/if}
-        &lt;/span&gt;
-        {/if}
-&lt;/article&gt;
-&lt;!-- .news-summary //--&gt;
-
-{/strip}]]></content>
-		</template>
-		<template>
-			<id>16</id>
-			<name>Search Form Sample</name>
-			<originator></originator>
-			<type_id>10</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{$startform}
-&lt;label for="{$search_actionid}searchinput"&gt;{$searchprompt}:&amp;nbsp;&lt;/label&gt;&lt;input type="text" class="search-input" id="{$search_actionid}searchinput" name="{$search_actionid}searchinput" size="20" maxlength="50" placeholder="{$searchtext}"/&gt;
-{*
-&lt;br/&gt;
-&lt;input type="checkbox" name="{$search_actionid}use_or" value="1"/&gt;
-*}
-&lt;input class="search-button" name="submit" value="{$submittext}" type="submit" /&gt;
-{if isset($hidden)}{$hidden}{/if}
-{$endform}]]></content>
-		</template>
-		<template>
-			<id>17</id>
-			<name>Simplex Search</name>
-			<originator></originator>
-			<type_id>10</type_id>
-			<content><![CDATA[&lt;div class='five-col search noprint' role='search'&gt;
-{form_start action=dosearch method=$form_method returnid=$destpage inline=$inline}
-   &lt;label for='{$search_actionid}searchinput' class='visuallyhidden'&gt;{$searchprompt}:&lt;/label&gt;
-   &lt;input type='search' class='search-input' id='{$search_actionid}searchinput' name='{$search_actionid}searchinput' size='20' maxlength='50' value='' placeholder='{$searchtext}' /&gt;&lt;i class='icon-search' aria-hidden='true'&gt;&lt;/i&gt;
-   {if isset($hidden)}{$hidden}{/if}
-{form_end}
-&lt;/div&gt;]]></content>
-		</template>
-		<template>
-			<id>18</id>
-			<name>Search Results Sample</name>
-			<originator></originator>
-			<type_id>11</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[&lt;h3&gt;{$searchresultsfor} &amp;quot;{$phrase}&amp;quot;&lt;/h3&gt;
-{if $itemcount &gt; 0}
-&lt;ul&gt;
-  {foreach from=$results item=entry}
-  &lt;li&gt;{$entry-&gt;title} - &lt;a href="{$entry-&gt;url}"&gt;{$entry-&gt;urltxt}&lt;/a&gt; ({$entry-&gt;weight}%)&lt;/li&gt;
-  {*
-     You can also instantiate custom behaviour on a module by module basis by looking at
-     the $entry-&gt;module and $entry-&gt;modulerecord fields in $entry
-      ie: {if $entry-&gt;module == 'News'}{News action='detail' article_id=$entry-&gt;modulerecord detailpage='News'}
-  *}
-  {/foreach}
-&lt;/ul&gt;
-
-&lt;p&gt;{$timetaken}: {$timetook}&lt;/p&gt;
-{else}
-  &lt;p&gt;&lt;strong&gt;{$noresultsfound}&lt;/strong&gt;&lt;/p&gt;
-{/if}]]></content>
-		</template>
-		<template>
-			<id>19</id>
+			<id>3</id>
+			<originator>__CORE__</originator>
 			<name>Simplex Home</name>
-			<originator></originator>
-			<type_id>1</type_id>
 			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses Template Inheritance *}
 
 {block name="banner"}
@@ -4428,16 +2987,17 @@ End Date:   {$enddate|cms_date_format}]]></content>
                     &lt;/aside&gt;
                     &lt;!-- .sidebar //--&gt;
 {/block}]]></content>
+			<description></description>
+			<type_id>1</type_id>
+			<owner_id>1</owner_id>
+			<type_dflt>0</type_dflt>
+			<listable>1</listable>
 		</template>
 		<template>
-			<id>20</id>
+			<id>4</id>
+			<originator>__CORE__</originator>
 			<name>Simplex Sub</name>
-			<originator></originator>
-			<type_id>1</type_id>
-			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* This template uses Template Inheritance *}
-
-{extends file='cms_template:Simplex'}
+			<content><![CDATA[{extends file='cms_template:Simplex'}{* This template uses Template Inheritance *}
 
 {block name='top' append}
   {$sidebar_image="{content_image block='sidebar_image' label='Sidebar Image:' urlonly=true}" scope=global}
@@ -4447,94 +3007,15 @@ End Date:   {$enddate|cms_date_format}]]></content>
   &lt;aside class='sidebar four-col pull-eight'&gt;
     &lt;img src={$sidebar_image|default:"{$theme_path}/images/Edit-anywhere.png"} /&gt;
   &lt;/aside&gt;
-{/block}
-]]></content>
-		</template>
-		<template>
-			<id>21</id>
-			<name>Simple Navigation Menu</name>
-			<originator></originator>
-			<type_id>12</type_id>
+{/block}]]></content>
+			<description></description>
+			<type_id>1</type_id>
+			<owner_id>1</owner_id>
 			<type_dflt>1</type_dflt>
-			<content><![CDATA[{* CSS classes used in this template:
-.activeparent - The top level parent when a child is the active/current page
-li.active0n h3 - n is the depth/level of the node. To style the active page for each level separately. The active page is not clickable.
-.clearfix - Used for the unclickable h3 to use the entire width of the li, just like the anchors. See the Tools stylesheet in the default CMSMS installation.
-li.sectionheader h3 - To style section header
-li.separator - To style the ruler for the separator *}
-
-{if isset($menuparams.number_of_levels)}
-  {$number_of_levels=$menuparams.number_of_levels}
-{else}
-  {$number_of_levels=10000}
-{/if}
-
-{if $count &gt; 0}
-&lt;ul&gt;
-{foreach from=$nodelist item=node}
-{if $node-&gt;depth &gt; $node-&gt;prevdepth}
-{repeat string="&lt;ul&gt;" times=$node-&gt;depth-$node-&gt;prevdepth}
-{elseif $node-&gt;depth &lt; $node-&gt;prevdepth}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node-&gt;prevdepth-$node-&gt;depth}
-&lt;/li&gt;
-{elseif $node-&gt;index &gt; 0}&lt;/li&gt;
-{/if}
-
-{if $node-&gt;parent == true or $node-&gt;current == true}
-  {if $node-&gt;parent == true}
-    {$classes='menuactive menuparent'}
-  {else}
-    {$classes='menuactive'}
-  {/if}
-  {if $node-&gt;children_exist == true and $node-&gt;depth &lt; $number_of_levels}
-    {$classes=$classes|cat:' parent'}
-  {/if}
-  &lt;li class="{$classes}"&gt;&lt;a class="{$classes}" href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-
-{elseif $node-&gt;children_exist == true and $node-&gt;depth &lt; $number_of_levels and $node-&gt;type != 'sectionheader' and $node-&gt;type != 'separator'}
-&lt;li class="parent"&gt;&lt;a class="parent" href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-
-{elseif $node-&gt;current == true}
-&lt;li class="currentpage"&gt;&lt;h3&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/h3&gt;
-
-{elseif $node-&gt;type == 'sectionheader'}
-&lt;li class="sectionheader"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;
-
-{elseif $node-&gt;type == 'separator'}
-&lt;li class="separator" style="list-style-type: none;"&gt; &lt;hr /&gt;
-
-{else}
-&lt;li&gt;&lt;a href="{$node-&gt;url}"&gt;&lt;span&gt;{$node-&gt;menutext}&lt;/span&gt;&lt;/a&gt;
-
-{/if}
-
-{/foreach}
-{repeat string="&lt;/li&gt;&lt;/ul&gt;" times=$node-&gt;depth-1}&lt;/li&gt;
-&lt;/ul&gt;
-{/if}]]></content>
+			<listable>1</listable>
 		</template>
 	</templates>
 	<designtemplates>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>0</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>0</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>0</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>0</tpl_id>
-			<tpl_order>1</tpl_order>
-		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>1</tpl_id>
@@ -4543,140 +3024,163 @@ li.separator - To style the ruler for the separator *}
 		<designtpl>
 			<design_id>1</design_id>
 			<tpl_id>2</tpl_id>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>17</tpl_id>
-		</designtpl>
-		<designtpl>
-			<design_id>1</design_id>
-			<tpl_id>19</tpl_id>
 			<tpl_order>1</tpl_order>
 		</designtpl>
 		<designtpl>
 			<design_id>1</design_id>
-			<tpl_id>20</tpl_id>
+			<tpl_id>3</tpl_id>
+			<tpl_order>1</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>4</tpl_id>
+			<tpl_order>1</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>6</tpl_id>
+			<tpl_order>1</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>13</tpl_id>
+			<tpl_order>1</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>14</tpl_id>
+			<tpl_order>1</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>16</tpl_id>
+			<tpl_order>1</tpl_order>
+		</designtpl>
+		<designtpl>
+			<design_id>1</design_id>
+			<tpl_id>18</tpl_id>
+			<tpl_order>1</tpl_order>
 		</designtpl>
 	</designtemplates>
 	<pages>
 		<page>
 			<content_id>1</content_id>
 			<content_name>Home</content_name>
-			<content_alias>home</content_alias>
 			<type>content</type>
-			<template_id>19</template_id>
-			<parent_id>-1</parent_id>
-			<active>1</active>
 			<default_content>1</default_content>
 			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>-1</parent_id>
+			<template_id>3</template_id>
 			<menu_text><![CDATA[Home]]></menu_text>
-			<cachable>1</cachable>
+			<content_alias>home</content_alias>
 		</page>
 		<page>
-			<content_id>36</content_id>
+			<content_id>2</content_id>
 			<content_name>Help</content_name>
-			<content_alias>help</content_alias>
 			<type>sectionheader</type>
-			<template_id>-1</template_id>
-			<parent_id>-1</parent_id>
-			<active>1</active>
 			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>-1</parent_id>
+			<template_id>-1</template_id>
 			<menu_text><![CDATA[Help]]></menu_text>
-			<cachable>1</cachable>
+			<content_alias>help</content_alias>
 		</page>
 		<page>
-			<content_id>37</content_id>
+			<content_id>3</content_id>
 			<content_name>About CMSMS</content_name>
-			<content_alias>about-cmsms</content_alias>
 			<type>sectionheader</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>-1</parent_id>
 			<template_id>-1</template_id>
-			<parent_id>-1</parent_id>
-			<active>1</active>
-			<show_in_menu>1</show_in_menu>
 			<menu_text><![CDATA[About]]></menu_text>
-			<cachable>1</cachable>
+			<content_alias>about-cmsms</content_alias>
 		</page>
 		<page>
-			<content_id>38</content_id>
-			<content_name>Who is CMSMS for?</content_name>
-			<content_alias>who-is-cmsms-for</content_alias>
-			<type>content</type>
-			<template_id>20</template_id>
-			<parent_id>37</parent_id>
-			<active>1</active>
-			<show_in_menu>1</show_in_menu>
-			<menu_text><![CDATA[Who is CMSMS for?]]></menu_text>
-			<cachable>1</cachable>
-		</page>
-		<page>
-			<content_id>35</content_id>
+			<content_id>5</content_id>
 			<content_name>Why use CMS Made Simple?</content_name>
-			<content_alias>why-use-cms-made-simple</content_alias>
 			<type>content</type>
-			<template_id>20</template_id>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
 			<parent_id>-1</parent_id>
-			<active>1</active>
-			<show_in_menu>1</show_in_menu>
+			<template_id>4</template_id>
 			<menu_text><![CDATA[Why use CMS Made Simple?]]></menu_text>
-			<cachable>1</cachable>
+			<content_alias>why-use-cms-made-simple</content_alias>
 		</page>
 		<page>
-			<content_id>33</content_id>
+			<content_id>6</content_id>
 			<content_name>Support Options</content_name>
-			<content_alias>support-options</content_alias>
 			<type>link</type>
-			<template_id>1</template_id>
-			<parent_id>36</parent_id>
-			<active>1</active>
 			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>2</parent_id>
+			<template_id>1</template_id>
 			<menu_text><![CDATA[Support Options]]></menu_text>
-			<cachable>1</cachable>
+			<content_alias>support-options</content_alias>
 		</page>
 		<page>
-			<content_id>34</content_id>
+			<content_id>7</content_id>
 			<content_name>Documentation</content_name>
-			<content_alias>documentation</content_alias>
 			<type>link</type>
-			<template_id>1</template_id>
-			<parent_id>36</parent_id>
-			<active>1</active>
 			<show_in_menu>1</show_in_menu>
-			<menu_text><![CDATA[Documentation]]></menu_text>
+			<active>1</active>
 			<cachable>1</cachable>
+			<parent_id>2</parent_id>
+			<template_id>1</template_id>
+			<menu_text><![CDATA[Documentation]]></menu_text>
+			<content_alias>documentation</content_alias>
 		</page>
 		<page>
-			<content_id>39</content_id>
-			<content_name>History</content_name>
-			<content_alias>history</content_alias>
+			<content_id>4</content_id>
+			<content_name>Who is CMSMS for?</content_name>
 			<type>content</type>
-			<template_id>20</template_id>
-			<parent_id>37</parent_id>
-			<active>1</active>
 			<show_in_menu>1</show_in_menu>
-			<menu_text><![CDATA[History]]></menu_text>
+			<active>1</active>
 			<cachable>1</cachable>
+			<parent_id>3</parent_id>
+			<template_id>4</template_id>
+			<menu_text><![CDATA[Who is CMSMS for?]]></menu_text>
+			<content_alias>who-is-cmsms-for</content_alias>
+		</page>
+		<page>
+			<content_id>8</content_id>
+			<content_name>History</content_name>
+			<type>content</type>
+			<show_in_menu>1</show_in_menu>
+			<active>1</active>
+			<cachable>1</cachable>
+			<parent_id>3</parent_id>
+			<template_id>4</template_id>
+			<menu_text><![CDATA[History]]></menu_text>
+			<content_alias>history</content_alias>
 		</page>
 	</pages>
 	<properties>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;Congratulations! The installation worked. You now have a fully functional installation of CMS Made Simple and you are &lt;em&gt;almost&lt;/em&gt; ready to start building the site.&lt;/p&gt;
-&lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title="CMS Made Simple documentation site" href="http://docs.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;.&amp;nbsp;If you're ready to get your hands dirty, log in to the admin console at yoursite.com/[path]/admin&amp;nbsp;(if this is your site, click &lt;a title="CMSMS Demo Admin Panel" href="../admin"&gt;here&lt;/a&gt; to log in). Explore the templates provided. This page uses the Simplex template, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
-&lt;p&gt;If you need further help, there are various support options available at &lt;a href="https://www.cmsmadesimple.org/support/options/" target="_blank" rel="noopener"&gt;CMSMS Support Options&lt;/a&gt;.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;Congratulations! The installation worked. This page is a product of a fully functional installation of CMS Made Simple, ready to be built into anything you can imagine.&lt;/p&gt;
+&lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title="CMS Made Simple documentation site" href="http://docs.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;. If you're ready to get your hands dirty, log in to the site admin console &lt;a title="CMSMS Demo Admin Panel" href="admin"&gt;here&lt;/a&gt; (or if this is not your site, go to yoursite.com/[path]/admin). Explore the templates provided. This page uses Simplex, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
+&lt;p&gt;If you need further help, various support options are described &lt;a href="https://www.cmsmadesimple.org/support/options/" target="_blank" rel="noopener"&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;License&lt;/h3&gt;
-&lt;p&gt;CMS Made Simple is released under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license and as such you don't have to publish a link back to CMSMS in these templates or on the site, as much as we would like such acknowledgement.&lt;/p&gt;
-&lt;p&gt;Some independently-developed add-on modules may include additional license restrictions.&lt;/p&gt;]]></content>
+&lt;p&gt;CMS Made Simple is distributed under the &lt;a class="external" title="General Public License" href="http://www.gnu.org/licenses/licenses.html#GPL" target="_blank" rel="noopener"&gt;GPL&lt;/a&gt; license. This site doesn't need to publish a link back to CMSMS, as much as we would like such acknowledgement.&lt;/p&gt;
+&lt;p&gt;Some independently-developed add-on modules may have a different (compatible) license.&lt;/p&gt;]]></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
@@ -4686,309 +3190,140 @@ li.separator - To style the ruler for the separator *}
 		<property>
 			<content_id>1</content_id>
 			<prop_name>pagedata</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>disable_wysiwyg</prop_name>
-			<content><![CDATA[0]]></content>
+			<content>0</content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>wantschildren</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
 			<content_id>1</content_id>
 			<prop_name>target</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>35</content_id>
+			<content_id>2</content_id>
 			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>35</content_id>
+			<content_id>2</content_id>
 			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>35</content_id>
+			<content_id>2</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;The fastest, most efficient way to create stunning and sophisticated websites.&lt;/p&gt;
-&lt;h3&gt;ADDING SITE CONTENT IS JUST A FEW CLICKS AWAY&lt;/h3&gt;
-&lt;p&gt;The Content Manager makes content management simple. That's sort of our thing! Reorder site pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you'll recognize from word processors.&lt;/p&gt;
-&lt;h3&gt;ANY DESIGN YOU CAN IMAGINE&lt;/h3&gt;
-&lt;h4&gt;Join the growing number of design professionals who have discovered the foolproof elegance of CMS Made Simple.&lt;/h4&gt;
-&lt;p&gt;A question we often get asked is "where are the templates?" Although there are&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it's even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you're off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href="https://themes.cmsmadesimple.org" target="_blank" rel="noopener"&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
-&lt;h3&gt;EDIT SITE LAYOUT ON THE FLY&lt;/h3&gt;
-&lt;p&gt;Using file or database templates, and a bit of &lt;a title="Smarty" href="http://www.smarty.net/"&gt;Smarty&lt;/a&gt; knowledge, developers have full control over layouts. Responsive sites, especially with frameworks, are simple (there it is again) to test and maintain.&lt;/p&gt;
-&lt;h3&gt;EXTENDING A WEBSITE HAS NEVER BEEN MORE SIMPLE&lt;/h3&gt;
-&lt;p&gt;With a wide range of core and independently-developed&amp;nbsp;&lt;a title="CMSMS Forge" href="http://dev.cmsmadesimple.org/project/list/module" target="_blank" rel="noopener"&gt;modules&lt;/a&gt;, a fully documented&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, the ability to include PHP code via&amp;nbsp;&lt;a title="CMSMS Documentation Site - UDTs" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;, and full&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template inheritance, there's no limit to the complexity you can include in the website. CMSMS is fully extensible, and is a perfect base for your applications.&lt;/p&gt;]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>2</content_id>
+			<prop_name>extra1</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>2</content_id>
+			<prop_name>extra2</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>2</content_id>
+			<prop_name>extra3</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>2</content_id>
+			<prop_name>image</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>2</content_id>
+			<prop_name>thumbnail</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>3</content_id>
 			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
+			<content_id>3</content_id>
 			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>33</content_id>
-			<prop_name>target</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>33</content_id>
-			<prop_name>url</prop_name>
-			<content><![CDATA[https://www.cmsmadesimple.org/support/options/]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
+			<content_id>4</content_id>
 			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>34</content_id>
+			<content_id>4</content_id>
 			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>34</content_id>
-			<prop_name>content_en</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>target</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>34</content_id>
-			<prop_name>url</prop_name>
-			<content><![CDATA[https://docs.cmsmadesimple.org]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>pagedata</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>disable_wysiwyg</prop_name>
-			<content><![CDATA[0]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>wantschildren</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>35</content_id>
-			<prop_name>target</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>content_en</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>36</content_id>
-			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>content_en</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>37</content_id>
-			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
-		</property>
-		<property>
-			<content_id>38</content_id>
-			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>38</content_id>
-			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
-		</property>
-		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>content_en</prop_name>
 			<content><![CDATA[&lt;p&gt;CMS Made Simple is an open source Content Management System. It&amp;rsquo;s built using PHP and the&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template engine, which keep content, functionality, and display separate.&lt;/p&gt;
 &lt;h3&gt;FOR EDITORS&lt;/h3&gt;
@@ -5002,62 +3337,241 @@ li.separator - To style the ruler for the separator *}
 &lt;p&gt;You can find out more about why CMSMS is ideal for your project&amp;nbsp;&lt;a href="{cms_selflink href='why-use-cms-made-simple'}"&gt;here&lt;/a&gt;.&lt;/p&gt;]]></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>pagedata</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>disable_wysiwyg</prop_name>
-			<content><![CDATA[0]]></content>
+			<content>0</content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>wantschildren</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
+			<content_id>4</content_id>
 			<prop_name>target</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>4</content_id>
+			<prop_name>sidebar_image</prop_name>
+			<content><![CDATA[simplex/images/Adding-pages.png]]></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
 			<prop_name>design_id</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>5</content_id>
 			<prop_name>searchable</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>5</content_id>
+			<prop_name>content_en</prop_name>
+			<content><![CDATA[&lt;p&gt;The fastest, most efficient way to create stunning and sophisticated websites.&lt;/p&gt;
+&lt;h3&gt;ADDING SITE CONTENT IS JUST A FEW CLICKS AWAY&lt;/h3&gt;
+&lt;p&gt;The Content Manager makes content management simple. That's sort of our thing! Reorder site pages via drag and drop, and edit their contents with a click. All with no knowledge of HTML. Let the designers worry about the look, while the editors focus on content. Editing content is done with a simple editor with all the tools you'll recognize from word processors.&lt;/p&gt;
+&lt;h3&gt;ANY DESIGN YOU CAN IMAGINE&lt;/h3&gt;
+&lt;h4&gt;Join the growing number of design professionals who have discovered the foolproof elegance of CMS Made Simple.&lt;/h4&gt;
+&lt;p&gt;A question we often get asked is "where are the templates?" Although there are&amp;nbsp;&lt;a title="CMSMS Themes Site" href="https://themes.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;themes&lt;/a&gt;&amp;nbsp;available, CMSMS was designed to eliminate the need to restrict yourself to premade or purchased templates. With some HTML and CSS knowledge, a developer can use Design Manager to put together a completely custom design in short order. With the inclusion of a responsive framework, it's even faster. Still want to use an existing design? No problem, CMSMS makes it easy to add your existing code: insert a few Smarty tags in key places, and you're off to the races. If you need a bit of help getting started, review the theme used for this page (Simplex) or one of the themes available on the &lt;a href="https://themes.cmsmadesimple.org" target="_blank" rel="noopener"&gt;CMSMS Themes&lt;/a&gt; site.&lt;/p&gt;
+&lt;h3&gt;EDIT SITE LAYOUT ON THE FLY&lt;/h3&gt;
+&lt;p&gt;Using file or database templates, and a bit of &lt;a title="Smarty" href="http://www.smarty.net/"&gt;Smarty&lt;/a&gt; knowledge, developers have full control over layouts. Responsive sites, especially with frameworks, are simple (there it is again) to test and maintain.&lt;/p&gt;
+&lt;h3&gt;EXTENDING A WEBSITE HAS NEVER BEEN MORE SIMPLE&lt;/h3&gt;
+&lt;p&gt;With a wide range of core and independently-developed&amp;nbsp;&lt;a title="CMSMS Forge" href="http://dev.cmsmadesimple.org/project/list/module" target="_blank" rel="noopener"&gt;modules&lt;/a&gt;, a fully documented&amp;nbsp;&lt;a title="CMSMS API" href="http://www.cmsmadesimple.org/APIDOC2_0/" target="_blank" rel="noopener"&gt;API&lt;/a&gt;, the ability to include PHP code via&amp;nbsp;&lt;a title="CMSMS Documentation Site - UDTs" href="https://docs.cmsmadesimple.org/tags/user-defined-tags" target="_blank" rel="noopener"&gt;User Defined Tags&lt;/a&gt;, and full&amp;nbsp;&lt;a title="Smarty" href="http://www.smarty.net/" target="_blank" rel="noopener"&gt;Smarty&lt;/a&gt;&amp;nbsp;template inheritance, there's no limit to the complexity you can include in the website. CMSMS is fully extensible, and is a perfect base for your applications.&lt;/p&gt;]]></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>extra1</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>extra2</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>extra3</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>pagedata</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>disable_wysiwyg</prop_name>
+			<content>0</content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>wantschildren</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>image</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>thumbnail</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>target</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>5</content_id>
+			<prop_name>sidebar_image</prop_name>
+			<content><![CDATA[simplex/images/Edit-anywhere.png]]></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>design_id</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>searchable</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>content_en</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>extra1</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>extra2</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>extra3</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>image</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>thumbnail</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>target</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>6</content_id>
+			<prop_name>url</prop_name>
+			<content><![CDATA[https://www.cmsmadesimple.org/support/options/]]></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>design_id</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>searchable</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>content_en</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>extra1</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>extra2</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>extra3</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>image</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>thumbnail</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>target</prop_name>
+			<content></content>
+		</property>
+		<property>
+			<content_id>7</content_id>
+			<prop_name>url</prop_name>
+			<content><![CDATA[https://docs.cmsmadesimple.org]]></content>
+		</property>
+		<property>
+			<content_id>8</content_id>
+			<prop_name>design_id</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>8</content_id>
+			<prop_name>searchable</prop_name>
+			<content>1</content>
+		</property>
+		<property>
+			<content_id>8</content_id>
 			<prop_name>content_en</prop_name>
 			<content><![CDATA[&lt;p&gt;CMS Made Simple&amp;trade; was first released in July 2004 as an open source (&lt;a href="http://www.gnu.org/licenses/gpl-2.0.html"&gt;GPL&lt;/a&gt;) package, which it remains to this day. That separation of content, function, and design has been a key ethic from day one and it&amp;rsquo;s why so many of our users stop looking for further solutions once they have found us.&lt;/p&gt;
 &lt;p&gt;It&amp;rsquo;s not just our own user base that has given us such great support. CMS Made Simple has garnered a number of awards since its creation including runner up (twice) and winner of Pact Publishing&amp;rsquo;s &amp;lsquo;Best Overall Open Source Content Management System&amp;rsquo; in their annual Open Source Awards.&lt;/p&gt;
@@ -5069,64 +3583,54 @@ li.separator - To style the ruler for the separator *}
 &lt;p&gt;CMS Made Simple is available for &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;download&lt;/a&gt; and use for free under the terms of the GPL license. You can use CMSMS on commercial or personal projects. In most cases will be able to use appropriate modules that have been developed (though you should check their individual licenses). If you have not already &lt;a href="http://www.softaculous.com/demos/CMS_Made_Simple" target="_blank" rel="noopener"&gt;tried the demo&lt;/a&gt; or &lt;a title="Download CMSMS" href="https://www.cmsmadesimple.org/downloads/cmsms/" target="_blank" rel="noopener"&gt;downloaded the core package&lt;/a&gt;, please do so.&lt;/p&gt;]]></content>
 		</property>
 		<property>
-			<content_id>38</content_id>
-			<prop_name>sidebar_image</prop_name>
-			<content><![CDATA[simplex/images/Adding-pages.png]]></content>
-		</property>
-		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>sidebar_image</prop_name>
 			<content><![CDATA[simplex/images/screen_MM.png]]></content>
 		</property>
 		<property>
-			<content_id>35</content_id>
-			<prop_name>sidebar_image</prop_name>
-			<content><![CDATA[simplex/images/Edit-anywhere.png]]></content>
-		</property>
-		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>extra1</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>extra2</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>extra3</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>pagedata</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>disable_wysiwyg</prop_name>
-			<content><![CDATA[0]]></content>
+			<content>0</content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>wantschildren</prop_name>
-			<content><![CDATA[1]]></content>
+			<content>1</content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>image</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>thumbnail</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 		<property>
-			<content_id>39</content_id>
+			<content_id>8</content_id>
 			<prop_name>target</prop_name>
-			<content><![CDATA[]]></content>
+			<content></content>
 		</property>
 	</properties>
 	<files>
@@ -5292,4 +3796,4 @@ li.separator - To style the ruler for the separator *}
 		</file>
 	</files>
 	<userplugins/>
-</cmsmsinstall>
+</cmsmssitedata>
