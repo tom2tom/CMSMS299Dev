@@ -26,7 +26,7 @@ use function get_userid;
 use function startswith;
 
 /**
- * An abstract class that defines Admin Alerts for CMSMS.
+ * An abstract class that defines admin alerts for CMSMS.
  *
  * Admin alerts have a name, priority, title, message, a timestamp and can optionally refer to a module.
  * Methods are used to test if a module is for a specific user, and to format the message.
@@ -135,7 +135,7 @@ abstract class Alert
     /**
      * PHP's magic __set method.
      *
-     * Progrramers can modify the name, module, priority, and title of the alert.
+     * Programmers can modify the name, module, priority, and title of the alert.
      * Alerts can only be modified before the object is stored in the database.  Not afterwards.
      * If an unknown key, or invalid priority is provided then an exception is thrown.
      *
@@ -199,7 +199,7 @@ abstract class Alert
     abstract public function get_message();
 
     /**
-     * Return the URL for an iconf or this alert.
+     * Return the URL for an icon for this alert.
      *
      * @abstract
      * @return string
@@ -209,7 +209,8 @@ abstract class Alert
     /**
      * Get the name of the preference that this alert will be stored as.
      *
-     * @param string $name optionaly provide a name for the alert.  If not specified the current alert name will be used.
+     * @param mixed string|null $name optional name for the alert.
+	 *   If not specified the current alert name will be used.
      * @return string
      */
     public function get_prefname($name = null)
@@ -224,10 +225,11 @@ abstract class Alert
     }
 
     /**
-     * Decode a serialized object read from the database.
+     * Decode a serialized object read from the preferences data.
      *
-     * @param string $serialized A serialized array, containing an optional module name that must be loaded and the serialized alert object.
-     * @return Alert
+     * @param string $serialized A serialized array, containing an optional module
+	 *  name that must be loaded and the serialized alert object.
+     * @return mixed Alert | null
      */
     protected static function decode_object($serialized)
     {
@@ -247,8 +249,9 @@ abstract class Alert
     /**
      * Encode an alert into a format suitable for storing
      *
-     * @param Alert $obj The object to be ecoded.
-     * @return string A serialized array, containing an optional module name that must be loaded, and the serrialized alert object.
+     * @param Alert $obj The object to be encoded.
+     * @return string A serialized array, containing an optional module name
+	 *  that must be loaded, and the serialized alert object.
      */
     protected static function encode_object(Alert $obj)
     {
@@ -262,7 +265,7 @@ abstract class Alert
      * @throws InvalidArgumentException
      * @throws LogicException
      * @param string $name The preference name
-     * @return Alert
+     * @return mixed Alert | null
      */
     public static function load_by_name($name, $throw = true )
     {
@@ -279,9 +282,9 @@ abstract class Alert
     }
 
     /**
-     * Load all known alerts from the database.
+     * Load all known alerts recorded as site-preferences.
      *
-     * return Alert[]
+     * return mixed Alert[] | null
      */
     public static function load_all()
     {
@@ -301,9 +304,10 @@ abstract class Alert
 
     /**
      * Load all alerts that are suitable for the specified user id.
+	 * If no uid is specified, the currently logged in admin user id is used.
      *
-     * @param int|null $uid The admin userid to test for.  If no uid is specified, the currently logged in admin user id is used.
-     * @return Alert[]
+     * @param mixed int|null $uid The admin userid to test for.
+     * @return mixed Alert[] | null
      */
     public static function load_my_alerts($uid = null)
     {
@@ -335,9 +339,9 @@ abstract class Alert
     }
 
     /**
-     * Save an alert object to the database.
+     * Save an alert object into the preferences data.
      *
-     * @throws LogicException
+     * @throws LogicException if the alert has no name
      */
     public function save()
     {
@@ -350,7 +354,7 @@ abstract class Alert
     }
 
     /**
-     * Delete this alert from the database.
+     * Delete this alert from the preferences data.
      *
      */
     public function delete()
