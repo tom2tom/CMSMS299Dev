@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to get the 'entitized' name of the current page
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -19,20 +19,19 @@
 function smarty_function_title($params, $template)
 {
 	$contentobj = CmsApp::get_instance()->get_content_object();
-	$result = '';
 
-	if (!is_object($contentobj)) {
-		// We've a custom error message...  set a current timestamp
-		$result = '404 Error';
+	if( is_object($contentobj) ) {
+		$result = cms_htmlentities($contentobj->Name());
+		$result = preg_replace("/\{\/?php\}/", '', $result); //TODO is this intended as sanitization? filter_var()?
 	}
 	else {
-		$result = cms_htmlentities($contentobj->Name());
-		$result = preg_replace("/\{\/?php\}/", '', $result);
+		// We've a custom error message...  set a current timestamp
+		$result = '404 Error';
 	}
 
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$result);
-		return;
+		return '';
 	}
 	return $result;
 }
