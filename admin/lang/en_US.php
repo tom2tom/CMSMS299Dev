@@ -157,7 +157,7 @@ $lang['cms_install_information'] = 'CMS Made Simple Install Information';
 $lang['cms_version'] = 'CMSMS Version';
 $lang['code'] = 'Code';
 $lang['config_information'] = 'CMS Made Simple Config Settings';
-$lang['config_writable'] = 'config.php writeable. It is more safe if you change permission to read-only';
+$lang['config_writable'] = 'config.php is writeable. The system is safer when that file is read-only';
 $lang['config_issue'] = 'Configuration Issue';
 $lang['confirm'] = 'Confirm';
 $lang['confirmcancel'] = 'Are you sure you want to discard your changes? Click OK to discard all changes. Click Cancel to continue editing.';
@@ -1408,7 +1408,7 @@ $lang['perm_Reorder_Content'] = 'Reorder Content';
 $lang['perm_View_Tag_Help'] = 'View Tag Help';
 $lang['phpversion'] = 'Current PHP Version';
 $lang['php_information'] = 'PHP Information';
-$lang['php_opcache'] = 'PHP 5.5+ Opcode Cache';
+//$lang['php_opcache'] = 'PHP 5.5+ Opcode Cache';
 $lang['pluginabout'] = 'About the <em>%s</em> tag';
 $lang['pluginhelp'] = 'Help for the <em>%s</em> tag';
 $lang['pluginmanagement'] = 'Plugin Management';
@@ -1586,7 +1586,10 @@ $lang['systeminfodescription'] = 'Display various pieces of information about th
 $lang['systeminfo_copy_paste'] = 'Please copy and paste this selected text into your forum posting';
 $lang['systemmaintenance'] = 'System Maintenance';
 $lang['systemmaintenancedescription'] = 'Various functions for maintaining the health of this system. You can also browse the changelog for all releases.';
+$lang['system_cachelife'] = 'System Cache Item Lifetime <em>(seconds)</em>';
+$lang['system_cachetype'] = 'System Parameters Cache';
 $lang['system_verification'] = 'System Verification';
+
 
 ## T
 $lang['tabindex'] = 'Tab Index';
