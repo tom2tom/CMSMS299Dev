@@ -17,36 +17,39 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\internal;
-//use Smarty;
 
 use cms_config;
+use cms_siteprefs;
 use CmsApp;
+use CMSMS\Events;
 use CMSMS\internal\ModulePluginManager;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
-use SmartyBC;
+use SmartyBC as SmartyParent;  //or Smarty in future
 use const CMS_ADMIN_PATH;
 use const CMS_ASSETS_PATH;
 use const CMS_DEBUG;
 use const CMS_ROOT_PATH;
+use const TMP_CACHE_LOCATION;
 use const TMP_TEMPLATES_C_LOCATION;
 use function cms_error;
 use function get_userid;
 use function is_sitedown;
 use function startswith;
 
-//require_once(CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'); //when BC not needed
-require_once(CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'); //deprecated - support for smarty2 API
+//require_once CMS_ROOT_PATH.'/lib/smarty/Smarty.class.php'; //when BC not needed
+require_once CMS_ROOT_PATH.'/lib/smarty/SmartyBC.class.php'; //deprecated - support for smarty2 API
 
 /**
  * Extends the Smarty class for CMSMS.
+ * Retains support for the Smarty2 API, but that's deprecated since 2.3
  *
  * @package CMS
  * @since 0.1
  */
-class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not needed
+class Smarty extends SmartyParent
 {
     private static $_instance = null;
 
@@ -61,18 +64,19 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
         $this->direct_access_security = true;
         $this->assignGlobal('app_name','CMSMS');
 
-        // set template compile dir
-        $this->setCompileDir(TMP_TEMPLATES_C_LOCATION);
-
-        if( CMS_DEBUG ) $this->error_reporting = 'E_ALL';
-
+        if( CMS_DEBUG ) {
+            $this->error_reporting = 'E_ALL';
+        }
         // default template class
         $this->template_class = '\\CMSMS\\internal\\template_wrapper';
 
         // default plugin handler
-        $this->registerDefaultPluginHandler( [ $this, 'defaultPluginHandler' ] );
+        $this->registerDefaultPluginHandler([ $this, 'defaultPluginHandler' ]);
 
-        $this->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
+        // dirs for compiled (i.e. non-cached), cached and config
+        $this->setCompileDir(TMP_TEMPLATES_C_LOCATION)
+             ->setCacheDir(TMP_CACHE_LOCATION)
+             ->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
 
         $config = cms_config::get_instance();
         $name = $config['assets_dir'];
@@ -100,8 +104,34 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
             if( isset($CMS_INSTALL_PAGE) ) return;
 
             if( is_sitedown() ) {
-                $this->setCaching(false);
+                $this->setCaching(SmartyParent::CACHING_OFF); //actually, Smarty::
                 $this->force_compile = true;
+            }
+            else {
+                // Setup caching
+                $v = (int)cms_siteprefs::get('smarty_cachelife',-1);
+                switch( $v ) {
+                    case -1:
+                        $this->setCaching(SmartyParent::CACHING_LIFETIME_CURRENT);
+                        break;
+                    case 0:
+                        $this->setCaching(SmartyParent::CACHING_OFF);
+                        break;
+                    default:
+                        $this->setCaching(SmartyParent::CACHING_LIFETIME_SAVED);
+                        $this->setCacheLifetime($v);
+                }
+
+                if( CMS_DEBUG ) {
+                    $this->setCompileCheck(SmartyParent::COMPILECHECK_ON);
+                    $this->setDebugging(true);
+                }
+                elseif( $v != 0 && cms_siteprefs::get('use_smartycompilecheck',0) ) {
+                    $this->setCompileCheck(SmartyParent::COMPILECHECK_CACHEMISS);
+                }
+                else {
+                    $this->setCompileCheck(SmartyParent::COMPILECHECK_OFF);
+                }
             }
 
             // Load resources
@@ -114,14 +144,20 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
             // Autoload filters
             $this->autoloadFilters();
 
-            // Enable security object
-            if( !$config['permissive_smarty'] ) $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
+            if( !$config['permissive_smarty'] ) {
+                // Apply our security object
+                $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
+            }
         }
         elseif( $_gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
-            $this->setCaching(false); //CHECKME
             $this->addConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')
-                 ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates');
+                 ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates')
+                 ->setCaching(SmartyParent::CACHING_OFF); //TODO make admin caching work
+//DEBUG            $this->setCompileCheck(SmartyParent::COMPILECHECK_OFF);
+            // Force re-compile after template change
+            //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
+            //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
         }
     }
 
@@ -185,7 +221,7 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
      *
      * @param string  $name      name of the tag being sought
      * @param string  $type      tag type (e.g. Smarty::PLUGIN_FUNCTION, Smarty::PLUGIN_BLOCK,
-     *       Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
+     *    Smarty::PLUGIN_COMPILER, Smarty::PLUGIN_MODIFIER, Smarty::PLUGIN_MODIFIERCOMPILER)
      * @param Smarty_Internal_Template   $template template object UNUSED
      * @param string  &$callback returned callable
      * @param string  &$script   optional returned script filepath if function is external
@@ -194,28 +230,30 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
      */
     public function defaultPluginHandler($name, $type, $template, &$callback, &$script, &$cachable)
     {
-/* NOTE plugin-dirs scan is done within smarty, no benefit in replicating it here
-        // walk plugin dirs to try to find a match
+/* NOTE plugin-dirs scan is done within smarty, this never finds an actual plugin
+   so we cannot use this to force $cachable to false
         $base = $type.'.'.$name.'.php';
         $basef = $type.'_'.$name;
 
-        foreach ($this->getPluginsDir() as $dir) {
+        // walk plugin dirs to try to find a match
+        foreach( $this->getPluginsDir() as $dir ) {
             $file = $dir.$base;
             if( !is_file($file) ) continue;
 
             require_once $file;
 
-            foreach ([
+            foreach( [
             'smarty_',
-//            'smarty_cms_', // deprecated, NOT compatible with smarty 3.1.32+
-//            'smarty_nocache_', // ditto
-            ] as $pref ) {
+            'smarty_cms_', // deprecated, NOT compatible with smarty 3.1.32+
+            'smarty_nocache_', // ditto
+            ] as $i => $pref ) {
                 $func = $pref.$basef;
                 if( !function_exists($func) ) continue;
-                if( $pref != 'smarty_' ) {
-                    $ADBG = 1;
-                    //TODO generate smarty-compatible func whose name-prefix is just 'smarty_',
- 				    // some sort of alias
+                if( $i > 0 ) {
+                    //TODO generate smarty-compatible runtime func whose name-prefix is just 'smarty_',
+                    $func2 = 'smarty_'.$basef;
+                    function $func2(...$args) { return $func($args); }
+                    $func = $func2;
                 }
 
                 $callback = $func;
@@ -230,23 +268,23 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
             return;
         }
 
-        // check if it is a recorded module plugin
+        // check if it is a recorded module-plugin
 //        if( CmsApp::get_instance()->is_frontend_request() ) {
             $row = ModulePluginManager::load_plugin($name,$type);
             if( is_array($row) && is_array($row['callback']) && count($row['callback']) == 2 &&
                 is_string($row['callback'][0]) && is_string($row['callback'][1]) ) {
                 $callback = $row['callback'][0].'::'.$row['callback'][1];
 //TODO CHECKME
-                $cachable = false;
+//DEBUG                $cachable = false;
                 return true;
             }
 
         // TODO maybe check for another module-plugin, return $name.'::function_plugin'
 
-        // check if it is a simple plugin
+        // check if it is a file-plugin
             try {
-                $callback = SimplePluginOperations::get_instance()->load_plugin( $name );
-                $cachable = false;
+                $callback = FilePluginOperations::get_instance()->load_plugin( $name );
+//DEBUG                $cachable = false;
                 return true;
             } catch (Exception $e) {
             }
@@ -256,37 +294,43 @@ class Smarty extends SmartyBC //class CmsSmarty extends Smarty //when BC not nee
     }
 
     /**
-     * Test if a smarty plugin with the specified name exists.
-	 * @since 2.3
+     * Report whether a smarty plugin (actual, not module or file-plugin)
+     * having the specified name exists.
+     * @since 2.3
      *
-     * @param string the plugin name
-	 * @param string Optional plugin-type, default 'function'
+     * @param string the plugin identifer
+     * @param string Optional plugin-type, default 'function'
      * @return bool
      */
     public function is_plugin(string $name, string $type = 'function') : bool
-	{
-		if( isset($this->registered_plugins[$type][$name]) ) return true;
+    {
+        if( isset($this->registered_plugins[$type][$name]) ) {
+            return true;
+        }
         // walk plugin dirs to try to find a match
         $base = $type.'.'.$name.'.php';
         $basef = $type.'_'.$name;
-
         foreach ($this->getPluginsDir() as $dir) {
             $file = $dir.$base;
             if( !is_file($file) ) continue;
 
             require_once $file;
 
-            foreach ([
+            foreach( [
             'smarty_',
-//            'smarty_nocache_', // deprecated ??
-            ] as $pref ) {
-                if( function_exists($pref.$basef) ) return true;
+            'smarty_cms_', // deprecated, NOT compatible with smarty 3.1.32+
+            'smarty_nocache_', // ditto
+            ] as $i => $pref ) {
+                if( function_exists($pref.$basef) ) {
+                    if( $i == 0 ) return true;
+                    //TODO compatibilty stuff
+                }
             }
         }
-		return false;
-	}
+        return false;
+    }
 
-	/**
+    /**
      * Test if a smarty plugin with the specified name has been registered.
      *
      * @param string the plugin name

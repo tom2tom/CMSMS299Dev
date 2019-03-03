@@ -1,20 +1,21 @@
 <?php
 
+use cms_siteprefs;
 use CMSMS\Group;
-use CMSMS\SimplePluginOperations;
+use CMSMS\FilePluginOperations;
 use function cms_installer\CMSMS\endswith;
 use function cms_installer\CMSMS\joinpath;
 use function cms_installer\CMSMS\startswith;
 
-// 1. Convert UDT's to simple plugins, widen users-table columns
+// 1. Convert UDT's to file-lugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
 
-    function create_simple_plugin(array $row, SimplePluginOperations $ops, $smarty)
+    function create_file_plugin(array $row, FilePluginOperations $ops, $smarty)
     {
         $fp = $ops->file_path($row['userplugin_name']);
         if (is_file($fp)) {
-            verbose_msg('simple plugin named '.$row['userplugin_name'].' already exists');
+            verbose_msg('file-plugin named '.$row['userplugin_name'].' already exists');
             return;
         }
 
@@ -41,10 +42,10 @@ if ($udt_list) {
         }
     }
 
-    $ops = SimplePluginOperations::get_instance();
+    $ops = FilePluginOperations::get_instance();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
-        create_simple_plugin($udt, $ops, $smarty);
+        create_file_plugin($udt, $ops, $smarty);
     }
 
     $dict = GetDataDictionary($db);
@@ -52,7 +53,7 @@ if ($udt_list) {
     $dict->ExecuteSQLArray($sqlarr);
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
-    status_msg('Converted User Defined Tags to simple-plugin files');
+    status_msg('Converted User Defined Tags to file-plugin files');
 
     $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)');
     $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)');
@@ -78,11 +79,11 @@ if ($generic_type) {
     error_msg('__CORE__::generic template update '.ilang('failed'));
 }
 
-// 6. Revised/extra permissions
+// 3. Revised/extra permissions
 $now = time();
 $longnow = $db->DbTimeStamp($now);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
-$db->Execute($query, ['Modify Simple Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
+$db->Execute($query, ['Modify File Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
@@ -105,7 +106,7 @@ $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Modify Simple Plugins');
+$group->GrantPermission('Modify File Plugins');
 /*
 $group = new Group();
 $group->name = 'AssetManager';
@@ -115,7 +116,7 @@ $group->Save();
 $group->GrantPermission('Modify Site Assets');
 */
 
-// 6. Cleanup plugins - remove reference from plugins-argument where necessary
+// 4. Cleanup plugins - remove reference from plugins-argument where necessary
 foreach ([
  ['lib', 'plugins'],
  ['admin', 'plugins'],
@@ -149,14 +150,14 @@ foreach ([
     }
 }
 
-// 7. Drop redundant sequence-tables
+// 5. Drop redundant sequence-tables
 $db->DropSequence(CMS_DB_PREFIX.'content_props_seq');
 $db->DropSequence(CMS_DB_PREFIX.'userplugins_seq');
 
 $dbdict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
-// 8. Table revisions
+// 6. Table revisions
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE,'tpl_order I(4) DEFAULT 0');
 $dbdict->ExecuteSQLArray($sqlarray);
 
@@ -228,7 +229,7 @@ $sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name',
 $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_modifytable', 'event_handlers'));
 
-// 9. Migrate module templates to layout-templates table
+// 7. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
 $data = $db->GetArray($query);
 if ($data) {
@@ -272,7 +273,7 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dbdict->ExecuteSQLArray($sqlarray);
 verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
 
-// 10. Update preferences
+// 8. Update preferences
 // migrate to new default theme
 $files = glob(joinpath(CMS_ADMIN_PATH,'themes','*','*Theme.php'),GLOB_NOESCAPE);
 foreach ($files as $one) {
@@ -280,13 +281,22 @@ foreach ($files as $one) {
         $name = basename($one, 'Theme.php');
         $query = 'UPDATE '.CMS_DB_PREFIX.'userprefs SET value=? WHERE preference=\'admintheme\'';
         $db->Execute($query,[$name]);
-        $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value=?,modified_date=? WHERE sitepref_name=\'logintheme\'';
+/*        $query = 'UPDATE '.CMS_DB_PREFIX.'siteprefs SET sitepref_value=?,modified_date=? WHERE sitepref_name=\'logintheme\'';
         $db->Execute($query,[$name,$longnow]);
+*/
+        cms_siteprefs::set('logintheme', $name);
         break;
     }
 }
-$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
-$db->Execute($query,[$longnow,$longnow]);
+
+//$query = 'INSERT INTO '.CMS_DB_PREFIX.'siteprefs (sitepref_name,create_date,modified_date) VALUES (\'loginmodule\',?,?);';
+//$db->Execute($query,[$longnow,$longnow]);
+foreach([
+    'loginmodule' => '',
+    'smarty_cachelife' => -1, // smarty default
+ ] as $name=>$val) {
+    cms_siteprefs::set($name, $val);
+}
 
 //if ($return == 2) {
     $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 206';
