@@ -71,7 +71,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 						if ((empty($A['keeps']) || in_array($val, $A['keeps'])) &&
 							($val || !isset($A['notempty']))) {
 							$xwm->text($pref."\t\t");
-							if (isset($A['isdata'])) {
+							if ($val && isset($A['isdata']) && is_string($val) && !is_numeric($val)) {
 								$xwm->startElement($key);
 								$xwm->writeCdata(htmlspecialchars($val, ENT_XML1));
 								$xwm->endElement();
@@ -336,7 +336,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 	if(is_dir($frombase)) {
 		$skip = strlen($frombase) + 1;
 
- 		$xw->startElement('files');
+		$xw->startElement('files');
 		$iter = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($frombase,
 				FilesystemIterator::KEY_AS_PATHNAME |
@@ -346,6 +346,8 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 			RecursiveIteratorIterator::CHILD_FIRST);
 		foreach ($iter as $p=>$info) {
 			if (!$info->isDir()) {
+				$name = $info->getBasename();
+				if (fnmatch('index.htm?', $name)) continue;
 				$tail = substr($p, $skip);
 				if ($copynow) {
 					$tp = $filesfolder.DIRECTORY_SEPARATOR.$tail;
@@ -354,10 +356,10 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 					@copy($p, $tp);
 				}
 				$xw->startElement('file');
-				$xw->writeElement('name', $info->getBasename());
+				$xw->writeElement('name', $name);
 				//TODO if !$copynow, consider embedding some files as base64_encoded esp. if only a few
-                $td = dirname($tail);
-                if ($td == '.') $td = '';
+				$td = dirname($tail);
+				if ($td == '.') $td = '';
 				$xw->writeElement('frompath', $td);
 				$xw->writeElement('topath', $td);
 				$xw->endElement(); // file
