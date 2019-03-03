@@ -45,7 +45,6 @@ function cms_autoloader(string $classname)
 				$class_replaces = [
 				'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
 				'CMSMS\AdminThemeBase' => 'CmsAdminThemeBase',
-				'CMSMS\AdminThemeNotification' => 'CmsAdminThemeNotification',
 				'CMSMS\App' => 'CmsApp',
 //				'CMSMS\CacheDriver' => 'cms_cache_driver',
 //				'CMSMS\CacheFile' => 'cms_filecache_driver',
@@ -56,6 +55,7 @@ function cms_autoloader(string $classname)
 				'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 				'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
 				'CMSMS\HttpRequest' => 'cms_http_request',
+				'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification',
 				'CMSMS\LangOperations' => 'CmsLangOperations',
 				'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
 				'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
