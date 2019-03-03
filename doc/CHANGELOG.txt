@@ -11,7 +11,7 @@ revised UI for UDT processing (those are now files, not database records) see ne
 editing of templates, stylesheets, UDT's, site-operation-files (with respective permission) by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via DesignManager
 extra core modules: CoreAdminLogin, CoreTextEditing, AdminLog
-renamed permission: 'Modify Simple Plugins'
+renamed permission: 'Modify File Plugins'
 extra permissions: 'Modify Site Code','Remote Administration'
 extra users-group: CodeManager
 
@@ -25,7 +25,7 @@ to speed autoloading at least, all php classes across the core, except those wit
 eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
 'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
 'CMSMS\AdminThemeBase' => 'CmsAdminThemeBase',
-'CMSMS\AdminThemeNotification' => 'CmsAdminThemeNotification',
+'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification', DEPRECATED
 'CMSMS\App' => 'CmsApp',
 'CMSMS\CacheDriver' => 'cms_cache_driver',
 'CMSMS\CacheFile' => 'cms_filecache_driver',
@@ -146,7 +146,7 @@ javascript files in <siterootpath>/lib/jquery
 gone
 
 UDT's stored in database
-  must become files in <siterootpath>/assets/simple_plugins (or whatever the 'assets' folder is named)
+  must become files in <siterootpath>/assets/file_plugins (or whatever the 'assets' folder is named)
 
 MISC
 
@@ -172,8 +172,9 @@ DETAILS
   - New method: CMSModule::create_pageurl()
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
   - New method: AdminUtils::get_module_icon()
-    New method: cms_utils::path_to_url()
-  MORE TO COME HERE ...
+  - New method: cms_utils::path_to_url()
+  - New classes: ScriptManager, ArrayTree, BasicEnum 
+
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
   - FEATURE: Registered event handlers may be a callable, or a regular plugin, supplementing the existing support for modules and UDT's
@@ -190,12 +191,13 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
-  - CHANGE: new 'simple plugin' API effectivly replaces UDT's. Simple plugins are files stored in /assets/simple_plugins and must contain the <?php tag.
+  - CHANGE: new 'file-plugin' API effectivly replaces UDT's. File plugins are files stored in /assets/file_plugins, and must contain the <?php tag.
      (Existing UDT's are migrated during upgrade)
   - UserTagOperations class is now merely a compatibility stub
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
   - FEATURE: The 503 error handler (maintenance mode) is now an Error Page.
   - DEPRECATED: Some seldom-used methods in the module API
+  - DEPRECATED:  Method CmsApp::clear_cached_files - replaced by more-secure alternative
   - DEPRECATED: method cms_db_prefix(). Constant CMS_DB_PREFIX replaces that
   - BREAKING: Removed the long-deprecated SetParameters method from the module API
   - BREAKING: Removed the long-deprecated $module->smarty property.
@@ -239,6 +241,10 @@ DETAILS
   - DEPRECATED: Members 'id','returnid','action' in the $params array defined for module actions (corresponding variables incl. $name are defined).
   - CHANGE: Only modules that are not marked as lazy load (the default) will be loaded automatically during each request.
   - BREAKING: Smarty now recognizes plugin functions named like smarty_xxx, but not smarty_cms_xxx. Existing plugins are cleaned up during upgrade.
+  - BREAKING: Some edge-cases require an explicit 'nocache' parameter in page or template tags.
+     We've seen problems with some (not all) instances like {block}{$X={Y}}{/block}.
+     Arguably a smarty bug, can be generally cured by disabling caching, but that's tail-wag-dog, very slow.
+     In the example, {block}{$X={Y nocache}}{/block} works just fine.
   - Optimize the cms_route_manager for performance
   - FEATURE: Adds ModuleOperations::is_module_loaded() method
     The constructor is sent the module, the actionid and returnid parameters
@@ -296,7 +302,7 @@ DETAILS
       Note: when using this, implementing {cms_stylesheet} in the file based templates will be problematic.
   - IMPROVE: Organize and refactor the template parsing code.
   - FEATURE: Added the ability to stop processing content, via an exception.  This is useful in situations where output is retrieved from a cache.
-  - FEATURE: Added the {content_text} plugin to alloa adding simple static text instructions for editors on the edit content page.
+  - FEATURE: Added the {content_text} plugin to allow adding simple static text instructions for editors on the edit content page.
       text must be hardcoded.  i.e {content_text text='This is a test'}
   - FEATURE: Added the {assets_url} plugin to provide the complete URL to the assets folder.
   - FEATURE: New cleaned up simplex theme on initial install demonstrates template inheritance and other techniques
