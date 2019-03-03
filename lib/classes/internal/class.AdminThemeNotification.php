@@ -16,7 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//namespace CMSMS;
+namespace CMSMS\internal;
+
+use CmsInvalidDataException;
 
 /**
  * A class representing a simple notification.
@@ -24,12 +26,13 @@
  * @package CMS
  * @license GPL
  * @since   1.11
+ * @deprecated since 2.3
  * @author  Robert Campbell
  * @property string $module Module name
  * @property int $priority Priority between 1 and 3
  * @property string $html HTML contents of the notification
  */
-class CmsAdminThemeNotification
+class AdminThemeNotification
 {
     /**
      * @ignore
