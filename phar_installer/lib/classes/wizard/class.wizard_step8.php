@@ -293,7 +293,7 @@ class wizard_step8 extends wizard_step
         require_once $destdir.'/lib/misc.functions.php';
         require_once $destdir.'/lib/classes/class.cms_config.php';
         $newconfig = cms_config::get_instance();
-        $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']);
+//        $newconfig['dbms'] = 'mysqli'; //trim($destconfig['db_type']); redundant always mysqli
         $newconfig['db_hostname'] = trim($destconfig['db_hostname']);
         $newconfig['db_username'] = trim($destconfig['db_username']);
         $newconfig['db_password'] = trim($destconfig['db_password']);
