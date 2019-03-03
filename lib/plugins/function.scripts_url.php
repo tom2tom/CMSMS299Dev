@@ -17,11 +17,11 @@
 
 function smarty_function_scripts_url($params, $template)
 {
-	$out = cms_path_to_url(CMS_SRIPTS_PATH);
+	$out = cms_path_to_url(CMS_SCRIPTS_PATH);
 
 	if( isset($params['assign']) ) {
 		$template->assign(trim($params['assign']),$out);
-		return;
+		return '';
 	}
 
 	return $out;
