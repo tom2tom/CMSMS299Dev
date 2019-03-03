@@ -177,7 +177,7 @@ if (!isset($USE_THEME) || $USE_THEME) {
 			$sitedown_file = TMP_CACHE_LOCATION . DIRECTORY_SEPARATOR. 'SITEDOWN';
 			if (is_file($sitedown_file)) {
 				$sitedown_message = lang('sitedownwarning', $sitedown_file);
-				$themeObject->AddNotification(1,'Core',$sitedown_message);
+				$themeObject->RecordNotice('warn', $sitedown_message);
 			}
 		}
 	}
