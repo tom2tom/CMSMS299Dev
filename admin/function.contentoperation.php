@@ -316,7 +316,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT topath (#PCDATA)>
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
- <!ELEMENT userplugins (sourcedir?,file+)>
+ <!ELEMENT fileplugins (sourcedir?,file+)>
  <!ELEMENT file (name,(frompath|embedded),content?)>
 ');
 
@@ -376,7 +376,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 		$copycount = 0;
 	}
 
-	$xw->startElement('userplugins');
+	$xw->startElement('fileplugins');
 	$iter = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator($frombase,
 			FilesystemIterator::KEY_AS_PATHNAME |
@@ -404,7 +404,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 			$xw->endElement(); // file
 		}
 	}
-	$xw->endElement(); // userplugins
+	$xw->endElement(); // fileplugins
 	if ($copynow && $copycount == 0) {
 		@rmdir($dir);
 	}
@@ -802,7 +802,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							}
 						}
 					break;
-				case 'userplugins':
+				case 'fileplugins':
 					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR;
 					if ($filesfolder) {
 						//TODO validity check e.g. somewhere absolute in installer tree
