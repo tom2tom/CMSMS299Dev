@@ -13,12 +13,6 @@ configurations that do not support using the simpler phar installer.
 Notably it may be used where PHP's phar extension is not available. 
 
 -------------------
-WARNINGS:
--------------------
-1.  We recommend AGAINST the use of this version of the installation assistant.
-    Please use the PHAR version of the installer whenever possible.
-
--------------------
 Requirements:
 -------------------
 1.  The installation assistant requires a PHP environment with a minimum version of PHP 7.1.
@@ -35,14 +29,15 @@ Instructions:
     within the control panel), to create a new directory for the site root.
     For example:  /home/<myusername>/public_html/cmsms
 
-2.  Upload the cmsms-<version>-install.expanded.zip file to the site root directory.
+2.  Upload the cmsms-<version>-install.expanded.zip file to the new or
+    pre-existing site root directory.
 
 3.  Extract the files from that uploaded archive into that same directory.
-    This will create a folder named phar_installer, which includes numerous
+    This will create a folder named installer, which includes numerous
     sub-directories and files.
 
-4.  In your web browser, navigate to the phar_installer directory created in step 3.
-    For example:  http://www.mywebsite.site/cmsms/phar_installer
+4.  In your web browser, navigate to the installer directory created in step 3.
+    For example:  http://www.mywebsite.site/cmsms/installer
 
 You should now be presented with a welcome screen.  If instead you see a white screen it probably means that your
 server is running outdated software versions (e.g. PHP, plugins such as ion-cube or zend-guard). It is a good hint that
@@ -131,7 +126,9 @@ Step 9:
 -----------
 Afterwards
 -----------
-After successful completion of the installation assistant, you should, using either the command line or your web hosts file manager, delete the created phar_installer folder (with all its contents).
+After successful completion of the installation assistant, you should,
+using either the command line or your web hosts file manager, delete the
+created installer folder (with all its contents).
 
 ---------------------------
 Additional Features

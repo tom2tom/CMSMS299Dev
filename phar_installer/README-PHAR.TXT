@@ -4,7 +4,7 @@ CMS Made Simple PHAR Based Installation Assistant
 This document describes using the CMS Made Simple PHAR Based installation assistant.
 
 The PHAR based installation assistant is an entire PHP application built to provide the ability to
-install, upgrade, or freshen CMS Made Simple from within a single, easy to use php script.
+install, upgrade, or freshen CMS Made Simple from within a single easy to use PHP script.
 
 ---------------------------
 NOTE:
@@ -29,7 +29,7 @@ Instructions
 2.  Extract the files from the .zip file
     This will create a cmsms-<version>-install.php file, and another copy of this README file.
 3.  In your web browser, navigate to <your web directory>/cmsms-<version>-install.php
-    For Example: http://www.mywebsite.site/cmsms-2.0-install.php
+    For example: http://www.mywebsite.site/cmsms-3.44.55-install.php
 
 You should now be presented with a welcome screen.  If, instead, you see a white screen it probably means that your
 server is running old, or incompatible, software and that you may be forced to use the traditional installer.  It is a good
