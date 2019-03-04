@@ -74,6 +74,9 @@ class wizard_step9 extends wizard_step
             }
         }
 
+        // write history
+        audit('', 'System Upgraded', 'New version '.CMS_VERSION);
+
         // clear the cache
         $this->message(lang('msg_clearcache'));
         AdminUtils::clear_cache();
@@ -81,8 +84,6 @@ class wizard_step9 extends wizard_step
         $cfgfile = $destdir.DIRECTORY_SEPARATOR.'config.php';
         // write protect config.php
         @chmod($cfgfile,0440);
-
-        // todo: write history
 
         // set the finished message
         $url = $app->get_root_url();
@@ -93,11 +94,12 @@ class wizard_step9 extends wizard_step
         $admin_url .= $aname;
 
         if( $app->has_custom_destdir() || !$app->in_phar() ) {
-            $this->set_block_html('bottom_nav',lang('finished_custom_upgrade_msg',$admin_url,$url));
+            $msg = lang('finished_custom_upgrade_msg',$admin_url,$url));
         }
         else {
-            $this->set_block_html('bottom_nav',lang('finished_upgrade_msg',$url,$admin_url));
+            $msg = lang('finished_upgrade_msg',$url,$admin_url));
         }
+        $this->set_block_html('bottom_nav',$msg);
     }
 
     public function do_install()
@@ -106,9 +108,10 @@ class wizard_step9 extends wizard_step
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',901));
 
+        $this->connect_to_cmsms($destdir);
+
         // install modules
         $this->message(lang('install_modules'));
-        $this->connect_to_cmsms($destdir);
         $modops = cmsms()->GetModuleOperations();
         $db = cmsms()->GetDb();
         $stmt1 = $db->Prepare('INSERT INTO '.CMS_DB_PREFIX.'modules
@@ -146,6 +149,9 @@ VALUES (?,?,?,NOW(),NOW())');
             }
         }
 
+        // write history
+        audit('', 'System Installed', 'Version '.CMS_VERSION);
+
         // write-protect config.php
         @chmod("$destdir/config.php",0440);
 
@@ -154,22 +160,17 @@ VALUES (?,?,?,NOW(),NOW())');
         if( !endswith($root_url,'/') ) $root_url .= '/';
         $admin_url = $root_url.'admin';
 
-        // todo: write history
-
         $this->message(lang('msg_clearcache'));
         AdminUtils::clear_cache();
 
         // set the finished message.
         if( !$root_url || !$app->in_phar() ) {
-            // find the common part of the SCRIPT_FILENAME and the destdir
-            // /var/www/phar_installer/index.php
-            // /var/www/foo
-            $this->set_block_html('bottom_nav',lang('finished_custom_install_msg',$admin_url));
+            $msg = lang('finished_custom_install_msg',$admin_url);
         }
         else {
-            if( endswith($root_url,'/') ) $admin_url = $root_url.'admin';
-            $this->set_block_html('bottom_nav',lang('finished_install_msg',$root_url,$admin_url));
+            $msg = lang('finished_install_msg',$root_url,$admin_url);
         }
+        $this->set_block_html('bottom_nav',$msg);
     }
 
     /**
@@ -183,6 +184,7 @@ VALUES (?,?,?,NOW(),NOW())');
         if( !$destdir ) throw new Exception(lang('error_internal',901));
 
         $this->connect_to_cmsms($destdir);
+
         // in case they're gone, try to create tmp directories
         @mkdir(TMP_CACHE_LOCATION,0771,TRUE);
         @mkdir(TMP_TEMPLATES_C_LOCATION,0771,TRUE);
@@ -190,7 +192,7 @@ VALUES (?,?,?,NOW(),NOW())');
         @chmod(CONFIG_FILE_LOCATION,0440);
 
         // write history
-        audit('', 'System Freshened', 'All core files renewwed');
+        audit('', 'System Freshened', 'All core files renewed');
 
         // clear the cache
         $this->message(lang('msg_clearcache'));
