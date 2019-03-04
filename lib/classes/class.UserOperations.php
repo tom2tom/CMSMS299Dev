@@ -29,12 +29,13 @@ use function get_userid;
  * Class for doing user related functions. Many User-class functions
  * are just wrappers around these.
  *
+ * @final
  * @package CMS
  * @license GPL
  *
  * @since 0.6.1
  */
-class UserOperations
+final class UserOperations
 {
 	/**
 	 * @ignore
@@ -71,7 +72,7 @@ class UserOperations
 	 *
 	 * @return UserOperations
 	 */
-	final public static function &get_instance() : self
+	public static function get_instance() : self
 	{
 		if (!self::$_instance) self::$_instance = new self();
 		return self::$_instance;
@@ -81,12 +82,12 @@ class UserOperations
 	 * Gets a list of all users.
 	 *
 	 * @param int $limit  The maximum number of users to return
-	 * @param int $offset The offset
+	 * @param int $offset Optional offset. Default 0
 	 * @returns array An array of User objects
 	 *
 	 * @since 0.6.1
 	 */
-	public function LoadUsers($limit = 10000, $offset = 0)
+	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
 	{
 		if (!is_array($this->_users)) {
 			$gCms = CmsApp::get_instance();
@@ -121,11 +122,11 @@ class UserOperations
 	/**
 	 * Gets a list of all users in a given group.
 	 *
-	 * @param mixed $groupid Group for the loaded users
+	 * @param int $groupid Group for the loaded users
 	 *
 	 * @return array An array of User objects
 	 */
-	public function LoadUsersInGroup($groupid)
+	public function LoadUsersInGroup(int $groupid) : array
 	{
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
@@ -156,17 +157,16 @@ class UserOperations
 	 *
 	 * @param string $username		 Username to load
 	 * @param string $password		 Optional (but not really) Password to check against
-	 * @param mixed $activeonly		 Only load the user if [s]he is active
-	 * @param mixed $adminaccessonly Only load the user if [s]he has admin access
+	 * @param mixed $activeonly		 Optional flag whether to load the user if [s]he is active Default true
+	 * @param mixed $adminaccessonly Optional flag whether to load the user if [s]he has admin access Default false
 	 *
-	 * @return mixed a User-class object or false
+	 * @return mixed a User-class object or null or false
 	 *
 	 * @since 0.6.1
 	 */
-	public function LoadUserByUsername($username, $password = '', $activeonly = true, $adminaccessonly = false)
+	public function LoadUserByUsername(string $username, string $password = '', bool $activeonly = true, bool $adminaccessonly = false)
 	{
 		// note: does not use cache
-		$result = null;
 		$db = CmsApp::get_instance()->GetDb();
 
 		$query = 'SELECT user_id,password FROM '.CMS_DB_PREFIX.'users';
@@ -190,7 +190,7 @@ class UserOperations
 			if ($len > 32) { //bcrypt or argon2
 				if (!password_verify($password, $hash)) {
 					sleep(1);
-					return $result;
+					return;
 				}
 				if ((defined('PASSWORD_ARGON2I') && strncmp($hash, '$2y$', 4) == 0) //still uses bcrypt
 					 || password_needs_rehash($hash, PASSWORD_DEFAULT)) {
@@ -203,7 +203,7 @@ class UserOperations
 				$tmp = md5(cms_siteprefs::get('sitemask', '').$password);
 				if (!hash_equals($tmp, $hash)) {
 					sleep(1);
-					return $result;
+					return;
 				}
 				$oneuser = new User();
 				$oneuser->SetPassword($password);
@@ -212,7 +212,6 @@ class UserOperations
 			}
 			return self::LoadUserByID($row['user_id']);
 		}
-		return $result;
 	}
 
 	/**
@@ -220,11 +219,11 @@ class UserOperations
 	 *
 	 * @param mixed $id User id to load
 	 *
-	 * @return mixed If successful, the filled User object.	 If it fails, it returns false
+	 * @return mixed If successful, the filled User object | false
 	 *
 	 * @since 0.6.1
 	 */
-	public function LoadUserByID($id)
+	public function LoadUserByID(int $id)
 	{
 		$id = (int) $id;
 		if ($id < 1) {
@@ -267,16 +266,14 @@ class UserOperations
 	 *
 	 * @since 0.6.1
 	 */
-	public function InsertUser($user)
+	public function InsertUser($user) : int
 	{
-		$result = -1;
-
 		$db = CmsApp::get_instance()->GetDb();
 		// check for conflict in username
 		$query = 'SELECT user_id FROM '.CMS_DB_PREFIX.'users WHERE username = ?';
 		$tmp = $db->GetOne($query, [$user->username]);
 		if ($tmp) {
-			return $result;
+			return -1;
 		}
 
 		$time = $db->DbTimeStamp(time());
@@ -284,10 +281,10 @@ class UserOperations
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'users (user_id, username, password, active, first_name, last_name, email, admin_access, create_date, modified_date) VALUES (?,?,?,?,?,?,?,?,'.$time.','.$time.')';
 		$dbresult = $db->Execute($query, [$new_user_id, $user->username, $user->password, $user->active, $user->firstname, $user->lastname, $user->email, 1]); //Force admin access on
 		if ($dbresult !== false) {
-			$result = $new_user_id;
+			return $new_user_id;
 		}
 
-		return $result;
+		return -1;
 	}
 
 	/**
