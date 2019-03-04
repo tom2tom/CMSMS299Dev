@@ -177,27 +177,27 @@ final class cms_config implements ArrayAccess
                 if( isset(self::KNOWN[$key]) ) {
                     switch( self::KNOWN[$key] ) {
                     case self::TYPE_STRING:
-						switch( $key ) {
-						case 'assets_path':
-						case 'image_uploads_path':
-						case 'public_cache_location':
-						case 'root_path':
-						case 'tmp_cache_location':
-						case 'tmp_templates_c_location':
-						case 'uploads_path':
-							$value = rtrim($value,' /\\');
-							break;
-						case 'admin_url':
-						case 'assets_url':
-						case 'image_uploads_url':
-						case 'public_cache_url':
-						case 'root_url':
-						case 'uploads_url':
-							$value = rtrim($value,' /');
-							break;
-						}
+                        switch( $key ) {
+                        case 'assets_path':
+                        case 'image_uploads_path':
+                        case 'public_cache_location':
+                        case 'root_path':
+                        case 'tmp_cache_location':
+                        case 'tmp_templates_c_location':
+                        case 'uploads_path':
+                            $value = rtrim($value,' /\\');
+                            break;
+                        case 'admin_url':
+                        case 'assets_url':
+                        case 'image_uploads_url':
+                        case 'public_cache_url':
+                        case 'root_url':
+                        case 'uploads_url':
+                            $value = rtrim($value,' /');
+                            break;
+                        }
                         $value = trim($value);
-	                    break;
+                        break;
 
                     case self::TYPE_BOOL:
                         $value = cms_to_bool($value);
@@ -254,17 +254,19 @@ final class cms_config implements ArrayAccess
     }
 
     /**
+     * interface method
      * @ignore
      */
-    public function offsetExists(string $key)
+    public function offsetExists($key)
     {
         return isset(self::KNOWN[$key]) || isset($this->_data[$key]);
     }
 
     /**
+     * interface method
      * @ignore
      */
-    public function offsetGet(string $key)
+    public function offsetGet($key)
     {
         // hardcoded config vars
         // usually old values valid in past versions.
@@ -498,9 +500,10 @@ final class cms_config implements ArrayAccess
     }
 
     /**
+     * interface method
      * @ignore
      */
-    public function offsetSet(string $key,$value)
+    public function offsetSet($key,$value)
     {
         global $CMS_INSTALL_PAGE;
         if( !isset($CMS_INSTALL_PAGE) ) {
@@ -511,9 +514,10 @@ final class cms_config implements ArrayAccess
     }
 
     /**
+     * interface method
      * @ignore
      */
-    public function offsetUnset(string $key)
+    public function offsetUnset($key)
     {
         trigger_error('Unsetting config variable '.$key.' is invalid',E_USER_ERROR);
     }
@@ -574,8 +578,8 @@ final class cms_config implements ArrayAccess
     }
 
     /**
-     * A function to save the current state of the config.php file.  Any existing file is backed up
-     * before overwriting.
+     * Save the current state of the config.php file in TMP_CACHE_LOCATION.
+     * Any existing file is backed up before overwriting.
      *
      *
      * @param bool $verbose indicates whether comments should be stored in the config.php file.
@@ -607,7 +611,7 @@ final class cms_config implements ArrayAccess
     /**
      * Returns either the http root url or the https root url depending upon the request mode.
      *
-     * @deprecated
+     * @deprecated since 2.3 use 'root_url'
      * @return string
      */
     public function smart_root_url() : string
@@ -618,7 +622,7 @@ final class cms_config implements ArrayAccess
     /**
      * Returns either the http uploads url or the https uploads url depending upon the request mode.
      *
-     * @deprecated
+     * @deprecated since 2.3 use 'uploads_url'
      * @return string
      */
     public function smart_uploads_url() : string
@@ -629,7 +633,7 @@ final class cms_config implements ArrayAccess
     /**
      * Returns either the http image uploads url or the https image uploads url depending upon the request mode.
      *
-     * @deprecated
+     * @deprecated since 2.3 use 'image_uploads_url'
      * @return string
      */
     public function smart_image_uploads_url() : string
