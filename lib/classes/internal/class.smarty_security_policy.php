@@ -19,6 +19,7 @@
 namespace CMSMS\internal;
 
 use CmsApp;
+use Smarty;
 use Smarty_Security;
 
 /**
