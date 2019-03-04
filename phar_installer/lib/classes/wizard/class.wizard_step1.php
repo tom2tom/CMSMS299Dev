@@ -53,16 +53,17 @@ class wizard_step1 extends wizard_step
         case 'plugins':
             if( is_file($dir.DIRECTORY_SEPARATOR.'function.cms_selflink.php') ) return FALSE;
             break;
-
+/*
         case 'install':
             if( is_dir($dir.DIRECTORY_SEPARATOR.'schemas') ) return FALSE;
             break;
-
+*/
         case 'tmp':
             if( is_dir($dir.DIRECTORY_SEPARATOR.'cache') ) return FALSE;
             break;
 
         case 'phar_installer':
+        case 'installer':
         case 'doc':
         case 'build':
         case 'admin':
