@@ -27,6 +27,7 @@ use function file_put_contents;
 /**
  * Singleton class to process file- (a.k.a user-defined) plugin files
  *
+ * @final
  * @author      Robert Campbell <calguy1000@cmsmadesimple.org>
  * @since       2.3
  * @package     CMS
@@ -49,7 +50,7 @@ final class FilePluginOperations
      */
     private function __clone() {}
 
-    final public static function &get_instance() : self
+    public static function get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
