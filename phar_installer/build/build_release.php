@@ -45,7 +45,7 @@ $src_excludes = [
 '/scripts\/|scripts$/',
 '/svn-.*/',
 '/tests\/|tests$/',
-'/UNUSED.+/',
+'/UNUSED.*/',
 '/uploads\/.+/',
 ];
 //TODO root-dir  '/\.htaccess$/',
@@ -63,7 +63,7 @@ $phar_excludes = [
 '/out\/|out$/',
 '/scripts\/|scripts$/',
 '/source\/|source$/',
-'/UNUSED.+/',
+'/UNUSED.*/',
 ];
 //'/README.*/',
 
@@ -567,18 +567,21 @@ try {
 		$destname = $basename.'.phar';
 		$destname2 = $basename.'.php';
 
+		@copy($version_php, joinpath($datadir, 'version.php'));
+
 		if (function_exists('finfo_open')) {
 			$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		} else {
 			$finfo = null;
 		}
+
 		$len = strlen($phardir.DIRECTORY_SEPARATOR);
 		$matches = null;
 
 		// new phar file
 		$fp = joinpath($outdir, $destname);
 		verbose(1, "INFO: Creating phar file $fp");
-		$phar = new Phar($fp);
+		$phar = new Phar($fp); // no iterator flags, we will self-manage
 		$phar->startBuffering();
 
 		$relpath = joinpath('assets', 'config.ini');
@@ -592,8 +595,6 @@ build_user = $u
 build_host = $h
 EOS;
 		$phar[$relpath]->setMetaData(['mime-type'=>'text/plain']);
-
-		@copy($version_php, joinpath($datadir, 'version.php'));
 
 		$iter = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($phardir,
@@ -706,7 +707,7 @@ EOS;
 */
 //			rchmod($phardir); NO: build scripts are there
 
-			$pharname = basename($phardir).DIRECTORY_SEPARATOR;
+			$pharname = 'installer'.DIRECTORY_SEPARATOR;
 			$len = strlen($phardir.DIRECTORY_SEPARATOR);
 			$iter = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator($phardir,
