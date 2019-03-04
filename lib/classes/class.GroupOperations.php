@@ -25,6 +25,7 @@ use const CMS_DB_PREFIX;
  * Many of the Group object functions are just wrappers around these.
  *
  * @since 0.6
+ * @final
  * @package CMS
  * @license GPL
  */
@@ -55,7 +56,7 @@ final class GroupOperations
 	 *
 	 * @return GroupOperations
 	 */
-	final public static function &get_instance() : self
+	public static function get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
@@ -64,6 +65,7 @@ final class GroupOperations
 	/**
 	 * Loads all the groups from the database and returns them
 	 *
+	 * @deprecated use Group::load_all()
 	 * @return array The list of groups
 	 */
 	public function LoadGroups()
@@ -75,11 +77,11 @@ final class GroupOperations
 	/**
 	 * Load a group from the database by its id
 	 *
+	 * @deprecated use Group::load($id)
 	 * @param int $id The id of the group to load
 	 * @return mixed The group if found. If it's not found, then false
-	 * @deprecated
 	 */
-	public function LoadGroupByID($id)
+	public function LoadGroupByID(int $id)
 	{
 		return Group::load($id);
 	}
@@ -87,25 +89,25 @@ final class GroupOperations
 	/**
 	 * Given a group object, inserts it into the database.
 	 *
+	 * @deprecated use Group->save()
 	 * @param mixed $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
-	 * @deprecated
 	 */
 	public function InsertGroup(Group $group)
 	{
-		$group->save();
+		return $group->save();
 	}
 
 	/**
 	 * Given a group object, update its attributes in the database.
 	 *
+	 * @deprecated use Group->save()
 	 * @param mixed $group The group to update
 	 * @return bool True if the update was successful, false if not
-	 * @deprecated
 	 */
-	public function UpdateGroup(Group $group)
+	public function UpdateGroup(Group $group) : bool
 	{
-		$group->save();
+		return $group->save() == -1;
 	}
 
 	/**
@@ -113,9 +115,8 @@ final class GroupOperations
 	 *
 	 * @param int $id The group's id to delete
 	 * @return bool True if the delete was successful. False if not.
-	 * @deprecated
 	 */
-	public function DeleteGroupByID($id)
+	public function DeleteGroupByID(int $id) : bool
 	{
 		try {
 			$group = Group::load($id);
@@ -133,7 +134,7 @@ final class GroupOperations
 	 * @param string $perm The permission name
 	 * @return bool
 	 */
-	public function CheckPermission($groupid,$perm)
+	public function CheckPermission(int $groupid,string $perm) : bool
 	{
 		if( $groupid == 1 ) return TRUE;
 		$permid = CmsPermission::get_perm_id($perm);
@@ -155,7 +156,7 @@ final class GroupOperations
 	 * @param int $groupid The group id
 	 * @param string $perm The permission name
 	 */
-	public function GrantPermission($groupid,$perm)
+	public function GrantPermission(int $groupid,string $perm)
 	{
 		$permid = CmsPermission::get_perm_id($perm);
 		if( $permid < 1 ) return;
@@ -180,7 +181,7 @@ VALUES (?,?,?,$now,NULL)";
 	 * @param int $groupid The group id
 	 * @param string $perm The permission name
 	 */
-	public function RemovePermission($groupid,$perm)
+	public function RemovePermission(int $groupid,string $perm)
 	{
 		$permid = CmsPermission::get_perm_id($perm);
 		if( $permid < 1 ) return;
