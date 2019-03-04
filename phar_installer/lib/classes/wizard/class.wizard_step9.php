@@ -94,10 +94,10 @@ class wizard_step9 extends wizard_step
         $admin_url .= $aname;
 
         if( $app->has_custom_destdir() || !$app->in_phar() ) {
-            $msg = lang('finished_custom_upgrade_msg',$admin_url,$url));
+            $msg = lang('finished_custom_upgrade_msg',$admin_url,$url);
         }
         else {
-            $msg = lang('finished_upgrade_msg',$url,$admin_url));
+            $msg = lang('finished_upgrade_msg',$url,$admin_url);
         }
         $this->set_block_html('bottom_nav',$msg);
     }
