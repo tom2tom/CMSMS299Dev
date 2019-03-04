@@ -43,12 +43,12 @@ use function munge_string_to_url;
 /**
  * Class for static methods related to content
  *
- * @abstract
+ * @final
  * @since 0.8
  * @package CMS
  * @license GPL
  */
-class ContentOperations
+final class ContentOperations
 {
 	/**
 	 * @ignore
@@ -86,10 +86,10 @@ class ContentOperations
 	private function __clone() {}
 
 	/**
-	 * Return a reference to the only allowed instance of this singleton object
+	 * Return the only allowed instance of this singleton object
 	 * @return ContentOperations
 	 */
-	final public static function &get_instance() : self
+	public static function get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
@@ -132,7 +132,7 @@ class ContentOperations
 	 * Return a content object for the currently requested page.
 	 *
 	 * @since 1.9
-	 * @return getContentObject()
+	 * @return mixed A content object derived from ContentBase, or null
 	 */
 	public function getContentObject()
 	{
@@ -151,7 +151,7 @@ class ContentOperations
 	 * @param  array $data
 	 * @return mixed A content object derived from ContentBase, or false
 	 */
-	public function LoadContentFromSerializedData(&$data)
+	public function LoadContentFromSerializedData(array &$data)
 	{
 		if( !isset($data['serialized_content']) ) return FALSE;
 
@@ -169,11 +169,11 @@ class ContentOperations
 	 *
 	 * @internal
 	 * @access private
-	 * @final
 	 * @since 1.9
 	 * @param mixed The type.  Either a string, or an instance of ContentTypePlaceHolder
+	 * @return mixed
 	 */
-	final public function LoadContentType($type)
+	public function LoadContentType($type)
 	{
 		if( is_object($type) && $type instanceof ContentTypePlaceHolder ) $type = $type->type;
 
@@ -271,7 +271,7 @@ class ContentOperations
 	 *
 	 * @return int The id of the default content page
 	 */
-	public function GetDefaultContent()
+	public function GetDefaultContent() : int
 	{
 		return global_cache::get('default_content');
 	}
@@ -364,7 +364,7 @@ class ContentOperations
 	 * @since 1.9
 	 * @param ContentTypePlaceHolder Reference to placeholder object
 	 */
-	public function register_content_type(ContentTypePlaceHolder $obj)
+	public function register_content_type(ContentTypePlaceHolder $obj) : bool
 	{
 		$this->_get_content_types();
 		if( isset($this->_content_types[$obj->type]) ) return FALSE;
@@ -381,7 +381,7 @@ class ContentOperations
 	 * @param bool $byclassname optionally return keys as class names.
 	 * @param bool $allowed optionally trim the list of content types that are allowed by the site preference.
 	 * @param bool $system return only system content types.
-	 * @return array List of content types registered in the system.
+	 * @return mixed array List of content types registered in the system | null
 	 */
 	public function ListContentTypes(bool $byclassname = false,bool $allowed = false,bool $system = FALSE)
 	{
@@ -417,7 +417,7 @@ class ContentOperations
 	 *
 	 * @internal
 	 * @ignore
-	 * @param integer $contentid The content id to update
+	 * @param integer $content_id The content id to update
 	 * @param array $hash A hash of all content objects (only certain fields)
 	 * @return mixed array|null
 	 */
@@ -521,7 +521,7 @@ class ContentOperations
 	/**
 	 * Loads a set of content objects into the cached tree.
 	 *
-	 * @param bool $loadcontent If false, only create the nodes in the tree, don't load the content objects
+	 * @param bool $loadcontent UNUSED If false, only create the nodes in the tree, don't load the content objects
 	 * @return cms_content_tree The cached tree of content
 	 * @deprecated
 	 */
@@ -532,8 +532,8 @@ class ContentOperations
 	}
 
 	/**
-	 * Load All content in thedatabase into memory
-	 * Use with caution this can chew up alot of memory on larger sites.
+	 * Load All content in the database into memory
+	 * Use with caution this can chew up a lot of memory on larger sites.
 	 *
 	 * @param bool $loadprops Load extended content properties or just the page structure and basic properties
 	 * @param bool $inactive  Load inactive pages as well
