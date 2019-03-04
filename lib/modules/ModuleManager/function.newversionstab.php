@@ -19,8 +19,6 @@
 use ModuleManager\modulerep_client;
 use ModuleManager\utils;
 
-global $CMS_VERSION;
-
 //TODO what's expected to go into the alternate dir ?
 $dir = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'modules';
 $caninstall = (is_dir($dir) && is_writable($dir));
@@ -92,8 +90,8 @@ if( $newversions ) {
                 $moddir = $moduledir.DIRECTORY_SEPARATOR.$row['name'];
                 if( (($writable && is_dir($moddir) && is_directory_writable( $moddir )) ||
                      ($writable && !file_exists( $moddir ) )) && $caninstall ) {
-                    if( (!empty($row['maxcmsversion']) && version_compare($CMS_VERSION,$row['maxcmsversion']) > 0) ||
-                        (!empty($row['mincmsversion']) && version_compare($CMS_VERSION,$row['mincmsversion']) < 0) ) {
+                    if( (!empty($row['maxcmsversion']) && version_compare(CMS_VERSION,$row['maxcmsversion']) > 0) ||
+                        (!empty($row['mincmsversion']) && version_compare(CMS_VERSION,$row['mincmsversion']) < 0) ) {
                         $onerow->status = 'incompatible';
                     } else {
                         $onerow->status = $this->CreateLink( $id, 'installmodule', $returnid,

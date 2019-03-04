@@ -99,11 +99,10 @@ final class modulerep_client
         if( !$url )	return [false,$mod->Lang('error_norepositoryurl')];
         $url .= '/moduledetailsgetall';
 
-        global $CMS_VERSION;
         $data = ['newest'=>$newest];
         if( $prefix ) $data['prefix'] = ltrim($prefix);
         if( $exact ) $data['exact'] = 1;
-        $data['clientcmsversion'] = $CMS_VERSION;
+        $data['clientcmsversion'] = CMS_VERSION;
 
         $req = new cached_request();
         $req->execute($url,$data);

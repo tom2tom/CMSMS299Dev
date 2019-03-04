@@ -157,15 +157,14 @@ abstract class installer_base
             $this->_dest_schema = $ver['schema_version'];
         }
         else {
-            global $CMS_VERSION, $CMS_VERSION_NAME, $CMS_SCHEMA_VERSION;
             $verfile = dirname($src_archive).DIRECTORY_SEPARATOR.'version.php';
             if( !is_file($verfile) ) throw new Exception('Could not find version file');
             include_once $verfile;
-            $ver = ['version' => $CMS_VERSION, 'version_name' => $CMS_VERSION_NAME, 'schema_version' => $CMS_SCHEMA_VERSION];
+            $ver = ['version' => CMS_VERSION, 'version_name' => CMS_VERSION_NAME, 'schema_version' => CMS_SCHEMA_VERSION];
             $sess[__CLASS__.'version'] = $ver;
-            $this->_dest_version = $CMS_VERSION;
-            $this->_dest_name = $CMS_VERSION_NAME;
-            $this->_dest_schema = $CMS_SCHEMA_VERSION;
+            $this->_dest_version = CMS_VERSION;
+            $this->_dest_name = CMS_VERSION_NAME;
+            $this->_dest_schema = CMS_SCHEMA_VERSION;
         }
 
         $this->_have_phar = extension_loaded('phar');

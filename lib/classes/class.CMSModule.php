@@ -507,8 +507,7 @@ abstract class CMSModule
      */
     public function MinimumCMSVersion()
     {
-        global $CMS_VERSION;
-        return $CMS_VERSION;
+        return CMS_VERSION;
     }
 
     /**

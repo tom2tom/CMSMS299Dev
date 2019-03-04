@@ -21,17 +21,17 @@ class step_2 extends cli_step
         if( !is_file($dir.'/config.php') ) return;
         if( !is_file($dir.'/lib/misc.functions.php') ) return;
 
-        $info = array();
-        if( is_file("$dir/version.php") ) {
-            @include_once($dir.'/version.php');
-            $info['mtime'] = filemtime($dir.'/version.php');
-        } else {
-            @include_once("$dir/lib/version.php");
+        $info = [];
+        if( is_file("$dir/lib/version.php") ) {
+            @include_once "$dir/lib/version.php";
             $info['mtime'] = filemtime($dir.'/lib/version.php');
+        } else {
+            @include_once $dir.'/version.php';
+            $info['mtime'] = filemtime($dir.'/version.php');
         }
-        $info['version'] = $CMS_VERSION;
-        $info['version_name'] = $CMS_VERSION_NAME;
-        $info['schema_version'] = $CMS_SCHEMA_VERSION;
+        $info['version'] = CMS_VERSION;
+        $info['version_name'] = CMS_VERSION_NAME;
+        $info['schema_version'] = CMS_SCHEMA_VERSION;
         $info['config_file'] = $dir.'/config.php';
 
         $app = get_app();
@@ -44,9 +44,7 @@ class step_2 extends cli_step
         $fn = $dir.'/config.php';
         include_once $fn;
         $info['config'] = $config;
-        if( isset($config['admin_dir']) ) {
-            if( $config['admin_dir'] != 'admin' ) throw new Exception(lang('error_admindirrenamed'));
-        }
+
         return $info;
     }
 

@@ -93,7 +93,6 @@ final class utils
 
 	/**
 	 *
-	 * @global type $CMS_VERSION
 	 * @param type $xmldetails
 	 * @param type $installdetails
 	 * @param type $newest
@@ -160,11 +159,10 @@ final class utils
         // Do a third loop
         // and check min and max cms version
         //
-        global $CMS_VERSION;
         $results2 = [];
         foreach( $results as $oneresult ) {
-            if( (!empty($oneresult['maxcmsversion']) && version_compare($CMS_VERSION,$oneresult['maxcmsversion']) > 0) ||
-                (!empty($oneresult['mincmsversion']) && version_compare($CMS_VERSION,$oneresult['mincmsversion']) < 0) ) {
+            if( (!empty($oneresult['maxcmsversion']) && version_compare(CMS_VERSION,$oneresult['maxcmsversion']) > 0) ||
+                (!empty($oneresult['mincmsversion']) && version_compare(CMS_VERSION,$oneresult['mincmsversion']) < 0) ) {
                 $oneresult['status'] = 'incompatible';
             }
             $results2[] = $oneresult;

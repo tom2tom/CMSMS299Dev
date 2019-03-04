@@ -96,10 +96,10 @@ class wizard_step1 extends wizard_step
         $bn = basename($dir);
         if( $bn != 'lib' && is_file($dir.DIRECTORY_SEPARATOR.'version.php' ) ) {
             @include $dir.DIRECTORY_SEPARATOR.'version.php'; // defines in this file can throw notices
-            if( isset($CMS_VERSION) ) return "CMSMS $CMS_VERSION";
+            return 'CMSMS '.CMS_VERSION;
         } elseif( is_file($dir.DIRECTORY_SEPARATOR.'lib/version.php') ) {
             @include $dir.DIRECTORY_SEPARATOR.'lib/version.php'; // defines in this file can throw notices
-            if( isset($CMS_VERSION) ) return "CMSMS $CMS_VERSION";
+            return 'CMSMS '.CMS_VERSION;
         }
 
         if( is_dir($dir.DIRECTORY_SEPARATOR.'assets') && is_file($dir.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {

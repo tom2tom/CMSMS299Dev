@@ -718,7 +718,7 @@ function get_version(string $basedir) : array
         error_reporting(0);
         require $file;
         error_reporting($lvl);
-        return [$CMS_VERSION, $CMS_VERSION_NAME];
+        return [CMS_VERSION, CMS_VERSION_NAME];
     }
     return ['',''];
 }

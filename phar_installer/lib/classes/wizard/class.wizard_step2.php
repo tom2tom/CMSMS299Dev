@@ -41,15 +41,15 @@ class wizard_step2 extends wizard_step
         $info['mdate'] = $dt->format('j F Y');
         $info['mtime'] = $t;
         include_once $fv;
-        $info['version'] = $CMS_VERSION;
-        $info['version_name'] = $CMS_VERSION_NAME;
-        $info['schema_version'] = $CMS_SCHEMA_VERSION;
+        $info['version'] = CMS_VERSION;
+        $info['version_name'] = CMS_VERSION_NAME;
+        $info['schema_version'] = CMS_SCHEMA_VERSION;
 
         $app_config = $app->get_config();
         if( !isset($app_config['min_upgrade_version']) ) throw new Exception(lang('error_missingconfigvar','min_upgrade_version'));
-        if( version_compare($CMS_VERSION,$app_config['min_upgrade_version']) < 0 ) $info['error_status'] = 'too_old';
-        if( version_compare($CMS_VERSION,$app->get_dest_version()) == 0 ) $info['error_status'] = 'same_ver';
-        if( version_compare($CMS_VERSION,$app->get_dest_version()) > 0 ) $info['error_status'] = 'too_new';
+        if( version_compare(CMS_VERSION,$app_config['min_upgrade_version']) < 0 ) $info['error_status'] = 'too_old';
+        if( version_compare(CMS_VERSION,$app->get_dest_version()) == 0 ) $info['error_status'] = 'same_ver';
+        if( version_compare(CMS_VERSION,$app->get_dest_version()) > 0 ) $info['error_status'] = 'too_new';
 
         $info['config'] = $config;
         return $info;

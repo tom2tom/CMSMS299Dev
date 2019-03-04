@@ -539,7 +539,7 @@ try {
 	}
 
 	include_once $version_php;
-	$version_num = $CMS_VERSION;
+	$version_num = CMS_VERSION;
 	verbose(1, "INFO: found version: $version_num");
 
 	$fp = joinpath($phardir, 'assets', 'upgrade', $version_num);

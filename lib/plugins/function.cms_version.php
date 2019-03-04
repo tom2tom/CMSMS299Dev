@@ -1,5 +1,5 @@
 <?php
-#Plugin to...
+#Plugin to get a string identifying the current version of CMSMS
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -18,14 +18,12 @@
 
 function smarty_function_cms_version($params, $template)
 {
-	global $CMS_VERSION;
-
 	if( isset($params['assign']) ) {
-		$template->assign(trim($params['assign']),$CMS_VERSION);
-		return;
+		$template->assign(trim($params['assign']),CMS_VERSION);
+		return '';
 	}
 
-	return $CMS_VERSION;
+	return CMS_VERSION;
 }
 
 function smarty_cms_about_function_cms_version()

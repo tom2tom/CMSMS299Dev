@@ -19,7 +19,6 @@
 use ModuleManager\modulerep_client;
 use ModuleManager\utils;
 
-global $CMS_VERSION;
 $dir = CMS_ASSETS_PATH.'/modules';
 $caninstall = (is_dir($dir) && is_writable($dir));
 
