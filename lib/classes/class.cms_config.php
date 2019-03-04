@@ -21,6 +21,7 @@
  *
  * This class uses the ArrayAccess interface to behave like a PHP array.
  *
+ * @final
  * @since 1.9
  * @package CMS
  * @license GPL
@@ -241,7 +242,7 @@ final class cms_config implements ArrayAccess
      *
      * @return cms_config
      */
-    final public static function &get_instance() : self
+    public static function get_instance() : self
     {
         if (!isset(self::$_instance)) {
             self::$_instance = new self();
@@ -255,7 +256,7 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    public function offsetExists($key)
+    public function offsetExists(string $key)
     {
         return isset(self::KNOWN[$key]) || isset($this->_data[$key]);
     }
@@ -263,7 +264,7 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    public function offsetGet($key)
+    public function offsetGet(string $key)
     {
         // hardcoded config vars
         // usually old values valid in past versions.
@@ -499,7 +500,7 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    public function offsetSet($key,$value)
+    public function offsetSet(string $key,$value)
     {
         global $CMS_INSTALL_PAGE;
         if( !isset($CMS_INSTALL_PAGE) ) {
@@ -512,7 +513,7 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    public function offsetUnset($key)
+    public function offsetUnset(string $key)
     {
         trigger_error('Unsetting config variable '.$key.' is invalid',E_USER_ERROR);
     }
@@ -550,7 +551,7 @@ final class cms_config implements ArrayAccess
     /**
      * @ignore
      */
-    private function _printable_value($key,$value)
+    private function _printable_value(string $key,$value) : string
     {
         if( isset(self::KNOWN[$key]) ) $type = self::KNOWN[$key];
         else $type = self::TYPE_STRING;
@@ -580,7 +581,7 @@ final class cms_config implements ArrayAccess
      * @param bool $verbose indicates whether comments should be stored in the config.php file.
      * @param string $filename An optional complete file specification.  If not specified the standard config file location will be used.
      */
-    public function save($verbose = true,$filename = '')
+    public function save(bool $verbose = true,string $filename = '')
     {
         if( !$filename ) $filename = CONFIG_FILE_LOCATION;
 
@@ -609,7 +610,7 @@ final class cms_config implements ArrayAccess
      * @deprecated
      * @return string
      */
-    public function smart_root_url()
+    public function smart_root_url() : string
     {
         return $this->offsetGet('root_url');
     }
@@ -620,7 +621,7 @@ final class cms_config implements ArrayAccess
      * @deprecated
      * @return string
      */
-    public function smart_uploads_url()
+    public function smart_uploads_url() : string
     {
         return $this->offsetGet('uploads_url');
     }
@@ -631,7 +632,7 @@ final class cms_config implements ArrayAccess
      * @deprecated
      * @return string
      */
-    public function smart_image_uploads_url()
+    public function smart_image_uploads_url() : string
     {
         return $this->offsetGet('image_uploads_url');
     }
