@@ -16,7 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE=1;
+use CMSMS\BookmarkOperations;
+
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -28,7 +30,7 @@ if (!isset($_GET['bookmark_id'])) {
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 
-$bookops = CMSMS\BookmarkOperations::get_instance();
+$bookops = BookmarkOperations::get_instance();
 $bookmark_id = (int)$_GET['bookmark_id'];
 $markobj = $bookops->LoadBookmarkByID($bookmark_id);
 
