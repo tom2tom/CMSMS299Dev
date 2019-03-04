@@ -16,9 +16,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\Smarty;
-
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -79,7 +77,7 @@ EOS;
 }
 
 // smarty
-$smarty = Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->registerPlugin('function', 'si_lang', function($params, $smarty)
 {
     if ($params) {
@@ -101,7 +99,7 @@ $smarty->assign('themename', $themeObject->themeName)
 // CMSMS install information
  ->assign('cms_version', $GLOBALS['CMS_VERSION']);
 
-$db = cmsms()->GetDb();
+$db = CmsApp::get_instance()->GetDb();
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'modules WHERE active=1';
 $modules = $db->GetArray($query);
 asort($modules);

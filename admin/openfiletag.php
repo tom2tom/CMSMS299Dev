@@ -15,10 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\Smarty;
 use CMSMS\FilePluginOperations;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -127,7 +126,7 @@ $themeObject->add_footertext($js);
 
 $selfurl = basename(__FILE__);
 
-$smarty = Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'name' => $tagname,
     'description' => $meta['description'] ?? null,

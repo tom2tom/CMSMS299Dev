@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\internal\Smarty;
+
 /**
  * A class of static utility/convenience methods.
  *
@@ -80,7 +82,7 @@ final class cms_utils
 	 * the installed version is greater than or equal to the supplied version.
 	 *
 	 * @see version_compare()
-	 * @see ModuleOperations::get_module_instance
+	 * @see ModuleOperations::get_module_instance()
 	 * @since 1.9
 	 * @param string $name The module name
 	 * @param string $version An optional version string
@@ -137,11 +139,11 @@ final class cms_utils
 	 *
 	 * @see CmsApp::GetSmarty()
 	 * @since 1.9
-	 * @return CMSMS\internal\Smarty handle to the Smarty object
+	 * @return Smarty handle to the Smarty object
 	 */
-	public static function get_smarty() : CMSMS\internal\Smarty
+	public static function get_smarty() : Smarty
 	{
-		return \CMSMS\internal\Smarty::get_instance();
+		return CmsApp::get_instance()->GetSmarty();
 	}
 
 

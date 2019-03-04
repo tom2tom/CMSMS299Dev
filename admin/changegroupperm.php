@@ -18,7 +18,6 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\HookManager;
-use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE = 1;
 //$CMS_ADMIN_TITLE = 'whatever';
@@ -43,14 +42,14 @@ if (!$access) {
     return;
 }
 
-$gCms = cmsms();
+$gCms = CmsApp::get_instance();
 $userops = $gCms->GetUserOperations();
 $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $group_name = '';
 $message = '';
 
 $db = $gCms->GetDb();
-$smarty = Smarty::get_instance();
+$smarty = $gcms->GetSmarty();
 
 $load_perms = function () use ($db) {
     $query = 'SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id FROM '.

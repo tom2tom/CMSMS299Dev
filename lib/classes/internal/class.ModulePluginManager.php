@@ -122,7 +122,7 @@ final class ModulePluginManager
 	{
 		$tmp = global_cache::get('session_plugin_modules'); //module-names NOT cached in the database
 		if( $tmp ) {
-			$smarty = Smarty::get_instance();
+			$smarty = CmsApp::get_instance()->GetSmarty();
 			foreach( $tmp as $module_name ) {
 				//c.f. some-module-object->RegisterModulePlugin();
 				try {

@@ -17,7 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\HookManager;
-use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 
 //REMINDER: vars defined here might be used as globals by downstream hook functions
@@ -74,7 +73,7 @@ if ($modinst->SuppressAdminOutput($_REQUEST)) {
 }
 
 $params = $modops->GetModuleParameters($id);
-$smarty = ($CMS_JOB_TYPE < 2) ? Smarty::get_instance() : null;
+$smarty = ($CMS_JOB_TYPE < 2) ? CmsApp::get_instance()->GetSmarty() : null;
 
 switch ($CMS_JOB_TYPE) {
 	case 0:

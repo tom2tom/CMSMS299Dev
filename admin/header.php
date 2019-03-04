@@ -18,7 +18,6 @@
 
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
-use CMSMS\internal\Smarty;
 
 // variables for general use
 if (!isset($CMS_LOGIN_PAGE)) {
@@ -28,7 +27,7 @@ if (!isset($themeObject)) {
 	$themeObject = cms_utils::get_theme_object();
 }
 if (!isset($smarty)) {
-	$smarty = Smarty::get_instance();
+	$smarty = CmsApp::get_instance()->GetSmarty();
 }
 $config = cms_config::get_instance();
 

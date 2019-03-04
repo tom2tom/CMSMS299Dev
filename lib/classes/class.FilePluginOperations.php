@@ -19,7 +19,6 @@
 namespace CMSMS;
 
 use CmsApp;
-use CMSMS\internal\Smarty;
 use InvalidArgumentException;
 use RuntimeException;
 use const CMS_ASSETS_PATH;
@@ -174,7 +173,7 @@ final class FilePluginOperations
 			// variables which might be needed during content eval
             $params = [];
 	        if (empty($CMS_INSTALL_PAGE)) {
-				$smarty = Smarty::get_instance();
+				$smarty = CmsApp::get_instance()->GetSmarty();
 			}
             $template = $smarty;
 
@@ -372,9 +371,8 @@ EOS;
                 $db = $gCms->GetDb();
                 $config = $gCms->GetConfig();
                 $smarty = $gCms->GetSmarty();
-                include_once $fp;
+                return include_once $fp;
             }
         }
     }
 } // class
-

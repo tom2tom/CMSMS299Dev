@@ -18,7 +18,6 @@
 
 use CMSMS\Events;
 use CMSMS\Group;
-use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -77,7 +76,7 @@ if (isset($_POST['addgroup'])) {
 
 $selfurl = basename(__FILE__);
 
-$smarty = Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'access' => $access,
     'active' => $active,
@@ -90,4 +89,3 @@ $smarty->assign([
 include_once 'header.php';
 $smarty->display('addgroup.tpl');
 include_once 'footer.php';
-

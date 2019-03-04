@@ -17,7 +17,6 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\AdminUtils;
-use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
 use CMSMS\UserOperations;
@@ -107,7 +106,7 @@ EOS;
 	 */
 	public function do_toppage($section_name)
 	{
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		if ($section_name) {
 //			$smarty->assign('section_name', $section_name);
 			$nodes = $this->get_navigation_tree($section_name, 0);
@@ -150,7 +149,7 @@ EOS;
 		$fn = $sm->render_scripts('', false, false);
 		$url = cms_path_to_url(TMP_CACHE_LOCATION);
 
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		$smarty->assign('dynamic_js', <<<EOS
 <script type="text/javascript" src="{$url}/{$fn}"></script>
 
@@ -178,7 +177,7 @@ EOS
 			die('System error');
 		}
 
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		$smarty->assign($data);
 		$config = cms_config::get_instance();
 		// TODO
@@ -210,7 +209,7 @@ EOS
 			die('System error');
 		}
 
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		$smarty->assign($data);
 
 		//extra shared parameters for the form
@@ -254,7 +253,7 @@ EOS;
 	 */
 	public function postprocess($html)
 	{
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
         $uid = get_userid(false);
 
 		// setup titles etc

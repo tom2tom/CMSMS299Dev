@@ -20,7 +20,6 @@ namespace CMSContentManager;
 
 use cms_utils;
 use CMSContentManager\EditContentAssistant;
-use CMSMS\internal\Smarty;
 
 class ContentEditContentAssistant extends EditContentAssistant
 {
@@ -28,7 +27,7 @@ class ContentEditContentAssistant extends EditContentAssistant
 	public function getExtraCode()
 	{
 		$mod = cms_utils::get_module('CMSContentManager');
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		$tpl = $smarty->createTemplate( $mod->GetTemplateResource( 'content_editcontent_extra.tpl' ),null,null,$smarty );
 		return $tpl->fetch();
 	}

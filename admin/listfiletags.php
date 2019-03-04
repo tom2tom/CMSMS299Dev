@@ -15,7 +15,6 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\internal\Smarty;
 use CMSMS\FilePluginOperations;
 
 $CMS_ADMIN_PAGE=1;
@@ -54,8 +53,7 @@ $iconinfo = $themeObject->DisplayImage('icons/system/help.png', lang('parameters
 
 $selfurl = basename(__FILE__);
 
-$smarty = Smarty::get_instance();
-
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'access' => $access,
     'addurl' => 'openfiletag.php',

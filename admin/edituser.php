@@ -19,7 +19,6 @@
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\GroupOperations;
-use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
 use Exception;
 
@@ -248,8 +247,6 @@ if (isset($_POST['submit'])) {
  * Display view
  ---------------------*/
 
-$smarty = Smarty::get_instance();
-
 if (!empty($error)) {
     $themeObject->RecordNotice('error', $error);
 }
@@ -261,6 +258,8 @@ foreach ($userlist as $one) {
     if ($one->id == $user_id) continue;
     $out[$one->id] = $one->username;
 }
+
+$smarty = CmsApp::get_instance()->GetSmarty();
 
 if ($assign_group_perm && !$access_user) {
     $groups = GroupOperations::get_instance()->LoadGroups();

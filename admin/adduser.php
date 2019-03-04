@@ -17,6 +17,9 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
+use CMSMS\GroupOperations;
+use CMSMS\User;
+use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -147,7 +150,7 @@ if (isset($_POST['submit'])) {
     $copyusersettings  = null;
 }
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 
 /*--------------------
  * Display view
@@ -190,3 +193,4 @@ $smarty->assign([
 include_once 'header.php';
 $smarty->display('adduser.tpl');
 include_once 'footer.php';
+

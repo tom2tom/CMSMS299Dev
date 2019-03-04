@@ -23,7 +23,6 @@ use CmsApp;
 use CMSModule;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
-use CMSMS\internal\Smarty;
 use const CMS_DB_PREFIX;
 use function debug_buffer;
 use function lang;
@@ -181,7 +180,7 @@ EOS;
 					break;
 				  case 'P': //regular plugin
 					if( $smarty === null ) {
-						$smarty = $smarty = Smarty::get_instance();
+						$smarty = CmsApp::get_instance()->GetSmarty();
 					}
 					if( $smarty->is_plugin($handler) ) {
 						if( function_exists('smarty_function_'.$handler) ) {

@@ -16,8 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE=1;
-$CMS_LOAD_ALL_PLUGINS=1;
+$CMS_ADMIN_PAGE = 1;
+$CMS_LOAD_ALL_PLUGINS = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -54,8 +54,7 @@ $find_file = function($filename) use ($dirs) {
     }
 };
 
-$smarty = CMSMS\internal\Smarty::get_instance();
-
+$smarty = CmsApp::get_instance()->GetSmarty();
 $selfurl = basename(__FILE__);
 
 if ($action == 'showpluginhelp') {

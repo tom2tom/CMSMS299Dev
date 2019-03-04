@@ -17,9 +17,8 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
-use CMSMS\internal\Smarty;
 
-$CMS_ADMIN_PAGE=1;
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -94,7 +93,7 @@ $selfurl = basename(__FILE__);
 $userops = cmsms()->GetUserOperations();
 $useringroup = $userops->UserInGroup($userid, $group_id);
 
-$smarty = Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'active' => $active,
     'description' => $description,

@@ -23,7 +23,6 @@ use cms_http_request;
 use cms_siteprefs;
 use cms_utils;
 use CmsApp;
-use CMSMS\internal\Smarty;
 use ErrorException;
 use FilesystemIterator;
 use LogicException;
@@ -45,7 +44,7 @@ use function startswith;
 
 //this is also used during content installation i.e. STATE_INSTALL_PAGE, or nothing
 /*if( !CmsApp::get_instance()->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
-    $name = __CLASS__; 
+    $name = __CLASS__;
     throw new ErrorException("Attempt to use $name class from an invalid request");
 }
 */
@@ -250,7 +249,7 @@ final class AdminUtils
 	 */
 	public static function get_icon(string $icon, array $attrs = []) : string
 	{
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		$module = $smarty->getTemplateVars('actionmodule');
 
 		if ($module) {
@@ -319,7 +318,7 @@ final class AdminUtils
 		}
 
 		if( !$key1 ) {
-			$smarty = Smarty::get_instance();
+			$smarty = CmsApp::get_instance()->GetSmarty();
 			$module = $smarty->getTemplateVars('actionmodule');
 			if( $module ) {
 				$key1 = $module;

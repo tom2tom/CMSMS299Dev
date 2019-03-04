@@ -18,7 +18,6 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE = 1;
 //$CMS_ADMIN_TITLE = 'whatever';
@@ -45,13 +44,13 @@ if (!$access) {
 
 $group_id = (isset($_GET['group_id'])) ? (int)$_GET['group_id'] : -1;
 
-$gCms = cmsms();
+$gCms = CmsApp::get_instance();
 $userops = $gCms->GetUserOperations();
 $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $message = '';
 
 $db = $gCms->GetDb();
-$smarty = Smarty::get_instance();
+$smarty = $gcms->GetSmarty();
 
 if (isset($_POST['filter'])) {
     $disp_group = cleanValue($_POST['groupsel']);

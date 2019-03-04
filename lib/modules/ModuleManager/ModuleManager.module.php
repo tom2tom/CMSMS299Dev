@@ -84,7 +84,7 @@ class ModuleManager extends CMSModule
     {
         @set_time_limit(9999);
 /*
-        $smarty = CmsApp::get_instance()->GetSmarty(); OR $smarty = \CMSMS\internal\Smarty::get_instance();
+        $smarty = CmsApp::get_instance()->GetSmarty();
         $smarty->assign($this->GetName(), $this);
         $smarty->assign('mod', $this);
 */

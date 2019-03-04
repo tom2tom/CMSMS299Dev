@@ -17,7 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
-use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\FilePluginOperations;
 
@@ -120,7 +119,6 @@ if ($access) {
 		$sendername = lang('core');
 		$description = Events::GetEventDescription($event);
 	} else {
-$ADBG = $_GET;
 		$objinstance = cms_utils::get_module($sender);
 		$sendername  = $objinstance->GetFriendlyName();
 		$description = $objinstance->GetEventDescription($event);
@@ -157,7 +155,7 @@ $ADBG = $_GET;
 
 $selfurl = basename(__FILE__);
 
-$smarty = Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
 	'access' => $access,
 	'allhandlers' => $allhandlers,

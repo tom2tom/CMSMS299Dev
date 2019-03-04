@@ -17,8 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\internal\Smarty;
-
 /**
  * Module: admin login/out processor
  * @since 2.3
@@ -69,7 +67,7 @@ class CoreAdminLogin extends CMSModule //uses CMSMS\AdminLogin
 
         $csrf = bin2hex(random_bytes(16));
 
-        $smarty = Smarty::get_instance();
+        $smarty = CmsApp::get_instance()->GetSmarty();
         $smarty->assign('mod', $this)
          ->assign('actionid', '')
          ->assign('loginurl', 'login.php')

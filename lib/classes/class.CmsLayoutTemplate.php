@@ -20,7 +20,6 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-use CMSMS\internal\Smarty;
 use CMSMS\internal\TemplateCache;
 use CMSMS\User;
 use CMSMS\UserOperations;
@@ -711,7 +710,7 @@ class CmsLayoutTemplate
 	*/
 	public function process()
 	{
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		return $smarty->fetch('cms_template:id='.$this->get_id());
 	}
 
@@ -1326,7 +1325,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	*/
 	public static function process_by_name($name)
 	{
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		return $smarty->fetch('cms_template:name='.$this->get_name());
 	}
 
@@ -1338,7 +1337,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	*/
 	public static function process_dflt($t)
 	{
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		$tpl = self::load_dflt_by_type($t);
 		return $smarty->fetch('cms_template:id='.$tpl->get_id());
 	}

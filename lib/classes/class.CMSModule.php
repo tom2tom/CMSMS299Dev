@@ -23,7 +23,6 @@ use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\bulkcontentoperations;
 use CMSMS\internal\ModulePluginManager;
-use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 
 /**
@@ -368,8 +367,9 @@ abstract class CMSModule
         if( !$static ) {
             global $CMS_INSTALL_PAGE;
             if( !isset($CMS_INSTALL_PAGE) ) {
+                $smarty = CmsApp::get_instance()->GetSmarty();
                 try {
-                    Smarty::get_instance()->registerPlugin('function', $name, [$name,'function_plugin'], $cachable);
+                    $smarty->registerPlugin('function', $name, [$name,'function_plugin'], $cachable);
                 } catch (Exception $e) {/* ignore duplicate registrations */}
             }
             return true;
@@ -1552,7 +1552,7 @@ abstract class CMSModule
                     $gCms = CmsApp::get_instance();
                     $db = $gCms->GetDb();
                     $config = $gCms->GetConfig();
-                    $smarty = $this->_action_tpl ?? Smarty::get_instance();
+                    $smarty = $this->_action_tpl ?? CmsApp::get_instance()->GetSmarty();
                     include $filename;
                     return;
                 }

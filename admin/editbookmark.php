@@ -16,7 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-$CMS_ADMIN_PAGE=1;
+use CMSMS\Bookmark;
+
+$CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 
@@ -78,7 +80,7 @@ if (isset($_POST['editbookmark'])) {
 
 $selfurl = basename(__FILE__);
 
-$smarty = CMSMS\internal\Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'bookmark_id' => $bookmark_id,
     'selfurl' => $selfurl,

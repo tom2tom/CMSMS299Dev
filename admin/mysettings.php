@@ -18,7 +18,6 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\internal\module_meta;
-use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
 use CMSMS\UserOperations;
@@ -129,8 +128,8 @@ $wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
  * Build page
  */
 
-$contentops = cmsms()->GetContentOperations();
-$smarty = Smarty::get_instance();
+$contentops = CmsApp::get_instance()->GetContentOperations();
+$smarty = CmsApp::get_instance()->GetSmarty();
 
 # WYSIWYG editors
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);

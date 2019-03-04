@@ -17,7 +17,6 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\Events;
-use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
@@ -94,8 +93,8 @@ if (isset($_POST['submit'])) {
  */
 $userobj->password = '';
 $selfurl = basename(__FILE__);
-$smarty = Smarty::get_instance();
 
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'selfurl' => $selfurl,
     'urlext' => $urlext,

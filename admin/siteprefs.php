@@ -22,7 +22,6 @@ use CMSMS\contenttypes\Content;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\module_meta;
-use CMSMS\internal\Smarty;
 use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
@@ -582,7 +581,7 @@ EOS;
 $themeObject->add_footertext($out);
 
 $modops = ModuleOperations::get_instance();
-$smarty = Smarty::get_instance();
+$smarty = CmsApp::get_instance()->GetSmarty();
 
 $tmp = [-1 => lang('none')];
 $modules = $modops->get_modules_with_capability('search');

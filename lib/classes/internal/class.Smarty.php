@@ -21,7 +21,6 @@ namespace CMSMS\internal;
 use cms_config;
 use cms_siteprefs;
 use CmsApp;
-use CMSMS\Events;
 use CMSMS\internal\ModulePluginManager;
 use CMSMS\FilePluginOperations;
 use Exception;
@@ -159,16 +158,6 @@ class Smarty extends SmartyParent
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
         }
-    }
-
-    /**
-     * get_instance method
-     * @return object
-     */
-    final public static function &get_instance() : self
-    {
-        if( !self::$_instance ) self::$_instance = new self();
-        return self::$_instance;
     }
 
     /**

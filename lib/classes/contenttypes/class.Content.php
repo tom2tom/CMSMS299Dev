@@ -32,11 +32,9 @@ use CMSMS\ContentOperations;
 use CMSMS\FileType;
 use CMSMS\FormUtils;
 use CMSMS\internal\page_template_parser;
-use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
 use Exception;
 use SmartyException;
-use stdClass;
 use function check_permission;
 use function cms_error;
 use function cms_htmlentities;
@@ -361,7 +359,7 @@ class Content extends ContentBase
 			return $this->_contentBlocks;
 		}
 
-		$smarty = Smarty::get_instance();
+		$smarty = CmsApp::get_instance()->GetSmarty();
 		try {
 			$parser = new page_template_parser('cms_template:'.$this->TemplateId(),$smarty);
 //redundant  page_template_parser::reset();

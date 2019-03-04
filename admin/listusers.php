@@ -18,7 +18,6 @@
 
 use CMSMS\Events;
 use CMSMS\internal\LoginOperations;
-use CMSMS\internal\Smarty;
 use CMSMS\UserOperations;
 
 $CMS_ADMIN_PAGE = 1;
@@ -369,8 +368,7 @@ $icontrue = $themeObject->DisplayImage('icons/system/true.gif', lang('yes'), '',
 $iconfalse = $themeObject->DisplayImage('icons/system/false.gif', lang('no'), '', '', 'systemicon');
 $iconrun = $themeObject->DisplayImage('icons/system/run.gif', lang('TODO'), '', '', 'systemicon'); //used for switch-user
 
-$smarty = Smarty::get_instance();
-
+$smarty = CmsApp::get_instance()->GetSmarty();
 $smarty->assign([
     'addurl' => 'adduser.php',
     'editurl' => 'edituser.php',

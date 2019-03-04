@@ -18,7 +18,6 @@
 
 use cms_installer\installer_base;
 use CMSMS\AdminUtils;
-use CMSMS\internal\Smarty;
 
 $CMS_ADMIN_PAGE = 1;
 //$CMS_ADMIN_TITLE = 'whatever';
@@ -41,15 +40,16 @@ if (!$access) {
 $CMS_BASE = dirname(__DIR__);
 require_once cms_join_path($CMS_BASE, 'lib', 'test.functions.php');
 
-$smarty = Smarty::get_instance();
+$gCms = CmsApp::get_instance();
 
+$smarty = $gCms->GetSmarty();
 $smarty->force_compile = true;
 $smarty->assign('theme', $themeObject);
 
 /*
  * Database
  */
-$db = cmsms()->GetDb();
+$db = $gCms->GetDb();
 $query = "SHOW TABLES LIKE '".CMS_DB_PREFIX."%'";
 $tablestmp = $db->GetArray($query);
 $tables = [];
@@ -150,7 +150,7 @@ if (isset($_POST['clearcache'])) {
     $smarty->assign('active_content', 'true');
 }
 
-$contentops = cmsms()->GetContentOperations();
+$contentops = $gCms->GetContentOperations();
 if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
