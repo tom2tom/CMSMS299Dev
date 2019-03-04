@@ -77,23 +77,20 @@ class Smarty extends SmartyParent
              ->setCacheDir(TMP_CACHE_LOCATION)
              ->addConfigDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'configs');
 
-        $config = cms_config::get_instance();
-        $name = $config['assets_dir'];
-
         // common resources
         $this->registerResource('module_db_tpl',new module_db_template_resource())
              ->registerResource('module_file_tpl',new module_file_template_resource())
              ->registerResource('cms_file',new file_template_resource())
              ->registerResource('cms_template',new layout_template_resource())
              ->registerResource('cms_stylesheet',new layout_stylesheet_resource())
-             ->registerResource('content',new content_template_resource())
+//           ->setDefaultResourceType('cms_file'); MEH... edge-case, only when explicit
 
              ->addPluginsDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'plugins') //plugin-assets prevail
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'plugins')
              ->addPluginsDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'plugins') // deprecated
 
-             ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates')
-             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.$name.DIRECTORY_SEPARATOR.'templates');
+             ->setTemplateDir(CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'templates') //template-assets prevail
+             ->addTemplateDir(CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'templates'); // internal, never renamed
 
         $_gCms = CmsApp::get_instance();
         if( $_gCms->is_frontend_request() ) {
@@ -134,26 +131,29 @@ class Smarty extends SmartyParent
             }
 
             // Load resources
-            $this->registerPlugin('compiler','content','\\CMSMS\internal\\page_template_parser::compile_fecontentblock',false)
-                 ->registerPlugin('function','content_image','\\CMSMS\\internal\content_plugins::fetch_imageblock',false)
-                 ->registerPlugin('function','content_module','\\CMSMS\\internal\\content_plugins::fetch_moduleblock',false)
-                 ->registerPlugin('function','content_text','\\CMSMS\\internal\\content_plugins::fetch_textblock',false)
+            $this->registerResource('content',new content_template_resource())
+                 ->setDefaultResourceType('content');
+            $this->registerPlugin('compiler','content','\\CMSMS\\internal\\page_template_parser::compile_fecontentblock',false)
+                 ->registerPlugin('function','content_image','\\CMSMS\\internal\\content_plugins::fetch_imageblock',true)
+                 ->registerPlugin('function','content_module','\\CMSMS\\internal\\content_plugins::fetch_moduleblock',true)
+                 ->registerPlugin('function','content_text','\\CMSMS\\internal\\content_plugins::fetch_textblock',true)
                  ->registerPlugin('function','process_pagedata','\\CMSMS\\internal\\content_plugins::fetch_pagedata',false);
 
             // Autoload filters
             $this->autoloadFilters();
 
+	        $config = cms_config::get_instance();
             if( !$config['permissive_smarty'] ) {
                 // Apply our security object
                 $this->enableSecurity('\\CMSMS\\internal\\smarty_security_policy');
             }
         }
         elseif( $_gCms->test_state(CmsApp::STATE_ADMIN_PAGE) ) {
-            $this->addConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
+            // our configs folder could be added (i.e. to smarty's own config dir - but that doesn't exist in 3.1.33 at least)
+            $this->setConfigDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'configs')
                  ->addPluginsDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'plugins')
                  ->addTemplateDir(CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'templates')
                  ->setCaching(SmartyParent::CACHING_OFF); //TODO make admin caching work
-//DEBUG            $this->setCompileCheck(SmartyParent::COMPILECHECK_OFF);
             // Force re-compile after template change
             //Events::AddDynamicHandler('Core','EditTemplatePost',$TODOcallback);
             //Events::AddDynamicHandler('Core','AddTemplatePost',$TODOcallback);
@@ -198,15 +198,14 @@ class Smarty extends SmartyParent
         $this->autoload_filters = ['pre'=>$pre,'post'=>$post,'output'=>$output];
     }
 
-    public function registerClass($a,$b)
+    public function registerClass($obj, $name)
     {
-        if( $this->security_policy ) $this->security_policy->static_classes[] = $a;
-        parent::registerClass($a,$b);
+        if( $this->security_policy ) $this->security_policy->static_classes[] = $obj;
+        parent::registerClass($obj,$name);
     }
 
     /**
-     * defaultPluginHandler
-     * NOTE: Registered in constructor
+     * Our default plugin-handler
      *
      * @param string  $name      name of the tag being sought
      * @param string  $type      tag type (e.g. Smarty::PLUGIN_FUNCTION, Smarty::PLUGIN_BLOCK,
@@ -287,7 +286,7 @@ class Smarty extends SmartyParent
      * having the specified name exists.
      * @since 2.3
      *
-     * @param string the plugin identifer
+     * @param string the plugin identifier
      * @param string Optional plugin-type, default 'function'
      * @return bool
      */
