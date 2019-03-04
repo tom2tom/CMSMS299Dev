@@ -20,7 +20,6 @@
 namespace CMSMS {
 */
 
-use CMSMS\AdminUtils;
 use CMSMS\BookmarkOperations;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
@@ -112,9 +111,14 @@ final class CmsApp
     /**
      * @ignore
      */
-    private $hrinstance;
+	private $smarty = null;
 
     /**
+     * @ignore
+     */
+    private $hrinstance = null;
+
+	/**
      * Internal error array - So functions/modules can store up debug info and spit it all out at once
      * @ignore
      */
@@ -492,7 +496,8 @@ final class CmsApp
             $out = null;
             return $out;
         }
-        return Smarty::get_instance();
+        if( is_null( $this->smarty ) ) $this->smarty = new Smarty();
+        return $this->smarty;
     }
 
     /**
@@ -503,8 +508,6 @@ final class CmsApp
     */
     public function GetHierarchyManager()
     {
-        /* Check to see if a HierarchyManager has been instantiated yet,
-          and, if not, go ahead an create the instance. */
         if( is_null($this->_hrinstance) ) $this->_hrinstance = global_cache::get('content_tree');
         return $this->_hrinstance;
     }
@@ -546,7 +549,7 @@ final class CmsApp
      * Remove files from the website file-cache directories.
      * @deprecated since 2.3 Now does nothing.
      * This functionality has been relocated, and surrounded with
-     * appropriate security. 
+     * appropriate security.
      *
      * @internal
      * @ignore
