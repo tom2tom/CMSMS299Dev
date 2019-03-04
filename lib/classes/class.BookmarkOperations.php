@@ -27,14 +27,14 @@ use const CMS_USER_KEY;
 use function startswith;
 
 /**
- * Class for doing bookmark related functions.  Maybe of the Bookmark object functions
+ * Class for doing bookmark related functions.  Many of the Bookmark-object functions
  * are just wrappers around these.
  *
+ * @final
  * @package CMS
  * @license GPL
  */
-
-class BookmarkOperations
+final class BookmarkOperations
 {
 	/**
 	 * @ignore
@@ -53,9 +53,10 @@ class BookmarkOperations
 
 	/**
 	 * Return a reference to the only allowed instance of this singleton object
+	 * NOTE no real reason for this to be a singleton - just static methods instead
 	 * @return BookmarkOperations
 	 */
-	final public static function get_instance() : self
+	public static function get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
@@ -104,7 +105,7 @@ class BookmarkOperations
 	 * @param int $user_id The desired user id.
 	 * @return array An array of Bookmark objects
 	 */
-	public function LoadBookmarks($user_id)
+	public function LoadBookmarks(int $user_id) : array
 	{
 		$gCms = CmsApp::get_instance();
 		$db = $gCms->GetDb();
@@ -129,10 +130,10 @@ class BookmarkOperations
 	 * Loads a bookmark by bookmark_id.
 	 *
 	 * @param int $id bookmark_id to load
-	 * @return Bookmark
+	 * @return mixed Bookmark | null
 	 * @since 0.6.1
 	 */
-	public function LoadBookmarkByID($id)
+	public function LoadBookmarkByID(int $id)
 	{
 		$result = null;
 		$db = CmsApp::get_instance()->GetDb();
@@ -158,7 +159,7 @@ class BookmarkOperations
 	 * @param Bookmark $bookmark Bookmark object to save
 	 * @return int The new bookmark_id.  If it fails, it returns -1.
 	 */
-	public function InsertBookmark(Bookmark $bookmark)
+	public function InsertBookmark(Bookmark $bookmark) : int
 	{
 		$result = -1;
 		$db = CmsApp::get_instance()->GetDb();
@@ -178,7 +179,7 @@ class BookmarkOperations
 	 * @param Bookmark $bookmark object to save
 	 * @return bool
 	 */
-	public function UpdateBookmark(Bookmark $bookmark)
+	public function UpdateBookmark(Bookmark $bookmark) : bool
 	{
 		$result = false;
 		$db = CmsApp::get_instance()->GetDb();
@@ -197,7 +198,7 @@ class BookmarkOperations
 	 * @param int $id Id of the bookmark to delete
 	 * @return bool
 	 */
-	public function DeleteBookmarkByID($id)
+	public function DeleteBookmarkByID(int $id) : bool
 	{
 		$result = false;
 		$db = CmsApp::get_instance()->GetDb();

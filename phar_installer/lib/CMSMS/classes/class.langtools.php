@@ -10,7 +10,7 @@ use function cms_installer\CMSMS\nls;
 
 class langtools_Exception extends Exception {}
 
-class langtools
+final class langtools
 {
   const DFLT_REALM = '__:DFLT:__';
   private static $_instance;
@@ -22,7 +22,7 @@ class langtools
 
   protected function __construct() {}
 
-  public static function &get_instance() : self
+  public static function get_instance() : self
   {
     if( !is_object(self::$_instance) ) self::$_instance = new self();
     return self::$_instance;
@@ -44,7 +44,7 @@ class langtools
    *
    * @return array of hashes.  Each element of the array will have members lang, and priority, where priority is between 0 and 1
    */
-  final public static function get_browser_langs() : array
+  public static function get_browser_langs() : array
   {
     $request = request::get();
     $langs = $request->accept_language();
@@ -71,7 +71,7 @@ class langtools
    * @param string The language naem
    * @return boolean
    */
-  final public function language_available(string $str) : bool
+  public function language_available(string $str) : bool
   {
     $tmp = nlstools::get_instance()->find($str);
     return ( is_object($tmp) );
@@ -83,7 +83,7 @@ class langtools
    *
    * @return array of available language-codes c.f. en_US
    */
-  final public function get_available_languages() : array
+  public function get_available_languages() : array
   {
     $list = nlstools::get_instance()->get_list();
     foreach( $list as &$one ) {
@@ -100,7 +100,7 @@ class langtools
    * @param mixed String of comma delimited languages, or array of languages
    * @return void
    */
-  final public function set_allowed_languages($data)
+  public function set_allowed_languages($data)
   {
     if( !is_array($data) ) $data = explode(',',$data);
 
@@ -120,7 +120,7 @@ class langtools
    *
    * @return array of language strings
    */
-  final public function get_allowed_languages() : array
+  public function get_allowed_languages() : array
   {
     return $this->_allowed_languages;
   }
@@ -132,7 +132,7 @@ class langtools
    * @param string language string
    * @return boolean TRUE if no allowed languages are set, TRUE if the specified language is allowed, false if not in the allowed list.
    */
-  final public function language_allowed(string $str) : bool
+  public function language_allowed(string $str) : bool
   {
     if( $this->_allowed_languages ) {
       return ( in_array($str,$this->_allowed_languages) );
@@ -146,7 +146,7 @@ class langtools
    *
    * @return mixed lang string, or null
    */
-  final public function match_browser_lang()
+  public function match_browser_lang()
   {
     $langs = $this->get_browser_langs();
     if( is_array($langs) && ($n = count($langs)) ) {
@@ -167,7 +167,7 @@ class langtools
    *
    * @param string language name.
    */
-  final public function set_default_language(string $str)
+  public function set_default_language(string $str)
   {
     if( !$this->language_available($str) || !$this->language_allowed($str) ) {
       throw new langtools_Exception('default language is not in list of allowed langages');
@@ -183,7 +183,7 @@ class langtools
    *
    * @return string
    */
-  final public function get_default_language() : string
+  public function get_default_language() : string
   {
     if( !$this->_dflt_language ) throw new langtools_Exception('cannot get the default language, if it is not set');
 
@@ -196,7 +196,7 @@ class langtools
    * or retrieve it from cookies, session variables, or the request, or from ini data.
    *
    * @virtual
-   * @return string
+   * @return mixed string | null
    */
   public function get_selected_language()
   {
@@ -216,11 +216,11 @@ class langtools
 
   /**
    * Set the current language
-   * Throws a new exception if the specified language is not available or allowed
    * This method sets the 'current' language, and also updates the locale for the selected language.
    *
    * @virtual
    * @param string the requested language
+   * @throws langtools_Exception if the specified language is not available or allowed
    */
   public function set_current_language($str)
   {
@@ -240,10 +240,10 @@ class langtools
 
   /**
    * Get the current language
-   * Throws an exception if the current language and the default language has not been set
    *
    * @virtual
    * @returns string The current language, if set, otherwise the default language.
+   * @throws langtools_Exception if the current language and the default language have not been set
    */
   public function get_current_language()
   {
@@ -257,8 +257,7 @@ class langtools
   /**
    * Get a hash of languages suitable for display in a dropdown
    *
-   * @virtual
-   * @returns a hash
+   * @returns mixed array | null
    */
   public function get_language_list($langs)
   {
@@ -295,7 +294,7 @@ class langtools
    *
    * @param string the realm name, if empty the default realm will be used.
    */
-  final public function set_realm($str = '')
+  public function set_realm($str = '')
   {
     if( !$str ) $str = self::DFLT_REALM;
     $this->_realm = $realm;
@@ -306,7 +305,7 @@ class langtools
    *
    * @return string
    */
-  final public function get_realm()
+  public function get_realm()
   {
     return $this->_realm;
   }

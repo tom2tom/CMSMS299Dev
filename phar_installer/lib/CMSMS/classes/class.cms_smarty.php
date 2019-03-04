@@ -9,7 +9,7 @@ use function cms_installer\get_app;
 
 require_once dirname(__DIR__, 2).'/Smarty/Smarty.class.php';
 
-class cms_smarty extends Smarty
+final class cms_smarty extends Smarty
 {
   private static $_instance;
 

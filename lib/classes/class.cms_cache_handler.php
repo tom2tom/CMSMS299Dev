@@ -32,12 +32,13 @@ use CMSMS\CacheDriver;
  * 'cache_file_blocking' bool
  * 'cache_file_locking' bool
  *
+ * @final
  * @package CMS
  * @license GPL
 */
 
 //class CacheHandler
-class cms_cache_handler
+final class cms_cache_handler
 {
   /**
    * @ignore
@@ -66,7 +67,7 @@ class cms_cache_handler
    * @throws CmsException
    * @return static cms_cache_handler object | not at all
    */
-  final public static function get_instance() : self
+  public static function get_instance() : self
   {
     if( !is_object(self::$_instance) ) {
         $ob = new self();
@@ -97,7 +98,7 @@ class cms_cache_handler
      'predis' => 'CMSMS\\CachePredis',
      'apcu' => 'CMSMS\\CacheApcu',
      'memcached' => 'CMSMS\\CacheMemcached', //slowest !?
-     'yac' => 'CMSMS\\CacheYac',  // bit intersection risky 
+     'yac' => 'CMSMS\\CacheYac',  // bit intersection risky
      'file' => 'CMSMS\\CacheFile',
     ];
 
@@ -186,7 +187,7 @@ class cms_cache_handler
    * @see cms_cache_handler::connect()
    * @param CacheDriver $driver
    */
-  final public function set_driver(CacheDriver $driver)
+  public function set_driver(CacheDriver $driver)
   {
     $this->_driver = $driver;
   }
@@ -197,7 +198,7 @@ class cms_cache_handler
    *
    * @return mixed CacheDriver object | null
    */
-  final public function get_driver()
+  public function get_driver()
   {
     return $this->_driver;
   }
@@ -212,7 +213,7 @@ class cms_cache_handler
    * @param string $group
    * @return bool
    */
-  final public function clear(string $group = '') : bool
+  public function clear(string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
     if( $this->_driver instanceof CMSMS\CacheDriver) {
@@ -230,7 +231,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return mixed null if there is no cache-data for $key
    */
-  final public function get(string $key, string $group = '')
+  public function get(string $key, string $group = '')
   {
 //    if( $this->can_cache() ) {
     if( $this->_driver instanceof CMSMS\CacheDriver) {
@@ -248,7 +249,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function exists(string $key, string $group = '') : bool
+  public function exists(string $key, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
     if( $this->_driver instanceof CMSMS\CacheDriver) {
@@ -266,7 +267,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function erase(string $key, string $group = '') : bool
+  public function erase(string $key, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
     if( $this->_driver instanceof CMSMS\CacheDriver) {
@@ -288,7 +289,7 @@ class cms_cache_handler
    * @param string $group An optional cache group name.
    * @return bool
    */
-  final public function set(string $key, $value, string $group = '') : bool
+  public function set(string $key, $value, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
     if( $this->_driver instanceof CMSMS\CacheDriver) {
@@ -306,7 +307,7 @@ class cms_cache_handler
    * @param string $group
    * @return bool
    */
-  final public function set_group(string $group) : bool
+  public function set_group(string $group) : bool
   {
     if( $this->_driver instanceof CMSMS\CacheDriver) {
 //    if( is_object($this->_driver) ) {
@@ -321,7 +322,7 @@ class cms_cache_handler
    *
    * @return bool
    */
-/*  final public function can_cache() : bool
+/*  public function can_cache() : bool
   {
 / *    global $CMS_INSTALL_PAGE;
 
@@ -333,4 +334,4 @@ class cms_cache_handler
 */
 }
 
-//\class_alias(CacheHandler::class, 'cms_cache_handler', false); 
+//\class_alias(CacheHandler::class, 'cms_cache_handler', false);

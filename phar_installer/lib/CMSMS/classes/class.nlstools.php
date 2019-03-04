@@ -6,14 +6,14 @@ use cms_installer\installer_base;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class nlstools
+final class nlstools
 {
   private static $_instance;
   private $_nls;
 
-  protected function __construct() {}
+  private function __construct() {}
 
-  public static function &get_instance()
+  public static function get_instance() : self
   {
     if( !self::$_instance ) self::$_instance = new self();
     return self::$_instance;
@@ -24,12 +24,12 @@ class nlstools
     self::$_instance = $obj;
   }
 
-  protected function get_nls_dir()
+  private function get_nls_dir() : string
   {
     return installer_base::get_rootdir().'/lib/CMSMS/classes/nls';
   }
 
-  protected function load_nls()
+  private function load_nls()
   {
     if( is_array($this->_nls) ) return;
 
@@ -55,13 +55,13 @@ class nlstools
     }
   }
 
-  public function get_list()
+  public function get_list() : array
   {
     $this->load_nls();
     return array_keys($this->_nls);
   }
 
-  public function &find($str)
+  public function &find(string $str)
   {
     $this->load_nls();
     foreach( $this->_nls as $name => &$nls ){

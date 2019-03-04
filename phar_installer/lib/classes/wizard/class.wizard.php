@@ -8,7 +8,7 @@ use DirectoryIterator;
 use Exception;
 use RegexIterator;
 
-class wizard
+final class wizard
 {
     private static $_instance = null;
     private $_name = null;
@@ -47,7 +47,7 @@ class wizard
      * @param string $namespace Optional namespace of wizard-step classes
      * @return singleton object
      */
-    final public static function &get_instance($classdir = '', $namespace = '')
+    public static function get_instance($classdir = '', $namespace = '')
     {
         if( !self::$_instance ) {
             self::$_instance = new self($classdir,$namespace);
@@ -92,42 +92,42 @@ class wizard
         $this->_steps = $_data;
     }
 
-    final public function get_nav()
+    public function get_nav()
     {
         $this->_init();
         return $this->_steps;
     }
 
-    final public function get_step_var()
+    public function get_step_var()
     {
         return $this->_stepvar;
     }
 
-    final public function set_step_var($str)
+    public function set_step_var($str)
     {
         if( $str ) $this->_stepvar = $str;
     }
 
-    final public function cur_step() : int
+    public function cur_step() : int
     {
         $val = 1;
         if( $this->_stepvar && isset($_GET[$this->_stepvar]) ) $val = (int)$_GET[$this->_stepvar];
         return $val;
     }
 
-    final public function finished() : bool
+    public function finished() : bool
     {
         $this->_init();
         return $this->cur_step() > $this->num_steps();
     }
 
-    final public function num_steps() : int
+    public function num_steps() : int
     {
         $this->_init();
         return count($this->_steps);
     }
 
-    final public function get_step()
+    public function get_step()
     {
         $this->_init();
         if( is_object($this->_stepobj) ) return $this->_stepobj;
@@ -176,7 +176,7 @@ class wizard
      * @param mixed $idx numeric 1 .. no. of steps
      * @return string
      */
-    final public function step_url($idx) : string
+    public function step_url($idx) : string
     {
         $this->_init();
 
@@ -203,7 +203,7 @@ class wizard
     /**
      * @return string
      */
-    final public function next_url() : string
+    public function next_url() : string
     {
         $this->_init();
         $request = request::get();
@@ -226,7 +226,7 @@ class wizard
     /**
      * @return string
      */
-    final public function prev_url() : string
+    public function prev_url() : string
     {
         $this->_init();
         $request = request::get();
