@@ -310,7 +310,7 @@ lib/PHPArchive/*                          PHPArchive
         $msg = (is_file($adbg)) ? 'XML EXISTS' : 'NO XML at '.$adbg;
         file_put_contents('/tmp/guiinstaller-cwd.txt', $msg); //DEBUG
 
-        if( endswith($tmp, 'phar_installer') ) {
+        if( endswith($tmp, 'phar_installer') || endswith($tmp, 'installer') ) {
             $tmp = dirname($tmp);
         }
         $config['dest'] = $tmp;
@@ -332,7 +332,7 @@ lib/PHPArchive/*                          PHPArchive
                 if( isset($list['dest']) ) $this->_custom_destdir = $list['dest'];
             }
         }
-        if( endswith($tmp, 'phar_installer') ) {
+        if( endswith($tmp, 'phar_installer') || endswith($tmp, 'installer') ) {
             $tmp = dirname($tmp);
         }
         $config_file = joinpath($tmp,'config.ini');
