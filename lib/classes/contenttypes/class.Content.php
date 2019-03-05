@@ -21,6 +21,7 @@ namespace CMSMS\contenttypes;
 use cms_config;
 use cms_siteprefs;
 use cms_utils;
+use CmsApp;
 use CmsContentException;
 use CmsCoreCapabilities;
 use CmsException;
