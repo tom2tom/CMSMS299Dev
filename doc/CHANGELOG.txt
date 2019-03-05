@@ -191,7 +191,9 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
-  - CHANGE: new 'file-plugin' API effectivly replaces UDT's. File plugins are files stored in /assets/file_plugins, and must contain the <?php tag.
+  - CHANGE: new 'file-plugin' API effectivly replaces UDT's.
+     File plugins are files stored in /assets/file_plugins, and must contain
+     the <?php tag and must return, not echo, anything to be displayed.
      (Existing UDT's are migrated during upgrade)
   - UserTagOperations class is now merely a compatibility stub
   - FEATURE: Sitedown mode now throws a 503 exception and outputs a 503 error code
