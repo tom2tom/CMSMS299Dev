@@ -119,7 +119,7 @@ VALUES (?,?,?,?,'.$time.', '.$time.')';
 	}
 
 	/**
-	 * Persists the group to the database.
+	 * Records the group in the database.
 	 *
 	 * @return bool true if the save was successful, false if not.
 	 */
@@ -136,16 +136,16 @@ VALUES (?,?,?,?,'.$time.', '.$time.')';
 	/**
 	 * Deletes the group from the database
 	 *
-	 * @throws LogicException
+	 * @throws LogicException if the group is the default (gid 1)
 	 * @return bool whether the delete was successful.
 	 */
 	public function Delete()
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		if( $this->_data['id'] < 1 ) {
+		if( $this->id < 1 ) {
 			if( $this->_data['name'] ) {
 				$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups where group_name = ?';
-				$this->id = (int) $db->GetOne($query, [$this->name]);
+				$this->_data['id'] = (int) $db->GetOne($query, [$this->name]);
 				if( $this->id <= 0 ) return FALSE;
 			} else {
 				return FALSE;
