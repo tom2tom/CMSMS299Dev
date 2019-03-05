@@ -47,7 +47,7 @@ try {
         Events::SendEvent('Core', 'DeleteGroupPost', ['group'=>&$group]);
     }
 } catch (Exception $e) {
-    return 2;
+    return $e->GetMessage();
 }
 
 $this->RemovePreference();
