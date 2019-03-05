@@ -23,8 +23,9 @@ use CMSMS\FilePluginOperations;
  * A compatibility class to manage User Defined Tags.
  * Before CMSMS 2.3, User Defined Tag data were stored in the database.
  * Since 2.3 this functionality is provided by corresponding filesystem files.
- * This class provides backwards compatibility.
+ * This class now just provides backwards compatibility.
  *
+ * @final
  * @package CMS
  * @license GPL
  * @deprecated
@@ -47,10 +48,10 @@ final class UserTagOperations
 	private function __clone() {}
 
 	/**
-	 * Get a reference to the only allowed instance of this class
+	 * Get the only allowed instance of this class
 	 * @return UserTagOperations
 	 */
-	final public static function &get_instance() : self
+	public static function get_instance() : self
 	{
 		if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;
