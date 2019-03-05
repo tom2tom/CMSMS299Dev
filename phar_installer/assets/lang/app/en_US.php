@@ -19,8 +19,8 @@ $lang['cache_yac'] = 'YAC will be used';
 $lang['changelog_uc'] = 'CHANGELOG';
 $lang['cleaning_files'] = 'Clean files that are no longer applicable to the release';
 $lang['config_writable'] = 'Config file can be saved ?';
-$lang['confirm_freshen'] = 'Are you sure you want to freshen (repair) the existing installation of CMSMS? Use with extreme caution!';
-$lang['confirm_upgrade'] = 'Are you sure you want to begin the upgrade process';
+$lang['confirm_freshen'] = 'Are you sure you want to freshen/repair the existing CMSMS installation ? Use with extreme caution!';
+$lang['confirm_upgrade'] = 'Are you sure you want to begin the upgrade process ?';
 $lang['curl_extension'] = 'PHP cURL extension is available ?';
 $lang['create_assets_structure'] = 'Create a location for file resources';
 
