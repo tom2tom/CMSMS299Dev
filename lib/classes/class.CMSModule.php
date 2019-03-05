@@ -1121,7 +1121,7 @@ abstract class CMSModule
      * (string), or a different number (e.g. 2).
      *
      * @abstract
-     * @return mixed
+     * @return mixed false | string | int
      */
     public function Uninstall()
     {
@@ -1133,7 +1133,7 @@ abstract class CMSModule
             $smarty = $gCms->GetSmarty();
 
             $res = include $filename;
-            if( $res == 1 || $res == '') return false;
+            if( $res == 1 || $res == '' ) return false;
             if( is_string($res) ) {
                 $this->ShowErrors($res);
             }
