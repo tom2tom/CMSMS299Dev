@@ -142,8 +142,8 @@ VALUES (?,?,?,?,'.$time.', '.$time.')';
 	public function Delete()
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		if( $this->$_data['id'] < 1 ) {
-			if( $this->$_data['name'] ) {
+		if( $this->_data['id'] < 1 ) {
+			if( $this->_data['name'] ) {
 				$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups where group_name = ?';
 				$this->id = (int) $db->GetOne($query, [$this->name]);
 				if( $this->id <= 0 ) return FALSE;
