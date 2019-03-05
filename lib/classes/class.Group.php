@@ -143,11 +143,12 @@ VALUES (?,?,?,?,'.$time.', '.$time.')';
 	{
 		$db = CmsApp::get_instance()->GetDb();
 		if( $this->id < 1 ) {
-			if( $this->_data['name'] ) {
-				$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'user_groups where group_name = ?';
-				$this->_data['id'] = (int) $db->GetOne($query, [$this->name]);
-				if( $this->id <= 0 ) return FALSE;
-			} else {
+			if( $this->name ) {
+				$query = 'SELECT group_id FROM '.CMS_DB_PREFIX.'groups where group_name = ?';
+				$id = (int) $db->GetOne($query, [$this->name]);
+				if( $id <= 0 ) return FALSE;
+				$this->_data['id'] = $id;
+ 			} else {
 				return FALSE;
 			}
 		}
