@@ -247,10 +247,10 @@ class wizard_step8 extends wizard_step
             // only perform upgrades for the versions known by the installer that are greater than what is installed.
             $current_version = $version_info['version'];
             foreach( $versions as $ver ) {
+                if( version_compare($current_version,$ver) >= 0 ) continue;
                 $fn = "$dir/$ver/upgrade.php";
-                if( version_compare($current_version,$ver) < 0 && is_file($fn) ) {
-                    include_once $fn;
-                }
+                if( !is_file($fn) ) continue;
+                include_once $fn;
             }
 
             $this->write_config();
