@@ -3175,7 +3175,7 @@ a {
 		<property>
 			<content_id>1</content_id>
 			<prop_name>content_en</prop_name>
-			<content><![CDATA[&lt;p&gt;Congratulations! The installation worked. This page is a product of a fully functional installation of CMS Made Simple, ready to be built into anything you can imagine.&lt;/p&gt;
+			<content><![CDATA[&lt;p&gt;This fully functional installation of CMS Made Simple is ready to be built into anything you can imagine.&lt;/p&gt;
 &lt;p&gt;If you are new to CMS Made Simple, the best place to start is with the &lt;a title="CMS Made Simple documentation site" href="http://docs.cmsmadesimple.org/" target="_blank" rel="noopener"&gt;documentation&lt;/a&gt;. If you're ready to get your hands dirty, log in to the site admin console &lt;a title="CMSMS Demo Admin Panel" href="admin"&gt;here&lt;/a&gt; (or if this is not your site, go to yoursite.com/[path]/admin). Explore the templates provided. This page uses Simplex, which is sprinkled with comments and tips for modifying or building your own designs.&lt;/p&gt;
 &lt;p&gt;If you need further help, various support options are described &lt;a href="https://www.cmsmadesimple.org/support/options/" target="_blank" rel="noopener"&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;License&lt;/h3&gt;
