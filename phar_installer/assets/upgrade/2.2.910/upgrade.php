@@ -8,7 +8,7 @@ use function cms_installer\CMSMS\joinpath;
 use function cms_installer\CMSMS\startswith;
 
 // 1. Convert UDT's to file-lugins, widen users-table columns
-$udt_list = $db->GetArray('SELECT * FROM '.CMS_DB_PREFIX.'userplugins');
+$udt_list = $db->GetArray('SELECT userplugin_name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
 
     function create_file_plugin(array $row, FilePluginOperations $ops, $smarty)
@@ -20,7 +20,7 @@ if ($udt_list) {
         }
 
         $code = preg_replace(
-                ['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/', 'echo'],
+                ['/^[\s\r\n]*<\\?php\s*[\r\n]*/i', '/[\s\r\n]*\\?>[\s\r\n]*$/', '/echo/'],
                 ['', '', 'return'], $row['code']);
         if (!$code) {
             verbose_msg('UDT named '.$row['userplugin_name'].' is empty, and will be discarded');
