@@ -49,7 +49,7 @@ final class LoginOperations
      */
     private function __clone() {}
 
-    final public static function &get_instance() : self
+    public static function get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
@@ -64,7 +64,7 @@ final class LoginOperations
     /**
      * get current or newly-generated salt
      */
-    protected function _get_salt()
+    private function _get_salt() : string
     {
         global $CMS_INSTALL_PAGE;
         if( !isset($CMS_INSTALL_PAGE) ) {
@@ -82,8 +82,11 @@ final class LoginOperations
 
     /**
      * validate the user
-     */
-    protected function _check_passhash($uid,$checksum)
+	 * @param mixed? $uid
+	 * @param mixed? $checksum
+	 * @return boolean
+	 */
+    private function _check_passhash($uid,$checksum) : bool
     {
         // we already validated that payload was not corrupt
         $userops = UserOperations::get_instance();
@@ -108,8 +111,13 @@ final class LoginOperations
 
     /**
      * save session/cookie data
-     */
-    public function save_authentication(User $user,User $effective_user = null)
+	 *
+	 * @param User $user
+	 * @param mixed $effective_user Optional User | null
+	 * @return boolean TRUE always
+	 * @throws LogicException
+	 */
+    public function save_authentication(User $user,$effective_user = null)
     {
         if( $user->id < 1 || empty($user->password) ) throw new LogicException('User information invalid for '.__METHOD__);
 
@@ -140,12 +148,13 @@ final class LoginOperations
         return true;
     }
 
-    protected function _create_csrf_token( $uid )
+	//mixed $uid
+    private function _create_csrf_token( $uid )
     {
         return substr(str_shuffle(sha1(__DIR__.$uid.time().session_id())),-19);
     }
 
-    protected function _get_data()
+    private function _get_data()
     {
         if( !empty($this->_data) ) return $this->_data;
 
@@ -185,6 +194,11 @@ final class LoginOperations
         return $this->_data;
     }
 
+	/**
+	 *
+	 * @return boolean
+	 * @throws LogicException
+	 */
     public function validate_requestkey()
     {
         // asume we are authenticated

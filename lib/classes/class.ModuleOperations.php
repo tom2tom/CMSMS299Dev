@@ -119,7 +119,7 @@ final class ModuleOperations
 	 *
 	 * @return ModuleOperations
 	 */
-	final public static function &get_instance() : self
+	public static function get_instance() : self
 	{
 		if( !self::$_instance ) {
 			self::$_instance = new self();

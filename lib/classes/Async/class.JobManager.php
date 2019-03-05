@@ -24,6 +24,7 @@ use CmsApp;
  * A singleton class for asynchronous jobs.
  * This is a wrapper for methods in the relevant async-jobs module.
  *
+ * @final
  * @package CMS
  * @author Robert Campbell
  *
@@ -56,7 +57,7 @@ final class JobManager
      *
      * @return CMSMS\Async\JobManager
      */
-    final public static function get_instance() : self
+    public static function get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;

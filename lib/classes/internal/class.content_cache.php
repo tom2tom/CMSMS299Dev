@@ -29,6 +29,7 @@ use CMSMS\ContentOperations;
  * @package CMS
  * @since 1.9
  * @internal
+ * @final
  * @ignore
  */
 final class content_cache
@@ -95,7 +96,7 @@ final class content_cache
 	/**
 	 * @ignore
 	 */
-	final public static function &get_instance() : self
+	public static function &get_instance() : self
 	{
 		if( !(self::$_instance) ) self::$_instance = new self();
 		return self::$_instance;

@@ -34,6 +34,7 @@ use function startswith;
  * @license GPL
  * @author Robert Campbell <calguy1000@cmsmadesimple.org>
  * @internal
+ * @final
  * @access private
  * @since  1.11
  */
@@ -104,7 +105,7 @@ final class ModulePluginManager
 	/**
 	 * Get the single allowed instance of this class
 	 */
-	final public static function &get_instance() : self
+	public static function &get_instance() : self
 	{
         if( !self::$_instance ) self::$_instance = new self();
 		return self::$_instance;

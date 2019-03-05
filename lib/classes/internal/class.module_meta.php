@@ -28,6 +28,7 @@ use ModuleOperations;
  *
  * @package CMS
  * @internal
+ * @final
  * @since 1.10
  * @author  Robert Campbell
  *
@@ -38,6 +39,9 @@ final class module_meta
      * @ignore
      */
     private static $_instance = null;
+	/**
+     * @ignore
+     */
     private $_data = [];
 
 	/**
@@ -55,7 +59,7 @@ final class module_meta
      *
      * @return object
      */
-    final public static function &get_instance() : self
+    public static function get_instance() : self
     {
         if( !self::$_instance ) self::$_instance = new self();
         return self::$_instance;
