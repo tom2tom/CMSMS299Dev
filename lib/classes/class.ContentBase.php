@@ -693,9 +693,9 @@ abstract class ContentBase
 
 	/**
 	 * Return the hierarchy of the current page.
-	 * A string like #.##.## indicating the path to this page and it's order
-	 * this value uses the item order when calculating the output i.e:  3.3.3
-	 * to indicate the third grandghild of the third child of the third root page.
+	 * A string like #.##.## indicating the path to this page and its order
+	 * This value uses the item order when calculating the output e.g. 3.3.3
+	 * to indicate the third grandchild of the third child of the third root page.
 	 *
 	 * @return string
 	 */
@@ -718,9 +718,9 @@ abstract class ContentBase
 
 	/**
 	 * Return the id Hierarchy.
-	 * A string like #.##.## indicating the path to the page and it's order
-	 * this property uses the id's of pages when calculating the output i.e: 21.5.17
-	 * to indicate that page id 17 is the child of page with id 5 which is inturn the
+	 * A string like #.##.## indicating the path to the page and its order
+	 * This property uses the id's of pages when calculating the output i.e: 21.5.17
+	 * to indicate that page id 17 is the child of page with id 5 which is in turn the
 	 * child of the page with id 21
 	 *
 	 * @return string
@@ -986,7 +986,8 @@ abstract class ContentBase
 	/**
 	 * Return whether this content type can be the default page for a CMSMS website.
 	 *
-	 * The content editor module may adjust it's user interface to not allow setting pages that return false for this method as the default page.
+	 * The content editor module may adjust its user interface to not allow
+	 * setting pages that return false for this method as the default page.
 	 *
 	 * @abstract
 	 * @returns bool Default is false
@@ -998,8 +999,8 @@ abstract class ContentBase
 
 	/**
 	 * Set the page alias for this content page.
-	 * If an empty alias is supplied, and depending upon the doAutoAliasIfEnabled flag, and config entries
-	 * a suitable alias may be calculated from other data in the page object
+	 * If an empty alias is supplied, and depending upon the doAutoAliasIfEnabled flag,
+	 * and config entries a suitable alias may be calculated from other data in the page object.
 	 * This method relies on the menutext and the name of the content page already being set.
 	 *
 	 * @param string $alias The alias
@@ -2097,6 +2098,7 @@ WHERE content_id = ?';
 	 * @return array Each member an array:
      *  [0] = prompt field
 	 *  [1] = input field for the prompt with its js if needed
+	 * or just a scalar false upon some errors
 	 */
 	public function GetTabElements($key, $adding = false)
 	{
@@ -2120,10 +2122,12 @@ WHERE content_id = ?';
 	 */
 	public function HasChildren($activeonly = false)
 	{
-		if( !$activeonly ) return true;
-		$node = ContentOperations::get_instance()->quickfind_node_by_id($id);
-		if( !$node->has_children() ) return false;
+		if( $this->mId <= 0 ) return false;
 
+		$node = ContentOperations::get_instance()->quickfind_node_by_id($this->mId);
+		if( !$node || !$node->has_children() ) return false;
+
+		if( !$activeonly ) return true;
 		$children = $node->get_children();
 		if( $children ) {
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
@@ -2183,14 +2187,15 @@ WHERE content_id = ?';
 		$groupops = GroupOperations::get_instance();
 		$allusers = $userops->LoadUsers();
 		$allgroups = $groupops->LoadGroups();
-		foreach( $allusers as $one ) {
+		foreach( $allusers as &$one ) {
 			$opts[$one->id] = $one->username;
 		}
-		foreach( $allgroups as $one ) {
+		foreach( $allgroups as &$one ) {
 			if( $one->id == 1 ) continue; // exclude admin group (they have all privileges anyways)
 			$val = - (int)$one->id;
 			$opts[$val] = lang('group').': '.$one->name;
 		}
+		unset($one);
 
 		return $opts;
 	}
@@ -2364,7 +2369,6 @@ WHERE content_id = ?';
 			foreach( $ret as &$one ) {
 				$one = (object)$one;
 			}
-			unset($one);
 		}
 		return $ret;
 	}
@@ -2375,7 +2379,7 @@ WHERE content_id = ?';
 	 * @abstract
 	 * @param string $one The property name
 	 * @param bool $adding Whether or not we are in add or edit mode.
-	 * @return 2-member array: [0] = label, [1] = input element.
+	 * @return mixed 2-member array: [0] = label, [1] = input element | false
 	 */
 	protected function display_single_element($one, $adding)
 	{

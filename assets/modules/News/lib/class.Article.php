@@ -218,6 +218,7 @@ class Article
                     if( !is_object($obj) ) continue;
                     if( $key == $obj->alias ) return $obj->value;
                 }
+                unset($obj);
             }
 // assert IF DEBUGGING
 //          throw new Exception('Requesting invalid data from News article object '.$key);

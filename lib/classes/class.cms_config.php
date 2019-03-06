@@ -209,6 +209,7 @@ final class cms_config implements ArrayAccess
                     }
                 }
             }
+            unset($value);
             //we will always get these from INI
             unset($config['max_upload_size']);
             unset($config['upload_max_filesize']);
