@@ -37,7 +37,7 @@
   {foreach $tab_names as $key => $tabname}
     {tab_start name=$key}
       {if isset($tab_message_array[$key])}{$tab_message_array[$key]}{/if}
-      {if isset($tab_contents_array[$key])}
+      {if isset($tab_contents_array.$key) && is_array($tab_contents_array.$key)}
         {foreach $tab_contents_array.$key as $fld}
         <div class="pageoverflow">
           <p class="pagetext">{$fld[0]}</p>
