@@ -501,7 +501,7 @@ final class CmsApp
     }
 
     /**
-    * Get a handle to the hierarchy manager object.
+    * Get a handle to the cached hierarchy manager object.
     * @see HierarchyManager
     *
     * @return mixed? HierarchyManager handle to the HierarchyManager object
