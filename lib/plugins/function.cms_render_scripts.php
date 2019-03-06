@@ -1,5 +1,5 @@
 <?php
-#Plugin which aggregates accumulated javascript for use in a page template
+#Plugin which aggregates accumulated javascript for use in a page or template
 #Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
