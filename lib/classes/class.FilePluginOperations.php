@@ -327,7 +327,7 @@ EOS;
     {
         $fp = self::get_instance()->file_path( $name );
         if( !is_file($fp) ) {
-			throw new \RuntimeException('Could not find plugin file named '.$name);
+			throw new RuntimeException('Could not find plugin file named '.$name);
 		}
         // in-scope variables for the file code
         $params = $args[0];
