@@ -917,7 +917,7 @@ VALUES (?,?,?,?,?)');
 	}
 
 	/**
-	 * Return a module object
+	 * Return a reference to a module object, if possible
 	 * If the module is not already loaded, and $force is true, the module will be [re]loaded.
 	 * Version checks are done with the module to allow only loading versions of
 	 * modules that are greater than the specified value.
@@ -927,7 +927,7 @@ VALUES (?,?,?,?,?)');
 	 * @param bool $force an optional flag to indicate whether the module should be force-loaded if necessary
 	 * @return mixed CMSModule or a subclass of that | null
 	 */
-	public function get_module_instance(string $module_name,string $version = '',bool $force = FALSE)
+	public function &get_module_instance(string $module_name,string $version = '',bool $force = FALSE)
 	{
 		if( empty($module_name) && isset($this->variables['module'])) $module_name = $this->variables['module'];
 
