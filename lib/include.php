@@ -166,7 +166,7 @@ cms_siteprefs::setup();
 Events::setup();
 
 if ($CMS_JOB_TYPE < 2) {
-    ContentOperations::setup_cache();
+    ContentOperations::setup_cache(); // various content-related global caches
 }
 // Attempt to override the php memory limit
 if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) ini_set('memory_limit',trim($config['php_memory_limit']));
