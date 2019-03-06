@@ -184,21 +184,24 @@ $group = new Group();
 $group->name = 'Designer';
 $group->description = $this->Lang('group_desc');
 $group->active = 1;
-Events::SendEvent('Core', 'AddGroupPre', ['group'=>&$group]);
-$group->Save();
-Events::SendEvent('Core', 'AddGroupPost', ['group'=>&$group]);
+try {
+	Events::SendEvent('Core', 'AddGroupPre', ['group'=>&$group]);
+	$group->Save();
+	Events::SendEvent('Core', 'AddGroupPost', ['group'=>&$group]);
 
-$group->GrantPermission('Add Templates');
-$group->GrantPermission('Manage All Content'); //CHECKME ContentManager race when 1st installing?
-$group->GrantPermission('Manage Designs');
-$group->GrantPermission('Manage My Account');
-$group->GrantPermission('Manage My Bookmarks');
-$group->GrantPermission('Manage My Settings');
-$group->GrantPermission('Manage Stylesheets');
-$group->GrantPermission('Modify Files');
-$group->GrantPermission('Modify Templates');
-$group->GrantPermission('View Tag Help');
-
+	$group->GrantPermission('Add Templates');
+	$group->GrantPermission('Manage All Content'); //CHECKME ContentManager race when 1st installing?
+	$group->GrantPermission('Manage Designs');
+	$group->GrantPermission('Manage My Account');
+	$group->GrantPermission('Manage My Bookmarks');
+	$group->GrantPermission('Manage My Settings');
+	$group->GrantPermission('Manage Stylesheets');
+	$group->GrantPermission('Modify Files');
+	$group->GrantPermission('Modify Templates');
+	$group->GrantPermission('View Tag Help');
+} catch (Exception $e) {
+    //TODO delete group & try again
+}
 // register events for which other parts of the system may listen
 // these have been migrated from the main installer
 foreach([
