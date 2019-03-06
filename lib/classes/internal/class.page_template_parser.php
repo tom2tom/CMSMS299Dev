@@ -67,14 +67,14 @@ class page_template_parser extends Smarty_Internal_Template
         $this->registerDefaultPluginHandler([$this,'defaultPluginHandler']);
         $this->merge_compiled_includes = true;
 
-        try {
+        try { //these are repetitions of code in CMSMS\internal\Smarty constructor
             $this->registerPlugin('compiler', 'content', [$this,'compile_contentblock'], false)
-                 ->registerPlugin('compiler', 'content_image', [$this,'compile_imageblock'], false)
-                 ->registerPlugin('compiler', 'content_module', [$this,'compile_moduleblock'], false)
-                 ->registerPlugin('compiler', 'content_text', [$this,'compile_contenttext'], false);
+                 ->registerPlugin('compiler', 'content_image', [$this,'compile_imageblock'], true)
+                 ->registerPlugin('compiler', 'content_module', [$this,'compile_moduleblock'], true)
+                 ->registerPlugin('compiler', 'content_text', [$this,'compile_contenttext'], true);
         } catch (SmartyException $e) {
-            // ignore these... throws an error in Smarty 3.1.16 if plugin is already registered
-            // because plugin registration is global.
+            // ignore these... throws an error in Smarty 3.1.16 if plugin is
+			// already registered because plugin registration is global.
         }
     }
 
@@ -90,7 +90,7 @@ class page_template_parser extends Smarty_Internal_Template
     }
 
     /**
-     * Setup a default smarty-plugin handler
+     * Setup a default smarty-compiler-plugin handler for page-templates
      * @param string $name UNUSED
      * @param string $type
      * @param mixed $template UNUSED

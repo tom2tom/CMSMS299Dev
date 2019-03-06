@@ -4,14 +4,17 @@ namespace cms_installer\wizard;
 
 use cms_installer\request;
 use cms_installer\session;
-use DirectoryIterator;
 use Exception;
-use RegexIterator;
 
 final class wizard
 {
+    const STATUS_OK    = 'OK';
+    const STATUS_ERROR = 'ERROR';
+    const STATUS_BACK  = 'BACK';
+    const STATUS_NEXT  = 'NEXT';
+
     private static $_instance = null;
-    private $_name = null;
+//    private $_name = null;
     private $_stepvar = 's';
     private $_steps;
     private $_stepobj;
@@ -19,23 +22,23 @@ final class wizard
     private $_namespace;
     private $_initialized;
 
-    const STATUS_OK     = 'OK';
-    const STATUS_ERROR = 'ERROR';
-    const STATUS_BACK   = 'BACK';
-    const STATUS_NEXT   = 'NEXT';
-
     /**
      * @access private
      * @param string $classdir Optional file-path of folder containing step-classes. Default current
      * @param string $namespace Optional namespace of step-classes. Default current
-     * @throws Exception
+     * @throws Exception if supplied $classdir is invalid
      */
     private function __construct($classdir = '', $namespace = '')
     {
-        if( !$classdir ) $classdir = __DIR__;
-        elseif( !is_dir($classdir) ) throw new Exception('Could not find wizard steps in '.$classdir);
+        if( !$classdir ) {
+            $classdir = __DIR__;
+        }
+        else {
+            $classdir = rtrim($classdir,' \\/');
+            if( !is_dir($classdir) ) throw new Exception('Invalid wizard directory '.$classdir);
+        }
         $this->_classdir = $classdir;
-        $this->_name = basename($classdir);
+//        $this->_name = basename($classdir);
 
         if( !$namespace ) $namespace = __NAMESPACE__;
         $this->_namespace = $namespace;
@@ -62,34 +65,28 @@ final class wizard
     private function _init()
     {
         if( $this->_initialized ) return;
-        $this->_initialized = true;
 
-        // find all of the classes in the wizard directory.
-        $di = new DirectoryIterator($this->_classdir);
-        $ri = new RegexIterator($di,'/^class\.wizard.*\.php$/');
-        $me = basename(__FILE__,'.php');
-        $me2 = $me.'_step.php';
-        $me .='.php';
-
-        $files = [];
-        foreach( $ri as $one ) {
-            $name = $one->getFilename();
-            if( !($name == $me || $name == $me2) ) $files[] = $name;
-        }
-        if( !count($files) ) throw new Exception('Could not find wizard steps in '.$classdir);
-        sort($files);
+        // find all step-classes in the wizard directory (not recursive)
+        $files = glob($this->_classdir.DIRECTORY_SEPARATOR.'class.wizard_step*.php',GLOB_NOSORT);
+        if( !$files ) throw new Exception('Could not find wizard steps in '.$this->_classdir);
 
         $_data = [];
+        $s = self::cur_step();
         for( $i = 0, $n = count($files); $i < $n; $i++ ) {
-            $idx = $i+1;
-            $filename = $files[$i];
-            $classname = substr($filename,6,strlen($filename)-10);
-            $rec = ['fn'=>$filename,'class'=>'','classname'=>$classname,'description'=>'','active'=>''];
-            $rec['class'] = ( $this->_namespace ) ? $this->_namespace.'\\'.$classname : $classname;
-            $rec['active'] = ($idx == $this->cur_step())?1:0;
-            $_data[$idx] = $rec;
+            $filename = basename($files[$i],'.php');
+            if( $filename != 'class.wizard_step' ) {
+                $classname = substr($filename,6);
+                $idx = (int)substr($classname,11);
+                $rec = ['fn'=>$filename.'.php','class'=>'','classname'=>$classname,'description'=>'','active'=>0];
+                $rec['class'] = ( $this->_namespace ) ? $this->_namespace.'\\'.$classname : $classname;
+                if( $idx == $s ) $rec['active'] = 1;
+                $_data[$idx] = $rec;
+            }
         }
+        ksort($_data,SORT_NUMERIC);
+
         $this->_steps = $_data;
+        $this->_initialized = true;
     }
 
     public function get_nav()
@@ -110,8 +107,8 @@ final class wizard
 
     public function cur_step() : int
     {
-        $val = 1;
         if( $this->_stepvar && isset($_GET[$this->_stepvar]) ) $val = (int)$_GET[$this->_stepvar];
+        else $val = 1;
         return $val;
     }
 
@@ -129,16 +126,17 @@ final class wizard
 
     public function get_step()
     {
-        $this->_init();
         if( is_object($this->_stepobj) ) return $this->_stepobj;
 
+        $this->_init();
         $rec = $this->_steps[$this->cur_step()];
-        if( isset($rec['class']) && class_exists($rec['class']) ) {
-            $obj = new $rec['class']();
-            if( is_object($obj) ) {
-                $this->_stepobj = $obj;
-                return $obj;
-            }
+        if( !class_exists($rec['class']) ) {
+            require_once $this->_classdir.DIRECTORY_SEPARATOR.$rec['fn'];
+        }
+        $obj = new $rec['class']();
+        if( is_object($obj) ) {
+            $this->_stepobj = $obj;
+            return $obj;
         }
     }
 
@@ -178,8 +176,6 @@ final class wizard
      */
     public function step_url($idx) : string
     {
-        $this->_init();
-
         // get the url to the specified step index
         $idx = (int)$idx;
         if( $idx < 1 || $idx > $this->num_steps() ) return '';
