@@ -1,5 +1,5 @@
 <?php
-#Class of static content-related methods
+#Class of content-related methods
 #Copyright (C) 2004-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #Thanks to Ted Kulp and all other contributors from the CMSMS Development Team.
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -41,7 +41,7 @@ use function lang;
 use function munge_string_to_url;
 
 /**
- * Class for static methods related to content
+ * Class of methods related to content
  *
  * @final
  * @since 0.8
@@ -96,6 +96,8 @@ final class ContentOperations
 	}
 
 	/**
+	 * Setup several related caches which are used in various classes
+	 * Called from include.php
 	 * @ignore
 	 */
 	public static function setup_cache()
@@ -109,7 +111,7 @@ final class ContentOperations
 				});
 		global_cache::add_cachable($obj);
 
-		// the tree
+		// hence the tree
 		$obj = new global_cachable('content_tree', function()
 				{
 					$flatlist = global_cache::get('content_flatlist');
@@ -120,6 +122,7 @@ final class ContentOperations
 				});
 		global_cache::add_cachable($obj);
 
+		// hence the quicklist
 		$obj = new global_cachable('content_quicklist', function()
 				{
 					$tree = global_cache::get('content_tree');
@@ -170,7 +173,7 @@ final class ContentOperations
 	 * @internal
 	 * @access private
 	 * @since 1.9
-	 * @param mixed The type.  Either a string, or an instance of ContentTypePlaceHolder
+	 * @param mixed $type string or an instance of ContentTypePlaceHolder
 	 * @return mixed
 	 */
 	public function LoadContentType($type)
@@ -193,7 +196,7 @@ final class ContentOperations
 	 * and then, if possible a new object of the designated type will be
 	 * instantiated.
 	 *
-	 * @param mixed $type The type.  Either a string, or an instance of ContentTypePlaceHolder
+	 * @param mixed $type string or an instance of ContentTypePlaceHolder
 	 * @return mixed  object derived from ContentBase | null
 	 */
 	public function &CreateNewContent($type)
@@ -214,7 +217,7 @@ final class ContentOperations
 	 * Given a content id, load and return the loaded content object.
 	 *
 	 * @param int $id The id of the content object to load
-	 * @param bool $loadprops Also load the properties of that content object. Defaults to false.
+	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Defaults to false.
 	 * @return mixed The loaded content object. If nothing is found, returns FALSE.
 	 */
 	public function LoadContentFromId(int $id,bool $loadprops=false)
@@ -284,7 +287,7 @@ final class ContentOperations
 	 *
 	 * @since 1.9
 	 * @access private
-	 * @internal
+	 * @return array
 	 */
 	private function _get_std_content_types() : array
 	{
@@ -339,7 +342,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Function to return a content type given it's name
+	 * Returns a content type given its name
 	 *
 	 * @since 1.9
 	 * @access private
@@ -363,6 +366,7 @@ final class ContentOperations
 	 *
 	 * @since 1.9
 	 * @param ContentTypePlaceHolder Reference to placeholder object
+	 * @return bool
 	 */
 	public function register_content_type(ContentTypePlaceHolder $obj) : bool
 	{
@@ -532,7 +536,7 @@ final class ContentOperations
 	}
 
 	/**
-	 * Load All content in the database into memory
+	 * Loads all content in the database into memory
 	 * Use with caution this can chew up a lot of memory on larger sites.
 	 *
 	 * @param bool $loadprops Load extended content properties or just the page structure and basic properties
@@ -735,7 +739,7 @@ final class ContentOperations
 	 * Returns an array of all content objects in the system, active or not.
 	 *
 	 * Caution:  it is entirely possible that this method (and other similar methods of loading content) will result in a memory outage
-	 * if there are large amounts of content objects AND/OR large amounts of content properties.  Use with caution.
+	 * if there are a lot of content objects AND/OR large amounts of content properties.  Use with caution.
 	 *
 	 * @param bool $loadprops Not implemented
 	 * @return array The array of content objects
@@ -753,6 +757,7 @@ final class ContentOperations
 			$tmp = $one->GetContent(false,true,true);
 			if( is_object($tmp) ) $output[] = $tmp;
 		}
+		unset($one);
 
 		debug_buffer('end get all content...');
 		return $output;
@@ -848,25 +853,24 @@ EOS;
 	 */
 	public function GetPageIDFromHierarchy( string $position )
 	{
-		$gCms = CmsApp::get_instance();
-		$db = $gCms->GetDb();
+		$db = CmsApp::get_instance()->GetDb();
 
 		$query = 'SELECT content_id FROM '.CMS_DB_PREFIX.'content WHERE hierarchy = ?';
-		$row = $db->GetRow($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
+		$content_id = $db->GetOne($query, [$this->CreateUnfriendlyHierarchyPosition($position)]);
 
-		if (!$row) return false;
-		return $row['content_id'];
+		if( $content_id ) return $content_id;
+		return false;
 	}
 
 	/**
 	 * Returns the content alias given a valid content id.
 	 *
-	 * @param int $id The content id to query
-	 * @return string The resulting content alias.  false if not found.
+	 * @param int $content_id The content id to query
+	 * @return mixed string The resulting content alias.  null if not found.
 	 */
-	public function GetPageAliasFromID( int $id )
+	public function GetPageAliasFromID( int $content_id )
 	{
-		$node = $this->quickfind_node_by_id($id);
+		$node = $this->quickfind_node_by_id($content_id);
 		if( $node ) return $node->getTag('alias');
 	}
 
@@ -891,7 +895,7 @@ EOS;
 		}
 		$db = CmsApp::get_instance()->GetDb();
 		$out = (int) $db->GetOne($query, $params);
-		if( $out > 0 ) return TRUE;
+		return $out > 0;
 	}
 
 	/**
@@ -905,8 +909,7 @@ EOS;
 	{
 		if( ((int)$alias > 0 || (float)$alias > 0.00001) && is_numeric($alias) ) return FALSE;
 		$tmp = munge_string_to_url($alias,TRUE);
-		if( $tmp != mb_strtolower($alias) ) return FALSE;
-		return TRUE;
+		return $tmp == mb_strtolower($alias);
 	}
 
 	/**
@@ -1107,16 +1110,16 @@ EOS;
 	}
 
 	/**
-	 * A convenience function to find a hierarchy node given the page id
+	 * Find in the cache a hierarchy node corresponding to a given page id
 	 * This method is replicated in cms_content_tree class
 	 *
-	 * @param int $id The page id
-	 * @return cms_content_tree
+	 * @param int $contentid The page id
+	 * @return mixed cms_content_tree | null
 	 */
-	public function quickfind_node_by_id(int $id)
+	public function quickfind_node_by_id(int $contentid)
 	{
 		$list = global_cache::get('content_quicklist');
-		if( isset($list[$id]) ) return $list[$id];
+		if( isset($list[$contentid]) ) return $list[$contentid];
 	}
 } // class
 
