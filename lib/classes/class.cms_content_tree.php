@@ -28,22 +28,23 @@ use CMSMS\ContentOperations, CMSMS\internal\content_cache, CMSMS\internal\global
  * @author  Robert Campbell
  *
  * @since 1.9
+ * @deprecated since 2.3
  */
 class cms_content_tree extends cms_tree
 {
 	/**
-	 * Find a tree node given a specfied tag and value.
+	 * Find a tree node given a specified tag and value.
 	 *
 	 * @param string $tag_name The tag name to search for
 	 * @param mixed  $value The tag value to search for
 	 * @param bool $case_insensitive Whether the value should be treated as case insensitive.
-     * @param bool $usequick Optionally, when searching by id... uise the quickfind method if possible.
-	 * @return cms_tree
+     * @param bool $usequick Optionally, when searching by id... use the quickfind method if possible.
+	 * @return mixed cms_tree | null
 	 */
 	public function &find_by_tag(string $tag_name,$value,bool $case_insensitive = FALSE,bool $usequick = TRUE)
 	{
 		if( $usequick && $tag_name == 'id' && $case_insensitive == FALSE && ($this->get_parent() == null || $this->get_tag('id') == '') ) {
-			$res = ContentOperations::get_instance()->quickfind_node_by_id($value);
+			$res = $this->quickfind_node_by_id($value);
 			return $res;
 		}
 		return parent::find_by_tag($tag_name,$value,$case_insensitive);
@@ -59,7 +60,7 @@ class cms_content_tree extends cms_tree
 	 */
 	public function sureGetNodeById(int $id)
 	{
-        return ContentOperations::get_instance()->quickfind_node_by_id($id);
+        return $this->quickfind_node_by_id($id);
 	}
 
 	/**
@@ -77,7 +78,7 @@ class cms_content_tree extends cms_tree
 	}
 
 	/**
-	 * Retrieve the node for a page id
+	 * Retrieve from cache the node for a page id
 	 * Method imported from ContentOperations class
 	 *
 	 * @param int $id The page id
