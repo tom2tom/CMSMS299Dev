@@ -134,20 +134,20 @@ if ($n > 0) {
 /*
  * Cache and content
  */
-if (isset($_POST['updateroutes'])) {
-    cms_route_manager::rebuild_static_routes();
-    audit('', 'System maintenance', 'Static routes rebuilt');
-    $themeObject->RecordNotice('success', lang('routesrebuilt'));
-    $smarty->assign('active_content', 'true');
-}
-
 if (isset($_POST['clearcache'])) {
     //TODO also clear non-file caches, if used
     AdminUtils::clear_cache();
     // put mention into the admin log
     audit('', 'System maintenance', 'Cache cleared');
     $themeObject->RecordNotice('success', lang('cachecleared'));
-    $smarty->assign('active_content', 'true');
+    $smarty->assign('active_cache', 1);
+}
+
+if (isset($_POST['updateroutes'])) {
+    cms_route_manager::rebuild_static_routes();
+    audit('', 'System maintenance', 'Static routes rebuilt');
+    $themeObject->RecordNotice('success', lang('routesrebuilt'));
+    $smarty->assign('active_content', 1);
 }
 
 $contentops = $gCms->GetContentOperations();
@@ -155,7 +155,7 @@ if (isset($_POST['updatehierarchy'])) {
     $contentops->SetAllHierarchyPositions();
     audit('', 'System maintenance', 'Page hierarchy positions updated');
     $themeObject->RecordNotice('success', lang('sysmain_hierarchyupdated'));
-    $smarty->assign('active_content', 'true');
+    $smarty->assign('active_content', 1);
 }
 
 // Setup types
@@ -197,7 +197,7 @@ if (isset($_POST['addaliases'])) {
     }
     audit('', 'System maintenance', 'Fixed pages missing aliases, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_aliasesfixed'));
-    $smarty->assign('active_content', 'true');
+    $smarty->assign('active_content', 1);
 }
 
 if (isset($_POST['fixtypes'])) {
@@ -215,7 +215,7 @@ if (isset($_POST['fixtypes'])) {
 
     audit('', 'System maintenance', 'Converted pages with invalid content types, count:' . $count);
     $themeObject->RecordNotice('success', $count . ' ' . lang('sysmain_typesfixed'));
-    $smarty->assign('active_content', 'true');
+    $smarty->assign('active_content', 1);
 }
 
 $query = 'SELECT content_name,type,content_alias FROM ' . CMS_DB_PREFIX . 'content ORDER BY content_name';

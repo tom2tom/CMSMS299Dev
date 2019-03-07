@@ -1,46 +1,10 @@
-{tab_header name='database' label=lang('sysmaintab_database') active=isset($active_database)}
 {tab_header name='content' label=lang('sysmaintab_content') active=isset($active_content)}
+{tab_header name='cache' label=lang('sysmaintab_cache') active=isset($active_cache)}
+{tab_header name='database' label=lang('sysmaintab_database') active=isset($active_database)}
 {if isset($changelog)}
 {tab_header name='changelog' label=lang('sysmaintab_changelog') active=isset($active_changelog)}
 {/if}
-{tab_start name='database'}
-<form action="{$selfurl}{$urlext}" method="post">
-  <fieldset>
-    <legend>{lang('sysmain_database_status')}</legend>
-    <p>{lang('sysmain_tablesfound',$tablecount,$nonseqcount)}</p>
-    {if $errorcount==0}
-    <p class='green'><strong>{lang('sysmain_nostr_errors')}</strong></p>
-    {else}
-    <p class='red'><strong>{if $errorcount>1}{lang('sysmain_str_errors',{$errorcount})}{else}{lang('sysmain_str_error',{$errorcount})}{/if}: {$errortables}</strong></p>
-    {/if}
-
-    <div class="pageoverflow">
-      <p class="pageinput pregap">
-        <button type="submit" name="optimizeall" class="adminsubmit icon do" title="{lang('sysmain_tipoptimizetables')}">{lang('sysmain_optimizetables')}</button>
-      </p>
-    </div>
-    <div class="pageoverflow">
-      <p class="pageinput pregap">
-        <button type="submit" name="repairall" class="adminsubmit icon do" title="{lang('sysmain_tiprepairtables')}">{lang('sysmain_repairtables')}</button>
-      </p>
-    </div>
-  </fieldset>
-</form>
 {tab_start name='content'}
-<fieldset>
-  <legend>{lang('sysmain_cache_status')}&nbsp;</legend>
-  {if isset($cachetype)}{lang('sysmain_cache_type',{$cachetype})}{/if}
-  <form action="{$selfurl}{$urlext}" method="post">
-    <div class="pageoverflow">
-      <p class="pageinput">
-        <button type="submit" name="clearcache" class="adminsubmit icon do">{lang('clearcache')}</button>
-      </p>
-    </div>
-  </form>
-</fieldset>
-
-<fieldset>
-  <legend>{lang('sysmain_content_status')}&nbsp;</legend>
   {lang('sysmain_pagesfound', {$pagecount})}
 
   {if $invalidtypescount == 0 && $withoutaliascount == 0}
@@ -84,8 +48,6 @@
     </div>
   </form>
 
-</fieldset>
-
 {if !empty($devmode)}
   <form action="{$selfurl}{$urlext}" method="post">
   <p class="pageinput pregap">
@@ -93,6 +55,37 @@
   </p>
   </form>
 {/if}
+
+{tab_start name='cache'}
+  {if isset($cachetype)}{lang('sysmain_cache_type',{$cachetype})}{/if}
+  <form action="{$selfurl}{$urlext}" method="post">
+    <div class="pageoverflow">
+      <p class="pageinput pregap">
+        <button type="submit" name="clearcache" class="adminsubmit icon do">{lang('clearcache')}</button>
+      </p>
+    </div>
+  </form>
+
+{tab_start name='database'}
+<form action="{$selfurl}{$urlext}" method="post">
+    <p>{lang('sysmain_tablesfound',$tablecount,$nonseqcount)}</p>
+    {if $errorcount==0}
+    <p class='green'><strong>{lang('sysmain_nostr_errors')}</strong></p>
+    {else}
+    <p class='red'><strong>{if $errorcount>1}{lang('sysmain_str_errors',{$errorcount})}{else}{lang('sysmain_str_error',{$errorcount})}{/if}: {$errortables}</strong></p>
+    {/if}
+
+    <div class="pageoverflow">
+      <p class="pageinput pregap">
+        <button type="submit" name="optimizeall" class="adminsubmit icon do" title="{lang('sysmain_tipoptimizetables')}">{lang('sysmain_optimizetables')}</button>
+      </p>
+    </div>
+    <div class="pageoverflow">
+      <p class="pageinput pregap">
+        <button type="submit" name="repairall" class="adminsubmit icon do" title="{lang('sysmain_tiprepairtables')}">{lang('sysmain_repairtables')}</button>
+      </p>
+    </div>
+</form>
 
 {if isset($changelog)}
 {tab_start name='changelog'}
