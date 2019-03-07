@@ -281,6 +281,7 @@ DETAILS
   - Allow login via a module (CoreAdminLogin) now is core admin module
   - FEATURE: Adds a new hook for password strength
   - cms_mailer class now throws an exception if attempting to send an email without setting preferences first.
+  - DEPRECATED: sequence-tables additional_users, event_handlers, events, group_perms and their use for populating related tables. In future, autoincrement values
   - BREAKING: New methods and minor cleanup to admin themes (may introduce some breakage)
   - FEATURE: Adds {cms_queue_script} and {cms_render_scripts} plugins to allow combining javascripts and rendering them in fewer requests.
   - FEATURE: new Core::PreProcessScripts and Core::PostProcessScripts hooks
