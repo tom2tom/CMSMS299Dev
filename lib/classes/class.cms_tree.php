@@ -1,5 +1,5 @@
 <?php
-# Simple PHP tree class
+# Simple tree class
 # Copyright (C) 2010-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
@@ -17,7 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * A Simple PHP Tree class that allows storing associative data along with each node.
+ * A tree / tree-node class that allows storing data with each node.
  *
  * @package CMS
  * @author  Robert Campbell
@@ -41,12 +41,11 @@ class cms_tree
 	 */
 	private $_children;
 
-
 	/**
 	 * Construct a new tree, or node of a tree.
 	 *
-	 * @param string $key An optional key for a tag
-	 * @param mixed  $value An optional value for the tag.
+	 * @param string $key An optional key for a tag. Default null.
+	 * @param mixed  $value An optional value for the tag. Default ''.
 	 */
 	public function __construct($key = null,$value = '')
 	{
@@ -62,16 +61,15 @@ class cms_tree
 		}
 	}
 
-
 	/**
-	 * Find a tree node given a specfied tag and value.
+	 * Recursively find a tree node matching a name/type and value.
 	 *
 	 * @param string $tag_name The tag name to search for
 	 * @param mixed  $value The tag value to search for
-	 * @param bool $case_insensitive Whether the value should be treated as case insensitive.
+	 * @param bool $case_insensitive Whether the (string) value should matched regardless of case. Default false.
 	 * @return cms_tree or null on failure.
 	 */
-	public function &find_by_tag(string $tag_name,$value,bool $case_insensitive = FALSE)
+	public function &find_by_tag($tag_name,$value,$case_insensitive = FALSE)
 	{
 		$res = null;
 		if( !is_string($tag_name) ) return $res;
@@ -80,14 +78,12 @@ class cms_tree
 		if( $this->_tags ) {
 			if( isset($this->_tags[$tag_name]) ) {
 				if( $case_insensitive ) {
-					if( isset($this->_tags[$tag_name]) && strtolower($this->_tags[$tag_name]) == strtolower($value) ) {
+					if( strcasecmp($this->_tags[$tag_name], $value) == 0 ) {
 						return $this;
 					}
 				}
-				else {
-					if( isset($this->_tags[$tag_name]) && $this->_tags[$tag_name] == $value ) {
-						return $this;
-					}
+				else if( $this->_tags[$tag_name] == $value ) {
+					return $this;
 				}
 			}
 		}
@@ -102,7 +98,6 @@ class cms_tree
 		return $res;
 	}
 
-
 	/**
 	 * Test if this node has children.
 	 *
@@ -110,9 +105,8 @@ class cms_tree
 	 */
 	public function has_children()
 	{
-		return is_array($this->_children);
+		return !empty($this->_children);
 	}
-
 
 	/**
 	 * Set a tag value into this node
@@ -120,12 +114,11 @@ class cms_tree
 	 * @param string $key Tag name
 	 * @param mixed  $value Tag value
 	 */
-	public function set_tag(string $key,$value)
+	public function set_tag($key,$value)
 	{
 		if( !$this->_tags ) $this->_tags = [];
 		$this->_tags[$key] = $value;
 	}
-
 
 	/**
 	 * Retrieve a tag for this node.
@@ -133,7 +126,7 @@ class cms_tree
 	 * @param string $key The tag name
 	 * @return mixed The tag value, or null
 	 */
-	public function &get_tag(string $key)
+	public function &get_tag($key)
 	{
 		$res = null;
 		if( !$this->_tags ) return $res;
@@ -142,21 +135,20 @@ class cms_tree
 		return $res;
 	}
 
-
 	/**
 	 * Remove the specified node from the tree.
 	 *
-	 * Search through the children of this node (and optionally recursively through the tree)
-	 * for the specified node. If found, remove it.
+	 * Search through the children of this node for the specified node.
+	 * If found, remove it. Optionally, all its its descendants too.
 	 *
-	 * Use this method with caution, as it is very easy to break your tree, corrupt memory
-	 * and have tree nodes hanging out there with no parents.
+	 * Use this method with caution, as it is very easy to break your tree,
+	 * corrupt memory and have tree nodes hanging out there with no parents.
 	 *
 	 * @param cms_tree $node Reference to the node to be removed.
-	 * @param bool     $search_children Whether to recursively search children.
+	 * @param bool     $search_children Whether to recursively remove decendants. Default false.
 	 * @return bool
 	 */
-	protected function remove_node(cms_tree &$node, bool $search_children = false)
+	protected function remove_node(cms_tree &$node, $search_children = false)
 	{
 		if( !$this->has_children() ) return FALSE;
 
@@ -176,11 +168,10 @@ class cms_tree
 		return FALSE;
 	}
 
-
 	/**
-	 * Remove this node
+	 * Remove this node from the tree. Not its descendants, if any.
 	 *
-	 * This is a convenience method that calls remove_node on the current object.
+	 * Use this method with caution, as it will break the tree if there are descendant(s).
 	 *
 	 * @return bool
 	 */
@@ -190,12 +181,11 @@ class cms_tree
 		return $this->_parent->remove_node($this);
 	}
 
-
 	/**
-	 * Get a reference to the parent node.
+	 * Get a reference to the parent node of this one.
+	 * @since 2.0
 	 *
 	 * @return cms_tree Reference to the parent node, or null.
-	 * @since 2.0
 	 */
 	public function &get_parent()
 	{
@@ -204,9 +194,9 @@ class cms_tree
 
 	/**
 	 * Get a reference to the parent node.
+	 * @deprecated since 2.0 use get_parent()
 	 *
 	 * @return cms_tree Reference to the parent node, or null.
-	 * @deprecated
 	 */
 	public function &getParent()
 	{
@@ -214,7 +204,7 @@ class cms_tree
 	}
 
 	/**
-	 * Add the specified node as a child to this node.
+	 * Add the specified node as a child of this node.
 	 *
 	 * @param cms_tree $node The node to add
 	 */
@@ -229,9 +219,8 @@ class cms_tree
 		$this->_children[] = $node;
 	}
 
-
 	/**
-	 * Count the number of direct children to this node.
+	 * Count the number of direct children of this node.
 	 *
 	 * @return int
 	 */
@@ -241,9 +230,8 @@ class cms_tree
 		return 0;
 	}
 
-
 	/**
-	 * Count the number of siblings that this node has.
+	 * Count the number of siblings of this node.
 	 *
 	 * @return int
 	 */
@@ -253,9 +241,8 @@ class cms_tree
 		return 1;
 	}
 
-
 	/**
-	 * Count the total number of all nodes, including myself.
+	 * Count the total number of all nodes, including this one.
 	 *
 	 * @return int
 	 */
@@ -288,11 +275,10 @@ class cms_tree
 		return $n;
 	}
 
-
 	/**
 	 * Return the children of this node.
 	 *
-	 * @return an array of cms_tree objects, or null if there are no children.
+	 * @return mixed  array of cms_tree objects | null if there are no children.
 	 */
 	public function &get_children()
 	{
@@ -300,5 +286,4 @@ class cms_tree
 		$res = null;
 		return $res;
 	}
-
 } // class
