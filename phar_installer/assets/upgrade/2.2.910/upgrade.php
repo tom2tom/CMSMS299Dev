@@ -216,6 +216,9 @@ $sqlarray = $dbdict->CreateIndexSQL('idx_content_by_idhier',
     CMS_DB_PREFIX.'content', 'content_id,hierarchy');
 $dbdict->ExecuteSQLArray($sqlarray);
 
+//events table
+$sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'event_id'); //redundant duplicate index
+$dbdict->ExecuteSQLArray($sqlarray);
 //event-handlers table columns
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.'event_handlers', 'type C(1) NOT NULL DEFAULT "C"');
 $dbdict->ExecuteSQLArray($sqlarray);
