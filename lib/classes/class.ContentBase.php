@@ -1488,7 +1488,7 @@ WHERE content_id = ?';
 			$dbr = $db->Execute($query, [$this->Id()]);
 
 			foreach( $this->mAdditionalEditors as $oneeditor ) {
-				$new_addt_id = $db->GenID(CMS_DB_PREFIX.'additional_users_seq');
+				$new_addt_id = $db->GenID(CMS_DB_PREFIX.'additional_users_seq'); //deprecated since 2.3 non AUTO additional_users_id
 				$query = 'INSERT INTO '.CMS_DB_PREFIX.'additional_users (additional_users_id, user_id, content_id) VALUES (?,?,?)';
 				$dbr = $db->Execute($query, [$new_addt_id, $oneeditor, $this->Id()]);
 			}

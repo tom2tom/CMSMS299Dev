@@ -88,7 +88,7 @@ EOS;
 	public static function CreateEvent(string $originator, string $eventname) : bool
 	{
 		$db = CmsApp::get_instance()->GetDb();
-		$id = $db->GenID( CMS_DB_PREFIX.'events_seq' );
+		$id = $db->GenID( CMS_DB_PREFIX.'events_seq' ); //deprecated since 2.3 non AUTO event_id
 		$originator = trim($originator);
 		$eventname = trim($eventname);
 		$pref = CMS_DB_PREFIX;
@@ -427,7 +427,7 @@ EOS;
 			return false; // ach, something matches already
 		}
 
-		$handler_id = $db->GenId(CMS_DB_PREFIX.'event_handler_seq');
+		$handler_id = $db->GenId(CMS_DB_PREFIX.'event_handler_seq');  //deprecated since 2.3 non AUTO handler_id
 		// get a new handler order
 		$sql = 'SELECT MAX(handler_order) AS newid FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=?';
 		$order = (int) $db->GetOne($sql, [$originator, $eventname]);
@@ -518,8 +518,8 @@ EOS;
 		$db->Execute($sql, [$id, $handler['handler_order']]);
 
 		// now delete this record
-		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE event_id=? AND handler_id=?';
-		$db->Execute($sql, [$id, $handler['handler_id']]);
+		$sql = 'DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE handler_id=? AND event_id=?';
+		$db->Execute($sql, [$handler['handler_id'], $id]);
 
 		global_cache::clear(__CLASS__);
 	}
@@ -649,8 +649,8 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE event_id = ? AND handler_order = ?';
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] - 1 ] );
-		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE event_id = ? AND handler_id = ?';
-		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_id'] ] );
+		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE handler_id = ? AND event_id = ?';
+		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
 		global_cache::clear(__CLASS__);
 	}
 
@@ -669,8 +669,8 @@ EOS;
 		$db = CmsApp::get_instance()->GetDb();
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order - 1 WHERE event_id = ? AND handler_order = ?';
 		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_order'] + 1 ] );
-		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE event_id = ? AND handler_id = ?';
-		$db->Execute( $sql, [ $handler['event_id'], $handler['handler_id'] ] );
+		$sql = 'UPDATE '.CMS_DB_PREFIX.'event_handlers SET handler_order = handler_order + 1 WHERE handler_id = ? AND event_id = ?';
+		$db->Execute( $sql, [ $handler['handler_id'], $handler['event_id'] ] );
 		global_cache::clear(__CLASS__);
 	}
 } //class
