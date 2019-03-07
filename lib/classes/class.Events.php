@@ -71,7 +71,7 @@ final class Events
 SELECT e.event_id, eh.type, eh.class, eh.func, e.originator, e.event_name, eh.handler_order, eh.handler_id, eh.removable
 FROM {$pref}event_handlers eh
 INNER JOIN {$pref}events e ON e.event_id = eh.event_id
-ORDER BY handler_order,event_id
+ORDER BY originator,event_name,handler_order
 EOS;
 				return $db->GetArray($sql);
 			});
@@ -81,7 +81,7 @@ EOS;
 	/**
 	 * Record an event in the database.
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @return bool
 	 */
@@ -108,7 +108,7 @@ EOS;
 	 * Remove an event from the database.
 	 * This removes the event itself, and all handlers of the event
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @return bool
 	 */
@@ -264,13 +264,13 @@ EOS;
 	}
 
 	/**
-	 * Return the list of (static and dynamic) event handlers for an event.
+	 * Return the static(cached) and/or dynamic handlers of an event.
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
-	 * @return mixed If successful, an array of arrays, each element
-	 *               in the array contains two elements 'handler_name', and 'module_handler',
-	 *               any one of these could be null. If it fails, false is returned.
+	 * @return mixed If successful, an array of arrays, each sub-array contains
+	 *  at least 'originator' 'event_name' 'class' 'func' 'type', plus others for static events
+	 *  If nothing is found, false is returned.
 	 */
 	public static function ListEventHandlers(string $originator, string $eventname)
 	{
@@ -380,7 +380,7 @@ EOS;
 	 * can customize event handling on-the-fly.
 	 * @since 2.3
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
 	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
@@ -452,7 +452,7 @@ EOS;
 	 * can customize event handling on-the-fly.
 	 * @deprecated since 2.3 Instead use AddStaticHandler()
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param string $tag_name The name of a UDT. If not passed, no User Defined Tag is set.
 	 * @param string $module_handler The name of a module. If not passed, no module is set.
@@ -476,7 +476,7 @@ EOS;
 
 	/**
 	 * @since 2.3
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param mixed $callback an actual or pseudo callable or an equivalent string
 	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
@@ -538,7 +538,7 @@ EOS;
 	/**
 	 * Remove a handler of the given event.
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param mixed  $callback an actual or pseudo callable or an equivalent string
 	 *  As appropriate, the 'class' may be a module name or '', the 'method' may be
@@ -589,7 +589,7 @@ EOS;
 	 * Remove a handler of the given event.
 	 * @deprecated since 2.3 Instead use RemoveStaticHandler()
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @param mixed  $tag_name Optional name of a User Defined Tag which handles the specified event
 	 * @param mixed  $module_handler Optional name of a module which handles the specified event
@@ -613,7 +613,7 @@ EOS;
 	/**
 	 * Remove all handlers of the given event.
 	 *
-	 * @param string $originator The event 'owner' - a module name or 'Core'
+	 * @param string $originator The event sender/owner - a module name or 'Core'
 	 * @param string $eventname The name of the event
 	 * @return bool indicating success or otherwise
 	 */
