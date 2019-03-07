@@ -1652,9 +1652,9 @@ WHERE content_id = ?';
 					$this->mURL = $this->mAlias;
 				}
 				else {
-					// if it don't explicitly say 'flat' we're creating a hierarchical url.
-					$tree = CmsApp::get_instance()->GetHierarchyManager();
-					$node = $tree->find_by_tag('id',$this->ParentId());
+					// if it doesn't explicitly say 'flat' we're creating a hierarchical url.
+					$hm = CmsApp::get_instance()->GetHierarchyManager();
+					$node = $hm->find_by_tag('id',$this->ParentId());
 					$stack = [$this->mAlias];
 					$parent_url = '';
 					$count = 0;
