@@ -21,8 +21,8 @@ if (!isset($gCms)) exit;
 
 cms_siteprefs::set('syntax_editor', $this->GetName().'::Ace');
 
-$this->SetPreference('ace_cdn', CoreTextEditing::ACE_CDN);
+$this->SetPreference('ace_url', CoreTextEditing::ACE_CDN);
 $this->SetPreference('ace_theme', CoreTextEditing::ACE_THEME);
-$this->SetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
+$this->SetPreference('codemirror_url', CoreTextEditing::CM_CDN);
 $this->SetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
 

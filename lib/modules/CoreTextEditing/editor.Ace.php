@@ -97,7 +97,7 @@ function GetScript(&$mod, array $params) : array
 		$mode = '';
 	}
 
-	$cdn = $mod->GetPreference('ace_cdn', CoreTextEditing::ACE_CDN);
+	$cdn = $mod->GetPreference('ace_url', CoreTextEditing::ACE_CDN);
 
 	if (!empty($CMS_ADMIN_PAGE)) {
 		if (!$style) {

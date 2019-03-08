@@ -91,7 +91,7 @@ function GetScript(&$mod, array $params) : array
 		$mode = '';
 	}
 
-	$cdn = $mod->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
+	$cdn = $mod->GetPreference('codemirror_url', CoreTextEditing::CM_CDN);
 
 	if (!empty($CMS_ADMIN_PAGE)) {
 		if (!$style) {

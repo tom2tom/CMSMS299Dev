@@ -21,18 +21,18 @@ if (!isset($gCms)) exit;
 if (!$this->CheckPermission('Modify Site Preferences')) exit;
 
 if (isset($params['apply'])) {
-    $url = filter_var($params['ace_cdn'], FILTER_SANITIZE_URL); //TODO handle error
-    $this->SetPreference('ace_cdn', $url);
+    $url = filter_var($params['ace_url'], FILTER_SANITIZE_URL); //TODO handle error
+    $this->SetPreference('ace_url', $url);
     $this->SetPreference('ace_theme', $params['ace_theme']);
-    $url = filter_var($params['codemirror_cdn'], FILTER_SANITIZE_URL); //TODO handle error
-    $this->SetPreference('codemirror_cdn', $url);
+    $url = filter_var($params['codemirror_url'], FILTER_SANITIZE_URL); //TODO handle error
+    $this->SetPreference('codemirror_url', $url);
     $this->SetPreference('codemirror_theme', $params['codemirror_theme']);
     $this->ShowMessage($this->Lang('settings_success'));
 }
 
-$ace_cdn = $this->GetPreference('ace_cdn', CoreTextEditing::ACE_CDN);
+$ace_url = $this->GetPreference('ace_url', CoreTextEditing::ACE_CDN);
 $ace_theme = $this->GetPreference('ace_theme', CoreTextEditing::ACE_THEME);
-$codemirror_cdn = $this->GetPreference('codemirror_cdn', CoreTextEditing::CM_CDN);
+$codemirror_url = $this->GetPreference('codemirror_url', CoreTextEditing::CM_CDN);
 $codemirror_theme = $this->GetPreference('codemirror_theme', CoreTextEditing::CM_THEME);
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('adminpanel.tpl'),null,null,$smarty);
@@ -43,9 +43,9 @@ if (!empty($warning)) {
     $tpl->assign('warning', $warning); //optional
 }
 $tpl->assign([
-    'ace_cdn' => $ace_cdn,
+    'ace_url' => $ace_url,
     'ace_theme' => $ace_theme,
-    'codemirror_cdn' => $codemirror_cdn,
+    'codemirror_url' => $codemirror_url,
     'codemirror_theme' => $codemirror_theme,
 ]);
 
