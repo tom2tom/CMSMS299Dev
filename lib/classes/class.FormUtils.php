@@ -715,7 +715,7 @@ class FormUtils
     }
 
     /**
-     * Record a syntax module
+     * Record a syntax module specified during generation of a textarea
      * @internal
      * @ignore
      */
@@ -729,7 +729,7 @@ class FormUtils
     }
 
     /**
-     * Get list of all recorded syntax-highlighter modules
+     * Get the specified syntax-highlighter module(s)
      *
      * @return array
      */
@@ -739,7 +739,7 @@ class FormUtils
     }
 
     /**
-     * Record a wysiwyg module (which will ensure that the headers and initialization is done, later.
+     * Record a wysiwyg module specified during generation of a textarea.
      * In the frontend the {cms_init_editor} plugin must be included in the head part of the page template.
      *
      * @internal
@@ -759,7 +759,7 @@ class FormUtils
     }
 
     /**
-     * Get list of all recorded page-content editor modules
+     * Get the specified page-content editor module(s)
      *
      * @return array
      */
