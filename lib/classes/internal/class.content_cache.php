@@ -76,14 +76,15 @@ final class content_cache
 		$data = cms_cache_handler::get_instance()->get($this->_key,__CLASS__);
 		if( $data) {
 			list($lastmtime,$deep,$content_ids) = $data;
-			if( $lastmtime < ContentOperations::get_instance()->GetLastContentModification() ) {
+			$contentops = ContentOperations::get_instance();
+			if( $lastmtime < $contentops->GetLastContentModification() ) {
 				$deep = null;
 				$content_ids = null;
 			}
 		}
 		if( $content_ids ) {
 			$this->_preload_cache = $content_ids;
-			$contentops = ContentOperations::get_instance();
+			if( !$data ) $contentops = ContentOperations::get_instance();
 			$tmp = $contentops->LoadChildren(null,$deep,FALSE,$content_ids);
 		}
 	}
