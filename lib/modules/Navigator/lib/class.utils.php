@@ -63,7 +63,7 @@ final class utils
         if( !is_object($node) ) return;
         $gCms = CmsApp::get_instance();
         $hm = $gCms->GetHierarchyManager();
-        $content = $node->getContent(TRUE,TRUE);
+        $content = $node->getContent(TRUE);
         if( is_object($content) ) {
             if( !$content->Active() ) return;
             if( !$content->ShowInMenu() && !$show_all ) return;
@@ -128,7 +128,7 @@ final class utils
                 }
             }
 
-            // load all the children ... just to see if we have children that 'could' be displayed
+            // poll all the children ... to see if we have children that 'could' be displayed SLOW!
             $children = null;
             if( $node->has_children() ) {
                 $children = $node->getChildren($deep,$show_all);
