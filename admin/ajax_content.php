@@ -53,7 +53,7 @@ try {
                 $parents = [];
                 $startnode = $node = $contentops->quickfind_node_by_id($item);
                 while( $node && $node->get_tag('id') > 0 ) {
-                    $content = $node->getContent(FALSE);
+                    $content = $node->getContent();
                     $rec = $content->ToData();
                     $rec['can_edit'] = $can_edit_any || $contentops->CheckPageAuthorship($ruid,$content->Id());
                     $rec['display'] = strip_tags($rec['menu_text']);
@@ -93,7 +93,7 @@ try {
 
             $child_info = [];
             foreach( $children as $child ) {
-                $content = $child->getContent(FALSE);
+                $content = $child->getContent();
                 if( !is_object($content) ) continue;
                 if( !$allow_all && !$content->Active() ) continue;
                 if( !$allow_all && !$content->HasUsableLink() ) continue;
@@ -143,7 +143,7 @@ try {
                 if( $children ) {
                     $out = [];
                     foreach( $children as $child ) {
-                        $content = $child->getContent(FALSE);
+                        $content = $child->getContent();
                         if( !is_object($content) ) continue;
                         if( !$allow_all && !$content->Active() ) continue;
                         $res = $content->ToData();
@@ -207,7 +207,7 @@ try {
                 $out[$one] = [];
                 $children = $parent_node->getChildren(FALSE,$allow_all);
                 for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-                    $content_obj = $children[$i]->getContent(FALSE);
+                    $content_obj = $children[$i]->getContent();
                     if( ! $content_obj->IsViewable() ) continue;
                     $rec = [];
                     $rec['content_id'] = $content_obj->Id();
