@@ -53,22 +53,20 @@ class cms_tree_operations
 
 
   /**
-   * Load content tree from a flat array of hashes (from the database?)
+   * Load content tree from a flat array (from global_cache 'content_flatlist')
    *
    * This method uses recursion to load the tree.
    *
    * @internal
-   * @access private
-   * @param array The data to import
-   * @param int (optional) The parent id to load the tree from (default is -1)
-   * @param cms_content_tree (optional) The cms_content_tree node to add generated objects to.
+   * @param array The data to import, a row for each page, with members
+   *  content_id, parent_id, item_order, content_alias, active - all strings
    * @return cms_content_tree
    */
   public static function load_from_list(array $data)
   {
       // create a tree object
       $tree = new cms_content_tree();
-      $sorted = [];
+//      $sorted = [];
 
       for( $i = 0, $n = count($data); $i < $n; $i++ ) {
           $row = $data[$i];
@@ -82,10 +80,10 @@ class cms_tree_operations
               $parent_node = $tree;
           }
           else {
-              $parent_node = $tree->find_by_tag('id',$row['parent_id'],FALSE,FALSE);
+              $parent_node = $tree->find_by_tag('id',$row['parent_id'],FALSE,FALSE); //no id quick-finds possiblke yet
               if( !$parent_node ) {
                   // ruh-roh
-                  throw new \LogicException('Problem with internal content organization... could not get a parent node for content with id '.$row['content_id']);
+                  throw new LogicException('Problem with internal content organization... could not get a parent node for content with id '.$row['content_id']);
               }
           }
 
@@ -94,7 +92,5 @@ class cms_tree_operations
       }
       return $tree;
   }
-}
+} // class
 
- // end of class
-?>
