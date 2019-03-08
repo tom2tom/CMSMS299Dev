@@ -90,8 +90,10 @@ class cms_tree
 
 		if( $this->has_children() ) {
 			for( $i = 0, $n = count($this->_children); $i < $n; $i++ ) {
-				$tmp = $this->_children[$i]->find_by_tag($tag_name,$value);
-				if( $tmp ) return $tmp;
+				$tmp = $this->_children[$i]->find_by_tag($tag_name,$value,$case_insensitive);
+				if( $tmp ) {
+					return $tmp;
+				}
 			}
 		}
 
