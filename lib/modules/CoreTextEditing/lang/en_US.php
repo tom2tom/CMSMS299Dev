@@ -1,8 +1,6 @@
 <?php
 
 #A
-$lang['ace_cdnurl'] = 'CDN URL for Ace Editor';
-$lang['ace_theme'] = 'Default Ace Theme';
 $lang['ace_helpmain'] = <<<'EOS'
 A feature-rich, high-performance, <a href="https://ace.c9.io/#nav=production">popular</a> open-source editor.
 <br /><br />
@@ -13,12 +11,12 @@ Specify the theme name (lower case, any ' ' replaced by '_').
 <br /><br />
 Ace themes can be evaluated at <a href="https://ace.c9.io/build/kitchen-sink">C9</a>.
 EOS;
+$lang['ace_theme'] = 'Default Ace Theme';
+$lang['ace_url'] = 'Ace Editor Script URL';
 $lang['apply'] = 'Apply';
 
 #C
 $lang['cancel'] = 'Cancel';
-$lang['codemirror_cdnurl'] = 'CDN URL for CodeMirror Editor';
-$lang['codemirror_theme'] = 'Default CodeMirror Theme';
 $lang['codemirror_helpmain'] = <<<'EOS'
 A feature-rich, versatile, <a href="https://codemirror.net/doc/realworld.html">popular</a> open-source editor. Its support for mobile-device browsers is work-in-progress.
 <br /><br />
@@ -29,6 +27,8 @@ Specify the theme name (lower case, any ' ' replaced by '_').
 <br /><br />
 CodeMirror themes can be evaluated at the <a href="https://codemirror.net/demo/theme.html">website</a>.
 EOS;
+$lang['codemirror_theme'] = 'Default CodeMirror Theme';
+$lang['codemirror_url'] = 'CodeMirror Editor Script URL';
 
 #D
 $lang['description'] = 'Settings for editing website textfiles';
@@ -70,18 +70,22 @@ EOS;
 
 #S
 $lang['settings_acecdn'] = <<<'EOS'
-An URL which specifies which, and from where, text-editor source files will be downloaded at runtime in preparation for using the editor. The last part of the URL will often be a version-number.
+Enter here the URL which specifies which, and from where, text-editor source files will be retrieved at runtime in preparation for using the editor.
 <br /><br />
-Example: https://somecdnsite.com/ace/1.2.3
+The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number.
 <br /><br />
-One good source, perhaps the best, is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'ace', omit the trailing '/ace.js')
+CDN example: https://somecdnsite.com/ace/1.2.3
+<br /><br />
+One good CDN source, perhaps the best, is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'ace', omit the trailing '/ace.js')
 EOS;
 $lang['settings_cmcdn'] = <<<'EOS'
-An URL which specifies which, and from where, text-editor source files will be downloaded at runtime in preparation for using the editor. The last part of the URL will often be a version-number.
+Enter here the URL which specifies which, and from where, text-editor source files will be retrieved at runtime in preparation for using the editor.
 <br /><br />
-Example: https://somecdnsite.com/codemirror/5.4.3
+The editor may be installed on and run from this website, or run from CDN. The last part of the URL will often be a version-number.
 <br /><br />
-One good source, perhaps the best, is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'codemirror', omit the trailing '/codemirror.min.js')
+CDN example: https://somecdnsite.com/codemirror/5.4.3
+<br /><br />
+One good CDN source, perhaps the best, is <a href="https://cdnjs.com">cdnjs</a>. (browse for 'codemirror', omit the trailing '/codemirror.min.js')
 EOS;
 
 $lang['settings_error'] = 'Settings problem: %s. Settings NOT updated';
