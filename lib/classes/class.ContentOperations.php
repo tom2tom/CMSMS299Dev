@@ -105,7 +105,7 @@ final class ContentOperations
 		// the flat list
 		$obj = new global_cachable('content_flatlist', function()
 				{
-					$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy ASC';
+					$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
 					$db = CmsApp::get_instance()->GetDb();
 					return $db->GetArray($query);
 				});
@@ -256,7 +256,8 @@ final class ContentOperations
 		$contentobj = content_cache::get_content($alias);
 		if( $contentobj === null ) {
 			$hm = CmsApp::get_instance()->GetHierarchyManager();
-			$node = $hm->sureGetNodeByAlias($alias);
+			$type = '';
+			$node = $hm->find_by_tag_anon((string)$alias, $type);
 			if( $node ) {
 				if( !$only_active || $node->get_tag('active') ) {
 					$contentobj = $this->LoadContentFromId($node->get_tag('id'));
@@ -841,7 +842,7 @@ EOS;
 	public function GetPageIDFromAlias( string $alias )
 	{
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
-		$node = $hm->sureGetNodeByAlias($alias);
+		$node = $hm->find_by_tag('alias',$alias);
 		if( $node ) return $node->get_tag('id');
 	}
 

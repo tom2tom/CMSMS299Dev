@@ -102,7 +102,7 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
         if ($result->fields['module_name'] == $this->GetName()) {
             if ($result->fields['extra_attr'] == 'content') {
                 //Content is easy... just grab it out of hierarchy manager and toss the url in
-                $node = $hm->sureGetNodeById($result->fields['content_id']);
+                $node = $hm->find_by_tag('id',$result->fields['content_id']);
                 if (isset($node)) {
                     $content = $node->GetContent();
                     if (isset($content) && $content->Active()) $col->AddItem($content->Name(), $content->GetURL(), $content->Name(), $result->fields['total_weight']);
@@ -115,13 +115,15 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
             if( isset($params['detailpage']) ) {
                 $tmppageid = '';
                 $manager = $gCms->GetHierarchyManager();
-                $node = $manager->sureGetNodeByAlias($params['detailpage']);
-                if (isset($node)) {
-                    $tmppageid = $node->getID();
-                }
-                else {
-                    $node = $manager->sureGetNodeById($params['detailpage']);
-                    if (isset($node)) $tmppageid= $params['detailpage'];
+				$type = '';
+                $node = $manager->find_by_tag_anon($params['detailpage']);
+                if( $node ) {
+					if( $type == 'alias' ) {
+	                    $tmppageid = $node->get_tag('id');
+					}
+                    else {
+                        $tmppageid = $params['detailpage'];
+					}
                 }
                 if( $tmppageid ) $thepageid = $tmppageid;
             }

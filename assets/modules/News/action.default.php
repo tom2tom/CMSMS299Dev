@@ -19,17 +19,18 @@ else {
 $detailpage = '';
 $tmp = $this->GetPreference('detail_returnid',-1);
 if( $tmp > 0 ) $detailpage = $tmp;
-if (isset($params['detailpage'])) {
+if( isset($params['detailpage']) ) {
     $manager = $gCms->GetHierarchyManager();
-    $node = $manager->sureGetNodeByAlias($params['detailpage']);
-    if (isset($node)) {
-        $detailpage = $node->getID();
+    $type = '';
+    $node = $manager->find_by_tag_anon($params['detailpage'],$type);
+    if( $node ) {
+        if( $type == 'alias' ) {
+             $params['detailpage'] = $node->get_tag('id');
+        }
     }
     else {
-        $node = $manager->sureGetNodeById($params['detailpage']);
-        if (isset($node)) $detailpage = $params['detailpage'];
+//TODO
     }
-    $params['detailpage'] = $detailpage;
 }
 if (isset($params['browsecat']) && $params['browsecat']==1) {
     return $this->DoAction('browsecat', $id, $params, $returnid);
@@ -208,20 +209,20 @@ if( $rst ) {
         $moretext = $params['moretext'] ?? $this->Lang('more');
 
         $sendtodetail = ['articleid'=>$row['news_id']];
-		if( isset($params['showall']) ) { $sendtodetail['showall'] = $params['showall']; }
-		if( isset($params['detailpage']) ) { $sendtodetail['origid'] = $returnid; }
-		if( isset($params['detailtemplate']) ) { $sendtodetail['detailtemplate'] = $params['detailtemplate']; }
-		if( isset($params['lang']) ) { $sendtodetail['lang'] = $params['lang']; }
-		if( isset($params['category_id']) ) { $sendtodetail['category_id'] = $params['category_id']; }
-		if( isset($params['pagelimit']) ) { $sendtodetail['pagelimit'] = $params['pagelimit']; }
+        if( isset($params['showall']) ) { $sendtodetail['showall'] = $params['showall']; }
+        if( isset($params['detailpage']) ) { $sendtodetail['origid'] = $returnid; }
+        if( isset($params['detailtemplate']) ) { $sendtodetail['detailtemplate'] = $params['detailtemplate']; }
+        if( isset($params['lang']) ) { $sendtodetail['lang'] = $params['lang']; }
+        if( isset($params['category_id']) ) { $sendtodetail['category_id'] = $params['category_id']; }
+        if( isset($params['pagelimit']) ) { $sendtodetail['pagelimit'] = $params['pagelimit']; }
 
         $prettyurl = $row['news_url'];
         if( $prettyurl == '' ) {
             $aliased_title = munge_string_to_url($row['news_title']);
             $prettyurl = 'news/'.$row['news_id'].'/'.($detailpage!=''?$detailpage:$returnid)."/$aliased_title";
             if( isset($sendtodetail['detailtemplate']) ) {
-				$prettyurl .= '/d,' . $sendtodetail['detailtemplate'];
-			}
+                $prettyurl .= '/d,' . $sendtodetail['detailtemplate'];
+            }
         }
         $backto = ($detailpage) ? $detailpage : $returnid;
         $onerow->detail_url = $this->create_url(

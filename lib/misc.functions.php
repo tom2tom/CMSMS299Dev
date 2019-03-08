@@ -115,12 +115,12 @@ function redirect(string $to)
  * Given a page ID or an alias, redirect to it.
  * Retrieves the URL of the specified page, and performs a redirect
  *
- * @param mixed $alias An integer page id or a string page alias.
+ * @param string $alias A page alias.
  */
 function redirect_to_alias(string $alias)
 {
     $manager = CmsApp::get_instance()->GetHierarchyManager();
-    $node = $manager->sureGetNodeByAlias($alias);
+    $node = $manager->find_by_tag('alias',$alias);
     if (!$node) {
         // put mention into the admin log
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);

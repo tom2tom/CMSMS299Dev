@@ -23,16 +23,18 @@ if( isset( $params['inline'] ) ) {
 $origreturnid = $returnid;
 if( isset( $params['resultpage'] ) ) {
     $manager = $gCms->GetHierarchyManager();
-    $node = $manager->sureGetNodeByAlias($params['resultpage']);
-    if (isset($node)) {
-        $returnid = $node->getID();
-    }
-    else {
-        $node = $manager->sureGetNodeById($params['resultpage']);
-        if (isset($node)) $returnid = $params['resultpage'];
+    $type = '';
+    $node = $manager->find_by_tag_anon($params['resultpage'], $type);
+    if( $node ) {
+        if( $type == 'alias' ) {
+            $returnid = $node->get_tag('id');
+        }
+        else {
+            $returnid = $params['resultpage'];
+        }
     }
 }
-//Pretty Urls Compatibility
+//Pretty URL compatibility
 $is_method = isset($params['search_method'])?'post':'get';
 
 // Variable named hogan in honor of moorezilla's Rhodesian Ridgeback :) https://forum.cmsmadesimple.org/index.php/topic,9580.0.html

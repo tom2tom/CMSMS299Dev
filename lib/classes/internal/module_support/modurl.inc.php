@@ -193,7 +193,7 @@ function cms_module_create_pageurl($id, $returnid, array $params = [], int $form
 	$text = '';
 	$gCms = CmsApp::get_instance();
 	$manager = $gCms->GetHierarchyManager();
-	$node = $manager->sureGetNodeById($returnid);
+	$node = $manager->find_by_tag('id',$returnid);
 	if ($node) {
 		$content = $node->GetContent();
 		if ($content) { //CHECKME

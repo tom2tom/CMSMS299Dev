@@ -52,7 +52,7 @@ function smarty_function_form_start($params, $template)
 			$tagparms['action'] = 'moduleinterface.php';
 			if( !$mactparms['returnid'] ) $mactparms['returnid'] = CmsApp::get_instance()->get_content_id();
 			$hm = $gCms->GetHierarchyManager();
-			$node = $hm->sureGetNodeById($mactparms['returnid']);
+			$node = $hm->find_by_tag('id',$mactparms['returnid']);
 			if( $node ) {
 				$content_obj = $node->getContent();
 				if( $content_obj ) $tagparms['action'] = $content_obj->GetURL();

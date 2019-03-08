@@ -153,13 +153,15 @@ EOS;
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
                     $manager = $gCms->GetHierarchyManager();
-                    $node = $manager->sureGetNodeByAlias($params['detailpage']);
-                    if (isset($node)) {
-                        $detailpage = $node->getID();
-                    }
-                    else {
-                        $node = $manager->sureGetNodeById($params['detailpage']);
-                        if (isset($node)) $detailpage = $params['detailpage'];
+                    $type = '';
+                    $node = $manager->find_by_tag_anon($params['detailpage'],$type);
+                    if ($node ) {
+                        if( $type == 'alias' ) {
+                             $detailpage = $node->get_tag('id');
+                        }
+                        else {
+                             $detailpage = $params['detailpage'];
+                        }
                     }
                 }
                 if( $detailpage == '' ) $detailpage = $returnid;
@@ -167,8 +169,8 @@ EOS;
                 $detailtemplate = '';
                 if( isset($params['detailtemplate']) ) {
                     $manager = $gCms->GetHierarchyManager();
-                    $node = $manager->sureGetNodeByAlias($params['detailtemplate']);
-                    if (isset($node)) $detailtemplate = '/d,' . $params['detailtemplate'];
+                    $node = $manager->find_by_tag('alias',$params['detailtemplate']);
+                    if( $node ) $detailtemplate = '/d,' . $params['detailtemplate'];
                 }
 
                 $prettyurl = $row['news_url'];
