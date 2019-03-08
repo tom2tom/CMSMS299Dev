@@ -30,15 +30,6 @@ use CMSMS\internal\global_cache;
 final class cms_siteprefs
 {
 	/**
-	 * Default cdn URL for retrieving ace text-editor code
-	 */
-	const ACE_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3';
-	/**
-	 * Default theme/style for ace text-editor
-	 */
-	const ACE_THEME = 'clouds';
-
-	/**
 	 * @ignore
 	 */
 	private function __construct() {}
