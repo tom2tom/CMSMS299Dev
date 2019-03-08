@@ -1,9 +1,9 @@
 jQuery(document).ready(function($) {
 	// shake error
 	$('#error').effect('shake', {
-		times: '6',
-		distance: '3'
-	}, 15);
+		times: 3,
+		distance: 10
+	});
 	// hide message 
 	$('.message').hide().fadeIn(2600);
 	// toggle info window
