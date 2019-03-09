@@ -40,11 +40,13 @@ final class content_cache
 	private static $_instance = null;
 
 	/**
+	 * Effectively an alias-index of the cached content
 	 * @ignore
 	 */
 	private static $_alias_map;
 
 	/**
+	 * Effectively an id-index of the cached content
 	 * @ignore
 	 */
 	private static $_id_map;
@@ -161,7 +163,7 @@ final class content_cache
 	 * If $identifier is another string, an alias search is performed.
 	 *
 	 * @param mixed $identifier Unique identifier
-	 * @return mixed The ContentBase object, or null.
+	 * @return mixed the matched ContentBase object, or null.
 	 */
 	public static function &get_content($identifier)
 	{
@@ -214,20 +216,20 @@ final class content_cache
 	 */
 	private static function _add_content($id,$alias,ContentBase &$obj)
 	{
-	if( !$id) return FALSE;
-	if( !self::$_alias_map ) self::$_alias_map = [];
-	if( !self::$_id_map ) self::$_id_map = [];
-	if( !self::$_content_cache ) self::$_content_cache = [];
+		if( !$id) return FALSE;
+		if( !self::$_alias_map ) self::$_alias_map = [];
+		if( !self::$_id_map ) self::$_id_map = [];
+		if( !self::$_content_cache ) self::$_content_cache = [];
 
-	$hash = md5($id.$alias);
-	self::$_content_cache[$hash] = $obj;
-	if( $alias ) self::$_alias_map[$alias] = $hash;
-	self::$_id_map[$id] = $hash;
-	return TRUE;
+		$hash = md5($id.$alias);
+		self::$_content_cache[$hash] = $obj;
+		if( $alias ) self::$_alias_map[$alias] = $hash;
+		self::$_id_map[$id] = $hash;
+		return TRUE;
 	}
 
 	/**
-	 * Add the content object to the cache
+	 * Add a content object to the cache
 	 *
 	 * @param int The content Id
 	 * @param string The content alias
