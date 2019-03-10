@@ -39,12 +39,12 @@ else {
 //
 // initialization
 //
-$hm = $gCms->GetHierarchyManager();
 $content_obj = $gCms->get_content_object();
 if( !$content_obj ) return; // no current page?
 $thispageid = $content_obj->Id();
 if( !$thispageid ) return; // no current page?
-$endNode = $hm->GetNodeById($thispageid);
+$hm = $gCms->GetHierarchyManager();
+$endNode = $hm->find_by_tag('id',$thispageid);
 if( !$endNode ) return; // no current page?
 $starttext = $this->Lang('youarehere');
 if( isset($params['start_text']) ) $starttext = trim($params['start_text']);
