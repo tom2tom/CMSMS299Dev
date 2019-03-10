@@ -74,7 +74,7 @@ final class content_cache
 		if( !CmsApp::get_instance()->is_frontend_request() ) return;
 		$content_ids = null;
 		$deep = FALSE;
-		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET));
+		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET)); //NO LEAK, cuz $_GET is empty!
 		$data = cms_cache_handler::get_instance()->get($this->_key,__CLASS__);
 		if( $data) {
 			list($lastmtime,$deep,$content_ids) = $data;
@@ -87,7 +87,7 @@ final class content_cache
 		if( $content_ids ) {
 			$this->_preload_cache = $content_ids;
 			if( !$data ) $contentops = ContentOperations::get_instance();
-			$tmp = $contentops->LoadChildren(null,$deep,FALSE,$content_ids);
+			$contentops->LoadChildren(null,$deep,FALSE,$content_ids);
 		}
 	}
 
