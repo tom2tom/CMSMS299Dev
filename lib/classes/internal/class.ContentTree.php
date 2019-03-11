@@ -34,14 +34,14 @@ use CMSMS\internal\global_cache;
 class ContentTree
 {
 	/**
-	 * Full array tree, actual or reference
+	 * Full array tree reference
 	 * @ignore
 	 * array
 	 */
 	private $tree;
 
 	/**
-	 * Array tree nodes count
+	 * Array tree total nodes count
 	 * @ignore
 	 * int
 	 */
@@ -50,9 +50,9 @@ class ContentTree
 	/**
 	 * Array tree node reference
 	 * @ignore
-	 * array | null
+	 * array
 	 */
-	public $node = null;
+	public $node;
 
 	/**
 	 * @param optional flag whether to populate $tree property default false
@@ -60,10 +60,8 @@ class ContentTree
 	public function __construct(bool $deep = false)
 	{
 		if ($deep) {
-			$node = global_cache::get('content_tree');
-			$this->tree = &$node;
-		} else {
-			$this->tree = null;
+			$this->tree = global_cache::get('content_tree'); // reference
+			$this->node = &$this->tree[-1]; // initially work with the root node CHECKME NOT a reference?
 		}
 	}
 
@@ -72,10 +70,7 @@ class ContentTree
 	 */
 	public function __clone()
 	{
-		$this->tree = &$this->tree; //CHECKME
-		if ($this->node) {
-			$this->node = null;
-		}
+		unset($this->node);
 	}
 
 	/**
@@ -84,7 +79,89 @@ class ContentTree
 	 */
 	public function setdata(&$data)
 	{
-		$this->$node = $data;
+		$this->node = $data;
+	}
+
+	/**
+	 * Interpret data-definer $typer
+	 * @access private
+	 *
+	 * @param mixed $rtype
+	 * @return 5-member array
+	 * [0] bool whether to provide data as an object
+	 * [1] bool whether the data includes 'id' (which must be processed as 'content_id')
+	 * [2] bool whether the data includes 'alias' (which must be processed as 'content_alias')
+	 * [3] bool whether the data includes 'content' (which must be externally populated)
+	 * [4] array all wanted tag-names, empty if [0] is true
+	 */
+	private function parse_type($typer)
+	{
+		if (!$typer) {
+			return [true, false, false, false, []];
+		}
+		if (!is_array($typer)) {
+			$typer = [$typer];
+		}
+		$asnode = $idalias = $alalias = $withcontent = false;
+		for ($i = 0, $n = count($typer); $i < $n; ++$i) {
+			$s = strtolower($typer[$i]);
+			switch ($s) {
+			 case 'id':
+				$idalias = true;
+				$typer[$i] = 'content_id';
+				break;
+			 case 'alias':
+				$alalias = true;
+				$typer[$i] = 'content_alias';
+				break;
+			 case 'content':
+				$withcontent = true;
+				unset($typer[$i]);
+				break;
+				case 'children':
+				unset($typer[$i]);
+				break;
+			 case 'node':
+			 case 'object':
+				return [true, false, false, false, []];
+			 default:
+				$typer[$i] = $s; //lowercase
+				break;
+			}
+		}
+		$tags = array_values($typer);
+		return [$asnode, $idalias, $alalias, $withcontent, $tags];
+	}
+
+	/**
+	 * Generate return-data from $node, in accord with supplied parameters.
+	 * @see ContentTree::parse_type()
+	 *
+	 * @access private
+	 * @return mixed ContentTree object or array
+	 */
+	private function get_node_data(&$node, bool $asnode, bool $idalias, bool $alalias, bool $withcontent, array $tags)
+	{
+		if ($asnode) {
+			$obj = clone $this; //TODO some other class with externally-useful methods only
+			$obj->node = &$node;
+			return $obj;
+		}
+
+		$defs = array_fill_keys($tags, null);
+		$res = array_intersect_key($defs, $node) + $defs;
+		if ($idalias) {
+			$res['id'] = $res['content_id'];
+			unset($res['content_id']);
+		}
+		if ($alalias) {
+			$res['alias'] = $res['content_alias'];
+			unset($res['content_alias']);
+		}
+		if ($withcontent) {
+			$res['content'] = ContentOperations::get_instance()->LoadContentFromId((int)$node['content_id']);
+		}
+		return $res;
 	}
 
 	/**
@@ -149,69 +226,6 @@ class ContentTree
 	}
 
 	/**
-	 * Interpret data-definer $typer
-	 *
-	 * @ignore
-	 * @since 2.3
-	 * @return 5-member array
-	 */
-	private function parse_type($typer)
-	{
-		if (!$typer) {
-			return [true, false, false, false, []];
-		}
-		if (!is_array($typer)) {
-			$typer = [$typer];
-		}
-		$asnode = $idalias = $aliasalias = $withcontent = false;
-		for ($i = 0, $n = count($typer); $i < $n; ++$i) {
-			$s = strtolower($typer[$i]);
-			switch ($s) {
-			 case 'id':
-				$idalias = true;
-				$typer[$i] = 'content_id';
-				break;
-			 case 'alias':
-				$aliasalias = true;
-				$typer[$i] = 'content_alias';
-				break;
-			 case 'content':
-				$withcontent = true;
-				unset($typer[$i]);
-				break;
-				case 'children':
-				unset($typer[$i]);
-				break;
-			 case 'node':
-			 case 'object':
-				return [true, false, false, false, []];
-			 default:
-				$typer[$i] = $s; //lowercase
-				break;
-			}
-		}
-		$tags = array_values($typer);
-		return [$asnode,$idalias,$aliasalias,$withcontent,$tags];
-	}
-
-	/**
-	 * Generate return-data in accord with supplied parameters.
-	 *
-	 * @ignore
-	 * @since 2.3
-	 * @return mixed
-	 */
-
-	private function get_node_data(&$node, bool $asnode, bool $idalias, bool $aliasalias, bool $withcontent, array $tags)
-	{
-		if ($asnode) {
-			$obj = clone $this;
-			$obj->node = &$node;
-			return $obj;
-		}
-	}
-
-	/**
 	 * Get the parent node of this one.
 	 * @since 2.0
 	 *
@@ -223,7 +237,8 @@ class ContentTree
 	{
 		$node = ArrayTree::path_get_ancestor($this->tree, $this->node['path'], -1);
 		if ($node) {
-			return $this->get_node_data($node,$this->parse_type($typer));
+			list ($asnode,$idalias,$alalias,$withcontent,$tags) = $this->parse_type($typer);
+			return $this->get_node_data($node, $asnode, $idalias, $alalias, $withcontent, $tags);
 		}
 		return $node;
 	}
@@ -274,10 +289,10 @@ class ContentTree
 	{
 		$res = null;
 		if (!empty($this->node['children'])) {
-			list ($asnode,$idalias,$aliasalias,$withcontent,$tags) = $this->parse_type($typer);
+			list ($asnode, $idalias, $alalias, $withcontent, $tags) = $this->parse_type($typer);
 			$res = [];
 			foreach ($this->node['children'] as $id => &$node) {
-				$res[$id] = $this->get_node_data($node,$asnode,$idalias,$aliasalias,$withcontent,$tags);
+				$res[$id] = $this->get_node_data($node, $asnode, $idalias, $alalias, $withcontent, $tags);
 			}
 			unset($node);
 		}
@@ -309,12 +324,12 @@ class ContentTree
 	public function &get_siblings($typer = false)
 	{
 		$res = null;
-		$node = ArrayTree::path_get_ancestor($this->tree, $this->node['path'], -1);
-		if ($node && !empty($node['children'])) {
-			list ($asnode,$idalias,$aliasalias,$withcontent,$tags) = $this->parse_type($typer);
+		$parent = ArrayTree::path_get_ancestor($this->tree, $this->node['path'], -1);
+		if ($parent && !empty($parent['children'])) {
+			list ($asnode, $idalias, $alalias, $withcontent, $tags) = $this->parse_type($typer);
 			$res = [];
-			foreach ($node['children'] as $id => &$sibnode) {
-				$res[$id] = $this->get_node_data($sibnode,$asnode,$idalias,$aliasalias,$withcontent,$tags);
+			foreach ($parent['children'] as $id => &$node) {
+				$res[$id] = $this->get_node_data($node, $asnode, $idalias, $alalias, $withcontent, $tags);
 			}
 			unset($node);
 		}
@@ -329,7 +344,7 @@ class ContentTree
 	public function count_nodes() : int
 	{
 		if (self::$treecount < 0) {
-			$list = global_cache::get('content_quicklist');
+			$list = global_cache::get('content_flatlist');
 			self::$treecount = count($list);
 		}
 		return self::$treecount;
@@ -353,6 +368,12 @@ class ContentTree
 	 */
 	public function set_tag(string $key, $value)
 	{
+		switch ($key) {
+			case 'id':
+			case 'alias':
+				$key = 'content_'.$key;
+				break;
+		}
 		$this->node[$key] = $value;
 	}
 
@@ -364,37 +385,15 @@ class ContentTree
 	 */
 	public function get_tag(string $key)
 	{
+		switch ($key) {
+			case 'id':
+			case 'alias':
+				$key = 'content_'.$key;
+				break;
+		}
 		return $this->node[$key] ?? null;
 	}
 
-	/* *
-	 * Recursively find a tree node matching a name/type and value.
-	 *
-	 * @param string $tag_name The tag name to search for (lower case)
-	 * @param mixed  $value The tag value to search for
-	 * @param bool $case_insensitive Whether the (string) value should matched regardless of case. Default false.
-	 * @param mixed $typer since 2.3 optional data-type indicator false
-	 *  or string or strings[] - tag-name(s). Default false.
-	 * @return mixed data in accord with $typer | null
-	 */
-/*	public function find_by_tag_raw($tag_name, $value, $case_insensitive = false, $typer = false)
-	{
-		switch (strtolower($tag_name)) {
-			case 'id':
-				$tag_name = 'content_id';
-				break;
-			case 'alias':
-				$tag_name = 'content_alias';
-				break;
-		}
-		$path = ArrayTree::find($this->tree, $tag_name, $value, !$case_insensitive);
-		if ($path) {
-			$node = ArrayTree::node_get_data($this->tree, $path, '*');
-			return $this->get_node_data($node,$this->parse_type($typer));
-		}
-		return $path; //null
-	}
-*/
 	/**
 	 * Find a tree node matching the given tag-type and its value.
 	 *
@@ -408,14 +407,14 @@ class ContentTree
 	 */
 	public function find_by_tag($tag_name, $value, $case_insensitive = false, $usequick = true, $typer = false)
 	{
-		if ($tag_name == 'id') {
+		$tag_low = strtolower($tag_name);
+		if ($tag_low == 'id' || $tag_low == 'content_id') {
+			if ($usequick) {
+				return $this->quickfind_node_by_id($value, $typer);
+			}
 			$case_insensitive = true;
 		}
-		if ($usequick && $tag_name == 'id') {
-			return $this->quickfind_node_by_id($value, $typer);
-		}
 
-		$tag_low = strtolower($tag_name);
 		switch ($tag_low) {
 			case 'id':
 				$tag_low = 'content_id';
@@ -434,7 +433,8 @@ class ContentTree
 		foreach ($list as &$node) {
 			if (isset($node[$tag_low]) && $node[$tag_low] == $value) { //non-strict match OK ?
 				if ($match || !$case_insensitive) {
-					$res = $this->get_node_data($node,$this->parse_type($typer));
+					list ($asnode,$idalias,$alalias,$withcontent,$tags) = $this->parse_type($typer);
+					$res = $this->get_node_data($node, $asnode, $idalias, $alalias, $withcontent, $tags);
 					unset($node);
 					return $res;
 				}
@@ -497,7 +497,8 @@ class ContentTree
 	{
 		$list = global_cache::get('content_quicklist');
 		if (isset($list[$id])) {
-			return $this->get_node_data($node,$this->parse_type($typer));
+			list ($asnode, $idalias, $alalias, $withcontent, $tags) = $this->parse_type($typer);
+			return $this->get_node_data($list[$id], $asnode, $idalias, $alalias, $withcontent, $tags);
 		}
 	}
 
@@ -515,28 +516,14 @@ class ContentTree
 		return $this->quickfind_node_by_id($id); //no $typer
 	}
 
-	/* *
-	 * Retrieve a node by its id.
-	 *
-	 * A backwards compatibility method.
-	 *
-	 * @deprecated since 1.9
-	 * @param int $id
-	 * @return ContentTree
-	 */
-	/*	public function getNodeById(int $id)
-		{
-			return $this->find_by_tag('id', $id); //no $typer
-		}
-	*/
 	/**
-	 * Retrieve a node by its alias
+	 * Retrieve a node by its alias or id
 	 *
 	 * A backwards compatibility method
 	 *
 	 * @deprecated since 1.9
 	 * @see ContentTree::find_by_tag() or find_by_tag_anon()
-	 * @param mixed $alias null|bool|int|string
+	 * @param mixed $alias null|bool|int|string identifier, maybe id
 	 * @return mixed ContentTree | null
 	 */
 	public function sureGetNodeByAlias($alias)
@@ -550,20 +537,6 @@ class ContentTree
 		return $this->find_by_tag('alias', $alias); //no $typer
 	}
 
-	/* *
-	 * Retrieve a node by its alias
-	 *
-	 * A backwards compatibility method.
-	 *
-	 * @deprecated since 1.9
-	 * @param mixed? $alias
-	 * @return ContentTree
-	 */
-	/*	public function getNodeByAlias($alias)
-		{
-			return $this->find_by_tag_raw('alias', $alias, true); //no $typer
-		}
-	*/
 	/**
 	 * Retrieve a node by hierarchy position.
 	 *
@@ -652,93 +625,6 @@ class ContentTree
 		return $res;
 	}
 
-	/* *
-	 * Test if this node has children.
-	 *
-	 * A backwards compatibility method.
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree:has_children()
-	 * @return bool
-	 */
-	/*	public function hasChildren()
-		{
-			return $this->has_children();
-		}
-	*/
-	/* *
-	 * Set a tag value
-	 *
-	 * A backwards compatibility method
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::set_tag()
-	 * @param string $key The tag name/key
-	 * @param mixed  $value The tag value
-	 */
-	/*	public function setTag(string $key,$value)
-		{
-			return $this->set_tag($key,$value);
-		}
-	*/
-	/* *
-	 * Get this nodes id.
-	 *
-	 * A backwards compatibility method
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::get_tag()
-	 * @return int The node id.
-	 */
-	/*	public function getId()
-		{
-			return $this->get_tag('id');
-		}
-	*/
-	/* *
-	 * Get a node tag.
-	 *
-	 * A backwards compatibility method
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::get_tag()
-	 * @param  string $key Tag name/key
-	 * @return mixed Node value.
-	 */
-	/*	public function getTag(string $key = 'id')
-		{
-			return $this->get_tag($key);
-		}
-	*/
-	/* *
-	 * Get this node's parent.
-	 *
-	 * A backwards compatibility method
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::get_parent()
-	 * @return ContentTree or null.
-	 */
-	/*	public function &getParentNode()
-		{
-			return $this->get_parent();
-		}
-	*/
-	/* *
-	 * Add a node to the tree
-	 *
-	 * A backwards compatibility method.
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::add_node()
-	 * @param ContentTree The node to add
-	 */
-	/*	public function addNode(ContentTree &$node)
-		{
-			return $this->add_node($node);
-		}
-	*/
-
 	/**
 	 * Report whether the content object for this node is cached.
 	 *
@@ -746,7 +632,7 @@ class ContentTree
 	 */
 	public function isContentCached() : bool
 	{
-		return content_cache::content_exists($this->get_tag('id'));
+		return content_cache::content_exists($this->get_tag('content_id'));
 	}
 
 	/**
@@ -760,13 +646,13 @@ class ContentTree
 	 */
 	public function getContent($deep = false, $loadsiblings = true, $loadall = false)
 	{
-		$id = $this->get_tag('id');
+		$id = $this->get_tag('content_id');
 		if (content_cache::content_exists($id)) {
 			return content_cache::get_content($id);
 		}
 		// not yet in the cache
 		if ($loadsiblings) {
-			$parent = $this->get_parent(); //TODO $typer
+			$parent = $this->get_parent(); //TODO $typer, handle without objects
 			if ($parent) {
 				$parent->getChildren($deep, $loadall);
 			}
@@ -776,7 +662,7 @@ class ContentTree
 	}
 
 	/**
-	 * Return all node's respective content objects.
+	 * Return all active nodes' respective content objects.
 	 *
 	 * @since 2.3
 	 * @return array of ContentBase objects
@@ -784,59 +670,22 @@ class ContentTree
 	public function get_all_content() : array
 	{
 		$res = [];
-		$list = global_cache::get('content_quicklist');
+		$list = global_cache::get('content_flatlist'); //includes inactive pages
 		$ops = ContentOperations::get_instance();
-		foreach ($list as $id => &$node) {
-			$res[$id] = $ops->LoadContentFromId($id); //uses cache if possible
+		foreach ($list as &$node) {
+			if ($node('active')) {
+				$id = (int)$node['content_id'];
+				$res[$id] = $ops->LoadContentFromId($id); //uses cache if possible
+			}
 		}
 		unset($node);
+		$res = array_filter($res);  //clear any invalid pages
+
 		return $res;
 	}
 
-	/* *
-	 * Count the number of children
-	 *
-	 * A backwards compatibility function
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::count_children()
-	 * @return int
-	 */
-	/*	public function getChildrenCount()
-		{
-			return $this->count_children();
-		}
-	*/
-	/* *
-	 * Count the number of siblings
-	 *
-	 * A backwards compatibility function
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::count_siblings()
-	 * @return int
-	 */
-	/*	public function getSiblingCount()
-		{
-			return $this->count_siblings();
-		}
-	*/
-	/* *
-	 * Get this nodes depth in the tree
-	 *
-	 * A backwards compatibility function
-	 *
-	 * @deprecated since 1.9
-	 * @see ContentTree::get_level()
-	 * @return int
-	 */
-	/*	public function getLevel()
-		{
-			return $this->get_level();
-		}
-	*/
 	/**
-	 * Get the children for this node.
+	 * Return the children of this node.
 	 *
 	 * This method retrieves a list of the children of this node, optionally
 	 * loading their content objects if not done before (as a performance enhancement).
@@ -845,63 +694,32 @@ class ContentTree
 	 * @param bool $deep Load the properties of the children (only used when loadcontent is true) Default false
 	 * @param bool $all Load all children, including inactive/disabled ones (only used when loadcontent is true) Default false
 	 * @param bool $loadcontent Load content objects for children Default true
-	 * @return mixed array of ContentTree objects | null
+	 * @param mixed $typer since 2.3 optional data-type indicator false
+	 *  or string or strings[] - tag-name(s). Default false.
+	 * @return mixed array of data in accord with $typer | null
 	 */
-	public function getChildren($deep = false, $all = false, $loadcontent = true)
+	public function getChildren($deep = false, $all = false, $loadcontent = true, $typer = false)
 	{
-		if ($loadcontent && !empty($this->node['children'])) {
-			// check whether we need to load anything.
-			$ids = [];
-			foreach ($this->node['children'] as $id => &$node) {
-				if (!content_cache::content_exists($id)) {
-					$ids[] = $id;
+		if (!empty($this->node['children'])) {
+			if ($loadcontent) {
+				// check whether we need to load anything.
+				$child_ids = array_keys($this->node['children']);
+				$loaded_ids = content_cache::get_loaded_page_ids();
+				$ids = array_diff($child_ids, $loaded_ids);
+
+				if ($ids) {
+					// load the children that aren't loaded yet.
+					ContentOperations::get_instance()->LoadChildren($this->get_tag('content_id'), $deep, $all, $ids);
 				}
 			}
-			unset($node);
 
-			if ($ids) {
-				// load the children that aren't loaded yet.
-				ContentOperations::get_instance()->LoadChildren($this->get_tag('id'), $deep, $all, $ids);
-			}
+			return $this->get_children($typer);
 		}
-
-		$children = $this->get_children(); //TODO $typer
-		return $children;
+		return null;
 	}
 
-	/* *
-	 * Recursive node-accumulator
-	 * @ignore
-	 */
-/*	private function &_buildFlatList() : array
-	{
-		$res = [];
-
-		if ($this->get_tag('id') > 0) {
-			$res[] = $this;
-		}
-
-		if ($this->has_children()) {
-			$children = $this->get_children(); //no $typer
-			for ($i = 0, $n = count($children); $i < $n; ++$i) {
-				$res[$children[$i]->get_tag('id')] = &$children[$i];
-				if ($children[$i]->has_children()) {
-					$tmp = $children[$i]->_buildFlatList();
-					foreach ($tmp as $key => &$node) {
-						if ($key > 0) {
-							$res[$key] = $node;
-						}
-					}
-					unset($node);
-				}
-			}
-		}
-
-		return $res;
-	}
-*/
 	/**
-	 * Get an array of ContentTree nodes containing this node and all its descendants.
+	 * Return data for this node and all its descendents.
 	 *
 	 * @param mixed $typer since 2.3 optional data-type indicator false
 	 *  or string or strings[] - tag-name(s). Default false.
@@ -909,11 +727,11 @@ class ContentTree
 	 */
 	public function getFlatList($typer = false) : array
 	{
-		list ($asnode,$idalias,$aliasalias,$withcontent,$tags) = $this->parse_type($typer);
+		list ($asnode, $idalias, $alalias, $withcontent, $tags) = $this->parse_type($typer);
 		$res = [];
 		$list = global_cache::get('content_quicklist');
 		foreach ($list as $id => &$node) {
-			$res[$id] = $this->get_node_data($node,$asnode,$idalias,$aliasalias,$withcontent,$tags);
+			$res[$id] = $this->get_node_data($node, $asnode, $idalias, $alalias, $withcontent, $tags);
 		}
 		unset($node);
 		return $res;
