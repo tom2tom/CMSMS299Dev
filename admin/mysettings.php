@@ -83,7 +83,8 @@ if (isset($_POST['submit'])) {
   cms_userprefs::set_for_user($userid, 'default_parent', $default_parent);
   if ($editortype !== null) {
     cms_userprefs::set_for_user($userid, 'editor_theme', $editortheme);
-    cms_userprefs::set_for_user($userid, 'editortype', $editortype);
+    $tmp = 'TODO'.'::'.$editortype; //TODO as module[::editor]
+    cms_userprefs::set_for_user($userid, 'syntax_editor', $tmp);
   }
   cms_userprefs::set_for_user($userid, 'hide_help_links', $hide_help_links);
   cms_userprefs::set_for_user($userid, 'homepage', $homepage);
@@ -115,7 +116,8 @@ $date_format_string = cms_userprefs::get_for_user($userid, 'date_format_string',
 $default_cms_language = cms_userprefs::get_for_user($userid, 'default_cms_language');
 $default_parent = cms_userprefs::get_for_user($userid, 'default_parent', -2);
 $editortheme = cms_userprefs::get_for_user($userid, 'editor_theme');
-$editortype = cms_userprefs::get_for_user($userid, 'editortype');
+//TODO as module[::editor]
+list($modname, $editortype) = explode ('::', cms_userprefs::get_for_user($userid, 'syntax_editor', ''));
 $hide_help_links = cms_userprefs::get_for_user($userid, 'hide_help_links', 0);
 $homepage = cms_userprefs::get_for_user($userid, 'homepage');
 $indent = cms_userprefs::get_for_user($userid, 'indent', true);
@@ -131,7 +133,7 @@ $wysiwyg = cms_userprefs::get_for_user($userid, 'wysiwyg');
 $contentops = CmsApp::get_instance()->GetContentOperations();
 $smarty = CmsApp::get_instance()->GetSmarty();
 
-# WYSIWYG editors
+// WYSIWYG editors
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE);
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
@@ -141,9 +143,9 @@ for ($i = 0; $i < $n; ++$i) {
 
 $smarty -> assign('wysiwyg_opts', $tmp2);
 
-# Syntaxhighlighters
+// Syntax highlighters
 $editors = [];
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
+$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
 if( $tmp) {
   for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
     $ob = cms_utils::get_module($tmp[$i]);
@@ -166,7 +168,7 @@ if( $tmp) {
     } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
       $one = new stdClass();
       $one->value = $tmp[$i].'::'.$tmp[$i];
-      $one->label = $ob->GetName();
+      $one->label = $ob->GetFriendlyName();
       $one->mainkey = '';
       $one->themekey = '';
       if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
@@ -185,10 +187,6 @@ if( $tmp) {
 }
 $smarty->assign('editors', $editors);
 
-$theme = cms_utils::get_theme_object();
-$smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
-
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
 $n = count($tmp);
 if ($n) {
   $tmp2 = [-1 => lang('none')];
@@ -196,24 +194,27 @@ if ($n) {
     $tmp2[$tmp[$i]] = $tmp[$i];
   }
 
-  $smarty->assign('syntax_opts', $tmp2);
+  $smarty->assign('syntax_opts', $tmp2); //TODO c.f. 'editors' above
 }
 
-# Admin themes
+$theme = cms_utils::get_theme_object();
+$smarty->assign('helpicon', $theme->DisplayImage('icons/system/info.png', 'help','','','cms_helpicon'));
+
+// Admin themes
 $tmp = CmsAdminThemeBase::GetAvailableThemes();
 if (count($tmp) < 2) {
   $tmp = null;
 }
 $smarty->assign('themes_opts',$tmp);
 
-# Modules
+// Modules
 $allmodules = ModuleOperations::get_instance()->GetInstalledModules();
 $modules = [];
 foreach ((array)$allmodules as $onemodule) {
   $modules[$onemodule] = $onemodule;
 }
 
-# Prefs
+// Prefs
 $tmp = [10 => 10, 20 => 20, 50 => 50, 100 => 100];
 
 $selfurl = basename(__FILE__);
@@ -272,3 +273,4 @@ $themeObject->add_footertext($out);
 include_once 'header.php';
 $smarty->display('mysettings.tpl');
 include_once 'footer.php';
+

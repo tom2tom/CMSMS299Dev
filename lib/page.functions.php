@@ -485,15 +485,22 @@ function get_pageid_or_alias_from_url()
  */
 function get_editor_script(array $params) : array
 {
-    $handler = cms_siteprefs::get('syntax_editor');
+    $userid = get_userid();
+    $handler = cms_userprefs::get_for_user($userid, 'syntax_editor');
     if( $handler ) {
         list($modname, $edname) = explode('::', $handler);
         if( !$edname ) {
             $edname = $modname;
         }
         $modinst = cms_utils::get_module($modname);
-        if( $modinst && ($modinst instanceof SyntaxEditor) ) {
-            return $modinst->GetEditorScript($edname, $params);
+        if( $modinst ) {
+            if( $modinst instanceof SyntaxEditor ) {
+                return $modinst->GetEditorScript($edname, $params);
+            }
+            elseif( $modinst->HasCapability(CmsCoreCapabilities::SYNTAX_MODULE) ) {
+               // TODO other modules ?
+               // c.f. cms_utils::get_syntax_highlighter_module()
+            }
         }
     }
     return [];

@@ -312,8 +312,9 @@ if (isset($_POST['submit'])) {
                 cms_siteprefs::set('use_smartycompilecheck', $val);
                 AdminUtils::clear_cache();
 
-                $val = trim($_POST['editortype']); //TODO process this
-                cms_siteprefs::set('syntax_editor', $val);
+                $val = trim($_POST['editortype']);
+				$xval = 'TODO'.'::'.$val; //TODO as module[::editor]
+                cms_siteprefs::set('syntax_editor', $xval);
                 $val = trim($_POST['editortheme']);
                 if ($val) {
                     $val = strtolower(strtr($val, ' ', '_'));
@@ -375,7 +376,8 @@ $contentimage_path = cms_siteprefs::get('contentimage_path', '');
 $defaultdateformat = cms_siteprefs::get('defaultdateformat', '');
 $disallowed_contenttypes = cms_siteprefs::get('disallowed_contenttypes', '');
 $editortheme = cms_siteprefs::get('editor_theme', '');
-$editortype = cms_siteprefs::get('syntax_editor', '');
+$val = cms_siteprefs::get('syntax_editor', '');
+list($modname, $editortype) = explode('::', $val); //TODO as module[::editor]
 $enablesitedownmessage = cms_siteprefs::get('enablesitedownmessage', 0);
 $frontendlang = cms_siteprefs::get('frontendlang', '');
 $frontendwysiwyg = cms_siteprefs::get('frontendwysiwyg', '');
@@ -632,7 +634,7 @@ $smarty->assign('secure_opts', $opts)
 
 // need a list of wysiwyg modules.
 
-$tmp = module_meta::get_instance()->module_list_by_capability('wysiwyg');
+$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::WYSIWYG_MODULE); //pre 2.0 identifier?
 $n = count($tmp);
 $tmp2 = [-1 => lang('none')];
 for ($i = 0; $i < $n; $i++) {
@@ -651,9 +653,10 @@ if ($tmp) {
 }
 $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences'));
 
-# advanced/WYSIWYG editors
+// advanced/syntax editors
+//CHECKME cms_utils::get_syntax_highlighter_module()
 $editors = [];
-$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE);
+$tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
 if( $tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);
@@ -676,7 +679,7 @@ if( $tmp) {
         } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
             $one = new stdClass();
             $one->value = $tmp[$i].'::'.$tmp[$i];
-            $one->label = $ob->GetName();
+            $one->label = $ob->GetFriendlyName();
             $one->mainkey = '';
             $one->themekey = '';
             if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
@@ -795,3 +798,4 @@ $smarty->assign('selfurl', $selfurl)
 include_once 'header.php';
 $smarty->display('siteprefs.tpl');
 include_once 'footer.php';
+
