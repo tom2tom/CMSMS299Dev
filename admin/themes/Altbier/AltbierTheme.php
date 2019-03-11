@@ -31,6 +31,12 @@ class AltbierTheme extends CmsAdminThemeBase
 	 * @ignore
 	 */
 	const THEME_VERSION = '0.6';
+	/**
+	 * TODO variable for this
+	 * e.g. https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous"';
+	 * @ignore
+	 */
+	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.2/css/all.min.css';
 
 	/**
 	 * @ignore
@@ -357,6 +363,16 @@ EOS;
 	{
 		$gCms = cmsms();
 
+		$smarty = $gCms->GetSmarty();
+
+		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
+		if (is_file($fp)) {
+			$url = cms_path_to_url($fp);
+		} else {
+			$url = self::AWESOME_CDN; // TODO variable CDN URL
+		}
+		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
+
 		if ($this->currentversion()) {
 			$auth_module = cms_siteprefs::get('loginmodule', 'CoreAdminLogin');
 			$modinst = ModuleOperations::get_instance()->get_module_instance($auth_module, '', true);
@@ -369,7 +385,6 @@ EOS;
 				die('System error');
 			}
 
-			$smarty = $gCms->GetSmarty();
 			$smarty->assign($data);
 
 			//extra shared parameters for the form
@@ -405,7 +420,6 @@ EOS;
 			$out .= sprintf($tpl,$url);
 			$out .= sprintf($tpl,'themes/Altbier/includes/login.js');
 		} else {
-			$smarty = $gCms->GetSmarty();
 			if (!empty($params)) {
 				$smarty->assign($params);
 			}
@@ -560,6 +574,14 @@ EOS;
 		$lang = CmsNlsOperations::get_current_language();
 		$info = CmsNlsOperations::get_language_info($lang);
 		$smarty->assign('lang_dir', $info->direction());
+
+		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');
+		if (is_file($fp)) {
+			$url = cms_path_to_url($fp);
+		} else {
+			$url = self::AWESOME_CDN; // TODO variable CDN URL
+		}
+		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
 		if ($flag) {
 			$smarty->assign('header_includes', $this->get_headtext());

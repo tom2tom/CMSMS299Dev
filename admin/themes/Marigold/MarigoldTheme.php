@@ -28,6 +28,13 @@ class MarigoldTheme extends CmsAdminThemeBase
 	 * @ignore
 	 */
 	const THEME_VERSION = '0.9';
+	/**
+	 + TODO variable for this e.g. better CDN
+	 * e.g. 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
+	 *      'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
+	 * @ignore
+	 */
+	const AWESOME_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
 
 	/**
 	 * @ignore
@@ -227,6 +234,14 @@ EOS
 			}
 		}
 
+		$fp = cms_join_path(__DIR__, 'css', 'font-awesome.min.css');
+		if (is_file($fp)) {
+			$url = cms_path_to_url($fp);
+		} else {
+			$url = self::AWESOME_CDN; // TODO variable CDN URL
+		}
+		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
+
 		// css: jquery-ui and scripts: jquery, jquery-ui
 		$incs = cms_installed_jquery();
 		$url = cms_path_to_url($incs['jquicss']);
@@ -347,6 +362,14 @@ EOS;
 			$marks = $this->get_bookmarks();
 			$smarty->assign('marks', $marks);
 		}
+
+		$fp = cms_join_path(__DIR__, 'css', 'font-awesome.min.css');
+		if (is_file($fp)) {
+			$url = cms_path_to_url($fp);
+		} else {
+			$url = self::AWESOME_CDN; // TODO variable CDN URL
+		}
+		$smarty->assign('font_includes', '<link rel="stylesheet" href="'.$url.'" />');
 
 		$smarty->assign('header_includes', $this->get_headtext());
 		$smarty->assign('bottom_includes', $this->get_footertext());
