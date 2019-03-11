@@ -2,7 +2,7 @@
 
 use cms_siteprefs;
 use CMSMS\Group;
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 use function cms_installer\CMSMS\endswith;
 use function cms_installer\CMSMS\joinpath;
 use function cms_installer\CMSMS\startswith;
@@ -11,11 +11,11 @@ use function cms_installer\CMSMS\startswith;
 $udt_list = $db->GetArray('SELECT userplugin_name,description,code FROM '.CMS_DB_PREFIX.'userplugins');
 if ($udt_list) {
 
-    function create_file_plugin(array $row, FilePluginOperations $ops, $smarty)
+    function create_user_plugin(array $row, UserPluginOperations $ops, $smarty)
     {
         $fp = $ops->file_path($row['userplugin_name']);
         if (is_file($fp)) {
-            verbose_msg('file-plugin named '.$row['userplugin_name'].' already exists');
+            verbose_msg('user-plugin named '.$row['userplugin_name'].' already exists');
             return;
         }
 
@@ -42,10 +42,10 @@ if ($udt_list) {
         }
     }
 
-    $ops = FilePluginOperations::get_instance();
+    $ops = UserPluginOperations::get_instance();
     //$smarty defined upstream, used downstream
     foreach ($udt_list as $udt) {
-        create_file_plugin($udt, $ops, $smarty);
+        create_user_plugin($udt, $ops, $smarty);
     }
 
     $dict = GetDataDictionary($db);
@@ -53,7 +53,7 @@ if ($udt_list) {
     $dict->ExecuteSQLArray($sqlarr);
     $sqlarr = $dict->DropTableSQL(CMS_DB_PREFIX.'userplugins');
     $dict->ExecuteSQLArray($sqlarr);
-    status_msg('Converted User Defined Tags to file-plugin files');
+    status_msg('Converted User Defined Tags to user-plugin files');
 
     $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY username VARCHAR(80)');
     $db->Execute('ALTER TABLE '.CMS_DB_PREFIX.'users MODIFY password VARCHAR(128)');
@@ -83,7 +83,7 @@ if ($generic_type) {
 $now = time();
 $longnow = $db->DbTimeStamp($now);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_name=?,permission_text=?,modified_date=? WHERE permission_name=?';
-$db->Execute($query, ['Modify File Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
+$db->Execute($query, ['Modify User Plugins','Modify User-Defined Tag Files',$longnow,'Modify User-defined Tags']);
 $query = 'UPDATE '.CMS_DB_PREFIX.'permissions SET permission_source=\'Core\' WHERE permission_source=NULL';
 $db->Execute($query);
 
@@ -106,7 +106,7 @@ $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Modify File Plugins');
+$group->GrantPermission('Modify User Plugins');
 /*
 $group = new Group();
 $group->name = 'AssetManager';

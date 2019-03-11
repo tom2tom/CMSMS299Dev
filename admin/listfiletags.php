@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 $CMS_LOAD_ALL_PLUGINS=1;
@@ -26,10 +26,10 @@ check_login();
 
 $urlext='?'.CMS_SECURE_PARAM_NAME.'='.$_SESSION[CMS_USER_KEY];
 $userid = get_userid();
-$pmod = check_permission($userid, 'Modify File Plugins');
+$pmod = check_permission($userid, 'Modify User Plugins');
 $access = $pmod || check_permission($userid, 'View Tag Help');
 
-$ops = FilePluginOperations::get_instance();
+$ops = UserPluginOperations::get_instance();
 $patn = $ops->file_path('*');
 $files = glob($patn, GLOB_NOESCAPE);
 $tags = [];

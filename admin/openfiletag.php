@@ -1,5 +1,5 @@
 <?php
-#procedure to add or edit a user-defined-tag / file-plugin
+#procedure to add or edit a user-defined-tag / user-plugin
 #Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 
 $CMS_ADMIN_PAGE = 1;
 
@@ -37,7 +37,7 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
     $tagname = cleanValue($_POST['tagname']);
     $oldname = cleanValue($_POST['oldtagname']);
 
-    $ops = FilePluginOperations::get_instance();
+    $ops = UserPluginOperations::get_instance();
     if ($oldname == '-1' || $oldname !== $tagname ) {
         if (!$ops->is_valid_plugin_name($tagname)) {
             $themeObject->RecordNotice('error', lang('udt_exists'));
@@ -77,14 +77,14 @@ if (isset($_POST['submit']) || isset($_POST['apply']) ) {
 }
 
 if ($tagname != '-1') {
-    $ops = FilePluginOperations::get_instance();
+    $ops = UserPluginOperations::get_instance();
     list($meta, $code) = $ops->get($tagname);
 } else {
     $meta = [];
     $code = '';
 }
 
-$edit = check_permission($userid, 'Modify File Plugins');
+$edit = check_permission($userid, 'Modify User Plugins');
 //TODO also $_GET['mode'] == 'edit'
 
 $content = get_editor_script(['edit'=>$edit, 'htmlid'=>'code', 'typer'=>'php']);

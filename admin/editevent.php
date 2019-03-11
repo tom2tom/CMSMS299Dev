@@ -18,7 +18,7 @@
 
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -130,7 +130,7 @@ if ($access) {
 	// get all available handlers
 	$allhandlers = null;
 	// some of them being user-defined tags
-	$ops = FilePluginOperations::get_instance();
+	$ops = UserPluginOperations::get_instance();
 	$plugins = $ops->get_list();
 	foreach ($plugins as $plugin_name) {
 		$allhandlers[$plugin_name] = $plugin_name;

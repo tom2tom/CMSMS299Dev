@@ -1,7 +1,7 @@
 <?php
 /*
 Procedure to process ajax calls for retrieving parameters-information
-for a named User Defined Tag (aka file-plugin)
+for a named User Defined Tag (aka user-plugin)
 Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 
 $CMS_ADMIN_PAGE=1;
 
@@ -26,7 +26,7 @@ require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'inc
 
 $userid = get_userid();
 if (check_permission($userid, 'View Tag Help')) {
-	$ops = FilePluginOperations::get_instance();
+	$ops = UserPluginOperations::get_instance();
 	$name = cleanValue($_GET['name']);
 	$meta = $ops->get_meta_data($name, 'parameters');
 	if (!empty($meta)) {

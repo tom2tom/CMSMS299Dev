@@ -33,7 +33,7 @@ foreach( [
 	'Manage Users',
 //	'Modify Any Page', >CM
 	'Modify Events',
-	'Modify File Plugins',
+	'Modify User Plugins',
 	'Modify Files',
 	'Modify Modules',
 	'Modify Permissions',
@@ -73,7 +73,7 @@ $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
 //$group->GrantPermission('Modify Site Assets');
-$group->GrantPermission('Modify File Plugins');
+$group->GrantPermission('Modify User Plugins');
 /* too risky
 $group = new Group();
 $group->name = 'AssetManager';
@@ -231,7 +231,7 @@ $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
 create_private_dir($destdir,'admin_custom');
 create_private_dir($destdir,'configs');
 create_private_dir($destdir,'css');
-create_private_dir($destdir,'file_plugins');
+create_private_dir($destdir,'user_plugins');
 create_private_dir($destdir,'images');
 create_private_dir($destdir,'module_custom');
 create_private_dir($destdir,'modules');

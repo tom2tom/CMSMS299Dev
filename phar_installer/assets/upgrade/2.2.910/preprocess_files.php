@@ -26,7 +26,7 @@ foreach ([
  ['assets','images'],
  ['assets','module_custom'],
  ['assets','modules'],
- ['assets','file_plugins'],
+ ['assets','user_plugins'],
  ['assets','plugins'],
  ['assets','templates'],
  ['lib','modules'],
@@ -119,6 +119,6 @@ if (version_compare($fromvers, '2.2.900') >= 0 && version_compare($fromvers, '2.
 if (version_compare($fromvers, '2.2.910') < 0) {
     $fp = $assetsdir . DIRECTORY_SEPARATOR . 'simple_plugins';
     if (is_dir($fp)) {
-        rename($fp, $assetsdir . DIRECTORY_SEPARATOR . 'file_plugins');
+        rename($fp, $assetsdir . DIRECTORY_SEPARATOR . 'user_plugins');
     }
 }

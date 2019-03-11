@@ -92,7 +92,7 @@ function fill_section(XMLWriter $xwm, Connection $db, array $structarray, string
 
 /**
  * Export site content (pages, templates, designs, styles etc) to XML file.
- * Support files (in the uploads folder) and UDT's (in the assets/file_plugins folder)
+ * Support files (in the uploads folder) and UDT's (in the assets/user_plugins folder)
  * are recorded as such, and will be copied into the specified $filesfolder if it exists.
  * Otherwise, that remains a manual task.
  *
@@ -316,7 +316,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT topath (#PCDATA)>
  <!ELEMENT frompath (#PCDATA)>
  <!ELEMENT embedded (#PCDATA)>
- <!ELEMENT fileplugins (sourcedir?,file+)>
+ <!ELEMENT userplugins (sourcedir?,file+)>
  <!ELEMENT file (name,(frompath|embedded),content?)>
 ');
 
@@ -368,15 +368,15 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 		$xw->endElement(); // files
 	}
 
-	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR;
+	$frombase =	CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'user_plugins'.DIRECTORY_SEPARATOR;
 	$skip = strlen($frombase);
 	if ($copynow) {
-		$dir = $filesfolder.DIRECTORY_SEPARATOR.'file_plugins';
+		$dir = $filesfolder.DIRECTORY_SEPARATOR.'user_plugins';
 		@mkdir($dir, 0771, true);
 		$copycount = 0;
 	}
 
-	$xw->startElement('fileplugins');
+	$xw->startElement('userplugins');
 	$iter = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator($frombase,
 			FilesystemIterator::KEY_AS_PATHNAME |
@@ -404,7 +404,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
 			$xw->endElement(); // file
 		}
 	}
-	$xw->endElement(); // fileplugins
+	$xw->endElement(); // userplugins
 	if ($copynow && $copycount == 0) {
 		@rmdir($dir);
 	}
@@ -802,8 +802,8 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 							}
 						}
 					break;
-				case 'fileplugins':
-					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'file_plugins'.DIRECTORY_SEPARATOR;
+				case 'userplugins':
+					$tobase = CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'user_plugins'.DIRECTORY_SEPARATOR;
 					if ($filesfolder) {
 						//TODO validity check e.g. somewhere absolute in installer tree
 						$frombase = $filesfolder.DIRECTORY_SEPARATOR;

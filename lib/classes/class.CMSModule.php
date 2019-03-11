@@ -2433,7 +2433,7 @@ abstract class CMSModule
     final public function ListUserTags() : array
     {
         $gCms = CmsApp::get_instance();
-        $ops = $gCms->GetFilePluginOperations();
+        $ops = $gCms->GetUserPluginOperations();
         return $ops->get_list();
     }
 
@@ -2449,7 +2449,7 @@ abstract class CMSModule
     final public function CallUserTag(string $name, $params = [])
     {
         $gCms = CmsApp::get_instance();
-        $ops = $gCms->GetFilePluginOperations();
+        $ops = $gCms->GetUserPluginOperations();
         return $ops->call_plugin($name, $params);
     }
 

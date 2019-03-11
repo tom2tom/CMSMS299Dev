@@ -22,7 +22,7 @@ use cms_config;
 use cms_siteprefs;
 use CmsApp;
 use CMSMS\internal\ModulePluginManager;
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 use Exception;
 use LogicException;
 use Smarty_Internal_Template;
@@ -269,9 +269,9 @@ class Smarty extends SmartyParent
 
         // TODO maybe check for another module-plugin, return $name.'::function_plugin'
 
-        // check if it is a file-plugin
+        // check if it is a user-plugin
             try {
-                $callback = FilePluginOperations::get_instance()->load_plugin( $name );
+                $callback = UserPluginOperations::get_instance()->load_plugin( $name );
 //DEBUG                $cachable = false;
                 return true;
             } catch (Exception $e) {
@@ -282,7 +282,7 @@ class Smarty extends SmartyParent
     }
 
     /**
-     * Report whether a smarty plugin (actual, not module or file-plugin)
+     * Report whether a smarty plugin (actual, not module or user-plugin)
      * having the specified name exists.
      * @since 2.3
      *

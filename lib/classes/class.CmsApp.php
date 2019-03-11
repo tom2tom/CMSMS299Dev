@@ -26,7 +26,7 @@ use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
 use CMSMS\Database\Connection as Connection2;
 use CMSMS\Database\mysqli\Connection;
-use CMSMS\FilePluginOperations;
+use CMSMS\UserPluginOperations;
 use CMSMS\GroupOperations;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
@@ -409,16 +409,16 @@ final class CmsApp
     }
 
     /**
-     * Get a handle to the file-plugin operations object.
+     * Get a handle to the user-plugin operations object.
      * @since 2.3
-     * @see FilePluginOperations
+     * @see UserPluginOperations
      * @deprecated since 2.3 get the obbject directly
      *
-     * @return FilePluginOperations
+     * @return UserPluginOperations
      */
-    public function GetFilePluginOperations() : FilePluginOperations
+    public function GetUserPluginOperations() : UserPluginOperations
     {
-        return FilePluginOperations::get_instance();
+        return UserPluginOperations::get_instance();
     }
 
     /**
@@ -472,7 +472,7 @@ final class CmsApp
     /**
     * Get a handle to the UDT operations object (which is for back-compatibility only).
     * @see UserTagOperations
-    * @deprecated - since 2.3 UserTagOperations has been superseded by FilePluginOperations
+    * @deprecated - since 2.3 UserTagOperations has been superseded by UserPluginOperations
     *
     * @return UserTagOperations handle to the UserTagOperations object
     */

@@ -11,7 +11,7 @@ revised UI for UDT processing (those are now files, not database records) see ne
 editing of templates, stylesheets, UDT's, site-operation-files (with respective permission) by syntax hilighter Ace or CodeMirror
 module-specific templates can also be processed via DesignManager
 extra core modules: CoreAdminLogin, CoreTextEditing, AdminLog
-renamed permission: 'Modify File Plugins'
+renamed permission: 'Modify User Plugins'
 extra permissions: 'Modify Site Code','Remote Administration'
 extra users-group: CodeManager
 
@@ -146,7 +146,7 @@ javascript files in <siterootpath>/lib/jquery
 gone
 
 UDT's stored in database
-  must become files in <siterootpath>/assets/file_plugins (or whatever the 'assets' folder is named)
+  must become files in <siterootpath>/assets/user_plugins (or whatever the 'assets' folder is named)
 
 MISC
 
@@ -173,7 +173,7 @@ DETAILS
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
   - New method: AdminUtils::get_module_icon()
   - New method: cms_utils::path_to_url()
-  - New classes: ScriptManager, ArrayTree, BasicEnum 
+  - New classes: ScriptManager, ArrayTree, BasicEnum
 
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
@@ -191,8 +191,8 @@ DETAILS
   - FEATURE: added new define in cms_config class: CMS_UPLOADS_URL
   - FEATURE: added new define in cms_config class: CMS_ADMIN_PATH
   - FEATURE: added the CMS_ASSETS_URL define and assets_url config entry.
-  - CHANGE: new 'file-plugin' API effectivly replaces UDT's.
-     File plugins are files stored in /assets/file_plugins, and must contain
+  - CHANGE: new 'user-plugin' API effectivly replaces UDT's.
+     User plugins are files stored in /assets/user_plugins, and must contain
      the <?php tag and must return, not echo, anything to be displayed.
      (Existing UDT's are migrated during upgrade)
   - UserTagOperations class is now merely a compatibility stub
