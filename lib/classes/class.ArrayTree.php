@@ -36,18 +36,6 @@ class ArrayTree
 	const CHILDKEY = 'children';
 
 	/**
-	 * @param
-	 * @param string $selfkey   $data key-identifier default self::SELFKEY
-	 * @param string $parentkey $data key-identifier default self::PARENTKEY
-	 * @param string $childkey  $data key-identifier default self::CHILDKEY
-	 * @return array
-	 */
-	public static function create_array($pattern,
-		string $selfkey = self::SELFKEY, string $parentkey = self::PARENTKEY, string $childkey = self::CHILDKEY) : array
-	{
-	}
-
-	/**
 	 * Converts flat $data to corresponding tree-form array, using
 	 *  modified pre-order tree traversal (a.k.a. nested set)
 	 * See http://bytes.schibsted.com/building-tree-structures-in-php-using-references
@@ -73,8 +61,8 @@ class ArrayTree
    				// Add a root-parented node directly to the tree
 				$node['path'] = [$node[$selfkey]];
 				$tree[$node[$selfkey]] = &$node;
-			} else {
-		  		// Otherwise, add this node as a reference in its parent
+			} elseif (isset($references[$node[$parentkey]])) {
+		  		// Otherwise, add this node as a reference in its parent (if any)
 				$parentpath = $references[$node[$parentkey]]['path'];
 				$node['path'] = $parentpath + [count($parentpath)=>$node[$selfkey]];
 				$references[$node[$parentkey]][$childkey][$node[$selfkey]] = &$node;
@@ -86,10 +74,11 @@ class ArrayTree
 	}
 
 	/**
-	 * Support function remove child-data array from $array
+	 * Support function remove one child-data array from $array
 	 *
 	 * @param array $keys	  tree-array keys
 	 * @param array $array	  tree-array
+	 * @return bool indicating success
 	 */
 	private static function removeChild(array $keys, array &$array)
 	{
@@ -99,17 +88,21 @@ class ArrayTree
 				$array = &$array[$index];
 			} else {
 				unset($array[$index]);
-				return;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	/**
+	 * Remove from $tree the node corresponding to $path. Inherently recursive.
 	 *
 	 * @param array $tree	  tree-structured data to process
 	 * @param mixed $path	  array, or ':'-separated string, of keys
+	 * @param string $childkey $tree key-identifier default self::CHILDKEY
+	 * @return bool indicating success
 	 */
-	public static function drop_node(array &$tree, $path,
+	public static function drop_node(array &$tree, $path, $recurse = true,
 		string $childkey = self::CHILDKEY)
 	{
 		$pathkeys = self::process_path($path);
@@ -122,11 +115,12 @@ class ArrayTree
 					$p[] = $childkey; $p[] = $key;
 					$node = $node[$childkey][$key];
 				} else {
-					return;
+					return false;
 				}
 			}
-			self::removeChild($p, $tree);
+			return self::removeChild($p, $tree);
 		}
+		return false;
 	}
 
 	/* *
@@ -159,6 +153,7 @@ class ArrayTree
 	 * @param string $getkey $tree key-identifier
 	 * @param mixed $getval  Value to be matched
 	 * @param bool  $strict  Optional flag for strict comparison, default true
+	 * @param string $childkey $tree key-identifier default self::CHILDKEY
 	 * @return mixed path-array or null if not found
 	 */
 	public static function find(array $tree, string $getkey, $getval,
@@ -276,6 +271,42 @@ class ArrayTree
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Get the node corresponding to an ancestor of the node represented by $path
+	 *
+	 * @param array $tree	  Tree-structured data to process
+	 * @param mixed $path array, or ':'-separated string, of node names
+	 *  Keys may be 'name'-property strings and/or 0-based children-index ints.
+	 *  The first key is for the root node.
+	 * @param int $offset     Wanted path-index, 0=root node, 1=root-child, 2 ...
+	 *   -1=current-parent -2=current-grandparent ...
+	 * @param string $childkey $tree key-identifier default self::CHILDKEY
+	 * @return mixed array or null
+	 */
+	public static function path_get_ancestor(array $tree, $path, int $offset,
+		string $childkey = self::CHILDKEY)
+	{
+		$pathkeys = self::process_path($path);
+		if (!$pathkeys) {
+			return null;
+		}
+		if ($offset == 0) {
+			$getpath = [reset($pathkeys)];
+		} elseif ($offset < 0) {
+			$c = count($pathkeys) + $offset;
+			$getpath = array_slice($pathkeys, 0, $c);
+			if (count($getpath) < $c) {
+				return null;
+			}
+		} else {
+			$getpath = array_slice($pathkeys, 0, $offset + 1);
+			if (count($getpath) < $offset) {
+				return null;
+			}
+		}
+		return self::node_get_data($tree, $getpath, '*', null, $childkey);
 	}
 
 	/**
