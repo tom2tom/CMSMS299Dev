@@ -34,12 +34,12 @@ use function cmsms;
  */
 class Utils
 {
-	/**
-	 *
-	 * @param Search-module object $module
-	 * @param string $phrase
-	 * @return array
-	 */
+    /**
+     *
+     * @param Search-module object $module
+     * @param string $phrase
+     * @return array
+     */
     public static function StemPhrase(Search &$module, string $phrase) : array
     {
         // strip out smarty tags
@@ -99,15 +99,15 @@ class Utils
         return $stemmed_words;
     }
 
-	/**
-	 *
-	 * @param Search-module object $module
-	 * @param string $modname
-	 * @param type $id
-	 * @param string $attr
-	 * @param string $content
-	 * @param type $expires
-	 */
+    /**
+     *
+     * @param Search-module object $module
+     * @param string $modname
+     * @param type $id
+     * @param string $attr
+     * @param string $content
+     * @param type $expires
+     */
     public static function AddWords(Search &$module, string $modname = 'Search', $id = -1, string $attr = '', string $content = '', $expires = null)
     {
         $db = $module->GetDb();
@@ -159,13 +159,13 @@ class Utils
         }
     }
 
-	/**
-	 *
-	 * @param Search-module object $module
-	 * @param string $modname
-	 * @param type $id
-	 * @param string $attr
-	 */
+    /**
+     *
+     * @param Search-module object $module
+     * @param string $modname
+     * @param type $id
+     * @param string $attr
+     */
     public static function DeleteWords(Search &$module, string $modname = 'Search', $id = -1, string $attr = '')
     {
         $parms = [$modname];
@@ -187,21 +187,21 @@ class Utils
         Events::SendEvent( 'Search', 'SearchItemDeleted', [ $modname, $id, $attr ] );
     }
 
-	/**
-	 *
-	 * @param Search-module object $module
-	 */
+    /**
+     *
+     * @param Search-module object $module
+     */
     public static function Reindex(Search &$module)
     {
         @set_time_limit(999);
         $module->DeleteAllWords();
 
         // have to load all the content, and properties, (in chunks)
-        $full_list = array_keys( cmsms()->GetHierarchyManager()->getFlatList());
-        $nperloop = min(200,count($full_list));
+        $full_list = array_keys(cmsms()->GetHierarchyManager()->getFlatList());
+        $n = count($full_list);
+        $nperloop = min(200,$n);
         $contentops = ContentOperations::get_instance();
         $offset = 0;
-        $n = count($full_list);
 
         while( $offset < $n ) {
             // figure out the content to load.
@@ -213,13 +213,13 @@ class Utils
             $idlist = array_unique($idlist);
 
             // load the content for this list
-            $contentops->LoadChildren(-1,TRUE,false,$idlist);
+            $contentops->LoadChildren(-1,TRUE,FALSE,$idlist);
 
             // index each content page.
             foreach( $idlist as $one ) {
                 $content_obj = $contentops->LoadContentFromId($one);
                 $parms = ['content'=>$content_obj];
-                self::DoEvent($module,'Core','ContentEditPost',$parms);
+//                self::DoEvent($module,'Core','ContentEditPost',$parms); //WHAAT ? not changed
                 content_cache::unload($one);
             }
         }
@@ -235,13 +235,13 @@ class Utils
         }
     }
 
-	/**
-	 *
-	 * @param Search-module object $module
-	 * @param string $originator
-	 * @param string $eventname
-	 * @param array $params
-	 */
+    /**
+     *
+     * @param Search-module object $module
+     * @param string $originator
+     * @param string $eventname
+     * @param array $params
+     */
     public static function DoEvent(Search &$module, string $originator, string $eventname, array &$params )
     {
         if ($originator != 'Core') return;
@@ -287,11 +287,11 @@ class Utils
         }
     }
 
-	/**
-	 *
-	 * @param string $text
-	 * @return string
-	 */
+    /**
+     *
+     * @param string $text
+     * @return string
+     */
     public static function CleanupText(string $text) : string
     {
         $text = strip_tags($text);

@@ -26,7 +26,6 @@ use CmsApp;
 use CmsCoreCapabilities;
 use CMSMS\ContentBase;
 use CMSMS\ContentTypePlaceHolder;
-use CMSMS\contenttypes\Content;
 use CMSMS\internal\content_cache;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
@@ -104,30 +103,29 @@ final class ContentOperations
 	{
 		// the flat list
 		$obj = new global_cachable('content_flatlist', function()
-				{
-					$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
-					$db = CmsApp::get_instance()->GetDb();
-					return $db->GetArray($query);
-				});
+			{
+				$query = 'SELECT content_id,parent_id,item_order,content_alias,active FROM '.CMS_DB_PREFIX.'content ORDER BY hierarchy';
+				$db = CmsApp::get_instance()->GetDb();
+				return $db->GetArray($query);
+			});
 		global_cache::add_cachable($obj);
 
 		// hence the tree
 		$obj = new global_cachable('content_tree', function()
-				{
-					$flatlist = global_cache::get('content_flatlist');
-
-					// todo, embed this herer
-					$tree = cms_tree_operations::load_from_list($flatlist);
-					return $tree;
-				});
+			{
+				$flatlist = global_cache::get('content_flatlist');
+				// todo, embed this here
+				$tree = cms_tree_operations::load_from_list($flatlist);
+				return $tree;
+			});
 		global_cache::add_cachable($obj);
 
-		// hence the quicklist
+		// hence the flat/quick list
 		$obj = new global_cachable('content_quicklist', function()
-				{
-					$tree = global_cache::get('content_tree');
-					return $tree->getFlatList();
-				});
+			{
+				$tree = global_cache::get('content_tree');
+				return $tree->getFlatList();
+			});
 		global_cache::add_cachable($obj);
 	}
 
@@ -214,15 +212,17 @@ final class ContentOperations
 	}
 
 	/**
-	 * Given a content id, load and return the loaded content object.
+	 * Given a content id, load and return the corresponding content object.
+	 * It is loaded from the content cache if possible, or else added to that
+	 * cache after loading.
 	 *
-	 * @param int $id The id of the content object to load
+	 * @param mixed $id int | null The id of the content object to load. If < 1, the default id will be used.
 	 * @param bool $loadprops Optional flag whether to load the properties of that content object. Defaults to false.
-	 * @return mixed The loaded content object. If nothing is found, returns FALSE.
+	 * @return mixed The loaded content object. If nothing is found, returns null.
 	 */
-	public function LoadContentFromId(int $id,bool $loadprops=false)
+	public function LoadContentFromId($id,bool $loadprops=false)
 	{
-		$id = (int) $id;
+		$id = (int)$id;
 		if( $id < 1 ) $id = $this->GetDefaultContent();
 		$contentobj = content_cache::get_content($id);
 		if( $contentobj === null ) {
@@ -245,9 +245,9 @@ final class ContentOperations
 	}
 
 	/**
-	 * Given a content alias, load and return the loaded content object.
+	 * Load and return the content object corresponding to the given identifier (alias|id).
 	 *
-	 * @param mixed $alias null|bool|int|string The alias of the content object to load
+	 * @param mixed $alias null|bool|int|string The identifier of the content object to load
 	 * @param bool $only_active If true, only return the object if it's active flag is true. Defaults to false.
 	 * @return mixed The matched ContentBase object, or null.
 	 */
@@ -380,8 +380,8 @@ final class ContentOperations
 
 	/**
 	 * Returns a hash of valid content types (classes that extend ContentBase)
-	 * The key is the name of the class that would be saved into the database.  The
-	 * value would be the text returned by the type's FriendlyName() method.
+	 * The key is the name of the class that would be saved into the database.
+	 * The value would be the text returned by the type's FriendlyName() method.
 	 *
 	 * @param bool $byclassname optionally return keys as class names.
 	 * @param bool $allowed optionally trim the list of content types that are allowed by the site preference.
@@ -532,8 +532,7 @@ final class ContentOperations
 	 */
 	public function GetAllContentAsHierarchy(bool $loadcontent = false)
 	{
-		$tree = global_cache::get('content_tree');
-		return $tree;
+		return CmsApp::get_instance()->GetHierarchyManager();
 	}
 
 	/**
@@ -547,30 +546,29 @@ final class ContentOperations
 	public function LoadAllContent(bool $loadprops = FALSE,bool $inactive = FALSE,bool $showinmenu = FALSE)
 	{
 		static $_loaded = 0;
-		if( $_loaded == 1 ) return;
+		if( $_loaded == 1 ) {
+			return;
+		}
 		$_loaded = 1;
 
-		$db = CmsApp::get_instance()->GetDb();
-
 		$expr = [];
-		$parms = [];
-		if( !$inactive ) {
-			$expr[] = 'active = ?';
-			$parms[] = 1;
-		}
-		if( $showinmenu ) {
-			$expr[] = 'show_in_menu = ?';
-			$parms[] = 1;
-		}
-
 		$loaded_ids = content_cache::get_loaded_page_ids();
 		if( $loaded_ids ) {
 			$expr[] = 'content_id NOT IN ('.implode(',',$loaded_ids).')';
 		}
+		if( !$inactive ) {
+			$expr[] = 'active = 1';
+		}
+		if( $showinmenu ) {
+			$expr[] = 'show_in_menu = 1';
+		}
+		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier)';
+		if( $expr ) {
+			$query .= ' WHERE '.implode(' AND ',$expr);
+		}
 
-		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier) WHERE ';
-		$query .= implode(' AND ',$expr);
-		$dbr = $db->Execute($query,$parms);
+		$db = CmsApp::get_instance()->GetDb();
+		$dbr = $db->Execute($query);
 
 		if( $loadprops ) {
 			$child_ids = [];
@@ -602,11 +600,12 @@ final class ContentOperations
 		}
 
 		// build the content objects
+		$valids = array_keys($this->ListContentTypes());
 		while( !$dbr->EOF() ) {
 			$row = $dbr->fields;
 			$id = $row['content_id'];
 
-			if (!in_array($row['type'], array_keys($this->ListContentTypes()))) continue;
+			if (!in_array($row['type'], $valids)) continue;
 			$contentobj = $this->CreateNewContent($row['type']);
 
 			if ($contentobj) {
@@ -640,24 +639,34 @@ final class ContentOperations
 	{
 		$db = CmsApp::get_instance()->GetDb();
 
-		$contentrows = null;
 		if( $explicit_ids ) {
 			$loaded_ids = content_cache::get_loaded_page_ids();
-			if( $loaded_ids ) $explicit_ids = array_diff($explicit_ids,$loaded_ids);
+			if( $loaded_ids ) {
+				$explicit_ids = array_diff($explicit_ids,$loaded_ids);
+			}
 		}
 		if( $explicit_ids ) {
 			$expr = 'content_id IN ('.implode(',',$explicit_ids).')';
 			if( !$all ) $expr .= ' AND active = 1';
 
-			// note, this is mysql specific...
+			// note, this is MySQL specific... why is index hint needed?
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content FORCE INDEX (idx_content_by_idhier) WHERE '.$expr.' ORDER BY hierarchy';
 			$contentrows = $db->GetArray($query);
 		}
+		elseif( isset($loaded_ids) ) {
+			return;
+		}
 		else {
-			if( !$id ) $id = -1;
 			// get the content rows
-			if( $all ) $query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? ORDER BY hierarchy';
-			else $query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy';
+			if( !$id ) {
+				$id = -1;
+			}
+			if( $all ) {
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? ORDER BY hierarchy';
+			}
+			else {
+				$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE parent_id = ? AND active = 1 ORDER BY hierarchy';
+			}
 			$contentrows = $db->GetArray($query, [$id]);
 		}
 
@@ -686,20 +695,22 @@ final class ContentOperations
 						$contentprops[$content_id][] = $tmp[$i];
 					}
 				}
-				unset($tmp);
+				$tmp = null;
 			}
 		}
 
+		$valids = array_keys($this->ListContentTypes());
 		// build the content objects
 		for( $i = 0, $n = count($contentrows); $i < $n; $i++ ) {
-			$row =& $contentrows[$i];
-			$id = $row['content_id'];
+			$row = &$contentrows[$i];
 
-			if (!in_array($row['type'], array_keys($this->ListContentTypes()))) continue;
-			$contentobj = new Content();
+			if (!in_array($row['type'], $valids)) {
+				continue;
+			}
 			$contentobj = $this->CreateNewContent($row['type']);
 
 			if ($contentobj) {
+				$id = $row['content_id'];
 				$contentobj->LoadFromData($row, false);
 				if( $loadprops && $contentprops && isset($contentprops[$id]) ) {
 					// load the properties from local cache.
@@ -714,9 +725,10 @@ final class ContentOperations
 				unset($contentobj);
 			}
 		}
-
-		unset($contentrows);
-		unset($contentprops);
+		//cleanup
+		unset($row);
+		$contentrows = null; //unset($contentrows);
+		$contentprops = null; //unset($contentprops);
 	}
 
 	/**
@@ -731,9 +743,9 @@ final class ContentOperations
 
 		$sql = 'UPDATE '.CMS_DB_PREFIX.'content SET default_content=0 WHERE default_content=1';
 		$db->Execute( $sql );
-		$one = $this->LoadContentFromId($id);
-		$one->SetDefaultContent(true);
-		$one->Save();
+		$contentobj = $this->LoadContentFromId($id);
+		$contentobj->SetDefaultContent(true);
+		$contentobj->Save();
 	}
 
 	/**
@@ -742,24 +754,24 @@ final class ContentOperations
 	 * Caution:  it is entirely possible that this method (and other similar methods of loading content) will result in a memory outage
 	 * if there are a lot of content objects AND/OR large amounts of content properties.  Use with caution.
 	 *
-	 * @param bool $loadprops Not implemented
+	 * @param bool $loadprops optional parameter for LoadAllContent(). Default true
 	 * @return array The array of content objects
 	 */
 	public function &GetAllContent(bool $loadprops=true)
 	{
 		debug_buffer('get all content...');
-		$gCms = CmsApp::get_instance();
-		$tree = $gCms->GetHierarchyManager();
-		$list = $tree->getFlatList();
+		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$list = $hm->getFlatList();
 
 		$this->LoadAllContent($loadprops);
 		$output = [];
-		foreach( $list as &$one ) {
-			$tmp = $one->GetContent(false,true,true);
+		foreach( $list as &$node ) {
+			$tmp = $node->GetContent(false,true,true);
 			if( is_object($tmp) ) $output[] = $tmp;
+			unset($node); //free space a bit
 		}
-		unset($one);
 
+		$list = null;
 		debug_buffer('end get all content...');
 		return $output;
 	}
@@ -871,8 +883,9 @@ EOS;
 	 */
 	public function GetPageAliasFromID( int $content_id )
 	{
-		$node = $this->quickfind_node_by_id($content_id);
-		if( $node ) return $node->getTag('alias');
+		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$node = $hm->quickfind_node_by_id($content_id);
+		if( $node ) return $node->get_tag('alias');
 	}
 
 	/**
@@ -983,7 +996,8 @@ EOS;
 		$base_id = (int)$base_id;
 		if( $base_id < 1 ) return FALSE;
 
-		$node = $this->quickfind_node_by_id($base_id);
+		$hm = $gCms->GetHierarchyManager();
+		$node = $hm->quickfind_node_by_id($base_id);
 		while( $node ) {
 			if( $node->get_tag('id') == $test_id ) return TRUE;
 			$node = $node->get_parent();
@@ -1096,14 +1110,15 @@ EOS;
 		$access = $this->GetPageAccessForUser($userid);
 		if( !$access ) return FALSE;
 
-		$node = $this->quickfind_node_by_id($contentid);
+		$hm = CmsApp::get_instance()->GetHierarchyManager(); //TODO below siblings?
+		$node = $hm->quickfind_node_by_id($contentid);
 		if( !$node ) return FALSE;
 		$parent = $node->get_parent();
 		if( !$parent ) return FALSE;
 
 		$peers = $parent->get_children();
 		if( $peers ) {
-			for( $i = 0, $n = count($peers); $i < $n; $i++ ) {
+			for( $i = 0, $n = count($peers); $i < $n; $i++ ) { //CHECKME valid index?
 				if( !in_array($peers[$i]->get_tag('id'),$access) ) return FALSE;
 			}
 		}

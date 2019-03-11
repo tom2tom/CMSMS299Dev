@@ -111,14 +111,15 @@ final class CmsApp
     /**
      * @ignore
      */
-	private $smarty = null;
+    private $smarty = null;
 
     /**
+     * cms_content_tree object with nested descendent-objects
      * @ignore
      */
     private $hrinstance = null;
 
-	/**
+    /**
      * Internal error array - So functions/modules can store up debug info and spit it all out at once
      * @ignore
      */
@@ -127,7 +128,7 @@ final class CmsApp
     /**
      * @ignore
      */
-    private $scriptcombiner;
+    private $scriptcombiner = null;
 
     /**
      * @ignore
@@ -501,14 +502,16 @@ final class CmsApp
     }
 
     /**
-    * Get a handle to the cached hierarchy manager object.
+    * Get a handle to the cached pages-hierarchy manager.
     * @see HierarchyManager
     *
-    * @return mixed? HierarchyManager handle to the HierarchyManager object
+    * @return handle to the hierarchy manager object
     */
     public function GetHierarchyManager()
     {
-        if( is_null($this->_hrinstance) ) $this->_hrinstance = global_cache::get('content_tree');
+        if( is_null($this->_hrinstance) ) {
+            $this->_hrinstance = global_cache::get('content_tree');
+        }
         return $this->_hrinstance;
     }
 

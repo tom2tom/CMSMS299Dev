@@ -26,7 +26,7 @@ This is a rewrite of the original cms_selflink plugin by Ted Kulk and various au
 function smarty_function_cms_selflink($params, $template)
 {
 	$gCms = CmsApp::get_instance();
-	$manager = $gCms->GetHierarchyManager();
+	$hm = $gCms->GetHierarchyManager();
 	$url = '';
 	$urlparam = '';
 	$label_side = 'left';
@@ -55,7 +55,7 @@ function smarty_function_cms_selflink($params, $template)
 			}
 			else {
 				$page = cms_html_entity_decode($page); // decode entities (alias may be encoded if entered in WYSIWYG)
-				$node = $manager->find_by_tag('alias',$page);
+				$node = $hm->find_by_tag('alias',$page);
 				if( $node ) $pageid = $node->get_tag('id');
 			}
 		}
@@ -69,8 +69,8 @@ function smarty_function_cms_selflink($params, $template)
 
 		switch( $dir ) {
 		case 'next':
-			// next visible page.
-			$flatcontent = $manager->getFlatList();
+			// next visible page
+			$flatcontent = $hm->getFlatList();
 			$indexes = array_keys($flatcontent);
 			$i = array_search($startpage,$indexes);
 			if( $i < ($n = count($flatcontent)) ) {
@@ -89,10 +89,10 @@ function smarty_function_cms_selflink($params, $template)
 		case 'nextpeer':
 		case 'nextsibling':
 			// next valid peer page.
-			$node = $manager->find_by_tag('id',$startpage);
+			$node = $hm->find_by_tag('id',$startpage);
 			if( !$node ) return;
 			$parent = $node->get_parent();
-			if( !$parent ) $parent = $manager;
+			if( !$parent ) $parent = $hm; //root node, cloned
 			$children = $parent->get_children();
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				$id = $children[$i]->get_tag('id');
@@ -113,7 +113,7 @@ function smarty_function_cms_selflink($params, $template)
 		case 'prev':
 		case 'previous':
 			// previous visible page.
-			$flatcontent = $manager->getFlatList();
+			$flatcontent = $hm->getFlatList();
 			$indexes = array_keys($flatcontent);
 			$i = array_search($startpage,$indexes);
 			if( $i !== FALSE ) {
@@ -131,10 +131,10 @@ function smarty_function_cms_selflink($params, $template)
 		case 'prevpeer':
 		case 'prevsibling':
 			// previous valid peer page.
-			$node = $manager->find_by_tag('id',$startpage);
+			$node = $hm->find_by_tag('id',$startpage);
 			if( !$node ) return;
 			$parent = $node->get_parent();
-			if( !$parent ) $parent = $manager;
+			if( !$parent ) $parent = $hm;
 			$children = $parent->get_children();
 			for( $i = 0, $n = count($children); $i < $n; $i++ ) {
 				$id = $children[$i]->get_tag('id');
@@ -159,7 +159,7 @@ function smarty_function_cms_selflink($params, $template)
 
 		case 'up':
 			// parent page.
-			$node = $manager->find_by_tag('id',$startpage);
+			$node = $hm->find_by_tag('id',$startpage);
 			if( !$node ) return;
 			$node = $node->get_parent();
 			if( !$node ) return;
@@ -177,7 +177,7 @@ function smarty_function_cms_selflink($params, $template)
 	if( $pageid == '' ) return;
 
 	// one final check to see if this page exists.
-	$node = $manager->find_by_tag('id',$pageid);
+	$node = $hm->find_by_tag('id',$pageid);
 	if( !$node ) return;
 
 	// get the content object.

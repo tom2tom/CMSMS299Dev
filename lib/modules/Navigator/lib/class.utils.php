@@ -18,7 +18,6 @@
 
 namespace Navigator;
 
-use cms_content_tree;
 use cms_siteprefs;
 use CmsApp;
 use CMSMS\internal\content_cache;
@@ -74,7 +73,6 @@ final class utils
     {
         if( !is_object($node) ) return;
 
-        $gCms = CmsApp::get_instance();
         $content = $node->getContent(TRUE);
         if( is_object($content) ) {
             if( !$content->Active() ) return;
@@ -102,6 +100,7 @@ final class utils
             $obj->has_children = FALSE;
             $obj->children_exist = FALSE;
 
+            $gCms = CmsApp::get_instance();
             $cur_content_id = $gCms->get_content_id();
             if( $obj->id == $cur_content_id ) {
                 $obj->current = true;

@@ -76,10 +76,13 @@ foreach( $params as $key => $value ) {
                 $flatlist = $hm->getFlatList();
                 if( $flatlist ) {
                     $tmp = [];
-                    foreach( $flatlist as $id => &$node ) {
+                    foreach( $flatlist as $node ) {
                         $alias = $node->get_tag('alias');
                         foreach( $list as $t1 ) {
-                            if( startswith( $alias, $t1 ) ) $tmp[] = $alias;
+                            if( startswith( $alias, $t1 ) ) {
+                                $tmp[] = $alias;
+                                break;
+                            }
                         }
                     }
                     if( $tmp ) $items = implode(',',$tmp);
@@ -173,7 +176,7 @@ if( $start_element ) {
     }
 }
 else if( $start_page ) {
-	$type = '';
+    $type = '';
     $tmp = $hm->find_by_tag_anon($start_page,$type);
     if( is_object($tmp) ) {
         if( !$show_root_siblings ) {
@@ -210,7 +213,7 @@ else if( $start_level > 1 ) {
     }
 }
 else if( $childrenof ) {
-	$type = '';
+    $type = '';
     $tmp = $hm->find_by_tag_anon(trim($childrenof), $type);
     if( is_object($tmp) ) {
         if( $tmp->has_children() ) $rootnodes = $tmp->get_children();
@@ -220,7 +223,7 @@ else if( $items ) {
     if( $nlevels < 1 ) $nlevels = 1;
     $items = explode(',',$items);
     $items = array_unique($items);
-	$type = '';
+    $type = '';
     foreach( $items as $item ) {
         $tmp = $hm->find_by_tag_anon(trim($item),$type);
         if( $tmp ) $rootnodes[] = $tmp;
@@ -228,7 +231,9 @@ else if( $items ) {
 }
 else {
     // start at the top
-    if( $hm->has_children() ) $rootnodes = $hm->get_children();
+    if( $hm->has_children() ) {
+        $rootnodes = $hm->get_children();
+    }
 }
 
 if( count($rootnodes) == 0 ) return; // nothing to do.
@@ -236,9 +241,13 @@ if( count($rootnodes) == 0 ) return; // nothing to do.
 // ready to fill the nodes
 $outtree = [];
 foreach( $rootnodes as $node ) {
-    if( utils::is_excluded($node->get_tag('alias')) ) continue;
+	if( utils::is_excluded($node->get_tag('alias')) ) {
+        continue;
+    }
     $tmp = utils::fill_node($node,$deep,$nlevels,$show_all,$collapse);
-    if( $tmp ) $outtree[] = $tmp;
+	if( $tmp ) {
+        $outtree[] = $tmp;
+    }
 }
 
 utils::clear_excludes();
