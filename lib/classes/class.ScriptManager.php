@@ -26,7 +26,7 @@ use function file_put_contents;
 //TODO a job to clear old consolidations ? how old ? c.f. TMP_CACHE_LOCATION cleaner
 
 /**
- * A class for consolidating specified javascript's into a single file.
+ * A class for consolidating specified javascript files and/or strings into a single file.
  *
  * @since 2.3
  * @package CMS
@@ -114,18 +114,23 @@ class ScriptManager
     /**
      * Find and record a script-file to be merged if necessary
      *
-     * @param string $filename (base)name of the wanted script file,
+     * @param string $filename absolute filepath or (base)name of the wanted script file,
      *  optionally including [.-]min before the .js extension
      *  If the name includes a version, that will be taken into account.
      *  Otherwise, any found version will be used. Min-format preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
      * @return bool indicating success
      */
-    public function queue_matchedfile( string $filename, int $priority = 0 )
+    public function queue_matchedfile( string $filename, int $priority = 0 ) : bool
     {
-        $js_filename = cms_get_script($filename, false);
-        if( $js_filename ) {
-            $this->queue_file( $js_filename, $priority );
+        if (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+            // $filename is absolute
+            $cache_filename = $filename;
+        } else {
+            $cache_filename = cms_get_script($filename, false);
+        }
+        if( $cache_filename ) {
+            $this->queue_file( $cache_filename, $priority );
             return true;
         }
         return false;
@@ -137,10 +142,10 @@ class ScriptManager
      * Hooks 'Core::PreProcessScripts' and 'Core::PostProcessScripts' are
      * run respectively before and after the content merge.
      *
-     * @param string $output_path Optional Filesystem path of folder to hold the merged file. Default '' (use TMP_CACHE_LOCATION)
+     * @param string $output_path Optional Filesystem absolute path of folder to hold the merged file. Default '' (use TMP_CACHE_LOCATION)
      * @param bool   $force       Optional flag whether to force recreation of the merged file. Default false
      * @param bool   $allow_defer Optional flag whether to force-include jquery.cmsms_defer.js. Default true
-     * @return string basename of the merged-items file
+     * @return mixed string basename of the merged-items file | null upon error
      */
     public function render_scripts( string $output_path = '', bool $force = false, bool $allow_defer = true )
     {
@@ -173,8 +178,8 @@ class ScriptManager
                 $t_mtime = max( $rec['mtime'], $t_mtime );
             }
             $sig = md5( __FILE__.$t_sig.$t_mtime );
-            $js_filename = "cms_$sig.js";
-            $output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+            $cache_filename = "cms_$sig.js";
+            $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
 
             if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
                 $output = '';
@@ -187,7 +192,7 @@ class ScriptManager
                 if( $tmp ) $output = $tmp;
                 file_put_contents( $output_file, $output, LOCK_EX );
             }
-            return $js_filename;
+            return $cache_filename;
         }
     }
 
@@ -197,19 +202,20 @@ class ScriptManager
      * Then generate the corresponding html for direct use.
      * @see also ScriptManager::render_scripts()
      *
-     * @param string $output_path Optional Filesystem path of folder to hold the script file. Default '' (use TMP_CACHE_LOCATION)
+     * @param string $output_path Optional Filesystem absolute path of folder to hold the script file. Default '' (use TMP_CACHE_LOCATION)
      * @param bool   $force       Optional flag whether to force recreation of the merged file. Default false
      * @param bool   $allow_defer Optional flag whether to force-include jquery.cmsms_defer.js. Default true
-     * @return mixed html string <script ... </script> | null
+     * @return string html string <script ... </script> | ''
      */
-    public function render_inclusion(string $output_path = '', bool $force = false, bool $allow_defer = true )
+    public function render_inclusion(string $output_path = '', bool $force = false, bool $allow_defer = true ) : string
     {
         $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
-        $js_filename = $this->render_scripts($base_path, $force, $allow_defer);
-        if( $js_filename ) {
-            $output_file = $base_path.DIRECTORY_SEPARATOR.$js_filename;
+        $cache_filename = $this->render_scripts($base_path, $force, $allow_defer);
+        if( $cache_filename ) {
+            $output_file = $base_path.DIRECTORY_SEPARATOR.$cache_filename;
             $url = cms_path_to_url($output_file);
             return "<script type=\"text/javascript\" src=\"$url\"></script>\n";
         }
+        return '';
     }
 } // class
