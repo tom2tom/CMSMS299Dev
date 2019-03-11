@@ -22,7 +22,7 @@ final class utils
     public static function redirect(string $to)
     {
         $_SERVER['PHP_SELF'] = null;
-		//TODO generally support the websocket protocol
+        //TODO generally support the websocket protocol
         $schema = $_SERVER['SERVER_PORT'] == '443' ? 'https' : 'http';
         $host = strlen($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:$_SERVER['SERVER_NAME'];
 
