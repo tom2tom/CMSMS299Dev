@@ -33,27 +33,27 @@ use function file_put_contents;
  */
 class ScriptManager
 {
-    private $_scripts = [];
-    private $_script_priority = 2;
+    private $_items = [];
+    private $_item_priority = 2;
 
     /**
-     * Get default priority for scripts to be merged
+     * Get default priority for items to be merged
      *
      * @return int 1..3 The current default priority
      */
     public function get_script_priority() : int
     {
-        return $this->_script_priority;
+        return $this->_item_priority;
     }
 
     /**
-     * Set default priority for scripts to be merged
+     * Set default priority for items to be merged
      *
      * @param int $val The new default priority value (constrained to 1..3)
      */
     public function set_script_priority( int $val )
     {
-        $this->_script_priority = max(1,min(3,$val));
+        $this->_item_priority = max(1,min(3,$val));
     }
 
     /**
@@ -61,8 +61,8 @@ class ScriptManager
      */
     public function reset()
     {
-        $this->_scripts = [];
-        $this->_script_priority = 2;
+        $this->_items = [];
+        $this->_item_priority = 2;
     }
 
     /**
@@ -83,31 +83,31 @@ class ScriptManager
     }
 
     /**
-     * Record a script-file to be merged if necessary
+     * Record a file to be merged if necessary
      *
      * @param string $filename Filesystem path of script file
-     * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
+     * @param int    $priority Optional priority 1..3 for the file. Default 0 (use current default)
      */
     public function queue_file( string $filename, int $priority = 0 )
     {
         if( !is_file($filename) ) return;
 
         $sig = md5( $filename );
-        if( isset( $this->_scripts[$sig]) ) return;
+        if( isset( $this->_items[$sig]) ) return;
 
         if( $priority < 1 ) {
-            $priority = $this->_script_priority;
+            $priority = $this->_item_priority;
         } elseif( $priority > 3 ) {
             $priority = 3;
         } else {
             $priority = (int)$priority;
         }
 
-        $this->_scripts[$sig] = [
+        $this->_items[$sig] = [
             'file' => $filename,
             'mtime' => filemtime( $filename ),
             'priority' => $priority,
-            'index' => count( $this->_scripts )
+            'index' => count( $this->_items )
         ];
     }
 
@@ -132,19 +132,19 @@ class ScriptManager
     }
 
     /**
-     * Construct a merged file from previously-queued scripts, if such file
+     * Construct a merged file from previously-queued files, if such file
      * doesn't exist or is out-of-date.
      * Hooks 'Core::PreProcessScripts' and 'Core::PostProcessScripts' are
      * run respectively before and after the content merge.
      *
-     * @param string $output_path Optional Filesystem path of folder to hold the script file. Default '' (use TMP_CACHE_LOCATION)
+     * @param string $output_path Optional Filesystem path of folder to hold the merged file. Default '' (use TMP_CACHE_LOCATION)
      * @param bool   $force       Optional flag whether to force recreation of the merged file. Default false
      * @param bool   $allow_defer Optional flag whether to force-include jquery.cmsms_defer.js. Default true
-     * @return string basename of the merged-scripts file
+     * @return string basename of the merged-items file
      */
     public function render_scripts( string $output_path = '', bool $force = false, bool $allow_defer = true )
     {
-        if( $this->_scripts && !count($this->_scripts) ) return; // nothing to do
+        if( $this->_items && !count($this->_items) ) return; // nothing to do
         $base_path = ($output_path) ? rtrim($output_path, ' /\\') : TMP_CACHE_LOCATION;
         if( !is_dir( $base_path ) ) return; // nowhere to put it
 
@@ -154,13 +154,13 @@ class ScriptManager
             $this->queue_file( $defer_script, 3 );
         }
 
-        $tmp = Events::SendEvent( 'Core', 'PreProcessScripts', $this->_scripts );
-        $scripts = ( $tmp ) ? $tmp : $this->_scripts;
+        $tmp = Events::SendEvent( 'Core', 'PreProcessScripts', $this->_items );
+        $items = ( $tmp ) ? $tmp : $this->_items;
 
-        if( $scripts ) {
-            if( count($scripts) > 1) {
-                // sort the scripts by priority, then index (to preserve order)
-                uasort( $scripts, function( $a, $b ) {
+        if( $items ) {
+            if( count($items) > 1) {
+                // sort the items by priority, then index (to preserve order)
+                uasort( $items, function( $a, $b ) {
                     if( $a['priority'] != $b['priority'] ) return $a['priority'] <=> $b['priority'];
                     return $a['index'] <=> $b['index'];
                 });
@@ -168,7 +168,7 @@ class ScriptManager
 
             $t_sig = '';
             $t_mtime = -1;
-            foreach( $scripts as $sig => $rec ) {
+            foreach( $items as $sig => $rec ) {
                 $t_sig .= $sig;
                 $t_mtime = max( $rec['mtime'], $t_mtime );
             }
@@ -178,7 +178,7 @@ class ScriptManager
 
             if( $force || !is_file($output_file) || filemtime($output_file) < $t_mtime ) {
                 $output = '';
-                foreach( $scripts as $sig => $rec ) {
+                foreach( $items as $sig => $rec ) {
                     $content = @file_get_contents( $rec['file'] );
                     if( $content ) $output .= $content."\n\n";
                 }
@@ -192,9 +192,9 @@ class ScriptManager
     }
 
     /**
-     * Construct a merged file from previously-queued scripts, if such file
-     * doesn't exist or is out-of-date, then generate the corresponding
-     * html for direct use.
+     * Construct a merged file from previously-queued files, if such file
+     * doesn't exist or is out-of-date.
+     * Then generate the corresponding html for direct use.
      * @see also ScriptManager::render_scripts()
      *
      * @param string $output_path Optional Filesystem path of folder to hold the script file. Default '' (use TMP_CACHE_LOCATION)
