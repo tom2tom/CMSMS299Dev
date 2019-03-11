@@ -20,9 +20,9 @@ $detailpage = '';
 $tmp = $this->GetPreference('detail_returnid',-1);
 if( $tmp > 0 ) $detailpage = $tmp;
 if( isset($params['detailpage']) ) {
-    $manager = $gCms->GetHierarchyManager();
+    $hm = $gCms->GetHierarchyManager();
     $type = '';
-    $node = $manager->find_by_tag_anon($params['detailpage'],$type);
+    $node = $hm->find_by_tag_anon($params['detailpage'],$type);
     if( $node ) {
         if( $type == 'alias' ) {
              $params['detailpage'] = $node->get_tag('id');

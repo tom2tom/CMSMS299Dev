@@ -24,26 +24,23 @@ if( isset($params['cancel']) ) {
   $this->Redirect($id,'defaultadmin');
 }
 if( isset($params['orderlist']) && $params['orderlist'] != '' ) {
-
-    function ordercontent_get_node_rec($str,$prefix = 'page_')
+	// this seems unused
+/*    function ordercontent_get_node_rec($str,$prefix = 'page_')
     {
-        $gCms = cmsms();
-        $tree = $gCms->GetHierarchyManager();
+        $hm = cmsms()->GetHierarchyManager();
 
         if( !is_numeric($str) && startswith($str,$prefix) ) $str = substr($str,strlen($prefix));
 
         $id = (int)$str;
-        $tmp = $tree->find_by_tag('id',$id);
-        $content = '';
-        if( $tmp ) {
-            $content = $tmp->getContent(false,true,true);
+        $node = $hm->find_by_tag('id',$id);
+        if( $node ) {
+            $content = $node->getContent(false,true,true);
             if( $content ) {
-                $rec = aray();
-                $rec['id'] = (int)$str;
+                $rec = ['id' => $id]; //WHATFOR?
             }
         }
     }
-
+*/
     function ordercontent_create_flatlist($tree,$parent_id = -1)
     {
         $data = [];
@@ -159,8 +156,8 @@ $(document).ready(function() {
 EOS;
 $this->AdminBottomContent($js);
 
-$tree = $gCms->GetHierarchyManager();
+$hm = $gCms->GetHierarchyManager(); //TODO direct-use by Smarty OK?
 $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_ordercontent.tpl'),null,null,$smarty);
-$tpl->assign('tree',$tree);
+$tpl->assign('tree',$hm);
 
 $tpl->display();

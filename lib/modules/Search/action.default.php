@@ -22,9 +22,9 @@ if( isset( $params['inline'] ) ) {
 }
 $origreturnid = $returnid;
 if( isset( $params['resultpage'] ) ) {
-    $manager = $gCms->GetHierarchyManager();
+    $hm = $gCms->GetHierarchyManager();
     $type = '';
-    $node = $manager->find_by_tag_anon($params['resultpage'], $type);
+    $node = $hm->find_by_tag_anon($params['resultpage'], $type);
     if( $node ) {
         if( $type == 'alias' ) {
             $returnid = $node->get_tag('id');

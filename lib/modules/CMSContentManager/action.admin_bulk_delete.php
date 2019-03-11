@@ -19,7 +19,20 @@
 if( !isset($gCms) ) exit;
 $this->SetCurrentTab('pages');
 
+if( isset($params['cancel']) ) {
+  $this->SetInfo($this->Lang('msg_cancelled'));
+  $this->RedirectToAdminTab();
+}
+
 if( !isset($params['multicontent']) || !isset($params['action']) || $params['action'] != 'admin_bulk_delete' ) {
+  $this->SetError($this->Lang('error_missingparam'));
+  $this->RedirectToAdminTab();
+}
+//
+// expand $params['multicontent'] to also include children, place it in $pagelist
+//
+$multicontent = unserialize(base64_decode($params['multicontent']));
+if( !$multicontent ) {
   $this->SetError($this->Lang('error_missingparam'));
   $this->RedirectToAdminTab();
 }
@@ -57,10 +70,9 @@ function cmscm_get_deletable_pages($node)
   return $out;
 }
 
-if( isset($params['cancel']) ) {
-    $this->SetInfo($this->Lang('msg_cancelled'));
-    $this->RedirectToAdminTab();
-}
+$hm = cmsms()->GetHierarchyManager();
+$contentops = ContentOperations::get_instance();
+
 if( isset($params['submit']) ) {
 
   if( isset($params['confirm1']) && isset($params['confirm2']) && $params['confirm1'] == 1  && $params['confirm2'] == 1 ) {
@@ -69,12 +81,10 @@ if( isset($params['submit']) ) {
     //
     $pagelist = unserialize(base64_decode($params['multicontent']));
 
+    $i = 0;
     try {
-        $contentops = ContentOperations::get_instance();
-        $hm = cmsms()->GetHierarchyManager();
-        $i = 0;
         foreach( $pagelist as $pid ) {
-            $node = $contentops->quickfind_node_by_id($pid);
+            $node = $hm->quickfind_node_by_id($pid);
             if( !$node ) continue;
             $content = $node->getContent(FALSE,FALSE,TRUE);
             if( !is_object($content) ) continue;
@@ -100,20 +110,9 @@ if( isset($params['submit']) ) {
   }
 }
 
-
-//
-// expand $params['multicontent'] to also include children, place it in $pagelist
-//
-$multicontent = unserialize(base64_decode($params['multicontent']));
-if( !$multicontent ) {
-    $this->SetError($this->Lang('error_missingparam'));
-    $this->RedirectToAdminTab();
-}
-
-$contentops = ContentOperations::get_instance();
 $pagelist = [];
 foreach( $multicontent as $pid ) {
-    $node = $contentops->quickfind_node_by_id($pid);
+    $node = $hm->quickfind_node_by_id($pid);
     if( !$node ) continue;
     $tmp = cmscm_get_deletable_pages($node);
     $pagelist = array_merge($pagelist,$tmp);
@@ -126,7 +125,7 @@ $pagelist = array_unique($pagelist);
 $contentops->LoadChildren(-1,FALSE,FALSE,$pagelist);
 $displaydata =  [];
 foreach( $pagelist as $pid ) {
-  $node = $contentops->quickfind_node_by_id($pid);
+  $node = $hm->quickfind_node_by_id($pid);
   if( !$node ) continue;  // this should not happen, but hey.
   $content = $node->getContent(FALSE,FALSE,FALSE);
   if( !is_object($content) ) continue; // this should never happen either

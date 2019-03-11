@@ -101,9 +101,9 @@ final class ContentListBuilder
 	 */
 	public function expand_all()
 	{
-		$hm = CmsApp::get_instance()->GetHierarchyManager();
-		// find all the pages (recursively) that have children.
+		$hm = CmsApp::get_instance()->GetHierarchyManager(); //TODO below find all children better
 
+		// find all the pages (recursively) that have children.
 		// anonymous, recursive function.
 		$func = function($node) use(&$func) {
 			$out = null;
@@ -166,8 +166,8 @@ final class ContentListBuilder
 		if( $page_id < 1 ) return FALSE;
 		if( !$this->_module->CheckPermission('Manage All Content') ) return FALSE;
 
-		$contentops = ContentOperations::get_instance();
-		$node = $contentops->quickfind_node_by_id($page_id);
+		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$node = $hm->quickfind_node_by_id($page_id);
 		if( !$node ) return FALSE;
 		$content = $node->GetContent(FALSE,FALSE,FALSE);
 		if( !$content ) return FALSE;
@@ -352,8 +352,8 @@ final class ContentListBuilder
 
 		if( !$test ) return $this->_module->Lang('error_delete_permission');
 
-		$contentops = ContentOperations::get_instance();
-		$node = $contentops->quickfind_node_by_id($page_id);
+		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$node = $hm->quickfind_node_by_id($page_id);
 		if( !$node ) return $this->_module->Lang('error_invalidpageid');
 		if( $node->has_children() ) return $this->_module->Lang('error_delete_haschildren');
 
@@ -371,6 +371,7 @@ final class ContentListBuilder
 		if( $childcount == 1 && $parent_id > -1 ) $this->collapse_section($parent_id);
 		$this->collapse_section($page_id);
 
+		$contentops = ContentOperations::get_instance();
 		$contentops->SetAllHierarchyPositions();
 	}
 
@@ -455,7 +456,6 @@ final class ContentListBuilder
 			 if got to root, add items children
 		3. reduce list by items we are able to view (author pages)
 */
-		$contentops = ContentOperations::get_instance();
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
 		$display = [];
 
@@ -491,9 +491,8 @@ final class ContentListBuilder
 			}
 
 			// add children of opened_array items to the list.
-			// add
 			foreach( $this->_opened_array as $one ) {
-				$node = $contentops->quickfind_node_by_id($one);
+				$node = $hm->quickfind_node_by_id($one);
 				if( !$node ) continue;
 
 				if( ! $is_opened( $node, $this->_opened_array ) ) continue;
@@ -516,12 +515,13 @@ final class ContentListBuilder
 				if in opened array or has no parent add item
 				if all parents are opened add item
 */
+			$contentops = ContentOperations::get_instance();
 			$tmplist = $contentops->GetPageAccessForUser($this->_userid);
 			$display = [];
 			foreach( $tmplist as $item ) {
 				// get all the parents
 				$parents = [];
-				$startnode = $node = $contentops->quickfind_node_by_id($item);
+				$startnode = $node = $hm->quickfind_node_by_id($item);
 				while( $node && $node->get_tag('id') > 0 ) {
 					$parents[] = $node->get_tag('id');
 					$node = $node->getParent();
@@ -543,13 +543,14 @@ final class ContentListBuilder
 
 		// now order the page id list by hierarchy. and make sure they are unique.
 		$display = array_unique($display);
-		usort($display,function($a,$b) use ($hm,$contentops) {
-				$node_a = $contentops->quickfind_node_by_id($a);
-				$hier_a = $node_a->getHierarchy();
-				$node_b = $contentops->quickfind_node_by_id($b);
-				$hier_b = $node_b->getHierarchy();
-				return strcmp($hier_a,$hier_b);
-			});
+		usort($display,function($a,$b) use ($hm)
+		{
+			$node_a = $hm->quickfind_node_by_id($a);
+			$hier_a = $node_a->getHierarchy();
+			$node_b = $hm->quickfind_node_by_id($b);
+			$hier_b = $node_b->getHierarchy();
+			return strcmp($hier_a,$hier_b);
+		});
 
 		$this->_pagelist = $display;
 
@@ -671,7 +672,7 @@ final class ContentListBuilder
 	private function _get_display_data($page_list)
 	{
 		$users = $this->_get_users();
-		$contentops = ContentOperations::get_instance();
+		$hm = CmsApp::get_instance()->GetHierarchyManager();
 		$mod = $this->_module;
 		$columns = $this->get_display_columns();
 		$userid = $this->_userid;
@@ -679,7 +680,7 @@ final class ContentListBuilder
 		// preload the templates.
 		$tpl_list = [];
 		foreach( $page_list as $page_id ) {
-			$node = $contentops->quickfind_node_by_id($page_id);
+			$node = $hm->quickfind_node_by_id($page_id);
 			if( !$node ) continue;
 			$content = $node->GetContent(FALSE,FALSE,TRUE);
 			if( !$content ) continue;
@@ -690,7 +691,7 @@ final class ContentListBuilder
 
 		$out = [];
 		foreach( $page_list as $page_id ) {
-			$node = $contentops->quickfind_node_by_id($page_id);
+			$node = $hm->quickfind_node_by_id($page_id);
 			if( !$node ) continue;
 			$content = $node->GetContent(FALSE,TRUE,TRUE);
 			if( !$content ) continue;

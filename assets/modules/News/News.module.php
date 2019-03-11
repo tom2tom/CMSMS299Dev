@@ -152,9 +152,9 @@ EOS;
                 //2 position is the URL to the title.
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
-                    $manager = $gCms->GetHierarchyManager();
+                    $hm = $gCms->GetHierarchyManager();
                     $type = '';
-                    $node = $manager->find_by_tag_anon($params['detailpage'],$type);
+                    $node = $hm->find_by_tag_anon($params['detailpage'],$type);
                     if ($node ) {
                         if( $type == 'alias' ) {
                              $detailpage = $node->get_tag('id');
@@ -168,8 +168,8 @@ EOS;
 
                 $detailtemplate = '';
                 if( isset($params['detailtemplate']) ) {
-                    $manager = $gCms->GetHierarchyManager();
-                    $node = $manager->find_by_tag('alias',$params['detailtemplate']);
+                    if( !isset($hm) ) $hm = $gCms->GetHierarchyManager();
+                    $node = $hm->find_by_tag('alias',$params['detailtemplate']);
                     if( $node ) $detailtemplate = '/d,' . $params['detailtemplate'];
                 }
 

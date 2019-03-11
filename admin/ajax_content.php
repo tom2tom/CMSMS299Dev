@@ -51,7 +51,7 @@ try {
             foreach( $tmplist as $item ) {
                 // get all the parents
                 $parents = [];
-                $startnode = $node = $contentops->quickfind_node_by_id($item);
+                $startnode = $node = $hm->quickfind_node_by_id($item);
                 while( $node && $node->get_tag('id') > 0 ) {
                     $content = $node->getContent();
                     $rec = $content->ToData();
@@ -113,9 +113,9 @@ try {
         if( $page < 1 ) $page = -1;
         $node = $thiscontent = null;
         if( $page == -1 ) {
-            $node = $hm; // root
+            $node = $hm; // root, cloned
         } else {
-            $node = $contentops->quickfind_node_by_id($page);
+            $node = $hm->quickfind_node_by_id($page);
         }
         do {
             $out[] = $children_to_data($node); // get children of current page.
@@ -136,7 +136,7 @@ try {
                 $node = $hm;
             }
             else {
-                $node = $contentops->quickfind_node_by_id($page);
+                $node = $hm->quickfind_node_by_id($page);
             }
             if( $node ) {
                 $children = $node->getChildren(FALSE,$allow_all);

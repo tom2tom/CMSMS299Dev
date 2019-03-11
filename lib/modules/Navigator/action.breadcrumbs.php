@@ -40,9 +40,13 @@ else {
 // initialization
 //
 $content_obj = $gCms->get_content_object();
-if( !$content_obj ) return; // no current page?
+if( !$content_obj ) {
+    return; // no current page?
+}
 $thispageid = $content_obj->Id();
-if( !$thispageid ) return; // no current page?
+if( !$thispageid ) {
+    return; // no current page?
+}
 $hm = $gCms->GetHierarchyManager();
 $endNode = $hm->find_by_tag('id',$thispageid);
 if( !$endNode ) return; // no current page?
@@ -81,7 +85,7 @@ while( is_object($curNode) && $curNode->get_tag('id') > 0 ) {
 if( !$have_stopnode && $stopat == $this::__DFLT_PAGE ) {
     // get the 'home' page and push it on the list
     $dflt_content_id = ContentOperations::get_instance()->GetDefaultContent();
-    $node = $hm->GetNodeById($dflt_content_id);
+    $node = $hm->find_by_tag('id',$dflt_content_id);
     $pagestack[$dflt_content_id] = utils::fill_node($node,$deep,0,$showall);
 }
 

@@ -1086,7 +1086,7 @@ abstract class ContentBase
 	public function ChildCount()
 	{
 		$hm = CmsApp::get_instance()->GetHierarchyManager();
-		$node = $hm->getNodeById($this->mId);
+		$node = $hm->find_by_tag('id',$this->mId);
 		if( $node ) return $node->count_children();
 	}
 
@@ -2123,8 +2123,8 @@ WHERE content_id = ?';
 	public function HasChildren($activeonly = false)
 	{
 		if( $this->mId <= 0 ) return false;
-
-		$node = ContentOperations::get_instance()->quickfind_node_by_id($this->mId);
+		$hm = CmsApp::get_instance()->GetHierarchyManager();
+		$node = $hm->quickfind_node_by_id($this->mId);
 		if( !$node || !$node->has_children() ) return false;
 
 		if( !$activeonly ) return true;

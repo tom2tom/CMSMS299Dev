@@ -119,8 +119,8 @@ function redirect(string $to)
  */
 function redirect_to_alias(string $alias)
 {
-    $manager = CmsApp::get_instance()->GetHierarchyManager();
-    $node = $manager->find_by_tag('alias',$alias);
+    $hm = CmsApp::get_instance()->GetHierarchyManager();
+    $node = $hm->find_by_tag('alias',$alias);
     if (!$node) {
         // put mention into the admin log
         cms_warning('Core: Attempt to redirect to invalid alias: '.$alias);

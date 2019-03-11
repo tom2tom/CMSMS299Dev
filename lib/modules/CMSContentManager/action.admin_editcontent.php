@@ -108,7 +108,8 @@ try {
         }
         // double check if this parent is valid... if it is not, we use -1
         if( $dflt_parent > 0 ) {
-            $node = $contentops->quickfind_node_by_id( $dflt_parent );
+			$hm = CmsApp::get_instance()->GetHierarchyManager();
+            $node = $hm->quickfind_node_by_id( $dflt_parent );
             if( !$node ) $dflt_parent = -1;
         }
         if( $parent_id < 1 ) $parent_id = $dflt_parent;

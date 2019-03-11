@@ -53,16 +53,28 @@ final class utils
     {
         if( !is_array(self::$_excludes) || count(self::$_excludes) == 0 ) return FALSE;
         foreach( self::$_excludes as $one ) {
-            if( startswith($alias,$one) ) return TRUE;
+            if( startswith($alias,$one) ) {
+                return TRUE;
+            }
         }
         return FALSE;
     }
 
-    public static function fill_node(cms_content_tree $node,$deep,$nlevels,$show_all,$collapse = FALSE,$depth = 0)
+    /**
+     * Populate a node to be used for generating a menu-item
+     * @param object $node
+     * @param bool $deep whether to deep-scan for children & properties?
+     * @param int  $nlevels  max recursion depth
+     * @param bool $show_all whether to process items flagged as not show-in-menu
+     * @param bool $collapse whether to ? (recursion-related) default false
+     * @param int  $depth current recursion level, 0-based
+     * @return NavigatorNode
+     */
+    public static function fill_node($node,$deep,$nlevels,$show_all,$collapse = FALSE,$depth = 0)
     {
         if( !is_object($node) ) return;
+
         $gCms = CmsApp::get_instance();
-        $hm = $gCms->GetHierarchyManager();
         $content = $node->getContent(TRUE);
         if( is_object($content) ) {
             if( !$content->Active() ) return;
@@ -95,8 +107,8 @@ final class utils
                 $obj->current = true;
             }
             else {
-                $tmp_node = $hm->find_by_tag('id',$cur_content_id);
-                while( $tmp_node ) {
+                $tmp_node = $node->find_by_tag('id',$cur_content_id);
+                while( $tmp_node ) { //iterate up the tree
                     if( $tmp_node->get_tag('id') == $obj->id ) {
                         $obj->parent = TRUE;
                         break;
@@ -128,37 +140,44 @@ final class utils
                 }
             }
 
-            // poll all the children ... to see if we have children that 'could' be displayed SLOW!
+            // poll all the children ... to see if we have any child that 'could' be displayed SLOW!
             $children = null;
             if( $node->has_children() ) {
-                $children = $node->getChildren($deep,$show_all);
+                $children = $node->getChildren($deep,$show_all); //loads children into cache : SLOW! TODO just get id's
                 if( $children ) {
-                    foreach( $children as $node ) {
+                    foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
                         if( content_cache::content_exists($id) ) {
                             $obj->children_exist = TRUE;
                             break;
                         }
                     }
+                    unset($node);
                 }
             }
 
-            // are we recursing?
-            if( is_array($children) && count($children) && ($nlevels < 0 || $depth+1 < $nlevels) &&
-                (($collapse && ($obj->parent || $obj->current)) || !$collapse) ) {
-
+            // are we able to recurse [further]?
+            if( is_array($children) && count($children)
+               && ($nlevels < 0 || $depth + 1 < $nlevels)
+               && (!$collapse || $obj->parent || $obj->current) ) {
                 $obj->has_children = TRUE;
                 $child_nodes = [];
-                for( $i = 0, $n = count($children); $i < $n; $i++ ) {
-                    if( self::is_excluded($children[$i]->get_tag('alias')) ) continue;
-                    $tmp = self::fill_node($children[$i],$deep,$nlevels,$show_all,$collapse,$depth+1);
-                    if( is_object($tmp) ) $child_nodes[] = $tmp;
+                foreach( $children as &$node ) {
+                    if( self::is_excluded($node->get_tag('alias')) ) {
+                        continue;
+                    }
+                    $tmp = self::fill_node($node,$deep,$nlevels,$show_all,$collapse,$depth+1); //recurse
+                    if( is_object($tmp) ) {
+                        $child_nodes[] = $tmp;
+                    }
                 }
-                if( $child_nodes ) $obj->children = $child_nodes;
+                unset($node);
+                if( $child_nodes ) {
+                    $obj->children = $child_nodes;
+                }
             }
 
             return $obj;
         }
     }
 } // class
-

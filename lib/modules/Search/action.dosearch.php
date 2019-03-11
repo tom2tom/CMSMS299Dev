@@ -114,16 +114,15 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
             if( $thepageid == -1 ) $thepageid = $returnid;
             if( isset($params['detailpage']) ) {
                 $tmppageid = '';
-                $manager = $gCms->GetHierarchyManager();
-				$type = '';
-                $node = $manager->find_by_tag_anon($params['detailpage']);
+                $type = '';
+                $node = $hm->find_by_tag_anon($params['detailpage'], $type);
                 if( $node ) {
-					if( $type == 'alias' ) {
-	                    $tmppageid = $node->get_tag('id');
-					}
+                    if( $type == 'alias' ) {
+                        $tmppageid = $node->get_tag('id');
+                    }
                     else {
                         $tmppageid = $params['detailpage'];
-					}
+                    }
                 }
                 if( $tmppageid ) $thepageid = $tmppageid;
             }
