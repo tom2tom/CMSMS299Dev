@@ -32,9 +32,10 @@ function smarty_function_cms_queue_script( $params, $template )
 	// file not found, but maybe it's relative to a 'suitable' CMSMS path
 	if( !startswith( $file, DIRECTORY_SEPARATOR ) ) $file = DIRECTORY_SEPARATOR.$file;
 	$config = cms_config::get_instance();
+	// TODO somewhere relative to a module, if relevant
 	foreach([ CMS_ASSETS_PATH, CMS_SCRIPTS_PATH, $config['uploads_path'], CMS_ROOT_PATH ] as $one ) {
         $fullname = $one.$file;
-		if( is_file( $fullanme) ) $combiner->queue_file( $fullname, $priority );
+		if( is_file( $fullname) ) $combiner->queue_file( $fullname, $priority );
 	}
 }
 
