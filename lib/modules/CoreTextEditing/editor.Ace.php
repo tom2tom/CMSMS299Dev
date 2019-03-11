@@ -97,7 +97,7 @@ function GetScript(&$mod, array $params) : array
 		$mode = '';
 	}
 
-	$cdn = $mod->GetPreference('ace_url', CoreTextEditing::ACE_CDN);
+	$urlroot = $mod->GetPreference('ace_url', CoreTextEditing::ACE_CDN); //local or CDN
 
 	if (!empty($CMS_ADMIN_PAGE)) {
 		if (!$style) {
@@ -110,12 +110,12 @@ function GetScript(&$mod, array $params) : array
 	$style = strtolower($style);
 
 	$js = <<<EOS
-<script defer type="text/javascript" src="$cdn/ace.js"></script>
+<script defer type="text/javascript" src="$urlroot/ace.js"></script>
 
 EOS;
 	if (!$mode) {
 		$js .= <<<EOS
-<script defer type="text/javascript" src="$cdn/ext-modelist.js"></script>
+<script defer type="text/javascript" src="$urlroot/ext-modelist.js"></script>
 
 EOS;
 	}
@@ -193,4 +193,3 @@ EOS;
 EOS;
 	return ['foot'=>$js];
 }
-

@@ -91,7 +91,7 @@ function GetScript(&$mod, array $params) : array
 		$mode = '';
 	}
 
-	$cdn = $mod->GetPreference('codemirror_url', CoreTextEditing::CM_CDN);
+	$urlroot = $mod->GetPreference('codemirror_url', CoreTextEditing::CM_CDN); //local or CDN
 
 	if (!empty($CMS_ADMIN_PAGE)) {
 		if (!$style) {
@@ -104,7 +104,7 @@ function GetScript(&$mod, array $params) : array
 	$style = strtolower($style);
 
 	$css = <<<EOS
-<link rel="stylesheet" href="$cdn/codemirror.css">
+<link rel="stylesheet" href="$urlroot/codemirror.css">
 <style>
 pre.CodeMirror-line {
  display: inherit
@@ -114,24 +114,24 @@ pre.CodeMirror-line {
 EOS;
 	if ($style) {
 		$css .= <<<EOS
-<link rel="stylesheet" href="$cdn/theme/$style.css">
+<link rel="stylesheet" href="$urlroot/theme/$style.css">
 
 EOS;
 	}
 
 	$js = <<<EOS
-<script defer type="text/javascript" src="$cdn/codemirror.min.js"></script>
+<script defer type="text/javascript" src="$urlroot/codemirror.min.js"></script>
 
 EOS;
 	if ($mode) {
 		$js .= <<<EOS
-<script defer type="text/javascript" src="$cdn/mode/$mode/$mode.js"></script>
+<script defer type="text/javascript" src="$urlroot/mode/$mode/$mode.js"></script>
 
 EOS;
     } else {
 		$js .= <<<EOS
-<script defer type="text/javascript" src="$cdn/addon/mode/loadmode.js"></script>
-<script defer type="text/javascript" src="$cdn/mode/meta.js"></script>
+<script defer type="text/javascript" src="$urlroot/addon/mode/loadmode.js"></script>
+<script defer type="text/javascript" src="$urlroot/mode/meta.js"></script>
 
 EOS;
 	}
@@ -180,4 +180,3 @@ EOS;
 EOS;
 	return ['head'=>$css, 'foot'=>$js];
 }
-
