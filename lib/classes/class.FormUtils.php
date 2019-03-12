@@ -647,7 +647,8 @@ class FormUtils
                 if (!empty($selectedvalue)) {
                     $selected = $selectedvalue; //maybe array
                 } elseif (isset($selectedindex)) {
-                    if (isset($options[$keys[$selectedindex]])) {
+                    $keys = array_keys($options);
+                    if (isset($keys[$selectedindex])) {
                         $selected = $options[$keys[$selectedindex]];
                     }
                 }
