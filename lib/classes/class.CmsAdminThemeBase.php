@@ -43,18 +43,17 @@ use CMSMS\ModuleOperations;
  */
 abstract class CmsAdminThemeBase
 {
+    /* *
+     * @ignore
+     */
+    //const VALIDSECTIONS = ['view','content','layout','files','usersgroups','extensions','services','ecommerce','siteadmin','myprefs'];
+
     /**
      * @ignore
      */
     private static $_instance = null;
 
-    /**
-     * Whether this theme uses fontimages (.i files)
-     * @ignore
-     */
-    protected static $_fontimages = null;
-
-    /**
+	/**
      * @ignore
      */
     private $_perms;
@@ -165,15 +164,16 @@ abstract class CmsAdminThemeBase
     private $_primary_content;
 
     /**
+     * Whether this theme uses fontimages (.i files)
+     * @ignore
+     */
+    protected $_fontimages = null;
+
+    /**
      * Use small-size icons (named like *-small.ext) if available
      * @ignore
      */
-    private $_smallicons = false;
-
-    /**
-     * @ignore
-     */
-    private $_valid_sections = ['view','content','layout','files','usersgroups','extensions','services','ecommerce','siteadmin','myprefs'];
+    protected $_smallicons = false;
 
     /**
      * @ignore
@@ -196,10 +196,10 @@ abstract class CmsAdminThemeBase
             $this->_script = end($tmp);
         }
 
-        if (self::$_fontimages === null) {
+        if ($this->_fontimages === null) {
             $path = cms_join_path(CMS_ADMIN_PATH,'themes',$this->themeName,'images','icons','system','*.i');
             $items = glob($path,GLOB_NOSORT);
-            self::$_fontimages = ($items != false);
+            $this->_fontimages = ($items != false);
         }
 
         $this->UnParkNotices();
@@ -235,10 +235,10 @@ abstract class CmsAdminThemeBase
      * This method will create the admin theme object if that has not yet been done.
      * It will read CMSMS preferences and cross reference with available themes.
      *
-     * @param string $name optional theme name.
-     * @return mixed CmsAdminThemeBase Reference to the initialized admin theme, or null
+     * @param mixed string|null $name Optional theme name.
+     * @return mixed CmsAdminThemeBase The initialized admin theme object, or null
      */
-    public static function GetThemeObject($name = null)
+    public static function get_instance($name = '')
     {
         if( is_object(self::$_instance) ) return self::$_instance;
 
@@ -251,7 +251,7 @@ abstract class CmsAdminThemeBase
             $themeObjName = $name.'Theme';
             $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
             if( is_file($fn) ) {
-                include_once($fn);
+                include_once $fn;
                 self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
             }
             else {
@@ -260,17 +260,25 @@ abstract class CmsAdminThemeBase
                 $themeObjName = $name.'Theme';
                 $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
                 if( is_file($fn) ) {
-                    include_once($fn);
+                    include_once $fn;
                     self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
                 }
                 else {
                     // oops, still not found
-                    $res = null;
-                    return $res;
+                    return null;
                 }
             }
         }
         return self::$_instance;
+    }
+
+    /**
+     * Get the global admin theme object.
+     * @deprecated since 2.3 use CmsAdminThemeBase::get_instance()
+     */
+    public static function GetThemeObject($name = '')
+    {
+        return self::get_instance($name);
     }
 
     /**
@@ -1327,7 +1335,7 @@ abstract class CmsAdminThemeBase
             }
 
             $exts = ['i','svg','png','gif','jpg','jpeg'];
-            if (!self::$_fontimages) {
+            if (!$this->$_fontimages) {
                 unset($exts[0]);
             }
             foreach ($exts as $type) {
@@ -1744,7 +1752,7 @@ abstract class CmsAdminThemeBase
      * Record a notification for display in the theme.
      * This is a wrapper around the add_notification method.
      * @deprecated since 2.3 instead use RecordNotice()
-	 *
+     *
      * @param int $priority priority level between 1 and 3
      * @param string $module The module name.
      * @param string $html The contents of the notification
@@ -1773,8 +1781,8 @@ abstract class CmsAdminThemeBase
     /**
      * Retrieve current alerts (e.g. for display in page shortcuts toolbar)
      * @since 2.3 (pre-2.3, themes handled this individually)
-	 *
-	 * @return mixed array | null
+     *
+     * @return mixed array | null
      */
     public function get_my_alerts()
     {
@@ -1974,7 +1982,7 @@ abstract class CmsAdminThemeBase
     /**
      * Record the content of a 'minimal' page.
      * CHECKME can the subsequent processing of such content be a security risk?
-	 * Hence maybe some sanitize here?
+     * Hence maybe some sanitize here?
      *
      * @since 2.3
      * @param string $content the entire displayable content
