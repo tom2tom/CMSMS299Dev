@@ -17,11 +17,17 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS;
-use CMSMS\Group, CmsPermission, CmsApp, \Exception;
+
+use CmsApp;
+use CmsInvalidDataException;
+use CMSMS\Group;
+use CmsPermission;
+use LogicException;
 use const CMS_DB_PREFIX;
+use function lang;
 
 /**
- * A singleton class for doing group related functions.
+ * A class of methods for performing group-related functions.
  * Many of the Group object functions are just wrappers around these.
  *
  * @since 0.6
@@ -31,100 +37,161 @@ use const CMS_DB_PREFIX;
  */
 final class GroupOperations
 {
-	/**
+	/* *
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	private $_perm_cache;
+	private static $_perm_cache;
 
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
-	private function __clone() {}
+//	private function __clone() {}
 
 	/**
-	 * Retrieve the single instance of this class
-	 *
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 use new GroupOperations()
 	 * @return GroupOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) self::$_instance = new self();
-		return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
 	}
 
 	/**
 	 * Loads all the groups from the database and returns them
 	 *
-	 * @deprecated use Group::load_all()
-	 * @return array The list of groups
+	 * @return mixed array The list of Group-objects | null
 	 */
 	public function LoadGroups()
 	{
-		$list = Group::load_all();
-		return $list;
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'SELECT group_id, group_name, group_desc, active FROM '.CMS_DB_PREFIX.'groups ORDER BY group_id';
+		$list = $db->GetArray($query);
+		$out = [];
+		for( $i = 0, $n = count($list); $i < $n; ++$i ) {
+			$row = $list[$i];
+			$obj = new Group();
+			$obj->id = (int) $row['group_id'];
+			$obj->name = $row['group_name'];
+			$obj->description = $row['group_desc'];
+			$obj->active = (int) $row['active'];
+			$out[] = $obj;
+		}
+		if( $out ) return $out;
 	}
 
 	/**
 	 * Load a group from the database by its id
 	 *
-	 * @deprecated use Group::load($id)
-	 * @param int $id The id of the group to load
+	 * @param mixed  int|null $id The id of the group to load
 	 * @return mixed The group if found. If it's not found, then false
 	 */
-	public function LoadGroupByID(int $id)
+	public function LoadGroupByID($id)
 	{
-		return Group::load($id);
+		$id = (int) $id;
+		if( $id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));
+
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'SELECT group_id, group_name, group_desc, active FROM '.CMS_DB_PREFIX.'groups WHERE group_id = ? ORDER BY group_id';
+		$row = $db->GetRow($query, [$id]);
+
+		$obj = new Group();
+		$obj->id = $row['group_id'];
+		$obj->name = $row['group_name'];
+		$obj->description = $row['group_desc'];
+		$obj->active = $row['active'];
+		return $obj;
+	}
+
+	/**
+	 * @since 2.3
+	 * @return mixed int | bool
+	 */
+	public function Upsert(Group $group)
+	{
+		$db = CmsApp::get_instance()->GetDb();
+		$id = $group->id;
+		if( $id < 1 ) {
+			$id = $db->GenID(CMS_DB_PREFIX.'groups_seq');
+			$time = $db->DbTimeStamp(time());
+			$query = 'INSERT INTO '.CMS_DB_PREFIX.'groups (group_id, group_name, group_desc, active, create_date, modified_date)
+VALUES (?,?,?,?,'.$time.','.$time.')';
+			$dbr = $db->Execute($query, [$id, $group->name, $group->description, $group->active]);
+			return ($dbr != FALSE) ? $id : -1;
+		} else {
+			$sql = 'UPDATE '.CMS_DB_PREFIX.'groups SET group_name = ?, group_desc = ?, active = ?, modified_date = NOW() WHERE group_id = ?';
+//			$dbr =
+			$db->Execute($sql, [$group->name,$group->description,$group->active,$id]);
+//			return $dbr != FALSE; useless - post-update result on MySQL is always unreliable
+			return TRUE;
+		}
 	}
 
 	/**
 	 * Given a group object, inserts it into the database.
 	 *
-	 * @deprecated use Group->save()
-	 * @param mixed $group The group object to save to the database
+	 * @deprecated since 2.3 use GroupOperations::Upsert()
+	 * @param Group $group The group object to save to the database
 	 * @return int The id of the newly created group. If none is created, -1
 	 */
-	public function InsertGroup(Group $group)
+	public function InsertGroup(Group $group) : int
 	{
-		return $group->save();
+		$id = $group->id;
+		if( $id < 1 ) {
+			return $this->Upsert($group);
+		}
+		return -1;
 	}
 
 	/**
 	 * Given a group object, update its attributes in the database.
 	 *
-	 * @deprecated use Group->save()
+	 * @deprecated since 2.3 use GroupOperations::Upsert()
 	 * @param mixed $group The group to update
-	 * @return bool True if the update was successful, false if not
+	 * @return bool indication whether the update was successful
 	 */
 	public function UpdateGroup(Group $group) : bool
 	{
-		return $group->save() == -1;
+		$id = $group->id;
+		if( $id > 0 ) {
+			if( $this->Upsert($group) ) {
+				return TRUE;
+			}
+		}
+		return FALSE;
 	}
 
 	/**
-	 * Given a group id, delete it from the database along with all its associations.
+	 * Given a group with id > 1, delete it from the database along with all its associations.
 	 *
-	 * @param int $id The group's id to delete
-	 * @return bool True if the delete was successful. False if not.
+	 * @param int $id
+	 * @return bool
+	 * @throws CmsInvalidDataException
+	 * @throws LogicException
 	 */
 	public function DeleteGroupByID(int $id) : bool
 	{
-		try {
-			$group = Group::load($id);
-			return $group->delete();
-		}
-		catch( Exception $e ) {
-			return FALSE;
-		}
+		if( $id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));
+		if( $id == 1 ) throw new LogicException(lang('error_deletespecialgroup'));
+		$db = CmsApp::get_instance()->GetDb();
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'user_groups where group_id = ?';
+		$dbr = $db->Execute($query, [$id]);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms where group_id = ?';
+		if( $dbr ) $dbr = $db->Execute($query, [$id]);
+		$query = 'DELETE FROM '.CMS_DB_PREFIX.'groups where group_id = ?';
+		if( $dbr ) $dbr = $db->Execute($query, [$id]);
+		return $dbr;
 	}
 
 	/**
@@ -140,14 +207,14 @@ final class GroupOperations
 		$permid = CmsPermission::get_perm_id($perm);
 		if( $permid < 1 ) return FALSE;
 
-		if( !isset($this->_perm_cache) || !is_array($this->_perm_cache) || !isset($this->_perm_cache[$groupid]) ) {
+		if( !isset(self::$_perm_cache) || !is_array(self::$_perm_cache) || !isset(self::$_perm_cache[$groupid]) ) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT permission_id FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ?';
 			$dbr = $db->GetCol($query,[(int)$groupid]);
-			if( $dbr ) $this->_perm_cache[$groupid] = $dbr;
+			if( $dbr ) self::$_perm_cache[$groupid] = $dbr;
 		}
 
-		return isset($this->_perm_cache[$groupid]) && in_array($permid,$this->_perm_cache[$groupid]);
+		return isset(self::$_perm_cache[$groupid]) && in_array($permid,self::$_perm_cache[$groupid]);
 	}
 
 	/**
@@ -172,7 +239,7 @@ final class GroupOperations
 VALUES (?,?,?,$now,NULL)";
 // 		$dbr =
 		$db->Execute($query,[$new_id,$groupid,$permid]);
-		unset($this->_perm_cache);
+		self::$_perm_cache = null;
 	}
 
 	/**
@@ -192,7 +259,7 @@ VALUES (?,?,?,$now,NULL)";
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.'group_perms WHERE group_id = ? AND perm_id = ?';
 //		$dbr =
 		$db->Execute($query,[$groupid,$permid]);
-		unset($this->_perm_cache);
+		self::$_perm_cache = null;
 	}
 } // class
 
