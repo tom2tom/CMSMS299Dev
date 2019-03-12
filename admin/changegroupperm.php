@@ -49,7 +49,7 @@ $group_name = '';
 $message = '';
 
 $db = $gCms->GetDb();
-$smarty = $gcms->GetSmarty();
+$smarty = $gCms->GetSmarty();
 
 $load_perms = function () use ($db) {
     $query = 'SELECT p.permission_id, p.permission_source, p.permission_text, up.group_id FROM '.

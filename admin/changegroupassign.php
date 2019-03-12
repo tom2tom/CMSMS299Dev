@@ -50,7 +50,7 @@ $adminuser = ($userops->UserInGroup($userid, 1) || $userid == 1);
 $message = '';
 
 $db = $gCms->GetDb();
-$smarty = $gcms->GetSmarty();
+$smarty = $gCms->GetSmarty();
 
 if (isset($_POST['filter'])) {
     $disp_group = cleanValue($_POST['groupsel']);
