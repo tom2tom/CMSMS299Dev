@@ -280,7 +280,7 @@ final class cms_utils
 	 */
 	public static function get_theme_object()
 	{
-		return CmsAdminThemeBase::GetThemeObject();
+		return CmsAdminThemeBase::get_instance();
 	}
 
 

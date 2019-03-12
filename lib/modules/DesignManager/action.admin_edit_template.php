@@ -161,11 +161,12 @@ try {
         $this->ShowErrors($message);
     }
 
+	$themeObject = cms_utils::get_theme_object();
     if( ($tpl_id = $tpl_obj->get_id()) > 0 ) {
-        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
+        $themeObject->SetSubTitle($this->Lang('edit_template').': '.$tpl_obj->get_name()." ($tpl_id)");
     } else {
         $tpl_id = 0;
-        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_template'));
+        $themeObject->SetSubTitle($this->Lang('create_template'));
     }
 
     $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_template.tpl'),null,null,$smarty);

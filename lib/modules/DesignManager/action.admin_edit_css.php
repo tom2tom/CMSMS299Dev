@@ -144,10 +144,11 @@ try {
         $tpl->assign('design_list', $out);
     }
 
+    $themeObject = cms_utils::get_theme_object();
     if( $css_ob->get_id() > 0 ) {
-        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_stylesheet').': '.$css_ob->get_name()." ({$css_ob->get_id()})");
+        $themeObject->SetSubTitle($this->Lang('edit_stylesheet').': '.$css_ob->get_name()." ({$css_ob->get_id()})");
     } else {
-        CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_stylesheet'));
+        $themeObject->SetSubTitle($this->Lang('create_stylesheet'));
     }
 
     $tpl->assign('has_designs_right', $this->CheckPermission('Manage Designs'))

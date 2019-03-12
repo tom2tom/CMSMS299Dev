@@ -86,11 +86,12 @@ try {
      ->assign('all_stylesheets',$out2);
   }
 
+  $themeObject = cms_utils::get_theme_object();
   if( $design->get_id() > 0 ) {
-    CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
+    $themeObject->SetSubTitle($this->Lang('edit_design').': '.$design->get_name()." ({$design->get_id()})");
   }
   else {
-    CmsAdminThemeBase::GetThemeObject()->SetSubTitle($this->Lang('create_design'));
+    $themeObject->SetSubTitle($this->Lang('create_design'));
   }
 
   $manage_stylesheets = $this->CheckPermission('Manage Stylesheets');
