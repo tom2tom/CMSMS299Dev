@@ -231,6 +231,49 @@ abstract class CmsAdminThemeBase
     }
 
     /**
+     * Get the global admin theme object.
+     * This method will create the admin theme object if that has not yet been done.
+     * It will read CMSMS preferences and cross reference with available themes.
+     *
+     * @param string $name optional theme name.
+     * @return mixed CmsAdminThemeBase Reference to the initialized admin theme, or null
+     */
+    public static function GetThemeObject($name = null)
+    {
+        if( is_object(self::$_instance) ) return self::$_instance;
+
+        if( !$name ) $name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme',self::GetDefaultTheme());
+        if( class_exists($name) ) {
+            self::$_instance = new $name();
+        }
+        else {
+            $gCms = CmsApp::get_instance();
+            $themeObjName = $name.'Theme';
+            $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
+            if( is_file($fn) ) {
+                include_once($fn);
+                self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
+            }
+            else {
+                // theme not found... use default
+                $name = self::GetDefaultTheme();
+                $themeObjName = $name.'Theme';
+                $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
+                if( is_file($fn) ) {
+                    include_once($fn);
+                    self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
+                }
+                else {
+                    // oops, still not found
+                    $res = null;
+                    return $res;
+                }
+            }
+        }
+        return self::$_instance;
+    }
+
+    /**
      * Helper for constructing js data
      * @ignore
      * @since 2.3
@@ -1682,49 +1725,6 @@ abstract class CmsAdminThemeBase
             }
         }
         return $res;
-    }
-
-    /**
-     * Retrieve the global admin theme object.
-     * This method will create the admin theme object if has not yet been created.
-     * It will read the CMSMS preferences and cross reference with available themes.
-     *
-     * @param string $name optional theme name.
-     * @return CmsAdminThemeBase Reference to the initialized admin theme.
-     */
-    public static function GetThemeObject($name = null)
-    {
-        if( is_object(self::$_instance) ) return self::$_instance;
-
-        if( !$name ) $name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme',self::GetDefaultTheme());
-        if( class_exists($name) ) {
-            self::$_instance = new $name();
-        }
-        else {
-            $gCms = CmsApp::get_instance();
-            $themeObjName = $name.'Theme';
-            $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
-            if( is_file($fn) ) {
-                include_once($fn);
-                self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
-            }
-            else {
-                // theme not found... use default
-                $name = self::GetDefaultTheme();
-                $themeObjName = $name.'Theme';
-                $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
-                if( is_file($fn) ) {
-                    include_once($fn);
-                    self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
-                }
-                else {
-                    // still not found
-                    $res = null;
-                    return $res;
-                }
-            }
-        }
-        return self::$_instance;
     }
 
     /**
