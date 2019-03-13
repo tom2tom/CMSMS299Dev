@@ -278,7 +278,7 @@ final class cms_utils
 	 *
 	 * @author calguy1000
 	 * @since 1.11
-	 * @return mixed CMSMS\ThemeBase derived object, or null
+	 * @return mixed ThemeBase derived object, or null
 	 */
 	public static function get_theme_object()
 	{

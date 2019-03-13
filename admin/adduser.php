@@ -18,6 +18,7 @@
 
 use CMSMS\Events;
 use CMSMS\GroupOperations;
+use CMSMS\ThemeBase;
 use CMSMS\User;
 use CMSMS\UserOperations;
 
@@ -113,7 +114,9 @@ if (isset($_POST['submit'])) {
             } else {
                 cms_userprefs::set_for_user($userid, 'default_cms_language', cms_userprefs::get_for_user($adminid, 'default_cms_language'));
                 cms_userprefs::set_for_user($userid, 'wysiwyg', cms_userprefs::get_for_user($adminid, 'wysiwyg'));
-                cms_userprefs::set_for_user($userid, 'admintheme', cms_siteprefs::get('logintheme', CmsAdminThemeBase::GetDefaultTheme()));
+                $$val = cms_siteprefs::get('logintheme');
+                if( !$val ) $val = ThemeBase::GetDefaultTheme();
+                cms_userprefs::set_for_user($userid, 'admintheme', $val);
                 cms_userprefs::set_for_user($userid, 'bookmarks', cms_userprefs::get_for_user($adminid, 'bookmarks'));
                 cms_userprefs::set_for_user($userid, 'recent', cms_userprefs::get_for_user($adminid, 'recent'));
             }
@@ -193,4 +196,3 @@ $smarty->assign([
 include_once 'header.php';
 $smarty->display('adduser.tpl');
 include_once 'footer.php';
-

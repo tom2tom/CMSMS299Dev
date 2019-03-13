@@ -24,7 +24,6 @@ multi-mode caching, auto-selectable if suitable PHP capability is present (Predi
 to speed autoloading at least, all php classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice.
 eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
 'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
-'CMSMS\ThemeBase' => 'CmsAdminThemeBase',
 'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification', DEPRECATED
 'CMSMS\App' => 'CmsApp',
 'CMSMS\CacheDriver' => 'cms_cache_driver',

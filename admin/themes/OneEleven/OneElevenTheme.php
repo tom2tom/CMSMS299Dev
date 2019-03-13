@@ -26,7 +26,6 @@ use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
-use CMSMS\ThemeBase;
 use CMSMS\UserOperations;
 use CmsNlsOperations;
 use const CMS_ROOT_PATH;
