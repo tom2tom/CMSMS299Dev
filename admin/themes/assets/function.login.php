@@ -87,7 +87,6 @@ if (!empty($usecsrf)) {
 }
 
 $gCms = CmsApp::get_instance();
-$login_ops = LoginOperations::get_instance();
 
 //Check for a forgot-pw job
 if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
@@ -156,6 +155,7 @@ if (isset($_REQUEST['forgotpwform']) && isset($_REQUEST['forgottenusername'])) {
     }
 }
 
+$login_ops = LoginOperations::get_instance();
 $config = cms_config::get_instance();
 
 if (isset($_SESSION['logout_user_now'])) {
@@ -193,6 +193,7 @@ if (isset($_POST['cancel'])) {
             throw new CmsLoginError( lang('usernameincorrect') );
         }
         $login_ops->save_authentication($user);
+        $_SESSION[CMS_USER_KEY] = $login_ops->create_csrf_token();
 
         // put mention into the admin log
         audit($user->id, 'Admin Username: '.$user->username, 'Logged In');
