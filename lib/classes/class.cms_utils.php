@@ -17,6 +17,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\internal\Smarty;
+use CMSMS\ModuleOperations;
+use CMSMS\ThemeBase;
 
 /**
  * A class of static utility/convenience methods.
@@ -276,11 +278,11 @@ final class cms_utils
 	 *
 	 * @author calguy1000
 	 * @since 1.11
-	 * @return mixed CmsAdminThemeBase derived object, or null
+	 * @return mixed CMSMS\ThemeBase derived object, or null
 	 */
 	public static function get_theme_object()
 	{
-		return CmsAdminThemeBase::get_instance();
+		return ThemeBase::get_instance();
 	}
 
 

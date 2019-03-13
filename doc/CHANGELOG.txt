@@ -24,7 +24,7 @@ multi-mode caching, auto-selectable if suitable PHP capability is present (Predi
 to speed autoloading at least, all php classes across the core, except those with name-prefix 'CMS' (with whatever case), have a namespace. Non-spaced usage is deprecated, will work until further notice.
 eventually, all core classes will be spaced. Devs are encouraged to start using ASAP these namespaced aliases for the core classes:
 'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
-'CMSMS\AdminThemeBase' => 'CmsAdminThemeBase',
+'CMSMS\ThemeBase' => 'CmsAdminThemeBase',
 'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification', DEPRECATED
 'CMSMS\App' => 'CmsApp',
 'CMSMS\CacheDriver' => 'cms_cache_driver',
@@ -620,7 +620,7 @@ Core - General
   - Adds the ability to reduce redundant mentions in the Admin log (runs asynchronously).
   - Refactor the Admin log page to allow for better filtering and pagination.
   - Admin log now uses cms_date_format and cleans output.
-  - Notification functions in the CmsAdminThemeBase function are now just stubs and do nothing. Will be removed at a later date.
+  - Notification functions in the CmsAdminThemeBase class are now just stubs and do nothing. Will be removed at a later date.
   - Removed the GetNotificationOutput() method from the module API.
   - Adds classes for creating Alerts. This is much more advanced than the old Notifications system.
   - Minor accessibility tweaks to the OneEleven theme.

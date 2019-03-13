@@ -18,12 +18,32 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+namespace CMSMS;
+
+use cms_config;
+use cms_siteprefs;
+use cms_userprefs;
+use cms_utils;
+use CmsApp;
+use CmsLangOperations;
 use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
 use CMSMS\UserOperations;
+use CmsNlsOperations;
+use const CMS_ADMIN_PATH;
+use const CMS_SCRIPTS_PATH;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function check_permission;
+use function cms_installed_jquery;
+use function cms_join_path;
+use function cms_path_to_url;
+use function get_userid;
+use function lang;
+use function munge_string_to_url;
 
-class GhostgumTheme extends CmsAdminThemeBase
+class GhostgumTheme extends ThemeBase
 {
 	/**
 	 * For theme exporting/importing

@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use CMSMS\FileTypeHelper;
+use CMSMS\ThemeBase;
 
 const THEME_DTD_VERSION = '1.0';
 const THEME_DTD_MINVERSION = '1.0';
@@ -50,7 +51,7 @@ function import_theme(string $xmlfile) : bool
 	}
 
 	$themename = (string)$xml->name;
-	$all = CmsAdminThemeBase::GetAvailableThemes(true);
+	$all = ThemeBase::GetAvailableThemes(true);
 	if (isset($all[$themename])) {
 		// theme is installed now
 		include_once $all[$themename];
@@ -154,7 +155,7 @@ function export_theme(string $themename) : bool
 {
 	global $config;
 
-	$all = CmsAdminThemeBase::GetAvailableThemes(true);
+	$all = ThemeBase::GetAvailableThemes(true);
 	if (!isset($all[$themename])) {
 		return false;
 	}
@@ -289,7 +290,7 @@ function export_theme(string $themename) : bool
 
 function delete_theme(string $themename) : bool
 {
-	$all = CmsAdminThemeBase::GetAvailableThemes(true);
+	$all = ThemeBase::GetAvailableThemes(true);
 	if (isset($all[$themename]) && count($all) > 1) {
 		if (recursive_delete(dirname($all[$themename]))) {
 			//adjust default theme if needed

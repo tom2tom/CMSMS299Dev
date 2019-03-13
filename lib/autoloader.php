@@ -44,7 +44,6 @@ function cms_autoloader(string $classname)
 			if ($class_replaces === null) {
 				$class_replaces = [
 				'CMSMS\AdminMenuItem' => 'CmsAdminMenuItem',
-				'CMSMS\AdminThemeBase' => 'CmsAdminThemeBase',
 				'CMSMS\App' => 'CmsApp',
 //				'CMSMS\CacheDriver' => 'cms_cache_driver',
 //				'CMSMS\CacheFile' => 'cms_filecache_driver',
@@ -75,6 +74,7 @@ function cms_autoloader(string $classname)
 				'CMSMS\Route' => 'CmsRoute',
 				'CMSMS\RouteManager' => 'cms_route_manager',
 				'CMSMS\Siteprefs' => 'cms_siteprefs',
+//				'CMSMS\ThemeBase' => 'CmsAdminThemeBase',
 				'CMSMS\Tree' => 'cms_tree',
 				'CMSMS\TreeOperations' => 'cms_tree_operations',
 				'CMSMS\Url' => 'cms_url',

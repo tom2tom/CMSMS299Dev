@@ -2,11 +2,11 @@
 
 namespace cms_installer\wizard;
 
-use cms_installer\installer_base;
 use cms_config;
+use cms_installer\installer_base;
 use cms_siteprefs;
-use CmsAdminThemeBase;
 use CmsApp;
+use CMSMS\ThemeBase;
 use Exception;
 use const CMS_ADMIN_PATH;
 use const CMS_DB_PREFIX;
@@ -15,7 +15,9 @@ use function cms_installer\CMSMS\smarty;
 use function cms_installer\get_app;
 use function cmsms;
 use function GetDb;
+use function ilang;
 use function import_content;
+use function verbose_msg;
 
 class wizard_step8 extends wizard_step
 {
@@ -121,7 +123,7 @@ class wizard_step8 extends wizard_step
 
             // init some of the system-wide default settings
             verbose_msg(ilang('install_initsiteprefs'));
-            $arr = CmsAdminThemeBase::GetAvailableThemes();
+            $arr = ThemeBase::GetAvailableThemes();
             foreach ([
              'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
              'allow_browser_cache' => 1, // allow browser to cache cachable pages

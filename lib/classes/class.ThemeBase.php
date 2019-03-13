@@ -16,32 +16,59 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//namespace CMSMS;
+namespace CMSMS;
 
+//use CMSMS\internal\AdminThemeNotification;
+use ArrayTreeIterator;
+use cms_cache_handler;
+use cms_config;
+use cms_siteprefs;
+use cms_url;
+use cms_userprefs;
+use cms_utils;
+use CmsApp;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminTabs;
 use CMSMS\AdminUtils;
 use CMSMS\ArrayTree;
 use CMSMS\Bookmark;
-//use CMSMS\internal\AdminThemeNotification;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\ModuleOperations;
+use PHPMailer\PHPMailer\Exception;
+use RecursiveArrayTreeIterator;
+use RecursiveIteratorIterator;
+use const CMS_ADMIN_PATH;
+use const CMS_ROOT_URL;
+use const CMS_SECURE_PARAM_NAME;
+use const CMS_USER_KEY;
+use function audit;
+use function check_permission;
+use function cleanArray;
+use function cleanValue;
+use function cms_join_path;
+use function cms_module_places;
+use function cms_path_to_url;
+use function endswith;
+use function get_userid;
+use function lang;
+use function startswith;
 
 /**
- * This is an abstract base class for building CMSMS admin themes.
- * This is also a singleton object.
+ * This is the abstract base class for building CMSMS admin themes.
+ * Each theme-class derived from this is a singleton object.
  *
  * @package CMS
  * @license GPL
- * @since   1.11
+ * @since 2.3
+ * @since   1.11 as CmsAdminThemeBase
  * @author  Robert Campbell
  * @property-read string $themeName Return the theme name
  * @property-read int $userid Return the current logged in userid (deprecated)
  * @property-read string $title The current page title
  * @property-read string $subtitle The current page subtitle
  */
-abstract class CmsAdminThemeBase
+abstract class ThemeBase
 {
     /* *
      * @ignore
@@ -236,31 +263,35 @@ abstract class CmsAdminThemeBase
      * It will read CMSMS preferences and cross reference with available themes.
      *
      * @param mixed string|null $name Optional theme name.
-     * @return mixed CmsAdminThemeBase The initialized admin theme object, or null
+     * @return mixed ThemeBase The initialized admin theme object, or null
      */
     public static function get_instance($name = '')
     {
         if( is_object(self::$_instance) ) return self::$_instance;
 
-        if( !$name ) $name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme',self::GetDefaultTheme());
-        if( class_exists($name) ) {
-            self::$_instance = new $name();
+        if( !$name ) {
+			$name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme');
+			if( !$name ) $name = self::GetDefaultTheme();
+		}
+		$themeObjName = 'CMSMS\\'.$name;
+        if( class_exists($themeObjName) ) {
+            self::$_instance = new $themeObjName();
         }
         else {
             $gCms = CmsApp::get_instance();
-            $themeObjName = $name.'Theme';
-            $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
+            $fn = cms_join_path(CMS_ADMIN_PATH,'themes',$name,$name.'Theme.php');
             if( is_file($fn) ) {
                 include_once $fn;
+	            $themeObjName = 'CMSMS\\'.$name.'Theme';
                 self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
             }
             else {
                 // theme not found... use default
                 $name = self::GetDefaultTheme();
-                $themeObjName = $name.'Theme';
-                $fn = CMS_ADMIN_PATH."/themes/$name/{$themeObjName}.php";
+                $fn = cms_join_path(CMS_ADMIN_PATH,'themes',$name,$name.'Theme.php');
                 if( is_file($fn) ) {
                     include_once $fn;
+		            $themeObjName = 'CMSMS\\'.$name.'Theme';
                     self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
                 }
                 else {
@@ -274,7 +305,7 @@ abstract class CmsAdminThemeBase
 
     /**
      * Get the global admin theme object.
-     * @deprecated since 2.3 use CmsAdminThemeBase::get_instance()
+     * @deprecated since 2.3 use ThemeBase::get_instance()
      */
     public static function GetThemeObject($name = '')
     {
@@ -1335,7 +1366,7 @@ abstract class CmsAdminThemeBase
             }
 
             $exts = ['i','svg','png','gif','jpg','jpeg'];
-            if (!$this->$_fontimages) {
+            if (!$this->_fontimages) {
                 unset($exts[0]);
             }
             foreach ($exts as $type) {
@@ -1986,7 +2017,7 @@ abstract class CmsAdminThemeBase
      *
      * @since 2.3
      * @param string $content the entire displayable content
-     * @see CmsAdminThemeBase::do_minimal()
+     * @see ThemeBase::do_minimal()
      */
     public function set_content(string $content)
     {
@@ -1997,7 +2028,7 @@ abstract class CmsAdminThemeBase
      * Retrieve the recorded content of a 'minimal' page
      *
      * @since 2.3
-     * @see CmsAdminThemeBase::do_minimal()
+     * @see ThemeBase::do_minimal()
      */
     public function get_content() : string
     {
