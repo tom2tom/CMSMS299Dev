@@ -95,4 +95,4 @@ $tpl->assign('starttext',$starttext)
 $tpl->display();
 unset($tpl);
 
-debug_buffer('End Navigator breadcrumbs action');
+debug_buffer('Finished Navigator breadcrumbs action');

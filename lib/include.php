@@ -174,9 +174,9 @@ if (isset($config['php_memory_limit']) && !empty($config['php_memory_limit'])) i
 // Load them into the usual variables.  This'll go away a little later on.
 if (!isset($DONT_LOAD_DB)) {
     try {
-        debug_buffer('Initialize Database');
+        debug_buffer('Initialize database');
         $_app->GetDb();
-        debug_buffer('Finished Initializing Database');
+        debug_buffer('Finished initializing database');
     }
     catch( DatabaseConnectionException $e) {
         die('Sorry, something has gone wrong.  Please contact a site administrator. <em>('.get_class($e).')</em>');
@@ -219,8 +219,7 @@ if ($CMS_JOB_TYPE < 2) {
     if (!isset($DONT_LOAD_SMARTY)) {
         debug_buffer('Initialize Smarty');
         $smarty = $_app->GetSmarty();
-        debug_buffer('Finished Initializing Smarty');
-        if (defined('CMS_DEBUG') && CMS_DEBUG) $smarty->error_reporting = 'E_ALL';
+        debug_buffer('Finished initializing Smarty');
         $smarty->assignGlobal('sitename', cms_siteprefs::get('sitename', 'CMSMS Site'));
     }
 }
