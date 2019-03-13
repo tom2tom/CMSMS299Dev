@@ -22,10 +22,10 @@
  * @package CMS
  */
 
+//use CMSMS\ContentCache;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\HookManager;
-use CMSMS\internal\content_cache;
 use CMSMS\internal\content_plugins;
 use CMSMS\internal\TemplateCache;
 
@@ -81,7 +81,7 @@ $page = get_pageid_or_alias_from_url(); //<2
 $contentops = ContentOperations::get_instance(); //<2
 $contentobj = null; //<2
 
-content_cache::get_instance();
+//ContentCache::get_instance(); //init page-content-cache
 $_tpl_cache = new TemplateCache();
 
 for ($trycount = 0; $trycount < 2; ++$trycount) {
