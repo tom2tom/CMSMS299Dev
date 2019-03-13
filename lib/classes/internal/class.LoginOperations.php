@@ -29,36 +29,48 @@ use const CMS_USER_KEY;
 
 final class LoginOperations
 {
+    //TODO namespaced global variables here
     /**
      * @ignore
      */
-    private static $_instance = null;
-    private $_loginkey;
-    private $_data;
+//    private static $_instance = null;
+    /**
+     * @ignore
+     */
+    private static $_loginkey;
+    /**
+     * @ignore
+     */
+    private static $_data;
 
     /**
      * @ignore
      */
-    private function __construct()
+    public function __construct()
     {
-        $this->_loginkey = $this->_get_salt();
+        self::$_loginkey = $this->_get_salt();
     }
 
-    /**
+    /* *
      * @ignore
      */
-    private function __clone() {}
+//    private function __clone() {}
 
+	/**
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 use new LoginOperations()
+	 * @return LoginOperations
+	 */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) self::$_instance = new self();
-        return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
     }
 
     public function deauthenticate()
     {
-        cms_cookies::erase($this->_loginkey);
-        unset($_SESSION[$this->_loginkey],$_SESSION[CMS_USER_KEY]);
+        cms_cookies::erase(self::$_loginkey);
+        unset($_SESSION[self::$_loginkey],$_SESSION[CMS_USER_KEY]);
     }
 
     /**
@@ -83,10 +95,10 @@ final class LoginOperations
     /**
      * validate the user
 	 * @param mixed? $uid
-	 * @param mixed? $checksum
+	 * @param mixed? $hash
 	 * @return boolean
 	 */
-    private function _check_passhash($uid,$checksum) : bool
+    private function _check_passhash($uid,$hash) : bool
     {
         // we already validated that payload was not corrupt
         $userops = UserOperations::get_instance();
@@ -97,8 +109,8 @@ final class LoginOperations
         if( !$user->active ) {
             return FALSE;
         }
-        $checksum = (string) $checksum;
-        if( !$checksum ) {
+        $hash = (string) $hash;
+        if( !$hash ) {
             return FALSE;
         }
 
@@ -106,7 +118,7 @@ final class LoginOperations
         unset($data['password']);
         $data[] = __FILE__;
 
-        return password_verify(json_encode($data), $checksum);
+        return password_verify(json_encode($data), $hash);
     }
 
     /**
@@ -139,31 +151,38 @@ final class LoginOperations
         $private_data['hash'] = password_hash(json_encode($data), PASSWORD_DEFAULT);
         $enc = base64_encode(json_encode($private_data));
         $hash = sha1($this->_get_salt() . $enc);
-        $_SESSION[$this->_loginkey] = $hash.'::'.$enc;
-        cms_cookies::set($this->_loginkey,$_SESSION[$this->_loginkey]);
+        $_SESSION[self::$_loginkey] = $hash.'::'.$enc;
+        cms_cookies::set(self::$_loginkey,$_SESSION[self::$_loginkey]);
 
-        // this is for CSRF stuff, doesn't technically belong here.
-        $_SESSION[CMS_USER_KEY] = $this->_create_csrf_token( $user->id );
-        unset($this->_data);
+        self::$_data = null;
         return true;
     }
 
-	//mixed $uid
-    private function _create_csrf_token( $uid )
+    public function create_csrf_token()
     {
-        return substr(str_shuffle(sha1(__DIR__.$uid.time().session_id())),-19);
+        $data = '            ';
+        for( $i=0; $i<12; ++$i ) {
+            $n = mt_rand(48, 122); // 0 .. z
+            if (!(($n > 57 && $n < 66) || ($n > 90 && $n < 97))) {
+                $data[$i] = chr($n); // ASCII alphanum
+            } else {
+                --$i; // try again
+            }
+        }
+		return $data;
     }
 
+	/* @return mixed array | null : previously- or currently-generated data */
     private function _get_data()
     {
-        if( !empty($this->_data) ) return $this->_data;
+        if( !empty(self::$_data) ) return self::$_data;
 
         // use session- and/or cookie-data to check whether user is authenticated
-        if( isset($_SESSION[$this->_loginkey]) ) {
-            $private_data = $_SESSION[$this->_loginkey];
+        if( isset($_SESSION[self::$_loginkey]) ) {
+            $private_data = $_SESSION[self::$_loginkey];
         }
-        elseif( isset($_COOKIE[$this->_loginkey]) ) {
-            $private_data = $_SESSION[$this->_loginkey] = cleanValue($_COOKIE[$this->_loginkey]);
+        elseif( isset($_COOKIE[self::$_loginkey]) ) {
+            $private_data = $_SESSION[self::$_loginkey] = cleanValue($_COOKIE[self::$_loginkey]);
         }
         else {
             $private_data = null;
@@ -187,11 +206,11 @@ final class LoginOperations
         // if we get here, the user is authenticated.
         // if we don't have a user key.... we generate a new csrf token.
         if( !isset($_SESSION[CMS_USER_KEY]) ) {
-            $_SESSION[CMS_USER_KEY] = $this->_create_csrf_token( $private_data['uid'] );
+            $_SESSION[CMS_USER_KEY] = $this->create_csrf_token();
         }
 
-        $this->_data = $private_data;
-        return $this->_data;
+        self::$_data = $private_data;
+        return $private_data;
     }
 
 	/**
