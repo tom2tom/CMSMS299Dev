@@ -119,11 +119,18 @@ class CachePredis extends CacheDriver
             if ($params['lifetime']) {
             }
         }
+
+        register_shutdown_function([$this, 'cachequit']);
         if ($params['database']) {
             return $this->instance->select((int)$params['database']);
         }
         return true;
     }
+
+    public function cachequit()
+    {
+        $this->instance->close();
+    } 
 
     public function get($key, $group = '')
     {

@@ -94,17 +94,25 @@ class CacheMemcached extends CacheDriver
         if (is_array($servers)) {
             foreach ($servers as $server) {
                 if ($server['host'] == $host && $server['port'] == $port) {
+                    register_shutdown_function([$this, 'cachequit']);
                     return true;
                 }
             }
         }
 
         try {
-            if ($this->instance->addServer($host, $port)) //may throw Exception
-            { return true; }
+            if ($this->instance->addServer($host, $port)) { //may throw Exception
+                register_shutdown_function([$this, 'cachequit']);
+                return true;
+            }
         } catch (Exception $e) {}
         unset($this->instance);
         return false;
+    }
+
+    public function cachequit()
+    {
+        $this->instance->quit();
     }
 
     public function get($key, $group = '')
