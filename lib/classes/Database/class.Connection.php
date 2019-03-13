@@ -144,7 +144,7 @@ abstract class Connection
      */
     public function __construct($config = null)
     {
-        $this->_debug = defined('CMS_DEBUG') && CMS_DEBUG;
+        $this->_debug = CMS_DEBUG;
         if ($this->_debug) {
             $this->_debug_cb = 'debug_buffer';
         }
