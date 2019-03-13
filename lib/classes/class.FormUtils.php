@@ -647,6 +647,9 @@ class FormUtils
                 if (!empty($selectedvalue)) {
                     $selected = $selectedvalue; //maybe array
                 } elseif (isset($selectedindex)) {
+                    if ($selectedindex < 0) {
+                        $selectedindex = 0;
+                    }
                     $keys = array_keys($options);
                     if (isset($keys[$selectedindex])) {
                         $selected = $options[$keys[$selectedindex]];
@@ -972,7 +975,7 @@ class FormUtils
             $content_obj = cms_utils::get_current_content(); //CHECKME ever relevant when CREATING a form?
             $goto = ($content_obj) ? $content_obj->GetURL() : 'index.php';
             if (strpos($goto, ':') !== false && CmsApp::get_instance()->is_https_request()) {
-	            //TODO generally support the websocket protocol
+                //TODO generally support the websocket protocol
                 $goto = str_replace('http:', 'https:', $goto);
             }
         } else {
