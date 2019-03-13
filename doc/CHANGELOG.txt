@@ -111,6 +111,8 @@ new
 
 admin_headtext
 assets_url
+cms_queue_css
+cms_render_css
 cms_queue_script
 cms_render_scripts
 disable_template
@@ -173,7 +175,7 @@ DETAILS
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
   - New method: AdminUtils::get_module_icon()
   - New method: cms_utils::path_to_url()
-  - New classes: ScriptManager, ArrayTree, BasicEnum
+  - New classes: ScriptManager, StylesManager, ArrayTree, BasicEnum
 
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
@@ -206,6 +208,10 @@ DETAILS
   - BREAKING: Removed some deprecated and/or seldom-used methods from the core API
       can_admin_upload(), check_ownership(), cms_current_language()
       cms_set_frontend_language(), get_encoding(), pagination()
+  - BREAKING: Removed long-deprecated methods from the cms_content_tree class
+      addNode, getChildrenCount, getId, getLevel, getNodeByAlias, getNodeById
+      getParentNode, getSiblingCount, getTag, hasChildren, setTag
+  - CHANGE: Pages-content class migrated from 'internal' as 'ContentCache', now usable by any module
   - CHANGE: Adds convenience methods get_cliuser(), get_editor_script()
   - CHANGE: Adds the new pr_root_url config entry.  Returns the protocol relative root URI. root_url will always include the protocol.
   - CHANGE: Remove long deprecated passthru parameters to effect $_REQUEST because of potential security vulnerabilities.
