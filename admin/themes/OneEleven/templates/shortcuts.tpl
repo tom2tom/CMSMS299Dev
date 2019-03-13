@@ -3,24 +3,24 @@
 <div class="shortcuts">
 	<ul class="cf">
 		<li class="help">
-		{if isset($site_help_url)}
-			<a href="{$site_help_url}" title="{'site_support'|lang}">{'site_support'|lang}</a>
-		{else}
-			<a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}">{'site_support'|lang}</a>
-		{/if}
-		</li>
-		<li class="help">
 		{if isset($module_help_url)}
 			<a href="{$module_help_url}" title="{'module_help'|lang}">{'module_help'|lang}</a>
 		{else}
 			<a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}">{'documentation'|lang}</a>
 		{/if}
 		</li>
-                {if isset($myaccount)}
+		<li class="help">
+		{if isset($site_help_url)}
+			<a href="{$site_help_url}" title="{'site_support'|lang}">{'site_support'|lang}</a>
+		{else}
+			<a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}">{'site_support'|lang}</a>
+		{/if}
+		</li>
+    {if isset($myaccount)}
 		<li class="settings">
 			<a href="myaccount.php?{$secureparam}" title="{'myaccount'|lang}">{'myaccount'|lang}</a>
 		</li>
-                {/if}
+    {/if}
 		{if isset($marks)}
 		<li class="favorites open">
 			<a href="listbookmarks.php?{$secureparam}" title="{'bookmarks'|lang}">{'bookmarks'|lang}</a>
@@ -29,10 +29,10 @@
 		{$my_alerts=$theme->get_my_alerts()}
 		{$num_alerts=count($my_alerts)}
 		{if $num_alerts > 0}
-		   {if $num_alerts > 10}{$txt='&#2295'}{else}{$num=1+$num_alerts}{$txt="{$num_alerts}"}{/if}
- 		   <li class="notifications">
-			<a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><span class="bubble">{$txt}</span></a>
-		   </li>
+			{if $num_alerts > 10}{$txt='&#2295'}{else}{$num=1+$num_alerts}{$txt="{$num_alerts}"}{/if}
+			<li class="notifications">
+				<a id="alerts" title="{lang('notifications_to_handle2',$num_alerts)}"><span class="bubble">{$txt}</span></a>
+			</li>
 		{/if}
 		<li class="view-site">
 			<a href="{root_url}/index.php" rel="external" target="_blank" title="{'viewsite'|lang}">{'viewsite'|lang}</a>

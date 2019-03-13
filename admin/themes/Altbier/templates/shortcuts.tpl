@@ -3,17 +3,17 @@
 <div class="col-6 px-0 shortcuts">
   <ul>
     <li class="help">
-    {if isset($site_help_url)}
-      <a href="{$site_help_url}" title="{'site_support'|lang}"><i aria-hidden="true" class="fas fa-hands-helping"></i></a>
-    {else}
-      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><i aria-hidden="true" class="fas fa-hands-helping"></i></a>
-    {/if}
-    </li>
-    <li class="help">
     {if isset($module_help_url)}
       <a href="{$module_help_url}" title="{'module_help'|lang}"><i aria-hidden="true" class="fas fa-question-circle"></i></a>
     {else}
       <a href="https://docs.cmsmadesimple.org/" rel="external" title="{'documentation'|lang}"><i aria-hidden="true" class="fas fa-question-circle"></i></a>
+    {/if}
+    </li>
+    <li class="help">
+    {if isset($site_help_url)}
+      <a href="{$site_help_url}" title="{'site_support'|lang}"><i aria-hidden="true" class="fas fa-hands-helping"></i></a>
+    {else}
+      <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{'site_support'|lang}"><i aria-hidden="true" class="fas fa-hands-helping"></i></a>
     {/if}
     </li>
         {if isset($myaccount)}
