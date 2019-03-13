@@ -25,7 +25,7 @@ use CmsApp;
 use CMSContentManager\Utils;
 use CmsInvalidDataException;
 use CmsLayoutTemplate;
-use CmsLockOperations;
+use LockOperations;
 use CMSModule;
 use CMSMS\ContentOperations;
 use CMSMS\UserOperations;
@@ -599,7 +599,7 @@ final class ContentListBuilder
 		//if( $this->_module->GetPreference('locktimeout') < 1 ) return;
 		if( is_array($this->_locks) ) return $this->_locks;
 		$this->_locks = [];
-		$tmp = CmsLockOperations::get_locks('content');
+		$tmp = LockOperations::get_locks('content');
 		if( $tmp ) {
 			foreach( $tmp as $lock_obj ) {
 				$this->_locks[$lock_obj['oid']] = $lock_obj;

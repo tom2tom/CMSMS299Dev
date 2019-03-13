@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\FormUtils;
+use CMSMS\LockOperations;
 
 $handlers = ob_list_handlers();
 for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
@@ -96,7 +97,7 @@ try {
     $css_nav['curpage'] = (int)($css_query->offset / $css_query->limit) + 1;
     $tpl->assign('css_nav',$css_nav)
      ->assign('manage_designs',$this->CheckPermission('Manage Designs'));
-    $locks = CmsLockOperations::get_locks('stylesheet');
+    $locks = LockOperations::get_locks('stylesheet');
     $tpl->assign('have_css_locks',($locks) ? count($locks) : 0)
      ->assign('lock_timeout', $this->GetPreference('lock_timeout'));
 

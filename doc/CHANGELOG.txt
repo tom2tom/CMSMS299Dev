@@ -45,8 +45,6 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\LayoutTemplateCategory' => 'CmsLayoutTemplateCategory',
 'CMSMS\LayoutTemplateQuery' => 'CmsLayoutTemplateQuery',
 'CMSMS\LayoutTemplateType' => 'CmsLayoutTemplateType',
-'CMSMS\Lock' => 'CmsLock',
-'CMSMS\LockOperations' => 'CmsLockOperations',
 'CMSMS\Module' => 'CMSModule', MAYBE, TO BE CONFIRMED
 'CMSMS\ModuleContentType' => 'CMSModuleContentType',
 'CMSMS\Nls' => 'CmsNls',

@@ -64,8 +64,8 @@ function cms_autoloader(string $classname)
 				'CMSMS\LayoutTemplateCategory' => 'CmsLayoutTemplateCategory',
 				'CMSMS\LayoutTemplateQuery' => 'CmsLayoutTemplateQuery',
 				'CMSMS\LayoutTemplateType' => 'CmsLayoutTemplateType',
-				'CMSMS\Lock' => 'CmsLock',
-				'CMSMS\LockOperations' => 'CmsLockOperations',
+//				'CMSMS\Lock' => 'CmsLock',
+//				'CMSMS\LockOperations' => 'CmsLockOperations',
 				'CMSMS\Module' => 'CMSModule',	//mebbe not this one ?
 				'CMSMS\ModuleContentType' => 'CMSModuleContentType',
 				'CMSMS\Nls' => 'CmsNls',

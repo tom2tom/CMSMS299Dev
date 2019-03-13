@@ -19,7 +19,7 @@
 namespace DesignManager;
 
 use cms_utils;
-use CmsLockOperations;
+use CMSMS\LockOperations;
 
 final class utils
 {
@@ -39,7 +39,7 @@ final class utils
         static $_locks_loaded = FALSE;
         if( !$locks_loaded ) {
             $_locks_loaded = TRUE;
-            $tmp = CmsLockOperations::get_locks('template');
+            $tmp = LockOperations::get_locks('template');
             if( $tmp ) {
                 $_locks = [];
                 foreach( $tmp as $lock_obj ) {
@@ -56,7 +56,7 @@ final class utils
         static $_locks_loaded = FALSE;
         if( !$locks_loaded ) {
             $_locks_loaded = TRUE;
-            $tmp = CmsLockOperations::get_locks('stylesheet');
+            $tmp = LockOperations::get_locks('stylesheet');
             if( $tmp ) {
                 $_locks = [];
                 foreach( $tmp as $lock_obj ) {

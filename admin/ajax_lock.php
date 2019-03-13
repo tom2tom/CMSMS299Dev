@@ -16,6 +16,12 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CmsLockException;
+use CMSMS\CmsLockOwnerException;
+use CMSMS\CmsNoLockException;
+use CMSMS\Lock;
+use CMSMS\LockOperations;
+
 $handlers = ob_list_handlers();
 for ($cnt = 0; $cnt < count($handlers); $cnt++) { ob_end_clean(); }
 
@@ -65,10 +71,10 @@ try {
   case 'check':
       if( !$type ) throw new CmsInvalidDataException(lang('missingparams'));
       if( $oid ) {
-          $out['lock_id'] = CmsLockOperations::is_locked($type,$oid) ? 1 : 0;
+          $out['lock_id'] = LockOperations::is_locked($type,$oid) ? 1 : 0;
       }
       else {
-          $tmp = CmsLockOperations::get_locks($type);
+          $tmp = LockOperations::get_locks($type);
           if( $tmp ) $out['lock_id'] = -1;
       }
       break;
@@ -81,11 +87,11 @@ try {
       // see if we can get this lock... if we can, it's just a touch
       $lock = null;
       try {
-          $lock = CmsLock::load($type,$oid,$uid);
+          $lock = Lock::load($type,$oid,$uid);
       }
       catch( CmsNoLockException $e ) {
           // lock doesn't exist, gotta create one.
-          $lock = new CmsLock($type,$oid,$lifetime);
+          $lock = new Lock($type,$oid,$lifetime);
       }
       $lock->save();
       $out['lock_id'] = $lock['id'];
@@ -96,13 +102,13 @@ try {
   case 'touch':
       if( !$type || !$oid || !$uid || $lock_id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));
       if( $uid != $ruid ) throw new CmsLockOwnerException(lang('CMSEX_L006'));
-      $out['lock_expires'] = CmsLockOperations::touch($lock_id,$type,$oid);
+      $out['lock_expires'] = LockOperations::touch($lock_id,$type,$oid);
       break;
 
   case 'unlock':
       if( !$type || !$oid || !$uid || $lock_id < 1 ) throw new CmsInvalidDataException(lang('missingparams'));
       if( $uid != $ruid ) throw new CmsLockOwnerException(lang('CMSEX_L006'));
-      CmsLockOperations::delete($lock_id,$type,$oid);
+      LockOperations::delete($lock_id,$type,$oid);
       break;
   }
 }
@@ -130,4 +136,3 @@ header('Content-Type: application/json');
 
 echo json_encode($out);
 exit;
-

@@ -21,6 +21,7 @@
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\internal\TemplateCache;
+use CMSMS\LockOperations;
 use CMSMS\User;
 use CMSMS\UserOperations;
 
@@ -975,7 +976,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
 	private static function get_locks()
 	{
 		if( !self::$_lock_cache_loaded ) {
-			$tmp = CmsLockOperations::get_locks('template');
+			$tmp = LockOperations::get_locks('template');
 			if( $tmp ) {
 				self::$_lock_cache = [];
 				foreach( $tmp as $one ) {
@@ -990,8 +991,8 @@ VALUES (?,?,?,?,?,?,?,?,?,?)';
    /**
 	* Get any applicable lock for this template object
 	*
-	* @returns CmsLock
-	* @see CmsLock
+	* @returns Lock
+	* @see Lock
 	*/
 	public function get_lock()
 	{

@@ -18,10 +18,11 @@
 
 use CMSContentManager\Utils;
 use CMSMS\AdminUtils;
-use CMSMS\CmsException;
-use CMSMS\ContentException;
+use CMSMS\CmsLockException;
 use CMSMS\ContentOperations;
 use CMSMS\FormUtils;
+use CMSMS\Lock;
+use CMSMS\LockOperations;
 
 if( !isset($gCms) ) exit;
 
@@ -230,14 +231,6 @@ catch( CmsContentException $e ) {
         exit;
     }
 }
-catch( ContentException $e ) {
-    $error = $e->GetMessage();
-    if( isset($params['ajax']) ) {
-        $tmp = ['response'=>'Error','details'=>$error];
-        echo json_encode($tmp);
-        exit;
-    }
-}
 
 //
 // BUILD THE DISPLAY
@@ -247,16 +240,16 @@ if( $content_id && Utils::locking_enabled() ) {
         $lock_id = null;
         for( $i = 0; $i < 3; $i++ ) {
             // check if this thing is already locked.
-            $lock_id = CmsLockOperations::is_locked('content',$content_id);
+            $lock_id = LockOperations::is_locked('content',$content_id);
             if( $lock_id == 0 ) break;
             usleep(500);
         }
         if( $lock_id > 0 ) {
             // it's locked... by somebody, make sure it's expired before we allow stealing it.
-            $lock = CmsLock::load('content',$content_id);
+            $lock = Lock::load('content',$content_id);
             if( !$lock->expired() ) throw new CmsLockException('CMSEX_L010');
             // lock is expired, we can just remove it.
-            CmsLockOperations::unlock($lock_id,'content',$content_id);
+            LockOperations::unlock($lock_id,'content',$content_id);
         }
     }
     catch( CmsException $e ) {

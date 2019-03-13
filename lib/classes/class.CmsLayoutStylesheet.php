@@ -21,6 +21,7 @@
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\internal\TemplateCache;
+use CMSMS\LockOperations;
 //use function \endswith;
 
 /**
@@ -603,7 +604,7 @@ VALUES (?,?,?,?,?,?,?)';
 	private static function get_locks() : array
 	{
 		if( !self::$_lock_cache_loaded ) {
-			$tmp = CmsLockOperations::get_locks('stylesheet');
+			$tmp = LockOperations::get_locks('stylesheet');
 			if( $tmp ) {
 				self::$_lock_cache = [];
 				foreach( $tmp as $one ) {
@@ -618,7 +619,7 @@ VALUES (?,?,?,?,?,?,?)';
    /**
 	* Get a lock (if any exist) for this object
 	*
-	* @return mixed CmsLock | null
+	* @return mixed Lock | null
 	*/
 	public function get_lock()
 	{

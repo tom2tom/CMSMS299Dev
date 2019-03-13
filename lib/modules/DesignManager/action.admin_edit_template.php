@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\CmsLockException;
+use CMSMS\Lock;
+use CMSMS\LockOperations;
 use DesignManager\utils;
 
 if (!isset($gCms)) exit;
@@ -136,13 +139,13 @@ try {
         $lock_timeout = $this->GetPreference('lock_timeout', 0);
         $lock_refresh = $this->GetPreference('lock_refresh', 0);
         try {
-            $lock_id = CmsLockOperations::is_locked('template', $tpl_obj->get_id());
+            $lock_id = LockOperations::is_locked('template', $tpl_obj->get_id());
             $lock = null;
             if( $lock_id > 0 ) {
                 // it's locked... by somebody, make sure it's expired before we allow stealing it.
-                $lock = CmsLock::load('template',$tpl_obj->get_id());
+                $lock = Lock::load('template',$tpl_obj->get_id());
                 if( !$lock->expired() ) throw new CmsLockException('CMSEX_L010');
-                CmsLockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
+                LockOperations::unlock($lock_id,'template',$tpl_obj->get_id());
             }
         } catch( CmsException $e ) {
             $message = $e->GetMessage();

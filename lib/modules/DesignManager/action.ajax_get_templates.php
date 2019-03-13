@@ -17,6 +17,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\FormUtils;
+use CMSMS\LockOperations;
 
 $handlers = ob_list_handlers();
 for( $i = 0, $n = count($handlers); $i < $n; ++$i ) { ob_end_clean(); }
@@ -145,7 +146,7 @@ try {
          ->assign('list_types',$tmp2);
     }
 
-    $locks = CmsLockOperations::get_locks('template');
+    $locks = LockOperations::get_locks('template');
     $tpl->assign('have_locks',$locks ? count($locks) : 0)
      ->assign('lock_timeout',$lock_timeout)
      ->assign('coretypename',CmsLayoutTemplateType::CORE)

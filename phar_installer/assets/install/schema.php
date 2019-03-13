@@ -1,5 +1,7 @@
 <?php
 
+use CMSMS\Lock;
+
 //force-drop tables which will be created (just in case, should do nothing during install)
 //status_msg(ilang('install_dropping_tables'));
 $db->DropSequence(CMS_DB_PREFIX.'additional_users_seq'); //deprecated since 2.3
@@ -53,7 +55,7 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_smarty_plugins');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'routes');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLock::LOCK_TABLE);
+$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.Lock::LOCK_TABLE);
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME);
 $dbdict->ExecuteSQLArray($sqlarray);
@@ -680,13 +682,13 @@ lifetime I NOT NULL,
 expires I NOT NULL
 ';
 $sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLock::LOCK_TABLE,
+    CMS_DB_PREFIX.Lock::LOCK_TABLE,
     $flds,
     $taboptarray
 );
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(ilang('install_created_table', CmsLock::LOCK_TABLE, $msg_ret));
+verbose_msg(ilang('install_created_table', Lock::LOCK_TABLE, $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_locks1',
     CMS_DB_PREFIX.'locks', 'type,oid', ['UNIQUE']);
