@@ -22,7 +22,7 @@ Core - General
   - Adds the ability to reduce redundant mentions in the Admin log (runs asynchronously).
   - Refactor the Admin log page to allow for better filtering and pagination.
   - Admin log now uses cms_date_format and cleans output.
-  - Notification functions in the CmsAdminThemeBase function are now just stubs and do nothing. Will be removed at a later date.
+  - Notification functions in the CmsAdminThemeBase class are now just stubs and do nothing. Will be removed at a later date.
   - Removed the GetNotificationOutput() method from the module API.
   - Adds classes for creating Alerts. This is much more advanced than the old Notifications system.
   - Minor accessibility tweaks to the OneEleven theme.
