@@ -8,7 +8,7 @@ use cms_installer\CMSMS\nlstools;
 
 /**
  *
- * @return type
+ * @return cms_smarty object, a Smarty subclass
  */
 function smarty()
 {
@@ -17,7 +17,7 @@ function smarty()
 
 /**
  *
- * @return type
+ * @return nlstools object
  */
 function nls()
 {
@@ -26,7 +26,7 @@ function nls()
 
 /**
  *
- * @return type
+ * @return langtools object
  */
 function translator()
 {

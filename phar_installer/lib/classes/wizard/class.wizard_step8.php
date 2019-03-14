@@ -242,7 +242,7 @@ class wizard_step8 extends wizard_step
 
         include_once dirname(__DIR__,2).'/msg_functions.php';
 
-        $smarty = smarty(); //in scope for downsteam use
+        $smarty = smarty(); //in scope for inclusions
 
         try {
             // ready to do the upgrading now (in a loop)
