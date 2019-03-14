@@ -80,7 +80,7 @@ abstract class ThemeBase
      */
     private static $_instance = null;
 
-	/**
+    /**
      * @ignore
      */
     private $_perms;
@@ -270,20 +270,19 @@ abstract class ThemeBase
         if( is_object(self::$_instance) ) return self::$_instance;
 
         if( !$name ) {
-			$name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme');
-			if( !$name ) $name = self::GetDefaultTheme();
-		}
-		$themeObjName = 'CMSMS\\'.$name;
+            $name = cms_userprefs::get_for_user(get_userid(FALSE),'admintheme');
+            if( !$name ) $name = self::GetDefaultTheme();
+        }
+        $themeObjName = 'CMSMS\\'.$name;
         if( class_exists($themeObjName) ) {
             self::$_instance = new $themeObjName();
         }
         else {
-            $gCms = CmsApp::get_instance();
             $fn = cms_join_path(CMS_ADMIN_PATH,'themes',$name,$name.'Theme.php');
             if( is_file($fn) ) {
                 include_once $fn;
-	            $themeObjName = 'CMSMS\\'.$name.'Theme';
-                self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
+                $themeObjName = 'CMSMS\\'.$name.'Theme';
+                self::$_instance = new $themeObjName();
             }
             else {
                 // theme not found... use default
@@ -291,8 +290,8 @@ abstract class ThemeBase
                 $fn = cms_join_path(CMS_ADMIN_PATH,'themes',$name,$name.'Theme.php');
                 if( is_file($fn) ) {
                     include_once $fn;
-		            $themeObjName = 'CMSMS\\'.$name.'Theme';
-                    self::$_instance = new $themeObjName($gCms,get_userid(FALSE),$name);
+                    $themeObjName = 'CMSMS\\'.$name.'Theme';
+                    self::$_instance = new $themeObjName();
                 }
                 else {
                     // oops, still not found
