@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\NlsOperations;
+
 /**
  * Miscellaneous support functions
  *
@@ -277,7 +279,7 @@ function cms_htmlentities($val, int $param = 0, string $charset = 'UTF-8', bool 
 
     if (!$charset) {
         if ($defenc === '') {
-            $defenc = CmsNlsOperations::get_encoding();
+            $defenc = NlsOperations::get_encoding();
         }
         $charset = $defenc;
     }
@@ -315,7 +317,7 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
 
     if (!$charset) {
         if ($defenc === '') {
-            $defenc = CmsNlsOperations::get_encoding();
+            $defenc = NlsOperations::get_encoding();
         }
         $charset = $defenc;
     }
@@ -327,13 +329,16 @@ function cms_html_entity_decode(string $val, int $param = 0, string $charset = '
  * Display (echo) stack trace as human-readable lines
  *
  * This method uses echo.
+ * @param string $title since 2.3 Optional title for (verbatim) display
  */
-function stack_trace()
+function stack_trace(string $title = '')
 {
+    if ($title) echo $title . "\n";
+
     $bt = debug_backtrace();
     foreach ($bt as $elem) {
         if ($elem['function'] == 'stack_trace') continue;
-        if (isset($elem['file']) ) {
+        if (isset($elem['file'])) {
             echo $elem['file'].':'.$elem['line'].' - '.$elem['function'].'<br />';
         }
         else {
@@ -761,7 +766,7 @@ function recursive_delete(string $path) : bool
             new RecursiveDirectoryIterator($path,
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::SKIP_DOTS
-           ), RecursiveIteratorIterator::CHILD_FIRST);
+          ), RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $p) {
             if (is_dir($p)) {
                 if (!@rmdir($p)) {
@@ -798,7 +803,7 @@ function chmod_r(string $path, $mode) : bool
             new RecursiveDirectoryIterator($path,
                 FilesystemIterator::CURRENT_AS_PATHNAME |
                 FilesystemIterator::SKIP_DOTS
-           ), RecursiveIteratorIterator::CHILD_FIRST);
+          ), RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iter as $p) {
             if (!(is_link($p) || @chmod($p, $mode))) {
                 $res = false;
@@ -1212,13 +1217,59 @@ EOS;
 }
 
 /**
+ * @since 2.3
+ * @ignore
+ */
+function get_best_file($places, $target, $ext, $as_url)
+{
+    if (($p = stripos($target, 'min')) !== false) {
+        $base = substr($target, 0, $p-1); //strip [.-]min & type-suffix
+    } elseif (($p = stripos($target, '.'.$ext)) !== false) {
+        $base = substr($target, 0, $p); //strip type-suffix
+    }
+    $base = strtr($base, ['.'=>'\\.', '-'=>'\\-']);
+
+    $patn = '~^'.$base.'[.-](\d[\d\.]*)[.-](min)?\.'.$ext.'$~i';
+    foreach ($places as $base_path) {
+        $allfiles = scandir($base_path);
+        if ($allfiles) {
+            $files = preg_grep($patn, $allfiles);
+            if ($files) {
+                if (count($files) > 1) {
+//                    $best = ''
+                    foreach ($files as $target) {
+                        preg_match($patn, $target, $matches);
+                        if (!empty($matches[2])) {
+                            break; //use the min TODO check versions too
+                        } elseif (!empty($matches[1])) {
+                            //TODO a candidate, but try for later-version/min
+                        } else {
+                            //TODO a candidate, but try for min
+                        }
+                    }
+//                    $target = $best;
+                } else {
+                    $target = reset($files);
+                }
+                $tmp = $base_path.DIRECTORY_SEPARATOR.$target;
+                if ($as_url) {
+                    return cms_path_to_url($tmp);
+                }
+                return $tmp;
+            }
+        }
+    }
+    return '';
+}
+
+/**
  * Return the filepath or URL of a wanted script file, if found in any of the
- * various standard locations for js-files (or any other provided location).
+ * standard locations for such files (or any other provided location).
  * Intended mainly for non-jQuery scripts, but it will try to find those those too.
  * @since 2.3
  *
- * @param string $filename (base)name of the wanted script file,
- *  optionally including [.-]min before the .js extension
+ * @param string $filename absolute or relative filepath or (base)name of the
+ *  wanted file, optionally including [.-]min before the .js extension
  *  If the name includes a version, that will be taken into account.
  *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
  * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
@@ -1227,56 +1278,89 @@ EOS;
  */
 function cms_get_script(string $filename, bool $as_url = true, array $xplaces = [])
 {
-    static $jsdirs = null;
-
-    if( $jsdirs === null ) {
-        $jsdirs = [
-        CMS_SCRIPTS_PATH,
-        CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
-        CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
-        CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
-        CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
+    $target = basename($filename);
+    if ($target == $filename) {
+        $places = [
+         CMS_SCRIPTS_PATH,
+         CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
+         CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
+         CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
+         CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
+        ];
+    } elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+        // $filename is absolute
+        $places = [dirname($filename)];
+    } else {
+        // $filename is relative, try to find it
+        //TODO if relevant, support somewhere module-relative
+        //TODO partial path-intersection too, any separators
+        $config = cms_config::get_instance();
+        $base_path = ltrim(dirname($filename),' \\/');
+        $places = [
+         $base_path,
+         CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'js',
+         CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
+         $config['uploads_path'],
+         CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'js',
+         CMS_ROOT_PATH,
         ];
     }
 
-    $target = basename($filename, '.js');
-    if( ($p = stripos($target, 'min')) !== false ) {
-        $target = substr($target, 0, $p-1); //also omit preceeding separator, assumed '.' or '-'
+    if ($xplaces) {
+        $places = array_unique(array_merge($places, $xplaces));
     }
 
-    if( $xplaces ) {
-        $places = aray_merge($jsdirs, $xplaces);
+    return get_best_file($places, $target, 'js', $as_url);
+}
+
+/**
+ * Return the filepath or URL of a wanted css file, if found in any of the
+ * standard locations for such files (or any other provided location).
+ * Intended mainly for non-jQuery styles, but it will try to find those those too.
+ * @since 2.3
+ *
+ * @param string $filename absolute or relative filepath or (base)name of the
+ *  wanted file, optionally including [.-]min before the .css extension
+ *  If the name includes a version, that will be taken into account.
+ *  Otherwise, the first-found version will be used. Min-format preferred over non-min.
+ * @param bool $as_url optional flag, whether to return URL or filepath. Default true.
+ * @param xplaces optional array of 'non-standard' directory-paths to include (last) in the search
+ * @return mixed string absolute filepath | URL | null
+ */
+function cms_get_css(string $filename, bool $as_url = true, array $xplaces = [])
+{
+    $target = basename($filename);
+    if ($target == $filename) {
+        $places = [
+         CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css',
+         CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'css',
+         CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery',
+         CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery-ui',
+        ];
+    } elseif (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
+        // $filename is absolute
+        $places = [dirname($filename)];
     } else {
-        $places = $jsdirs;
+        // $filename is relative, try to find it
+        //TODO if relevant, support somewhere module-relative
+        //TODO partial path-intersection too, any separators
+        $config = cms_config::get_instance();
+        $base_path = ltrim(dirname($filename),' \\/');
+        $places = [
+         $base_path,
+         CMS_ASSETS_PATH.DIRECTORY_SEPARATOR.'css',
+         CMS_ROOT_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'assets',
+         $config['uploads_path'],
+         CMS_ADMIN_PATH.DIRECTORY_SEPARATOR.'themes'.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'css',
+         CMS_ROOT_PATH,
+        ];
     }
 
-    $patn = '~^'.$target.'([\d\.\-]*)?(min)?\.js$~i';
-    foreach ($places as $base_path) {
-        $allfiles = scandir($base_path);
-        if( $allfiles ) {
-            $scripts = preg_grep($patn, $allfiles);
-            if( $scripts ) {
-                if( count($scripts) > 1) {
-                    foreach( $scripts as $target ) {
-                        preg_match($patn, $target, $matches);
-                        if( !empty($matches[2]) ) {
-                            break; //use the min
-                        }/* elseif( !empty($matches[1] ) {
-                            //TODO check versions
-                        }
-*/
-                    }
-                } else {
-                    $target = reset($scripts);
-                }
-                $tmp = $base_path.DIRECTORY_SEPARATOR.$target;
-                if( $as_url ) {
-                    return cms_path_to_url($tmp);
-                }
-                return $tmp;
-            }
-        }
+    if ($xplaces) {
+        $places = array_unique(array_merge($places, $xplaces));
     }
+
+    return get_best_file($places, $target, 'css', $as_url);
 }
 
 /**
@@ -1363,7 +1447,7 @@ function cms_utf8_sort(array $arr, bool $preserve = false) : array
 {
     $enc = null; //TODO relevant to site lang e.g. 'en_US'
     $collator = new Collator($enc);
-    if( $preserve ) {
+    if ($preserve) {
         $collator->asort($arr);
     } else {
         $collator->sort($arr);

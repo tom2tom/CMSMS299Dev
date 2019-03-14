@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\NlsOperations;
+
 function smarty_function_cms_set_language($params, $template)
 {
   if( isset($params['lang']) ) {
@@ -23,7 +25,7 @@ function smarty_function_cms_set_language($params, $template)
   }
   else {
 	$lang = null;
-  } 
-//$res = 
-  CmsNlsOperations::set_language($lang);
+  }
+//$res =
+  NlsOperations::set_language($lang);
 }

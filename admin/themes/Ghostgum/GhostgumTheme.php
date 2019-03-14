@@ -25,12 +25,12 @@ use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
 use CmsApp;
-use CMSMS\LangOperations;
 use CMSMS\AdminUtils;
+use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
+use CMSMS\NlsOperations;
 use CMSMS\ScriptManager;
 use CMSMS\UserOperations;
-use CmsNlsOperations;
 use const CMS_ADMIN_PATH;
 use const CMS_SCRIPTS_PATH;
 use const CMS_SECURE_PARAM_NAME;
@@ -75,7 +75,7 @@ class GhostgumTheme extends ThemeBase
 		$rel_url = strtr($rel, DIRECTORY_SEPARATOR, '/');
 //      $base_url = $admin_url . strtr($rel, DIRECTORY_SEPARATOR, '/');
 		$fn = 'style';
-		if (CmsNlsOperations::get_language_direction() == 'rtl') {
+		if (NlsOperations::get_language_direction() == 'rtl') {
 			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
 				$fn .= '-rtl';
 			}
@@ -338,7 +338,7 @@ EOS;
 		if (!$lang) $lang = cms_siteprefs::get('frontendlang');
 		$smarty->assign('lang_code', $lang)
 		// language direction
-		  ->assign('lang_dir', CmsNlsOperations::get_language_direction());
+		  ->assign('lang_dir', NlsOperations::get_language_direction());
 		// is the website down for maintenance?
 		if (cms_siteprefs::get('enablesitedownmessage')) {
 			$smarty->assign('is_sitedown', 1);

@@ -16,13 +16,15 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\NlsOperations;
+
 function smarty_function_cms_lang_info($params, $template)
 {
-	$lang = CmsNlsOperations::get_current_language();
+	$lang = NlsOperations::get_current_language();
 	if( isset($params['lang']) ) {
 		$lang = trim($params['lang']);
 	}
-	$info = CmsNlsOperations::get_language_info($lang);
+	$info = NlsOperations::get_language_info($lang);
 	if( !$info ) return;
 
 	if( isset($params['assign']) ) {

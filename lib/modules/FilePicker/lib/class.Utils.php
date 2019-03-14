@@ -21,7 +21,7 @@ use cms_config;
 use cms_utils;
 use CMSMS\FilePickerProfile;
 use CMSMS\FileTypeHelper;
-use CmsNlsOperations;
+use CMSMS\NlsOperations;
 use Collator;
 use FilePicker;
 use const CMS_ROOT_PATH;
@@ -238,7 +238,7 @@ class Utils
         $sortby = $profile->sort;
         if ($sortby !== FilePickerProfile::FLAG_NO) {
             if (class_exists('Collator')) {
-                $lang = CmsNlsOperations::get_default_language();
+                $lang = NlsOperations::get_default_language();
                 $col = new Collator($lang); // e.g. new Collator('pl_PL') TODO if.UTF-8 ?? ini 'output_encoding' ??
             } else {
                 $col = false;

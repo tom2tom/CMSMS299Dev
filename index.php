@@ -28,6 +28,7 @@ use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\content_plugins;
 use CMSMS\internal\TemplateCache;
+use CMSMS\NlsOperations;
 
 $starttime = microtime();
 $orig_memory = (function_exists('memory_get_usage')?memory_get_usage():0);
@@ -150,9 +151,9 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
           ->assignGlobal('page_id', $page)
           ->assignGlobal('page_alias', $contentobj->Alias());
 
-        CmsNlsOperations::set_language(); // <- NLS detection for frontend
-        $smarty->assignGlobal('lang',CmsNlsOperations::get_current_language())
-          ->assignGlobal('encoding',CmsNlsOperations::get_encoding());
+        NlsOperations::set_language(); // <- NLS detection for frontend
+        $smarty->assignGlobal('lang',NlsOperations::get_current_language())
+          ->assignGlobal('encoding',NlsOperations::get_encoding());
 
         Events::SendEvent('Core', 'ContentPreRender', [ 'content' => &$contentobj ]);
 
@@ -319,7 +320,7 @@ for ($trycount = 0; $trycount < 2; ++$trycount) {
 Events::SendEvent('Core', 'ContentPostRender', [ 'content' => &$html ]);
 if (!headers_sent()) {
     $ct = $_app->get_content_type();
-    header("Content-Type: $ct; charset=" . CmsNlsOperations::get_encoding());
+    header("Content-Type: $ct; charset=" . NlsOperations::get_encoding());
 }
 echo $html;
 

@@ -23,7 +23,7 @@
  * This may be used by CMSMS on frontend requests to detect a suitable language.
  * modules may supply a language detector to read from preferences etc.
  *
- * @see CmsNlsOperations::set_language_detector()
+ * @see NlsOperations::set_language_detector()
  * @author Robert Campbell
  * @package CMS
  * @license GPL

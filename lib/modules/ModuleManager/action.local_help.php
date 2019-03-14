@@ -1,4 +1,8 @@
 <?php
+
+use CMSMS\ModuleOperations;
+use CMSMS\NlsOperations;
+
 if( !isset($gCms) ) exit;
 //if( !$this->CheckPermission('Modify Modules') ) return;
 $this->SetCurrentTab('installed');
@@ -19,7 +23,7 @@ if( !is_object($modinstance) ) {
 $theme = cms_utils::get_theme_object();
 $theme->SetTitle('module_help');
 
-$our_lang = CmsNlsOperations::get_current_language();
+$our_lang = NlsOperations::get_current_language();
 
 $tpl = $smarty->createTemplate($this->GetTemplateResource('local_help.tpl'),null,null,$smarty);
 $tpl->assign('our_lang',$our_lang);
@@ -28,7 +32,7 @@ if( $our_lang != 'en_US' ) {
     if( $lang != '' ) {
         $tpl->assign('mylang_text',$this->Lang('display_in_mylanguage'))
          ->assign('mylang_url',$this->create_url($id,'local_help',$returnid,['mod'=>$module]));
-        CmsNlsOperations::set_language('en_US');
+        NlsOperations::set_language('en_US');
     }
     else {
         $yourlang_url = $this->create_url($id,'local_help',$returnid,['mod'=>$module,'lang'=>'en_US']);
@@ -44,7 +48,7 @@ $tpl->assign('module_name',$modinstance->GetName())
 
  ->assign('help_page',$modinstance->GetHelpPage());
 if( $our_lang != 'en_US' && $lang != '' ) {
-    CmsNlsOperations::set_language($our_lang);
+    NlsOperations::set_language($our_lang);
 }
 
 $tpl->display();

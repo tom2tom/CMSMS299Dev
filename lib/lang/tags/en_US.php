@@ -201,7 +201,7 @@ $lang['help_function_cms_lang_info'] = <<<EOT
 <h3>Example:</h3>
 <pre>{cms_lang_info assign='nls'}{\$nls->locale()}</pre>
 <h3>See Also:</h3>
-<p>the CmsNls class documentation.</p>
+<p>the Nls class documentation.</p>
 EOT;
 
 $lang['help_function_cms_pageoptions'] = <<<EOT

@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\NlsOperations;
+
 //TODO security checks
 
 $this->StageLogin(); //generate core-form for display
@@ -28,14 +30,14 @@ $params = ['actionid' => $id];
 $params['loginurl'] = $url.'&amp;cmsjobtype=1';
 $params['forgoturl'] = $url.'&amp;'.$id.'forgotpw=1&amp;cmsjobtype=1';
 $params['admin_url'] = $config['admin_url'];
-$params['encoding'] = CmsNlsOperations::get_encoding();
+$params['encoding'] = NlsOperations::get_encoding();
 
-$lang = CmsNlsOperations::get_current_language();
+$lang = NlsOperations::get_current_language();
 if (($p = strpos($lang,'_')) !== false) {
     $lang = substr($lang,0,$p);
 }
 $params['lang_code'] = $lang;
-$params['lang_dir'] = CmsNlsOperations::get_language_direction();
+$params['lang_dir'] = NlsOperations::get_language_direction();
 
 $sitelogo = cms_siteprefs::get('sitelogo');
 if ($sitelogo) {

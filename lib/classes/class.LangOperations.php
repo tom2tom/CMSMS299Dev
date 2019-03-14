@@ -18,10 +18,12 @@
 
 namespace CMSMS;
 
-use cms_config;
-use CmsNlsOperations;
-use const CMS_ASSETS_PATH, CMS_ROOT_PATH;
-use function  cms_module_places;
+use CMSMS\NlsOperations;
+use const CMS_ADMIN_PATH;
+use const CMS_ASSETS_PATH;
+use const CMS_ROOT_PATH;
+use function cms_module_path;
+use function debug_to_log;
 
 /**
  * A singleton class to provide simple, generic mechanism for dealing with languages
@@ -71,7 +73,7 @@ final class LangOperations
 	 */
 	private static function _load_realm($realm)
 	{
-		$curlang = CmsNlsOperations::get_current_language(); //CHECKME cached?
+		$curlang = NlsOperations::get_current_language(); //CHECKME cached?
 		if( !$realm ) $realm = self::$_curent_realm;
 
 		if( isset(self::$_langdata[$curlang][$realm]) ) return;
@@ -168,7 +170,7 @@ final class LangOperations
 			return '';
 		}
 
-		$curlang = CmsNlsOperations::get_current_language();
+		$curlang = NlsOperations::get_current_language();
 		self::_load_realm($realm);
 		if( isset(self::$_langdata[$curlang][$realm][$key]) ) return TRUE;
 		return FALSE;
@@ -209,7 +211,7 @@ final class LangOperations
 		}
 
 		self::_load_realm($realm);
-		$curlang = CmsNlsOperations::get_current_language();
+		$curlang = NlsOperations::get_current_language();
 		if( !isset(self::$_langdata[$curlang][$realm][$key]) ) {
 			// put mention into the admin log
 			global $CMS_LOGIN_PAGE;
@@ -283,7 +285,7 @@ final class LangOperations
 	{
 		if( $realm == null ) $realm = self::$_current_realm;
 		self::_load_realm($realm);
-		$curlang = CmsNlsOperations::get_current_language();
+		$curlang = NlsOperations::get_current_language();
 		if( isset(self::$_langdata[$curlang][$realm][$key]) ) return TRUE;
 		return FALSE;
 	}

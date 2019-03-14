@@ -17,6 +17,7 @@
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use CMSMS\LangOperations;
+use CMSMS\NlsOperations;
 
 /**
  * Translation functions
@@ -84,12 +85,12 @@ function lang(...$args) : string
 function get_language_list(bool $allow_none = true) : array
 {
   $tmp = [];
-  $langs = CmsNlsOperations::get_installed_languages();
+  $langs = NlsOperations::get_installed_languages();
   if( $langs ) {
     if( $allow_none ) $tmp[''] = lang('nodefault');
     asort($langs);
     foreach( $langs as $key ) {
-	  $obj = CmsNlsOperations::get_language_info($key);
+	  $obj = NlsOperations::get_language_info($key);
 	  $value = $obj->display();
 	  if( $obj->fullname() ) $value .= ' ('.$obj->fullname().')';
 	  $tmp[$key] = $value;

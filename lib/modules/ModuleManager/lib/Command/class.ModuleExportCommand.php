@@ -24,7 +24,7 @@ use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
-use CmsNlsOperations;
+use CMSMS\NlsOperations;
 use RuntimeException;
 use function audit;
 
@@ -47,7 +47,7 @@ class ModuleExportCommand extends Command
 
         $old_display_errors = ini_set('display_errors',0);
         LangOperations::allow_nonadmin_lang(TRUE);
-        CmsNlsOperations::set_language('en_US');
+        NlsOperations::set_language('en_US');
         Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
         $xmltext = $moma->get_operations()->create_xml_package($modinstance,$message,$files);
         Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );

@@ -68,8 +68,8 @@ function cms_autoloader(string $classname)
 //				'CMSMS\LockOperations' => 'CmsLockOperations',
 				'CMSMS\Module' => 'CMSModule',	//mebbe not this one ?
 				'CMSMS\ModuleContentType' => 'CMSModuleContentType',
-				'CMSMS\Nls' => 'CmsNls',
-				'CMSMS\NlsOperations' => 'CmsNlsOperations',
+//				'CMSMS\Nls' => 'CmsNls',
+//				'CMSMS\NlsOperations' => 'CmsNlsOperations',
 				'CMSMS\Permission' => 'CmsPermission',
 				'CMSMS\Route' => 'CmsRoute',
 				'CMSMS\RouteManager' => 'cms_route_manager',

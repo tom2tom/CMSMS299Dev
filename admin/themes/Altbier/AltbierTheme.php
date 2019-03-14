@@ -23,13 +23,13 @@ namespace CMSMS;
 use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
-use CMSMS\LangOperations;
 use CMSMS\AdminAlerts\Alert;
 use CMSMS\AdminUtils;
+use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
+use CMSMS\NlsOperations;
 use CMSMS\ScriptManager;
 use CMSMS\UserOperations;
-use CmsNlsOperations;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_SECURE_PARAM_NAME;
@@ -99,8 +99,8 @@ class AltbierTheme extends ThemeBase
 		$rel_url = strtr($rel,DIRECTORY_SEPARATOR,'/');
 //		$base_url = $admin_url . strtr($rel,DIRECTORY_SEPARATOR,'/');
 
-		$lang = CmsNlsOperations::get_current_language();
-		$info = CmsNlsOperations::get_language_info($lang);
+		$lang = NlsOperations::get_current_language();
+		$info = NlsOperations::get_language_info($lang);
 		$fn = 'style';
 		if ($info->direction() == 'rtl') {
 			if (is_file(__DIR__.DIRECTORY_SEPARATOR.'css'.DIRECTORY_SEPARATOR.$fn.'-rtl.css')) {
@@ -591,8 +591,8 @@ EOS;
 		if (!$lang) $lang = cms_siteprefs::get('frontendlang');
 		$smarty->assign('lang_code', $lang);
 		// language direction
-		$lang = CmsNlsOperations::get_current_language();
-		$info = CmsNlsOperations::get_language_info($lang);
+		$lang = NlsOperations::get_current_language();
+		$info = NlsOperations::get_language_info($lang);
 		$smarty->assign('lang_dir', $info->direction());
 
 		$fp = cms_join_path(__DIR__, 'css', 'all.min.css');

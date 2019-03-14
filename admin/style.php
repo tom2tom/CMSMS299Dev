@@ -16,6 +16,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\ModuleOperations;
+use CMSMS\NlsOperations;
+
 $CMS_ADMIN_PAGE = 1;
 $CMS_STYLESHEET = TRUE;
 
@@ -41,7 +44,7 @@ $theme = $themeObject->themeName;
 $style='style';
 cms_admin_sendheaders('text/css');
 
-$dir = CmsNlsOperations::get_language_direction();
+$dir = NlsOperations::get_language_direction();
 if( $dir == 'rtl' ) $style.='-rtl';
 if (isset($_GET['ie'])) $style.='_ie';
 $style .= '.css';

@@ -18,6 +18,8 @@
 
 //Deprecated since 2.3 - just include the relevant .css file(s) in the page header during its construction
 
+use CMSMS\NlsOperations;
+
 $CMS_ADMIN_PAGE=1; //lazy ?
 $CMS_LOGIN_PAGE=1;
 
@@ -39,7 +41,7 @@ $cms_readfile = function($filename) {
   return FALSE;
 };
 
-header('Content-type: text/css; charset=' . CmsNlsOperations::get_encoding());
+header('Content-type: text/css; charset=' . NlsOperations::get_encoding());
 if (is_file(__DIR__."/themes/$theme/css/style.css")) {
     echo file_get_contents(__DIR__."/themes/$theme/css/style.css");
 }

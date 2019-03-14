@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\NlsOperations;
+
 $CMS_ADMIN_PAGE = 1;
 
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
@@ -363,10 +365,10 @@ $smarty->assign('count_permission_info', count($tmp[0]))
 include_once 'header.php';
 
 if (isset($_GET['cleanreport']) && $_GET['cleanreport'] == 1) {
-    $orig_lang = CmsNlsOperations::get_current_language();
-    CmsNlsOperations::set_language('en_US');
+    $orig_lang = NlsOperations::get_current_language();
+    NlsOperations::set_language('en_US');
     $smarty->display('systeminfo.txt.tpl');
-    CmsNlsOperations::set_language($orig_lang);
+    NlsOperations::set_language($orig_lang);
 } else {
     $smarty->display('systeminfo.tpl');
 }

@@ -23,7 +23,7 @@ use CmsApp;
 use CmsLayoutStylesheet;
 use CmsLogicException;
 use CMSMS\ScriptManager;
-use CmsNlsOperations;
+use CMSMS\NlsOperations;
 use MicroTiny;
 use MicroTiny\Profile;
 use PHPMailer\PHPMailer\Exception;
@@ -289,7 +289,7 @@ EOS;
 	 */
 	private static function GetLanguageId() : string
 	{
-		$mylang = CmsNlsOperations::get_current_language();
+		$mylang = NlsOperations::get_current_language();
 		if ($mylang=='') return 'en'; //Lang setting "No default selected"
 		$shortlang = substr($mylang,0,2);
 

@@ -2,6 +2,7 @@
 
 use CMSMS\Events;
 use CMSMS\ModuleOperations;
+use CMSMS\NlsOperations;
 
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Modify Modules') ) return;
@@ -21,15 +22,15 @@ try {
     }
 
     $old_display_errors = ini_set('display_errors',0);
-    $orig_lang = CmsNlsOperations::get_current_language();
-    CmsNlsOperations::set_language('en_US');
+    $orig_lang = NlsOperations::get_current_language();
+    NlsOperations::set_language('en_US');
     $files = 0;
     $message = '';
 
     Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
     $xmlfile = $this->get_operations()->create_xml_package($modinstance,$message,$files);
     Events::SendEvent( 'ModuleManager', 'AfterModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
-    CmsNlsOperations::set_language($orig_lang);
+    NlsOperations::set_language($orig_lang);
     if( $old_display_errors !== FALSE ) ini_set('display_errors',$old_display_errors);
 
     if( !$files ) {

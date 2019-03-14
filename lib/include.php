@@ -38,6 +38,7 @@
  * CMS_LOGIN_PAGE - Indicates that the file was included from the admin login form.
  * CMS_JOB_TYPE - Since 2.3 Value 0|1|2 indicates the type of request, hence appropriate inclusions
  */
+//use CMSMS\internal\ModulePluginManager;
 
 use CMSMS\AuditManager;
 use CMSMS\ContentOperations;
@@ -46,8 +47,8 @@ use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
-//use CMSMS\internal\ModulePluginManager;
 use CMSMS\ModuleOperations;
+use CMSMS\NlsOperations;
 
 global $CMS_INSTALL_PAGE, $CMS_ADMIN_PAGE, $DONT_LOAD_DB, $DONT_LOAD_SMARTY;
 
@@ -113,7 +114,7 @@ if (isset($CMS_ADMIN_PAGE)) {
     function cms_admin_sendheaders($content_type = 'text/html',$charset = '')
     {
         // Language shizzle
-        if (!$charset) $charset = CmsNlsOperations::get_encoding();
+        if (!$charset) $charset = NlsOperations::get_encoding();
         header("Content-Type: $content_type; charset=$charset");
     }
 }
@@ -214,7 +215,7 @@ if ($CMS_JOB_TYPE < 2) {
 //    ModulePluginManager::get_instance()->RegisterSessionPlugins();
 
     // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
-    if (isset($CMS_ADMIN_PAGE)) CmsNlsOperations::set_language();
+    if (isset($CMS_ADMIN_PAGE)) NlsOperations::set_language();
 
     if (!isset($DONT_LOAD_SMARTY)) {
         debug_buffer('Initialize Smarty');
