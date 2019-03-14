@@ -7,7 +7,7 @@ use Exception;
 use Smarty;
 use function cms_installer\get_app;
 
-require_once dirname(__DIR__, 2).'/Smarty/Smarty.class.php';
+require_once dirname(__DIR__, 2).'/smarty/Smarty.class.php'; // save some autoloading
 
 final class cms_smarty extends Smarty
 {
