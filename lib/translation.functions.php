@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\LangOperations;
+
 /**
  * Translation functions
  * @package CMS
@@ -38,7 +40,7 @@
  */
 function lang_by_realm(...$args) : string
 {
-  return CmsLangOperations::lang_from_realm($args);
+  return LangOperations::lang_from_realm($args);
 }
 
 /**
@@ -50,7 +52,7 @@ function lang_by_realm(...$args) : string
  */
 function allow_admin_lang(bool $flag = true) : bool
 {
-  return CmsLangOperations::allow_nonadmin_lang($flag);
+  return LangOperations::allow_nonadmin_lang($flag);
 }
 
 /**
@@ -68,7 +70,7 @@ function allow_admin_lang(bool $flag = true) : bool
  */
 function lang(...$args) : string
 {
-  return CmsLangOperations::lang($args);
+  return LangOperations::lang($args);
 }
 
 /**

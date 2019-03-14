@@ -25,7 +25,7 @@ use cms_siteprefs;
 use cms_userprefs;
 use cms_utils;
 use CmsApp;
-use CmsLangOperations;
+use CMSMS\LangOperations;
 use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
@@ -246,7 +246,7 @@ EOS;
 		$subtitle = '';
 		if ($title && !$module_help_type) {
 			// if not doing module help, maybe translate the string
-			if (CmsLangOperations::lang_key_exists('admin', $title)) {
+			if (LangOperations::lang_key_exists('admin', $title)) {
 				$extra = $this->get_value('extra_lang_params');
 				if (!$extra) {
 					$extra = [];

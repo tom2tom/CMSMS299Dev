@@ -55,7 +55,7 @@ function cms_autoloader(string $classname)
 				'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
 				'CMSMS\HttpRequest' => 'cms_http_request',
 				'CMSMS\internal\AdminThemeNotification' => 'CmsAdminThemeNotification',
-				'CMSMS\LangOperations' => 'CmsLangOperations',
+//				'CMSMS\LangOperations' => 'CmsLangOperations',
 				'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
 				'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
 				'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',

@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\LangOperations;
+
 $CMS_ADMIN_PAGE=1;
 require_once dirname(__DIR__).DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'include.php';
 //check_login();
@@ -28,7 +30,7 @@ if( strstr($key,'__') !== FALSE ) {
 } else {
   $realm = 'admin';
 }
-$out = CmsLangOperations::lang_from_realm($realm,$key);
+$out = LangOperations::lang_from_realm($realm,$key);
 
 echo $out;
 exit;

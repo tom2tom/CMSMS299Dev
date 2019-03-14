@@ -23,6 +23,7 @@ use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\bulkcontentoperations;
 use CMSMS\internal\ModulePluginManager;
+use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 
 /**
@@ -2220,7 +2221,7 @@ abstract class CMSModule
         //Push module name onto front of array
         array_unshift($args,$this->GetName());
 
-        return CmsLangOperations::lang_from_realm($args);
+        return LangOperations::lang_from_realm($args);
     }
 
     /**

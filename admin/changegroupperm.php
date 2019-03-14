@@ -18,6 +18,7 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\HookManager;
+use CMSMS\LangOperations;
 
 $CMS_ADMIN_PAGE = 1;
 //$CMS_ADMIN_TITLE = 'whatever';
@@ -62,16 +63,16 @@ $load_perms = function () use ($db) {
     //NOTE these cannot be used in multi-handler lists, cuz returned params are not suitable for next in list!
     HookManager::add_hook('localizeperm', function ($perm_source, $perm_name) {
         $key = 'perm_'.str_replace(' ', '_', $perm_name);
-        if (CmsLangOperations::lang_key_exists('admin', $key)) {
-            return CmsLangOperations::lang_from_realm('admin', $key);
+        if (LangOperations::lang_key_exists('admin', $key)) {
+            return LangOperations::lang_from_realm('admin', $key);
         }
         return $perm_name;
     }, HookManager::PRIORITY_LOW);
 
     HookManager::add_hook('getperminfo', function ($perm_source, $perm_name) {
         $key = 'permdesc_'.str_replace(' ', '_', $perm_name);
-        if (CmsLangOperations::lang_key_exists('admin', $key)) {
-            return CmsLangOperations::lang_from_realm('admin', $key);
+        if (LangOperations::lang_key_exists('admin', $key)) {
+            return LangOperations::lang_from_realm('admin', $key);
         }
     }, HookManager::PRIORITY_LOW);
 

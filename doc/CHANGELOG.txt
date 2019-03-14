@@ -35,7 +35,6 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\CoreCapabilities' => 'CmsCoreCapabilities',
 'CMSMS\DbQueryBase' => 'CmsDbQueryBase',
 'CMSMS\HttpRequest' => 'cms_http_request',
-'CMSMS\LangOperations' => 'CmsLangOperations',
 'CMSMS\LanguageDetector' => 'CmsLanguageDetector',
 'CMSMS\LayoutCollection' => 'CmsLayoutCollection',
 'CMSMS\LayoutStylesheet' => 'CmsLayoutStylesheet',

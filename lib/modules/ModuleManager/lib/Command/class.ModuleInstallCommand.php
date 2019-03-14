@@ -19,9 +19,9 @@
 namespace ModuleManager\Command;
 
 use cms_utils;
-use CmsLangOperations;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
+use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use GetOpt\Operand;
 use RuntimeException;
@@ -42,7 +42,7 @@ class ModuleInstallCommand extends Command
         $moma = cms_utils::get_module('ModuleManager');
         $module = $this->getOperand('module')->value();
 
-        CmsLangOperations::allow_nonadmin_lang(TRUE);
+        LangOperations::allow_nonadmin_lang(TRUE);
         $ops = ModuleOperations::get_instance();
         $result = $ops->InstallModule($module);
         if( !is_array($result) || !isset($result[0]) ) throw new RuntimeException('Module installation failed');

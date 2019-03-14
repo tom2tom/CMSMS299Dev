@@ -16,6 +16,8 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\LangOperations;
+
 $CMS_ADMIN_PAGE = 1;
 $CMS_LOAD_ALL_PLUGINS = 1;
 
@@ -69,9 +71,9 @@ if ($action == 'showpluginhelp') {
         $func_name([]);
         $content = @ob_get_contents();
         @ob_end_clean();
-    } elseif (CmsLangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
-        $content = CmsLangOperations::lang_from_realm('tags',"help_{$type}_{$plugin}");
-    } elseif (CmsLangOperations::key_exists("help_{$type}_{$plugin}")) {
+    } elseif (LangOperations::key_exists("help_{$type}_{$plugin}",'tags')) {
+        $content = LangOperations::lang_from_realm('tags',"help_{$type}_{$plugin}");
+    } elseif (LangOperations::key_exists("help_{$type}_{$plugin}")) {
         $content = lang("help_{$type}_{$plugin}");
     }
 
@@ -177,9 +179,9 @@ if ($action == 'showpluginhelp') {
 
             if (function_exists('smarty_cms_help_'.$rec['type'].'_'.$rec['name'])) {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
-            } elseif (CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'],'tags')) {
+            } elseif (LangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'],'tags')) {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
-            } elseif (CmsLangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'])) {
+            } elseif (LangOperations::key_exists('help_'.$rec['type'].'_'.$rec['name'])) {
                 $rec['help_url'] = $selfurl.$urlext.'&amp;action=showpluginhelp&amp;plugin='.$rec['name'].'&amp;type='.$rec['type'];
             }
 

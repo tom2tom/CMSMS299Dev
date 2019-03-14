@@ -18,6 +18,8 @@
 
 //namespace CMSMS;
 
+use CMSMS\LangOperations;
+
 /**
  * The base CMSMS exception class. It preserves extended information, and
  * interprets error-messages which are an integer 'code' or a lang-key.
@@ -66,12 +68,12 @@ class CmsException extends Exception
 
         if( is_int($this->message) ) {
             $this->messsage = 'CMSEX_'.$msg;
-            if( !CmsLangOperations::key_exists($this->message) ) {
+            if( !LangOperations::key_exists($this->message) ) {
                 $this->message = 'MISSING TRANSLATION FOR '.$this->message;
             }
         }
-        if( strpos($this->message,' ') === FALSE && CmsLangOperations::key_exists($this->message) ) {
-            $this->message = CmsLangOperations::lang($this->message);
+        if( strpos($this->message,' ') === FALSE && LangOperations::key_exists($this->message) ) {
+            $this->message = LangOperations::lang($this->message);
         }
     }
 

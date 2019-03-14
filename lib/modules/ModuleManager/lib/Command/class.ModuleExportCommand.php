@@ -19,7 +19,7 @@
 namespace ModuleManager\Command;
 
 use cms_utils;
-use CmsLangOperations;
+use CMSMS\LangOperations;
 use CMSMS\CLI\App;
 use CMSMS\CLI\GetOptExt\Command;
 use CMSMS\Events;
@@ -46,7 +46,7 @@ class ModuleExportCommand extends Command
         if( !is_object($modinstance) ) throw new RuntimeException('Could not instantiate module '.$module);
 
         $old_display_errors = ini_set('display_errors',0);
-        CmsLangOperations::allow_nonadmin_lang(TRUE);
+        LangOperations::allow_nonadmin_lang(TRUE);
         CmsNlsOperations::set_language('en_US');
         Events::SendEvent( 'ModuleManager', 'BeforeModuleExport', [ 'module_name' => $module, 'version' => $modinstance->GetVersion() ] );
         $xmltext = $moma->get_operations()->create_xml_package($modinstance,$message,$files);
