@@ -17,6 +17,8 @@
       {else}
         <a href="https://www.cmsmadesimple.org/support/options/" rel="external" title="{lang('site_support')}">{lang('site_support')}</a>
       {/if}
+      </li>
+      <li>
         <a href="http://www.cmsmadesimple.org/about-link/" rel="external" title="{lang('about')}">{lang('about')}</a>
       </li>
       <li>
