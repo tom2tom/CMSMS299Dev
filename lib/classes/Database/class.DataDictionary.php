@@ -184,6 +184,92 @@ function Lens_ParseArgs($args, $endstmtchar = ',', $tokenchars = '_.-')
 abstract class DataDictionary
 {
     /**
+     * SQL sub-string to use for the start of an alter table command
+     *
+     * @internal
+     */
+    const alterTable = 'ALTER TABLE ';
+
+    /**
+     * SQL command template for creating a drop table command.
+     *
+     * @internal
+     */
+    const dropTable = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
+
+    /**
+     * SQL command template for renaming a table.
+     *
+     * @internal
+     */
+    const renameTable = 'RENAME TABLE %s TO %s';
+
+    /**
+     * SQL command template for dropping an index.
+     *
+     * @internal
+     */
+    const dropIndex = 'DROP INDEX %s ON %s';
+
+    /**
+     * SQL sub-string to use (in the alter table command) when adding a column.
+     *
+     * @internal
+     */
+    const addCol = ' ADD COLUMN';
+
+    /**
+     * SQL sub-string to use (in the alter table command) when altering a column.
+     *
+     * @internal
+     */
+    const alterCol = ' MODIFY COLUMN';
+
+    /**
+     * SQL sub-string to use (in the alter table command) when dropping a column.
+     *
+     * @internal
+     */
+    const dropCol = ' DROP COLUMN';
+
+    /**
+     * SQL command template for renaming a column.
+     *
+     * @internal
+     */
+    const renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';
+
+    /**
+     * @ignore
+     */
+    const sysTimeStamp = 'TIMESTAMP';
+
+    /**
+     * @ignore
+     */
+    const sysDate = 'DATE';
+
+    /**
+     * @ignore
+     */
+    const nameRegex = '\w';
+
+    /**
+     * @ignore
+     */
+    const nameRegexBrackets = 'a-zA-Z0-9_\(\)';
+
+    /**
+     * @ignore
+     */
+    const invalidResizeTypes4 = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME']; // for changetablesql
+
+    /**
+     * @ignore
+     */
+    const nameQuote = '`'; // string to use to quote identifiers and names
+
+    /**
      * The database connection object.
      *
      * @internal
@@ -191,88 +277,9 @@ abstract class DataDictionary
     protected $connection;
 
     /**
-     * SQL command template for creating a drop table command.
-     *
-     * @internal
-     */
-    protected $dropTable = 'DROP TABLE IF EXISTS %s'; // requires MySQL 3.22+
-
-    /**
-     * SQL command template for renaming a table.
-     *
-     * @internal
-     */
-    protected $renameTable = 'RENAME TABLE %s TO %s';
-
-    /**
-     * SQL command template for dropping an index.
-     *
-     * @internal
-     */
-    protected $dropIndex = 'DROP INDEX %s ON %s';
-
-    /**
-     * SQL sub-string to use (in the alter table command) when adding a column.
-     *
-     * @internal
-     */
-    protected $addCol = ' ADD COLUMN';
-
-    /**
-     * SQL sub-string to use (in the alter table command) when altering a column.
-     *
-     * @internal
-     */
-    protected $alterCol = ' MODIFY COLUMN';
-
-    /**
-     * SQL sub-string to use (in the alter table command) when dropping a column.
-     *
-     * @internal
-     */
-    protected $dropCol = ' DROP COLUMN';
-
-    /**
-     * SQL command template for renaming a column.
-     *
-     * @internal
-     */
-    protected $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';
-
-    /**
-     * @ignore
-     */
-    protected $sysTimeStamp = 'TIMESTAMP';
-
-    /**
-     * @ignore
-     */
-    protected $sysDate = 'DATE';
-
-    /**
-     * @ignore
-     */
-    protected $nameRegex = '\w';
-
-    /**
-     * @ignore
-     */
-    protected $nameRegexBrackets = 'a-zA-Z0-9_\(\)';
-
-    /**
      * @ignore
      */
     protected $autoIncrement = false;
-
-    /**
-     * @ignore
-     */
-    protected $invalidResizeTypes4 = ['CLOB', 'BLOB', 'TEXT', 'DATE', 'TIME']; // for changetablesql
-
-    /**
-     * @ignore
-     */
-    protected $nameQuote = '`'; // string to use to quote identifiers and names
 
     /**
      * Constructor.
@@ -354,7 +361,7 @@ abstract class DataDictionary
             return $name;
         }
 
-        $quote = $this->nameQuote;
+        $quote = self::nameQuote;
 
         // if name is of the form `name`, quote it
         if (preg_match('/^`(.+)`$/', $name, $matches)) {
@@ -362,7 +369,7 @@ abstract class DataDictionary
         }
 
         // if name contains special characters, quote it
-        $regex = ($allowBrackets) ? $this->nameRegexBrackets : $this->nameRegex;
+        $regex = ($allowBrackets) ? self::nameRegexBrackets : self::nameRegex;
 
         if (!preg_match('/^['.$regex.']+$/', $name)) {
             return $quote.$name.$quote;
@@ -462,7 +469,7 @@ abstract class DataDictionary
      */
     public function DropIndexSQL($idxname, $tabname = null)
     {
-        return [sprintf($this->dropIndex, $this->NameQuote($idxname), $this->TableName($tabname))];
+        return [sprintf(self::dropIndex, $this->NameQuote($idxname), $this->TableName($tabname))];
     }
 
     /**
@@ -477,7 +484,7 @@ abstract class DataDictionary
      */
     public function AddColumnSQL($tabname, $defn)
     {
-        $alter = 'ALTER TABLE '.$this->TableName($tabname).$this->addCol.' ';
+        $alter = self::alterTable.$this->TableName($tabname).self::addCol.' ';
         $sql = [];
         list($lines, $pkey) = $this->_GenFields($defn);
         foreach ($lines as $v) {
@@ -499,7 +506,7 @@ abstract class DataDictionary
      */
     public function AlterColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
     {
-        $alter = 'ALTER TABLE '.$this->TableName($tabname).$this->alterCol.' ';
+        $alter = self::alterTable.$this->TableName($tabname).self::alterCol.' ';
         $sql = [];
         list($lines, $pkey) = $this->_GenFields($defn);
         foreach ($lines as $v) {
@@ -539,7 +546,7 @@ abstract class DataDictionary
             $column_def = '';  //BAD causes command to fail TODO find something
         }
 
-        return [sprintf($this->renameColumn,
+        return [sprintf(self::renameColumn,
             $this->TableName($tabname),
             $this->NameQuote($oldcolumn),
             $this->NameQuote($newcolumn),
@@ -547,23 +554,21 @@ abstract class DataDictionary
     }
 
     /**
-     * Generate the SQL to drop one column.
+     * Generate the SQL to drop one or more columns.
      *
-     * @param string       $tabname      table-name
-     * @param mixed        $defn         definition for the changed column, array of strings or comma-separated series in one string
-     * @param string       $tableflds    optional complete columns-definition of the revised table
-     * @param array/string $tableoptions optional options for the new table see CreateTableSQL, default ''
+     * @param string $tabname table-name
+     * @param mixed  $colname column-name string or comma-separated series of them or array of them
      * @return array Strings suitable for use with the ExecuteSQLArray method
      */
-    public function DropColumnSQL($tabname, $defn, $tableflds = '', $tableoptions = '')
+    public function DropColumnSQL($tabname, $colname)
     {
-        if (!is_array($flds)) {
-            $flds = explode(',', $flds);
+        if (!is_array($colname)) {
+            $colname = explode(',', $colname);
         }
 
-        $alter = 'ALTER TABLE '.$this->TableName($tabname).$this->dropCol.' ';
+        $alter = self::alterTable.$this->TableName($tabname).self::dropCol.' ';
         $sql = [];
-        foreach ($flds as $v) {
+        foreach ($colname as $v) {
             $sql[] = $alter.$this->NameQuote(trim($v));
         }
 
@@ -578,7 +583,7 @@ abstract class DataDictionary
      */
     public function DropTableSQL($tabname)
     {
-        return [sprintf($this->dropTable, $this->TableName($tabname))];
+        return [sprintf(self::dropTable, $this->TableName($tabname))];
     }
 
     /**
@@ -590,7 +595,7 @@ abstract class DataDictionary
      */
     public function RenameTableSQL($tabname, $newname)
     {
-        return [sprintf($this->renameTable, $this->TableName($tabname), $this->TableName($newname))];
+        return [sprintf(self::renameTable, $this->TableName($tabname), $this->TableName($newname))];
     }
 
     /**
@@ -641,20 +646,20 @@ abstract class DataDictionary
 
         // already exists, alter table instead
         list($lines, $pkey) = $this->_GenFields($defn);
-        $alter = 'ALTER TABLE '.$this->TableName($tablename);
+        $alter = self::alterTable.$this->TableName($tablename);
         $sql = [];
 
         foreach ($lines as $id => $v) {
             if (isset($cols[$id]) && is_object($cols[$id])) {
                 $parts = Lens_ParseArgs($v.' '); //trailing pad needed
                 //  We are trying to change the size of the field, if not allowed, simply ignore the request.
-                if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), $this->invalidResizeTypes4)) {
+                if ($parts && in_array(strtoupper(substr($parts[0][1], 0, 4)), self::invalidResizeTypes4)) {
                     continue;
                 }
 
-                $sql[] = $alter.$this->alterCol.' '.$v;
+                $sql[] = $alter.self::alterCol.' '.$v;
             } else {
-                $sql[] = $alter.$this->addCol.' '.$v;
+                $sql[] = $alter.self::addCol.' '.$v;
             }
         }
 
@@ -959,9 +964,9 @@ abstract class DataDictionary
             //--------------------
             // CONSTRUCT FIELD SQL
             if ($fdefts) {
-                $fdefault = $this->sysTimeStamp;
+                $fdefault = self::sysTimeStamp;
             } elseif ($fdefdate) {
-                $fdefault = $this->sysDate;
+                $fdefault = self::sysDate;
             } elseif ($fdefault !== false && !$fnoquote) {
                 if ($ty == 'C' || $ty[0] == 'X' ||
                     ($fdefault[0] != "'" && !is_numeric($fdefault))) {
@@ -981,7 +986,7 @@ abstract class DataDictionary
             if ($flast !== false) {
                 $s .= ' '.strtoupper($v);
                 if (strcasecmp($v, 'AFTER') == 0) {
-                    $s .= ' '.$this->nameQuote($fld[$flast + 1]); //TODO
+                    $s .= ' '.$this->NameQuote($fld[$flast + 1]); //TODO
                 }
             }
 
@@ -1081,7 +1086,7 @@ abstract class DataDictionary
             if (isset($idxoptions['DROP'])) {
                 return [];
             }
-            $sql[] = sprintf($this->dropIndex, $idxname);
+            $sql[] = sprintf(self::dropIndex, $idxname, $tabname);
         }
 
         $unique = isset($idxoptions['UNIQUE']) ? ' UNIQUE' : '';
@@ -1138,7 +1143,7 @@ abstract class DataDictionary
         $sql = [];
 
         if (isset($tableoptions['REPLACE']) || isset($tableoptions['DROP'])) {
-            $sql[] = sprintf($this->dropTable, $tabname);
+            $sql[] = sprintf(self::dropTable, $tabname);
             if ($this->autoIncrement) {
                 $sInc = $this->_DropAutoIncrement($tabname);
                 if ($sInc) {
