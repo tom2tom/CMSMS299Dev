@@ -4,7 +4,7 @@ namespace cms_installer;
 
 use cms_installer\filehandler;
 use Exception;
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 class install_filehandler extends filehandler
 {

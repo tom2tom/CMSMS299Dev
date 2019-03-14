@@ -4,10 +4,10 @@ namespace cms_installer\wizard;
 
 use cms_installer\utils;
 use Exception;
-use function cms_installer\CMSMS\lang;
-use function cms_installer\CMSMS\smarty;
-use function cms_installer\CMSMS\startswith;
-use function cms_installer\CMSMS\translator;
+use function cms_installer\lang;
+use function cms_installer\smarty;
+use function cms_installer\startswith;
+use function cms_installer\translator;
 use function cms_installer\get_app;
 
 class wizard_step1 extends wizard_step

@@ -10,10 +10,10 @@ use FilesystemIterator;
 use PharData;
 use PHPArchive\Tar;
 use RecursiveIteratorIterator;
-use function cms_installer\CMSMS\endswith;
-use function cms_installer\CMSMS\joinpath;
-use function cms_installer\CMSMS\lang;
-use function cms_installer\CMSMS\smarty;
+use function cms_installer\endswith;
+use function cms_installer\joinpath;
+use function cms_installer\lang;
+use function cms_installer\smarty;
 use function cms_installer\get_app;
 
 class wizard_step7 extends wizard_step
@@ -27,7 +27,7 @@ class wizard_step7 extends wizard_step
      * Return sorted array of 'idenfifiers' of installed translation files, each like 'en_US'
      * @return array
      * @throws Exception if there is no such file
-     */ 
+     */
     private function detect_languages() : array
     {
         $this->message(lang('install_detectlanguages'));
@@ -290,7 +290,6 @@ class wizard_step7 extends wizard_step
         flush();
 
         try {
-            include_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'msg_functions.php';
             $tmp = $this->get_wizard()->get_data('version_info'); // extra validation
             if( $action == 'upgrade' && $tmp ) {
                 $this->preprocess_files();

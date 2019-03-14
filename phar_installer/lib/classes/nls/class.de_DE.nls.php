@@ -1,8 +1,8 @@
 <?php
 
-namespace cms_installer\CMSMS\nls;
+namespace cms_installer\nls;
 
-use cms_installer\CMSMS\nls;
+use cms_installer\nls;
 
 final class de_DE_nls extends nls
 {

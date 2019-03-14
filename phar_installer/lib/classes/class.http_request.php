@@ -1,6 +1,6 @@
 <?php
 
-namespace cms_installer\CMSMS;
+namespace cms_installer;
 
 use function cms_installer\get_app;
 

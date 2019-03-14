@@ -6,10 +6,10 @@ use cms_installer\installer_base;
 use cms_installer\wizard\wizard;
 use Exception;
 use RuntimeException;
-use function cms_installer\CMSMS\endswith;
-use function cms_installer\CMSMS\smarty;
-use function cms_installer\CMSMS\startswith;
-use function cms_installer\CMSMS\translator;
+use function cms_installer\endswith;
+use function cms_installer\smarty;
+use function cms_installer\startswith;
+use function cms_installer\translator;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
 

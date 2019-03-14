@@ -4,7 +4,7 @@ namespace cms_installer;
 
 use Exception;
 use PharFileInfo;
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 abstract class filehandler
 {

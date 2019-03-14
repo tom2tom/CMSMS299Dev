@@ -5,8 +5,8 @@ namespace cms_installer\wizard;
 use cms_installer\utils;
 use Exception;
 use mysqli;
-use function cms_installer\CMSMS\lang;
-use function cms_installer\CMSMS\smarty;
+use function cms_installer\lang;
+use function cms_installer\smarty;
 use function cms_installer\get_app;
 
 class wizard_step4 extends wizard_step

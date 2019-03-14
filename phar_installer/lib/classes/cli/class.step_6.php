@@ -4,7 +4,7 @@ namespace cms_installer\cli;
 
 use cms_installer\cli\cli_step;
 use console; //TODO
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 class step_6 extends cli_step
 {

@@ -5,8 +5,8 @@ namespace cms_installer\cli;
 use cms_installer\cli\cli_step;
 use console;
 use Exception;
-use function cms_installer\CMSMS\lang;
-use function cms_installer\CMSMS\translator;
+use function cms_installer\lang;
+use function cms_installer\translator;
 use function cms_installer\get_app;
 
 class step_2 extends cli_step

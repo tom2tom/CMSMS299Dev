@@ -2,9 +2,9 @@
 
 namespace cms_installer;
 
-use cms_installer\CMSMS\lang;
+use cms_installer\lang;
 use Exception;
-use function cms_installer\CMSMS\startswith;
+use function cms_installer\startswith;
 
 class manifest_reader
 {

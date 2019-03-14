@@ -3,9 +3,9 @@
 use cms_siteprefs;
 use CMSMS\Group;
 use CMSMS\UserPluginOperations;
-use function cms_installer\CMSMS\endswith;
-use function cms_installer\CMSMS\joinpath;
-use function cms_installer\CMSMS\startswith;
+use function cms_installer\endswith;
+use function cms_installer\joinpath;
+use function cms_installer\startswith;
 
 // 1. Convert UDT's to file-lugins, widen users-table columns
 $udt_list = $db->GetArray('SELECT userplugin_name,description,code FROM '.CMS_DB_PREFIX.'userplugins');

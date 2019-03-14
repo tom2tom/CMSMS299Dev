@@ -6,7 +6,7 @@ use cms_installer\cli\cli_step;
 use cms_installer\utils;
 use console; //TODO
 use Exception;
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 class step_5 extends cli_step
 {

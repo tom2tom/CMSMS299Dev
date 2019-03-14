@@ -2,10 +2,10 @@
 
 namespace cms_installer\tests;
 
-use cms_installer\CMSMS\http_request;
+use cms_installer\http_request;
 use cms_installer\utils;
 use Exception;
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 /*
 This method is useless, extension_loaded() is caseless

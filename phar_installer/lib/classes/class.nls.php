@@ -1,8 +1,8 @@
 <?php
 
-namespace cms_installer\CMSMS;
+namespace cms_installer;
 
-use function cms_installer\CMSMS\endswith;
+use function cms_installer\endswith;
 
 abstract class nls
 {

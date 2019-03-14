@@ -32,7 +32,7 @@ function GetDb(array $config)
       $db = null;
     }
   } else {
-    $db = new CMSMS\Database\mysqli\Connection($config);
+    $db = new CMSMS\Database\Connection($config);
     if ($db->errno != 0) {
       $db = null;
     }
@@ -43,8 +43,8 @@ function GetDb(array $config)
   throw new Exception('Failed to connect to database');
 }
 /**
- * @param CMSMS\Database\mysqli\Connection object
- * @return DataDictionary-object
+ * @param Connection object
+ * @return DataDictionary object
  */
 function GetDataDictionary($db)
 {

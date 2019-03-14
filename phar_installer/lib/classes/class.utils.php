@@ -3,9 +3,9 @@
 namespace cms_installer;
 
 use Exception;
-use function cms_installer\CMSMS\endswith;
-use function cms_installer\CMSMS\lang;
-use function cms_installer\CMSMS\startswith;
+use function cms_installer\endswith;
+use function cms_installer\lang;
+use function cms_installer\startswith;
 use function cms_installer\get_app;
 
 final class utils

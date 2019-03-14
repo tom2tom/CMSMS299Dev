@@ -1,10 +1,10 @@
 <?php
 
-namespace cms_installer\CMSMS;
+namespace cms_installer;
 
-use cms_installer\CMSMS\cms_smarty;
-use cms_installer\CMSMS\langtools;
-use cms_installer\CMSMS\nlstools;
+use cms_installer\cms_smarty;
+use cms_installer\langtools;
+use cms_installer\nlstools;
 
 /**
  *

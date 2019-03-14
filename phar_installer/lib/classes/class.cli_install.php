@@ -4,7 +4,7 @@ namespace cms_installer;
 
 use Exception;
 use user_aborted; //TODO
-use function cms_installer\CMSMS\translator;
+use function cms_installer\translator;
 
 require_once __DIR__.DIRECTORY_SEPARATOR.'class.installer_base.php';
 

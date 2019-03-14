@@ -2,7 +2,7 @@
 
 namespace cms_installer\tests;
 
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 class matchany_test extends test_base
 {

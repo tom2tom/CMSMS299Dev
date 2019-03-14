@@ -1,8 +1,8 @@
 <?php
 
-namespace cms_installer\CMSMS;
+namespace cms_installer;
 
-use cms_installer\CMSMS\langtools;
+use cms_installer\langtools;
 use Exception;
 use Smarty;
 use function cms_installer\get_app;

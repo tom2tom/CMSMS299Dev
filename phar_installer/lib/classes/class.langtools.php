@@ -1,12 +1,12 @@
 <?php
 
-namespace cms_installer\CMSMS;
+namespace cms_installer;
 
 use cms_installer\installer_base;
 use cms_installer\request;
 use cms_installer\session;
 use Exception;
-use function cms_installer\CMSMS\nls;
+use function cms_installer\nls;
 
 class langtools_Exception extends Exception {}
 
@@ -31,7 +31,7 @@ final class langtools
 
   /**
    *
-   * @param \cms_installer\CMSMS\langtools $obj
+   * @param cms_installer\langtools $obj
    */
   public static function set_translator(langtools &$obj)
   {

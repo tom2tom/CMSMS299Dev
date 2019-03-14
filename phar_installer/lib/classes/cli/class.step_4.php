@@ -5,7 +5,7 @@ namespace cms_installer\cli;
 use cms_installer\cli\cli_step;
 use Exception;
 use mysqli;
-use function cms_installer\CMSMS\lang;
+use function cms_installer\lang;
 
 class step_4 extends cli_step
 {

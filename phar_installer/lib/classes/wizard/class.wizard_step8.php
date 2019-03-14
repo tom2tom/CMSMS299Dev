@@ -10,8 +10,8 @@ use CMSMS\ThemeBase;
 use Exception;
 use const CMS_ADMIN_PATH;
 use const CMS_DB_PREFIX;
-use function cms_installer\CMSMS\lang;
-use function cms_installer\CMSMS\smarty;
+use function cms_installer\lang;
+use function cms_installer\smarty;
 use function cms_installer\get_app;
 use function cmsms;
 use function GetDb;
@@ -32,7 +32,7 @@ class wizard_step8 extends wizard_step
      */
     private function db_connect(array $destconfig)
     {
-        require_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'CMSMS'.DIRECTORY_SEPARATOR.'dbaccessor.functions.php';
+        require_once dirname(__DIR__,2).DIRECTORY_SEPARATOR.'dbaccessor.functions.php';
         try {
             $db = GetDb($destconfig);
         }
@@ -89,8 +89,6 @@ class wizard_step8 extends wizard_step
         $db = $this->db_connect($destconfig);
 
         $dir = get_app()->get_assetsdir().'/install';
-
-        include_once dirname(__DIR__,2).'/msg_functions.php';
 /*
         $fn = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
         require_once $fn.'base.php';
@@ -239,8 +237,6 @@ class wizard_step8 extends wizard_step
 
         // setup database connection
         $db = $this->db_connect($destconfig);
-
-        include_once dirname(__DIR__,2).'/msg_functions.php';
 
         $smarty = smarty(); //in scope for inclusions
 
