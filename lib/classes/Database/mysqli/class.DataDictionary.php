@@ -265,9 +265,9 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
 
         if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
 //            if (1) { //this->alterTableAddIndex was always true
-                $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
+                $sql[] = parent::alterTable."$tabname DROP INDEX $idxname";
 //            } else {
-//                $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+//                $sql[] = sprintf(parent::dropIndex, $idxname, $tabname);
 //            }
 
             if (isset($idxoptions['DROP'])) {
@@ -292,7 +292,7 @@ class DataDictionary extends \CMSMS\Database\DataDictionary
         }
 
 //        if (1) { //$this->alterTableAddIndex was always true
-            $s = "ALTER TABLE $tabname ADD{$unique} INDEX $idxname";
+            $s = parent::alterTable."$tabname ADD{$unique} INDEX $idxname";
 //        } else {
 //            $s = "CREATE{$unique} INDEX $idxname ON $tabname";
 //        }
