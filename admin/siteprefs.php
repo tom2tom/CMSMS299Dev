@@ -25,6 +25,7 @@ use CMSMS\internal\module_meta;
 use CMSMS\Mailer;
 use CMSMS\ModuleOperations;
 use CMSMS\SyntaxEditor;
+use CMSMS\ThemeBase;
 
 $CMS_ADMIN_PAGE = 1;
 $CMS_TOP_MENU = 'admin';
@@ -313,8 +314,11 @@ if (isset($_POST['submit'])) {
                 AdminUtils::clear_cache();
 
                 $val = trim($_POST['editortype']);
-				$xval = 'TODO'.'::'.$val; //TODO as module[::editor]
-                cms_siteprefs::set('syntax_editor', $xval);
+				if ($val) {
+					cms_siteprefs::set('syntax_editor', $val); //as module::editor or module::module
+				} else {
+					cms_siteprefs::set('syntax_editor', '');
+				}
                 $val = trim($_POST['editortheme']);
                 if ($val) {
                     $val = strtolower(strtr($val, ' ', '_'));
@@ -376,8 +380,9 @@ $contentimage_path = cms_siteprefs::get('contentimage_path', '');
 $defaultdateformat = cms_siteprefs::get('defaultdateformat', '');
 $disallowed_contenttypes = cms_siteprefs::get('disallowed_contenttypes', '');
 $editortheme = cms_siteprefs::get('editor_theme', '');
-$val = cms_siteprefs::get('syntax_editor', '');
-list($modname, $editortype) = explode('::', $val); //TODO as module[::editor]
+$vars = explode ('::', cms_siteprefs::get('syntax_editor'));
+$editormodule = $vars[0] ?? ''; //TODO preserve this across request
+$editortype = $vars[1] ?? $editormodule;
 $enablesitedownmessage = cms_siteprefs::get('enablesitedownmessage', 0);
 $frontendlang = cms_siteprefs::get('frontendlang', '');
 $frontendwysiwyg = cms_siteprefs::get('frontendwysiwyg', '');
@@ -642,7 +647,7 @@ for ($i = 0; $i < $n; $i++) {
 }
 $smarty->assign('wysiwyg', $tmp2);
 
-$tmp = CmsAdminThemeBase::GetAvailableThemes();
+$tmp = ThemeBase::GetAvailableThemes();
 if ($tmp) {
     $smarty->assign('themes', $tmp)
       ->assign('logintheme', cms_siteprefs::get('logintheme', reset($tmp)))
@@ -657,15 +662,15 @@ $smarty->assign('modtheme', check_permission($userid, 'Modify Site Preferences')
 //CHECKME cms_utils::get_syntax_highlighter_module()
 $editors = [];
 $tmp = module_meta::get_instance()->module_list_by_capability(CmsCoreCapabilities::SYNTAX_MODULE); //pre 2.0 identifier?
-if( $tmp) {
+if ($tmp) {
     for ($i = 0, $n = count($tmp); $i < $n; ++$i) {
         $ob = cms_utils::get_module($tmp[$i]);
         if ($ob instanceof SyntaxEditor) {
             $all = $ob->ListEditors(true);
             foreach ($all as $label=>$val) {
                 $one = new stdClass();
-                $one->value = $val;
                 $one->label = $label;
+                $one->value = $val; //module::editor
                 list($modname, $edname) = explode('::', $val);
                 list($realm, $key) = $ob->GetMainHelpKey($edname);
                 if (!$realm) $realm = $modname;
@@ -673,24 +678,24 @@ if( $tmp) {
                 list($realm, $key) = $ob->GetThemeHelpKey($edname);
                 if (!$realm) $realm = $modname;
                 $one->themekey = $realm.'__'.$key;
-                if ($one->value == $editortype) $one->checked = true;
+                if ($modname == $editormodule && $edname == $editortype) $one->checked = true;
                 $editors[] = $one;
             }
         } elseif ($tmp[$i] != 'MicroTiny') { //that's only for html :(
             $one = new stdClass();
-            $one->value = $tmp[$i].'::'.$tmp[$i];
             $one->label = $ob->GetFriendlyName();
+            $one->value = $tmp[$i].'::'.$tmp[$i];
             $one->mainkey = '';
             $one->themekey = '';
-            if ($tmp[$i] == $editortype || $one->value == $editortype) $one->checked = true;
+            if ($tmp[$i] == $editortype) $one->checked = true;
             $editors[] = $one;
         }
     }
     usort($editors, function ($a,$b) { return strcmp($a->label, $b->label); });
 
     $one = new stdClass();
-    $one->value = '';
     $one->label = lang('none');
+    $one->value = '';
     $one->mainkey = '';
     $one->themekey = '';
     if (!$editortype) $one->checked = true;
