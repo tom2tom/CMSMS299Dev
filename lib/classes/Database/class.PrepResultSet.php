@@ -1,8 +1,7 @@
 <?php
 /*
-Class PrepResultSet: represents a prepared SQL-command result
-Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+Class PrepResultSet: methods for interacting with MySQL prepared selection-command result
+Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -18,20 +17,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace CMSMS\Database\mysqli;
+namespace CMSMS\Database;
 
-class PrepResultSet extends \CMSMS\Database\ResultSet
+use CMSMS\Database\ResultSet;
+use mysqli_stmt;
+
+/**
+ * A class for interacting with the results from a prepared-selection from the database.
+ *
+ * @since 2.3
+ */
+class PrepResultSet extends ResultSet
 {
-    private $_stmt; // mysqli_stmt object
-    private $_row;
-    private $_nrows;
-    private $_pos;
+    /**
+     * @ignore
+     */
+    private $_stmt; // mysqli_stmt object reference
 
     /**
-     * @param $statmt mysqli_stmt object
+     * @param object $statmt mysqli_stmt
+     * @param bool   $buffer optional flag whether to buffer results. Default true
      */
-    public function __construct(\mysqli_stmt &$statmt, $buffer = true)
+    public function __construct(mysqli_stmt &$statmt, $buffer = true)
     {
+        $this->_stmt = $statmt;
         if ($buffer) {
             if ($statmt->store_result()) { //grab the complete result-set
                 $this->_nrows = $statmt->num_rows;
@@ -68,59 +77,12 @@ class PrepResultSet extends \CMSMS\Database\ResultSet
                 }
             }
         }
-        $this->_stmt = $statmt;
-        $this->_row = [];
-        $this->_pos = -1;
     }
 
     public function __destruct()
     {
 		$this->_stmt->free_result();
 	}
-
-    public function fields($key = null)
-    {
-        if ($this->_row) {
-            if (empty($key)) {
-                //dereference the values
-                $row = [];
-                foreach ($this->_row as $key=>$val) {
-                    $row[$key] = $val;
-                }
-                return $row;
-            }
-            $key = (string) $key;
-            if (isset($this->_row[$key])) {
-                return $this->_row[$key];
-            }
-        }
-
-        return null;
-    }
-
-    public function fieldCount()
-    {
-        return $this->_stmt->field_count;
-    }
-
-/*  public function currentRow()
-    {
-        if (!$this->EOF()) {
-            return $this->_pos;
-        }
-
-        return false;
-    }
-*/
-    public function recordCount()
-    {
-        return $this->_nrows;
-    }
-
-    public function EOF()
-    {
-        return $this->_nrows == 0 || $this->_pos < 0 || $this->_pos >= $this->_nrows;
-    }
 
     protected function move($idx)
     {
@@ -137,20 +99,6 @@ class PrepResultSet extends \CMSMS\Database\ResultSet
         }
         $this->_pos = -1;
         $this->_row = [];
-
-        return false;
-    }
-
-    public function moveFirst()
-    {
-        return $this->move(0);
-    }
-
-    public function moveNext()
-    {
-        if ($this->_pos < $this->_nrows) {
-            return $this->move($this->_pos + 1);
-        }
 
         return false;
     }
@@ -244,10 +192,29 @@ class PrepResultSet extends \CMSMS\Database\ResultSet
         return null;
     }
 
-    protected function fetch_row()
+    public function fieldCount()
     {
-        if (!$this->EOF()) {
-            $this->_stmt->fetch();
-        }
+        return $this->_stmt->field_count;
     }
-}
+
+    public function fields($key = null)
+    {
+        if ($this->_row) {
+            if (empty($key)) {
+                //dereference the values
+                $row = [];
+                foreach ($this->_row as $key=>$val) {
+                    $row[$key] = $val;
+                }
+                return $row;
+            }
+            $key = (string) $key;
+            if (isset($this->_row[$key])) {
+                return $this->_row[$key];
+            }
+        }
+
+        return null;
+    }
+} //class
+

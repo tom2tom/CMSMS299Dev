@@ -20,6 +20,7 @@ namespace CMSMS;
 
 use const CMS_SCRIPTS_PATH;
 use const TMP_CACHE_LOCATION;
+use function cms_get_script;
 use function cms_path_to_url;
 use function file_put_contents;
 
@@ -87,13 +88,14 @@ class ScriptManager
      *
      * @param string $filename Filesystem path of script file
      * @param int    $priority Optional priority 1..3 for the file. Default 0 (use current default)
+     * @return bool indicating success
      */
     public function queue_file( string $filename, int $priority = 0 )
     {
-        if( !is_file($filename) ) return;
+        if( !is_file($filename) ) return false;
 
         $sig = md5( $filename );
-        if( isset( $this->_items[$sig]) ) return;
+        if( isset( $this->_items[$sig]) ) return false;
 
         if( $priority < 1 ) {
             $priority = $this->_item_priority;
@@ -109,13 +111,14 @@ class ScriptManager
             'priority' => $priority,
             'index' => count( $this->_items )
         ];
+        return true;
     }
 
     /**
      * Find and record a script-file to be merged if necessary
      *
-     * @param string $filename absolute filepath or (base)name of the wanted script file,
-     *  optionally including [.-]min before the .js extension
+     * @param string $filename absolute or relative filepath or (base)name of the
+	 *  wanted script file, optionally including [.-]min before the .js extension
      *  If the name includes a version, that will be taken into account.
      *  Otherwise, any found version will be used. Min-format preferred over non-min.
      * @param int    $priority Optional priority 1..3 for the script. Default 0 (use current default)
@@ -123,15 +126,9 @@ class ScriptManager
      */
     public function queue_matchedfile( string $filename, int $priority = 0 ) : bool
     {
-        if (preg_match('~^ *(?:\/|\\\\|\w:\\\\|\w:\/)~', $filename)) {
-            // $filename is absolute
-            $cache_filename = $filename;
-        } else {
-            $cache_filename = cms_get_script($filename, false);
-        }
+        $cache_filename = cms_get_script($filename, false);
         if( $cache_filename ) {
-            $this->queue_file( $cache_filename, $priority );
-            return true;
+            return $this->queue_file( $cache_filename, $priority );
         }
         return false;
     }

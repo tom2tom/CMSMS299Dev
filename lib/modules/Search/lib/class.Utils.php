@@ -19,9 +19,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace Search;
 
+use CMSMS\ContentCache;
 use CMSMS\ContentOperations;
 use CMSMS\Events;
-use CMSMS\internal\content_cache;
 use CMSMS\ModuleOperations;
 use PorterStemmer;
 use Search;
@@ -201,6 +201,7 @@ class Utils
         $n = count($full_list);
         $nperloop = min(200,$n);
         $contentops = ContentOperations::get_instance();
+		$cache = ContentCache::get_instance();
         $offset = 0;
 
         while( $offset < $n ) {
@@ -220,7 +221,7 @@ class Utils
                 $content_obj = $contentops->LoadContentFromId($one);
                 $parms = ['content'=>$content_obj];
 //                self::DoEvent($module,'Core','ContentEditPost',$parms); //WHAAT ? not changed
-                content_cache::unload($one);
+                $cache->unload($one);
             }
         }
 

@@ -44,17 +44,20 @@ final class cms_cache_handler
    * @ignore
    * Populated for the global cache
    */
-  private static $_instance = null;
+//  private static $_instance = null;
 
   /**
    * @ignore
    */
-  private $_driver = null;
+  private static $_driver = null;
 
   /* *
    * @ignore
    */
-//  private function __construct() {}
+  public function __construct()
+  {
+    $this->connect();
+  }
 
   /* *
    * @ignore
@@ -62,19 +65,20 @@ final class cms_cache_handler
 //  private function __clone() {}
 
   /**
-   * Return the 'global' instance of this class.
-   *
+   * Get an instance of this class.
    * @throws CmsException
    * @return static cms_cache_handler object | not at all
    */
   public static function get_instance() : self
   {
-    if( !is_object(self::$_instance) ) {
+/*    if( !is_object(self::$_instance) ) {
         $ob = new self();
         $ob->connect();
         self::$_instance = $ob; //no we're connected (unless excepted already)
     }
     return self::$_instance;
+*/
+	  return new self();
   }
 
   /**
@@ -89,8 +93,8 @@ final class cms_cache_handler
   {
     global $CMS_INSTALL_PAGE;
 
-    if ( $this->_driver instanceof CMSMS\CacheDriver ) {
-      return $this->_driver; //just one connection per instance
+    if ( self::$_driver instanceof CMSMS\CacheDriver ) {
+      return self::$_driver; //just one connection per request
     }
 
     // ordered by preference during an auto-selection
@@ -155,9 +159,9 @@ final class cms_cache_handler
         $classname = $drivers[$type];
         if( isset($settings[$type]) ) $parms += $settings[$type];
         try {
-          $this->_driver = new $classname($parms);
+          self::$_driver = new $classname($parms);
           debug_buffer('Cache initiated, using driver: ' . $type);
-          return $this->_driver;
+          return self::$_driver;
         } catch (Exception $e) {}
         break;
       case 'auto':
@@ -166,9 +170,9 @@ final class cms_cache_handler
         $tmp = $parms;
         if( isset($settings[$type]) ) $tmp += $settings[$type];
         try {
-          $this->_driver = new $classname($tmp);
+          self::$_driver = new $classname($tmp);
           debug_buffer('Cache initiated, using driver: ' . $type);
-          return $this->_driver;
+          return self::$_driver;
         }
         catch (Exception $e) {}
         }
@@ -176,7 +180,7 @@ final class cms_cache_handler
       default:
         break;
     }
-    $this->_driver = null;
+    self::$_driver = null;
     throw new CmsException('Cache ('.$driver_name.') setup failed');
   }
 
@@ -189,7 +193,7 @@ final class cms_cache_handler
    */
   public function set_driver(CacheDriver $driver)
   {
-    $this->_driver = $driver;
+    self::$_driver = $driver;
   }
 
   /**
@@ -200,7 +204,7 @@ final class cms_cache_handler
    */
   public function get_driver()
   {
-    return $this->_driver;
+    return self::$_driver;
   }
 
   /**
@@ -216,9 +220,9 @@ final class cms_cache_handler
   public function clear(string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( $this->_driver instanceof CMSMS\CacheDriver) {
-//    if( is_object($this->_driver) ) {
-      return $this->_driver->clear($group);
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->clear($group);
     }
     return FALSE;
   }
@@ -234,9 +238,9 @@ final class cms_cache_handler
   public function get(string $key, string $group = '')
   {
 //    if( $this->can_cache() ) {
-    if( $this->_driver instanceof CMSMS\CacheDriver) {
-//    if( is_object($this->_driver) ) {
-      return $this->_driver->get($key, $group);
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->get($key, $group);
     }
     return NULL;
   }
@@ -252,9 +256,9 @@ final class cms_cache_handler
   public function exists(string $key, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( $this->_driver instanceof CMSMS\CacheDriver) {
-//    if( is_object($this->_driver) ) {
-      return $this->_driver->exists($key, $group);
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->exists($key, $group);
     }
     return FALSE;
   }
@@ -270,9 +274,9 @@ final class cms_cache_handler
   public function erase(string $key, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( $this->_driver instanceof CMSMS\CacheDriver) {
-//    if( is_object($this->_driver) ) {
-      return $this->_driver->erase($key, $group);
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->erase($key, $group);
     }
     return FALSE;
   }
@@ -292,10 +296,10 @@ final class cms_cache_handler
   public function set(string $key, $value, string $group = '') : bool
   {
 //    if( $this->can_cache() ) {
-    if( $this->_driver instanceof CMSMS\CacheDriver) {
-//    if( is_object($this->_driver) ) {
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
       if ($value === null ) { $value = 0; }
-      return $this->_driver->set($key, $value, $group);
+      return self::$_driver->set($key, $value, $group);
     }
     return FALSE;
   }
@@ -309,9 +313,9 @@ final class cms_cache_handler
    */
   public function set_group(string $group) : bool
   {
-    if( $this->_driver instanceof CMSMS\CacheDriver) {
-//    if( is_object($this->_driver) ) {
-      return $this->_driver->set_group($group);
+    if( self::$_driver instanceof CMSMS\CacheDriver) {
+//    if( is_object(self::$_driver) ) {
+      return self::$_driver->set_group($group);
     }
     return FALSE;
   }
@@ -326,10 +330,10 @@ final class cms_cache_handler
   {
 / *    global $CMS_INSTALL_PAGE;
 
-    if( !is_object($this->_driver) ) return FALSE;
+    if( !is_object(self::$_driver) ) return FALSE;
     return empty($CMS_INSTALL_PAGE);
 * /
-    return $this->_driver instanceof CMSMS\CacheDriver;
+    return self::$_driver instanceof CMSMS\CacheDriver;
   }
 */
 }

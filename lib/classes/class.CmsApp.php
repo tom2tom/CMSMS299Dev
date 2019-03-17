@@ -24,14 +24,14 @@ use CMSMS\BookmarkOperations;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
 use CMSMS\contenttypes\ErrorPage;
-use CMSMS\Database\Connection as Connection2;
-use CMSMS\Database\mysqli\Connection;
+use CMSMS\Database\Connection;
 use CMSMS\UserPluginOperations;
 use CMSMS\GroupOperations;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
 use CMSMS\ScriptManager;
+use CMSMS\StylesManager;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 
@@ -128,7 +128,12 @@ final class CmsApp
     /**
      * @ignore
      */
-    private $scriptcombiner = null;
+    private $scriptsmerger = null;
+
+    /**
+     * @ignore
+     */
+    private $stylesmerger = null;
 
     /**
      * @ignore
@@ -342,18 +347,17 @@ final class CmsApp
      *
      * @internal
      * @ignore
-     * @param Connection2 $conn
+     * @param Connection $conn
      */
-    public function _setDb(Connection2 $conn)
+    public function _setDb(Connection $conn)
     {
         $this->db = $conn;
     }
 
     /**
-    * Get a handle to the database. You can then use it
-    * to perform all kinds of database operations.
+    * Get a handle to the database.
     *
-    * @return mixed \CMSMS\Database\Connection object or null
+    * @return mixed Connection object or null
     */
     public function GetDb()
     {
@@ -387,7 +391,6 @@ final class CmsApp
     * Get a handle to the global CMS config.
     * That object contains global paths and settings that do not belong in the database.
     * @see cms_config
-    * @deprecated get the obbject directly
     *
     * @return cms_config The configuration object.
     */
@@ -400,7 +403,7 @@ final class CmsApp
     * Get a handle to the module operations object.
     * If it does not yet exist, this method will instantiate it.
     * @see ModuleOperations
-    * @deprecated get the obbject directly
+    * @deprecated since 2.3 get the object directly
     *
     * @return ModuleOperations handle to the ModuleOperations object
     */
@@ -413,7 +416,7 @@ final class CmsApp
      * Get a handle to the user-plugin operations object.
      * @since 2.3
      * @see UserPluginOperations
-     * @deprecated since 2.3 get the obbject directly
+     * @deprecated since 2.3 get the object directly
      *
      * @return UserPluginOperations
      */
@@ -425,7 +428,7 @@ final class CmsApp
     /**
     * Get a handle to the user operations object.
     * @see UserOperations
-    * @deprecated get the obbject directly
+    * @deprecated since 2.3 get the object directly
     *
     * @return UserOperations handle to the UserOperations object
     */
@@ -437,7 +440,7 @@ final class CmsApp
     /**
     * Get a handle to the content operations object.
     * @see ContentOperations
-    * @deprecated get the obbject directly
+    * @deprecated since 2.3 get the object directly
     *
     * @return ContentOperations handle to the ContentOperations object
     */
@@ -449,7 +452,7 @@ final class CmsApp
     /**
     * Get a handle to the bookmark operations object.
     * @see BookmarkOperations
-    * @deprecated get the obbject directly
+    * @deprecated since 2.3 get the object directly
     *
     * @return BookmarkOperations handle to the BookmarkOperations object, useful only in the admin
     */
@@ -461,7 +464,7 @@ final class CmsApp
     /**
     * Get a handle to the group operations object.
     * @see GroupOperations
-    * @deprecated ?
+    * @deprecated since 2.3 get the object directly
     *
     * @return GroupOperations handle to the GroupOperations object
     */
@@ -503,9 +506,9 @@ final class CmsApp
 
     /**
     * Get a handle to the cached pages-hierarchy manager.
-    * @see HierarchyManager
+    * @see content_tree
     *
-    * @return handle to the hierarchy manager object
+    * @return object
     */
     public function GetHierarchyManager()
     {
@@ -517,11 +520,22 @@ final class CmsApp
 
     /**
      * Get a handle to the scripts combiner
+     * @since 2.3
      */
     public function GetScriptManager() : ScriptManager
     {
-        if( is_null( $this->scriptcombiner ) ) $this->scriptcombiner = new ScriptManager();
-        return $this->scriptcombiner;
+        if( is_null($this->scriptsmerger) ) $this->scriptsmerger = new ScriptManager();
+        return $this->scriptsmerger;
+    }
+
+    /**
+     * Get a handle to the styles combiner
+     * @since 2.3
+     */
+    public function GetStylesManager() : StylesManager
+    {
+        if( is_null($this->stylesmerger) ) $this->stylesmerger = new StylesManager();
+        return $this->stylesmerger;
     }
 
     /**

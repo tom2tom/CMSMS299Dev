@@ -56,6 +56,7 @@ use function lang;
  */
 final class ModuleOperations
 {
+    //TODO namespaced global variables here
 	/**
 	 * @ignore
 	 */
@@ -69,12 +70,12 @@ final class ModuleOperations
 	/**
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	private $_auth_module = null;
+	private static $_auth_module = null;
 
 	/**
 	 * @ignore
@@ -84,46 +85,44 @@ final class ModuleOperations
 	/* *
 	 * @ignore
 	 */
-//    private $_module_class_map;
+//    private static $_module_class_map;
 
 	/**
 	 * @ignore
 	 */
-	private $_modules = null;
+	private static $_modules = null;
 
 	/**
 	 * Currently-installed core/system modules list
 	 * The population of core modules can change, so this is not hardcoded
 	 * @ignore
 	 */
-	private $_coremodules = null;
+	private static $_coremodules = null;
 
 	/**
 	 * @ignore
 	 */
-	private $_moduleinfo;
+	private static $_moduleinfo;
 
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
-	private function __clone() {}
+//	private function __clone() {}
 
 	/**
-	 * Get the only permitted instance of this object.  It will be created if necessary
-	 *
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 use new ModuleOperations()
 	 * @return ModuleOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
 	}
 
 	/**
@@ -190,7 +189,7 @@ final class ModuleOperations
 		if( !$module || !$classname ) return;
 
 		$this->get_module_classmap();
-		$this->_classmap[$module] = $classname;
+		self::$_classmap[$module] = $classname;
 		cms_siteprefs::set(self::CLASSMAP_PREF, serialize(self::$_classmap));
 	}
 
@@ -275,7 +274,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
-			$this->_moduleinfo = [];
+			self::$_moduleinfo = [];
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
 			global_cache::clear('session_plugin_modules');
@@ -330,23 +329,23 @@ VALUES (?,?,?,'.$now.',NULL)');
 	 */
 	private function _get_module_info()
 	{
-		if( !$this->_moduleinfo ) {
+		if( !self::$_moduleinfo ) {
 			$tmp = global_cache::get('modules');
 			if( is_array($tmp) ) {
-				$this->_moduleinfo = [];
+				self::$_moduleinfo = [];
 				for( $i = 0, $n = count($tmp); $i < $n; $i++ ) {
 					$name = $tmp[$i]['module_name'];
 					$filename = $this->get_module_filename($name);
 					if( is_file($filename) ) {
-						if( !isset($this->_moduleinfo[$name]) ) $this->_moduleinfo[$name] = $tmp[$i];
+						if( !isset(self::$_moduleinfo[$name]) ) self::$_moduleinfo[$name] = $tmp[$i];
 					}
 				}
 
 				$all_deps = $this->_get_all_module_dependencies();
 				if( $all_deps && count($all_deps) ) {
 					foreach( $all_deps as $mname => $deps ) {
-						if( is_array($deps) && count($deps) && isset($this->_moduleinfo[$mname]) ) {
-							$minfo =& $this->_moduleinfo[$mname];
+						if( is_array($deps) && count($deps) && isset(self::$_moduleinfo[$mname]) ) {
+							$minfo =& self::$_moduleinfo[$mname];
 							$minfo['dependants'] = array_keys($deps);
 						}
 					}
@@ -354,7 +353,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 			}
 		}
 
-		return $this->_moduleinfo;
+		return self::$_moduleinfo;
 	}
 
 	/**
@@ -413,7 +412,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 			return FALSE;
 		}
 
-		$this->_modules[$module_name] = $obj;
+		self::$_modules[$module_name] = $obj;
 
 		global $CMS_INSTALL_PAGE;
 
@@ -424,7 +423,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 				$res = $this->_install_module($obj);
 				if( $res[0] == FALSE ) {
 					// nope, can't auto install...
-					unset($obj,$this->_modules[$module_name]);
+					unset($obj,self::$_modules[$module_name]);
 					return FALSE;
 				}
 			}
@@ -440,7 +439,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 						// upgrade failed
 						allow_admin_lang(FALSE); // isn't this ugly.
 						debug_buffer("Automatic upgrade of $module_name failed");
-						unset($obj,$this->_modules[$module_name]);
+						unset($obj,self::$_modules[$module_name]);
 						return FALSE;
 					}
 				}
@@ -449,7 +448,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 
 		if( !$force_load && (!isset($info[$module_name]['status']) || $info[$module_name]['status'] != 'installed') ) {
 			debug_buffer('Cannot load an uninstalled module');
-			unset($obj,$this->_modules[$module_name]);
+			unset($obj,self::$_modules[$module_name]);
 			return false;
 		}
 
@@ -518,7 +517,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 		global $CMS_STYLESHEET;
 		if( isset($CMS_STYLESHEET) ) return;
 
-		debug_buffer('Load Modules');
+		debug_buffer('Load modules');
 		$allinfo = $this->_get_module_info();
 		if( is_array($allinfo) ) {
 			$config = cms_config::get_instance();
@@ -539,7 +538,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 				$this->get_module_instance($module_name);
 			}
 		}
-		debug_buffer('Finished Loading Modules');
+		debug_buffer('Finished loading modules');
 	}
 
 	/**
@@ -555,7 +554,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 		global $CMS_STYLESHEET;
 		if( isset($CMS_STYLESHEET) ) return;
 
-		debug_buffer('Initialize Modules');
+		debug_buffer('Initialize modules');
 		$allinfo = $this->_get_module_info();
 		if( is_array($allinfo) ) {
 			$dirs = cms_module_places();
@@ -582,7 +581,7 @@ VALUES (?,?,?,'.$now.',NULL)');
 				}
 			}
 		}
-		debug_buffer('Finished Initializing Modules');
+		debug_buffer('Finished initializing modules');
 	}
 
 	/**
@@ -636,7 +635,7 @@ VALUES (?,?,?,?,?)');
 				}
 			}
 			$this->generate_moduleinfo( $module_obj );
-			$this->_moduleinfo = [];
+			self::$_moduleinfo = [];
 			global_cache::clear('modules');
 			global_cache::clear('module_deps');
 			global_cache::clear('session_plugin_modules');
@@ -739,7 +738,7 @@ VALUES (?,?,?,?,?)');
 			global_cache::clear('module_menus');
 
 			// Removing module from info
-			$this->_moduleinfo = [];
+			self::$_moduleinfo = [];
 
 			cms_notice('Uninstalled module '.$module_name);
 			Events::SendEvent( 'Core', 'ModuleUninstalled', [ 'name' => $module_name ] );
@@ -794,7 +793,7 @@ VALUES (?,?,?,?,?)');
 			$query = 'UPDATE '.CMS_DB_PREFIX.'modules SET active = ? WHERE module_name = ?';
 //			$dbr =
 			$db->Execute($query,[$info[$module_name]['active'],$module_name]);
-			$this->_moduleinfo = [];
+			self::$_moduleinfo = [];
 			global_cache::clear('modules'); //force refresh of the cached active property
 			global_cache::clear('module_menus');
 			Events::SendEvent( 'Core', 'AfterModuleActivated', [ 'name'=>$module_name, 'activated'=>$activate ] );
@@ -816,7 +815,7 @@ VALUES (?,?,?,?,?)');
 	 */
 	public function GetLoadedModules()
 	{
-		return $this->_modules;
+		return self::$_modules;
 	}
 
 	/**
@@ -825,7 +824,7 @@ VALUES (?,?,?,?,?)');
 	public function is_module_loaded(string $module_name)
 	{
 		$module_name = trim( $module_name );
-		return isset( $this->_modules[$module_name] );
+		return isset( self::$_modules[$module_name] );
 	}
 
 	/**
@@ -932,18 +931,18 @@ VALUES (?,?,?,?,?)');
 		if( empty($module_name) && isset($this->variables['module'])) $module_name = $this->variables['module'];
 
 		$obj = null;
-		if( isset($this->_modules[$module_name]) ) {
+		if( isset(self::$_modules[$module_name]) ) {
 			if( $force ) {
-				unset($this->_modules[$module_name]);
+				unset(self::$_modules[$module_name]);
 			}
 			else {
-				$obj = $this->_modules[$module_name];
+				$obj = self::$_modules[$module_name];
 			}
 		}
 		if( !is_object($obj) ) {
 			// gotta load it.
 			$res = $this->_load_module($module_name,$force);
-			if( $res ) $obj = $this->_modules[$module_name];
+			if( $res ) $obj = self::$_modules[$module_name];
 		}
 
 		if( is_object($obj) && !empty($version) ) {
@@ -962,7 +961,7 @@ VALUES (?,?,?,?,?)');
 	 */
 	public function IsSystemModule(string $module_name)
 	{
-		if ($this->_coremodules === null) {
+		if (self::$_coremodules === null) {
 			//log 'core' modules
 			$names = [];
 			$path = cms_join_path(CMS_ROOT_PATH,'lib','modules');
@@ -977,22 +976,22 @@ VALUES (?,?,?,?,?)');
 			if (isset($CMS_INSTALL_PAGE)) {
 				return in_array($module_name,$names);
 			} else {
-				$this->_coremodules = $names;
+				self::$_coremodules = $names;
 			}
 		}
-		return in_array($module_name,$this->_coremodules);
+		return in_array($module_name,self::$_coremodules);
 	}
 
 	public function RegisterAdminAuthenticationModule(CMSModule $mod)
 	{
-		if( $this->_auth_module ) throw new LogicException( 'Sorry, only one non standard auth module is supported' );
+		if( self::$_auth_module ) throw new LogicException( 'Sorry, only one non standard auth module is supported' );
 		if( ! $mod instanceof CMSMS\IAuthModuleInterface ) throw new LogicException('Sorry. '.$mod->GetName().' is not a valid authentication module');
-		$this->_auth_module = $mod;
+		self::$_auth_module = $mod;
 	}
 
 	public function GetAdminLoginModule()
 	{
-		if( $this->_auth_module ) return $this->_auth_module;
+		if( self::$_auth_module ) return self::$_auth_module;
 		return $this->get_module_instance( self::STD_AUTH_MODULE, '', TRUE );
 	}
 
@@ -1106,8 +1105,8 @@ VALUES (?,?,?,?,?)');
 	 */
 	public function unload_module(string $module_name)
 	{
-		if( isset($this->_modules[$module_name]) && is_object($this->_modules[$module_name]) )
-			unset($this->_modules[$module_name]);
+		if( isset(self::$_modules[$module_name]) && is_object(self::$_modules[$module_name]) )
+			unset(self::$_modules[$module_name]);
 	}
 
 	/**
@@ -1126,6 +1125,7 @@ VALUES (?,?,?,?,?)');
 			foreach ($_REQUEST as $key=>$value) {
 				if( strncmp($key,$id,$len) == 0 ) {
 					$key = substr($key,$len);
+					if( $key == 'id' || $key == 'returnid' ) $value = (int)$value;
 //					if( $key == 'id' || $key == 'returnid' || $key == 'action' ) continue; 2.3 deprecation, breaks lot of stuff
 					$params[$key] = $value;
 				}

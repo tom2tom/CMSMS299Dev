@@ -1,7 +1,7 @@
 <?php
 /*
 A collection of compatibility tools for the database connectivity layer.
-Copyright (C) 2017-2018 Robert Campbell <calguy1000@cmsmadesimple.org>
+Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
+use CMSMS\Database\Connection;
+
 namespace CMSMS\Database {
 
     /**
@@ -29,13 +31,13 @@ namespace CMSMS\Database {
         /**
          * Initialize the database connection according to config settings.
          *
-         * @return \CMSMS\Database\mysqli\Connection
+         * @return Connection
          *
          * @deprecated
          */
         public static function init()
         {
-            return new mysqli\Connection();
+            return new Connection();
         }
 
         public static function on_error()
@@ -55,13 +57,13 @@ namespace CMSMS\Database {
          * For parameterized SQL commands which cannot be natively prepared.
          * Interpret '?'-parameterized $sql and corresponding $valsarr
          * into a non-parameterized command, i.e. emulate parameterization.
-		 *
+         *
          * @param object $conn the database-connection object
          * @param string $sql the command
          * @param mixed  $valsarr array of command-parameter value[s], or a single scalar value
          * @return mixed replacment command or null
          *
-		 * @since 2.3
+         * @since 2.3
          */
         public static function interpret(Connection &$conn, $sql, $valsarr)
         {
@@ -120,13 +122,13 @@ namespace {
     /**
      * A method to create a new data dictionary object.
      *
-     * @param \CMSMS\Database\Connection $conn The existing database connection
+     * @param Connection $conn The existing database connection
      *
      * @return \CMSMS\Database\DataDictionary
      *
      * @deprecated
      */
-    function NewDataDictionary(\CMSMS\Database\Connection $conn)
+    function NewDataDictionary(Connection $conn)
     {
         // called by module installation routines.
         return $conn->NewDataDictionary();
@@ -138,7 +140,7 @@ namespace {
      * @param string $dbms
      * @param string $flags
      *
-     * @return \CMSMS\Database\Connection
+     * @return Connection
      *
      * @deprecated
      */
@@ -146,7 +148,7 @@ namespace {
     {
         // now that our connection object is stateless... this is just a wrapper
         // for our global db instance.... but should not be called.
-        return \CmsApp::get_instance()->GetDb();
+        return CmsApp::get_instance()->GetDb();
     }
 
     /**

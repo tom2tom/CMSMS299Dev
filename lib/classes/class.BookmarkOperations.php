@@ -39,31 +39,30 @@ final class BookmarkOperations
 	/**
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
-	private function __clone() {}
+//	private function __clone() {}
 
 	/**
-	 * Return a reference to the only allowed instance of this singleton object
-	 * NOTE no real reason for this to be a singleton - just static methods instead
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 instead use new BookmarkOperations()
 	 * @return BookmarkOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) self::$_instance = new self();
-		return self::$_instance;
+		return new self();
 	}
 
 	/**
-	 * Prepares a url for saving by replacing security tags with a holder
+	 * Prepares an URL for saving by replacing security tags with a holder
 	 * string so it can be replaced when retrieved and not break security.
 	 *
 	 * @param string $url The url to save

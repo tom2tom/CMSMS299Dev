@@ -28,33 +28,33 @@ use CMSMS\UserPluginOperations;
  * @final
  * @package CMS
  * @license GPL
- * @deprecated
+ * @deprecated since 2.3
  */
 final class UserTagOperations
 {
 	/**
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
 	 * @ignore
 	 */
-	private function __clone() {}
+//	private function __clone() {}
 
 	/**
-	 * Get the only allowed instance of this class
+	 * Get an instance of this class.
 	 * @return UserTagOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) self::$_instance = new self();
-		return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
 	}
 
 	/**

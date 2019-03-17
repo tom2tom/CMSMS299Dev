@@ -1,8 +1,7 @@
 <?php
 /*
 Class Statement: represents a prepared SQL statement
-Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -18,18 +17,19 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace CMSMS\Database\mysqli;
+namespace CMSMS\Database;
 
 use CMSMS\Database\compatibility;
 use CMSMS\Database\Connection;
-use CMSMS\Database\mysqli\ResultSet;
+use CMSMS\Database\ResultSet;
 use function debug_bt_to_log;
 use function debug_to_log;
 
 /**
- * A class defining a prepared database statement.
+ * A class defining a prepared database statement, and methods for interacting
+ * with such statements.
  *
- * @since 2.2
+ * @since 2.3
  *
  * @property-read Connection $db The database connection
  * @property-read string $sql The SQL query
@@ -37,23 +37,36 @@ use function debug_to_log;
 class Statement
 {
     const NOPARMCMD = 1295; // MySQL/MariaDB errno for deprecated non-parameterizable command
+
     /**
+	 * Connection object
      * @ignore
      */
-    protected $_conn; // Connection object
-    /**
+	protected $_conn;
+
+	/**
+	 * mysqli_stmt object
      * @ignore
      */
-    protected $_stmt; // mysqli_stmt object
-    /**
+	protected $_stmt;
+
+	/**
+	 * SQL command | null
      * @ignore
      */
-    protected $_sql;
-    /**
+	protected $_sql;
+
+	/**
+	 * Whether prepare() succeeded
      * @ignore
      */
-    protected $_prep = false; // whether prepare() succeeded
-    protected $_bound = false; // whether bind() succeeded
+    protected $_prep = false;
+
+	/**
+	 * Whether bind() succeeded
+     * @ignore
+     */
+    protected $_bound = false;
 
     /**
      * Constructor.
@@ -61,7 +74,7 @@ class Statement
      * @param Connection      $conn The database connection
      * @param optional string $sql  The SQL query, default null
      */
-    public function __construct(Connection &$conn, $sql = null)
+    public function __construct(Connection $conn, $sql = null)
     {
         $this->_conn = $conn;
         $this->_sql = $sql;

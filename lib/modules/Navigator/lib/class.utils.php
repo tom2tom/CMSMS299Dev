@@ -20,7 +20,7 @@ namespace Navigator;
 
 use cms_siteprefs;
 use CmsApp;
-use CMSMS\internal\content_cache;
+use CMSMS\ContentCache;
 use NavigatorNode;
 use function cms_htmlentities;
 use function startswith;
@@ -144,9 +144,10 @@ final class utils
             if( $node->has_children() ) {
                 $children = $node->getChildren($deep,$show_all); //loads children into cache : SLOW! TODO just get id's
                 if( $children ) {
+					$cache = ContentCache::get_instance();
                     foreach( $children as &$node ) {
                         $id = $node->get_tag('id');
-                        if( content_cache::content_exists($id) ) {
+                        if( $cache->content_exists($id) ) {
                             $obj->children_exist = TRUE;
                             break;
                         }

@@ -1,8 +1,7 @@
 <?php
 /*
 Class Connection: interaction with a MySQL database
-Copyright (C) 2017-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
-Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
+Copyright (C) 2018-2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 
 This program is free software; you can redistribute it and/or modify
@@ -20,31 +19,25 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace CMSMS\Database;
 
+use cms_config;
 use CmsApp;
+use CMSMS\Database\DataDictionary;
+use CMSMS\Database\ResultSet;
+use CMSMS\Database\Statement;
 use DateTime;
+use DateTimeZone;
+use Exception;
+use mysqli;
 use const CMS_DEBUG;
 use function debug_bt_to_log;
 use function debug_display;
 use function debug_to_log;
 
 /**
- * A class defining a database connection, and mechanisms for working with a database.
- *
- * This library is largely compatible with adodb_lite with the pear, extended, transaction plugins
- * and with a few notable differences:
- *
- * Differences:
- * <ul>
- *  <li>genId will not automatically create a sequence table.
- *    <p>Consider using auto-increment fields instead of sequence tables where there's no possibility of a race.</p>
- *  </li>
- * </ul>
- *
- * @author Robert Campbell
- *
- * @since 2.2
+ * A class defining a MySQL database connection, and mechanisms for working with the database.
+ * @since 2.3
  */
-abstract class Connection
+class Connection
 {
     /**
      * Defines an error with connecting to the database.
@@ -67,7 +60,7 @@ abstract class Connection
     const ERROR_PREPARE = 'PREPARE';
 
     /**
-     * Defines an error in a datadictionary command.
+     * Defines an error in a data dictionary command.
      */
     const ERROR_DATADICT = 'DATADICTIONARY';
 
@@ -101,7 +94,7 @@ abstract class Connection
     /**
      * @ignore
      */
-    private $_debug_cb = null;
+    protected $_debug_cb = null;
 
     /**
      * @ignore
@@ -120,7 +113,7 @@ abstract class Connection
     /**
      * @ignore
      */
-//    private $_queries = [];
+//    protected $_queries = [];
 
     /**
      * The last SQL command executed.
@@ -134,24 +127,111 @@ abstract class Connection
     /**
      * @internal
      *
-     * @param string $type  The database connection type
+     * @param string $type  The database connection type (mysqli)
      */
     protected $_type;
 
     /**
-     * Construct a new Connection.
-     * @param array $config unused here, for subclass only
+     * The actual PHP interface object.
+     * @internal
+     */
+    protected $_mysql;
+
+	/**
+	 * Whether $_mysql is the 'native driver' variant
+     * @internal
+     */
+    protected $_native = ''; //for PHP 5.4+, the MySQL native driver is a php.net compile-time default
+
+	/**
+     * @internal
+     */
+    protected $_in_transaction = 0;
+
+	/**
+     * @internal
+     */
+    protected $_in_smart_transaction = 0;
+
+	/**
+     * @internal
+     */
+    protected $_transaction_status = true;
+
+	/**
+     * Queue of cached results from prior pretend-async commands, pending pretend-reaps
+	 * @internal
+     */
+    protected $_asyncQ = [];
+
+    /**
+     * Constructor.
+     * @param array $config Optional assoc. array of db connection parameters etc,
+     * including at least:
+     *  'db_hostname'
+     *  'db_username'
+     *  'db_password'
+     *  'db_name'
+     *  'db_port'
+     *  'set_names' (opt)
+     *  'set_db_timezone' (opt)
+     *  'timezone' used only if 'set_db_timezone' is true
      */
     public function __construct($config = null)
     {
-        $this->_debug = CMS_DEBUG;
-        if ($this->_debug) {
-            $this->_debug_cb = 'debug_buffer';
-        }
+        if (class_exists('mysqli')) {
+            if (!$config) $config = cms_config::get_instance(); //normal API
+            mysqli_report(MYSQLI_REPORT_STRICT);
+            try {
+                $this->_mysql = new mysqli(
+                 $config['db_hostname'], $config['db_username'],
+                 $config['db_password'], $config['db_name'],
+                 (int)$config['db_port']);
+                if (!$this->_mysql->connect_error) {
+                    $this->_type = 'mysqli';
+					$this->_debug = CMS_DEBUG;
+					if ($this->_debug) {
+						$this->_debug_cb = 'debug_buffer';
+					}
 
-        global $CMS_INSTALL_PAGE;
-        if (!isset($CMS_INSTALL_PAGE)) {
-            $this->_errorhandler = [$this, 'on_error'];
+					global $CMS_INSTALL_PAGE;
+					if (!isset($CMS_INSTALL_PAGE)) {
+						$this->_errorhandler = [$this, 'on_error'];
+					}
+                    if (!empty($config['set_names'])) { //N/A during installation
+                        $this->_mysql->set_charset('utf8');
+                    }
+                    if (!empty($config['set_db_timezone'])) { //ditto
+                        try {
+                            $dt = new DateTime(new DateTimeZone($config['timezone']));
+                        } catch (Exception $e) {
+                            $this->_mysql = null;
+                            $this->on_error(self::ERROR_PARAM, $e->getCode(), $e->getMessage());
+                        }
+                        $offset = $dt->getOffset();
+                        if ($offset < 0) {
+                            $offset = -$offset;
+                            $symbol = '-';
+                        } else {
+                            $symbol = '+';
+                        }
+                        $hrs = (int)($offset / 3600);
+                        $mins = (int)($offset % 3600 / 60);
+                        $sql = sprintf("SET time_zone = '%s%02d:%02d'", $symbol, $hrs, $mins);
+                        $this->execute($sql);
+                    }
+                } else {
+                    $this->_mysql = null;
+                    $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
+                }
+            } catch (Exception $e) {
+                $this->_mysql = null;
+                $this->OnError(self::ERROR_CONNECT, mysqli_connect_errno(), mysqli_connect_error());
+            }
+        } else {
+            $this->_mysql = null;
+            $this->OnError(self::ERROR_CONNECT, 98,
+                'Configuration error: mysqli class is not available');
         }
     }
 
@@ -184,25 +264,48 @@ abstract class Connection
         }
     }
 
-    /**
-     * Return the database type.
-     *
-     * @return string
-     */
-    public function dbType()
-    {
-        return $this->_type;
-    }
+    //// session
 
     /**
      * Open the database connection.
      *
      * @deprecated
-     * @return bool Success or failure
+     * @return bool true always
      */
-    final public function connect()
+    public function connect()
     {
         return true;
+    }
+
+    /**
+     * Create a new database connection object.
+     *
+     * @deprecated Does nothing - use new <namespace>\Connection()
+     *
+     */
+    public static function Initialize()
+    {
+    }
+
+    /**
+     * Test if the connection object is connected to the database.
+     *
+     * @return bool
+     */
+    public function isConnected()
+    {
+        return is_object($this->_mysql);
+    }
+
+    /**
+     * Close the database connection.
+     */
+    public function close()
+    {
+        if ($this->_mysql) {
+            $this->_mysql->close();
+            $this->_mysql = null;
+        }
     }
 
     /**
@@ -214,18 +317,52 @@ abstract class Connection
     }
 
     /**
-     * Test if the connection object is connected to the database.
+     * Return the database interface-type (mysqli).
      *
-     * @return bool
+     * @return string
      */
-    abstract public function isConnected();
+    public function dbType()
+    {
+        return $this->_type;
+    }
 
-    /**
-     * Close the database connection.
-     */
-    abstract public function close();
+	/**
+	 * Return whether the database interface-type is the 'native driver' variant
+	 * @return bool
+	 */
+	public function isNative()
+    {
+        if ($this->_native === '') {
+            $this->_native = function_exists('mysqli_fetch_all');
+        }
+        return $this->_native;
+    }
+
+	/**
+     * Return the PHP database-interface object.
+	 *
+	 * @return object | null
+	 */
+	public function get_inner_mysql()
+    {
+        return $this->_mysql;
+    }
 
     //// utilities
+
+    /**
+     * Quote a string in a database agnostic manner.
+     * Warning: This method may require two way traffic with the database depending upon the database.
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    public function qStr($str)
+    {
+        // note... this could be a two way tcp/ip or socket communication
+        return "'".$this->_mysql->escape_string($str)."'";
+    }
 
     /**
      * An alias for the qStr method.
@@ -241,27 +378,20 @@ abstract class Connection
         return $this->qStr($str);
     }
 
-    /**
-     * Quote a string in a database agnostic manner.
-     * Warning: This method may require two way traffic with the database depending upon the database.
-     *
-     * @param string $str
-     *
-     * @return string
-     */
-    abstract public function qStr($str);
-
-    /**
+	/**
      * qStr without surrounding quotes.
      *
      * @param string $str
      *
      * @return string
      */
-    abstract public function addQ($str);
+    public function addQ($str)
+    {
+        return $this->_mysql->escape_string($str);
+    }
 
     /**
-     * output the mysql expression for a string concatenation.
+     * Return the SQL for a string concatenation.
      * This function accepts a variable number of string arguments.
      *
      * @param $str   First string to concatenate
@@ -269,42 +399,96 @@ abstract class Connection
      *
      * @return string
      */
-    abstract public function concat();
+    public function concat()
+    {
+        $arr = func_get_args();
+        $list = implode(', ', $arr);
+
+        if (strlen($list) > 0) {
+            return "CONCAT($list)";
+        }
+    }
 
     /**
-     * Output the mysql expression to test if an item is null.
+     * Return the SQL for testing whether a value is null.
      *
      * @param string $field  The field to test
      * @param string $ifNull The value to use if $field is null
      *
      * @return string
      */
-    abstract public function ifNull($field, $ifNull);
+    public function ifNull($field, $ifNull)
+    {
+        return "IFNULL($field, $ifNull)";
+    }
 
     /**
-     * Output the number of rows affected by the last query.
+     * Return the number of rows affected by the last query.
      *
      * @return int
      */
-    abstract public function affected_rows();
+    public function affected_rows()
+    {
+        return $this->_mysql->affected_rows;
+    }
 
     /**
      * Return the numeric ID of the last insert query into a table with an auto-increment field.
      *
      * @return int
      */
-    abstract public function insert_id();
+    public function insert_id()
+    {
+        return $this->_mysql->insert_id;
+    }
 
     //// primary query functions
 
     /**
      * The primary function for communicating with the database.
      *
-     * @internal
-     *
-     * @param string $sql The SQL query
+     * @param string $sql SQL statement to be executed
+     * @return ResultSet object, or null
      */
-    abstract protected function do_sql($sql);
+    protected function do_sql($sql)
+    {
+        $this->_sql = $sql;
+        if ($this->_debug) {
+            $time_start = microtime(true);
+            $result = $this->_mysql->query($sql); //mysqli_result or boolean
+            $this->_query_time_total += microtime(true) - $time_start;
+        } else {
+            $result = $this->_mysql->query($sql);
+        }
+        if ($result) {
+            if ($this->_debug) {
+                $this->add_debug_query($sql);
+            }
+            $this->errno = 0;
+            $this->error = '';
+            return new ResultSet($result);
+        }
+        $this->failTrans();
+
+        $errno = $this->_mysql->errno;
+        $error = $this->_mysql->error;
+        $this->OnError(self::ERROR_EXECUTE, $errno, $error);
+        return null;
+    }
+
+    /**
+     * @internal
+     * no error checking
+     * no return data
+     */
+    protected function do_multisql($sql)
+    {
+        if ($this->_mysql->multi_query($sql)) {
+            do {
+                $res = $this->_mysql->store_result();
+            } while ($this->_mysql->more_results() && $this->_mysql->next_result());
+        }
+    }
 
     /**
      * Prepare (compile) @sql for parameterized and/or repeated execution.
@@ -313,7 +497,15 @@ abstract class Connection
      *
      * @return a Statement object if @sql is valid, or false
      */
-    abstract public function prepare($sql);
+    public function prepare($sql)
+    {
+        $stmt = new Statement($this, $sql);
+        if ($stmt->prepare($sql)) {
+            $this->_sql = $sql;
+            return $stmt;
+        }
+        return false;
+    }
 
     /**
      * Parse and execute an SQL prepared statement or query.
@@ -324,19 +516,69 @@ abstract class Connection
      *
      * @return <namespace>ResultSet or a subclass of that
      */
-    abstract public function execute($sql, $valsarr = null);
+    public function execute($sql, $valsarr = null)
+    {
+        if ($valsarr) {
+            if (!is_array($valsarr)) {
+                $valsarr = [$valsarr];
+            }
+            if (is_string($sql)) {
+                $stmt = new Statement($this, $sql);
+
+                return $stmt->execute($valsarr);
+            } elseif (is_object($sql) && ($sql instanceof Statement)) {
+                return $sql->execute($valsarr);
+            } else {
+                $errno = 4;
+                $error = 'Invalid bind-parameter(s) supplied to execute method';
+                $this->OnError(self::ERROR_PARAM, $errno, $error);
+                return null;
+            }
+        }
+
+        return $this->do_sql($sql);
+    }
 
     /**
      * As for execute, but non-blocking. Works as such only if the native driver
      * is present. Otherwise reverts to normal execution, and caches the result.
      */
-    abstract public function async_execute($sql, $valsarr = null);
+    public function async_execute($sql, $valsarr = null)
+    {
+        if ($this->isNative()) {
+//TODO
+        } else {
+            $rs = $this->execute($sql, $valsarr);
+            if ($rs) {
+                $this->_asyncQ[] = $rs;
+            } else {
+//TODO arrange to handle error when 'reaped'
+            }
+        }
+    }
 
     /**
      * Get result from async SQL query. If the native driver is not present, this
      * just returns the cached result of the prior not-really-async command.
      */
-    abstract public function reap();
+    public function reap()
+    {
+        if ($this->isNative()) {
+            $rs = $this->_mysql->reap_async_query();
+        } else {
+            $rs = array_shift($this->_asyncQ);
+        }
+        if ($rs) { // && $rs is not some error-data
+            $this->_conn->errno = 0;
+            $this->_conn->error = '';
+            return new ResultSet($rs);
+        } else {
+            $errno = 98;
+            $error = 'No async result available';
+            $this->processerror(self::ERROR_EXECUTE, $errno, $error);
+            return null;
+        }
+    }
 
     /**
      * Execute an SQL command, to retrieve (at most) @nrows records.
@@ -409,8 +651,8 @@ abstract class Connection
      *
      * @param string $sql         The SQL statement to execute
      * @param array  $valsarr     VAlue-parameters to fill placeholders (if any) in @sql
-     * @param bool   $force_array Optionally force each element of the output to be an associative array
-     * @param bool   $first2cols  Optionally output only the first 2 columns in an associative array.  Does not work with force_array
+     * @param bool   $force_array Optionally force each element of the Return to be an associative array
+     * @param bool   $first2cols  Optionally Return only the first 2 columns in an associative array.  Does not work with force_array
      * @param optional int   $nrows   The number of rows to return, default all (0)
      * @param optional int   $offset  0-based starting-offset of rows to return, default 0
      *
@@ -436,7 +678,7 @@ abstract class Connection
      *
      * @param string $sql     The SQL statement to execute
      * @param array  $valsarr Value-parameters to fill placeholders (if any) in @sql
-     * @param bool   $trim    Optionally trim the output results
+     * @param bool   $trim    Optionally trim the Return results
      * @param optional int   $nrows   The number of rows to return, default all (0)
      * @param optional int   $offset  0-based starting-offset of rows to return, default 0
      *
@@ -540,43 +782,127 @@ abstract class Connection
     /**
      * Begin a transaction.
      */
-    abstract public function beginTrans();
+    public function beginTrans()
+    {
+        if (!$this->_in_smart_transaction) {
+            // allow nesting in this case.
+            ++$this->_in_transaction;
+            $this->_transaction_failed = false;
+            $this->_mysql->query('START TRANSACTION');
+//          $this->_mysql->begin_transaction(); PHP5.5+
+        }
+        return true;
+    }
 
     /**
      * Begin a smart transaction.
      */
-    abstract public function startTrans();
+    public function startTrans()
+    {
+        if ($this->_in_smart_transaction) {
+            ++$this->_in_smart_transaction;
+            return true;
+        }
+
+        if ($this->_in_transaction) {
+            $this->OnError(self::ERROR_TRANSACTION, -1, 'Bad Transaction: startTrans called within beginTrans');
+            return false;
+        }
+
+        $this->_transaction_status = true;
+        ++$this->_in_smart_transaction;
+        $this->beginTrans();
+        return true;
+    }
 
     /**
      * Complete a smart transaction.
      * This method will either do a rollback or a commit depending upon if errors
      * have been detected.
      */
-    abstract public function completeTrans($autoComplete = true);
+    public function completeTrans($autoComplete = true)
+    {
+        if ($this->_in_smart_transaction > 0) {
+            --$this->_in_smart_transaction;
+            return true;
+        }
+
+        if ($this->_transaction_status && $autoComplete) {
+            if (!$this->commitTrans()) {
+                $this->_transaction_status = false;
+            }
+        } else {
+            $this->rollbackTrans();
+        }
+        $this->_in_smart_transaction = 0;
+
+        return $this->_transaction_status;
+    }
 
     /**
      * Commit a simple transaction.
      *
      * @param bool $ok Indicates whether there is success or not
      */
-    abstract public function commitTrans($ok = true);
+    public function commitTrans($ok = true)
+    {
+        if (!$ok) {
+            return $this->rollbackTrans();
+        }
+
+        if (!$this->_in_transaction) {
+            $this->OnError(self::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
+            return false;
+        }
+
+        if ($this->_mysql->commit()) {
+            --$this->_in_transaction;
+            return true;
+        }
+
+        $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
+        return false;
+    }
 
     /**
      * Roll back a simple transaction.
      */
-    abstract public function rollbackTrans();
+    public function rollbackTrans()
+    {
+        if (!$this->_in_transaction) {
+            $this->OnError(self::ERROR_TRANSACTION, -1, 'beginTrans has not been called');
+            return false;
+        }
+
+        if ($this->_mysql->rollback()) {
+            --$this->_in_transaction;
+            return true;
+        }
+
+        $this->OnError(self::ERROR_TRANSACTION, $this->_mysql->errno, $this->_mysql->error);
+        return false;
+    }
 
     /**
      * Mark a transaction as failed.
      */
-    abstract public function failTrans();
+    public function failTrans()
+    {
+        $this->_transaction_status = false;
+    }
 
     /**
      * Test if a transaction has failed.
      *
      * @return bool
      */
-    abstract public function hasFailedTrans();
+    public function hasFailedTrans()
+    {
+        if ($this->_in_smart_transaction > 0) {
+            return $this->_transaction_status == false;
+        }
+        return false;
+    }
 
     //// sequence tables
 
@@ -591,7 +917,19 @@ abstract class Connection
      *
      * @deprecated
      */
-    abstract public function genId($seqname);
+    public function genId($seqname)
+    {
+	    //kinda-atomic update + select TODO CHECK thread-safety
+        $this->_mysql->query("UPDATE $seqname SET id = LAST_INSERT_ID(id) + 1");
+        $rs = $this->_mysql->query('SELECT LAST_INSERT_ID()');
+        if ($rs) {
+            $rs->data_seek(0);
+            $valsarr = $rs->fetch_array(MYSQLI_NUM);
+            return $valsarr[0] + 1;
+        }
+        //TODO handle error
+        return -1;
+    }
 
     /**
      * Create a new sequence table.
@@ -603,7 +941,16 @@ abstract class Connection
      *
      * @deprecated
      */
-    abstract public function createSequence($seqname, $startID = 0);
+    public function createSequence($seqname, $startID = 0)
+    {
+        //TODO ensure this is really an upsert, cuz' can be repeated during failed installation
+        $rs = $this->do_sql("CREATE TABLE $seqname (id INT(4) UNSIGNED) ENGINE=MYISAM COLLATE ascii_general_ci");
+        if ($rs) {
+            $v = (int) $startID;
+            $rs = $this->do_sql("INSERT INTO $seqname VALUES ($v)");
+        }
+        return $rs !== false;
+    }
 
     /**
      * Drop a sequence table.
@@ -612,7 +959,11 @@ abstract class Connection
      *
      * @return bool
      */
-    abstract public function dropSequence($seqname);
+    public function dropSequence($seqname)
+    {
+        $rs = $this->do_sql("DROP TABLE $seqname");
+        return $rs !== false;
+    }
 
     //// time and date stuff
 
@@ -731,14 +1082,26 @@ abstract class Connection
      *
      * @return string
      */
-    abstract public function errorMsg();
+    public function errorMsg()
+    {
+        if ($this->_mysql) {
+            return $this->_mysql->error;
+        }
+        return mysqli_connect_error();
+    }
 
     /**
      * Return the latest error number (if any).
      *
      * @return int
      */
-    abstract public function ErrorNo();
+    public function ErrorNo()
+    {
+        if ($this->_mysql) {
+            return $this->_mysql->errno;
+        }
+        return mysqli_connect_errno();
+    }
 
     /**
      * Set an error handler function.
@@ -834,23 +1197,17 @@ abstract class Connection
         }
     }
 
-    //// initialization
-
-    /**
-     * Create a new database connection object.
-     *
-     * @deprecated Does nothing - use new <namespace>\mysqli\Connection()
-     *
-     */
-    public static function Initialize()
-    {
-    }
+	//// dictionary
 
     /**
      * Create a new data dictionary object.
      * Data Dictionary objects are used for manipulating tables, i.e: creating, altering and editing them.
+	 * @deprecated
      *
      * @return <namespace>DataDictionary
      */
-    abstract public function NewDataDictionary();
-}
+    public function NewDataDictionary()
+    {
+        return new DataDictionary($this);
+    }
+} //class

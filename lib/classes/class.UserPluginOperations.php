@@ -34,26 +34,32 @@ use function file_put_contents;
  */
 final class UserPluginOperations
 {
+    //TODO namespaced global variables here
     /**
      * @ignore
      */
-    private static $_instance = null;
-    private $_loaded = [];
+//    private static $_instance = null;
+    private static $_loaded = [];
 
     /**
      * @ignore
      */
-    private function __construct() {}
+//    private function __construct() {}
 
     /**
      * @ignore
      */
-    private function __clone() {}
+//    private function __clone() {}
 
+	/**
+	 * Get an instance of this class.
+	 * @deprecated since since 2.3 use new UserPluginOperations()
+	 * @return self
+	 */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) self::$_instance = new self();
-        return self::$_instance;
+//	    if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
     }
 
     /**
@@ -302,7 +308,7 @@ EOS;
         if( !$this->is_valid_plugin_name( $name ) ) {
             throw new InvalidArgumentException('Invalid name passed to '.__METHOD__);
         }
-        if( !isset($this->_loaded[$name]) ) {
+        if( !isset(self::$_loaded[$name]) ) {
             $fp = $this->file_path( $name );
             if( !is_file($fp) ) {
                 throw new RuntimeException('Could not find plugin file named '.$name);
@@ -311,9 +317,9 @@ EOS;
             if( !preg_match('/^[\s\n]*<\?php/', $code) ) {
                 throw new RuntimeException('Invalid file content for user-plugin named '.$name);
             }
-            $this->_loaded[$name] = [__CLASS__, $name]; //fake callable to trigger __callStatic()
+            self::$_loaded[$name] = [__CLASS__, $name]; //fake callable to trigger __callStatic()
         }
-        return $this->_loaded[$name];
+        return self::$_loaded[$name];
     }
 
     /**

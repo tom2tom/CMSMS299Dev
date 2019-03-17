@@ -21,7 +21,7 @@ namespace CMSMS\Async;
 use CmsApp;
 
 /**
- * A singleton class for asynchronous jobs.
+ * A class for asynchronous jobs.
  * This is a wrapper for methods in the relevant async-jobs module.
  *
  * @final
@@ -32,35 +32,36 @@ use CmsApp;
  */
 final class JobManager
 {
+	//TODO namespaced global variables here
     /**
      * @ignore
      */
-    private $_mod;
+    private static $_mod;
 
-    /**
+    /* *
      * @ignore
      */
-    private static $_instance = null;
+//    private static $_instance = null;
 
-    /**
+    /* *
      * @ignore
      */
-    private function __construct() {}
+//    private function __construct() {}
 
-    /**
+    /* *
      * @ignore
      */
-    private function __clone() {}
+//    private function __clone() {}
 
     /**
-     * Get the sole permitted instance of this object
-     *
+     * Get an instance of this class.
+	 * @deprecated since 2.3 use new JobManager()
      * @return CMSMS\Async\JobManager
      */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) self::$_instance = new self();
-        return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
     }
 
     /**
@@ -71,8 +72,8 @@ final class JobManager
      */
     protected function get_mod()
     {
-        if( !isset($this->_mod) ) $this->_mod = CmsApp::get_instance()->GetJobManager();
-        return $this->_mod;
+        if( !isset(self::$_mod) ) self::$_mod = CmsApp::get_instance()->GetJobManager();
+        return self::$_mod;
     }
 
     /**

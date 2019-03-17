@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ContentOperations, CMSMS\internal\content_cache, CMSMS\internal\global_cache;
+use CMSMS\ContentCache, CMSMS\ContentOperations, CMSMS\internal\global_cache;
 
 /**
  * Class that provides content retrieval abilities, using the content cache
@@ -30,6 +30,11 @@ use CMSMS\ContentOperations, CMSMS\internal\content_cache, CMSMS\internal\global
  */
 class cms_content_tree extends cms_tree
 {
+	/**
+	 * @ignore
+	 */
+	protected $cache = null;
+
 	/**
 	 * Find a tree node given a tag-type and its value.
 	 *
@@ -267,7 +272,8 @@ class cms_content_tree extends cms_tree
 	public function &getContent($deep = false,$loadsiblings = true,$loadall = false)
 	{
 		$id = $this->get_tag('id');
-		if( !content_cache::content_exists($id) ) {
+		if( !$this->cache ) $this->cache = ContentCache::get_instance();
+		if( !$this->cache->content_exists($id) ) {
 			// not in cache
 			$parent = $this->getParent();
 			if( !$loadsiblings || !$parent ) {
@@ -278,10 +284,10 @@ class cms_content_tree extends cms_tree
 			}
 			else {
 				$parent->getChildren($deep,$loadall);
-				if( content_cache::content_exists($id) ) return content_cache::get_content($id);
+				if( $this->cache->content_exists($id) ) return $this->cache->get_content($id);
 			}
 		}
-		return content_cache::get_content($id);
+		return $this->cache->get_content($id);
 	}
 
 	/* *
@@ -404,7 +410,8 @@ class cms_content_tree extends cms_tree
 	 */
 	public function isContentCached()
 	{
-		return content_cache::content_exists($this->get_tag('id'));
+		if( !$this->cache ) $this->cache = ContentCache::get_instance();
+		return $this->cache->content_exists($this->get_tag('id'));
 	}
 
 	/**

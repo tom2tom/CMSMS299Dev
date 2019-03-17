@@ -28,7 +28,7 @@ use function endswith;
 use function startswith;
 
 /**
- * A singleton class to manage smarty plugins registered by modules.
+ * A class to manage smarty plugins registered by modules.
  *
  * @package CMS
  * @license GPL
@@ -41,27 +41,7 @@ use function startswith;
 final class ModulePluginManager
 {
 	/**
-	 * @ignore
-	 */
-	private static $_instance = null;
-
-	/**
-	 * @ignore
-	 */
-	private $_data;
-
-	/**
-	 * @ignore
-	 */
-	private $_loaded;
-
-	/**
-	 * @ignore
-	 */
-	private $_modified;
-
-	/**
-	 * A flag indicating that the plugin is intended to be available for the frontend
+	 * A flag indicating that the plugin is intended to be available in the frontend
 	 */
 	const AVAIL_FRONTEND = 1;
 
@@ -70,11 +50,32 @@ final class ModulePluginManager
 	 */
 	const AVAIL_ADMIN = 2;
 
+	/* *
+	 * @ignore
+	 */
+//	private static $_instance = null;
+
+    //TODO namespaced global variables here
 	/**
 	 * @ignore
 	 */
-	private function __construct() {
-/*
+	private static $_data;
+
+	/**
+	 * @ignore
+	 */
+	private static $_loaded;
+
+	/**
+	 * @ignore
+	 */
+	private static $_modified;
+
+	/* *
+	 * @ignore
+	 */
+/*	public function __construct() {
+/ *
 		$obj = new global_cachable('session_plugin_modules', function()
 				{
 					$names = [];
@@ -94,21 +95,23 @@ final class ModulePluginManager
 					return $names;
 				});
 		global_cache::add_cachable($obj);
-*/
+* /
 	}
+*/
 
 	/**
      * @ignore
      */
-    private function __clone() {}
+//    private function __clone() {}
 
 	/**
-	 * Get the single allowed instance of this class
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 use new ModulePluginManager()
 	 */
-	public static function &get_instance() : self
+	public static function get_instance() : self
 	{
-        if( !self::$_instance ) self::$_instance = new self();
-		return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
 	}
 
 	/* *
@@ -141,11 +144,11 @@ final class ModulePluginManager
 	 */
 	private function _load()
 	{
-		if( $this->_loaded ) return;
+		if( self::$_loaded ) return;
 		// todo: cache this stuff.  does not need to be run on each request
 		// global_cache 'session_plugin_modules' has only module names for plugin-modules not cached in this table
-		$this->_loaded = TRUE;
-		$this->_data = [];
+		self::$_loaded = TRUE;
+		self::$_data = [];
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_smarty_plugins ORDER BY module';
 		$tmp = $db->GetArray($query);
@@ -156,20 +159,20 @@ final class ModulePluginManager
 				$sig = md5($row['name'].$row['module'].$row['callback']);
 				if( $sig == $row['sig'] ) {
 					$row['callback'] = unserialize($row['callback']);
-					$this->_data[$row['sig']] = $row;
+					self::$_data[$row['sig']] = $row;
 				}
 			}
 		}
 	}
 
 	/**
-	 * Record cached data ($this->_data) in the module_smarty_plugins database table
+	 * Record cached data (self::$_data) in the module_smarty_plugins database table
 	 * @ignore
 	 * @return mixed true | null
 	 */
 	private function _save()
 	{
-		if( !$this->_data || !$this->_modified )
+		if( !self::$_data || !self::$_modified )
 			return;
 
 		$db = CmsApp::get_instance()->GetDb();
@@ -178,14 +181,14 @@ final class ModulePluginManager
 		// TODO use prepared statement
 		$query = 'INSERT INTO '.CMS_DB_PREFIX.'module_smarty_plugins (sig,name,module,type,callback,available,cachable) VALUES';
 		$fmt = " ('%s','%s','%s','%s','%s',%d,%d),";
-		foreach( $this->_data as $row ) {
+		foreach( self::$_data as $row ) {
 			$query .= sprintf($fmt,$row['sig'],$row['name'],$row['module'],$row['type'],serialize($row['callback']),$row['available'],$row['cachable']);
 		}
 		if( endswith($query,',') ) $query = substr($query,0,-1);
 		$dbr = $db->Execute($query);
 		if( !$dbr ) return FALSE;
 //DEBUG		global_cache::clear('session_plugin_modules');
-		$this->_modified = FALSE;
+		self::$_modified = FALSE;
 		return TRUE;
 	}
 
@@ -248,8 +251,8 @@ final class ModulePluginManager
 	public function find($name,$type)
 	{
 		$this->_load();
-		if( $this->_data ) {
-			foreach( $this->_data as $row ) {
+		if( self::$_data ) {
+			foreach( self::$_data as $row ) {
 				if( $row['name'] == $name && $row['type'] == $type ) return $row;
 			}
 		}
@@ -288,14 +291,14 @@ final class ModulePluginManager
 	public function add(string $module_name,string $name,string $type,callable $callback,bool $cachable = TRUE,int $available = 0)
 	{
 		$this->_load();
-		if( !is_array($this->_data) ) $this->_data = [];
+		if( !is_array(self::$_data) ) self::$_data = [];
 
 		// todo... validate params
 
 		$sig = md5($name.$module_name.serialize($callback));
-		if( !isset($this->_data[$sig]) ) {
+		if( !isset(self::$_data[$sig]) ) {
 			if( $available == 0 ) $available = self::AVAIL_FRONTEND;
-			$this->_data[$name] = [
+			self::$_data[$name] = [
 				'sig'=>$sig,
 				'module'=>$module_name,
 				'name'=>$name,
@@ -304,7 +307,7 @@ final class ModulePluginManager
 				'available'=>$available,
 				'cachable'=>(int)$cachable,
 			];
-			$this->_modified = TRUE;
+			self::$_modified = TRUE;
 			return $this->_save();
 		}
 		return TRUE;
@@ -328,15 +331,15 @@ final class ModulePluginManager
 	public function _remove_by_module(string $module_name)
 	{
 		$this->_load();
-		if( $this->_data ) {
-			foreach( $this->_data as $key => $row ) {
+		if( self::$_data ) {
+			foreach( self::$_data as $key => $row ) {
 				if( $module_name == $row['module'] ) {
-					$this->_data[$key] = null;
-					$this->_modified = true;
+					self::$_data[$key] = null;
+					self::$_modified = true;
 				}
 			}
-			if( $this->_modified ) {
-				$this->_data = array_filter($this->_data);
+			if( self::$_modified ) {
+				self::$_data = array_filter(self::$_data);
 				$this->_save();
 			}
 		}
@@ -360,15 +363,15 @@ final class ModulePluginManager
 	public function _remove_by_name(string $name)
 	{
 		$this->_load();
-		if( $this->_data ) {
-			foreach( $this->_data as $key => $row ) {
+		if( self::$_data ) {
+			foreach( self::$_data as $key => $row ) {
 				if( $name == $row['name'] ) {
-					$this->_data[$key] = null;
-					$this->_modified = true;
+					self::$_data[$key] = null;
+					self::$_modified = true;
 				}
 			}
-			if( $this->_modified ) {
-				$this->_data = array_filter($this->_data);
+			if( self::$_modified ) {
+				self::$_data = array_filter(self::$_data);
 				$this->_save();
 			}
 		}

@@ -16,23 +16,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-namespace CMSMS\internal;
+namespace CMSMS;
 
 use cms_cache_handler;
 use CmsApp;
 use CMSMS\ContentBase;
 use CMSMS\ContentOperations;
+use LogicException;
 
 /**
- * A static class to manage caching content objects.
+ * A singleton class to manage caching of content objects.
  *
  * @package CMS
- * @since 1.9
- * @internal
+ * @since 2.3
+ * @since 1.9 as internal\content_cache
  * @final
- * @ignore
  */
-final class content_cache
+final class ContentCache
 {
 	/**
 	 * @ignore
@@ -43,67 +43,40 @@ final class content_cache
 	 * Effectively an alias-index of the cached content
 	 * @ignore
 	 */
-	private static $_alias_map;
+	private $_alias_map;
 
 	/**
 	 * Effectively an id-index of the cached content
 	 * @ignore
 	 */
-	private static $_id_map;
+	private $_id_map;
 
 	/**
 	 * @ignore
 	 */
-	private static $_content_cache;
+	private $_content_cache;
 
 	/**
 	 * @ignore
 	 */
-	private $_preload_cache;
+	public $_preload_cache = null; //set during init
 
 	/**
 	 * @ignore
 	 */
-	private $_key;
+	public $_key; //accessed during init
 
 	/**
 	 * @ignore
 	 */
-	private function __construct()
-	{
-		if( !CmsApp::get_instance()->is_frontend_request() ) return;
-		$content_ids = null;
-		$deep = FALSE;
-		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI'].serialize($_GET)); //NO LEAK, cuz $_GET is empty!
-		$data = cms_cache_handler::get_instance()->get($this->_key,__CLASS__);
-		if( $data) {
-			list($lastmtime,$deep,$content_ids) = $data;
-			$contentops = ContentOperations::get_instance();
-			if( $lastmtime < $contentops->GetLastContentModification() ) {
-				$deep = null;
-				$content_ids = null;
-			}
-		}
-		if( $content_ids ) {
-			$this->_preload_cache = $content_ids;
-			if( !$data ) $contentops = ContentOperations::get_instance();
-			$contentops->LoadChildren(null,$deep,FALSE,$content_ids);
-		}
+	private function __construct() {
+		$this->_key = 'pc'.md5($_SERVER['REQUEST_URI']); // wuz $_GET too, but is empty, and if not, probable leak!
 	}
 
 	/**
 	 * @ignore
 	 */
 	private function __clone() {}
-
-	/**
-	 * @ignore
-	 */
-	public static function get_instance() : self
-	{
-		if( !(self::$_instance) ) self::$_instance = new self();
-		return self::$_instance;
-	}
 
 	/**
 	 * @ignore
@@ -128,7 +101,7 @@ final class content_cache
 				$ndeep = [];
 				$deep = FALSE;
 				foreach( $list as $one ) {
-					$obj = self::get_content($one);
+					$obj = $this->get_content($one);
 					if( !is_object($obj) ) continue;
 					$tmp = $obj->Properties();
 					if( $tmp ) {
@@ -145,15 +118,32 @@ final class content_cache
 	}
 
 	/**
-	 * @ignore
+	 * Get the singleton instance of this class
+	 * @throws LogicException
 	 */
-	private static function &get_content_obj($hash)
+	public static function get_instance() : self
 	{
-		$res = null;
-		if( self::$_content_cache ) {
-			if( isset(self::$_content_cache[$hash]) ) $res = self::$_content_cache[$hash];
+		if( empty(self::$_instance) ) {
+			if( !CmsApp::get_instance()->is_frontend_request() ) {
+				throw new LogicException(__CLASS__.' is for frontend requests only');
+			}
+			self::$_instance = new self();
+			// one-time initialization
+			$key = self::$_instance->_key;
+			$data = cms_cache_handler::get_instance()->get($key,__CLASS__);
+			if( $data ) {
+				list($lastmtime,$deep,$content_ids) = $data;
+				$contentops = ContentOperations::get_instance();
+				if( $lastmtime < $contentops->GetLastContentModification() ) {
+					$content_ids = null;
+				}
+				if( $content_ids ) {
+					$contentops->LoadChildren(null,$deep,FALSE,$content_ids); //recurses into the instance
+					self::$_instance->_preload_cache = $content_ids;
+				}
+			}
 		}
-		return $res;
+		return self::$_instance;
 	}
 
 	/**
@@ -165,16 +155,16 @@ final class content_cache
 	 * @param mixed $identifier Unique identifier
 	 * @return mixed the matched ContentBase object, or null.
 	 */
-	public static function &get_content($identifier)
+	public function &get_content($identifier)
 	{
-		$hash = self::content_exists($identifier);
-		if( $hash === FALSE ) {
-			// content doesn't exist...
-			$res = null;
-			return $res;
+		$res = null;
+		if( $this->_content_cache ) {
+			$hash = $this->content_exists($identifier);
+			if( $hash !== FALSE ) {
+				if( isset($this->_content_cache[$hash]) ) $res = $this->_content_cache[$hash];
+			}
 		}
-
-		return self::get_content_obj($hash);
+		return $res;
 	}
 
 	/**
@@ -186,19 +176,19 @@ final class content_cache
 	 * @param mixed $identifier Unique identifier
 	 * @return bool
 	 */
-	public static function content_exists($identifier)
+	public function content_exists($identifier)
 	{
-		if( !self::$_content_cache ) return FALSE;
+		if( !$this->_content_cache ) return FALSE;
 
 		if( is_numeric($identifier) ) {
-			if( !self::$_id_map ) return FALSE;
-			if( !isset(self::$_id_map[$identifier]) ) return FALSE;
-			return self::$_id_map[$identifier];
+			if( !$this->_id_map ) return FALSE;
+			if( !isset($this->_id_map[$identifier]) ) return FALSE;
+			return $this->_id_map[$identifier];
 		}
-		else if( is_string($identifier) ) {
-			if( !self::$_alias_map ) return FALSE;
-			if( !isset(self::$_alias_map[$identifier]) ) return FALSE;
-			return self::$_alias_map[$identifier];
+		elseif( is_string($identifier) ) {
+			if( !$this->_alias_map ) return FALSE;
+			if( !isset($this->_alias_map[$identifier]) ) return FALSE;
+			return $this->_alias_map[$identifier];
 		}
 		return FALSE;
 	}
@@ -214,17 +204,17 @@ final class content_cache
 	 * @param ContentBase The content object
 	 * @return bool
 	 */
-	private static function _add_content($id,$alias,ContentBase &$obj)
+	private function _add_content($id,$alias,ContentBase &$obj)
 	{
 		if( !$id) return FALSE;
-		if( !self::$_alias_map ) self::$_alias_map = [];
-		if( !self::$_id_map ) self::$_id_map = [];
-		if( !self::$_content_cache ) self::$_content_cache = [];
+		if( !$this->_alias_map ) $this->_alias_map = [];
+		if( !$this->_id_map ) $this->_id_map = [];
+		if( !$this->_content_cache ) $this->_content_cache = [];
 
 		$hash = md5($id.$alias);
-		self::$_content_cache[$hash] = $obj;
-		if( $alias ) self::$_alias_map[$alias] = $hash;
-		self::$_id_map[$id] = $hash;
+		$this->_content_cache[$hash] = $obj;
+		if( $alias ) $this->_alias_map[$alias] = $hash;
+		$this->_id_map[$id] = $hash;
 		return TRUE;
 	}
 
@@ -236,57 +226,57 @@ final class content_cache
 	 * @param ContentBase The content object
 	 * @return bool
 	 */
-	public static function add_content($id,$alias,ContentBase &$obj)
+	public function add_content($id,$alias,ContentBase &$obj)
 	{
-		self::_add_content($id,$alias,$obj);
+		return $this->_add_content($id,$alias,$obj);
 	}
 
 	/**
-	 * Clear the contents of the entire cache
+	 * Clear the entire contents of the cache
 	 */
-	public static function clear()
+	public function clear()
 	{
-		self::$_content_cache = null;
-		self::$_alias_map = null;
-		self::$_id_map = null;
+		$this->_content_cache = null;
+		$this->_alias_map = null;
+		$this->_id_map = null;
 	}
 
 	/**
 	 * Return a list of the page ids that are in the cache
 	 *
-	 * @return Array
+	 * @return mixed array | null
 	 */
-	public static function get_loaded_page_ids()
+	public function get_loaded_page_ids()
 	{
-		if( self::$_id_map ) return array_keys(self::$_id_map);
+		if( $this->_id_map ) return array_keys($this->_id_map);
 	}
 
 	/**
 	 * Retrieve a pageid given an alias.
 	 *
 	 * @param string Page alias
-	 * @return int id, or FALSE if alias cannot be found in cache.
+	 * @return mixed int id, or FALSE if alias is not in the cache.
 	 */
-	public static function get_id_from_alias($alias)
+	public function get_id_from_alias($alias)
 	{
-		if( !isset(self::$_alias_map) ) return FALSE;
-		if( !isset(self::$_alias_map[$alias]) ) return FALSE;
-		$hash = self::$_alias_map[$alias];
-		return array_search($hash,self::$_id_map);
+		if( !isset($this->_alias_map) ) return FALSE;
+		if( !isset($this->_alias_map[$alias]) ) return FALSE;
+		$hash = $this->_alias_map[$alias];
+		return array_search($hash,$this->_id_map);
 	}
 
 	/**
 	 * Retrieve a page alias given an id.
 	 *
 	 * @param int page id.
-	 * @return string alias, or FALSE if id cannot be found in cache.
+	 * @return mixed string alias, or FALSE if id is not in the cache.
 	 */
-	public static function get_alias_from_id($id)
+	public function get_alias_from_id($id)
 	{
-		if( !isset(self::$_id_map) ) return FALSE;
-		if( !isset(self::$_id_map[$id]) ) return FALSE;
-		$hash = self::$_id_map[$id];
-		return array_search($hash,self::$_alias_map);
+		if( !isset($this->_id_map) ) return FALSE;
+		if( !isset($this->_id_map[$id]) ) return FALSE;
+		$hash = $this->_id_map[$id];
+		return array_search($hash,$this->_alias_map);
 	}
 
 	/**
@@ -294,9 +284,9 @@ final class content_cache
 	 *
 	 * @return bool
 	 */
-	public static function have_preloaded()
+	public function have_preloaded()
 	{
-		return is_array(self::get_instance()->_preload_cache);
+		return !empty($this->_preload_cache);
 	}
 
 	/**
@@ -311,16 +301,16 @@ final class content_cache
 	 * @param mixed Unique identifier
 	 * @return void
 	 */
-	public static function unload($identifier)
+	public function unload($identifier)
 	{
-		$hash = self::content_exists($identifier);
+		$hash = $this->content_exists($identifier);
 		if( $hash ) {
-			$id = array_search($identifier,self::$_id_map);
-			$alias = array_search($identifier,self::$_alias_map);
+			$id = array_search($identifier,$this->_id_map);
+			$alias = array_search($identifier,$this->_alias_map);
 			if( $alias !== FALSE && $id != FALSE ) {
-				unset(self::$_id_map[$id]);
-				unset(self::$_alias_map[$alias]);
-				unset(self::$_content_cache[$hash]);
+				unset($this->_id_map[$id]);
+				unset($this->_alias_map[$alias]);
+				unset($this->_content_cache[$hash]);
 			}
 		}
 	}

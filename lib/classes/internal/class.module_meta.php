@@ -35,34 +35,35 @@ use ModuleOperations;
  */
 final class module_meta
 {
+	/* *
+     * @ignore
+     */
+//    private static $_instance = null;
+    //TODO namespaced global variables here
 	/**
      * @ignore
      */
-    private static $_instance = null;
-	/**
-     * @ignore
-     */
-    private $_data = [];
+    private static $_data = [];
 
 	/**
      * @ignore
      */
-    private function __construct() {}
+//    private function __construct() {}
 
 	/**
      * @ignore
      */
-    private function __clone() {}
+//    private function __clone() {}
 
     /**
-     * Get the instance of this object.  The object will be instantiated if necessary
-     *
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 use new module_meta()
      * @return object
      */
     public static function get_instance() : self
     {
-        if( !self::$_instance ) self::$_instance = new self();
-        return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
     }
 
 
@@ -71,13 +72,13 @@ final class module_meta
         global $CMS_INSTALL_PAGE;
         if( isset($CMS_INSTALL_PAGE) ) return;
 
-        if( count($this->_data) == 0 ) {
+        if( count(self::$_data) == 0 ) {
 			$data = cms_cache_handler::get_instance()->get(__CLASS__);
             if( $data ) {
-				$this->_data = $data;
+				self::$_data = $data;
 			}
 			else {
-				$this->_data = [];
+				self::$_data = [];
 			}
         }
     }
@@ -88,7 +89,7 @@ final class module_meta
         global $CMS_INSTALL_PAGE;
         if( isset($CMS_INSTALL_PAGE) ) return;
 
-        cms_cache_handler::get_instance()->set(__CLASS__,$this->_data);
+        cms_cache_handler::get_instance()->set(__CLASS__,self::$_data);
     }
 
 
@@ -106,14 +107,14 @@ final class module_meta
 
         $this->_load_cache();
         $sig = md5($capability.serialize($params));
-        if( !isset($this->_data['capability']) || !isset($this->_data['capability'][$sig]) ) {
+        if( !isset(self::$_data['capability']) || !isset(self::$_data['capability'][$sig]) ) {
             debug_buffer('start building module capability list');
-            if( !isset($this->_data['capability']) ) $this->_data['capability'] = [];
+            if( !isset(self::$_data['capability']) ) self::$_data['capability'] = [];
 
             $modops = ModuleOperations::get_instance();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
-            $this->_data['capability'][$sig] = [];
+            self::$_data['capability'][$sig] = [];
             foreach( $installed_modules as $onemodule ) {
                 if( isset($loaded_modules[$onemodule]) ) {
                     $object = $loaded_modules[$onemodule];
@@ -125,7 +126,7 @@ final class module_meta
 
                 // now do the test
                 $res = $object->HasCapability($capability,$params);
-                $this->_data['capability'][$sig][$onemodule] = $res;
+                self::$_data['capability'][$sig][$onemodule] = $res;
             }
 
             debug_buffer('Finished building module capability list');
@@ -134,9 +135,9 @@ final class module_meta
         }
 
         $res = null;
-        if( $this->_data['capability'][$sig] ) {
+        if( self::$_data['capability'][$sig] ) {
             $res = [];
-            foreach( $this->_data['capability'][$sig] as $key => $value ) {
+            foreach( self::$_data['capability'][$sig] as $key => $value ) {
                 if( $value == $returnvalue ) $res[] = $key;
             }
         }
@@ -160,14 +161,14 @@ final class module_meta
         if( empty($method) ) return;
 
         $this->_load_cache();
-        if( !isset($this->_data['methods']) || !isset($this->_data['methods'][$method]) ) {
-            debug_buffer('start building module method cache');
-            if( !isset($this->_data['methods']) ) $this->_data['methods'] = [];
+        if( !isset(self::$_data['methods']) || !isset(self::$_data['methods'][$method]) ) {
+            debug_buffer('Start building module method cache');
+            if( !isset(self::$_data['methods']) ) self::$_data['methods'] = [];
 
             $modops = ModuleOperations::get_instance();
             $installed_modules = $modops->GetInstalledModules();
             $loaded_modules = $modops->GetLoadedModules();
-            $this->_data['methods'][$method] = [];
+            self::$_data['methods'][$method] = [];
             foreach( $installed_modules as $onemodule ) {
                 if( isset($loaded_modules[$onemodule]) ) {
                     $object = $loaded_modules[$onemodule];
@@ -180,7 +181,7 @@ final class module_meta
 
                 // now do the test
                 $res = $object->$method();
-                $this->_data['methods'][$method][$onemodule] = $res;
+                self::$_data['methods'][$method][$onemodule] = $res;
             }
 
             // store it.
@@ -189,9 +190,9 @@ final class module_meta
         }
 
         $res = null;
-        if( $this->_data['methods'][$method] ) {
+        if( self::$_data['methods'][$method] ) {
             $res = [];
-            foreach( $this->_data['methods'][$method] as $key => $value ) {
+            foreach( self::$_data['methods'][$method] as $key => $value ) {
                 if( $value == $returnvalue ) $res[] = $key;
             }
         }

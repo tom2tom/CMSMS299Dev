@@ -37,10 +37,11 @@ use function get_userid;
  */
 final class UserOperations
 {
+	//TODO namespaced global variables here
 	/**
 	 * @ignore
 	 */
-	private static $_instance = null;
+//	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -50,32 +51,32 @@ final class UserOperations
 	/**
 	 * @ignore
 	 */
-	private $_users;
+	private static $_users;
 
 	/**
 	 * @ignore
 	 */
-	private $_saved_users = [];
+	private static $_saved_users = [];
 
 	/**
 	 * @ignore
 	 */
-	private function __construct() {}
+//	private function __construct() {}
 
 	/**
      * @ignore
      */
-    private function __clone() {}
+//    private function __clone() {}
 
 	/**
-	 * Get the reference to the only instance of this object.
-	 *
+	 * Get an instance of this class.
+	 * @deprecated since 2.3 use new UserOperations()
 	 * @return UserOperations
 	 */
 	public static function get_instance() : self
 	{
-		if (!self::$_instance) self::$_instance = new self();
-		return self::$_instance;
+//		if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
+		return new self();
 	}
 
 	/**
@@ -89,7 +90,7 @@ final class UserOperations
 	 */
 	public function LoadUsers(int $limit = 10000, int $offset = 0) : array
 	{
-		if (!is_array($this->_users)) {
+		if (!is_array(self::$_users)) {
 			$gCms = CmsApp::get_instance();
 			$db = $gCms->GetDb();
 			$result = [];
@@ -113,10 +114,10 @@ final class UserOperations
 				$dbresult->MoveNext();
 			}
 
-			$this->_users = $result;
+			self::$_users = $result;
 		}
 
-		return $this->_users;
+		return self::$_users;
 	}
 
 	/**
@@ -229,8 +230,8 @@ final class UserOperations
 		if ($id < 1) {
 			return false;
 		}
-		if (isset($this->_saved_users[$id])) {
-			return $this->_saved_users[$id];
+		if (isset(self::$_saved_users[$id])) {
+			return self::$_saved_users[$id];
 		}
 
 		$result = false;
@@ -253,7 +254,7 @@ final class UserOperations
 			$result = $oneuser;
 		}
 
-		$this->_saved_users[$id] = $result;
+		self::$_saved_users[$id] = $result;
 		return $result;
 	}
 
@@ -583,4 +584,3 @@ final class UserOperations
 
 //backward-compatibility shiv
 \class_alias(UserOperations::class, 'UserOperations', false);
-

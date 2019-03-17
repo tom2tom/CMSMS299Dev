@@ -5,7 +5,7 @@ namespace AdminLog;
 use AdminLog\filter;
 use AdminLog\storage;
 use CmsDbQueryBase;
-use CMSMS\Database\mysqli\Connection;
+use CMSMS\Database\Connection;
 use LogicException;
 
 class resultset extends CmsDbQueryBase

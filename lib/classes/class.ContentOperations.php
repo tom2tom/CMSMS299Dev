@@ -25,8 +25,8 @@ use cms_utils;
 use CmsApp;
 use CmsCoreCapabilities;
 use CMSMS\ContentBase;
+use CMSMS\ContentCache;
 use CMSMS\ContentTypePlaceHolder;
-use CMSMS\internal\content_cache;
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
@@ -40,7 +40,7 @@ use function lang;
 use function munge_string_to_url;
 
 /**
- * Class of methods related to content
+ * A singleton class of methods related to content
  *
  * @final
  * @since 0.8
@@ -52,17 +52,17 @@ final class ContentOperations
 	/**
 	 * @ignore
 	 */
-	private $_quickfind;
+	private static $_instance = null;
+
+	/* *
+	 * @ignore
+	 */
+//	private $_quickfind;
 
 	/**
 	 * @ignore
 	 */
 	private $_content_types;
-
-	/**
-	 * @ignore
-	 */
-	private static $_instance = null;
 
 	/**
 	 * @ignore
@@ -85,12 +85,16 @@ final class ContentOperations
 	private function __clone() {}
 
 	/**
-	 * Return the only allowed instance of this singleton object
+	 * Get the singleton instance of this class.
+	 * This method is called over a hundred times during a typical request,
+	 * so warrants being a singleton.
 	 * @return ContentOperations
 	 */
 	public static function get_instance() : self
 	{
-		if( !self::$_instance ) self::$_instance = new self();
+		if( !self::$_instance ) {
+			self::$_instance = new self();
+		}
 		return self::$_instance;
 	}
 
@@ -224,7 +228,8 @@ final class ContentOperations
 	{
 		$id = (int)$id;
 		if( $id < 1 ) $id = $this->GetDefaultContent();
-		$contentobj = content_cache::get_content($id);
+		$cache = ContentCache::get_instance();
+		$contentobj = $cache->get_content($id);
 		if( $contentobj === null ) {
 			$db = CmsApp::get_instance()->GetDb();
 			$query = 'SELECT * FROM '.CMS_DB_PREFIX.'content WHERE content_id = ?';
@@ -234,10 +239,11 @@ final class ContentOperations
 				$contentobj = $this->CreateNewContent($classtype);
 				if( $contentobj ) {
 					$contentobj->LoadFromData($row, $loadprops);
-					content_cache::add_content($id,$row['content_alias'],$contentobj);
+					$cache->add_content($id,$row['content_alias'],$contentobj);
 				}
 			}
 		} else {
+$ADBG = 1;
 			//TODO trigger module-loading etc, so that page tags get registered
 		}
 
@@ -253,7 +259,8 @@ final class ContentOperations
 	 */
 	public function LoadContentFromAlias($alias, bool $only_active = false)
 	{
-		$contentobj = content_cache::get_content($alias);
+		$cache = ContentCache::get_instance();
+		$contentobj = $cache->get_content($alias);
 		if( $contentobj === null ) {
 			$hm = CmsApp::get_instance()->GetHierarchyManager();
 			$type = '';
@@ -520,7 +527,8 @@ final class ContentOperations
 		global_cache::clear('content_flatlist');
 		global_cache::clear('content_tree');
 		global_cache::clear('content_quicklist');
-		content_cache::clear();
+		$cache = ContentCache::get_instance();
+		$cache->clear();
 	}
 
 	/**
@@ -552,7 +560,8 @@ final class ContentOperations
 		$_loaded = 1;
 
 		$expr = [];
-		$loaded_ids = content_cache::get_loaded_page_ids();
+		$cache = ContentCache::get_instance();
+		$loaded_ids = $cache->get_loaded_page_ids();
 		if( $loaded_ids ) {
 			$expr[] = 'content_id NOT IN ('.implode(',',$loaded_ids).')';
 		}
@@ -619,7 +628,7 @@ final class ContentOperations
 				}
 
 				// cache the content objects
-				content_cache::add_content($id,$contentobj->Alias(),$contentobj);
+				$cache->add_content($id,$contentobj->Alias(),$contentobj);
 			}
 			$dbr->MoveNext();
 		}
@@ -638,9 +647,10 @@ final class ContentOperations
 	public function LoadChildren(int $id = null, bool $loadprops = false, bool $all = false, array $explicit_ids = [] )
 	{
 		$db = CmsApp::get_instance()->GetDb();
+		$cache = ContentCache::get_instance();
 
 		if( $explicit_ids ) {
-			$loaded_ids = content_cache::get_loaded_page_ids();
+			$loaded_ids = $cache->get_loaded_page_ids();
 			if( $loaded_ids ) {
 				$explicit_ids = array_diff($explicit_ids,$loaded_ids);
 			}
@@ -721,7 +731,7 @@ final class ContentOperations
 				}
 
 				// cache the content objects
-				content_cache::add_content($id,$contentobj->Alias(),$contentobj);
+				$cache->add_content($id,$contentobj->Alias(),$contentobj);
 				unset($contentobj);
 			}
 		}
