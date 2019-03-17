@@ -1,11 +1,12 @@
 <?php
 
+namespace cms_installer {
+
 use cms_installer\cms_smarty;
+use cms_installer\installer_base;
 use cms_installer\langtools;
 use cms_installer\nlstools;
-use cms_installer\wizard\wizard;
-
-namespace cms_installer {
+use Exception;
 
 /**
  * @return installer_base object
@@ -77,6 +78,8 @@ function lang(...$args)
 
 namespace {
 
+use cms_installer\wizard\wizard;
+
 function verbose_msg(string $str) : string
 {
 	$obj = wizard::get_instance()->get_step();
@@ -99,3 +102,4 @@ function error_msg(string $str) : string
 }
 
 } //namespace
+

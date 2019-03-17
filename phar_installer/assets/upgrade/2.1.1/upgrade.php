@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\Group;
+
 status_msg('Upgrading schema for CMSMS 2.1.1');
 
 //$gCms = cmsms();
@@ -22,3 +25,4 @@ foreach( $groups as $group ) {
     $group->GrantPermission('Manage My Account');
     $group->GrantPermission('Manage My Bookmarks');
 }
+

@@ -1,4 +1,7 @@
 <?php
+
+use CMSMS\Group;
+
 status_msg('Adding missing permissions');
 
 //$gCms = cmsms();
@@ -19,3 +22,4 @@ foreach( $groups as $group ) {
         $group->GrantPermission('Manage Stylesheets');
     }
 }
+
