@@ -48,7 +48,7 @@
     </div>
   </form>
 
-{if !empty($devmode)}
+{if !empty($export)}
   <form action="{$selfurl}{$urlext}" method="post">
   <p class="pageinput pregap">
     <button type="submit" name="export" class="adminsubmit icon do" title="{lang('exportsite_tip')}">{lang('exportsite')}</button>

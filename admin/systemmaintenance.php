@@ -245,32 +245,32 @@ $obj = cms_cache_handler::get_instance();
 $type = get_class($obj->get_driver());
 if (!endswith($type, 'File')) {
     $c = stripos($type, 'Cache');
-	$type = ucfirst(substr($type, $c+5));
+    $type = ucfirst(substr($type, $c+5));
     $smarty->assign('cachetype', $type);
 }
 
 /*
  * Site-content export
  */
-$flag = !empty($config['developer_mode']);
-if ($flag && isset($_POST['export'])) {
-    include __DIR__.DIRECTORY_SEPARATOR.'function.contentoperation.php';
-    // identify folder where 'support' files (if any) will be stored, pending site import
+if (!empty($config['developer_mode']) {
+    // try to get folder where 'support' files (if any) will be stored, pending site import
     $fp = cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','classes','class.installer_base.php');
-    if (is_file($fp)) {
-        include $fp;
-        $arr = installer_base::CONTENTFILESDIR;
-        $filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
-        $arr = installer_base::CONTENTXML;
-        $xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
-        $keep = true;
-    } else {
-        // guess, probably still relevant :)
-        $filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer','assets','install','uploadfiles');
-        $xmlfile = TMP_CACHE_LOCATION.DIRECTORY_SEPARATOR.uniqid('site').'.xml';
-        $keep = false;
-    }
+    $exportable = is_file($fp);
+} else {
+    $exportable = false;
+}
+$smarty->assign('export', $exportable);
+
+if ($exportable && isset($_POST['export'])) {
+    include $fp;
+    $arr = installer_base::CONTENTFILESDIR;
+    $filesin = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+    $arr = installer_base::CONTENTXML;
+    $xmlfile = cms_join_path(CMS_ROOT_PATH,'phar_installer', ...$arr);
+
+    include cms_join_path(CMS_ROOT_PATH,'phar_installer','lib','iosite.functions.php');
     export_content($xmlfile, $filesin, $db);
+    // also download it
     $handlers = ob_list_handlers();
     for ($c = 0, $n = count($handlers); $c < $n; ++$c) {
         ob_end_clean();
@@ -281,12 +281,9 @@ if ($flag && isset($_POST['export'])) {
     header('Content-Type: application/force-download');
     header('Content-Disposition: attachment; filename='.$xmlname);
     echo file_get_contents($xmlfile);
-    if (!$keep) {
-        @unlink($xmlfile);
-    }
+
     exit;
 }
-$smarty->assign('devmode', $flag);
 
 /*
  * Changelog
