@@ -58,10 +58,33 @@ class wizard_step
 
     public function run()
     {
-        $request = request::get();
+        $request = request::get_instance();
         if( $request->is_post() ) $res = $this->process();
         $this->display();
         return wizard::STATUS_OK;
+    }
+
+    /**
+     * Process the results of this step's form (POST only)
+     * @abstract
+     */
+    protected function process() {}
+
+    /**
+     * Display information for this step
+     */
+    protected function display()
+    {
+//      $app = get_app();
+        $smarty = smarty();
+        $smarty->assign('wizard_steps',$this->get_wizard()->get_nav());
+        $smarty->assign('title',$this->get_primary_title());
+    }
+
+    protected function finish()
+    {
+        echo '<script type="text/javascript">finish();</script>'."\n";
+        flush();
     }
 
     public function fn_wizard_form_start($params, $smarty)
@@ -73,12 +96,6 @@ class wizard_step
     {
         echo '</form>';
     }
-
-    /**
-     * Process the results of this step's form (POST only)
-     * @abstract
-     */
-    protected function process() {}
 
     protected function get_primary_title()
     {
@@ -99,17 +116,20 @@ class wizard_step
         return $str;
     }
 
-    /**
-     * Display information for this step
-     */
-    protected function display()
+    public function set_block_html($id,$html)
     {
-//      $app = get_app();
-        $smarty = smarty();
-        $smarty->assign('wizard_steps',$this->get_wizard()->get_nav());
-        $smarty->assign('title',$this->get_primary_title());
+        $html = addslashes($html);
+        echo '<script type="text/javascript">set_block_html(\''.$id.'\',\''.$html.'\');</script>'."\n";
+        flush();
     }
 
+    public function message($msg)
+    {
+        $msg = addslashes($msg);
+        echo '<script type="text/javascript">add_message(\''.$msg.'\');</script>'."\n";
+        flush();
+    }
+    
     public function error($msg)
     {
         $msg = addslashes($msg);
@@ -119,7 +139,6 @@ class wizard_step
 
     public static function verbose($msg)
     {
-
         $config = get_app()->get_config();
         $verbose = $config['verbose'] ?? false;
         if( $verbose ) {
@@ -127,25 +146,5 @@ class wizard_step
             echo '<script type="text/javascript">add_verbose(\''.$msg.'\');</script>'."\n";
             flush();
         }
-    }
-
-    public function message($msg)
-    {
-        $msg = addslashes($msg);
-        echo '<script type="text/javascript">add_message(\''.$msg.'\');</script>'."\n";
-        flush();
-    }
-
-    public function set_block_html($id,$html)
-    {
-        $html = addslashes($html);
-        echo '<script type="text/javascript">set_block_html(\''.$id.'\',\''.$html.'\');</script>'."\n";
-        flush();
-    }
-
-    protected function finish()
-    {
-        echo '<script type="text/javascript">finish();</script>'."\n";
-        flush();
     }
 }
