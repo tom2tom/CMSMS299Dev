@@ -119,6 +119,9 @@ final class ContentCache
 
 	/**
 	 * Get the singleton instance of this class
+	 * This method is called at least once-per-page during a request,
+	 * which for most sites means LOTS. And it needs some post-construction
+	 * initializing. Hence a singleton.
 	 * @throws LogicException
 	 */
 	public static function get_instance() : self
@@ -129,7 +132,7 @@ final class ContentCache
 			}
 			self::$_instance = new self();
 			// one-time initialization
-			$key = self::$_instance->_key;
+			$key = self::$_instance->_key; //clunky!
 			$data = cms_cache_handler::get_instance()->get($key,__CLASS__);
 			if( $data ) {
 				list($lastmtime,$deep,$content_ids) = $data;
@@ -139,7 +142,7 @@ final class ContentCache
 				}
 				if( $content_ids ) {
 					$contentops->LoadChildren(null,$deep,FALSE,$content_ids); //recurses into the instance
-					self::$_instance->_preload_cache = $content_ids;
+					self::$_instance->_preload_cache = $content_ids; //clunky!
 				}
 			}
 		}
@@ -182,13 +185,11 @@ final class ContentCache
 
 		if( is_numeric($identifier) ) {
 			if( !$this->_id_map ) return FALSE;
-			if( !isset($this->_id_map[$identifier]) ) return FALSE;
-			return $this->_id_map[$identifier];
+			if( isset($this->_id_map[$identifier]) ) return $this->_id_map[$identifier];
 		}
 		elseif( is_string($identifier) ) {
 			if( !$this->_alias_map ) return FALSE;
-			if( !isset($this->_alias_map[$identifier]) ) return FALSE;
-			return $this->_alias_map[$identifier];
+			if( isset($this->_alias_map[$identifier]) ) return $this->_alias_map[$identifier];
 		}
 		return FALSE;
 	}
