@@ -11,10 +11,10 @@ use PharData;
 use PHPArchive\Tar;
 use RecursiveIteratorIterator;
 use function cms_installer\endswith;
+use function cms_installer\get_app;
 use function cms_installer\joinpath;
 use function cms_installer\lang;
 use function cms_installer\smarty;
-use function cms_installer\get_app;
 
 class wizard_step7 extends wizard_step
 {
@@ -142,7 +142,7 @@ class wizard_step7 extends wizard_step
 
         $this->message(lang('install_extractfiles'));
 
-        list($iter,$archdir) = $app->unpack_archive();
+        list($iter,$archdir) = $app->start_archive_scan();
         $len = strlen($archdir);
 
         foreach ($iter as $fn=>$fp) {

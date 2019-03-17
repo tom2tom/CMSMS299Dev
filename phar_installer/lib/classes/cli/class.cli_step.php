@@ -14,4 +14,3 @@ abstract class cli_step
     protected function app() { return $this->_app; }
     abstract function run();
 } // class
-

@@ -4,7 +4,9 @@ namespace cms_installer\wizard;
 
 use cms_installer\request;
 use cms_installer\session;
+use DirectoryIterator;
 use Exception;
+use RegexIterator;
 
 final class wizard
 {
@@ -13,14 +15,16 @@ final class wizard
     const STATUS_BACK  = 'BACK';
     const STATUS_NEXT  = 'NEXT';
 
-    private static $_instance = null;
-//    private $_name = null;
-    private $_stepvar = 's';
-    private $_steps;
-    private $_stepobj;
-    private $_classdir;
-    private $_namespace;
-    private $_initialized;
+//    private static $_instance = null;
+
+    //TODO namespaced global variables here
+//    private static $_name = null;
+    private static $_stepvar = 's';
+    private static $_steps;
+    private static $_stepobj;
+    private static $_classdir;
+    private static $_namespace;
+    private static $_initialized;
 
     /**
      * @access private
@@ -28,7 +32,7 @@ final class wizard
      * @param string $namespace Optional namespace of step-classes. Default current
      * @throws Exception if supplied $classdir is invalid
      */
-    private function __construct($classdir = '', $namespace = '')
+    public function __construct($classdir = '', $namespace = '')
     {
         if( !$classdir ) {
             $classdir = __DIR__;
@@ -37,25 +41,24 @@ final class wizard
             $classdir = rtrim($classdir,' \\/');
             if( !is_dir($classdir) ) throw new Exception('Invalid wizard directory '.$classdir);
         }
-        $this->_classdir = $classdir;
+        self::$_classdir = $classdir;
 //        $this->_name = basename($classdir);
 
         if( !$namespace ) $namespace = __NAMESPACE__;
-        $this->_namespace = $namespace;
+        self::$_namespace = $namespace;
     }
 
     /**
-     * Get the wizard object, after creation if necessary
+     * Get a wizard object
+     * @deprecated since 2.3 use new wizard() instead
      * @param string $classdir Optional file-path of folder containing wizard-step classes
      * @param string $namespace Optional namespace of wizard-step classes
-     * @return singleton object
+     * @return object
      */
     public static function get_instance($classdir = '', $namespace = '')
     {
-        if( !self::$_instance ) {
-            self::$_instance = new self($classdir,$namespace);
-        }
-        return self::$_instance;
+//        if( !self::$_instance ) { self::$_instance = new self($classdir,$namespace); } return self::$_instance;
+        return new self($classdir, $namespace);
     }
 
     /**
@@ -64,50 +67,52 @@ final class wizard
      */
     private function _init()
     {
-        if( $this->_initialized ) return;
+        if( self::$_initialized ) return;
 
-        // find all step-classes in the wizard directory (not recursive)
-        $files = glob($this->_classdir.DIRECTORY_SEPARATOR.'class.wizard_step*.php',GLOB_NOSORT);
-        if( !$files ) throw new Exception('Could not find wizard steps in '.$this->_classdir);
+        // find all step-classes in the wizard directory (not recursive) (intra-phar globbing N/A)
+        $iter = new RegexIterator(
+            new DirectoryIterator(self::$_classdir),
+            '/^class\.wizard_step\d+\.php$/'
+        );
 
-        $_data = [];
         $s = self::cur_step();
-        for( $i = 0, $n = count($files); $i < $n; $i++ ) {
-            $filename = basename($files[$i],'.php');
-            if( $filename != 'class.wizard_step' ) {
-                $classname = substr($filename,6);
-                $idx = (int)substr($classname,11);
-                $rec = ['fn'=>$filename.'.php','class'=>'','classname'=>$classname,'description'=>'','active'=>0];
-                $rec['class'] = ( $this->_namespace ) ? $this->_namespace.'\\'.$classname : $classname;
-                if( $idx == $s ) $rec['active'] = 1;
-                $_data[$idx] = $rec;
-            }
+        $_data = [];
+        foreach( $iter as $inf ) {
+            $filename = $inf->getFilename();
+            $tmp = substr($filename,0,strlen($filename) - 4);
+            $classname = substr($tmp,6);
+            $idx = (int)substr($classname,11);
+            $rec = ['fn'=>$filename,'class'=>'','classname'=>$classname,'description'=>'','active'=>0];
+            $rec['class'] = ( self::$_namespace ) ? self::$_namespace.'\\'.$classname : $classname;
+            if( $idx == $s ) $rec['active'] = 1;
+            $_data[$idx] = $rec;
         }
+        if( !$_data ) throw new Exception('Could not find wizard steps in '.self::$_classdir);
         ksort($_data,SORT_NUMERIC);
 
-        $this->_steps = $_data;
-        $this->_initialized = true;
+        self::$_steps = $_data;
+        self::$_initialized = true;
     }
 
     public function get_nav()
     {
         $this->_init();
-        return $this->_steps;
+        return self::$_steps;
     }
 
     public function get_step_var()
     {
-        return $this->_stepvar;
+        return self::$_stepvar;
     }
 
     public function set_step_var($str)
     {
-        if( $str ) $this->_stepvar = $str;
+        if( $str ) self::$_stepvar = $str;
     }
 
     public function cur_step() : int
     {
-        if( $this->_stepvar && isset($_GET[$this->_stepvar]) ) $val = (int)$_GET[$this->_stepvar];
+        if( self::$_stepvar && isset($_GET[self::$_stepvar]) ) $val = (int)$_GET[self::$_stepvar];
         else $val = 1;
         return $val;
     }
@@ -121,41 +126,40 @@ final class wizard
     public function num_steps() : int
     {
         $this->_init();
-        return count($this->_steps);
+        return count(self::$_steps);
     }
 
     public function get_step()
     {
-        if( is_object($this->_stepobj) ) return $this->_stepobj;
+        if( is_object(self::$_stepobj) ) return self::$_stepobj;
 
         $this->_init();
-        $rec = $this->_steps[$this->cur_step()];
+        $rec = self::$_steps[$this->cur_step()];
         if( !class_exists($rec['class']) ) {
-            require_once $this->_classdir.DIRECTORY_SEPARATOR.$rec['fn'];
+            require_once self::$_classdir.DIRECTORY_SEPARATOR.$rec['fn'];
         }
         $obj = new $rec['class']();
         if( is_object($obj) ) {
-            $this->_stepobj = $obj;
+            self::$_stepobj = $obj;
             return $obj;
         }
     }
 
     public function get_data($key,$dflt = null)
     {
-        $sess = session::get();
-        if( !isset($sess[$key]) ) return $dflt;
-        return $sess[$key];
+        $sess = session::get_instance();
+        return $sess[$key] ?? $dflt;
     }
 
     public function set_data($key,$value)
     {
-        $sess = session::get();
+        $sess = session::get_instance();
         $sess[$key] = $value;
     }
 
     public function clear_data($key)
     {
-        $sess = session::get();
+        $sess = session::get_instance();
         if( isset($sess[$key]) ) unset($sess[$key]);
     }
 
@@ -180,13 +184,13 @@ final class wizard
         $idx = (int)$idx;
         if( $idx < 1 || $idx > $this->num_steps() ) return '';
 
-        $request = request::get();
+        $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
 
         $parts = [];
         parse_str($url,$parts);
-        $parts[$this->_stepvar] = $idx;
+        $parts[self::$_stepvar] = $idx;
 
         $tmp = [];
         foreach( $parts as $k => $v ) {
@@ -202,14 +206,14 @@ final class wizard
     public function next_url() : string
     {
         $this->_init();
-        $request = request::get();
+        $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
 
         $parts = [];
         parse_str($url,$parts);
-        $parts[$this->_stepvar] = $this->cur_step() + 1;
-        if( $parts[$this->_stepvar] > $this->num_steps() ) return '';
+        $parts[self::$_stepvar] = $this->cur_step() + 1;
+        if( $parts[self::$_stepvar] > $this->num_steps() ) return '';
 
         $tmp = [];
         foreach( $parts as $k => $v ) {
@@ -225,14 +229,14 @@ final class wizard
     public function prev_url() : string
     {
         $this->_init();
-        $request = request::get();
+        $request = request::get_instance();
         $url = $request->raw_server('REQUEST_URI');
         $urlmain = explode('?',$url);
 
         $parts = [];
         parse_str($url,$parts);
-        $parts[$this->_stepvar] = $this->cur_step() - 1;
-        if( $parts[$this->_stepvar] <= 0 ) return '';
+        $parts[self::$_stepvar] = $this->cur_step() - 1;
+        if( $parts[self::$_stepvar] <= 0 ) return '';
 
         $tmp = [];
         if( $parts ) {

@@ -5,6 +5,9 @@ namespace cms_installer\cli;
 use cms_installer\cli\cli_step;
 use console;
 use Exception;
+use const CMS_SCHEMA_VERSION;
+use const CMS_VERSION;
+use const CMS_VERSION_NAME;
 use function cms_installer\lang;
 use function cms_installer\translator;
 use function cms_installer\get_app;
@@ -23,10 +26,10 @@ class step_2 extends cli_step
 
         $info = [];
         if( is_file("$dir/lib/version.php") ) {
-            @include_once "$dir/lib/version.php";
+//see installer_base::init()            @include_once "$dir/lib/version.php";
             $info['mtime'] = filemtime($dir.'/lib/version.php');
         } else {
-            @include_once $dir.'/version.php';
+//see installer_base::init()            @include_once $dir.'/version.php';
             $info['mtime'] = filemtime($dir.'/version.php');
         }
         $info['version'] = CMS_VERSION;

@@ -4,11 +4,12 @@ namespace cms_installer\wizard;
 
 use cms_installer\utils;
 use Exception;
+//use const CMS_VERSION; from inclusion
+use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\smarty;
 use function cms_installer\startswith;
 use function cms_installer\translator;
-use function cms_installer\get_app;
 
 class wizard_step1 extends wizard_step
 {
@@ -90,16 +91,17 @@ class wizard_step1 extends wizard_step
         return TRUE;
     }
 
+    // $dir = CMS_ROOT_DIR / OLD-plugins ??
     private function _get_annotation(string $dir)
     {
         if( !is_dir($dir) || !is_readable($dir) ) return;
         $bn = basename($dir);
         if( $bn != 'lib' && is_file($dir.DIRECTORY_SEPARATOR.'version.php' ) ) {
-            @include $dir.DIRECTORY_SEPARATOR.'version.php'; // defines in this file can throw notices
-            return 'CMSMS '.CMS_VERSION;
+// see installer_base::init()            @include $dir.DIRECTORY_SEPARATOR.'version.php'; // defines in this file can throw notices
+            return 'CMSMS '.$CMS_VERSION;
         } elseif( is_file($dir.DIRECTORY_SEPARATOR.'lib/version.php') ) {
-            @include $dir.DIRECTORY_SEPARATOR.'lib/version.php'; // defines in this file can throw notices
-            return 'CMSMS '.CMS_VERSION;
+// see installer_base::init()            @include $dir.DIRECTORY_SEPARATOR.'lib/version.php'; // defines in this file can throw notices
+            return 'CMSMS '.$CMS_VERSION;
         }
 
         if( is_dir($dir.DIRECTORY_SEPARATOR.'assets') && is_file($dir.DIRECTORY_SEPARATOR.'lib/classes/class.installer_base.php') ) {

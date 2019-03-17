@@ -5,20 +5,21 @@ use CMSMS\Group;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use function cms_installer\get_app;
+use function cms_installer\lang;
 
 global $admin_user;
 
-status_msg(ilang('install_requireddata'));
+status_msg(lang('install_requireddata'));
 
 $query = 'INSERT INTO '.CMS_DB_PREFIX.'version VALUES (206)';
 $db->Execute($query);
-verbose_msg(ilang('install_setschemaver'));
+verbose_msg(lang('install_setschemaver'));
 
 //
 // permissions
 // note: some of these have been exported to CMSContentManager or DesignManager install routines.
 //
-verbose_msg(ilang('install_initsiteperms'));
+verbose_msg(lang('install_initsiteperms'));
 $all_perms = [];
 foreach( [
 //	'Add Pages', >CM
@@ -57,10 +58,10 @@ foreach( [
 //
 // initial groups
 //
-verbose_msg(ilang('install_initsitegroups'));
+verbose_msg(lang('install_initsitegroups'));
 $group = new Group();
 $group->name = 'Admin';
-$group->description = ilang('grp_admin_desc');
+$group->description = lang('grp_admin_desc');
 $group->active = 1;
 $group->Save();
 
@@ -68,7 +69,7 @@ $gid1 = $group->id;
 
 $group = new Group();
 $group->name = 'CodeManager';
-$group->description = ilang('grp_coder_desc');
+$group->description = lang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
@@ -113,7 +114,7 @@ $group->GrantPermission('Modify Templates');
 //
 // initial user account
 //
-verbose_msg(ilang('install_initsiteusers'));
+verbose_msg(lang('install_initsiteusers'));
 $admin_user = new User();
 $admin_user->username = $adminaccount['username'];
 if( !empty($adminaccount['emailaddr']) ) $admin_user->email = $adminaccount['emailaddr'];
@@ -130,7 +131,7 @@ cms_userprefs::set_for_user($admin_user->id,'wysiwyg','MicroTiny'); // the only 
 // standard events
 // some of these have been exported to CMSContentManager or DesignManager install routines.
 //
-verbose_msg(ilang('install_initevents'));
+verbose_msg(lang('install_initevents'));
 /* >DM
 Events::CreateEvent('Core','AddDesignPost');
 Events::CreateEvent('Core','AddDesignPre');
@@ -225,7 +226,7 @@ function create_private_dir(string $destdir, string $relative_dir)
 }
 
 // create the assets directory structure
-verbose_msg(ilang('install_createassets'));
+verbose_msg(lang('install_createassets'));
 $app = get_app();
 $destdir = $app->get_destdir().DIRECTORY_SEPARATOR.'assets';
 create_private_dir($destdir,'admin_custom');

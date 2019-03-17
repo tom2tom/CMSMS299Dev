@@ -8,7 +8,6 @@ use CMSMS\AdminUtils;
 use CMSMS\ModuleOperations;
 use Exception;
 use const CMS_DB_PREFIX;
-use function cms_installer\endswith;
 use function cms_installer\lang;
 use function cms_installer\smarty;
 use function cms_installer\get_app;
@@ -326,7 +325,7 @@ VALUES (?,?,?,NOW(),NOW())');
             }
 
             // clear the session.
-            $sess = session::get();
+            $sess = session::get_instance();
             $sess->clear();
 
             $this->finish();
@@ -338,4 +337,3 @@ VALUES (?,?,?,NOW(),NOW())');
         $app->cleanup();
     }
 } // class
-

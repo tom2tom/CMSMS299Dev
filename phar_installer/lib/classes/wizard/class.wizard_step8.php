@@ -15,7 +15,6 @@ use function cms_installer\smarty;
 use function cms_installer\get_app;
 use function cmsms;
 use function GetDb;
-use function ilang;
 use function import_content;
 use function verbose_msg;
 
@@ -120,7 +119,7 @@ class wizard_step8 extends wizard_step
             @mkdir($destdir.'/tmp/templates_c',0771,TRUE);
 
             // init some of the system-wide default settings
-            verbose_msg(ilang('install_initsiteprefs'));
+            verbose_msg(lang('install_initsiteprefs'));
             $arr = ThemeBase::GetAvailableThemes();
             foreach ([
              'adminlog_lifetime' => 3600*24*31, // admin log entries live for 60 days TODO AdminLog module setting
@@ -170,9 +169,9 @@ class wizard_step8 extends wizard_step
             $xmlfile = $dir . DIRECTORY_SEPARATOR . $fn;
             if( is_file($xmlfile) ) {
                 $arr = installer_base::CONTENTFILESDIR;
-                $filesfolder = $dir. DIRECTORY_SEPARATOR . end($arr);
+                $filesfolder = $dir . DIRECTORY_SEPARATOR . end($arr);
 
-                $fp = CMS_ADMIN_PATH . DIRECTORY_SEPARATOR . 'function.contentoperation.php';
+                $fp = dirname(__DIR__,2).DIRECTORY_SEPARATOR.'iosite.functions.php';
                 require_once $fp;
 
                 if( $fn != 'initial.xml' ) {

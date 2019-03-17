@@ -28,6 +28,9 @@ class wizard_step2 extends wizard_step
         $fv = $dir.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'version.php';
         if( !is_file($fv) ) return;
         $t = filemtime($fv);
+        if( !defined('CMS_VERSION') ) {
+            include $fv; // see also installer_base::init()
+        }
 
         $app = get_app();
         if( $aname != 'admin' ) $app->set_config_val('admindir', $aname);
@@ -40,7 +43,6 @@ class wizard_step2 extends wizard_step
         $dt->setTimestamp($t);
         $info['mdate'] = $dt->format('j F Y');
         $info['mtime'] = $t;
-        include_once $fv;
         $info['version'] = CMS_VERSION;
         $info['version_name'] = CMS_VERSION_NAME;
         $info['schema_version'] = CMS_SCHEMA_VERSION;
@@ -166,5 +168,4 @@ class wizard_step2 extends wizard_step
         $smarty->display('wizard_step2.tpl');
         $this->finish();
     }
-
 } // class

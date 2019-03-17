@@ -5,6 +5,7 @@ use CMSMS\Group;
 use CMSMS\UserPluginOperations;
 use function cms_installer\endswith;
 use function cms_installer\joinpath;
+use function cms_installer\lang;
 use function cms_installer\startswith;
 
 // 1. Convert UDT's to file-lugins, widen users-table columns
@@ -67,7 +68,7 @@ if ($page_type) {
     $page_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $page_type->save();
 } else {
-    error_msg('__CORE__::page template update '.ilang('failed'));
+    error_msg('__CORE__::page template update '.lang('failed'));
 }
 
 $generic_type = CmsLayoutTemplateType::load('__CORE__::generic');
@@ -76,7 +77,7 @@ if ($generic_type) {
     $generic_type->set_help_callback('\\CMSMS\\internal\\std_layout_template_callbacks::template_help_callback');
     $generic_type->save();
 } else {
-    error_msg('__CORE__::generic template update '.ilang('failed'));
+    error_msg('__CORE__::generic template update '.lang('failed'));
 }
 
 // 3. Revised/extra permissions
@@ -101,7 +102,7 @@ foreach ([
 
 $group = new Group();
 $group->name = 'CodeManager';
-$group->description = ilang('grp_coder_desc');
+$group->description = lang('grp_coder_desc');
 $group->active = 1;
 $group->Save();
 $group->GrantPermission('Modify Site Code');
@@ -172,14 +173,14 @@ $sqlarray = $dbdict->CreateTableSQL(
     $taboptarray
 );
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
-verbose_msg(ilang('install_created_table', CmsLayoutTemplateCategory::TPLTABLE, $msg_ret));
+$msg_ret = ($return == 2) ? lang('done') : lang('failed');
+verbose_msg(lang('install_created_table', CmsLayoutTemplateCategory::TPLTABLE, $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_cat_tplasoc_1',
  CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE, 'tpl_id');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
-$msg_ret = ($return == 2) ? ilang('done') : ilang('failed');
-verbose_msg(ilang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
+$msg_ret = ($return == 2) ? lang('done') : lang('failed');
+verbose_msg(lang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
 // migrate existing category_id values to new table
 $query = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE category_id IS NOT NULL';
@@ -230,7 +231,7 @@ $sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'module_nam
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->RenameColumnSQL(CMS_DB_PREFIX.'event_handlers', 'tag_name', 'func', 'C(64)');
 $dbdict->ExecuteSQLArray($sqlarray);
-verbose_msg(ilang('upgrade_modifytable', 'event_handlers'));
+verbose_msg(lang('upgrade_modifytable', 'event_handlers'));
 
 // 7. Migrate module templates to layout-templates table
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
@@ -269,12 +270,12 @@ if ($data) {
             $modified
         ]);
     }
-    verbose_msg(ilang('upgrade_modifytable', 'module_templates'));
+    verbose_msg(lang('upgrade_modifytable', 'module_templates'));
 }
 
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'module_templates');
 $dbdict->ExecuteSQLArray($sqlarray);
-verbose_msg(ilang('upgrade_deletetable', 'module_templates'));
+verbose_msg(lang('upgrade_deletetable', 'module_templates'));
 
 // 8. Update preferences
 // migrate to new default theme

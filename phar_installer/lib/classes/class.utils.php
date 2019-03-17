@@ -4,9 +4,9 @@ namespace cms_installer;
 
 use Exception;
 use function cms_installer\endswith;
+use function cms_installer\get_app;
 use function cms_installer\lang;
 use function cms_installer\startswith;
-use function cms_installer\get_app;
 
 final class utils
 {
@@ -86,9 +86,20 @@ final class utils
 
     /**
      *
+     * @param string $str
+     * @return bool
+     */
+    public static function is_email(string $str) : bool
+    {
+        return filter_var($str,FILTER_VALIDATE_EMAIL) !== FALSE;
+    }
+
+    /**
+     *
      * @param mixed $val
      * @return mixed
      */
+    // TODO filter_var()
     public static function clean_string($val)
     {
         if( !$val ) return $val;
@@ -133,16 +144,6 @@ final class utils
         }
 
         throw new Exception('Could not find a writable location for temporary files');
-    }
-
-    /**
-     *
-     * @param string $str
-     * @return bool
-     */
-    public static function is_email(string $str) : bool
-    {
-        return filter_var($str,FILTER_VALIDATE_EMAIL) !== FALSE;
     }
 
     /**
@@ -195,15 +196,6 @@ final class utils
     }
 
     /**
-     *
-     * @return array
-     */
-    public static function get_writable_error() : array
-    {
-        return self::$_writable_error;
-    }
-
-    /**
      * Recursive delete directory
      *
      * @param string $dir filepath
@@ -225,6 +217,15 @@ final class utils
             }
             return false;
         }
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public static function get_writable_error() : array
+    {
+        return self::$_writable_error;
     }
 
     /**

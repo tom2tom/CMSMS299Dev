@@ -2,6 +2,7 @@
 
 use function cms_installer\get_app;
 use function cms_installer\joinpath;
+use function cms_installer\lang;
 
 function create_private_dir(string $relative_dir)
 {
@@ -42,7 +43,7 @@ $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_gener
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME,'help_content_cb C(255), one_only I1');
 $dbdict->ExecuteSQLArray($sqlarray);
 
-verbose_msg(ilang('upgrading_schema',202));
+verbose_msg(lang('upgrading_schema',202));
 $query = 'UPDATE '.CMS_DB_PREFIX.'version SET version = 202';
 $db->Execute($query);
 

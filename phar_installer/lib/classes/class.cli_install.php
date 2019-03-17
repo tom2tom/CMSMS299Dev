@@ -108,13 +108,15 @@ class cli_install extends installer_base
 
     protected function get_steps() : array
     {
-        $patn = __DIR__.DIRECTORY_SEPARATOR.'cli'.DIRECTORY_SEPARATOR.'class.step_*.php';
-        $files = glob($patn, GLOB_NOSORT);
+        $iter = new RegexIterator(
+            new DirectoryIterator(__DIR__.DIRECTORY_SEPARATOR.'cli'),
+            '/^class\.step_\d+\.php$/'
+        );
 
         $out = [];
-        foreach( $files as $one ) {
-            $bn = basename($one, '.php');
-            $class = substr($bn, 6);
+        foreach( $iter as $inf ) {
+            $one = $inf->getFilename();
+            $class = substr($one, 6, -4);
             $classname = '\\cms_installer\\cli\\'.$class;
             $out[] = [ $one, $classname ];
         }

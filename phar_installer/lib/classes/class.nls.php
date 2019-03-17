@@ -2,8 +2,6 @@
 
 namespace cms_installer;
 
-use function cms_installer\endswith;
-
 abstract class nls
 {
     protected $_isocode;

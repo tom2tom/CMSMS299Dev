@@ -12,41 +12,41 @@ class step_4 extends cli_step
     protected function test_db_connection( $options )
     {
         // try a test connection
-		if( empty($config['db_port']) ) {
-			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
-				$config['db_password'], $config['db_name']);
-		}
-		else {
-			$mysqli = new mysqli($config['db_hostname'], $config['db_username'],
-				$config['db_password'], $config['db_name'], (int)$config['db_port']);
-		}
-		if( !$mysqli ) {
+        if( empty($config['db_port']) ) {
+            $mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+                $config['db_password'], $config['db_name']);
+        }
+        else {
+            $mysqli = new mysqli($config['db_hostname'], $config['db_username'],
+                $config['db_password'], $config['db_name'], (int)$config['db_port']);
+        }
+        if( !$mysqli ) {
             throw new Exception(lang('error_createtable'));
-		}
-		if( $mysqli->connect_errno ) {
+        }
+        if( $mysqli->connect_errno ) {
             throw new Exception($mysqli->connect_error.' : '.lang('error_createtable'));
-		}
+        }
         // see if we can create and drop a table.
-		$sql = 'CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)';
-		if( !$mysqli->query($sql) ) {
+        $sql = 'CREATE TABLE '.$config['db_prefix'].'_dummyinstall (i INT)';
+        if( !$mysqli->query($sql) ) {
             throw new Exception(lang('error_createtable'));
-		}
+        }
         $sql = 'DROP TABLE '.$config['db_prefix'].'_dummyinstall';
-		if( !$mysqli->query($sql) ) {
+        if( !$mysqli->query($sql) ) {
             throw new Exception(lang('error_droptable'));
         }
 
         $action = $this->app()->get_op();
         if( $action == 'install' ) {
-	        // check whether some typical core tables exist
+            // check whether some typical core tables exist
             $sql = 'SELECT content_id FROM '.$config['db_prefix'].'content LIMIT 1';
-			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+            if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
                 throw new Exception(lang('error_cmstablesexist'));
-			}
+            }
             $sql = 'SELECT module_name FROM '.$config['db_prefix'].'modules LIMIT 1';
-			if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
+            if( ($res = $mysqli->query($sql)) && $res->num_rows > 0 ) {
                 throw new Exception(lang('error_cmstablesexist'));
-			}
+            }
         }
     }
 
