@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-use CMSMS\Database\Connection;
-
 namespace CMSMS\Database {
+
+use CMSMS\Database\Connection;
 
     /**
      * A class for providing some compatibility functionality with older module code.
@@ -107,11 +107,14 @@ namespace CMSMS\Database {
             return $sql;
         }
     }
-} // end of namespace
+} // namespace
 
 namespace {
-    // root namespace stuff
 
+use CMSMS\Database\Connection;
+use CMSMS\Database\DataDictionary;
+
+    // root namespace stuff
     /*
      * A constant to assist with date and time flags in the data dictionary.
      *
@@ -120,29 +123,29 @@ namespace {
     const CMS_ADODB_DT = 'DT'; // backwards compatibility.
 
     /**
-     * A method to create a new data dictionary object.
+     * Create a new data dictionary object.
      *
      * @param Connection $conn The existing database connection
      *
-     * @return \CMSMS\Database\DataDictionary
+     * @return CMSMS\Database\DataDictionary
      *
      * @deprecated
      */
     function NewDataDictionary(Connection $conn)
     {
         // called by module installation routines.
-        return $conn->NewDataDictionary();
+        return new DataDictionary($conn);
     }
 
     /**
-     * A function co create a new adodb database connection.
+     * Create a new database connection.
+     *
+     * @deprecated since 2.2
      *
      * @param string $dbms
      * @param string $flags
      *
      * @return Connection
-     *
-     * @deprecated
      */
     function ADONewConnection($dbms, $flags)
     {
@@ -153,9 +156,9 @@ namespace {
 
     /**
      * A function formerly used to load the adodb library.
-     * This method currently has no functionality.
+     * Does nothing.
      *
-     * @deprecated
+     * @deprecated since 2.2
      */
     function load_adodb()
     {
@@ -164,10 +167,10 @@ namespace {
     }
 
     /**
-     * An old method formerly used to ensure that we were re-connected to the proper database.
-     * This method currently has no functionality.
+     * A function formerly used to ensure that we were re-connected to the proper database.
+     * Does nothing.
      *
-     * @deprecated
+     * @deprecated since 2.2
      */
     function adodb_connect()
     {
@@ -176,7 +179,8 @@ namespace {
     }
 
     /**
-     * An old function for handling a database error.
+     * A function formerly used for handling a database error.
+     * Does nothing.
      *
      * @param string $dbtype
      * @param string $function_performed
@@ -186,11 +190,11 @@ namespace {
      * @param string $database
      * @param mixed  $connection_obj
      *
-     * @deprecated
+     * @deprecated since 2.2
      */
     function adodb_error($dbtype, $function_performed, $error_number, $error_message,
                          $host, $database, &$connection_obj)
     {
-        // does nothing.... remove me later.
     }
-}
+} //namespace
+

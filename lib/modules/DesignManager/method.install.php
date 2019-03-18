@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//use CMSMS\Database\DataDictionary;
 use CMSMS\Events;
 use CMSMS\Group;
 
@@ -24,7 +25,7 @@ if (!isset($gCms)) {
 }
 
 /* these tables are mainly, but not exclusively, used by this module, so processed with core
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 $flds = '

@@ -1,5 +1,6 @@
 <?php
 
+use CMSMS\Database\DataDictionary;
 use News\Adminops;
 
 if (!isset($gCms)) exit;
@@ -16,7 +17,7 @@ if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
   $uid = get_userid();
 }
 
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
 // icon C(255), no longer used

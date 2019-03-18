@@ -1,7 +1,9 @@
 <?php
+use CMSMS\Database\DataDictionary;
+
 if (!isset($gCms)) exit;
 
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 
 $sqlarray = $dict->DropTableSQL( CMS_DB_PREFIX.'module_news' );
 $dict->ExecuteSQLArray($sqlarray);

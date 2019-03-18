@@ -1,7 +1,9 @@
 <?php
 
+use CMSMS\Database\DataDictionary;
+
 if (!isset($gCms)) exit;
-$db = $this->GetDb();
+//$db = $this->GetDb();
 
 $uid = null;
 if( cmsms()->test_state(CmsApp::STATE_INSTALL) ) {
@@ -85,7 +87,7 @@ if( version_compare($oldversion,'1.51') < 0 ) {
 }
 
 if( version_compare($oldversion,'1.52') < 0 ) {
-    $dict = NewDataDictionary($db);
+    $dict = new DataDictionary($db);
     $sqlarray = $dict->CreateIndexSQL('index_search_item',
             CMS_DB_PREFIX.'module_search_index', 'item_id');
     $dict->ExecuteSQLArray($sqlarray);

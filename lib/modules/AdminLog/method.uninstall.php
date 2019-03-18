@@ -18,9 +18,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 use AdminLog\storage;
+use CMSMS\Database\DataDictionary;
 
 if (!isset($gCms)) exit;
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 
 $sqlarr = $dict->DropTableSQL( storage::TABLENAME );
 $dict->ExecuteSQLArray( $sqlarr );

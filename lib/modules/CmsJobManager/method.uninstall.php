@@ -5,9 +5,11 @@
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # See license details at the top of file CmsJobManager.module.php
 
+use CMSMS\Database\DataDictionary;
+
 if( !isset($gCms) ) exit;
 
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 $sqlarray = $dict->DropTableSQL(CmsJobManager::TABLE_NAME);
 $dict->ExecuteSQLArray($sqlarray);
 

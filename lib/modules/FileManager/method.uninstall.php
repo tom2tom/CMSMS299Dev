@@ -1,9 +1,11 @@
 <?php
 
+//use CMSMS\Database\DataDictionary;
+
 if (!function_exists('cmsms')) exit;
 
 // remove the database table
-/*$dict = NewDataDictionary($db);
+/*$dict = new DataDictionary($db);
  $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX."module_filemanager_thumbs");
  $dict->ExecuteSQLArray($sqlarray);
  */

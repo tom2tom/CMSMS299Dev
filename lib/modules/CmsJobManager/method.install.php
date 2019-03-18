@@ -5,11 +5,13 @@
 # Thanks to Robert Campbell and all other contributors from the CMSMS Development Team.
 # See license details at the top of file CmsJobManager.module.php
 
+use CMSMS\Database\DataDictionary;
+
 if( !isset($gCms) ) exit;
 
 //table is essentially a cache, written as much as read, use InnoDB table
 $taboptarray = ['mysqli' => 'CHARACTER SET utf8 COLLATE utf8_general_ci'];
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 
 //data field holds a serialized class, size 1024 is probably enough
 $flds = '

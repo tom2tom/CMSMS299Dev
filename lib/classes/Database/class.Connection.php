@@ -1202,7 +1202,7 @@ class Connection
     /**
      * Create a new data dictionary object.
      * Data Dictionary objects are used for manipulating tables, i.e: creating, altering and editing them.
-	 * @deprecated
+	 * @deprecated since 2.3 use new DataDictionary()
      *
      * @return <namespace>DataDictionary
      */

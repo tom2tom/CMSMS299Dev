@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//use CMSMS\Database\DataDictionary;
 use CMSMS\Events;
 use CMSMS\Group;
 
@@ -23,7 +24,7 @@ if (!isset($gCms)) {
     exit;
 }
 /* these tables are mainly, not exclusively, used by this module, so processed with core
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENAME);

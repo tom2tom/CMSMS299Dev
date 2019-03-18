@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Database\DataDictionary;
 use FilePicker\ProfileDAO;
 
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 
 try {
     $flds = '

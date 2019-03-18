@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\Database\DataDictionary;
 use FilePicker\ProfileDAO;
 
-$dict = NewDataDictionary( $db );
+$dict = new DataDictionary($db);
 $sqlarray = $dict->DropTableSQL(ProfileDAO::table_name());
 $dict->ExecuteSQLArray($sqlarray);

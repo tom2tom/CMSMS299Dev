@@ -2,10 +2,11 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\CmsException;
+use CMSMS\Database\DataDictionary;
 
 if (!isset($gCms)) exit;
 $db = $this->GetDb();
-$dict = NewDataDictionary($db);
+$dict = new DataDictionary($db);
 $me = $this->GetName();
 
 if( version_compare($oldversion,'2.50') < 0 ) {
@@ -189,7 +190,7 @@ if( version_compare($oldversion,'2.90') < 0 ) {
 
     $this->SetPreference('timeblock',News::HOURBLOCK);
 
-    $dict = NewDataDictionary($db);
+    $dict = new DataDictionary($db);
     $tbl = CMS_DB_PREFIX.'module_news';
     $query = 'UPDATE '.$tbl.' SET start_time=MAX(news_date,modified_date,create_date) WHERE (start_time IS NULL OR start_time=0) AND status!=\'draft\'';
     $db->Execute($query);
@@ -252,5 +253,5 @@ WHERE news_id=?';
     $sqlarray = $dict->AlterColumnSQL($tbl, 'modified_date I DEFAULT 0');
     $dict->ExecuteSqlArray($sqlarray, FALSE);
     $query = 'UPDATE '.$tbl.' SET modified_date=0 WHERE modified_date<=create_date';
-    $db->Execute($query);   
+    $db->Execute($query);
 }
