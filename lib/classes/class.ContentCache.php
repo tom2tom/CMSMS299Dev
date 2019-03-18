@@ -127,9 +127,11 @@ final class ContentCache
 	public static function get_instance() : self
 	{
 		if( empty(self::$_instance) ) {
+/* TODO also used during site-installation
 			if( !CmsApp::get_instance()->is_frontend_request() ) {
 				throw new LogicException(__CLASS__.' is for frontend requests only');
 			}
+*/
 			self::$_instance = new self();
 			// one-time initialization
 			$key = self::$_instance->_key; //clunky!
