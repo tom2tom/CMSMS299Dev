@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+//namespace CMSMS; future use
+
 use CMSMS\internal\global_cachable;
 use CMSMS\internal\global_cache;
 use CMSMS\ModuleOperations;
@@ -292,7 +294,7 @@ final class cms_route_manager
 	 * Load all modules and call relevant Initialize method to ensure
 	 * that their dynamic routes are created.
 	 *
-	 * @deprecated since 2.3 - this method does nothing because its 
+	 * @deprecated since 2.3 - this method does nothing because its
 	 * functionality happens elsewhere, for each request,
 	 */
 	public static function load_routes()
@@ -387,3 +389,4 @@ final class cms_route_manager
 		self::$_routes_loaded = FALSE;
 	}
 } // class
+
