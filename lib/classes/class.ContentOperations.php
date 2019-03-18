@@ -263,11 +263,14 @@ $ADBG = 1;
 		$contentobj = $cache->get_content($alias);
 		if( $contentobj === null ) {
 			$hm = CmsApp::get_instance()->GetHierarchyManager();
-			$type = '';
-			$node = $hm->find_by_tag_anon((string)$alias, $type);
-			if( $node ) {
-				if( !$only_active || $node->get_tag('active') ) {
-					$contentobj = $this->LoadContentFromId($node->get_tag('id'));
+			$id = $hm->find_by_tag_anon((string)$alias);
+			if( $id ) {
+				if( $only_active ) {
+                    $node = $hm->find_by_tag('id',$id);
+                    $only_active = !$node->get_tag('active');
+                }
+				if( !$only_active ) {
+					$contentobj = $this->LoadContentFromId($id);
 				}
 			}
 		} else {

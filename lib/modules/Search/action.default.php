@@ -23,16 +23,8 @@ if( isset( $params['inline'] ) ) {
 $origreturnid = $returnid;
 if( isset( $params['resultpage'] ) ) {
     $hm = $gCms->GetHierarchyManager();
-    $type = '';
-    $node = $hm->find_by_tag_anon($params['resultpage'], $type);
-    if( $node ) {
-        if( $type == 'alias' ) {
-            $returnid = $node->get_tag('id');
-        }
-        else {
-            $returnid = $params['resultpage'];
-        }
-    }
+    $cid = $hm->find_by_tag_anon($params['resultpage']);
+    if( $cid ) $returnid = $cid;
 }
 //Pretty URL compatibility
 $is_method = isset($params['search_method'])?'post':'get';

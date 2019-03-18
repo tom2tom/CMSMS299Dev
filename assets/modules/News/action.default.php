@@ -21,15 +21,13 @@ $tmp = $this->GetPreference('detail_returnid',-1);
 if( $tmp > 0 ) $detailpage = $tmp;
 if( isset($params['detailpage']) ) {
     $hm = $gCms->GetHierarchyManager();
-    $type = '';
-    $node = $hm->find_by_tag_anon($params['detailpage'],$type);
-    if( $node ) {
-        if( $type == 'alias' ) {
-             $params['detailpage'] = $node->get_tag('id');
-        }
+    $id = $hm->find_by_tag_anon($params['detailpage']);
+    if( $id ) {
+        $params['detailpage'] = $id;
     }
     else {
-//TODO
+       // the page is not known
+        unset($params['detailpage']);
     }
 }
 if (isset($params['browsecat']) && $params['browsecat']==1) {

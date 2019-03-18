@@ -176,17 +176,17 @@ if( $start_element ) {
     }
 }
 else if( $start_page ) {
-    $type = '';
-    $tmp = $hm->find_by_tag_anon($start_page,$type);
-    if( is_object($tmp) ) {
-        if( !$show_root_siblings ) {
-            $rootnodes[] = $tmp;
-        }
-        else {
+    $id = $hm->find_by_tag_anon($start_page);
+    if( $id ) {
+		$tmp = $hm->find_by_tag('id',$id);
+        if( $show_root_siblings ) {
             $tmp = $tmp->getParent();
             if( is_object($tmp) && $tmp->has_children() ) {
                 $rootnodes = $tmp->get_children();
             }
+		}
+        else {
+            $rootnodes[] = $tmp;
         }
     }
 }
@@ -213,19 +213,18 @@ else if( $start_level > 1 ) {
     }
 }
 else if( $childrenof ) {
-    $type = '';
-    $tmp = $hm->find_by_tag_anon(trim($childrenof), $type);
-    if( is_object($tmp) ) {
-        if( $tmp->has_children() ) $rootnodes = $tmp->get_children();
+    $tmp = $hm->find_by_tag_anon(trim($childrenof));
+    if( $tmp ) {
+		$obj = $hm->find_by_tag('id',$tmp);
+        if( $obj->has_children() ) $rootnodes = $obj->get_children();
     }
 }
 else if( $items ) {
     if( $nlevels < 1 ) $nlevels = 1;
     $items = explode(',',$items);
     $items = array_unique($items);
-    $type = '';
     foreach( $items as $item ) {
-        $tmp = $hm->find_by_tag_anon(trim($item),$type);
+        $tmp = $hm->find_by_tag_anon(trim($item));
         if( $tmp ) $rootnodes[] = $tmp;
     }
 }

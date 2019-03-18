@@ -55,39 +55,26 @@ class cms_content_tree extends cms_tree
 	}
 
 	/**
-	 * Find a tree node corresponding to the supplied tag-value whose type
-	 * is unspecified, but assumed to be an id or alias.
+	 * Retrieve the id of a tree node (if any) corresponding to the supplied tag-value
+     * whose type is assumed to be an id or alias.
 	 *
 	 * @since 2.3
 	 * @param mixed  $value The tag value to search for
-	 * @param string $type  I/O parameter supplies initial type-guess or '',
-	 *  and returns the discovered type: 'id' 'alias' or ''
-	 * @return mixed cms_tree | null
+	 * @return mixed int | false
 	 */
-	public function &find_by_tag_anon($value,string &$type)
+	public function find_by_tag_anon($value)
 	{
-		if( !$type ) $type = 'alias'; //default intial tag-type
-		$res = $this->find_by_tag($type,$value);
-		if( $res ) {
-			return $res;
-		}
-		if( $type != 'id' && is_numeric($value) && $value >= 0 ) {
+		if( is_numeric($value) && $value >= 0 ) {
 			$res = $this->quickfind_node_by_id((int)$value);
 			if( $res ) {
-				$type = 'id';
-				return $res;
+				return (int)$value;
 			}
 		}
-		if( $type != 'alias' ) {
-			$res = $this->find_by_tag('alias',$value);
-			if( $res ) {
-				$type = 'alias';
-				return $res;
-			}
+		$res = $this->find_by_tag('alias',$value);
+		if( $res ) {
+			return $res->get_tag('id');
 		}
-		$type = '';
-		$res = null;
-		return $res;
+		return false;
 	}
 
 	/**
@@ -103,7 +90,7 @@ class cms_content_tree extends cms_tree
 		if( isset($list[$id]) ) return $list[$id];
 	}
 
-	/**
+	/* *
 	 * Retrieve a node by its id.
 	 * A backwards compatibility method.
 	 *
@@ -111,11 +98,11 @@ class cms_content_tree extends cms_tree
 	 * @param int $id
 	 * @return cms_content_tree
 	 */
-	public function sureGetNodeById($id)
+/*	public function sureGetNodeById($id)
 	{
 		return $this->quickfind_node_by_id($id);
 	}
-
+*/
 	/* *
 	 * Retrieve a node by its id.
 	 *
@@ -130,7 +117,7 @@ class cms_content_tree extends cms_tree
 		return $this->find_by_tag('id',$id);
 	}
 */
-	/**
+	/* *
 	 * Retrieve a node by its alias
 	 *
 	 * A backwards compatibility method
@@ -139,13 +126,13 @@ class cms_content_tree extends cms_tree
 	 * @param mixed $alias null|bool|int|string
 	 * @return cms_content_tree
 	 */
-	public function sureGetNodeByAlias($alias)
+/*	public function sureGetNodeByAlias($alias)
 	{
 		if( $alias == '' ) return;
 		if( is_numeric($alias) && $alias > 0 ) return parent::find_by_tag('id',$alias,true);
 		return parent::find_by_tag('alias',$alias,true);
 	}
-
+*/
 	/* *
 	 * Retrieve a node by its alias
 	 *

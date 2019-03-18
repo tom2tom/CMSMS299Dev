@@ -153,18 +153,11 @@ EOS;
                 $detailpage = $returnid;
                 if( isset($params['detailpage']) ) {
                     $hm = $gCms->GetHierarchyManager();
-                    $type = '';
-                    $node = $hm->find_by_tag_anon($params['detailpage'],$type);
-                    if ($node ) {
-                        if( $type == 'alias' ) {
-                             $detailpage = $node->get_tag('id');
-                        }
-                        else {
-                             $detailpage = $params['detailpage'];
-                        }
+                    $id = $hm->find_by_tag_anon($params['detailpage']);
+                    if( $id ) {
+                        $detailpage = $id;
                     }
                 }
-                if( $detailpage == '' ) $detailpage = $returnid;
 
                 $detailtemplate = '';
                 if( isset($params['detailtemplate']) ) {

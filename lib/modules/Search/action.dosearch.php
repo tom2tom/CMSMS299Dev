@@ -113,17 +113,7 @@ WHERE ('.$searchphrase.') AND (i.expires IS NULL OR i.expires >= NOW())';
             $thepageid = $this->GetPreference('resultpage',-1);
             if( $thepageid == -1 ) $thepageid = $returnid;
             if( isset($params['detailpage']) ) {
-                $tmppageid = '';
-                $type = '';
-                $node = $hm->find_by_tag_anon($params['detailpage'], $type);
-                if( $node ) {
-                    if( $type == 'alias' ) {
-                        $tmppageid = $node->get_tag('id');
-                    }
-                    else {
-                        $tmppageid = $params['detailpage'];
-                    }
-                }
+                $tmppageid = $hm->find_by_tag_anon($params['detailpage']);
                 if( $tmppageid ) $thepageid = $tmppageid;
             }
             if( $thepageid == -1 ) $thepageid = $returnid;
