@@ -80,26 +80,22 @@ namespace {
 
 use cms_installer\wizard\wizard;
 
-function verbose_msg(string $str) : string
+function verbose_msg(string $str)
 {
 	$obj = wizard::get_instance()->get_step();
-	if( method_exists($obj,'verbose') ) return $obj->verbose($str);
-	return '';
+	if( method_exists($obj,'verbose') ) $obj->verbose($str);
 }
 
-function status_msg(string $str) : string
+function status_msg(string $str)
 {
 	$obj = wizard::get_instance()->get_step();
-	if( method_exists($obj,'message') ) return $obj->message($str);
-	return '';
+	if( method_exists($obj,'message') ) $obj->message($str);
 }
 
-function error_msg(string $str) : string
+function error_msg(string $str)
 {
 	$obj = wizard::get_instance()->get_step();
-	if( method_exists($obj,'error') ) return $obj->error($str);
-	return '';
+	if( method_exists($obj,'error') ) $obj->error($str);
 }
 
 } //namespace
-

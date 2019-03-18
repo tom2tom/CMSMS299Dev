@@ -34,21 +34,12 @@ final class langtools
 
 
     /**
-     * @deprecated since 2.3 does nothing
-     * @param self $obj
-     */
-    public static function set_translator(langtools &$obj)
-    {
-//     self::$_instance = $obj;
-    }
-
-
-    /**
      * Get the language(s) that the browser allows
      *
-     * @return array of hashes.    Each element of the array will have members lang, and priority, where priority is between 0 and 1
+     * @return array of hashes. Each element of the array will have members
+	 * lang, and priority, where priority is between 0 and 1
      */
-    public static function get_browser_langs() : array
+    public function get_browser_langs() : array
     {
         $request = request::get_instance();
         $langs = $request->accept_language();
@@ -315,7 +306,7 @@ final class langtools
     {
         if( !$realm ) $realm = self::DFLT_REALM;
         if( $realm == self::DFLT_REALM ) $realm = 'app';
-        $dir = installer_base::get_assetsdir().'/lang/'.$realm;
+        $dir = get_app()->get_assetsdir().'/lang/'.$realm;
         if( !is_dir($dir) ) throw new langtools_Exception('Language directory '.$dir.' not found');
 
         return $dir;

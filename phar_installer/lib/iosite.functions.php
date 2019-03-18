@@ -24,7 +24,6 @@ as well as normal operation.
 use CMSMS\Database\Connection;
 //install-only methods - admin export ok?
 use function cms_installer\lang;
-use function cms_installer\verbose_msg;
 
 const CONTENT_DTD_VERSION = '0.7';
 const CONTENT_DTD_MINVERSION = '0.7';

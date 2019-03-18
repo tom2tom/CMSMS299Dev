@@ -88,52 +88,6 @@ abstract class installer_base
         return self::$_instance;
     }
 
-    public static function get_assetsdir() : string
-    {
-        return self::$_instance->_assetdir;
-    }
-
-    public static function get_rootdir() : string
-    {
-        return dirname(__DIR__, 2);
-    }
-
-    public static function get_rooturl() : string
-    {
-        $config = self::$_instance->get_config();
-        if ($config && isset($config[self::CONFIG_ROOT_URL])) {
-            return $config[self::CONFIG_ROOT_URL];
-        }
-
-        $request = request::get_instance();
-        $dir = dirname($request['SCRIPT_FILENAME']);
-        return $dir;
-    }
-
-    public static function clear_cache(bool $do_index_html = true)
-    {
-        $dir = $this->get_tmpdir();
-        $iter = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir) //LEAVES_ONLY
-        );
-        foreach ($iter as $file => $info) {
-            if ($info->isFile()) {
-                @unlink($info->getPathInfo());
-            }
-        }
-
-        if ($do_index_html) {
-            $iter = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($dir) //LEAVES_ONLY
-            );
-            foreach ($iter as $file => $info) {
-                if ($info->isFile()) { //WHAT??
-                    @touch($info->getPathInfo().'/index.html');
-                }
-            }
-        }
-    }
-
     public static function autoload($classname)
     {
         $o = ($classname[0] != '\\') ? 0 : 1;
@@ -352,17 +306,6 @@ lib/smarty/*                              no namespace
         return $config;
     }
 
-    public function get_name() : string
-    {
-        return __CLASS__;
-    }
-
-    public function get_tmpdir() : string
-    {
-        $config = self::$_instance->get_config();
-        return $config['tmpdir'];
-    }
-
     public function get_config() : array
     {
         $sess = session::get_instance();
@@ -403,10 +346,43 @@ lib/smarty/*                              no namespace
         return $this->_orig_tz ?? '';
     }
 
+    public function get_name() : string
+    {
+        return __CLASS__;
+    }
+
+    public function get_tmpdir() : string
+    {
+        $config = self::$_instance->get_config();
+        return $config['tmpdir'];
+    }
+
     public function get_destdir() : string
     {
         $config = $this->get_config();
         return $config['dest'] ?? '';
+    }
+
+    public function get_assetsdir() : string
+    {
+        return $this->_assetdir;
+    }
+
+    public function get_rootdir() : string
+    {
+        return dirname(__DIR__, 2);
+    }
+
+    public function get_rooturl() : string
+    {
+        $config = self::$_instance->get_config();
+        if ($config && isset($config[self::CONFIG_ROOT_URL])) {
+            return $config[self::CONFIG_ROOT_URL];
+        }
+
+        $request = request::get_instance();
+        $dir = dirname($request['SCRIPT_FILENAME']);
+        return $dir;
     }
 
     public function set_destdir(string $destdir)
@@ -574,6 +550,30 @@ lib/smarty/*                              no namespace
         return $names;
     }
 
+    public function clear_cache(bool $do_index_html = true)
+    {
+        $dir = $this->get_tmpdir();
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir) //LEAVES_ONLY
+        );
+        foreach ($iter as $file => $info) {
+            if ($info->isFile()) {
+                @unlink($info->getPathInfo());
+            }
+        }
+
+        if ($do_index_html) {
+            $iter = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir) //LEAVES_ONLY
+            );
+            foreach ($iter as $file => $info) {
+                if ($info->isFile()) { //WHAT??
+                    @touch($info->getPathInfo().'/index.html');
+                }
+            }
+        }
+    }
+
     public function cleanup()
     {
         $tmp = $this->get_tmpdir();
@@ -688,28 +688,24 @@ lib/smarty/*                              no namespace
 
                 // extract installer-Smarty (once) from the sources to an enduring place
                 $p = $this->get_tmpdir();
-                $sp = $p . DIRECTORY_SEPARATOR.'lib/smarty';
-                if (is_dir($sp)) { // extractTo() doesn't like overwriting
-                    rrmdir($sp);
-                }
 
                 $tmpdir = 'phar://'.$dest_archive;  //contents are unpacked as descendents of the archive
                 $len = strlen($tmpdir) + 1; //separator offset
-                $phar = new PharData(
+                $adata = new PharData(
                     $dest_archive,
                     FilesystemIterator::CURRENT_AS_PATHNAME |
                     FilesystemIterator::SKIP_DOTS |
                     FilesystemIterator::UNIX_PATHS
                 );
-                $iter = new RecursiveIteratorIterator($phar,
+                $iter = new RecursiveIteratorIterator($adata,
                     RecursiveIteratorIterator::SELF_FIRST);
                 $iter = new FilePatternFilter($iter,
                     '~[\\/]lib[\\/]smarty[\\/].+php~');
                 foreach ($iter as $fp) {
                     $from = substr($fp, $len);
-                    $phar->extractTo($p, $from);
+                    $adata->extractTo($p, $from, true);
                 }
-                $p = $sp;
+                $p .= DIRECTORY_SEPARATOR.'lib/smarty';
             }
             else { // !in_phar()
                 $sess['sourceball'] = $src_archive;
@@ -765,4 +761,3 @@ lib/smarty/*                              no namespace
 //        register_shutdown_function ([$this, 'endit']);
     }
 } // class
-

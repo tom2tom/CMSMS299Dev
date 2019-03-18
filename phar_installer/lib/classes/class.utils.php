@@ -271,7 +271,7 @@ final class utils
     public static function get_upgrade_changelog(string $version) : string
     {
         $app = get_app();
-        $dir = $app->get_assetsdir()."/upgrade/$version";
+        $dir = $app->get_assetsdir().'/upgrade/'.$version;
         if( !is_dir($dir) ) throw new Exception(lang('error_internal','u100'));
         $files = ['CHANGELOG.txt','CHANGELOG.TXT','changelog.txt'];
         foreach( $files as $fn ) {
@@ -294,7 +294,7 @@ final class utils
     public static function get_upgrade_readme(string $version) : string
     {
         $app = get_app();
-        $dir = $app->get_assetsdir()."/upgrade/$version";
+        $dir = $app->get_assetsdir().'/upgrade/'.$version;
         if( !is_dir($dir) ) throw new Exception(lang('error_internal','u100'));
         $files = ['README.HTML.INC','readme.html.inc','README.HTML','readme.html'];
         foreach( $files as $fn ) {

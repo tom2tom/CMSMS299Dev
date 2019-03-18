@@ -65,19 +65,21 @@ class wizard_step8 extends wizard_step
 
     private function do_install()
     {
-        $destdir = get_app()->get_destdir();
+        $app = get_app();
+        $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',700));
 
-        $adminaccount = $this->get_wizard()->get_data('adminaccount');
+		$wiz = $this->get_wizard();
+        $adminaccount = $wiz->get_data('adminaccount');
         if( !$adminaccount ) throw new Exception(lang('error_internal',701));
 
-        $destconfig = $this->get_wizard()->get_data('config');
+        $destconfig = $wiz->get_data('config');
         if( !$destconfig ) throw new Exception(lang('error_internal',703));
 
-        $siteinfo = $this->get_wizard()->get_data('siteinfo');
+        $siteinfo = $wiz->get_data('siteinfo');
         if( !$siteinfo ) throw new Exception(lang('error_internal',704));
 
-        $cachtype = $this->get_wizard()->get_data('cachemode');
+        $cachtype = $wiz->get_data('cachemode');
 
         // create new config.php file to ebable database connection
         $this->write_config();
@@ -87,7 +89,7 @@ class wizard_step8 extends wizard_step
         // connect to the database, if possible
         $db = $this->db_connect($destconfig);
 
-        $dir = get_app()->get_assetsdir().'/install';
+        $dir = $app->get_assetsdir().'/install';
 /*
         $fn = dirname(__DIR__, 2).DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR.'install'.DIRECTORY_SEPARATOR;
         require_once $fn.'base.php';
@@ -98,19 +100,17 @@ class wizard_step8 extends wizard_step
             if( !is_object($db) ) {
                 throw new Exception($db); //report the error
             }
-            // create some variables that the sub functions need.
+            // variables for use in the inclusions
             if( !defined('CMS_ADODB_DT') ) define('CMS_ADODB_DT','DT');
             $admin_user = null;
             $db_prefix = CMS_DB_PREFIX;
 
-            // install the schema
-            $this->message(lang('install_schema'));
+            // install main tables
             $fn = $dir.'/schema.php';
             if( !is_file($fn) ) throw new Exception(lang('error_internal',705));
-
             include_once $fn;
 
-            $this->verbose(lang('install_setsequence'));
+            // install sequence tables
             include_once $dir.'/createseq.php';
 
             // create tmp directories
@@ -205,7 +205,7 @@ class wizard_step8 extends wizard_step
 
         // get the list of all available versions that this upgrader knows about
         $app = get_app();
-        $dir =  $app->get_assetsdir().'/upgrade';
+        $dir = $app->get_assetsdir().'/upgrade';
         if( !is_dir($dir) ) throw new Exception(lang('error_internal',710));
         $destdir = $app->get_destdir();
         if( !$destdir ) throw new Exception(lang('error_internal',711));

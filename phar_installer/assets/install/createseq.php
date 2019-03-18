@@ -2,6 +2,8 @@
 
 use function cms_installer\lang;
 
+status_msg(lang('install_setsequence'));
+
 $table_ids = [
 	'additional_users' => ['id' => 'additional_users_id'], //deprecated since 2.3
 	'admin_bookmarks'  => ['id' => 'bookmark_id'],
@@ -14,7 +16,6 @@ $table_ids = [
 	'users'            => ['id' => 'user_id'],
 ];
 
-status_msg(lang('install_update_sequences'));
 foreach ($table_ids as $tablename => $tableinfo) {
 	$sql = 'SELECT COALESCE(MAX(?),0) AS maxid FROM '.CMS_DB_PREFIX.$tablename;
 	$max = $db->GetOne($sql,[$tableinfo['id']]);
@@ -22,4 +23,3 @@ foreach ($table_ids as $tablename => $tableinfo) {
 	verbose_msg(lang('install_updateseq',$tableinfo['seq']));
 	$db->CreateSequence(CMS_DB_PREFIX.$tableinfo['seq'], $max);
 }
-

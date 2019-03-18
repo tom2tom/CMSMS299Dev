@@ -29,12 +29,12 @@ final class request implements ArrayAccess
         return self::$_instance;
     }
 
-    public function raw_server(string $key)
+    public function raw_server(string $key) : string
     {
-        if( isset($_SERVER[$key]) ) return $_SERVER[$key];
+        return $_SERVER[$key] ?? '';
     }
 
-    public function method()
+    public function method() : string
     {
         if( $this->raw_server('REQUEST_METHOD') == 'POST' ) {
             return self::METHOD_POST;
@@ -55,13 +55,13 @@ final class request implements ArrayAccess
         return $this->method() == self::METHOD_GET;
     }
 
-    public function https() : bool
+    public function is_https() : bool
     {
         return isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) != 'off';
     }
 
     /**
-     * @since 2.3
+     * @since 1.4
      * This replaces function request::self(), cuz that's a reserved name
      * @return mixed string | null
      */

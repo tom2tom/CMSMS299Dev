@@ -50,12 +50,12 @@ final class wizard
 
     /**
      * Get a wizard object
-     * @deprecated since 2.3 use new wizard() instead
+     * @deprecated since 1.4 use new wizard() instead
      * @param string $classdir Optional file-path of folder containing wizard-step classes
      * @param string $namespace Optional namespace of wizard-step classes
      * @return object
      */
-    public static function get_instance($classdir = '', $namespace = '')
+    public static function get_instance($classdir = '', $namespace = '') : self
     {
 //        if( !self::$_instance ) { self::$_instance = new self($classdir,$namespace); } return self::$_instance;
         return new self($classdir, $namespace);

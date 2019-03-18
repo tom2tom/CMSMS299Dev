@@ -3,14 +3,14 @@
 namespace cms_installer;
 
 use ArrayAccess;
-//use cms_installer\Crypter;
 use RuntimeException;
 
 final class session implements ArrayAccess
 {
+	const SSLCIPHER = 'AES-256-CTR';
+
     private static $_instance;
 
-//    private $_cryptinstance; //for self-managed cryption
     private $_crypter = '';
     private $_key = false;
     private $_data = null;
@@ -20,16 +20,14 @@ final class session implements ArrayAccess
         if( PHP_VERSION_ID >= 70200 && function_exists('sodium_crypto_secretbox') ) {
             $this->_crypter = 'sodium';
         }
-/*        elseif( function_exists('openssl_encrypt') ) {
+        elseif( function_exists('openssl_encrypt') ) {
             $this->_crypter = 'openssl';
-            $this->_cryptinstance = new Crypter();
         }
-*/
     }
 
     private function __clone() {}
 
-    public static function get_instance()
+    public static function get_instance() : self
     {
         if( !self::$_instance ) {
             self::$_instance = new self();
@@ -66,7 +64,7 @@ final class session implements ArrayAccess
     private function _save()
     {
         $raw = serialize($this->_data);
-		// TODO something random(ish), session-constant, not sourced directly or indirectly from $_SESSION: a cookie?
+        // TODO something random(ish), session-constant, not sourced directly or indirectly from $_SESSION: a cookie?
         $seed = __DIR__;
         switch( $this->_crypter ) {
             case 'sodium':
@@ -74,24 +72,24 @@ final class session implements ArrayAccess
                 $nonce = substr(($pw ^ $seed),0,16);
                 $str = sodium_crypto_secretbox($raw,$nonce,$pw);
                 break;
-/*            case 'openssl':
-                $pw = session_id() ^ $seed;
-                $str = $this->_cryptinstance->encrypt_value($raw,$pw);
+            case 'openssl':
+                $pw = session_id().$seed;
+				$l1 = openssl_cipher_iv_length(self::SSLCIPHER);
+                $str = openssl_encrypt($raw,self::SSLCIPHER,$pw,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($pw,0,$l1));
                 break;
-*/
             default: //CRAP obfuscation only!
-				$s1 = session_id().$seed;
-				$l1 = strlen($s1);
-				$l2 = strlen($raw);
-				while( $l1 < $l2 ) {
-					$s1 .= $s1;
-					$l1 += $l1;
-				}
-				$l3 = min($l1,$l2);
-				$str = $raw;
-				for( $i = 0; $i < $l3; ++$i ) {
-					$str[$i] = $str[$i] ^ $s1[$i];
-				}
+                $pw = session_id().$seed;
+                $l1 = strlen($pw);
+                $l2 = strlen($raw);
+                while( $l1 < $l2 ) {
+                    $pw .= $pw;
+                    $l1 += $l1;
+                }
+                $l2 = min($l1,$l2);
+                $str = $raw;
+                for( $i = 0; $i < $l2; ++$i ) {
+                    $str[$i] = $str[$i] ^ $pw[$i];
+                }
                 break;
         }
 
@@ -115,36 +113,36 @@ final class session implements ArrayAccess
     {
         $raw = $_SESSION[$this->_key] ?? null;
         if( $raw ) {
-			// TODO conform to _save() seed
-			$seed = __DIR__;
+            // TODO conform to _save() seed
+            $seed = __DIR__;
             switch( $this->_crypter ) {
                 case 'sodium':
                     $pw = session_id();
                     $nonce = substr(($pw ^ $seed),0,16);
                     $str = sodium_crypto_box_open($raw,$nonce,$pw);
                     break;
-/*                case 'openssl':
-                    $pw = session_id() ^ $seed;
-                    $str = $this->_cryptinstance->decrypt_value($raw,$pw);
+                case 'openssl':
+                    $pw = session_id().$seed;
+ 				    $l1 = openssl_cipher_iv_length(self::SSLCIPHER);
+                    $str = openssl_decrypt($raw,self::SSLCIPHER,$pw,OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,substr($pw,0,$l1));
                     break;
-*/
                 default: //CRAP obfuscation only!
-					$s1 = session_id().$seed;
-					$l1 = strlen($s1);
-					$l2 = strlen($raw); //TODO check embedded null's ok
-					while( $l1 < $l2 ) {
-						$s1 .= $s1;
-						$l1 += $l1;
-					}
-					$l3 = min($l1,$l2);
-					$str = $raw;
-					for( $i = 0; $i < $l3; ++$i ) {
-						$str[$i] = $str[$i] ^ $s1[$i];
-					}
+                    $pw = session_id().$seed;
+                    $l1 = strlen($pw);
+                    $l2 = strlen($raw); //TODO check embedded null's ok
+                    while( $l1 < $l2 ) {
+                        $pw .= $pw;
+                        $l1 += $l1;
+                    }
+                    $l2 = min($l1,$l2);
+                    $str = $raw;
+                    for( $i = 0; $i < $l2; ++$i ) {
+                        $str[$i] = $str[$i] ^ $pw[$i];
+                    }
                     break;
             }
             $this->_data = unserialize($str); // may except-out
-			return;
+            return;
         }
 
         $this->_data = null;

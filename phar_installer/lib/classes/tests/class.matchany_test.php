@@ -51,7 +51,7 @@ class matchany_test extends test_base
   }
 
   /**
-   * @since 2.3
+   * @since 1.4
    * @return mixed
    */
   public function msg()
@@ -89,7 +89,7 @@ class matchany_test extends test_base
   }
 
   /**
-   * @since 2.3
+   * @since 1.4
    * @return mixed
    */
   public function get_passed()

@@ -129,7 +129,7 @@ class wizard_step
         echo '<script type="text/javascript">add_message(\''.$msg.'\');</script>'."\n";
         flush();
     }
-    
+
     public function error($msg)
     {
         $msg = addslashes($msg);
@@ -137,7 +137,7 @@ class wizard_step
         flush();
     }
 
-    public static function verbose($msg)
+    public function verbose($msg)
     {
         $config = get_app()->get_config();
         $verbose = $config['verbose'] ?? false;

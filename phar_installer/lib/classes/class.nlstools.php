@@ -22,22 +22,13 @@ final class nlstools
 
     /**
      * Get an instance of this class.
-     * @deprecated since 2.3 use new nlstools()
+     * @deprecated since 1.4 use new nlstools() instead
      * @return self
      */
     public static function get_instance() : self
     {
 //      if( !self::$_instance ) { self::$_instance = new self(); } return self::$_instance;
         return new self();
-    }
-
-    /**
-     * @deprecated since 2.3 does nothing
-     * @param self $obj
-     */
-    public static function set_nlshandler(nlstools &$obj)
-    {
-//      self::$_instance = $obj;
     }
 
     private function load_nls()
