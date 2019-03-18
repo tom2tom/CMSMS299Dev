@@ -72,7 +72,7 @@ function cms_autoloader(string $classname)
 //				'CMSMS\NlsOperations' => 'CmsNlsOperations',
 				'CMSMS\Permission' => 'CmsPermission',
 				'CMSMS\Route' => 'CmsRoute',
-				'CMSMS\RouteManager' => 'cms_route_manager',
+				'CMSMS\RouteOperations' => 'cms_route_manager',
 				'CMSMS\Siteprefs' => 'cms_siteprefs',
 //				'CMSMS\ThemeBase' => 'CmsAdminThemeBase',
 				'CMSMS\Tree' => 'cms_tree',

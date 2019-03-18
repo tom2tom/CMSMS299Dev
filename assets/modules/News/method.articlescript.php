@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 
 $baseurl = $this->GetModuleURLPath();
 $css = <<<EOS
@@ -185,7 +185,7 @@ $js .= <<<EOS
 EOS;
 
 $p = cms_join_path($this->GetModulePath(),'lib','js').DIRECTORY_SEPARATOR;
-$sm = new ScriptManager();
+$sm = new ScriptOperations();
 $sm->queue_file(CMS_SCRIPTS_PATH.DIRECTORY_SEPARATOR.'jquery.cmsms_dirtyform.min.js', 1);
 $sm->queue_file($p.'jquery.datePicker.min.js', 2);
 $sm->queue_file($p.'jquery.timepicker.min.js', 2);

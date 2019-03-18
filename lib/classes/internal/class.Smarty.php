@@ -21,7 +21,7 @@ namespace CMSMS\internal;
 use cms_config;
 use cms_siteprefs;
 use CmsApp;
-use CMSMS\internal\ModulePluginManager;
+use CMSMS\internal\ModulePluginOperations;
 use CMSMS\UserPluginOperations;
 use Exception;
 use LogicException;
@@ -258,7 +258,7 @@ class Smarty extends SmartyParent
 
         // check if it is a recorded module-plugin
 //        if( CmsApp::get_instance()->is_frontend_request() ) {
-            $row = ModulePluginManager::load_plugin($name,$type);
+            $row = ModulePluginOperations::load_plugin($name,$type);
             if( is_array($row) && is_array($row['callback']) && count($row['callback']) == 2 &&
                 is_string($row['callback'][0]) && is_string($row['callback'][1]) ) {
                 $callback = $row['callback'][0].'::'.$row['callback'][1];

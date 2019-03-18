@@ -27,7 +27,7 @@ use CMSMS\AdminUtils;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 use CMSMS\NlsOperations;
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 use CMSMS\UserOperations;
 use const CMS_ADMIN_PATH;
 use const CMS_SCRIPTS_PATH;
@@ -99,7 +99,7 @@ EOS;
 EOS;
 		}
 
-		$sm = new ScriptManager();
+		$sm = new ScriptOperations();
 		$sm->queue_file($incs['jqcore'], 1);
 		$sm->queue_file($incs['jqmigrate'], 1); //in due course, omit this ?
 		$sm->queue_file($incs['jqui'], 1);
@@ -171,7 +171,7 @@ EOS;
 	public function do_minimal()
 	{
 		$incs = cms_installed_jquery(true, false, true, false);
-		$sm = new ScriptManager();
+		$sm = new ScriptOperations();
 		$sm->queue_file($incs['jqcore'], 1);
 		$sm->queue_file($incs['jqui'], 1);
 		$fn = $sm->render_scripts('', false, false);

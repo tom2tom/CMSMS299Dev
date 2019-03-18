@@ -7,12 +7,12 @@ use AdminLog\event;
 use AdminLog\storage;
 use cms_siteprefs;
 use cms_utils;
-use CMSMS\IAuditManager;
+use CMSMS\AuditManager;
 use Exception;
 use function get_userid;
 use function get_username;
 
-class auditor implements IAuditManager
+class auditor implements AuditManager
 {
     private $_mod;
     private $_storage;
@@ -88,5 +88,5 @@ class auditor implements IAuditManager
         $this->_storage->save( $ev );
         $this->error_log( event::TYPE_ERROR, $msg );
     }
-
 } // class
+

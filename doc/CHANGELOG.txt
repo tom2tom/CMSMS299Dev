@@ -47,7 +47,7 @@ eventually, all core classes will be spaced. Devs are encouraged to start using 
 'CMSMS\ModuleContentType' => 'CMSModuleContentType',
 'CMSMS\Permission' => 'CmsPermission',
 'CMSMS\Route' => 'CmsRoute',
-'CMSMS\RouteManager' => 'cms_route_manager',
+'CMSMS\RouteOperations' => 'cms_route_manager',
 'CMSMS\Siteprefs' => 'cms_siteprefs',
 'CMSMS\Tree' => 'cms_tree',
 'CMSMS\TreeOperations' => 'cms_tree_operations',
@@ -169,7 +169,7 @@ DETAILS
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
   - New method: AdminUtils::get_module_icon()
   - New method: cms_utils::path_to_url()
-  - New classes: ScriptManager, StylesManager, ArrayTree, BasicEnum
+  - New classes: ScriptOperations, StylesOperations, ArrayTree, BasicEnum
 
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
@@ -221,10 +221,10 @@ DETAILS
   - FEATURE: Adds a new hook method to the HookManager class to allow returning the first nonempty value.
   - CHANGE: refactor changegroupperm localization technique.
   - FEATURE: Adds new root functions cms_notice, cms_warning, and cms_error
-  - FEATURE: Adds new AuditManager class that is enabled within include.php allows for swapping out auditing methods
+  - FEATURE: Adds new AuditOperations class that is enabled within include.php allows for swapping out auditing methods
     With no audit manager installed, audit messages will be output to the HTTP error log.
   - Revise many places where audit() was being called to call the new methods.
-  - audit() method now uses the AuditManager class
+  - audit() method now uses the AuditOperations class
   - CMSModule::SetError() and CMSModule::SetMessage() now set session variables, and the strings will no longer be on the array
   - FEATURE: Adds new CMSModule::AddAdminHeadText() method to allow module actions to add dynamic text to the head section of admin requests.
   - Renames a bunch of classes into namespaces, and cleans up a bunch of old, commented out code.

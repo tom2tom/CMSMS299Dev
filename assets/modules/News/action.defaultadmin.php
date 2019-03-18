@@ -1,6 +1,6 @@
 <?php
 
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 use News\Adminops;
 use News\Ops;
 
@@ -373,7 +373,7 @@ $jsp2
 
 EOS;
 
-$sm = new ScriptManager();
+$sm = new ScriptOperations();
 $p = cms_join_path($this->GetModulePath(),'lib','js').DIRECTORY_SEPARATOR;
 $sm->queue_file($p.'jquery.metadata.min.js',2);
 $sm->queue_file($p.'jquery.SSsort.min.js',2);

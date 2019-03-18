@@ -22,7 +22,7 @@ use AdminLog\AutoPruneLogTask;
 use AdminLog\Command\ClearLogCommand;
 use AdminLog\ReduceLogTask;
 use AdminLog\storage;
-use CMSMS\AuditManager;
+use CMSMS\AuditOperations;
 use CMSMS\HookManager;
 
 final class AdminLog extends CMSModule
@@ -46,7 +46,7 @@ final class AdminLog extends CMSModule
         $this->auditor = new auditor( $this, $this->storage );
 
         try {
-            AuditManager::set_auditor( $this->auditor );
+            AuditOperations::set_auditor( $this->auditor );
         }
         catch( Exception $e ) {
             // ignore any error.

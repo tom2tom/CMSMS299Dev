@@ -38,9 +38,9 @@
  * CMS_LOGIN_PAGE - Indicates that the file was included from the admin login form.
  * CMS_JOB_TYPE - Since 2.3 Value 0|1|2 indicates the type of request, hence appropriate inclusions
  */
-//use CMSMS\internal\ModulePluginManager;
+//use CMSMS\internal\ModulePluginOperations;
 
-use CMSMS\AuditManager;
+use CMSMS\AuditOperations;
 use CMSMS\ContentOperations;
 use CMSMS\Database\DatabaseConnectionException;
 use CMSMS\Events;
@@ -93,7 +93,7 @@ cleanArray($_GET);
 // Grab the current configuration & some define's
 $_app = CmsApp::get_instance(); // for use in this file only.
 $config = $_app->GetConfig();
-AuditManager::init();
+AuditOperations::init();
 
 // Set the timezone
 if ($config['timezone']) @date_default_timezone_set(trim($config['timezone']));
@@ -212,7 +212,7 @@ if (!isset($CMS_INSTALL_PAGE)) {
 
 if ($CMS_JOB_TYPE < 2) {
     // In case module lazy-loading is malformed, pre-register all module-plugins which are not recorded in the database
-//    ModulePluginManager::get_instance()->RegisterSessionPlugins();
+//    ModulePluginOperations::get_instance()->RegisterSessionPlugins();
 
     // Setup language stuff.... will auto-detect languages (launch only to admin at this point)
     if (isset($CMS_ADMIN_PAGE)) NlsOperations::set_language();

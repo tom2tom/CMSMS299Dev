@@ -15,7 +15,7 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 
 function smarty_function_get_jquery($params, Smarty_Internal_Template $template)
 {
@@ -36,7 +36,7 @@ EOS;
 		$out = '';
 	}
 
-	$sm = new ScriptManager();
+	$sm = new ScriptOperations();
 	if ($core) $sm->queue_file($incs['jqcore'], 1);
 	if ($migrate) $sm->queue_file($incs['jqmigrate'], 1);
 	if ($ui) $sm->queue_file($incs['jqui'], 1);

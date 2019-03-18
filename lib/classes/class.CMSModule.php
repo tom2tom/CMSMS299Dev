@@ -22,7 +22,7 @@ use CMSMS\Events;
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
 use CMSMS\internal\bulkcontentoperations;
-use CMSMS\internal\ModulePluginManager;
+use CMSMS\internal\ModulePluginOperations;
 use CMSMS\LangOperations;
 use CMSMS\ModuleOperations;
 
@@ -288,7 +288,7 @@ abstract class CMSModule
      *  a string identifying a static function, like 'class::name' or just 'name' (if the module-class is implied)
      * @param bool    $cachable Optionsl flag whether this function is cachable. Default true.
      * @param int     $usage Optional bit-flag(s) for frontend and/or backend availability.
-     *   Default 0, hence ModulePluginManager::AVAIL_FRONTEND
+     *   Default 0, hence ModulePluginOperations::AVAIL_FRONTEND
      *   0=front, 1=front, 2=back, 3=both
      * @throws CmsException
      * @return bool, or not at all
@@ -327,7 +327,7 @@ abstract class CMSModule
         } else {
             throw new CmsException('Invalid callable passed to RegisterSmartyPlugin');
         }
-        return ModulePluginManager::get_instance()->add($modname, $name, $type, $callable, $cachable, $usage);
+        return ModulePluginOperations::get_instance()->add($modname, $name, $type, $callable, $cachable, $usage);
     }
 
     /**
@@ -343,9 +343,9 @@ abstract class CMSModule
     public function RemoveSmartyPlugin($name = '')
     {
         if( $name == '' ) {
-            ModulePluginManager::remove_by_module($this->GetName());
+            ModulePluginOperations::remove_by_module($this->GetName());
         } else {
-            ModulePluginManager::remove_by_name($name);
+            ModulePluginOperations::remove_by_name($name);
         }
     }
 
@@ -376,7 +376,7 @@ abstract class CMSModule
             return true;
         }
         //static: make a 'permanent' record
-        return ModulePluginManager::get_instance()->add($name, $name, 'function', [$name,'function_plugin'], $cachable);
+        return ModulePluginOperations::get_instance()->add($name, $name, 'function', [$name,'function_plugin'], $cachable);
     }
 
     /**

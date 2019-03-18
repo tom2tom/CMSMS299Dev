@@ -1190,7 +1190,7 @@ function cms_installed_jquery(bool $core = true, bool $migrate = false, bool $ui
  * Instead, relevant content can be gathered via functions added to hook
  * 'AdminHeaderSetup' and/or 'AdminBottomSetup', or a corresponding tag
  *  e.g. {gather_content list='AdminHeaderSetup'}.
- * See also the ScriptManager class, for consolidating scripts into a single
+ * See also the ScriptOperations class, for consolidating scripts into a single
  * download.
  */
 function cms_get_jquery(string $exclude = '',bool $ssl = false,bool $cdn = false,string $append = '',string $custom_root='',bool $include_css = true)

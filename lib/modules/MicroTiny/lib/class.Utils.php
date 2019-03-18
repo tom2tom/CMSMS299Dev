@@ -22,7 +22,7 @@ use cms_utils;
 use CmsApp;
 use CmsLayoutStylesheet;
 use CmsLogicException;
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 use CMSMS\NlsOperations;
 use MicroTiny;
 use MicroTiny\Profile;
@@ -95,7 +95,7 @@ class Utils
 			$output = '';
 		}
 
-		$sm = new ScriptManager();
+		$sm = new ScriptOperations();
 		$configcontent = self::_generate_config($frontend, $selector, $css_name, $languageid);
 		$sm->queue_string($configcontent);
 		$config = cms_utils::get_config();

@@ -30,8 +30,8 @@ use CMSMS\GroupOperations;
 use CMSMS\internal\global_cache;
 use CMSMS\internal\Smarty;
 use CMSMS\ModuleOperations;
-use CMSMS\ScriptManager;
-use CMSMS\StylesManager;
+use CMSMS\ScriptOperations;
+use CMSMS\StylesOperations;
 use CMSMS\UserOperations;
 use CMSMS\UserTagOperations;
 
@@ -522,9 +522,9 @@ final class CmsApp
      * Get a handle to the scripts combiner
      * @since 2.3
      */
-    public function GetScriptManager() : ScriptManager
+    public function GetScriptManager() : ScriptOperations
     {
-        if( is_null($this->scriptsmerger) ) $this->scriptsmerger = new ScriptManager();
+        if( is_null($this->scriptsmerger) ) $this->scriptsmerger = new ScriptOperations();
         return $this->scriptsmerger;
     }
 
@@ -532,9 +532,9 @@ final class CmsApp
      * Get a handle to the styles combiner
      * @since 2.3
      */
-    public function GetStylesManager() : StylesManager
+    public function GetStylesManager() : StylesOperations
     {
-        if( is_null($this->stylesmerger) ) $this->stylesmerger = new StylesManager();
+        if( is_null($this->stylesmerger) ) $this->stylesmerger = new StylesOperations();
         return $this->stylesmerger;
     }
 

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 
 if( !isset($gCms) ) exit;
 if( !$this->VisibleToAdminUser() ) return;
@@ -210,7 +210,7 @@ $s2 = json_encode($this->Lang('confirm_clearlocks'));
 $s3 = json_encode($this->Lang('error_contentlocked'));
 $s4 = json_encode($this->Lang('error_nothingselected'));
 
-$sm = new ScriptManager();
+$sm = new ScriptOperations();
 $sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
 $sm->queue_matchedfile('jquery.ContextMenu.js', 2);
 

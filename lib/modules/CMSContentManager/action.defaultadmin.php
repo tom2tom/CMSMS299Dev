@@ -20,7 +20,7 @@ use CMSContentManager\ContentListBuilder;
 use CMSContentManager\ContentListFilter;
 use CMSContentManager\Utils;
 use CMSMS\UserOperations;
-use CMSMS\ScriptManager;
+use CMSMS\ScriptOperations;
 
 global $CMS_JOB_TYPE;
 
@@ -158,7 +158,7 @@ $s9 = json_encode($this->Lang('error_action_contentlocked'));
 $s6 = $this->Lang('submit');
 $s7 = $this->Lang('cancel');
 
-$sm = new ScriptManager();
+$sm = new ScriptOperations();
 $sm->queue_matchedfile('jquery.cmsms_autorefresh.js', 1);
 $sm->queue_matchedfile('jquery.ContextMenu.js', 2);
 
