@@ -27,7 +27,6 @@ use CMSMS\ContentOperations;
 use CMSMS\Events;
 use CMSMS\HookManager;
 use CMSMS\internal\content_plugins;
-use CMSMS\internal\TemplateCache;
 use CMSMS\NlsOperations;
 
 $starttime = microtime();
@@ -83,7 +82,7 @@ $contentops = ContentOperations::get_instance(); //<2
 $contentobj = null; //<2
 
 //ContentCache::get_instance(); //init page-content-cache
-$_tpl_cache = new TemplateCache();
+//$_tpl_cache = new TemplateCache();
 
 for ($trycount = 0; $trycount < 2; ++$trycount) {
     try {

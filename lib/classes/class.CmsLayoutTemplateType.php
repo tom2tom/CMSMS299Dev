@@ -17,9 +17,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //namespace CMSMS;
+
 use CMSMS\Events;
-use CMSMS\internal\TemplateCache;
+use CMSMS\internal\global_cache;
 use CMSMS\Layout\TemplateTypeAssistant;
+use CMSMS\LayoutTemplateOperations;
 
 /**
  * A class to manage template-types
@@ -455,7 +457,8 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_data['id'] = $db->Insert_ID();
-		TemplateCache::clear_cache();
+		global_cache::clear(LayoutTemplateOperations::class);
+
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Created');
 		$this->_dirty = null;
 	}
@@ -535,7 +538,7 @@ WHERE id = ?';
 		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->ErrorMsg());
 
-		TemplateCache::clear_cache();
+		global_cache::clear(LayoutTemplateOperations::class);
 		$this->_dirty = null;
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
 	}
@@ -585,7 +588,7 @@ WHERE id = ?';
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_dirty = TRUE;
-		TemplateCache::clear_cache();
+		global_cache::clear(LayoutTemplateOperations::class);
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
 		Events::SendEvent('Core', 'DeleteTemplateTypePost', [ get_class($this) => &$this ]);
 		unset($this->_data['id']);

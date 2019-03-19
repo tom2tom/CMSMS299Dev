@@ -20,7 +20,8 @@
 
 use CMSMS\AdminUtils;
 use CMSMS\Events;
-use CMSMS\internal\TemplateCache;
+use CMSMS\internal\global_cache;
+use CMSMS\LayoutTemplateOperations;
 use CMSMS\LockOperations;
 //use function \endswith;
 
@@ -497,7 +498,7 @@ WHERE id = ?';
 			}
 		}
 
-		TemplateCache::clear_cache();
+		global_cache::clear(LayoutTemplateOperations::class);
 		cms_notice('Stylesheet '.$this->get_name().' Updated');
 		$this->_dirty = FALSE;
 	}
@@ -539,7 +540,7 @@ VALUES (?,?,?,?,?,?,?)';
 		}
 
 		$this->_dirty = FALSE;
-		TemplateCache::clear_cache();
+		global_cache::clear(LayoutTemplateOperations::class);
 		cms_notice('Stylesheet '.$this->get_name().' Created');
 	}
 
@@ -590,7 +591,7 @@ VALUES (?,?,?,?,?,?,?)';
 
 		@unlink($this->get_content_filename());
 
-		TemplateCache::clear_cache();
+		global_cache::clear(LayoutTemplateOperations::class);
 		cms_notice('Stylesheet '.$this->get_name().' Deleted');
 		// Events::SendEvent('Core','DeleteStylesheetPost',array(get_class($this)=>&$this));
 		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class($this)=>&$this]);
