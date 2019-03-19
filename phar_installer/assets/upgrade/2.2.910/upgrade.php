@@ -194,9 +194,11 @@ if ($data) {
 
 $sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'category_id');
 $dbdict->ExecuteSQLArray($sqlarray);
-
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'originator C(32) AFTER id');
+$dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'isfile I1 DEFAULT 0 AFTER listable');
+$dbdict->ExecuteSQLArray($sqlarray);
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,'isfile I1 DEFAULT 0');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // layout-templates table indices

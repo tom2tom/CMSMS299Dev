@@ -599,6 +599,7 @@ content X2,
 description X(1024),
 media_type C(255),
 media_query X(16384),
+isfile I(1) DEFAULT 0,
 created I,
 modified I
 ';

@@ -131,7 +131,8 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
         'name' => [],
         'description' => ['optional' => 1],
         'media_type' => ['optional' => 1],
-        'content' => ['isdata'=>1],
+        'content' => ['isdata' => 1],
+        'isfile' => ['optional' => 1],
        ]
       ]
      ],
@@ -188,6 +189,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
         'owner_id' => [],
         'type_dflt' => ['optional' => 1],
         'listable' => ['optional' => 1],
+        'isfile' => ['optional' => 1],
        ]
       ]
      ],
@@ -264,9 +266,10 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT description (#PCDATA)>
  <!ELEMENT dflt (#PCDATA)>
  <!ELEMENT stylesheets (stylesheet+)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,content)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,content,isfile?)>
  <!ELEMENT media_type (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
+ <!ELEMENT isfile (#PCDATA)>
  <!ELEMENT designstyles (designcss+)>
  <!ELEMENT designcss (design_id,css_id,item_order)>
  <!ELEMENT design_id (#PCDATA)>
@@ -286,7 +289,7 @@ function export_content(string $xmlfile, string $filesfolder, Connection $db)
  <!ELEMENT categories (category+)>
  <!ELEMENT category (id,name,description?,item_order?)>
  <!ELEMENT templates (template)>
- <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?)>
+ <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,isfile?)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
@@ -670,7 +673,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					foreach ($bank as $tid=>$arr) {
 						try {
-							$ob = CmsLayoutTemplate::load($tid);
+							$ob = LayoutTemplateOperations::load_template($tid);
 						} catch (Exception $e) {
 							continue;
 						}
@@ -692,7 +695,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					foreach ($bank as $tid=>$arr) {
 						try {
-							$ob = CmsLayoutTemplate::load($tid);
+							$ob = LayoutTemplateOperations::load_template($tid);
 						} catch (Exception $e) {
 							continue;
 						}
