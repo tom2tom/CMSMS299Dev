@@ -169,7 +169,7 @@ DETAILS
   - New methods: CmsApp::disable_template_processing(),template_processing_allowed()
   - New method: AdminUtils::get_module_icon()
   - New method: cms_utils::path_to_url()
-  - New classes: ScriptOperations, StylesOperations, ArrayTree, BasicEnum
+  - New classes: LayoutTemplateOperations, AutoCookieOperations, SignedCookieOperations, ScriptOperations, StylesOperations, ArrayTree, BasicEnum
 
   - CHANGE: Enable use of php functions date(),strftime(),strtotime() in smarty frontend templates.
   - REMOVED: MenuManager module is no longer distributed with CMSMS core. (As of 2.3 at least, the module is still operational.)
