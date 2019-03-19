@@ -65,7 +65,7 @@ class layout_template_resource extends Smarty_Resource_Custom
 		$name = $parts[0];
 
 		try {
-			$obj = CmsLayoutTemplate::load($name);
+			$obj = LayoutTemplateOperations::load_template($name);
 			if( $obj ) {
 				$content = $obj->get_content();
 				$mtime = $obj->get_modified();

@@ -8,7 +8,7 @@ status_msg('Upgrading schema for CMSMS 2.1');
 $dbdict = GetDataDictionary($db);
 $taboptarray = ['mysqli' => 'ENGINE=MYISAM CHARACTER SET utf8 COLLATE utf8_general_ci'];
 
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME,'listable I1 DEFAULT 1');
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'listable I1 DEFAULT 1');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 verbose_msg(lang('upgrading_schema',201));

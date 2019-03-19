@@ -33,7 +33,7 @@ try {
 
     if( !$this->CheckPermission('Modify Templates') ) {
         // check if we have ownership/delete permission for these templates
-        $my_templates = CmsLayoutTemplate::template_query([0=>'u:'.get_userid(),'as_list'=>1]);
+        $my_templates = LayoutTemplateOperations::template_query([0=>'u:'.get_userid(),'as_list'=>1]);
         if( !is_array($my_templates) || count($my_templates) == 0 ) {
             throw new RuntimeException($this->Lang('error_retrieving_mytemplatelist'));
         }
@@ -45,7 +45,7 @@ try {
     }
 
     $bulk_op = null;
-    $templates = CmsLayoutTemplate::load_bulk($params['tpl_select']);
+    $templates = LayoutTemplateOperations::load_bulk_templates($params['tpl_select']);
     switch( $params['bulk_action'] ) {
     case 'delete':
         $bulk_op = 'bulk_action_delete';

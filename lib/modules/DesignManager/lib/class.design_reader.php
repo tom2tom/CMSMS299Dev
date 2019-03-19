@@ -264,7 +264,7 @@ class design_reader extends reader_base
             $name = $this->_get_name($key);
             $rec = [];
             $rec['name'] = base64_decode($one['name']);
-            $rec['newname'] = CmsLayoutTemplate::generate_unique_name($rec['name']);
+            $rec['newname'] = LayoutTemplateOperations::generate_unique_template_name($rec['name']);
             $rec['key'] = $key;
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);
@@ -298,7 +298,7 @@ class design_reader extends reader_base
   {
     $this->_scan();
 
-    $templates = CmsLayoutTemplate::template_query(['as_list'=>1]);
+    $templates = LayoutTemplateOperations::template_query(['as_list'=>1]);
     $tpl_names = array_values($templates);
 
     foreach( $this->_file_map as $key => &$rec ) {

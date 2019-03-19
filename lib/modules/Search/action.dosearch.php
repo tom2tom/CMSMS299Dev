@@ -10,7 +10,7 @@ if( isset($params['resulttemplate']) ) {
     $template = trim($params['resulttemplate']);
 }
 else {
-    $tpl = CmsLayoutTemplate::load_dflt_by_type('Search::searchresults');
+    $tpl = LayoutTemplateOperations::load_default_template_by_type('Search::searchresults');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
         return;

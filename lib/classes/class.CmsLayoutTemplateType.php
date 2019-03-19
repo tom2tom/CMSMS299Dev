@@ -559,12 +559,11 @@ WHERE id = ?';
 	/**
 	 * Get a list of templates for the current template-type.
 	 *
-	 * @see CmsLayoutTemplate::list_by_type()
-	 * @return Array of CmsLayoutTemplate objects.  or null.
+	 * @return mixed array of CmsLayoutTemplate objects | null
 	 */
 	public function get_template_list()
 	{
-		return CmsLayoutTemplate::load_all_by_type($this);
+		return LayoutTemplateOperations::load_all_by_type($this);
 	}
 
 	/**
@@ -578,7 +577,7 @@ WHERE id = ?';
 		if( !$this->get_id() ) return;
 
 		Events::SendEvent('Core', 'DeleteTemplateTypePre', [ get_class($this) => &$this ]);
-		$tmp = CmsLayoutTemplate::template_query(['t:'.$this->get_id()]);
+		$tmp = LayoutTemplateOperations::template_query(['t:'.$this->get_id()]);
 		if( $tmp ) throw new CmsInvalidDataException('Cannot delete a template-type with existing templates');
 		$db = CmsApp::get_instance()->GetDb();
 		$query = 'DELETE FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
@@ -615,12 +614,12 @@ WHERE id = ?';
 	 *
 	 * This method will throw an exception if the template cannot be created.
 	 *
-	 * @see CmsLayoutTemplate::load_dflt_by_type()
+	 * @see LayoutTemplateOperations::load_default_template_by_type()
 	 * @return CmsLayoutTemplate object, or null.
 	 */
 	public function get_dflt_template()
 	{
-		return CmsLayoutTemplate::load_dflt_by_type($this);
+		return LayoutTemplateOperations::load_default_template_by_type($this);
 	}
 
 	/**

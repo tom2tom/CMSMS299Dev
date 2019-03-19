@@ -112,7 +112,7 @@ $tpl->assign('dflt_design_id',$dflt_design->get_id());
 
 $dflt_tpl_id = -1;
 try {
-    $dflt_tpl = CmsLayoutTemplate::load_dflt_by_type(CmsLayoutTemplateType::CORE.'::page');
+    $dflt_tpl = LayoutTemplateOperations::load_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
     $dflt_tpl_id = $dflt_tpl->get_id();
 }
 catch( Exception $e ) {
@@ -120,13 +120,13 @@ catch( Exception $e ) {
 }
 $tpl->assign('dflt_tpl_id',$dflt_tpl_id);
 if( $showmore ) {
-    $_tpl = CmsLayoutTemplate::template_query(['as_list'=>1]);
+    $_tpl = LayoutTemplateOperations::template_query(['as_list'=>1]);
     $tpl->assign('alltemplates',$_tpl);
 }
 else {
     // gotta get the core page template type
     $_type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-    $_tpl = CmsLayoutTemplate::template_query(['t:'.$_type->get_id(),'as_list'=>1]);
+    $_tpl = LayoutTemplateOperations::template_query(['t:'.$_type->get_id(),'as_list'=>1]);
     $tpl->assign('alltemplates',$_tpl);
 }
 

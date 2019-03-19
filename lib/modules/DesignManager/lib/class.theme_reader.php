@@ -299,7 +299,7 @@ class theme_reader extends reader_base
   {
     $this->_scan();
 
-    $templates = CmsLayoutTemplate::template_query(['as_list'=>1]);
+    $templates = LayoutTemplateOperations::template_query(['as_list'=>1]);
     $tpl_names = array_values($templates);
 
     foreach( $this->_tpl_info as $key => &$rec ) {

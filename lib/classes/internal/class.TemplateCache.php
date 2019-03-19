@@ -54,7 +54,7 @@ class TemplateCache
 	  if( $data ) {
 		  $this->_cache = $data;
 		  if( isset($this->_cache[$this->_key]) ) {
-			  CmsLayoutTemplate::load_bulk($this->_cache[$this->_key]['templates']);
+			  LayoutTemplateOperations::load_bulk_templates($this->_cache[$this->_key]['templates']);
 			  if( isset($this->_cache[$this->_key]['types']) ) CmsLayoutTemplateType::load_bulk($this->_cache[$this->_key]['types']);
 		  }
 	  }
@@ -66,7 +66,7 @@ class TemplateCache
       if( !CmsApp::get_instance()->is_frontend_request() ) return;
 
       $dirty = FALSE;
-      $t1 = CmsLayoutTemplate::get_loaded_templates();
+      $t1 = LayoutTemplateOperations::get_loaded_templates();
       if( is_array($t1) ) {
           $t2 = [];
           if( isset($this->_cache[$this->_key]['templates']) ) $t2 = $this->_cache[$this->_key]['templates'];

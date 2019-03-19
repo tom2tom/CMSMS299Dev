@@ -407,7 +407,7 @@ class Content extends ContentBase
 		$_list = null;
 		$config = cms_config::get_instance();
 		if( empty($config['page_template_list']) ) {
-			$_tpl = CmsLayoutTemplate::template_query( ['as_list'=>1] );
+			$_tpl = LayoutTemplateOperations::template_query( ['as_list'=>1] );
 			if( is_array($_tpl) && count($_tpl) > 0 ) {
 				foreach( $_tpl as $tpl_id => $tpl_name ) {
 					$_list[] = [ 'value'=>$tpl_id,'label'=>$tpl_name ];
@@ -442,7 +442,7 @@ class Content extends ContentBase
 		static $_templates;
 		if( $_designlist == null ) {
 /* see get_template_list()
-			$_tpl = CmsLayoutTemplate::template_query(['as_list'=>1]);
+			$_tpl = LayoutTemplateOperations::template_query(['as_list'=>1]);
 			if( $_tpl ) {
 				$_templates = [];
 				foreach( $_tpl as $tpl_id => $tpl_name ) {
@@ -485,7 +485,7 @@ class Content extends ContentBase
 				$template_id = $this->TemplateId();
 				if( $template_id < 1 ) {
 					try {
-						$dflt_tpl = CmsLayoutTemplate::load_dflt_by_type(CmsLayoutTemplateType::CORE.'::page');
+						$dflt_tpl = LayoutTemplateOperations::load_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
 					catch( Exception $e ) {

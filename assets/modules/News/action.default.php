@@ -8,7 +8,7 @@ if (isset($params['summarytemplate'])) {
     $template = trim($params['summarytemplate']);
 }
 else {
-    $tpl = CmsLayoutTemplate::load_dflt_by_type('News::summary');
+    $tpl = LayoutTemplateOperations::load_default_template_by_type('News::summary');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
         return;

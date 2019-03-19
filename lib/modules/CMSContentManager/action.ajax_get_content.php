@@ -30,7 +30,7 @@ try {
     $tpl->assign('filterimage',cms_join_path(__DIR__,'images','filter'))
      ->assign('can_add_content',$this->CheckPermission('Add Pages') || $this->CheckPermission('Manage All Content'))
      ->assign('can_reorder_content',$this->CheckPermission('Manage All Content'))
-     ->assign('template_list',CmsLayoutTemplate::template_query(['as_list'=>1])); // this is just to aid loading.
+     ->assign('template_list',LayoutTemplateOperations::template_query(['as_list'=>1])); // this is just to aid loading.
 
     // load all the content that this user can display...
     // organize it into a tree

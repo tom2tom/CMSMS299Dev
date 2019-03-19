@@ -33,7 +33,7 @@ final class oldmodtemplate_slave extends slave
   public function get_matches()
   {
     $db = cmsms()->GetDb();
-    $query = 'SELECT originator,name,content FROM '.CMS_DB_PREFIX.CmsLayoutTemplate::TABLENAME.' WHERE originator IS NOT NULL AND originator != \'\' AND content LIKE ?';
+    $query = 'SELECT originator,name,content FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE originator IS NOT NULL AND originator != \'\' AND content LIKE ?';
     $dbr = $db->GetArray($query,['%'.$this->get_text().'%']);
     if( $dbr ) {
       $output = [];

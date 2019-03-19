@@ -687,7 +687,7 @@ final class ContentListBuilder
 			$tpl_list[] = $content->TemplateId();
 		}
 		$tpl_list = array_values(array_unique(array_values($tpl_list)));
-		$tpls = CmsLayoutTemplate::load_bulk($tpl_list);
+		$tpls = LayoutTemplateOperations::load_bulk_templates($tpl_list);
 
 		$out = [];
 		foreach( $page_list as $page_id ) {
@@ -761,7 +761,7 @@ final class ContentListBuilder
 				case 'template':
 					if( $content->IsViewable() ) {
 						try {
-							$template = CmsLayoutTemplate::load($content->TemplateId());
+							$template = LayoutTemplateOperations::load_template($content->TemplateId());
 							$rec[$column] = $template->get_name();
 						}
 						catch( Exception $e ) {

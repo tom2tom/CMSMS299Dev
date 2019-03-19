@@ -37,7 +37,7 @@ if( isset($params['template']) ) {
     $template = trim($params['template']);
 }
 else {
-    $tpl = CmsLayoutTemplate::load_dflt_by_type('Navigator::navigation');
+    $tpl = LayoutTemplateOperations::load_default_template_by_type('Navigator::navigation');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default template found');
         return;
