@@ -19,7 +19,6 @@
 //namespace CMSMS;
 
 use CMSMS\Events;
-use CMSMS\internal\global_cache;
 use CMSMS\Layout\TemplateTypeAssistant;
 use CMSMS\LayoutTemplateOperations;
 
@@ -457,7 +456,6 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_data['id'] = $db->Insert_ID();
-		global_cache::clear(LayoutTemplateOperations::class);
 
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Created');
 		$this->_dirty = null;
@@ -538,7 +536,6 @@ WHERE id = ?';
 		]);
 		if( !$dbr ) throw new CmsSQLErrorException($db->ErrorMsg());
 
-		global_cache::clear(LayoutTemplateOperations::class);
 		$this->_dirty = null;
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Updated');
 	}
@@ -588,7 +585,6 @@ WHERE id = ?';
 		if( !$dbr ) throw new CmsSQLErrorException($db->sql.' -- '.$db->ErrorMsg());
 
 		$this->_dirty = TRUE;
-		global_cache::clear(LayoutTemplateOperations::class);
 		audit($this->get_id(),'CMSMS','template-type '.$this->get_name().' Deleted');
 		Events::SendEvent('Core', 'DeleteTemplateTypePost', [ get_class($this) => &$this ]);
 		unset($this->_data['id']);
@@ -613,12 +609,12 @@ WHERE id = ?';
 	}
 
 	/**
-	 * Get the default template of ths type
+	 * Get the default template of this type
 	 *
 	 * This method will throw an exception if the template cannot be created.
 	 *
 	 * @see LayoutTemplateOperations::load_default_template_by_type()
-	 * @return CmsLayoutTemplate object, or null.
+	 * @return mixed CmsLayoutTemplate object | null
 	 */
 	public function get_dflt_template()
 	{
