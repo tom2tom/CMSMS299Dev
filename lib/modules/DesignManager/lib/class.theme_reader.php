@@ -25,6 +25,9 @@ use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
 use CMSMS\CmsException;
 use CMSMS\ModuleOperations;
+use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
+use const CMS_ROOT_URL;
 use function cms_join_path;
 use function cmsms;
 use function file_put_contents;
@@ -325,7 +328,7 @@ class theme_reader extends reader_base
   {
     $this->_scan();
 
-    $stylesheets = CmsLayoutStylesheet::get_all(TRUE);
+    $stylesheets = StylesheetOperations::load_all_stylesheets(TRUE);
     $css_names = array_values($stylesheets);
 
     foreach( $this->_css_info as $key => &$rec ) {

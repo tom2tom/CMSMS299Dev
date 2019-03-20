@@ -25,6 +25,7 @@ use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
 use CMSMS\CmsException;
+use CMSMS\StylesheetOperations;
 use const CMS_ROOT_PATH;
 use const CMS_ROOT_URL;
 use const CMS_VERSION;
@@ -207,7 +208,7 @@ EOT;
             $csslist = $this->_design->get_stylesheets();
             if( $csslist ) {
                 foreach( $csslist as $css_id ) {
-                    $css_ob = CmsLayoutStylesheet::load($css_id);
+                    $css_ob = StylesheetOperations::load_stylesheet($css_id);
 
                     $new_content = $this->_parse_css_for_urls($css_ob->get_content());
                     $sig = $this->_get_signature($css_ob->get_name(),'CSS');

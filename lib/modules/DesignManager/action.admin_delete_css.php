@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\StylesheetOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Stylesheets') ) return;
 
@@ -30,7 +32,7 @@ if( isset($params['cancel']) ) {
 try {
   if( !isset($params['css']) ) throw new CmsException($this->Lang('error_missingparam'));
 
-  $css_ob = CmsLayoutStylesheet::load($params['css']);
+  $css_ob = StylesheetOperations::load_stylesheet($params['css']);
 
   if( isset($params['submit']) ) {
     if( !isset($params['check1']) || !isset($params['check2']) ) {

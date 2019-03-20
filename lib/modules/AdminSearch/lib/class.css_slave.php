@@ -4,6 +4,7 @@ namespace AdminSearch;
 
 use cms_utils;
 use CmsLayoutStylesheet;
+use CMSMS\StylesheetOperations;
 use const CMS_DB_PREFIX;
 use const CMS_ROOT_PATH;
 use function check_permission;
@@ -82,13 +83,13 @@ final class css_slave extends slave
         $db = cmsms()->GetDb();
 //        $mod = $this->get_mod();
         // get all of the stylesheet ids
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' ORDER BY name';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' ORDER BY name';
         $all_ids = $db->GetCol($sql);
         $output = [];
         if( $all_ids ) {
             $chunks = array_chunk($all_ids,15);
             foreach( $chunks as $chunk ) {
-                $css_list = CmsLayoutStylesheet::load_bulk($chunk);
+                $css_list = StylesheetOperations::load_bulk_stylesheets($chunk);
                 foreach( $css_list as $css ) {
                     if( $this->check_css_matches($css) ) $output[] = $this->get_css_match_info($css);
                 }

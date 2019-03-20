@@ -66,7 +66,7 @@ class TemplateOperations
     /**
      * @ignore
      */
-    protected function _resolve_user($a)
+    protected function resolve_user($a)
     {
         if( is_numeric($a) && $a > 0 ) return $a;
         if( is_string($a) && strlen($a) ) {
@@ -85,7 +85,7 @@ class TemplateOperations
      * @param CmsLayoutTemplate $tpl
      * @return mixed string | null
      */
-    protected function _get_originator($tpl)
+    protected function get_originator($tpl)
     {
         $tmp = $tpl->get_originator();
         if( $tmp ) {
@@ -101,32 +101,6 @@ class TemplateOperations
             }
         }
         return null;
-    }
-
-    /**
-    * Generate a unique name for a template
-    *
-    * @param string $prototype A prototype template name
-    * @param string $prefix An optional name-prefix. Default ''.
-    * @return mixed string | null
-    * @throws CmsInvalidDataException
-     */
-    public static function generate_unique_template_name(string $prototype, string $prefix = '') : string
-    {
-        if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
-
-        $db = CmsApp::get_instance()->GetDb();
-        $sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
-        $all = $db->GetCol($sql,[ $prototype ]);
-        if( $all ) {
-            $name = $prototype;
-            $i = 0;
-            while( in_array($name, $all) ) {
-                $name = $prefix.$prototype.'_'.++$i;
-            }
-            return $name;
-        }
-        return $prototype;
     }
 
     /**
@@ -168,7 +142,7 @@ class TemplateOperations
      * @param CmsLayoutTemplate $tpl
      * @returns CmsLayoutTemplate
      */
-    protected function _update_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
+    protected function update_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
     {
         $this->validate_template($tpl);
 
@@ -189,7 +163,7 @@ modified=?
 WHERE id=?';
 //      $dbr =
         $db->Execute($sql,
-        [ $this->_get_originator($tpl),
+        [ $this->get_originator($tpl),
          $tpl->get_name(),
          $tpl->get_content(),
          $tpl->get_description(),
@@ -258,7 +232,7 @@ WHERE id=?';
      * @param CmsLayoutTemplate $tpl
      * @return CmsLayoutTemplate template object representing the inserted template
      */
-    protected function _insert_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
+    protected function insert_template(CmsLayoutTemplate $tpl) : CmsLayoutTemplate
     {
         $this->validate_template($tpl);
 
@@ -268,7 +242,7 @@ WHERE id=?';
 ' (originator,name,content,description,type_id,type_dflt,owner_id,listable,contentfile,created,modified)
 VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $dbr = $db->Execute($sql,
-        [ $this->_get_originator($tpl),
+        [ $this->get_originator($tpl),
          $tpl->get_name(),
          $tpl->get_content(), // if file ??
          $tpl->get_description(),
@@ -342,12 +316,12 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
     {
         if( $tpl->get_id() ) {
             Events::SendEvent('Core','EditTemplatePre',[ get_class($tpl) => &$tpl ]);
-            $tpl = $this->_update_template($tpl); // $tpl might now be different, thanks to event handler
+            $tpl = $this->update_template($tpl); // $tpl might now be different, thanks to event handler
             Events::SendEvent('Core','EditTemplatePost',[ get_class($tpl) => &$tpl ]);
         }
         else {
             Events::SendEvent('Core','AddTemplatePre',[ get_class($tpl) => &$tpl ]);
-            $tpl = $this->_insert_template($tpl);
+            $tpl = $this->insert_template($tpl);
             Events::SendEvent('Core','AddTemplatePost',[ get_class($tpl) => &$tpl ]);
         }
     }
@@ -580,7 +554,7 @@ DESIGNS
      */
     public static function get_owned_templates($a) : array
     {
-        $id = $this->_resolve_user($a);
+        $id = $this->resolve_user($a);
         if( $id <= 0 ) throw new CmsInvalidDataException('Invalid user specified to get_owned_templates');
 
         $sql = new CmsLayoutTemplateQuery([ 'u'=>$id ]);
@@ -599,7 +573,7 @@ DESIGNS
      */
     public static function get_editable_templates($a)
     {
-        $id = $this->_resolve_user($a);
+        $id = $this->resolve_user($a);
         if( $id <= 0 ) throw new CmsInvalidDataException('Invalid user specified to get_owned_templates');
 
         $db = CmsApp::get_instance()->GetDb();
@@ -675,6 +649,32 @@ DESIGNS
     }
 
 //============= FORMER CmsLayoutTemplate METHODS ============
+
+    /**
+    * Generate a unique name for a template
+    *
+    * @param string $prototype A prototype template name
+    * @param string $prefix An optional name-prefix. Default ''.
+    * @return mixed string | null
+    * @throws CmsInvalidDataException
+     */
+    public static function generate_unique_template_name(string $prototype, string $prefix = '') : string
+    {
+        if( !$prototype ) throw new CmsInvalidDataException('Prototype name cannot be empty');
+
+        $db = CmsApp::get_instance()->GetDb();
+        $sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
+        $all = $db->GetCol($sql,[ $prototype ]);
+        if( $all ) {
+            $name = $prototype;
+            $i = 0;
+            while( in_array($name, $all) ) {
+                $name = $prefix.$prototype.'_'.++$i;
+            }
+            return $name;
+        }
+        return $prototype;
+    }
 
    /**
     * Perform an advanced database-query on templates

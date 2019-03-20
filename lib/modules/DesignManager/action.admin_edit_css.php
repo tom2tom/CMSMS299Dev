@@ -19,6 +19,7 @@
 use CMSMS\CmsLockException;
 use CMSMS\Lock;
 use CMSMS\LockOperations;
+use CMSMS\StylesheetOperations;
 use DesignManager\utils;
 
 if (!isset($gCms)) exit ;
@@ -40,7 +41,7 @@ try {
     $extraparms = [];
 
     if ($css_id) {
-        $css_ob = CmsLayoutStylesheet::load($css_id);
+        $css_ob = StylesheetOperations::load_stylesheet($css_id);
         $extraparms['css'] = $css_id;
     } else {
         $css_ob = new CmsLayoutStylesheet();

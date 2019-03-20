@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
@@ -45,7 +48,7 @@ try {
             $css_id_list = $design->get_stylesheets();
             if( $css_id_list ) {
                 // get the designs that are attached to these stylesheets
-                $css_list = CmsLayoutStylesheet::load_bulk($css_id_list);
+                $css_list = StylesheetOperations::load_bulk_stylesheets($css_id_list);
                 if( $css_list ) {
                     foreach( $css_list as &$css ) {
                         $x = $css->get_designs();

@@ -20,10 +20,10 @@ namespace MicroTiny;
 
 use cms_utils;
 use CmsApp;
-use CmsLayoutStylesheet;
 use CmsLogicException;
-use CMSMS\ScriptOperations;
 use CMSMS\NlsOperations;
+use CMSMS\ScriptOperations;
+use CMSMS\StylesheetOperations;
 use MicroTiny;
 use MicroTiny\Profile;
 use PHPMailer\PHPMailer\Exception;
@@ -77,7 +77,7 @@ class Utils
 		// if we have a stylesheet name, use it
 		if( $css_name ) {
 			try {
-				$css = CmsLayoutStylesheet::load($css_name);
+				$css = StylesheetOperations::load_stylesheet($css_name);
 				$css_name = $css->get_name();
 			}
 			catch( Exception $e ) {

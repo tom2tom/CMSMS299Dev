@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\StylesheetOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Stylesheets') ) return;
 
@@ -37,7 +39,7 @@ if( isset($params['cancel']) ) {
 
 try {
     $bulk_op = null;
-    $stylesheets = CmsLayoutStylesheet::load_bulk($params['css_select']);
+    $stylesheets = StylesheetOperations::load_bulk_stylesheets($params['css_select']);
     switch( $params['css_bulk_action'] ) {
     case 'delete':
         $bulk_op = 'bulk_action_delete_css';
@@ -46,7 +48,7 @@ try {
                 $this->ShowErrors($this->Lang('error_notconfirmed'));
             }
             else {
-                $stylesheets = CmsLayoutStylesheet::load_bulk($params['css_select']);
+                $stylesheets = StylesheetOperations::load_bulk_stylesheets($params['css_select']);
                 foreach( $stylesheets as $one ) {
                     if( in_array($one->get_id(),$params['css_select']) ) {
                         $one->delete();

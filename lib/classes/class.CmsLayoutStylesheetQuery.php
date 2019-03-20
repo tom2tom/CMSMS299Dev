@@ -18,6 +18,8 @@
 
 //namespace CMSMS;
 
+use CMSMS\StylesheetOperations;
+
 /**
  * @package CMS
  * @since 2.0
@@ -40,7 +42,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 	public function execute()
 	{
 		if( !is_null($this->_rs) ) return;
-		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME.' S';
+		$query = 'SELECT S.id FROM '.CMS_DB_PREFIX. StylesheetOperations::TABLENAME.' S';
 
 		// if we are using a design id argument
 		// we do join, and sort by item order in the design
@@ -154,7 +156,7 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		$ths->execute();
 		if( !$this->_rs ) throw new CmsLogicException('Cannot get stylesheet from invalid stylesheet query object');
 		$id = (int) $this->fields['id'];
-		$obj = CmsLayoutStylesheet::load($id);
+		$obj = StylesheetOperations::load_stylesheet($id);
 		return $obj;
 	}
 
@@ -176,6 +178,6 @@ class CmsLayoutStylesheetQuery extends CmsDbQueryBase
 		}
 
 		$deep = (!empty($this->_args['deep']) && $this->_args['deep']) ? TRUE : FALSE;
-		return CmsLayoutStylesheet::load_bulk($tmp,$deep);
+		return StylesheetOperations::load_bulk_stylesheets($tmp,$deep);
 	}
 } // class

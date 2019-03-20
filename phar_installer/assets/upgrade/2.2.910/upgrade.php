@@ -198,7 +198,7 @@ $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'o
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I1 DEFAULT 0 AFTER listable');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,'contentfile I1 DEFAULT 0');
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME,'contentfile I1 DEFAULT 0');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // layout-templates table indices

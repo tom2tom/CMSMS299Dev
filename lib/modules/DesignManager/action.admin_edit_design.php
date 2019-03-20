@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Designs') ) return;
 
@@ -71,7 +74,7 @@ try {
     $tpl->assign('all_templates',$templates);
   }
 
-  $stylesheets = CmsLayoutStylesheet::get_all();
+  $stylesheets = StylesheetOperations::load_all_stylesheets();
   if( $stylesheets ) {
     usort($stylesheets,function($a,$b){
       return strcasecmp($a->get_name(),$b->get_name());

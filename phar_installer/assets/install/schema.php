@@ -1,6 +1,8 @@
 <?php
 
 use CMSMS\Lock;
+use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
 use function cms_installer\lang;
 
 //force-drop tables which will be created (just in case, should do nothing during install)
@@ -69,7 +71,7 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLE
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME);
+$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME);
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME);
 $dbdict->ExecuteSQLArray($sqlarray);
@@ -604,15 +606,15 @@ created I,
 modified I
 ';
 $sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,
+    CMS_DB_PREFIX.StylesheetOperations::TABLENAME,
     $flds,
     $taboptarray
 );
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', CmsLayoutStylesheet::TABLENAME, $msg_ret));
+verbose_msg(lang('install_created_table', StylesheetOperations::TABLENAME, $msg_ret));
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_css_1',
-    CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME, 'name', ['UNIQUE']);
+    CMS_DB_PREFIX.StylesheetOperations::TABLENAME, 'name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_created_index', 'idx_layout_css_1', $msg_ret));

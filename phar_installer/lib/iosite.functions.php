@@ -22,6 +22,7 @@ as well as normal operation.
 */
 
 use CMSMS\Database\Connection;
+use CMSMS\StylesheetOperations;
 //install-only methods - admin export ok?
 use function cms_installer\lang;
 
@@ -537,7 +538,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					foreach ($bank as $sid=>$arr) {
 						try {
-							$ob = CmsLayoutStylesheet::load($sid);
+							$ob = StylesheetOperations::load_stylesheet($sid);
 						} catch (Exception $e) {
 							continue;
 						}

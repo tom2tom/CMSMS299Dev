@@ -18,6 +18,7 @@
 
 use CMSMS\FormUtils;
 use CMSMS\HookManager;
+use CMSMS\StylesheetOperations;
 
 // variables for general use
 if (!isset($CMS_LOGIN_PAGE)) {
@@ -99,7 +100,7 @@ if ($list) {
 		}
 		$cssnames = array_unique($cssnames);
 		if ($cssnames) {
-			$css = CmsLayoutStylesheet::load_bulk($cssnames);
+			$css = StylesheetOperations::load_bulk_stylesheets($cssnames);
 			// adjust the cssnames array to only contain the list of the stylesheets we actually found.
 			if ($css) {
 				$tmpnames = [];

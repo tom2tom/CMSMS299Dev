@@ -15,6 +15,9 @@
 #You should have received a copy of the GNU General Public License
 #along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\StylesheetOperations;
+use MicroTiny\Profile;
+
 if( !cmsms() ) exit;
 if (!$this->VisibleToAdminUser()) return;
 $this->SetCurrentTab('settings');
@@ -30,7 +33,7 @@ try {
   }
 
   // load the profile
-  $profile = MicroTiny\Profile::load($name);
+  $profile = Profile::load($name);
 
   if( isset($params['submit']) ) {
     //
@@ -58,7 +61,7 @@ try {
   $tpl->assign('profile',$name)
    ->assign('data',$profile);
 
-  $stylesheets = ['-1'=>$this->Lang('none')] + CmsLayoutStylesheet::get_all(TRUE);
+  $stylesheets = ['-1'=>$this->Lang('none')] + StylesheetOperations::load_all_stylesheets(TRUE);
   $tpl->assign('stylesheets',$stylesheets);
 
   $tpl->display();

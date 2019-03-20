@@ -23,6 +23,8 @@ use CmsLayoutStylesheet;
 use CmsLayoutTemplate;
 use CmsLayoutTemplateType;
 use CMSMS\CmsException;
+use CMSMS\StylesheetOperations;
+use CMSMS\TemplateOperations;
 use DesignManager\reader_base;
 use DesignManager\xml_reader;
 use XMLReader;
@@ -283,7 +285,7 @@ class design_reader extends reader_base
             $name = $this->_get_name($key);
             $rec = [];
             $rec['name'] = base64_decode($one['name']);
-            $rec['newname'] = CmsLayoutStylesheet::generate_unique_name($rec['name']);
+            $rec['newname'] = StylesheetOperations::generate_unique_name($rec['name']);
             $rec['key'] = $key;
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);
@@ -325,7 +327,7 @@ class design_reader extends reader_base
   {
     $this->_scan();
 
-    $stylesheets = CmsLayoutStylesheet::get_all(TRUE);
+    $stylesheets = StylesheetOperations::load_all_stylesheets(TRUE);
     $css_names = array_values($stylesheets);
 
     foreach( $this->_file_map as $key => &$rec ) {

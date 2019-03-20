@@ -106,7 +106,7 @@ created I,
 modified I
 ';
 $sqlarray = $dict->CreateTableSQL(
-	CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,
+	CMS_DB_PREFIX.StylesheetOperations::TABLENAME,
 	$flds,
 	$taboptarray
 );
@@ -114,7 +114,7 @@ $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 
 $sqlarray = $dict->CreateIndexSQL('idx_layout_css_1',
-	CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME, 'name', ['UNIQUE']);
+	CMS_DB_PREFIX.StylesheetOperations::TABLENAME, 'name', ['UNIQUE']);
 $res = $dict->ExecuteSQLArray($sqlarray);
 if ($res != 2) return false;
 

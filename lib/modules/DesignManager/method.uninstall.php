@@ -31,7 +31,7 @@ $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TABLENA
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE);
 $dict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME);
+$sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.StylesheetOperations::TABLENAME);
 $dict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutCollection::TABLENAME);
 $dict->ExecuteSQLArray($sqlarray);

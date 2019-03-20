@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+use CMSMS\StylesheetOperations;
+
 if( !isset($gCms) ) exit;
 if( !$this->CheckPermission('Manage Stylesheets') ) return;
 
@@ -30,7 +32,7 @@ if( isset($params['cancel']) ) {
 }
 
 try {
-  $orig_css = CmsLayoutStylesheet::load($params['css']);
+  $orig_css = StylesheetOperations::load_stylesheet($params['css']);
   if( isset($params['submit']) || isset($params['apply']) ) {
     try {
       $new_css = clone($orig_css);
