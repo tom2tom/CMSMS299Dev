@@ -18,7 +18,7 @@
 
 //see also: class CmsLayoutTemplateQuery which (for now at least) this replicates
 
-$tbl1 = CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME;
+$tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 $tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME;
 $typejoin = false;
 $catjoin = false;
@@ -130,7 +130,7 @@ foreach ($filter as $key => $val) {
       case 'editable':
         $second = (int)$second;
         $q2 = 'SELECT DISTINCT tpl_id FROM (
-SELECT tpl_id FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::ADDUSERSTABLE.' WHERE user_id = ?
+SELECT tpl_id FROM '.CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE.' WHERE user_id = ?
 UNION
 SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
          AS tmp1';
@@ -237,5 +237,5 @@ while (!$rs->EOF()) {
     $rs->MoveNext();
 }
 
-$templates = LayoutTemplateOperations::load_bulk_templates($out);
+$templates = TemplateOperations::load_bulk_templates($out);
 

@@ -418,6 +418,6 @@ $tpl->assign('ajax',$ajax)
 // get a list of designs
  ->assign('design_list',CmsLayoutCollection::get_list())
 // get a list of templates
- ->assign('template_list',LayoutTemplateOperations::template_query(['as_list'=>1]));
+ ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]));
 
 $tpl->display();

@@ -183,7 +183,7 @@ $msg_ret = ($return == 2) ? lang('done') : lang('failed');
 verbose_msg(lang('install_creating_index', 'idx_layout_cat_tplasoc_1', $msg_ret));
 
 // migrate existing category_id values to new table
-$query = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE category_id IS NOT NULL';
+$query = 'SELECT id,category_id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE category_id IS NOT NULL';
 $data = $db->GetArray($query);
 if ($data) {
     $query = 'INSERT INTO '.CMS_DB_PREFIX.CmsLayoutTemplateCategory::TPLTABLE.' (category_id,tpl_id,tpl_order) VALUES (?,?,-1)';
@@ -192,25 +192,25 @@ if ($data) {
     }
 }
 
-$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'category_id');
+$sqlarray = $dbdict->DropColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'category_id');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'originator C(32) AFTER id');
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'originator C(32) AFTER id');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,'isfile I1 DEFAULT 0 AFTER listable');
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME,'contentfile I1 DEFAULT 0 AFTER listable');
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,'isfile I1 DEFAULT 0');
+$sqlarray = $dbdict->AddColumnSQL(CMS_DB_PREFIX.CmsLayoutStylesheet::TABLENAME,'contentfile I1 DEFAULT 0');
 $dbdict->ExecuteSQLArray($sqlarray);
 
 // layout-templates table indices
 // replace this 'unique' by non- (_3 below becomes the validator)
 $sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'idx_layout_tpl_1',
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME, 'name');
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME, 'name');
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
 $dbdict->ExecuteSQLArray($sqlarray);
 // content table index used by name
 $sqlarray = $dbdict->DropIndexSQL(CMS_DB_PREFIX.'index_content_by_idhier',
@@ -240,7 +240,7 @@ verbose_msg(lang('upgrade_modifytable', 'event_handlers'));
 $query = 'SELECT * FROM '.CMS_DB_PREFIX.'module_templates ORDER BY module_name,template_name';
 $data = $db->GetArray($query);
 if ($data) {
-    $query = 'INSERT INTO '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.
+    $query = 'INSERT INTO '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.
         ' (originator,name,content,type_id,created,modified) VALUES (?,?,?,?,?,?)';
     $dt = new DateTime(null, new DateTimeZone('UTC'));
     $types = [];

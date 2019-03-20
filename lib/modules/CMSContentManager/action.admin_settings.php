@@ -64,7 +64,7 @@ $tpl->assign('list_visiblecolumns',$tmp);
 $tpl->assign('page_prefs',Utils::get_pagedefaults())
  ->assign('all_contenttypes',ContentOperations::get_instance()->ListContentTypes(false,false))
  ->assign('design_list',CmsLayoutCollection::get_list())
- ->assign('template_list',LayoutTemplateOperations::template_query(['as_list'=>1]))
+ ->assign('template_list',TemplateOperations::template_query(['as_list'=>1]))
  ->assign('addteditor_list',ContentBase::GetAdditionalEditorOptions());
 
 $tpl->display();

@@ -6,7 +6,7 @@ if (isset($params['formtemplate'])) {
     $template = trim($params['formtemplate']);
 }
 else {
-    $tpl = LayoutTemplateOperations::load_default_template_by_type('Search::searchform');
+    $tpl = TemplateOperations::load_default_template_by_type('Search::searchform');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
         return;

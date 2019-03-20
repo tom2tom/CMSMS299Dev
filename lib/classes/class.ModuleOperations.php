@@ -699,14 +699,14 @@ VALUES (?,?,?,?,?)');
 
 			// clean up, if permitted
 			if( $cleanup ) {
-				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE originator=?',[$module_name]);
+				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?',[$module_name]);
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'event_handlers WHERE class=? AND type="M"',[$module_name]);
 				$db->Execute('DELETE FROM '.CMS_DB_PREFIX.'events WHERE originator=?',[$module_name]);
 
 				$types = CmsLayoutTemplateType::load_all_by_originator($module_name);
 				if( $types ) {
 					foreach( $types as $type ) {
-						$tpls = LayoutTemplateOperations::template_query(['t:'.$type->get_id()]);
+						$tpls = TemplateOperations::template_query(['t:'.$type->get_id()]);
 						if( $tpls ) {
 							foreach( $tpls as $tpl ) {
 								$tpl->delete();

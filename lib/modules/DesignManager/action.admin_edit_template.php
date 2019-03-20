@@ -26,7 +26,7 @@ if (!$this->CheckPermission('Modify Templates')) {
     // no manage templates permission
     if (!$this->CheckPermission('Add Templates')) {
         // no add templates permission
-        if (!isset($params['tpl']) || !LayoutTemplateOperations::user_can_edit($params['tpl'])) {
+        if (!isset($params['tpl']) || !TemplateOperations::user_can_edit($params['tpl'])) {
             // no parameter, or no ownership/addt_editors.
             return;
         }
@@ -51,7 +51,7 @@ try {
 
     $extraparms = [];
     if (isset($params['import_type'])) {
-        $tpl_obj = LayoutTemplateOperations::create_by_type($params['import_type']);
+        $tpl_obj = TemplateOperations::create_by_type($params['import_type']);
         $tpl_obj->set_owner(get_userid());
         $design = CmsLayoutCollection::load_default();
         if( $design ) {
@@ -60,7 +60,7 @@ try {
         $extraparms['import_type'] = $params['import_type'];
         $type_is_readonly = true;
     } else if (isset($params['tpl'])) {
-        $tpl_obj = LayoutTemplateOperations::load_template($params['tpl']);
+        $tpl_obj = TemplateOperations::load_template($params['tpl']);
         $tpl_obj->get_designs();
         $extraparms['tpl'] = $params['tpl'];
     } else {

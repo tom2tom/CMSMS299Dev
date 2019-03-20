@@ -39,7 +39,7 @@ function cms_module_ListTemplates(&$modinstance, $mod_name = '')
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
-	$query = 'SELECT name FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY name';
+	$query = 'SELECT name FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE listable!=0 AND originator=? ORDER BY name';
 	return $db->GetCol($query, [$mod_name]);
 }
 
@@ -59,7 +59,7 @@ function cms_module_GetTemplate(&$modinstance, $tpl_name, $mod_name = '')
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
-	$query = 'SELECT content FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE name=? AND originator=?';
+	$query = 'SELECT content FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE name=? AND originator=?';
 	return $db->GetOne($query, [$tpl_name, $mod_name]);
 }
 
@@ -112,7 +112,7 @@ function cms_module_SetTemplate(&$modinstance, $tpl_name, $content, $mod_name = 
 	}
 	$now = time();
 	$pref = CMS_DB_PREFIX;
-	$tbl = CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME;
+	$tbl = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 
 	$query = <<<EOS
 SELECT id FROM {$pref}layout_tpl_type WHERE originator=? AND name='Moduleaction'
@@ -160,7 +160,7 @@ function cms_module_DeleteTemplate(&$modinstance, $tpl_name = '', $mod_name = ''
 	if (!$mod_name) {
 		$mod_name = $modinstance->GetName();
 	}
-	$query = 'DELETE FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' WHERE originator=?';
+	$query = 'DELETE FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' WHERE originator=?';
 	$vars = [$mod_name];
 	if ($tpl_name) {
 		$query .= 'AND name=?';

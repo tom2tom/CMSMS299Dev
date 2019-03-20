@@ -28,7 +28,7 @@ if( isset($params['template']) ) {
     $template = trim($params['template']);
 }
 else {
-    $tpl = LayoutTemplateOperations::load_default_template_by_type('Navigator::breadcrumbs');
+    $tpl = TemplateOperations::load_default_template_by_type('Navigator::breadcrumbs');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default breadcrumbs template found');
         return;

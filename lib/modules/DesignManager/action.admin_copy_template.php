@@ -21,7 +21,7 @@ if( !$this->CheckPermission('Modify Templates') ) {
     // no manage templates permission
     if( !$this->CheckPermission('Add Templates') ) {
         // no add templates permission
-        if( !isset($params['tpl']) || !LayoutTemplateOperations::user_can_edit($params['tpl']) ) {
+        if( !isset($params['tpl']) || !TemplateOperations::user_can_edit($params['tpl']) ) {
             // no parameter, or no ownership/addt_editors.
             return;
         }
@@ -39,7 +39,7 @@ if( isset($params['cancel']) ) {
 }
 
 try {
-    $orig_tpl = LayoutTemplateOperations::load_template($params['tpl']);
+    $orig_tpl = TemplateOperations::load_template($params['tpl']);
 
     if( isset($params['submit']) || isset($params['apply']) ) {
 

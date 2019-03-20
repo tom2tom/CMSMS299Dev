@@ -21,7 +21,7 @@
 use CMSMS\AdminUtils;
 use CMSMS\Events;
 use CMSMS\internal\global_cache;
-use CMSMS\LayoutTemplateOperations;
+use CMSMS\TemplateOperations;
 use CMSMS\LockOperations;
 //use function \endswith;
 
@@ -285,7 +285,6 @@ class CmsLayoutStylesheet
 		return $this->_data['modified'] ?? 0;
 	}
 
-
    /**
 	* Get the list of design id's (if any) that this stylesheet is associated with
 	*
@@ -498,7 +497,7 @@ WHERE id = ?';
 			}
 		}
 
-		global_cache::clear(LayoutTemplateOperations::class);
+		global_cache::clear('LayoutStylesheets');
 		cms_notice('Stylesheet '.$this->get_name().' Updated');
 		$this->_dirty = FALSE;
 	}
@@ -540,7 +539,7 @@ VALUES (?,?,?,?,?,?,?)';
 		}
 
 		$this->_dirty = FALSE;
-		global_cache::clear(LayoutTemplateOperations::class);
+		global_cache::clear('LayoutStylesheets');
 		cms_notice('Stylesheet '.$this->get_name().' Created');
 	}
 
@@ -591,7 +590,7 @@ VALUES (?,?,?,?,?,?,?)';
 
 		@unlink($this->get_content_filename());
 
-		global_cache::clear(LayoutTemplateOperations::class);
+		global_cache::clear('LayoutStylesheets');
 		cms_notice('Stylesheet '.$this->get_name().' Deleted');
 		// Events::SendEvent('Core','DeleteStylesheetPost',array(get_class($this)=>&$this));
 		Events::SendEvent('Core', 'DeleteStylesheetPost',[get_class($this)=>&$this]);
@@ -820,7 +819,6 @@ VALUES (?,?,?,?,?,?,?)';
 			return self::load_bulk($ids,FALSE);
 		}
 	}
-
 
    /**
 	* Test if the specific stylesheet (by name or id) is loaded

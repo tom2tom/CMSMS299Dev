@@ -63,7 +63,7 @@ try {
 
   $tpl = $smarty->createTemplate($this->GetTemplateResource('admin_edit_design.tpl'),null,null,$smarty);
 
-  $templates = LayoutTemplateOperations::get_editable_templates(get_userid());
+  $templates = TemplateOperations::get_editable_templates(get_userid());
   if( $templates ) {
     usort($templates,function($a,$b) {
       return strcasecmp($a->get_name(),$b->get_name());

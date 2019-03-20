@@ -74,7 +74,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 		}
 
 		$db = CmsApp::get_instance()->GetDb();
-		$tbl1 = CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME;
+		$tbl1 = CMS_DB_PREFIX.TemplateOperations::TABLENAME;
 		$tbl2 = CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME;
 		$typejoin = false;
 		$catjoin = false;
@@ -160,7 +160,7 @@ class CmsLayoutTemplateQuery extends CmsDbQueryBase
 			  case 'editable':
 				$second = (int)$second;
 				$q2 = 'SELECT DISTINCT tpl_id FROM (
-SELECT tpl_id FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::ADDUSERSTABLE.' WHERE user_id = ?
+SELECT tpl_id FROM '.CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE.' WHERE user_id = ?
 UNION
 SELECT id AS tpl_id FROM '.$tbl1.' WHERE owner_id = ?)
 AS tmp1';
@@ -291,7 +291,7 @@ AS tmp1';
 		if (!$this->_rs) {
 			throw new CmsLogicException('Cannot get template from invalid template query object');
 		}
-		return LayoutTemplateOperations::load_template($this->fields['id']);
+		return TemplateOperations::load_template($this->fields['id']);
 	}
 	/**
 	 * Get the list of matched template ids
@@ -326,6 +326,6 @@ AS tmp1';
 	 */
 	public function GetMatches()
 	{
-		return LayoutTemplateOperations::load_bulk_templates($this->GetMatchedTemplateIds());
+		return TemplateOperations::load_bulk_templates($this->GetMatchedTemplateIds());
 	}
 } // class

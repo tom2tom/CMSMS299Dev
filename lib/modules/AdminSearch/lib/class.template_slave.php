@@ -82,13 +82,13 @@ final class template_slave extends slave
         $db = cmsms()->GetDb();
         $mod = $this->get_mod();
         // get all of the template ids
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME.' ORDER BY name ASC';
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.TemplateOperations::TABLENAME.' ORDER BY name ASC';
         $all_ids = $db->GetCol($sql);
         $output = [];
         if( $all_ids ) {
             $chunks = array_chunk($all_ids,15);
             foreach( $chunks as $chunk ) {
-                $tpl_list = LayoutTemplateOperations::load_bulk_templates($chunk);
+                $tpl_list = TemplateOperations::load_bulk_templates($chunk);
                 foreach( $tpl_list as $tpl ) {
                     if( $this->check_tpl_match($tpl) ) $output[] = $this->get_tpl_match_info($tpl);
                 }

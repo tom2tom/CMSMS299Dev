@@ -9,7 +9,7 @@ if (isset($params['browsecattemplate'])) {
   $template = trim($params['browsecattemplate']);
 }
 else {
-  $tpl = LayoutTemplateOperations::load_default_template_by_type('News::browsecat');
+  $tpl = TemplateOperations::load_default_template_by_type('News::browsecat');
   if( !is_object($tpl) ) {
     audit('',$this->GetName(),'No default summary template found');
     return;

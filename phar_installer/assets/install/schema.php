@@ -58,9 +58,9 @@ $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.'routes');
 $dbdict->ExecuteSQLArray($sqlarray);
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.Lock::LOCK_TABLE);
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME);
+$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.TemplateOperations::TABLENAME);
 $dbdict->ExecuteSQLArray($sqlarray);
-$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.LayoutTemplateOperations::ADDUSERSTABLE);
+$sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE);
 $dbdict->ExecuteSQLArray($sqlarray);
 // these are used mainly by DesignManager module (but some other modules too)
 $sqlarray = $dbdict->DropTableSQL(CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME);
@@ -473,33 +473,33 @@ type_id I NOT NULL,
 owner_id I NOT NULL DEFAULT 1,
 type_dflt I(1) DEFAULT 0,
 listable I(1) DEFAULT 1,
-isfile I(1) DEFAULT 0,
+contentfile I(1) DEFAULT 0,
 created I,
 modified I
 ';
 $sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME,
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME,
     $flds,
     $taboptarray
 );
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', LayoutTemplateOperations::TABLENAME, $msg_ret));
+verbose_msg(lang('install_created_table', TemplateOperations::TABLENAME, $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_1',
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME, 'name');
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'name');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_1', $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_2',
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME, 'type_id,type_dflt');
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'type_id,type_dflt');
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_2', $msg_ret));
 
 $sqlarray = $dbdict->CreateIndexSQL('idx_layout_tpl_3',
-    CMS_DB_PREFIX.LayoutTemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
+    CMS_DB_PREFIX.TemplateOperations::TABLENAME, 'originator,name', ['UNIQUE']);
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
 verbose_msg(lang('install_creating_index', 'idx_layout_tpl_3', $msg_ret));
@@ -510,13 +510,13 @@ user_id I KEY
 ';
 //CHECKME separate index on user_id field ?
 $sqlarray = $dbdict->CreateTableSQL(
-    CMS_DB_PREFIX.LayoutTemplateOperations::ADDUSERSTABLE,
+    CMS_DB_PREFIX.TemplateOperations::ADDUSERSTABLE,
     $flds,
     $taboptarray
 );
 $return = $dbdict->ExecuteSQLArray($sqlarray);
 $msg_ret = ($return == 2) ? $good : $bad;
-verbose_msg(lang('install_created_table', LayoutTemplateOperations::ADDUSERSTABLE, $msg_ret));
+verbose_msg(lang('install_created_table', TemplateOperations::ADDUSERSTABLE, $msg_ret));
 
 // these are used mainly by DesignManager module (but some other modules too, must be present before modules installation)
 $flds = '
@@ -599,7 +599,7 @@ content X2,
 description X(1024),
 media_type C(255),
 media_query X(16384),
-isfile I(1) DEFAULT 0,
+contentfile I(1) DEFAULT 0,
 created I,
 modified I
 ';

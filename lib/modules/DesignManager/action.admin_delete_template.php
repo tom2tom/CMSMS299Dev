@@ -29,7 +29,7 @@ if( isset($params['cancel']) ) {
 }
 
 try {
-  $tpl_ob = LayoutTemplateOperations::load_template($params['tpl']);
+  $tpl_ob = TemplateOperations::load_template($params['tpl']);
   if( $tpl_ob->get_owner_id() != get_userid() && !$this->CheckPermission('Modify Templates') ) {
     throw new CmsException($this->Lang('error_permission'));
   }
