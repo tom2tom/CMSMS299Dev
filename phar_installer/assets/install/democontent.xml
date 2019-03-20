@@ -8,10 +8,10 @@
  <!ELEMENT description (#PCDATA)>
  <!ELEMENT dflt (#PCDATA)>
  <!ELEMENT stylesheets (stylesheet+)>
- <!ELEMENT stylesheet (id,name,description?,media_type?,content,isfile?)>
+ <!ELEMENT stylesheet (id,name,description?,media_type?,content,contentfile?)>
  <!ELEMENT media_type (#PCDATA)>
  <!ELEMENT content (#PCDATA)>
- <!ELEMENT isfile (#PCDATA)>
+ <!ELEMENT contentfile (#PCDATA)>
  <!ELEMENT designstyles (designcss+)>
  <!ELEMENT designcss (design_id,css_id,item_order)>
  <!ELEMENT design_id (#PCDATA)>
@@ -31,7 +31,7 @@
  <!ELEMENT categories (category+)>
  <!ELEMENT category (id,name,description?,item_order?)>
  <!ELEMENT templates (template)>
- <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,isfile?)>
+ <!ELEMENT template (id,originator,name,content,description?,type_id?,owner_id?,type_dflt?,listable?,contentfile?)>
  <!ELEMENT type_id (#PCDATA)>
  <!ELEMENT owner_id (#PCDATA)>
  <!ELEMENT type_dflt (#PCDATA)>
