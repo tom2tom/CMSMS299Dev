@@ -52,13 +52,14 @@ abstract class Smarty_Resource_Custom extends Smarty_Resource
         $mtime = $this->fetchTimestamp($source->name);
         if ($mtime !== null) {
             $source->timestamp = $mtime;
-	        $source->exists = true;
         } else {
             $this->fetch($source->name, $content, $timestamp);
-            $source->timestamp = $timestamp ?? false;
-	        $source->exists = $source->timestamp != false; // anything falsy fails
-            $source->content = $content ?? null;
+            $source->timestamp = isset($timestamp) ? $timestamp : false;
+            if (isset($content)) {
+                $source->content = $content;
+            }
         }
+        $source->exists = !!$source->timestamp;
     }
 
     /**
