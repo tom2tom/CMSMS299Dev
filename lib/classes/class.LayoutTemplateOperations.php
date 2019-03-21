@@ -1,5 +1,5 @@
 <?php
-#Methods for interacting with template objects and the database
+#Methods for interacting with template objects
 #Copyright (C) 2019 CMS Made Simple Foundation <foundation@cmsmadesimple.org>
 #This file is a component of CMS Made Simple <http://www.cmsmadesimple.org>
 #
@@ -32,7 +32,6 @@ use CMSMS\internal\global_cache;
 use CMSMS\User;
 use CMSMS\UserOperations;
 use CmsSQLErrorException;
-use InvalidArgumentException;
 use const CMS_DB_PREFIX;
 use function audit;
 use function cms_warning;
@@ -41,8 +40,9 @@ use function endswith;
 use function get_userid;
 
 /**
- * A class that manages storage of CmsLayoutTemplate objects in the database.
- * This class also supports caching, and sending events at various levels.
+ * A class of methods for interacting with CmsLayoutTemplate objects.
+ * This class is for template administration, by DesignManager module
+ * and the like. It is not used for runtime template retrieval.
  *
  * @since 2.3
  * @package CMS
@@ -61,90 +61,7 @@ class LayoutTemplateOperations
     */
     const ADDUSERSTABLE = 'layout_tpl_addusers';
 
-    /**
-     * Given a template name, return the corresponding id
-     *
-     * This method uses a cached mapping of template names to id's.
-     * If the item does not exist in the cache, then the cache is built from the database.
-     *
-     * @param string $name The template name
-     * @return int|null
-     */
-    protected function template_name_to_id(string $name)
-    {
-        $map = global_cache::get(__METHOD__,__CLASS__);
-        if( !$map ) {
-            $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT name,id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
-            $map = $db->GetAssoc($sql);
-            global_cache::set(__METHOD__,$map,__CLASS__);
-        }
-        if( $map ) return $map[$name] ?? null;
-    }
-
-    /**
-     * Given a template-type id, return the corresponding identifier (id)
-     *
-     * This method uses a cache that is built from the database if necessary.
-     *
-     * @param int $type_id
-     * @return int|null The default template id, if any.
-     */
-    protected function get_default_template_by_type(int $type_id)
-    {
-        $map = global_cache::get(__METHOD__,__CLASS__);
-        if( !$map ) {
-            $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT type_id,id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_dflt = 1 ORDER BY type_id';
-            $map = $db->GetAssoc($sql);
-            global_cache::set(__METHOD__,$map,__CLASS__);
-        }
-        if( $map ) return $map[$type_id] ?? null;
-    }
-
-    /**
-     * Test if a template exists in the cache, by its id.
-     *
-     * @internal
-     * @param int $tpl_id The template id
-     * @return CmsLayoutTemplate|null
-     */
-    protected function get_cached_template(int $tpl_id)
-    {
-        return global_cache::get($tpl_id,__CLASS__);
-    }
-
-    /**
-     * Adds a template to, or overwrites a template in, the cache
-     *
-     * @internal
-     * @param CmsLayoutTemplate $tpl
-     * @throws InvalidArgumentException
-     */
-    protected function set_template_cached(CmsLayoutTemplate $tpl)
-    {
-        if( !($id = $tpl->get_id()) ) throw new InvalidArgumentException('Cannot cache a template with no id');
-        global_cache::set($id,$tpl,__CLASS__);
-
-        $idx = global_cache::get('cached_index',__CLASS__);
-        if( !$idx ) $idx = [];
-        $idx[] = $id;
-        $idx = array_unique($idx);
-        global_cache::set('cached_index',$idx,__CLASS__);
-    }
-
-    /**
-     * Get a list of id's of all the cached templates.
-     *
-     * @internal
-     * @return int[] maybe empty
-     */
-    protected function get_cached_templates()
-    {
-        $idx = global_cache::get('cached_index',__CLASS__);
-        if( !$idx ) $idx = [];
-        return $idx;
-    }
+    protected static $names_map = []; //TODO populate this: all templates' name=>id
 
     /**
      * @ignore
@@ -162,13 +79,37 @@ class LayoutTemplateOperations
     }
 
     /**
+     * Get the template originator from $tpl data directly, or indirectly from the template-type data for $tpl
+     *
+     * @ignore
+     * @param CmsLayoutTemplate $tpl
+     * @return mixed string | null
+     */
+    protected function _get_originator($tpl)
+    {
+        $tmp = $tpl->get_originator();
+        if( $tmp ) {
+            return $tmp;
+        }
+        $id = $tpl->get_type_id();
+        if( $id > 0 ) {
+            $db = CmsApp::get_instance()->GetDb();
+            $sql = 'SELECT originator FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE id = ?';
+            $dbr = $db->GetOne($sql,[ $id ]);
+            if( $dbr ) {
+                return $dbr;
+            }
+        }
+        return null;
+    }
+
+    /**
     * Generate a unique name for a template
     *
     * @param string $prototype A prototype template name
-    * @param string $prefix An optional name prefix.
+    * @param string $prefix An optional name-prefix. Default ''.
     * @return mixed string | null
     * @throws CmsInvalidDataException
-    * @throws CmsLogicException
      */
     public static function generate_unique_template_name(string $prototype, string $prefix = '') : string
     {
@@ -176,20 +117,20 @@ class LayoutTemplateOperations
 
         $db = CmsApp::get_instance()->GetDb();
         $sql = 'SELECT name FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name LIKE %?%';
-		$all = $db->GetCol($sql,[ $prototype ]);
-		if( $all ) {
-			$name = $prototype;
-			$i = 0;
-			while( in_array($name, $all) ) {
-				$name = $prefix.$prototype.'_'.++$i;
-			}
-			return $name;
-		}
-		return $prototype;
+        $all = $db->GetCol($sql,[ $prototype ]);
+        if( $all ) {
+            $name = $prototype;
+            $i = 0;
+            while( in_array($name, $all) ) {
+                $name = $prefix.$prototype.'_'.++$i;
+            }
+            return $name;
+        }
+        return $prototype;
     }
 
     /**
-     * Check template properties are valid
+     * Check whether template properties are valid
      *
      * @param CmsLayoutTemplate $tpl
      * @throws CmsInvalidDataException if any checked property is invalid
@@ -220,26 +161,8 @@ class LayoutTemplateOperations
         if( $tmp ) throw new CmsInvalidDataException('Template with the same name already exists.');
     }
 
-    protected function _get_anyowner($tpl)
-    {
-        $tmp = $tpl->get_originator();
-        if( $tmp ) {
-            return $tmp;
-        }
-        $id = $tpl->get_type_id();
-        if( $id > 0 ) {
-            $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT originator FROM '.CMS_DB_PREFIX.CmsLayoutTemplateType::TABLENAME.' WHERE id = ?';
-            $dbr = $db->GetOne($sql,[ $id ]);
-            if( $dbr ) {
-                return $dbr;
-            }
-        }
-        return null;
-    }
-
     /**
-     * Update the data for a template object in the database.
+     * Update the data for a template object in the database
      *
      * @internal
      * @param CmsLayoutTemplate $tpl
@@ -249,10 +172,9 @@ class LayoutTemplateOperations
     {
         $this->validate_template($tpl);
 
-        $db = CmsApp::get_instance()->GetDb();
         $now = time();
         $tplid = $tpl->get_id();
-
+        $db = CmsApp::get_instance()->GetDb();
         $sql = 'UPDATE '.CMS_DB_PREFIX.self::TABLENAME.' SET
 originator=?,
 name=?,
@@ -262,12 +184,12 @@ type_id=?,
 type_dflt=?,
 owner_id=?,
 listable=?,
-isfile=?
+contentfile=?
 modified=?
 WHERE id=?';
 //      $dbr =
         $db->Execute($sql,
-        [ $this->_get_anyowner($tpl),
+        [ $this->_get_originator($tpl),
          $tpl->get_name(),
          $tpl->get_content(),
          $tpl->get_description(),
@@ -325,7 +247,7 @@ WHERE id=?';
             }
         }
 
-        global_cache::clear(__CLASS__);
+        global_cache::clear('LayoutTemplates');
         audit($tpl->get_id(),'CMSMS','Template '.$tpl->get_name().' Updated');
         return $tpl; //DODO what use ? event ?
     }
@@ -340,15 +262,13 @@ WHERE id=?';
     {
         $this->validate_template($tpl);
 
-        $db = CmsApp::get_instance()->GetDb();
         $now = time();
-
-        $sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
-' (originator,name,content,description,type_id,type_dflt,owner_id,listable,isfile,created,modified)
-VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $db = CmsApp::get_instance()->GetDb();
+        $sql = 'INSERT INTO '.CMS_DB_PREFIX.self::TABLENAME.
+' (originator,name,content,description,type_id,type_dflt,owner_id,listable,contentfile,created,modified)
+VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $dbr = $db->Execute($sql,
-        [ $this->_get_anyowner($tpl),
+        [ $this->_get_originator($tpl),
          $tpl->get_name(),
          $tpl->get_content(), // if file ??
          $tpl->get_description(),
@@ -402,10 +322,10 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
             }
         }
 
-        global_cache::clear(__CLASS__);
+        global_cache::clear('LayoutTemplates');
 
         audit($new_id,'CMSMS','Template '.$tpl->get_name().' Created');
-        // return a fresh instance of the object, to pass to event handlers
+        // return a fresh instance of the object (e.g. to pass to event handlers ??)
         $row = $tpl->_get_array();
         $tpl = $this->_load_from_data($row,$designs,$editors,$categories);
         return $tpl;
@@ -422,14 +342,14 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
     {
         if( $tpl->get_id() ) {
             Events::SendEvent('Core','EditTemplatePre',[ get_class($tpl) => &$tpl ]);
-            $tpl = $this->_update_template($tpl);
+            $tpl = $this->_update_template($tpl); // $tpl might now be different, thanks to event handler
             Events::SendEvent('Core','EditTemplatePost',[ get_class($tpl) => &$tpl ]);
-            return;
         }
-
-        Events::SendEvent('Core','AddTemplatePre',[ get_class($tpl) => &$tpl ]);
-        $tpl = $this->_insert_template($tpl);
-        Events::SendEvent('Core','AddTemplatePost',[ get_class($tpl) => &$tpl ]);
+        else {
+            Events::SendEvent('Core','AddTemplatePre',[ get_class($tpl) => &$tpl ]);
+            $tpl = $this->_insert_template($tpl);
+            Events::SendEvent('Core','AddTemplatePost',[ get_class($tpl) => &$tpl ]);
+        }
     }
 
     /**
@@ -456,7 +376,7 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
 
         audit($id,'CMSMS','Template '.$tpl->get_name().' Deleted');
         Events::SendEvent('Core','DeleteTemplatePost',[ get_class($tpl) => &$tpl ]);
-        global_cache::clear(__CLASS__);
+        global_cache::clear('LayoutTemplates');
     }
 
    /**
@@ -481,8 +401,6 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?)';
         $tpl->_in_designs = $design_list;
         $tpl->_TODO = $cats_list;
 
-        self::$_obj_cache[$tpl->id] = $tpl;
-        self::$_name_cache[$tpl->name] = $tpl->id; //TODO  USE  template_name_to_id(string $name)
         return $tpl;
     }
 
@@ -523,7 +441,7 @@ DESIGNS
     /**
      * [Re]set all properties of an existing template object, using values from another template
      *
-     * @deprecated since 2.3
+     * @since 2.3
      * @param CmsLayoutTemplate $tpl The template to be updated
      * @param mixed $a  The id or name of the template from which to source the replacement properties
      * @return bool indicating success
@@ -542,24 +460,23 @@ DESIGNS
      */
     public static function load_template($a)
     {
-        $id = null;
         if( is_numeric($a) && $a > 0 ) {
             $id = $a;
         }
         else if( is_string($a) && strlen($a) > 0 ) {
-            $id = $this->template_name_to_id($a);
+			if( empty(self::$names_map) ) {
+		        $db = CmsApp::get_instance()->GetDb();
+		        $sql = 'SELECT name,id FROM '.CMS_DB_PREFIX.self::TABLENAME.' ORDER BY name';
+				self::$names_map = $db->GetAssoc($sql);
+			}
+            $id = self::$names_map[$a] ?? false;
             if( !$id ) {
                 cms_warning('Could not find a template identified as '.$a);
                 return;
             }
         }
 
-        // if it exists in the cache, then we're done
-        $tpl = $this->get_cached_template($id);
-        if( $tpl ) return $tpl;
-
-        // load it from the database
-        $db = CmsApp::get_instance()->GetDb();
+        if( !isset($db) ) $db = CmsApp::get_instance()->GetDb();
         $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
         $row = $db->GetRow($sql,[ $id ]);
         if( !$row ) return; // not found
@@ -570,58 +487,32 @@ DESIGNS
         $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id = ?';
         $editors = $db->GetArray($sql,[ $id ]);
 
-        // put it in the cache
-        $tpl = $this->_load_from_data($row,$designs,$editors,$categories); //WANT categories
-        $this->set_template_cached($tpl);
-        return $tpl;
-/* IMPORT
-        $db = CmsApp::get_instance()->GetDb();
-        $row = null;
-        if( is_numeric($a) && $a > 0 ) {
-            if( isset(self::$_obj_cache[$a]) ) return self::$_obj_cache[$a];
-            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-            $row = $db->GetRow($sql,[ (int)$a ]);
-        }
-        else if( is_string($a) && $a !== '' ) {
-            if( template_name_to_id(string $name)             isset(self::$_name_cache[$a]) ) {
-                $id = $this->template_name_to_id($a);
-                return self::$_obj_cache[$id];
-            }
-
-            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE name = ?';
-            $row = $db->GetRow($sql,[ $a ]);
-        }
-        if( $row ) {
-            //todo OTHER ARRAYS
-            return $this->_load_from_data($row,$designs,$editors,$categories); //WANT designs editors categories
-        }
-        throw new CmsDataNotFoundException('Could not find template identified by '.$a);
-*/
+        return $this->_load_from_data($row,$designs,$editors,$categories); //WANT categories
     }
 
-    protected function get_assoc_designs(int $id, array $alldesigns)
+    protected function get_tpl_editors(int $id, array $all) : array
     {
         $out = [];
-        foreach( $alldesigns as $design ) {
-            if( $design['tpl_id'] == $id ) $out[] = $design['design_id'];
+        foreach( $all as $row ) {
+            if( $row['tpl_id'] == $id ) $out[] = $row['user_id'];
         }
         return $out;
     }
 
-    protected function get_assoc_users(int $id, array $allusers)
+    protected function get_tpl_designs(int $id, array $all) : array
     {
         $out = [];
-        foreach( $allusers as $user ) {
-            if( $user['tpl_id'] == $id ) $out[] = $user['user_id'];
+        foreach( $all as $row ) {
+            if( $row['tpl_id'] == $id ) $out[] = $row['design_id'];
         }
         return $out;
     }
 
-    protected function get_assoc_categories(int $id, array $allcategories)
+    protected function get_tpl_categories(int $id, array $all) : array
     {
         $out = [];
-        foreach( $allcategories as $cat ) {
-            if( $cat['TODO'] == $id ) $out[] = $cat['TODO'];
+        foreach( $all as $row ) {
+            if( $row['tpl_id'] == $id ) $out[] = $row['category_id'];
         }
         return $out;
     }
@@ -629,7 +520,7 @@ DESIGNS
     /**
      * Load multiple templates
      *
-     * @param array $list An array of integer template ids.
+     * @param array $list An array of integer template id's.
      * @param bool $deep Optionally load attached data. Default true.
      * @return mixed CmsLayoutTemplate[] | null
      */
@@ -637,89 +528,31 @@ DESIGNS
     {
         if( !$list ) return;
 
-        $list2 = array_diff($list,$this->get_cached_templates());
-        if( $list2 ) {
-            // have to load these items and put them in the cache.
-            $db = CmsApp::get_instance()->GetDb();
-            $str = implode(',',$list2);
-            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.$str.')';
-            $rows = $db->GetArray($sql);
-            if( $rows ) {
-                $sql = 'SELECT * FROM '.$this->design_assoc_table_name().' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
-                $alldesigns = $db->GetArray($sql);
+        $out = [];
+        $db = CmsApp::get_instance()->GetDb();
+        $str = implode(',',$list);
+        $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.$str.')';
+        $rows = $db->GetArray($sql);
+        if( $rows ) {
+            $sql = 'SELECT * FROM '.$this->design_assoc_table_name().' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
+            $alldesigns = $db->GetArray($sql);
 
-                $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
-                $allusers = $db->GetArray($sql);
+            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
+            $alleditors = $db->GetArray($sql);
 
-                $sql = $TODO; // 'SELECT * FROM '.CMS_DB_PREFIX.self::ADDUSERSTABLE.' WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
-                $allcategories = $db->GetArray($sql);
+            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.'layout_cat_tplassoc WHERE tpl_id IN ('.$str.') ORDER BY tpl_id';
+            $allcategories = $db->GetArray($sql);
 
-                // put it all together, create an object
-                foreach( $rows as $row ) {
-                    $id = $row['id'];
-                    $designs = $this->get_assoc_designs($id,$alldesigns);
-                    $editors = $this->get_assoc_users($id,$allusers);
-                    $categories = $this->get_assoc_categories($id,$allcategories);
-                    $tpl = $this->_load_from_data($row,$designs,$editors,$categories);
-                    // put it in the cache
-                    $this->set_template_cached($tpl);
-                }
+            // put it all together, into object(s)
+            foreach( $rows as $row ) {
+                $id = $row['id'];
+                $designs = $this->get_tpl_designs($id,$alldesigns);
+                $editors = $this->get_tpl_editors($id,$alleditors);
+                $categories = $this->get_tpl_categories($id,$allcategories);
+                $out[] = $this->_load_from_data($row,$designs,$editors,$categories);
             }
-        }
-
-        // read back from the cache
-        $out = null;
-        foreach( $list as $tpl_id ) {
-            $out[] = $this->get_cached_template($tpl_id);
         }
         return $out;
-/* IMPORT
-        $list2 = [];
-        foreach( $list as $id ) {
-            if( !is_numeric($id) ) continue;
-            $id = (int)$id;
-            if( $id < 1 ) continue;
-            if( isset(self::$_obj_cache[$id]) ) continue;
-            $list2[] = $id;
-        }
-        $list2 = array_unique($list2,SORT_NUMERIC);
-
-        if( $list2 ) {
-            // get the data and populate the cache.
-            $db = CmsApp::get_instance()->GetDb();
-            $designs_by_tpl = [];
-
-            if( $deep ) {
-                foreach( $list2 as $id ) {
-                    $designs_by_tpl[$id] = [];
-                }
-                $dquery = 'SELECT tpl_id,design_id FROM '.CMS_DB_PREFIX.CmsLayoutCollection::TPLTABLE.
-                 ' WHERE tpl_id IN ('.implode(',',$list2).') ORDER BY tpl_id,tpl_order';
-                $designs_tmp1 = $db->GetArray($dquery);
-                foreach( $designs_tmp1 as $row ) {
-                    $designs_by_tpl[$row['tpl_id']][] = $row['design_id'];
-                }
-            }
-
-            $sql = 'SELECT * FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id IN ('.implode(',',$list2).')';
-            $dbr = $db->GetArray($sql);
-            if( $dbr ) {
-                foreach( $dbr as $row ) {
-                    //$tpl =
-                    //$designs = $this->designs_by_tpl[$row['id']])
-                    $this->_load_from_data($row,$designs,$editors,$categories); //CRAP also designs, editors, categories
-                }
-            }
-        }
-
-        // pull what we can from the cache
-        $out = [];
-        foreach( $list as $id ) {
-            if( !is_numeric($id) ) continue;
-            $id = (int)$id;
-            if( $id > 0 && isset(self::$_obj_cache[$id]) ) $out[] = self::$_obj_cache[$id];
-        }
-*/
     }
 
     /**
@@ -730,31 +563,19 @@ DESIGNS
      */
     public function load_templates_by_type(CmsLayoutTemplateType $type)
     {
-        // get the template type id => template_id list
-        // see if we have this map in the cache
-        $map = null;
-        $key = 'types_to_tpl_'.$type->get_id();
-        if( global_cache::exists($key,__CLASS__) ) {
-            $map = global_cache::get($key,__CLASS__);
+        $db = CmsApp::get_instance()->GetDb();
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
+        $list = $db->GetCol($sql,$type->get_id());
+        if( $list ) {
+            return self::load_bulk_templates($list);
         }
-        else {
-            $db = CmsApp::get_instance()->GetDb();
-            $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE id = ?';
-            $list = $db->GetCol($sql,$type->get_id());
-            if( is_array($list) && !empty($list) ) {
-                $map = $list;
-                global_cache::set($key,$list,__CLASS__);
-            }
-        }
-
-        if( $map ) return self::load_bulk_templates($map);
     }
 
     /**
      * Get all of the templates owned by a specific user
      *
-     * @param mixed $a Either the integer uid or the username of a user.
-     * @return CmsLayoutTemplate[]
+     * @param mixed $a user id (int) or user name (string)
+     * @return mixed CmsLayoutTemplate[] | null
      * @throws CmsInvalidDataException
      */
     public static function get_owned_templates($a) : array
@@ -763,14 +584,16 @@ DESIGNS
         if( $id <= 0 ) throw new CmsInvalidDataException('Invalid user specified to get_owned_templates');
 
         $sql = new CmsLayoutTemplateQuery([ 'u'=>$id ]);
-        $tmp = $sql->GetMatchedTemplateIds();
-        return self::load_bulk_templates($tmp);
+        $list = $sql->GetMatchedTemplateIds();
+        if( $list ) {
+            return self::load_bulk_templates($list);
+        }
     }
 
     /**
      * Get all of the templates that a user owns or may otherwise edit.
      *
-     * @param mixed $a Either the integer uid or a username
+     * @param mixed $a user id (int) or user name (string)
      * @return mixed CmsLayoutTemplate[] | null
      * @throws CmsInvalidDataException
      */
@@ -794,8 +617,10 @@ DESIGNS
         if( !$list2 ) $list2 = [];
 
         $tpl_list = array_merge($list,$list2);
-        $tpl_list = array_unique($tpl_list);
-        if( $tpl_list ) return self::load_bulk_templates($tpl_list);
+        if( $tpl_list ) {
+            $tpl_list = array_unique($tpl_list);
+            return self::load_bulk_templates($tpl_list);
+        }
     }
 
     /**
@@ -806,9 +631,11 @@ DESIGNS
      */
     public function load_all_templates_by_type(CmsLayoutTemplateType $type)
     {
-        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id = ?';
-        $tmp = $db->GetCol($sql,[ $type->get_id() ]);
-        if( $tmp ) return self::load_bulk_templates($tmp);
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_id=?';
+        $list = $db->GetCol($sql,[ $type->get_id() ]);
+        if( $list ) {
+            return self::load_bulk_templates($list);
+        }
     }
 
     /**
@@ -833,8 +660,10 @@ DESIGNS
 
         if( !$t2 ) throw new CmsInvalidDataException('Invalid data passed to '.__METHOD__);
 
-        $tpl_id = $this->get_default_template_by_type($t2->get_id());
-        if( $tpl_id ) return self::load_template($tpl_id);
+        $db = CmsApp::get_instance()->GetDb();
+        $sql = 'SELECT id FROM '.CMS_DB_PREFIX.self::TABLENAME.' WHERE type_dflt=1 AND type_id=?';
+        $id = $db->GetOne($sql,[ $t2->get_id() ]);
+        if( $id ) return self::load_template($id);
     }
 
     /**
@@ -872,7 +701,7 @@ DESIGNS
    /**
     * Get the id's of all loaded/cached templates
     *
-    * @return array of integer template ids, maybe empty
+    * @return array of integer template id's, maybe empty
     */
     public static function get_loaded_templates()
     {
