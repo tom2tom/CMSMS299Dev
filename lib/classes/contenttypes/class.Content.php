@@ -485,7 +485,7 @@ class Content extends ContentBase
 				$template_id = $this->TemplateId();
 				if( $template_id < 1 ) {
 					try {
-						$dflt_tpl = TemplateOperations::load_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+						$dflt_tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
 						$template_id = $dflt_tpl->get_id();
 					}
 					catch( Exception $e ) {

@@ -239,5 +239,5 @@ while (!$rs->EOF()) {
     $rs->MoveNext();
 }
 
-$templates = TemplateOperations::load_bulk_templates($out);
+$templates = TemplateOperations::get_bulk_templates($out);
 

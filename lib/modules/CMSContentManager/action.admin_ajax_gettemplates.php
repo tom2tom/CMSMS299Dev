@@ -32,7 +32,7 @@ try {
             $design = CmsLayoutCollection::load($design_id);
             $template_list = $design->get_templates();
 
-            $templates = TemplateOperations::load_bulk_templates($template_list);
+            $templates = TemplateOperations::get_bulk_templates($template_list);
             $out = [];
             foreach( $templates as $one ) {
                 if( !$one->get_listable() ) continue;
@@ -46,7 +46,7 @@ try {
             $design = CmsLayoutCollection::load($design_id);
             $template_list = $design->get_templates();
 
-            $templates = TemplateOperations::load_bulk_templates($template_list);
+            $templates = TemplateOperations::get_bulk_templates($template_list);
             if( $templates ) {
                 $out = [];
                 foreach( $templates as $one ) {
@@ -59,7 +59,7 @@ try {
 
         case 'allpage':
             $type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-            $template_list = TemplateOperations::load_all_templates_by_type($type);
+            $template_list = TemplateOperations::get_all_templates_by_type($type);
             $out = [];
             foreach( $template_list as $one ) {
                 if( !$one->get_listable() ) continue;

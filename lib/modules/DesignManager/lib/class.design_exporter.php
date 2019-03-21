@@ -246,7 +246,7 @@ EOT;
                 $name = $tpl_ob->get_name();
             }
             else {
-                $tpl_ob = TemplateOperations::load_template($name);
+                $tpl_ob = TemplateOperations::get_template($name);
             }
             $sig = $this->_get_signature($tpl_ob->get_name(),$type);
 
@@ -314,7 +314,7 @@ EOT;
 
             if( !$have_template ) {
                 // MenuManager default template.
-                $tpl = TemplateOperations::load_default_template_by_type('MenuManager::navigation');
+                $tpl = TemplateOperations::get_default_template_by_type('MenuManager::navigation');
                 $sig = $ob->_add_template($tpl->get_name());
                 $out = substr($matches[0],0,-1).' template=\''.$sig.'\'}';
             }
@@ -336,7 +336,7 @@ EOT;
                 },$matches[0]);
             if( !$have_template ) {
                 // Navigator default template.
-                $tpl = TemplateOperations::load_default_template_by_type('Navigator::navigation');
+                $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');
                 $sig = $ob->_add_template($tpl->get_name());
                 $out = substr($matches[0],0,-1).' template=\''.$sig.'\'}';
             }
@@ -394,7 +394,7 @@ EOT;
 
             $idlist = $this->_design->get_templates();
             if( $idlist ) {
-                $tpllist = TemplateOperations::load_bulk_templates($idlist);
+                $tpllist = TemplateOperations::get_bulk_templates($idlist);
                 if( count($idlist) != count($tpllist) ) throw new CmsException('Internal error... could not directly load all of the templates associated with this design');
                 foreach( $tpllist as $tpl ) {
                     $this->_add_template($tpl);

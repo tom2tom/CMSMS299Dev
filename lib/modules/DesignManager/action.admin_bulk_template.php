@@ -47,7 +47,7 @@ try {
     }
 
     $bulk_op = null;
-    $templates = TemplateOperations::load_bulk_templates($params['tpl_select']);
+    $templates = TemplateOperations::get_bulk_templates($params['tpl_select']);
     switch( $params['bulk_action'] ) {
     case 'delete':
         $bulk_op = 'bulk_action_delete';

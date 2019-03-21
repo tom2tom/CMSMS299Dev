@@ -113,7 +113,7 @@ $tpl->assign('dflt_design_id',$dflt_design->get_id());
 
 $dflt_tpl_id = -1;
 try {
-    $dflt_tpl = TemplateOperations::load_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+    $dflt_tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
     $dflt_tpl_id = $dflt_tpl->get_id();
 }
 catch( Exception $e ) {

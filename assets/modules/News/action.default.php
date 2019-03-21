@@ -9,7 +9,7 @@ if (isset($params['summarytemplate'])) {
     $template = trim($params['summarytemplate']);
 }
 else {
-    $tpl = TemplateOperations::load_default_template_by_type('News::summary');
+    $tpl = TemplateOperations::get_default_template_by_type('News::summary');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
         return;

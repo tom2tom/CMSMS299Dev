@@ -293,7 +293,7 @@ AS tmp1';
 		if (!$this->_rs) {
 			throw new CmsLogicException('Cannot get template from invalid template query object');
 		}
-		return TemplateOperations::load_template($this->fields['id']);
+		return TemplateOperations::get_template($this->fields['id']);
 	}
 	/**
 	 * Get the list of matched template ids
@@ -328,6 +328,6 @@ AS tmp1';
 	 */
 	public function GetMatches()
 	{
-		return TemplateOperations::load_bulk_templates($this->GetMatchedTemplateIds());
+		return TemplateOperations::get_bulk_templates($this->GetMatchedTemplateIds());
 	}
 } // class

@@ -64,7 +64,7 @@ try {
         if( isset($params['delete_templates']) && $can_delete_templates ) {
             $tpl_id_list = $design->get_templates();
             if( $tpl_id_list ) {
-				$templates = TemplateOperations::load_bulk_templates($tpl_id_list);
+				$templates = TemplateOperations::get_bulk_templates($tpl_id_list);
 				if( $templates ) {
 					foreach( $templates as &$tpl ) {
 						$x = $tpl->get_designs();

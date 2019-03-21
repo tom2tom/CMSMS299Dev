@@ -45,12 +45,12 @@ final class Utils
 	{
 		$tpl_id = null;
 		try {
-			$tpl = TemplateOperations::load_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
+			$tpl = TemplateOperations::get_default_template_by_type(CmsLayoutTemplateType::CORE.'::page');
 			$tpl_id = $tpl->get_id();
 		}
 		catch( CmsDataNotFoundException $e ) {
 			$type = CmsLayoutTemplateType::load(CmsLayoutTemplateType::CORE.'::page');
-			$list = TemplateOperations::load_all_templates_by_type($type);
+			$list = TemplateOperations::get_all_templates_by_type($type);
 			$tpl = $list[0];
 			$tpl_id = $tpl->get_id();
 		}

@@ -563,7 +563,7 @@ WHERE id = ?';
 	 */
 	public function get_template_list()
 	{
-		return TemplateOperations::load_all_templates_by_type($this);
+		return TemplateOperations::get_all_templates_by_type($this);
 	}
 
 	/**
@@ -613,12 +613,12 @@ WHERE id = ?';
 	 *
 	 * This method will throw an exception if the template cannot be created.
 	 *
-	 * @see TemplateOperations::load_default_template_by_type()
+	 * @see TemplateOperations::get_default_template_by_type()
 	 * @return mixed CmsLayoutTemplate object | null
 	 */
 	public function get_dflt_template()
 	{
-		return TemplateOperations::load_default_template_by_type($this);
+		return TemplateOperations::get_default_template_by_type($this);
 	}
 
 	/**

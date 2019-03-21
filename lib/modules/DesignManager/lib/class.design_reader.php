@@ -266,7 +266,7 @@ class design_reader extends reader_base
             $name = $this->_get_name($key);
             $rec = [];
             $rec['name'] = base64_decode($one['name']);
-            $rec['newname'] = TemplateOperations::generate_unique_template_name($rec['name']);
+            $rec['newname'] = TemplateOperations::get_unique_template_name($rec['name']);
             $rec['key'] = $key;
             $rec['desc'] = base64_decode($one['desc']);
             $rec['data'] = base64_decode($one['data']);

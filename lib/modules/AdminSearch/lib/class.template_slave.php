@@ -89,7 +89,7 @@ final class template_slave extends slave
         if( $all_ids ) {
             $chunks = array_chunk($all_ids,15);
             foreach( $chunks as $chunk ) {
-                $tpl_list = TemplateOperations::load_bulk_templates($chunk);
+                $tpl_list = TemplateOperations::get_bulk_templates($chunk);
                 foreach( $tpl_list as $tpl ) {
                     if( $this->check_tpl_match($tpl) ) $output[] = $this->get_tpl_match_info($tpl);
                 }

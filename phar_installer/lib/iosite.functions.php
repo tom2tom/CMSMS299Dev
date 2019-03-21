@@ -675,7 +675,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					foreach ($bank as $tid=>$arr) {
 						try {
-							$ob = TemplateOperations::load_template($tid);
+							$ob = TemplateOperations::get_template($tid);
 						} catch (Exception $e) {
 							continue;
 						}
@@ -697,7 +697,7 @@ function import_content(string $xmlfile, string $filesfolder = '') : string
 					}
 					foreach ($bank as $tid=>$arr) {
 						try {
-							$ob = TemplateOperations::load_template($tid);
+							$ob = TemplateOperations::get_template($tid);
 						} catch (Exception $e) {
 							continue;
 						}

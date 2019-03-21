@@ -56,7 +56,8 @@ class CmsLayoutTemplate
 	private $_operations = null;
 
    /**
-	* @var bool whether any property ($_data etc) has been changed since last save
+	* @var bool whether any property ($_data|$_editors|$_designs|$_categories)
+	*  has been changed since last save
 	* @ignore
 	*/
 	private $_dirty = false;
@@ -84,18 +85,6 @@ class CmsLayoutTemplate
 	* @ignore
 	*/
 	private $_categories;
-
-   /**
-	* @var type
-	* @ignore
-	*/
-//	private static $_obj_cache;
-
-   /**
-	* @var type
-	* @ignore
-	*/
-//	private static $_name_cache;
 
    /**
 	* @var array
@@ -883,7 +872,7 @@ class CmsLayoutTemplate
 	public function save()
 	{
 		if( $this->_dirty ) {
-			$this->get_operations()->save_template($this);
+			$this->get_operations()::save_template($this);
 			$this->_dirty = false;
 		}
 	}
@@ -894,7 +883,7 @@ class CmsLayoutTemplate
 	*/
 	public function delete()
 	{
-		$this->get_operations()->delete_template($this);
+		$this->get_operations()::delete_template($this);
 	}
 
    /**
@@ -919,10 +908,9 @@ class CmsLayoutTemplate
 	*/
 	public static function load($a)
 	{
-		if( $this->get_operations()->populate_template($this,$a) ) {
-			$this->_dirty = false;
-			return $this;
-		}
+		$this->get_operations()::replicate_template($this,$a);
+		$this->_dirty = false;
+		return $this;
 	}
 
    /**
@@ -976,20 +964,21 @@ class CmsLayoutTemplate
 	*/
 	public static function user_can_edit($tpl,$userid = null)
 	{
-		return $this->get_operations()::user_can_edit($tpl,$userid);
+		return $this->get_operations()::user_can_edit_template($tpl,$userid);
 	}
 
    /**
 	* Create a new template of the specific type
 	* @deprecated since 2.3 use corresponding TemplateOperations method
 	*
-	* @param mixed $t A CmsLayoutTemplateType object, an integer template type id, or a string template type identifier
+	* @param mixed $t A CmsLayoutTemplateType object, an integer template type id,
+    *  or a string template type identifier like originator::name
 	* @return CmsLayoutTemplate
 	* @throws CmsInvalidDataException
 	*/
-	public static function &create_by_type($t)
+	public static function create_by_type($t)
 	{
-		return $this->get_operations()::create_by_type($t);
+		return $this->get_operations()::create_template_by_type($t);
 	}
 
    /**
@@ -1003,7 +992,7 @@ class CmsLayoutTemplate
 	*/
 	public static function load_dflt_by_type($t)
 	{
-		return $this->get_operations()::load_default_template_by_type($t);
+		return $this->get_operations()::get_default_template_by_type($t);
 	}
 
    /**
@@ -1016,7 +1005,7 @@ class CmsLayoutTemplate
 	*/
 	public static function load_all_by_type(CmsLayoutTemplateType $type)
 	{
-		return $this->get_operations()::load_all_templates_by_type($type);
+		return $this->get_operations()::get_all_templates_by_type($type);
 	}
 
    /**
@@ -1028,7 +1017,7 @@ class CmsLayoutTemplate
 	*/
 	public static function process_by_name($name)
 	{
-		return $this->get_operations()::process_by_name($name);
+		return $this->get_operations()::process_named_template($name);
 	}
 
    /**
@@ -1040,7 +1029,7 @@ class CmsLayoutTemplate
 	*/
 	public static function process_dflt($t)
 	{
-		return $this->get_operations()::process_dflt($t);
+		return $this->get_operations()::process_default_template($t);
 	}
 
    /**
@@ -1066,7 +1055,7 @@ class CmsLayoutTemplate
 	*/
 	public static function generate_unique_name($prototype,$prefix = null)
 	{
-		return $this->get_operations()::generate_unique_template_name($prototype,$prefix);
+		return $this->get_operations()::get_unique_template_name($prototype,$prefix);
 	}
 
 	//============= END EXPORTED OPERATIONS =============
@@ -1077,11 +1066,10 @@ class CmsLayoutTemplate
 	* @since 2.2
 	* @return mixed CmsLayoutTemplateType or null
 	*/
-	public function &get_type()
+	public function get_type()
 	{
 		$id = $this->type_id;
-		$obj = ( $id > 0 ) ? CmsLayoutTemplateType::load($id) : null;
-		return $obj;
+		return ( $id > 0 ) ? CmsLayoutTemplateType::load($id) : null;
 	}
 
    /**

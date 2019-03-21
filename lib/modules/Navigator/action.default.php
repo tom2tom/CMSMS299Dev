@@ -38,7 +38,7 @@ if( isset($params['template']) ) {
     $template = trim($params['template']);
 }
 else {
-    $tpl = TemplateOperations::load_default_template_by_type('Navigator::navigation');
+    $tpl = TemplateOperations::get_default_template_by_type('Navigator::navigation');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default template found');
         return;

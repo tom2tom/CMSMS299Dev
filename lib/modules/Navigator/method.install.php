@@ -71,7 +71,7 @@ try {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
-        $tpl->set_name(TemplateOperations::generate_unique_template_name('Simple Navigation'));
+        $tpl->set_name(TemplateOperations::get_unique_template_name('Simple Navigation'));
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
@@ -84,7 +84,7 @@ try {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
-        $tpl->set_name(TemplateOperations::generate_unique_template_name('Breadcrumbs'));
+        $tpl->set_name(TemplateOperations::get_unique_template_name('Breadcrumbs'));
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($bc_template_type);
@@ -97,7 +97,7 @@ try {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
-        $tpl->set_name(TemplateOperations::generate_unique_template_name('cssmenu'));
+        $tpl->set_name(TemplateOperations::get_unique_template_name('cssmenu'));
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
@@ -109,7 +109,7 @@ try {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
-        $tpl->set_name(TemplateOperations::generate_unique_template_name('cssmenu_ulshadow'));
+        $tpl->set_name(TemplateOperations::get_unique_template_name('cssmenu_ulshadow'));
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
@@ -121,7 +121,7 @@ try {
         $content = @file_get_contents($fn);
         $tpl = new CmsLayoutTemplate();
         $tpl->set_originator($me);
-        $tpl->set_name(TemplateOperations::generate_unique_template_name('minimal_menu'));
+        $tpl->set_name(TemplateOperations::get_unique_template_name('minimal_menu'));
         $tpl->set_owner($uid);
         $tpl->set_content($content);
         $tpl->set_type($menu_template_type);
@@ -136,7 +136,7 @@ try {
             $content = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
             $tpl->set_originator($me);
-            $tpl->set_name(TemplateOperations::generate_unique_template_name('Simplex Main Navigation'));
+            $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Main Navigation'));
             $tpl->set_owner($uid);
             $tpl->set_content($content);
             $tpl->set_type($menu_template_type);
@@ -149,7 +149,7 @@ try {
             $content = @file_get_contents($fn);
             $tpl = new CmsLayoutTemplate();
             $tpl->set_originator($me);
-            $tpl->set_name(TemplateOperations::generate_unique_template_name('Simplex Footer Navigation'));
+            $tpl->set_name(TemplateOperations::get_unique_template_name('Simplex Footer Navigation'));
             $tpl->set_owner($uid);
             $tpl->set_content($content);
             $tpl->set_type($menu_template_type);

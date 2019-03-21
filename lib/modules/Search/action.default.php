@@ -9,7 +9,7 @@ if (isset($params['formtemplate'])) {
     $template = trim($params['formtemplate']);
 }
 else {
-    $tpl = TemplateOperations::load_default_template_by_type('Search::searchform');
+    $tpl = TemplateOperations::get_default_template_by_type('Search::searchform');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
         return;

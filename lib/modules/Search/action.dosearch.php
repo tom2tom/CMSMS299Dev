@@ -11,7 +11,7 @@ if( isset($params['resulttemplate']) ) {
     $template = trim($params['resulttemplate']);
 }
 else {
-    $tpl = TemplateOperations::load_default_template_by_type('Search::searchresults');
+    $tpl = TemplateOperations::get_default_template_by_type('Search::searchresults');
     if( !is_object($tpl) ) {
         audit('',$this->GetName(),'No default summary template found');
         return;
